@@ -30,6 +30,8 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 
 ![Predicted against observed miss rate per cell, real phones](experiments/threshold/libriwasn_pred_vs_obs.png)
 
+**Step 3l (2026-11-19): what if the noise is partly heard by both devices, as in a real room?** Independent noise per microphone, which every earlier step used, turns out to be the worst case. With devices 3 m apart and noise at -10 dB, making a quarter of the noise power shared cuts failures summed over ten noise types from 3.3 to 0.7 (plain partial-whitening GCC) and from 1.1 to 0.14 (the envelope-normalised default, `fn`); shared steady and speech-like noise acts as signal, as a one-line coherent-SNR rule predicts for 7 of 10 types at rho 0.5. A confidence gate calibrated on fully independent noise keeps wrong-among-accepted at 0.1-1.0% at every mix while coverage rises from 64-70% to 98-99%. Shared repeating sounds still break it (looped door recordings 4.6-8.2% wrong). The first run said the opposite about the gate (4-6% wrong); that was the simulation handing both devices the same recording, found and corrected in the same step ([details](#step-3l-noise-partly-shared-partly-independent-experimentsgatenoisemixpy)).
+
 **Step 3k (2026-11-19): can the simulated room be calibrated to the real phones, and can a sync confidence gate be set in simulation and used on real phones?** Calibration: no. A gate set in simulation: yes, about as well as one set on real recordings. The simulated room (the programme's digital twin) was fitted to five real LibriWASN phones on two knobs it had never been checked on, the direct-to-reverberant ratio and a recorded noise floor, using white noise only, then tested on nine real noise types it never saw (124,000 simulated and 168,000 real 2 s windows; step 3h's simulated windows replayed bit for bit, 62 of 62 cells):
 
 - **No setting of the two knobs reproduces the phones.** In the twin, reverberation is either harmless or breaks noise-free windows too (8-9% a frame off at DRR -6 dB in the 800 ms room, against 0.1-0.4% on the phones), while the real phones are near perfect as recorded and lose 5-10% of windows to white noise. The fit cannot match both.
@@ -146,6 +148,12 @@ OMP_NUM_THREADS=1 python experiments/real-devices/twincal.py fit ~/ms-snsd /tmp/
 OMP_NUM_THREADS=1 python experiments/real-devices/twincal.py predict ~/ms-snsd /tmp/fit_k.npz /tmp/windows_j.npz /tmp/pred_k.npz --procs 4   # ~9 min
 python experiments/real-devices/twincal.py score /tmp/windows_j.npz /tmp/fit_k.npz /tmp/pred_k.npz && python experiments/real-devices/twincal_figure.py
 python experiments/real-devices/twinband.py ~/libriwasn ~/ms-snsd   # post hoc band shares, ~8 min on one core
+# step 3l: MS-SNSD as above; the first run, then the screened run (3l-b) the results are read from
+OMP_NUM_THREADS=1 python experiments/gate/noisemix.py collect ~/ms-snsd /tmp/windows_l.npz --procs 4   # ~15 min
+python experiments/gate/noisemix.py score /tmp/windows_l.npz   # noisemix_results.txt (reused recordings, kept for the record)
+python experiments/gate/noisemix_crossdraw.py ~/ms-snsd /tmp/windows_l.npz --chunks 4   # post hoc diagnosis, ~1.5 min
+OMP_NUM_THREADS=1 python experiments/gate/noisemix.py collect ~/ms-snsd /tmp/windows_lb.npz --procs 4 --screen   # ~20 min
+python experiments/gate/noisemix.py score /tmp/windows_lb.npz --screened && python experiments/gate/noisemix_figure.py
 python experiments/gate/noiseselect.py score /tmp/windows_i.npz && python experiments/gate/noiseselect_figure.py
 python experiments/gate/noiseimpulse.py score /tmp/windows_h.npz && python experiments/gate/noiseimpulse_figure.py
 python experiments/gate/noiseshared.py score /tmp/windows_f.npz   # noiseshared_results.txt, noiseshared_summary.json
@@ -414,6 +422,34 @@ Predictions: (a) replay held; (b) `ms` orders levels at AUROC 0.90 for 7 of 9 ty
 
 **Limits of step 3e.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The tracker is a simplified minimum-statistics estimator with fixed smoothing and no bias compensation; Martin's full tracker, or a speech-presence-based one, might rank steady-but-coloured noise better, but cannot change the impulsive case, where the noise's bursts look like speech to any single-channel level estimate (an interpretation, not tested here). Context is 4 s; noise that changes kind within it is not modelled.
 
+## Step 3l: noise partly shared, partly independent (`experiments/gate/noisemix.py`)
+
+**Question.** Steps 3c-3k gave each device its own noise, and step 3f one source heard by both. A rig hears a mix: a room's air conditioner reaches every microphone, a keyboard mostly one. How much of the noise must be shared before it stops hurting, does the default estimator `fn` keep its lead, and does a gate calibrated on independent noise still hold? Plan and predictions in [`LOG.md`](LOG.md), written before the run.
+
+**Method.** Each device's noise is sqrt(rho) &times; shared + sqrt(1 &minus; rho) &times; independent, each scaled to that device's speech power at &minus;10 dB, rho = 0, 0.25, 0.5, 0.75, 0.9, 1; devices 3 m apart (inside step 3f's 11.4 m bound, so the shared part alone is never a frame wrong). Independent draws are step 3c's, shared draws step 3f's, so rho 0 replays steps 3c and 3h and rho 1 replays step 3f (20 of 20 cells each). Plain gamma 0.25 GCC and `fn` on 120,000 2 s windows; errors against the clock truth at 30 fps. Gate: Mondrian-`snr_hat` LTT on `fn`'s PSR (alpha 1%, delta 0.1) calibrated on rho 0, sessions 0-4, tested at each rho on sessions 5-9. A model to test: shared noise inside the bound is signal, so the coherent SNR is 10 log10((1 + 10 rho) / (10 (1 &minus; rho))), &minus;10, &minus;3.3, +0.8, +5.3 and +10 dB for rho 0 to 0.9.
+
+**A correction, found after the first score.** The first run's mid-rho cells were wrong: the shared stretch came from all of a type's files while each device's independent stretch came from its own half, so 7-30% of windows gave one device's shared component and the other device's independent one the *same recording* at an arbitrary lag ([`noisemix_crossdraw.py`](experiments/gate/noisemix_crossdraw.py)); those windows failed 48-88%. It made VacuumCleaner fail 19% at rho 0.25 against 2.5% and 0% at the two ends, and the gate look broken (4.2-5.7% wrong among accepted). Step 3l-b redraws a shared stretch whose recording matches either independent one (peak normalised cross-correlation above 0.3, a threshold set after seeing the diagnostic); both runs' results are kept ([`noisemix_results.txt`](experiments/gate/noisemix_results.txt), [`noisemix_screened_results.txt`](experiments/gate/noisemix_screened_results.txt)). The numbers below are 3l-b.
+
+| -10 dB total, 2 s, 30 fps | 0.2 s room | 0.8 s room |
+|---|---|---|
+| plain, failure summed over ten types: rho 0 / 0.25 / 0.5 / 1 | 3.26 / 0.70 / 0.30 / 0.28 | 3.54 / 0.88 / 0.34 / 0.30 |
+| `fn`, the same | 1.09 / 0.14 / 0.06 / 0.05 | 1.26 / 0.21 / 0.09 / 0.07 |
+| coherent-SNR model right at rho 0.5 / 0.9 (types within 2 points) | 7 / 8 of 10 | 7 / 8 of 10 |
+| Typing, plain / `fn`: rho 0 / 0.5 / 1 | 78 / 6.0 / 2.4% ; 0.1 / 0.0 / 0.0% | 80 / 7.5 / 3.0% ; 0.0 / 0.4 / 0.1% |
+| ShuttingDoor (looped files), plain / `fn` at rho 1 | 25% / 4.7% | 27% / 7.0% |
+| AirConditioner, `fn` minus plain: rho 0 / 0.5 | +8.6 / +0.2 points | +7.0 / +0.3 points |
+| gate set on rho 0: pooled wrong among accepted, any rho | 0.41-0.69% | 0.09-0.98% |
+| ... kept: rho 0 / 0.25 / 1 | 70 / 92 / 99% | 64 / 89 / 98% |
+| ... types at 2%, rho above 0 (ShuttingDoor the miss) | 9 of 10 | 9 of 10 |
+
+![Failure against the shared fraction of the noise](experiments/gate/noisemix_fail.png)
+
+Predictions (3l-b): (a) replay held (rho 0 40 of 40; rho 1 11 of 20 equal step 3f, the rest changed by redraws); (b) plain falls with rho for 8 of 10 types held (9, the door the exception); (c) primary, the coherent-SNR model, **failed** at rho 0.5 (7 of 10; impulsive shared noise under plain GCC) and held at rho 0.9; (d) a quarter shared halves the failure for 5 of 10 held (9 and 8); (e) `fn` within 2 points of plain on fully shared noise held (10 of 10); (f) `fn` summed no worse than plain at every rho held; (g) the independent-noise gate at or under 2% pooled at every rho with rising coverage **held in 3l-b, failed in the first run** because of the reused recordings; (h) exploratory, the door passes the gate at 4.6-8.2% wrong at rho 0.75 or more.
+
+**Reading.** Inside the bound, independent noise per device is the worst case. Shared steady and speech-like noise acts as signal, at the rate the coherent-SNR rule gives, so a quarter shared already removes three quarters of the failures, and a gate calibrated with a noise source beside each microphone is conservative in a real room. `fn`'s one cost, on steady noise, is a cost of *independent* steady noise; it disappears once half the noise is shared. Plain GCC still fails on shared repeating sounds (typing 2-8%, looped doors 19-27%); `fn` fixes typing, not the door.
+
+**Limits of step 3l.** Simulated rooms and MS-SNSD recordings; one separation (3 m); the shared and independent parts are the same noise type; the screen's threshold was chosen after the diagnostic; the looped door files are a corpus artefact as much as a property of doors (step 3f). Real phones were out of reach this session (zenodo.org refused).
+
 ## Step 3k: calibrating the twin to the real phones (`experiments/real-devices/twincal.py`)
 
 **Question.** Step 3j found the statistical-room twin ranks noise types like the real phones but is optimistic about level (white noise at -10 dB: 5-10% of real windows a frame off against under 1% simulated). Can the twin be fitted to the phones on one cheap condition (white noise) and then predict the rest, and can a confidence gate be set in it and used on real phones? Plan and predictions were committed before the run ([`LOG.md`](LOG.md), 2026-11-19).
@@ -649,7 +685,7 @@ The pattern holds for every weighting: at 2 and 4 s, PHAT agrees in 3 of 12 cell
 
 - Why the threshold model overpredicts long windows on real phones (step 2b): keep per-window outputs, regress predicted against observed failure on window SNR, speech activity and L, and try a nonstationary (segment-wise) version of the true-lag peak variance.
 - Babble shared between devices (one crowd heard by both), and why PHAT wins in babble: a whitening that adapts to the noise spectrum, not a fixed gamma.
-- A mix of shared and independent noise (step 3f tested each alone), and real repeating sounds, where step 3f's looped door recordings gave several equal peaks; envelope-normalised GCC (step 3h, the default since step 3i found a kurtosis switch adds nothing) checked on step 3f's shared noise (the real-phone check is step 3j); a switch on a noise-only feature, for the babble windows where the two estimators fail apart; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
+- Real repeating sounds (step 3l: a mix of shared and independent noise is benign except for them), where step 3f's looped door recordings gave several equal peaks; envelope-normalised GCC (step 3h, the default since step 3i found a kurtosis switch adds nothing) checked on step 3f's shared noise (the real-phone check is step 3j); a switch on a noise-only feature, for the babble windows where the two estimators fail apart; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
 - After step 3k (DRR and a white floor cannot make the twin a level predictor; a gate set in the twin holds on the phones about as well as one set on them): give the twin each phone's measured microphone response (out-of-band share and tilt, `twinband.py`) and test it the same way; set a gate in the twin on speech-like noise, the class every gate still misses; and check a twin-set gate on a second real dataset.
 - Baselines on equal windows: a Kammerl et al. (2014) style fingerprint sync and `paderwasn`'s online tracker.
 - Real ambient noise (licensed recordings) shared between devices, then owner camera clips with a clapper reference.

@@ -6,6 +6,20 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7ag: can you predict a drone's step-response rise time from its position gains without flying it? Yes, to 0.04 s, where the proportional cap governs
+
+**Question.** 7af fitted a line through 36 flown designs: with the proportional request capped at A_P, a 1 m step's rise time follows A_P/kd. A builder can only use that where it was not fitted. Flown again at other caps (2 to 8 m/s²) and step sizes (0.5 to 2 m), does it hold, and does a fitted-nothing model of the outer loop do better?
+
+**Headline (`experiments/m7ag_cruise/verdicts.txt`, `results.json`, `posthoc.txt`; 756 flights, 3 min on 4 cores; simulated; 10 predictions committed first, 7 held).**
+
+- **A 20-line point mass predicts the rise.** Integrating x'' = −min(kp|x|, A_P) sgn x − kd x' + ki I (integrator gated at 0.25 m) from rest, with no fitted constant, predicts each design's median rise within 0.10 s for 35-36 of 36 designs at A_P = 2, 2.5 and 5 m/s² and at a 2 m step; median error 0.002 to 0.040 s on rises of 0.8 to 4.6 s ([`cruise_model.py`](experiments/m7ag_cruise/cruise_model.py)).
+- **7af's line is a local fit.** It is biased +0.11 s at A_P = 2 and +0.14 s at a 2 m step, where the point mass is within 0.006 s; the point mass has the smaller error in all six out-of-sample conditions.
+- **Motor lag does not move rise:** under the 33 and 39.1 ms laws every design's rise is within 0.05 s of the 36 ms law's, in every condition. No flight diverged at any cap (0 of 2,304 per condition), A_P = 8 included.
+- **It misses where braking is most of the travel:** at a 0.5 m step (31 of 36 within 0.10 s) and at A_P = 8 (23 of 36), always on the same side: the drone is faster and overshoots more. Post hoc, one 135 ms lag on the achieved acceleration, fitted on the in-sample condition alone, brings those to 36 and 33 of 36 (median error 0.020 and 0.035 s). The braking lean comes late; it is the attitude loop, not the motor.
+- **For a builder:** with a capped, gated position loop, compute the rise time from kp, kd, ki, A_P and the step size before flying; for short steps or a cap above about half of g·tan(tilt limit), add one acceleration lag read off a single flown step.
+
+![Left: simulated median rise time against the point-mass prediction for 36 designs in seven conditions; the points lie on the y = x line from 0.8 to 4.6 s, inside a ±0.10 s band except at A_P 8 and the 0.5 m step, where they sit just below it. Right: simulator minus prediction per condition, for the point mass (circles, within ±0.04 s at A_P 2-5 and S 1-2 m, down to −0.19 s at A_P 8) and 7af's line (crosses, +0.1 s at A_P 2, +0.15 s at S 2 m).](experiments/m7ag_cruise/m7ag_cruise.png)
+
 ## Milestone 7af: ask a drone tuner for a fast set-point step and it wins back the rise time by lowering kd, with no extra crashes
 
 **Question.** Gating the position integrator near the set point (milestone 7ad) fixed every tune that stopped short of a 1 m step but slowed the rise by 10%, and retraining with the gate on (7ae) did not win it back. The training objective (gusts, small start offsets, yaw steps) never contained a set-point step. If one is added as a fourth training condition, does the tuner buy the rise time back, and at what cost?

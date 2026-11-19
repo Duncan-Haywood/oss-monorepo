@@ -55,7 +55,19 @@ const ALIASES = [
   [/^agpl-?3(\.0)?(\+)?$/, "agpl-3.0-only"], [/^mozilla public license 2\.0 \(mpl 2\.0\)$/, "mpl-2.0"], [/^mpl-?2(\.0)?$/, "mpl-2.0"],
   [/^bsl-1\.1$/, "busl-1.1"], [/^sspl$/, "sspl-1.0"], [/^isc license( \(iscl\))?$/, "isc"], [/^public domain$/, "unlicense"],
   [/^cc0$/, "cc0-1.0"], [/^python software foundation license$/, "python-2.0"],
+  // More pip-licenses / setup.py spellings (PyPI "License ::" trove names and free text).
+  [/^bsd[- ]3[- ]clause( license)?$/, "bsd-3-clause"], [/^3[- ]clause bsd( license)?$/, "bsd-3-clause"],
+  [/^bsd[- ]2[- ]clause( license)?$/, "bsd-2-clause"], [/^2[- ]clause bsd( license)?$/, "bsd-2-clause"],
+  [/^zlib\/libpng( license)?$/, "zlib"], [/^the unlicense$/, "unlicense"], [/^cc0 1\.0 universal( \(cc0 1\.0\))?( public domain dedication)?$/, "cc0-1.0"], [/^expat( license)?$/, "mit"],
+  [/^lgplv3$/, "lgpl-3.0-only"], [/^lgplv2\.1$/, "lgpl-2.1-only"], [/^agplv3$/, "agpl-3.0-only"],
 ];
+
+// A PyPI trove name carries its SPDX id in a trailing parenthesis:
+// "Mozilla Public License 2.0 (MPL 2.0)", "GNU General Public License v2 or
+// later (GPLv2+)", "Eclipse Public License 2.0 (EPL-2.0)". Read only when the
+// text before it has no SPDX operator (upper-case OR/AND/WITH), so
+// "MIT OR (Apache-2.0)" stays an expression.
+const TRAILING_ID = /^(.+?)\s*\(([^()]+)\)$/;
 
 const SUFFIX_ONLY = /^(gpl|lgpl|agpl)-(\d(?:\.\d)?)(\.0)?$/;
 
@@ -72,6 +84,10 @@ export function normalizeId(raw) {
   for (const [re, id] of ALIASES) if (re.test(s)) return id;
   const m = SUFFIX_ONLY.exec(s);
   if (m) return `${m[1]}-${m[2].includes(".") ? m[2] : `${m[2]}.0`}-only`;
+  const spaced = /^([a-z0-9]+) (\d[\d.]*)$/.exec(s); // "MPL 2.0", "CC0 1.0"
+  if (spaced && FACTS[`${spaced[1]}-${spaced[2]}`]) return `${spaced[1]}-${spaced[2]}`;
+  const t = TRAILING_ID.exec(String(raw ?? "").trim());
+  if (t && !/(^|\s)(OR|AND|WITH)(\s|$)/.test(t[1]) && /\s/.test(t[1])) return normalizeId(t[2]);
   return null;
 }
 

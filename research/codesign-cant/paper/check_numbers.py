@@ -62,6 +62,13 @@ CHECKS = [
     ("median 4.65 against 6.52", "m7af_step_obj/verdicts.txt", r"gain kd pooled median 4\.65 against 6\.52"),
     ("Spearman ρ = 0.999", "m7af_step_obj/verdicts.txt", r"Spearman rho 0\.999\b"),
     ("4.7–5.3 cm against 1.1–1.8 cm", "m7af_step_obj/verdicts.txt", r"step   b = 0\.25 [^\n]*overshoot 0\.0474, 0\.0529 m[\s\S]*cint25 b = 0\.25 [^\n]*overshoot 0\.0113, 0\.0176 m"),
+    # section VII: rise time without flying (milestone 7ag)
+    ("for 35–36 of 36 at A_P ≤ 5", "m7ag_cruise/verdicts.txt", r"AG1: held \(point mass within 0\.10 s at A_P 2\.0, 2\.5, 5\.0: \[36, 36, 35\]\)"),
+    ("median error 0.002–0.040 s", "m7ag_cruise/verdicts.txt", r"2\.0  1\.0 \|[^\n]*\|  0\.002 [\s\S]*5\.0  1\.0 \|[^\n]*\|  0\.040 "),
+    ("at S = 0.5 m (31 of 36)", "m7ag_cruise/verdicts.txt", r"AG2: REFUTED \(point mass within 0\.10 s at S 0\.5, 2\.0: \[31, 36\]\)"),
+    ("A_P = 8 (23 of 36)", "m7ag_cruise/verdicts.txt", r"AG3: REFUTED \(point mass within 0\.10 s at A_P 8: 23\)"),
+    ("(135 ms, post hoc)", "m7ag_cruise/posthoc.txt", r"tau fitted on \(3\.5, 1\) only: 135 ms"),
+    ("those to 36 and 33 of 36", "m7ag_cruise/posthoc.txt", r"8\.0  1\.0 \|    23/36     33/36[\s\S]*3\.5  0\.5 \|    31/36     36/36"),
 ]
 ARMS = [("M=1.00", -0.001, 9, 32), ("M=1.11", -0.012, 3, 22), ("M=1.25", -0.011, 0, 12), ("M=1.43", -0.010, 0, 13), ("M=1.67", -0.012, 0, 12)]
 

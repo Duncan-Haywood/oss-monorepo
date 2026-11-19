@@ -18,6 +18,35 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
+## Americano and Mexicano scorer (2026-11-19, `americano-night.html`, `night.mjs`)
+
+The Americano card on the main page builds a rotation sheet; it stopped there, so an organiser at the courts
+still kept score on paper or in a separate app. `americano-night.html` is the night itself, on one phone:
+
+- **Set up:** players, courts, rounds (empty = the full rotation for Americano, or keep drawing for Mexicano),
+  points per game (16, 21, 24 or 32 to a total, or any score) and the sit-out rule.
+- **Americano** deals every round at the start with `americano()` from `calc.mjs`, so the stored whist designs
+  apply (every size 4k or 4k+1 up to 64 on a court per four: everyone partners everyone once). **Mexicano** draws
+  round one at random and each later round from the table with `mexicanoNextRound()`; the draw button stays off
+  until the last round is fully scored.
+- **Scores court by court:** with a points total, typing one side fills the other; a pair that does not add up
+  (a game stopped by the clock) is kept and flagged. Both partners get their side's points; the table ranks by
+  total, then points difference, then wins, and ties share a rank.
+- **Sit-out credit:** `none`, `average` (the player's own points per game so far; the default) or `half` (half
+  the target), added only once that round is fully scored and shown separately. Measured on simulated nights
+  (`eval/sit-out-credit.mjs`, `.txt`: 2,000 nights per size 5-15, not multiples of four, 6 rounds to 24, hidden
+  skills, points drawn from a logistic model): with no credit the most skilled player wins 54.2% of nights, with
+  the average credit 62.5%; the credit changes the winner in 26.7% of nights, and in 72.8% the no-credit winner
+  had sat out fewer rounds than someone else. 6 players on 1 court is the control: everyone sits out equally and
+  no rule changes anything (0.0%). These are a model's numbers, not a real club's.
+- **Kept on the device:** the night is saved in `localStorage` after every score (a refresh or closed tab loses
+  nothing; storage blocked = the night lives in the tab). **Share** puts a read-only copy inside the link
+  (`#night=`, base64url JSON, checked by `checkNight` before it is shown); nothing goes to a server. Copy
+  standings as text, CSV (formula-guarded) or print.
+- **Checked:** `night.test.mjs` (10 tests: scores, sit-out rules, Mexicano draw from the table, exports, link
+  round trip and damaged links, every size 4-64 valid) and a Playwright pass at iPhone 13 width (example night,
+  auto-fill, resume after reload, read-only link, Mexicano draw; no console errors, no horizontal scroll).
+
 ## Run your own league page (self-hosted)
 
 The browser tool builds the season; `server.mjs` gets it to your players. You keep the setup and post results in
