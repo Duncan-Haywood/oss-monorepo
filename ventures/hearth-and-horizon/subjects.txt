@@ -64,3 +64,6 @@ little-lamps | Irenaeus | bishop of Lyon who learned from Polycarp, who had lear
 little-lamps | Faustina | a convent cook, gardener and porter, and "Jesus, I trust in you" (5 October, optional memorial since 2020)
 little-lamps | Mary Magdalene | the garden on Easter morning and "Rabboni" (John 20) (22 July, feast)
 little-lamps | Martha | a busy kitchen in Bethany, Luke 10:38-42, with Mary and Lazarus (29 July, memorial)
+hearth-and-horizon | solar cooker, cooking power | a feast planned on a solar cooker's label watts; the label assumes a clear noon sun, and haze or a low morning sun take a large share away
+hearth-and-horizon | haybox, retained heat, hay box | finishing a pot in an insulated basket: once boiling, holding heat is cheaper than adding it, and the loss rate of the box sets how long it stays safe
+hearth-and-horizon | Archimedes screw, screw pump | lifting water a metre with a tilted screw; the angle and the fill set the flow, and tilting it steeper to lift higher empties every flight
