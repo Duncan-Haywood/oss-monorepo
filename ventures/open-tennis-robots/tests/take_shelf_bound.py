@@ -51,6 +51,10 @@ only if, on P, (a) its coverage of builds told TAKE_US = 0 is at least 95% and a
 (b) its bound is 1.5 ms on at least half the instant builds. Otherwise host stays at 2% alone and the floor goes to
 NEXT.md with P's numbers.
 
+RESULT (set P, eval/take-bound-floor-p-2026-11-19.md): 48 of 66 builds told TAKE_US = 0. 2% alone: the true take at
+most the bound on 46 (95.8%; misses a 1.6 and a 2.8 ms take, both bounded at 1.5 ms). With the floor: 48 of 48, and
+the bound 1.5 ms on 4 of 6 instant builds. Both clauses held, so the floor ships (host.TAKE_BOUND_FLOOR_PPM = 2).
+
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_shelf_bound.py --trace eval/take-dense-jkl-2026-11-19.jsonl.gz eval/take-dense-m-2026-11-19.jsonl.gz eval/take-dense-n-2026-11-19.jsonl.gz
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_shelf_bound.py --design eval/take-dense-jkl-2026-11-19.jsonl.gz eval/take-dense-m-2026-11-19.jsonl.gz eval/take-dense-n-2026-11-19.jsonl.gz
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture o.jsonl --lag 0.42 --seed 109 --takes "0.1,0.5,0.9,1.3,1.6,2.0,2.4,2.8,3.5,5.0,0"
@@ -76,9 +80,9 @@ def _grid():
     return list(controller.TAKE_SURVEY_GRID_US)
 
 
-def bound_ms(rms, grid_ms, tol=TOL, floor=0):
-    """The first grid contact time after 0 whose mean rms is more than `tol` over the step's, or None (every candidate
-    fits within `tol` of the step). The same arithmetic as host.take_survey_bound."""
+def bound_ms(rms, grid_ms, tol=TOL, floor=2):
+    """The first grid contact time after 0 whose mean rms is more than `tol` and at least `floor` ppm over the step's, or
+    None (every candidate fits within them). The same arithmetic as host.take_survey_bound (floor 2 since set P)."""
     if not rms or not rms[0]:
         return None
     for g, r in zip(grid_ms[1:], rms[1:]):

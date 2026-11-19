@@ -403,11 +403,11 @@ flagships:
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
       see firmware/esp32/README.md, latest "Short takes on a second held-out set"
       (2026-11-19: grid now 0,1.5,2.5,3-8 ms; set N 45 vs 40 of 66 within 0.5 ms
-      offline, 49 vs 39 on the board; Pi hold 14 s a ball). Next: a ppm floor on the
-      TAKE_US = 0 bound (2026-11-19, eval/take-bound-o-2026-11-19.md; why 1.4-1.9 ms
-      read 0: no ball straddled an edge); a drill-level check of one-wheel verdicts
-      on more fresh sets; the sub-8 advised instant build. Ball hold on fast wheels:
-      LOOP_BALL_GAIN shipped 2026-11-19.
+      offline, 49 vs 39 on the board; Pi hold 14 s a ball). TAKE_US = 0 bound: 2 ppm
+      floor shipped 2026-11-19 (eval/take-bound-floor-p-2026-11-19.md, set P 48 of
+      48). Next: a drill-level check of one-wheel verdicts on more fresh sets; the
+      sub-8 advised instant build. Ball hold on fast wheels: LOOP_BALL_GAIN shipped
+      2026-11-19.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

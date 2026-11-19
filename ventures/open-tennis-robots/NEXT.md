@@ -13,5 +13,4 @@
 
 ## Buildable here (added 2026-11-18)
 
-- (2026-11-19) The TAKE_US = 0 bound's tolerance (eval/take-bound-o-2026-11-19.md): its two misses on set O were 2.0 ms takes at a 16-19 ppm step, where one whole ppm is 5-6%. Pre-register a ppm floor (the larger of 2% and 2 ppm) on a fresh set before changing `host.TAKE_BOUND_TOL`.
 - (2026-11-19) More tach pulses a revolution: a short take shows only on balls whose contact straddles a revolution's edge (eval/take-shelf-trace-2026-11-19.txt), so two or four pulses a revolution would multiply the informative balls. Needs the simulator's tach, the fit's per-segment periods and a magnet-spacing error model.
