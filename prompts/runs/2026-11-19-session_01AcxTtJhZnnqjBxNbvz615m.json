@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJhZnnqjBxNbvz615m",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T20:06:24Z",
+  "ended": "2026-11-19T20:19:19Z",
+  "wall_minutes": 13.12,
+  "tokens_in": 7771110,
+  "tokens_out": 39819,
+  "cost_usd": 3.5307,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17777",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Bare python3 lacks numpy; /usr/bin/python3.13 had numpy and pytest, which the probe loop found in seconds, faster than pyenv.py. The doc does mention python3.13."
+    },
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "7y's Next (y) named Casappa Polaris and Marzocchi GHP via directindustry (403 here). Casappa's own server (/c/downloads/download/<n>/, ids 1-140) and marzocchipompe.com/en/download/ serve the PDFs directly. This is now recorded in 7z."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-one-gear-pump-family-in-eight-bends.md",
+    "research/heavy-hydraulics/LOG.md (7z)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7z of heavy-hydraulics. Digitised Casappa Polaris 30 (PL 06 T A, pp 18-20) from vector paths. Flow slopes match displacement within 0.1%. b=1.272 at the central condition (flat); Danfoss is now alone of eight families. Predictions pushed before computing; 3 of 4 held. Local checks: project pytest 205 passed / 7 skipped; research build ok; check_posts ok; check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "140cbfd2-8799-5f4b-bc61-d598680c9686",
+    "transcripts": 1,
+    "first": "2026-11-19T20:06:24Z",
+    "last": "2026-11-19T20:19:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 122,
+        "output": 39819,
+        "thinking": 10065,
+        "cache_read": 7619756,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151232,
+        "api_equivalent_usd": 3.5307,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 122,
+      "output": 39819,
+      "thinking": 10065,
+      "cache_read": 7619756,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151232,
+      "api_equivalent_usd": 3.5307,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 57,
+      "Read": 3,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.12,
+      "active_minutes": 13.12,
+      "model_minutes": 7.63,
+      "tool_minutes": 5.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "screening 6 catalogues, writing a checked vector digitiser, experiment, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 169.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
