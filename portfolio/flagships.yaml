@@ -333,8 +333,8 @@ flagships:
       export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
       5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
-      evenly lit frame; noise-aware's frame_noise in C (guard, blend, bilinear in C
-      2026-11-19: 1.46x directional, eval/noise-aware-native-blend-*). More open
+      evenly lit frame; noise-aware's patch PCA in a fixed order (block levels in C
+      2026-11-19: 1.32x directional, eval/noise-aware-native-levels-*). More open
       items: NEXT.md.
 
   - venture: quick-pick-survey
