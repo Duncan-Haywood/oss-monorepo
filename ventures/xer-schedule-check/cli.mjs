@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // node cli.mjs schedule.xer [--json] [--csv findings.csv] [--project CODE]
 // Prints the DCMA 14-point assessment of a Primavera P6 XER file.
-// node cli.mjs current.xer --previous last-month.xer [--json] [--csv changes.csv]
+// node cli.mjs current.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 // Compares two updates of the same project instead (compare.mjs).
 import { readFileSync, writeFileSync } from "node:fs";
 import { parseXer, decodeXer } from "./xer.mjs";
@@ -11,23 +11,25 @@ import { compare, compareCsv, compareText } from "./compare.mjs";
 const args = process.argv.slice(2);
 const file = args.find((a, i) => !a.startsWith("--") && !["--csv", "--project", "--previous"].includes(args[i - 1]));
 if (!file) {
-  console.error("usage: node cli.mjs schedule.xer [--json] [--csv findings.csv] [--project CODE]\n       node cli.mjs current.xer --previous previous.xer [--json] [--csv changes.csv]");
+  console.error("usage: node cli.mjs schedule.xer [--json] [--csv findings.csv] [--project CODE]\n       node cli.mjs current.xer --previous previous.xer [--json] [--csv changes.csv] [--project CODE]");
   process.exit(2);
 }
 const xer = parseXer(decodeXer(readFileSync(file)));
+const projectFor = (x) => {
+  const code = args[args.indexOf("--project") + 1];
+  const id = (x.tables.PROJECT || []).find((p) => p.proj_short_name === code)?.proj_id ?? null;
+  if (!id) { console.error(`no project ${code}`); process.exit(2); }
+  return id;
+};
 if (args.includes("--previous")) {
   const prev = parseXer(decodeXer(readFileSync(args[args.indexOf("--previous") + 1])));
-  const rep = compare(prev, xer);
+  const ids = args.includes("--project") ? { curProjId: projectFor(xer), prevProjId: projectFor(prev) } : {};
+  const rep = compare(prev, xer, ids);
   if (args.includes("--csv")) writeFileSync(args[args.indexOf("--csv") + 1], compareCsv(rep));
   process.stdout.write(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : compareText(rep));
   process.exit(0);
 }
-let projId = null;
-if (args.includes("--project")) {
-  const code = args[args.indexOf("--project") + 1];
-  projId = (xer.tables.PROJECT || []).find((p) => p.proj_short_name === code)?.proj_id ?? null;
-  if (!projId) { console.error(`no project ${code}`); process.exit(2); }
-}
+const projId = args.includes("--project") ? projectFor(xer) : null;
 const report = assess(xer, { projId });
 if (args.includes("--csv")) writeFileSync(args[args.indexOf("--csv") + 1], findingsCsv(report));
 if (args.includes("--json")) {

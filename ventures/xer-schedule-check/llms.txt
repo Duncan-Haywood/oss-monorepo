@@ -12,7 +12,7 @@ Free and open source (MIT). Screening metrics on the user's own file, not schedu
 
 - Engine: `xer.mjs` `parseXer(decodeXer(bytes))`; `cpm.mjs` `schedule(xer)` (dates in wall-clock minutes, float in hours) and `drivingPath(result, projId)`; `dcma.mjs` `assess(xer, { projId })` returns `{ project, checks[14], extra, recompute, drivingPath }` and `findingsCsv(report)`.
 - `compare.mjs` `compare(prevXer, curXer)` returns `{ previous, current, finish: { moved, halfStep, progressEffect, revisionEffect }, flags, progress, logic, durations, constraints, calendars, activities, float, criticalPath }`; `compareCsv(rep)`, `compareText(rep)`.
-- CLI: `node cli.mjs schedule.xer [--json] [--csv out.csv] [--project CODE]`; `node cli.mjs current.xer --previous previous.xer [--json] [--csv changes.csv]`.
+- CLI: `node cli.mjs schedule.xer [--json] [--csv out.csv] [--project CODE]`; `node cli.mjs current.xer --previous previous.xer [--json] [--csv changes.csv] [--project CODE]` (the previous file's project is matched by project ID; CSV cells that would run as spreadsheet formulas are written as text).
 
 ## Source
 
