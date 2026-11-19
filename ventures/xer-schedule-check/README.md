@@ -13,6 +13,16 @@ After using this, an owner's rep can **send a contractor a list of the exact
 activities to fix** in a schedule update (not just "fails DCMA point 6"), and a
 scheduler can catch the same list before submitting.
 
+**Update-to-update comparison** (2026-11-19): open last month's XER next to
+this month's and get the monthly pay-application review: progress claimed
+(started, finished, forecast work that did not happen), actual dates edited
+after they were reported, actual dates past the data date, progress reversed,
+logic added, deleted, retyped or re-lagged, original durations changed on work
+not started, constraints and calendars changed, activities added, deleted and
+renamed, float used per activity, how the driving path changed, and a
+**half-step** run that splits the finish movement into what progress caused and
+what the revisions caused.
+
 ## Why someone would use it
 
 | Today's option | What it does | What this does better |
@@ -24,9 +34,10 @@ scheduler can catch the same list before submitting.
 
 **Path to revenue (payment rails off, nothing live):** free tool and lead magnet
 for schedule review. Natural paid paths, each needing the owner: a written
-schedule-review report (PDF) an owner's rep can send to a contractor; an
-update-to-update comparison (what moved, what float was consumed, which logic
-changed) for monthly pay-application reviews; and the review itself as a service.
+schedule-review report (PDF) an owner's rep can send to a contractor (now that
+the DCMA check and the update comparison both exist, the report is the
+packaging of the two); a period-by-period windows analysis across a whole
+project's updates for delay claims; and the review itself as a service.
 
 ## How it works
 
@@ -47,6 +58,15 @@ changed) for monthly pay-application reviews; and the review itself as a service
   delays an open activity on the driving path by 600 working days and
   recomputes. Missed tasks and BEI use P6's planned dates as the baseline (a
   single XER rarely carries the baseline project; the page says so).
+- `compare.mjs`: two updates of one project, activities matched by activity ID
+  and relationships by predecessor, successor and type (task_id is a database
+  key that changes when a project is copied). The half-step file is the
+  previous update's tables with the current update's status, actual dates,
+  remaining durations and data date laid on the activities both hold, then
+  recomputed (AACE RP 29R-03, MIP 3.4 style); progress effect = half-step
+  finish minus previous finish, revision effect = current minus half-step, in
+  working days of the project calendar. Each file's recomputed-vs-stored
+  agreement is checked and a warning shown under 90%.
 - `index.html`: the page. `cli.mjs`: the same from a terminal:
 
 ```
@@ -54,6 +74,7 @@ node cli.mjs schedule.xer                 # scorecard
 node cli.mjs schedule.xer --json          # full report
 node cli.mjs schedule.xer --csv out.csv   # one row per finding
 node cli.mjs schedule.xer --project CODE  # a file with several projects
+node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv]
 ```
 
 ## How it was checked
@@ -72,6 +93,14 @@ node cli.mjs schedule.xer --project CODE  # a file with several projects
   float and free float worked by hand; constraints and negative float against a
   must-finish-by date; progress with a lag after a finished predecessor; ALAP;
   loops; each DCMA point on a small schedule.
+- **Update comparison on real files** (`eval/compare-check-2026-11-19.md`):
+  the same six P6 files, each compared with itself (0 changes reported, half-step
+  equal to the finish, on all six) and with 20 seeded copies carrying 6 planted
+  edits each of nine kinds: **720 of 720 planted edits reported, 0 reported that
+  were not planted**. On progress-only copies the half-step finish equals the
+  current finish on 120 of 120. No public pair of real consecutive P6 updates
+  was found, so the half-step split itself is checked only on the invented
+  example pair (by hand: +15 = +6 progress, +9 revisions) and by construction.
 - **Not checked**: no file used progress override, start or smallest float, the
   successor or 24-hour lag calendar, or mandatory constraints (unit tests only).
   An independent DCMA implementation was not run side by side.

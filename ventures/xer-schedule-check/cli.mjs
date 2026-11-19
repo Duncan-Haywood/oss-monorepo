@@ -1,17 +1,27 @@
 #!/usr/bin/env node
 // node cli.mjs schedule.xer [--json] [--csv findings.csv] [--project CODE]
 // Prints the DCMA 14-point assessment of a Primavera P6 XER file.
+// node cli.mjs current.xer --previous last-month.xer [--json] [--csv changes.csv]
+// Compares two updates of the same project instead (compare.mjs).
 import { readFileSync, writeFileSync } from "node:fs";
 import { parseXer, decodeXer } from "./xer.mjs";
 import { assess, findingsCsv } from "./dcma.mjs";
+import { compare, compareCsv, compareText } from "./compare.mjs";
 
 const args = process.argv.slice(2);
-const file = args.find((a, i) => !a.startsWith("--") && !["--csv", "--project"].includes(args[i - 1]));
+const file = args.find((a, i) => !a.startsWith("--") && !["--csv", "--project", "--previous"].includes(args[i - 1]));
 if (!file) {
-  console.error("usage: node cli.mjs schedule.xer [--json] [--csv findings.csv] [--project CODE]");
+  console.error("usage: node cli.mjs schedule.xer [--json] [--csv findings.csv] [--project CODE]\n       node cli.mjs current.xer --previous previous.xer [--json] [--csv changes.csv]");
   process.exit(2);
 }
 const xer = parseXer(decodeXer(readFileSync(file)));
+if (args.includes("--previous")) {
+  const prev = parseXer(decodeXer(readFileSync(args[args.indexOf("--previous") + 1])));
+  const rep = compare(prev, xer);
+  if (args.includes("--csv")) writeFileSync(args[args.indexOf("--csv") + 1], compareCsv(rep));
+  process.stdout.write(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : compareText(rep));
+  process.exit(0);
+}
 let projId = null;
 if (args.includes("--project")) {
   const code = args[args.indexOf("--project") + 1];
