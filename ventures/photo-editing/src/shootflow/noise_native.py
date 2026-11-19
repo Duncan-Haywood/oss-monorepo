@@ -82,18 +82,8 @@ static void first_sum(const double *c, const signed char *cols, int period, long
 /* Rows [y0, y1) of the leave-one-out residual of the (h, w) float64 mosaic c (h, w >= 2) whose colours repeat
    the (period x period) tile `tile` (0 R, 1 G, 2 B) from the frame's origin. out is (h, w); only rows y0..y1-1
    are written. Returns 0, or -1 when memory runs out. */
-static int residual_rows_to(const double *c, const signed char *tile, int period, long h, long w,
-                            long y0, long y1, double *out, long out_y0);
-int shootflow_block_median(const double *a, long w, long block, long wb, long by0, long by1, double *out);
-
 int shootflow_residual_rows(const double *c, const signed char *tile, int period, long h, long w,
                             long y0, long y1, double *out) {
-    return residual_rows_to(c, tile, period, h, w, y0, y1, out, 0);
-}
-
-/* As shootflow_residual_rows, with out holding rows from out_y0 on (row y at out + (y - out_y0) * w). */
-static int residual_rows_to(const double *c, const signed char *tile, int period, long h, long w,
-                            long y0, long y1, double *out, long out_y0) {
     double *ring = malloc(sizeof(double) * 4 * 6 * w); /* first-sum rows, slot t % 4 holds row t */
     double *v = malloc(sizeof(double) * 6 * w);
     double *row = malloc(sizeof(double) * 6 * w);
@@ -121,7 +111,7 @@ static int residual_rows_to(const double *c, const signed char *tile, int period
         }
         const double *cy = c + y * w;
         const signed char *cc_ = cols + (y % period) * w;
-        double *oy = out + (y - out_y0) * w;
+        double *oy = out + y * w;
         for (long x = 0; x < w; x++) {
             int k = cc_[x];
             const double *sv = row + (size_t)(2 * k) * w, *sm = sv + w;
@@ -188,22 +178,6 @@ int shootflow_block_median(const double *a, long w, long block, long wb, long by
         }
     }
     free(t);
-    return 0;
-}
-
-/* Block rows [by0, by1) of the median of the residual (shootflow_residual_rows) per (block x block) block,
-   computed a band of block rows at a time (rows [by * block, (by + 1) * block) of the residual, then
-   shootflow_block_median on them), so the residual is never held for the whole frame. The same values as the
-   two steps apart, bit for bit: each residual row is the same arithmetic wherever a band starts. Returns 0 or -1. */
-int shootflow_residual_block_median(const double *c, const signed char *tile, int period, long h, long w,
-                                    long block, long wb, long by0, long by1, double *out) {
-    double *buf = malloc(sizeof(double) * block * w);
-    if (!buf) return -1;
-    for (long by = by0; by < by1; by++) {
-        if (residual_rows_to(c, tile, period, h, w, by * block, (by + 1) * block, buf, by * block) != 0
-            || shootflow_block_median(buf, w, block, wb, 0, 1, out + by * wb) != 0) { free(buf); return -1; }
-    }
-    free(buf);
     return 0;
 }
 
@@ -422,14 +396,11 @@ def _load():
     mm = lib.shootflow_block_mean_max
     mm.restype = ctypes.c_int
     mm.argtypes = [P, L, L, L, L, L, P, P]
-    rbm = lib.shootflow_residual_block_median
-    rbm.restype = ctypes.c_int
-    rbm.argtypes = [P, P, ctypes.c_int, L, L, L, L, L, L, P]
-    return resid, med, bil, bl, mm, rbm
+    return resid, med, bil, bl, mm
 
 
 def functions():
-    """The loaded C functions (residual rows, block median, bilinear rows, blend rows, block mean/max, residual block median), or None. Built and loaded once per process."""
+    """The loaded C functions (residual rows, block median, bilinear rows, blend rows, block mean/max), or None. Built and loaded once per process."""
 
     if "fn" not in _STATE:
         with _LOCK:
@@ -527,35 +498,6 @@ def block_mean_max(a: np.ndarray, block: int, *, mean: bool = True, top: bool = 
     if failed:
         raise MemoryError("noise_native.block_mean_max: out of memory")
     return om, ox
-
-
-def residual_block_median(c: np.ndarray, pat, block: int, *, threads: int | None = None) -> np.ndarray | None:
-    """``block_median(residual(c, pat), block)`` without the frame-sized residual: each thread takes a few
-    block rows at a time and keeps one band of residual rows (``block`` x width) in hand. Bit for bit with the
-    two steps apart; None without the C path or for a plane under ``block`` on a side."""
-
-    loaded = functions()
-    c = np.ascontiguousarray(c, dtype=np.float64)
-    if loaded is None or c.ndim != 2 or c.shape[0] < block or c.shape[1] < block or block < 2:
-        return None
-    fn = loaded[5]
-    from shootflow.raw_develop_np import _run_bands
-
-    h, w = c.shape
-    hb, wb = h // block, w // block
-    period = 6 if len(pat) == 36 else 2
-    tile = np.ascontiguousarray(np.asarray(pat, dtype=np.int8).reshape(period, period))
-    out = np.empty((hb, wb), dtype=np.float64)
-    failed: list[int] = []
-
-    def run(b0, b1):
-        if fn(_ptr(c), _ptr(tile), period, h, w, block, wb, b0, b1, _ptr(out)) != 0:
-            failed.append(b0)
-
-    _run_bands(run, hb, band=10, threads=threads)
-    if failed:
-        raise MemoryError("noise_native.residual_block_median: out of memory")
-    return out
 
 
 def _f(a: np.ndarray) -> tuple[np.ndarray, int] | None:

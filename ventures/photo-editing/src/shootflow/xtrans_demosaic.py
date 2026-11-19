@@ -581,13 +581,10 @@ def _block_spread(c, pat) -> tuple[np.ndarray, np.ndarray]:
 
     c = np.asarray(c, dtype=np.float64)
     level = _block_level(c)
-    # bit for bit with the two steps below, without the frame-sized residual; None without C
-    spread = noise_native.residual_block_median(c, pat, BLOCK)
+    resid = _residual(c, pat)
+    spread = noise_native.block_median(resid, BLOCK)  # bit for bit with the line below; None without C
     if spread is None:
-        resid = _residual(c, pat)
-        spread = noise_native.block_median(resid, BLOCK)  # bit for bit with the line below; None without C
-        if spread is None:
-            spread = _block_stat(resid, lambda t: np.median(t, axis=-1))
+        spread = _block_stat(resid, lambda t: np.median(t, axis=-1))
     return level, spread
 
 

@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVPggdZzHhd73EMVuYn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products ...)",
+  "input_sha256": "f8f71885604c3960397558b48aac2e83a85d070bfc142843170d120456c250fa",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T11:13:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 7) photo-editing: noise-aware's frame_noise in C (allocate.py Start here row 3)",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17638",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/AGENTS.md",
+      "issue": "Venture tests are unittest-only; running pytest from the venture dir fails collection (no PYTHONPATH=src). The root CLAUDE.md's PY=pyenv.py pytest hint points the wrong way for this venture; run_venture_tests.py photo-editing is the right command."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-summing-in-numpys-order-to-keep-a-raw-developer-bit-exact.md",
+    "ventures/photo-editing/eval/noise-aware-native-levels-2026-11-19.md"
+  ],
+  "goal": "Cut noise-aware develop time with no output change",
+  "notes": "Landed first: PR 17515 (another session's verified blend-in-C work) had a flagships.yaml conflict with main; merged main into its branch, resolved the row (kept main's IIQ item, marked blend done), re-ran its suite (run_venture_tests.py photo-editing: 1442 tests ok, 10 skipped) and merged it. Then my item: profiling frame_noise on the NEX-7 (0.87 s) showed the numpy block mean/max (0.25 s, two full-frame copies each, level repeated in frame_measures) as the cheap win; patch PCA (0.33 s) is BLAS. New C kernel shootflow_block_mean_max reproduces numpy's pairwise summation (order checked against np.sum on 10,000 random rows: plain pairwise 100%). Results: 12 of 12 real raws byte-identical; noise-aware develop median 1.11x faster; 1.36x -> 1.32x directional. A fused residual+median kernel was tried, bit-exact, but no peak-memory or time gain, so reverted. Machine-dependence probe: model error up to 1e-11 relative changes 0 output codes; 1e-9 changes 12 by 1. Verification: tests.test_noise_native 12 ok; run_venture_tests.py photo-editing on the final tree: 1445 tests ok, 10 skipped; venture-preflight.mjs photo-editing (see PR); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}
