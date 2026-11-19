@@ -3,7 +3,10 @@
 //
 //   node cli.mjs MODEL.ifc SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]
 //   node ci-cli.mjs --models GLOB --ids GLOB ...  # many files, for CI (action.yml)
-//   node cli.mjs --audit SPEC.ids [--json]     # check the IDS itself, no model
+//   node cli.mjs --audit SPEC.ids [--json] [--bsdd]
+//                                              # check the IDS itself, no model; --bsdd also looks each
+//                                              # facet uri up in buildingSMART's Data Dictionary (bsdd.mjs:
+//                                              # the only option that goes on the network)
 //   node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]
 //                                              # repair its ids.xsd faults (fix.mjs); stdout without -o;
 //                                              # --word-class also spells a bare \w in patterns as a class
@@ -18,12 +21,13 @@
 // MODEL may be a STEP .ifc, an .ifcxml, or an .ifczip holding either.
 //
 // Exit 0 when every specification passes, 1 when one fails, 2 on a usage or
-// read error. Nothing leaves the machine.
+// read error. Nothing leaves the machine, except the facet uris --bsdd looks up.
 import { readFileSync, writeFileSync } from "node:fs";
 import { check, resources, readModel } from "./node.mjs";
 import { textReport, auditReport } from "./report.mjs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
+import { checkBsdd, bsddReport } from "./bsdd.mjs";
 import { bcfZip } from "./bcf.mjs";
 import { junitXml } from "./ci.mjs";
 import { fixStructure } from "./fix.mjs";
@@ -96,11 +100,14 @@ if (flag("--fix") && files.length === 1) {
   let ids;
   try { ids = parseIds(readFileSync(files[0], "utf8")); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
   const issues = auditIds(ids, resources());
-  if (flag("--json")) console.log(JSON.stringify({ title: ids.title, valid: !issues.some((x) => x.level === "error"), issues }, null, 2));
-  else console.log(auditReport(ids.title, ids.specs, issues));
-  process.exitCode = issues.some((x) => x.level === "error") ? 1 : 0;
+  // --bsdd: exit 1 also when a link is broken or its dataType cannot hold the
+  // dictionary's values (level "error"); warnings and notes do not fail.
+  const bsdd = flag("--bsdd") ? await checkBsdd(readFileSync(files[0], "utf8"), { schemas: resources().schemas }) : null;
+  if (flag("--json")) console.log(JSON.stringify({ title: ids.title, valid: !issues.some((x) => x.level === "error"), issues, ...(bsdd ? { bsdd } : {}) }, null, 2));
+  else console.log(auditReport(ids.title, ids.specs, issues) + (bsdd ? "\n" + bsddReport(bsdd) : ""));
+  process.exitCode = issues.some((x) => x.level === "error") || (bsdd && bsdd.findings.some((x) => x.level === "error")) ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;

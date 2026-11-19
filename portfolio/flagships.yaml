@@ -497,6 +497,7 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
+      bSDD: write bsdd.mjs's suggested links back (eval/bsdd-corpus.mjs).
       Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
       rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
@@ -526,10 +527,14 @@ flagships:
       another IDS or stops; download fills purpose General, tool stops 316 to 0 of
       351; sample's External doors asks True). Tool run side by side 2026-11-19
       (eval/excel2ids-sidebyside-2026-11-19.md: 321 workbooks, 0 stops; added
-      version None, _x000D_; applicability in ids.xsd order). next: a BIM manager's
-      real table or filled Excel2IDS workbook via --from-sheet; Excel itself typing
-      into the download; an RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to
-      confirm. More open items: NEXT.md.
+      version None, _x000D_; applicability in ids.xsd order). bSDD links 2026-11-19
+      (bsdd.mjs, cli --audit --bsdd, eval/bsdd-links-2026-11-19.md: 58 public IDS,
+      197 bSDD links; 7 files with an error, 15 a warning, all read by hand). next:
+      bSDD property sets from a class's property list (uri on both facets); a page
+      route for bSDD if its API ever allows CORS; a BIM manager's real table or
+      filled Excel2IDS workbook via --from-sheet; Excel itself typing into the
+      download; an RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to confirm.
+      More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering

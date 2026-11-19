@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqycrZJBTD37qts9WCQU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T09:38:52Z",
+  "ended": "2026-11-19T09:52:05Z",
+  "wall_minutes": 13.54,
+  "tokens_in": 8911344,
+  "tokens_out": 50402,
+  "cost_usd": 4.022,
+  "tool_calls": 77,
+  "task": "ids-model-check (flagship 12, allocate.py Start here): check IDS facet uris against bSDD",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17620",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "A shell command with a stray `cat > file` and no heredoc waited on stdin and hung the background job; eval/bsdd-corpus.mjs was never written until redone with the Write tool (~5 min lost).",
+    "First corpus run: bSDD answered HTTP 429 to 68 of 205 lookups; fixed with retry/backoff in bsdd.mjs (now 0 unanswered).",
+    "First rule set raised false errors: IFC4 IfcCountMeasure (NUMBER) vs bSDD Integer, and bSDD status '3' read as not Active; both fixed before landing (eval/bsdd-links-2026-11-19.md)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here sent the run to ids-model-check whose buildable list named only items already landed (ifc4-layout scale measured 2026-11-18); the unexplored bSDD-link item had to be found by grepping the code for 'uri'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The row's listed buildable items were landed or marginal, so I took an item not on the row (bSDD facet links, which no code read) rather than another measurement of a landed feature.",
+      "did": "Built bsdd.mjs + cli --audit --bsdd, measured on 58 public IDS files",
+      "result": "7 files with real link errors found, all read by hand; the item added to next:/buildable:"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "The product is browser-first with nothing uploaded, but bSDD's API sends no CORS header, so the feature is CLI-only and is the product's one network call (opt-in).",
+      "did": "Opt-in --bsdd flag, documented in README, llms.txt and cli header",
+      "result": "Page unchanged; claim 'nothing leaves the machine' qualified in cli.mjs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-ids-model-check-bsdd-links.md",
+    "ventures/ids-model-check/eval/bsdd-links-2026-11-19.md"
+  ],
+  "goal": "Deepen flagship ids-model-check with a feature that catches a real class of IDS-author mistakes",
+  "notes": "Local verification: python3 platform/ci/run_venture_tests.py ids-model-check -> ok (331 tests, 2 skipped), 1 suite, 0 failed. node --test bsdd.test.mjs -> 11 pass. check_posts.py ok. node platform/pages/venture-preflight.mjs ids-model-check -> preflight clean, exit 0. Corpus: 88 IDS files from GitHub code search, 58 distinct, 344 uri attributes, 197 distinct bSDD links; 7 files with a bSDD error, 15 with a warning.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fcccd3f5-fa20-54d6-925a-7019f1a167f8",
+    "transcripts": 1,
+    "first": "2026-11-19T09:38:52Z",
+    "last": "2026-11-19T09:52:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 134,
+        "output": 50402,
+        "thinking": 9839,
+        "cache_read": 8753360,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157850,
+        "api_equivalent_usd": 4.022,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 134,
+      "output": 50402,
+      "thinking": 9839,
+      "cache_read": 8753360,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157850,
+      "api_equivalent_usd": 4.022,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 70,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.54,
+      "active_minutes": 13.54,
+      "model_minutes": 7.46,
+      "tool_minutes": 6.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a BIM tools developer: bSDD API study, checker module with tests, corpus gathering and hand review of ~60 findings, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 248.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
