@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, assistant, mobile]
+topics: [design, accessibility]
 date: 2026-11-19
 ---
 # Polish, 2026-11-19: /ask/ tables stack as cards on phones; example questions in the empty panel
