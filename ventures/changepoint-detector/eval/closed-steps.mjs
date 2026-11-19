@@ -108,7 +108,30 @@ function summarise(mode, files) {
   return { rows, nul, stp, near, caught };
 }
 
+// The real shop's two years (README "Closed days filled as missing", already seen): reported, not barred. Quiet on each
+// column with --period 7; closure alerts (within 1 day) and every alert, for off, fill4 and fill1.
+async function real() {
+  const { parseSeries } = await import('../engine.mjs');
+  const dayOf = (s) => Date.parse(s + 'T00:00:00Z') / 864e5;
+  for (const [name, file] of [['design year 2010-12 to 2011-12', 'online-retail-daily.csv'], ['fresh year 2009-12 to 2010-12', 'online-retail-2009-daily.csv']]) {
+    const csv = readFileSync(new URL(`../data/${file}`, import.meta.url), 'utf8');
+    const rows = csv.trim().split('\n').slice(1).map((r) => r.split(','));
+    const closed = rows.filter(([d, o, , c, nc]) => new Date(d + 'T00:00:00Z').getUTCDay() !== 6 && +o === 0 && +c === 0 && +nc === 0).map(([d]) => d);
+    console.log(`\n== ${name} (${file}); ${closed.length} closed days; Quiet, --period 7 ==`);
+    for (const [col, model] of [['orders', 'poisson'], ['revenue', 'mean'], ['cancellations', 'poisson'], ['new_customers', 'poisson']]) {
+      const { labels, values } = parseSeries(csv, col, null);
+      for (const [arm, lags] of [['off', 0], ['fill4', 4], ['fill1', 1]]) {
+        const v = lags ? fillClosed(values, labels, closed, { period: 7, round: model === 'poisson', lags }).values : values;
+        const r = replayWatch(v, labels, { model, period: 7, detector: model === 'mean' ? undefined : 'bocpd' });
+        const at = r.alerts.filter((a) => closed.some((c) => Math.abs(dayOf(c) - dayOf(String(a.label))) <= 1)).length;
+        console.log(`  ${col.padEnd(13)} ${arm.padEnd(5)} ${String(r.alerts.length).padStart(2)} alerts, ${at} at a closure: ${r.alerts.map((a) => `${a.label}>${a.reportedAtLabel}`).join(' ')}`);
+      }
+    }
+  }
+}
+
 const [part, a3, a4] = process.argv.slice(2);
+if (part === 'real') await real();
 if (part === 'diag' || part === 'fresh') run(part, Number(a3 ?? 1), Number(a4 ?? 0));
 if (part === 'sum') {
   const { nul, stp, near, caught } = summarise(a3, process.argv.slice(4));
