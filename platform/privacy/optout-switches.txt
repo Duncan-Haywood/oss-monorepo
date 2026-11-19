@@ -518,6 +518,7 @@ ventures/gig-driver-net-pay-calculator/usage.mjs
 ventures/git-bus-factor-check/usage.mjs
 ventures/git-exposure-check/usage.mjs
 ventures/git-timesheet/usage.mjs
+ventures/gitattributes-explainer/usage.mjs
 ventures/gitignore-explainer/usage.mjs
 ventures/glamping-unit-payback-calculator/usage.mjs
 ventures/golf-simulator-bay-profit-calculator/usage.mjs
