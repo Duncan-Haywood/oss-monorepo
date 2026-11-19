@@ -105,5 +105,6 @@ in SI; the CLI and the corpus pass the table. 18 to 0.
 - `%` stays IFCREAL: an IFC ratio measure takes 0.5 for 50 %, and nothing in
   bSDD says whether the dictionary means 0.5 or 50.
 - `dB` stays IFCREAL; the property's name (LA_Fmax_nT) or its physicalQuantity
-  could say pressure or power level, not read yet.
+  could say pressure or power level, not read yet. (Read since:
+  eval/bsdd-db-2026-11-19.md.)
 - Integer properties with a unit are left as IFCINTEGER.
