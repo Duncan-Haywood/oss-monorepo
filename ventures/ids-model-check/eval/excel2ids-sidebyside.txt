@@ -1,0 +1,28 @@
+Excel2IDS tool: 321 workbooks written, 0 stopped
+Excel2IDS tool: 322 workbooks written, 0 stopped
+
+Per set (workbooks with at least one specification that fits the template):
+public IDS files on GitHub: 26 workbooks; tool stops on 0 as written (0 have no purpose), 0 with the purpose filled; of 124 specifications in the workbooks it read, tool and reader agree on 91; same as the original IDS: tool 91, reader 124; outputs breaking ids.xsd: tool 0, reader 0; tool files with <milestone>LOD400</milestone>: 26
+IDS-Audit-tool test files: 39 workbooks; tool stops on 0 as written (0 have no purpose), 0 with the purpose filled; of 211 specifications in the workbooks it read, tool and reader agree on 116; same as the original IDS: tool 116, reader 211; outputs breaking ids.xsd: tool 0, reader 0; tool files with <milestone>LOD400</milestone>: 39
+buildingSMART test pairs (suite 870f9c4): 256 workbooks; tool stops on 0 as written (0 have no purpose), 0 with the purpose filled; of 256 specifications in the workbooks it read, tool and reader agree on 61; same as the original IDS: tool 61, reader 256; outputs breaking ids.xsd: tool 0, reader 0; tool files with <milestone>LOD400</milestone>: 256; checker verdict same as the original: tool 255 of 256, reader 255 of 256
+
+Where the tool stopped (with the purpose filled):
+
+Where tool and reader differ (count of specifications; reader first, tool second; one example each):
+  235 /specification@ifcVersion 
+        e.g. eval/corpus/real/BIM2SIM__bim2sim__bim2sim_plugins_PluginIFCCheck_bim2sim_ifccheck_ifc_bps.ids: /specification@ifcVersion: "IFC4 IFC4X3_ADD2" vs "IFC4X3_ADD2"
+   88 /specification@instructions 
+        e.g. eval/corpus/IDS-Audit-tool/testing.shared/InvalidFiles/BadRichFile.ids: /specification@instructions: "The property will be contain the information of the J / kg for the related entity.\r\nIts unit in the IDS exchange file is interpreted in J / kg(gray/ gray)\r\nIFC models will have the property stor
+
+Where the <info> blocks differ (count of IDS files; reader first, tool second; one example each; <milestone>LOD400</milestone> left out):
+  311 <version> only the tool writes one 
+        e.g. null vs "None"
+    3 <title> differs 
+        e.g. "Untitled IDS" vs "Untitled"
+    1 <date> only the reader writes one 
+        e.g. "2022-11-16+01:00" vs null
+
+The template's sample workbook:
+  MEP spec 2: /specification/applicability/property/value/simpleValue text: "true" vs "True"
+  MEP: 3 of 4 specifications agree; ids.xsd findings tool 0, reader 0
+  STR: 4 of 4 specifications agree; ids.xsd findings tool 0, reader 0

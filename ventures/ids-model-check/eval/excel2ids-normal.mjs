@@ -14,6 +14,8 @@ export function normal(text, keepIndex) {
       // An empty text attribute is no attribute: a template cell cannot tell them apart.
       for (const k of ["description", "instructions", "identifier"]) if (s.a[k] === "") delete s.a[k];
       if (s.a.ifcVersion) s.a.ifcVersion = s.a.ifcVersion.trim().split(/\s+/).sort().join(" ");
+      // An empty <requirements/> asks for nothing, as no <requirements> does (Excel2IDS's tool writes one for a prohibited category).
+      s.c = s.c.filter((part) => !(part.n === "requirements" && part.c.length === 0));
       for (const part of s.c) {
         if (part.n === "applicability") {
           // As the checker reads them (ids.mjs): maxOccurs 0 prohibited, minOccurs 0 optional, else required.

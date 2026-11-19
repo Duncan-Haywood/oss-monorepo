@@ -88,7 +88,9 @@ read back.
   334 of 334 and 256 of 256 specifications come back the same, verdicts same
   255 of 256; a filled-in `General` purpose is not counted as a change.
 
-**Not measured.** The tool's own output. `eval/excel2ids-sidebyside.mjs` and
+**Run since (same day):** `eval/excel2ids-sidebyside-2026-11-19.md` ran the tool on these workbooks; the rules held and two were added (an empty version cell written as `None`, a carriage return written as `_x000D_`).
+
+**Not measured (at the time).** The tool's own output. `eval/excel2ids-sidebyside.mjs` and
 `eval/excel2ids_tool_run.py` are written to run it unchanged on the same
 workbooks (through `pip install ifctester openpyxl tqdm`) and compare its IDS
 with this reader's, spec by spec, against ids.xsd and on buildingSMART's test

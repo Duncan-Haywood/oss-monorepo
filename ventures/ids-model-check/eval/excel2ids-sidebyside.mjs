@@ -104,7 +104,7 @@ const shape = (d) => d.replace(/: .*$/, "").replace(/"[^"]*"/g, "\"...\"");
 
 const per = new Map(); // set -> stats
 const stat = (s) => { if (!per.has(s)) per.set(s, { books: 0, toolStoppedAsWritten: 0, noPurpose: 0, toolStopped: 0, specs: 0, same: 0, toolSameAsOriginal: 0, oursSameAsOriginal: 0, toolXsdBad: 0, oursXsdBad: 0, verdictRuns: 0, verdictTool: 0, verdictOurs: 0, toolInfoMilestone: 0 }); return per.get(s); };
-const shapes = new Map(), examples = new Map(), stops = new Map();
+const shapes = new Map(), examples = new Map(), stops = new Map(), infoDiffs = new Map(), infoExamples = new Map();
 const tallyShape = (k, ex) => { shapes.set(k, (shapes.get(k) || 0) + 1); if (!examples.has(k)) examples.set(k, ex); };
 
 for (const b of books) {
@@ -128,6 +128,15 @@ for (const b of books) {
   if (structure(toolText) !== 0) st.toolXsdBad++;
   if (structure(ours) !== 0) st.oursXsdBad++;
   if (/<milestone>LOD400<\/milestone>/.test(toolText)) st.toolInfoMilestone++;
+  // The <info> block, field by field (milestone counted above).
+  const infoOf = (x) => Object.fromEntries((JSON.parse(normal(x)).c.find((c) => c.n === "info")?.c || []).map((f) => [f.n, f.t]));
+  const ti = infoOf(toolText), ui = infoOf(ours);
+  for (const k of new Set([...Object.keys(ti), ...Object.keys(ui)])) {
+    if (k === "milestone" || ti[k] === ui[k]) continue;
+    const key = `<${k}> ${ui[k] === undefined ? "only the tool writes one" : ti[k] === undefined ? "only the reader writes one" : "differs"}`;
+    infoDiffs.set(key, (infoDiffs.get(key) || 0) + 1);
+    if (!infoExamples.has(key)) infoExamples.set(key, `${JSON.stringify(ui[k] ?? null).slice(0, 80)} vs ${JSON.stringify(ti[k] ?? null).slice(0, 80)}`);
+  }
   const o = specsOf(JSON.parse(normal(b.text, b.keptIndex)));
   const t = specsOf(JSON.parse(normal(toolText)));
   const u = specsOf(JSON.parse(normal(ours)));
@@ -166,6 +175,9 @@ console.log("\nWhere the tool stopped (with the purpose filled):");
 for (const [k, v] of [...stops].sort((x, y) => y[1] - x[1])) console.log(String(v).padStart(5), k);
 console.log("\nWhere tool and reader differ (count of specifications; reader first, tool second; one example each):");
 for (const [k, v] of [...shapes].sort((x, y) => y[1] - x[1])) console.log(String(v).padStart(5), k, "\n        e.g.", examples.get(k).slice(0, 300));
+
+console.log("\nWhere the <info> blocks differ (count of IDS files; reader first, tool second; one example each; <milestone>LOD400</milestone> left out):");
+for (const [k, v] of [...infoDiffs].sort((x, y) => y[1] - x[1])) console.log(String(v).padStart(5), k, "\n        e.g.", infoExamples.get(k));
 
 // 4. The template's own sample.
 console.log("\nThe template's sample workbook:");

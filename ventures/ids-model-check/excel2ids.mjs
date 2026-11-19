@@ -352,6 +352,18 @@ export function excel2idsToolNotes(rows, opts = {}) {
   const toolVer = IFC_VERSIONS.includes(ver) ? ver : "IFC4X3_ADD2";
   const ourVer = ver.trim().toUpperCase().split(/[\s,;]+/).filter(Boolean).map((v) => (v === "IFC4X3" ? "IFC4X3_ADD2" : v)).filter((v) => IFC_VERSIONS.includes(v)).join(" ") || "IFC4X3_ADD2";
   if (toolVer !== ourVer) notes.push({ row: 7, col: 10, message: `IFC version "${ver}": the tool writes ${toolVer} (it takes only exactly IFC2X3, IFC4 or IFC4X3_ADD2); this reader writes ${ourVer}` });
+  // Run 2026-11-19 (eval/excel2ids-sidebyside-2026-11-19.md): the tool passes
+  // the version cell through str(), so an empty one is written as "None".
+  if (at(4, 9).trim() === "") notes.push({ row: 5, col: 10, message: `the version cell is empty: the tool writes <version>None</version> (Python's str of an empty cell); this reader writes no <version>` });
+  // openpyxl returns cell text without undoing the _xHHHH_ escapes Excel
+  // writes for a carriage return and other control characters (and for a
+  // literal "_x0041_", as _x005F_x0041_), so the tool copies them into the IDS.
+  const escNote = (r, c, where) => {
+    const v = at(r, c);
+    const m = /[\u0000-\u0008\u000b-\u001f\ufffe\uffff]|_x[0-9A-Fa-f]{4}_/.exec(v);
+    if (m) notes.push({ row: r + 1, col: c + 1, message: `${where} holds ${m[0] === "\r" ? "a carriage return" : m[0].length === 1 ? `the control character U+${m[0].charCodeAt(0).toString(16).toUpperCase().padStart(4, "0")}` : `the text "${m[0]}"`}: Excel stores it as ${m[0].length === 1 ? `_x${m[0].charCodeAt(0).toString(16).toUpperCase().padStart(4, "0")}_` : `_x005F${m[0]}`} and the tool (openpyxl) copies that escape into the IDS as typed; this reader writes the text itself` });
+  };
+  for (let r = 1; r <= 7; r++) escNote(r, 9, `metadata cell J${r + 1}`);
 
   const boolNote = (r, c, v, where) => notes.push({ row: r + 1, col: c + 1, message: `${where} is a typed ${v.toUpperCase()}: the tool writes "${v === "true" ? "True" : "False"}", which matches no IDS boolean; this reader writes "${v}"` });
   const caseNote = (r, c, v, what) => notes.push({ row: r + 1, col: c + 1, message: `${what} "${v}": the tool writes it as typed; this reader writes ${what === "IFC entity" ? "the upper-case class name IDS needs" : `"${v.toLowerCase()}"`}` });
@@ -366,6 +378,7 @@ export function excel2idsToolNotes(rows, opts = {}) {
     if (tool) reqRows.push(r);
   }
   for (const r of reqRows) {
+    for (const k of TOOL.req) if (req[k] !== undefined) escNote(r, req[k], `requirement ${k}`);
     for (const k of valueCols) { const v = at(r, req[k]); if (typedBool(r, req[k])) boolNote(r, req[k], v, `requirement ${k}`); }
     // The tool strips text (process_value) but changes no case.
     const card = at(r, req.cardinality).trim();
@@ -386,6 +399,7 @@ export function excel2idsToolNotes(rows, opts = {}) {
     const C = colName(c);
     if (!on(t)) notes.push({ row: 18, col: c + 1, message: `column ${C} toggle "${t}" is text: the tool counts any text as on, so it writes this category; this reader leaves it off` });
     const a = (k) => at(apply[k], c);
+    for (const k of TOOL.apply) if (apply[k] !== undefined && k !== "include") escNote(apply[k], c, `column ${C}'s ${k}`);
     carried.predefined = { row: apply.predefinedType, v: a("predefinedType").trim() };
     if (a("property") !== "") carried.property = { col: c, where: `column ${C}'s applicability` };
     for (const k of ["value", "attributeValue", "code", "material", "predefinedType"]) if (typedBool(apply[k], c)) boolNote(apply[k], c, a(k), `column ${C}'s ${k}`);
@@ -641,7 +655,7 @@ export const EXCEL2IDS_README = [
   ["About this workbook"],
   ["The Requirements sheet follows the layout of buildingSMART-community's Excel2IDS template (github.com/buildingsmart-community/Excel2IDS): asset categories in columns from R, one requirement per row from 19, an X where a category needs a requirement."],
   ["A value in \"double quotes\" is a pattern; commas, semicolons or line breaks make a list of allowed values. Toggle a row or column off with FALSE."],
-  ["Drop it back on IDS Model Check (https://marisstella.app/ids-model-check/) to get one IDS per purpose, audited, or run node cli.mjs --from-sheet. Excel2IDS's own tool reads it too, with two differences: it writes <milestone>LOD400</milestone> into every IDS, and it keeps only one exact IFC version (several become IFC4X3_ADD2). Every category has a purpose, because the tool stops on an empty one."],
+  ["Drop it back on IDS Model Check (https://marisstella.app/ids-model-check/) to get one IDS per purpose, audited, or run node cli.mjs --from-sheet. Excel2IDS's own tool reads it too, with these differences (checked by running it, 2026-11-19): it writes <milestone>LOD400</milestone> into every IDS, <version>None</version> when the version cell is empty, and the escape _x000D_ where a cell holds a carriage return; and it keeps only one exact IFC version (several become IFC4X3_ADD2). Every category has a purpose, because the tool stops on an empty one."],
   ["Made by IDS Model Check (MIT). Not legal or professional advice; check the IDS you hand over."],
 ];
 

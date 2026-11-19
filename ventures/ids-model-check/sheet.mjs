@@ -304,6 +304,8 @@ function occursAttrs(cell) {
   return { attrs: (m[1] !== "" ? ` minOccurs="${m[1]}"` : "") + (m[2] !== "" ? ` maxOccurs="${m[2]}"` : "") };
 }
 
+const APP_ORDER = ["entity", "partOf", "classification", "attribute", "property", "material"];
+
 export function rowsToIds(rows) {
   const errors = [], warnings = [];
   const headerAt = rows.findIndex((r) => r.some((c) => String(c ?? "").trim() !== ""));
@@ -386,7 +388,7 @@ export function rowsToIds(rows) {
     }
     const stray = ["entity", "predefinedType", "propertySet", "property", "attribute", "system", "value"].filter((c) => !used.has(c) && get(c) !== "");
     if (stray.length) warnings.push({ row: rn, message: `${stray.join(", ")} not read on a ${kind} facet` });
-    (inReq ? spec.req : spec.app).push(xml);
+    if (inReq) spec.req.push(xml); else spec.app.push({ kind, xml });
     if (inReq) spec.reqSeen = true;
   }
   if (!specs.size) warnings.push({ row: headerAt + 2, message: "no specification rows" });
@@ -402,7 +404,10 @@ export function rowsToIds(rows) {
   ];
   for (const s of specs.values()) {
     L.push(`    <specification${s.attrs}>`);
-    L.push(`      <applicability${s.occurs}>`, ...s.app.map((x) => "        " + x), `      </applicability>`);
+    // ids.xsd fixes the order of applicability facets (requirements take any
+    // order); rows may come in any, so they are written in the schema's order.
+    const app = s.app.slice().sort((a, b) => APP_ORDER.indexOf(a.kind) - APP_ORDER.indexOf(b.kind)).map((f) => f.xml);
+    L.push(`      <applicability${s.occurs}>`, ...app.map((x) => "        " + x), `      </applicability>`);
     if (s.reqSeen) {
       const d = s.reqDesc !== undefined ? ` description="${escAttr(s.reqDesc)}"` : "";
       if (s.req.length) L.push(`      <requirements${d}>`, ...s.req.map((x) => "        " + x), `      </requirements>`);
