@@ -81,6 +81,40 @@ export function subclasses(S, cls) {
   return Object.keys(S.entities).filter((c) => c !== cls && !S.entities[c].abstract && ancestors(S, c).includes(cls)).sort();
 }
 
+// Classes a schema still defines but tells writers not to use: IFC 4.3
+// deprecates IfcWallStandardCase ("IfcWall with IfcMaterialLayerSetUsage is
+// used instead") and IfcElectricDistributionBoard ("Use IfcDistributionBoard
+// instead"; buildingSMART/IFC4.3.x-development docs). They are the only
+// deprecated element classes left in IFC4X3_ADD2 (the other IFC4 standard and
+// elemented cases were deleted), and no IFC4X3 export read has one
+// (eval/deprecated-subclasses-2026-11-19.md: 0 in 57 files), while IFC4
+// exports still carry IfcWallStandardCase (151 of 572 walls). IFC4 and IFC2X3
+// list none here.
+export const DEPRECATED = {
+  IFC4X3_ADD2: new Set(["IFCWALLSTANDARDCASE", "IFCELECTRICDISTRIBUTIONBOARD", "IFCELECTRICDISTRIBUTIONBOARDTYPE"]),
+};
+const NONE = new Set();
+// The deprecated classes a specification's subclass boxes leave out: the
+// page schema's, unless the specification also names an older schema in its
+// own ifcVersion (an "IFC4 IFC4X3_ADD2" specification checks IFC4 models,
+// where IFCWALLSTANDARDCASE is a quarter of the walls).
+export function deprecatedFor(S, spec) {
+  const d = (S && DEPRECATED[S.name]) || NONE;
+  if (!d.size) return d;
+  const ids = schemaIdsOf(spec && spec.ifcVersion);
+  return ids.some((id) => id !== "IFC4X3") ? NONE : d;
+}
+// What a ticked "and its subclasses" box writes for `cls`: its concrete
+// subclasses without the deprecated ones (`subs`), and the deprecated ones it
+// leaves out (`left`), which the page names beside the box. A model that does
+// carry one still gets the "would not check" warning (modelSubclassesLeftOut)
+// and its Add button.
+export function boxSubclasses(S, cls, spec) {
+  const all = S.entities[cls] ? subclasses(S, cls) : [];
+  const dep = deprecatedFor(S, spec);
+  return { subs: all.filter((c) => !dep.has(c)), left: all.filter((c) => dep.has(c)) };
+}
+
 // The class's PredefinedType enumeration members, or [].
 export function predefinedTypes(S, cls) {
   if (!S.entities[cls]) return [];
@@ -343,9 +377,9 @@ export const specBases = (spec) => [...new Set([spec.cls, ...(spec.also || [])].
 // The exact class names the specification's entity facet writes, in order.
 export function specClassNames(S, spec) {
   if (!spec.cls) return [];
-  const first = spec.withSub && S.entities[spec.cls] ? [spec.cls, ...subclasses(S, spec.cls)] : [spec.cls];
+  const first = spec.withSub && S.entities[spec.cls] ? [spec.cls, ...boxSubclasses(S, spec.cls, spec).subs] : [spec.cls];
   const ticked = new Set(spec.alsoSub || []);
-  const rest = (spec.also || []).filter(Boolean).flatMap((c) => (ticked.has(c) && S.entities[c] ? [c, ...subclasses(S, c)] : [c]));
+  const rest = (spec.also || []).filter(Boolean).flatMap((c) => (ticked.has(c) && S.entities[c] ? [c, ...boxSubclasses(S, c, spec).subs] : [c]));
   return [...new Set([...first, ...rest])];
 }
 
@@ -356,14 +390,19 @@ export function specClassNames(S, spec) {
 // every other name is an exact class. So `IFCWALL IFCWALLSTANDARDCASE
 // IFCWALLELEMENTEDCASE IFCSLAB IFCSLABSTANDARDCASE IFCSLABELEMENTEDCASE`
 // opens as IFCWALL and IFCSLAB, each with its subclasses ticked, not as six
-// exact classes. The written facet names the same set of classes.
-export function classListBases(S, names) {
+// exact classes. The written facet names the same set of classes. A box
+// covers only the subclasses it writes (boxSubclasses: in IFC4X3 no
+// deprecated ones), so a deprecated class the list names stays an exact class
+// and is written back, and one the list leaves out does not stop the box
+// opening ticked (the bSDD templates' IFCBUILTELEMENT without
+// IFCWALLSTANDARDCASE). `spec` gives the ifcVersion (deprecatedFor).
+export function classListBases(S, names, spec = null) {
   const up = [...new Set(names)];
   const inList = new Set(up);
   const subsOf = new Map();
   for (const c of up) {
     if (!S.entities[c]) continue;
-    const subs = subclasses(S, c);
+    const subs = boxSubclasses(S, c, spec).subs;
     if (subs.length && subs.every((x) => inList.has(x))) subsOf.set(c, subs);
   }
   // Only the topmost: IFCBUILTELEMENT's group already holds IFCWALL's.
@@ -1230,7 +1269,7 @@ export function importIdsAs(parsed, loadFor, schema) {
         let cls = null, withSub = false, also = [], alsoSub = [];
         if (up.length === 1) cls = up[0];
         else if (up.length > 1) {
-          const bases = classListBases(L.S, up);
+          const bases = classListBases(L.S, up, spec);
           cls = bases[0].cls; withSub = bases[0].withSub;
           also = bases.slice(1).map((b) => b.cls);
           alsoSub = bases.slice(1).filter((b) => b.withSub).map((b) => b.cls);
