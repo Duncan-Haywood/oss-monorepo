@@ -219,6 +219,14 @@ project's updates for delay claims; and the review itself as a service.
   as possible; external dates; loops found and reported (Tarjan). Also free
   float and the driving path. Level of effort and WBS summary activities are
   left out of the network.
+- `floatpaths.mjs`: the longest path (every driving branch into the project
+  finish, compared with the flag P6 stores on each activity) and multiple float
+  paths to any one activity. Relative float is total float computed as if that
+  activity were the only finish: a backward pass from its early finish over its
+  predecessors alone, in hours on each activity's own calendar. Path 1 is the
+  driving chain into it; each later path is the next least relative float. It
+  answers what drives an interim milestone (a handover, a permit, a sectional
+  completion), which total float answers only for the project finish.
 - `dcma.mjs`: the 14 points with the DCMA thresholds, counted over open
   activities (not complete, not level of effort or WBS summary), durations and
   float in working days of each activity's own calendar. The critical path test
@@ -274,6 +282,7 @@ node cli.mjs schedule.xer --project CODE  # a file with several projects
 node cli.mjs schedule.xer --risk 1000 --range 90,100,130 --correlation 0.3 [--ranges ranges.csv] [--csv drivers.csv]
 node cli.mjs schedule.xer --risk 1000 --risks register.csv   # risk register events, ranked
 node cli.mjs schedule.xer --risk 1000 --ranges-udf auto   # ranges from the file's own UDFs (or "Opt Dur,-,Pess Dur")
+node cli.mjs schedule.xer --float-paths [CODE] [--paths 10] [--csv paths.csv] [--json]   # float paths to CODE (default: the finish)
 node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json]   # resource levelling
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 node cli.mjs --windows jan.xer feb.xer mar.xer apr.xer [--json] [--csv windows.csv] [--project CODE]
@@ -287,6 +296,16 @@ leading apostrophe, so a crafted activity name in a contractor's file can't
 run as a formula in Excel or Sheets.
 
 ## How it was checked
+
+- **Longest path against P6's own flag** (`eval/longest-path-2026-11-19.md`):
+  on five of the six public files the longest path is exactly the set P6
+  flagged (261 of 261 open activities, none extra); the old single chain held 19
+  of the terminal file's 36. On the sixth (CCA) all 56 found are flagged, but
+  P6 flags 548 more that carry up to 3,788 h of P6's own stored float, so those
+  flags are left from an earlier run. The float-path backward pass, seeded at
+  the finish's late date, never gives an activity less float than its total
+  float (0 of 15,240) and equals it everywhere the finish binds (4,211 of 4,211
+  on the hotel file).
 
 - **Against P6 itself** (`eval/cpm-vs-p6-2026-11-19.md`): six public XER files
   from P6 5.0 to 24.12, 19,822 open activities. Early finish, late finish and
@@ -377,8 +396,9 @@ run as a formula in Excel or Sheets.
 Screening metrics, not a verdict: a schedule can pass all fourteen and still be
 unrealistic, and some failures are justified. Expected finish dates are
 checked on one public file only (23 activities; the rule is read from the
-durations P6 stored, not from a second P6 run). Not modelled: "make open-ended activities critical", multiple float
-paths (resource levelling is the separate `level.mjs` step; the checks always
+durations P6 stored, not from a second P6 run). Not modelled: "make open-ended activities critical"; multiple float
+paths follow P6's "free float" style but are not compared with P6's own (no
+public file stores them), and P6's "total float" option is not offered (resource levelling is the separate `level.mjs` step; the checks always
 use the unlevelled dates; it is a serial pass like P6's, not P6's code, so its
 dates can differ from a P6 levelled run, which no public file stores). 2 activities of the heavily progressed CCA file still differ (early
 finish and total float; `eval/cpm-vs-p6-2026-11-19.md`, "What is left"). The float checks use the float the
@@ -391,7 +411,8 @@ values) downloads as a CSV from the page or `node cli.mjs file.xer --schedule ou
 `samples/make-example.mjs` writes `example.mjs`, an invented office fit-out
 schedule with deliberate faults, used by the page's example button and the
 tests; `node samples/make-example.mjs office-fitout.xer` also writes it as an
-XER file for the CLI. `eval/cpm-vs-p6.mjs` is the P6 comparison (dates, total and free float).
+XER file for the CLI. `eval/cpm-vs-p6.mjs` is the P6 comparison (dates, total and free float);
+`eval/longest-path.mjs` checks the longest path against P6's flag and the float-path pass.
 `mspdi.mjs` reads Microsoft Project XML into the same tables (`parseMspdi`,
 and `parseSchedule`, which picks the reader from the text);
 `eval/cpm-vs-project.mjs` compares the engine with Project's stored dates.

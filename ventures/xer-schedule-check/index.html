@@ -136,6 +136,18 @@
       <thead><tr><th>Activity</th><th>Name</th><th>Start</th><th>Finish</th><th class="n">Float (days)</th></tr></thead>
       <tbody></tbody>
     </table></div>
+    <p class="note" id="longest"></p>
+    <h2 style="margin-top:22px">Float paths to any activity</h2>
+    <p class="note">Multiple float paths, in the manner of P6's "free float" option (not compared with P6's own result: no public file stores one): path 1 is the driving chain into the activity you name, each later path the next least float <em>relative to it</em>. Relative float is how far an activity can slip before it moves that one activity, which total float answers only for the project finish. Name an interim milestone (a handover, a permit, a sectional completion) to see what really drives it.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end">
+      <label for="fp-target">Activity ID</label> <input id="fp-target" list="fp-codes" placeholder="blank: the finish the longest path ends on" style="width:100%;max-width:320px">
+      <datalist id="fp-codes"></datalist>
+      <label for="fp-count">Paths</label> <input id="fp-count" type="number" min="1" max="200" value="5" style="width:70px">
+      <button type="button" id="fp-run" class="secondary">Show float paths</button>
+      <button type="button" id="fp-csv" class="secondary" hidden>Download float paths (CSV)</button>
+    </div>
+    <p class="note" id="fp-status"></p>
+    <div id="fp-out"></div>
     <button type="button" id="download">Download findings (CSV)</button>
     <button type="button" id="download-schedule" class="secondary">Download recomputed schedule (CSV)</button>
     <button type="button" id="download-json" class="secondary">Download full report (JSON)</button>
@@ -294,6 +306,8 @@
     import { levelAsync, levelCsv } from "./level.mjs";
     import { windows, windowsCsv } from "./windows.mjs";
     import { exampleSeries } from "./example-series.mjs";
+    import { schedule } from "./cpm.mjs";
+    import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
@@ -326,6 +340,12 @@
         : "The file stores no early and late dates to compare with: it was not scheduled before export.";
       $("#recompute-list").innerHTML = rc.items.length ? `<details><summary>${rc.items.length} activit${rc.items.length === 1 ? "y" : "ies"} that differ</summary>${itemsTable(rc.items)}</details>` : "";
       $("#path tbody").innerHTML = r.drivingPath.map((d) => `<tr><td>${esc(d.code)}</td><td>${esc(d.name)}</td><td>${esc(d.start)}</td><td>${esc(d.finish)}</td><td class="n">${esc(fmt(d.float))}</td></tr>`).join("");
+      const lp = r.longestPath;
+      $("#longest").textContent = lp.p6Flagged
+        ? `Longest path: ${lp.count} open activities drive the finish. P6 flagged ${lp.p6Flagged} at its last schedule run; ${lp.agree} are on both.${lp.onlyP6.length ? ` Only P6 flags ${lp.onlyP6.slice(0, 8).join(", ")}${lp.onlyP6.length > 8 ? ` and ${lp.onlyP6.length - 8} more` : ""}: a flag left from an earlier run, or a setting this tool does not model.` : ""}${lp.onlyHere.length ? ` Only here: ${lp.onlyHere.slice(0, 8).join(", ")}.` : ""}`
+        : `Longest path: ${lp.count} open activities drive the finish (every driving branch). The file stores no longest-path flag to compare with.`;
+      $("#fp-codes").innerHTML = r.activities.slice(0, 5000).map((a) => `<option value="${esc(a.code)}">${esc(a.name)}</option>`).join("");
+      $("#fp-out").innerHTML = ""; $("#fp-status").textContent = ""; $("#fp-csv").hidden = true; lastFp = null;
       report.hidden = false;
       $("#risk").hidden = false; $("#risk-out").hidden = true; $("#risk-status").textContent = ""; lastRisk = null;
       fillUdf();
@@ -383,6 +403,28 @@
     $("#download").addEventListener("click", () => { if (!last) return; save(new Blob([findingsCsv(last)], { type: "text/csv" }), `${fileName}-dcma-findings.csv`); record("findings_downloaded"); });
     $("#download-schedule").addEventListener("click", () => { if (!last) return; save(new Blob([scheduleCsv(last)], { type: "text/csv" }), `${fileName}-recomputed-schedule.csv`); record("findings_downloaded"); });
     $("#download-json").addEventListener("click", () => { if (!last) return; save(new Blob([JSON.stringify(last, null, 2)], { type: "application/json" }), `${fileName}-dcma-report.json`); record("findings_downloaded"); });
+    // ---- multiple float paths
+    let lastFp = null;
+    $("#fp-run").addEventListener("click", () => {
+      if (!xer || !last) return;
+      const st = $("#fp-status");
+      try {
+        const result = schedule(xer);
+        const code = $("#fp-target").value.trim();
+        const all = [...result.model.tasks.values()];
+        const t = code ? (all.find((x) => x.code === code && x.proj === last.project.id) || all.find((x) => x.code === code)) : finishActivity(result, last.project.id);
+        if (!t) { st.textContent = code ? `No activity ${code} in this file.` : "No open activity finishes on the project finish: name one."; return; }
+        const fp = floatPaths(result, t.id, { count: Math.min(200, Math.max(1, Number($("#fp-count").value) || 5)) });
+        if (!fp.target) { st.textContent = `${t.code} is finished or not scheduled: float paths run to an open activity.`; return; }
+        lastFp = fp;
+        const h = (v) => (v === undefined || v === null ? "" : String(Math.round(v * 100) / 100));
+        $("#fp-out").innerHTML = fp.paths.map((p) => `<h3>Path ${p.n} <span class="pill ${p.float === 0 ? "fail" : "pass"}">${h(p.float)} h relative float</span></h3><div class="tablewrap"><table><thead><tr><th>Activity</th><th>Name</th><th>Start</th><th>Finish</th><th class="n">Relative float (h)</th><th class="n">Total float (h)</th><th>Next</th></tr></thead><tbody>${p.activities.slice(0, LIMIT).map((a) => `<tr><td>${esc(a.code)}</td><td>${esc(a.name)}</td><td>${esc(a.start)}</td><td>${esc(a.finish)}</td><td class="n">${h(a.rf)}</td><td class="n">${h(a.tf)}</td><td>${a.link ? esc(`${a.link.type}${a.link.lag ? ` ${a.link.lag} h` : ""} to ${a.link.to}`) : ""}</td></tr>`).join("")}</tbody></table></div>`).join("");
+        st.textContent = `Float paths to ${fp.target.code} (${fp.target.name}), early finish ${fp.target.finish}: ${fp.paths.length} path${fp.paths.length === 1 ? "" : "s"}${fp.unreached ? `; ${fp.unreached} more activities lead into it on later paths` : ""}. Hours are on each activity's own calendar.`;
+        $("#fp-csv").hidden = false;
+        record("float_paths_run");
+      } catch (e) { st.textContent = `Could not trace float paths: ${e.message}`; }
+    });
+    $("#fp-csv").addEventListener("click", () => { if (!lastFp) return; save(new Blob([floatPathsCsv(lastFp)], { type: "text/csv" }), `${fileName}-float-paths-${lastFp.target.code}.csv`); record("findings_downloaded"); });
     // ---- finish date risk
     let lastRisk = null, riskBusy = false;
     $("#risk-run").addEventListener("click", async () => {

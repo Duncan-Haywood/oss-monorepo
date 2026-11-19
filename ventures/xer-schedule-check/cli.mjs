@@ -25,6 +25,10 @@
 // driving path behind each. With --report review.html [--appendix] [--risk]:
 // the written review of the latest update, compared with the one before it,
 // with a "Delay by window" section and its corrections.
+// node cli.mjs schedule.xer --float-paths [CODE] [--paths N] [--csv paths.csv] [--json] [--project CODE]
+// Multiple float paths to one activity instead (floatpaths.mjs): path 1 is the
+// driving chain into it, each later path the next least float relative to it.
+// With no CODE, the activity the longest path ends on.
 // Any --report also takes --appendix: every activity behind every correction
 // printed in an appendix, not only the first 40 of each.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -41,9 +45,11 @@ import { riskAnalysis, riskCsv, parseRanges, parseRisks } from "./risk.mjs";
 import { rangesFromUdf, udfFields, udfSpec, udfRangeNote } from "./udf-ranges.mjs";
 import { formatDate } from "./xer.mjs";
 import { level, levelCsv } from "./level.mjs";
+import { schedule } from "./cpm.mjs";
+import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths"];
 const opt = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
 function writeReview(report, cmp, risk = null, win = null) {
   if (!args.includes("--report")) return;
@@ -146,6 +152,28 @@ if (args.includes("--risk")) {
   console.log("  (* on the forecast's driving path)");
   process.exit(0);
 }
+if (args.includes("--float-paths")) {
+  const result = schedule(xer);
+  const pid = assess(xer, { projId, result }).project.id;
+  const code = opt("--float-paths");
+  let target;
+  if (code && !code.startsWith("--")) {
+    target = [...result.model.tasks.values()].find((t) => t.code === code && t.proj === pid) || [...result.model.tasks.values()].find((t) => t.code === code);
+    if (!target) { console.error(`no activity ${code}`); process.exit(2); }
+  } else target = finishActivity(result, pid);
+  if (!target) { console.error("no open activity finishes on the project finish: name one, --float-paths CODE"); process.exit(2); }
+  const fp = floatPaths(result, target.id, { count: Number(opt("--paths") || 10) });
+  if (!fp.target) { console.error(`${target.code} is finished or not scheduled: float paths run to an open activity`); process.exit(2); }
+  if (args.includes("--csv")) writeFileSync(opt("--csv"), floatPathsCsv(fp));
+  if (args.includes("--json")) { const { bound, ...plain } = fp; console.log(JSON.stringify(plain, null, 2)); process.exit(0); }
+  console.log(`Float paths to ${fp.target.code} ${fp.target.name} (early finish ${fp.target.finish}); relative float in working hours on each activity's calendar`);
+  for (const p of fp.paths) {
+    console.log(`\nPath ${p.n}: ${p.activities.length} activit${p.activities.length === 1 ? "y" : "ies"}, relative float ${+p.float.toFixed(2)} h`);
+    for (const a of p.activities) console.log(`  ${a.code.padEnd(18)} ${a.start} -> ${a.finish}  rel ${String(+a.rf.toFixed(2)).padStart(7)} h  TF ${String(a.tf === undefined ? "-" : +a.tf.toFixed(2)).padStart(7)} h${a.link ? `  ${a.link.type}${a.link.lag ? ` ${a.link.lag} h` : ""} -> ${a.link.to}` : ""}  ${a.name}`);
+  }
+  if (fp.unreached) console.log(`\n${fp.unreached} more activities lead into ${fp.target.code} on later paths (--paths N to list more).`);
+  process.exit(0);
+}
 if (args.includes("--level")) {
   const crew = Number(opt("--crew") || 1);
   const r = level(xer, { projId, limitScale: crew !== 1 ? { "*": crew } : null, ...(args.includes("--within-float") ? { withinFloat: true } : {}) });
@@ -182,5 +210,8 @@ if (args.includes("--json")) {
   console.log(report.recompute.compared
     ? `\nRecomputed vs stored: ${report.recompute.matched} of ${report.recompute.compared} open activities agree on early finish, late finish and total float.`
     : "\nThe file stores no early and late dates to compare with (it was not scheduled before export).");
+  const lp = report.longestPath;
+  if (lp.p6Flagged) console.log(`Longest path: ${lp.count} open activities; P6 flagged ${lp.p6Flagged} at its last run; ${lp.agree} on both${lp.onlyP6.length ? `; only P6: ${lp.onlyP6.slice(0, 5).join(", ")}${lp.onlyP6.length > 5 ? ` and ${lp.onlyP6.length - 5} more` : ""}` : ""}${lp.onlyHere.length ? `; only here: ${lp.onlyHere.slice(0, 5).join(", ")}` : ""}.`);
+  else console.log(`Longest path: ${lp.count} open activities (the file stores no longest-path flag to compare with).`);
   console.log(`Driving path: ${report.drivingPath.length} activities, ${report.drivingPath.slice(0, 3).map((d) => d.code).join(", ")}${report.drivingPath.length > 3 ? " ... " + report.drivingPath.at(-1).code : ""}`);
 }

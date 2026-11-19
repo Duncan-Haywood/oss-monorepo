@@ -572,12 +572,13 @@ flagships:
       planted); next progress override, start float and 24-hour lag paths on a real
       P6 file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
       eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
-      appendix 2026-11-19; next a real reviewer's reading; (5) Monte Carlo risk and
-      risk register shipped 2026-11-19 (risk.mjs; eval/risk-check-,
-      eval/risk-register-check-2026-11-19.md); UDF ranges shipped 2026-11-19
-      (eval/udf-ranges-check-*); next: a real file with range UDFs, probabilistic
-      branches; (6) resource levelling shipped 2026-11-19 (level.mjs, --level:
-      serial pass by early start, the file's priority list, crew-size what-if;
-      eval/level-check-2026-11-19.md: 0 h over a limit from placed work on six
-      files, 37,670 of 37,670 links hold, x1e6 limits = CPM). More open items:
-      NEXT.md.
+      appendix 2026-11-19; next a real reviewer's reading; UDF ranges shipped
+      2026-11-19 (eval/udf-ranges-check-*); (6) resource levelling shipped
+      2026-11-19 (level.mjs, --level: serial pass by early start, the file's
+      priority list, crew-size what-if; eval/level-check-2026-11-19.md: 0 h over a
+      limit from placed work on six files, 37,670 of 37,670 links hold, x1e6 limits
+      = CPM); (7) longest path and multiple float paths shipped 2026-11-19
+      (floatpaths.mjs, --float-paths, page panel; eval/longest-path-2026-11-19.md:
+      P6's flag 261/261 on five files); next: a public XER with P6's own float_path
+      values to check path order against, the review section for an interim
+      milestone. More open items: NEXT.md.
