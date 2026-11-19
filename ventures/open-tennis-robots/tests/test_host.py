@@ -2112,6 +2112,32 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertIn("set TAKE_US = 8000", host.take_survey_advice(end))
         self.assertIn("already matches", host.take_survey_advice(dict(end, board_ms10=80)))
 
+    def test_instant_verdict_names_its_bound(self):
+        # 2026-11-19 (README "Short takes that read 0: no ball saw them"): a TAKE_US = 0 verdict names the first
+        # candidate that fits clearly worse than the step, the longest take these balls cannot tell from an instant one
+        shelf = {"wheels": 22, "least_ms10": 0, "refined_ms10": 0, "board_ms10": 0,
+                 "rms_ppm": [100, 100, 112, 128, 160, 200, 250, 300, 350]}
+        self.assertEqual(host.take_survey_bound(shelf), 2.5)
+        a = host.take_survey_advice(shelf)
+        self.assertIn("keep TAKE_US = 0", a)
+        self.assertIn("up to 2.5 ms", a)
+        self.assertIn("up to 1.5 ms", host.take_survey_advice(dict(shelf, rms_ppm=[100, 103] + [150] * 7)))
+        # a share over the margin is told TAKE_US = 0 too, and carries the bound
+        flat = dict(shelf, least_ms10=30, refined_ms10=26, rms_ppm=[100, 99, 95, 90, 101, 120, 150, 180, 200])
+        self.assertIn("up to 5 ms", host.take_survey_advice(flat))
+        # every candidate within the tolerance: the balls bound nothing, and the line says nothing more
+        self.assertIsNone(host.take_survey_bound(dict(shelf, rms_ppm=[100] * 9)))
+        self.assertNotIn("up to", host.take_survey_advice(dict(shelf, rms_ppm=[100] * 9)))
+        # older frames read on their own grid (eight: 0, 2-8 ms)
+        self.assertEqual(host.take_survey_bound(dict(shelf, rms_ppm=[100, 101, 130, 140, 150, 160, 170, 180])), 3.0)
+        # a pick the Pi acts on is not given a bound
+        self.assertNotIn("up to", host.take_survey_advice(dict(shelf, least_ms10=40, refined_ms10=40,
+                                                               rms_ppm=[100, 90, 80, 50, 30, 60, 90, 120, 150])))
+        import take_shelf_bound
+        for rms in ([100, 100, 112, 128, 160, 200, 250, 300, 350], [100, 103] + [150] * 7, [100] * 9):
+            self.assertEqual(host.take_survey_bound(dict(shelf, rms_ppm=rms)),
+                             take_shelf_bound.bound_ms(rms, host.TAKE_SURVEY_MS))
+
     def test_verdict_needs_two_summed_wheels(self):
         # 2026-11-18, README "The take survey's verdict needs two informative wheels": with the minimum at 2, 24 wheels
         # surveyed but one summed (the rest take-blind) is held back; two are enough; older firmware (no count) is not.

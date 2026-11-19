@@ -3405,3 +3405,25 @@ TAKE_SURVEY frame is 26 bytes. Everything is in `eval/take-short-n-2026-11-19.md
 
 **Not known.** All simulated. Whether real contacts are under 3 ms is unmeasured. The large misses left are 1.4-1.9 ms
 takes reading 0.
+
+## Short takes that read 0: no ball saw them (2026-11-19, after "Short takes on a second held-out set"; the bound named in the Pi's advice by its pre-registered rule)
+
+**The item.** Set N's large misses were 1.4-1.9 ms takes reading 0, put down to "the summed curve's shelf hides the
+valley". NEXT.md asked for a check of those builds' curves before any new grid or pick.
+
+**What the curves say.** `tests/take_shelf_bound.py --trace` on the stored dense refits (J to L, M, N): of the 17
+builds at 1-2.5 ms off by more than 1 ms, 11 had no kept wheel whose fit at the true take beat the step's by 20% of
+its squared rms, and 3 had one. There is no valley under the shelf. With one tach pulse a revolution, a take shorter
+than a revolution moves a wheel's fit only when its contact straddles an edge ("Take-blind rows traced"), and those
+builds' balls happened not to. Instant builds' curves are flat to 1.5-2.25 ms on 11 of 30, the same shape, so no grid
+or pick can separate the two from those balls.
+
+**What shipped.** What the balls do give is an upper bound: the first candidate whose mean rms is more than 2% over
+the step's. When the Pi says TAKE_US = 0 it now names it (`host.take_survey_bound`, `TAKE_BOUND_TOL`): "these balls
+cannot tell an instant take from one up to X ms ... more balls narrow it". Chosen on the five stored sets (145 of 145
+told TAKE_US = 0 had the true take at most X), then held out on set O (lag 0.42 s, seed 109, 66 drills, committed
+first in 020e567c9): 47 of 49 within the bound (95.9%, the rule asked 95%) and the bound at 1.5 ms on 4 of 6 instant
+builds (half asked). Both held. The two misses were 2.0 ms takes at a 16-19 ppm step, where a whole ppm is 5-6%; a
+ppm floor on the tolerance is NEXT.md's next test. Set O also had two 5 ms builds told "keep 0" (best fit only 9-22%
+under the step's); they now read "up to 6 ms" and "up to 7 ms". No board number or verdict changed. Everything is in
+`eval/take-bound-o-2026-11-19.md`.
