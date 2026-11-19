@@ -40,6 +40,10 @@ The associations travel between groups, but the levels do not:
 
 ![LLM-predicted against true gap between groups](experiments/m5_local_llm/results/gap_scatter.svg)
 
+- **Does a bigger local model know the gap? (milestone 5, scale point):** not at 3 billion parameters. Qwen2.5-3B-Instruct (Qwen Research Licence; research use only, weights not redistributed), on the same 3,478 respondents and 74 cells, orders the groups' gaps better than the 1.5B model (Spearman 0.56 against 0.35) but answers "No" to almost everything: 87% of its probabilities sit below 0.01 or above 0.99, it misses a group's share by a median 61 points zero-shot, and its predicted gap on the probability scale has a slope of 0.02 (0.5B &minus;0.10, 1.5B 0.09). On the logit scale, an exploratory analysis done after the pre-registered one, its gap has a slope of 1.30 (0.75 to 1.86), carried by the tradition pairs, but the logit-shift estimate is still no better than carrying the source share and 6.4 points behind the transferred model. See [`experiments/m5_local_llm/results/scale_summary.md`](experiments/m5_local_llm/results/scale_summary.md) and `LOG.md`, 2026-11-19.
+
+![Slope of the LLM's predicted on the true gap, by model size](experiments/m5_local_llm/results/scale_slope.svg)
+
 Gradient boosting adds almost nothing over logistic regression (median +0.003 AUC).
 
 **Paper draft (milestone 6):** [`paper/draft.md`](paper/draft.md), a methods paper for *Sociological Methods & Research* on rotating an item off a subgroup's ballot: why a transferred model misses the level, how big a calibration subsample to keep, shrinkage with robust empirical Bayes intervals, and the by-kind prior rule with its fresh-item test. Every number is tied to a results file by `paper/check_numbers.py` (82 checks); citations in [`paper/references.bib`](paper/references.bib). Six print-size figures (vector PDF and SVG, journal column widths) are in [`paper/figures/`](paper/figures/), drawn from the committed CSVs by `paper/figures.py`, which first recomputes the numbers each figure shows and stops if one differs from the text; for example [the n* check](paper/figures/fig2_nstar.svg) and [the prior comparison](paper/figures/fig5_priors.svg).
@@ -85,6 +89,8 @@ python3 experiments/m5_local_llm/score.py --model Qwen/Qwen2.5-1.5B-Instruct   #
 python3 experiments/m5_local_llm/analyse.py    # ~3 min; results/cells.csv, summary.md
 python3 experiments/m5_local_llm/figure.py     # results/gap_scatter.svg
 python3 experiments/m5_local_llm/check.py --model Qwen/Qwen2.5-1.5B-Instruct   # cache path and bf16 vs fp32
+python3 experiments/m5_local_llm/score.py --model Qwen/Qwen2.5-3B-Instruct     # ~109 min; Qwen Research Licence
+python3 experiments/m5_local_llm/scale.py      # 10 s; results/scale_summary.md, scale_cells.csv, scale_slope.svg
 python3 experiments/m3_period_mixture/summarise.py             # results/summary.md against the year-free mixture
 python3 experiments/m6_shift_bound/run.py --jobs 4         # ~9 min on 4 cores (OMP_NUM_THREADS=1); transfer-error decomposition, results/cells.csv
 python3 experiments/m6_shift_bound/summarise.py            # results/summary.md

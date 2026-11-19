@@ -17,6 +17,7 @@ FR = "experiments/m6_fresh_items/results/summary.md"
 DV = "experiments/m6_design_variance/results/summary.md"
 DS = "experiments/m6_design_shrinkage/results/summary.md"
 LL = "experiments/m5_local_llm/results/summary.md"
+LS = "experiments/m5_local_llm/results/scale_summary.md"
 CHECKS = [
     (LL, "| LLM15 | 0.569 (", "median AUC of 0.569"),
     (LL, "| GBM_full | 0.780 (", "0.780 for the transferred model"),
@@ -27,6 +28,12 @@ CHECKS = [
     (LL, "| LLM15_shift | &mdash; | 9.35 (", "misses by 9.35 points"),
     (LL, "| GBM_full | 0.780 (0.755&ndash;0.790) | 5.11 (", "against 5.11 for the transferred model"),
     (LL, "74 cells (pair x item)", "Over 74 cells"),
+    (LS, "| LLM3 | 3.09 | 0.556 (", "Spearman 0.556"),
+    (LS, "| LLM3 | 3.09 | 0.556 (2.7e-07) | 0.02 (", "slope of 0.02"),
+    (LS, "| LLM3_shift | &mdash; | 12.27 (", "misses by 12.27 points"),
+    (LS, "| LLM3 | 0.560 (0.545&ndash;0.577) | 61.43 (", "61.43 points zero-shot"),
+    (LS, "(87.2% of its", "87% of its scores"),
+    (LS, "slope 1.30 (", "a slope of 1.30 overall"),
     (SB, "241 cells", "241 source-to-target cells"),
     (SB, "| E0 transfer as is | 5.59 |", "5.59 points on average"),
     (SB, "median |A-hat| (covariate shift, label-free) 0.83 points; |A-hat| < |B-hat| in 77% of cells", "|Â| < |B̂| in 77% of cells"),

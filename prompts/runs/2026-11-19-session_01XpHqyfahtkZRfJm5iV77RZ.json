@@ -51,7 +51,7 @@
     "docs/posts/2026-11-19-a-schedule-comparison-that-compared-the-wrong-project.md"
   ],
   "goal": null,
-  "notes": "Target chosen as the file that changed most recently on main (#17621). Guard: no new lint needed: check_csv_formula_guard.py already caught the CSV defect in CI; the miss was a merge on red. Verification: node --test ventures/xer-schedule-check/**/*.test.mjs 34/34 pass; python3 platform/ci/check_csv_formula_guard.py ok (was exit 1 on main); redteam rerun: 7/7 gaps caught_after_fix.; python3 platform/ci/unwired_checks.py: 244/244 pass; python3 -m unittest discover -s prompts: 136 OK; check_posts ok.",
+  "notes": "Target chosen as the file that changed most recently on main (#17621). Guard: no new lint needed: check_csv_formula_guard.py already caught the CSV defect in CI; the miss was a merge on red. Verification: node --test ventures/xer-schedule-check/**/*.test.mjs 34/34 pass; python3 platform/ci/check_csv_formula_guard.py ok (was exit 1 on main); redteam rerun: 7/7 gaps caught_after_fix.; python3 platform/ci/unwired_checks.py: 244/244 pass; python3 -m unittest discover -s prompts: 136 OK; check_posts ok. Merge conflict with #17625 in compareCsv (same guard written twice) resolved keeping this branch's version.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -237,7 +237,7 @@
     "real_defects": [
       {
         "file": "ventures/xer-schedule-check/compare.mjs",
-        "issue": "compareCsv wrote activity names, constraint text and other cells from the contractor's XER with no formula-injection guard, so a task name like =HYPERLINK(...) ran when the owner's rep opened the 'update changes' CSV. platform/ci/check_csv_formula_guard.py exits 1 on main since #17621 (it runs as an unwired check in ventures-tests). Fixed: cells starting = + - @ tab CR get an apostrophe unless a plain number; CR also forces quoting.",
+        "issue": "compareCsv wrote activity names, constraint text and other cells from the contractor's XER with no formula-injection guard, so a task name like =HYPERLINK(...) ran when the owner's rep opened the 'update changes' CSV. platform/ci/check_csv_formula_guard.py exits 1 on main since #17621 (it runs as an unwired check in ventures-tests). Fixed: cells starting = + - @ tab CR get an apostrophe unless a plain number; CR also forces quoting. The same one-line guard also landed concurrently in #17625 (hearth-and-horizon run, which saw main's guard red); this PR keeps that guard, adds CR quoting and the failing-first test.",
         "patched": true
       },
       {

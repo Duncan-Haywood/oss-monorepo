@@ -51,7 +51,8 @@ reviewing a contractor's schedule is exactly the case where the file's author is
 A task named `=HYPERLINK("http://…","open")` was written into the "update changes" CSV as it was,
 so a spreadsheet would run it as a formula. Cells starting `=`, `+`, `-`, `@`, tab or CR now get a leading
 apostrophe, unless the cell is a plain number. The same file's DCMA findings CSV already had this
-guard. The new exporter didn't.
+guard. The new exporter didn't. Another session saw the red check and landed the same one-line guard
+while this run was working. This run added the test that keeps it there.
 
 ## The guard was already there
 
