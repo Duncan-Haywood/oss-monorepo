@@ -25,6 +25,14 @@ caching and artifact storage, contracts and each vendor's own minute accounting,
 and does not forecast an invoice. Not a quote, a guarantee or advice. Not affiliated with any
 vendor named.
 
+## Known gaps
+
+From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-ci-minutes-pricing-calculator.json`](../../portfolio/quality/audits/2026-11-19-ci-minutes-pricing-calculator.json)):
+
+- Only GitHub's Linux rate ($0.006 a minute, from GitHub's runner pricing reference) was rechecked on 2026-11-19. Search summaries suggest Buildkite's hosted Linux rate is lower than the $0.013 here but adds a per-user platform fee, and Bitbucket Standard is $3.65 a user rather than $3; neither vendor page could be fetched to confirm, so those defaults are unchanged and each provider still needs its own as-of date.
+- Seats are fixed at 1, and GitLab Free's pay-per-pack minutes are not offered as an option.
+- A malformed `--prices` file exits 1, the over-budget code, instead of 2.
+
 ## Privacy
 
 No network call, no account, no analytics vendor. The browser page (`index.html`) calculates
