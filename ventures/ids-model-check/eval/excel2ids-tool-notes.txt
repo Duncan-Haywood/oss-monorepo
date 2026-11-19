@@ -1,0 +1,14 @@
+The template's sample workbook: 0 stop(s), 2 note(s)
+  the tool writes <milestone>LOD400</milestone> into every IDS (a placeholder in its code); this reader writes none, or each phase when the workbook is split by phase
+  row 10, col 20: column T's value is a typed TRUE: the tool writes "True", which matches no IDS boolean; this reader writes "true"
+public IDS files on GitHub: 51 workbooks written; the tool would stop on 0; 35 read the same apart from the LOD400 milestone
+IDS-Audit-tool test files: 44 workbooks written; the tool would stop on 0; 37 read the same apart from the LOD400 milestone
+buildingSMART test pairs (suite 870f9c4): 256 workbooks written; the tool would stop on 0; 61 read the same apart from the LOD400 milestone
+
+Kinds (count of cells, files, one example each):
+   205  205 note IFC version "...": the tool writes IFC4X3_ADD2 (...); this reader writes IFC2X3 IFC4 
+          e.g. eval/corpus/real/OpenAEC-Foundation__OpenAEC-BIM-validator__ids-bestanden_NL_BIM_Basis_ILS_v2.ids: IFC version "IFC2X3 IFC4": the tool writes IFC4X3_ADD2 (it takes only exactly IFC2X3, IFC4 or IFC4X3_ADD2); this reader writes IFC2X3 IFC4
+     9    9 note IFC version "...": the tool writes IFC4X3_ADD2 (...); this reader writes IFC4 IFC4X3_ADD2 
+          e.g. eval/corpus/real/BIM2SIM__bim2sim__bim2sim_plugins_PluginIFCCheck_bim2sim_ifccheck_ifc_bps.ids: IFC version "IFC4 IFC4X3_ADD2": the tool writes IFC4X3_ADD2 (it takes only exactly IFC2X3, IFC4 or IFC4X3_ADD2); this reader writes IFC4 IFC4X3_ADD2
+     4    4 note IFC version "...": the tool writes IFC4X3_ADD2 (...); this reader writes IFC2X3 IFC4 IFC4X3_ADD2 
+          e.g. eval/corpus/real/Moult__ifcbasix__BASIX (4).ids: IFC version "IFC2X3 IFC4 IFC4X3_ADD2": the tool writes IFC4X3_ADD2 (it takes only exactly IFC2X3, IFC4 or IFC4X3_ADD2); this reader writes IFC2X3 IFC4 IFC4X3_ADD2

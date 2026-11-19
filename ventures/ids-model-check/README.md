@@ -403,6 +403,20 @@ an `IFCWALL`; the audit names it. Details, and where this reader differs from
 the Excel2IDS tool (booleans written `true`, `REPLACEME` rows keep their value
 and URI, no fixed `LOD400` milestone): `eval/excel2ids-2026-11-19.md`.
 
+**Where Excel2IDS's own tool would differ, cell by cell (2026-11-19).** After a
+workbook is read, the page lists every cell where the Excel2IDS tool (its
+source at `4eb7575`, read, not run) would write a different IDS or stop with
+none: a category with no purpose (the tool stops), a toggle typed as the text
+`FALSE` (on for the tool), a typed `TRUE` (written `True`, which matches
+nothing), a number in the matrix (the tool stops), a `REPLACEME` row that takes
+another row's instructions or hands its value to an earlier property facet,
+`Prohibited` read as required, a moved layout. The CLI prints the same on
+`--from-sheet`. The template's own sample has one: its "External doors"
+category asks for `IsExternal` = `True`, so the tool's MEP IDS selects no door.
+The rules also caught this venture's own download: 316 of 351 workbooks it
+wrote had an empty purpose row the tool cannot read; it now writes `General`
+(the tool's default) and 0 of 351 stop. Details: `eval/excel2ids-tool-2026-11-19.md`.
+
 ### An IDS as a spreadsheet and back (2026-11-19)
 
 Requirements are often agreed in a table first and typed into an IDS by hand.

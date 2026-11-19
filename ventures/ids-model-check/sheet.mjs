@@ -737,6 +737,7 @@ export async function xlsxToRows(bytes, inflateRaw, opts = {}) {
   const stRel = relList.find((r) => /\/styles$/.test(r.attrs.Type || ""));
   const kinds = styleKinds((stRel && (await read(resolve(stRel.attrs.Target)))) || (await read(wbDir + "styles.xml")));
   const out = [];
+  const cellTypes = new Map(); // "row,col" (0-based) -> "b" boolean or "n" number cell, as Excel stored it
   let rowNo = 0;
   for (const r of kids(kid(parseXml(sheetText), "sheetData"), "row")) {
     rowNo = r.attrs.r ? Number(r.attrs.r) : rowNo + 1;
@@ -752,7 +753,7 @@ export async function xlsxToRows(bytes, inflateRaw, opts = {}) {
       else if (t === "s") val = v ? sst[Number(v.text)] ?? "" : "";
       // Excel turns a typed true/false into a boolean cell; IDS writes a
       // boolean value true or false, lower case (TRUE matches nothing).
-      else if (t === "b") val = v ? (/^(1|true)$/i.test(v.text.trim()) ? "true" : "false") : "";
+      else if (t === "b") { val = v ? (/^(1|true)$/i.test(v.text.trim()) ? "true" : "false") : ""; if (v) cellTypes.set(`${rowNo - 1},${col}`, "b"); }
       else if (t === "str" || t === "e") val = v ? unescapeXstring(v.text) : "";
       else if (t === "d") val = v ? v.text : ""; // ISO 8601 already (strict OOXML, rare)
       else if (v) {
@@ -762,6 +763,7 @@ export async function xlsxToRows(bytes, inflateRaw, opts = {}) {
         // all (a formula pointing at an empty cell): it stays the number.
         const asDate = kind && Number.isFinite(n) && n >= 0 && !(kind === "date" && n < 1 && !date1904);
         val = asDate ? serialToIso(n, kind, date1904) : excelNumber(v.text);
+        if (!asDate) cellTypes.set(`${rowNo - 1},${col}`, "n");
       }
       cells[col] = val;
     }
@@ -772,6 +774,7 @@ export async function xlsxToRows(bytes, inflateRaw, opts = {}) {
   // Which sheet this is and what else the workbook holds (not row data).
   Object.defineProperty(out, "sheetNames", { value: withCells.map((p) => String(p.s.attrs.name)) });
   Object.defineProperty(out, "sheetName", { value: String(pick.s.attrs.name) });
+  Object.defineProperty(out, "cellTypes", { value: cellTypes });
   return out;
 }
 

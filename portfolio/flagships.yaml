@@ -494,39 +494,35 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      Excel2IDS's tool beside excel2ids.mjs on the same workbooks (pip ifctester; a
-      session allowed to run it; eval/excel2ids-2026-11-19.md). IFC4X3 ifcXML: none
-      public (searched 2026-11-18); B-spline control points cut into rows from knot
-      counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md); more real exports through
+      Excel2IDS's tool run on the same workbooks: eval/excel2ids-sidebyside.mjs is
+      written (pip ifctester; needs a session allowed to run the fetched script; it
+      confirms or corrects excel2idsToolNotes). IFC4X3 ifcXML: none public (searched
+      2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
+      (eval/ifcxml-twins-2026-11-18.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs; IFC4/IFC4X3 STEP
       exports (ThatOpen/engine_web-ifc tests/ifcfiles/public) as nested ifcXML
       through eval/ifc4-layout.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked") and HISTORY.md.
-      Next, most valuable first: ifcXML streams 2026-11-18
-      (eval/lazy-ifcxml-2026-11-18.md: 374 MB federated ifcXML 4.0 to 1.5 GB peak,
-      fits 1 GB; strings keep whitespace, 731 MEP labels). nested IFC4 ifcXML at
-      scale 2026-11-18 (eval/ifc4-layout-scale-2026-11-18.md: 4 real IFC4/IFC4X3
-      exports nested, 857,301 entities and 2,160 of 2,160 verdicts as STEP; schema
-      from the root, not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB
-      1,770 to 1,481 MB, fits 768 MB). nested ifcXML read as it closes 2026-11-18
-      (eval/nested-early-2026-11-18.md: same numbers and notes on 57 files; smallest
-      heap 160 to 96 MB on C20, federated unchanged at 704 MB). Editor repair on
-      open, bare \w/\s, subclass boxes 2026-11-18/19 (eval/editor-open-repair-*,
-      eval/word-class-*, eval/deprecated-subclasses-*). Sets for one predefined type
-      2026-11-19 (eval/predefined-sets-2026-11-19.md: 186 IFC4, 343 IFC4X3 sets;
-      audit warns pset-predefined, editor fills the type; 1,008 of 1,008 offers
-      agree). Template types 2026-11-19 (eval/template-types-2026-11-19.md:
-      occurrence sets on types, performance sets off IfcPerformanceHistory warned,
-      1,280 of 1,280 editor pairs agree). IDS as a spreadsheet 2026-11-19
-      (eval/sheet-roundtrip-2026-11-19.md: .xlsx/CSV both ways; 334 of 334 test IDS,
-      62 of 64 public same back). Excel-saved workbooks 2026-11-19
-      (eval/excel-workbooks-2026-11-19.md: 65,537 of 65,548 cells agree with
-      openpyxl). Excel2IDS template workbooks both ways 2026-11-19 (excel2ids.mjs,
-      eval/excel2ids-2026-11-19.md: 309 of 309 public specs that fit come back the
-      same; partOf, unnamed material, ranges do not fit). next: a BIM manager's real
-      table or filled Excel2IDS workbook via --from-sheet; Excel2IDS's own tool run
-      side by side on the same workbooks; Excel itself typing into the download; an
+      Next, most valuable first: Editor repair on open, bare \w/\s, subclass boxes
+      2026-11-18/19 (eval/editor-open-repair-*, eval/word-class-*,
+      eval/deprecated-subclasses-*). Sets for one predefined type 2026-11-19
+      (eval/predefined-sets-2026-11-19.md: 186 IFC4, 343 IFC4X3 sets; audit warns
+      pset-predefined, editor fills the type; 1,008 of 1,008 offers agree). Template
+      types 2026-11-19 (eval/template-types-2026-11-19.md: occurrence sets on types,
+      performance sets off IfcPerformanceHistory warned, 1,280 of 1,280 editor pairs
+      agree). IDS as a spreadsheet 2026-11-19 (eval/sheet-roundtrip-2026-11-19.md:
+      .xlsx/CSV both ways; 334 of 334 test IDS, 62 of 64 public same back).
+      Excel-saved workbooks 2026-11-19 (eval/excel-workbooks-2026-11-19.md: 65,537
+      of 65,548 cells agree with openpyxl). Excel2IDS template workbooks both ways
+      2026-11-19 (excel2ids.mjs, eval/excel2ids-2026-11-19.md: 309 of 309 public
+      specs that fit come back the same; partOf, unnamed material, ranges do not
+      fit). Excel2IDS tool differences cell by cell 2026-11-19
+      (eval/excel2ids-tool-2026-11-19.md: page and CLI list where the .exe writes
+      another IDS or stops; download fills purpose General, tool stops 316 to 0 of
+      351; sample's External doors asks True). next: a BIM manager's real table or
+      filled Excel2IDS workbook via --from-sheet; the tool run side by side
+      (eval/excel2ids-sidebyside.mjs); Excel itself typing into the download; an
       RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. More open
       items: NEXT.md.

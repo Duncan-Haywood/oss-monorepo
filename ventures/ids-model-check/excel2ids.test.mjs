@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { inflateRawSync } from "node:zlib";
 import { sheetsToXlsx, xlsxToRows } from "./sheet.mjs";
-import { isExcel2Ids, excel2idsToIds, readRequirementSheet, idsToExcel2Ids, excel2IdsToXlsx } from "./excel2ids.mjs";
+import { isExcel2Ids, excel2idsToIds, readRequirementSheet, idsToExcel2Ids, excel2IdsToXlsx, excel2idsToolNotes } from "./excel2ids.mjs";
 import { parseXml } from "./xml.mjs";
 import { structureIssues } from "./structure.mjs";
 import { parseIds } from "./ids.mjs";
@@ -167,4 +167,105 @@ test("what the template cannot say is left out with the reason, not changed", ()
   assert.equal(g[18][13], "D1");
   assert.equal(g[4][17], "required");
   assert.equal(g[0][17], "Fine");
+});
+
+// Where Excel2IDS's own tool (Excel2IDS.py at 4eb7575) would read a workbook
+// differently: the rules are the tool's behaviour as its source shows it.
+const typed = (rows, cells) => { Object.defineProperty(rows, "cellTypes", { value: new Map(cells) }); Object.defineProperty(rows, "sheetName", { value: "Requirements" }); return rows; };
+const msgs = (t) => [...t.stops.map((x) => "STOP " + x.message), ...t.notes.map((x) => x.message)];
+
+test("tool notes: the template sample's differences are named, cell by cell", () => {
+  const t = excel2idsToolNotes(typed(SAMPLE.map((r) => r.slice()), []));
+  const m = msgs(t);
+  assert.ok(m.some((x) => /LOD400/.test(x)));
+  // Text "false" is on for the tool: the switched-off column and row are read there.
+  assert.ok(t.notes.some((x) => x.row === 18 && x.col === 21 && /column U toggle "false" is text/.test(x.message)));
+  assert.ok(t.notes.some((x) => x.row === 22 && x.col === 17 && /requirement row toggle "false" is text/.test(x.message)));
+  // Typed as IfcWall: the tool writes it so.
+  assert.ok(t.notes.some((x) => x.row === 6 && x.col === 19 && /IfcWall/.test(x.message)));
+  // The REPLACEME row (20): its value goes onto column S's applicability property; the
+  // instructions the tool carries are row 23's (the last X it read, in column R), none, as
+  // this row's are, so no note. The "maybe" row (24) adds row 20's facet again.
+  assert.ok(t.notes.some((x) => x.row === 20 && /writes it onto the property facet from column S's applicability/.test(x.message)));
+  assert.ok(!t.notes.some((x) => x.row === 20 && /instructions/.test(x.message)));
+  assert.ok(t.notes.some((x) => x.row === 24 && /adds the REPLACEME facet from row 20 again/.test(x.message)));
+  assert.deepEqual(t.stops, []);
+});
+
+test("tool notes: typed booleans and numbers, and what stops the tool", () => {
+  const g = book({
+    meta: { title: "t", ifc: "IFC4 IFC2X3" },
+    cols: [
+      { name: "A", cardinality: "Prohibited", entity: "IFCDOOR", pvalue: "true", pset: "P", pname: "X", purpose: "" },
+      { name: "B", entity: "IFCWALL", purpose: "ARC", on: "false" },
+      { name: "C", entity: "IFCSLAB", purpose: "ARC" },
+    ],
+    reqs: [
+      { cardinality: "Required", pset: "P", pname: "REPLACEME", pvalue: "5", uri: "https://x", dtype: "IfcLabel", marks: { 0: "Width", 2: "X" } },
+      { cardinality: "required", aname: "Name", marks: { 2: "30" } },
+    ],
+  });
+  // B's toggle a typed FALSE (off for both), A's property value a typed TRUE, C's mark on row 20 a number.
+  const t = excel2idsToolNotes(typed(g, [["17,18", "b"], ["9,17", "b"], ["19,19", "n"]]));
+  const m = msgs(t);
+  // A REPLACEME value before any X: the tool has no instructions yet.
+  assert.ok(m.some((x) => /^STOP row 19, column R fills a REPLACEME before any X/.test(x)));
+  assert.ok(m.some((x) => /^STOP row 20, column T holds the number 30/.test(x)));
+  // "Prohibited" is not "prohibited" to the tool; the empty purpose stops it.
+  assert.ok(m.some((x) => /column R cardinality "Prohibited": the tool compares it with "prohibited" exactly/.test(x)));
+  assert.ok(m.some((x) => /^STOP column R has no purpose/.test(x)));
+  assert.ok(m.some((x) => /column R's value is a typed TRUE: the tool writes "True"/.test(x)));
+  assert.ok(m.some((x) => /IFC version "IFC4 IFC2X3": the tool writes IFC4X3_ADD2.*this reader writes IFC4 IFC2X3/.test(x)));
+  assert.ok(m.some((x) => /cardinality "Required"/.test(x)));
+  assert.ok(m.some((x) => /data type "IfcLabel"/.test(x)));
+  // A typed FALSE toggle is off for both: column S is not mentioned.
+  assert.ok(!m.some((x) => /column S/.test(x)));
+});
+
+test("tool notes: a REPLACEME property row's value goes to the earlier property facet", () => {
+  const g = book({
+    cols: [{ name: "A", entity: "IFCDOOR", purpose: "ARC" }],
+    reqs: [
+      { cardinality: "required", pset: "P", pname: "Q", marks: { 0: "X" } },
+      { cardinality: "required", pset: "P", pname: "REPLACEME", pvalue: "EI60", marks: { 0: "FireRating" } },
+      { cardinality: "required", pset: " REPLACEME", pname: "Z", marks: { 0: "S" } },
+    ],
+  });
+  const t = excel2idsToolNotes(typed(g, []));
+  assert.ok(t.notes.some((x) => x.row === 20 && /drops this row's value from the facet and writes it onto the property facet from row 19 instead/.test(x.message)));
+  assert.ok(t.notes.some((x) => x.row === 21 && /spaces around REPLACEME/.test(x.message)));
+  assert.deepEqual(t.stops, []);
+});
+
+test("tool notes: a moved layout is named and nothing else is guessed", () => {
+  const g = SAMPLE.map((r) => ["", ...r]);
+  const t = excel2idsToolNotes(typed(g, []));
+  assert.equal(t.notes.length, 1);
+  assert.match(t.notes[0].message, /layout has moved \(the category labels are in column R, not Q/);
+  const other = excel2idsToolNotes(Object.defineProperty(SAMPLE.map((r) => r.slice()), "sheetName", { value: "IDS" }));
+  assert.match(other.stops[0].message, /named exactly "Requirements"/);
+});
+
+test("the workbook this writes is one the tool reads: purpose filled, classes upper case", async () => {
+  const ids = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications>
+    <specification name="Doors" ifcVersion="IFC4"><applicability><entity><name><simpleValue>IfcDoor</simpleValue></name></entity></applicability>
+      <requirements><attribute><name><simpleValue>Name</simpleValue></name></attribute></requirements></specification></specifications></ids>`;
+  const w = idsToExcel2Ids(ids);
+  assert.equal(w.purposeFilled, true);
+  assert.equal(w.rows[16][17], "General");
+  assert.equal(w.rows[5][17], "IFCDOOR");
+  assert.match(w.tool[0], /filled with General/);
+  assert.deepEqual(w.notes, []);
+  const rows = await xlsxToRows(excel2IdsToXlsx(w.rows), inflate, { sheet: "Requirements" });
+  const t = excel2idsToolNotes(rows);
+  assert.deepEqual(t.stops, []);
+  assert.deepEqual(t.notes.map((x) => x.message).filter((x) => !/LOD400/.test(x)), []);
+  // Read back here: the purpose is General.
+  assert.match(excel2idsToIds(rows).files[0].text, /<purpose>General<\/purpose>/);
+});
+
+test("xlsxToRows records which cells Excel stored as booleans and numbers", async () => {
+  const rows = await xlsxToRows(excel2IdsToXlsx([["a", "1"]]), inflate);
+  // Every cell this venture writes is text.
+  assert.equal(rows.cellTypes.size, 0);
 });

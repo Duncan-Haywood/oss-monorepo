@@ -65,6 +65,8 @@ if (flag("--fix") && files.length === 1) {
   } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
   if (r.format === "excel2ids") console.error(`read as an Excel2IDS workbook: ${r.files.length} IDS file(s)${r.phases.length && !flag("--by-phase") ? `; phases ${r.phases.join(", ")} named (--by-phase writes one file per phase)` : ""}`);
   for (const w of r.warnings) console.error(`warning row ${w.row}: ${w.message}`);
+  // Where Excel2IDS's own tool would read this workbook differently (excel2idsToolNotes).
+  if (r.tool) for (const [kind, list] of [["stops", r.tool.stops], ["differs", r.tool.notes]]) for (const x of list) console.error(`excel2ids tool ${kind}${x.row ? ` (row ${x.row}${x.col ? `, col ${x.col}` : ""})` : ""}: ${x.message}`);
   if (!r.files.length) { console.error("no specification has a requirement switched on (an X, or a REPLACEME value, in a column whose toggle is TRUE)"); process.exit(1); }
   let failed = false;
   const out = opt("-o");
@@ -85,6 +87,7 @@ if (flag("--fix") && files.length === 1) {
   let w;
   try { w = idsToExcel2Ids(fixStructure(readFileSync(files[0], "utf8")).text || readFileSync(files[0], "utf8")); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
   for (const n of w.notes) console.error(`not in the workbook: ${n}`);
+  for (const n of w.tool) console.error(`for Excel2IDS's tool: ${n}`);
   console.error(`${w.kept} of ${w.total} specification(s) in the workbook, ${w.requirementRows} requirement row(s)`);
   if (!opt("-o")) { console.error("name the workbook with -o OUT.xlsx"); process.exit(2); }
   writeFileSync(opt("-o"), excel2IdsToXlsx(w.rows));
