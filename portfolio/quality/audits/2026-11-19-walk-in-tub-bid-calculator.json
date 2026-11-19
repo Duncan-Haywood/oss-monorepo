@@ -175,14 +175,16 @@
       "what": "vs-housecall-pro claims the tool takes 'alcove versus freestanding unit' and 'drain and valve rough-in'; neither input exists",
       "where": "ventures/walk-in-tub-bid-calculator/vs-housecall-pro.html:57",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17540"
     },
     {
       "severity": "low",
       "what": "FAQ says the 11.78 h default covers 'the surround'; tile surround is off by default and its 8 h are not in 11.78",
       "where": "ventures/walk-in-tub-bid-calculator/index.html:331",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17540"
     },
     {
       "severity": "medium",
@@ -210,9 +212,10 @@
       "what": "No test exercises tubCount>1 with per-tub extras such as handheld; dropping the tubCount multiplier survives the suite",
       "where": "ventures/walk-in-tub-bid-calculator/calc.mjs:307",
       "category": "untested-core",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17540"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17540"],
   "verdict": "Arithmetic is right: default and preset bids recompute by hand to the cent, margin is taken on price, and every figure on the guide and comparison pages reproduces from the engine; defaults sit inside a published cost guide's ranges. It misses the bar on claims (vs-housecall-pro advertises freestanding and valve rough-in inputs that do not exist; the FAQ says the default includes the surround) and verification (2 of 4 seeded mutants survive; multi-tub extras untested). A bath-remodel contractor would also want an electrical line for powered tubs (NEC 680.71 dedicated GFCI circuit) and a water-heater capacity line, which today must be typed into 'Other cost'."
 }
