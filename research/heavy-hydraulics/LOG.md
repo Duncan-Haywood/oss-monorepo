@@ -2,6 +2,21 @@
 
 Newest first.
 
+## 2026-11-19 · Milestone 7t: read the bend's anchor off the measured curves (7s's Next y4; predictions written before any 7t number was computed)
+- Why: 7s's Next (y4). 7s showed 7r's bend table holds when a steeper synthetic curve keeps its level at 64 L/min (0.0052 to 0.0053 in (A)) and fails when it keeps it at 79 L/min (0.0059, worse than owh's 0.0056). Which anchor is right is a property of real pumps, and the 13 measured donor variants carry it: when a measured idle curve bends more, does its level at a 64 L/min pump stay put? 7t reads the anchor off the donors, per fold, and rebuilds the table with it.
+- Disclosed before the run: no 7t level, slope, anchor, pick, feature or score has been computed or looked at; the per-variant bends b are 7s's (printed there), the levels P(64) have not been printed by any milestone I have read. 7s's results file must reproduce byte for byte first on the rebuilt caches.
+- Method fixed now: `experiments/gear_pump_anchor.py`, on 7j to 7s's 22 conditions and 4312 cells, 7r's grid &beta; = 1.2 to 1.9 by 0.1, donors, e<sub>m</sub>, grid lookup and owds form unchanged. **Anchor family:** a power bend pivoting at q*(&lambda;) = 64 (79/64)<sup>&lambda;</sup>: P(q) (q/q*)<sup>&gamma;</sup>, &gamma; = ln(&beta;/b<sub>j</sub>)/ln(79/64); &lambda; = 0 is 7r's shape p, &lambda; = 1 is 7s's shape v. If measured curves follow P<sub>j</sub>(q) = A (q/q*)<sup>&gamma;<sub>j</sub></sup>, the slope of ln P<sub>j</sub>(64) on ln b<sub>j</sub> across pumps is &minus;&lambda;. **Estimates** (central idle curve, donors of the held-out maker group only, so the held-out pump enters only through its own data-sheet bend): &lambda;<sub>pool</sub>, minus the OLS slope over the donor variants; &lambda;<sub>fe</sub>, the same slope within maker groups (only the AZPF and AZPN families have two or more variants, which differ by drive speed and gear). No clipping. **Rules:** owh, owdm (references); owdb (&lambda; 0) and owdbv (&lambda; 1) as 7s; owdbq (&lambda;<sub>pool</sub>) and owdbf (&lambda;<sub>fe</sub>). **Scores** exactly as 7j to 7s: (A) 308 diagonals; (B1) nine half-speed conditions; (B2) S = 0.20 and 0.50. **Diagnostics:** per variant P(64), P(79), b; per fold &lambda;<sub>pool</sub>, &lambda;<sub>fe</sub> and pivots; Danfoss's own ln P(64) residual from its donors' pooled line (enters no fit); Danfoss-fold row medians by &beta;; (A) over a fixed sweep &lambda; = &minus;0.5 to 1.0 by 0.25.
+- Disclosures: the bent curves stay synthetic; the anchor family is one-parameter (power law, pivot moves); the pooled slope mixes the bend with whatever else sets a family's drag level at 64 L/min (size, make), so it is the noisier read; the within-family slope rests on two families whose variants differ by modelled drive transforms, not separate measurements.
+- **Predictions:**
+  - PT1: owdb and owdbv reproduce 7s's 0.0052 and 0.0059 in (A). Prior 99%.
+  - PT2: Danfoss-fold &lambda;<sub>pool</sub> lies in [&minus;0.5, 0.5] (closer to anchor 64 than 79). Prior 45%.
+  - PT3: Danfoss-fold &lambda;<sub>fe</sub> lies in [&minus;0.5, 0.5]. Prior 45%.
+  - PT4: owdbq's (A) RMS is below owh's 0.0056. Prior 50%.
+  - PT5: owdbf's (A) RMS is below owh's 0.0056. Prior 50%.
+  - PT6: owdbq and owdbf within 0.0003 in (A). Prior 45%.
+  - PT7: Danfoss's ln P(64) lies below its donors' pooled line (its own picks at 58.5 L/min suggest small sizes are cheap for it). Prior 65%.
+  - PT8: owdbq beats owh in all three scores (A, B1, B2). Prior 40%.
+
 ## 2026-11-19 · Milestone 7s: does 7r's bend table survive a different bend shape? (7r's Next y3; predictions written before any 7s number was computed)
 - Why: 7r's Next (y3). 7r's table beat the two-price rule (0.0052 against 0.0056 in (A)) with rows built on one synthetic shape, a power of flow pivoting at 64 L/min, (q/64)<sup>&gamma;</sup>. 7r's own reading put its 0.0004 margin "well inside what a different synthetic shape could move". 7s rebuilds the rows with three other shapes that give the same two-point bend b and asks whether the margin over owh holds.
 - Disclosed before the run: no 7s curve, pick, feature, fit or score has been computed or looked at. 7r's results file must reproduce byte for byte first on the rebuilt caches.
