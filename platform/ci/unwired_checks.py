@@ -37,6 +37,13 @@ suites in platform/devlog, platform/distribution and platform/proposal, one of
 them red on main (term-ids.test.mjs). About 30 s more at six at a time;
 NODE_SLOW names the ones too slow for every pull request. Since 2026-11-17
 `test_*.mjs` suites count too: six in platform/ci ran nowhere (under 3 s).
+
+And (2026-11-19) every `portfolio/**/test_*.py` no pull-request workflow runs:
+14 of 90, among them test_no_duplicate_yaml_keys.py, red on main unseen until
+PR #17649, and router/test_validate.py, which the stem rule above would have
+called wired because test_validate_usage is named. A portfolio suite counts as
+wired only when a step names its path, names it from its own folder, or runs
+pytest/discover over a folder holding it. About 13 s serial.
 """
 import argparse
 import functools
@@ -54,6 +61,7 @@ import main_health
 EXTRA = [("doc_index.py", "check")]
 
 HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
 WORKFLOWS = HERE.parents[1] / ".github" / "workflows"
 
 
@@ -112,6 +120,67 @@ def unwired_tests(here=HERE, workflows=WORKFLOWS):
     return [p for p in sorted(here.glob("test_*.py")) if p.stem not in text]
 
 
+# Python suites under portfolio/ that no pull-request workflow runs (2026-11-19).
+# Those workflows name their suites by module (`python3 -m unittest test_x`) from a
+# working-directory, or run a whole folder (`pytest`, `unittest discover`), so the
+# platform/ci rule above (the stem anywhere in the text) would count
+# portfolio/router/test_validate.py as wired because test_validate_usage is named.
+# portfolio/ledger/test_no_duplicate_yaml_keys.py ran nowhere and was red on main
+# (three repeated `basis` keys in venture-scores.yaml) until PR #17649 found it by
+# hand; main_health.py printed 279/279 meanwhile (run record 2026-11-19T07).
+_FOLDER_RUN = re.compile(r"unittest\s+discover|pytest(?:\s+-\S+)*\s*(?:$|[;&|#]|tests?\b)", re.M)
+_RUN_WD = re.compile(r"\bcd\s+(\S+)\s*&&")
+
+
+def _steps(text):
+    """[(working-directory, step text)] for each step of one workflow; a step with no
+    working-directory of its own gets the workflow's (or job's) `defaults` one."""
+    lines = text.splitlines()
+    wds = [w.group(1).rstrip("/") for w in map(_WD.match, lines) if w]
+    default = wds[0] if wds and not any(_STEP.match(l) and "working-directory" in l
+                                        for l in lines) else "."
+    out, seen = [], set()
+    for i, line in enumerate(lines):
+        if not _STEP.match(line):
+            continue
+        bounds = _step_bounds(lines, i)
+        if bounds in seen:
+            continue
+        seen.add(bounds)
+        body = "\n".join(lines[bounds[0]:bounds[1]])
+        wd = next((w.group(1).rstrip("/") for w in map(_WD.match, lines[bounds[0]:bounds[1]])
+                   if w), default)
+        out.append((wd, body))
+        out += [(m.group(1).rstrip("/"), body) for m in _RUN_WD.finditer(body)]
+    return out
+
+
+def suite_is_wired(rel, steps):
+    """Whether a step runs the repo-relative suite `rel`: by path, by name or module
+    from its own folder, or as part of a pytest/discover run of an enclosing folder."""
+    rel = Path(rel)
+    folder = rel.parent.as_posix()
+    for wd, body in steps:
+        if rel.as_posix() in body:
+            return True
+        if wd == folder and re.search(rf"\b{re.escape(rel.stem)}(?:\.py)?\b(?!_)", body):
+            return True
+        if wd not in (".", "") and (folder == wd or folder.startswith(wd + "/")) \
+                and _FOLDER_RUN.search(body):
+            return True
+    return False
+
+
+def unwired_portfolio_tests(root=ROOT, workflows=WORKFLOWS):
+    """portfolio/**/test_*.py that no pull-request workflow runs."""
+    steps = [s for p in sorted(workflows.glob("*.y*ml"))
+             for t in [p.read_text(encoding="utf-8", errors="replace")]
+             if triggers_on_pull_request(t) for s in _steps(t)]
+    found = sorted(p for p in (root / "portfolio").rglob("test_*.py")
+                   if "node_modules" not in p.parts)
+    return [p for p in found if not suite_is_wired(p.relative_to(root), steps)]
+
+
 SKIPPED = "SKIP:"
 
 
@@ -145,27 +214,37 @@ def missing_module(out, here=HERE):
     return None if (here / f"{top}.py").exists() or (here / top).is_dir() else top
 
 
+def suite_name(path, root=ROOT):
+    """A platform/ci suite's bare file name (as before); a repo-relative path for
+    the others, so two portfolio/**/test_measure.py stay apart."""
+    path, root = Path(path).resolve(), Path(root).resolve()
+    if path.parent == HERE or not path.is_relative_to(root):
+        return path.name
+    return path.relative_to(root).as_posix()
+
+
 def run_suite(path, timeout=main_health.TIMEOUT):
     """(name, rc, output) for one test module, run from its own directory so its
     `import <sibling>` lines resolve the way they do under discover. unittest
     for a TestCase module, pytest for plain test functions; a missing pytest or
     third-party package is a SKIPPED result with rc 0."""
     path = Path(path)
+    name = suite_name(path)
     plain = "TestCase" not in path.read_text(encoding="utf-8", errors="replace")
     python = pytest_python() if plain else sys.executable
     if python is None:
-        return path.name, 0, f"{SKIPPED} pytest-style suite and no python3 here has pytest"
+        return name, 0, f"{SKIPPED} pytest-style suite and no python3 here has pytest"
     cmd = ["-m", "pytest", "-q", "-p", "no:cacheprovider", path.name] if plain \
         else ["-m", "unittest", path.stem]
     try:
         r = subprocess.run([python, *cmd], cwd=path.parent,
                            capture_output=True, text=True, timeout=timeout)
     except subprocess.TimeoutExpired:
-        return path.name, main_health.TIMED_OUT, f"timed out after {timeout} s"
+        return name, main_health.TIMED_OUT, f"timed out after {timeout} s"
     out = (r.stdout + r.stderr).strip()
     if r.returncode != 0 and (mod := missing_module(out, path.parent)):
-        return path.name, 0, f"{SKIPPED} needs {mod}, not installed here"
-    return path.name, r.returncode, out
+        return name, 0, f"{SKIPPED} needs {mod}, not installed here"
+    return name, r.returncode, out
 
 
 def skipped(results):
@@ -179,7 +258,6 @@ def skipped(results):
 # a red-team campaign's mutants through unseen. Coverage counts any workflow,
 # not only pull-request ones: the platform/pages suites gate every deploy, so a
 # red one shows within hours, while a suite no workflow names is never run.
-ROOT = HERE.parents[1]
 NODE_TIMEOUT = 120
 # Suites too slow for every pull request: named skips, never passes. Empty
 # since 2026-11-14: ios.test.mjs took over 120 s because its catalogue-wide plan
@@ -289,7 +367,8 @@ def run_everything(checks_only=False, jobs=6):
     (docs/history/ci-perf-2026-11-14-icon-memo-unwired-pool.md)."""
     groups = []
     if not checks_only:
-        groups += [(run_node_suite, unwired_node_suites()), (run_suite, unwired_tests())]
+        groups += [(run_node_suite, unwired_node_suites()), (run_suite, unwired_tests()),
+                   (run_suite, unwired_portfolio_tests())]
     groups.append((main_health.run, unwired()))
     if not checks_only:
         groups.append((lambda p, *a: main_health.run(p, *a), unwired_extra()))
@@ -326,6 +405,9 @@ def reproduce(name):
     if name.endswith(".mjs"):
         d, _, f = name.rpartition("/")
         return f"cd {d} && node --test {f}"
+    if name.startswith("portfolio/"):
+        d, _, f = name.rpartition("/")
+        return f"cd {d} && python3 -m pytest -q {f}"
     if name.startswith("test_"):
         return f"cd platform/ci && python3 -m unittest {name[:-3]}  (or pytest {name})"
     args = dict((n, a) for n, *a in EXTRA).get(name, [])
@@ -341,14 +423,18 @@ def main(argv=None):
     if args.list:
         paths, suites, extra = unwired(), unwired_tests(), unwired_extra()
         nodes = unwired_node_suites()
+        folio = unwired_portfolio_tests()
         for p in paths + suites:
             print(p.name)
+        for p in folio:
+            print(suite_name(p))
         for p in nodes:
             print(node_name(p))
         for p, *a in extra:
             print(" ".join([p.name, *a]))
         print(f"{len(paths)} check(s) no workflow names, "
               f"{len(suites)} test suite(s) no pull-request workflow names, "
+              f"{len(folio)} portfolio suite(s) no pull-request workflow runs, "
               f"{len(extra)} other check(s), "
               f"{len(nodes)} platform node suite(s) no workflow runs")
         return 0
