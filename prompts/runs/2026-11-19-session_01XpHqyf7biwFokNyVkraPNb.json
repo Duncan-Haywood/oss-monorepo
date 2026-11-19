@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyf7biwFokNyVkraPNb",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T12:39:15Z",
+  "ended": "2026-11-19T12:46:09Z",
+  "wall_minutes": 7.15,
+  "tokens_in": 4196117,
+  "tokens_out": 30071,
+  "cost_usd": 2.2497,
+  "tool_calls": 50,
+  "task": "For Other Minds story from BIBLE.md proposal 'The cheese that keeps growing in the cold'",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 17664,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud harness had already created the work branch at main's tip; 'git checkout -b' failed with 'branch already exists'. Harmless, but the landing docs could say the branch may already be checked out."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (577 MB of 400 MB), so no MP3 was rendered.",
+      "did": "Landed text, pages and feeds only, as the prompt directs.",
+      "result": "Story live as text; node --test 20/20."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "No separate docs/reports agent doc: the story's closing note and the post carry the sources and arithmetic, and nothing new for the next run beyond the new BIBLE proposal.",
+      "did": "Post only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-for-other-minds-the-cheese-that-keeps-growing-in-the-cold.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon, For Other Minds shelf (drawn by platform/ci/creative_due.py). Piece: the-cheese-that-keeps-growing-in-the-cold (Kington, July 2054). Sources verified this session: Rosenow & Marth, J Food Prot 50(6):452-459 (1987) abstract via NCBI eutils (doubling times 29h44-45h33 at 4 C, 8h40-14h33 at 8 C); FSA 'How to chill, freeze and defrost food safely' (0-5 C, thermometer weekly, freezer pauses not kills); NHS listeriosis page (soft cheese/pregnancy unless steaming hot; higher-risk groups); Food Standards Scotland Listeria factsheet 2019 (growth limit -0.4 C). Arithmetic and 2054 weekdays computed in Python. Claimed proposal with a first commit, marked Done, bible_done.mjs moved it to DONE.md, added a new For Other Minds proposal (Allee effect; 'p-hacking' rejected as overlapping 'Toss It Again'). Checks: node --test in ventures/hearth-and-horizon 20/20 pass; check_posts.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "91188667-cf15-55d2-b29a-787fba576834",
+    "transcripts": 1,
+    "first": "2026-11-19T12:39:15Z",
+    "last": "2026-11-19T12:46:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 91,
+        "output": 30071,
+        "thinking": 9651,
+        "cache_read": 4092351,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103675,
+        "api_equivalent_usd": 2.2497,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 91,
+      "output": 30071,
+      "thinking": 9651,
+      "cache_read": 4092351,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103675,
+      "api_equivalent_usd": 2.2497,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 36,
+      "WebSearch": 4,
+      "WebFetch": 3,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.15,
+      "active_minutes": 7.15,
+      "model_minutes": 5.84,
+      "tool_minutes": 1.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a writer researching sources and drafting a checked 3,500-word story plus post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 266.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
