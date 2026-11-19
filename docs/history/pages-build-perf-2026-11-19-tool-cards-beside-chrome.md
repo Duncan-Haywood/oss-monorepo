@@ -62,7 +62,7 @@ unhandled before then.
   build.mjs --out=<dir>`, the old file restored from `HEAD` beside it.
   `diff -rq` finds only `version.json`'s `built_at`. All 34,550 files match.
 - **Suite.** `node --test "*.test.mjs" "cloudflare/*.test.mjs"` in
-  `platform/pages` (result in the run record's `notes`).
+  `platform/pages`: 1,862 of 1,862 pass (134 s, warm card cache).
 
 ## Numbers
 
