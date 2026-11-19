@@ -89,6 +89,26 @@ stale. An unknown function name now gets the list of real ones in the error.
 sample as `args`, 107 a sample string as `text`, and 32 a parse step first. The
 other 581 need the doc comments read first; `--list null` names them.
 
+When several functions run on `DEFAULTS` without throwing, `example` keeps the
+conventional first one unless another responds to at least twice as many of
+the inputs (`responsiveness`): in `grant-indirect-cost-calculator`,
+`summarize(result)` runs on `DEFAULTS` and says "Enter at least one direct
+cost", while `computeBudget(input)` is the tool. A `DEFAULTS` call that
+responds to none of its inputs is passed over for the module's shipped samples
+and kept only if nothing else runs. CSV plumbing (`detectDelimiter`,
+`detectDecimalComma`, `detectDmy`, ...) is never offered as the entry.
+
+## Inputs that change nothing
+
+`node platform/agents/inert_inputs.mjs` (about 35 s) lays each tool's
+`DEFAULTS` into every function that runs on them, then changes one key at a
+time (a number by x2, x0.5, x10 and +1; zero to 1, 5 and 100; a boolean
+flipped) and reports keys that move no function's result, even after any one
+other key has moved too. A finding is a lead: a page field the engine never
+reads, a key an agent's `--input` would silently drop, or an option that only
+matters in another mode. `--json` gives every tool; `--one <slug>` checks one.
+The first sweep and its triage: `docs/reports/2026-11-19-inert-inputs-sweep.md`.
+
 ## Relation to the npm MCP package
 
 [`platform/distribution/mcp.mjs`](../distribution/mcp.mjs) builds

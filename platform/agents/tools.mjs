@@ -313,6 +313,8 @@ const ENTRY_RE = /^(compute|calculate|calc|analy[sz]e|estimate|evaluate|run|simu
 // The tax and finance tools name their entry for what it returns: contributionLimitOutcome, ...
 const ENTRY_SUFFIX_RE = /[a-z](Outcome|Result|Report|Summary|Quote|Bid|Estimate|Plan|Analysis)$/;
 const PARSE_RE = /^(parse|read|load|normali[sz]e)/i;
+// CSV and runtime plumbing that matches ENTRY_RE ("detect") and runs on any text, but is not the tool.
+const CSV_HELPER_RE = /^detect(Delimiter|Delim|Decimal|DecimalComma|Separators?|Encoding|Dmy|DateOrder|DateFormat|Columns|Local)$/;
 const SAMPLE_FN_RE = /^(sample|example|demo)/i;
 const SAMPLE_CONST_RE = /^(SAMPLE|EXAMPLE|DEMO)/;
 export const EXAMPLE_MAX_CHARS = 4000;
@@ -348,8 +350,56 @@ export function usableResult(r) {
 export function entryCandidates(mod) {
   const fns = Object.entries(mod).filter(([n, v]) => typeof v === 'function' && n !== 'default');
   const first = ENTRY_FIRST.filter((n) => typeof mod[n] === 'function');
-  const rest = fns.map(([n]) => n).filter((n) => !first.includes(n) && (ENTRY_RE.test(n) || ENTRY_SUFFIX_RE.test(n)));
+  const rest = fns.map(([n]) => n).filter((n) => !first.includes(n) && !CSV_HELPER_RE.test(n) && (ENTRY_RE.test(n) || ENTRY_SUFFIX_RE.test(n)));
   return [...first, ...rest];
+}
+
+/** Values to try in place of one default. Empty when it is not a scalar we know how to vary. */
+export function variants(v) {
+  if (typeof v === 'boolean') return [!v];
+  if (typeof v !== 'number' || !Number.isFinite(v)) return [];
+  if (v === 0) return [1, 5, 100];
+  return [v * 2, v * 0.5, v * 10, v + 1];
+}
+
+/** Stable JSON of a result for comparing two calls (key order and functions ignored). */
+export function canon(value) {
+  const seen = new WeakSet();
+  return JSON.stringify(value, function (k, v) {
+    if (typeof v === 'function') return undefined;
+    if (typeof v === 'number' && !Number.isFinite(v)) return String(v);
+    if (v && typeof v === 'object') {
+      if (seen.has(v)) return '[cycle]';
+      seen.add(v);
+      if (!Array.isArray(v) && !(v instanceof Date)) return Object.fromEntries(Object.keys(v).sort().map((key) => [key, v[key]]));
+    }
+    return v;
+  });
+}
+
+const outcome = async (fn, input) => {
+  try {
+    return canon(await fn({ ...input }));
+  } catch (e) {
+    return `throw:${e && e.message}`;
+  }
+};
+
+/**
+ * How many keys of `defaults` move `fn`'s result when changed one at a time
+ * (first variant only: a quick ranking, not the full sweep in inert_inputs.mjs).
+ * A module often exports several functions that run on DEFAULTS without
+ * throwing (grant-indirect-cost-calculator: summarize(result) and
+ * computeBudget(input)); the one that is the tool reads its inputs.
+ */
+export async function responsiveness(fn, defaults) {
+  const base = await outcome(fn, defaults);
+  let n = 0;
+  for (const [k, v] of Object.entries(defaults)) {
+    const [x] = variants(v);
+    if (x !== undefined && (await outcome(fn, { ...defaults, [k]: x })) !== base) n++;
+  }
+  return n;
 }
 
 const fits = (v) => (toJson(v, 0) ?? '').length <= EXAMPLE_MAX_CHARS;
@@ -365,13 +415,35 @@ export async function findExample(slug, root = REPO_ROOT) {
       return false;
     }
   };
+  let fallback = null;
   for (const e of await engines(slug, root)) {
     if (e.skip) continue;
     const mod = await import(pathToFileURL(path.join(ventureDir(slug, root), e.module)).href);
     const names = entryCandidates(mod);
     const D = mod.DEFAULTS && typeof mod.DEFAULTS === 'object' && !Array.isArray(mod.DEFAULTS) ? mod.DEFAULTS : null;
     // 1. DEFAULTS are the input: `call_tool {function, input: {}}` lays them in.
-    if (D) for (const n of names) if (await tryCall(mod[n], [{ ...D }])) return { module: e.module, function: n, input: {} };
+    // When more than one candidate runs on them, keep the conventional first
+    // one unless another responds to at least twice as many inputs: a
+    // summarize(result) that runs on DEFAULTS reads two keys and ignores the
+    // rest, while a sensitivity sweep beside the real entry reads a few more.
+    if (D) {
+      const ran = [];
+      for (const n of names) if (await tryCall(mod[n], [{ ...D }])) ran.push(n);
+      let best = ran[0];
+      let top = best === undefined ? 0 : await responsiveness(mod[best], D);
+      const first = top;
+      for (const n of ran.slice(1)) {
+        const r = await responsiveness(mod[n], D);
+        if (r >= 2 * first && r > top) [top, best] = [r, n];
+      }
+      // A call that responds to none of its inputs is not the tool: its
+      // DEFAULTS are options and it answers "add at least one row"
+      // (franchise-item-19-reality-check). Try the module's samples first and
+      // keep this only as a last resort.
+      const varied = Object.values(D).some((v) => variants(v).length);
+      if (best && (top > 0 || !varied)) return { module: e.module, function: best, input: {} };
+      if (best && !fallback) fallback = { module: e.module, function: best, input: {} };
+    }
     // 2. A sample the module ships, passed as the first argument (DEFAULTS after it as options).
     const samples = [];
     for (const [n, v] of Object.entries(mod)) {
@@ -428,7 +500,7 @@ export async function findExample(slug, root = REPO_ROOT) {
       }
     }
   }
-  return null;
+  return fallback;
 }
 
 /** Spawn `node <args>` with optional stdin, a timeout and an output cap. */
