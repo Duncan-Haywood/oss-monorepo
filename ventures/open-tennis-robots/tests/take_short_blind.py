@@ -27,6 +27,32 @@ against the shipped parabola, it has at least 6 more builds within 0.5 ms of tru
 1 ms, no instant build moved off 0 by more than 0.5 ms, and no set worse within 0.5 ms. Passing makes it a candidate
 for a fresh capture (sets it was not chosen on), not a board change.
 
+RESULT (J to L, eval/take-short-blind-2026-11-19.txt): (a) held: on 1.5 ms takes the summed dense least is within
+0.5 ms of true on 13 of 18 builds (197 of 216 over every take), so the fit is not blind there. (b) half held: the grid
+least sat at 0 on 8 of 18; on the other 10 it sat at 2 ms and the parabola read 1. At 2.35 ms the dense least is right
+on 15 of 18, the grid least at 2 on 18, and the parabola reads 1-1.5 ms: the summed curve is a flat shelf from 0 to
+about a millisecond below the take, then a valley, and a parabola through 0, 2 and 3 ms leans into the shelf.
+`end_pick` failed its rule (within 0.5 ms 179 against 185; 10 instant builds moved off 0 against 3): on an instant
+take the shelf is flat, so a vertex between 0 and 2 ms lands anywhere. Not a candidate.
+
+PART 2, EXPLORATORY then held out. After the result above, on J to L (so chosen on them), other grids scored with the
+shipped parabola: every millisecond 188 within 0.5 ms / 13 off by more than 1 ms; 0, 1.5, 2.5, 3-8 ms 196 / 9; 0,
+0.5-3 by 0.5, 4-8 ms 195 / 9; the shipped grid 185 / 16 (instant builds moved 3 on each). The 1.5 and 2.5 ms points
+sit on the shelf's edge for the takes that miss, and cost one candidate more than the shipped grid (nine, as the
+every-millisecond grid would).
+
+PREDICTION (written before set M was captured): on set M (wheel lag 0.55 s, seed 97; takes stratified under 3 ms,
+where the candidate grid can change a verdict: 0, 0.3, 0.8, 1.2, 1.7, 2.1, 2.6, 2.9 ms, and 3.6, 5.4, 6.8 ms as
+checks), the candidate grid 0, 1.5, 2.5, 3, 4, 5, 6, 7, 8 ms with the shipped parabola has more builds within 0.5 ms
+than the shipped grid, and fewer builds off by more than 1 ms.
+
+DECISION RULE (written with the prediction): `TAKE_SURVEY_GRID_US` moves to the candidate grid only if, on set M, it
+has at least 4 more builds within 0.5 ms of true, no more builds off by more than 1 ms, no more instant builds read
+more than 0.5 ms off 0, and on the 3.6-6.8 ms checks no fewer builds within 0.5 ms. Otherwise the shipped grid stays,
+and the candidate goes to NEXT.md with M's numbers.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --compare dense-m.jsonl.gz "0,2,3,4,5,6,7,8" "0,1.5,2.5,3,4,5,6,7,8"
+
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --dense out.jsonl.gz rows-j.jsonl.gz [rows-k ...]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --report out.jsonl.gz
 
@@ -145,6 +171,41 @@ def report(rows):
           f"{'CANDIDATE for a fresh capture' if rule else 'not a candidate'}")
 
 
+def compare(rows, shipped, candidate):
+    """PART 2's rule: two grids (ms, comma-separated) with the shipped parabola on the same dense rows."""
+    from feeder_sim import controller
+    res = {}
+    for label, gs in (("shipped", shipped), ("candidate", candidate)):
+        g = [int(round(float(x) * 1000)) for x in gs.split(",")]
+        v = verdicts(rows, g, controller.survey_pick)
+        res[label] = {
+            "n": len(v),
+            "w5": sum(abs(x[1] - x[0]) <= 0.5 + 1e-9 for x in v),
+            "off": sum(abs(x[1] - x[0]) > 1.0 + 1e-9 for x in v),
+            "inst": sum(x[0] == 0 and abs(x[1]) > 0.5 for x in v),
+            "checks": sum(x[0] >= 3.0 and abs(x[1] - x[0]) <= 0.5 + 1e-9 for x in v),
+            "mae": sum(abs(x[1] - x[0]) for x in v) / len(v),
+            "by_take": {t: [x[1] for x in v if x[0] == t] for t in sorted({x[0] for x in v})},
+        }
+        r = res[label]
+        print(f"{label:9} {gs:24}: within 0.5 ms {r['w5']}/{r['n']}, off by more than 1 ms {r['off']}, mean abs "
+              f"{r['mae']:.3f} ms, instant builds off 0 by more than 0.5 ms {r['inst']}, checks (3 ms and up) within "
+              f"0.5 ms {r['checks']}")
+    print("\nBy take: shipped verdicts | candidate verdicts")
+    for t in res["shipped"]["by_take"]:
+        a = " ".join(f"{x:g}" for x in res["shipped"]["by_take"][t])
+        b = " ".join(f"{x:g}" for x in res["candidate"]["by_take"].get(t, []))
+        print(f"  {t:g} ms | [{a}] | [{b}]")
+    s, c = res["shipped"], res["candidate"]
+    clauses = {"at least 4 more within 0.5 ms": c["w5"] - s["w5"] >= 4,
+               "no more off by more than 1 ms": c["off"] <= s["off"],
+               "no more instant builds moved": c["inst"] <= s["inst"],
+               "checks no worse": c["checks"] >= s["checks"]}
+    for k, ok in clauses.items():
+        print(f"  {k}: {'held' if ok else 'FAILED'}")
+    print("Decision: " + ("the candidate grid ships" if all(clauses.values()) else "the shipped grid stays"))
+
+
 def main():
     if "--dense" in sys.argv:
         i = sys.argv.index("--dense")
@@ -157,6 +218,9 @@ def main():
                 r["dense"] = [[None if x is None else float(f"{x:.4g}") for x in d] for d in r["dense"]]
                 f.write(json.dumps(r) + "\n")
         return
+    if "--compare" in sys.argv:
+        i = sys.argv.index("--compare")
+        return compare(load(sys.argv[i + 1]), sys.argv[i + 2], sys.argv[i + 3])
     report(load(sys.argv[sys.argv.index("--report") + 1]))
 
 
