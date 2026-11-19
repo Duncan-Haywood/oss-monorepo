@@ -2166,6 +2166,8 @@ class TakeSurveyTest(unittest.TestCase):
         # wheel, a leading vote or an older frame keeps the floor
         low = {"wheels": 22, "least_ms10": 0, "refined_ms10": 0, "board_ms10": 0,
                "rms_ppm": [16, 16, 17, 19, 21, 25, 30, 35, 40]}
+        self.assertTrue(host.TAKE_BOUND_STRADDLE)                  # shipped on: held out (eval/take-bound-vote-*)
+        self.assertIn("up to 2.5 ms", host.take_survey_advice(dict(low, straddle_for=0, straddle_against=1)))
         saved = host.TAKE_BOUND_STRADDLE
         try:
             host.TAKE_BOUND_STRADDLE = True

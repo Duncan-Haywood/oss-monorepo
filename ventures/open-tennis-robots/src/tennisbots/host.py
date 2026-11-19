@@ -440,8 +440,11 @@ TAKE_BOUND_FLOOR_PPM = 2
 # ... except where the 1.5 ms straddle vote (below) saw the take and did not favour it (2026-11-19, firmware/esp32/README.md
 # "The straddle vote in the take bound"): with at least one kept wheel straddling at 1.5 ms and at least as many fitting
 # 1.5 ms worse than the step as better, the 2% bar alone names the bound. The real takes the 2% bar alone misses had no
-# straddling wheel ("no straddle, no 1.5 ms bound"). False keeps the floor everywhere.
-TAKE_BOUND_STRADDLE = False
+# straddling wheel ("no straddle, no 1.5 ms bound"). False keeps the floor everywhere. On every stored set (641 builds
+# told 0) it covered all 641 and bounded 92 of 192 instant builds at 1.5 ms against 89; held out with the rule committed
+# first (fresh BA-BD and 64 instant-only seeds, 279 told 0): 279 of 279 covered, 85 of 204 instant at 1.5 ms against 83,
+# looser on none (eval/take-bound-vote-2026-11-19.md).
+TAKE_BOUND_STRADDLE = True
 # The grid each frame length carries (older firmware: eight candidates before the short-take grid, seven before 7 ms)
 TAKE_SURVEY_GRIDS_MS = {9: TAKE_SURVEY_MS, 8: (0, 2, 3, 4, 5, 6, 7, 8), 7: (0, 2, 3, 4, 5, 6, 8)}
 

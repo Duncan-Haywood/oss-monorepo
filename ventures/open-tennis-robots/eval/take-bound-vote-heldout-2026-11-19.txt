@@ -1,0 +1,20 @@
+held out: 324 builds; told TAKE_US = 0 by the shipped advice: 279
+  shipped    covered 279 of 279, instant at 1.5 ms 83 of 204, tighter than shipped 0, looser 0
+  floor0     covered 279 of 279, instant at 1.5 ms 85 of 204, tighter than shipped 7, looser 0
+  drop any   covered 279 of 279, instant at 1.5 ms 85 of 204, tighter than shipped 3, looser 0
+  drop 0     covered 279 of 279, instant at 1.5 ms 85 of 204, tighter than shipped 3, looser 0
+  drop 1     covered 279 of 279, instant at 1.5 ms 85 of 204, tighter than shipped 3, looser 0
+  drop 2     covered 279 of 279, instant at 1.5 ms 83 of 204, tighter than shipped 0, looser 0
+  drop 3     covered 279 of 279, instant at 1.5 ms 83 of 204, tighter than shipped 0, looser 0
+  cap any    covered 266 of 279, instant at 1.5 ms 95 of 204, tighter than shipped 41, looser 0; misses: 1.6 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 3 lead 1); 1.6 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 3 lead 1); 2 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 3 lead -1); 1.6 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 1 lead 1); 2.4 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 4 lead 0); 2.4 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 4 lead 0); 1.6 ms bounded 1.5 (1.5 vote n 1 lead 1, 2.5 vote n 2 lead 0); 2 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 4 lead 0)
+  cap 0      covered 277 of 279, instant at 1.5 ms 88 of 204, tighter than shipped 15, looser 0; misses: 1.6 ms bounded 1.5 (1.5 vote n 1 lead 1, 2.5 vote n 2 lead 0); 1.6 ms bounded 1.5 (1.5 vote n 1 lead 1, 2.5 vote n 3 lead 1)
+  cap 1      covered 277 of 279, instant at 1.5 ms 88 of 204, tighter than shipped 14, looser 0; misses: 1.6 ms bounded 1.5 (1.5 vote n 1 lead 1, 2.5 vote n 2 lead 0); 1.6 ms bounded 1.5 (1.5 vote n 1 lead 1, 2.5 vote n 3 lead 1)
+  cap 2      covered 279 of 279, instant at 1.5 ms 83 of 204, tighter than shipped 1, looser 0
+  cap 3      covered 279 of 279, instant at 1.5 ms 83 of 204, tighter than shipped 0, looser 0
+  long any   covered 279 of 279, instant at 1.5 ms 85 of 204, tighter than shipped 7, looser 0
+  long 0     covered 279 of 279, instant at 1.5 ms 85 of 204, tighter than shipped 7, looser 0
+  long 1     covered 279 of 279, instant at 1.5 ms 85 of 204, tighter than shipped 7, looser 0
+  long 2     covered 279 of 279, instant at 1.5 ms 83 of 204, tighter than shipped 0, looser 0
+  long 3     covered 279 of 279, instant at 1.5 ms 83 of 204, tighter than shipped 0, looser 0
+  drop 0: (a) covers every build the shipped bound covers (279 of 279): held (279); (b) bounds more instant builds at 1.5 ms than shipped's 83 of 204: held (85); (c) looser than shipped on no build: held; (d) host.take_survey_bound with TAKE_BOUND_STRADDLE names the same bound on every frame: held
+Decision: host.TAKE_BOUND_STRADDLE ships True

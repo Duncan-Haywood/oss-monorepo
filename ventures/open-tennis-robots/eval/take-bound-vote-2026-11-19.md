@@ -76,3 +76,38 @@ same bound as the scorer's drop 0 on every frame.
 
 DECISION RULE: `host.TAKE_BOUND_STRADDLE` ships True only if (a), (b), (c) and (d) all hold. Otherwise it stays False
 and the item goes back to NEXT.md with these numbers. The other rules are reported, not decided on.
+
+## Result
+
+Pre-registration committed in 8241f30eb; all 68 captures then made on that tree (132 standard drills and 192
+instant-only builds, none aborted; stored as eval/take-bound-vote-{ba,bb,bc,bd,inst}-2026-11-19.jsonl.gz) and scored
+(eval/take-bound-vote-heldout-2026-11-19.txt). The shipped advice told 279 of 324 builds TAKE_US = 0, 204 of them
+instant:
+
+| rule | covered (of 279) | instant at 1.5 ms (of 204) | tighter than shipped | looser |
+| --- | --- | --- | --- | --- |
+| shipped (floor 2) | 279 | 83 | - | - |
+| 2% bar alone (floor 0) | 279 | 85 | 7 | 0 |
+| **drop 0 (pre-registered)** | **279** | **85** | **3** | **0** |
+| cap 1 | 277 | 88 | 14 | 0 |
+| long 2 | 279 | 83 | 0 | 0 |
+
+- (a) held: 279 of 279 covered, as shipped.
+- (b) held: 85 instant builds bounded at 1.5 ms against 83.
+- (c) held: looser on no build (true by construction; checked).
+- (d) held: `host.take_survey_bound` with the flag on named the scorer's bound on every frame.
+
+So **`host.TAKE_BOUND_STRADDLE` ships True.**
+
+**The size of it.** Two instant builds of 204 (1%), as small as the design said (3 of 192). On these sets the floor
+cost only 2 instant builds in the first place, and drop 0 won both back. The 2% bar alone also covered every build here,
+so this test alone cannot show the floor is still needed; the design sets can (9 misses at floor 0, none with a
+straddling wheel). Cap 1 again missed 1.6 ms takes (2) with one straddling wheel, as on the design, and stays closed.
+
+**What it does not fix.** 119 of 204 instant builds are still bounded at 2.5 ms or more. For them the 1.5 ms rms is
+within 2% of the step's, with or without a floor (bounds: 26 at 2.5 ms, 30 at 3, 51 at 4, 12 at 5). Few of their balls
+straddle at 1.5 ms: 109 of the 204 had no kept wheel straddling there, the same one-pulse tach limit the votes hit. A tighter bound there needs more straddling balls (a longer drill or more tach pulses a revolution), not
+a different reading of the same frame.
+
+**Not known.** Simulated only, one jittery tach model, three launchers, four fresh standard seeds and 64 instant-only
+ones.
