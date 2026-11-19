@@ -215,11 +215,17 @@ export function updateRateChanges(values, opts = {}) {
 // tick) was set before any run (README "Repeats from rounding", eval/update-rate-rounding.mjs).
 export const ROUNDING_TICKS = 1.5;
 const sig = (v) => Number(v.toPrecision(9));
+// README "A real carried-forward feed: last-trade prices" (2026-11-19): a price file written after float
+// arithmetic holds 39.8025 beside 39.802499999999995, and their difference (7e-15) became the tick, so every
+// real move read as 10^12 ticks and the rounding and catch-up checks never ran. Two values closer than nine
+// significant digits are one value written twice: they are no move and set no tick. Exact repeats are
+// unchanged (repeatIndicators still compares exactly).
+export const floatNoise = (a, b) => a !== b && Math.abs(a - b) <= 1e-9 * Math.max(Math.abs(a), Math.abs(b));
 export function smallestStep(values, from = 1, to = values.length - 1) {
   let tick = Infinity;
   for (let t = Math.max(1, from); t <= to; t++) {
     const a = Number(values[t]), b = Number(values[t - 1]);
-    if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) continue;
+    if (!Number.isFinite(a) || !Number.isFinite(b) || a === b || floatNoise(a, b)) continue;
     const d = sig(Math.abs(a - b));
     if (d > 0 && d < tick) tick = d;
   }
@@ -231,7 +237,7 @@ export function medianMoveTicks(values, from, to, tick) {
   const m = [];
   for (let t = from; t <= to; t++) {
     const a = Number(values[t]), b = Number(values[t - 1]);
-    if (Number.isFinite(a) && Number.isFinite(b) && a !== b) m.push(sig(Math.abs(a - b)) / tick);
+    if (Number.isFinite(a) && Number.isFinite(b) && a !== b && !floatNoise(a, b)) m.push(sig(Math.abs(a - b)) / tick);
   }
   if (!m.length) return null;
   m.sort((x, y) => x - y);
