@@ -3427,3 +3427,15 @@ builds (half asked). Both held. The two misses were 2.0 ms takes at a 16-19 ppm 
 ppm floor on the tolerance is NEXT.md's next test. Set O also had two 5 ms builds told "keep 0" (best fit only 9-22%
 under the step's); they now read "up to 6 ms" and "up to 7 ms". No board number or verdict changed. Everything is in
 `eval/take-bound-o-2026-11-19.md`.
+
+## A ppm floor on the bound (2026-11-19, after "Short takes that read 0: no ball saw them"; shipped by its pre-registered rule)
+
+**The item.** The TAKE_US = 0 bound held on set O by one build; both misses were 2.0 ms takes at a 16-19 ppm step,
+where the frame's whole-ppm rounding is 5-6% and clears the 2% bar alone.
+
+**What shipped.** A candidate now counts as worse than the step only when it is more than 2% and at least 2 ppm over
+it (`host.TAKE_BOUND_FLOOR_PPM`). Chosen on J to L, M, N and O (2 ppm is the smallest floor covering all of O, at a
+looser bound on 3 of 30 instant builds), rule committed in 881d6c775, then held out on set P (lag 0.58 s, seed 113,
+66 drills): 48 of 48 builds told TAKE_US = 0 had the true take within the bound, against 46 of 48 at 2% alone, and the
+bound stayed 1.5 ms on 4 of 6 instant builds. Five of P's bounds moved up 0.5-2.5 ms, none down. Above about 100 ppm
+of step rms nothing changes. Everything is in `eval/take-bound-floor-p-2026-11-19.md`.

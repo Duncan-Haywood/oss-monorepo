@@ -423,20 +423,24 @@ TAKE_WAIT_S = 14.0
 # more than 1 ms no kept wheel did, and those balls fit an instant take as well as the true one. On five stored sets
 # the true take was at most the bound on every build told TAKE_US = 0 (tests/take_shelf_bound.py), held out on set O.
 TAKE_BOUND_TOL = 0.02
+# ... and at least this many ppm over it (2026-11-19, README "A ppm floor on the bound"): the frame carries whole ppm, so
+# at a 16-20 ppm step one ppm of rounding is 5-6% and cleared 2% alone (set O's two misses). Held out on set P: 48 of
+# 48 within the bound against 46 of 48 at 2% alone, the instant builds still at 1.5 ms on 4 of 6.
+TAKE_BOUND_FLOOR_PPM = 2
 # The grid each frame length carries (older firmware: eight candidates before the short-take grid, seven before 7 ms)
 TAKE_SURVEY_GRIDS_MS = {9: TAKE_SURVEY_MS, 8: (0, 2, 3, 4, 5, 6, 7, 8), 7: (0, 2, 3, 4, 5, 6, 8)}
 
 
 def take_survey_bound(sv: dict | None) -> float | None:
     """The longest contact time, in ms, the survey's balls cannot tell from an instant one: the first grid candidate
-    whose mean rms is more than TAKE_BOUND_TOL over the step's (0 ms). None without rms, or when every candidate fits
+    whose mean rms is more than TAKE_BOUND_TOL, and at least TAKE_BOUND_FLOOR_PPM, over the step's (0 ms). None without rms, or when every candidate fits
     within the tolerance (the balls bound nothing)."""
     rms = list((sv or {}).get("rms_ppm") or ())
     grid = TAKE_SURVEY_GRIDS_MS.get(len(rms))
     if not grid or not rms[0] or any(v is None for v in rms):
         return None
     for g, r in zip(grid[1:], rms[1:]):
-        if r > rms[0] * (1 + TAKE_BOUND_TOL):
+        if r > max(rms[0] * (1 + TAKE_BOUND_TOL), rms[0] + TAKE_BOUND_FLOOR_PPM):
             return float(g)
     return None
 
