@@ -1,0 +1,82 @@
+ERMHDR	23.12	2026-04-06	Project	demo	Example	dbxDatabaseNoName	Project Management	USD
+%T	PROJECT
+%F	proj_id	proj_short_name	clndr_id	last_recalc_date	plan_start_date	plan_end_date	scd_end_date
+%R	77	OFFICE-FITOUT	88	2026-04-06 07:00	2026-03-02 07:00	2026-07-31 15:30	
+%T	CALENDAR
+%F	clndr_id	default_flag	clndr_name	proj_id	base_clndr_id	clndr_type	day_hr_cnt	week_hr_cnt	clndr_data
+%R	88	Y	5 day, 07:00-15:30			CA_Base	8	40	(0||CalendarData()((0||DaysOfWeek()((0||1()())(0||2()((0||0(s|07:00|f|11:00)())(0||1(s|11:30|f|15:30)())))(0||3()((0||0(s|07:00|f|11:00)())(0||1(s|11:30|f|15:30)())))(0||4()((0||0(s|07:00|f|11:00)())(0||1(s|11:30|f|15:30)())))(0||5()((0||0(s|07:00|f|11:00)())(0||1(s|11:30|f|15:30)())))(0||6()((0||0(s|07:00|f|11:00)())(0||1(s|11:30|f|15:30)())))(0||7()())))(0||Exceptions()((0||0(d|46168)())(0||1(d|46206)())(0||2(d|46268)())))))
+%T	SCHEDOPTIONS
+%F	schedoptions_id	proj_id	sched_outer_depend_type	sched_float_type	sched_calendar_on_relationship_lag	sched_retained_logic	sched_progress_override	sched_use_project_end_date_for_float
+%R	1	77	SD_Both	FT_FF	rcal_Predecessor	Y	N	Y
+%T	TASK
+%F	task_id	proj_id	wbs_id	clndr_id	task_type	status_code	task_code	task_name	remain_drtn_hr_cnt	target_drtn_hr_cnt	act_start_date	act_end_date	cstr_type	cstr_date	target_start_date	target_end_date
+%R	5001	77	700	88	TT_Mile	TK_Complete	M1000	Notice to proceed	0	0	2026-03-02 07:00	2026-03-02 07:00				
+%R	5002	77	700	88	TT_Task	TK_Complete	A1010	Site survey and as-built check	0	24	2026-03-02 07:00	2026-03-05 15:30				2026-03-05 15:30
+%R	5003	77	700	88	TT_Task	TK_Complete	A1020	Shop drawings: partitions and ceilings	0	80	2026-03-05 07:00	2026-03-20 15:30				2026-03-19 15:30
+%R	5004	77	700	88	TT_Task	TK_Active	A1030	Submittal review	32	80	2026-03-23 07:00					2026-04-02 15:30
+%R	5005	77	700	88	TT_Task	TK_NotStart	A1040	Procure doors and hardware	400	400						
+%R	5006	77	700	88	TT_Task	TK_Active	A1050	Demolition, level 1	24	40	2026-03-30 07:00					2026-04-03 15:30
+%R	5007	77	700	88	TT_Task	TK_NotStart	A1060	Demolition, level 2	40	40						
+%R	5008	77	700	88	TT_Task	TK_NotStart	A1070	Layout and track, level 1	32	32						
+%R	5009	77	700	88	TT_Task	TK_NotStart	A1080	Layout and track, level 2	32	32						
+%R	5010	77	700	88	TT_Task	TK_NotStart	A1090	MEP rough-in, level 1	96	96						
+%R	5011	77	700	88	TT_Task	TK_NotStart	A1100	MEP rough-in, level 2	96	96						
+%R	5012	77	700	88	TT_Task	TK_NotStart	A1110	Inspection: in-wall rough-in	8	8			CS_MSO	2026-05-18 07:00		
+%R	5013	77	700	88	TT_Task	TK_NotStart	A1120	Board and tape, level 1	64	64						
+%R	5014	77	700	88	TT_Task	TK_NotStart	A1130	Board and tape, level 2	64	64						
+%R	5015	77	700	88	TT_Task	TK_NotStart	A1140	Ceiling grid and tile	80	80						
+%R	5016	77	700	88	TT_Task	TK_NotStart	A1150	Paint	64	64						
+%R	5017	77	700	88	TT_Task	TK_NotStart	A1160	Flooring	56	56						
+%R	5018	77	700	88	TT_Task	TK_NotStart	A1170	Hang doors and hardware	32	32						
+%R	5019	77	700	88	TT_Task	TK_NotStart	A1180	Furniture install (by owner)	40	40						
+%R	5020	77	700	88	TT_Task	TK_NotStart	A1190	Signage	16	16						
+%R	5021	77	700	88	TT_Task	TK_NotStart	A1200	Punch list	40	40						
+%R	5022	77	700	88	TT_FinMile	TK_NotStart	M1210	Substantial completion	0	0						
+%T	TASKPRED
+%F	task_pred_id	task_id	pred_task_id	proj_id	pred_proj_id	pred_type	lag_hr_cnt
+%R	9001	5002	5001	77	77	PR_FS	0
+%R	9002	5003	5002	77	77	PR_FS	0
+%R	9003	5004	5003	77	77	PR_FS	0
+%R	9004	5005	5004	77	77	PR_FS	0
+%R	9005	5006	5001	77	77	PR_FS	120
+%R	9006	5007	5006	77	77	PR_SS	24
+%R	9007	5008	5006	77	77	PR_FS	0
+%R	9008	5009	5007	77	77	PR_FS	0
+%R	9009	5008	5004	77	77	PR_FS	0
+%R	9010	5010	5008	77	77	PR_FS	-16
+%R	9011	5011	5009	77	77	PR_FS	0
+%R	9012	5012	5010	77	77	PR_FS	0
+%R	9013	5012	5011	77	77	PR_FS	0
+%R	9014	5013	5012	77	77	PR_FS	0
+%R	9015	5014	5012	77	77	PR_FS	0
+%R	9016	5015	5013	77	77	PR_FS	0
+%R	9017	5015	5014	77	77	PR_FS	0
+%R	9018	5016	5015	77	77	PR_FS	0
+%R	9019	5017	5016	77	77	PR_FS	0
+%R	9020	5018	5017	77	77	PR_FS	0
+%R	9021	5018	5005	77	77	PR_FS	0
+%R	9022	5021	5018	77	77	PR_FS	0
+%R	9023	5019	5017	77	77	PR_FS	80
+%R	9024	5022	5021	77	77	PR_FS	0
+%R	9025	5020	5016	77	77	PR_SS	16
+%T	TASKRSRC
+%F	taskrsrc_id	task_id	proj_id	rsrc_id
+%R	3001	5002	77	1
+%R	3002	5003	77	1
+%R	3003	5004	77	1
+%R	3004	5006	77	1
+%R	3005	5007	77	1
+%R	3006	5008	77	1
+%R	3007	5009	77	1
+%R	3008	5010	77	1
+%R	3009	5011	77	1
+%R	3010	5012	77	1
+%R	3011	5013	77	1
+%R	3012	5014	77	1
+%R	3013	5015	77	1
+%R	3014	5016	77	1
+%R	3015	5017	77	1
+%R	3016	5018	77	1
+%R	3017	5020	77	1
+%R	3018	5021	77	1
+%E

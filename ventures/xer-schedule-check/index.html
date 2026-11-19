@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>XER Schedule Check — Free DCMA 14-Point Assessment of a Primavera P6 XER File</title>
+  <meta name="description" content="Free DCMA 14-point schedule check for Primavera P6 XER files, in your browser. Recomputes the critical path from the logic, runs the critical path test, lists every activity behind each failing point, and flags loops, out-of-sequence progress and stale float. Nothing is uploaded.">
+  <meta property="og:title" content="XER Schedule Check — DCMA 14-point check of a P6 schedule, free and private">
+  <meta property="og:description" content="Open a Primavera P6 .xer file and get the DCMA 14-point assessment, a recomputed critical path and every activity behind each finding. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "XER Schedule Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads a Primavera P6 XER export, recomputes early and late dates and total float with P6's calendar, relationship, constraint and progress rules, and runs the DCMA 14-point schedule assessment, listing every activity behind each finding. Runs in the browser.", "featureList": "XER reader, P6 calendars, critical path method, total and free float, driving path, DCMA 14-point assessment, critical path test, CPLI, BEI, logic loops, out-of-sequence progress, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the DCMA 14-point assessment?", "acceptedAnswer": {"@type": "Answer", "text": "A set of fourteen schedule-quality checks published by the US Defense Contract Management Agency and now used across construction and engineering: missing logic, leads, lags, relationship types, hard constraints, high float, negative float, high duration, invalid dates, resources, missed tasks, the critical path test, the critical path length index (CPLI) and the baseline execution index (BEI). Each has a published threshold."}}, {"@type": "Question", "name": "Is my schedule uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. There is no server, no account and no analytics vendor, so a confidential project schedule never leaves your computer."}}, {"@type": "Question", "name": "Does it recompute the schedule or trust the dates in the file?", "acceptedAnswer": {"@type": "Answer", "text": "Both. The float checks use the total float P6 stored in the file, as a reviewer would see it. Separately the tool recomputes every open activity's early and late dates from the logic, calendars, constraints and progress, uses that to run the critical path test, and lists every activity where the file's stored dates disagree with the recomputed ones."}}, {"@type": "Question", "name": "How close is the recomputed schedule to P6's own?", "acceptedAnswer": {"@type": "Answer", "text": "On six public XER files exported from P6 versions 5.0 to 24.12 (19,822 open activities), early finish, late finish and total float all agree with the values P6 stored on 18,133 activities (91.5 percent). Five of the six files agree on 99.9 to 100 percent; a heavily progressed 16,000-activity file agrees on 88 percent, the gap being out-of-sequence progress rules not yet fully modelled."}}, {"@type": "Question", "name": "Why does missed tasks use planned dates instead of a baseline?", "acceptedAnswer": {"@type": "Answer", "text": "A single XER export usually holds only the current project, not the baseline project. P6 keeps each activity's planned start and finish, which equal the baseline when the project uses its own planned dates as the baseline. The tool says so next to the result; compare against the true baseline where it differs."}}, {"@type": "Question", "name": "What does the critical path test do?", "acceptedAnswer": {"@type": "Answer", "text": "It adds 600 working days to an open activity on the longest path and recomputes the schedule. The project finish should move by at least that much. If it moves less, a constraint, a lag, an open end or a broken link is stopping delay from flowing through the path, and the reported critical path cannot be trusted."}}, {"@type": "Question", "name": "Which P6 settings are honoured?", "acceptedAnswer": {"@type": "Answer", "text": "Each activity's own calendar with its holidays and changed days, the lag calendar setting, total float as finish, start or smallest float, retained logic or progress override, the project's planned start and must-finish-by date, primary and secondary constraints including as late as possible, and external dates from links to projects not in the file. Resource levelling and expected finish dates are not modelled."}}, {"@type": "Question", "name": "Does a pass mean the schedule is good?", "acceptedAnswer": {"@type": "Answer", "text": "No. The fourteen points are screening metrics that find common faults; a schedule can pass them all and still be unrealistic, and some failures are justified. Use the lists to decide what to fix or explain, and have a qualified scheduler review the schedule before relying on it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d5a8c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #163a59; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #163a59; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4e5b66; }
+    .card { background: #fff; border: 1px solid #d7e0e8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #163a5910; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input[type=file] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7b8b99; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5a8c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #163a59; }
+    .drop { border: 2px dashed #9fb3c4; border-radius: 12px; padding: 18px; text-align: center; margin-top: 10px; }
+    .drop.over { background: #e8f1f8; border-color: #1d5a8c; }
+    .tablewrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6ecf1; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.pass { background: #d9efe0; color: #18502b; }
+    .pill.fail { background: #f8dcd6; color: #7a1f10; }
+    .pill.warn { background: #fdf0d5; color: #6d520e; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f3f6f9; border-radius: 10px; padding: 12px; font-size: .85rem; color: #4e5b66; }
+    .big strong { display: block; font-size: 1.35rem; color: #163a59; margin-bottom: 2px; }
+    details summary { cursor: pointer; color: #1d5a8c; font-size: .9rem; }
+    details table { font-size: .88rem; }
+    .warnbox { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; }
+    #form-status { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>XER Schedule Check: the DCMA 14-point assessment of a P6 schedule</h1>
+  <p>Open a <strong>Primavera P6 .xer export</strong> and get the DCMA 14-point assessment with <strong>every activity behind each failing point</strong>, a critical path recomputed from the logic, the critical path test, and the faults the 14 points miss (logic loops, out-of-sequence progress, open finishes, float that no longer matches the logic). Everything runs in your browser: the schedule is never uploaded.</p>
+  <p class="note">For owners' reps and claims consultants reviewing a contractor's update, schedulers checking their own before submission, and subcontractors handed a schedule they have no P6 licence to open.</p>
+
+  <section class="card" aria-labelledby="in">
+    <h2 id="in">Your schedule</h2>
+    <label for="file">P6 XER file (.xer)</label>
+    <input type="file" id="file" accept=".xer,text/plain">
+    <div class="drop" id="drop">or drop a .xer file here</div>
+    <div id="proj-wrap" hidden>
+      <label for="proj">Project in the file</label>
+      <select id="proj"></select>
+    </div>
+    <button type="button" id="load-example" class="secondary">Load an example schedule</button>
+    <p id="form-status" role="status" aria-live="polite">Choose an XER file exported from P6 (File, Export, Primavera PM XER).</p>
+  </section>
+
+  <section class="card" id="report" hidden aria-labelledby="out">
+    <h2 id="out">Assessment</h2>
+    <div id="warnings"></div>
+    <div class="big" id="big"></div>
+    <p class="note" id="settings"></p>
+    <div class="tablewrap"><table id="score">
+      <thead><tr><th class="n">#</th><th>Check</th><th class="n">Result</th><th>Threshold</th><th></th><th class="n">Count</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <div id="details"></div>
+    <h2 style="margin-top:22px">Beyond the 14 points</h2>
+    <div id="extra"></div>
+    <h2 style="margin-top:22px">Stored dates against the logic</h2>
+    <p id="recompute"></p>
+    <div id="recompute-list"></div>
+    <h2 style="margin-top:22px">Driving path to the forecast finish</h2>
+    <div class="tablewrap"><table id="path">
+      <thead><tr><th>Activity</th><th>Name</th><th>Start</th><th>Finish</th><th class="n">Float (days)</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <button type="button" id="download">Download findings (CSV)</button>
+    <button type="button" id="download-json" class="secondary">Download full report (JSON)</button>
+  </section>
+
+  <section class="card" aria-labelledby="how">
+    <h2 id="how">How it works</h2>
+    <p>The file is read table by table (TASK, TASKPRED, CALENDAR, PROJECT, SCHEDOPTIONS, TASKRSRC). Each activity is scheduled on its own work calendar, holidays and changed days included, with finish-to-start, start-to-start, finish-to-finish and start-to-finish links and their lags, the project's lag-calendar and float settings, primary and secondary constraints, the planned start and must-finish-by dates, and progress at the data date under retained logic or progress override. The forward and backward passes give early and late dates, total float and free float, the same quantities P6 computes.</p>
+    <p><strong>Checked against P6 itself:</strong> six public XER files exported from P6 versions 5.0 to 24.12, 19,822 open activities in all. Early finish, late finish and total float all equal what P6 stored on 18,133 (91.5%): 100% on four files, 99.98% on a 4,200-activity hotel schedule, and 88% on a 16,000-activity programme with heavy out-of-sequence progress. Method and every number: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/xer-schedule-check">README</a>.</p>
+    <p>The DCMA points use the published thresholds: 5% for logic, lags, hard constraints, high float, high duration and missed tasks; none for leads, negative float and invalid dates; 90% finish-to-start links; 0.95 for CPLI and BEI; 44 working days for high float and high duration, counted on each activity's own calendar.</p>
+  </section>
+
+  <section class="card" aria-labelledby="faq">
+    <h2 id="faq">Questions</h2>
+    <h3>What is the DCMA 14-point assessment?</h3>
+    <p>A set of fourteen schedule-quality checks published by the US Defense Contract Management Agency and now used across construction and engineering: missing logic, leads, lags, relationship types, hard constraints, high float, negative float, high duration, invalid dates, resources, missed tasks, the critical path test, the critical path length index (CPLI) and the baseline execution index (BEI). Each has a published threshold.</p>
+    <h3>Is my schedule uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. There is no server, no account and no analytics vendor, so a confidential project schedule never leaves your computer.</p>
+    <h3>Does it recompute the schedule or trust the dates in the file?</h3>
+    <p>Both. The float checks use the total float P6 stored in the file, as a reviewer would see it. Separately the tool recomputes every open activity's early and late dates from the logic, calendars, constraints and progress, uses that to run the critical path test, and lists every activity where the file's stored dates disagree with the recomputed ones.</p>
+    <h3>How close is the recomputed schedule to P6's own?</h3>
+    <p>On six public XER files exported from P6 versions 5.0 to 24.12 (19,822 open activities), early finish, late finish and total float all agree with the values P6 stored on 18,133 activities (91.5 percent). Five of the six files agree on 99.9 to 100 percent; a heavily progressed 16,000-activity file agrees on 88 percent, the gap being out-of-sequence progress rules not yet fully modelled.</p>
+    <h3>Why does missed tasks use planned dates instead of a baseline?</h3>
+    <p>A single XER export usually holds only the current project, not the baseline project. P6 keeps each activity's planned start and finish, which equal the baseline when the project uses its own planned dates as the baseline. The tool says so next to the result; compare against the true baseline where it differs.</p>
+    <h3>What does the critical path test do?</h3>
+    <p>It adds 600 working days to an open activity on the longest path and recomputes the schedule. The project finish should move by at least that much. If it moves less, a constraint, a lag, an open end or a broken link is stopping delay from flowing through the path, and the reported critical path cannot be trusted.</p>
+    <h3>Which P6 settings are honoured?</h3>
+    <p>Each activity's own calendar with its holidays and changed days, the lag calendar setting, total float as finish, start or smallest float, retained logic or progress override, the project's planned start and must-finish-by date, primary and secondary constraints including as late as possible, and external dates from links to projects not in the file. Resource levelling and expected finish dates are not modelled.</p>
+    <h3>Does a pass mean the schedule is good?</h3>
+    <p>No. The fourteen points are screening metrics that find common faults; a schedule can pass them all and still be unrealistic, and some failures are justified. Use the lists to decide what to fix or explain, and have a qualified scheduler review the schedule before relying on it.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>More for builders: <a href="../wall-framing-takeoff/">wall framing takeoff</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseXer, decodeXer } from "./xer.mjs";
+    import { assess, findingsCsv } from "./dcma.mjs";
+    import { EXAMPLE_XER } from "./example.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const fmt = (v, unit = "") => (v === null || v === undefined ? "n/a" : typeof v === "number" ? String(unit.startsWith("%") ? Math.round(v * 10) / 10 : Math.round(v * 1000) / 1000) : String(v));
+    const LIMIT = 300;
+    let xer = null, last = null, fileName = "schedule";
+
+    function itemsTable(items) {
+      if (!items.length) return "";
+      const rows = items.slice(0, LIMIT).map((i) => `<tr><td>${esc(i.code)}</td><td>${esc(i.name)}</td><td>${esc(i.why)}</td></tr>`).join("");
+      const more = items.length > LIMIT ? `<p class="note">Showing ${LIMIT} of ${items.length}; the CSV download has them all.</p>` : "";
+      return `<div class="tablewrap"><table><thead><tr><th>Activity</th><th>Name</th><th>Why</th></tr></thead><tbody>${rows}</tbody></table></div>${more}`;
+    }
+
+    function render(r) {
+      last = r;
+      const p = r.project;
+      $("#warnings").innerHTML = r.warnings.length ? `<div class="warnbox"><strong>Read with care:</strong><ul>${r.warnings.slice(0, 20).map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : "";
+      const tiles = [[`${r.passed} of 14`, "DCMA points pass"], [p.dataDate || "n/a", "data date"], [p.finish || "n/a", "forecast finish (recomputed)"], [p.mustFinish || "none", "must finish by"], [`${p.open} / ${p.activities}`, "open / all activities"]];
+      $("#big").innerHTML = tiles.map(([x, l]) => `<div><strong>${esc(x)}</strong>${esc(l)}</div>`).join("");
+      const s = p.settings;
+      $("#settings").textContent = `${p.name} · P6 ${p.version || "?"} · ${p.relationships} relationships · ${p.calendars} calendar${p.calendars === 1 ? "" : "s"} · float: ${s.floatType.replace("FT_", "")} · lag calendar: ${s.lagCalendar.replace("rcal_", "")} · ${s.progressOverride ? "progress override" : "retained logic"}`;
+      $("#score tbody").innerHTML = r.checks.map((c) => `<tr><td class="n">${c.id}</td><td><a href="#check-${c.id}">${esc(c.name)}</a></td><td class="n">${esc(fmt(c.value, c.unit))}${c.unit ? " " + esc(c.unit) : ""}</td><td>${esc(c.threshold)}</td><td><span class="pill ${c.pass ? "pass" : "fail"}">${c.pass ? "pass" : "fail"}</span></td><td class="n">${c.total ? `${c.count} / ${c.total}` : ""}</td></tr>`).join("");
+      $("#details").innerHTML = r.checks.map((c) => `<div id="check-${c.id}"><h3>${c.id}. ${esc(c.name)} <span class="pill ${c.pass ? "pass" : "fail"}">${c.pass ? "pass" : "fail"}</span></h3><p class="note">${esc(c.note)}</p>${c.items.length ? `<details><summary>${c.items.length} item${c.items.length === 1 ? "" : "s"}</summary>${itemsTable(c.items)}</details>` : ""}</div>`).join("");
+      $("#extra").innerHTML = r.extra.map((e) => `<div><h3>${esc(e.name)} <span class="pill ${e.pass ? "pass" : "warn"}">${e.count}</span></h3><p class="note">${esc(e.note)}</p>${e.items.length ? `<details><summary>${e.items.length} item${e.items.length === 1 ? "" : "s"}</summary>${itemsTable(e.items)}</details>` : ""}</div>`).join("");
+      const rc = r.recompute;
+      $("#recompute").textContent = rc.compared
+        ? `${rc.matched} of ${rc.compared} open activities have the early finish, late finish and total float that the logic gives. ${rc.compared - rc.matched ? "The rest were changed after the last schedule run, or use a setting this tool does not model (resource levelling, expected finish dates, some out-of-sequence cases)." : "The file is consistent with its own logic."}`
+        : "The file stores no early and late dates to compare with: it was not scheduled before export.";
+      $("#recompute-list").innerHTML = rc.items.length ? `<details><summary>${rc.items.length} activit${rc.items.length === 1 ? "y" : "ies"} that differ</summary>${itemsTable(rc.items)}</details>` : "";
+      $("#path tbody").innerHTML = r.drivingPath.map((d) => `<tr><td>${esc(d.code)}</td><td>${esc(d.name)}</td><td>${esc(d.start)}</td><td>${esc(d.finish)}</td><td class="n">${esc(fmt(d.float))}</td></tr>`).join("");
+      report.hidden = false;
+    }
+
+    function run(projId) {
+      try {
+        const r = assess(xer, { projId });
+        render(r);
+        status.textContent = `Done: ${r.passed} of 14 points pass. Scroll down for the detail.`;
+        return true;
+      } catch (e) {
+        status.textContent = `Could not assess this file: ${e.message}`;
+        report.hidden = true;
+        return false;
+      }
+    }
+
+    function load(text, name) {
+      fileName = (name || "schedule").replace(/\.xer$/i, "");
+      try {
+        xer = parseXer(text);
+      } catch (e) {
+        status.textContent = `This does not look like an XER file: ${e.message}`;
+        report.hidden = true;
+        return false;
+      }
+      const projects = (xer.tables.PROJECT || []).filter((p) => (xer.tables.TASK || []).some((t) => t.proj_id === p.proj_id));
+      $("#proj-wrap").hidden = projects.length < 2;
+      $("#proj").innerHTML = projects.map((p) => `<option value="${esc(p.proj_id)}">${esc(p.proj_short_name)}</option>`).join("");
+      return run(null) && (projects.length < 2 || ($("#proj").value = last.project.id, true));
+    }
+
+    async function readFile(f) {
+      if (!f) return;
+      status.textContent = `Reading ${f.name} (${(f.size / 1e6).toFixed(1)} MB)...`;
+      await new Promise((r) => setTimeout(r, 30));
+      const text = decodeXer(new Uint8Array(await f.arrayBuffer()));
+      if (load(text, f.name)) record("schedule_checked");
+    }
+
+    $("#file").addEventListener("change", (e) => readFile(e.target.files[0]));
+    const drop = $("#drop");
+    drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+    drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+    drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); readFile(e.dataTransfer.files[0]); });
+    $("#proj").addEventListener("change", (e) => run(e.target.value));
+    $("#load-example").addEventListener("click", () => {
+      if (load(EXAMPLE_XER, "office-fitout-example")) { record("example_loaded"); status.textContent = "Example: an invented office fit-out schedule with deliberate faults, not a real project."; }
+    });
+    const save = (blob, name) => { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); };
+    $("#download").addEventListener("click", () => { if (!last) return; save(new Blob([findingsCsv(last)], { type: "text/csv" }), `${fileName}-dcma-findings.csv`); record("findings_downloaded"); });
+    $("#download-json").addEventListener("click", () => { if (!last) return; save(new Blob([JSON.stringify(last, null, 2)], { type: "application/json" }), `${fileName}-dcma-report.json`); record("findings_downloaded"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
