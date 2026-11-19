@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [assistant, search, checks]
+topics: [design, browser, software-for-routine]
 date: 2026-11-19
 ---
 # Polish, 2026-11-19: /ask/'s example questions are checked in a browser; question words stop ranking the assistant's links
