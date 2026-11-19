@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://marisstella.app/freelance-retainer-calculator/retainer-payment-terms.html">
   <link rel="canonical" href="https://marisstella.app/freelance-retainer-calculator/retainer-payment-terms.html">
   <link rel="stylesheet" href="style.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I accept Net 30 on a freelance retainer?","acceptedAnswer":{"@type":"Answer","text":"Only if you can float one monthly revenue target for the days until first cash. Month-end invoicing plus Net 30 is about 60 days. If you cannot float that amount, require prepaid or 50% on kickoff."}},{"@type":"Question","name":"How much cash do I need to float a retainer?","acceptedAnswer":{"@type":"Answer","text":"Multiply the monthly take-home plus costs by days-until-cash divided by 30. Prepaid is zero. Kickoff plus Net 30 is one month. Month-end plus Net 30 is two months."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I accept Net 30 on a freelance retainer?","acceptedAnswer":{"@type":"Answer","text":"Only if you can float what this client is billed each month for the days until first cash. Month-end invoicing plus Net 30 is about 60 days. If you cannot float that amount, require prepaid or 50% on kickoff."}},{"@type":"Question","name":"How much cash do I need to float a retainer?","acceptedAnswer":{"@type":"Answer","text":"Multiply what you bill on those terms each month (this client's retainer; your whole take-home plus costs only if every client pays that way) by days-until-cash divided by 30. Prepaid is zero. Kickoff plus Net 30 is one month. Month-end plus Net 30 is two months."}}]}</script>
 </head>
 <body>
   <main class="shell">
@@ -23,9 +23,9 @@
     </header>
     <section class="workspace" aria-label="Payment-term cash float">
       <form id="floatForm" class="card">
-        <h2>Your monthly revenue target</h2>
-        <p class="note">Take-home plus business costs and taxes. The default $7,800 is the calculator’s default plan.</p>
-        <label>Monthly revenue target <span data-currency-symbol>$</span><input id="floatTarget" type="number" min="0" step="100" value="7800" required></label>
+        <h2>Monthly amount billed on these terms</h2>
+        <p class="note">One client's monthly retainer, or your whole take-home plus business costs and taxes if every client pays on these terms. The default $7,800 is the calculator’s default plan with all work on these terms; its $1,725 retainer alone floats $3,450 at month-end plus Net 30.</p>
+        <label>Monthly amount billed <span data-currency-symbol>$</span><input id="floatTarget" type="number" min="0" step="100" value="7800" required></label>
         <label>Currency <select id="floatCurrency"><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="CAD">CAD ($)</option><option value="AUD">AUD ($)</option></select></label>
         <button type="submit">Compare payment terms</button>
         <p id="floatErrors" class="error" role="alert" hidden></p>
@@ -50,7 +50,7 @@
     </section>
     <section class="copy card">
       <h2>How the float is calculated</h2>
-      <p>Take the monthly revenue target — take-home plus business costs and taxes — and multiply by days until first cash divided by 30. That is the savings or other-client cash you need while this retainer is unpaid.</p>
+      <p>Take what you bill on these terms each month — one client's retainer, or your whole take-home plus costs if all your clients pay this way — and multiply by days until first cash divided by 30. That is the savings or other-client cash you need while this retainer is unpaid.</p>
       <ul>
         <li>Prepaid on kickoff: 0 days, no float.</li>
         <li>Invoice on kickoff, Net 15: about 15 days, half a month.</li>
@@ -58,7 +58,7 @@
         <li>Invoice at month-end, Net 15: about 45 days.</li>
         <li>Invoice at month-end, Net 30: about 60 days, two months.</li>
       </ul>
-      <p>If a $7,800 monthly target is billed at month-end plus Net 30, you float $15,600 before first cash. That is not a late fee. It is working capital you are lending the client.</p>
+      <p>If $7,800 a month is billed at month-end plus Net 30, you float $15,600 before first cash. That is not a late fee. It is working capital you are lending the client.</p>
       <h2>What to put in the agreement</h2>
       <p>Write the payment trigger, not just “Net 30”. Prepaid on kickoff, or invoice on the first of each month due on receipt, removes the silent extra month. 50% on kickoff and 50% on the invoice date splits the float if the client will not prepay in full.</p>
       <p>Price the block first, then check the float. <a href="index.html">Open the retainer calculator</a> to pair this with usage. <a href="retainer-vs-hourly.html">Retainer vs hourly</a> is the one-month failure mode. <a href="unused-hour-rollover.html">Unused-hour rollover</a> is the two-month version of the same gift.</p>
@@ -66,9 +66,9 @@
     </section>
   <h2>Common questions</h2>
   <h3>Should I accept Net 30 on a freelance retainer?</h3>
-  <p>Only if you can float one monthly revenue target for the days until first cash. Month-end invoicing plus Net 30 is about 60 days. If you cannot float that amount, require prepaid or 50% on kickoff.</p>
+  <p>Only if you can float what this client is billed each month for the days until first cash. Month-end invoicing plus Net 30 is about 60 days. If you cannot float that amount, require prepaid or 50% on kickoff.</p>
   <h3>How much cash do I need to float a retainer?</h3>
-  <p>Multiply the monthly take-home plus costs by days-until-cash divided by 30. Prepaid is zero. Kickoff plus Net 30 is one month. Month-end plus Net 30 is two months.</p>
+  <p>Multiply what you bill on those terms each month (this client's retainer; your whole take-home plus costs only if every client pays that way) by days-until-cash divided by 30. Prepaid is zero. Kickoff plus Net 30 is one month. Month-end plus Net 30 is two months.</p>
 
     <footer>
       <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Hosted URLs, when they exist, carry no availability SLA.</p>

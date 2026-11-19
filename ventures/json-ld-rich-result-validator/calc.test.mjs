@@ -44,8 +44,24 @@ test("offer price with a currency symbol or comma is an error", () => {
     const r = validate(wrap({ "@context": "https://schema.org", "@type": "Product", name: "M", offers: { price, priceCurrency: "USD" } }));
     assert.ok(paths(r, "error").includes("offers.price"), price);
   }
-  const free = validate(wrap({ "@context": "https://schema.org", "@type": "SoftwareApplication", name: "App", offers: { price: 0, priceCurrency: "USD" } }));
+  const free = validate(wrap({ "@context": "https://schema.org", "@type": "SoftwareApplication", name: "App", offers: { price: 0, priceCurrency: "USD" }, aggregateRating: { ratingValue: 4.5, ratingCount: 10 } }));
   assert.equal(free.errors, 0);
+});
+
+test("SoftwareApplication needs offers.price AND a rating or review (Google Software App docs)", () => {
+  const base = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "App" };
+  const offers = { price: 0, priceCurrency: "USD" };
+  const rating = { ratingValue: 4.5, ratingCount: 10 };
+  const ratingOnly = validate(wrap({ ...base, aggregateRating: rating }));
+  assert.equal(ratingOnly.entities[0].eligible, false);
+  assert.ok(paths(ratingOnly, "error").includes("offers"));
+  const priceOnly = validate(wrap({ ...base, offers }));
+  assert.equal(priceOnly.entities[0].eligible, false);
+  assert.ok(paths(priceOnly, "error").includes("aggregateRating"));
+  const noPrice = validate(wrap({ ...base, offers: { priceCurrency: "USD" }, review: { author: { name: "A" }, reviewRating: { ratingValue: 5 } } }));
+  assert.ok(paths(noPrice, "error").includes("offers.price"));
+  assert.equal(validate(wrap({ ...base, offers, review: { author: { name: "A" }, reviewRating: { ratingValue: 5 } } })).entities[0].eligible, true);
+  assert.equal(validate(wrap({ ...base, offers, aggregateRating: rating })).entities[0].eligible, true);
 });
 
 test("lowercase currency and unknown availability warn", () => {
