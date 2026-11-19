@@ -37,11 +37,11 @@ test("more techs shorten the work days but not the film", () => {
   assert.equal(two.film, jobCost(base()).film);
 });
 
-test("package table covers every coverage and ranks by profit per bay day", () => {
+test("package table covers every coverage and lists profit per bay day", () => {
   const r = plan(sampleInput());
   assert.deepEqual(r.packages.map((p) => p.pkg), Object.keys(PACKAGES));
   assert.ok(r.packages[0].price < r.packages[4].price);
-  assert.ok(r.advice.some((a) => /earns the most/.test(a)));
+  assert.ok(r.advice.some((a) => /carries the most profit/.test(a)));
 });
 
 test("coating-only drops the film and a no-film no-coating job is rejected", () => {
@@ -83,4 +83,14 @@ test("share links carry only known keys and round-trip", () => {
 test("CSV has a row per package", () => {
   const r = plan(sampleInput());
   assert.equal(toCsv(r).split("\n").length, r.packages.length + 1);
+});
+
+test("package ranking advice does not tell a shop which package to sell first (round 85 audit: at one margin, profit per bay day is cost per bay day x m/(1-m))", () => {
+  const r = plan(sampleInput());
+  const m = r.input.marginPct !== undefined ? r.input.marginPct / 100 : 0.4;
+  for (const p of r.packages) assert.ok(Math.abs(p.profitPerBayDay - (p.cost / p.bayDays) * m / (1 - m)) < 0.01, p.label);
+  const line = r.advice.find((a) => a.startsWith("Per bay day"));
+  assert.ok(line, "ranking line present");
+  assert.doesNotMatch(line, /sell that one first/);
+  assert.match(line, /follows cost per bay day/);
 });
