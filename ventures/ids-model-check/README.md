@@ -357,6 +357,7 @@ node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
+node cli.mjs --link-bsdd spec.ids -o linked.ids    # add the IFC 4.3 bSDD uri to standard properties (offline)
 node cli.mjs --from-bsdd https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcDoor -o door.ids
                                                  # an IDS from a bSDD class's property list (goes online)
 node cli.mjs --fix spec.ids -o spec-fixed.ids   # repair its ids.xsd faults; exit 1 if some need a person
@@ -411,6 +412,26 @@ Omgevingswet sets relating classes to IFC classes their dictionary does not
 network: one GET per distinct link to api.bsdd.buildingsmart.org, with the
 link as the only thing sent. It is not on the page: bSDD's API sends no CORS
 header, so a browser cannot ask it.
+
+### bSDD links written for you (2026-11-19)
+
+Most IDS files carry no bSDD links at all: in 117 public IDS files, 316 of
+1,317 requirement property facets have a `uri`. For a standard IFC property
+the link needs no lookup, because the IFC 4.3 dictionary codes each template
+property by its name. `node cli.mjs --link-bsdd spec.ids -o linked.ids`
+(bsdd-suggest.mjs) adds `uri="https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/<Name>"`
+to every requirement property facet on a `Pset_` or `Qto_` template property
+that has none, lists them on stderr, and changes nothing else in the file.
+On the page, auditing an IDS shows the same list with a "Download IDS with
+bSDD links" button; it runs offline, so it works where the bSDD check cannot.
+
+On the public corpus it suggests 619 links in 54 files; for the 212 facets
+that already link the IFC dictionary it gives the same link 196 times, and
+the 2 where it differs are author slips the bSDD check had already found
+(`Width` linked to `Name`, `AreaPerOccupant` to `OccupancyNumberPeak`). It
+leaves alone facets with no standard set, patterns, misspelt names and
+classification or material facets. All 54 outputs are the input plus the
+attributes, byte for byte (`eval/bsdd-suggest-2026-11-19.md`).
 
 ### An IDS from a bSDD class (2026-11-19)
 

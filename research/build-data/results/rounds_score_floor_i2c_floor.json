@@ -1,0 +1,572 @@
+{
+ "n": 18,
+ "n_austin": 6,
+ "fixed_regret": {
+  "cpin_es3_nc2": 3.368570702331095,
+  "cpin_es3_nc3": 2.2675008690115734,
+  "cpin_es3_nc4": 5.880762983359981,
+  "cpin_es3_nc5": 8.262306266743998
+ },
+ "chooser4_regret": 1.3760632545498315,
+ "chooser3_regret": 1.7208475091982263,
+ "austin_fixed_regret": {
+  "cpin_es3_nc2": 0.0,
+  "cpin_es3_nc3": 3.334736804005478,
+  "cpin_es3_nc4": 16.0756332113066,
+  "cpin_es3_nc5": 21.45553492898487
+ },
+ "sfse_fixed_regret": {
+  "cpin_es3_nc2": 5.052856053496643,
+  "cpin_es3_nc3": 1.7338829015146213,
+  "cpin_es3_nc4": 0.7833278693866722,
+  "cpin_es3_nc5": 1.6656919356235604
+ },
+ "austin_chooser4_regret": 0.0,
+ "sfse_chooser4_regret": 2.0640948818247473,
+ "austin_chooser3_regret": 3.334736804005478,
+ "sfse_chooser3_regret": 0.9139028617946003,
+ "nc2_below_nc3_austin": 6,
+ "nc2_above_nc3_sfse": 12,
+ "chooser4_picks_sfse": {
+  "cpin_es3_nc2": 4,
+  "cpin_es3_nc3": 5,
+  "cpin_es3_nc4": 1,
+  "cpin_es3_nc5": 2
+ },
+ "chooser4_picks_austin": {
+  "cpin_es3_nc2": 6,
+  "cpin_es3_nc3": 0,
+  "cpin_es3_nc4": 0,
+  "cpin_es3_nc5": 0
+ },
+ "oracle_counts": {
+  "cpin_es3_nc2": 6,
+  "cpin_es3_nc3": 3,
+  "cpin_es3_nc4": 5,
+  "cpin_es3_nc5": 4
+ },
+ "nc1_above_nc2_austin": 1,
+ "austin_nc1_mean": 59.992561147315065,
+ "austin_nc2_mean": 62.668682389793894,
+ "rows_check_max_abs": 7.62939453125e-06,
+ "sweep_repro_max_abs": 0.22024684591262655,
+ "sweep_repro_n": 6,
+ "max_regret_post_hoc": {
+  "cpin_es3_nc2": 11.826903840809905,
+  "cpin_es3_nc3": 5.456532740726217,
+  "cpin_es3_nc4": 20.338596831825257,
+  "cpin_es3_nc5": 31.814804918444125
+ },
+ "chooser4_max_regret_post_hoc": 6.9598320906563345,
+ "chooser3_max_regret_post_hoc": 5.388658792143673,
+ "predictions": {
+  "B0": false,
+  "B1": true,
+  "B2": true,
+  "B3": false,
+  "B4": false,
+  "B5": false,
+  "B6": true
+ },
+ "note": "session 107: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds on completed test rows (days); each of Austin, SF and Seattle held out in turn, sources the other two; G4 = staleness cuts 2, 3, 4, 5 years; oracle = best G4 member on the test year; chooser4/chooser3 = lowest q0.9 pinball on the target's own Y-6 permits completed by D over G4/G3, scored against the G4 oracle; nc3 to nc5 from sessions 101 to 103 and 106 (older pulls, same row counts)",
+ "cells": [
+  {
+   "held": "austin",
+   "year": 2017,
+   "test": {
+    "cpin_es3_nc2": 58.78573454570338,
+    "cpin_es3_nc3": 61.76717546255887,
+    "cpin_es3_nc4": 77.2934851351426,
+    "cpin_es3_nc5": 90.6005394641475
+   },
+   "k6": {
+    "cpin_es3_nc2": 61.52336736199559,
+    "cpin_es3_nc3": 64.79508523242019,
+    "cpin_es3_nc4": 83.0836776508243,
+    "cpin_es3_nc5": 96.97464606059866
+   },
+   "oracle": "cpin_es3_nc2",
+   "pick4": "cpin_es3_nc2",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 0.0,
+    "cpin_es3_nc3": 2.9814409168554903,
+    "cpin_es3_nc4": 18.507750589439226,
+    "cpin_es3_nc5": 31.814804918444125
+   },
+   "pick4_regret": 0.0,
+   "pick3_regret": 2.9814409168554903,
+   "nc1": 56.66017115209604,
+   "nc1_k6": 58.5240719214893
+  },
+  {
+   "held": "austin",
+   "year": 2018,
+   "test": {
+    "cpin_es3_nc2": 64.41066450721821,
+    "cpin_es3_nc3": 69.79932329936189,
+    "cpin_es3_nc4": 84.74926133904347,
+    "cpin_es3_nc5": 86.57474873880626
+   },
+   "k6": {
+    "cpin_es3_nc2": 63.404198292114295,
+    "cpin_es3_nc3": 69.44703922801654,
+    "cpin_es3_nc4": 84.19487484862391,
+    "cpin_es3_nc5": 86.59466925483144
+   },
+   "oracle": "cpin_es3_nc2",
+   "pick4": "cpin_es3_nc2",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 0.0,
+    "cpin_es3_nc3": 5.388658792143673,
+    "cpin_es3_nc4": 20.338596831825257,
+    "cpin_es3_nc5": 22.16408423158805
+   },
+   "pick4_regret": 0.0,
+   "pick3_regret": 5.388658792143673,
+   "nc1": 61.13110258133964,
+   "nc1_k6": 59.81821715208844
+  },
+  {
+   "held": "austin",
+   "year": 2019,
+   "test": {
+    "cpin_es3_nc2": 64.21792746334924,
+    "cpin_es3_nc3": 67.65358060226096,
+    "cpin_es3_nc4": 80.05504319147335,
+    "cpin_es3_nc5": 84.09953018520703
+   },
+   "k6": {
+    "cpin_es3_nc2": 61.74340476360573,
+    "cpin_es3_nc3": 65.6346704198848,
+    "cpin_es3_nc4": 79.50259009560878,
+    "cpin_es3_nc5": 81.2181341988509
+   },
+   "oracle": "cpin_es3_nc2",
+   "pick4": "cpin_es3_nc2",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 0.0,
+    "cpin_es3_nc3": 3.435653138911718,
+    "cpin_es3_nc4": 15.837115728124104,
+    "cpin_es3_nc5": 19.88160272185779
+   },
+   "pick4_regret": 0.0,
+   "pick3_regret": 3.435653138911718,
+   "nc1": 56.890037180386,
+   "nc1_k6": 53.37839161520184
+  },
+  {
+   "held": "austin",
+   "year": 2020,
+   "test": {
+    "cpin_es3_nc2": 61.318380820457286,
+    "cpin_es3_nc3": 64.86549142361888,
+    "cpin_es3_nc4": 78.1987997569861,
+    "cpin_es3_nc5": 78.28959070675262
+   },
+   "k6": {
+    "cpin_es3_nc2": 59.75548041539084,
+    "cpin_es3_nc3": 63.6607202588767,
+    "cpin_es3_nc4": 78.07082071746342,
+    "cpin_es3_nc5": 77.11851963211014
+   },
+   "oracle": "cpin_es3_nc2",
+   "pick4": "cpin_es3_nc2",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 0.0,
+    "cpin_es3_nc3": 3.5471106031615918,
+    "cpin_es3_nc4": 16.88041893652882,
+    "cpin_es3_nc5": 16.971209886295334
+   },
+   "pick4_regret": 0.0,
+   "pick3_regret": 3.5471106031615918,
+   "nc1": 63.24718947211337,
+   "nc1_k6": 59.65658894952537
+  },
+  {
+   "held": "austin",
+   "year": 2021,
+   "test": {
+    "cpin_es3_nc2": 64.8200211955065,
+    "cpin_es3_nc3": 66.75585200573784,
+    "cpin_es3_nc4": 81.19039796752513,
+    "cpin_es3_nc5": 83.93213697143021
+   },
+   "k6": {
+    "cpin_es3_nc2": 63.02883878745987,
+    "cpin_es3_nc3": 65.4551961346943,
+    "cpin_es3_nc4": 81.65285759144284,
+    "cpin_es3_nc5": 85.66897229058723
+   },
+   "oracle": "cpin_es3_nc2",
+   "pick4": "cpin_es3_nc2",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 0.0,
+    "cpin_es3_nc3": 1.9358308102313373,
+    "cpin_es3_nc4": 16.37037677201863,
+    "cpin_es3_nc5": 19.112115775923712
+   },
+   "pick4_regret": 0.0,
+   "pick3_regret": 1.9358308102313373,
+   "nc1": 62.052519631385145,
+   "nc1_k6": 58.21589085838324
+  },
+  {
+   "held": "austin",
+   "year": 2022,
+   "test": {
+    "cpin_es3_nc2": 62.45936580652873,
+    "cpin_es3_nc3": 65.17909236925779,
+    "cpin_es3_nc4": 70.97890621643229,
+    "cpin_es3_nc5": 81.24875784632896
+   },
+   "k6": {
+    "cpin_es3_nc2": 58.23687493379561,
+    "cpin_es3_nc3": 62.31912488201946,
+    "cpin_es3_nc4": 70.0393261243194,
+    "cpin_es3_nc5": 82.85273044331798
+   },
+   "oracle": "cpin_es3_nc2",
+   "pick4": "cpin_es3_nc2",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 0.0,
+    "cpin_es3_nc3": 2.7197265627290577,
+    "cpin_es3_nc4": 8.519540409903563,
+    "cpin_es3_nc5": 18.789392039800227
+   },
+   "pick4_regret": 0.0,
+   "pick3_regret": 2.7197265627290577,
+   "nc1": 59.974346866570194,
+   "nc1_k6": 52.3717106828968
+  },
+  {
+   "held": "sf",
+   "year": 2017,
+   "test": {
+    "cpin_es3_nc2": 82.5021463375884,
+    "cpin_es3_nc3": 81.80392166003298,
+    "cpin_es3_nc4": 83.1672935837123,
+    "cpin_es3_nc5": 90.66474665877104
+   },
+   "k6": {
+    "cpin_es3_nc2": 53.471186834750235,
+    "cpin_es3_nc3": 55.38389982492263,
+    "cpin_es3_nc4": 61.20677192159942,
+    "cpin_es3_nc5": 73.68671572223377
+   },
+   "oracle": "cpin_es3_nc3",
+   "pick4": "cpin_es3_nc2",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 0.698224677555416,
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc4": 1.3633719236793098,
+    "cpin_es3_nc5": 8.860824998738053
+   },
+   "pick4_regret": 0.698224677555416,
+   "pick3_regret": 0.0
+  },
+  {
+   "held": "sf",
+   "year": 2018,
+   "test": {
+    "cpin_es3_nc2": 89.37793387240119,
+    "cpin_es3_nc3": 86.18686794737779,
+    "cpin_es3_nc4": 85.45754081611453,
+    "cpin_es3_nc5": 89.13071959340351
+   },
+   "k6": {
+    "cpin_es3_nc2": 54.8593342986509,
+    "cpin_es3_nc3": 56.7143502134509,
+    "cpin_es3_nc4": 58.962076917383435,
+    "cpin_es3_nc5": 69.06257483055673
+   },
+   "oracle": "cpin_es3_nc4",
+   "pick4": "cpin_es3_nc2",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 3.920393056286656,
+    "cpin_es3_nc3": 0.7293271312632612,
+    "cpin_es3_nc4": 0.0,
+    "cpin_es3_nc5": 3.6731787772889817
+   },
+   "pick4_regret": 3.920393056286656,
+   "pick3_regret": 0.7293271312632612
+  },
+  {
+   "held": "sf",
+   "year": 2019,
+   "test": {
+    "cpin_es3_nc2": 88.7081918081763,
+    "cpin_es3_nc3": 83.3078649348975,
+    "cpin_es3_nc4": 81.74835971751996,
+    "cpin_es3_nc5": 82.17087599500668
+   },
+   "k6": {
+    "cpin_es3_nc2": 59.49755697875594,
+    "cpin_es3_nc3": 60.61476805690244,
+    "cpin_es3_nc4": 62.61569395263327,
+    "cpin_es3_nc5": 68.02064698591563
+   },
+   "oracle": "cpin_es3_nc4",
+   "pick4": "cpin_es3_nc2",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 6.9598320906563345,
+    "cpin_es3_nc3": 1.5595052173775343,
+    "cpin_es3_nc4": 0.0,
+    "cpin_es3_nc5": 0.4225162774867215
+   },
+   "pick4_regret": 6.9598320906563345,
+   "pick3_regret": 1.5595052173775343
+  },
+  {
+   "held": "sf",
+   "year": 2020,
+   "test": {
+    "cpin_es3_nc2": 83.5662729877339,
+    "cpin_es3_nc3": 79.05358622322974,
+    "cpin_es3_nc4": 78.12169615031048,
+    "cpin_es3_nc5": 77.96732962924091
+   },
+   "k6": {
+    "cpin_es3_nc2": 61.13315981799163,
+    "cpin_es3_nc3": 61.589447619853,
+    "cpin_es3_nc4": 62.702148175135996,
+    "cpin_es3_nc5": 65.64980257675639
+   },
+   "oracle": "cpin_es3_nc5",
+   "pick4": "cpin_es3_nc2",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 5.598943358492988,
+    "cpin_es3_nc3": 1.0862565939888356,
+    "cpin_es3_nc4": 0.15436652106957638,
+    "cpin_es3_nc5": 0.0
+   },
+   "pick4_regret": 5.598943358492988,
+   "pick3_regret": 1.0862565939888356
+  },
+  {
+   "held": "sf",
+   "year": 2021,
+   "test": {
+    "cpin_es3_nc2": 73.21528178295841,
+    "cpin_es3_nc3": 70.79361141817806,
+    "cpin_es3_nc4": 71.33493265866998,
+    "cpin_es3_nc5": 72.35000701709188
+   },
+   "k6": {
+    "cpin_es3_nc2": 61.06407834729234,
+    "cpin_es3_nc3": 60.917466814456795,
+    "cpin_es3_nc4": 63.44658929638708,
+    "cpin_es3_nc5": 65.73350071386011
+   },
+   "oracle": "cpin_es3_nc3",
+   "pick4": "cpin_es3_nc3",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 2.421670364780354,
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc4": 0.541321240491925,
+    "cpin_es3_nc5": 1.5563955989138236
+   },
+   "pick4_regret": 0.0,
+   "pick3_regret": 0.0
+  },
+  {
+   "held": "sf",
+   "year": 2022,
+   "test": {
+    "cpin_es3_nc2": 59.34634734486986,
+    "cpin_es3_nc3": 58.164812844803286,
+    "cpin_es3_nc4": 59.043103413342656,
+    "cpin_es3_nc5": 61.20789694314692
+   },
+   "k6": {
+    "cpin_es3_nc2": 72.6635932249469,
+    "cpin_es3_nc3": 70.00306781808113,
+    "cpin_es3_nc4": 70.2278733300001,
+    "cpin_es3_nc5": 71.55435374293006
+   },
+   "oracle": "cpin_es3_nc3",
+   "pick4": "cpin_es3_nc3",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 1.1815345000665758,
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc4": 0.87829056853937,
+    "cpin_es3_nc5": 3.043084098343634
+   },
+   "pick4_regret": 0.0,
+   "pick3_regret": 0.0
+  },
+  {
+   "held": "seattle",
+   "year": 2017,
+   "test": {
+    "cpin_es3_nc2": 80.79685261070169,
+    "cpin_es3_nc3": 80.34002654923742,
+    "cpin_es3_nc4": 79.90537468137705,
+    "cpin_es3_nc5": 81.72753431671903
+   },
+   "k6": {
+    "cpin_es3_nc2": 58.1136232504062,
+    "cpin_es3_nc3": 58.13457002196986,
+    "cpin_es3_nc4": 57.89368847537197,
+    "cpin_es3_nc5": 60.63463423264012
+   },
+   "oracle": "cpin_es3_nc4",
+   "pick4": "cpin_es3_nc4",
+   "pick3": "cpin_es3_nc4",
+   "regret": {
+    "cpin_es3_nc2": 0.8914779293246369,
+    "cpin_es3_nc3": 0.43465186786036725,
+    "cpin_es3_nc4": 0.0,
+    "cpin_es3_nc5": 1.8221596353419756
+   },
+   "pick4_regret": 0.0,
+   "pick3_regret": 0.0
+  },
+  {
+   "held": "seattle",
+   "year": 2018,
+   "test": {
+    "cpin_es3_nc2": 92.73071278109494,
+    "cpin_es3_nc3": 89.68356810158957,
+    "cpin_es3_nc4": 88.48004798048767,
+    "cpin_es3_nc5": 88.6020020865897
+   },
+   "k6": {
+    "cpin_es3_nc2": 58.51938376771582,
+    "cpin_es3_nc3": 58.26250450342561,
+    "cpin_es3_nc4": 58.853631993504145,
+    "cpin_es3_nc5": 61.45323686820243
+   },
+   "oracle": "cpin_es3_nc4",
+   "pick4": "cpin_es3_nc3",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 4.250664800607268,
+    "cpin_es3_nc3": 1.2035201211019029,
+    "cpin_es3_nc4": 0.0,
+    "cpin_es3_nc5": 0.12195410610203794
+   },
+   "pick4_regret": 1.2035201211019029,
+   "pick3_regret": 1.2035201211019029
+  },
+  {
+   "held": "seattle",
+   "year": 2019,
+   "test": {
+    "cpin_es3_nc2": 88.73023141453928,
+    "cpin_es3_nc3": 82.25331007698172,
+    "cpin_es3_nc4": 80.30459934049496,
+    "cpin_es3_nc5": 80.79278907576246
+   },
+   "k6": {
+    "cpin_es3_nc2": 58.93086745954756,
+    "cpin_es3_nc3": 57.410190488784586,
+    "cpin_es3_nc4": 57.73234459170633,
+    "cpin_es3_nc5": 59.635146137367734
+   },
+   "oracle": "cpin_es3_nc4",
+   "pick4": "cpin_es3_nc3",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 8.425632074044316,
+    "cpin_es3_nc3": 1.9487107364867597,
+    "cpin_es3_nc4": 0.0,
+    "cpin_es3_nc5": 0.48818973526749687
+   },
+   "pick4_regret": 1.9487107364867597,
+   "pick3_regret": 1.9487107364867597
+  },
+  {
+   "held": "seattle",
+   "year": 2020,
+   "test": {
+    "cpin_es3_nc2": 107.13760457522903,
+    "cpin_es3_nc3": 99.75021527573604,
+    "cpin_es3_nc4": 97.25351151915673,
+    "cpin_es3_nc5": 95.31070073441913
+   },
+   "k6": {
+    "cpin_es3_nc2": 64.99815407035642,
+    "cpin_es3_nc3": 62.66944642847374,
+    "cpin_es3_nc4": 63.267182547373075,
+    "cpin_es3_nc5": 64.19814458586404
+   },
+   "oracle": "cpin_es3_nc5",
+   "pick4": "cpin_es3_nc3",
+   "pick3": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc2": 11.826903840809905,
+    "cpin_es3_nc3": 4.43951454131691,
+    "cpin_es3_nc4": 1.9428107847376026,
+    "cpin_es3_nc5": 0.0
+   },
+   "pick4_regret": 4.43951454131691,
+   "pick3_regret": 4.43951454131691
+  },
+  {
+   "held": "seattle",
+   "year": 2021,
+   "test": {
+    "cpin_es3_nc2": 95.00491325956341,
+    "cpin_es3_nc3": 91.0691272883791,
+    "cpin_es3_nc4": 87.82120945690377,
+    "cpin_es3_nc5": 85.61259454765288
+   },
+   "k6": {
+    "cpin_es3_nc2": 64.34556392707121,
+    "cpin_es3_nc3": 63.685062407926786,
+    "cpin_es3_nc4": 63.74566414393086,
+    "cpin_es3_nc5": 62.869048045319765
+   },
+   "oracle": "cpin_es3_nc5",
+   "pick4": "cpin_es3_nc5",
+   "pick3": "cpin_es3_nc5",
+   "regret": {
+    "cpin_es3_nc2": 9.392318711910534,
+    "cpin_es3_nc3": 5.456532740726217,
+    "cpin_es3_nc4": 2.2086149092508975,
+    "cpin_es3_nc5": 0.0
+   },
+   "pick4_regret": 0.0,
+   "pick3_regret": 0.0
+  },
+  {
+   "held": "seattle",
+   "year": 2022,
+   "test": {
+    "cpin_es3_nc2": 74.9731336456429,
+    "cpin_es3_nc3": 73.85503227627184,
+    "cpin_es3_nc4": 72.21761489308956,
+    "cpin_es3_nc5": 69.90645640821818
+   },
+   "k6": {
+    "cpin_es3_nc2": 66.35465035315146,
+    "cpin_es3_nc3": 65.99316027051565,
+    "cpin_es3_nc4": 65.71920603309309,
+    "cpin_es3_nc5": 65.06921274339112
+   },
+   "oracle": "cpin_es3_nc5",
+   "pick4": "cpin_es3_nc5",
+   "pick3": "cpin_es3_nc5",
+   "regret": {
+    "cpin_es3_nc2": 5.066677237424727,
+    "cpin_es3_nc3": 3.9485758680536662,
+    "cpin_es3_nc4": 2.3111584848713846,
+    "cpin_es3_nc5": 0.0
+   },
+   "pick4_regret": 0.0,
+   "pick3_regret": 0.0
+  }
+ ]
+}

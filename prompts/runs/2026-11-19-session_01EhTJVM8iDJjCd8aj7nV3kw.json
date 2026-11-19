@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVM8iDJjCd8aj7nV3kw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled ventures prompt: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (prompts/ventures/prompt-1.md brief)",
+  "input_sha256": "c0cb351505a56c0ebda544b5f42a7913ed201e379072c606a97d16b0116612ee",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T14:56:39Z",
+  "ended": "2026-11-19T15:04:59Z",
+  "wall_minutes": 8.57,
+  "tokens_in": 5536873,
+  "tokens_out": 27413,
+  "cost_usd": 2.6911,
+  "tool_calls": 48,
+  "task": "Deepen (flagship 13) xer-schedule-check: Monte Carlo finish risk in the written review",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17698",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "Redirected a background eval's output into the wrong scratchpad subdirectory and looked for it in the parent; found it on the second read.",
+    "platform/ci/unwired_checks.py did not finish inside a 110 s timeout here (it also tried marisstella.app, which the proxy refuses); left to CI."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_venture_tests.py notes the unwired checks take about 90 s; here they exceeded 110 s and touched a host the session proxy refuses, so a foreground run is not practical in a cloud session."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-near-critical-activities-float-filter-misses.md",
+    "ventures/xer-schedule-check/eval/review-risk-check-2026-11-19.md"
+  ],
+  "goal": "Land the 'risk in the written review' item of flagship 13's next: field",
+  "notes": "report.mjs gains riskItems/riskFor/RISK_LIMITS and a Finish date risk section; reviewHtml takes meta.risk; reviewItems takes a third argument; the page passes lastRisk and refreshes the review summary after a run; CLI --risk N --report writes the review with the risk section (also with --previous). Verification: node --test *.test.mjs in the venture 62/62 before the final wording change, report.test.mjs 11/11 after; run_venture_tests.py xer-schedule-check 0 failed; validate.py all VENTURE.yaml valid; check_posts.py ok. Real files: eval/review-risk-check.mjs on six public XERs, corrections = base + riskItems 6/6, percentile rows match 6/6, near-critical sets identical across seeds on 4/4 files with any; CCA's 18 flagged activities carry 15.7-18.7 d float, none in a float<10 d filter (746 activities). venture-preflight.mjs xer-schedule-check: preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ff0711b4-6877-5a3b-9288-6037855c81e7",
+    "transcripts": 1,
+    "first": "2026-11-19T14:56:39Z",
+    "last": "2026-11-19T15:05:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 88,
+        "output": 27413,
+        "thinking": 4097,
+        "cache_read": 5404080,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132705,
+        "api_equivalent_usd": 2.6911,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 88,
+      "output": 27413,
+      "thinking": 4097,
+      "cache_read": 5404080,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132705,
+      "api_equivalent_usd": 2.6911,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 45,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.57,
+      "active_minutes": 8.57,
+      "model_minutes": 4.19,
+      "tool_minutes": 4.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a scheduler-developer adding a risk section and three risk-based corrections to a report generator, plus a six-file check and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 223.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

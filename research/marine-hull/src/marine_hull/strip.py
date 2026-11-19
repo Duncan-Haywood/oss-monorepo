@@ -140,6 +140,20 @@ def wigley_section(half_beam, draft=1.0, n=16):
     return pts
 
 
+def modified_wigley_section(xi, half_beam, draft=1.0, n=16):
+    """Nodes (y, z) of the right half of a section of Kashiwagi's modified Wigley form at xi = 2x/L,
+    y = (B/2) [(1 - zeta^2)(1 - xi^2)(1 + 0.2 xi^2) + zeta^2 (1 - zeta^8)(1 - xi^2)^4], zeta = z/d
+    (Kashiwagi 2022, J. Ship Research 66(1), eq. 42, doi:10.5957/JOSR.04200028); keel to waterline, cosine-spaced."""
+    pts = []
+    for k in range(n + 1):
+        u = 0.5 * (1.0 - math.cos(math.pi * k / n))
+        z = -draft * (1.0 - u)
+        c = z / draft
+        y = half_beam * ((1 - c * c) * (1 - xi * xi) * (1 + 0.2 * xi * xi) + c * c * (1 - c ** 8) * (1 - xi * xi) ** 4)
+        pts.append((y, z))
+    return pts
+
+
 def _quad_points(p0, p1, nsub):
     out = []
     for m in range(nsub):
@@ -229,9 +243,14 @@ NU_T = [0.005 * (30.0 / 0.005) ** (i / 89.0) for i in range(90)]   # nu T, 0.005
 def section_row(args):
     """(a*, b* near field, b* far field) along nu_t for one half-beam ratio; a picklable worker."""
     r, n_panels, nu_t = args
-    if r <= 0.0:
+    if isinstance(r, tuple):                 # ("mw", xi, B / (2 d)): a modified-Wigley section, draft 1
+        nodes = modified_wigley_section(r[1], r[2], 1.0, n_panels)
+        if max(p[0] for p in nodes) <= 1e-9:
+            return [0.0] * len(nu_t), [0.0] * len(nu_t), [0.0] * len(nu_t)
+    elif r <= 0.0:
         return [0.0] * len(nu_t), [0.0] * len(nu_t), [0.0] * len(nu_t)
-    nodes = wigley_section(r, 1.0, n_panels)
+    else:
+        nodes = wigley_section(r, 1.0, n_panels)
     av, bn, bf = [], [], []
     for nt in nu_t:
         phi, amp = section_heave(nodes, nt)
@@ -418,3 +437,36 @@ class WigleyStrip:
         omegas = omegas or wv.OMEGAS
         ys = [2.0 * self.response(w, u)[2] * wv.ittc_spectrum(w, hs, t01) for w in omegas]
         return wv.trap(ys, omegas)
+
+
+class ModifiedWigleyStrip(WigleyStrip):
+    """WigleyStrip on Kashiwagi's modified Wigley form (eq. 42 of Kashiwagi 2022), the hull of the Kyoto/Osaka
+    tank tests (Kashiwagi et al. 2000; added resistance in Kashiwagi 2013). Volume, waterplane and section
+    shapes come from the form itself; the Smith depth is volume / waterplane area."""
+
+    def __init__(self, length, beam, draft, n_stations=30, kyy=0.248, rho=1000.0, table=None, n_panels=16, zeta_v=0.0):
+        self.l, self.bm, self.t, self.rho, self.kyy = length, beam, draft, rho, kyy
+        self.zeta_v = zeta_v
+        dx = length / n_stations
+        self.dx = dx
+        self.x = [-length / 2 + dx * (i + 0.5) for i in range(n_stations)]
+        xis = [2.0 * x / length for x in self.x]
+        self.hb = [0.5 * beam * (1 - q * q) * (1 + 0.2 * q * q) for q in xis]
+        self.ratio = [("mw", round(abs(q), 12), round(0.5 * beam / draft, 12)) for q in xis]
+        self.table = table or SectionTable(sorted(set(self.ratio)), n_panels=n_panels)
+        self.area_wp = sum(2.0 * h * dx for h in self.hb)
+        self.vol = sum(self.section_area(q) * dx for q in xis)
+        self.mass = rho * self.vol
+        self.iyy = self.mass * (kyy * length) ** 2
+        self.dm = self.vol / self.area_wp
+        self.bv33 = self.bv55 = 0.0
+        if zeta_v:
+            self.set_viscous(zeta_v)
+
+    def section_area(self, xi, n=400):
+        """Immersed area of the section at xi (both sides), Simpson's rule in zeta."""
+        b2 = 0.5 * self.bm
+        f = lambda c: b2 * ((1 - c * c) * (1 - xi * xi) * (1 + 0.2 * xi * xi) + c * c * (1 - c ** 8) * (1 - xi * xi) ** 4)
+        h = 1.0 / n
+        s = f(0.0) + f(-1.0) + sum((4 if i % 2 else 2) * f(-i * h) for i in range(1, n))
+        return 2.0 * self.t * s * h / 3.0

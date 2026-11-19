@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJR3dHoecZgPRbT7ZJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T15:07:17Z",
+  "ended": "2026-11-19T15:34:39Z",
+  "wall_minutes": 27.7,
+  "tokens_in": 13197818,
+  "tokens_out": 50370,
+  "cost_usd": 4.9988,
+  "tool_calls": 92,
+  "task": "Deepen (flagship 7) photo-editing: a near-clean gate in the noise-aware blend's ramps",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17701",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first lift test used a block-aligned step edge; both demosaics lost at the step and the test could not see the leak",
+      "fix": "stripes faded in over 4 px from a flat field, no step"
+    },
+    {
+      "what": "backgrounding `cd X && (...) &` left the next command in the old directory",
+      "fix": "reran from the repo root"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "the photo-editing item framed the near-clean loss as a ramp question ('a near-clean gate in the blend's ramps'); a per-block error split showed it was the weight interpolation between block centres. Worth a per-block error split before tuning a knob a note names."
+    },
+    {
+      "file": "NEXT.md (photo-editing)",
+      "issue": "said raw.pixls.us was refused by this container's proxy 2026-11-19; today it served 166 files with curl -L, 4 at a time in about 2 minutes (pixls_fetch.py's one-at-a-time loop took ~25 min for 96)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "the item asked for a gate in the ramps; the diagnosis put the cause in how block weights are spread, so the fix went there",
+      "did": "lift_near_detail on the block q before blend, tuned and held-out tested under a rule committed first",
+      "result": "Bayer passed all three held-out tests and ships; X-Trans failed h3 and is unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-photo-editing-near-clean-leak.md",
+    "ventures/photo-editing/eval/near-clean-gate-2026-11-19.md"
+  ],
+  "goal": "flagship depth: product quality of the default demosaic",
+  "notes": "Diagnosis on the K-3 Mark III tile: loss sits in q>=3 blocks (MSE +11%), from weight interpolation between block centres. Lift q to max(q, max3x3(q)/k). Tune (fourth set, 696 rows): k=12, losers 5->0, ship arm reproduces 2026-11-18 to last digit. Held out (first set, 1272 rows, 29 bodies): PASS h1 (+0.0031 luma, +0.0017 colour, no cell lower), PASS h2 (18->11, none new), PASS h3 (worst SNR200 -0.27->-0.14). X-Trans same tiles: PASS h1, PASS h2 (31->24), FAIL h3 (-0.39 unchanged, an over-read) -> NEAR_DETAIL {2: 12, 6: None}. Remaining losers all have oracle within 0.01 dB of D. Verification: run_venture_tests.py photo-editing ok (1451 tests, 270 s); test_demosaic_noise_aware.py 24 passed; real K-3 II DNG develop 5.9 s, 0.012% of values changed vs lift off; check_posts ok; flagships validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c0a73e76-7887-5c55-beaa-c72506c2e07c",
+    "transcripts": 1,
+    "first": "2026-11-19T15:07:17Z",
+    "last": "2026-11-19T15:34:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 173,
+        "output": 50370,
+        "thinking": 10019,
+        "cache_read": 13024415,
+        "cache_write_5m": 0,
+        "cache_write_1h": 173230,
+        "api_equivalent_usd": 4.9988,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 173,
+      "output": 50370,
+      "thinking": 10019,
+      "cache_read": 13024415,
+      "cache_write_5m": 0,
+      "cache_write_1h": 173230,
+      "api_equivalent_usd": 4.9988,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 92,
+    "tools": {
+      "Bash": 86,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.7,
+      "active_minutes": 27.7,
+      "model_minutes": 10.24,
+      "tool_minutes": 17.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "diagnosis, a tuned and held-out-tested change to a demosaic with 3 sweeps over ~3,200 rows, tests and write-up: about 1.5 days for an imaging engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 240.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

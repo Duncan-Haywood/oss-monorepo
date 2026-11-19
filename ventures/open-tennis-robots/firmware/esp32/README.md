@@ -3611,3 +3611,16 @@ but bounds only 24 instant builds at 1.5 ms. The floor is a noise margin, so the
 Both clauses held, so the floor stays 2. Every floor from 0 to 2 scored the same on W and X, so these sets confirm the
 floor costs nothing but cannot show it is needed. That evidence is the design's 7 misses. Everything is in
 `eval/take-bound-floor-tenths-2026-11-19.md`.
+
+## The bound's ppm floor on takes near 2 ms (2026-11-19, after "The bound's ppm floor on tenths"; the floor shown needed by its pre-registered rule)
+
+**The item.** W and X could not tell floors 0 to 2 apart: neither had a take near 2 ms whose candidate sat just over
+the 2% bar, the case behind the design sets' seven misses. So two fresh sets aimed at it.
+
+**Held out (rule committed before capture in 2005990fa; sets Y, lag 0.50 s, seed 157, and Z, lag 0.34 s, seed 163;
+takes 1.8-2.2 ms and 0, 72 drills).** 54 builds were told TAKE_US = 0. Floor 0 covered 51 (three Z builds at 1.9, 2.0
+and 2.1 ms bounded at 1.5 ms, step rms 6-8.7 ppm, where 2% is under 0.2 ppm); 1 ppm covered 52; 2 ppm covered 54 of
+54. Both clauses held, so the floor is shown needed and `host.TAKE_BOUND_FLOOR_PPM`'s comment cites Y and Z. Nothing on
+the board changed. The price is tightness on the same small-rms builds: 5 of 12 instant builds bounded at 1.5 ms
+against 8 at floor 0. A floor scaled to the survey's own noise is NEXT.md's next item. Everything is in
+`eval/take-bound-floor-near2-2026-11-19.md`.
