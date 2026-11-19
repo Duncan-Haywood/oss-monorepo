@@ -429,10 +429,34 @@ class PidProbe(unittest.TestCase):
 
 
 class LongerHint(unittest.TestCase):
+    def _main(self, *argv):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = main(list(argv))
+        return code, out.getvalue(), err.getvalue()
+
     def test_short_timeouts_name_the_longer_form(self):
         import wait_for
         self.assertIn("--timeout 540", wait_for.longer(100))
-        self.assertEqual(wait_for.longer(540), "")
+        self.assertIn("run_in_background", wait_for.longer(100))
+
+    def test_a_long_timeout_still_names_the_background_route(self):
+        # A 540 s wait that timed out said nothing more, so 40-minute jobs took five calls.
+        import wait_for
+        hint = wait_for.longer(540)
+        self.assertIn("run_in_background", hint)
+        self.assertNotIn("--timeout 540", hint)
+
+    def test_every_timeout_line_says_timed_out(self):
+        # A chained `; grep` hides exit 1; the text itself must say the wait did not finish.
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("working\n")
+            for args in (("--until", "false", "--timeout", "0"), (p, "--timeout", "0"),
+                         ("--pid", str(os.getpid()), "--timeout", "0")):
+                code, _, err = self._main(*args)
+                self.assertEqual(code, 1, args)
+                self.assertTrue(err.startswith("wait_for: TIMED OUT (exit 1):"), (args, err))
 
 
 class Restart(unittest.TestCase):
