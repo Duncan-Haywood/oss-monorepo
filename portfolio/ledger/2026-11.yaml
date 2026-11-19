@@ -240,3 +240,17 @@ entries:
         BART, Halifax Transit and TriMet (3.0 million stop times). Post,
         llms.txt. Not yet used by anyone outside the repository.
     mrr_end: 0
+  - venture: floor-flatness
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Started ventures/floor-flatness: a browser page and Node CLI that
+        work out FF/FL F-numbers (ASTM E1155 equations as two agreeing
+        secondary sources give them; the standard itself not read) from
+        sample lines, 12-in grids or point clouds, check a spec, lay a
+        straightedge along every line, map high and low spots and estimate
+        grinding to a target FF. 21 tests, one a line worked by hand (FF
+        48.3); 5 seeded bugs all caught. No real floor survey run through it
+        yet. Post, llms.txt, contractor guide page.
+    mrr_end: 0

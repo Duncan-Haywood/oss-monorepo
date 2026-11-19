@@ -1,0 +1,28 @@
+# FF/FL floor flatness calculator
+
+> Free, open-source FF/FL calculator for concrete floors: reads elevation readings taken every 12 inches (typed sample lines, a grid CSV from a laser level or total station, or a laser-scan point cloud as x y z text), and works out FF flatness and FL levelness F-numbers after the ASTM E1155 method, per sample line, per section (all lines pooled) and overall (area-weighted). Checks them against specified overall and minimum local values, reports the largest gap under a straightedge laid along every line, draws a heat map and line profiles, and estimates how much grinding would lift FF to a target. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates, not engineering advice and not a test by a qualified testing agency. The FF and FL equations follow published secondary sources; the standard's own text was not read.
+
+## Pages
+
+- [The tool](https://marisstella.app/floor-flatness/)
+- [FF and FL numbers explained for concrete contractors, with a line worked by hand](https://marisstella.app/floor-flatness/ff-fl-for-concrete-contractors.html)
+
+## Method
+
+- FF = 4.57 / (3 S_q + |mean q|), q = change in 12-in slope between neighbouring readings (inches).
+- FL = 12.5 / (3 S_d + |mean d|), d = elevation difference between readings 10 ft apart (inches).
+- A missing reading splits a line; it is never bridged. Lines under 11 readings add nothing to FL.
+- Grids are read along every row and every column; point clouds are resampled to a 12-in lattice (median of the points within a radius).
+
+## Inputs
+
+- Sample lines: one per row, `A1: 0.12 0.10 - 0.08`; `## Bay 3, area 2400` starts a section.
+- Grid CSV: rows of elevations 12 in apart, empty cells for holes.
+- Point cloud: `x y z` per row in one unit (in, mm, cm, ft or m).
+- Optional: specified overall and minimum local FF/FL, straightedge length and allowed gap, a grind target FF.
+
+## Source
+
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/floor-flatness): MIT licensed. `node cli.mjs readings.csv --ff 35 --fl 25 --grind 40`.

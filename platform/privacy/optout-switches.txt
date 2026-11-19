@@ -468,6 +468,7 @@ ventures/flaky-test-finder/usage.mjs
 ventures/flat-roof-bid-calculator/usage.mjs
 ventures/fleet-ev-vs-diesel-tco-calculator/usage.mjs
 ventures/fleet-repair-or-replace-planner/usage.mjs
+ventures/floor-flatness/usage.mjs
 ventures/flooring-bid-calculator/usage.mjs
 ventures/flsa-regular-rate-overtime-audit/usage.mjs
 ventures/food-truck-event-margin-calculator/usage.mjs
