@@ -74,6 +74,7 @@ test('pasted rows become data/metric.csv', () => {
   assert.equal(metricCsv('2026-01-01,5\r\n2026-01-02,6'), 'date,value\n2026-01-01,5\n2026-01-02,6\n');
   assert.equal(metricCsv('day,orders\n2026-01-01,5'), 'day,orders\n2026-01-01,5\n');
   assert.equal(metricCsv('2026-01-01\t5\n\n2026-01-02\t6\n'), 'date,value\n2026-01-01,5\n2026-01-02,6\n');
+  assert.equal(metricCsv('2026-01-01,-1.5\n2026-01-02,=HYPERLINK("x")\n2026-01-03,-1+cmd'), "date,value\n2026-01-01,-1.5\n2026-01-02,'=HYPERLINK(\"x\")\n2026-01-03,'-1+cmd\n");
 });
 
 test('repository names and links', () => {

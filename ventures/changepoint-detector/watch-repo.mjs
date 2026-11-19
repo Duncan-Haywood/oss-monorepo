@@ -83,8 +83,12 @@ export function makeZip(files) {
 
 // The rows a person pasted, as data/metric.csv. Blank input keeps the script's header-only file. A pasted table
 // with no header line gets "date,value", which is what watch.mjs reads when it is told nothing else.
+// The file may be opened in a spreadsheet later, so a pasted cell that would run as a formula there gets an
+// apostrophe (formula-injection guard); plain and negative numbers pass unchanged, since watch.mjs reads them.
+const csvCell = (s) => (/^[=+\-@\t\r]/.test(s) && !/^-?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(s) ? `'${s}` : s);
 export function metricCsv(text) {
-  const rows = String(text ?? '').replace(/\r\n?/g, '\n').split('\n').map((r) => r.replace(/\t/g, ',').trim()).filter(Boolean);
+  const rows = String(text ?? '').replace(/\r\n?/g, '\n').split('\n').map((r) => r.replace(/\t/g, ',').trim()).filter(Boolean)
+    .map((r) => r.split(',').map((c) => csvCell(c.trim())).join(','));
   if (rows.length === 0) return 'date,value\n';
   const first = rows[0].split(',');
   const hasHeader = first.some((cell) => cell !== '' && Number.isNaN(Number(cell)) && Number.isNaN(Date.parse(cell)));
