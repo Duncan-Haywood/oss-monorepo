@@ -15,6 +15,10 @@
   "checked": "2026-11-19",
   "title": "Ship Resistance and Propulsion (2011)"
  },
+ "doi:10.1080/14786449808621111": {
+  "checked": "2026-11-19",
+  "title": "XI. <i>The wave-resistance of a ship</i> (1898)"
+ },
  "doi:10.1109/48.972073": {
   "checked": "2026-11-19",
   "title": "Seaglider: a long-range autonomous underwater vehicle for oceanographic research (2001)"
@@ -26,5 +30,21 @@
  "doi:10.3233/ISP-1972-1921701": {
   "checked": "2026-11-19",
   "title": "Analysis of the resistance increase in waves of a fast cargo ship 12 (1972)"
+ },
+ "doi:10.3233/ISP-1982-2933501": {
+  "checked": "2026-11-19",
+  "title": "An approximate power prediction method (1982)"
+ },
+ "doi:10.4031/002533204787522703": {
+  "checked": "2026-11-19",
+  "title": "Underwater Gliders for Ocean Research (2004)"
+ },
+ "doi:10.5281/zenodo.1169033": {
+  "checked": "2026-11-19",
+  "title": "Wave-Resistance Computation Via Cfd And Iga-Bem Solvers : A Comparative Study (2017)"
+ },
+ "doi:10.5957/mt1.1964.1.4.71": {
+  "checked": "2026-11-19",
+  "title": "Hydrodynamic Design of Planing Hulls (1964)"
  }
 }

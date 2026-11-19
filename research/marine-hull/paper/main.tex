@@ -3,7 +3,7 @@
 % text) via DRAFT.md; check_numbers.py checks each one against its file. Nothing new was run.
 % Build: python3 make_figures.py && pdflatex main && bibtex main && pdflatex main && pdflatex main
 % Needs texlive-latex-recommended, texlive-fonts-recommended and texlive-publishers (IEEEtran); first
-% compiled in 7zb, 5 pages, no errors, warnings or overfull boxes. main.pdf is gitignored: build it.
+% compiled in 7zb and again in 7zc (references checked against Crossref), 5 pages, no errors, warnings or overfull boxes. main.pdf is gitignored: build it.
 \documentclass[conference]{IEEEtran}
 \usepackage{amsmath,booktabs,tikz,url}
 \usepackage[hidelinks]{hyperref}
@@ -264,7 +264,7 @@ drawn by \texttt{make\_figures.py}).}
 \end{figure}
 
 \section{Tank data}\label{sec:tank}
-\emph{Wigley.} One published tank point, Ju (1983) at Froude number 0.267 on a 4\,m Wigley hull,
+\emph{Wigley.} One published tank point, Ju (1983) \cite{ju1983} at Froude number 0.267 on a 4\,m Wigley hull,
 quoted by Wang et al.\ \cite{wang2017}, against Michell plus ITTC 1957: with no form factor the
 model is within $-1$\% to +5\% of the measured $C_T = 4.16\times10^{-3}$ over 10 to 25\,$^\circ$C,
 and the box's central $k=0.25$ is +18\% to +25\% high, so the swept box is conservative for
