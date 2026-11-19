@@ -150,15 +150,21 @@ def panel_frame():
         d = recode.read_rda(GSSR / f'{f}.rda')
         for c in ['relig16', 'born', 'sex']:
             d[c] = d[c].astype(str).where(d[c].notna())
+        if not pd.api.types.is_numeric_dtype(d['age']):  # labelled factor ('89 or older'): the leading number
+            d['age'] = pd.to_numeric(d['age'].astype(str).str.extract(r'(\d+)')[0], errors='coerce')
         w1 = d[d['wave'] == 1].set_index('firstid')
         for later, wt, gap in [(3, 'wtpannr123', 4.0), (2, 'wtpannr12', 2.0)]:
             wl = d[d['wave'] == later].set_index('firstid')
             j = w1[['relig16', 'born', 'sex', 'age']].join(wl[['relig16']], rsuffix='_l', how='inner')
             j['w'] = pd.to_numeric(w1[wt], errors='coerce').reindex(j.index).fillna(0.0).to_numpy()
-            vs = pd.to_numeric(w1['vstrat'], errors='coerce').reindex(j.index)
-            vp = pd.to_numeric(w1['vpsu'], errors='coerce').reindex(j.index)
-            j['strat'] = (k + 1) * 100000 + vs.fillna(0).to_numpy()
-            j['psu'] = np.where(vp.notna(), vp.fillna(0), j.index.to_numpy(float) + (k + 1) * 1e6)
+            if 'vstrat' in w1.columns and 'vpsu' in w1.columns:
+                vs = pd.to_numeric(w1['vstrat'], errors='coerce').reindex(j.index)
+                vp = pd.to_numeric(w1['vpsu'], errors='coerce').reindex(j.index)
+                j['strat'] = (k + 1) * 100000 + vs.fillna(0).to_numpy()
+                j['psu'] = np.where(vp.notna(), vp.fillna(0), j.index.to_numpy(float) + (k + 1) * 1e6)
+            else:  # as m5i: a panel without design codes is one stratum with each person a PSU
+                j['strat'] = (k + 1) * 100000
+                j['psu'] = j.index.to_numpy(float) + (k + 1) * 1e6
             j['gap'] = gap
             j['pair'] = f'wave 1 to {later}'
             rows.append(j.reset_index())
