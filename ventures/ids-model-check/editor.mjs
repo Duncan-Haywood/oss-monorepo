@@ -445,13 +445,39 @@ export function modelSpec(S, cls, invClasses) {
 // A specification with no class applies to every object the other
 // applicability facets select (IDS 1.0), so any standard set may be named:
 // every set a template gives to some class.
-export function commonSets(L, classes) {
+// With a predefinedType chosen, a set the templates give only to other types
+// of these classes is left out (setTypeLimit).
+export function commonSets(L, classes, predefinedType = "") {
   const cs = classes.filter(Boolean);
   if (!cs.length) return anySets(L.psets);
   if (!cs.every((c) => knownClass(L, c))) return [];
   let out = setsFor(L.psets, L.S, cs[0], L.tm);
   for (const c of cs.slice(1)) { const s = new Set(setsFor(L.psets, L.S, c, L.tm)); out = out.filter((x) => s.has(x)); }
+  if (predefinedType) {
+    const pt = predefinedType.toLowerCase();
+    out = out.filter((x) => { const lim = setTypeLimit(L, x, cs); return !lim || lim.some((v) => v.toLowerCase() === pt); });
+  }
   return out;
+}
+
+// The predefined types a standard set is limited to on `classes` (IFC4 and
+// IFC4X3 templates: Pset_ActuatorTypeElectricActuator is for
+// IFCACTUATOR/ELECTRICACTUATOR), or null when some class carries it whatever
+// its type. Classes with no PredefinedType attribute (IFC4's IfcMaterial/Concrete
+// names a category) are never limited. The audit's pset-predefined warning
+// reads the same `pt` field (audit.mjs, predefinedIssue).
+export function setTypeLimit(L, setName, classes) {
+  const set = own(L.psets, setName);
+  if (!set || !set.pt) return null;
+  const out = new Set();
+  for (const c of classes.filter(Boolean)) {
+    if (!predefinedTypes(L.S, c).length) return null;
+    const via = set.classes.filter((t) => setApplies(L.S, c, { classes: [t] }, L.tm));
+    if (!via.length) continue;
+    if (via.some((t) => !own(set.pt, t))) return null;
+    for (const t of via) for (const v of set.pt[t]) out.add(v);
+  }
+  return out.size ? [...out] : null;
 }
 
 // Attributes every one of `classes` has and the page can edit. Their types
