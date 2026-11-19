@@ -36,7 +36,9 @@ Options:
   --label-column <name|i>   label/date column (default: first column)
   --columns <list|all>      watch several metrics of one CSV in one run: a comma list (orders,revenue,signups) or
                             all (every numeric column). A column may name its own model after a colon
-                            (orders:poisson,revenue:meanvar). Each column keeps its own record in the one state file and
+                            (orders:poisson,revenue:meanvar) and its own detector after another
+                            (orders:poisson:bocpd-window, README "A detector per column"); --detector applies to the
+                            columns that name none, and --detector auto leaves a named one alone. Each column keeps its own record in the one state file and
                             all new changes go out as one webhook message. With --detector auto or --suggest each column
                             is picked against the whole budget, as a one-column watch would be (splitting it across the
                             columns was tested and failed, README "Several metrics in one watch").
@@ -242,7 +244,10 @@ export function closedFill(values, labels, closed, opts = {}) {
 }
 
 /**
- * `--columns`: [{ column, model }] from "a,b:poisson" or "all" (every numeric column but the label column).
+ * `--columns`: [{ column, model, detector? }] from "a,b:poisson" or "all" (every numeric column but the label column).
+ * After the name, up to two colon parts, each a model (mean, meanvar, poisson) or a detector (DETECTORS), in either
+ * order: "orders:poisson:bocpd-window" watches orders as counts with the windowed Bayesian pass while the other
+ * columns keep --detector or their model's default (README "A detector per column").
  * Column names are matched as the single-column watch matches them (case-insensitive, or a 0-based index).
  */
 export function columnSpecs(csv, spec, labelColumn = null) {
@@ -251,11 +256,22 @@ export function columnSpecs(csv, spec, labelColumn = null) {
   if (String(spec).trim().toLowerCase() === 'all') specs = parseColumns(csv, null, labelColumn).names.map((column) => ({ column, model: null }));
   else {
     specs = String(spec).split(',').map((s) => s.trim()).filter(Boolean).map((s) => {
-      const m = /^(.*?)(?::(mean|meanvar|poisson))?$/.exec(s);
-      const column = m[1].trim();
+      // A column name may itself hold a colon only if no part after it reads as a model or detector.
+      const parts = s.split(':');
+      let model = null, detector = null;
+      while (parts.length > 1) {
+        const t = parts[parts.length - 1].trim().toLowerCase();
+        if (MODELS.includes(t) && model == null) model = t;
+        else if (DETECTORS.includes(t) && detector == null) detector = t;
+        else break;
+        parts.pop();
+      }
+      const column = parts.join(':').trim();
       if (!column) throw new Error(`--columns: "${s}" names no column.`);
-      if (s.includes(':') && !m[2]) throw new Error(`--columns: "${s}": the part after the colon is the model, one of ${MODELS.join(', ')}.`);
-      return { column: /^\d+$/.test(column) ? Number(column) : column, model: m[2] ?? null };
+      if (parts.length > 1 || (s.includes(':') && model == null && detector == null)) {
+        throw new Error(`--columns: "${s}": each part after a colon is a model (${MODELS.join(', ')}) or a detector (${DETECTORS.join(', ')}), at most one of each.`);
+      }
+      return { column: /^\d+$/.test(column) ? Number(column) : column, model, ...(detector ? { detector } : {}) };
     });
   }
   if (!specs.length) throw new Error('--columns: no column to watch.');
@@ -312,7 +328,7 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
   const series = specs.map((s) => {
     const { labels, values: raw, column } = parseSeries(csv, s.column, labelColumn ?? null);
     if (raw.length < 4) throw new Error(`${column}: need at least 4 numbers; got ${raw.length}.`);
-    const opts = { ...base, ...(s.model ? { model: s.model } : {}) };
+    const opts = { ...base, ...(s.model ? { model: s.model } : {}), ...(s.detector ? { detector: s.detector } : {}) };
     const fill = closedFill(raw, labels, closed, opts);
     return { ...s, column: String(column), labels, values: fill.values, fill, opts };
   });
@@ -350,7 +366,8 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
     const st = state.columns[c.column] ?? emptyState();
     const det = { ...c.opts };
     let picked = null;
-    if (auto) {
+    // A detector named in --columns is the person's own choice for that column: --detector auto leaves it alone.
+    if (auto && !c.detector) {
       if (st.choice && DETECTORS.includes(st.choice.detector)) det.detector = st.choice.detector;
       else {
         const { replay: _r, ...ch } = chooseDetector(c.values, c.labels, { ...det, budget: whole });
@@ -361,7 +378,7 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
     }
     const res = advance(st, detectChanges(c.values, c.labels, det), c.values.length, c.labels, { ...o, ...det });
     state.columns[c.column] = res.state;
-    results.push({ column: c.column, model: det.model || 'mean', n: c.values.length, picked, res, fill: c.fill });
+    results.push({ column: c.column, model: det.model || 'mean', detector: c.detector ?? null, n: c.values.length, picked, res, fill: c.fill });
   }
   const alerting = results.filter((r) => r.res.alerts.length);
   const message = alerting.map((r) => alertText(r.res, { column: r.column, model: r.model })).join('\n');
@@ -374,14 +391,15 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
   if (!dry) await writeFile(statePath, JSON.stringify(state, null, 2) + '\n');
   if (json) {
     out(JSON.stringify({ alerts: alerting.reduce((s, r) => s + r.res.alerts.length, 0), budget: auto ? whole : undefined,
-      columns: results.map((r) => ({ column: r.column, model: r.model, n: r.n, ...(r.picked ? { picked: r.picked } : {}), ...r.fill.json, ...r.res })) }, null, 2) + '\n');
+      columns: results.map((r) => ({ column: r.column, model: r.model, ...(r.detector ? { detector: r.detector } : {}), n: r.n, ...(r.picked ? { picked: r.picked } : {}), ...r.fill.json, ...r.res })) }, null, 2) + '\n');
   } else {
     const head = alerting.length
       ? `New changes in ${alerting.length} of ${k} column${k === 1 ? '' : 's'}: ${alerting.map((r) => r.column).join(', ')}.`
       : `No new confirmed change in ${k} column${k === 1 ? '' : 's'}.`;
     const blocks = results.map((r) => {
       const pick = r.picked ? `How eager: ${NAME[r.picked.key]} (${r.picked.detector}), picked from ${r.picked.n} points: ${r.picked.reason}; budget ${plainBudgetText(whole, every)}. Later runs keep it.\n` : '';
-      return `== ${r.column} ==\n${pick}${statusText(r.res, { column: r.column, model: r.model, confirm: o.confirm })}`;
+      const named = r.detector ? `Detector: ${r.detector} (named for this column).\n` : '';
+      return `== ${r.column} ==\n${named}${pick}${statusText(r.res, { column: r.column, model: r.model, confirm: o.confirm })}`;
     });
     out([head + (results[0].fill.line ? '\n' + results[0].fill.line.trimEnd() : ''), ...blocks].join('\n\n') + '\n');
   }

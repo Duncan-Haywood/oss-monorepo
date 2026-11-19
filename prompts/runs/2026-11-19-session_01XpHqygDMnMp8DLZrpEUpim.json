@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqygDMnMp8DLZrpEUpim",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T20:44:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 4) changepoint-detector: a per-column detector in --columns, the item 'Counts and the windowed detector' left open",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17786",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "A stray `cat > file` with no input in one Bash call hung on stdin until killed (my mistake; cost one background slot, no damage)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The Start-here line and the row's full task text run to several thousand characters per row; finding the one open item for the picked flagship took reading the README section it pointed at."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-changepoint-a-detector-per-column.md",
+    "ventures/changepoint-detector/README.md section 'A detector per column'"
+  ],
+  "goal": "Let a Shopify/Stripe metric watch give its count column the windowed detector (84 of 100 simulated steps vs 60) without moving revenue off its tested default.",
+  "notes": "Shipped: columnSpecs parses name[:model][:detector] (either order, one of each); watchColumns passes a named detector per column; --detector auto skips a named column; text and JSON name it. Docs: --help, README 'A detector per column' (and the Counts section's Next), features list, llms.txt, guide page, made-repo README and workflow comment (watch-repo-files.mjs regenerated). Checked: watch-column-detector.test.mjs (3 tests) + watch.test.mjs (updated message) 30/30 locally; run_venture_tests.py changepoint-detector: ok, 1023 tests, 281.6 s; venture-preflight.mjs changepoint-detector: clean. No outside data or accounts needed. Next item left on the row: the pre-registered margin rule on fresh seeds.",
+  "corrections": [],
+  "redteam": null
+}

@@ -44,7 +44,9 @@ first run pick it and later runs keep it, set `WATCH_OPTIONS` to `--detector aut
 Several metrics in one sheet (orders, revenue, sign-ups as columns): add `--columns all`, or name them with a model
 each, `--columns orders:poisson,revenue,signups:poisson`, to `WATCH_OPTIONS`. Each column keeps its own record in
 `watch-state.json`, the day's new changes arrive as one message, and `--detector auto --alerts-per` picks each
-column's setting against the budget on its own history.
+column's setting against the budget on its own history. A column can name its own detector after its model:
+`--columns orders:poisson:bocpd-window,revenue` hears more drops in daily orders (84 of 100 test steps against 60)
+for about one more false alert in 600 days, and leaves revenue on its default.
 
 Stripe: add the secret `STRIPE_API_KEY` (a restricted key with read access to Charges; Dashboard > Developers >
 API keys > Create restricted key) and leave `METRIC_CSV` unset. Each run then fetches your complete days into
