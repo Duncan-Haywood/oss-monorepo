@@ -411,16 +411,34 @@ def park_hint(value: str, venture: str, over: int, keep: tuple[str, ...] = ()) -
 
 
 def new_budget(keep: tuple[str, ...], over: int) -> str:
-    """With one --replace, the longest its NEW can be, so the second try fits
+    """With --replace, the longest its NEW can be, so the second try fits
     (doc_friction 2026-11-16: three runs overran `buildable:` by 14 to 47
-    characters and could only guess how much to cut)."""
-    if len(keep) != 1 or not keep[0]:
+    characters and could only guess how much to cut). With several --replace
+    NEWs it names their total and a cut for each, in proportion to its length
+    (friction 2026-11-19: a two-item `buildable:` rewrite took three tries
+    because the refusal named no budget when two NEWs were given)."""
+    keep = tuple(k for k in keep if k)
+    if not keep:
         return ""
-    most = len(keep[0]) - over
-    if most <= 0:
-        return (f". Your NEW text ({len(keep[0])} chars) cannot fit by shortening alone: "
-                "cut another item too")
-    return f". Your NEW text is {len(keep[0])} characters; at most {most} fits"
+    if len(keep) == 1:
+        most = len(keep[0]) - over
+        if most <= 0:
+            return (f". Your NEW text ({len(keep[0])} chars) cannot fit by shortening alone: "
+                    "cut another item too")
+        return f". Your NEW text is {len(keep[0])} characters; at most {most} fits"
+    total = sum(len(k) for k in keep)
+    if total - over <= 0:
+        return (f". Your {len(keep)} NEW texts ({total} chars together) cannot fit by "
+                "shortening alone: cut another item too")
+    cuts, left = [], over
+    for i, k in enumerate(keep):
+        c = left if i == len(keep) - 1 else min(left, -(-over * len(k) // total))
+        cuts.append(c)
+        left -= c
+    each = "; ".join(f"{k[:30]!r}{'...' if len(k) > 30 else ''} {len(k)} -> {len(k) - c}"
+                     for k, c in zip(keep, cuts))
+    return (f". Your {len(keep)} NEW texts are {total} characters together; at most "
+            f"{total - over} fit, e.g. {each}")
 
 
 def cap_note(field: str, n: int) -> str:
