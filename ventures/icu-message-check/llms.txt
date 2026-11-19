@@ -1,0 +1,14 @@
+# ICU Message Check
+
+> Free tool: check ICU MessageFormat strings and JSON or ARB translation files (react-intl/FormatJS, Flutter, ICU4J). Finds syntax errors with their column, apostrophes that make a {placeholder} print literally (French l'{item}), plural and selectordinal options missing for a locale's CLDR categories (Polish few/many, Arabic zero/two) with example numbers, categories a locale never selects ("zero" in English), and placeholders or select options a translation dropped or renamed. Runs in the browser; nothing is uploaded. A Node CLI (`node cli.mjs en.json fr.json pl.json`) does the same and exits 1 on an error.
+
+Free and open source (MIT). Checks message structure, not translation quality; not legal or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/icu-message-check/)
+- [Apostrophes in ICU MessageFormat: why '{name}' prints literally](https://marisstella.app/icu-message-check/apostrophes-in-icu-messageformat.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/icu-message-check): MIT licensed.
