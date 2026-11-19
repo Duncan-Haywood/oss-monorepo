@@ -42,3 +42,12 @@ node --test ventures/storage-auction-max-bid-calculator/*.test.mjs
 ## Limitations
 
 This is planning arithmetic, not an appraisal or a guarantee of resale. It cannot see inside the unit — the recovery rate, dump loads, and cleanout hours are all your own estimate from the doorway, and the tool is only as good as that estimate. It does not know a given facility's or state's own lien-sale terms, removal window, or deposit policy, which vary by operator and by law; verify those directly before you bid. It does not add sales tax, income tax, or the time spent researching and listing items beyond the hourly labor rate you enter, and it does not place a bid for you.
+
+### Known gaps (quality audit 2026-11-19)
+
+From [`portfolio/quality/audits/2026-11-19-storage-auction-max-bid-calculator.json`](../../portfolio/quality/audits/2026-11-19-storage-auction-max-bid-calculator.json), not yet fixed:
+
+- **No sales-tax input.** Facilities usually collect sales tax on the purchase unless the buyer has a resale certificate; for a bidder without one the ceiling is too high by the tax rate.
+- **No buyer's-premium minimum.** Some platforms charge a flat minimum on small bids (e.g. $10 under a threshold), so a small worked bid underprices the premium. The 12% default is below the 15% standard rate of the two largest online platforms.
+- **The removal-window check assumes round-the-clock access.** It divides person-hours by crew size and compares with the window; facilities only allow access in gate hours.
+- **The cleaning deposit is left out of "Total out-of-pocket"** although it is cash due on auction day (it is correctly kept out of profit).
