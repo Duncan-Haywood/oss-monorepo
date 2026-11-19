@@ -1,0 +1,113 @@
+cell-fidelity milestone 7g: 7f's triage rules on a fourth fresh DFN pool (8 designs per set, none simulated
+before; S_C fitted on the 104 earlier designs only). Target = 1.25 x the fresh pool's all-50 q75 of the
+cycle-99 lithium-loss error (cell 000).
+
+set           n  q75 U10  q75 U50  target
+Ai2020        8    0.085    0.038   0.048
+Chen2020      8    0.133    0.053   0.066
+OKane2022     8    0.095    0.050   0.063
+NCA_Kim2011   8    0.087    0.029   0.036
+
+rule               how     met  cycles  saved vs U50
+theta-tight     frozen    9/12    41.7           17%
+U-tight         frozen   12/12    50.0            0%
+F-tight         frozen    9/12    40.5           19%
+F+D             frozen    5/12    34.0           32%
+theta-tight      refit    3/4     41.2           18%
+U-tight          refit    4/4     47.5            5%
+F-tight          refit    3/4     41.6           17%
+F+D              refit    2/4     33.1           34%
+theta-tight       zero    0/4     25.9           48%
+U-tight           zero    2/4     42.5           15%
+F-tight           zero    1/4     28.8           43%
+F+D               zero    1/4     28.8           43%
+U50                  -     all    50.0            0%
+
+theta-tight, frozen 7f policies on the fresh pool:
+set          from  margin 7f met       policy    q75  target  met  cycles
+Ai2020        5zk    1.05    yes    50>=0.041  0.038   0.048  yes    50.0
+Ai2020        5zy    1.05    yes    50>=0.045  0.038   0.048  yes    50.0
+Ai2020        5zz    1.15     no    40>=0.041  0.055   0.048   no    40.0
+Chen2020      5zk    1.00    yes    50>=0.028  0.070   0.066   no    35.0
+Chen2020      5zy    1.00    yes    50>=0.014  0.053   0.066  yes    50.0
+Chen2020      5zz    1.15    yes    50>=0.017  0.053   0.066  yes    50.0
+OKane2022     5zk    1.00    yes    50>=0.031  0.050   0.063  yes    45.0
+OKane2022     5zy    1.00    yes    50>=0.031  0.050   0.063  yes    45.0
+OKane2022     5zz    1.00     no    50>=0.061  0.050   0.063  yes    35.0
+NCA_Kim2011   5zk    1.15     no    50>=0.297  0.037   0.036   no    20.0
+NCA_Kim2011   5zy    1.10    yes    50>=0.238  0.031   0.036  yes    35.0
+NCA_Kim2011   5zz    1.15    yes    50>=0.212  0.031   0.036  yes    45.0
+theta-tight, refit on three pools:
+Ai2020        all    1.00     no    40>=0.041  0.055   0.048   no    40.0
+Chen2020      all    1.15     ok    40>=0.014  0.056   0.066  yes    40.0
+OKane2022     all    1.00     no    50>=0.031  0.050   0.063  yes    45.0
+NCA_Kim2011   all    1.10     ok    50>=0.232  0.031   0.036  yes    40.0
+
+U-tight, frozen 7f policies on the fresh pool:
+set          from  margin 7f met       policy    q75  target  met  cycles
+Ai2020        5zk    1.20    yes          U50  0.038   0.048  yes    50.0
+Ai2020        5zy    1.20    yes          U50  0.038   0.048  yes    50.0
+Ai2020        5zz    1.25    yes          U50  0.038   0.048  yes    50.0
+Chen2020      5zk    1.10    yes          U50  0.053   0.066  yes    50.0
+Chen2020      5zy    1.10    yes          U50  0.053   0.066  yes    50.0
+Chen2020      5zz    1.15    yes          U50  0.053   0.066  yes    50.0
+OKane2022     5zk    1.15    yes          U50  0.050   0.063  yes    50.0
+OKane2022     5zy    1.20    yes          U50  0.050   0.063  yes    50.0
+OKane2022     5zz    1.10    yes          U50  0.050   0.063  yes    50.0
+NCA_Kim2011   5zk    1.20    yes          U50  0.029   0.036  yes    50.0
+NCA_Kim2011   5zy    1.20    yes          U50  0.029   0.036  yes    50.0
+NCA_Kim2011   5zz    1.25    yes          U50  0.029   0.036  yes    50.0
+U-tight, refit on three pools:
+Ai2020        all    1.25     ok          U50  0.038   0.048  yes    50.0
+Chen2020      all    1.15     ok          U40  0.056   0.066  yes    40.0
+OKane2022     all    1.20     ok          U50  0.050   0.063  yes    50.0
+NCA_Kim2011   all    1.20     ok          U50  0.029   0.036  yes    50.0
+
+F-tight, frozen 7f policies on the fresh pool:
+set          from  margin 7f met       policy    q75  target  met  cycles
+Ai2020        5zk    1.25     no      50@0.35  0.061   0.048   no    25.0
+Ai2020        5zy    1.05    yes      50@0.85  0.038   0.048  yes    45.0
+Ai2020        5zz    1.05     no      40@0.85  0.055   0.048   no    36.2
+Chen2020      5zk    1.00    yes      50@0.45  0.072   0.066   no    30.0
+Chen2020      5zy    1.00    yes      50@1.00  0.053   0.066  yes    50.0
+Chen2020      5zz    1.15    yes      50@0.95  0.053   0.066  yes    50.0
+OKane2022     5zk    1.15    yes      50@0.95  0.050   0.063  yes    50.0
+OKane2022     5zy    1.20    yes      50@0.90  0.050   0.063  yes    45.0
+OKane2022     5zz    1.00    yes      50@0.90  0.050   0.063  yes    45.0
+NCA_Kim2011   5zk    1.25    yes      50@0.50  0.031   0.036  yes    30.0
+NCA_Kim2011   5zy    1.00    yes      50@0.75  0.031   0.036  yes    40.0
+NCA_Kim2011   5zz    1.00    yes      50@0.70  0.031   0.036  yes    40.0
+F-tight, refit on three pools:
+Ai2020        all    1.00     no      40@0.90  0.055   0.048   no    36.2
+Chen2020      all    1.15     ok      40@1.00  0.056   0.066  yes    40.0
+OKane2022     all    1.05     ok      50@0.95  0.050   0.063  yes    50.0
+NCA_Kim2011   all    1.00     ok      50@0.75  0.031   0.036  yes    40.0
+
+F+D, frozen 7f policies on the fresh pool:
+set          from  margin 7f met       policy    q75  target  met  cycles
+Ai2020        5zk    0.00     no      50@0.35  0.061   0.048   no    25.0
+Ai2020        5zy    0.50    yes      40@1.00  0.055   0.048   no    40.0
+Ai2020        5zz    0.50     no      30@1.00  0.073   0.048   no    30.0
+Chen2020      5zk    0.50     no      40@0.80  0.056   0.066  yes    32.5
+Chen2020      5zy    0.50     no      50@0.55  0.072   0.066   no    30.0
+Chen2020      5zz    0.50    yes      50@0.70  0.046   0.066  yes    40.0
+OKane2022     5zk    0.50     no      40@1.00  0.063   0.063   no    40.0
+OKane2022     5zy    0.50    yes      40@1.00  0.063   0.063   no    40.0
+OKane2022     5zz    0.50     no      30@1.00  0.076   0.063   no    30.0
+NCA_Kim2011   5zk    0.00    yes      50@0.50  0.031   0.036  yes    30.0
+NCA_Kim2011   5zy    0.15    yes      50@0.65  0.031   0.036  yes    35.0
+NCA_Kim2011   5zz    0.15    yes      50@0.65  0.031   0.036  yes    35.0
+F+D, refit on three pools:
+Ai2020        all    0.50     no      30@1.00  0.073   0.048   no    30.0
+Chen2020      all    0.50     no      40@0.70  0.056   0.066  yes    32.5
+OKane2022     all    0.50     no      40@1.00  0.063   0.063   no    40.0
+NCA_Kim2011   all    0.10     ok      50@0.55  0.031   0.036  yes    30.0
+
+(frozen: 7f's nested-margin policy from fold (set, held-out pool), unchanged; '7f met' = it met 7f's
+ held-out pool. refit: picked on all three earlier pools, margin from three inner folds; inner 'no' = none
+ met all three, most conservative used. zero: refit at margin 1.25 (F+D: D = 0). U50* = fall back to 50.)
+
+H281 (frozen theta-tight meets >= 9 of 12 on the fresh pools): supported (9/12)
+H282 (refit theta-tight meets >= 3 of 4 at <= 40 cycles): inconclusive (3/4, 41.2)
+H283 (frozen theta-tight meets at least as many as frozen F-tight): supported (9 vs 9)
+H284 (frozen theta-tight costs <= 40 cycles per design on the fresh pools): inconclusive (41.7)

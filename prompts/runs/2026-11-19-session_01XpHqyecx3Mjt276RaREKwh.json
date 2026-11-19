@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyecx3Mjt276RaREKwh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T07:39:14Z",
+  "ended": "2026-11-19T08:30:27Z",
+  "wall_minutes": 51.54,
+  "tokens_in": 11184257,
+  "tokens_out": 55278,
+  "cost_usd": 4.6491,
+  "tool_calls": 83,
+  "task": "research programme codesign-cant, milestone 7ad: why one design in four never settles on a 1 m step, and a fix without retuning",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17588",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "Importing the new experiments/m7ad_settle/run.py as a module named `run` shadowed milestone 6's `import run` in the loader chain (AttributeError: module 'run' has no attribute 'P'); fixed by loading model.py through importlib instead of sys.path."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "The CHAIN note suggested the knob-turning sub-steps might need a paper step; the paper step had already landed 2 h earlier (its own LOG entry was the newest), so the note was stale for this draw; it should key on the newest LOG heading."
+    },
+    {
+      "file": "research/codesign-cant/LOG.md",
+      "issue": "7ac's proposed next step (a position-kp floor) would not have touched the unsettled designs: a 5-minute look at the existing results showed kp does not separate them, ki/kp does. Worth a line in research/CLAUDE.md: check a proposed fix against the existing results before building it."
+    },
+    {
+      "file": "research/codesign-cant/experiments/m7y_response/run.py",
+      "issue": "The response results store per-episode rms and tail_pp lists the verdicts never read; 7ad's results.json was 6.2 MB until trimmed to 4.4 MB."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/codesign-cant/LOG.md (7ac 'Next')",
+      "why": "7ac proposed a settle-time or position-kp floor as a training constraint; the existing results showed kp does not predict settling while ki/kp does, so a kp floor would not fix it.",
+      "did": "Diagnosed the mechanism (integrator slow pole) with a three-state model, tested it out of sample on 96 designs, and tested a controller-side fix (conditional integration) without retraining.",
+      "result": "7 of 8 predictions held; 18 -> 0 unsettled designs at no crash cost; training with the fix on is the next step."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-why-a-tuned-drone-stops-short-of-its-set-point.md",
+    "research/codesign-cant/README.md (milestone 7ad section)",
+    "research/codesign-cant/paper/DRAFT.md (section VII paragraph)",
+    "research/codesign-cant/LOG.md"
+  ],
+  "goal": "Advance programme codesign-cant toward an RA-L submission",
+  "notes": "Predictions (AD1-AD8) committed in f5748f39c before the full run (1913 s on 4 cores). Verdicts: AD1-AD6, AD8 held; AD7 refuted. Local checks: codesign-cant tests 66 passed, 1 skipped; paper/check_numbers.py 66 of 66; research/_homepage/build.py ok; research_live_links and check_md_links ok; check_posts ok; cite_check ok. No agent doc in docs/reports: the LOG entry and README carry what the next run needs (next step: train with conditional integration at the 125 ms ceiling).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c63c0d2c-7f97-5fc3-b7fe-3b7d6f72e1da",
+    "transcripts": 1,
+    "first": "2026-11-19T07:39:14Z",
+    "last": "2026-11-19T08:30:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 154,
+        "output": 55278,
+        "thinking": 15618,
+        "cache_read": 11016648,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167455,
+        "api_equivalent_usd": 4.6491,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 154,
+      "output": 55278,
+      "thinking": 15618,
+      "cache_read": 11016648,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167455,
+      "api_equivalent_usd": 4.6491,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 79,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 51.54,
+      "active_minutes": 51.54,
+      "model_minutes": 9.14,
+      "tool_minutes": 42.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a controls PhD student: diagnose settling defect, write and validate a reduced model, run 3,400 simulator jobs, analyse, write paper paragraph and post (~2 days)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 344.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

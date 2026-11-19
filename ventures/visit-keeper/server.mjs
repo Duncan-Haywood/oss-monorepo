@@ -41,7 +41,7 @@ export function handler(cfg) {
   const allowed = new Set(cfg.sites), shared = new Set(cfg.publicSites || []);
   const ok = limiter(cfg.ratePerMinute || 120, now);
   const meta = { title: cfg.title || "Analytics", sites: cfg.sites };
-  const clientIp = (req) => (cfg.trustProxy ? String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() : "") || req.socket.remoteAddress || "";
+  const clientIp = (req) => (cfg.trustProxy ? String(req.headers["x-forwarded-for"] || "").split(",").pop().trim() : "") || req.socket.remoteAddress || "";
   const basicOk = (req) => { const m = /^Basic (.+)$/.exec(req.headers.authorization || ""); if (!m) return false; const s = Buffer.from(m[1], "base64").toString(); return safeEq(s.slice(s.indexOf(":") + 1), cfg.adminKey); };
   const bearerOk = (req) => safeEq(req.headers.authorization || "", `Bearer ${cfg.adminKey}`) || basicOk(req);
   return async (req, res) => {

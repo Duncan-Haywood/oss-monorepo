@@ -13,4 +13,8 @@
 
 ## Buildable here (added 2026-11-18)
 
-- (2026-11-19) More tach pulses a revolution: a short take shows only on balls whose contact straddles a revolution's edge (eval/take-shelf-trace-2026-11-19.txt), so two or four pulses a revolution would multiply the informative balls. Needs the simulator's tach, the fit's per-segment periods and a magnet-spacing error model.
+- (2026-11-19) More tach pulses a revolution: tested host-side and closed by its pre-registered rule
+  (eval/tach-pulses-2026-11-19.md: four magnets saw 46 of 128 short-take balls against 38, not twice; the step's drop
+  error rose 0.11% to 0.55%). Reopen only with a survey-level test written first (the board sums ~22 wheels) and a plan
+  for the step's drop. Best lead: with 0.5 us sensor jitter (not judged) four magnets saw 24 short-take balls against 9
+  and bounded them at a median 3.5 ms against none, so test it on a jittery tach first; `drop_from_commands_steps(per=, angles=)` and `magnet_spacing` are ready for it.

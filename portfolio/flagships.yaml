@@ -199,15 +199,17 @@ flagships:
       (a) ar1 + floor 2 failed on 5 fresh bee dances (0.244 vs 0.337, README; muted
       note ships); update-rate: pegs 4 of 7 dated; real misses are 1-2 month sparse
       spells, and shortSpells ships as an opt-in (README "Short sparse spells":
-      S1-S4, Alaska and South Dakota dated); --spells on CLI and page; NYT failed
-      (N1 2/4, N2 5/9, README "Short spells on a second provider"), edge-spell line
-      ships; next plant spells under different series openings. Stale feeds: clumped
-      LR shipped; next a real documented carry-forward. joint drift (measured, not
-      offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
-      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
-      belts and quality control 4, its AR(1) term; notes quote it. Curvature word
-      ships under --shape-word panel (README "A curvature word"): slope donors
-      straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
+      S1-S4, Alaska and South Dakota dated); NYT failed (N1 2/4, N2 5/9, README
+      "Short spells on a second provider"), edge-spell line ships; openings (README
+      "Short spells under different series openings"): edge line 0 false, O1/O2 fail
+      on spells with few differing weekdays; next score differing weekdays only.
+      Stale feeds: clumped LR shipped; next a real documented carry-forward. joint
+      drift (measured, not offered) and its 2x penalty on fresh multi-column
+      labelled data. Open: (0) drift model: t-walk increments, biweight on fresh
+      data, why it absorbs seat belts and quality control 4, its AR(1) term; notes
+      quote it. Curvature word ships under --shape-word panel (README "A curvature
+      word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open
+      items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -393,9 +395,11 @@ flagships:
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
       (odd-orbit.py, 9,849 s). Bowling bounds and lane limits: README 2026-11-18
       sections (eval/bowling-*). Americano whist designs 2026-11-19 (whist.mjs;
-      eval/whist-vs-greedy.txt: full cycle 0 repeat partners, opponents exactly 2;
-      short nights tie greedy); next: bases for unsearched 4k/4k+1 sizes, 4k+2
-      players. More open items: NEXT.md.
+      eval/whist-vs-greedy.txt); 4k+2 near-whist designs 2026-11-19 (one missed
+      partner each, 0 repeats, opponents 1-2; eval/near-whist-search.mjs annealing);
+      next: 4k/4k+1 bases 40, 41, 45, 48, 49 (backtracking 25 min failed, annealing
+      too), 4k+2 bases 46, 54-62 (annealing: 46 none in 15 min). More open items:
+      NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
@@ -404,8 +408,8 @@ flagships:
       offline, 49 vs 39 on the board; Pi hold 14 s a ball). TAKE_US = 0 bound: 2 ppm
       floor shipped 2026-11-19 (eval/take-bound-floor-p-2026-11-19.md, set P 48 of
       48). Next: a drill-level check of one-wheel verdicts on more fresh sets; the
-      sub-8 advised instant build. Ball hold on fast wheels: LOOP_BALL_GAIN shipped
-      2026-11-19.
+      sub-8 advised instant build. 4-magnet tach closed 2026-11-19
+      (eval/tach-pulses-2026-11-19.md).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

@@ -56,7 +56,7 @@ export function handler(cfg) {
     const reply = (code, body, type = "text/html; charset=utf-8", extra = {}) => { res.writeHead(code, { "content-type": type, "cache-control": "no-store", "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(typeof body === "string" ? body : JSON.stringify(body, null, 2)); };
     const json = (c, b) => reply(c, b, "application/json", { "access-control-allow-origin": "*" });
     try {
-      const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+      const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",").pop().trim();
       if (path === "/healthz") return reply(200, "ok\n", "text/plain");
       if (req.method === "OPTIONS") return reply(204, "", "text/plain", { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "GET,POST" });
 

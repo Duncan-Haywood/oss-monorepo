@@ -3752,8 +3752,9 @@ export function swissText(players, round, roundNumber) {
  * Whether a whist rotation is worth using over the greedy one. Ghost seats sit out whole tables,
  * so a design can leave courts idle: use it only when its rounds fill, on average, at least 90% of
  * the courts the greedy search fills (min(courts, floor(n/4))). One ghost (4k+3 players) passes;
- * two ghosts (4k+2) cost each player 2-3 games over the evening and fall back to greedy
- * (eval/whist-vs-greedy.txt).
+ * two ghosts cost each player 2-3 games over the evening and fall back to greedy
+ * (eval/whist-vs-greedy.txt). 4k+2 players with a stored near-whist design (whist.mjs) use it with
+ * no ghost.
  */
 /** Lower is better: repeat partnerships first, then the most times one pair meets as opponents, then how many pairs do. */
 function americanoScore(plan) {

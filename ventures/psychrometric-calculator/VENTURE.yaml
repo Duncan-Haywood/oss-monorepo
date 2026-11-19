@@ -1,0 +1,57 @@
+name: psychrometric-calculator
+description: >-
+  Free browser psychrometric calculator for HVAC technicians and engineers:
+  moist-air properties from any two of dry bulb, wet bulb, dew point, RH,
+  humidity ratio and enthalpy at any altitude (ASHRAE Fundamentals equations),
+  then airstream mixing, cooling coil load, sensible heat ratio, apparatus dew
+  point and bypass factor, sensible heating and evaporative cooling, plotted on
+  a psychrometric chart drawn for the actual pressure. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-19 in an explore run. duplicate_check.py: top match 0.08
+# (wall-condensation-check, hvac-load-calc); no venture computes moist-air
+# states or coil processes. hvac-load-calc has a two-line humidity-ratio helper
+# for its latent load; this is the full psychrometric toolkit beside it.
+#
+# Why a tool and not a chatbot answer: the wet bulb and every pair without a dry
+# bulb need an iterative solve, the ADP needs a line-to-curve intersection, and
+# altitude changes every answer; chat replies tend to read a sea-level chart
+# from memory. A chart drawn for the user's own pressure with their points on it
+# is not something a text reply gives. Free online psychrometric calculators
+# exist but mostly fix the pair (dry bulb plus one) and stop at the point.
+#
+# First visitor: HVAC technicians and students searching "psychrometric
+# calculator", "wet bulb to relative humidity", "coil bypass factor
+# calculator", "apparatus dew point"; volume not measured with an external tool.
+#
+# Liability: arithmetic on typed numbers, not engineering advice. No product is
+# named. Unverified against a commercial program: unit tests against IAPWS
+# saturation pressures, the ASHRAE standard atmosphere and hand calculations.
+
+hypotheses:
+  - claim: >-
+      HVAC technicians and students will use a no-signup psychrometric
+      calculator that takes any two properties and the altitude and reads a
+      coil's ADP and bypass factor, instead of a paper chart or a phone app.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a property that disagrees with the ASHRAE Fundamentals psychrometric tables or a reference implementation by more than their stated precision, and the disagreement is the engine's error.
+
+links:
+  production: https://marisstella.app/psychrometric-calculator/
+  analytics: null

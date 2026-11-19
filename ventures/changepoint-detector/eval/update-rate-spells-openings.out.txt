@@ -1,0 +1,53 @@
+SPELL CELLS, seed 20261231, found of 200: line (search only / edge only / both / neither), end within 10
+
+P1w30
+  P120     line 199   search only 199  edge only   0  both   0  neither   1   end ok 198
+  P250     line 200   search only 200  edge only   0  both   0  neither   0   end ok 200
+  P500     line 200   search only 200  edge only   0  both   0  neither   0   end ok 200
+  P800     line 199   search only 199  edge only   0  both   0  neither   1   end ok 199
+  Z50P250  line 200   search only 200  edge only   0  both   0  neither   0   end ok 200
+  Z50P500  line 200   search only 200  edge only   0  both   0  neither   0   end ok 199
+
+P1w60
+  P120     line 200   search only 102  edge only  98  both   0  neither   0   end ok 200
+  P250     line 200   search only 148  edge only  52  both   0  neither   0   end ok 200
+  P500     line 200   search only 181  edge only  19  both   0  neither   0   end ok 200
+  P800     line 200   search only 197  edge only   3  both   0  neither   0   end ok 200
+  Z50P250  line 200   search only 179  edge only  21  both   0  neither   0   end ok 199
+  Z50P500  line 200   search only 187  edge only  13  both   0  neither   0   end ok 200
+
+P3w30
+  P120     line 174   search only 173  edge only   1  both   0  neither  26   end ok 170
+  P250     line 135   search only 135  edge only   0  both   0  neither  65   end ok 134
+  P500     line 181   search only 181  edge only   0  both   0  neither  19   end ok 179
+  P800     line 160   search only 160  edge only   0  both   0  neither  40   end ok 156
+  Z50P250  line 139   search only 139  edge only   0  both   0  neither  61   end ok 138
+  Z50P500  line 141   search only 141  edge only   0  both   0  neither  59   end ok 139
+
+P3w60
+  P120     line 196   search only  10  edge only 186  both   0  neither   4   end ok 193
+  P250     line 194   search only  26  edge only 168  both   0  neither   6   end ok 189
+  P500     line 193   search only  30  edge only 163  both   0  neither   7   end ok 189
+  P800     line 197   search only  38  edge only 159  both   0  neither   3   end ok 194
+  Z50P250  line 198   search only  31  edge only 167  both   0  neither   2   end ok 187
+  Z50P500  line 192   search only  43  edge only 149  both   0  neither   8   end ok 188
+
+P5d60
+  P120     line 146   search only 145  edge only   1  both   0  neither  54   end ok 144
+  P250     line 178   search only 165  edge only  13  both   0  neither  22   end ok 177
+  P500     line 156   search only 143  edge only  13  both   0  neither  44   end ok 153
+  P800     line 141   search only 125  edge only  16  both   0  neither  59   end ok 140
+  Z50P250  line 145   search only 140  edge only   5  both   0  neither  55   end ok 143
+  Z50P500  line 162   search only 151  edge only  11  both   0  neither  38   end ok 161
+
+NULL CELLS: mean false spells a series, printed by the line / edge spells (printed or not)
+  W5    P120 0.000/0.000  P250 0.000/0.000  P500 0.000/0.000  P800 0.000/0.000  Z50P250 0.000/0.000  Z50P500 0.000/0.000
+  W3    P120 0.000/0.000  P250 0.000/0.000  P500 0.000/0.000  P800 0.000/0.000  Z50P250 0.000/0.000  Z50P500 0.000/0.000
+  W7    P120 0.000/0.000  P250 0.000/0.000  P500 0.000/0.000  P800 0.000/0.000  Z50P250 0.000/0.000  Z50P500 0.000/0.000
+  LAST  P120 0.000/0.000  P250 0.000/0.000  P500 0.000/0.000  P800 0.000/0.000  Z50P250 0.000/0.000  Z50P500 0.000/0.000
+
+O1 line found within 30 of P500 at every opening: FAIL (P3w30 P250 135 vs 181; P3w30 Z50P250 139 vs 181; P3w30 Z50P500 141 vs 181)
+O2 60-step cells, neither <= 20 at every opening: FAIL (P5d60 P120 neither 54; P5d60 P250 neither 22; P5d60 P500 neither 44; P5d60 P800 neither 59; P5d60 Z50P250 neither 55; P5d60 Z50P500 neither 38)
+O3 null cells, printed false spells <= 0.020 (worst 0.000): pass
+O4 null cells, edge false spells <= 0.020 (worst 0.000): pass
+(142.1 s)

@@ -1,0 +1,217 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVQ7StaJybfHquxJV8g",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue products); routed to redteam",
+  "input_sha256": "7cd90608ecfd35cd60de7773f3743a207780cb3cfed958c759c8b23a20b3aab9",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T07:58:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17591",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "suite_for(path) needs a Path; calling it with a str (natural from a shell one-liner) raises AttributeError on relative_to instead of coercing."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target ventures/support-agent/server.mjs (0 earlier records). Step 0: 12 open entries, 11 control plane (need their own owner-approved PRs) and help-keeper stem() deferred pending a help-center eval set; none fixable here. Guard added: platform/ci/test_xff_rightmost.py (runs via unwired_checks on venture PRs); first run found the 15 sibling copies, now 0. Verification: run_venture_tests.py on 14 ventures, 14 suites 0 failed; redteam rerun 6/6 gaps caught_after_fix; check_posts ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/support-agent/server.mjs",
+        "test": "node --test ventures/support-agent/**/*.test.mjs  (in .)",
+        "seed": 610184249,
+        "commit": "ec7ecbcf3",
+        "sites": 167,
+        "baseline_seconds": 3.5,
+        "mutants": [
+          {
+            "file": "ventures/support-agent/server.mjs",
+            "line": 38,
+            "col": 17,
+            "operator": "le-to-lt",
+            "before": "return ++h.n <= max;",
+            "after": "return ++h.n < max;",
+            "line_text": "    return ++h.n <= max;",
+            "caught": false,
+            "seconds": 3.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "limiter allowed max-1: new test 'rate limit: exactly max requests per window' pins 3 allowed, 4th refused."
+          },
+          {
+            "file": "ventures/support-agent/server.mjs",
+            "line": 48,
+            "col": 102,
+            "operator": "const-plus-one",
+            "before": "const links = [...idx.matchAll(/\\]\\((https?:\\/\\/[^)\\s]+\\/a\\/([a-z0-9-]+)\\.md)\\)/g)].filter((m) => m[1].startsWith(root)).slice(0, 500);",
+            "after": "const links = [...idx.matchAll(/\\]\\((https?:\\/\\/[^)\\s]+\\/a\\/([a-z0-9-]+)\\.md)\\)/g)].filter((m) => m[2].startsWith(root)).slice(0, 500);",
+            "line_text": "  const links = [...idx.matchAll(/\\]\\((https?:\\/\\/[^)\\s]+\\/a\\/([a-z0-9-]+)\\.md)\\)/g)].filter((m) => m[1].startsWith(root)).slice(0, 500);",
+            "caught": true,
+            "seconds": 3.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/support-agent/server.mjs",
+            "line": 71,
+            "col": 45,
+            "operator": "or-to-and",
+            "before": "const origin = String(req.headers.origin || \"\");",
+            "after": "const origin = String(req.headers.origin && \"\");",
+            "line_text": "    const origin = String(req.headers.origin || \"\");",
+            "caught": true,
+            "seconds": 3.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/support-agent/server.mjs",
+            "line": 79,
+            "col": 76,
+            "operator": "const-plus-one",
+            "before": "if (req.method === \"OPTIONS\" && path.startsWith(\"/api/\")) return send(204, \"\");",
+            "after": "if (req.method === \"OPTIONS\" && path.startsWith(\"/api/\")) return send(205, \"\");",
+            "line_text": "      if (req.method === \"OPTIONS\" && path.startsWith(\"/api/\")) return send(204, \"\");",
+            "caught": false,
+            "seconds": 3.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "preflight status untested: new 'status codes' test pins OPTIONS /api/ask -> 204 with CORS header."
+          },
+          {
+            "file": "ventures/support-agent/server.mjs",
+            "line": 83,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (path === \"/\" && req.method === \"GET\") return send(200, homePage({ base }, state));",
+            "after": "if (path === \"/\" || req.method === \"GET\") return send(200, homePage({ base }, state));",
+            "line_text": "      if (path === \"/\" && req.method === \"GET\") return send(200, homePage({ base }, state));",
+            "caught": true,
+            "seconds": 3.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/support-agent/server.mjs",
+            "line": 125,
+            "col": 75,
+            "operator": "const-plus-one",
+            "before": "if (req.method === \"GET\" && path === \"/admin/log.csv\") return send(200, logCsv(state), \"text/csv; charset=utf-8\", { \"content-disposition\": 'attachment; filename=\"support-agent-log.csv\"' });",
+            "after": "if (req.method === \"GET\" && path === \"/admin/log.csv\") return send(201, logCsv(state), \"text/csv; charset=utf-8\", { \"content-disposition\": 'attachment; filename=\"support-agent-log.csv\"' });",
+            "line_text": "        if (req.method === \"GET\" && path === \"/admin/log.csv\") return send(200, logCsv(state), \"text/csv; charset=utf-8\", { \"content-disposition\": 'attachment; filename=\"support-agent-log.csv\"' });",
+            "caught": false,
+            "seconds": 3.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "log.csv status untested: 'status codes' test pins 200 and text/csv."
+          },
+          {
+            "file": "ventures/support-agent/server.mjs",
+            "line": 126,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "if (req.method !== \"POST\") return send(404, \"not found\", \"text/plain\");",
+            "after": "if (req.method !== \"POST\") return send(405, \"not found\", \"text/plain\");",
+            "line_text": "        if (req.method !== \"POST\") return send(404, \"not found\", \"text/plain\");",
+            "caught": false,
+            "seconds": 3.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "non-POST admin path status untested: 'status codes' test pins GET /admin/nope -> 404."
+          },
+          {
+            "file": "ventures/support-agent/server.mjs",
+            "line": 132,
+            "col": 19,
+            "operator": "and-to-or",
+            "before": "if (!n && (f.knowledge || \"\").trim()) throw new Error(\"no articles found: each needs a title and some text\");",
+            "after": "if (!n || (f.knowledge || \"\").trim()) throw new Error(\"no articles found: each needs a title and some text\");",
+            "line_text": "            if (!n && (f.knowledge || \"\").trim()) throw new Error(\"no articles found: each needs a title and some text\");",
+            "caught": true,
+            "seconds": 3.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/support-agent/server.mjs",
+            "line": 176,
+            "col": 26,
+            "operator": "or-to-and",
+            "before": "const port = +(env.PORT || 8080);",
+            "after": "const port = +(env.PORT && 8080);",
+            "line_text": "  const port = +(env.PORT || 8080);",
+            "caught": false,
+            "seconds": 3.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "main block never run by tests: new spawn test boots server.mjs with PORT set and checks it listens there."
+          },
+          {
+            "file": "ventures/support-agent/server.mjs",
+            "line": 176,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const port = +(env.PORT || 8080);",
+            "after": "const port = +(env.PORT || 8081);",
+            "line_text": "  const port = +(env.PORT || 8080);",
+            "caught": false,
+            "seconds": 3.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default port never checked: the spawn test boots with PORT unset and checks 8080 (skips that half only on EADDRINUSE)."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/support-agent/server.mjs",
+        "issue": "With TRUST_PROXY=true the per-IP rate limits (/api/ask 20/min, /api/handoff 5/min) keyed on the LEFT-hand X-Forwarded-For entry, which the client writes; a proxy appends the real address on the right. Forging it gave every request a fresh bucket, so /api/ask (which can spend the deployer's model key) and handoff (which forwards email to the webhook) were unlimited. Repro: 21 asks with XFF '10.0.0.<i>, 203.0.113.7' all 200. Fix: split(',').pop(); test 'behind a proxy the rate limit keys on the hop the proxy appended'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17591"
+      },
+      {
+        "file": "ventures/*/server.mjs (15 more)",
+        "issue": "Same left-hand X-Forwarded-For key in waitlist-keeper, einvoice-preflight, help-keeper, proposal-maker, flag-keeper, form-inbox, visit-keeper, slot-keeper, link-keeper, support-desk, survey-keeper, feedback-board and babysitting-business-kit (server, invoices-server, waitlist-server); five of them read the header with no TRUST_PROXY gate at all, so even a direct caller picked its own bucket. All switched to the right-hand entry; platform/ci/test_xff_rightmost.py fails any future copy (runs on every venture PR through unwired_checks.py). Remaining, not done here: the ungated five still trust the header when deployed with no proxy in front; gating them on TRUST_PROXY changes their deploy config (fly/render set it) and wants its own run.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17591"
+      },
+      {
+        "file": "ventures/support-agent/server.mjs",
+        "issue": "importHelpKeeper kept llms.txt links with m[1].startsWith(root), so for KB_SOURCE_URL https://help.example a link to https://help.example.evil.test/a/x.md passed the 'only from that site' check and its Markdown became an answer article. Fix: startsWith(root + '/'); test 'Help Keeper import refuses a look-alike host'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17591"
+      }
+    ]
+  }
+}

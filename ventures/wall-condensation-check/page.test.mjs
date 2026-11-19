@@ -97,6 +97,10 @@ test("the guide's worked numbers are the engine's", async () => {
   assert.ok(xps2.rows.find((r) => r.name === "Jan").interfaces[i].t > 0, "2 in XPS: OSB face above freezing in January");
 });
 
+test("index links one hop to the psychrometric-calculator sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/psychrometric-calculator\/"/);
+});
+
 test("index links one hop to the hvac-load-calc sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/hvac-load-calc\/"/);
 });

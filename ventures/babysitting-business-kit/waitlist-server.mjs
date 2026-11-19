@@ -28,7 +28,7 @@ export function waitlistRoutes(state, save, env = {}, now = Date.now, notify = a
     if (state.desk && expireHolds(state.desk, now())) save();
     if (url.pathname !== "/book/waitlist") return false;
     if (req.method !== "POST") { send(303, "", "text/plain", { location: "/book" }); return true; }
-    const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",")[0].trim();
+    const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",").pop().trim();
     const key = `${ip}|${Math.floor(now() / 36e5)}`;
     hits.set(key, (hits.get(key) || 0) + 1);
     if (hits.size > 5000) hits.clear();

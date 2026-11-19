@@ -1116,7 +1116,9 @@
       let design = "";
       if (plan.design) {
         const whole = plan.rounds.length === plan.design.fullRounds;
-        design = plan.design.ghosts
+        design = plan.design.near
+          ? whole ? ` Built from a near-whist design for ${plan.design.size}: nobody partners anyone twice, each player misses exactly one partner (an odd count of pairs cannot all be used), faces that player twice and everyone else once or twice.` : " Built from a near-whist design: nobody partners anyone twice."
+          : plan.design.ghosts
           ? ` Built from a whist design for ${plan.design.size} with ${plan.design.ghosts} empty seat: nobody partners anyone twice${whole ? ", and every pair meets as opponents once or twice" : ""}.`
           : whole ? " Built from a whist design: every pair partners exactly once and plays against each other exactly twice." : " Built from a whist design: nobody partners anyone twice.";
       } else if (plan.whistHint) {

@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, localOnlyFiles, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckArgs, treeCheckProblem } from './venture-preflight.mjs';
+import { buildProblem, localOnlyFiles, localOnlySummary, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckArgs, treeCheckProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -193,4 +193,13 @@ test('splitLocalOnly demotes check.mjs lines on a local-only file, also under a 
   assert.deepEqual(real, [lines[1]]);
   assert.deepEqual(local, [lines[0], lines[2]]);
   assert.deepEqual(splitLocalOnly(lines, 'v', []).real, lines);
+});
+
+test('localOnlySummary groups local-only files by their first two directory levels, most first', () => {
+  const files = [
+    ...Array.from({ length: 834 }, (_, i) => `ventures/v/eval/IDS/f${i}.c`),
+    'ventures/v/covid-data/a.csv', 'ventures/v/covid-data/b.csv', 'ventures/v/eval/IDS/deep/x.c', 'ventures/v/notes.ppt',
+  ];
+  assert.equal(localOnlySummary(files, 'v'), 'Where: eval/IDS/ (835), covid-data/ (2), notes.ppt (1).');
+  assert.equal(localOnlySummary(files, 'v', 1), 'Where: eval/IDS/ (835), +2 more.');
 });
