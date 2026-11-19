@@ -200,16 +200,15 @@ flagships:
       note ships); update-rate: pegs 4 of 7 dated; NYT failed (N1 2/4, N2 5/9,
       README "Short spells on a second provider"), edge-spell line ships; openings
       (README "Short spells under different series openings"): edge line 0 false,
-      O1/O2 fail on spells with few differing weekdays; weekday score ships; NYT
-      rerun: line 3/4 ends, 4/8 unexplained (all 105-372 days; README "The weekday
-      spell score on NYT's state series"); next a provider that documents its own
-      changes. Stale feeds: clumped LR shipped; next a real documented
-      carry-forward. joint drift (measured, not offered) and its 2x penalty on fresh
-      multi-column labelled data. Open: (0) drift model: t-walk increments, biweight
-      on fresh data, why it absorbs seat belts and quality control 4, its AR(1)
-      term; notes quote it. Curvature word ships under --shape-word panel (README "A
-      curvature word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37.
-      More open items: NEXT.md.
+      O1/O2 fail on spells with few differing weekdays; weekday score ships; next a
+      provider that documents its own changes. Stale feeds: real carry-forward
+      (README "A real carried-forward feed"): 84/85 caught, trade prints 56/56
+      false; next a catch-up-growth test on the prints. joint drift (measured, not
+      offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
+      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
+      belts and quality control 4, its AR(1) term; notes quote it. Curvature word
+      ships under --shape-word panel (README "A curvature word"): slope donors
+      straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
