@@ -44,7 +44,10 @@ export function assess(xer, opts = {}) {
   const { model } = result;
   const base = pickProject(model, opts.projId);
   const p = base && result.projects.get(base.id);
-  if (!p) throw new Error("the file has no PROJECT table");
+  if (!p) {
+    const withId = (xer.tables.TASK || []).filter((r) => r.task_id).length;
+    throw new Error(withId ? "the file has no PROJECT table" : "the file has no PROJECT table and no activities with a task_id: is it an XER export from P6?");
+  }
   const projRow = (xer.tables.PROJECT || []).find((r) => r.proj_id === p.id) || {};
   const all = [...model.tasks.values()].filter((t) => t.proj === p.id);
   const open = all.filter((t) => !t.span && t.status !== "TK_Complete");
@@ -242,13 +245,19 @@ export function assess(xer, opts = {}) {
   // agreement between the file's stored dates and the recomputed ones
   let compared = 0, matched = 0;
   const stale = [];
+  // Microsoft Project writes a late finish bounded by a successor's start as
+  // that start (08:00 the next working day) where P6 writes 17:00 the day
+  // before: for its files, two dates with no working time between them agree
+  const sameDate = xer.format === "mspdi"
+    ? (t, a, b) => a === b || (a !== null && b !== null && t.cal.workBetween(Math.min(a, b), Math.max(a, b)) === 0)
+    : (t, a, b) => a === b;
   for (const t of open) {
     const r = res.get(t.id);
     if (!r || r.lf === undefined || !t.row.early_end_date) continue;
     compared++;
-    const ok = parseDate(t.row.early_end_date) === r.ef && parseDate(t.row.late_end_date) === r.lf && stored(t) !== null && Math.abs(stored(t) - r.tf) < 0.01;
+    const ok = sameDate(t, parseDate(t.row.early_end_date), r.ef) && sameDate(t, parseDate(t.row.late_end_date), r.lf) && stored(t) !== null && Math.abs(stored(t) - r.tf) < 0.01;
     if (ok) matched++;
-    else stale.push({ code: t.code, name: t.name, why: `file: finish ${t.row.early_end_date}, float ${round1(stored(t) ?? NaN)} h; recomputed: finish ${formatDate(r.ef)}, float ${round1(r.tf)} h` });
+    else stale.push({ code: t.code, name: t.name, why: `file: finish ${t.row.early_end_date}, float ${stored(t) === null ? "not stored" : `${round1(stored(t))} h`}; recomputed: finish ${formatDate(r.ef)}, float ${round1(r.tf)} h` });
   }
 
   // every open activity as recomputed, with what the file stores beside it

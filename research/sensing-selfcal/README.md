@@ -13,6 +13,16 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3t headline** (once a causal prior steadies each window, does pooling windows still give an honest error bar on
+the focal length, and how many windows does it take? milestone 3s's 43 TUM windows, pooled in blocks of 1 to 8): **pooling and the
+prior are complements.** Five pooled windows with the causal prior land a median **1.17%** from the board's focal length against
+**2.20%** without it, and reach 2% at five windows instead of eight; the DerSimonian&ndash;Laird random-effects bar stays about as
+honest (rms z 1.58 against 1.65), while inverse-variance pooling on the solver's sd is off by 15&times;. The predicted cost shows only in
+three-window pools, where prior-steadied windows that agree with each other get &tau; = 0 and an 11-sd miss (rms z 2.67); Hartung&ndash;Knapp
+does not rescue them. Seven of eight predictions held; analysis of saved solves only. [Log](LOG.md).
+
+![Pooled median focal error and pooled sd against windows pooled, and rms z of inverse-variance, random-effects and Hartung-Knapp pooling, with and without the causal prior](experiments/m3t_poolprior/poolprior.png)
+
 **Milestone 3s headline** (can a robot camera use only its *past* self-calibrations as a prior? 53 real TUM windows in
 recording order, a soft prior on k<sub>1</sub> and the principal point from the camera's *earlier* windows only, starting after
 five): **yes.** The pooled median focal error falls from **2.88% to 2.32%** (lower in 30 of 43 windows, paired Wilcoxon p = 0.0006),
@@ -1097,6 +1107,7 @@ default: with the transferred factor the rule made a harmful adoption in 1.4% of
 
 ```
 pip install numpy scipy opencv-python-headless matplotlib pytest
+python3 experiments/m3t_poolprior/analyse.py   # milestone 3t, analysis of saved solves, <1 s; summary.json, poolprior.png
 sh experiments/m3b_natural/fetch.sh tum   # 1.3 GB of TUM RGB-D video (CC BY 4.0)
 OMP_NUM_THREADS=1 python3 experiments/m3b_natural/run.py tum 4  # ~45 min on 4 cores; results.json
 python3 experiments/m3b_natural/analyse.py # summary.json, natural.png
@@ -1226,6 +1237,12 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3t: with the causal prior, five pooled windows reach about 1.2% with an honest random-effects bar; three-window
+pools are not safe (&tau; = 0 blocks). Next: re-solve on the images when the TUM host answers: the bad-start test of the
+recursive memory (seed it with the worst five windows, or another camera's) and a floor on its width; a pooling rule that does not
+trust &tau; = 0 from few windows (a &tau; floor learned from the camera's history, or the causal prior's own width as a lower bound);
+the Xtion's bias by a second board calibration; and the causal prior on milestone 4's accept/reject gate.
 
 After milestone 3s: a causal prior from the camera's earlier windows alone cuts the pooled focal error from 2.88% to 2.32%
 (p = 0.0006) and keeps two thirds of milestone 3r's leave-one-out gain; five earlier windows are enough to help; a recursive
@@ -1362,7 +1379,7 @@ whether any start beats the cold one on the Kinect.
 
 ## References
 
-Zhang (2000), *IEEE TPAMI* 22(11); Karpenko, Jacobs, Baek and Levoy (2011), *Digital video stabilization and rolling shutter correction using gyroscopes*, Stanford CS tech report CSTR 2011-03 (gyro-driven shutter correction, readout estimated from video); Hedborg, Forss&eacute;n, Felsberg and Ringaby (2012), *Rolling shutter bundle adjustment*, CVPR; Oth, Furgale, Kneip and Siegwart (2013), *Rolling shutter camera calibration*, CVPR (readout estimated with a target) (milestone 3l; these three were not looked up from this session); Kerl, St&uuml;ckler and Cremers (2015), *Dense continuous-time tracking and mapping with rolling shutter RGB-D cameras*, ICCV, [doi:10.1109/ICCV.2015.261](https://doi.org/10.1109/ICCV.2015.261) (models the rolling shutter of Kinect-class RGB-D cameras; milestone 3n); Sturm et al. (2012), IROS, the TUM RGB-D benchmark, [doi:10.1109/IROS.2012.6385773](https://doi.org/10.1109/IROS.2012.6385773) (milestone 4j's data, CC BY 4.0); Duda and Frese (2018), BMVC, accurate detection and localization of checkerboard corners (`findChessboardCornersSB`); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
+Zhang (2000), *IEEE TPAMI* 22(11); Karpenko, Jacobs, Baek and Levoy (2011), *Digital video stabilization and rolling shutter correction using gyroscopes*, Stanford CS tech report CSTR 2011-03 (gyro-driven shutter correction, readout estimated from video); Hedborg, Forss&eacute;n, Felsberg and Ringaby (2012), *Rolling shutter bundle adjustment*, CVPR; Oth, Furgale, Kneip and Siegwart (2013), *Rolling shutter camera calibration*, CVPR (readout estimated with a target) (milestone 3l; these three were not looked up from this session); Kerl, St&uuml;ckler and Cremers (2015), *Dense continuous-time tracking and mapping with rolling shutter RGB-D cameras*, ICCV, [doi:10.1109/ICCV.2015.261](https://doi.org/10.1109/ICCV.2015.261) (models the rolling shutter of Kinect-class RGB-D cameras; milestone 3n); Sturm et al. (2012), IROS, the TUM RGB-D benchmark, [doi:10.1109/IROS.2012.6385773](https://doi.org/10.1109/IROS.2012.6385773) (milestone 4j's data, CC BY 4.0); Duda and Frese (2018), BMVC, accurate detection and localization of checkerboard corners (`findChessboardCornersSB`); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; DerSimonian and Laird (1986), *Meta-analysis in clinical trials*, Controlled Clinical Trials 7(3), [doi:10.1016/0197-2456(86)90046-2](https://doi.org/10.1016/0197-2456(86)90046-2) (random-effects pooling, milestones 3d and 3t); IntHout, Ioannidis and Borm (2014), BMC Med. Res. Methodol. 14:25, [doi:10.1186/1471-2288-14-25](https://doi.org/10.1186/1471-2288-14-25) (the Hartung&ndash;Knapp&ndash;Sidik&ndash;Jonkman variance, milestone 3t); R&ouml;ver, Knapp and Friede (2015), BMC Med. Res. Methodol. 15:99, [doi:10.1186/s12874-015-0091-1](https://doi.org/10.1186/s12874-015-0091-1) (its modification with q floored at 1, milestone 3t); Triggs et al. (2000), bundle adjustment: a modern
 synthesis; Strobl and Hirzinger (2011), ICCV workshops; Nobre, Kasper and Heckman (2017),
 ICRA; the full list with notes is in [`PROPOSAL.md`](PROPOSAL.md). Earlier synthetic work in
 this repository: [`sensing-bafocal`](../sensing-bafocal/README.md),

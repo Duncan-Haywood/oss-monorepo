@@ -13,6 +13,22 @@ After using this, an owner's rep can **send a contractor a list of the exact
 activities to fix** in a schedule update (not just "fails DCMA point 6"), and a
 scheduler can catch the same list before submitting.
 
+**Microsoft Project files too** (2026-11-19, `mspdi.mjs`): open a schedule
+saved from Microsoft Project as XML (File, Save As, XML Format; also written
+by Project Online, ProjectLibre, GanttProject and most converters) anywhere
+an XER goes: the assessment, the comparison of two updates, windows, risk,
+levelling and the written review. Summary tasks become WBS, the status date
+is the data date, baseline 0 is the planned dates, lags count on the
+successor's calendar as Project does (elapsed lags on a 24-hour clock,
+percent lags as a share of the predecessor), and activities are matched
+between updates by Unique ID, so inserted rows do not break the comparison.
+Manually scheduled tasks, links to summary tasks and deadlines are named in
+the warnings. On 102 files saved by Microsoft Project 2002 to 2019 (MPXJ's
+test corpus, 2,491 open tasks), early finish, late finish and total float
+equal what Project stored on 2,406 (96.6%); the 85 others are resource-driven,
+split or timephased tasks the engine does not model, and four small edge
+cases (eval/cpm-vs-project-2026-11-19.md). `node cli.mjs schedule.xml`.
+
 **Update-to-update comparison** (2026-11-19): open last month's XER next to
 this month's and get the monthly pay-application review: progress claimed
 (started, finished, forecast work that did not happen), actual dates edited
@@ -75,6 +91,25 @@ events of 1 to 40 days give exactly the finish the CPM engine gives with the
 same delay applied directly, and a register leaves the no-event column
 identical to a run without one on all six (eval/risk-register-check-2026-11-19.md).
 
+**Ranges from the file's own UDFs** (2026-11-19, `udf-ranges.mjs`, the page's
+UDF pickers in the risk box, `--ranges-udf auto` or `--ranges-udf
+"optimistic,most likely,pessimistic"`): a schedule that went through a risk
+review may keep each activity's three points in activity user-defined
+fields, and the XER carries them (UDFTYPE, UDFVALUE). The tool reads numeric
+activity UDFs, guesses the range fields from their names (optimistic /
+pessimistic / most likely, best / worst case, or min / max / low / high
+beside a duration word; "Max Qty" and "Min/Max Dur" are not read), and takes
+the unit from the name (days of the activity's own calendar, hours, or % of
+the remaining duration; `--udf-unit` overrides). With no most-likely field
+the file's remaining duration stands in. Activities with only some of the
+fields, and ranges out of order against the remaining duration, keep the
+default range and are named. A pasted CSV line wins over the UDF values for
+its activity. Checked on the six public files
+(eval/udf-ranges-check-2026-11-19.md): none of their 16 real numeric UDFs is
+read as a range, and with ranges planted on 16,989 activities the run equals
+the run with the same numbers pasted as CSV in 24 of 24 cases (days, hours, %
+and no most-likely).
+
 **Risk in the written review** (2026-11-19, `report.mjs` `riskItems`, CLI
 `--risk N --report review.html`): run the risk analysis on the page and the
 review you print carries a "Finish date risk" section (the ranges assumed and
@@ -116,7 +151,7 @@ above it. Checked on the public files in eval/level-check-2026-11-19.md.
 | Today's option | What it does | What this does better |
 |---|---|---|
 | P6's own Level Resources | Levels in P6 for people who hold a P6 seat; changes the schedule in the database | The levelled finish, who moved and why, and a crew-size what-if from the XER, without P6 and without touching the contractor's file |
-| Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free; no resource model, no probabilistic branches yet |
+| Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free, with ranges read from the file's own UDFs; no resource model, no probabilistic branches yet |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
 | Open-source XER libraries and checkers (Python packages, local web apps) | A parser or a few checks; you install and run them | All 14 points plus a critical path test on a recomputed schedule, measured against P6's own numbers, in a page |
@@ -179,6 +214,9 @@ project's updates for delay claims; and the review itself as a service.
   correlation of each activity's draw with the finish, blank below
   4 / sqrt(runs). Risk events (`parseRisks`) draw from their own seeded
   stream, so adding a register never changes the duration draws.
+- `udf-ranges.mjs`: numeric activity UDFs, the range-field guess by name,
+  and the per-activity ranges (days, hours or % of remaining) `risk.mjs`
+  takes as `ranges`.
 - `index.html`: the page. `cli.mjs`: the same from a terminal:
 
 ```
@@ -190,6 +228,7 @@ node cli.mjs current.xer --previous last.xer --report review.html   # review wit
 node cli.mjs schedule.xer --project CODE  # a file with several projects
 node cli.mjs schedule.xer --risk 1000 --range 90,100,130 --correlation 0.3 [--ranges ranges.csv] [--csv drivers.csv]
 node cli.mjs schedule.xer --risk 1000 --risks register.csv   # risk register events, ranked
+node cli.mjs schedule.xer --risk 1000 --ranges-udf auto   # ranges from the file's own UDFs (or "Opt Dur,-,Pess Dur")
 node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json]   # resource levelling
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 node cli.mjs --windows jan.xer feb.xer mar.xer apr.xer [--json] [--csv windows.csv] [--project CODE]
@@ -230,6 +269,14 @@ run as a formula in Excel or Sheets.
 - **Files with no data date, no PROJECT table or no calendar pattern**: two
   hand-made fixtures from the same public repositories crashed the engine
   before 2026-11-19; both now give a full report with a warning for each guess.
+- **245 XER files written by converters, other tools and by hand**
+  (`eval/converter-files-2026-11-19.md`, `node eval/converter-corpus.mjs`):
+  every public `.xer` a GitHub code search returned, 50 repositories. Before
+  that day's fixes 1 crashed (a lag of "NotANumber") and 28 printed NaN,
+  undefined or Infinity somewhere; now 241 are assessed with nothing of the
+  kind, 4 that are not P6 files at all are refused with a one-line reason, and
+  the warnings fell from 890 to 134 (activities with no calendar are grouped,
+  and a blank calendar's week and day hours say whether it works 5, 6 or 7 days).
 - **The simple DCMA counts by hand**: leads, lags and relationship types on the
   Expressway file agree with an awk tally of its TASKPRED table (38, 66, and
   995 / 88 / 11 FS / SS / FF of 1,094).
@@ -252,6 +299,15 @@ run as a formula in Excel or Sheets.
   current finish on 120 of 120. No public pair of real consecutive P6 updates
   was found, so the half-step split itself is checked only on the invented
   example pair (+15 = +8 progress, +7 revisions) and by construction.
+- **Microsoft Project XML** (`eval/cpm-vs-project-2026-11-19.md`): 102 MSPDI
+  files saved by Project 2002 to 2019 (MPXJ's test corpus), 2,491 open tasks:
+  early finish, late finish and total float equal Project's stored values on
+  2,406 (96.6%), 86 files on every task; the misses are resource-driven,
+  split and timephased tasks (61) and three small cases the eval names.
+  `mspdi.test.mjs` covers holidays, derived calendars, work weeks, elapsed and
+  percent lags, SS and FF links, manual tasks, constraints, progress with a
+  status date, and a comparison across renumbered rows. These files are small
+  test projects; no real construction schedule from Project has been read yet.
 - **Not checked**: no file used progress override, start or smallest float, the
   successor or 24-hour lag calendar, or mandatory constraints, and no unit test
   covers them yet.
@@ -264,8 +320,8 @@ unrealistic, and some failures are justified. Not modelled:
 expected finish dates, "make open-ended activities critical", multiple float
 paths (resource levelling is the separate `level.mjs` step; the checks always
 use the unlevelled dates; it is a serial pass like P6's, not P6's code, so its
-dates can differ from a P6 levelled run, which no public file stores). 14 activities of the heavily progressed CCA file still differ (10 late
-finishes, 4 early finishes; `eval/cpm-vs-p6-2026-11-19.md`, "What is left"). The float checks use the float the
+dates can differ from a P6 levelled run, which no public file stores). 2 activities of the heavily progressed CCA file still differ (early
+finish and total float; `eval/cpm-vs-p6-2026-11-19.md`, "What is left"). The float checks use the float the
 file stores; the recomputed float is reported next to it, and the recomputed
 schedule (every open activity's dates, total and free float beside the stored
 values) downloads as a CSV from the page or `node cli.mjs file.xer --schedule out.csv`.
@@ -276,11 +332,14 @@ values) downloads as a CSV from the page or `node cli.mjs file.xer --schedule ou
 schedule with deliberate faults, used by the page's example button and the
 tests; `node samples/make-example.mjs office-fitout.xer` also writes it as an
 XER file for the CLI. `eval/cpm-vs-p6.mjs` is the P6 comparison (dates, total and free float).
+`mspdi.mjs` reads Microsoft Project XML into the same tables (`parseMspdi`,
+and `parseSchedule`, which picks the reader from the text);
+`eval/cpm-vs-project.mjs` compares the engine with Project's stored dates.
 
 ## Disclaimer
 
 Provided free and as-is, without warranty. Not engineering, legal, contractual
 or scheduling advice; it does not replace a qualified scheduler or the
-scheduling software of record. Not affiliated with Oracle, Primavera or the
-Defense Contract Management Agency; Primavera and P6 are named only to describe
-the file format.
+scheduling software of record. Not affiliated with Oracle, Primavera, Microsoft or the
+Defense Contract Management Agency; Primavera, P6 and Microsoft Project are
+named only to describe the file formats.

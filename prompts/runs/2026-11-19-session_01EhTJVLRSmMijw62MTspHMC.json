@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVLRSmMijw62MTspHMC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T17:04:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check (flagship 13) item 5: three-point duration ranges read from the XER's own P6 activity UDFs into the Monte Carlo risk run (page pickers, --ranges-udf, written review wording)",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 17730,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "xer-schedule-check's next: sat at 1993 of 2000; replacing one item with its landed result parked two open items on the first try, and after merging main (which had parked items itself) the row ends at 1999 of 2000. The cap now forces every landing to evict open work; landed text should move to HISTORY.md by default."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here picked photo-editing (row 3); its remaining buildable items need raw.pixls.us, which the router itself probed as REFUSED this session, and it had 126 commits in 7 days against xer-schedule-check's 17. Took xer-schedule-check (row 8): a P6 schedule-risk tool with a clear paid-competitor comparison (Primavera Risk Analysis, Acumen Risk, Safran).",
+      "did": "Shipped UDF ranges for the xer-schedule-check risk run",
+      "result": "24 of 24 planted-UDF runs equal the CSV path on six real P6 files; 0 of 16 real numeric UDFs misread"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-p6-udf-duration-ranges-monte-carlo.md",
+    "ventures/xer-schedule-check/eval/udf-ranges-check-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test *.test.mjs in ventures/xer-schedule-check: 95 pass, 0 fail (8 new in udf-ranges.test.mjs). eval/udf-ranges-check.mjs on the six public XER files (CCA, Expressway, hotel, example 24.12, terminal, sample; fetched, not committed): no file's own numeric UDF (16 in all) is guessed as a range; with ranges planted on 16,989 open activities (1,897 half-filled), UDF run = CSV run for percentiles, criticality and sensitivity in 24 of 24 (days, hours, %, no most-likely); CCA 40 runs 4.6 s. Page checked in Chromium at 390 px: pickers prefilled from names, run uses them, row hidden for files without UDFs, no console errors, no horizontal scroll. CLI checked with --ranges-udf auto, by label/id, and the no-UDF fallback message.",
+  "corrections": [],
+  "redteam": null
+}

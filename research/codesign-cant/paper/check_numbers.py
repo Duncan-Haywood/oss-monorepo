@@ -57,6 +57,11 @@ CHECKS = [
     ("819 against 820", "m7ad_settle/verdicts.txt", r"b = 0\.25 identified L2-45 per design: total 819 against 820, p = 0\.89"),
     ("median 1.91 against 1.74 s", "m7ad_settle/verdicts.txt", r"b = 0\.25 step rise      median 1\.9110 against 1\.7380"),
     ("b = 0.1 m, gives the same picture (814)", "m7ad_settle/verdicts.txt", r"b = 0\.1: unsettled 0 of 72[\s\S]*b = 0\.1 identified L2-45 per design: total 814"),
+    ("median 1.41 against 1.83 s", "m7af_step_obj/verdicts.txt", r"step rise      [^\n]*pooled 1\.4070 against 1\.8320, p = 3\.66e-05"),
+    ("(97 against 107 of 2,304, p = 0.84)", "m7af_step_obj/verdicts.txt", r"identified L2-45 per design [^\n]*pooled 97 against 107, p = 0\.838"),
+    ("median 4.65 against 6.52", "m7af_step_obj/verdicts.txt", r"gain kd pooled median 4\.65 against 6\.52"),
+    ("Spearman ρ = 0.999", "m7af_step_obj/verdicts.txt", r"Spearman rho 0\.999\b"),
+    ("4.7–5.3 cm against 1.1–1.8 cm", "m7af_step_obj/verdicts.txt", r"step   b = 0\.25 [^\n]*overshoot 0\.0474, 0\.0529 m[\s\S]*cint25 b = 0\.25 [^\n]*overshoot 0\.0113, 0\.0176 m"),
 ]
 ARMS = [("M=1.00", -0.001, 9, 32), ("M=1.11", -0.012, 3, 22), ("M=1.25", -0.011, 0, 12), ("M=1.43", -0.010, 0, 13), ("M=1.67", -0.012, 0, 12)]
 
