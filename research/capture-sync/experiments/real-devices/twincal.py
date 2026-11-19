@@ -241,6 +241,9 @@ def score(real_path, fit_npz, pred_npz):
 
     same = tot = 0
     for room, rt in ROOMS.items():
+        m = sim_mask(rt, False, -1, NONE)
+        tot += 1
+        same += [float(d[e]["bad"][m].mean()) for e in ("plain", "fn")] == h[f"{rt}|none|None"][:2]
         for ti, tn in enumerate(TYPES):
             for s in NT.LEVELS:
                 m = sim_mask(rt, False, ti, s)
