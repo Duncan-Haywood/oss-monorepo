@@ -195,7 +195,7 @@
     {
       "name": "licence tooling and its tests",
       "paths": [
-        "ventures/license-compat-check/engine.test.mjs",
+        "ventures/license-compat-check/engine.test.mjs", "ventures/license-compat-check/engine.mjs", "ventures/lockfile-license-check/classify.test.mjs",
         "ventures/license-drift-check/engine.mjs",
         "ventures/license-drift-check/engine.test.mjs",
         "ventures/ig-media-pipeline/tests/test_music.py"

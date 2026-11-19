@@ -57,7 +57,13 @@ const COPYLEFT_HINTS = [
   "gplv2",
   "gplv3",
   "gnu general public license",
+  "gnu affero general public license",
+  "gnu lesser general public license",
+  "gnu library or lesser general public license",
   "lgpl",
+  "lgplv2",
+  "lgplv3",
+  "agplv3",
   "mpl-1",
   "mpl-2",
   "mozilla public license",
@@ -108,18 +114,79 @@ const UNCLEAR_EXACT = new Set([
   "not specified",
 ]);
 
+// SPDX ids whose family the keyword hints get wrong or miss: a hint would
+// call D-FSL-1.0 (the German Free Software License, a copyleft) "fsl-1"
+// source-available, and Elastic-2.0 -- the id of the very relicense in the
+// README -- carries no "elastic license" phrase. Checked first, per leaf.
+const EXACT_IDS = new Map([
+  ["elastic-2.0", "source-available"],
+  ["d-fsl-1.0", "copyleft"],
+  ["cc-by-sa-3.0", "copyleft"], ["cc-by-sa-4.0", "copyleft"],
+  ["catosl-1.1", "copyleft"], ["nposl-3.0", "copyleft"], ["simpl-2.0", "copyleft"],
+  ["psf-2.0", "permissive"], ["upl-1.0", "permissive"], ["postgresql", "permissive"],
+  ["unicode-3.0", "permissive"], ["unicode-dfs-2016", "permissive"], ["mulanpsl-2.0", "permissive"],
+  ["cc-by-3.0", "permissive"], ["cc-by-4.0", "permissive"], ["mitnfa", "permissive"], ["kazlib", "permissive"],
+]);
+
+// Free-text forms pip-licenses and package authors write. They read as
+// permissive to a person but carry no hint above.
+const PERMISSIVE_PHRASES = [
+  "apache software license",
+  "bsd license",
+  "python software foundation license",
+  "universal permissive license",
+  "postgresql license",
+];
+
+// Strings that say "no open-source licence here", in prose.
+const UNCLEAR_HINTS = ["proprietary", "all rights reserved", "see license"];
+
+// A hint matches only as a whole word: "mit" must not fire inside "limited"
+// or "permitted", nor "rsal" inside "Universal", nor "isc" inside
+// "miscellaneous". A hint ending in a non-word character ("osl-") is a
+// prefix and needs no right boundary.
+const escapeRe = (h) => h.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const hintRe = (hints) => new RegExp(hints.map((h) => `(?<![a-z0-9])${escapeRe(h)}${/[a-z0-9]$/.test(h) ? "(?![a-z0-9])" : ""}`).join("|"));
+const SOURCE_AVAILABLE_RE = hintRe(SOURCE_AVAILABLE_HINTS);
+const COPYLEFT_RE = hintRe(COPYLEFT_HINTS);
+const PERMISSIVE_RE = hintRe([...PERMISSIVE_HINTS, ...PERMISSIVE_PHRASES]);
+const UNCLEAR_RE = hintRe(UNCLEAR_HINTS);
+
+// Most attention-worthy first: an expression is labelled by its most
+// restrictive leaf, as the keyword scan always did for a whole string.
+const RANK = ["source-available", "copyleft", "unclear", "permissive", "unknown"];
+
+function classifyOne(norm) {
+  const id = norm.replace(/\+$/, "");
+  if (EXACT_IDS.has(id)) return EXACT_IDS.get(id);
+  if (UNCLEAR_EXACT.has(norm) || UNCLEAR_RE.test(norm)) return "unclear";
+  if (SOURCE_AVAILABLE_RE.test(norm)) return "source-available";
+  if (COPYLEFT_RE.test(norm)) return "copyleft";
+  if (PERMISSIVE_RE.test(norm)) return "permissive";
+  return "unknown";
+}
+
 /**
  * Buckets a license string into a public, well-documented family. Purely
  * informational -- see the file header. Returns one of:
  * "permissive" | "copyleft" | "source-available" | "unclear" | "unknown".
+ * An SPDX expression ("MIT OR GPL-3.0", "(A AND B) WITH x") is labelled by
+ * its most restrictive licence; the exception after WITH is not a licence
+ * and is skipped.
  */
 export function classifyLicenseFamily(license) {
   const norm = String(license ?? "").trim().toLowerCase();
-  if (!norm || UNCLEAR_EXACT.has(norm) || norm.includes("see license")) return "unclear";
-  if (SOURCE_AVAILABLE_HINTS.some((h) => norm.includes(h))) return "source-available";
-  if (COPYLEFT_HINTS.some((h) => norm.includes(h))) return "copyleft";
-  if (PERMISSIVE_HINTS.some((h) => norm.includes(h))) return "permissive";
-  return "unknown";
+  if (!norm || UNCLEAR_EXACT.has(norm)) return "unclear";
+  const tokens = norm.replace(/[()]/g, " ").split(/\s+/).filter(Boolean);
+  const isExpression = tokens.length > 1 && tokens.some((t) => t === "or" || t === "and" || t === "with")
+    && tokens.every((t) => /^[a-z0-9.+:-]+$/.test(t));
+  if (!isExpression) return classifyOne(norm.replace(/\s+with\s+\S+$/, ""));
+  const leaves = [];
+  for (let i = 0; i < tokens.length; i += 1) {
+    if (tokens[i] === "with") { i += 1; continue; }
+    if (tokens[i] !== "or" && tokens[i] !== "and") leaves.push(classifyOne(tokens[i]));
+  }
+  return RANK.find((f) => leaves.includes(f)) ?? "unknown";
 }
 
 // --- Real, dated relicensing events (context, not a live feed) -------------
