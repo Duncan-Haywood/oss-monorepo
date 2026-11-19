@@ -1,0 +1,244 @@
+{
+ "n_austin": 6,
+ "n_pooled": 18,
+ "austin_fixed_mean": {
+  "cpin_es3_nc3": 66.00341919379936,
+  "cpin_es3_nc4": 78.7443156011005,
+  "cpin_es3_nc5": 84.12421731877876
+ },
+ "austin_fixed_regret": {
+  "cpin_es3_nc3": 0.0,
+  "cpin_es3_nc4": 12.740896407301122,
+  "cpin_es3_nc5": 18.120798124979395
+ },
+ "pooled_fixed_regret": {
+  "cpin_es3_nc3": 1.1559219343430809,
+  "cpin_es3_nc4": 4.769184048691489,
+  "cpin_es3_nc5": 7.1507273320755065
+ },
+ "austin_chooser_regret": 0.0,
+ "pooled_chooser_regret": 0.6092685745297336,
+ "austin_oracle_counts": {
+  "cpin_es3_nc3": 6,
+  "cpin_es3_nc4": 0,
+  "cpin_es3_nc5": 0
+ },
+ "austin_chooser_picks": {
+  "cpin_es3_nc3": 6,
+  "cpin_es3_nc4": 0,
+  "cpin_es3_nc5": 0
+ },
+ "austin_ncrd_regret": 21.61948704479713,
+ "austin_ncrd_mean": 87.6229062385965,
+ "rows_check_max_abs": 7.62939453125e-06,
+ "threshold_check_max_abs": 0.0,
+ "pooled_max_regret_post_hoc": {
+  "cpin_es3_nc3": 5.456532740726217,
+  "cpin_es3_nc4": 15.526309672583736,
+  "cpin_es3_nc5": 28.833364001588635
+ },
+ "pooled_chooser_max_regret_post_hoc": 4.43951454131691,
+ "predictions": {
+  "A0": true,
+  "A1": true,
+  "A2": true,
+  "A3": true,
+  "A4": true,
+  "A5": true
+ },
+ "note": "session 106: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds on completed test rows (days); Austin held out, sources SF and Seattle; grid = staleness cuts 3, 4, 5 years; oracle = best grid member on the test year; chooser = lowest q0.9 pinball on the target's own Y-6 permits completed by D; pooled = these 6 cells plus session 103's 12 SF/Seattle cells",
+ "cells": [
+  {
+   "held": "austin",
+   "year": 2017,
+   "test": {
+    "cpin_es3_nc3": 61.76717546255887,
+    "cpin_es3_nc4": 77.2934851351426,
+    "cpin_es3_nc5": 90.6005394641475
+   },
+   "k6": {
+    "cpin_es3_nc3": 64.79508523242019,
+    "cpin_es3_nc4": 83.0836776508243,
+    "cpin_es3_nc5": 96.97464606059866
+   },
+   "oracle": "cpin_es3_nc3",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc4": 15.526309672583736,
+    "cpin_es3_nc5": 28.833364001588635
+   },
+   "pick_regret": 0.0,
+   "k6_size": {
+    "n": 51484,
+    "n_open": 6193
+   },
+   "ncrd": 92.47844647387035,
+   "ncrd_regret": 30.71127101131148,
+   "ncrd_thresholds": {
+    "sf": 1767.25,
+    "seattle": 2025.1200000000208
+   }
+  },
+  {
+   "held": "austin",
+   "year": 2018,
+   "test": {
+    "cpin_es3_nc3": 69.79932329936189,
+    "cpin_es3_nc4": 84.74926133904347,
+    "cpin_es3_nc5": 86.57474873880626
+   },
+   "k6": {
+    "cpin_es3_nc3": 69.44703922801654,
+    "cpin_es3_nc4": 84.19487484862391,
+    "cpin_es3_nc5": 86.59466925483144
+   },
+   "oracle": "cpin_es3_nc3",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc4": 14.949938039681584,
+    "cpin_es3_nc5": 16.775425439444376
+   },
+   "pick_regret": 0.0,
+   "k6_size": {
+    "n": 56348,
+    "n_open": 4979
+   },
+   "ncrd": 94.8735430761148,
+   "ncrd_regret": 25.074219776752912,
+   "ncrd_thresholds": {
+    "sf": 1686.9199999999983,
+    "seattle": 2255.0
+   }
+  },
+  {
+   "held": "austin",
+   "year": 2019,
+   "test": {
+    "cpin_es3_nc3": 67.65358060226096,
+    "cpin_es3_nc4": 80.05504319147335,
+    "cpin_es3_nc5": 84.09953018520703
+   },
+   "k6": {
+    "cpin_es3_nc3": 65.6346704198848,
+    "cpin_es3_nc4": 79.50259009560878,
+    "cpin_es3_nc5": 81.2181341988509
+   },
+   "oracle": "cpin_es3_nc3",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc4": 12.401462589212386,
+    "cpin_es3_nc5": 16.44594958294607
+   },
+   "pick_regret": 0.0,
+   "k6_size": {
+    "n": 61298,
+    "n_open": 4998
+   },
+   "ncrd": 94.46067438864561,
+   "ncrd_regret": 26.807093786384655,
+   "ncrd_thresholds": {
+    "sf": 1691.7799999999988,
+    "seattle": 2158.6399999999994
+   }
+  },
+  {
+   "held": "austin",
+   "year": 2020,
+   "test": {
+    "cpin_es3_nc3": 64.86549142361888,
+    "cpin_es3_nc4": 78.1987997569861,
+    "cpin_es3_nc5": 78.28959070675262
+   },
+   "k6": {
+    "cpin_es3_nc3": 63.6607202588767,
+    "cpin_es3_nc4": 78.07082071746342,
+    "cpin_es3_nc5": 77.11851963211014
+   },
+   "oracle": "cpin_es3_nc3",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc4": 13.333308333367228,
+    "cpin_es3_nc5": 13.424099283133742
+   },
+   "pick_regret": 0.0,
+   "k6_size": {
+    "n": 61417,
+    "n_open": 5347
+   },
+   "ncrd": 84.67756184793352,
+   "ncrd_regret": 19.81207042431464,
+   "ncrd_thresholds": {
+    "sf": 1732.0,
+    "seattle": 1753.0
+   }
+  },
+  {
+   "held": "austin",
+   "year": 2021,
+   "test": {
+    "cpin_es3_nc3": 66.75585200573784,
+    "cpin_es3_nc4": 81.19039796752513,
+    "cpin_es3_nc5": 83.93213697143021
+   },
+   "k6": {
+    "cpin_es3_nc3": 65.4551961346943,
+    "cpin_es3_nc4": 81.65285759144284,
+    "cpin_es3_nc5": 85.66897229058723
+   },
+   "oracle": "cpin_es3_nc3",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc4": 14.434545961787293,
+    "cpin_es3_nc5": 17.176284965692375
+   },
+   "pick_regret": 0.0,
+   "k6_size": {
+    "n": 62496,
+    "n_open": 6351
+   },
+   "ncrd": 79.17344465441495,
+   "ncrd_regret": 12.417592648677115,
+   "ncrd_thresholds": {
+    "sf": 1848.9700000000012,
+    "seattle": 1597.3199999999997
+   }
+  },
+  {
+   "held": "austin",
+   "year": 2022,
+   "test": {
+    "cpin_es3_nc3": 65.17909236925779,
+    "cpin_es3_nc4": 70.97890621643229,
+    "cpin_es3_nc5": 81.24875784632896
+   },
+   "k6": {
+    "cpin_es3_nc3": 62.31912488201946,
+    "cpin_es3_nc4": 70.0393261243194,
+    "cpin_es3_nc5": 82.85273044331798
+   },
+   "oracle": "cpin_es3_nc3",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc4": 5.799813847174505,
+    "cpin_es3_nc5": 16.06966547707117
+   },
+   "pick_regret": 0.0,
+   "k6_size": {
+    "n": 66570,
+    "n_open": 6283
+   },
+   "ncrd": 80.07376699059976,
+   "ncrd_regret": 14.894674621341977,
+   "ncrd_thresholds": {
+    "sf": 1857.0,
+    "seattle": 1652.0
+   }
+  }
+ ]
+}
