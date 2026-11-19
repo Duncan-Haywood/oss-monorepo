@@ -1,0 +1,11 @@
+held out: 72 builds with a survey
+  whole ppm, floor 2 (shipped baseline): told 54, covered 54 (100.0%), instant 1.5 ms on 4 of 12
+  tenths, floor 0 ppm: told 54, covered 51 (94.4%), instant 1.5 ms on 8 of 12; misses: take-bound-floor-near2-z-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 8.7 ppm); take-bound-floor-near2-z-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 6 ppm); take-bound-floor-near2-z-2026-11-19.jsonl.gz 2.1 ms bounded 1.5 (step 7.5 ppm)
+  tenths, floor 0.1 ppm: told 54, covered 51 (94.4%), instant 1.5 ms on 8 of 12; misses: take-bound-floor-near2-z-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 8.7 ppm); take-bound-floor-near2-z-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 6 ppm); take-bound-floor-near2-z-2026-11-19.jsonl.gz 2.1 ms bounded 1.5 (step 7.5 ppm)
+  tenths, floor 0.2 ppm: told 54, covered 51 (94.4%), instant 1.5 ms on 7 of 12; misses: take-bound-floor-near2-z-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 8.7 ppm); take-bound-floor-near2-z-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 6 ppm); take-bound-floor-near2-z-2026-11-19.jsonl.gz 2.1 ms bounded 1.5 (step 7.5 ppm)
+  tenths, floor 0.3 ppm: told 54, covered 51 (94.4%), instant 1.5 ms on 7 of 12; misses: take-bound-floor-near2-z-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 8.7 ppm); take-bound-floor-near2-z-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 6 ppm); take-bound-floor-near2-z-2026-11-19.jsonl.gz 2.1 ms bounded 1.5 (step 7.5 ppm)
+  tenths, floor 0.5 ppm: told 54, covered 52 (96.3%), instant 1.5 ms on 7 of 12; misses: take-bound-floor-near2-z-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 8.7 ppm); take-bound-floor-near2-z-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 6 ppm)
+  tenths, floor 1 ppm: told 54, covered 52 (96.3%), instant 1.5 ms on 6 of 12; misses: take-bound-floor-near2-z-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 8.7 ppm); take-bound-floor-near2-z-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 6 ppm)
+  tenths, floor 2 ppm: told 54, covered 54 (100.0%), instant 1.5 ms on 5 of 12
+  floor 2 ppm on tenths: (a) coverage at least 95% and at least floor 0's 51 of 54: held; (b) bound 1.5 ms on at least half the instant builds: FAILED
+Decision: the floor's shape reopens in NEXT.md with these numbers
