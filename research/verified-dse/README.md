@@ -161,6 +161,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **The clip's alpha stays at 1.25 (milestone 153, blind flow run at tt on 13 of milestone 152's designs, six of seven
+  predictions held, the primary among them).** alpha = 1, the best ff alpha on these designs after the fact, has 2.08% mean
+  regret at tt against SWC(1.25)'s 1.69% (interval of the difference -0.05 to +1.01 points); every alpha from 0 to 1 gives the
+  same regret on every design at tt. A design's alpha preference at ff does not carry to tt (Spearman
+  -0.46), and over all 223 ff and tt units 1.25 is the best single alpha (2.58% against 2.73% for 1):
+  [`experiments/addshort_tt/`](experiments/addshort_tt/results.txt).
 - **csum2's area-only miss is rare at ff (milestone 152, blind flow run on 15 fresh short add chains, four of seven predictions
   held; the primary failed).** No fresh design repeats csum2's miss; area-only ranking (alpha = 0) has 6.15% mean regret against
   SWC(1.25)'s 7.18% (interval -4.50 to +2.38), but a leave-one-milestone-out alpha over five ff folds still loses to the fixed

@@ -86,6 +86,15 @@ export function triangular(u, a, c, b) {
   return u < f ? a + Math.sqrt(u * (b - a) * (c - a)) : b - Math.sqrt((1 - u) * (b - a) * (b - c));
 }
 
+// A per-activity range in minutes of work. `unit`: "days" (default) of the
+// activity's own calendar, "hours", or "pct" of the remaining duration;
+// `likely` null means the file's remaining duration (ranges read from P6
+// UDFs that store only an optimistic and a pessimistic value).
+export function toMinutes(o, t, hpd = t.cal?.hoursPerDay || 8) {
+  const k = o.unit === "hours" ? 60 : o.unit === "pct" ? t.remain / 100 : hpd * 60;
+  return { a: o.min * k, c: o.likely == null ? t.remain : o.likely * k, b: o.max * k };
+}
+
 // "code,min,likely,max" per line, in working days of the activity's own
 // calendar; a header line and blank lines are skipped.
 export function parseRanges(text) {
@@ -167,13 +176,18 @@ export function* riskSteps(xer, opts = {}) {
   // the activities whose durations vary: open, in the network, with work left
   const vary = [];
   const used = new Set();
+  const inconsistent = []; // ranges whose points are out of order once in minutes
   for (const t of model.tasks.values()) {
     if (t.span || t.status === "TK_Complete" || t.type === "TT_Mile" || t.type === "TT_FinMile") continue;
     const hpd = t.cal.hoursPerDay || 8;
     const o = overrides.get(t.code);
-    if (o) {
-      used.add(t.code);
-      vary.push({ t, a: o.min * hpd * 60, c: o.likely * hpd * 60, b: o.max * hpd * 60 });
+    if (o) used.add(t.code);
+    const m = o ? toMinutes(o, t, hpd) : null;
+    if (m && m.a <= m.c && m.c <= m.b) {
+      vary.push({ t, ...m });
+    } else if (m) {
+      inconsistent.push(t.code);
+      if (t.remain > 0) vary.push({ t, a: t.remain * range.min, c: t.remain * range.likely, b: t.remain * range.max });
     } else if (t.remain > 0) {
       vary.push({ t, a: t.remain * range.min, c: t.remain * range.likely, b: t.remain * range.max });
     }
@@ -198,6 +212,8 @@ export function* riskSteps(xer, opts = {}) {
   }
   const unknown = [...overrides.keys()].filter((k) => !used.has(k));
   if (unknown.length) warnings.push(`${unknown.length} range line(s) name no open activity: ${unknown.slice(0, 5).join(", ")}${unknown.length > 5 ? ", ..." : ""}`);
+  if (inconsistent.length) warnings.push(`${inconsistent.length} activity range(s) left on the default range because optimistic <= most likely <= pessimistic fails${overrides.size && [...overrides.values()].some((o) => o.likely == null) ? " (most likely = the file's remaining duration)" : ""}: ${inconsistent.slice(0, 5).join(", ")}${inconsistent.length > 5 ? ", ..." : ""}`);
+  if (opts.rangeSource) warnings.push(opts.rangeSource);
   if (!overrides.size) warnings.push(`every open activity uses the same range (${Math.round(range.min * 100)}% / ${Math.round(range.likely * 100)}% / ${Math.round(range.max * 100)}% of its remaining duration): an assumption, not data from the file; replace it with ranges from the people doing the work`);
   if (base.loops.length) warnings.push(`${base.loops.length} logic loop(s): activities on a loop are left out of every run`);
 
@@ -321,7 +337,7 @@ export function* riskSteps(xer, opts = {}) {
   const projRow = (xer.tables.PROJECT || []).find((r) => r.proj_id === pid) || {};
   return {
     project: { id: pid, code: projRow.proj_short_name || pid, dataDate: p0.dataDate ?? null, finish: p0.finish, mustFinish: p0.mustFinish ?? null, finishDays: round1(detDays) },
-    iterations, seed, range, correlation: rho, overrides: used.size, varied: n, noiseFloor: Math.round(noiseFloor * 1000) / 1000,
+    iterations, seed, range, correlation: rho, overrides: used.size - inconsistent.length, rangeSource: opts.rangeSource || null, inconsistentRanges: inconsistent.length, varied: n, noiseFloor: Math.round(noiseFloor * 1000) / 1000,
     percentiles,
     mean: { days: round1(meanY) },
     pDeterministic: Math.round(share(p0.finish) * 1000) / 1000,

@@ -545,14 +545,14 @@ flagships:
       finding and a 600-day critical path test.
     buildable: >-
       The six public XER files in eval/cpm-vs-p6-2026-11-19.md (git clone the four
-      repos named there): CCA residual down to 2 of 14,270 and 37 finished-node late
-      dates (eval/cpm-vs-p6-2026-11-19.md, What is left) with node
-      eval/cpm-vs-p6.mjs; free float 19,809 of 19,822
-      (eval/free-float-2026-11-19.md): 9 left in the 24.12 file where P6 stores 0
-      against a positive gap; windows check (eval/windows-check.mjs, series made by
-      status.mjs); more hand-made or converter XERs (no data date, no PROJECT, blank
-      calendars) through node cli.mjs; MSPDI files (MPXJ junit/data) through
-      eval/cpm-vs-project.mjs.
+      repos): CCA residual down to 2 of 14,270 and 37 finished-node late dates
+      (eval/cpm-vs-p6-2026-11-19.md, What is left) with node eval/cpm-vs-p6.mjs;
+      free float 19,809 of 19,822 (eval/free-float-2026-11-19.md): 9 left in the
+      24.12 file where P6 stores 0 against a positive gap; windows check
+      (eval/windows-check.mjs, series made by status.mjs); converter/hand-made XERs:
+      node eval/converter-corpus.mjs (245 files 2026-11-19: 0 crashes, 0 NaN;
+      eval/converter-files-2026-11-19.md); MSPDI: eval/cpm-vs-project.mjs on MPXJ
+      files.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
@@ -565,19 +565,20 @@ flagships:
       updates shipped 2026-11-19 (windows.mjs, --windows; a not-started re-estimate
       is now a revision in the half-step; eval/windows-check-2026-11-19.md); next a
       real series of updates to check the split and drivers against, and windows in
-      the written review; (3) more public XER files from other exporters (search
-      GitHub for ERMHDR fixtures) and progress override, start float and 24-hour lag
-      paths on a real file; (4) written review shipped 2026-11-19 (report.mjs, print
-      to PDF; eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real
-      files); next a real reviewer's reading of one and a full-list appendix option;
-      (5) Monte Carlo risk and risk register shipped 2026-11-19 (risk.mjs;
-      eval/risk-check-, eval/risk-register-check-2026-11-19.md); next: ranges from a
-      P6 UDF or the three-point columns, probabilistic branches; (6) resource
-      levelling shipped 2026-11-19 (level.mjs, --level: serial pass by early start,
-      the file's priority list, crew-size what-if; eval/level-check-2026-11-19.md: 0
-      h over a limit from placed work on six files, 37,670 of 37,670 links hold,
-      x1e6 limits = CPM); next: a P6-levelled XER to compare dates with, levelling
-      in the written review and the risk run; (7) expected finish dates; (8)
-      Microsoft Project XML read 2026-11-19 (mspdi.mjs; 2,406 of 2,491 tasks =
-      Project's dates on 102 files, eval/cpm-vs-project-2026-11-19.md); next a real
-      construction .xml, task splits.
+      the written review; (3) GitHub ERMHDR search done 2026-11-19 (245 files, none
+      a new scored P6 export; eval/converter-files-2026-11-19.md); next progress
+      override, start float and 24-hour lag paths on a real P6 file; (4) written
+      review shipped 2026-11-19 (report.mjs, print to PDF;
+      eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
+      next a real reviewer's reading of one and a full-list appendix option; (5)
+      Monte Carlo risk and risk register shipped 2026-11-19 (risk.mjs;
+      eval/risk-check-, eval/risk-register-check-2026-11-19.md); UDF ranges shipped
+      2026-11-19 (eval/udf-ranges-check-*); next: a real file with range UDFs,
+      probabilistic branches; (6) resource levelling shipped 2026-11-19 (level.mjs,
+      --level: serial pass by early start, the file's priority list, crew-size
+      what-if; eval/level-check-2026-11-19.md: 0 h over a limit from placed work on
+      six files, 37,670 of 37,670 links hold, x1e6 limits = CPM); (7) expected
+      finish dates; (8) Microsoft Project XML read 2026-11-19 (mspdi.mjs; 2,406 of
+      2,491 tasks = Project's dates on 102 files,
+      eval/cpm-vs-project-2026-11-19.md); next a real construction .xml, task
+      splits. More open items: NEXT.md.
