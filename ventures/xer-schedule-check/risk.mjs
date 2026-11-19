@@ -8,6 +8,8 @@
 //   mean: { date, days }, pDeterministic, pMustFinish,
 //   histogram: [{ from, to, count }]   (working days from the data date),
 //   activities: [{ code, name, criticality, sensitivity (null below noiseFloor), deterministicCritical }],
+//   risks: [{ id, probability, impact, targets, occurred, finishShift, shiftNoise, ... }] (risk register),
+//   withoutRisks: { percentiles, pDeterministic, pMustFinish } | null,
 //   warnings: [...],
 // }
 //
@@ -32,8 +34,20 @@
 // with ranges from the people who will do the work. Independent draws
 // understate the spread when the same cause (weather, productivity) affects
 // many activities; `correlation` (0 to 1) adds one shared factor to every
-// draw (a one-factor Gaussian copula). Resource limits, risk events and
-// probabilistic branches are not modelled.
+// draw (a one-factor Gaussian copula).
+//
+// Risk register events (`risks`): a discrete event with a probability and an
+// impact range (optimistic, most likely, pessimistic working days) that, when
+// it occurs in a run, adds the drawn impact to the remaining duration of each
+// activity it names (one draw per event per run, so an event hitting three
+// activities delays all three by the same days, each on its own calendar).
+// Every run is scheduled twice with the same duration draws, once with the
+// events and once without, so the gap between the two P80s is the
+// contingency the register itself asks for, free of sampling noise between
+// separate runs (common random numbers). Each event is ranked by its finish
+// shift: the mean finish of runs where it occurred minus the mean of runs
+// where it did not. Resource limits and probabilistic branches are not
+// modelled.
 
 import { schedule, buildModel, drivingPath } from "./cpm.mjs";
 
@@ -102,6 +116,31 @@ function pickProject(model, projId) {
   return best;
 }
 
+// One event per line: "ID or name, probability, optimistic, most likely,
+// pessimistic, activity ID[, activity ID ...]". Probability as 0.3 or 30%;
+// impacts in working days added to each named activity. A header line and
+// blank lines are skipped; bad lines are returned by number.
+export function parseRisks(text) {
+  const risks = [];
+  const bad = [];
+  for (const [i, raw] of String(text || "").split(/\r?\n/).entries()) {
+    const line = raw.trim();
+    if (!line) continue;
+    const cells = line.split(/[,;\t]/).map((c) => c.trim().replace(/^"|"$/g, ""));
+    const pc = (cells[1] || "").replace(/\s+/g, "");
+    let prob = /%$/.test(pc) ? Number(pc.slice(0, -1)) / 100 : Number(pc);
+    const nums = cells.slice(2, 5).map(Number);
+    const codes = cells.slice(5).filter(Boolean);
+    const ok = cells.length >= 6 && pc !== "" && Number.isFinite(prob) && nums.every((n) => Number.isFinite(n)) && codes.length && cells[0];
+    if (!ok) { if (i > 0) bad.push(i + 1); continue; }
+    if (prob > 1 && prob <= 100 && !/%$/.test(pc)) prob /= 100; // "30" read as 30%
+    const [min, likely, max] = nums;
+    if (!(prob > 0 && prob <= 1) || min < 0 || min > likely || likely > max) { bad.push(i + 1); continue; }
+    risks.push({ id: cells[0], probability: prob, min, likely, max, codes });
+  }
+  return { risks, bad };
+}
+
 const quantile = (sorted, q) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.ceil(q * sorted.length) - 1))];
 
 // A generator: yields after each run ({ done, of }), returns the result, so
@@ -139,6 +178,24 @@ export function* riskSteps(xer, opts = {}) {
       vary.push({ t, a: t.remain * range.min, c: t.remain * range.likely, b: t.remain * range.max });
     }
   }
+  // risk events: resolve their activity IDs to open, non-milestone activities
+  const byCode = new Map();
+  for (const t of model.tasks.values()) if (!t.span && !byCode.has(t.code)) byCode.set(t.code, t);
+  const events = [];
+  for (const rk of opts.risks || []) {
+    const targets = [], missing = [], skipped = [];
+    for (const code of rk.codes) {
+      const t = byCode.get(code);
+      if (!t) missing.push(code);
+      else if (t.status === "TK_Complete" || t.type === "TT_Mile" || t.type === "TT_FinMile") skipped.push(code);
+      else if (!targets.includes(t)) targets.push(t);
+    }
+    if (missing.length) warnings.push(`risk ${rk.id}: no activity ${missing.join(", ")}`);
+    if (skipped.length) warnings.push(`risk ${rk.id}: ${skipped.join(", ")} finished or a milestone, so it cannot take a delay`);
+    if (!targets.length) { warnings.push(`risk ${rk.id} left out: it names no open activity`); continue; }
+    if (targets.some((t) => t.proj !== pid)) warnings.push(`risk ${rk.id}: names activities of another project in the file; they delay this one only through links`);
+    events.push({ rk, targets, hits: 0, sumHit: 0, sumMiss: 0, sumImpact: 0 });
+  }
   const unknown = [...overrides.keys()].filter((k) => !used.has(k));
   if (unknown.length) warnings.push(`${unknown.length} range line(s) name no open activity: ${unknown.slice(0, 5).join(", ")}${unknown.length > 5 ? ", ..." : ""}`);
   if (!overrides.size) warnings.push(`every open activity uses the same range (${Math.round(range.min * 100)}% / ${Math.round(range.likely * 100)}% / ${Math.round(range.max * 100)}% of its remaining duration): an assumption, not data from the file; replace it with ranges from the people doing the work`);
@@ -148,7 +205,13 @@ export function* riskSteps(xer, opts = {}) {
   const sumU = new Float64Array(n), sumUU = new Float64Array(n), sumUY = new Float64Array(n);
   const onPath = new Map();
   const finishes = new Float64Array(iterations);
+  const plain = events.length ? new Float64Array(iterations) : null; // the same draws without the events
+  const evDays = new Float64Array(iterations);
+  const evDur = new Map(); // task id -> remaining minutes with this run's events added
   const rand = rng(seed);
+  // events draw from their own stream, so adding a register leaves every
+  // duration draw (and the run without it) exactly as it was
+  const erand = rng((seed ^ 0x9e3779b9) >>> 0);
   const durations = new Map();
   const us = new Float64Array(n);
   const sr = Math.sqrt(rho), se = Math.sqrt(1 - rho);
@@ -160,10 +223,28 @@ export function* riskSteps(xer, opts = {}) {
       const v = vary[i];
       durations.set(v.t.id, Math.round(triangular(u, v.a, v.c, v.b)));
     }
-    const r = schedule(xer, { model, forwardOnly: true, durations });
+    let anyHit = false;
+    const hit = events.map((e) => {
+      if (erand() >= e.rk.probability) { erand(); return null; }
+      anyHit = true;
+      return triangular(erand(), e.rk.min, e.rk.likely, e.rk.max);
+    });
+    let f0 = null; // the finish without the events, when one occurred
+    if (anyHit) {
+      f0 = schedule(xer, { model, forwardOnly: true, durations }).projects.get(pid).finish;
+      events.forEach((e, k) => {
+        if (hit[k] === null) return;
+        for (const t of e.targets) evDur.set(t.id, (evDur.get(t.id) ?? durations.get(t.id) ?? t.remain) + Math.round(hit[k] * (t.cal.hoursPerDay || 8) * 60));
+      });
+    }
+    const r = schedule(xer, { model, forwardOnly: true, durations: evDur.size ? new Map([...durations, ...evDur]) : durations });
+    evDur.clear();
     const f = r.projects.get(pid).finish;
     finishes[it] = f;
+    if (plain) plain[it] = f0 ?? f;
     const y = dayOf(f);
+    events.forEach((e, k) => { if (hit[k] !== null) { e.hits++; e.sumHit += y; e.sumImpact += hit[k]; } else e.sumMiss += y; });
+    evDays[it] = plain ? y - dayOf(plain[it]) : 0;
     for (let i = 0; i < n; i++) { sumU[i] += us[i]; sumUU[i] += us[i] * us[i]; sumUY[i] += us[i] * y; }
     for (const id of drivingPath(r, pid)) onPath.set(id, (onPath.get(id) || 0) + 1);
     yield { done: it + 1, of: iterations };
@@ -205,6 +286,38 @@ export function* riskSteps(xer, opts = {}) {
     .filter((a) => a.criticality > 0 || a.sensitivity !== null)
     .sort((a, b) => b.criticality - a.criticality || (b.sensitivity ?? 0) - (a.sensitivity ?? 0));
 
+  // Each event's finish shift: mean finish when it occurred minus when it did
+  // not. Other events and the duration draws add noise to that gap; its
+  // standard error is about sd(finish) * sqrt(1/hits + 1/misses), and a shift
+  // within two of those is flagged as not told apart from noise.
+  const sdY = Math.sqrt(varY);
+  const risks = events.map((e) => {
+    const miss = iterations - e.hits;
+    const shift = e.hits && miss ? e.sumHit / e.hits - e.sumMiss / miss : null;
+    const se = e.hits && miss ? sdY * Math.sqrt(1 / e.hits + 1 / miss) : null;
+    return {
+      id: e.rk.id, probability: e.rk.probability, impact: { min: e.rk.min, likely: e.rk.likely, max: e.rk.max },
+      targets: e.targets.map((t) => t.code), occurred: Math.round((e.hits / iterations) * 1000) / 1000,
+      meanImpact: e.hits ? round1(e.sumImpact / e.hits) : null,
+      finishShift: shift === null ? null : round1(shift),
+      shiftNoise: se === null ? null : round1(2 * se),
+      notNoise: shift !== null && Math.abs(shift) > 2 * se,
+    };
+  }).sort((a, b) => (b.finishShift ?? -Infinity) * (b.occurred || 1) - (a.finishShift ?? -Infinity) * (a.occurred || 1));
+  let withoutRisks = null;
+  if (plain) {
+    const s0 = Array.from(plain).sort((a, b) => a - b);
+    const sh0 = (lim) => s0.filter((f) => f <= lim).length / iterations;
+    const ev = Array.from(evDays).sort((a, b) => a - b);
+    withoutRisks = {
+      percentiles: [10, 50, 80, 90].map((p) => { const d = quantile(s0, p / 100); return { p, date: d, days: round1(dayOf(d)), overDeterministic: round1(dayOf(d) - detDays) }; }),
+      pDeterministic: Math.round(sh0(p0.finish) * 1000) / 1000,
+      pMustFinish: p0.mustFinish != null ? Math.round(sh0(p0.mustFinish) * 1000) / 1000 : null,
+      // working days the events add to the same run's finish
+      eventDelay: { mean: round1(ev.reduce((a, b) => a + b, 0) / iterations), p80: round1(quantile(ev, 0.8)), noDelay: Math.round((ev.filter((d) => d <= 0).length / iterations) * 1000) / 1000 },
+    };
+  }
+
   const projRow = (xer.tables.PROJECT || []).find((r) => r.proj_id === pid) || {};
   return {
     project: { id: pid, code: projRow.proj_short_name || pid, dataDate: p0.dataDate ?? null, finish: p0.finish, mustFinish: p0.mustFinish ?? null, finishDays: round1(detDays) },
@@ -215,6 +328,8 @@ export function* riskSteps(xer, opts = {}) {
     pMustFinish: p0.mustFinish != null ? Math.round(share(p0.mustFinish) * 1000) / 1000 : null,
     histogram,
     activities,
+    risks,
+    withoutRisks,
     warnings,
   };
 }

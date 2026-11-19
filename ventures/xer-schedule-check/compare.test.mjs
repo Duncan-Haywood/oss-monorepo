@@ -40,8 +40,8 @@ test("the half-step splits the finish movement into progress and revisions that 
   assert.ok(f.halfStep);
   assert.equal(Math.round((f.progressEffect + f.revisionEffect) * 10) / 10, f.moved);
   assert.equal(f.moved, 15);
-  assert.equal(f.progressEffect, 6);
-  assert.equal(f.revisionEffect, 9);
+  assert.equal(f.progressEffect, 8); // paint 10 -> 8 days, not started: a revision, not progress
+  assert.equal(f.revisionEffect, 7);
   // the half-step file keeps last month's logic and takes this month's progress
   const h = halfStepXer(prev, cur, "77", "77");
   const t = (x, code) => x.tables.TASK.find((r) => r.task_code === code);
@@ -80,7 +80,7 @@ test("an actual date after the data date and reversed progress are flagged", () 
 test("text and CSV carry the changes", () => {
   const text = compareText(rep);
   assert.match(text, /\+15 working days/);
-  assert.match(text, /progress \+6 working days, revisions \+9 working days/);
+  assert.match(text, /progress \+8 working days, revisions \+7 working days/);
   assert.match(text, /A1010 Site survey/);
   const csv = compareCsv(rep).trim().split("\n");
   assert.equal(csv[0], "section,activity,name,was,now,detail");

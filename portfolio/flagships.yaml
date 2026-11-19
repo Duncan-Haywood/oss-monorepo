@@ -291,11 +291,12 @@ flagships:
       leave records; a manager's read on whether the steadier plan is the one they
       would post. More open items: NEXT.md.
     buildable: >-
-      Deputy staff and wages from its API (no account needed to build):
-      resource/Employee and EmployeeAgreement field names are in the MIT
-      communityds/deputy-api-wrapper models (git clone works; api.github.com does
-      not), see eval/deputy-api-format-2026-11-17.md; mirror import-7shifts.mjs's
-      staff reader. Homebase stays account-gated.
+      Deputy availability from its API (no account needed to build):
+      EmployeeAvailability (Employee, Date, StartTime, EndTime, Type, Schedule) is
+      in the MIT communityds/deputy-api-wrapper models (git clone works); turn it
+      into each staff line's availability cell beside import-deputy-staff.mjs (staff
+      and wages landed 2026-11-19, README "Deputy staff and wages"). Homebase stays
+      account-gated.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -306,10 +307,10 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
-      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise blend near clean:
-      the true model loses 0.58 dB on a K-3 III tile at SNR 200; a ramp gate on the
-      card sets' tiles (eval/noise-card-floor-rank-2026-11-18.md). DNG 1.7.1.0 spec
-      PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise blend: the 11
+      Bayer rows still losing >0.1 dB are over-read noise (D780, D600;
+      eval/near-clean-gate-2026-11-19.md, tools/near_clean_gate.py); X-Trans k
+      unset. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README, HISTORY.md and eval/ (ingest to
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
@@ -333,9 +334,11 @@ flagships:
       export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
       5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
-      evenly lit frame; whether `auto` should pick noise-aware (patch PCA in C,
-      fixed order 2026-11-19: same bytes, 1.26x directional's time,
-      eval/noise-pca-native-*). More open items: NEXT.md.
+      evenly lit frame; Bayer's near-clean leak closed 2026-11-19 (lift_near_detail,
+      k 12: held-out losers 18 to 11, worst SNR 200 -0.27 to -0.14,
+      eval/near-clean-gate-2026-11-19.md); next the 11 left, all over-read noise
+      (D780, D600 tiles), an X-Trans tune pass for its own k. More open items:
+      NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -397,21 +400,19 @@ flagships:
       (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
       (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
-      eval/whist-vs-greedy.txt); 4k+2 near-whist designs 2026-11-19 (one missed
-      partner each, 0 repeats, opponents 1-2; eval/near-whist-search.mjs annealing);
-      Whist 48, 60 and near-whist 46, 54, 62 by tabu search 2026-11-19
-      (eval/whist-anneal.c, .txt); next: 52, 57 (tabu ~1 CPU-h each none; order-4
-      multiplier on Z51 none) and near-whist 58 (25 min none). More open items:
-      NEXT.md.
+      eval/whist-vs-greedy.txt); Whist 48, 60 and near-whist 46, 54, 62 by tabu
+      search 2026-11-19 (eval/whist-anneal.c, .txt); next: 52, 57 (tabu ~1 CPU-h
+      each none; order-4 multiplier on Z51 none) and near-whist 58 (tabu 25+60
+      CPU-min, SAT 2.2 h none; sit-out parity and mirror proof: README "Near-whist
+      designs by SAT"). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The bound's ppm floor on tenths"
-      (2026-11-19: floor 2 kept as a noise margin; design 7 of 242 missed at floor
-      0, held out W+X 97 of 97 at every floor;
-      eval/take-bound-floor-tenths-2026-11-19.md). Next: a fresh set with 1.8-2.2 ms
-      takes to show whether the floor is needed on tenths; TAKE_SURVEY_BLIND's 1.5
-      rechecked on a fresh jittery-tach set at the nine-point grid.
+      see firmware/esp32/README.md, latest "The bound's ppm floor on takes near 2
+      ms" (2026-11-19: floor 2 shown needed, Y+Z floor 0 missed 3 of 54, floor 2
+      none; eval/take-bound-floor-near2-2026-11-19.md). Next: a floor scaled to the
+      survey's noise (NEXT.md); TAKE_SURVEY_BLIND's 1.5 rechecked on a fresh
+      jittery-tach set at the nine-point grid.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -497,42 +498,38 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      bSDD: suggested links back. Excel2IDS's tool runs here (venv: pip ifctester
-      openpyxl tqdm; EXCEL2IDS_PYTHON=venv/bin/python node
-      eval/excel2ids-sidebyside.mjs, 8 s): rerun it after excel2ids.mjs changes.
-      IFC4X3 ifcXML: none public (searched 2026-11-18); B-spline control points cut
-      into rows from knot counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md); more
-      real exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs;
-      IFC4/IFC4X3 STEP exports (ThatOpen/engine_web-ifc tests/ifcfiles/public) as
-      nested ifcXML through eval/ifc4-layout.mjs.
+      Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
+      EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
+      rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
+      2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
+      (eval/ifcxml-twins-2026-11-18.md); more real exports through
+      eval/model-inventory.mjs and eval/model-attr-ranges.mjs; IFC4/IFC4X3 STEP
+      exports (ThatOpen/engine_web-ifc tests/ifcfiles/public) as nested ifcXML
+      through eval/ifc4-layout.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked") and HISTORY.md.
       Next, most valuable first: Editor repair on open, bare \w/\s, subclass boxes
       2026-11-18/19 (eval/editor-open-repair-*, eval/word-class-*,
-      eval/deprecated-subclasses-*). Excel-saved workbooks 2026-11-19
-      (eval/excel-workbooks-2026-11-19.md: 65,537 of 65,548 cells agree with
-      openpyxl). Excel2IDS template workbooks both ways 2026-11-19 (excel2ids.mjs,
-      eval/excel2ids-2026-11-19.md: 309 of 309 public specs that fit come back the
-      same; partOf, unnamed material, ranges do not fit). Excel2IDS tool differences
-      cell by cell 2026-11-19 (eval/excel2ids-tool-2026-11-19.md: page and CLI list
-      where the .exe writes another IDS or stops; download fills purpose General,
-      tool stops 316 to 0 of 351; sample's External doors asks True). Tool run side
-      by side 2026-11-19 (eval/excel2ids-sidebyside-2026-11-19.md: 321 workbooks, 0
-      stops; added version None, _x000D_; applicability in ids.xsd order). bSDD
-      links 2026-11-19 (bsdd.mjs, cli --audit --bsdd, eval/bsdd-links-2026-11-19.md:
-      58 public IDS, 197 bSDD links; 7 files with an error, 15 a warning, all read
-      by hand). IDS from a bSDD class 2026-11-19 (--from-bsdd, bsdd-spec.mjs,
+      eval/deprecated-subclasses-*). Tool run side by side 2026-11-19
+      (eval/excel2ids-sidebyside-2026-11-19.md: 321 workbooks, 0 stops; added
+      version None, _x000D_; applicability in ids.xsd order). bSDD links 2026-11-19
+      (bsdd.mjs, cli --audit --bsdd, eval/bsdd-links-2026-11-19.md: 58 public IDS,
+      197 bSDD links; 7 files with an error, 15 a warning, all read by hand). IDS
+      from a bSDD class 2026-11-19 (--from-bsdd, bsdd-spec.mjs,
       eval/bsdd-spec-2026-11-19.md: 185 classes in 42 dictionaries, 38 of 42 audit
       clean, 42 of 42 bSDD-check clean; editor keeps uris, 0 to 344 of 344). bSDD
       units to measure types 2026-11-19 (bsdd-units.mjs,
       eval/bsdd-units-2026-11-19.md: 867 of 1,625 non-IFC Reals get a measure,
       values in SI; IfcTester agrees 9 of 9; dB as pressure/power level 2026-11-19,
-      eval/bsdd-db-2026-11-19.md, 6 of 6; count on a bSDD cache). next: a page route
-      for bSDD if its API ever allows CORS; a BIM manager's real table or filled
-      Excel2IDS workbook via --from-sheet; Excel itself typing into the download; an
-      RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. More open
-      items: NEXT.md.
+      eval/bsdd-db-2026-11-19.md, 6 of 6; count on a bSDD cache). bSDD links written
+      offline 2026-11-19 (--link-bsdd, bsdd-suggest.mjs,
+      eval/bsdd-suggest-2026-11-19.md: 619 in 54 public files; 196 of 198 match
+      authors' links, 2 author slips); next: --bsdd over its 54 outputs where bSDD
+      is reachable; a page route for bSDD if its API ever allows CORS; a BIM
+      manager's real table or filled Excel2IDS workbook via --from-sheet; Excel
+      itself typing into the download; an RVB/ILS author on \s; a Revit/ARCHICAD
+      IFC4X3 export to confirm. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
@@ -550,8 +547,9 @@ flagships:
       dates (eval/cpm-vs-p6-2026-11-19.md, What is left) with node
       eval/cpm-vs-p6.mjs; free float 19,809 of 19,822
       (eval/free-float-2026-11-19.md): 9 left in the 24.12 file where P6 stores 0
-      against a positive gap; more hand-made or converter XERs (no data date, no
-      PROJECT, blank calendars) through node cli.mjs.
+      against a positive gap; windows check (eval/windows-check.mjs, series made by
+      status.mjs); more hand-made or converter XERs (no data date, no PROJECT, blank
+      calendars) through node cli.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
@@ -560,16 +558,24 @@ flagships:
       (BAFT/SAFT2305509: a 608 h FS lag from a finished milestone P6 counts some
       other way) and the 37 finished-node late dates; (2) update comparison shipped
       2026-11-19 (compare.mjs, half-step split; eval/compare-check-2026-11-19.md:
-      720 of 720 planted edits on six real files); next a real pair of consecutive
-      updates to check the half-step against, and a windows analysis across many
-      updates; (3) more public XER files from other exporters (search GitHub for
-      ERMHDR fixtures) and progress override, start float and 24-hour lag paths on a
-      real file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
-      eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
-      next a real reviewer's reading of one and a full-list appendix option; (5)
-      Monte Carlo finish risk shipped 2026-11-19 (risk.mjs: P10-P90, chance of
+      720 of 720 planted edits on six real files); windows analysis across many
+      updates shipped 2026-11-19 (windows.mjs, --windows; a not-started re-estimate
+      is now a revision in the half-step; eval/windows-check-2026-11-19.md); next a
+      real series of updates to check the split and drivers against, and windows in
+      the written review; (3) more public XER files from other exporters (search
+      GitHub for ERMHDR fixtures) and progress override, start float and 24-hour lag
+      paths on a real file; (4) written review shipped 2026-11-19 (report.mjs, print
+      to PDF; eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real
+      files); next a real reviewer's reading of one and a full-list appendix option;
+      (5) Monte Carlo finish risk shipped 2026-11-19 (risk.mjs: P10-P90, chance of
       forecast and must-finish, criticality index; zero-width run = CPM on six
-      files, eval/risk-check-2026-11-19.md); next: risk register events (probability
-      x impact on named activities), ranges from a P6 UDF or the three-point
-      columns, risk in the written review; (6) resource levelling and expected
-      finish dates.
+      files, eval/risk-check-2026-11-19.md); risk register events shipped 2026-11-19
+      (risks: probability x delay on named activities, P80 with/without, events
+      ranked; eval/risk-register-check-2026-11-19.md: 207 of 207 planted events =
+      CPM); next: ranges from a P6 UDF or the three-point columns, probabilistic
+      branches; (6) resource levelling shipped 2026-11-19 (level.mjs, --level:
+      serial pass by early start, the file's priority list, crew-size what-if;
+      eval/level-check-2026-11-19.md: 0 h over a limit from placed work on six
+      files, 37,670 of 37,670 links hold, x1e6 limits = CPM); next: a P6-levelled
+      XER to compare dates with, levelling in the written review and the risk run;
+      (7) expected finish dates.

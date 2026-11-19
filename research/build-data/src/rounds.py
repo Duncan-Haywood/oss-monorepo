@@ -33,6 +33,7 @@ candidate) under the variants that early-stop, and records the round each quanti
                than STALE_DAYS (5 years) is presumed abandoned and dropped (session 91)
   cpin_es3_nc2, _nc3, _nc8  the same rule at 2, 3 and 8 years (session 92's sweep, STALE)
   cpin_es3_nc4, _nc6  the same rule at 4 and 6 years (session 102: is 5 years a plateau?)
+  cpin_es3_nc1 the same rule at 1 year (session 107: where is the floor for a short-build target?)
   cpin_es3_ncq the same rule with a threshold per source city: its own 0.99 quantile of build days over its
                years <= Y-2 completed by D (session 93, q_threshold)
   cpin_es3_ncr as ncq, the quantile taken only over the source's builds completed in the 3 years before D
@@ -90,13 +91,14 @@ VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "c
             "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8", "cpin_es3_ncq",
             "cpin_es3_nc5_clean", "cpin_es3_nc5_stamp", "cpin_es3_nc3_clean",
             "cpin_es3_nc5_stamp_len", "cpin_es3_nc5_stamp_long", "cpin_es3_nc4", "cpin_es3_nc6", "cpin_es3_ncr",
-            "cpin_es3_ncr95", "cpin_es3_ncrd")
+            "cpin_es3_ncr95", "cpin_es3_ncrd", "cpin_es3_nc1")
 STALE_DAYS = 1826  # session 91: 5 years; the cpin_es3_nc5 staleness rule (fixed before any run)
 # session 92: the staleness threshold swept, in days (2, 3, 5, 8 years; the grid session 91's "Next" named)
 STALE = {"cpin_es3_nc2": 730, "cpin_es3_nc3": 1095, "cpin_es3_nc5": STALE_DAYS, "cpin_es3_nc8": 2922,
          "cpin_es3_nc5_clean": STALE_DAYS, "cpin_es3_nc5_stamp": STALE_DAYS, "cpin_es3_nc3_clean": 1095,
          "cpin_es3_nc5_stamp_len": STALE_DAYS, "cpin_es3_nc5_stamp_long": STALE_DAYS,
-         "cpin_es3_nc4": 1461, "cpin_es3_nc6": 2191}  # session 102: the finer grid session 101 named (4, 6 years)
+         "cpin_es3_nc4": 1461, "cpin_es3_nc6": 2191,  # session 102: the finer grid session 101 named (4, 6 years)
+         "cpin_es3_nc1": 365}  # session 107: a 1-year floor for a short-build target (Austin)
 STAMP_DAYS = 180  # session 96: the label 96% of Austin's pre-2000 dead completions carry (results/stamp_check.json)
 DEAD_DROP = ("cpin_es3_nc5_clean", "cpin_es3_nc5_stamp", "cpin_es3_nc3_clean", "cpin_es3_nc5_stamp_len",
              "cpin_es3_nc5_stamp_long")

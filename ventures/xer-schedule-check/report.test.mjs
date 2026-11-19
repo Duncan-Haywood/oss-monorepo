@@ -5,6 +5,7 @@ import { assess } from "./dcma.mjs";
 import { compare } from "./compare.mjs";
 import { reviewHtml, reviewItems } from "./report.mjs";
 import { EXAMPLE_XER, EXAMPLE_PREV_XER } from "./example.mjs";
+import { readFileSync } from "node:fs";
 
 const cur = () => parseXer(EXAMPLE_XER);
 const prev = () => parseXer(EXAMPLE_PREV_XER);
@@ -53,7 +54,7 @@ test("the document is self-contained, escapes input and carries the disclaimer",
   assert.match(html, /Date: 2026-11-19/);
   assert.match(html, /Reply in 7 days/);
   assert.match(html, /6 of 14 pass/);
-  assert.match(html, /\+15 working days: progress \+6 working days, revisions \+9 working days/);
+  assert.match(html, /\+15 working days: progress \+8 working days, revisions \+7 working days/);
   assert.match(html, /3 high-priority corrections should be made/);
   assert.match(html, /What changed since the previous update/);
   assert.match(html, /not engineering, legal, contractual or scheduling advice/);
@@ -84,4 +85,75 @@ test("a critical path test that could not run (milestone-only path) is asked abo
   assert.equal(x.severity, "medium");
   assert.equal(x.measure, "could not run");
   assert.equal(x.items[0].code, "M1210");
+});
+
+// ---- finish date risk in the review
+import { riskAnalysis } from "./risk.mjs";
+import { riskItems, riskFor, RISK_LIMITS } from "./report.mjs";
+
+const riskRun = (a, extra = {}) => riskAnalysis(cur(), { projId: a.project.id, iterations: 200, range: { min: 0.9, likely: 1, max: 1.5 }, ...extra });
+
+test("a risk run adds its corrections: must-finish, near-critical work, contingency", () => {
+  const a = assess(cur());
+  const r = riskRun(a);
+  const items = reviewItems(a, null, r);
+  const risk = items.filter((x) => x.source.startsWith("Finish date risk"));
+  assert.equal(risk.length, riskItems(r).length);
+  assert.equal(items.length, reviewItems(a).length + risk.length);
+  // the example's must-finish (2026-07-31) is rarely met with a 150% tail
+  assert.ok(r.pMustFinish < RISK_LIMITS.mustHigh, String(r.pMustFinish));
+  const must = risk.find((x) => /must-finish date 2026-07-31/.test(x.action));
+  assert.equal(must.severity, "high");
+  assert.equal(items[0], must, "a high item sorts first");
+  assert.match(must.action, /the forecast meets it, but/);
+  const late = riskItems({ ...r, project: { ...r.project, finish: r.project.mustFinish + 600 } })[0];
+  assert.match(late.action, /the forecast itself is after it/);
+  // near-critical: exactly the activities off the forecast path with criticality >= 25%
+  const near = r.activities.filter((x) => !x.deterministicCritical && x.criticality >= RISK_LIMITS.nearCritical).map((x) => x.code);
+  const nc = risk.find((x) => /near-critical/.test(x.action));
+  if (near.length) assert.deepEqual(nc.items.map((x) => x.code), near);
+  else assert.equal(nc, undefined);
+  assert.ok(risk.some((x) => x.severity === "low" && /contingency/.test(x.action)));
+});
+
+test("a generous must-finish and a narrow range ask for nothing", () => {
+  const a = assess(cur());
+  const r = riskRun(a, { range: { min: 1, likely: 1, max: 1 } });
+  r.pMustFinish = 0.95; // as if the contract date had room
+  assert.equal(r.pDeterministic, 1);
+  assert.deepEqual(riskItems(r).filter((x) => !/near-critical/.test(x.action)), []);
+});
+
+test("the document prints the risk section: assumptions, percentiles, events and drivers", () => {
+  const a = assess(cur());
+  const r = riskRun(a, { risks: [{ id: "R1 <doors> late", probability: 0.4, min: 5, likely: 10, max: 25, codes: ["A1040"] }] });
+  const html = reviewHtml(a, null, { risk: r, date: "2026-11-19" });
+  assert.match(html, /<h2>Finish date risk<\/h2>/);
+  assert.match(html, /200 runs \(seed 1\) over \d+ open activities/);
+  assert.match(html, /90% \/ 100% \/ 150% of each open activity's remaining duration/);
+  for (const p of [10, 50, 80, 90]) assert.match(html, new RegExp(`<td>P${p}</td>`));
+  assert.match(html, /Finish without the events/);
+  assert.match(html, /R1 &lt;doors&gt; late/);
+  assert.match(html, /Activities that most often drive the finish/);
+  assert.match(html, /<dt>Finish date risk<\/dt><dd>forecast met in \d+% of 200 runs; P80 \d{4}-\d\d-\d\d/);
+  assert.match(html, /The ranges are inputs to this analysis, not data from the file/);
+  assert.ok(!/<script/i.test(html));
+  // without a risk run there is no section
+  assert.ok(!/Finish date risk/.test(reviewHtml(a, null, {})));
+});
+
+test("a risk run on another project is left out, with a note", () => {
+  const a = assess(cur());
+  const r = { ...riskRun(a), project: { ...riskRun(a).project, id: "999" } };
+  assert.equal(riskFor(a, r), null);
+  assert.equal(reviewItems(a, null, r).length, reviewItems(a).length);
+  const html = reviewHtml(a, null, { risk: r });
+  assert.ok(!/<h2>Finish date risk/.test(html));
+  assert.match(html, /run on another project and is left out/);
+});
+
+test("the page hands the risk run to the review", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /risk: lastRisk/);
+  assert.match(html, /reviewItems\(last, lastCmp, lastRisk\)/);
 });

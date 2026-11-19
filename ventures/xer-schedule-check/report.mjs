@@ -8,8 +8,17 @@
 // No scripts and no outside files, so it prints the same anywhere (the browser's
 // "Save as PDF" is the PDF step) and opens in any mail client or archive.
 //
-// reviewItems(assessment, comparison?) is the ranked list on its own, so the
-// CLI and tests can read the same decisions the document prints.
+// reviewItems(assessment, comparison?, risk?) is the ranked list on its own, so
+// the CLI and tests can read the same decisions the document prints.
+//
+// meta.risk, a Monte Carlo result from risk.mjs for the same project, adds a
+// "Finish date risk" section (the ranges assumed, P10-P90 with and without the
+// risk register, the chance of the forecast and must-finish dates, events
+// ranked, the activities that drive the finish) and the corrections a risk run
+// can support: a must-finish date the runs rarely meet, near-critical work the
+// single driving path hides, and a forecast with no stated contingency.
+
+import { formatDate } from "./xer.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const RANK = { high: 0, medium: 1, low: 2 };
@@ -42,8 +51,51 @@ const EXTRA_ACTION = {
 // The comparison's own flags carry their severity; these turn them into asks.
 const FLAG_ACTION = (text) => `Explain in the narrative: ${text.charAt(0).toLowerCase()}${text.slice(1)}.`;
 
-export function reviewItems(a, c = null) {
-  const out = [];
+// Thresholds for the risk-based corrections. A must-finish date met in under
+// half the runs is a date the schedule does not support (high); under 80% is
+// short of the P80 most owners and the AACE recommended practices plan to
+// (medium). An activity off the forecast's driving path that drives the finish
+// in a quarter or more of the runs is near-critical work the single path hides.
+export const RISK_LIMITS = { mustHigh: 0.5, mustMedium: 0.8, nearCritical: 0.25, forecast: 0.5 };
+
+const pct = (x) => `${Math.round(x * 100)}%`;
+const day = (m) => formatDate(m).slice(0, 10);
+const p80 = (r) => r.percentiles.find((q) => q.p === 80);
+const rangeText = (r) => `${Math.round(r.range.min * 100)}% / ${Math.round(r.range.likely * 100)}% / ${Math.round(r.range.max * 100)}% of each open activity's remaining duration`;
+
+// the risk run belongs to the assessment only if it read the same project
+export function riskFor(a, r) {
+  return r && a && r.project && String(r.project.id) === String(a.project.id) ? r : null;
+}
+
+export function riskItems(r) {
+  if (!r) return [];
+  const out = [], src = `Finish date risk (${r.iterations} Monte Carlo runs)`, q = p80(r);
+  const basis = r.overrides ? `${r.overrides} activity ranges supplied, ${rangeText(r)} on the rest` : `ranges assumed at ${rangeText(r)}`;
+  if (r.pMustFinish !== null && r.pMustFinish < RISK_LIMITS.mustMedium) {
+    out.push({ severity: r.pMustFinish < RISK_LIMITS.mustHigh ? "high" : "medium", source: src,
+      action: r.project.finish > r.project.mustFinish
+        ? `Show the recovery or time extension the must-finish date ${day(r.project.mustFinish)} needs: the forecast itself is after it, and the schedule met it in ${pct(r.pMustFinish)} of the risk runs (P80 ${day(q.date)}).`
+        : `Show how the must-finish date ${day(r.project.mustFinish)} will be met, or the recovery or time extension it needs: the forecast meets it, but the schedule met it in only ${pct(r.pMustFinish)} of the risk runs (P80 ${day(q.date)}).`,
+      measure: `${pct(r.pMustFinish)} chance against ${pct(RISK_LIMITS.mustMedium)}; ${basis}`, items: [] });
+  }
+  const near = r.activities.filter((x) => !x.deterministicCritical && x.criticality >= RISK_LIMITS.nearCritical);
+  if (near.length) {
+    out.push({ severity: "medium", source: src,
+      action: "Manage the near-critical activities listed as critical: they are off the forecast's driving path but drive the project finish in a quarter or more of the risk runs, so a small slip on them moves the finish date.",
+      measure: `${near.length} activit${near.length === 1 ? "y" : "ies"} with criticality ${pct(RISK_LIMITS.nearCritical)} or more off the driving path`,
+      items: near.map((x) => ({ code: x.code, name: x.name, why: `drives the finish in ${pct(x.criticality)} of runs${x.sensitivity === null ? "" : `; sensitivity ${x.sensitivity.toFixed(2)}`}` })) });
+  }
+  if (r.pDeterministic < RISK_LIMITS.forecast) {
+    out.push({ severity: "low", source: src,
+      action: `State the schedule contingency held against the forecast finish: it was met in ${pct(r.pDeterministic)} of the risk runs, and the P80 date is ${q.overDeterministic} working days later.`,
+      measure: `${pct(r.pDeterministic)} chance of the forecast; ${basis}`, items: [] });
+  }
+  return out;
+}
+
+export function reviewItems(a, c = null, r = null) {
+  const out = riskItems(riskFor(a, r));
   for (const k of a.checks) {
     if (k.pass) continue;
     // the critical path test with nothing to delay: the finish has no driving logic
@@ -93,7 +145,7 @@ export function reviewItems(a, c = null) {
       out.push({ severity: f.severity, source: "Change since the previous update", action: FLAG_ACTION(f.text), measure: `${f.count}`, items: Object.hasOwn(lists, f.text) ? lists[f.text] : [] });
     }
   }
-  // stable sort: severity, then the order above (DCMA, extra, recompute, changes)
+  // stable sort: severity, then the order above (risk, DCMA, extra, recompute, changes)
   return out.map((x, i) => [x, i]).sort((p, q) => RANK[p[0].severity] - RANK[q[0].severity] || p[1] - q[1]).map(([x]) => x);
 }
 
@@ -106,6 +158,32 @@ function fmtVal(v, unit = "") {
 }
 const days = (d) => (d === null || d === undefined ? "n/a" : `${d > 0 ? "+" : ""}${d} working day${Math.abs(d) === 1 ? "" : "s"}`);
 
+function riskSection(r, limit) {
+  const w = r.withoutRisks;
+  const assumptions = [
+    `${r.iterations} runs (seed ${r.seed}) over ${r.varied} open activities, each remaining duration drawn from a triangular range: ${r.overrides ? `${r.overrides} activity ranges supplied by the reviewer, ${rangeText(r)} on the rest` : rangeText(r)}.`,
+    r.correlation ? `A shared factor correlates the draws (${r.correlation}), for causes such as weather or productivity that move many activities together.` : "The draws are independent; a cause that moves many activities together (weather, productivity) would widen the spread.",
+    r.risks.length ? `${r.risks.length} risk register event${r.risks.length === 1 ? "" : "s"} added (below); every run is also scheduled without them on the same draws.` : "No risk register events were added.",
+  ];
+  const rows = r.percentiles.map((q) => {
+    const row = [`P${q.p}`, day(q.date), `${q.overDeterministic >= 0 ? "+" : ""}${q.overDeterministic}`];
+    if (w) { const o = w.percentiles.find((x) => x.p === q.p); row.push(day(o.date), `${(q.days - o.days).toFixed(1)}`); }
+    return row;
+  });
+  const head = ["Confidence", "Finish", "Working days after the forecast"].concat(w ? ["Finish without the events", "Events add (days)"] : []);
+  const chance = `The forecast finish ${day(r.project.finish)} was met in ${pct(r.pDeterministic)} of runs${r.pMustFinish !== null ? `; the must-finish date ${day(r.project.mustFinish)} in ${pct(r.pMustFinish)}` : ""}${w ? ` (without the events: ${pct(w.pDeterministic)}${w.pMustFinish !== null ? ` and ${pct(w.pMustFinish)}` : ""})` : ""}.`;
+  const ev = r.risks.length ? `<h3>Risk events, ranked by how far they move the finish</h3>${table(["Event", "Activities", "Probability", "Occurred", "Finish shift (working days)"], r.risks.map((k) => [k.id, k.targets.join(", "), pct(k.probability), pct(k.occurred), k.finishShift === null ? "n/a" : `${k.finishShift >= 0 ? "+" : ""}${k.finishShift.toFixed(1)}${k.notNoise ? "" : ` (within noise, +/-${k.shiftNoise})`}`]))}` : "";
+  const drivers = table(["Activity", "Name", "Drives the finish in", "Sensitivity", "On the forecast's driving path"], r.activities.slice(0, Math.min(limit, 20)).map((x) => [x.code, x.name, pct(x.criticality), x.sensitivity === null ? "" : x.sensitivity.toFixed(2), x.deterministicCritical ? "yes" : "no"]));
+  return `<h2>Finish date risk</h2>
+<p>${assumptions.map(esc).join(" ")}</p>
+${table(head, rows)}
+<p>${esc(chance)}</p>
+${ev}
+${drivers ? `<h3>Activities that most often drive the finish</h3>${drivers}` : ""}
+${r.warnings.length ? `<p class="small"><strong>Read with care:</strong> ${r.warnings.map(esc).join(" ")}</p>` : ""}
+<p class="small">The ranges are inputs to this analysis, not data from the file; the result is only as good as they are. Resource limits and probabilistic branches are not modelled.</p>`;
+}
+
 function table(head, rows) {
   if (!rows.length) return "";
   return `<table><thead><tr>${head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
@@ -115,7 +193,8 @@ function table(head, rows) {
 export function reviewHtml(a, c = null, meta = {}) {
   const limit = meta.limit ?? 40;
   const p = a.project;
-  const items = reviewItems(a, c);
+  const r = riskFor(a, meta.risk);
+  const items = reviewItems(a, c, r);
   const n = { high: 0, medium: 0, low: 0 };
   for (const x of items) n[x.severity]++;
   const date = meta.date || new Date().toISOString().slice(0, 10);
@@ -141,6 +220,10 @@ export function reviewHtml(a, c = null, meta = {}) {
     summary.push(["Forecast finish movement this period", `${days(c.finish.moved)}${c.finish.halfStep ? `: progress ${days(c.finish.progressEffect)}, revisions ${days(c.finish.revisionEffect)} (half-step)` : ""}`]);
   }
 
+  if (r) {
+    summary.push(["Finish date risk", `forecast met in ${pct(r.pDeterministic)} of ${r.iterations} runs; P80 ${day(p80(r).date)} (+${p80(r).overDeterministic} working days)${r.pMustFinish !== null ? `; must-finish met in ${pct(r.pMustFinish)}` : ""}`]);
+  }
+
   const corr = items.map((x, i) => {
     const shown = x.items.slice(0, limit);
     const more = x.items.length > limit ? `<p class="small">${x.items.length - limit} more not printed; the CSV download from the page lists them all.</p>` : "";
@@ -161,6 +244,8 @@ ${c.criticalPath.trail.length ? `<h3>Driving path now, and how far each finish m
   }
 
   const warn = [...a.warnings, ...(c ? c.warnings : [])];
+  if (meta.risk && !r) warn.push("The risk analysis supplied was run on another project and is left out of this review.");
+  const riskSec = r ? riskSection(r, limit) : "";
   const to = [meta.recipient && `To: ${meta.recipient}`, meta.reviewer && `From: ${meta.reviewer}`, meta.reference && `Reference: ${meta.reference}`, `Date: ${date}`].filter(Boolean);
 
   return `<!doctype html>
@@ -193,6 +278,7 @@ ${score}
 <p class="small">Missed tasks (11) and BEI (14) use the file's planned dates as the baseline; P6 resets planned dates on activities not started each time it schedules, so both can flatter the schedule.</p>
 ${path ? `<h2>Driving path to the forecast finish</h2>${path}` : ""}
 ${changes}
+${riskSec}
 <footer>Prepared with XER Schedule Check (MIT licence), https://marisstella.app/xer-schedule-check/. The checks are computed from the XER file alone; they are not engineering, legal, contractual or scheduling advice, and no warranty is given. Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency.</footer>
 </body></html>
 `;

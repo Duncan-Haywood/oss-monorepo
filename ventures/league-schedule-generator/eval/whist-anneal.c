@@ -9,14 +9,16 @@
  * Prints one JSON line like eval/whist-search-c.txt; exit 0 when found.
  *   cc -O2 -o whist-anneal eval/whist-anneal.c -lm && ./whist-anneal 48 600 1   (n, seconds, seed)
  *   optional: start temperature, floor temperature, moves without a new best before a restart;
- *   WHIST_VERBOSE=1 prints each restart's best cost to stderr. */
+ *   WHIST_VERBOSE=1 prints each restart's best cost to stderr.
+ *   WHIST_OUT2=d (near-whist only): the two points out are fixed to 0 and d and never move (README
+ *   "Near-whist designs by SAT": d of the right parity, a divisor of n, loses no designs). */
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #define INF (-1)
-static int n, v, h, k, npts, near, perm[80], pc[64], oc[64];
+static int n, v, h, k, npts, nmov, near, perm[80], pc[64], oc[64];
 static unsigned long long rs;
 static unsigned long long rnd(void) { rs ^= rs << 13; rs ^= rs >> 7; rs ^= rs << 17; return rs; }
 static double urand(void) { return (rnd() >> 11) * (1.0 / 9007199254740992.0); }
@@ -68,7 +70,7 @@ static int tabuRun(int tenure, long steps, long *moves) {
   int best = cost;
   for (long s = 0; s < steps; s++) {
     int bd = 1 << 30, bi = -1, bj = -1, ties = 0;
-    for (int i = 0; i < npts; i++) for (int j = (i / 4 + 1) * 4; j < npts; j++) {
+    for (int i = 0; i < nmov; i++) for (int j = (i / 4 + 1) * 4; j < nmov; j++) {
       int d = swapdelta(i, j);
       int tabu = s - last[i] < tenure || s - last[j] < tenure;
       if (tabu && cost + d >= best) continue;
@@ -103,12 +105,18 @@ int main(int argc, char **argv) {
   else if (fourK1) for (int i = 1; i < v; i++) perm[npts++] = i;
   else if (n % 4 == 0) { perm[npts++] = INF; for (int i = 0; i < v; i++) perm[npts++] = i; }
   if (npts != 4 * k + (near ? 2 : 0) || n < 4) { fprintf(stderr, "n must not be 3 mod 4\n"); return 2; }
+  int out2 = near && getenv("WHIST_OUT2") ? atoi(getenv("WHIST_OUT2")) : 0;
+  nmov = out2 ? 4 * k : npts;
+  if (out2) { /* seated points first, then 0 and d in the two out positions */
+    int m = 0; for (int i = 0; i < v; i++) if (i != 0 && i != out2) perm[m++] = i;
+    perm[m++] = 0; perm[m++] = out2;
+  }
   clock_t t0 = clock(); g_t0 = t0; g_secs = secs;
   long restarts = 0, moves = 0;
   int found = 0;
   while (!found && (double)(clock() - t0) / CLOCKS_PER_SEC < secs) {
     restarts++;
-    for (int i = npts - 1; i > 0; i--) { int j = rnd() % (i + 1), t = perm[i]; perm[i] = perm[j]; perm[j] = t; }
+    for (int i = nmov - 1; i > 0; i--) { int j = rnd() % (i + 1), t = perm[i]; perm[i] = perm[j]; perm[j] = t; }
     reset();
     if (getenv("WHIST_TABU")) {
       if (tabuRun(atoi(getenv("WHIST_TABU")), stall, &moves)) { found = 1; break; }
@@ -119,7 +127,7 @@ int main(int argc, char **argv) {
     int best = cost; long since = 0;
     while (1) {
       moves++;
-      int i = rnd() % npts, j = rnd() % npts;
+      int i = rnd() % nmov, j = rnd() % nmov;
       int ti = i / 4, tj = j / 4;
       if (i == j) continue;
       int old = cost;

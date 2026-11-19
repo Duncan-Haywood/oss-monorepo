@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKkz2eDdH6AwwMwtGiP",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T14:19:47Z",
+  "ended": "2026-11-19T14:36:19Z",
+  "wall_minutes": 16.76,
+  "tokens_in": 7873704,
+  "tokens_out": 41168,
+  "cost_usd": 3.4574,
+  "tool_calls": 66,
+  "task": "xer-schedule-check flagship item (5): risk register events in the Monte Carlo",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17693",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First version drew event randoms from the duration stream, so later iterations' duration draws shifted and the no-event column did not equal a no-register run; caught by the new test, fixed with a separate seeded stream."
+    },
+    {
+      "what": "Eval script first compared delay minutes against total float in hours (cpm.mjs stores tf in hours); every under-float count read 0 until fixed."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here picked ai-bookkeeper again although its buildable receipts items need huggingface.co, refused this session as in the latest recorded why; the SRD/SROIE items reachable via GitHub are one receipt (SRD 1027) or held by open PR #17310."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Monitor needed a ToolSearch load and a description param; a background until-loop in Bash was simpler for waiting on an eval."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Deepen flagship default sent me to row 1 ai-bookkeeper; huggingface.co refused (allocate.py probe), and the reachable items were one receipt or covered by open PR #17310.",
+      "did": "Took row 8 xer-schedule-check item (5) (risk register events), the next row with buildable work and no open PR.",
+      "result": "Landed a working slice with a real-file check (207 of 207 planted events match the CPM engine)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-risk-register-events-p6-monte-carlo.md",
+    "ventures/xer-schedule-check/eval/risk-register-check-2026-11-19.md"
+  ],
+  "goal": "Deepen a flagship: risk register events (probability x impact) in the free P6 Monte Carlo",
+  "notes": "Verification: node --test risk.test.mjs 8/8; run_venture_tests.py xer-schedule-check ok (57 tests); venture-preflight clean; check_posts ok; Playwright page check at 390 px: register table renders, no console errors, no horizontal scroll. Real-file eval on six public XERs: planted 207/207 exact, delay<float held 141/147 (6 in the 24.12 file explained by a must-finish date 10 calendar days after the forecast), CRN no-event column identical on 6/6. Agent doc: the eval md doubles as it; no separate docs/reports entry needed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6b71ee01-3639-5410-ba12-e6c0bc27a828",
+    "transcripts": 1,
+    "first": "2026-11-19T14:19:47Z",
+    "last": "2026-11-19T14:36:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 122,
+        "output": 41168,
+        "thinking": 7630,
+        "cache_read": 7737837,
+        "cache_write_5m": 0,
+        "cache_write_1h": 135745,
+        "api_equivalent_usd": 3.4574,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 122,
+      "output": 41168,
+      "thinking": 7630,
+      "cache_read": 7737837,
+      "cache_write_5m": 0,
+      "cache_write_1h": 135745,
+      "api_equivalent_usd": 3.4574,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 60,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.76,
+      "active_minutes": 16.76,
+      "model_minutes": 6.21,
+      "tool_minutes": 10.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior scheduling-tool engineer: event model, CRN design, tests, real-file eval and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 289.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
