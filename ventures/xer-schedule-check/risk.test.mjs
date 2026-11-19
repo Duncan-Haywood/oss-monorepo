@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseXer } from "./xer.mjs";
 import { schedule } from "./cpm.mjs";
-import { riskAnalysis, riskAnalysisAsync, riskCsv, parseRanges, triangular, rng, phi } from "./risk.mjs";
+import { riskAnalysis, riskAnalysisAsync, riskCsv, parseRanges, parseRisks, triangular, rng, phi } from "./risk.mjs";
 
 // Mon-Fri, 08:00-12:00 and 13:00-17:00
 const WEEK = "(0||CalendarData()((0||DaysOfWeek()((0||1()())(0||2()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||3()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||4()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||5()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||6()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||7()())))(0||Exceptions()())))";
@@ -109,4 +109,48 @@ test("the must-finish date's chance, the forward-only engine and the CSV", async
   assert.deepEqual(r2.percentiles, r.percentiles);
   const csv = riskCsv({ activities: [{ code: "=A", name: "x, y", criticality: 0.5, sensitivity: -0.2, deterministicCritical: true }] });
   assert.equal(csv.split("\n")[1], `'=A,"x, y",0.5,-0.2,yes`);
+});
+
+test("risk register: lines parsed, events delay their activities, ranked by finish shift", () => {
+  const { risks, bad } = parseRisks("risk,probability,min,likely,max,activities\nGround, 50%, 2, 2, 2, A\nPermit;0.2;5;5;5;B;C\nBad,0.5,3,2,1,A\nNone,0,1,1,1,A\nShort,0.5,1\n\"Off-path\", 30, 1, 1, 1, B");
+  assert.deepEqual(bad, [4, 5, 6]);
+  assert.deepEqual(risks.map((r) => [r.id, r.probability, r.codes]), [["Ground", 0.5, ["A"]], ["Permit", 0.2, ["B", "C"]], ["Off-path", 0.3, ["B"]]]);
+  // fixed durations, so every spread comes from the events
+  const zero = { min: 1, likely: 1, max: 1 };
+  assert.equal(risks[2].probability, 0.3); // "30" read as 30%
+  const r = riskAnalysis(merge(), { iterations: 1000, range: zero, risks: risks.slice(0, 2), seed: 5 });
+  const by = (id) => r.risks.find((x) => x.id === id);
+  assert.ok(Math.abs(by("Ground").occurred - 0.5) < 0.05);
+  // Ground puts A 2 days behind B; Permit adds 5 to B and 5 to C, so with
+  // Permit the finish is +10 whatever Ground does. Ground's shift is
+  // 2 x P(no Permit) = 1.6; Permit's is 10 - E[finish | no Permit] = 10 - 1 = 9.
+  assert.ok(Math.abs(by("Ground").finishShift - 1.6) < 0.3, String(by("Ground").finishShift));
+  assert.ok(Math.abs(by("Permit").finishShift - 9) < 0.3, String(by("Permit").finishShift));
+  assert.equal(by("Permit").notNoise, true);
+  assert.equal(by("Permit").meanImpact, 5);
+  assert.deepEqual(by("Permit").targets, ["B", "C"]);
+  assert.equal(r.risks[0].id, "Permit"); // 0.2 x 9 ranks above 0.5 x 1.6
+  // without the events every run is the CPM date; with them P90 is +10
+  assert.equal(r.withoutRisks.pDeterministic, 1);
+  assert.equal(r.withoutRisks.percentiles.find((q) => q.p === 90).overDeterministic, 0);
+  assert.equal(r.percentiles.find((q) => q.p === 90).overDeterministic, 10);
+  assert.ok(Math.abs(r.pDeterministic - 0.5 * 0.8) < 0.05, String(r.pDeterministic));
+  assert.ok(Math.abs(r.withoutRisks.eventDelay.noDelay - r.pDeterministic) < 1e-9);
+});
+
+test("risk register: no events leave the duration draws exactly as they were; bad targets warned", () => {
+  const plain = riskAnalysis(merge(), { iterations: 200, seed: 4 });
+  const none = riskAnalysis(merge(), { iterations: 200, seed: 4, risks: [] });
+  assert.deepEqual(none.percentiles, plain.percentiles);
+  assert.equal(none.withoutRisks, null);
+  // with events the duration draws are the same, so the no-event column equals the plain run
+  const { risks } = parseRisks("R1,0.4,1,2,4,A,NOPE,S\nR2,0.5,1,1,1,ZZ");
+  const r = riskAnalysis(merge(), { iterations: 200, seed: 4, risks });
+  assert.deepEqual(r.withoutRisks.percentiles, plain.percentiles);
+  assert.ok(r.percentiles.every((q, i) => q.date >= plain.percentiles[i].date));
+  assert.equal(r.risks.length, 1);
+  const w = r.warnings.join(" | ");
+  assert.match(w, /risk R1: no activity NOPE/);
+  assert.match(w, /risk R1: S finished or a milestone/);
+  assert.match(w, /risk R2 left out/);
 });
