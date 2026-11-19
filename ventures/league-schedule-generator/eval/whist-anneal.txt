@@ -16,3 +16,8 @@
 {"n":54,"mods":[54],"kind":"near","ms":600193,"method":"tabu (C)","seed":4,"restarts":22,"moves":2191137,"tables":null}
 {"n":58,"mods":[58],"kind":"near","ms":600051,"method":"tabu (C)","seed":4,"restarts":19,"moves":1888065,"tables":null}
 {"n":58,"mods":[58],"kind":"near","ms":900066,"method":"tabu (C)","seed":22,"restarts":57,"moves":2847105,"tables":null}
+# 2026-11-19, WHIST_OUT2 (out pair fixed to 0 and d; README "Near-whist designs by SAT"): WHIST_TABU=4|6 WHIST_OUT2=1|29 ./whist-anneal 58 900 <seed> 2.0 0.15 50000, four processes on four cores
+{"n":58,"mods":[58],"kind":"near","ms":900202,"method":"tabu (C)","seed":31,"restarts":57,"moves":2849153,"tables":null}
+{"n":58,"mods":[58],"kind":"near","ms":900047,"method":"tabu (C)","seed":33,"restarts":57,"moves":2837889,"tables":null}
+{"n":58,"mods":[58],"kind":"near","ms":900244,"method":"tabu (C)","seed":32,"restarts":57,"moves":2837889,"tables":null}
+{"n":58,"mods":[58],"kind":"near","ms":900309,"method":"tabu (C)","seed":34,"restarts":57,"moves":2817409,"tables":null}
