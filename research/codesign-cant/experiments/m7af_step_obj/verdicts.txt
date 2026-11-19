@@ -1,0 +1,51 @@
+patch check: aware lag39c125 cint25 step corners [33.0, 39.1, 125.0] ms; training plant lag 39.1-125.0 ms over 4096 draws; rho at x=0.5 1.0297
+step check: x=0.5 seed 0 'above', b = 0.25 m: lever-mean J -48.4354, step J -48.5149, train score -48.4553
+training: 24 CMA-ES runs of 3200 evaluations; step condition weight 1.0 of one lever, 6 episodes; rejected share above 0.155, below 0.159
+Reproduction: 108 cint25 response flights at b = 0.25 re-flown against 7ae's results.json: 0 field mismatches
+
+Per set and band (values above, below; 36 ms law)
+  step   b = 0.25 unsettled [0, 0]; rise 1.449, 1.407 s; overshoot 0.0474, 0.0529 m; last-second 0.0044, 0.0046 m; wind6 peak 0.0376, 0.0244 m, resid 0.0305, 0.0198 m; wind3 peak 0.0124, 0.0088 m; identified [48, 49]; 75 ms [205, 194]; J_45_1 -1.960, -1.788; mass 1.421, 1.413 kg; margin pass 12 of 12
+  step   b = None unsettled [2, 2]; rise 1.309, 1.333 s; overshoot 0.0707, 0.0891 m; last-second 0.0308, 0.0142 m; wind6 peak 0.0376, 0.0244 m, resid 0.0305, 0.0198 m; wind3 peak 0.0124, 0.0088 m; identified [51, 48]; 75 ms [197, 202]; J_45_1 -1.962, -1.788; mass 1.421, 1.413 kg; margin pass 12 of 12
+  cint25 b = 0.25 unsettled [0, 0]; rise 2.106, 1.740 s; overshoot 0.0113, 0.0176 m; last-second 0.0039, 0.0039 m; wind6 peak 0.0291, 0.0223 m, resid 0.0254, 0.0190 m; wind3 peak 0.0106, 0.0088 m; identified [47, 60]; 75 ms [196, 200]; J_45_1 -1.892, -1.780; mass 1.465, 1.417 kg; margin pass 12 of 12
+  cint25 b = None unsettled [1, 0]; rise 1.897, 1.736 s; overshoot 0.0232, 0.0211 m; last-second 0.0144, 0.0049 m; wind6 peak 0.0291, 0.0223 m, resid 0.0254, 0.0190 m; wind3 peak 0.0106, 0.0088 m; identified [46, 59]; 75 ms [196, 203]; J_45_1 -1.890, -1.779; mass 1.465, 1.417 kg; margin pass 12 of 12
+  base   b = 0.25 unsettled [0, 0]; rise 1.913, 1.821 s; overshoot 0.0170, 0.0215 m; last-second 0.0049, 0.0046 m; wind6 peak 0.0303, 0.0212 m, resid 0.0227, 0.0177 m; wind3 peak 0.0108, 0.0088 m; identified [39, 62]; 75 ms [205, 209]; J_45_1 -1.910, -1.796; mass 1.492, 1.402 kg; margin pass 12 of 12
+  base   b = None unsettled [3, 2]; rise 1.573, 1.648 s; overshoot 0.0855, 0.0589 m; last-second 0.0545, 0.0282 m; wind6 peak 0.0303, 0.0212 m, resid 0.0227, 0.0177 m; wind3 peak 0.0108, 0.0088 m; identified [39, 62]; 75 ms [204, 206]; J_45_1 -1.911, -1.794; mass 1.492, 1.402 kg; margin pass 12 of 12
+
+Decoded outer-loop gains (median kp 1/s^2, kd 1/s, ki/kp 1/s, A_P/kd m/s; above, below)
+  base   kp 16.61, 18.27; kd 6.89, 6.50; ki/kp 0.0709, 0.0330; A_P/kd 0.508, 0.538; model-called unsettled at b = None 5
+  cint25 kp 16.58, 17.79; kd 7.63, 6.14; ki/kp 0.0122, 0.0025; A_P/kd 0.459, 0.570; model-called unsettled at b = None 1
+  step   kp 13.32, 13.28; kd 4.83, 4.65; ki/kp 0.0470, 0.0199; A_P/kd 0.724, 0.753; model-called unsettled at b = None 4
+
+Stress dead by law (L2-45 = dead_45_2_cap, summed over designs; above, below)
+  id 33 ms D^0             step b=0.25: [10, 14]; step b=None: [13, 14]; cint25 b=0.25: [11, 16]; cint25 b=None: [11, 16]; base b=0.25: [9, 16]; base b=None: [9, 16]
+  id 39.1 ms D^0           step b=0.25: [23, 19]; step b=None: [22, 18]; cint25 b=0.25: [20, 24]; cint25 b=None: [19, 23]; base b=0.25: [17, 25]; base b=None: [17, 25]
+  inherited 15 ms D^1.5    step b=0.25: [3, 6]; step b=None: [3, 6]; cint25 b=0.25: [3, 5]; cint25 b=None: [3, 5]; base b=0.25: [0, 5]; base b=None: [0, 5]
+  mid 36 ms D^0            step b=0.25: [15, 16]; step b=None: [16, 16]; cint25 b=0.25: [16, 20]; cint25 b=None: [16, 20]; base b=0.25: [13, 21]; base b=None: [13, 21]
+  stress 45 ms D^0         step b=0.25: [29, 30]; step b=None: [29, 26]; cint25 b=0.25: [29, 37]; cint25 b=None: [28, 35]; base b=0.25: [24, 35]; base b=None: [22, 35]
+  stress 52 ms D^0         step b=0.25: [48, 44]; step b=None: [48, 46]; cint25 b=0.25: [55, 51]; cint25 b=None: [53, 49]; base b=0.25: [47, 53]; base b=None: [49, 51]
+  stress 60 ms D^0         step b=0.25: [102, 101]; step b=None: [88, 95]; cint25 b=0.25: [110, 94]; cint25 b=None: [106, 92]; base b=0.25: [89, 98]; base b=None: [92, 99]
+  stress 75 ms D^0         step b=0.25: [205, 194]; step b=None: [197, 202]; cint25 b=0.25: [196, 200]; cint25 b=None: [196, 203]; base b=0.25: [205, 209]; base b=None: [204, 206]
+
+kd against median rise over 36 designs at b = 0.25: Spearman rho 0.999
+
+Post hoc (Mann-Whitney U, two-sided, per-design values, step against cint25, both at b = 0.25 m; per geometry, then pooled)
+  step rise      above p = 0.00216; below p = 0.00216; pooled 1.4070 against 1.8320, p = 3.66e-05
+  step over      above p = 0.00216; below p = 0.00866; pooled 0.0522 against 0.0163, p = 0.000156
+  step tail_off  above p = 0.818; below p = 1; pooled 0.0044 against 0.0039, p = 0.795
+  identified L2-45 per design above p = 0.809; below p = 0.808; pooled 97 against 107, p = 0.838
+  75 ms      L2-45 per design above p = 1; below p = 1; pooled 399 against 396, p = 0.931
+  gain kp pooled median 13.32 against 16.98, p = 0.00135
+  gain kd pooled median 4.65 against 6.52, p = 3.66e-05
+  gain ki/kp pooled median 0.0211 against 0.0051, p = 0.0404
+
+Verdicts:
+  AF1: held (rise 1.449, 1.407 s against cint25 2.106, 1.740)
+  AF2: held (rise 1.449, 1.407 s against base at b = None + 0.1 s: 1.673, 1.748)
+  AF3: refuted (kp 13.32, 13.28 against 16.58, 17.79)
+  AF4: held (kd 4.83, 4.65 against 7.63, 6.14)
+  AF5: held (0 of 12 unsettled (need at most 1))
+  AF6: held (identified [48, 49] against cint25 [47, 60] + 10)
+  AF7: held (12 of 12 pass the margin test (need 11))
+  AF8: refuted (overshoot 4.74, 5.29 cm (need at most 3))
+  AF9: held (Spearman rho(kd, rise) 0.999 over 36 designs (need 0.7))
+wall: {'train': 6662.479517221451, 'resp': 112.73400974273682, 'stress': 257.2803831100464}

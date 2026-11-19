@@ -1,6 +1,6 @@
 # Draft: when does rotor cant pay on a small quadrotor co-designed with its motors and controller?
 
-Status: **milestone 7, first draft (2026-11-14; section VII added 2026-11-19, milestone 7ad's settling paragraph and 7ae's retraining check the same day): outline of every
+Status: **milestone 7, first draft (2026-11-14; section VII added 2026-11-19, milestone 7ad's settling paragraph, 7ae's retraining check and 7af's step objective the same day): outline of every
 section, section VI (stability of the side-force feed-forward, milestones 7c–7g) and section VII
 (motor-lag randomisation, milestones 7s–7ac) written in full. Not submittable.** Target: *IEEE Robotics and
 Automation Letters* (6 pages + 2), fallback ICUAS; an aim, not a claim of acceptance.
@@ -274,8 +274,15 @@ A tighter band, b = 0.1 m, gives the same picture (814). A builder can screen a 
 the three-state model before flying it. Retraining with the band on (milestone 7ae, 125 ms ceiling) does not
 recover the rise: median 1.83 against 1.84 s (Mann-Whitney p = 0.95), with kp and kd unchanged and
 ki/kp cut about tenfold (0.057 to 0.005 s⁻¹). Every set lies on one rise-overshoot frontier: the
-always-on tunes' fast rises came with 7–16 cm overshoots, so the slower rise is the price of not
-overshooting (`m7ae_cint_train/verdicts.txt`).
+always-on tunes' fast rises came with 7–16 cm overshoots (`m7ae_cint_train/verdicts.txt`). That
+frontier is not a limit of the loop. Adding a 1 m set-point step to the training objective as a fourth
+condition, band on (milestone 7af), wins the rise back and more: median 1.41 against 1.83 s
+(Mann-Whitney p = 3.7e-05), with crashes not separated (97 against 107 of 2,304, p = 0.84) and all
+12 designs certified and settled. The tuner does it by lowering kd (median 4.65 against 6.52 s⁻¹).
+Under the cap on the proportional request the vehicle cruises most of a 1 m step at about A_P/kd,
+and over the 36 designs of 7ac, 7ae and 7af rise time follows kd with Spearman ρ = 0.999. The price is
+overshoot, 4.7–5.3 cm against 1.1–1.8 cm, and up to 3.6% worse gust tracking
+(`m7af_step_obj/verdicts.txt`).
 
 **Why a tuner should see plants beyond the test range (a reading, not tested here).** The CMA-ES objective is a mean over
 randomised episodes. When fast plants are in the draw, gains that track them well raise that mean
@@ -292,7 +299,9 @@ not at a midpoint, and never draw faster plants than that. Set the ceiling at ab
 125 ms (3.2×) gives most of 150 ms's robustness at the identified lags with near-100 ms rise times;
 go to 150–200 ms only if the motors may be slower than identified, at up to about 0.7 s more rise
 time than the 125 ms tune. Run the position integrator only within about a quarter of a step of the set
-point; with that, the 125 ms tune has no unsettled designs.
+point; with that, the 125 ms tune has no unsettled designs. Put a set-point step in the tuning
+objective: without one the tuner has no reason to rise fast, and with a capped proportional term
+the rise time can be read off A_P/kd before flying.
 
 **Figures.** Both are drawn by `paper/figures_vii.py` from the parsers that generate Table VII-1, so
 figure and table cannot disagree. VII-a (`paper/fig_VIIa.png`): identified total and the 75 ms count
@@ -324,7 +333,7 @@ real tilt limit. Randomise the motor lag from the slowest identified value up to
 
 - Ten seeds for the paper figures (proposal, "Evaluation"); bootstrap intervals and Wilcoxon tests in place of sign counts.
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
-- Section VII: the same coverage sweep on the torque-scale and mass ranges; a set-point
-  step term in the objective (milestone 7ae: training with conditional integration does not recover the rise time); twelve seeds per geometry at 125 and 150 ms.
+- Section VII: the same coverage sweep on the torque-scale and mass ranges; a sweep of the
+  set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier; twelve seeds per geometry at 125 and 150 ms.
 - Sections I–V and VII–VIII written out from the outlines; LaTeX in the RA-L template.
 - Hardware check (milestone 8).
