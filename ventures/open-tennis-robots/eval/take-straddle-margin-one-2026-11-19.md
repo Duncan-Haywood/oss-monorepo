@@ -48,4 +48,36 @@ and this note records why. Margins 0 and 3 are reported, not decided on.
 
 ## Result
 
-(to be filled in after the captures)
+Pre-registration committed in e4d48d9f3; all sixteen captures then made on that tree (132 standard drills and 36
+instant ones, none aborted; stored as eval/take-straddle-margin-one-{ae,af,ag,ah,inst}-2026-11-19.jsonl.gz) and scored
+(eval/take-straddle-margin-one-2026-11-19.txt):
+
+| margin | named (of 120 spread) | instant told to set a take (of 48) | right that margin 2 was not | wrong that margin 2 got right |
+| --- | --- | --- | --- | --- |
+| 0 (off) | 62 | 0 | 0 | 10 |
+| **1 (tested)** | **85** | **3** | **14** | **4** |
+| 2 (shipped) | 72 | 0 | - | - |
+| 3 | 63 | 0 | 0 | 9 |
+
+- (a) held: 85 against 72.
+- (b) **failed**: 3 of the 48 instant builds were told to set TAKE_US = 1500 (AF launcher 0; the instant-only seeds 229
+  and 271, launcher 0). All three had two straddling wheels for 1.5 ms and one against, the smallest split margin 1
+  acts on.
+- (c) **failed**: 4 builds wrong that margin 2 got right (the 3 instant ones and a 0.1 ms one) against 14 newly right, a
+  ratio of 1 to 3.5, not under 1 to 5.
+- (d) held: every frame's counts equalled the rebuild's (the scorer's assert did not fire).
+
+So **`host.TAKE_STRADDLE_MARGIN` stays at 2.** Margin 1 is closed on simulated sets.
+
+**What this adds for margin 2.** This is margin 2's second held-out reading and its first with enough instant builds to
+see a rare harm: 72 of 120 named against off's 62, 0 of 48 instant builds told to set a take (with AA-AD: 0 of 60), 10
+builds right that off gets wrong and none the other way.
+
+**Where the vote's signal sits.** Pooled straddling wheels at 1.5 ms: instant builds 11 for and 44 against, 0.1-0.9 ms
+14 and 43, 1.3-2.1 ms 39 and 4, 2.4 ms and up 36 and 0. An instant build sees a "for" about one straddling wheel in five,
+so a 2-1 split on an instant build is not rare when a drill has only three straddling wheels; margin 2 needs at least two
+more for than against, which no instant build reached in 48. Most 1.3-2.1 ms builds still read 0 at margin 2 (22 of 36
+here): they have too few straddling wheels, the limit eval/take-straddle-vote-2026-11-19.md named.
+
+**Not known.** Simulated only, one jittery tach model, three launchers. A real wheel's straddle counts come in the
+TAKE_SURVEY frame's last two bytes.
