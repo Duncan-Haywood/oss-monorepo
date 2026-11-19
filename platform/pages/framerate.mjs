@@ -37,22 +37,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { onlySlugs, keepPagePath, describeFilter } from './only-slugs.mjs';
+import { requirePlaywright } from './load-playwright.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
-const specifier = process.env.PLAYWRIGHT || 'playwright';
-let playwright;
-try {
-  const loaded = await import(specifier);
-  playwright = loaded.chromium ? loaded : loaded.default;
-} catch (error) {
-  console.error(`Cannot load Playwright (${specifier}): ${String(error).split('\n')[0]}`);
-  process.exit(2);
-}
-if (!playwright || !playwright.chromium) {
-  console.error(`PLAYWRIGHT=${specifier} resolved to a module with no chromium export.`);
-  process.exit(2);
-}
+const playwright = await requirePlaywright();
 const chromePath = process.env.CHROME_PATH || process.env.CHROMIUM_PATH;
 const LAUNCH = chromePath ? { executablePath: chromePath } : {};
 
