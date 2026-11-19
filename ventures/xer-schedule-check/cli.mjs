@@ -95,7 +95,7 @@ if (args.includes("--level")) {
   const crew = Number(opt("--crew") || 1);
   const r = level(xer, { projId, limitScale: crew !== 1 ? { "*": crew } : null, ...(args.includes("--within-float") ? { withinFloat: true } : {}) });
   if (args.includes("--csv")) writeFileSync(opt("--csv"), levelCsv(r));
-  if (args.includes("--json")) { const { result, floors, ...plain } = r; console.log(JSON.stringify(plain, null, 2)); process.exit(0); }
+  if (args.includes("--json")) { const { result, floors, placed, ignored, ...plain } = r; console.log(JSON.stringify(plain, null, 2)); process.exit(0); }
   console.log(`${r.project.code}: ${r.resources.length} resources levelled${crew !== 1 ? ` at ${crew}x the file's limits` : ""}${r.settings.withinFloat ? ", within float" : ""} (${r.ms} ms)`);
   for (const w of r.warnings) console.log(`NOTE: ${w}`);
   console.log(`Finish ${r.finish} -> levelled ${r.levelledFinish} (+${r.extensionDays} working days)${r.lowerBound ? `; no levelling can finish before ${r.lowerBound.date} (${r.lowerBound.resource} work at its limit)` : ""}`);

@@ -50,13 +50,19 @@ resource limits:
   it. That figure is 0 hours on every resource of every file. The only
   over-allocation left is started work, which is fixed, and activities that
   alone need more than the limit. Those are listed with the reason.
-- **Every zero-lag link still holds** in the levelled dates (6,250 of 6,250
-  on the hotel programme, 454 of 454 on the P6 24.12 sample). This is checked
+- **Every zero-lag link still holds** in the levelled dates: 37,670 of
+  37,670 links between unstarted activities across the six files. This is checked
   by a separate script, not by the engine's own code.
 - **Nothing starts earlier** than it did before levelling.
 - **The levelling path itself changes nothing.** With every limit multiplied
   by a million, the levelled dates equal the CPM dates on every open activity
   of every file.
+
+The check also found a bug before it passed. On the 14,000-activity CCA
+programme the first run left 6,629 hours over a limit. A started activity
+that tied on start time with unstarted ones was placed after them, so they
+were placed without seeing what it used. Started work is now placed first,
+and the figure is 0.
 
 ## What it found: the default limit
 
@@ -71,7 +77,8 @@ size. Level against that default and the finish moves by years:
 - On the Expressway file, every labour resource has a limit of 1 per hour and
   is used at up to 43 at once. Levelling runs into the tool's 30-year horizon:
   238 activities would start more than 30 years after the 2015 data date, and
-  235 need more than the limit on their own.
+  235 need more than the limit on their own. The CCA programme does the same
+  and also loads quantities as resources with the default limit.
 
 So the page warns when a resource still has the default limit of 1 per hour
 and is used at least three times over it. It also prints a lower bound that

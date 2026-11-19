@@ -146,3 +146,14 @@ test("the example schedule: the drywall crew does one level after the other", as
   assert.match(csv.split("\r\n")[0], /^activity_id,name,early_start/);
   assert.match(csv, /A11[23]0/);
 });
+
+test("started work that alone passes the limit is seen before anything placed at the same instant", () => {
+  // A1 started, 1 day left at the data date, using 3 per hour against a limit of 1
+  const x = xer({
+    tasks: [task("2", 2, { task_code: "A0" }), task("1", 1, { status_code: "TK_Active", act_start_date: "2025-11-28 08:00", task_code: "Z1" })],
+    assigns: [use("1", "1", "R1", 3), use("2", "2", "R1")],
+  });
+  const r = level(x);
+  assert.equal(r.activities.find((a) => a.code === "A0").levelledStart, "2025-12-02 08:00");
+  assert.equal(r.resources[0].selfCheckHours, 0);
+});

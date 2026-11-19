@@ -94,8 +94,9 @@ class Profile {
     return out;
   }
   // highest total rate of placed spans at any instant in [s, e)
-  peak(s, e) {
+  peak(s, e, extra = []) {
     const ov = this.overlapping(s, e);
+    for (const x of extra) if (x.s < e && x.e > s) ov.push(x);
     if (!ov.length) return { peak: 0, spans: ov };
     const ev = [];
     for (const x of ov) { ev.push([Math.max(s, x.s), x.rate]); ev.push([Math.min(e, x.e), -x.rate]); }
@@ -218,7 +219,7 @@ export function* levelSteps(xer, opts = {}) {
   const limitFactor = 1 + (settings.withinFloat ? settings.overAllocPct / 100 : 0);
   const keepFloat = Math.round(settings.keepFloatHours * 60);
   const horizon = 60 * 24 * 366 * 30; // stop looking 30 years on
-  let cur = base, passes = 0;
+  let cur = base, passes = 0, fin = null, fullRounds = 0;
   const candidates = [...assigns.keys()].filter((id) => base.tasks.has(id));
 
   // spans of the unlevelled schedule, for the "before" figures
@@ -228,6 +229,13 @@ export function* levelSteps(xer, opts = {}) {
     for (const sp of spansOf(t, r.remES ?? r.es)) before.get(sp.rsrc).push(sp);
   }
 
+  const settled = () => {
+    fin = schedule(xer, { model, levelStart: floors });
+    if (!candidates.some((id) => { const r = fin.tasks.get(id); return r && (r.remES ?? r.es) !== placed.get(id); }) || fullRounds >= 20) return true;
+    fullRounds++;
+    cur = fin;
+    return false;
+  };
   for (;;) {
     passes++;
     // un-place anything the last recompute moved
@@ -239,9 +247,12 @@ export function* levelSteps(xer, opts = {}) {
       }
     }
     const queue = candidates.filter((id) => !placed.has(id)).map((id) => ({ id, t: model.tasks.get(id), r: cur.tasks.get(id) }));
-    if (!queue.length) break;
+    if (!queue.length) { if (settled()) break; continue; }
     yield { passes, placed: placed.size, total: candidates.length };
-    queue.sort((a, b) => (a.r.remES ?? a.r.es) - (b.r.remES ?? b.r.es) || cmp(a.t, b.t) || (base.tasks.get(a.id).tf ?? 0) - (base.tasks.get(b.id).tf ?? 0) || a.t.code.localeCompare(b.t.code));
+    // started work is fixed: it goes in first, so nothing is placed beside
+    // it without seeing what it uses
+    const started = (q) => (q.t.status === "TK_Active" ? 0 : 1);
+    queue.sort((a, b) => started(a) - started(b) || (a.r.remES ?? a.r.es) - (b.r.remES ?? b.r.es) || cmp(a.t, b.t) || (base.tasks.get(a.id).tf ?? 0) - (base.tasks.get(b.id).tf ?? 0) || a.t.code.localeCompare(b.t.code));
     let cutoff = Infinity; // earliest new start of an activity moved this pass
     const tainted = new Set();
     let moved = false;
@@ -259,22 +270,26 @@ export function* levelSteps(xer, opts = {}) {
       const ign = ignore.get(id) || new Set();
       for (;;) {
         let next = null;
-        for (const sp of spansOf(t, s)) {
+        const own = spansOf(t, s);
+        for (const sp of own) {
           if (ign.has(sp.rsrc)) continue;
           const prof = profiles.get(sp.rsrc);
           const lim = prof.limitIn(sp.s, sp.e) * limitFactor;
-          if (sp.rate > lim + EPS) {
-            if (prof.limitIn(sp.s, sp.s + 1) * limitFactor < sp.rate - EPS || !Number.isFinite(lim)) {
+          // the activity's other assignments on the same resource count too
+          const mine = own.filter((o) => o !== sp && o.rsrc === sp.rsrc);
+          const selfPeak = mine.length ? new Profile(prof.limits).peak(sp.s, sp.e, mine).peak : 0;
+          if (sp.rate + selfPeak > lim + EPS) {
+            if (prof.limitIn(sp.s, sp.s + 1) * limitFactor < sp.rate + selfPeak - EPS || !Number.isFinite(lim)) {
               ign.add(sp.rsrc); ignore.set(id, ign);
-              if (!leftIds.has(id)) { leftIds.add(id); left.push({ id, code: t.code, name: t.name, why: `alone needs ${round3(sp.rate)} of ${rsrcCode(rsrc, sp.rsrc)} per hour, limit ${round3(lim)}` }); }
+              if (!leftIds.has(id)) { leftIds.add(id); left.push({ id, code: t.code, name: t.name, why: `alone needs ${round3(sp.rate + selfPeak)} of ${rsrcCode(rsrc, sp.rsrc)} per hour, limit ${round3(lim)}` }); }
               continue;
             }
           }
-          const { peak, spans } = prof.peak(sp.s, sp.e);
+          const { peak, spans } = prof.peak(sp.s, sp.e, mine);
           if (peak + sp.rate <= lim + EPS) continue;
-          // the soonest a conflicting span ends after s
+          // the soonest a conflicting placed span ends after s
           let soon = Infinity;
-          for (const x of spans) if (x.e > s && x.e < soon) soon = x.e;
+          for (const x of spans) if (x.task !== id && x.e > s && x.e < soon) soon = x.e;
           for (const l of prof.limits) if (l.from > sp.s && l.from < soon) soon = l.from;
           if (soon !== Infinity && (next === null || soon > next)) next = soon;
           (by.get(id) || by.set(id, new Set()).get(id)).add(sp.rsrc);
@@ -318,13 +333,18 @@ export function* levelSteps(xer, opts = {}) {
       }
     }
     if (!moved) {
-      // everything left in the queue was placed or waits on nothing new
-      if (candidates.every((id) => placed.has(id))) break;
+      // everything is placed: check against the full run, where as late as
+      // possible activities take up their free float after the backward
+      // pass; if that moved any, place them again on full runs
+      if (candidates.every((id) => placed.has(id))) {
+        if (settled()) break;
+        continue;
+      }
     }
-    cur = schedule(xer, { model, levelStart: floors, forwardOnly: true });
+    cur = schedule(xer, { model, levelStart: floors, forwardOnly: !fullRounds });
     if (passes > 20000) break;
   }
-  const fin = schedule(xer, { model, levelStart: floors });
+  if (!fin) fin = schedule(xer, { model, levelStart: floors });
   const levelledFinish = fin.projects.get(proj.id)?.finish ?? null;
 
   const resources = [];
@@ -393,6 +413,8 @@ export function* levelSteps(xer, opts = {}) {
     warnings,
     passes,
     floors,
+    placed,
+    ignored: ignore,
     result: fin,
     ms: Date.now() - t0,
   };
@@ -418,8 +440,9 @@ const round3 = (x) => (Number.isFinite(x) ? Math.round(x * 1000) / 1000 : x);
 const rsrcCode = (rsrc, id) => rsrc.get(id)?.rsrc_short_name || id;
 
 const csvCell = (v) => {
-  const s = v === null || v === undefined ? "" : String(v);
-  return /[",\n\r]/.test(s) || /^[=+\-@\t\r]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s;
+  let s = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
 export function levelCsv(r) {
