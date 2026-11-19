@@ -114,9 +114,14 @@ def picks(b, dense):
     grid = tm.PICK_US
     rs = controller.ResidualSurvey(grid, controller.TAKE_SURVEY_TRIM, controller.TAKE_SURVEY_BLIND)
     dsum = [0.0] * len(DENSE_US)
+    idx = [DENSE_US.index(g) for g in grid]
     for got, drow in zip(b["board_scores"], dense):
-        if not got or any(g is None for g in got) or any(d is None for d in drow):
+        if any(d is None for d in drow):
             continue
+        if not got or len(got) != len(grid) or any(g is None for g in got):
+            # a capture from older firmware (seven candidates, before 2026-11-19's eight-point grid): the board's
+            # row on today's grid is the dense refit at its points (the same fit, so the same numbers)
+            got = [drow[i] for i in idx]
         before = rs.kept_n
         rs.add([g * g for g in got])
         if rs.kept_n > before:          # the board kept it: its dense row joins the dense sums
@@ -141,7 +146,7 @@ def score(builds, procs):
         dense = dict(pool.map(dense_rows, builds))
     lag, seed = builds[0]["build"][3], builds[0]["build"][4]
     print(f"{len(builds)} survey drills (wheel lag {lag} s, seed {seed}); dense refits every "
-          f"{DENSE_US[1] / 1000:g} ms from 0 to {DENSE_US[-1] / 1000:g} ms; picks from the board's seven grid sums "
+          f"{DENSE_US[1] / 1000:g} ms from 0 to {DENSE_US[-1] / 1000:g} ms; picks from the board's {len(tm.PICK_US)} grid sums "
           f"(trim {controller.TAKE_SURVEY_TRIM}, blind {controller.TAKE_SURVEY_BLIND}); "
           f"advised when the share is at most {host.TAKE_ADVISE_RATIO}")
     print("take ms | tach | launcher | kept | dense least | parabola | spline | share")

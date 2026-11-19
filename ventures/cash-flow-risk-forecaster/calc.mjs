@@ -68,7 +68,7 @@ function num(raw, label, errors, { min = -Infinity, max = Infinity, blank } = {}
   }
   const v = Number(s);
   if (!Number.isFinite(v)) { errors.push(`${label} must be a number.`); return NaN; }
-  if (v < min || v > max) { errors.push(`${label} must be between ${min} and ${max}.`); return NaN; }
+  if (v < min || v > max) { errors.push(`${label} must be ${max === Infinity ? `${min} or more` : min === -Infinity ? `${max} or less` : `between ${min} and ${max}`}.`); return NaN; }
   return v;
 }
 

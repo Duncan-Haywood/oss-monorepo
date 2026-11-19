@@ -71,6 +71,27 @@ test("dates follow the tax year", () => {
   assert.equal(r.janDate, "2027-01-31");
   assert.equal(r.julDate, "2027-07-31");
   assert.equal(run({ year: 2026 }).janDate, "2028-01-31");
+  assert.equal(r.nextLabel, "2026/27");
+  assert.equal(run({ year: 2026 }).nextLabel, "2027/28");
+});
+
+// Quality audit 2026-11-19 (round 75): the reduction check compares against the relevant amount, which is net of
+// tax at source (TMA 1970 s59A(4)), so the expected figure must be net too, and the labels must say so.
+test("reduction with PAYE: expected bill after tax at source is compared with the net instalment", () => {
+  const r = compute({ year: 2025, totalTax: 10000, atSource: 5000, paid: 0, other: 0, estimate: 1000 });
+  assert.equal(r.each, 2500);
+  assert.equal(r.reduction.reducedEach, 500);
+  assert.match(parse({ ...SAMPLE, estimate: -1 }).errors.join(" "), /after tax deducted at source/);
+});
+
+// The High Income Child Benefit Charge is a charge to income tax (ITEPA 2003 s681B), so it is in the
+// relevant amount; only CGT and student loan stay outside (GOV.UK, payments on account).
+test("child benefit charge counts towards payments on account, and is not described as excluded", () => {
+  const r = run({ totalTax: 8000 });
+  assert.equal(r.each, 4000);
+  const text = r.findings.map((f) => f.title).join(" ");
+  assert.doesNotMatch(text, /Child Benefit Charge and Class 2 are not part/);
+  assert.match(text, /Child Benefit Charge is income tax/);
 });
 
 test("negative, non-numeric and missing input is rejected, not clamped", () => {
