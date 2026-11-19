@@ -15,7 +15,7 @@
 // parser accepts both). Returns { value } or { error, offset }.
 export function parseJsonc(text) {
   let i = 0;
-  const src = String(text).replace(/^﻿/, '');
+  const src = String(text).replace(/^\uFEFF/, '');
   const fail = (msg) => { const e = new Error(msg); e.offset = i; throw e; };
   const ws = () => {
     for (;;) {

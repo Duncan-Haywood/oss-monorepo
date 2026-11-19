@@ -8,7 +8,7 @@ const co = (compilerOptions, extra = {}) => ({ compilerOptions, ...extra });
 const PINNED = { strict: true, types: [], target: 'es2022', module: 'nodenext', moduleResolution: 'nodenext', esModuleInterop: true, rootDir: 'src', noUncheckedSideEffectImports: true };
 
 test('parseJsonc reads comments, trailing commas and a BOM, and points at errors', () => {
-  const r = parseJsonc('﻿{\n // c\n "a": [1, 2,], /* x */ "b": {"c": "d\\n",},\n}');
+  const r = parseJsonc('\uFEFF{\n // c\n "a": [1, 2,], /* x */ "b": {"c": "d\\n",},\n}');
   assert.deepEqual(r.value, { a: [1, 2], b: { c: 'd\n' } });
   const bad = parseJsonc('{\n  "a": 1\n  "b": 2\n}');
   assert.match(bad.error, /Expected ','/);

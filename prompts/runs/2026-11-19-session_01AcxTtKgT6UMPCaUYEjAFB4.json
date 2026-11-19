@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 4,
+  "ci_failures_before_green": 6,
   "review_findings": null,
   "tests_added": 36,
   "outcome": "success",
@@ -47,6 +47,10 @@
     {
       "what": "First run_workflow_locally pass failed 4 checks (siblings orphan, .cjs not a served extension, post description length, report front matter)",
       "fix": "all fixed in the second commit and re-verified"
+    },
+    {
+      "what": "PR CI changed-ventures failed on two unwired tree checks the local --for-changes pass never ran: check_hidden_unicode (a literal U+FEFF in a regex and a test string) and check_json_valid (the JSONC tsconfig corpus files under a .json name)",
+      "fix": "wrote the BOM as \\uFEFF escapes; renamed the corpus files to .jsonc and reran the eval (still 61/61); unwired_checks.py 242/242 locally"
     }
   ],
   "integrity_issues": [],
@@ -58,6 +62,10 @@
     {
       "file": ".github/prompts/verify-and-merge.md",
       "issue": "run_workflow_locally.py --for-changes hands off portfolio-pages after 100 s and says not to change tracked files until it finishes; with a 150 s site build plus venture tests that leaves the run idle for over 10 minutes, and the FAIL line for 'Check the built artifact' gives no detail until the whole log ends"
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "run_workflow_locally.py --for-changes skips the unwired tree checks (check_json_valid, check_hidden_unicode) that ventures-tests runs in CI, so two failures surfaced only on the PR; running `python3 platform/ci/unwired_checks.py` (90 s) locally would have caught them"
     }
   ],
   "deviations": [

@@ -23,50 +23,50 @@ The rootDir prediction (TS5011, reported when sources sit in a subfolder and `ou
 
 | Config | tsc 7.0.2 rejects |
 |---|---|
-| synthetic/amd-outfile-library.json | `alwaysStrict:TS5108`, `module:TS5108`, `outFile:TS5102`, `target:TS5108` |
-| synthetic/angular-2019-style.json | `baseUrl:TS5102`, `downlevelIteration:TS5102`, `moduleResolution:TS5108`, `target:TS5108` |
-| synthetic/ignore-deprecations-6.json | `baseUrl:TS5102`, `moduleResolution:TS5108`, `target:TS5108` |
-| synthetic/modern-clean.json | nothing |
-| synthetic/module-none.json | `module:TS6046` |
-| synthetic/node-commonjs-legacy.json | `allowSyntheticDefaultImports:TS5108`, `baseUrl:TS5102`, `esModuleInterop:TS5108`, `moduleResolution:TS5108`, `target:TS5108` |
-| synthetic/removed-in-5-5.json | `importsNotUsedAsValues:TS5023`, `keyofStringsOnly:TS5023`, `noImplicitUseStrict:TS5023`, `noStrictGenericChecks:TS5023`, `preserveValueImports:TS5023`, `suppressExcessPropertyErrors:TS5023`, `suppressImplicitAnyIndexErrors:TS5023` |
-| synthetic/system-classic.json | `module:TS5108`, `moduleResolution:TS5108`, `outFile:TS5102` |
-| synthetic/umd-none.json | `module:TS5108` |
-| tsconfig-bases/bun-1.0.12.json | nothing |
-| tsconfig-bases/create-react-app-1.0.3.json | `moduleResolution:TS5108` |
-| tsconfig-bases/create-react-app-2.0.12.json | nothing |
-| tsconfig-bases/cypress-1.0.6.json | `target:TS5108` |
-| tsconfig-bases/deno-1.0.15.json | nothing |
-| tsconfig-bases/docusaurus-1.0.7.json | `baseUrl:TS5102` |
-| tsconfig-bases/docusaurus-2.0.10.json | `baseUrl:TS5102` |
-| tsconfig-bases/ember-1.1.0.json | `moduleResolution:TS5108` |
-| tsconfig-bases/ember-3.0.13.json | nothing |
-| tsconfig-bases/esm-1.0.5.json | nothing |
-| tsconfig-bases/next-1.0.5.json | `moduleResolution:TS5108`, `target:TS5108` |
-| tsconfig-bases/next-2.0.7.json | nothing |
-| tsconfig-bases/node-lts-26.0.1.json | nothing |
-| tsconfig-bases/node10-1.0.14.json | `moduleResolution:TS5108` |
-| tsconfig-bases/node12-12.1.9.json | nothing |
-| tsconfig-bases/node14-14.1.10.json | nothing |
-| tsconfig-bases/node16-16.1.10.json | nothing |
-| tsconfig-bases/node18-18.2.8.json | nothing |
-| tsconfig-bases/node20-20.1.11.json | nothing |
-| tsconfig-bases/node22-22.0.7.json | nothing |
-| tsconfig-bases/node24-24.0.6.json | nothing |
-| tsconfig-bases/nuxt-1.0.1.json | `baseUrl:TS5102`, `moduleResolution:TS5108` |
-| tsconfig-bases/nuxt-2.0.6.json | `baseUrl:TS5102` |
-| tsconfig-bases/react-native-1.0.5.json | `moduleResolution:TS5108` |
-| tsconfig-bases/react-native-3.0.10.json | `moduleResolution:TS5108` |
-| tsconfig-bases/recommended-1.0.14.json | nothing |
-| tsconfig-bases/remix-1.0.4.json | `baseUrl:TS5102`, `moduleResolution:TS5108` |
-| tsconfig-bases/remix-2.0.8.json | `baseUrl:TS5102` |
-| tsconfig-bases/strictest-1.0.2.json | `importsNotUsedAsValues:TS5023` |
-| tsconfig-bases/strictest-2.0.9.json | nothing |
-| tsconfig-bases/svelte-1.0.13.json | `importsNotUsedAsValues:TS5023`, `moduleResolution:TS5108` |
-| tsconfig-bases/svelte-5.0.9.json | nothing |
-| tsconfig-bases/taro-1.0.7.json | `moduleResolution:TS5108` |
-| tsconfig-bases/vite-react-1.0.1.json | `esModuleInterop:TS5108`, `moduleResolution:TS5108` |
-| tsconfig-bases/vite-react-8.1.2.json | nothing |
+| synthetic/amd-outfile-library.jsonc | `alwaysStrict:TS5108`, `module:TS5108`, `outFile:TS5102`, `target:TS5108` |
+| synthetic/angular-2019-style.jsonc | `baseUrl:TS5102`, `downlevelIteration:TS5102`, `moduleResolution:TS5108`, `target:TS5108` |
+| synthetic/ignore-deprecations-6.jsonc | `baseUrl:TS5102`, `moduleResolution:TS5108`, `target:TS5108` |
+| synthetic/modern-clean.jsonc | nothing |
+| synthetic/module-none.jsonc | `module:TS6046` |
+| synthetic/node-commonjs-legacy.jsonc | `allowSyntheticDefaultImports:TS5108`, `baseUrl:TS5102`, `esModuleInterop:TS5108`, `moduleResolution:TS5108`, `target:TS5108` |
+| synthetic/removed-in-5-5.jsonc | `importsNotUsedAsValues:TS5023`, `keyofStringsOnly:TS5023`, `noImplicitUseStrict:TS5023`, `noStrictGenericChecks:TS5023`, `preserveValueImports:TS5023`, `suppressExcessPropertyErrors:TS5023`, `suppressImplicitAnyIndexErrors:TS5023` |
+| synthetic/system-classic.jsonc | `module:TS5108`, `moduleResolution:TS5108`, `outFile:TS5102` |
+| synthetic/umd-none.jsonc | `module:TS5108` |
+| tsconfig-bases/bun-1.0.12.jsonc | nothing |
+| tsconfig-bases/create-react-app-1.0.3.jsonc | `moduleResolution:TS5108` |
+| tsconfig-bases/create-react-app-2.0.12.jsonc | nothing |
+| tsconfig-bases/cypress-1.0.6.jsonc | `target:TS5108` |
+| tsconfig-bases/deno-1.0.15.jsonc | nothing |
+| tsconfig-bases/docusaurus-1.0.7.jsonc | `baseUrl:TS5102` |
+| tsconfig-bases/docusaurus-2.0.10.jsonc | `baseUrl:TS5102` |
+| tsconfig-bases/ember-1.1.0.jsonc | `moduleResolution:TS5108` |
+| tsconfig-bases/ember-3.0.13.jsonc | nothing |
+| tsconfig-bases/esm-1.0.5.jsonc | nothing |
+| tsconfig-bases/next-1.0.5.jsonc | `moduleResolution:TS5108`, `target:TS5108` |
+| tsconfig-bases/next-2.0.7.jsonc | nothing |
+| tsconfig-bases/node-lts-26.0.1.jsonc | nothing |
+| tsconfig-bases/node10-1.0.14.jsonc | `moduleResolution:TS5108` |
+| tsconfig-bases/node12-12.1.9.jsonc | nothing |
+| tsconfig-bases/node14-14.1.10.jsonc | nothing |
+| tsconfig-bases/node16-16.1.10.jsonc | nothing |
+| tsconfig-bases/node18-18.2.8.jsonc | nothing |
+| tsconfig-bases/node20-20.1.11.jsonc | nothing |
+| tsconfig-bases/node22-22.0.7.jsonc | nothing |
+| tsconfig-bases/node24-24.0.6.jsonc | nothing |
+| tsconfig-bases/nuxt-1.0.1.jsonc | `baseUrl:TS5102`, `moduleResolution:TS5108` |
+| tsconfig-bases/nuxt-2.0.6.jsonc | `baseUrl:TS5102` |
+| tsconfig-bases/react-native-1.0.5.jsonc | `moduleResolution:TS5108` |
+| tsconfig-bases/react-native-3.0.10.jsonc | `moduleResolution:TS5108` |
+| tsconfig-bases/recommended-1.0.14.jsonc | nothing |
+| tsconfig-bases/remix-1.0.4.jsonc | `baseUrl:TS5102`, `moduleResolution:TS5108` |
+| tsconfig-bases/remix-2.0.8.jsonc | `baseUrl:TS5102` |
+| tsconfig-bases/strictest-1.0.2.jsonc | `importsNotUsedAsValues:TS5023` |
+| tsconfig-bases/strictest-2.0.9.jsonc | nothing |
+| tsconfig-bases/svelte-1.0.13.jsonc | `importsNotUsedAsValues:TS5023`, `moduleResolution:TS5108` |
+| tsconfig-bases/svelte-5.0.9.jsonc | nothing |
+| tsconfig-bases/taro-1.0.7.jsonc | `moduleResolution:TS5108` |
+| tsconfig-bases/vite-react-1.0.1.jsonc | `esModuleInterop:TS5108`, `moduleResolution:TS5108` |
+| tsconfig-bases/vite-react-8.1.2.jsonc | nothing |
 | repo/ventures/ai-first-markets/tsconfig.json | nothing |
 | repo/ventures/local-site-studio/convex/tsconfig.json | nothing |
 | repo/ventures/local-site-studio/tsconfig.json | nothing |
@@ -103,4 +103,4 @@ the same on all seven.
 
 The corpus in [corpus/tsconfig-bases/](corpus/tsconfig-bases/) is copied unchanged from the
 `@tsconfig/*` npm packages (MIT, github.com/tsconfig/bases); the file name is
-`<package>-<version>.json`.
+`<package>-<version>.jsonc` (JSON with comments, as tsc reads it).

@@ -56,7 +56,7 @@ the same on all seven.
 
 The corpus in [corpus/tsconfig-bases/](corpus/tsconfig-bases/) is copied unchanged from the
 \`@tsconfig/*\` npm packages (MIT, github.com/tsconfig/bases); the file name is
-\`<package>-<version>.json\`.
+\`<package>-<version>.jsonc\` (JSON with comments, as tsc reads it).
 `;
 writeFileSync(new URL('./README.md', import.meta.url), md);
 console.log(`wrote eval/README.md (${rows.length} configs)`);

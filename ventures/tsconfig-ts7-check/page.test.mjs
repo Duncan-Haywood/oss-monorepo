@@ -38,10 +38,10 @@ test('no-warranty clause, sponsor link, licence, privacy line and opt-out', () =
 
 test("the page's example is the bundled legacy fixture, and TypeScript 7 rejects five of its options", () => {
   const example = html.match(/const EXAMPLE = `([\s\S]*?)`;/)[1];
-  const fixture = read('./eval/corpus/synthetic/node-commonjs-legacy.json');
+  const fixture = read('./eval/corpus/synthetic/node-commonjs-legacy.jsonc');
   assert.deepEqual(parseJsonc(example).value, parseJsonc(fixture).value);
   assert.equal(checkConfig(parseJsonc(example).value).summary.errors, 5);
-  const row = JSON.parse(read('./eval/results.json')).rows.find((r) => r.id === 'synthetic/node-commonjs-legacy.json');
+  const row = JSON.parse(read('./eval/results.json')).rows.find((r) => r.id === 'synthetic/node-commonjs-legacy.jsonc');
   assert.equal(row.tsc7Removed.length, 5);
 });
 
@@ -49,7 +49,7 @@ test('the page states the eval numbers that results.json holds', () => {
   const { summary, rows } = JSON.parse(read('./eval/results.json'));
   assert.match(html, new RegExp(`Checked against ${summary.configs} real and hand-written configs`));
   const bases = rows.filter((r) => r.id.startsWith('tsconfig-bases/'));
-  const pkgs = new Set(bases.map((r) => r.id.replace(/^tsconfig-bases\/(.*)-\d[\d.]*\.json$/, '$1')));
+  const pkgs = new Set(bases.map((r) => r.id.replace(/^tsconfig-bases\/(.*)-\d[\d.]*\.jsonc$/, '$1')));
   assert.match(html, new RegExp(`${bases.length} versions of the ${pkgs.size} <code>@tsconfig/bases</code> packages`));
   assert.equal(summary.agree, summary.configs);
   assert.equal(summary.suggestionsClean, summary.configs);

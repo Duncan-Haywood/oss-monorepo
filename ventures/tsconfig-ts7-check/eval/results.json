@@ -10,7 +10,7 @@
  },
  "rows": [
   {
-   "id": "synthetic/amd-outfile-library.json",
+   "id": "synthetic/amd-outfile-library.jsonc",
    "predicted": [
     "alwaysStrict:TS5108",
     "module:TS5108",
@@ -62,7 +62,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "synthetic/angular-2019-style.json",
+   "id": "synthetic/angular-2019-style.jsonc",
    "predicted": [
     "baseUrl:TS5102",
     "downlevelIteration:TS5102",
@@ -123,7 +123,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "synthetic/ignore-deprecations-6.json",
+   "id": "synthetic/ignore-deprecations-6.jsonc",
    "predicted": [
     "baseUrl:TS5102",
     "moduleResolution:TS5108",
@@ -166,7 +166,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "synthetic/modern-clean.json",
+   "id": "synthetic/modern-clean.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -195,7 +195,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "synthetic/module-none.json",
+   "id": "synthetic/module-none.jsonc",
    "predicted": [
     "module:TS6046"
    ],
@@ -230,7 +230,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "synthetic/node-commonjs-legacy.json",
+   "id": "synthetic/node-commonjs-legacy.jsonc",
    "predicted": [
     "allowSyntheticDefaultImports:TS5108",
     "baseUrl:TS5102",
@@ -293,7 +293,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "synthetic/removed-in-5-5.json",
+   "id": "synthetic/removed-in-5-5.jsonc",
    "predicted": [
     "importsNotUsedAsValues:TS5023",
     "keyofStringsOnly:TS5023",
@@ -352,7 +352,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "synthetic/system-classic.json",
+   "id": "synthetic/system-classic.jsonc",
    "predicted": [
     "module:TS5108",
     "moduleResolution:TS5108",
@@ -396,7 +396,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "synthetic/umd-none.json",
+   "id": "synthetic/umd-none.jsonc",
    "predicted": [
     "module:TS5108"
    ],
@@ -431,7 +431,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/bun-1.0.12.json",
+   "id": "tsconfig-bases/bun-1.0.12.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -473,7 +473,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/create-react-app-1.0.3.json",
+   "id": "tsconfig-bases/create-react-app-1.0.3.jsonc",
    "predicted": [
     "moduleResolution:TS5108"
    ],
@@ -522,7 +522,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/create-react-app-2.0.12.json",
+   "id": "tsconfig-bases/create-react-app-2.0.12.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -563,7 +563,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/cypress-1.0.6.json",
+   "id": "tsconfig-bases/cypress-1.0.6.jsonc",
    "predicted": [
     "target:TS5108"
    ],
@@ -601,7 +601,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/deno-1.0.15.json",
+   "id": "tsconfig-bases/deno-1.0.15.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -633,7 +633,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/docusaurus-1.0.7.json",
+   "id": "tsconfig-bases/docusaurus-1.0.7.jsonc",
    "predicted": [
     "baseUrl:TS5102"
    ],
@@ -681,7 +681,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/docusaurus-2.0.10.json",
+   "id": "tsconfig-bases/docusaurus-2.0.10.jsonc",
    "predicted": [
     "baseUrl:TS5102"
    ],
@@ -729,7 +729,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/ember-1.1.0.json",
+   "id": "tsconfig-bases/ember-1.1.0.jsonc",
    "predicted": [
     "moduleResolution:TS5108"
    ],
@@ -774,7 +774,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/ember-3.0.13.json",
+   "id": "tsconfig-bases/ember-3.0.13.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -811,7 +811,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/esm-1.0.5.json",
+   "id": "tsconfig-bases/esm-1.0.5.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -841,7 +841,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/next-1.0.5.json",
+   "id": "tsconfig-bases/next-1.0.5.jsonc",
    "predicted": [
     "moduleResolution:TS5108",
     "target:TS5108"
@@ -893,7 +893,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/next-2.0.7.json",
+   "id": "tsconfig-bases/next-2.0.7.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -932,7 +932,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/node-lts-26.0.1.json",
+   "id": "tsconfig-bases/node-lts-26.0.1.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -965,7 +965,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/node10-1.0.14.json",
+   "id": "tsconfig-bases/node10-1.0.14.jsonc",
    "predicted": [
     "moduleResolution:TS5108"
    ],
@@ -1003,7 +1003,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/node12-12.1.9.json",
+   "id": "tsconfig-bases/node12-12.1.9.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -1037,7 +1037,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/node14-14.1.10.json",
+   "id": "tsconfig-bases/node14-14.1.10.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -1068,7 +1068,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/node16-16.1.10.json",
+   "id": "tsconfig-bases/node16-16.1.10.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -1099,7 +1099,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/node18-18.2.8.json",
+   "id": "tsconfig-bases/node18-18.2.8.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -1130,7 +1130,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/node20-20.1.11.json",
+   "id": "tsconfig-bases/node20-20.1.11.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -1161,7 +1161,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/node22-22.0.7.json",
+   "id": "tsconfig-bases/node22-22.0.7.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -1195,7 +1195,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/node24-24.0.6.json",
+   "id": "tsconfig-bases/node24-24.0.6.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -1231,7 +1231,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/nuxt-1.0.1.json",
+   "id": "tsconfig-bases/nuxt-1.0.1.jsonc",
    "predicted": [
     "baseUrl:TS5102",
     "moduleResolution:TS5108"
@@ -1286,7 +1286,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/nuxt-2.0.6.json",
+   "id": "tsconfig-bases/nuxt-2.0.6.jsonc",
    "predicted": [
     "baseUrl:TS5102"
    ],
@@ -1337,7 +1337,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/react-native-1.0.5.json",
+   "id": "tsconfig-bases/react-native-1.0.5.jsonc",
    "predicted": [
     "moduleResolution:TS5108"
    ],
@@ -1382,7 +1382,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/react-native-3.0.10.json",
+   "id": "tsconfig-bases/react-native-3.0.10.jsonc",
    "predicted": [
     "moduleResolution:TS5108"
    ],
@@ -1439,7 +1439,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/recommended-1.0.14.json",
+   "id": "tsconfig-bases/recommended-1.0.14.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -1469,7 +1469,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/remix-1.0.4.json",
+   "id": "tsconfig-bases/remix-1.0.4.jsonc",
    "predicted": [
     "baseUrl:TS5102",
     "moduleResolution:TS5108"
@@ -1523,7 +1523,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/remix-2.0.8.json",
+   "id": "tsconfig-bases/remix-2.0.8.jsonc",
    "predicted": [
     "baseUrl:TS5102"
    ],
@@ -1573,7 +1573,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/strictest-1.0.2.json",
+   "id": "tsconfig-bases/strictest-1.0.2.jsonc",
    "predicted": [
     "importsNotUsedAsValues:TS5023"
    ],
@@ -1624,7 +1624,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/strictest-2.0.9.json",
+   "id": "tsconfig-bases/strictest-2.0.9.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -1666,7 +1666,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/svelte-1.0.13.json",
+   "id": "tsconfig-bases/svelte-1.0.13.jsonc",
    "predicted": [
     "importsNotUsedAsValues:TS5023",
     "moduleResolution:TS5108"
@@ -1710,7 +1710,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/svelte-5.0.9.json",
+   "id": "tsconfig-bases/svelte-5.0.9.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
@@ -1741,7 +1741,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/taro-1.0.7.json",
+   "id": "tsconfig-bases/taro-1.0.7.jsonc",
    "predicted": [
     "moduleResolution:TS5108"
    ],
@@ -1783,7 +1783,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/vite-react-1.0.1.json",
+   "id": "tsconfig-bases/vite-react-1.0.1.jsonc",
    "predicted": [
     "esModuleInterop:TS5108",
     "moduleResolution:TS5108"
@@ -1835,7 +1835,7 @@
    "rootDirMatch": true
   },
   {
-   "id": "tsconfig-bases/vite-react-8.1.2.json",
+   "id": "tsconfig-bases/vite-react-8.1.2.jsonc",
    "predicted": [],
    "tsc7Removed": [],
    "tsc6Deprecated": [],
