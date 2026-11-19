@@ -10,6 +10,7 @@
 // Exit codes: 0 no errors (warnings allowed unless --strict), 1 errors (or
 // warnings with --strict), 2 bad arguments or an unreadable file.
 import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import { checkCatalogs, checkMessage, canonicalLocale, lineCol, previewRows } from './icu.mjs';
 
 const HELP = `Usage:
@@ -54,6 +55,7 @@ export function splitLocale(arg) {
 }
 
 const SEV = { error: 'error', warning: 'warn ', info: 'info ' };
+const sev = (k) => (Object.hasOwn(SEV, k) ? SEV[k] : String(k));
 
 export function run(argv, { read = (p) => readFileSync(p, 'utf8'), out = (s) => process.stdout.write(`${s}\n`) } = {}) {
   let o;
@@ -68,7 +70,7 @@ export function run(argv, { read = (p) => readFileSync(p, 'utf8'), out = (s) => 
       for (const d of r.diagnostics) {
         if (o.quiet && d.severity === 'info') continue;
         const at = d.offset !== undefined ? ` (column ${lineCol(o.message, d.offset).col})` : '';
-        out(`${SEV[d.severity]} ${d.message}${at}${d.fix ? `\n       fix: ${d.fix}` : ''}`);
+        out(`${sev(d.severity)} ${d.message}${at}${d.fix ? `\n       fix: ${d.fix}` : ''}`);
       }
       if (!r.diagnostics.length) out(`ok: no problems found${o.locale ? ` for ${o.locale}` : ' (add --locale to check plural categories)'}.`);
       if (preview) for (const row of preview.rows) out(`  ${row.value === null ? '' : `${row.argument}=${row.value} ${row.category}: `}${row.text ?? `(${row.error})`}`);
@@ -98,7 +100,7 @@ export function run(argv, { read = (p) => readFileSync(p, 'utf8'), out = (s) => 
         const ds = m.diagnostics.filter((d) => !(o.quiet && d.severity === 'info'));
         if (!ds.length) continue;
         out(`  ${m.key}`);
-        for (const d of ds) out(`    ${SEV[d.severity]} ${d.message}${d.fix ? `\n           fix: ${d.fix}` : ''}`);
+        for (const d of ds) out(`    ${sev(d.severity)} ${d.message}${d.fix ? `\n           fix: ${d.fix}` : ''}`);
       }
       if (f.missingKeys?.length) out(`  ${o.quiet ? '' : 'info  '}${f.missingKeys.length} key${f.missingKeys.length === 1 ? '' : 's'} from the source not translated: ${f.missingKeys.slice(0, 8).join(', ')}${f.missingKeys.length > 8 ? '…' : ''}`);
     }
@@ -107,6 +109,6 @@ export function run(argv, { read = (p) => readFileSync(p, 'utf8'), out = (s) => 
   return r.errors || (o.strict && r.warnings) ? 1 : 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('/cli.mjs')) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   process.exitCode = run(process.argv.slice(2));
 }

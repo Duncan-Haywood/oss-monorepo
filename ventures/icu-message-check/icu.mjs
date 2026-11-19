@@ -403,7 +403,7 @@ export function checkMessage(source, locale = null) {
     return { ok: false, ast: null, diagnostics };
   }
   const { ast, notes } = parsed;
-  for (const n of notes) diagnostics.push({ code: n.code, offset: n.offset, ...NOTE_TEXT[n.code](n) });
+  for (const n of notes) if (Object.hasOwn(NOTE_TEXT, n.code)) diagnostics.push({ code: n.code, offset: n.offset, ...NOTE_TEXT[n.code](n) });
   const loc = locale ? canonicalLocale(locale) : null;
 
   walk(ast, (n) => {
