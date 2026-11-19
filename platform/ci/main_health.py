@@ -26,6 +26,9 @@ serial time; with them the whole script took 72 s on an idle 4-core container
 `unittest discover` over the folder is not used: it also descends into
 agent_review/, whose test_review.py imports `review` from its own folder and fails
 that way (it has its own workflow), so it reports 1 error that is not a fault.
+It also runs the portfolio/**/test_*.py suites no pull-request workflow runs
+(unwired_checks.unwired_portfolio_tests; 14 on 2026-11-19, about 13 s serial):
+test_no_duplicate_yaml_keys.py was red on main while this printed 279/279.
 
 A run record this session wrote and has not filled yet (`promptctl.py record`
 writes `outcome: null`; the master prompt says fill it in last, before merging)
@@ -146,17 +149,29 @@ def main(argv=None):
               if p.name not in NEEDS_SITE or (site and p.name == "check_built_site.py")]
     jobs = [(p,) for p in checks] + [(ROOT / "prompts" / "promptctl.py", "validate")] \
         + [(ROOT / p, *a) for p, *a in EXTRA]
+    suites = {}
     if not opts.checks_only:
         jobs += [(p,) for p in sorted(HERE.glob("test_*.py"))]
+        # portfolio/**/test_*.py no pull-request workflow runs (2026-11-19):
+        # test_no_duplicate_yaml_keys.py was red on main while this printed 279/279.
+        import unwired_checks
+        suites = {label(p): p for p in unwired_checks.unwired_portfolio_tests()}
+        jobs += [(p,) for p in suites.values()]
+
+    def job(path, *args):
+        if label(path) in suites:
+            return unwired_checks.run_suite(path)
+        return run(path, *args)
+
     with ThreadPoolExecutor(max_workers=6) as pool:
-        futures = [pool.submit(run, *j) for j in jobs]
+        futures = [pool.submit(job, *j) for j in jobs]
         results = []
         for f in as_completed(futures):
             results.append(f.result())
             name, rc, text = results[-1]
             tag = "PEND" if pending_records(name, rc, text) else status(rc)
             print(f"{tag} {name} ({len(results)}/{len(jobs)})", flush=True)
-    results = sorted(rerun_timeouts(jobs, results))
+    results = sorted(rerun_timeouts(jobs, results, job))
     pending = {r[0]: pending_records(*r) for r in results}
     for name, paths in pending.items():
         if paths:
@@ -167,7 +182,9 @@ def main(argv=None):
         print(f"{status(rc)} {name} (exit {rc})\n" + "\n".join(out.splitlines()[-8:]) + "\n")
     tests = sum(1 for j in jobs if is_test(j[0]))
     print(f"{len(results) - len(bad)}/{len(results)} checks pass"
-          + (f" ({len(jobs) - tests} checks, {tests} platform/ci test files)" if tests else ""))
+          + (f" ({len(jobs) - tests - len(suites)} checks, {tests} platform/ci test files"
+             + (f", {len(suites)} portfolio test files no PR workflow runs" if suites else "")
+             + ")" if tests else ""))
     print("DONE", flush=True)
     return 1 if bad else 0
 
