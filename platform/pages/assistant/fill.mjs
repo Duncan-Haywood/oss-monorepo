@@ -608,3 +608,42 @@ export function describeFills(fills, fields = []) {
     })
     .join(', ');
 }
+
+// ---------------------------------------------------------------------------
+// Which catalogue entries to show under an answer.
+//
+// The site search's stopwords (SEARCH_STOPWORDS in build.mjs) drop "what",
+// "which" and "how" but keep "does", "my", "can" and "much", which a search
+// box rarely sees and a typed question nearly always has. On /ask/ (measured
+// 2026-11-19 on the built index) "Does what I type leave my device?" matched
+// 2,204 entries and listed "Where does the sleeve end on my arm?", "Why does my
+// semver range skip prereleases?" and "Does my job qualify for 'no tax on
+// tips'?" under the page's own answer, all on "does" and "my".
+
+/** Words a question carries that say nothing about which tool it wants. */
+export const QUESTION_WORDS = new Set('do does did doing can could should would might must my me mine our ours we us much many'.split(' '));
+
+/**
+ * Rank search-index items for a question. `data` is search-index.json with
+ * `stop` a Set; `variants` and `score` are pf-search.js's searchVariants and
+ * searchScore, which give 4 for a word in an item's name and 1 for a word only
+ * in its text. A strong match scores at least 5: one of the question's words
+ * in the name and another anywhere (4 with a one-word question). Two words
+ * found only in an item's text are not enough: the text is long, and
+ * "type" + "leave" are both in the chimney-sweep calculator's. When nothing is
+ * strong the plain ranking is returned, unless `strongOnly` is set (the page
+ * already answered, so weak links only add noise).
+ */
+export function rankForQuestion(data, query, { variants, score, limit = 5, strongOnly = false }) {
+  const words = [...new Set(String(query).toLowerCase().split(/[^a-z0-9]+/)
+    .filter((w) => w.length >= 2 && !data.stop.has(w) && !QUESTION_WORDS.has(w)))];
+  if (!words.length) return [];
+  const forms = words.map(variants);
+  const ranked = data.items
+    .map((item, i) => ({ item, i, value: score(item.n, item.x, forms, true) }))
+    .filter(({ value }) => value >= 1)
+    .sort((a, b) => b.value - a.value || a.i - b.i);
+  const bar = forms.length > 1 ? 5 : 4;
+  const strong = ranked.filter(({ value }) => value >= bar);
+  return (strong.length || strongOnly ? strong : ranked).slice(0, limit).map(({ item }) => item);
+}
