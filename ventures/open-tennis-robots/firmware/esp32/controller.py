@@ -1270,6 +1270,11 @@ BALL_DROP_SEEN = 0.03         # the wheel reads this far under target: the ball 
 # still lowering the target; LOOP_I_FF_MAX bounds it to that share of the feedforward (None: only i_max).
 LOOP_RAMP_HOLD = True
 LOOP_I_FF_MAX = 0.35
+# During a ball's recovery, scale the proportional gain by the plant gain the integrator has already learned
+# (2026-11-19, firmware/esp32/README.md "The ball hold on a wheel faster than told"): a negative integrator says the
+# wheel is faster than WHEEL_RPM_FULL, so kp shrinks by (feedforward + integrator) / feedforward, never below this
+# floor and never above 1 (a slower wheel keeps kp). None turns it off.
+LOOP_BALL_KP_LEARN = None
 
 
 class WheelLoop:
@@ -1309,8 +1314,9 @@ class WheelLoop:
     """
 
     def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM, ball_band=-1.0, ball_ms=None, ramp_hold=None, i_ff_max=-1.0,
-                 speed_esc=None):
+                 speed_esc=None, kp_learn=-1.0):
         self.ff = 1.0 / rpm_full
+        self.kp_learn = LOOP_BALL_KP_LEARN if kp_learn == -1.0 else kp_learn
         if ESC_SPEED_LOOP if speed_esc is None else speed_esc:
             # The ESC holds the speed itself (README "An ESC with its own speed loop"): the board's proportional term
             # on a 4-revolution tach in cascade with it rang (+-15% at 2,500 rpm behind a 5 Hz ESC loop, no ball),
@@ -1352,6 +1358,9 @@ class WheelLoop:
                 self.recover = 0
         lim = min(self.i_max, self.i_ff * target * self.ff) if self.i_ff is not None else self.i_max
         self.i = _clamp(self.i, -lim, lim)
+        if self.recover and self.kp_learn is not None and self.i < 0.0:
+            ffc = target * self.ff
+            kp *= max(self.kp_learn, (ffc + self.i) / ffc)
         raw = target * self.ff + kp * err + self.i
         if (0.0 < raw < 1.0 or (raw >= 1.0 and err < 0) or (raw <= 0.0 and err > 0)) and not (ramping and self.ramp_hold):
             e = _clamp(err, -self.band * target, self.band * target) if self.recover else err
