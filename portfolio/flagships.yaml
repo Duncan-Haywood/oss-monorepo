@@ -495,7 +495,7 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      bSDD: suggested links back; units to measure types (bsdd-spec.mjs).
+      bSDD: suggested links back; dB as pressure/power level (bsdd-units).
       Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
       rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
@@ -523,12 +523,13 @@ flagships:
       58 public IDS, 197 bSDD links; 7 files with an error, 15 a warning, all read
       by hand). IDS from a bSDD class 2026-11-19 (--from-bsdd, bsdd-spec.mjs,
       eval/bsdd-spec-2026-11-19.md: 185 classes in 42 dictionaries, 38 of 42 audit
-      clean, 42 of 42 bSDD-check clean; editor keeps uris, 0 to 344 of 344). next:
-      bSDD units to measure types for non-IFC Real properties; a page route for bSDD
-      if its API ever allows CORS; a BIM manager's real table or filled Excel2IDS
-      workbook via --from-sheet; Excel itself typing into the download; an RVB/ILS
-      author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. More open items:
-      NEXT.md.
+      clean, 42 of 42 bSDD-check clean; editor keeps uris, 0 to 344 of 344). bSDD
+      units to measure types 2026-11-19 (bsdd-units.mjs,
+      eval/bsdd-units-2026-11-19.md: 867 of 1,625 non-IFC Reals get a measure,
+      values in SI; IfcTester agrees 9 of 9). next: a page route for bSDD if its API
+      ever allows CORS; a BIM manager's real table or filled Excel2IDS workbook via
+      --from-sheet; Excel itself typing into the download; an RVB/ILS author on \s;
+      a Revit/ARCHICAD IFC4X3 export to confirm. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering

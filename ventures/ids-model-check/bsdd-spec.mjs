@@ -31,13 +31,14 @@
 // class property names an IFC property without the IFC type in its text.
 
 import { getJson, BSDD_API } from "./bsdd.mjs";
+import { measureOf, toSI } from "./bsdd-units.mjs";
 
 const IFC_DICT = /^https:\/\/identifier\.buildingsmart\.org\/uri\/buildingsmart\/ifc\/([\d.]+)$/i;
 const IFC_VERSION_OF = { "4.3": "IFC4X3_ADD2", "4.0": "IFC4", "2.3": "IFC2X3" };
 
 // bSDD's data types and the IFC type a facet asks for when the dictionary
-// names no IFC type. Real becomes IFCREAL: a measure needs a unit, and bSDD's
-// own units are not mapped here (see notes).
+// names no IFC type. A Real with a unit or a dimension becomes that measure
+// (bsdd-units.mjs, measureFacet below); without one it stays IFCREAL.
 const BSDD_TO_IFC = { boolean: "IFCBOOLEAN", character: "IFCLABEL", string: "IFCLABEL", integer: "IFCINTEGER", real: "IFCREAL", time: "IFCDATETIME" };
 
 // "in IFC this property takes 'IfcBoolean' as value" -- the IFC dictionary's
@@ -114,7 +115,38 @@ function dataTypeOf(p, ifcTypes, schema) {
   return BSDD_TO_IFC[String(p.dataType || "").toLowerCase()] || null;
 }
 
-export function specFromBsddClass(cls, { schema = null, psets = null, sets = null, ifcTypes = null, dictionaryName = null } = {}) {
+// A Real property's facet as the IFC measure its unit names, with its values
+// and bounds written in SI (IDS compares measures in SI). Left as IFCREAL,
+// with a note, when no measure fits or a value cannot be converted.
+function measureFacet(f, p, units, schema, notes, label) {
+  const m = measureOf(p, { units, schema });
+  if (!m.type) {
+    if (m.why !== "no unit or dimension") notes.push(`${label}: Real kept as IFCREAL (${m.why})`);
+    return;
+  }
+  const v = f.value;
+  if (v) {
+    const nums = v.equals !== undefined ? [v.equals] : v.oneOf ? v.oneOf : v.r ? ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"].map((k) => v.r[k]).filter((x) => x !== undefined) : [];
+    const pattern = v.r && v.r.pattern && v.r.pattern.length;
+    const conv = nums.map((x) => toSI(x, m));
+    if (pattern || conv.some((x) => x === null)) {
+      notes.push(`${label}: Real kept as IFCREAL; ${m.type} would need its ${pattern ? "pattern" : "values"} in SI and ${m.scale == null ? `the unit (${m.unit || "none given"}) gives no single SI factor` : "a value is not a number"}`);
+      return;
+    }
+    if (v.equals !== undefined) f.value = { equals: conv[0] };
+    else if (v.oneOf) f.value = { oneOf: [...new Set(conv)] };
+    else {
+      const r = { ...v.r };
+      let i = 0;
+      for (const k of ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"]) if (r[k] !== undefined) r[k] = conv[i++];
+      f.value = { r };
+    }
+    if (m.scale !== 1 || m.offset) notes.push(`${label}: values in ${m.unit} written in SI for ${m.type}`);
+  }
+  f.dataType = m.type;
+}
+
+export function specFromBsddClass(cls, { schema = null, psets = null, sets = null, ifcTypes = null, dictionaryName = null, units = null } = {}) {
   const notes = [];
   const ifc = isIfcDictionary(cls.dictionaryUri);
   const applicability = [];
@@ -188,6 +220,10 @@ export function specFromBsddClass(cls, { schema = null, psets = null, sets = nul
     if (tpl && named && !tpl.includes(named)) notes.push(`${label}: bSDD names ${named}, the IFC templates ${tpl.join(" or ")}; the template's written`);
     if (!f.dataType) notes.push(`${label}: bSDD data type "${p.dataType ?? ""}" has no IFC counterpart; no dataType`);
     if (value) f.value = value;
+    // Only bSDD's own "Real": a template or IFC-dictionary type stands.
+    if (units && !tpl && f.dataType === "IFCREAL" && fromBsdd === BSDD_TO_IFC.real && !ifcTypeIn(p.description) && !(ifcTypes && ifcTypes.get(String(p.propertyUri || "").toLowerCase())) && String(p.dataType || "").toLowerCase() === "real") {
+      measureFacet(f, p, units, schema, notes, label);
+    }
     if (p.propertyValueKind && p.propertyValueKind !== "Single") notes.push(`${label}: value kind ${p.propertyValueKind}; written as a plain property facet (IDS 1.0 has no bounded, list or table value)`);
     requirements.push(f);
   }
@@ -241,7 +277,7 @@ export async function bsddIds(uris, opts = {}) {
     const schema = opts.schemas ? opts.schemas[version ? version.replace("_ADD2", "") : opts.schemaId || "IFC4X3"] : opts.schema || null;
     const sid = version ? version.replace("_ADD2", "") : opts.schemaId || "IFC4X3";
     const psets = opts.psets ? opts.psets[sid] : null;
-    const { spec, notes: n } = specFromBsddClass(cls, { schema, psets, sets: opts.sets, ifcTypes, dictionaryName: dictNames.get(cls.dictionaryUri) });
+    const { spec, notes: n } = specFromBsddClass(cls, { schema, psets, sets: opts.sets, ifcTypes, units: opts.units, dictionaryName: dictNames.get(cls.dictionaryUri) });
     spec.ifcVersion = [version || (opts.schemaId === "IFC4" ? "IFC4" : opts.schemaId === "IFC2X3" ? "IFC2X3" : "IFC4X3_ADD2")];
     specs.push(spec);
     notes.push(...n.map((x) => `${uri}: ${x}`));

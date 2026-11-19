@@ -1,0 +1,15 @@
+before (IFCREAL 50..400): 3 applicable, 1 pass
+  fails: W-01 required property "Maten"."Dikte" (IFCREAL) = >= 50, <= 400: Maten.Dikte is IFCLENGTHMEASURE, not IFCREAL
+  fails: W-02 required property "Maten"."Dikte" (IFCREAL) = >= 50, <= 400: Maten.Dikte is IFCLENGTHMEASURE, not IFCREAL
+type only, bounds not in SI (IFCLENGTHMEASURE 50..400): 3 applicable, 0 pass
+  fails: W-01 required property "Maten"."Dikte" (IFCLENGTHMEASURE) = >= 50, <= 400: Maten.Dikte is 0.2, not >= 50, <= 400
+  fails: W-02 required property "Maten"."Dikte" (IFCLENGTHMEASURE) = >= 50, <= 400: Maten.Dikte is 0.5, not >= 50, <= 400
+  fails: P-01 required property "Maten"."Dikte" (IFCLENGTHMEASURE) = >= 50, <= 400: Maten.Dikte is IFCREAL, not IFCLENGTHMEASURE
+after (IFCLENGTHMEASURE 0.05..0.4): 3 applicable, 1 pass
+  fails: W-02 required property "Maten"."Dikte" (IFCLENGTHMEASURE) = >= 0.05, <= 0.4: Maten.Dikte is 0.5, not >= 0.05, <= 0.4
+  fails: P-01 required property "Maten"."Dikte" (IFCLENGTHMEASURE) = >= 0.05, <= 0.4: Maten.Dikte is IFCREAL, not IFCLENGTHMEASURE
+
+IfcTester 0.9.0 (eval/bsdd-units-ifctester.py), failing walls:
+  before.ids applicable 3 pass 1 failed ['W-01', 'W-02']
+  type-only.ids applicable 3 pass 0 failed ['P-01', 'W-01', 'W-02']
+  after.ids applicable 3 pass 1 failed ['P-01', 'W-02']
