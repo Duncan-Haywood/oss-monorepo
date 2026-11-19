@@ -389,6 +389,33 @@ once or twice, against greedy's 45 repeat partners and pairs meeting up to 5 tim
 Tested in `whist.test.mjs` (stored sizes, full-court nights at 40, 41, 45, 49, 56 and 64, one-seat nights
 at 39 and 63, the field construction from 5 to 101).
 
+## Near-whist designs by SAT: 46 players (2026-11-19, latest)
+
+The annealing search above stalls at 46 and 54 players (15 and 10 minutes, nothing). A SAT model of the same
+base round, `eval/near-whist-sat.py` (python-sat, CaDiCaL), finds **46** in 107 s, and the developed design
+passes `checkNearWhist` (`eval/near-whist-check-line.mjs` checks a result line without storing it). It encodes
+pairs, not seats, so the table order and the eight seatings of a table never enter the search: P(p,q) for
+partners, T(p,q) for sharing a table (transitive, three table-mates each, so the tables are 4-cliques), opponents
+as T and not P, exactly two points out (point 0 fixed out by translation), and each distance 1..2k a
+cardinality constraint (partners exactly once, opponents at most twice, the half-circle distance never as
+partners and exactly once as opponents). On sizes already stored it takes 0.04 s (14), 0.4 s (22), 4 s (30),
+0.9 s (34) and 5 s (38) against annealing's 0.01 s, 1 s, 11 s, 4 s and 108 s; 42 with seed 0 found nothing in
+300 s, so run times are heavy-tailed and seeds matter (`eval/near-whist-sat.txt`).
+
+Two shortcuts that do not work, so the next run does not retry them:
+
+- **A design mapped onto itself by x -> c - x (a mirror) does not exist for any 4k+2.** The solver says UNSAT in
+  milliseconds for 6 to 30; the reason is short. A mirror sends a partner pair {a, b} to {c-a, c-b}, at the same
+  distance. Every distance is used once, so each partner pair must be its own mirror image, b = c - a, and its
+  distance c - 2a (or n minus it) has the parity of c, because n is even. The distances 1..2k include both
+  parities, so the other parity is never covered. (For whist designs on an odd
+  group, as in the section above, 2 is a unit and this parity argument does not apply.)
+- **A multiplier.** On Z46, Z58 and Z62 every unit of order above 2 fixes only 0 and n/2, and the half-circle
+  opponent pair would then repeat once per orbit (it must appear exactly once). Z54 has the order-3 unit 37
+  with 18 fixed points; the model with that symmetry is UNSAT in 0.3 s.
+
+RESULTS_54_58_62
+
 ## Americano for 4k+2 players: near-whist designs (2026-11-19)
 
 The whist designs below cover 4k and 4k+1 players (and 4k+3 with one empty seat). 6, 10, 14, 18, 22 ...
