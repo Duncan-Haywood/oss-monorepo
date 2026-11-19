@@ -192,7 +192,7 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Reuel and the seven daughters at the well of Midian, the night Moses was invited to supper (Exodus 2:15-22; left by episode 140).
 - Miriam and Aaron and the cloud over the tent at Hazeroth, the meekest man on the face of the earth (Numbers 12; left by episode 141).
 - Othniel and Achsah and the upper and lower springs, Caleb's daughter who asked for water and the first judge of Israel (Joshua 15:13-19, Judges 1:11-15 and 3:7-11; left by episode 142).
-- The Gibeonites and the mouldy bread, the neighbours who tricked Joshua with worn-out sandals and kept their oath anyway (Joshua 9; left by episode 145).
+- *(Claimed 2026-11-19 by session_01XpHqyefMfcx3H6vEw2ujQh as episode 149.)* The Gibeonites and the mouldy bread, the neighbours who tricked Joshua with worn-out sandals and kept their oath anyway (Joshua 9; left by episode 145).
 - Joshua and the twelve stones at Gilgal and the commander of the Lord's army before Jericho (Joshua 3-5; left by episode 143).
 - Shimei and the stones on the road from Jerusalem, and David who would not let Abishai take his head, then forgave him at the Jordan (Second Samuel 16:5-14 and 19:16-23; left by episode 147).
 - David and the Song of the Bow, the lament for Saul and Jonathan, swifter than eagles and stronger than lions (Second Samuel 1; left by episode 147).
