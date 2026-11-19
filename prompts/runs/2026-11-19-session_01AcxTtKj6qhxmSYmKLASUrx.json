@@ -1,0 +1,501 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtKj6qhxmSYmKLASUrx",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T05:06:53Z",
+  "ended": "2026-11-19T05:09:23Z",
+  "wall_minutes": 18.05,
+  "tokens_in": 3937617,
+  "tokens_out": 19123,
+  "cost_usd": 1.8686,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17548",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix the open list first, but 11 of 12 open entries are control plane (owner approval). Re-checking them every run costs time with no possible outcome; the list could mark control-plane entries as 'awaiting owner' so `redteam.py open` skips them by default."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets --probe 20` with no --under/--limit printed nothing for my grep after a long probe; scoping with --under ventures/<slug> was what worked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 entries left unpatched: 11 are control plane, and the help-keeper stemmer needs a help-centre eval set.",
+      "did": "Re-checked each one (grep on main) and seeded two targets instead.",
+      "result": "all 12 still open; noted in the PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-redteam-the-alert-that-could-never-fire.md"
+  ],
+  "goal": null,
+  "notes": "Targets: ventures/slo-burn-rate-alerts/engine.mjs (7/12 -> 12/12) and ventures/hvac-load-calc/load.mjs (9/12 -> 12/12). Guard added (4b, class): a sweep over 10 SLOs x 366 periods asserting finite detectionTime iff reachable; it fails on the old engine. Local: run_venture_tests 2 suites ok (slo 44 then 50 tests, hvac 68); run_workflow_locally --for-changes 8/9 workflows passed, the 9th was prompts-ci validate on this then-unfilled record; agent-cross-review and the pages deploy jobs cannot run locally.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/slo-burn-rate-alerts/engine.mjs",
+        "test": "node --test ventures/slo-burn-rate-alerts/**/*.test.mjs  (in .)",
+        "seed": 517224890,
+        "commit": "a8cc5e2cf",
+        "sites": 105,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+            "line": 14,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "{ fraction: 0.05, long: 21600, short: 1800, severity: \"page\" },",
+            "after": "{ fraction: 0.05, long: 21601, short: 1800, severity: \"page\" },",
+            "line_text": "  { fraction: 0.05, long: 21600, short: 1800, severity: \"page\" },",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+            "line": 27,
+            "col": 106,
+            "operator": "const-plus-one",
+            "before": "if (!(typeof periodDays === \"number\" && Number.isFinite(periodDays) && periodDays >= 1 && periodDays <= 366)) errors.push(\"Period must be between 1 and 366 days.\");",
+            "after": "if (!(typeof periodDays === \"number\" && Number.isFinite(periodDays) && periodDays >= 1 && periodDays <= 367)) errors.push(\"Period must be between 1 and 366 days.\");",
+            "line_text": "  if (!(typeof periodDays === \"number\" && Number.isFinite(periodDays) && periodDays >= 1 && periodDays <= 366)) errors.push(\"Period must be between 1 and 366 days.\");",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "engine.test.mjs: period 366 accepted, 367 rejected"
+          },
+          {
+            "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+            "line": 60,
+            "col": 125,
+            "operator": "const-plus-one",
+            "before": "const windows = [[\"Per day\", DAY], [\"Per week\", 7 * DAY], [`Per ${periodDays}-day period`, periodDays * DAY], [\"Per year\", 365 * DAY]];",
+            "after": "const windows = [[\"Per day\", DAY], [\"Per week\", 7 * DAY], [`Per ${periodDays}-day period`, periodDays * DAY], [\"Per year\", 366 * DAY]];",
+            "line_text": "  const windows = [[\"Per day\", DAY], [\"Per week\", 7 * DAY], [`Per ${periodDays}-day period`, periodDays * DAY], [\"Per year\", 365 * DAY]];",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "engine.test.mjs: Per year row is 365 days"
+          },
+          {
+            "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+            "line": 61,
+            "col": 109,
+            "operator": "times-to-div",
+            "before": "return { errorRate: e, rows: windows.map(([label, secs]) => ({ label, seconds: secs, allowedDowntime: secs * e })) };",
+            "after": "return { errorRate: e, rows: windows.map(([label, secs]) => ({ label, seconds: secs, allowedDowntime: secs / e })) };",
+            "line_text": "  return { errorRate: e, rows: windows.map(([label, secs]) => ({ label, seconds: secs, allowedDowntime: secs * e })) };",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+            "line": 69,
+            "col": 47,
+            "operator": "div-to-times",
+            "before": "const burn = Number(((p.fraction * period) / p.long).toFixed(3));",
+            "after": "const burn = Number(((p.fraction * period) * p.long).toFixed(3));",
+            "line_text": "    const burn = Number(((p.fraction * period) / p.long).toFixed(3));",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+            "line": 75,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "reachable: threshold < 1,",
+            "after": "reachable: threshold < 2,",
+            "line_text": "      reachable: threshold < 1,",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+            "line": 86,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "if (!(errorRatio > 0) || errorRatio < policyRow.errorRatioThreshold) return Infinity;",
+            "after": "if (!(errorRatio > 1) || errorRatio < policyRow.errorRatioThreshold) return Infinity;",
+            "line_text": "  if (!(errorRatio > 0) || errorRatio < policyRow.errorRatioThreshold) return Infinity;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+            "line": 111,
+            "col": 21,
+            "operator": "and-to-or",
+            "before": "if (rps !== null && rps > 0 && p.reachable) {",
+            "after": "if (rps !== null || rps > 0 && p.reachable) {",
+            "line_text": "    if (rps !== null && rps > 0 && p.reachable) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "engine.test.mjs: no low-traffic at rps 0, and only on reachable rows"
+          },
+          {
+            "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+            "line": 112,
+            "col": 33,
+            "operator": "times-to-div",
+            "before": "const expectedErrors = rps * p.short * p.errorRatioThreshold;",
+            "after": "const expectedErrors = rps / p.short * p.errorRatioThreshold;",
+            "line_text": "      const expectedErrors = rps * p.short * p.errorRatioThreshold;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+            "line": 126,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "const NAME_RE = /^[A-Za-z][A-Za-z0-9_.-]{0,62}$/;",
+            "after": "const NAME_RE = /^[A-Za-z][A-Za-z0-9_.-]{1,62}$/;",
+            "line_text": "const NAME_RE = /^[A-Za-z][A-Za-z0-9_.-]{0,62}$/;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "engine.test.mjs: one-letter SLO name generates rules"
+          },
+          {
+            "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+            "line": 170,
+            "col": 77,
+            "operator": "const-plus-one",
+            "before": "`          description: ${q(`At this rate ${(p.fraction * 100).toFixed(0)}% of the ${periodDays}-day budget is spent in ${promDuration(p.long)}; the whole budget lasts ${fmtDuration(p.timeToExhaust)}.`)}`,",
+            "after": "`          description: ${q(`At this rate ${(p.fraction * 100).toFixed(1)}% of the ${periodDays}-day budget is spent in ${promDuration(p.long)}; the whole budget lasts ${fmtDuration(p.timeToExhaust)}.`)}`,",
+            "line_text": "      `          description: ${q(`At this rate ${(p.fraction * 100).toFixed(0)}% of the ${periodDays}-day budget is spent in ${promDuration(p.long)}; the whole budget lasts ${fmtDuration(p.timeToExhaust)}.`)}`,",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "engine.test.mjs: description pins '2%' and '10%'"
+          },
+          {
+            "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+            "line": 173,
+            "col": 26,
+            "operator": "plus-to-minus",
+            "before": "return lines.join(\"\\n\") + \"\\n\";",
+            "after": "return lines.join(\"\\n\") - \"\\n\";",
+            "line_text": "  return lines.join(\"\\n\") + \"\\n\";",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/hvac-load-calc/load.mjs",
+        "test": "node --test ventures/hvac-load-calc/**/*.test.mjs  (in .)",
+        "seed": 300963428,
+        "commit": "a8cc5e2cf",
+        "sites": 736,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 74,
+            "col": 49,
+            "operator": "times-to-div",
+            "before": "return (2 * soilK / (Math.PI * (z2Ft - z1Ft))) * (Math.log(z2Ft + a) - Math.log(z1Ft + a));",
+            "after": "return (2 * soilK / (Math.PI * (z2Ft - z1Ft))) / (Math.log(z2Ft + a) - Math.log(z1Ft + a));",
+            "line_text": "  return (2 * soilK / (Math.PI * (z2Ft - z1Ft))) * (Math.log(z2Ft + a) - Math.log(z1Ft + a));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 104,
+            "col": 70,
+            "operator": "times-to-div",
+            "before": "export function humidityRatio(vapourKPa, totalKPa) { return (0.621945 * vapourKPa) / (totalKPa - vapourKPa); }",
+            "after": "export function humidityRatio(vapourKPa, totalKPa) { return (0.621945 / vapourKPa) / (totalKPa - vapourKPa); }",
+            "line_text": "export function humidityRatio(vapourKPa, totalKPa) { return (0.621945 * vapourKPa) / (totalKPa - vapourKPa); }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 117,
+            "col": 25,
+            "operator": "div-to-times",
+            "before": "return { altitude: alt / deg, azimuth: Math.atan2(sinAz, cosAz) / deg, declination: decl };",
+            "after": "return { altitude: alt * deg, azimuth: Math.atan2(sinAz, cosAz) / deg, declination: decl };",
+            "line_text": "  return { altitude: alt / deg, azimuth: Math.atan2(sinAz, cosAz) / deg, declination: decl };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 204,
+            "col": 72,
+            "operator": "const-plus-one",
+            "before": "num(envelope.ductHeatPct, 'Duct heating loss %', errs, { min: 0, max: 60 });",
+            "after": "num(envelope.ductHeatPct, 'Duct heating loss %', errs, { min: 0, max: 61 });",
+            "line_text": "  num(envelope.ductHeatPct, 'Duct heating loss %', errs, { min: 0, max: 60 });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 285,
+            "col": 65,
+            "operator": "times-to-div",
+            "before": "const windowDiffuse = irr.map(i => (i.diffuse + i.reflected) * DIFFUSE_MODIFIER);",
+            "after": "const windowDiffuse = irr.map(i => (i.diffuse + i.reflected) / DIFFUSE_MODIFIER);",
+            "line_text": "    const windowDiffuse = irr.map(i => (i.diffuse + i.reflected) * DIFFUSE_MODIFIER);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 328,
+            "col": 49,
+            "operator": "times-to-div",
+            "before": "shadedSolarSaved += win * env.windowSHGC * env.interiorShade * (fs.window[k] - solar);",
+            "after": "shadedSolarSaved += win * env.windowSHGC / env.interiorShade * (fs.window[k] - solar);",
+            "line_text": "        shadedSolarSaved += win * env.windowSHGC * env.interiorShade * (fs.window[k] - solar);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "overhang.test.mjs: overhangSavedBtuDay equals the hourly drop in windowSolar with interiorShade 0.5"
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 329,
+            "col": 56,
+            "operator": "minus-to-plus",
+            "before": "cool[k].doors += env.doorU * door * (outdoor[k] - site.indoorCoolF);",
+            "after": "cool[k].doors += env.doorU * door * (outdoor[k] + site.indoorCoolF);",
+            "line_text": "        cool[k].doors += env.doorU * door * (outdoor[k] - site.indoorCoolF);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 337,
+            "col": 29,
+            "operator": "or-to-and",
+            "before": "const area = k.areaFt2 || 0;",
+            "after": "const area = k.areaFt2 && 0;",
+            "line_text": "      const area = k.areaFt2 || 0;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 345,
+            "col": 38,
+            "operator": "times-to-div",
+            "before": "cool[h].skylights += U * area * (outdoor[h] - site.indoorCoolF);",
+            "after": "cool[h].skylights += U * area / (outdoor[h] - site.indoorCoolF);",
+            "line_text": "        cool[h].skylights += U * area * (outdoor[h] - site.indoorCoolF);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "basement.test.mjs: skylight conduction = U x area x (outdoor - indoor) at three hours"
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 375,
+            "col": 47,
+            "operator": "times-to-div",
+            "before": "cool[k].infiltration = sensibleAir * cfm * (outdoor[k] - site.indoorCoolF);",
+            "after": "cool[k].infiltration = sensibleAir * cfm / (outdoor[k] - site.indoorCoolF);",
+            "line_text": "      cool[k].infiltration = sensibleAir * cfm * (outdoor[k] - site.indoorCoolF);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 396,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "let peakK = 0; houseHourly.forEach((v, k) => { if (v > houseHourly[peakK]) peakK = k; });",
+            "after": "let peakK = 1; houseHourly.forEach((v, k) => { if (v > houseHourly[peakK]) peakK = k; });",
+            "line_text": "  let peakK = 0; houseHourly.forEach((v, k) => { if (v > houseHourly[peakK]) peakK = k; });",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "load.test.mjs: zero-load house reports peakHour 1 (tie-break; the only input where hour 1 can be the max, since outdoor temperature is lowest overnight)"
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 447,
+            "col": 80,
+            "operator": "const-plus-one",
+            "before": "site: { latitude: 36, elevationFt: 600, heatingOutdoorF: 22, coolingOutdoorF: 93, dailyRangeF: 20, coolingDewPointF: 72, indoorHeatF: 70, indoorCoolF: 75, indoorRH: 50 },",
+            "after": "site: { latitude: 36, elevationFt: 600, heatingOutdoorF: 22, coolingOutdoorF: 94, dailyRangeF: 20, coolingDewPointF: 72, indoorHeatF: 70, indoorCoolF: 75, indoorRH: 50 },",
+            "line_text": "  site: { latitude: 36, elevationFt: 600, heatingOutdoorF: 22, coolingOutdoorF: 93, dailyRangeF: 20, coolingDewPointF: 72, indoorHeatF: 70, indoorCoolF: 75, indoorRH: 50 },",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/slo-burn-rate-alerts/engine.mjs",
+        "issue": "detectionTime returned a finite time for an error ratio exactly at the threshold, but the generated rule compares with a strict '>', so it never fires. Visible in the CLI and page: `plan --slo 90 --period 50` printed 'total outage detected in 6h  UNREACHABLE' for the 6h page (threshold 10x * 10% = 100%). Fixed (<=) with a point test and a sweep over 10 SLOs x 366 periods asserting finite detection time iff reachable.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17548"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b9442f80-1913-5458-95bc-13d116371898",
+    "transcripts": 1,
+    "first": "2026-11-19T05:06:53Z",
+    "last": "2026-11-19T05:24:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 89,
+        "output": 19123,
+        "thinking": 5475,
+        "cache_read": 3848010,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89518,
+        "api_equivalent_usd": 1.8686,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 89,
+      "output": 19123,
+      "thinking": 5475,
+      "cache_read": 3848010,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89518,
+      "api_equivalent_usd": 1.8686,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.05,
+      "active_minutes": 8.16,
+      "model_minutes": 4.13,
+      "tool_minutes": 4.03,
+      "waiting_on_human_minutes": 9.89,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: mutation triage of 8 escapes, one bug repro and fix, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 160.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
