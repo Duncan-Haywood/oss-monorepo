@@ -13581,7 +13581,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       options: toolCardOptions(surface, { baseUrl: base }),
     });
   }
-  await renderCards(cardJobs);
+  // Drawn beside the chrome pass below, and awaited before the page finish.
+  // Until 2026-11-19 the build waited here: on a cold card cache that was
+  // about 15 s of a 4-core build with the main thread idle while workers drew
+  // ~1,400 tool cards, then about 15 s of chrome with the workers idle. Nothing
+  // between here and the await reads a card: the chrome pass lists only
+  // `.html` files and names a tool's card by its path, and the finish pass
+  // draws the remaining cards on the same pool once these are done
+  // (docs/history/pages-build-perf-2026-11-19-tool-cards-beside-chrome.md).
+  const toolCards = renderCards(cardJobs);
+  // A failed draw is reported at the await; until then this keeps it from
+  // counting as an unhandled rejection.
+  toolCards.catch(() => {});
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
@@ -13602,6 +13613,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // below, which hashes the finished HTML: a cache named from a hash taken
   // earlier would ship pages that no longer match it.
   // One read and one write per page for all four (`finishPagesInOneWalk`).
+  await toolCards;
   const { sponsored, noscripted, retitled, shareCards } = await finishPagesInOneWalk(outDir, {
     baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE, log,
   });
