@@ -1,5 +1,10 @@
 # Research log
 
+## 2026-11-19 · Box enlargement before the elastic fallback: outcome. case73 API clean at round 12 (+3.26 %) under the full margins, but 68 of 94 firings rebuild the QP just rejected; development 31 to 30 of 34, held-out 10 to 8 of 19. Not adopted
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-19); numbers in `research/infra-dcopf/experiments/results_enlarge.txt`. E2, E5, E7 held; E3, E4, E6 refuted; E1 untestable.
+- The LP finds a scale that makes the hard QP solvable on 94 of 112 failed development rounds and the enlarged QP solves on all 94. But after a rejected enlarged step the base point is unchanged and the needed scale doubles as the box halves, so the same QP comes back: case30 API and case200 API (finished by the frozen repair) and case118 API repeat one rejected step for about 20 rounds. Gains come from firings on rounds 1 to 3 (case73 API, held-out case500 SAD).
+- Next: the same enlargement at most once per base point (after a rejected enlarged step, the elastic chain), frozen on development, scored held-out.
+
 ## 2026-11-19 · Box enlargement before the elastic fallback (plan)
 - Plan, rule E (on a failed hard QP, one LP finds the smallest non-empty box scale, capped at twice the first box; re-solve the hard QP at 1.1 times it before the elastic fallback) and predictions E1 to E7: `research/infra-dcopf/LOG.md` (2026-11-19); script `research/infra-dcopf/experiments/run_enlarge.py`. Frozen on the 34 development cases, scored on the 19 held-out cases that reach the repair.
 

@@ -140,6 +140,23 @@ def fire_stats(rows):
     return len(ev), len(fired), sum(1 for e in fired if e.get("ok"))
 
 
+def repeats(r):
+    """After-the-run diagnostic (declared in LOG.md): firings that rebuild the previous round's enlarged QP. With
+    the base point unchanged (previous trial rejected) the linearisation is the same, and t_min times the box
+    (t_min 2^-halvings, in first-box units) equal to the previous round's means the same QP, the same trial."""
+    ev = {e["it"]: e for e in r.get("enlarge", [])}
+    acc = r.get("accepted", [])
+    n = 0
+    for it, e in ev.items():
+        p = ev.get(it - 1)
+        if not (p and e.get("fired") and p.get("fired") and e.get("t_min") and p.get("t_min")):
+            continue
+        if it - 2 < len(acc) and acc[it - 2] is False:
+            a, b = e["t_min"] * 2.0 ** -e["halvings"], p["t_min"] * 2.0 ** -p["halvings"]
+            n += int(abs(a - b) <= 1e-6 * max(abs(a), abs(b)))
+    return n
+
+
 def summary():
     dref = {(r["case"], r["kind"]): r for r in json.loads(DEV_REF.read_text()) if r.get("ac_ok", True) and r.get("statuses")}
     href = {(r["case"], r["kind"]): r for r in json.loads(HELD_REF.read_text()) if "status" in r}
@@ -158,7 +175,10 @@ def summary():
         P(f"{ {'dev': 'Development, cap 2 (primary)', 'dev1': 'Development, cap 1 (secondary)', 'held': 'Held-out, cap 2'}[arm]}: "
           f"{len(ref)} cases ({len(got)} rerun), {budget}-round budget")
         n_ev, n_fire, n_ok = fire_stats(got.values())
-        P(f"  failed hard QPs {n_ev}; rule fired (1 < t <= cap) on {n_fire}; enlarged hard QP solved on {n_ok}")
+        n_rep = sum(repeats(r) for r in got.values())
+        P(f"  failed hard QPs {n_ev}; rule fired (1 < t <= cap) on {n_fire}; enlarged hard QP solved on {n_ok}; "
+          + (f"of those, {n_rep} rebuild the previous round's rejected QP (same base point, same box: a repeat)"
+             if arm.startswith("dev") else "repeats not counted (vlin.slp records no acceptance or halvings)"))
         P("  case               kind   frozen@  E@    cost% over AC optimum frozen / E   fired/ok of failed")
         gained = lost = both = 0
         dr, dc = [], []
@@ -185,6 +205,8 @@ def summary():
             gp = lambda c: "-" if c is None else f"{pct(c, ac):+.3f}"  # noqa: E731
             ev = r.get("enlarge", [])
             fs = f"{sum(1 for e in ev if e.get('fired'))}/{sum(1 for e in ev if e.get('ok'))} of {len(ev)}"
+            if repeats(r):
+                fs += f", {repeats(r)} repeats"
             mark = "" if fc == ec else "  <-"
             P(f"  {key[0]:18s} {key[1]:4s} {str(fc):>7} {str(ec):>4}   {gp(fcost)} / {gp(ecost)}   {fs}{mark}")
         inert = [k for k, r in got.items() if not any(e.get("ok") for e in r.get("enlarge", []))]
@@ -211,7 +233,8 @@ def summary():
         ev73 = [e for e in (c73 or {}).get("enlarge", []) if e["it"] >= 3]
         f73 = sum(1 for e in ev73 if e.get("fired") and e.get("ok"))
         P(f"E1 (case73 API: rule fires and the enlarged hard QP solves on at least half of its failed rounds from 3): "
-          f"{'held' if ev73 and f73 >= len(ev73) / 2 else 'refuted'} ({f73} of {len(ev73)})")
+          f"{('held' if f73 >= len(ev73) / 2 else 'refuted') if ev73 else 'untestable, no failed hard QP from round 3'}"
+          f" ({f73} of {len(ev73)}; rounds 1 to 2: {sum(1 for e in (c73 or {}).get('enlarge', []) if e['it'] < 3 and e.get('ok'))} fired and solved)")
         P(f"E2 (case73 API fully clean within 30 rounds): {'held' if c73 and c73.get('clean_at') else 'refuted'}"
           f" ({c73.get('clean_at') if c73 else None}; last {json.dumps(c73.get('last') if c73 else None)})")
         P(f"E3 (case118 API fully clean within 30 rounds): {'held' if c118 and c118.get('clean_at') else 'refuted'}"
