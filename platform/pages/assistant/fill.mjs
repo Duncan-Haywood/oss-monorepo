@@ -642,10 +642,18 @@ export const QUESTION_WORDS = new Set('do does did doing can could should would 
  * Etsy pages and led on index order.
  */
 export function rankForQuestion(data, query, { variants, score, limit = 5, strongOnly = false }) {
-  const words = [...new Set(String(query).toLowerCase().split(/[^a-z0-9]+/)
+  const lower = String(query).toLowerCase();
+  const words = [...new Set(lower.split(/[^a-z0-9]+/)
     .filter((w) => w.length >= 2 && !data.stop.has(w) && !QUESTION_WORDS.has(w)))];
   if (!words.length) return [];
   const forms = words.map(variants);
+  const feeVerb = feeVerbOf(lower);
+  if (feeVerb) {
+    const fee = [...new Set([...variants('fees'), ...variants('fee')])];
+    const k = words.indexOf(feeVerb);
+    if (k >= 0) forms[k] = [...new Set([...forms[k], ...fee])];
+    else forms.push(fee);
+  }
   // Per word: 4 in the name, 1 in the text, 0 (searchScore's own weights, minus
   // its fractional short-name bonus).
   const perWord = (item) => forms.map((v) => Math.floor(score(item.n, item.x, [v], true)));
@@ -661,6 +669,24 @@ export function rankForQuestion(data, query, { variants, score, limit = 5, stron
   const bar = forms.length > 1 ? 5 : 4;
   const strong = ranked.filter(({ value }) => value >= bar);
   return (strong.length || strongOnly ? strong : ranked).slice(0, limit).map(({ item }) => item);
+}
+
+/**
+ * "How much does Etsy take?", "What does eBay charge?", "How much does
+ * Poshmark keep?": the verb is the site's word "fee", and no fee page says
+ * "take". Measured on the built index (2026-11-19): with the verb alone the
+ * Etsy question listed Etsy bookkeeping and "Should I put my Etsy shop on
+ * sale?", and the Poshmark one found nothing strong at all, while each
+ * marketplace's fee calculator sat in the index. So when the verb has a
+ * one-word subject that is a name (not "it", "a", "they"...), "fee" is an
+ * alternative form of it. "How long does it take" and "how much does a plumber
+ * charge" keep their own words: their subject is a pronoun or an article.
+ * Returns the verb, or null.
+ */
+const NOT_A_NAME = new Set('it this that they them he she you i we a an the my your their our his her its one someone people'.split(' '));
+export function feeVerbOf(lowerQuery) {
+  const m = /\b(?:does|do|did|will|would)\s+([a-z0-9]+)\s+(take|charge|keep|cut)\b/.exec(lowerQuery);
+  return m && !NOT_A_NAME.has(m[1]) ? m[2] : null;
 }
 
 /**
