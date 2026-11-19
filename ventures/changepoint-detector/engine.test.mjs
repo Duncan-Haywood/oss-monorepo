@@ -807,6 +807,15 @@ test('--overdispersion nb reaches the Bayesian pass: clumpy counts keep the powe
 });
 
 // Red-team guards (2026-10-20): mutants in the penalty formula, the poissonTrend bend threshold and the joint knot grid escaped.
+// Quality audit 2026-11-19: the default BIC constant (k ln n) could change to (k + 0.5) ln n with the fast core tests green.
+test('penaltyValue: BIC is k ln n and AIC is 2k, k = 2 for mean and poisson, 3 for meanvar, meanvarlaplace and trend', () => {
+  for (const [model, k] of [['mean', 2], ['poisson', 2], ['meanvar', 3], ['meanvarlaplace', 3], ['trend', 3]]) {
+    assert.ok(Math.abs(penaltyValue('bic', 100, model) - k * Math.log(100)) < 1e-12, model);
+    assert.ok(Math.abs(penaltyValue('BIC', 37, model) - k * Math.log(37)) < 1e-12, model);
+    assert.equal(penaltyValue('aic', 100, model), 2 * k, model);
+  }
+});
+
 test('penaltyValue: Hannan-Quinn is 2k ln ln n, with the log-log floored at n = 3', () => {
   assert.ok(Math.abs(penaltyValue('hq', 100, 'mean') - 4 * Math.log(Math.log(100))) < 1e-12);
   assert.ok(Math.abs(penaltyValue('hannan-quinn', 100, 'meanvar') - 6 * Math.log(Math.log(100))) < 1e-12);
