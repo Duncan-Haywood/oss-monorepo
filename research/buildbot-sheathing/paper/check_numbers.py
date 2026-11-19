@@ -67,6 +67,7 @@ M54 = E + "m54_lhs/results.txt"
 M54P = E + "m54_lhs/posthoc.txt"
 M55 = E + "m55_robust/results.txt"
 M56 = E + "m56_weighted/results.txt"
+M57 = E + "m57_beta/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -276,6 +277,10 @@ CHECKS = [
     (M56, "A h1 99.56%", "99.6% to 99.9% on\nthe H1"),
     (M56, "B h1 99.89%", "99.6% to 99.9% on\nthe H1"),
     (M56, "-> held", "flip shift never\nbeats Y"),
+    (M57, "worst g1 0.0105 h1 0.0178 mm; coverage g1 99.93% h1 99.54%", "(worst 0.0178 mm) and plans\n99.93%"),
+    (M57, "worst g1 0.0278 h1 0.0315 mm, over spec g1 0 h1 1 -> refuted", "one H1 case leaves 0.0315 mm"),
+    (M57, "loss g1 0.00 h1 0.00 points -> held", "coverage\ndoes not move between 0 and 0.5"),
+    (M57, "| 0 | 0.0256 | 15 |", "worst residual across the wall is 0.026 mm"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
