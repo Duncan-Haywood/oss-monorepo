@@ -526,9 +526,9 @@ class ResidualSurvey:
             self._sums, self._kept, self.trimmed, self._sums_n = sums, kept, len(self.wheels) - kept, self.n
         return self._sums
 
-    def report(self, unit_us):
+    def report(self, unit_us, per_ppm=1):
         """(wheels surveyed, the least sum's candidate and the refined one in `unit_us`, each candidate's mean rms in
-        1e-6 of the pre-ball speed) or None before the first wheel."""
+        1e-6 of the pre-ball speed, times `per_ppm`: 10 sends tenths of a ppm) or None before the first wheel."""
         if self.n == 0:
             return None
         sums = self.sums()
@@ -538,7 +538,7 @@ class ResidualSurvey:
         i, ref = (survey_spline_pick if TAKE_SURVEY_SPLINE else survey_pick)(self.grid, sums)
         if i is None:
             return None
-        rms = [min(65535, int(round(1e6 * math.sqrt(v / self._kept)))) for v in sums]
+        rms = [min(65535, int(round(1e6 * per_ppm * math.sqrt(v / self._kept)))) for v in sums]
         return (min(255, self.n), int(round(self.grid[i] / unit_us)), int(round(ref / unit_us)), rms)
 
 
@@ -2240,8 +2240,17 @@ class LaunchCheck:
 
     def take_report(self):
         """The contact-time survey for the TAKE_SURVEY frame: (wheels, least and refined contact time in 0.1 ms, each
-        candidate's mean rms in 1e-6 of the pre-ball speed), or None before its first wheel."""
-        return self.take_survey.report(100) if self.take_survey is not None else None
+        candidate's mean rms, the rms units per ppm), or None before its first wheel. The rms go in tenths of a ppm
+        (README "The take survey's rms in tenths of a ppm"), or whole ppm when one would reach 65535 tenths, so a
+        badly fitting wheel (over 6553 ppm) still reads rather than as "none"."""
+        if self.take_survey is None:
+            return None
+        per = P.TAKE_SURVEY_TENTHS
+        r = self.take_survey.report(100, per)
+        if r is not None and any(v >= 65535 for v in r[3]):
+            per = 1
+            r = self.take_survey.report(100, per)
+        return None if r is None else tuple(r) + (per,)
 
     def take_kept(self):
         """The take survey's wheels summed (not left out as take-blind), for the TAKE_SURVEY frame's last byte."""
@@ -2504,8 +2513,9 @@ class Controller:
         if tv is not None:
             rms = (list(tv[4]) + [65535] * P.TAKE_SURVEY_TIMES)[:P.TAKE_SURVEY_TIMES]
             kept = tv[5] if len(tv) > 5 else 255
+            per = tv[6] if len(tv) > 6 else 1     # rms units per ppm (10: tenths, 2026-11-19); 1 for a whole-ppm report
             out += P.encode(P.TAKE_SURVEY, tv[0], min(65535, tv[1]), min(65535, tv[2]), min(65535, tv[3]), *rms,
-                            min(255, kept))
+                            min(255, kept), _clamp(per, 1, 255))
         # The lag the drop fit runs with rides along too (README "Checked before a calibration drill"): the Pi compares
         # it with the last survey before a drill's first ball, since a board told the wrong lag reads spin far off.
         tau = getattr(self.hw, "esc_tau_ms", None)
