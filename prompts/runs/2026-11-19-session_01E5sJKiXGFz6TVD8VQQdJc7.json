@@ -35,6 +35,10 @@
     {
       "what": "scratch measurement script failed importing a copy of fill.mjs from outside the repo (relative imports), and origin/main was a stale shallow ref without rankForQuestion",
       "fix": "put the main copy inside platform/pages/assistant/ temporarily and used HEAD~1"
+    },
+    {
+      "what": "renamed the post while the full pages suite was running, failing 2 tests that read docs/",
+      "fix": "re-ran the two files afterwards: 333/333"
     }
   ],
   "integrity_issues": [],
@@ -61,7 +65,7 @@
     "docs/reports/polish-2026-11-19-ask-fee-verbs.md"
   ],
   "goal": null,
-  "notes": "Full local build (about 8 min). ask-suggestions.test.mjs 14/14. ask-suggestions-check.mjs with dist/pf-fill.js swapped: every example question answers, every link loads. Post checks (frontmatter, posts, links, similarity) clean. Full node --test platform/pages/*.test.mjs result recorded in the PR.",
+  "notes": "Full local build (about 8 min). ask-suggestions.test.mjs 14/14. ask-suggestions-check.mjs with dist/pf-fill.js swapped: every example question answers, every link loads. Post checks (frontmatter, posts, links, similarity) clean. node --test 'platform/pages/*.test.mjs': 1881/1883, the 2 failures (build.test.mjs 'guide pages and posts are their own search results', custom-domain.test.mjs) were caused by renaming the post while the suite ran (the test says so itself); re-running those two files on the settled tree: 333/333 pass.",
   "corrections": [],
   "redteam": null,
   "usage": {
