@@ -93,3 +93,12 @@ test('repository names and links', () => {
   assert.equal(variablesLink(repo), 'https://github.com/jane/metric-watch/settings/variables/actions/new');
   assert.equal(runLink(repo), 'https://github.com/jane/metric-watch/actions/workflows/watch-metric.yml');
 });
+
+test('the watch page offers the no-terminal set-up and wires every link', () => {
+  const html = readFileSync(here('watch-a-metric-for-changes.html'), 'utf8');
+  assert.match(html, /<h3 id="no-terminal">/);
+  assert.match(html, /from "\.\/watch-repo\.mjs"/);
+  for (const id of ['repo-name', 'repo-branch', 'repo-rows', 'repo-zip', 'link-upload', 'link-workflow', 'link-vars', 'link-run']) assert.match(html, new RegExp(`id="${id}"`), id);
+  for (const id of ['repo-name', 'repo-rows']) assert.match(html, new RegExp(`<label for="${id}"`), id);
+  assert.match(readFileSync(here('index.html'), 'utf8'), /<code>watch_repo_zip<\/code> and <code>watch_repo_link<\/code>/);
+});
