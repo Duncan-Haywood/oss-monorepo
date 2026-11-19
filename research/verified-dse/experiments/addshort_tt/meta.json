@@ -1,0 +1,194 @@
+{
+ "corner": "tt_025C_1v80",
+ "util": 40,
+ "liberty_sha256": "ec0e1067a35c8bf20b11e58d1e8ac53326067e4dac84a125cc1b917a3518d0d9",
+ "tools": {
+  "yosys": "Yosys 0.71+post (git sha1 v0.71, Release, GNU /nix/store/ii6p6kc1brz3vycqg88q4zb4xd2dmqwp-gcc-wrapper-16.2.0/bin/g++ 16.2.0)",
+  "openroad": "26Q3"
+ },
+ "base_period_ns": {
+  "wsum3": 10.99,
+  "wsum8": 8.37,
+  "sad7": 14.38,
+  "dot7r": 19.16,
+  "avg10": 13.09,
+  "dot9r": 18.28,
+  "sad6": 26.56,
+  "csum7": 17.77,
+  "dot3r": 16.8,
+  "avg8": 11.41,
+  "csum9": 20.58,
+  "wsum5": 11.9,
+  "sad2": 12.75
+ },
+ "order": [
+  "wsum3",
+  "wsum8",
+  "sad7",
+  "dot7r",
+  "avg10",
+  "dot9r",
+  "sad6",
+  "csum7",
+  "dot3r",
+  "avg8",
+  "csum9",
+  "wsum5",
+  "sad2"
+ ],
+ "clock": {
+  "wsum3": "tight",
+  "wsum8": "relaxed",
+  "sad7": "tight",
+  "dot7r": "relaxed",
+  "avg10": "tight",
+  "dot9r": "relaxed",
+  "sad6": "tight",
+  "csum7": "tight",
+  "dot3r": "relaxed",
+  "avg8": "tight",
+  "csum9": "relaxed",
+  "wsum5": "tight",
+  "sad2": "relaxed"
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "wsum3": [
+   "wsumsh_w",
+   "wsumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "OW": 12,
+    "K": 3
+   },
+   ""
+  ],
+  "wsum8": [
+   "wsumsh_w",
+   "wsumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "OW": 12,
+    "K": 8
+   },
+   ""
+  ],
+  "sad7": [
+   "sadsh_w",
+   "sadsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 7
+   },
+   ""
+  ],
+  "dot7r": [
+   "dotsh_w",
+   "dotsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 7,
+    "R": 1
+   },
+   ""
+  ],
+  "avg10": [
+   "avgsh_w",
+   "avgsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NB": 10
+   },
+   ""
+  ],
+  "dot9r": [
+   "dotsh_w",
+   "dotsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 9,
+    "R": 1
+   },
+   ""
+  ],
+  "sad6": [
+   "sadsh_w",
+   "sadsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 6
+   },
+   ""
+  ],
+  "csum7": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 7
+   },
+   ""
+  ],
+  "dot3r": [
+   "dotsh_w",
+   "dotsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 3,
+    "R": 1
+   },
+   ""
+  ],
+  "avg8": [
+   "avgsh_w",
+   "avgsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NB": 8
+   },
+   ""
+  ],
+  "csum9": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 9
+   },
+   ""
+  ],
+  "wsum5": [
+   "wsumsh_w",
+   "wsumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "OW": 12,
+    "K": 5
+   },
+   ""
+  ],
+  "sad2": [
+   "sadsh_w",
+   "sadsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 2
+   },
+   ""
+  ]
+ }
+}
