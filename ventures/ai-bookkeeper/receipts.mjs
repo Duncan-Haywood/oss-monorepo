@@ -1449,9 +1449,24 @@ export function parseReceiptPasses(texts, opts = {}) {
   delete out.taxWhy;
   if (!out.merchant && (out.merchant = ps.find((p) => p.merchant)?.merchant ?? null)) out.notes = out.notes.filter((n) => n !== "no merchant found");
   // a date only the second reading found is not taken: on SROIE that filled 18
-  // receipts, 9 right and 9 wrong, so the receipt asks instead
+  // receipts, 9 right and 9 wrong, so the receipt asks instead. With three or more
+  // readings, a date at least two of the others agree on, and no other date as often, is
+  // taken with a note: on the US photos (SRD) that filled 13 of the 67 the first reading
+  // missed, none wrong (eval/srd-dates-2026-11-19.md)
+  const agreed = !out.date && ps.length >= 3 ? agreedDate(ps.slice(1)) : null;
+  if (agreed) {
+    out.date = agreed.date;
+    out.notes = [...out.notes.filter((n) => n !== "no date found"), `date not found in the first reading; ${agreed.count} of the other ${ps.length - 1} readings give ${agreed.date}: check the date`];
+  }
   out.ok = !!(out.date && out.merchant && out.cents);
   return out;
+}
+
+export function agreedDate(ps) {
+  const n = new Map();
+  for (const p of ps) if (p.date) n.set(p.date, (n.get(p.date) ?? 0) + 1);
+  const [top, second] = [...n.entries()].sort((a, b) => b[1] - a[1]);
+  return top && top[1] >= 2 && (!second || second[1] < top[1]) ? { date: top[0], count: top[1] } : null;
 }
 
 const sameReceipt = (a, b) => a.date === b.date && a.cents === b.cents && (a.merchant ?? "").toLowerCase() === (b.merchant ?? "").toLowerCase();

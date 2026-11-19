@@ -63,3 +63,29 @@ test("a sweepstakes end date loses to the sale date", () => {
   const p = parseReceipt("BURGER BARN\nCheeseburger 5.00\nTotal 5.00\n5/25/2017 12:01 PM\nSweepstakes ends 12/31/2017.");
   assert.equal(p.date, "2017-05-25");
 });
+
+test("a date the first reading missed is taken when two other readings agree, with a note", async () => {
+  const { parseReceiptPasses } = await import("./receipts.mjs");
+  const body = "Coffee 3.50\nTotal 3.50";
+  const p = parseReceiptPasses([`CORNER CAFE\n${body}`, `CORNER CAFE\n05/11/18 8:47 PM\n${body}`, `CORNER CAFE\n05/11/18 8:47 PM\n${body}`, `CORNER CAFE\n${body}`]);
+  assert.equal(p.date, "2018-05-11");
+  assert.ok(p.notes.some((n) => /2 of the other 3 readings give 2018-05-11: check the date/.test(n)));
+  assert.ok(!p.notes.includes("no date found"));
+});
+
+test("one other reading's date, or a tie, is not taken", async () => {
+  const { parseReceiptPasses } = await import("./receipts.mjs");
+  const body = "Coffee 3.50\nTotal 3.50";
+  assert.equal(parseReceiptPasses([`CAFE\n${body}`, `CAFE\n05/11/18\n${body}`, `CAFE\n${body}`]).date, null);
+  assert.equal(parseReceiptPasses([`CAFE\n${body}`, `CAFE\n05/11/18\n${body}`, `CAFE\n05/11/18\n${body}`, `CAFE\n05/17/18\n${body}`, `CAFE\n05/17/18\n${body}`]).date, null);
+});
+
+test("the page's settled text carries the agreed date", async () => {
+  const { settleReadings } = await import("./photoocr.mjs");
+  const body = "Coffee 3.50\nTotal 3.50";
+  const s = settleReadings([`CORNER CAFE\n${body}`, `CORNER CAFE\nJun28'17 7:12PM\n${body}`, `CORNER CAFE\nJun28'17 7:12PM\n${body}`]);
+  const p = parseReceipt(s.text);
+  assert.equal(p.date, "2017-06-28");
+  assert.equal(p.merchant, "CORNER CAFE");
+  assert.equal(p.cents, 350);
+});
