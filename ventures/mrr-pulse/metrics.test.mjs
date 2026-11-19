@@ -356,3 +356,9 @@ test("concentration: the largest subscription decides 'high', not the top two to
   // top1 = 20% (moderate), top2 = 40%: a mutant reading share(2) said high.
   assert.equal(concentration({ a: 200, b: 200, ...Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`s${i}`, 100])) }).risk, "moderate");
 });
+
+test("breakdown of no paying subscriptions reports nothing, not a phantom largest customer", () => {
+  const b = breakdown([{ id: "t", status: "trialing", mrr: 500, created: 1 }]);
+  assert.deepEqual(b.concentration, { customers: 0, top1: 0, top5: 0, topN: 5, largest: 0 });
+  assert.equal(b.total, 0);
+});
