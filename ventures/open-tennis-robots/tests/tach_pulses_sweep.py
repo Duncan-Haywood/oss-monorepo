@@ -34,7 +34,13 @@ DECISION RULE (written with the prediction): if (b) holds and either (a) or (d) 
 simulator's tach, LaunchCheck's snapshot and the survey sending N periods a revolution, `config.TACH_PULSES`), and
 NEXT.md says so; if either fails, the item is closed in NEXT.md with these numbers.
 
+RESULT (main run, eval/tach-pulses-2026-11-19.md): (a) failed, 46 of 128 against 38; (b) held, 7 of 32 against 16;
+(c) held, naive four magnets saw 1; (d) failed, the bound held on 207 of 256 and its median stayed 2.5 ms. The item is
+closed by the rule; the board keeps one pulse a revolution. Not asked: the ball's least within 0.5 ms 116 of 224
+against 51, and the step's drop error 0.55% against 0.11% (more magnets resolve the take, so the step misfits more).
+
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/tach_pulses_sweep.py [--quick] [--jitter 0.5] [--spacing 0.5] [--out rows.jsonl]
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/tach_pulses_sweep.py --report rows.jsonl [--survey]
 
 Simulated only: a first-order wheel, an assumed half-sine take, magnets as points (a real Hall edge has a width and a
 hysteresis that move with speed).
@@ -244,6 +250,50 @@ def report(rows):
               f"median on 1-2.5 ms {statistics.median(b_short) if b_short else float('nan'):g} ms")
 
 
+def survey_report(rows):
+    """EXPLORATORY (added after the main run's per-ball numbers were seen): the board judges a take from a survey,
+    the squared rms summed over a drill's wheels, not from one ball. Here each (take, wheel lag) group's 16 balls
+    (four speeds, four phases) are summed as one survey: its least (with the board's parabola, survey_pick, on the
+    dense grid) and its bound (host.take_survey_bound's rule on the mean)."""
+    keys = sorted({k for r in rows for k in r["fits"]}, key=lambda s: (int(s.split()[0]), s.split()[1]))
+    groups = {}
+    for r in rows:
+        groups.setdefault((r["take_ms"], r["tau"]), []).append(r)
+    grid_us = [int(c * 1000) for c in DENSE_MS]
+    print(f"{len(groups)} surveys of {len(rows) // max(1, len(groups))} balls (take, wheel lag)")
+    print("fit            | pick within 0.5 ms (takes > 0) | instant picked > 0.5 ms | bound holds | bound on 1-2.5 ms takes")
+    for key in keys:
+        within = n_pos = inst = n_inst = b_in = 0
+        bshort = []
+        for (tk, tau), rs in sorted(groups.items()):
+            sums = [0.0] * len(DENSE_MS)
+            ok = 0
+            for r in rs:
+                f = r["fits"].get(key)
+                if f is None or any(x is None for x in f["rms"]):
+                    continue
+                ok += 1
+                for i, x in enumerate(f["rms"]):
+                    sums[i] += x * x
+            if not ok:
+                continue
+            _, pick = controller.survey_pick(grid_us, sums)
+            pick /= 1000
+            mean = [math.sqrt(x / ok) for x in sums]
+            bnd = bound_ms(mean)
+            b_in += tk <= bnd
+            if tk == 0:
+                n_inst += 1
+                inst += pick > 0.5
+            else:
+                n_pos += 1
+                within += abs(pick - tk) <= 0.5
+                if tk <= 2.5:
+                    bshort.append(bnd)
+        print(f"{key:14} | {within:2} of {n_pos:2}                       | {inst} of {n_inst}                  | "
+              f"{b_in:2} of {len(groups)}    | {' '.join(f'{b:g}' for b in bshort)}")
+
+
 def main():
     quick = "--quick" in sys.argv
     spacing = float(sys.argv[sys.argv.index("--spacing") + 1]) if "--spacing" in sys.argv else 0.5
@@ -251,7 +301,11 @@ def main():
     if "--report" in sys.argv:
         with open(sys.argv[sys.argv.index("--report") + 1]) as f:
             rows = [json.loads(ln) for ln in f]
-        return report(rows)
+        report(rows)
+        if "--survey" in sys.argv:
+            print()
+            survey_report(rows)
+        return
     out = sys.argv[sys.argv.index("--out") + 1] if "--out" in sys.argv else None
     cases = grid(quick, spacing, jitter)
     rows = []

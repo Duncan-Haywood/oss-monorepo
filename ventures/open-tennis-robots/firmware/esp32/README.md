@@ -3439,3 +3439,26 @@ looser bound on 3 of 30 instant builds), rule committed in 881d6c775, then held 
 66 drills): 48 of 48 builds told TAKE_US = 0 had the true take within the bound, against 46 of 48 at 2% alone, and the
 bound stayed 1.5 ms on 4 of 6 instant builds. Five of P's bounds moved up 0.5-2.5 ms, none down. Above about 100 ppm
 of step rms nothing changes. Everything is in `eval/take-bound-floor-p-2026-11-19.md`.
+
+## More tach pulses a revolution (2026-11-19, after "A ppm floor on the bound"; tested host-side, closed by its pre-registered rule)
+
+**The item.** With one magnet a revolution a take shorter than a revolution shows only on balls whose contact
+straddles an edge ("Short takes that read 0"). Would two or four magnets multiply the balls that see a 1-2.5 ms take?
+
+**What was built to ask.** `drop_from_commands_steps` takes `per` (periods a revolution) and `angles` (each period's
+share of a revolution): spans stay the real times, each period's speed is its share over its time, and the window and
+anchor stay counted in revolutions; `per=1` is the old fit exactly. `magnet_spacing` learns uneven magnets from a
+steady stretch, each period over the mean of the revolutions either side of it (exact on a linear speed change).
+`tests/tach_pulses_sweep.py` refits the same simulated ball with 1, 2 and 4 magnets (0.5 degree placement error, the
+1/8 us capture tach, the take survey's depth), so the control is identical and only the tach differs; 256 balls.
+
+**What it found.** Four magnets "saw" 46 of 128 short-take balls against 38 (the rule asked twice as many) and the
+per-ball bound held on 81% (it asked 95%), so **the board keeps one pulse a revolution**. Instant balls read off 0
+less often (7 of 32 against 16), and spacing must be learnt: taken as even, four magnets misfit by 1,500-3,200 ppm
+and saw 1 ball. Not asked: the ball's least within 0.5 ms went from 51 to 116 of 224, mostly at 3-6 ms takes and high
+speed, but the step's drop (TAKE_US = 0) got worse, 0.11% to 0.55% mean error (1.12% at 6,500 rpm), because short
+periods resolve the take's shape. Everything is in `eval/tach-pulses-2026-11-19.md`.
+
+**Not known.** Point magnets on a first-order wheel; a real Hall edge's width and hysteresis would move each share
+with speed. Reopening it needs a survey-level test written first and an answer for the step's drop.
+

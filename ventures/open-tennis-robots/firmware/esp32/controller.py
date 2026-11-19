@@ -800,7 +800,7 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     else:
         if angles is None:
             angles = [1.0 / per] * n
-        rp = [periods[j] / (angles[j] * per) for j in range(n)]   # each period stretched to a whole revolution's
+        rp = [periods[j] / angles[j] for j in range(n)]   # each period stretched to a whole revolution's length
     pre, after = pre * per, after * per
     if n < pre + 4 * per:
         yield ("fit", None)
