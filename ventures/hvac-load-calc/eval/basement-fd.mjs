@@ -16,6 +16,7 @@
 // closed forms leave out.
 //
 //   node eval/basement-fd.mjs            # table for the README
+import { pathToFileURL } from 'node:url';
 import { belowGradeWallU, basementFloorU, basementWallOtherR, basementFloorOtherR } from '../load.mjs';
 
 export function solve({ W, D, k = 0.8, Rwall, Rfloor, h = 0.25, far = 40, deep = 40, deepT = null }) {
@@ -65,7 +66,7 @@ export function solve({ W, D, k = 0.8, Rwall, Rfloor, h = 0.25, far = 40, deep =
   return { wallU: qWall / D, floorU: qFloor / half, balance: deepT == null ? (qWall + qFloor) / qSurf : null };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   // Two soil blocks: (a) insulated far side and bottom 80 ft out, the closed
   // forms' own model; (b) the bottom 30 ft down held at the annual mean, with
   // the example climate (indoor 70, annual mean 55, amplitude 20: deep ground
