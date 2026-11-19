@@ -410,6 +410,21 @@ back the same as ours, except that CR LF line breaks inside two files'
 instructions become LF. Excel turns `1.10` into `1.1` when it opens a CSV, so
 prefer `.xlsx`.
 
+**Workbooks Excel saved (2026-11-19).** Excel stores what a person types as
+numbers, dates and booleans, so the reader shows each cell as Excel does:
+a date cell as ISO 8601 (`2024-01-01`, `15:30:18`, `2024-01-01T18:00:00`, from
+the cell's number format, with the 1904 date system), a number to Excel's
+15 digits (`0.938271604938272`, not the `0.93827160493827155` Excel saved),
+a boolean as IDS writes it (`true`, not `TRUE`, which matches no IfcBoolean),
+`_x000D_` escapes decoded. An `.xls` or a password-protected workbook is
+named instead of being read as CSV. On 321 workbooks from Apache POI's test
+files (282 saved by Excel), 65,537 of 65,548 cells now read as openpyxl
+reads them, up from 62,182; the rest are cells where no date exists
+(`eval/excel-workbooks-2026-11-19.md`). The downloaded workbook formats every
+cell, and the empty cells of each column, as Text, so a value a person types
+into it later stays as typed (`42.0`, `true`, `1.10`); a CSV opened in a
+spreadsheet still gets typed, so edit the `.xlsx`.
+
 ### Repairing an IDS that validating tools refuse (2026-11-18)
 
 An IDS that breaks `ids.xsd` is refused whole by IfcTester, the
