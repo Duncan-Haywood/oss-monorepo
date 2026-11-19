@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, importIdsAs, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, templateTypeRow, fileTypeRefused, fileTypeOf, nameSuggestion, renameSuggestion, renameRow, specBases, blankReq, blankSpec, classListBases, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
+import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, importIdsAs, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, templateTypeRow, fileTypeRefused, fileTypeOf, nameSuggestion, renameSuggestion, renameRow, specBases, blankReq, blankSpec, classListBases, boxSubclasses, deprecatedFor, DEPRECATED, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
 import { Model } from "./ids.mjs";
 import { modelInventory } from "./inventory.mjs";
 
@@ -901,4 +901,45 @@ test("each further class has its own subclass box: a list of classes with their 
   assert.deepEqual(said(back.specs[0]), said(parsed.specs[0]));
   // A blank specification starts with no further class ticked.
   assert.deepEqual(blankSpec().alsoSub, []);
+});
+
+test("in IFC4X3 a ticked subclass box leaves out the classes IFC 4.3 deprecates, and names them", () => {
+  const S43 = R.schemas.IFC4X3;
+  assert.equal(S43.name, "IFC4X3_ADD2");
+  // Every listed class is still in the schema (so a model may carry one).
+  for (const c of DEPRECATED.IFC4X3_ADD2) assert.ok(S43.entities[c], c);
+  // IFCWALL's only subclass is deprecated: the box writes IFCWALL alone.
+  assert.deepEqual(boxSubclasses(S43, "IFCWALL", {}), { subs: [], left: ["IFCWALLSTANDARDCASE"] });
+  const ctrl = boxSubclasses(S43, "IFCFLOWCONTROLLER", {});
+  assert.deepEqual(ctrl.left, ["IFCELECTRICDISTRIBUTIONBOARD"]);
+  assert.ok(ctrl.subs.includes("IFCDISTRIBUTIONBOARD") && ctrl.subs.length === subclasses(S43, "IFCFLOWCONTROLLER").length - 1);
+  const built = boxSubclasses(S43, "IFCBUILTELEMENT", {});
+  assert.ok(built.left.includes("IFCWALLSTANDARDCASE") && !built.subs.includes("IFCWALLSTANDARDCASE"));
+  // IFC4 deprecates none of its subclasses here: IFC4 exports still write IFCWALLSTANDARDCASE.
+  assert.deepEqual(boxSubclasses(S4, "IFCWALL", {}).left, []);
+  assert.ok(boxSubclasses(S4, "IFCWALL", {}).subs.includes("IFCWALLSTANDARDCASE"));
+  // A specification that also names IFC4 keeps them, even edited in IFC4X3.
+  assert.equal(deprecatedFor(S43, { ifcVersion: ["IFC4", "IFC4X3_ADD2"] }).size, 0);
+  assert.equal(deprecatedFor(S43, { ifcVersion: ["IFC4X3_ADD2"] }).size, 3);
+  assert.ok(specClassNames(S43, { cls: "IFCBUILTELEMENT", withSub: true, also: [], ifcVersion: ["IFC4", "IFC4X3_ADD2"] }).includes("IFCWALLSTANDARDCASE"));
+  assert.ok(!specClassNames(S43, { cls: "IFCBUILTELEMENT", withSub: true, also: [] }).includes("IFCWALLSTANDARDCASE"));
+  // A list naming every subclass but the deprecated one opens ticked
+  // (the bSDD templates); one that names the deprecated class keeps it as an
+  // exact class, so writing back names the same set.
+  const builtAll = ["IFCBUILTELEMENT", ...built.subs];
+  assert.deepEqual(classListBases(S43, [...builtAll, "IFCSPACE"]), [{ cls: "IFCBUILTELEMENT", withSub: true }, { cls: "IFCSPACE", withSub: false }]);
+  assert.deepEqual(classListBases(S43, [...builtAll, "IFCWALLSTANDARDCASE"]), [{ cls: "IFCBUILTELEMENT", withSub: true }, { cls: "IFCWALLSTANDARDCASE", withSub: false }]);
+  const enumOf = (cs) => `<xs:restriction base="xs:string">${cs.map((c) => `<xs:enumeration value="${c}"/>`).join("")}</xs:restriction>`;
+  for (const list of [builtAll, [...builtAll, "IFCWALLSTANDARDCASE"], ["IFCWALL", "IFCWALLSTANDARDCASE"]]) {
+    const xml = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>Dep</title></info><specifications>
+      <specification name="built" ifcVersion="IFC4X3_ADD2"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name>${enumOf(list)}</name></entity></applicability>
+        <requirements><attribute><name><simpleValue>Name</simpleValue></name></attribute></requirements></specification>
+    </specifications></ids>`;
+    const { parsed, imp, back } = reopen(xml);
+    assert.equal(imp.state.schema, "IFC4X3");
+    const sp = imp.state.specs[0];
+    if (list === builtAll) assert.deepEqual([sp.cls, sp.withSub, sp.also], ["IFCBUILTELEMENT", true, []]);
+    if (list.length === 2) assert.deepEqual([sp.cls, sp.withSub, sp.also], ["IFCWALL", false, ["IFCWALLSTANDARDCASE"]]);
+    assert.deepEqual(said(back.specs[0]), said(parsed.specs[0]), list.join(" ").slice(-60));
+  }
 });
