@@ -536,6 +536,90 @@ export function shortSpells(values, { days, mult = SHORT_SPELLS.mult, guard = SH
   return { spells, penalty };
 }
 
+// ---- A spell score on the differing weekdays only (README "Short spells scored on the weekdays that differ",
+// 2026-11-19, pre-registered in eval/update-rate-spells-weekdays.mjs). The weekday cost's gain is a sum over the
+// seven weekdays of a per-weekday likelihood ratio LR_k (inside against around). Weekdays on which the two schedules
+// agree add only chi-square noise to that sum, and the penalty has to sit above the noise of all seven, so a spell
+// that differs on few days (a month of Mon/Wed/Fri inside Monday-Friday differs on 8 or 9 Tuesdays and Thursdays)
+// falls under it. This score counts a weekday only when its repeat share rises inside and its LR_k clears `beta`:
+// score = sum_k max(0, LR_k - beta) over rising weekdays. With beta 0 and every weekday rising it is the weekday
+// gain. Off by default: shortSpells is unchanged unless called with `sel`.
+
+/**
+ * Best sparse spell [a, b) inside z[L..R) under the differing-weekday score, one per beta in `betas`:
+ * [{ a, b, gain, weekdays }] (null where none), gain being the score. `guard` as bestReturnCost's (sparse).
+ */
+export function bestSpellWeekdays(z, L, R, { days, betas = [0], minSegment = 20, P = null, guard = null } = {}) {
+  if (R - L < 3 * minSegment) return betas.map(() => null);
+  if (!days) throw new Error('bestSpellWeekdays needs days');
+  P = P || pairPrefixes(z, days, 'dow');
+  const { C, W } = P, Rp = P.R, n = z.length;
+  const LL = new Float64Array(n + 2); for (let k = 2; k <= n + 1; k++) LL[k] = k * Math.log(k);
+  const c2 = (x, y) => LL[x + y] - LL[x] - LL[y];
+  const totR = Rp[R] - Rp[L], best = betas.map(() => null), lr = new Float64Array(7), rise = new Uint8Array(7);
+  for (let a = L + minSegment; a <= R - 2 * minSegment; a++) {
+    for (let b = a + minSegment; b <= R - minSegment; b++) {
+      const inR = Rp[b] - Rp[a], nIn = b - a, nOut = R - L - nIn, outR = totR - inR;
+      if (inR / nIn <= outR / nOut) continue;
+      if (guard && !returnGuardPasses(outR, nOut, inR, nIn, guard)) continue;
+      const bi = b * W, ai = a * W, ri = R * W, li = L * W;
+      for (let k = 0; k < 7; k++) {
+        const j = 2 * k, x = C[bi + j] - C[ai + j], y = C[bi + j + 1] - C[ai + j + 1];
+        const u = C[ri + j] - C[li + j] - x, w = C[ri + j + 1] - C[li + j + 1] - y;
+        rise[k] = y * (u + w) > w * (x + y) ? 1 : 0;
+        lr[k] = rise[k] ? 2 * (c2(x + u, y + w) - c2(x, y) - c2(u, w)) : 0;
+      }
+      for (let t = 0; t < betas.length; t++) {
+        let g = 0, wd = 0;
+        for (let k = 0; k < 7; k++) if (rise[k] && lr[k] > betas[t]) { g += lr[k] - betas[t]; wd |= 1 << k; }
+        if (g > 0 && (!best[t] || g > best[t].gain)) best[t] = { a, b, gain: g, weekdays: wd };
+      }
+    }
+  }
+  return best;
+}
+
+/**
+ * Per stretch of updateRateChanges: the shipped chain candidate, the weekly test, and the differing-weekday
+ * candidate per beta (all unpenalised), so a caller can apply several penalties. [{ L, R, weekly, chain, sel: [] }].
+ */
+export function spellWeekdayCandidates(values, { days, betas = [0], guard = SHORT_SPELLS.guard, minSegment = SHORT_SPELLS.minSegment, minRepeats = SHORT_SPELLS.minRepeats, u = null } = {}) {
+  const z = repeatIndicators(values);
+  if (z.reduce((s, v) => s + v, 0) < minRepeats) return [];
+  u = u || updateRateChanges(values);
+  const st = u.stretches, spans = st.length ? st.map((s) => [s.from - 1, s.to]) : [[0, z.length]];
+  const PD = pairPrefixes(z, days, 'dow'), PC = pairPrefixes(z, days, 'chain'), out = [];
+  const share = (P, a, b, L, R) => { const inR = P.R[b] - P.R[a], outR = P.R[R] - P.R[L] - inR; return { shareInside: inR / (b - a), shareOutside: outR / (R - L - (b - a)) }; };
+  for (const [L, R] of spans) {
+    if (R - L < 3 * minSegment) continue;
+    const ch = bestReturnCost(z, L, R, { kind: 'chain', days, minSegment, P: PC, guard, sparse: true });
+    const sel = bestSpellWeekdays(z, L, R, { days, betas, minSegment, P: PD, guard });
+    out.push({ L, R, weekly: weeklyPatternLR(z, days, L, R) > WEEKLY_TEST.crit,
+      chain: ch && { ...ch, ...share(PD, ch.a, ch.b, L, R) },
+      sel: sel.map((q) => q && { ...q, ...share(PD, q.a, q.b, L, R) }) });
+  }
+  return out;
+}
+
+/**
+ * Arms of the pre-registered round, applied to spellWeekdayCandidates rows with the chosen beta index `t` and
+ * penalty `pen`: 'A' keeps round 5's per-stretch choice (the weekday score on weekly stretches, the chain elsewhere);
+ * 'B' also tries the weekday score on stretches the weekly test does not read as weekly, after the chain.
+ * Returns spells as shortSpells does.
+ */
+export function spellsFromWeekdayRows(rows, { arm, t = 0, pen }) {
+  const spells = [];
+  for (const r of rows) {
+    const s = r.sel[t], c = r.chain;
+    let pick = null, kind = null;
+    if (r.weekly) { if (s && s.gain > pen) { pick = s; kind = 'weekdays'; } }
+    else if (c && c.gain > pen) { pick = c; kind = 'chain'; }
+    else if (arm === 'B' && s && s.gain > pen) { pick = s; kind = 'weekdays'; }
+    if (pick) spells.push({ from: pick.a + 1, to: pick.b, steps: pick.b - pick.a, shareInside: pick.shareInside, shareOutside: pick.shareOutside, gain: pick.gain, kind, weekdays: pick.weekdays });
+  }
+  return spells;
+}
+
 // ---- The --spells line (CLI --spells, the page's "short spells" box; README "Short sparse spells on the CLI and page"). ----
 // shortSpells needs a weekday per step, so it runs only when every label is a date (YYYY-MM-DD). The search is
 // quadratic in each stretch's length (about 1 s on 1,143 daily values), so it stops at SPELLS_MAX_POINTS.
