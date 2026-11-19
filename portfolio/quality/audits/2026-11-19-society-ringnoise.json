@@ -1,0 +1,221 @@
+{
+ "date": "2026-11-19",
+ "subject": "research/society-ringnoise",
+ "stratum": "research",
+ "seed": "2026-11-19-l-c250",
+ "round": 85,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior statistical physicist / computational social scientist who works on opinion and convention dynamics with zealots (committed minorities) on lattices; first checks: are the three models compared on the same time scale, is the mean-field solved exactly and to convergence, are thresholds defined the same way across models with uncertainty, and is the nearest prior work (Ellison 1993 local interaction on a circle, Young 1993 adaptive play, Mobilia 2003 zealots, Gleeson 2013 pair approximations) cited",
+ "scores": {
+  "correctness": 1,
+  "completeness": 2,
+  "verification": 1,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "The code reproduces its own table exactly: a parallel re-run of experiments/run.py's loop with the same seeds (scratchpad rn/rerun.py, 2m30s on 4 workers) printed the six rows of experiments/results.txt identically (0.18/0.06/0.10 ... 0.34/0.22/0.30). The resampled column is right for its model: an independent numpy re-implementation from the README text (rn/reimpl.py, own RNG and placement) gives 0.06, 0.10, 0.16 for (block,k) = (1,2), (1,3), (4,2), matching; and the one-sweep mean share from all-R at rho 0.10 equals the exact binomial expectation (rn/first_sweep.py: exact 0.024446 vs code 0.024286 over 4000 seeds, within 1 SE). But the mean-field column is wrong in 3 of 6 cells: society_ringmf.fixed_point rounds q to 1/1000 before a lookup (society-ringmf/src/society_ringmf/__init__.py:50), which pins slowly moving fronts. With the same map and the exact binomial (rn/mf_indep.py numpy; rn/mf_patch.py patches only that line) the thresholds are 0.18, 0.22, 0.38, 0.18, 0.18, 0.30 at 3000 iterations against the claimed 0.18, 0.26, 0.38, 0.18, 0.20, 0.34; e.g. block 4 k 2 rho 0.22: table 0.4443 after 315 iterations, exact 0.9101 (rn/mf_cmp.py). At 30,000 iterations the exact block thresholds fall further, to 0.22, 0.34, 0.16, 0.26 (rn/mf_long.py), and some still creep at the cap. The headline comparison ('simulation between the others in 6 of 6') becomes 2 of 6. Scored 1: reproducible arithmetic, wrong quantity in half the mean-field column and a conclusion the corrected numbers contradict.",
+  "completeness": "Claimed and checked: the resampled model (works), the three-model table (re-runs exactly), the unit tests (4 pass), the reproduce commands (work), the live page (curl https://marisstella.app/research/society-ringnoise/ returned 000 through the proxy, not checked). paper/whitepaper.md is a 6-line pointer to the README with two citations, not a paper; both 'next steps' (asynchronous memoryless model, pair approximation) are open, and the first is exactly what would have exposed the horizon confound. Scored 2.",
+  "verification": "`cd research/society-ringnoise && python3 -m unittest discover -s tests`: 4 tests OK in 0.3 s. They are smoke tests (rho 0 stays on R, rho 0.5 tips, determinism, monotone in rho). quality_mutate.py: majority rule cnt > m//2 -> >= caught; the neighbourhood range(-k,k+1) -> range(-k,k) survived; eps -> 10*eps (the noise level that is the project's subject) survived. Nothing tests the threshold extraction, the run script, or the imported mean-field, so the lookup-table defect was invisible. Scored 1. (Fix: added test_first_sweep_matches_exact_binomial; both survivors are now caught.)",
+  "craft": "Files read: src/society_ringnoise/__init__.py (39 lines), experiments/run.py (48), tests/test_model.py (27), plus the imported society_allies/__init__.py and society_ringmf/__init__.py. Clean and short, stdlib, seeded. Defects: sys.path.insert into sibling projects instead of declared dependencies (pyproject declares none); sweeps=300 hard-coded with no derivation from the simulation's 500 rounds; the threshold rule differs between models (mean x >= 0.9 for the mean-field vs >= half of 20 crowds >= 0.9 for the others, run.py:38) with no interval reported; run.py serial (about 12 minutes) when cells are independent. Scored 2.",
+  "claims": "Headline README claim 'Noise pulls the threshold down, and the persistence of real memory pushes it back up' is not backed: with a horizon matched to the simulation's memory turnover (500 rounds ~ 500 slot writes per person ~ 56 full refreshes of M = 9; resampled with sweeps=56, rn/horizon.py) the resampled thresholds are 0.12, 0.26, 0.38, 0.14, 0.22, 0.34, at or above the simulation in 6 of 6 cells, so the low resampled column is mostly a longer horizon (300 full refreshes), not absence of memory. Limitations name update order but not horizon or the mean-field rounding. Backed: the table matches results.txt; the 0.18 vs 0.20 note against society-ringmf (finer grid) is consistent with ringmf's 0.04-grid table; citations Xie et al. 2011 PRE 84 011130 and Centola et al. 2018 Science 360 1116 are real and correctly cited; 'not real crowds' disclaimer present. Scored 1.",
+  "fitness": "A researcher wanting to know which approximation to repair would be misled: the corrected numbers say an exact mean-field is, if anything, optimistic for blocks and a noisy memoryless map on a matched horizon is close to or above the simulation, so the 'missing piece is memory correlation' design advice does not follow. Nearest prior work not engaged: Ellison (1993, Econometrica 61:1047) on local-interaction coordination on a circle and its fast convergence, Young (1993, Econometrica 61:57) adaptive play with finite memory and mistakes (the same update rule), Mobilia (2003, PRL 91:028701) and Galam & Jacobs (2007) on zealots, Gleeson (2013, PRX 3:021004) on pair approximations for binary-state dynamics. Novelty is a small step on two in-repo projects. Scored 1.",
+  "domain": "A statistical physicist would first check time-scale matching between a synchronous sweep model and an asynchronous pairwise simulation (not done: 300 full memory refreshes vs about 56), then that the deterministic map is solved exactly and the threshold is not a numerical pinning artefact (it is, at 1/1000 rounding), then finite-size and seed uncertainty (20 seeds, 0.02 grid, no intervals; 3 of the 6 sim-vs-MF gaps are one grid step). It departs from standard practice on all three. Scored 1."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "re-run the six-cell threshold table",
+   "method": "same functions and seeds as experiments/run.py, parallelised by cell",
+   "command": "python3 scratchpad/rn/rerun.py",
+   "expected": "results.txt rows 0.18/0.06/0.10, 0.26/0.16/0.24, 0.38/0.26/0.38, 0.18/0.10/0.14, 0.20/0.14/0.20, 0.34/0.22/0.30",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "mean share on L after one resampled sweep from all-R, rho 0.10, block 1, k 2",
+   "method": "exact expectation sum_i P(Binomial(9, q_i) > 4.5), q_i from own placement, hand-coded",
+   "command": "python3 scratchpad/rn/first_sweep.py",
+   "expected": "0.024446 (exact)",
+   "observed": "0.024286 (code, 4000 seeds; SE 0.00018)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "resampled thresholds (1,2), (1,3), (4,2)",
+   "method": "independent numpy re-implementation from the README text, own RNG (PCG64) and placement",
+   "command": "$PY scratchpad/rn/reimpl.py",
+   "expected": "0.06, 0.10, 0.16 (README)",
+   "observed": "0.06, 0.10, 0.16",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "mean-field threshold column",
+   "method": "README's mean-field model solved with the exact binomial (no lookup table), numpy, own placement, 3000 iterations",
+   "command": "$PY scratchpad/rn/mf_indep.py",
+   "expected": "0.18, 0.26, 0.38, 0.18, 0.20, 0.34 (README)",
+   "observed": "0.18, 0.22, 0.38, 0.18, 0.18, 0.30",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "isolate the cause: repo fixed_point with only the 1/1000 table replaced by majority_prob",
+   "method": "inspect/exec patch of society_ringmf.fixed_point, same inputs",
+   "command": "python3 scratchpad/rn/mf_patch.py",
+   "expected": "same fixed point if the table is harmless",
+   "observed": "block 4 k 2 rho 0.22: table 0.4443, exact 0.9101; block 4 k 3 rho 0.18: 0.4435 vs 1.0; block 8 k 2 rho 0.36: 0.443 vs 0.8904",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "mean-field thresholds with 30,000 iterations (exact map)",
+   "method": "numpy exact map, first rho with mean x >= 0.9",
+   "command": "$PY scratchpad/rn/mf_long.py",
+   "expected": "block cells 0.26, 0.38, 0.20, 0.34 (README)",
+   "observed": "0.22, 0.34, 0.16, 0.26 (block 4 k 2, 8 k 2, 4 k 3, 8 k 3), some still creeping at the cap",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "horizon-matched resampled model (56 sweeps ~ simulation's 500 memory writes / M=9)",
+   "method": "repo resampled with sweeps=56, same seeds and threshold rule",
+   "command": "python3 scratchpad/rn/horizon.py",
+   "expected": "below the simulation if 'noise pulls the threshold down' holds",
+   "observed": "0.12, 0.26, 0.38, 0.14, 0.22, 0.34 vs simulation 0.10, 0.24, 0.38, 0.14, 0.20, 0.30: at or above in 6 of 6",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'The simulation lies between the other two in all 6 cells'",
+   "method": "recount with exact mean-field (30,000 its) and committed sim/resampled columns",
+   "command": "$PY scratchpad/rn/mf_long.py",
+   "expected": "6 of 6",
+   "observed": "2 of 6 (block 1 at k 2 and k 3 only)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "0.18 here vs 0.20 in society-ringmf is a grid effect",
+   "method": "compare to society-ringmf README table (0.04 grid)",
+   "command": "sed -n 1,80p research/society-ringmf/README.md",
+   "expected": "ringmf 0.20 at block 1 k 2",
+   "observed": "0.20 on 0.04 grid; 0.18 not on that grid",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "prior-work citations",
+   "method": "bibliographic check: Xie et al. PRE 84, 011130 (2011); Centola et al. Science 360, 1116 (2018)",
+   "command": "cat research/society-ringnoise/paper/whitepaper.md",
+   "expected": "real, correctly cited",
+   "observed": "both correct",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "run",
+   "command": "cd research/society-ringnoise && python3 -m unittest discover -s tests",
+   "expected": "pass",
+   "observed": "Ran 4 tests in 0.303s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "paper/ holds a paper",
+   "method": "read",
+   "command": "wc -l research/society-ringnoise/paper/whitepaper.md",
+   "expected": "a write-up with method, results, limits",
+   "observed": "6 lines pointing to the README",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/society-ringnoise/",
+   "expected": "200",
+   "observed": "000 (proxy), not checked",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/society_ringnoise/__init__.py:37",
+   "change": "new[i] = 1 if cnt > m // 2 else 0 -> new[i] = 1 if cnt >= m // 2 else 0",
+   "caught": true,
+   "test_cmd": "cd research/society-ringnoise && python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/society_ringnoise/__init__.py:25",
+   "change": "for d in range(-k, k + 1) if d] -> for d in range(-k, k) if d]",
+   "caught": false,
+   "test_cmd": "cd research/society-ringnoise && python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/society_ringnoise/__init__.py:35",
+   "change": "p = rng.randint(0, 1) if rng.random() < eps else s[j] -> p = rng.randint(0, 1) if rng.random() < 10 * eps else s[j]",
+   "caught": false,
+   "test_cmd": "cd research/society-ringnoise && python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Horizon confound reverses the conclusion: resampled runs 300 sweeps, each refreshing all 9 memory slots (300 full refreshes), against the simulation's ~56; with sweeps=56 the resampled thresholds sit at or above the simulation in 6 of 6 cells, so 'noise pulls the threshold down, memory pushes it back up' is not supported",
+   "where": "research/society-ringnoise/src/society_ringnoise/__init__.py:19",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "high",
+   "what": "Mean-field column is a numerical artefact in 3 of 6 cells: the imported society_ringmf.fixed_point rounds q to 1/1000 before the binomial lookup, pinning slowly moving fronts at x ~ 0.44; the exact map tips at 0.22/0.34/0.16/0.26 for the block cells (claimed 0.26/0.38/0.20/0.34), below the simulation",
+   "where": "research/society-ringmf/src/society_ringmf/__init__.py:50",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "README headline, lede and summary state a causal attribution (noise down, memory up; 'the missing piece is the time correlation in each person's memory') that the corrected numbers contradict; limitations name update order but not horizon or the mean-field rounding",
+   "where": "research/society-ringnoise/README.md:5",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Thresholds defined differently across models (mean x >= 0.9 for the mean-field vs >= half of 20 crowds >= 0.9 for the others), no intervals; several reported gaps are one 0.02 grid step with 20 seeds",
+   "where": "research/society-ringnoise/experiments/run.py:38",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests are smoke tests: changing eps tenfold or making the neighbourhood asymmetric leaves them green; nothing tests the threshold extraction or the imported mean-field",
+   "where": "research/society-ringnoise/tests/test_model.py:10",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "paper/whitepaper.md is a 6-line pointer to the README, not a paper",
+   "where": "research/society-ringnoise/paper/whitepaper.md:1",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Nearest prior work not cited: Ellison 1993 (local interaction on a circle), Young 1993 (adaptive play with finite memory and errors, the same rule), Mobilia 2003 / Galam & Jacobs 2007 (zealots), Gleeson 2013 (pair approximation)",
+   "where": "research/society-ringnoise/README.md:40",
+   "category": "research-design",
+   "origin": "design"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Small, clean and exactly reproducible (the six-row table re-runs identically, and the resampled model matches an independent re-implementation and an exact one-sweep binomial), but the conclusion does not hold. The resampled model gets about five times the simulation's memory turnover (300 full refreshes against about 56); run for 56 sweeps it tips at or above the simulation in every cell. The mean-field column comes from a 1/1000 lookup table in society-ringmf that pins slowly moving fronts; the exact map tips below the simulation for every block cell. 'The simulation lies between the other two in 6 of 6 cells' becomes 2 of 6, and the 'noise down, memory up' attribution is unsupported. Tests are smoke-level (2 of 3 seeded bugs survived), the paper is a stub, and the closest literature (Ellison 1993, Young 1993) is not engaged. Does not meet the bar. In this session the README, paper and project.json got an audit-correction section and a softened headline, and the tests got an exact first-sweep check that catches both surviving mutants. The society-ringmf lookup table is left to that subject's own fix."
+}
