@@ -39,6 +39,6 @@
 
 ## Not covered
 
-- ifcJSON input; validation of the IDS file against the IDS XML schema; geometry or clash checks (IDS does not specify them).
+- ifcJSON input; geometry or clash checks (IDS does not specify them).
 
 Results are a reading of the model against the IDS, not a design review or professional advice.
