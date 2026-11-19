@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [seo, internal-links]
+topics: [seo]
 date: 2026-11-18
 ---
 # Polish: einvoice-preflight's "More countries" block, one list for 93 pages
