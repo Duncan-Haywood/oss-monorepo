@@ -152,14 +152,16 @@
    "what": "JSON-LD featureList claims 'random-arrival up-peak simulation with waiting and journey times'; journey times (sim.meanJourney) are computed but never shown on the page or in the CLI text report",
    "where": "ventures/elevator-traffic-analysis/index.html:12",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "low",
    "what": "Dropping the speed axis from the Pareto dominance filter in searchDesigns leaves every test green: no test pins the frontier beyond its first row",
    "where": "ventures/elevator-traffic-analysis/engine.mjs:207",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "low",
@@ -176,6 +178,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"],
  "verdict": "A correct, well-verified up-peak RTT tool. Five outputs recomputed with my own CIBSE Guide D / Barney implementation (example RTT 147.027 s, interval 36.757 s, 10.28%; unequal-population S/H also by Monte Carlo; unequal heights + express + losses by hand 125.11 s; 12 flight times in all regimes; two design-search rows) all match to 4 s.f.; the only departure from the classic Guide D form is Peters' documented average-hop stop time (+0.7%). 29 tests pass and 9 of 10 seeded mutants are caught thanks to a byte-for-byte bench regeneration. A VT consultant would accept it as a feasibility check within its stated up-peak-only limits; the main gap is that the design search proposes slow-speed designs (1.0 m/s for a 43 m rise) because it has no speed or time-to-destination criterion, and the featureList promises journey times the page does not show."
 }

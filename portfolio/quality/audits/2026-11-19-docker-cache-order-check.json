@@ -141,56 +141,64 @@
    "what": "Glob manifest sources are not recognised: 'COPY package*.json ./' (the Node.js Docker guide layout), 'requirements*.txt', 'Gemfile*' fail the literal-filename regex, so a cache-correct Dockerfile is flagged install-missing-manifest-copy (BuildKit shows the install CACHED). Proposed fix: engine.mjs:208 `return sources.some((s) => ecosystem.manifestRe.test(s) || ecosystem.manifestRe.test(s.replace(/[*?]/g, \"\")));` plus a test; tried in a scratch copy: layout A becomes clean, 49/49 tests still pass",
    "where": "ventures/docker-cache-order-check/engine.mjs:208",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "high",
    "what": "False negative: a broad COPY between the manifest COPY and the install RUN ('COPY package.json ./; COPY . .; RUN npm ci') is reported clean, though BuildKit re-runs the install on every source edit. The check compares the broad copy to the manifest COPY line instead of the install line. Proposed fix: engine.mjs:270 `firstBroadCopyLine < state.manifestCopyLine` -> `firstBroadCopyLine < lineNumber` (and reword the message); tried in a scratch copy: layout B flagged, 49/49 tests pass",
    "where": "ventures/docker-cache-order-check/engine.mjs:270",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "high",
    "what": "Only the first install-looking RUN per ecosystem per stage is examined, so a bootstrap install ('pip install --upgrade pip', 'npm install -g pnpm', 'pip install poetry') is flagged as an install with no manifest copy and the real dependency install after it is never checked (false positive plus masked false negative)",
    "where": "ventures/docker-cache-order-check/engine.mjs:260",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "medium",
    "what": "Directory manifest copies ('COPY requirements/ requirements/' then 'pip install -r requirements/base.txt') are not recognised, flagging a cache-correct layout",
    "where": "ventures/docker-cache-order-check/engine.mjs:62",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "medium",
    "what": "Tests use only author-modelled layouts: no glob, bootstrap-install, directory-copy or broad-copy-between case; COPY --from skip and pnpm-lock.yaml mutants survive",
    "where": "ventures/docker-cache-order-check/engine.test.mjs:72",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "low",
    "what": "apt regexes need the subcommand right after apt-get: 'RUN apt-get -qq update' alone is not flagged. Fix: `/\\bapt(?:-get)?\\s+(?:-\\S+\\s+)*update\\b/i` and the same for install",
    "where": "ventures/docker-cache-order-check/engine.mjs:211",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "low",
    "what": "Worked-example button says 'three real issues' and page.test.mjs:111 is titled 'all three finding kinds', but the example yields 2 findings of 2 kinds. Fix: label '(two real issues)' or add a 'COPY . .; RUN yarn install'-free install line that triggers install-missing-manifest-copy, and assert the third kind",
    "where": "ventures/docker-cache-order-check/index.html:64",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "low",
    "what": "yarn installRe matches any 'yarn' command (yarn build, yarn test), so 'COPY . .; RUN yarn build' is reported as an install",
    "where": "ventures/docker-cache-order-check/engine.mjs:57",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "low",
@@ -200,6 +208,6 @@
    "origin": "maintenance"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"],
  "verdict": "A small, clean, zero-dependency engine shared by CLI and page that picks three genuinely documented cache-busting patterns and explains them correctly. Run against a real BuildKit rebuild it is right on 1 of 5 common layouts: it flags the Node.js-guide 'COPY package*.json ./; RUN npm ci; COPY . .' layout and two cache-correct Python layouts (pip self-upgrade first; requirements directory), while it passes 'COPY package.json ./; COPY . .; RUN npm ci', whose install BuildKit re-runs on every edit. As a --fail-on-risk CI gate it would block correct Dockerfiles and pass broken ones. Tests (49 pass, 4 of 6 mutants caught) cover only layouts the author modelled. Finished for what the README lists; does not meet the bar on correctness, verification or claims. Two of the three high defects are one-line fixes that keep the suite green."
 }

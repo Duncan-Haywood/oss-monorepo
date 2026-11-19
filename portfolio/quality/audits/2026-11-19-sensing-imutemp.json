@@ -80,16 +80,16 @@
  ],
  "defects": [
   {"severity": "medium", "what": "Headline 'no, once the ramp is fast enough' is stated generally but holds only when mu^2(k^2-1) > s^2; with the README's own mu=0.002, s=0.004 a 2x better unit is matchable at every ramp (15-16 units). Condition undisclosed. Fix: after the first bold sentence add 'This needs the shared tempco to dominate: mu^2(k^2-1) > s^2. With the illustrative mu = 0.002 and s = 0.004 that holds for k >= 3 but not k = 2, where 16 units always suffice.'",
-   "where": "research/sensing-imutemp/README.md:3", "category": "overclaim", "origin": "claims"},
+   "where": "research/sensing-imutemp/README.md:3", "category": "overclaim", "origin": "claims", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"},
   {"severity": "medium", "what": "No external prior work cited; the floor is the textbook equicorrelated-mean variance, and gyro-array correlated-error limits are treated in Bayard & Ploen (2005) and Skog et al. (IEEE TSP 2016). Fix: add a 'Prior work' line naming them and stating the contribution is a tempco-mechanism parametrisation of rho, not a new result.",
-   "where": "research/sensing-imutemp/README.md:7", "category": "research-design", "origin": "design"},
+   "where": "research/sensing-imutemp/README.md:7", "category": "research-design", "origin": "design", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"},
   {"severity": "medium", "what": "Shared tempco mu and spread s, which set every headline threshold, are invented ('both assumptions') although bias-over-temperature specs are published in consumer MEMS gyro datasheets; no sweep over mu/s shows whether the conclusion survives (it does not for s > mu*sqrt(k^2-1)).",
    "where": "research/sensing-imutemp/experiments/run.py:12", "category": "source-data", "origin": "spec"},
   {"severity": "medium", "what": "Headline case leaves the grade-level shared tempco uncompensated, and compensation scales mu and s by the same f; in practice the common mean is removed first by lot/factory thermal calibration using the on-die temperature sensor, so the modelled floor mostly describes an uncalibrated system.",
    "where": "research/sensing-imutemp/src/sensing_imutemp/model.py:38", "category": "scope-gap", "origin": "spec"},
   {"severity": "low", "what": "No test pins the better grade's tempco scaling or any headline number: mutant mu/k -> mu/sqrt(k) survives, as does ceil -> round in units_needed. Fix: add a test asserting units_needed(CHEAP, better_grade(CHEAP,3), 100, 0.1/60) == 15 and max_ramp_for_tie(..., 90, 100)*60 ~= 0.192.",
-   "where": "research/sensing-imutemp/tests/test_model.py:1", "category": "untested-core", "origin": "tests"}
+   "where": "research/sensing-imutemp/tests/test_model.py:1", "category": "untested-core", "origin": "tests", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"}
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"],
  "verdict": "Arithmetic is right and fully reproducible: run.py and figure.py regenerate results.txt and floor.svg byte-for-byte, and my own brute-force script, closed-form asymptote (0.2121 and 0.0435 degC/min for k = 3 and 10) and an independent rate-domain Monte Carlo all agree with the published tables. It falls short as research: the 'floor' is the textbook equicorrelated-mean variance with rho supplied by a shared tempco, no gyro-array literature is cited, mu and s are invented, the uncompensated shared-tempco case a practitioner would calibrate away carries the headline, and the headline's 'no' silently needs mu^2(k^2-1) > s^2 (false for k = 2 with its own parameters). Two of five seeded mutants survive. Does not meet the bar; finished for what it claims."
 }

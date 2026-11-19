@@ -168,7 +168,8 @@
    "what": "Headline and lede say no 40-evaluation run at 13.94 N finds a gripper that picks anything; results.json shows 13 of 60 runs (8 N bound) with clean picks > 0 and 4 with J > 0 (best clean 0.177). Only the median fails. Fix: 'At 13.94 N the median 40-evaluation run finds no working gripper (median best J -0.033/-0.032/-0.029); 4 of 60 runs reach J > 0, best 0.066.'",
    "where": "research/codesign-agri-pulloff/README.md:11",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "medium",
@@ -182,21 +183,24 @@
    "what": "The 10 N bound is described as Rajendran et al.'s peduncle (stem) gripping limit but applied as the total pad force on the fruit body; the fruit-body <10 N limit appears to be Dimeas et al.'s. Source and contact mis-stated.",
    "where": "research/codesign-agri-pulloff/src/codesign_agri_pulloff/pulloff.py:13",
    "category": "source-data",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "medium",
    "what": "Tests never pin the sourced constants, any reported result or the ranking logic: mutants of PULL_BEND/PULL_ONLY, GRIP_LIMIT and the ranking comparison all survive. A 5 s test asserting the 3.5 N/8 N reproduction and the constants would catch them.",
    "where": "research/codesign-agri-pulloff/tests/test_pulloff.py:1",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "low",
    "what": "Citation names 'Dimeas, Sako, Gaskell et al. (2015)'; the authors are Dimeas, Sako, Moulianitis, Aspragathos (Robotica 33(5):1085-1098, doi 10.1017/S0263574714001155).",
    "where": "research/codesign-agri-pulloff/README.md:56",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   },
   {
    "severity": "low",
@@ -217,9 +221,10 @@
    "what": "README says run.py takes about 10 min on 4 cores; a full rerun took 23 min 22 s on 4 cores (output identical). Pool.map's default chunking leaves workers idle while the 400-evaluation Bayesian jobs finish; chunksize=1 or ordering long jobs first would help.",
    "where": "research/codesign-agri-pulloff/README.md:36",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"],
  "verdict": "A small, honest, fully reproducible sensitivity run (a full private rerun gives a byte-identical results.txt): every reference optimum re-evaluates exactly from results.json, six 40-evaluation cells re-run to the same three decimals (including the parent's 0.574/0.611/0.635), and independent checks (realised median 0.94-0.95x, an analytic hold bound, hand cost) agree. It does not meet the bar: the headline that no 40-evaluation run at 13.94 N picks anything is false (13 of 60 do), the '8 of 10' ranking is 6 of 10 once tested, the 10 N limit is attributed to the wrong contact, the Dimeas citation has a wrong co-author, and the tests leave the sourced constants and ranking logic unpinned. As research it is an incremental extension of codesign-agri-sweep whose qualitative finding (pull-only detachment needs more hold than a friction gripper gives; bending first helps) is already in Dimeas 2015 and the JIRCAS tilting work."
 }
