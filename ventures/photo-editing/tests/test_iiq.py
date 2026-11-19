@@ -158,7 +158,8 @@ def make_iiq(codes: list[list[int]], fmt: int = 3, black: int | None = 1024, top
              cblack: list[int] | None = None, rblack: list[int] | None = None, split_col: int = 0,
              split_row: int = 0, orientation: int = 0, model: bytes = b"IQ180",
              romm=(1.6, -0.4, -0.2, -0.15, 1.3, -0.15, 0.0, -0.3, 1.3), mul=(2.0, 1.0, 1.5), seed: int = 1,
-             rows: list[bytes] | None = None) -> bytes:
+             rows: list[bytes] | None = None, extra_blobs: dict | None = None,
+             extra_values: dict | None = None) -> bytes:
     rng = random.Random(seed)
     height, width = len(codes), len(codes[0])
     if rows is None:
@@ -195,6 +196,9 @@ def make_iiq(codes: list[list[int]], fmt: int = 3, black: int | None = 1024, top
         offsets.append(len(sensor))
         sensor += r
     blobs[iiq.TAG_STRIPS] = struct.pack(f"<{height}I", *offsets)
+    blobs.update(extra_blobs or {})
+    for tag, value in (extra_values or {}).items():
+        put(tag, value)
 
     # IFD0 (Make, Model) right after the TIFF header's container, built last; offsets below are absolute.
     n_entries = len(entries) + len(blobs) + 1  # + TAG_DATA

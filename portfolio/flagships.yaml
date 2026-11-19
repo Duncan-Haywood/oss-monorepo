@@ -332,11 +332,11 @@ flagships:
       (eval/panasonic-rw2-format8-grid-*). S1R II 177 MP = LibRaw snapshot 202611,
       every sensel (eval/panasonic-rw2-177mp-libraw-*). IIQ 16-bit (IQ4, IQ3 100MP,
       Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs LibRaw's dE 16, unsettled
-      (eval/phaseone-iiq-16bit-*). Next: the H 25 IT8.7-2 card raw to judge the
-      matrices; IIQ flat-field (0x110); Sony's vignetting table vs an evenly lit
-      frame; a real DNG and a vignetting-calibrated lens through the pipeline's lens
-      stage; a real evenly lit frame shot wide open (corners level after lensfun's
-      vignetting?). More open items: NEXT.md.
+      (eval/phaseone-iiq-16bit-*). IIQ calibration (0x110) 2026-11-19: LibRaw's to 3
+      codes off dead columns (eval/phaseone-iiq-calibration-*). Next: the H 25
+      IT8.7-2 card raw to judge the matrices; calibration on IIQ S (iXU180 blue
+      5.2%); Sony's vignetting table vs an evenly lit frame. More open items:
+      NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

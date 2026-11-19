@@ -50,8 +50,8 @@ The last ``width % 8`` columns are raw 14-bit values. Stored values are the valu
 16 bits, before the row and column offsets (which are applied as for IIQ L).
 
 **Not read**: the uncompressed formats 1 and 2, of which no file has been checked against LibRaw here; each is refused with the reason, and the frame falls
-back to its preview in the cull. The per-sensor corrections in the metadata block at ``0x110`` (defect columns, the
-flat-field and the split-sensor curves LibRaw's ``phase_one_correct`` applies) are not applied.
+back to its preview in the cull. The per-sensor calibration in the block at ``0x110`` (defects, flat fields, the
+split-sensor and quadrant curves) is applied by ``shootflow.iiq_calibration`` since 2026-11-19.
 
 The format as dcraw and LibRaw read it (``parse_phase_one``, ``phase_one_load_raw_c``; IIQ S as LibRaw 0.21+
 reads it, ``decode_S_type``, LGPL-2.1/CDDL, read for the layout only, itself credited to Daniel Vogelbacher's
@@ -622,18 +622,26 @@ def colour_matrix(romm, mul) -> tuple[float, ...] | None:
     return tuple(float(v) for row in inv for v in row)
 
 
-def parse_iiq(data: bytes, use_native: bool = True) -> rd.RawImage:
-    """An IIQ's sensor data and DNG-equivalent tags (ColorMatrix1 from the file's own matrix)."""
+def parse_iiq(data: bytes, use_native: bool = True, calibrate: bool = True) -> rd.RawImage:
+    """An IIQ's sensor data and DNG-equivalent tags (ColorMatrix1 from the file's own matrix).
+
+    With ``calibrate`` (the default) the back's own sensor calibration from the ``0x110`` block is applied:
+    defects, flat fields, readout-half and quadrant curves (``shootflow.iiq_calibration``)."""
 
     fields = info(data)
     values, note = decode_sensor(data, fields, use_native)
+    calibration: list[str] = []
+    if calibrate:
+        from shootflow import iiq_calibration
+
+        calibration = iiq_calibration.apply(values, data, directory(data), fields, use_native)
     width, height = fields["width"], fields["height"]
     top, left = fields["top"], fields["left"]
     bottom = min(height, top + fields["image_height"])
     right = min(width, left + fields["image_width"])
     if not (0 <= top < bottom and 0 <= left < right):
         top, left, bottom, right = 0, 0, height, width
-    notes = [note]
+    notes = [note, *calibration]
     black = float(fields["black"])
     synth = rd.Ifd(byte_order="<")
     synth.entries = {

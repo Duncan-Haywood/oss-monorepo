@@ -1986,8 +1986,8 @@ black offsets for the split sensor halves added as dcraw does, by an optional C 
 106 M sensels) or the pure-Python reference. On ten real files from raw.pixls.us (H 25, P25, P20+, P25+,
 P30, P45+, P65+, IQ140, IQ150, IQ3 100MP) every one of 342.7 M sensels, the CFA, the white balance and
 the orientation equal LibRaw 0.22's; per-channel levels after black are within 0.7% of LibRaw's linear
-render on nine (P45+: 2.2%, where LibRaw also applies Phase One's flat-field and defect corrections, not
-applied here). The mean colour of eight of nine developed frames is within 0.02 in chromaticity of
+render on nine (P45+: 2.2%, where LibRaw also applies Phase One's flat-field and defect corrections; applied
+here too since 2026-11-19, which brings it to 0.02%). The mean colour of eight of nine developed frames is within 0.02 in chromaticity of
 LibRaw's render (P25+ 0.026; the two colour models differ, see the eval). The uncompressed formats and
 the 16-bit format 8 (IQ4, Trichromatic) are refused with the reason. Details:
 `eval/phaseone-iiq-reader-2026-11-18.md`; checks: `tools/iiq_libraw_check.py`,
@@ -2004,7 +2004,7 @@ the C decoder. Three of the six files send a refinement above the scale, which i
 negative count; all 880 such samples carry zero bits, so any reading gives LibRaw's values, and non-zero
 bits there are refused as corrupt (`tools/iiq_s_shift_check.py`). Levels after black are within
 0.6% of LibRaw's render on five of six; the iXU180, with offset tables down to -336, is 5.2% apart on
-blue, where Phase One's flat-field corrections (not applied) matter most. Details:
+blue, where Phase One's flat-field corrections (applied since 2026-11-19, see below) matter most. Details:
 `eval/phaseone-iiq-s-reader-2026-11-18.md`.
 
 **16-bit IIQ L: the IQ4 150MP and the Trichromatic (that evening).** Format 8, the last coded IIQ format
@@ -2021,6 +2021,22 @@ ColorChecker patches through the two matrices differ by a mean delta E of 16 (cy
 gives a cyan-blue sky and LibRaw's a lavender one, and with no photographed target neither can be called
 right, so the file's own matrix stays the default (`--dcp` overrides it). Details:
 `eval/phaseone-iiq-16bit-2026-11-18.md`; check: `tools/iiq_matrix_check.py`.
+
+**Phase One's sensor calibration (2026-11-19).** Every Phase One back writes a factory calibration into
+each raw, in the block at sensor tag `0x110`: defect maps, flat fields per tile and colour, a polynomial
+for the right readout half shifted by the sensor temperature, and per-quadrant gains and linearisation
+splines. Capture One and LibRaw apply it, and ShootFlow now does too, by default
+(`src/shootflow/iiq_calibration.py`; `iiq.parse_iiq(..., calibrate=False)` leaves it off). It matters:
+LibRaw's calibration moves the P45+ by 0.94-1.06 across the frame and the IQ180's four tiles by up to
+11%. On ten backs (H 25, P20+, P25, P25+, P30, P45+, P65+, IQ140, IQ150, IQ180; 387 M sensels) the
+calibrated sensels were compared with LibRaw 0.22's calibrated render. Leaving out the columns a file
+marks dead, five backs are equal on every sensel and the other five are within 3 codes, with none off
+by more than 1%. Before calibration, 1.7-96% of sensels were within 1%. The dead columns are filled
+with fixed weights, where LibRaw picks a direction for each sensel; on 300 good columns a frame,
+blanked and refilled on four backs, the two kinds of fill were equally good. The P45+'s channel levels
+moved from 2.2% off LibRaw's render to 0.02%. Calibration costs 0.15-0.8 s a frame with the C helper.
+Details: `eval/phaseone-iiq-calibration-2026-11-19.md`; check: `tools/iiq_calibration_check.py`;
+tests: `tests/test_iiq_calibration.py`.
 
 ### Hasselblad 3FR (2026-11-18)
 

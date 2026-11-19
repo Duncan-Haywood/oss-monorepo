@@ -74,3 +74,5 @@
 - (2026-11-18) lateral colour measured on a real frame with sharp corner edges
 - (2026-11-18) a real DNG carrying any opcode run only on synthetic files so far, or the SDK to check them
 - (2026-11-18) a second maker-against-lensfun DNG pair
+- (2026-11-19) a real evenly lit frame shot wide open (corners level after lensfun's vignetting?)
+- (2026-11-19) a real DNG and a vignetting-calibrated lens through the pipeline's lens stage
