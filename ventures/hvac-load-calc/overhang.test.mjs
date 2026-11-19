@@ -77,3 +77,14 @@ test('example house is unchanged by the new fields (no overhangs given)', () => 
   assert.equal(r.errors.length, 0);
   assert.ok(r.rooms.every(x => x.cooling.overhangSavedBtuDay === 0));
 });
+
+// Red-team 2026-11-19: guards for mutants that escaped the suite.
+test('overhang savings equal the drop in window sun, interior shade included', () => {
+  const shaded = w => ({ ...oneRoom(w), envelope: { interiorShade: 0.5 } });
+  const bare = calculate(shaded({}));
+  const eave = calculate(shaded({ overhangFt: 2, overhangGapFt: 1, windowHeightFt: 5 }));
+  let drop = 0;
+  for (let k = 0; k < 24; k++) drop += bare.rooms[0].cooling.byHour[k].windowSolar - eave.rooms[0].cooling.byHour[k].windowSolar;
+  assert.ok(drop > 0);
+  assert.ok(Math.abs(eave.rooms[0].cooling.overhangSavedBtuDay - drop) < 1e-6, `${eave.rooms[0].cooling.overhangSavedBtuDay} vs ${drop}`);
+});

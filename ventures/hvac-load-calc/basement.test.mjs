@@ -118,3 +118,12 @@ test('skylight inputs are validated', () => {
   assert.ok(v({ areaFt2: 10, tiltDeg: 120 }).some(e => /tilt/.test(e)));
   assert.ok(v({ areaFt2: 10, facing: 'UP' }).some(e => /facing/.test(e)));
 });
+
+// Red-team 2026-11-19: skylight conduction in cooling was untested (a * to / mutant escaped).
+test('skylight cooling conduction is U x area x (outdoor - indoor) every hour', () => {
+  const r = calculate({ site, envelope: { skylightU: 0.5 }, rooms: [{ ...atticRoom, skylights: [{ areaFt2: 10 }] }] });
+  for (const k of [0, 14, 20]) {
+    const dT = r.designDay[k].outdoorF - site.indoorCoolF;
+    close(r.rooms[0].cooling.byHour[k].skylights, 0.5 * 10 * dT, 1e-9);
+  }
+});

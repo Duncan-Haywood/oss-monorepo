@@ -81,9 +81,10 @@ export function buildPolicy(slo, periodDays = 30, base = DEFAULT_POLICY) {
 
 // How long until this alert fires, if the service starts failing `errorRatio`
 // of requests (constant traffic). Both windows must exceed the threshold; with
-// constant traffic the long window is the slower one.
+// constant traffic the long window is the slower one. The rule compares with a
+// strict ">", so a ratio exactly at the threshold never fires.
 export function detectionTime(policyRow, errorRatio) {
-  if (!(errorRatio > 0) || errorRatio < policyRow.errorRatioThreshold) return Infinity;
+  if (!(errorRatio > 0) || errorRatio <= policyRow.errorRatioThreshold) return Infinity;
   const longT = (policyRow.long * policyRow.errorRatioThreshold) / errorRatio;
   const shortT = (policyRow.short * policyRow.errorRatioThreshold) / errorRatio;
   return Math.max(longT, shortT);
