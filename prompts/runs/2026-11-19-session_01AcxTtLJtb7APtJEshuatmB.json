@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtLJtb7APtJEshuatmB",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "what does it seem to be that tech software startups do at this point. make a report on it. what start ups are getting funded by the vcs?",
+  "input_sha256": "6d0b55b088d54f071b48181d61449cf39eedd33d03ebb30aeec119cd9d57040d",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T16:22:30Z",
+  "ended": "2026-11-19T16:58:53Z",
+  "wall_minutes": 36.64,
+  "tokens_in": 17226325,
+  "tokens_out": 322128,
+  "cost_usd": 17.0095,
+  "tool_calls": 271,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17728",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "the deep-research skill's subagents were requested in the foreground but ran in the background; results arrived as notifications, no impact",
+    "news.crunchbase.com, menlovc.com, cnbc.com and techcrunch.com returned 403 to curl from the container (WebFetch reached them during research); the PitchBook-NVCA and HBS PDFs resolved and were re-checked"
+  ],
+  "integrity_issues": [
+    "research turned up an unverifiable Fortune opinion-piece claim that Nvidia's CEO resigned on 2026-11-12; left out of the report and post",
+    "several 2026 round figures appear only on AI-written aggregator sites; the report omits or labels them, and Cursor's ARR rests on a Wikipedia page with a reliability warning (attributed as such)"
+  ],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "deep-research skill (SKILL.md, step 2)",
+      "why": "it puts research_notes/ and reports/ in the working directory; in this repo that would litter the root, so notes and the draft lived in the session scratchpad and the final report went to docs/reports/ per .github/prompts/human-requests.md",
+      "did": "scratchpad notes, report in docs/reports/, post in docs/posts/",
+      "result": "check_posts and doc_index check ok"
+    },
+    {
+      "file": ".github/prompts/human-requests.md",
+      "why": "a market-research question fits neither ventures nor research cleanly; routed as explore",
+      "did": "promptctl.py route --track explore",
+      "result": "recorded as explore/0"
+    }
+  ],
+  "writeups": [
+    "docs/reports/startup-funding-2026-11-19.md",
+    "docs/posts/2026-11-19-what-venture-capital-funded-in-2026.md"
+  ],
+  "goal": null,
+  "notes": "Owner question answered with a sourced report on 2026 startups and VC funding. Five research passes (funding totals, AI models and infrastructure, AI applications, hard tech, early-stage patterns) and a writer pass. Re-checked PitchBook-NVCA Q3 2026 PDF: 515.8, 82.7%, 8,625, 108.5, 23.8, 78.1% and 992 present. Checks: check_posts ok (1 post, 1 report, 0 broken links, 0 near-copies among 6327 posts); doc_index check ok; run_workflow_locally --for-changes: 5/5 selected workflows passed, 124 steps ok; agent-cross-review and the portfolio-pages gate/deploy jobs only run in PR CI and were not run locally. Disclosure added: written by Claude, Anthropic is a subject.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "77db2e16-f498-57e0-a1bd-ef5411b940da",
+    "transcripts": 7,
+    "first": "2026-11-19T16:22:30Z",
+    "last": "2026-11-19T16:59:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 137,
+        "input": 277,
+        "output": 322128,
+        "thinking": 102918,
+        "cache_read": 15816458,
+        "cache_write_5m": 1291395,
+        "cache_write_1h": 118195,
+        "api_equivalent_usd": 17.0095,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 137,
+      "input": 277,
+      "output": 322128,
+      "thinking": 102918,
+      "cache_read": 15816458,
+      "cache_write_5m": 1291395,
+      "cache_write_1h": 118195,
+      "api_equivalent_usd": 17.0095,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.918,
+    "tool_calls": 271,
+    "tools": {
+      "WebSearch": 133,
+      "WebFetch": 57,
+      "Bash": 39,
+      "Read": 13,
+      "Write": 8,
+      "Agent": 6,
+      "ToolSearch": 6,
+      "SubagentHandback": 6,
+      "Skill": 1,
+      "SendUserFile": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 36.64,
+      "active_minutes": 11.75,
+      "model_minutes": 5.69,
+      "tool_minutes": 6.05,
+      "waiting_on_human_minutes": 24.89,
+      "human_prompts": 15,
+      "stalls": 0,
+      "subagent_minutes": 49.78
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an analyst gathering and reconciling ~2026 funding data from five tracker families and writing a 5,000-word sourced report plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 70.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

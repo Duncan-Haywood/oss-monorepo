@@ -1,0 +1,22 @@
+ship: 1272 rows; lifted - unlifted mean luma +0.0012, colour +0.0002; worst cell -0.0005 at SNR 200 wb; losers > 0.1 dB vs D 31 -> 24, new 0
+   SNR    12 equal n= 159  luma +0.0000  colour +0.0000  (gain over D: +1.200 -> +1.200)
+   SNR    12 wb    n= 159  luma +0.0000  colour +0.0000  (gain over D: +1.086 -> +1.086)
+   SNR    25 equal n= 159  luma +0.0009  colour +0.0006  (gain over D: +0.746 -> +0.747)
+   SNR    25 wb    n= 159  luma +0.0001  colour +0.0000  (gain over D: +0.652 -> +0.652)
+   SNR    60 equal n= 159  luma +0.0043  colour +0.0018  (gain over D: +0.327 -> +0.331)
+   SNR    60 wb    n= 159  luma +0.0013  colour -0.0002  (gain over D: +0.278 -> +0.279)
+   SNR   200 equal n= 159  luma +0.0024  colour -0.0000  (gain over D: +0.088 -> +0.090)
+   SNR   200 wb    n= 159  luma +0.0008  colour -0.0005  (gain over D: +0.088 -> +0.089)
+PASS h1 means within 0.005 dB, every cell within 0.02 dB
+PASS h2 fewer rows lose > 0.1 dB to D, none new
+FAIL h3 the worst SNR 200 row improves
+true: 1272 rows; lifted - unlifted mean luma +0.0026, colour +0.0020; worst cell -0.0011 at SNR 200 equal; losers > 0.1 dB vs D 9 -> 6, new 0
+   SNR    12 equal n= 159  luma +0.0000  colour +0.0000  (gain over D: +1.715 -> +1.715)
+   SNR    12 wb    n= 159  luma +0.0000  colour +0.0000  (gain over D: +2.228 -> +2.228)
+   SNR    25 equal n= 159  luma +0.0015  colour +0.0014  (gain over D: +1.143 -> +1.145)
+   SNR    25 wb    n= 159  luma +0.0004  colour +0.0006  (gain over D: +1.538 -> +1.539)
+   SNR    60 equal n= 159  luma +0.0083  colour +0.0055  (gain over D: +0.535 -> +0.543)
+   SNR    60 wb    n= 159  luma +0.0108  colour +0.0072  (gain over D: +0.755 -> +0.766)
+   SNR   200 equal n= 159  luma -0.0011  colour +0.0001  (gain over D: +0.079 -> +0.078)
+   SNR   200 wb    n= 159  luma +0.0011  colour +0.0013  (gain over D: +0.151 -> +0.152)
+verdict: the lift stays off

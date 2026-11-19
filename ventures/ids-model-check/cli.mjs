@@ -39,7 +39,7 @@ import { suggestBsddLinks, addBsddLinks, suggestReport } from "./bsdd-suggest.mj
 import { bcfZip } from "./bcf.mjs";
 import { junitXml } from "./ci.mjs";
 import { fixStructure } from "./fix.mjs";
-import { sheetFromIds, rowsToCsv, rowsToXlsx, sheetToRows, rowsToIds } from "./sheet.mjs";
+import { sheetFromIds, rowsToCsv, rowsToXlsx, sheetToRows, rowsToIds, sheetLists, sheetVersions } from "./sheet.mjs";
 import { inflateRawSync } from "node:zlib";
 import { readRequirementSheet, idsToExcel2Ids, excel2IdsToXlsx } from "./excel2ids.mjs";
 
@@ -88,7 +88,12 @@ if (flag("--from-bsdd") && files.length) {
   for (const n of r.notes) console.error(`not in the sheet: ${n}`);
   const out = opt("-o");
   if (!out) process.stdout.write(rowsToCsv(r.rows));
-  else writeFileSync(out, /\.xlsx$/i.test(out) ? rowsToXlsx(r.rows) : rowsToCsv(r.rows, /\.tsv$/i.test(out) ? "\t" : ","));
+  else if (/\.xlsx$/i.test(out)) {
+    // The dropdowns offer the classes, sets and data types of the versions the IDS names.
+    const load = (f) => JSON.parse(readFileSync(new URL("./schema/" + f, import.meta.url), "utf8"));
+    const v = sheetVersions(r.rows).map((x) => x.toLowerCase());
+    writeFileSync(out, rowsToXlsx(r.rows, { lists: sheetLists({ schemas: v.map((x) => load(x + ".json")), psets: v.map((x) => load("psets-" + x + ".json")) }) }));
+  } else writeFileSync(out, rowsToCsv(r.rows, /\.tsv$/i.test(out) ? "\t" : ","));
 } else if (flag("--from-sheet") && files.length === 1) {
   // Exit 0 when the IDS was written, 1 when rows could not be read (listed on stderr), 2 on a read error.
   let r;

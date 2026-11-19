@@ -7,6 +7,8 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 ## What it reports
 
 - Shadowed rules: earlier rules a later, broader rule overrides for every listed file (last match wins).
+- Redundant rules: shadowed only by rules naming the same owners (a notice: no file loses a reviewer).
+- Pattern matching tested against `git check-ignore` itself on generated patterns, apart from GitHub's documented exceptions.
 - Unmatched rules (matched none of the listed files) and uncovered files (no rule at all).
 - Syntax errors: owners that are not @user, @org/team or an email, and the gitignore syntax GitHub says does not work in CODEOWNERS (`!` negation, `[ ]` ranges, `\#` escapes).
 

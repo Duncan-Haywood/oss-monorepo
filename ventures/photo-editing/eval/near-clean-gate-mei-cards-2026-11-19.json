@@ -1,0 +1,302 @@
+{
+ "Canon EOS 350D.CR2": {
+  "card": "Canon EOS 350D",
+  "keep": true,
+  "split": "tune"
+ },
+ "Canon EOS 600D.CR2": {
+  "card": "Canon EOS 600D",
+  "keep": true,
+  "split": "tune"
+ },
+ "Canon EOS 70D.cr2": {
+  "card": "Canon EOS 70D",
+  "keep": true,
+  "split": "held"
+ },
+ "Canon EOS 7D.cr2": {
+  "card": "Canon EOS 7D",
+  "keep": true,
+  "split": "tune"
+ },
+ "DJI Phantom 4 (1).dng": {
+  "card": "DJI Phantom 4",
+  "keep": true,
+  "split": "held"
+ },
+ "DJI Phantom 4 (2).dng": {
+  "card": "DJI Phantom 4",
+  "keep": true,
+  "split": "held"
+ },
+ "FujiFilm EX-2.raf": {
+  "card": "FujiFilm EX",
+  "keep": true,
+  "split": "tune"
+ },
+ "FujiFilm FinePix S5500.raf": {
+  "card": "FujiFilm FinePix S5500",
+  "keep": true,
+  "split": "tune"
+ },
+ "Fujifilm X-E1.raf": {
+  "card": "Fujifilm X-E1",
+  "keep": true,
+  "split": "held"
+ },
+ "Issue 247-1.nef": {
+  "card": "Issue 247",
+  "keep": true,
+  "split": "held"
+ },
+ "Issue 247-2.nef": {
+  "card": "Issue 247",
+  "keep": true,
+  "split": "held"
+ },
+ "Issue 247-3.nef": {
+  "card": "Issue 247",
+  "keep": true,
+  "split": "held"
+ },
+ "Issue 247-4.nef": {
+  "card": "Issue 247",
+  "keep": true,
+  "split": "held"
+ },
+ "Issue 419.rw2": {
+  "card": "Issue 419",
+  "keep": true,
+  "split": "tune"
+ },
+ "LG Nexus 5X.dng": {
+  "card": "LG Nexus 5X",
+  "keep": true,
+  "split": "held"
+ },
+ "Leica T (Typ 701).dng": {
+  "card": "Leica T (Typ 701)",
+  "keep": true,
+  "split": "tune"
+ },
+ "Leica X VARIO (Typ 107).dng": {
+  "card": "Leica X VARIO (Typ 107)",
+  "keep": true,
+  "split": "tune"
+ },
+ "Nikon 800E.nef": {
+  "card": "Nikon 800E",
+  "keep": true,
+  "split": "held"
+ },
+ "Nikon D300.nef": {
+  "card": "Nikon D300",
+  "keep": true,
+  "split": "held"
+ },
+ "Nikon D5100.nef": {
+  "card": "Nikon D5100",
+  "keep": true,
+  "split": "held"
+ },
+ "Nikon D70.nef": {
+  "card": "Nikon D70",
+  "keep": true,
+  "split": "tune"
+ },
+ "Nikon D810.nef": {
+  "card": "Nikon D810",
+  "keep": true,
+  "split": "held"
+ },
+ "Nikon D90.nef": {
+  "card": "Nikon D90",
+  "keep": true,
+  "split": "tune"
+ },
+ "NikonD200.nef": {
+  "card": "NikonD200",
+  "keep": true,
+  "split": "held"
+ },
+ "OM System TG-7.ORF": {
+  "card": "OM System TG",
+  "keep": true,
+  "split": "tune"
+ },
+ "OM Sytem OM-1.orf": {
+  "card": "OM Sytem OM",
+  "keep": true,
+  "split": "held"
+ },
+ "Olympus C5050Z.orf": {
+  "card": "Olympus C5050Z",
+  "keep": true,
+  "split": "held"
+ },
+ "Olympus C8080.orf": {
+  "card": "Olympus C8080",
+  "keep": true,
+  "split": "tune"
+ },
+ "Olympus E-M10.orf": {
+  "card": "Olympus E-M10",
+  "keep": true,
+  "split": "tune"
+ },
+ "Olympus E-M5.orf": {
+  "card": "Olympus E-M5",
+  "keep": true,
+  "split": "tune"
+ },
+ "Olympus E-PL7.orf": {
+  "card": "Olympus E-PL7",
+  "keep": true,
+  "split": "held"
+ },
+ "Olympus E-PM1.orf": {
+  "card": "Olympus E-PM1",
+  "keep": true,
+  "split": "tune"
+ },
+ "Olympus E30.orf": {
+  "card": "Olympus E30",
+  "keep": true,
+  "split": "held"
+ },
+ "Olympus E410.orf": {
+  "card": "Olympus E410",
+  "keep": true,
+  "split": "held"
+ },
+ "Olympus E600.orf": {
+  "card": "Olympus E600",
+  "keep": true,
+  "split": "tune"
+ },
+ "Olympus PEN E-P3.orf": {
+  "card": "Olympus PEN E-P3",
+  "keep": true,
+  "split": "held"
+ },
+ "Olympus Pen E-PL1.orf": {
+  "card": "Olympus Pen E-PL1",
+  "keep": true,
+  "split": "tune"
+ },
+ "Olympus SP350.orf": {
+  "card": "Olympus SP350",
+  "keep": true,
+  "split": "tune"
+ },
+ "Olympus SP500UZ.orf": {
+  "card": "Olympus SP500UZ",
+  "keep": true,
+  "split": "held"
+ },
+ "Olympus TG-4.orf": {
+  "card": "Olympus TG",
+  "keep": true,
+  "split": "tune"
+ },
+ "Olympus TG-6.ORF": {
+  "card": "Olympus TG",
+  "keep": true,
+  "split": "tune"
+ },
+ "Olympus XZ1.orf": {
+  "card": "Olympus XZ1",
+  "keep": true,
+  "split": "tune"
+ },
+ "Panasonic DMC-GF1.rw2": {
+  "card": "Panasonic DMC-GF1",
+  "keep": true,
+  "split": "held"
+ },
+ "Panasonic DMC-GF3.rw2": {
+  "card": "Panasonic DMC-GF3",
+  "keep": true,
+  "split": "tune"
+ },
+ "Panasonic DMC-GF7.rw2": {
+  "card": "Panasonic DMC-GF7",
+  "keep": true,
+  "split": "tune"
+ },
+ "Panasonic Lumix DMC-LX7.rw2": {
+  "card": "Panasonic Lumix DMC-LX7",
+  "keep": true,
+  "split": "held"
+ },
+ "Pentax K-1 Mark II.pef": {
+  "card": "Pentax K-1 Mark II",
+  "keep": true,
+  "split": "tune"
+ },
+ "Pentax QS1.dng": {
+  "card": "Pentax QS1",
+  "keep": true,
+  "split": "tune"
+ },
+ "Samsung EK-GN120 (Galaxy NX).srw": {
+  "card": "Samsung EK-GN120 (Galaxy NX)",
+  "keep": true,
+  "split": "held"
+ },
+ "Samsung NX1.srw": {
+  "card": "Samsung NX1",
+  "keep": true,
+  "split": "held"
+ },
+ "Samsung NX20.srw": {
+  "card": "Samsung NX20",
+  "keep": true,
+  "split": "held"
+ },
+ "Samsung NX3000.srw": {
+  "card": "Samsung NX3000",
+  "keep": true,
+  "split": "held"
+ },
+ "Sony DSLR-A500.arw": {
+  "card": "Sony DSLR-A500",
+  "keep": true,
+  "split": "tune"
+ },
+ "Sony ILCE-5000 (A5000).arw": {
+  "card": "Sony ILCE-5000 (A5000)",
+  "keep": true,
+  "split": "held"
+ },
+ "Sony ILCE-7M3 (A7M3).arw": {
+  "card": "Sony ILCE-7M3 (A7M3)",
+  "keep": true,
+  "split": "held"
+ },
+ "Sony ILCE-7M4 (A7M4).ARW": {
+  "card": "Sony ILCE-7M4 (A7M4)",
+  "keep": true,
+  "split": "held"
+ },
+ "Sony NEX-5N.arw": {
+  "card": "Sony NEX-5N",
+  "keep": true,
+  "split": "tune"
+ },
+ "Sony NEX-7.arw": {
+  "card": "Sony NEX",
+  "keep": true,
+  "split": "tune"
+ },
+ "bigtiff.dng": {
+  "card": "bigtiff",
+  "keep": true,
+  "split": "held"
+ },
+ "bigtiff_be.dng": {
+  "card": "bigtiff_be",
+  "keep": true,
+  "split": "tune"
+ }
+}

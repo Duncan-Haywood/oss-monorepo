@@ -471,6 +471,8 @@ TAKE_SURVEY_TRIM = 0
 # ball's take fits inside one revolution, so every candidate fits as the step does). It adds the same to every sum, so
 # it cannot move the pick, but it pulls the best / step share toward 1 and hides the advice; such wheels are left out.
 # 1 (or 0) keeps every wheel. Chosen on ten stored sets, held out on two fresh ones (eval/take-survey-blind-2026-11-18.md).
+# Rechecked on the nine-point grid by the Pi's own advice (2026-11-19, eval/take-blind-nine-2026-11-19.md): fresh jittery
+# sets AA and AB named 30 of 60 spread takes at 1.5 against 22 with every wheel kept; 3 tied at 30, so 1.5 stays.
 TAKE_SURVEY_BLIND = 1.5
 
 # The take survey's pick between grid sums (2026-11-18, eval/take-survey-fresh-2026-11-18.md): False refines the least

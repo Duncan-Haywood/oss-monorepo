@@ -518,6 +518,7 @@ ventures/gig-driver-net-pay-calculator/usage.mjs
 ventures/git-bus-factor-check/usage.mjs
 ventures/git-exposure-check/usage.mjs
 ventures/git-timesheet/usage.mjs
+ventures/gitattributes-explainer/usage.mjs
 ventures/gitignore-explainer/usage.mjs
 ventures/glamping-unit-payback-calculator/usage.mjs
 ventures/golf-simulator-bay-profit-calculator/usage.mjs
@@ -539,6 +540,7 @@ ventures/gravel-driveway-bid-calculator/usage.mjs
 ventures/grazing-lease-rate-calculator/usage.mjs
 ventures/grease-trap-pumping-price-calculator/usage.mjs
 ventures/greenhouse-bench-planner/usage.mjs
+ventures/gtfs-feed-check/usage.mjs
 ventures/gtin-list-check/usage.mjs
 ventures/gumroad-sales-fee-analyzer/usage.mjs
 ventures/gumroad-sales-to-journal/usage.mjs

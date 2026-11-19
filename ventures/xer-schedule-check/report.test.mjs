@@ -54,7 +54,7 @@ test("the document is self-contained, escapes input and carries the disclaimer",
   assert.match(html, /Date: 2026-11-19/);
   assert.match(html, /Reply in 7 days/);
   assert.match(html, /6 of 14 pass/);
-  assert.match(html, /\+15 working days: progress \+6 working days, revisions \+9 working days/);
+  assert.match(html, /\+15 working days: progress \+8 working days, revisions \+7 working days/);
   assert.match(html, /3 high-priority corrections should be made/);
   assert.match(html, /What changed since the previous update/);
   assert.match(html, /not engineering, legal, contractual or scheduling advice/);

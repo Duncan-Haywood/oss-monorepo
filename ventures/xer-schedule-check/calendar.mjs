@@ -54,8 +54,11 @@ export function parseClndrData(s) {
 
 function hm(t) {
   const m = /^(\d{1,2}):(\d{2})$/.exec(t.trim());
-  if (!m) throw new Error(`calendar data: bad time '${t}'`);
-  return +m[1] * 60 + +m[2];
+  // 00:00 to 24:00 only: a time past the day's end (25:00, 17:60) would put
+  // working periods into the next day and silently shift every date
+  const v = m ? +m[1] * 60 + +m[2] : NaN;
+  if (!m || +m[2] > 59 || v > 24 * 60) throw new Error(`calendar data: bad time '${t}'`);
+  return v;
 }
 
 function periodOf(params) {
@@ -119,16 +122,18 @@ export class Calendar {
     return new Calendar({ id: row.clndr_id, name: row.clndr_name || "", week, exceptions, hoursPerDay: hpd });
   }
 
-  // Monday to Friday, `hours` a day from 08:00 with an hour's break at
-  // 12:00 once the day runs past noon (P6's own default pattern for 8 h)
-  static weekdays(hours = 8, id = "weekdays", name = "") {
+  // Monday to Friday (or the first `days` days from Monday: 6 adds
+  // Saturday, 7 is every day), `hours` a day from 08:00 with an hour's break
+  // at 12:00 once the day runs past noon (P6's own default pattern for 8 h)
+  static weekdays(hours = 8, id = "weekdays", name = "", days = 5) {
     const m = Math.round(hours * 60);
     const start = 8 * 60;
     let d;
     if (start + m <= 12 * 60) d = [[start, start + m]];
     else if (13 * 60 + (m - 240) <= DAY) d = [[start, 12 * 60], [13 * 60, 13 * 60 + (m - 240)]];
     else d = [[Math.max(0, DAY - m), DAY]];
-    return new Calendar({ id, name, week: [[], d, d, d, d, d, []], hoursPerDay: hours });
+    const week = [days >= 7 ? d : [], d, d, d, d, d, days >= 6 ? d : []];
+    return new Calendar({ id, name, week, hoursPerDay: hours });
   }
 
   static allDay() {

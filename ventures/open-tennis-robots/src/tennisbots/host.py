@@ -432,6 +432,10 @@ TAKE_BOUND_TOL = 0.02
 # design sets still miss 7 of 242 at floor 0 (real 2 ms takes just over 2%), cover 242 at floor 2, and bound 27 of 42
 # instant builds at 1.5 ms against 25 on whole ppm; it is a noise margin. Held out on sets W and X: 97 of 97 at every
 # floor 0-2, instant 9 of 12, so it stays 2 (eval/take-bound-floor-tenths-2026-11-19.md).
+# Sets Y and Z (1.8-2.2 ms takes, rule committed first): floor 0 missed 3 of 54 (steps 6-9 ppm), 1 ppm missed 2,
+# 2 ppm none; the floor is needed, at 5 of 12 instant builds bounded 1.5 ms against 8 (eval/take-bound-floor-near2-2026-11-19.md).
+# A floor of k standard errors of the step's rms instead (2026-11-19, eval/take-bound-floor-se-2026-11-19.md): on all nine
+# design sets the least k covering every build bounded 24 of 66 instant builds at 1.5 ms against this floor's 41; closed.
 TAKE_BOUND_FLOOR_PPM = 2
 # The grid each frame length carries (older firmware: eight candidates before the short-take grid, seven before 7 ms)
 TAKE_SURVEY_GRIDS_MS = {9: TAKE_SURVEY_MS, 8: (0, 2, 3, 4, 5, 6, 7, 8), 7: (0, 2, 3, 4, 5, 6, 8)}

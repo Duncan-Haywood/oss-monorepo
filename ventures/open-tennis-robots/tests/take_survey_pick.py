@@ -41,7 +41,7 @@ wheel and a longer TAKE_SURVEY frame, so a tie keeps the shipped grid).
 
 HELD OUT: wheel lag 0.6 s, seed 31 (neither used by the design set), the same takes, tachs and launchers.
 
-    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl [--lag 0.45] [--seed 29] [--procs 4] [--takes "0.5,1.5,...,0"]
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl [--lag 0.45] [--seed 29] [--procs 4] [--takes "0.5,1.5,...,0"] [--tach 1]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score rows.jsonl[.gz] [--procs 4]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score rows.jsonl[.gz] --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"
 
@@ -289,6 +289,9 @@ def main():
     takes = (tuple(float(x) for x in sys.argv[sys.argv.index("--takes") + 1].split(","))
              if "--takes" in sys.argv else TAKES_MS)
     grid = [(ti, ki, li, lag, seed) for ki in range(len(TACHS)) for ti in range(len(takes)) for li in range(3)]
+    if "--tach" in sys.argv:            # 2026-11-19: one tach only (tests/take_blind_nine.py's jittery-tach sets)
+        tk = int(sys.argv[sys.argv.index("--tach") + 1])
+        grid = [g for g in grid if g[1] == tk]
     if only:
         grid = grid[:only]
     grid = [g + (takes,) for g in grid if g not in done]

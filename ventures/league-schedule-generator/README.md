@@ -351,7 +351,54 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Tabu search finds whist designs for 48 and 60 players, and near-whist designs for 46, 54 and 62 (2026-11-19, latest)
+## Whist designs for 52 and 57: two more group structures, and why the shortcuts can't work (2026-11-19, latest)
+
+52 and 57 players are the two whist sizes up to 64 with no stored design (52 plays design 53 with an
+empty seat; 57 falls back to the greedy search, which repeats 89 partnerships over 57 rounds at 14
+courts). Every search so far used one base round on a cyclic group (Z51 + infinity, Z57). This run
+tried two structures that search cannot reach, and checked the literature on why the shortcuts fail.
+
+**Why multipliers and patterned starters fail here (literature, not new).** A base round whose
+partner pairs are all {x, -x} is a *patterned starter* (Finizio's term), the shape the -1
+multiplier forces (the section below). For 4k+1 players it exists only if the size is 1 or 5 mod 12
+(Hu and Ge 2012, confirming Zhang and Chang 2009 and Abel, Anderson and Finizio 2011): 57 is 9 mod 12,
+so none exists. For 4k players on Z_v + infinity with v = 3 mod 12, it needs v = 3^(2a+1) v1 with
+v1 = 1 mod 12 (Hu and Ge): 51 = 3 x 17 and 17 is 5 mod 12, so none exists for 52 either. That
+explains, and proves, what the search found below. Source: the survey in Section 2.1 of
+arXiv:1911.07189 ("Partitionable sets, almost partitionable sets and their applications"), which
+cites those results. A whist design exists for every 4k and 4k+1 size (settled in the 1970s, same survey), so 52 and
+57 are a search problem, not an impossibility.
+
+**Two structures searched** (`eval/whist-orbits.c`, tabu search as in `eval/whist-anneal.c`, but over
+several base rounds or a non-abelian group; results in `eval/whist-orbits.txt`, found lines
+re-checked pair by pair with `checkWhist` by `eval/whist-orbits-check.mjs`):
+
+- **Non-abelian group Z19 x| Z3** (57 players; (a,b)(c,d) = (a + 7^b c, b + d)). Round g is g times
+  the base round. On the small case, Z7 x| Z3 (21 players), it finds a design in 68 ms. At 57 it
+  reached cost 2 (one difference class one game over, another one under) in every one of six runs:
+  2 x 20 min and 4 x 15 min, tenures 3 to 10, restarts every 1,000 to 50,000 steps, about 100 CPU-min.
+  At cost 2 the class over and the class under had different images in Z3 in 4 of 5 dumped states.
+  The level counts that image implies were checked and are satisfiable, so it is not that simple
+  an obstruction.
+- **Three levels, Z17 x {0,1,2} + infinity** (52 players) and Z19 x {0,1,2} (57): three base rounds,
+  each developed mod 17 or 19. It finds 16 players (Z5 x 3 + infinity) but nothing at 21, 28, 33 or
+  40 in 60 s, and its best at 52 in 2 x 20 min was cost 12. This is worse than the plain cyclic
+  search, so drop it.
+- **The base round fixed by (a,b) -> (-a,b)** on the non-abelian group (`WHIST_SIGMA`): 21 is never
+  found (3 x 20 s, cost 2-4), so this symmetry likely carries an obstruction like the -1
+  multiplier's. Not tried at 57.
+
+**57 on design 60 with three empty seats** (`eval/ghost-seats.mjs`, `eval/ghost-seats.txt`): of the
+34,220 choices of 3 ghost seats, 1,298 leave every real player within one game of the rest, with 0
+repeat partners. But each ghost sits at 59 tables and each pair of ghosts shares 3, so at most
+59 x 15 - (177 - 9) = 717 games are left. That is 12.15 busy courts a round of 14, under the 90% that
+`whistWorthIt` asks for (12.6), whichever seats are chosen. So the greedy search stays for 57.
+
+Nothing changes on the page. Next for 57: a SAT encoding on Z19 x| Z3 (the near-whist SAT in
+`eval/near-whist-sat.py` is the template), or a design built from smaller ones (product theorems,
+Anderson, Finizio and Leonard 1999) rather than more tabu hours.
+
+## Tabu search finds whist designs for 48 and 60 players, and near-whist designs for 46, 54 and 62 (2026-11-19, later)
 
 The sizes below were left on a fallback because 20 CPU-minutes of backtracking (`eval/whist-search.c`)
 found nothing for 48, 52, 57 or 60, and 15 minutes of annealing (`eval/near-whist-search.mjs`) nothing
@@ -437,6 +484,46 @@ once or twice, against greedy's 45 repeat partners and pairs meeting up to 5 tim
 Tested in `whist.test.mjs` (stored sizes, full-court nights at 40, 41, 45, 49, 56 and 64, one-seat nights
 at 39 and 63, the field construction from 5 to 101).
 
+## Near-whist designs by SAT: slower than tabu, and two shortcuts ruled out (2026-11-19)
+
+The annealing search below stalled at 46 and 54 players (15 and 10 minutes, nothing). A SAT model of the same
+base round, `eval/near-whist-sat.py` (python-sat, CaDiCaL), finds **46** in 107 s (the tabu search above, landed the same day, found it in 9 s and its base is the one
+stored), and the developed design passes `checkNearWhist` (`eval/near-whist-check-line.mjs` checks a result line without storing it). It encodes
+pairs, not seats, so the table order and the eight seatings of a table never enter the search: P(p,q) for
+partners, T(p,q) for sharing a table (transitive, three table-mates each, so the tables are 4-cliques), opponents
+as T and not P, exactly two points out (point 0 fixed out by translation), and each distance 1..2k a
+cardinality constraint (partners exactly once, opponents at most twice, the half-circle distance never as
+partners and exactly once as opponents). On sizes already stored it takes 0.04 s (14), 0.4 s (22), 4 s (30),
+0.9 s (34) and 5 s (38) against annealing's 0.01 s, 1 s, 11 s, 4 s and 108 s; 42 with seed 0 found nothing in
+300 s, so run times are heavy-tailed and seeds matter (`eval/near-whist-sat.txt`).
+
+Two shortcuts that do not work, so the next run does not retry them:
+
+- **A design mapped onto itself by x -> c - x (a mirror) does not exist for any 4k+2.** The solver says UNSAT in
+  milliseconds for 6 to 30; the reason is short. A mirror sends a partner pair {a, b} to {c-a, c-b}, at the same
+  distance. Every distance is used once, so each partner pair must be its own mirror image, b = c - a, and its
+  distance c - 2a (or n minus it) has the parity of c, because n is even. The distances 1..2k include both
+  parities, so the other parity is never covered. (For whist designs on an odd
+  group, as in the section above, 2 is a unit and this parity argument does not apply.)
+- **A multiplier.** On Z46, Z58 and Z62 every unit of order above 2 fixes only 0 and n/2, and the half-circle
+  opponent pair would then repeat once per orbit (it must appear exactly once). Z54 has the order-3 unit 37
+  with 18 fixed points; the model with that symmetry is UNSAT in 0.3 s.
+
+**Which two points sit out.** A partner pair at an odd distance joins an even and an odd point; there are k
+odd distances in 1..2k. With 2k+1 even and 2k+1 odd points, the seated evens and odds pair up only if the
+two points out are an odd distance apart when k is even and an even distance apart when k is odd (every
+stored base agrees, `whist.test.mjs`). Multiplying a design by a unit gives another one, so the second point
+out can also be taken to be a divisor of n: `--out2 d` fixes it, which leaves one case for 62 (d = 2), two for
+58 (1, 29) and three for 54 (2, 6, 18).
+
+**Where SAT loses.** Plain runs of 50 minutes (54 with two seeds, 58, 62) and the `--out2` cases of 40 minutes
+(54 with d = 2, 58 with 1 and 29, 62 with 2) found nothing and proved nothing (`eval/near-whist-sat.txt`),
+while tabu found 54 in 9 s and 62 in 148 s. So for these sizes the local search is the tool, and SAT is
+worth it only for a proof of impossibility, which it did not reach. 58 is the one near-whist size up to 62
+that neither method has. The same restriction in the tabu search (`WHIST_OUT2=d` in `eval/whist-anneal.c`:
+the two points out fixed to 0 and d) did not change that: 58 with d = 1 and 29, tenures 4 and 6, restarts every
+50,000 steps, 15 minutes each on four cores, found nothing (`eval/whist-anneal.txt`).
+
 ## Americano for 4k+2 players: near-whist designs (2026-11-19)
 
 The whist designs below cover 4k and 4k+1 players (and 4k+3 with one empty seat). 6, 10, 14, 18, 22 ...
@@ -459,9 +546,10 @@ needs partner distances 1..2k exactly once and never 2k+1, opponent distances 1.
 
 `eval/near-whist-search.mjs` finds the bases by simulated annealing on the base round (swap moves,
 short restarts): 6 to 34 in under 12 s each, 38 in 108 s, 42 in 45 s, 50 in 8.6 min; 46 found nothing in 15 min
-(seed 1) and 54 nothing in 10 min, so those stay on greedy (`eval/near-whist-search.txt`).
+(seed 1) and 54 nothing in 10 min (`eval/near-whist-search.txt`). 46, 54 and 62 have designs since (tabu search,
+section "Tabu search finds whist designs ..." above; 46 also by SAT).
 `eval/near-whist-bases-build.mjs` keeps only bases whose developed design passes `checkNearWhist`, an
-independent pair-by-pair check. Stored: 6, 10, 14, 18, 22, 26, 30, 34, 38, 42 and 50 players. Against the greedy search on the same
+independent pair-by-pair check. Stored: 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54 and 62 players. Against the greedy search on the same
 players, courts and rounds (`eval/whist-vs-greedy.txt`, a court for every four players):
 
 | players | greedy repeat partners | greedy never partner | greedy opponents | near-whist repeat partners | near-whist never partner | near-whist opponents |
@@ -476,6 +564,7 @@ players, courts and rounds (`eval/whist-vs-greedy.txt`, a court for every four p
 | 34 | 11 | 28 | 0-4 | 0 | 17 | 1-2 |
 | 38 | 15 | 34 | 0-5 | 0 | 19 | 1-2 |
 | 42 | 24 | 45 | 0-5 | 0 | 21 | 1-2 |
+| 46 | 37 | 60 | 0-5 | 0 | 23 | 1-2 |
 
 With fewer courts than tables the design is dealt into rounds as before (26 players on 3 courts: 52
 rounds, 0 repeats, against greedy's 25 on the same 52 rounds), and the page hints that round count.

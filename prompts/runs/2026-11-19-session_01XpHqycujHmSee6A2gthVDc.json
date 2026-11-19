@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqycujHmSee6A2gthVDc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T15:38:57Z",
+  "ended": "2026-11-19T15:45:12Z",
+  "wall_minutes": 6.48,
+  "tokens_in": 2349310,
+  "tokens_out": 12603,
+  "cost_usd": 1.2873,
+  "tool_calls": 29,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17710",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace OLD must be the unfolded value; copying the YAML's wrapped lines fails (the error message says so, cost one retry)."
+    },
+    {
+      "file": "ventures/open-tennis-robots/tests/take_bound_floor_tenths.py",
+      "issue": "--heldout prints the W/X rule's clauses and decision regardless of the set; on Y/Z it printed 'FAILED ... reopens' for a rule this run did not use, which a later reader could mistake for this run's verdict (explained in the eval note)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-bound-floor-near-two-ms.md",
+    "ventures/open-tennis-robots/eval/take-bound-floor-near2-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Flagship open-tennis-robots buildable item: pre-registered (2005990fa), captured sets Y,Z (72 drills, 1.8-2.2 ms + instant). Floor 0 covered 51/54, floor 2 54/54: floor shown needed; costs instant tightness 5/12 vs 8/12. Next item (noise-scaled floor) in NEXT.md. Only a host.py comment changed; venture tests run locally via run_venture_tests.py.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "65605677-be82-52b1-8b19-65b0e310f04f",
+    "transcripts": 1,
+    "first": "2026-11-19T15:38:57Z",
+    "last": "2026-11-19T15:45:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 56,
+        "output": 12603,
+        "thinking": 1489,
+        "cache_read": 2276796,
+        "cache_write_5m": 0,
+        "cache_write_1h": 72458,
+        "api_equivalent_usd": 1.2873,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 56,
+      "output": 12603,
+      "thinking": 1489,
+      "cache_read": 2276796,
+      "cache_write_5m": 0,
+      "cache_write_1h": 72458,
+      "api_equivalent_usd": 1.2873,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 29,
+    "tools": {
+      "Bash": 27,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.48,
+      "active_minutes": 6.48,
+      "model_minutes": 2.28,
+      "tool_minutes": 4.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "design a held-out test, run two simulated captures, score and write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 233.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

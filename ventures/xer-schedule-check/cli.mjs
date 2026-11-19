@@ -6,23 +6,37 @@
 // Either form takes --report review.html [--to NAME] [--from NAME] [--ref TEXT]
 // [--notes TEXT]: the written review (report.mjs) to print or save as a PDF.
 // node cli.mjs schedule.xer --risk [N] [--range 90,100,125] [--correlation 0.3]
-//   [--ranges ranges.csv] [--risks register.csv] [--seed S] [--csv drivers.csv] [--json] [--project CODE]
+//   [--ranges ranges.csv] [--ranges-udf auto|"opt,likely,pess" [--udf-unit days|hours|pct]] [--risks register.csv] [--seed S] [--csv drivers.csv] [--json] [--project CODE]
 // Monte Carlo finish-date risk instead (risk.mjs): P10/P50/P80/P90, the chance
 // of the forecast and must-finish dates, criticality index per activity;
 // --risks adds risk register events (id, probability, min, likely, max days,
 // activity IDs) and ranks them by how far they move the finish. With --report,
 // the written review carries the risk section and its corrections too (also
 // with --previous: the risk run is made on the current file).
+// node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json] [--project CODE]
+// Resource levelling instead (level.mjs): the levelled finish, every activity
+// moved and the resource that moved it, peak use before and after.
+// node cli.mjs --windows u1.xer u2.xer u3.xer ... [--json] [--csv windows.csv] [--project CODE]
+// Windows analysis over a series of updates instead (windows.mjs): per window
+// between consecutive data dates, how far the forecast finish moved, the
+// half-step split into progress and revisions, and the activities on the
+// driving path behind each.
 import { readFileSync, writeFileSync } from "node:fs";
+// A file that cannot be assessed (no PROJECT table, not an XER at all) ends
+// with one line saying why, not a stack trace. XER_DEBUG=1 keeps the trace.
+if (!process.env.XER_DEBUG) process.on("uncaughtException", (e) => { console.error(`xer-schedule-check: ${e && e.message ? e.message : e}`); process.exit(1); });
+import { windows, windowsText, windowsCsv } from "./windows.mjs";
 import { parseXer, decodeXer } from "./xer.mjs";
 import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
 import { compare, compareCsv, compareText } from "./compare.mjs";
 import { reviewHtml, reviewItems } from "./report.mjs";
 import { riskAnalysis, riskCsv, parseRanges, parseRisks } from "./risk.mjs";
+import { rangesFromUdf, udfFields, udfSpec, udfRangeNote } from "./udf-ranges.mjs";
 import { formatDate } from "./xer.mjs";
+import { level, levelCsv } from "./level.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew"];
 const opt = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
 function writeReview(report, cmp, risk = null) {
   if (!args.includes("--report")) return;
@@ -30,20 +44,38 @@ function writeReview(report, cmp, risk = null) {
   const items = reviewItems(report, cmp, risk), n = (s) => items.filter((x) => x.severity === s).length;
   console.error(`review written to ${opt("--report")}: ${items.length} corrections (${n("high")} high, ${n("medium")} medium, ${n("low")} low)`);
 }
+if (args.includes("--windows")) {
+  const files = args.filter((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
+  if (files.length < 2) { console.error("usage: node cli.mjs --windows update1.xer update2.xer [update3.xer ...] [--json] [--csv windows.csv] [--project CODE]"); process.exit(2); }
+  const rep = windows(files.map((f) => ({ xer: parseXer(decodeXer(readFileSync(f))), label: f.split("/").pop() })), { projectName: opt("--project") });
+  if (opt("--csv")) writeFileSync(opt("--csv"), windowsCsv(rep));
+  process.stdout.write(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : windowsText(rep));
+  process.exit(0);
+}
 const file = args.find((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
 if (!file) {
-  console.error("usage: node cli.mjs schedule.xer [--report review.html] [--json] [--csv findings.csv] [--schedule activities.csv] [--project CODE]\n       node cli.mjs current.xer --previous previous.xer [--json] [--csv changes.csv] [--project CODE]");
+  console.error("usage: node cli.mjs schedule.xer [--report review.html] [--json] [--csv findings.csv] [--schedule activities.csv] [--project CODE]\n       node cli.mjs current.xer --previous previous.xer [--json] [--csv changes.csv] [--project CODE]\n       node cli.mjs --windows update1.xer update2.xer [...] [--json] [--csv windows.csv] [--project CODE]");
   process.exit(2);
 }
 function runRisk(x, projId) {
   const nArg = opt("--risk");
   const iterations = nArg && /^\d+$/.test(nArg) ? Number(nArg) : 500;
   const [min, likely, max] = (opt("--range") || "90,100,125").split(",").map((v) => Number(v) / 100);
-  let ranges;
+  let ranges, rangeSource;
+  if (opt("--ranges-udf")) {
+    const u = rangesFromUdf(x, { ...udfSpec(x, opt("--ranges-udf")), projId, unit: opt("--udf-unit") || undefined });
+    if (!u.fields) {
+      const fl = udfFields(x);
+      console.error(`--ranges-udf: no optimistic and pessimistic activity UDFs recognised by name. Name them: --ranges-udf "optimistic,most likely,pessimistic" (id or label; most likely may be -). Numeric activity UDFs in the file: ${fl.map((f) => `${f.id} "${f.label}" (${f.values} values)`).join(", ") || "none"}`);
+    } else {
+      ranges = u.ranges;
+      rangeSource = udfRangeNote(u);
+    }
+  }
   if (opt("--ranges")) {
     const pr = parseRanges(readFileSync(opt("--ranges"), "utf8"));
     if (pr.bad.length) console.error(`skipped range lines ${pr.bad.join(", ")} (need code,min,likely,max in working days, min <= likely <= max)`);
-    ranges = pr.ranges;
+    ranges = ranges ? new Map([...ranges, ...pr.ranges]) : pr.ranges; // pasted lines win over UDF values
   }
   let risks;
   if (opt("--risks")) {
@@ -51,7 +83,7 @@ function runRisk(x, projId) {
     if (pk.bad.length) console.error(`skipped risk lines ${pk.bad.join(", ")} (need id,probability,min,likely,max,activity ID[,activity ID...], probability above 0, min <= likely <= max days)`);
     risks = pk.risks;
   }
-  return riskAnalysis(x, { projId, iterations, range: { min, likely, max }, correlation: Number(opt("--correlation") || 0), ranges, risks, seed: Number(opt("--seed") || 1) });
+  return riskAnalysis(x, { projId, iterations, range: { min, likely, max }, correlation: Number(opt("--correlation") || 0), ranges, rangeSource, risks, seed: Number(opt("--seed") || 1) });
 }
 const xer = parseXer(decodeXer(readFileSync(file)));
 const projectFor = (x) => {
@@ -92,6 +124,21 @@ if (args.includes("--risk")) {
   console.log("\nMost often on the driving path (criticality index; sensitivity = correlation of duration with finish):");
   for (const a of r.activities.slice(0, 15)) console.log(`  ${(a.criticality * 100).toFixed(0).padStart(3)}%  ${a.sensitivity === null ? "   -  " : a.sensitivity.toFixed(2).padStart(6)}  ${a.deterministicCritical ? "*" : " "} ${a.code}  ${a.name}`);
   console.log("  (* on the forecast's driving path)");
+  process.exit(0);
+}
+if (args.includes("--level")) {
+  const crew = Number(opt("--crew") || 1);
+  const r = level(xer, { projId, limitScale: crew !== 1 ? { "*": crew } : null, ...(args.includes("--within-float") ? { withinFloat: true } : {}) });
+  if (args.includes("--csv")) writeFileSync(opt("--csv"), levelCsv(r));
+  if (args.includes("--json")) { const { result, floors, placed, ignored, ...plain } = r; console.log(JSON.stringify(plain, null, 2)); process.exit(0); }
+  console.log(`${r.project.code}: ${r.resources.length} resources levelled${crew !== 1 ? ` at ${crew}x the file's limits` : ""}${r.settings.withinFloat ? ", within float" : ""} (${r.ms} ms)`);
+  for (const w of r.warnings) console.log(`NOTE: ${w}`);
+  console.log(`Finish ${r.finish} -> levelled ${r.levelledFinish} (+${r.extensionDays} working days)${r.lowerBound ? `; no levelling can finish before ${r.lowerBound.date} (${r.lowerBound.resource} work at its limit)` : ""}`);
+  console.log(`${r.activities.filter((a) => a.by.length).length} activities delayed for resources, ${r.activities.filter((a) => !a.by.length).length} carried by their logic, ${r.left.length} left over-allocated`);
+  console.log("\nResource            limit  peak before -> after   hours over before -> after   self-check");
+  for (const q of r.resources) console.log(`  ${q.code.padEnd(18)} ${String(q.limit).padStart(5)}  ${String(q.before.peak).padStart(6)} -> ${String(q.after.peak).padEnd(8)} ${String(q.before.overHours).padStart(9)} -> ${String(q.after.overHours).padEnd(9)} ${q.selfCheckHours}`);
+  console.log("\nMost delayed:");
+  for (const a of r.activities.slice(0, 15)) console.log(`  ${String(a.delayDays).padStart(7)} d  ${a.code}  ${a.levelledStart} -> ${a.levelledFinish}  ${a.by.join(", ") || "(logic)"}`);
   process.exit(0);
 }
 const report = assess(xer, { projId });

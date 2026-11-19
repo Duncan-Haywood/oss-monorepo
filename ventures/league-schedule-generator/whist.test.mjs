@@ -37,6 +37,17 @@ test("near-whist: every stored 4k+2 base develops into a design that passes chec
   }
 });
 
+test("near-whist: the two points out of a base round are an odd distance apart exactly when k is even", () => {
+  // README "Near-whist designs by SAT": the k odd partner distances each join an even and an odd point,
+  // so the seated evens and odds balance only for this parity; eval/near-whist-sat.py --out2 relies on it.
+  for (const m of nearWhistSizes()) {
+    const seated = new Set(whistDesign(m)[0].tables.flat());
+    const [a, b] = [...Array(m).keys()].filter((i) => !seated.has(i));
+    const k = (m - 2) / 4;
+    assert.equal((b - a) % 2 === 1, k % 2 === 0, `size ${m}`);
+  }
+});
+
 test("near-whist: checkNearWhist rejects a broken design and a whist design", () => {
   const d = whistDesign(10);
   const broken = d.map((r) => ({ ...r, tables: r.tables.map((t) => t.slice()) }));

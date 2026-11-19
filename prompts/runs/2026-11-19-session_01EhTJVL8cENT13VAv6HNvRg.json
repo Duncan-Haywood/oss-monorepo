@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVL8cENT13VAv6HNvRg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (full prompt in prompts/ventures/prompt-1.md)",
+  "input_sha256": "844d2c7ff48f93efc22d4cf629070af6d5d3e065476ed72d5ea03e93427a79a6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T15:56:14Z",
+  "ended": "2026-11-19T16:06:31Z",
+  "wall_minutes": 15.39,
+  "tokens_in": 10693925,
+  "tokens_out": 56273,
+  "cost_usd": 4.6434,
+  "tool_calls": 76,
+  "task": "Deepen (flagship 13) xer-schedule-check: windows analysis across many updates",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 17713,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first pass condition in eval/windows-check.mjs returned an object for revision windows (e.lag || ...), so the 'right side' count was not boolean; fixed with !!e.lag and rerun (144/144 both times)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py route",
+      "issue": "the weighted draw routed this scheduled venture-worded prompt to research; the ventures/revenue wording of the scheduled task was only honoured with --track ventures"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "the hook refuses pkill -f with a bracketed name if the same name appears elsewhere in the command line (e.g. a following script path); the bracket rule in CLAUDE.md does not mention this"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here picked photo-editing (row 3); took xer-schedule-check (row 8, 15 commits in 7 days vs 126) because the scheduled prompt asks for revenue potential and the owner's construction direction, and windows delay analysis is billable consulting work",
+      "did": "claimed and built the windows analysis item on xer-schedule-check",
+      "result": "shipped with a real-file check and found a half-step bug in the earlier comparison"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-windows-delay-analysis-p6-xer-updates.md",
+    "ventures/xer-schedule-check/eval/windows-check-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "windows.mjs + status.mjs + example-series.mjs, page section, CLI --windows. Fixed compare.mjs halfStepXer: remaining duration on activities unstarted in both updates is a revision (example pair split +6/+9 -> +8/+7). Checks: node --test (venture suite ok via run_venture_tests.py), page Playwright run at 390px (no errors, no horizontal scroll), eval/windows-check 36 series 144/144 split exact, 86/86 planted named; compare-check on 5 of 6 files unchanged (600/600, 0 extra). Agent doc: none beyond the eval note (README and flagships next carry the state). venture-preflight.mjs: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a7f96ac5-8116-589f-85e7-5986006255dd",
+    "transcripts": 1,
+    "first": "2026-11-19T15:56:14Z",
+    "last": "2026-11-19T16:11:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 143,
+        "output": 56273,
+        "thinking": 11869,
+        "cache_read": 10517034,
+        "cache_write_5m": 0,
+        "cache_write_1h": 176748,
+        "api_equivalent_usd": 4.6434,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 143,
+      "output": 56273,
+      "thinking": 11869,
+      "cache_read": 10517034,
+      "cache_write_5m": 0,
+      "cache_write_1h": 176748,
+      "api_equivalent_usd": 4.6434,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 67,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.39,
+      "active_minutes": 15.38,
+      "model_minutes": 8.63,
+      "tool_minutes": 6.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a senior scheduler/developer building a windows analysis module, test harness and doc for an existing P6 tool",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 344.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

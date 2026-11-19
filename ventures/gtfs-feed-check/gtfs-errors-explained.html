@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b5e4a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ET%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GTFS Validation Errors Explained: Every Check and Its Rule</title>
+  <meta name="description" content="Every check the free GTFS feed checker runs, what each finding code means and which rule it comes from (GTFS Schedule Reference, RFC 4180 or the tool's own sanity limit), with what four real published feeds turned up.">
+  <meta property="og:title" content="GTFS validation errors explained">
+  <meta property="og:description" content="Every check the free GTFS feed checker runs, what each finding code means and which rule it comes from (GTFS Schedule Reference, RFC 4180 or the tool's own sanity limit), with what four real published feeds turned up.">
+  <link rel="canonical" href="./gtfs-errors-explained.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "GTFS validation errors explained", "description": "Every check the free GTFS feed checker runs, what each finding code means and which rule it comes from (GTFS Schedule Reference, RFC 4180 or the tool's own sanity limit), with what four real published feeds turned up.", "about": "General Transit Feed Specification (GTFS) Schedule"}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17231f; background: #f1f5f3; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1b5e4a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #123f32; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #123f32; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46574f; }
+    .card { background: #fff; border: 1px solid #d5e0db; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #123f3210; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #9fbcb0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1b5e4a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e0ece7; color: #123f32; }
+    .finding { border-bottom: 1px solid #e6eeea; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
+    .finding ul { margin: 6px 0 0; padding-left: 20px; font: 13px ui-monospace, monospace; overflow-wrap: anywhere; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3ebe8; color: #123f32; }
+    .stats { font-size: .95rem; color: #2e3d37; margin-bottom: 10px; }
+    .drop { border: 2px dashed #9fbcb0; border-radius: 12px; padding: 18px; text-align: center; }
+    .drop.over { background: #e0ece7; }
+    code { font-size: .9em; }
+    footer { margin-top: 28px; border-top: 1px solid #d5e0db; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e6eeea; font-size: .92rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./">GTFS FEED CHECK</a> · EVERY CHECK, AND WHERE ITS RULE COMES FROM</p>
+    <h1>GTFS validation errors explained</h1>
+    <p>Each of the 88 finding codes the <a href="./">GTFS feed checker</a> can report, what it means and its source. <strong>Reference</strong> means the GTFS Schedule Reference, revised 2026-04-27, read for this tool on 2026-11-19. <strong>This tool's threshold</strong> means a sanity limit the reference does not set, chosen loose so a hit is worth a look. <strong>Convention</strong> means housekeeping, not a rule.</p>
+    <p>Errors break a rule a consumer may reject the feed for. Warnings are probably wrong. Notes are worth knowing.</p>
+  </header>
+<main>
+  <section class="card">
+    <h2>What four real feeds turned up</h2>
+    <p>Checked on 2026-11-19 with the same engine (<a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/gtfs-feed-check/eval/real-feeds-2026-11-19.md" rel="noopener">full output and file hashes</a>):</p>
+    <ul>
+      <li><strong>Google's GTFS sample feed</strong> (2007): expired since 2010-12-31; 13 short rows in stop_times.txt; a header field <code>drop_off_time</code> that should be <code>drop_off_type</code>.</li>
+      <li><strong>BART</strong>: no errors. feed_info.txt ends 2026-08-30 while the calendar runs to 2027-01-10.</li>
+      <li><strong>Halifax Transit</strong>: no errors. Service ends 2026-11-29; 153,548 times carry a leading space; 60 routes print black on pure blue (2.44:1).</li>
+      <li><strong>TriMet</strong>: no errors in 2.6 million stop times; 70 stop names end in a space; one route has no trips.</li>
+    </ul>
+    <p class="note">These are format checks, not a judgement of anyone's service.</p>
+  </section>
+  <section class="card">
+    <h2>Files and CSV</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col">Code</th><th scope="col">Level</th><th scope="col">What it means</th><th scope="col">Source</th></tr></thead>
+        <tbody>
+          <tr><td><code>missing_required_file</code></td><td>error</td><td>agency.txt, routes.txt, trips.txt or stop_times.txt is absent, or stops.txt without locations.geojson, or feed_info.txt when translations.txt is present.</td><td>Reference, Dataset Files</td></tr>
+          <tr><td><code>missing_calendar</code></td><td>error</td><td>Neither calendar.txt nor calendar_dates.txt exists, so no trip has a date.</td><td>Reference, Dataset Files</td></tr>
+          <tr><td><code>files_in_subfolder</code></td><td>error</td><td>The .txt files sit inside a folder in the zip. Zip the files, not the folder.</td><td>Reference, File Requirements</td></tr>
+          <tr><td><code>file_name_case</code></td><td>error</td><td>A file name differs from a standard one only by case (Stops.txt).</td><td>Reference, File Requirements</td></tr>
+          <tr><td><code>duplicate_file</code></td><td>error</td><td>Two entries with the same file name in different folders.</td><td>Reference, File Requirements</td></tr>
+          <tr><td><code>unknown_file</code></td><td>info</td><td>A file the reference does not define, usually a producer's extension (BART's directions.txt). Ignored by most consumers.</td><td>Reference, Dataset Files</td></tr>
+          <tr><td><code>empty_file</code></td><td>error</td><td>The file has no header line.</td><td>Reference, File Requirements</td></tr>
+          <tr><td><code>no_rows</code></td><td>error</td><td>agency.txt has a header but no agencies.</td><td>Reference, agency.txt</td></tr>
+          <tr><td><code>empty_header</code></td><td>error</td><td>A column with no field name.</td><td>Reference, File Requirements</td></tr>
+          <tr><td><code>duplicate_header</code></td><td>error</td><td>A field name appears twice in one header.</td><td>Reference, File Requirements</td></tr>
+          <tr><td><code>header_case</code></td><td>error</td><td>A field name differs from a standard one only by case.</td><td>Reference, File Requirements</td></tr>
+          <tr><td><code>header_spaces</code></td><td>warning</td><td>Spaces around a field name in the header.</td><td>Reference, File Requirements</td></tr>
+          <tr><td><code>unknown_field</code></td><td>info</td><td>A field the reference does not define for that file. Google's own sample feed has <code>drop_off_time</code>, a misspelling of <code>drop_off_type</code>.</td><td>Reference, Field Definitions</td></tr>
+          <tr><td><code>missing_required_field</code></td><td>error</td><td>A required field is missing from the header.</td><td>Reference, Field Definitions</td></tr>
+          <tr><td><code>too_many_values</code></td><td>error</td><td>A row has more values than the header: often an unquoted comma inside a name.</td><td>RFC 4180</td></tr>
+          <tr><td><code>short_row</code></td><td>warning</td><td>A row has fewer values than the header. Most readers fill in empty values; strict ones reject the row.</td><td>RFC 4180</td></tr>
+          <tr><td><code>unterminated_quote</code></td><td>error</td><td>A quoted value is never closed.</td><td>RFC 4180</td></tr>
+          <tr><td><code>newline_in_value</code></td><td>error</td><td>A quoted value contains a line break.</td><td>Reference, File Requirements</td></tr>
+          <tr><td><code>stray_quote</code></td><td>warning</td><td>A quotation mark inside an unquoted value.</td><td>Reference, File Requirements</td></tr>
+          <tr><td><code>value_spaces</code></td><td>warning</td><td>A value with spaces around it. Halifax Transit's feed writes 153,548 times as <code>" 5:49:00"</code>.</td><td>Reference, File Requirements</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Values</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col">Code</th><th scope="col">Level</th><th scope="col">What it means</th><th scope="col">Source</th></tr></thead>
+        <tbody>
+          <tr><td><code>missing_required_value</code></td><td>error</td><td>A required field is empty (or a stop time has no stop_id and no on-demand location).</td><td>Reference, Field Definitions</td></tr>
+          <tr><td><code>invalid_time</code></td><td>error</td><td>Not HH:MM:SS. Hours may pass 24 (25:35:00 is 1:35 next morning); minutes and seconds may not pass 59.</td><td>Reference, Field Types</td></tr>
+          <tr><td><code>invalid_date</code></td><td>error</td><td>Not a real date written YYYYMMDD.</td><td>Reference, Field Types</td></tr>
+          <tr><td><code>invalid_color</code></td><td>error</td><td>Not six hex digits. A leading # is not allowed.</td><td>Reference, Field Types</td></tr>
+          <tr><td><code>invalid_timezone</code></td><td>error</td><td>Not an IANA time zone the browser or Node knows (America/Chicgo).</td><td>Reference, Field Types</td></tr>
+          <tr><td><code>invalid_url</code></td><td>error</td><td>Not a full URL starting with http:// or https://.</td><td>Reference, Field Types</td></tr>
+          <tr><td><code>invalid_email</code></td><td>error</td><td>Not shaped like an email address.</td><td>Reference, Field Types</td></tr>
+          <tr><td><code>invalid_lang</code></td><td>error</td><td>Not shaped like a BCP 47 language code.</td><td>Reference, Field Types</td></tr>
+          <tr><td><code>invalid_lat</code></td><td>error</td><td>Not a number from -90 to 90.</td><td>Reference, Field Types</td></tr>
+          <tr><td><code>invalid_lon</code></td><td>error</td><td>Not a number from -180 to 180.</td><td>Reference, Field Types</td></tr>
+          <tr><td><code>invalid_uint</code></td><td>error</td><td>Not a whole number 0 or more (stop_sequence, shape_pt_sequence, route_sort_order).</td><td>Reference, Field Signs</td></tr>
+          <tr><td><code>invalid_pint</code></td><td>error</td><td>Not a whole number above 0 (headway_secs).</td><td>Reference, Field Signs</td></tr>
+          <tr><td><code>invalid_float</code></td><td>error</td><td>Not a number.</td><td>Reference, Field Types</td></tr>
+          <tr><td><code>invalid_ufloat</code></td><td>error</td><td>Not a number 0 or more (shape_dist_traveled).</td><td>Reference, Field Signs</td></tr>
+          <tr><td><code>invalid_enum</code></td><td>error</td><td>Not one of the listed options (location_type 0-4, route_type 0-7, 11, 12, exception_type 1 or 2 and so on).</td><td>Reference, Field Definitions</td></tr>
+          <tr><td><code>extended_route_type</code></td><td>info</td><td>A route_type from the extended HVT-style range (100-1799), which the reference does not list.</td><td>Reference, routes.txt</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Keys and references</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col">Code</th><th scope="col">Level</th><th scope="col">What it means</th><th scope="col">Source</th></tr></thead>
+        <tbody>
+          <tr><td><code>duplicate_key</code></td><td>error</td><td>A primary key repeats: agency_id, stop_id, route_id, trip_id, service_id in calendar.txt, (service_id, date), (trip_id, stop_sequence) or (shape_id, shape_pt_sequence).</td><td>Reference, Dataset Attributes</td></tr>
+          <tr><td><code>unknown_reference</code></td><td>error</td><td>An ID points at nothing: a trip's route or shape, a stop time's trip or stop, a route's agency, a stop's parent_station, a frequency's trip.</td><td>Reference, Field Definitions</td></tr>
+          <tr><td><code>unknown_service</code></td><td>error</td><td>A trip's service_id is in neither calendar file, so the trip never runs.</td><td>Reference, trips.txt</td></tr>
+          <tr><td><code>missing_agency_id</code></td><td>error</td><td>More than one agency and at least one has no agency_id.</td><td>Reference, agency.txt</td></tr>
+          <tr><td><code>agency_timezones_differ</code></td><td>error</td><td>Agencies in one feed with different agency_timezone values.</td><td>Reference, agency.txt</td></tr>
+          <tr><td><code>missing_route_agency</code></td><td>error</td><td>More than one agency and a route has no agency_id.</td><td>Reference, routes.txt</td></tr>
+          <tr><td><code>network_id_conflict</code></td><td>error</td><td>routes.txt has network_id while networks.txt or route_networks.txt exists.</td><td>Reference, Dataset Files</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Stops</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col">Code</th><th scope="col">Level</th><th scope="col">What it means</th><th scope="col">Source</th></tr></thead>
+        <tbody>
+          <tr><td><code>missing_stop_name</code></td><td>error</td><td>A stop, station or entrance with no stop_name.</td><td>Reference, stops.txt</td></tr>
+          <tr><td><code>missing_stop_position</code></td><td>error</td><td>A stop, station or entrance with no stop_lat or stop_lon.</td><td>Reference, stops.txt</td></tr>
+          <tr><td><code>stop_at_null_island</code></td><td>error</td><td>A stop at exactly 0,0, in the Gulf of Guinea: a missing position written as zeros.</td><td>This tool</td></tr>
+          <tr><td><code>stop_far_from_others</code></td><td>warning</td><td>A stop over 100 km from the feed's median stop position and over 20 times the median stop's distance: swapped latitude and longitude, a dropped minus sign or a typo.</td><td>This tool's threshold</td></tr>
+          <tr><td><code>missing_parent_station</code></td><td>error</td><td>An entrance, generic node or boarding area with no parent_station.</td><td>Reference, stops.txt</td></tr>
+          <tr><td><code>station_with_parent</code></td><td>error</td><td>A station (location_type 1) with a parent_station.</td><td>Reference, stops.txt</td></tr>
+          <tr><td><code>wrong_parent_type</code></td><td>error</td><td>A parent_station that is not a station (or, for a boarding area, not a platform).</td><td>Reference, stops.txt</td></tr>
+          <tr><td><code>platform_far_from_station</code></td><td>warning</td><td>A platform more than 1 km from its parent station.</td><td>This tool's threshold</td></tr>
+          <tr><td><code>stop_time_at_station</code></td><td>error</td><td>A stop time at a station, entrance or node instead of a stop or platform.</td><td>Reference, stop_times.txt</td></tr>
+          <tr><td><code>all_caps_name</code></td><td>warning</td><td>A stop name in ALL CAPS. Names should use mixed case.</td><td>Reference, File Requirements</td></tr>
+          <tr><td><code>desc_repeats_name</code></td><td>info</td><td>stop_desc is the same as stop_name.</td><td>Reference, stops.txt</td></tr>
+          <tr><td><code>unused_stop</code></td><td>info</td><td>A stop (location_type 0) no trip serves.</td><td>Convention</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Routes</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col">Code</th><th scope="col">Level</th><th scope="col">What it means</th><th scope="col">Source</th></tr></thead>
+        <tbody>
+          <tr><td><code>missing_route_name</code></td><td>error</td><td>A route with neither route_short_name nor route_long_name.</td><td>Reference, routes.txt</td></tr>
+          <tr><td><code>long_short_name</code></td><td>warning</td><td>route_short_name over 12 characters.</td><td>Reference, routes.txt</td></tr>
+          <tr><td><code>same_route_names</code></td><td>warning</td><td>route_short_name and route_long_name are identical.</td><td>Convention</td></tr>
+          <tr><td><code>low_color_contrast</code></td><td>warning</td><td>route_text_color on route_color below 3:1 contrast. The reference asks for sufficient contrast; the 3:1 line is WCAG 2's for large text and this tool's choice.</td><td>This tool's threshold (WCAG 2 formula)</td></tr>
+          <tr><td><code>unused_route</code></td><td>warning</td><td>A route with no trips.</td><td>Convention</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Trips and stop times</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col">Code</th><th scope="col">Level</th><th scope="col">What it means</th><th scope="col">Source</th></tr></thead>
+        <tbody>
+          <tr><td><code>trip_without_stop_times</code></td><td>error</td><td>A trip with no rows in stop_times.txt.</td><td>Reference, trips.txt</td></tr>
+          <tr><td><code>trip_with_one_stop</code></td><td>error</td><td>A trip that serves a single stop; a trip is two or more.</td><td>Reference, trips.txt</td></tr>
+          <tr><td><code>missing_end_times</code></td><td>error</td><td>No arrival_time or departure_time at a trip's first or last stop.</td><td>Reference, stop_times.txt</td></tr>
+          <tr><td><code>timepoint_without_time</code></td><td>error</td><td>timepoint=1 with no times.</td><td>Reference, stop_times.txt</td></tr>
+          <tr><td><code>departure_before_arrival</code></td><td>error</td><td>departure_time earlier than arrival_time at the same stop.</td><td>Reference, stop_times.txt</td></tr>
+          <tr><td><code>time_goes_backwards</code></td><td>error</td><td>A stop's time earlier than the stop before it on the trip, in stop_sequence order.</td><td>Reference, stop_times.txt</td></tr>
+          <tr><td><code>stop_dist_decreasing</code></td><td>error</td><td>shape_dist_traveled going down along a trip.</td><td>Reference, stop_times.txt</td></tr>
+          <tr><td><code>too_fast</code></td><td>warning</td><td>Straight-line speed between consecutive timed stops above the mode's ceiling: 150 km/h for bus, subway, trolleybus and monorail; 120 tram; 500 rail; 200 coach; 80 ferry; 50 cable, aerial and funicular. Under a minute counts as a minute. Straight-line distance is the shortest possible, so a hit is at least that fast.</td><td>This tool's threshold</td></tr>
+          <tr><td><code>trip_over_24h</code></td><td>warning</td><td>More than 24 hours from first departure to last arrival: usually an hour typo.</td><td>This tool's threshold</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Shapes and frequencies</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col">Code</th><th scope="col">Level</th><th scope="col">What it means</th><th scope="col">Source</th></tr></thead>
+        <tbody>
+          <tr><td><code>short_shape</code></td><td>warning</td><td>A shape with fewer than two points.</td><td>Reference, shapes.txt</td></tr>
+          <tr><td><code>shape_dist_decreasing</code></td><td>error</td><td>shape_dist_traveled going down along a shape.</td><td>Reference, shapes.txt</td></tr>
+          <tr><td><code>unused_shape</code></td><td>info</td><td>A shape no trip uses.</td><td>Convention</td></tr>
+          <tr><td><code>no_shapes</code></td><td>info</td><td>No shapes.txt: trip planners draw straight lines between stops.</td><td>Reference, Dataset Files</td></tr>
+          <tr><td><code>end_before_start</code></td><td>error</td><td>An end before its start: calendar end_date, frequency end_time or feed_end_date.</td><td>Reference, calendar.txt, frequencies.txt, feed_info.txt</td></tr>
+          <tr><td><code>overlapping_frequencies</code></td><td>error</td><td>Two headway periods for one trip overlap.</td><td>Reference, frequencies.txt</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Calendar and feed dates</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col">Code</th><th scope="col">Level</th><th scope="col">What it means</th><th scope="col">Source</th></tr></thead>
+        <tbody>
+          <tr><td><code>no_service_dates</code></td><td>error</td><td>No date on which any trip runs.</td><td>Reference, calendar.txt</td></tr>
+          <tr><td><code>feed_expired</code></td><td>error</td><td>The last date with service is before the day you check: apps show no service.</td><td>Reference, Dataset Publishing</td></tr>
+          <tr><td><code>feed_expires_within_7_days</code></td><td>warning</td><td>Service ends within 7 days. A feed should be valid for at least the next 7.</td><td>Reference, Dataset Publishing</td></tr>
+          <tr><td><code>feed_covers_under_30_days</code></td><td>info</td><td>Service ends within 30 days. A feed should, if possible, cover the next 30. Halifax Transit's, checked on 2026-11-19, ends on 2026-11-29.</td><td>Reference, Dataset Publishing</td></tr>
+          <tr><td><code>feed_not_started</code></td><td>info</td><td>The first service date is after today.</td><td>Convention</td></tr>
+          <tr><td><code>no_service_day</code></td><td>warning</td><td>A day in the next 30, inside the feed's own service period, with no service at all.</td><td>This tool</td></tr>
+          <tr><td><code>service_never_runs</code></td><td>warning</td><td>A service_id that trips use but that has no running date.</td><td>Reference, calendar.txt</td></tr>
+          <tr><td><code>unused_service</code></td><td>info</td><td>A service_id no trip uses.</td><td>Convention</td></tr>
+          <tr><td><code>no_feed_info</code></td><td>info</td><td>No feed_info.txt (recommended).</td><td>Reference, Dataset Files</td></tr>
+          <tr><td><code>too_many_rows</code></td><td>error</td><td>feed_info.txt has more than one row.</td><td>Reference, feed_info.txt</td></tr>
+          <tr><td><code>no_feed_contact</code></td><td>info</td><td>Neither feed_contact_email nor feed_contact_url.</td><td>Reference, feed_info.txt</td></tr>
+          <tr><td><code>feed_info_expired</code></td><td>warning</td><td>feed_end_date is in the past. BART's feed_info.txt said 2026-08-30 on 2026-11-19.</td><td>Reference, feed_info.txt</td></tr>
+          <tr><td><code>feed_info_end_before_service</code></td><td>warning</td><td>feed_end_date is earlier than the last service date in the calendar: one of them is stale. BART's calendar runs to 2027-01-10.</td><td>Reference, feed_info.txt</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, regulatory, engineering or professional advice, and it does not replace any trip planner's own validation or the MobilityData validator. Results depend entirely on the feed you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and a clean result is not a promise that any app will accept or correctly show the feed. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to Google, MobilityData, any transit agency or any other organisation named. Names are used only to say which feed or behaviour is meant. Rules were read from the GTFS Schedule Reference revised 2026-04-27 and may since have changed.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your feed is never uploaded; there are no accounts, cookies, or analytics vendors. This page counts nothing.</p>
+        <p>Related tools: the <a href="../gpx-track-check/">GPX track check</a> for GPS tracks, the <a href="../ics-calendar-check/">ICS calendar check</a> for calendar files, and the <a href="../route-stop-optimizer/">route stop optimizer</a> for planning a day's stops.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

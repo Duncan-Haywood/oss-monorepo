@@ -2,7 +2,7 @@
 
 Privacy-first retail analytics for small-format pilot stores (initial target: ~10 m² leather boutique, Italy).
 
-**Live page:** https://marisstella.app/retail-pilot-intel/
+**Not published:** the docs app is passcode-gated and left out of the public site build (`EXCLUDED_SLUGS` in `platform/pages/build.mjs`), so there is no live page on marisstella.app.
 
 **Stack:** TypeScript monorepo (pnpm), TSX documentation site, Node 22+ with built-in SQLite.
 
@@ -109,6 +109,17 @@ Full matrix with scores, monthly € math, and payback: `pnpm docs:dev` → **RO
 - Indoor door camera → aggregate counts (no identity)
 - POS ingest → normalized `SaleEvent`
 - Join funnel → conversion and revenue-per-entry KPIs
+
+## Known gaps
+
+From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-retail-pilot-intel.json`](../../portfolio/quality/audits/2026-11-19-retail-pilot-intel.json)):
+
+- **Daily KPIs are by UTC date and not split by store** (`packages/analytics/src/report.ts`): a second store's receipts, or a sale after midnight in Rome, land in the wrong store or day, and EUR and USD are summed. Needs a `store_id` filter and Europe/Rome day boundaries.
+- A basket whose discount or refund line is rejected is still imported at full price (`packages/pos/src/importer.ts`).
+- `pnpm bootstrap` prints an all-zero report, because its sample events are marked synthetic and left out.
+- The door camera is a stub; SKU gap, upsell and experiments are demo data only.
+- The ROI page's "one extra sale a month pays for Core" uses gross revenue; at a 55% margin and the lowest order value, one sale earns about €99 against a €149 to €249 fee.
+- Italian workplace camera rules (Statuto dei Lavoratori, art. 4) are not covered on the privacy page.
 
 ## License
 

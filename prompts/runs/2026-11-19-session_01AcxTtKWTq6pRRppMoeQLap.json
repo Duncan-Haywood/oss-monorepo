@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtKWTq6pRRppMoeQLap",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T14:06:37Z",
+  "ended": "2026-11-19T14:46:09Z",
+  "wall_minutes": 80.28,
+  "tokens_in": 8986909,
+  "tokens_out": 35901,
+  "cost_usd": 3.6344,
+  "tool_calls": 71,
+  "task": "research/build-data session 107: the staleness grid extended to 2 years (18 city-years) and 1 year (Austin), pre-registered",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17686",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "B0's sweep-reproduction bar (0.1 days) was too tight for a pull whose feeds had grown since session 92 (SF +60, Austin +496 rows); max difference 0.22 days, reported as refuted"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/build-data/LOG.md",
+      "issue": "session 106 reported 8 to 10 s per seed for Austin-target fits; with four processes on four cores this run saw 80 to 350 s per seed (SF and Seattle targets slowest), so the 24-fit plan took ~40 min, not ~5. A per-seed timing note by target city and process count would let the next run size its parallelism."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/build-data/LOG.md (session 107 design)",
+      "why": "the design said one process per held city; once the Austin fits finished, Seattle 2021 and 2022 were moved to their own processes to use idle cores",
+      "did": "same pull, seeds and code in separate processes; the original Seattle process was stopped after writing 2020",
+      "result": "Seattle finished ~45 min sooner; results deterministic per cell, disclosed in the outcome"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-build-data-austin-wants-shorter-still.md",
+    "research/build-data/LOG.md (session 107)",
+    "research/build-data/README.md (session 107 bullet)"
+  ],
+  "goal": "advance an open research programme (build-data) with a pre-registered real-data result",
+  "notes": "Routed research/0 by weighted draw; track 15's programme sensing-selfcal was claimed by #17678, so took build-data (0 open PRs). Pre-registration commit ab75277e2 before any fit. Checks: build-data tests 179 passed, 2 skipped (/usr/bin/python3.13); research/_homepage/build.py ok; research_live_links 0 updated; check_md_links ok; check_posts ok. Predictions: B1, B2, B6 held; B0, B3, B4 (primary), B5 refuted.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d8f630ec-7818-5dbf-929f-2b87a357ee7d",
+    "transcripts": 1,
+    "first": "2026-11-19T14:06:37Z",
+    "last": "2026-11-19T15:26:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 136,
+        "output": 35901,
+        "thinking": 7615,
+        "cache_read": 8843380,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143393,
+        "api_equivalent_usd": 3.6344,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 136,
+      "output": 35901,
+      "thinking": 7615,
+      "cache_read": 8843380,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143393,
+      "api_equivalent_usd": 3.6344,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 68,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 80.28,
+      "active_minutes": 80.28,
+      "model_minutes": 7.03,
+      "tool_minutes": 73.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "pre-register, run 24 model fits on a fresh pull, score and write up one experiment step",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 165.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -140,6 +140,20 @@ def wigley_section(half_beam, draft=1.0, n=16):
     return pts
 
 
+def modified_wigley_section(xi, half_beam, draft=1.0, n=16):
+    """Nodes (y, z) of the right half of a section of Kashiwagi's modified Wigley form at xi = 2x/L,
+    y = (B/2) [(1 - zeta^2)(1 - xi^2)(1 + 0.2 xi^2) + zeta^2 (1 - zeta^8)(1 - xi^2)^4], zeta = z/d
+    (Kashiwagi 2022, J. Ship Research 66(1), eq. 42, doi:10.5957/JOSR.04200028); keel to waterline, cosine-spaced."""
+    pts = []
+    for k in range(n + 1):
+        u = 0.5 * (1.0 - math.cos(math.pi * k / n))
+        z = -draft * (1.0 - u)
+        c = z / draft
+        y = half_beam * ((1 - c * c) * (1 - xi * xi) * (1 + 0.2 * xi * xi) + c * c * (1 - c ** 8) * (1 - xi * xi) ** 4)
+        pts.append((y, z))
+    return pts
+
+
 def _quad_points(p0, p1, nsub):
     out = []
     for m in range(nsub):
@@ -229,9 +243,14 @@ NU_T = [0.005 * (30.0 / 0.005) ** (i / 89.0) for i in range(90)]   # nu T, 0.005
 def section_row(args):
     """(a*, b* near field, b* far field) along nu_t for one half-beam ratio; a picklable worker."""
     r, n_panels, nu_t = args
-    if r <= 0.0:
+    if isinstance(r, tuple):                 # ("mw", xi, B / (2 d)): a modified-Wigley section, draft 1
+        nodes = modified_wigley_section(r[1], r[2], 1.0, n_panels)
+        if max(p[0] for p in nodes) <= 1e-9:
+            return [0.0] * len(nu_t), [0.0] * len(nu_t), [0.0] * len(nu_t)
+    elif r <= 0.0:
         return [0.0] * len(nu_t), [0.0] * len(nu_t), [0.0] * len(nu_t)
-    nodes = wigley_section(r, 1.0, n_panels)
+    else:
+        nodes = wigley_section(r, 1.0, n_panels)
     av, bn, bf = [], [], []
     for nt in nu_t:
         phi, amp = section_heave(nodes, nt)
@@ -307,9 +326,13 @@ def _patch(v, ok, xs):
 class WigleyStrip:
     """Heave/pitch and Gerritsma-Beukelman added resistance of a Wigley hull in regular head waves."""
 
-    def __init__(self, length, beam, draft, n_stations=30, kyy=0.25, rho=RHO, table=None, n_panels=16, zeta_v=0.0):
+    def __init__(self, length, beam, draft, n_stations=30, kyy=0.25, rho=RHO, table=None, n_panels=16, zeta_v=0.0,
+                 no_added_mass_coupling=False):
         self.l, self.bm, self.t, self.rho, self.kyy = length, beam, draft, rho, kyy
         self.zeta_v = zeta_v          # equivalent linear viscous damping in heave and pitch, fraction of critical
+        # milestone 7zf: drop the heave-pitch cross-coupling added mass (A35 = A53 = 0, bow-down convention) in the
+        # motion equations, keeping the cross-coupling damping and restoring; 7ze's rule from the Kashiwagi tank data
+        self.no_added_mass_coupling = no_added_mass_coupling
         dx = length / n_stations
         self.dx = dx
         self.x = [-length / 2 + dx * (i + 0.5) for i in range(n_stations)]
@@ -366,10 +389,13 @@ class WigleyStrip:
             b.append(self.rho * omega_e * self.t ** 2 * bc)
         return a, b
 
-    def response(self, omega, u):
+    def response(self, omega, u, coupling=None):
         """Heave and pitch (bow up) per unit wave amplitude and the added resistance per unit amplitude^2, N/m2.
 
         Head waves zeta = e^{i (omega_e t + k x)}, x forward; returns (z, theta, R_aw / zeta_A^2, omega_e).
+        `coupling` (milestone 7ze), if given, is a function omega_e -> (A35, B35, A53, B53), dimensional, in the
+        bow-down pitch convention of Salvesen-Tuck-Faltinsen and Kashiwagi; it replaces the strip sums' heave-pitch
+        cross-coupling added mass and damping in the motion equations (restoring and everything else unchanged).
         """
         k = omega * omega / G
         we = omega + k * u
@@ -395,6 +421,16 @@ class WigleyStrip:
             h22 += x * ft * dx
             f1 += f0 * dx
             f2 += x * f0 * dx
+        if coupling is not None:
+            a35, b35, a53, b53 = coupling(we)
+            c35 = sum(ci * x * dx for ci, x in zip(c, self.x))
+            h12 = -(we * we * a35 - 1j * we * b35) - c35     # bow-down coefficients -> this code's bow-up pitch
+            h21 = -(we * we * a53 - 1j * we * b53) - c35
+        elif self.no_added_mass_coupling:
+            # h12 = we^2 A35 - i we B35 - C35 (any pitch sign): keep the damping and restoring parts, drop A35 and A53
+            c35 = sum(ci * x * dx for ci, x in zip(c, self.x))
+            h12 = complex(-c35, h12.imag)
+            h21 = complex(-c35, h21.imag)
         # -we^2 M z = F,  -we^2 I theta = M_y, with F = f1 + h11 z + h12 theta etc.
         # viscous damping force -B_v dz/dt = -i we B_v z: moves to the left side as + i we B_v
         m11 = -we * we * self.mass - h11 + 1j * we * self.bv33
@@ -412,9 +448,71 @@ class WigleyStrip:
         raw *= k / (2.0 * we)          # radiated energy only: viscous damping changes R_aw through the motions
         return z, th, raw, we
 
+    def cross_coupling(self, omega_e, u):
+        """Strip heave-pitch cross-coupling (A35, B35, A53, B53), dimensional, bow-down pitch convention (7ze).
+
+        From the same sectional sums as `response`: heave force per unit pitch h12 = omega_e^2 A - i omega_e B - C35
+        in this code's bow-up convention, and pitch moment per unit heave h21 likewise; the sign of pitch is then
+        turned so that the values compare with Salvesen-Tuck-Faltinsen (1970) and Kashiwagi (2022), Fig. 1.
+        """
+        we = omega_e
+        a, b = self.sections(we)
+        n, dx = len(self.x), self.dx
+        ap = []
+        for i in range(n):
+            lo, hi = max(i - 1, 0), min(i + 1, n - 1)
+            ap.append((a[hi] - a[lo]) / (self.x[hi] - self.x[lo]))
+        bp = [bb - u * aa for bb, aa in zip(b, ap)]
+        c = [self.rho * G * 2.0 * h for h in self.hb]
+        h12 = h21 = 0j
+        for i, x in enumerate(self.x):
+            fz = a[i] * we * we - 1j * we * bp[i] - c[i]
+            ft = a[i] * (we * we * x + 2j * u * we) + bp[i] * (u - 1j * we * x) - c[i] * x
+            h12 += ft * dx
+            h21 += x * fz * dx
+        c35 = sum(ci * x * dx for ci, x in zip(c, self.x))
+        a35, b35 = (h12.real + c35) / (we * we), -h12.imag / we
+        a53, b53 = (h21.real + c35) / (we * we), -h21.imag / we
+        return -a35, -b35, -a53, -b53
+
     def spectral(self, u, t01, omegas=None, hs=1.0):
         """Mean added resistance (N) in long-crested irregular head seas, ITTC 1978 spectrum, as STAWAVE-2's G-12."""
         from marine_hull import waves as wv
         omegas = omegas or wv.OMEGAS
         ys = [2.0 * self.response(w, u)[2] * wv.ittc_spectrum(w, hs, t01) for w in omegas]
         return wv.trap(ys, omegas)
+
+
+class ModifiedWigleyStrip(WigleyStrip):
+    """WigleyStrip on Kashiwagi's modified Wigley form (eq. 42 of Kashiwagi 2022), the hull of the Kyoto/Osaka
+    tank tests (Kashiwagi et al. 2000; added resistance in Kashiwagi 2013). Volume, waterplane and section
+    shapes come from the form itself; the Smith depth is volume / waterplane area."""
+
+    def __init__(self, length, beam, draft, n_stations=30, kyy=0.248, rho=1000.0, table=None, n_panels=16, zeta_v=0.0,
+                 no_added_mass_coupling=False):
+        self.l, self.bm, self.t, self.rho, self.kyy = length, beam, draft, rho, kyy
+        self.zeta_v = zeta_v
+        self.no_added_mass_coupling = no_added_mass_coupling
+        dx = length / n_stations
+        self.dx = dx
+        self.x = [-length / 2 + dx * (i + 0.5) for i in range(n_stations)]
+        xis = [2.0 * x / length for x in self.x]
+        self.hb = [0.5 * beam * (1 - q * q) * (1 + 0.2 * q * q) for q in xis]
+        self.ratio = [("mw", round(abs(q), 12), round(0.5 * beam / draft, 12)) for q in xis]
+        self.table = table or SectionTable(sorted(set(self.ratio)), n_panels=n_panels)
+        self.area_wp = sum(2.0 * h * dx for h in self.hb)
+        self.vol = sum(self.section_area(q) * dx for q in xis)
+        self.mass = rho * self.vol
+        self.iyy = self.mass * (kyy * length) ** 2
+        self.dm = self.vol / self.area_wp
+        self.bv33 = self.bv55 = 0.0
+        if zeta_v:
+            self.set_viscous(zeta_v)
+
+    def section_area(self, xi, n=400):
+        """Immersed area of the section at xi (both sides), Simpson's rule in zeta."""
+        b2 = 0.5 * self.bm
+        f = lambda c: b2 * ((1 - c * c) * (1 - xi * xi) * (1 + 0.2 * xi * xi) + c * c * (1 - c ** 8) * (1 - xi * xi) ** 4)
+        h = 1.0 / n
+        s = f(0.0) + f(-1.0) + sum((4 if i % 2 else 2) * f(-i * h) for i in range(1, n))
+        return 2.0 * self.t * s * h / 3.0

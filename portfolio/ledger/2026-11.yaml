@@ -208,3 +208,35 @@ entries:
         6 of 6 fixture parts within 0.05%; worked example nests 72 parts on
         one 2500 x 1250 sheet. Not yet used by anyone outside the repository.
     mrr_end: 0
+  - venture: gitattributes-explainer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/gitattributes-explainer,
+        a browser page and Node CLI that resolves .gitattributes the way git
+        check-attr does and names the line and macro behind every attribute
+        of every path, flags lines git drops (! patterns, subfolder [attr]
+        macros, invalid or builtin_ names), docs/ folder patterns, LFS lines
+        without -text, and gives each file's line-ending outcome. Matches git
+        check-attr and ls-files --eol on 3,000 random repositories and real
+        add/checkout round trips in 342 of 342 cases; pins the gitattributes(5)
+        worked example. Guide page, llms.txt, post. Not yet used by anyone
+        outside the repository.
+    mrr_end: 0
+  - venture: gtfs-feed-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/gtfs-feed-check, a
+        browser page and zero-dependency Node CLI that checks a GTFS Schedule
+        zip against the GTFS reference (revised 2026-04-27): files, values,
+        keys, references, stop-time order, calendar coverage, plus labelled
+        speed and outlier sanity limits; 88 finding codes, each explained on
+        a guide page. On four real feeds: Google's 2007 sample has a misspelt
+        drop_off_time column and 13 short rows; BART's feed_info ends four
+        months before its calendar; 0 errors and no sanity-limit hits on
+        BART, Halifax Transit and TriMet (3.0 million stop times). Post,
+        llms.txt. Not yet used by anyone outside the repository.
+    mrr_end: 0

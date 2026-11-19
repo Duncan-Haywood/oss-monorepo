@@ -1,0 +1,16 @@
+capture 1/8 us: 201 builds on the nine-point grid
+  blind 1: named 111 of 180 spread takes, wrong 69, instant told to set a take 0 of 21, no verdict 0; wheels left out 0 of 4422
+  blind 1.1: named 118 of 180 spread takes, wrong 62, instant told to set a take 0 of 21, no verdict 0; wheels left out 634 of 4422
+  blind 1.25: named 127 of 180 spread takes, wrong 53, instant told to set a take 0 of 21, no verdict 0; wheels left out 1166 of 4422
+  blind 1.5: named 127 of 180 spread takes, wrong 53, instant told to set a take 0 of 21, no verdict 0; wheels left out 1584 of 4422
+  blind 2: named 130 of 180 spread takes, wrong 50, instant told to set a take 0 of 21, no verdict 0; wheels left out 2075 of 4422
+  blind 3: named 133 of 180 spread takes, wrong 47, instant told to set a take 0 of 21, no verdict 0; wheels left out 2423 of 4422
+  blind 5: named 137 of 180 spread takes, wrong 43, instant told to set a take 0 of 21, no verdict 0; wheels left out 2761 of 4422
+jittery 0.5 us: 201 builds on the nine-point grid
+  blind 1: named 57 of 180 spread takes, wrong 123, instant told to set a take 0 of 21, no verdict 0; wheels left out 0 of 4422
+  blind 1.1: named 73 of 180 spread takes, wrong 107, instant told to set a take 0 of 21, no verdict 0; wheels left out 2432 of 4422
+  blind 1.25: named 73 of 180 spread takes, wrong 107, instant told to set a take 0 of 21, no verdict 0; wheels left out 2975 of 4422
+  blind 1.5: named 75 of 180 spread takes, wrong 105, instant told to set a take 0 of 21, no verdict 0; wheels left out 3126 of 4422
+  blind 2: named 76 of 180 spread takes, wrong 104, instant told to set a take 0 of 21, no verdict 0; wheels left out 3186 of 4422
+  blind 3: named 79 of 180 spread takes, wrong 101, instant told to set a take 0 of 21, no verdict 0; wheels left out 3226 of 4422
+  blind 5: named 81 of 180 spread takes, wrong 99, instant told to set a take 0 of 21, no verdict 0; wheels left out 3281 of 4422
