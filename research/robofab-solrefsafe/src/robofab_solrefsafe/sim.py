@@ -74,15 +74,31 @@ def holds(boxes, axis, force, mu, a_up=0.0, a_side=0.0, disp_mm=2.0, solref=0.00
     return bool(worst * 1e3 < disp_mm)
 
 
-def min_force(boxes, axis, mu, a_up=0.0, a_side=0.0, hi=20.0, tol=0.02, solref=0.0005, t_acc=T_ACC, dt=0.0002, refsafe=True):
-    """Smallest per-jaw force (N) at which the part holds, by bisection; None if it fails at `hi`."""
-    if not holds(boxes, axis, hi, mu, a_up, a_side, solref=solref, t_acc=t_acc, dt=dt, refsafe=refsafe):
-        return None
-    lo = 0.0
-    while hi - lo > tol * max(hi, 1e-9) and hi - lo > 1e-4:
-        mid = (lo + hi) / 2
-        if holds(boxes, axis, mid, mu, a_up, a_side, solref=solref, t_acc=t_acc, dt=dt, refsafe=refsafe):
-            hi = mid
-        else:
-            lo = mid
-    return hi
+def first_hold(pred, hi, tol=0.02, n_grid=24):
+    """Smallest x in (0, hi] with pred(x) true: scan n_grid evenly spaced points upward, then bisect
+    between the last failing grid point and the first holding one. Hold/slip is not monotone in force
+    in every cell (quality audit 2026-11-19: solref 0.5 ms, dt 0.4 ms, refsafe off holds from 1.2x the
+    bound but fails around 30 N, so a plain bisection on 0..60 N reported 13.3x). None if no grid
+    point holds. A failing pocket narrower than hi / n_grid can still be missed."""
+    step = hi / n_grid
+    prev = 0.0
+    for k in range(1, n_grid + 1):
+        x = k * step
+        if pred(x):
+            lo, h = prev, x
+            while h - lo > tol * max(h, 1e-9) and h - lo > 1e-4:
+                mid = (lo + h) / 2
+                if pred(mid):
+                    h = mid
+                else:
+                    lo = mid
+            return h
+        prev = x
+    return None
+
+
+def min_force(boxes, axis, mu, a_up=0.0, a_side=0.0, hi=20.0, tol=0.02, solref=0.0005, t_acc=T_ACC, dt=0.0002, refsafe=True, n_grid=24):
+    """Smallest per-jaw force (N) at which the part holds: grid scan then bisection (first_hold); None if
+    no grid force up to `hi` holds."""
+    return first_hold(lambda f: holds(boxes, axis, f, mu, a_up, a_side, solref=solref, t_acc=t_acc, dt=dt, refsafe=refsafe),
+                      hi, tol, n_grid)

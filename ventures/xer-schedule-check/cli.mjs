@@ -22,6 +22,9 @@
 // half-step split into progress and revisions, and the activities on the
 // driving path behind each.
 import { readFileSync, writeFileSync } from "node:fs";
+// A file that cannot be assessed (no PROJECT table, not an XER at all) ends
+// with one line saying why, not a stack trace. XER_DEBUG=1 keeps the trace.
+if (!process.env.XER_DEBUG) process.on("uncaughtException", (e) => { console.error(`xer-schedule-check: ${e && e.message ? e.message : e}`); process.exit(1); });
 import { windows, windowsText, windowsCsv } from "./windows.mjs";
 import { parseXer, decodeXer } from "./xer.mjs";
 import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";

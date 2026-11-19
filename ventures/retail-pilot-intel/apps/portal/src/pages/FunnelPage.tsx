@@ -55,7 +55,7 @@ export function FunnelPage() {
           </div>
         </dl>
         <p className="panel-desc muted">
-          Production builds bucket at 5m / 1h / 1d and align POS timestamps to Europe/Rome.
+          Numbers are daily totals by UTC date for all stores in the database; hourly buckets and Europe/Rome alignment are not built yet.
         </p>
       </section>
     </PortalShell>

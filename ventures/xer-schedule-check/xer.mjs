@@ -111,4 +111,12 @@ export function formatDate(min) {
   return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
 }
 
-export const num = (s) => (s === "" || s === undefined || s === null ? null : Number(s));
+// A number field as a number, or null when it is blank or does not read as a
+// finite number ("NaN", "inf", "1e999999", text): hand-made and converter files
+// carry all of these, and a NaN lag or duration would otherwise run a date
+// calculation forever.
+export const num = (s) => {
+  if (s === undefined || s === null || String(s).trim() === "") return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+};

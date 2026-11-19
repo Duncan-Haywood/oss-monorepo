@@ -399,8 +399,9 @@ flagships:
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
       (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
       eval/whist-vs-greedy.txt); Whist 48, 60 and near-whist 46, 54, 62 by tabu
-      search 2026-11-19 (eval/whist-anneal.c, .txt); next: 52, 57 (tabu ~1 CPU-h
-      each none; order-4 multiplier on Z51 none) and near-whist 58 (tabu 25+60
+      search 2026-11-19 (eval/whist-anneal.c, .txt); 52, 57: patterned starters
+      impossible, Z19x|Z3 tabu stops at cost 2 (README "Whist designs for 52 and
+      57"); next: SAT or a product construction; and near-whist 58 (tabu 25+60
       CPU-min, SAT 2.2 h none; sit-out parity and mirror proof: README "Near-whist
       designs by SAT"). More open items: NEXT.md.
   - venture: open-tennis-robots
@@ -549,8 +550,9 @@ flagships:
       eval/cpm-vs-p6.mjs; free float 19,809 of 19,822
       (eval/free-float-2026-11-19.md): 9 left in the 24.12 file where P6 stores 0
       against a positive gap; windows check (eval/windows-check.mjs, series made by
-      status.mjs); more hand-made or converter XERs (no data date, no PROJECT, blank
-      calendars) through node cli.mjs.
+      status.mjs); converter/hand-made XERs: node eval/converter-corpus.mjs (245
+      files 2026-11-19: 0 crashes, 0 NaN; eval/converter-files-2026-11-19.md), rerun
+      after engine changes.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
@@ -563,20 +565,20 @@ flagships:
       updates shipped 2026-11-19 (windows.mjs, --windows; a not-started re-estimate
       is now a revision in the half-step; eval/windows-check-2026-11-19.md); next a
       real series of updates to check the split and drivers against, and windows in
-      the written review; (3) more public XER files from other exporters (search
-      GitHub for ERMHDR fixtures) and progress override, start float and 24-hour lag
-      paths on a real file; (4) written review shipped 2026-11-19 (report.mjs, print
-      to PDF; eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real
-      files); next a real reviewer's reading of one and a full-list appendix option;
-      (5) Monte Carlo finish risk shipped 2026-11-19 (risk.mjs: P10-P90, chance of
+      the written review; (3) GitHub ERMHDR search done 2026-11-19 (245 files, none
+      a new scored P6 export; eval/converter-files-2026-11-19.md); next progress
+      override, start float and 24-hour lag paths on a real P6 file; (4) written
+      review shipped 2026-11-19 (report.mjs, print to PDF;
+      eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
+      next a real reviewer's reading of one and a full-list appendix option; (5)
+      Monte Carlo finish risk shipped 2026-11-19 (risk.mjs: P10-P90, chance of
       forecast and must-finish, criticality index; zero-width run = CPM on six
       files, eval/risk-check-2026-11-19.md); risk register events shipped 2026-11-19
       (risks: probability x delay on named activities, P80 with/without, events
       ranked; eval/risk-register-check-2026-11-19.md: 207 of 207 planted events =
-      CPM); UDF ranges shipped 2026-11-19 (udf-ranges.mjs, --ranges-udf: 24/24 =
-      CSV, eval/udf-ranges-check-*); next: a real file with range UDFs,
-      probabilistic branches; (6) resource levelling shipped 2026-11-19 (level.mjs,
-      --level: serial pass by early start, the file's priority list, crew-size
-      what-if; eval/level-check-2026-11-19.md: 0 h over a limit from placed work on
-      six files, 37,670 of 37,670 links hold, x1e6 limits = CPM). More open items:
-      NEXT.md.
+      CPM); UDF ranges shipped 2026-11-19 (eval/udf-ranges-check-*); next: a real
+      file with range UDFs, probabilistic branches; (6) resource levelling shipped
+      2026-11-19 (level.mjs, --level: serial pass by early start, the file's
+      priority list, crew-size what-if; eval/level-check-2026-11-19.md: 0 h over a
+      limit from placed work on six files, 37,670 of 37,670 links hold, x1e6 limits
+      = CPM); (7) expected finish dates. More open items: NEXT.md.
