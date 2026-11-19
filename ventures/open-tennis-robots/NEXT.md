@@ -13,4 +13,4 @@
 
 ## Buildable here (added 2026-11-18)
 
-- (2026-11-19) Short takes (eval/take-short-2026-11-19.md): the fit sees 1.5 ms takes (summed dense least right on 13 of 18); the grid's end misses them. Candidate grid 0, 1.5, 2.5, 3-8 ms on held-out set M: within 0.5 ms 48 vs 41 of 66, large misses 3 vs 11, but one instant build read 0.8 ms (not advised), so it failed its rule. Next: a fresh set (new lag and seed) with the instant clause written on advice (no instant build advised), committed before capture; `tests/take_short_blind.py --compare`.
+- (2026-11-19) Large take misses left after the nine-point grid (eval/take-short-n-2026-11-19.md): 1.4-1.9 ms takes reading 0, where the summed curve's shelf hides the valley; a check of those builds' summed curves before any new grid or pick is tried.

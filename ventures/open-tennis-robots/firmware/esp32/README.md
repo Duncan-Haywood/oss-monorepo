@@ -3357,3 +3357,51 @@ mean recovery fell 0.10-0.12 s (0.18 s wheel at 10,800 rpm: 0.93 to 0.83 s); the
 speeds but not the ball model. What is left of the undershoot on the fastest wheels (10 of 24 cases at 0.15 s and
 10,500 rpm still over 2%) is not the gain: measuring `WHEEL_RPM_FULL` on the build is still the fix. Test:
 `test_ball_gain_softens_only_a_wheel_faster_than_told` (tests/test_host.py).
+
+## A 432-case replication of the faster-than-told ball hold (2026-11-19, after "The ball hold on a wheel faster than told"; `LOOP_BALL_GAIN` unchanged)
+
+**The item.** "down" was judged on the 216-case development grid and one 96-case fresh set; its first held-out set came
+out 13 to 13. A second session built the same idea in parallel (kp scaled continuously in the hold, ki untouched,
+`LOOP_BALL_KP_LEARN`, passed its own nine-clause rule) and found #17530 on `main` when it came to merge. It dropped its
+copy and ran the shipped "down" on its unused grid instead.
+
+**How it was checked.** `tests/ball_recovery_sweep.py --ball-gain off,down --heldout`: 432 cases (four plants, wheel
+lags 0.15 / 0.25 / 0.3 s, free 8,000 / 10,000 / 10,500 / 12,000 rpm, nine pairs). #17530's five clauses, a prediction
+and two identity checks were committed before the run (a0154030e). Everything is in `eval/ball-kp-learn-2026-11-19.md`.
+
+| | False | "down" |
+| --- | --- | --- |
+| undershoots over 2%: all 432 / faster than told (324) | 126 / 122 | 76 / 72 (predicted 65-85) |
+| gate passes again, mean / slowest | 0.817 / 2.78 s | 0.760 / 1.97 s |
+| over 3% off at the gate / worst overshoot | 4 / 6.3% | 2 / 4.9% |
+
+Every clause held. The 8,000 rpm rows came out identical, and so did the False rows against the session's earlier run.
+The parallel kp-only design scored within a case of "down" everywhere (73 faster-than-told undershoots, 0.769 s), so
+scaling ki as well buys little either way. **`LOOP_BALL_GAIN` stays "down".** 0.15 s wheels behind the 80 ms ESC
+still dip (53 of 144 at 0.15 s), which is the ESC's lag.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/ball_recovery_sweep.py --band 0.005 --ball-gain off,down --heldout --rows rows.jsonl
+
+## Short takes on a second held-out set (2026-11-19, after "Short takes: the fit sees them, the grid's end does not"; 1.5 and 2.5 ms in place of 2 by its pre-registered rule)
+
+**The item.** On set M the grid 0, 1.5, 2.5, 3-8 ms failed only its instant-read clause, on a build the Pi would not
+have advised. Does it pass a fresh set with that clause written on advice, decided before the capture?
+
+**How it was checked.** Set N (wheel lag 0.62 s, seed 101; 66 drills, takes 0.2-2.75 ms at points M did not use,
+3.3, 4.6, 7.4 ms as checks, and an instant build). The prediction and a four-clause rule (at least 4 more builds
+within 0.5 ms, no more off by more than 1 ms, no more instant builds advised, checks no worse) were committed first
+(7348979a6); a fail would have retired the candidate.
+
+**What it found.** Within 0.5 ms 45 of 66 against 40, off by more than 1 ms 6 against 6, no instant build advised or
+read off 0 on either, checks 16 each. Every clause held, so **`TAKE_SURVEY_GRID_US` is now 0, 1.5, 2.5, 3, 4, 5, 6,
+7, 8 ms** (`controller.py`, `config.py`); `host.TAKE_SURVEY_MS` and `protocol.TAKE_SURVEY_TIMES` (9) follow, and the
+Pi still decodes the eight- and seven-candidate frames of older boards. The prediction's "fewer large misses" did not
+happen (6 each). Set N captured again with the new grid live on the board: 49 of 66 within 0.5 ms against the old
+board's 39, large misses 3 against 7, checks 17 against 16.
+
+**The cost.** One more refit a wheel. The Pi's 12 s hold a ball (`host.TAKE_WAIT_S`) cut the unit test's surveys
+short, so it is now 14 s; on set N the balls were held 140.4 s a drill against 127.3 s (+10%), no survey cut. The
+TAKE_SURVEY frame is 26 bytes. Everything is in `eval/take-short-n-2026-11-19.md`.
+
+**Not known.** All simulated. Whether real contacts are under 3 ms is unmeasured. The large misses left are 1.4-1.9 ms
+takes reading 0.

@@ -11,7 +11,10 @@
 //   rowsToCsv(rows, sep = ",")    -> CSV text (RFC 4180)
 //   csvToRows(text)               -> string[][] (comma, semicolon or tab, found from the header)
 //   rowsToXlsx(rows)              -> Uint8Array (an .xlsx with a "Read me" sheet)
-//   await xlsxToRows(bytes, inflateRaw) -> string[][] (first sheet, or the one named IDS)
+//   sheetsToXlsx([{ name, rows, widths }]) -> Uint8Array (any worksheets, cells as Text)
+//   await xlsxToRows(bytes, inflateRaw, { sheet }) -> string[][] (the sheet named, else the one named IDS, else the first;
+//                                    dates as ISO 8601, numbers as Excel shows them)
+//   await sheetToRows(bytes, inflateRaw) -> .xlsx or CSV by content; .xls/encrypted named
 //
 // The table (one row per facet, README "An IDS as a spreadsheet"):
 //   section  info | specification | applicability | requirements
@@ -458,12 +461,24 @@ export function csvToRows(text) {
 
 const colName = (i) => { let s = ""; i++; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
 // XML 1.0 has no place for most control characters.
-const xmlSafe = (s) => String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g, "");
+// A cell's text as an OOXML string (ST_Xstring): characters XML cannot hold
+// written _xHHHH_ (a CR as _x000D_, as Excel writes it: a literal CR would be
+// read as a line end and lost), and a literal _xHHHH_ kept as _x005F_xHHHH_.
+// Other control characters are dropped.
+const xmlSafe = (s) => String(s)
+  .replace(/_x([0-9A-Fa-f]{4})_/g, "_x005F_x$1_")
+  .replace(/\r/g, "_x000D_")
+  .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g, "");
 
-function sheetXml(rows, { widths = [], freeze = false, bold = false } = {}) {
-  const cols = widths.length ? `<cols>${widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("")}</cols>` : "";
+// text: every cell, and every column's empty cells, formatted as Text (@),
+// so what a person types later stays the characters they typed: Excel and
+// LibreOffice otherwise turn 42.0 into 42, true into TRUE and 2024-01-01 into
+// a date serial (eval/excel-workbooks-2026-11-19.md).
+function sheetXml(rows, { widths = [], freeze = false, bold = false, text = false } = {}) {
+  const colStyle = text ? ` style="2"` : "";
+  const cols = widths.length ? `<cols>${widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"${colStyle}/>`).join("")}${text ? `<col min="${widths.length + 1}" max="${widths.length + 6}" width="12"${colStyle}/>` : ""}</cols>` : "";
   const pane = freeze ? `<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>` : "";
-  const body = rows.map((r, ri) => `<row r="${ri + 1}">${r.map((v, ci) => (v === "" || v === undefined || v === null ? "" : `<c r="${colName(ci)}${ri + 1}" t="inlineStr"${bold && ri === 0 ? ` s="1"` : ""}><is><t xml:space="preserve">${escText(xmlSafe(v))}</t></is></c>`)).join("")}</row>`).join("");
+  const body = rows.map((r, ri) => `<row r="${ri + 1}">${r.map((v, ci) => (v === "" || v === undefined || v === null ? "" : `<c r="${colName(ci)}${ri + 1}" t="inlineStr"${bold && ri === 0 ? ` s="1"` : text ? ` s="2"` : ""}><is><t xml:space="preserve">${escText(xmlSafe(v))}</t></is></c>`)).join("")}</row>`).join("");
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${pane}${cols}<sheetData>${body}</sheetData></worksheet>`;
 }
 
@@ -479,8 +494,26 @@ export const README_ROWS = [
   ["  base: integer          (when the restriction is not on string, double, or a date/time/duration its bounds already show)"],
   ["A leading backslash keeps a cell literal: \\one of: x is the plain value \"one of: x\". In a clause, ;; is a literal ; and in a one-of list || is a literal |."],
   ["An empty cell means no element. cardinality on a requirement row is required (or empty), optional or prohibited."],
+  ["The IDS sheet's cells are formatted as Text, so 42.0, true and 2024-01-01 stay as typed. Keep that format when you paste: use Paste Special > Values."],
   ["Made by IDS Model Check (MIT): https://marisstella.app/ids-model-check/ . Not legal or professional advice; check the IDS you hand over."],
 ];
+
+// Any worksheets as an .xlsx, cells as Text: [{ name, rows, widths }].
+export function sheetsToXlsx(sheets) {
+  const n = sheets.length;
+  const ids = sheets.map((_, i) => i + 1);
+  const files = [
+    { name: "[Content_Types].xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${ids.map((i) => `<Override PartName="/xl/worksheets/sheet${i}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>` },
+    { name: "_rels/.rels", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
+    { name: "xl/workbook.xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets.map((sh, i) => `<sheet name="${escAttr(sh.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets></workbook>` },
+    { name: "xl/_rels/workbook.xml.rels", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${ids.map((i) => `<Relationship Id="rId${i}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i}.xml"/>`).join("")}<Relationship Id="rId${n + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>` },
+    { name: "xl/styles.xml", data: STYLES_XML },
+    ...sheets.map((sh, i) => ({ name: `xl/worksheets/sheet${i + 1}.xml`, data: sheetXml(sh.rows, { widths: sh.widths || [], text: true }) })),
+  ];
+  return zipStore(files);
+}
+
+const STYLES_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="49" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyNumberFormat="1"/><xf numFmtId="49" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs></styleSheet>`;
 
 export function rowsToXlsx(rows) {
   const widths = rows[0].map((h, i) => Math.min(60, Math.max(8, ...rows.slice(0, 200).map((r) => String(r[i] ?? "").length + 2))));
@@ -489,8 +522,8 @@ export function rowsToXlsx(rows) {
     { name: "_rels/.rels", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
     { name: "xl/workbook.xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="IDS" sheetId="1" r:id="rId1"/><sheet name="Read me" sheetId="2" r:id="rId2"/></sheets></workbook>` },
     { name: "xl/_rels/workbook.xml.rels", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>` },
-    { name: "xl/styles.xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs></styleSheet>` },
-    { name: "xl/worksheets/sheet1.xml", data: sheetXml(rows, { widths, freeze: true, bold: true }) },
+    { name: "xl/styles.xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="49" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyNumberFormat="1"/><xf numFmtId="49" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs></styleSheet>` },
+    { name: "xl/worksheets/sheet1.xml", data: sheetXml(rows, { widths, freeze: true, bold: true, text: true }) },
     { name: "xl/worksheets/sheet2.xml", data: sheetXml(README_ROWS, { widths: [120], bold: true }) },
   ];
   return zipStore(files);
@@ -498,43 +531,211 @@ export function rowsToXlsx(rows) {
 
 // "B12" -> 1 (zero-based column).
 function colIndex(ref) {
-  const m = /^([A-Z]+)/.exec(ref || "");
+  const m = /^\$?([A-Za-z]+)/.exec(ref || "");
   if (!m) return null;
   let n = 0;
-  for (const ch of m[1]) n = n * 26 + (ch.charCodeAt(0) - 64);
+  for (const ch of m[1].toUpperCase()) n = n * 26 + (ch.charCodeAt(0) - 64);
   return n - 1;
+}
+
+// OOXML strings write a character XML cannot hold (a CR, a control
+// character) as _xHHHH_, and a literal "_x" that would read as one as
+// _x005F_x... (ECMA-376 Part 1, 22.9.2.19 ST_Xstring). Excel writes the hex
+// upper-case; the lower-case form is read too (one generator in Apache POI's
+// test files writes it).
+export function unescapeXstring(s) {
+  return s.indexOf("_x") < 0 ? s : s.replace(/_x([0-9A-Fa-f]{4})_/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
 }
 
 // All the text of an <si> or <is>: its <t>, or its rich-text runs' <t>s (not phonetic <rPh>).
 function runText(node) {
   const t = kid(node, "t");
-  if (t) return t.text;
-  return kids(node, "r").map((r) => (kid(r, "t") ? kid(r, "t").text : "")).join("");
+  if (t) return unescapeXstring(t.text);
+  return unescapeXstring(kids(node, "r").map((r) => (kid(r, "t") ? kid(r, "t").text : "")).join(""));
 }
 
-export async function xlsxToRows(bytes, inflateRaw) {
-  const entries = zipEntries(bytes);
-  const read = async (name) => {
-    const e = entries.find((x) => x.name === name) || entries.find((x) => x.name.toLowerCase() === name.toLowerCase());
-    return e ? new TextDecoder().decode(await readEntry(bytes, e, inflateRaw)) : null;
-  };
-  const wb = await read("xl/workbook.xml");
-  if (!wb) throw new Error("not an .xlsx workbook (no xl/workbook.xml)");
-  const sheets = kids(kid(parseXml(wb), "sheets"), "sheet");
-  if (!sheets.length) throw new Error("the workbook has no sheets");
-  const pick = sheets.find((s) => String(s.attrs.name).trim().toLowerCase() === "ids") || sheets[0];
-  const rid = Object.entries(pick.attrs).find(([k]) => local(k) === "id" && k !== "sheetId");
-  const rels = await read("xl/_rels/workbook.xml.rels");
-  let target = "worksheets/sheet1.xml";
-  if (rels && rid) {
-    const rel = kids(parseXml(rels), "Relationship").find((r) => r.attrs.Id === rid[1]);
-    if (rel) target = rel.attrs.Target;
+// Built-in number formats that show a date or time (ECMA-376 18.8.30, and
+// the East Asian ids Excel maps to dates).
+const DATE_FORMAT_IDS = new Set([14, 15, 16, 17, 18, 19, 20, 21, 22, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 45, 46, 47, 50, 51, 52, 53, 54, 55, 56, 57, 58]);
+const BUILTIN_CODES = { 14: "yyyy-mm-dd", 15: "d-mmm-yy", 16: "d-mmm", 17: "mmm-yy", 18: "h:mm AM/PM", 19: "h:mm:ss AM/PM", 20: "h:mm", 21: "h:mm:ss", 22: "yyyy-mm-dd h:mm", 45: "mm:ss", 46: "[h]:mm:ss", 47: "mm:ss.0" };
+
+// What a number format shows a number as: "date", "time", "dateTime" or null
+// (a plain number). Elapsed-time formats ([h]:mm) are durations, not a time
+// of day, and stay numbers.
+export function formatKind(code) {
+  if (!code) return null;
+  // The first section is the one positive numbers use; quoted text,
+  // backslash-escaped characters and [colour]/[$-409] brackets are not tokens.
+  const sec = splitFormat(code)[0].replace(/"[^"]*"/g, "").replace(/\\./g, "").replace(/_./g, "").replace(/\*./g, "");
+  if (/\[(h+|m+|s+)\]/i.test(sec)) return null;
+  const t = sec.replace(/\[[^\]]*\]/g, "");
+  if (/general/i.test(t)) return null;
+  const date = /[dy]/i.test(t) || /e/i.test(t.replace(/E[+-]/g, ""));
+  const time = /[hs]/i.test(t) || /AM\/PM|A\/P/i.test(t);
+  const month = /m/i.test(t);
+  if (date && time) return "dateTime";
+  if (date || (month && !time)) return "date";
+  if (time) return "time";
+  return null;
+}
+
+function splitFormat(code) {
+  const out = [];
+  let cur = "", q = false;
+  for (let i = 0; i < code.length; i++) {
+    const c = code[i];
+    if (c === '"') q = !q;
+    if (c === "\\" && !q) { cur += c + (code[i + 1] ?? ""); i++; continue; }
+    if (c === ";" && !q) { out.push(cur); cur = ""; continue; }
+    cur += c;
   }
-  const path = target.startsWith("/") ? target.slice(1) : "xl/" + target.replace(/^\.\//, "");
-  const sheetText = await read(path);
-  if (!sheetText) throw new Error(`the sheet ${pick.attrs.name} (${path}) is missing from the workbook`);
-  const sstText = await read("xl/sharedStrings.xml");
+  out.push(cur);
+  return out;
+}
+
+const pad = (n, w = 2) => String(n).padStart(w, "0");
+
+// An Excel serial day number as ISO 8601 text of the given kind (xs:date,
+// xs:time, xs:dateTime, the forms an IDS value takes). The 1900 system counts
+// 1900-02-29, a day that never was, so serials from 61 on are one day off its
+// count; the 1904 system (old Mac workbooks) starts four years later.
+export function serialToIso(serial, kind, date1904 = false) {
+  let secs = Math.round(serial * 86400);
+  let days = Math.floor(secs / 86400);
+  secs -= days * 86400;
+  const time = `${pad(Math.floor(secs / 3600))}:${pad(Math.floor((secs % 3600) / 60))}:${pad(secs % 60)}`;
+  if (kind === "time") return time;
+  let date;
+  if (!date1904 && days === 60) date = "1900-02-29";
+  else {
+    if (date1904) days += 1462;
+    else if (days < 60) days += 1;
+    const d = new Date(Date.UTC(1899, 11, 30) + days * 86400000);
+    date = `${pad(d.getUTCFullYear(), 4)}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+  }
+  return kind === "date" ? date : `${date}T${time}`;
+}
+
+// A number cell's text as Excel's General format shows it: 15 significant
+// digits. Excel saves a formula's result, and older versions any fraction,
+// with 17 (0.93827160493827155, 6.1728395061728392E-2), which is the same
+// double but not what anyone typed or sees.
+export function excelNumber(text) {
+  const t = text.trim();
+  if (!/^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(t)) return text;
+  const n = Number(t);
+  if (!Number.isFinite(n)) return text;
+  return plainNumber(Number(n.toPrecision(15)));
+}
+
+// A number without an exponent where it has fewer than 21 digits either side
+// of the point (0.0000001, not 1e-7): xs:decimal, which an IDS bound on a
+// decimal uses, has no exponent; xs:double reads both.
+function plainNumber(n) {
+  const s = String(n);
+  const m = /^(-?)(\d)(?:\.(\d+))?e([-+]\d+)$/.exec(s);
+  if (!m) return s;
+  const exp = Number(m[4]);
+  const digits = m[2] + (m[3] || "");
+  if (exp < -20 || exp > 20) return s.replace(/e\+?/, "E");
+  if (exp < 0) return `${m[1]}0.${"0".repeat(-exp - 1)}${digits}`;
+  return m[1] + digits + "0".repeat(Math.max(0, exp - digits.length + 1));
+}
+
+// A workbook's number formats: style index -> "date" | "time" | "dateTime" | null.
+function styleKinds(stylesText) {
+  if (!stylesText) return [];
+  let root;
+  // A damaged styles part costs the date reading, not the sheet: Excel
+  // repairs it on open and shows the numbers.
+  try { root = parseXml(stylesText); } catch { return []; }
+  const custom = new Map(kids(kid(root, "numFmts"), "numFmt").map((f) => [Number(f.attrs.numFmtId), f.attrs.formatCode || ""]));
+  return kids(kid(root, "cellXfs"), "xf").map((xf) => {
+    const id = Number(xf.attrs.numFmtId || 0);
+    if (custom.has(id)) return formatKind(custom.get(id));
+    if (DATE_FORMAT_IDS.has(id)) return formatKind(BUILTIN_CODES[id] || "yyyy-mm-dd");
+    return null;
+  });
+}
+
+// An OLE2 compound file: an Excel 97-2003 .xls, or any Office file saved with
+// a password (the encrypted .xlsx sits inside one).
+const isOle2 = (b) => b.length >= 8 && b[0] === 0xd0 && b[1] === 0xcf && b[2] === 0x11 && b[3] === 0xe0 && b[4] === 0xa1 && b[5] === 0xb1 && b[6] === 0x1a && b[7] === 0xe1;
+
+// Any spreadsheet a person drops: .xlsx (a zip), CSV/TSV text, or a clear
+// error for the two Excel files that are neither.
+export async function sheetToRows(bytes, inflateRaw, opts = {}) {
+  if (bytes[0] === 0x50 && bytes[1] === 0x4b) {
+    try { return await xlsxToRows(bytes, inflateRaw, opts); } catch (e) {
+      // One shared string repeated in every cell can unpack to more text
+      // than a JavaScript string holds (Apache POI's poc-shared-strings.xlsx).
+      if (e instanceof RangeError) throw new Error("the workbook unpacks to more text than can be read here; an IDS sheet is a few thousand rows, so check this is the right file");
+      throw e;
+    }
+  }
+  if (isOle2(bytes)) throw new Error("this is an Excel 97-2003 .xls, or a workbook saved with a password; in Excel use File > Save As > Excel Workbook (.xlsx), with no password (File > Info > Protect Workbook > Encrypt with Password, cleared), and drop that");
+  return csvToRows(new TextDecoder().decode(bytes));
+}
+
+const RELS_NO_CELLS = /(chartsheet|dialogsheet|macrosheet)$/i;
+
+export async function xlsxToRows(bytes, inflateRaw, opts = {}) {
+  if (isOle2(bytes)) return sheetToRows(bytes, inflateRaw);
+  // Some writers store part names with backslashes (xl\workbook.xml) and in
+  // other letter cases; Excel opens them, so this does too.
+  const entries = zipEntries(bytes).map((e) => ({ ...e, key: e.name.replace(/\\/g, "/").replace(/^\//, "").toLowerCase() }));
+  const read = async (name) => {
+    const e = entries.find((x) => x.key === name.toLowerCase());
+    // XML parsers turn a literal CR LF (or lone CR) in a part into LF before
+    // reading it (XML 1.0, 2.11); a CR written as &#13; or _x000D_ stays.
+    return e ? new TextDecoder().decode(await readEntry(bytes, e, inflateRaw)).replace(/\r\n?/g, "\n") : null;
+  };
+  // The workbook part: the package's officeDocument relationship, else xl/workbook.xml.
+  let wbPath = "xl/workbook.xml";
+  const pkgRels = await read("_rels/.rels");
+  let pkgRoot = null;
+  // A damaged package index is skipped: Excel finds xl/workbook.xml anyway.
+  try { pkgRoot = pkgRels && parseXml(pkgRels); } catch { /* fall back below */ }
+  if (pkgRoot) {
+    const rel = kids(pkgRoot, "Relationship").find((r) => /\/officeDocument$/.test(r.attrs.Type || ""));
+    if (rel && rel.attrs.Target) wbPath = rel.attrs.Target.replace(/\\/g, "/").replace(/^\.?\//, "");
+  }
+  let wb = await read(wbPath);
+  if (!wb && wbPath !== "xl/workbook.xml") { wbPath = "xl/workbook.xml"; wb = await read(wbPath); }
+  if (!wb) throw new Error("not an .xlsx workbook (no xl/workbook.xml)");
+  const wbDir = wbPath.includes("/") ? wbPath.slice(0, wbPath.lastIndexOf("/") + 1) : "";
+  const wbRoot = parseXml(wb);
+  const date1904 = /^(1|true)$/i.test(kid(wbRoot, "workbookPr")?.attrs.date1904 || "");
+  const sheets = kids(kid(wbRoot, "sheets"), "sheet");
+  if (!sheets.length) throw new Error("the workbook has no sheets");
+  const relsText = await read(wbDir + "_rels/" + wbPath.slice(wbDir.length) + ".rels");
+  const relList = relsText ? kids(parseXml(relsText), "Relationship") : [];
+  const resolve = (target) => {
+    const t = target.replace(/\\/g, "/");
+    if (t.startsWith("/")) return t.slice(1);
+    const parts = (wbDir + t).split("/");
+    const out = [];
+    for (const p of parts) { if (p === "..") out.pop(); else if (p !== "." && p !== "") out.push(p); }
+    return out.join("/");
+  };
+  // Each sheet's part and whether it is a worksheet (not a chart sheet or a
+  // macro/dialog sheet, which hold no cells).
+  const placed = sheets.map((s, i) => {
+    const rid = Object.entries(s.attrs).find(([k]) => local(k) === "id" && k !== "sheetId");
+    const rel = rid && relList.find((r) => r.attrs.Id === rid[1]);
+    return { s, path: rel ? resolve(rel.attrs.Target) : wbDir + `worksheets/sheet${i + 1}.xml`, cells: !rel || !RELS_NO_CELLS.test(rel.attrs.Type || "") };
+  });
+  const withCells = placed.filter((p) => p.cells);
+  if (!withCells.length) throw new Error("the workbook has no worksheet with cells (only chart sheets)");
+  const named = (n) => withCells.find((p) => String(p.s.attrs.name).trim().toLowerCase() === n);
+  const pick = (opts.sheet && named(String(opts.sheet).trim().toLowerCase())) || named("ids") || withCells[0];
+  const sheetText = await read(pick.path);
+  if (!sheetText) throw new Error(`the sheet ${pick.s.attrs.name} (${pick.path}) is missing from the workbook`);
+  const sstRel = relList.find((r) => /\/sharedStrings$/.test(r.attrs.Type || ""));
+  const sstText = (sstRel && (await read(resolve(sstRel.attrs.Target)))) || (await read(wbDir + "sharedStrings.xml"));
   const sst = sstText ? kids(parseXml(sstText), "si").map(runText) : [];
+  const stRel = relList.find((r) => /\/styles$/.test(r.attrs.Type || ""));
+  const kinds = styleKinds((stRel && (await read(resolve(stRel.attrs.Target)))) || (await read(wbDir + "styles.xml")));
   const out = [];
   let rowNo = 0;
   for (const r of kids(kid(parseXml(sheetText), "sheetData"), "row")) {
@@ -549,14 +750,28 @@ export async function xlsxToRows(bytes, inflateRaw) {
       let val = "";
       if (t === "inlineStr") val = kid(c, "is") ? runText(kid(c, "is")) : "";
       else if (t === "s") val = v ? sst[Number(v.text)] ?? "" : "";
-      else if (t === "b") val = v ? (v.text === "1" ? "TRUE" : "FALSE") : "";
-      else val = v ? v.text : "";
+      // Excel turns a typed true/false into a boolean cell; IDS writes a
+      // boolean value true or false, lower case (TRUE matches nothing).
+      else if (t === "b") val = v ? (/^(1|true)$/i.test(v.text.trim()) ? "true" : "false") : "";
+      else if (t === "str" || t === "e") val = v ? unescapeXstring(v.text) : "";
+      else if (t === "d") val = v ? v.text : ""; // ISO 8601 already (strict OOXML, rare)
+      else if (v) {
+        const kind = kinds[Number(c.attrs.s || 0)];
+        const n = Number(v.text);
+        // Day 0 under a date-only format is Excel's "1900-01-00", no date at
+        // all (a formula pointing at an empty cell): it stays the number.
+        const asDate = kind && Number.isFinite(n) && n >= 0 && !(kind === "date" && n < 1 && !date1904);
+        val = asDate ? serialToIso(n, kind, date1904) : excelNumber(v.text);
+      }
       cells[col] = val;
     }
     for (let k = 0; k < cells.length; k++) if (cells[k] === undefined) cells[k] = "";
     out[rowNo - 1] = cells;
   }
   for (let k = 0; k < out.length; k++) if (!out[k]) out[k] = [];
+  // Which sheet this is and what else the workbook holds (not row data).
+  Object.defineProperty(out, "sheetNames", { value: withCells.map((p) => String(p.s.attrs.name)) });
+  Object.defineProperty(out, "sheetName", { value: String(pick.s.attrs.name) });
   return out;
 }
 

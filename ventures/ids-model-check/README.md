@@ -334,6 +334,7 @@ consultant's model checked against it before it is shared. Today the options are
 | Solibri Office, other commercial model checkers | seat licence (thousands a year) | Windows desktop install; does much more (clash detection, geometry rules) |
 | BIMcollab Zoom, usBIM.IDS-checker, other vendor tools | free tier or subscription | install or an account, and often an upload of the model |
 | IfcTester (IfcOpenShell) | free, LGPL | Python and a command line, or Bonsai/BlenderBIM |
+| Excel2IDS (buildingSMART community) | free, GPL-3.0 | Windows .exe to turn its Excel template into IDS; no checking, cannot read an IDS back |
 | **IDS Model Check** | free, MIT | a browser tab; or Node for CI |
 
 What this does better: nothing to install, nothing uploaded (the model is read
@@ -377,6 +378,31 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 
 No API key, account or server is involved, so there is nothing to configure.
 
+### Excel2IDS workbooks in, Excel2IDS workbooks out (2026-11-19)
+
+Many BIM managers already agree requirements in buildingSMART-community's
+[Excel2IDS](https://github.com/buildingsmart-community/Excel2IDS) template:
+asset categories in columns, one requirement per row, an `X` where a category
+needs a requirement. `excel2ids.mjs` reads that workbook as it stands, on the
+page (drop it where the IDS goes) or with `node cli.mjs --from-sheet book.xlsx
+-o out.ids`, and writes one IDS per purpose (`out_MEP.ids`, `out_STR.ids`;
+per phase too with `--by-phase`), each audited like any IDS. No Windows tool,
+nothing uploaded. The other way round, which Excel2IDS cannot do, `node
+cli.mjs --to-excel2ids spec.ids -o book.xlsx` (or *as an Excel2IDS workbook*
+after an audit) lays an IDS out in the template, a requirement shared by
+several categories written once, and names every specification the template
+cannot hold.
+
+On 64 public IDS files, 309 of 507 specifications fit the template and all
+309 come back with the same requirements; 256 of 256 on buildingSMART's test
+pairs, with the checker's verdict unchanged on 255 (the one that changes is a
+lower-case class name the reader upper-cases on purpose). What does not fit:
+`partOf` requirements, a material asked for with no name, ranges and lengths.
+The template's own sample, read by its rules, asks every external door to be
+an `IFCWALL`; the audit names it. Details, and where this reader differs from
+the Excel2IDS tool (booleans written `true`, `REPLACEME` rows keep their value
+and URI, no fixed `LOD400` milestone): `eval/excel2ids-2026-11-19.md`.
+
 ### An IDS as a spreadsheet and back (2026-11-19)
 
 Requirements are often agreed in a table first and typed into an IDS by hand.
@@ -409,6 +435,24 @@ IDS files on GitHub come back the same as written or as repaired (one uses
 back the same as ours, except that CR LF line breaks inside two files'
 instructions become LF. Excel turns `1.10` into `1.1` when it opens a CSV, so
 prefer `.xlsx`.
+
+**Workbooks Excel saved (2026-11-19).** Excel stores what a person types as
+numbers, dates and booleans, so the reader shows each cell as Excel does:
+a date cell as ISO 8601 (`2024-01-01`, `15:30:18`, `2024-01-01T18:00:00`, from
+the cell's number format, with the 1904 date system), a number to Excel's
+15 digits (`0.938271604938272`, not the `0.93827160493827155` Excel saved),
+a boolean as IDS writes it (`true`, not `TRUE`, which matches no IfcBoolean),
+`_x000D_` escapes decoded. An `.xls` or a password-protected workbook is
+named instead of being read as CSV. On 321 workbooks from Apache POI's test
+files (282 saved by Excel), 65,537 of 65,548 cells now read as openpyxl
+reads them, up from 62,182; the rest are cells where no date exists
+(`eval/excel-workbooks-2026-11-19.md`). The downloaded workbook formats every
+cell, and the empty cells of each column, as Text, so a value a person types
+into it later stays as typed (`42.0`, `true`, `1.10`): retyped through
+LibreOffice Calc's input line, 56 of 56 public IDS files and 334 of 334
+buildingSMART test files come back the same, from 24 and 288 with the
+General format. A CSV opened in a spreadsheet still gets typed, so edit the
+`.xlsx`. Our workbook stores a CR inside a cell as `_x000D_`, as Excel does.
 
 ### Repairing an IDS that validating tools refuse (2026-11-18)
 

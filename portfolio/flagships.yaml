@@ -192,23 +192,23 @@ flagships:
       per-group floors named by a person (needs a set with metric names), SMD
       10-min: no rescue, delay 4h to 1h (Round 19); a real deployer's repository on
       GitHub Actions (real shop, README "A real shop's daily series": weekly line
-      ships; next revenue deaf at Quiet; --closed ships (README "Steps beside a
-      closure"); next a step 1-7 days before a closure (11 vs 16 of 27)); (a) ar1 +
-      floor 2 failed on 5 fresh bee dances (0.244 vs 0.337, README; muted note
-      ships); update-rate: pegs 4 of 7 dated; JHU state switches to weekly reporting
-      20 of 27, returns to more days 0 of 8 (README "A provider's own schedule
-      changes"); short returns: a half-share guard clears same-count day shifts
-      (1.00 to 0 false, power kept) but JHU 2 of 8 (README "a real drop in
+      ships; next revenue deaf at Quiet; --closed ships; a recent-days fill failed 2
+      rounds (README "A closure in the first week after a step": cost ~4/100,
+      pooled); next a closure 1-7 days before a step (the real 2011-09-01 loss));
+      (a) ar1 + floor 2 failed on 5 fresh bee dances (0.244 vs 0.337, README; muted
+      note ships); update-rate: pegs 4 of 7 dated; JHU state switches to weekly
+      reporting 20 of 27, returns to more days 0 of 8 (README "A provider's own
+      schedule changes"); short returns: a half-share guard clears same-count day
+      shifts (1.00 to 0 false, power kept) but JHU 2 of 8 (README "a real drop in
       repeats"); next why the shipped cut misses lasting moves to more days (AK, SD,
       NE). Stale feeds: clumped LR shipped; next a real documented carry-forward.
       joint drift (measured, not offered) and its 2x penalty on fresh multi-column
       labelled data. Open: (0) drift model: t-walk increments, biweight on fresh
       data, why it absorbs seat belts and quality control 4, its AR(1) term; two
       covariates: harmless one's warning 0 of 170 false finds, 1.27x bias (bar
-      failed); slope and pulse shocks 2026-11-18: warning holds 42 of 43 false finds
-      (README "Shocks that are not steps"); notes quote it. Curvature word ships
-      under --shape-word panel (README "A curvature word"): slope donors straight
-      73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
+      failed); notes quote it. Curvature word ships under --shape-word panel (README
+      "A curvature word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37.
+      More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -377,20 +377,20 @@ flagships:
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
       schedule, eval/seed-balance.txt; 2026-11-18 limits kept exactly, impossible
-      ones named, eval/limit-conflicts.txt; promotion/relegation,
-      promotion.test.mjs; play-off results fill the bracket
-      (playoff-results.test.mjs); league page (availability, subs, sign-ups, free
-      agents, waivers, ratings: README; next: a real league's use); 2026-11-19
-      balanced teams, two tags, late sign-ups, /join free agents placed by it
-      (eval/free-agent-fit.txt); bowling seasons, lane pairs rotated evenly: 36 of
-      36 at the bound, repeats 392 to 148 (eval/bowling-repeat-sat.txt)). 3-game
-      nights (eval/three-game-nights.txt): SAT session designs (session-designs.mjs)
-      take every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7
-      on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on
-      7x6; fails at <=3 spare slots (eval/odd-cyclic.txt). Fully booked: 19 on 3x9,
-      25 on 4x9, 31 on 5x9, 37 on 6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even
-      40, 46 on 3 sessions 0 waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0
-      waits (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
+      ones named, eval/limit-conflicts.txt; promotion/relegation, play-off results
+      (tests); league page (availability, subs, sign-ups, free agents, waivers,
+      ratings: README; next: a real league's use); 2026-11-19 balanced teams, /join
+      free agents (eval/free-agent-fit.txt), crossover pool seeds
+      (eval/crossover-seeds.txt); bowling lanes 36 of 36 even
+      (eval/bowling-repeat-sat.txt); bowling averages, handicaps, points, standings
+      from score sheets (bowling-recap.test.mjs)). 3-game nights
+      (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
+      every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on
+      1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6;
+      fails at <=3 spare slots (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on
+      4x9, 31 on 5x9, 37 on 6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46
+      on 3 sessions 0 waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits
+      (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
       (odd-orbit.py, 9,849 s). Bowling seasons proved uneven (SAT, 44 of 4-32 teams
       x 1-60 weeks, page says so; eval/bowling-bound-proof.txt). Lane limits (team
@@ -402,12 +402,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "Short takes" (2026-11-19: the fit sees
-      sub-2.5 ms takes, the grid end misses them; grid 0,1.5,2.5,3-8 ms on set M 48
-      vs 41 of 66 within 0.5 ms, failed on one unadvised instant read). Next: that
-      grid on a fresh set, instant clause on advice; a drill-level check of
-      one-wheel verdicts on more fresh sets; the sub-8 advised instant build. Ball
-      hold on fast wheels: LOOP_BALL_GAIN shipped 2026-11-19.
+      see firmware/esp32/README.md, latest "Short takes on a second held-out set"
+      (2026-11-19: grid now 0,1.5,2.5,3-8 ms; set N 45 vs 40 of 66 within 0.5 ms
+      offline, 49 vs 39 on the board; Pi hold 14 s a ball). Next: why 1.4-1.9 ms
+      takes still read 0 (NEXT.md); a drill-level check of one-wheel verdicts on
+      more fresh sets; the sub-8 advised instant build. Ball hold on fast wheels:
+      LOOP_BALL_GAIN shipped 2026-11-19.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -494,11 +494,13 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      IFC4X3 ifcXML: none public (searched 2026-11-18); B-spline control points cut
-      into rows from knot counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md); more
-      real exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs;
-      IFC4/IFC4X3 STEP exports (ThatOpen/engine_web-ifc tests/ifcfiles/public) as
-      nested ifcXML through eval/ifc4-layout.mjs.
+      Excel2IDS's tool beside excel2ids.mjs on the same workbooks (pip ifctester; a
+      session allowed to run it; eval/excel2ids-2026-11-19.md). IFC4X3 ifcXML: none
+      public (searched 2026-11-18); B-spline control points cut into rows from knot
+      counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md); more real exports through
+      eval/model-inventory.mjs and eval/model-attr-ranges.mjs; IFC4/IFC4X3 STEP
+      exports (ThatOpen/engine_web-ifc tests/ifcfiles/public) as nested ifcXML
+      through eval/ifc4-layout.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked") and HISTORY.md.
@@ -519,6 +521,12 @@ flagships:
       occurrence sets on types, performance sets off IfcPerformanceHistory warned,
       1,280 of 1,280 editor pairs agree). IDS as a spreadsheet 2026-11-19
       (eval/sheet-roundtrip-2026-11-19.md: .xlsx/CSV both ways; 334 of 334 test IDS,
-      62 of 64 public same back). next: an Excel-saved workbook and a BIM manager's
-      real table via --from-sheet; an RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3
-      export to confirm. More open items: NEXT.md.
+      62 of 64 public same back). Excel-saved workbooks 2026-11-19
+      (eval/excel-workbooks-2026-11-19.md: 65,537 of 65,548 cells agree with
+      openpyxl). Excel2IDS template workbooks both ways 2026-11-19 (excel2ids.mjs,
+      eval/excel2ids-2026-11-19.md: 309 of 309 public specs that fit come back the
+      same; partOf, unnamed material, ranges do not fit). next: a BIM manager's real
+      table or filled Excel2IDS workbook via --from-sheet; Excel2IDS's own tool run
+      side by side on the same workbooks; Excel itself typing into the download; an
+      RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. More open
+      items: NEXT.md.
