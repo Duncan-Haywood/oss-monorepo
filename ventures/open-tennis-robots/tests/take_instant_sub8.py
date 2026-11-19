@@ -61,10 +61,10 @@ def stored(path):
 def score(paths):
     import take_survey_sweep as tss
     from tennisbots import host
-    total_good = total_spread = total_bad = total_inst = 0
+    total_good = total_spread = total_bad = total_inst = total_share = 0
     for path in paths:
         rows = load(path)
-        good = spread = bad = inst = within = 0
+        good = spread = bad = inst = within = share_good = 0
         named = None
         for b in rows:
             sv, ms = b["survey"], tss.TAKES[b["build"][0]][1]
@@ -72,9 +72,13 @@ def score(paths):
             pick = round(2 * sv["refined_ms10"] / 10) / 2
             told = ("set TAKE_US" in adv and "TAKE_US = 0" not in adv)     # advice to flash a non-zero contact time
             within += abs(pick - ms) <= 1.0
+            rms = sv["rms_ppm"]
+            share = min(rms) / rms[0] if rms and rms[0] else 1.0
             if ms:
                 spread += 1
                 good += told and abs(pick - ms) <= 1.0
+                # the 2026-11-18 sections' count: share at most the margin and the pick within 1 ms
+                share_good += share <= host.TAKE_ADVISE_RATIO and abs(pick - ms) <= 1.0
             else:
                 inst += 1
                 bad += told
@@ -84,15 +88,16 @@ def score(paths):
                 named = (b["build"], pick, sv["rms_ppm"], adv)
         lag, seed = rows[0]["build"][3], rows[0]["build"][4]
         print(f"{path} (lag {lag} s, seed {seed}, {len(rows)} drills): instant advised {bad} of {inst}; spread takes "
-              f"named within 1 ms and advised {good} of {spread}; within 1 ms {within} of {len(rows)}")
+              f"named within 1 ms and advised {good} of {spread} (by share alone, as on 2026-11-18: {share_good}); within 1 ms {within} of {len(rows)}")
         if named:
             print(f"  launcher 1, jitter 0, instant: pick {named[1]:g} ms, rms {named[2]}; {named[3]}")
         total_good += good
+        total_share += share_good
         total_spread += spread
         total_bad += bad
         total_inst += inst
     print(f"all: instant advised {total_bad} of {total_inst}; spread takes named and advised {total_good} of "
-          f"{total_spread}")
+          f"{total_spread} (by share alone {total_share})")
 
 
 def main():
