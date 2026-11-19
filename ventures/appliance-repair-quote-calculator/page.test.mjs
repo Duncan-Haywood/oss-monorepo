@@ -115,3 +115,10 @@ test("index links one hop to the hvac-maintenance-contract-calculator sibling", 
   );
   assert.match(html, /HVAC maintenance contract pricing calculator/i);
 });
+
+test("Copy quote summary reports a rejected input instead of throwing", () => {
+  // The button sweep with FILL=0 (2026-11-19) found the click threw an
+  // uncaught "must be greater than zero" and copied nothing, silently.
+  const handler = html.slice(html.indexOf("el('copy').addEventListener"), html.indexOf("async function copyLink"));
+  assert.match(handler, /catch \(error\) \{ flash\(`Nothing copied: \$\{error\.message\}`\); return; \}/);
+});
