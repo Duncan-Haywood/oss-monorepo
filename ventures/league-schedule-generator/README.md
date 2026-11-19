@@ -411,9 +411,10 @@ needs partner distances 1..2k exactly once and never 2k+1, opponent distances 1.
 
 `eval/near-whist-search.mjs` finds the bases by simulated annealing on the base round (swap moves,
 short restarts): 6 to 34 in under 12 s each, 38 in 108 s, 42 in 45 s, 50 in 8.6 min; 46 found nothing in 15 min
-(seed 1) and 54 nothing in 10 min, so those stay on greedy (`eval/near-whist-search.txt`).
+(seed 1) and 54 nothing in 10 min (`eval/near-whist-search.txt`). 46 has a design since: a SAT model found it
+in 107 s (section "Near-whist designs by SAT" below).
 `eval/near-whist-bases-build.mjs` keeps only bases whose developed design passes `checkNearWhist`, an
-independent pair-by-pair check. Stored: 6, 10, 14, 18, 22, 26, 30, 34, 38, 42 and 50 players. Against the greedy search on the same
+independent pair-by-pair check. Stored: 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46 and 50 players. Against the greedy search on the same
 players, courts and rounds (`eval/whist-vs-greedy.txt`, a court for every four players):
 
 | players | greedy repeat partners | greedy never partner | greedy opponents | near-whist repeat partners | near-whist never partner | near-whist opponents |
@@ -428,6 +429,7 @@ players, courts and rounds (`eval/whist-vs-greedy.txt`, a court for every four p
 | 34 | 11 | 28 | 0-4 | 0 | 17 | 1-2 |
 | 38 | 15 | 34 | 0-5 | 0 | 19 | 1-2 |
 | 42 | 24 | 45 | 0-5 | 0 | 21 | 1-2 |
+| 46 | 37 | 60 | 0-5 | 0 | 23 | 1-2 |
 
 With fewer courts than tables the design is dealt into rounds as before (26 players on 3 courts: 52
 rounds, 0 repeats, against greedy's 25 on the same 52 rounds), and the page hints that round count.
