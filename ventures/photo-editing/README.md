@@ -1075,6 +1075,17 @@ How it was checked:
   or `SHOOTFLOW_NATIVE=0`: the pure loop runs. `raw_develop.HUFFMAN_ENGINE` (`auto`, `python`,
   `native`) chooses; an invalid code falls back to the pure loop, which raises as before.
 
+## The noise reading in C: same bytes, a third less added time (2026-11-19)
+
+`--demosaic noise-aware` reads the frame's noise before it blends. Its profile guard took 1.4 s of the 3.1 s
+that noise-aware adds to a 24 MP develop. That guard builds a leave-one-out residual for every sensel and
+takes the median of each 24 x 24 block. Both steps now run in a small C helper (`src/shootflow/noise_native.py`).
+It is built on first use like the decoders, and `SHOOTFLOW_NATIVE=0` or a missing compiler keeps the numpy path.
+The C code uses numpy's arithmetic in numpy's order, so the output does not change: 14 of 14 large sample raws
+develop to the same bytes. The time noise-aware adds over directional fell by a median 31% (0.124 to 0.085 s per
+megapixel), and noise-aware now takes 1.77x directional's time instead of 2.05x. `auto` still picks
+directional. The measurements and what is left are in eval/noise-aware-native-spread-2026-11-19.md.
+
 ## The sRGB encode, interpolated (2026-11-17)
 
 The develop's last step, linear light to sRGB, read a 4,096-entry table at the nearest entry, so a 16-bit
