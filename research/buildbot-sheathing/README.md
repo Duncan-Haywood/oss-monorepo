@@ -709,6 +709,21 @@ that covers the sensor error on every joint. Statics; constant sensor bias.
 
 ![Drag limit at each sampled direction against the grid's smaller neighbour, and the worst in-envelope residual at each Latin-hypercube hose load](experiments/m54_lhs/figure.png)
 
+**Milestone 55: does a held-or-free margin that covers the sensor error fix milestone 54's misses?** For the
+spec, yes; for coverage, at a cost. Planned-to-settled torque is linear in the load error (checked to 2e-13 N m), so
+each joint's worst change under a 0.2 N sensor error is r<sub>j</sub> = 0.2 N &times; ||G<sub>j</sub>||, up to
+0.27 N m. The robust rule plans only when every joint's torque at both press ends is more than r<sub>j</sub> from the
+0.2 N m friction torque, re-choosing the squeeze and, failing that, the hold sides. On milestone 54's 48 loads
+**every planned in-envelope case is inside spec, worst 0.011 mm** (from 0.284 mm; H220 held), with no held or side
+flip between plan and robot in 18 119 planned cases, and all 4 old misses plan in spec. But **coverage falls to
+96.4% (G1) and 96.6% (H1)** (H221 refuted), and on 48 fresh loads with off-axis sensor errors to 95.9% and 96.8%
+(H222 refuted; milestone 54's rule had no miss on that seed). Most drops bind on the G1's waist or the H1's torso,
+which neither the leg preload, the squeeze nor the hold sides can move, and every case the rule dropped on the
+fresh loads was in spec under the old rule (post hoc). Next: weight the margin by what a flip costs at the nose, or
+preload the waist. Statics; constant sensor bias.
+
+![Worst in-envelope residual per fresh hose load under milestone 54's rule and the robust rule, and coverage by section and robot](experiments/m55_robust/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
