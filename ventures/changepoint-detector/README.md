@@ -8070,3 +8070,42 @@ resting at the bid is a run of sells), and its own pre-registered round on a fre
 
 Tests: `stale-growth-quoted-tick.test.mjs` (the Binance reader, both rounds' bars, the window picker, the
 committed verdicts and the new clause) and `rounded-walk-heavy.test.mjs` (the clause in a produced line).
+
+## The trade side: the shipped one-tick stale test on side-adjusted prices (2026-11-19, pre-registered; S2 passes, S1 and S3 fail, nothing changes)
+
+The section above ends with the shipped one-tick route calling 16 of 68 real trade-print windows stale with
+nothing carried, and names what the prices alone do not hold: the trade side. Each Binance trade row says
+whether the buyer was the maker (a taker sold, so the print is at the bid). Moving each print half a quoted tick
+toward the middle of the book (bid + tick/2, ask - tick/2) removes the bid-ask bounce when the book is one tick
+wide, so the series moves only when the book does. `eval/stale-side-mid-binance.mjs` (header and code committed in
+9ec8f5430 before any file of the day was downloaded; amended once in fb7571384 before any result was read: the
+first run, with an unadjusted arm for comparison, would have passed the session's two-hour limit, so the
+unadjusted arm, which decided nothing, was dropped) runs the unchanged `staleTestMarkov` behind the unchanged
+one-tick gate on a fresh day, 2026-11-09, on the same twelve pairs: the side-adjusted prints and their last value
+every 0.5, 1 and 2 s, four evenly spaced 300-step windows a series, 192 windows. Output
+`eval/stale-side-mid-binance.out.txt` (32 min on four threads).
+
+| bar (side-adjusted, gated windows, pooled) | result |
+|---|---|
+| S1 size on the real null: trade-print windows called stale (bar <= 10%, n >= 10) | **21 of 39 (54%): fail** |
+| S2 power: carried share >= 0.30 called stale (bar 80%) | **88 of 88: pass** |
+| S3 the estimate: fitted carry share within 0.10, among grid windows called stale (bar 80%) | **55 of 97 (57%): fail** |
+| reported: windows the gate refuses | 56 of 192 (all 32 of BTC's and ETH's: once the bounce is gone their nonzero moves are tens of ticks) |
+| reported: price repeats among prints that keep the side of the print before | 62% (DOT) to 99% (TRX) |
+
+By the pre-registered rule for an S1 failure, nothing in code changes: the trade side does not let this test tell
+resting at a quote from carrying forward, and the shipped caveat (check the source's own timestamps) stands.
+
+**Why it went the wrong way (read afterwards, deciding nothing).** The adjustment removes the bounce, but a
+bounce is a move: a sell at the bid followed by a buy at the ask now lands on the same value, so the adjusted
+prints repeat more than the raw ones, and the repeats come in long runs while the book stands still. That is the
+clumped-repeat pattern the Markov carry model finds. Among the adjusted print windows the gate passed, 18 of
+the 22 with at least half their steps repeating were called stale, against 3 of 17 below that; TRX's adjusted
+prints repeat 92-99% of the time, and all four windows were called stale with fitted carry shares of 0.83 to 0.95.
+A book that does not move for minutes is, to a price series, the same thing as a feed that stopped. So on
+exchange trades the two can only be told apart by something outside the price: the trade timestamps or ids, which
+show that a new trade happened. This line of rounds (real carried feeds, 2026-11-19) ends here; the stale test is
+for sampled series whose source does not say when it last changed, and the README caveat says so.
+
+Tests: `stale-side-mid.test.mjs` (the sided reader, the half-tick transform, the windows, the bars and the
+committed verdicts).

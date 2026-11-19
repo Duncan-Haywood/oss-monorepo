@@ -50,3 +50,17 @@ test('the committed run is on the pre-registered day', () => {
   assert.equal(DAY, '2026-11-09');
   assert.match(out(), new RegExp(`Binance spot ${DAY} \\(pre-registered\\)`));
 });
+
+test('the committed run: S1 21 of 39 and S3 55 of 97 fail, S2 88 of 88 passes', () => {
+  const o = out();
+  assert.match(o, /S1 size, trade prints: 21 of 39 .*: fail/);
+  assert.match(o, /S2 power, carried >= 0\.30: 88 of 88 .*: pass/);
+  assert.match(o, /S3 estimate within 0\.10: 55 of 97 .*: fail/);
+  assert.match(o, /windows the gate refuses: 56 of 192/);
+});
+
+test('S1 failed, so the shipped caveat is unchanged and update-rate.mjs exports no sideAdjusted', async () => {
+  const u = await import('./update-rate.mjs');
+  assert.equal(u.sideAdjusted, undefined);
+  assert.match(readFileSync(new URL('./update-rate.mjs', import.meta.url), 'utf8'), /check the source's own timestamps before reading it as a stale feed/);
+});
