@@ -74,7 +74,7 @@ function runSR(seed, ci, betas) {
   for (let r = 0; r < REPS; r++) {
     const z = gen(rnd), v = valuesFrom(z), u = updateRateChanges(v, SHIPPED_OPTS), days = z.map((_, s) => s % 7);
     const shipped = u.changes.some((c) => c.direction === 'less often' && Math.abs(c.index - 1 - START) <= TOL);
-    const search = betas.length === 1 ? shortSpells(v, { days, u }).spells.map((s) => s.from - 1) : null;
+    const search = betas.length === 1 ? shortSpells(v, { days, u, score: 'dow' }).spells.map((s) => s.from - 1) : null;
     out.push({ n: z.length, shipped, search, rows: slim(spellWeekdayCandidates(v, { days, betas, u })) });
   }
   return { name, out };
@@ -87,7 +87,7 @@ function runOpen(ci, cfg) {
     const { z, S } = makeSeries(rnd, c.opening, c.shape, c.isNull), v = valuesFrom(z);
     const u = updateRateChanges(v, SHIPPED_OPTS), days = z.map((_, s) => s % 7);
     const edge = edgeSpellsOf(u).map((s) => ({ a: s.from - 1, b: s.to }));
-    const oldS = shortSpells(v, { days, u }).spells.map((s) => ({ a: s.from - 1, b: s.to }));
+    const oldS = shortSpells(v, { days, u, score: 'dow' }).spells.map((s) => ({ a: s.from - 1, b: s.to }));
     const rows = spellWeekdayCandidates(v, { days, betas: [cfg.beta], u });
     const newS = spellsFromWeekdayRows(rows, { arm: cfg.arm, t: 0, pen: pen(z.length, cfg.m) }).map((s) => ({ a: s.from - 1, b: s.to }));
     const line = (S0) => [...S0, ...edge.filter((e) => !S0.some((s) => s.a < e.b && e.a < s.b))];
@@ -201,7 +201,7 @@ if (!isMainThread && workerData?.weekdaysWorker) {
     const states = [...new Set([...PRIMARY.map((e) => e.state), ...SECONDARY.filter((e) => e.direction === 'more often').map((e) => e.state)])];
     let nNew = 0, nOld = 0;
     for (const st of states) {
-      const x = by.get(st), days = daysFromDates(x.dates), q = found(x), old = shortSpells(x.values, { days }).spells;
+      const x = by.get(st), days = daysFromDates(x.dates), q = found(x), old = shortSpells(x.values, { days, score: 'dow' }).spells;
       nNew += q.length; nOld += old.length;
       for (const r of q) console.log(`  ${st.padEnd(21)} ${Dt(x, r.from)}..${Dt(x, r.to)} (${r.steps} days, ${r.kind}) ${(100 * r.shareInside).toFixed(0)}% inside, ${(100 * r.shareOutside).toFixed(0)}% around`);
       for (const r of old) console.log(`  ${st.padEnd(21)} [shipped ${Dt(x, r.from)}..${Dt(x, r.to)} (${r.steps} days, ${r.kind})]`);

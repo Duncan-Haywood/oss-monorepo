@@ -91,7 +91,7 @@ export const CELLS = Object.keys(OPENINGS).flatMap((o) => [
 /** What the --spells line sees on one series: search spells and edge spells, as z-index intervals [a, b). */
 export function readSeries(z) {
   const v = valuesFrom(z), u = updateRateChanges(v, SHIPPED_OPTS), days = z.map((_, s) => s % 7);
-  const search = shortSpells(v, { days, u }).spells.map((s) => ({ a: s.from - 1, b: s.to }));
+  const search = shortSpells(v, { days, u, score: 'dow' }).spells.map((s) => ({ a: s.from - 1, b: s.to }));
   const edge = edgeSpellsOf(u).map((s) => ({ a: s.from - 1, b: s.to }));
   const printedEdge = edge.filter((e) => !search.some((s) => s.a < e.b && e.a < s.b));
   return { search, edge, printedEdge };

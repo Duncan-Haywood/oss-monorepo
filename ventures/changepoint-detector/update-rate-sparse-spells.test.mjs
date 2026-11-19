@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { bestReturnCost, shortSpells, SHORT_SPELLS, SHORT_RETURNS, updateRateChanges } from './update-rate.mjs';
+import { bestReturnCost, shortSpells, SHORT_SPELLS_DOW as SHORT_SPELLS, SHORT_RETURNS, updateRateChanges } from './update-rate.mjs';
 import { spellCandidates, SPELL_CELLS, NULLS_ALL, GUARDS } from './eval/update-rate-sparse-spells.mjs';
 import { valuesFrom } from './eval/update-rate-returns.mjs';
 import { makeRng } from './eval/update-rate-sim.mjs';
@@ -23,13 +23,13 @@ test('sparse: true searches the other direction; the default search is unchanged
 test('a Wednesdays-only spell inside Monday-Friday is found with its edges; a same-count shift is not a spell', () => {
   const rnd = makeRng(31);
   const z = SPELL_CELLS.P1w60(rnd), v = valuesFrom(z), days = z.map((_, s) => s % 7);
-  const { spells } = shortSpells(v, { days, u: updateRateChanges(v, { catchUp: { method: null } }) });
+  const { spells } = shortSpells(v, { days, u: updateRateChanges(v, { catchUp: { method: null } }), score: 'dow' });
   assert.equal(spells.length, 1);
   assert.ok(Math.abs(spells[0].from - 1 - 500) <= 10 && Math.abs(spells[0].to - 560) <= 10, JSON.stringify(spells[0]));
   assert.ok(spells[0].shareInside > 0.7 && spells[0].shareOutside < 0.4);
   for (const cell of ['S2t n1100', 'S1t n1100']) {
     const zs = NULLS_ALL[cell](rnd), vs = valuesFrom(zs);
-    assert.equal(shortSpells(vs, { days: zs.map((_, s) => s % 7), u: updateRateChanges(vs, { catchUp: { method: null } }) }).spells.length, 0, cell);
+    assert.equal(shortSpells(vs, { days: zs.map((_, s) => s % 7), u: updateRateChanges(vs, { catchUp: { method: null } }), score: 'dow' }).spells.length, 0, cell);
   }
 });
 
@@ -37,7 +37,7 @@ test('the module function matches the eval file at the chosen setting', () => {
   const rnd = makeRng(32), z = SPELL_CELLS.P3w60(rnd), v = valuesFrom(z), days = z.map((_, s) => s % 7);
   const u = updateRateChanges(v, { catchUp: { method: null } });
   const a = spellCandidates(v, days, GUARDS.z01, { u }).filter((q) => q.gain > pen(z.length)).map((q) => q.a + 1);
-  assert.deepEqual(shortSpells(v, { days, u }).spells.map((s) => s.from), a);
+  assert.deepEqual(shortSpells(v, { days, u, score: 'dow' }).spells.map((s) => s.from), a);
   assert.throws(() => shortSpells(v, {}));
 });
 

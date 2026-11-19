@@ -514,16 +514,28 @@ export const WEEKLY_TEST = { df: 12, crit: 32.909 };
 // guard z01 (a significant rise in repeats); reported when gain > mult x 2 log(n + 1). eval/update-rate-sparse-
 // spells.mjs chose z01 at m 3.5 on calibration and passed S1-S4 on confirmation and K1 on seen data (Alaska, South
 // Dakota). An opt-in: nothing the CLI or the page prints calls it yet. Needs a weekday per step (daysFromDates).
-export const SHORT_SPELLS = { mult: 3.5, guard: { kind: 'z', z: 2.326 }, minSegment: 20, minRepeats: 10 };
+// Superseded 2026-11-19 by the differing-weekday score below (README "Short spells scored on the weekdays that
+// differ"): eval/update-rate-spells-weekdays.mjs chose arm A, beta 4, m 2.5 on calibration and passed C1-C5 and K1.
+// The round-5 search stays reachable as `score: 'dow'` (SHORT_SPELLS_DOW) so earlier rounds' outputs reproduce.
+export const SHORT_SPELLS_DOW = { score: 'dow', mult: 3.5, guard: { kind: 'z', z: 2.326 }, minSegment: 20, minRepeats: 10 };
+export const SHORT_SPELLS = { score: 'weekdays', arm: 'A', beta: 4, mult: 2.5, guard: { kind: 'z', z: 2.326 }, minSegment: 20, minRepeats: 10 };
 
 /**
  * Short spells of less frequent updates inside the stretches updateRateChanges found. `days[s]` is the weekday of
  * repeat indicator s. Value indexes: { spells: [{ from, to, steps, shareInside, shareOutside, gain, kind }], penalty }.
+ * score 'weekdays' (the default since 2026-11-19; kind 'weekdays' or 'chain', `weekdays` a bitmask of the weekday
+ * values counted) or 'dow' (round 5's search, kind 'dow' or 'chain').
  */
-export function shortSpells(values, { days, mult = SHORT_SPELLS.mult, guard = SHORT_SPELLS.guard, minSegment = SHORT_SPELLS.minSegment, minRepeats = SHORT_SPELLS.minRepeats, u = null } = {}) {
+export function shortSpells(values, { days, score = SHORT_SPELLS.score, mult = null, guard = SHORT_SPELLS.guard, minSegment = SHORT_SPELLS.minSegment, minRepeats = SHORT_SPELLS.minRepeats, u = null, beta = SHORT_SPELLS.beta, arm = SHORT_SPELLS.arm } = {}) {
   if (!days) throw new Error('shortSpells needs a weekday per step (daysFromDates)');
+  if (mult == null) mult = score === 'dow' ? SHORT_SPELLS_DOW.mult : SHORT_SPELLS.mult;
   const n = values.length - 1, penalty = mult * 2 * Math.log(n + 1), z = repeatIndicators(values);
   u = u || updateRateChanges(values);
+  if (score === 'weekdays') {
+    const rows = spellWeekdayCandidates(values, { days, betas: [beta], guard, minSegment, minRepeats, u });
+    return { spells: spellsFromWeekdayRows(rows, { arm, t: 0, pen: penalty }), penalty };
+  }
+  if (score !== 'dow') throw new Error(`unknown spell score '${score}'`);
   const opts = { days, u, guard, minSegment, minRepeats, sparse: true };
   const D = new Map(returnCandidates(values, { ...opts, kind: 'dow' }).map((q) => [q.L, q]));
   const F = new Map(returnCandidates(values, { ...opts, kind: 'chain' }).map((q) => [q.L, q]));
@@ -630,13 +642,13 @@ const ISO_DAY = /^\d{4}-\d{2}-\d{2}/;
  * Run shortSpells for the CLI or page. Returns { spells: [{ ...spell, fromLabel, toLabel }], penalty } or
  * { refused: reason }. `u` reuses an updateRateChanges result for the same values.
  */
-export function spellsResult(values, labels, { u = null, maxPoints = SPELLS_MAX_POINTS } = {}) {
+export function spellsResult(values, labels, { u = null, maxPoints = SPELLS_MAX_POINTS, score = SHORT_SPELLS.score } = {}) {
   if (values.length > maxPoints) return { refused: `${values.length} points is above the ${maxPoints} the spell search runs on` };
   if (!labels || labels.length !== values.length || !labels.every((l) => ISO_DAY.test(String(l)) && !Number.isNaN(Date.parse(String(l).slice(0, 10))))) {
     return { refused: 'it needs a date on every row (YYYY-MM-DD labels), to read the weekday of each update' };
   }
   u = u || updateRateChanges(values);
-  const { spells, penalty } = shortSpells(values, { days: daysFromDates(labels), u });
+  const { spells, penalty } = shortSpells(values, { days: daysFromDates(labels), u, score });
   const edgeSpells = edgeSpellsOf(u).map((s) => ({ ...s, fromLabel: String(labels[s.from]), toLabel: String(labels[s.to]) }));
   return { spells: spells.map((s) => ({ ...s, fromLabel: String(labels[s.from]), toLabel: String(labels[s.to]) })), edgeSpells, penalty };
 }
@@ -657,6 +669,13 @@ export function edgeSpellsOf(u, maxSteps = EDGE_SPELL_MAX_STEPS) {
   return out;
 }
 
+const WEEKDAY_NAMES = ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'];
+/** Names of the weekdays in a bitmask of daysFromDates values (0 Sunday): 'Tuesdays and Thursdays'. */
+export function weekdayNames(mask) {
+  const n = WEEKDAY_NAMES.filter((_, k) => mask & (1 << k));
+  return n.length <= 1 ? n.join('') : `${n.slice(0, -1).join(', ')} and ${n[n.length - 1]}`;
+}
+
 /** One plain line for the CLI and the page, or null when there is nothing to say. */
 export function spellsLine(res) {
   if (!res) return null;
@@ -666,6 +685,6 @@ export function spellsLine(res) {
   if (!res.spells.length) return edges.length
     ? `Short spells of fewer updates: none inside the update-rate line's stretches.${edgeText}`
     : 'Short spells of fewer updates: none found (no stretch of a month or so where the series repeated its last value clearly more often than before and after it).';
-  const one = (s) => `${s.fromLabel} to ${s.toLabel} (${s.steps} steps): the value repeated on ${pct(s.shareInside)} of steps inside, against ${pct(s.shareOutside)} before and after${s.kind === 'dow' ? ', read weekday by weekday because the stretch runs on a weekly schedule' : ''}`;
+  const one = (s) => `${s.fromLabel} to ${s.toLabel} (${s.steps} steps): the value repeated on ${pct(s.shareInside)} of steps inside, against ${pct(s.shareOutside)} before and after${s.kind === 'dow' ? ', read weekday by weekday because the stretch runs on a weekly schedule' : s.kind === 'weekdays' ? `, read on the weekdays where the schedule changed (${weekdayNames(s.weekdays)})` : ''}`;
   return `Short spells of fewer updates: ${res.spells.length === 1 ? 'one spell' : `${res.spells.length} spells`} where the series was refreshed on fewer days for a while and then went back to its old schedule: ${res.spells.map(one).join('; ')}. This is about how often the data was published (a reduced reporting schedule, a holiday spell), not its level; a jump at the end of a spell may be a catch-up.${edgeText}`;
 }
