@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqycCXoqkuTLUPfCDTkr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T17:39:03Z",
+  "ended": "2026-11-19T17:55:58Z",
+  "wall_minutes": 18.9,
+  "tokens_in": 9668961,
+  "tokens_out": 45974,
+  "cost_usd": 4.0969,
+  "tool_calls": 79,
+  "task": "photo-editing flagship: the D780/D600 near-clean losers' truth noise",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17741",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here sent this session to changepoint-detector's newest item, which PR #17740 had claimed 5 s before this session's claim; claim_check caught it, but only after a claim commit and draft PR had been opened. Two scheduled sessions starting in the same minute get the same row."
+    },
+    {
+      "file": "ventures/photo-editing/eval/near-clean-gate-xtrans-tune-2026-11-19.md",
+      "issue": "The note told the next run to 'check their truths' own noise' with truth_sigma18, which is frame_noise, the estimator under test; a literal follow-through would have closed a real loss as a scoring artefact."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Yielded the allocator's changepoint-detector pick to PR #17741's older twin #17740 and took photo-editing as claim_check suggested; retitled the claim PR instead of opening a new one.",
+      "did": "photo-editing D780/D600 item",
+      "result": "landed"
+    },
+    {
+      "file": "ventures/photo-editing/eval/near-clean-truth-noise-2026-11-19.md",
+      "why": "My own pre-registered decision said: if --clean-truths drops all 11 losers, close the item. It did, but an independent check made after reading (EXIF ISO 100, tile images, a raw-based grain reading that matches sensor physics) showed the column reads texture as grain, so I did not close it; the 6 losers real by the raw reading became the next item, as the rule's other branch specified.",
+      "did": "added truth_grain18 and reported both readings",
+      "result": "6 of 11 losers confirmed real; Bayer lift still passes h1-h3 on clean truths"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-photo-editing-noisy-reference-or-texture.md",
+    "ventures/photo-editing/eval/near-clean-truth-noise-2026-11-19.md"
+  ],
+  "goal": "deepen the photo-editing flagship's noise-aware demosaic evaluation",
+  "notes": "raw.pixls.us answered this session. Reran the first set's 1,272 held rows (reproduced to 0 dB difference) with a new truth_grain18 column read from each raw's sensels (tools/truth_noise_check.py), with the transfer into the binned truth measured by a second LibRaw pass with known added noise. Old truth_sigma18 read D780 ISO-100 foliage at truth SNR 13-19 vs 153-181 from the raw. 6 of 11 losers are real (frame read 2.3-5.2x the added noise, floor set by texture). rule --k 12 --clean-truths: h1-h3 PASS on 958 kept rows. Local checks: run_venture_tests.py photo-editing ok (1454 tests, 101 s); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9a1c6d68-505a-5ac1-9fde-2c4c451a693a",
+    "transcripts": 1,
+    "first": "2026-11-19T17:39:03Z",
+    "last": "2026-11-19T17:57:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 143,
+        "output": 45974,
+        "thinking": 11994,
+        "cache_read": 9509442,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159376,
+        "api_equivalent_usd": 4.0969,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 143,
+      "output": 45974,
+      "thinking": 11994,
+      "cache_read": 9509442,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159376,
+      "api_equivalent_usd": 4.0969,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 68,
+      "ToolSearch": 3,
+      "Write": 3,
+      "Edit": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.9,
+      "active_minutes": 18.9,
+      "model_minutes": 7.96,
+      "tool_minutes": 10.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an imaging engineer fetching 3.6 GB of raws, writing the raw-grain transfer tool, rerunning the sweep and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 146.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
