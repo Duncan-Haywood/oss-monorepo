@@ -17,6 +17,7 @@ space, so `ventures/wall-framing-\n takeoff` reads as
     flagship_field.py ai-bookkeeper --park ITEM [--park ITEM2]  # move open items to ventures/<v>/NEXT.md
     flagship_field.py ai-bookkeeper --replace OLD NEW --park ITEM  # both in one call, cap checked after
     flagship_field.py ai-bookkeeper --replace OLD NEW --make-room  # park from the end until it fits
+    flagship_field.py ai-bookkeeper --replace OLD NEW --history RESULT  # move a result you name to HISTORY.md
     flagship_field.py --check                       # exit 1 on a hyphen-folded break or a stray ';.'
 
 Edits touch only that field's lines, rewrap without breaking at hyphens or
@@ -106,6 +107,18 @@ Undated results after the marker still went to NEXT.md as open items (five
 records, 2026-11-18..19: "lasting moves to more days: cut has the power (8 of
 9 cells)"). An item the park picks that reads as a result (`is_result`) now
 goes to HISTORY.md instead; one with any open cue still goes to NEXT.md.
+
+The heuristics still miss undated results, which no rule will catch, and on
+2026-11-19 the refusal ("parking every item it may move still leaves 2068")
+was the most reported flagship_field.py friction: 12 run records that day
+(PRs #17479, #17486, #17502, #17504, #17517, #17522, #17526, #17534, #17539,
+#17609 among them) cut a landed clause by hand and copied it to a README or
+NEXT.md, and one asked for "a --park-landed option". `--history TEXT` is that
+option: the run names the finished result (any span of the unfolded value,
+not only a `; ` item), and it moves to HISTORY.md in the same call as the
+--replace, before the cap is checked. The refusal now names the longest
+landed clauses as ready `--history` flags. Judgment about what is finished
+stays with the run; the tool does the move.
 """
 from __future__ import annotations
 
@@ -427,7 +440,8 @@ def set_value(text: str, venture: str, field: str, value: str,
         raise ValueError(f"`next:` would be {len(value)} of {FLAGSHIP_NEXT_MAX} characters "
                          f"({over} over): replace what you landed, don't append"
                          + new_budget(keep, over)
-                         + (f"\n{hint}" if hint else "") + "\n" + park_hint(value, venture, over, keep))
+                         + (f"\n{hint}" if hint else "") + history_hint(value, over, keep)
+                         + "\n" + park_hint(value, venture, over, keep))
     if field == "buildable" and len(value) > FLAGSHIP_BUILDABLE_MAX:
         # Say the overrun, the room the row had, the landed cuts and (with one
         # --replace) the longest NEW that fits, so the next attempt fits first
@@ -585,6 +599,22 @@ def remove_span(value: str, start: int, end: int) -> str:
     return " ".join((before + v[end + after.end():]).split())
 
 
+def remove_text(value: str, piece: str) -> str:
+    """`value` without `piece` (matched on whitespace-normalised text) and one
+    separator beside it, for --history. Raises ValueError when it is absent."""
+    v = " ".join(value.split())
+    want = " ".join(piece.split()).strip(" ;").rstrip(".")
+    i = v.find(want) if want else -1
+    if i < 0:
+        raise ValueError(f"--history: not found in `next:`: {piece!r} (copy it from "
+                         "`flagship_field.py <venture>`, the unfolded value)")
+    j = i + len(want)
+    if v[max(0, i - 2):i] == ". " and v[j:j + 2] == "; ":
+        # "a. PIECE; b" -> "a. b": keep the sentence break, drop the item's
+        return " ".join((v[:i] + v[j + 2:]).split())
+    return remove_span(v, i, j)
+
+
 def archive_history(value: str, goal: int, keep: tuple[str, ...] = ()) -> tuple[str, list[str]]:
     """Move history pieces, oldest (first in the row) first, until `value`
     and the NEXT.md pointer fit under `goal`. Returns (value, pieces moved)."""
@@ -671,9 +701,53 @@ def make_room(value: str, keep: tuple[str, ...] = (),
     if len(value) <= FLAGSHIP_NEXT_MAX:
         return value, parked
     raise ValueError(f"--make-room: parking every item it may move still leaves `next:` at "
-                     f"{len(value)} of {FLAGSHIP_NEXT_MAX} characters; shorten the new text, or cut "
-                     "landed clauses (`--landed` lists them; they are never parked). Dated results "
-                     "before the last open marker were already moved to HISTORY.md")
+                     f"{len(value)} of {FLAGSHIP_NEXT_MAX} characters; shorten the new text, or move "
+                     "finished results to HISTORY.md with --history (landed clauses are never "
+                     "parked; dated results before the last open marker were already moved)"
+                     + history_hint(value, len(value) - FLAGSHIP_NEXT_MAX, keep))
+
+
+def history_candidates(value: str, keep: tuple[str, ...] = ()) -> list[str]:
+    """Items of `value` that read as finished work, longest first: whole
+    landed clauses (`landed_clauses` with nothing to keep) and `; ` items
+    `is_result` accepts. Never the run's own NEW text, the row's first
+    sentence (its pointer) or the NEXT.md pointer. A suggestion for
+    --history; the run decides."""
+    v = " ".join(value.split())
+    first = v.split(". ", 1)[0]
+
+    def bare(c: str) -> str:
+        marks = list(OPEN_MARK.finditer(c))
+        if marks:  # "Next: A passed" -> "A passed": the marker stays in the row
+            c = c[marks[-1].end():]
+        if c.startswith(first + ". "):
+            c = c[len(first) + 2:]
+        return c.strip(" ;").rstrip(".")
+
+    seen, out = set(), []
+    pool = [bare(c) for c, k in landed_clauses(v) if k == ""] + [
+        c for c in map(bare, split_items(v)) if is_result(c)]
+    for c in pool:
+        if (not c or c in seen or c in first or PARK_POINTER in c
+                or not _balanced(c) or any(k and (k in c or c in k) for k in keep)):
+            continue
+        seen.add(c)
+        out.append(c)
+    return sorted(out, key=len, reverse=True)
+
+
+def history_hint(value: str, over: int, keep: tuple[str, ...] = ()) -> str:
+    """Ready --history flags that together free `over` characters, or ""."""
+    flags, freed = [], 0
+    for c in history_candidates(value, keep):
+        flags.append("--history " + shlex.quote(c))
+        freed += len(c) + 2
+        if freed >= over:
+            break
+    if not flags:
+        return ""
+    return ("\nfinished results this row holds (check each is done, then add to the same call; "
+            f"{freed} chars):\n  " + "\n  ".join(flags))
 
 
 def with_pointer(value: str) -> str:
@@ -765,6 +839,10 @@ def _main(argv: list[str]) -> int:
     ap.add_argument("--park", action="append", metavar="ITEM",
                     help="move an open item out of `next:` into ventures/<v>/NEXT.md (repeatable; "
                          "combines with --replace/--set, the cap is checked after parking)")
+    ap.add_argument("--history", action="append", metavar="TEXT",
+                    help="move a finished result (any span of the unfolded `next:`) to "
+                         "ventures/<v>/HISTORY.md (repeatable; combines with --replace/--set, "
+                         "the cap is checked after the move)")
     ap.add_argument("--make-room", action="store_true",
                     help="when `next:` would pass the cap, park items from the end of the row "
                          "(never your own NEW text) until it and the NEXT.md pointer fit")
@@ -814,9 +892,9 @@ def _main(argv: list[str]) -> int:
             print(f"-- {len(found)} landed clause(s); trimming them frees {_saved(found)} of "
                   f"{len(current)} characters", file=sys.stderr)
             return 0
-        if args.park or args.make_room:
+        if args.park or args.make_room or args.history:
             if args.field != "next":
-                ap.error("--park and --make-room work on `next:` only")
+                ap.error("--park, --history and --make-room work on `next:` only")
             if current is None:
                 print(f"{args.venture} has no `next:`", file=sys.stderr)
                 return 1
@@ -832,6 +910,9 @@ def _main(argv: list[str]) -> int:
             if parks:
                 new = remove_items(new, parks)
             history: list[str] = []
+            for piece in args.history or []:
+                new = remove_text(new, piece)
+                history.append(" ".join(piece.split()).strip(" ;").rstrip("."))
             if args.make_room:
                 before = len(" ".join(new.split()))
                 trigger = FLAGSHIP_NEXT_TARGET if args.trim else FLAGSHIP_NEXT_MAX
