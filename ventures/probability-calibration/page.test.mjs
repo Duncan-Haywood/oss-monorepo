@@ -137,3 +137,7 @@ test("footer links the sibling research-algorithm tools", () => {
   const html = page("index.html");
   for (const s of ["conformal-prediction-intervals", "changepoint-detector", "fdr-multiple-testing", "survival-analysis", "spc-control-charts", "isolation-forest", "gaussian-process-regression", "inter-rater-agreement", "mann-kendall-trend"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`), s);
 });
+
+test("links to ROC analysis, the discrimination side of the same question", () => {
+  assert.match(page("index.html"), /href="\.\.\/roc-analysis\/"/);
+});
