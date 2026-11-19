@@ -164,7 +164,7 @@ function merge(input) {
 
 const num = (v, name, errs, { min = -Infinity, max = Infinity } = {}) => {
   if (typeof v !== 'number' || !Number.isFinite(v)) { errs.push(`${name} must be a number`); return; }
-  if (v < min || v > max) errs.push(`${name} must be between ${min} and ${max}`);
+  if (v < min || v > max) errs.push(`${name} must be ${max === Infinity ? `${min} or more` : min === -Infinity ? `${max} or less` : `between ${min} and ${max}`}`);
 };
 
 export function validate(input) {

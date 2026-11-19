@@ -1,7 +1,9 @@
 # Safety
 
-These are machines that throw hard objects at up to ~30 m/s (more than
-100 km/h) and robots that drive around people. Read this before you build
+These are machines that throw hard objects at up to about 47 m/s (about
+170 km/h) at the firmware's 7,000 rpm wheel limit (`firmware/esp32/controller.py`,
+`MAX_RPM`; 150 mm wheels at 0.85 efficiency), and robots that drive around
+people. Guard and net for that speed, not for typical rally speeds. Read this before you build
 or power one.
 
 **No warranty.** This design is provided free and as-is, without warranty

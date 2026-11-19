@@ -381,21 +381,20 @@ flagships:
       promotion.test.mjs; play-off results fill the bracket
       (playoff-results.test.mjs); league page (availability, subs, sign-ups, free
       agents, waivers, ratings: README; next: a real league's use); 2026-11-19
-      balanced teams (teams.mjs, balanced-teams.html, eval/balanced-teams-exact.txt;
-      next: two tags at once, late sign-ups); bowling seasons, lane pairs rotated
-      evenly: 36 of 36 at the bound, repeats 392 to 148
-      (eval/bowling-repeat-sat.txt)). 3-game nights (eval/three-game-nights.txt):
-      SAT session designs (session-designs.mjs) take every even 10-48 teams on 6
-      slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on 1x9; 7 on 2x9. Night by night
-      (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6; fails at <=3 spare slots
-      (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37 on
-      6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0 waits
-      (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9
-      0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with the
-      short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Bowling seasons
-      proved uneven (SAT, 44 of 4-32 teams x 1-60 weeks, page says so;
-      eval/bowling-bound-proof.txt). Lane limits (team avoids a pair, hard;
-      eval/bowling-lane-avoid.txt). Limits per shape
+      balanced teams, two tags, late sign-ups, /join free agents placed by it
+      (eval/free-agent-fit.txt); bowling seasons, lane pairs rotated evenly: 36 of
+      36 at the bound, repeats 392 to 148 (eval/bowling-repeat-sat.txt)). 3-game
+      nights (eval/three-game-nights.txt): SAT session designs (session-designs.mjs)
+      take every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7
+      on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on
+      7x6; fails at <=3 spare slots (eval/odd-cyclic.txt). Fully booked: 19 on 3x9,
+      25 on 4x9, 31 on 5x9, 37 on 6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even
+      40, 46 on 3 sessions 0 waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0
+      waits (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
+      eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
+      (odd-orbit.py, 9,849 s). Bowling seasons proved uneven (SAT, 44 of 4-32 teams
+      x 1-60 weeks, page says so; eval/bowling-bound-proof.txt). Lane limits (team
+      avoids a pair, hard; eval/bowling-lane-avoid.txt). Limits per shape
       (eval/bowling-avoid-shapes.txt), on other slots and symmetry-broken
       (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. 6x32 2
       teams, 6x26 random: UNSAT every dealing (eval/bowling-count-model.py). More
@@ -403,12 +402,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "An eight-point take grid" (2026-11-19: 7
-      ms added; within 0.5 ms 185 vs 149 of 216 held out, large misses 15 each,
-      holds +11%). Next: the 1 ms point (nine-point grid) with large misses at 1-2.5
-      ms named first; the fit reading takes under 2.5 ms as 0 or 1; a drill-level
-      check of one-wheel verdicts on more fresh sets; the sub-8 advised instant
-      build; ball hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels.
+      see firmware/esp32/README.md, latest "Short takes" (2026-11-19: the fit sees
+      sub-2.5 ms takes, the grid end misses them; grid 0,1.5,2.5,3-8 ms on set M 48
+      vs 41 of 66 within 0.5 ms, failed on one unadvised instant read). Next: that
+      grid on a fresh set, instant clause on advice; a drill-level check of
+      one-wheel verdicts on more fresh sets; the sub-8 advised instant build. Ball
+      hold on fast wheels: LOOP_BALL_GAIN shipped 2026-11-19.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -469,13 +468,12 @@ flagships:
       Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
       Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
       levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
-      thickness; next: worn pages (new GABC needed), mottled squares, hollow small
-      notes bridged 2026-11-18 (77 of 84, eval/one-step-hollow-check.md), split
-      heads joined 2026-11-18 (FLECK: podatus tops, quilismas, flecked squares; held
-      out 13 of 13 real, eval/fleck-check.md); 3439/3357 were not liquescentTail;
-      staff lines broken by a white gap joined 2026-11-18 (+82 agreeing; held out 0
-      of 530 staves changed, eval/staff-gap-check.md); next 434:3's F clef, 3524's
-      stemless cephalicus, 3408's strokes. More open items: NEXT.md.
+      thickness; 3439/3357 were not liquescentTail; staff lines broken by a white
+      gap joined 2026-11-18 (+82 agreeing; held out 0 of 530 staves changed,
+      eval/staff-gap-check.md); F clef with a parted stem read on its line
+      2026-11-19 (+59 agreeing, eval/clef-bridge-check.md); next 652:2's border in
+      the clef search, 3524's stemless cephalicus, 3408's strokes. More open items:
+      NEXT.md.
     buildable: >-
       Coda reader, no outside input: a held-out part built on
       eval/release-cells-report.md's cells (picked before any reader runs) to
@@ -483,7 +481,7 @@ flagships:
       -um", "A /u/ release read as a nasal"). Level-matched murmur (murmurSource
       'match', opt-in, eval/murmur-match-check.md): 2,220 nasals vs default 2,141,
       but R, Z, A lose 1-2; next: fresh cells for the voiced-labial misreads. OMR
-      (scan.mjs): 434 staff 3's F clef read 2 steps low (findClef), 3524's stemless
+      (scan.mjs): 652 staff 2's clef read off a border (findClef), 3524's stemless
       cephalicus, 3741's place, 3408's strokes (eval/staff-gap-check.md, What is
       left).
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0

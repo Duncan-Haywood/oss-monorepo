@@ -48,3 +48,13 @@ test("the 90% example the page loads really is flagged unreachable", () => {
 test('links to the on-call load analyzer', async () => {
   assert.match(await readFile(new URL('./index.html', import.meta.url), 'utf8'), /href="\.\.\/oncall-load-analyzer\/"/);
 });
+
+// Quality audit 2026-11-19 (round 75): at 99% every threshold is reachable, so the FAQ must not say it never alerts;
+// and an invalid input after a good run must hide the old report instead of leaving it copyable.
+test("FAQ names only the SLO that cannot alert, and invalid input hides the stale report", async () => {
+  const html = await read("index.html");
+  assert.doesNotMatch(html, /99% or 90% SLO never/);
+  assert.equal(lint(99, 30).filter((f) => f.rule === "unreachable-threshold").length, 0);
+  assert.match(html, /if \(bad\.length\) \{[^\n]*\$\("#report-card"\)\.hidden = true; lastRules = "";/);
+  assert.match(html, /Requests\/sec must be 0 or more/);
+});

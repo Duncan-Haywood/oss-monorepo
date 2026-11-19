@@ -135,7 +135,7 @@ estimates for planning, not quotes; check current suppliers.
 
 ## Open questions (good first issues)
 
-- Netting energy absorption at 30+ m/s: does 10-15 cm of slack stop
+- Netting energy absorption at 30 to 47 m/s (47 m/s is the firmware's wheel limit): does 10-15 cm of slack stop
   rebounds, or does it need a second, looser curtain?
 - Wheel tread: solid polyurethane vs foam-filled; wear and grip.
 - Will the stereo pair hold calibration on a frame that moves at 5 m/s^2?

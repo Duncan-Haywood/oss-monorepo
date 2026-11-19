@@ -3292,3 +3292,68 @@ fall in 6-7.5 ms at all is unmeasured. The large misses under 2.5 ms are the fit
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl --lag 0.48 --seed 79 --takes "0.45,1.5,2.35,3.25,4.2,5.1,5.95,6.1,6.6,7.15,7.75,0"
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-grid-eight-j-2026-11-19.jsonl.gz --grids "0,2,3,4,5,6,8;0,2,3,4,5,6,7,8"
+
+## Short takes: the fit sees them, the grid's end does not (2026-11-19, after "An eight-point take grid"; the shipped grid kept by its pre-registered rule)
+
+**The item.** On J to L every build off by more than 1 ms had a take of 2.35 ms or less, and the section above
+called those misses the fit's. Are they?
+
+**How it was checked.** `tests/take_short_blind.py` refits every surveyed wheel of J to L every 0.25 ms (the board's
+fit and depth, cached in `eval/take-dense-jkl-2026-11-19.jsonl.gz`) and sums the wheels the board keeps. The
+prediction (the summed curve's least within 0.5 ms of a 1.5 ms take on at least 12 of 18 builds) and a rule for an
+end-of-grid parabola (`end_pick`) were committed first (a541b2a93).
+
+**What it found.** The fit is not blind: the summed least is within 0.5 ms of true on 13 of 18 1.5 ms builds, 15 of 18
+at 2.35 ms and 197 of 216 overall. The curve is a flat shelf from 0 to about a millisecond below the take, then a
+valley; with points at 0, 2 and 3 ms the parabola reads a 1.5 ms valley as 0 or 1 and leans 2.35 ms takes into the
+shelf. `end_pick` failed (179 against 185 within 0.5 ms; 10 instant builds moved off 0 against 3). Chosen afterwards
+on J to L, a grid of 0, 1.5, 2.5, 3-8 ms scored 196 within 0.5 ms and 9 large misses against 185 and 16.
+
+**Held out.** Set M (lag 0.55 s, seed 97; 66 drills, takes stratified under 3 ms plus three checks), its rule
+committed before capture (9ead6721c): within 0.5 ms 48 against 41, large misses 3 against 11, mean error 0.373
+against 0.523 ms, checks 18 each, but one instant build read 0.80 ms (share 0.99, not advised) where the shipped
+grid read 0. The instant-read clause failed, so **`TAKE_SURVEY_GRID_US` stays at 0, 2, 3, 4, 5, 6, 7, 8 ms**.
+Everything is in `eval/take-short-2026-11-19.md`. `tests/take_survey_pick.py --score` reads seven-candidate captures
+again (it had printed only its header since the eight-point grid).
+
+**Not known.** All simulated, one seed a set. Whether real contacts are under 3 ms at all is unmeasured. A fresh set
+with the instant clause written on advice, not on the rounded read, is the next test; M cannot count toward it.
+
+## The ball hold on a wheel faster than told (2026-11-19, after "Short takes"; `LOOP_BALL_GAIN = "down"` on by its pre-registered rule)
+
+**The item.** "A ball charged the integrator" left one cost of the ball hold: on 0.2 s wheels, ball undershoots over
+2% went from 7 to 17 of 72, every one a wheel whose free speed is 11,000 rpm while the board is told
+`WHEEL_RPM_FULL` 9,000. The plant is 1.22 times stiffer than the loop assumes, so the proportional term overshoots on
+its own once the integrator is held.
+
+**The change.** The integrator already knows the mismatch: at a steady wheel the command is (ff + i), so
+(ff + i) / ff is the told free speed over the true one. `WheelLoop.ball()` now latches that ratio (clamped 0.5-1.0)
+when the stroke starts and scales both gains by it until the ball hold ends. A wheel 22% faster than told gets gains
+about 18% softer for its recovery; a wheel slower than told keeps the gains as told. Nothing changes outside a ball's
+recovery, and a build whose `WHEEL_RPM_FULL` is measured sees a ratio of about 1 and no change at all.
+
+**Two rules, both written before their runs** (`eval/ball-gain-rule-2026-11-19.md`; `tests/ball_gain_sweep.py`,
+same trial as `tests/ball_recovery_sweep.py`, four plants each). Five clauses against the loop without it: undershoots
+over 2% fall, mean time until the gate passes again no more than 0.05 s longer, no more balls over 3% off at the gate,
+worst overshoot no more than 0.5 points higher, no case lost.
+
+1. Scaling both ways (0.5-1.5) passed the 216-case development set (19 to 10 undershoots) and **failed** a 96-case
+   held-out set, 13 to 15: wheels slower than told, given stiffer gains, undershot more (0.15 s at 7,500 rpm: 1 to 3).
+   Kept off (`eval/ball-gain-sweep-2026-11-19.txt`).
+2. Capped at 1 ("down"), judged on the development set and a fresh 96-case set fixed after the first outcome
+   (eval/ball-gain-down-sweep-2026-11-19.txt); the first held-out set is reported, not judged:
+
+| set | undershoot > 2%, off / down | worst undershoot | mean back to the gate | worst overshoot | > 3% at the gate |
+| --- | --- | --- | --- | --- | --- |
+| development, 216 | 19 / 9 | 4.5% / 3.6% | 0.89 / 0.89 s | 6.0% / 4.8% | 1 / 0 |
+| fresh, 96 | 18 / 13 | 5.0% / 4.0% | 0.86 / 0.82 s | 6.4% / 5.4% | 0 / 0 |
+| first held-out, 96 (not judged) | 13 / 13 | 4.6% / 3.8% | 0.73 / 0.71 s | 5.7% / 4.8% | 0 / 0 |
+
+Every clause passed on both judged sets, so `LOOP_BALL_GAIN` ships as "down". On the fast wheels of the fresh set the
+mean recovery fell 0.10-0.12 s (0.18 s wheel at 10,800 rpm: 0.93 to 0.83 s); the 0.8 s wheels at 11,000 rpm took
+0.05 s longer on the development set, the one cell that got slower.
+
+**Not known.** The simulator's first-order wheel and ESC, as before; the held-out sets vary the pairs, lags and free
+speeds but not the ball model. What is left of the undershoot on the fastest wheels (10 of 24 cases at 0.15 s and
+10,500 rpm still over 2%) is not the gain: measuring `WHEEL_RPM_FULL` on the build is still the fix. Test:
+`test_ball_gain_softens_only_a_wheel_faster_than_told` (tests/test_host.py).

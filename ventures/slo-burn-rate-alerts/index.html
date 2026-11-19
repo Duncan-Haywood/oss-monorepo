@@ -9,7 +9,7 @@
   <meta property="og:description" content="Error budget, burn-rate thresholds and Prometheus alert rules from one SLO. Flags thresholds that can never fire. No account, no upload.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SLO Burn-Rate Alerts","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Enter an SLO and get the downtime budget, the multi-window multi-burn-rate alert policy, how fast each alert fires, lint for unreachable thresholds and low traffic, and a ready-to-review Prometheus rules file. Runs in the browser or as a zero-dependency Node CLI."}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a multi-window, multi-burn-rate alert?","acceptedAnswer":{"@type":"Answer","text":"Instead of alerting when the error rate crosses a fixed number, you alert on how fast the error budget is being spent. A burn rate of 1 uses the whole budget exactly at the end of the period; 14.4 uses 2% of a 30-day budget in one hour. Requiring a long and a short window to both exceed the threshold makes it page quickly on real outages and reset quickly once fixed."}},{"@type":"Question","name":"Why does my 99% or 90% SLO never alert?","acceptedAnswer":{"@type":"Answer","text":"The page threshold is the burn rate times the allowed error ratio. For a 90% SLO that is 14.4 x 10% = 144%, which an error ratio cannot reach, so the alert can never fire. The tool flags this and you should lengthen the window or lower the budget fraction."}},{"@type":"Question","name":"Does this connect to my Prometheus or read my metrics?","acceptedAnswer":{"@type":"Answer","text":"No. It does arithmetic on the numbers you type and prints a rule file. It never contacts any server and nothing you type is uploaded."}},{"@type":"Question","name":"Are the generated rules safe to paste into production?","acceptedAnswer":{"@type":"Answer","text":"Treat them as a reviewed starting point. They assume your error and total selectors are counters you can rate(), that traffic is steady enough for ratio alerts, and that you have tested the expression in your own Prometheus. Run promtool check rules and try the expressions in the expression browser first."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a multi-window, multi-burn-rate alert?","acceptedAnswer":{"@type":"Answer","text":"Instead of alerting when the error rate crosses a fixed number, you alert on how fast the error budget is being spent. A burn rate of 1 uses the whole budget exactly at the end of the period; 14.4 uses 2% of a 30-day budget in one hour. Requiring a long and a short window to both exceed the threshold makes it page quickly on real outages and reset quickly once fixed."}},{"@type":"Question","name":"Why does my 90% SLO never alert?","acceptedAnswer":{"@type":"Answer","text":"The page threshold is the burn rate times the allowed error ratio. For a 90% SLO that is 14.4 x 10% = 144%, which an error ratio cannot reach, so the alert can never fire. The tool flags this and you should lengthen the window or lower the budget fraction."}},{"@type":"Question","name":"Does this connect to my Prometheus or read my metrics?","acceptedAnswer":{"@type":"Answer","text":"No. It does arithmetic on the numbers you type and prints a rule file. It never contacts any server and nothing you type is uploaded."}},{"@type":"Question","name":"Are the generated rules safe to paste into production?","acceptedAnswer":{"@type":"Answer","text":"Treat them as a reviewed starting point. They assume your error and total selectors are counters you can rate(), that traffic is steady enough for ratio alerts, and that you have tested the expression in your own Prometheus. Run promtool check rules and try the expressions in the expression browser first."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -76,7 +76,7 @@
     <h3>Allowed downtime</h3>
     <table><thead><tr><th>Window</th><th>Full-outage minutes allowed</th></tr></thead><tbody id="budget-rows"></tbody></table>
     <h3>Alert policy (fires when both windows exceed the threshold)</h3>
-    <table><thead><tr><th>Severity</th><th>Burn rate</th><th>Windows</th><th>Error ratio above</th><th>Total outage detected in</th></tr></thead><tbody id="policy-rows"></tbody></table>
+    <div style="overflow-x:auto"><table><thead><tr><th>Severity</th><th>Burn rate</th><th>Windows</th><th>Error ratio above</th><th>Total outage detected in</th></tr></thead><tbody id="policy-rows"></tbody></table></div>
     <h3>Findings</h3>
     <table id="results-table" hidden><thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead><tbody id="results-rows"></tbody></table>
     <p id="no-findings" class="ok" hidden>No findings.</p>
@@ -100,7 +100,7 @@ node cli.mjs rules --slo 99.9 --name api \
     <h2>Common questions</h2>
     <h3>What is a multi-window, multi-burn-rate alert?</h3>
     <p>Instead of alerting when the error rate crosses a fixed number, you alert on how fast the error budget is being spent. A burn rate of 1 uses the whole budget exactly at the end of the period; 14.4 uses 2% of a 30-day budget in one hour. Requiring a long and a short window to both exceed the threshold makes it page quickly on real outages and reset quickly once fixed.</p>
-    <h3>Why does my 99% or 90% SLO never alert?</h3>
+    <h3>Why does my 90% SLO never alert?</h3>
     <p>The page threshold is the burn rate times the allowed error ratio. For a 90% SLO that is 14.4 x 10% = 144%, which an error ratio cannot reach, so the alert can never fire. The tool flags this and you should lengthen the window or lower the budget fraction.</p>
     <h3>Does this connect to my Prometheus or read my metrics?</h3>
     <p>No. It does arithmetic on the numbers you type and prints a rule file. It never contacts any server and nothing you type is uploaded.</p>
@@ -130,7 +130,8 @@ node cli.mjs rules --slo 99.9 --name api \
       const slo = Number($("#slo").value), periodDays = Number($("#period").value);
       const rpsRaw = $("#rps").value, rps = rpsRaw === "" ? null : Number(rpsRaw);
       const bad = validateInputs({ slo, periodDays });
-      if (bad.length) { $("#status").innerHTML = `<span class="error">${esc(bad.join(" "))}</span>`; return; }
+      if (rps !== null && !(rps >= 0)) bad.push("Requests/sec must be 0 or more.");
+      if (bad.length) { $("#status").innerHTML = `<span class="error">${esc(bad.join(" "))}</span>`; $("#report-card").hidden = true; lastRules = ""; return; }
       $("#status").textContent = "";
       const s = summarize(slo, periodDays, { rps });
       $("#summary").innerHTML = `<span class="${s.status === "ok" ? "ok" : "changed"}">${esc(s.text)}</span>`;

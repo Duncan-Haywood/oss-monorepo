@@ -47,3 +47,9 @@ test("usage events named on the page are the ones the code records", () => {
 test("page says its defaults are placeholders", () => {
   assert.match(page("index.html"), /placeholders, not/i);
 });
+
+test("a zero projected price never prints NaN as the break-even yield", () => {
+  // calc.mjs returns NaN with no price; the button sweep with FILL=0
+  // (2026-11-19) caught the table printing "NaN".
+  assert.match(page("index.html"), /Number\.isFinite\(l\.breakEvenYield\)/);
+});

@@ -85,3 +85,18 @@ test("bad input is rejected, not turned into rules", () => {
   assert.deepEqual(validateInputs({ slo: 99.9, periodDays: 30 }), []);
   assert.equal(validateInputs({ slo: 0, periodDays: 0 }).length, 2);
 });
+
+// Quality audit 2026-11-19 (round 75): `and` -> `or` between the windows and sub-1x burns both passed every test.
+test("alert requires BOTH windows: long and short joined by and", () => {
+  const rules = generateRules({ name: "api", slo: 99.9, errors: "e", total: "t" });
+  assert.match(rules, /ratio_rate1h\{slo=\\"api\\"\} > \(14\.4 \* 0\.001\) and slo:sli_error:ratio_rate5m\{slo=\\"api\\"\} > \(14\.4 \* 0\.001\)/);
+  assert.doesNotMatch(rules, /\) or /);
+});
+
+test("burn rates under 1x are flagged: warn for pages, info for tickets", () => {
+  const day = lint(99.9, 1).filter((f) => f.rule === "sub-unit-burn");
+  assert.ok(day.some((f) => f.severity === "warn" && f.window === "1h"));
+  const week = lint(99.9, 7).filter((f) => f.rule === "sub-unit-burn");
+  assert.deepEqual(week.map((f) => [f.window, f.severity]), [["1d", "info"], ["3d", "info"]]);
+  assert.equal(lint(99.9, 30).filter((f) => f.rule === "sub-unit-burn").length, 0);
+});
