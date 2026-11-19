@@ -48,7 +48,7 @@ export function handler(cfg) {
   const { state } = cfg;
   return async (req, res) => {
     const url = new URL(req.url, "http://x");
-    const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",")[0].trim()) || req.socket.remoteAddress || "?";
+    const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",").pop().trim()) || req.socket.remoteAddress || "?";
     const base = cfg.baseUrl || `${req.headers["x-forwarded-proto"] || "http"}://${req.headers.host}`;
     const cookies = parseCookies(req.headers.cookie);
     let voterId = /^[\w-]{20,64}$/.test(cookies.fb_voter || "") ? cookies.fb_voter : null;

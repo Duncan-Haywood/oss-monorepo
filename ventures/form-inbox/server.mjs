@@ -46,7 +46,7 @@ export function handler(cfg) {
   const replied = new Map(); // `${form}:${address}` -> last autoreply time; memory only
   return async (req, res) => {
     const url = new URL(req.url, "http://x");
-    const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",")[0].trim()) || req.socket.remoteAddress || "?";
+    const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",").pop().trim()) || req.socket.remoteAddress || "?";
     const base = cfg.baseUrl || `${req.headers["x-forwarded-proto"] || "http"}://${req.headers.host}`;
     const send = (code, body, type = "text/html; charset=utf-8", headers = {}) => {
       res.writeHead(code, { "content-type": type, "cache-control": "no-store", "x-content-type-options": "nosniff", "referrer-policy": "same-origin", "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'; form-action 'self'", ...headers });
