@@ -34,26 +34,26 @@
   "doc_friction": [
     {
       "file": "prompts/promptctl.py",
-      "issue": "route printed '4945/40 runs toward the next review': review_claimed() counts any open 'prompts: review' PR as a claim, and three from 2026-10-31/11-01 sit open awaiting owner approval, so the review track has not run since 2026-10-31. Fix (48 h claim expiry) in a separate owner-gated PR."
+      "issue": "route printed '4945/40 runs toward the next review' with no hint that this is the known stale-claim stall (2026-11-11 post, PR #14686, awaiting owner); I re-diagnosed it from scratch and only found the earlier work when the site build failed on a duplicate post slug. Now a decision-queue row."
     },
     {
-      "file": "CLAUDE.md",
-      "issue": "'Keep control-plane edits in their own small PR' conflicts with the harness's single designated branch; resolved by landing the ungated PR first, then reusing the branch for the gated one."
+      "file": "platform/ci/main_health.py",
+      "issue": "Reported 279/279 checks passing while portfolio/ledger/test_no_duplicate_yaml_keys.py was red on main (three repeated 'basis' keys in venture-scores.yaml); the sweep does not run that test."
     }
   ],
   "deviations": [
     {
       "file": "prompts/process/prompt-1.md",
-      "why": "The fix is to prompts/ (CODEOWNERS-gated), so it cannot merge this run.",
-      "did": "Landed the post and record in this PR; opened the promptctl fix as its own PR for the owner and notified them.",
-      "result": "post merged; fix awaits owner approval"
+      "why": "The process fix I first wrote (48 h review-claim expiry in promptctl.py) duplicated PR #14686, already open and owner-gated.",
+      "did": "Dropped my copy; added the stall to the owner's decision queue (asks.yaml) and fixed a live red test on main instead (venture-scores.yaml rows spliced in October).",
+      "result": "queue row and data fix land in this PR; the review loop still needs the owner"
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-19-the-review-that-never-came.md"
+    "docs/posts/2026-11-19-three-score-rows-wore-their-neighbours-names.md"
   ],
   "goal": null,
-  "notes": "main_health.py: 279/279 checks pass. Fix verified locally: cd prompts && python3 -m unittest test_promptctl, 74 tests OK, and review_claimed() returns False against today's open PRs (the three claims are 18 days stale). Backlog edits skipped: prompts/process/backlog is gated too.",
+  "notes": "main_health.py: 279/279 pass, but test_no_duplicate_yaml_keys.py failed on main; fixed here (18 passed). venture-scores.yaml: three October commits (61c28bf21b3, 50cfdad873f, 9ee60880f3a) threaded a new venture's text into the previous entry; repair restores ball-python-morph-pairing-planner, roofing-insurance-supplement-finder and crop-insurance-coverage-calculator byte for byte from their own commits (script-checked) and leaves fertilizer-blend-optimizer, container-demurrage-detention-calculator and contract-vs-fte-rate-calculator unscored, since no file ever held their scores. score_ventures.py --check OK. decision_queue.py --check OK (8 decisions). Review stall: 3 open 'prompts: review' PRs untouched since 2026-11-01; fix PR #14686 open since 2026-11-11. Backlog edits skipped: prompts/process/backlog is gated.",
   "corrections": [],
   "redteam": null,
   "usage": {
