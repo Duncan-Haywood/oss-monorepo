@@ -106,3 +106,51 @@ rec3 alert dates relative to step (-10..10): -10:2 -9:3 -7:2 -6:1 -5:4 -3:2 -2:6
   new_customers off    1 alerts, 1 at a closure: 2010-04-02>2010-04-06
   new_customers fill1  0 alerts, 0 at a closure: 
   new_customers rec3   0 alerts, 0 at a closure: 
+
+
+================ FRESH seeds 20261122 (round 4, eval/closed-recent-r4.prereg.md) ================
+alerts over all 200 series: clean 816, off 1574, fill1 801, rec3 844
+
+no-step series (100): with an alert within 1 day of a closure / of a placebo date (chance)
+  clean  closure  21   placebo  29
+  off    closure 100   placebo  41
+  fill1  closure  17   placebo  26
+  rec3   closure  19   placebo  28
+
+step series (100): steps caught (an alert dated within 7 days of the step), by the first closure after the step
+  group                                n   clean    off  fill1   rec3
+  closure 1-2 days after the step     35      19     33     20     22
+  closure 3-7 days after              65      39     56     40     40
+  closure 8-21 days after              0       0      0      0      0
+  no closure within 21 days after      0       0      0      0      0
+  all                                100      58     89     60     62
+
+step series: caught by off only through an alert within 1 day of a closure (would not count with the closures open)
+  47 of 89
+
+step series caught by clean: lost by each arm
+  off     2 lost; first closure after the step at 1, 6 days
+  fill1  11 lost; first closure after the step at 6, 5, 3, 2, 3, 6, 1, 2, 3, 2, 2 days
+  rec3    8 lost; first closure after the step at 7, 3, 2, 3, 3, 2, 2, 2 days
+
+median days from step to the alert being sent (steps caught by both clean and the arm)
+  off   n=56: clean 5, off 7
+  fill1 n=47: clean 5, fill1 5
+  rec3  n=50: clean 5, rec3 5
+
+BARS for rec3 (eval/closed-recent.prereg.md):
+  T1 closure effect gone: no-step series with an alert at a closure 19 <= placebo 28 + 3: PASS
+  T2 a closure in the first week after a step: caught 62 >= fill1 60 + 5: FAIL
+  T3 near the shop that never shut: caught 62 >= clean 58 - 5: PASS
+  T4 no noisier: alerts over 200 series 844 <= 1.05 x fill1 801: FAIL (round 3 only; replaced by U4 in round 4)
+  U4 (round 4) no more false alerts than the shop that never shut: alerts on the 100 no-step series 358 <= 1.05 x clean 346: PASS
+
+round 4 diagnosis (node eval/closed-recent-diag.mjs g0.jsonl ... g7.jsonl; decides nothing):
+no-step clean 346 (at closure 23, placebo 34); off 728 (at closure 300, placebo 60); fill1 329 (at closure 18, placebo 31); rec3 358 (at closure 21, placebo 34)
+step clean 470 (at closure 38, placebo 36); off 846 (at closure 346, placebo 56); fill1 472 (at closure 42, placebo 36); rec3 486 (at closure 31, placebo 38)
+clean caught 58 only via an alert within 1 day of a closure 10 only via alerts dated before the step 14
+fill1 caught 60 only via an alert within 1 day of a closure 18 only via alerts dated before the step 10
+rec3 caught 62 only via an alert within 1 day of a closure 11 only via alerts dated before the step 12
+clean alert dates relative to step (-10..10): -10:1 -8:2 -7:1 -6:1 -5:1 -4:3 -3:2 -2:4 -1:4 0:20 1:12 2:5 3:4 4:1 5:2 7:1 8:2 9:3
+fill1 alert dates relative to step (-10..10): -10:1 -8:2 -7:1 -6:1 -5:1 -4:1 -3:1 -2:4 -1:3 0:17 1:4 2:7 3:6 4:4 5:6 6:2 7:4 8:4 9:1
+rec3 alert dates relative to step (-10..10): -10:1 -8:2 -7:1 -6:1 -5:1 -4:1 -3:1 -2:4 -1:6 0:18 1:10 2:8 3:4 4:2 5:5 6:2 7:2 8:3 9:1
