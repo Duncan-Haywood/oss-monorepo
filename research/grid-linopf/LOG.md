@@ -1,5 +1,10 @@
 # Research log
 
+## 2026-11-19 · Why is the hard QP infeasible on the development stalls? Outcome. The trust box, not the margins: the linearised set without the box is non-empty on all 58 failed rounds
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-19); numbers in `research/infra-dcopf/experiments/results_iis.txt`. I1, I2, I5, I6 held; I3, I4 refuted.
+- HiGHS confirms every failed hard QP is empty (58 of 58). Removing the trust box makes every one non-empty; removing the margins fixes 13. case73 API needs 1.08 to 1.11 times its first box on rounds 3 to 25 while rejections halve the box 18 times; case118 API needs 0.19 to 0.90 of it, shrinking more slowly than the box. case118 API's IISs (78 to 94 rows) tie thermal rows to units at P<sub>max</sub> and the balance row.
+- Next: enlarge the box to the smallest non-empty scale before the elastic fallback (frozen on development, scored held-out).
+
 ## 2026-11-19 · Why is the hard QP infeasible on the development stalls? An IIS of every round (plan)
 - Plan and predictions I1 to I6 (box, margins, or both; an irreducible infeasible subset per round, checked by HiGHS): `research/infra-dcopf/LOG.md` (2026-11-19); script `research/infra-dcopf/experiments/run_iis.py`.
 
