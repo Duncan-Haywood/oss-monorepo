@@ -165,17 +165,11 @@ export function deputyBase(install) {
   return `https://${s.toLowerCase()}/api/v1/`;
 }
 
-// Fetch the rosters (open and unpublished ones included) whose start is within a day of [from, to], with the areas and
-// locations for names. `fetchImpl` defaults to the global fetch; tests pass a stub. The token goes only to the install's
-// own host and is never printed.
-export async function fetchDeputy({ token, install, base, from, to, fetchImpl = globalThis.fetch, pageSize = 500 }) {
-  if (!token) throw new Error("Set DEPUTY_TOKEN to a permanent token or OAuth access token from your own Deputy install.");
-  const root = base || deputyBase(install);
-  if (!root) throw new Error('Set DEPUTY_INSTALL to your Deputy address, like "yourco.na.deputy.com".');
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(from || "") || !/^\d{4}-\d{2}-\d{2}$/.test(to || "")) throw new Error("--from and --to take dates like 2026-11-02.");
-  if (to < from) throw new Error("--to is before --from.");
+// POST resource/<name>/QUERY, paged by `start` until a short page (500 rows a page upstream). Shared by the roster and
+// staff fetches; the token goes only to `root`.
+export function deputyQuery({ token, root, fetchImpl = globalThis.fetch, pageSize = 500 }) {
   const headers = { Authorization: `OAuth ${token}`, "Content-Type": "application/json", Accept: "application/json", "dp-meta-option": "none" };
-  const query = async (resource, search, join) => {
+  return async (resource, search, join) => {
     const all = [];
     for (let start = 0; start < 200000; start += pageSize) {
       const u = new URL(`resource/${resource}/QUERY`, root);
@@ -189,6 +183,18 @@ export async function fetchDeputy({ token, install, base, from, to, fetchImpl = 
     }
     return all;
   };
+}
+
+// Fetch the rosters (open and unpublished ones included) whose start is within a day of [from, to], with the areas and
+// locations for names. `fetchImpl` defaults to the global fetch; tests pass a stub. The token goes only to the install's
+// own host and is never printed.
+export async function fetchDeputy({ token, install, base, from, to, fetchImpl = globalThis.fetch, pageSize = 500 }) {
+  if (!token) throw new Error("Set DEPUTY_TOKEN to a permanent token or OAuth access token from your own Deputy install.");
+  const root = base || deputyBase(install);
+  if (!root) throw new Error('Set DEPUTY_INSTALL to your Deputy address, like "yourco.na.deputy.com".');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(from || "") || !/^\d{4}-\d{2}-\d{2}$/.test(to || "")) throw new Error("--from and --to take dates like 2026-11-02.");
+  if (to < from) throw new Error("--to is before --from.");
+  const query = deputyQuery({ token, root, fetchImpl, pageSize });
   // A day either side by Unix time; the wall-clock dates are what count (within() below).
   const unix = (d, n) => Math.floor(Date.parse(d + "T00:00:00Z") / 1000) + n * 86400;
   const rosters = await query("Roster", { s1: { field: "StartTime", type: "ge", data: unix(from, -1) }, s2: { field: "StartTime", type: "le", data: unix(to, 2) } }, ["OperationalUnitObject"]);

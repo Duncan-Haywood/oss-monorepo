@@ -16,7 +16,13 @@
 // node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json] [--project CODE]
 // Resource levelling instead (level.mjs): the levelled finish, every activity
 // moved and the resource that moved it, peak use before and after.
+// node cli.mjs --windows u1.xer u2.xer u3.xer ... [--json] [--csv windows.csv] [--project CODE]
+// Windows analysis over a series of updates instead (windows.mjs): per window
+// between consecutive data dates, how far the forecast finish moved, the
+// half-step split into progress and revisions, and the activities on the
+// driving path behind each.
 import { readFileSync, writeFileSync } from "node:fs";
+import { windows, windowsText, windowsCsv } from "./windows.mjs";
 import { parseXer, decodeXer } from "./xer.mjs";
 import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
 import { compare, compareCsv, compareText } from "./compare.mjs";
@@ -34,9 +40,17 @@ function writeReview(report, cmp, risk = null) {
   const items = reviewItems(report, cmp, risk), n = (s) => items.filter((x) => x.severity === s).length;
   console.error(`review written to ${opt("--report")}: ${items.length} corrections (${n("high")} high, ${n("medium")} medium, ${n("low")} low)`);
 }
+if (args.includes("--windows")) {
+  const files = args.filter((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
+  if (files.length < 2) { console.error("usage: node cli.mjs --windows update1.xer update2.xer [update3.xer ...] [--json] [--csv windows.csv] [--project CODE]"); process.exit(2); }
+  const rep = windows(files.map((f) => ({ xer: parseXer(decodeXer(readFileSync(f))), label: f.split("/").pop() })), { projectName: opt("--project") });
+  if (opt("--csv")) writeFileSync(opt("--csv"), windowsCsv(rep));
+  process.stdout.write(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : windowsText(rep));
+  process.exit(0);
+}
 const file = args.find((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
 if (!file) {
-  console.error("usage: node cli.mjs schedule.xer [--report review.html] [--json] [--csv findings.csv] [--schedule activities.csv] [--project CODE]\n       node cli.mjs current.xer --previous previous.xer [--json] [--csv changes.csv] [--project CODE]");
+  console.error("usage: node cli.mjs schedule.xer [--report review.html] [--json] [--csv findings.csv] [--schedule activities.csv] [--project CODE]\n       node cli.mjs current.xer --previous previous.xer [--json] [--csv changes.csv] [--project CODE]\n       node cli.mjs --windows update1.xer update2.xer [...] [--json] [--csv windows.csv] [--project CODE]");
   process.exit(2);
 }
 function runRisk(x, projId) {

@@ -53,7 +53,11 @@ export function halfStepXer(prevXer, curXer, prevProjId, curProjId) {
     const c = curByCode.get(r.task_code);
     if (!c) return r;
     const out = { ...r };
-    for (const f of PROGRESS_FIELDS) if (f in c) out[f] = c[f];
+    // an activity still not started has had no progress: a new remaining
+    // duration on it is a revision (a re-estimate), so it keeps the previous
+    // update's
+    const fields = c.status_code === "TK_NotStart" && r.status_code === "TK_NotStart" ? PROGRESS_FIELDS.filter((f) => f !== "remain_drtn_hr_cnt" && f !== "remain_work_qty") : PROGRESS_FIELDS;
+    for (const f of fields) if (f in c) out[f] = c[f];
     return out;
   });
   tables.PROJECT = (prevXer.tables.PROJECT || []).map((p) => (p.proj_id === prevProjId && curProj.last_recalc_date ? { ...p, last_recalc_date: curProj.last_recalc_date } : p));
@@ -197,7 +201,7 @@ export function compare(prevXer, curXer, opts = {}) {
     const ra = A.result.tasks.get(a.id), rb = B.result.tasks.get(b.id);
     if (!ra || !rb) continue;
     const fa = storedTF(a) ?? ra.tf, fb = storedTF(b) ?? rb.tf;
-    const row = { ...label(b), floatWas: tDays(a, fa), floatNow: tDays(b, fb), floatUsed: round1(tDays(a, fa) - tDays(b, fb)), finishWas: formatDate(ra.ef), finishNow: formatDate(rb.ef), finishMoved: wd(ra.ef, rb.ef) };
+    const row = { ...label(b), floatWas: tDays(a, fa), floatNow: tDays(b, fb), floatUsed: round1(tDays(a, fa) - tDays(b, fb)), finishWas: formatDate(ra.ef), finishNow: formatDate(rb.ef), finishMoved: wd(ra.ef, rb.ef), inProgress: b.status === "TK_Active" };
     if (fa > 0 && fb <= 0) { row.becameCritical = true; newlyCritical++; }
     floatRows.push(row);
   }

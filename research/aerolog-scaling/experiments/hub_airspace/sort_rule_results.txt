@@ -1,0 +1,36 @@
+# Milestone 11ar: a sort-and-space rule against the aware search (sort_rule.py's docstring). deliv ages, Z = 7.62 m, 5-flight offsets (-4.70, -1.44, +0.81, +1.06, +1.55 m at 10 m/s), 4 draws, s = 1, 2, 30 spacings; sigma_pair = 1.061 m
+# blind = 11ao's offset-blind plan; sort = its bands re-ordered by mean offset; desc = one descent from sort; (o) spacing with the lowest F; (c) closed form h - Z >= 3 sigma_adj on the adjacent pairs
+# check: blind labels and h equal 11aq's in 48 of 48 layouts
+# check: 11aq's aware labels rescored here, max relative difference from its F 0.00e+00 over 384 draws
+
+## M = 12 (24 layouts x 4 draws); ratios to the aware search's F (11aq)
+  s    blind    sort(o)  p90      max      desc(o)  sort(c)  p90      max      desc(c)  bands: aware  sort(o)  (c)   (c)=aware
+  1     1.0342   1.0995   1.1862   1.3656   1.0628   1.1656   1.3791   1.5586   1.1358     5.0          5.0    4.0  20 of 96
+  2     1.1631   1.1623   1.4627   1.7527   1.0520   1.4338   1.8058   2.2391   1.2489     3.0          4.0    2.0  6 of 96
+  closed-form band count (c), s: k x count
+    1   2: 1, 3: 30, 4: 46, 5: 19
+    2   2: 58, 3: 26, 4: 12
+  median sigma_adj by k at s = 1 (m): k=2 3.241, k=3 3.043, k=4 2.686, k=5 2.536, k=6 nan
+
+## M = 16 (24 layouts x 4 draws); ratios to the aware search's F (11aq)
+  s    blind    sort(o)  p90      max      desc(o)  sort(c)  p90      max      desc(c)  bands: aware  sort(o)  (c)   (c)=aware
+  1     1.0183   1.1279   1.2935   1.4330   1.0716   1.2328   1.4401   1.7288   1.2054     5.0          5.0    4.0  12 of 96
+  2     1.1296   1.1725   1.4159   1.7108   1.0605   1.4691   1.8581   2.7524   1.3677     3.0          3.0    2.0  3 of 96
+  closed-form band count (c), s: k x count
+    1   3: 43, 4: 43, 5: 10
+    2   2: 63, 3: 31, 4: 2
+  median sigma_adj by k at s = 1 (m): k=2 3.389, k=3 3.255, k=4 3.097, k=5 2.869, k=6 nan
+
+# predictions
+  Q1 M=12 s=1 sort(o) excess <= half blind's: 0.0995 vs 0.5 x 0.0342 -> refuted
+  Q1 M=16 s=1 sort(o) excess <= half blind's: 0.1279 vs 0.5 x 0.0183 -> refuted
+  Q2 M=12 s=2 sort(o) excess > half blind's: 0.1623 vs 0.5 x 0.1631 -> held
+  Q2 M=16 s=2 sort(o) excess > half blind's: 0.1725 vs 0.5 x 0.1296 -> held
+  Q3 M=12 s=1 closed-form median bands >= 4: 4 -> held
+  Q3 M=16 s=1 closed-form median bands >= 4: 4 -> held
+  Q4 M=12 s=2 closed-form median bands = 3: 2 -> refuted
+  Q4 M=16 s=2 closed-form median bands = 3: 2 -> refuted
+  Q5 M=12 s=1 sort(c) / aware median <= 1.10: 1.1656 -> refuted
+  Q5 M=16 s=1 sort(c) / aware median <= 1.10: 1.2328 -> refuted
+
+# analysis CPU s per layout: median 263
