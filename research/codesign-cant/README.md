@@ -6,6 +6,19 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7ae: if a drone tuner trains with integrator anti-windup on, does it win back the rise time? No: it drops the integral gain instead
+
+**Question.** Milestone 7ad fixed the tunes that stop short of a 1 m step by running the position integrator only within 0.25 m of the set point (conditional integration), at no crash cost but a 10% slower rise. That fix was bolted on after training. If the CMA-ES tuner sees the band while it tunes, does it raise the other gains and buy the rise time back?
+
+**Headline (`experiments/m7ae_cint_train/verdicts.txt`, `results.json`; about 1.7 h on 4 cores; simulated; 7 predictions committed first, 4 held).**
+
+- **No rise time comes back.** Retrained at the 125 ms lag ceiling with the band on, the 12 designs rise to 90% of the step in a median 1.83 s against 1.84 s for the old tunes flown with the band (Mann-Whitney p = 0.95); slower with the centre of pressure above (2.11 against 1.91 s), faster below (1.74 against 1.82 s).
+- **The tuner drops integral action instead of stiffening the loop.** Position kp and kd are unchanged (p = 0.84, 0.98), while ki/kp falls about tenfold (median 0.057 → 0.005 s⁻¹, p = 0.069 post hoc). The new tunes settle with or without the band (0 and 1 of 12 unsettled, against 5 of 12 for the old tunes without it).
+- **Nothing else moves:** all 12 certified, crashes over the identified lags 47, 60 against 39, 62 of 1152 (p = 0.52, 1.0), overshoot 1.1-1.8 cm; the 6 m/s wind-step residual grows by 1-3 mm.
+- **For a builder:** the old tunes' fast rises (1.35-1.6 s) came with 7-16 cm overshoots; every set lies on one rise-overshoot frontier (figure, left). The slower rise is the price of not overshooting, not a mis-tune. Gate the integrator; retraining is optional.
+
+![Left: rise time against overshoot on a 1 m step, one point per design. Tunes trained and flown with the integrator always on (red) rise in 1.35-1.6 s with 7-16 cm overshoot or in 1.7-2.2 s with 1-3 cm; with the band added after training (orange) or trained with it (blue) every design overshoots under 4 cm and rises in 1.65-2.35 s, along the same frontier. Right: outer-loop kp against ki/kp: the band-trained designs (blue) keep kp at 14-23 but sit at ki/kp below 0.025 except one, while the always-on designs spread to 0.17.](experiments/m7ae_cint_train/m7ae_cint_train.png)
+
 ## Milestone 7ad: why does a co-designed drone stop 5-8 cm short of its set point? The position integrator's slow pole, and conditional integration fixes it
 
 **Question.** In every motor-lag training range of milestones 7y-7ac, one to five of twelve tuned quadrotors end a 1 m position step 5-8 cm from the hold point. Is it the motor lag, the soft position gain, or something else, and can a builder fix it without retuning?

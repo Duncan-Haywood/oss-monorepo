@@ -1,0 +1,44 @@
+patch check: aware lag39c125 cint25 corners [33.0, 39.1, 125.0] ms; training plant lag 39.1-125.0 ms over 4096 draws; rho at x=0.5 1.0297
+band check: training score of x=0.5 (4 episodes, seed 4242) -47.7354 without band, -47.7396 with b = 0.25 m
+training: 24 CMA-ES runs of 3200 evaluations; rejected share above 0.161, below 0.118
+Reproduction: 108 base response flights at b = 0.25 re-flown against 7ad's results.json: 0 field mismatches
+
+Per set and band (values above, below; 36 ms law)
+  cint25 b = 0.25 unsettled [0, 0]; rise 2.106, 1.740 s; overshoot 0.0113, 0.0176 m; last-second 0.0039, 0.0039 m; wind6 peak 0.0291, 0.0223 m, resid 0.0254, 0.0190 m; wind3 peak 0.0106, 0.0088 m; identified [47, 60]; 75 ms [196, 200]; J_45_1 -1.892, -1.780; mass 1.465, 1.417 kg; margin pass 12 of 12
+  cint25 b = None unsettled [1, 0]; rise 1.897, 1.736 s; overshoot 0.0232, 0.0211 m; last-second 0.0144, 0.0049 m; wind6 peak 0.0291, 0.0223 m, resid 0.0254, 0.0190 m; wind3 peak 0.0106, 0.0088 m; identified [46, 59]; 75 ms [196, 203]; J_45_1 -1.890, -1.779; mass 1.465, 1.417 kg; margin pass 12 of 12
+  base   b = 0.25 unsettled [0, 0]; rise 1.913, 1.821 s; overshoot 0.0170, 0.0215 m; last-second 0.0049, 0.0046 m; wind6 peak 0.0303, 0.0212 m, resid 0.0227, 0.0177 m; wind3 peak 0.0108, 0.0088 m; identified [39, 62]; 75 ms [205, 209]; J_45_1 -1.910, -1.796; mass 1.492, 1.402 kg; margin pass 12 of 12
+  base   b = None unsettled [3, 2]; rise 1.573, 1.648 s; overshoot 0.0855, 0.0589 m; last-second 0.0545, 0.0282 m; wind6 peak 0.0303, 0.0212 m, resid 0.0227, 0.0177 m; wind3 peak 0.0108, 0.0088 m; identified [39, 62]; 75 ms [204, 206]; J_45_1 -1.911, -1.794; mass 1.492, 1.402 kg; margin pass 12 of 12
+
+Decoded outer-loop gains (median kp 1/s^2, kd 1/s, ki/kp 1/s; above, below)
+  base   kp 16.61, 18.27; kd 6.89, 6.50; ki/kp 0.0709, 0.0330; model-called unsettled at b = None 5
+  cint25 kp 16.58, 17.79; kd 7.63, 6.14; ki/kp 0.0122, 0.0025; model-called unsettled at b = None 1
+
+Stress dead by law (L2-45 = dead_45_2_cap, summed over designs; above, below)
+  id 33 ms D^0             cint25 b=0.25: [11, 16]; cint25 b=None: [11, 16]; base b=0.25: [9, 16]; base b=None: [9, 16]
+  id 39.1 ms D^0           cint25 b=0.25: [20, 24]; cint25 b=None: [19, 23]; base b=0.25: [17, 25]; base b=None: [17, 25]
+  inherited 15 ms D^1.5    cint25 b=0.25: [3, 5]; cint25 b=None: [3, 5]; base b=0.25: [0, 5]; base b=None: [0, 5]
+  mid 36 ms D^0            cint25 b=0.25: [16, 20]; cint25 b=None: [16, 20]; base b=0.25: [13, 21]; base b=None: [13, 21]
+  stress 45 ms D^0         cint25 b=0.25: [29, 37]; cint25 b=None: [28, 35]; base b=0.25: [24, 35]; base b=None: [22, 35]
+  stress 52 ms D^0         cint25 b=0.25: [55, 51]; cint25 b=None: [53, 49]; base b=0.25: [47, 53]; base b=None: [49, 51]
+  stress 60 ms D^0         cint25 b=0.25: [110, 94]; cint25 b=None: [106, 92]; base b=0.25: [89, 98]; base b=None: [92, 99]
+  stress 75 ms D^0         cint25 b=0.25: [196, 200]; cint25 b=None: [196, 203]; base b=0.25: [205, 209]; base b=None: [204, 206]
+
+Post hoc (Mann-Whitney U, two-sided, per-design values, cint25 against base, both at b = 0.25 m; per geometry, then pooled)
+  step rise      above p = 0.31; below p = 0.423; pooled 1.8320 against 1.8440, p = 0.954
+  step over      above p = 0.24; below p = 0.818; pooled 0.0163 against 0.0188, p = 0.371
+  step tail_off  above p = 0.589; below p = 0.485; pooled 0.0039 against 0.0046, p = 0.285
+  identified L2-45 per design above p = 0.517; below p = 1; pooled p = 0.683
+  75 ms      L2-45 per design above p = 0.937; below p = 0.628; pooled p = 0.794
+  gain kp pooled median 16.98 against 17.54, p = 0.84
+  gain kd pooled median 6.52 against 6.59, p = 0.977
+  gain ki/kp pooled median 0.0051 against 0.0567, p = 0.069
+
+Verdicts:
+  AE1: refuted (rise 2.106, 1.740 s against base at b = 0.25 1.913, 1.821)
+  AE2: refuted (rise 2.106, 1.740 s against base at b = None + 0.1 s: 1.673, 1.748)
+  AE3: held (0 of 12 unsettled (need at most 1))
+  AE4: refuted (kp 16.58, 17.79 against 16.61, 18.27)
+  AE5: held (identified [47, 60] against base at b = 0.25 [39, 62] + 10)
+  AE6: held (12 of 12 pass the margin test (need 11))
+  AE7: held (unsettled at b = None 1 against 0 at b = 0.25)
+wall: {'train': 5692.896621704102, 'resp': 125.77920985221863, 'stress': 291.90275263786316}

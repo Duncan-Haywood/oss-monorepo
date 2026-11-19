@@ -1,6 +1,6 @@
 # Draft: when does rotor cant pay on a small quadrotor co-designed with its motors and controller?
 
-Status: **milestone 7, first draft (2026-11-14; section VII added 2026-11-19, milestone 7ad's settling paragraph the same day): outline of every
+Status: **milestone 7, first draft (2026-11-14; section VII added 2026-11-19, milestone 7ad's settling paragraph and 7ae's retraining check the same day): outline of every
 section, section VI (stability of the side-force feed-forward, milestones 7c–7g) and section VII
 (motor-lag randomisation, milestones 7s–7ac) written in full. Not submittable.** Target: *IEEE Robotics and
 Automation Letters* (6 pages + 2), fallback ICUAS; an aim, not a claim of acceptance.
@@ -271,7 +271,11 @@ with the stress test where it was (identified total 819 against 820 over the six
 39.1–78.2 to 75–150; paired Wilcoxon p = 0.89) and the 6 m/s wind-step peak unchanged. The price is
 a slower rise, median 1.91 against 1.74 s, since the integrator no longer helps pull the vehicle in.
 A tighter band, b = 0.1 m, gives the same picture (814). A builder can screen a tune for this with
-the three-state model before flying it.
+the three-state model before flying it. Retraining with the band on (milestone 7ae, 125 ms ceiling) does not
+recover the rise: median 1.83 against 1.84 s (Mann-Whitney p = 0.95), with kp and kd unchanged and
+ki/kp cut about tenfold (0.057 to 0.005 s⁻¹). Every set lies on one rise-overshoot frontier: the
+always-on tunes' fast rises came with 7–16 cm overshoots, so the slower rise is the price of not
+overshooting (`m7ae_cint_train/verdicts.txt`).
 
 **Why a tuner should see plants beyond the test range (a reading, not tested here).** The CMA-ES objective is a mean over
 randomised episodes. When fast plants are in the draw, gains that track them well raise that mean
@@ -316,7 +320,7 @@ real tilt limit. Randomise the motor lag from the slowest identified value up to
 
 - Ten seeds for the paper figures (proposal, "Evaluation"); bootstrap intervals and Wilcoxon tests in place of sign counts.
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
-- Section VII: figures VII-a and VII-b; the same coverage sweep on the torque-scale and mass ranges; the rise-time
-  price of conditional integration inside the training objective (milestone 7ad fixed settling after training); twelve seeds per geometry at 125 and 150 ms.
+- Section VII: figures VII-a and VII-b; the same coverage sweep on the torque-scale and mass ranges; a set-point
+  step term in the objective (milestone 7ae: training with conditional integration does not recover the rise time); twelve seeds per geometry at 125 and 150 ms.
 - Sections I–V and VII–VIII written out from the outlines; LaTeX in the RA-L template.
 - Hardware check (milestone 8).
