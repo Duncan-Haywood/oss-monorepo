@@ -468,6 +468,30 @@ def _block_stat(a: np.ndarray, fn, block: int = BLOCK) -> np.ndarray:
     return fn(tiles)
 
 
+def _block_level(c: np.ndarray) -> np.ndarray:
+    """Each block's mean of ``c`` clipped at 0: ``_block_stat(np.clip(c, 0.0, None), mean)``. Since 2026-11-19
+    in C when a compiler is there (``noise_native.block_mean_max``: one pass, no clipped or reshaped full-frame
+    copy, numpy's pairwise summation order, the same bits; eval/noise-aware-native-levels-2026-11-19.md)."""
+
+    from shootflow import noise_native
+
+    fast = noise_native.block_mean_max(c, BLOCK)
+    if fast is not None:
+        return fast[0]
+    return _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
+
+
+def _block_top(c: np.ndarray) -> np.ndarray:
+    """Each block's largest value of ``c``: ``_block_stat(c, max)``, in C as ``_block_level`` when it can be."""
+
+    from shootflow import noise_native
+
+    fast = noise_native.block_mean_max(c, BLOCK, mean=False, top=True)
+    if fast is not None:
+        return fast[1]
+    return _block_stat(c, lambda t: t.max(axis=-1))
+
+
 def _noise_model(level: np.ndarray, spread: np.ndarray, pct: float = 15.0) -> tuple[float, float]:
     """Fit variance = g * level + r (shot and read noise) to the quietest blocks at each brightness: the
     blocks are put in eight brightness bins and each bin's ``pct``th percentile (15th by default) of ``spread``
@@ -556,11 +580,14 @@ def _block_spread(c, pat) -> tuple[np.ndarray, np.ndarray]:
     from shootflow import noise_native
 
     c = np.asarray(c, dtype=np.float64)
-    level = _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
-    resid = _residual(c, pat)
-    spread = noise_native.block_median(resid, BLOCK)  # bit for bit with the line below; None without C
+    level = _block_level(c)
+    # bit for bit with the two steps below, without the frame-sized residual; None without C
+    spread = noise_native.residual_block_median(c, pat, BLOCK)
     if spread is None:
-        spread = _block_stat(resid, lambda t: np.median(t, axis=-1))
+        resid = _residual(c, pat)
+        spread = noise_native.block_median(resid, BLOCK)  # bit for bit with the line below; None without C
+        if spread is None:
+            spread = _block_stat(resid, lambda t: np.median(t, axis=-1))
     return level, spread
 
 
@@ -653,7 +680,7 @@ def _unclipped(c) -> np.ndarray:
     # Blocks holding a sensel at the frame's top value are clipped (white or the white-balanced plane's cap),
     # and their spread reads near 0: a real Huawei VTR-L09 frame's top bin read 4e-16 and the ratio 3.5e13.
     top = float(c.max())
-    return (_block_stat(c, lambda t: t.max(axis=-1)) < top * (1.0 - 1e-9)).ravel()
+    return (_block_top(c) < top * (1.0 - 1e-9)).ravel()
 
 
 def profile_ratio(c, pat, noise, *, spread: tuple[np.ndarray, np.ndarray] | None = None) -> float:
@@ -797,7 +824,7 @@ def frame_measures(
     """
 
     c = np.asarray(c, dtype=np.float64)
-    level = _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
+    level = _block_level(c)
     planes = noise is not None and np.asarray(noise).shape == (3, 2)
     if noise is None:
         g, r = estimate_noise(c, pat)

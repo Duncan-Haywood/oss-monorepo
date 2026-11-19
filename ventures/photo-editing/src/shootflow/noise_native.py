@@ -82,8 +82,18 @@ static void first_sum(const double *c, const signed char *cols, int period, long
 /* Rows [y0, y1) of the leave-one-out residual of the (h, w) float64 mosaic c (h, w >= 2) whose colours repeat
    the (period x period) tile `tile` (0 R, 1 G, 2 B) from the frame's origin. out is (h, w); only rows y0..y1-1
    are written. Returns 0, or -1 when memory runs out. */
+static int residual_rows_to(const double *c, const signed char *tile, int period, long h, long w,
+                            long y0, long y1, double *out, long out_y0);
+int shootflow_block_median(const double *a, long w, long block, long wb, long by0, long by1, double *out);
+
 int shootflow_residual_rows(const double *c, const signed char *tile, int period, long h, long w,
                             long y0, long y1, double *out) {
+    return residual_rows_to(c, tile, period, h, w, y0, y1, out, 0);
+}
+
+/* As shootflow_residual_rows, with out holding rows from out_y0 on (row y at out + (y - out_y0) * w). */
+static int residual_rows_to(const double *c, const signed char *tile, int period, long h, long w,
+                            long y0, long y1, double *out, long out_y0) {
     double *ring = malloc(sizeof(double) * 4 * 6 * w); /* first-sum rows, slot t % 4 holds row t */
     double *v = malloc(sizeof(double) * 6 * w);
     double *row = malloc(sizeof(double) * 6 * w);
@@ -111,7 +121,7 @@ int shootflow_residual_rows(const double *c, const signed char *tile, int period
         }
         const double *cy = c + y * w;
         const signed char *cc_ = cols + (y % period) * w;
-        double *oy = out + y * w;
+        double *oy = out + (y - out_y0) * w;
         for (long x = 0; x < w; x++) {
             int k = cc_[x];
             const double *sv = row + (size_t)(2 * k) * w, *sm = sv + w;
@@ -178,6 +188,22 @@ int shootflow_block_median(const double *a, long w, long block, long wb, long by
         }
     }
     free(t);
+    return 0;
+}
+
+/* Block rows [by0, by1) of the median of the residual (shootflow_residual_rows) per (block x block) block,
+   computed a band of block rows at a time (rows [by * block, (by + 1) * block) of the residual, then
+   shootflow_block_median on them), so the residual is never held for the whole frame. The same values as the
+   two steps apart, bit for bit: each residual row is the same arithmetic wherever a band starts. Returns 0 or -1. */
+int shootflow_residual_block_median(const double *c, const signed char *tile, int period, long h, long w,
+                                    long block, long wb, long by0, long by1, double *out) {
+    double *buf = malloc(sizeof(double) * block * w);
+    if (!buf) return -1;
+    for (long by = by0; by < by1; by++) {
+        if (residual_rows_to(c, tile, period, h, w, by * block, (by + 1) * block, buf, by * block) != 0
+            || shootflow_block_median(buf, w, block, wb, 0, 1, out + by * wb) != 0) { free(buf); return -1; }
+    }
+    free(buf);
     return 0;
 }
 
@@ -291,6 +317,59 @@ int shootflow_blend_rows(const void *b, int b_f32, const void *d, int d_f32, voi
     free(m);
     return 0;
 }
+
+/* --- 2026-11-19 (third change): block mean and block max (eval/noise-aware-native-levels-2026-11-19.md) */
+
+/* numpy's pairwise sum of n contiguous float64 (umath loops_utils: under 8 a plain loop, up to 128 eight
+   running sums joined ((r0 + r1) + (r2 + r3)) + ((r4 + r5) + (r6 + r7)) then the rest, else split at
+   n / 2 rounded down to a multiple of 8). np.add.reduce over a contiguous last axis takes exactly this order. */
+static double pw_sum(const double *a, long n) {
+    if (n < 8) { double r = 0.0; for (long i = 0; i < n; i++) r += a[i]; return r; }
+    if (n <= 128) {
+        double r[8]; long i;
+        for (int j = 0; j < 8; j++) r[j] = a[j];
+        for (i = 8; i < n - (n % 8); i += 8)
+            for (int j = 0; j < 8; j++) r[j] += a[i + j];
+        double res = ((r[0] + r[1]) + (r[2] + r[3])) + ((r[4] + r[5]) + (r[6] + r[7]));
+        for (; i < n; i++) res += a[i];
+        return res;
+    }
+    long n2 = n / 2;
+    n2 -= n2 % 8;
+    return pw_sum(a, n2) + pw_sum(a + n2, n - n2);
+}
+
+/* For block rows [by0, by1) of the (block x block) blocks of the (h, w) plane a (the frame cropped to hb*block
+   x wb*block): out_mean, when not NULL, the mean of each block's values clipped at 0 as np.clip(a, 0.0, None)
+   takes it (-0.0 -> 0.0, NaN kept), summed in the order xtrans_demosaic._block_stat's reshaped copy gives
+   np.mean (rows of the block one after another, pw_sum) and divided by block*block; out_max, when not NULL,
+   each block's largest raw value, NaN when it holds a NaN (np.max). out_* are (hb, wb). Returns 0 or -1. */
+int shootflow_block_mean_max(const double *a, long w, long block, long wb, long by0, long by1,
+                             double *out_mean, double *out_max) {
+    long n = block * block;
+    double *t = malloc(sizeof(double) * n);
+    if (!t) return -1;
+    for (long by = by0; by < by1; by++) {
+        for (long bx = 0; bx < wb; bx++) {
+            long at = 0;
+            double mx = -INFINITY;
+            int nan = 0;
+            for (long y = 0; y < block; y++) {
+                const double *p = a + (by * block + y) * w + bx * block;
+                for (long x = 0; x < block; x++) {
+                    double q = p[x];
+                    if (q != q) nan = 1;
+                    else if (q > mx) mx = q;
+                    t[at++] = q > 0.0 ? q : (q != q ? q : 0.0);
+                }
+            }
+            if (out_mean) out_mean[by * wb + bx] = pw_sum(t, n) / (double)n;
+            if (out_max) out_max[by * wb + bx] = nan ? NAN : mx;
+        }
+    }
+    free(t);
+    return 0;
+}
 """
 
 _STATE: dict[str, object] = {}
@@ -340,11 +419,17 @@ def _load():
     bl.restype = ctypes.c_int
     bl.argtypes = [P, ctypes.c_int, P, ctypes.c_int, P, ctypes.c_int, L, L, P, P, P, P, P, P, P, P, P,
                    ctypes.c_int, ctypes.c_double, L, L]
-    return resid, med, bil, bl
+    mm = lib.shootflow_block_mean_max
+    mm.restype = ctypes.c_int
+    mm.argtypes = [P, L, L, L, L, L, P, P]
+    rbm = lib.shootflow_residual_block_median
+    rbm.restype = ctypes.c_int
+    rbm.argtypes = [P, P, ctypes.c_int, L, L, L, L, L, L, P]
+    return resid, med, bil, bl, mm, rbm
 
 
 def functions():
-    """The loaded C functions (residual rows, block median, bilinear rows, blend rows), or None. Built and loaded once per process."""
+    """The loaded C functions (residual rows, block median, bilinear rows, blend rows, block mean/max, residual block median), or None. Built and loaded once per process."""
 
     if "fn" not in _STATE:
         with _LOCK:
@@ -410,6 +495,66 @@ def block_median(a: np.ndarray, block: int, *, threads: int | None = None) -> np
     _run_bands(run, hb, band=16, threads=threads)
     if failed:
         raise MemoryError("noise_native.block_median: out of memory")
+    return out
+
+
+def block_mean_max(a: np.ndarray, block: int, *, mean: bool = True, top: bool = False,
+                   threads: int | None = None) -> tuple[np.ndarray | None, np.ndarray | None] | None:
+    """Per (block x block) block of a 2-D plane at least ``block`` on each side, bit for bit with
+    ``xtrans_demosaic._block_stat``: with ``mean``, ``np.clip(a, 0.0, None)``'s block means; with ``top``, the
+    raw blocks' maxima. One pass and no full-frame copy (numpy makes a clipped copy and a reshaped copy, each
+    the size of the frame). None without the C path or for a smaller plane (whose single block numpy takes)."""
+
+    loaded = functions()
+    a = np.ascontiguousarray(a, dtype=np.float64)
+    if loaded is None or a.ndim != 2 or a.shape[0] < block or a.shape[1] < block or block < 3:
+        return None
+    fn = loaded[4]
+    from shootflow.raw_develop_np import _run_bands
+
+    h, w = a.shape
+    hb, wb = h // block, w // block
+    om = np.empty((hb, wb), dtype=np.float64) if mean else None
+    ox = np.empty((hb, wb), dtype=np.float64) if top else None
+    pm, px = (None if om is None else _ptr(om)), (None if ox is None else _ptr(ox))
+    failed: list[int] = []
+
+    def run(b0, b1):
+        if fn(_ptr(a), w, block, wb, b0, b1, pm, px) != 0:
+            failed.append(b0)
+
+    _run_bands(run, hb, band=16, threads=threads)
+    if failed:
+        raise MemoryError("noise_native.block_mean_max: out of memory")
+    return om, ox
+
+
+def residual_block_median(c: np.ndarray, pat, block: int, *, threads: int | None = None) -> np.ndarray | None:
+    """``block_median(residual(c, pat), block)`` without the frame-sized residual: each thread takes a few
+    block rows at a time and keeps one band of residual rows (``block`` x width) in hand. Bit for bit with the
+    two steps apart; None without the C path or for a plane under ``block`` on a side."""
+
+    loaded = functions()
+    c = np.ascontiguousarray(c, dtype=np.float64)
+    if loaded is None or c.ndim != 2 or c.shape[0] < block or c.shape[1] < block or block < 2:
+        return None
+    fn = loaded[5]
+    from shootflow.raw_develop_np import _run_bands
+
+    h, w = c.shape
+    hb, wb = h // block, w // block
+    period = 6 if len(pat) == 36 else 2
+    tile = np.ascontiguousarray(np.asarray(pat, dtype=np.int8).reshape(period, period))
+    out = np.empty((hb, wb), dtype=np.float64)
+    failed: list[int] = []
+
+    def run(b0, b1):
+        if fn(_ptr(c), _ptr(tile), period, h, w, block, wb, b0, b1, _ptr(out)) != 0:
+            failed.append(b0)
+
+    _run_bands(run, hb, band=10, threads=threads)
+    if failed:
+        raise MemoryError("noise_native.residual_block_median: out of memory")
     return out
 
 
