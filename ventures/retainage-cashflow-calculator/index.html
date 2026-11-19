@@ -49,8 +49,9 @@
     function refreshDraft(){
       if(!result)return;
       $('draft').value=followUpDraft({projectName:$('project').value,payerName:$('payer').value,invoiceReference:$('invoice').value,dueDate:$('due').value,result});
-      $('reportContext').innerHTML=`<strong>${$('project').value.trim()||'Unnamed project'}</strong> · ${$('payer').value.trim()||'Payer / GC not provided'}<br>${$('invoice').value.trim()||'Invoice reference not provided'} · Due ${$('due').value.trim()||'date not provided'}`;
+      $('reportContext').innerHTML=`<strong>${escHtml($('project').value.trim()||'Unnamed project')}</strong> · ${escHtml($('payer').value.trim()||'Payer / GC not provided')}<br>${escHtml($('invoice').value.trim()||'Invoice reference not provided')} · Due ${escHtml($('due').value.trim()||'date not provided')}`;
     }
+    const escHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     function rememberDraft(){
       // Inside try: reading the global throws when the visitor blocks site data.
       if(!$('remember').checked){try{localStorage.removeItem(draftKey)}catch{}return;}
