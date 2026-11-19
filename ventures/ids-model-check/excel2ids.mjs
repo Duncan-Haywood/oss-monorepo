@@ -294,6 +294,154 @@ export function excel2idsToIds(rows, opts = {}) {
   return { files, warnings: t.warnings, phases: t.phases };
 }
 
+// ------------------------------------------------- the tool's own read ----
+//
+// Where Excel2IDS's own tool (Excel2IDS.py at 4eb7575, the Windows .exe is
+// built from it) would write a different IDS from the same workbook, or stop.
+// Read from its source, not run: its behaviour is described here, none of its
+// code is used. The tool reads fixed cells (settings.json: sheet
+// "Requirements", metadata J2:J8, categories from column R, requirement rows
+// from 19, toggles in row 18 and column Q), tests a toggle with Python truth,
+// compares REPLACEME and the cardinality words exactly, and carries some
+// values from one row to the next (instructions, the predefined type, the last
+// property facet, the last REPLACEME facet). Which cells Excel stored as a
+// boolean or a number comes from xlsxToRows (rows.cellTypes); rows with no
+// such map (CSV, a grid in memory) have none.
+//   -> { stops: [{ row?, col?, message }], notes: [{ row?, col?, message }] }
+//      (row and col 1-based; a stop means the tool writes no file at all)
+const TOOL = {
+  apply: ["name", "description", "instructions", "identifier", "cardinality", "entity", "predefinedType", "propertySet", "property", "value", "dataType", "system", "code", "attribute", "attributeValue", "material", "purpose", "include"],
+  req: ["instructions", "cardinality", "entity", "predefinedType", "propertySet", "property", "value", "dataType", "uri", "system", "code", "classUri", "attribute", "attributeValue", "material", "milestone"],
+  meta: ["title", "author", "date", "version", "copyright", "ifcVersion", "description"],
+};
+
+export function excel2idsToolNotes(rows, opts = {}) {
+  const L = locate(rows);
+  if (!L) return null;
+  const stops = [], notes = [];
+  const sheetName = opts.sheetName ?? rows.sheetName;
+  if (sheetName !== undefined && sheetName !== "Requirements") stops.push({ message: `the sheet is named "${sheetName}"; the tool opens only a sheet named exactly "Requirements" (KeyError)` });
+  const { apply, req, meta, headRow, nameAt } = L;
+  const moved = [];
+  if (nameAt.c !== 16) moved.push(`the category labels are in column ${colName(nameAt.c)}, not Q`);
+  TOOL.apply.forEach((k, i) => { if (apply[k] !== undefined && apply[k] !== i && moved.length < 4) moved.push(`"${k}" is on row ${apply[k] + 1}, not ${i + 1}`); });
+  TOOL.req.forEach((k, i) => { if (req[k] !== undefined && req[k] !== i && moved.length < 4) moved.push(`requirement column "${k}" is ${colName(req[k])}, not ${colName(i)}`); });
+  TOOL.meta.forEach((k, i) => { if (meta[k] && (meta[k].r !== i + 1 || meta[k].c !== 9) && moved.length < 4) moved.push(`metadata "${k}" is in ${colName(meta[k].c)}${meta[k].r + 1}, not J${i + 2}`); });
+  if (moved.length) {
+    notes.push({ message: `the layout has moved (${moved.join("; ")}); the tool reads the template's fixed cells, so it would read other cells than the ones filled in. Nothing below is listed until the layout matches.` });
+    return { stops, notes };
+  }
+  const at = (r, c) => cell(rows, r, c);
+  const types = rows.cellTypes || new Map();
+  const typedBool = (r, c) => types.get(`${r},${c}`) === "b";
+  const typedNum = (r, c) => types.get(`${r},${c}`) === "n";
+  // Python truth of the openpyxl value: None, "", False and 0 are false, any
+  // other text is true (a text "FALSE" too). Rows with no type map (CSV)
+  // count "false" and "0" as the boolean and number they most likely were.
+  const toolOn = (r, c) => {
+    const v = at(r, c);
+    if (v === "") return false;
+    if (!rows.cellTypes) return !(v === "false" || /^-?0+(\.0+)?$/.test(v));
+    if (typedBool(r, c)) return v === "true";
+    if (typedNum(r, c)) return Number(v) !== 0;
+    return true;
+  };
+  // Workbook-wide differences.
+  notes.push({ message: "the tool writes <milestone>LOD400</milestone> into every IDS (a placeholder in its code); this reader writes none, or each phase when the workbook is split by phase" });
+  const ver = at(6, 9);
+  const toolVer = IFC_VERSIONS.includes(ver) ? ver : "IFC4X3_ADD2";
+  const ourVer = ver.trim().toUpperCase().split(/[\s,;]+/).filter(Boolean).map((v) => (v === "IFC4X3" ? "IFC4X3_ADD2" : v)).filter((v) => IFC_VERSIONS.includes(v)).join(" ") || "IFC4X3_ADD2";
+  if (toolVer !== ourVer) notes.push({ row: 7, col: 10, message: `IFC version "${ver}": the tool writes ${toolVer} (it takes only exactly IFC2X3, IFC4 or IFC4X3_ADD2); this reader writes ${ourVer}` });
+
+  const boolNote = (r, c, v, where) => notes.push({ row: r + 1, col: c + 1, message: `${where} is a typed ${v.toUpperCase()}: the tool writes "${v === "true" ? "True" : "False"}", which matches no IDS boolean; this reader writes "${v}"` });
+  const caseNote = (r, c, v, what) => notes.push({ row: r + 1, col: c + 1, message: `${what} "${v}": the tool writes it as typed; this reader writes ${what === "IFC entity" ? "the upper-case class name IDS needs" : `"${v.toLowerCase()}"`}` });
+  const valueCols = ["value", "attributeValue", "code", "material", "predefinedType", "propertySet", "property", "system", "attribute"];
+
+  // Requirement rows the tool reads (its toggle in column Q).
+  const reqRows = [];
+  for (let r = 18; r < rows.length; r++) {
+    const t = at(r, 16);
+    const tool = toolOn(r, 16), ours = on(t);
+    if (tool && !ours) notes.push({ row: r + 1, col: 17, message: `requirement row toggle "${t}" is text: the tool counts any text as on, so it reads this row; this reader leaves it off` });
+    if (tool) reqRows.push(r);
+  }
+  for (const r of reqRows) {
+    for (const k of valueCols) { const v = at(r, req[k]); if (typedBool(r, req[k])) boolNote(r, req[k], v, `requirement ${k}`); }
+    // The tool strips text (process_value) but changes no case.
+    const card = at(r, req.cardinality).trim();
+    if (card !== card.toLowerCase()) caseNote(r, req.cardinality, card, "cardinality");
+    const dt = at(r, req.dataType).trim();
+    if (dt !== dt.toUpperCase()) notes.push({ row: r + 1, col: req.dataType + 1, message: `data type "${dt}": the tool writes it as typed; this reader writes ${dt.toUpperCase()}` });
+    const ent = at(r, req.entity).trim();
+    if (ent !== "" && ent !== "REPLACEME" && !isQuoted(ent) && ent !== ent.toUpperCase()) caseNote(r, req.entity, ent, "IFC entity");
+  }
+
+  // Carried between rows and columns, as in the tool's loop.
+  const carried = { instructions: undefined, predefined: undefined, property: undefined, facet: undefined };
+  const replaceOrder = ["entity", "propertySet", "property", "value", "system", "code", "attribute", "attributeValue", "material"];
+  const width = Math.max(...rows.map((x) => (x || []).length));
+  for (let c = 17; c < width; c++) {
+    const t = at(17, c);
+    if (!toolOn(17, c)) continue;
+    const C = colName(c);
+    if (!on(t)) notes.push({ row: 18, col: c + 1, message: `column ${C} toggle "${t}" is text: the tool counts any text as on, so it writes this category; this reader leaves it off` });
+    const a = (k) => at(apply[k], c);
+    carried.predefined = { row: apply.predefinedType, v: a("predefinedType").trim() };
+    if (a("property") !== "") carried.property = { col: c, where: `column ${C}'s applicability` };
+    for (const k of ["value", "attributeValue", "code", "material", "predefinedType"]) if (typedBool(apply[k], c)) boolNote(apply[k], c, a(k), `column ${C}'s ${k}`);
+    const ent = a("entity").trim();
+    if (ent !== "" && !isQuoted(ent) && ent !== ent.toUpperCase()) caseNote(apply.entity, c, ent, "IFC entity");
+    const card = a("cardinality");
+    if (card.trim().toLowerCase() !== card && ["prohibited", "optional"].includes(card.trim().toLowerCase())) notes.push({ row: apply.cardinality + 1, col: c + 1, message: `column ${C} cardinality "${card}": the tool compares it with "${card.trim().toLowerCase()}" exactly, so it writes the category as required; this reader reads it as ${card.trim().toLowerCase()}` });
+    let any = false;
+    for (const r of reqRows) {
+      const mark = at(r, c);
+      if (mark === "") continue;
+      const here = `row ${r + 1}, column ${C}`;
+      if (typedBool(r, c) || typedNum(r, c)) {
+        stops.push({ row: r + 1, col: c + 1, message: `${here} holds ${typedBool(r, c) ? `a typed ${mark.toUpperCase()}` : `the number ${mark}`}: the tool stops (it calls .strip() on the cell, which only text has; AttributeError); type it as text ('${mark})` });
+        any = true;
+        continue;
+      }
+      if (mark.trim().toUpperCase() === "X") {
+        any = true;
+        carried.instructions = { row: r, v: at(r, req.instructions) };
+        carried.predefined = { row: r, v: at(r, req.predefinedType).trim() };
+        if (at(r, req.property).trim() !== "") carried.property = { col: c, where: `row ${r + 1}` };
+        continue;
+      }
+      // A value for a REPLACEME cell: the tool looks for the exact word.
+      const sub = replaceOrder.find((k) => at(r, req[k]) === "REPLACEME");
+      const trimmedSub = replaceOrder.find((k) => at(r, req[k]).trim() === "REPLACEME");
+      if (!sub) {
+        if (trimmedSub) notes.push({ row: r + 1, col: req[trimmedSub] + 1, message: `"${at(r, req[trimmedSub])}" has spaces around REPLACEME; the tool looks for the exact word, so it does not see it` });
+        if (carried.facet) notes.push({ row: r + 1, col: c + 1, message: `${here} holds "${mark.trim()}" on a row with no REPLACEME cell the tool sees: it adds the REPLACEME facet from row ${carried.facet + 1} again; this reader leaves the cell out with a warning` });
+        else stops.push({ row: r + 1, col: c + 1, message: `${here} holds "${mark.trim()}" on a row with no REPLACEME cell the tool sees, before any REPLACEME row: the tool stops (UnboundLocalError on facet)` });
+        any = true;
+        continue;
+      }
+      any = true;
+      const kind = REPLACE_FACET[sub];
+      if (carried.instructions === undefined) { stops.push({ row: r + 1, col: c + 1, message: `${here} fills a REPLACEME before any X has been read: the tool stops (UnboundLocalError on instructions)` }); continue; }
+      const own = at(r, req.instructions);
+      if (carried.instructions.v !== own) notes.push({ row: r + 1, col: c + 1, message: `${here}: the tool gives this facet row ${carried.instructions.row + 1}'s instructions (${carried.instructions.v === "" ? "none" : `"${carried.instructions.v.slice(0, 60)}"`}), not this row's (${own === "" ? "none" : `"${own.slice(0, 60)}"`})` });
+      if (kind === "entity" && carried.predefined.v !== at(r, req.predefinedType).trim()) notes.push({ row: r + 1, col: c + 1, message: `${here}: the tool gives this entity the predefined type from row ${carried.predefined.row + 1} (${carried.predefined.v || "none"}), not this row's (${at(r, req.predefinedType).trim() || "none"})` });
+      if (kind === "property") {
+        const lost = (sub === "propertySet" || sub === "property" ? ["value", "uri"] : ["uri"]).filter((k) => at(r, req[k]).trim() !== "");
+        if (lost.length) {
+          if (!carried.property) { stops.push({ row: r + 1, col: c + 1, message: `${here}: the row's ${lost.join(" and ")} would go to an earlier property facet and there is none: the tool stops (UnboundLocalError on property)` }); continue; }
+          const it = lost.length > 1 ? "them" : "it";
+          notes.push({ row: r + 1, col: c + 1, message: `${here}: the tool drops this row's ${lost.join(" and ")} from the facet${carried.property.col === c ? ` and writes ${it} onto the property facet from ${carried.property.where} instead` : ""}; this reader keeps ${it} on this row's facet` });
+        }
+      }
+      carried.facet = r;
+    }
+    const purposeCell = a("purpose");
+    if ((any || card === "prohibited") && purposeCell.trim() === "") stops.push({ row: apply.purpose + 1, col: c + 1, message: `column ${C} has no purpose: the tool stops (it splits the empty cell, TypeError); this reader writes the category to an IDS with no <purpose>` });
+  }
+  return { stops, notes };
+}
+
 // ----------------------------------------------------------- writing ----
 //
 // An IDS as an Excel2IDS workbook, so a requirement set that exists only as an
@@ -347,6 +495,10 @@ const REQ_HEAD = ["Instructions", "Cardinality", "IFC entity", "IFC predefined t
 const META_ROWS = [["Title", "title"], ["Author email", "author"], ["Date", "date"], ["Version", "version"], ["Copyright", "copyright"], ["IFC version", null], ["Description", "description"]];
 const LABEL_COL = 16; // Q, as in the template
 const META_COL = 8; // I
+
+// IDS class names are upper case; Excel2IDS's tool writes a cell as typed, so
+// the workbook carries them upper case (a quoted pattern is left as it is).
+const upperEntity = (v) => (isQuoted(v) ? v : v.toUpperCase());
 
 export function idsToExcel2Ids(text) {
   const { rows, notes: lost } = idsToRows(text, { notes: true });
@@ -408,7 +560,7 @@ export function idsToExcel2Ids(text) {
       for (const a of ["uri", "instructions", "cardinality", "relation"]) if (f[a] !== "") P.push(`${a} on an applicability ${f.facet}`);
       const c = col.cells;
       if (f.facet === "entity" && f.entity === "") P.push("an entity with no name");
-      if (f.facet === "entity") { c.entity = val(f.entity, "IFC entity"); c.predefinedType = val(f.predefinedType, "predefined type"); }
+      if (f.facet === "entity") { c.entity = upperEntity(val(f.entity, "IFC entity")); c.predefinedType = val(f.predefinedType, "predefined type"); }
       if (f.facet === "property") { c.propertySet = val(f.propertySet, "property set"); c.property = val(f.property, "property name"); c.value = val(f.value, "property value"); c.dataType = f.dataType; }
       if (f.facet === "classification") { if (f.system === "") P.push("a classification with no system (the template needs one)"); c.system = val(f.system, "classification system"); c.code = val(f.value, "classification code"); }
       if (f.facet === "attribute") { c.attribute = val(f.attribute, "attribute name"); c.attributeValue = val(f.value, "attribute value"); }
@@ -422,7 +574,7 @@ export function idsToExcel2Ids(text) {
       row[0] = untext(f.instructions);
       row[1] = f.facet === "entity" ? "" : f.cardinality || "required";
       if (f.facet === "entity" && f.entity === "") P.push("an entity requirement with no name");
-      if (f.facet === "entity") { set(2, f.entity, "IFC entity"); set(3, f.predefinedType, "predefined type"); }
+      if (f.facet === "entity") { set(2, f.entity, "IFC entity"); row[2] = upperEntity(row[2]); set(3, f.predefinedType, "predefined type"); }
       if (f.facet === "property") { set(4, f.propertySet, "property set"); set(5, f.property, "property name"); set(6, f.value, "property value"); row[7] = f.dataType; row[8] = untext(f.uri); }
       if (f.facet === "classification") { if (f.system === "") P.push("a classification requirement with no system (the template needs one)"); set(9, f.system, "classification system"); set(10, f.value, "classification code"); row[11] = untext(f.uri); }
       if (f.facet === "attribute") { set(12, f.attribute, "attribute name"); set(13, f.value, "attribute value"); }
@@ -465,6 +617,13 @@ export function idsToExcel2Ids(text) {
   REQ_HEAD.forEach((label, i) => put(H - 1, i, label));
   let purpose = (info.purpose ?? "").trim();
   if (/[,;\n]/.test(purpose)) { notes.push(`info purpose "${purpose}" is not kept: the template reads a comma, semicolon or line break in it as several purposes, one IDS each`); purpose = ""; }
+  // Excel2IDS's tool stops on a category with no purpose; "General" is its
+  // own default name for one (add_to_ids), and reads back as <purpose>General</purpose>.
+  // What Excel2IDS's own tool would do with the download (not a loss here).
+  const tool = [];
+  let purposeFilled = false;
+  if (!purpose && columns.length) { purpose = "General"; purposeFilled = true; tool.push("the IDS has no purpose: the template's purpose row is filled with General (Excel2IDS's own default), because its tool stops on an empty one; read back, the IDS says <purpose>General</purpose>"); }
+  if (columns.length && ifcVersion.includes(" ")) tool.push(`the IFC version cell names ${ifcVersion}: IDS Model Check reads them all, but Excel2IDS's tool takes one exact version and would write IFC4X3_ADD2`);
   const A = ["name", "description", "instructions", "identifier", "cardinality", "entity", "predefinedType", "propertySet", "property", "value", "dataType", "system", "code", "attribute", "attributeValue", "material"];
   columns.forEach((col, j) => {
     const c = LABEL_COL + 1 + j;
@@ -475,14 +634,14 @@ export function idsToExcel2Ids(text) {
   });
   reqRows.forEach((row, i) => { row.forEach((v, k) => { if (v !== "") put(H + i, k, v); }); put(H + i, LABEL_COL, "TRUE"); });
   for (let r = 0; r < grid.length; r++) for (let c = 0; c < grid[r].length; c++) if (grid[r][c] === undefined) grid[r][c] = "";
-  return { rows: grid, notes, kept: columns.length, keptIndex: columns.map((c) => c.index), total: specs.length, requirementRows: reqRows.length, byPhase: Boolean(milestone) };
+  return { rows: grid, notes, kept: columns.length, keptIndex: columns.map((c) => c.index), total: specs.length, requirementRows: reqRows.length, byPhase: Boolean(milestone), purposeFilled, tool };
 }
 
 export const EXCEL2IDS_README = [
   ["About this workbook"],
   ["The Requirements sheet follows the layout of buildingSMART-community's Excel2IDS template (github.com/buildingsmart-community/Excel2IDS): asset categories in columns from R, one requirement per row from 19, an X where a category needs a requirement."],
   ["A value in \"double quotes\" is a pattern; commas, semicolons or line breaks make a list of allowed values. Toggle a row or column off with FALSE."],
-  ["Drop it back on IDS Model Check (https://marisstella.app/ids-model-check/) to get one IDS per purpose, audited, or run node cli.mjs --from-sheet. Excel2IDS's own tool reads it too."],
+  ["Drop it back on IDS Model Check (https://marisstella.app/ids-model-check/) to get one IDS per purpose, audited, or run node cli.mjs --from-sheet. Excel2IDS's own tool reads it too, with two differences: it writes <milestone>LOD400</milestone> into every IDS, and it keeps only one exact IFC version (several become IFC4X3_ADD2). Every category has a purpose, because the tool stops on an empty one."],
   ["Made by IDS Model Check (MIT). Not legal or professional advice; check the IDS you hand over."],
 ];
 
@@ -500,7 +659,7 @@ export async function readRequirementSheet(bytes, inflateRaw, opts = {}) {
     const other = await sheetToRows(bytes, inflateRaw, { sheet: "requirements" });
     if (isExcel2Ids(other)) rows = other;
   }
-  if (isExcel2Ids(rows)) return { format: "excel2ids", ...excel2idsToIds(rows, opts) };
+  if (isExcel2Ids(rows)) return { format: "excel2ids", ...excel2idsToIds(rows, opts), tool: excel2idsToolNotes(rows) };
   const r = rowsToIds(rows);
   return { format: "table", files: [{ suffix: "", text: r.text, errors: r.errors, warnings: r.warnings }], warnings: [], phases: [] };
 }

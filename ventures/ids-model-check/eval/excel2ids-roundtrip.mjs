@@ -7,7 +7,8 @@
 // treated as the same: an applicability with no minOccurs/maxOccurs reads as
 // required (1..unbounded), a requirement facet with no cardinality as
 // required, the order of facets inside an applicability or requirements, and
-// of the versions in ifcVersion. Also, with --checker, on buildingSMART's test
+// of the versions in ifcVersion, and the purpose General the writer fills in
+// for a file with none (Excel2IDS's tool stops on an empty one). Also, with --checker, on buildingSMART's test
 // pairs the round-tripped IDS must give the checker's original verdict.
 //
 //   eval/fetch-audit-corpus.sh; eval/fetch-testcases.sh
@@ -15,7 +16,8 @@
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { inflateRawSync } from "node:zlib";
-import { xlsxToRows, canonicalIds } from "../sheet.mjs";
+import { xlsxToRows } from "../sheet.mjs";
+import { normal, counts } from "./excel2ids-normal.mjs";
 import { idsToExcel2Ids, excel2IdsToXlsx, excel2idsToIds } from "../excel2ids.mjs";
 import { fixStructure } from "../fix.mjs";
 import { parseXml } from "../xml.mjs";
@@ -32,48 +34,6 @@ function walk(dir, out = []) {
     else if (/\.ids(\.xml)?$/i.test(d.name)) out.push(join(dir, d.name));
   }
   return out.sort();
-}
-
-// The canonical tree with the template's written-out defaults applied.
-let upperCased = 0;
-function normal(text, keepIndex) {
-  const t = JSON.parse(canonicalIds(text));
-  const specsNode = t.c.find((c) => c.n === "specifications");
-  if (specsNode) {
-    if (keepIndex) specsNode.c = keepIndex.map((i) => specsNode.c[i]);
-    for (const s of specsNode.c) {
-      // An empty text attribute is no attribute: a template cell cannot tell them apart.
-      for (const k of ["description", "instructions", "identifier"]) if (s.a[k] === "") delete s.a[k];
-      if (s.a.ifcVersion) s.a.ifcVersion = s.a.ifcVersion.trim().split(/\s+/).sort().join(" ");
-      for (const part of s.c) {
-        if (part.n === "applicability") {
-          // As the checker reads them (ids.mjs): maxOccurs 0 prohibited, minOccurs 0 optional, else required.
-          const mn = part.a.minOccurs, mx = part.a.maxOccurs;
-          part.a.occurs = mx === "0" ? "prohibited" : mn === "0" ? "optional" : mx === undefined || mx === "unbounded" ? "required" : `${mn}..${mx}`;
-          delete part.a.minOccurs; delete part.a.maxOccurs;
-        }
-        // A one-item string list allows what its value allows; the template writes it plain.
-        const oneItem = (n) => {
-          for (const k of n.c) oneItem(k);
-          n.c = n.c.map((k) => (k.n === "restriction" && (k.a.base ?? "string") === "string" && k.c.length === 1 && k.c[0].n === "enumeration" ? { n: "simpleValue", a: {}, t: k.c[0].a.value, c: [] } : k));
-        };
-        oneItem(part);
-        // IDS entity names are upper case; the reader writes them so.
-        if (keepIndex) for (const f of part.c) if (f.n === "entity") for (const nm of f.c) if (nm.n === "name") for (const v of nm.c) {
-          if (v.n === "simpleValue" && v.t !== v.t.toUpperCase()) { v.t = v.t.toUpperCase(); upperCased++; }
-          if (v.n === "restriction") for (const e of v.c) if (e.n === "enumeration" && e.a.value !== e.a.value.toUpperCase()) { e.a.value = e.a.value.toUpperCase(); upperCased++; }
-        }
-        if (part.n === "requirements") for (const f of part.c) if (f.n !== "entity" && f.n !== "partOf" && f.a.cardinality === undefined) f.a.cardinality = "required";
-        for (const f of part.c) { if (f.a.instructions === "") delete f.a.instructions; f.a = Object.fromEntries(Object.entries(f.a).sort()); }
-        // The same facet twice in one part asks for the same thing once.
-        if (part.n === "requirements") { const seen = new Set(); part.c = part.c.filter((f) => { const k = JSON.stringify(f); if (seen.has(k)) return false; seen.add(k); return true; }); }
-        if (part.n === "applicability" || part.n === "requirements") { part.c.sort((x, y) => (JSON.stringify(x) < JSON.stringify(y) ? -1 : 1)); part.a = Object.fromEntries(Object.entries(part.a).sort()); }
-      }
-    }
-  }
-  const info = t.c.find((c) => c.n === "info");
-  if (info) { for (const f of info.c) f.t = f.t.trim(); }
-  return JSON.stringify(t);
 }
 
 const sets = [
@@ -116,7 +76,10 @@ for (const [label, files] of sets) {
       }
     }
     specsSame += same;
-    const infoSame = JSON.stringify(a.c.find((c) => c.n === "info")) === JSON.stringify(b.c.find((c) => c.n === "info"));
+    // A file with no purpose is written with the tool's default, General (excel2ids.mjs).
+    const infoB = b.c.find((c) => c.n === "info");
+    if (w.purposeFilled && infoB) infoB.c = infoB.c.filter((c) => !(c.n === "purpose" && c.t === "General"));
+    const infoSame = JSON.stringify(a.c.find((c) => c.n === "info")) === JSON.stringify(infoB);
     if (same === sa.length && sa.length === w.total && infoSame) filesAll++;
     else if (verbose && !infoSame && same === sa.length) console.log("INFO", f, JSON.stringify(a.c[0]), JSON.stringify(b.c[0]));
     const facets = sa.reduce((n, s) => n + (s.c.find((p) => p.n === "requirements")?.c.length || 0), 0);
@@ -136,6 +99,6 @@ for (const [label, files] of sets) {
   }
   console.log(`${label}: ${read} files; ${specsKept} of ${specsTotal} specifications fit the template, ${specsSame} of ${specsKept} come back the same; ${filesAll} of ${read} files whole; requirement rows ${facetRows - rowsSaved} for ${facetRows} facets (shared rows)${check ? `; verdicts same ${verdictSame} of ${verdictRuns}` : ""}`);
 }
-console.log(`\nEntity names written in upper case (counted the same): ${upperCased}`);
+console.log(`\nEntity names written in upper case (counted the same): ${counts.upperCased}`);
 console.log("\nWhy specifications were left out (count of specifications, each reason list as written):");
 for (const [k, v] of [...reasons].sort((x, y) => y[1] - x[1]).slice(0, 25)) console.log(String(v).padStart(5), k);
