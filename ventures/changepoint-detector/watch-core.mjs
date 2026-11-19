@@ -662,17 +662,18 @@ export function agreeAlerts(lines, k = 2, within = 12) {
 
 /**
  * Closed days (a bank holiday, a Christmas closure) filled before any detector sees them, so a zero on a closed weekday
- * is not read as a step down and back. Pre-registered as `--closed` (eval/closed-days.prereg.md) and NOT offered: on the
- * fresh year it cut the alerts at a closure from 10 to 2, not 0, and the design year lost the Christmas build-up alert
- * at Quiet (README "Closed days filled as missing"). Kept in the module for the next round and for callers who want it.
+ * is not read as a step down and back. Round 1 (lags 4, eval/closed-days.prereg.md) failed its bars and was not offered
+ * (README "Closed days filled as missing"); round 2 (lags 1, eval/closed-steps.prereg.md) passed S1-S3 on fresh seeds
+ * and is what `watch.mjs --closed` uses (README "Steps beside a closure").
  * Each listed label of the series takes the median of the open values at i-L, i-2L, ... (up to the 4 nearest), where
  * L is `period` if given, else 7 when the labels are consecutive calendar days, else 1; with none of those, the nearest
  * open value before i, else after it. Only earlier points feed a fill (but for a closure at the very start), so filling
  * a whole history once equals filling each prefix and a replay stays honest. `round` rounds the fills (counts).
+ * `lags` (default 4) is how many earlier same-phase open values the median takes (README "Steps beside a closure").
  * Listed dates that are not labels of the series are ignored (a deployer may list next year's holidays ahead).
  * Returns { values, filled: [{ index, label, was, now }] }.
  */
-export function fillClosed(values, labels, closed, { period = null, round = false } = {}) {
+export function fillClosed(values, labels, closed, { period = null, round = false, lags = 4 } = {}) {
   const v = values.map(Number);
   const shut = new Set((closed ?? []).map((s) => String(s).trim()).filter(Boolean));
   if (!shut.size || !labels) return { values: v, filled: [] };
@@ -688,7 +689,7 @@ export function fillClosed(values, labels, closed, { period = null, round = fals
   const out = v.slice(), filled = [];
   for (const i of idx) {
     const same = [];
-    for (let j = i - L; j >= 0 && same.length < 4; j -= L) if (!isShut.has(j)) same.push(v[j]);
+    for (let j = i - L; j >= 0 && same.length < lags; j -= L) if (!isShut.has(j)) same.push(v[j]);
     let x;
     if (same.length) {
       same.sort((a, b) => a - b);

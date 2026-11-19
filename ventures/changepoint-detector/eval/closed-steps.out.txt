@@ -1,0 +1,65 @@
+
+================ FRESH seeds 20261120 (the pre-registered bars) ================
+alerts over all 200 series: clean 846, off 1584, fill4 819, fill1 820
+
+no-step series (100): with an alert within 1 day of a closure / of a placebo date (chance)
+  clean  closure  16   placebo  21
+  off    closure 100   placebo  40
+  fill4  closure   8   placebo  21
+  fill1  closure  16   placebo  21
+
+step series (100): steps caught (an alert dated within 7 days of the step), by the first closure after the step
+  group                                n   clean    off  fill4  fill1
+  closure 1-7 days after the step     27      16     20     11     11
+  closure 8-21 days after             73      41     47     40     41
+  no closure within 21 days after      0       0      0      0      0
+  all                                100      57     67     51     52
+
+step series: caught by off only through an alert within 1 day of a closure (would not count with the closures open)
+  21 of 67
+
+step series caught by clean: lost by each arm
+  off     7 lost; first closure after the step at 4, 6, 6, 10, 6, 9, 1 days
+  fill4   8 lost; first closure after the step at 5, 6, 11, 6, 9, 6, 1, 8 days
+  fill1   8 lost; first closure after the step at 1, 5, 6, 11, 9, 6, 1, 8 days
+
+median days from step to the alert being sent (steps caught by both clean and the arm)
+  off   n=50: clean 6, off 5
+  fill4 n=49: clean 5, fill4 6
+  fill1 n=49: clean 6, fill1 5
+
+BARS for fill1 (eval/closed-steps.prereg.md):
+  S1 closure effect gone: no-step series with an alert at a closure 16 <= placebo 21 + 3: PASS
+  S2 steps beside a closure kept: caught 52 >= clean 57 - 5: PASS
+  S3 no worse than round 1's fill: caught 52 >= fill4 51: PASS
+  round 1's fill on the same bars: S1 8 vs 21 + 3: PASS; S2 51 vs 57 - 5: FAIL
+
+================ REAL SHOP (node eval/closed-steps.mjs real; both years already seen; reported, not barred) ================
+== design year 2010-12 to 2011-12 (online-retail-daily.csv); 16 closed days; Quiet, --period 7 ==
+  orders        off    4 alerts, 2 at a closure: 2011-05-03>2011-05-07 2011-05-31>2011-06-04 2011-06-10>2011-06-15 2011-09-01>2011-09-05
+  orders        fill4  3 alerts, 0 at a closure: 2011-05-05>2011-05-09 2011-06-05>2011-06-09 2011-03-18>2011-10-07
+  orders        fill1  2 alerts, 0 at a closure: 2011-05-05>2011-05-11 2011-06-05>2011-06-09
+  revenue       off    2 alerts, 0 at a closure: 2011-03-30>2011-04-05 2011-04-18>2011-08-16
+  revenue       fill4  1 alerts, 0 at a closure: 2011-03-29>2011-04-02
+  revenue       fill1  1 alerts, 0 at a closure: 2011-03-30>2011-04-12
+  cancellations off   14 alerts, 2 at a closure: 2011-02-12>2011-02-16 2011-03-02>2011-03-06 2011-02-23>2011-03-08 2011-03-08>2011-03-16 2011-04-21>2011-04-25 2011-05-03>2011-05-07 2011-06-01>2011-06-05 2011-08-26>2011-08-30 2011-09-01>2011-09-05 2011-09-09>2011-09-13 2011-10-06>2011-10-10 2011-10-25>2011-10-29 2011-11-24>2011-11-28 2011-11-30>2011-12-04
+  cancellations fill4 10 alerts, 0 at a closure: 2011-02-12>2011-02-16 2011-02-22>2011-02-26 2011-03-02>2011-03-07 2011-03-08>2011-03-14 2011-09-01>2011-09-05 2011-09-09>2011-09-13 2011-10-06>2011-10-10 2011-10-25>2011-10-29 2011-11-24>2011-11-28 2011-11-30>2011-12-04
+  cancellations fill1  8 alerts, 0 at a closure: 2011-02-12>2011-02-16 2011-02-25>2011-03-01 2011-05-17>2011-05-21 2011-09-01>2011-09-05 2011-09-09>2011-09-15 2011-10-06>2011-10-10 2011-11-24>2011-11-29 2011-11-30>2011-12-04
+  new_customers off    2 alerts, 1 at a closure: 2011-04-22>2011-04-26 2011-05-04>2011-05-08
+  new_customers fill4  0 alerts, 0 at a closure: 
+  new_customers fill1  0 alerts, 0 at a closure: 
+
+== fresh year 2009-12 to 2010-12 (online-retail-2009-daily.csv); 15 closed days; Quiet, --period 7 ==
+  orders        off   11 alerts, 3 at a closure: 2010-03-03>2010-03-07 2010-03-11>2010-03-15 2010-03-18>2010-03-22 2010-04-06>2010-04-10 2010-05-04>2010-05-08 2010-05-29>2010-06-02 2010-06-06>2010-06-12 2010-06-23>2010-06-29 2010-07-09>2010-07-13 2010-08-31>2010-09-04 2010-11-09>2010-11-19
+  orders        fill4  6 alerts, 0 at a closure: 2010-03-03>2010-03-07 2010-03-11>2010-03-15 2010-03-18>2010-03-22 2010-06-06>2010-06-12 2010-07-09>2010-07-13 2010-11-09>2010-11-13
+  orders        fill1  7 alerts, 0 at a closure: 2010-03-03>2010-03-07 2010-03-11>2010-03-15 2010-03-17>2010-03-22 2010-06-06>2010-06-12 2010-06-23>2010-06-28 2010-07-09>2010-07-13 2010-11-09>2010-11-13
+  revenue       off    1 alerts, 0 at a closure: 2010-09-28>2010-11-26
+  revenue       fill4  1 alerts, 0 at a closure: 2010-09-20>2010-09-25
+  revenue       fill1  1 alerts, 0 at a closure: 2010-09-20>2010-09-25
+  cancellations off   18 alerts, 1 at a closure: 2010-02-22>2010-02-26 2010-03-31>2010-04-04 2010-04-13>2010-04-17 2010-04-23>2010-04-27 2010-05-04>2010-05-08 2010-05-15>2010-05-21 2010-05-29>2010-06-02 2010-03-19>2010-06-08 2010-06-24>2010-06-28 2010-07-01>2010-07-05 2010-08-12>2010-08-16 2010-08-18>2010-08-22 2010-09-02>2010-09-06 2010-09-16>2010-09-20 2010-07-21>2010-10-04 2010-06-04>2010-10-16 2010-10-27>2010-10-31 2010-12-01>2010-12-05
+  cancellations fill4 15 alerts, 1 at a closure: 2010-02-22>2010-02-26 2010-03-19>2010-03-24 2010-04-06>2010-04-10 2010-04-15>2010-04-20 2010-04-23>2010-04-27 2010-04-30>2010-05-16 2010-05-18>2010-05-31 2010-06-03>2010-06-07 2010-06-24>2010-06-28 2010-07-01>2010-07-07 2010-08-18>2010-08-22 2010-09-02>2010-09-06 2010-09-16>2010-09-20 2010-10-27>2010-10-31 2010-12-01>2010-12-05
+  cancellations fill1 16 alerts, 1 at a closure: 2010-02-22>2010-02-26 2010-03-04>2010-03-08 2010-03-19>2010-03-24 2010-03-25>2010-03-29 2010-04-13>2010-04-18 2010-04-06>2010-04-19 2010-04-23>2010-04-28 2010-04-30>2010-05-06 2010-05-29>2010-06-02 2010-06-24>2010-06-28 2010-07-01>2010-07-06 2010-08-18>2010-08-22 2010-09-02>2010-09-06 2010-09-16>2010-09-20 2010-10-27>2010-10-31 2010-12-01>2010-12-05
+  new_customers off    1 alerts, 1 at a closure: 2010-04-02>2010-04-06
+  new_customers fill4  0 alerts, 0 at a closure: 
+  new_customers fill1  0 alerts, 0 at a closure: 
+
