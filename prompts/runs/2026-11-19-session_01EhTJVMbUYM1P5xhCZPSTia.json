@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVMbUYM1P5xhCZPSTia",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue products); merge when done",
+  "input_sha256": "c008369ff7f6bb1c9312f89c067345da62e288c7e2fdfd845bbb3668d6069ff1",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T16:00:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: shift-roster-builder flagship buildable item, Deputy staff and wages from its API",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": 17715,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Stop hook asks to commit untracked files while the run record is deliberately held until the PR number and test results are known."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-deputy-staff-and-wages-by-location.md",
+    "ventures/shift-roster-builder/eval/deputy-staff-format-2026-11-19.md"
+  ],
+  "goal": "Let a team leaving Deputy bring its people and per-location pay rates in by API, so multi-site builds price shifts at each person's rate there.",
+  "notes": "Idea: Deputy staff+wages importer (Employee, EmployeeAgreement, EmployeeWorkplace, Company) for shift-roster-builder, the flagship's listed buildable item, mirroring import7shiftsStaff. Field names from MIT communityds/deputy-api-wrapper models (git clone). Verified: import-deputy-staff.test.mjs 9/9; import-deputy.test.mjs 10/10 after moving paging into shared deputyQuery; CLI end-to-end (Airport shifts went to the $22 colleague over Ana's $27.25 Airport rate, payroll $544); headless Chromium upload filled the staff box, no page errors. First full run_venture_tests failed one page.test.mjs assertion (allowed module import list) which was updated for the new module; rerun result in PR. No real Deputy account used. Next buildable set: Deputy EmployeeAvailability into the availability cell.",
+  "corrections": [],
+  "redteam": null
+}
