@@ -1,0 +1,179 @@
+[
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "project": "CCA R03 dt 24Oct11SC",
+    "open": 14270,
+    "p6Flagged": 604,
+    "p6FlaggedAll": 1013,
+    "p6FlaggedComplete": 399,
+    "p6FlaggedMaxStoredFloat": 3788.066667,
+    "ours": 56,
+    "both": 56,
+    "onlyP6": 548,
+    "onlyOurs": 0,
+    "finish": "MGNSO00103M0",
+    "paths": 4880,
+    "inPaths": 10118,
+    "path2": {
+      "float": 0,
+      "length": 3
+    },
+    "finishBound": {
+      "activities": 10118,
+      "equal": 3352,
+      "tfAboveBound": 0,
+      "worst": [],
+      "zeroFloat": 56,
+      "drivingIntoFinish": 56,
+      "zeroIsLongestPath": true
+    },
+    "ms": 445
+  },
+  {
+    "file": "Expressway_Project.xer",
+    "project": "BEW3",
+    "open": 823,
+    "p6Flagged": 33,
+    "p6FlaggedAll": 33,
+    "p6FlaggedComplete": 0,
+    "p6FlaggedMaxStoredFloat": 0,
+    "ours": 33,
+    "both": 33,
+    "onlyP6": 0,
+    "onlyOurs": 0,
+    "finish": "BEW/GEN/MS/0020",
+    "paths": 212,
+    "inPaths": 579,
+    "path2": {
+      "float": 0,
+      "length": 1
+    },
+    "finishBound": {
+      "activities": 579,
+      "equal": 558,
+      "tfAboveBound": 0,
+      "worst": [],
+      "zeroFloat": 33,
+      "drivingIntoFinish": 33,
+      "zeroIsLongestPath": true
+    },
+    "ms": 60
+  },
+  {
+    "file": "example_xer_file.xer",
+    "project": "DEMO-001",
+    "open": 404,
+    "p6Flagged": 17,
+    "p6FlaggedAll": 20,
+    "p6FlaggedComplete": 1,
+    "p6FlaggedMaxStoredFloat": 48.016666,
+    "ours": 17,
+    "both": 17,
+    "onlyP6": 0,
+    "onlyOurs": 0,
+    "finish": "A14400",
+    "paths": 41,
+    "inPaths": 224,
+    "path2": {
+      "float": 23.9833,
+      "length": 14
+    },
+    "finishBound": {
+      "activities": 224,
+      "equal": 224,
+      "tfAboveBound": 0,
+      "worst": [],
+      "zeroFloat": 16,
+      "drivingIntoFinish": 16,
+      "zeroIsLongestPath": true
+    },
+    "ms": 3
+  },
+  {
+    "file": "hotel-project.xer",
+    "project": "HBTF-2",
+    "open": 4217,
+    "p6Flagged": 133,
+    "p6FlaggedAll": 133,
+    "p6FlaggedComplete": 0,
+    "p6FlaggedMaxStoredFloat": 1,
+    "ours": 133,
+    "both": 133,
+    "onlyP6": 0,
+    "onlyOurs": 0,
+    "finish": "H0010",
+    "paths": 1570,
+    "inPaths": 4211,
+    "path2": {
+      "float": 0,
+      "length": 23
+    },
+    "finishBound": {
+      "activities": 4211,
+      "equal": 4211,
+      "tfAboveBound": 0,
+      "worst": [],
+      "zeroFloat": 197,
+      "drivingIntoFinish": 132,
+      "zeroIsLongestPath": false
+    },
+    "ms": 99
+  },
+  {
+    "file": "sample.xer",
+    "project": "Task SE",
+    "open": 42,
+    "p6Flagged": 42,
+    "p6FlaggedAll": 52,
+    "p6FlaggedComplete": 0,
+    "p6FlaggedMaxStoredFloat": 0,
+    "ours": 42,
+    "both": 42,
+    "onlyP6": 0,
+    "onlyOurs": 0,
+    "finish": "EM00",
+    "paths": 1,
+    "inPaths": 42,
+    "path2": null,
+    "finishBound": {
+      "activities": 42,
+      "equal": 42,
+      "tfAboveBound": 0,
+      "worst": [],
+      "zeroFloat": 42,
+      "drivingIntoFinish": 42,
+      "zeroIsLongestPath": true
+    },
+    "ms": 1
+  },
+  {
+    "file": "terminal-building-airport.xer",
+    "project": "TERMINAL-2",
+    "open": 66,
+    "p6Flagged": 36,
+    "p6FlaggedAll": 36,
+    "p6FlaggedComplete": 0,
+    "p6FlaggedMaxStoredFloat": 8,
+    "ours": 36,
+    "both": 36,
+    "onlyP6": 0,
+    "onlyOurs": 0,
+    "finish": "A5800",
+    "paths": 13,
+    "inPaths": 66,
+    "path2": {
+      "float": 0,
+      "length": 19
+    },
+    "finishBound": {
+      "activities": 66,
+      "equal": 65,
+      "tfAboveBound": 0,
+      "worst": [],
+      "zeroFloat": 36,
+      "drivingIntoFinish": 36,
+      "zeroIsLongestPath": true
+    },
+    "ms": 6
+  }
+]
