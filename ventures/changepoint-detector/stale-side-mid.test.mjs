@@ -29,7 +29,7 @@ test('jobsFor: both arms, prints and three grids; the side arm moves only when t
   const prints = [];
   // A one-tick book at 10.00 / 10.01 that bounces for 700 prints, a second apart.
   for (let i = 0; i < 700; i++) prints.push({ t: i, p: i % 2 ? 10.01 : 10.0, bm: i % 2 === 0 });
-  const jobs = jobsFor('X', prints, 0.01, 2);
+  const jobs = jobsFor('X', prints, 0.01, 2, ['side', 'raw']);
   assert.deepEqual([...new Set(jobs.map((j) => `${j.arm} ${j.kind}`))], ['side prints', 'side D=0.5', 'side D=1', 'side D=2', 'raw prints', 'raw D=0.5', 'raw D=1', 'raw D=2']);
   const side = jobs.find((j) => j.arm === 'side' && j.kind === 'prints');
   assert.ok(side.v.every((x) => Math.abs(x - 10.005) < 1e-12));

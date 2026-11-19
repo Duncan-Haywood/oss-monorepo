@@ -46,6 +46,10 @@
 // status check on the BTCUSDT exchangeInfo reply (200, body discarded). The 2026-11-02 files and results are
 // the previous round's and chose this transform.
 //
+// Amended before any result was read: the first run, both arms, did 80 of 384 windows in 30 minutes (about
+// 2.4 hours in all, past the session's 2-hour limit for a background command) and was stopped with no output
+// written or read. ARMS is now ['side'] only: the raw arm decided nothing. Nothing else changed.
+//
 // usage: node eval/stale-side-mid-binance.mjs --fetch <dir>
 //        node eval/stale-side-mid-binance.mjs <dir> > eval/stale-side-mid-binance.out.txt
 import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads';
@@ -61,6 +65,7 @@ import { pick } from './stale-one-tick-binance.mjs';
 export const DAY = '2026-11-09';
 export const GRID = [0.5, 1, 2];
 export const PER = 4;
+export const ARMS = ['side'];
 
 /** Prints [{ t, p, bm }] from a Binance spot trades CSV, one per timestamp at its last trade (bm: buyer is maker). */
 export function readSidedPrints(text) {
@@ -106,9 +111,9 @@ export function bars(rows, arm = 'side') {
 }
 
 /** Jobs for one pair: both arms, prints and grid series, PER windows each. */
-export function jobsFor(sym, prints, tick, per = PER) {
+export function jobsFor(sym, prints, tick, per = PER, arms = ARMS) {
   const jobs = [];
-  for (const arm of ['side', 'raw']) {
+  for (const arm of arms) {
     const pts = arm === 'side' ? prints.map((x) => ({ t: x.t, p: sideAdjusted(x.p, x.bm, tick) })) : prints;
     const series = [['prints', { v: pts.map((x) => x.p), traded: pts.map(() => true) }], ...GRID.map((D) => [`D=${D}`, sampleEvery(pts, D)])];
     for (const [kind, s] of series) {
@@ -183,7 +188,7 @@ if (!isMainThread && workerData && workerData.binanceSideMid) {
       const e = st.map((r) => Math.abs(r.fitted - r.carried)).sort((a, b) => a - b);
       console.log(`${k}  ${g.length}  ${gg.length}  ${f2(g.reduce((a, r) => a + r.carried, 0) / g.length)}  ${st.length}  ${f2(e[e.length >> 1])}`);
     }
-    for (const arm of ['side', 'raw']) {
+    for (const arm of ARMS) {
       const b = bars(rows, arm);
       console.log(`\n## ${arm === 'side' ? 'Bars: side arm (gated windows, pooled)' : 'Reported: raw arm, same rules (deciding nothing)'}\n`);
       console.log(`S1 size, trade prints: ${b.S1.k} of ${b.S1.n} (bar <= 10%, n >= 10): ${b.S1.pass ? 'pass' : 'fail'}`);
