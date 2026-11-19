@@ -252,6 +252,11 @@ class Registry(unittest.TestCase):
             # does not start red. docs/reports/2026-11-19-paper-print-legibility.md
             "paper": "text that fades on paper; run with --with-fix against a "
                      "build, then register in the same control-plane PR as framerate",
+            # 2026-11-19 polish run (PR #17735) landed it unregistered and this
+            # test went red on main; found by that day's red-team run.
+            "ask-suggestions-check": "taps each /ask/ example question and judges "
+                                     "the answer; register in the same control-plane "
+                                     "PR as framerate",
         }
         # Browser tools run by hand on purpose, never by the nightly. Each
         # entry says why it is not a check.

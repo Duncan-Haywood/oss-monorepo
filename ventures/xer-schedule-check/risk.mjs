@@ -183,7 +183,9 @@ export function* riskSteps(xer, opts = {}) {
     const o = overrides.get(t.code);
     if (o) used.add(t.code);
     const m = o ? toMinutes(o, t, hpd) : null;
-    if (m && m.a <= m.c && m.c <= m.b) {
+    // a negative point would draw negative work (parseRanges rejects min < 0;
+    // UDF ranges reach here unchecked)
+    if (m && m.a >= 0 && m.a <= m.c && m.c <= m.b) {
       vary.push({ t, ...m });
     } else if (m) {
       inconsistent.push(t.code);
@@ -212,7 +214,7 @@ export function* riskSteps(xer, opts = {}) {
   }
   const unknown = [...overrides.keys()].filter((k) => !used.has(k));
   if (unknown.length) warnings.push(`${unknown.length} range line(s) name no open activity: ${unknown.slice(0, 5).join(", ")}${unknown.length > 5 ? ", ..." : ""}`);
-  if (inconsistent.length) warnings.push(`${inconsistent.length} activity range(s) left on the default range because optimistic <= most likely <= pessimistic fails${overrides.size && [...overrides.values()].some((o) => o.likely == null) ? " (most likely = the file's remaining duration)" : ""}: ${inconsistent.slice(0, 5).join(", ")}${inconsistent.length > 5 ? ", ..." : ""}`);
+  if (inconsistent.length) warnings.push(`${inconsistent.length} activity range(s) left on the default range because 0 <= optimistic <= most likely <= pessimistic fails (a point is negative or out of order)${overrides.size && [...overrides.values()].some((o) => o.likely == null) ? " (most likely = the file's remaining duration)" : ""}: ${inconsistent.slice(0, 5).join(", ")}${inconsistent.length > 5 ? ", ..." : ""}`);
   if (opts.rangeSource) warnings.push(opts.rangeSource);
   if (!overrides.size) warnings.push(`every open activity uses the same range (${Math.round(range.min * 100)}% / ${Math.round(range.likely * 100)}% / ${Math.round(range.max * 100)}% of its remaining duration): an assumption, not data from the file; replace it with ranges from the people doing the work`);
   if (base.loops.length) warnings.push(`${base.loops.length} logic loop(s): activities on a loop are left out of every run`);

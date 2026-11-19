@@ -1,0 +1,449 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKim1kCEoqQWqstFNXr",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T17:18:18Z",
+  "ended": "2026-11-19T17:20:43Z",
+  "wall_minutes": 4.83,
+  "tokens_in": 2508729,
+  "tokens_out": 13710,
+  "cost_usd": 1.3426,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17739",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 12 entries, 11 of them control-plane fixes waiting on owner approval; re-checking each by grep is the only step-0 work an ordinary run can do, which the prompt does not say."
+    },
+    {
+      "file": "platform/ci/test_browser_checks.py",
+      "issue": "The registry test runs only via the unwired set in ventures-tests.yml, so a polish PR that touched platform/pages landed it red and the next venture PR inherited the failure (the open 2026-11-13 entry on ventures-tests.yml paths is the same root cause)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix open defects first; all 12 remain control plane (owner approval) or a deliberately deferred eval (help-keeper stem).",
+      "did": "Confirmed each still reproduces on main by grepping the named workflow/tool for the fix, left them open, and moved on to seeding.",
+      "result": "Run time went to the new udf-ranges code instead, where it found a real bug."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-negative-udf-durations-xer-risk.md"
+  ],
+  "goal": null,
+  "notes": "Targets: ventures/xer-schedule-check/udf-ranges.mjs (new on main 2026-11-19) and risk.mjs, 10 mutants each. 16/20 caught before, 20/20 after rerun. Real defect fixed at the single consumer (riskAnalysis override check), so every range source (CSV, UDF, future ones) is guarded: the class fix for step 4. No new CI guard: the venture suite already runs in ventures-tests.yml. Verification: run_venture_tests.py xer-schedule-check: 106 tests, 0 failed. Second defect: main went red mid-run (ask-suggestions-check unregistered); fixed in this PR after merging main. The local --for-changes run was stopped when main was merged in; CI on the merged head is the verification.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/udf-ranges.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 670086642,
+        "commit": "6cb5a762d",
+        "sites": 80,
+        "baseline_seconds": 1.0,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/udf-ranges.mjs",
+            "line": 50,
+            "col": 71,
+            "operator": "or-to-and",
+            "before": "const hits = Object.entries(ROLE).filter(([, w]) => has(s, w.strong) || (durationy && has(s, w.weak))).map(([r]) => r);",
+            "after": "const hits = Object.entries(ROLE).filter(([, w]) => has(s, w.strong) && (durationy && has(s, w.weak))).map(([r]) => r);",
+            "line_text": "  const hits = Object.entries(ROLE).filter(([, w]) => has(s, w.strong) || (durationy && has(s, w.weak))).map(([r]) => r);",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/udf-ranges.mjs",
+            "line": 59,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "if (v.udf_number === \"\" || v.udf_number == null || !Number.isFinite(Number(v.udf_number))) continue;",
+            "after": "if (v.udf_number !== \"\" || v.udf_number == null || !Number.isFinite(Number(v.udf_number))) continue;",
+            "line_text": "    if (v.udf_number === \"\" || v.udf_number == null || !Number.isFinite(Number(v.udf_number))) continue;",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/udf-ranges.mjs",
+            "line": 59,
+            "col": 28,
+            "operator": "or-to-and",
+            "before": "if (v.udf_number === \"\" || v.udf_number == null || !Number.isFinite(Number(v.udf_number))) continue;",
+            "after": "if (v.udf_number === \"\" && v.udf_number == null || !Number.isFinite(Number(v.udf_number))) continue;",
+            "line_text": "    if (v.udf_number === \"\" || v.udf_number == null || !Number.isFinite(Number(v.udf_number))) continue;",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "blank udf_number values were counted, so a field with only blanks could be guessed; test 'udfFields counts only filled-in numbers'"
+          },
+          {
+            "file": "ventures/xer-schedule-check/udf-ranges.mjs",
+            "line": 62,
+            "col": 72,
+            "operator": "or-to-and",
+            "before": "return types.map((u) => ({ id: u.udf_type_id, label: u.udf_type_label || u.udf_type_name, type: u.logical_data_type, values: count.get(u.udf_type_id) || 0 }));",
+            "after": "return types.map((u) => ({ id: u.udf_type_id, label: u.udf_type_label && u.udf_type_name, type: u.logical_data_type, values: count.get(u.udf_type_id) || 0 }));",
+            "line_text": "  return types.map((u) => ({ id: u.udf_type_id, label: u.udf_type_label || u.udf_type_name, type: u.logical_data_type, values: count.get(u.udf_type_id) || 0 }));",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/udf-ranges.mjs",
+            "line": 79,
+            "col": 74,
+            "operator": "or-to-and",
+            "before": "const sel = opts.min && opts.max ? { min: opts.min, likely: opts.likely || null, max: opts.max } : guessRangeFields(fields);",
+            "after": "const sel = opts.min && opts.max ? { min: opts.min, likely: opts.likely && null, max: opts.max } : guessRangeFields(fields);",
+            "line_text": "  const sel = opts.min && opts.max ? { min: opts.min, likely: opts.likely || null, max: opts.max } : guessRangeFields(fields);",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a most-likely field the user named was dropped; test 'a most-likely field named by the user is read'"
+          },
+          {
+            "file": "ventures/xer-schedule-check/udf-ranges.mjs",
+            "line": 84,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "if (new Set(units).size > 1) throw new Error(`the range fields are in different units (${units.join(\", \")}); pass one unit`);",
+            "after": "if (new Set(units).size > 2) throw new Error(`the range fields are in different units (${units.join(\", \")}); pass one unit`);",
+            "line_text": "  if (new Set(units).size > 1) throw new Error(`the range fields are in different units (${units.join(\", \")}); pass one unit`);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/udf-ranges.mjs",
+            "line": 93,
+            "col": 40,
+            "operator": "or-to-and",
+            "before": "if (t.status_code === \"TK_Complete\" || t.task_type === \"TT_Mile\" || t.task_type === \"TT_FinMile\" || t.task_type === \"TT_LOE\" || t.task_type === \"TT_WBS\") continue;",
+            "after": "if (t.status_code === \"TK_Complete\" && t.task_type === \"TT_Mile\" || t.task_type === \"TT_FinMile\" || t.task_type === \"TT_LOE\" || t.task_type === \"TT_WBS\") continue;",
+            "line_text": "    if (t.status_code === \"TK_Complete\" || t.task_type === \"TT_Mile\" || t.task_type === \"TT_FinMile\" || t.task_type === \"TT_LOE\" || t.task_type === \"TT_WBS\") continue;",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/udf-ranges.mjs",
+            "line": 120,
+            "col": 58,
+            "operator": "or-to-and",
+            "before": "const f = fields.find((x) => x.id === String(s).trim()) || fields.find((x) => norm(x.label) === k);",
+            "after": "const f = fields.find((x) => x.id === String(s).trim()) && fields.find((x) => norm(x.label) === k);",
+            "line_text": "  const f = fields.find((x) => x.id === String(s).trim()) || fields.find((x) => norm(x.label) === k);",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/udf-ranges.mjs",
+            "line": 128,
+            "col": 37,
+            "operator": "eq-flip",
+            "before": "if (!spec || spec === true || spec === \"auto\") return {};",
+            "after": "if (!spec || spec === true || spec !== \"auto\") return {};",
+            "line_text": "  if (!spec || spec === true || spec === \"auto\") return {};",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/udf-ranges.mjs",
+            "line": 133,
+            "col": 120,
+            "operator": "const-plus-one",
+            "before": "return { min: resolveField(fields, parts[0]), likely: resolveField(fields, parts[1]), max: resolveField(fields, parts[2]) };",
+            "after": "return { min: resolveField(fields, parts[0]), likely: resolveField(fields, parts[1]), max: resolveField(fields, parts[3]) };",
+            "line_text": "  return { min: resolveField(fields, parts[0]), likely: resolveField(fields, parts[1]), max: resolveField(fields, parts[2]) };",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/risk.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 703546152,
+        "commit": "6cb5a762d",
+        "sites": 430,
+        "baseline_seconds": 0.8,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/risk.mjs",
+            "line": 77,
+            "col": 14,
+            "operator": "div-to-times",
+            "before": "const t = 1 / (1 + 0.3275911 * x);",
+            "after": "const t = 1 * (1 + 0.3275911 * x);",
+            "line_text": "  const t = 1 / (1 + 0.3275911 * x);",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/risk.mjs",
+            "line": 94,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const k = o.unit === \"hours\" ? 60 : o.unit === \"pct\" ? t.remain / 100 : hpd * 60;",
+            "after": "const k = o.unit === \"hours\" ? 61 : o.unit === \"pct\" ? t.remain / 100 : hpd * 60;",
+            "line_text": "  const k = o.unit === \"hours\" ? 60 : o.unit === \"pct\" ? t.remain / 100 : hpd * 60;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/risk.mjs",
+            "line": 135,
+            "col": 37,
+            "operator": "or-to-and",
+            "before": "for (const [i, raw] of String(text || \"\").split(/\\r?\\n/).entries()) {",
+            "after": "for (const [i, raw] of String(text && \"\").split(/\\r?\\n/).entries()) {",
+            "line_text": "  for (const [i, raw] of String(text || \"\").split(/\\r?\\n/).entries()) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/risk.mjs",
+            "line": 161,
+            "col": 22,
+            "operator": "and-to-or",
+            "before": "if (!(range.min > 0 && range.min <= range.likely && range.likely <= range.max)) throw new Error(\"range must satisfy 0 < min <= likely <= max\");",
+            "after": "if (!(range.min > 0 || range.min <= range.likely && range.likely <= range.max)) throw new Error(\"range must satisfy 0 < min <= likely <= max\");",
+            "line_text": "  if (!(range.min > 0 && range.min <= range.likely && range.likely <= range.max)) throw new Error(\"range must satisfy 0 < min <= likely <= max\");",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/risk.mjs",
+            "line": 286,
+            "col": 79,
+            "operator": "minus-to-plus",
+            "before": "for (const d of days) histogram[Math.min(histogram.length - 1, Math.floor((d - lo) / width))].count++;",
+            "after": "for (const d of days) histogram[Math.min(histogram.length - 1, Math.floor((d + lo) / width))].count++;",
+            "line_text": "  for (const d of days) histogram[Math.min(histogram.length - 1, Math.floor((d - lo) / width))].count++;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "histogram bins shifted by 2*lo all landed in the last bin; test 'histogram bins hold the runs that fall in them'"
+          },
+          {
+            "file": "ventures/xer-schedule-check/risk.mjs",
+            "line": 299,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "const corr = vU > 0 && varY > 0 ? cov / Math.sqrt(vU * varY) : 0;",
+            "after": "const corr = vU > 0 && varY > 1 ? cov / Math.sqrt(vU * varY) : 0;",
+            "line_text": "    const corr = vU > 0 && varY > 0 ? cov / Math.sqrt(vU * varY) : 0;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/risk.mjs",
+            "line": 317,
+            "col": 46,
+            "operator": "div-to-times",
+            "before": "meanImpact: e.hits ? round1(e.sumImpact / e.hits) : null,",
+            "after": "meanImpact: e.hits ? round1(e.sumImpact * e.hits) : null,",
+            "line_text": "      meanImpact: e.hits ? round1(e.sumImpact / e.hits) : null,",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/risk.mjs",
+            "line": 330,
+            "col": 56,
+            "operator": "div-to-times",
+            "before": "pDeterministic: Math.round(sh0(p0.finish) * 1000) / 1000,",
+            "after": "pDeterministic: Math.round(sh0(p0.finish) * 1000) * 1000,",
+            "line_text": "      pDeterministic: Math.round(sh0(p0.finish) * 1000) / 1000,",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/risk.mjs",
+            "line": 331,
+            "col": 75,
+            "operator": "const-plus-one",
+            "before": "pMustFinish: p0.mustFinish != null ? Math.round(sh0(p0.mustFinish) * 1000) / 1000 : null,",
+            "after": "pMustFinish: p0.mustFinish != null ? Math.round(sh0(p0.mustFinish) * 1001) / 1000 : null,",
+            "line_text": "      pMustFinish: p0.mustFinish != null ? Math.round(sh0(p0.mustFinish) * 1000) / 1000 : null,",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "withoutRisks.pMustFinish scaled by 1.001 (no test read it); test 'the no-event column's must-finish chance is a share of runs'"
+          },
+          {
+            "file": "ventures/xer-schedule-check/risk.mjs",
+            "line": 333,
+            "col": 185,
+            "operator": "div-to-times",
+            "before": "eventDelay: { mean: round1(ev.reduce((a, b) => a + b, 0) / iterations), p80: round1(quantile(ev, 0.8)), noDelay: Math.round((ev.filter((d) => d <= 0).length / iterations) * 1000) / 1000 },",
+            "after": "eventDelay: { mean: round1(ev.reduce((a, b) => a + b, 0) / iterations), p80: round1(quantile(ev, 0.8)), noDelay: Math.round((ev.filter((d) => d <= 0).length / iterations) * 1000) * 1000 },",
+            "line_text": "      eventDelay: { mean: round1(ev.reduce((a, b) => a + b, 0) / iterations), p80: round1(quantile(ev, 0.8)), noDelay: Math.round((ev.filter((d) => d <= 0).length / iterations) * 1000) / 1000 },",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/risk.mjs",
+        "issue": "Ranges read from the file's own P6 UDFs (udf-ranges.mjs) reached riskAnalysis with only an order check, so negative points were drawn as negative work: an activity with -20/-10/-5 day UDFs pulled the simulated P10-P90 finish to 1 working day against a 6-day CPM finish, with no warning. parseRanges (the CSV path) already rejected min < 0. Fix: the override check also needs a >= 0; such ranges fall back to the default range and the warning now says a point is negative or out of order. Failing-first test in udf-ranges.test.mjs.",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/test_browser_checks.py",
+        "issue": "platform/pages/ask-suggestions-check.mjs (PR #17735) landed on main without joining CHECKS or `pending`, so test_browser_checks failed main and every PR's changed-ventures job (seen on PR #17739). Patched: listed in `pending` beside framerate with its reason; registering it needs the same control-plane PR as framerate.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17739"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a7c06707-3968-591c-a646-366affc0fed2",
+    "transcripts": 1,
+    "first": "2026-11-19T17:18:18Z",
+    "last": "2026-11-19T17:23:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 64,
+        "output": 13710,
+        "thinking": 2565,
+        "cache_read": 2436048,
+        "cache_write_5m": 0,
+        "cache_write_1h": 72617,
+        "api_equivalent_usd": 1.3426,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 64,
+      "output": 13710,
+      "thinking": 2565,
+      "cache_read": 2436048,
+      "cache_write_5m": 0,
+      "cache_write_1h": 72617,
+      "api_equivalent_usd": 1.3426,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.83,
+      "active_minutes": 4.83,
+      "model_minutes": 2.22,
+      "tool_minutes": 2.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "seeding and triaging 20 mutants, reproducing and fixing one bug, 5 tests, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 223.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
