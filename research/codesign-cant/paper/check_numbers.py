@@ -48,6 +48,15 @@ CHECKS = [
     ("150→200 ms\n(p = 0.16)", "../paper/table7_stats.txt", r"identified total: lag39c150 vs lag39c200: [^\n]*p = 0\.15[5-9]"),
     ("101 [79, 125] at 125 ms against 65 [49, 82]", "../paper/table7_stats.txt", r"lag39c125\): [^\n]*total 101 of 2304, 95% \[79, 125\]\n[^\n]*total 65 of 2304, 95% \[49, 82\]"),
     ("(p ≤ 0.0002), down to 121 crashes of 768", "../paper/table7_stats.txt", r"75 ms law: lag39c150 vs lag39c200: sums 269 vs 121;"),
+    # section VII: why some tunes never settle (milestone 7ad)
+    ("r = 0.9995 on 96 designs", "m7ad_settle/verdicts.txt", r"calls agree on 96 of 96; r\(model, simulator last-second distance\) 0\.9995"),
+    ("(15 unsettled)", "m7ad_settle/verdicts.txt", r"unsettled: simulator 15, model 15"),
+    ("same at 33, 36 and 39.1 ms for all 96", "m7ad_settle/verdicts.txt", r"identical at 33, 36 and 39\.1 ms for 96 of 96"),
+    ("0 of 72 section-VII designs unsettled (18 before)", "m7ad_settle/verdicts.txt", r"b = None: unsettled 18 of 72[^\n]*\n  b = 0\.25: unsettled 0 of 72 \(0, 0, 0, 0, 0, 0 by set\)"),
+    ("from 5.1 to 2.0 cm", "m7ad_settle/verdicts.txt", r"b = 0\.25 step over      median 0\.0204 against 0\.0512"),
+    ("819 against 820", "m7ad_settle/verdicts.txt", r"b = 0\.25 identified L2-45 per design: total 819 against 820, p = 0\.89"),
+    ("median 1.91 against 1.74 s", "m7ad_settle/verdicts.txt", r"b = 0\.25 step rise      median 1\.9110 against 1\.7380"),
+    ("b = 0.1 m, gives the same picture (814)", "m7ad_settle/verdicts.txt", r"b = 0\.1: unsettled 0 of 72[\s\S]*b = 0\.1 identified L2-45 per design: total 814"),
 ]
 ARMS = [("M=1.00", -0.001, 9, 32), ("M=1.11", -0.012, 3, 22), ("M=1.25", -0.011, 0, 12), ("M=1.43", -0.010, 0, 13), ("M=1.67", -0.012, 0, 12)]
 
