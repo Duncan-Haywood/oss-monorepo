@@ -1,0 +1,239 @@
+{
+ "date": "2026-11-19",
+ "subject": "ventures/shift-roster-builder",
+ "stratum": "flagship",
+ "seed": "2026-11-19-k-4c5e",
+ "round": 84,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a multi-site restaurant/retail workforce scheduling manager who builds weekly rotas under US labour rules, with a payroll specialist beside them; first checks: weekly and daily overtime tiers (FLSA 29 CFR 778, Cal. Lab. Code 510), the seventh-day rule, meal-period premiums (Lab. Code 512/226.7), the regular rate across two pay rates (29 CFR 778.115), rest gaps, the FLSA 14-15 youth hour limits (29 CFR 570.35), and whether shift lines it cannot read are reported rather than dropped",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed 11 outputs against sources the author did not write. Planner CLI (`node cli.mjs --no-prove <staff> <shifts>`, files in scratchpad/shift-roster-builder): six 8 h Mon-Sat shifts at $20 -> FLSA 40*20+8*30 = $1,040, tool '$1,040, 8 overtime hours'; one 13 h day at $30 with --daily-ot-after 8 --daily-dt-after 12 -> Lab. Code 510 8*30+4*45+1*60 = $480, tool $480; 8 h at $16 with 30-min unpaid meal and 10% burden -> 7.5*16*1.1 = $132, tool $132. Timesheet pay module (payrules.mjs payWeek) against my own Python implementation written from the statute text (scratchpad/shift-roster-builder/indep.py, no import of the subject): CA seven 9 h days with breaks at 4 h -> 63 h, OT 22, DT 1, $1,500 (equal); CA 7 h no break -> meal premium 1 h, $160 (equal); CA 13 h one break -> OT 4, DT 1, second-meal premium, $340 (equal); federal 30 h at $15 + 15 h at $25 -> regular rate 825/45 = 18.333, gross $870.83 (equal); CA overnight Sat 20:00-Sun 06:00 -> split at midnight, no OT, meal premium, $220 (equal). By hand: Nevada 10 h at $15 (< 1.5x $12 = $18) -> 2 h daily OT $165, at $20 weekly-only $200 (equal); Kentucky 7x7 h -> 7 + 2 = 9 OT h, $535 (equal); 15-min rounding 08:07-16:53 -> 9.00 h (equal). Not 4: the planner prices an overnight shift on its start day (Sat 8pm-6am, daily OT after 8: $220 with 2 OT hours, while the product's own timesheet and a calendar-day workday give 0 OT hours), and the youth rule refuses a 6 h Saturday shift that 29 CFR 570.35(a) allows.",
+  "completeness": "Ran: CLI roster, weekly/daily OT, meal break, burden, open-shift reasons, youth limits (age: 15), the timesheet pay rules for federal, California, Nevada, Kentucky and rounding, served-copy build. Test files cover server, hub worker, time clock, notice pay for 11 city presets, 6 importers, payroll export. README states which importers are untested on real exports (NEXT.md lists 'a real Square/Deputy/When I Work/7shifts account' as open). Not run by me: the browser page, server.mjs end to end, --prove, --weeks, and 76 of 82 test files. No stubs found in what I ran.",
+  "verification": "`cd ventures/shift-roster-builder && node --test calc.test.mjs cli.test.mjs payrules.test.mjs timeclock.test.mjs notice.test.mjs payroll-export.test.mjs`: 232 pass, 0 fail, 86 s. Seven seeded mutants with quality_mutate.py, all caught: CA seventh day on Saturday, CA first-meal deadline 300 -> 360 min, Kentucky seventh-day rule dropped, double-time paid at 1.5x, Nevada 1.5x-minimum line at 1.0x (payrules.test.mjs); the planner's weekly OT threshold +1 h (round 3's thinly guarded line, now caught) and daily OT threshold +1 h (calc+cli tests). Not 4: only 6 of 82 test files run, and the header-drop and youth weekend cases have no test.",
+  "craft": "Read payrules.mjs in full, calc.mjs payParts/paidMinutes/parseStaff youth branch/parseShifts, cli.mjs usage, notice.mjs presets. Zero dependencies (only node: imports), pure functions, statute cited beside each rule in payrules.mjs. Defects: calc.mjs is now one 6,076-line module (2,916 at round 3) and README.md is 541 KB / 4,031 lines (80 KB at round 3), with benchmark history interleaved with manager instructions; a comma-less first shift line ('Mon 8am-5pm') is still silently taken as a header (calc.mjs:507), so a one-line file says only 'Add at least one shift to cover.' and a two-line file silently covers 1 of 2 shifts; the planner and the timesheet compute daily overtime with two different day rules.",
+  "claims": "Checked: 'zero dependencies' (grep: only node: built-ins) backed; 'nothing is uploaded' consistent with page source; disclaimer on page (index.html:91) and in CLI output; usage tracking via usage.mjs; served llms.txt and sitemap carry marisstella.app absolute URLs (`node platform/pages/served-copy.mjs shift-roster-builder`: no placeholder), so round 3's sitemap defect is source-only; README test counts for payrules (8+7 = 15), timeclock (6), notice (21), notice-sf-emeryville (10) equal the files. Weak: the opener 'used to be an hour of spreadsheet shuffling' is unmeasured (round 3, still present, README.md:11); the disclaimer 'local scheduling-notice ... and minor-labor rules are not modelled' (cli.mjs:665, index.html:91) now understates the product, which models 11 fair-workweek presets and federal youth limits; the 'counts on the day it starts' note (README.md:746) does not say it can misprice overnight daily OT.",
+  "fitness": "Walked a manager's week through the CLI: one command per scenario gave the roster, open shifts with reasons ('1 at their daily hour limit', 'nobody listed is available'), payroll and OT hours, all matching hand arithmetic; the timesheet pay rules give a payroll specialist hours by class and gross that match the statutes in 8 of 8 cases. First-hour traps: a comma-less shift line vanishes; a 15-year-old cannot be put on a Saturday shift over 3 h during the school year.",
+  "domain": "Compared against FLSA 29 CFR 778.107/778.115, Cal. Lab. Code 510, 512, 226.7, Donohue v. AMN (no rounding in CA), NRS 608.018/608.0126, KRS 337.050, AS 23.10.060, COMPS #39 Rule 4.1.1 ('whichever calculation results in the greater payment', which the max() implements), 29 CFR 785.48(b), 29 CFR 570.35, and Seattle SMC 14.22 preset values (14 days, 1 h added-hours pay, half pay for lost hours, 10 h rest at 1.5x; read, not run). Matches in every recomputed case. Departures: (a) planner daily OT buckets an overnight shift to its start day while the timesheet uses calendar days; (b) 14-15 year olds are capped at 3 h on every day of a school week, Saturdays and Sundays included, where 570.35(a)(2) allows 8 h on a non-school day (README:739 says '3 h a day ... in a school week', the SEO page says '3 hours on a school day'); (c) planner does not price the CA seventh-day rule (timesheet does). Each is a stated or conservative limit, so a practitioner could sign off with them noted.\n\nRound 3 defects re-checked against current code: (1) weekly OT threshold guarded by one test: FIXED in effect (mutant +1 h now caught by calc+cli tests). (2) overnight shift priced on start day: STILL PRESENT ($220, 2 OT h). (3) 'Mon 8am-5pm' first line silently dropped: STILL PRESENT (calc.mjs:507). (4) relative sitemap/canonical: sitemap rewritten absolute at deploy (source-only); canonical href='./index.html' still relative on the served copy (low). (5) monolithic calc.mjs / 80 KB README / unmeasured opener: STILL PRESENT and grown (6,076 lines, 541 KB)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "planner weekly OT, six 8 h shifts at $20",
+   "method": "FLSA 29 CFR 778.107 hand calculation: 40*20 + 8*30",
+   "command": "cd ventures/shift-roster-builder && node cli.mjs --no-prove scratchpad/shift-roster-builder/s1.txt scratchpad/shift-roster-builder/sh1.txt",
+   "expected": "$1,040, 8 OT h",
+   "observed": "payroll $1,040, 8 overtime hours",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "planner daily OT/DT, one 13 h day at $30",
+   "method": "Cal. Lab. Code 510: 8*30 + 4*45 + 1*60",
+   "command": "node cli.mjs --no-prove --daily-ot-after 8 --daily-dt-after 12 s2.txt sh2.txt",
+   "expected": "$480, 5 OT h",
+   "observed": "$480, 5 overtime hours",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "planner meal break + burden, 8 h at $16",
+   "method": "hand: 7.5 * 16 * 1.10",
+   "command": "node cli.mjs --no-prove --meal-after 6 --meal-min 30 --burden 10 s3.txt sh3.txt",
+   "expected": "$132",
+   "observed": "$132",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "timesheet CA seven 9 h days, CA 7 h no break, CA 13 h one break",
+   "method": "own Python from Lab. Code 510/512/226.7 (scratchpad/shift-roster-builder/indep.py)",
+   "command": "python3 scratchpad/shift-roster-builder/indep.py; node scratchpad/shift-roster-builder/js.mjs",
+   "expected": "$1,500 (OT 22, DT 1); $160 (1 premium); $340 (OT 4, DT 1, 1 premium)",
+   "observed": "$1,500; $160; $340, identical hours",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "timesheet regular rate across two pay rates",
+   "method": "29 CFR 778.115 weighted average, own Python",
+   "command": "node scratchpad/shift-roster-builder/js.mjs (D_fed_two_rates)",
+   "expected": "rr 18.333, gross $870.83",
+   "observed": "rr 18.33, gross 870.83",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "timesheet Nevada, Kentucky, 15-min rounding",
+   "method": "NRS 608.018 (1.5 x $12 line), KRS 337.050 seventh day, nearest-15 rounding by hand",
+   "command": "node scratchpad/shift-roster-builder/js.mjs (E_nv_15, E_nv_20, F_ky_7x7, Rnd15)",
+   "expected": "$165, $200, $535 (9 OT h), 9.00 h",
+   "observed": "$165, $200, $535, 9 h",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "overnight shift daily OT in the planner vs calendar-day workday",
+   "method": "Cal. Lab. Code 500(a)/510 workday; the product's own timesheet (payrules.mjs) on the same shift",
+   "command": "node cli.mjs --no-prove --daily-ot-after 8 s4.txt sh4.txt; node scratchpad/shift-roster-builder/js.mjs (G_ca_overnight_sat)",
+   "expected": "Sat 4 h + Sun 6 h, 0 OT h, $200 wages",
+   "observed": "planner $220 with 2 OT h; timesheet 0 OT h",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "15-year-old on a 6 h Saturday shift in a school week",
+   "method": "29 CFR 570.35(a)(2): up to 8 h on a non-school day",
+   "command": "node cli.mjs --no-prove s7.txt sh7.txt",
+   "expected": "Sat 10-16 assignable; Wed 17-20 refused (after 7pm)",
+   "observed": "Sat left open '1 at their daily hour limit'; Wed refused correctly",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "comma-less first shift line",
+   "method": "run",
+   "command": "printf 'Mon 8am-5pm\\nTue, 9:00, 17:00, 1\\n' > sh5.txt; node cli.mjs --no-prove s3.txt sh5.txt",
+   "expected": "an error naming line 1",
+   "observed": "'1 of 1 shifts covered'; line 1 silently dropped as a header",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite (6 core files)",
+   "method": "run",
+   "command": "cd ventures/shift-roster-builder && node --test calc.test.mjs cli.test.mjs payrules.test.mjs timeclock.test.mjs notice.test.mjs payroll-export.test.mjs",
+   "expected": "all pass",
+   "observed": "232 pass, 0 fail, 86 s; 7 of 7 seeded mutants caught",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served llms.txt/sitemap/canonical hosts",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs shift-roster-builder",
+   "expected": "absolute marisstella.app URLs",
+   "observed": "no placeholder; sitemap absolute; canonical still './index.html' (relative, resolves correctly)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README test counts and zero dependencies",
+   "method": "grep -c '^test(' and import scan",
+   "command": "grep -c '^test(' payrules.test.mjs timeclock.test.mjs notice.test.mjs; grep -h '^import .* from \"[^.]' *.mjs | sort -u",
+   "expected": "15, 6, 21; only node: imports",
+   "observed": "15, 6, 21; only node: imports",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer vs modelled features",
+   "method": "read cli.mjs:665, index.html:91 against notice.mjs presets and calc.mjs youth rules",
+   "command": "grep -n 'not modelled' cli.mjs index.html",
+   "expected": "disclaimer matches what is modelled",
+   "observed": "says scheduling-notice and minor-labor rules are not modelled; both are partly modelled",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "payrules.mjs:236",
+   "change": "if (seventh && d === 6) -> d === 5 (CA seventh day)",
+   "caught": true,
+   "test_cmd": "node --test payrules.test.mjs"
+  },
+  {
+   "where": "payrules.mjs:134",
+   "change": "first meal deadline cum <= 300 -> cum <= 360",
+   "caught": true,
+   "test_cmd": "node --test payrules.test.mjs"
+  },
+  {
+   "where": "payrules.mjs:262",
+   "change": "Kentucky seventh-day OT dropped (ot = max(0, total - 2400))",
+   "caught": true,
+   "test_cmd": "node --test payrules.test.mjs"
+  },
+  {
+   "where": "payrules.mjs:292",
+   "change": "double time premium 1.0 * rr -> 0.5 * rr",
+   "caught": true,
+   "test_cmd": "node --test payrules.test.mjs"
+  },
+  {
+   "where": "payrules.mjs:252",
+   "change": "Nevada line 1.5 * minWage -> 1.0 * minWage",
+   "caught": true,
+   "test_cmd": "node --test payrules.test.mjs"
+  },
+  {
+   "where": "calc.mjs:856",
+   "change": "weekly = max(0, straight - otAfter) -> straight - otAfter - 1",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs cli.test.mjs"
+  },
+  {
+   "where": "calc.mjs:853",
+   "change": "daily OT threshold dailyOtAfter -> dailyOtAfter + 1",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs cli.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Planner daily overtime buckets an overnight shift on the day it starts: Sat 8pm-6am at $20, daily OT after 8, prices $220 with 2 OT hours, where a calendar-day workday (and the product's own timesheet, payrules.mjs byDay) gives 4 h + 6 h, 0 OT h. README says only that a shift counts on the day it starts. Round 3 defect, still present.",
+   "where": "ventures/shift-roster-builder/calc.mjs:846",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Youth rule caps a 14-15 year old at 3 h on every day of a school week, weekends included; 29 CFR 570.35(a)(2) allows 8 h on a non-school day, so a 6 h Saturday shift is left open as 'at their daily hour limit'. The SEO page states the rule correctly ('3 hours on a school day').",
+   "where": "ventures/shift-roster-builder/calc.mjs:480",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "A comma-less first shift line ('Mon 8am-5pm') is silently treated as a header and dropped: alone it gives only 'Add at least one shift to cover.', before a valid line it silently covers 1 of 2 shifts. Reported in rounds 1-3, still unfixed.",
+   "where": "ventures/shift-roster-builder/calc.mjs:507",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"
+  },
+  {
+   "severity": "low",
+   "what": "Disclaimer says scheduling-notice and minor-labor rules are not modelled, but the product models 11 fair-workweek presets (notice.mjs) and the federal 14-15 limits; the line understates and confuses what is checked.",
+   "where": "ventures/shift-roster-builder/cli.mjs:665",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "calc.mjs is one 6,076-line module (2,916 at round 3) and README.md is 541 KB / 4,031 lines with benchmark history ahead of and between manager instructions; the opener's 'used to be an hour of spreadsheet shuffling' is unmeasured.",
+   "where": "ventures/shift-roster-builder/README.md:11",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "index.html canonical is relative (href='./index.html') in the served copy too; resolves correctly but search engines recommend absolute.",
+   "where": "ventures/shift-roster-builder/index.html:10",
+   "category": "other",
+   "origin": "audit"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"],
+ "verdict": "A deep, working scheduler and timesheet: 11 of 11 recomputed pay figures match statute-based hand or independent-script results (FLSA weekly OT $1,040, California daily/double time $480, meal plus burden $132, a California seven-day week $1,500, meal premiums $160 and $340, a two-rate regular rate $870.83, Nevada $165/$200, Kentucky $535, 15-minute rounding), 232 of 232 tests pass in the six core files, and 7 of 7 seeded pay-rule bugs are caught, including round 3's thinly guarded weekly-OT line. It meets the bar. Still open from round 3: overnight shifts priced on their start day in the planner (now inconsistent with the product's own timesheet), the silently dropped comma-less shift line, and a module and README that keep growing (6,076 lines, 541 KB). New: the youth rule refuses weekend shifts over 3 h in a school week that federal law allows. Not run: the browser page, the server end to end, --prove, and 76 of 82 test files. Draw note: an `--offline` replay of the seed names ventures/changepoint-detector, but the online draw skips subjects open round PRs claimed (round 82 holds changepoint-detector), so this subject is the round's flagship as drawn."
+}

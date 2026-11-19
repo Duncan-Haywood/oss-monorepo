@@ -27,6 +27,7 @@ export function systemPrompt() {
     `Motifs to add: ${Object.values(MOTIFS).map(m => m.id).join(", ")}. Text to add goes in double quotes.`,
     `Colours: ${Object.keys(COLOURS).join(", ")}.`,
     "Placement: front, back, left chest, sleeve; move up/down/left/right N cm; bigger/smaller N%; rotate N degrees; centre it.",
+    "Colour edits: make it darker, lighter, more muted, more vivid, brighter, warmer or cooler (a bit, a lot); the same for the artwork's ink: make the halo darker, warmer ink.",
     "Other: show me three versions; go with the second one; undo; make N pieces; sell them for N.",
     `Examples: ${EXAMPLES.join(" | ")}`,
     "If the request cannot be expressed with these commands, reply with the single line: none",

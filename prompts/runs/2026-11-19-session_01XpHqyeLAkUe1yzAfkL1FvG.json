@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyeLAkUe1yzAfkL1FvG",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T18:39:15Z",
+  "ended": "2026-11-19T18:55:13Z",
+  "wall_minutes": 16.34,
+  "tokens_in": 19351590,
+  "tokens_out": 164392,
+  "cost_usd": 10.3846,
+  "tool_calls": 222,
+  "task": "quality audit round 84 (sample mode)",
+  "projects": [
+    "ventures/shift-roster-builder",
+    "ventures/dynamodb-capacity-mode-advisor",
+    "ventures/substack-subscriber-export-analyzer",
+    "research/free-buckreal",
+    "research/simdesign-processcover"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17758",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "My first auditor brief went out with literal SUBJECT/STRATUM/OUTFILE placeholders; a follow-up message corrected it. The auditor ran an --offline draw to work out its subject, got a different flagship (offline skips the open-round replay), and wrote a misleading draw note into the verdict, which I corrected.",
+    "First test for the dynamodb fix read r.reads.staticPeakUnits (the report key is readCost); fixed before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "`sample --offline` and online `sample` draw different flagships for the same seed when an open round PR holds one (offline skips the replay). The README says --offline skips the fetch, not that it changes the draw; an auditor re-deriving its subject offline concluded the draw was wrong."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-quality-audit-round-84.md"
+  ],
+  "goal": null,
+  "notes": "seed 2026-11-19-k-4c5e, round 84, mode sample. Subjects: ventures/shift-roster-builder (flagship, r4), ventures/dynamodb-capacity-mode-advisor, ventures/substack-subscriber-export-analyzer, research/free-buckreal, research/simdesign-processcover. Share meeting the bar: 1 of 5 (flagship only; 0 of 4 sampled); all sampled 35 of 347 (Wilson 7%-14%). Seeded mutations caught 15 of 34. Spot-checks rerun by me: shift-roster payWeek CA 7-day = 22/1/1500; dynamodb flat week onDemand 49.275, autoscaled 20.688; substack plan-free file 2 paid before fix, 1 after; buckreal ARX 2/2 0.819 V and SysIdentPy tutorial static law fetched; processcover three flip-point mutants re-run with quality_mutate.py, all now caught. Fix PRs: all fixes in PR #17758 (dynamodb ceilUnits; substack plan free + FAQ claim; processcover beam/draft tests + docstring; buckreal README prior law; shift-roster comma-less shift line). Known gaps recorded in READMEs for the two high defects (dynamodb window by row count; substack ignores active_subscription) and shift-roster overnight/youth rules. Verification: node --test for dynamodb (31 pass), substack (26 pass), shift-roster calc.test.mjs (157 pass) and full run_venture_tests shift-roster-builder; pytest processcover 13 pass; check_posts ok; quality_audit validate 0 problems.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8b24c9f3-b80d-5b4e-ac46-3a10c20b0701",
+    "transcripts": 6,
+    "first": "2026-11-19T18:39:15Z",
+    "last": "2026-11-19T18:55:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 212,
+        "input": 427,
+        "output": 164392,
+        "thinking": 41129,
+        "cache_read": 18754537,
+        "cache_write_5m": 476278,
+        "cache_write_1h": 120348,
+        "api_equivalent_usd": 10.3846,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 212,
+      "input": 427,
+      "output": 164392,
+      "thinking": 41129,
+      "cache_read": 18754537,
+      "cache_write_5m": 476278,
+      "cache_write_1h": 120348,
+      "api_equivalent_usd": 10.3846,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 222,
+    "tools": {
+      "Bash": 193,
+      "Agent": 5,
+      "SubagentHandback": 5,
+      "Write": 4,
+      "Read": 4,
+      "ToolSearch": 3,
+      "WebFetch": 3,
+      "WebSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "SendMessage": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.34,
+      "active_minutes": 9.74,
+      "model_minutes": 5.72,
+      "tool_minutes": 4.02,
+      "waiting_on_human_minutes": 6.6,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 31.56
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "five independent expert audits (~3 h each) plus five small fixes with tests and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 154.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

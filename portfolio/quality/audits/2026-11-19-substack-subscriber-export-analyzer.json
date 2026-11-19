@@ -1,0 +1,265 @@
+{
+ "date": "2026-11-19",
+ "subject": "ventures/substack-subscriber-export-analyzer",
+ "stratum": "venture",
+ "seed": "2026-11-19-k-4c5e",
+ "round": 84,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a newsletter growth and paid-subscription analyst (audience/revenue analytics for Substack and Ghost publications); first checks: does it read a real Substack export (which column says a reader is paid), are paid/free/comp/former counts right, is churn the monthly rate writers compare, does retention avoid survivorship bias, and do MRR and fees reconcile with the plan mix",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran it. On its own column shape every figure matches independent recomputation: (1) my generator+analyzer (scratchpad substack/indep.py, no import of the subject) on a 61-row Substack-shaped CSV with ISO timestamps, prices 10/100/250: counts 18 paid/29 free/5 comp/9 former, conversion 27/56 = 0.482, churn 9/27 = 0.333, MRR 216.67, platform 21.67, processing 9.48, net 185.52, renewals 4/$700, 6/$1200, 7/$1300, survival [21,20],[15,14],[14,13],[6,5], median lag 43 d: `node run.mjs t1.csv - monthlyPrice=10 annualPrice=100 foundingPrice=250` identical, and the page in Chromium shows the same. (2) My own csv.DictReader script (indep2.py) on the built-in 400-row example: 26/360/7/7, conversion 0.0840, churn 0.2121, MRR $196.00, fees 19.60 + 11.01: identical. Not 3: the status rule is wrong on the export shape that an independent source documents. Ghost's Substack importer (TryGhost/migrate packages/mg-substack-members-csv, read-csv.js and test/fixtures/parsed.js, fetched from raw.githubusercontent.com) requires email, active_subscription, expiry, email_disabled, created_at, treats active_subscription === 'true' as 'has a subscription' and its fixtures have 'true' with an expiry for every paid/comp/gift reader and '' for free ones. The tool decides paid only from plan, first_payment_at or type and ignores active_subscription for that, so a file of that documented shape gives '0 paid, 3 free' with no warning (ghost.csv). A plan value 'free' is classified 'other' and counted as paid revenue (planfree.csv: 2 paid, 1 former, conversion 100%, MRR $16 from three readers of whom one paid).",
+  "completeness": "Claimed features walked in Chromium (Playwright, scratchpad substack/pw.cjs) and Node: paid/free/comp/former counts, conversion, churn, retention at 1/3/6/12 months, revenue by plan, renewals at 30/60/90 days, time to first payment buckets, growth by month, engaged free pool, fees and net, editable prices, as-of date, Load example, Clear, bad-file error (report hidden), growth CSV download wired, usage opt-out. All work end to end on the alias shape; no stubs or TODOs. Gaps: the separate Substack 'Subscribers' (paid/comp/gift, type column) and 'Total Email List' files that Ghost's importer joins are not joined; type 'ios_app' becomes free.",
+  "verification": "`cd ventures/substack-subscriber-export-analyzer && node --test '*.test.mjs'`: 25 pass, 0 fail, 0.27 s. Seeded 8 mutants with quality_mutate.py: 7 survived (retention kept t >= n -> t > n+1; renewal window opened 30 days before as-of; engaged threshold 0.6 -> 0.9; founding renewal priced at the annual price; dotted dates no longer day-first; status expiry test shifted 60 days; 3-month churn finding threshold 0.8 -> 0.3), 1 caught (paidEver dropping former). No test covers dates other than ISO, detectDmy, expiry-only status, founding renewals, the engaged pool or any finding threshold.",
+  "craft": "Read calc.mjs (345 lines), index.html script, calc/page/usage tests. Pure module shared by page and tests, no dependencies, RFC-4180 quoting with embedded commas and newlines, BOM and CRLF stripped, UTF-16 decoded, delimiter sniffed (semicolon file read), blank and all-comma rows skipped, page escapes file text, no console errors, scrollWidth 375 at phone width, no foreign requests. Defects: silent fallbacks - unparseable dates ('Sep 20, 2026') become null and the as-of date falls back to Date.now() (2026-11-19 on a file whose data end earlier); an unknown plan string is treated as a paid plan; the retention table's 'Still there' column counts former subscribers who lasted N months; growth omits months with no events, so 'last 12 months' spans more than 12.",
+  "claims": "Checked: no upload (page.test asserts no fetch/XHR, Playwright request log has only localhost) - backed; disclaimer, no-advice and not-affiliated lines - backed; 'column names matched by alias from memory, no real export available' - honest and backed; usage counted only in localStorage, DNT/GPC - backed by usage.mjs and tests; served llms.txt clean (`node platform/pages/served-copy.mjs substack-subscriber-export-analyzer`: no placeholder origins); 'Reconciles' - backed (plan rows sum to MRR, net = MRR - fees). Not backed: FAQ (visible line 132 and FAQPage schema line 12) states as fact 'Substack's export marks paid subscribers and gives the date of the first payment', contradicting the README's own 'unverified' and unconfirmed by Ghost's documented columns; FAQ line 138 'If your file is not read, the page names the rows it skipped and why' - a file whose paid signal is active_subscription is 'read', nothing is skipped, and it reports 0 paid silently.",
+  "fitness": "Walked the writer's job: export, drop, read paid count, retention, renewals due, fee net. On a file with plan and first_payment_at columns it is a quick, private, correct dashboard. Whether a real Substack export has those columns is not established (the author had none; the only independent source I could reach documents a shape without plan or first_payment_at), and on that shape the headline number is 0 paid with no warning. Churn is shown only as the lifetime share of ever-paid who left, not the monthly churn rate writers compare across publications.",
+  "domain": "Compared against subscription-analytics practice (monthly churn = cancellations in month / paid at start; cohort retention with censoring) and Ghost's Substack-import semantics. Matches: comp/gift excluded from revenue and conversion; MRR as monthly-equivalent of annual/founding; retention only over subscribers old enough to be measured; renewals windowed on expiry; groups under 5 not used for findings. Departures: no monthly churn rate; former subscribers with no expiry are dropped from the retention denominator entirely (5 kept + 5 lapsed with blank expiry gives 12-month retention 5/5 = 100% beside a 50% churn figure), a survivorship bias; active_subscription not used as the paid signal; fee defaults 10% + 2.9% + $0.30 (I recall Substack also passing on a Stripe recurring-billing fee, but could not fetch Substack's help page through the proxy, so not filed as a defect)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "counts, conversion, churn, MRR, fees, renewals, retention, median lag on a 61-row generated CSV",
+   "method": "own Python generator and analyzer from the README definitions (no import of the subject)",
+   "command": "python3 scratchpad/substack/indep.py scratchpad/substack/t1.csv; node scratchpad/substack/run.mjs scratchpad/substack/t1.csv - monthlyPrice=10 annualPrice=100 foundingPrice=250",
+   "expected": "18/29/5/9, conv 0.482, churn 0.333, MRR 216.67, fees 21.67 + 9.48, net 185.52, renewals 4/700 6/1200 7/1300, survival 21/20 15/14 14/13 6/5, lag 43",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "built-in 400-row example",
+   "method": "own csv.DictReader script (indep2.py) at $8/$80, 10% + 2.9% + $0.30",
+   "command": "python3 scratchpad/substack/indep2.py scratchpad/substack/sample.csv; node scratchpad/substack/run.mjs scratchpad/substack/sample.csv -",
+   "expected": "26 paid, 360 free, 7 comp, 7 former, conv 0.0840, churn 0.2121, MRR 196.00, fees 19.60 / 11.01",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "page in Chromium shows the same numbers for t1.csv",
+   "method": "Playwright file upload on index.html served locally, compared with indep.py",
+   "command": "node scratchpad/substack/pw.cjs scratchpad/substack/t1.csv scratchpad/substack/ghost.csv scratchpad/substack/junk.csv",
+   "expected": "61 subscribers: 18 paid, 29 free, 5 comp, 9 former; MRR $216.67; net $185.52; renewals 4/$700",
+   "observed": "identical; no console errors, no foreign requests, scrollWidth 375",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "file in the column shape Ghost's Substack importer documents (active_subscription true = has subscription)",
+   "method": "TryGhost/migrate mg-substack-members-csv read-csv.js required keys and test/fixtures/parsed.js values",
+   "command": "node scratchpad/substack/run.mjs scratchpad/substack/ghost.csv -",
+   "expected": "2 paid (active_subscription true with future expiry), 1 free, or a warning that paid status cannot be told",
+   "observed": "0 paid, 3 free, conversion 0, no warning, nothing skipped",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "plan column 'free' for free readers",
+   "method": "by hand: one monthly payer, two free readers",
+   "command": "node scratchpad/substack/run.mjs scratchpad/substack/planfree.csv -",
+   "expected": "1 paid, 2 free, conversion 1/3, MRR $8",
+   "observed": "2 paid, 0 free, 1 former, conversion 100%, MRR $16",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "retention with lapsed subscribers whose expiry is blank",
+   "method": "cohort retention practice: a lapsed subscriber stays in the denominator",
+   "command": "node scratchpad/substack/run.mjs scratchpad/substack/fx.csv 2026-01-03",
+   "expected": "12-month retention at most 5/10 (5 lapsed of 10 who first paid a year ago)",
+   "observed": "5/5 = 100% at every horizon while churn reads 50%",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "awkward input: BOM, CRLF, blank and all-comma rows, quoted comma and quoted newline in an extra column",
+   "method": "by hand",
+   "command": "node scratchpad/substack/run.mjs scratchpad/substack/awk1.csv -",
+   "expected": "2 subscribers, 1 paid, MRR 8, no skipped-row noise",
+   "observed": "2 subscribers, 1 paid, MRR 8",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "date formats: US m/d/yyyy, d/m/yyyy, ambiguous d/m, month names, semicolon delimiter",
+   "method": "by hand",
+   "command": "for f in us dmy amb names semi; do node scratchpad/substack/run.mjs scratchpad/substack/$f.csv -; done",
+   "expected": "US and d/m read with the same renewals and 19-day lag; month names read or flagged; ambiguous announced",
+   "observed": "US and d/m pass; semicolon passes; ambiguous all-<=12 dates silently read month-first; 'Sep 20, 2026' dates dropped and as-of falls back to today 2026-11-19",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite and seeded mutants",
+   "method": "run; quality_mutate.py x8",
+   "command": "cd ventures/substack-subscriber-export-analyzer && node --test '*.test.mjs'",
+   "expected": "all pass; most mutants caught",
+   "observed": "25 pass, 0 fail; 7 of 8 mutants survive",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "privacy, disclaimer, not-affiliated, served llms.txt",
+   "method": "page.test.mjs, Playwright request log, served-copy.mjs",
+   "command": "node platform/pages/served-copy.mjs substack-subscriber-export-analyzer",
+   "expected": "no uploads, disclaimer present, marisstella.app URLs",
+   "observed": "as expected",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ 'Substack's export marks paid subscribers and gives the date of the first payment'",
+   "method": "README/VENTURE.yaml say columns are unverified; Ghost importer's documented columns have no first_payment_at",
+   "command": "grep -n 'marks paid subscribers' ventures/substack-subscriber-export-analyzer/index.html",
+   "expected": "hedged like the README",
+   "observed": "stated as fact on lines 12 (schema) and 132",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ 'If your file is not read, the page names the rows it skipped and why'",
+   "method": "run the Ghost-shaped file",
+   "command": "node scratchpad/substack/run.mjs scratchpad/substack/ghost.csv -",
+   "expected": "a skipped-row or 'paid status not found' note",
+   "observed": "skipped [] and 0 paid",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:257",
+   "change": "t >= n -> t > n + 1 (retention kept)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:264",
+   "change": "m.expiry >= asOf -> m.expiry >= asOf - 30 * DAY (renewal window)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:274",
+   "change": "Math.ceil(top * 0.6) -> Math.ceil(top * 0.9) (engaged pool)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:265",
+   "change": "founding renewal priced at a.annualPrice",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:104",
+   "change": "(first || dotted) && !second -> first && !second",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:195",
+   "change": "m.expiry >= asOf -> m.expiry >= asOf + 60 * DAY (status from expiry)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:298",
+   "change": "s3.rate < 0.8 -> s3.rate < 0.3 (early-churn finding)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:217",
+   "change": "paidEver = paid + former -> paid only",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Paid status ignores active_subscription: a reader is paid only via plan, first_payment_at or type. Ghost's Substack importer documents active_subscription='true' (with an expiry) as the subscription signal and blank for free readers, and lists no plan or first_payment_at; a file of that shape reports 0 paid, conversion 0 and $0 revenue with no warning",
+   "where": "ventures/substack-subscriber-export-analyzer/calc.mjs:170",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Any unrecognised non-empty plan string is classified 'other' and counted as paid: plan 'free' turns every free reader into a paying (or former) subscriber with monthly-price revenue",
+   "where": "ventures/substack-subscriber-export-analyzer/calc.mjs:136",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"
+  },
+  {
+   "severity": "medium",
+   "what": "Former subscribers with no expiry are dropped from the retention denominator (paidLife filter), so retention reads 100% beside 50% churn; survivorship bias",
+   "where": "ventures/substack-subscriber-export-analyzer/calc.mjs:251",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests would not catch bugs in retention, renewal windows, founding pricing, date-order detection, expiry-based status, the engaged pool or finding thresholds: 7 of 8 seeded mutants survive",
+   "where": "ventures/substack-subscriber-export-analyzer/calc.test.mjs:52",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "FAQ and FAQPage schema state as fact that 'Substack's export marks paid subscribers and gives the date of the first payment', while README and VENTURE.yaml say the columns are unverified; and 'if your file is not read, the page names the rows it skipped' is false for a file it misreads silently",
+   "where": "ventures/substack-subscriber-export-analyzer/index.html:132",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"
+  },
+  {
+   "severity": "medium",
+   "what": "No monthly paid churn rate: 'churn' is former / ever-paid over the file's whole life, which writers cannot compare with the monthly churn figures quoted for newsletters",
+   "where": "ventures/substack-subscriber-export-analyzer/calc.mjs:281",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Unparseable dates (e.g. 'Sep 20, 2026') become null silently, and with none parsed the as-of date falls back to Date.now(), not the export date",
+   "where": "ventures/substack-subscriber-export-analyzer/calc.mjs:212",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Substack type 'ios_app' (handled by Ghost's importer as a subscription) is counted as free",
+   "where": "ventures/substack-subscriber-export-analyzer/calc.mjs:168",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Retention table column 'Still there' counts former subscribers who lasted N months, not only current ones",
+   "where": "ventures/substack-subscriber-export-analyzer/index.html:99",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Growth table skips months with no events, so 'last 12 months' can span more than 12 calendar months and hides zero months",
+   "where": "ventures/substack-subscriber-export-analyzer/calc.mjs:239",
+   "category": "logic-error",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"],
+ "verdict": "A clean, private, dependency-free analyzer whose arithmetic is right on the column shape it assumes: two independent scripts and the page in Chromium agree on counts, conversion, churn, MRR, fees, renewals and retention for a 61-row generated file and the 400-row example, and it handles BOM, CRLF, quoted commas and newlines, semicolons and US/European dates. It misses the bar on correctness, verification and claims: the only independent description of the export I could reach (Ghost's Substack importer) uses active_subscription as the paid signal, which the tool ignores, so a file of that shape shows 0 paid with no warning; a plan value 'free' is counted as paid; lapsed subscribers without an expiry vanish from retention; 7 of 8 seeded bugs survive the 25 tests; and the FAQ states as fact what the README calls unverified. A newsletter analyst would not sign off the paid count until it is checked against a real export."
+}

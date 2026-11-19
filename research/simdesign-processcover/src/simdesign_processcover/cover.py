@@ -6,8 +6,9 @@ optionally, a tip load F (N) on an 80 mm arm. A process "covers" it when every g
 and, if a load is given, a cantilever-beam check passes: bending stress 6 F L / (b w^2) at most the
 material's working stress, and tip deflection F L^3 / (3 E I) at most 4 mm. The beam check ignores
 the fillet stress concentration that ``simdesign-bracket`` and ``simdesign-dfm`` found to matter.
-Stock thickness is read as: the depth must be within ``STOCK_TOL`` above a listed stock thickness,
-or equal to it (assumed tolerance; the dfm project instead searches over the stock list).
+Stock thickness is read as: the depth must lie within ``STOCK_TOL`` (relative, either side) of a listed
+stock thickness, |b - nearest stock| / b <= STOCK_TOL (assumed tolerance; the dfm project instead searches
+over the stock list).
 """
 from dataclasses import dataclass
 import numpy as np

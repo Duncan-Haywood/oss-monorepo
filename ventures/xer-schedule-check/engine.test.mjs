@@ -171,12 +171,14 @@ test("CPM: retained logic through out-of-sequence progress (SS from started work
   assert.equal(at(old, x, "G").es, "2025-12-03 08:00");
 });
 
-test("CPM: an SS lag not yet spent at the data date still runs; a finished node takes no lag back", () => {
+test("CPM: an SS lag not yet spent at the data date still runs; a finished node takes back only its unspent lag", () => {
   // data date Wed 3 Dec 08:00. C started Mon 08:00 but waits on P (FS), so
   // its 8 h left run Fri. S follows C SS lag 24: 16 h of it ran Mon-Tue, the
   // other 8 h run from C's remaining start (Fri 08:00 + 8 h), so S starts Mon 8.
   // F finished Mon; H follows F FS lag 16. Going back, F's late date is H's
-  // late start with no lag (P6's value on the CCA file, eval/cpm-vs-p6-2026-11-19.md, rules 10-11).
+  // late start less the part of the 16 h lag not yet spent at the data date:
+  // 8 h of it ran Tue, so 8 h (P6's value on the CCA file,
+  // eval/cpm-vs-p6-2026-11-19.md, rules 10, 11 and 17).
   const x = project(
     [
       task("1", "P", 16),
@@ -193,7 +195,9 @@ test("CPM: an SS lag not yet spent at the data date still runs; a finished node 
   assert.equal(at(out, x, "S").es, "2025-12-08 08:00");
   assert.equal(at(out, x, "H").es, "2025-12-04 08:00"); // F's actual finish + 16 h
   assert.equal(at(out, x, "H").ls, "2025-12-08 08:00");
-  assert.equal(formatDate(out.tasks.get("4").lf), "2025-12-08 08:00");
+  assert.equal(formatDate(out.tasks.get("4").lf), "2025-12-05 08:00");
+  // rule 10 alone: no lag back at all
+  assert.equal(formatDate(schedule(x, { variant: { bwDoneLagLeft: false } }).tasks.get("4").lf), "2025-12-08 08:00");
   // the earlier rules, as variants
   const before = schedule(x, { variant: { ssActivePred: "max", bwDoneFS: false } });
   assert.equal(at(before, x, "S").es, "2025-12-05 08:00");
@@ -453,4 +457,30 @@ test("expected finish: sets the remaining duration, absorbs a predecessor's slip
   const ep = assess(past).extra.find((x) => x.id === "expected-finish");
   assert.match(ep.items[0].why, /not after where its remaining work starts.*ignored/);
   assert.equal(assess(offFile).extra.find((x) => x.id === "expected-finish"), undefined);
+});
+
+test("CPM: a finished node's unspent FS/FF lag comes back off its late date, to finished and open successors (rule 17)", () => {
+  // Data date Wed 3 Dec 08:00. F finished Tue 17:00 -> FS lag 24 -> D (also
+  // finished) -> FS -> H (8 h, open). 0 h of F's lag ran by the data date
+  // (Tue 17:00 to Wed 08:00 is off), so F's late date is D's less 24 h.
+  // E finished Mon 08:00 -> FF lag 8 -> H: Mon 08:00-17:00 spent it all, so no lag.
+  const x = project(
+    [
+      task("1", "F", 0, { status_code: "TK_Complete", act_start_date: "2025-12-01 08:00", act_end_date: "2025-12-02 17:00", target_drtn_hr_cnt: 16 }),
+      task("2", "D", 0, { status_code: "TK_Complete", act_start_date: "2025-12-01 08:00", act_end_date: "2025-12-02 17:00", target_drtn_hr_cnt: 16 }),
+      task("3", "H", 8),
+      task("4", "E", 0, { status_code: "TK_Complete", act_start_date: "2025-12-01 08:00", act_end_date: "2025-12-01 08:00", target_drtn_hr_cnt: 0 }),
+      task("5", "W", 40),
+    ],
+    [link("1", "2", "1", "PR_FS", 24), link("2", "3", "2"), link("3", "3", "4", "PR_FF", 8)],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  const out = schedule(x);
+  // W (40 h) ends the project Tue 9 Dec 17:00; H may start Tue 08:00
+  assert.equal(at(out, x, "H").ls, "2025-12-09 08:00");
+  assert.equal(formatDate(out.tasks.get("2").lf), "2025-12-09 08:00");
+  assert.equal(formatDate(out.tasks.get("1").lf), "2025-12-04 08:00");
+  assert.equal(formatDate(out.tasks.get("4").lf), "2025-12-09 17:00");
+  const old = schedule(x, { variant: { bwDoneLagLeft: false } });
+  assert.equal(formatDate(old.tasks.get("1").lf), "2025-12-09 08:00");
 });

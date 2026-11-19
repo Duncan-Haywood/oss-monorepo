@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVMYDab31CrBCdpDBMa",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T19:03:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check: finished-node late dates vs P6 (flagship row 8)",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 17761,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-p6-lag-after-a-finished-activity.md"
+  ],
+  "goal": null,
+  "notes": "Rule 17 in cpm.mjs (bwDoneLagLeft): a finished activity's FS/FF lag not yet spent at the data date comes back off its late date. Finished-node late dates vs P6 1,497 -> 1,529 of 1,534 on CCA (1,550/1,555 over six files); open activities unchanged at 19,820/19,822. Whole-lag variant loses 318, unstarted-only loses 231. 5 left are one SS chain (CFNS103317C0), documented. Verified: python3 platform/ci/run_venture_tests.py xer-schedule-check -> ok, 127 tests; node eval/cpm-vs-p6.mjs on the six public files; check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}

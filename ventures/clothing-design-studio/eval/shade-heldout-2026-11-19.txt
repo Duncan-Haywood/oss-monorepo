@@ -1,0 +1,17 @@
+# Pre-registered 2026-11-19, before shade.mjs existed. Not tuned on.
+# Session: royal blue tee, sunburst halo (selected) in the default pale gold ink.
+# Format: sentence | expected
+make it darker | garment lightness down, hue kept, halo ink unchanged
+a bit lighter please | garment lightness up, by less than "a lot lighter"
+make the shirt more muted | garment vividness down, lightness within 8
+can you make the halo darker | halo ink lightness down, garment unchanged
+warmer ink | halo ink warmth up, garment unchanged
+make the colour a lot lighter | garment lightness up by at least 10
+the tee should be more vivid | garment vividness up
+make the print brighter | halo ink vividness or lightness up, garment unchanged
+use a lighter fabric | fabric weight path (cotton jersey), garment colour unchanged
+make it cooler | garment warmth down
+darken the shirt slightly | garment lightness down by less than 10
+lighten the halo | halo ink lightness up, garment unchanged
+make the text darker | nothing changes (no text on the design), said so
+make it black | garment black (control)
