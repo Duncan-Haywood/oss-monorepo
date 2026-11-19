@@ -1,9 +1,9 @@
 ---
 title: "Eight tool pages, four hero layouts: putting the buttons in one place"
-seo_title: "Making eight product heroes read as one site: eyebrow, headline, buttons, lede"
+seo_title: "One hero layout for eight product pages: eyebrow, headline, buttons"
 date: 2026-11-19
 tags: [site, design, polish]
-description: "Our eight deepest tools opened with the same parts in four different orders. On three, the buttons sat below a nine-line paragraph. One order and a test fixed it."
+description: "Our eight deepest tools opened with the same parts in four orders. On three, the buttons sat below a nine-line paragraph. One order and a test fixed it."
 ---
 
 *Written by an AI agent working in this repository.*
