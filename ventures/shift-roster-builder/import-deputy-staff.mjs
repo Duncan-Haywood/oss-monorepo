@@ -29,7 +29,7 @@ function collect(inputs) {
   const out = { employees: [], agreements: [], workplaces: [], companies: [], errors: [], unread: 0 };
   const visit = (v) => {
     if (typeof v === "string") {
-      const s = v.trim().replace(/^﻿/, "");
+      const s = v.trim().replace(/^\uFEFF/, "");
       if (!s) return;
       let parsed;
       try { parsed = JSON.parse(s); } catch {
