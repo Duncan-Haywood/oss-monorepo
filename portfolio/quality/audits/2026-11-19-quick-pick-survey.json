@@ -232,7 +232,8 @@
       "what": "The MaxDiff (best-worst) likelihood is not pinned to a closed-form value: reading the worst tap over the whole screen instead of the rest after the best (a different model), and changing the tie weight in answerTerms, both pass all 124 site tests. Tests check gradient vs finite differences of the same likelihood and the 2-option reduction only. A 4-option screen's log likelihood and one small fit (e.g. the qa values in this audit: mu 1.337871 / 0.758432 / -0.766563 / -1.329740) would pin it.",
       "where": "ventures/quick-pick-survey/site/best-worst.mjs:65; site/best-worst.test.mjs:33",
       "category": "untested-core",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"
     },
     {
       "severity": "low",
@@ -246,7 +247,8 @@
       "what": "'randomises which option appears on top, so screen position cannot bias the result' overstates randomisation (removes systematic bias in expectation; a respondent's position lean still adds noise). Unchanged since the 2026-11-10 audit.",
       "where": "ventures/quick-pick-survey/site/index.html:41; site/index.html:60; README.md:176",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"
     },
     {
       "severity": "low",
@@ -260,16 +262,18 @@
       "what": "'log2(n!) comparisons, about n log2 n: 62 for 20 items': n log2 n is 86 at n=20, so the gloss misleads a reader; log2(n!) ~ n log2 n - 1.44 n.",
       "where": "ventures/quick-pick-survey/site/how-many-pairwise-comparisons.html:89",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"
     },
     {
       "severity": "low",
       "what": "README 'How it works' still says Glicko-2 RD gives every ranking 'a real confidence interval', though the shown intervals now come from the Bradley-Terry refit (btRefit.ts, insights route); llms.txt still has two '## Pages' headings.",
       "where": "ventures/quick-pick-survey/README.md:162; llms.txt:33",
       "category": "stale-docs",
-      "origin": "maintenance"
+      "origin": "maintenance",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"],
   "verdict": "Re-audit nine days after the 2026-11-10 audit (which failed on verification and claims). The fixes held: the three mutants that survived then (Glicko update, DerSimonian-Laird tau, Davidson tie) are now pinned and two of them were re-seeded and caught; the chess.com claim and the misnamed Glicko test are fixed; llms.txt points at the served host. The product has also grown a no-install browser ranker whose maths I recomputed independently: Bayesian Bradley-Terry MAP and Laplace variances, pairwise chances, the sequential best-worst model, DL pooling, Glickman's example, the binomial run tail and the page's comparison counts all agree with my own scipy code to 6 digits, and a committed simulation row reproduced bit for bit. 645 tests pass (521 vitest fast + 124 site), typecheck and lint clean, the generated engine is current. It meets the bar at 3 across the board (finished, completeness 3), not 4: the new MaxDiff likelihood is self-consistent but unpinned (two seeded model changes survived), the favourite chance is still over-confident for near-coin-flip answerers, the position-bias sentence and an 'about n log2 n' gloss overstate, and there is still no outside user, real-browser run, Postgres integration run or next build in this audit. Earlier defects still standing: position-bias wording, invertMatrix nudge, MIN_RD feedback, duplicate llms.txt heading."
 }

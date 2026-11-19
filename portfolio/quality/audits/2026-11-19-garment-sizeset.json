@@ -61,20 +61,20 @@
   ],
   "defects": [
     {"severity": "high", "what": "Headline 'a regular grid is wasteful when bust and hip are tightly correlated' rests on an axis-aligned r x c lattice that no size standard uses. A regular graded run (both measurements stepping together) closes most of the gap: rho 0.9 held-out 0.687/0.859 vs exact 0.687/0.871 (k 4/8), against lattice 0.596/0.677. The finding is about lattice orientation, not regularity.",
-     "where": "research/garment-sizeset/README.md:36", "category": "research-design", "origin": "design"},
+     "where": "research/garment-sizeset/README.md:36", "category": "research-design", "origin": "design", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"},
     {"severity": "medium", "what": "'Sizes needed for 80%: 6 for greedy and exact at rho 0.9' - k=5 was never evaluated (KS = 1,2,3,4,6,8); at k=5 greedy fits 0.802 and exact 0.836, so 5 suffices.",
-     "where": "research/garment-sizeset/README.md:38", "category": "overclaim", "origin": "claims"},
+     "where": "research/garment-sizeset/README.md:38", "category": "overclaim", "origin": "claims", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"},
     {"severity": "medium", "what": "Prior apparel-sizing optimisation not cited and novelty overstated ('a new question'): Tryfos 1986 (integer programming for apparel sizing, JORS 37(10)) and McCulloch, Paal & Ashdown 1998 (JORS 49(5)) solve this problem on real anthropometry; ASTM D5585/ISO 8559-2 define how runs are graded.",
-     "where": "research/garment-sizeset/README.md:7", "category": "research-design", "origin": "design"},
+     "where": "research/garment-sizeset/README.md:7", "category": "research-design", "origin": "design", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"},
     {"severity": "medium", "what": "Tests cannot catch a broken greedy or grid: a greedy that ignores coverage (picks one size k times) and a lattice step of 3*tol both leave all 6 tests green; the 'greedy trap' test asserts only e >= g though greedy=0.875, exact=1.0 on that instance.",
      "where": "research/garment-sizeset/tests/test_sizeset.py:37", "category": "untested-core", "origin": "tests"},
     {"severity": "low", "what": "Docstring calls the axis-aligned lattice 'the classic S M L size run'; S-M-L runs are graded diagonally (all measurements step together).",
-     "where": "research/garment-sizeset/src/garment_sizeset/sizes.py:65", "category": "domain-rule", "origin": "spec"},
+     "where": "research/garment-sizeset/src/garment_sizeset/sizes.py:65", "category": "domain-rule", "origin": "spec", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"},
     {"severity": "low", "what": "Population is a synthetic bivariate normal with assumed means, sds and drop; no anthropometric survey (ANSUR II, SizeUSA) is used, so no number transfers to a real population (stated in Limitations).",
      "where": "research/garment-sizeset/src/garment_sizeset/sizes.py:9", "category": "source-data", "origin": "spec"},
     {"severity": "low", "what": "README.md:37 lists greedy below grid only 'at k = 4 for rho 0 and 0.5'; results.txt also has greedy below grid at rho 0 k 6 (0.630 vs 0.640) and rho 0.5 k 1 (0.189 vs 0.197).",
-     "where": "research/garment-sizeset/README.md:37", "category": "overclaim", "origin": "claims"}
+     "where": "research/garment-sizeset/README.md:37", "category": "overclaim", "origin": "claims", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"],
   "verdict": "The code is small, correct and reproducible: exact() matches a brute-force enumeration on 9 instances, coverage() matches closed-form bivariate-normal box probabilities, and run.py and figure.py reproduce the committed results and SVG exactly. The research does not meet the bar. Its headline (a regular size grid wastes sizes when bust and hip are correlated) compares the optimiser with an axis-aligned lattice that no sizing standard uses; a regular graded run, the actual S-M-L practice, comes within 0 to 1.2 points of the exact optimum on held-out people at rho 0.9. The '6 sizes for 80%' claim skips k=5, where both methods already pass 80%. The optimal-size-set integer program is a 1986 operations-research result (Tryfos; McCulloch, Paal & Ashdown 1998), uncited, on a synthetic population. Two of three seeded core mutations survive the tests. Meets the bar: no (verification 1, claims 1, median 1). Finished for what it claims: yes."
 }

@@ -1,0 +1,248 @@
+{
+  "date": "2026-11-19",
+  "subject": "research/society-ringmf",
+  "stratum": "research",
+  "seed": "2026-11-19-m-30b7",
+  "round": 86,
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), independent quality auditor subagent",
+  "status": "audited",
+  "professional": "a senior statistical physicist / computational social scientist who works on mean-field and pair approximations for binary-state dynamics on lattices (committed minorities, zealots); first check: does the approximation's own fixed point come out of the code unaltered, and is the comparison with simulation horizon-matched and against a baseline",
+  "scores": {
+    "correctness": 1,
+    "completeness": 2,
+    "verification": 1,
+    "craft": 2,
+    "claims": 1,
+    "fitness": 1,
+    "domain": 1
+  },
+  "evidence": {
+    "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py` in a private copy: results.txt is byte-identical (diff empty, 1m46s). My own numpy simulator of the society-allies rule (scratchpad/rmf/mysim.py, 40 crowds) matches the simulated column: rho 0.12 b1 k2 mean L 0.985 (reported 0.98), 0.08 b1 k2 0.643 (0.64), 0.12 b2 k2 0.831 (0.86), 0.24 b4 k2 0.913 (0.93), 0.20 b4 k2 0.746 (0.75). But the mean-field column is not the map the README defines: my own exact-binomial implementation of x_i = P(Bin(9, q_i) > 4.5) (scratchpad/rmf/indep.py grid) gives a different threshold in 9 of 16 cells, every one a clustered cell (b2k2 0.12 vs 0.16, b4k2 0.24 vs 0.28, b8k2 0.36 vs 0.40, b4k3 0.16 vs 0.20, b8k3 0.28 vs 0.36, b4k5 0.12 vs 0.16, b8k5 0.20 vs 0.24, b2k1 0.24 vs 0.28, b4k1 0.36 vs 0.40). The cause is the 1/1000 lookup table at src/society_ringmf/__init__.py:50, which makes the map piecewise constant so slow fronts freeze (author's run converges in <=434 iterations; the exact map needs 7714 at rho 0.22 b4 k2 and reaches 1.000, not the author's 0.444). Re-running run.py with only that line changed to majority_prob(q, m) gives 'cells 160, agree 141, MF tips but sim does not 8, sim tips but MF does not 11' against the claimed 145/1/14. Spread-robot rows (b1) are unaffected and correct; the well-mixed analytic threshold (bisection, r* = 0.2165) is consistent with the local map's 0.20 at k = 2.",
+    "completeness": "Claimed and checked: the 16-cell threshold table (reproduces), the 160-cell agreement count (reproduces with the shipped code), the placement test against society-allies (passes; my own placement agrees for 0..80 robots x 4 block sizes), the README reproduce commands (work; README omits the society-allies PYTHONPATH but run.py and the tests insert it themselves). The paper is a 7-line pointer to the README (paper/whitepaper.md). Both next steps (pair approximation, M/eps sweep) are open, which the README says honestly. The README's own 'Known gap' paragraph (line 71) admits the rounding artefact but nothing was re-run or corrected.",
+    "verification": "`python3 -m unittest discover -s tests`: 6 tests OK in 0.08 s. Four seeded mutations via platform/ci/quality_mutate.py: dropping the eps/2 noise term in the partner rate (line 43) SURVIVED; floor instead of round in the table lookup (line 50) SURVIVED; off-by-one in the majority range (line 34) caught; shrinking the neighbourhood (line 49) caught. Nothing tests the fixed point against an exact computation, nothing tests run.py's threshold extraction or agreement count, and nothing checks convergence (the returned iteration count is never asserted).",
+    "craft": "Read src/society_ringmf/__init__.py (57 lines), tests/test_model.py, experiments/run.py. Small, stdlib, readable, placement verified against the parent. Defects: the lookup table is a premature optimisation that changes the answer (line 40/50); fixed_point returns the iteration count but silently stops at the 3000 cap, which the exact map would hit (line 37); run.py is a top-level script with no main and a lambda redefined in the loop; README says ~2.5 min, observed 1m46s (fine).",
+    "claims": "Headline (README:4-7, project.json lede/summary, paper) 'almost never too optimistic' and README:59 'usable upper bound on the share needed for clustered robots' rest on the lookup-table artefact: with the exact map the mean-field tips below the simulation in 5 of 6 block-4/8 cells at k >= 2 and is too optimistic in 8 cells, not 1. 'Within one grid step for blocks of 4 and 8 in all 6 cells at k >= 2' (README:52) fails under the exact map (b8k3 0.28 vs 0.36, b8k5 0.20 vs 0.28). README:61 presupposes 'the gap is largest for singles', but block-2 gaps equal the singles' (b2k1 and b2k3 both 0.08, same as b1k2/b1k5); the README table omits 4 of 16 rows, including those. The README contradicts itself: the 'Known gap' paragraph (lines 71-75) says block thresholds are artefacts while the headline above still states the conclusion drawn from them; its '0.910' at rho 0.22 is the value at the 3000-iteration cap, the converged value is 1.000. Disclosures that are honest: stylised model, M/eps not sourced, 10 seeds, +-0.04 grid.",
+    "fitness": "Nearest prior work: Gleeson 2013 (PRX 3, 021004, pair approximation / approximate master equations for binary-state dynamics, which shows exactly that node-level mean-field misses on sparse/lattice topologies), Young 1993 (adaptive play with finite memory and errors, the same update rule), Ellison 1993 (local interaction on a circle), Mobilia 2003 / Galam & Jacobs 2007 (zealots/inflexibles), Xie et al. 2011 (cited). That a site-independent mean-field misses fluctuation-driven tipping in 1D is textbook, so the qualitative result is not new; the quantitative result (direction of the error for clusters) is wrong as stated. No baseline beyond the simulation: the well-mixed mean-field (r* = 0.2165) already gives the spread threshold the local map gives (0.20 at k = 2), so the 'local' part adds nothing there and the README does not test it. A researcher could reuse the comparison harness, not the conclusion.",
+    "domain": "A practitioner would (1) compute the approximation exactly, not via a 1/1000 table; (2) match time scales: the simulation stops at 500 rounds (about 56 full memory refreshes per person) while the map is iterated to its fixed point (up to 7714 iterations exact), so 'MF tips, sim does not' mixes approximation error with the finite horizon; (3) use one threshold definition for both (here mean x >= 0.9 versus >= half of 10 crowds at >= 0.9) with binomial intervals on the 10-seed fractions (b4k2 rho 0.24 is 0.70 with 10 seeds, 0.57 in my 40-crowd run); (4) add a pair approximation, which the README defers. Parameters M = 9, eps = 0.02 are unsourced and unswept. Below the bar on method."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "re-run the whole experiment",
+      "method": "the author's run.py in a private copy (same seeds); not independent, establishes reproducibility",
+      "command": "cd scratchpad/rmf/subj && PYTHONPATH=src python3 experiments/run.py && diff experiments/results.txt research/society-ringmf/experiments/results.txt",
+      "expected": "identical to committed results.txt",
+      "observed": "identical, 1m46s",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "simulated column, 6 cells",
+      "method": "auditor's own vectorised numpy simulator of the rule in society-allies' docstring, 40 crowds, different RNG",
+      "command": "/usr/bin/python3.13 scratchpad/rmf/mysim.py <rho> <block> <k> 40",
+      "expected": "mean L 0.98, 0.64, 0.86, 0.93, 0.75 (b1k2 .12, b1k2 .08, b2k2 .12, b4k2 .24, b4k2 .20)",
+      "observed": "0.985, 0.643, 0.831, 0.913, 0.746; b8k3 .36 tipped 0.95 (reported threshold .36)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "mean-field thresholds, all 16 cells",
+      "method": "auditor's own exact-binomial implementation of the map defined in README 'Model' (no lookup table, 20000-iteration cap, tol 1e-12)",
+      "command": "python3 scratchpad/rmf/indep.py research/society-ringmf/src grid",
+      "expected": "README/results.txt MF_rho* column",
+      "observed": "9 of 16 differ, all clustered: b2k1 .24/.28, b4k1 .36/.40, b2k2 .12/.16, b4k2 .24/.28, b8k2 .36/.40, b4k3 .16/.20, b8k3 .28/.36, b4k5 .12/.16, b8k5 .20/.24 (exact/claimed); all b1 rows agree",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "single point rho 0.22, block 4, k 2",
+      "method": "exact binomial map vs author's fixed_point",
+      "command": "python3 scratchpad/rmf/indep.py research/society-ringmf/src pt 0.22 4 2",
+      "expected": "same fixed point from both",
+      "observed": "exact 1.000 after 7714 iterations; author 0.444 after 315",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "well-mixed mean-field threshold as an analytic baseline for spread robots",
+      "method": "global map x = P(Bin(9, r + (1-r)((1-eps)x + eps/2)) > 4.5) from x = 0, bisection on r",
+      "command": "python3 scratchpad/rmf/indep.py research/society-ringmf/src wm",
+      "expected": "near the local map's spread threshold (0.16 to 0.24)",
+      "observed": "r* = 0.2165; local map b1k2 = 0.20",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "robot placement",
+      "method": "auditor's own block placement vs block_placement for 0..80 robots, blocks 1/2/4/8",
+      "command": "python3 scratchpad/rmf/indep.py research/society-ringmf/src placement",
+      "expected": "0 mismatches",
+      "observed": "0 mismatches",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "majority_prob(0.7, 3)",
+      "method": "by hand: 3*0.49*0.3 + 0.343",
+      "command": "python3 -c 'from society_ringmf import majority_prob; print(majority_prob(0.7,3))'",
+      "expected": "0.784",
+      "observed": "0.784 (test_binomial_majority_known_values passes)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "agreement 145 of 160, MF-only 1, sim-only 14, 'almost never too optimistic'",
+      "method": "run.py with only src line 50 changed to majority_prob(q, m) and iters 20000",
+      "command": "cd scratchpad/rmf/subjx && PYTHONPATH=src python3 experiments/run.py; tail -1 experiments/results.txt",
+      "expected": "cells 160, agree 145, MF tips but sim does not 1, sim tips but MF does not 14",
+      "observed": "cells 160, agree 141, MF tips but sim does not 8, sim tips but MF does not 11",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'usable upper bound on the share needed for clustered robots' (README:59)",
+      "method": "exact-map thresholds vs simulated, blocks 4 and 8, k >= 2",
+      "command": "python3 scratchpad/rmf/indep.py research/society-ringmf/src grid",
+      "expected": "MF threshold >= sim threshold in all 6 cells",
+      "observed": "MF below sim in 5 of 6 (b4k3 .16/.20, b4k5 .12/.16, b8k2 .36/.40, b8k3 .28/.36, b8k5 .20/.28), equal in b4k2",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'within one grid step for blocks of 4 and 8 in all 6 cells at k >= 2' (README:52)",
+      "method": "check against shipped table and against exact map",
+      "command": "compare results.txt section A and indep.py grid",
+      "expected": "|MF - sim| <= 0.04 in 6 cells",
+      "observed": "true for the shipped (table) numbers; exact map off by 0.08 in b8k3 and b8k5",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "'the gap is largest for singles' (README:61)",
+      "method": "read gaps from results.txt section A",
+      "command": "sed -n 5,21p research/society-ringmf/experiments/results.txt",
+      "expected": "singles' gaps exceed every clustered gap",
+      "observed": "singles .04/.08/.04/.08; block 2 .08 (k1), .08 (k3); block 4 .08 (k1): ties, not largest",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "runtime 'about 2.5 minutes'",
+      "method": "timed run",
+      "command": "time PYTHONPATH=src python3 experiments/run.py",
+      "expected": "about 2.5 min",
+      "observed": "1m46s",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd research/society-ringmf && python3 -m unittest discover -s tests",
+      "expected": "green",
+      "observed": "Ran 6 tests, OK",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "nearest prior work engaged",
+      "method": "README 'Builds on' and paper vs literature",
+      "command": "grep -n 'Xie\\|Centola\\|Gleeson\\|Young\\|Ellison' research/society-ringmf/README.md research/society-ringmf/paper/whitepaper.md",
+      "expected": "pair-approximation and adaptive-play literature cited and compared",
+      "observed": "only Xie 2011 and Centola 2018; no Gleeson 2013, Young 1993, Ellison 1993, Mobilia 2003",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/society_ringmf/__init__.py:43",
+      "change": "else (1 - eps) * x[i] + eps / 2 for -> else (1 - eps) * x[i] for",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/society_ringmf/__init__.py:34",
+      "change": "range(m // 2 + 1, m + 1) -> range(m // 2, m + 1)",
+      "caught": true,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/society_ringmf/__init__.py:49",
+      "change": "for d in range(1, k + 1)) / (2 * k) -> for d in range(1, k)) / (2 * k)",
+      "caught": true,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/society_ringmf/__init__.py:50",
+      "change": "table[round(q * 1000)] -> table[int(q * 1000)]",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "The mean-field is computed through a 1/1000 lookup table that makes the map piecewise constant and freezes slowly moving fronts; the exact map defined in the README gives a different threshold in 9 of 16 cells (every clustered cell except b2k3/b2k5/b8k1) and changes the agreement count from 145/1/14 to 141/8/11",
+      "where": "research/society-ringmf/src/society_ringmf/__init__.py:50",
+      "category": "logic-error",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"
+    },
+    {
+      "severity": "high",
+      "what": "Headline 'almost never too optimistic' and 'usable upper bound on the share needed for clustered robots' are artefacts of the table: with the exact map the mean-field tips below the simulation in 5 of 6 block-4/8 cells at k >= 2 and is too optimistic in 8 cells; the same claim is in project.json lede/summary and the paper, and the README's own 'Known gap' paragraph (line 71) contradicts the headline it sits under",
+      "where": "research/society-ringmf/README.md:5",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"
+    },
+    {
+      "severity": "medium",
+      "what": "Comparison not horizon-matched and without a baseline: the map is iterated to its fixed point (exact map up to 7714 iterations) while the simulation stops at 500 rounds (~56 memory refreshes); threshold definitions differ (mean x >= 0.9 vs >= half of 10 crowds); no intervals; no well-mixed baseline (r* = 0.2165, same as the local map's 0.20 for spread robots)",
+      "where": "research/society-ringmf/experiments/run.py:51",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Tests are smoke-level: removing the eps noise term or flooring the table index leaves all 6 green; nothing compares fixed_point with an exact computation, checks convergence, or tests run.py's threshold extraction and agreement count",
+      "where": "research/society-ringmf/tests/test_model.py:29",
+      "category": "untested-core",
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"
+    },
+    {
+      "severity": "medium",
+      "what": "'Why the gap is largest for singles' presupposes a pattern the table does not show: block-2 gaps (k = 1 and k = 3, both 0.08) equal the largest singles' gaps; the README table omits those 4 of 16 rows",
+      "where": "research/society-ringmf/README.md:61",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"
+    },
+    {
+      "severity": "low",
+      "what": "fixed_point stops silently at the 3000-iteration cap and returns the count unchecked; the exact map needs 7714 iterations at rho 0.22 b4 k2, and the README's '0.910' is the capped value (converged: 1.000)",
+      "where": "research/society-ringmf/src/society_ringmf/__init__.py:37",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Nearest prior work not engaged: Gleeson 2013 (pair approximation / AME), Young 1993 (adaptive play, the same rule), Ellison 1993 (local interaction on a circle), Mobilia 2003 and Galam & Jacobs 2007 (zealots); the paper is a 7-line pointer to the README",
+      "where": "research/society-ringmf/paper/whitepaper.md:1",
+      "category": "research-design",
+      "origin": "design",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"
+    },
+    {
+      "severity": "low",
+      "what": "M = 9 and eps = 0.02 drive every threshold but are unsourced and unswept (disclosed, deferred to next steps)",
+      "where": "research/society-ringmf/README.md:68",
+      "category": "source-data",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17789"],
+  "verdict": "Small, clean and exactly reproducible: results.txt re-runs byte-identically, and an independent simulator matches the simulated column to within seed noise. But the mean-field column is not the map the README defines. A 1/1000 lookup table at src/society_ringmf/__init__.py:50 freezes slow fronts. The exact binomial map moves 9 of 16 thresholds, every one of them clustered. Re-running the experiment with only that line changed gives 141 of 160 agreeing cells, with 8 cells where the map tips and the simulation does not, against the claimed 145 and 1. The headline 'almost never too optimistic, an upper bound for clustered robots' therefore reverses: for blocks of 4 and 8 the exact map tips below the simulation in 5 of 6 cells at k >= 2. The README already carries a 'Known gap' note about the rounding but kept the headline. The comparison is also not horizon-matched and has no baseline. The well-mixed mean-field already gives the spread-robot threshold (0.2165 vs 0.20). Tests are smoke-level: 2 of 4 seeded bugs survive. The qualitative point, that site-independent mean-field misses fluctuation-driven tipping in 1D, is textbook (Gleeson 2013), and that literature is not engaged. Does not meet the bar. Not finished: the paper is a stub."
+}
