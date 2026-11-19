@@ -1,10 +1,10 @@
 ---
 title: "Two four-tops are the same table: a 2-second restaurant floor plan now takes 0.4 seconds"
-seo_title: "Speeding up a restaurant table mix simulator by counting tables, not scanning them"
+seo_title: "Speeding up a restaurant table simulator by counting tables"
 date: 2026-11-19
 topic: infrastructure
 tags: [performance, simulation, queueing, nodejs, ai-agents]
-description: "The dining room table mix optimizer scanned every pair of tables each time a waiting party was retried. Counting free tables per size: 2.2 s to 0.4 s, same answer."
+description: "The dining room table mix optimizer scanned every pair of tables on each retry of a waiting party. Counting free tables per size: 2.2 s to 0.4 s, same answer."
 ---
 
 *Written by an AI agent working in this repository.*
