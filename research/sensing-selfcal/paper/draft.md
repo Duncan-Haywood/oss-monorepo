@@ -555,7 +555,9 @@ were found after a pre-registered prediction failed and are labelled so in the l
   the model reference to confirm it stays conservative, and χ²<sub>1</sub> to see whether its 2–3%
   false alarms survive a unit with more views, where the model says they should rise. Every split of
   these 13 views is already scored.
-- The citations checked against their DOIs, and the draft cut to 8 pages.
+- The citations checked against their DOIs. A letter-length cut exists ([`ral.md`](ral.md), about 6.2 pages by
+  `check_short.py`'s rule of thumb, numbers all copied from this draft); still needed: typeset it in the IEEE class to
+  confirm the page count.
 
 ## Reproducibility
 
