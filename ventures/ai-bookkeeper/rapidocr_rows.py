@@ -9,6 +9,8 @@
 #   pip install rapidocr-onnxruntime        (Apache-2.0; about 50 MB with ONNX Runtime)
 #   python3 rapidocr_rows.py photo.jpg
 #   node cli.mjs receipts photo.jpg --rapidocr
+#   python3 rapidocr_rows.py --bands photo.jpg   (three bands enlarged twice: a second look
+#                                                 for a Russian slip's seller, ocr.mjs)
 #
 # `--rapidocr` runs this file with `python3`, or with the interpreter in RAPIDOCR_PYTHON
 # (a virtual environment's python). `--selftest` checks the row grouping without RapidOCR.
@@ -43,6 +45,32 @@ def rows(results):
     return "".join("  ".join(t for *_, t in sorted(l["items"], key=lambda b: b[2])) + "\n" for l in lines)
 
 
+# The bands `--bands` reads, as (top, bottom) fractions of the photo's height, each enlarged
+# twice. A Russian slip prints its seller (ИП, ООО ...) anywhere from the top to the fiscal
+# block near the foot (on val the line sat 10% to 91% down), in small type the detector
+# misses at the photo's own size; on the 19 val slips whose first reading had no seller the
+# three bands put it in the text on 6 (the photo read once: 1) and the parser took it on 5,
+# losing none (README, "A second look for the seller").
+BANDS = ((0.0, 0.4), (0.3, 0.7), (0.6, 1.0))
+BAND_SCALE = 2
+
+
+def band_rows(engine, path, bands=BANDS, scale=BAND_SCALE):
+    """The photo read again as overlapping horizontal bands, each enlarged `scale` times
+    (Lanczos), as text lines band after band, top to bottom."""
+    import numpy as np
+    from PIL import Image
+    im = Image.open(path).convert("RGB")
+    w, h = im.size
+    out = []
+    for top, bottom in bands:
+        crop = im.crop((0, int(h * top), w, int(h * bottom)))
+        crop = crop.resize((int(w * scale), int(h * (bottom - top) * scale)), Image.LANCZOS)
+        # RapidOCR takes an array in OpenCV's channel order, as cv2.imread gives it
+        out.append(rows(engine(np.array(crop)[:, :, ::-1])[0]))
+    return "".join(out)
+
+
 def rec_options(env=os.environ):
     """RapidOCR keyword arguments for a swapped-in recognition model, from the environment."""
     names = (("rec_model_path", "RAPIDOCR_REC_MODEL"), ("rec_keys_path", "RAPIDOCR_REC_KEYS"))
@@ -65,14 +93,16 @@ def selftest():
 def main(argv):
     if argv[1:] == ["--selftest"]:
         return selftest()
-    if len(argv) != 2:
-        sys.exit("usage: python3 rapidocr_rows.py PHOTO")
+    bands = "--bands" in argv[1:]
+    args = [a for a in argv[1:] if a != "--bands"]
+    if len(args) != 1:
+        sys.exit("usage: python3 rapidocr_rows.py [--bands] PHOTO")
     try:
         from rapidocr_onnxruntime import RapidOCR
     except ImportError:
         sys.exit("rapidocr_rows.py needs RapidOCR: pip install rapidocr-onnxruntime (or set RAPIDOCR_PYTHON to a python that has it)")
-    results, _ = RapidOCR(**rec_options())(argv[1])
-    sys.stdout.write(rows(results))
+    engine = RapidOCR(**rec_options())
+    sys.stdout.write(band_rows(engine, args[0]) if bands else rows(engine(args[0])[0]))
 
 
 if __name__ == "__main__":
