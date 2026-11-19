@@ -7,7 +7,7 @@ free end of the horizontal arm (x = L). The inner corner has fillet radius ``r``
 from dataclasses import dataclass
 import numpy as np
 import scipy.sparse.linalg as spla
-from scipy.spatial import Delaunay
+from scipy.spatial import Delaunay, cKDTree
 from matplotlib.path import Path
 from skfem import MeshTri, Basis, ElementTriP2, ElementVector, asm, LinearForm
 from skfem.models.elasticity import linear_elasticity, lame_parameters
@@ -68,7 +68,9 @@ def make_mesh(p: Params, h: float = 1.5) -> MeshTri:
     grid = np.c_[gx.ravel(), gy.ravel()]
     path = Path(poly)
     # keep interior grid points at least 0.6 h from the boundary
-    d = np.min(np.linalg.norm(grid[:, None, :] - bnd[None, ::1, :], axis=2), axis=1) if len(grid) * len(bnd) < 4e7 else None
+    # a k-d tree gives the same nearest distances as the dense pairwise form, without the
+    # memory cap that left d = None and crashed meshes finer than h ~ 0.35 mm (quality round 76)
+    d = cKDTree(bnd).query(grid)[0]
     inside = path.contains_points(grid)
     keep = inside & (d > 0.6 * h)
     pts = np.vstack([bnd, grid[keep]])

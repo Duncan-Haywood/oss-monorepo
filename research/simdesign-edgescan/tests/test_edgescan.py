@@ -36,6 +36,12 @@ class T(unittest.TestCase):
         from edgescan import edge, WS
         self.assertIsNone(edge({f"{w}": [False, 0.0, 0.0] for w in WS}))
 
+    def test_fine_mesh_builds(self):
+        # quality round 76: the boundary-distance step was skipped past a memory cap and crashed below h ~ 0.35 mm
+        from simdesign_edgescan.model import make_mesh
+        m = make_mesh(Params(w=17.0, r=8.0, b=2.0), h=0.3)
+        self.assertGreater(m.t.shape[1], 0)
+
 
 if __name__ == "__main__":
     unittest.main()
