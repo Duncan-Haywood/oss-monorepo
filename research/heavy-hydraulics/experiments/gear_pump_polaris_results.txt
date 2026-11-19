@@ -1,0 +1,35 @@
+Milestone 7z: Casappa Polaris 30 (PLP 30, catalogue PL 06 T A, pp. 18-20, 50 C, ISO VG 46) read as the model reads every gear-pump family
+Central idle condition ('PVG32', 2.0, 1.0); working speed 2100 r/min; b = P_idle(79) / P_idle(64); 'bends' means b > 1.55
+
+Per size at 2100 r/min: V (cm3/r, p. 7), Q20 (L/min), Q20/V/2.1, P(0) kW (zero-pressure drag, line through 50 and 100 bar), P(50), P(100), eta_t(150)
+  PLP 30.22  V  21.99  Q20   46.19  ratio 1.0003  P(0)  0.665  P(50)  6.004  P(100) 11.343  eta_t(150) 0.665
+  PLP 30.27  V  26.70  Q20   56.09  ratio 1.0004  P(0)  0.800  P(50)  7.285  P(100) 13.770  eta_t(150) 0.669
+  PLP 30.34  V  34.55  Q20   72.57  ratio 1.0002  P(0)  1.052  P(50)  9.097  P(100) 17.142  eta_t(150) 0.706
+  PLP 30.38  V  39.27  Q20   82.46  ratio 1.0000  P(0)  1.189  P(50) 10.338  P(100) 19.487  eta_t(150) 0.707
+  PLP 30.43  V  43.98  Q20   92.36  ratio 1.0000  P(0)  0.788  P(50) 11.262  P(100) 21.736  eta_t(150) 0.704
+  PLP 30.51  V  51.83  Q20  108.88  ratio 1.0003  P(0)  1.425  P(50) 13.284  P(100) 25.143  eta_t(150) 0.727
+  PLP 30.61  V  61.26  Q20  128.69  ratio 1.0003  P(0)  1.598  P(50) 16.128  P(100) 30.658  eta_t(150) 0.704
+  PLP 30.73  V  73.82  Q20  155.07  ratio 1.0003  P(0)  1.924  P(50) 19.418  P(100) 36.912  eta_t(150) 0.735
+  PLP 30.82  V  81.68  Q20  171.58  ratio 1.0003  P(0)  2.381  P(50) 22.105  P(100) 41.829  eta_t(150) 0.728
+  PLP 30.90  V  91.10  Q20  191.37  ratio 1.0003  P(0)  2.654  P(50) 24.657  P(100) 46.660  eta_t(150) 0.686
+64 L/min lies between PLP 30.27 and 30.34; 79 L/min between PLP 30.34 and 30.38 (Q20 at 2100 r/min 46.2, 56.1, 72.6, 82.5, 92.4, 108.9, 128.7, 155.1, 171.6, 191.4)
+
+PLP 30 full reading: P_idle(64) 2.650 kW, P_idle(79) 3.372 kW, b 1.272 (flat)
+PLP 30 top band (50 bar): P_idle(64) 4.335 kW (+63.6%), P_idle(79) 4.903 kW, b 1.131 (db -0.141; flat)
+
+  family               P64     P79       b  class
+  casappa KP30       2.373   3.258   1.373  flat
+  danfoss SNP3       2.418   4.308   1.781  bends
+  marzocchi ALP3     2.485   3.218   1.295  flat
+  rexroth AZPG       1.766   2.322   1.314  flat
+  rexroth AZPU       1.693   2.269   1.341  flat
+  rexroth AZPN       1.776   2.274   1.281  flat
+  rexroth AZPF       1.837   2.379   1.295  flat
+  casappa PLP30      2.650   3.372   1.272  flat
+b over the seven non-Danfoss families: 1.272 to 1.373, median 1.295; Danfoss 1.781
+
+|b(PLP 30) - b(KP 30)| = 0.101; P_idle(64) PLP 30 / KP 30 = 1.117
+PZ1 (PLP 30 flat, b <= 1.55): held
+PZ2 (|b(PLP 30) - b(KP 30)| < 0.10): refuted
+PZ3 (PLP 30 P_idle(64) within 25% of KP 30's): held
+PZ4 (PLP 30 top-band |db| > 0.10): held
