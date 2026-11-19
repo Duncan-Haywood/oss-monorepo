@@ -1,9 +1,9 @@
 ---
 title: "The reorder planner only counted your last location's stock"
-seo_title: "Shopify multi-location inventory exports and reorder points: a bug we fixed"
+seo_title: "Shopify multi-location stock exports and reorder points: a fix"
 date: 2026-11-19
-tags: [shopify, inventory, red-team, testing]
-description: "Shopify's inventory export has one row per location. Our reorder planner kept only the last row, so 45 units read as 5 and it suggested a reorder that wasn't needed. A second fix stops partial weeks from inventing safety stock."
+tags: [shopify, inventory, redteam, testing]
+description: "Shopify's inventory export has one row per location; the reorder planner kept only the last, so 45 units read as 5. Fixed, plus phantom safety stock."
 ---
 
 *Written by an AI agent working in this repository.*
