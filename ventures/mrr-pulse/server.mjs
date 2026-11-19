@@ -6,7 +6,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { createStripe } from "./stripe.mjs";
-import { backfill, applySync, liveMap, summarize, cohorts, breakdown, forecast, concentration, monthsCsv } from "./metrics.mjs";
+import { backfill, applySync, liveMap, summarize, cohorts, breakdown, forecast, concentration, monthsCsv, put } from "./metrics.mjs";
 import { renderDashboard } from "./page.mjs";
 import { notify, validWebhook } from "./alerts.mjs";
 import { pathToFileURL } from "node:url";
@@ -43,7 +43,7 @@ export async function sync(cfg) {
     st.last = cur;
     const row = b.months[b.months.length - 1];
     row.mrr = Object.values(cur).reduce((a, v) => a + v, 0); row.customers = Object.keys(cur).length;
-    for (const id of Object.keys(cur)) st.ever[id] = 1;
+    for (const id of Object.keys(cur)) put(st.ever, id, 1);
     st.lastSyncAt = now;
   } else applySync(st, cur, now);
   st.currency = currency; st.skipped = skipped;

@@ -46,3 +46,42 @@ test("trial_end is kept so rebuilt history skips the free weeks (red team 2026-1
   assert.equal(s.trialEnd, 200000);
   assert.equal(normalizeSubscription({ id: "t", status: "active", items: { data: [] } }).trialEnd, null);
 });
+
+test("a price nicknamed toString, constructor or __proto__ keeps its share (red team 2026-11-19)", () => {
+  for (const nick of ["toString", "constructor", "__proto__"]) {
+    const s = normalizeSubscription({ id: "s", status: "active", items: { data: [{ price: { ...price(1000), nickname: nick } }, { price: { ...price(500), nickname: "Pro" } }] } });
+    assert.ok(Object.hasOwn(s.plans, nick), nick);
+    assert.equal(s.plans[nick], 1000, nick); assert.equal(s.plans.Pro, 500, nick);
+  }
+});
+
+test("each plan line gets its own share of a discount, not just the total (red team 2026-11-19)", () => {
+  const s = normalizeSubscription({ id: "s", status: "active", discount: { coupon: { percent_off: 50 } }, items: { data: [{ price: { ...price(3000), nickname: "A" } }, { price: { ...price(1000), nickname: "A" } }, { price: { ...price(2000), nickname: "B" } }] } });
+  assert.deepEqual({ ...s.plans }, { A: 2000, B: 1000 });
+  assert.equal(s.mrr, 3000);
+});
+
+test("an active, unpaused subscription stays active", () => {
+  assert.equal(normalizeSubscription({ id: "s", status: "active", items: { data: [{ price: price(100) }] } }).status, "active");
+  assert.equal(normalizeSubscription({ id: "s", status: "past_due", pause_collection: { behavior: "void" }, items: { data: [] } }).status, "past_due");
+});
+
+test("an amount-off coupon is not counted as 1% off; percent-offs add up", () => {
+  const s = normalizeSubscription({ id: "s", status: "active", discount: { coupon: { amount_off: 500 } }, items: { data: [{ price: price(10000) }] } });
+  assert.equal(s.mrr, 10000);
+  const t = normalizeSubscription({ id: "s", status: "active", discount: { coupon: { percent_off: 10 } }, discounts: [{ coupon: { percent_off: 15 } }, "di_unexpanded"], items: { data: [{ price: price(10000) }] } });
+  assert.equal(t.mrr, 7500);
+});
+
+test("a quarterly price is divided by its interval_count; legacy plan-only items count", () => {
+  assert.equal(normalizeSubscription({ id: "s", status: "active", items: { data: [{ price: { unit_amount: 3000, currency: "usd", recurring: { interval: "month", interval_count: 3 } } }] } }).mrr, 1000);
+  assert.equal(normalizeSubscription({ id: "s", status: "active", items: { data: [{ plan: { amount: 2000, currency: "usd", interval: "month", interval_count: 1 }, quantity: 2 }] } }).mrr, 4000);
+  assert.equal(normalizeSubscription({ id: "s", status: "active", plan: { amount: 1200, currency: "eur", interval: "year" }, quantity: 1 }).mrr, 100);
+});
+
+test("pagination stops at exactly maxPages requests", async () => {
+  let n = 0;
+  const s = createStripe({ key: "k", maxPages: 3, fetchImpl: async () => { n++; return { ok: true, json: async () => ({ data: [{ id: `x${n}`, items: { data: [] } }], has_more: true }) }; } });
+  await assert.rejects(s.listSubscriptions(), /MAX_PAGES/);
+  assert.equal(n, 3);
+});

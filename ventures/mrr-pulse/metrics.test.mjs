@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { monthlyAmount, liveMap, movements, backfill, applySync, summarize, monthEnds, mapAt } from "./metrics.mjs";
+import { monthlyAmount, liveMap, movements, backfill, applySync, summarize, monthEnds, mapAt, put } from "./metrics.mjs";
 
 const D = (y, m, d) => Date.UTC(y, m - 1, d);
 
@@ -361,4 +361,30 @@ test("breakdown of no paying subscriptions reports nothing, not a phantom larges
   const b = breakdown([{ id: "t", status: "trialing", mrr: 500, created: 1 }]);
   assert.deepEqual(b.concentration, { customers: 0, top1: 0, top5: 0, topN: 5, largest: 0 });
   assert.equal(b.total, 0);
+});
+
+test("ids and plan names like toString, constructor or __proto__ are ordinary keys (red team 2026-11-19)", () => {
+  const now = Date.UTC(2026, 5, 15);
+  const subs = ["toString", "constructor", "__proto__", "hasOwnProperty"].map((id, i) => ({ id, customer: id, status: "active", mrr: 1000 * (i + 1), created: Date.UTC(2026, 4, 2), endedAt: null, plans: { [id]: 1000 * (i + 1) } }));
+  subs.forEach((s) => { s.plans = put({}, s.id, s.mrr); });
+  const live = liveMap(subs);
+  assert.deepEqual(Object.keys(live).sort(), ["__proto__", "constructor", "hasOwnProperty", "toString"]);
+  assert.equal(Object.values(live).reduce((a, b) => a + b, 0), 10000);
+  // New MRR, not reactivation or nothing: an unseen "toString" is new.
+  const m = movements({}, live, {});
+  assert.equal(m.new, 10000); assert.equal(m.newCount, 4); assert.equal(m.reactivation, 0);
+  assert.equal(movements(live, {}, {}).churn, 10000);
+  const h = backfill(subs, now, 3);
+  assert.equal(h.months.at(-2).new, 10000); assert.equal(h.months.at(-1).mrr, 10000);
+  const b = breakdown(subs);
+  assert.deepEqual(b.plans.map((p) => p.plan).sort(), ["__proto__", "constructor", "hasOwnProperty", "toString"]);
+  assert.equal(b.plans.reduce((a, p) => a + p.mrr, 0), 10000);
+  assert.equal(b.concentration.customers, 4);
+  assert.equal({}.mrr, undefined, "Object.prototype was not written to");
+  // State read back from JSON (plain objects) folds the same way.
+  const st = JSON.parse(JSON.stringify({ months: {}, last: {}, ever: {} }));
+  applySync(st, live, now);
+  assert.equal(st.months["2026-06"].new, 10000);
+  assert.ok(Object.hasOwn(st.ever, "__proto__") && Object.hasOwn(st.ever, "toString"));
+  assert.equal(applySync(st, live, now + 1000).new, 0);
 });
