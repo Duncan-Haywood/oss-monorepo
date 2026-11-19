@@ -308,13 +308,24 @@ def progress(path, now=time.time, who=holders):
 
 
 def longer(timeout):
-    """How to wait longer in one call. The 100 s default keeps a plain call under
-    the tool's 120 s limit, but the tool takes up to 600 s, and three runs in
+    """How to wait longer. The 100 s default keeps a plain call under the
+    tool's 120 s limit, but the tool takes up to 600 s, and three runs in
     three days waited out 100 s on a ~15 minute job without knowing --timeout
-    existed (friction 2026-11-12)."""
+    existed (friction 2026-11-12). Past 540 s the hint said nothing, so runs
+    re-called a 540 s wait four to six times on a 20 to 50 minute job (seven
+    run records, 2026-11-18/19) although one background wait covers it."""
+    bg = ("for a job of many minutes, run this same wait with run_in_background and a --timeout "
+          "past the job's length (the tool's background timeout takes up to 7200000 ms): the "
+          "harness wakes you when it exits, one call instead of several")
     if timeout >= 540:
-        return ""
-    return "; to wait up to 9 min in one call, pass --timeout 540 and set the tool call's timeout to 600000 ms"
+        return "; " + bg
+    return "; to wait up to 9 min in one call, pass --timeout 540 and set the tool call's timeout to 600000 ms; " + bg
+
+
+# Every timeout line starts with this, so a chained `wait_for ...; grep` or `; tail`, whose
+# own exit 0 the harness reports, still reads as not done: two runs took a background
+# --until wait's "still failing" line for completion (2026-11-18/19 records).
+TIMED_OUT = "wait_for: TIMED OUT (exit 1):"
 
 
 def main(argv=None):
@@ -354,20 +365,20 @@ def main(argv=None):
             print(f"wait_for: no process matches {a.gone!r} any more")
             return 0
         left = matching(a.gone) or []
-        print(f"wait_for: {len(left)} process(es) matching {a.gone!r} still running after {a.timeout:.0f}s"
+        print(f"{TIMED_OUT} {len(left)} process(es) matching {a.gone!r} still running after {a.timeout:.0f}s"
               f"{': ' + str(sorted(left)[0][0]) if left else ''}; call again{longer(a.timeout)}", file=sys.stderr)
         return 1
     if a.pid:
         if wait_pid(a.pid, a.timeout):
             print(f"wait_for: pid {a.pid} has exited")
             return 0
-        print(f"wait_for: pid {a.pid} still running after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
+        print(f"{TIMED_OUT} pid {a.pid} still running after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
         return 1
     timeout = a.timeout
     if a.until:
         started = time.monotonic()
         if not wait_until(a.until, a.timeout):
-            print(f"wait_for: '{a.until}' still failing after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
+            print(f"{TIMED_OUT} '{a.until}' still failing after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
             return 1
         if not a.log:
             print("wait_for: condition met")
@@ -399,7 +410,7 @@ def main(argv=None):
         return 2
     if not ok:
         shown = a.marker or "DONE' or 'EXIT"
-        print(f"wait_for: no '{shown}' line in {a.log} after {a.timeout:.0f}s; {progress(a.log)}{longer(a.timeout)}", file=sys.stderr)
+        print(f"{TIMED_OUT} no '{shown}' line in {a.log} after {a.timeout:.0f}s; {progress(a.log)}{longer(a.timeout)}", file=sys.stderr)
         return 1
     print("\n".join(lines[-15:]))
     return 0
