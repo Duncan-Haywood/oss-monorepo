@@ -7478,3 +7478,55 @@ returns to test.
 Test: `update-rate-returns-guard.test.mjs` (both guards on known shares, no guard leaves the search unchanged, a
 same-count shift is a return without the guard and none with it while a real return survives, the committed
 verdict, the pass off by default).
+
+## Lasting moves to more days: does the shipped cut have the power? (2026-11-19, pre-registered; H1 fails on one cell of nine)
+
+The round above found that five of JHU's eight documented moves back to more frequent reporting were, by the
+documented dates, lasting changes of schedule (four to eight months, or no listed end). The shipped partition
+should cut those, and it dated none of them. That round's "Next" asked why, with simulated cells no round had
+tried. `eval/update-rate-lasting-more.mjs` (header committed in 0b2fb6c07 before any cell ran; one amendment
+in the next commit, before any cell finished: Part A turns off the stale-feed verdict, which took 20 s a series
+and never moves a cut or its direction) asks it in two parts.
+
+**Part A, simulation (seed 20261228, 200 series a cell, n 1,100).** Three moves from the documented list, each
+starting at step 500 and lasting 120 days, 240 days or for good, under rounds 1-5's schedule model. One bar, H1:
+the shipped check alone finds the start (a 'more often' cut within 10 steps) in at least 180 of 200 in every cell.
+
+| move (repeats before to inside) | 120 days | 240 days | for good |
+|---|---|---|---|
+| Wednesdays only to Mon-Fri (82% to 29%) | 198 | 199 | 199 |
+| Mon/Wed/Fri to Mon-Fri (55% to 29%) | 191 | 182 | 186 |
+| Mon-Fri to daily (29% to 3%) | **13** (197 with the guarded pass) | 186 | 195 |
+
+**H1 fails, on one cell.** The shipped cut has the power for a lasting move to more days from a sparse schedule,
+and for a move from Monday-Friday to daily once it lasts eight months. It misses a four-month Monday-Friday to
+daily stretch (13 of 200), which round 5's guarded return pass finds (197 of 200, off by default). Ends are cut
+as reliably as starts (185-198 of 200 where the move ends; 14 for the four-month daily stretch). So at the lengths the documented record gives, the
+cut alone should have dated Alaska, Nebraska and South Dakota.
+
+**Part B, the eight real events (seen data; sorted by a rule fixed in the header).** Repeat shares in the 56
+days either side of each documented date, against what the two schedules imply:
+
+- **N, not in the data (3).** Alabama (11% to 0%; Monday-Friday implies 29%), Michigan (55% to 57%; the
+  weekday shares show the days moving, not a third day added) and Nebraska (46% to 36%; Wednesdays only
+  implies 82%). The schedule the record names before the date never shows in JHU's figures.
+- **E, cut elsewhere (1).** Arkansas (14% to 0%), sorted E only because the 2020 cut's range runs to
+  2021-06-26; the data show weekends half-repeating, so it is close to N.
+- **C, in the data, not cut (4).** Alaska (57% to 32%), Idaho (30% to 2%), South Dakota (66% to 30%) and
+  Vermont (32% to 0%). Each matches its documented schedules within a few points.
+
+**Why the four are missed** (post hoc, monthly shares read after the sort, deciding nothing). In every one the
+*short* leg is in the data, not the lasting one. Alaska's Monday/Wednesday/Friday spell is June-July 2021 (50%,
+58%; 27-35% either side), and South Dakota's Wednesdays-only spell is about July 2021 (77%; 30-48% either side):
+one to two months of *fewer* days before the documented return, so the lasting Monday-Friday that follows is the
+same schedule as the months before the spell. Idaho's and Vermont's daily stretches are about two months
+(September-October 2021, 3-10% and 0%), and round 5's pass already dates both. So the real series are short
+spells, not the cells Part A simulated, and Part A says the cut would have caught the lasting version.
+
+Nothing in the check changes. Next: the mirror of the return pass, a short spell of *fewer* publishing days
+inside a stretch (the guarded pass with the guard reversed: share inside at least twice the share around),
+pre-registered on simulated 30- to 60-day sparse spells with the round 5 nulls; then Alaska's and South Dakota's
+spells, which are seen.
+
+Test: `update-rate-lasting-more.test.mjs` (the nine cells, a Wednesdays-only move cut at both ends, the 120-day
+daily stretch needing the pass, the sorting rule, the committed verdict).
