@@ -81,6 +81,15 @@ CHECKS = [
     ("rtk_baro_posthoc_results.txt", "sqrt(mean sq) 0.814", "0.814 m"),
     ("rtk_baro_results.txt", "deliv     13.33   5.0    13.33    24/24   1.0000   1.0000   13.33  24/24   1.0000", "costs a median 1.0000"),
     ("rtk_baro_s5_results.txt", "deliv     13.33   5.0    13.33    24/24", "48 of 48 layouts"),
+    # 11ao airframe speed offsets
+    ("speed_offset_results.txt", "sd of b_i - b_j 3.281", "3.281 m"),
+    ("speed_offset_results.txt", "  1        13.33    5.0    15.24     1.0342    1.7254", "1.0342"),
+    ("speed_offset_results.txt", "  1        13.33    5.0    13.33     1.0183", "1.0183"),
+    ("speed_offset_results.txt", "1.7254", "1.7254"),
+    ("speed_offset_results.txt", "1.0277", "1.0277 and 1.0219"),
+    ("speed_offset_results.txt", "1     13.33: 80, 17.14: 16", "80 and 87 of 96"),
+    ("speed_offset_results.txt", "  2        24.00    3.0    24.00     1.1631", "3 bands at 24.00 m"),
+    ("speed_offset_results.txt", "  2        24.00    3.0    24.00     1.1296", "1.1631 and 1.1296"),
 ]
 
 

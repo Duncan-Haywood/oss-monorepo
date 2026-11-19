@@ -357,6 +357,8 @@ node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --fix spec.ids -o spec-fixed.ids   # repair its ids.xsd faults; exit 1 if some need a person
 node cli.mjs model.ifc spec.ids --no-audit      # run invalid specifications as written
+node cli.mjs --to-sheet spec.ids -o spec.xlsx   # the IDS as a spreadsheet, one row per facet (or .csv)
+node cli.mjs --from-sheet spec.xlsx -o spec.ids # a spreadsheet back to IDS 1.0; exit 1 names bad rows
 ```
 
 Library: `import { check } from "./node.mjs"; check(idsText, ifcText)` in Node,
@@ -374,6 +376,57 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 `.ifc` zipped by Python's `zipfile`.
 
 No API key, account or server is involved, so there is nothing to configure.
+
+### An IDS as a spreadsheet and back (2026-11-19)
+
+Requirements are often agreed in a table first and typed into an IDS by hand.
+`sheet.mjs` writes an IDS as one row per facet and reads such a table back
+into IDS 1.0, as `.xlsx` or CSV (comma, semicolon or tab). On the page, drop
+the spreadsheet where the IDS goes, or audit an IDS and press *Download as a
+spreadsheet*; on the command line, `--to-sheet` and `--from-sheet`.
+
+| spec | section | facet | name | ifcVersion | entity | propertySet | property | dataType | value | cardinality |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | specification | | Doors are fire rated | IFC4 | | | | | | required |
+| 1 | applicability | entity | | | IFCDOOR | | | | | |
+| 1 | requirements | property | | | | Pset_DoorCommon | FireRating | IFCLABEL | one of: EI30 \| EI60 | |
+
+A value cell is the exact value, or a restriction written as clauses joined by
+`;`: `one of: A | B`, `pattern: [A-Z]{2}\d+`, `>= 0; < 10` (dates and durations
+too), `length: 4`, `min length: 1`, `max length: 12`, `base: integer` when the
+base is not the one the bounds imply, `note: ...` for an `xs:annotation`. A
+leading backslash keeps a cell literal (`\one of: x`, `\=SUM(A1)`); inside a
+clause `;;` is a literal `;` and in a one-of list `||` a literal `|`. Info rows
+(`section` info, `facet` title, author, ...) fill `<info>`. The workbook has a
+*Read me* sheet with the same rules. A row that cannot become IDS is named by
+its row number. IDS 0.9 forms are repaired (`fix.mjs`) before the sheet is made.
+
+Measured (`eval/sheet-roundtrip-2026-11-19.md`): all 334 of buildingSMART's
+test IDS files come back with the same content through CSV and `.xlsx`, and
+the checker gives the same verdict on each pair, 334 of 334; 62 of 64 public
+IDS files on GitHub come back the same as written or as repaired (one uses
+`<n>` for `<name>`, one has no `<info>`); a workbook LibreOffice saved reads
+back the same as ours, except that CR LF line breaks inside two files'
+instructions become LF. Excel turns `1.10` into `1.1` when it opens a CSV, so
+prefer `.xlsx`.
+
+**Workbooks Excel saved (2026-11-19).** Excel stores what a person types as
+numbers, dates and booleans, so the reader shows each cell as Excel does:
+a date cell as ISO 8601 (`2024-01-01`, `15:30:18`, `2024-01-01T18:00:00`, from
+the cell's number format, with the 1904 date system), a number to Excel's
+15 digits (`0.938271604938272`, not the `0.93827160493827155` Excel saved),
+a boolean as IDS writes it (`true`, not `TRUE`, which matches no IfcBoolean),
+`_x000D_` escapes decoded. An `.xls` or a password-protected workbook is
+named instead of being read as CSV. On 321 workbooks from Apache POI's test
+files (282 saved by Excel), 65,537 of 65,548 cells now read as openpyxl
+reads them, up from 62,182; the rest are cells where no date exists
+(`eval/excel-workbooks-2026-11-19.md`). The downloaded workbook formats every
+cell, and the empty cells of each column, as Text, so a value a person types
+into it later stays as typed (`42.0`, `true`, `1.10`): retyped through
+LibreOffice Calc's input line, 56 of 56 public IDS files and 334 of 334
+buildingSMART test files come back the same, from 24 and 288 with the
+General format. A CSV opened in a spreadsheet still gets typed, so edit the
+`.xlsx`. Our workbook stores a CR inside a cell as `_x000D_`, as Excel does.
 
 ### Repairing an IDS that validating tools refuse (2026-11-18)
 

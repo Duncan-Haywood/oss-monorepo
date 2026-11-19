@@ -662,17 +662,23 @@ export function agreeAlerts(lines, k = 2, within = 12) {
 
 /**
  * Closed days (a bank holiday, a Christmas closure) filled before any detector sees them, so a zero on a closed weekday
- * is not read as a step down and back. Pre-registered as `--closed` (eval/closed-days.prereg.md) and NOT offered: on the
- * fresh year it cut the alerts at a closure from 10 to 2, not 0, and the design year lost the Christmas build-up alert
- * at Quiet (README "Closed days filled as missing"). Kept in the module for the next round and for callers who want it.
+ * is not read as a step down and back. Round 1 (lags 4, eval/closed-days.prereg.md) failed its bars and was not offered
+ * (README "Closed days filled as missing"); round 2 (lags 1, eval/closed-steps.prereg.md) passed S1-S3 on fresh seeds
+ * and is what `watch.mjs --closed` uses (README "Steps beside a closure").
  * Each listed label of the series takes the median of the open values at i-L, i-2L, ... (up to the 4 nearest), where
  * L is `period` if given, else 7 when the labels are consecutive calendar days, else 1; with none of those, the nearest
  * open value before i, else after it. Only earlier points feed a fill (but for a closure at the very start), so filling
  * a whole history once equals filling each prefix and a replay stays honest. `round` rounds the fills (counts).
+ * `lags` (default 4) is how many earlier same-phase open values the median takes (README "Steps beside a closure").
+ * `recent` (default 0, off; round 3, eval/closed-recent.prereg.md) reads the level from the `recent` nearest earlier
+ * open days within the last cycle instead of one cycle back: each is scaled to the closed day's phase by the phase means
+ * over the 4 cycles ending at i-L, which the recent days are not part of (fill = s_p * mean_j(v_j / s_q(j)); days whose phase mean is 0, such as an always-shut Saturday,
+ * are skipped), so a closure a few days after a step is filled at the new level. Falls back to the `lags` rule when
+ * the closed day's phase or the recent days have no mean in that window.
  * Listed dates that are not labels of the series are ignored (a deployer may list next year's holidays ahead).
  * Returns { values, filled: [{ index, label, was, now }] }.
  */
-export function fillClosed(values, labels, closed, { period = null, round = false } = {}) {
+export function fillClosed(values, labels, closed, { period = null, round = false, lags = 4, recent = 0 } = {}) {
   const v = values.map(Number);
   const shut = new Set((closed ?? []).map((s) => String(s).trim()).filter(Boolean));
   if (!shut.size || !labels) return { values: v, filled: [] };
@@ -686,11 +692,26 @@ export function fillClosed(values, labels, closed, { period = null, round = fals
   const daily = Number.isFinite(d0) && l.every((s, i) => dayNumber(s) === d0 + i);
   const L = period > 1 ? period : daily ? 7 : 1;
   const out = v.slice(), filled = [];
+  const phaseMeans = (i) => {
+    const sum = new Map(), n = new Map();
+    for (let j = Math.max(0, i - 5 * L + 1); j <= i - L; j++) if (!isShut.has(j)) { const q = j % L; sum.set(q, (sum.get(q) ?? 0) + v[j]); n.set(q, (n.get(q) ?? 0) + 1); }
+    return (q) => (n.get(q) ? sum.get(q) / n.get(q) : null);
+  };
   for (const i of idx) {
     const same = [];
-    for (let j = i - L; j >= 0 && same.length < 4; j -= L) if (!isShut.has(j)) same.push(v[j]);
+    for (let j = i - L; j >= 0 && same.length < lags; j -= L) if (!isShut.has(j)) same.push(v[j]);
     let x;
-    if (same.length) {
+    let rec = null;
+    if (recent > 0) {
+      const s = phaseMeans(i), sp = s(i % L);
+      if (sp != null) {
+        const r = [];
+        for (let j = i - 1; j > i - L && j >= 0 && r.length < recent; j--) { if (isShut.has(j)) continue; const sq = s(j % L); if (sq > 0) r.push(v[j] / sq); }
+        if (r.length) rec = sp * r.reduce((a, b) => a + b, 0) / r.length;
+      }
+    }
+    if (rec != null) x = rec;
+    else if (same.length) {
       same.sort((a, b) => a - b);
       const m = same.length >> 1;
       x = same.length % 2 ? same[m] : (same[m - 1] + same[m]) / 2;

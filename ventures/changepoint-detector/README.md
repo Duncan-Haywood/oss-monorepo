@@ -3690,6 +3690,133 @@ open day after a closure, held until a second open week agrees), on a third shop
 the fill does not swallow a real change that starts within 3 days of a closure (the 2011-09-01 case), in simulation
 with steps placed next to closures.
 
+## Steps beside a closure (2026-11-19, pre-registered; all three bars pass, `--closed` ships)
+
+The section above failed K4b (steps caught fell from 75 to 70 of 100 with the fill) and guessed that a closure just
+after a step is filled from the weeks before it. Two things in that round's design were also wrong: K4a's bar ignored
+the setting's own false-alert rate, and K4b compared the fill with the closures-as-zeros arm, whose alerts *at* a
+closure can land within 7 days of a step and count as catches. This round adds the baseline round 1 lacked, **clean**:
+the same series with its closed days left open (their counts drawn from a side stream, so every other draw is
+identical). `eval/closed-steps.mjs`; Quiet (`bocpd`, `--model poisson`, `--period 7`), replayed.
+
+**Diagnosis on round 1's seeds (already seen; decides nothing; `eval/closed-steps-diag.out.txt`).** The script
+reproduces round 1's numbers exactly (zeros 75, fill 70), and the clean shop catches **67**. So the fill did not
+swallow steps: the zeros arm caught 13 of its 75 only through an alert within a day of a closure, which a shop that
+never shut would not have sent. Against clean, round 1's fill lost 2 steps and found 5 others. On the no-step series it
+put an alert at a closure in 8 of 100 against 16 at random placebo dates; the clean series, with no closures at all,
+had 22 against 18. K4b and K4a measured the wrong thing.
+
+**The candidate and the bars** were committed before the fresh run (`eval/closed-steps.prereg.md`). **fill1**: each
+closed day takes the nearest earlier same-weekday open day (`fillClosed(..., { lags: 1 })`), one week old rather than up
+to four, so a closure 8 or more days after a step is filled from after it. Fresh seeds 20261120: 100 no-step series
+with 6 closures, and 100 series with a +40% step and **one closure placed 1 to 21 days after it** (plus 5 more), the
+case round 1 named. Every series also gets 6 placebo dates drawn like closures: the chance rate of an alert "at a
+closure" for each arm's own alerts.
+
+| fresh seeds 20261120 | clean | zeros | round 1 fill (median of 4) | **fill1** |
+|---|---|---|---|---|
+| no-step series with an alert within 1 day of a closure (of 100) | 16 | 100 | 8 | **16** |
+| ... of a placebo date (chance) | 21 | 40 | 21 | 21 |
+| steps caught within 7 days (of 100) | 57 | 67 | 51 | **52** |
+| of which closure 1-7 days after the step (27) | 16 | 20 | 11 | 11 |
+| of which closure 8-21 days after (73) | 41 | 47 | 40 | 41 |
+| alerts over all 200 series | 846 | 1,584 | 819 | 820 |
+
+- **S1 passes** (closure alerts at most chance + 3): 16 against 21.
+- **S2 passes, at the line** (steps caught at least clean's minus 5): 52 against 57 - 5 = 52.
+- **S3 passes, by one** (at least round 1's fill): 52 against 51. Round 1's fill fails S2 (51).
+
+The zeros arm's 67 is again inflated: 21 of its 67 catches came only through an alert at a closure. The cost of a
+fill is real and sits where the guess put it: with a closure 1 to 7 days after the step, both fills catch 11 of 27
+against 16 for the clean shop, since a fill one week old is still from before the step. One week instead of four
+fixed the 8-21 day case (41, as clean) but not that one. The median delay to the alert was 5 to 6 days in every arm.
+
+**The real shop again (both years already seen; reported, not barred; same output file).** Quiet, `--period 7`:
+
+| | zeros | round 1 fill | fill1 |
+|---|---|---|---|
+| fresh year 2009-10, orders: alerts (at a closure) | 11 (3) | 6 (0) | 7 (0) |
+| fresh year, all 4 columns: alerts at a closure | 5 | 1 | 1 |
+| design year 2010-11, orders: alerts (at a closure) | 4 (2) | 3 (0) | 2 (0) |
+| design year, all 4 columns: alerts at a closure | 5 | 0 | 0 |
+
+On the fresh year fill1 sends the autumn build-up (dated 2010-11-09) on 2010-11-13, six days sooner than with zeros,
+as round 1's fill did. The cancellations alert at a closure is the post-Easter week described above, a real dip. On the
+design year **fill1 also loses the 2011-09-01 build-up alert on orders**, three days after the August bank holiday
+(round 1's fill lost it too, and sent a 2011-03-18 change seven months late instead; fill1 does not). That is the
+1-to-7-day cost from the simulation, seen once on real data: part of what Quiet heard there was the holiday's zero.
+
+**What ships: `--closed <dates|@file>` on `watch.mjs`** (one column, `--columns`, `--suggest` and the normal run),
+filling with fill1 (rounded for counts) before any detector sees the series. The text output says how many listed days
+were in the series and which; `--json` adds `closed: { listed, filled }`. Days a shop is always shut (a Saturday) are
+for `--period 7`, not this list. The page and the agent tool are unchanged.
+
+**Checked:** `closed-days.test.mjs` (now 8 tests): the `lags` rule, its prefix honesty, the CLI with a list and an
+`@file`, and fill1 on the fresh year's orders with no alert at a closure.
+
+Next: a closure in the first week after a step (11 of 27 caught against 16): hold an alert dated within a week before a
+closure for one more open week, or fill from the open days after a found change; pre-register it on fresh seeds and a
+third shop's daily series.
+
+## A closure in the first week after a step (2026-11-19, two pre-registered rounds; both fail, `--closed` keeps fill1)
+
+The section above left one cost of the shipped fill: with a closure 1 to 7 days after a +40% step, fill1 caught 11 of 27
+steps against 16 for the shop that never shut, because a fill one week old is still from before the step. The
+candidate here, **rec3** (`fillClosed(..., { lags: 1, recent: 3 })`), reads the level from the 3 nearest open days in
+the last week instead, each scaled to the closed day's weekday by the weekday means of the 4 weeks ending a week before
+the closure (skipping always-zero days such as Saturday). A closure 3 or more days after a step is then filled at the
+new level, and only earlier points feed it, so a replay stays honest. k = 3 was fixed, not tuned. Script
+`eval/closed-recent.mjs`, output `eval/closed-recent.out.txt`; Quiet (`bocpd`, `--model poisson`, `--period 7`),
+replayed; the simulation is the section above's, except that **every** step series has a closure 1 to 7 days after its
+step, so the case has 100 series rather than 27.
+
+**Round 3** (`eval/closed-recent.prereg.md`, fresh seeds 20261121). A design run on the section above's seeds first
+reproduced its numbers exactly (clean 57, fill1 52) and decided nothing.
+
+| fresh seeds 20261121 | clean | zeros | fill1 (ships) | rec3 |
+|---|---|---|---|---|
+| no-step series with an alert within 1 day of a closure / of a placebo date (of 100) | 17 / 24 | 99 / 41 | 23 / 26 | 18 / 25 |
+| steps caught within 7 days (of 100; closure 1-7 days after each) | 59 | 85 | 53 | 66 |
+| alerts over all 200 series | 874 | 1,580 | 845 | 903 |
+
+T1 (closure effect against chance), T2 (rec3 catches at least fill1 + 5) and T3 (at least clean - 5) passed. **T4
+failed**: 903 alerts against a cap of 1.05 x fill1's 845 = 887. The diagnosis showed the cap's reference was wrong:
+on the step series fill1 sends *fewer* alerts than the shop that never shut (439 against 474), because a pre-step fill
+mutes the step's own alerts, and rec3 (486) sits next to clean. On the no-step series, where every alert is false,
+rec3 sent 417 against clean's 400.
+
+**Round 4** (`eval/closed-recent-r4.prereg.md`, fresh seeds 20261122), written after seeing round 3, changed only the
+noise bar: **U4**, false alerts on the no-step series at most 1.05 x clean's (the 1.05 kept, not re-chosen). T1 to T3
+unchanged.
+
+| fresh seeds 20261122 | clean | zeros | fill1 (ships) | rec3 |
+|---|---|---|---|---|
+| no-step series with an alert within 1 day of a closure / of a placebo date (of 100) | 21 / 29 | 100 / 41 | 17 / 26 | 19 / 28 |
+| steps caught within 7 days (of 100) | 58 | 89 | **60** | 62 |
+| false alerts (100 no-step series) | 346 | 728 | 329 | 358 |
+
+T1, T3 and U4 passed (358 against 363). **T2 failed**: 62 against 60 + 5. On these seeds fill1 caught as many steps as
+the shop that never shut, 18 of its 60 through an alert within a day of a closure. So rec3 does not ship, `--closed`
+keeps fill1, `recent` stays a module option (`closed-days.test.mjs`, 2 new tests: the new level after a step, the
+weekday scaling past a shut Saturday, the fallback and prefix honesty), and there is no round 5 on this candidate.
+
+What the three seed sets say together (descriptive, not barred): over 227 steps with a closure 1 to 7 days after them,
+clean caught 133, fill1 124 and rec3 139. Round 2's "11 of 27 against 16" was mostly the luck of 27 series. fill1's
+real cost is about 4 steps in 100 against a shop that never shut, and rec3 recovers it with about 3% more false alerts,
+but 100 series per round is too few to show a 4-in-100 effect against a bar of 5. A bar that small needs about 1,000
+series, five hours on this container's four cores.
+
+**The real case was a different one.** Both real years were rerun (`real`, reported). On the design year rec3, like
+fill1, does not bring back the 2011-09-01 orders alert, and it sends a 2011-03-18 change on 2011-11-17, eight months
+late (fill1 does not). The data say why: the August bank holiday was **2011-08-29, three days *before* the build-up's
+first day**, not after it (`data/online-retail-daily.csv`). The "closure after a step" this round simulated is not
+what cost the alert on real data. The zeros arm's 2011-09-01 alert was sent partly because the holiday's zero sat a few
+days before the rise, and no fill restores that. On the fresh year rec3 sends the autumn build-up (2010-11-09) on
+2010-11-15, two days later than fill1 and four sooner than zeros.
+
+Next: a closure in the week *before* a step (the 2011-09-01 case), simulated with the step placed 1 to 7 days after a
+closure and scored against clean; rec3's gain needs about 1,000 series per arm to settle, as a long background run.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other

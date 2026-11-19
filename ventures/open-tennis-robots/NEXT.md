@@ -13,4 +13,4 @@
 
 ## Buildable here (added 2026-11-18)
 
-- (2026-11-19) The eight-point grid (0, 2, 3, 4, 5, 6, 7, 8 ms) shipped (eval/take-grid-eight-2026-11-19.md). The nine-point grid now adds only the 1 ms point; G to I's large misses at 1-2.5 ms are the fit's (the same builds on every grid), so test the fit's take-blindness under 2.5 ms before another grid point.
+- (2026-11-19) Large take misses left after the nine-point grid (eval/take-short-n-2026-11-19.md): 1.4-1.9 ms takes reading 0, where the summed curve's shelf hides the valley; a check of those builds' summed curves before any new grid or pick is tried.

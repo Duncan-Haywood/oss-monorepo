@@ -40,3 +40,4 @@
 - (2026-11-18) two shocked donors 2026-11-18 (README "Two shocked donors"): 54-56% to 27-28%, both left out 53-56%, one 35%
 - (2026-11-19) next a real panel with a known slope event
 - (2026-11-19) the note quotes it
+- (2026-11-19) slope and pulse shocks 2026-11-18: warning holds 42 of 43 false finds (README "Shocks that are not steps")

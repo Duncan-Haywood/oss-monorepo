@@ -33,10 +33,12 @@ python experiments/plot.py       # writes experiments/sweep.png
 ![Reversed-load buckling factor against web width](experiments/sweep.png)
 
 - **Coarse-mesh root: w = 22.47 mm; finer-mesh root: between 22.54 (factor 2.991) and 22.62 mm (3.005).** The finer mesh moves the root by about 0.15 mm (under 1%).
-- **Mass cost: from 30.68 g to 36.6 g, +5.9 g (+19%)** for a reversed-load factor of 3 at b = 1.5 mm in this model. The factor rises about 0.22 per extra mm of width near the root (finer mesh).
+- **Mass cost: from 30.68 g to 36.6 g, +5.9 g (+19%)** for a reversed-load factor of 3 at b = 1.5 mm in this model. The factor rises about 0.19 per extra mm of width near the root (least-squares slope over the six finer-mesh rows of `sweep.txt`, 0.193; corrected from 0.22 after the [2026-11-19 quality audit](../../portfolio/quality/audits/2026-11-19-simdesign-revwidth.json)).
 - The factor is monotone in w over the sweep, which the bisection assumes; only 5 widths were scanned beyond the bisection points.
 
 ## Limitations
+- The floor of 3 is applied to the elastic eigenvalue alone. At w = 22.6 mm the lateral-torsional slenderness is about 1.25, and an EN 1993-1-1 §6.3.2.2 reduction (0.36 to 0.41, assuming fy = 250 MPa, since no grade is stated) brings the design resistance to roughly 1.7 to 1.9 times the 100 N load, not 3 (quality audit above).
+- Only the wider-web route is costed. A thicker sheet at the original width (about 1.7 mm by the thickness-cubed scaling) may be lighter; not modelled.
 - Inherits every limitation of `simdesign-lbuckle`: sharp inner corner (a fillet would probably raise the factor and lower the needed width, not tested), idealised full-face clamp, uniform end traction, perfect elastic sheet (factors are upper bounds), and a floor of 3 that is an assumption.
 - A wider web may violate other constraints of earlier projects (the slenderness rule, peak stress, the fitted envelope); this project checks buckling only.
 - Reversed loading is a sensitivity case, not a stated requirement.

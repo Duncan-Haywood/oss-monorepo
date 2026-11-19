@@ -2890,6 +2890,22 @@ Graduale leaves no list reads, committed before they were downloaded: the join c
 of the book the held-out pick barely sampled. Details: `eval/staff-gap-check.md`; look at a place
 with `node eval/one-step-rhombus-diag.mjs ITEM:LEAF:STAFF:X`.
 
+### An F clef whose stem stands apart from its blocks (2026-11-19)
+
+Leaf 434 staff 3 (3421 *Narraverunt*) was read two steps high from end to end. The 1908 F clef is a
+square with a stem down its right side, then the C clef's two blocks. `findClef` takes the first
+columns whose ink runs 0.9 spaces or more and spreads over the tall columns next to them; there a
+white gap two pixels wide parts the stem from the blocks' curve, so the stem alone was the clef and
+its middle rounded a line low. The run now crosses a gap of up to 0.15 spaces to more tall columns,
+unless their ink reaches the edge of the search window, as a page border's does (`CLEF_BRIDGE` in
+`scan.mjs`; `readPage(img, { clefBridge: false })` reads as before). Tuning lists: notes agreeing
+24,479 to 24,538, differing 89 to 73, GABC only 569 to 564, scan only 91 to 86, one-step cephalici 78
+to 80 of 85 (3421 *non*'s included). All 240 moved notes are on six staves, each an F clef with a
+parted stem, looked at as a crop. Held out, 60 Graduale leaves no list reads, committed before they
+were downloaded: no clef changed on their 473 staves; three predictions held, but there was nothing
+there to fix. Details: `eval/clef-bridge-check.md`; look at a staff's start with
+`node eval/clef-diag.mjs ITEM:LEAF:STAFF`.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif

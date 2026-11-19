@@ -3179,6 +3179,100 @@ export function poolAdvancers(tables, perPool) {
 
 const nextPow2 = (k) => { let p = 1; while (p < k) p *= 2; return p; };
 
+/**
+ * Bracket round (1 = first round) in which the teams on bracket lines `i` and `j` (0-based positions
+ * in seedOrder) can first meet: the lowest level at which both sit in the same block.
+ */
+function meetRound(i, j) {
+  let r = 0;
+  while (i !== j) { i >>= 1; j >>= 1; r++; }
+  return r;
+}
+
+/**
+ * Crossover play-off seeds from pool tables: winners still come before runners-up, and so on, but
+ * within each place the order is chosen so teams from the same pool meet as late as the bracket
+ * allows (A1 v B2, B1 v A2 rather than a pool rematch in the first knockout round). The objective is
+ * lexicographic: fewest possible same-pool meetings in round 1, then round 2, ..., then the least
+ * movement from the best-record order of poolAdvancers (a move near the top weighs more). Swaps inside each place first, then an exact
+ * pruned search over the places' orderings (capped at SEED_SEARCH_NODES nodes; the swap answer
+ * stands if the cap is hit). Returns { seeds, pools (pool index per seed), meetings (same-pool pairings possible per
+ * round), plain (the same counts for the poolAdvancers order) }.
+ */
+const SEED_SEARCH_NODES = 300000;
+export function poolPlayoffSeeds(tables, perPool) {
+  const tiers = [];
+  for (let place = 0; place < perPool; place++) {
+    const tier = tables.map((t, p) => ({ row: t[place], p })).filter((x) => x.row)
+      .sort((x, y) => y.row.points - x.row.points || y.row.gd - x.row.gd || y.row.gf - x.row.gf || x.p - y.p)
+      .map((x) => ({ name: x.row.name, p: x.p }));
+    if (tier.length) tiers.push(tier);
+  }
+  const base = tiers.flat();
+  const n = base.length;
+  if (n < 2) return { seeds: base.map((x) => x.name), pools: base.map((x) => x.p), meetings: [], plain: [] };
+  const size = nextPow2(n);
+  const order = seedOrder(size);
+  const line = new Array(n + 1);
+  order.forEach((s, i) => { if (s <= n) line[s] = i; });
+  const rounds = Math.log2(size);
+  const homeSeed = new Map(base.map((x, i) => [x.name, i]));
+  const score = (arr) => {
+    const v = new Array(rounds + 1).fill(0);
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) if (arr[a].p === arr[b].p) v[meetRound(line[a + 1], line[b + 1]) - 1]++;
+    v[rounds] = arr.reduce((s, x, i) => s + Math.abs(homeSeed.get(x.name) - i) * (n - Math.min(i, homeSeed.get(x.name))), 0); // moving a top seed costs more
+    return v;
+  };
+  const less = (x, y) => { for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] < y[i]; return false; };
+  const cur = base.slice();
+  let best = score(cur);
+  const starts = [];
+  let off = 0;
+  for (const t of tiers) { starts.push([off, off + t.length]); off += t.length; }
+  for (let guard = 0; guard < 10000; guard++) {
+    let move = null;
+    for (const [lo, hi] of starts) for (let a = lo; a < hi; a++) for (let b = a + 1; b < hi; b++) {
+      if (cur[a].p === cur[b].p) continue;
+      [cur[a], cur[b]] = [cur[b], cur[a]];
+      const v = score(cur);
+      [cur[a], cur[b]] = [cur[b], cur[a]];
+      if (less(v, move ? move.v : best)) move = { a, b, v };
+    }
+    if (!move) break;
+    [cur[move.a], cur[move.b]] = [cur[move.b], cur[move.a]];
+    best = move.v;
+  }
+  // Swaps can stall in a local optimum (3 pools x 4 advancers did), so an exact depth-first search
+  // over each place's orderings follows, pruned whenever a partial vector is already lex-worse than
+  // the best (every count only grows as seeds are added), and stopped after SEED_SEARCH_NODES nodes.
+  const tierOf = [];
+  starts.forEach(([lo, hi], t) => { for (let i = lo; i < hi; i++) tierOf[i] = t; });
+  const used = new Set();
+  const pick = new Array(n);
+  const v = new Array(rounds + 1).fill(0);
+  let nodes = 0;
+  const lexGreater = (x, y) => { for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] > y[i]; return false; };
+  const dfs = (a) => {
+    if (++nodes > SEED_SEARCH_NODES) return;
+    if (a === n) { if (less(v, best)) { best = v.slice(); for (let i = 0; i < n; i++) cur[i] = pick[i]; } return; }
+    const [lo, hi] = starts[tierOf[a]];
+    for (let m = lo; m < hi; m++) {
+      if (used.has(m)) continue;
+      const x = base[m];
+      const added = [];
+      for (let b = 0; b < a; b++) if (pick[b].p === x.p) { const r = meetRound(line[a + 1], line[b + 1]) - 1; v[r]++; added.push(r); }
+      const d = Math.abs(m - a) * (n - Math.min(a, m));
+      v[rounds] += d;
+      if (!lexGreater(v, best) && (a + 1 < n || less(v, best))) { used.add(m); pick[a] = x; dfs(a + 1); used.delete(m); }
+      v[rounds] -= d;
+      for (const r of added) v[r]--;
+    }
+  };
+  dfs(0);
+  return { seeds: cur.map((x) => x.name), pools: cur.map((x) => x.p), meetings: best.slice(0, rounds), plain: score(base).slice(0, rounds) };
+}
+
+
 /** Standard single-elimination seed order for a bracket of `size` (1 v size, 2 v size-1, ...). */
 export function seedOrder(size) {
   let order = [1];

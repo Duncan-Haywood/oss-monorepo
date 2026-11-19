@@ -1,0 +1,20 @@
+Free agents placed on a league page: the least-filled rule (before) vs the late-sign-up search (now).
+Gap = strongest minus weakest team total after placing; tagX = tag excess (0 = every tag split within one);
+tagX>0 = cases with any excess, tagX = mean excess; min-size = mean size of the smallest roster after placing.
+Both measured on the ratings the search used. 'search kept' = cases where the search's answer was kept;
+in the rest suggestPlacements returned the least-filled picks because the search was not better.
+
+k   FAs     sheet  cases  lf-gap  now-gap  lf-tagX>0  now-tagX>0  lf-tagX  now-tagX  lf-min-size  now-min-size  search-kept  cap-broken  friends-split  ms(max)
+4   3-8     no     60     2.58    2.35     25         12          0.47     0.20      9.28         9.30          59           0           0              44
+4   3-8     yes    60     21.37   18.31    57         54          3.03     2.13      9.27         9.27          58           0           0              48
+6   4-12    no     60     3.38    3.17     34         12          0.72     0.20      9.08         9.08          60           0           0              49
+6   4-12    yes    60     24.18   18.41    60         56          3.77     2.82      8.97         8.88          58           0           0              56
+8   6-16    no     40     3.35    3.20     32         13          1.00     0.33      9.30         9.30          39           0           0              84
+8   6-16    yes    40     28.00   22.99    40         38          4.67     3.52      9.35         9.22          39           0           0              76
+12  8-24    no     30     3.43    3.23     26         11          1.23     0.37      9.20         9.23          29           0           0              155
+12  8-24    yes    30     31.03   25.60    30         30          5.70     4.40      9.03         9.07          28           0           0              137
+16  10-30   no     20     3.50    3.25     17         6           1.10     0.30      9.20         9.25          20           0           0              302
+16  10-30   yes    20     30.70   25.63    20         20          6.15     5.25      9.10         8.95          20           0           0              218
+
+tag questions read from "Woman=F, Goalie=G": [{"label":"Woman","tag":"F"},{"label":"Goalie","tag":"G"}]
+total 27.1 s

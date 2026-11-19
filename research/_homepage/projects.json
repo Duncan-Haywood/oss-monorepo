@@ -2444,7 +2444,7 @@
     {
      "slug": "simdesign-revwidth",
      "title": "How wide must the 1.5&nbsp;mm L-bracket be to clear the buckling floor when the load is reversed?",
-     "summary": "A small finite-element sweep (stylised, preliminary; ideal elastic sheet, sharp inner corner, buckling only). Reusing the whole-L 3D eigenbuckling model of <em>simdesign-lbuckle</em>, the reversed-load factor of the 1.5&nbsp;mm bracket rises from 2.27 at w&nbsp;=&nbsp;18.4&nbsp;mm to 3.0 at w&nbsp;&asymp;&nbsp;22.5&ndash;22.6&nbsp;mm (coarse root 22.47, finer-mesh bracket 22.54&ndash;22.62), about 0.22 per extra millimetre. The plate mass rises from 30.7 to 36.6&nbsp;g (+19%). Stress, slenderness and minimum-wall limits were not rechecked at the wider web, the floor of 3 is an assumption, and the corner is sharp."
+     "summary": "A small finite-element sweep (stylised, preliminary; ideal elastic sheet, sharp inner corner, buckling only). Reusing the whole-L 3D eigenbuckling model of <em>simdesign-lbuckle</em>, the reversed-load factor of the 1.5&nbsp;mm bracket rises from 2.27 at w&nbsp;=&nbsp;18.4&nbsp;mm to 3.0 at w&nbsp;&asymp;&nbsp;22.5&ndash;22.6&nbsp;mm (coarse root 22.47, finer-mesh bracket 22.54&ndash;22.62), about 0.19 per extra millimetre. The plate mass rises from 30.7 to 36.6&nbsp;g (+19%). Stress, slenderness and minimum-wall limits were not rechecked at the wider web, the floor of 3 is an assumption, and the corner is sharp."
     },
     {
      "slug": "simdesign-gaugelayers",
