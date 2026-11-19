@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqycU5CU7jxUReyMTaHe",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T23:39:38Z",
+  "ended": "2026-11-19T00:01:55Z",
+  "wall_minutes": 22.54,
+  "tokens_in": 5709360,
+  "tokens_out": 33217,
+  "cost_usd": 2.8658,
+  "tool_calls": 56,
+  "task": "research programme llm-coding-inference, milestone 7bd (7bc's next step 1)",
+  "projects": [
+    "llm-coding-inference"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17466",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first full 7bd launch used the system python3, which lacks numpy for the NaijaSenti cells; died at import before any draw",
+      "fix": "reran with /usr/bin/python3.13"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "First draw (heavy-hydraulics 7r) raced a sibling started 22 s earlier (PR #17463); claim_check caught it only after my registration commit and PR. Cost ~5 min plus a stopped 15-min cache rebuild."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py pytest numpy h5py was started in the background but the redraw made it moot; /usr/bin/python3.13 already had numpy, which a quick per-version probe found faster than pyenv."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Yielded heavy-hydraulics to PR #17463 and closed my own PR #17464 (registration only, no results) without supersede_check.py, since mine was the newer, empty claim",
+      "did": "redrew with pick_track.py --new",
+      "result": "llm-coding-inference 7bd landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-a-tested-trigger-cuts-reach-faster-than-cost.md",
+    "research/llm-coding-inference/LOG.md (7bd entry)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered 7bd on 157 cells x 1,000 draws (~16 min on 4 cores). P0 replay of 7bc 157/157. None of four tested-trigger candidates qualifies; default stays p5j40. Checks run locally: pytest test_llmci.py 43 passed; research/_homepage/build.py ok; check_md_links ok; check_posts ok. No agent doc in docs/reports: the LOG 'Next' carries the hand-off.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ede35e89-9363-5791-8535-53c5fdbca793",
+    "transcripts": 1,
+    "first": "2026-11-18T23:39:38Z",
+    "last": "2026-11-19T00:02:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 95,
+        "output": 33217,
+        "thinking": 8558,
+        "cache_read": 5573464,
+        "cache_write_5m": 0,
+        "cache_write_1h": 135801,
+        "api_equivalent_usd": 2.8658,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 95,
+      "output": 33217,
+      "thinking": 8558,
+      "cache_read": 5573464,
+      "cache_write_5m": 0,
+      "cache_write_1h": 135801,
+      "api_equivalent_usd": 2.8658,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 2,
+      "Write": 2,
+      "mcp__github__update_pull_request": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.54,
+      "active_minutes": 22.54,
+      "model_minutes": 5.82,
+      "tool_minutes": 16.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, pre-register and write up one simulation study step plus a paper sentence and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 209.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
