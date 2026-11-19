@@ -146,6 +146,8 @@ export function spreadLowerBound(units, k) {
  * Late sign-ups: `opts.fixed` gives, per player index, the team index the player is already on (or -1
  * for a new player); `opts.maxMoves` (default 0) is how many of those players may change team, and
  * `opts.teamNames` keeps the announced names and order. addLateSignups builds these from a teams CSV.
+ * `opts.capacity` (an array, one number per team) caps each team's size: a hard rule like the others,
+ * for a league page whose organiser fills rosters only up to a set size (freeagents.mjs).
  * Returns { teams: [{ name, players: [{name, rating, tag}], total, average, tags: {tag: count} }],
  *   spread, lowerBound, proved, broken: [messages for rules that could not all be kept], warnings,
  *   moved: [{ name, from, to }], late: [{ name, team }] (both empty without `fixed`) }.
@@ -158,6 +160,7 @@ export function balanceTeams(parsed, k, opts = {}) {
   const fixedIn = opts.fixed ?? null;
   if (!fixedIn && players.length < k) throw new Error(`${players.length} players cannot fill ${k} teams.`);
   const maxMoves = fixedIn ? Math.max(0, Math.trunc(opts.maxMoves ?? 0)) : 0;
+  const cap = Array.from({ length: k }, (_, t) => (Number.isFinite(opts.capacity?.[t]) ? opts.capacity[t] : Infinity));
   const problems = [];
   const model = buildModel(parsed, k, fixedIn, problems);
   const { units, tags, apartUnits, sizeLo, sizeHi, tagLo, tagHi, pinCount, pinTotal, pinned } = model;
@@ -184,7 +187,7 @@ export function balanceTeams(parsed, k, opts = {}) {
   const viol = () => {
     let v = 0;
     for (let t = 0; t < k; t++) {
-      v += Math.max(0, size[t] - sizeHi) + Math.max(0, sizeLo - size[t]);
+      v += Math.max(0, size[t] - sizeHi) + Math.max(0, sizeLo - size[t]) + Math.max(0, size[t] - cap[t]);
       for (let j = 0; j < tags.length; j++) v += Math.max(0, tc[j][t] - tagHi[j]) + Math.max(0, tagLo[j] - tc[j][t]);
     }
     for (const [ua, ub] of apartUnits) if (team[ua] === team[ub]) v++;
@@ -220,7 +223,7 @@ export function balanceTeams(parsed, k, opts = {}) {
       let best = -1, bestKey = null;
       for (let t = 0; t < k; t++) {
         const clash = partners[u].some((p) => team[p] === t && placed[p]) ? 1 : 0;
-        const over = size[t] + units[u].size > sizeHi ? 1 : 0;
+        const over = size[t] + units[u].size > Math.min(sizeHi, cap[t]) ? 1 : 0;
         const tagLoad = units[u].tagCount.reduce((s, c, j) => s + (c ? tc[j][t] : 0), 0);
         const kk = [over, clash, tagLoad, size[t], total[t], r()];
         if (!bestKey || lexLess(kk, bestKey)) { best = t; bestKey = kk; }
@@ -278,7 +281,7 @@ export function balanceTeams(parsed, k, opts = {}) {
   let exhaustive = false;
   const lb0 = spreadLowerBound(units, k);
   if (n <= (opts.exactUpTo ?? 16) && (final.v > 0 || final.spread > lb0 + 1e-9 || final.moved > 0)) {
-    const ex = exactTeams(parsed, k, lb0, opts.exactNodes ?? 3e6, fixedIn, maxMoves);
+    const ex = exactTeams(parsed, k, lb0, opts.exactNodes ?? 3e6, fixedIn, maxMoves, cap);
     if (ex && (final.v > 0 || ex.spread < final.spread - 1e-9 || (Math.abs(ex.spread - final.spread) < 1e-9 && ex.moved < final.moved))) {
       final = rebuild(units.map((U) => ex.team[U.ids[0]]));
     }
@@ -288,6 +291,7 @@ export function balanceTeams(parsed, k, opts = {}) {
   const names = Array.from({ length: k }, (_, t) => (opts.teamNames?.[t] != null ? tidy(opts.teamNames[t]) : `Team ${t + 1}`));
   const broken = [...problems];
   for (let t = 0; t < k; t++) {
+    if (size[t] > cap[t]) broken.push(`${names[t]} has ${size[t]} players, over its cap of ${cap[t]}.`);
     if (size[t] > sizeHi || size[t] < sizeLo) broken.push(`${names[t]} has ${size[t]} players (others ${sizeLo}-${sizeHi}): ${pinned ? "the announced teams and the moves allowed" : "a together group"} did not fit evenly.`);
     for (let j = 0; j < tags.length; j++) if (tc[j][t] > tagHi[j] || tc[j][t] < tagLo[j]) broken.push(`${names[t]} has ${tc[j][t]} tagged ${tags[j]} (even split is ${tagLo[j]}-${tagHi[j]}).`);
   }
@@ -446,7 +450,7 @@ export function exactLeastSpread(parsed, k) {
  *  null. Stops early once the spread meets `stopAt` with nobody moved. With `fixed` (late sign-ups) the
  *  teams are told apart, so the symmetry cut is off, and at most `maxMoves` announced players move;
  *  among equal spreads it keeps the fewest moved. */
-function exactTeams(parsed, k, stopAt = -1, nodeCap = Infinity, fixed = null, maxMoves = 0) {
+function exactTeams(parsed, k, stopAt = -1, nodeCap = Infinity, fixed = null, maxMoves = 0, cap = null) {
   const { players } = parsed;
   const n = players.length;
   const { units, tags, apartUnits, sizeLo, sizeHi, tagLo, tagHi, pinCount, pinTotal, pinned } = buildModel(parsed, k, fixed, []);
@@ -469,7 +473,7 @@ function exactTeams(parsed, k, stopAt = -1, nodeCap = Infinity, fixed = null, ma
     for (let t = 0; t < (pinned ? k : Math.min(k, used + 1)); t++) { // symmetry: a new team only in order
       const m = pinTotal[u] - pinCount[u][t];
       if (movedNow + m > maxMoves && pinTotal[u]) continue;
-      if (size[t] + U.size > sizeHi) continue;
+      if (size[t] + U.size > sizeHi || (cap && size[t] + U.size > cap[t])) continue;
       if (U.tagCount.some((c, j) => tc[j][t] + c > tagHi[j])) continue;
       if (apartU.some(([a, b]) => (a === u && team[b] === t) || (b === u && team[a] === t))) continue;
       team[u] = t; size[t] += U.size; total[t] += U.rating; U.tagCount.forEach((c, j) => (tc[j][t] += c)); movedNow += m;

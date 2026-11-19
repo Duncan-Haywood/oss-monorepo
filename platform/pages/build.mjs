@@ -131,6 +131,7 @@ import {
 } from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
+import { PAPER_INK_JS } from './paper.mjs';
 import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
 import { JUMP_ROW_CSS } from './jump-row.mjs';
 import { ANSWER_LEAD_CSS } from './answer-lead-style.mjs';
@@ -10837,7 +10838,7 @@ export const CHROME_MODULE_FILE = 'pf-site.js';
 
 /** The contents of that file. Written once by the build, at the site root. */
 export function renderChromeModule({ counterUrl = SITE_COUNTER_URL } = {}) {
-  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(VENTURE_CHROME_JS)}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(STICKY_FIT_JS)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n`;
+  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(VENTURE_CHROME_JS)}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(STICKY_FIT_JS)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n${stripForInjection(PAPER_INK_JS)}\n`;
 }
 
 // ---------------------------------------------------------------------------

@@ -246,6 +246,12 @@ class Registry(unittest.TestCase):
                                 "register in the same control-plane PR as framerate",
             "fold-check": "first tool card on every c/for-* page within a 390x844 "
                           "screen; register in the same control-plane PR as framerate",
+            # 2026-11-19 explore run: print legibility. With PAPER_INK_JS in
+            # pf-site.js, 5 pages / 15 runs remain (all also screen-contrast
+            # issues); fix or exempt those before registering, so the nightly
+            # does not start red. docs/reports/2026-11-19-paper-print-legibility.md
+            "paper": "text that fades on paper; run with --with-fix against a "
+                     "build, then register in the same control-plane PR as framerate",
         }
         # Browser tools run by hand on purpose, never by the nightly. Each
         # entry says why it is not a check.
