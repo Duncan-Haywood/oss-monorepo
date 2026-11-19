@@ -2,6 +2,9 @@
 
 Newest first.
 
+## 2026-11-19 · Milestone 7v (paper step): the manuscript cut to journal length, with the gear-pump selection detail moved to a checked supplement
+- Why: 7u's Next (c). The manuscript reached 9,479 words, about twice its 6s length (4,573), almost all of it in sections 3.5 to 3.10. In progress.
+
 ## 2026-11-19 · Milestone 7u (paper step): section 3.5 rebuilt from one 21,000-character paragraph into subsections and a rule table
 - Why: pick_track's CHAIN note (20 sub-steps of milestone 7, 27 entries since a paper step). Each of 7a to 7t appended sentences to one paragraph of manuscript section 3.5; it reached 91 sentences, which no reviewer would read. This step changes no result: it restructures the section, adds a table of the selection rules in the order they were tested, and refreshes the abstract and status line. Every number stays checked by `paper/check_numbers.py --paper manuscript.md`.
 
