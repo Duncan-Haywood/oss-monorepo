@@ -58,6 +58,7 @@ def sweep(argv) -> int:
     ap.add_argument("--cache")
     ap.add_argument("--cards", help="tools/card_scenes.py output: skip repeat scenes")
     ap.add_argument("--ks", help="comma-separated k (default KS)")
+    ap.add_argument("--no-raw-grain", action="store_true", help="skip truth_grain18 (two extra LibRaw passes a file)")
     args = ap.parse_args(argv)
     ks = tuple(float(x) for x in args.ks.split(",")) if args.ks else KS
     cards = json.load(open(args.cards)) if args.cards else None
@@ -68,6 +69,7 @@ def sweep(argv) -> int:
     import xtrans_demosaic_check as chk
     from noise_aware_estimated import card_of, seed_of
     from noise_aware_planes import carries, draw, gains_of
+    from truth_noise_check import raw_grain
     from xtrans_frame_choice import _truth, split_of, tiles
 
     from shootflow.xtrans_demosaic import frame_noise as xd_frame_noise
@@ -90,7 +92,14 @@ def sweep(argv) -> int:
         except Exception as exc:  # noqa: BLE001
             emit({"file": name, "skipped": f"{type(exc).__name__}: {exc}"})
             continue
-        for (ty, tx), truth in tiles(truth_full, 480, 3):
+        cut = tiles(truth_full, 480, 3)
+        grain = {}
+        if not args.no_raw_grain:
+            try:  # the truth's grain read from the raw (tools/truth_noise_check.py), not from the binned scene
+                grain = raw_grain(path, [s for s, _ in cut]).get("tiles", {})
+            except Exception:  # noqa: BLE001
+                grain = {}
+        for (ty, tx), truth in cut:
             clean = chk.mosaic(truth, pat)
             # The truth's own noise (the source frame's grain survives 4 x 4 binning): frame_noise on the clean
             # mosaic, as sigma at 18% grey. Where it rivals the noise added, the score rewards keeping that grain.
@@ -115,16 +124,22 @@ def sweep(argv) -> int:
                         cps[arm], lps[arm] = s["cpsnr"], s["lpsnr"]
                     emit({"layout": "bayer" if args.bayer else "xtrans", "file": name,
                           "card": card_of(name, cards), "split": split_of(card_of(name, cards)),
-                          "tile": [ty, tx], "snr": snr, "scenario": sc, "truth_sigma18": truth_sigma18, "cpsnr": cps, "lpsnr": lps,
+                          "tile": [ty, tx], "snr": snr, "scenario": sc, "truth_sigma18": truth_sigma18,
+                          "truth_grain18": grain.get((ty, tx)), "cpsnr": cps, "lpsnr": lps,
                           "s": round(time.perf_counter() - t0, 2)})
     return 0
 
 
 def clean_enough(row: dict) -> bool:
-    """The truth is at least as clean as the noise added: its own SNR at 18% grey (``truth_sigma18``) is no lower
-    than the row's ``snr``. Rows from before the field was recorded count as clean."""
+    """The truth is at least as clean as the noise added: its own SNR at 18% grey is no lower than the row's
+    ``snr``. The truth's noise is ``truth_grain18`` (read from the raw, ``tools/truth_noise_check.py``) when the
+    row has it, else ``truth_sigma18`` (``frame_noise`` on the clean mosaic, which reads texture as grain: on
+    eval/near-clean-truth-noise-2026-11-19.md's D780 foliage 6 to 12 times the raw's grain). Rows with neither
+    count as clean."""
 
-    t = row.get("truth_sigma18")
+    t = row.get("truth_grain18")
+    if t is None:
+        t = row.get("truth_sigma18")
     return t is None or t <= 0 or 0.18 / t >= row["snr"]
 
 
