@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyfi5eZaNqA47HuoTXi",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T08:38:50Z",
+  "ended": "2026-11-19T10:35:58Z",
+  "wall_minutes": 117.3,
+  "tokens_in": 7199619,
+  "tokens_out": 33907,
+  "cost_usd": 3.0104,
+  "tool_calls": 72,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17602",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "check.py (bf16 vs fp32) for the 3B model was OOM-killed (rc 137): 12 GB fp32 weights in 15 GB RAM; disclosed in LOG.md and the post rather than retried",
+    "first scale.py test resampled a 4-point vector in the bootstrap and hit a singular fit; test widened to 40 points"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/christian-belief-models/experiments/m5_local_llm/score.py",
+      "issue": "writes p to six decimals; fine for 0.5B/1.5B but the 3B model puts 17% of scores below 1e-5, so logit-scale analysis is resolution-limited. A 7B run should store log-odds."
+    },
+    {
+      "file": "paper/draft.md (christian-belief-models)",
+      "issue": "pre-registration table had silently omitted the 2026-11-17 milestone-5 row; added with the new one"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/christian-belief-models/LOG.md",
+      "why": "added an exploratory logit-scale analysis after the pre-registered outcome, because the 3B model saturates to No and the pre-registered probability-scale slope measured saturation as much as knowledge",
+      "did": "labelled exploratory everywhere (LOG, summary, README, paper, post); pre-registered verdicts left as scored",
+      "result": "logit slope 1.30, tradition-only; estimator still no better than the source share"
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "used Qwen2.5-3B-Instruct (Qwen Research Licence, not Apache) because the 7B in bf16 does not fit 15 GB RAM and 3B keeps the scale comparison within one family",
+      "did": "research use only, no weights redistributed, licence disclosed in LOG/README",
+      "result": "clean within-family scale point"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-christian-belief-models-bigger-local-llm-says-no.md",
+    "research/christian-belief-models/LOG.md 2026-11-19 entry"
+  ],
+  "goal": null,
+  "notes": "Pre-registered: 3 held, 2 partly held (slope fell to 0.02 vs predicted 0.10-0.35; AUC 0.5599 vs floor 0.56). Local checks: 82 project tests pass, check_numbers 115/115, build.py ok, check_md_links ok, check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c34ec0d8-d4f0-5c69-83ac-950c5c8c1468",
+    "transcripts": 1,
+    "first": "2026-11-19T08:38:50Z",
+    "last": "2026-11-19T10:36:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 127,
+        "output": 33907,
+        "thinking": 6907,
+        "cache_read": 7085155,
+        "cache_write_5m": 0,
+        "cache_write_1h": 114337,
+        "api_equivalent_usd": 3.0104,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 127,
+      "output": 33907,
+      "thinking": 6907,
+      "cache_read": 7085155,
+      "cache_write_5m": 0,
+      "cache_write_1h": 114337,
+      "api_equivalent_usd": 3.0104,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 68,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 117.3,
+      "active_minutes": 117.3,
+      "model_minutes": 5.27,
+      "tool_minutes": 112.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a researcher running a 2-hour LLM scoring job, writing a pre-registered analysis, exploratory follow-up, paper edits and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 332.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
