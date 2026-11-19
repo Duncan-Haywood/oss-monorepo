@@ -12,3 +12,18 @@
 {"n":57,"structure":"semi","p":19,"q":3,"r":7,"ms":1200029,"method":"tabu (C, whist-orbits)","seed":2,"tenure":6,"stall":20000,"restarts":362,"moves":8921976,"bestCost":2,"bases":null}
 {"n":52,"structure":"levels","levels":3,"mod":17,"ms":1200000,"method":"tabu (C, whist-orbits)","seed":1,"tenure":4,"stall":20000,"restarts":141,"moves":3539816,"bestCost":12,"bases":null}
 {"n":52,"structure":"levels","levels":3,"mod":17,"ms":1200065,"method":"tabu (C, whist-orbits)","seed":2,"tenure":6,"stall":5000,"restarts":533,"moves":3525008,"bestCost":12,"bases":null}
+# 57, 900 s each, four more settings of semi 19 3 7 (seed, tenure, stall: 11 3 2000, 12 8 5000, 13 10 50000, 14 5 1000):
+{"n":57,"structure":"semi","p":19,"q":3,"r":7,"ms":900031,"method":"tabu (C, whist-orbits)","seed":11,"tenure":3,"stall":2000,"restarts":2860,"moves":7061441,"bestCost":2,"bases":null}
+{"n":57,"structure":"semi","p":19,"q":3,"r":7,"ms":900026,"method":"tabu (C, whist-orbits)","seed":12,"tenure":8,"stall":5000,"restarts":1112,"moves":6992284,"bestCost":2,"bases":null}
+{"n":57,"structure":"semi","p":19,"q":3,"r":7,"ms":900029,"method":"tabu (C, whist-orbits)","seed":13,"tenure":10,"stall":50000,"restarts":120,"moves":7005835,"bestCost":4,"bases":null}
+{"n":57,"structure":"semi","p":19,"q":3,"r":7,"ms":900011,"method":"tabu (C, whist-orbits)","seed":14,"tenure":5,"stall":1000,"restarts":5301,"moves":7062179,"bestCost":2,"bases":null}
+# WHIST_SIGMA=6 WHIST_SELF=0|2|4 semi 7 3 2, 20 s each: the base round fixed by (a,b) -> (-a,b). 21 is found in 68 ms without it, never with it:
+{"n":21,"structure":"semi","p":7,"q":3,"r":2,"ms":20006,"method":"tabu (C, whist-orbits)","seed":1,"tenure":4,"stall":2000,"restarts":437,"moves":880945,"bestCost":2,"bases":null}
+{"n":21,"structure":"semi","p":7,"q":3,"r":2,"ms":20007,"method":"tabu (C, whist-orbits)","seed":1,"tenure":4,"stall":2000,"restarts":406,"moves":821854,"bestCost":2,"bases":null}
+{"n":21,"structure":"semi","p":7,"q":3,"r":2,"ms":20000,"method":"tabu (C, whist-orbits)","seed":1,"tenure":4,"stall":2000,"restarts":399,"moves":800093,"bestCost":4,"bases":null}
+# WHIST_DUMP=1, four 400 s runs of semi 19 3 7 (seeds 31-34, tenure 4, stall 2000): the classes off at each cost-2 state (element (a,b), partner and opponent counts):
+#  (1,0) p1 o3 (17,1) p1 o1
+#  (3,0) p1 o3 (18,1) p1 o1
+#  (7,1) p1 o1 (13,1) p1 o3
+#  (9,0) p0 o2 (5,1) p2 o2
+#  (4,0) p1 o1 (9,1) p1 o3

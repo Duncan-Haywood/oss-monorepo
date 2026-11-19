@@ -25,7 +25,11 @@
  *   ./whist-orbits levels 3 19 <seconds> <seed> [tenure] [stall]     (57 players)
  *   ./whist-orbits semi 19 3 7 <seconds> <seed> [tenure] [stall]     (57 players, non-abelian)
  * Prints one JSON line; exit 0 when found. Point ids: levels, (x, i) = i*m + x and infinity -1;
- * semi, (a, b) = a + p*b. eval/whist-orbits-check.mjs develops a line and checks it pair by pair. */
+ * semi, (a, b) = a + p*b. eval/whist-orbits-check.mjs develops a line and checks it pair by pair.
+ * Options (environment): WHIST_SIGMA=u (semi only, u^2 = 1 mod p) keeps the base round fixed by
+ * (a, b) -> (u a, b), with WHIST_SELF tables mapped onto themselves; WHIST_DUMP=1 prints the classes
+ * that are off whenever a restart first reaches cost 2. Runs and results: eval/whist-orbits.txt and
+ * README "Whist designs for 52 and 57: two more group structures, and why the shortcuts can't work". */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,6 +39,7 @@
 static int n, R, K, P, ncls, cls[MAXP][MAXP], pc[4096], oc[4096], cost;
 static int perm[MAXR][MAXP], pid[MAXP]; /* pid: printable id of internal point */
 static int mode_levels, L, M, gp, gq, gr;
+static int crep[4096]; /* a group element of each class (semi) */
 static int sym, pi_[MAXP], sg[MAXP], fixedpos[MAXP]; /* WHIST_SIGMA: position involution, point involution */
 static unsigned long long rs;
 static unsigned long long rnd(void) { rs ^= rs << 13; rs ^= rs >> 7; rs ^= rs << 17; return rs; }
@@ -97,7 +102,7 @@ static int build(void) {
     R = 1; K = n / 4; P = n;
     int rq = 1; for (int i = 0; i < gq; i++) rq = rq * gr % gp; if (rq != 1) return 0;
     int id[MAXP]; for (int g = 0; g < n; g++) id[g] = -1; ncls = 0;
-    for (int g = 1; g < n; g++) if (id[g] < 0) { id[g] = ncls; id[ginv(g)] = ncls; ncls++; }
+    for (int g = 1; g < n; g++) if (id[g] < 0) { id[g] = ncls; id[ginv(g)] = ncls; crep[ncls] = g; ncls++; }
     for (int p = 0; p < P; p++) pid[p] = p;
     for (int x = 0; x < n; x++) for (int y = 0; y < n; y++) cls[x][y] = x == y ? -1 : id[gmul(ginv(x), y)];
     for (int i = 1; i < n; i++) perm[0][i - 1] = i;
@@ -161,7 +166,11 @@ int main(int argc, char **argv) {
       if ((s & 255) == 0 && (double)(clock() - t0) / CLOCKS_PER_SEC >= secs) break;
       if (br < 0) continue;
       symsw(br, bi, bj); last[br][bi] = last[br][bj] = s;
-      if (cost < best) { best = cost; since = 0; }
+      if (cost < best) { best = cost; since = 0;
+        if (cost == 2 && getenv("WHIST_DUMP") && !mode_levels) { /* which classes are off at a cost-2 state */
+          for (int c = 0; c < ncls; c++) if (pc[c] != 1 || oc[c] != 2) fprintf(stderr, " (%d,%d) p%d o%d", crep[c] % gp, crep[c] / gp, pc[c], oc[c]);
+          fprintf(stderr, "\n");
+        } }
       if (cost < bestEver) bestEver = cost;
       if (cost == 0) { found = 1; break; }
     }
