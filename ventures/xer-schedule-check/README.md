@@ -23,6 +23,17 @@ renamed, float used per activity, how the driving path changed, and a
 **half-step** run that splits the finish movement into what progress caused and
 what the revisions caused.
 
+**Windows analysis across every update** (2026-11-19, `windows.mjs`): open
+all of a job's updates at once, in any order. Each window between two data
+dates gets the forecast finish movement, the half-step split into progress and
+revisions, and the activities on the driving path at the start of the window
+behind it: work that finished, started or ran late, remaining durations that
+grew, and the logic, duration, constraint and calendar changes that touched the
+path. The windows add up to the whole movement; the activities named in the
+most windows are listed first. The contemporaneous-period analysis a claims
+consultant bills for, as a first pass from the files alone; who is responsible
+for each delay stays the analyst's call. `node cli.mjs --windows *.xer`.
+
 **Written review** (2026-11-19): one document for the contractor, built from
 the assessment and, when loaded, the comparison: a summary (forecast against
 the must-finish date, the half-step split), every correction ranked **high**
@@ -149,6 +160,15 @@ project's updates for delay claims; and the review itself as a service.
   finish minus previous finish, revision effect = current minus half-step, in
   working days of the project calendar. Each file's recomputed-vs-stored
   agreement is checked and a warning shown under 90%.
+  A not-started activity's remaining duration is a re-estimate, not progress,
+  so the half-step keeps the previous update's (2026-11-19; before that a
+  re-estimate on unstarted work counted as progress: the example pair moved
+  from +6 / +9 to +8 / +7, paint's 10 to 8 days now being a revision).
+- `windows.mjs`: a series of updates, sorted by data date, each consecutive
+  pair through `compare`; per window the split, the driving path at the start
+  and the drivers on it; totals on the last update's calendar. `status.mjs`
+  statuses a file as planned to a new data date (optionally with planted
+  slips), for the check below and the page's example series.
 - `report.mjs`: the written review. `reviewItems` turns each failing DCMA
   point, extra check, stale-date list and comparison flag into one ranked
   correction with its activities; `reviewHtml` lays them out for print.
@@ -171,6 +191,7 @@ node cli.mjs schedule.xer --risk 1000 --range 90,100,130 --correlation 0.3 [--ra
 node cli.mjs schedule.xer --risk 1000 --risks register.csv   # risk register events, ranked
 node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json]   # resource levelling
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
+node cli.mjs --windows jan.xer feb.xer mar.xer apr.xer [--json] [--csv windows.csv] [--project CODE]
 ```
 
 When a file holds several projects, the comparison takes the project with the
@@ -229,7 +250,7 @@ run as a formula in Excel or Sheets.
   were not planted**. On progress-only copies the half-step finish equals the
   current finish on 120 of 120. No public pair of real consecutive P6 updates
   was found, so the half-step split itself is checked only on the invented
-  example pair (by hand: +15 = +6 progress, +9 revisions) and by construction.
+  example pair (+15 = +8 progress, +7 revisions) and by construction.
 - **Not checked**: no file used progress override, start or smallest float, the
   successor or 24-hour lag calendar, or mandatory constraints, and no unit test
   covers them yet.
