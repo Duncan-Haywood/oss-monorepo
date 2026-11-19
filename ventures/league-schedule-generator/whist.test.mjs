@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { whistDesign, checkWhist, checkNearWhist, whistSizes, nearWhistSizes, whistRotation } from "./whist.mjs";
 import { americano, americanoStats, validateAmericano } from "./calc.mjs";
 import { directBase, multiplierSearch } from "./eval/whist-multiplier.mjs";
+import { readFileSync } from "node:fs";
 
 const names = (n) => Array.from({ length: n }, (_, i) => `P${i + 1}`);
 const opponentRange = (plan, n) => {
@@ -258,4 +259,25 @@ test("whistRotation: a prefix of the design never repeats a partner", () => {
 
 test("whistRotation: refuses a round count longer than the design", () => {
   assert.equal(whistRotation(8, { courts: 2, rounds: 8 }), null);
+});
+
+test("whist 57 by multiplier 37 (eval/whist-involution.txt): a second base round, fixed by x -> 37x, partners once and meets twice", () => {
+  const v = 57;
+  const line = readFileSync(new URL("./eval/whist-involution.txt", import.meta.url), "utf8").split("\n").find((l) => l.includes('"n":57') && l.includes('"tables":[['));
+  const tables = JSON.parse(line).tables;
+  assert.deepEqual(tables.flat().sort((a, b) => a - b), Array.from({ length: v - 1 }, (_, i) => i + 1), "every player but 0 seated once");
+  const partner = new Map(), opp = new Map();
+  const bump = (m, a, b) => { const k = a < b ? a * v + b : b * v + a; m.set(k, (m.get(k) || 0) + 1); };
+  for (let s = 0; s < v; s++) for (const t of tables) {
+    const [a, b, x, y] = t.map((p) => (p + s) % v);
+    bump(partner, a, b); bump(partner, x, y);
+    for (const [p, q] of [[a, x], [a, y], [b, x], [b, y]]) bump(opp, p, q);
+  }
+  assert.equal(partner.size, (v * (v - 1)) / 2);
+  assert.ok([...partner.values()].every((c) => c === 1), "each pair partners once");
+  assert.equal(opp.size, (v * (v - 1)) / 2);
+  assert.ok([...opp.values()].every((c) => c === 2), "each pair meets twice");
+  const key = (t) => [[t[0], t[1]].sort((a, b) => a - b).join("-"), [t[2], t[3]].sort((a, b) => a - b).join("-")].sort().join("|");
+  const set = new Set(tables.map(key));
+  assert.ok(tables.every((t) => set.has(key(t.map((x) => (x * 37) % v)))), "fixed by x -> 37x");
 });
