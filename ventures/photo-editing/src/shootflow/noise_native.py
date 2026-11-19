@@ -344,11 +344,147 @@ int shootflow_block_mean_max(const double *a, long w, long block, long wb, long 
     free(t);
     return 0;
 }
+
+/* Patch PCA (noise_pca), 2026-11-19. Each patch is a row of dd float64 in p. */
+
+/* g[i] for patches [i0, i1): the texture energy sum over D's rows of t * t, t the row's dot product with the
+   patch taken over the row's nonzero columns in ascending order (CSR: rowptr, cols, coef), t = 0.0 then
+   t += coef * x, g = 0.0 then g += t * t; noise_pca._energy_ref does the same vector by vector. */
+void shootflow_patch_energy(const double *p, long dd, int nrows, const int *rowptr, const int *cols,
+                            const double *coef, long i0, long i1, double *g) {
+    for (long i = i0; i < i1; i++) {
+        const double *x = p + i * dd;
+        double s = 0.0;
+        for (int r = 0; r < nrows; r++) {
+            double t = 0.0;
+            for (int k = rowptr[r]; k < rowptr[r + 1]; k++) t += coef[k] * x[cols[k]];
+            s += t * t;
+        }
+        g[i] = s;
+    }
+}
+
+typedef struct {
+    const double *p; const long *idx; long dd; const double *mean; int K; const int *pa, *pb; double *xc;
+} pw_ctx;
+
+/* Row i's K values: the patch itself (mean NULL), or the products xc[a] * xc[b], a <= b in row-major order, of its
+   centred samples; written to dst (add 0) or added to it (add 1). The inner loop runs over b, contiguous. */
+static inline void pw_vals(const pw_ctx *c, long i, double *restrict dst, int add) {
+    const double *x = c->p + c->idx[i] * c->dd;
+    long dd = c->dd;
+    if (!c->mean) {
+        if (add) for (long k = 0; k < dd; k++) dst[k] += x[k];
+        else for (long k = 0; k < dd; k++) dst[k] = x[k];
+        return;
+    }
+    double *restrict xc = c->xc;
+    for (long k = 0; k < dd; k++) xc[k] = x[k] - c->mean[k];
+    for (long a = 0; a < dd; a++) {
+        double xa = xc[a];
+        double *restrict d = dst;
+        long nb = dd - a;
+        const double *xb = xc + a;
+        if (add) for (long b = 0; b < nb; b++) d[b] += xb[b] * xa;
+        else for (long b = 0; b < nb; b++) d[b] = xb[b] * xa;
+        dst += nb;
+    }
+}
+
+/* pw_sum's tree over rows [lo, lo + n), each of the K values summed in it at once. scr holds K * (9 + depth). */
+static void pw_rows(const pw_ctx *c, long lo, long n, double *out, double *scr) {
+    int K = c->K;
+    if (n < 8) {
+        for (int k = 0; k < K; k++) out[k] = 0.0;
+        for (long i = 0; i < n; i++) pw_vals(c, lo + i, out, 1);
+        return;
+    }
+    if (n <= 128) {
+        /* Lane j sums rows j, j + 8, ... below n - n % 8 in order (the first one assigned), then the lanes join
+           as pw_sum joins them and the tail rows are added one by one. For the products, a leaf first centres
+           its rows into a (n, dd) block (c->xc holds 128 rows), and each a's lane sums over b stay in L1. */
+        long nm = n - (n % 8);
+        if (!c->mean) {
+            double *r = scr;
+            for (int j = 0; j < 8; j++) pw_vals(c, lo + j, r + j * K, 0);
+            for (long i = 8; i < nm; i += 8)
+                for (int j = 0; j < 8; j++) pw_vals(c, lo + i + j, r + j * K, 1);
+            for (int k = 0; k < K; k++)
+                out[k] = ((r[k] + r[K + k]) + (r[2 * K + k] + r[3 * K + k]))
+                         + ((r[4 * K + k] + r[5 * K + k]) + (r[6 * K + k] + r[7 * K + k]));
+            for (long i = nm; i < n; i++) pw_vals(c, lo + i, out, 1);
+            return;
+        }
+        long dd = c->dd;
+        double *restrict xc = c->xc;
+        for (long i = 0; i < n; i++) {
+            const double *x = c->p + c->idx[lo + i] * dd;
+            for (long k = 0; k < dd; k++) xc[i * dd + k] = x[k] - c->mean[k];
+        }
+        double *restrict r = scr; /* 8 lanes of up to dd values for one a */
+        double *o = out;
+        for (long a = 0; a < dd; a++) {
+            long nb = dd - a;
+            for (int j = 0; j < 8; j++) {
+                double *restrict rj = r + j * dd;
+                const double *row = xc + j * dd;
+                double xa = row[a];
+                for (long b = 0; b < nb; b++) rj[b] = row[a + b] * xa;
+                for (long i = 8 + j; i < nm; i += 8) {
+                    const double *rw = xc + i * dd;
+                    double ya = rw[a];
+                    for (long b = 0; b < nb; b++) rj[b] += rw[a + b] * ya;
+                }
+            }
+            for (long b = 0; b < nb; b++)
+                o[b] = ((r[b] + r[dd + b]) + (r[2 * dd + b] + r[3 * dd + b]))
+                       + ((r[4 * dd + b] + r[5 * dd + b]) + (r[6 * dd + b] + r[7 * dd + b]));
+            for (long i = nm; i < n; i++) {
+                const double *rw = xc + i * dd;
+                double ya = rw[a];
+                for (long b = 0; b < nb; b++) o[b] += rw[a + b] * ya;
+            }
+            o += nb;
+        }
+        return;
+    }
+    long n2 = n / 2;
+    n2 -= n2 % 8;
+    pw_rows(c, lo, n2, out, scr + K);
+    pw_rows(c, lo + n2, n - n2, scr, scr + K);
+    for (int k = 0; k < K; k++) out[k] += scr[k];
+}
+
+/* The (dd, dd) covariance of patches idx[0..m): each column's mean is its pw_sum over the rows in idx order
+   divided by m, each entry the pw_sum of the centred products divided by m - 1 (noise_pca._cov_ref). */
+int shootflow_patch_cov(const double *p, long dd, const long *idx, long m, double *cov) {
+    if (m < 2 || dd < 1) return -1;
+    int K = (int)(dd * (dd + 1) / 2);
+    double *buf = malloc(sizeof(double) * ((size_t)K * 75 + (size_t)K + 2 * (size_t)dd + 128 * (size_t)dd));
+    int *pa = malloc(sizeof(int) * 2 * (size_t)K);
+    if (!buf || !pa) { free(buf); free(pa); return -1; }
+    int *pb = pa + K;
+    double *scr = buf, *sum = buf + (size_t)K * 75, *mean = sum + K, *xc = mean + dd;
+    int at = 0;
+    for (int a = 0; a < dd; a++) for (int b = a; b < dd; b++) { pa[at] = a; pb[at] = b; at++; }
+    pw_ctx c = {p, idx, dd, NULL, (int)dd, pa, pb, xc};
+    pw_rows(&c, 0, m, sum, scr);
+    for (long k = 0; k < dd; k++) mean[k] = sum[k] / (double)m;
+    c.mean = mean; c.K = K;
+    pw_rows(&c, 0, m, sum, scr);
+    for (int k = 0; k < K; k++) {
+        double v = sum[k] / (double)(m - 1);
+        cov[pa[k] * dd + pb[k]] = v;
+        cov[pb[k] * dd + pa[k]] = v;
+    }
+    free(buf); free(pa);
+    return 0;
+}
 """
 
 _STATE: dict[str, object] = {}
 _LOCK = threading.Lock()
-_FLAGS = ["-O2", "-ffp-contract=off"]  # no -ffast-math: IEEE float64 as numpy does it
+_FLAGS = ["-O3", "-ffp-contract=off"]  # no -ffast-math: IEEE float64 as numpy does it
 
 
 def _load():
@@ -396,11 +532,18 @@ def _load():
     mm = lib.shootflow_block_mean_max
     mm.restype = ctypes.c_int
     mm.argtypes = [P, L, L, L, L, L, P, P]
-    return resid, med, bil, bl, mm
+    pe = lib.shootflow_patch_energy
+    pe.restype = None
+    pe.argtypes = [P, L, ctypes.c_int, P, P, P, L, L, P]
+    pc = lib.shootflow_patch_cov
+    pc.restype = ctypes.c_int
+    pc.argtypes = [P, L, P, L, P]
+    return resid, med, bil, bl, mm, pe, pc
 
 
 def functions():
-    """The loaded C functions (residual rows, block median, bilinear rows, blend rows, block mean/max), or None. Built and loaded once per process."""
+    """The loaded C functions (residual rows, block median, bilinear rows, blend rows, block mean/max, patch
+    energy, patch covariance), or None. Built and loaded once per process."""
 
     if "fn" not in _STATE:
         with _LOCK:
@@ -589,3 +732,46 @@ def blend(b: np.ndarray, d: np.ndarray, ab: np.ndarray, abl: np.ndarray | None, 
     if failed:
         raise MemoryError("noise_native.blend: out of memory")
     return True
+
+
+def patch_energy(p: np.ndarray, rowptr: np.ndarray, cols: np.ndarray, coef: np.ndarray, *,
+                 threads: int | None = None) -> np.ndarray | None:
+    """``noise_pca._energy_ref`` in C, bit for bit: each patch's texture energy under the CSR rows; None without
+    the C path."""
+
+    loaded = functions()
+    p = np.ascontiguousarray(p, dtype=np.float64)
+    if loaded is None or p.ndim != 2:
+        return None
+    fn = loaded[5]
+    from shootflow.raw_develop_np import _run_bands
+
+    rowptr = np.ascontiguousarray(rowptr, dtype=np.intc)
+    cols = np.ascontiguousarray(cols, dtype=np.intc)
+    coef = np.ascontiguousarray(coef, dtype=np.float64)
+    n, dd = p.shape
+    g = np.empty(n, dtype=np.float64)
+    nrows = rowptr.size - 1
+
+    def run(i0, i1):
+        fn(_ptr(p), dd, nrows, _ptr(rowptr), _ptr(cols), _ptr(coef), i0, i1, _ptr(g))
+
+    _run_bands(run, n, band=32768, threads=threads)
+    return g
+
+
+def patch_cov(p: np.ndarray, idx: np.ndarray) -> np.ndarray | None:
+    """``noise_pca._cov_ref(p, idx)`` in C, bit for bit, without gathering the rows; None without the C path
+    or under two rows. ``p`` must be C-contiguous float64 (the caller converts once, not per call)."""
+
+    loaded = functions()
+    if loaded is None or p.dtype != np.float64 or not p.flags.c_contiguous or p.ndim != 2:
+        return None
+    idx = np.ascontiguousarray(idx, dtype=np.int_)
+    if idx.size < 2 or np.dtype(np.int_).itemsize != ctypes.sizeof(ctypes.c_long):
+        return None
+    dd = p.shape[1]
+    out = np.empty((dd, dd), dtype=np.float64)
+    if loaded[6](_ptr(p), dd, _ptr(idx), idx.size, _ptr(out)) != 0:
+        raise MemoryError("noise_native.patch_cov: out of memory")
+    return out

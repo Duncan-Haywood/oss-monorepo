@@ -1105,6 +1105,13 @@ is a median 1.11x faster and now takes 1.32x directional's time. The develop is 
 dependence: the remaining BLAS step, the patch-PCA noise read, would need an error about 10,000 times larger
 than a BLAS reordering gives before one 16-bit code moved. Details: eval/noise-aware-native-levels-2026-11-19.md.
 
+Later that night the patch-PCA noise read lost its BLAS calls too. Its covariance and texture energy are now sums
+in a fixed order (numpy's pairwise tree), the same in a C helper and in the numpy fallback. So the noise model a
+raw gets no longer depends on the BLAS library or its thread count. The bins run side by side and no bin's patches
+are copied. The step is a median 1.25x faster on 12 real planes, the model moves by at most 2e-12 relative, and all
+12 sample raws still develop to the same bytes. Noise-aware now takes 1.26x directional's time. Details:
+eval/noise-pca-native-2026-11-19.md.
+
 ## The sRGB encode, interpolated (2026-11-17)
 
 The develop's last step, linear light to sRGB, read a 4,096-entry table at the nearest entry, so a 16-bit
