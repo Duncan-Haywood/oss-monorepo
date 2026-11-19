@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "Ran `git checkout -b` on a branch the harness had already created and checked out; the && chain skipped the commit and the push sent main's tip. Re-committed; no harm."
+    "Ran `git checkout -b` on a branch the harness had already created and checked out; the && chain skipped the commit and the push sent main's tip. Re-committed; no harm.",
+    "CI changed-ventures went red on an unwired check unrelated to the diff: test_validate_doc_consistency.py failed with 'PyYAML is required' (the validator sys.exit()s, so unwired_checks.py could not call it a named skip; PR 17664 hit it too). Fixed in this PR by importing yaml first in the test."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,7 +45,7 @@
     "docs/posts/2026-11-19-a-stepped-star-is-still-a-star.md"
   ],
   "goal": null,
-  "notes": "Explore idea: conformance-test a product's core matcher against the reference implementation's source. cron-dst-drift-check claimed Vixie cron day semantics but treated only a bare * as a star; cronie entry.c sets DOM_STAR/DOW_STAR from the first character and cron.c ANDs the two sets. New cronie-oracle.test.mjs (independent minute-walk oracle, 400 seeded expressions, 2,348 run times): 85 differed before, 0 after. '0 0 */2 * MON' in 2027: 211 runs before, 27 after. Added dayRuleNote (page, CLI, JSON). Local: run_venture_tests.py cron-dst-drift-check ok, 85 tests; check_posts ok. cron-heartbeat was already right; actions-minutes-estimator uses the bare-* reading, but GitHub's rule is undocumented, so it was left alone.",
+  "notes": "Explore idea: conformance-test a product's core matcher against the reference implementation's source. cron-dst-drift-check claimed Vixie cron day semantics but treated only a bare * as a star; cronie entry.c sets DOM_STAR/DOW_STAR from the first character and cron.c ANDs the two sets. New cronie-oracle.test.mjs (independent minute-walk oracle, 400 seeded expressions, 2,348 run times): 85 differed before, 0 after. '0 0 */2 * MON' in 2027: 211 runs before, 27 after. Added dayRuleNote (page, CLI, JSON). Local: run_venture_tests.py cron-dst-drift-check ok, 85 tests; check_posts ok. cron-heartbeat was already right; actions-minutes-estimator uses the bare-* reading, but GitHub's rule is undocumented, so it was left alone. Also fixed test_validate_doc_consistency.py so a runner without PyYAML gives a named skip instead of a red changed-ventures job.",
   "corrections": [],
   "redteam": null,
   "usage": {
