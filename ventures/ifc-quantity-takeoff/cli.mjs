@@ -33,6 +33,10 @@ if (args.includes("--check")) {
   console.log(`${file}: ${res.schema}, ${s.elements} elements, ${secs.toFixed(1)} s`);
   console.log(`  volume computed for ${s.computed}; geometry not read for ${s.notRead}; no body for ${s.noBody}; net not computed for ${s.netNotComputed}`);
   console.log(`  stored GrossVolume: ${s.grossAgree} of ${s.grossPairs} agree; stored NetVolume: ${s.netAgree} of ${s.netPairs} agree`);
+  console.log(`  stored areas (side, footprint, plan, cross-section): ${s.areaAgree} of ${s.areaPairs} agree with the section cut from the geometry`);
+  const why = {};
+  for (const r of res.rows) for (const c of Object.values(r.areaCheck || {})) if (!c.agree) why[c.reason] = (why[c.reason] || 0) + 1;
+  for (const [r, n] of Object.entries(why).sort((a, b) => b[1] - a[1])) console.log(`    area ${r}: ${n}`);
   const top = Object.entries(s.reasons).sort((a, b) => b[1] - a[1]).slice(0, 8);
   for (const [r, n] of top) console.log(`  ${n} x ${r}`);
 } else if (!opt("--rows") && !opt("--json")) {

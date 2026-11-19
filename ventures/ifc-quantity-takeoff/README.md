@@ -15,6 +15,13 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
 - **Every element** as CSV: GlobalId, class, name, type, storey, material,
   classification, the computed gross and net volumes, the stored quantities,
   and the verdict of the check.
+- **Areas from the geometry.** Each area a quantity set stores is cut from the
+  element's body by a plane, as the set defines it: a wall's side area on its
+  middle plane (gross, and net of openings), its footprint at its base (doors
+  cut it, windows do not), a slab's, plate's, covering's or roof's area as its
+  extruded profile, a column's, beam's or member's cross-section normal to its
+  length. Where a wall or slab stores no area, the bill of quantities uses the
+  cut one; where the stored area is known to be wrong, likewise.
 - **The check.** For each element that stores a GrossVolume or NetVolume, the
   volume computed from its body (gross) and its body less its openings (net),
   and when they disagree by more than 2%, the likely cause: a split-by-level
@@ -35,7 +42,7 @@ Nothing is uploaded: the model is read in the browser tab.
 | IfcOpenShell scripts | free | needs Python and a programmer |
 
 The one thing none of them advertises: on 8 public models, 690 of 5,495 stored
-GrossVolumes (12.6%) disagreed with the element's own geometry, and 144 of
+GrossVolumes (12.6%) disagreed with the element's own geometry, and 147 of
 those were provably the stored figure's fault. An estimate that sums stored
 quantities inherits those errors; this tool says which they are
 ([eval/stored-vs-computed-2026-11-19.md](eval/stored-vs-computed-2026-11-19.md)).
@@ -55,6 +62,20 @@ quantities inherits those errors; this tool says which they are
   difference is 8e-16. Every disagreement is classified in
   [eval/stored-vs-computed-2026-11-19.md](eval/stored-vs-computed-2026-11-19.md),
   with the raw output beside it.
+- **Areas on the same models.** 6,509 of 7,883 stored areas agree with the
+  section cut from the geometry (82.6%), all 1,667 wall GrossFootprintAreas
+  among them; where they agree the median difference is 1e-15 relative or less
+  on six of the eight models (1.3e-4 on HHS construction, whose stored areas
+  are rounded). 1,100 of the 1,374
+  disagreements have a named cause: 558 mullion "CrossSectionArea"s that are
+  the mullion's length times a constant (a face area), 325 gross side areas
+  with the openings out, 82 net footprints with the doors left in, 55 side
+  areas measured on a face, 31 that match an equally wrong stored volume, 25
+  unit slips (23 of them slab areas divided by the square-foot factor 10.764) and
+  24 split-by-level pieces. In 607 the stored figure is the wrong one
+  ([eval/areas-vs-stored-2026-11-19.md](eval/areas-vs-stored-2026-11-19.md)).
+  The sample model's areas are checked by hand in `engine.test.mjs` (a door
+  out of a wall's side and footprint, a trapezoidal gable, the IPE 200 section).
 - **Seeded faults.** Flipping the half-space side or switching off the unit-slip
   rule each fails a test.
 
@@ -86,8 +107,10 @@ computed" rather than a guess.
 
 **Not read:** advanced breps (NURBS), open shells, tapered extrusions, swept
 solids along curves other than disks, centre-line profiles, sloped flanges.
-Overlapping openings in one element are subtracted twice. Areas are not yet
-computed from geometry: area columns are the model's stored areas.
+Overlapping openings in one element are subtracted twice. Areas are not cut
+from faceted bodies (no polyhedral pieces to cut): those keep the stored area.
+A curved wall's side area is the section of its thinnest flat direction, not
+its developed length.
 
 ## Run it
 
@@ -97,7 +120,8 @@ node cli.mjs model.ifc --by storey,class       # other groupings
 node cli.mjs model.ifc --rows elements.csv     # every element
 node cli.mjs model.ifc --check                 # stored vs computed summary
 node --test                                    # tests
-node eval/stored-vs-computed.mjs a.ifc b.ifc   # the corpus check
+node eval/stored-vs-computed.mjs a.ifc b.ifc   # the corpus check, volumes
+node eval/areas-vs-stored.mjs a.ifc b.ifc      # the corpus check, areas
 ```
 
 Node 20+, no dependencies. To host your own copy, serve this directory as
