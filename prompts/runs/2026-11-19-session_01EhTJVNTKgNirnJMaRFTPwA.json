@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVNTKgNirnJMaRFTPwA",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "Scheduled routine: continue work on the repo (ventures, research); merge when done.",
+  "input_sha256": "e1c51a0d04ffe59d140dedf1f782e86423809b5d6c3367620038b3f4ace44cba",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T09:15:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/grid-linopf: rule E-once (box enlargement at most once per base point), frozen on development, scored held-out",
+  "projects": [
+    "grid-linopf",
+    "infra-dcopf"
+  ],
+  "pr": 17607,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "First draw (buildbot-sheathing m58) collided with a sibling that opened PR #17605 two minutes earlier. claim_check.py caught it only after my PR was open. I closed PR #17606, and the stale claim commit on the shared branch had to be reverted (force push refused)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt (scheduled task)",
+      "why": "The stored prompt asks for venture/revenue work; the master prompt's router drew the research track, and I followed the router as the owner's allocation system.",
+      "did": "research step",
+      "result": "one programme step landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-once-per-point-trust-box-widening-still-cycles.md"
+  ],
+  "goal": null,
+  "notes": "Rule O: 0 repeats (rule E 68 of 94); dev finishers 31/34 (as frozen; gained case73 API, lost case30 API), held-out 9/19 (frozen 10). O1, O2, O4, O6 held; O3, O5 refuted. Both reproduction gates passed (dev 1/1 and 15/15, held 2/2 and 11/11). Local checks: infra-dcopf tests 86 passed, 1 skipped; build.py ok; check_posts ok; check_md_links ok.",
+  "corrections": [],
+  "redteam": null
+}
