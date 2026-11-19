@@ -53,12 +53,15 @@ TAKE_SURVEY = 0x84    # feeder, after LAUNCH while the board has a contact-time 
                       # summed residual, uint16 that time refined between its neighbours, uint16 the contact time the
                       # board's drop fit runs with (config TAKE_US), all in 0.1 ms, then uint16 x TAKE_SURVEY_TIMES:
                       # each candidate's mean residual rms in 1e-6 of the pre-ball speed (65535: none). The candidates
-                      # are the firmware's TAKE_SURVEY_GRID_US, 0 / 2 / 3 / 4 / 5 / 6 / 7 / 8 ms (7 added 2026-11-19), half-sine. Since
+                      # are the firmware's TAKE_SURVEY_GRID_US, 0 / 1.5 / 2.5 / 3 / 4 / 5 / 6 / 7 / 8 ms (7 added 2026-11-19, 1.5 and 2.5
+                      # in place of 2 later that day: README "Short takes on a second held-out set"), half-sine. Since
                       # 2026-11-18 (README "The take survey's verdict needs two informative wheels") a last uint8: the
                       # wheels summed, to 255, after the take-blind ones were left out; the Pi still reads the shorter
                       # frame of older firmware (OLDER_FORMATS) and then has no such count. Firmware before
-                      # 2026-11-19 sent seven candidates (no 7 ms); both older frames still decode.
-TAKE_SURVEY_TIMES = 8
+                      # 2026-11-19 sent seven candidates (no 7 ms), and before the short-take grid eight (0, 2-8 ms);
+                      # all three older frames still decode.
+TAKE_SURVEY_TIMES = 9
+EIGHT_TAKE_SURVEY_TIMES = 8   # 0, 2, 3, 4, 5, 6, 7, 8 ms (2026-11-19, before the short-take grid)
 OLDER_TAKE_SURVEY_TIMES = 7
 
 FORMATS = {
@@ -80,9 +83,11 @@ FORMATS = {
     TAKE_SURVEY: "<BHHH" + "H" * TAKE_SURVEY_TIMES + "B",
 }
 # Frames of these lengths from older firmware still decode, to fewer values (the receiver reads the length), newest first:
-# seven candidates with the summed-wheel byte (2026-11-18), then without it.
+# eight candidates (2026-11-19, before the short-take grid), seven with the summed-wheel byte (2026-11-18), then
+# seven without it.
 OLDER_FORMATS = {
-    TAKE_SURVEY: ("<BHHH" + "H" * OLDER_TAKE_SURVEY_TIMES + "B", "<BHHH" + "H" * OLDER_TAKE_SURVEY_TIMES),
+    TAKE_SURVEY: ("<BHHH" + "H" * EIGHT_TAKE_SURVEY_TIMES + "B", "<BHHH" + "H" * OLDER_TAKE_SURVEY_TIMES + "B",
+                  "<BHHH" + "H" * OLDER_TAKE_SURVEY_TIMES),
 }
 
 # TELEMETRY flag bits

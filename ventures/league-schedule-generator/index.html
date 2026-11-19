@@ -263,7 +263,7 @@
 
   <section class="card" id="pool-card">
     <h2>Pool play for a tournament (optional)</h2>
-    <p class="note">List the teams best seed first above, then split them into pools by snake draft so the strong seeds are spread out. Each pool gets its own round robin using your dates, courts, blackouts and time slots, and every pool schedule is re-checked. Type results as <code>Hawks 3 - 2 Owls</code> in step 4 to see who advances.</p>
+    <p class="note">List the teams best seed first above, then split them into pools by snake draft so the strong seeds are spread out. Each pool gets its own round robin using your dates, courts, blackouts and time slots, and every pool schedule is re-checked. Type results as <code>Hawks 3 - 2 Owls</code> in step 4 to see who advances and the knockout bracket. The seeds cross over (A1 v B2, B1 v A2), so teams from the same pool meet as late as the bracket allows; the play-off options and results in step 4 apply.</p>
     <div class="row4">
       <div><label for="pools">Number of pools</label><input id="pools" inputmode="numeric" value="2"></div>
       <div><label for="advance">Teams advancing from each pool</label><input id="advance" inputmode="numeric" value="2"></div>
@@ -404,7 +404,7 @@
   </footer>
 
   <script type="module">
-    import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, teamSnapCsv, sportsEngineCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, playBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
+    import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, teamSnapCsv, sportsEngineCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, playBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolPlayoffSeeds, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
     import { singleAsDivisions, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsTeamSheetsHtml, divisionsDutiesText } from "./divisions.mjs";
     import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze, CARRY_OVER_POLISH, carryOverPolish, CARRY_OVER_FLOOR_PRICED, carryOverFloorPriced, carryOverPure } from "./carryover.mjs";
@@ -1037,8 +1037,18 @@
       }
       if (tables.length) {
         parts.push(tables.map((t, i) => `${play[i].name} table\n` + t.map((r) => `  ${r.rank}. ${r.name}  ${r.points} pts  GD ${r.gd}`).join("\n")).join("\n\n"));
-        const adv = poolAdvancers(tables, Math.max(1, Math.trunc(Number($("#advance").value) || 1))); /* zero-default: at least one team advances from a pool */
-        parts.push("Play-off seeds\n" + adv.map((n, i) => `  ${i + 1}. ${n}`).join("\n"));
+        const ps = poolPlayoffSeeds(tables, Math.max(1, Math.trunc(Number($("#advance").value) || 1))); /* zero-default: at least one team advances from a pool */
+        const meetText = (v) => v.map((c, r) => c ? `${c} in round ${r + 1}` : "").filter(Boolean).join(", ");
+        const crossNote = ps.plain.join() !== ps.meetings.join() ? `\n  Crossover: winners still come before runners-up, but each place is ordered to keep poolmates apart. Possible poolmate meetings by record order alone: ${meetText(ps.plain)}; in this order: ${meetText(ps.meetings)}.` : "";
+        parts.push("Play-off seeds\n" + ps.seeds.map((n, i) => `  ${i + 1}. ${n} (${play[ps.pools[i]].name})`).join("\n") + crossNote);
+        if (ps.seeds.length >= 2) {
+          try {
+            const dbl = $("#playoffDouble").checked && ps.seeds.length >= 3;
+            let br = dbl ? doubleEliminationBracket(ps.seeds) : playoffBracket(ps.seeds, { thirdPlace: $("#playoffThird").checked });
+            if ($("#playoffResults").value.trim()) br = playBracket(br, $("#playoffResults").value);
+            parts.push(bracketText(br) + (br.errors && br.errors.length ? "\n" + br.errors.join("\n") : ""));
+          } catch (e) { parts.push(e.message); }
+        }
       }
       poolText = parts.join("\n\n");
       $("#pool-out").textContent = poolText;

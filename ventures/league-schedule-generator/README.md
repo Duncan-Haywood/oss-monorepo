@@ -388,6 +388,36 @@ in the browser, on the schedule it just built (`bowling-recap.mjs`).
 - **Not done:** split handicaps per game, mid-night substitutions, USBC sanctioned-average reports,
   awards and the prize fund; the league's own and its association's rules decide.
 
+## Pool play into a knockout bracket, seeded so poolmates meet late (2026-11-19, latest)
+
+Pool play listed its play-off seeds by record alone: every pool winner (best record first), then every
+runner-up, and so on. Fed into a standard bracket (1 v 4, 2 v 3), that often pairs two teams from the
+same pool in the first knockout round, a rematch nobody wants: with two pools of three and two
+advancing, `b1, a1, a2, b2` puts b1 against b2 in the semifinal. Tournaments avoid this with a
+crossover (A1 v B2, B1 v A2).
+
+- **`poolPlayoffSeeds(tables, perPool)`** (`calc.mjs`) keeps the places in order (every winner is
+  still seeded above every runner-up) and reorders teams inside each place so that poolmates can
+  meet as late as the bracket allows. The objective is lexicographic: fewest possible same-pool
+  meetings in round 1, then round 2, and so on, then the least movement from the record order, with
+  a move near the top weighing more. It climbs by swaps inside a place, then runs an exact
+  depth-first search over the places' orderings, pruned whenever a partial count is already worse
+  (counts only grow as seeds are placed) and capped at 300,000 nodes. It returns the seeds, each
+  seed's pool, and the possible poolmate meetings per round for the new order and the record order.
+- **The pool card** now prints each seed's pool, a one-line note when the crossover changed the
+  order, and the knockout bracket itself (single or double elimination and the third-place game,
+  from the step 4 play-off options; play-off results typed in step 4 fill it in).
+- **Checked:** the tests compare the result with a brute force over every ordering for 2 to 5
+  pools; a swap-only version stalled in a local optimum on 3 pools x 4 and 4 pools x 4 (rounds-1-2
+  counts 0, 1 against 0, 0), which is why the exact search follows. `eval/crossover-seeds.mjs`
+  draws 500 random pool tables per shape: by record order, poolmates could meet in the first
+  knockout round in 29 to 86% of draws (2 x 4: 383 of 500; 4 x 4: 428), and in rounds 1-2 in up to
+  every draw; the crossover order has 0 in round 1 for every shape, and 0 in rounds 1-2 for every
+  shape with three or more pools (`eval/crossover-seeds.txt`). Two pools can't keep poolmates out of
+  rounds 1-2: each half of the bracket holds at least two teams of one pool, and they meet by round 2.
+- **Not done:** pools with uneven strength (a pool's winner may deserve a lower seed than another
+  pool's runner-up); places stay in order, the usual convention.
+
 ## Balanced teams from a player list (2026-11-19)
 
 Before a league can be scheduled it needs teams. Rec, coed and "hat" leagues draft them from a sign-up
