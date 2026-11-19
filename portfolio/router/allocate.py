@@ -427,6 +427,53 @@ def host_answers(url: str, timeout: float = 6, tries: int = 2) -> bool:
     return False
 
 
+def need_hosts(v: "Venture") -> list[str]:
+    """The hosts a flagship's buildable work needs: its curated `hosts:` URLs and
+    host names its `buildable:` prose names. Not the `next:` prose or the
+    scripts' URLs, which `row_hosts` adds for the full report: those name
+    reference and legacy hosts (www.buildingsmart-tech.org, refused on
+    2026-11-19) whose refusal says nothing about the buildable item."""
+    seen: dict[str, str] = {}
+    for url in v.flagship_hosts:
+        name = re.sub(r"^[a-z]+://", "", url, flags=re.I).split("/", 1)[0].lower()
+        seen.setdefault(name, url if "://" in url else "https://" + url)
+    for m in _HOST_RE.finditer(v.flagship_buildable or ""):
+        seen.setdefault(m.group(1).lower(), "https://" + m.group(1).lower() + "/")
+    return list(seen.values())
+
+
+def table_probe(url: str) -> bool:
+    """host_answers with one 4 s try, so probing every Deepen row for the table
+    costs a few seconds, not the 12 s two 6 s tries take on a host that hangs."""
+    return host_answers(url, timeout=4, tries=1)
+
+
+def refused_rows(ventures: list["Venture"], probe=table_probe) -> dict[str, list[str]]:
+    """{flagship: [refused host, ...]} for flagships with a `buildable:` whose
+    need_hosts include one `probe` refuses from this session. Each host is
+    probed once, in parallel.
+
+    Why: Start here kept naming ai-bookkeeper on 2026-11-19 although its
+    buildable receipt items need huggingface.co and `--venture`'s own probe
+    said REFUSED; 9 run records that day left the row for that reason (2 for
+    photo-editing's raw.pixls.us), each after reading the row. `inputs_only:`
+    does not fit, since the same host answers from other sessions (it answered
+    from this one), so the demotion is per session, made where the pick is."""
+    rows = {v.name: need_hosts(v) for v in ventures if v.flagship and v.flagship_buildable}
+    urls = sorted({u for hosts in rows.values() for u in hosts})
+    if not urls:
+        return {}
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=min(8, len(urls))) as ex:
+        ok = dict(zip(urls, ex.map(probe, urls)))
+    out = {}
+    for name, hosts in rows.items():
+        bad = [re.sub(r"^[a-z]+://", "", u, flags=re.I).rstrip("/") for u in hosts if not ok[u]]
+        if bad:
+            out[name] = bad
+    return out
+
+
 def hosts_line(urls: list[str], answers=host_answers) -> str:
     """One line saying which of `urls` answer from this session right now."""
     if not urls:
@@ -1163,7 +1210,8 @@ def session_id() -> Optional[str]:
 def start_here(queue: list[dict], claims: Optional[dict[str, list]],
                now: Optional[datetime] = None, session: Optional[str] = None,
                spread: int = START_SPREAD,
-               declined: Optional[set] = None) -> Optional[tuple[int, str]]:
+               declined: Optional[set] = None,
+               refused: Optional[dict] = None) -> Optional[tuple[int, str]]:
     """(row number, venture) of a Deepen flagship row with no open PR younger
     than CLAIM_FRESH_HOURS, or None. Rows marked `inputs_only` are not Deepen
     rows, so they are skipped too. With claims unread (None) nothing is known
@@ -1177,10 +1225,13 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
     the open-PR read cannot see. Rows whose `buildable:` waits on a future
     date come after the rest (gate_note), and rows in `declined`
     (declined_rows: recent sessions left them more often than they worked
-    them) come last."""
+    them) come last. Rows in `refused` (refused_rows: a host their buildable
+    work needs refuses this session) come after the free rows and before the
+    dated ones."""
     now = now or datetime.now(timezone.utc)
     declined = declined or set()
-    free, dated, later = [], [], []
+    refused = refused or {}
+    free, blocked, dated, later = [], [], [], []
     for i, item in enumerate(queue, 1):
         if not (item["flagship"] and item["task"].startswith("Deepen")):
             continue
@@ -1195,6 +1246,9 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
         if item["venture"] in declined:
             later.append((i, item["venture"]))
             continue
+        if item["venture"] in refused:
+            blocked.append((i, item["venture"]))
+            continue
         free.append((i, item["venture"]))
         if session is None or len(free) >= spread:
             break
@@ -1204,7 +1258,7 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
     # whenever fewer than `spread` rows were free: chant-forge, declined with
     # 19 leaves to 10 works, was still Start here for 18:52 on 2026-11-18
     # (doc_friction on this file), since most rows held fresh claims.
-    free = (free or dated or later)[:1 if session is None else spread]
+    free = (free or blocked or dated or later)[:1 if session is None else spread]
     if not free:
         return None
     if session is None:
@@ -1564,7 +1618,8 @@ def folded_kind(task: str) -> Optional[int]:
 def print_table(ventures: list[Venture], queue: list[dict],
                 recent: Optional[dict[str, int]] = None,
                 claims: Optional[dict[str, list]] = None,
-                show_all: bool = False) -> None:
+                show_all: bool = False,
+                refused: Optional[dict[str, list[str]]] = None) -> None:
     later_cap = sum(v.monthly_cap for v in ventures if v.later_stage)
     early_cap = sum(v.monthly_cap for v in ventures if not v.later_stage)
     total_cap = later_cap + early_cap
@@ -1607,7 +1662,8 @@ def print_table(ventures: list[Venture], queue: list[dict],
     flag_names = [i["venture"] for i in queue if i["flagship"]]
     left, worked = left_rows(flag_names), worked_rows(flag_names)
     declined = declined_rows(left, worked)
-    first = start_here(queue, claims, session=sid, declined=declined)
+    refused = refused or {}
+    first = start_here(queue, claims, session=sid, declined=declined, refused=refused)
     if first:
         how = (f"picked by this session's id among the first {START_SPREAD} Deepen flagships"
                if sid else "the first Deepen flagship")
@@ -1628,6 +1684,14 @@ def print_table(ventures: list[Venture], queue: list[dict],
                 f"{n} (left by {len(left[n])}, worked by {worked.get(n, 0)} in the last "
                 f"{LEFT_WINDOW_DAYS} days)" for n in skipped)
                 + ". Refresh such a row's `buildable:` if you find it has real work.")
+        cut = sorted(set(refused) - {first[1]} - declined)
+        if cut:
+            print("Moved behind the reachable rows (a host its buildable work needs refused this "
+                  "session just now; it may answer from another): " + "; ".join(
+                      f"{n} ({', '.join(refused[n])} REFUSED)" for n in cut) + ".")
+        if first[1] in refused:
+            print(f"{first[1]} is named although {', '.join(refused[first[1]])} refused this "
+                  "session: no free row's hosts all answer. Check which items need that host.")
         note = left_note(first[1], left, worked=worked.get(first[1], 0),
                          has_buildable=first[1] in load_flagship_field("buildable"))
         if note:
@@ -1730,7 +1794,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser.add_argument("--no-claims", action="store_true",
                         help="skip the open-PR lookup (one `gh api` search) that marks rows already being worked")
     parser.add_argument("--no-probe", action="store_true",
-                        help="with --venture: skip probing the hosts the flagship row needs")
+                        help="skip probing hosts: the flagship row's (with --venture), or those every "
+                             "Deepen row's buildable work needs (the table; a refused one moves its "
+                             "row behind the reachable ones for Start here)")
     parser.add_argument("--all", action="store_true",
                         help="print every table row (by default Maintain-only, awaiting-visitors "
                              "and no-hypothesis rows fold into a count after their first few)")
@@ -1785,7 +1851,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     else:
         if claims is None and not args.no_claims:
             print("(open PRs not read: `gh api` search failed; search PR titles before taking a row)")
-        print_table(ventures, queue, recent=recent, claims=claims, show_all=args.all)
+        print_table(ventures, queue, recent=recent, claims=claims, show_all=args.all,
+                    refused=None if args.no_probe else refused_rows(ventures))
         print(post_limits_line())
     return 0
 

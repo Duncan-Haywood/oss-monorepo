@@ -1044,6 +1044,47 @@ class DateGateTests(unittest.TestCase):
                             declined={"left"}) for n in range(40)}
         self.assertEqual(picks, {(2, "dated")})
 
+    def test_start_here_puts_refused_rows_after_reachable_ones(self):
+        # ai-bookkeeper, 2026-11-19: named by Start here while huggingface.co
+        # refused the session, nine times in one day.
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 19, 10, 0, tzinfo=timezone.utc)
+        task = "Deepen (flagship {}): BUILDABLE HERE: y -- Context: z"
+        queue = [{"venture": "hf", "flagship": True, "task": task.format(1)},
+                 {"venture": "ok", "flagship": True, "task": task.format(2)}]
+        refused = {"hf": ["huggingface.co"]}
+        self.assertEqual(start_here(queue, {}, now=now, refused=refused), (2, "ok"))
+        picks = {start_here(queue, {}, now=now, session=f"s{n}", spread=6, refused=refused)
+                 for n in range(40)}
+        self.assertEqual(picks, {(2, "ok")})
+        # Still named when nothing reachable is free, ahead of dated and declined rows.
+        dated = {"venture": "dated", "flagship": True,
+                 "task": "Deepen (flagship 3): BUILDABLE HERE: a (NOT YET: after 2099-01-01) -- Context: z"}
+        left = {"venture": "left", "flagship": True, "task": task.format(4)}
+        picks = {start_here([queue[0], dated, left], {}, now=now, session=f"s{n}", spread=6,
+                            declined={"left"}, refused=refused) for n in range(40)}
+        self.assertEqual(picks, {(1, "hf")})
+
+    def test_refused_rows_probes_each_needed_host_once(self):
+        from types import SimpleNamespace
+        from allocate import refused_rows
+        def row(name, hosts, buildable):
+            return SimpleNamespace(name=name, flagship=True, flagship_hosts=hosts,
+                                   flagship_buildable=buildable, flagship_next="see legacy.org")
+        rows = [row("hf", ["https://huggingface.co/", "https://raw.githubusercontent.com/"], "receipts"),
+                row("px", [], "frames from raw.pixls.us and github.com"),
+                row("gh", ["https://github.com"], "clone it"),
+                row("none", ["https://huggingface.co/"], "")]
+        asked = []
+        def probe(url):
+            asked.append(url)
+            return "huggingface" not in url and "pixls" not in url
+        self.assertEqual(refused_rows(rows, probe=probe),
+                         {"hf": ["huggingface.co"], "px": ["raw.pixls.us"]})
+        self.assertEqual(len(asked), len(set(asked)))
+        self.assertFalse(any("legacy.org" in u for u in asked))  # `next:` prose is not probed
+        self.assertEqual(refused_rows([row("gh", [], "nothing hosted")], probe=probe), {})
+
     def test_declined_rows_needs_more_leaves_than_works(self):
         from allocate import declined_rows
         hits = lambda n: [("2026-11-18", "x", "why")] * n
