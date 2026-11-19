@@ -198,17 +198,17 @@ flagships:
       alert was the holiday's zero (README "A closure in the week before a step"));
       (a) ar1 + floor 2 failed on 5 fresh bee dances (0.244 vs 0.337, README; muted
       note ships); update-rate: pegs 4 of 7 dated; NYT failed (N1 2/4, N2 5/9,
-      README "Short spells on a second provider"), edge-spell line ships; openings
-      (README "Short spells under different series openings"): edge line 0 false,
-      O1/O2 fail on spells with few differing weekdays; weekday score ships; next a
-      provider that documents its own changes. Stale feeds: real carry-forward
-      (README "A real carried-forward feed"): 84/85 caught, trade prints 56/56
-      false; next a catch-up-growth test on the prints. joint drift (measured, not
-      offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
-      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
-      belts and quality control 4, its AR(1) term; notes quote it. Curvature word
-      ships under --shape-word panel (README "A curvature word"): slope donors
-      straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
+      README "Short spells on a second provider"), edge-spell line ships; weekday
+      score ships; next a provider that documents its own changes. Stale feeds: real
+      carry-forward 84/85 caught but prints 56/56 false; growth test (README "A
+      catch-up test for multi-tick feeds"): prints 1/56, carried 22/85 at 300 steps,
+      7/7 at 4000; next a fresh-data round with a bar by stretch length. joint drift
+      (measured, not offered) and its 2x penalty on fresh multi-column labelled
+      data. Open: (0) drift model: t-walk increments, biweight on fresh data, why it
+      absorbs seat belts and quality control 4, its AR(1) term; notes quote it.
+      Curvature word ships under --shape-word panel (README "A curvature word"):
+      slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items:
+      NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -405,12 +405,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The take survey's rms in tenths of a
-      ppm" (2026-11-19: new frame with a scale byte; on 2,964 stored drills the
-      guard withholds 1 right verdict, not 6; eval/take-share-tenths-2026-11-19.md).
-      Next: TAKE_BOUND_FLOOR_PPM (2, set on whole ppm) retested on tenths with a
-      held-out set; TAKE_SURVEY_BLIND's 1.5 rechecked on a fresh jittery-tach set at
-      the nine-point grid.
+      see firmware/esp32/README.md, latest "The bound's ppm floor on tenths"
+      (2026-11-19: floor 2 kept as a noise margin; design 7 of 242 missed at floor
+      0, held out W+X 97 of 97 at every floor;
+      eval/take-bound-floor-tenths-2026-11-19.md). Next: a fresh set with 1.8-2.2 ms
+      takes to show whether the floor is needed on tenths; TAKE_SURVEY_BLIND's 1.5
+      rechecked on a fresh jittery-tach set at the nine-point grid.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -496,7 +496,7 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      bSDD: suggested links back; units to measure types (bsdd-spec.mjs).
+      bSDD: suggested links back; dB as pressure/power level (bsdd-units).
       Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
       rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
@@ -524,12 +524,13 @@ flagships:
       58 public IDS, 197 bSDD links; 7 files with an error, 15 a warning, all read
       by hand). IDS from a bSDD class 2026-11-19 (--from-bsdd, bsdd-spec.mjs,
       eval/bsdd-spec-2026-11-19.md: 185 classes in 42 dictionaries, 38 of 42 audit
-      clean, 42 of 42 bSDD-check clean; editor keeps uris, 0 to 344 of 344). next:
-      bSDD units to measure types for non-IFC Real properties; a page route for bSDD
-      if its API ever allows CORS; a BIM manager's real table or filled Excel2IDS
-      workbook via --from-sheet; Excel itself typing into the download; an RVB/ILS
-      author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. More open items:
-      NEXT.md.
+      clean, 42 of 42 bSDD-check clean; editor keeps uris, 0 to 344 of 344). bSDD
+      units to measure types 2026-11-19 (bsdd-units.mjs,
+      eval/bsdd-units-2026-11-19.md: 867 of 1,625 non-IFC Reals get a measure,
+      values in SI; IfcTester agrees 9 of 9). next: a page route for bSDD if its API
+      ever allows CORS; a BIM manager's real table or filled Excel2IDS workbook via
+      --from-sheet; Excel itself typing into the download; an RVB/ILS author on \s;
+      a Revit/ARCHICAD IFC4X3 export to confirm. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
@@ -561,5 +562,7 @@ flagships:
       updates to check the half-step against, and a windows analysis across many
       updates; (3) more public XER files from other exporters (search GitHub for
       ERMHDR fixtures) and progress override, start float and 24-hour lag paths on a
-      real file; (4) a written review report (PDF) an owner's rep can send; (5)
+      real file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
+      eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
+      next a real reviewer's reading of one and a full-list appendix option; (5)
       resource levelling and expected finish dates.

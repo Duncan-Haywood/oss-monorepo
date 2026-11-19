@@ -439,7 +439,12 @@ one specification per class:
   dictionary's own note ("takes 'IfcLabel' as value"), asking bSDD for the
   IFC property's entry when another dictionary reuses an IFC property;
   otherwise bSDD's data type (Boolean, Integer, Real, String, Time as
-  IFCBOOLEAN, IFCINTEGER, IFCREAL, IFCLABEL, IFCDATETIME).
+  IFCBOOLEAN, IFCINTEGER, IFCREAL, IFCLABEL, IFCDATETIME). A Real with a
+  unit or a dimension becomes the IFC measure it names (`mm` as
+  IFCLENGTHMEASURE, `W/(m²·K)` as IFCTHERMALTRANSMITTANCEMEASURE), with its
+  allowed values, fixed value and bounds written in SI, which is how IDS
+  compares a measure (a 50 to 400 mm thickness becomes 0.05 to 0.4). See
+  "Measure types from bSDD units" below.
 - Left out and said on stderr: complex properties (no IDS 1.0 facet reaches
   inside one), Inactive properties, related IFC entities the schema does not
   have. `--sets Pset_DoorCommon,...` keeps only the named sets.
@@ -458,6 +463,47 @@ The editor now keeps a facet's `uri` when it opens a file. Before, it dropped
 every one: 0 of 344 links in 53 public files came back, now 344 of 344
 (`eval/editor-uri-roundtrip.txt`). A generated file can therefore be opened,
 edited and downloaded with its links intact.
+
+### Measure types from bSDD units (2026-11-19)
+
+bSDD types a length, a pressure or a U-value as plain "Real". Written as
+`IFCREAL`, the facet fails every model that stores the value as IFC intends,
+as an `IfcLengthMeasure` or `IfcThermalTransmittanceMeasure`, because IDS
+compares the value's type exactly. Each class property also carries its
+units and often its SI dimension exponents, so `--from-bsdd` now picks the
+measure (`bsdd-units.mjs`):
+
+- **The unit table** (`schema/bsdd-units.json`, built by
+  `schema/gen-bsdd-units.mjs`) joins bSDD's own unit list
+  (`/api/Unit/v1`: 616 codes, 417 linked to QUDT) to QUDT's conversion
+  factor, offset, dimension vector and quantity kinds (qudt.org, CC BY 4.0).
+  275 codes resolve. One bSDD link is wrong and is relinked: bSDD names `°`
+  "grad (angel degree)" and links it to QUDT `GRAD`, the gon (π/200 rad); the
+  symbol is the degree's.
+- **The measure:** the dimension vector picks the IFC measure (41 measures:
+  length to inductance). Where two measures share a dimension, QUDT's kind
+  picks, but only when the unit names none of the general kind: `m³` is a
+  Volume and a SectionModulus in QUDT and stays IFCVOLUMEMEASURE, `N·m` is
+  only a Torque and becomes IFCTORQUEMEASURE.
+- **Kept as IFCREAL, said on stderr:** no unit or dimension; a
+  dimensionless unit (`%`: IFC's ratio measures take 0.5 for 50 %, and the
+  dictionary may mean 50; `dB`, a sound pressure or a sound power level);
+  units of different measures; a unit against the property's own stated
+  dimension; a unit not in bSDD's list (`kg CO2 eq`, `W/mK`); and a value or
+  bound that cannot be put in SI because two units are listed (`mm, m`).
+  Integer properties are not touched, and a standard set's template type
+  still wins.
+
+Measured on bSDD (`eval/bsdd-units-2026-11-19.md`): of 1,625 Real class
+properties outside IFC in 22 dictionaries, 867 get a measure (18
+dictionaries), and on the same 188 classes the generated own-set facets typed
+as a measure go from 1 to 454, with the audit and the bSDD link check
+unchanged (39 of 43 files audit clean, 43 of 43 with no link error). On a
+built model (`eval/bsdd-units-model.mjs`), a 200 mm wall stored as
+`IfcLengthMeasure` failed the old IFCREAL facet and passes the new one, and a
+500 mm wall fails it; IfcTester 0.9.0 gives the same 9 verdicts. The bSDD
+link check (`--bsdd`) reads a measure facet's SI values against bSDD's values
+in the property's unit (18 false `bsdd-value` warnings on kPa strengths to 0).
 
 ### Excel2IDS workbooks in, Excel2IDS workbooks out (2026-11-19)
 

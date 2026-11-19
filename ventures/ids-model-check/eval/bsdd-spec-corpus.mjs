@@ -14,6 +14,7 @@ import { checkBsdd, getJson, BSDD_API } from "../bsdd.mjs";
 import { auditIds } from "../audit.mjs";
 import { parseIds } from "../ids.mjs";
 import { resources } from "../node.mjs";
+import { MEASURE_TYPES } from "../bsdd-units.mjs";
 
 const args = process.argv.slice(2);
 const opt = (n, d) => (args.includes(n) ? args[args.indexOf(n) + 1] : d);
@@ -63,20 +64,23 @@ async function one(d) {
     for (const [c, r] of got) if (picked.length < want && r.json && (r.json.classProperties || []).length) picked.push(c.uri);
   }
   if (!picked.length) { rows.push({ dictionary: `${d.name} ${d.version}`, classes: 0 }); return; }
-  const built = await bsddIds(picked, { fetch: cachedFetch, schemas: R.schemas, psets: R.psets, schema: R.schemas.IFC4X3 });
+  const built = await bsddIds(picked, { fetch: cachedFetch, schemas: R.schemas, psets: R.psets, units: args.includes("--no-units") ? null : R.bsddUnits, schema: R.schemas.IFC4X3 });
   const ids = parseIds(built.text);
   const issues = auditIds(ids, { schemas: R.schemas, typeMap: R.typeMap, psets: R.psets });
-  const b = await checkBsdd(built.text, { fetch: cachedFetch, schemas: R.schemas });
+  const b = await checkBsdd(built.text, { fetch: cachedFetch, schemas: R.schemas, units: R.bsddUnits });
   for (const x of issues) bump(tally.audit, `${x.level} ${x.code || x.message.slice(0, 50)}`);
   for (const x of b.findings) bump(tally.bsdd, `${x.level} ${x.code}`);
   for (const n of built.notes) bump(tally.notes, noteKind(n));
   const facets = built.specs.reduce((a, s) => a + s.requirements.length, 0);
+  // Property facets outside a standard set: typed as a measure, or IFCREAL.
+  const own = isIfc ? [] : built.specs.flatMap((s) => s.requirements.filter((f) => f.kind === "property" && !(typeof f.set === "string" && /^(Pset|Qto)_/.test(f.set))));
   rows.push({
     dictionary: `${d.name} ${d.version}`, classes: picked.length, facets,
     properties: built.specs.reduce((a, s) => a + s.requirements.filter((f) => f.kind === "property").length, 0),
     auditErrors: issues.filter((x) => x.level === "error").length, auditWarnings: issues.filter((x) => x.level === "warning").length,
     bsddErrors: b.findings.filter((x) => x.level === "error").length, bsddWarnings: b.findings.filter((x) => x.level === "warning").length,
     notes: built.notes.length,
+    measures: own.filter((f) => MEASURE_TYPES.includes(f.dataType)).length, reals: own.filter((f) => f.dataType === "IFCREAL").length,
     detail: { audit: issues.map((x) => `${x.level} ${x.code}: ${x.message}`), bsdd: b.findings.filter((x) => x.level !== "note").map((x) => `${x.level} ${x.code}: ${x.message} ${x.uri}`) },
   });
 }
@@ -93,6 +97,7 @@ console.log(`dictionaries: ${dicts.length} Active latest-version (with IFC 4.3);
 console.log(`classes: ${sum("classes")}; requirement facets: ${sum("facets")}; property facets: ${sum("properties")}`);
 console.log(`IDS files audit-clean (0 errors): ${built.filter((r) => !r.auditErrors).length} of ${built.length}; with 0 warnings too: ${built.filter((r) => !r.auditErrors && !r.auditWarnings).length}`);
 console.log(`bSDD link check, 0 errors: ${built.filter((r) => !r.bsddErrors).length} of ${built.length}; 0 warnings too: ${built.filter((r) => !r.bsddErrors && !r.bsddWarnings).length}`);
+console.log(`own-set property facets outside IFC typed as a measure: ${sum("measures")}; as IFCREAL: ${sum("reals")}`);
 console.log(`requests sent: ${requests}`);
 console.log("\naudit findings by code:"); for (const [k, v] of Object.entries(tally.audit).sort((a, b) => b[1] - a[1])) console.log(`  ${v}  ${k}`);
 console.log("\nbSDD findings by code:"); for (const [k, v] of Object.entries(tally.bsdd).sort((a, b) => b[1] - a[1])) console.log(`  ${v}  ${k}`);

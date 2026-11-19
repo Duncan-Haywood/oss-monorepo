@@ -169,7 +169,12 @@ export function assess(xer, opts = {}) {
     const cand = path.map((id) => model.tasks.get(id)).find((t) => t && t.status !== "TK_Complete" && t.type !== "TT_FinMile" && t.type !== "TT_Mile") || path.map((id) => model.tasks.get(id))[0];
     let pass = false, why = "no open activity on the driving path";
     let value = null;
-    if (cand && p.finish !== null) {
+    const mile = cand && (cand.type === "TT_Mile" || cand.type === "TT_FinMile");
+    if (mile) {
+      // Adding duration to a milestone moves nothing, so a 0-day result here
+      // is not a broken path: the path holds no open activity to delay.
+      why = `the driving path holds no open activity with a duration, only the milestone ${cand.code}${cand.row?.cstr_type ? ` (constraint ${cand.row.cstr_type.replace("CS_", "")})` : ""}: nothing drives the finish, so the test cannot run`;
+    } else if (cand && p.finish !== null) {
       const delayDays = 600;
       const minutes = Math.round(delayDays * hpd(cand) * 60);
       const after = schedule(xer, { model, delay: { taskId: cand.id, minutes } });
