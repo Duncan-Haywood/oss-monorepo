@@ -415,3 +415,42 @@ test("calendar data: a day key outside 1-7 is ignored, and a clock time past 24:
   assert.equal(Calendar.fromXer({ clndr_id: "C9", clndr_data: at("24:00"), day_hr_cnt: "16" }).weekMinutes, 16 * 60);
   for (const bad of ["100:00", "008:00", "25:00", "24:30", "17:60"]) assert.throws(() => Calendar.fromXer({ clndr_id: "C9", clndr_data: at(bad), day_hr_cnt: "8" }), /bad time/, bad);
 });
+
+test("expected finish: sets the remaining duration, absorbs a predecessor's slip, ignored once passed, off without the option", () => {
+  // A 5 d -> B 10 d (expected finish Fri 2025-12-19 17:00) -> C 5 d
+  const tasks = (bHours, bExp) => [task("1", "A", 40), task("2", "B", bHours, { expect_end_date: bExp }), task("3", "C", 40)];
+  const preds = [link("1", "2", "1"), link("2", "3", "2")];
+  const on = project(tasks(80, "2025-12-19 17:00"), preds, {}, { sched_use_expect_end_flag: "Y" });
+  // B starts Mon 12-08 08:00: 2 weeks of stored work would end 12-19, the expected finish agrees
+  assert.equal(at(schedule(on), on, "B").ef, "2025-12-19 17:00");
+  // the stored remaining is wrong (200 h): the expected finish still sets it
+  const wrong = project(tasks(200, "2025-12-19 17:00"), preds, {}, { sched_use_expect_end_flag: "Y" });
+  const w = schedule(wrong);
+  assert.equal(at(w, wrong, "B").ef, "2025-12-19 17:00");
+  // C: 5 d from Mon 12-22 (12-24 a half day, 12-25 off)
+  assert.equal(at(w, wrong, "C").ef, "2025-12-30 12:00");
+  assert.equal(w.expected.get("2").to, 80 * 60);
+  // option off: the stored 200 h stands
+  const offFile = project(tasks(200, "2025-12-19 17:00"), preds);
+  assert.equal(at(schedule(offFile), offFile, "B").ef, "2026-01-13 12:00");
+  assert.notEqual(at(schedule(wrong, { expectedFinish: false }), wrong, "B").ef, "2025-12-19 17:00");
+  // A slips 3 d: B still finishes on its expected finish, so C does not move
+  const base = schedule(on);
+  const slip = schedule(on, { delay: { taskId: "1", minutes: 3 * 8 * 60 } });
+  assert.equal(at(slip, on, "B").ef, "2025-12-19 17:00");
+  assert.equal(at(slip, on, "C").ef, at(base, on, "C").ef);
+  // without the rule the slip reaches C
+  assert.notEqual(at(schedule(on, { expectedFinish: false, delay: { taskId: "1", minutes: 3 * 8 * 60 } }), on, "C").ef, at(base, on, "C").ef);
+  // expected finish before B can start: ignored, the stored 80 h stand
+  const past = project(tasks(80, "2025-12-03 17:00"), preds, {}, { sched_use_expect_end_flag: "Y" });
+  assert.equal(at(schedule(past), past, "B").ef, "2025-12-19 17:00");
+  // the assessment lists both kinds and the report ranks them medium
+  const a = assess(on);
+  const e = a.extra.find((x) => x.id === "expected-finish");
+  assert.equal(e.count, 1);
+  assert.match(e.items[0].why, /finishes on its expected finish 2025-12-19 17:00: remaining duration set to 10 d/);
+  assert.equal(a.project.settings.expectedFinish, true);
+  const ep = assess(past).extra.find((x) => x.id === "expected-finish");
+  assert.match(ep.items[0].why, /not after where its remaining work starts.*ignored/);
+  assert.equal(assess(offFile).extra.find((x) => x.id === "expected-finish"), undefined);
+});

@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVKmj8QyocNg2qxnk5G",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T18:04:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check flagship item (7): P6 expected finish dates in the CPM engine and a reviewer finding",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 17744,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--park on an item whose text had a 'next ...' tail split it: the result went to HISTORY.md with its label dropped and the open tail stayed orphaned in next:, so both needed hand fixes"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-p6-expected-finish-dates-hide-delay.md",
+    "ventures/xer-schedule-check/eval/expected-finish-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Engine rule: remaining = work(remaining start, expect_end_date) when the project option is on and the date is after the start; else stored duration stands. 24.12 public file: 21 of 21 stored durations equal the rule, 2 passed dates ignored as P6 did, 404/404 with 80 h planted on the 21 (0/404 rule off); six files still 19,820/19,822 (eval/cpm-vs-p6.mjs). Local checks: python3 platform/ci/run_venture_tests.py xer-schedule-check -> ok (114 tests); check_posts ok; validate.py ok; venture-preflight see PR.",
+  "corrections": [],
+  "redteam": null
+}
