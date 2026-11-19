@@ -34,3 +34,7 @@ non-text fields a share link fills with text. Wiring this sweep into a workflow
 is a control-plane edit (`.github/`), left for a separate PR; a site-wide CSP
 would be the defence in depth (it would need to allow the pages' inline
 scripts, so it's a design change, not a one-liner).
+
+## Re-running it
+
+Since PR #17677 all seven `platform/ci/check_*.js` sweeps run through `platform/ci/venture_sweeps.py`, which `run_workflow_locally.py --for-changes` calls on the ventures a diff touches (`--no-browser-sweeps` skips it).

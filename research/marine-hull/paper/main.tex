@@ -1,7 +1,9 @@
-% Milestone 7s (2026-11-18), Fig. 2 added in 7t: the hull-ranking paper in IEEE conference format, for OCEANS (IEEE/MTS).
+% Milestone 7s (2026-11-18), Fig. 2 added in 7t, Fig. 1 (method) and first compile in 7zb (2026-11-19): the hull-ranking paper in IEEE conference format, for OCEANS (IEEE/MTS).
 % Draft, not submitted. Every number is copied from ../experiments/results_*.txt (named in the
 % text) via DRAFT.md; check_numbers.py checks each one against its file. Nothing new was run.
 % Build: python3 make_figures.py && pdflatex main && bibtex main && pdflatex main && pdflatex main
+% Needs texlive-latex-recommended, texlive-fonts-recommended and texlive-publishers (IEEEtran); first
+% compiled in 7zb and again in 7zc (references checked against Crossref), 5 pages, no errors, warnings or overfull boxes. main.pdf is gitignored: build it.
 \documentclass[conference]{IEEEtran}
 \usepackage{amsmath,booktabs,tikz,url}
 \usepackage[hidelinks]{hyperref}
@@ -58,11 +60,30 @@ is a same-mass, same-battery propeller body.
 maximised over speed. At the best speed of a $v^3$ drag law the propulsive share of total power
 is one third; the computed share is 0.33 to 0.37 over the hull box
 (\texttt{results\_h1\_h5.txt}), so the best-range speed is set by the hotel load.
+Fig.~\ref{fig:energy} draws this model for the central monohull of Fig.~\ref{fig:rangespeed}
+(\texttt{results\_energy\_split.txt}). The hotel term falls as $1/v$; the friction term grows with
+log-log slope 1.81 between 0.5 and 2\,m/s, so the total has its minimum, 12.14\,Wh/km (823.7\,km), at
+1.00\,m/s, where the propulsive share is 0.314 and the wave term is 6.6\% of the hull resistance.
+Without the wave term the minimum is 11.80\,Wh/km at 1.10\,m/s with share 0.358, close to the friction-only
+value above; the wave term, rising past 1\,m/s, pulls the best speed down by 0.1\,m/s. At 0.5\,m/s the hotel term is 16.22 times
+the hull terms; by 2\,m/s (Froude number 0.32) the wave term is 31.1\% of the hull resistance and the
+hotel term only 0.23 of it.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{\input{fig_energy_split.tex}}
+\caption{The energy model: electrical energy per kilometre of the central 4\,m Wigley monohull
+(200\,kg, 10\,kWh, 30\,W hotel, $k=0.25$) split into ITTC 1957 friction, form factor and Michell wave
+terms (stacked bands, divided by the 0.47 drive efficiency) and the hotel term $P_h/v$ (dashed). Range
+is battery energy over the total, so its minimum is the best-range speed of Fig.~\ref{fig:rangespeed}a
+(\texttt{results\_energy\_split.txt}; drawn by \texttt{make\_figures.py}).}
+\label{fig:energy}
+\end{figure}
 \emph{Deck solar} adds a daily mean harvest from NASA POWER insolation at five sites, with module
 efficiency, temperature, soiling and electrical derates drawn jointly from their ranges.
 
 \section{Results}
-\subsection{Ranking against the monohull}
+\subsection{Ranking against the monohull}\label{sec:rank}
 Table~\ref{tab:rank} compares each rung with the 4\,m Wigley monohull at its own best speed.
 The monohull's best range is 560 to 1{,}188\,km (median 836\,km) at a median 1.05\,m/s in the
 first sweep.
@@ -71,11 +92,13 @@ first sweep.
 \caption{Rungs against the 4\,m Wigley monohull (200\,kg, 25\% battery, 30\,W hotel unless stated).}
 \label{tab:rank}
 \centering\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lrl@{}}
 \toprule
 Rung & Cases & Wins over the monohull \\
 \midrule
-Catamaran (Michell + Havelock) & 6{,}561 & 216 (3.3\%); 0 of 2{,}187 equal length \\
+Catamaran (Michell + Havelock) & 6{,}561 & 216 (3.3\%) \\
+\quad of which equal length & 2{,}187 & 0 \\
 Catamaran, tank-bound $k$ & 6{,}561 & 0 (ratio 0.74 to 0.97) \\
 SWATH & 4{,}374 & 0 (ratio 0.552 to 0.826) \\
 Planing (Savitsky) & 48 & 0 (ratio 0.055 to 0.138) \\
@@ -241,7 +264,7 @@ drawn by \texttt{make\_figures.py}).}
 \end{figure}
 
 \section{Tank data}\label{sec:tank}
-\emph{Wigley.} One published tank point, Ju (1983) at Froude number 0.267 on a 4\,m Wigley hull,
+\emph{Wigley.} One published tank point, Ju (1983) \cite{ju1983} at Froude number 0.267 on a 4\,m Wigley hull,
 quoted by Wang et al.\ \cite{wang2017}, against Michell plus ITTC 1957: with no form factor the
 model is within $-1$\% to +5\% of the measured $C_T = 4.16\times10^{-3}$ over 10 to 25\,$^\circ$C,
 and the box's central $k=0.25$ is +18\% to +25\% high, so the swept box is conservative for
@@ -262,9 +285,11 @@ with midship and waterplane coefficients swept, so the result is exploratory.
 The hull constants are validated against one Wigley point, one 1\,m model and 22 keeled yacht hulls,
 not against a resistance curve of a fuller, keel-less survey hull; that is the largest gap. Hotel-load,
 module and glider sources are vendor sheets or abstracts, several read only as search excerpts.
-Derate, soiling and temperature ranges are the authors' own, and are swept. There is no seakeeping
-or stability; sea state enters only as a resistance multiplier, and a factor of 2 costs 21\% of
-km/day while keeping the site order. The glider's range advantage is a persistence advantage: on
+Derate, soiling and temperature ranges are the authors' own, and are swept. Waves enter the ranking
+only as head-sea added resistance (STAWAVE-2 and strip theory, Section~\ref{sec:rank}), whose two
+methods differ by a factor of about two on these slender hulls with no tank data to settle it, and the
+solar km/day only as a resistance multiplier (a factor of 2 costs 21\% of km/day while keeping the site
+order); there is no stability, roll or slamming analysis. The glider's range advantage is a persistence advantage: on
 one 1.5\,kWh pack it covers 7 to 70 times the AUV's range in roughly 33 to 550 times the days
 (\texttt{results\_endurance\_days.txt}), and in strong coastal currents it cannot hold its track.
 

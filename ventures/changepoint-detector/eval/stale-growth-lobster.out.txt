@@ -1,0 +1,132 @@
+# catch-up test by stretch length, LOBSTER 2012-06-21 (pre-registered)
+
+## Stocks
+
+stock  prints  tick  median print move (ticks)  class
+AAPL  24861  0.005  4  multi-tick
+AMZN  8183  0.005  4  multi-tick
+GOOG  7983  0.005  8  multi-tick
+INTC  10370  0.005  1  one-tick
+MSFT  10184  0.005  2  multi-tick
+
+## Stretches
+
+stock  series  M  stretches  carried >= 0.30 (or prints)  called stale  share  median carried  median steps
+AAPL  prints  300  50  50  2  0.04  0.00  479
+AAPL  prints  600  25  25  0  0.00  0.00  972
+AAPL  prints  1000  15  15  0  0.00  0.00  1598
+AAPL  prints  2000  7  7  0  0.00  0.00  3195
+AAPL  D=0.5  300  25  25  21  0.84  0.83  2033
+AAPL  D=0.5  600  12  12  11  0.92  0.84  4447
+AAPL  D=0.5  1000  7  7  7  1.00  0.83  6688
+AAPL  D=0.5  2000  3  3  3  1.00  0.85  15263
+AAPL  D=1  300  21  21  12  0.57  0.67  1046
+AAPL  D=1  600  10  10  9  0.90  0.70  2302
+AAPL  D=1  1000  6  6  5  0.83  0.71  3897
+AAPL  D=1  2000  3  3  3  1.00  0.66  6788
+AAPL  D=2  300  17  15  8  0.53  0.54  724
+AAPL  D=2  600  8  8  3  0.38  0.53  1415
+AAPL  D=2  1000  5  5  4  0.80  0.53  2324
+AAPL  D=2  2000  2  2  2  1.00  0.59  5291
+AAPL  D=5  300  11  4  1  0.25  0.22  414
+AAPL  D=5  600  5  2  1  0.50  0.24  834
+AAPL  D=5  1000  3  1  0  0.00  0.25  1438
+AAPL  D=5  2000  1  0  0  -  0.27  2886
+AMZN  prints  300  16  16  1  0.06  0.00  498
+AMZN  prints  600  8  8  1  0.13  0.00  1024
+AMZN  prints  1000  4  4  0  0.00  0.00  1685
+AMZN  prints  2000  2  2  0  0.00  0.00  3319
+AMZN  D=0.5  300  9  9  9  1.00  0.92  4398
+AMZN  D=0.5  600  4  4  4  1.00  0.93  10501
+AMZN  D=0.5  1000  2  2  2  1.00  0.95  23872
+AMZN  D=0.5  2000  1  1  1  1.00  0.94  37323
+AMZN  D=1  300  8  8  7  0.88  0.89  3288
+AMZN  D=1  600  4  4  4  1.00  0.88  5882
+AMZN  D=1  1000  2  2  2  1.00  0.91  12944
+AMZN  D=1  2000  1  1  1  1.00  0.88  20252
+AMZN  D=2  300  7  7  4  0.57  0.75  1362
+AMZN  D=2  600  3  3  3  1.00  0.80  3331
+AMZN  D=2  1000  2  2  2  1.00  0.82  6527
+AMZN  D=2  2000  1  1  1  1.00  0.79  10893
+AMZN  D=5  300  6  6  2  0.33  0.62  897
+AMZN  D=5  600  3  3  2  0.67  0.53  1411
+AMZN  D=5  1000  1  1  1  1.00  0.56  2456
+AMZN  D=5  2000  0  0  0  -  -  -
+GOOG  prints  300  16  16  0  0.00  0.00  487
+GOOG  prints  600  8  8  0  0.00  0.00  962
+GOOG  prints  1000  4  4  0  0.00  0.00  1597
+GOOG  prints  2000  2  2  0  0.00  0.00  3167
+GOOG  D=0.5  300  9  9  6  0.67  0.94  5650
+GOOG  D=0.5  600  4  4  4  1.00  0.95  12511
+GOOG  D=0.5  1000  2  2  2  1.00  0.95  22020
+GOOG  D=0.5  2000  1  1  1  1.00  0.95  41416
+GOOG  D=1  300  8  8  3  0.38  0.89  3144
+GOOG  D=1  600  4  4  4  1.00  0.90  6596
+GOOG  D=1  1000  2  2  2  1.00  0.90  10730
+GOOG  D=1  2000  1  1  1  1.00  0.89  21260
+GOOG  D=2  300  7  7  2  0.29  0.80  1648
+GOOG  D=2  600  3  3  1  0.33  0.82  3672
+GOOG  D=2  1000  2  2  1  0.50  0.80  5585
+GOOG  D=2  2000  1  1  1  1.00  0.80  11157
+GOOG  D=5  300  6  5  0  0.00  0.59  795
+GOOG  D=5  600  3  3  1  0.33  0.59  1549
+GOOG  D=5  1000  1  1  0  0.00  0.61  2765
+GOOG  D=5  2000  0  0  0  -  -  -
+INTC  prints  300  8  8  7  0.88  0.00  1333
+INTC  prints  600  4  4  4  1.00  0.00  2601
+INTC  prints  1000  2  2  2  1.00  0.00  4299
+INTC  prints  2000  1  1  1  1.00  0.00  8434
+INTC  D=0.5  300  6  6  1  0.17  0.94  9870
+INTC  D=0.5  600  3  3  0  0.00  0.91  13932
+INTC  D=0.5  1000  1  1  0  0.00  0.92  28380
+INTC  D=0.5  2000  0  0  0  -  -  -
+INTC  D=1  300  5  5  0  0.00  0.89  5318
+INTC  D=1  600  2  2  0  0.00  0.89  11429
+INTC  D=1  1000  1  1  0  0.00  0.86  15067
+INTC  D=1  2000  0  0  0  -  -  -
+INTC  D=2  300  5  5  0  0.00  0.78  2759
+INTC  D=2  600  2  2  0  0.00  0.80  5804
+INTC  D=2  1000  1  1  0  0.00  0.78  8434
+INTC  D=2  2000  0  0  0  -  -  -
+INTC  D=5  300  4  4  1  0.25  0.59  1346
+INTC  D=5  600  2  2  1  0.50  0.55  2377
+INTC  D=5  1000  1  1  0  0.00  0.56  4103
+INTC  D=5  2000  0  0  0  -  -  -
+MSFT  prints  300  8  8  4  0.50  0.00  1156
+MSFT  prints  600  4  4  2  0.50  0.00  2275
+MSFT  prints  1000  2  2  2  1.00  0.00  3812
+MSFT  prints  2000  1  1  1  1.00  0.00  7406
+MSFT  D=0.5  300  6  6  1  0.17  0.94  9644
+MSFT  D=0.5  600  3  3  0  0.00  0.92  13638
+MSFT  D=0.5  1000  2  2  1  0.50  0.92  23368
+MSFT  D=0.5  2000  1  1  0  0.00  0.92  46722
+MSFT  D=1  300  6  6  1  0.17  0.88  3898
+MSFT  D=1  600  3  3  1  0.33  0.82  6256
+MSFT  D=1  1000  1  1  0  0.00  0.86  13131
+MSFT  D=1  2000  0  0  0  -  -  -
+MSFT  D=2  300  5  5  0  0.00  0.76  2305
+MSFT  D=2  600  2  2  0  0.00  0.83  5745
+MSFT  D=2  1000  1  1  0  0.00  0.77  7531
+MSFT  D=2  2000  0  0  0  -  -  -
+MSFT  D=5  300  4  4  0  0.00  0.59  1176
+MSFT  D=5  600  2  2  1  0.50  0.59  2345
+MSFT  D=5  1000  1  1  0  0.00  0.57  3795
+MSFT  D=5  2000  0  0  0  -  -  -
+
+## Pooled by length
+
+class  M  power (carried >= 0.30)  size (prints)
+multi-tick  300  77 of 145  7 of 90
+multi-tick  600  49 of 70  3 of 45
+multi-tick  1000  29 of 38  2 of 25
+multi-tick  2000  14 of 15  1 of 12
+one-tick  300  2 of 20  7 of 8
+one-tick  600  1 of 9  4 of 4
+one-tick  1000  0 of 4  2 of 2
+one-tick  2000  0 of 0  1 of 1
+
+## Bars (multi-tick stocks)
+
+L1 power at M = 1000: 29 of 38 (bar >= 80%, n >= 10): fail
+L2 size at M = 1000: 2 of 25 (bar <= 10%, n >= 10): pass
+L3 size at every length: M=300 7 of 90, M=600 3 of 45, M=1000 2 of 25, M=2000 1 of 12 (bar <= 10% each): pass

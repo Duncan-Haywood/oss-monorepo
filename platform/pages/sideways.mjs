@@ -47,16 +47,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { onlySlugs, keepPagePath, describeFilter, requireNonEmpty } from './only-slugs.mjs';
 import { samplePages } from './sideways-sample.mjs';
+import { requirePlaywright } from './load-playwright.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
-const specifier = process.env.PLAYWRIGHT || 'playwright';
-const loaded = await import(specifier);
-const playwright = loaded.chromium ? loaded : loaded.default;
-if (!playwright || !playwright.chromium) {
-  console.error(`PLAYWRIGHT=${specifier} resolved to a module with no chromium export.`);
-  process.exit(2);
-}
+const playwright = await requirePlaywright();
 
 const BASE = (process.env.BASE_URL || 'http://localhost:8793').replace(/\/$/, '');
 const DIST = process.env.DIST || path.join(HERE, 'dist');

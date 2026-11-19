@@ -51,10 +51,52 @@ also be an owner decision about money.
 1. **arXiv preprint** (eess.SY or physics.app-ph), with the AI-use section as written. The policy
    allows it if the owner signs and takes responsibility for the content.
 2. **A venue that allows disclosed AI content**, e.g. an IEEE journal or conference, or an
-   Elsevier journal if the owner reviews and owns the analysis. Which one fits fluid-power work
-   best was not researched in this step.
+   Elsevier journal if the owner reviews and owns the analysis. The candidates are checked in
+   the next section (milestone 7x).
 3. **Keep IJFP or ASME** only if their rules change, or if the owner rewrites the paper
    personally so that the box is true. Ticking it as things stand would misrepresent how the
    work was produced.
+
+## Which venue that allows disclosure fits this paper? (milestone 7x)
+
+Read on 2026-11-19, after 7w. The register (`research/_shared/venue_policies.json`) grew from
+6 publishers to 21 entries; `python3 research/_shared/venue_policy.py --venue "<text>"` classifies
+any candidate. Two more large publishers turned out to **forbid** what this paper is:
+
+- **Springer Nature** puts "writing results or discussion independently; generating scientific
+  claims or interpretations" in its red, "not permitted" band ([AI use in manuscript
+  preparation](https://www.springernature.com/gp/policies/editorial-policies/ai-manuscript-preparation)).
+- **Taylor & Francis** "does not allow generative AI to create a first draft of a manuscript or
+  sections of a manuscript" ([AI in research and manuscript
+  preparation](https://authorservices.taylorandfrancis.com/editorial-policies/using-ai-in-your-research-and-manuscript-preparations/)).
+
+So the bar is not "is AI disclosed?" but "may AI write the results and discussion if disclosed?".
+Of the publishers read, IEEE and arXiv say yes outright; Elsevier and Wiley say yes only under
+real human ownership of the analysis; Cambridge asks for declaration; Springer Nature, Taylor &
+Francis, ASME and IJFP say no.
+
+**Where the work this paper cites was published** (`paper/refs.bib`, the eleven entries with a
+journal or proceedings field; the rest are datasheets, standards and reports): *Energies* (MDPI) 3,
+*IEEE Access* 1, *Automation in Construction* (Elsevier) 1, *Proc. IMechE Part I* (SAGE) 1,
+*Applied Engineering in Agriculture* (ASABE) 1, *Research in Agricultural Engineering* 1,
+*Science* 1, *Int. J. Current Science Research and Review* 1, an ICE symposium on earth-moving
+machinery 1. The field's own venues are thin in
+the reference list; the paper's neighbours publish in broad energy and construction journals.
+
+| Candidate | Rule (register) | Note |
+|---|---|---|
+| arXiv, eess.SY | disclose | No review; the owner signs and takes responsibility. Available now. |
+| *IEEE Access* | disclose (acknowledgments) | Cited once in `refs.bib`; broad scope, open access with a charge (owner). |
+| *Automation in Construction* (Elsevier) | disclose, human ownership of the analysis | Cited once; excavator energy fits its machinery scope, which was not re-read (sciencedirect.com returned 403). |
+| *IEEE/ASME Transactions on Mechatronics* | **mixed** | Co-sponsored by ASME, whose statement prohibits; which rule binds was not confirmed. Avoid unless the editors say IEEE's applies. |
+| *Energies* (MDPI) | unchecked | Cited three times, the field's commonest outlet here; mdpi.com returned 403, so its rule is unread. |
+| *Proc. IMechE* (SAGE) | unchecked | SAGE's pages returned 403. |
+| Any Springer Nature or Taylor & Francis journal | prohibits | Includes many mechanical-engineering titles. |
+
+**Reading:** the honest routes today are an arXiv preprint and an IEEE journal (*IEEE Access*
+the closest fit by what the paper cites). An Elsevier journal stays open only if the owner
+reviews and owns the analysis, which the Elsevier policy asks for and an agent cannot supply.
+*Energies* is worth a check from an unproxied browser, since it is where this paper's
+neighbours publish. The decision is still the owner's.
 
 Nothing here was submitted, and nothing was sent to any venue.

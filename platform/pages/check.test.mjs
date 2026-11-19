@@ -11,7 +11,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-import { checkSite, checkServedExtensions, hygieneIsFatal } from './check.mjs';
+import { checkSite, checkServedExtensions, hygieneIsFatal, resolveUnder } from './check.mjs';
 
 const BASE_PATH = '/repo/';
 const url = (relative) => `https://example.test${BASE_PATH}${relative}`;
@@ -1130,4 +1130,30 @@ test('search hygiene blocks a pull request but never a deploy of main', () => {
   }
   assert.equal(hygieneIsFatal({ GITHUB_EVENT_NAME: 'push', PAGES_HYGIENE: 'fatal' }), true);
   assert.equal(hygieneIsFatal({ GITHUB_EVENT_NAME: 'pull_request', PAGES_HYGIENE: 'warn' }), false);
+});
+
+// resolveUnder replaced `path.resolve` plus a `path.relative(...).startsWith('..')`
+// escape test in the link pass (docs/history/ci-perf-2026-11-19-check-link-resolution.md).
+// It must give the old answer on every shape of link, including the odd ones:
+// climbing out of the root and back in, and a top-level name starting '..'.
+test('resolveUnder gives the same answer as path.resolve plus the escape test', () => {
+  const oracle = (root, dir, link) => {
+    const resolved = path.resolve(root, dir, link);
+    return path.relative(root, resolved).startsWith('..') ? null : resolved;
+  };
+  const roots = ['/tmp/x/dist', '/dist'];
+  const dirs = ['.', 'tool', 'tool/sub', '..odd', 'a/b/c'];
+  const parts = ['', '.', '..', 'a', 'index.html', '..x', '.well-known', 'dist', 'b c', 'x.y'];
+  const links = new Set(['/', '/abs/path', '/tmp/x/dist/inside.html', '//', './', '../', '../../']);
+  for (const p of parts) for (const q of parts) for (const r of ['', '/', '/a.css']) {
+    links.add(`${p}/${q}${r}`);
+    links.add(`${p}${r}`);
+  }
+  let compared = 0;
+  for (const root of roots) for (const dir of dirs) for (const link of links) {
+    if (link === '') continue; // the link pass skips an empty link before resolving
+    assert.equal(resolveUnder(root, dir, link), oracle(root, dir, link), `${root} | ${dir} | ${link}`);
+    compared += 1;
+  }
+  assert.ok(compared > 1000);
 });

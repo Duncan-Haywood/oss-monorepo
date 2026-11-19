@@ -66,6 +66,14 @@ continuation numbers assume the resumed run costs the same per cycle as an unint
 uniform length has no such requirement, which narrows the practical gap between the two rules
 whenever runs cannot be resumed.
 
+**Tested in milestone 7k, and the assumption failed.** Sixteen 7h designs were run to cycle 10, saved,
+and resumed to cycle 50 with `starting_solution` in a new process (`experiments/resume7k`). The resumed
+state matched the uninterrupted run to within 5 &times; 10<sup>&minus;5</sup> in cycle-50 lithium loss, but
+the resume paid the fixed cost again (13.4 cycle equivalents against 11.8 for a fresh run, on that
+bench's lean recorder), so the cycle-10 run plus its resume took 1.22 times one uninterrupted run. Priced
+in, the continued saving is about &minus;1% in that bench's units and 8% scaled to 7j's runner, not 17%.
+The saving needs a runner that keeps the built model between the look and the extension.
+
 In absolute terms the numbers are small for one search and large for a design office. On the shared
 three-worker cloud container that ran 7g and 7h, a 100-cycle x-resolved DFN run took a median 8.9 s
 (`Chen2020`) to 29.1 s (`Ai2020`). Running 1000 designs to cycle 50 then costs 1.3 to 4.3 CPU-hours, and

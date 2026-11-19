@@ -34,10 +34,41 @@ no scripts or outside files, so it prints the same anywhere; "Save as PDF" in
 the print dialog is the PDF. On the six public files it asks for 2 to 11
 corrections (eval/review-report-2026-11-19.md).
 
+**Finish date risk** (2026-11-19, `risk.mjs`): a Monte Carlo run over the
+recomputed schedule. Each run draws every open activity's remaining duration
+from a triangular range (a default of 90 / 100 / 125% the page tells you to
+replace, or your own optimistic, most likely and pessimistic working days per
+activity), with an optional correlation for causes that hit many activities at
+once. You get P10 / P50 / P80 / P90 finish dates, the chance of meeting the
+forecast and the must-finish date, a histogram, and per activity the
+**criticality index** (share of runs on the driving path) and sensitivity. On
+the six public files the zero-width run reproduces the CPM finish exactly, and
+the CCA and hotel programmes have 47 and 76 near-critical activities that the
+single driving path does not show (eval/risk-check-2026-11-19.md). A
+14,000-activity file takes about 70 s for 500 runs in Node; the page runs in
+slices so it stays responsive.
+
+**Risk register events** (2026-11-19, `risk.mjs` `risks`, the page's "Risk
+register" box, `--risks register.csv`): one line per event, `ID, probability,
+optimistic, most likely, pessimistic days, activity ID[, activity ID ...]`.
+In each run the event happens with its probability and its drawn delay is
+added to the remaining duration of every activity it names (one draw per
+event, so a shared cause delays all its activities alike, each on its own
+calendar). Every run is scheduled twice with the same duration draws, with
+and without the events, so the gap between the two P80s is the contingency
+the register asks for, with no sampling noise between two separate runs.
+Each event is ranked by its finish shift (mean finish of runs where it
+happened minus runs where it did not), marked when within two standard
+errors of noise. Checked on the six public files: 207 of 207 planted certain
+events of 1 to 40 days give exactly the finish the CPM engine gives with the
+same delay applied directly, and a register leaves the no-event column
+identical to a run without one on all six (eval/risk-register-check-2026-11-19.md).
+
 ## Why someone would use it
 
 | Today's option | What it does | What this does better |
 |---|---|---|
+| Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free; no resource model, no probabilistic branches yet |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
 | Open-source XER libraries and checkers (Python packages, local web apps) | A parser or a few checks; you install and run them | All 14 points plus a critical path test on a recomputed schedule, measured against P6's own numbers, in a page |
@@ -85,6 +116,12 @@ project's updates for delay claims; and the review itself as a service.
 - `report.mjs`: the written review. `reviewItems` turns each failing DCMA
   point, extra check, stale-date list and comparison flag into one ranked
   correction with its activities; `reviewHtml` lays them out for print.
+- `risk.mjs`: the Monte Carlo run. Seeded generator (repeatable), triangular
+  draws (one-factor Gaussian copula when correlated), `cpm.mjs` forward pass
+  only (`forwardOnly`, `durations`), driving path per run, sensitivity as the
+  correlation of each activity's draw with the finish, blank below
+  4 / sqrt(runs). Risk events (`parseRisks`) draw from their own seeded
+  stream, so adding a register never changes the duration draws.
 - `index.html`: the page. `cli.mjs`: the same from a terminal:
 
 ```
@@ -94,6 +131,8 @@ node cli.mjs schedule.xer --csv out.csv   # one row per finding
 node cli.mjs schedule.xer --report review.html --to "GC scheduler" --from "Owner's rep"
 node cli.mjs current.xer --previous last.xer --report review.html   # review with the update's changes
 node cli.mjs schedule.xer --project CODE  # a file with several projects
+node cli.mjs schedule.xer --risk 1000 --range 90,100,130 --correlation 0.3 [--ranges ranges.csv] [--csv drivers.csv]
+node cli.mjs schedule.xer --risk 1000 --risks register.csv   # risk register events, ranked
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 ```
 
@@ -108,18 +147,26 @@ run as a formula in Excel or Sheets.
 
 - **Against P6 itself** (`eval/cpm-vs-p6-2026-11-19.md`): six public XER files
   from P6 5.0 to 24.12, 19,822 open activities. Early finish, late finish and
-  total float all equal P6's stored values on **19,808 (99.9%)**: 100% on five
-  files (the hotel schedule's last one fixed by the free-float rules), 14,256 of 14,270 (99.9%) on a
-  heavily progressed programme with 2,134 out-of-sequence links (88.2% before
-  the retained-logic rules of 2026-11-19, 99.4% before the third pass). Every rule added to get
-  there is listed there with the count it moved.
+  total float all equal P6's stored values on **19,820 (99.99%)**, and late
+  finish on all 19,822: 100% on five files (the hotel schedule's last one fixed
+  by the free-float rules), 14,268 of 14,270 on a heavily progressed programme
+  with 2,134 out-of-sequence links (88.2% before the retained-logic rules of
+  2026-11-19, 99.4% before the third pass, 14,256 before the fourth). The two
+  left are a finish milestone and its successor whose 608 h lag P6 counts in a
+  way no calendar tried reproduces. Every rule added to get there is listed
+  there with the count it moved; the fourth pass added five (an open
+  predecessor's FS lag into a finished node comes back off, a labour
+  assignment's remaining work sets the late start of an activity with no
+  remaining duration, unspent SS lag into a finished node, as late as possible
+  on started work, and a future actual start that has spent no lag).
 - **Free float against P6** (`eval/free-float-2026-11-19.md`): the same files,
-  **19,809 of 19,822 (99.93%)** equal P6's stored free float, up from 18,537
+  **19,810 of 19,822 (99.94%)** equal P6's stored free float (19,809 before the
+  fourth CPM pass), up from 18,537
   (93.5%), after four rules (an open end runs to the project's early finish; SS
   lag already spent on either side of a started link is not free float; a
   finished successor still counts; free float is never negative and not capped
-  at total float), each with its measured count. The 13 left: 4 on CCA
-  activities whose dates already differ, 9 in the 24.12 file where P6 stores 0
+  at total float), each with its measured count. The 12 left: 2 on CCA
+  activities whose dates already differ (another 1 since then), 9 in the 24.12 file where P6 stores 0
   against a positive gap in its own dates.
 - **Files with no data date, no PROJECT table or no calendar pattern**: two
   hand-made fixtures from the same public repositories crashed the engine

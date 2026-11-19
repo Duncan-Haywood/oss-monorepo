@@ -33,6 +33,8 @@ const ALIASES = {
   endedAt: ["ended at", "ended", "canceled at", "cancelled at", "end date", "ended utc", "canceled at utc"],
 };
 
+const STATUSES = new Set(["active", "past_due", "unpaid", "canceled", "incomplete", "incomplete_expired", "trialing", "paused"]);
+
 // Dates without a zone (Stripe exports write UTC) are read as UTC.
 const toMs = (v) => {
   const x = String(v || "").trim();
@@ -75,7 +77,13 @@ export function subsFromCsv(text) {
     const endedAt = toMs(get("endedAt"));
     if (get("endedAt") && endedAt === null) return skipped.push({ line: i + 2, why: "ended at is not a date" });
     if (get("trialEnd") && toMs(get("trialEnd")) === null) return skipped.push({ line: i + 2, why: "trial end is not a date" });
-    const status = (get("status") || (endedAt ? "canceled" : "active")).toLowerCase();
+    // Stripe's statuses, read the way a hand-made sheet or another billing
+    // tool writes them ("Cancelled", "Past due"). Any other word is skipped
+    // with a reason: it matched no rule downstream, so the row vanished from
+    // every month, its churn uncounted (red team 2026-11-19, second pass).
+    const rawStatus = get("status").toLowerCase().replace(/[\s-]+/g, "_");
+    const status = rawStatus ? (rawStatus === "cancelled" ? "canceled" : rawStatus) : endedAt ? "canceled" : "active";
+    if (!STATUSES.has(status)) return skipped.push({ line: i + 2, why: `unknown status "${get("status")}"` });
     if (status === "canceled" && endedAt === null) return skipped.push({ line: i + 2, why: "canceled with no end date" });
     const sub = { id: get("id") || `row${i + 2}`, mrr, status, created, endedAt: status === "canceled" ? endedAt : null, trialEnd: toMs(get("trialEnd")), currency };
     // A repeated id is another price line of the same subscription (an export

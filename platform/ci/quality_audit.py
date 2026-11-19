@@ -159,6 +159,11 @@ def post_limits() -> str:
 PR_ROUND_RE = re.compile(r"^quality:\s*round\s+(\d+)(?:\s*\(seed\s+([\w-]+)\))?", re.I)
 
 
+def claim_title(rnd: int, seed: str) -> str:
+    """The round PR title open_round_prs() reads back (PR_ROUND_RE)."""
+    return f"quality: round {rnd} (seed {seed})"
+
+
 def open_round_prs(timeout: int = 20) -> list[tuple[int, str | None]]:
     """(round, seed) of every open `quality: round N (seed S)` PR.
 
@@ -569,6 +574,11 @@ def main(argv: list[str] | None = None) -> int:
                 if in_flight:
                     print(f"  subjects those rounds drew (replayed from their seeds, skipped): {', '.join(sorted(in_flight))}")
             print(f"  post {post_limits()}")
+            # A PR needs a commit, and two quality records (2026-11-19T04:38, 12:39) committed
+            # placeholder posts to claim a round; an empty commit is enough, and this title is
+            # the one open_round_prs() parses, so the next session skips this round and seed.
+            print(f"  claim now: git commit --allow-empty -m \"{claim_title(rnd, seed)}\", push, and open "
+                  f"a draft PR with that title (the squash merge drops the empty commit)")
             for p in picks:
                 extra = f" (of {p['population']})" if p.get("population") else ""
                 print(f"  {p['stratum']:<9} {p['subject']}{extra}  last audited: {p['last_audited'] or 'never'}")

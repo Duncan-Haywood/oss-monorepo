@@ -475,10 +475,14 @@ def race_line(slug):
     programme, the 7 same-programme pairs whose sessions overlapped all started 0-2 minutes
     apart (scheduled sessions launch in batches). Until 2026-11-18 this pointer was printed
     only on the 'clear' path, so a draw of an active programme (recent commits) never got it,
-    and the aerolog-scaling pair (#16842, #16843) found the clash at merge time."""
+    and the aerolog-scaling pair (#16842, #16843) found the clash at merge time.
+    The empty-commit recipe is spelled out because research records (2026-11-18T11:39,
+    15:38, 2026-11-19T09:18) said a PR needs a commit and waited ~15 min for a real one."""
     return (f"CLAIM RACE: a sibling started this same minute is invisible to the checks above "
             f"(all 7 same-programme overlaps in a week of research runs started 0-2 min apart). "
-            f"Open your draft PR (title naming {slug}) before any real work, then run "
+            f"Open your draft PR (title naming {slug}) before any real work; with nothing to "
+            f"commit yet, `git commit --allow-empty -m \"research/{slug}: claim\"` and a push "
+            f"are enough (the squash merge drops it). Then run "
             f"`python3 portfolio/router/claim_check.py {slug}`; on YIELD, redraw with "
             f"`python3 research/_shared/pick_track.py --new`")
 

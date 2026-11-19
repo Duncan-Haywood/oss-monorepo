@@ -1,0 +1,14 @@
+# Milestone 11aq post hoc: R1 (one level apart) and R0 (same level) by the aware plan's h* (arrangement_posthoc.py's docstring); medians over layout-draws, nan where no weighted pair exists
+  M   s    h*      n    R1 med   R0 med   R0 > 1
+  12  1     13.33   80    0.6352   0.6944   21 of 80
+  12  1     17.14   16    1.3831   1.1036   9 of 16
+  12  2     13.33   38    0.3731   1.2176   21 of 38
+  12  2     17.14    8    0.7957   1.2546   6 of 8
+  12  2     24.00   50    0.9108   1.7927   50 of 50
+  16  1     13.00    1    0.6753   0.3998   0 of 1
+  16  1     13.33   87    0.6603   0.7254   13 of 87
+  16  1     17.14    8    1.0296   1.1903   5 of 8
+  16  2     13.00    1    0.4696   0.8806   0 of 1
+  16  2     13.33   32    0.4885   0.8518   9 of 32
+  16  2     17.14    6    0.7803   0.7940   2 of 6
+  16  2     24.00   57    0.9045   1.6275   57 of 57

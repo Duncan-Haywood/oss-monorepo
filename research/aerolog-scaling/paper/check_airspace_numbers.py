@@ -104,6 +104,22 @@ CHECKS = [
     ("rule_check_results.txt", "  1       5.655      5.754     24.88       2    40.00   17.14, -", "5, 4, 2 and 1 against 5, 5, 4 and 3"),
     ("rule_check_results.txt", "0.0663/0.0488", "0.0663"),
     ("rule_check_results.txt", "0.0663/0.0488", "0.0488"),
+    # 11aq arrangement
+    ("arrangement_results.txt", "  1     96   0.7035  0.3219  1.3840   0.7657  0.1266    0.3220    0.9060   1.0482", "0.7035"),
+    ("arrangement_results.txt", "  1     96   0.7010  0.3909  1.0670   0.7562  0.1635    0.3282    0.9376   1.0467", "0.7010"),
+    ("arrangement_results.txt", "R1 < 1 in 74 of 96", "74 and 84 of 96"),
+    ("arrangement_results.txt", "R1 < 1 in 84 of 96", "74 and 84 of 96"),
+    ("arrangement_results.txt", "0.1266    0.3220", "from 0.3220 to 0.1266"),
+    ("arrangement_results.txt", "0.1635    0.3282", "from 0.3282 to 0.1635"),
+    ("arrangement_results.txt", "0.9060   1.0482", "0.9060 and 0.9376"),
+    ("arrangement_results.txt", "1.0482  1.1238  1.7969", "1.0482 and 1.0467 (worst 1.7969)"),
+    ("arrangement_results.txt", "0.7237 vs 0.7035", "0.7237 and 0.7985"),
+    ("arrangement_results.txt", "1     13.33: 80, 17.14: 16", "reproduce exactly"),
+    ("speed_offset_results.txt", "1     13.33: 80, 17.14: 16", "reproduce exactly"),
+    ("arrangement_posthoc_results.txt", "  12  2     13.33   38    0.3731", "0.3731 and 0.4885"),
+    ("arrangement_posthoc_results.txt", "  16  2     13.33   32    0.4885", "0.3731 and 0.4885"),
+    ("arrangement_posthoc_results.txt", "  12  2     24.00   50    0.9108   1.7927   50 of 50", "all 107 such draws"),
+    ("arrangement_posthoc_results.txt", "  16  2     24.00   57    0.9045   1.6275   57 of 57", "all 107 such draws"),
 ]
 
 

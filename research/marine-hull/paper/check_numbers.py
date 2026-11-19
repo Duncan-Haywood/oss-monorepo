@@ -11,6 +11,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 EXP = os.path.join(HERE, "..", "experiments")
 
 CLAIMS = [
+    ("results_energy_split.txt", "minimum total 12.14 Wh/km at 1.00 m/s; range 823.7 km"),
+    ("results_energy_split.txt", "propulsive share at minimum 0.314"),
+    ("results_energy_split.txt", "wave share of hull resistance at 1.00 m/s 0.066"),
+    ("results_energy_split.txt", "hotel/hull 16.22"),
+    ("results_energy_split.txt", "hotel/hull 0.23"),
+    ("results_energy_split.txt", "friction term log-log slope 0.50 to 2.00 m/s 1.81"),
+    ("results_energy_split.txt", "wave share of hull resistance at 2.00 m/s 0.311 (Fr 0.319)"),
+    ("results_energy_split.txt", "without the wave term: minimum 11.80 Wh/km at 1.10 m/s, propulsive share 0.358"),
     ("results_michell.txt", "cases 6561; catamaran out-ranges monohull in 216 (3.3%)"),
     ("results_michell.txt", "equal length 0/729"),
     ("results_michell.txt", "cat win share by k_mono: 0.1: 0.0%, 0.25: 2.5%, 0.4: 7.4%"),
