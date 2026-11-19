@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtHHG2enmG7oHMHE3Pu",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T21:06:53Z",
+  "ended": "2026-11-19T21:35:51Z",
+  "wall_minutes": 29.19,
+  "tokens_in": 5477396,
+  "tokens_out": 32831,
+  "cost_usd": 2.8588,
+  "tool_calls": 49,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17793",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/water-leaks/requirements.txt",
+      "issue": "lists numpy, matplotlib, pytest, scipy but not wntr, which step 25/26's cached-simulation path imports on a cold cache; pyenv.py -r installed everything except it and I had to pip install wntr by hand"
+    },
+    {
+      "file": "(own error)",
+      "issue": "I read a generated matplotlib SVG with the Read tool to check it and spent ~25k tokens of context on path data; check a figure by rendering it to PNG instead"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "a post-hoc table (alarm day against onset, by leak kind) was added after the registered output was read",
+      "did": "declared it post hoc in run.py, LOG.md, README and the post, with no verdicts, and checked by diff that the registered lines were unchanged",
+      "result": "it explains why five of six predictions failed and sets the next step (detect early, localise later)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-leak-detector-early-localiser-late.md",
+    "research/water-leaks/LOG.md (step 28 plan and outcome)",
+    "research/water-leaks/README.md (step 28)"
+  ],
+  "goal": null,
+  "notes": "water-leaks step 28: D1 run on the residual D (h=40 by step 1's rule) detects 28 of 48 2019 leaks (D1-L 22) but places 4 end to end (same as step 27), 5 FA in 2019; (b) held, (a),(c)-(f) failed. Post hoc: both detectors alarm 3-6 days after onset; incipient half-peak ~35 days after onset; R30 at alarm 11/29 abrupt, 2/27 incipient. Step 27 rerun reproduced its outputs byte for byte from a cold cache (Zenodo answered). Local checks: run_workflow_locally --for-changes DONE exit 0; water-leaks pytest 52 passed; build.py ok; check_posts ok; check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ea398da2-0d14-5fcc-b90f-bab5395e3669",
+    "transcripts": 1,
+    "first": "2026-11-19T21:06:53Z",
+    "last": "2026-11-19T21:36:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 86,
+        "output": 32831,
+        "thinking": 5599,
+        "cache_read": 5335471,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141839,
+        "api_equivalent_usd": 2.8588,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 86,
+      "output": 32831,
+      "thinking": 5599,
+      "cache_read": 5335471,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141839,
+      "api_equivalent_usd": 2.8588,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 44,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.19,
+      "active_minutes": 29.19,
+      "model_minutes": 6.11,
+      "tool_minutes": 23.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, code and analysis of one pre-registered detector experiment plus write-ups, by a PhD student familiar with the codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 209.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
