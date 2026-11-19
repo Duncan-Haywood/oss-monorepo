@@ -171,6 +171,36 @@ test("CPM: retained logic through out-of-sequence progress (SS from started work
   assert.equal(at(old, x, "G").es, "2025-12-03 08:00");
 });
 
+test("CPM: an SS lag not yet spent at the data date still runs; a finished node takes no lag back", () => {
+  // data date Wed 3 Dec 08:00. C started Mon 08:00 but waits on P (FS), so
+  // its 8 h left run Fri. S follows C SS lag 24: 16 h of it ran Mon-Tue, the
+  // other 8 h run from C's remaining start (Fri 08:00 + 8 h), so S starts Mon 8.
+  // F finished Mon; H follows F FS lag 16. Going back, F's late date is H's
+  // late start with no lag (P6's value on the CCA file, eval/cpm-vs-p6-2026-11-19.md, rules 10-11).
+  const x = project(
+    [
+      task("1", "P", 16),
+      task("2", "C", 8, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 16 }),
+      task("3", "S", 8),
+      task("4", "F", 0, { status_code: "TK_Complete", act_start_date: "2025-12-01 08:00", act_end_date: "2025-12-01 17:00", target_drtn_hr_cnt: 8 }),
+      task("5", "H", 8),
+    ],
+    [link("1", "2", "1"), link("2", "3", "2", "PR_SS", 24), link("3", "5", "4", "PR_FS", 16)],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  const out = schedule(x);
+  assert.equal(at(out, x, "C").es, "2025-12-05 08:00");
+  assert.equal(at(out, x, "S").es, "2025-12-08 08:00");
+  assert.equal(at(out, x, "H").es, "2025-12-04 08:00"); // F's actual finish + 16 h
+  assert.equal(at(out, x, "H").ls, "2025-12-08 08:00");
+  assert.equal(formatDate(out.tasks.get("4").lf), "2025-12-08 08:00");
+  // the earlier rules, as variants
+  const before = schedule(x, { variant: { ssActivePred: "max", bwDoneFS: false } });
+  assert.equal(at(before, x, "S").es, "2025-12-05 08:00");
+  // (the project then ends Fri 17:00: H's late start Fri 08:00, less the 16 h lag)
+  assert.equal(formatDate(before.tasks.get("4").lf), "2025-12-03 08:00");
+});
+
 test("CPM: as late as possible takes up free float; loops are found and reported", () => {
   const x = project(
     [task("1", "A", 8), task("2", "B", 8, { cstr_type: "CS_ALAP" }), task("3", "C", 24), task("4", "End", 0, { task_type: "TT_FinMile" })],

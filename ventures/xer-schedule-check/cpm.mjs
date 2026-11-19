@@ -207,7 +207,7 @@ export function schedule(xer, options = {}) {
   const proj = (t) => projects.get(t.proj) || { dataDate: null, retainedLogic: true, progressOverride: false, floatType: "FT_FF" };
   const done = (t) => t.status === "TK_Complete";
   const active = (t) => t.status === "TK_Active";
-  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "max", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", ...(options.variant || {}) };
+  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", ...(options.variant || {}) };
   const delay = options.delay || null; // { taskId, minutes }: added remaining duration (critical path test)
 
   // ---- forward pass
@@ -260,7 +260,16 @@ export function schedule(xer, options = {}) {
       const pF = pv.ef;
       if (r.type === "PR_FS") starts.push(lc.addWork(pF, r.lag));
       else if (r.type === "PR_SS" && active(tasks.get(r.predId)) && V.ssActivePred !== "es") {
-        starts.push(V.ssActivePred === "rem" ? pv.remES : Math.max(pv.remES, lc.addWork(pS, r.lag)));
+        if (V.ssActivePred === "rem") starts.push(pv.remES);
+        else {
+          starts.push(Math.max(pv.remES, lc.addWork(pS, r.lag)));
+          // the part of the lag not yet spent at the data date still runs,
+          // from where the predecessor's remaining work starts
+          if (V.ssActivePred === "maxleft" && r.lag && p.dataDate !== null) {
+            const left = r.lag - lc.workBetween(tasks.get(r.predId).actStart ?? dd, dd);
+            if (left > 0) starts.push(lc.addWork(pv.remES, left));
+          }
+        }
       }
       else if (r.type === "PR_SS") starts.push(lc.addWork(pS, r.lag));
       else if (r.type === "PR_FF") fins.push(lc.addWork(pF, r.lag));
@@ -362,11 +371,14 @@ export function schedule(xer, options = {}) {
         }
       }
       const lc = lagCalendar(model, rel);
-      if (rel.type === "PR_FS") fins.push(lc.subWork(sv.remLS, rel.lag));
+      if (rel.type === "PR_FS" && V.bwDoneFS && done(t)) fins.push(V.bwDoneFS === "nolag" ? sv.remLS : lc.subWork(sv.remLS, rel.lag));
+      else if (rel.type === "PR_FS") fins.push(lc.subWork(sv.remLS, rel.lag));
       else if (rel.type === "PR_SS" && V.bwDoneSS && done(t)) starts.push(V.bwDoneSS === "nolag" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));
       else if (rel.type === "PR_SS" && V.bwSSActivePred && active(t)) starts.push(V.bwSSActivePred === "rem" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));
       else if (rel.type === "PR_SS") starts.push(lc.subWork(sv.remLS, rel.lag));
+      else if (rel.type === "PR_FF" && V.bwDoneFS && done(t)) fins.push(V.bwDoneFS === "nolag" ? sv.lf : lc.subWork(sv.lf, rel.lag));
       else if (rel.type === "PR_FF") fins.push(lc.subWork(sv.lf, rel.lag));
+      else if (rel.type === "PR_SF" && V.bwDoneFS && done(t)) starts.push(V.bwDoneFS === "nolag" ? sv.lf : lc.subWork(sv.lf, rel.lag));
       else if (rel.type === "PR_SF") starts.push(lc.subWork(sv.lf, rel.lag));
     }
     if (done(t)) {
