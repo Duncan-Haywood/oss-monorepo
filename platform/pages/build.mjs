@@ -6159,6 +6159,12 @@ export async function repairLinks({ publishedDir, sourceDir, repoRoot, outDir })
       const target = pathPart.endsWith('/') ? path.join(resolvedInSite, 'index.html') : resolvedInSite;
       const insideSite = target === outDir || target.startsWith(`${outDir}${path.sep}`);
       if (insideSite && existsSync(target)) return whole;
+      // The hub (`outDir/index.html`) is written after every surface's links
+      // are repaired, so it never exists yet when this runs. A venture's
+      // `href="../"` ("More free tools", "All tools") means the hub, and was
+      // being repointed at the GitHub `ventures/` folder: 14 pages on
+      // 2026-11-19 (docs/reports/polish-2026-11-19-hub-links.md).
+      if (target === path.join(outDir, 'index.html')) return whole;
 
       const inRepo = path.resolve(path.dirname(sourceOfFile), pathPart);
       if (!inRepo.startsWith(`${repoRoot}${path.sep}`) || !existsSync(inRepo)) return whole;
