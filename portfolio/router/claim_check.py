@@ -96,6 +96,7 @@ listed. A keyword is optional (`claim_check.py --paths-only`).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import subprocess
@@ -447,8 +448,57 @@ def claim_recipe(keyword: str, item: Optional[str] = None) -> str:
             f"empty commit), then `python3 portfolio/router/claim_check.py {keyword} --item \"{it}\"`.")
 
 
+def free_flagships(prs: list[dict], keyword: str, now: datetime, path: Optional[Path] = None,
+                   today=None) -> Optional[list[str]]:
+    """The other Deepen flagships no open PR younger than allocate.CLAIM_FRESH_HOURS
+    names, in portfolio/flagships.yaml order (the order of allocate.py's table);
+    None when `keyword` is not a flagship (or the file cannot be read).
+
+    Why: a YIELD sent the session back to `allocate.py` (one to two minutes with
+    its fetch) to find another row, and same-minute collisions are a floor the
+    Start-here hash cannot remove: sessions fired on one scheduler tick opened
+    their PRs 0 to 18 s apart (#17528/#17529 5 s, #17442 17 s, two at 11:57:38Z
+    on 2026-11-19), and with five free rows any two of them share one about a
+    fifth of the time. Four live doc_friction reports on allocate.py
+    (friction_rank.py --live --ungated, 2026-11-16..19) are this race. This list
+    comes from the PRs the check has already read, so the redirect costs nothing."""
+    import allocate  # lazy: allocate imports this module
+    path = path or allocate.FLAGSHIPS_PATH
+    try:
+        rows = [e["venture"] for e in allocate._load_yaml(path).get("flagships") or []
+                if isinstance(e, dict) and e.get("venture")]
+        skip = set(allocate.load_inputs_only(path)) | set(allocate.load_not_before(path, today))
+    except (OSError, ValueError, AttributeError):
+        return None
+    if keyword not in rows:
+        return None
+    fresh = [(p.get("number"), p.get("title") or "", p.get("created_at") or "") for p in prs
+             if allocate._age_hours(p.get("created_at") or "", now) < allocate.CLAIM_FRESH_HOURS]
+    claimed = allocate.claims_by_venture(rows, fresh)
+    return [v for v in rows if v != keyword and v not in skip and v not in claimed]
+
+
+def redirect_line(free: list[str], session: Optional[str] = None) -> str:
+    """Where a yielding session goes: one of the first START_SPREAD free rows,
+    picked by the session id as allocate.start_here picks (so two sessions that
+    yield together usually part ways), or the first without an id."""
+    import allocate
+    if not free:
+        return ("Every other Deepen flagship has a PR opened in the last "
+                f"{allocate.CLAIM_FRESH_HOURS} h: take another item on this row (rerun with --item), "
+                "or `allocate.py` for the least contested row.")
+    pool = free[:allocate.START_SPREAD]
+    pick = pool[0] if session is None else \
+        pool[int(hashlib.sha256(session.encode()).hexdigest(), 16) % len(pool)]
+    return (f"Free flagship rows now (no PR opened in the last {allocate.CLAIM_FRESH_HOURS} h): "
+            f"{', '.join(free)}. Go to {pick}"
+            + (" (picked by this session's id)" if session else "")
+            + f": `python3 portfolio/router/allocate.py --venture {pick}`, retitle your draft PR "
+            f"to '{pick}: <item>', then `python3 portfolio/router/claim_check.py {pick} --item \"<item>\"`.")
+
+
 def report(result: dict, keyword: str, now: datetime, hours: float,
-           item: Optional[str] = None) -> list[str]:
+           item: Optional[str] = None, redirect: Optional[str] = None) -> list[str]:
     me, older, newer = result["mine"], result["older"], result["newer"]
     sharing = result.get("sharing") or []
     lines = []
@@ -466,6 +516,8 @@ def report(result: dict, keyword: str, now: datetime, hours: float,
                          f"an older PR on another item then shares instead of blocking.")
         lines.append("Pick a different item, or help land that PR; if you already have work, "
                      "close yours as superseded after `portfolio/ledger/supersede_check.py`.")
+        if redirect:
+            lines.append(redirect)
     elif result.get("landed"):
         lines.append(f"LANDED: a PR merged since your clone of main names '{keyword}' and shares words "
                      f"of '{item}' (not an open claim, but this may be your item, already on main):")
@@ -537,7 +589,13 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(json.dumps(out, indent=2))
         return code
     if "title" in out:
-        print("\n".join(report(out["title"], args.keyword, now, args.hours, args.item)))
+        redirect = None
+        if out["title"]["verdict"] == "YIELD":
+            free = free_flagships(prs, args.keyword, now)
+            if free is not None:
+                import allocate
+                redirect = redirect_line(free, allocate.session_id())
+        print("\n".join(report(out["title"], args.keyword, now, args.hours, args.item, redirect)))
         if closed is None:
             print("(Recently merged PRs could not be read: check `git log origin/main` for the slug by hand.)")
     if ov is not None:
