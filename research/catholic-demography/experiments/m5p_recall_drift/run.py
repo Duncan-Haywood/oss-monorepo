@@ -31,7 +31,8 @@ Comparison. XS slope - PN slope, interval from the two standard errors combined 
   are a small part of the 1977-2018 file; stated as a limit).
 Accounting for m5o. Among m5o's population, the cohort-standardised raised-Catholic difference between the 25-44 and 45+
   bands (cohorts with both bands, each cohort weighted by its total weight) and the matching mean age difference.
-  Predicted difference = -(slope) x (age difference), for the PN and XS slopes. Computed for 1977-2018 and, as m5o
+  Predicted difference = slope x (age difference, 25-44 minus 45+), for the PN and XS slopes. (The first full run
+  printed -slope x this difference, a sign error in four output lines; fixed and rerun with the same seed.) Computed for 1977-2018 and, as m5o
   did, 1977-2024 all modes.
 
 Predictions, written before the first run:
@@ -244,7 +245,7 @@ def main():
                            ('XS 25-64 1977-2018 m5o mothers', pt[('XS slope', 'm5o mothers 1937-71',
                                                                    'ages 25-64, 1977-2018')]),
                            ('XS 25-64 1977-2018 all adults', pt[('XS slope', 'all adults', 'ages 25-64, 1977-2018')])):
-            pred = -slope * dage
+            pred = slope * dage  # dage is (25-44) - (45+), negative; fixed after the first full run (was -slope)
             frac = pred / obs if abs(obs) > 1e-9 else np.nan
             lines.append(f'  m5o mothers, {lab}: observed {100 * obs:+.2f}, age gap {dage:.1f} y; predicted from '
                          f'{src}: {100 * pred:+.2f} (fraction {frac:.2f})')

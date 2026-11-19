@@ -2,6 +2,55 @@
 
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
+## 2026-11-19 · Milestone 5b, fifteenth GSS-only step: within cohorts, the raised-Catholic share drifts down about as fast as the same people's own reports do, and m5o's 2.4-point gap does not survive cohort standardisation
+
+Run: `experiments/m5p_recall_drift/run.py` (output `results.txt`, tables `t45`, `t46`; cross-sections: 500-draw stratified
+PSU bootstrap, seed 1; panels: design-based intervals as m5i). Data from `data/download_gssr.sh` (checksums passed).
+**Order of events:** the script with P1-P4 was committed (2600a9b00) and pushed before any run. Two 2-draw smoke runs,
+stdout discarded and outputs deleted unread, failed on loading (one panel file has no design codes; panel `age` is a
+labelled factor); both fixed (commit after 2600a9b00) without changing any estimand. Then the full run. After it one
+output-only fix: the four-line accounting block used `-slope x age difference`, but the age difference is defined
+25-44 minus 45+ (negative), so the predicted band differences had the wrong sign. Fixed and rerun with the same seed;
+only those 8 lines changed (each by sign). The P4 verdict below uses the corrected lines.
+
+Question. m5o found the same mothers' cohorts report a Catholic upbringing (`relig16`) 2.4 points [0.7, 4.2] more often at
+25-44 than at 45+. Upbringing is fixed by 16, so the within-cohort fall is reporting drift, composition (who is left to
+interview), or the 2021-24 web waves. Cross-sections give the within-cohort slope (age and year move together, plus
+composition); the 2006-10 panels give the same people's change per year (no composition). Equal slopes mean drift.
+
+- **P1 supported.** US-born adults 25-64, 1977-2018 (in-person era), single-year cohort fixed effects: the raised-Catholic
+  share falls **-0.072 points per year [-0.124, -0.018]**, about 1.3 points over 18 years. Women -0.065 [-0.133, +0.007].
+  With 2021-24 added, all adults -0.033 [-0.086, +0.014] (the web waves push the other way for all adults; women -0.070).
+- **P2 supported (point).** Panels, US-born, 25-64 at wave 1, wave 1 to 3: **-0.084 points per year [-0.250, +0.082]**
+  (n 2,571); women -0.189 [-0.405, +0.026]. Wave 1 to 2 (2 years) is noisier: +0.069 [-0.276, +0.415], women -0.209.
+- **P3 supported, with little power.** Cross-section minus panel slope, all adults: **+0.012 [-0.163, +0.188]** points per
+  year; women +0.124 [-0.102, +0.350]. The within-cohort fall is the size the same people's own re-reports predict, so
+  composition (mortality, emigration, response) is not needed to explain it. But the interval allows a composition part
+  of up to about 0.16 points per year either way, i.e. about +/-3 points over the 18-year age gap: the test cannot
+  exclude a composition effect as large as m5o's whole difference.
+- **P4 supported formally, but it is not informative.** Among m5o's population (US-born women with children, cohorts
+  1937-71), the cohort-standardised raised-Catholic difference, 25-44 minus 45+, is **+0.29 [-1.21, +1.60]** in 1977-2018
+  and **+0.74 [-0.68, +2.00]** in 1977-2024 (m5o's years), at mean age gaps of 17.7 and 20.7 years. The panel drift
+  predicts +1.49 (all adults) and +3.35 (women), so the ratio is above 0.5 as P4 required. But the difference P4 meant to
+  explain largely is not there in this standardisation, and this population's own within-cohort slope is +0.030
+  [-0.043, +0.113] per year (by segment: 25-44 +0.171 [-0.019, +0.350], 45-64 +0.214 [+0.018, +0.390]).
+- **Reconciling with m5o (post hoc).** m5o's +2.4 weights mothers' cohorts by their children (respondents born 1965-99,
+  10-year windows): computed post hoc, 59% of that mother weight is on cohorts 1935-47, where t44 shows +3.0 to +4.5,
+  and 8% on 1963-71, where it is -2.6 to -4.1. Each single-year cohort weighted by its own size, the difference is +0.7. So m5o's raised-Catholic gap is
+  a property of the cohort mix, heterogeneous across cohorts, not a general fall with age. Dropping 2021-24 lowers it by
+  about 0.4 points, so the web waves are a small part of it.
+- **Implication.** Two things change in m5o's reading. (1) The general age drift of reports of a Catholic upbringing is
+  small (about -0.07 to -0.08 points a year in both sources, 1.3 to 1.5 points over 18 years) and matches within-person
+  re-reporting; the "same women before they left" check m5o refuted is closer to holding once cohorts are standardised.
+  (2) m5o's post hoc split (1.5 retention, 2.2 raised share) leaned on a raised-share gap that is mostly cohort mix; the
+  P_m(25-44) - P_m(45+) difference of +3.7 itself is not retested here and stands as m5o reported it.
+- **Limits.** Neither source separates age from survey year (both measure their sum per year). The panel spans 2006-14
+  and is small, so the comparison has low power. Linear age within cohort is an approximation; the segment slopes for
+  the mothers have opposite sign to all adults'. The panels' first waves are also in the cross-section file, treated as
+  independent. The reconciliation with m5o is post hoc.
+- **Next.** Rerun m5o's P_m comparison with single-year cohort standardisation (the same weighting as here) to see how
+  much of its +3.7 switching difference is cohort mix as well; then H5, or milestone 2.
+
 ## 2026-11-17 · Milestone 5b, fourteenth GSS-only step: seen at 25-44, the mothers' cohorts close most of the share gap, but less than half of that is switching
 
 Run: `experiments/m5o_lifecourse/run.py` (output `results.txt`, tables `t43`, `t44`; 500-draw stratified PSU bootstrap over the
