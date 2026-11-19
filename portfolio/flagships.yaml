@@ -306,24 +306,21 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
-      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise blend: the 11
-      Bayer rows still losing >0.1 dB are over-read noise (D780, D600;
-      eval/near-clean-gate-2026-11-19.md, tools/near_clean_gate.py); X-Trans k
-      unset. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise blend: sweep the
+      metadata-extractor-images raws
+      (eval/near-clean-gate-xtrans-tune-2026-11-19.md) with --clean-truths; X-Trans
+      lift settled off. DNG 1.7.1.0 spec PDF: URL in
+      eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README, HISTORY.md and eval/ (ingest to
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
       CR2; camera DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with
       the 1.7.1.0 text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear
-      matches the Leica T's preview to 0.18 px; WarpRectilinear2). Bayer and X-Trans
-      demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF edge
-      columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
-      (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Coolpix NRW and
-      E-series NEF, Minolta MRW 2026-11-18 (eval/nikon-nrw-reader-*,
-      eval/minolta-mrw-*). Phase One IIQ L and S 2026-11-18, no .dcp: file's matrix
-      (eval/phaseone-iiq-*); Hasselblad 3FR and Phocus .fff (eval/hasselblad-*).
-      Kodak DCR 2026-11-18 = LibRaw (eval/kodak-dcr-*). RW2 RawFormat 8 2026-11-18:
-      S1R II, S5 IIX, S1 II E; 4 x 2 tiles (177 MP); no public file has a tone curve
+      matches the Leica T's preview to 0.18 px; WarpRectilinear2). Phase One IIQ L
+      and S 2026-11-18, no .dcp: file's matrix (eval/phaseone-iiq-*); Hasselblad 3FR
+      and Phocus .fff (eval/hasselblad-*). Kodak DCR 2026-11-18 = LibRaw
+      (eval/kodak-dcr-*). RW2 RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E; 4 x 2
+      tiles (177 MP); no public file has a tone curve
       (eval/panasonic-rw2-format8-grid-*). S1R II 177 MP = LibRaw snapshot 202611,
       every sensel (eval/panasonic-rw2-177mp-libraw-*). IIQ 16-bit (IQ4, IQ3 100MP,
       Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs LibRaw's dE 16, unsettled
@@ -333,10 +330,11 @@ flagships:
       export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
       5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
-      evenly lit frame; Bayer's near-clean leak closed 2026-11-19 (lift_near_detail,
-      k 12: held-out losers 18 to 11, worst SNR 200 -0.27 to -0.14,
-      eval/near-clean-gate-2026-11-19.md); next the 11 left, all over-read noise
-      (D780, D600 tiles), an X-Trans tune pass for its own k. More open items:
+      evenly lit frame; Near-clean leak closed on Bayer 2026-11-19 (k 12,
+      eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
+      day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
+      reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*); next
+      the D780/D600 losers' truth noise, when raw.pixls.us answers. More open items:
       NEXT.md.
 
   - venture: quick-pick-survey

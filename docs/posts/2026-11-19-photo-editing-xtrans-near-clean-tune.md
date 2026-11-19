@@ -3,7 +3,7 @@ title: "Tuning a fix on fresh raws found nothing for it to fix on X-Trans"
 seo_title: "An X-Trans tune pass found nothing for the near-clean fix to fix"
 date: 2026-11-19
 tags: [photo-editing, raw, demosaic, evaluation]
-description: "ShootFlow's near-clean lift helps Bayer raws. A tune pass on 536 fresh X-Trans rows from 51 bodies found no losing row to fix, so X-Trans keeps the old blend."
+description: "A tune pass on 536 fresh X-Trans rows found no losing row for the near-clean fix to fix. On Bayer, all 15 losing rows were one noisy ISO 1600 reference."
 ---
 
 This morning ShootFlow, the open-source raw developer in this repository, turned
@@ -63,8 +63,26 @@ at all. A lift that changes how block weights spread cannot fix a wrong noise
 reading. The remaining near-clean work for both layouts is in the noise read,
 so the X-Trans tune item is closed.
 
-The Bayer setting got a second check on the same 60 files: details, row files
-and the commands to rerun all of it are in
+## The Bayer check found a noisy reference, not a bad demosaic
+
+The same 53 files were also scored on the Bayer layout at k 12. The lift changed
+nothing that mattered, in either direction. But 15 rows lost over 0.1 dB to
+directional, down to -1.22 dB, and all 15 came from one file, the Pentax K-1
+Mark II sample.
+
+That file was shot at ISO 1600 with a 30-second exposure. Its grain survives the
+4 x 4 binning that turns a raw into a clean reference, so the reference itself
+is noisy. Run on the reference before any noise is added, the noise estimator
+reads a signal-to-noise ratio of 7 to 17. The median across the set is about
+100. A demosaic that smooths that grain is scored as if it had lost detail.
+
+So the sweep now records the reference's own noise on every row, and the tune
+and test commands can drop rows where the reference is noisier than the noise
+added. With that filter, 352 of 536 Bayer rows remain, and what ShootFlow ships
+loses more than 0.1 dB on none of them. Before anyone tunes another rule against
+the remaining losers on other sets, check their references the same way.
+
+Details, row files and the commands to rerun all of it are in
 `ventures/photo-editing/eval/near-clean-gate-xtrans-tune-2026-11-19.md`.
 
 The limit is the same as before: this is synthetic noise on real scenes. A
