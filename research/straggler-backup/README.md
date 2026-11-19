@@ -6,7 +6,11 @@ Stdlib-only Python. Synchronous decentralised training that waits for the fastes
 
 ```bash
 cd research/straggler-backup
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, ~3 s
-PYTHONPATH=src python3 experiments/run.py                  # ~1 min; output in experiments/results.txt
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 13 tests, ~2 s
+PYTHONPATH=src python3 experiments/run.py                  # ~6 s; output in experiments/results.txt
 ```
 Independent finishing times, quadratic objective, no strategic speed manipulation; MIT.
+
+## Known gaps (quality audit 2026-11-19)
+
+The [audit](../../portfolio/quality/audits/2026-11-19-straggler-backup.json) reproduced every number but found the write-up short of the research bar. Fixed in the audit's PR: the "fewest workers to drop" rule now reads `⌊1/α⌋` (it said `⌈1/α⌉−1`, wrong when `1/α` is a whole number), `sgd_rounds` returns `inf` instead of crashing for steps with `|1−ηa| ≥ 1`, and tests now pin the Pareto finiteness boundary and the Hájek estimator. Still open: the nearest prior work (Dutta et al., AISTATS 2018, on K-sync SGD round times and error against runtime; Cho, Wang & Joshi, AISTATS 2022, on fastest-worker selection bias; Dean & Barroso 2013) is not cited, so sections 2 and 3 overstate novelty; the E4 gain from tuning the step with `k` comes from a 1-D quadratic where `η ≈ 1/a` solves it in one round and vanishes at `a = 0.1`; and "Hájek is a safe default" is contradicted by the paper's own table at `k = 2`.

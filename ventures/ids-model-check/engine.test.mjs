@@ -597,3 +597,40 @@ test("attribute facets on geometry read shallow arguments with the same verdicts
   assert.deepEqual(a, b);
   assert.ok(a.specs.some((s) => s.failed.length) && a.specs.some((s) => s.passed), "the cases both pass and fail");
 });
+
+// Quality audit 2026-11-19: three seeded unit-conversion bugs survived every test. Values by hand:
+// 120 in x 25.4 mm = 3,048 mm = 3.048 m; 12,000,000 mm2 = 12 m2 (the prefix is squared); 26 degC = 299.15 K.
+test("area prefixes are squared, Celsius is offset to kelvin, and conversion-based units honour their base prefix", () => {
+  const model = ifc("IFC4", [
+    "#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'Audit',$,$,$,$,$,#5);",
+    "#2=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);",
+    "#3=IFCDIMENSIONALEXPONENTS(1,0,0,0,0,0,0);",
+    "#4=IFCMEASUREWITHUNIT(IFCLENGTHMEASURE(25.4),#2);",
+    "#6=IFCCONVERSIONBASEDUNIT(#3,.LENGTHUNIT.,'INCH',#4);",
+    "#7=IFCSIUNIT(*,.AREAUNIT.,.MILLI.,.SQUARE_METRE.);",
+    "#8=IFCSIUNIT(*,.THERMODYNAMICTEMPERATUREUNIT.,$,.DEGREE_CELSIUS.);",
+    "#5=IFCUNITASSIGNMENT((#6,#7,#8));",
+    "#20=IFCWALL('3vB2YO$MX4xv5uCqZZG05x',$,'W-A',$,$,$,$,$,.SOLIDWALL.);",
+    "#60=IFCELEMENTQUANTITY('0Qa1Wb2Ec3Rd4Tf5Yg6Uh7',$,'Qto_WallBaseQuantities',$,$,(#61));",
+    "#61=IFCQUANTITYLENGTH('Length',$,$,120.,$);",
+    "#62=IFCRELDEFINESBYPROPERTIES('1Zx2Cv3Bn4Mq5Wr6Ty7Ui8',$,$,$,(#20),#60);",
+    "#26=IFCSPACE('0BTBFw6f90Nfh9rP1dlXri',$,'001',$,$,$,$,$,.ELEMENT.,.SPACE.,$);",
+    "#63=IFCELEMENTQUANTITY('0Qa1Wb2Ec3Rd4Tf5Yg6Uh8',$,'Qto_SpaceBaseQuantities',$,$,(#64));",
+    "#64=IFCQUANTITYAREA('NetFloorArea',$,$,12000000.,$);",
+    "#65=IFCRELDEFINESBYPROPERTIES('1Zx2Cv3Bn4Mq5Wr6Ty7Ui9',$,$,$,(#26),#63);",
+    "#40=IFCPROPERTYSET('2XtwYdQJvA_eZmLqT9e9cw',$,'Pset_SpaceThermalRequirements',$,(#41));",
+    "#41=IFCPROPERTYSINGLEVALUE('SpaceTemperatureMax',$,IFCTHERMODYNAMICTEMPERATUREMEASURE(26.),$);",
+    "#43=IFCRELDEFINESBYPROPERTIES('1kH1k8oQr1ZvL2xk4yVQmB',$,$,$,(#26),#40);",
+  ]);
+  const prop = (e, type, pset, name, v) => ids(spec(ent(e), `<property dataType="${type}"><propertySet><simpleValue>${pset}</simpleValue></propertySet><baseName><simpleValue>${name}</simpleValue></baseName><value><simpleValue>${v}</simpleValue></value></property>`));
+  const len = (v) => prop("IFCWALL", "IFCLENGTHMEASURE", "Qto_WallBaseQuantities", "Length", v);
+  const area = (v) => prop("IFCSPACE", "IFCAREAMEASURE", "Qto_SpaceBaseQuantities", "NetFloorArea", v);
+  const temp = (v) => prop("IFCSPACE", "IFCTHERMODYNAMICTEMPERATUREMEASURE", "Pset_SpaceThermalRequirements", "SpaceTemperatureMax", v);
+  assert.equal(check(len("3.048"), model).pass, true);
+  assert.equal(check(len("3048"), model).pass, false);
+
+  assert.equal(check(area("12"), model).pass, true);
+  assert.equal(check(area("12000"), model).pass, false);
+  assert.equal(check(temp("299.15"), model).pass, true);
+  assert.equal(check(temp("26"), model).pass, false);
+});

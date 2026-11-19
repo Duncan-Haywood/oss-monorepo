@@ -40,7 +40,10 @@ them). #15717 was a bare "claim (WIP)" later retitled to another product, so
 that yield guarded nothing. With --item, an older
 PR whose title names a *different* item is listed as SHARE, not a blocker; one
 that shares a word of your item, or names no item at all (a bare "x: claim"),
-still blocks. Without --item the check is slug-only, as before. The words
+still blocks. A word in three or more recent titles on the slug (open or
+closed; "reader" on photo-editing) is the flagship's vocabulary: sharing only
+that one word is SHARE, while two shared words still block. Without --item
+the check is slug-only, as before. The words
 are matched literally, so read the SHARE titles: a judgment the tool cannot
 make (overlapping files under different names) is yours.
 
@@ -113,13 +116,36 @@ def item_words(text: str, keyword: str = "") -> set[str]:
             if len(w) >= 3 and w not in GENERIC and w not in slug}
 
 
-def overlap(title: str, keyword: str, item: str) -> str:
-    """How an older PR's title relates to my item: "same" (a shared word),
-    "bare" (it names no item, so it claims the whole slug) or "other"."""
+# A word in this many other titles naming the slug is the flagship's own
+# vocabulary ("reader" on photo-editing: the MRW, NRW, 3FR, IIQ, FFF and DCR
+# readers all merged 2026-11-17/18), so it alone does not make two items one.
+VOCAB_MIN = 3
+
+
+def flagship_vocab(titles: list[str], keyword: str, n: int = VOCAB_MIN) -> set[str]:
+    """Item words found in at least `n` of `titles` (each counted once)."""
+    counts: dict[str, int] = {}
+    for t in titles:
+        for w in item_words(t, keyword):
+            counts[w] = counts.get(w, 0) + 1
+    return {w for w, c in counts.items() if c >= n}
+
+
+def overlap(title: str, keyword: str, item: str, vocab: frozenset = frozenset()) -> str:
+    """How an older PR's title relates to my item: "same", "bare" (it names no
+    item, so it claims the whole slug) or "other".
+
+    "same" takes one shared word that is not flagship vocabulary (`vocab`),
+    or two shared words of any kind. One shared vocabulary word is "other":
+    on 2026-11-18 #17403 (Hasselblad 3FR reader) made the session taking
+    photo-editing's IIQ S reader YIELD; it overrode, and both merged (#17420,
+    its run record's deviations). Two shared words still block, which keeps
+    #17257/#17258 ("cull ... pans", both flagship words that day) a clash."""
     theirs = item_words(title, keyword)
     if not theirs:
         return "bare"
-    return "same" if theirs & item_words(item, keyword) else "other"
+    shared = theirs & item_words(item, keyword)
+    return "same" if len(shared) >= 2 or shared - vocab else "other"
 
 
 def shares_item(title: str, keyword: str, item: str) -> bool:
@@ -184,7 +210,11 @@ def decide(prs: list[dict], keyword: str, mine: Optional[int] = None,
         newer = sorted((r for r in rivals if key(r) > key(me)), key=key)
     sharing = []
     if item and item_words(item, keyword):
-        sharing = [r for r in older if overlap(r["title"], keyword, item) == "other"]
+        mine_no = me["number"] if me else mine
+        titles = {int(p["number"]): str(p.get("title", "")) for p in list(prs) + list(merged or [])
+                  if int(p["number"]) != mine_no and names(str(p.get("title", "")), keyword)}
+        vocab = frozenset(flagship_vocab(list(titles.values()), keyword))
+        sharing = [r for r in older if overlap(r["title"], keyword, item, vocab) == "other"]
         older = [r for r in older if r not in sharing]
     landed, others = [], []
     for p in merged or []:

@@ -1,0 +1,253 @@
+{
+  "date": "2026-11-19",
+  "subject": "platform/fuzz",
+  "stratum": "platform",
+  "seed": "2026-11-19-e2e7",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a fuzzing / test-infrastructure engineer (the person who owns a property-based or mutation fuzzer used by many teams); first checks: is the PRNG and mutation distribution what it claims, does the oracle report true positives only, is a failure reproducible and minimised, can the harness pass vacuously (zero iterations, unread output shape), and is the harness itself tested and wired into CI so a change to it cannot silently disarm its dependents",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Recomputed against sources the author did not write. (1) rng(): the LCG x' = (1103515245x + 12345) mod 2^31 (the ANSI C / glibc TYPE_0 constants) recomputed with Python big integers (scratchpad/fuzz/lcg.py) for seeds 1, 20261118 and 4294967295 over 10 draws with mixed moduli: identical to `node lcg.mjs` on the shipped rng (seed 1 first raw value 1103527590 both). (2) mutate(): seven hand-derived edits of 'abcdefgh' driven by a scripted rnd (delete [2,5) -> 'abfgh', insert, duplicate, truncate, overwrite, copy, overwrite at end) all match (scratchpad/fuzz/hand.mjs). (3) checkRepair() on planted modules with hand-known answers: identity and trim repairs -> []; an append-newline repair (the MT940 bug shape) -> repair-not-idempotent on the sample; a validate that throws on a quote -> validate-throws with a 3-char shortest input; repair throwing on its own output, missing repair export and a slow repair each reported with the right property. (4) A real report re-derived without checkRepair: `node platform/fuzz/repair.mjs --n 3000 --seed 1 squarespace-product-csv-check` flags non-idempotence; calling that venture's repair() directly twice on the printed input gives 800 vs 799 chars, line 2 losing one ',' in the quoted Hosted Image URLs field (scratchpad/fuzz/indep.mjs): a true positive. Reports are right; the generator's distribution is not (see domain, defect 2), which is why this is 3 and not 4.",
+    "completeness": "What the header claims, checked end to end: three properties (validate no-throw, repair no-throw, idempotence) work (planted modules above); seeded reproducibility (same seed, same failures); 'one per distinct message with the shortest input seen' works; repair-slow works; CLI sweep `node platform/fuzz/repair.mjs --n 400` discovers 50 ventures in 6.1 s, all ok, and the regex discovery matches a dynamic import of every ventures/*/calc.mjs (50 = 50 = the 50 repair-fuzz.test.mjs files, no difference either way); exit code 1 on a failure (seed-1 squarespace run exit=1). Gaps: --n / --seed are unvalidated (`--n abc` checks nothing and prints ok, exit 0); a nonexistent slug crashes with a stack trace; no README; the input minimiser the queue doc describes (min2.mjs) lives only in an old session scratchpad, not in the repo.",
+    "verification": "The subject has no tests of its own. Its only tests are the 50 venture guards: `node --test ventures/*/repair-fuzz.test.mjs` 50 pass, 0 fail, 4.3 s. Seven mutants through quality_mutate.py (shadow tree, NODE_OPTIONS=--preserve-symlinks so the guards import the mutated copy; confirmed by the first mutant failing all 50): only the false-positive mutant (idempotence check inverted) was caught. Disabling the idempotence check, running zero mutants, swallowing repair throws, swallowing validate throws, dropping the 'text' key from repairedText (49 of 50 ventures return {text}) and making rng return 0 all survived: the guards assert 'no failures', so any change that makes the fuzzer report less passes every test. CI: ventures-tests.yml triggers on ventures/** and two platform/ci files only (lines 13-23); no workflow lists platform/fuzz/**, so a PR that edits only repair.mjs runs none of its 50 dependents' tests.",
+    "craft": "Read platform/fuzz/repair.mjs (130 lines) whole, one vcard repair-fuzz.test.mjs, ventures-tests.yml and run_venture_tests.py's trigger logic. Small, dependency-free, readable, deterministic, sensible public API (rng, mutate, repairedText, samplesOf, checkRepair, describe). Defects: rng uses the low bits of a power-of-two-modulus LCG (`s % n`, line 30), whose low bit alternates every call; CLI parsing accepts NaN for --n (line 109) and treats --seed 0 as absent (`seed ? ...`, line 123); repair-slow is a wall-clock check (line 86) inside a harness the header calls 'never flaky'; the on-own-output throw message drops the error class name the first throw includes (89 vs 85); a missing slug is an uncaught import error (121).",
+    "claims": "Checked: 'validate never throws / repair never throws / idempotent' (backed, planted modules); 'The generator is seeded, so a test is reproducible' (backed); 'never flaky' (not fully: repair-slow uses performance.now() with slowMs 1000, so a loaded runner can turn a guard red without any code change); 'a failure carries the smallest input seen' (literally true, but it is the shortest of the inputs tried, not a minimised one: the squarespace failure prints 806 chars); 'The first sweep, 2026-11-18, found one crash and six non-idempotent repairs across 49 ventures' (lines 15-16) contradicts the post it cites, which says 15 defects in 14 tools including five crashes across 50 tools; 'About 50 ventures' (backed: 50). There is no README; the header comment is the only documentation. No user-facing page, so no disclaimer is needed.",
+    "fitness": "The job: a venture author wants a cheap guard that a file checker's validate/repair survive damaged input and that Repair produces a file the same tool accepts. Walked through: the three-line repair-fuzz.test.mjs drops in, runs 400 mutants in tens of milliseconds per venture, and its findings are real (15 fixes landed on 2026-11-18; the squarespace case re-derived independently above). At --n 3000 on the default seed it still finds meta-catalog-csv-check, squarespace and vcard failures, and with a high-bits rng it finds xero-contacts-csv-check instead of meta-catalog, so it keeps paying off. A test-infra engineer could adopt it for this family as is; what limits it is that it can pass vacuously without saying so (sepa-pain001-validator returns text on 12 of 200 inputs, w2-efw2-file-validator 8 of 200, so idempotence is exercised on 4-6% of their mutants, and no count is reported).",
+    "domain": "Compared with standard fuzzing practice (libFuzzer/AFL-style mutators, property-based testing tools such as fast-check/Hypothesis): the idempotence oracle is a good format-agnostic property and seeded reproducibility is right. Departures: (a) the PRNG: a mod-2^31 LCG's low bits have short periods (bit 0 alternates), and `s % n` reads exactly those, so the operation chosen at each slot has a parity fixed by call position. Measured over 20,000 mutants (scratchpad/fuzz/ops2.mjs): single-op mutants use only 3 of 6 operations (never delete, duplicate or overwrite alone), 9/36 op pairs, 27/216 triples and 81/1296 4-op sequences ever occur, for seeds 20261118, 1, 2 and 3 alike; crypto.randomInt reaches 6/6, 36/36, 216/216, 1261/1296, and the same LCG read by its high bits reaches 6/6, 36/36, 216/216, 1265/1296. (b) No shrinking: failures are the shortest input seen, not minimised. (c) No coverage or vacuity accounting (how many mutants reached the idempotence check). (d) A wall-clock property inside a deterministic harness. A senior fuzzing engineer would sign off the oracle and the harness shape, not the generator."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "rng() stream for seeds 1, 20261118, 4294967295 over 10 draws with moduli 2^31-1,1000,7,40,6,95 and raw",
+      "method": "independent recomputation of the ANSI C / glibc TYPE_0 LCG (1103515245, 12345, mod 2^31) with Python big integers",
+      "command": "python3 scratchpad/fuzz/lcg.py 1 2147483647,1000,7,40,6,95,... ; node scratchpad/fuzz/lcg.mjs 1 <same>",
+      "expected": "[1103527590, 575, 6, 21, 4, 69, 1508029952, 486256185, 1062517886, 267834847] (seed 1)",
+      "observed": "[1103527590,575,6,21,4,69,1508029952,486256185,1062517886,267834847]; seeds 20261118 and 4294967295 also identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "mutate() edit semantics: delete, insert, duplicate, truncate, overwrite, copy, overwrite at end of 'abcdefgh' with a scripted rnd",
+      "method": "hand-derived string edits from the operation definitions in the header comment",
+      "command": "node scratchpad/fuzz/hand.mjs",
+      "expected": "abfgh, abYcdefgh, abcdecdefgh, abc, aAcdefgh, afgbcdefgh, abcdefghB",
+      "observed": "7/7 identical (overwrite at p = length appends rather than overwrites)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "checkRepair() verdicts on planted modules: identity, trim, append-newline, validate throwing on a quote, repair throwing on own output, missing repair, slow repair",
+      "method": "hand-known answers for each planted module",
+      "command": "node scratchpad/fuzz/hand.mjs",
+      "expected": "[], [], not-idempotent (sample), validate-throws, repair-throws 'on its own output', setup 'no repair() export', repair-slow",
+      "observed": "all seven as expected; validate-throws shortest input 3 chars",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "A reported failure is a true positive: squarespace-product-csv-check, seed 1, 3000 mutants",
+      "method": "re-derived without checkRepair: the venture's own repair() called twice on the printed input and diffed line by line",
+      "command": "node scratchpad/fuzz/indep.mjs",
+      "expected": "repair(repair(x)) !== repair(x) if the report is right",
+      "observed": "once 800 chars, twice 799; line 2 loses one ',' inside the quoted Hosted Image URLs field",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "Reachable mutation-operation sequences over 20,000 mutants",
+      "method": "shipped rng vs node:crypto randomInt as the reference distribution; op choices read from the rnd(6) call position",
+      "command": "node scratchpad/fuzz/ops2.mjs",
+      "expected": "about 6/6, 36/36, 216/216, ~1260/1296 (crypto reference)",
+      "observed": "3/6, 9/36, 27/216, 81/1296 for seeds 20261118, 1, 2, 3; high-bits variant 6/6, 36/36, 216/216, 1265/1296",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "CLI discovery matches the ventures that qualify and the ventures carrying a guard",
+      "method": "regex discovery vs dynamic import of every ventures/*/calc.mjs vs repair-fuzz.test.mjs files",
+      "command": "node scratchpad/fuzz/vac.mjs",
+      "expected": "same set",
+      "observed": "regex 50, dynamic 50, tests 50, no differences",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "CLI argument handling: --n abc, --n <slug>, --seed 0",
+      "method": "expected behaviour of a test CLI: reject bad numbers, honour seed 0 or reject it",
+      "command": "node platform/fuzz/repair.mjs --n abc vcard-contacts-check; node platform/fuzz/repair.mjs --n vcard-contacts-check",
+      "expected": "an error and a non-zero exit",
+      "observed": "'ok ... (0 ms)', 'NaN mutants each', exit 0; the second swept all 50 ventures checking nothing; --seed 0 silently runs the default seed",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "The 50 dependent guards",
+      "method": "run the tests that import the subject",
+      "command": "node --test ventures/*/repair-fuzz.test.mjs",
+      "expected": "green",
+      "observed": "50 pass, 0 fail, 4.3 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "CI runs the dependents when the subject changes",
+      "method": "workflow path filters",
+      "command": "grep -n 'platform' .github/workflows/*.yml (paths); sed -n 13,23p .github/workflows/ventures-tests.yml",
+      "expected": "platform/fuzz/** in some workflow's paths",
+      "observed": "absent; ventures-tests.yml paths are ventures/** and two platform/ci files",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Header: 'The first sweep ... found one crash and six non-idempotent repairs across 49 ventures'",
+      "method": "compare with the cited post docs/posts/2026-11-18-fuzzing-fifty-repair-buttons.md",
+      "command": "sed -n 15,16p platform/fuzz/repair.mjs; grep -n '15 defects' docs/posts/2026-11-18-fuzzing-fifty-repair-buttons.md",
+      "expected": "consistent counts",
+      "observed": "post: 15 defects in 14 tools, five crashes, 50 tools",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Header: 'reproducible and never flaky'",
+      "method": "read the properties for non-deterministic inputs",
+      "command": "sed -n 84,86p platform/fuzz/repair.mjs",
+      "expected": "no wall-clock dependence",
+      "observed": "repair-slow compares performance.now() against slowMs 1000",
+      "result": "partial"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Share of mutants on which idempotence is actually checked, per venture (200 inputs, default seed)",
+      "method": "count inputs where repairedText(repair(x)) is non-null",
+      "command": "node scratchpad/fuzz/vac.mjs",
+      "expected": "most inputs exercised, or the count reported",
+      "observed": "no venture fully vacuous; sepa-pain001-validator 12/200, sepa-payment-file-validator 13/200, w2-efw2-file-validator 8/200, edi-x12-order-checker 68/200; the harness reports no such count",
+      "result": "partial"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Still finds real defects at a longer run",
+      "method": "CLI sweep at 3000 mutants, shipped vs high-bits rng",
+      "command": "node scratchpad/fuzz/hib.mjs <lib> 3000",
+      "expected": "-",
+      "observed": "shipped: meta-catalog, squarespace, vcard fail; high-bits: squarespace, vcard, xero-contacts fail; both pass all 50 at 400 and 1500",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "repair.mjs:90",
+      "change": "twice != null && twice !== once -> twice != null && twice === once",
+      "caught": true,
+      "test_cmd": "bash -c NODE_OPTIONS=\"--preserve-symlinks --preserve-symlinks-main\" node --test ../../ventures/*/repair-fuzz.test.mjs"
+    },
+    {
+      "where": "repair.mjs:90",
+      "change": "twice != null && twice !== once -> twice != null && twice !== once && false",
+      "caught": false,
+      "test_cmd": "bash -c NODE_OPTIONS=\"--preserve-symlinks --preserve-symlinks-main\" node --test ../../ventures/*/repair-fuzz.test.mjs"
+    },
+    {
+      "where": "repair.mjs:78",
+      "change": "i < seeds.length + iterations -> i < seeds.length",
+      "caught": false,
+      "test_cmd": "bash -c NODE_OPTIONS=\"--preserve-symlinks --preserve-symlinks-main\" node --test ../../ventures/*/repair-fuzz.test.mjs"
+    },
+    {
+      "where": "repair.mjs:85",
+      "change": "catch (e) { note(\"repair-throws\" ... -> catch (e) { void (\"repair-throws\" ...",
+      "caught": false,
+      "test_cmd": "bash -c NODE_OPTIONS=\"--preserve-symlinks --preserve-symlinks-main\" node --test ../../ventures/*/repair-fuzz.test.mjs"
+    },
+    {
+      "where": "repair.mjs:81",
+      "change": "try { mod.validate(x); } catch (e) { note( -> ... catch (e) { void (",
+      "caught": false,
+      "test_cmd": "bash -c NODE_OPTIONS=\"--preserve-symlinks --preserve-symlinks-main\" node --test ../../ventures/*/repair-fuzz.test.mjs"
+    },
+    {
+      "where": "repair.mjs:54",
+      "change": "[\"text\", \"output\", ...] -> [\"output\", ...] (drop the key 49 of 50 ventures return)",
+      "caught": false,
+      "test_cmd": "bash -c NODE_OPTIONS=\"--preserve-symlinks --preserve-symlinks-main\" node --test ../../ventures/*/repair-fuzz.test.mjs"
+    },
+    {
+      "where": "repair.mjs:30",
+      "change": "return s % n; }; -> return 0; };",
+      "caught": false,
+      "test_cmd": "bash -c NODE_OPTIONS=\"--preserve-symlinks --preserve-symlinks-main\" node --test ../../ventures/*/repair-fuzz.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The fuzzer has no tests of its own and no CI trigger: its only tests are 50 guards asserting 'no failures', so any change that makes it report less (idempotence check off, zero mutants, swallowed throws, unread 'text' key, constant rng) keeps all 50 green (6 of 7 seeded mutants survived), and ventures-tests.yml does not run on a platform/fuzz/** change at all",
+      "where": "platform/fuzz/repair.mjs:68",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "rng() returns the low bits of a mod-2^31 LCG (`s % n`); bit 0 alternates every call, so each operation slot's choice has a parity fixed by call position: only 3 of 6 single operations (never delete, duplicate or overwrite alone), 9/36 pairs and 81/1296 4-op sequences are ever generated, for every seed",
+      "where": "platform/fuzz/repair.mjs:30",
+      "category": "logic-error",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"
+    },
+    {
+      "severity": "medium",
+      "what": "CLI numbers are unvalidated: `--n abc` or `--n <slug>` gives NaN iterations, so the loop runs zero times (not even the samples) and prints ok with exit 0; `--seed 0` is silently replaced by the default seed (`seed ? {seed} : {}`)",
+      "where": "platform/fuzz/repair.mjs:109",
+      "category": "input-handling",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"
+    },
+    {
+      "severity": "low",
+      "what": "Header says the first sweep found 'one crash and six non-idempotent repairs across 49 ventures'; the post it cites reports 15 defects in 14 tools, five of them crashes, across 50",
+      "where": "platform/fuzz/repair.mjs:15",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "Header promises 'never flaky' but repair-slow is a wall-clock check (performance.now() > 1000 ms) that a loaded CI runner can trip with no code change",
+      "where": "platform/fuzz/repair.mjs:86",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "No vacuity accounting: a repair returning an unrecognised key, or null on most inputs, passes silently; sepa-pain001-validator and w2-efw2-file-validator exercise idempotence on 12 and 8 of 200 inputs and nothing reports it",
+      "where": "platform/fuzz/repair.mjs:87",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "No minimiser in the repo: failures print the shortest input seen (806 chars for the squarespace case); the shrink loop the queue doc relies on (min2.mjs) lived in a session scratchpad. No README either",
+      "where": "platform/fuzz/repair.mjs:76",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "A nonexistent slug on the CLI is an uncaught ERR_MODULE_NOT_FOUND stack trace rather than a message",
+      "where": "platform/fuzz/repair.mjs:121",
+      "category": "input-handling",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"],
+  "verdict": "platform/fuzz/repair.mjs is a 130-line seeded mutation fuzzer that 50 file-check ventures import in a three-line guard test. Its reports are correct: the LCG matches an independent big-integer recomputation, every mutation operation and every checkRepair verdict matches hand-derived answers, and a reported squarespace non-idempotence re-derives by calling that venture's repair directly (800 vs 799 chars). It does not meet the bar because nothing tests the fuzzer itself: 6 of 7 seeded mutants that make it report less, including switching off the idempotence check entirely, leave all 50 guards green, and no workflow runs on a platform/fuzz change. As a fuzzer its generator is weak: reading the low bits of a power-of-two LCG locks each operation's parity, so only 81 of 1,296 four-operation sequences are ever produced (the same LCG read by its high bits produces 1,265, and the 50 guards still pass at 400 and 1,500 mutants). Unvalidated --n/--seed can produce a silent zero-mutant pass, and the header's bug counts contradict its own post. Fit for its job and finding real bugs; not yet the harness a senior test-infrastructure engineer would sign off."
+}

@@ -4988,11 +4988,11 @@ test('the About page lede states the device-privacy claim honestly, with any doc
   const about = await read('about', 'index.html');
   const [, ledeOnly] = about.match(/<p class="lede">([^<]+)<\/p>/) ?? [];
   assert.ok(ledeOnly, 'About page has no .lede paragraph to check');
-  // The lede itself stays short; the named exceptions sit directly under it,
-  // in the hero, in a disclosure the lede points at. Both are read together:
-  // the claim and its exceptions must still be in the first thing a visitor sees.
-  const [, disclosure = ''] = about.match(/<details class="exceptions">([\s\S]*?)<\/details>/) ?? [];
-  const lede = `${ledeOnly} ${disclosure}`;
+  // The lede itself stays short and says the exceptions are "listed below";
+  // they are named once, in the list under the privacy panel. Both are read
+  // together: the claim and every exception it carves out.
+  const [, listing = ''] = about.match(/<h3 id="outside-services">[\s\S]*?<ul class="callers">([\s\S]*?)<\/ul>/) ?? [];
+  const lede = `${ledeOnly} ${listing}`;
 
   const exceptions = externalCallExceptions(surfaces);
   assert.ok(!lede.includes('nothing you type into them is uploaded anywhere'), 'lede still makes the old unconditional claim');
@@ -5044,9 +5044,34 @@ test('the About page privacy panel counts its exceptions instead of assuming one
     );
     assert.match(
       about,
-      /Besides the live API calls .+ make, above, the/,
+      /Besides the live API calls .+ make, the/,
       'plural exceptions need "calls ... make", not the singular "call ... makes"',
     );
+  }
+});
+
+test('the About page names each external-call exception once, in one list, not in every sentence', async () => {
+  // Regression target: the 54 exception names were spliced into four sentences
+  // (three panel lines and the press kit's facts) and a hero disclosure, which
+  // made the phone page 19,771 px, half of it the same list of links.
+  const { surfaces } = await site();
+  const about = await read('about', 'index.html');
+  const exceptions = externalCallExceptions(surfaces);
+  if (!exceptions.length) return;
+  const [main] = about.match(/<main class="prose">[\s\S]*?<\/main>/);
+  assert.match(main, /<h3 id="outside-services">/);
+  const [, list] = main.match(/<ul class="callers">([\s\S]*?)<\/ul>/) ?? [];
+  assert.ok(list, 'no list of the exceptions under the privacy panel');
+  assert.equal((list.match(/<li>/g) ?? []).length, exceptions.length);
+  for (const x of exceptions) {
+    const href = `href="../${x.slug}/"`;
+    const times = main.split(href).length - 1;
+    const most = exceptions.length > 3 ? 1 : 4;
+    assert.ok(times >= 1 && times <= most, `${x.slug} is linked ${times} times in About's main column (want 1 to ${most})`);
+  }
+  if (exceptions.length > 3) {
+    assert.ok(!/<details class="exceptions">/.test(about), 'the hero repeats the list the panel already shows');
+    assert.ok((main.match(/href="#outside-services"/g) ?? []).length >= 3, 'the panel lines should point at the list');
   }
 });
 

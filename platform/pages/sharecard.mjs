@@ -231,16 +231,6 @@ export function markSvg(size = 32) {
   );
 }
 
-function inPolygon(pts, u, v) {
-  let inside = false;
-  for (let i = 0, j = pts.length - 1; i < pts.length; j = i, i += 1) {
-    const [xi, yi] = pts[i];
-    const [xj, yj] = pts[j];
-    if ((yi > v) !== (yj > v) && u < ((xj - xi) * (v - yi)) / (yj - yi) + xi) inside = !inside;
-  }
-  return inside;
-}
-
 const STAR_REACH = {
   cardinal: Math.max(...vertexRadii(MARK_GEOMETRY.cardinal)) + 0.001,
   diagonal: Math.max(...vertexRadii(MARK_GEOMETRY.diagonal)) + 0.001,
@@ -249,8 +239,47 @@ function vertexRadii(pts) {
   return pts.map(([x, y]) => Math.hypot(x - 0.5, y - 0.5));
 }
 
-/** The mark's colour at one unit-space sample, or null outside it. */
-function markSample(u, v, plate) {
+/**
+ * The x of every polygon edge that the horizontal line at v crosses, by the
+ * even-odd point-in-polygon test's own condition and expression (the per-sample
+ * walk this replaced is kept in mark-raster.test.mjs as the reference). A sample
+ * (u, v) is inside exactly when an odd number of these are greater than u: the crossing depends only on v, so
+ * a row of samples (every sample of one pixel row shares its four v values)
+ * computes it once instead of once per sample (2026-11-19; the icons, favicon
+ * and site card drew 7.5 million samples per cold build process this way).
+ */
+function rowCrossings(pts, v) {
+  const xs = [];
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i, i += 1) {
+    const [xi, yi] = pts[i];
+    const [xj, yj] = pts[j];
+    if ((yi > v) !== (yj > v)) xs.push(((xj - xi) * (v - yi)) / (yj - yi) + xi);
+  }
+  return xs;
+}
+
+function oddRight(xs, u) {
+  let inside = false;
+  for (let k = 0; k < xs.length; k += 1) if (u < xs[k]) inside = !inside;
+  return inside;
+}
+
+/** Both stars' crossings at v, memoised for the samples of one drawing. */
+function markRow(rows, v) {
+  let row = rows.get(v);
+  if (!row) {
+    row = { cardinal: rowCrossings(MARK_GEOMETRY.cardinal, v), diagonal: rowCrossings(MARK_GEOMETRY.diagonal, v) };
+    rows.set(v, row);
+  }
+  return row;
+}
+
+/**
+ * The mark's colour at one unit-space sample, or null outside it. `rows` is a
+ * Map the caller keeps for one drawing (see markRow); the answer is the
+ * per-sample polygon walk's (mark-raster.test.mjs pins the pixels).
+ */
+function markSample(u, v, plate, rows) {
   const g = MARK_GEOMETRY;
   const d = Math.hypot(u - 0.5, v - 0.5);
   if (d <= g.hub) return MARK_GOLD;
@@ -258,8 +287,8 @@ function markSample(u, v, plate) {
   // star's points, vertices rounded to 4 decimals, hence the 0.001 margin), so
   // a sample beyond that radius cannot hit it: skip the polygon walk. Exact.
   if (d > g.disc) return null;
-  if (d <= STAR_REACH.cardinal && inPolygon(g.cardinal, u, v)) return MARK_PEARL;
-  if (d <= STAR_REACH.diagonal && inPolygon(g.diagonal, u, v)) return MARK_GOLD;
+  if (d <= STAR_REACH.cardinal && oddRight(markRow(rows, v).cardinal, u)) return MARK_PEARL;
+  if (d <= STAR_REACH.diagonal && oddRight(markRow(rows, v).diagonal, u)) return MARK_GOLD;
   if (d <= g.ring.outer && d >= g.ring.inner) return MARK_GOLD;
   if (plate && d <= g.disc) return MARK_NAVY;
   return null;
@@ -278,6 +307,7 @@ function markCoverage(size, plate) {
   if (cov) return cov;
   cov = [];
   const ss = 4;
+  const rows = new Map();
   for (let dy = 0; dy < Math.ceil(size); dy += 1) {
     for (let dx = 0; dx < Math.ceil(size); dx += 1) {
       let hits = 0;
@@ -287,7 +317,7 @@ function markCoverage(size, plate) {
           const u = (dx + (sx + 0.5) / ss) / size;
           const v = (dy + (sy + 0.5) / ss) / size;
           if (u < 0 || v < 0 || u > 1 || v > 1) continue;
-          const c = markSample(u, v, plate);
+          const c = markSample(u, v, plate, rows);
           if (!c) continue;
           hits += 1;
           sum[0] += c[0]; sum[1] += c[1]; sum[2] += c[2];
@@ -327,6 +357,7 @@ function blendPixel(canvas, x, y, channels, c, a) {
 
 function drawMarkDirect(canvas, left, top, size, { channels = 3, plate = true } = {}) {
   const ss = 4;
+  const rows = new Map();
   for (let y = Math.floor(top); y < Math.ceil(top + size); y += 1) {
     for (let x = Math.floor(left); x < Math.ceil(left + size); x += 1) {
       let hits = 0;
@@ -336,7 +367,7 @@ function drawMarkDirect(canvas, left, top, size, { channels = 3, plate = true } 
           const u = (x + (sx + 0.5) / ss - left) / size;
           const v = (y + (sy + 0.5) / ss - top) / size;
           if (u < 0 || v < 0 || u > 1 || v > 1) continue;
-          const c = markSample(u, v, plate);
+          const c = markSample(u, v, plate, rows);
           if (!c) continue;
           hits += 1;
           sum[0] += c[0]; sum[1] += c[1]; sum[2] += c[2];
