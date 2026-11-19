@@ -18,11 +18,25 @@ export function monthlyAmount(amount, interval, intervalCount = 1, quantity = 1)
 // and unpaid subscriptions are not revenue yet.
 export const COUNTED = new Set(["active", "past_due"]);
 
+// A map keyed by text a user controls (subscription ids from a CSV, price
+// nicknames). A plain {} answers "toString" or "constructor" with a function
+// and drops a "__proto__" key, so a plan named "toString" read NaN and an id
+// "__proto__" vanished from MRR (red team 2026-11-19). Read with has().
+// put() writes an own "__proto__" key into a plain object the way JSON.parse
+// does, so maps returned to callers stay plain objects.
+export const dict = (o) => Object.assign(Object.create(null), o);
+export const has = (o, k) => o != null && Object.hasOwn(o, k);
+export const put = (o, k, v) => {
+  if (k === "__proto__") Object.defineProperty(o, k, { value: v, writable: true, enumerable: true, configurable: true });
+  else o[k] = v;
+  return o;
+};
+
 export function liveMap(subs, { countPastDue = true } = {}) {
   const out = {};
   for (const s of subs) {
     const ok = s.status === "active" || (countPastDue && s.status === "past_due");
-    if (ok && s.mrr > 0) out[s.id] = s.mrr;
+    if (ok && s.mrr > 0) put(out, s.id, s.mrr);
   }
   return out;
 }
@@ -47,7 +61,7 @@ export function mapAt(subs, t) {
     if (!(s.mrr > 0) || !s.created || paidFrom(s) > t || NEVER_PAID_STATUS.has(s.status)) continue;
     if (s.endedAt && s.endedAt <= t) continue;
     if (!s.endedAt && !["active", "past_due", "canceled"].includes(s.status)) continue;
-    out[s.id] = s.mrr;
+    put(out, s.id, s.mrr);
   }
   return out;
 }
@@ -57,13 +71,13 @@ export function mapAt(subs, t) {
 export function movements(prev, cur, ever = {}) {
   const m = { new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0 };
   for (const [id, v] of Object.entries(cur)) {
-    const p = prev[id];
+    const p = has(prev, id) ? prev[id] : undefined;
     if (p === undefined) {
-      if (ever[id]) { m.reactivation += v; m.reactivationCount++; } else { m.new += v; m.newCount++; }
+      if (has(ever, id) && ever[id]) { m.reactivation += v; m.reactivationCount++; } else { m.new += v; m.newCount++; }
     } else if (v > p) m.expansion += v - p;
     else if (v < p) m.contraction += p - v;
   }
-  for (const [id, p] of Object.entries(prev)) if (cur[id] === undefined) { m.churn += p; m.churnCount++; }
+  for (const [id, p] of Object.entries(prev)) if (!has(cur, id) || cur[id] === undefined) { m.churn += p; m.churnCount++; }
   return m;
 }
 
@@ -90,11 +104,11 @@ export function backfill(subs, now, months = 12) {
   const out = [];
   const d0 = new Date(now);
   let prev = mapAt(subs, Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() - months + 1, 1) - 1);
-  for (const id of Object.keys(prev)) ever[id] = 1;
+  for (const id of Object.keys(prev)) put(ever, id, 1);
   for (const { month, t } of monthEnds(now, months)) {
     const cur = mapAt(subs, t);
     const row = { ...emptyMonth(month), ...movements(prev, cur, ever), mrr: sum(cur), customers: Object.keys(cur).length, startMrr: sum(prev), startCustomers: Object.keys(prev).length, approximate: true };
-    for (const id of Object.keys(cur)) ever[id] = 1;
+    for (const id of Object.keys(cur)) put(ever, id, 1);
     out.push(row);
     prev = cur;
   }
@@ -108,7 +122,7 @@ export function applySync(state, cur, now) {
   const m = movements(state.last, cur, state.ever);
   for (const k of Object.keys(m)) row[k] += m[k];
   row.mrr = sum(cur); row.customers = Object.keys(cur).length; row.approximate = false;
-  for (const id of Object.keys(cur)) state.ever[id] = 1;
+  for (const id of Object.keys(cur)) put(state.ever, id, 1);
   state.last = cur; state.lastSyncAt = now;
   return m;
 }
@@ -187,7 +201,7 @@ export function cohorts(subs, now, months = 12) {
 // to the headline MRR. atRisk is the past-due slice of that total (failed
 // payments still being retried): revenue to chase before it becomes churn. A customer with two subscriptions is one customer.
 export function breakdown(subs, { countPastDue = true, top = 5 } = {}) {
-  const plans = {}, customers = {};
+  const plans = dict(), customers = dict();
   let total = 0, atRisk = 0, atRiskSubs = 0;
   for (const s of subs) {
     const ok = s.status === "active" || (countPastDue && s.status === "past_due");
