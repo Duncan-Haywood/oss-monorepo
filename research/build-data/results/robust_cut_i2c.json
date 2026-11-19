@@ -1,0 +1,221 @@
+{
+ "sf": {
+  "2017": {
+   "cpin_es3_ncr": 1966.1399999999994,
+   "cpin_es3_ncr95": 700.0,
+   "cpin_es3_ncrd": 1767.25,
+   "n_window": 63787,
+   "n_batch_in_window": 461,
+   "batch_days_in_window": [
+    "2014-08-04",
+    "2016-01-27",
+    "2016-04-11",
+    "2016-08-25"
+   ]
+  },
+  "2018": {
+   "cpin_es3_ncr": 1827.0,
+   "cpin_es3_ncr95": 746.0,
+   "cpin_es3_ncrd": 1686.9199999999983,
+   "n_window": 64889,
+   "n_batch_in_window": 480,
+   "batch_days_in_window": [
+    "2016-01-27",
+    "2016-04-11",
+    "2016-08-25",
+    "2017-04-06"
+   ]
+  },
+  "2019": {
+   "cpin_es3_ncr": 1834.0,
+   "cpin_es3_ncr95": 808.0,
+   "cpin_es3_ncrd": 1691.7799999999988,
+   "n_window": 66601,
+   "n_batch_in_window": 578,
+   "batch_days_in_window": [
+    "2016-01-27",
+    "2016-04-11",
+    "2016-08-25",
+    "2017-04-06",
+    "2018-03-20"
+   ]
+  },
+  "2020": {
+   "cpin_es3_ncr": 1765.0,
+   "cpin_es3_ncr95": 869.0,
+   "cpin_es3_ncrd": 1732.0,
+   "n_window": 68018,
+   "n_batch_in_window": 217,
+   "batch_days_in_window": [
+    "2017-04-06",
+    "2018-03-20"
+   ]
+  },
+  "2021": {
+   "cpin_es3_ncr": 1880.9299999999857,
+   "cpin_es3_ncr95": 912.9499999999971,
+   "cpin_es3_ncrd": 1848.9700000000012,
+   "n_window": 62702,
+   "n_batch_in_window": 98,
+   "batch_days_in_window": [
+    "2018-03-20"
+   ]
+  },
+  "2022": {
+   "cpin_es3_ncr": 1857.0,
+   "cpin_es3_ncr95": 1015.0,
+   "cpin_es3_ncrd": 1857.0,
+   "n_window": 58559,
+   "n_batch_in_window": 0,
+   "batch_days_in_window": []
+  }
+ },
+ "seattle": {
+  "2017": {
+   "cpin_es3_ncr": 2025.1200000000208,
+   "cpin_es3_ncr95": 753.0,
+   "cpin_es3_ncrd": 2025.1200000000208,
+   "n_window": 17777,
+   "n_batch_in_window": 0,
+   "batch_days_in_window": []
+  },
+  "2018": {
+   "cpin_es3_ncr": 3720.980000000003,
+   "cpin_es3_ncr95": 1105.0,
+   "cpin_es3_ncrd": 2255.0,
+   "n_window": 19342,
+   "n_batch_in_window": 751,
+   "batch_days_in_window": [
+    "2017-02-13",
+    "2017-02-14",
+    "2017-02-24",
+    "2017-02-27",
+    "2017-03-02",
+    "2017-03-06",
+    "2017-03-07",
+    "2017-03-16",
+    "2017-05-19"
+   ]
+  },
+  "2019": {
+   "cpin_es3_ncr": 3761.600000000006,
+   "cpin_es3_ncr95": 1111.0,
+   "cpin_es3_ncrd": 2158.6399999999994,
+   "n_window": 19261,
+   "n_batch_in_window": 751,
+   "batch_days_in_window": [
+    "2017-02-13",
+    "2017-02-14",
+    "2017-02-24",
+    "2017-02-27",
+    "2017-03-02",
+    "2017-03-06",
+    "2017-03-07",
+    "2017-03-16",
+    "2017-05-19"
+   ]
+  },
+  "2020": {
+   "cpin_es3_ncr": 3758.220000000005,
+   "cpin_es3_ncr95": 1145.7000000000007,
+   "cpin_es3_ncrd": 1753.0,
+   "n_window": 18727,
+   "n_batch_in_window": 751,
+   "batch_days_in_window": [
+    "2017-02-13",
+    "2017-02-14",
+    "2017-02-24",
+    "2017-02-27",
+    "2017-03-02",
+    "2017-03-06",
+    "2017-03-07",
+    "2017-03-16",
+    "2017-05-19"
+   ]
+  },
+  "2021": {
+   "cpin_es3_ncr": 1597.3199999999997,
+   "cpin_es3_ncr95": 928.0,
+   "cpin_es3_ncrd": 1597.3199999999997,
+   "n_window": 16393,
+   "n_batch_in_window": 0,
+   "batch_days_in_window": []
+  },
+  "2022": {
+   "cpin_es3_ncr": 1652.0,
+   "cpin_es3_ncr95": 1002.0,
+   "cpin_es3_ncrd": 1652.0,
+   "n_window": 15228,
+   "n_batch_in_window": 0,
+   "batch_days_in_window": []
+  }
+ },
+ "austin": {
+  "2017": {
+   "cpin_es3_ncr": 1684.0,
+   "cpin_es3_ncr95": 508.0,
+   "cpin_es3_ncrd": 1660.6599999999744,
+   "n_window": 167444,
+   "n_batch_in_window": 276,
+   "batch_days_in_window": [
+    "2015-08-28"
+   ]
+  },
+  "2018": {
+   "cpin_es3_ncr": 1401.0,
+   "cpin_es3_ncr95": 521.0,
+   "cpin_es3_ncrd": 1377.140000000014,
+   "n_window": 172820,
+   "n_batch_in_window": 276,
+   "batch_days_in_window": [
+    "2015-08-28"
+   ]
+  },
+  "2019": {
+   "cpin_es3_ncr": 1208.0,
+   "cpin_es3_ncr95": 518.0,
+   "cpin_es3_ncrd": 1208.0,
+   "n_window": 181104,
+   "n_batch_in_window": 0,
+   "batch_days_in_window": []
+  },
+  "2020": {
+   "cpin_es3_ncr": 1155.1199999999953,
+   "cpin_es3_ncr95": 520.0,
+   "cpin_es3_ncrd": 1111.1399999999849,
+   "n_window": 188989,
+   "n_batch_in_window": 802,
+   "batch_days_in_window": [
+    "2019-04-08",
+    "2019-04-12",
+    "2019-04-22"
+   ]
+  },
+  "2021": {
+   "cpin_es3_ncr": 1120.0,
+   "cpin_es3_ncr95": 525.0,
+   "cpin_es3_ncrd": 1096.75,
+   "n_window": 192428,
+   "n_batch_in_window": 802,
+   "batch_days_in_window": [
+    "2019-04-08",
+    "2019-04-12",
+    "2019-04-22"
+   ]
+  },
+  "2022": {
+   "cpin_es3_ncr": 1133.0,
+   "cpin_es3_ncr95": 550.0,
+   "cpin_es3_ncrd": 1097.0,
+   "n_window": 190019,
+   "n_batch_in_window": 1052,
+   "batch_days_in_window": [
+    "2019-04-08",
+    "2019-04-12",
+    "2019-04-22",
+    "2021-04-26"
+   ]
+  }
+ },
+ "note": "session 105: thresholds in days per variant (rounds.RECENT_Q, rounds.batch_days with BATCH_N = 10, OLD_DAYS = 2922); batch counts within the 3-year window before D"
+}
