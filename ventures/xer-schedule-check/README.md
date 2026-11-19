@@ -105,7 +105,8 @@ over-allocation allowance) is honoured. You get the levelled finish, every
 activity that moved and the resource that moved it (or "logic"), peak use and
 hours over the limit per resource before and after, a self-check (hours over
 a limit while a placed activity uses it, which must be 0), a **lower bound**
-no levelling can beat (a resource's remaining work at its limit), and a
+no levelling can beat (a resource's remaining work at the limit in force
+on each date), and a
 **crew size** multiplier to see what crew holds the date. It warns when a
 file still carries P6's default limit of 1 per hour on resources used far
 above it. Checked on the public files in eval/level-check-2026-11-19.md.

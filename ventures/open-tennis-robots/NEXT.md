@@ -13,10 +13,6 @@
 
 ## Buildable here (added 2026-11-18)
 
-- (2026-11-19) A noise-scaled floor on the TAKE_US = 0 bound: the fixed 2 ppm floor is needed (sets Y and Z,
-  eval/take-bound-floor-near2-2026-11-19.md: floor 0 missed 3 of 54 near-2 ms takes at 6-9 ppm steps, floor 2 none) but
-  costs tightness on small-rms instant builds (5 of 12 bounded at 1.5 ms against 8). Try a floor of k standard errors
-  of the step's mean over the kept wheels (the board would send it); design on J-P, W-Z, then a fresh held-out pair.
 - (2026-11-19) More tach pulses a revolution: tested host-side and closed by its pre-registered rule
   (eval/tach-pulses-2026-11-19.md: four magnets saw 46 of 128 short-take balls against 38, not twice; the step's drop
   error rose 0.11% to 0.55%). Reopen only with a survey-level test written first (the board sums ~22 wheels) and a plan

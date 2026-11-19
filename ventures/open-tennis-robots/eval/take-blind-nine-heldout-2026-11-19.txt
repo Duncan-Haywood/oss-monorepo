@@ -1,0 +1,16 @@
+jittery 0.5 us: 66 builds on the nine-point grid
+  blind 1: named 22 of 60 spread takes, wrong 38, instant told to set a take 0 of 6, no verdict 0; wheels left out 0 of 1452
+  blind 1.5: named 30 of 60 spread takes, wrong 30, instant told to set a take 0 of 6, no verdict 0; wheels left out 1083 of 1452
+  blind 3: named 30 of 60 spread takes, wrong 30, instant told to set a take 0 of 6, no verdict 0; wheels left out 1105 of 1452
+per take, AA and AB pooled (6 drills each): advised TAKE_US in ms at blind 1 | 1.5
+  0 ms: 0 0 0 0 0 0 | 0 0 0 0 0 0
+  0.1 ms: 0 0 0 0 0 0 | 0 0 0 0 0 0
+  0.5 ms: 0 0 0 0 0 0 | 0 0 0 0 0 0
+  0.9 ms: 0 0 0 0 0 0 | 0 0 0 0 0 0
+  1.3 ms: 0 0 0 0 0 0 | 0 0 0 0 0 0
+  1.6 ms: 0 0 0 0 0 0 | 0 0 0 0 0 0
+  2 ms: 0 0 0 0 0 0 | 0 0 0 0 0 0
+  2.4 ms: 0 0 0 2.5 0 0 | 0 0 0 2.5 2.5 0
+  2.8 ms: 0 0 0 3 0 0 | 0 2.5 0 3 2.5 0
+  3.5 ms: 0 0 0 0 0 3.5 | 0 0 0 3.5 0 3.5
+  5 ms: 5 0 0 0 0 0 | 5 0 4.5 5 4.5 4.5

@@ -143,7 +143,7 @@
   import { fixStructure } from "./fix.mjs";
   import { suggestBsddLinks, addBsddLinks } from "./bsdd-suggest.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
-  import { sheetFromIds, rowsToXlsx, rowsToCsv } from "./sheet.mjs";
+  import { sheetFromIds, rowsToXlsx, rowsToCsv, sheetLists, sheetVersions } from "./sheet.mjs";
   import { readRequirementSheet, idsToExcel2Ids, excel2IdsToXlsx } from "./excel2ids.mjs";
 
   const $ = (id) => document.getElementById(id);
@@ -329,11 +329,23 @@
       // edit in Excel and drop back here.
       let sheet = null;
       try { sheet = sheetFromIds(state.ids); } catch { /* not readable as an IDS: the audit says why */ }
-      if (sheet) h += `<div class="row"><button class="ghost" id="dl-sheet-xlsx" type="button">Download as a spreadsheet (.xlsx)</button><button class="ghost" id="dl-sheet-csv" type="button">(.csv)</button><button class="ghost" id="dl-excel2ids" type="button">as an Excel2IDS workbook</button><span class="muted" id="excel2ids-note"></span><span class="muted">One row per facet; edit it and drop it back here to get the IDS.${sheet.fixes.length ? ` The ${sheet.fixes.length} repair(s) above are made in it first.` : ""}${sheet.notes.length ? ` ${sheet.notes.length} thing(s) a row cannot hold are left out: ${esc(sheet.notes.slice(0, 3).join("; "))}${sheet.notes.length > 3 ? "; ..." : ""}.` : ""}</span></div>`;
+      if (sheet) h += `<div class="row"><button class="ghost" id="dl-sheet-xlsx" type="button">Download as a spreadsheet (.xlsx)</button><button class="ghost" id="dl-sheet-csv" type="button">(.csv)</button><button class="ghost" id="dl-excel2ids" type="button">as an Excel2IDS workbook</button><span class="muted" id="excel2ids-note"></span><span class="muted">One row per facet, with dropdowns for the IDS words, classes, sets and data types; edit it and drop it back here to get the IDS.${sheet.fixes.length ? ` The ${sheet.fixes.length} repair(s) above are made in it first.` : ""}${sheet.notes.length ? ` ${sheet.notes.length} thing(s) a row cannot hold are left out: ${esc(sheet.notes.slice(0, 3).join("; "))}${sheet.notes.length > 3 ? "; ..." : ""}.` : ""}</span></div>`;
       $("out").innerHTML = h;
       if (sheet) {
         const base = (state.idsName || "spec.ids").replace(/(\.ids|\.xml)+$/i, "");
-        $("dl-sheet-xlsx").onclick = () => { record("sheet_downloaded_xlsx"); download(base + "-ids.xlsx", rowsToXlsx(sheet.rows), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); };
+        // Dropdowns offer the classes, sets and data types of the versions the
+        // IDS names (this site's own schema tables); offline, the fixed IDS words only.
+        $("dl-sheet-xlsx").onclick = async () => {
+          record("sheet_downloaded_xlsx");
+          let lists;
+          try {
+            const v = sheetVersions(sheet.rows).map((x) => x.toLowerCase());
+            const get = (f) => fetch("./schema/" + f).then((r) => { if (!r.ok) throw new Error(f); return r.json(); });
+            const [schemas, psets] = await Promise.all([Promise.all(v.map((x) => get(x + ".json"))), Promise.all(v.map((x) => get("psets-" + x + ".json")))]);
+            lists = sheetLists({ schemas, psets });
+          } catch { /* the fixed lists still go in */ }
+          download(base + "-ids.xlsx", rowsToXlsx(sheet.rows, { lists }), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        };
         $("dl-sheet-csv").onclick = () => { record("sheet_downloaded_csv"); download(base + "-ids.csv", rowsToCsv(sheet.rows), "text/csv"); };
         // The Excel2IDS template layout (excel2ids.mjs): categories in columns, an X per requirement.
         $("dl-excel2ids").onclick = () => {

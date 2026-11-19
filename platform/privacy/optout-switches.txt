@@ -540,6 +540,7 @@ ventures/gravel-driveway-bid-calculator/usage.mjs
 ventures/grazing-lease-rate-calculator/usage.mjs
 ventures/grease-trap-pumping-price-calculator/usage.mjs
 ventures/greenhouse-bench-planner/usage.mjs
+ventures/gtfs-feed-check/usage.mjs
 ventures/gtin-list-check/usage.mjs
 ventures/gumroad-sales-fee-analyzer/usage.mjs
 ventures/gumroad-sales-to-journal/usage.mjs
