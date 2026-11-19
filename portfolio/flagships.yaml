@@ -333,9 +333,9 @@ flagships:
       export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
       5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
-      evenly lit frame; whether `auto` should pick noise-aware (patch PCA in C,
-      fixed order 2026-11-19: same bytes, 1.26x directional's time,
-      eval/noise-pca-native-*). More open items: NEXT.md.
+      evenly lit frame; a near-clean gate in the blend's ramps (auto = noise-aware
+      since 2026-11-19, 1.34x directional's time; 0.78% of 6,008 rows lose >0.1 dB,
+      worst -0.58, eval/auto-noise-aware-*). More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

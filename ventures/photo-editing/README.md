@@ -1496,7 +1496,15 @@ unchanged.
 
 ### Noise-aware demosaic: bilinear where edge-keeping only adds noise (2026-11-16)
 
-`shootflow develop FILE.dng --demosaic noise-aware` (opt-in, numpy, Bayer and X-Trans) blends the
+**The default since 2026-11-19** (eval/auto-noise-aware-2026-11-19.md): `--demosaic auto` picks noise-aware
+wherever it picked directional, after a rule committed before the cost was measured passed all five tests. On 53
+public sample raws from 49 bodies it takes 1.34x directional's time (median, 0.062 s per megapixel added) and
+1.015x its added peak memory (none over 1.21x). On 6,008 rows from three raw.pixls.us sweeps it is ahead of
+directional on average in every set, noise level and scenario, and 0.78% of rows lose over 0.1 dB, all near
+clean (worst -0.58 dB). `--demosaic directional` gives the old default and its bytes. The same check found that
+frames under 24 sensels in one dimension crashed the blend; they are one block now.
+
+`shootflow develop FILE.dng --demosaic noise-aware` (numpy, Bayer and X-Trans; opt-in until 2026-11-19) blends the
 directional result toward bilinear block by block (24 x 24). Each block's weight comes from how far
 directional departs from bilinear there, against the noise the sensor has at that brightness. The noise
 comes from the DNG's own NoiseProfile tag, which phones and converted DNGs write. Without the tag the
