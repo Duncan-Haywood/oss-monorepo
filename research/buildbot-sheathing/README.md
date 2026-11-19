@@ -770,6 +770,18 @@ metre should change their rows by a few percent (an estimate, not computed row b
 
 ![Worst residual at the nose and the depth point, and coverage, under the two-row and four-row bounds](experiments/m59_depth/figure.png)
 
+**Milestone 60: can a stronger leg preload plan the presses the bound refuses?** Mostly. Those presses fail because
+one leg joint's torque sits so close to its gearbox's holding threshold that the 0.2 N sensor error can flip it. For
+each such case the leg preload margin was raised from 0.1 N m up a ladder. On 48 more held-out loads (seed 60),
+**raising it to 0.12 to 0.18 N m plans 17 of the H1's 18 unplanned presses (all binding on the left knee), inside
+0.03 mm at the nose and the depth point with no flip, and lifts H1 coverage from 99.67% to 99.98% (H237 held)**. The
+controller's leg effort rises by a median 0.1% (at most 13.5%, at the 1.6 m pose). Four cases stay unplanned: one
+binding on an H1 elbow, which no leg preload reaches, and three G1 cases at one load with no plan on any side, so
+H235 is refuted; preloading only the binding joint plans the same 17 (H236 refuted; the right-ankle cases of the
+development seed did not recur). One seed; statics; the ladder's steps are chosen, not tuned.
+
+![Smallest raised preload that plans each unplanned press, and the residuals of those plans](experiments/m60_jointpreload/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
