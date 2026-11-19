@@ -31,7 +31,8 @@ export function plan(o = {}) {
   warnings.push("Use a separate sending domain from your main one, with SPF, DKIM and DMARC set, and a one-click unsubscribe header if you send in bulk.");
   warnings.push("If bounces pass 2% or complaints pass 0.1%, stop and fix the list before sending more.");
   const reached = last.total >= p.targetPerDay;
-  return { daysToTarget: reached ? last.day : null, reachedTarget: reached, finalPerDay: last.total, finalPerMailbox: last.perMailbox, schedule: days, warnings, input: p, firstWeekTotal: days.slice(0, 7).reduce((a, x) => a + x.total, 0) };
+  // The schedule stops once the target is reached; the first week holds that volume for its remaining days.
+  return { daysToTarget: reached ? last.day : null, reachedTarget: reached, finalPerDay: last.total, finalPerMailbox: last.perMailbox, schedule: days, warnings, input: p, firstWeekTotal: Array.from({ length: 7 }, (_, i) => (days[i] || last).total).reduce((a, x) => a + x, 0) };
 }
 
 export function toCsv(r) {
