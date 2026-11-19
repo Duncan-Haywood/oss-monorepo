@@ -3,7 +3,7 @@
 // portfolio/requests/requests.json with nothing in it unescaped.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderCustomDevelopmentPage, renderCustomRequestPage, renderRequestShowcase, customRequestPath, REQUEST_KINDS, CUSTOM_DEV_PATH, renderHubSitemap, REQUEST_ASK_CLIP, REQUEST_NOTE_CLIP, noteSentences } from './build.mjs';
+import { renderCustomDevelopmentPage, renderCustomRequestPage, renderRequestShowcase, renderRequestFigure, customRequestPath, REQUEST_KINDS, CUSTOM_DEV_PATH, renderHubSitemap, REQUEST_ASK_CLIP, REQUEST_NOTE_CLIP, noteSentences } from './build.mjs';
 import { FEEDBACK_TYPES } from '../edge/feedback.mjs';
 import { injectChrome } from './build.mjs';
 import { renderSiteFooterNav } from './site-nav.mjs';
@@ -204,4 +204,24 @@ test('shows what requests have built: one card per request whose tool has a stil
   assert.ok(!page.includes('What has been built this way'), 'the prose fallback gives way to the cards');
   assert.ok(page.indexOf('id="built"') < page.indexOf('id="request"') || !page.includes('id="request"'));
   assert.match(renderCustomDevelopmentPage({ baseUrl: base, requests }), /What has been built this way/);
+});
+
+test("a request's own page opens with the tool it became, when that tool has a still", () => {
+  const surfaces = [{ slug: 'ai-bookkeeper', title: 'AI Bookkeeper: double-entry books that learn' }];
+  const shots = [{ slug: 'ai-bookkeeper', file: 'ai-bookkeeper.webp', caption: 'Files a bank export <fast>', hero: 'ai-bookkeeper-hero.webp', heroWide: 'ai-bookkeeper-hero-1200.webp' }];
+  const request = { id: 'R-0001', title: 'Books', ask: 'a', source: 'owner', status: 'building', received: '2026-10-21', updated: '2026-10-30', project: 'ventures/ai-bookkeeper' };
+  const fig = renderRequestFigure({ request, surfaces, shots });
+  assert.match(fig, /<figure class="cd-req-shot">/);
+  assert.match(fig, /src="\.\.\/\.\.\/showcase\/ai-bookkeeper-hero\.webp" srcset="[^"]*ai-bookkeeper-hero-1200\.webp 1200w"/);
+  assert.match(fig, /width="600" height="375"/, 'sized, so the page does not jump');
+  assert.ok(!/loading="lazy"/.test(fig), 'first thing in main: not lazy');
+  assert.match(fig, /<a href="\.\.\/\.\.\/ai-bookkeeper\/">AI Bookkeeper<\/a>/, 'the name, not the tagline');
+  assert.ok(fig.includes('files a bank export &lt;fast&gt;'), 'caption escaped');
+  assert.equal(renderRequestFigure({ request: { ...request, status: 'declined' }, surfaces, shots }), '');
+  assert.equal(renderRequestFigure({ request, surfaces, shots: [] }), '');
+  assert.equal(renderRequestFigure({ request: { ...request, project: 'portfolio/monetization' }, surfaces, shots }), '');
+  const page = renderCustomRequestPage({ request, surfaces, baseUrl: base, requests: [request], showcase: { shots } });
+  const at = page.indexOf('class="cd-req-shot"');
+  assert.ok(at > page.indexOf('<main') && at < page.indexOf('Where it is'));
+  assert.ok(!renderCustomRequestPage({ request, surfaces, baseUrl: base, requests: [request] }).includes('class="cd-req-shot"'));
 });
