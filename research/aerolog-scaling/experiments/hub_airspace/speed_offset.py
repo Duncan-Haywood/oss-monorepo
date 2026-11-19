@@ -40,7 +40,9 @@ were known; the pair-difference sd of the 5 offsets, about 3.5 m at s = 1, was c
  P5 at s = 1 the aware plan's F is a median at least 1.2 times base's: the offsets cost losses of separation even
     when planned for.
 Reported without a prediction: s = 0.5 and 2, the spread over draws, and the same analysis with the c of all 12
-distinct flights whose speeds span 5 m/s (--all12; 7 of them lack 30 s of level en-route flight).
+distinct flights whose speeds span 5 m/s (--all12, M = 12 layouts only, for run time; 7 of the 12 lack 30 s of
+level en-route flight). Added after the main run started, before any of its results were read: --all12 runs M = 12
+only.
 
     OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 level_leak_run.py --build     # 11ai's inputs (0.15 s, committed)
     OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 speed_offset.py > speed_offset_results.txt
@@ -179,8 +181,11 @@ def med(x):
     return S.median(list(x))
 
 
+SIZES_RUN = (12,) if ALL12 else (12, 16)
+
+
 def main(done):
-    keys = [(m, n) for m in (12, 16) for n in dr.SIZES[m]]
+    keys = [(m, n) for m in SIZES_RUN for n in dr.SIZES[m]]
     with mp.Pool(min(4, os.cpu_count() or 1)) as pool_:
         res = dict(pool_.map(analyse, [done[k] for k in keys]))
     _, scales, c10, nfl = _state()
@@ -193,7 +198,7 @@ def main(done):
         len(c10), ", ".join("%+.2f" % v for v in sorted(c10)), np.std(c10, ddof=1), np.std(diffs), nfl))
     P("# ratios: blind/aware, dist/aware (each plan under the truth), aware/base (base = no offsets)")
     out = {}
-    for m in (12, 16):
+    for m in SIZES_RUN:
         idx = [k for k in keys if k[0] == m]
         P()
         P("## M = %d (24 layouts x %d draws); base h* median %.2f, bands %.1f" % (
@@ -215,23 +220,23 @@ def main(done):
             P("    %-5g %s" % (s, ", ".join("%g: %d" % (h, hs.count(h)) for h in sorted(set(hs)))))
     P()
     P("# predictions" + (" (stated for the 5-flight set; shown for comparison only)" if ALL12 else ""))
-    for m in (12, 16):
+    for m in SIZES_RUN:
         r = out[(m, 1.0)]
         P("  P1 M=%d s=1 median h*_aware >= 17.14: %.2f -> %s" % (m, r["h"], "held" if r["h"] >= 17.13 else "refuted"))
-    for m in (12, 16):
+    for m in SIZES_RUN:
         r = out[(m, 1.0)]
         P("  P2 M=%d s=1 blind/aware median >= 1.25: %.4f -> %s" % (m, r["blind"], "held" if r["blind"] >= 1.25
                                                                        else "refuted"))
-    for m in (12, 16):
+    for m in SIZES_RUN:
         r = out[(m, 0.25)]
         ok = abs(r["h"] - 13.33) < 0.01 and r["blind"] <= 1.05
         P("  P3 M=%d s=0.25 median h*_aware = 13.33 and blind/aware <= 1.05: %.2f, %.4f -> %s" % (
             m, r["h"], r["blind"], "held" if ok else "refuted"))
-    for m in (12, 16):
+    for m in SIZES_RUN:
         r = out[(m, 1.0)]
         P("  P4 M=%d s=1 dist/aware median <= 1.10: %.4f -> %s" % (m, r["dist"], "held" if r["dist"] <= 1.10
                                                                      else "refuted"))
-    for m in (12, 16):
+    for m in SIZES_RUN:
         r = out[(m, 1.0)]
         P("  P5 M=%d s=1 aware/base median >= 1.2: %.4f -> %s" % (m, r["base"], "held" if r["base"] >= 1.2
                                                                     else "refuted"))

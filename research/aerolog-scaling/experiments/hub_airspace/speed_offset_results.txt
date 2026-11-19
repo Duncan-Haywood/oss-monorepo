@@ -1,0 +1,41 @@
+# Milestone 11ao: operator-specific barometer speed offsets in 11an's --rtk5 planner (speed_offset.py's docstring). deliv ages, Z = 7.62 m, H = 120 m, 30 spacings, best of 200 descents, 48 layouts, 4 draws
+# offsets at 10 m/s from 5 flights (m): -4.70, -1.44, +0.81, +1.06, +1.55; sd 2.594, sd of b_i - b_j 3.281; per-drone noise from 7 flights
+# ratios: blind/aware, dist/aware (each plan under the truth), aware/base (base = no offsets)
+
+## M = 12 (24 layouts x 4 draws); base h* median 13.33, bands 5.0
+  s      h*_aware  bands  h*_dist  blind/aware  max     dist/aware  max     aware/base  p90
+  0.25     13.33    5.0    13.33     1.0000    1.0000     1.0000    1.0000     1.0003    1.0006
+  0.5      13.33    5.0    13.33     1.0000    1.0111     1.0000    1.0058     1.0026    1.0054
+  1        13.33    5.0    15.24     1.0342    1.7254     1.0277    1.1683     1.0355    1.0931
+  2        24.00    3.0    24.00     1.1631    2.7024     1.1477    1.7686     1.0265    1.1004
+  h*_aware distribution (s: h x count)
+    0.25  13.33: 96
+    0.5   13.33: 96
+    1     13.33: 80, 17.14: 16
+    2     13.33: 38, 17.14: 8, 24: 50
+
+## M = 16 (24 layouts x 4 draws); base h* median 13.33, bands 5.0
+  s      h*_aware  bands  h*_dist  blind/aware  max     dist/aware  max     aware/base  p90
+  0.25     13.33    5.0    13.33     1.0000    1.0000     1.0000    1.0000     1.0003    1.0007
+  0.5      13.33    5.0    13.33     1.0000    1.0030     1.0000    1.0030     1.0026    1.0067
+  1        13.33    5.0    13.33     1.0183    1.2513     1.0219    1.2112     1.0538    1.1214
+  2        24.00    3.0    24.00     1.1296    1.8896     1.1515    1.7878     1.0439    1.1163
+  h*_aware distribution (s: h x count)
+    0.25  13.33: 96
+    0.5   13.33: 96
+    1     13: 1, 13.33: 87, 17.14: 8
+    2     13: 1, 13.33: 32, 17.14: 6, 24: 57
+
+# predictions
+  P1 M=12 s=1 median h*_aware >= 17.14: 13.33 -> refuted
+  P1 M=16 s=1 median h*_aware >= 17.14: 13.33 -> refuted
+  P2 M=12 s=1 blind/aware median >= 1.25: 1.0342 -> refuted
+  P2 M=16 s=1 blind/aware median >= 1.25: 1.0183 -> refuted
+  P3 M=12 s=0.25 median h*_aware = 13.33 and blind/aware <= 1.05: 13.33, 1.0000 -> held
+  P3 M=16 s=0.25 median h*_aware = 13.33 and blind/aware <= 1.05: 13.33, 1.0000 -> held
+  P4 M=12 s=1 dist/aware median <= 1.10: 1.0277 -> held
+  P4 M=16 s=1 dist/aware median <= 1.10: 1.0219 -> held
+  P5 M=12 s=1 aware/base median >= 1.2: 1.0355 -> refuted
+  P5 M=16 s=1 aware/base median >= 1.2: 1.0538 -> refuted
+
+# analysis CPU s per layout: median 524
