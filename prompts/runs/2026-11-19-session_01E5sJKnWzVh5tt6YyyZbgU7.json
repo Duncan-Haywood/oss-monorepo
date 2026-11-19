@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "run_venture_tests.py --changed refused: no merge base in the shallow clone; ran it with the 23 slugs named instead.",
-    "My new check_cli_missing_path.py passed on an empty --root, the class it guards against; test_checks_refuse_empty_root.py caught it in the local unwired_checks run, and it now exits 2. My post had a literal U+FEFF that check_hidden_unicode.py flagged; replaced with the escape. versions.json needed --write for 18 changed shipped tools."
+    "My new check_cli_missing_path.py passed on an empty --root, the class it guards against; test_checks_refuse_empty_root.py caught it in the local unwired_checks run, and it now exits 2. My post had a literal U+FEFF that check_hidden_unicode.py flagged; replaced with the escape. versions.json needed --write for 18 changed shipped tools.",
+    "CI changed-ventures went red on fdr-multiple-testing, which this PR did not touch: a wall-clock cap of 8 s met 8.3 s on a loaded runner. Fixed the flake rather than rerunning."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -355,6 +356,12 @@
       {
         "file": "ventures/docker-base-image-pin-check/check.py",
         "issue": "Files were read as plain utf-8: a UTF-8 BOM (Windows editors) made line 1 '\\ufeffFROM node:18', which _FROM_RE does not match, so the CLI missed the first FROM while the browser page (JS \\s matches U+FEFF) caught it; a single Latin-1 byte in a comment crashed the scan with UnicodeDecodeError. Fixed: utf-8-sig with errors=replace; parity test in classify.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17799"
+      },
+      {
+        "file": "ventures/fdr-multiple-testing/engine.test.mjs",
+        "issue": "'a large list stays fast' capped analyze() over 200,000 values at 8 s of wall clock. It takes 1.3 s alone but 8.3 s on a CI runner running 91 suites, so it failed this PR's changed-ventures job by chance. Cap raised to 30 s; an O(n^2) regression still takes minutes.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17799"
       }
