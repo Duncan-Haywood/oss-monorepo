@@ -117,6 +117,26 @@ If (a)-(e) fail, the README says so and `LOOP_BALL_GAIN` goes back to a fresh te
 **Prediction.** Faster-than-told undershoots over 2% fall from 122 to between 65 and 85 (the kp-only candidate's 73,
 give or take the integral gain's share).
 
-### Replication result
+### Replication result (`ball-gain-replication-2026-11-19.txt` / `.jsonl.gz`)
 
-(filled in after the run)
+| clause | `LOOP_BALL_GAIN` False | "down" (shipped) | holds | kp-only candidate, for comparison |
+| --- | --- | --- | --- | --- |
+| (a) undershoots over 2%, all 432 | 126 | 76 | yes | 77 |
+| faster-than-told (324), predicted 65-85 | 122 | 72 | yes (prediction held) | 73 |
+| (b) mean time until the gate passes again | 0.817 s | 0.760 s | yes | 0.769 s |
+| (c) over 3% off at the gate | 4 | 2 | yes | 1 |
+| (d) worst overshoot | 6.3% | 4.9% | yes | 4.9% |
+| (e) cases lost | 0 | 0 | yes | 0 |
+| (f) 8,000 rpm rows identical | | identical | yes | identical |
+| (g) False rows = this file's earlier "off" rows | | identical, all 432 | yes | |
+
+By free speed, undershoots over 2% of 108 (False / down / kp-only): 10,000 rpm 28 / 19 / 19, 10,500 rpm 36 / 23 / 24,
+12,000 rpm 58 / 30 / 30. By wheel lag of 144: 0.15 s 76 / 53 / 53, 0.25 s 31 / 15 / 15, 0.3 s 19 / 8 / 9. Worst
+undershoot 5.7% / 4.3% / 4.2%; slowest recovery 2.78 / 1.97 / 1.97 s.
+
+**The shipped change holds up on four times #17530's held-out size**, and the two designs, built independently the same
+morning (one scaling kp continuously in the hold, one latching the ratio at the stroke and scaling both gains), land
+within a case or two of each other on every row. The integral gain's share of the effect is small. Scaling ki as well
+gains a hundredth of a second on the mean and costs one gate read over 3%. `LOOP_BALL_GAIN` stays "down", unchanged.
+What is left is the same in both: 0.15 s wheels, mostly behind the 80 ms ESC, still undershoot on 53 of 144. That is
+lag, not gain.

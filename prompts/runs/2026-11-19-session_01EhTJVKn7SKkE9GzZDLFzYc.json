@@ -15,7 +15,7 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": "open-tennis-robots flagship: ball hold, WHEEL_RPM_FULL error's cost on 0.2 s wheels",
+  "task": "open-tennis-robots flagship: ball hold, WHEEL_RPM_FULL error's cost on 0.2 s wheels; ended as a 432-case replication of the shipped LOOP_BALL_GAIN",
   "projects": [
     "open-tennis-robots"
   ],
@@ -27,7 +27,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 1,
+  "tests_added": 0,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
@@ -35,15 +35,26 @@
     {
       "file": "portfolio/router/allocate.py",
       "issue": "Two sessions were routed to the same flagship and picked the same first 'Next' item within a minute (PR #17528 vs this one); claim_check caught it, and this run re-scoped to the last buildable item."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Claims are per item title; a second session (PR #17530) took the same 'ball hold' item under a different title minutes after this PR re-scoped to it, and both built the same mechanism. A claim check that matched item keywords in open PR titles for the slug would have caught it."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Did not ship this session's own passing candidate (LOOP_BALL_KP_LEARN) because PR #17530 shipped an equivalent on main first; two mechanisms for one job would be worse than one.",
+      "did": "Merged main, dropped the candidate, and ran a pre-registered replication of the shipped change on the unused 432-case grid.",
+      "result": "Replication held on all clauses (122 to 72 faster-than-told undershoots); LOOP_BALL_GAIN unchanged."
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-19-tennis-feeder-wheel-loop-measures-its-own-motor-after-a-ball.md",
+    "docs/posts/2026-11-19-tennis-feeder-one-fix-built-twice-then-replicated.md",
     "ventures/open-tennis-robots/eval/ball-kp-learn-2026-11-19.md"
   ],
   "goal": null,
-  "notes": "LOOP_BALL_KP_LEARN: in the ball hold, kp scaled by the integrator's learned plant gain on faster-than-told wheels. Rule pre-registered in bb8522601. Shipped grid: 0.2 s undershoots >2% 17->8 of 72; held-out 432 cases: faster-than-told 122->73 of 324, mean gate-again 0.817->0.769 s, gate>3% 4->1, overshoot 6.3->4.9%; 8,000 rpm rows identical. Every clause held; shipped on. Venture unittest suite run locally (output in PR).",
+  "notes": "Own candidate LOOP_BALL_KP_LEARN (kp scaled by the integrator's learned gain in the ball hold) passed its pre-registered rule (bb8522601): shipped grid 0.2 s undershoots 17->8 of 72; held-out 432 cases 122->73 faster-than-told. Not shipped: PR #17530 landed LOOP_BALL_GAIN='down' (same idea) first. Replication of 'down' on the 432 grid, rule committed in a0154030e: 126->76 all, 122->72 fast (predicted 65-85), mean 0.817->0.760 s, gate>3% 4->2, overshoot 6.3->4.9%, 8,000 rpm and off rows identical. Verification: venture unittest suite 259 OK before the merge of main; rerun after the merge below in PR body; CI on the PR.",
   "corrections": [],
   "redteam": null
 }

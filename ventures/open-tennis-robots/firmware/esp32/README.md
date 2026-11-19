@@ -3357,3 +3357,27 @@ mean recovery fell 0.10-0.12 s (0.18 s wheel at 10,800 rpm: 0.93 to 0.83 s); the
 speeds but not the ball model. What is left of the undershoot on the fastest wheels (10 of 24 cases at 0.15 s and
 10,500 rpm still over 2%) is not the gain: measuring `WHEEL_RPM_FULL` on the build is still the fix. Test:
 `test_ball_gain_softens_only_a_wheel_faster_than_told` (tests/test_host.py).
+
+## A 432-case replication of the faster-than-told ball hold (2026-11-19, after "The ball hold on a wheel faster than told"; `LOOP_BALL_GAIN` unchanged)
+
+**The item.** "down" was judged on the 216-case development grid and one 96-case fresh set; its first held-out set came
+out 13 to 13. A second session built the same idea in parallel (kp scaled continuously in the hold, ki untouched,
+`LOOP_BALL_KP_LEARN`, passed its own nine-clause rule) and found #17530 on `main` when it came to merge. It dropped its
+copy and ran the shipped "down" on its unused grid instead.
+
+**How it was checked.** `tests/ball_recovery_sweep.py --ball-gain off,down --heldout`: 432 cases (four plants, wheel
+lags 0.15 / 0.25 / 0.3 s, free 8,000 / 10,000 / 10,500 / 12,000 rpm, nine pairs). #17530's five clauses, a prediction
+and two identity checks were committed before the run (a0154030e). Everything is in `eval/ball-kp-learn-2026-11-19.md`.
+
+| | False | "down" |
+| --- | --- | --- |
+| undershoots over 2%: all 432 / faster than told (324) | 126 / 122 | 76 / 72 (predicted 65-85) |
+| gate passes again, mean / slowest | 0.817 / 2.78 s | 0.760 / 1.97 s |
+| over 3% off at the gate / worst overshoot | 4 / 6.3% | 2 / 4.9% |
+
+Every clause held. The 8,000 rpm rows came out identical, and so did the False rows against the session's earlier run.
+The parallel kp-only design scored within a case of "down" everywhere (73 faster-than-told undershoots, 0.769 s), so
+scaling ki as well buys little either way. **`LOOP_BALL_GAIN` stays "down".** 0.15 s wheels behind the 80 ms ESC
+still dip (53 of 144 at 0.15 s), which is the ESC's lag.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/ball_recovery_sweep.py --band 0.005 --ball-gain off,down --heldout --rows rows.jsonl
