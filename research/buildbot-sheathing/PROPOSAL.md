@@ -498,6 +498,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    one H1 press at 0.0315 mm (H227 refuted). Every flip the budget admits is a knee or ankle pitch joint that moves the
    nose 0.27 to 0.29 mm across the wall (z), which no rule budgets; at &beta; = 0 the worst z is 0.026 mm. Next: bound
    both rows.
+58. **A two-row flip bound** (done 2026-11-19, `experiments/m58_tworow/`): each flip priced along (Y<sub>y</sub>) and
+   across (Y<sub>z</sub>) the wall, each with half a 0.03 mm spec, on 48 new loads (seed 58). The y-only rule leaves
+   0.27 to 0.29 mm across the wall again (H231 held); with both rows every planned press is inside 0.03 mm in both
+   directions (worst z 0.022 mm; H229 held) at the same coverage, G1 100% and H1 99.63% (H230 held). Next: the H1's
+   left knee and right ankle, or the depth point's rows.
 
 ## Target venue
 

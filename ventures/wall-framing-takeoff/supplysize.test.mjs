@@ -199,3 +199,18 @@ test("fuzz: random trees are refused with a reason or tie out", () => {
     assert.equal(out.passes, low.length === 0);
   }
 });
+
+test("a run feeding a rarely used fixture still carries that fixture's flow (audit 2026-11-19)", () => {
+  // Every fixture busy <= 1% of the hour made the 99% quantile 0 gpm: a 300 ft
+  // 1/2 in PEX branch to one shower showed no friction loss and passed.
+  const plan = { staticPsi: 40, minPsi: 20, material: "pex", fixtureTypes: { sh: { gpm: 2.5, p: 0.0093 } },
+    segments: [{ id: "b", lengthFt: 300, maxSize: "1/2", fixtures: { sh: 1 } }] };
+  const r = sizeSupply(plan);
+  const b = r.segments.find((s) => s.id === "b");
+  assert.equal(b.demandGpm, 2.5);
+  assert.ok(b.lossPsi > 1, `loss ${b.lossPsi}`);
+  // the floor is the largest fixture on the run, not the sum
+  const two = sizeSupply({ staticPsi: 60, minPsi: 20, fixtureTypes: { wc: { gpm: 3, p: 0.005 }, lav: { gpm: 1.5, p: 0.005 } },
+    segments: [{ id: "m", lengthFt: 10, fixtures: { wc: 1, lav: 2 } }] });
+  assert.equal(two.segments[0].demandGpm, 3);
+});

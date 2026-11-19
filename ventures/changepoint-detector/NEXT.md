@@ -45,3 +45,4 @@
 - (2026-11-19) JHU state switches to weekly reporting 20 of 27, returns to more days 0 of 8 (README "A provider's own schedule changes")
 - (2026-11-19) lasting moves to more days: cut has the power (8 of 9 cells)
 - (2026-11-19) short returns: a half-share guard clears same-count day shifts (1.00 to 0 false, power kept) but JHU 2 of 8 (README "a real drop in repeats")
+- (2026-11-19) real misses are 1-2 month sparse spells, and shortSpells ships as an opt-in (README "Short sparse spells": S1-S4, Alaska and South Dakota dated)

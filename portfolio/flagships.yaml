@@ -197,19 +197,19 @@ flagships:
       pooled); a closure 1-7 days before a step costs ~1/100 and the 2011-09-01
       alert was the holiday's zero (README "A closure in the week before a step"));
       (a) ar1 + floor 2 failed on 5 fresh bee dances (0.244 vs 0.337, README; muted
-      note ships); update-rate: pegs 4 of 7 dated; real misses are 1-2 month sparse
-      spells, and shortSpells ships as an opt-in (README "Short sparse spells":
-      S1-S4, Alaska and South Dakota dated); NYT failed (N1 2/4, N2 5/9, README
-      "Short spells on a second provider"), edge-spell line ships; openings (README
-      "Short spells under different series openings"): edge line 0 false, O1/O2 fail
-      on spells with few differing weekdays; weekday score ships; next its NYT
-      rerun. Stale feeds: clumped LR shipped; next a real documented carry-forward.
-      joint drift (measured, not offered) and its 2x penalty on fresh multi-column
-      labelled data. Open: (0) drift model: t-walk increments, biweight on fresh
-      data, why it absorbs seat belts and quality control 4, its AR(1) term; notes
-      quote it. Curvature word ships under --shape-word panel (README "A curvature
-      word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open
-      items: NEXT.md.
+      note ships); update-rate: pegs 4 of 7 dated; NYT failed (N1 2/4, N2 5/9,
+      README "Short spells on a second provider"), edge-spell line ships; openings
+      (README "Short spells under different series openings"): edge line 0 false,
+      O1/O2 fail on spells with few differing weekdays; weekday score ships; NYT
+      rerun: line 3/4 ends, 4/8 unexplained (all 105-372 days; README "The weekday
+      spell score on NYT's state series"); next a provider that documents its own
+      changes. Stale feeds: clumped LR shipped; next a real documented
+      carry-forward. joint drift (measured, not offered) and its 2x penalty on fresh
+      multi-column labelled data. Open: (0) drift model: t-walk increments, biweight
+      on fresh data, why it absorbs seat belts and quality control 4, its AR(1)
+      term; notes quote it. Curvature word ships under --shape-word panel (README "A
+      curvature word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37.
+      More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -329,10 +329,12 @@ flagships:
       Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs LibRaw's dE 16, unsettled
       (eval/phaseone-iiq-16bit-*). IIQ calibration (0x110) 2026-11-19: LibRaw's to 3
       codes off dead columns (eval/phaseone-iiq-calibration-*). Next: the H 25
-      IT8.7-2 card raw to judge the matrices; calibration on IIQ S (iXU180 blue
-      5.2%); Sony's vignetting table vs an evenly lit frame; noise-aware's blend in
-      C (guard in C 2026-11-19, eval/noise-aware-native-spread-*). More open items:
-      NEXT.md.
+      IT8.7-2 card raw to judge the matrices; an iXU180 dark frame or Capture One
+      export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
+      5.2% blue gap is them, calibration = LibRaw on 13 more files,
+      eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
+      evenly lit frame; noise-aware's blend in C (guard in C 2026-11-19,
+      eval/noise-aware-native-spread-*). More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -397,9 +399,8 @@ flagships:
       sections (eval/bowling-*). Americano whist designs 2026-11-19 (whist.mjs;
       eval/whist-vs-greedy.txt); 4k+2 near-whist designs 2026-11-19 (one missed
       partner each, 0 repeats, opponents 1-2; eval/near-whist-search.mjs annealing);
-      next: 4k/4k+1 bases 40, 41, 45, 48, 49 (backtracking 25 min failed, annealing
-      too), 4k+2 bases 46, 54-62 (annealing: 46 none in 15 min). More open items:
-      NEXT.md.
+      Whist 40-64 2026-11-19 (README); next: 48, 52, 57, 60 (C search 20 min none;
+      -1 multiplier impossible), 4k+2 bases 46, 54-62. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
@@ -407,8 +408,9 @@ flagships:
       (2026-11-19: grid now 0,1.5,2.5,3-8 ms; set N 45 vs 40 of 66 within 0.5 ms
       offline, 49 vs 39 on the board; Pi hold 14 s a ball). TAKE_US = 0 bound: 2 ppm
       floor shipped 2026-11-19 (eval/take-bound-floor-p-2026-11-19.md, set P 48 of
-      48). Next: a drill-level check of one-wheel verdicts on more fresh sets; the
-      sub-8 advised instant build. 4-magnet tach closed 2026-11-19
+      48). One-wheel verdicts by drill closed 2026-11-19
+      (eval/take-survey-kept-drills-2026-11-19.md, 6 of 432). Next: the sub-8
+      advised instant build. 4-magnet tach closed 2026-11-19
       (eval/tach-pulses-2026-11-19.md).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
@@ -528,3 +530,29 @@ flagships:
       real table or filled Excel2IDS workbook via --from-sheet; Excel itself typing
       into the download; an RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to
       confirm. More open items: NEXT.md.
+  # Added 2026-11-19 on its first commit, under the owner's construction
+  # direction (prompts/goals.md, "Direction: industrial, energy and
+  # construction"): a P6 schedule engine is a hard, open-ended engineering
+  # problem with a paid market (schedule analytics, update reviews, claims).
+  - venture: xer-schedule-check
+    why: >-
+      Reads Primavera P6 XER files in the browser and recomputes the critical path
+      with P6's calendar, link, constraint and progress rules: 18,133 of 19,822
+      open activities equal P6's stored dates and float in six public files (P6
+      5.0 to 24.12). DCMA 14-point assessment with every activity behind each
+      finding and a 600-day critical path test.
+    buildable: >-
+      The six public XER files in eval/cpm-vs-p6-2026-11-19.md (git clone the four
+      repos named there): close the CCA residual (1,688 activities; started
+      activities with mixed FS/SS started predecessors under retained logic) with
+      node eval/cpm-vs-p6.mjs; free float on the 24.12 file (361 of 404).
+    hosts: [https://github.com]
+    next: >-
+      History and every measurement: README and eval/. Next, most valuable first:
+      (1) the CCA retained-logic residual (eval/cpm-vs-p6-2026-11-19.md, "What is
+      left"); (2) update-to-update comparison of two XERs (what moved, float used,
+      logic changed, progress claimed), the monthly pay-application review;
+      (3) more public XER files from other exporters (search GitHub for ERMHDR
+      fixtures) and progress override, start float and 24-hour lag paths on a real
+      file; (4) a written review report (PDF) an owner's rep can send; (5) resource
+      levelling and expected finish dates.

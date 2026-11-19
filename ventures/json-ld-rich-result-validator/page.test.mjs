@@ -19,7 +19,11 @@ test("the page's own JSON-LD passes the validator it ships", () => {
   const html = page("index.html");
   const res = validate(html.replace(/<script type="module">[\s\S]*?<\/script>/, ""));
   assert.equal(res.blocks, 2);
-  assert.equal(res.errors, 0, JSON.stringify(res.entities.map((e) => e.findings)));
+  // The page has no ratings or reviews and must not invent any, so its
+  // SoftwareApplication block is valid schema.org but not rich-result eligible:
+  // the one error is the missing aggregateRating/review.
+  const errs = res.entities.flatMap((e) => e.findings.filter((x) => x.level === "error").map((x) => x.path));
+  assert.deepEqual(errs, ["aggregateRating"], JSON.stringify(res.entities.map((e) => e.findings)));
   assert.deepEqual(res.entities.map((e) => e.types[0]), ["SoftwareApplication", "FAQPage"]);
   const faq = JSON.parse([...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)][1][1]);
   for (const q of faq.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);

@@ -1,0 +1,79 @@
+
+eval/take-survey-kept-drills-q-2026-11-19.jsonl.gz: by drill: 72 drills with a verdict; one kept wheel: wrong in 0 of 2 (0%) drills; two or more: wrong in 0 of 24 (0%); K=2 spares 0, silences 0
+
+eval/take-survey-kept-drills-q-2026-11-19.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 20 right, 0 wrong, 0 invented, 0 held; prefixes 152 right, 0 wrong, 0 invented, 0 held
+  min kept 2: end of drill 20 right, 0 wrong, 0 invented, 0 held; prefixes 149 right, 0 wrong, 0 invented, 3 held
+    advised prefixes on 1 kept wheels: 3 right, 0 wrong, 0 invented
+    advised prefixes on 2 kept wheels: 19 right, 0 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 23 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 12 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 16 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 79 right, 0 wrong, 0 invented
+
+eval/take-survey-kept-drills-r-2026-11-19.jsonl.gz: by drill: 72 drills with a verdict; one kept wheel: wrong in 0 of 0 drills; two or more: wrong in 0 of 25 (0%); K=2 spares 0, silences 0
+
+eval/take-survey-kept-drills-r-2026-11-19.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 25 right, 0 wrong, 0 invented, 0 held; prefixes 158 right, 0 wrong, 0 invented, 0 held
+  min kept 2: end of drill 25 right, 0 wrong, 0 invented, 0 held; prefixes 158 right, 0 wrong, 0 invented, 0 held
+    advised prefixes on 2 kept wheels: 19 right, 0 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 38 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 62 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 29 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 10 right, 0 wrong, 0 invented
+
+eval/take-survey-kept-drills-s-2026-11-19.jsonl.gz: by drill: 72 drills with a verdict; one kept wheel: wrong in 0 of 0 drills; two or more: wrong in 0 of 27 (0%); K=2 spares 0, silences 0
+
+eval/take-survey-kept-drills-s-2026-11-19.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 26 right, 0 wrong, 0 invented, 0 held; prefixes 184 right, 0 wrong, 0 invented, 0 held
+  min kept 2: end of drill 26 right, 0 wrong, 0 invented, 0 held; prefixes 184 right, 0 wrong, 0 invented, 0 held
+    advised prefixes on 3 kept wheels: 18 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 9 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 23 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 134 right, 0 wrong, 0 invented
+
+eval/take-survey-kept-drills-t-2026-11-19.jsonl.gz: by drill: 72 drills with a verdict; one kept wheel: wrong in 0 of 2 (0%) drills; two or more: wrong in 0 of 25 (0%); K=2 spares 0, silences 0
+
+eval/take-survey-kept-drills-t-2026-11-19.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 24 right, 0 wrong, 0 invented, 0 held; prefixes 154 right, 0 wrong, 0 invented, 0 held
+  min kept 2: end of drill 24 right, 0 wrong, 0 invented, 0 held; prefixes 146 right, 0 wrong, 0 invented, 8 held
+    advised prefixes on 1 kept wheels: 8 right, 0 wrong, 0 invented
+    advised prefixes on 2 kept wheels: 9 right, 0 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 19 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 14 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 20 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 84 right, 0 wrong, 0 invented
+
+eval/take-survey-kept-drills-u-2026-11-19.jsonl.gz: by drill: 72 drills with a verdict; one kept wheel: wrong in 1 of 2 (50%) drills; two or more: wrong in 1 of 26 (4%); K=2 spares 1, silences 0
+
+eval/take-survey-kept-drills-u-2026-11-19.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 21 right, 1 wrong, 0 invented, 0 held; prefixes 161 right, 10 wrong, 0 invented, 0 held
+  min kept 2: end of drill 21 right, 1 wrong, 0 invented, 0 held; prefixes 157 right, 6 wrong, 0 invented, 8 held
+    advised prefixes on 1 kept wheels: 4 right, 4 wrong, 0 invented
+    advised prefixes on 2 kept wheels: 8 right, 0 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 11 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 25 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 25 right, 6 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 88 right, 0 wrong, 0 invented
+
+eval/take-survey-kept-drills-v-2026-11-19.jsonl.gz: by drill: 72 drills with a verdict; one kept wheel: wrong in 0 of 0 drills; two or more: wrong in 0 of 22 (0%); K=2 spares 0, silences 0
+
+eval/take-survey-kept-drills-v-2026-11-19.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 18 right, 0 wrong, 0 invented, 0 held; prefixes 139 right, 0 wrong, 0 invented, 0 held
+  min kept 2: end of drill 18 right, 0 wrong, 0 invented, 0 held; prefixes 139 right, 0 wrong, 0 invented, 0 held
+    advised prefixes on 2 kept wheels: 1 right, 0 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 3 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 15 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 12 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 108 right, 0 wrong, 0 invented
+
+all 6 sets:
+  by drill: 432 drills with a verdict; one kept wheel: wrong in 1 of 6 (17%) drills; two or more: wrong in 1 of 149 (1%); K=2 spares 1, silences 0
+  min kept 0: end of drill 134 right, 1 wrong, 0 invented, 0 held; prefixes 948 right, 10 wrong, 0 invented, 0 held
+  min kept 2: end of drill 134 right, 1 wrong, 0 invented, 0 held; prefixes 933 right, 6 wrong, 0 invented, 19 held
+    advised prefixes on 1 kept wheels: 15 right, 4 wrong, 0 invented
+    advised prefixes on 2 kept wheels: 56 right, 0 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 112 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 137 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 125 right, 6 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 503 right, 0 wrong, 0 invented

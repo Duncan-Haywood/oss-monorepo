@@ -3464,3 +3464,30 @@ bound against none, so a jittery tach is where more magnets would pay. Everythin
 **Not known.** Point magnets on a first-order wheel; a real Hall edge's width and hysteresis would move each share
 with speed. Reopening it needs a survey-level test written first and an answer for the step's drop.
 
+
+## One informative wheel, counted by drill (2026-11-19, after "More tach pulses a revolution"; `TAKE_SURVEY_MIN_KEPT` kept at 0 by its pre-registered rule)
+
+**The item.** "The take survey's verdict needs two informative wheels" left the minimum at 0 and asked for drill-level
+counts over more fresh sets: prefixes of one drill are near-repeats, so 12 wrong one-wheel verdicts were two wrong
+drills.
+
+**A scorer fix first.** `tests/take_survey_kept.py` rescored stored rows on the board's grid, which went to nine points
+this morning, so it raised an IndexError on every stored set (seven candidates). It now takes each row's grid from its
+length (`GRIDS`: 7, 8 or 9) and reproduces the earlier held-out file line for line; `tests/test_take_survey_kept.py`
+covers it. `--drills` counts by drill and says what a minimum of two spares (a drill that told a wrong time with no
+minimum and never with it) and silences (a drill whose right advice it removes).
+
+**Design, then held out.** On the thirteen stored sets a one-kept-wheel verdict was wrong in 2 of 16 drills against 10
+of 528 on two or more; the minimum spared 2 and silenced 6. The rule, committed before capture (a9af0c377), asked six
+fresh jittery-tach sets (Q to V, lags 0.34-0.74 s, seeds 401-433, 432 drills) for at least 8 one-wheel drills, a
+wrong share three times the rest's with at least 2 wrong, at most 3 silenced per spared, and no loss at the drill's
+end. Only **6 of 432** drills ever rested a verdict on one kept wheel (1 wrong, against 1 of 149 on two or more), so
+the first clause was void and **`host.TAKE_SURVEY_MIN_KEPT` stays 0**. The other clauses held (1 spared, 0
+silenced, 134 right at the drill's end either way). The wrong one: set U's 6 ms build at 3 us of jitter read 8 ms on
+its one wheel from ball 16 to 19, then nothing at the end. Everything is in
+`eval/take-survey-kept-drills-2026-11-19.md`.
+
+**Not known.** Over all nineteen sets one-wheel verdicts were wrong in 3 of 22 drills and the rest in 11 of 677, the
+direction the minimum assumes, but they occur in about one drill in sixty, so the simulator cannot settle it and it
+barely matters there. A real wheel's blind rows will not tie as exactly, which may make one-wheel verdicts more or less
+common; the question reopens on real logs.

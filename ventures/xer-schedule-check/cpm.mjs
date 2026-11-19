@@ -1,0 +1,492 @@
+// Critical path method on a P6 schedule, the way P6 computes it: durations
+// and lags in working hours on each activity's own calendar, FS/SS/FF/SF
+// relationships, the project's lag-calendar and float settings, progress at
+// the data date (retained logic or progress override), the primary and
+// secondary constraints, and a must-finish-by date.
+//
+// schedule(xer, opts) -> {
+//   tasks: Map(task_id -> { es, ef, ls, lf, tf, ff, ... }),  minutes / hours
+//   projects: Map(proj_id -> { dataDate, finish, mustFinish, ... }),
+//   loops: [[task_id...]], warnings: [string]
+// }
+// Times are wall-clock minutes (xer.mjs parseDate); tf and ff are hours.
+//
+// Not modelled: resource levelling, expected finish dates, out-of-sequence
+// progress beyond retained logic / progress override, resource-dependent
+// activity dates (a TT_Rsrc activity is scheduled on its own calendar), level
+// of effort and WBS summary dates (they span their neighbours and drive
+// nothing; they are reported but left out of the network).
+
+import { Calendar } from "./calendar.mjs";
+import { parseDate, num } from "./xer.mjs";
+
+const SPAN_TYPES = new Set(["TT_LOE", "TT_WBS"]);
+const HARD = new Set(["CS_MSO", "CS_MEO", "CS_MSOB", "CS_MEOB", "CS_MANDSTART", "CS_MANDFIN"]);
+export const hardConstraint = (t) => HARD.has(t);
+
+function finishSnap(cal, t) {
+  // earliest instant >= t at which work can end
+  return cal.prevEnd(t) === t ? t : cal.nextStart(t);
+}
+function startSnapBack(cal, t) {
+  // latest instant <= t at which work can start
+  return cal.nextStart(t) === t ? t : cal.prevEnd(t);
+}
+
+export function buildModel(xer) {
+  const T = xer.tables;
+  const warnings = [];
+  const cals = new Map();
+  for (const row of T.CALENDAR || []) {
+    try {
+      cals.set(row.clndr_id, Calendar.fromXer(row));
+    } catch (e) {
+      warnings.push(`calendar ${row.clndr_id} (${row.clndr_name}): ${e.message}`);
+    }
+  }
+  const defaultCal = [...(T.CALENDAR || [])].find((c) => c.default_flag === "Y" && cals.has(c.clndr_id));
+  const fallback = defaultCal ? cals.get(defaultCal.clndr_id) : cals.values().next().value || Calendar.allDay();
+  const opts = new Map();
+  for (const o of T.SCHEDOPTIONS || []) opts.set(o.proj_id, o);
+  const firstOpt = (T.SCHEDOPTIONS || [])[0] || {};
+  const projects = new Map();
+  for (const p of T.PROJECT || []) {
+    const o = opts.get(p.proj_id) || firstOpt;
+    projects.set(p.proj_id, {
+      id: p.proj_id,
+      code: p.proj_short_name,
+      dataDate: parseDate(p.last_recalc_date) ?? parseDate(p.plan_start_date),
+      // nothing that has not started may start before the project's planned start
+      plannedStart: parseDate(p.plan_start_date),
+      mustFinish: parseDate(p.plan_end_date),
+      storedFinish: parseDate(p.scd_end_date),
+      cal: cals.get(p.clndr_id) || fallback,
+      floatType: o.sched_float_type || "FT_FF",
+      lagCal: o.sched_calendar_on_relationship_lag || "rcal_Predecessor",
+      retainedLogic: (o.sched_retained_logic || "Y") === "Y",
+      progressOverride: (o.sched_progress_override || "N") === "Y",
+      openCritical: o.sched_open_critical_flag === "Y",
+      useProjectEndForFloat: (o.sched_use_project_end_date_for_float || "Y") === "Y",
+      criticalHours: num(p.critical_drtn_hr_cnt) ?? 0,
+      criticalType: p.critical_path_type || "CT_TotFloat",
+    });
+  }
+  const tasks = new Map();
+  for (const r of T.TASK || []) {
+    let cal = cals.get(r.clndr_id);
+    if (!cal) {
+      cal = fallback;
+      warnings.push(`activity ${r.task_code}: calendar ${r.clndr_id} not in the file, used ${fallback.name || "the default"}`);
+    }
+    const cstr = [];
+    if (r.cstr_type) cstr.push({ type: r.cstr_type, date: parseDate(r.cstr_date) });
+    if (r.cstr_type2) cstr.push({ type: r.cstr_type2, date: parseDate(r.cstr_date2) });
+    tasks.set(r.task_id, {
+      id: r.task_id,
+      code: r.task_code,
+      name: r.task_name,
+      proj: r.proj_id,
+      wbs: r.wbs_id,
+      cal,
+      type: r.task_type,
+      status: r.status_code,
+      span: SPAN_TYPES.has(r.task_type),
+      remain: Math.round((num(r.remain_drtn_hr_cnt) ?? 0) * 60),
+      orig: Math.round((num(r.target_drtn_hr_cnt) ?? 0) * 60),
+      actStart: parseDate(r.act_start_date),
+      actEnd: parseDate(r.act_end_date),
+      cstr,
+      extES: parseDate(r.external_early_start_date),
+      extLF: parseDate(r.external_late_end_date),
+      preds: [],
+      succs: [],
+      row: r,
+    });
+  }
+  const rels = [];
+  for (const r of T.TASKPRED || []) {
+    const succ = tasks.get(r.task_id);
+    const pred = tasks.get(r.pred_task_id);
+    const rel = { id: r.task_pred_id, succId: r.task_id, predId: r.pred_task_id, type: r.pred_type, lag: Math.round((num(r.lag_hr_cnt) ?? 0) * 60), external: !succ || !pred };
+    rels.push(rel);
+    if (!succ || !pred) continue;
+    succ.preds.push(rel);
+    pred.succs.push(rel);
+  }
+  return { tasks, projects, rels, cals, fallback, warnings };
+}
+
+function lagCalendar(model, rel) {
+  const pred = model.tasks.get(rel.predId);
+  const succ = model.tasks.get(rel.succId);
+  const proj = model.projects.get(succ.proj);
+  switch (proj ? proj.lagCal : "rcal_Predecessor") {
+    case "rcal_Successor": return succ.cal;
+    case "rcal_24Hour": return Calendar.allDay();
+    case "rcal_ProjDefault": return proj.cal;
+    default: return pred.cal;
+  }
+}
+
+// Kahn's algorithm over the activities in the network; whatever is left
+// sits on or behind a loop.
+function topoOrder(model, inNet) {
+  const indeg = new Map();
+  for (const t of model.tasks.values()) if (inNet(t)) indeg.set(t.id, 0);
+  for (const t of model.tasks.values()) {
+    if (!inNet(t)) continue;
+    for (const r of t.preds) if (indeg.has(r.predId)) indeg.set(t.id, indeg.get(t.id) + 1);
+  }
+  const queue = [];
+  for (const [id, d] of indeg) if (d === 0) queue.push(id);
+  const order = [];
+  for (let k = 0; k < queue.length; k++) {
+    const id = queue[k];
+    order.push(id);
+    for (const r of model.tasks.get(id).succs) {
+      if (!indeg.has(r.succId)) continue;
+      const d = indeg.get(r.succId) - 1;
+      indeg.set(r.succId, d);
+      if (d === 0) queue.push(r.succId);
+    }
+  }
+  const stuck = [...indeg.keys()].filter((id) => indeg.get(id) > 0);
+  return { order, stuck };
+}
+
+// Split the stuck activities into loops (strongly connected components with
+// more than one member, or a self-link) for the report.
+function findLoops(model, ids) {
+  const set = new Set(ids);
+  let index = 0;
+  const idx = new Map(), low = new Map(), on = new Set(), stack = [], out = [];
+  function strong(v) {
+    // iterative Tarjan
+    const work = [[v, 0]];
+    idx.set(v, index); low.set(v, index); index++; stack.push(v); on.add(v);
+    while (work.length) {
+      const top = work[work.length - 1];
+      const [u, i] = top;
+      const succs = model.tasks.get(u).succs.filter((r) => set.has(r.succId));
+      if (i < succs.length) {
+        top[1]++;
+        const w = succs[i].succId;
+        if (!idx.has(w)) {
+          idx.set(w, index); low.set(w, index); index++; stack.push(w); on.add(w);
+          work.push([w, 0]);
+        } else if (on.has(w)) low.set(u, Math.min(low.get(u), idx.get(w)));
+      } else {
+        work.pop();
+        if (work.length) {
+          const p = work[work.length - 1][0];
+          low.set(p, Math.min(low.get(p), low.get(u)));
+        }
+        if (low.get(u) === idx.get(u)) {
+          const comp = [];
+          let w;
+          do { w = stack.pop(); on.delete(w); comp.push(w); } while (w !== u);
+          const self = comp.length === 1 && model.tasks.get(u).succs.some((r) => r.succId === u);
+          if (comp.length > 1 || self) out.push(comp);
+        }
+      }
+    }
+  }
+  for (const v of ids) if (!idx.has(v)) strong(v);
+  return out;
+}
+
+export function schedule(xer, options = {}) {
+  const model = options.model || buildModel(xer);
+  const { tasks } = model;
+  // per-run copy: a what-if run (options.delay) must not move the base finish
+  const projects = new Map([...model.projects].map(([k, v]) => [k, { ...v }]));
+  const inNet = (t) => !t.span;
+  const { order, stuck } = topoOrder(model, inNet);
+  const loops = stuck.length ? findLoops(model, stuck) : [];
+  const res = new Map();
+  const proj = (t) => projects.get(t.proj) || { dataDate: null, retainedLogic: true, progressOverride: false, floatType: "FT_FF" };
+  const done = (t) => t.status === "TK_Complete";
+  const active = (t) => t.status === "TK_Active";
+  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ...(options.variant || {}) };
+  const delay = options.delay || null; // { taskId, minutes }: added remaining duration (critical path test)
+
+  // ---- forward pass
+  for (const id of order) {
+    const t = tasks.get(id);
+    const p = proj(t);
+    const cal = t.cal;
+    const remain = t.remain + (delay && delay.taskId === id ? delay.minutes : 0);
+    const dd = p.dataDate ?? -Infinity;
+    const starts = [dd];
+    if (!active(t) && p.plannedStart !== null && p.plannedStart !== undefined) starts.push(p.plannedStart);
+    const fins = [];
+    const ignorePreds = active(t) && p.progressOverride;
+    if (!ignorePreds) for (const r of t.preds) {
+      const pr = tasks.get(r.predId);
+      if (pr.span) continue;
+      const pv = res.get(r.predId);
+      if (!pv) continue; // predecessor on a loop
+      if ((active(t) || done(t)) && (r.type === "PR_SS" || r.type === "PR_SF")) {
+        // Started: the start link is met, but with retained logic the rest of
+        // the work waits for an unfinished predecessor's remaining work to
+        // start (an in-progress predecessor's lag is already spent; a not-started one's still runs).
+        if (V.activeSSRem && r.type === "PR_SS" && !pv.done) {
+          const pr2 = tasks.get(r.predId);
+          starts.push(active(pr2) ? pv.remES : lagCalendar(model, r).addWork(pv.remES, r.lag));
+        }
+        continue;
+      }
+      if (pv.done) {
+        // A finished predecessor passes on its node (past the data date only
+        // where unfinished work pushed it) and, to an unfinished successor,
+        // its lag counted from the actual dates (a cure time still runs).
+        const lc0 = lagCalendar(model, r);
+        const aS = tasks.get(r.predId).actStart, aF = tasks.get(r.predId).actEnd;
+        if (r.type === "PR_FS" || r.type === "PR_FF") {
+          const list = r.type === "PR_FS" ? starts : fins;
+          list.push(pv.ef);
+          if (!done(t) && aF !== null && r.lag) list.push(lc0.addWork(aF, r.lag));
+        } else if (!done(t) && aS !== null && r.lag) {
+          (r.type === "PR_SS" ? starts : fins).push(lc0.addWork(aS, r.lag));
+        }
+        continue;
+      }
+      const lc = lagCalendar(model, r);
+      // an in-progress predecessor's start, for SS/SF links, is where its
+      // remaining work starts (P6 "lag from early start")
+      const pS = V.ssFromRem ? pv.remES : pv.es;
+      const pF = pv.ef;
+      if (r.type === "PR_FS") starts.push(lc.addWork(pF, r.lag));
+      else if (r.type === "PR_SS") starts.push(lc.addWork(pS, r.lag));
+      else if (r.type === "PR_FF") fins.push(lc.addWork(pF, r.lag));
+      else if (r.type === "PR_SF") fins.push(lc.addWork(pS, r.lag));
+    }
+    if (t.extES !== null) starts.push(t.extES);
+    let mandStart = null, mandFin = null;
+    if (!active(t)) for (const c of t.cstr) {
+      if (c.date === null) continue;
+      if (c.type === "CS_MSOA" || c.type === "CS_MSO") starts.push(c.date);
+      else if (c.type === "CS_MEOA" || c.type === "CS_MEO") fins.push(c.date);
+      else if (c.type === "CS_MANDSTART") mandStart = c.date;
+      else if (c.type === "CS_MANDFIN") mandFin = c.date;
+    }
+    let es, ef;
+    const sMax = Math.max(...starts);
+    const fMax = fins.length ? Math.max(...fins) : -Infinity;
+    if (done(t)) {
+      // A completed activity stays in the network as a zero-length node at
+      // the data date (or later, when unfinished predecessors push it), so
+      // logic still flows through it to its successors, as in P6.
+      const v = Math.max(sMax, fMax);
+      res.set(id, { es: t.actStart, ef: V.doneNode ? v : t.actEnd, remES: V.doneNode ? v : t.actStart, done: true });
+      continue;
+    }
+    if (t.type === "TT_FinMile") {
+      let v = Math.max(sMax, fMax);
+      if (mandFin !== null) v = mandFin;
+      es = ef = finishSnap(cal, v);
+    } else if (t.type === "TT_Mile" || remain === 0) {
+      let v = Math.max(sMax, fMax);
+      if (mandStart !== null) v = mandStart;
+      es = ef = cal.nextStart(v);
+    } else {
+      es = cal.nextStart(mandStart ?? sMax);
+      ef = cal.addWork(es, remain);
+      if (mandFin !== null) {
+        ef = mandFin;
+        es = cal.subWork(ef, remain);
+      } else if (fMax > ef) {
+        ef = finishSnap(cal, fMax);
+        es = cal.subWork(ef, remain);
+      }
+    }
+    const r = { es, ef, remES: es };
+    if (active(t)) r.es = t.actStart ?? es; // the activity's start is its actual start
+    res.set(id, r);
+  }
+
+  // ---- project finish
+  for (const p of projects.values()) p.finish = -Infinity;
+  for (const id of order) {
+    const t = tasks.get(id);
+    const p = projects.get(t.proj);
+    if (p && !done(t)) p.finish = Math.max(p.finish, res.get(id).ef);
+  }
+  for (const p of projects.values()) {
+    if (p.finish === -Infinity) p.finish = null;
+    p.lateEnd = p.mustFinish !== null && p.useProjectEndForFloat ? p.mustFinish : p.finish;
+  }
+
+  // ---- backward pass
+  for (let k = order.length - 1; k >= 0; k--) {
+    const id = order[k];
+    const t = tasks.get(id);
+    const r = res.get(id);
+    if (done(t)) continue;
+    const p = proj(t);
+    const cal = t.cal;
+    const remain = t.remain + (delay && delay.taskId === id ? delay.minutes : 0);
+    const fins = [];
+    const starts = [];
+    if (p.lateEnd !== null && p.lateEnd !== undefined) fins.push(p.lateEnd);
+    for (const rel of t.succs) {
+      const s = tasks.get(rel.succId);
+      if (s.span || done(s)) continue;
+      const sv = res.get(rel.succId);
+      if (!sv || sv.lf === undefined) continue;
+      if (active(s)) {
+        if (proj(s).progressOverride) continue;
+        if (rel.type === "PR_SF") continue;
+        if (rel.type === "PR_SS") {
+          // mirror of the forward rule: the remaining work of a started
+          // successor waits on this one's start
+          const b = V.bwActiveSS;
+          if (b === "rem") starts.push(active(t) ? sv.remLS : lagCalendar(model, rel).subWork(sv.remLS, rel.lag));
+          else if (b === "remnolag") starts.push(sv.remLS);
+          else if (b === "lf") fins.push(sv.lf);
+          continue;
+        }
+      }
+      const lc = lagCalendar(model, rel);
+      if (rel.type === "PR_FS") fins.push(lc.subWork(sv.remLS, rel.lag));
+      else if (rel.type === "PR_SS") starts.push(lc.subWork(sv.remLS, rel.lag));
+      else if (rel.type === "PR_FF") fins.push(lc.subWork(sv.lf, rel.lag));
+      else if (rel.type === "PR_SF") starts.push(lc.subWork(sv.lf, rel.lag));
+    }
+    if (t.extLF !== null) fins.push(t.extLF);
+    let mandStart = null, mandFin = null;
+    if (!active(t)) for (const c of t.cstr) {
+      if (c.date === null) continue;
+      if (c.type === "CS_MSOB" || c.type === "CS_MSO") starts.push(c.date);
+      else if (c.type === "CS_MEOB" || c.type === "CS_MEO") fins.push(c.date);
+      else if (c.type === "CS_MANDSTART") mandStart = c.date;
+      else if (c.type === "CS_MANDFIN") mandFin = c.date;
+    }
+    const fMin = fins.length ? Math.min(...fins) : Infinity;
+    const sMin = starts.length ? Math.min(...starts) : Infinity;
+    let ls, lf;
+    if (t.type === "TT_FinMile") {
+      let v = Math.min(fMin, sMin);
+      if (mandFin !== null) v = mandFin;
+      if (!Number.isFinite(v)) v = r.ef;
+      ls = lf = cal.prevEnd(v);
+    } else if (t.type === "TT_Mile" || remain === 0) {
+      let v = Math.min(fMin, sMin);
+      if (mandStart !== null) v = mandStart;
+      if (!Number.isFinite(v)) v = r.ef;
+      // a start milestone may sit at a period's start; a zero-length task
+      // finishes, so it snaps back to a period's end
+      ls = lf = t.type === "TT_Mile" ? startSnapBack(cal, v) : cal.prevEnd(v);
+    } else {
+      lf = Number.isFinite(fMin) ? cal.prevEnd(fMin) : r.ef;
+      if (mandFin !== null) lf = mandFin;
+      if (mandStart !== null) lf = cal.addWork(cal.nextStart(mandStart), remain);
+      else if (Number.isFinite(sMin)) {
+        const viaStart = cal.addWork(startSnapBack(cal, sMin), remain);
+        if (viaStart < lf) lf = viaStart;
+      }
+      ls = cal.subWork(lf, remain);
+      // a late start at a period's end is the next period's start
+      ls = cal.nextStart(ls);
+    }
+    r.lf = lf;
+    r.remLS = ls;
+    r.ls = active(t) ? ls : ls;
+    // total float, in hours on the activity's calendar
+    const finF = cal.workBetween(r.ef, lf);
+    const startF = cal.workBetween(r.remES, ls);
+    const ft = p.floatType;
+    r.tf = (ft === "FT_SF" ? startF : ft === "FT_FF" ? finF : Math.min(startF, finF)) / 60;
+  }
+
+  // ---- free float (FS: successor early start - lag - early finish, etc.)
+  const freeFloat = (t, r) => {
+    let best = Infinity;
+    for (const rel of t.succs) {
+      const s = tasks.get(rel.succId);
+      if (s.span || done(s)) continue;
+      const sv = res.get(rel.succId);
+      if (!sv) continue;
+      const lc = lagCalendar(model, rel);
+      let gap;
+      if (rel.type === "PR_FS") gap = t.cal.workBetween(r.ef, lc.subWork(sv.remES, rel.lag));
+      else if (rel.type === "PR_SS") gap = t.cal.workBetween(r.remES, lc.subWork(sv.remES, rel.lag));
+      else if (rel.type === "PR_FF") gap = t.cal.workBetween(r.ef, lc.subWork(sv.ef, rel.lag));
+      else gap = t.cal.workBetween(r.remES, lc.subWork(sv.ef, rel.lag));
+      best = Math.min(best, gap);
+    }
+    if (best === Infinity) {
+      const p = proj(t);
+      best = p.lateEnd !== null && p.lateEnd !== undefined ? t.cal.workBetween(r.ef, p.lateEnd) : 0;
+    }
+    return Math.min(best / 60, r.tf);
+  };
+
+  // ---- as late as possible: the early dates take up the free float, so the
+  // activity finishes just in time for its successors (its total float
+  // shrinks by the same amount and its free float becomes zero). Done from
+  // the last activity back, so a chain of ALAP activities moves together.
+  for (let k = order.length - 1; k >= 0; k--) {
+    const id = order[k];
+    const t = tasks.get(id);
+    const r = res.get(id);
+    if (done(t) || active(t) || r.lf === undefined) continue;
+    if (!t.cstr.some((c) => c.type === "CS_ALAP")) continue;
+    const ff = freeFloat(t, r);
+    if (ff <= 0) continue;
+    const shift = Math.round(ff * 60);
+    if (t.type === "TT_FinMile" || t.type === "TT_Mile" || t.remain === 0) {
+      r.es = r.remES = r.ef = t.cal.addWork(r.ef, shift);
+    } else {
+      r.ef = t.cal.addWork(r.ef, shift);
+      r.es = r.remES = t.cal.nextStart(t.cal.subWork(r.ef, t.remain));
+    }
+    r.tf -= ff;
+  }
+
+  for (const id of order) {
+    const t = tasks.get(id);
+    const r = res.get(id);
+    if (done(t) || r.lf === undefined) continue;
+    r.ff = freeFloat(t, r);
+  }
+
+  return { model, tasks: res, projects, loops, order, warnings: model.warnings };
+}
+
+// The longest path: from the activity that finishes the project, walk back
+// through the predecessors that drive each activity's early dates (the
+// relationship with zero gap). Returns task ids from first to last.
+export function drivingPath(result, projId) {
+  const { model, tasks: res } = result;
+  const p = result.projects.get(projId);
+  if (!p || p.finish === null) return [];
+  let last = null;
+  for (const t of model.tasks.values()) {
+    if (t.proj !== projId || t.span || t.status === "TK_Complete") continue;
+    const r = res.get(t.id);
+    if (r && r.ef === p.finish && (!last || t.succs.length === 0)) last = t;
+  }
+  const path = [];
+  const seen = new Set();
+  let cur = last;
+  while (cur && !seen.has(cur.id)) {
+    path.push(cur.id);
+    seen.add(cur.id);
+    const r = res.get(cur.id);
+    let next = null;
+    for (const rel of cur.preds) {
+      const pr = model.tasks.get(rel.predId);
+      if (pr.span || pr.status === "TK_Complete") continue;
+      const pv = res.get(rel.predId);
+      if (!pv) continue;
+      const lc = lagCalendar(model, rel);
+      const from = rel.type === "PR_FS" || rel.type === "PR_FF" ? pv.ef : pv.remES ?? pv.es;
+      const target = rel.type === "PR_FS" || rel.type === "PR_SS" ? r.remES : r.ef;
+      const reach = lc.addWork(from, rel.lag);
+      if (cur.cal.workBetween(reach, target) === 0) { next = pr; break; }
+    }
+    cur = next;
+  }
+  return path.reverse();
+}
