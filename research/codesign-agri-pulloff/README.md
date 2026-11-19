@@ -8,8 +8,8 @@ Follow-up to `codesign-agri` and to `codesign-agri-sweep` (track 14, `codesign`;
 
 **Headline (all numbers from `experiments/results.txt`; 600 fruit, budget 40, 20 seeds per method, reference = best of five 400-evaluation Bayesian runs).**
 - **The achievable objective collapses as stems get stronger.** With grip force bounded at 8 N, the reference best J is 0.665 at a median pull-off of 3.17 N, 0.639 at the parent's assumed 3.5 N, 0.502 at 6 N, 0.249 at 10 N and 0.075 at 13.94 N. At 13.94 N the best design picks 19% of fruit cleanly and slips 52%. Nothing in the 8 N range holds a stem that needs 13.94 N.
-- **At 13.94 N no 40-evaluation run finds a working gripper.** The median best J is -0.033, -0.032 and -0.029 for random search, CMA-ES and Bayesian optimisation (8 N bound), i.e. the best design picked nothing and only paid its cost. (The "yes" for this cell in the ranking table below is a ranking among three failures.)
-- **The ranking holds in 8 of 10 cells** (Bayesian optimisation above CMA-ES above random search by median at 40 evaluations). The two exceptions are 10 N pull-off with the 8 N bound, where CMA-ES (0.033) falls below random search (0.110), and 13.94 N with the 10 N bound, where all three fail. At 3.5 N / 8 N the parent's numbers are reproduced exactly (0.574, 0.611, 0.635).
+- **At 13.94 N the median 40-evaluation run finds no working gripper.** The median best J is -0.033, -0.032 and -0.029 for random search, CMA-ES and Bayesian optimisation (8 N bound), i.e. the median run's best design picked nothing and only paid its cost. Not every run fails: at the 8 N bound 13 of 60 runs pick some fruit and 4 reach J > 0 (best 0.066); at the 10 N bound 20 of 60 pick some and 16 reach J > 0 (best 0.11) (`tests/test_pulloff.py` checks these counts against `experiments/results.json`). (The "yes" for this cell in the ranking table below is a ranking among three failures.)
+- **The ranking holds in 8 of 10 cells by median** (Bayesian optimisation above CMA-ES above random search at 40 evaluations; no significance test in `run.py`. The 2026-11-19 quality audit found both orderings at p < 0.05 by a one-sided Mann-Whitney test over the 20 seeds in only 6 of 10 cells). The two exceptions are 10 N pull-off with the 8 N bound, where CMA-ES (0.033) falls below random search (0.110), and 13.94 N with the 10 N bound, where all three fail. At 3.5 N / 8 N the parent's numbers are reproduced exactly (0.574, 0.611, 0.635).
 - **The 10 N gripping limit buys 0.03 to 0.04 of reference J** at 3.17 N (0.697 vs 0.665), 3.5 N (0.676 vs 0.639), 6 N (0.528 vs 0.502) and 10 N (0.294 vs 0.249); it is not enough to rescue the 13.94 N case (0.117).
 - **The best design changes shape.** Two fingers when pull-off is low (3.17 N, and 3.5 N with the 10 N bound), three or four from 6 N up, always at or near the grip-force bound. The parent's 3-finger winner is specific to its assumed 3.5 N at an 8 N bound.
 - **Reading the sourced numbers.** 3.17 N is for bending then pulling a thin peduncle; 13.94 N is a straight pull of a thicker one. A gripper that bends the stem before pulling sits at the favourable end, so the picking motion decides which row applies. The model has no picking motion, only a pull-off force.
@@ -22,7 +22,7 @@ Follow-up to `codesign-agri` and to `codesign-agri-sweep` (track 14, `codesign`;
 |---|---|---|
 | Pull-off, bend and pull | 3.17 N (peduncle 1.78 mm) | Dimeas et al. (2015), as reported by Rajendran et al. (2022); I did not read the original |
 | Pull-off, pull only | 13.94 N (peduncle 2.17 mm) | same |
-| Peduncle gripping limit | 10 N | Rajendran, Parsa, Parsons, Ghalamzan Esfahani (2022), arXiv:2207.12552; Robofruit (arXiv:2301.03947) lowest peak compression 22.5 to 26.8 N with a safety factor 2 |
+| Grip force limit (applied here as the total pad force on the fruit body) | 10 N | fruit-body grip force below 10 N attributed to Dimeas et al. (2015) by Rajendran, Parsa, Parsons, Ghalamzan Esfahani (2022), arXiv:2207.12552 (that paper's own peduncle-gripping figures are a different quantity); Robofruit (arXiv:2301.03947) lowest peak compression 22.5 to 26.8 N with a safety factor 2 |
 
 The two arXiv ids could not be auto-checked (timeout and HTTP 429 from `cite_check.py`); I confirmed both titles in a web search on 2026-10-24.
 
@@ -32,8 +32,8 @@ I searched for a strawberry bruise-pressure threshold in kPa and found none (the
 ```bash
 cd research/codesign-agri-pulloff
 PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
-PYTHONPATH=src "$PY" -m unittest discover -s tests     # 5 tests
-OMP_NUM_THREADS=1 PYTHONPATH=src "$PY" experiments/run.py   # about 10 min on 4 cores -> experiments/results.txt, results.json
+PYTHONPATH=src "$PY" -m unittest discover -s tests     # 7 tests
+OMP_NUM_THREADS=1 PYTHONPATH=src "$PY" experiments/run.py   # about 23 min on 4 cores (2026-11-19 rerun; earlier note said 10) -> experiments/results.txt, results.json
 "$PY" experiments/figure.py                             # experiments/pulloff.png
 ```
 Set `OMP_NUM_THREADS=1`: without it the multiprocess Bayesian runs oversubscribe the cores and one attempt did not finish in 30 minutes.
@@ -51,7 +51,7 @@ Find a measured strawberry bruise threshold and fruit-diameter distribution for 
 Measure stem pull-off and bruise onset on real fruit with a force gauge; price the servo and TPU parts.
 
 ## Builds on
-`codesign-agri` (model, optimisers), `codesign-agri-sweep` (named this follow-up). Dimeas, Sako, Gaskell et al. (2015) as cited by Rajendran et al. (2022), "Peduncle gripping and cutting force for strawberry harvesting robotic end-effector design", ICCR, https://arxiv.org/abs/2207.12552.
+`codesign-agri` (model, optimisers), `codesign-agri-sweep` (named this follow-up). Dimeas, Sako, Moulianitis, Aspragathos (2015) as cited by Rajendran et al. (2022), "Peduncle gripping and cutting force for strawberry harvesting robotic end-effector design", ICCR, https://arxiv.org/abs/2207.12552.
 
 ## Lab tags
 None fits closely; nothing is affiliated with or endorsed by any group.
@@ -60,3 +60,5 @@ None fits closely; nothing is affiliated with or endorsed by any group.
 numpy, scipy, cma, matplotlib. No model API is called.
 
 MIT.
+
+Quality audit: [`portfolio/quality/audits/2026-11-19-codesign-agri-pulloff.json`](../../portfolio/quality/audits/2026-11-19-codesign-agri-pulloff.json) (open: the ranking needs a significance test in `run.py`; tests do not pin the sourced constants; the best-design finger count in the summary is unchecked).

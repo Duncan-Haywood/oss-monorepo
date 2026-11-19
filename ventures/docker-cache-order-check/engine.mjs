@@ -54,12 +54,17 @@ const ECOSYSTEMS = [
     id: "npm",
     label: "npm/yarn/pnpm",
     manifestRe: /(^|\/)(package\.json|package-lock\.json|yarn\.lock|pnpm-lock\.yaml|npm-shrinkwrap\.json)$/i,
-    installRe: /\b(npm\s+(ci|install)|yarn(?:\s+install)?\b|pnpm\s+(install|i)\b)/i,
+    installRe: /(^|[\s;&|(])(npm\s+(ci|install|i)\b|yarn(?:\s+install\b|\s*$|\s+--)|pnpm\s+(install|i)\b)/i,
+    // A tool-setup install, not the project dependency install: `npm i -g pnpm`, `yarn global add x`.
+    setupRe: /\b(npm\s+(install|i)\s+(?:\S+\s+)*?(-g|--global)\b|yarn\s+global\b)/i,
   },
   {
     id: "pip",
     label: "pip",
-    manifestRe: /(^|\/)(requirements[^/]*\.txt|pyproject\.toml|poetry\.lock|Pipfile(\.lock)?)$/i,
+    manifestRe: /(^|\/)(requirements[^/]*\.txt|requirements\/?|pyproject\.toml|poetry\.lock|uv\.lock|Pipfile(\.lock)?)$/i,
+    // `pip install --upgrade pip setuptools wheel`, `pip install poetry`: installs only packaging tools,
+    // with no `-r`, `.`, `-e` or project package, so it reads no manifest and is not the dependency install.
+    setupRe: /\bpip3?\s+install\s+(?:(?:-U|--upgrade|--user|--no-cache-dir|--quiet|-q)\s+)*(?:(?:pip|setuptools|wheel|poetry|uv|pipenv|pip-tools)(?:[=<>~!]=?[\w.*]+)?\s*)+$/i,
     installRe: /\bpip3?\s+install\b/i,
   },
   {
@@ -205,11 +210,27 @@ export function isBroadCopy({ sources }) {
  * `ecosystem`'s manifest files (not just include it incidentally via a broad
  * copy)? */
 function copiesManifest(sources, ecosystem) {
-  return sources.some((s) => ecosystem.manifestRe.test(s));
+  // Glob sources such as `package*.json`, `requirements*.txt` or `Gemfile*`
+  // (the layout Docker's own Node.js guide uses) name the manifest too:
+  // strip the wildcards and test what is left.
+  return sources.some((s) => ecosystem.manifestRe.test(s) || ecosystem.manifestRe.test(s.replace(/[*?]/g, "")));
 }
 
-const APT_UPDATE_RE = /\bapt(?:-get)?\s+update\b/i;
-const APT_INSTALL_OR_UPGRADE_RE = /\bapt(?:-get)?\s+(install|upgrade|dist-upgrade|full-upgrade)\b/i;
+/** Split a RUN command into its shell segments (`&&`, `||`, `;`, `|`). */
+function shellSegments(args) {
+  return args.split(/&&|\|\||;|\|/).map((x) => x.trim()).filter(Boolean);
+}
+
+/** Does this RUN contain a project dependency install for `ecosystem` (a
+ * segment matching its install command that is not a tool-setup install)? */
+export function runsDependencyInstall(args, ecosystem) {
+  return shellSegments(args).some(
+    (seg) => ecosystem.installRe.test(seg) && !(ecosystem.setupRe && ecosystem.setupRe.test(seg)),
+  );
+}
+
+const APT_UPDATE_RE = /\bapt(?:-get)?\s+(?:-\S+\s+)*update\b/i;
+const APT_INSTALL_OR_UPGRADE_RE = /\bapt(?:-get)?\s+(?:-\S+\s+)*(install|upgrade|dist-upgrade|full-upgrade)\b/i;
 
 /**
  * Scans one Dockerfile's text for cache-order findings. `filename` is
@@ -257,7 +278,7 @@ export function scanText(text, filename = "<Dockerfile>") {
     if (instruction === "RUN") {
       for (const eco of ECOSYSTEMS) {
         const state = ecosystemState[eco.id];
-        if (state.installLine !== null || !eco.installRe.test(args)) continue;
+        if (state.installLine !== null || !runsDependencyInstall(args, eco)) continue;
         state.installLine = lineNumber;
         if (state.manifestCopyLine === null) {
           findings.push({
@@ -267,7 +288,9 @@ export function scanText(text, filename = "<Dockerfile>") {
             kind: FINDING_KINDS.INSTALL_MISSING_MANIFEST_COPY,
             ecosystem: eco.label,
           });
-        } else if (firstBroadCopyLine !== null && firstBroadCopyLine < state.manifestCopyLine) {
+        } else if (firstBroadCopyLine !== null && firstBroadCopyLine < lineNumber) {
+          // A whole-context COPY anywhere before the install -- before the manifest COPY or between
+          // it and the install -- puts every source file into the install layer's cache key.
           findings.push({
             file: filename,
             stage: stageIndex,
@@ -308,9 +331,10 @@ export function describeFinding(f) {
   const where = `${f.file}:${f.line}`;
   if (f.kind === FINDING_KINDS.MANIFEST_AFTER_BROAD_COPY) {
     return (
-      `${where}  ${f.ecosystem}: manifest copied/installed at line ${f.line}, but a whole-build-context ` +
-      `COPY already ran at line ${f.broadCopyLine}. Move the manifest COPY and its install RUN above ` +
-      `the broad COPY so a source-only change reuses the cached dependency layer.`
+      `${where}  ${f.ecosystem}: the install at line ${f.installLine} runs after a whole-build-context ` +
+      `COPY at line ${f.broadCopyLine} (manifest COPY at line ${f.line}), so any source edit re-runs it. ` +
+      `Keep the manifest COPY and its install RUN above the broad COPY so a source-only change reuses ` +
+      `the cached dependency layer.`
     );
   }
   if (f.kind === FINDING_KINDS.INSTALL_MISSING_MANIFEST_COPY) {

@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVMEf9Y2GN3Cycfap92",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support products); merge when done",
+  "input_sha256": "c80ba5e82dd7c0d78cd065fda4c44b439a58dd31b05efd640ad8e8859ab0292e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T23:26:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality round 88: sample audit of 5 subjects, fixes, post",
+  "projects": [
+    "ventures/changepoint-detector",
+    "ventures/docker-cache-order-check",
+    "ventures/elevator-traffic-analysis",
+    "research/codesign-agri-pulloff",
+    "research/sensing-imutemp"
+  ],
+  "pr": 17815,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "the harness asks that no model identifier appear in pushed artifacts while promptctl record fills a model field; left it null"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-quality-audit-round-88.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-19-o-4121, round 89 (renamed from 88: PR #17816 took 88 first), mode sample. Subjects: ventures/changepoint-detector (flagship, meets bar), ventures/docker-cache-order-check (no; correctness 1, right on 1 of 5 BuildKit-rebuilt layouts), ventures/elevator-traffic-analysis (meets bar), research/codesign-agri-pulloff (no; claims 2), research/sensing-imutemp (no; fitness 1). 2 of 5 meet the bar; sampled 1 of 4; all sampled 36 of 363 (Wilson 7%-13%). Seeded mutations caught 22 of 30. Spot-checks rerun by the lead: changepoint known-date F 14.827 / p 2.446e-6; docker corpus A flagged and B clean before the fix; elevator S 8.325 vs 12(1-(11/12)^13.6); codesign 13/60 and 4/60 counted from results.json; imutemp recompute.py table rows. Fix PR (same PR): https://github.com/Duncan-Haywood/oss-monorepo/pull/17815 - docker engine (glob/dir manifests, broad copy before install, setup installs, yarn, apt flags; 55/55 node tests), elevator frontier test + featureList claim (30/30), codesign headline/ranking/citation + 2 tests (7/7 unittest), imutemp condition + prior work + 3 tests (12/12 pytest; both survivors now caught), changepoint test count + NEXT.md. validate: 541 audit files, 0 problems. check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}

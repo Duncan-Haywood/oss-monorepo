@@ -37,3 +37,20 @@ class PulloffTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class HeadlineMatchesResults(unittest.TestCase):
+    """Quality round 89: the README said no run at 13.94 N found a working gripper; 4 of 60 did."""
+
+    def test_13_94_counts(self):
+        import json
+        here = os.path.join(os.path.dirname(__file__), "..", "experiments", "results.json")
+        R = json.load(open(here))
+        for fmax, picked, positive in ((8.0, 13, 4), (10.0, 20, 16)):
+            s = [r for r in R if r["med"] == 13.94 and r["fmax"] == fmax and r["budget"] == 40]
+            self.assertEqual(len(s), 60)
+            self.assertEqual(sum(r["good"] > 0 for r in s), picked)
+            self.assertEqual(sum(r["J"] > 0 for r in s), positive)
+
+    def test_sourced_constants(self):
+        self.assertEqual((P.PULL_BEND, P.PULL_ONLY, P.GRIP_LIMIT), (3.17, 13.94, 10.0))

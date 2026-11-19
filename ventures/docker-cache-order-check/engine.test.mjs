@@ -181,3 +181,45 @@ test("hasRisk / summarize / describeFinding agree with scanText's findings", () 
   assert.equal(hasRisk([]), false);
   assert.equal(summarize([]), "No cache-order issues found.");
 });
+
+// Quality round 89 (portfolio/quality/audits/2026-11-19-docker-cache-order-check.json):
+// each layout below was rebuilt under BuildKit and the expected verdict is
+// what the real cache did after a source-only edit.
+const kindsOf = (lines) => scanText(lines.join("\n")).map((f) => f.kind);
+
+test("glob manifest copy (Docker's Node.js guide layout) is clean", () => {
+  assert.deepEqual(kindsOf(["FROM node:20", "WORKDIR /app", "COPY package*.json ./", "RUN npm ci", "COPY . .", "RUN npm run build"]), []);
+  assert.deepEqual(kindsOf(["FROM python:3.12", "COPY requirements*.txt ./", "RUN pip install -r requirements.txt", "COPY . ."]), []);
+  assert.deepEqual(kindsOf(["FROM ruby:3.3", "COPY Gemfile* ./", "RUN bundle install", "COPY . ."]), []);
+});
+
+test("broad copy between the manifest copy and the install is flagged", () => {
+  const findings = scanText(["FROM node:20", "COPY package.json ./", "COPY . .", "RUN npm ci"].join("\n"));
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].kind, FINDING_KINDS.MANIFEST_AFTER_BROAD_COPY);
+  assert.equal(findings[0].installLine, 4);
+  assert.equal(findings[0].broadCopyLine, 3);
+});
+
+test("tool-setup installs are not the dependency install", () => {
+  assert.deepEqual(kindsOf(["FROM python:3.12", "RUN pip install --upgrade pip", "COPY requirements.txt .", "RUN pip install -r requirements.txt", "COPY . ."]), []);
+  assert.deepEqual(kindsOf(["FROM python:3.12", "RUN pip install --no-cache-dir poetry==1.8.3", "COPY pyproject.toml poetry.lock ./", "RUN poetry install"]), []);
+  assert.deepEqual(kindsOf(["FROM node:20", "RUN npm install -g pnpm", "COPY package.json pnpm-lock.yaml ./", "RUN pnpm install", "COPY . ."]), []);
+  // ...but the real install after a setup install is still checked.
+  assert.deepEqual(kindsOf(["FROM python:3.12", "RUN pip install -U pip", "COPY . .", "RUN pip install -r requirements.txt"]),
+    [FINDING_KINDS.INSTALL_MISSING_MANIFEST_COPY]);
+});
+
+test("a requirements/ directory copy names the manifest", () => {
+  assert.deepEqual(kindsOf(["FROM python:3.12", "COPY requirements/ requirements/", "RUN pip install -r requirements/prod.txt", "COPY . ."]), []);
+});
+
+test("yarn build is not an install; bare yarn is", () => {
+  assert.deepEqual(kindsOf(["FROM node:20", "COPY . .", "RUN yarn build"]), []);
+  assert.deepEqual(kindsOf(["FROM node:20", "COPY . .", "RUN yarn --frozen-lockfile"]), [FINDING_KINDS.INSTALL_MISSING_MANIFEST_COPY]);
+});
+
+test("apt-get update with flags, alone in its RUN, is flagged", () => {
+  assert.deepEqual(kindsOf(["FROM debian:12", "RUN apt-get -qq update", "RUN apt-get -qq install -y curl"]), [FINDING_KINDS.APT_UPDATE_INSTALL_SPLIT]);
+  assert.deepEqual(kindsOf(["FROM debian:12", "RUN apt-get -qq update && apt-get -y install curl"]), []);
+});

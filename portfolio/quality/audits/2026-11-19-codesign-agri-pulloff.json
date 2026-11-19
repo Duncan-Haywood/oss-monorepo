@@ -1,0 +1,230 @@
+{
+ "date": "2026-11-19",
+ "subject": "research/codesign-agri-pulloff",
+ "stratum": "research",
+ "seed": "2026-11-19-o-4121",
+ "round": 89,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an agricultural-robotics researcher who designs and reviews soft-fruit harvesting end-effectors (reviewer for Computers and Electronics in Agriculture / Biosystems Engineering); first checks: are the sourced forces quoted from the primary paper and applied to the same contact they were measured on, does the reported optimum reproduce, are the method rankings statistically supported, and does the headline follow from data or from the model's own friction law",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran it. (1) Re-evaluated every reference design stored in experiments/results.json with the shipped model (scratchpad codesign-agri-pulloff/reeval.py): all 10 reference J reproduce to 3 decimals (3.17 N/8 N 0.665, 3.5 N/8 N 0.639, 6 N 0.502, 10 N 0.249, 13.94 N 0.075; 10 N bound 0.697/0.676/0.528/0.294/0.117) with the same clean/slipped fractions as results.txt. (2) Re-ran six 40-evaluation cells x 20 seeds with the subject's own job() (rerun.py): 3.5/8 random 0.574, CMA-ES 0.611, Bayes 0.635 (= parent codesign-agri README line 10), 10/8 CMA-ES 0.033, random 0.110, 13.94/8 Bayes -0.029: all identical to results.txt. (3) Independent of the code: realised pull-off median / nominal for LN(ln m, 0.3) x (1.2 - 0.5U) by quadrature = 0.940 (README 'about 0.95'; the drawn 600-fruit population gives 0.951): pass. (4) Analytic upper bound on hold, mu0 x 1.5 x Fg x 1.6 (soft-pad friction, full 4-finger cage, no shear loss), on 2M draws of my own: P(slip | captured) >= 0.598 at 13.94 N / 8 N and >= 0.428 at 10 N bound; observed reference 0.52/0.71 = 0.73 and 0.47/0.71 = 0.66, consistent. (5) Hand cost of the 3.17 N reference design: 4+4x8 + 2x25x25.95x0.004x(1+0.3 log10 1.8) + 8 = 49.59 USD, results.txt '50'. The arithmetic and reproduction are right; the problems are in what the numbers are said to mean (claims, domain).",
+  "completeness": "README claims checked: 5 unittest tests (ran: 5 pass, 0.8 s); experiments/run.py regenerates results.txt (full private-copy rerun, see checks); figure.py and pulloff.png present; live page built locally with research/_homepage/build.py (marisstella.app unreachable from this session, HTTP 000) and it shows the lede, summary and figure; sourced-input table present; limitations and next steps present. No stubs or TODOs. Parent reproduction at 3.5 N/8 N holds exactly. Full rerun of experiments/run.py in a private copy: results.txt byte-identical to the committed file, but it took 23 min 22 s on 4 cores, not 'about 10 min'.",
+  "verification": "`PYTHONPATH=src python3.13 -m unittest discover -s tests`: Ran 5 tests OK. The tests check the new population code well (identical stream to the parent at 3.5 N, only fd changes, median scaling) and a mutant of the ripeness factor 0.5 -> 0.6 was caught. Three of four mutants survived: the sourced constants PULL_BEND/PULL_ONLY 3.17/13.94 -> 3.71/19.34, GRIP_LIMIT 10 -> 12, and the ranking test in run.py (c[2] > c[1] > c[0] -> c[2] > c[0]). No test pins any reported result (e.g. the 3.5 N/8 N reproduction, which takes ~5 s) or the sourced constants, which are the whole point of the project.",
+  "craft": "Read pulloff.py (37 lines), run.py, figure.py, tests, parent agri.py and optimisers.py. Small, readable, reuses the parent model unchanged rather than copying it, deterministic. Weaknesses: set_grip_bound monkeypatches the parent's private module array O._UB (works only because each worker sets it per job); sys.path inserts by relative path to a sibling project; results.json is one unindented line; no seeds/versions recorded with the results.",
+  "claims": "Checked 9 claims against files and reruns. Backed: reference J series 0.665/0.639/0.502/0.249/0.075; 10 N bound +0.03 to 0.04; parent reproduction 0.574/0.611/0.635; 'nothing in the 8 N range holds a stem that needs 13.94 N' (0 of 262 such fruit held by the reference design); realised median ~0.95x. Not backed: (1) README line 11 and project.json lede/page 'At 13.94 N no 40-evaluation run finds a working gripper' / 'no 40-evaluation run finds a gripper that picks anything': results.json has 13 of 60 runs at 13.94 N/8 N with clean picks > 0 and 4 with J > 0 (best 40-eval J 0.066, CMA-ES best clean 0.170); at the 10 N bound 20 of 60 pick something. Only the median fails. (2) 'The ranking holds in 8 of 10 cells' is by median only; one-sided Mann-Whitney on the 20 seeds gives both orderings at p < 0.05 in 6 of 10 cells (10 N/10 N CMA-ES > random p = 0.71; 13.94 N/8 N p = 0.07). The README hedges 'within seed spread in places' but the headline and page keep 8 of 10. (3) project.json summary 'best design moves from two fingers to four (6 to 13.94 N)': the 6 N/10 N reference is 3 fingers (README itself says 'three or four'). (4) README 'Builds on' names 'Dimeas, Sako, Gaskell et al. (2015)'; the paper is Dimeas, Sako, Moulianitis, Aspragathos, Robotica 33(5):1085-1098 (web search, Cambridge Core record). Page carries the site-wide simulated/AI-assistance disclaimer; README says Simulated.",
+  "fitness": "Nearest prior work: in-repo codesign-agri-sweep (already varied the pull-off median 1.75 to 7 N and found the finger count flips with stem strength); in the literature Dimeas et al. 2015 (gripper and fuzzy force control designed from measured detachment and grip forces, bend-then-pull), Rajendran et al. 2022 and Robofruit 2023 (peduncle grip-and-cut end-effectors), Xiong et al. (cable-driven gripper that swallows and cuts the stem) and the JIRCAS work showing tilting before pulling lowers separation force. New: only the extension of a toy model's median to 13.94 N; the qualitative result (pull-only detachment needs far more hold than a friction gripper can give; bending first is easier) is already known from those measurements, and the commercial answer is to cut or rotate the peduncle, which the model cannot represent. Sound as a sensitivity run of the parent model, with clean reproducible code a researcher could extend; not a step toward a publishable paper (one-run follow-up, no programme).",
+  "domain": "Compared against strawberry-harvesting end-effector practice (Dimeas 2015; Rajendran 2022; Xiong 2020). Departures: (a) 3.17 N vs 13.94 N differ by detachment technique and peduncle diameter, but the model has no technique, so the contrast is represented only as a lognormal median shift with the parent's invented spread 0.3 and ripeness factor; (b) the 10 N bound is labelled a 'peduncle gripping limit' (Rajendran: grip force on the stem for a grip-and-cut end-effector) yet is applied as the total pad force on the fruit body; the same paper attributes a <10 N fruit-body limit to Dimeas, so the value may be right but the source and contact are mis-stated (arXiv not reachable from this session to confirm the sentence); (c) hold is a friction law with invented cage and shear factors, so the collapse of J at high pull-off follows from mu x Fg x 1.6 < 1.1 fd (my bound reproduces most of it) rather than from data; (d) bruise band, friction, prices remain assumed, as disclosed."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "reference best J at each of 10 cells, re-evaluated from the stored designs",
+   "method": "shipped model re-run on results.json reference x vectors (own script reeval.py)",
+   "command": "python3.13 scratchpad/codesign-agri-pulloff/reeval.py",
+   "expected": "results.txt: 0.665 0.639 0.502 0.249 0.075 | 0.697 0.676 0.528 0.294 0.117",
+   "observed": "0.665 0.639 0.502 0.249 0.075 | 0.697 0.676 0.528 0.294 0.117",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "parent reproduction at 3.5 N / 8 N, 40 evaluations x 20 seeds",
+   "method": "parent codesign-agri README line 10 (a different project's published numbers) vs fresh rerun",
+   "command": "OMP_NUM_THREADS=1 python3.13 scratchpad/codesign-agri-pulloff/rerun.py",
+   "expected": "0.574, 0.611, 0.635",
+   "observed": "0.574, 0.611, 0.635",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "realised pull-off median as a fraction of the nominal median",
+   "method": "own quadrature of P(LN(ln m,0.3)(1.2-0.5U) <= q) = 0.5, no subject code",
+   "command": "python3.13 scratchpad/codesign-agri-pulloff/indep.py",
+   "expected": "README: about 0.95",
+   "observed": "0.940 analytic; 0.951 on the drawn 600 fruit",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "slip fraction at 13.94 N against an analytic hold bound",
+   "method": "upper bound hold <= mu0 x 1.5 x Fg x 1.6 from the model equations, own Monte Carlo (2M draws, own seed)",
+   "command": "python3.13 scratchpad/codesign-agri-pulloff/indep.py",
+   "expected": "P(slip|captured) >= 0.598 (8 N), >= 0.428 (10 N)",
+   "observed": "reference 0.73 and 0.66: consistent with the bound",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "gripper cost of the 3.17 N / 8 N reference design",
+   "method": "hand calculation from the cost formula",
+   "command": "python3.13 scratchpad/codesign-agri-pulloff/indep.py",
+   "expected": "49.59 USD",
+   "observed": "results.txt 50",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "10 N/8 N CMA-ES below random and 13.94 N Bayes median",
+   "method": "fresh rerun of the subject's job() for those cells",
+   "command": "OMP_NUM_THREADS=1 python3.13 scratchpad/codesign-agri-pulloff/rerun.py",
+   "expected": "0.033, 0.110, -0.029",
+   "observed": "0.033, 0.110, -0.029",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "full experiment rerun in a private copy, results.txt byte-compared",
+   "method": "subject's own run.py, diff against the committed results.txt",
+   "command": "cd scratchpad/codesign-agri-pulloff/copy/research/codesign-agri-pulloff && time OMP_NUM_THREADS=1 PYTHONPATH=src python3.13 experiments/run.py; diff experiments/results.txt <repo>/research/codesign-agri-pulloff/experiments/results.txt",
+   "expected": "identical, about 10 min on 4 cores (README)",
+   "observed": "IDENTICAL; real 23m22s on 4 cores (Pool.map chunking leaves workers idle on the 400-evaluation runs)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'At 13.94 N no 40-evaluation run finds a working gripper'",
+   "method": "count runs with clean picks > 0 in results.json",
+   "command": "python3.13 scratchpad/codesign-agri-pulloff/neg.py",
+   "expected": "0 of 60 runs pick anything",
+   "observed": "8 N bound: 13/60 runs pick some fruit, 4 have J > 0, best clean 0.177; 10 N bound: 20/60",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'ranking holds in 8 of 10 cells'",
+   "method": "one-sided Mann-Whitney U over 20 seeds per method (scipy)",
+   "command": "python3.13 scratchpad/codesign-agri-pulloff/neg.py",
+   "expected": "8 of 10 supported",
+   "observed": "both orderings p < 0.05 in 6 of 10; 10 N/10 N CMA>random p = 0.71, 13.94/8 p = 0.07",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Dimeas et al. author list and sourced 10 N limit attribution",
+   "method": "web search: Cambridge Core record of Robotica 33(5); Rajendran 2022 abstract",
+   "command": "WebSearch (arxiv.org itself unreachable from this session)",
+   "expected": "Dimeas, Sako, Moulianitis, Aspragathos; 10 N applied to the contact it was derived for",
+   "observed": "README says 'Dimeas, Sako, Gaskell et al.'; 10 N labelled peduncle limit but applied to fruit-body grip",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "run",
+   "command": "cd research/codesign-agri-pulloff && PYTHONPATH=src python3.13 -m unittest discover -s tests",
+   "expected": "5 tests pass",
+   "observed": "Ran 5 tests OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page content",
+   "method": "research/_homepage/build.py --out scratch (marisstella.app HTTP 000 here)",
+   "command": "python3 research/_homepage/build.py --out scratchpad/codesign-agri-pulloff/site",
+   "expected": "page with lede, summary, figure, disclaimer",
+   "observed": "present; disclaimer is the site-wide simulated/AI-assistance line",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/codesign_agri_pulloff/pulloff.py:22",
+   "change": "(1.2 - 0.5 * ripe) -> (1.2 - 0.6 * ripe)",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/codesign_agri_pulloff/pulloff.py:12",
+   "change": "PULL_BEND, PULL_ONLY = 3.17, 13.94 -> 3.71, 19.34",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/codesign_agri_pulloff/pulloff.py:13",
+   "change": "GRIP_LIMIT = 10.0 -> 12.0",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:47",
+   "change": "ok = c[2] > c[1] > c[0] -> ok = c[2] > c[0]",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Headline and lede say no 40-evaluation run at 13.94 N finds a gripper that picks anything; results.json shows 13 of 60 runs (8 N bound) with clean picks > 0 and 4 with J > 0 (best clean 0.177). Only the median fails. Fix: 'At 13.94 N the median 40-evaluation run finds no working gripper (median best J -0.033/-0.032/-0.029); 4 of 60 runs reach J > 0, best 0.066.'",
+   "where": "research/codesign-agri-pulloff/README.md:11",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
+  },
+  {
+   "severity": "medium",
+   "what": "Ranking 'holds in 8 of 10 cells' is counted on medians with no test; with a one-sided Mann-Whitney over 20 seeds both orderings are supported in 6 of 10 (10 N/10 N CMA-ES > random p = 0.71; 13.94 N/8 N p = 0.07). Fix: report the test and say 6 of 10 at p < 0.05.",
+   "where": "research/codesign-agri-pulloff/experiments/run.py:47",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "The 10 N bound is described as Rajendran et al.'s peduncle (stem) gripping limit but applied as the total pad force on the fruit body; the fruit-body <10 N limit appears to be Dimeas et al.'s. Source and contact mis-stated.",
+   "where": "research/codesign-agri-pulloff/src/codesign_agri_pulloff/pulloff.py:13",
+   "category": "source-data",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests never pin the sourced constants, any reported result or the ranking logic: mutants of PULL_BEND/PULL_ONLY, GRIP_LIMIT and the ranking comparison all survive. A 5 s test asserting the 3.5 N/8 N reproduction and the constants would catch them.",
+   "where": "research/codesign-agri-pulloff/tests/test_pulloff.py:1",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
+  },
+  {
+   "severity": "low",
+   "what": "Citation names 'Dimeas, Sako, Gaskell et al. (2015)'; the authors are Dimeas, Sako, Moulianitis, Aspragathos (Robotica 33(5):1085-1098, doi 10.1017/S0263574714001155).",
+   "where": "research/codesign-agri-pulloff/README.md:56",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
+  },
+  {
+   "severity": "low",
+   "what": "project.json summary says the best design moves to four fingers 'from 6 to 13.94 N'; the 6 N/10 N reference is 3 fingers (README says three or four).",
+   "where": "research/codesign-agri-pulloff/project.json:5",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "The 3.17 vs 13.94 N contrast is a detachment-technique and peduncle-diameter difference, modelled only as a median shift; the collapse of J follows from the model's own friction-hold law, and the in-repo sweep already covered 1.75-7 N, so novelty is small.",
+   "where": "research/codesign-agri-pulloff/README.md:22",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "README says run.py takes about 10 min on 4 cores; a full rerun took 23 min 22 s on 4 cores (output identical). Pool.map's default chunking leaves workers idle while the 400-evaluation Bayesian jobs finish; chunksize=1 or ordering long jobs first would help.",
+   "where": "research/codesign-agri-pulloff/README.md:36",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17815"],
+ "verdict": "A small, honest, fully reproducible sensitivity run (a full private rerun gives a byte-identical results.txt): every reference optimum re-evaluates exactly from results.json, six 40-evaluation cells re-run to the same three decimals (including the parent's 0.574/0.611/0.635), and independent checks (realised median 0.94-0.95x, an analytic hold bound, hand cost) agree. It does not meet the bar: the headline that no 40-evaluation run at 13.94 N picks anything is false (13 of 60 do), the '8 of 10' ranking is 6 of 10 once tested, the 10 N limit is attributed to the wrong contact, the Dimeas citation has a wrong co-author, and the tests leave the sourced constants and ranking logic unpinned. As research it is an incremental extension of codesign-agri-sweep whose qualitative finding (pull-only detachment needs more hold than a friction gripper gives; bending first helps) is already in Dimeas 2015 and the JIRCAS tilting work."
+}
