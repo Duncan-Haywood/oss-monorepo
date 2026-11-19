@@ -69,9 +69,17 @@ function valueOf(p, notes, label) {
   const allowed = (p.allowedValues || []).map((a) => (a.value ?? a.code)).filter((x) => x !== undefined && x !== null && x !== "");
   const bounds = { minInclusive: p.minInclusive, maxInclusive: p.maxInclusive, minExclusive: p.minExclusive, maxExclusive: p.maxExclusive };
   const hasBounds = Object.values(bounds).some((x) => x !== undefined && x !== null);
-  if (p.predefinedValue !== undefined && p.predefinedValue !== null && p.predefinedValue !== "") {
-    if (allowed.length || hasBounds || p.pattern) notes.push(`${label}: predefinedValue "${p.predefinedValue}" written; its allowed values, bounds or pattern are implied by it`);
-    return { equals: String(p.predefinedValue) };
+  // Many dictionaries answer predefinedValue "None" for no value (165 of 170
+  // in eval/bsdd-spec-2026-11-19.md, on Real and Boolean properties too); a
+  // value outside the property's own allowed values is not one either.
+  let pre = p.predefinedValue;
+  if (pre === "None" || (pre !== undefined && pre !== null && allowed.length && !allowed.map(String).includes(String(pre)))) {
+    if (pre !== "None") notes.push(`${label}: predefinedValue "${pre}" is not among its allowed values; left out`);
+    pre = null;
+  }
+  if (pre !== undefined && pre !== null && pre !== "") {
+    if (hasBounds || p.pattern) notes.push(`${label}: predefinedValue "${pre}" written; the bounds or pattern next to it left out`);
+    return { equals: String(pre) };
   }
   if (allowed.length) {
     if (hasBounds || p.pattern) notes.push(`${label}: allowed values written; bounds or a pattern next to them left out (IDS takes one restriction per value)`);
@@ -132,6 +140,7 @@ export function specFromBsddClass(cls, { schema = null, psets = null, sets = nul
     if (p.propertyStatus === "Inactive") { notes.push(`${label}: Inactive in bSDD; left out`); continue; }
     // An IfcComplexProperty: IDS 1.0 has no facet that reaches inside one.
     if (p.propertyValueKind === "Complex" || p.propertyValueKind === "ComplexList") { notes.push(`${label}: a complex property (value kind ${p.propertyValueKind}), which an IDS 1.0 facet cannot check; left out`); continue; }
+    if (!String(p.propertyCode || "").trim()) { notes.push(`${label}: no property code in bSDD; left out`); continue; }
     const key = `${p.propertySet}\u0000${p.propertyCode}`;
     if (seen.has(key)) { notes.push(`${label}: listed twice in the class; written once`); continue; }
     seen.add(key);
@@ -154,16 +163,19 @@ export function specFromBsddClass(cls, { schema = null, psets = null, sets = nul
       // for such properties.
       notes.push(`${label}: no property set in bSDD; written in set "${dictionaryName || cls.dictionaryName || "bSDD"}"`);
     }
+    // A set named as a pattern (Dura Vermeer's "Pset_.*Common"): written as
+    // an xs:pattern, which is what such a name can only mean.
+    const setName = p.propertySet || dictionaryName || cls.dictionaryName || "bSDD";
     const f = {
       kind: "property",
-      set: p.propertySet || dictionaryName || cls.dictionaryName || "bSDD",
+      set: /\.[*+]|[\[\]()|\\]/.test(setName) ? { pattern: setName } : setName,
       name: p.propertyCode || p.name,
       dataType: null,
       cardinality,
       uri: p.propertyUri || undefined,
     };
     const fromBsdd = dataTypeOf(p, ifcTypes, schema);
-    const tpl = templateTypes(psets, schema, f.set, f.name);
+    const tpl = typeof f.set === "string" ? templateTypes(psets, schema, f.set, f.name) : null;
     f.dataType = tpl ? (tpl.includes(fromBsdd) ? fromBsdd : tpl[0]) : fromBsdd;
     const named = ifcTypeIn(p.description);
     if (tpl && named && !tpl.includes(named)) notes.push(`${label}: bSDD names ${named}, the IFC templates ${tpl.join(" or ")}; the template's written`);

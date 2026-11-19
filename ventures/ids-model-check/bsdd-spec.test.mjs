@@ -126,3 +126,20 @@ test("the editor opens a generated IDS and writes every bSDD link back", async (
   assert.deepEqual(links(back), links(r.text));
   assert.ok(imp.rows > 0, "the facets open as editable rows, not only kept as written");
 });
+
+test("a predefinedValue of \"None\" is no value; a set named as a pattern is written as one; no code, no facet", () => {
+  const cls = { ...BED, classProperties: [
+    { propertySet: "Pset_.*Common", propertyCode: "Kleur", dataType: "String", predefinedValue: "None", allowedValues: [{ value: "Rood" }, { value: "Blauw" }] },
+    { propertySet: "Eigen", propertyCode: "Dikte", dataType: "Real", predefinedValue: "None" },
+    { propertySet: "Eigen", propertyCode: "Vast", dataType: "String", predefinedValue: "A" },
+    { propertySet: "Eigen", propertyCode: "", dataType: "String" },
+  ] };
+  const { spec, notes } = specFromBsddClass(cls, { schema: S, psets: R.psets.IFC4X3, dictionaryName: "NL" });
+  const props = spec.requirements.filter((f) => f.kind === "property");
+  assert.deepEqual(props.map((f) => f.name), ["Kleur", "Dikte", "Vast"]);
+  assert.deepEqual(props[0].set, { pattern: "Pset_.*Common" });
+  assert.deepEqual(props[0].value, { oneOf: ["Rood", "Blauw"] });
+  assert.equal(props[1].value, undefined);
+  assert.deepEqual(props[2].value, { equals: "A" });
+  assert.ok(notes.some((n) => /no property code/.test(n)));
+});
