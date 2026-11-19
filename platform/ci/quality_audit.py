@@ -195,8 +195,10 @@ def fetch_main(timeout: int = 60) -> bool:
     2026-11-13); the README's "fetch first" step was the fix, so do it here."""
     import subprocess
     try:
-        return subprocess.run(["git", "fetch", "-q", "--depth=1", "origin", "main"], capture_output=True,
-                              timeout=timeout, cwd=ROOT).returncode == 0
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import shallow_repair  # SIGTERM on timeout, so git does not leave .git/shallow.lock behind
+        return shallow_repair.fetch(["-q", "--depth=1", "origin", "main"], cwd=ROOT,
+                                    timeout=timeout).returncode == 0
     except Exception:
         return False
 
