@@ -2,6 +2,9 @@
 
 Newest first.
 
+## 2026-11-19 · Milestone 7u (paper step): section 3.5 rebuilt from one 21,000-character paragraph into subsections and a rule table
+- Why: pick_track's CHAIN note (20 sub-steps of milestone 7, 27 entries since a paper step). Each of 7a to 7t appended sentences to one paragraph of manuscript section 3.5; it reached 91 sentences, which no reviewer would read. This step changes no result: it restructures the section, adds a table of the selection rules in the order they were tested, and refreshes the abstract and status line. Every number stays checked by `paper/check_numbers.py --paper manuscript.md`.
+
 ## 2026-11-19 · Milestone 7t: read the bend's anchor off the measured curves (7s's Next y4; predictions written before any 7t number was computed)
 - Why: 7s's Next (y4). 7s showed 7r's bend table holds when a steeper synthetic curve keeps its level at 64 L/min (0.0052 to 0.0053 in (A)) and fails when it keeps it at 79 L/min (0.0059, worse than owh's 0.0056). Which anchor is right is a property of real pumps, and the 13 measured donor variants carry it: when a measured idle curve bends more, does its level at a 64 L/min pump stay put? 7t reads the anchor off the donors, per fold, and rebuilds the table with it.
 - Disclosed before the run: no 7t level, slope, anchor, pick, feature or score has been computed or looked at; the per-variant bends b are 7s's (printed there), the levels P(64) have not been printed by any milestone I have read. 7s's results file must reproduce byte for byte first on the rebuilt caches.
