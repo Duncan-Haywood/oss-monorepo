@@ -163,7 +163,7 @@ test('design search returns only passing, undominated designs', () => {
   assert.equal(searchDesigns(EXAMPLE, { maxInterval: 1, minPctPop: 99 }).frontier.length, 0);
 });
 
-// Quality round 88 (portfolio/quality/audits/2026-11-19-elevator-traffic-analysis.json):
+// Quality round 89 (portfolio/quality/audits/2026-11-19-elevator-traffic-analysis.json):
 // dropping speed from the dominance test left every test green. Pin the whole frontier.
 test('design search frontier for the example is exactly the seven undominated designs', () => {
   const s = searchDesigns(EXAMPLE, { maxInterval: 30, minPctPop: 12 });

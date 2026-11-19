@@ -48,3 +48,25 @@ def rao(omega, u, integral, draft, rho=wv.RHO, draft_arg=1.0, speed=True):
     a = wv.reflection_ratio(draft_arg * k * draft)
     f = 1.0 + 2.0 * omega * u / G if speed else 1.0
     return 0.5 * rho * G * integral * a * f
+
+
+def nmri_cu(bf):
+    """NMRI speed coefficient C_U = max(10, 68 - 310 B_f) (Tsujimoto et al. 2008; ISO 15016:2015; ITTC 7.5-04-01-01.1).
+
+    Not opened at source in milestone 7zj (egress proxy refused the hosts): coefficients as those documents are quoted.
+    """
+    return max(10.0, 68.0 - 310.0 * bf)
+
+
+def nmri_rao(omega, u, integral, beam, draft, length, rho=wv.RHO, draft_arg=1.5, cu=None, speed=True):
+    """NMRI reflection added resistance per zeta_A^2 in regular head waves, N/m2 (milestone 7zj).
+
+    R / zeta^2 = 0.5 rho g B B_f alpha_T (1 + C_U Fn). In head waves B B_f is the same waterline integral as
+    Faltinsen's I (int sin^3 of the waterline angle over the illuminated side), so `integral` is passed directly
+    and B_f = integral / beam. `cu` overrides C_U (e.g. its floor 10).
+    """
+    k = omega * omega / G
+    a = wv.reflection_ratio(draft_arg * k * draft)
+    c = nmri_cu(integral / beam) if cu is None else cu
+    f = 1.0 + c * u / (G * length) ** 0.5 if speed else 1.0
+    return 0.5 * rho * G * integral * a * f

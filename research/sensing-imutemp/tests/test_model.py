@@ -57,7 +57,7 @@ def test_monte_carlo_matches_formula():
     assert np.mean(a ** 2) == pytest.approx(fused_var(CHEAP, 6, 100.0, 0.002), rel=0.06)
 
 
-# Added in quality round 88 (portfolio/quality/audits/2026-11-19-sensing-imutemp.json):
+# Added in quality round 89 (portfolio/quality/audits/2026-11-19-sensing-imutemp.json):
 # the published tables use run.py's grade, and two seeded bugs (better-grade tempco
 # scaled by sqrt(k), ceil -> round in units_needed) left every test above green.
 RUN_GRADE = Grade(0.005, 0.005 * math.sqrt(3) / 100.0, 0.002, 0.004)

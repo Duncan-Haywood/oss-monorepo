@@ -3,7 +3,7 @@
  "subject": "research/sensing-imutemp",
  "stratum": "research",
  "seed": "2026-11-19-o-4121",
- "round": 88,
+ "round": 89,
  "drawn_by": "sample",
  "auditor": "agent session (Claude), see run record",
  "status": "audited",

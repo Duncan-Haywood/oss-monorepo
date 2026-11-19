@@ -52,7 +52,7 @@ for k in (1, 2, 3):
     print(f"  k={k} threshold {th:.3f}   " + "   ".join(row))
 print("  k=4 (= n_f): threshold infinite, slow workers always enter (E2: slow rate > 0 at every ratio)")
 
-print("E7 empirical mean-cost law T = n * mean(c)/((n-k)R) with 4 fast + 4 slow (c=1, r), all active (k>=4); deviation grows with the ratio")
+print("E7 mean-cost law T = n * mean(c)/((n-k)R) with 4 fast + 4 slow (c=1, r), all active (k>=4); exact for linear cost when every type is active (paper section 4)")
 for k in (4, 5, 6):
     out = []
     for r in (1.5, 2.0, 4.0, 8.0):

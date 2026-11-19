@@ -189,10 +189,38 @@ predecessor moves 2 of those activities 0 days instead of 10
 expected finish keeps its date, as in P6, so its sampled duration does not
 count; that is said in the eval, not yet on the page.
 
+**Look-ahead for the site meeting** (2026-11-19, `lookahead.mjs`, the page's
+"Look-ahead for the site meeting" panel, `node cli.mjs schedule.xer
+--lookahead [WEEKS] [--from YYYY-MM-DD] [--html sheet.html] [--csv
+lookahead.csv]`): the next one to 26 weeks (3 by default) of work from the
+recomputed dates, grouped by WBS in the file's WBS order, a bar for each
+day the activity works on its own calendar (critical work in red), and a
+make-ready check from the logic: **ready** (every FS predecessor finished,
+every SS predecessor started, no lag still running), **waits** on named
+look-ahead work with the date it is due, waits on work outside the window or
+in another project, or **no predecessor** (an open start). It names what sets
+each start (the driving link, a start constraint, the data date or the
+project's planned start) and marks started work whose predecessors are not
+done as out of sequence. The HTML sheet is self-contained and prints
+landscape for the meeting; the CSV has a column per day. On seven public P6
+files, the activities in each 1-, 3- and 6-week window are the ones P6's
+own stored dates put there on 6,476 of 6,479 (the 3 are the CCA pair behind
+a lag edited after P6's last run), no bar is on a wrong day, and every one
+of 1,259 "waits" names a predecessor P6's dates are consistent with
+(eval/lookahead-check-2026-11-19.md). On those files it surfaced 47 of 87
+activities in Expressway's first three weeks held only by the project start,
+and 592 of CCA's 1,465 activities in progress running out of sequence.
+Crews, materials and permits are not in a P6 file, so "ready" is from the
+logic alone and the sheet says so. The CLI also now waits for stdout before
+exiting, so a `--json` report piped to another program is no longer cut off
+at 64 KB (`--float-paths --json` on the CCA file was cut at 81,920 of 93,526
+bytes).
+
 ## Why someone would use it
 
 | Today's option | What it does | What this does better |
 |---|---|---|
+| A look-ahead made by hand (a filtered P6 layout printed to PDF, or copied into Excel each week) | Works for whoever holds P6 or has the time to copy dates | The 1-6 week sheet straight from the XER, with what each activity waits on and the date it is due, open starts and out-of-sequence work named, printable and as CSV, with no P6 seat |
 | P6's own Level Resources | Levels in P6 for people who hold a P6 seat; changes the schedule in the database | The levelled finish, who moved and why, and a crew-size what-if from the XER, without P6 and without touching the contractor's file |
 | Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free, with ranges read from the file's own UDFs; no resource model, no probabilistic branches yet |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |

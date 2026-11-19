@@ -182,7 +182,7 @@ test("hasRisk / summarize / describeFinding agree with scanText's findings", () 
   assert.equal(summarize([]), "No cache-order issues found.");
 });
 
-// Quality round 88 (portfolio/quality/audits/2026-11-19-docker-cache-order-check.json):
+// Quality round 89 (portfolio/quality/audits/2026-11-19-docker-cache-order-check.json):
 // each layout below was rebuilt under BuildKit and the expected verdict is
 // what the real cache did after a source-only edit.
 const kindsOf = (lines) => scanText(lines.join("\n")).map((f) => f.kind);

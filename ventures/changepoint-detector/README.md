@@ -79,7 +79,7 @@ where it departs from the paper.
 
 ## Verification
 
-`node --test '*.test.mjs'` (1,026 tests on 2026-11-19, about 5 minutes). What they check:
+`node --test '*.test.mjs'` (1,027 tests on 2026-11-19, about 5 minutes). What they check:
 
 - **Against an independent PELT:** on 100 seeded cases (60-200 points, 0-3
   planted changes, mean and mean-and-variance models, several penalties) the
@@ -455,8 +455,9 @@ extent permitted by law, the authors accept no liability for any loss or damage 
 An independent implementation from the published papers; not affiliated with or endorsed by their
 authors.
 
-**Privacy.** Nothing is uploaded. Anonymous feature counts (`analysis_run`, `example_loaded`,
-`file_opened`, `report_downloaded`) are kept only in local storage, can be switched off on the page,
+**Privacy.** Nothing is uploaded. Anonymous feature counts (the 13 event names are listed in
+the page's privacy note: `analysis_run`, `agreed_run`, `drift_run`, `watch_check`, `report_downloaded`
+and the rest) are kept only in local storage, can be switched off on the page,
 and honour Do Not Track.
 
 **Best-effort hosting, no SLA.** Free and experimental; may be slow, broken, moved, or taken offline

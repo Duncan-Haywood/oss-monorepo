@@ -1,0 +1,226 @@
+{
+ "date": "2026-11-19",
+ "subject": "research/simdesign-meshconverge",
+ "stratum": "research",
+ "seed": "2026-11-19-o-8854",
+ "round": 88,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a computational solid mechanics researcher who does finite-element verification and validation (ASME V&V 10/V&V 20, Roache GCI) and stress-based design; they would check first whether the 'mesh convergence' study actually isolates discretisation error (geometry held exact, a grid-convergence index, observed order), what singularity if any drives the peak, and whether the peak-stress measure is read where the stress is",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `/usr/bin/python3.13 experiments/meshscan.py` in a private copy (/tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/copy, 90 s on 4 cores): meshscan.txt byte-identical (cmp), meshscan.json identical to 0 MPa at all 336 points and every feasibility flag. Both README tables recomputed from meshscan.json (/tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/tables.py): every feasible list, every lowest-stress value and its width match. Independent checks (/tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/indep.py, /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/gci.py): mass 36.833 g = hand L*w+(H-w)*w+r^2(1-pi/4) area at w=16,r=14,b=2 steel; nominal_bending 84.375 MPa = hand 6F(L-w/2)/(b w^2); FE tip deflection 0.3009 mm, mesh-converged (identical at h=1.0 and 0.5) and inside the Euler-Bernoulli/Castigliano bracket of 0.22 mm (rigid corner block) to 0.369 mm (centreline frame incl. Timoshenko shear); mesh area equals polygon area to 1e-5 (no holes from the sliver filter). Celik et al. 2008 GCI on the paper's own r=14,w=16 numbers: grids 0.5/0.75/1.0 are oscillatory (e21=-3.55, e32=+1.27), so no GCI is admissible. Own refinement to h=0.25 (patched KD-tree mesher, bitwise-identical to the shipped mesher at h=0.5/0.75/1.0): with the shipped 24-facet fillet the peak keeps rising (100.74, 103.02, 105.93 MPa; observed order p=0.35, GCI_fine 12%), with a 96-facet fillet it converges (100.26, 103.45, 104.73; p=1.31, extrapolated 105.6 MPa, GCI_fine 1.0%). The headline (r=14, w=16 infeasible at the 100 MPa limit on fine meshes) survives, the outputs are right for the model; the convergence reading is not (see domain).",
+  "completeness": "Claimed features checked: 336-point scan (4 h x 4 r x 21 w) runs end to end and reproduces; slenderness cut-off at w>16.0 confirmed (no stress recorded for any w>16.0 in meshscan.json); both results tables, the 11-14% rise (computed 10.7-14.0%), the single h=0.75 feasible point and the 'none at h=1.0/0.5' claims all match the data; figure.py parses meshscan.txt. Stated next steps (optimiser on fine meshes, finer meshes) are disclosed as not done. Nothing claimed as done is a stub.",
+  "verification": "`/usr/bin/python3.13 -m pytest -q tests`: 6 passed, 84 warnings, 4.2 s. Tests pin no stress value: one checks a factor-of-two band between h=2.5 and 1.5, one checks feasibility flags at two points. 4 seeded mutants via quality_mutate.py: plane-strain lambda (model.py:102) caught; shear-stress factor halved in von Mises (model.py:128) SURVIVED; clamp-exclusion zone halved (model.py:131) SURVIVED; slenderness limit 8->9 (dfm.py:23, the rule that defines the scan window) SURVIVED. 3 of 4 survive.",
+  "craft": "Read model.py, dfm.py, measures.py, optimise.py, meshscan.py, test_meshconverge.py. model.py, dfm.py, measures.py and optimise.py are byte-identical copies of research/simdesign-pocketmesh (cmp), the fourth-plus copy of the same engine in the simdesign-* cluster. model.py:71 computes a dense grid-by-boundary distance matrix and sets d=None above 4e7 entries, then crashes on `d > 0.6*h` (TypeError reproduced at h=0.3), so the mesher cannot go below about h=0.4 at this geometry. model.py:105 is dead (`... if False else None`) and model.py:107 assigns an unused fb. meshscan.py:36 still prints 'below-15.4 pockets' (always [] in a 15-17 mm window) and prints min(ok) twice. Otherwise compact and readable.",
+  "claims": "Backed: tables (meshscan.json), 336 points, 6 tests (pytest), slenderness window (dfm.py:23), 'convergence not shown' hedge, stylised/assumed disclosure, scikit-fem citation. Not backed or wrong: README:48 and the homepage summary (research/_homepage/projects.json, simdesign-meshconverge entry) attribute possible unbounded peak growth to 'the near-sharp fillet floor (0.2 mm)', but every scanned fillet is r = 8-14 mm and the h=0.5 peak sits on the r=14 fillet near its tangent point (15.98, 28.35), 14.1 mm from the arc centre; the 0.2 mm floor is a rule value never present in this geometry. README:42 'approaching a plateau slightly above the limit' (hedged) is contradicted at h=0.25 (105.9 MPa, still rising at p=0.35). pyproject.toml:8 still describes the parent project's question.",
+  "fitness": "A researcher could rerun the scan in 90 s and build on it, but it is one step of a micro-study, not a programme (PROGRAMMES.md lines 8-17 names the 20+ simdesign-* mesh projects as the pattern to move away from). Nearest prior work: the textbook fact that coarse-mesh peak stresses are unconservative and must be checked by systematic refinement with Richardson extrapolation/GCI (Roache 1994 J. Fluids Eng. 116:405; ASME V&V 20-2009; Celik et al. 2008 J. Fluids Eng. 130:078001), and stress-concentration handbooks (Pilkey and Pilkey, Peterson's Stress Concentration Factors, 3rd ed.) for fillets; the repo's own simdesign-kirsch already checks the same solver's peak against Kirsch. The result (coarse-mesh feasible designs vanish under refinement) is sound in direction but not new, and the later simdesign-widerweb shows the empty sets came from the rule window. No GCI, no observed order, no exact-geometry refinement, so a reader cannot quote an error bar.",
+  "domain": "Against ASME V&V 20 / Celik 2008 practice: (1) the fillet is a fixed 24-segment polygon (model.py:35, chord 0.92 mm at r=14) that is not refined with h, so the study refines the mesh on a faceted geometry whose 3.75 degree re-entrant kinks are weak singularities; the peak centroid sits next to a facet vertex (0.13-0.23 mm away) and keeps rising at p=0.35, while a 96-facet arc converges at p=1.3. Geometry error and discretisation error are confounded. (2) No observed order, Richardson value or GCI is reported; the paper's own finest triple is oscillatory, which a V&V reviewer would flag as mesh-generation noise (also visible at h=1.0, r=12 where the minimum jumps to w=15.6). (3) The peak is read at element centroids of P2 elements, which under-samples the free-edge stress by construction, and the clamp zone is cut by an ad-hoc one-arm-width rule (model.py:131). (4) Loads, material allowable and the w/b<=8 rule are assumed (disclosed). A practitioner would accept the qualitative 'coarse mesh is unconservative' conclusion and the robust infeasibility at r=14,w=16 (extrapolated 105.6 MPa > 100), not the convergence diagnosis."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Profile mass at w=16, r=14, b=2, steel 7.85e-3 g/mm^3",
+   "method": "hand area L*w+(H-w)*w+r^2(1-pi/4) (plane geometry), auditor script",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/indep.py research/simdesign-meshconverge/src",
+   "expected": "36.833 g",
+   "observed": "36.833 g",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Nominal bending stress helper at w=16, b=2, F=100 N, L=80",
+   "method": "elementary beam 6M/(b w^2), M=F(L-w/2) (Timoshenko/Gere Mechanics of Materials)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/indep.py research/simdesign-meshconverge/src",
+   "expected": "84.375 MPa",
+   "observed": "84.375 MPa",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "FE tip deflection at w=16, r=14, b=2, h=1.0 and 0.5",
+   "method": "Castigliano on a two-member Euler-Bernoulli frame: rigid-corner lower bound and centreline + Timoshenko shear upper bound",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/indep.py research/simdesign-meshconverge/src",
+   "expected": "between 0.22 and 0.369 mm, mesh-independent",
+   "observed": "0.3009 mm at both h (FE/centreline-beam 0.815)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "GCI / observed order on the paper's own r=14, w=16 peaks at h=0.5/0.75/1.0",
+   "method": "Celik et al. 2008 J. Fluids Eng. 130:078001 procedure (Roache 1994), auditor script",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/gci.py /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/copy2",
+   "expected": "monotone triple with a computable GCI if the README's 'approaching a plateau' reading holds",
+   "observed": "oscillatory (e21=-3.55, e32=+1.27 MPa): no GCI admissible",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Peak stress at r=14, w=16 refined to h=0.25 (ratio 2), shipped 24-facet fillet vs 96-facet fillet",
+   "method": "Celik 2008 three-grid Richardson extrapolation on own runs with the mesher's distance step replaced by a KD-tree (bitwise-identical to the shipped mesher at h=0.5/0.75/1.0)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/gci.py /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/copy2",
+   "expected": "converging peak (plateau) as the README suggests",
+   "observed": "24 facets: 100.74, 103.02, 105.93 MPa, p=0.35, GCI 12%; 96 facets: 100.26, 103.45, 104.73, p=1.31, ext 105.6 MPa, GCI 1.0%",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Location of the h=0.5 peak versus the claimed 'near-sharp fillet floor (0.2 mm)'",
+   "method": "geometry: distance of the peak centroid from the fillet centre (w+r, w+r)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/indep.py research/simdesign-meshconverge/src ; /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/kink.py /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/copy2",
+   "expected": "at a 0.2 mm radius corner if the README's limitation is right",
+   "observed": "(15.98, 28.35), 14.1 mm from the centre of the r=14 arc, 0.23 mm from a facet vertex; no 0.2 mm radius exists in the geometry",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Experiment reproduces",
+   "method": "rerun meshscan.py in a private copy, cmp/JSON diff",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/copy && /usr/bin/python3.13 experiments/meshscan.py",
+   "expected": "meshscan.txt and .json as committed",
+   "observed": "txt byte-identical, json max diff 0, all flags equal, 90 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README results tables and the 11-14% rise",
+   "method": "recomputed from meshscan.json, auditor script",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/tables.py research/simdesign-meshconverge/experiments/meshscan.json",
+   "expected": "README values",
+   "observed": "all feasible lists and min stresses match; rise 10.7-14.0%",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "336 points; slenderness window ends at w=16.0",
+   "method": "count and inspect meshscan.json for stresses beyond 16.0",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/meshconverge/tables.py research/simdesign-meshconverge/experiments/meshscan.json",
+   "expected": "336 points, no stress for w>16.0",
+   "observed": "4x4x21=336, no stress recorded beyond 16.0",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd research/simdesign-meshconverge && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "6 tests pass",
+   "observed": "6 passed in 4.2 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Mesher below h=0.5",
+   "method": "run make_mesh at h=0.3",
+   "command": "cd research/simdesign-meshconverge && /usr/bin/python3.13 -c \"import sys;sys.path.insert(0,'src');from simdesign_meshconverge.model import Params,make_mesh;make_mesh(Params(w=16,r=14,b=2),0.3)\"",
+   "expected": "a mesh",
+   "observed": "TypeError: '>' not supported between NoneType and float (model.py:73 via the d=None branch at model.py:71)",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/simdesign_meshconverge/dfm.py:23",
+   "change": "MAX_SLENDER = 8.0 -> MAX_SLENDER = 9.0",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/simdesign_meshconverge/model.py:102",
+   "change": "lam = 2 * lam * mu / (lam + 2 * mu) -> lam = lam (plane strain)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/simdesign_meshconverge/model.py:128",
+   "change": "sxy = c * (1 - mat.nu) / 2 * gxy -> sxy = c * (1 - mat.nu) / 4 * gxy",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/simdesign_meshconverge/model.py:131",
+   "change": "free = cen[1] < p.H - p.w -> free = cen[1] < p.H - 0.5 * p.w",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The 'mesh convergence' study refines the mesh on a fixed 24-segment polygonal fillet (chord 0.92 mm at r=14) that is never refined, so its 3.75 degree re-entrant kinks act as weak singularities: the peak sits next to a facet vertex and keeps rising at observed order 0.35 down to h=0.25 (105.9 MPa, GCI 12%), while a 96-facet arc converges at p=1.3 to about 105.6 MPa (GCI 1.0%). Geometry and discretisation error are confounded, so the 'converges or grows without bound' question the project poses cannot be answered by this design.",
+   "where": "research/simdesign-meshconverge/src/simdesign_meshconverge/model.py:35",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "README limitation and the homepage summary blame possible unbounded peak growth on 'the near-sharp fillet floor (0.2 mm)', but every scanned fillet is 8-14 mm and the peak is on the r=14 arc near its tangent point (15.98, 28.35); no 0.2 mm radius exists in any scanned geometry. The actual driver is the faceted arc.",
+   "where": "research/simdesign-meshconverge/README.md:48",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
+  },
+  {
+   "severity": "medium",
+   "what": "No observed order, Richardson extrapolation or GCI is reported; the finest three grids are oscillatory (Celik 2008), and the 'approaching a plateau slightly above the limit' reading is contradicted by an h=0.25 run (105.9 MPa and rising). A reader gets no error bar on the peak stress the feasibility verdict depends on.",
+   "where": "research/simdesign-meshconverge/README.md:42",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests pin no stress or deflection value (one test allows a factor of two between meshes); 3 of 4 seeded mutants in core logic survive, including the von Mises shear term, the clamp-exclusion zone and the slenderness limit that defines the scan window.",
+   "where": "research/simdesign-meshconverge/tests/test_meshconverge.py:26",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "make_mesh sets the boundary-distance array to None when grid*boundary exceeds 4e7 entries and then crashes on `d > 0.6 * h` (TypeError at h=0.3 for w=16, r=14), so the mesher cannot reach the finer meshes the README's own limitation says are needed. A cKDTree(bnd).query(grid)[0] gives bitwise-identical results at h>=0.5 and works at h=0.25.",
+   "where": "research/simdesign-meshconverge/src/simdesign_meshconverge/model.py:71",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
+  },
+  {
+   "severity": "low",
+   "what": "Dead code: line 105 builds fb with `if False else None`, line 107 reassigns an unused fb; only fbasis (line 109) is used.",
+   "where": "research/simdesign-meshconverge/src/simdesign_meshconverge/model.py:105",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
+  },
+  {
+   "severity": "low",
+   "what": "model.py, dfm.py, measures.py and optimise.py are byte-identical copies of research/simdesign-pocketmesh (another copy of the shared simdesign engine), so a fix to the mesher or solver must be made in every sibling.",
+   "where": "research/simdesign-meshconverge/src/simdesign_meshconverge/model.py:1",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Leftovers from the parent project: pyproject description asks the parent's 'isolated feasible pockets' question, and meshscan.txt prints 'below-15.4 pockets' (always [] in a 15-17 mm window) and min(ok) twice.",
+   "where": "research/simdesign-meshconverge/experiments/meshscan.py:36",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Prior work not cited: no V&V or GCI reference (Roache 1994, ASME V&V 20-2009, Celik et al. 2008), no stress-concentration reference for the fillet, and not the repo's own simdesign-kirsch verification of the same solver's peak-stress reading, nor the follow-up simdesign-widerweb that resolves the 'rule window' question.",
+   "where": "research/simdesign-meshconverge/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"],
+ "verdict": "A small, honest, fully reproducible scan: meshscan.txt and .json rebuild byte for byte in 90 s, both README tables match the data, and mass, nominal bending stress and tip deflection agree with hand calculations and a Castigliano frame bracket. Its headline, that the coarse-mesh feasible gauge-2 designs are infeasible on fine meshes under the 100 MPa peak-stress limit, survives an independent refinement (extrapolated about 105.6 MPa at r=14, w=16 with an exact-ish 96-facet fillet). It does not meet the bar. The convergence study refines the mesh on a fixed 24-facet fillet whose kinks keep the peak rising at order 0.35, so its own question (converges or grows without bound) is confounded by geometry error; it blames the wrong feature (a 0.2 mm fillet floor that is not in any scanned geometry); it reports no observed order or GCI; and 3 of 4 seeded core mutants pass its tests. As research it is one textbook-direction step of a 20-plus project micro-cluster, not a programme a V&V reviewer would sign off."
+}

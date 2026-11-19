@@ -97,13 +97,22 @@ def best_response_gain(counts, costs, m, k, t, R=1.0, p=1.0, grid=120, top=4.0, 
 
 
 def expected_kth(rates, k, steps=4000):
-    """E X_(k) = int_0^inf P(N(t) <= k-1) dt for independent exponentials (Poisson-binomial), same substitution t=-2 ln w."""
-    tot, h = 0.0, 1.0 / steps
+    """E X_(k) = int_0^inf P(N(t) <= k-1) dt for independent exponentials (Poisson-binomial count N(t)).
+
+    Midpoint rule in u = ln t over [ln(1e-6/r_max), ln(60/r_min)] (dt = t du), so every rate scale gets grid points.
+    Before 2026-11-19 this used t = -2 ln w, which truncated the tail near t ~ 19 and understated long rounds (15.89 for
+    the exact 18.000 at k=6, cost ratio 8); that error is what made the mean-cost round-time law look approximate.
+    Returns inf when fewer than k workers race at a positive rate."""
+    active = [r for r in rates if r > 0]
+    if len(active) < k:
+        return math.inf
+    lo, hi = math.log(1e-6 / max(active)), math.log(60.0 / min(active))
+    h = (hi - lo) / steps
+    tot = 0.0
     for i in range(steps):
-        w = (i + 0.5) * h
-        t = -2.0 * math.log(w)
+        t = math.exp(lo + (i + 0.5) * h)
         qs = [1.0 - math.exp(-r * t) for r in rates]
-        tot += _cdf_le(qs, k) * 2.0 / w
+        tot += _cdf_le(qs, k) * t
     return tot * h
 
 
@@ -134,5 +143,6 @@ def entry_payoff(x, n_fast, k, cost_fast, cost_slow, R=1.0):
 
 
 def mean_cost_time(n, k, R, costs):
-    """Empirical benchmark n * mean(cost) / ((n-k) R): the homogeneous round time with the mean cost (not a theorem)."""
+    """Mean-cost round time n * mean(cost) / ((n-k) R).  Exact E X_(k) at any equilibrium with linear cost (p=1) in which
+    every worker races at a positive rate: sum_i dpi_i/dx_i = (n-k) E X_(k) and R dpi_i/dx_i = c_i (paper, section 4)."""
     return n * (sum(costs) / len(costs)) / ((n - k) * R)
