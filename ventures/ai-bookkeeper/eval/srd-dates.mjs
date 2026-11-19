@@ -35,7 +35,7 @@ export function scoreDates(labels, readings, { settled = false, lead = false } =
   const r = { photos: 0, date: { labelled: 0, right: 0, wrong: 0, none: 0, ambiguous: 0, ambiguousRight: 0 }, merchant: { labelled: 0, exact: 0, contained: 0, wrong: 0, none: 0 }, misses: { date: [], merchant: [] } };
   for (const l of labels) {
     const raw = readings(l.id);
-    if (!raw) continue;
+    if (!raw || l.duplicate_of) continue;
     r.photos++;
     const p = readPhoto(raw, { settled, lead });
     if (l.date) {
