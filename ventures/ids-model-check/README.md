@@ -83,6 +83,14 @@ open. MIT licensed, no dependencies, nothing uploaded.
   classes, 11 ticked; on the public files the names listed fall from 506 to
   368, every file still writing back the same.
   `eval/also-subclasses-2026-11-18.md`.
+  **Deprecated subclasses** (2026-11-19): in IFC4X3 a ticked box leaves out
+  the classes IFC 4.3 deprecates (`IFCWALLSTANDARDCASE`,
+  `IFCELECTRICDISTRIBUTIONBOARD`) and names them beside the box; IFC4 keeps
+  them. 57 public IFC4X3 exports hold none (IFC4 exports: 151 of 572 walls), a
+  model that does carry one still gets the "would not check" warning, and the
+  bSDD templates now open as 30 classes, `IFCBUILTELEMENT` ticked; public files
+  list 270 names (was 368), all writing back the same.
+  `eval/deprecated-subclasses-2026-11-19.md`.
   **A model's values** (2026-11-17): with a model open, each property row
   says what values the model holds ("In the model: 3 different values: REI 60
   (12), ...") and offers them: **Allow exactly these values** writes a one-of

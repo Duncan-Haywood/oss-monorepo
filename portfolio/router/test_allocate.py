@@ -168,8 +168,9 @@ class DeepenTests(unittest.TestCase):
             with mock.patch("allocate.subprocess.run", side_effect=fake) as m:
                 return deepen_to_window(7), m.call_count
         self.assertEqual(run(False), (False, 2))  # rev-parse, rev-list
-        # rev-parse, rev-list, git log, then shallow_repair.fetch: locate .git/shallow, fetch, locate again
-        self.assertEqual(run(True), (True, 6))
+        # rev-parse, rev-list, git log, then shallow_repair.fetch: locate the git dir (stale
+        # shallow.lock check), locate .git/shallow, fetch, locate again
+        self.assertEqual(run(True), (True, 7))
 
     def test_fetch_timeout_returns_false_instead_of_blocking(self):
         import subprocess

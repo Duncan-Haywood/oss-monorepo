@@ -1,0 +1,6 @@
+Post hoc: the 64 fresh designs with their benches rounded to 7 significant digits (5zk's depth format).
+set          e000 full  e000 rnd e111 full  e111 rnd max|d e111|
+Ai2020          0.0293    0.0293    0.0830    0.0830      0.0000
+Chen2020        0.0569    0.0613    0.0317    0.0317      0.0000
+OKane2022       0.0678    0.0678    0.0341    0.0341      0.0000
+NCA_Kim2011     0.0424    0.0424    0.0108    0.0108      0.0000

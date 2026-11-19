@@ -1,0 +1,48 @@
+cell-fidelity milestone 7a: the ten-cycle forecast's error budget (5zu) held out on 64 fresh designs
+(5zy's and 5zz's pools, never used to build any forecast input), and the pooled 104-design table.
+Cells mdq: M node-lever OCP rise, D non-OCP drift, q capacity factor; 0 forecast, 1 measured. Set medians.
+
+Held out (primary, H256 to H259): 64 fresh designs
+set           n   e000   e001   e010   e011   e100   e101   e110   e111    gap  phi_M  phi_D  phi_q  floor topM topD topq negM negD negq
+Ai2020       16  0.029  0.024  0.055  0.066  0.050  0.056  0.077  0.083 -0.062 -0.013 -0.009 -0.004  4.988    5    4    7   13   11   15
+Chen2020     16  0.057  0.064  0.025  0.034  0.061  0.051  0.052  0.032  0.032  0.003  0.015  0.001  0.620    4    7    5    6    5    6
+OKane2022    16  0.068  0.076  0.046  0.046  0.039  0.043  0.046  0.034  0.023  0.007  0.004  0.001  0.570    9    3    4    3    7    7
+NCA_Kim2011  16  0.042  0.046  0.042  0.046  0.006  0.011  0.006  0.011  0.037  0.038 -0.000 -0.002  0.210   14    0    2    0   16    8
+
+Held out, pool 5zy only (32 designs)
+set           n   e000   e001   e010   e011   e100   e101   e110   e111    gap  phi_M  phi_D  phi_q  floor topM topD topq negM negD negq
+Ai2020        8  0.044  0.032  0.062  0.075  0.036  0.049  0.068  0.082 -0.057 -0.008 -0.025 -0.005  2.056    3    2    3    7    6    8
+Chen2020      8  0.075  0.080  0.012  0.031  0.041  0.036  0.052  0.033  0.040  0.012  0.010 -0.002  0.634    3    2    3    2    3    5
+OKane2022     8  0.072  0.083  0.046  0.055  0.015  0.051  0.046  0.028  0.040  0.023  0.005 -0.003  0.369    5    1    2    1    4    5
+NCA_Kim2011   8  0.033  0.043  0.033  0.043  0.003  0.007  0.003  0.007  0.028  0.030 -0.000  0.000  0.141    6    0    2    0    8    3
+
+Held out, pool 5zz only (32 designs)
+set           n   e000   e001   e010   e011   e100   e101   e110   e111    gap  phi_M  phi_D  phi_q  floor topM topD topq negM negD negq
+Ai2020        8  0.012  0.012  0.053  0.057  0.085  0.058  0.082  0.085 -0.077 -0.021 -0.006 -0.003  6.912    2    2    4    6    5    7
+Chen2020      8  0.045  0.051  0.049  0.037  0.070  0.052  0.053  0.032  0.028 -0.003  0.023  0.001  0.607    1    5    2    4    2    1
+OKane2022     8  0.051  0.061  0.046  0.042  0.046  0.043  0.050  0.034  0.014  0.006  0.004  0.001  0.759    4    2    2    2    3    2
+NCA_Kim2011   8  0.053  0.058  0.053  0.058  0.007  0.015  0.007  0.015  0.041  0.047 -0.000 -0.009  0.249    8    0    0    0    8    5
+
+5zu, in sample (40 designs, from experiments/budget/rows.json)
+set           n   e000   e001   e010   e011   e100   e101   e110   e111    gap  phi_M  phi_D  phi_q  floor topM topD topq negM negD negq
+Ai2020        8  0.023  0.020  0.049  0.063  0.035  0.040  0.071  0.080 -0.069 -0.020 -0.038 -0.003  3.915    3    2    3    8    6    6
+Chen2020     12  0.054  0.063  0.024  0.027  0.039  0.040  0.017  0.014  0.041  0.021  0.020 -0.000  0.108    4    7    1    2    1    6
+OKane2022    12  0.067  0.069  0.065  0.058  0.035  0.041  0.022  0.015  0.056  0.033  0.011 -0.001  0.185   10    0    2    2    4    7
+NCA_Kim2011   8  0.030  0.035  0.030  0.035  0.010  0.011  0.010  0.011  0.028  0.025 -0.000  0.003  0.195    7    0    1    0    8    2
+
+Paper table: all 104 x-resolved designs
+set           n   e000   e001   e010   e011   e100   e101   e110   e111    gap  phi_M  phi_D  phi_q  floor topM topD topq negM negD negq
+Ai2020       24  0.025  0.024  0.053  0.066  0.042  0.046  0.073  0.083 -0.067 -0.017 -0.025 -0.004  3.943    8    6   10   21   17   21
+Chen2020     28  0.056  0.063  0.024  0.028  0.051  0.049  0.036  0.018  0.037  0.009  0.016  0.000  0.352    8   14    6    8    6   12
+OKane2022    28  0.067  0.075  0.056  0.054  0.037  0.043  0.031  0.019  0.036  0.019  0.008  0.000  0.381   19    3    6    5   11   14
+NCA_Kim2011  24  0.040  0.039  0.040  0.039  0.007  0.011  0.007  0.011  0.037  0.035 -0.000  0.001  0.210   21    0    3    0   24   10
+
+(e = |ln(L_pred(99)/L_DFN(99))| at kappa = 25.3, line through cycles 2..10. gap = e_000 - e_111;
+ phi_X = Shapley value of measuring X (drop in e), set medians of per-design values; floor = median of
+ e_111 / e_000, the share of the forecast's error left when every input is measured (the law's own term);
+ topX = designs where X has the largest phi; negX = designs where measuring X raises e on average)
+
+H256 (phi_M the largest of three on OKane2022, held out): supported (rank 1)
+H257 (|phi_q| <= 0.01 on >= 3 of 4 sets, held out): supported (4 <= 0.01, 0 > 0.02)
+H258 (Ai2020 set median gap < 0, held out): supported (gap -0.062)
+H259 (phi_D the largest of three on Chen2020, held out): supported (rank 1)
