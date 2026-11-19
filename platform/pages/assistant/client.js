@@ -22,7 +22,7 @@
 // every value written into a form is listed with an Undo. See /ask/ for the
 // measured accuracy and the limitations.
 
-import { parseUtterance, validateFills, mergeFills, extractJson, fieldSchema, describeFills, contentTokens } from './pf-fill.js';
+import { parseUtterance, validateFills, mergeFills, extractJson, fieldSchema, describeFills, contentTokens, rankForQuestion } from './pf-fill.js';
 import { searchVariants, searchScore } from './pf-search.js';
 
 const ROOT = new URL('./', import.meta.url);
@@ -258,16 +258,10 @@ function loadIndex() {
   return indexLoad;
 }
 
-export async function searchSite(query, limit = 5) {
+export async function searchSite(query, limit = 5, { strongOnly = false } = {}) {
   const data = await loadIndex();
-  const forms = query.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length >= 2 && !data.stop.has(w)).map(searchVariants);
-  if (!forms.length) return [];
-  return data.items
-    .map((item, i) => ({ item, i, value: searchScore(item.n, item.x, forms, true) }))
-    .filter(({ value }) => value >= 1)
-    .sort((a, b) => b.value - a.value || a.i - b.i)
-    .slice(0, limit)
-    .map(({ item }) => ({ title: item.t, description: item.d, url: new URL(item.u, ROOT).href, kind: item.k }));
+  return rankForQuestion(data, query, { variants: searchVariants, score: searchScore, limit, strongOnly })
+    .map((item) => ({ title: item.t, description: item.d, url: new URL(item.u, ROOT).href, kind: item.k }));
 }
 
 // ---------------------------------------------------------------------------
@@ -570,9 +564,9 @@ async function handle(text, ui, { spoken = false } = {}) {
   }
 
   // A question: the site's own search, the page's own words, and a model if one is on.
-  let tools = [];
-  try { tools = await searchSite(text); } catch { /* offline: answer from the page alone */ }
   const passage = document.querySelector('main') ? bestPassage(text) : null;
+  let tools = [];
+  try { tools = await searchSite(text, 5, { strongOnly: Boolean(passage) }); } catch { /* offline: answer from the page alone */ }
   if (settings.engine === 'rules') {
     const parts = [];
     if (passage) parts.push(`From this page: ${passage.text}`);
