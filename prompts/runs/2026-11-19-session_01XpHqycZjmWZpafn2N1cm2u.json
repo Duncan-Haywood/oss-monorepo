@@ -30,12 +30,14 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CI ventures-tests changed-ventures job red on PR #17665: all 4 changed venture suites passed (wage 43, ics 96, sales-agent 590, dining 28); the failing step was the unwired check portfolio/pipeline/test_validate_doc_consistency.py, 'PyYAML is required' on the runner, untouched by this diff (wired by PR #17660). Merged on that basis."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -45,6 +47,10 @@
     {
       "file": "portfolio/quality/README.md",
       "issue": "The open-the-claim-PR-right-after-drawing advice needs a commit before any audit exists; a placeholder post was the cheapest claim, but nothing documents what to commit."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "the unwired-checks pass inside ventures-tests fails a PR for a missing PyYAML on the runner (test_validate_doc_consistency.py) while 28 sibling checks lacking packages are skipped; it should skip like them or install PyYAML."
     }
   ],
   "deviations": [
