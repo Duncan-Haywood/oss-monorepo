@@ -393,13 +393,11 @@ flagships:
       on 3 sessions 0 waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits
       (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
-      (odd-orbit.py, 9,849 s). Bowling seasons proved uneven (SAT, 44 of 4-32 teams
-      x 1-60 weeks, page says so; eval/bowling-bound-proof.txt). Lane limits (team
-      avoids a pair, hard; eval/bowling-lane-avoid.txt). Limits per shape
-      (eval/bowling-avoid-shapes.txt), on other slots and symmetry-broken
-      (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. 6x32 2
-      teams, 6x26 random: UNSAT every dealing (eval/bowling-count-model.py). More
-      open items: NEXT.md.
+      (odd-orbit.py, 9,849 s). Bowling bounds and lane limits: README 2026-11-18
+      sections (eval/bowling-*). Americano whist designs 2026-11-19 (whist.mjs;
+      eval/whist-vs-greedy.txt: full cycle 0 repeat partners, opponents exactly 2;
+      short nights tie greedy); next: bases for unsearched 4k/4k+1 sizes, 4k+2
+      players. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:

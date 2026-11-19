@@ -341,7 +341,7 @@ MIT licence, see `LICENSE`.
 
 **Double-elimination play-offs.** Tick "Double elimination" next to the play-off size (three or more teams) and the bracket becomes winners and losers brackets, a grand final, and a reset game that is played only if the losers-bracket team wins the grand final. A team is out after two losses; byes in an uneven field are carried through the losers bracket so no match is left without an opponent. Tests play every field from 3 to 17 teams, including random results, and check one champion, every other team out on exactly two losses, and 2k-2 games (one more with a reset) (`doubleEliminationBracket` in `calc.mjs`).
 
-**Americano (rotating partners).** For social padel, pickleball, badminton and tennis nights, "Build rotation" takes the players, the number of courts and rounds, and re-pairs everyone each round so people partner and oppose as many different players as possible. Sit-outs and games are shared within one of even, repeat partnerships are minimised by a seeded search and counted, and a validator re-checks the plan (`americano`, `validateAmericano`, `americanoStats`, `americanoText` in `calc.mjs`; tested for every size from 4 to 24 players). Not an official rating system: it does not score or rank the night.
+**Americano (rotating partners).** For social padel, pickleball, badminton and tennis nights, "Build rotation" takes the players, the number of courts and rounds, and re-pairs everyone each round so people partner and oppose as many different players as possible. With a court for every four players and 4k or 4k+1 players it is a whist design: everyone partners everyone else exactly once and faces each of them exactly twice (section "Americano: partner everyone once, face everyone twice"). Sit-outs and games are shared within one of even, repeat partnerships are otherwise minimised by a seeded search and counted, and a validator re-checks the plan (`americano`, `validateAmericano`, `americanoStats`, `americanoText` in `calc.mjs`; tested for every size from 4 to 24 players). Not an official rating system: it does not score or rank the night.
 
 **Mexicano (draw from the table).** For padel and pickleball nights where each round is drawn from the standings, "Draw next round" takes the players, the courts and every finished game (`Ana & Ben 21-17 Cy & Dee`), credits each player with their side's points, and pairs the leaders together: 1 & 4 against 2 & 3 in each group of four, or a split that avoids repeating a partner. The player who has played most sits out, and round one with no scores is a seeded random draw (`parseMexicanoScores`, `mexicanoStandings`, `mexicanoNextRound`, `mexicanoText` in `calc.mjs`; tested for 4 to 20 players on 1 to 3 courts, with games staying within one of even). A format helper, not a rating system.
 
@@ -350,6 +350,49 @@ MIT licence, see `LICENSE`.
 **A message per team.** "Download a message per team" writes one ready-to-paste note for each team ("Hi Hawks, your fixtures: ...") with only that team's dates, venues, opponents and byes, so a coordinator can message each team instead of forwarding the whole league (`teamMessages` in `calc.mjs`).
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
+
+## Americano: partner everyone once, face everyone twice (whist designs, 2026-11-19, latest)
+
+The Americano card (rotating partners for padel, pickleball, badminton and tennis nights) used a greedy
+round-by-round search. Over a full cycle with a court for every four players it repeats partners from 20
+players up (20: 2 repeats, 24: 4, 28: 6, 32: 15, 48: 45) and never evens out opponents: some pairs meet
+four or five times while others never face each other (`eval/whist-vs-greedy.txt`).
+
+The fix is a **whist tournament**: rounds of tables a&b vs x&y in which every pair partners exactly once
+and plays against each other exactly twice. They exist for every 4k and 4k+1 players. `whist.mjs` builds
+them cyclically from one stored base round per size (`whist-bases.mjs`): for 4k+1 players the players are
+the elements of an abelian group and round g adds g to every seat of the base round; for 4k players one
+fixed player ("infinity") joins a group of order 4k-1. `eval/whist-search.mjs` finds the base rounds by
+randomised backtracking on the difference counts (partner differences once, opponent differences twice);
+9 players has no Z9 base (exhaustive), so it uses Z3 x Z3. `eval/whist-bases-build.mjs` stores only bases
+whose developed design passes `checkWhist`. Stored: 4, 5, 8, 9, 12, 13, 16, 17, 20, 21, 24, 25, 28, 29, 32, 33, 36, 37 and 44 players. Search times are in
+`eval/whist-search.txt` (seconds up to 28; 37 s to 19 min from 29 on, eleven processes sharing four cores). 40, 41,
+45, 48 and 49 found nothing in 25 minutes each (4e8-node budget) and stay on greedy.
+
+How `americano()` uses them (the greedy search stays as the fallback and the comparison):
+
+- **A court for every four players, whole cycle:** the design. 16 players on 4 courts play 15 rounds,
+  everyone partners all 15 others once and faces each of them twice; greedy gave opponents 1-4.
+- **4k+3 players (7, 11, 15, 19, 23, 27 ...):** the next design up with one empty seat; the table holding
+  it sits out. Same games per player as greedy, no repeat partner, every pair meets once or twice
+  (greedy 0-4).
+- **4k+2 players (6, 10, 14 ...):** two empty seats idle a court and cost each player 2-3 games over the
+  evening (18 players: 13-14 games against greedy's 16), so these stay on greedy.
+- **Fewer courts than tables (20 players on 3 courts):** the design's games are dealt into rounds of at
+  most 3, least-played players first. The whole design then takes 32 rounds instead of 19; the page says
+  so ("set Rounds to 32") and uses it when asked. A prefix measured no better than greedy, so a blank
+  round count stays on greedy.
+- **A shorter night than the whole design:** both are built and the better kept (repeat partners, then
+  the most times one pair meets as opponents). Measured honestly: on 6- and 8-round nights the two tie
+  (max 2 meetings, no repeats, 12-28 players, 20 seeds each), and at 28 players over 6 rounds greedy is
+  slightly better (max 1). The design's edge is the full cycle: multi-week social leagues, long club
+  nights, and anyone who wants the guarantee in writing.
+
+Seeds still change who gets which seat, so the same seed gives the same sheet. Tested in `whist.test.mjs`
+(every stored design checked pair by pair, the four cases above, a broken design rejected). Guide:
+`how-to-run-an-americano-tournament.html` ("Partner everyone once, face everyone twice"; its 8-player
+worked example is now the whist design and still recomputed by `page.test.mjs`). Not yet used by a real
+club night.
 
 ## Bowling league nights: averages, handicaps, points and standings (2026-11-19, latest)
 
