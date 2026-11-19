@@ -1,0 +1,87 @@
+Milestone 7zb: the drag-free floor b0 and each family's bend in the six idle settings that differ for a fixed pump (7j's 18 less the standby flow)
+b = P_idle(79) / P_idle(64); b0 = 79 p_n(79 n_r) / (64 p_n(64 n_r)); r = b / b0; 'bends' means b > 1.55 (7y's cut, set at the central condition ('PVG32', 2.0, 1.0))
+drag% = share of P_idle that is zero-pressure drag at the idle speed (64 / 79 L/min)
+
+PVG32, n_r 1.0: b0 1.318  (p_n at 64 and 79 L/min x n_r: 11.93, 12.73 bar)
+  family               P64     P79       b       r   drag% 64/79  class
+  casappa KP30       2.373   3.258   1.373   1.042   32.1/ 37.6  flat
+  danfoss SNP3       2.418   4.308   1.781   1.352   40.1/ 60.7  bends
+  marzocchi ALP3     2.485   3.218   1.295   0.983   46.8/ 54.3  flat
+  rexroth AZPG       1.766   2.322   1.314   0.998   24.2/ 24.4  flat
+  rexroth AZPU       1.693   2.269   1.341   1.018   18.7/ 19.4  flat
+  rexroth AZPN       1.776   2.274   1.281   0.972   24.3/ 22.9  flat
+  rexroth AZPF       1.837   2.379   1.295   0.983   26.9/ 25.7  flat
+  casappa PLP30      2.650   3.372   1.272   0.966   34.7/ 33.8  flat
+  argo GP3           1.453   1.835   1.263   0.958   -9.1/-14.2  flat
+  GP3 b - b0 -0.055; Danfoss r 1.352, next casappa KP30 r 1.042 (gap +0.310); largest r overall: danfoss SNP3; 1 of 9 read b > 1.55
+
+PVG32, n_r 0.5: b0 1.283  (p_n at 64 and 79 L/min x n_r: 10.21, 10.62 bar)
+  family               P64     P79       b       r   drag% 64/79  class
+  casappa KP30       0.807   1.264   1.566   1.220   16.5/ 35.7  bends
+  danfoss SNP3       1.771   2.901   1.638   1.277   66.5/ 78.4  bends
+  marzocchi ALP3     0.661   0.830   1.255   0.978   16.4/ 15.7  flat
+  rexroth AZPG       0.638   0.849   1.330   1.037   10.8/ 14.6  flat
+  rexroth AZPU       0.612   0.765   1.250   0.974    3.7/ -0.2  flat
+  rexroth AZPN       0.685   0.837   1.221   0.952   16.5/ 13.6  flat
+  rexroth AZPF       0.691   0.880   1.275   0.994   16.3/ 15.8  flat
+  casappa PLP30      0.931   1.205   1.294   1.008   21.3/ 24.1  flat
+  argo GP3           0.561   0.652   1.161   0.905  -21.0/-31.9  flat
+  GP3 b - b0 -0.122; Danfoss r 1.277, next casappa KP30 r 1.220 (gap +0.057); largest r overall: danfoss SNP3; 2 of 9 read b > 1.55
+
+Salami-text, n_r 1.0: b0 1.881  (p_n at 64 and 79 L/min x n_r: 5.10, 7.77 bar)
+  family               P64     P79       b       r   drag% 64/79  class
+  casappa KP30       1.450   2.466   1.700   0.904   52.5/ 49.7  bends
+  danfoss SNP3       1.588   3.648   2.297   1.221   61.0/ 71.7  bends
+  marzocchi ALP3     1.728   2.644   1.530   0.814   67.3/ 66.1  flat
+  rexroth AZPG       0.999   1.637   1.638   0.871   42.7/ 34.6  bends
+  rexroth AZPU       0.905   1.556   1.720   0.915   35.0/ 28.3  bends
+  rexroth AZPN       1.006   1.591   1.581   0.841   42.9/ 32.8  bends
+  rexroth AZPF       1.068   1.689   1.581   0.841   46.3/ 36.1  bends
+  casappa PLP30      1.659   2.502   1.508   0.802   55.4/ 45.6  flat
+  argo GP3           0.545   1.018   1.866   0.992  -24.2/-25.7  bends
+  GP3 b - b0 -0.015; Danfoss r 1.221, next rexroth AZPU r 0.915 (gap +0.307); largest r overall: danfoss SNP3; 7 of 9 read b > 1.55
+
+Salami-text, n_r 0.5: b0 1.881  (p_n at 64 and 79 L/min x n_r: 1.27, 1.94 bar)
+  family               P64     P79       b       r   drag% 64/79  class
+  casappa KP30       0.217   0.600   2.763   1.469   61.3/ 75.2  bends
+  danfoss SNP3       1.252   2.390   1.909   1.015   94.1/ 95.2  bends
+  marzocchi ALP3     0.178   0.258   1.455   0.773   61.2/ 50.5  flat
+  rexroth AZPG       0.140   0.256   1.830   0.973   49.3/ 48.2  bends
+  rexroth AZPU       0.096   0.139   1.445   0.768   23.4/ -1.0  flat
+  rexroth AZPN       0.184   0.246   1.335   0.710   61.3/ 46.3  flat
+  rexroth AZPF       0.185   0.275   1.487   0.791   60.9/ 50.6  flat
+  casappa PLP30      0.290   0.457   1.579   0.840   68.4/ 63.4  bends
+  argo GP3          -0.033  -0.050   1.524   0.810  355.9/411.3  flat
+  GP3 b - b0 -0.357; Danfoss r 1.015, next casappa KP30 r 1.469 (gap -0.454); largest r overall: casappa KP30; 4 of 9 read b > 1.55
+
+Salami-curve, n_r 1.0: b0 1.881  (p_n at 64 and 79 L/min x n_r: 5.62, 8.56 bar)
+  family               P64     P79       b       r   drag% 64/79  class
+  casappa KP30       1.521   2.593   1.705   0.907   50.1/ 47.3  bends
+  danfoss SNP3       1.652   3.754   2.273   1.208   58.7/ 69.7  bends
+  marzocchi ALP3     1.786   2.736   1.532   0.815   65.1/ 63.9  flat
+  rexroth AZPG       1.058   1.747   1.651   0.878   40.4/ 32.5  bends
+  rexroth AZPU       0.965   1.670   1.731   0.921   32.8/ 26.4  bends
+  rexroth AZPN       1.065   1.700   1.597   0.849   40.5/ 30.7  bends
+  rexroth AZPF       1.127   1.800   1.597   0.849   43.9/ 33.9  bends
+  casappa PLP30      1.735   2.642   1.522   0.809   53.0/ 43.2  flat
+  argo GP3           0.615   1.148   1.868   0.993  -21.5/-22.7  bends
+  GP3 b - b0 -0.013; Danfoss r 1.208, next rexroth AZPU r 0.921 (gap +0.288); largest r overall: danfoss SNP3; 7 of 9 read b > 1.55
+
+Salami-curve, n_r 0.5: b0 1.881  (p_n at 64 and 79 L/min x n_r: 1.40, 2.14 bar)
+  family               P64     P79       b       r   drag% 64/79  class
+  casappa KP30       0.226   0.615   2.725   1.449   58.9/ 73.4  bends
+  danfoss SNP3       1.260   2.402   1.907   1.014   93.5/ 94.7  bends
+  marzocchi ALP3     0.185   0.271   1.470   0.782   58.9/ 48.1  flat
+  rexroth AZPG       0.147   0.270   1.831   0.974   46.9/ 45.8  bends
+  rexroth AZPU       0.104   0.153   1.478   0.786   21.7/ -0.9  flat
+  rexroth AZPN       0.192   0.260   1.355   0.720   58.9/ 43.9  flat
+  rexroth AZPF       0.192   0.288   1.502   0.799   58.6/ 48.2  flat
+  casappa PLP30      0.299   0.475   1.587   0.844   66.3/ 61.1  bends
+  argo GP3          -0.024  -0.034   1.407   0.748  482.3/603.9  flat
+  GP3 b - b0 -0.474; Danfoss r 1.014, next casappa KP30 r 1.449 (gap -0.435); largest r overall: casappa KP30; 4 of 9 read b > 1.55
+
+Predictions (LOG.md 7zb):
+  PB1 GP3 b within 0.03 of b0 in all six settings: 2 of 6 -> refuted
+  PB2 Danfoss has the largest r in all six settings: 4 of 6 -> refuted
+  PB3 Salami-curve n_r 1: at least six of nine read b > 1.55: 7 -> held
+  PB4 Danfoss r leads the other drag-carrying families by >= 0.15 in every setting: 3 of 6 -> refuted
