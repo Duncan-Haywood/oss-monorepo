@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [aeo, seo, testing]
+topics: [seo, software-for-routine, browser]
 date: 2026-11-19
 ---
 # Polish: a check that taps /ask/'s example questions; repaired links stay on the site and name oss-monorepo

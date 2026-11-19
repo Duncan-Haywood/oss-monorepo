@@ -3,7 +3,7 @@ title: "The Ask page's example questions now have a test"
 seo_title: "Testing a site assistant's example questions in a real browser"
 date: 2026-11-19
 tags: [polish, testing, aeo]
-description: "The three example questions on marisstella.app/ask/ are the first answer most visitors see. A two-second browser check now taps each one and fails if it finds nothing or links a page that is gone."
+description: "A two-second browser check now taps each example question on the Ask page and fails if a reply finds nothing or links a page that is gone."
 ---
 
 [Ask](https://marisstella.app/ask/) is the site's built-in assistant, and it is the second most loaded page on the site. It runs in your browser. It needs no account, and with the default reader nothing is sent anywhere. Under its greeting are three example questions:
