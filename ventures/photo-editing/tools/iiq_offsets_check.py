@@ -30,8 +30,8 @@ from shootflow import iiq, iiq_calibration
 
 
 def _levels(values, fields: dict) -> list[float]:
-    t, l, h, w = fields["top"], fields["left"], fields["image_height"], fields["image_width"]
-    a = np.frombuffer(values, dtype=np.uint16).reshape(fields["height"], fields["width"])[t : t + h, l : l + w]
+    t, left, h, w = fields["top"], fields["left"], fields["image_height"], fields["image_width"]
+    a = np.frombuffer(values, dtype=np.uint16).reshape(fields["height"], fields["width"])[t : t + h, left : left + w]
     a = a.astype(np.float64) - fields["black"]
     # iiq's CFA is RGGB at the image's top-left.
     r, b = a[0::2, 0::2].mean(), a[1::2, 1::2].mean()
