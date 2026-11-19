@@ -8,6 +8,8 @@
 //                                              # repair its ids.xsd faults (fix.mjs); stdout without -o;
 //                                              # --word-class also spells a bare \w in patterns as a class
 //                                              # every checker reads alike (xsdregex.mjs spellWordClass)
+//   node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]   # one row per facet (sheet.mjs); CSV on stdout without -o
+//   node cli.mjs --from-sheet SHEET.xlsx|.csv|.tsv [-o OUT.ids]  # a table back to IDS 1.0; stdout without -o
 //
 // MODEL may be a STEP .ifc, an .ifcxml, or an .ifczip holding either.
 //
@@ -21,6 +23,8 @@ import { auditIds } from "./audit.mjs";
 import { bcfZip } from "./bcf.mjs";
 import { junitXml } from "./ci.mjs";
 import { fixStructure } from "./fix.mjs";
+import { sheetFromIds, rowsToCsv, rowsToXlsx, csvToRows, xlsxToRows, rowsToIds } from "./sheet.mjs";
+import { inflateRawSync } from "node:zlib";
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
@@ -38,6 +42,27 @@ if (flag("--fix") && files.length === 1) {
   console.error(`${r.fixes.length} fixed, ${r.remaining.length} left for a person`);
   if (opt("-o")) writeFileSync(opt("-o"), r.text); else process.stdout.write(r.text);
   process.exitCode = r.remaining.length ? 1 : 0;
+} else if (flag("--to-sheet") && files.length === 1) {
+  // Exit 0, or 2 when the file is not an IDS.
+  let r;
+  try { r = sheetFromIds(readFileSync(files[0], "utf8")); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  for (const x of r.fixes) console.error(`repaired first, line ${x.line}: ${x.message}`);
+  for (const n of r.notes) console.error(`not in the sheet: ${n}`);
+  const out = opt("-o");
+  if (!out) process.stdout.write(rowsToCsv(r.rows));
+  else writeFileSync(out, /\.xlsx$/i.test(out) ? rowsToXlsx(r.rows) : rowsToCsv(r.rows, /\.tsv$/i.test(out) ? "\t" : ","));
+} else if (flag("--from-sheet") && files.length === 1) {
+  // Exit 0 when the IDS was written, 1 when rows could not be read (listed on stderr), 2 on a read error.
+  let rows;
+  try {
+    const bytes = readFileSync(files[0]);
+    rows = bytes[0] === 0x50 && bytes[1] === 0x4b ? await xlsxToRows(bytes, (b) => inflateRawSync(b)) : csvToRows(bytes.toString("utf8"));
+  } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  const r = rowsToIds(rows);
+  for (const w of r.warnings) console.error(`warning row ${w.row}: ${w.message}`);
+  for (const x of r.errors) console.error(`error   row ${x.row}: ${x.message}`);
+  if (!r.text) process.exit(1);
+  if (opt("-o")) writeFileSync(opt("-o"), r.text); else process.stdout.write(r.text);
 } else if (flag("--audit") && files.length === 1) {
   let ids;
   try { ids = parseIds(readFileSync(files[0], "utf8")); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
@@ -46,7 +71,7 @@ if (flag("--fix") && files.length === 1) {
   else console.log(auditReport(ids.title, ids.specs, issues));
   process.exitCode = issues.some((x) => x.level === "error") ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids]");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;
