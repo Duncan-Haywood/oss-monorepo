@@ -50,7 +50,7 @@
     "ventures/changepoint-detector/README.md section 'Short spells under different series openings'"
   ],
   "goal": null,
-  "notes": "Pre-registered header committed c99ca0229 before any cell ran. 54 cells x 200 series, 142 s: O3/O4 pass (edge restatement 0.000 false spells in all 24 null cells), O1 fails (P3w30 135-141 at three openings vs 181), O2 fails (P5d60 neither 22-59). Post hoc (separate script, fresh seed, decides nothing): O1 failures track the spell's first weekday (8 vs 9 informative Tue/Thu): 120-146 vs 163-174 found at a fixed opening. No agent doc in docs/reports: README section and flagships next carry what the next run needs. Venture tests and preflight: see final commit.",
+  "notes": "Pre-registered header committed c99ca0229 before any cell ran. 54 cells x 200 series, 142 s: O3/O4 pass (edge restatement 0.000 false spells in all 24 null cells), O1 fails (P3w30 135-141 at three openings vs 181), O2 fails (P5d60 neither 22-59). Post hoc (separate script, fresh seed, decides nothing): O1 failures track the spell's first weekday (8 vs 9 informative Tue/Thu): 120-146 vs 163-174 found at a fixed opening. No agent doc in docs/reports: README section and flagships next carry what the next run needs. run_venture_tests.py changepoint-detector: 1 suite, 0 failed; venture-preflight.mjs changepoint-detector: clean.",
   "corrections": [],
   "redteam": null
 }
