@@ -404,6 +404,42 @@ function canCarry(S, cls, classes) {
   return names.some((c) => classes.some((t) => isA(S, c, t) || isA(S, t, c) || (c.endsWith("TYPE") && (isA(S, c, t + "TYPE") || isA(S, c, t.replace(/STANDARDCASE$/, "") + "TYPE"))) || (/^IFC(TYPEOBJECT|TYPEPRODUCT|ELEMENTTYPE)$/.test(t) && isA(S, c, "IFCTYPEOBJECT"))));
 }
 
+// A standard set the templates give only to some predefined types of a class
+// (Pset_ActuatorTypeElectricActuator: IfcActuator/ELECTRICACTUATOR; IFC4 and
+// IFC4X3 templates, schema/psets-*.json `pt`). Warns when the specification's
+// predefinedType names none of those types, or names no type at all, so
+// objects of the other types are asked for a set the standard never gives
+// them. Fine when any selected class can carry the set whatever its type.
+// Types compare without case: IFC4 writes some as ObjectType text
+// ("IfcDiscreteAccessory/Wire loop"), IFC4X3 upper-cases them.
+function predefinedIssue(S, spec, setName, set, classes, id) {
+  if (!set.pt) return null;
+  const allowed = new Set();
+  const hasType = (n) => S.has(n) && S.attrs(n).some((x) => x.name === "PredefinedType");
+  for (const c of classes) {
+    const via = set.classes.filter((t) => canCarry(S, c, [t]));
+    if (!via.length) continue;
+    // IFC4's IfcMaterial/Concrete names a Category, not a predefined type.
+    if (!hasType(c) && !hasType(c + "TYPE")) return null;
+    if (via.some((t) => !own(set.pt, t))) return null;
+    for (const t of via) for (const v of set.pt[t]) allowed.add(v);
+  }
+  if (!allowed.size) return null;
+  const ef = spec.applicability.find((x) => x.kind === "entity");
+  // An attribute facet on PredefinedType selects types as well.
+  const af = spec.applicability.find((x) => x.kind === "attribute" && listedNames(x.name)?.includes("PredefinedType"));
+  const typeValue = ef && ef.predefinedType.present ? ef.predefinedType : af && af.value && af.value.present ? af.value : null;
+  const types = [...allowed];
+  const list = types.slice(0, 4).join(", ") + (types.length > 4 ? ", ..." : "");
+  const on = [...new Set(set.classes.filter((t) => own(set.pt, t)))].slice(0, 2).join(", ");
+  if (!typeValue) return { code: "pset-predefined", message: `${setName} is the ${id} standard set only for ${on} of predefined type ${list}; the applicability selects every ${classes.join(", ")} whatever its type, so objects of the other types are asked for a set the standard does not give them. Add predefinedType ${types.length === 1 ? types[0] : "(" + list + ")"} to the entity facet`, predefinedType: types };
+  const named = listedNames(typeValue);
+  if (!named) return null;
+  const lower = new Set(types.map((v) => v.toLowerCase()));
+  if (named.some((v) => lower.has(v.toLowerCase()))) return null;
+  return { code: "pset-predefined", message: `${setName} is the ${id} standard set only for ${on} of predefined type ${list}; the applicability selects predefined type ${named.join(", ")}, which the standard does not give this set`, predefinedType: types };
+}
+
 // Standard property set template checks, following buildingSMART's
 // IDS-Audit-tool: a Pset_/Qto_ set the templates lack, a property its standard
 // set lacks, a dataType the template does not give, and a set the applicable
@@ -429,6 +465,7 @@ function templateIssues(f, spec, ctx, where) {
       found.push([setName, set]);
     }
     // Applicability: can any class the specification selects carry the set?
+    let ptWarning = null;
     if (where === "requirements") {
       // An IFC2X3 type-mapping name (IFCACTUATOR: an
       // IfcDistributionControlElement typed by an IfcActuatorType) also
@@ -440,11 +477,12 @@ function templateIssues(f, spec, ctx, where) {
         if (classes && classes.length && set.classes.length && !classes.some((c) => canCarry(S, c, set.classes)) && !mappedTypes.some((t) => S.has(t) && canCarry(S, t, set.classes))) {
           return { error: { code: "pset-class", message: `${setName} applies to ${set.classes.slice(0, 4).join(", ")}${set.classes.length > 4 ? ", ..." : ""} in ${id}; the applicability selects ${classes.join(", ")}, which cannot carry it` } };
         }
+        if (classes && classes.length && !mappedTypes.length) ptWarning ||= predefinedIssue(S, spec, setName, set, classes, id);
       }
     }
     const propNames = listedNames(f.baseName);
-    if (!propNames) return null;
-    let warning = null;
+    if (!propNames) return ptWarning ? { warning: ptWarning } : null;
+    let warning = ptWarning;
     for (const [setName, set] of found) {
       for (const pn of propNames) {
         const tpl = own(set.props, pn);
