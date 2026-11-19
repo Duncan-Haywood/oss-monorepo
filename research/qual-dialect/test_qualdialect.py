@@ -45,5 +45,24 @@ class FastTests(unittest.TestCase):
         self.assertAlmostEqual(a[1], b[1])
 
 
+class ReadmeMatchesResults(unittest.TestCase):
+    """The README's headline ranges drifted from results.txt once (quality audit
+    2026-11-19: '0.4-2.4%' and '0.4-10.8%' against 0.4-2.2% and 1.9-10.8%)."""
+
+    def test_headline_sensitivity_ranges(self):
+        here = Path(__file__).parent
+        results = (here / "experiments" / "results.txt").read_text()
+        readme = (here / "README.md").read_text()
+        sens = {}
+        for line in results.splitlines():
+            parts = line.split()
+            if len(parts) == 8 and parts[1] in ("hau", "ibo", "yor", "pcm") and parts[0] in ("lexicon-en", "nb-english"):
+                sens.setdefault(parts[0], {})[parts[1]] = float(parts[2])
+        for coder, label in (("lexicon-en", "for the word list"), ("nb-english", "for the English classifier")):
+            vals = [sens[coder][k] for k in ("hau", "ibo", "yor")]
+            quoted = f"{min(vals) * 100:.1f}\u2013{max(vals) * 100:.1f}% {label}"
+            self.assertIn(quoted, readme)
+
+
 if __name__ == "__main__":
     unittest.main()
