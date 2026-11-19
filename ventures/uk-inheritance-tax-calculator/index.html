@@ -152,7 +152,6 @@
       $("#summary").textContent = summaryText(r);
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
       const rows = [["Estate value", r.assets], ["Debts", -r.debts], ["Net estate", r.net], ["Left to spouse (exempt)", -r.spouse], ["Left to charity (exempt)", -r.charity], ["Nil-rate band", -r.nrb], ["Residence nil-rate band used", -r.rnrb], ["Taxable amount", r.taxable], [`Inheritance Tax at ${Math.round(r.rate * 100)}%`, r.tax]];
-      if (r.ftbTax !== null) rows.push(["Same price as a first-time buyer", r.ftbTax]);
       $("#tests").innerHTML = rows.map((x) => `<tr><td>${esc(x[0])}</td><td class="n">${gbp(x[1])}</td></tr>`).join("");
       $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
       report.hidden = false;
