@@ -1,0 +1,36 @@
+Intervals and trend tests for table VII-1 of DRAFT.md (post hoc; milestone 7 paper step, 2026-11-19).
+20000 bootstrap resamples, 20000 permutations, random seed 0.
+
+== identified total per row (per design: seeds 0-5 above | below), stratified bootstrap 95% interval of the total ==
+   33–78.2 ms ( 7v,   lagrand): [60, 43, 52, 35, 51, 42] | [47, 33, 30, 34, 29, 30]; total 486 of 2304, 95% [439, 538]
+     36–72 ms ( 7t,     lag36): [66, 34, 35, 39, 21, 14] | [63, 31, 22, 42, 58, 39]; total 464 of 2304, 95% [364, 571]
+ 39.1–78.2 ms ( 7u,     lag39): [63, 21, 30, 17, 22, 17] | [45, 18, 29, 19, 42, 25]; total 348 of 2304, 95% [266, 447]
+     45–90 ms ( 7w,     lag45): [44, 20, 16, 8, 15, 14] | [28, 21, 15, 13, 16, 26]; total 236 of 2304, 95% [182, 303]
+    52–104 ms ( 7x,     lag52): [24, 11, 13, 6, 7, 14] | [19, 28, 13, 10, 13, 4]; total 162 of 2304, 95% [120, 210]
+    60–120 ms ( 7x,     lag60): [9, 6, 7, 4, 6, 4] | [9, 12, 12, 6, 8, 4]; total 87 of 2304, 95% [71, 103]
+    75–150 ms ( 7z,     lag75): [5, 3, 4, 3, 3, 11] | [9, 5, 3, 3, 4, 9]; total 62 of 2304, 95% [45, 82]
+  39.1–100 ms (7ab, lag39c100): [28, 13, 11, 4, 6, 20] | [26, 28, 18, 11, 19, 7]; total 191 of 2304, 95% [139, 246]
+  39.1–125 ms (7ac, lag39c125): [13, 8, 8, 3, 3, 4] | [17, 10, 8, 7, 11, 9]; total 101 of 2304, 95% [79, 125]
+  39.1–150 ms (7aa, lag39c150): [9, 3, 5, 3, 4, 3] | [10, 9, 8, 4, 3, 4]; total 65 of 2304, 95% [49, 82]
+  39.1–200 ms (7ab, lag39c200): [3, 3, 3, 3, 3, 2] | [9, 3, 8, 3, 6, 7]; total 53 of 2304, 95% [42, 64]
+
+== ceiling sweep at the 39.1 ms floor (78.2, 100, 125, 150, 200 ms): Jonckheere-Terpstra, one-sided, decreasing ==
+identified total, above: J = 316.5 of 360, p = 0.00005
+identified total, below: J = 312.5 of 360, p = 0.00005
+       75 ms law, above: J = 353.5 of 360, p = 0.00005
+       75 ms law, below: J = 352.0 of 360, p = 0.00005
+
+== neighbouring ceilings, pooled over geometries (12 designs a side), two-sided permutation Mann-Whitney U ==
+identified total:     lag39 vs lag39c100: sums 348 vs 191; U = 113.0 of 144, p = 0.01770
+identified total: lag39c100 vs lag39c125: sums 191 vs 101; U = 110.5 of 144, p = 0.02545
+identified total: lag39c125 vs lag39c150: sums 101 vs 65; U = 100.5 of 144, p = 0.10059
+identified total: lag39c150 vs lag39c200: sums 65 vs 53; U = 95.5 of 144, p = 0.15569
+       75 ms law:     lag39 vs lag39c100: sums 670 vs 543; U = 137.0 of 144, p = 0.00005
+       75 ms law: lag39c100 vs lag39c125: sums 543 vs 410; U = 135.5 of 144, p = 0.00010
+       75 ms law: lag39c125 vs lag39c150: sums 410 vs 269; U = 136.5 of 144, p = 0.00015
+       75 ms law: lag39c150 vs lag39c200: sums 269 vs 121; U = 140.0 of 144, p = 0.00005
+
+== the floor at a fixed ceiling, pooled over geometries, two-sided permutation Mann-Whitney U (identified total) ==
+  33 vs 39.1 ms floor, ceiling 78.2 ms:   lagrand vs     lag39: sums 486 vs 348; U = 115.0 of 144, p = 0.01050
+                 36-72 vs 39.1-78.2 ms:     lag36 vs     lag39: sums 464 vs 348; U = 99.0 of 144, p = 0.12724
+   39.1 vs 75 ms floor, ceiling 150 ms: lag39c150 vs     lag75: sums 65 vs 62; U = 76.0 of 144, p = 0.82646
