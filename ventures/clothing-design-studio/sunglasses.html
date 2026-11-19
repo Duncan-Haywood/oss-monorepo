@@ -199,7 +199,7 @@
     });
     write(); render();
     document.querySelectorAll("input, select").forEach(el => el.addEventListener("input", () => { read(); render(); recordUsage("eyewear_edit"); }));
-    $("#copy").addEventListener("click", () => navigator.clipboard?.writeText($("#quote").textContent).then(() => recordUsage("eyewear_quote_copy")));
+    $("#copy").addEventListener("click", () => navigator.clipboard?.writeText($("#quote").textContent).then(() => recordUsage("eyewear_quote_copy"), () => { /* refused: the quote stays on screen to select */ }));
     recordUsage("eyewear_open");
   </script>
 </body>

@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 import { parseUtterance, tokenize, checkValue, validateFills, mergeFills, extractJson, fieldSchema, describeFills } from './assistant/fill.mjs';
 import { ASK_SUGGESTIONS, ASSISTANT_LAUNCHER_JS, ASSISTANT_VOICE_CSS, ASSISTANT_FILES, renderAskPage, renderAssistantFiles, scoreEvals } from './assistant.mjs';
-import { SITE_NAV } from './site-nav.mjs';
+import { SITE_NAV, renderSiteStyle } from './site-nav.mjs';
 import { renderChromeStyle } from './build.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -289,7 +289,8 @@ test('the Ask page tables stack as labelled cards on phones, and the panel gets 
       assert.deepEqual([...row.matchAll(/data-label="([^"]*)"/g)].map((m) => m[1]), heads);
     }
   }
-  assert.match(html, /@media \(max-width:600px\)\{[^@]*\.stack td::before\{content:attr\(data-label\)/);
+  // The card layout lives in the shared pf-site.css now (STACK_TABLE_CSS), which the page links.
+  assert.match(renderSiteStyle(), /@media \(max-width:600px\)\{[^@]*table\.stack td::before\{content:attr\(data-label\)/);
   assert.ok(ASK_SUGGESTIONS.length >= 2);
   const call = /mount\(document\.getElementById\('ask-app'\), \{ suggestions: (\[[^\n]*\]) \}\)/.exec(html);
   assert.ok(call, 'the Ask page no longer passes its example questions to mount()');
