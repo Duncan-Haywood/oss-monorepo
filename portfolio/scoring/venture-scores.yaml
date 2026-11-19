@@ -28510,7 +28510,7 @@ ventures:
       requirement presets labelled as such, not veterinary or nutritionist advice, unmodelled
       items (trace minerals, ionophores, urea limits, mycotoxins) stated. Ethics: nothing leaves
       the browser, no dark patterns, nothing is sold.
-  - slug: fertilizer-blend-optimizer
+  - slug: ball-python-morph-pairing-planner
     scores:
       ai_leverage: 1
       autonomous_ops: 10
@@ -28534,16 +28534,6 @@ ventures:
       r/ballpython and breeder Facebook groups are named channels; volume not measured.
       Defensibility 4: pricing every outcome and ranking all pairings goes beyond one-pairing
       genetics calculators.
-      No model in the product, deliberately. The blend comes from a linear program over products
-      and nutrient targets the user types or edits.
-    basis: >-
-      Screened 2026-10-07 per portfolio/pipeline/README.md; write-up in this venture's own
-      VENTURE.yaml comment. A least-cost fertilizer blend solver (simplex) for row-crop and hay
-      growers, reusing the solver from beef-cattle-ration-optimizer. Distribution 5: "cheapest
-      fertilizer blend" and "urea vs anhydrous cost per pound of nitrogen" are recurring grower
-      searches and extension-newsletter topics; volume not measured. Defensibility 4: nutrient
-      shadow prices, product entry prices and the saving against the obvious plan go beyond
-      one-nutrient-at-a-time extension spreadsheets.
     gates:
       liability_containment: pass
       ethical_robustness: pass
@@ -28551,10 +28541,6 @@ ventures:
       Liability: arithmetic on user-typed gene types and prices, gene types labelled as common
       convention to verify, allelic genes refused, probabilities not promises, not veterinary
       advice. Ethics: nothing leaves the browser, no dark patterns, nothing is sold.
-      Liability: arithmetic on user-typed product prices and grades, example prices and rounded crop
-      target presets labelled as such, not agronomic advice, unmodelled items (application method,
-      timing, N loss, salt and burn risk, lime, micronutrients) stated. Ethics: nothing leaves the
-      browser, no dark patterns, nothing is sold.
   - slug: hay-baling-own-vs-hire-calculator
     scores:
       ai_leverage: 1
@@ -29037,14 +29023,6 @@ ventures:
     floor: 2
     floor_dimension: ai_leverage
     floor_note: >-
-      No model in the product, deliberately. Demurrage and detention are plain tiered per-day
-      arithmetic on the dates and tariff typed in.
-    basis: >-
-      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
-      VENTURE.yaml comment. Prices ocean-container demurrage and detention from the user's own
-      tariff, which no venture in the portfolio does. Distribution 6: "demurrage and detention
-      calculator" is a recurring importer and forwarder search; volume not measured.
-      Defensibility 3: the arithmetic is open.
       No model in the product, deliberately. A line-by-line gap, a depreciation schedule and a net-of-fee grid
       are plain functions of the numbers typed in.
     basis: >-
@@ -29057,8 +29035,6 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: arithmetic on user-typed dates and tariff numbers, defaults labelled as
-      placeholders, no advice on whether a charge is valid or disputable, no shipment identifiers
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, no coverage, legal,
       bad-faith or public-adjuster advice, who may negotiate a claim stated as not decided, no policy data
       requested. Ethics: nothing leaves the browser, no dark patterns, nothing is sold.
@@ -29216,13 +29192,6 @@ ventures:
     floor: 2
     floor_dimension: ai_leverage
     floor_note: >-
-      No model in the product, deliberately. The break-even is a plain function of salary, benefits and tax rates.
-    basis: >-
-      Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
-      VENTURE.yaml comment. Converts a salaried offer into the hourly contract rate that leaves the
-      same cash, with each gap (self-employment tax, health, time off, bench, match, expenses) shown
-      as a step. Distribution 6: "is $X/hr contract better than $Y salary" is a recurring question in
-      career subreddits and a W2 vs 1099 rate search; volume not measured. Defensibility 3: the arithmetic is open.
       No model in the product, deliberately. RP, RP-HPE and YP indemnities are plain functions of APH, prices and yield.
     basis: >-
       Screened 2026-10-08 per portfolio/pipeline/README.md; write-up in this venture's own
@@ -29235,9 +29204,6 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: arithmetic on user-typed numbers, editable rates, defaults labelled as placeholders,
-      no income-tax or worker-classification advice. Ethics: nothing leaves the browser, no dark
-      patterns, nothing is sold.
       Liability: arithmetic on user-typed numbers, defaults labelled as placeholders, sells and quotes
       no insurance and picks no level, no county rate data embedded. Ethics: nothing leaves the
       browser, no dark patterns, nothing is sold.
