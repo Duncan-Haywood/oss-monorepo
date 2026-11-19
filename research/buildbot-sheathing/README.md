@@ -760,6 +760,16 @@ sensor bias; the z spec is carried over from y, not sourced.
 
 ![Worst residual along and across the wall, and coverage, under the y-only and two-row bounds](experiments/m58_tworow/figure.png)
 
+**Milestone 59: does the nail's angle need its own bound?** No, at these poses. The same flip cost was taken through
+the rows of the depth point, 44.4 mm along the nail (sheathing plus required penetration, where the stud bound is
+checked), as well as the nose's. On 48 more held-out loads (seed 59), **milestone 58's two-row bound already keeps the
+depth point inside 0.03 mm (worst 0.022 mm on the G1, 0.018 mm on the H1; H232 refuted), the nail axis tilts at most
+0.034 mrad, and the four-row bound plans exactly the same presses: 100% on the G1, 99.65% on the H1 (H233, H234
+held).** The flips the bound admits are leg joints whose lever arm is the whole body, so the extra 44.4 mm against a lever arm near a
+metre should change their rows by a few percent (an estimate, not computed row by row). One seed; statics; the depth spec is carried over from the nose, not sourced.
+
+![Worst residual at the nose and the depth point, and coverage, under the two-row and four-row bounds](experiments/m59_depth/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

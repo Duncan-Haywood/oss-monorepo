@@ -1,0 +1,48 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 59: the depth point in the flip bound, held-out section F (48 loads, seed 59; spec 0.03 mm at both points, 0.015 mm per budgeted row; depth point 44.4 mm past the nose; B = 0.20 N)
+errors (6 random directions, seed 59): (-0.075, +0.119, +0.143); (-0.003, -0.169, -0.107); (-0.008, -0.090, +0.179); (+0.043, +0.172, +0.093); (+0.170, +0.006, -0.106); (+0.159, -0.063, -0.104)
+check (two-row against milestone 58's rule_all 'iso', first 2 loads per robot): 408 cases, plan/no-plan mismatches 0, 'how' mismatches 0, largest |y| or |z| difference 0.0e+00 mm
+
+## A. Rules: robot | config | in-envelope cases (m51) | planned | coverage | per-load sides | planned with a flip | worst |y| | worst |z| | worst |y_d| | worst |z_d| (mm) | over spec y, z, y_d, z_d | worst tilt mrad | smallest Y - shift (y, z, y_d, z_d)
+  g1 | two-row | 3978 | 3978 | 100.00% | 302 | 27 | 0.0081 | 0.0205 | 0.0081 | 0.0220 | 0, 0, 0, 0 | 0.034 | 0.00e+00, 0.00e+00, 0.00e+00, 0.00e+00
+  g1 | four-row | 3978 | 3978 | 100.00% | 302 | 27 | 0.0081 | 0.0205 | 0.0081 | 0.0220 | 0, 0, 0, 0 | 0.034 | 0.00e+00, 0.00e+00, 0.00e+00, 0.00e+00
+  h1 | two-row | 5424 | 5405 | 99.65% | 191 | 19 | 0.0088 | 0.0164 | 0.0094 | 0.0177 | 0, 0, 0, 0 | 0.032 | 0.00e+00, 0.00e+00, 0.00e+00, 0.00e+00
+  h1 | four-row | 5424 | 5405 | 99.65% | 191 | 19 | 0.0088 | 0.0164 | 0.0094 | 0.0177 | 0, 0, 0, 0 | 0.032 | 0.00e+00, 0.00e+00, 0.00e+00, 0.00e+00
+
+## A2. Where the worst depth-point residual sits: robot | config | axis | worst mm (pose, H N, phi deg, error)
+  g1 | two-row | yd | 0.0081 (([0.4, 0.0], 8.24, 252.3, 3))
+  g1 | two-row | zd | 0.0220 (([0.4, 0.0], 8.75, 309.3, 4))
+  g1 | four-row | yd | 0.0081 (([0.4, 0.0], 8.24, 252.3, 3))
+  g1 | four-row | zd | 0.0220 (([0.4, 0.0], 8.75, 309.3, 4))
+  h1 | two-row | yd | 0.0094 (([1.2, 0.15], 5.51, 233.9, 4))
+  h1 | two-row | zd | 0.0177 (([1.6, 0.0], 1.36, 214.2, 4))
+  h1 | four-row | yd | 0.0094 (([1.2, 0.15], 5.51, 233.9, 4))
+  h1 | four-row | zd | 0.0177 (([1.6, 0.0], 1.36, 214.2, 4))
+
+## B. No plan, by the joint with the largest normalised cost on the pose's sides: robot | config | none | joints (counts)
+  g1 | two-row | 0 | 
+  g1 | four-row | 0 | 
+  h1 | two-row | 19 | left_knee 10, right_ankle 8, no plan 1
+  h1 | four-row | 19 | left_knee 10, right_ankle 8, no plan 1
+
+## C. Hypotheses (registered in LOG.md before this run)
+H232 (two-row: nose inside 0.03 mm in y and z, some case over 0.03 mm at the depth point): worst nose y g1 0.0081 h1 0.0088, z g1 0.0205 h1 0.0164; depth y_d g1 0.0081 h1 0.0094, z_d g1 0.0220 h1 0.0177 mm; over at depth g1 0 h1 0 -> refuted
+H233 (four-row: every planned case inside 0.03 mm at both points, all bounds hold): worst g1 y 0.0081, z 0.0205, yd 0.0081, zd 0.0220; h1 y 0.0088, z 0.0164, yd 0.0094, zd 0.0177 mm; over 0; smallest slack 0.00e+00 mm -> held
+H234 (four-row coverage within 1.0 point of two-row): loss g1 0.00 h1 0.00 points -> held
+
+(run time 1252 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

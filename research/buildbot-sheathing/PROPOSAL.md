@@ -503,6 +503,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    0.27 to 0.29 mm across the wall again (H231 held); with both rows every planned press is inside 0.03 mm in both
    directions (worst z 0.022 mm; H229 held) at the same coverage, G1 100% and H1 99.63% (H230 held). Next: the H1's
    left knee and right ankle, or the depth point's rows.
+59. **The depth point in the bound** (done 2026-11-19, `experiments/m59_depth/`): the same flip cost through the
+   rows of the point 44.4 mm along the nail (y<sub>d</sub>, z<sub>d</sub>) as well as the nose's, half a 0.03 mm spec
+   each, on 48 new loads (seed 59). The two-row bound already keeps the depth point inside 0.03 mm (worst 0.022 mm;
+   H232 refuted; tilt at most 0.034 mrad), so the four-row bound holds (H233) and changes no plan or coverage, G1 100%
+   and H1 99.65% (H234 held). Next: the H1's left knee and right ankle.
 
 ## Target venue
 
