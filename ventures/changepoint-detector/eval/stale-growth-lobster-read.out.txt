@@ -1,0 +1,6 @@
+stock  price (median)  median move (cents)  odd half-cent moves  day prints z  M=1000 power  M=1000 size  M=2000 power  M=2000 size
+AAPL  583.00  2  0.02  -5.1  16 of 19  0 of 15  8 of 8  0 of 7
+AMZN  222.50  2  0.01  -1.6  7 of 7  0 of 4  3 of 3  0 of 2
+GOOG  568.42  4  0.01  -2.0  5 of 7  0 of 4  3 of 3  0 of 2
+INTC  26.96  0.5  0.52  8.9  0 of 4  2 of 2  0 of 0  1 of 1
+MSFT  30.47  1  0.43  6.7  1 of 5  2 of 2  0 of 1  1 of 1
