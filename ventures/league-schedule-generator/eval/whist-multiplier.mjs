@@ -18,6 +18,7 @@
 //
 // Usage: node eval/whist-multiplier.mjs [40 41 45 48 49 ...] > eval/whist-multiplier.txt
 // Each line is JSON like eval/whist-search.txt; eval/whist-bases-build.mjs reads both files.
+import { pathToFileURL } from "node:url";
 import { mulberry32 } from "../calc.mjs";
 
 const mod = (a, m) => ((a % m) + m) % m;
@@ -219,7 +220,7 @@ export function negationSearch(n, { seed = 1, ms = 600000 } = {}) {
 // The multiplier used per size: a unit of order 3 fixing 0 and the two elements of order 3 (they
 // join infinity at its table), else -1 (negationSearch).
 export const MULT = { 40: 16, 64: 4 };
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const ns = process.argv.slice(2).map(Number);
   for (const n of ns.length ? ns : [40, 41, 45, 48, 49]) {
     if (n % 4 === 1 && fieldFactors(n)) {
