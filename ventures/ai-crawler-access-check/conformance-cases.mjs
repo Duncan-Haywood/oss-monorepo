@@ -169,7 +169,7 @@ export const CASES = [
   {
     group: "a UTF-8 byte-order mark is skipped", rfc: false,
     cases: [
-      ["﻿User-agent: GPTBot\nDisallow: /\n", "GPTBot", "https://a.example/", false],
+      ["\uFEFFUser-agent: GPTBot\nDisallow: /\n", "GPTBot", "https://a.example/", false],
     ],
   },
   {

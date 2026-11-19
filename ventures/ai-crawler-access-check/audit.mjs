@@ -128,7 +128,7 @@ function isGlobalAgent(value) {
  * they match nothing.
  */
 export function parseRobotsTxt(text) {
-  const body = String(text ?? "").replace(/^﻿/, "");
+  const body = String(text ?? "").replace(/^\uFEFF/, "");
   const lines = body.split(/\r\n|\r|\n/);
   const records = [];
   const sitemaps = [];
