@@ -57,7 +57,7 @@ whole: `.scroll` already contained every table. The defect was hidden columns, n
 | same 356 tables, one pair per line (build without `compact`) | 149,522 px | 378,094 px |
 | 9-column audit score table (`quality-audit-round-72`) | 262 px, 3 of 9 columns visible | 833 px, all 9 |
 | pages wider than the viewport | 0 | 0 |
-| 1280 px: tables whose width or height changed | | 0 of the 1,517 compared |
+| 1280 px: tables whose width or height changed | | 0 of 1,760 |
 
 Two builds were measured. Build A (one pair per line, the committed `stackTable` rule) stacked 356
 tables on 350 pages and gave the overflow count of 5. Build B added `compact` but, through an
