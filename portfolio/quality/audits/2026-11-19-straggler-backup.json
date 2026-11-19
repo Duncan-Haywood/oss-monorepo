@@ -183,7 +183,8 @@
    "what": "Paper's 'fewest workers to drop for a finite mean is ceil(1/alpha)-1' is wrong whenever 1/alpha is an integer (alpha=0.5 needs 2, paper says 1; alpha=1 needs 1, paper says 0, contradicting the README's own 'alpha<=1 => wait-for-all infinite'); correct is floor(1/alpha). Code is right.",
    "where": "research/straggler-backup/paper/whitepaper.md:11",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"
   },
   {
    "severity": "medium",
@@ -197,14 +198,16 @@
    "what": "sgd_rounds takes math.log(rho) with no guard for rho<=0 (eta>=1/a): sgd_rounds(64,1,1.0,2,1,0.05) and best_k raise ValueError: math domain error; E4 avoids it only because its grid stops at 0.98.",
    "where": "research/straggler-backup/src/straggler_backup/model.py:101",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"
   },
   {
    "severity": "low",
    "what": "Hajek estimator and the integer-1/alpha finiteness boundary are untested: mutants '/ w'->'/ n' and 'd <= 0'->'d < 0' both survive.",
    "where": "research/straggler-backup/tests/test_model.py:1",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"
   },
   {
    "severity": "low",
@@ -218,9 +221,10 @@
    "what": "README says experiments take ~1 min; they run in 5.6 s.",
    "where": "research/straggler-backup/README.md:10",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"],
  "verdict": "A small, clean, correct reference implementation of known results. Every number I recomputed from sources the author did not write (order-statistic density quadrature, the textbook Gamma-form Pareto moments, my own SGD recursion and numpy Monte Carlo for the inclusion probabilities and bias) matches results.txt, and the experiments reproduce byte-identically in 5.6 s. It does not meet the bar: verification is 2 (2 of 4 seeded mutants survive: the Hajek estimator and the Pareto finiteness boundary are untested), claims are 2 (the paper's ceil(1/alpha)-1 rule is wrong at integer 1/alpha, 'Hajek safe default' is contradicted by its own table), and as research it falls short of the PhD bar: the K-sync round-time law and error-runtime optimum are Dutta et al. 2018, the selection bias is Cho/Wang/Joshi 2022, neither is cited, and the headline joint-step gain is an artefact of a condition-number-1 one-dimensional quadratic. Median score 2."
 }
