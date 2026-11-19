@@ -197,8 +197,8 @@ def plan(data: bytes, directory: dict, fields: dict) -> list[tuple]:
                     steps.append(("table", _clip_table(lambda i, g=g: _f32(g * i)), r0, r1, c0, c1, "0x41e"))
             gain_done = True
         elif tag == QUAD_LINEAR and not linear_done and length >= 256:
-            lc = struct.unpack_from("<64I", data, at)
-            lc = [[v & 0xFFFF for v in lc[16 * q : 16 * q + 16]] for q in range(4)]
+            levels = struct.unpack_from("<64I", data, at)
+            lc = [[v & 0xFFFF for v in levels[16 * q : 16 * q + 16]] for q in range(4)]
             ref = [(sum(lc[q][i] for q in range(4)) + 2) >> 2 for i in range(16)]
             for q, (r0, r1, c0, c1) in enumerate(quads):
                 if not lc[q][15]:
@@ -209,9 +209,9 @@ def plan(data: bytes, directory: dict, fields: dict) -> list[tuple]:
             linear_done = True
         elif tag == QUAD_COMBINED and not gain_done and length >= 140:
             words = [v & 0xFFFF for v in struct.unpack_from("<35I", data, at)]
-            ref, lc = words[:7], [words[7 + 7 * q : 14 + 7 * q] for q in range(4)]
+            ref, gains_q = words[:7], [words[7 + 7 * q : 14 + 7 * q] for q in range(4)]
             for q, (r0, r1, c0, c1) in enumerate(quads):
-                ys = [ref[i] * lc[q][i] // 10000 for i in range(7)]
+                ys = [ref[i] * gains_q[q][i] // 10000 for i in range(7)]
                 if ys == ref:
                     continue
                 steps.append(("table", spline_table([0, *ref, 65535], [0, *ys, 65535]), r0, r1, c0, c1, "0x431"))
