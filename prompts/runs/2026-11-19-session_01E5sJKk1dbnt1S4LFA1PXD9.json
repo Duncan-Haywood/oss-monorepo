@@ -8,7 +8,7 @@
   "follow_up_inputs": [],
   "model": null,
   "models_seen": [
-    "claude-opus-5-5"
+    "runtime-selected"
   ],
   "started": "2026-11-19T03:09:10Z",
   "ended": "2026-11-19T03:15:50Z",
@@ -43,7 +43,14 @@
       "issue": "Most fixes the friction table names (prompts/*, .github/*) are CODEOWNERS-gated; the prompt could say to filter doc_friction to non-control-plane files when picking a Critique target."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/runcost.py",
+      "why": "runcost attach writes the model id into the record; this cloud environment forbids model identifiers in pushed files",
+      "did": "replaced it with 'runtime-selected'",
+      "result": "validate ok"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-19-the-flagship-rows-were-full-of-results-not-plans.md"
   ],
@@ -57,9 +64,9 @@
     "transcripts": 1,
     "first": "2026-11-19T03:09:10Z",
     "last": "2026-11-19T03:16:04Z",
-    "primary_model": "claude-opus-5-5",
+    "primary_model": "runtime-selected",
     "models": {
-      "claude-opus-5-5": {
+      "runtime-selected": {
         "requests": 38,
         "input": 74,
         "output": 29745,
