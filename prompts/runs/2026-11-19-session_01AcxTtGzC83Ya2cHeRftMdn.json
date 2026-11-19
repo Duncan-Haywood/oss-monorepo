@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtGzC83Ya2cHeRftMdn",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T12:18:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17657",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The clean-sweep list covers markup/SEO/a11y only; no line says whether a security (DOM XSS) sweep was ever run, so I had to search platform/ci by hand to learn none existed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Did not wire the new sweep into a workflow: .github/ is control plane and would hold the PR for owner approval.",
+      "did": "Left it as a manual browser sweep like check_textarea_edges.js; its node test is picked up by unwired_checks.py.",
+      "result": "Fixes land now; wiring is noted in the agent report for a separate PR."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-a-share-link-could-run-script-on-eight-bid-calculators.md",
+    "docs/reports/2026-11-19-html-injection-sweep.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: behavioural DOM-XSS sweep (check_html_injection.js). 1,413 pages, 1,012 with text fields, 13 hits (8 reflected via share hash, 1 stored, 4 self), all fixed. Script execution confirmed with onerror payload on unfixed attic-insulation-bid-calculator. Re-sweep 0 hits; 13 venture suites 0 failed (1,117 tests); run_workflow_locally --for-changes run.",
+  "corrections": [],
+  "redteam": null
+}

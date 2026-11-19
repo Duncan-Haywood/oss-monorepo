@@ -10,6 +10,11 @@ import {tmpdir} from 'node:os';
 import {join, dirname} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
+import {createRequire} from 'node:module';
+
+// CI runners have no Playwright (platform/ci/browser_checks.py, "Why this exists"); skip there.
+let havePlaywright = true;
+try { createRequire(import.meta.url)('playwright'); } catch { havePlaywright = false; }
 
 const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), 'check_html_injection.js');
 const PAGES = {
@@ -25,7 +30,7 @@ if(location.hash){n.value=decodeURIComponent(location.hash.slice(1));r();}</scri
 <script>go.onclick=()=>{o.innerHTML=t.value.split('\\n').slice(1).map(l=>'<tr><td>'+l.split(',')[0]+'</td></tr>').join('');}</script>`,
 };
 
-test('finds self and reflected injection, passes the escaped page', () => {
+test('finds self and reflected injection, passes the escaped page', {skip: !havePlaywright && 'playwright is not installed'}, () => {
   const dir = mkdtempSync(join(tmpdir(), 'xss-'));
   for (const [slug, html] of Object.entries(PAGES)) {
     mkdirSync(join(dir, 'ventures', slug), {recursive: true});
