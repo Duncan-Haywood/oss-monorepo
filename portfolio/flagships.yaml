@@ -560,5 +560,7 @@ flagships:
       updates to check the half-step against, and a windows analysis across many
       updates; (3) more public XER files from other exporters (search GitHub for
       ERMHDR fixtures) and progress override, start float and 24-hour lag paths on a
-      real file; (4) a written review report (PDF) an owner's rep can send; (5)
+      real file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
+      eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
+      next a real reviewer's reading of one and a full-list appendix option; (5)
       resource levelling and expected finish dates.
