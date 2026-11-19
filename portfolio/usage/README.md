@@ -335,7 +335,16 @@ starts from main's copies), then commits the results back to the branch.
 node platform/counter/usage-data.mjs status                  # what the branch holds vs main
 node platform/counter/usage-data.mjs show site-visits.json   # one file, from the branch
 node platform/counter/usage-data.mjs sync                    # copy into portfolio/usage/, then commit in a PR
+node platform/counter/usage-data.mjs top --tools --days 14   # tool pages ranked by page loads, branch merged with main
+node platform/counter/usage-data.mjs top --bots              # pages ranked by crawler beacons instead
 ```
+
+`top` is the quick answer to "which pages do people load?": page keys are
+split from the prefixed breakdowns (`ref:`, `src:`, `geo:`, `dev:`, `bot:`,
+`botpage:`) for you, each row gives loads, the number of days it was loaded
+and its kind (tool, site or category page), and the header says which days the
+window covers. Loads are page loads by browsers that sent no DNT/GPC, not
+people.
 
 `sync` lets the branch copy win but merges visit days (larger count) and
 feedback records (by id) with main's, so a hand-run pull is never lost.

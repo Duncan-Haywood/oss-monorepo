@@ -179,6 +179,22 @@ class NoiseAwareTests(unittest.TestCase):
             out = blend(b, d, np.full((2, 2), q), 1.0, 2.0)
             np.testing.assert_allclose(out, want, atol=1e-12)
 
+    def test_thin_frames_are_one_block(self):
+        # under one BLOCK tall but several wide (or the reverse): one block, the whole frame. Until 2026-11-19
+        # ``_block_stat`` made hb = 1 but wb = w // BLOCK there and the reshape failed (eval/auto-noise-aware-2026-11-19.md).
+        from shootflow.xtrans_demosaic import _block_stat, noise_aware
+
+        for shape in ((16, 60), (60, 16), (16, 16)):
+            a = self.rng.uniform(0.1, 0.9, shape)
+            m = _block_stat(a, lambda t: t.mean(axis=-1))
+            self.assertEqual(m.shape, (1, 1))
+            self.assertAlmostEqual(float(m[0, 0]), float(a.mean()), places=12)
+        for pat in (XE1_PATTERN, (0, 1, 1, 2)):
+            c = self.rng.uniform(0.1, 0.8, (18, 60))
+            out = noise_aware(c, pat, noise=(1e-4, 1e-6))
+            self.assertEqual(out.shape, (18, 60, 3))
+            self.assertTrue(self.np.isfinite(out).all())
+
 
 @unittest.skipUnless(has_numpy(), "numpy not installed")
 class ProfileGuardTests(unittest.TestCase):

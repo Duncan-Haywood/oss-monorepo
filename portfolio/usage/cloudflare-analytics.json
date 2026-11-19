@@ -1,0 +1,387 @@
+{
+ "unit": "Cloudflare edge requests to the site per UTC day: every request, crawlers and scripts included, so not page loads and not people. `classes` splits eyeball requests by kind of client (a browser string reduced to a class, then dropped); `pages` lists the most-requested 200/304 paths per class",
+ "source": "Cloudflare GraphQL Analytics API (httpRequests1dGroups, httpRequestsAdaptiveGroups, workersInvocationsAdaptive) via platform/counter/pull-cloudflare.mjs",
+ "zone": "marisstella.app",
+ "last_pull": {
+  "on": "2026-11-19",
+  "window": [
+   "2026-11-05",
+   "2026-11-18"
+  ],
+  "days_pulled": 14,
+  "errors": [
+   "httpRequests1dGroups: GraphQL answered 200: Actor 'com.cloudflare.api.token.8ebdd7e2ac70757f89604198d2541b59' does not have permission 'com.cloudflare.api.account.zone.analytics.read' for zone d80eab23317aeac52c143f3e2fc92e58",
+   "httpRequestsAdaptiveGroups 2026-11-05: GraphQL answered 200: Actor 'com.cloudflare.api.token.8ebdd7e2ac70757f89604198d2541b59' does not have permission 'com.cloudflare.api.account.zone.analytics.read' for zone d80eab23317aeac52c143f3e2fc92e58"
+  ]
+ },
+ "days": {
+  "2026-10-24": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 32,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-25": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 2,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-26": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 9,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-27": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 2,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-28": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 6,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-29": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 17,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-30": {
+   "workers": {
+    "monorepo-projects-site": {
+     "requests": 354,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 2,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 27289,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-31": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 12492,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 12770,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 2,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-01": {
+   "workers": {
+    "monorepo-projects-site-shard": {
+     "requests": 3,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 12645,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 5067,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-02": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 15188,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 8075,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 6,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-03": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 13157,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 106,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 3456,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-04": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 34,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 1,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 13299,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-05": {
+   "workers": {
+    "monorepo-projects-site": {
+     "requests": 9704,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 19,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 12908,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-06": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 13372,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 8286,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 1,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-07": {
+   "workers": {
+    "monorepo-projects-site-shard": {
+     "requests": 2,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 13779,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 23246,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-08": {
+   "workers": {
+    "monorepo-projects-site": {
+     "requests": 7937,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 13,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 127,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-09": {
+   "workers": {
+    "monorepo-projects-site": {
+     "requests": 22504,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 16,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 91,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-10": {
+   "workers": {
+    "monorepo-projects-site-shard": {
+     "requests": 523,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 14815,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 23930,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-11": {
+   "workers": {
+    "monorepo-projects-site": {
+     "requests": 24850,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 4918,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 18,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-12": {
+   "workers": {
+    "monorepo-projects-site-shard": {
+     "requests": 8,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 8727,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 28286,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-13": {
+   "workers": {
+    "monorepo-projects-site-shard": {
+     "requests": 4,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 2655,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 31809,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-14": {
+   "workers": {
+    "monorepo-projects-site-shard": {
+     "requests": 6,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 40355,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 14531,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-15": {
+   "workers": {
+    "monorepo-projects-site-shard": {
+     "requests": 7,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 25957,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 14857,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-16": {
+   "workers": {
+    "monorepo-projects-site": {
+     "requests": 37556,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 17250,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 3,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-17": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 14374,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 64571,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 86,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-18": {
+   "workers": {
+    "monorepo-projects-site-shard": {
+     "requests": 81,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 31859,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 15988,
+     "errors": 0
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtKkUT5x6iQrG4FP2y6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T13:07:03Z",
+  "ended": "2026-11-19T14:45:35Z",
+  "wall_minutes": 132.43,
+  "tokens_in": 14338579,
+  "tokens_out": 53463,
+  "cost_usd": 5.0945,
+  "tool_calls": 104,
+  "task": "league-schedule-generator flagship: near-whist (4k+2) Americano designs for 46, 54, 58, 62",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17671",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [
+    "Fixed point 0 out (translation) together with --neg / --mult, which is not WLOG under a multiplier; first --neg and --mult UNSAT results were invalid and were rerun without it.",
+    "`git checkout origin/main -- .` during the merge overwrote my README and whist.test.mjs edits; rebuilt them with git merge-file from HEAD, nothing lost.",
+    "flagship_field.py --make-room parked a landed result into NEXT.md (open items); moved it to HISTORY.md by hand."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "PR #17670 (whist 48/52/57/60) and its claim was one minute older than mine; it then also landed near-whist 46/54/62, the next item, so the per-item claim did not prevent duplicate work. My SAT 46 duplicated its tabu 46."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--make-room parks the oldest item into NEXT.md even when it is a landed result (belongs in HISTORY.md); it cannot tell open items from history in `next:`."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "why": "It said YIELD on name overlap; I judged near-whist 4k+2 a separate listed item from #17670's whist 4k/4k+1 sizes.",
+      "did": "Kept the league-schedule-generator row on the 4k+2 item.",
+      "result": "Wrong call in hindsight: #17670 widened to 46/54/62 and merged first. My stored 46 was dropped for theirs; what landed from this run is the SAT model, two proofs (mirror, multiplier), the sit-out parity lemma with a test, WHIST_OUT2 in the tabu search and negative runs for 58."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-americano-rotations-sat-versus-tabu-and-two-proofs.md",
+    "ventures/league-schedule-generator/README.md (Near-whist designs by SAT)"
+  ],
+  "goal": null,
+  "notes": "SAT (python-sat CaDiCaL, pair encoding) found near-whist 46 in 107 s (annealing none in 15 min) but tabu (#17670) found 46/54/62 in 9-148 s; SAT 50 min none on 54, 58, 62; --out2 cases 40 min none. Mirror symmetry proved impossible for all 4k+2 (parity of partner distances); multiplier 37 on Z54 UNSAT 0.3 s. Sit-out parity lemma checked on all 14 stored bases (whist.test.mjs, 17/17 pass). 58 tabu with WHIST_OUT2 d=1,29 tenures 4,6, 4x15 min: none. Stored bases unchanged versus main (rebuild from all three result files gives the same file). whist-vs-greedy.txt regenerated before the merge; main's copy kept.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6a368882-05d0-59fd-a833-bd7af9c96d10",
+    "transcripts": 1,
+    "first": "2026-11-19T13:07:03Z",
+    "last": "2026-11-19T15:19:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 111,
+        "input": 232,
+        "output": 53463,
+        "thinking": 18141,
+        "cache_read": 14190060,
+        "cache_write_5m": 0,
+        "cache_write_1h": 148287,
+        "api_equivalent_usd": 5.0945,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 111,
+      "input": 232,
+      "output": 53463,
+      "thinking": 18141,
+      "cache_read": 14190060,
+      "cache_write_5m": 0,
+      "cache_write_1h": 148287,
+      "api_equivalent_usd": 5.0945,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 104,
+    "tools": {
+      "Bash": 96,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 132.43,
+      "active_minutes": 30.83,
+      "model_minutes": 11.63,
+      "tool_minutes": 19.2,
+      "waiting_on_human_minutes": 101.6,
+      "human_prompts": 11,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "SAT model, two short proofs and a parity lemma for a combinatorial design search, plus runs and write-up: a researcher's day+",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 196.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

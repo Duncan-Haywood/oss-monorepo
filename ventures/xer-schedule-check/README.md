@@ -64,6 +64,19 @@ events of 1 to 40 days give exactly the finish the CPM engine gives with the
 same delay applied directly, and a register leaves the no-event column
 identical to a run without one on all six (eval/risk-register-check-2026-11-19.md).
 
+**Risk in the written review** (2026-11-19, `report.mjs` `riskItems`, CLI
+`--risk N --report review.html`): run the risk analysis on the page and the
+review you print carries a "Finish date risk" section (the ranges assumed and
+whether they came from the reviewer, P10 to P90 with and without the risk
+register, the chance of the forecast and must-finish dates, the events ranked,
+the activities that most often drive the finish) and three corrections a risk
+run can back: **must-finish met in under 50% of runs** (high; under 80%
+medium), saying whether the forecast itself already misses it; **near-critical
+activities**: off the forecast's driving path but driving the finish in 25% or
+more of runs (medium), each listed with its criticality; and **no stated
+contingency** when the forecast is met in under half the runs (low). A risk run
+for another project in the same file is left out with a note. Checked on the
+six public files (eval/review-risk-check-2026-11-19.md).
 **Resource levelling** (2026-11-19, `level.mjs`, the page's "Resource
 levelling" box, `--level`): the logic alone lets every crew work on everything
 at once. This delays not-started activities until each resource stays within
