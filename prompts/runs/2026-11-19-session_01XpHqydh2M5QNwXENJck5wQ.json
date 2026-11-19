@@ -50,7 +50,7 @@
     "ventures/ids-model-check/eval/bsdd-spec-2026-11-19.md"
   ],
   "goal": null,
-  "notes": "Local verification: node --test *.test.mjs in ventures/ids-model-check, 337 pass / 0 fail. check_posts ok; portfolio/router/validate.py ok. Corpus: eval/bsdd-spec-corpus.mjs (5,000+ bSDD requests over three runs, cached): 42 dictionaries, 185 classes, 38 of 42 audit clean, 42 of 42 bSDD-check clean. Editor uri round trip 0 to 344 of 344. bSDD API checked for CORS again (none), so the feature stays CLI only. venture-preflight: PREFLIGHT.",
+  "notes": "Local verification: node --test *.test.mjs in ventures/ids-model-check, 337 pass / 0 fail. check_posts ok; portfolio/router/validate.py ok. Corpus: eval/bsdd-spec-corpus.mjs (5,000+ bSDD requests over three runs, cached): 42 dictionaries, 185 classes, 38 of 42 audit clean, 42 of 42 bSDD-check clean. Editor uri round trip 0 to 344 of 344. bSDD API checked for CORS again (none), so the feature stays CLI only. venture-preflight ids-model-check: clean after merging main (the first run failed on check_csv_formula_guard for xer-schedule-check, already fixed on main).",
   "corrections": [],
   "redteam": null
 }
