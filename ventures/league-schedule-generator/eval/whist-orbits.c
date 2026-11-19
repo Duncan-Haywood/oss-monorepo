@@ -35,6 +35,7 @@
 static int n, R, K, P, ncls, cls[MAXP][MAXP], pc[4096], oc[4096], cost;
 static int perm[MAXR][MAXP], pid[MAXP]; /* pid: printable id of internal point */
 static int mode_levels, L, M, gp, gq, gr;
+static int sym, pi_[MAXP], sg[MAXP], fixedpos[MAXP]; /* WHIST_SIGMA: position involution, point involution */
 static unsigned long long rs;
 static unsigned long long rnd(void) { rs ^= rs << 13; rs ^= rs >> 7; rs ^= rs << 17; return rs; }
 static int pcost(int c) { return abs(c - 1); }
@@ -55,6 +56,12 @@ static void sw(int r, int i, int j) {
   tab(r, ti, -1); tab(r, tj, -1);
   x = perm[r][i]; perm[r][i] = perm[r][j]; perm[r][j] = x;
   tab(r, ti, 1); tab(r, tj, 1);
+}
+/* Swap positions i and j; with sigma also swap their images, so the round stays sigma-fixed. A swap
+ * of i with its own image is one swap. Undo is the same call. */
+static void symsw(int r, int i, int j) {
+  sw(r, i, j);
+  if (sym && j != pi_[i] && pi_[i] != i) sw(r, pi_[i], pi_[j]);
 }
 /* semi-direct product helpers */
 static int gmul(int x, int y) {
@@ -110,19 +117,41 @@ int main(int argc, char **argv) {
   rs = seed * 2654435761ULL + 88172645463325252ULL;
   if (!build() || R > MAXR || P > MAXP) { fprintf(stderr, "bad parameters\n"); return 2; }
   int nm = 4 * K;
+  for (int i = 0; i < nm; i++) { pi_[i] = i; fixedpos[i] = 0; }
+  if (!mode_levels && getenv("WHIST_SIGMA")) {
+    /* Base round fixed by sigma(a, b) = (u a, b), u = WHIST_SIGMA with u^2 = 1 mod p (u = p - 1).
+     * Table 0 is [(0,1), (0,2), z, sigma z]; WHIST_SELF (odd) further tables are mapped onto
+     * themselves (seat pairings cycling through 01|23, 02|13, 03|12), the rest come in pairs. */
+    int u = atoi(getenv("WHIST_SIGMA")), self = getenv("WHIST_SELF") ? atoi(getenv("WHIST_SELF")) : 1;
+    if ((u * u) % gp != 1 || u == 1 || (K - 1 - self) % 2 || self > K - 1) { fprintf(stderr, "bad sigma layout\n"); return 2; }
+    sym = 1;
+    for (int x = 0; x < P; x++) sg[x] = (u * (x % gp)) % gp + gp * (x / gp);
+    static const int SP[3][4] = {{1, 0, 3, 2}, {2, 3, 0, 1}, {3, 2, 1, 0}};
+    pi_[0] = 0; pi_[1] = 1; pi_[2] = 3; pi_[3] = 2; fixedpos[0] = fixedpos[1] = 1;
+    for (int t = 1; t <= self; t++) for (int s = 0; s < 4; s++) pi_[4 * t + s] = 4 * t + SP[(t - 1) % 3][s];
+    for (int t = self + 1; t < K; t += 2) for (int s = 0; s < 4; s++) { pi_[4 * t + s] = 4 * (t + 1) + s; pi_[4 * (t + 1) + s] = 4 * t + s; }
+  }
   clock_t t0 = clock();
   long restarts = 0, moves = 0; int found = 0, bestEver = 1 << 30;
   static long last[MAXR][MAXP];
   while (!found && (double)(clock() - t0) / CLOCKS_PER_SEC < secs) {
     restarts++;
-    for (int r = 0; r < R; r++) for (int i = nm - 1; i > 0; i--) { int j = rnd() % (i + 1), t = perm[r][i]; perm[r][i] = perm[r][j]; perm[r][j] = t; }
+    if (!sym) for (int r = 0; r < R; r++) for (int i = nm - 1; i > 0; i--) { int j = rnd() % (i + 1), t = perm[r][i]; perm[r][i] = perm[r][j]; perm[r][j] = t; }
+    else { /* orbit representatives {x, sigma x} dealt to position pairs {i, pi i} in random order */
+      int reps[MAXP], nr = 0, done[MAXP] = {0}, f = 0;
+      for (int x = 1; x < P; x++) if (!done[x]) { done[x] = done[sg[x]] = 1; if (sg[x] == x) perm[0][f++] = x; else reps[nr++] = x; }
+      for (int i = nr - 1; i > 0; i--) { int j = rnd() % (i + 1), t = reps[i]; reps[i] = reps[j]; reps[j] = t; }
+      int k = 0;
+      for (int i = 0; i < nm; i++) if (!fixedpos[i] && pi_[i] > i) { int x = reps[k++]; if (rnd() & 1) x = sg[x]; perm[0][i] = x; perm[0][pi_[i]] = sg[x]; }
+    }
     reset();
     for (int r = 0; r < R; r++) for (int i = 0; i < nm; i++) last[r][i] = -1000000;
     int best = cost; long since = 0;
     for (long s = 0; since < stall; s++, since++) {
       int bd = 1 << 30, br = -1, bi = -1, bj = -1, ties = 0;
-      for (int r = 0; r < R; r++) for (int i = 0; i < nm; i++) for (int j = (i / 4 + 1) * 4; j < nm; j++) {
-        int old = cost; sw(r, i, j); int d = cost - old; sw(r, i, j);
+      for (int r = 0; r < R; r++) for (int i = 0; i < nm; i++) for (int j = sym && pi_[i] > i && pi_[i] / 4 == i / 4 ? pi_[i] : (i / 4 + 1) * 4; j < nm; j = j < (i / 4 + 1) * 4 ? (i / 4 + 1) * 4 : j + 1) {
+        if (sym && (fixedpos[i] || fixedpos[j])) continue;
+        int old = cost; symsw(r, i, j); int d = cost - old; symsw(r, i, j);
         int tabu = s - last[r][i] < tenure || s - last[r][j] < tenure;
         if (tabu && old + d >= best) continue;
         if (d < bd) { bd = d; br = r; bi = i; bj = j; ties = 1; }
@@ -131,7 +160,7 @@ int main(int argc, char **argv) {
       moves++;
       if ((s & 255) == 0 && (double)(clock() - t0) / CLOCKS_PER_SEC >= secs) break;
       if (br < 0) continue;
-      sw(br, bi, bj); last[br][bi] = last[br][bj] = s;
+      symsw(br, bi, bj); last[br][bi] = last[br][bj] = s;
       if (cost < best) { best = cost; since = 0; }
       if (cost < bestEver) bestEver = cost;
       if (cost == 0) { found = 1; break; }

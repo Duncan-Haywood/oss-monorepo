@@ -1,0 +1,14 @@
+# eval/whist-orbits.c, 2026-11-19 (cc -O2). Arguments per line: structure, its parameters, seconds, seed, tenure, stall. One process per core, four cores.
+# Found (small sizes, to check the program; 21 and 16 are already stored as one-base-round cyclic designs):
+{"n":21,"structure":"semi","p":7,"q":3,"r":2,"ms":116,"method":"tabu (C, whist-orbits)","seed":1,"tenure":4,"stall":5000,"restarts":1,"moves":4695,"bestCost":0,"bases":[[[19,1,4,11],[17,2,14,8],[15,3,16,6],[9,13,20,18],[5,7,10,12]]]}
+{"n":16,"structure":"levels","levels":3,"mod":5,"ms":3670,"method":"tabu (C, whist-orbits)","seed":3,"tenure":4,"stall":5000,"restarts":21,"moves":133052,"bestCost":0,"bases":[[[7,6,14,11],[13,1,12,3],[9,-1,4,5],[0,2,10,8]],[[9,7,2,5],[6,14,11,10],[12,4,3,-1],[8,13,1,0]],[[3,13,7,2],[9,0,6,12],[4,10,1,8],[11,-1,5,14]]]}
+# 60 s each, stall 200000 (levels 3 7/9/11/13 found nothing; semi 7 3 2 found 21 in 68 ms):
+{"n":21,"structure":"levels","levels":3,"mod":7,"ms":60007,"method":"tabu (C, whist-orbits)","seed":1,"tenure":4,"stall":200000,"restarts":7,"moves":1372796,"bestCost":6,"bases":null}
+{"n":28,"structure":"levels","levels":3,"mod":9,"ms":60001,"method":"tabu (C, whist-orbits)","seed":1,"tenure":4,"stall":200000,"restarts":3,"moves":627902,"bestCost":6,"bases":null}
+{"n":33,"structure":"levels","levels":3,"mod":11,"ms":60000,"method":"tabu (C, whist-orbits)","seed":1,"tenure":4,"stall":200000,"restarts":3,"moves":482742,"bestCost":8,"bases":null}
+{"n":40,"structure":"levels","levels":3,"mod":13,"ms":60002,"method":"tabu (C, whist-orbits)","seed":1,"tenure":4,"stall":200000,"restarts":2,"moves":315885,"bestCost":12,"bases":null}
+# 52 and 57, 1200 s each: semi 19 3 7 (seeds 1, 2; tenures 4, 6; stall 20000), levels 3 17 (seeds 1, 2; tenures 4, 6; stall 20000, 5000):
+{"n":57,"structure":"semi","p":19,"q":3,"r":7,"ms":1200011,"method":"tabu (C, whist-orbits)","seed":1,"tenure":4,"stall":20000,"restarts":367,"moves":9017360,"bestCost":2,"bases":null}
+{"n":57,"structure":"semi","p":19,"q":3,"r":7,"ms":1200029,"method":"tabu (C, whist-orbits)","seed":2,"tenure":6,"stall":20000,"restarts":362,"moves":8921976,"bestCost":2,"bases":null}
+{"n":52,"structure":"levels","levels":3,"mod":17,"ms":1200000,"method":"tabu (C, whist-orbits)","seed":1,"tenure":4,"stall":20000,"restarts":141,"moves":3539816,"bestCost":12,"bases":null}
+{"n":52,"structure":"levels","levels":3,"mod":17,"ms":1200065,"method":"tabu (C, whist-orbits)","seed":2,"tenure":6,"stall":5000,"restarts":533,"moves":3525008,"bestCost":12,"bases":null}
