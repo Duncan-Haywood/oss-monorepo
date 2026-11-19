@@ -404,3 +404,14 @@ test("schedule CSV: one row per open activity with recomputed and stored float",
   assert.match(csv[1], /^A,Activity A,NotStart,2025-12-01 08:00,2025-12-02 17:00,.*,0,0,0,0,2025-12-02 17:00,0,0,yes$/);
   assert.match(csv[2], /^'=B,.*,no$/); // formula-like code written as text; stored float 5 h disagrees
 });
+
+test("calendar data: a day key outside 1-7 is ignored, and a clock time past 24:00 is refused", () => {
+  // only a day numbered 8: no working week at all
+  const eight = "(0||CalendarData()((0||DaysOfWeek()((0||8()((0||0(s|08:00|f|17:00)())))))))";
+  const cal = Calendar.fromXer({ clndr_id: "C8", clndr_data: eight, day_hr_cnt: "8" });
+  assert.equal(cal.weekMinutes, 0);
+  assert.equal(cal.works, false);
+  const at = (t) => `(0||CalendarData()((0||DaysOfWeek()((0||2()((0||0(s|08:00|f|${t})())))))))`;
+  assert.equal(Calendar.fromXer({ clndr_id: "C9", clndr_data: at("24:00"), day_hr_cnt: "16" }).weekMinutes, 16 * 60);
+  for (const bad of ["100:00", "008:00", "25:00", "24:30", "17:60"]) assert.throws(() => Calendar.fromXer({ clndr_id: "C9", clndr_data: at(bad), day_hr_cnt: "8" }), /bad time/, bad);
+});

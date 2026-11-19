@@ -1,0 +1,467 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtKRyxbctLZ5ZqPd3Yn",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T16:07:39Z",
+  "ended": "2026-11-19T16:08:12Z",
+  "wall_minutes": 7.2,
+  "tokens_in": 4724158,
+  "tokens_out": 32465,
+  "cost_usd": 2.373,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17718",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A heredoc with an unquoted EOF ate backticked words in two real_defects issue texts (shell substitution); fixed by rewriting them with a quoted heredoc."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 12 entries, 11 of them control-plane fixes waiting for owner approval or their own PR; checking each still reproduces took a grep each, but none could be fixed in a venture run, so step 0 is mostly a re-read now. A flag in `redteam.py open` for control-plane entries would save the time."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Triage of a mutant can change after a fix: tightening hm()'s range check made the \\d{1,3} mutant nearly equivalent, and rerun read it escaped until one more input (008:00) was added. Worth a line: re-run rerun after each code fix, not only after tests."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: none of the 12 open defects were fixed. 11 are control-plane (workflows, prompts/, control_plane_guard) that need their own owner-approved PR, and several already have one waiting (#15945). The help-keeper stemmer entry is a deliberate deferral that needs a help-centre eval set.",
+      "did": "Checked each control-plane fix was still missing on main (grep), left them open, and spent the run on a fresh target.",
+      "result": "4 new real defects found and fixed in a product file that landed the day before."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-redteam-a-lower-bound-the-schedule-beat.md",
+    "ventures/xer-schedule-check/HISTORY.md (entry)"
+  ],
+  "goal": null,
+  "notes": " Guard added: a seeded property test in level.test.mjs (60 random schedules with limits that change over time: self-check 0, bound <= levelled finish). On the pre-fix code it failed at case 5. Local verification: node --test ventures/xer-schedule-check/**/*.test.mjs 81/81 pass; check_posts ok. eval/level-check-2026-11-19.md not re-run (P6 files fetched, not committed); hotel bound 2019-02 still to re-check.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/level.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 768041007,
+        "commit": "b51e67d39",
+        "sites": 375,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/level.mjs",
+            "line": 109,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "let lo = 0, hi = this.spans.length;",
+            "after": "let lo = 1, hi = this.spans.length;",
+            "line_text": "    let lo = 0, hi = this.spans.length;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Profile.add binary insert from 1 puts a span that starts before every placed one second, so overlapping() misses it; new test: a started activity whose crew joins on day 3 (lag) goes in first"
+          },
+          {
+            "file": "ventures/xer-schedule-check/level.mjs",
+            "line": 122,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "ev.sort((a, b) => a[0] - b[0] || a[1] - b[1]);",
+            "after": "ev.sort((a, b) => a[1] - b[0] || a[1] - b[1]);",
+            "line_text": "  ev.sort((a, b) => a[0] - b[0] || a[1] - b[1]);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/level.mjs",
+            "line": 140,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "ev.sort((a, b) => a[0] - b[0] || a[1] - b[1]);",
+            "after": "ev.sort((a, b) => a[1] - b[0] || a[1] - b[1]);",
+            "line_text": "  ev.sort((a, b) => a[0] - b[0] || a[1] - b[1]);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "movedOver's event sort (the copy at line 122 in overload() was caught); new direct test of movedOver through _internal with back-to-back, overlapping, rising-limit and fixed spans"
+          },
+          {
+            "file": "ventures/xer-schedule-check/level.mjs",
+            "line": 140,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "ev.sort((a, b) => a[0] - b[0] || a[1] - b[1]);",
+            "after": "ev.sort((a, b) => a[0] - b[1] || a[1] - b[1]);",
+            "line_text": "  ev.sort((a, b) => a[0] - b[0] || a[1] - b[1]);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "movedOver's event sort (the copy at line 122 in overload() was caught); new direct test of movedOver through _internal with back-to-back, overlapping, rising-limit and fixed spans"
+          },
+          {
+            "file": "ventures/xer-schedule-check/level.mjs",
+            "line": 143,
+            "col": 22,
+            "operator": "and-to-or",
+            "before": "if (prev !== null && t > prev && moving > EPS && cur > prof.limitAt(prev) * (1 + EPS) + EPS) over += t - prev;",
+            "after": "if (prev !== null || t > prev && moving > EPS && cur > prof.limitAt(prev) * (1 + EPS) + EPS) over += t - prev;",
+            "line_text": "    if (prev !== null && t > prev && moving > EPS && cur > prof.limitAt(prev) * (1 + EPS) + EPS) over += t - prev;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/level.mjs",
+            "line": 154,
+            "col": 91,
+            "operator": "or-to-and",
+            "before": "const so = (T.SCHEDOPTIONS || []).find((o) => o.proj_id === proj?.id) || (T.SCHEDOPTIONS || [])[0] || {};",
+            "after": "const so = (T.SCHEDOPTIONS || []).find((o) => o.proj_id === proj?.id) || (T.SCHEDOPTIONS && [])[0] || {};",
+            "line_text": "  const so = (T.SCHEDOPTIONS || []).find((o) => o.proj_id === proj?.id) || (T.SCHEDOPTIONS || [])[0] || {};",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no SCHEDOPTIONS row for the project falls back to the first row; new settings test"
+          },
+          {
+            "file": "ventures/xer-schedule-check/level.mjs",
+            "line": 157,
+            "col": 76,
+            "operator": "const-plus-one",
+            "before": "keepFloatHours: opts.keepFloatHours ?? (num(so.level_float_thrs_cnt) ?? 0),",
+            "after": "keepFloatHours: opts.keepFloatHours ?? (num(so.level_float_thrs_cnt) ?? 1),",
+            "line_text": "    keepFloatHours: opts.keepFloatHours ?? (num(so.level_float_thrs_cnt) ?? 0),",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "keepFloatHours default 0 when the file gives none; new settings test"
+          },
+          {
+            "file": "ventures/xer-schedule-check/level.mjs",
+            "line": 183,
+            "col": 123,
+            "operator": "or-to-and",
+            "before": "const scale = (opts.limitScale && (opts.limitScale[r.rsrc_short_name] ?? opts.limitScale[id] ?? opts.limitScale[\"*\"])) || 1;",
+            "after": "const scale = (opts.limitScale && (opts.limitScale[r.rsrc_short_name] ?? opts.limitScale[id] ?? opts.limitScale[\"*\"])) && 1;",
+            "line_text": "    const scale = (opts.limitScale && (opts.limitScale[r.rsrc_short_name] ?? opts.limitScale[id] ?? opts.limitScale[\"*\"])) || 1;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/level.mjs",
+            "line": 377,
+            "col": 223,
+            "operator": "div-to-times",
+            "before": "activities.push({ id, code: t.code, name: t.name, es: formatDate(r0.remES ?? r0.es), ef: formatDate(r0.ef), levelledStart: formatDate(r1.remES ?? r1.es), levelledFinish: formatDate(r1.ef), delayDays: Math.round((d / 60 / (t.cal.hoursPerDay || 8)) * 10) / 10, by: [...(by.get(id) || [])].map((k) => rsrcCode(rsrc, k)), floor: floors.has(id) });",
+            "after": "activities.push({ id, code: t.code, name: t.name, es: formatDate(r0.remES ?? r0.es), ef: formatDate(r0.ef), levelledStart: formatDate(r1.remES ?? r1.es), levelledFinish: formatDate(r1.ef), delayDays: Math.round((d / 60 * (t.cal.hoursPerDay || 8)) * 10) / 10, by: [...(by.get(id) || [])].map((k) => rsrcCode(rsrc, k)), floor: floors.has(id) });",
+            "line_text": "    activities.push({ id, code: t.code, name: t.name, es: formatDate(r0.remES ?? r0.es), ef: formatDate(r0.ef), levelledStart: formatDate(r1.remES ?? r1.es), levelledFinish: formatDate(r1.ef), delayDays: Math.round((d / 60 / (t.cal.hoursPerDay || 8)) * 10) / 10, by: [...(by.get(id) || [])].map((k) => rsrcCode(rsrc, k)), floor: floors.has(id) });",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "delayDays in working days was never asserted; new test"
+          },
+          {
+            "file": "ventures/xer-schedule-check/level.mjs",
+            "line": 439,
+            "col": 59,
+            "operator": "const-plus-one",
+            "before": "const round3 = (x) => (Number.isFinite(x) ? Math.round(x * 1000) / 1000 : x);",
+            "after": "const round3 = (x) => (Number.isFinite(x) ? Math.round(x * 1001) / 1000 : x);",
+            "line_text": "const round3 = (x) => (Number.isFinite(x) ? Math.round(x * 1000) / 1000 : x);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/calendar.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 163090060,
+        "commit": "b51e67d39",
+        "sites": 208,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/calendar.mjs",
+            "line": 14,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "const SERIAL_EPOCH_DAY = Date.UTC(1899, 11, 30) / 86400000; // in days since 1970",
+            "after": "const SERIAL_EPOCH_DAY = Date.UTC(1900, 11, 30) / 86400000; // in days since 1970",
+            "line_text": "const SERIAL_EPOCH_DAY = Date.UTC(1899, 11, 30) / 86400000; // in days since 1970",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calendar.mjs",
+            "line": 21,
+            "col": 38,
+            "operator": "and-to-or",
+            "before": "const skipWs = () => { while (i < n && /[\\s\\x7f\"]/.test(s[i])) i++; };",
+            "after": "const skipWs = () => { while (i < n || /[\\s\\x7f\"]/.test(s[i])) i++; };",
+            "line_text": "  const skipWs = () => { while (i < n && /[\\s\\x7f\"]/.test(s[i])) i++; };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calendar.mjs",
+            "line": 48,
+            "col": 13,
+            "operator": "neq-flip",
+            "before": "if (s[i] !== \")\") throw new Error(`calendar data: ')' expected at ${i}`);",
+            "after": "if (s[i] === \")\") throw new Error(`calendar data: ')' expected at ${i}`);",
+            "line_text": "    if (s[i] !== \")\") throw new Error(`calendar data: ')' expected at ${i}`);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calendar.mjs",
+            "line": 56,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "const m = /^(\\d{1,2}):(\\d{2})$/.exec(t.trim());",
+            "after": "const m = /^(\\d{1,3}):(\\d{2})$/.exec(t.trim());",
+            "line_text": "  const m = /^(\\d{1,2}):(\\d{2})$/.exec(t.trim());",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "hm() accepted 100:00; new test, and hm() now refuses any time past 24:00 or minutes past 59 (it accepted 25:00 and 17:60 too)"
+          },
+          {
+            "file": "ventures/xer-schedule-check/calendar.mjs",
+            "line": 85,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "else merged.push([p[0], p[1]]);",
+            "after": "else merged.push([p[0], p[2]]);",
+            "line_text": "    else merged.push([p[0], p[1]]);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calendar.mjs",
+            "line": 109,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (k >= 1 && k <= 7) week[k - 1] = periods(d.children);",
+            "after": "if (k >= 1 || k <= 7) week[k - 1] = periods(d.children);",
+            "line_text": "      if (k >= 1 && k <= 7) week[k - 1] = periods(d.children);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a DaysOfWeek key outside 1-7 would count toward weekMinutes; new test: a calendar with only day 8 has no working time"
+          },
+          {
+            "file": "ventures/xer-schedule-check/calendar.mjs",
+            "line": 109,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "if (k >= 1 && k <= 7) week[k - 1] = periods(d.children);",
+            "after": "if (k >= 1 && k <= 7) week[k - 2] = periods(d.children);",
+            "line_text": "      if (k >= 1 && k <= 7) week[k - 1] = periods(d.children);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calendar.mjs",
+            "line": 153,
+            "col": 16,
+            "operator": "lt-to-le",
+            "before": "if (minutes < 0) return this.subWork(t, -minutes);",
+            "after": "if (minutes <= 0) return this.subWork(t, -minutes);",
+            "line_text": "    if (minutes < 0) return this.subWork(t, -minutes);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "minutes 0 goes to subWork(t, 0), which returns t at its own minutes === 0 check, the same as addWork's"
+          },
+          {
+            "file": "ventures/xer-schedule-check/calendar.mjs",
+            "line": 188,
+            "col": 18,
+            "operator": "ge-to-gt",
+            "before": "if (avail >= rem) return e - rem;",
+            "after": "if (avail > rem) return e - rem;",
+            "line_text": "        if (avail >= rem) return e - rem;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calendar.mjs",
+            "line": 200,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "for (let guard = 0; guard < 400000; guard++, d++) {",
+            "after": "for (let guard = 0; guard < 400001; guard++, d++) {",
+            "line_text": "    for (let guard = 0; guard < 400000; guard++, d++) {",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "the guard only bounds a 1,000-year runaway (400,000 days); one more day changes nothing a schedule can reach and both throw the same error past it"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/level.mjs",
+        "issue": "lowerBound ('earliest any levelling can finish' on the page) priced all of a resource's remaining work at its LAST RSRCRATE limit, so a limit that changes over time gave a wrong bound both ways: a crew of 2 dropping to 1 later gave 2025-12-12 while the levelled schedule itself finished 2025-12-05. Fixed: capacityBound integrates the limit in force on each date (times the over-allocation factor) over the project calendar; a period with no limit given and working time gives no bound.",
+        "patched": true
+      },
+      {
+        "file": "ventures/xer-schedule-check/level.mjs",
+        "issue": "overload() and movedOver() counted elapsed clock minutes as 'hours over the limit', so nights and weekends counted: two parallel 5-day activities on a crew of 1 read 105 h over, not 40. Fixed: working hours on the project calendar (cal.workBetween).",
+        "patched": true
+      },
+      {
+        "file": "ventures/xer-schedule-check/level.mjs",
+        "issue": "With level within float on, an activity refused for 'no float left' was committed over the limit but not added to `ignore`, so the self-check (documented 'must be 0') read 105 h on a correct run, the resource's `left` count missed it, and the lower bound still assumed every limit holds. Fixed: its resources go into ignore like the other left activities.",
+        "patched": true
+      },
+      {
+        "file": "ventures/xer-schedule-check/calendar.mjs",
+        "issue": "hm() accepted clock times past the end of a day (25:00, 99:99 style, 17:60), putting working periods into the next day and shifting dates silently. Fixed: refuses anything past 24:00 or minutes past 59 with the existing 'bad time' error.",
+        "patched": true
+      },
+      {
+        "file": "ventures/shift-roster-builder/import-deputy-staff.mjs",
+        "issue": "check_hidden_unicode.py red on main since #17715: a literal U+FEFF inside the BOM-stripping regex at line 32. ventures-tests' unwired-checks step caught it on this PR. Fixed: written as /^\\uFEFF/ (same behaviour; shift-roster-builder 778 tests pass).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17718"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "80afdd30-3c03-5cb8-bf70-2aa589a3be8c",
+    "transcripts": 1,
+    "first": "2026-11-19T16:07:39Z",
+    "last": "2026-11-19T16:14:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 98,
+        "output": 32465,
+        "thinking": 10210,
+        "cache_read": 4624247,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99813,
+        "api_equivalent_usd": 2.373,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 98,
+      "output": 32465,
+      "thinking": 10210,
+      "cache_read": 4624247,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99813,
+      "api_equivalent_usd": 2.373,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.2,
+      "active_minutes": 7.2,
+      "model_minutes": 6.02,
+      "tool_minutes": 1.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior dev: read a new levelling engine, write 4 fixes and ~12 tests incl. a property test, plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 252.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

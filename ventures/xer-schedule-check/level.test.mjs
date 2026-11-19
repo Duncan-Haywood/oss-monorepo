@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseXer } from "./xer.mjs";
 import { schedule } from "./cpm.mjs";
-import { level, levelAsync, levelCsv } from "./level.mjs";
+import { level, levelAsync, levelCsv, _internal } from "./level.mjs";
 import { EXAMPLE_XER } from "./example.mjs";
 
 // Mon-Fri 08:00-12:00, 13:00-17:00
@@ -28,7 +28,8 @@ function xer({ tasks, preds = [], assigns = [], limits = { R1: 1 }, opts = {} })
     TASK: tasks,
     TASKPRED: preds,
     RSRC: Object.keys(limits).map((k) => ({ rsrc_id: k, rsrc_short_name: k, rsrc_name: "Crew " + k, rsrc_type: "RT_Labor" })),
-    RSRCRATE: Object.entries(limits).map(([k, v], i) => ({ rsrc_rate_id: String(i + 1), rsrc_id: k, max_qty_per_hr: v, start_date: "2025-01-01 00:00" })),
+    // a limit is a number, or [[start_date, max], ...] for one that changes over time
+    RSRCRATE: Object.entries(limits).flatMap(([k, v]) => (Array.isArray(v) ? v : [["2025-01-01 00:00", v]]).map(([from, max]) => ({ rsrc_id: k, max_qty_per_hr: max, start_date: from }))).map((r, i) => ({ rsrc_rate_id: String(i + 1), ...r })),
     TASKRSRC: assigns,
   }));
 }
@@ -49,6 +50,9 @@ test("two parallel activities on one crew of one: the second waits for the first
   assert.equal(r.resources[0].before.peak, 2);
   assert.equal(r.resources[0].after.peak, 1);
   assert.equal(r.resources[0].selfCheckHours, 0);
+  // A2's 3 days beside A1: 24 working hours over, not the 72 elapsed
+  assert.equal(r.resources[0].before.overHours, 24);
+  assert.equal(r.resources[0].after.overHours, 0);
   // resource bound: 8 days of work for one crew
   assert.equal(r.lowerBound.date, "2025-12-10 17:00");
 });
@@ -107,6 +111,12 @@ test("level within float: a move past the float is refused, the activity stays a
   assert.equal(r.settings.withinFloat, true);
   assert.equal(r.activities.length, 0);
   assert.match(r.left[0].why, /no float/);
+  // left over the limit on purpose, so the self-check (must be 0) and the
+  // bound leave it out; the table still shows the overload, in working hours
+  assert.equal(r.resources[0].selfCheckHours, 0);
+  assert.equal(r.resources[0].left, 1);
+  assert.equal(r.lowerBound, null);
+  assert.equal(r.resources[0].after.overHours, 40);
   assert.equal(level(xer(spec)).activities.filter((a) => a.by.length).length, 1);
 });
 
@@ -156,4 +166,96 @@ test("started work that alone passes the limit is seen before anything placed at
   const r = level(x);
   assert.equal(r.activities.find((a) => a.code === "A0").levelledStart, "2025-12-02 08:00");
   assert.equal(r.resources[0].selfCheckHours, 0);
+});
+
+test("the lower bound holds when the limit changes over time: a crew of two that drops to one later", () => {
+  // two 5-day activities fit side by side in week one while the crew is two;
+  // pricing all 10 crew-days at the later limit of 1 would claim no levelling
+  // can finish before 12-12, but this schedule finishes 12-05
+  const x = xer({ tasks: [task("1", 5), task("2", 5)], assigns: [use("1", "1", "R1"), use("2", "2", "R1")], limits: { R1: [["2025-01-01 00:00", 2], ["2025-12-08 08:00", 1]] } });
+  const r = level(x);
+  assert.equal(r.levelledFinish, "2025-12-05 17:00");
+  assert.equal(r.activities.length, 0);
+  assert.ok(r.lowerBound.date <= r.levelledFinish, `bound ${r.lowerBound.date} after a finish levelling reached`);
+  assert.equal(r.lowerBound.date, "2025-12-05 17:00");
+  // a limit that rises later: one crew for week one, then two
+  const up = level(xer({ tasks: [task("1", 5), task("2", 5)], assigns: [use("1", "1", "R1"), use("2", "2", "R1")], limits: { R1: [["2025-01-01 00:00", 1], ["2025-12-08 08:00", 2]] } }));
+  // 5 crew-days in week one, the other 5 at two per hour: 2.5 days into week two
+  assert.equal(up.lowerBound.date, "2025-12-10 12:00");
+  assert.ok(up.lowerBound.date <= up.levelledFinish);
+});
+
+test("a period with no limit given (a zero row) gives no bound: the work could all fit in it", () => {
+  const x = xer({ tasks: [task("1", 5), task("2", 5)], assigns: [use("1", "1", "R1"), use("2", "2", "R1")], limits: { R1: [["2025-01-01 00:00", 0], ["2025-12-08 08:00", 1]] } });
+  assert.equal(level(x).lowerBound, null);
+});
+
+test("delay is reported in working days of the activity's calendar", () => {
+  const x = xer({ tasks: [task("1", 5), task("2", 3)], assigns: [use("1", "1", "R1"), use("2", "2", "R1")] });
+  const r = level(x);
+  assert.equal(r.activities.length, 1);
+  assert.equal(r.activities[0].delayDays, r.activities[0].code === "A2" ? 5 : 3);
+});
+
+test("settings: no float threshold in the file means keep 0 hours; a project with no options row of its own uses the first one", () => {
+  const spec = { tasks: [task("1", 5), task("2", 5)], assigns: [use("1", "1", "R1"), use("2", "2", "R1")] };
+  assert.equal(level(xer(spec)).settings.keepFloatHours, 0);
+  const other = level(xer({ ...spec, opts: { proj_id: "99", level_within_float_flag: "Y" } }));
+  assert.equal(other.settings.withinFloat, true);
+});
+
+test("work placed earlier than work already counted is still seen (spans kept in start order)", () => {
+  // A1 is started and goes in first, but its crew only joins on day 3 (lag);
+  // A2 then takes day 1; A3, also wanting day 1, has to see A2 and wait
+  const x = xer({
+    tasks: [task("1", 3, { status_code: "TK_Active", act_start_date: "2025-11-28 08:00" }), task("2", 1, { priority_type: "PT_Top" }), task("3", 1)],
+    assigns: [{ ...use("1", "1", "R1", 1, 1), relag_drtn_hr_cnt: 16 }, use("2", "2", "R1"), use("3", "3", "R1")],
+  });
+  const r = level(x);
+  assert.equal(dates(r, "A3")?.levelledStart, "2025-12-02 08:00");
+  assert.equal(r.resources[0].after.peak, 1);
+  assert.equal(r.resources[0].selfCheckHours, 0);
+});
+
+test("the self-check counts hours where placed work passes the limit, and only those", () => {
+  const { Profile, movedOver } = _internal;
+  const cal = { workBetween: (a, b) => b - a }; // every minute a working minute
+  const prof = new Profile([{ from: -Infinity, max: 1 }, { from: 300, max: 2 }]);
+  const sp = (s, e, rate = 1, fixed = false) => ({ s, e, rate, fixed });
+  // back to back at the limit: nothing over, whatever order the ends and starts sort in
+  assert.equal(movedOver([sp(120, 240), sp(0, 120), sp(240, 300), sp(300, 420, 2)], prof, cal), 0);
+  // two placed spans overlapping for 60 minutes while the limit is 1: 1 hour
+  assert.equal(movedOver([sp(60, 180), sp(0, 120)], prof, cal), 1);
+  // after the limit rises to 2 the same overlap is within it
+  assert.equal(movedOver([sp(360, 480), sp(300, 420)], prof, cal), 0);
+  // fixed (started) work alone over the limit is not the levelling's doing
+  assert.equal(movedOver([sp(0, 120, 3, true)], prof, cal), 0);
+  // placed work beside it is: 2 hours
+  assert.equal(movedOver([sp(0, 120, 3, true), sp(0, 120)], prof, cal), 2);
+});
+
+test("property: on random schedules with limits that change over time, the bound never beats the levelled finish and the self-check is 0", () => {
+  // seeded, so a failure reproduces; 60 small schedules
+  let seed = 20261119;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed % n; };
+  const days = ["2025-01-01 00:00", "2025-12-03 08:00", "2025-12-08 08:00", "2025-12-15 13:00", "2026-01-05 08:00"];
+  for (let c = 0; c < 60; c++) {
+    const n = 2 + rnd(6);
+    const tasks = Array.from({ length: n }, (_, i) => task(String(i + 1), 1 + rnd(5)));
+    const preds = [];
+    for (let i = 1; i < n; i++) if (rnd(3) === 0) preds.push(fs(String(100 + i), String(1 + rnd(i)), String(i + 1)));
+    const assigns = tasks.map((t, i) => use(String(i + 1), t.task_id, "R1", 1 + rnd(2)));
+    const periods = 1 + rnd(3);
+    const lim = days.slice(0, periods).map((d) => [d, 2 + rnd(3)]);
+    const withinFloat = rnd(4) === 0;
+    const r = level(xer({ tasks, preds, assigns, limits: { R1: lim }, opts: withinFloat ? { level_within_float_flag: "Y" } : {} }));
+    const res = r.resources[0];
+    if (!res) continue;
+    const label = JSON.stringify({ c, n, lim, withinFloat });
+    assert.equal(res.selfCheckHours, 0, label);
+    if (r.lowerBound) {
+      assert.ok(r.left.length === 0, label);
+      assert.ok(r.lowerBound.date <= r.levelledFinish, `${label}: bound ${r.lowerBound.date} after levelled ${r.levelledFinish}`);
+    }
+  }
 });
