@@ -73,3 +73,31 @@ test('lags: 1 takes the nearest earlier same-weekday open day (README "Steps bes
   const whole = fillClosed(v, l, shut, { lags: 1 }).values;
   for (let n = 10; n <= 36; n++) assert.deepEqual(fillClosed(v.slice(0, n), l.slice(0, n), shut, { lags: 1 }).values, whole.slice(0, n));
 });
+
+// README "Steps beside a closure" (eval/closed-steps.prereg.md): fill1 passed S1-S3 on fresh seeds, so --closed ships.
+test('--closed on the watch CLI: list or @file, one column and --columns, text and JSON', async () => {
+  const { main } = await import('./watch.mjs');
+  const { mkdtempSync, writeFileSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  const { tmpdir } = await import('node:os');
+  const csv = new URL('./data/online-retail-2009-daily.csv', import.meta.url).pathname;
+  const run = async (args) => { let s = ''; const code = await main(args, { out: (t) => { s += t; } }); return { code, s }; };
+  const one = await run([csv, '--column', 'orders', '--model', 'poisson', '--period', '7', '--closed', '2010-04-02,2010-04-05,2031-01-01', '--dry-run', '--json']);
+  const j = JSON.parse(one.s);
+  assert.equal(j.closed.listed, 3);
+  assert.deepEqual(j.closed.filled.map((f) => [f.label, f.was, f.now]), [['2010-04-02', 0, 62], ['2010-04-05', 0, 85]]);
+  const dir = mkdtempSync(join(tmpdir(), 'closed-'));
+  writeFileSync(join(dir, 'c.txt'), '# Easter\n2010-04-02\n\n2010-04-05\n');
+  const text = await run([csv, '--columns', 'orders:poisson,cancellations:poisson', '--period', '7', '--closed', '@' + join(dir, 'c.txt'), '--suggest']);
+  assert.match(text.s, /Closed: 2 of 2 listed days in this series/);
+  await assert.rejects(() => run([csv, '--closed', '--dry-run']), /--closed takes/);
+});
+
+test('fill1 on the fresh shop year: Quiet on orders sends no alert at a closure', () => {
+  const csv = readFileSync(new URL('./data/online-retail-2009-daily.csv', import.meta.url), 'utf8');
+  const { labels, values } = parseSeries(csv, 'orders', null);
+  const closed = ['2009-12-24', '2009-12-25', '2009-12-27', '2009-12-28', '2009-12-29', '2009-12-30', '2009-12-31', '2010-01-01', '2010-01-03', '2010-04-02', '2010-04-04', '2010-04-05', '2010-05-03', '2010-05-31', '2010-08-30'];
+  const day = (s) => Date.parse(`${s}T00:00:00Z`) / 864e5;
+  const r = replayWatch(fillClosed(values, labels, closed, { period: 7, round: true, lags: 1 }).values, labels, { model: 'poisson', period: 7, detector: 'bocpd' });
+  assert.equal(r.alerts.filter((a) => closed.some((c) => Math.abs(day(c) - day(String(a.label))) <= 1)).length, 0);
+});
