@@ -108,6 +108,15 @@ test("the guide's worked numbers are the engine's", async () => {
   has(`falls to ${Math.round(d.coil.total.display).toLocaleString("en-US")} Btu/h`);
   has(`${Math.round(d.coil.latent.display).toLocaleString("en-US")} Btu/h latent and ${Math.round(d.coil.sensible.display).toLocaleString("en-US")} sensible, an <strong>SHR of ${d.coil.shr.toFixed(2)}</strong>`);
   assert.ok(c.display(d.a, "IP").W / A.W > 1.2, "more than a fifth");
+  // the guide's FAQ answers repeat the worked numbers and are visible on the page
+  const faq = JSON.parse(g.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  assert.equal(faq["@type"], "FAQPage");
+  for (const q of faq.mainEntity) { has(`<h3>${q.name}</h3>`); has(`<p>${q.acceptedAnswer.text}</p>`); }
+  const faqText = faq.mainEntity.map((q) => q.acceptedAnswer.text).join(" ");
+  assert.ok(faqText.includes(`overstates the load by ${((rule / r.coil.total.display - 1) * 100).toFixed(1)}%`));
+  assert.ok(faqText.includes(`takes up ${A.v.toFixed(2)} cubic feet`));
+  assert.ok(faqText.includes(`${c.display(d.a, "IP").W.toFixed(1)} instead of ${A.W.toFixed(1)} grains`));
+  assert.ok(faqText.includes(`from ${r.coil.shr.toFixed(2)} to ${d.coil.shr.toFixed(2)}`));
   // "a 1 °F wet-bulb error here moves the load by several percent"
   const wb68 = c.analyze({ ...c.sampleInput(), v2: "68" });
   const shift = wb68.coil.total.display / r.coil.total.display - 1;

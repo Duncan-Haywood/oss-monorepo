@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJVPpSzCWL1uUUZDd1",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T08:06:50Z",
+  "ended": "2026-11-19T08:19:28Z",
+  "wall_minutes": 13.14,
+  "tokens_in": 5697356,
+  "tokens_out": 72451,
+  "cost_usd": 3.7135,
+  "tool_calls": 61,
+  "task": "Explore: new venture psychrometric-calculator (moist-air properties from any two values at altitude, coil load/SHR/ADP/bypass, mixing, evaporative, chart)",
+  "projects": [
+    "ventures/psychrometric-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17597",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 31,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Chained `git checkout -b` failed because the harness had already created the branch, so the `&&` chain skipped the commit; the push printed a remote hint that looked like success",
+      "fix": "checked git log, committed and pushed again"
+    },
+    {
+      "what": "First evaporative-cooler test asserted constant enthalpy; constant wet bulb actually adds dW*cw*twb",
+      "fix": "test now asserts that relation (engine was right)"
+    },
+    {
+      "what": "Local CI: sibling-links failed (new tool had no inbound sibling link) and secondary-schema failed (guide page had no JSON-LD)",
+      "fix": "footer links from hvac-load-calc and wall-condensation-check with href tests; a visible FAQ + FAQPage block on the guide, its numbers tested against the engine"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "I meant to cite the ASHRAE Fundamentals 40 C / 20 C worked example from memory (W 0.0065); the engine gives 0.00640, and hand arithmetic confirms 0.006401 from the current pws formula. My memory of the published figures was not reliable enough to cite",
+      "fix": "the test is labelled as a hand calculation with the arithmetic in a comment; the published example is not claimed"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "'Calculators are a poor use of a run' conflicts with the explore prompt's free choice and with the 2026-10-31 building-services direction; no line on whether an engineering solver with a chart counts as a 'calculator'"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A pre-created session branch makes the usual `git checkout -b <branch> && ... commit` chain fail silently on the commit; land-your-work.md could say 'the branch may already exist: git checkout -B or check git branch --show-current'"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "why": "Built a new calculator-shaped venture despite 'calculators are a poor use of a run': psychrometrics needs iterative solves, a line-to-saturation intersection and altitude correction that chat replies get wrong, and it adds a chart",
+      "did": "shipped psychrometric-calculator with processes and a chart rather than a one-formula page",
+      "result": "31 tests, guide, post; usage unmeasured"
+    },
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Wanted an independent oracle (PsychroLib, MIT); installing and running the downloaded package was denied by the sandbox classifier",
+      "did": "verified against IAPWS saturation values, the ASHRAE standard atmosphere, hand calculations and all-pairs round trips instead",
+      "result": "no third-party code run; cross-check against a reference implementation remains open"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-the-same-coil-readings-mean-a-different-coil-in-denver.md",
+    "ventures/psychrometric-calculator/reading-a-cooling-coil.html"
+  ],
+  "goal": null,
+  "notes": "Explore idea: a psychrometric calculator, the air-side sibling of hvac-load-calc and wall-condensation-check (duplicate_check top match 0.08). Engine: ASHRAE Fundamentals ch. 1 (Hyland-Wexler, ice below 0 C, wet bulb by bisection, any of 13 non-degenerate property pairs solved by scan + bisection), mixing by dry-air mass with fog flag, coil load/SHR/condensate/ADP/bypass, ADP-mode coil, sensible heat, evaporative cooler; SVG chart drawn for the pressure. Finding for the post: 80/67 -> 55/54 at 1,200 cfm is SHR 0.69 at sea level vs 0.61 at 5,280 ft (99.9 vs 78.2 gr/lb entering), and 4.5*cfm*dh reads 3.8% high. Verification: node --test 31/31; Chromium 390/1100 px no errors, no horizontal scroll, all six processes; tools.mjs call works; check_post_frontmatter and check_posts ok. No agent doc: README, llms.txt and VENTURE.yaml carry what the next run needs. Next: whole-system chart (OA + RA -> coil -> reheat), feed from hvac-load-calc design conditions, cross-check against a reference implementation. Local run_workflow_locally --for-changes: control-plane, checklist, conflict-markers, doc-refs, link-contrast, readme-live-links, page-integrity, agent-permission-harness, pages.yml all passed; prompts-ci failed only because the run record was still unfilled; sibling-links and the secondary-schema page test failed and were fixed (siblings --check ok, siblings.test 20/20, secondary-schema/faq-visible/css-lint 16/16, run_venture_tests on the three touched ventures 3/3 ok).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "478aa7ab-9261-5b74-afb7-e787193c0fb1",
+    "transcripts": 1,
+    "first": "2026-11-19T08:06:50Z",
+    "last": "2026-11-19T08:19:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 98,
+        "output": 72451,
+        "thinking": 12732,
+        "cache_read": 5553075,
+        "cache_write_5m": 0,
+        "cache_write_1h": 144183,
+        "api_equivalent_usd": 3.7135,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 98,
+      "output": 72451,
+      "thinking": 12732,
+      "cache_read": 5553075,
+      "cache_write_5m": 0,
+      "cache_write_1h": 144183,
+      "api_equivalent_usd": 3.7135,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 47,
+      "Write": 10,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.14,
+      "active_minutes": 13.14,
+      "model_minutes": 11.68,
+      "tool_minutes": 1.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an HVAC-literate developer: psychrometric engine with all-pair solver, processes, chart, tests, guide and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 430.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

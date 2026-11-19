@@ -8,6 +8,7 @@
   <meta property="og:title" content="Reading a cooling coil on the psychrometric chart">
   <meta property="og:description" content="80/67 in, 55/54 out, 1,200 cfm: the load, SHR, ADP and bypass factor worked through, and why the same thermometer readings mean a different coil in Denver.">
   <link rel="canonical" href="./reading-a-cooling-coil.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does the 4.5 × cfm × Δh rule read high here?", "acceptedAnswer": {"@type": "Answer", "text": "Because 4.5 is 60 minutes times 0.075 pounds per cubic foot, standard air at 13.33 cubic feet per pound. The entering air in this example takes up 13.85 cubic feet per pound, so each cubic foot carries less air and the rule overstates the load by 3.8%."}}, {"@type": "Question", "name": "Does a bypass factor of 0.09 mean 9% of the air goes around the coil?", "acceptedAnswer": {"@type": "Answer", "text": "Not literally. It describes the leaving air as a mix of air cooled all the way to the apparatus dew point and air not cooled at all. Deeper coils and slower face velocities lower it."}}, {"@type": "Question", "name": "Why does altitude change the sensible heat ratio?", "acceptedAnswer": {"@type": "Answer", "text": "The same wet bulb at lower pressure means more water in each pound of air: 99.9 instead of 78.2 grains per pound in this example. More of the coil's work goes to condensing that water, so the latent share rises and the sensible heat ratio falls from 0.69 to 0.61."}}]}</script>
   <style>
     :root { font: 17px Georgia, serif; color: #172026; background: #f7f9fa; }
     body { max-width: 720px; margin: auto; padding: 28px 18px; }
@@ -52,6 +53,14 @@
 
   <h2>What this leaves out</h2>
   <p>The fan's heat, duct gains, the enthalpy of the condensate (under 1% of the load), and readings taken in poorly mixed air are all left out. A wet bulb read with too little airflow over the wick reads high. A dry bulb read in a stratified duct can be off by several degrees, and a 1 °F wet-bulb error here moves the load by several percent. The equations are those of ASHRAE Fundamentals Chapter 1; the method is described on the <a href="./">calculator page</a>.</p>
+
+  <h2>Questions</h2>
+  <h3>Why does the 4.5 × cfm × Δh rule read high here?</h3>
+  <p>Because 4.5 is 60 minutes times 0.075 pounds per cubic foot, standard air at 13.33 cubic feet per pound. The entering air in this example takes up 13.85 cubic feet per pound, so each cubic foot carries less air and the rule overstates the load by 3.8%.</p>
+  <h3>Does a bypass factor of 0.09 mean 9% of the air goes around the coil?</h3>
+  <p>Not literally. It describes the leaving air as a mix of air cooled all the way to the apparatus dew point and air not cooled at all. Deeper coils and slower face velocities lower it.</p>
+  <h3>Why does altitude change the sensible heat ratio?</h3>
+  <p>The same wet bulb at lower pressure means more water in each pound of air: 99.9 instead of 78.2 grains per pound in this example. More of the coil's work goes to condensing that water, so the latent share rises and the sensible heat ratio falls from 0.69 to 0.61.</p>
 
   <footer>
     <p><strong>No warranty.</strong> A worked example of arithmetic on stated inputs, not engineering, legal or code-compliance advice, and no substitute for a qualified professional or the equipment maker's data. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
