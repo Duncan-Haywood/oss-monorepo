@@ -7619,3 +7619,66 @@ provider's documented schedule changes, spells nobody has read.
 
 Test: `spells-cli.test.mjs` (South Dakota's spell in text, JSON and `--consensus`; off unless asked; undated and
 over-long series refused; Minnesota's "none found"; the page's box, its option and its note; the printed report).
+
+## Short spells on a second provider: The New York Times' state series (2026-11-19, pre-registered; N1 and N2 fail, a restated edge-spell line ships)
+
+The two sections above asked for a fresh real check of the spell search on another provider, on spells nobody
+had read. `eval/update-rate-spells-nyt.mjs` (header committed in 973ea2dbf before the script ran) ran the shipped
+`spellsResult` (the function behind `--spells`, unchanged) on The New York Times' covid-19-data `us-states.csv`:
+cumulative cases per state per day, NYT's own collection, independent of JHU's. No NYT state series had been read
+before. The labels are the same documented state schedule changes as the JHU rounds, since a health department's
+schedule is the state's, not the aggregator's. The NYT file is fetched by `eval/nyt-states-fetch.sh` and not
+committed (its terms are attribution, non-commercial; only derived verdicts are here).
+
+**Both bars fail** (`eval/update-rate-spells-nyt.out.txt`, 3 s):
+
+| bar | result |
+|---|---|
+| N1: a spell ending within 10 days of each of four documented returns after a short spell (bar 3 of 4) | **2 of 4** (South Dakota 2021-07-03..08-10 and Arkansas 2021-06-21..07-20, the same days as on JHU; Alaska and Nebraska missed) |
+| N2: spells with no documented event within 10 days of either end (bar at most 3; JHU had 1 of 8) | **5 of 9** (Idaho 372 days, Kentucky 185, Michigan 106, Nevada 95, Nebraska 178) |
+| N3, descriptive: the same spell on both providers | 3 of 8 JHU spells seen on NYT; 3 of 9 NYT spells seen on JHU |
+
+**Why, read afterwards** (`eval/update-rate-spells-nyt-why.mjs`, post hoc, deciding nothing about the search):
+
+- *Alaska is in NYT's series, and the default line already dates it.* Month by month NYT's Alaska is almost
+  JHU's (repeats 50% and 61% in June and July 2021, against 50% and 58%). But NYT's series starts on 2020-03-12,
+  not 2020-01-22, and with the shorter opening the default update-rate line cuts **2021-06-04 (fewer updates) and
+  2021-08-01 (back to more)**, the day before the documented return. The spell search looks *inside* that line's
+  stretches, so with both edges already cut it had nothing left to find, at any penalty down to m 2.5. The spell
+  was not missed by the tool a user runs; it was missed by the search, and the line said "none found". That
+  sentence was misleading.
+- *Nebraska's documented Wednesdays-only spell (2021-08-11 to 2021-09-25) is in neither series.* NYT's Nebraska
+  moved on every weekday through August and September 2021 (Mon 5/5, Tue 5/5, Wed 4/4, ... in August); JHU's sits
+  near 45% repeats throughout with no spell shape. Whatever the state published on its own dashboard, neither
+  aggregator's series shows a Wednesdays-only spell, so no search over these series could date it. This miss is
+  the label's, as far as the data can say.
+- *"Unexplained" is not "false" here.* Nebraska's 2022-05-06..10-30 spell is in both providers' series (repeats
+  55%, 50%, 52%, 52%, 43%, 74% from May to October on both, publishing on two to three weekdays a week, against
+  27% in April); it is a real schedule change JHU's README does not list. The other four NYT-only spells are long
+  (95-372 days) with small rises (e.g. Kentucky 17% inside against 5%), closer to slow drifts in the schedule than
+  to a short spell. Without a label for them, N2's bar counts them against the search, as it was written to.
+
+**What ships.** Nothing in the search or its setting changes, and it stays an opt-in: it failed a fresh provider.
+One reporting fix ships, because the Alaska case showed the line contradicting the default line beside it:
+`edgeSpellsOf` in `update-rate.mjs` restates the default update-rate line's own pair of changes, fewer updates
+then back to more within 120 steps (`EDGE_SPELL_MAX_STEPS`), as a spell, and the `--spells` line (CLI, page,
+printed report) now says so instead of "none found":
+
+```
+Short spells of fewer updates: none inside the update-rate line's stretches. The update-rate line already dates a
+spell as two changes, fewer updates and then back to more: 2021-06-04 to 2021-07-31 (58 steps, 59% repeats inside,
+31% before, 31% after).
+```
+
+It adds no test and no new p: it is the default line's two cuts, already printed, read together. On the 35
+states it fires on 0 JHU series and 2 NYT series: Alaska (next to the documented return) and Alabama 2021-05-29..
+07-12 (49% repeats inside, 0% before, 4% after; no documented event). The six committed JHU states print exactly
+what they printed before.
+
+Next: the spell search is fragile to where a series starts (Alaska's opening shifted the default cuts by enough to
+take the spell from the search); a check would plant the same spell in series with different openings and count
+how often it falls to the search, the default line, both, or neither. A provider that documents its own schedule
+changes (rather than JHU's labels reused) is still wanted.
+
+Test: `spells-edge.test.mjs` (a fewer-then-more pair is one edge spell, a long or same-direction pair is not; the
+line's new wording; the committed JHU states unchanged; the committed NYT verdicts).
