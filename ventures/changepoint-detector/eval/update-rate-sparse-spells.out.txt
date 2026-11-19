@@ -1,0 +1,120 @@
+CALIBRATION, seed 20261229, guard 'twice': mean false spells a series (null cells), found of 200 (power cells)
+  cell                 m 3   m 3.5     m 4     m 5     m 6
+  B10 n300           0.000   0.000   0.000   0.000   0.000
+  B10 n600           0.000   0.000   0.000   0.000   0.000
+  B25 n300           0.000   0.000   0.000   0.000   0.000
+  B25 n600           0.000   0.000   0.000   0.000   0.000
+  B40 n300           0.000   0.000   0.000   0.000   0.000
+  B40 n600           0.000   0.000   0.000   0.000   0.000
+  B60 n300           0.000   0.000   0.000   0.000   0.000
+  B60 n600           0.000   0.000   0.000   0.000   0.000
+  M40 n300           0.000   0.000   0.000   0.000   0.000
+  M40 n600           0.000   0.000   0.000   0.000   0.000
+  M60 n300           0.000   0.000   0.000   0.000   0.000
+  M60 n600           0.000   0.000   0.000   0.000   0.000
+  W5 n1100           0.000   0.000   0.000   0.000   0.000
+  W3 n1100           0.000   0.000   0.000   0.000   0.000
+  W5c n1100          0.000   0.000   0.000   0.000   0.000
+  S2t n1100          0.000   0.000   0.000   0.000   0.000
+  S1t n1100          0.000   0.000   0.000   0.000   0.000
+  S2p n1100          0.000   0.000   0.000   0.000   0.000
+  S1p n1100          0.000   0.000   0.000   0.000   0.000
+  R30 as null        0.000   0.000   0.000   0.000   0.000
+  R60 as null        0.000   0.000   0.000   0.000   0.000
+  R90 as null        0.000   0.000   0.000   0.000   0.000
+  I60 as null        0.000   0.000   0.000   0.000   0.000
+  P1w30 found          200     200     200     200     196   (shipped alone 0)
+  P1w60 found          199     199     199     199     199   (shipped alone 23)
+  P3w30 found          133     118      88       6       0   (shipped alone 0)
+  P3w60 found          184     184     184     180     177   (shipped alone 172)
+  P5d60 found          180     171     168     168     163   (shipped alone 21)
+
+'twice': smallest m meeting <= 0.010 in every null cell: m 3 (60-step cells found 563)
+
+CALIBRATION, seed 20261229, guard 'z01': mean false spells a series (null cells), found of 200 (power cells)
+  cell                 m 3   m 3.5     m 4     m 5     m 6
+  B10 n300           0.000   0.000   0.000   0.000   0.000
+  B10 n600           0.000   0.000   0.000   0.000   0.000
+  B25 n300           0.000   0.000   0.000   0.000   0.000
+  B25 n600           0.000   0.000   0.000   0.000   0.000
+  B40 n300           0.000   0.000   0.000   0.000   0.000
+  B40 n600           0.000   0.000   0.000   0.000   0.000
+  B60 n300           0.000   0.000   0.000   0.000   0.000
+  B60 n600           0.000   0.000   0.000   0.000   0.000
+  M40 n300           0.005   0.005   0.000   0.000   0.000
+  M40 n600           0.000   0.000   0.000   0.000   0.000
+  M60 n300           0.000   0.000   0.000   0.000   0.000
+  M60 n600           0.000   0.000   0.000   0.000   0.000
+  W5 n1100           0.000   0.000   0.000   0.000   0.000
+  W3 n1100           0.000   0.000   0.000   0.000   0.000
+  W5c n1100          0.000   0.000   0.000   0.000   0.000
+  S2t n1100          0.000   0.000   0.000   0.000   0.000
+  S1t n1100          0.000   0.000   0.000   0.000   0.000
+  S2p n1100          0.000   0.000   0.000   0.000   0.000
+  S1p n1100          0.005   0.000   0.000   0.000   0.000
+  R30 as null        0.000   0.000   0.000   0.000   0.000
+  R60 as null        0.000   0.000   0.000   0.000   0.000
+  R90 as null        0.030   0.005   0.000   0.000   0.000
+  I60 as null        0.000   0.000   0.000   0.000   0.000
+  P1w30 found          200     200     200     200     196   (shipped alone 0)
+  P1w60 found          199     199     199     199     199   (shipped alone 23)
+  P3w30 found          191     167     132       8       0   (shipped alone 0)
+  P3w60 found          197     197     197     194     183   (shipped alone 172)
+  P5d60 found          180     171     168     168     163   (shipped alone 21)
+
+'z01': smallest m meeting <= 0.010 in every null cell: m 3.5 (60-step cells found 567)
+
+Chosen: guard 'z01', m 3.5
+
+CONFIRMATION, seed 20261230, chosen guard and m only
+  cell               m 3.5
+  B10 n300           0.000
+  B10 n600           0.000
+  B25 n300           0.000
+  B25 n600           0.000
+  B40 n300           0.000
+  B40 n600           0.000
+  B60 n300           0.000
+  B60 n600           0.000
+  M40 n300           0.000
+  M40 n600           0.000
+  M60 n300           0.005
+  M60 n600           0.000
+  W5 n1100           0.000
+  W3 n1100           0.000
+  W5c n1100          0.000
+  S2t n1100          0.000
+  S1t n1100          0.000
+  S2p n1100          0.000
+  S1p n1100          0.005
+  R30 as null        0.000
+  R60 as null        0.000
+  R90 as null        0.015
+  I60 as null        0.000
+  P1w30 found          200   (shipped alone 0)
+  P1w60 found          200   (shipped alone 17)
+  P3w30 found          172   (shipped alone 0)
+  P3w60 found          195   (shipped alone 162)
+  P5d60 found          157   (shipped alone 10)
+
+S1 every null cell <= 0.020 (worst 0.015): pass
+S2 each 60-step cell found >= 120 (P1w60 200, P3w60 195, P5d60 157): pass
+S3 60-step cells' gain over shipped >= 60 (363): pass
+S4 every shift cell <= 0.010 (worst 0.005): pass
+
+REAL (seen) check K1, guard 'z01', m 3.5: a spell ending in the documented return's +-10 day window
+Alaska         2021-08-02 Mon/Wed/Fri -> Mon-Fri             DATED spell 2021-06-08..2021-07-29 (52 days, dow, LR 197.2), repeats 58% inside, 32% around
+South Dakota   2021-08-16 Wednesdays only -> Mon-Fri         DATED spell 2021-07-03..2021-08-10 (39 days, dow, LR 234.6), repeats 85% inside, 32% around
+
+K1 dated 2 of 2 (bar: both): pass
+
+K2 (descriptive) every spell on the 27 primary states and the 8 'more often' states
+  Alabama               2022-03-01..2022-07-08 (130 days, dow, LR 119.4) 28% inside, 14% around, gain 74.5 vs 49.3
+  Alaska                2021-06-08..2021-07-29 (52 days, dow, LR 197.2) 58% inside, 32% around, gain 64.9 vs 49.3
+  District of Columbia  2022-03-02..2022-07-06 (127 days, dow, LR 267.9) 56% inside, 36% around, gain 68.0 vs 49.3
+  Idaho                 2021-03-28..2021-09-05 (162 days, dow, LR 226.1) 31% inside, 17% around, gain 65.3 vs 49.3
+  Kentucky              2022-03-05..2022-03-31 (27 days, dow, LR 151.5) 85% inside, 30% around, gain 61.8 vs 49.3
+  South Dakota          2021-07-03..2021-08-10 (39 days, dow, LR 234.6) 85% inside, 32% around, gain 81.2 vs 49.3
+  Washington            2021-07-03..2022-01-01 (183 days, dow, LR 244.9) 34% inside, 19% around, gain 50.1 vs 49.3
+  Arkansas              2021-06-21..2021-07-20 (30 days, dow, LR 33.2) 27% inside, 1% around, gain 55.5 vs 49.3
+(163.1 s)

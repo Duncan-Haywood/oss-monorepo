@@ -506,3 +506,32 @@ export function weeklyPatternLR(z, days, L, R) {
 
 /** chi-square 0.999 quantile on 12 degrees of freedom: a stretch above it is read as on a weekly schedule. */
 export const WEEKLY_TEST = { df: 12, crit: 32.909 };
+
+// ---- Short sparse spells (README "Short sparse spells: the return pass reversed", 2026-11-19, pre-registered). ----
+// The mirror of the short-returns pass: inside each stretch the shipped check finds, the one interval with MORE
+// repeats (fewer publishing days) than the parts around it, which share one model because the old schedule came
+// back. Round 5's per-stretch model (weekday cost where weeklyPatternLR reads a weekly schedule, else the chain);
+// guard z01 (a significant rise in repeats); reported when gain > mult x 2 log(n + 1). eval/update-rate-sparse-
+// spells.mjs chose z01 at m 3.5 on calibration and passed S1-S4 on confirmation and K1 on seen data (Alaska, South
+// Dakota). An opt-in: nothing the CLI or the page prints calls it yet. Needs a weekday per step (daysFromDates).
+export const SHORT_SPELLS = { mult: 3.5, guard: { kind: 'z', z: 2.326 }, minSegment: 20, minRepeats: 10 };
+
+/**
+ * Short spells of less frequent updates inside the stretches updateRateChanges found. `days[s]` is the weekday of
+ * repeat indicator s. Value indexes: { spells: [{ from, to, steps, shareInside, shareOutside, gain, kind }], penalty }.
+ */
+export function shortSpells(values, { days, mult = SHORT_SPELLS.mult, guard = SHORT_SPELLS.guard, minSegment = SHORT_SPELLS.minSegment, minRepeats = SHORT_SPELLS.minRepeats, u = null } = {}) {
+  if (!days) throw new Error('shortSpells needs a weekday per step (daysFromDates)');
+  const n = values.length - 1, penalty = mult * 2 * Math.log(n + 1), z = repeatIndicators(values);
+  u = u || updateRateChanges(values);
+  const opts = { days, u, guard, minSegment, minRepeats, sparse: true };
+  const D = new Map(returnCandidates(values, { ...opts, kind: 'dow' }).map((q) => [q.L, q]));
+  const F = new Map(returnCandidates(values, { ...opts, kind: 'chain' }).map((q) => [q.L, q]));
+  const spells = [];
+  for (const L of [...new Set([...D.keys(), ...F.keys()])].sort((a, b) => a - b)) {
+    const q = D.get(L) || F.get(L), weekly = weeklyPatternLR(z, days, q.L, q.R) > WEEKLY_TEST.crit;
+    const c = weekly ? D.get(L) : F.get(L);
+    if (c && c.gain > penalty) spells.push({ from: c.a + 1, to: c.b, steps: c.b - c.a, shareInside: c.shareInside, shareOutside: c.shareOutside, gain: c.gain, kind: weekly ? 'dow' : 'chain' });
+  }
+  return { spells, penalty };
+}
