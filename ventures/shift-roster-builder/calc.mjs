@@ -504,7 +504,7 @@ export function parseShifts(text) {
     const where = `Shift line ${i + 1}`;
     const days = parseDaySpec(c[0] || "");
     const a = parseTime(c[1] || ""), b = parseTime(c[2] || "");
-    if (first) { first = false; if (!days.length && Number.isNaN(a)) return; }
+    if (first) { first = false; if (!days.length && Number.isNaN(a) && c.length > 1) return; } // a header row has columns; a comma-less first line is a mistyped shift, so it falls through to an error
     if (!days.length) { errors.push(`${where}: could not read the day "${c[0] || ""}"`); return; }
     if (Number.isNaN(a) || Number.isNaN(b)) { errors.push(`${where}: could not read the start and end times`); return; }
     if (a === b) { errors.push(`${where}: start and end are the same`); return; }

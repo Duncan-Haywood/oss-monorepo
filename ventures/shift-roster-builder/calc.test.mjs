@@ -1994,3 +1994,11 @@ test("parseSiteWage: a long run of parts with doubled tabs does not backtrack ex
   assert.deepEqual(r.errors, []);
   assert.deepEqual(r.rules.map((x) => [x.site, x.add, x.pct, x.min]), [["airport", 2, 10, 0], ["downtown", 0, 0, 20.17]]);
 });
+
+test("a comma-less first shift line is an error, not a silently skipped header", () => {
+  const r = parseShifts("Mon 8am-5pm\nTue, 9:00, 17:00, 1");
+  assert.equal(r.errors.length, 1);
+  assert.match(r.errors[0], /Shift line 1/);
+  // a real header row is still skipped
+  assert.deepEqual(parseShifts("Day, Start, End\nTue, 9:00, 17:00, 1").errors, []);
+});

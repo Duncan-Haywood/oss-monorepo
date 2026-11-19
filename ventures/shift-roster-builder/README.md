@@ -1085,6 +1085,7 @@ week for that trade; the coffee-shop page uses real CLI output, pinned by a test
 
 Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), breaks as a hard rule (unpaid meal breaks are deducted from paid time; suggested meal-break times, and from 2026-10-30 paid rest breaks of the length and spacing you enter via `placeRestBreaks`, are shown but not enforced by the search), minor-labor limits other than the federal 14-15 rules in `age:` (state rules, work permits), union rules (seniority is reported, not enforced), time-off across weeks. A
 heuristic search by default; the exact check above proves optimality only on small weeks and reports when it could not. Verified against exhaustive search and invented data.
+Known gaps from quality audit round 84 ([`2026-11-19-shift-roster-builder-r4.json`](../../portfolio/quality/audits/2026-11-19-shift-roster-builder-r4.json)): the planner's daily overtime puts every hour of an overnight shift on the day it starts (Sat 8pm-6am with daily overtime after 8 h shows 2 overtime hours; the timesheet's calendar-day split shows none), and a 14-15 year old in a school week is capped at 3 h on every day, weekends included, where 29 CFR 570.35(a) allows 8 h on a non-school day, so a 6 h Saturday shift is left open.
 Not legal, tax, or financial advice.
 
 ## Run
