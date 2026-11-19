@@ -212,6 +212,15 @@ test('the scroll shadow is on the scrolling box, and form controls cap at the vi
   assert.match(REFLOW_CSS, /:where\(input:not\(\[type=checkbox\]\):not\(\[type=radio\]\),select,textarea\)\{min-width:0;max-width:100%\}/);
 });
 
+test('a pinned table keeps its first column in view, beating venture cell rules, but not on paper', () => {
+  const box = `.${TABLE_SCROLL_CLASS}[data-pf-pin]>table`;
+  const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  assert.match(REFLOW_CSS, new RegExp(`\\n${esc(box)}>\\*>tr>:first-child:not\\(\\[colspan\\]\\)\\{position:sticky;left:0;z-index:1;`),
+    'ordinary specificity: :where() lost to td{position:relative} and td{background:transparent}');
+  assert.match(REFLOW_CSS, new RegExp(`${esc(box)}>:is\\(tbody,tfoot\\)>tr>:first-child:not\\(\\[colspan\\]\\)\\{background-color:var\\(--pf-pin-bg,Canvas\\)\\}`));
+  assert.match(REFLOW_CSS, /@media print\{[^}]*data-pf-pin[^{]*\{position:static;box-shadow:none\}\}/);
+});
+
 test('checkboxes and radios keep their automatic minimum on a phone', () => {
   // Until 2026-11-12 the rule above matched every <input>, so a checkbox in a
   // flex <label> beside a long caption was the item that shrank: 7px wide
