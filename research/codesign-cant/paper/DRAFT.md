@@ -1,6 +1,6 @@
 # Draft: when does rotor cant pay on a small quadrotor co-designed with its motors and controller?
 
-Status: **milestone 7, first draft (2026-11-14; section VII added 2026-11-19): outline of every
+Status: **milestone 7, first draft (2026-11-14; section VII added 2026-11-19, milestone 7ad's settling paragraph the same day): outline of every
 section, section VI (stability of the side-force feed-forward, milestones 7c–7g) and section VII
 (motor-lag randomisation, milestones 7s–7ac) written in full. Not submittable.** Target: *IEEE Robotics and
 Automation Letters* (6 pages + 2), fallback ICUAS; an aim, not a claim of acceptance.
@@ -252,8 +252,26 @@ approach: rise grows from 1.44, 1.39 s at a 78.2 ms ceiling to 2.02, 2.27 s at 2
 200 ms designs are 6–7% heavier than the 150 ms ones. The rise does not grow smoothly: 125 ms keeps
 most of 100 ms's speed (1.57, 1.65 s), and with the centre of pressure above the jump arrives
 between 125 and 150 ms. The search never asks for a fast final approach, so in every set one to five
-of twelve designs settle short of the hold point by 5–8 cm with a soft position gain (milestones
-7y–7ac); a settle-time requirement belongs in the objective, not the randomisation.
+of twelve designs settle short of the hold point by 5–8 cm (milestones 7y–7ac); the next paragraph gives the cause
+and a fix that needs no retuning.
+
+**Why some tunes never settle, and a fix without retuning (milestone 7ad).** The cause is the
+position loop alone. A PID on a double integrator, s³ + kd s² + kp s + ki, has a slow closed-loop root
+near −ki/kp, so what the integrator stores during the approach leaves a tail of about (ki/kp)·I₀ that
+decays on a time scale kp/ki; on a 6 s flight it is largest near ki/kp ≈ 1/6 s⁻¹. Training scores
+gusts about a 3 m/s mean wind, where integral action pays, and never a set-point step, so nothing
+opposes a large ki/kp. A three-state model of the outer loop (PID, the proportional cap, the tilt
+limit as an acceleration bound and the integrator clip; no attitude loop, motor or side force)
+predicts the simulator's last-second distance with r = 0.9995 on 96 designs never step-tested before
+and calls all 96 correctly (15 unsettled); the call is the same at 33, 36 and 39.1 ms for all 96
+(`m7ad_settle/verdicts.txt`). The textbook anti-windup remedy, conditional integration
+[astrom2006], here running the position integrator only while the error is under b = 0.25 m, leaves
+0 of 72 section-VII designs unsettled (18 before) and cuts the median overshoot from 5.1 to 2.0 cm,
+with the stress test where it was (identified total 819 against 820 over the six sets of rows
+39.1–78.2 to 75–150; paired Wilcoxon p = 0.89) and the 6 m/s wind-step peak unchanged. The price is
+a slower rise, median 1.91 against 1.74 s, since the integrator no longer helps pull the vehicle in.
+A tighter band, b = 0.1 m, gives the same picture (814). A builder can screen a tune for this with
+the three-state model before flying it.
 
 **Why a tuner should see plants beyond the test range (a reading, not tested here).** The CMA-ES objective is a mean over
 randomised episodes. When fast plants are in the draw, gains that track them well raise that mean
@@ -269,7 +287,8 @@ identification.
 not at a midpoint, and never draw faster plants than that. Set the ceiling at about 3–4× it:
 125 ms (3.2×) gives most of 150 ms's robustness at the identified lags with near-100 ms rise times;
 go to 150–200 ms only if the motors may be slower than identified, at up to about 0.7 s more rise
-time than the 125 ms tune.
+time than the 125 ms tune. Run the position integrator only within about a quarter of a step of the set
+point; with that, the 125 ms tune has no unsettled designs.
 
 **Figure plan.** VII-a: identified total and 75 ms count against the training ceiling at the
 39.1 ms floor, with the floor rows as a second series against their ceiling (`m7ac_ceil125.png`,
@@ -291,13 +310,13 @@ an owner step: printed mounts at 0° and the co-designed angle, a load cell and 
 Cant of about 30–35° pays on a small X quadrotor under every attitude law and both simulators, and
 its side force is the price; cancel the steady part with an integrator feed-forward, certify the
 loop with an 11-state linear check at 0.8× the integral-gain ceiling, and test at the autopilot's
-real tilt limit. Randomise the motor lag from the slowest identified value up to 3–4× it.
+real tilt limit. Randomise the motor lag from the slowest identified value up to 3–4× it, and integrate the position error only near the set point.
 
 ## Still to do before submission
 
 - Ten seeds for the paper figures (proposal, "Evaluation"); bootstrap intervals and Wilcoxon tests in place of sign counts.
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
-- Section VII: figures VII-a and VII-b; the same coverage sweep on the torque-scale and mass ranges; a settle-time
-  constraint in the objective; twelve seeds per geometry at 125 and 150 ms.
+- Section VII: figures VII-a and VII-b; the same coverage sweep on the torque-scale and mass ranges; the rise-time
+  price of conditional integration inside the training objective (milestone 7ad fixed settling after training); twelve seeds per geometry at 125 and 150 ms.
 - Sections I–V and VII–VIII written out from the outlines; LaTeX in the RA-L template.
 - Hardware check (milestone 8).

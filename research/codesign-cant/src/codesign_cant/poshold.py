@@ -29,6 +29,7 @@ YAW_REF_DEG = 30.0                      # yaw steps +-30 deg, four segments of 1
 POS_LO, POS_HI = np.array([-1.0, -1.0, -2.0]), np.array([1.0, 1.0, 0.5])   # log10 outer-loop kp (1/s^2), kd (1/s), ki (1/s^3); ASSUMED (inherited)
 POS_NOISE, VEL_NOISE = 0.02, 0.05       # m, m/s: GNSS-class noise (ASSUMED, inherited)
 OFFSET = 0.5                            # initial horizontal offset, uniform +-m per axis (ASSUMED, inherited)
+PINT_BAND = None                        # m; None: the position integrator always runs (every milestone before 7ad)
 TILT_CMD_MAX = np.deg2rad(20.0)
 CD_A = 1.0                              # drag coefficient on the area in aero.size (ASSUMED, inherited)
 POS_SCALE_M, YAW_SCALE_DEG = 0.10, 10.0  # composite C = sqrt((pos / 0.10 m)^2 + (yaw / 10 deg)^2), one unit = 10 deg of yaw error
@@ -158,7 +159,11 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         else:
             ep = -(pos + pn[:, :, t][None])
         ev = vel + vn[:, :, t][None]
-        pint = np.clip(pint + ep * A.DT, -2.0, 2.0)
+        if PINT_BAND is None:
+            pint = np.clip(pint + ep * A.DT, -2.0, 2.0)
+        else:   # milestone 7ad probe: conditional integration, the position integrator only runs while |error| < PINT_BAND
+            inb = np.sqrt((ep ** 2).sum(-1, keepdims=True)) < PINT_BAND
+            pint = np.clip(pint + np.where(inb, ep, 0.0) * A.DT, -2.0, 2.0)
         if perr_max is not None:
             en = np.sqrt((ep ** 2).sum(-1, keepdims=True)); acc = kpp * ep * np.minimum(1.0, perr_max / np.maximum(en, 1e-12)) - kdp * ev + kip * pint
         else:

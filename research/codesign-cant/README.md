@@ -6,6 +6,19 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7ad: why does a co-designed drone stop 5-8 cm short of its set point? The position integrator's slow pole, and conditional integration fixes it
+
+**Question.** In every motor-lag training range of milestones 7y-7ac, one to five of twelve tuned quadrotors end a 1 m position step 5-8 cm from the hold point. Is it the motor lag, the soft position gain, or something else, and can a builder fix it without retuning?
+
+**Headline (`experiments/m7ad_settle/verdicts.txt`, `results.json`; about 32 min on 4 cores; simulated; 8 predictions committed first, 7 held).**
+
+- **The cause is the outer loop alone.** A PID position loop on a double integrator has a slow root near −ki/kp, so what the integrator stores on the way in leaves a tail that decays over kp/ki seconds. A three-state model of the outer loop (no attitude loop, motor lag or side force; [`experiments/m7ad_settle/model.py`](experiments/m7ad_settle/model.py)) called **96 of 96** designs never step-tested before correctly (15 unsettled) and matched the full simulator's last-second distance with **r = 0.9995**; the call did not change between the 33, 36 and 39.1 ms motor-lag laws for any of them.
+- **Conditional integration fixes it for free in crashes.** Running the position integrator only while the error is under 0.25 m (textbook anti-windup) left **0 of 72** designs unsettled (18 before), cut the median overshoot from 5.1 to 2.0 cm and left the stress test where it was (819 against 820 crashes over the identified lags; paired p = 0.89) and the wind-step response unchanged.
+- **The price is rise time:** median 1.74 → 1.91 s on the 1 m step, because the integrator no longer helps pull the vehicle in. A 0.1 m band behaves the same (814 crashes).
+- **For a builder:** if your position loop has integral action, gate it near the set point; and check a tune's ki/kp with a three-state simulation before flying it: on a 6 s horizon, ki/kp above about 0.07 s⁻¹ leaves a visible tail.
+
+![Left: each design's distance from the hold point over the last second of a 1 m step against its outer-loop ki/kp. With the integrator always on (red, 72 designs; orange, 96 untested designs) the distance rises from under 1 cm at ki/kp near 0 to 5-9 cm above 0.07 and 14 cm at 0.17; with conditional integration (blue) every design stays under about 2 cm. Right: the three-state model's last-second distance against the full simulator's for the same 168 designs, all on the diagonal.](experiments/m7ad_settle/m7ad_settle.png)
+
 ## Paper step (2026-11-19): how wide should a drone tuner randomise motor lag? Section VII of the draft, with pooled tests
 
 **Question.** Eleven milestones (7s-7ac) retrained the co-designed quadrotor with different motor-lag training ranges, each reported with six seeds per geometry and per-cell tests that rarely separated neighbours. Written up as one section, what do they say, and which differences hold once the two centre-of-pressure geometries are pooled (12 designs a side)?
