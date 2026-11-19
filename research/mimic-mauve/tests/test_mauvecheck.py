@@ -36,6 +36,23 @@ class T(unittest.TestCase):
         Z = m.embed(h)
         self.assertGreater(m.mauve_score(Z[:50], Z[50:]), 0.8)
 
+    def test_null_compares_two_disjoint_human_draws(self):
+        # quality audit 2026-11-19: a null built from the same human draw twice (MAUVE 1 by construction) left every test green
+        calls = []
+        real = m.mauve_score
+        def spy(p, q, **kw):
+            calls.append((p.copy(), q.copy()))
+            return real(p, q, **kw)
+        m.mauve_score = spy
+        try:
+            rng = np.random.RandomState(3)
+            m.cell(toy(rng, 100, 0), toy(rng, 50, 20), rng, 50)
+        finally:
+            m.mauve_score = real
+        self.assertEqual(len(calls), 2 * m.DRAWS)
+        for p, q in calls[1::2]:  # the second call of each draw is the human-vs-human null
+            self.assertFalse(np.allclose(p, q))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,224 @@
+{
+ "date": "2026-11-19",
+ "subject": "research/mimic-mauve",
+ "stratum": "research",
+ "seed": "2026-11-19-i-58b7",
+ "round": 82,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior NLP researcher who evaluates generative text models with MAUVE and divergence-frontier metrics (Pillutla et al. 2021; JMLR 2023 follow-up); first checks: is MAUVE computed correctly from the quantised histograms, does results.json reproduce from the code, is the human-vs-human null a fair comparison (same feature space, same n), are sample sizes and bucket counts in a regime where MAUVE is stable, are cross-cell statistics valid given shared human pools, and is the nearest prior work on embedding choice for MAUVE cited",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran it. In a scratch copy (scratchpad/research/mimic-mauve, mimic-contexts symlinked) with a fresh venv (numpy 2.5.5, scipy 1.18.1, scikit-learn 1.9.1, mauve-text 0.4.0, faiss-cpu 1.16.0), `python mauvecheck.py` rewrote results.json and results.txt byte-identical to the committed files (cmp exit 0), and figure.py rewrote experiments/figure.svg byte-identical. Independent recomputation (scratchpad/audit/indep.py, my own divergence frontier from the paper's definition: R_l = lP+(1-l)Q, point (exp(-c KL(Q||R)), exp(-c KL(P||R))), c = 5, area closed with (0,1),(1,0)) applied to the library's own p_hist/q_hist in every one of the 200 MAUVE calls of a full replay: max |indep - library| = 2.2e-16; with a 20,001-point grid instead of the library's 25 points the area moves by at most 6.8e-4, below the third decimal the README reports. Closed forms: identical histograms give 1.000000; disjoint supports give 0.0039683 against the analytic 5*B(5,6) = 1/252 = 0.0039683. AUROC replaced by my own Mann-Whitney U and distinct-2 by my own bigram counter reproduce every cell to 2.2e-16 and 0. Spearman recomputed with my own tie-aware ranks: -0.6015 (t = -3.19, df 18, p ~ 0.005) and 0.2406 (t = 1.05, p ~ 0.31), matching results.json. The computation is right; what limits the score is not arithmetic but the interpretation (claims, domain).",
+  "completeness": "README claims checked end to end: the 4 unittest tests run (OK, 0.8 s); mauvecheck.py produces results.json/results.txt for 20 cells with n 48 to 100 as stated; figure.py produces the SVG; the human-vs-human null, the 2-fold cross-fit char 1-4 gram AUROC and distinct-2 are all computed as described in Method; data path ../mimic-contexts/data/suite.jsonl.gz exists. No stubs or TODOs. Gaps: no requirements file pins the versions that give byte-identical output; README runtime 'about 2 minutes' could not be checked cleanly (15 min wall here with 3 other jobs on 2 CPUs).",
+  "verification": "`venv/bin/python -m unittest discover -s tests -v` -> Ran 4 tests, OK. Four seeded mutations via platform/ci/quality_mutate.py plus one equivalent: distinct-2 bigram offset w[1:] -> w[2:] caught; detector score sign flipped caught; null drawn from the same humans as h1 (h[n:2n] -> h[:n], so null = 1 by construction) SURVIVED; dropping the len(human)//2 cap on n SURVIVED (would make h2 short or empty on small families); label flip [0]*n+[1]*n -> [1]*n+[0]*n survived but is an equivalent mutant (the classifier is trained on the same flipped labels). Nothing tests main(), the summary statistics, or that the null halves are disjoint; the core claim (null vs test separation) has no test that would catch a broken null.",
+  "craft": "Read mauvecheck.py (130 lines), figure.py, tests/test_mauvecheck.py. Small, readable, deterministic (RandomState(0) stream shared across cells; byte-identical rerun). Defects: no requirements/lock file although output depends on sklearn/faiss/mauve-text versions; results written next to the script with no output-dir option (an auditor must copy the tree); per-draw MAUVE and null values are discarded (only mean and sd kept), so the separation claim cannot be checked from results.json; files opened without context managers. No dead code or copied engines.",
+  "claims": "Checked against results.json: null range 0.924 to 0.985 mean 0.964 (README 0.92 to 0.99, 0.964) pass; max test MAUVE 0.830 wiki/mistral-chat pass; Spearman -0.60 p 0.005 and 0.24 p 0.31 pass; recipes llama/mistral AUROC 0.999 MAUVE 0.32, news/llama 0.97/0.75 pass; distinct-2 mpt-chat poetry 0.839 vs 0.829, reddit 0.804 vs 0.747, MAUVE 0.12/0.25 pass; sd 0.004 to 0.21 pass; n 48 to 100 pass. Fails: README.md:15 'Every cell is far from its null ... separates machine text from human text in all 20 cells' compares cell means only; from the per-draw replay (scratchpad/audit/out/draws.json) wiki/mistral-chat draws 2 and 3 give test 0.918/0.901 against their own nulls 0.919/0.902 (indistinguishable), and recipes/mpt-chat draw 5 gives 0.978, above 4 of its 5 null draws. No per-cell test is run. The same sentence is repeated in research/README.md:779. 'and the reverse' (README.md:17) has no cell backing it (every low-MAUVE cell has AUROC >= 0.99). Limitations, 'Preliminary, stylised' framing and AI-assistance note are present and honest about GPT-2 features.",
+  "fitness": "A researcher could rerun the pipeline and swap in GPT-2 features later, which is the stated next step. Nearest prior work is not cited: Pillutla et al. (JMLR 2023, 'MAUVE scores for generative models: theory and practice') already studies MAUVE under different embeddings and sample sizes and compares it with classifier-based measures, and Pimentel et al. (ICLR 2023, 'On the usefulness of embeddings, clusters and strings for text generator evaluation') shows MAUVE with clustered embeddings largely tracks surface/lexical features. Against those, 'lexical-embedding MAUVE loosely agrees with a lexical n-gram detector' is expected rather than new, and the interesting disagreements (news, recipes) are within the per-cell noise and embedding sensitivity below. Not part of any programme in research/PROGRAMMES.md.",
+  "domain": "Departures from MAUVE practice: (1) sample size: the paper's text experiments use thousands of samples per side; here n = 48 to 100 with num_buckets = n/10 = 5 to 10 k-means clusters (faiss warns 'please provide at least 195 training points'), a regime where MAUVE is high-variance and biased, acknowledged only as 'noisy'. (2) Feature space differs between test and null: the SVD is refit on h1+g for the test and on h1+h2 for the null (mauvecheck.py:69-70), unlike a fixed feature extractor. My check with one embedding fit on h1+h2+g (scratchpad/audit/sharedemb.py, fresh draws): wiki/mistral test mean 0.850 vs null 0.978 (separation holds), but news/llama test mean 0.536 vs the script's 0.749 (sd 0.16, different draws), so cell values move by amounts comparable to the cross-cell differences the 'disagree where it is interesting' bullet reads. (3) The Spearman p-value treats 20 cells as independent though cells in a family share one human pool (7 families), so p = 0.005 is optimistic. Five draws, reported sd and an explicit null are good practice."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "results.json and results.txt reproduce from mauvecheck.py",
+   "method": "rerun in a scratch copy with fresh venv, byte compare",
+   "command": "cd scratchpad/research/mimic-mauve && venv/bin/python mauvecheck.py && cmp results.json /home/user/oss-monorepo/research/mimic-mauve/results.json",
+   "expected": "identical files",
+   "observed": "cmp exit 0 for results.json and results.txt; figure.svg also identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "MAUVE area from the library's quantised histograms, all 200 calls of a full replay",
+   "method": "own divergence frontier and area from Pillutla et al. 2021 definition (scratchpad/audit/indep.py), no mauve math imported",
+   "command": "venv/bin/python -I scratchpad/audit/instrument.py scratchpad/research/mimic-mauve scratchpad/audit scratchpad/audit/out",
+   "expected": "library mauve within 1e-9 (same 25-pt grid); exact grid within 1e-3",
+   "observed": "max |indep25 - lib| 2.2e-16; exact-grid minus lib in [-6.8e-4, 5.8e-4]",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "closed-form MAUVE cases",
+   "method": "analytic: identical -> 1; disjoint supports with c = 5 -> integral of (1-l)^5 d(l^5) = 5*B(5,6) = 1/252",
+   "command": "venv/bin/python -I scratchpad/audit/closed.py scratchpad/audit",
+   "expected": "1.0 and 0.0039683",
+   "observed": "1.0000000 and 0.0039683; library on identical feature sets 1.0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "AUROC and distinct-2 per cell",
+   "method": "own Mann-Whitney U AUROC and own bigram counter swapped into the replay",
+   "command": "same instrument.py run; compare out/results.json cells to committed",
+   "expected": "equal to committed values",
+   "observed": "max abs diff auroc 2.2e-16, d2_human 0, d2_gen 0, mauve 1.1e-16, null 2.2e-16",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Spearman MAUVE vs AUROC and vs distinct-2 ratio",
+   "method": "own tie-aware ranks + Pearson on ranks, t approximation df 18",
+   "command": "python3 (own rank code over results.json cells)",
+   "expected": "-0.60 p 0.005; 0.24 p 0.31 (README)",
+   "observed": "-0.6015 t -3.19; 0.2406 t 1.05",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "venv/bin/python -m unittest discover -s tests -v",
+   "expected": "4 tests pass",
+   "observed": "Ran 4 tests in 0.823s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README.md:15 every cell far from its null / separates in all 20 cells",
+   "method": "per-draw test and null values from the replay (draws.json)",
+   "command": "python3 over scratchpad/audit/out/draws.json",
+   "expected": "every test draw below every null draw in each cell",
+   "observed": "18/20 cells separated; wiki/mistral-chat draws 2,3 test 0.918/0.901 vs own null 0.919/0.902; recipes/mpt-chat draw 5 test 0.978 above 4 of 5 nulls",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "numeric claims in README Results (null range, max MAUVE, recipes/news cells, distinct-2 values, sd range, n range)",
+   "method": "read off committed results.json",
+   "command": "python3 summary over results.json",
+   "expected": "README values",
+   "observed": "all match to stated rounding",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README.md:17 'and the reverse' (far-apart distribution without near-perfect detector)",
+   "method": "inspect cells with MAUVE < 0.1",
+   "command": "results.txt",
+   "expected": "a low-MAUVE cell with modest AUROC",
+   "observed": "all MAUVE < 0.15 cells have AUROC >= 0.971; no cell backs it",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "null computed in the same feature space as the test",
+   "method": "refit one SVD on h1+h2+g and score both (scratchpad/audit/sharedemb.py)",
+   "command": "venv/bin/python -I scratchpad/audit/sharedemb.py scratchpad/research/mimic-mauve",
+   "expected": "values close to the script's per-comparison embedding",
+   "observed": "wiki/mistral test 0.850 vs null 0.978 (holds); news/llama test 0.536 vs script 0.749 (different draws, sd 0.16)",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "sample size and buckets vs MAUVE practice",
+   "method": "Pillutla et al. 2021/2023 use thousands of samples per side, k = n/10",
+   "command": "faiss warning in unittest output",
+   "expected": "n in the thousands",
+   "observed": "n 48 to 100, 5 to 10 clusters; faiss 'please provide at least 195 training points'",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited",
+   "method": "README Builds on vs Pillutla et al. JMLR 2023 and Pimentel et al. ICLR 2023",
+   "command": "grep -n Pillutla README.md",
+   "expected": "embedding-choice prior work cited and novelty positioned",
+   "observed": "only the 2021 NeurIPS paper and RAID cited",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "mauvecheck.py:68",
+   "change": "h1, h2 = h[:n], h[n:2 * n] -> h1, h2 = h[:n], h[:n]",
+   "caught": false,
+   "test_cmd": "venv/bin/python -m unittest discover -s tests"
+  },
+  {
+   "where": "mauvecheck.py:56",
+   "change": "zip(w, w[1:]) -> zip(w, w[2:])",
+   "caught": true,
+   "test_cmd": "venv/bin/python -m unittest discover -s tests"
+  },
+  {
+   "where": "mauvecheck.py:48",
+   "change": "s[te] = clf.decision_function -> s[te] = -clf.decision_function",
+   "caught": true,
+   "test_cmd": "venv/bin/python -m unittest discover -s tests"
+  },
+  {
+   "where": "mauvecheck.py:90",
+   "change": "n = min(len(gen), N_CAP, len(human) // 2) -> n = min(len(gen), N_CAP)",
+   "caught": false,
+   "test_cmd": "venv/bin/python -m unittest discover -s tests"
+  },
+  {
+   "where": "mauvecheck.py:74",
+   "change": "[0] * n + [1] * n -> [1] * n + [0] * n (equivalent mutant: classifier trained on the same flipped labels)",
+   "caught": false,
+   "test_cmd": "venv/bin/python -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Headline 'every cell is far from its null ... separates machine text from human text in all 20 cells' rests on cell means only; per draw, wiki/mistral-chat (test 0.918/0.901 vs own null 0.919/0.902) and recipes/mpt-chat (0.978 above 4 of 5 nulls) overlap, and no per-cell test is run; repeated in research/README.md:779",
+   "where": "research/mimic-mauve/README.md:15",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "MAUVE run at n = 48 to 100 per side with 5 to 10 k-means buckets, far below the sample sizes MAUVE is validated at; cross-cell disagreements (news, recipes) are within per-cell sd (up to 0.21) and embedding-refit sensitivity (news/llama 0.54 vs 0.75), and the Spearman p-value treats 20 cells sharing 7 human pools as independent",
+   "where": "research/mimic-mauve/mauvecheck.py:22",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work on MAUVE embedding choice and classifier comparison (Pillutla et al. JMLR 2023; Pimentel et al. ICLR 2023) not cited, so the novelty of 'lexical MAUVE loosely tracks a lexical detector' is not positioned",
+   "where": "research/mimic-mauve/README.md:41",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Test and null use different SVD embeddings (refit on h1+g vs h1+h2), so they are not in one feature space as with a fixed extractor",
+   "where": "research/mimic-mauve/mauvecheck.py:70",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "No test checks the null halves are disjoint or the n cap: seeding null = h1 vs h1 (MAUVE 1) or dropping len(human)//2 leaves all tests green",
+   "where": "research/mimic-mauve/tests/test_mauvecheck.py:25",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "'and the reverse' has no backing cell: every cell with MAUVE < 0.15 has AUROC >= 0.97",
+   "where": "research/mimic-mauve/README.md:17",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "No requirements/lock file although byte-identical output depends on scikit-learn, faiss and mauve-text versions; per-draw values are not saved, so the separation claim cannot be checked from results.json",
+   "where": "research/mimic-mauve/mauvecheck.py:101",
+   "category": "repo-hygiene",
+   "origin": "build"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The computation is right and reproducible: results.json, results.txt and the figure rebuild byte-identically, and my own divergence-frontier implementation on the library's histograms, closed-form cases (1 and 1/252), Mann-Whitney AUROC, bigram counter and rank correlation all match to machine precision. It falls short of a MAUVE practitioner's sign-off on interpretation: the headline 'every cell far from its null' fails per draw in 2 of 20 cells, MAUVE is run at n = 48 to 100 (5 to 10 buckets) where it is noisy and embedding-sensitive, the Spearman p ignores shared human pools, the nearest prior work on embedding choice is uncited, and the tests would not notice a broken null. Finished (completeness 3), does not meet the bar (claims 2, verification 2, median 2)."
+}
