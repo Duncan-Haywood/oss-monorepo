@@ -53,6 +53,9 @@ repository being checked, so nothing needs fetching from another origin at all.
 - **Shadowed rules** — matched files in your list, but a later rule always overrode
   them. Real evidence the rule is dead weight, with the exact overriding rule and which
   files named.
+- **Redundant rules** — shadowed, but every rule that overrides them names the same
+  owners, so no file loses a reviewer. Reported as a notice (the line can go), not a
+  danger, and they do not fail `buildReport(...).ok`. Since 2026-11-19.
 - **Unmatched rules** — matched nothing in your list at all. Reported separately from
   shadowing on purpose: this usually means a typo in the pattern or a path that no
   longer exists, not proof the rule is wrong — the honest limit of evidence from a
@@ -114,9 +117,27 @@ cd ventures/codeowners-shadow-check && node --test
 ```
 
 Assertions across the parsing, gitignore-style pattern matching, and last-match-wins
-resolution logic (`codeowners.test.mjs`), the CLI's file-discovery and argument parsing
+resolution logic (`codeowners.test.mjs`), a differential test of the pattern matcher
+against `git check-ignore` itself (`codeowners.git.test.mjs`, below), the CLI's file-discovery and argument parsing
 (`check.test.mjs`), the usage counter (`usage.test.mjs`), and the page's structure,
 disclaimers, and worked example (`page.test.mjs`).
+
+### Tested against git
+
+GitHub says CODEOWNERS patterns follow `.gitignore` rules, apart from the exceptions
+its docs list. git is the reference implementation of those rules, so
+`codeowners.git.test.mjs` writes generated patterns (`*`, `?`, `**`, leading and
+trailing `/`, in up to three segments) one at a time to a scratch repository's
+`.gitignore`, asks `git check-ignore` about a real tree of files and directories, and
+compares every answer with `patternMatches`: about 20,000 pairs over three seeds in
+under two seconds. It leaves out the cases where GitHub documents different behaviour
+(`docs/*` does not reach nested files) and git's quirk of letting `a**` span `/`.
+
+Its first run, on 2026-11-19, found about 1% of pairs wrong, all from one bug: a
+trailing `**` (written as `docs/**`, or implied by a trailing slash in `build/`) also
+matched zero segments, so `build/` owned a *file* named `scripts/build`, and a rule
+for that file was wrongly reported as shadowed. Fixed the same day; seven seeds of
+about 45,000 compared pairs each now agree with git on every pair compared.
 
 ## Known gaps
 
