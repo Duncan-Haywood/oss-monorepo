@@ -294,10 +294,14 @@ go to 150–200 ms only if the motors may be slower than identified, at up to ab
 time than the 125 ms tune. Run the position integrator only within about a quarter of a step of the set
 point; with that, the 125 ms tune has no unsettled designs.
 
-**Figure plan.** VII-a: identified total and 75 ms count against the training ceiling at the
-39.1 ms floor, with the floor rows as a second series against their ceiling (`m7ac_ceil125.png`,
-extended). VII-b: rise time against identified total for all eleven rows, the coverage frontier
-(`m7z_floor75.png`, extended).
+**Figures.** Both are drawn by `paper/figures_vii.py` from the parsers that generate Table VII-1, so
+figure and table cannot disagree. VII-a (`paper/fig_VIIa.png`): identified total and the 75 ms count
+against the training ceiling, the 39.1 ms-floor sweep as one series and the intervals with ceiling
+twice the floor as another (the 33–78.2 ms row is neither and is left out). The two series lie close to one
+curve: at the identified lags what matters is the ceiling, not the floor, once the floor is not
+below the slow identification. VII-b (`paper/fig_VIIb.png`): rise time against identified total for
+the nine rows with a step test, the coverage frontier a builder picks a point on; 39.1–125 ms sits
+on its knee.
 
 ## VIII. Limitations (outline)
 
@@ -320,7 +324,7 @@ real tilt limit. Randomise the motor lag from the slowest identified value up to
 
 - Ten seeds for the paper figures (proposal, "Evaluation"); bootstrap intervals and Wilcoxon tests in place of sign counts.
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
-- Section VII: figures VII-a and VII-b; the same coverage sweep on the torque-scale and mass ranges; a set-point
+- Section VII: the same coverage sweep on the torque-scale and mass ranges; a set-point
   step term in the objective (milestone 7ae: training with conditional integration does not recover the rise time); twelve seeds per geometry at 125 and 150 ms.
 - Sections I–V and VII–VIII written out from the outlines; LaTeX in the RA-L template.
 - Hardware check (milestone 8).
