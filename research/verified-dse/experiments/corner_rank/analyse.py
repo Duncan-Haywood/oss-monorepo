@@ -206,6 +206,19 @@ def main(dst):
             f"median tau-b of routed score between corners (common sequences): {statistics.median(p['cross'] for p in ps):.3f}",
             f"Spearman of tauD against d over {len(units)} units: {spearman([u['tauD'] for u in units], [u['d'] for u in units]):+.3f}",
             f"Spearman of tauA against d over {len(units)} units: {spearman([u['tauA'] for u in units], [u['d'] for u in units]):+.3f}"]
+    out += ["", "## Post hoc: SWC(1.25) against equal-cost random by unit set (added after the first run, for the paper's corner table)", "",
+            "set | units | SWC % | random % | SWC better / worse / tied | sign p"]
+    fu, _ = m152.fresh_units()
+    tu, _ = m153.tt_units()
+    pair13 = {p["name"] for p in ps}
+    for label, us in (("ff milestones 144 to 147 (milestone 148's pool)", [u for u in m153.ac.units() if u["corner"] == "ff"]),
+                      ("ff milestone 152, all fresh", fu),
+                      ("ff milestone 152, the 13 paired", [u for u in fu if u["name"] in pair13]),
+                      ("tt milestone 153, the 13 paired", tu)):
+        dd = [m153.swc(u, ALPHA) - u["cell"]["rand"] for u in us]
+        b, w = sum(x < -1e-9 for x in dd), sum(x > 1e-9 for x in dd)
+        out.append(f"{label} | {len(us)} | {statistics.mean(m153.swc(u, ALPHA) for u in us):.2f} | "
+                   f"{statistics.mean(u['cell']['rand'] for u in us):.2f} | {b} / {w} / {len(us) - b - w} | {sign_p(b, w):.4f}")
     Path(dst).write_text("\n".join(out) + "\n")
     print("\n".join(out))
     return ps, summ

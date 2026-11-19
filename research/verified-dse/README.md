@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 144 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 154 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -161,6 +161,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **The ladder's ff edge on short add chains is not thinner on the same designs (milestone 154, paired replay of 13 designs run
+  at both ff and tt, five of seven predictions held; the primary failed narrowly).** SWC(1.25) beats equal-cost random routing by
+  1.51 points at ff and 1.50 at tt; milestone 152's thinner 1.05 comes from csum4, which ran only at ff. Across the 26 units the
+  ladder key's rank agreement with routing predicts its edge (Spearman -0.62), carried by mapped delay (-0.58), not mapped area
+  (+0.04, tau-b 0.92 at both corners); the key's tau-b falls 0.44 to 0.36 at ff (interval -0.18 to +0.01):
+  [`experiments/corner_rank/`](experiments/corner_rank/results.txt).
 - **The clip's alpha stays at 1.25 (milestone 153, blind flow run at tt on 13 of milestone 152's designs, six of seven
   predictions held, the primary among them).** alpha = 1, the best ff alpha on these designs after the fact, has 2.08% mean
   regret at tt against SWC(1.25)'s 1.69% (interval of the difference -0.05 to +1.01 points); every alpha from 0 to 1 gives the
