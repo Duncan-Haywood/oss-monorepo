@@ -33,7 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Target youth-lineup-rotator/calc.mjs (suite 2.8 s, changed in #17111). 12 mutants, 9 caught; 3 gaps closed, 12/12 after rerun. Real defect: empty can:/all-excluding not: silently benched a child; parse error added. Venture node --test: 36 pass 0 fail. Step 0: 11 open items all control-plane (workflows, prompts/redteam.py), still reproduce by grep on main (no proposal-terms glob, no fontoxpath install, no doc_index step, no framerate in browser_checks, no platform/ci/** in ventures-tests paths); left for owner-approved PRs. Guard: the new parse check itself stops the class (any can/not combination leaving zero positions). Minor unpatched: a hand-edited share link with an invalid keepermax sets the select to '' -> keeperMax 0 (only tampered links).",
+  "notes": "Target youth-lineup-rotator/calc.mjs (suite 2.8 s, changed in #17111). 12 mutants, 9 caught; 3 gaps closed, 12/12 after rerun. Real defect: empty can:/all-excluding not: silently benched a child; parse error added. Venture node --test: 36 pass 0 fail. Step 0: 11 open items all control-plane (workflows, prompts/redteam.py), still reproduce by grep on main (no proposal-terms glob, no fontoxpath install, no doc_index step, no framerate in browser_checks, no platform/ci/** in ventures-tests paths); left for owner-approved PRs. Guard: the new parse check itself stops the class (any can/not combination leaving zero positions). Minor unpatched: a hand-edited share link with an invalid keepermax sets the select to '' -> keeperMax 0 (only tampered links). Second defect: test_shallow_repair red on the CI runner (found when this PR's changed-ventures check failed), fixed in this PR.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -221,6 +221,12 @@
         "file": "ventures/youth-lineup-rotator/calc.mjs",
         "issue": "parsePlayers accepted an empty 'can:' (or a 'not:'/'can:' pair covering every position) as 'allowed nowhere', so the child silently sat the whole game and the only hint was a misleading 'sits two periods in a row' warning (repro: 'Ann | can:' with GK, DEF x2 -> Ann played 0 of 4). Now a parse error names the child; failing-first test in calc.test.mjs.",
         "patched": true
+      },
+      {
+        "file": "platform/ci/test_shallow_repair.py",
+        "issue": "test_a_lock_is_kept_while_a_git_process_runs_in_the_repo (from #17478) was red on GitHub's runner and green locally: it copied the sleep binary as 'git-sleeper', and a multicall coreutils (uutils) dispatches on argv[0], so it exited at once. The test went on without the process anyway (its wait loop never asserted). It failed ventures-tests' unwired checks for every PR. Now it uses a /bin/sh script (comm is named after the script), asserts the process is visible, and kills the process group.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17484"
       }
     ]
   }
