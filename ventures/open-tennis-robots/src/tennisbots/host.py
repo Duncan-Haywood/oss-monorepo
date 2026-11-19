@@ -488,22 +488,35 @@ def take_share_bound(rms, step: float = 1.0) -> float:
 TAKE_STRADDLE_MARGIN = 2
 
 
+# The second vote (2026-11-19, firmware/esp32/README.md "A second straddle vote at 2.5 ms"): the same count on the
+# kept wheels whose fit at 2.5 ms put the take across an edge. When the sums say TAKE_US = 0 and it leads by at least
+# this many, the Pi advises 2.5 ms, ahead of the 1.5 ms vote (a take both votes see is long enough that 2.5 ms is the
+# nearer). 0 turns it off. On ten stored sets (636 builds) margin 2 named 23 more spread takes (333 to 356 of 540), told
+# no instant build of 96 to set one and un-named none; margin 1 told 5 of 96 instant builds to set 2.5 ms.
+TAKE_STRADDLE_LONG_MARGIN = 2
+
+
 def take_survey_advice(sv: dict | None) -> str | None:
-    """take_survey_advice_sums, unless it says TAKE_US = 0 and the straddle vote (TAKE_STRADDLE_MARGIN) names 1.5 ms."""
+    """take_survey_advice_sums, unless it says TAKE_US = 0 and a straddle vote names a short take: the 2.5 ms vote
+    (TAKE_STRADDLE_LONG_MARGIN) first, then the 1.5 ms one (TAKE_STRADDLE_MARGIN)."""
     a = take_survey_advice_sums(sv)
-    if not a or "TAKE_US = 0" not in a or not TAKE_STRADDLE_MARGIN:
+    if not a or "TAKE_US = 0" not in a:
         return a
-    f, g = sv.get("straddle_for"), sv.get("straddle_against")
-    if f is None or g is None or f - g < TAKE_STRADDLE_MARGIN:
-        return a
-    n = sv.get("wheels") or 0
-    board = (sv.get("board_ms10") or 0) / 10
-    head = (f"contact-time survey: {n} wheels; the sums read an instant take, but of the {f + g} kept wheels whose fit "
-            f"at 1.5 ms put the contact across a revolution's edge, {f} fit 1.5 ms better than an instant take and "
-            f"{g} worse (the only balls that can show a take this short): ")
-    if abs(board - 1.5) <= 0.5:
-        return head + f"TAKE_US already matches ({board:g} ms)"
-    return head + "set TAKE_US = 1500 in config.py and re-flash"
+    for us, kf, kg, margin in ((2500, "straddle_long_for", "straddle_long_against", TAKE_STRADDLE_LONG_MARGIN),
+                               (1500, "straddle_for", "straddle_against", TAKE_STRADDLE_MARGIN)):
+        f, g = sv.get(kf), sv.get(kg)
+        if not margin or f is None or g is None or f - g < margin:
+            continue
+        ms = us / 1000
+        n = sv.get("wheels") or 0
+        board = (sv.get("board_ms10") or 0) / 10
+        head = (f"contact-time survey: {n} wheels; the sums read an instant take, but of the {f + g} kept wheels whose "
+                f"fit at {ms:g} ms put the contact across a revolution's edge, {f} fit {ms:g} ms better than an instant "
+                f"take and {g} worse (the only balls that can show a take this short): ")
+        if abs(board - ms) <= 0.5:
+            return head + f"TAKE_US already matches ({board:g} ms)"
+        return head + f"set TAKE_US = {us} in config.py and re-flash"
+    return a
 
 
 def take_survey_advice_sums(sv: dict | None) -> str | None:
@@ -620,7 +633,8 @@ class FeederLink:
                 # the frame's length says how many candidates it carries: firmware before 2026-11-19 sent seven, and
                 # before that day's short-take grid eight (always with the summed-wheel byte); since the tenths frame
                 # (README "The take survey's rms in tenths of a ppm") a last byte gives the rms slots' units per ppm
-                times, scaled = {5 + P.TAKE_SURVEY_TIMES + 3: (P.TAKE_SURVEY_TIMES, True),
+                times, scaled = {5 + P.TAKE_SURVEY_TIMES + 5: (P.TAKE_SURVEY_TIMES, True),
+                                 5 + P.TAKE_SURVEY_TIMES + 3: (P.TAKE_SURVEY_TIMES, True),
                                  5 + P.TAKE_SURVEY_TIMES + 1: (P.TAKE_SURVEY_TIMES, True),
                                  5 + P.TAKE_SURVEY_TIMES: (P.TAKE_SURVEY_TIMES, False),
                                  5 + P.EIGHT_TAKE_SURVEY_TIMES: (P.EIGHT_TAKE_SURVEY_TIMES, False)}.get(
@@ -635,7 +649,10 @@ class FeederLink:
                                     # straddle vote at 1.5 ms (README "Straddling wheels vote on the short takes");
                                     # None: firmware before it
                                     "straddle_for": vals[nt + 2] if len(vals) > nt + 3 else None,
-                                    "straddle_against": vals[nt + 3] if len(vals) > nt + 3 else None}
+                                    "straddle_against": vals[nt + 3] if len(vals) > nt + 3 else None,
+                                    # the same at 2.5 ms (README "A second straddle vote at 2.5 ms"); None before it
+                                    "straddle_long_for": vals[nt + 4] if len(vals) > nt + 5 else None,
+                                    "straddle_long_against": vals[nt + 5] if len(vals) > nt + 5 else None}
             elif cmd == P.ESC_SURVEY:
                 self.esc_survey = {"t": now, "wheels": vals[0], "least_ms": vals[1], "refined_ms": vals[2],
                                    "rms_ppm": [None if v == 65535 else v for v in vals[3:]]}
