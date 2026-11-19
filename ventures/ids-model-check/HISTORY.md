@@ -11,3 +11,6 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-19) Sets for one predefined type 2026-11-19 (eval/predefined-sets-2026-11-19.md: 186 IFC4, 343 IFC4X3 sets; audit warns pset-predefined, editor fills the type; 1,008 of 1,008 offers agree)
 - (moved 2026-11-19) Template types 2026-11-19 (eval/template-types-2026-11-19.md: occurrence sets on types, performance sets off IfcPerformanceHistory warned, 1,280 of 1,280 editor pairs agree)
 - (moved 2026-11-19) IDS as a spreadsheet 2026-11-19 (eval/sheet-roundtrip-2026-11-19.md: .xlsx/CSV both ways; 334 of 334 test IDS, 62 of 64 public same back)
+- (moved 2026-11-19) Excel-saved workbooks 2026-11-19 (eval/excel-workbooks-2026-11-19.md: 65,537 of 65,548 cells agree with openpyxl)
+- (moved 2026-11-19) Excel2IDS template workbooks both ways 2026-11-19 (excel2ids.mjs, eval/excel2ids-2026-11-19.md: 309 of 309 public specs that fit come back the same; partOf, unnamed material, ranges do not fit)
+- (moved 2026-11-19) Excel2IDS tool differences cell by cell 2026-11-19 (eval/excel2ids-tool-2026-11-19.md: page and CLI list where the .exe writes another IDS or stops; download fills purpose General, tool stops 316 to 0 of 351; sample's External doors asks True)

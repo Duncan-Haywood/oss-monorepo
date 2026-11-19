@@ -1,0 +1,22 @@
+117 distinct IDS files read (1 not readable as IDS)
+requirement property facets: 1317; with a uri: 316; without: 1001
+suggested links: 619 (111 Qto_ quantities) in 54 files (27 where the facet's dataType is not the template's)
+no suggestion, by reason: name or set is a pattern/enumeration/missing 24; set is not an IFC 4.3 template 322; name not in that template 36
+facets already linking the IFC dictionary: 212; rule gives the same link: 196 (15 of them Qto_ quantities); rule gives another: 2; rule gives none: 14
+  differs  255ribeiro__intro_ifc__docs_IDS_IDS_TEMPLATE.ids: Qto_WallBaseQuantities.Width links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/Name; rule gives https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/Width
+  differs  buildingSMART-Japan__bSI_IDS_ja__Documentation_Examples_IDS_oma_input.ids: Pset_SpaceOccupancyRequirements.AreaPerOccupant links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/OccupancyNumberPeak; rule gives https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/AreaPerOccupant
+  no rule  peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_24-9.11-Buitengebied.ids: null.IsExternal links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/IsExternal
+  no rule  peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_24-9.11-Buitengebied.ids: null.PubliclyAccessible links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/PubliclyAccessible
+  no rule  peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_24-9.11-Buitengebied.ids: null.HandicapAccessible links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/HandicapAccessible
+  no rule  peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_29-9.13-Buitenruimte.ids: null.HandicapAccessible links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/HandicapAccessible
+  no rule  peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_29-9.13-Buitenruimte.ids: null.PubliclyAccessible links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/PubliclyAccessible
+  no rule  CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_ucms_prefab_pipes_IFC4.3.ids: ePset_Pipe.outside diameter_general links http://identifier.buildingsmart.org/uri/buildingsmart/ifc-4.3/prop/outsidediameter
+  no rule  PeterSimanek__IDS-in-Open-BIM-Workflow-Potential-Limitations__IDS_TestFiles_IDS_DataTypes.ids: Attributes.Description links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/Description
+  no rule  PeterSimanek__IDS-in-Open-BIM-Workflow-Potential-Limitations__IDS_TestFiles_IDS_DataTypes.ids: Attributes.ElementType links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/ElementType
+  no rule  PeterSimanek__IDS-in-Open-BIM-Workflow-Potential-Limitations__IDS_TestFiles_IDS_DataTypes.ids: Attributes.GlobalId links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/GlobalId
+  no rule  PeterSimanek__IDS-in-Open-BIM-Workflow-Potential-Limitations__IDS_TestFiles_IDS_DataTypes.ids: Attributes.Name links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/Name
+  no rule  PeterSimanek__IDS-in-Open-BIM-Workflow-Potential-Limitations__IDS_TestFiles_IDS_DataTypes.ids: Attributes.ObjectType links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/ObjectType
+  no rule  PeterSimanek__IDS-in-Open-BIM-Workflow-Potential-Limitations__IDS_TestFiles_IDS_DataTypes.ids: undefined_set.IsExternal links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/IsExternal
+  no rule  PeterSimanek__IDS-in-Open-BIM-Workflow-Potential-Limitations__IDS_TestFiles_IDS_DataTypes.ids: undefined_set.LoadBearing links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/LoadBearing
+  no rule  peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_40-9.18g-Fysieke-elementen-IfcSlab.ids: Pset_SlabCommon.Thermal Transmittance [ThermalTransmittance] links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/ThermalTransmittance
+addBsddLinks: 54 of 54 files change only by the inserted uri attributes, parse to the same specifications, and need no further link

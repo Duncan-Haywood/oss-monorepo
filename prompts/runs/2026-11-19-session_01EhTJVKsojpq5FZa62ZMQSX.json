@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVKsojpq5FZa62ZMQSX",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled routine: ventures brief (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "0bc78f510989f0953622f85fe45592781a8d26df494c25e306d82125cc1c0335",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T15:05:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check (flagship 12): buildable item 'bSDD: suggested links back' -- offline IFC 4.3 bSDD uri for standard property facets",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": 17700,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "page.test.mjs allowed the page to fetch samples/ only; the new psets fetch failed it",
+      "fix": "test now also allows the page's own ./schema/ files"
+    },
+    {
+      "what": "first preflight failed: post title 73 chars with no seo_title",
+      "fix": "added seo_title"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "buildable item 'bSDD: suggested links back' named no meaning; read as 'write the bSDD links a facet lacks' from the bsdd.mjs context"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-ids-model-check-bsdd-links-written-for-you.md",
+    "ventures/ids-model-check/eval/bsdd-suggest-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "bsdd-suggest.mjs + cli --link-bsdd + page box/download. eval/bsdd-suggest-corpus.mjs over 117 distinct public IDS: 1,317 requirement property facets, 316 with uri; 619 suggested in 54 files (111 Qto_); 212 already linking IFC: 196 same, 2 differ (both author slips found by the bSDD check), 14 no standard set. 54 of 54 outputs equal input plus attributes byte for byte. bSDD API blocked by proxy (403) here, so suggestions not looked up live; evidence is the earlier live corpus run. Local checks: run_venture_tests ids-model-check 355 tests ok; check_posts ok; platform/pages writing.test.mjs 53 ok; Chromium drive of the page on samples/coordination-basics.ids.xml: 2 links listed, download has 2 uri, no page errors.",
+  "corrections": [],
+  "redteam": null
+}

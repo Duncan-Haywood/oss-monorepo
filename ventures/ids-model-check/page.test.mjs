@@ -16,7 +16,7 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 test("every file input has a label, and the page only fetches its own files", () => {
   const html = page("index.html");
   for (const id of ["ifc", "ids"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
-  for (const m of html.matchAll(/fetch\(([^)]*)\)/g)) assert.match(m[1], /^"samples\//, m[1]);
+  for (const m of html.matchAll(/fetch\(([^)]*)\)/g)) assert.match(m[1], /^"(samples|\.\/schema)\//, m[1]);
   assert.doesNotMatch(html, /XMLHttpRequest|sendBeacon/);
   for (const m of page("worker.mjs").matchAll(/fetch\(([^)]*)\)/g)) assert.match(m[1], /new URL\("\.\/schema\//);
 });
