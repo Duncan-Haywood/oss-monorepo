@@ -20,14 +20,14 @@ const SD = stateCsv('South Dakota');
 test('--spells dates South Dakota\'s Wednesdays-only spell (README K1) in the text output', async () => {
   const { code, s } = await run(['--spells', '--no-agreed'], SD);
   assert.equal(code, 0);
-  assert.match(s, /Short spells of fewer updates: one spell .*2021-07-03 to 2021-08-10 \(39 steps\): the value repeated on 85% of steps inside, against 32% before and after, read weekday by weekday/);
+  assert.match(s, /Short spells of fewer updates: one spell .*2021-07-03 to 2021-08-10 \(39 steps\): the value repeated on 85% of steps inside, against 32% before and after, read on the weekdays where the schedule changed \(Mondays, Tuesdays, Thursdays and Fridays\)/);
   const off = await run(['--no-agreed'], SD);
   assert.doesNotMatch(off.s, /Short spells/, 'off unless asked');
 });
 
 test('--spells --json carries the spell with its labels; an undated series is refused, not guessed', async () => {
   const r = JSON.parse((await run(['--spells', '--json'], SD)).s);
-  assert.deepEqual(r.shortSpells.spells.map((x) => [x.fromLabel, x.toLabel, x.kind]), [['2021-07-03', '2021-08-10', 'dow']]);
+  assert.deepEqual(r.shortSpells.spells.map((x) => [x.fromLabel, x.toLabel, x.kind]), [['2021-07-03', '2021-08-10', 'weekdays']]);
   const undated = 'v\n' + Array.from({ length: 80 }, (_, i) => Math.floor(i / 3)).join('\n');
   const u = JSON.parse((await run(['--spells', '--json'], undated)).s);
   assert.match(u.shortSpells.refused, /date on every row/);

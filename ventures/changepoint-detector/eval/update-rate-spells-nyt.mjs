@@ -96,7 +96,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   for (const st of STATES) {
     const x = by.get(st);
     if (!x) { console.log(`${st}: not in the file`); continue; }
-    res.set(st, spellsResult(x.values, x.dates));
+    res.set(st, spellsResult(x.values, x.dates, { score: 'dow' }));
   }
   const pct = (v) => `${(100 * v).toFixed(0)}%`;
   const fmt = (s) => `${s.fromLabel}..${s.toLabel} (${s.steps} days, ${s.kind}) ${pct(s.shareInside)} inside, ${pct(s.shareOutside)} around, gain ${s.gain.toFixed(1)}`;

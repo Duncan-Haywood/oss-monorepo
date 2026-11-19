@@ -39,7 +39,7 @@ for (const [name, by] of P) {
   const x = by.get('Alaska'), u = updateRateChanges(x.values);
   console.log(`  ${name} n ${x.values.length} from ${x.dates[0]}; cuts ${u.changes.map((c) => `${x.dates[c.index]} ${c.direction} ${pct(c.shareBefore)}->${pct(c.shareAfter)}`).join(', ')}`);
   for (const m of [3.5, 3, 2.5]) {
-    const r = shortSpells(x.values, { days: daysFromDates(x.dates), mult: m, u });
+    const r = shortSpells(x.values, { days: daysFromDates(x.dates), mult: m, u, score: 'dow' });
     console.log(`    m ${m} (penalty ${r.penalty.toFixed(1)}): ${r.spells.length ? r.spells.map((s) => `${x.dates[s.from]}..${x.dates[s.to]} gain ${s.gain.toFixed(1)}`).join('; ') : 'none'}`);
   }
 }
