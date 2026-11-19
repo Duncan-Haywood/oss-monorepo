@@ -1,6 +1,6 @@
 117 distinct IDS files read (1 not readable as IDS)
 requirement property facets: 1317; with a uri: 316; without: 1001
-suggested links: 619 (111 Qto_ quantities) in 54 files (27 where the facet's dataType is not the template's)
+suggested links: 617 (111 Qto_ quantities) in 54 files (27 where the facet's dataType is not the template's)
 no suggestion, by reason: name or set is a pattern/enumeration/missing 24; set is not an IFC 4.3 template 322; name not in that template 36
 facets already linking the IFC dictionary: 212; rule gives the same link: 196 (15 of them Qto_ quantities); rule gives another: 2; rule gives none: 14
   differs  255ribeiro__intro_ifc__docs_IDS_IDS_TEMPLATE.ids: Qto_WallBaseQuantities.Width links https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/Name; rule gives https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/Width

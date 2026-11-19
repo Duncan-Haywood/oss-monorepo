@@ -39,6 +39,15 @@ export const IFC43_DICTIONARY = "https://identifier.buildingsmart.org/uri/buildi
 
 const simpleOf = (v) => (v && v.simple !== undefined && typeof v.simple === "string" ? v.simple : null);
 
+// Template property names whose rule link bSDD does not resolve: bSDD's IFC
+// 4.3 dictionary leaves them out of every set (eval/bsdd-template-sweep.mjs
+// asks bSDD for all 760 template sets and fails when this list is out of
+// date; eval/bsdd-suggest-live-2026-11-19.md). No link is better than one
+// that the bSDD check then reports as not found.
+export const BSDD_UNLINKED = new Set([
+  "Reference",
+]);
+
 export function ifc43PropUri(name) {
   return `${IFC43_DICTIONARY}/prop/${name}`;
 }
@@ -64,7 +73,7 @@ export function suggestBsddLinks(idsText, { psets } = {}) {
       const baseName = simpleOf(new IdsValue(kid(f, "baseName") || kid(f, "name")));
       if (!propertySet || !baseName) continue;
       const tpl = Object.prototype.hasOwnProperty.call(table, propertySet) ? table[propertySet] : null;
-      if (!tpl || !Object.prototype.hasOwnProperty.call(tpl.props, baseName)) continue;
+      if (!tpl || !Object.prototype.hasOwnProperty.call(tpl.props, baseName) || BSDD_UNLINKED.has(baseName)) continue;
       const dataType = (f.attrs.dataType ?? f.attrs.datatype ?? "").toUpperCase() || null;
       const ifcType = tpl.props[baseName].type || null;
       out.push({
