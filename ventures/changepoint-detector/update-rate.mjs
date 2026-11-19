@@ -535,3 +535,31 @@ export function shortSpells(values, { days, mult = SHORT_SPELLS.mult, guard = SH
   }
   return { spells, penalty };
 }
+
+// ---- The --spells line (CLI --spells, the page's "short spells" box; README "Short sparse spells on the CLI and page"). ----
+// shortSpells needs a weekday per step, so it runs only when every label is a date (YYYY-MM-DD). The search is
+// quadratic in each stretch's length (about 1 s on 1,143 daily values), so it stops at SPELLS_MAX_POINTS.
+export const SPELLS_MAX_POINTS = 4000;
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}/;
+
+/**
+ * Run shortSpells for the CLI or page. Returns { spells: [{ ...spell, fromLabel, toLabel }], penalty } or
+ * { refused: reason }. `u` reuses an updateRateChanges result for the same values.
+ */
+export function spellsResult(values, labels, { u = null, maxPoints = SPELLS_MAX_POINTS } = {}) {
+  if (values.length > maxPoints) return { refused: `${values.length} points is above the ${maxPoints} the spell search runs on` };
+  if (!labels || labels.length !== values.length || !labels.every((l) => ISO_DAY.test(String(l)) && !Number.isNaN(Date.parse(String(l).slice(0, 10))))) {
+    return { refused: 'it needs a date on every row (YYYY-MM-DD labels), to read the weekday of each update' };
+  }
+  const { spells, penalty } = shortSpells(values, { days: daysFromDates(labels), u });
+  return { spells: spells.map((s) => ({ ...s, fromLabel: String(labels[s.from]), toLabel: String(labels[s.to]) })), penalty };
+}
+
+/** One plain line for the CLI and the page, or null when there is nothing to say. */
+export function spellsLine(res) {
+  if (!res) return null;
+  if (res.refused) return `Short spells of fewer updates: not searched, because ${res.refused}.`;
+  if (!res.spells.length) return 'Short spells of fewer updates: none found (no stretch of a month or so where the series repeated its last value clearly more often than before and after it).';
+  const one = (s) => `${s.fromLabel} to ${s.toLabel} (${s.steps} steps): the value repeated on ${pct(s.shareInside)} of steps inside, against ${pct(s.shareOutside)} before and after${s.kind === 'dow' ? ', read weekday by weekday because the stretch runs on a weekly schedule' : ''}`;
+  return `Short spells of fewer updates: ${res.spells.length === 1 ? 'one spell' : `${res.spells.length} spells`} where the series was refreshed on fewer days for a while and then went back to its old schedule: ${res.spells.map(one).join('; ')}. This is about how often the data was published (a reduced reporting schedule, a holiday spell), not its level; a jump at the end of a spell may be a catch-up.`;
+}

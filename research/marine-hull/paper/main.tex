@@ -155,7 +155,19 @@ mean 5.68\,m/s~\cite{ndbc2024}; \texttt{results\_wind\_air\_drag.txt}) costs the
 hydrofoil's break-even up, not down: 706\,W and 841\,W (box median 1{,}086\,W, minimum 420\,W), because at
 the crossover the monohull already runs at 2.3\,m/s and the foil's whole hull is in air. The
 200\,W scope holds in every case, with winds scaled by 0.86 or 1.5 (874\,W at 0.4\,m$^2$), and
-per buoy-month the break-even spans only 701 to 711\,W at 0.1\,m$^2$. Spray drag and waves remain unmodelled.
+per buoy-month the break-even spans only 701 to 711\,W at 0.1\,m$^2$. Waves cost the slow hull more
+than wind. The ITTC STAWAVE-2 transfer function~\cite{ittc2021trials}, integrated over the ITTC 1978
+spectrum of each of 14{,}758 hourly NDBC sea states (20 buoy-months, 2024, mean $H_s$ 1.44\,m~\cite{ndbc2024};
+\texttt{results\_wave\_added\_resistance.txt}), costs the monohull 2.52\% of its 30\,W range when, as the
+procedure prescribes, only waves within $\pm45^\circ$ of the bow add resistance, and 9.37\% if every wave
+were met head-on; its best speed stays at 1.00\,m/s. The 4\,m hulls lie outside the method's validated
+range (length 50 to 400\,m, $B/T$ 2.2 to 9), so these figures are extrapolations. Even giving the hydrofoil
+no added resistance at all, the monohull still leads to 200\,W in every case, and the central crossover
+moves only from 659\,W to 651\,W (627\,W for all head seas; 698\,W with the measured wind as well), because
+at the crossover the monohull runs at 2.3\,m/s where its calm-water resistance dwarfs the wave term. The
+larger effect is on whether the foil can fly: only 2.4\% of the hours have $H_s$ at or below its 0.3\,m
+strut draft, 11.9\% at or below 0.5\,m and 37.0\% at or below 1\,m, and at the four Pacific buoys
+under 23\% of hours at or below 1\,m in either month. Spray drag remains unmodelled.
 
 \begin{figure}[t]
 \centering
