@@ -1,0 +1,30 @@
+H6ad-i reproduction of unc on the standard batches against scale.jsonl (H = 32, seeds 4 and 5)
+  unc seed 4: 1.6024894863 vs 1.6024894863 (+0.0e+00)  torch 2.15.0+cu132
+  unc seed 5: 1.5820599124 vs 1.5820599124 (+0.0e+00)  torch 2.15.0+cu132
+H6ad-i (bit-exact, 2 checks): held
+
+seeds 4-7: paired by seed against unc; T = clean - unc, C = full - unc, b = full - clean (std); fresh T, C
+  rk4 omega 3 n 4: T -0.0074 (0.0039)  b +0.0034 (0.0012) b/omega 0.0011  | fresh T -0.0085 (0.0033) sign-flip P 0.125  fresh C -0.0051 (0.0043)
+        fresh T per seed 4:-0.0037 5:-0.0125 6:-0.0157 7:-0.0022
+  rk8 omega 7 n 4: T +0.0045 (0.0033)  b +0.0076 (0.0005) b/omega 0.0011  | fresh T +0.0039 (0.0017) sign-flip P 0.250  fresh C +0.0117 (0.0016)
+        fresh T per seed 4:-0.0010 5:+0.0065 6:+0.0044 7:+0.0058
+
+seeds 0-3 (6ac): paired by seed against unc; T = clean - unc, C = full - unc, b = full - clean (std); fresh T, C
+  rk4 omega 3 n 4: T -0.0085 (0.0061)  b +0.0042 (0.0005) b/omega 0.0014  | fresh T -0.0059 (0.0082) sign-flip P 0.500  fresh C -0.0017 (0.0088)
+        fresh T per seed 0:-0.0096 1:+0.0179 2:-0.0190 3:-0.0131
+  rk8 omega 7 n 4: T -0.0001 (0.0074)  b +0.0112 (0.0013) b/omega 0.0016  | fresh T +0.0016 (0.0092) sign-flip P 0.875  fresh C +0.0117 (0.0092)
+        fresh T per seed 0:-0.0176 1:+0.0199 2:-0.0105 3:+0.0148
+
+pooled 0-7: paired by seed against unc; T = clean - unc, C = full - unc, b = full - clean (std); fresh T, C
+  rk4 omega 3 n 8: T -0.0080 (0.0033)  b +0.0038 (0.0006) b/omega 0.0013  | fresh T -0.0072 (0.0041) sign-flip P 0.133  fresh C -0.0034 (0.0046)
+        fresh T per seed 0:-0.0096 1:+0.0179 2:-0.0190 3:-0.0131 4:-0.0037 5:-0.0125 6:-0.0157 7:-0.0022
+  rk8 omega 7 n 8: T +0.0022 (0.0039)  b +0.0094 (0.0009) b/omega 0.0013  | fresh T +0.0028 (0.0044) sign-flip P 0.539  fresh C +0.0117 (0.0043)
+        fresh T per seed 0:-0.0176 1:+0.0199 2:-0.0105 3:+0.0148 4:-0.0010 5:+0.0065 6:+0.0044 7:+0.0058
+
+unc fresh loss per seed 0:1.6328 1:1.5933 2:1.6228 3:1.6141 4:1.6320 5:1.6090 6:1.6332 7:1.6267
+
+H6ad-ii  (pooled omega 3 recipe below unc on fresh by > 2 se): refuted (-0.0072, -1.8 se)
+H6ad-iii (pooled omega 3 fresh T below zero, point estimate): held (-0.0072)
+H6ad-iv  (pooled omega 7 fresh T within 2 se of zero): held (+0.0028, +0.6 se)
+H6ad-v   (b / omega in [0.0012, 0.0020] for omega 3 and 7 on seeds 4-7): refuted (0.0011, 0.0011)
+H6ad-vi  (per-seed fresh T of omega 3 and omega 7 correlate, Pearson > 0.5, n 8): held (r +0.53)
