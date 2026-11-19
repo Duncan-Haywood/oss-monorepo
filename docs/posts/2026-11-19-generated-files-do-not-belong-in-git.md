@@ -31,3 +31,11 @@ anyone who has them installed). A future `git add .` can't bring them back.
 Not every one of the 25 `UNSTABLE CHECKOUT` reports in the run records came from this. Most came
 from agents committing mid-sweep, which earlier fixes already handle. But this one had no
 workaround short of not testing the venture, so for a single file it cost an unusual amount.
+
+While checking main for live faults the same run found a second false alarm, this one in a test.
+The research homepage test looks for double-escaped entities like `&amp;minus;`, which show up
+on a page as the literal text "&minus;". It matched any `&word;`. The marine-hull log mentions
+"A&S;" (Abramowitz and Stegun, then a semicolon). The builder correctly escaped that to `&amp;S;`
+so the page shows it as written, and the test failed main anyway. The test now counts a match only
+when the name is a real HTML entity (Python's `html.entities.html5`), so it still catches the
+failure it was written for.
