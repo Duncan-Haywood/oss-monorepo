@@ -5,6 +5,7 @@ checks the published form: structured data on every page, no third-party font
 request, the self-hosted fonts beside it, sized figures, and an index that
 does not carry every abstract.
 """
+import html.entities
 import json
 import re
 import subprocess
@@ -226,9 +227,12 @@ class ResearchIndexLengthTest(unittest.TestCase):
     def test_no_page_shows_an_escaped_entity_or_raw_emphasis(self):
         # Authors type &minus; and *word* in LOG.md and README ledes; the page must show
         # "−" and italics, not "&minus;" or literal asterisks (1,075 did before 2026-11-14).
+        # Only a real entity name counts: "A&S;" (Abramowitz and Stegun, then a semicolon, in
+        # marine-hull's LOG.md, 2026-11-19) is text, and "&amp;S;" shows it exactly as typed.
         bad = re.compile(r"&amp;(#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]*);")
         hits = [f"{p.relative_to(self.out)}: {m.group(0)}" for p in sorted(self.out.rglob("*.html"))
-                for m in bad.finditer(p.read_text())]
+                for m in bad.finditer(p.read_text())
+                if m.group(1).startswith("#") or m.group(1) + ";" in html.entities.html5]
         self.assertEqual(hits[:5], [], f"{len(hits)} double-escaped entities")
         page = (self.out / "abstention-scoring" / "index.html").read_text()
         self.assertNotIn("Eliciting drift *variance*", page)
