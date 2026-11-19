@@ -1,0 +1,215 @@
+{
+  "runs": 500,
+  "files": [
+    {
+      "file": "CCA_R03_dt_24Oct11SC.xer",
+      "varied": 13653,
+      "forecast": "2013-06-22 16:59",
+      "forecastDays": 524,
+      "zeroWidthExact": true,
+      "cases": [
+        {
+          "correlation": 0,
+          "P10": 29.3,
+          "P50": 38.9,
+          "P80": 45.9,
+          "P90": 48.7,
+          "pForecast": 0,
+          "pMustFinish": 0,
+          "everCritical": 412,
+          "forecastPath": 22,
+          "nearCritical": 47,
+          "seconds": 70.2
+        },
+        {
+          "correlation": 0.3,
+          "P10": 9,
+          "P50": 34.6,
+          "P80": 52.1,
+          "P90": 62.8,
+          "pForecast": 0.052,
+          "pMustFinish": 0.114,
+          "everCritical": 402,
+          "forecastPath": 22,
+          "nearCritical": 46,
+          "seconds": 72.5
+        }
+      ]
+    },
+    {
+      "file": "Expressway_Project.xer",
+      "varied": 821,
+      "forecast": "2016-08-28 17:00",
+      "forecastDays": 1154,
+      "zeroWidthExact": true,
+      "cases": [
+        {
+          "correlation": 0,
+          "P10": 181.3,
+          "P50": 223.5,
+          "P80": 245.4,
+          "P90": 258.9,
+          "pForecast": 0,
+          "pMustFinish": 0,
+          "everCritical": 30,
+          "forecastPath": 5,
+          "nearCritical": 0,
+          "seconds": 2.4
+        },
+        {
+          "correlation": 0.3,
+          "P10": 121.7,
+          "P50": 206.2,
+          "P80": 239.7,
+          "P90": 254.6,
+          "pForecast": 0,
+          "pMustFinish": 0,
+          "everCritical": 34,
+          "forecastPath": 5,
+          "nearCritical": 0,
+          "seconds": 2.1
+        }
+      ]
+    },
+    {
+      "file": "example_xer_file.xer",
+      "varied": 365,
+      "forecast": "2027-05-06 16:59",
+      "forecastDays": 213,
+      "zeroWidthExact": true,
+      "cases": [
+        {
+          "correlation": 0,
+          "P10": 7.9,
+          "P50": 14.6,
+          "P80": 23.8,
+          "P90": 28.7,
+          "pForecast": 0,
+          "pMustFinish": 0.036,
+          "everCritical": 96,
+          "forecastPath": 13,
+          "nearCritical": 15,
+          "seconds": 0.4
+        },
+        {
+          "correlation": 0.3,
+          "P10": 1.2,
+          "P50": 15,
+          "P80": 25,
+          "P90": 30.5,
+          "pForecast": 0.084,
+          "pMustFinish": 0.216,
+          "everCritical": 78,
+          "forecastPath": 13,
+          "nearCritical": 14,
+          "seconds": 0.5
+        }
+      ]
+    },
+    {
+      "file": "hotel-project.xer",
+      "varied": 3973,
+      "forecast": "2014-07-23 16:00",
+      "forecastDays": 662,
+      "zeroWidthExact": true,
+      "cases": [
+        {
+          "correlation": 0,
+          "P10": 42.6,
+          "P50": 55,
+          "P80": 66,
+          "P90": 72,
+          "pForecast": 0,
+          "pMustFinish": 0,
+          "everCritical": 774,
+          "forecastPath": 79,
+          "nearCritical": 76,
+          "seconds": 8.4
+        },
+        {
+          "correlation": 0.3,
+          "P10": 15.5,
+          "P50": 51.9,
+          "P80": 72.7,
+          "P90": 83.9,
+          "pForecast": 0.024,
+          "pMustFinish": 0.024,
+          "everCritical": 715,
+          "forecastPath": 79,
+          "nearCritical": 136,
+          "seconds": 9.1
+        }
+      ]
+    },
+    {
+      "file": "sample.xer",
+      "varied": 30,
+      "forecast": "2021-10-07 16:00",
+      "forecastDays": 150,
+      "zeroWidthExact": true,
+      "cases": [
+        {
+          "correlation": 0,
+          "P10": 4.9,
+          "P50": 7.3,
+          "P80": 9.1,
+          "P90": 10.1,
+          "pForecast": 0,
+          "pMustFinish": null,
+          "everCritical": 30,
+          "forecastPath": 30,
+          "nearCritical": 0,
+          "seconds": 0.1
+        },
+        {
+          "correlation": 0.3,
+          "P10": -0.9,
+          "P50": 6.8,
+          "P80": 12.3,
+          "P90": 15.7,
+          "pForecast": 0.124,
+          "pMustFinish": null,
+          "everCritical": 30,
+          "forecastPath": 30,
+          "nearCritical": 0,
+          "seconds": 0
+        }
+      ]
+    },
+    {
+      "file": "terminal-building-airport.xer",
+      "varied": 63,
+      "forecast": "2013-02-27 17:00",
+      "forecastDays": 303,
+      "zeroWidthExact": true,
+      "cases": [
+        {
+          "correlation": 0,
+          "P10": 12.5,
+          "P50": 18.4,
+          "P80": 22.2,
+          "P90": 24.1,
+          "pForecast": 0,
+          "pMustFinish": 0,
+          "everCritical": 46,
+          "forecastPath": 16,
+          "nearCritical": 29,
+          "seconds": 0.1
+        },
+        {
+          "correlation": 0.3,
+          "P10": 2,
+          "P50": 17.1,
+          "P80": 28,
+          "P90": 33.5,
+          "pForecast": 0.072,
+          "pMustFinish": 0.088,
+          "everCritical": 46,
+          "forecastPath": 16,
+          "nearCritical": 29,
+          "seconds": 0.1
+        }
+      ]
+    }
+  ]
+}

@@ -566,4 +566,9 @@ flagships:
       real file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
       eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
       next a real reviewer's reading of one and a full-list appendix option; (5)
-      resource levelling and expected finish dates.
+      Monte Carlo finish risk shipped 2026-11-19 (risk.mjs: P10-P90, chance of
+      forecast and must-finish, criticality index; zero-width run = CPM on six
+      files, eval/risk-check-2026-11-19.md); next: risk register events (probability
+      x impact on named activities), ranges from a P6 UDF or the three-point
+      columns, risk in the written review; (6) resource levelling and expected
+      finish dates.
