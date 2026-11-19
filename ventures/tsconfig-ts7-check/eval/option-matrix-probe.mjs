@@ -1,5 +1,8 @@
 // Sets each tsconfig option (every enum value) alone and records what tsc 5.9.3, 6.0.3 and 7.0.2 report.
 // Expects ./t59, ./t6, ./t7 installs beside it (npm i typescript@<v> in each); output: option-matrix.json.
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const __dirname = require('node:path').dirname(new URL(import.meta.url).pathname);
 const ts=require("./t6/node_modules/typescript");
 const fs=require("fs"),cp=require("child_process"),path=require("path");
 const W=path.join(__dirname,"work");

@@ -58,3 +58,8 @@ test('the page states the eval numbers that results.json holds', () => {
 test('the table lists every 5.5-removed option', () => {
   for (const r of REMOVED_IN_55) if (r.option !== 'target') assert.ok(html.includes(`<code>${r.option}</code>`), r.option);
 });
+
+test('the footer links its siblings one hop away (cyclehound links back)', () => {
+  assert.match(html, /href="\.\.\/cyclehound\/"/);
+  assert.match(html, /href="\.\.\/package-exports-drift-check\/"/);
+});

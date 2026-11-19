@@ -89,7 +89,7 @@ The rootDir prediction (TS5011, reported when sources sit in a subfolder and `ou
 
 The rules started from `checkDeprecations` and `computedOptions` in typescript@6.0.3's
 `lib/_tsc.js`. Running the compilers on every option ([option-matrix.json](option-matrix.json),
-239 single-option configs, made by [option-matrix-probe.cjs](option-matrix-probe.cjs))
+239 single-option configs, made by [option-matrix-probe.mjs](option-matrix-probe.mjs))
 corrected three first guesses:
 
 - The options removed in 5.5 are not "removed" (TS5102) in 7.0 but **unknown** (TS5023), for every
@@ -97,7 +97,7 @@ corrected three first guesses:
 - `"module": "none"` and `"target": "es3"` are **invalid values** in 7.0 (TS6046), not "removed".
 - `"prepend": true` on a project reference is an error in 6.0.3 and **silently ignored** by 7.0.2.
 
-[defaults.json](defaults.json) (made by [defaults-probe.cjs](defaults-probe.cjs)) shows each changed
+[defaults.json](defaults.json) (made by [defaults-probe.mjs](defaults-probe.mjs)) shows each changed
 default on a fixture with the option left out, under 5.9.3, 6.0.3 and 7.0.2. 6.0.3 and 7.0.2 behave
 the same on all seven.
 

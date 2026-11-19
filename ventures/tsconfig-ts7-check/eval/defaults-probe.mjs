@@ -1,5 +1,8 @@
 // Shows each changed default on a fixture with the option ABSENT, under tsc 5.9.3, 6.0.3 and 7.0.2.
-// TSC59=... TSC6=... TSC7=... node eval/defaults-probe.cjs > eval/defaults.json
+// TSC59=... TSC6=... TSC7=... node eval/defaults-probe.mjs > eval/defaults.json
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const __dirname = require('node:path').dirname(new URL(import.meta.url).pathname);
 // Each fixture: a tsconfig with the option ABSENT, and files whose result reveals the default.
 const fs=require("fs"),cp=require("child_process"),path=require("path");
 const TSC={"5.9":process.env.TSC59,"6.0":process.env.TSC6,"7.0":process.env.TSC7};
