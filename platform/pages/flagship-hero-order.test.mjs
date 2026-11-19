@@ -86,3 +86,45 @@ test('flagship heroes run eyebrow, headline, buttons, then the lede', () => {
   assert.ok(checked >= 5, `checked ${checked} flagship heroes`);
   assert.deepEqual(bad, [], 'flagship heroes out of order:\n' + bad.join('\n'));
 });
+
+// The lede under the buttons stays short: one or two sentences, with the
+// detail in a `<details>` fold (einvoice-preflight's pattern) or further down.
+// WHY: on 2026-11-19 the ledes ran 7 to 11 lines on a 390 px phone, half of
+// them in bold, and pushed the first card below the first screen on four of
+// eight flagships. Report: docs/reports/polish-2026-11-19-short-ledes.md.
+export const LEDE_MAX_WORDS = 50;
+
+/** Word count of the first plain paragraph after the cta-row in the header, or null. */
+export function ledeWords(html) {
+  const body = html.indexOf('<body');
+  if (body < 0) return null;
+  const m = /^\s*<header\b[^>]*>([\s\S]*?)<\/header>/.exec(html.slice(html.indexOf('>', body) + 1));
+  if (!m) return null;
+  const after = m[1].split(/<p class="cta-row"[\s\S]*?<\/p>/)[1];
+  if (after === undefined) return null;
+  const p = /^\s*<p(?: class="lede")?>([\s\S]*?)<\/p>/.exec(after);
+  if (!p) return null;
+  return p[1].replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+}
+
+test('ledeWords counts the paragraph straight after the buttons', () => {
+  const html = '<body>\n<header><p class="eyebrow">E</p><h1>T</h1><p class="cta-row"><a>x</a></p><p class="lede">One <strong>two</strong> three.</p><details><p>a b c d</p></details></header>';
+  assert.equal(ledeWords(html), 3);
+  assert.equal(ledeWords('<body><header><h1>x</h1></header>'), null);
+});
+
+test(`flagship ledes are at most ${LEDE_MAX_WORDS} words`, () => {
+  const slugs = flagshipVentures(readFileSync(join(ROOT, 'portfolio', 'flagships.yaml'), 'utf8'));
+  const bad = [];
+  let checked = 0;
+  for (const slug of slugs) {
+    const file = join(ROOT, 'ventures', slug, 'index.html');
+    if (!existsSync(file)) continue;
+    const n = ledeWords(readFileSync(file, 'utf8'));
+    if (n === null) continue;
+    checked++;
+    if (n > LEDE_MAX_WORDS) bad.push(`ventures/${slug}/index.html: lede is ${n} words`);
+  }
+  assert.ok(checked >= 5, `checked ${checked} flagship ledes`);
+  assert.deepEqual(bad, [], 'move the detail into a <details> fold:\n' + bad.join('\n'));
+});
