@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [aeo, search, assistant]
+topics: [seo, design]
 date: 2026-11-19
 ---
 # Polish, 2026-11-19: /ask/ weighs a question's words by rarity
