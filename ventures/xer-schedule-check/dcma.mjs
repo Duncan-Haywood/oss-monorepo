@@ -246,6 +246,21 @@ export function assess(xer, opts = {}) {
     else stale.push({ code: t.code, name: t.name, why: `file: finish ${t.row.early_end_date}, float ${round1(stored(t) ?? NaN)} h; recomputed: finish ${formatDate(r.ef)}, float ${round1(r.tf)} h` });
   }
 
+  // every open activity as recomputed, with what the file stores beside it
+  const fmtH = (h) => (h === null || h === undefined || Number.isNaN(h) ? null : Math.round(h * 100) / 100);
+  const activities = [];
+  for (const t of open) {
+    const r = res.get(t.id);
+    if (!r || r.lf === undefined) continue;
+    const sTF = stored(t), sFF = num(t.row.free_float_hr_cnt);
+    activities.push({
+      code: t.code, name: t.name, status: t.status, hoursPerDay: t.cal.hoursPerDay || 8,
+      start: formatDate(r.remES ?? r.es), finish: formatDate(r.ef), lateStart: formatDate(r.remLS ?? r.ls), lateFinish: formatDate(r.lf),
+      totalFloatH: fmtH(r.tf), freeFloatH: fmtH(r.ff),
+      storedFinish: t.row.early_end_date || null, storedTotalFloatH: fmtH(sTF), storedFreeFloatH: fmtH(sFF),
+    });
+  }
+
   const path = drivingPath(result, p.id).map((id) => model.tasks.get(id));
   return {
     project: {
@@ -258,6 +273,7 @@ export function assess(xer, opts = {}) {
     checks,
     extra,
     recompute: { compared, matched, items: stale },
+    activities,
     drivingPath: path.map((t) => {
       const r = res.get(t.id);
       return { code: t.code, name: t.name, start: formatDate(r.remES ?? r.es), finish: formatDate(r.ef), float: r.tf === undefined ? null : round1(r.tf / (t.cal.hoursPerDay || 8)) };
@@ -281,6 +297,32 @@ function relItem(model, r) {
 
 const round1 = (x) => Math.round(x * 10) / 10;
 const round3 = (x) => Math.round(x * 1000) / 1000;
+
+const csvEsc = (v) => {
+  let s = String(v ?? "");
+  // a cell a spreadsheet would read as a formula is written as text
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+// One row per open activity: the recomputed early and late dates, total and
+// free float (in working days of the activity's calendar and in hours), and
+// the values the file stores, so a reader without P6 can sort by free float
+// or see where the stored numbers no longer follow the logic.
+export function scheduleCsv(report) {
+  const days = (h, hpd) => (h === null ? "" : Math.round((h / hpd) * 100) / 100);
+  const rows = [["activity", "name", "status", "early start", "early finish", "late start", "late finish",
+    "total float (days)", "free float (days)", "total float (h)", "free float (h)",
+    "stored early finish", "stored total float (h)", "stored free float (h)", "stored agrees"]];
+  for (const a of report.activities || []) {
+    const agrees = a.storedTotalFloatH === null ? "" :
+      (Math.abs(a.storedTotalFloatH - a.totalFloatH) < 0.01 && (a.storedFreeFloatH === null || Math.abs(a.storedFreeFloatH - a.freeFloatH) < 0.01) ? "yes" : "no");
+    rows.push([a.code, a.name, a.status.replace(/^TK_/, ""), a.start, a.finish, a.lateStart, a.lateFinish,
+      days(a.totalFloatH, a.hoursPerDay), days(a.freeFloatH, a.hoursPerDay), a.totalFloatH ?? "", a.freeFloatH ?? "",
+      a.storedFinish ?? "", a.storedTotalFloatH ?? "", a.storedFreeFloatH ?? "", agrees]);
+  }
+  return rows.map((r) => r.map(csvEsc).join(",")).join("\n") + "\n";
+}
 
 // Flat rows for a CSV download: one per finding.
 export function findingsCsv(report) {
