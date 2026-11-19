@@ -1,0 +1,268 @@
+# shipped one-tick stale test on side-adjusted prices, Binance spot 2026-11-09 (pre-registered); window 300, tau 6.56, 4 windows a series, 4 threads
+
+symbol  prints  tick  print repeats keeping the side
+BTCUSDT  477798  0.01000000  0.97
+ETHUSDT  512432  0.01000000  0.97
+BNBUSDT  245321  0.01000000  0.94
+SOLUSDT  158741  0.01000000  0.90
+XRPUSDT  201944  0.00010000  0.88
+DOGEUSDT  76023  0.00001000  0.80
+ADAUSDT  25425  0.00010000  0.75
+LTCUSDT  37858  0.01000000  0.72
+LINKUSDT  78658  0.00100000  0.80
+AVAXUSDT  152133  0.00100000  0.89
+DOTUSDT  9102  0.00100000  0.62
+TRXUSDT  44859  0.00010000  0.99
+
+symbol  arm  series  windows  gate runs  carried (mean)  called stale (gated)  |fitted - carried| median (gated, stale)
+BTCUSDT  side  prints  4  0  0.00  0  -
+BTCUSDT  side  D=0.5  4  0  0.41  0  -
+BTCUSDT  side  D=1  4  0  0.18  0  -
+BTCUSDT  side  D=2  4  0  0.03  0  -
+ETHUSDT  side  prints  4  0  0.00  0  -
+ETHUSDT  side  D=0.5  4  0  0.44  0  -
+ETHUSDT  side  D=1  4  0  0.23  0  -
+ETHUSDT  side  D=2  4  0  0.08  0  -
+BNBUSDT  side  prints  4  3  0.00  3  0.50
+BNBUSDT  side  D=0.5  4  1  0.58  1  0.08
+BNBUSDT  side  D=1  4  1  0.33  1  0.28
+BNBUSDT  side  D=2  4  0  0.12  0  -
+SOLUSDT  side  prints  4  4  0.00  3  0.30
+SOLUSDT  side  D=0.5  4  4  0.61  4  0.15
+SOLUSDT  side  D=1  4  4  0.43  4  0.21
+SOLUSDT  side  D=2  4  3  0.22  3  0.24
+XRPUSDT  side  prints  4  4  0.00  3  0.39
+XRPUSDT  side  D=0.5  4  4  0.46  4  0.19
+XRPUSDT  side  D=1  4  3  0.28  3  0.15
+XRPUSDT  side  D=2  4  2  0.10  2  0.33
+DOGEUSDT  side  prints  4  4  0.00  3  0.19
+DOGEUSDT  side  D=0.5  4  4  0.73  4  0.05
+DOGEUSDT  side  D=1  4  4  0.55  4  0.06
+DOGEUSDT  side  D=2  4  3  0.33  3  0.08
+ADAUSDT  side  prints  4  4  0.00  1  0.23
+ADAUSDT  side  D=0.5  4  4  0.90  4  0.03
+ADAUSDT  side  D=1  4  4  0.80  4  0.19
+ADAUSDT  side  D=2  4  4  0.67  4  0.13
+LTCUSDT  side  prints  4  4  0.00  0  -
+LTCUSDT  side  D=0.5  4  4  0.85  4  0.06
+LTCUSDT  side  D=1  4  4  0.73  4  0.07
+LTCUSDT  side  D=2  4  4  0.54  4  0.05
+LINKUSDT  side  prints  4  4  0.00  1  0.67
+LINKUSDT  side  D=0.5  4  4  0.79  4  0.06
+LINKUSDT  side  D=1  4  4  0.67  4  0.09
+LINKUSDT  side  D=2  4  3  0.45  3  0.01
+AVAXUSDT  side  prints  4  4  0.00  3  0.28
+AVAXUSDT  side  D=0.5  4  4  0.76  4  0.06
+AVAXUSDT  side  D=1  4  3  0.66  3  0.01
+AVAXUSDT  side  D=2  4  2  0.49  2  0.06
+DOTUSDT  side  prints  4  4  0.00  0  -
+DOTUSDT  side  D=0.5  4  4  0.93  4  0.15
+DOTUSDT  side  D=1  4  4  0.91  4  0.15
+DOTUSDT  side  D=2  4  4  0.85  4  0.08
+TRXUSDT  side  prints  4  4  0.00  4  0.95
+TRXUSDT  side  D=0.5  4  2  0.84  2  0.13
+TRXUSDT  side  D=1  4  3  0.71  3  0.22
+TRXUSDT  side  D=2  4  3  0.48  3  0.46
+
+## Bars: side arm (gated windows, pooled)
+
+S1 size, trade prints: 21 of 39 (bar <= 10%, n >= 10): fail
+S2 power, carried >= 0.30: 88 of 88 (bar >= 80%, n >= 10): pass
+S3 estimate within 0.10: 55 of 97 (bar >= 80%, n >= 10): fail
+windows the gate refuses: 56 of 192 (9 print windows)
+
+per window (symbol arm series window carried repeats medTicks gate lr stale fitted):
+BTCUSDT side prints 0 0.00 0.37 79.00 - - - -
+BTCUSDT side prints 398 0.00 0.68 114.00 - - - -
+BTCUSDT side prints 796 0.00 0.44 87.00 - - - -
+BTCUSDT side prints 1194 0.00 0.48 70.00 - - - -
+BTCUSDT side D=0.5 0 0.09 0.31 611.50 - - - -
+BTCUSDT side D=0.5 143 0.40 0.78 671.00 - - - -
+BTCUSDT side D=0.5 287 0.47 0.76 120.00 - - - -
+BTCUSDT side D=0.5 431 0.67 0.85 259.50 - - - -
+BTCUSDT side D=1 0 0.01 0.22 792.00 - - - -
+BTCUSDT side D=1 71 0.20 0.63 481.00 - - - -
+BTCUSDT side D=1 143 0.19 0.64 201.00 - - - -
+BTCUSDT side D=1 215 0.32 0.66 399.00 - - - -
+BTCUSDT side D=2 0 0.00 0.12 959.00 - - - -
+BTCUSDT side D=2 35 0.03 0.40 652.00 - - - -
+BTCUSDT side D=2 71 0.05 0.50 398.00 - - - -
+BTCUSDT side D=2 107 0.06 0.43 399.00 - - - -
+ETHUSDT side prints 0 0.00 0.29 2.00 - - - -
+ETHUSDT side prints 427 0.00 0.74 3.00 - 235.32 STALE 0.72
+ETHUSDT side prints 854 0.00 0.63 4.00 - - - -
+ETHUSDT side prints 1281 0.00 0.55 4.00 - 262.57 STALE 0.52
+ETHUSDT side D=0.5 0 0.08 0.23 17.00 - - - -
+ETHUSDT side D=0.5 143 0.38 0.73 9.00 - 327.97 STALE 0.81
+ETHUSDT side D=0.5 287 0.57 0.78 3.00 - - - -
+ETHUSDT side D=0.5 431 0.71 0.84 7.50 - 199.17 STALE 0.88
+ETHUSDT side D=1 0 0.01 0.12 26.00 - - - -
+ETHUSDT side D=1 71 0.11 0.63 11.00 - - - -
+ETHUSDT side D=1 143 0.33 0.65 6.00 - - - -
+ETHUSDT side D=1 215 0.46 0.65 8.00 - - - -
+ETHUSDT side D=2 0 0.01 0.04 36.00 - - - -
+ETHUSDT side D=2 35 0.04 0.40 17.00 - - - -
+ETHUSDT side D=2 71 0.10 0.48 12.00 - - - -
+ETHUSDT side D=2 107 0.18 0.51 13.00 - - - -
+BNBUSDT side prints 0 0.00 0.59 2.00 - 126.62 STALE 0.48
+BNBUSDT side prints 204 0.00 0.80 1.00 gate 112.02 STALE 0.74
+BNBUSDT side prints 408 0.00 0.63 1.00 gate 79.87 STALE 0.50
+BNBUSDT side prints 612 0.00 0.37 1.00 gate 27.70 STALE 0.18
+BNBUSDT side D=0.5 0 0.35 0.57 5.00 - 285.20 STALE 0.53
+BNBUSDT side D=0.5 143 0.63 0.86 2.00 - 98.94 STALE 0.85
+BNBUSDT side D=0.5 287 0.60 0.93 2.00 - 99.48 STALE 0.85
+BNBUSDT side D=0.5 431 0.76 0.92 1.00 gate 54.88 STALE 0.84
+BNBUSDT side D=1 0 0.18 0.45 6.00 - 254.83 STALE 0.42
+BNBUSDT side D=1 71 0.34 0.74 3.00 - 177.21 STALE 0.71
+BNBUSDT side D=1 143 0.36 0.89 2.00 - 123.08 STALE 0.85
+BNBUSDT side D=1 215 0.45 0.81 1.00 gate 100.76 STALE 0.73
+BNBUSDT side D=2 0 0.05 0.30 7.00 - 161.76 STALE 0.26
+BNBUSDT side D=2 35 0.12 0.55 3.00 - 180.61 STALE 0.50
+BNBUSDT side D=2 71 0.15 0.75 3.00 - 231.98 STALE 0.72
+BNBUSDT side D=2 107 0.15 0.73 2.00 - 166.61 STALE 0.71
+SOLUSDT side prints 0 0.00 0.50 1.00 gate 6.40 - 0.09
+SOLUSDT side prints 132 0.00 0.54 1.00 gate 12.43 STALE 0.29
+SOLUSDT side prints 264 0.00 0.56 1.00 gate 13.16 STALE 0.30
+SOLUSDT side prints 396 0.00 0.76 1.00 gate 22.97 STALE 0.68
+SOLUSDT side D=0.5 0 0.34 0.50 1.00 gate 11.29 STALE 0.26
+SOLUSDT side D=0.5 143 0.61 0.79 1.00 gate 32.52 STALE 0.78
+SOLUSDT side D=0.5 287 0.78 0.87 1.00 gate 46.56 STALE 0.87
+SOLUSDT side D=0.5 431 0.74 0.85 1.00 gate 40.47 STALE 0.89
+SOLUSDT side D=1 0 0.20 0.40 1.00 gate 19.17 STALE 0.24
+SOLUSDT side D=1 71 0.41 0.66 1.00 gate 37.24 STALE 0.62
+SOLUSDT side D=1 143 0.57 0.78 1.00 gate 37.51 STALE 0.74
+SOLUSDT side D=1 215 0.52 0.76 1.00 gate 32.13 STALE 0.77
+SOLUSDT side D=2 0 0.06 0.18 2.00 - 0.00 - 0.00
+SOLUSDT side D=2 35 0.22 0.45 1.00 gate 50.74 STALE 0.43
+SOLUSDT side D=2 71 0.31 0.61 1.00 gate 19.85 STALE 0.56
+SOLUSDT side D=2 107 0.27 0.62 1.00 gate 48.17 STALE 0.63
+XRPUSDT side prints 0 0.00 0.68 1.00 gate 35.48 STALE 0.55
+XRPUSDT side prints 168 0.00 0.56 1.00 gate 65.39 STALE 0.39
+XRPUSDT side prints 336 0.00 0.50 1.00 gate 11.95 STALE 0.36
+XRPUSDT side prints 504 0.00 0.26 1.00 gate 0.00 - 0.00
+XRPUSDT side D=0.5 0 0.28 0.43 1.00 gate 23.81 STALE 0.34
+XRPUSDT side D=0.5 143 0.48 0.67 1.00 gate 50.55 STALE 0.67
+XRPUSDT side D=0.5 287 0.55 0.70 1.00 gate 40.83 STALE 0.62
+XRPUSDT side D=0.5 431 0.52 0.71 1.00 gate 53.06 STALE 0.77
+XRPUSDT side D=1 0 0.14 0.28 2.00 - 23.39 STALE 0.21
+XRPUSDT side D=1 71 0.35 0.55 1.00 gate 34.50 STALE 0.41
+XRPUSDT side D=1 143 0.26 0.50 1.00 gate 36.86 STALE 0.41
+XRPUSDT side D=1 215 0.36 0.53 1.00 gate 48.03 STALE 0.63
+XRPUSDT side D=2 0 0.03 0.15 2.00 - 20.53 STALE 0.13
+XRPUSDT side D=2 35 0.16 0.36 2.00 - 34.43 STALE 0.30
+XRPUSDT side D=2 71 0.10 0.32 1.50 gate 37.36 STALE 0.33
+XRPUSDT side D=2 107 0.12 0.39 1.00 gate 55.61 STALE 0.45
+DOGEUSDT side prints 0 0.00 0.65 1.00 gate 12.41 STALE 0.36
+DOGEUSDT side prints 63 0.00 0.40 1.00 gate 0.00 - 0.00
+DOGEUSDT side prints 126 0.00 0.48 1.00 gate 14.15 STALE 0.18
+DOGEUSDT side prints 189 0.00 0.54 1.00 gate 39.58 STALE 0.19
+DOGEUSDT side D=0.5 0 0.50 0.64 1.00 gate 45.05 STALE 0.53
+DOGEUSDT side D=0.5 143 0.73 0.83 1.00 gate 29.97 STALE 0.81
+DOGEUSDT side D=0.5 287 0.82 0.87 1.00 gate 21.34 STALE 0.79
+DOGEUSDT side D=0.5 431 0.88 0.93 1.00 gate 38.06 STALE 0.92
+DOGEUSDT side D=1 0 0.29 0.46 1.00 gate 24.74 STALE 0.32
+DOGEUSDT side D=1 71 0.53 0.68 1.00 gate 15.62 STALE 0.53
+DOGEUSDT side D=1 143 0.68 0.80 1.00 gate 17.85 STALE 0.74
+DOGEUSDT side D=1 215 0.72 0.86 1.00 gate 30.05 STALE 0.85
+DOGEUSDT side D=2 0 0.12 0.28 2.00 - 18.46 STALE 0.18
+DOGEUSDT side D=2 35 0.27 0.47 1.00 gate 16.93 STALE 0.35
+DOGEUSDT side D=2 71 0.46 0.66 1.00 gate 10.46 STALE 0.41
+DOGEUSDT side D=2 107 0.48 0.72 1.00 gate 20.47 STALE 0.71
+ADAUSDT side prints 0 0.00 0.56 1.00 gate 0.00 - 0.00
+ADAUSDT side prints 21 0.00 0.62 1.00 gate 4.80 - 0.19
+ADAUSDT side prints 42 0.00 0.60 1.00 gate 7.34 STALE 0.23
+ADAUSDT side prints 63 0.00 0.70 1.00 gate 0.16 - 0.08
+ADAUSDT side D=0.5 0 0.78 0.85 1.00 gate 24.74 STALE 0.62
+ADAUSDT side D=0.5 143 0.94 0.98 1.00 gate 27.56 STALE 0.95
+ADAUSDT side D=0.5 287 0.95 0.96 1.00 gate 19.32 STALE 0.92
+ADAUSDT side D=0.5 431 0.94 0.98 1.00 gate 24.95 STALE 0.95
+ADAUSDT side D=1 0 0.70 0.80 1.00 gate 7.22 STALE 0.37
+ADAUSDT side D=1 71 0.77 0.93 1.00 gate 19.78 STALE 0.89
+ADAUSDT side D=1 143 0.90 0.94 1.00 gate 9.86 STALE 0.71
+ADAUSDT side D=1 215 0.83 0.94 1.00 gate 19.37 STALE 0.84
+ADAUSDT side D=2 0 0.51 0.68 1.00 gate 11.69 STALE 0.40
+ADAUSDT side D=2 35 0.62 0.88 1.00 gate 19.97 STALE 0.75
+ADAUSDT side D=2 71 0.81 0.89 1.00 gate 7.89 STALE 0.62
+ADAUSDT side D=2 107 0.74 0.88 1.00 gate 11.83 STALE 0.63
+LTCUSDT side prints 0 0.00 0.39 1.00 gate 0.00 - 0.00
+LTCUSDT side prints 31 0.00 0.41 1.00 gate 0.00 - 0.00
+LTCUSDT side prints 63 0.00 0.27 1.00 gate 0.00 - 0.00
+LTCUSDT side prints 94 0.00 0.42 1.00 gate 0.13 - 0.03
+LTCUSDT side D=0.5 0 0.73 0.78 1.00 gate 19.15 STALE 0.58
+LTCUSDT side D=0.5 143 0.90 0.93 1.00 gate 34.21 STALE 0.85
+LTCUSDT side D=0.5 287 0.88 0.95 1.00 gate 38.69 STALE 0.94
+LTCUSDT side D=0.5 431 0.89 0.94 1.00 gate 31.03 STALE 0.89
+LTCUSDT side D=1 0 0.55 0.64 1.00 gate 12.06 STALE 0.41
+LTCUSDT side D=1 71 0.81 0.88 1.00 gate 26.90 STALE 0.75
+LTCUSDT side D=1 143 0.77 0.89 1.00 gate 29.11 STALE 0.84
+LTCUSDT side D=1 215 0.80 0.89 1.00 gate 25.51 STALE 0.81
+LTCUSDT side D=2 0 0.31 0.43 1.00 gate 21.79 STALE 0.27
+LTCUSDT side D=2 35 0.62 0.73 1.00 gate 26.46 STALE 0.59
+LTCUSDT side D=2 71 0.60 0.77 1.00 gate 32.50 STALE 0.74
+LTCUSDT side D=2 107 0.64 0.78 1.00 gate 16.49 STALE 0.63
+LINKUSDT side prints 0 0.00 0.17 1.00 gate 0.00 - 0.00
+LINKUSDT side prints 65 0.00 0.39 1.00 gate 0.00 - 0.00
+LINKUSDT side prints 131 0.00 0.74 1.00 gate 37.59 STALE 0.67
+LINKUSDT side prints 196 0.00 0.26 1.00 gate 0.00 - 0.00
+LINKUSDT side D=0.5 0 0.55 0.61 1.00 gate 42.22 STALE 0.49
+LINKUSDT side D=0.5 143 0.84 0.90 1.00 gate 28.16 STALE 0.83
+LINKUSDT side D=0.5 287 0.88 0.90 1.00 gate 30.67 STALE 0.76
+LINKUSDT side D=0.5 431 0.90 0.90 1.00 gate 46.28 STALE 0.89
+LINKUSDT side D=1 0 0.41 0.46 1.00 gate 26.40 STALE 0.32
+LINKUSDT side D=1 71 0.72 0.79 1.00 gate 34.66 STALE 0.70
+LINKUSDT side D=1 143 0.73 0.78 1.00 gate 34.77 STALE 0.62
+LINKUSDT side D=1 215 0.81 0.84 1.00 gate 37.39 STALE 0.76
+LINKUSDT side D=2 0 0.19 0.25 2.00 - 9.02 STALE 0.08
+LINKUSDT side D=2 35 0.50 0.61 1.00 gate 41.18 STALE 0.50
+LINKUSDT side D=2 71 0.54 0.61 1.00 gate 38.54 STALE 0.48
+LINKUSDT side D=2 107 0.59 0.67 1.00 gate 59.29 STALE 0.60
+AVAXUSDT side prints 0 0.00 0.27 1.00 gate 0.00 - 0.00
+AVAXUSDT side prints 126 0.00 0.68 1.00 gate 97.07 STALE 0.58
+AVAXUSDT side prints 253 0.00 0.53 1.00 gate 17.82 STALE 0.28
+AVAXUSDT side prints 380 0.00 0.46 1.00 gate 12.30 STALE 0.22
+AVAXUSDT side D=0.5 0 0.67 0.71 1.00 gate 64.59 STALE 0.61
+AVAXUSDT side D=0.5 143 0.86 0.89 1.00 gate 34.88 STALE 0.83
+AVAXUSDT side D=0.5 287 0.96 0.98 1.00 gate 43.93 STALE 0.87
+AVAXUSDT side D=0.5 431 0.56 0.69 1.00 gate 72.96 STALE 0.62
+AVAXUSDT side D=1 0 0.51 0.57 1.00 gate 43.93 STALE 0.44
+AVAXUSDT side D=1 71 0.74 0.80 1.00 gate 39.92 STALE 0.73
+AVAXUSDT side D=1 143 0.89 0.93 1.00 gate 39.43 STALE 0.91
+AVAXUSDT side D=1 215 0.50 0.62 2.00 - 88.37 STALE 0.58
+AVAXUSDT side D=2 0 0.26 0.35 2.00 - 49.68 STALE 0.25
+AVAXUSDT side D=2 35 0.52 0.66 1.00 gate 59.07 STALE 0.58
+AVAXUSDT side D=2 71 0.78 0.83 1.00 gate 40.56 STALE 0.77
+AVAXUSDT side D=2 107 0.42 0.53 2.00 - 74.92 STALE 0.48
+DOTUSDT side prints 0 0.00 0.28 1.00 gate 0.00 - 0.00
+DOTUSDT side prints 7 0.00 0.39 1.00 gate 0.00 - 0.00
+DOTUSDT side prints 15 0.00 0.40 1.00 gate 0.21 - 0.06
+DOTUSDT side prints 22 0.00 0.48 1.00 gate 0.92 - 0.12
+DOTUSDT side D=0.5 0 0.92 0.93 1.00 gate 16.40 STALE 0.77
+DOTUSDT side D=0.5 143 0.96 0.98 1.00 gate 38.69 STALE 0.92
+DOTUSDT side D=0.5 287 0.98 0.99 1.00 gate 29.33 STALE 0.95
+DOTUSDT side D=0.5 431 0.88 0.93 1.00 gate 32.99 STALE 0.60
+DOTUSDT side D=1 0 0.87 0.89 1.00 gate 7.17 STALE 0.59
+DOTUSDT side D=1 71 0.93 0.96 1.00 gate 32.54 STALE 0.92
+DOTUSDT side D=1 143 0.96 0.97 1.00 gate 23.83 STALE 0.95
+DOTUSDT side D=1 215 0.87 0.91 1.00 gate 37.17 STALE 0.73
+DOTUSDT side D=2 0 0.77 0.80 1.00 gate 12.31 STALE 0.52
+DOTUSDT side D=2 35 0.89 0.92 1.00 gate 20.34 STALE 0.82
+DOTUSDT side D=2 71 0.93 0.95 1.00 gate 19.47 STALE 0.91
+DOTUSDT side D=2 107 0.82 0.87 1.00 gate 24.84 STALE 0.75
+TRXUSDT side prints 0 0.00 0.92 1.00 gate 28.98 STALE 0.95
+TRXUSDT side prints 37 0.00 0.98 1.00 gate 32.42 STALE 0.83
+TRXUSDT side prints 74 0.00 0.99 1.00 gate 27.13 STALE 0.95
+TRXUSDT side prints 111 0.00 0.99 1.00 gate 29.85 STALE 0.95
+TRXUSDT side D=0.5 0 0.82 0.98 1.00 gate 31.35 STALE 0.95
+TRXUSDT side D=0.5 143 0.87 0.96 1.00 gate 32.49 STALE 0.95
+TRXUSDT side D=0.5 287 0.82 1.00 - - 33.58 STALE 0.95
+TRXUSDT side D=0.5 431 0.87 1.00 - - 33.58 STALE 0.95
+TRXUSDT side D=1 0 0.73 0.98 1.00 gate 31.01 STALE 0.95
+TRXUSDT side D=1 71 0.74 0.96 1.00 gate 31.36 STALE 0.95
+TRXUSDT side D=1 143 0.63 1.00 - - 33.58 STALE 0.95
+TRXUSDT side D=1 215 0.73 0.99 1.00 gate 31.94 STALE 0.95
+TRXUSDT side D=2 0 0.58 0.96 1.00 gate 27.42 STALE 0.95
+TRXUSDT side D=2 35 0.47 0.95 1.00 gate 30.08 STALE 0.95
+TRXUSDT side D=2 71 0.38 1.00 - - 33.58 STALE 0.95
+TRXUSDT side D=2 107 0.49 0.93 1.00 gate 29.38 STALE 0.95
+
+1902 s
