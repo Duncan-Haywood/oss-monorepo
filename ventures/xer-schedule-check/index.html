@@ -41,6 +41,8 @@
     .big strong { display: block; font-size: 1.35rem; color: #163a59; margin-bottom: 2px; }
     details summary { cursor: pointer; color: #1d5a8c; font-size: .9rem; }
     details table { font-size: .88rem; }
+    a.cta { display: inline-block; padding: 10px 18px; border-radius: 8px; background: #1d5a8c; color: #fff; font-weight: 700; text-decoration: none; margin: 0 8px 8px 0; }
+    a.cta.ghost { background: transparent; color: #1d5a8c; border: 1px solid #1d5a8c; }
     .warnbox { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; }
     #form-status { font-weight: 600; }
   </style>
@@ -49,6 +51,7 @@
   <main>
   <h1>XER Schedule Check: the DCMA 14-point assessment of a P6 schedule</h1>
   <p>Open a <strong>Primavera P6 .xer export</strong> and get the DCMA 14-point assessment with <strong>every activity behind each failing point</strong>, a critical path recomputed from the logic, the critical path test, and the faults the 14 points miss (logic loops, out-of-sequence progress, open finishes, float that no longer matches the logic). Everything runs in your browser: the schedule is never uploaded.</p>
+  <p class="cta-row"><a class="cta" href="#in">Check a schedule</a> <a class="cta ghost" href="#how">How it was checked against P6</a></p>
   <p class="note">For owners' reps and claims consultants reviewing a contractor's update, schedulers checking their own before submission, and subcontractors handed a schedule they have no P6 licence to open.</p>
 
   <section class="card" aria-labelledby="in">
@@ -122,7 +125,7 @@
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
     <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>More for builders: <a href="../wall-framing-takeoff/">wall framing takeoff</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>.</p>
+    <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
