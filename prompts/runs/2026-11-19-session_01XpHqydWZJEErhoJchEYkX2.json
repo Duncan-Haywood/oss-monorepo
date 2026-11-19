@@ -1,0 +1,118 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqydWZJEErhoJchEYkX2",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T06:38:55Z",
+  "ended": "2026-11-19T06:43:28Z",
+  "wall_minutes": 4.65,
+  "tokens_in": 1856642,
+  "tokens_out": 25513,
+  "cost_usd": 1.5263,
+  "tool_calls": 23,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17572",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Audio cap still blocks voicing (577 MB); the stale-cap case in docs/reports/2026-11-13-audio-cap-is-stale.md still awaits an owner decision, so every creative run ships text only."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-saints-by-candlelight-david-and-the-spear.md"
+  ],
+  "goal": null,
+  "notes": "Project: saints-by-candlelight (longest gap of the creative shelves). Piece: episode 147, david-and-the-spear-and-the-water-jar-by-sauls-head, First Samuel 26, 6,947 words, text only (audio folders 577 MB > 400 MB). Checks: generate.mjs --check-script ok, node --test 18/18 pass. No agent doc: nothing new the next run needs beyond the PRODUCTION.md list.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8a476faf-6cc9-531b-85ea-5cedb85d5622",
+    "transcripts": 1,
+    "first": "2026-11-19T06:38:55Z",
+    "last": "2026-11-19T06:43:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 22,
+        "input": 46,
+        "output": 25513,
+        "thinking": 6314,
+        "cache_read": 1773969,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82627,
+        "api_equivalent_usd": 1.5263,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 22,
+      "input": 46,
+      "output": 25513,
+      "thinking": 6314,
+      "cache_read": 1773969,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82627,
+      "api_equivalent_usd": 1.5263,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.955,
+    "tool_calls": 23,
+    "tools": {
+      "Bash": 19,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.65,
+      "active_minutes": 4.65,
+      "model_minutes": 4.36,
+      "tool_minutes": 0.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
