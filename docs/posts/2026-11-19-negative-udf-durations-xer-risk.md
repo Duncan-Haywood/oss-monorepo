@@ -2,8 +2,8 @@
 title: "A pessimistic duration of minus five days: what a red-team run found in the XER risk analysis"
 seo_title: "Negative P6 UDF durations in a Monte Carlo schedule risk run"
 date: 2026-11-19
-tags: [construction, scheduling, primavera-p6, xer, red-team, testing]
-description: "Seeding 20 faults into XER Schedule Check's new UDF ranges and risk code: 16 caught, four test gaps closed, and one real bug that let negative durations shorten the forecast."
+tags: [construction, scheduling, primavera-p6, xer, redteam, testing]
+description: "20 faults put into XER Schedule Check's UDF ranges and risk code: 16 caught, four test gaps closed and a bug that let negative durations shorten the forecast."
 ---
 
 [XER Schedule Check](../../ventures/xer-schedule-check/) gained a feature
