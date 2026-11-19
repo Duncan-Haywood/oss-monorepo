@@ -1,0 +1,73 @@
+name: ifc-quantity-takeoff
+description: >-
+  Bill of quantities from an IFC building model, in the browser or on the
+  command line: counts, lengths, areas, volumes and weights by class, type,
+  storey, material or classification, with every element's volume recomputed
+  from its geometry (openings taken out) and checked against the quantities
+  the authoring tool stored. MIT, no dependencies, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-19. Paid market is real: quantity takeoff from BIM is sold
+# by the seat in CostX (RIB), Cubit, Bluebeam's 3D takeoff, Solibri's
+# information takeoff, Autodesk Takeoff and Vico/Trimble; estimators and QS
+# firms pay for it because the alternative is measuring drawings by hand.
+# Free alternatives: Revit schedules (only inside Revit, on the native model),
+# BIMcollab Zoom and other free viewers (show stored properties, no BoQ
+# grouping or pricing), IfcOpenShell scripts (Python, a programmer). The gap
+# this fills: anyone downstream of the IFC (estimator, contractor, owner) gets
+# a priced, grouped BoQ in a tab, and is told which of the model's stored
+# quantities disagree with its own geometry; on 8 public models 690 of 5,495
+# stored GrossVolumes did (eval/stored-vs-computed-2026-11-19.md).
+# Construction direction (prompts/goals.md, "Direction: industrial, energy and
+# construction").
+# duplicate_check: ids-model-check checks IFC properties against IDS, not
+# quantities; wall-framing-takeoff frames walls from IFC; earthwork-cut-fill,
+# rebar-schedule and estimate-maker do not read BIM models. No venture or
+# research project computes IFC volumes.
+#
+# First visitor: estimators and QS searching "IFC quantity takeoff free",
+# "bill of quantities from IFC", "BIM quantity takeoff online", "IFC volume
+# calculation", and the r/bim, r/estimators and buildingSMART forum threads on
+# 5D BIM. Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; paid
+# steps are a firm's measurement rules (NRM, CESMM, MasterFormat mapping) set up
+# as a grouping, a hosted batch check of a project's model drops, and support;
+# GitHub Sponsors meanwhile. Hosting under the public name and billing are
+# owner-gated.
+
+hypotheses:
+  - claim: >-
+      Estimators who open an IFC here will act on the stored-against-geometry
+      check: at least one in five sessions that show a disagreement end with a
+      bill of quantities download, because the page tells them which figure
+      it used.
+    status: untested
+    checked: null
+    evidence: customer-contact  # usage counters model_taken_off, boq_downloaded, rows_downloaded (local only)
+  - claim: >-
+      Stored IFC quantities are wrong often enough to matter: on public models
+      from more than one authoring tool, more than 5% of stored GrossVolumes
+      disagree with the element's geometry by over 2%.
+    status: supported
+    checked: 2026-11-19
+    evidence: in-repo  # eval/stored-vs-computed-2026-11-19.md: 690 of 5,495 (12.6%) on 8 models
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct people (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user shows a volume this tool computes wrongly from geometry it claims to read; correctness comes before any new feature.
+
+links:
+  production: https://marisstella.app/ifc-quantity-takeoff/
+  analytics: null

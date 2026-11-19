@@ -112,6 +112,15 @@ CLI records nothing and makes no network call.
 node --test engine.test.mjs cli.test.mjs page.test.mjs
 ```
 
+The family label matches keywords as whole words and reads an SPDX expression
+leaf by leaf (the most restrictive leaf wins; a `WITH` exception is skipped).
+Until 2026-11-19 it matched letters inside words: "Proprietary, limited use"
+read as permissive ("limited" holds "mit"), and "CC0 1.0 Universal" and
+"Universal Permissive License" read as source-available ("Universal" holds
+"rsal"). `Elastic-2.0`, the SPDX id of the relicense in the table above, read
+as unknown. A run of every SPDX id in npm's `spdx-license-ids` and every PyPI
+`License ::` classifier found these; the cases are in `engine.test.mjs`.
+
 ## Status
 
 `stage: prototype` in [`VENTURE.yaml`](VENTURE.yaml). The diff engine and

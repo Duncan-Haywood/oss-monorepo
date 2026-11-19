@@ -580,3 +580,32 @@ flagships:
       = CPM); (7) longest path and multiple float paths shipped 2026-11-19
       (floatpaths.mjs, --float-paths, page panel; eval/longest-path-2026-11-19.md:
       P6's flag 261/261 on five files). More open items: NEXT.md.
+  # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
+  # tool, and the first venture that measures IFC solids. Evidence of depth:
+  # eval/stored-vs-computed-2026-11-19.md (13 public models).
+  - venture: ifc-quantity-takeoff
+    why: >-
+      Bill of quantities from an IFC model in the browser, every element's volume
+      recomputed from its body (signed convex pieces: extrusions, clips incl.
+      Revit's boxed half spaces, booleans, mapped items, breps; openings
+      subtracted exactly) and checked against the stored quantities: 4,805 of
+      5,495 stored GrossVolumes agree on 8 public models, 469 of the 690 that do
+      not get a named cause (net-as-gross, unit slip, split by level, own
+      dimensions). Paid market: CostX, Cubit, Autodesk Takeoff, Solibri ITO.
+    buildable: >-
+      The 13 public models in eval/stored-vs-computed-2026-11-19.md (sparse clones
+      of opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
+      areas from geometry (wall side areas, slab top areas) checked against stored
+      NetSideArea/GrossArea; the 221 unexplained (schependomlaan faceted walls 15-28%
+      under, HHS curtain-wall mullions 42% over); planar IfcAdvancedBrep faces
+      (kleine_Wohnung, 162 not read).
+    hosts: [https://github.com]
+    next: >-
+      History and every measurement: ventures/ifc-quantity-takeoff/README.md and
+      eval/. Next, most valuable first: (1) areas computed from geometry and
+      checked like volumes; (2) a method-of-measurement layer (NRM or CESMM style:
+      deduct openings only above a size, MasterFormat/Uniformat mapping from the
+      classification code); (3) the unexplained disagreements; (4) advanced breps
+      with planar faces, openings in faceted bodies; (5) a model-to-model change
+      report (two revisions of one model, quantities by GlobalId); (6) a real
+      estimator's reading of the BoQ CSV (needs a person).

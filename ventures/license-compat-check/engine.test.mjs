@@ -104,3 +104,35 @@ test('normalizeContext rejects nonsense and noticesText lists packages', () => {
   assert.equal(normalizeContext('GPL-3.0+'), 'gpl-3.0-or-later');
   assert.match(noticesText([{ name: 'left-pad', version: '1.3.0', license: 'MIT' }]), /left-pad 1\.3\.0 — MIT/);
 });
+
+// Found 2026-11-19 running every PyPI "License ::" trove name (what
+// pip-licenses reports) through normalizeId: these came back unknown, so a
+// GPL or AGPL dependency reached the report as "needs review" with no reason.
+test('PyPI trove names resolve through the id in their trailing parenthesis', () => {
+  const cases = {
+    'GNU General Public License v2 or later (GPLv2+)': 'gpl-2.0-or-later',
+    'GNU General Public License v3 or later (GPLv3+)': 'gpl-3.0-or-later',
+    'GNU Affero General Public License v3 or later (AGPLv3+)': 'agpl-3.0-or-later',
+    'GNU Lesser General Public License v3 or later (LGPLv3+)': 'lgpl-3.0-or-later',
+    'Mozilla Public License 2.0 (MPL 2.0)': 'mpl-2.0',
+    'Mozilla Public License 1.1 (MPL 1.1)': 'mpl-1.1',
+    'Eclipse Public License 2.0 (EPL-2.0)': 'epl-2.0',
+    'Common Development and Distribution License 1.0 (CDDL-1.0)': 'cddl-1.0',
+    'Boost Software License 1.0 (BSL-1.0)': 'bsl-1.0',
+    'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication': 'cc0-1.0',
+    'MIT No Attribution License (MIT-0)': 'mit-0',
+    'Zero-Clause BSD (0BSD)': '0bsd',
+    'The Unlicense (Unlicense)': 'unlicense',
+    'Blue Oak Model License (BlueOak-1.0.0)': 'blueoak-1.0.0',
+    'zlib/libpng License': 'zlib',
+    'BSD 3-Clause License': 'bsd-3-clause',
+    '3-Clause BSD License': 'bsd-3-clause',
+    'LGPLv3': 'lgpl-3.0-only',
+  };
+  for (const [name, id] of Object.entries(cases)) assert.equal(normalizeId(name), id, name);
+  // A version-less name stays unknown rather than guessing a version.
+  assert.equal(normalizeId('GNU General Public License (GPL)'), null);
+  // An upper-case SPDX operator before the parenthesis keeps it an expression.
+  assert.equal(parseExpression('MIT OR (Apache-2.0)').type, 'or');
+  assert.equal(v('GNU Affero General Public License v3 or later (AGPLv3+)', 'proprietary-distributed').verdict, v('AGPL-3.0-or-later', 'proprietary-distributed').verdict);
+});
