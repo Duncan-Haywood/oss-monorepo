@@ -1,0 +1,34 @@
+756 flights, 36 designs, 64 episodes on seed 9999, band 0.25 m, wall 199 s
+
+36 ms law. sim/pm/line: median over designs of rise (s); within: designs inside 0.10 s (pm) or 10% (line); MAE: median |sim - pred| (s); bias: median sim - pm (s)
+  A_P    S |   sim    pm  line | pm<=0.1s line<=10% | MAE pm MAE ln   bias | over sim over pm   rho | dead
+  2.0  1.0 |  2.93  2.93  2.82 |    36/36     36/36 |  0.002  0.106 -0.001 |    1.7cm   1.0cm  0.96 | 0/2304
+  2.5  1.0 |  2.37  2.38  2.32 |    36/36     36/36 |  0.006  0.054 -0.006 |    1.9cm   1.0cm  0.95 | 0/2304
+  3.5  1.0 |  1.75  1.76  1.75 |    36/36     36/36 |  0.020  0.008 -0.020 |    2.2cm   1.2cm  0.92 | 0/2304
+  5.0  1.0 |  1.27  1.31  1.33 |    35/36     36/36 |  0.040  0.050 -0.040 |    2.6cm   1.5cm  0.91 | 0/2304
+  8.0  1.0 |  0.84  0.93  0.95 |    23/36     14/36 |  0.085  0.100 -0.085 |    4.9cm   2.2cm  0.92 | 0/2304
+  3.5  0.5 |  0.94  1.01  1.04 |    31/36     30/36 |  0.062  0.077 -0.062 |    1.9cm   1.2cm  0.94 | 0/2304
+  3.5  2.0 |  3.32  3.32  3.17 |    36/36     36/36 |  0.005  0.144 -0.005 |    2.2cm   1.2cm  0.93 | 0/2304
+
+motor lag: designs whose rise under 33 and 39.1 ms is within 0.05 s of the 36 ms law's; dead flights per law
+  (2.0, 1.0): 33 ms 36/36, 39.1 ms 36/36; dead 33/36/39.1 ms [0, 0, 0]
+  (2.5, 1.0): 33 ms 36/36, 39.1 ms 36/36; dead 33/36/39.1 ms [0, 0, 0]
+  (3.5, 1.0): 33 ms 36/36, 39.1 ms 36/36; dead 33/36/39.1 ms [0, 0, 0]
+  (5.0, 1.0): 33 ms 36/36, 39.1 ms 36/36; dead 33/36/39.1 ms [0, 0, 0]
+  (8.0, 1.0): 33 ms 36/36, 39.1 ms 36/36; dead 33/36/39.1 ms [0, 0, 0]
+  (3.5, 0.5): 33 ms 36/36, 39.1 ms 36/36; dead 33/36/39.1 ms [0, 0, 0]
+  (3.5, 2.0): 33 ms 36/36, 39.1 ms 36/36; dead 33/36/39.1 ms [0, 0, 0]
+
+reproduction at (3.5, 1), 36 ms: 0 rise mismatches against 7ad/7ae/7af, 0 designs not found
+
+AG0: held (0 mismatches)
+AG1: held (point mass within 0.10 s at A_P 2.0, 2.5, 5.0: [36, 36, 35])
+AG2: REFUTED (point mass within 0.10 s at S 0.5, 2.0: [31, 36])
+AG3: REFUTED (point mass within 0.10 s at A_P 8: 23)
+AG4: held (line within 10% at A_P 2.0, 2.5, 5.0: [36, 36, 36])
+AG5: REFUTED (line within 10% at S 0.5, 2.0: [30, 36])
+AG6: held (point mass smaller MAE: (2.0, 1.0): yes, (2.5, 1.0): yes, (5.0, 1.0): yes, (8.0, 1.0): yes, (3.5, 0.5): yes, (3.5, 2.0): yes)
+AG7: held (min over 33/39.1 ms of designs within 0.05 s: {(2.0, 1.0): 36, (2.5, 1.0): 36, (3.5, 1.0): 36, (5.0, 1.0): 36, (3.5, 0.5): 36, (3.5, 2.0): 36})
+AG8: held (overshoot rho at A_P 2.0, 2.5, 3.5, 5.0: 0.96, 0.95, 0.92, 0.91)
+AG9: held (dead at A_P 5: 0/2304; at A_P 8: 0/2304)
+Verdicts: AG0 held, AG1 held, AG2 refuted, AG3 refuted, AG4 held, AG5 refuted, AG6 held, AG7 held, AG8 held, AG9 held
