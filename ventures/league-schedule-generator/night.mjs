@@ -189,7 +189,7 @@ export function leaderboardText(night, title = "") {
 
 const csvCell = (v) => {
   let s = String(v);
-  if (/^[=+\-@\t\r]/.test(s) && typeof v === "string") s = "'" + s; // spreadsheet formula guard
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; // spreadsheet formula guard; plain numbers pass
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
