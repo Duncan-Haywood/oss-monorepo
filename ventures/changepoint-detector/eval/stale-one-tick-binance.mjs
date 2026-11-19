@@ -33,8 +33,11 @@
 // simulated rounded walk.
 //
 // Amended before any result was read: the first run (PER = 20, 1,200 windows) was stopped at the session's
-// 30-minute limit with no output written; real carried windows take about 10 s, not the 1.6 s timed on
-// simulation. PER is now 6 (360 windows). Nothing else changed.
+// 30-minute limit with no output written; real carried windows take about 10 s (timed on four real windows,
+// ADAUSDT and BTCUSDT steps 3000-3300, prints and D = 1, with the test's result not printed), not the 1.6 s timed on
+// simulation. PER is now 6 (360 windows). The second run computed every window twice (stale-real-trades.mjs,
+// imported here, answers the same worker flag) and stopped with half the rows empty before printing anything;
+// the worker flag is now this script's own. Nothing else changed.
 //
 // usage: node eval/stale-one-tick-binance.mjs <dir> > eval/stale-one-tick-binance.out.txt
 import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads';
@@ -71,7 +74,7 @@ async function run(jobs, threads) {
   const out = new Array(jobs.length);
   let next = 0, done = 0;
   await Promise.all(Array.from({ length: threads }, () => new Promise((resolve, reject) => {
-    const wk = new Worker(fileURLToPath(import.meta.url), { workerData: { worker: true } });
+    const wk = new Worker(fileURLToPath(import.meta.url), { workerData: { binanceOneTick: true } });
     const feed = () => { if (next >= jobs.length) { wk.terminate(); resolve(); return; } const i = next++; wk.postMessage([i, jobs[i]]); };
     wk.on('message', ([i, r]) => { out[i] = r; done++; if (done % 20 === 0) process.stderr.write(`${done} of ${jobs.length}\n`); feed(); });
     wk.on('error', reject);
@@ -82,7 +85,7 @@ async function run(jobs, threads) {
 
 const f2 = (x) => (x == null ? '-' : x.toFixed(2));
 
-if (!isMainThread && workerData && workerData.worker) {
+if (!isMainThread && workerData && workerData.binanceOneTick) {
   parentPort.on('message', ([i, j]) => {
     const r = judgeWindow(j.v, j.traded, 0, j.v.length - 1, j.tick);
     parentPort.postMessage([i, { sym: j.sym, kind: j.kind, w: j.w, ...r }]);
