@@ -667,3 +667,35 @@ test('plain DROP INDEX needs a lock_timeout and counts toward one transaction\'s
 test('a stray ROLLBACK before any BEGIN does not invent a lock_timeout', () => {
   assert.ok(has(`ROLLBACK;\n${RENAME}`, 'no-lock-timeout'));
 });
+
+// Red team 2026-11-19: every TRUNCATE test above sets a lock_timeout, so
+// TRUNCATE could stop counting as an exclusive-lock statement unseen.
+test('TRUNCATE with no lock_timeout gets the no-lock-timeout risk', () => {
+  assert.ok(has('TRUNCATE audit_log;', 'no-lock-timeout'));
+  assert.ok(!has("SET lock_timeout = '3s';\nTRUNCATE audit_log;", 'no-lock-timeout'));
+});
+
+// Red team 2026-11-19, real defect: setsLockTimeout read the raw statement,
+// comments included, so a comment above `SET lock_timeout` (how most
+// hand-written migrations explain it) hid the SET and every exclusive-lock
+// statement after it got a false no-lock-timeout risk.
+test('a comment before SET lock_timeout does not hide it', () => {
+  for (const sql of [
+    "-- give up fast rather than queue\nSET lock_timeout = '3s';\nDROP TABLE t;",
+    "/* fail fast */ SET lock_timeout = '3s';\nDROP TABLE t;",
+    "SET lock_timeout = /* 3 s */ '3s';\nDROP TABLE t;",
+    "-- one\n-- two\nBEGIN;\n-- local\nSET LOCAL lock_timeout TO '2s';\nDROP TABLE t;\nCOMMIT;",
+  ]) assert.ok(!has(sql, 'no-lock-timeout'), sql);
+});
+
+// Red team 2026-11-19, real defect: only `0`, `0ms`, `0s` and `0min` read as
+// "off", so `'0us'`, `'0h'`, `'0d'`, `'0.0'` and `00` -- all of which
+// PostgreSQL takes as lock_timeout = 0, no timeout -- silenced the risk.
+test('every spelling of a zero lock_timeout counts as no timeout', () => {
+  for (const v of ['0', '00', '0.0', "'0us'", "'0ms'", "'0 ms'", "'0s'", "'0min'", "'0h'", "'0d'", "'0.4ms'", "'400us'", 'DEFAULT', "'-1'"]) {
+    assert.ok(has(`SET lock_timeout = ${v};\nDROP TABLE t;`, 'no-lock-timeout'), v);
+  }
+  for (const v of ['1', "'3s'", "'2 s'", "'1.5s'", "'500ms'", "'1min'", "'1h'", "'1500us'", '3000', "'0.6ms'"]) {
+    assert.ok(!has(`SET lock_timeout = ${v};\nDROP TABLE t;`, 'no-lock-timeout'), v);
+  }
+});
