@@ -1,0 +1,18 @@
+capture-sync step 3k, post hoc: power by band in 2 s windows (median [5th, 95th]), real phones and twin
+in-band = 100-4000 Hz, the band GCC uses. White noise is 48.75% in-band, so white noise added at a nominal
+SNR sits in-band at nominal + 10 log10(in-band share / 0.4875); in-band loss = -10 log10(in-band share)
+
+  room 200 Nexus    below 100 Hz 0.000 [0.000, 0.185]  in-band 0.972 [0.297, 0.999]  above 4 kHz 0.028 [0.001, 0.703]  tilt -8.7 dB  in-band loss 0.1 dB
+  room 200 Pixel6a  below 100 Hz 0.001 [0.000, 0.023]  in-band 0.994 [0.942, 0.999]  above 4 kHz 0.003 [0.000, 0.041]  tilt -8.9 dB  in-band loss 0.0 dB
+  room 200 Pixel6b  below 100 Hz 0.001 [0.000, 0.036]  in-band 0.991 [0.658, 0.999]  above 4 kHz 0.005 [0.000, 0.116]  tilt -8.2 dB  in-band loss 0.0 dB
+  room 200 Pixel7   below 100 Hz 0.001 [0.000, 0.012]  in-band 0.995 [0.860, 1.000]  above 4 kHz 0.003 [0.000, 0.051]  tilt -7.6 dB  in-band loss 0.0 dB
+  room 200 Xiaomi   below 100 Hz 0.000 [0.000, 0.000]  in-band 0.982 [0.714, 0.999]  above 4 kHz 0.018 [0.001, 0.286]  tilt -6.7 dB  in-band loss 0.1 dB
+  room 200 all      below 100 Hz 0.000 [0.000, 0.013]  in-band 0.990 [0.586, 0.999]  above 4 kHz 0.006 [0.000, 0.302]  tilt -7.9 dB  in-band loss 0.0 dB
+  room 200 TWIN     below 100 Hz 0.001 [0.000, 0.057]  in-band 0.983 [0.890, 0.998]  above 4 kHz 0.011 [0.001, 0.069]  tilt -9.6 dB  in-band loss 0.1 dB
+  room 800 Nexus    below 100 Hz 0.001 [0.000, 0.034]  in-band 0.945 [0.259, 0.997]  above 4 kHz 0.052 [0.002, 0.728]  tilt -8.6 dB  in-band loss 0.2 dB
+  room 800 Pixel6a  below 100 Hz 0.116 [0.042, 0.506]  in-band 0.880 [0.479, 0.956]  above 4 kHz 0.002 [0.000, 0.038]  tilt -7.7 dB  in-band loss 0.6 dB
+  room 800 Pixel6b  below 100 Hz 0.007 [0.002, 0.410]  in-band 0.985 [0.587, 0.997]  above 4 kHz 0.005 [0.000, 0.103]  tilt -6.7 dB  in-band loss 0.1 dB
+  room 800 Pixel7   below 100 Hz 0.003 [0.001, 0.183]  in-band 0.991 [0.737, 0.998]  above 4 kHz 0.004 [0.000, 0.068]  tilt -7.3 dB  in-band loss 0.0 dB
+  room 800 Xiaomi   below 100 Hz 0.000 [0.000, 0.000]  in-band 0.969 [0.612, 0.997]  above 4 kHz 0.031 [0.003, 0.388]  tilt -5.8 dB  in-band loss 0.1 dB
+  room 800 all      below 100 Hz 0.003 [0.000, 0.285]  in-band 0.967 [0.522, 0.997]  above 4 kHz 0.008 [0.000, 0.324]  tilt -7.0 dB  in-band loss 0.1 dB
+  room 800 TWIN     below 100 Hz 0.002 [0.000, 0.064]  in-band 0.981 [0.904, 0.997]  above 4 kHz 0.010 [0.002, 0.062]  tilt -9.6 dB  in-band loss 0.1 dB

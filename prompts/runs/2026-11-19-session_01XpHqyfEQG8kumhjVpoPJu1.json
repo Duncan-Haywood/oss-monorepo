@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyfEQG8kumhjVpoPJu1",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T11:38:08Z",
+  "ended": "2026-11-19T12:32:48Z",
+  "wall_minutes": 54.86,
+  "tokens_in": 8179651,
+  "tokens_out": 51370,
+  "cost_usd": 3.8933,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17646",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "twincal.py fit crashed on first launch: the current MS-SNSD clean_test has 1,100 files and noisetype.speech_blocks asserts 190; re-ran on a view of clnsp10-199 as the README's checkout says (cost ~10 min)",
+    "replay check first compared 60 cells, omitting the two no-noise cells the plan counted; added after the first score (62 of 62), no number changed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/capture-sync/README.md",
+      "issue": "Reproduce block's MS-SNSD sparse-checkout pattern is easy to miss; a plain sparse clone of clean_test gets 1,100 files and the 190-file assert fails only inside a worker process. Added a note to the step 3k reproduce lines."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-capture-sync-gate-set-in-simulation-holds-on-real-phones.md",
+    "research/capture-sync/LOG.md (step 3k plan and outcome)",
+    "research/capture-sync/README.md (step 3k section)"
+  ],
+  "goal": null,
+  "notes": "capture-sync step 3k. Pre-registered 8 predictions; 3 held (replay 62/62, ranking kept, fitted-twin gate >= real-set gate), 4 failed (fit direction, in-sample white fit, primary nine-type gap reduction, uncalibrated-twin gate expected to fail), 1 exploratory. Headline: two-knob (DRR, white floor) calibration cannot reproduce real phones; a T4 gate set wholly in the twin holds on real phones like a real-set gate (7 and 6 of 10 types), the pessimistic fitted twin's gate 10/10 in the 200 ms room. Post-hoc band analysis (twinband.py) as a lead. Verification: capture-sync tests 52 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok; cite_check ok. Step 3j real windows re-collected reproduce noisereal_results.txt byte for byte.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fb214ef7-d897-529a-9e42-ee553d0a0ab2",
+    "transcripts": 1,
+    "first": "2026-11-19T11:38:08Z",
+    "last": "2026-11-19T12:32:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 122,
+        "output": 51370,
+        "thinking": 14217,
+        "cache_read": 8021898,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157631,
+        "api_equivalent_usd": 3.8933,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 122,
+      "output": 51370,
+      "thinking": 14217,
+      "cache_read": 8021898,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157631,
+      "api_equivalent_usd": 3.8933,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 58,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 54.86,
+      "active_minutes": 54.86,
+      "model_minutes": 8.84,
+      "tool_minutes": 46.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a researcher designing, running and writing up a pre-registered twin-calibration study on existing code: ~2 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 411.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
