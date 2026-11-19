@@ -7590,3 +7590,32 @@ read, from another provider's documented schedule changes.
 Test: `update-rate-sparse-spells.test.mjs` (the reversed search finds a planted spell and leaves the default
 search unchanged, a Wednesdays-only spell is found with its edges while same-count shifts are not, the module
 function equals the eval file's, the committed verdict).
+
+## Short sparse spells on the CLI and page (2026-11-19, later)
+
+The spell search from the section above is now something a person can ask for, still off by default. CLI:
+`--spells` (text, `--json` as `shortSpells` and `spellsWarning`, and `--consensus`); page: the box "Look for short
+spells of fewer updates"; the printed change report carries the same line. It runs beside the mean, meanvar,
+trend and poisson models and never moves a cut. It needs a date (YYYY-MM-DD) on every row, because the search
+reads each step's weekday; an undated series is refused with that reason rather than given made-up weekdays. It
+stops at 4,000 points: the search is quadratic in each stretch (about 1 s on 1,143 daily values here), and the
+calibration only covered series of 500 to 1,100 steps.
+
+On South Dakota's committed JHU series (`data/covid-schedules.csv`):
+
+```
+node cli.mjs sd.csv --spells
+...
+Short spells of fewer updates: one spell where the series was refreshed on fewer days for a while and then went
+back to its old schedule: 2021-07-03 to 2021-08-10 (39 steps): the value repeated on 85% of steps inside, against
+32% before and after, read weekday by weekday because the stretch runs on a weekly schedule. ...
+```
+
+That is the K1 spell from the round above, ending six days before the documented return to Monday-Friday on
+2021-08-16. On the other five committed states it says "none found" for Minnesota, California, Utah and Vermont
+and dates Kentucky's 2022-03-05 to 2022-03-31 (the K2 spell; no documented event). Nothing here is new
+evidence: the setting and its checks are the round above's. Still open: a fresh real check on another
+provider's documented schedule changes, spells nobody has read.
+
+Test: `spells-cli.test.mjs` (South Dakota's spell in text, JSON and `--consensus`; off unless asked; undated and
+over-long series refused; Minnesota's "none found"; the page's box, its option and its note; the printed report).

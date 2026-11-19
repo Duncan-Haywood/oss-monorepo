@@ -37,6 +37,7 @@ Options:
   --episodes [n]            with --model poisson: label an up-step followed within n points (default a tenth of the series) by a step back to about the old level as one burst episode, listed in the result; the changes are unchanged
   --burst-runs n            with --bursts: also cut back runs of 2 to n days (default off) that sit 2x above the same-phase level on both sides
   --log                     take natural logs first (positive values; mean, meanvar, trend): a steady percentage growth is a straight line, not a staircase; segments also show the geometric mean and each change its ratio
+  --spells                  look for short spells (a month or so) where the series repeated its last value much more often, then went back to its old schedule: a feed published on fewer days for a while (rows must be dated YYYY-MM-DD; up to 4000 points; mean, meanvar, trend, poisson and --consensus)
   --multiplicative           with --period (mean/meanvar): the season is a factor, not an amount, so it scales with the level (positive values only; not with --drift)
   --drift                   with --period: let the seasonal shape change over time (growing amplitude, moving peak)
   --trend [bend|bends|quad]        fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
@@ -103,6 +104,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--drift-noise') { const v = argv[++i]; if (v !== 'ml' && v !== 'lags') throw new Error('--drift-noise takes ml or lags.'); opt.driftNoise = v; }
     else if (a === '--drift') opt.drift = true;
     else if (a === '--log') opt.log = true;
+    else if (a === '--spells') opt.spells = true;
     else if (a === '--multiplicative') opt.seasonMode = 'multiplicative';
     else if (a === '--robust') opt.robust = true;
     else if (a === '--garch') opt.garch = true;
@@ -184,11 +186,12 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     const { consensus: tol, ...rest } = opt;
     const c = mergeConsensus(await runPanelThreaded(rest), { tolerance: tol === true ? null : tol });
     // The update-rate check reads only the values (before --log), as beside every single model.
-    const { updateRateChanges, updateRateLines } = await import('./update-rate.mjs');
+    const { updateRateChanges, updateRateLines, spellsResult, spellsLine } = await import('./update-rate.mjs');
     const ps = parseSeries(opt.csv ?? DEFAULTS.csv, opt.column ?? null, opt.labelColumn ?? null);
     const u = updateRateChanges(ps.values);
     if (u.changes.length) Object.assign(c, { updateRateWarning: updateRateLines(u, ps.labels)[0], updateRate: { changes: u.changes, stretches: u.stretches } });
-    out((json ? JSON.stringify(c, null, 2) : consensusText(c)) + '\n');
+    if (opt.spells) { const sp = spellsResult(ps.values, ps.labels, { u }); Object.assign(c, { shortSpells: sp, spellsWarning: spellsLine(sp) }); }
+    out((json ? JSON.stringify(c, null, 2) : consensusText(c) + (c.spellsWarning ? `\n\n${c.spellsWarning}` : '')) + '\n');
     return 0;
   }
   // The level model's text leads with the settings panel (consensus.mjs), as the page does: on labelled
@@ -238,6 +241,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     for (const x of ch) lines.push(`  ${x.label}: ${x.range95.from === x.range95.to ? 'that point only' : `${x.range95.from} – ${x.range95.to}`}`);
   }
   if (r.updateRateWarning) lines.push('', r.updateRateWarning);
+  if (r.spellsWarning) lines.push('', r.spellsWarning);
   if (r.clumpingWarning) lines.push('', r.clumpingWarning);
   if (r.ramps) {
     lines.push('', 'Adjacent changes that look like one ramp (same direction, short segments between; the changes above are unchanged):');

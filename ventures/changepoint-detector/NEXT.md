@@ -43,3 +43,4 @@
 - (2026-11-19) slope and pulse shocks 2026-11-18: warning holds 42 of 43 false finds (README "Shocks that are not steps")
 - (2026-11-19) two covariates: harmless one's warning 0 of 170 false finds, 1.27x bias (bar failed)
 - (2026-11-19) JHU state switches to weekly reporting 20 of 27, returns to more days 0 of 8 (README "A provider's own schedule changes")
+- (2026-11-19) lasting moves to more days: cut has the power (8 of 9 cells)

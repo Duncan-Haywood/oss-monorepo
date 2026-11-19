@@ -22,7 +22,7 @@ import { twoHingeTest } from './two-hinge.mjs';
 import { knownDateTest, placeboCheck } from './known-date.mjs';
 
 import { groupRamps } from './ramps.mjs';
-import { updateRateChanges, updateRateLines } from './update-rate.mjs';
+import { updateRateChanges, updateRateLines, spellsResult, spellsLine } from './update-rate.mjs';
 
 export const PAPERS = [
   {
@@ -2423,6 +2423,10 @@ export function analyze(input = {}) {
   // model shows; jumps near such a date may be catch-ups after a stale stretch, whatever model dated them.
   const updateRate = updateRateChanges(original0);
   const updateRateWarning = updateRateLines(updateRate, labels)[0] ?? null;
+  // short sparse spells (opt-in, o.spells; README "Short sparse spells on the CLI and page"): a month or so of fewer
+  // updates inside a stretch, the old schedule coming back after it. Needs dated rows; it never moves a cut.
+  const spells = o.spells ? spellsResult(original0, labels, { u: updateRate }) : null;
+  const spellsWarning = spells ? spellsLine(spells) : null;
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -2471,6 +2475,7 @@ export function analyze(input = {}) {
     ...(cycleWarning ? { cycleWarning } : {}),
     ...(overcutWarning ? { overcutWarning, overcut } : {}),
     ...(updateRateWarning ? { updateRateWarning, updateRate: { changes: updateRate.changes, stretches: updateRate.stretches } } : {}),
+    ...(spells ? { shortSpells: spells, spellsWarning } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(clumping ? { clumping, ...(clumping.hint ? { clumpingWarning: clumping.hint } : {}) } : {}),
