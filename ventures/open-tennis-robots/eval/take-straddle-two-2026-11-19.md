@@ -81,4 +81,36 @@ reported, not decided on.
 
 ## Result
 
-(Filled in after the captures.)
+Pre-registration committed in d6222e636; all thirty captures then made on that tree (198 standard drills and 72
+instant ones, none aborted; stored as eval/take-straddle-two-{ai,aj,ak,al,am,an}-2026-11-19.jsonl.gz and the 24
+instant-only captures in eval/take-straddle-two-inst-2026-11-19.jsonl.gz) and scored
+(eval/take-straddle-two-heldout-2026-11-19.txt). With the 1.5 ms vote at margin 2:
+
+| 2.5 ms margin | named (of 180 spread) | instant told to set a take (of 90) | right that the 1.5 ms vote alone was not | wrong that it got right |
+| --- | --- | --- | --- | --- |
+| 0 (off) | 102 | 0 | - | - |
+| 1 | 128 | 3 | 27 | 4 |
+| **2 (pre-registered)** | **110** | **0** | **8** | **0** |
+| 3 | 104 | 0 | 2 | 0 |
+
+- (a) held: 110 against 102.
+- (b) held: 0 of 90 instant builds told to set a take.
+- (c) held: 0 builds lost against 8 won.
+- (d) held: all 270 frames carried the board's own 2.5 ms counts, and each equalled the rebuild's (the scorer's assert
+  did not fire).
+
+So **`host.TAKE_STRADDLE2_MARGIN` ships at 2.**
+
+The eight it won: one 2 ms build, two 2.4 ms, three 2.8 ms and two 3.5 ms builds that read 0, now advised 2.5 ms (all
+within 1 ms of the true take). Straddling wheels at 2.5 ms, held out: instant builds 11 for and 137 against, 0.1-0.9 ms
+4 and 87, 1.3-2.1 ms 29 and 77, 2.4 ms and up 112 and 7. Margin 1 again names the most (128) and again misadvises
+instant builds (3 of 90, each a 1-0 split), as on the design (5 of 96): it is not a candidate.
+
+**What is left.** 70 of 180 spread takes are still more than 1 ms off: 1.3 ms 16 of 18, 1.6 ms 15, 2 ms 11, 2.4 ms 8,
+2.8 ms 9, 3.5 ms 8 and 5 ms 3 (every 0.1-0.9 ms build reads 0, within 1 ms of its take). Of the 2.4-3.5 ms builds, 29 of
+54 now read within 1 ms (the 1.5 ms vote alone: 22). Most of the rest had no straddling wheel at either candidate: a take
+inside one revolution leaves no trace on a one-pulse tach, so more of them can only come from more tach edges
+(eval/tach-pulses-2026-11-19.md) or more balls.
+
+**Not known.** Simulated only: one jittery tach model, three launchers, six fresh lags and seeds. A real wheel's first
+reading is the frame's two new bytes.

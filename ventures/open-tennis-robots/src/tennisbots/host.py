@@ -491,8 +491,9 @@ TAKE_STRADDLE_MARGIN = 2
 # vote reaches its own margin too, whichever leads by more (1.5 ms on a tie). 0 turns it off. On fifteen stored sets
 # (540 spread takes, 96 instant builds) margin 2 named 22 more takes than the 1.5 ms vote alone (333 to 355), told no
 # instant build to set a take and un-named none; margin 1 told 5 instant builds to set one
-# (eval/take-straddle-two-2026-11-19.md). Held out on fresh sets with the rule committed first (same note).
-TAKE_STRADDLE2_MARGIN = 0
+# (eval/take-straddle-two-2026-11-19.md). Held out on 30 fresh captures with the rule committed first (d6222e636): 102
+# to 110 of 180 spread takes named, 0 of 90 instant builds misadvised, none un-named (same note).
+TAKE_STRADDLE2_MARGIN = 2
 
 
 def take_survey_advice(sv: dict | None) -> str | None:

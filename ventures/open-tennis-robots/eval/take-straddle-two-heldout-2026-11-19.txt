@@ -1,0 +1,21 @@
+270 builds on the nine-point grid with wheel inputs (7 files); the second vote:
+  instant: straddling wheels at 2.5 ms 11 for, 137 against
+  0.1-0.9 ms: straddling wheels at 2.5 ms 4 for, 87 against
+  1.3-2.1 ms: straddling wheels at 2.5 ms 29 for, 77 against
+  2.4 ms and up: straddling wheels at 2.5 ms 112 for, 7 against
+  2.5 ms margin 0 (off) with 1.5 ms margin 2: named 102 of 180 spread takes, wrong 78, instant told to set a take 0 of 90, no verdict 0; judged right that the 1.5 ms vote alone was not 0, judged wrong that it got right 0
+  2.5 ms margin 1 with 1.5 ms margin 2: named 128 of 180 spread takes, wrong 52, instant told to set a take 3 of 90, no verdict 0; judged right that the 1.5 ms vote alone was not 27, judged wrong that it got right 4
+  2.5 ms margin 2 with 1.5 ms margin 2: named 110 of 180 spread takes, wrong 70, instant told to set a take 0 of 90, no verdict 0; judged right that the 1.5 ms vote alone was not 8, judged wrong that it got right 0
+  2.5 ms margin 3 with 1.5 ms margin 2: named 104 of 180 spread takes, wrong 76, instant told to set a take 0 of 90, no verdict 0; judged right that the 1.5 ms vote alone was not 2, judged wrong that it got right 0
+per take: advised TAKE_US in ms at 2.5 ms margin 0 | 1 | 2 | 3
+  0 ms: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 2.5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2.5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2.5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0.1 ms: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0.5 ms: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0.9 ms: 0 0 0 0 1.5 0 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 1.5 0 0 0 0 2.5 0 0 0 0 0 0 0 0 | 0 0 0 0 1.5 0 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 1.5 0 0 0 0 0 0 0 0 0 0 0 0 0
+  1.3 ms: 0 0 0 0 1.5 0 0 1.5 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 1.5 0 0 1.5 0 2.5 0 0 0 0 0 0 0 0 | 0 0 0 0 1.5 0 0 1.5 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 1.5 0 0 1.5 0 0 0 0 0 0 0 0 0 0
+  1.6 ms: 1.5 1.5 0 0 0 1.5 0 0 0 0 0 0 0 0 0 0 0 0 | 1.5 1.5 0 0 0 1.5 2.5 0 0 0 0 0 0 0 0 0 0 0 | 1.5 1.5 0 0 0 1.5 0 0 0 0 0 0 0 0 0 0 0 0 | 1.5 1.5 0 0 0 1.5 0 0 0 0 0 0 0 0 0 0 0 0
+  2 ms: 1.5 2 0 0 1.5 0 0 0 0 0 0 0 1.5 0 0 0 1.5 1.5 | 1.5 2 0 0 1.5 0 0 2.5 2.5 0 2.5 2.5 1.5 0 0 0 1.5 1.5 | 1.5 2 0 0 1.5 0 0 0 0 0 2.5 0 1.5 0 0 0 1.5 1.5 | 1.5 2 0 0 1.5 0 0 0 0 0 0 0 1.5 0 0 0 1.5 1.5
+  2.4 ms: 0 1.5 2 1.5 0 0 0 1.5 1.5 0 0 2 0 0 0 2 1.5 0 | 2.5 1.5 2 1.5 0 2.5 0 1.5 2.5 0 0 2 2.5 2.5 2.5 2 1.5 0 | 2.5 1.5 2 1.5 0 2.5 0 1.5 2.5 0 0 2 0 0 0 2 1.5 0 | 0 1.5 2 1.5 0 0 0 1.5 2.5 0 0 2 0 0 0 2 1.5 0
+  2.8 ms: 3 3 2 2.5 0 0 0 2.5 2.5 0 0 0 0 0 0 0 0 0 | 3 3 2 2.5 2.5 2.5 2.5 2.5 2.5 0 2.5 2.5 0 2.5 2.5 2.5 2.5 2.5 | 3 3 2 2.5 2.5 0 0 2.5 2.5 0 0 2.5 0 0 0 2.5 0 0 | 3 3 2 2.5 0 0 0 2.5 2.5 0 0 2.5 0 0 0 0 0 0
+  3.5 ms: 3.5 3 0 3.5 0 0 0 0 0 0 3 3.5 0 3 0 0 3.5 3.5 | 3.5 3 2.5 3.5 2.5 2.5 2.5 0 0 0 3 3.5 2.5 3 2.5 2.5 3.5 3.5 | 3.5 3 0 3.5 0 2.5 0 0 0 0 3 3.5 0 3 0 2.5 3.5 3.5 | 3.5 3 0 3.5 0 2.5 0 0 0 0 3 3.5 0 3 0 0 3.5 3.5
+  5 ms: 0 4.5 4.5 0 0 5 5 5 4.5 5 4.5 5 4.5 5 4.5 5 4.5 5 | 0 4.5 4.5 0 0 5 5 5 4.5 5 4.5 5 4.5 5 4.5 5 4.5 5 | 0 4.5 4.5 0 0 5 5 5 4.5 5 4.5 5 4.5 5 4.5 5 4.5 5 | 0 4.5 4.5 0 0 5 5 5 4.5 5 4.5 5 4.5 5 4.5 5 4.5 5

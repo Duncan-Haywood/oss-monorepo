@@ -3690,3 +3690,24 @@ had captured: AE-AH (lags 0.50, 0.58, 0.44, 0.66 s; seeds 191-199) and twelve in
 margin 2 got right against 14 won: two of four clauses failed. Margin 2's second held-out reading: 72 of 120 against off's
 62, 0 of 48 instant builds misadvised (0 of 60 with AA-AD). `tests/take_straddle_vote.py --base 2` counts against the
 shipped margin. Everything is in `eval/take-straddle-margin-one-2026-11-19.md`.
+
+## A second straddle vote at 2.5 ms (2026-11-19, after "Straddling wheels vote on the short takes"; `host.TAKE_STRADDLE2_MARGIN = 2` on by its pre-registered rule)
+
+**The item.** The 1.5 ms vote names short takes the sums read as instant, but 2.4-3 ms builds that read 0 stayed 0: a
+2.8 ms take's parts placed at 1.5 ms are the wrong shape, so its straddling wheels rarely vote for 1.5 ms.
+
+**What shipped.** The same count at the grid's 2.5 ms candidate (`controller.TAKE_STRADDLE2_US`), from the edge flag of
+the 2.5 ms fit the board already runs (no extra fit): `ResidualSurvey.add(got, edge, edge2)` counts `straddle2_for` and
+`straddle2_against`, and the TAKE_SURVEY frame carries them as two more bytes (the Pi reads the 1.5-ms-only frame with
+`None`). When the sums say TAKE_US = 0 and a vote reaches its margin, the Pi advises its candidate; when both do, the
+larger lead wins, 1.5 ms on a tie. `tests/take_straddle_vote.py --margins2` scores it and checks the board's counts.
+
+**Chosen, then held out.** On every stored set with wheel inputs (fifteen files, 636 builds, refitted at 2.5 ms) margin
+2 was the least with no harm: 333 to 355 of 540 spread takes named, 0 of 96 instant builds misadvised, none un-named
+(margin 1: 406, but 5 instant builds told to set 2.5 ms). Rule committed in d6222e636, then thirty fresh captures (AI-AN,
+lags 0.40-0.64 s, seeds 277-311, and 24 instant-only seeds), 270 builds with 90 instant ones: 102 to 110 of 180 named,
+0 of 90 instant builds misadvised, 0 un-named, and all 270 frames' board counts equal to the rebuild. Every clause
+held. Everything is in `eval/take-straddle-two-2026-11-19.md`.
+
+**Not known.** 70 of 180 held-out spread takes are still more than 1 ms off, most of them builds with no straddling
+wheel at either candidate. Simulated only.
