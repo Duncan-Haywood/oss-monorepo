@@ -3,7 +3,7 @@ title: "Red team: 30 seeded faults in two products, and the defaults no test pin
 seo_title: "Mutation testing an MRR dashboard and a SQL migration linter"
 date: 2026-11-19
 tags: [redteam, testing, mutation-testing, mrr-pulse, sql-migration-lock-check]
-description: "We seeded 30 faults into MRR Pulse and the SQL migration lock checker. Their tests caught 21. The 8 real escapes were all defaults and boundaries, and now each has a test."
+description: "We seeded 30 faults into MRR Pulse and a SQL migration linter. Tests caught 21; the 8 real escapes were defaults and boundaries, now tested."
 ---
 
 A red-team run seeds small faults into a file (a `>` that becomes `>=`, a `0` that becomes
