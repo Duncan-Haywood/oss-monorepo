@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, flagships]
+topics: [design, depth]
 date: 2026-11-19
 ---
 # Polish: flagship call-to-action pairs fill the line on a phone
