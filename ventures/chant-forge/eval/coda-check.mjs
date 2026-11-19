@@ -573,6 +573,27 @@
 //    rebuilt on the shipped code match the development figures above. `levelFade` stays opt-in. At 92 BPM on d's six
 //    pitches no vowel-only release reached the window's last 30 ms at the level rule's depth; a fair test needs cells
 //    chosen where it does (README).
+// Twenty-ninth round (2026-11-19): levelFade and longTilt on cells where the release lands (README "Held out where the
+//    release lands"). Part d left levelFade untested: at 92 BPM on its pitches no vowel-only release reached the window's
+//    last 30 ms. Part e is built on eval/release-cells-report.md (frame levels of the vowel-only render, readCoda never
+//    run), at 84 BPM, the one tempo in that table no other part uses: every cell of its 84 BPM rows that lands 4 or more
+//    of 8, quarters on B2, G3, C4, D4 and eighths on G2, B2, D3, E3, F3, A3, B3, E4 (12 cells; the eighths on G2, B2,
+//    E3 and A3 land 8 of 8). Its 32 syllables are sung in no other part: 12 nasals after /u/ or /o/ (*grom crom trom
+//    frum drun prum blum clum spum flon plom brom*), 5 voiced stops (*trog brub frod clog crud*), 4 nasals after a bright
+//    vowel (*dram flem brin glen*), 4 n-clusters (*brant clonc plunt grons*), 3 voiceless stops (*frup clot drup*) and 4
+//    others (*brus frul clu dro*), sung and vowel-only. Three columns: the default, `levelFade: true`, `longTilt: true`.
+//    Pre-registered here and committed before part e was run with anything:
+//    (0) the test condition: the default reads at least 3 of the 384 vowel-only control cells as something other than
+//        none; if fewer, both rules are again untested and stay opt-in;
+//    (1) levelFade against the default: the vowel-only control read as none at least 3 more; nasals after /u/ or /o/
+//        (of 144), after a bright vowel (of 48) and n-clusters as their nasal (of 48) no fewer in any; voiced stops,
+//        voiceless stops and others read exactly no fewer in total; no more stop, other or vowel-only cell read as a nasal;
+//    (2) longTilt against the default: the vowel-only control read as none at least 3 more; the three nasal rows
+//        together at most 2 fewer; stops and others no fewer in total; no more stop, other or vowel-only cell read as a
+//        nasal. (Development cost it 2 to 5 dark-vowel nasals on each of a, b, d and Z, so this is expected to fail.)
+//    (3) where it lands: at least half of the default's vowel-only misses fall on the four 8-of-8 eighth cells.
+//    A rule whose (0) and (1) or (2) all hold becomes readCoda's default, with every other part rebuilt on it; otherwise
+//    it stays opt-in.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -584,7 +605,7 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUVWXYZabcdC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUVWXYZabcdeC';
 // --voice-bar off: the choir sung with the fixed voice-bar gain (sing.mjs `voiceBarLevel: false`, before 2026-11-16's thirteenth round)
 const VOICEBAR = !(args.includes('--voice-bar') && args[args.indexOf('--voice-bar') + 1] === 'off');
 // --wall on: the voice bar low-passed through the walls (sing.mjs `voiceBarWall: true`; tried in 2026-11-16's fourteenth round, off by default)
@@ -1677,6 +1698,54 @@ lines.push('## d. Held out: a release read as a nasal (twenty-sixth round)', '',
   row('vowel-only control read as none', 'control'), cnt('stops, others and vowel-only control read as a nasal', asNas), '',
   'Misses, default (count over the twelve pitch and length cells):', '', list(miss.def), '',
   'Misses with `levelFade`:', '', list(miss.fade), '');
+}
+
+// The twenty-ninth round's held-out set (levelFade and longTilt, pre-registered in the header): the cells of
+// eval/release-cells-report.md's 84 BPM rows that land 4 or more of 8, none of its syllables sung before
+if (PARTS.includes('e')) {
+const DK = ['grom', 'crom', 'trom', 'frum', 'drun', 'prum', 'blum', 'clum', 'spum', 'flon', 'plom', 'brom'];
+const VD = ['trog', 'brub', 'frod', 'clog', 'crud'], BR = ['dram', 'flem', 'brin', 'glen'], CL = ['brant', 'clonc', 'plunt', 'grons'], VLS = ['frup', 'clot', 'drup'], NEG = ['brus', 'frul', 'clu', 'dro'];
+const SY = [...DK, ...VD, ...BR, ...CL, ...VLS, ...NEG], tally = {}, miss = { def: new Map(), fade: new Map(), tilt: new Map() }, asNas = {}, ctlCell = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+const MODES = [['def', { ...RC, levelFade: false, longTilt: false }], ['fade', { ...RC, levelFade: true, longTilt: false }], ['tilt', { ...RC, levelFade: false, longTilt: true }]];
+const NAMES = { 43: 'G2', 47: 'B2', 50: 'D3', 52: 'E3', 53: 'F3', 55: 'G3', 57: 'A3', 59: 'B3', 60: 'C4', 62: 'D4', 64: 'E4' };
+const CELLS = [[4, 47], [4, 55], [4, 60], [4, 62], [2, 43], [2, 47], [2, 50], [2, 52], [2, 53], [2, 57], [2, 59], [2, 64]];
+const FULL = new Set(['2 43', '2 47', '2 52', '2 57']);
+for (const [pulses, midi] of CELLS) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 84, title: 'held-out release cells' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (DK.includes(s) ? 'dark' : VD.includes(s) ? 'voiced' : BR.includes(s) ? 'bright' : CL.includes(s) ? 'cluster' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
+      for (const [mode, o] of MODES) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'control' && !ok) { const c = `${pulses === 4 ? 'quarter' : 'eighth'} ${NAMES[midi]}`; ctlCell[mode] = ctlCell[mode] || {}; ctlCell[mode][c] = (ctlCell[mode][c] || 0) + 1; if (FULL.has(`${pulses} ${midi}`)) bump(`full ${mode}`, true); }
+        if ((grp === 'voiced' || grp === 'voiceless' || grp === 'other' || grp === 'control') && got.cls === 'nasal') asNas[mode] = (asNas[mode] || 0) + 1;
+        if (!ok && !HIDE.includes('e')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; miss[mode].set(key, (miss[mode].get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+const row = (t, g) => `| ${t} | ${MODES.map(([m]) => cell(`${g} ${m}`)).join(' | ')} |`;
+const cnt = (t, o) => `| ${t} | ${MODES.map(([m]) => o[m] || 0).join(' | ')} |`;
+const list = (m) => HIDE.includes('e') ? '- hidden' : [...m].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none';
+const cells = (m) => HIDE.includes('e') ? '- hidden' : Object.entries(ctlCell[m] || {}).map(([k, n]) => `${k} ${n}`).join('; ') || 'none';
+lines.push('## e. Held out: where the release lands (twenty-ninth round)', '', `Nasals after /u/ or /o/: ${DK.map((s) => `*${s}*`).join(', ')}; voiced stops: ${VD.map((s) => `*${s}*`).join(', ')}; nasals after a bright vowel: ${BR.map((s) => `*${s}*`).join(', ')}; n-clusters: ${CL.map((s) => `*${s}*`).join(', ')}; voiceless stops: ${VLS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. 84 BPM, each followed by a rest: quarters on B2, G3, C4, D4 and eighths on G2, B2, D3, E3, F3, A3, B3, E4 (eval/release-cells-report.md's 84 BPM cells that land 4 or more of 8).`, '',
+  '| | default | `levelFade: { tail: 6 }` | `longTilt: { span: 0.3, gap: 0.45 }` |', '|---|---|---|---|',
+  row('nasals after /u/ or /o/ read exactly', 'dark'),
+  row('nasals after a bright vowel read exactly', 'bright'), row('n-clusters read as their nasal', 'cluster'),
+  row('voiced stop codas read exactly', 'voiced'), row('voiceless stop codas read exactly', 'voiceless'), row('other syllables read exactly', 'other'),
+  row('vowel-only control read as none', 'control'), cnt('stops, others and vowel-only control read as a nasal', asNas),
+  `| vowel-only misses on the four 8-of-8 eighth cells | ${MODES.map(([m]) => (tally[`full ${m}`] || [0])[0]).join(' | ')} |`, '',
+  'Vowel-only misses by cell:', '', ...MODES.map(([m]) => `- ${m}: ${cells(m)}`), '',
+  'Misses, default (count over the twelve cells):', '', list(miss.def), '',
+  'Misses with `levelFade`:', '', list(miss.fade), '',
+  'Misses with `longTilt`:', '', list(miss.tilt), '');
 }
 
 // ---- C ----
