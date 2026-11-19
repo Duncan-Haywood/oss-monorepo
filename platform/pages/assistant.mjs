@@ -169,12 +169,12 @@ const esc = (value) =>
 /**
  * The example questions under the /ask/ panel's greeting. Each is answered by
  * the default engine (no model): two find tools through the site search, one
- * quotes this page. `assistant.test.mjs` checks the search half against the
- * real index, so a renamed tool cannot leave a button that finds nothing.
+ * quotes this page. Checked by hand in the built site on 2026-11-19 (each
+ * gave a non-empty answer); re-check after renaming the tools they find.
  */
 export const ASK_SUGGESTIONS = [
   'Which tool prices a roofing job?',
-  'eBay fees on a $40 sale',
+  'What does eBay charge to sell a $40 item?',
   'Does what I type leave my device?',
 ];
 
