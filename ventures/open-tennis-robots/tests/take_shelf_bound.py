@@ -34,6 +34,11 @@ the true take is at most the named bound on at least 95%, and the bound is 1.5 m
 DECISION RULE (written with the prediction): the bound ships in `take_survey_advice` only if both clauses hold on set
 O. Otherwise the advice line stays as it was and the bound goes to NEXT.md with O's numbers.
 
+RESULT (set O, eval/take-bound-o-2026-11-19.md): 49 of 66 builds told TAKE_US = 0; the true take at most the bound on
+47 (95.9%), the bound 1.5 ms on 4 of 6 instant builds. Both clauses held, by one build on the first, so the bound
+ships. The two misses are 2.0 ms takes at a 16 and 19 ppm step, where one whole ppm is 5-6%; a ppm floor on the
+tolerance is the next test, on a fresh set.
+
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_shelf_bound.py --trace eval/take-dense-jkl-2026-11-19.jsonl.gz eval/take-dense-m-2026-11-19.jsonl.gz eval/take-dense-n-2026-11-19.jsonl.gz
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_shelf_bound.py --design eval/take-dense-jkl-2026-11-19.jsonl.gz eval/take-dense-m-2026-11-19.jsonl.gz eval/take-dense-n-2026-11-19.jsonl.gz
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture o.jsonl --lag 0.42 --seed 109 --takes "0.1,0.5,0.9,1.3,1.6,2.0,2.4,2.8,3.5,5.0,0"
