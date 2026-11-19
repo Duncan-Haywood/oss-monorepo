@@ -29,13 +29,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
   "errors": [
     "Template-literal escapes: \\S and \\b in PAPER_INK_JS lost their backslash on first write; caught by printing the string, now pinned in paper.test.mjs.",
-    "First fix draft made standby-generator-bid-calculator worse (eyebrow 4.06:1 -> 1.63:1) because the page's own @media print whitens the panel; fixed by skipping boxes the page styles for print."
+    "First fix draft made standby-generator-bid-calculator worse (eyebrow 4.06:1 -> 1.63:1) because the page's own @media print whitens the panel; fixed by skipping boxes the page styles for print.",
+    "CI changed-ventures failed: test_browser_checks requires any BASE_URL+browser module in platform/pages to be registered or listed; added 'paper' to pending. Local run_venture_tests skipped unwired_checks.py (its note said so), which is where this lives."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -46,6 +47,10 @@
     {
       "file": "platform/ci/check_posts.py",
       "issue": "With no args it reports 405 files differing from a stale shallow origin/main; naming the files was needed to see the one real problem."
+    },
+    {
+      "file": "platform/ci/test_browser_checks.py",
+      "issue": "A new browser sweep in platform/pages must be registered or listed in `pending`; nothing in platform/pages/README.md says so, so it surfaced only as a CI failure."
     }
   ],
   "deviations": [
@@ -67,7 +72,7 @@
     "docs/reports/2026-11-19-paper-print-legibility.md"
   ],
   "goal": null,
-  "notes": "Idea: a print-legibility sweep (not in the explore audit list). Model of Chromium print text darkening fitted to measured PDF output (10 colours, within 1 step). Before: 1,079/1,391 pages, 4,797 runs under WCAG 1.4.3 on paper (101 pages with result text). After PAPER_INK_JS in pf-site.js: 5 pages, 15 runs; 34 runs on kept gradients unjudged. Verified visually by rasterised PDFs before/after (cut-list-optimizer, 3d-print-price-calculator, amazon-fba-calculator, agent-workroom). Checks: node --test paper.test.mjs (7 pass); build.test/sticky-fit/counter-wiring (341 pass); check_posts ok.",
+  "notes": "Idea: a print-legibility sweep (not in the explore audit list). Model of Chromium print text darkening fitted to measured PDF output (10 colours, within 1 step). Before: 1,079/1,391 pages, 4,797 runs under WCAG 1.4.3 on paper (101 pages with result text). After PAPER_INK_JS in pf-site.js: 5 pages, 15 runs; 34 runs on kept gradients unjudged. Verified visually by rasterised PDFs before/after (cut-list-optimizer, 3d-print-price-calculator, amazon-fba-calculator, agent-workroom). Checks: node --test paper.test.mjs (7 pass); build.test/sticky-fit/counter-wiring (341 pass); check_posts ok. unwired_checks.py: 239/239 pass after the fix.",
   "corrections": [],
   "redteam": null,
   "usage": {
