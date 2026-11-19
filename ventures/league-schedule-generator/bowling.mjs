@@ -48,11 +48,11 @@ export function hungarian(cost) {
     const used = new Array(n + 1).fill(false);
     do {
       used[j0] = true;
-      const i0 = p[j0];
+      const i0 = p[j0], row = cost[i0 - 1], ui = u[i0];
       let delta = INF, j1 = 0;
       for (let j = 1; j <= n; j++) {
         if (used[j]) continue;
-        const cur = cost[i0 - 1][j - 1] - u[i0] - v[j];
+        const cur = row[j - 1] - ui - v[j];
         if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }
         if (minv[j] < delta) { delta = minv[j]; j1 = j; }
       }
@@ -66,42 +66,6 @@ export function hungarian(cost) {
   const rowToCol = new Array(n);
   for (let j = 1; j <= n; j++) rowToCol[p[j] - 1] = j - 1;
   return rowToCol;
-}
-
-// hungarian() on a flat row-major matrix (row stride `stride`, n rows and columns) with buffers
-// from hungarianWork(), for the polish's hot loop. Same steps and arithmetic as hungarian(), so the
-// same assignment; the returned array is the work buffer's and is overwritten by the next call.
-function hungarianWork(n) {
-  return { u: new Float64Array(n + 1), v: new Float64Array(n + 1), p: new Int32Array(n + 1), way: new Int32Array(n + 1), minv: new Float64Array(n + 1), used: new Uint8Array(n + 1), col: new Int32Array(n) };
-}
-function hungarianFlat(cost, n, stride, ws) {
-  const INF = Infinity;
-  const { u, v, p, way, minv, used, col } = ws;
-  u.fill(0, 0, n + 1); v.fill(0, 0, n + 1); p.fill(0, 0, n + 1); way.fill(0, 0, n + 1);
-  for (let i = 1; i <= n; i++) {
-    p[0] = i;
-    let j0 = 0;
-    minv.fill(INF, 0, n + 1);
-    used.fill(0, 0, n + 1);
-    do {
-      used[j0] = 1;
-      const i0 = p[j0], row = (i0 - 1) * stride - 1;
-      let delta = INF, j1 = 0;
-      for (let j = 1; j <= n; j++) {
-        if (used[j]) continue;
-        const cur = cost[row + j] - u[i0] - v[j];
-        if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }
-        if (minv[j] < delta) { delta = minv[j]; j1 = j; }
-      }
-      for (let j = 0; j <= n; j++) {
-        if (used[j]) { u[p[j]] += delta; v[j] -= delta; } else minv[j] -= delta;
-      }
-      j0 = j1;
-    } while (p[j0] !== 0);
-    do { const j1 = way[j0]; p[j0] = p[j1]; j0 = j1; } while (j0);
-  }
-  for (let j = 1; j <= n; j++) col[p[j] - 1] = j - 1;
-  return col;
 }
 
 /** "Lanes 1-2", "Lanes 3-4", ... starting from `firstLane`. */
@@ -509,7 +473,12 @@ function annealRepeats(source, nTeams, nPairs, seed, steps, lim, t0, t1) {
   let best = r, bestPlan = plan.map((wk) => wk.map((m) => m.slice()));
   const rep = (w, t, p) => (w > 0 && pos[w - 1][t] === p ? 1 : 0) + (w < W - 1 && pos[w + 1][t] === p ? 1 : 0);
   // change of (off, repeats) when team t moves from pair p to pair q in week w
-  const dOff = (t, p, q) => off(t, p, cnt[t][p] - 1) - off(t, p, cnt[t][p]) + off(t, q, cnt[t][q] + 1) - off(t, q, cnt[t][q]);
+  // With lo <= hi: off(c - 1) - off(c) is -1 above hi, +1 at or below lo, else 0; off(c + 1) - off(c)
+  // is +1 at or above hi, -1 below lo, else 0 (the same values off() gives, without four calls).
+  const dOff = (t, p, q) => {
+    const ct = cnt[t], c = ct[p], d = ct[q];
+    return (c > hi[t][p] ? -1 : c <= lo[t][p] ? 1 : 0) + (d >= hi[t][q] ? 1 : d < lo[t][q] ? -1 : 0);
+  };
   const dRep = (w, t, p, q) => rep(w, t, q) - rep(w, t, p);
   for (let step = 0; step < steps && best > 0; step++) {
     const w = Math.floor(rnd() * W);
@@ -546,47 +515,51 @@ function kicksFor(weeks, nPairs) {
 // is undone. The best season (fewest out-of-bounds, then fewest repeats) is kept. Deterministic
 // for a seed.
 function polishLanes(plan, nTeams, nPairs, seed, kicks, lim) {
-  // Flat typed arrays and one reused cost buffer (perf, 2026-11-19): the same integer prices and
-  // the same Hungarian arithmetic as the nested-array version, so the same season, about 3x faster.
-  const W = plan.length, P = nPairs, T = nTeams;
-  const cnt = new Int32Array(T * P);
-  const pos = new Int32Array(W * T).fill(-1);
-  const lo = new Int32Array(T * P), hi = new Int32Array(T * P);
-  const ban = lim.ban === null ? null : new Uint8Array(T * P);
-  for (let t = 0; t < T; t++) for (let p = 0; p < P; p++) {
-    lo[t * P + p] = lim.lo[t][p]; hi[t * P + p] = lim.hi[t][p];
-    if (ban !== null && lim.ban[t][p]) ban[t * P + p] = 1;
-  }
-  const put = (w, sign) => {
-    const base = w * T;
-    for (const [a, b, p] of plan[w]) { cnt[a * P + p] += sign; cnt[b * P + p] += sign; pos[base + a] = sign > 0 ? p : -1; pos[base + b] = sign > 0 ? p : -1; }
-  };
+  const W = plan.length;
+  const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
+  const pos = Array.from({ length: W }, () => new Array(nTeams).fill(-1));
+  const { lo, hi, ban } = lim;
+  const put = (w, sign) => { for (const [a, b, p] of plan[w]) { cnt[a][p] += sign; cnt[b][p] += sign; pos[w][a] = sign > 0 ? p : -1; pos[w][b] = sign > 0 ? p : -1; } };
   for (let w = 0; w < W; w++) put(w, 1);
-  const off = (i, c) => Math.max(0, c - hi[i]) + Math.max(0, lo[i] - c);
+  const off = (t, p, c) => Math.max(0, c - hi[t][p]) + Math.max(0, lo[t][p] - c);
   const OFF = 4096, SQ = 16;
-  // price of team t on pair p in a week whose neighbours start at prev / next in pos (-1: none)
-  const price = (t, p, prev, next) => {
-    const i = t * P + p, c = cnt[i];
-    return (ban !== null && ban[i] ? FORBID : 0) + OFF * (off(i, c + 1) - off(i, c)) + SQ * (2 * c + 1) + (prev >= 0 && pos[prev + t] === p ? 1 : 0) + (next >= 0 && pos[next + t] === p ? 1 : 0);
-  };
-  const cost = new Float64Array(P * P);
-  const hw = hungarianWork(P);
+  // The price of a match on pair p is, for each of its two teams t with count c there:
+  //   FORBID if banned + OFF * (off(c + 1) - off(c)) + SQ * (2c + 1) + 1 per neighbouring week on p.
+  // With lo <= hi, off(c + 1) - off(c) is +1 when c >= hi, -1 when c < lo and 0 between, so the
+  // loop below prices it without calling off(), with each team's rows looked up once per match
+  // instead of once per pair (the per-cell closure was 57% of a stored season's time). Same
+  // integers, so the Hungarian step sees the same matrix.
   const resolve = (w) => {
     put(w, -1);
-    const wk = plan[w], n = wk.length;
-    const prev = w > 0 ? (w - 1) * T : -1, next = w < W - 1 ? (w + 1) * T : -1;
-    for (let k = 0; k < n; k++) {
+    const wk = plan[w], prev = w > 0 ? pos[w - 1] : null, next = w < W - 1 ? pos[w + 1] : null;
+    const cost = new Array(wk.length);
+    for (let k = 0; k < wk.length; k++) {
       const a = wk[k][0], b = wk[k][1];
-      for (let p = 0; p < P; p++) cost[k * P + p] = price(a, p, prev, next) + price(b, p, prev, next);
+      const ca = cnt[a], cb = cnt[b], la = lo[a], lb = lo[b], ha = hi[a], hb = hi[b];
+      const ba = ban !== null ? ban[a] : null, bb = ban !== null ? ban[b] : null;
+      const pa = prev !== null ? prev[a] : -1, pb = prev !== null ? prev[b] : -1;
+      const na = next !== null ? next[a] : -1, nb = next !== null ? next[b] : -1;
+      const row = new Array(nPairs);
+      for (let p = 0; p < nPairs; p++) {
+        const x = ca[p], y = cb[p];
+        let v = OFF * ((x >= ha[p] ? 1 : x < la[p] ? -1 : 0) + (y >= hb[p] ? 1 : y < lb[p] ? -1 : 0)) + SQ * (2 * x + 2 * y + 2);
+        if (pa === p) v++;
+        if (na === p) v++;
+        if (pb === p) v++;
+        if (nb === p) v++;
+        if (ba !== null) { if (ba[p]) v += FORBID; if (bb[p]) v += FORBID; }
+        row[p] = v;
+      }
+      cost[k] = row;
     }
-    const col = hungarianFlat(cost, n, P, hw);
-    for (let k = 0; k < n; k++) wk[k][2] = col[k];
+    const col = hungarian(cost);
+    plan[w].forEach((m, k) => { m[2] = col[k]; });
     put(w, 1);
   };
   const full = () => {
     let o = 0, q = 0, r = 0, bad = 0;
-    for (let i = 0; i < T * P; i++) { const c = cnt[i]; o += off(i, c); q += c * c; if (ban !== null && ban[i]) bad += c; }
-    for (let w = 1; w < W; w++) for (let t = 0; t < T; t++) if (pos[w * T + t] === pos[(w - 1) * T + t]) r++;
+    for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) { const c = cnt[t][p]; o += off(t, p, c); q += c * c; if (ban !== null && ban[t][p]) bad += c; }
+    for (let w = 1; w < W; w++) for (let t = 0; t < nTeams; t++) if (pos[w][t] === pos[w - 1][t]) r++;
     return { cost: FORBID * bad + OFF * o + SQ * q + r, off: o + bad * 1e6, repeats: r };
   };
   const sweep = () => {

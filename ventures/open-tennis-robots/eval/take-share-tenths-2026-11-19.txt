@@ -1,0 +1,72 @@
+eval/ball-gain-replication-2026-11-19.jsonl.gz: no survey rows
+eval/ball-kp-learn-heldout-2026-11-19.jsonl.gz: no survey rows
+eval/ball-kp-learn-shipped-grid-2026-11-19.jsonl.gz: no survey rows
+eval/esc-grid-gap-rows-2026-11-18.jsonl.gz: no survey rows
+eval/esc-misfit-survey-inputs-2026-11-18.jsonl.gz: no survey rows
+eval/esc-survey-spline-heldout-rows-2026-11-18.jsonl.gz: no survey rows
+eval/esc-survey-window-rows-2026-11-18.jsonl.gz: no survey rows
+eval/tach-pulses-j05-2026-11-19.jsonl.gz: no survey rows
+eval/tach-pulses-main-2026-11-19.jsonl.gz: no survey rows
+eval/tach-pulses-sp2-2026-11-19.jsonl.gz: no survey rows
+eval/take-ball-gain-off-design-2026-11-19.jsonl.gz: 24 drills, 21 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 16/16/16 of 18; instant advised e/w/t 0/0/0 of 6
+eval/take-ball-gain-off-fresh-2026-11-19.jsonl.gz: 24 drills, 18 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 18/18/18 of 18; instant advised e/w/t 0/0/0 of 6
+eval/take-ball-gain-off-heldout-2026-11-19.jsonl.gz: 24 drills, 18 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 16/16/16 of 18; instant advised e/w/t 0/0/0 of 6
+eval/take-ball-gain-off-third-2026-11-19.jsonl.gz: 24 drills, 20 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 18/18/18 of 18; instant advised e/w/t 0/0/0 of 6
+eval/take-bound-floor-p-2026-11-19.jsonl.gz: 66 drills, 45 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 18/18/18 of 60; instant advised e/w/t 0/0/0 of 6
+eval/take-bound-o-2026-11-19.jsonl.gz: 66 drills, 44 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 17/17/17 of 60; instant advised e/w/t 0/0/0 of 6
+eval/take-dense-jkl-2026-11-19.jsonl.gz: no survey rows
+eval/take-dense-m-2026-11-19.jsonl.gz: no survey rows
+eval/take-dense-n-2026-11-19.jsonl.gz: no survey rows
+eval/take-fit-2026-11-17.jsonl.gz: no survey rows
+eval/take-grid-eight-j-2026-11-19.jsonl.gz: 72 drills, 55 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 50/50/50 of 66; instant advised e/w/t 0/0/0 of 6
+eval/take-grid-eight-k-2026-11-19.jsonl.gz: 72 drills, 62 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 48/48/48 of 66; instant advised e/w/t 0/0/0 of 6
+eval/take-grid-eight-l-2026-11-19.jsonl.gz: 72 drills, 62 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 48/48/48 of 66; instant advised e/w/t 0/0/0 of 6
+eval/take-grid-fresh-g-2026-11-18.jsonl.gz: 54 drills, 41 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 31/31/31 of 48; instant advised e/w/t 0/0/0 of 6
+eval/take-grid-fresh-h-2026-11-18.jsonl.gz: 54 drills, 39 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 32/32/32 of 48; instant advised e/w/t 0/0/0 of 6
+eval/take-grid-fresh-i-2026-11-18.jsonl.gz: 54 drills, 46 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 33/33/33 of 48; instant advised e/w/t 0/0/0 of 6
+eval/take-grid-nine-d-2026-11-18.jsonl.gz: 54 drills, 41 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 32/32/32 of 48; instant advised e/w/t 0/0/0 of 6
+eval/take-grid-nine-e-2026-11-18.jsonl.gz: 54 drills, 40 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 29/29/29 of 48; instant advised e/w/t 0/0/0 of 6
+eval/take-grid-nine-f-2026-11-18.jsonl.gz: 54 drills, 41 nonzero picks; verdicts unlike the exact share: whole ppm 1, tenths 0; spread named+advised e/w/t 31/30/31 of 48; instant advised e/w/t 0/0/0 of 6
+    build [2, 0, 2, 0.55, 61] take 2.5 ms pick 2: exact 0.595; whole ppm withheld (bound 0.631, step 33); tenths advised (bound 0.598, step 32.9)
+eval/take-instant-sub8-design-2026-11-19.jsonl.gz: 72 drills, 57 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 37/37/37 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-instant-sub8-fresh-2026-11-19.jsonl.gz: 72 drills, 58 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 54/54/54 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-instant-sub8-heldout-2026-11-19.jsonl.gz: 72 drills, 55 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 48/48/48 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-instant-sub8-third-2026-11-19.jsonl.gz: 72 drills, 59 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 54/54/54 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-misfit-record-fits-2026-11-18.jsonl.gz: no survey rows
+eval/take-share-rounding-fresh-2026-11-19.jsonl.gz: 72 drills, 60 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 53/53/53 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-short-m-2026-11-19.jsonl.gz: 66 drills, 40 nonzero picks; verdicts unlike the exact share: whole ppm 1, tenths 0; spread named+advised e/w/t 26/25/26 of 60; instant advised e/w/t 0/0/0 of 6
+    build [6, 0, 1, 0.55, 97] take 2.9 ms pick 2.5: exact 0.590; whole ppm withheld (bound 0.614, step 29); tenths advised (bound 0.595, step 28.7)
+eval/take-short-n-2026-11-19.jsonl.gz: 66 drills, 36 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 27/27/27 of 60; instant advised e/w/t 0/0/0 of 6
+eval/take-short-n-live9-2026-11-19.jsonl.gz: 66 drills, 43 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 24/24/24 of 60; instant advised e/w/t 0/0/0 of 6
+eval/take-survey-blind-heldout-capture-sub8-2026-11-18.jsonl.gz: 72 drills, 54 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 54/54/54 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-blind-heldout-jitter-2026-11-18.jsonl.gz: 72 drills, 55 nonzero picks; verdicts unlike the exact share: whole ppm 1, tenths 1; spread named+advised e/w/t 26/25/25 of 54; instant advised e/w/t 0/0/0 of 18
+    build [1, 1, 1, 0.6, 19] take 3 ms pick 3: exact 0.599; whole ppm withheld (bound 0.606, step 125); tenths withheld (bound 0.600, step 124.9)
+eval/take-survey-capture-design-2026-11-18.jsonl.gz: 72 drills, 56 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 35/35/35 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-capture-heldout-2026-11-18.jsonl.gz: 72 drills, 63 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 46/46/46 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-capture-sub1-fresh-2026-11-18.jsonl.gz: 72 drills, 55 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 43/43/43 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-capture-sub1-third-2026-11-18.jsonl.gz: 72 drills, 58 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 43/43/43 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-capture-sub8-design-2026-11-18.jsonl.gz: 72 drills, 58 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 44/44/44 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-capture-sub8-fresh-2026-11-18.jsonl.gz: 72 drills, 55 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 54/54/54 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-capture-sub8-heldout-2026-11-18.jsonl.gz: 72 drills, 54 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 42/42/42 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-capture-sub8-third-2026-11-18.jsonl.gz: 72 drills, 57 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 47/47/47 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-fresh-a-2026-11-18.jsonl.gz: 54 drills, 43 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 24/24/24 of 48; instant advised e/w/t 0/0/0 of 6
+eval/take-survey-fresh-b-2026-11-18.jsonl.gz: 54 drills, 42 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 34/34/34 of 48; instant advised e/w/t 0/0/0 of 6
+eval/take-survey-fresh-c-2026-11-18.jsonl.gz: 54 drills, 42 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 38/38/38 of 48; instant advised e/w/t 0/0/0 of 6
+eval/take-survey-heldout-2026-11-17.jsonl.gz: no survey rows
+eval/take-survey-jitter-design-2026-11-18.jsonl.gz: 72 drills, 57 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 17/17/17 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-jitter-heldout-2026-11-18.jsonl.gz: 72 drills, 57 nonzero picks; verdicts unlike the exact share: whole ppm 1, tenths 0; spread named+advised e/w/t 27/26/27 of 54; instant advised e/w/t 0/0/0 of 18
+    build [3, 2, 2, 0.45, 11] take 4 ms pick 4.5: exact 0.598; whole ppm withheld (bound 0.601, step 196); tenths advised (bound 0.598, step 196)
+eval/take-survey-kept-drills-q-2026-11-19.jsonl.gz: 72 drills, 59 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 20/20/20 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-kept-drills-r-2026-11-19.jsonl.gz: 72 drills, 56 nonzero picks; verdicts unlike the exact share: whole ppm 1, tenths 0; spread named+advised e/w/t 25/24/25 of 54; instant advised e/w/t 0/0/0 of 18
+    build [1, 1, 0, 0.42, 409] take 3 ms pick 3: exact 0.597; whole ppm withheld (bound 0.602, step 131); tenths advised (bound 0.598, step 130.8)
+eval/take-survey-kept-drills-s-2026-11-19.jsonl.gz: 72 drills, 60 nonzero picks; verdicts unlike the exact share: whole ppm 1, tenths 0; spread named+advised e/w/t 26/25/26 of 54; instant advised e/w/t 0/0/0 of 18
+    build [1, 1, 2, 0.5, 419] take 3 ms pick 3: exact 0.590; whole ppm withheld (bound 0.604, step 94); tenths advised (bound 0.590, step 94.3)
+eval/take-survey-kept-drills-t-2026-11-19.jsonl.gz: 72 drills, 61 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 24/24/24 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-kept-drills-u-2026-11-19.jsonl.gz: 72 drills, 61 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 21/21/21 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-kept-drills-v-2026-11-19.jsonl.gz: 72 drills, 58 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 18/18/18 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-kept-heldout-2026-11-18.jsonl.gz: 72 drills, 60 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 21/21/21 of 54; instant advised e/w/t 0/0/0 of 18
+eval/take-survey-pick-design-rows-2026-11-18.jsonl.gz: 54 drills, 45 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 29/29/29 of 48; instant advised e/w/t 0/0/0 of 6
+eval/take-survey-pick-heldout-rows-2026-11-18.jsonl.gz: 54 drills, 43 nonzero picks; verdicts unlike the exact share: whole ppm 0, tenths 0; spread named+advised e/w/t 35/35/35 of 48; instant advised e/w/t 0/0/0 of 6
+eval/take-survey-sweep-2026-11-17.jsonl.gz: no survey rows
+
+ALL: 2964 drills, 2310 nonzero picks. Verdicts unlike the exact share: whole ppm with guard G 6, tenths with its guard 1. Spread takes named within 1 ms and advised: exact 1553, whole 1547, tenths 1552 of 2394. Instant builds advised: exact 0, whole 0, tenths 0 of 570.

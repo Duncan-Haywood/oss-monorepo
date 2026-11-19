@@ -704,6 +704,9 @@ export class PropertyFacet {
     this.baseName = new IdsValue(kid(node, "baseName") || kid(node, "name"));
     this.value = new IdsValue(kid(node, "value"));
     this.dataType = (node.attrs.dataType ?? node.attrs.datatype ?? "").toUpperCase() || null;
+    // The bSDD link (ids.xsd: requirement facets only); kept so the editor
+    // writes it back. The checker does not read it (bsdd.mjs does).
+    this.uri = node.attrs.uri ?? null;
   }
   // The values one property holds, each {v, type} with v converted to SI units.
   values(model, p) {
@@ -854,6 +857,7 @@ export class ClassificationFacet {
     this.kind = "classification";
     this.system = new IdsValue(kid(node, "system"));
     this.value = new IdsValue(kid(node, "value"));
+    this.uri = node.attrs.uri ?? null;
   }
   test(e, model) {
     const refs = classificationsOf(model, e);
@@ -901,6 +905,7 @@ export class MaterialFacet {
   constructor(node) {
     this.kind = "material";
     this.value = new IdsValue(kid(node, "value"));
+    this.uri = node.attrs.uri ?? null;
   }
   test(e, model) {
     const names = materialNames(model, e);

@@ -119,6 +119,18 @@ export class Calendar {
     return new Calendar({ id: row.clndr_id, name: row.clndr_name || "", week, exceptions, hoursPerDay: hpd });
   }
 
+  // Monday to Friday, `hours` a day from 08:00 with an hour's break at
+  // 12:00 once the day runs past noon (P6's own default pattern for 8 h)
+  static weekdays(hours = 8, id = "weekdays", name = "") {
+    const m = Math.round(hours * 60);
+    const start = 8 * 60;
+    let d;
+    if (start + m <= 12 * 60) d = [[start, start + m]];
+    else if (13 * 60 + (m - 240) <= DAY) d = [[start, 12 * 60], [13 * 60, 13 * 60 + (m - 240)]];
+    else d = [[Math.max(0, DAY - m), DAY]];
+    return new Calendar({ id, name, week: [[], d, d, d, d, d, []], hoursPerDay: hours });
+  }
+
   static allDay() {
     const d = [[0, DAY]];
     return new Calendar({ id: "24h", name: "24 hour", week: [d, d, d, d, d, d, d], hoursPerDay: 24 });
@@ -183,7 +195,7 @@ export class Calendar {
   // Earliest working instant at or after t from which work can proceed
   // (the end of a period snaps to the next period's start).
   nextStart(t) {
-    if (!this.works) return t;
+    if (!this.works || !Number.isFinite(t)) return t; // no instant to snap
     let d = Math.floor(t / DAY);
     for (let guard = 0; guard < 400000; guard++, d++) {
       const base = d * DAY;
@@ -198,7 +210,7 @@ export class Calendar {
   // Latest working instant at or before t at which work can end
   // (the start of a period snaps back to the previous period's end).
   prevEnd(t) {
-    if (!this.works) return t;
+    if (!this.works || !Number.isFinite(t)) return t; // no instant to snap
     let d = Math.floor((t - 1) / DAY);
     for (let guard = 0; guard < 400000; guard++, d--) {
       const base = d * DAY;

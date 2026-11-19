@@ -19,6 +19,9 @@ its frame with its siblings on purpose.
 With no arguments it takes the docs/posts/ and docs/reports/ files that differ
 from origin/main (committed, staged, unstaged or untracked); on main, or with
 nothing changed, it checks nothing and exits 0. About 3 s for one post.
+When that list is implausibly long (origin/main older than the branch's
+start, common in a fresh cloud clone) it refreshes origin/main once with
+`fetch_ref.py main` and lists again; `--no-fetch` skips that.
 """
 import argparse
 import subprocess
@@ -100,18 +103,53 @@ def main(argv=None):
     ap.add_argument("--strict", action="store_true", help="fail on a near-copy too")
     ap.add_argument("--fix", action="store_true",
                     help="respell the checked posts' tags the way other posts spell them, then check")
+    ap.add_argument("--no-fetch", action="store_true",
+                    help="do not refresh a stale origin/main (network) before listing")
     args = ap.parse_args(argv)
     if not (Path(args.root) / "docs" / "posts").is_dir():
         # A wrong --root must not pass as "nothing changed" (test_checks_refuse_empty_root.py).
         print(f"check_posts: no docs/posts under {args.root}: is --root the repository?")
         return 2
     files = args.files or changed_files(Path(args.root))
+    if not args.files and len(files) > STALE_HINT_AT and not args.no_fetch:
+        files = refresh_and_relist(Path(args.root), len(files))
     if not args.files and len(files) > STALE_HINT_AT:
         # A run that merged a newer main than its clone's origin/main saw 64
         # files here for its one post (run record, 2026-11-17).
         print(f"check_posts: {len(files)} files differ from origin/main; if this branch adds fewer, "
-              "origin/main is stale: `git fetch --depth=1 origin main` and rerun, or name the post")
+              f"origin/main is stale: `{FETCH_HINT}` and rerun, or name the post")
     return run(files, root=Path(args.root), strict=args.strict, fix=args.fix)
+
+
+# The harness's clone can hold an origin/main older than the commit the
+# session branch starts from: in session 2026-11-19 (process) origin/main was
+# #17125 while HEAD was main's tip #17633, so a branch with no post at all
+# listed 531 "changed" posts and checked them all (a 2026-11-19 run record
+# saw 405 and had to name its post by hand). fetch_ref.py refreshes main
+# without cutting history; the old hint's `git fetch --depth=1` cuts a
+# deepened clone back to one commit (fetch_ref.py, "Why").
+FETCH_HINT = "python3 platform/ci/fetch_ref.py main"
+
+
+def refresh_and_relist(root, before, fetch=None, relist=None, out=print):
+    """Refresh origin/main once and list the changed files again."""
+    relist = relist or changed_files
+    if fetch is None:
+        import fetch_ref
+
+        def fetch():
+            return fetch_ref.fetch_ref("main", cwd=root, out=sys.stderr)
+    try:
+        rc = fetch()
+    except Exception as e:  # noqa: BLE001  offline or no git: keep the old list
+        out(f"check_posts: could not refresh origin/main ({e}); listing against the old one")
+        return relist(root)
+    files = relist(root)
+    if rc == 1:
+        out("check_posts: refreshing origin/main failed; listing against the old one")
+    else:
+        out(f"check_posts: {before} files differed from a stale origin/main; refreshed it, now {len(files)}")
+    return files
 
 
 if __name__ == "__main__":

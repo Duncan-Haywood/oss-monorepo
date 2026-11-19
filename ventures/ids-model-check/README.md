@@ -357,6 +357,8 @@ node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
+node cli.mjs --from-bsdd https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcDoor -o door.ids
+                                                 # an IDS from a bSDD class's property list (goes online)
 node cli.mjs --fix spec.ids -o spec-fixed.ids   # repair its ids.xsd faults; exit 1 if some need a person
 node cli.mjs model.ifc spec.ids --no-audit      # run invalid specifications as written
 node cli.mjs --to-sheet spec.ids -o spec.xlsx   # the IDS as a spreadsheet, one row per facet (or .csv)
@@ -409,6 +411,53 @@ Omgevingswet sets relating classes to IFC classes their dictionary does not
 network: one GET per distinct link to api.bsdd.buildingsmart.org, with the
 link as the only thing sent. It is not on the page: bSDD's API sends no CORS
 header, so a browser cannot ask it.
+
+### An IDS from a bSDD class (2026-11-19)
+
+The usual way to write an IDS from a data dictionary is to copy rows by hand:
+open the class in bSDD, type each property set, property code and data type
+into an editor, then paste the property's link. That is how the slips in the
+section above get in. `node cli.mjs --from-bsdd CLASS_URI... -o spec.ids`
+(bsdd-spec.mjs) asks bSDD for each class with its property list and writes
+one specification per class:
+
+- **applicability:** for an IFC-dictionary class, its IFC entity (IfcWallSHEAR
+  is IFCWALL with predefined type SHEAR); for any other dictionary's class,
+  the IFC entities bSDD relates it to plus a classification facet (system =
+  the dictionary's name, value = the class code), so only objects classified
+  that way are checked. The specification is optional: a model need not
+  contain the class.
+- **requirements:** that classification again with the class's `uri`
+  (`ids.xsd` allows a `uri` on requirement facets only), then one property
+  facet per class property, with its set, its code as baseName, its bSDD
+  `uri`, a dataType, the allowed values (one-of), a fixed value or bounds,
+  and `cardinality` required where bSDD says `isRequired`, optional otherwise
+  (if the property is there, it must fit). bSDD's pseudo-set `Attributes`
+  becomes attribute facets, kept only where the entity has that attribute.
+- **dataType:** for a standard `Pset_`/`Qto_` property, the IFC templates'
+  type, which is what the audit holds a facet to; otherwise the IFC
+  dictionary's own note ("takes 'IfcLabel' as value"), asking bSDD for the
+  IFC property's entry when another dictionary reuses an IFC property;
+  otherwise bSDD's data type (Boolean, Integer, Real, String, Time as
+  IFCBOOLEAN, IFCINTEGER, IFCREAL, IFCLABEL, IFCDATETIME).
+- Left out and said on stderr: complex properties (no IDS 1.0 facet reaches
+  inside one), Inactive properties, related IFC entities the schema does not
+  have. `--sets Pset_DoorCommon,...` keeps only the named sets.
+
+Measured on bSDD itself (`eval/bsdd-spec-2026-11-19.md`): from 185 classes in
+the 42 Active, latest-version dictionaries that list properties (IFC 4.3
+included), 9,198 requirement facets. 38 of 42 generated files have no audit
+error, and the 4 that do repeat their dictionary's own faults (a project set
+named `Pset_FM`, a quantity the IFC template lacks, languages as a Boolean's
+values). 42 of 42 pass the bSDD link check with no error. Five generator
+faults found on the way were fixed, the largest being bSDD's
+`"predefinedValue": "None"`, which 165 properties answer and which had been
+written as a required value.
+
+The editor now keeps a facet's `uri` when it opens a file. Before, it dropped
+every one: 0 of 344 links in 53 public files came back, now 344 of 344
+(`eval/editor-uri-roundtrip.txt`). A generated file can therefore be opened,
+edited and downloaded with its links intact.
 
 ### Excel2IDS workbooks in, Excel2IDS workbooks out (2026-11-19)
 
@@ -1176,6 +1225,9 @@ faster than IfcTester; its point is needing no install.
 
 ## Limitations
 
+- `--from-bsdd` writes non-IFC Real properties as IFCREAL (bSDD's units
+  are not mapped to measure types yet) and leaves complex properties out;
+  like `--bsdd`, it runs from the command line only.
 - bSDD links (`--bsdd`) are checked from the command line only (bSDD's API
   allows no browser calls) and not against the property set, which bSDD gives
   only on a class's property list (`eval/bsdd-links-2026-11-19.md`, Limits).

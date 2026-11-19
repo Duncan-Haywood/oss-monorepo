@@ -17,7 +17,7 @@
   "tokens_out": 35676,
   "cost_usd": 3.0037,
   "tool_calls": 71,
-  "task": "perf: profile and speed up the slowest test file (bowling.test.mjs) in the slowest venture suite (league-schedule-generator)",
+  "task": "perf: bowling.test.mjs in league-schedule-generator (slowest file of the slowest venture suite); landed the walkLanes speed-up after PR #17631 landed the same polishLanes fix first",
   "projects": [
     "league-schedule-generator"
   ],
@@ -30,7 +30,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 0,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [
     {
       "what": "post description 175 chars failed check_post_frontmatter in run_workflow_locally --for-changes",
@@ -39,6 +39,10 @@
     {
       "what": "scratch copy of the old bowling.mjs failed to import (orient.mjs needs wasm/minplus-wasm.mjs)",
       "fix": "copied wasm/ into the scratch copy too"
+    },
+    {
+      "what": "duplicate work: PR #17631 (another perf session, same day) merged the same polishLanes hotspot fix while this run worked; the PR showed mergeable_state dirty",
+      "fix": "merged main, kept main's polishLanes (mine was only ~5% faster on top), kept this run's walkLanes rewrite, rewrote history doc and post around the walk"
     }
   ],
   "integrity_issues": [],
@@ -50,6 +54,10 @@
     {
       "file": "platform/ci/venture_suite_times.json",
       "issue": "Taken 2026-11-17; slug-level times hide the per-file picture (league's slowest file had no write-up after 8 league passes). suite_file_times.py found it in one run; worth naming it in the perf prompt's step 3."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Duplicate PRs' says to search open PRs before opening one; I did, but the overlapping PR #17631 was opened and merged during my profiling. Searching open PRs and main's log for the target file right before starting the edit (not only before opening the PR) would have caught it: two perf runs drawn the same hour both read venture_suite_times.json and chose the same top file."
     }
   ],
   "deviations": [
@@ -61,17 +69,17 @@
     },
     {
       "file": "CLAUDE.md",
-      "why": "No pinned-equivalence test committed: polishLanes/walkLanes are internal and a committed hash of search output would break every future intentional search change",
-      "did": "verified with a scratch old-vs-new hash over 272 cases, recorded in the history doc",
-      "result": "digests identical; the existing 762 tests pass"
+      "why": "No pinned-equivalence test committed: walkLanes is internal and a committed hash of search output would break every future intentional search change",
+      "did": "scratch old-vs-new digest over 272 cases, recorded in the history doc",
+      "result": "digests identical; 762 suite tests pass"
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-19-the-cost-matrix-cost-more-than-the-solve.md",
-    "docs/history/ci-perf-2026-11-19-league-bowling-flat-polish.md"
+    "docs/posts/2026-11-19-two-agents-one-hotspot-and-the-walk-that-cannot-finish.md",
+    "docs/history/ci-perf-2026-11-19-league-bowling-walk-flat.md"
   ],
   "goal": null,
-  "notes": "Metric: bowling.test.mjs seconds in suite_file_times.py league-schedule-generator --jobs 4 (4-core container). Before 166.6 s, after 97.7 s; suite summed 812.1 -> 740.8 s, wall 241.9 -> 217.8 s. assignLanes 24x35 seed 1 scratch bench 2,665 -> 994 ms; test 5 alone 67.2 -> 38.8 s (TAP duration_ms); test-14 workload 26.1 -> 16.1 s wall. Equivalence: old vs new bowling.mjs hashed on 272 cases, digest 10c2331ee0c43f9f both. run_venture_tests.py league-schedule-generator: ok, 762 tests, 272.6 s. Pool reading (ci_profile --runs 600, 11:18 UTC): ventures tests 114.7 job-min, node --test step 81 min / 34 jobs. Also read photo-editing Python suite: 103.9 s / 1,442 tests, spread thin (ranked in the history doc's not-changed list). Local CI (run_workflow_locally.py --for-changes, 9 workflows): ventures-tests 5/5, portfolio-validate 100/100, portfolio-pages 12/12, pages 6/6, doc-refs 3/3, conflict-markers 2/2, control-plane-guard 2/2 passed; prompts-ci 0/2 failed only because this record's outcome was still null mid-run, re-run after filling: promptctl validate ok, unittest discover -s prompts 136 OK.",
+  "notes": "Metric: test-14 workload of bowling.test.mjs (35 out-of-reach seasons, bowlingSchedule+laneReport, scratch bench wall): main after #17631 30.8 s, with this change 16.9 s; in-suite test 14 TAP duration 27.3 s before -> 17.1 s after. Polish (dropped as duplicate of #17631): my flat version 1,066/1,040 ms vs main's 1,107/1,137 ms on 24x35. Equivalence: 272-case digest 10c2331ee0c43f9f identical for pre-#17631 code, main, and main+walk. Merged tree: bowling.test.mjs 32/32 pass; run_venture_tests.py league-schedule-generator ok, 762 tests, 260.8 s; site page checks ok. Before the merge, local CI (run_workflow_locally --for-changes): ventures-tests 5/5, portfolio-validate 100/100, portfolio-pages 12/12, pages 6/6, doc-refs 3/3, conflict-markers 2/2, control-plane-guard 2/2; prompts-ci failed only on this record's null outcome mid-run, then validate ok and 136 prompts tests OK. Pool reading (ci_profile --runs 600, 11:18 UTC): ventures tests 114.7 job-min. Also read photo-editing Python suite: 103.9 s / 1,442 tests, spread thin.",
   "corrections": [],
   "redteam": null,
   "usage": {

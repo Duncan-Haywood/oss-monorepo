@@ -117,9 +117,41 @@ function ruForm(t) {
   for (const [re, form] of RU_MISREAD) if (re.test(g)) return { len: head.length, form };
   return null;
 }
+// Which recogniser a receipt photo wants, from a reading by the Latin one: "cyrillic" or "latin".
+// A Latin recogniser reads a Cyrillic slip in look-alikes, and Cyrillic's lower-case а е о р с у х
+// come out as Latin lower case inside upper-case words: CyMMA (СУММА), nPHXOA (ПРИХОД), KACCOBbIA
+// (КАССОВЫЙ). A lower-case letter followed by two capitals is rare on Latin receipts, whose glued
+// words go lower-to-Capital-lower (ChickenFried) and whose brand prefixes (McDONALD'S, iPHONE,
+// eBAY) are set aside below. Three such words mark the slip as Cyrillic: on val's 149 Russian
+// photos read by RapidOCR's Latin model, 147 have three or more (the other two are a near-blank
+// photo and a 33-word one with two); on the 200 SRD photos (US) none has more than two
+// (eval/receipt-script-2026-11-19.md). Text already in Cyrillic (ten letters or more) is Cyrillic.
+// A quantity glued to an item name (1xBTL) is cut off first: it was the cause of the only two
+// Latin receipts taken for Cyrillic, 2 of WildReceipt's 472 (found there, so that set is no
+// longer held out for this cut).
+const BRAND_PREFIX = /^(?:Ma?c(?=[A-Z])|[ie](?=(?:PHONE|PAD|MAC|POD|BAY|TUNES|CLOUD|WATCH)))/;
+export function receiptScript(text) {
+  const t = String(text || "");
+  if ((t.match(/[\u0400-\u04ff]/g) || []).length >= 10) return "cyrillic";
+  // a quantity glued to the item ("1xBTL", "10xTVA") is not a word: WildReceipt's two misses
+  const words = (t.match(/[A-Za-z0-9]{3,}/g) || []).map((w) => w.replace(/^\d+x(?=[A-Z])/, "").replace(BRAND_PREFIX, ""));
+  return words.filter((w) => /[a-z][A-Z]{2}/.test(w)).length >= 3 ? "cyrillic" : "latin";
+}
+const looksRussian = (lines) => (lines.join("\n").match(/[а-яё]/gi) ?? []).length >= 20 || lines.some((l) => RU_TOTAL_RE.test(l));
+// A Russian slip whose reading names no seller: worth a second, enlarged look (ocr.mjs reads
+// the photo again in bands, rapidocr_rows.py --bands).
+export const needsSellerLook = (text) => { const lines = String(text ?? "").split("\n"); return looksRussian(lines) && !russianSeller(lines); };
+// The seller from that second look, put on the reading's first line so the parser takes it;
+// the reading is otherwise unchanged (totals and items still come from the first look).
+// On val 117 to 122 of 146 sellers, none lost (README, "A second look for the seller").
+export function withBandSeller(text, bandText) {
+  const lines = String(text ?? "").split("\n");
+  if (!needsSellerLook(text)) return text;
+  const seller = russianSeller([...String(bandText ?? "").split("\n"), ...lines]);
+  return seller ? `${seller}\n${text}` : text;
+}
 export function russianSeller(lines) {
-  const text = lines.join("\n");
-  if ((text.match(/[а-яё]/gi) ?? []).length < 20 && !lines.some((l) => RU_TOTAL_RE.test(l))) return null;
+  if (!looksRussian(lines)) return null;
   for (const [li, l] of lines.entries()) {
     const segs = l.split(/\s{2,}/);
     for (const [i, seg] of segs.entries()) {
