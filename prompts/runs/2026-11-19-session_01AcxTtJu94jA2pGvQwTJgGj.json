@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJu94jA2pGvQwTJgGj",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T14:07:03Z",
+  "ended": "2026-11-19T14:18:36Z",
+  "wall_minutes": 11.83,
+  "tokens_in": 4553527,
+  "tokens_out": 18020,
+  "cost_usd": 1.9432,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17689",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First local ventures-tests pass failed: test_checks_refuse_empty_root.py flagged the new check for exiting 0 on an empty --root; fixed (exit 2) in the same PR."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_blank_targets.py",
+      "issue": "I copied this check's shape, but the empty-root ratchet (test_checks_refuse_empty_root.py) is not mentioned anywhere a new-check author reads; only the ventures-tests unwired pass caught it after 80 s."
+    },
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Three of the first four doc_friction items I checked (quality_audit flagship collision, unwired PyYAML skip, main_health missing portfolio tests) had already been fixed by sibling runs the same day; `friction_rank.py --live` hides those, so it is the better starting list than measure's raw table."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-process-four-scripts-that-could-not-find-playwright.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (only owner/blocked backlog rows). Lens: doc_friction from 2026-11-19 polish run (sideways.mjs bare playwright import). Found 4 ESM-only Playwright loaders; three platform/pages scripts now use load-playwright.mjs, dns-configuration-evidence journey got an inline fallback and passes (all journey checks) in this session for the first time. New check_playwright_import.py flags exactly those 4 on the old tree, 0 now. Local: run_workflow_locally --for-changes: control-plane-guard 2/2, checklist-coverage 1/1, conflict-markers 2/2, doc-refs 3/3, duplicate-symbols 2/2, dns-configuration-evidence-ci 2/2, pages 6/6, portfolio-validate 100/100, ventures-tests 4/5 (empty-root failure, fixed; test_checks_refuse_empty_root + test_check_playwright_import OK after; unwired_checks.py 262/262 pass). main_health on main: all ok. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c0aa503d-24d7-5a9b-85d5-6d78de39a1a8",
+    "transcripts": 1,
+    "first": "2026-11-19T14:07:03Z",
+    "last": "2026-11-19T14:18:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 97,
+        "output": 18020,
+        "thinking": 3821,
+        "cache_read": 4467310,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86120,
+        "api_equivalent_usd": 1.9432,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 97,
+      "output": 18020,
+      "thinking": 3821,
+      "cache_read": 4467310,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86120,
+      "api_equivalent_usd": 1.9432,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.83,
+      "active_minutes": 11.83,
+      "model_minutes": 3.65,
+      "tool_minutes": 8.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "find 4 loaders, fix, write check+tests+post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 102.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
