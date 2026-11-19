@@ -5,6 +5,7 @@ the pooled 104-design table the paper prints. No new simulation.
 
     python experiments/heldbudget/run.py rows      # per fresh design: the eight cells and Shapley values (stdlib)
     python experiments/heldbudget/run.py report    # H256 to H259 -> results.txt, summary.json
+    python experiments/heldbudget/run.py rounded   # post hoc: the same benches rounded as 5zk's -> rounded.txt
 
     M: N's node-lever OCP rise (forecast) or the measured plating-weighted OCP rise (5zo)
     D: no drift (forecast) or the measured non-OCP drift (5zq)
@@ -131,5 +132,37 @@ def report():
     print("\n".join(L))
 
 
+def _sig(x, n=7):
+    if isinstance(x, float):
+        return float(f"{x:.{n - 1}e}")
+    if isinstance(x, list):
+        return [_sig(v, n) for v in x]
+    return x
+
+
+def rounded():
+    """Post hoc (not in the plan): the fresh benches rounded to 7 significant digits, as 5zk's depth bench was
+    committed, to see whether rounding explains the in-sample budget's lower all-measured error."""
+    jobs = []
+    for pool, d in POOLS:
+        for r in B._load(EXP / d / "bench.jsonl"):
+            if r.get("ok") and r.get("ok_cycles", 0) >= 100:
+                jobs.append((pool, {k: (_sig(v) if k not in ("cond", "j", "current_A") else v) for k, v in r.items()}))
+    with Pool(4) as p:
+        out = p.map(_job, jobs)
+    full = json.loads((HERE / "rows.json").read_text())
+    L = ["Post hoc: the 64 fresh designs with their benches rounded to 7 significant digits (5zk's depth format).",
+         f"{'set':12s}{'e000 full':>10s}{'e000 rnd':>10s}{'e111 full':>10s}{'e111 rnd':>10s}{'max|d e111|':>12s}"]
+    for st in SETS:
+        a = [r for r in full if r["set"] == st]
+        b = {(r["cond"], r["j"]): r for r in out if r["set"] == st}
+        d = max(abs(r["e"]["111"] - b[(r["cond"], r["j"])]["e"]["111"]) for r in a)
+        med = PL._med
+        L.append(f"{st:12s}{med(r['e']['000'] for r in a):10.4f}{med(r['e']['000'] for r in b.values()):10.4f}"
+                 f"{med(r['e']['111'] for r in a):10.4f}{med(r['e']['111'] for r in b.values()):10.4f}{d:12.4f}")
+    (HERE / "rounded.txt").write_text("\n".join(L) + "\n")
+    print("\n".join(L))
+
+
 if __name__ == "__main__":
-    {"rows": rows, "report": report}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
+    {"rows": rows, "report": report, "rounded": rounded}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
