@@ -77,6 +77,11 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
   date, and a canceled row with no end date are listed as skipped with the
   reason. Read as "never ended", any of them would count that subscription as
   alive in every month of the rebuilt history.
+- **Statuses** are read the way a hand-made sheet writes them ("Cancelled",
+  "Past due" and Stripe's `canceled`, `past_due` all work). A status that is
+  not one of Stripe's eight (`active`, `past_due`, `unpaid`, `canceled`,
+  `incomplete`, `incomplete_expired`, `trialing`, `paused`) is listed as
+  skipped with the reason, rather than dropped from the history unseen.
 - **Repeated subscription ids** in a CSV are read as extra price lines of one
   subscription and their MRR is added together. A repeat whose start, end,
   trial, status or currency differs from the first row is skipped with the
