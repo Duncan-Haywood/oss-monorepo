@@ -14,6 +14,15 @@ checked against the stored results by [`paper/check_numbers.py`](paper/check_num
 revised with milestones 4e–4s and 3b–3t; on 2026-11-19 Section 4 gained the rolling-shutter, causal-prior and pooling
 results on TUM video, and Recommendation 7) and a list of what a submission still needs.
 
+**Letter version (paper step, 2026-11-19):** [`paper/ral.md`](paper/ral.md) cuts the 8,200-word draft to an
+RA-L-length letter (3,927 words of prose, three figures, one table; about 6.2 pages by a stated rule of thumb,
+under the 8-page limit) around one question: can a robot gate its own camera self-calibration update, and
+what does that gate catch? It keeps the board results, the rendered-twin corner diagnosis, the update test with
+its three references and the transfer to the TUM cameras, and folds the natural-feature chapter into one section.
+[`paper/check_short.py`](paper/check_short.py) checks that each of its 196 distinct numbers is copied from the
+checked draft, that every citation key is in `references.bib` and every figure exists. `draft.md` stays the
+extended version.
+
 **Milestone 3t headline** (once a causal prior steadies each window, does pooling windows still give an honest error bar on
 the focal length, and how many windows does it take? milestone 3s's 43 TUM windows, pooled in blocks of 1 to 8): **pooling and the
 prior are complements.** Five pooled windows with the causal prior land a median **1.17%** from the board's focal length against
@@ -1200,6 +1209,7 @@ python3 experiments/m6b_render/analyse.py      # summary.json, render.png
 python3 experiments/m6b_render/crops.py        # seconds; ring_crops.png
 python3 -m pytest tests
 python3 paper/check_numbers.py             # seconds; the draft's numbers against the stored results
+python3 paper/check_short.py               # seconds; every number in the letter version is copied from the draft
 ```
 
 ## Limitations
