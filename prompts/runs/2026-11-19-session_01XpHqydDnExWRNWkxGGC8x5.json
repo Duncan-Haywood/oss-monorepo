@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqydDnExWRNWkxGGC8x5",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T05:38:12Z",
+  "ended": "2026-11-19T05:43:48Z",
+  "wall_minutes": 6.47,
+  "tokens_in": 5854475,
+  "tokens_out": 33603,
+  "cost_usd": 2.7749,
+  "tool_calls": 52,
+  "task": "research programme heavy-hydraulics, milestone 7v (paper step): cut paper/manuscript.md to journal length",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17555",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/paper/build_tex.py",
+      "issue": "The manuscript PDF printed every subsection number twice ('3.6 3.6 Drag ...') since 6s, because LaTeX numbers \\subsection and the markdown heading carries its own number; nobody had looked at the PDF text. Fixed with a test."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'a bare python3 often lacks pytest': true here; pyenv.py returned /usr/bin/python3.13 at once. Worked as documented."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py (CHAIN note)",
+      "why": "The note suggests a paper section or a new question after a long chain of one-knob sub-steps; the previous run (7u) had just done a paper step. I did a second paper step (the cut 7u named as next) rather than another experiment, since the manuscript at 9,479 words with a stale abstract and conclusions was the main blocker to submission.",
+      "did": "cut the manuscript to 6,968 words, moved 3.6-3.10 verbatim to a checked supplement, updated abstract, discussion, limitations, conclusions",
+      "result": "181 claims checked, 0 orphans; 10-page PDF"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-cutting-a-gear-pump-paper-from-9500-to-7000-words.md",
+    "research/heavy-hydraulics/LOG.md (Milestone 7v)"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 paper/check_numbers.py --paper manuscript.md -> 'checked 181 claims in manuscript.md + supplement.md; 0 missing; 0 orphan numbers'; draft.md 339 claims 0 missing; tests/test_paper_tex.py 10 passed; build_tex manuscript 10 pages / supplement 4 pages, 0 undefined citations; research/_homepage/build.py ok; check_posts ok; check_md_links ok. Not checked: the target journal's (IJFP) word limit.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "718027a8-b4fb-5b51-adcd-cc5efcd672ff",
+    "transcripts": 1,
+    "first": "2026-11-19T05:38:12Z",
+    "last": "2026-11-19T05:44:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 95,
+        "output": 33603,
+        "thinking": 9940,
+        "cache_read": 5734943,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119437,
+        "api_equivalent_usd": 2.7749,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 95,
+      "output": 33603,
+      "thinking": 9940,
+      "cache_read": 5734943,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119437,
+      "api_equivalent_usd": 2.7749,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.47,
+      "active_minutes": 6.47,
+      "model_minutes": 5.24,
+      "tool_minutes": 1.23,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "editor condensing 3,800 words of results into 900 with every number re-traced, plus checker and build fixes",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 216.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
