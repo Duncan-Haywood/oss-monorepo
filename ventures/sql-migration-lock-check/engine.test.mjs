@@ -699,3 +699,45 @@ test('every spelling of a zero lock_timeout counts as no timeout', () => {
     assert.ok(!has(`SET lock_timeout = ${v};\nDROP TABLE t;`, 'no-lock-timeout'), v);
   }
 });
+
+// Red team 2026-11-19. DISCARD ALL resets every session setting, lock_timeout
+// included, exactly as RESET ALL does: a timeout set above it no longer
+// protects what follows.
+test('DISCARD ALL turns lock_timeout off like RESET ALL', () => {
+  assert.ok(has(`SET lock_timeout='3s';\nDISCARD ALL;\n${RENAME}`, 'no-lock-timeout'));
+  assert.ok(has(`SET lock_timeout='3s';\ndiscard all\n;\n${RENAME}`, 'no-lock-timeout'));
+  // DISCARD PLANS / SEQUENCES / TEMP leave settings alone.
+  assert.ok(!has(`SET lock_timeout='3s';\nDISCARD PLANS;\n${RENAME}`, 'no-lock-timeout'));
+});
+
+// Red team 2026-11-19. set_config('lock_timeout', v, is_local) is the function
+// form of SET (is_local true = SET LOCAL); a file that used it got a false
+// no-lock-timeout on every exclusive statement below.
+test("SELECT set_config('lock_timeout', ...) counts as SET / SET LOCAL", () => {
+  assert.ok(!has(`SELECT set_config('lock_timeout', '3s', false);\n${RENAME}`, 'no-lock-timeout'));
+  assert.ok(!has(`select pg_catalog.set_config( 'lock_timeout' , '5000' , true );\n${RENAME}`, 'no-lock-timeout'));
+  assert.ok(has(`SET lock_timeout='3s';\nSELECT set_config('lock_timeout', '0', false);\n${RENAME}`, 'no-lock-timeout'));
+  // is_local true ends at COMMIT, like SET LOCAL.
+  assert.ok(has(`BEGIN;\nSELECT set_config('lock_timeout', '3s', true);\nCOMMIT;\n${RENAME}`, 'no-lock-timeout'));
+  // Another setting is not a lock_timeout.
+  assert.ok(has(`SELECT set_config('statement_timeout', '3s', false);\n${RENAME}`, 'no-lock-timeout'));
+});
+
+// Red team 2026-11-19 (escaped mutants engine.mjs:156 and :215).
+test("lock_timeout in seconds is 1000 ms: '0.0005s' rounds to 0, '0.0006s' to 1 ms", () => {
+  assert.ok(has(`SET lock_timeout = '0.0005s';\n${RENAME}`, 'no-lock-timeout'));
+  assert.ok(!has(`SET lock_timeout = '0.0006s';\n${RENAME}`, 'no-lock-timeout'));
+});
+
+test('a statement of exactly 160 characters is quoted whole; 161 is shortened to 160', () => {
+  const quote = (len) => {
+    const pad = 'x'.repeat(len - 'ALTER TABLE t DROP COLUMN '.length);
+    return analyzeSql(`SET lock_timeout='3s';\nALTER TABLE t DROP COLUMN ${pad};`).findings.find((f) => f.id === 'drop-column').statement;
+  };
+  const at160 = quote(160);
+  assert.equal(at160.length, 160);
+  assert.ok(!at160.endsWith('…'));
+  const at161 = quote(161);
+  assert.equal(at161.length, 160);
+  assert.ok(at161.endsWith('…'));
+});

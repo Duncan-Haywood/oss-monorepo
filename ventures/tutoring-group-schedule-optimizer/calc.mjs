@@ -24,6 +24,10 @@ function cleanLines(text) {
   return String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 }
 
+// "$25", "£ 27.50" and "€30" are what people type in a price column: drop one
+// leading currency sign before reading the number. A sign alone stays empty.
+const amount = (v) => String(v ?? "").replace(/^[$£€]\s*/, "");
+
 const norm = (s) => String(s).trim().toLowerCase().replace(/\s+/g, " ");
 
 export function parseSlots(text, defaults = {}) {
@@ -50,8 +54,8 @@ export function parseSlots(text, defaults = {}) {
     const name = f[cols.slot] || "";
     const capacity = Number(f[cols.capacity]);
     const minRaw = cols.min >= 0 && f[cols.min] !== undefined && f[cols.min] !== "" ? Number(f[cols.min]) : defaults.min ?? 1;
-    const cost = Number(f[cols.cost]);
-    if (!name || !Number.isInteger(capacity) || capacity < 1 || !Number.isInteger(minRaw) || minRaw < 1 || minRaw > capacity || !Number.isFinite(cost) || cost < 0 || f[cols.cost] === "") { bad++; continue; }
+    const cost = Number(amount(f[cols.cost]));
+    if (!name || !Number.isInteger(capacity) || capacity < 1 || !Number.isInteger(minRaw) || minRaw < 1 || minRaw > capacity || !Number.isFinite(cost) || cost < 0 || amount(f[cols.cost]) === "") { bad++; continue; }
     if (seen.has(norm(name))) { bad++; continue; }
     seen.add(norm(name));
     slots.push({ name, capacity, min: minRaw, cost });
@@ -72,9 +76,9 @@ export function parseStudents(text) {
   for (const line of lines) {
     const f = splitLine(line);
     const name = f[0];
-    const price = Number(f[1]);
+    const price = Number(amount(f[1]));
     const avail = f.slice(2).join(";").split(/[;|]/).map((s) => s.trim()).filter(Boolean);
-    if (!name || !Number.isFinite(price) || price <= 0 || f[1] === "" || !avail.length) { bad++; continue; }
+    if (!name || !Number.isFinite(price) || price <= 0 || amount(f[1]) === "" || !avail.length) { bad++; continue; }
     students.push({ name, price, avail });
   }
   if (bad) warnings.push(`${bad} student row(s) skipped: each needs a name, a price above 0, and at least one available slot.`);

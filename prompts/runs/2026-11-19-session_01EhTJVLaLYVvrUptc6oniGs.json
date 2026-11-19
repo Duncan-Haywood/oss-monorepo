@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVLaLYVvrUptc6oniGs",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell revenue-generating products); merge when done",
+  "input_sha256": "3922f8a202cf7420fe7c6a9e481fdb272927e9d3ecf1239a1946e1617d40a96a",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T08:02:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: dining-room-table-mix-optimizer simulator free counts",
+  "projects": [
+    "dining-room-table-mix-optimizer"
+  ],
+  "pr": 17590,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first push blocked by the post front-matter hook (description 163 > 160, seo_title 82 > 70)",
+      "fix": "trimmed in a second commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-19-dining-room-free-counts.md",
+    "docs/posts/2026-11-19-interchangeable-tables.md"
+  ],
+  "goal": "faster visitor-facing analysis and venture suite, byte-identical results",
+  "notes": "Metric: wall time of one analyze() on the page's example (scratch bench, Node 22, one run each, same container, before = old calc.mjs copy, after = new). 62 parties combine=yes 313->173 ms, no 170->99; 300 yes 1401->301, no 862->266; 600 (cap) yes 2170->398, no 1577->380. Suite: suite_file_times.py dining-room-table-mix-optimizer --jobs 1, calc.test.mjs 2.4 s (tutoring run's reading; 2.8 s wall here via node --test) -> 1.2 s; new pinned file 0.4 s; 26/26 tests pass. Profile (node --cpu-prof, self time, 600 parties): runService 1341 ms + seat 611 + drain 168 before; after runService 412 + drain 169 before the drain change. Equality: simulator-pinned.test.mjs deep-equals the verbatim old runService on 2,800 runs; 5 behaviour-changing mutants caught; scratch lockstep of 120 random analyze inputs all isDeepStrictEqual. Local CI: run_workflow_locally.py --for-changes, see the follow-up line.",
+  "corrections": [],
+  "redteam": null
+}

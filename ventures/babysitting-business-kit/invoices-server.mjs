@@ -133,7 +133,7 @@ export function invoiceRoutes(state, save, env, now = Date.now, fetchImpl = glob
         return send(200, html, undefined, nostore), true;
       }
       if (!on) return send(400, page("Card payments are off", "<p>Please pay using the instructions on the invoice.</p>"), undefined, nostore), true;
-      const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",")[0].trim();
+      const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",").pop().trim();
       const key = `pay|${ip}|${Math.floor(now() / 36e5)}`;
       hits.set(key, (hits.get(key) || 0) + 1);
       if (hits.size > 5000) hits.clear();

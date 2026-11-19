@@ -23,7 +23,7 @@ for (const courtsRule of ["full", 3]) {
     const wFull = w.whistHint ? americano(P, { courts, rounds: w.whistHint.rounds }) : null;
     const gFull = wFull ? americano(P, { courts, rounds: w.whistHint.rounds, whist: false }) : null;
     console.log(`${String(n).padStart(2)} players ${String(courts).padStart(2)} courts`);
-    if (w.design) console.log(`  ${row("whist", P, w)}  (design ${w.design.size}, ${w.design.ghosts} ghost${w.design.ghosts === 1 ? "" : "s"}${w.design.packed ? ", packed" : ""})`);
+    if (w.design) console.log(`  ${row("whist", P, w)}  (${w.design.near ? "near-whist " : ""}design ${w.design.size}, ${w.design.ghosts} ghost${w.design.ghosts === 1 ? "" : "s"}${w.design.packed ? ", packed" : ""})`);
     console.log(`  ${row("greedy", P, g)}`);
     if (g2 && g2.rounds.length !== g.rounds.length) console.log(`  ${row("greedy=", P, g2)}  (greedy on the whist's round count)`);
     if (wFull && wFull.design) {

@@ -120,6 +120,14 @@ CLAIMS = [
     ("results_wave_added_resistance.txt", "pooled share of hours with Hs <= 0.3 m: 2.4%"),
     ("results_wave_added_resistance.txt", "pooled share of hours with Hs <= 0.5 m: 11.9%"),
     ("results_wave_added_resistance.txt", "pooled share of hours with Hs <= 1 m: 37.0%"),
+    ("results_strip_added_resistance.txt", "18 points (1.3%) near irregular frequencies interpolated"),
+    ("results_strip_added_resistance.txt", "motion strip 2.95, STAWAVE-2 1.39 (ratio 2.13)"),
+    ("results_strip_added_resistance.txt", "strip 788.2 km (-4.31%) at 1.00 m/s"),
+    ("results_strip_added_resistance.txt", "strip 699.6 km (-15.06%) at 0.90 m/s"),
+    ("results_strip_added_resistance.txt", "in-range Fr 0.20: strip peak 9.44 at lambda/L 0.90; STAWAVE-2 peak 3.61 at 1.15; peak ratio 2.61"),
+    ("results_strip_added_resistance.txt", "share 0.25, H_lim none: foilborne 100.0% of hours; central foil break-even 641 W; monohull leads to 200 W: True"),
+    ("results_strip_added_resistance.txt", "at or below 200 W: 0"),
+    ("results_strip_added_resistance.txt", "convergence: monohull Fr 0.16 strip peak sigma 16.934"),
 ]
 
 def check(claims=CLAIMS, root=EXP):

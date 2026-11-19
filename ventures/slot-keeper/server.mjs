@@ -66,7 +66,7 @@ export function handler(cfg) {
   };
   return async (req, res) => {
     const url = new URL(req.url, "http://x");
-    const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",")[0].trim()) || req.socket.remoteAddress || "?";
+    const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",").pop().trim()) || req.socket.remoteAddress || "?";
     const base = cfg.baseUrl || `${req.headers["x-forwarded-proto"] || "http"}://${req.headers.host}`;
     const path = url.pathname;
     const embeddable = /^\/b\//.test(path) && cfg.embedOrigins?.length;
