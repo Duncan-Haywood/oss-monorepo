@@ -3,6 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { whistDesign, checkWhist, checkNearWhist, whistSizes, nearWhistSizes, whistRotation } from "./whist.mjs";
 import { americano, americanoStats, validateAmericano } from "./calc.mjs";
+import { directBase, multiplierSearch } from "./eval/whist-multiplier.mjs";
 
 const names = (n) => Array.from({ length: n }, (_, i) => `P${i + 1}`);
 const opponentRange = (plan, n) => {
@@ -63,6 +64,48 @@ test("americano: a court for every four players gives the exact whist guarantee"
     assert.equal(st.unmetPartners, 0, `n=${n}`);
     assert.deepEqual(opponentRange(plan, n), [2, 2], `n=${n}`);
   }
+});
+
+test("americano: 39, 40, 41, 45, 49, 56, 63 and 64 players (eval/whist-multiplier.mjs, eval/whist-search.c) get the guarantee", () => {
+  for (const m of [40, 41, 45, 49, 53, 56, 61, 64]) assert.ok(whistSizes().includes(m), `size ${m} stored`);
+  for (const n of [40, 41, 45, 49, 56, 64]) {
+    const P = names(n);
+    const plan = americano(P, { courts: Math.floor(n / 4), seed: n });
+    assert.ok(plan.design, `n=${n} uses a design`);
+    assert.deepEqual(validateAmericano(P, plan), []);
+    const st = americanoStats(P, plan);
+    assert.equal(st.repeatPartners, 0, `n=${n}`);
+    assert.equal(st.unmetPartners, 0, `n=${n}`);
+    assert.deepEqual(opponentRange(plan, n), [2, 2], `n=${n}`);
+  }
+  for (const n of [39, 63]) { // 4k+3: the next design up with one empty seat
+    const P = names(n);
+    const plan = americano(P, { courts: Math.floor(n / 4), seed: n });
+    assert.ok(plan.design, `n=${n} uses a design`);
+    assert.equal(americanoStats(P, plan).repeatPartners, 0, `n=${n}`);
+  }
+});
+
+test("whist: the field construction gives a whist design whenever every prime-power factor is 1 mod 4", () => {
+  // eval/whist-multiplier.mjs, directBase: tables a & -a vs Ea & -Ea with E^2 = -1.
+  const develop = (n, { mods, tables }) => {
+    const co = (x) => mods.map((m) => { const c = x % m; x = Math.floor(x / m); return c; });
+    const enc = (c) => c.reduceRight((acc, ci, i) => acc * mods[i] + ci, 0);
+    const add = (a, b) => { const ca = co(a), cb = co(b); return enc(ca.map((x, i) => (x + cb[i]) % mods[i])); };
+    return Array.from({ length: n }, (_, g) => ({ tables: tables.map((t) => t.map((p) => add(p, g))) }));
+  };
+  for (const n of [5, 9, 13, 17, 25, 29, 37, 41, 45, 49, 53, 61, 65, 73, 85, 89, 97, 101]) {
+    const b = directBase(n);
+    assert.ok(b, `n=${n} has a base`);
+    assert.ok(checkWhist(n, develop(n, b)), `n=${n}`);
+  }
+  for (const n of [21, 33, 57, 69, 77]) assert.equal(directBase(n), null, `n=${n}: a factor 3 mod 4, no field construction`);
+});
+
+test("whist: an order-3 multiplier search finds 40 players on Z39 + infinity", () => {
+  const r = multiplierSearch(40, 16, { ms: 30000 });
+  assert.ok(r.tables, "found");
+  assert.deepEqual(r.fixed, [0, 13, 26]);
 });
 
 test("americano: 20 and 24 players, where the greedy search repeats partners, now repeat none", () => {
