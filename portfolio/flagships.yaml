@@ -406,8 +406,9 @@ flagships:
       sub-2.5 ms takes, the grid end misses them; grid 0,1.5,2.5,3-8 ms on set M 48
       vs 41 of 66 within 0.5 ms, failed on one unadvised instant read). Next: that
       grid on a fresh set, instant clause on advice; a drill-level check of
-      one-wheel verdicts on more fresh sets; the sub-8 advised instant build; ball
-      hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels.
+      one-wheel verdicts on more fresh sets; the sub-8 advised instant build; a
+      whole drill on a build faster than told (ball-hold kp from the integrator
+      2026-11-19: 0.2 s undershoots 17 to 8 of 72; held out 122 to 73).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

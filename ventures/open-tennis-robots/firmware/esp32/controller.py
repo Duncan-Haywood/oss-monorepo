@@ -1273,8 +1273,9 @@ LOOP_I_FF_MAX = 0.35
 # During a ball's recovery, scale the proportional gain by the plant gain the integrator has already learned
 # (2026-11-19, firmware/esp32/README.md "The ball hold on a wheel faster than told"): a negative integrator says the
 # wheel is faster than WHEEL_RPM_FULL, so kp shrinks by (feedforward + integrator) / feedforward, never below this
-# floor and never above 1 (a slower wheel keeps kp). None turns it off.
-LOOP_BALL_KP_LEARN = None
+# floor and never above 1 (a slower wheel keeps kp). On by its pre-registered rule (eval/ball-kp-learn-2026-11-19.md);
+# None turns it off.
+LOOP_BALL_KP_LEARN = 0.6
 
 
 class WheelLoop:

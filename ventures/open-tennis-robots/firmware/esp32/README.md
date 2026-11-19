@@ -3318,3 +3318,42 @@ again (it had printed only its header since the eight-point grid).
 
 **Not known.** All simulated, one seed a set. Whether real contacts are under 3 ms at all is unmeasured. A fresh set
 with the instant clause written on advice, not on the rounded read, is the next test; M cannot count toward it.
+
+## The ball hold on a wheel faster than told (2026-11-19, after "A ball charged the integrator"; `LOOP_BALL_KP_LEARN` on by its pre-registered rule)
+
+**The item.** "A ball charged the integrator" shipped the ball hold with one named regression: on 0.2 s wheels the
+ball's undershoots over 2% went from 7 to 17 of 72, every one a wheel whose free speed is 11,000 rpm against the
+9,000 told. The proportional term then works on a plant 1.22 times stronger than the loop assumes, and the
+integrator's charge no longer cushions it. Its fix was "measure `WHEEL_RPM_FULL` on the build". Can the board
+measure it itself, where it matters?
+
+**The change.** Before a ball, the integrator has already learned the wheel's offset from the feedforward, and that
+is a gain measurement: true / told = feedforward / (feedforward + integrator). While the ball hold is armed, and only
+when the integrator is negative (a faster wheel), `WheelLoop` multiplies kp by that ratio, floored at 0.6
+(`LOOP_BALL_KP_LEARN`; `LOOP_I_FF_MAX` already keeps it at 0.65 or more). Slower wheels keep their kp, and spin-ups,
+braking and everything outside the hold are untouched. No value was tuned.
+
+**How it was checked.** `tests/ball_recovery_sweep.py --kp-learn off,0.6` on the shipped 216-case grid and on a
+held-out grid no run had used (`--heldout`: wheel lags 0.15 / 0.25 / 0.3 s, free 8,000 / 10,000 / 10,500 / 12,000 rpm,
+432 cases). Predictions and a nine-clause rule were committed before either ran (bb8522601). Everything is in
+`eval/ball-kp-learn-2026-11-19.md`.
+
+| | shipped grid: off | 0.6 | held-out: off | 0.6 |
+| --- | --- | --- | --- | --- |
+| undershoots over 2% (0.2 s wheels / faster-than-told wheels) | 17 of 72 | 8 | 122 of 324 | 73 |
+| undershoots over 2%, all | 19 of 216 | 8 | 126 of 432 | 77 |
+| gate passes again, mean / slowest | 0.893 / 2.43 s | 0.890 / 2.17 s | 0.817 / 2.78 s | 0.769 / 1.97 s |
+| over 3% off at the gate | 1 | 0 | 4 | 1 |
+| worst overshoot / worst undershoot | 6.0 / 4.5% | 4.9 / 3.6% | 6.3 / 5.7% | 4.9 / 4.2% |
+
+Every clause held (the prediction was about 9 of 72; it was 8), and the slower-than-told rows are identical on both
+grids. **`LOOP_BALL_KP_LEARN` is 0.6.** The gain grows with the mismatch: held-out undershoots at 10,000 rpm 28 to 19,
+at 12,000 rpm 58 to 30 of 108. Test: `test_ball_kp_learn_shrinks_kp_only_in_the_hold_on_a_fast_wheel`.
+
+**Not known.** All simulated. 0.15 s wheels behind an 80 ms ESC still dip; that is the ESC's lag, not the gain. The
+whole drills run at the told free speed, where this is close to a no-op, so a drill on a mismatched build is still to
+do. A real ESC's throttle curve is not linear, so the integrator's offset is a local gain estimate at the speed it
+was learned; the change uses it only there, for the second or two of a ball's recovery.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/ball_recovery_sweep.py --band 0.005 --kp-learn off,0.6 --rows rows.jsonl
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/ball_recovery_sweep.py --band 0.005 --kp-learn off,0.6 --heldout --rows rows.jsonl

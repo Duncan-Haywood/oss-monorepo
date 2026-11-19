@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVKn7SKkE9GzZDLFzYc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T04:02:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots flagship: ball hold, WHEEL_RPM_FULL error's cost on 0.2 s wheels",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 17529,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions were routed to the same flagship and picked the same first 'Next' item within a minute (PR #17528 vs this one); claim_check caught it, and this run re-scoped to the last buildable item."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-wheel-loop-measures-its-own-motor-after-a-ball.md",
+    "ventures/open-tennis-robots/eval/ball-kp-learn-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "LOOP_BALL_KP_LEARN: in the ball hold, kp scaled by the integrator's learned plant gain on faster-than-told wheels. Rule pre-registered in bb8522601. Shipped grid: 0.2 s undershoots >2% 17->8 of 72; held-out 432 cases: faster-than-told 122->73 of 324, mean gate-again 0.817->0.769 s, gate>3% 4->1, overshoot 6.3->4.9%; 8,000 rpm rows identical. Every clause held; shipped on. Venture unittest suite run locally (output in PR).",
+  "corrections": [],
+  "redteam": null
+}

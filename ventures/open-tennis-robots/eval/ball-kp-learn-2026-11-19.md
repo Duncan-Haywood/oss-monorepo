@@ -49,4 +49,49 @@ On a held-out grid no earlier run used (`--heldout`, 432 cases: 4 plants, wheel 
 
 ## Results
 
-(filled in after the runs)
+Raw: `ball-kp-learn-shipped-grid-2026-11-19.txt` / `.jsonl.gz`, `ball-kp-learn-heldout-2026-11-19.txt` / `.jsonl.gz`.
+Both configurations ran in the same process pool on each grid; exact means from the rows.
+
+### Shipped grid (216 cases)
+
+| clause | shipped (candidate off) | candidate (0.6) | holds |
+| --- | --- | --- | --- |
+| 1. 0.2 s wheels, undershoots over 2% | 17 of 72 | 8 of 72 (predicted about 9) | yes (at most 12) |
+| 2. all, undershoots over 2% | 19 | 8 | yes |
+| 3. mean time until the gate passes again | 0.893 s | 0.890 s | yes |
+| 4. over 3% off at the gate | 1 | 0 | yes |
+| 5. worst overshoot | 6.0% | 4.9% | yes |
+| 6. never back in 10 s | 0 | 0 | yes |
+
+The rerun reproduced 2026-11-17's shipped numbers (17 of 72; 19 of 216; worst undershoot 4.5%). The 0.4 s wheels went
+from 2 undershoots to 0, the 0.8 s wheels stayed at 0, and the 7,000 rpm (slower than told) rows are identical. Worst
+undershoot 4.5% to 3.6%; slowest recovery 2.43 to 2.17 s.
+
+### Held-out grid (432 cases)
+
+| clause | shipped | candidate | holds |
+| --- | --- | --- | --- |
+| 7. faster-than-told wheels (324), undershoots over 2% | 122 | 73 (40% fewer) | yes (at least 25% and 3 fewer) |
+| 2. all, undershoots over 2% | 126 | 77 | yes |
+| 3. mean time until the gate passes again | 0.817 s | 0.769 s | yes |
+| 4. over 3% off at the gate | 4 | 1 | yes |
+| 5. worst overshoot | 6.3% | 4.9% | yes |
+| 6. never back | 0 | 0 | yes |
+| 9. 8,000 rpm rows identical | | identical | yes |
+
+By free speed, undershoots over 2% of 108: 10,000 rpm 28 to 19, 10,500 rpm 36 to 24, 12,000 rpm 58 to 30. The gain
+grows with the mismatch, as the mechanism says it should. Slowest recovery 2.78 to 1.97 s.
+
+**Every clause held, so `LOOP_BALL_KP_LEARN` is now 0.6** (`firmware/esp32/controller.py`).
+
+### What is left
+
+- 0.15 s wheels still undershoot over 2% on 53 of 144 held-out cases (76 before), most behind the 80 ms ESC (45 of
+  108 there overall). On those the residual dip is the ESC's lag against a fast wheel, not the gain mismatch: the
+  8,000 rpm rows, where the candidate does nothing, carry 4 of their own.
+- The whole drills (`tests/ball_hold_drill.py`) run at a free speed equal to the one told, where the integrator sits
+  near zero and the candidate is close to a no-op, so they were not rerun. A drill on a mismatched build is the
+  check still to do.
+- All simulated: the simulator's first-order wheel and ESC. A real ESC's throttle curve is not linear, so the
+  integrator's offset at one speed is a local, not global, gain estimate; the candidate uses it only in the second or
+  two of a ball's recovery at the speed it was learned at.
