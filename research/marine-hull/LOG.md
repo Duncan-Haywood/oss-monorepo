@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-19 · Milestone 7zc: open the 8 flagged reference records, and the one Wigley tank point (plan; outcome below)
+- Why: 7zb's first "Next". Eight of the draft's 19 references print a note saying they were never machine-checked or were written from memory. And the paper's only tank point for the Wigley (Ju 1983, Fn 0.267, C_T 4.16e-3) is taken second-hand from Wang et al. (2017), a record nobody has opened. A reviewer checks both.
+- Plan: look up each flagged entry in Crossref and its DataCite/Zenodo record; correct every field the record contradicts; replace each "not machine-checked" note with a DOI, or with a statement of why none exists. Then open the Wang et al. PDF on Zenodo and check what it says of the Ju (1983) point: Froude number, model length, C_T, and the original reference. Run `check_numbers.py` and the tests again.
+
 ## 2026-11-19 · Milestone 7zb: first compile of the OCEANS draft, and the method figure (`experiments/run_energy_split.py`; expectations committed before the run)
 - Why: milestone 7 had run 27 sub-steps, each turning one knob, and `paper/main.tex` had never been compiled (every entry from 7s to 7za says "not compiled here"). A reviewer reads a PDF; whether the draft builds, how long it is, and the method figure named in every "Next" since 7y were the paper's open items.
 - Method figure plan and expectations (in the script's docstring, committed in the PR's second commit before the run): the central 4 m Wigley monohull of Fig. 2 with its electrical energy per km split into ITTC 1957 friction, form (k R_F), Michell wave and hotel (P_h/v) terms. (M1) minimum at 1.00 m/s, 12.14 Wh/km, Fig. 2a's 823.7 km to the digit; (M2) propulsive share at the minimum 0.30 to 0.40; (M3) wave under 15% of hull resistance at 1.00 m/s; (M4) hotel over twice the hull terms at 0.5 m/s and under half at 2.0 m/s; (M5) the form part equals k/(1+k) of viscous (identity check).
