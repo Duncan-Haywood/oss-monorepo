@@ -203,7 +203,7 @@
     ol.build ol { margin: 6px 0; padding-left: 22px; line-height: 1.5; }
     ol.build .check { background: #eef5ee; border-radius: 8px; padding: 6px 10px; font-size: .9rem; }
     #option-cards, #simplify-out .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 12px; }
-    #compare-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    #compare-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 14px; }
     .card { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: #fff; }
     .card.active { border-color: var(--accent2); box-shadow: 0 0 0 2px var(--accent2) inset; }
     .card img, .thumb-wait { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 8px; background: #edf1f5; display: grid; place-items: center; color: var(--muted); }
@@ -247,7 +247,7 @@
     .shots figure { margin: 0; scroll-snap-align: start; }
     .shots img, .shots .thumb-wait { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 8px; background: #edf1f5; display: grid; place-items: center; color: var(--muted); }
     .shots figcaption { font-size: .8rem; color: var(--muted); text-align: center; }
-    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 6px 22px; }
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 6px 22px; }
     .detail-grid h3 { margin: 14px 0 6px; font-size: 1rem; }
     .detail-grid h4 { margin: 10px 0 4px; font-size: .92rem; }
     .facts { margin: 0; display: grid; gap: 3px; font-size: .88rem; }

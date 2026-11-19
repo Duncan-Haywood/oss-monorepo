@@ -25,7 +25,7 @@
     input, select, textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #708896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
     textarea { font: 13px ui-monospace, monospace; min-height: 90px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
-    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 18px; }
     button { border: 0; border-radius: 8px; padding: 10px 14px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; }
     button.secondary { background: #e3ece1; color: var(--accent); }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }

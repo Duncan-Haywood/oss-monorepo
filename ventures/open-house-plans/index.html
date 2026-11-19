@@ -70,12 +70,12 @@
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
-    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 18px; }
     .pass { color: var(--accent); font-weight: 700; }
     .fail { color: var(--fail); font-weight: 700; }
     .note { color: var(--muted); }
     .warnbox { background: var(--warn-bg); color: var(--warn); border: 1px solid #c77700; border-radius: 10px; padding: 10px 14px; font-size: 0.9rem; }
-    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 14px; }
     .gallery article { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
     .gallery img { width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #ffffff; border-bottom: 1px solid var(--line); }
     .gallery .body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }

@@ -40,7 +40,7 @@
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
     .pill.accepted { background: #d8f0e2; color: #14503a; }
     .pill.declined, .pill.expired { background: #fde8e8; color: #9a3412; }
-    .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+    .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 14px; }
     .opt { border: 1px solid #d8e0db; border-radius: 10px; padding: 12px; background: #fafcfb; }
     .pill.draft { background: #e6ece8; color: #3a4a42; }
     .pill.sent, .pill.partial { background: #dcecf7; color: #1d4e75; }
@@ -58,7 +58,7 @@
     #preview .top { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
     #preview .meta td { border: 0; padding: 2px 0 2px 14px; }
     #preview .tot { margin-left: auto; width: 280px; }
-    #preview .optcols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    #preview .optcols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 16px; }
     #preview .optcol { border: 1px solid #ccc; border-radius: 6px; padding: 12px; }
     #preview .sig td { border: 0; padding: 22px 12px 0 0; }
     #preview .sig .line { border-top: 1px solid #111; padding-top: 4px; font-size: .8rem; }
