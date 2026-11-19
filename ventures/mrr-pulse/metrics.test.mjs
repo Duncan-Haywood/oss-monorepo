@@ -382,6 +382,7 @@ test("concentration leaves out zero-MRR subscriptions", () => {
   const c = concentration({ a: 300, b: 100, free: 0 });
   assert.equal(c.subscriptions, 2);
   assert.deepEqual(c.top, [0.75, 0.25]);
+});
 
 test("ids and plan names like toString, constructor or __proto__ are ordinary keys (red team 2026-11-19)", () => {
   const now = Date.UTC(2026, 5, 15);
