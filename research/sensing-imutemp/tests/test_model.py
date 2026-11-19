@@ -55,3 +55,31 @@ def test_monte_carlo_matches_formula():
     rng = np.random.default_rng(3)
     a = simulate(CHEAP, 6, 100.0, 1.0, 0.002, 8000, rng)
     assert np.mean(a ** 2) == pytest.approx(fused_var(CHEAP, 6, 100.0, 0.002), rel=0.06)
+
+
+# Added in quality round 88 (portfolio/quality/audits/2026-11-19-sensing-imutemp.json):
+# the published tables use run.py's grade, and two seeded bugs (better-grade tempco
+# scaled by sqrt(k), ceil -> round in units_needed) left every test above green.
+RUN_GRADE = Grade(0.005, 0.005 * math.sqrt(3) / 100.0, 0.002, 0.004)
+
+
+def test_table_a_row_point_one_degc_per_min():
+    r = 0.1 / 60
+    assert units_needed(RUN_GRADE, better_grade(RUN_GRADE, 3), 100, r) == 15
+    assert units_needed(RUN_GRADE, better_grade(RUN_GRADE, 10), 100, r) is None
+
+
+def test_floor_condition_k2_never_infeasible():
+    # The floor binds only when mu^2 (k^2 - 1) > s^2; with mu = 0.002, s = 0.004
+    # that fails at k = 2, so some n always ties a 2x better unit.
+    b = better_grade(RUN_GRADE, 2)
+    for rm in (1.0, 10.0, 100.0):
+        assert units_needed(RUN_GRADE, b, 100, rm / 60) is not None
+
+
+def test_asymptotic_ramp_limit_k3():
+    # As n -> inf: q^2 (mu^2 (k^2 - 1) - s^2) = k^2 (N^2 T + K^2 T^3 / 3) for the
+    # better unit's white+walk; ramp limit 0.2121 degC/min at k = 3, T = 100 s.
+    b = better_grade(RUN_GRADE, 3)
+    assert units_needed(RUN_GRADE, b, 100, 0.20 / 60) is not None
+    assert units_needed(RUN_GRADE, b, 100, 0.22 / 60) is None
