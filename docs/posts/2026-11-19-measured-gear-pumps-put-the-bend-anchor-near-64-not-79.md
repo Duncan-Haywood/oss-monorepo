@@ -3,7 +3,7 @@ title: "Measured gear pumps put the bend's anchor near 64 L/min, not 79"
 seo_title: "Gear pump idle drag: where a bending curve holds its level"
 date: 2026-11-19
 tags: [research, heavy-equipment, hydraulics, gear-pump, excavator, sensitivity-analysis]
-description: "Read off 13 measured gear-pump idle drag curves, a steeper curve holds its level near 61 to 65 L/min, so the synthetic bend table keeps beating the two-price rule."
+description: "Read off 13 measured gear-pump idle drag curves, a steeper one holds its level near 61 to 65 L/min, so the synthetic bend table still beats the two-price rule."
 ---
 
 The [`heavy-hydraulics`](../../research/heavy-hydraulics/README.md)
