@@ -1,0 +1,92 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 56: a flip-cost-weighted held-or-free margin (budget 0.5 x 0.03 mm = 0.0150 mm on the bound Y of the flips' nose shift; B = 0.20 N)
+section A: 48 loads, seed 54; errors milestone 54's 6 axes
+section B: 48 loads, seed 55; errors 6 random directions: (+0.054, -0.192, -0.020); (+0.152, -0.130, +0.006); (+0.145, -0.113, +0.078); (+0.149, +0.035, +0.128); (-0.043, -0.131, +0.145); (-0.158, +0.122, +0.005)
+section C: 48 loads, seed 56; errors 6 random directions: (-0.085, +0.032, +0.178); (+0.099, +0.042, +0.168); (+0.057, +0.161, -0.104); (+0.029, +0.124, -0.154); (+0.002, -0.123, -0.157); (+0.078, -0.154, -0.100)
+
+## A. Weighted rule: section | robot | in-envelope cases (m51) | planned | none | coverage | worst |y| mm (at pose, H, phi, error) | over spec | planned cases with a held/side flip | smallest (Y - flip shift) mm
+  A | g1 | 4002 | 4002 | 0 | 100.0% | 0.0107 (([0.4, 0.0], 6.34, 274.8, 3)) | 0 | 24 | 0.00e+00
+  A | h1 | 5436 | 5412 | 24 | 99.6% | 0.0178 (([1.4, -0.15], 13.23, 290.2, 0)) | 0 | 22 | -8.67e-19
+  B | g1 | 3924 | 3924 | 0 | 100.0% | 0.0110 (([0.4, 0.15], 11.39, 57.9, 0)) | 0 | 24 | 0.00e+00
+  B | h1 | 5424 | 5418 | 6 | 99.9% | 0.0147 (([1.6, 0.15], 5.57, 136.7, 5)) | 0 | 38 | -2.60e-18
+  C | g1 | 3990 | 3990 | 0 | 100.0% | 0.0125 (([1.2, 0.0], 8.11, 26.7, 5)) | 0 | 28 | 0.00e+00
+  C | h1 | 5424 | 5412 | 12 | 99.8% | 0.0089 (([0.4, 0.15], 19.82, 84.4, 5)) | 0 | 20 | 0.00e+00
+
+## B. How it planned (in milestone 51's envelope): section | robot | pose sides | per-load sides | none (skipped: no leg cost) | median / largest Y of planned mm | planned with Y > 0 (largest cost on: joint counts) | calibration failing milestone 55's rule (of 6)
+  A | g1 | 3754 | 248 | 0 (0) | 0.0000 / 0.0141 | 69 (right_ankle_pitch_joint 24, right_knee_joint 21, left_ankle_pitch_joint 17, left_knee_joint 7) | 0
+  A | h1 | 5278 | 134 | 24 (1) | 0.0000 / 0.0127 | 59 (right_ankle 29, left_ankle 18, left_knee 12) | 0
+  B | g1 | 3705 | 219 | 0 (0) | 0.0000 / 0.0121 | 58 (right_knee_joint 18, left_ankle_pitch_joint 17, right_ankle_pitch_joint 16, left_knee_joint 7) | 0
+  B | h1 | 5288 | 130 | 6 (4) | 0.0000 / 0.0127 | 30 (right_ankle 20, left_ankle 6, left_knee 4) | 0
+  C | g1 | 3734 | 256 | 0 (0) | 0.0000 / 0.0121 | 42 (right_knee_joint 21, left_ankle_pitch_joint 9, left_knee_joint 9, right_ankle_pitch_joint 3) | 0
+  C | h1 | 5278 | 134 | 12 (5) | 0.0000 / 0.0127 | 44 (left_ankle 18, right_ankle 16, left_knee 10) | 0
+
+## C. Paired with milestone 55 (sections A and B, same cases): section | robot | both plan | only m55 | only m56 | neither | worst |y| of the cases m56 wins back mm
+  A | g1 | 3856 | 0 | 146 | 0 | 0.0107
+  A | h1 | 5253 | 0 | 159 | 24 | 0.0099
+  B | g1 | 3762 | 0 | 162 | 0 | 0.0110
+  B | h1 | 5248 | 0 | 170 | 6 | 0.0147
+
+## C1. Still no plan inside milestone 51's envelope: section | robot | H | phi | pose | error | Y on the pose's sides mm | joint with the largest cost | joints in band | side combinations passing
+  A | h1 | 0.48 | 129.4 | [1.2, 0.15] | 2 | 0.0197 | left_knee | 1 | 0
+  A | h1 | 0.48 | 129.4 | [1.2, 0.15] | 3 | 0.0197 | left_knee | 1 | 0
+  A | h1 | 0.48 | 129.4 | [1.2, 0.15] | 4 | 0.0197 | left_knee | 1 | 0
+  A | h1 | 0.48 | 129.4 | [1.2, 0.15] | 5 | 0.0197 | left_knee | 1 | 0
+  A | h1 | 2.44 | 78.6 | [1.6, 0.0] | 0 | 0.0166 | left_knee | 1 | 0
+  A | h1 | 2.44 | 78.6 | [1.6, 0.0] | 5 | 0.0166 | left_knee | 1 | 0
+  A | h1 | 1.14 | 17.7 | [1.6, 0.0] | 1 | 0.0166 | left_knee | 1 | 0
+  A | h1 | 1.14 | 17.7 | [1.6, 0.0] | 2 | 0.0166 | left_knee | 1 | 0
+  A | h1 | 1.14 | 17.7 | [1.6, 0.0] | 3 | 0.0166 | left_knee | 1 | 0
+  A | h1 | 1.14 | 17.7 | [1.6, 0.0] | 4 | 0.0166 | left_knee | 1 | 0
+  A | h1 | 1.14 | 17.7 | [1.6, 0.0] | 5 | 0.0246 | left_knee | 2 | 0
+  A | h1 | 3.80 | 108.6 | [1.2, 0.15] | 1 | 0.0197 | left_knee | 1 | 0
+  A | h1 | 17.20 | 61.9 | [1.4, 0.15] | 0 | 0.1673 | right_elbow | 1 | skipped
+  A | h1 | 18.71 | 114.8 | [1.4, 0.0] | 1 | 0.0177 | left_knee | 1 | 0
+  A | h1 | 18.71 | 114.8 | [1.4, 0.0] | 2 | 0.0177 | left_knee | 1 | 0
+  A | h1 | 18.71 | 114.8 | [1.4, 0.0] | 3 | 0.0177 | left_knee | 1 | 0
+  A | h1 | 18.71 | 114.8 | [1.4, 0.0] | 4 | 0.0177 | left_knee | 1 | 0
+  A | h1 | 18.71 | 114.8 | [1.4, 0.0] | 5 | 0.0177 | left_knee | 1 | 0
+  A | h1 | 10.96 | 92.0 | [1.6, 0.0] | 0 | 0.0166 | left_knee | 1 | 0
+  A | h1 | 10.96 | 92.0 | [1.6, 0.0] | 1 | 0.0246 | left_knee | 2 | 0
+  A | h1 | 10.96 | 92.0 | [1.6, 0.0] | 2 | 0.0246 | left_knee | 2 | 0
+  A | h1 | 10.96 | 92.0 | [1.6, 0.0] | 3 | 0.0246 | left_knee | 2 | 0
+  A | h1 | 10.96 | 92.0 | [1.6, 0.0] | 4 | 0.0246 | left_knee | 2 | 0
+  A | h1 | 10.96 | 92.0 | [1.6, 0.0] | 5 | 0.0166 | left_knee | 1 | 0
+  B | h1 | 14.91 | 305.9 | [1.4, 0.15] | 0 | 0.1673 | right_elbow | 1 | skipped
+  B | h1 | 14.91 | 305.9 | [1.4, 0.15] | 1 | 0.1673 | right_elbow | 1 | skipped
+  B | h1 | 14.91 | 305.9 | [1.4, 0.15] | 2 | 0.1673 | right_elbow | 1 | skipped
+  B | h1 | 14.91 | 305.9 | [1.4, 0.15] | 3 | 0.1673 | right_elbow | 1 | skipped
+  B | h1 | 0.16 | 111.0 | [1.2, 0.15] | 4 | 0.0197 | left_knee | 1 | 0
+  B | h1 | 0.16 | 111.0 | [1.2, 0.15] | 5 | 0.0197 | left_knee | 1 | 0
+  C | h1 | 9.79 | 12.5 | [1.4, 0.15] | 1 | 0.1673 | right_elbow | 1 | skipped
+  C | h1 | 9.79 | 12.5 | [1.4, 0.15] | 2 | 0.1673 | right_elbow | 1 | skipped
+  C | h1 | 9.79 | 12.5 | [1.4, 0.15] | 3 | 0.1673 | right_elbow | 1 | skipped
+  C | h1 | 9.79 | 12.5 | [1.4, 0.15] | 4 | 0.1673 | right_elbow | 1 | skipped
+  C | h1 | 9.79 | 12.5 | [1.4, 0.15] | 5 | 0.1673 | right_elbow | 1 | skipped
+  C | h1 | 7.73 | 198.8 | [1.4, 0.0] | 5 | 0.0177 | left_knee | 1 | 0
+  C | h1 | 14.72 | 91.4 | [1.6, 0.0] | 0 | 0.0166 | left_knee | 1 | 0
+  C | h1 | 0.55 | 155.3 | [1.2, 0.15] | 1 | 0.0197 | left_knee | 1 | 0
+  C | h1 | 0.55 | 155.3 | [1.2, 0.15] | 2 | 0.0197 | left_knee | 1 | 0
+  C | h1 | 0.55 | 155.3 | [1.2, 0.15] | 3 | 0.0197 | left_knee | 1 | 0
+  ... 2 more (results.json)
+
+## D. Hypotheses (registered in LOG.md before this run)
+H223 (every planned in-envelope case at most 0.03 mm, all sections): worst A g1 0.0107, A h1 0.0178, B g1 0.0110, B h1 0.0147, C g1 0.0125, C h1 0.0089 -> held
+H224 (coverage at least 99% each robot and section): A g1 100.00%, A h1 99.56%, B g1 100.00%, B h1 99.89%, C g1 100.00%, C h1 99.78% -> held
+H225 (flip shift never beats the bound Y): smallest Y - shift -2.60e-18 mm -> held
+
+(run time 1710 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

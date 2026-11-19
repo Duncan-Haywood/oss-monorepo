@@ -797,6 +797,14 @@ plan and robot, but coverage falls to 96.4% (G1) and 96.6% (H1), and to 95.9% an
 off-axis sensor errors. Most drops bind on the G1 waist or the H1 torso, which no preload in the model reaches,
 and the dropped cases were inside spec under the old rule, so the margin should be weighted by a flip's cost.
 
+Weighting the margin by each flip's cost at the nose recovers the coverage and keeps the spec (milestone 56). The
+residual along the wall is linear in the joint error, so the largest change of each joint's backlash term over
+the held states its torque band can reach, times its entry in the wall row of the nose Jacobian, bounds what its
+flip can do, and the sum Y bounds them all. Planning when Y is at most half the spec, every planned in-envelope
+case stays inside 0.03 mm in three load sets (worst 0.0178 mm), coverage is 100% on the G1 and 99.6% to 99.9% on
+the H1, 637 of the 667 cases milestone 55 dropped are won back, and in 28 158 planned cases the flip shift never
+beats Y. The waist and torso cost nothing at this budget; the H1's left knee and right elbow are what still bind.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
