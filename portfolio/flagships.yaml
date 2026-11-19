@@ -544,7 +544,7 @@ flagships:
       finding and a 600-day critical path test.
     buildable: >-
       The six public XER files in eval/cpm-vs-p6-2026-11-19.md (git clone the four
-      repos): CCA residual: 2 of 14,270 and a 5-node SS chain of late dates
+      repos): CCA residual: a 5-node SS chain of finished-node late dates
       (eval/cpm-vs-p6-2026-11-19.md, What is left) with node eval/cpm-vs-p6.mjs;
       free float 19,809 of 19,822 (eval/free-float-2026-11-19.md): 9 left in the
       24.12 file where P6 stores 0 against a positive gap; windows check
@@ -557,11 +557,12 @@ flagships:
       History and every measurement: README and eval/. Next, most valuable first:
       (1) CPM fourth pass shipped 2026-11-19 (rules 12-16: 19,820 of 19,822, late
       finish 19,822; eval/cpm-vs-p6-2026-11-19.md); fifth pass 2026-11-19 (rule 17,
-      unspent FS/FF lag of a finished node: its late dates 1,529 of 1,534); next the
-      2 left (BAFT/SAFT2305509: 608 h FS lag) and the 5-node SS chain at
-      CFNS103317C0; (2) update comparison shipped 2026-11-19 (compare.mjs, half-step
-      split; eval/compare-check-2026-11-19.md: 720 of 720 planted edits on six real
-      files); windows analysis across many updates shipped 2026-11-19 (windows.mjs,
+      unspent FS/FF lag of a finished node: its late dates 1,529 of 1,534); the 2
+      left trace to a lag edited after P6's run (edited-lags list 2026-11-19,
+      eval/edited-lags-2026-11-19.md); next the 5-node SS chain at CFNS103317C0; (2)
+      update comparison shipped 2026-11-19 (compare.mjs, half-step split;
+      eval/compare-check-2026-11-19.md: 720 of 720 planted edits on six real files);
+      windows analysis across many updates shipped 2026-11-19 (windows.mjs,
       --windows; a not-started re-estimate is now a revision in the half-step;
       eval/windows-check-2026-11-19.md); next a real series of updates to check the
       split and drivers against (windows in the review shipped 2026-11-19); (3)
@@ -578,9 +579,7 @@ flagships:
       limit from placed work on six files, 37,670 of 37,670 links hold, x1e6 limits
       = CPM); (7) longest path and multiple float paths shipped 2026-11-19
       (floatpaths.mjs, --float-paths, page panel; eval/longest-path-2026-11-19.md:
-      P6's flag 261/261 on five files); next: a public XER with P6's own float_path
-      values to check path order against, the review section for an interim
-      milestone. More open items: NEXT.md.
+      P6's flag 261/261 on five files). More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).

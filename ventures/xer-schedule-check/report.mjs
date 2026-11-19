@@ -60,6 +60,7 @@ const EXTRA_ACTION = {
   "out-of-sequence": ["medium", "Correct the out-of-sequence progress listed: either the logic is wrong or the actual dates are; retained logic and progress override give different finish dates here."],
   "expected-finish": ["medium", "Replace each expected finish listed with a remaining duration estimated from the work left, or clear the ones already passed; an expected finish absorbs predecessor delay instead of passing it on."],
   "edited-durations": ["medium", "Reschedule (F9) and resubmit: the durations listed were changed after the last schedule run, so the stored dates, float and critical path do not reflect them."],
+  "edited-lags": ["medium", "Reschedule (F9) and resubmit: the lags listed were lengthened (or the links added) after the last schedule run, so the stored dates, float and critical path do not reflect them."],
   "open-finish": ["low", "Add a finish-side successor to each activity listed; with only start-to-start successors it can run long without moving anything."],
 };
 
