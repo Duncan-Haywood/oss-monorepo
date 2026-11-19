@@ -231,7 +231,8 @@
    "what": "Off by one in the finding shown to every merchant under the watch line: it prints headroom (disputes that stay under the line) as the number that 'would reach' it. 1000 charges, 0 disputes: '7 more disputes would reach the 0.75% watch line'; 8 do. No test covers finding text",
    "where": "ventures/chargeback-ratio-monitor/calc.mjs:266",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17639"
   },
   {
    "severity": "medium",
@@ -252,7 +253,8 @@
    "what": "'Straight line through the last three or four months' is the endpoint difference; middle months are ignored (least squares on the example's last four months 0.290 vs 0.217 points/month). A mutant changing the divisor survived",
    "where": "ventures/chargeback-ratio-monitor/README.md:29",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17639"
   },
   {
    "severity": "low",
@@ -276,6 +278,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17639"],
  "verdict": "Arithmetically clean: my own Python recompute of the worked example matches every month (5,710 charges, 43 disputes), and headroom, dilution and trend match hand calculation. It does not meet the bar. The one number it writes in a sentence for healthy merchants is one short (calc.mjs:266). More important, the ratio it computes is neither card network's: it is blended across brands while VAMP and ECP are per brand, it never uses Mastercard's previous-month denominator (an ECP rate of 1.20% shows as 2.40% 'excessive'), it leaves out the TC40 fraud reports that VAMP counts, and it applies no minimum counts. The page does honestly say its lines are not any provider's rules. Tests are green (24) but 3 of 8 seeded mutants survived. Small fixes, each with a test, would bring correctness and claims to 3: the off-by-one, the FAQ wording, per-brand monthly ratios, an 'include EFWs' toggle and a previous-month column. Domain needs a VAMP/ECP mode with count gates and dated thresholds."
 }

@@ -184,7 +184,8 @@
    "what": "Headline sensitivity ranges do not match results.txt: word list 0.4-2.4% (file 0.4-2.2%), English classifier 0.4-10.8% (file 1.9-10.8%); also 'PPI 0.4-26% wider' (file 0.3-26.4%)",
    "where": "research/qual-dialect/README.md:3",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17639"
   },
   {
    "severity": "medium",
@@ -229,6 +230,6 @@
    "origin": "maintenance"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17639"],
  "verdict": "The pipeline is honest and reproducible: a fresh download and re-run gives a bit-identical results.txt in about 6 s, and independent recomputations of the row count, per-language shares, lexicon sensitivity/specificity, the true gaps and the PPI width ratio all match. What falls short of a senior measurement-error researcher's bar is the design and its write-up: the bolded headline misstates two sensitivity ranges, the 'PPI never narrower' finding is an artefact of using vanilla PPI with PPI++/DSL uncited, the coders are strawmen with no multilingual baseline, there is a small undisclosed train/test duplicate leak, and the code that produces the headline numbers is untested (3 of 4 seeded mutants survive, one equivalent). Correct, finished, not yet publishable."
 }
