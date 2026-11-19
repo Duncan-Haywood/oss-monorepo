@@ -1,0 +1,120 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKjHUKpJ3YwPUWx6M8u",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T22:10:19Z",
+  "ended": "2026-11-19T22:18:39Z",
+  "wall_minutes": 8.46,
+  "tokens_in": 4803252,
+  "tokens_out": 44660,
+  "cost_usd": 2.7802,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17807",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A command that imported a downloaded wheel (trove-classifiers) was refused by the auto-mode classifier; I read its classifier list as text with grep instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-license-checkers-read-limited-as-mit.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: differential-test the three license tools' SPDX parsers against spdx-expression-parse 4.0.0 (bundled in npm). Parsers matched on 50,000 random expressions (now spdx.diff.test.mjs in license-compat-check and lockfile-license-check; each test failed on a seeded precedence fault). Running every SPDX id, all 89 PyPI License:: trove names and the 45 local license strings found word-matching bugs: license-drift-check read 'Proprietary, limited use' as permissive, 'Universal' as source-available, Elastic-2.0 as unknown; lockfile-license-check categorised multi-word names by first word; license-compat-check ignored trove names' parenthesised ids. All fixed with regression tests. Verified: run_venture_tests.py on the 3 slugs, 122 tests pass; check_posts ok. spdx-correct was rejected as an oracle for trove names (EPL-2.0->EPL-1.0 etc.).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4d9ad1c1-ddf5-52c6-a8d3-ef6dfc88e629",
+    "transcripts": 1,
+    "first": "2026-11-19T22:10:19Z",
+    "last": "2026-11-19T22:18:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 94,
+        "output": 44660,
+        "thinking": 16385,
+        "cache_read": 4684442,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118716,
+        "api_equivalent_usd": 2.7802,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 94,
+      "output": 44660,
+      "thinking": 16385,
+      "cache_read": 4684442,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118716,
+      "api_equivalent_usd": 2.7802,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 47,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.46,
+      "active_minutes": 8.46,
+      "model_minutes": 7.38,
+      "tool_minutes": 1.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "estimate: build an SPDX differential harness, triage ~700 ids and 89 classifiers, fix 3 classifiers with tests, write post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 215.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
