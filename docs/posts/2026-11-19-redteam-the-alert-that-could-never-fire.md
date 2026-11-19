@@ -1,9 +1,9 @@
 ---
 title: "The alert that said it would fire in six hours, and never could"
-seo_title: "Burn-rate alert detection time at exactly the threshold: a red-team find in an SLO tool"
+seo_title: "Burn-rate alert detection time at the threshold: a red-team find"
 date: 2026-11-19
 tags: [redteam, testing, sre, slo, prometheus, hvac]
-description: "24 faults seeded in an SLO alert planner and a room-by-room HVAC load calculation, 16 caught, all 8 holes closed; the code read found an alert listed as both unreachable and six hours from firing."
+description: "24 faults seeded in an SLO alert planner and an HVAC load calculation, all 8 escapes closed; one alert read both unreachable and six hours from firing."
 ---
 
 This red-team run attacked two products that changed on `main` this week:
