@@ -15,6 +15,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
+// csvCell is the shared spreadsheet formula-injection guard (cells starting =, +, -, @, tab or CR get an apostrophe).
 import { dayOf, dayStart, minorUnits, csvCell } from './stripe-metrics.mjs';
 
 export const API_VERSION = '2025-01';

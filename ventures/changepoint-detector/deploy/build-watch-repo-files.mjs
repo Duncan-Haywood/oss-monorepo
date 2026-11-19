@@ -36,7 +36,10 @@ export function render() {
 export const MODULES = ${JSON.stringify(copied.filter((f) => f.endsWith('.mjs')))};
 export const TEXT_FILES = ${JSON.stringify(files, null, 2)};
 export const WORKFLOW_PATH = '.github/workflows/watch-metric.yml';
-export const WORKFLOW = ${JSON.stringify(workflow)};
+// One string per line, so no line of this file reads as a minified bundle (platform/ci/check_third_party.py).
+export const WORKFLOW = [
+${workflow.split('\n').map((l) => `  ${JSON.stringify(l)},`).join('\n')}
+].join('\\n');
 `;
 }
 
