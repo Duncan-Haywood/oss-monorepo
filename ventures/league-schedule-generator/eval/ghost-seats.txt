@@ -1,0 +1,2 @@
+# node eval/ghost-seats.mjs 60 3, 2026-11-19: 57 players on design 60 (Z59 + infinity), every set of 3 ghost seats. 717 live tables = 59 x 15 - (3 x 59 - 9) at best: each ghost sits at 59 tables and each ghost pair shares 3, so no choice beats 12.15 busy courts a round, under the 0.9 x 14 = 12.6 calc.mjs whistWorthIt asks for.
+{"design":60,"players":57,"sets":34220,"gamesRangeCounts":{"1":1298,"2":28438,"3":4484},"mostLiveTables":717,"perRound":12.15,"of":15,"rounds":59,"gamesRangeThere":1,"ghosts":[0,1,15]}
