@@ -69,7 +69,7 @@ lookup of the rates on any particular account, and the page says that too.
 Open `index.html` in a browser. No build, no dependencies, no server.
 
 ```
-node --test          # 29 assertions across calc.mjs and usage.mjs
+node --test '*.test.mjs'   # calc, page, usage and comparison-page tests
 ```
 
 ## Privacy

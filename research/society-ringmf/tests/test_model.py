@@ -45,6 +45,20 @@ class FixedPoint(unittest.TestCase):
     def test_large_block_tips_less_than_spread(self):
         self.assertLess(fixed_point(rho=0.2, block=24, k=2)[0], fixed_point(rho=0.2, block=1, k=2)[0])
 
+    def test_block_front_is_not_frozen_by_rounding(self):
+        # Quality audits 2026-11-19: a 1/1000 lookup table pinned this cell at 0.444; the exact
+        # binomial map x_i = P(Bin(9, q_i) > 4.5) tips (independent recomputation: about 7,700
+        # iterations to 1.0). Fails if the map is rounded, floored or drops the noise term.
+        x, it = fixed_point(rho=0.22, block=4, k=2)
+        self.assertGreater(x, 0.99)
+        self.assertGreater(it, 3000)
+
+    def test_one_step_matches_hand_computed_binomial(self):
+        # No robots, one step from x = 0: every partner plays L at the noise rate eps/2 = 0.01,
+        # so q = 0.01 and x = P(Bin(9, 0.01) > 4.5) for everyone.
+        x, _ = fixed_point(rho=0.0, block=1, k=1, iters=1)
+        self.assertAlmostEqual(x, majority_prob(0.01, 9), places=12)
+
 
 if __name__ == "__main__":
     unittest.main()
