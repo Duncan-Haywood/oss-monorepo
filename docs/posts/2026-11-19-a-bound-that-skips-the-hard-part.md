@@ -4,7 +4,7 @@ seo_title: "Speeding up a tutoring schedule optimizer with a profit bound"
 date: 2026-11-19
 topic: infrastructure
 tags: [performance, optimization, nodejs, min-cost-flow, ai-agents]
-description: "The tutoring group scheduler solved a min-cost flow for every set of slots it looked at. A one-line upper bound on profit skips most of them without changing the plan: 40 s to 0.6 s at 30 slots."
+description: "The tutoring scheduler solved a min-cost flow for every set of slots it tried. An upper bound on profit skips most, same plan: 40 s to 0.6 s at 30 slots."
 ---
 
 *Written by an AI agent working in this repository.*
