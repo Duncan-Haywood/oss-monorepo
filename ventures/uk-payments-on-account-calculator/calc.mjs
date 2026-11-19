@@ -3,7 +3,8 @@
 // Written from memory WITHOUT network access in the building session. Modelled: each payment on account is 50% of the previous year's
 // "relevant amount" (income tax + Class 4 NIC, less tax deducted at source); none are due if that amount is under GBP 1,000 or if more than 80%
 // of the year's income tax and Class 4 NIC was collected at source. Due 31 January (in the tax year) and 31 July (after it); the balancing
-// payment and the first payment on account for the next year fall on the same 31 January. Class 2/student loan/CGT are NOT part of the
+// payment and the first payment on account for the next year fall on the same 31 January. The High Income Child Benefit Charge is income
+// tax (ITEPA 2003 s681B) and is part of it. Class 2/student loan/CGT are NOT part of the
 // relevant amount and are only carried as an optional "other amounts due". Every result names its source to verify.
 
 export const VERIFY = "GOV.UK 'Understand how to make payments on account' and 'Reduce your payments on account'; Taxes Management Act 1970 s59A";
@@ -24,11 +25,11 @@ export function parse(input) {
     if (!Number.isFinite(n) || n < 0) { errors.push(`Enter ${label} as zero or more.`); return 0; }
     return n;
   };
-  const totalTax = num("totalTax", "your income tax plus Class 4 NIC for the tax year");
+  const totalTax = num("totalTax", "your income tax (including any High Income Child Benefit Charge) plus Class 4 NIC for the tax year");
   const atSource = num("atSource", "tax already deducted at source (zero if none)", true);
   const paid = num("paid", "payments on account already made for that year (zero if none)", true);
   const other = num("other", "other amounts due on 31 January (zero if none)", true);
-  const estimate = num("estimate", "your expected income tax plus Class 4 NIC for the following year", "blank");
+  const estimate = num("estimate", "your expected income tax plus Class 4 NIC for the following year, after tax deducted at source", "blank");
   const year = Number(i.year);
   if (!YEARS[year]) errors.push("Pick the tax year of the return you are filing.");
   return { errors, totalTax, atSource, paid, other, estimate, year };
@@ -76,9 +77,9 @@ export function compute(input) {
     if (reducedEach < each) {
       const saving = r2((each - reducedEach) * 2);
       reduction = { estimate, reducedEach, savingNow: saving, balancingNextStandard: r2(estimate - 2 * each), balancingNextReduced: r2(estimate - 2 * reducedEach) };
-      findings.push({ severity: "medium", title: `If you really expect ${money(estimate)} of income tax and Class 4 NIC for ${nextLabel}, you can claim to reduce each instalment to ${money(reducedEach)}, keeping ${money(saving)} in your pocket across the two dates. It is a timing change only: reduce too far and interest runs from the original due date on any shortfall.` });
+      findings.push({ severity: "medium", title: `If you really expect ${money(estimate)} of income tax and Class 4 NIC for ${nextLabel} after tax deducted at source, you can claim to reduce each instalment to ${money(reducedEach)}, keeping ${money(saving)} in your pocket across the two dates. It is a timing change only: reduce too far and interest runs from the original due date on any shortfall.` });
     } else {
-      findings.push({ severity: "info", title: `Your expected ${nextLabel} bill (${money(estimate)}) is not below last year's, so a reduction claim would not help.` });
+      findings.push({ severity: "info", title: `Your expected ${nextLabel} bill (${money(estimate)}) after tax deducted at source is not below last year's ${money(relevant)}, so a reduction claim would not help.` });
     }
   }
 
@@ -88,7 +89,7 @@ export function compute(input) {
     ...(required ? [{ ref: "Reduce", title: "Reduce if income falls", why: "Claim online through your HMRC account or on form SA303 if you expect a lower bill. A wrong claim can cost interest and, if careless, a penalty." }] : []),
     { ref: "Late", title: "Late payments cost interest", why: "Interest runs from the due date, and further penalties apply if tax stays unpaid. Check current rates on GOV.UK." },
   );
-  findings.push({ severity: "info", title: "Payments on account cover income tax and Class 4 NIC only. Capital gains tax, student loan repayments, the High Income Child Benefit Charge and Class 2 are not part of the relevant amount." });
+  findings.push({ severity: "info", title: "Payments on account cover income tax and Class 4 NIC only. The High Income Child Benefit Charge is income tax (ITEPA 2003 s681B), so it counts. Capital gains tax, student loan repayments and Class 2 are not part of the relevant amount." });
   return { errors: [], label, nextLabel, totalTax, atSource, paid, other, relevant, required, reason, each, balancing, janTotal, julTotal, janDate, julDate, firstTime, reduction, findings, obligations, perMonth: required ? r2(relevant / 12) : 0 };
 }
 
