@@ -67,3 +67,6 @@ little-lamps | Martha | a busy kitchen in Bethany, Luke 10:38-42, with Mary and 
 hearth-and-horizon | solar cooker, cooking power | a feast planned on a solar cooker's label watts; the label assumes a clear noon sun, and haze or a low morning sun take a large share away
 hearth-and-horizon | haybox, retained heat, hay box | finishing a pot in an insulated basket: once boiling, holding heat is cheaper than adding it, and the loss rate of the box sets how long it stays safe
 hearth-and-horizon | Archimedes screw, screw pump | lifting water a metre with a tilted screw; the angle and the fill set the flow, and tilting it steeper to lift higher empties every flight
+hearth-and-horizon | hermetic storage, hermetic bag | sealing a grain sack so the insects' own breathing uses up the oxygen; a pinhole or a torn liner lets it back in faster than they use it
+hearth-and-horizon | mosquito net, insecticide resistance | a bed net campaign counted in nets handed out, when the mosquitoes in the district have stopped dying on contact with the insecticide on them
+hearth-and-horizon | grain moisture, safe storage moisture | maize or sorghum stored a few points too wet, where the moulds that make aflatoxin grow; a moisture meter read on the warm top of the sack
