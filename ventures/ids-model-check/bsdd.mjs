@@ -28,6 +28,7 @@
 
 import { parseXml, kid, kids } from "./xml.mjs";
 import { IdsValue } from "./ids.mjs";
+import { measureOf, toSI, MEASURE_TYPES } from "./bsdd-units.mjs";
 
 export const BSDD_API = "https://api.bsdd.buildingsmart.org";
 const defaultWait = (ms) => new Promise((ok) => setTimeout(ok, ms));
@@ -189,7 +190,7 @@ export async function checkBsdd(idsText, opts = {}) {
       dict = d.json && d.json.dictionaries && d.json.dictionaries[0];
       if (dict && dict.isLatestVersion === false) add("note", "bsdd-old-version", `${dict.name} ${dict.version} is not the dictionary's latest version in bSDD`);
     }
-    if (kind === "prop" && l.kind === "property") await checkProperty(l, e, dict, add, schemas, lookup);
+    if (kind === "prop" && l.kind === "property") await checkProperty(l, e, dict, add, schemas, lookup, opts.units || null);
     if (kind === "class" && (l.kind === "classification" || l.kind === "material")) checkClass(l, e, dict, add, schemas);
   }
   return { uris: links.length, looked: distinct.length, findings };
@@ -202,7 +203,7 @@ function schemaFor(l, schemas) {
   return schemas.IFC4X3 || null;
 }
 
-async function checkProperty(l, e, dict, add, schemas, lookup) {
+async function checkProperty(l, e, dict, add, schemas, lookup, units) {
   const code = e.code || "";
   if (l.baseName !== null && l.baseName !== code && l.baseName !== e.name) {
     const lower = l.baseName.toLowerCase();
@@ -221,17 +222,24 @@ async function checkProperty(l, e, dict, add, schemas, lookup) {
   }
   if (l.dataType) {
     const ifcType = ifcTypeOf(e);
-    if (ifcType === l.dataType) return checkValues(l, e, add);
+    if (ifcType === l.dataType) return checkValues(l, e, add, units);
     const schema = schemaFor(l, schemas);
     const fits = dataTypeFits(e.dataType, l.dataType, schema);
     if (fits === false) add("error", "bsdd-datatype", `dataType ${l.dataType} cannot hold the bSDD property's ${e.dataType} values${ifcType ? `; the IFC dictionary gives ${ifcType}` : ""}, so a model that follows the dictionary fails this facet`, ifcType ? { suggest: ifcType } : {});
     else if (ifcType && ifcType !== l.dataType) add("warning", "bsdd-datatype", `dataType ${l.dataType}, but the IFC dictionary gives ${ifcType} for ${code}`, { suggest: ifcType });
   }
-  checkValues(l, e, add);
+  checkValues(l, e, add, units);
 }
 
-function checkValues(l, e, add) {
-  const allowed = (e.allowedValues || []).flatMap((a) => [a.code, a.value]).filter((x) => x !== undefined && x !== null);
+// opts.units (schema/bsdd-units.json): a measure facet's values are in SI
+// (IDS compares measures in SI), bSDD's in the property's unit; with the unit
+// table, an allowed value matches in either (50 mm as 0.05).
+function checkValues(l, e, add, units) {
+  let allowed = (e.allowedValues || []).flatMap((a) => [a.code, a.value]).filter((x) => x !== undefined && x !== null);
+  if (units && l.dataType && MEASURE_TYPES.includes(l.dataType)) {
+    const m = measureOf(e, { units });
+    if (m.type === l.dataType && m.scale != null) allowed = [...allowed, ...allowed.map((x) => toSI(x, m)).filter((x) => x !== null)];
+  }
   if (allowed.length && l.values.length) {
     const set = new Set(allowed);
     const lower = new Map(allowed.map((a) => [String(a).toLowerCase(), a]));
