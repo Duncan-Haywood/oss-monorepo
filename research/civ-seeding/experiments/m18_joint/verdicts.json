@@ -1,0 +1,548 @@
+{
+ "key": [
+  "census-degree-r0.85-fp0.5-closure",
+  "census-degree-r0.85-fp0.5-closure-recip",
+  "census-degree-r0.85-fp0.5-closure-recip-j0.25",
+  "census-degree-r0.85-fp0.5-closure-recip-j0.5",
+  "census-degree-r0.85-fp0.5-closure-recip-j1",
+  "census-degree-r0.85-fp0.5-uniform",
+  "census-degree-r0.85-fp0.5-uniform-recip",
+  "census-degree-r0.85-fp0.5-uniform-recip-j0.5",
+  "census-degree-r0.85-fp0.5-uniform-recip-j1",
+  "census-dd-r0.85-fp0.5-closure",
+  "census-dd-r0.85-fp0.5-closure-recip",
+  "census-dd-r0.85-fp0.5-closure-recip-j0.25",
+  "census-dd-r0.85-fp0.5-closure-recip-j0.5",
+  "census-dd-r0.85-fp0.5-closure-recip-j1",
+  "census-dd-r0.85-fp0.5-uniform",
+  "census-dd-r0.85-fp0.5-uniform-recip",
+  "census-dd-r0.85-fp0.5-uniform-recip-j0.5",
+  "census-dd-r0.85-fp0.5-uniform-recip-j1",
+  "adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure",
+  "adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip",
+  "adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-j1",
+  "adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip-j1"
+ ],
+ "kappa": {
+  "closure": [
+   0.0,
+   0.25,
+   0.5,
+   1.0
+  ],
+  "uniform": [
+   0.0,
+   0.5,
+   1.0
+  ]
+ },
+ "phi": 0.5,
+ "rho": 0.85,
+ "rows": {
+  "census-degree-r0.85-fp0.5-closure": {
+   "copies": [
+    0.04245,
+    0.0556,
+    0.05538,
+    0.04935,
+    0.05612
+   ],
+   "pooled": 0.05119,
+   "q5": 0.03965,
+   "q95": 0.06636,
+   "se": 0.00264,
+   "beats_degree": 0.008
+  },
+  "census-degree-r0.85-fp0.5-closure-recip": {
+   "copies": [
+    0.04386,
+    0.04856,
+    0.04533,
+    0.04364,
+    0.05185
+   ],
+   "pooled": 0.04634,
+   "q5": 0.03488,
+   "q95": 0.06,
+   "se": 0.00157,
+   "beats_degree": 0.13
+  },
+  "census-degree-r0.85-fp0.5-closure-recip-j0.25": {
+   "copies": [
+    0.04213,
+    0.04391,
+    0.04596,
+    0.04675,
+    0.04576
+   ],
+   "pooled": 0.04486,
+   "q5": 0.03244,
+   "q95": 0.05875,
+   "se": 0.00083,
+   "beats_degree": 0.218
+  },
+  "census-degree-r0.85-fp0.5-closure-recip-j0.5": {
+   "copies": [
+    0.04962,
+    0.04418,
+    0.04389,
+    0.04911,
+    0.04284
+   ],
+   "pooled": 0.0459,
+   "q5": 0.03426,
+   "q95": 0.05856,
+   "se": 0.00142,
+   "beats_degree": 0.134
+  },
+  "census-degree-r0.85-fp0.5-closure-recip-j1": {
+   "copies": [
+    0.04415,
+    0.05441,
+    0.05223,
+    0.05016,
+    0.04801
+   ],
+   "pooled": 0.04958,
+   "q5": 0.03657,
+   "q95": 0.06505,
+   "se": 0.00177,
+   "beats_degree": 0.042
+  },
+  "census-degree-r0.85-fp0.5-uniform": {
+   "copies": [
+    0.04389,
+    0.0425,
+    0.038,
+    0.05015,
+    0.04625
+   ],
+   "pooled": 0.04415,
+   "q5": 0.03388,
+   "q95": 0.05686,
+   "se": 0.00201,
+   "beats_degree": 0.212
+  },
+  "census-degree-r0.85-fp0.5-uniform-recip": {
+   "copies": [
+    0.05075,
+    0.04381,
+    0.04097,
+    0.04673,
+    0.0495
+   ],
+   "pooled": 0.04568,
+   "q5": 0.03321,
+   "q95": 0.06068,
+   "se": 0.0018,
+   "beats_degree": 0.192
+  },
+  "census-degree-r0.85-fp0.5-uniform-recip-j0.5": {
+   "copies": [
+    0.04816,
+    0.04674,
+    0.04741,
+    0.04577,
+    0.04417
+   ],
+   "pooled": 0.04583,
+   "q5": 0.03365,
+   "q95": 0.06138,
+   "se": 0.00069,
+   "beats_degree": 0.152
+  },
+  "census-degree-r0.85-fp0.5-uniform-recip-j1": {
+   "copies": [
+    0.04489,
+    0.04137,
+    0.04235,
+    0.04489,
+    0.04212
+   ],
+   "pooled": 0.04282,
+   "q5": 0.0327,
+   "q95": 0.05563,
+   "se": 0.00074,
+   "beats_degree": 0.314
+  },
+  "census-dd-r0.85-fp0.5-closure": {
+   "copies": [
+    0.0268,
+    0.02374,
+    0.03329,
+    0.03448,
+    0.02541
+   ],
+   "pooled": 0.0278,
+   "q5": 0.01947,
+   "q95": 0.0406,
+   "se": 0.00216,
+   "beats_degree": 0.954
+  },
+  "census-dd-r0.85-fp0.5-closure-recip": {
+   "copies": [
+    0.01427,
+    0.02437,
+    0.02298,
+    0.02676,
+    0.02157
+   ],
+   "pooled": 0.0218,
+   "q5": 0.01328,
+   "q95": 0.03415,
+   "se": 0.00211,
+   "beats_degree": 0.976
+  },
+  "census-dd-r0.85-fp0.5-closure-recip-j0.25": {
+   "copies": [
+    0.03014,
+    0.02194,
+    0.02796,
+    0.02412,
+    0.02057
+   ],
+   "pooled": 0.02393,
+   "q5": 0.01697,
+   "q95": 0.03616,
+   "se": 0.0018,
+   "beats_degree": 0.978
+  },
+  "census-dd-r0.85-fp0.5-closure-recip-j0.5": {
+   "copies": [
+    0.03302,
+    0.02719,
+    0.03257,
+    0.02948,
+    0.02836
+   ],
+   "pooled": 0.02993,
+   "q5": 0.02102,
+   "q95": 0.04125,
+   "se": 0.00115,
+   "beats_degree": 0.92
+  },
+  "census-dd-r0.85-fp0.5-closure-recip-j1": {
+   "copies": [
+    0.03296,
+    0.03413,
+    0.03933,
+    0.03258,
+    0.03408
+   ],
+   "pooled": 0.03408,
+   "q5": 0.02614,
+   "q95": 0.04565,
+   "se": 0.00122,
+   "beats_degree": 0.876
+  },
+  "census-dd-r0.85-fp0.5-uniform": {
+   "copies": [
+    0.0226,
+    0.01999,
+    0.02514,
+    0.02106,
+    0.02263
+   ],
+   "pooled": 0.02165,
+   "q5": 0.01469,
+   "q95": 0.03103,
+   "se": 0.00087,
+   "beats_degree": 0.99
+  },
+  "census-dd-r0.85-fp0.5-uniform-recip": {
+   "copies": [
+    0.01472,
+    0.02065,
+    0.02026,
+    0.01855,
+    0.01817
+   ],
+   "pooled": 0.01753,
+   "q5": 0.01164,
+   "q95": 0.02732,
+   "se": 0.00105,
+   "beats_degree": 0.99
+  },
+  "census-dd-r0.85-fp0.5-uniform-recip-j0.5": {
+   "copies": [
+    0.02131,
+    0.02068,
+    0.02133,
+    0.02335,
+    0.0235
+   ],
+   "pooled": 0.02146,
+   "q5": 0.01435,
+   "q95": 0.03219,
+   "se": 0.00058,
+   "beats_degree": 0.992
+  },
+  "census-dd-r0.85-fp0.5-uniform-recip-j1": {
+   "copies": [
+    0.02875,
+    0.02619,
+    0.02932,
+    0.02713,
+    0.0256
+   ],
+   "pooled": 0.02685,
+   "q5": 0.01998,
+   "q95": 0.037,
+   "se": 0.00072,
+   "beats_degree": 0.972
+  },
+  "adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure": {
+   "copies": [
+    0.0325,
+    0.02718,
+    0.02917,
+    0.0304,
+    0.02745
+   ],
+   "pooled": 0.0289,
+   "q5": 0.02111,
+   "q95": 0.03989,
+   "se": 0.00098,
+   "beats_degree": 0.96
+  },
+  "adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip": {
+   "copies": [
+    0.02831,
+    0.03197,
+    0.02871,
+    0.02772,
+    0.02918
+   ],
+   "pooled": 0.02881,
+   "q5": 0.02103,
+   "q95": 0.04075,
+   "se": 0.00074,
+   "beats_degree": 0.952
+  },
+  "adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-j1": {
+   "copies": [
+    0.0371,
+    0.03456,
+    0.02846,
+    0.02771,
+    0.03374
+   ],
+   "pooled": 0.03183,
+   "q5": 0.02421,
+   "q95": 0.04339,
+   "se": 0.00182,
+   "beats_degree": 0.904
+  },
+  "adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip-j1": {
+   "copies": [
+    0.03399,
+    0.03597,
+    0.0344,
+    0.03766,
+    0.03619
+   ],
+   "pooled": 0.03558,
+   "q5": 0.02707,
+   "q95": 0.04687,
+   "se": 0.00066,
+   "beats_degree": 0.806
+  }
+ },
+ "gain": {
+  "census-degree|closure|0": {
+   "d": -0.00484,
+   "se": 0.00189
+  },
+  "census-degree|closure|0.25": {
+   "d": -0.00633,
+   "se": 0.00227
+  },
+  "census-degree|closure|0.5": {
+   "d": -0.00529,
+   "se": 0.00399
+  },
+  "census-degree|closure|1": {
+   "d": -0.00161,
+   "se": 0.00175
+  },
+  "census-degree|uniform|0": {
+   "d": 0.00153,
+   "se": 0.00167
+  },
+  "census-degree|uniform|0.5": {
+   "d": 0.00168,
+   "se": 0.00247
+  },
+  "census-degree|uniform|1": {
+   "d": -0.00133,
+   "se": 0.00174
+  },
+  "census-dd|closure|0": {
+   "d": -0.00599,
+   "se": 0.00235
+  },
+  "census-dd|closure|0.25": {
+   "d": -0.00387,
+   "se": 0.00225
+  },
+  "census-dd|closure|0.5": {
+   "d": 0.00213,
+   "se": 0.00194
+  },
+  "census-dd|closure|1": {
+   "d": 0.00629,
+   "se": 0.00211
+  },
+  "census-dd|uniform|0": {
+   "d": -0.00412,
+   "se": 0.00141
+  },
+  "census-dd|uniform|0.5": {
+   "d": -0.00019,
+   "se": 0.00106
+  },
+  "census-dd|uniform|1": {
+   "d": 0.0052,
+   "se": 0.00066
+  },
+  "adaptive-dd-0.5-s0.75|closure|0": {
+   "d": -9e-05,
+   "se": 0.00159
+  },
+  "adaptive-dd-0.5-s0.75|closure|1": {
+   "d": 0.00375,
+   "se": 0.0022
+  }
+ },
+ "step": {
+  "census-degree|closure|0->0.25": {
+   "d": -0.00148,
+   "se": 0.00168
+  },
+  "census-degree|closure|0.25->0.5": {
+   "d": 0.00104,
+   "se": 0.00186
+  },
+  "census-degree|closure|0.5->1": {
+   "d": 0.00368,
+   "se": 0.0028
+  },
+  "census-degree|uniform|0->0.5": {
+   "d": 0.00015,
+   "se": 0.00208
+  },
+  "census-degree|uniform|0.5->1": {
+   "d": -0.00301,
+   "se": 0.00086
+  },
+  "census-dd|closure|0->0.25": {
+   "d": 0.00212,
+   "se": 0.00351
+  },
+  "census-dd|closure|0.25->0.5": {
+   "d": 0.006,
+   "se": 0.00079
+  },
+  "census-dd|closure|0.5->1": {
+   "d": 0.00416,
+   "se": 0.00133
+  },
+  "census-dd|uniform|0->0.5": {
+   "d": 0.00393,
+   "se": 0.00127
+  },
+  "census-dd|uniform|0.5->1": {
+   "d": 0.00539,
+   "se": 0.00111
+  },
+  "adaptive-dd-0.5-s0.75|closure|unfiltered|0->1": {
+   "d": 0.00293,
+   "se": 0.00198
+  },
+  "adaptive-dd-0.5-s0.75|closure|filtered|0->1": {
+   "d": 0.00677,
+   "se": 0.00099
+  }
+ },
+ "break_even": {
+  "census-degree|closure": null,
+  "census-degree|uniform": 0.0,
+  "census-dd|closure": 0.41125,
+  "census-dd|uniform": 0.5176252319109462
+ },
+ "sanity_m17": 4.884478464566716e-06,
+ "hits": [
+  [
+   0.005424242424242424,
+   0.0023333333333333335,
+   0.0038787878787878787,
+   0.002696969696969697,
+   0.0025454545454545456
+  ],
+  3.0303030303030302e-05
+ ],
+ "h51": [
+  {
+   "d": 0.00213,
+   "se": 0.00194
+  },
+  false
+ ],
+ "h52": [
+  {
+   "closure": {
+    "d": -0.00161,
+    "se": 0.00175
+   },
+   "uniform": {
+    "d": -0.00133,
+    "se": 0.00174
+   }
+  },
+  false
+ ],
+ "h53": [
+  {
+   "census-degree|closure|0->0.25": {
+    "d": -0.00148,
+    "se": 0.00168
+   },
+   "census-degree|closure|0.25->0.5": {
+    "d": 0.00104,
+    "se": 0.00186
+   },
+   "census-degree|closure|0.5->1": {
+    "d": 0.00368,
+    "se": 0.0028
+   },
+   "census-dd|closure|0->0.25": {
+    "d": 0.00212,
+    "se": 0.00351
+   },
+   "census-dd|closure|0.25->0.5": {
+    "d": 0.006,
+    "se": 0.00079
+   },
+   "census-dd|closure|0.5->1": {
+    "d": 0.00416,
+    "se": 0.00133
+   }
+  },
+  true
+ ],
+ "h54": [
+  {
+   "d": 0.00375,
+   "se": 0.0022
+  },
+  true
+ ],
+ "h55": [
+  0.876,
+  false
+ ],
+ "ref": {
+  "dd-0.05": 0.011815513639757247,
+  "degree": 0.04023766869659956
+ }
+}
