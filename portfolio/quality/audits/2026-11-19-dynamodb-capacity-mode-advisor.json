@@ -1,0 +1,252 @@
+{
+ "date": "2026-11-19",
+ "subject": "ventures/dynamodb-capacity-mode-advisor",
+ "stratum": "venture",
+ "seed": "2026-11-19-k-4c5e",
+ "round": 84,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior AWS FinOps / cloud cost engineer who sets DynamoDB capacity modes for production tables; first checks: are the unit prices the current list prices (after the 2024-11-01 on-demand cut), is the RCU/WCU-hour vs per-million arithmetic and the break-even right, does the provisioned model include autoscaling headroom and the 1-unit floor, what happens with real CloudWatch exports (missing datapoints, 5-minute periods), and are GSIs, free tier and reserved capacity in or out of scope",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Compared against AWS's own published price list, fetched live: `curl -sSL https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/dynamodb/USD/current/dynamodb.json` (gzip) gives US East (N. Virginia) 'PayPerRequest Read Request Units' 0.000000125, 'PayPerRequest Write Request Units' 0.000000625, 'Provisioned Read Units' 0.00013, 'Provisioned Write Units' 0.00065 = engine.mjs DEFAULT_PRICES $0.125/M, $0.625/M, $0.00013, $0.00065 (the post-2024-11-01 halved on-demand price; the pre-cut $0.25/$1.25 would put break-even at 14.4%, not 29%). aws.amazon.com/dynamodb/pricing/on-demand/ and /provisioned/ (HTTP 200) quote the same figures in their worked examples. Recomputed: (1) break-even 0.00013/(3600 x 0.125e-6) = 0.2889 for reads and 0.00065/(3600 x 0.625e-6) = 0.2889 for writes = CLI '~29%'. (2) Hand case, 168 h flat 100 RCU/s and 10 WCU/s: on-demand 100x3600x730/1e6x0.125 + 10x3600x730/1e6x0.625 = 32.85+16.425 = $49.275; autoscaled ceil(100/0.7)=143 RCU x 0.00013 x 730 + ceil(10/0.7)=15 WCU x 0.00065 x 730 = $20.688; CLI 49.275 / 20.688 exact. Fixed peak: hand ceil(100x1.1)=110 RCU, CLI 111 (JS 100*1.1 = 110.00000000000001), $15.75 vs $15.66: off by one unit from float. (3) Own Python (scratchpad dynamodb/indep.py) on the fixture week: on-demand $48.89, autoscaled $22.10, fixed peak $35.87 at 188/38 units = CLI. (4) eu-west-1 prices from the same AWS file (0.1415/M, 0.705/M, 0.000147, 0.000735) via --prices: on-demand $55.245, my Python $55.245; break-even 28.86%/28.96%. Not 4: the arithmetic is right for complete hourly rows, but rows are counted, not timed, so a CloudWatch export with missing (zero-traffic) periods or 5-minute Sums at the default period gives silently wrong monthly figures (see domain).",
+  "completeness": "Walked every README/page feature: `node cli.mjs analyze fixtures/consumed-capacity.csv` (exit 0, 2 warnings), --json, --prices (file and bad file), --period 300, --current-rcu/--current-wcu (throttle error exit 1, pairing enforced exit 2), --fail-on warn (exit 1), stdin '-', --help, unknown option exit 2; all 8 rules fire on suitable input. Page in headless Chrome (Playwright, 375 px): 'Load worked example' renders the same $48.89/$22.10/$35.87 table and both warnings, scrollWidth 375, no console errors, no requests off localhost, opt-out button present. Docs page linked both ways, sitemap complete. No stubs or TODOs. Gaps: the page has no price editor (CLI only, the page says so).",
+  "verification": "`node --test '*.test.mjs'`: 30 pass, 0 fail, ~150 ms. Tests check the on-demand formula, break-even, the mode direction on flat/idle/spiky input, throttling and CLI exit codes. Seeded 8 mutants with quality_mutate.py: 3 caught (730 -> 720 hours, fixed-peak cost scaled by sample hours, spiky threshold 6 -> 60), 5 survived: write capacity priced at the RCU rate (5x under-pricing of writes), autoscaling sized on the current period only (lag model removed), fixed-peak headroom removed, throttle test loosened to 1.5x current, and the 20% switch threshold dropped to 0. No test asserts an autoscaled or fixed-peak dollar figure.",
+  "craft": "Read engine.mjs (167 lines), cli.mjs, usage.mjs, index.html script, all four test files. One engine shared by CLI and page (served engine.mjs byte-identical to source), zero dependencies, clear separation of parse/analyze/summarize, honest comments about the model. Defects: Math.ceil(peak*1.1) over-counts by one unit on exact multiples (float); a --prices file with a typo'd key is silently ignored and a non-numeric value prints '$NaN' and then recommends on-demand because NaN never wins the min; timestamps are parsed but never used (no ordering, gap or period check); the header detection treats any first non-numeric row naming read/write as a header.",
+  "claims": "Checked 9 claims. Backed: us-east-1 list prices (AWS price list file, above); '29% break-even' (recomputed); docs '3.5 times' (1/0.2889 = 3.46); docs 'a perfectly steady table ... costs roughly 40% of on-demand' (hand case 20.69/49.28 = 42%); 'no network call / never uploaded' (Playwright request log empty off-origin, no fetch in engine/cli); usage counted only in localStorage with DNT/GPC honoured (usage.mjs:34); no-warranty and limits on page, docs and README; served llms.txt uses marisstella.app (`node platform/pages/served-copy.mjs` clean, live https://marisstella.app/dynamodb-capacity-mode-advisor/llms.txt fetched). Weak: docs 'daytime-heavy traffic with autoscaling usually lands in the 40-60% range' is unsourced (the shipped fixture itself lands at 64%); the limits list (free tier, reserved, Standard-IA, region, global tables, backups) omits GSIs and missing datapoints, the two a FinOps engineer would hit.",
+  "fitness": "Walked the job: export a week of ConsumedRead/WriteCapacityUnits, paste, decide whether to switch. The answer for a fully active table is right and arrives in seconds with no AWS access. Gaps: the documented `aws cloudwatch get-metric-statistics` route returns two JSON documents the user must reshape by hand into three columns; GSIs (separate metrics, billed in the same mode) are not priced, so a write-heavy table with indexes is under-priced on both sides; a table on provisioned-with-autoscaling today can only be described as a fixed current RCU/WCU; idle hours missing from the export flip the answer for exactly the low-utilisation tables where on-demand should win.",
+  "domain": "Compared against AWS DynamoDB pricing (price list file and pricing pages, fetched 2026-11-19) and DynamoDB/Application Auto Scaling behaviour as documented by AWS. Matches: current prices, RCU/WCU-hour vs request-unit equivalence, 1-unit provisioned floor, 70% default target-tracking, break-even and its equality for reads/writes, burst and autoscaling lag flagged. Departures: (a) the window is count x period, not the timestamp span; CloudWatch returns no datapoint for a period in which DynamoDB published no consumed-capacity value, so idle hours drop out of a real export, the 730 h extrapolation inflates on-demand and the provisioned modes lose their idle-hour cost: a 168 h week with 8 idle hours a day priced $65.70 on-demand / $28.90 autoscaled with zeros present, $98.55 / $31.41 (and a different 'cheapest mode') with those rows absent as CloudWatch would return them; (b) the period is not inferred from timestamps, so 5-minute Sums at the default 3600 s are priced 12x low ($4.11 vs $49.27) with no warning; (c) GSIs not modelled or mentioned; (d) autoscaling scale-in delay (15-minute alarms) and the daily decrease limit are not modelled, so the autoscaled figure is a lower bound (the page says it is a screen). Free tier and reserved capacity are out of scope and say so."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "default unit prices vs AWS's current us-east-1 list (post 2024-11-01 on-demand cut)",
+   "method": "AWS public price list file meteredUnitMaps/dynamodb/USD/current/dynamodb.json, region 'US East (N. Virginia)'",
+   "command": "curl -sSL https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/dynamodb/USD/current/dynamodb.json | gunzip | python3 -c \"import json,sys;r=json.load(sys.stdin)['regions']['US East (N. Virginia)'];[print(k,r[k]['price']) for k in ('PayPerRequest Read Request Units','PayPerRequest Write Request Units','Provisioned Read Units','Provisioned Write Units')]\"",
+   "expected": "0.000000125, 0.000000625, 0.00013, 0.00065 (engine.mjs:17-20)",
+   "observed": "0.0000001250, 0.0000006250, 0.0001300000, 0.0006500000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "break-even utilisation for reads and writes",
+   "method": "hand: per-unit-hour price / (3600 x per-request-unit price)",
+   "command": "cd ventures/dynamodb-capacity-mode-advisor && node cli.mjs analyze fixtures/consumed-capacity.csv | grep 'beats on-demand'",
+   "expected": "0.00013/0.00045 = 28.9%; 0.00065/0.00225 = 28.9%",
+   "observed": "~29% (reads) / ~29% (writes)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "hand case: 168 h flat 100 RCU/s and 10 WCU/s",
+   "method": "hand arithmetic from AWS list prices: on-demand units x price, autoscaled ceil(rate/0.7) unit-hours, fixed peak ceil(rate x 1.1)",
+   "command": "python3 -c \"[print(f't{i},360000,36000') for i in range(168)]\" > flat.csv && cd ventures/dynamodb-capacity-mode-advisor && node cli.mjs analyze ../../flat.csv --json",
+   "expected": "on-demand 49.275, autoscaled 20.688, fixed peak 110 RCU / 11 WCU = 15.6585",
+   "observed": "onDemand 49.275, autoscaled 20.6882, staticPeak 15.7534 at 111 RCU (100*1.1 = 110.00000000000001 in JS)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "fixture week, all three modes",
+   "method": "own Python reimplementation from the AWS prices (scratchpad dynamodb/indep.py), not importing the subject",
+   "command": "python3 scratchpad/dynamodb/indep.py ventures/dynamodb-capacity-mode-advisor/fixtures/consumed-capacity.csv; cd ventures/dynamodb-capacity-mode-advisor && node cli.mjs analyze fixtures/consumed-capacity.csv",
+   "expected": "on-demand 48.89, autoscaled 22.10, fixed peak 35.87 (188/38)",
+   "observed": "$48.89, $22.10, $35.87 (188 RCU / 38 WCU)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "eu-west-1 prices through --prices",
+   "method": "EU (Ireland) rows of the same AWS price list file: 0.1415/M, 0.705/M, 0.000147, 0.000735; own Python on the fixture",
+   "command": "cd ventures/dynamodb-capacity-mode-advisor && node cli.mjs analyze fixtures/consumed-capacity.csv --prices eu.json --json",
+   "expected": "on-demand 55.245, break-even 0.2886 / 0.2896",
+   "observed": "onDemand 55.2449, breakEven read 0.28857 write 0.28960",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "CloudWatch export with idle periods missing (no datapoint) instead of zero rows",
+   "method": "CloudWatch returns no datapoint for a period with no published value; window should come from timestamps",
+   "command": "cd ventures/dynamodb-capacity-mode-advisor && node cli.mjs analyze zeros.csv; node cli.mjs analyze gaps.csv   # gaps.csv = zeros.csv minus its ',0,0' rows (8 idle h/day, 7 days)",
+   "expected": "same monthly figures for both files (168 h window)",
+   "observed": "zeros: 168 h, on-demand $65.70, autoscaled $28.90, cheapest autoscaled; gaps: 112 h, on-demand $98.55, autoscaled $40.90, cheapest fixed peak",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "5-minute Sums pasted with the default period",
+   "method": "period inferable from consecutive timestamps",
+   "command": "cd ventures/dynamodb-capacity-mode-advisor && node cli.mjs analyze fivemin.csv; node cli.mjs analyze fivemin.csv --period 300",
+   "expected": "a warning or inferred 300 s period; on-demand $49.27",
+   "observed": "default: '2016 h', on-demand $4.11, no warning; with --period 300: $49.27",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/dynamodb-capacity-mode-advisor && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "30 pass, 0 fail; 5 of 8 seeded mutants survive",
+   "result": "partial"
+  },
+  {
+   "dimension": "craft",
+   "what": "page in Chromium: worked example, phone width, network",
+   "method": "Playwright with /usr/bin/google-chrome on index.html served locally",
+   "command": "node scratchpad/dynamodb/pw.cjs",
+   "expected": "same figures as the CLI, scrollWidth 375, no foreign requests, no errors",
+   "observed": "$48.89 / $22.10 / $35.87 and both warnings; scrollWidth 375; foreign []; errors []",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "bad --prices file",
+   "method": "run with a typo'd key and a non-numeric value",
+   "command": "cd ventures/dynamodb-capacity-mode-advisor && node cli.mjs analyze fixtures/consumed-capacity.csv --prices typo.json; node cli.mjs analyze fixtures/consumed-capacity.csv --prices bad.json",
+   "expected": "exit 2 naming the bad key/value",
+   "observed": "typo {\"perRCUHour\":0.01} silently ignored (default result); {\"perRcuHour\":\"abc\"} prints '$NaN' for both provisioned modes and 'Cheapest modelled mode: on-demand', exit 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "docs-page ratios: on-demand 3.5x a fully used unit; steady table ~40% of on-demand",
+   "method": "hand from AWS list prices and the flat hand case",
+   "command": "cd ventures/dynamodb-capacity-mode-advisor && grep -n '3.5 times\\|roughly 40%' dynamodb-on-demand-vs-provisioned-which-is-cheaper.html",
+   "expected": "1/0.2889 = 3.46; 20.69/49.28 = 42%",
+   "observed": "'about 3.5 times', 'roughly 40%'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "privacy, disclaimer, served llms.txt",
+   "method": "served-copy.mjs, live fetch, Playwright request log, grep for fetch",
+   "command": "node platform/pages/served-copy.mjs dynamodb-capacity-mode-advisor; curl -sS https://marisstella.app/dynamodb-capacity-mode-advisor/llms.txt",
+   "expected": "marisstella.app URLs, no third-party requests, no-warranty lines",
+   "observed": "no placeholder or retired origin; live llms.txt lists marisstella.app pages; no off-origin requests; no-warranty on page, docs and README",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "GSI capacity",
+   "method": "DynamoDB publishes GSI consumption under the GlobalSecondaryIndexName dimension and bills it in the table's capacity mode",
+   "command": "cd ventures/dynamodb-capacity-mode-advisor && grep -ni 'gsi\\|secondary index' README.md index.html dynamodb-on-demand-vs-provisioned-which-is-cheaper.html engine.mjs",
+   "expected": "GSIs priced or listed as a limit",
+   "observed": "no mention",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "engine.mjs:117",
+   "change": "ws = priceSide(write, hours, prices.perWcuHour -> prices.perRcuHour (writes provisioned at the read price)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:82",
+   "change": "Math.ceil(Math.max(r, prev) / target) -> Math.ceil(r / target)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:94",
+   "change": "s.peak * o.staticHeadroom -> s.peak",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:98",
+   "change": "s.rates.filter((r) => r > current) -> r > current * 1.5",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:135",
+   "change": "saving / currentCost >= o.switchSavings -> >= 0",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:23",
+   "change": "HOURS_PER_MONTH = 730 -> 720",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:95",
+   "change": "staticUnits * perHour * HOURS_PER_MONTH -> * hours",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:22",
+   "change": "spikyPeakToAvg: 6 -> 60",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The analysis window is row count x period (hours = count * periodSeconds / 3600), not the timestamp span. CloudWatch omits periods with no published datapoint, so idle hours drop out of a real export: on-demand is extrapolated from busy hours only and provisioned loses the idle-hour cost. A week with 8 idle hours a day goes from on-demand $65.70 / cheapest autoscaled to $98.55 / cheapest fixed peak when the zero rows are absent. Low-utilisation tables, where on-demand should win, are the ones most affected",
+   "where": "ventures/dynamodb-capacity-mode-advisor/engine.mjs:112",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "The period is never inferred or checked from the timestamps: 5-minute Sums pasted at the default 3600 s are priced 12x low (on-demand $4.11 vs $49.27) with no warning",
+   "where": "ventures/dynamodb-capacity-mode-advisor/engine.mjs:56",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests would not catch pricing bugs in the provisioned modes: 5 of 8 mutants survive, including writes priced at the RCU rate (5x under-pricing of WCU), the autoscaling lag model removed, fixed-peak headroom removed, the throttle test loosened 1.5x and the 20% switch threshold dropped; no test asserts an autoscaled or fixed-peak dollar figure",
+   "where": "ventures/dynamodb-capacity-mode-advisor/engine.test.mjs:17",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Global secondary indexes are neither priced nor listed as a limit; their consumed capacity is a separate CloudWatch dimension billed in the table's capacity mode, so a table with write-heavy GSIs is under-priced in every mode and the limits list on page and README is incomplete",
+   "where": "ventures/dynamodb-capacity-mode-advisor/README.md:33",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Fixed-peak units use Math.ceil(peak * 1.1) on a float: 100 RCU/s gives 111 (100*1.1 = 110.00000000000001), 200 gives 221, one unit too many on exact multiples",
+   "where": "ventures/dynamodb-capacity-mode-advisor/engine.mjs:94",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"
+  },
+  {
+   "severity": "low",
+   "what": "--prices is not validated: an unknown key is silently ignored and a non-numeric value prints '$NaN' for both provisioned modes and then reports on-demand as cheapest, exit 0",
+   "where": "ventures/dynamodb-capacity-mode-advisor/cli.mjs:66",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Docs page says daytime-heavy traffic with autoscaling 'usually lands in the 40-60% range' with no source; the shipped fixture itself lands at 64%",
+   "where": "ventures/dynamodb-capacity-mode-advisor/dynamodb-on-demand-vs-provisioned-which-is-cheaper.html:32",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"],
+ "verdict": "A small, honest screen whose arithmetic is right: its default prices equal AWS's live us-east-1 price list (the post-November-2024 $0.125/$0.625 per million on-demand and $0.00013/$0.00065 per unit-hour provisioned), the 29% break-even and the docs page's 3.5x and ~40% ratios recompute, and a hand case, my own Python on the fixture and eu-west-1 prices from AWS's file all match the CLI to the cent (fixed peak aside, one unit high from a float ceiling). The page and CLI do everything they claim, with nothing uploaded. It misses the bar on verification and domain: the monthly window comes from the row count, so a real CloudWatch export with missing idle periods inflates on-demand by 50% and can flip the recommended mode, 5-minute data at the default period is priced 12x low without a warning, GSIs are not mentioned, and 5 of 8 seeded bugs (writes priced at the read rate among them) survive the 30 tests. A FinOps engineer would trust it on a fully active table with complete hourly rows, not on the idle or indexed tables where the decision matters most."
+}
