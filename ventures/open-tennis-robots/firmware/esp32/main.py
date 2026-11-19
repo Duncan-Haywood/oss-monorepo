@@ -277,7 +277,8 @@ class FeederHw:
 
     def take_survey_report(self):
         """(wheels, least, refined and the drop fit's own contact time in 0.1 ms, mean rms per candidate, wheels summed
-        after the take-blind ones were left out, rms units per ppm, straddling wheels for and against TAKE_STRADDLE_US)
+        after the take-blind ones were left out, rms units per ppm, straddling wheels for and against TAKE_STRADDLE_US, and
+        for and against TAKE_STRADDLE2_US)
         for the TAKE_SURVEY frame, or None before the survey's first wheel."""
         if self.launch is None:
             return None

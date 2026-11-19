@@ -86,13 +86,13 @@ FORMATS = {
     LAUNCH: "<BhhhhB",
     ESC_SURVEY: "<BHH" + "H" * ESC_SURVEY_LAGS,
     ESC_TAU: "<H",
-    TAKE_SURVEY: "<BHHH" + "H" * TAKE_SURVEY_TIMES + "BBBB",
+    TAKE_SURVEY: "<BHHH" + "H" * TAKE_SURVEY_TIMES + "BBBBBB",
 }
 # Frames of these lengths from older firmware still decode, to fewer values (the receiver reads the length), newest first:
-# nine candidates in tenths with no straddle vote (2026-11-19, before "Straddling wheels vote on the short takes"), nine candidates in whole ppm with no scale byte (2026-11-19, before tenths), eight candidates (2026-11-19, before the short-take grid), seven with the summed-wheel byte (2026-11-18), then
+# nine candidates with the 1.5 ms straddle vote only (2026-11-19, before "A second straddle vote at 2.5 ms"), nine candidates in tenths with no straddle vote (2026-11-19, before "Straddling wheels vote on the short takes"), nine candidates in whole ppm with no scale byte (2026-11-19, before tenths), eight candidates (2026-11-19, before the short-take grid), seven with the summed-wheel byte (2026-11-18), then
 # seven without it.
 OLDER_FORMATS = {
-    TAKE_SURVEY: ("<BHHH" + "H" * TAKE_SURVEY_TIMES + "BB", "<BHHH" + "H" * TAKE_SURVEY_TIMES + "B", "<BHHH" + "H" * EIGHT_TAKE_SURVEY_TIMES + "B", "<BHHH" + "H" * OLDER_TAKE_SURVEY_TIMES + "B",
+    TAKE_SURVEY: ("<BHHH" + "H" * TAKE_SURVEY_TIMES + "BBBB", "<BHHH" + "H" * TAKE_SURVEY_TIMES + "BB", "<BHHH" + "H" * TAKE_SURVEY_TIMES + "B", "<BHHH" + "H" * EIGHT_TAKE_SURVEY_TIMES + "B", "<BHHH" + "H" * OLDER_TAKE_SURVEY_TIMES + "B",
                   "<BHHH" + "H" * OLDER_TAKE_SURVEY_TIMES),
 }
 

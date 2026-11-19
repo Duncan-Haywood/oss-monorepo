@@ -486,24 +486,38 @@ def take_share_bound(rms, step: float = 1.0) -> float:
 # build misadvised, none un-named), held out on AA-AD with the rule committed first: 58 to 71 of 120, 0 of 12 instant
 # builds misadvised, 0 un-named (eval/take-straddle-vote-2026-11-19.md).
 TAKE_STRADDLE_MARGIN = 2
+# The second vote at 2.5 ms (2026-11-19, firmware/esp32/README.md "A second straddle vote at 2.5 ms"), the same count on
+# the wheels whose fit at 2.5 ms straddled an edge: when it reaches this margin the Pi advises 2.5 ms, or, when the 1.5 ms
+# vote reaches its own margin too, whichever leads by more (1.5 ms on a tie). 0 turns it off. On fifteen stored sets
+# (540 spread takes, 96 instant builds) margin 2 named 22 more takes than the 1.5 ms vote alone (333 to 355), told no
+# instant build to set a take and un-named none; margin 1 told 5 instant builds to set one
+# (eval/take-straddle-two-2026-11-19.md). Held out on fresh sets with the rule committed first (same note).
+TAKE_STRADDLE2_MARGIN = 0
 
 
 def take_survey_advice(sv: dict | None) -> str | None:
-    """take_survey_advice_sums, unless it says TAKE_US = 0 and the straddle vote (TAKE_STRADDLE_MARGIN) names 1.5 ms."""
+    """take_survey_advice_sums, unless it says TAKE_US = 0 and a straddle vote names 1.5 ms (TAKE_STRADDLE_MARGIN) or
+    2.5 ms (TAKE_STRADDLE2_MARGIN)."""
     a = take_survey_advice_sums(sv)
-    if not a or "TAKE_US = 0" not in a or not TAKE_STRADDLE_MARGIN:
+    if not a or "TAKE_US = 0" not in a:
         return a
-    f, g = sv.get("straddle_for"), sv.get("straddle_against")
-    if f is None or g is None or f - g < TAKE_STRADDLE_MARGIN:
+    votes = []
+    for ms, margin, kf, kg in ((1.5, TAKE_STRADDLE_MARGIN, "straddle_for", "straddle_against"),
+                               (2.5, TAKE_STRADDLE2_MARGIN, "straddle2_for", "straddle2_against")):
+        f, g = sv.get(kf), sv.get(kg)
+        if margin and f is not None and g is not None and f - g >= margin:
+            votes.append((f - g, -ms, ms, f, g))
+    if not votes:
         return a
+    _, _, ms, f, g = max(votes)     # the larger lead; 1.5 ms on a tie
     n = sv.get("wheels") or 0
     board = (sv.get("board_ms10") or 0) / 10
     head = (f"contact-time survey: {n} wheels; the sums read an instant take, but of the {f + g} kept wheels whose fit "
-            f"at 1.5 ms put the contact across a revolution's edge, {f} fit 1.5 ms better than an instant take and "
+            f"at {ms:g} ms put the contact across a revolution's edge, {f} fit {ms:g} ms better than an instant take and "
             f"{g} worse (the only balls that can show a take this short): ")
-    if abs(board - 1.5) <= 0.5:
+    if abs(board - ms) <= 0.5:
         return head + f"TAKE_US already matches ({board:g} ms)"
-    return head + "set TAKE_US = 1500 in config.py and re-flash"
+    return head + f"set TAKE_US = {int(ms * 1000)} in config.py and re-flash"
 
 
 def take_survey_advice_sums(sv: dict | None) -> str | None:
@@ -620,7 +634,8 @@ class FeederLink:
                 # the frame's length says how many candidates it carries: firmware before 2026-11-19 sent seven, and
                 # before that day's short-take grid eight (always with the summed-wheel byte); since the tenths frame
                 # (README "The take survey's rms in tenths of a ppm") a last byte gives the rms slots' units per ppm
-                times, scaled = {5 + P.TAKE_SURVEY_TIMES + 3: (P.TAKE_SURVEY_TIMES, True),
+                times, scaled = {5 + P.TAKE_SURVEY_TIMES + 5: (P.TAKE_SURVEY_TIMES, True),
+                                 5 + P.TAKE_SURVEY_TIMES + 3: (P.TAKE_SURVEY_TIMES, True),
                                  5 + P.TAKE_SURVEY_TIMES + 1: (P.TAKE_SURVEY_TIMES, True),
                                  5 + P.TAKE_SURVEY_TIMES: (P.TAKE_SURVEY_TIMES, False),
                                  5 + P.EIGHT_TAKE_SURVEY_TIMES: (P.EIGHT_TAKE_SURVEY_TIMES, False)}.get(
@@ -635,7 +650,10 @@ class FeederLink:
                                     # straddle vote at 1.5 ms (README "Straddling wheels vote on the short takes");
                                     # None: firmware before it
                                     "straddle_for": vals[nt + 2] if len(vals) > nt + 3 else None,
-                                    "straddle_against": vals[nt + 3] if len(vals) > nt + 3 else None}
+                                    "straddle_against": vals[nt + 3] if len(vals) > nt + 3 else None,
+                                    # the second vote at 2.5 ms (README "A second straddle vote at 2.5 ms")
+                                    "straddle2_for": vals[nt + 4] if len(vals) > nt + 5 else None,
+                                    "straddle2_against": vals[nt + 5] if len(vals) > nt + 5 else None}
             elif cmd == P.ESC_SURVEY:
                 self.esc_survey = {"t": now, "wheels": vals[0], "least_ms": vals[1], "refined_ms": vals[2],
                                    "rms_ppm": [None if v == 65535 else v for v in vals[3:]]}
