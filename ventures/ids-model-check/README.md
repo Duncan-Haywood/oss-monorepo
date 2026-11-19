@@ -44,12 +44,41 @@ open. MIT licensed, no dependencies, nothing uploaded.
   IDS-Audit-tool test set; on 64 IDS files from public repositories it found
   template faults in 21, among them `Lenght` in three quantity sets of buildingSMART
   Portugal's national requirements.
+- **Sets for one predefined type** (2026-11-19): the IFC4 and IFC4X3 templates
+  give 186 of 513 and 343 of 760 standard sets only to some predefined types
+  (`Pset_ActuatorTypeElectricActuator` is for `IfcActuator/ELECTRICACTUATOR`,
+  `Pset_SolidStratumCapacity` for `IfcGeotechnicalStratum/SOLID`). A
+  specification that requires one with no predefinedType, or with another
+  type, asks the other objects for a set the standard never gives them: the
+  audit warns (`pset-predefined`) and names the type to add. The editor marks
+  such sets "(ELECTRICACTUATOR only)", fills in the type when a set has one,
+  and stops offering a set once another type is chosen. All 1,008 limited
+  class/set pairs the editor offers draw the warning with no type and audit
+  clean with theirs (`eval/predefined-sets-2026-11-19.md`); 1 of 65 public IDS
+  files has one, sand strata picked by material.
+- **Where a set may sit** (2026-11-19): the templates' own template type
+  says whether a set goes on occurrences only (`PSET_OCCURRENCEDRIVEN`, 16 IFC4
+  and 105 IFC4X3 sets such as `Pset_FanOccurrence`; 14 IFC4X3 quantity sets),
+  or on the `IfcPerformanceHistory` that records an element's performance over
+  time (`PSET_PERFORMANCEDRIVEN`, 42 and 44 sets such as `Pset_FanPHistory`). A
+  specification requiring an occurrence set on a type object (`IFCFANTYPE`)
+  draws `pset-occurrence` and names the occurrence class; one requiring a
+  performance set on the element draws `pset-performance`. Requiring a
+  performance set on `IFCPERFORMANCEHISTORY`, where the standard puts it, was a
+  false `pset-class` error and now audits clean. The editor no longer offers
+  occurrence sets on type objects (647 pairs) and offers performance sets on
+  `IFCPERFORMANCEHISTORY` instead of the element. All 1,280 such pairs the
+  editor used to offer agree with the audit, and every pair it offers now
+  draws neither warning (`eval/template-types-2026-11-19.md`). No public IDS
+  file of the 65 read has either case.
 - **IDS editor** (`editor.html`, 2026-11-16): pick a class, then a standard
   set that class can carry, then a property; the editor writes the template's
   `dataType`, offers the standard's enumeration values, lists subclasses (IDS
   matches exact classes) and audits the IDS live. Every choice it offers was
   written out and audited: 203,433 specifications across the three schemas,
-  none with an error or a warning; a 15,102-specification sample validates
+  none with an error or a warning (2026-11-16; since 2026-11-19 a set limited
+  to some predefined types warns until the type is set, and the editor fills
+  it in for a one-type set); a 15,102-specification sample validates
   against buildingSMART's `ids.xsd` in IfcTester. Hands the file straight to the
   checker. `eval/editor-2026-11-16.md`.
   **Opens an existing IDS** (2026-11-16): what the page can edit becomes
@@ -83,6 +112,14 @@ open. MIT licensed, no dependencies, nothing uploaded.
   classes, 11 ticked; on the public files the names listed fall from 506 to
   368, every file still writing back the same.
   `eval/also-subclasses-2026-11-18.md`.
+  **Deprecated subclasses** (2026-11-19): in IFC4X3 a ticked box leaves out
+  the classes IFC 4.3 deprecates (`IFCWALLSTANDARDCASE`,
+  `IFCELECTRICDISTRIBUTIONBOARD`) and names them beside the box; IFC4 keeps
+  them. 57 public IFC4X3 exports hold none (IFC4 exports: 151 of 572 walls), a
+  model that does carry one still gets the "would not check" warning, and the
+  bSDD templates now open as 30 classes, `IFCBUILTELEMENT` ticked; public files
+  list 270 names (was 368), all writing back the same.
+  `eval/deprecated-subclasses-2026-11-19.md`.
   **A model's values** (2026-11-17): with a model open, each property row
   says what values the model holds ("In the model: 3 different values: REI 60
   (12), ...") and offers them: **Allow exactly these values** writes a one-of
@@ -1037,9 +1074,12 @@ faster than IfcTester; its point is needing no install.
   verdict as IfcTester's `ids.xsd` validation on 145 of 145 public and
   test files and 2,935 of 2,935 mutated copies), but not every rule of the
   imported XMLSchema.xsd inside an `xs:restriction`. Property
-  set templates are checked for names, data types and applicable classes, not
-  for predefined types (`IfcSlab/TRACKSLAB` sets are allowed on any slab) or
-  property set template types (occurrence versus type driven).
+  set templates are checked for names, data types, applicable classes and,
+  in IFC4 and IFC4X3, the predefined types a set is limited to (since
+  2026-11-19), and for where the template type puts a set (occurrences only,
+  or a performance history; since 2026-11-19); not in IFC2X3, whose templates
+  name classes without types or template types, and not for material and
+  profile sets, which are left to the class check.
 - Tested on five real models (and 65 public IDS files on four of them); every BIM authoring tool writes IFC a little
   differently, so check surprising results and report them.
 

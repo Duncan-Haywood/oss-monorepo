@@ -94,7 +94,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, repairOnOpen, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, templateTypeRow, fileTypeRefused, renameSuggestion, renameRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, boxSubclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, repairOnOpen, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, setTypeLimit, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, templateTypeRow, fileTypeRefused, renameSuggestion, renameRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
   import { temporalKind } from "./temporal.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
@@ -155,7 +155,9 @@
     codeless.delete(key);
     if (r.kind === "property") {
       // With several classes, only the standard sets every one can carry.
-      const sets = commonSets(L, specBases(spec));
+      const sets = commonSets(L, specBases(spec), spec.predefinedType);
+      // A set the standard gives only some predefined types says which.
+      const lim = (x) => { const l = !spec.predefinedType && setTypeLimit(L, x, specBases(spec)); return l ? ` (${l.slice(0, 3).join(", ")}${l.length > 3 ? ", ..." : ""} only)` : ""; };
       // What the opened model's objects of this class carry (inventory.mjs).
       const inModel = inv && spec.cls ? modelSets(inv, specClasses(L, spec), sets) : [];
       const ofN = inModel.length ? inModel[0].of : 0;
@@ -165,8 +167,8 @@
       const setVal = !r.custom ? r.set : own.some((m) => m.name === r.set) ? "own:" + r.set : "__own";
       let so = opt("", sets.length || own.length ? "choose a set" : "pick a class first, or write your own", setVal);
       const carried = sets.filter((x) => inModel.some((m) => m.name === x));
-      if (carried.length) so += `<optgroup label="Standard sets the model carries">${carried.map((x) => opt(x, x + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
-      if (sets.length) so += `<optgroup label="${carried.length ? "Other standard sets" : "Standard sets"}${spec.cls ? " for " + esc(specBases(spec).join(", ")) : ""}">${sets.filter((x) => !carried.includes(x)).map((x) => opt(x, x + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
+      if (carried.length) so += `<optgroup label="Standard sets the model carries">${carried.map((x) => opt(x, x + lim(x) + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
+      if (sets.length) so += `<optgroup label="${carried.length ? "Other standard sets" : "Standard sets"}${spec.cls ? " for " + esc(specBases(spec).join(", ")) : ""}">${sets.filter((x) => !carried.includes(x)).map((x) => opt(x, x + lim(x) + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
       if (own.length) so += `<optgroup label="The model's own sets">${own.map((m) => opt("own:" + m.name, m.name + onN(m), setVal)).join("")}</optgroup>`;
       so += opt("__own", "a set of your own...", setVal);
       h += `<div><label for="${id("set")}">Property set</label><select id="${id("set")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="set">${so}</select></div>`;
@@ -416,13 +418,16 @@
     }
     return null;
   }
+  // Deprecated subclasses a box leaves out (boxSubclasses), named so a
+  // person who needs them for old exports can add them to "Also applies to".
+  const depNote = (left) => left.length ? ` (not ${esc(left.join(", "))}: deprecated in ${esc(doc.schema)}; add ${left.length > 1 ? "them" : "it"} to "Also applies to" if old exports still use ${left.length > 1 ? "them" : "it"})` : "";
   // The exact classes a specification names (IDS matches exact classes).
   const specClasses = (L, s) => specClassNames(L.S, s);
   // An opened property value with no dataType (kept that way, typeRow adds one).
   const UNTYPED_NOTE = "No dataType: the value is compared with whatever type the model holds, so TRUE may not match a true boolean and 3 may not match 3.0. With a value, IDS 1.0 expects a dataType and the audit warns.";
   function specHtml(L, s, si) {
     const known = !!(L.S.entities[s.cls] || (L.tm && L.tm[s.cls]));
-    const subs = L.S.entities[s.cls] ? subclasses(L.S, s.cls) : [];
+    const { subs, left: subsLeft } = boxSubclasses(L.S, s.cls, s);
     const bases = specBases(s);
     const also = s.also || [];
     const unknownAlso = also.filter((c) => !(L.S.entities[c] || (L.tm && L.tm[c])));
@@ -451,13 +456,13 @@
     if (!s.cls) h += (s.app || []).length || (s.fixedApp || []).length
       ? `<p class="muted" style="font-size:0.88rem">No class: this applies to every element, of any class, that matches the conditions below, and offers every standard set and every attribute some class has.</p>`
       : `<p class="warn" style="font-size:0.88rem">Pick a class, or narrow it with a property or attribute below: IDS needs at least one applicability condition.</p>`;
-    if (s.cls && known) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${also.length ? `every one of ${esc(bases.join(", "))}` : esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}</label>` : ""}</p>`;
+    if (s.cls && known) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${also.length ? `every one of ${esc(bases.join(", "))}` : esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}${depNote(subsLeft)}</label>` : ""}</p>`;
     // Each further class gets its own subclass box (IFCSLAB and its
     // IFCSLABSTANDARDCASE as well as IFCWALL and its), not only the first.
     if (s.cls && known) {
       const ticked = new Set(s.alsoSub || []);
-      const boxes = also.filter((c) => L.S.entities[c]).map((c) => [c, subclasses(L.S, c)]).filter(([, sc]) => sc.length);
-      if (boxes.length) h += `<p class="muted" style="font-size:0.88rem">${boxes.map(([c, sc]) => `<label style="display:inline-block;margin-right:1rem;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="alsoSub" data-c="${esc(c)}"${ticked.has(c) ? " checked" : ""}> ${esc(c)} and its ${sc.length} subclass(es): ${esc(sc.slice(0, 4).join(", "))}${sc.length > 4 ? ", ..." : ""}</label>`).join("")}</p>`;
+      const boxes = also.filter((c) => L.S.entities[c]).map((c) => [c, boxSubclasses(L.S, c, s)]).filter(([, b]) => b.subs.length);
+      if (boxes.length) h += `<p class="muted" style="font-size:0.88rem">${boxes.map(([c, { subs: sc, left }]) => `<label style="display:inline-block;margin-right:1rem;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="alsoSub" data-c="${esc(c)}"${ticked.has(c) ? " checked" : ""}> ${esc(c)} and its ${sc.length} subclass(es): ${esc(sc.slice(0, 4).join(", "))}${sc.length > 4 ? ", ..." : ""}${depNote(left)}</label>`).join("")}</p>`;
     }
     h += `<div class="grid"><div><label for="s-${si}-desc">Why it is needed (optional)</label><input id="s-${si}-desc" data-s="${si}" data-k="description" value="${esc(s.description)}"></div><div><label for="s-${si}-ins">Instructions for the modeller (optional)</label><input id="s-${si}-ins" data-s="${si}" data-k="instructions" value="${esc(s.instructions)}"></div></div>`;
     if (s.ifcVersion) h += `<p class="muted" style="font-size:0.88rem">This specification keeps its own ifcVersion, ${esc(s.ifcVersion.join(" "))}; it is audited against ${esc(schemaIdsOf(s.ifcVersion).join(" and ") || doc.schema)}${schemaIdsOf(s.ifcVersion).length > 1 ? ", and valid when any of them has what it asks" : ""}; the page offers ${esc(doc.schema)}'s classes and sets.</p>`;
@@ -581,6 +586,12 @@
       target.custom = t.value === "__own" || t.value.startsWith("own:");
       target.set = t.value === "__own" ? "" : t.value.replace(/^own:/, "");
       target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; delete target.numBase; target.untyped = false; delete target.fileType;
+      // A set the standard gives one predefined type only (Pset_ActuatorTypeElectricActuator):
+      // the specification takes that type, as the audit's pset-predefined warning asks.
+      if (!target.custom && target.set && !s.predefinedType) {
+        const L = loaded[doc.schema], lim = setTypeLimit(L, target.set, specBases(s));
+        if (lim && lim.length === 1 && commonPredefinedTypes(L.S, specBases(s)).includes(lim[0])) { s.predefinedType = lim[0]; record("editor_predefined_from_set"); }
+      }
       render();
       return;
     }
@@ -626,6 +637,7 @@
       render();
       return;
     }
+    if (k === "predefinedType") { const keep = commonSets(loaded[doc.schema], specBases(s), s.predefinedType); for (const r of [...s.reqs, ...(s.app || [])]) if (r.kind === "property" && !r.custom && !r.fixed && r.set && !keep.includes(r.set)) { r.set = ""; r.name = ""; } }
     if (k === "cls") { s.predefinedType = ""; for (const r of [...s.reqs, ...(s.app || [])]) if (r.kind === "property" && !r.custom) { r.set = ""; r.name = ""; } }
     if (k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; delete target.numBase; target.custom = false; target.set = ""; target.dataType = ""; }
     if (k === "dataType") { target.mode = "any"; target.oneOf = []; delete target.oneOfBase; delete target.numBase; }

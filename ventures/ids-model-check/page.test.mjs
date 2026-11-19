@@ -51,3 +51,8 @@ test("robots, sitemap and llms.txt exist", () => {
   assert.match(page("sitemap.xml"), /index\.html/);
   assert.match(page("llms.txt"), /IDS/);
 });
+
+test("links its sibling submittal-register (crawlable pair, platform/pages/siblings.mjs)", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/submittal-register\/"/);
+});

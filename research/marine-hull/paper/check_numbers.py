@@ -102,6 +102,15 @@ CLAIMS = [
     ("results_air_drag.txt", "hydrofoil >= planing at 49 of 49 (20 m/s grid), 49 of 49"),
     ("results_air_drag.txt", "break-even min 398 W, 10th 669, median 1063"),
     ("results_air_drag.txt", "break-even min 333 W, 10th 577, median 935"),
+    ("results_wind_air_drag.txt", "84776 ten-minute NDBC records, 19 buoy-months; mean 5.68 m/s"),
+    ("results_wind_air_drag.txt", "mono 30 W 803.0 km (-2.21% vs still)"),
+    ("results_wind_air_drag.txt", "mono 30 W 746.9 km (-8.23% vs still)"),
+    ("results_wind_air_drag.txt", "hydrofoil 706 W (+0.8%)"),
+    ("results_wind_air_drag.txt", "hydrofoil 841 W (+2.8%)"),
+    ("results_wind_air_drag.txt", "break-even min 420 W, median 1086"),
+    ("results_wind_air_drag.txt", "hydrofoil 874 W (+6.9%)"),
+    ("results_wind_air_drag.txt", "buoy-month break-even range: 701 to 711 W"),
+    ("results_wind_air_drag.txt", "monohull best speed 2.30 -> 2.30 m/s"),
 ]
 
 def check(claims=CLAIMS, root=EXP):

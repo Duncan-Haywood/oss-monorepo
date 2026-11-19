@@ -1,0 +1,102 @@
+Milestone 7t: the bend's anchor read off the measured curves. 7r's bend table with a power bend pivoting at q*(lam) = 64 (79/64)^lam (lam 0 = 7r's shape p, lam 1 = 7s's shape v); lam estimated per held-out maker group from the donors' own idle curves; grid beta 1.2 .. 1.9, donors outside the held-out maker group at 7p's e_m; 7j's 22 idle conditions, 14 variants, 4312 cells
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps and drive loss as gear_pump_stepup.py; neutral readings as excavator_idle_standby.py). The bent curves are synthetic; the anchor is read from the measured families.
+
+Measured idle drag at the central condition (kW at a 64 and a 79 L/min pump), bend b, maker group:
+  casappa                       P(64) 2.3730  P(79) 3.2583  b 1.373  group casappa
+  danfoss                       P(64) 2.4184  P(79) 4.3084  b 1.781  group danfoss
+  marzocchi                     P(64) 2.4849  P(79) 3.2176  b 1.295  group marzocchi
+  bench                         P(64) 2.0223  P(79) 2.6053  b 1.288  group bench
+  rexroth                       P(64) 1.7662  P(79) 2.3216  b 1.314  group rexroth
+  azpu                          P(64) 1.6927  P(79) 2.2695  b 1.341  group azpu
+  azpf                          P(64) 1.8369  P(79) 2.3790  b 1.295  group azpf
+  azpf_spin                     P(64) 1.8917  P(79) 2.6550  b 1.403  group azpf
+  azpf_gear                     P(64) 1.9956  P(79) 2.7847  b 1.395  group azpf
+  azpf_gear98                   P(64) 2.2065  P(79) 3.0481  b 1.381  group azpf
+  azpn                          P(64) 1.7759  P(79) 2.2743  b 1.281  group azpn
+  azpn_spin                     P(64) 1.7759  P(79) 2.3121  b 1.302  group azpn
+  azpn_gear                     P(64) 1.7759  P(79) 2.4266  b 1.366  group azpn
+  azpn_gear98                   P(64) 1.7759  P(79) 2.6592  b 1.497  group azpn
+All 14 variants (descriptive, not used in a fold): lam_pool -0.565, lam_fe -0.219
+
+Per held-out maker group: donors' lam_pool, lam_fe and the pivots they imply (L/min):
+  azpf        donors 10  lam_pool -0.547 (pivot  57.0)  lam_fe -0.000 (pivot  64.0)
+  azpn        donors 10  lam_pool -0.592 (pivot  56.5)  lam_fe -1.003 (pivot  51.8)
+  azpu        donors 13  lam_pool -0.527 (pivot  57.3)  lam_fe -0.219 (pivot  61.1)
+  bench       donors 13  lam_pool -0.613 (pivot  56.3)  lam_fe -0.219 (pivot  61.1)
+  casappa     donors 13  lam_pool -0.567 (pivot  56.8)  lam_fe -0.219 (pivot  61.1)
+  danfoss     donors 13  lam_pool +0.105 (pivot  65.4)  lam_fe -0.219 (pivot  61.1)
+  marzocchi   donors 13  lam_pool -0.748 (pivot  54.7)  lam_fe -0.219 (pivot  61.1)
+  rexroth     donors 13  lam_pool -0.522 (pivot  57.3)  lam_fe -0.219 (pivot  61.1)
+Danfoss's own ln P(64) against its donors' pooled line at b 1.781: residual +0.251 (measured 2.4184 kW, line 1.8815 kW); diagnostic, enters no fit
+
+Danfoss-fold row median pick (L/min) by beta, donors at e_m 0.8075: lam 0 / lam 1 / lam_pool +0.105 / lam_fe -0.219
+  1.2    74.5    73.0    74.5    74.5
+  1.3    73.0    72.5    73.0    73.0
+  1.4    72.0    72.5    72.0    72.0
+  1.5    71.0    72.0    71.5    71.0
+  1.6    69.5    72.0    70.0    69.0
+  1.7    68.5    72.0    69.0    68.0
+  1.8    68.0    72.0    68.5    67.0
+  1.9    67.0    71.5    68.0    66.0
+Danfoss's own-pick median at e_m: 58.5
+Danfoss kW_table/kW_m at the central condition: owdb 1.193, owdbv 1.301, owdbq 1.206, owdbf 1.165
+
+(A) leave-one-condition-and-maker-family-out, RMS over 308 diagonals (max per-condition RMS; mean bias):
+  owh     0.0056  (max 0.0064; bias +0.0000)
+  owdm    0.0047  (max 0.0056; bias -0.0001)
+  owdb    0.0052  (max 0.0060; bias -0.0020)
+  owdbv   0.0059  (max 0.0072; bias -0.0023)
+  owdbq   0.0052  (max 0.0060; bias -0.0021)
+  owdbf   0.0050  (max 0.0057; bias -0.0019)
+
+(B1) nine half-idle-speed conditions held out together, RMS over 126 diagonals (mean bias):
+  owh     0.0059  (+0.0002)
+  owdm    0.0049  (+0.0002)
+  owdb    0.0056  (-0.0015)
+  owdbv   0.0062  (-0.0018)
+  owdbq   0.0055  (-0.0016)
+  owdbf   0.0053  (-0.0014)
+(B2) S = 0.20 and 0.50 held out together, RMS over 28 diagonals (mean bias):
+  owh     0.0057  (+0.0012)
+  owdm    0.0047  (-0.0009)
+  owdb    0.0055  (-0.0029)
+  owdbv   0.0064  (-0.0032)
+  owdbq   0.0055  (-0.0030)
+  owdbf   0.0053  (-0.0028)
+
+Sweep (diagnostic): (A) RMS over 308 diagonals and Danfoss's (A) RMS with every fold at a fixed anchor lam:
+  lam -0.50  pivot  57.6  (A) 0.0050  Danfoss 0.0046
+  lam -0.25  pivot  60.7  (A) 0.0051  Danfoss 0.0052
+  lam +0.00  pivot  64.0  (A) 0.0052  Danfoss 0.0063
+  lam +0.25  pivot  67.5  (A) 0.0054  Danfoss 0.0075
+  lam +0.50  pivot  71.1  (A) 0.0055  Danfoss 0.0086
+  lam +0.75  pivot  74.9  (A) 0.0057  Danfoss 0.0099
+  lam +1.00  pivot  79.0  (A) 0.0059  Danfoss 0.0110
+
+Per variant, (A) error pooled over the 22 conditions (RMS): owh / owdm / owdb / owdbv / owdbq / owdbf
+  casappa                       0.0031 / 0.0024 / 0.0021 / 0.0020 / 0.0022 / 0.0022
+  danfoss                       0.0061 / 0.0066 / 0.0063 / 0.0110 / 0.0068 / 0.0054
+  marzocchi                     0.0039 / 0.0011 / 0.0020 / 0.0015 / 0.0023 / 0.0021
+  bench                         0.0042 / 0.0016 / 0.0014 / 0.0018 / 0.0012 / 0.0013
+  rexroth                       0.0026 / 0.0011 / 0.0010 / 0.0011 / 0.0011 / 0.0010
+  azpu                          0.0041 / 0.0010 / 0.0011 / 0.0009 / 0.0012 / 0.0011
+  azpf                          0.0055 / 0.0022 / 0.0020 / 0.0024 / 0.0019 / 0.0020
+  azpf_spin                     0.0056 / 0.0034 / 0.0029 / 0.0028 / 0.0030 / 0.0029
+  azpf_gear                     0.0053 / 0.0040 / 0.0028 / 0.0027 / 0.0028 / 0.0028
+  azpf_gear98                   0.0027 / 0.0041 / 0.0023 / 0.0024 / 0.0022 / 0.0023
+  azpn                          0.0016 / 0.0026 / 0.0035 / 0.0031 / 0.0037 / 0.0038
+  azpn_spin                     0.0022 / 0.0029 / 0.0046 / 0.0040 / 0.0049 / 0.0050
+  azpn_gear                     0.0048 / 0.0049 / 0.0067 / 0.0068 / 0.0067 / 0.0066
+  azpn_gear98                   0.0145 / 0.0127 / 0.0151 / 0.0159 / 0.0145 / 0.0141
+
+Predictions (LOG.md 7t):
+  PT1 owdb and owdbv reproduce 7s's 0.0052 and 0.0059 in (A): held (0.0052, 0.0059)
+  PT2 Danfoss-fold lam_pool in [-0.5, 0.5]: held (+0.105)
+  PT3 Danfoss-fold lam_fe in [-0.5, 0.5]: held (-0.219)
+  PT4 owdbq (A) below owh: held (0.0052 against 0.0056)
+  PT5 owdbf (A) below owh: held (0.0050 against 0.0056)
+  PT6 owdbq and owdbf within 0.0003 in (A): held (0.0002)
+  PT7 Danfoss's ln P(64) below its donors' pooled line: refuted (+0.251)
+  PT8 owdbq beats owh in A, B1 and B2: held (0.0052/0.0055/0.0055 against 0.0056/0.0059/0.0057)
+
+Sources: as gear_pump_bendtable.py (7r) and gear_pump_bendshape.py (7s); every feature read on each condition's own idle curves with the pick weight fixed at the central setting.

@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqycksjuSHVDms3czjfs",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T01:38:48Z",
+  "ended": "2026-11-19T02:06:48Z",
+  "wall_minutes": 34.36,
+  "tokens_in": 4829114,
+  "tokens_out": 31832,
+  "cost_usd": 2.5158,
+  "tool_calls": 48,
+  "task": "changepoint-detector flagship: short returns round 5, same-count day-shift nulls and a real-drop guard",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17496",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft of the eval imported autoCandidates from eval/update-rate-returns-auto.mjs; that module installs its own worker message handler at import, so in a worker both handlers would answer. Caught before running; the rule was inlined and checked equal to round 4 on 57 series."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/eval/update-rate-returns-auto.mjs",
+      "issue": "eval modules that run worker pools register a parentPort handler at import time, so their exported helpers cannot be reused from another worker-pool eval without double handlers; helpers belong in a module without the worker branch."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-changepoint-short-returns-real-drop-guard.md",
+    "ventures/changepoint-detector/README.md (section 'Short returns: a real drop in repeats')"
+  ],
+  "goal": null,
+  "notes": "Pre-registered round 5 (commit 41343d76f before any cell ran). Calibration: no-guard pass reports returns on 98-100% of same-count day-shift series; 'half' guard 0 at every m with identical power; z01 needs m 6. Confirmation 'half' m 3: R1 worst 0.005, R2 196/200, R3 +196, R4 0.000, all pass. J1 (seen data) 2 of 8, bar 4: FAIL, not offered, SHORT_RETURNS.mult stays null. Verification: node --test on the five update-rate test files, 28/28 pass; run_venture_tests.py changepoint-detector ok (935 tests, 299 s); venture-preflight clean (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "47fdfeca-e66d-5165-8709-8a1e34be6fe0",
+    "transcripts": 1,
+    "first": "2026-11-19T01:38:48Z",
+    "last": "2026-11-19T02:13:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 83,
+        "output": 31832,
+        "thinking": 7180,
+        "cache_read": 4711976,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117055,
+        "api_equivalent_usd": 2.5158,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 83,
+      "output": 31832,
+      "thinking": 7180,
+      "cache_read": 4711976,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117055,
+      "api_equivalent_usd": 2.5158,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 43,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.36,
+      "active_minutes": 34.36,
+      "model_minutes": 5.1,
+      "tool_minutes": 29.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician designing, pre-registering, running and writing up one simulation round plus a real-data check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 238.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

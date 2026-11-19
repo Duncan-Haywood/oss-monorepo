@@ -909,7 +909,9 @@ const CATEGORY_RULES = [
     // beside `concrete-maturity` and the excavation and grading bid calculators.
     // `ids-model-check` joined 2026-11-16 on its first commit: checking a design team's IFC
     // model against a client's buildingSMART IDS, beside the IFC reader in `wall-framing-takeoff`.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'concrete-maturity' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'voltage-drop-calculator' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    // `submittal-register` joined 2026-11-19 on its first commit: a GC's project engineer
+    // turning the project manual into the submittal log, beside `ids-model-check`.
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'submittal-register' || slug === 'concrete-maturity' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'voltage-drop-calculator' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -5079,7 +5081,8 @@ const SUBCATEGORY_RULES = {
       // `wall-framing-takeoff` joined 2026-10-28: studs and plates go up
       // before the drywall here, and its lumber list is the same job as `cut-list`.
       // `ids-model-check` joined 2026-11-16 beside it: the IFC model check before the build.
-      test: (slug) => /^(ids-model-check|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
+      // `submittal-register` joined 2026-11-19 beside it: the submittal log from the spec book.
+      test: (slug) => /^(ids-model-check|submittal-register|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
     },
     {
       id: 'trades-site',
@@ -6170,6 +6173,12 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         <p>Hosts: ${listProse([...new Set(exceptions.flatMap((x) => x.hosts))].map(escapeHtml))}.</p>
       </details>`
     : '';
+  // The warranty and hosting paragraphs are PRODUCT_PLAYBOOK.md §5b's text and
+  // stay open. The Privacy section leads with its one plain promise (and the
+  // exceptions to it); the counter, feedback and email details sit in a
+  // <details> under a summary that says what they are. Open, they were
+  // ~700 px of a 2,128 px footer on a 390 px phone, on every page:
+  // polish-2026-11-19-footer-trim.md.
   return `
       <h2>No warranty</h2>
       <p>
@@ -6196,10 +6205,14 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         server that could receive it.${exceptionNote}${feedbackOn() ? ` The one thing
         that is sent on purpose is a message you choose to submit through the
         <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a>, which
-        is published in this site's public GitHub repository.` : ''} We count anonymous, aggregate events —
+        is published in this site's public GitHub repository.` : ''}
+      </p>${exceptionList}
+      <details class="pfs-exceptions pfs-privacy-more">
+        <summary>What is counted, and what happens to email you send</summary>
+      <p>We count anonymous, aggregate events —
         which tools get opened, never anything about who opened them — and that
         count stays in your own browser's local storage.
-      </p>${exceptionList}
+      </p>
       <p>${counter ? `
         Each page load also adds one to a daily per-page total on our own
         open-source counter, and those totals are published in the repository.
@@ -6226,7 +6239,8 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         you, never published or sold, and deleted after 90 days; reply asking
         and we delete it sooner. You can ask what we hold about you, have it
         corrected or deleted, and complain to your data-protection authority.
-      </p>`;
+      </p>
+      </details>`;
 }
 
 /**
@@ -7704,9 +7718,10 @@ ${categoryLinks}
 }
 
 const ABOUT_STYLE = `
-    .exceptions { margin: 14px 0 0; max-width: 68ch; font-size: .92rem; color: var(--muted); }
-    .exceptions summary { cursor: pointer; font-weight: 650; color: var(--accent); }
-    .exceptions p { margin: 8px 0 0; line-height: 1.6; }
+    .prose .callers { list-style: none; padding: 0; margin: 0 0 14px; font-size: .93rem;
+                      columns: 15rem 2; column-gap: 28px; }
+    .prose .callers li { margin: 0 0 6px; break-inside: avoid; }
+    .prose .hosts { font-size: .88rem; overflow-wrap: anywhere; }
     .prose { max-width: 720px; }
     .prose h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 38px 0 12px; }
     .prose h3 { font-size: 1rem; margin: 24px 0 6px; }
@@ -7770,6 +7785,32 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
     exceptions.map((x) => `<a href="${escapeHtml(`${toRoot}${x.slug}/`)}">${escapeHtml(x.title)}</a>`),
   );
   const exceptionHosts = listProse([...new Set(exceptions.flatMap((x) => x.hosts))]);
+  // Named in running prose only while the list is short. The page used to
+  // splice all of them into four separate sentences (the panel's
+  // "transmitted", "third-party" and "offline" lines and the press kit's facts),
+  // plus a fifth time in the hero: at 54 tools that was about 1,900 words of
+  // repeated links and 9,800 px of a 19,771 px phone page. Past three, every
+  // mention points at the one list under the panel (#outside-services).
+  const INLINE_EXCEPTIONS = 3;
+  const listed = exceptions.length > INLINE_EXCEPTIONS;
+  const exceptionRef = listed
+    ? `the <a href="#outside-services">${exceptions.length} tools listed below</a>`
+    : exceptionNames;
+  const exceptionSection = exceptions.length
+    ? `
+      <h3 id="outside-services">The ${exceptions.length === 1 ? 'tool' : `${exceptions.length} tools`} that ${exceptions.length === 1 ? 'calls' : 'call'} an outside service</h3>
+      <p>
+        ${exceptions.length === 1 ? 'This tool sends' : 'These send'} what you give ${exceptions.length === 1 ? 'it' : 'them'} to a service outside this
+        site (${EXCEPTION_KINDS}) and nowhere else. Each tool's own page says
+        what it sends and where.
+      </p>
+      <ul class="callers">
+${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`)}">${escapeHtml(toolProseName(x.title))}</a></li>`).join('\n')}
+      </ul>
+      <p class="hosts">Between them they call ${exceptionHosts}. The list is read from each tool's
+        code when the site is built, and errs toward naming too much: an address
+        the code mentions near a request is listed even if it is never called.</p>`
+    : '';
 
   // The boilerplate a linker copies. Kept as data, not prose, so the numbers in
   // it cannot drift from the catalogue the way hand-written marketing copy does.
@@ -7845,15 +7886,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         exceptions.length
           ? `The numbers you type never leave your device, except on the ${exceptions.length} ${EXCEPTION_NOUN} listed below (${EXCEPTION_KINDS}), which send what you give them to that service.`
           : 'The numbers you type never leave your device.'
-      }</p>${
-        exceptions.length
-          ? `
-      <details class="exceptions">
-        <summary>The ${exceptions.length} ${EXCEPTION_NOUN}</summary>
-        <p>${listProse(exceptions.map((x) => escapeHtml(toolProseName(x.title))))}. Between them they call ${exceptionHosts}.</p>
-      </details>`
-          : ''
-      }
+      }</p>
     </header>
 
     <main class="prose">
@@ -7894,13 +7927,13 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
-          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels; the counter adds the country code and device type from the request)' : ''}${exceptions.length ? ` — except ${exceptionNames}, which call an outside service (${EXCEPTION_KINDS}). What you give one of those goes to the host it names and nowhere else on this site` : ''}.</li>
-          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionNames} make${exceptions.length === 1 ? 's' : ''}, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
+          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels; the counter adds the country code and device type from the request)' : ''}${exceptions.length ? ` — except ${exceptionRef}, which call an outside service (${EXCEPTION_KINDS}). What you give one of those goes to the host it names and nowhere else on this site` : ''}.</li>
+          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionRef} make${exceptions.length === 1 ? 's' : ''}, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
           <li><strong>No cookies and no cross-site identifiers.</strong></li>${feedbackOn() ? `
           <li><strong>Feedback is sent only when you send it.</strong> The <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> posts the message you write, the type you pick and the tool it is about, and nothing else, to this site's own small server, and is then published in the site's public GitHub repository. Nothing about you is stored with it, and email addresses are removed from the text first. Don't include anything you would not want published.</li>` : ''}
-          <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are${exceptions.length ? ` — except ${exceptionNames}, whose whole point is a live lookup, so it needs the connection back to check anything new` : ''}.</li>
+          <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are${exceptions.length ? ` — except ${exceptionRef}, whose whole point is a live call, so ${exceptions.length === 1 ? 'it needs' : 'they need'} the connection back to check anything new` : ''}.</li>
         </ul>
-      </div>
+      </div>${exceptionSection}
       <p>
         The one thing that is counted is which tools get opened, as a plain
         tally that is written to your own browser's local storage${counterOn() ? `. One
@@ -7970,7 +8003,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       <h3>The facts, if you would rather write your own</h3>
       <ul>
         <li><strong>${formatCount(total)} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
-        <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${exceptionNames} ${exceptions.length === 1 ? 'is the one documented exception' : 'are the documented exceptions'} — see Privacy above.` : ' No upload.'}</li>
+        <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${listed ? `The <a href="#outside-services">${exceptions.length} ${EXCEPTION_NOUN}</a> listed above are` : `${exceptionNames} ${exceptions.length === 1 ? 'is' : 'are'}`} the documented exception${exceptions.length === 1 ? '' : 's'}.` : ' No upload.'}</li>
         <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
         <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
       </ul>

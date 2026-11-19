@@ -1303,6 +1303,31 @@ class ClaimCheckTest(unittest.TestCase):
         self.assertEqual(r["verdict"], "YIELD")
         self.assertEqual(r["sharing"], [])
 
+    def test_one_shared_flagship_word_shares_two_still_block(self):
+        # 2026-11-18: #17403 (3FR reader) made the IIQ S reader session YIELD; both merged.
+        kw = "photo-editing"
+        merged = [self.merged_pr(17360, "photo-editing: Minolta MRW reader, every sensel equal to LibRaw",
+                                 "2026-11-12T09:00:00Z", "2026-11-12T10:00:00Z"),
+                  self.merged_pr(17196, "photo-editing: Coolpix NRW reader, 13 real files",
+                                 "2026-11-12T08:00:00Z", "2026-11-12T09:00:00Z")]
+        prs = [self.pr(17403, "photo-editing: Hasselblad 3FR reader (claim)", "2026-11-12T14:00:00Z"),
+               self.pr(17420, "photo-editing: IIQ S reader (claim)", "2026-11-12T14:05:00Z")]
+        r = self.decide(prs, kw, mine=17420, item="IIQ S reader", merged=merged)
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual([x["number"] for x in r["sharing"]], [17403])
+        # Without enough titles to call "reader" vocabulary, one word still blocks.
+        self.assertEqual(self.decide(prs, kw, mine=17420, item="IIQ S reader")["verdict"], "YIELD")
+        # #17257/#17258: "cull" and "pans" both flagship words, but two shared words block.
+        cull = merged + [self.merged_pr(17199, "photo-editing: cull 6% pans group",
+                                        "2026-11-12T07:00:00Z", "2026-11-12T08:00:00Z"),
+                         self.merged_pr(17213, "photo-editing: cull burst grouping pans",
+                                        "2026-11-12T06:00:00Z", "2026-11-12T07:00:00Z")]
+        prs = [self.pr(17257, "photo-editing: cull 10% pans (claim)", "2026-11-12T14:00:00Z"),
+               self.pr(17258, "photo-editing: cull finer window grid (claim)", "2026-11-12T14:00:08Z")]
+        r = self.decide(prs, kw, mine=17258, item="cull finer window grid for 6% and 10% pans",
+                        merged=cull)
+        self.assertEqual(r["verdict"], "YIELD")
+
     def test_item_words_drop_slug_and_claim_vocabulary(self):
         from claim_check import item_words, overlap
         self.assertEqual(item_words("ai-bookkeeper: claim (WIP) + post", "ai-bookkeeper"), set())

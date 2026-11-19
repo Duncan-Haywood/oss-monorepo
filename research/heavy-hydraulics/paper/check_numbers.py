@@ -524,6 +524,17 @@ MANUSCRIPT_CHECKS = [
     ("(half idle speed 0.0056 against the two-price rule's 0.0059)", "gear_pump_bendtable_results.txt", "owdb   0.0056  (-0.0015)"),
     ("from 0.0122 under the pooled table to 0.0063", "gear_pump_bendtable_results.txt", "danfoss                       0.0061 / 0.0066 / 0.0122 / 0.0063"),
     ("charges it 1.197 times", "gear_pump_bendtable_results.txt", "b 1.197"),
+    # milestone 7s
+    ("holding the level at 64 L/min, gives 0.0053", "gear_pump_bendshape_results.txt", "owdbh   0.0053  (max 0.0060"),
+    ("the table scores 0.0059", "gear_pump_bendshape_results.txt", "owdbv   0.0059  (max 0.0072"),
+    ("with Danfoss at 0.0110", "gear_pump_bendshape_results.txt", "0.0063 / 0.0066 / 0.0110 / 0.0065"),
+    ("its picks stay near 72 L/min", "gear_pump_bendshape_results.txt", "1.8    68.0    68.0    72.0    68.0"),
+    # milestone 7t
+    ("pivot of a power-law bend at 65.4 L/min", "gear_pump_anchor_results.txt", "lam_pool +0.105 (pivot  65.4)"),
+    ("puts it at 61.1 L/min", "gear_pump_anchor_results.txt", "lam_fe -0.219 (pivot  61.1)"),
+    ("the table scores 0.0052 and 0.0050 left out", "gear_pump_anchor_results.txt", "owdbf   0.0050  (max 0.0057"),
+    ("its Danfoss error, 0.0054", "gear_pump_anchor_results.txt", "0.0061 / 0.0066 / 0.0063 / 0.0110 / 0.0068 / 0.0054"),
+    ("sits 0.251 in log terms above", "gear_pump_anchor_results.txt", "residual +0.251"),
 ]
 
 

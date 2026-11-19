@@ -192,23 +192,24 @@ flagships:
       per-group floors named by a person (needs a set with metric names), SMD
       10-min: no rescue, delay 4h to 1h (Round 19); a real deployer's repository on
       GitHub Actions (real shop, README "A real shop's daily series": weekly line
-      ships; next revenue deaf at Quiet, one-day closures); (a) ar1 + floor 2 failed
-      on 5 fresh bee dances (0.244 vs 0.337, README; muted note ships); update-rate:
-      pegs 4 of 7 dated; JHU state switches to weekly reporting 20 of 27, returns to
-      more days 0 of 8 (README "A provider's own schedule changes"); short returns:
-      per-stretch weekday-or-chain test passes sims (200 of 200, 0 false) but dates
-      3 of 8 JHU returns, bar 4 (README "the model chosen per stretch"); next a
-      same-count day-shift null and a real-drop guard. Stale feeds: clumped LR
-      shipped; next a real documented carry-forward. joint drift (measured, not
-      offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
-      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
-      belts and quality control 4, its AR(1) term; two covariates: harmless one's
-      warning 0 of 170 false finds, 1.27x bias (bar failed); slope and pulse shocks
-      2026-11-18: warning holds 42 of 43 false finds (README "Shocks that are not
-      steps"); the note quotes it; notes quote it. Curvature word ships under
-      --shape-word panel (README "A curvature word"): slope donors straight 73% vs
-      clean 37%, OR 4.74 vs 3.37; next a real panel with a known slope event. More
-      open items: NEXT.md.
+      ships; next revenue deaf at Quiet; closed-day fill failed 3 of 5 bars (fresh
+      2009-10 year 10 to 2; sims), not offered (README "Closed days"): next hold
+      first-open-day alerts, third shop); (a) ar1 + floor 2 failed on 5 fresh bee
+      dances (0.244 vs 0.337, README; muted note ships); update-rate: pegs 4 of 7
+      dated; JHU state switches to weekly reporting 20 of 27, returns to more days 0
+      of 8 (README "A provider's own schedule changes"); short returns: a half-share
+      guard clears same-count day shifts (1.00 to 0 false, power kept) but JHU 2 of
+      8 (README "a real drop in repeats"); next why the shipped cut misses lasting
+      moves to more days (AK, SD, NE). Stale feeds: clumped LR shipped; next a real
+      documented carry-forward. joint drift (measured, not offered) and its 2x
+      penalty on fresh multi-column labelled data. Open: (0) drift model: t-walk
+      increments, biweight on fresh data, why it absorbs seat belts and quality
+      control 4, its AR(1) term; two covariates: harmless one's warning 0 of 170
+      false finds, 1.27x bias (bar failed); slope and pulse shocks 2026-11-18:
+      warning holds 42 of 43 false finds (README "Shocks that are not steps"); notes
+      quote it. Curvature word ships under --shape-word panel (README "A curvature
+      word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open
+      items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -326,16 +327,16 @@ flagships:
       E-series NEF, Minolta MRW 2026-11-18 (eval/nikon-nrw-reader-*,
       eval/minolta-mrw-*). Phase One IIQ L and S 2026-11-18, no .dcp: file's matrix
       (eval/phaseone-iiq-*); Hasselblad 3FR and Phocus .fff (eval/hasselblad-*).
-      Kodak DCR (compression 65000) 2026-11-18 = LibRaw, the one public file
-      (eval/kodak-dcr-*). RW2 RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E; 4 x 2
-      tiles (177 MP); no public file has a tone curve
+      Kodak DCR 2026-11-18 = LibRaw (eval/kodak-dcr-*). RW2 RawFormat 8 2026-11-18:
+      S1R II, S5 IIX, S1 II E; 4 x 2 tiles (177 MP); no public file has a tone curve
       (eval/panasonic-rw2-format8-grid-*). S1R II 177 MP = LibRaw snapshot 202611,
       every sensel (eval/panasonic-rw2-177mp-libraw-*). IIQ 16-bit (IQ4, IQ3 100MP,
       Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs LibRaw's dE 16, unsettled
       (eval/phaseone-iiq-16bit-*). IIQ calibration (0x110) 2026-11-19: LibRaw's to 3
       codes off dead columns (eval/phaseone-iiq-calibration-*). Next: the H 25
       IT8.7-2 card raw to judge the matrices; calibration on IIQ S (iXU180 blue
-      5.2%); Sony's vignetting table vs an evenly lit frame. More open items:
+      5.2%); Sony's vignetting table vs an evenly lit frame; noise-aware's blend in
+      C (guard in C 2026-11-19, eval/noise-aware-native-spread-*). More open items:
       NEXT.md.
 
   - venture: quick-pick-survey
@@ -384,11 +385,11 @@ flagships:
       schedule, eval/seed-balance.txt; 2026-11-18 limits kept exactly, impossible
       ones named, eval/limit-conflicts.txt; promotion/relegation,
       promotion.test.mjs; play-off results fill the bracket
-      (playoff-results.test.mjs); In/Maybe/Out per game and short teams on the
-      league page, availability.mjs 2026-11-18, subs, reminders, sign-ups, free
-      agents (freeagents.mjs), score confirmation, move requests, notices, waivers,
-      spirit ratings (next: a real league's use); bowling seasons, lane pairs
-      rotated evenly: 36 of 36 at the bound, repeats 392 to 148
+      (playoff-results.test.mjs); league page (availability, subs, sign-ups, free
+      agents, waivers, ratings: README; next: a real league's use); 2026-11-19
+      balanced teams (teams.mjs, balanced-teams.html, eval/balanced-teams-exact.txt;
+      next: two tags at once, late sign-ups); bowling seasons, lane pairs rotated
+      evenly: 36 of 36 at the bound, repeats 392 to 148
       (eval/bowling-repeat-sat.txt)). 3-game nights (eval/three-game-nights.txt):
       SAT session designs (session-designs.mjs) take every even 10-48 teams on 6
       slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on 1x9; 7 on 2x9. Night by night
@@ -408,13 +409,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The nine-point take grid with the large
-      misses named first" (2026-11-18: off by over 1 ms 14 vs 12, grid kept; 10
-      misses shared, all takes under 2 ms; within 0.5 ms 93 vs 121). Next: an
-      eight-point grid adding 7 ms, within 0.5 ms named first; the fit reading takes
-      under 2 ms as 0; a drill-level check of one-wheel verdicts on more fresh sets;
-      the sub-8 advised instant build; ball hold: WHEEL_RPM_FULL error's cost on 0.2
-      s wheels.
+      see firmware/esp32/README.md, latest "An eight-point take grid" (2026-11-19: 7
+      ms added; within 0.5 ms 185 vs 149 of 216 held out, large misses 15 each,
+      holds +11%). Next: the 1 ms point (nine-point grid) with large misses at 1-2.5
+      ms named first; the fit reading takes under 2.5 ms as 0 or 1; a drill-level
+      check of one-wheel verdicts on more fresh sets; the sub-8 advised instant
+      build; ball hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -523,15 +523,15 @@ flagships:
       from the root, not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB
       1,770 to 1,481 MB, fits 768 MB). nested ifcXML read as it closes 2026-11-18
       (eval/nested-early-2026-11-18.md: same numbers and notes on 57 files; smallest
-      heap 160 to 96 MB on C20, federated unchanged at 704 MB). STEP and ifcXML from
-      bytes 2026-11-18 (eval/step-bytes-*, eval/ifcxml-bytes-*: 670/680 MB files
-      check). xs:pattern as XML Schema regex 2026-11-18
-      (eval/xsd-regex-2026-11-18.md: same verdict as elementpath on 78 of 78 corpus
-      patterns; anchors, (?: and \/ flagged and repaired; 4 of 65 public IDS read
-      differently per tool). Editor repairs a file on open 2026-11-18
-      (eval/editor-open-repair-2026-11-18.md: 9 to 0 pattern findings written back,
-      65 public IDS). Bare \w/\s 2026-11-18 (eval/word-class-2026-11-18.md: page
-      asks IfcTester's or the standard's meaning; 1,500 of 1,500 patterns then read
-      alike). Subclass box per class 2026-11-18 (eval/also-subclasses-2026-11-18.md:
-      506 to 368 names listed). next: an RVB/ILS author on \s; deprecated subclasses
-      in a ticked box (a real model first). More open items: NEXT.md.
+      heap 160 to 96 MB on C20, federated unchanged at 704 MB). xs:pattern as XML
+      Schema regex 2026-11-18 (eval/xsd-regex-2026-11-18.md: same verdict as
+      elementpath on 78 of 78 corpus patterns; anchors, (?: and \/ flagged and
+      repaired; 4 of 65 public IDS read differently per tool). Editor repair on
+      open, bare \w/\s, subclass boxes 2026-11-18/19 (eval/editor-open-repair-*,
+      eval/word-class-*, eval/deprecated-subclasses-*). Sets for one predefined type
+      2026-11-19 (eval/predefined-sets-2026-11-19.md: 186 IFC4, 343 IFC4X3 sets;
+      audit warns pset-predefined, editor fills the type; 1,008 of 1,008 offers
+      agree). Template types 2026-11-19 (eval/template-types-2026-11-19.md:
+      occurrence sets on types, performance sets off IfcPerformanceHistory warned,
+      1,280 of 1,280 editor pairs agree). next: an RVB/ILS author on \s; a
+      Revit/ARCHICAD IFC4X3 export to confirm. More open items: NEXT.md.

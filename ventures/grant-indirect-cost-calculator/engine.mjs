@@ -50,7 +50,7 @@ function num(v, name, { min = 0, max = Infinity, fallback = 0 } = {}) {
   if (v === "" || v === null || v === undefined) return fallback;
   const n = typeof v === "number" ? v : Number(String(v).replace(/[$,\s]/g, ""));
   if (!Number.isFinite(n)) throw new Error(`${name} must be a number.`);
-  if (n < min || n > max) throw new Error(`${name} must be between ${min} and ${max}.`);
+  if (n < min || n > max) throw new Error(max === Infinity ? `${name} must be ${min} or more.` : `${name} must be between ${min} and ${max}.`);
   return n;
 }
 

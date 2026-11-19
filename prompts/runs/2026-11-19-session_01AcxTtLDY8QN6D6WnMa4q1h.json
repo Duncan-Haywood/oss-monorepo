@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtLDY8QN6D6WnMa4q1h",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T02:06:34Z",
+  "ended": "2026-11-19T02:15:01Z",
+  "wall_minutes": 8.87,
+  "tokens_in": 6805333,
+  "tokens_out": 36896,
+  "cost_usd": 3.1657,
+  "tool_calls": 61,
+  "task": "Flagship ids-model-check (allocate.py row 7): read buildingSMART property set template types; warn occurrence sets on type objects and performance sets off IfcPerformanceHistory; fix the false pset-class error on IfcPerformanceHistory; editor offers follow.",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17502",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "Stashed the working tree to diff the corpus audit before/after while the full test suite ran in the background; one test read a half-written JSON and failed. Reran clean (284 tests, 282 pass, 0 fail)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/README.md",
+      "issue": "The Limitations line named 'property set template types (occurrence versus type driven)' as unchecked, but the source data has no TYPEDRIVENONLY sets at all; the useful distinctions were OCCURRENCEDRIVEN and PERFORMANCEDRIVEN. Took a data survey to find what was worth checking."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "The ids-model-check next: was 1855 of 2000; adding one landed clause failed with 'parking every item it may move still leaves 2068' because landed clauses are never parked; had to cut a landed clause by hand and move it to NEXT.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-ids-property-set-template-types.md",
+    "ventures/ids-model-check/eval/template-types-2026-11-19.md"
+  ],
+  "goal": "Deepen the top free flagship with a working slice of its open items.",
+  "notes": "Template types regenerated from the same pinned sources (IFC4 PSD templatetype; IFC4X3 IfcPropertySetTemplate.TemplateType); only tt added, all other fields identical. eval/template-types.mjs: occurrence-on-type pairs warned 118/118 IFC4, 529/529 IFC4X3, all no longer offered, named occurrence class clean in every case; performance-on-element warned 80/80 and 116/116; 42+44 performance sets on IFCPERFORMANCEHISTORY were pset-class errors, now clean and offered; 0 of 1,247 now-offered typed pairs warn. Public corpus audit output identical before/after (no public IDS has either case). predefined-sets eval still all-agree on the reduced offers. Venture suite 284 tests, 282 pass, 0 fail. venture-preflight run locally (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8d2041c8-b2c2-56e0-875c-0467c4b44541",
+    "transcripts": 1,
+    "first": "2026-11-19T02:06:34Z",
+    "last": "2026-11-19T02:15:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 109,
+        "output": 36896,
+        "thinking": 9788,
+        "cache_read": 6668516,
+        "cache_write_5m": 0,
+        "cache_write_1h": 136708,
+        "api_equivalent_usd": 3.1657,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 109,
+      "output": 36896,
+      "thinking": 9788,
+      "cache_read": 6668516,
+      "cache_write_5m": 0,
+      "cache_write_1h": 136708,
+      "api_equivalent_usd": 3.1657,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 59,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.87,
+      "active_minutes": 8.87,
+      "model_minutes": 7.14,
+      "tool_minutes": 1.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "BIM-tooling engineer: survey template types in PSD/IFC sources, add audit rule + editor filter, exhaustive eval, tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 189.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

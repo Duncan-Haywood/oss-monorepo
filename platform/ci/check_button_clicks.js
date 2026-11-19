@@ -6,18 +6,19 @@
 // With FILL=<value> (e.g. FILL=0, FILL=-1, FILL=1e308, FILL=blank) every visible text/number/range input is set to
 // that value (input+change events) before each click, to reach the calculate-on-click paths.
 // Usage: [FILL=0] node platform/ci/check_button_clicks.js out.json [limit]
-const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
+// SWEEP_ROOT=ventures/<slug> sweeps one venture. Pages are served over http:// by sweep_server.js: module scripts (1,384 of 1,408 pages) do not load from file:// (2026-11-19).
+const {chromium}=require('playwright');const {serve}=require('./sweep_server.js');const fs=require('fs');const path=require('path');
 const root=process.cwd();
-let files=require('child_process').execSync("find ventures -name index.html -not -path '*/node_modules/*' -maxdepth 3").toString().trim().split('\n').sort();
+let files=require('child_process').execSync(`find ${process.env.SWEEP_ROOT||"ventures"} -name index.html -not -path '*/node_modules/*' -maxdepth 3`).toString().trim().split('\n').sort();
 if(process.argv[3])files=files.slice(0,+process.argv[3]);
 const FILL=process.env.FILL===undefined?null:(process.env.FILL==='blank'?'':process.env.FILL);
 const BAD=/.{0,30}\b(NaN|Infinity|undefined|\[object Object\])\b.{0,30}/;
-(async()=>{const b=await chromium.launch();const ctx=await b.newContext({acceptDownloads:false});
-await ctx.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());
+(async()=>{const srv=await serve(root);const b=await chromium.launch();const ctx=await b.newContext({acceptDownloads:false});
+await ctx.route('**/*',r=>r.request().url().startsWith(srv.base)?r.continue():r.abort());
 const hits=[];let withBtns=0,clicks=0;const q=[...files];
 async function w(){const p=await ctx.newPage();p.on('dialog',d=>d.dismiss().catch(()=>{}));
 while(q.length){const f=q.shift();const errs=[];p.removeAllListeners('pageerror');p.on('pageerror',e=>errs.push(e.message));
-const url='file://'+path.join(root,f);
+const url=srv.url(f);
 try{await p.goto(url,{timeout:8000,waitUntil:'load'});await p.waitForTimeout(100);
 const n=await p.evaluate(()=>document.querySelectorAll('button,input[type=button],input[type=submit]').length);
 if(!n)continue;withBtns++;
@@ -37,4 +38,4 @@ for(let i=0;i<Math.min(n,25);i++){
 }catch(e){}}
 await p.close();}
 await Promise.all(Array.from({length:8},w));
-fs.writeFileSync(process.argv[2],JSON.stringify(hits,null,1));console.log('pages',files.length,'with buttons',withBtns,'clicks',clicks,'hits',hits.length);await b.close();})();
+fs.writeFileSync(process.argv[2],JSON.stringify(hits,null,1));console.log('pages',files.length,'with buttons',withBtns,'clicks',clicks,'hits',hits.length);await b.close();await srv.close();})();

@@ -39,11 +39,17 @@ function ancestors(S, cls) {
 // occurrence the type is for (IFCWALLTYPE carries Pset_WallCommon). IFC2X3
 // occurrences in the type mapping table also carry their type's sets
 // (IFCFLOWTERMINAL typed as an air terminal).
+// The template type (`tt`, IFC4 and IFC4X3) narrows that: an occurrence set
+// (PSET_/QTO_OCCURRENCEDRIVEN, Pset_FanOccurrence) is not offered on a type
+// object, and a performance set (PSET_PERFORMANCEDRIVEN, Pset_FanPHistory)
+// is offered on IFCPERFORMANCEHISTORY, which carries it, not on the fan. The
+// audit's pset-occurrence and pset-performance warnings read the same field.
 function setApplies(S, cls, set, typeMap) {
   if (!set.classes.length) return false;
   const anc = ancestors(S, cls);
+  if (set.tt === "PSET_PERFORMANCEDRIVEN") return anc.includes("IFCPERFORMANCEHISTORY");
   if (set.classes.some((c) => anc.includes(c))) return true;
-  if (cls.endsWith("TYPE")) {
+  if (cls.endsWith("TYPE") && !/OCCURRENCEDRIVEN$/.test(set.tt || "")) {
     for (const t of anc) {
       if (!t.endsWith("TYPE")) continue;
       const occ = t.slice(0, -4);
@@ -79,6 +85,40 @@ export function classesWithSets(psets, S, typeMap = null) {
 // applicability naming IFCWALL misses IFCWALLSTANDARDCASE unless both are listed.
 export function subclasses(S, cls) {
   return Object.keys(S.entities).filter((c) => c !== cls && !S.entities[c].abstract && ancestors(S, c).includes(cls)).sort();
+}
+
+// Classes a schema still defines but tells writers not to use: IFC 4.3
+// deprecates IfcWallStandardCase ("IfcWall with IfcMaterialLayerSetUsage is
+// used instead") and IfcElectricDistributionBoard ("Use IfcDistributionBoard
+// instead"; buildingSMART/IFC4.3.x-development docs). They are the only
+// deprecated element classes left in IFC4X3_ADD2 (the other IFC4 standard and
+// elemented cases were deleted), and no IFC4X3 export read has one
+// (eval/deprecated-subclasses-2026-11-19.md: 0 in 57 files), while IFC4
+// exports still carry IfcWallStandardCase (151 of 572 walls). IFC4 and IFC2X3
+// list none here.
+export const DEPRECATED = {
+  IFC4X3_ADD2: new Set(["IFCWALLSTANDARDCASE", "IFCELECTRICDISTRIBUTIONBOARD", "IFCELECTRICDISTRIBUTIONBOARDTYPE"]),
+};
+const NONE = new Set();
+// The deprecated classes a specification's subclass boxes leave out: the
+// page schema's, unless the specification also names an older schema in its
+// own ifcVersion (an "IFC4 IFC4X3_ADD2" specification checks IFC4 models,
+// where IFCWALLSTANDARDCASE is a quarter of the walls).
+export function deprecatedFor(S, spec) {
+  const d = (S && own(DEPRECATED, S.name)) || NONE;
+  if (!d.size) return d;
+  const ids = schemaIdsOf(spec && spec.ifcVersion);
+  return ids.some((id) => id !== "IFC4X3") ? NONE : d;
+}
+// What a ticked "and its subclasses" box writes for `cls`: its concrete
+// subclasses without the deprecated ones (`subs`), and the deprecated ones it
+// leaves out (`left`), which the page names beside the box. A model that does
+// carry one still gets the "would not check" warning (modelSubclassesLeftOut)
+// and its Add button.
+export function boxSubclasses(S, cls, spec) {
+  const all = S.entities[cls] ? subclasses(S, cls) : [];
+  const dep = deprecatedFor(S, spec);
+  return { subs: all.filter((c) => !dep.has(c)), left: all.filter((c) => dep.has(c)) };
 }
 
 // The class's PredefinedType enumeration members, or [].
@@ -343,9 +383,9 @@ export const specBases = (spec) => [...new Set([spec.cls, ...(spec.also || [])].
 // The exact class names the specification's entity facet writes, in order.
 export function specClassNames(S, spec) {
   if (!spec.cls) return [];
-  const first = spec.withSub && S.entities[spec.cls] ? [spec.cls, ...subclasses(S, spec.cls)] : [spec.cls];
+  const first = spec.withSub && S.entities[spec.cls] ? [spec.cls, ...boxSubclasses(S, spec.cls, spec).subs] : [spec.cls];
   const ticked = new Set(spec.alsoSub || []);
-  const rest = (spec.also || []).filter(Boolean).flatMap((c) => (ticked.has(c) && S.entities[c] ? [c, ...subclasses(S, c)] : [c]));
+  const rest = (spec.also || []).filter(Boolean).flatMap((c) => (ticked.has(c) && S.entities[c] ? [c, ...boxSubclasses(S, c, spec).subs] : [c]));
   return [...new Set([...first, ...rest])];
 }
 
@@ -356,14 +396,19 @@ export function specClassNames(S, spec) {
 // every other name is an exact class. So `IFCWALL IFCWALLSTANDARDCASE
 // IFCWALLELEMENTEDCASE IFCSLAB IFCSLABSTANDARDCASE IFCSLABELEMENTEDCASE`
 // opens as IFCWALL and IFCSLAB, each with its subclasses ticked, not as six
-// exact classes. The written facet names the same set of classes.
-export function classListBases(S, names) {
+// exact classes. The written facet names the same set of classes. A box
+// covers only the subclasses it writes (boxSubclasses: in IFC4X3 no
+// deprecated ones), so a deprecated class the list names stays an exact class
+// and is written back, and one the list leaves out does not stop the box
+// opening ticked (the bSDD templates' IFCBUILTELEMENT without
+// IFCWALLSTANDARDCASE). `spec` gives the ifcVersion (deprecatedFor).
+export function classListBases(S, names, spec = null) {
   const up = [...new Set(names)];
   const inList = new Set(up);
   const subsOf = new Map();
   for (const c of up) {
     if (!S.entities[c]) continue;
-    const subs = subclasses(S, c);
+    const subs = boxSubclasses(S, c, spec).subs;
     if (subs.length && subs.every((x) => inList.has(x))) subsOf.set(c, subs);
   }
   // Only the topmost: IFCBUILTELEMENT's group already holds IFCWALL's.
@@ -406,13 +451,39 @@ export function modelSpec(S, cls, invClasses) {
 // A specification with no class applies to every object the other
 // applicability facets select (IDS 1.0), so any standard set may be named:
 // every set a template gives to some class.
-export function commonSets(L, classes) {
+// With a predefinedType chosen, a set the templates give only to other types
+// of these classes is left out (setTypeLimit).
+export function commonSets(L, classes, predefinedType = "") {
   const cs = classes.filter(Boolean);
   if (!cs.length) return anySets(L.psets);
   if (!cs.every((c) => knownClass(L, c))) return [];
   let out = setsFor(L.psets, L.S, cs[0], L.tm);
   for (const c of cs.slice(1)) { const s = new Set(setsFor(L.psets, L.S, c, L.tm)); out = out.filter((x) => s.has(x)); }
+  if (predefinedType) {
+    const pt = predefinedType.toLowerCase();
+    out = out.filter((x) => { const lim = setTypeLimit(L, x, cs); return !lim || lim.some((v) => v.toLowerCase() === pt); });
+  }
   return out;
+}
+
+// The predefined types a standard set is limited to on `classes` (IFC4 and
+// IFC4X3 templates: Pset_ActuatorTypeElectricActuator is for
+// IFCACTUATOR/ELECTRICACTUATOR), or null when some class carries it whatever
+// its type. Classes with no PredefinedType attribute (IFC4's IfcMaterial/Concrete
+// names a category) are never limited. The audit's pset-predefined warning
+// reads the same `pt` field (audit.mjs, predefinedIssue).
+export function setTypeLimit(L, setName, classes) {
+  const set = own(L.psets, setName);
+  if (!set || !set.pt) return null;
+  const out = new Set();
+  for (const c of classes.filter(Boolean)) {
+    if (!predefinedTypes(L.S, c).length) return null;
+    const via = set.classes.filter((t) => setApplies(L.S, c, { classes: [t] }, L.tm));
+    if (!via.length) continue;
+    if (via.some((t) => !own(set.pt, t))) return null;
+    for (const t of via) for (const v of set.pt[t]) out.add(v);
+  }
+  return out.size ? [...out] : null;
 }
 
 // Attributes every one of `classes` has and the page can edit. Their types
@@ -1230,7 +1301,7 @@ export function importIdsAs(parsed, loadFor, schema) {
         let cls = null, withSub = false, also = [], alsoSub = [];
         if (up.length === 1) cls = up[0];
         else if (up.length > 1) {
-          const bases = classListBases(L.S, up);
+          const bases = classListBases(L.S, up, spec);
           cls = bases[0].cls; withSub = bases[0].withSub;
           also = bases.slice(1).map((b) => b.cls);
           alsoSub = bases.slice(1).filter((b) => b.withSub).map((b) => b.cls);

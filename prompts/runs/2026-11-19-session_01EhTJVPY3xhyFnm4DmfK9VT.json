@@ -1,0 +1,55 @@
+{
+ "date": "2026-11-19",
+ "session": "https://claude.ai/code/session_01EhTJVPY3xhyFnm4DmfK9VT",
+ "track": "perf",
+ "prompt_version": 0,
+ "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue-generating software); merge when done",
+ "input_sha256": "2bd5620e2ff10e0f5020edfce24c72073836a7226f40267b4c7c3fd95b13aaab",
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-19T01:34:22Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "perf: sharecard mark point-in-polygon once per sample row",
+ "projects": [
+  "platform/pages"
+ ],
+ "pr": 17492,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": true,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 1,
+ "outcome": "success",
+ "errors": [
+  "First local run_workflow_locally sweep failed: the new post's description was 188 chars (limit 160); shortened to 155. The sweep was also voided because I edited files while it ran."
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompts/perf/prompt-0.md",
+   "issue": "Both perf backlog rows (P063, P064) are owner-gated again. Step 3 led to suites that already have 3+ passes; two exact clothing-design-studio drape tries (allocation-free sectionAt, widest-half-axis reject) gave no gain and were reverted."
+  },
+  {
+   "file": "platform/ci/suite_file_times.py",
+   "issue": "platform/pages build.test.mjs takes 316 s alone locally against a ~37 s CI step share; the cold card cache is the likely cause, and the tool does not say so or set PAGES_CARD_CACHE."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/history/pages-build-perf-2026-11-19-mark-row-crossings.md",
+  "docs/posts/2026-11-19-a-logo-sampled-7-5-million-times.md"
+ ],
+ "goal": null,
+ "notes": "Metric: CPU time to draw the mark for what a cold build draws (4 app icons, 3 favicon sizes, site card), performance.now() in a fresh process, old module (git show HEAD) imported side by side. Before 1.98/2.14/2.10 s, after 1.14/1.24/1.33 s, sha256 78a6f47bffb36f17 both. Wider bench (9 icons incl. 1024 maskable, site card, 3 fractional draws): 3.38/4.30/4.02 -> 1.85/1.78/1.68 s, sha256 d46e2e67abe41a6f both. 7,459,368 markSample calls per cold process (counted). Full cold build (env -u PAGES_CARD_CACHE node build.mjs): 140.6 -> 141.7 s wall, no measurable change; diff -rq: only version.json built_at differs across 34,162 files (9,275 PNGs). custom-domain.test.mjs 30.5/31.1 -> 29.3/33.1 s (noise). Reading: ci_profile --runs 200: Portfolio Pages 'Test the site builder' 20.1 job-min over 33 jobs; cpu-prof of custom-domain.test.mjs had markSample at 1,333 ms self. New mark-raster.test.mjs passes on the old and new code, and fails on a nudged comparison. Local portfolio-pages.yml: 12/12 run steps passed (21 not run). PR CI: all 10 non-skipped checks green (build, test, validate, gate, check, coverage, control-plane, conflict-markers).",
+ "corrections": [],
+ "redteam": null
+}

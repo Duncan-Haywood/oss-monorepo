@@ -234,3 +234,58 @@ test("a required entity requirement naming only an abstract class fails every el
   // IFC2X3 type-mapping names are not dead.
   assert.deepEqual(audit(spec(prop("IFCLABEL"), ent("IFCAIRTERMINAL"), { version: "IFC2X3" })).filter((x) => x.code === "class-abstract"), []);
 });
+
+test("a standard set the templates give only some predefined types: warned when the applicability names none of them (pset-predefined)", () => {
+  const req = sprop("Pset_ActuatorTypeElectricActuator", "ActuatorInputPower", "IFCPOWERMEASURE");
+  for (const version of ["IFC4", "IFC4X3_ADD2"]) {
+    // The right type, or a list holding it: nothing to say.
+    assert.deepEqual(audit(spec(ent("IFCACTUATOR", "ELECTRICACTUATOR"), req, { version })), []);
+    assert.deepEqual(audit(spec(ent("IFCACTUATORTYPE", "ELECTRICACTUATOR"), req, { version })), []);
+    // Case is not this check's business (predefined-case says it).
+    assert.ok(!audit(spec(ent("IFCACTUATOR", "electricactuator"), req, { version })).some((x) => x.code === "pset-predefined"));
+    // Another type: the standard never gives this set to it.
+    const other = audit(spec(ent("IFCACTUATOR", "PNEUMATICACTUATOR"), req, { version })).filter((x) => x.level === "warning");
+    assert.deepEqual(other.map((x) => x.code), ["pset-predefined"]);
+    assert.match(other[0].message, /only for IFCACTUATOR.* of predefined type ELECTRICACTUATOR; the applicability selects predefined type PNEUMATICACTUATOR/);
+    // No type: every actuator is asked for it.
+    const none = audit(spec(ent("IFCACTUATOR"), req, { version })).filter((x) => x.level === "warning");
+    assert.deepEqual(none.map((x) => x.code), ["pset-predefined"]);
+    assert.match(none[0].message, /Add predefinedType ELECTRICACTUATOR to the entity facet/);
+    assert.deepEqual(none[0].predefinedType, ["ELECTRICACTUATOR"]);
+  }
+  // A set any slab carries stays quiet; IFC2X3's templates name no types.
+  assert.deepEqual(audit(spec(ent("IFCSLAB"), sprop("Pset_SlabCommon", "IsExternal", "IFCBOOLEAN"), { version: "IFC4X3_ADD2" })), []);
+  assert.deepEqual(codes(spec(ent("IFCACTUATOR"), req, { version: "IFC2X3" }), "warning"), []);
+  // Only the set name required (no property): still warned.
+  const setOnly = `<property><propertySet><simpleValue>Pset_ActuatorTypeElectricActuator</simpleValue></propertySet><baseName><simpleValue>ActuatorInputPower</simpleValue></baseName></property>`;
+  assert.deepEqual(codes(spec(ent("IFCACTUATOR"), setOnly, { version: "IFC4" }), "warning"), ["pset-predefined"]);
+});
+
+test("template types: an occurrence set on a type object warns pset-occurrence; a performance set belongs on IFCPERFORMANCEHISTORY (pset-performance)", () => {
+  const occ = sprop("Pset_FanOccurrence", "FractionOfMotorHeatToAirStream", "IFCNORMALISEDRATIOMEASURE");
+  assert.deepEqual(codes(spec(ent("IFCFANTYPE"), occ, { version: "IFC4" }), "warning"), ["pset-occurrence"]);
+  assert.match(messages(spec(ent("IFCFANTYPE"), occ, { version: "IFC4" })), /Select IFCFAN instead/);
+  assert.deepEqual(codes(spec(ent("IFCFAN"), occ, { version: "IFC4" }), "warning"), []);
+  // IFC4X3 reads the template type from IfcPropertySetTemplate.TemplateType.
+  const occ43 = sprop("Pset_AirTerminalOccurrence", "AirFlowRate", "IFCVOLUMETRICFLOWRATEMEASURE");
+  assert.deepEqual(codes(spec(ent("IFCAIRTERMINALTYPE"), occ43, { version: "IFC4X3_ADD2" }), "warning"), ["pset-occurrence"]);
+  assert.deepEqual(codes(spec(ent("IFCAIRTERMINAL"), occ43, { version: "IFC4X3_ADD2" }), "warning"), []);
+  // A list naming both warns about the type only.
+  assert.match(messages(spec(`<entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCFAN"/><xs:enumeration value="IFCFANTYPE"/></xs:restriction></name></entity>`, occ, { version: "IFC4" })), /so IFCFANTYPE is asked/);
+  const perf = sprop("Pset_FanPHistory", "FanEfficiency");
+  assert.deepEqual(codes(spec(ent("IFCFAN"), perf, { version: "IFC4" }), "warning"), ["pset-performance"]);
+  // Was a pset-class error: the history, not the fan, carries the set.
+  assert.deepEqual(audit(spec(ent("IFCPERFORMANCEHISTORY"), perf, { version: "IFC4" })).map((x) => x.code), []);
+  // Outranks a missing predefined type (Pset_CooledBeamPHistoryActive is for ACTIVE beams).
+  assert.deepEqual(codes(spec(ent("IFCCOOLEDBEAM"), sprop("Pset_CooledBeamPHistoryActive", "AirFlowRate"), { version: "IFC4" }), "warning"), ["pset-performance"]);
+  // IFC2X3 templates name no template type: unchanged.
+  assert.deepEqual(codes(spec(ent("IFCFLOWMOVINGDEVICE"), sprop("Pset_FanOccurrence", "FractionOfMotorHeatToAirStream"), { version: "IFC2X3" }), "warning").filter((c) => c === "pset-occurrence"), []);
+});
+
+test("pset-predefined: a PredefinedType attribute facet counts, and classes with no predefined type are left alone", () => {
+  const req = sprop("Pset_ActuatorTypeElectricActuator", "ActuatorInputPower", "IFCPOWERMEASURE");
+  assert.deepEqual(codes(spec(ent("IFCACTUATOR") + attr("PredefinedType", "ELECTRICACTUATOR"), req, { version: "IFC4" }), "warning"), []);
+  assert.deepEqual(codes(spec(ent("IFCACTUATOR") + attr("PredefinedType", "HYDRAULICACTUATOR"), req, { version: "IFC4" }), "warning"), ["pset-predefined"]);
+  // IFC4's IfcMaterial/Concrete is a material category, not a predefined type.
+  assert.ok(!audit(spec(ent("IFCMATERIAL"), sprop("Pset_MaterialConcrete", "CompressiveStrength", "IFCPRESSUREMEASURE"), { version: "IFC4" })).some((x) => x.code === "pset-predefined"));
+});

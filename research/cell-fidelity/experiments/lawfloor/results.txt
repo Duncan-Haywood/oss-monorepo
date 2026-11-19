@@ -1,0 +1,62 @@
+cell-fidelity milestone 7b: the law floor. The all-measured forecast error e_111 (and the real ten-cycle
+forecast's e_000) against the law's line window, and with a curved term at ten cycles. 104 designs, set medians.
+
+e_000 by window (line through cycles 2..k):
+set           n    k=10    k=15    k=20    k=30    k=40    k=50
+Ai2020       24   0.025   0.028   0.024   0.019   0.014   0.010
+Chen2020     28   0.056   0.052   0.052   0.042   0.034   0.027
+OKane2022    28   0.067   0.054   0.048   0.033   0.026   0.021
+NCA_Kim2011  24   0.040   0.035   0.031   0.025   0.019   0.014
+
+e_000 at ten cycles, curved variants:
+set                L       Q       T       O    T<L     g_med     g_q25     g_q75    gQ_med
+Ai2020         0.025   0.205   0.027   0.014  17/24  -0.00016  -0.00051   0.00042   0.01056
+Chen2020       0.056   0.156   0.079   0.040  16/28  -0.00078  -0.00155   0.00027  -0.00093
+OKane2022      0.067   0.075   0.079   0.038  12/28  -0.00022  -0.00083   0.00058   0.00074
+NCA_Kim2011    0.040     inf   0.025   0.026  23/24  -0.00144  -0.00212   0.00025  -0.01408
+
+e_111 by window (line through cycles 2..k):
+set           n    k=10    k=15    k=20    k=30    k=40    k=50
+Ai2020       24   0.083   0.070   0.056   0.039   0.029   0.020
+Chen2020     28   0.018   0.022   0.024   0.023   0.019   0.016
+OKane2022    28   0.019   0.018   0.019   0.021   0.017   0.014
+NCA_Kim2011  24   0.011   0.006   0.008   0.008   0.008   0.007
+
+e_111 at ten cycles, curved variants:
+set                L       Q       T       O    T<L     g_med     g_q25     g_q75    gQ_med
+Ai2020         0.083   0.129   0.048   0.058  23/24   0.00088   0.00029   0.00180   0.00766
+Chen2020       0.018   0.082   0.021   0.019  15/28  -0.00015  -0.00102   0.00034  -0.00158
+OKane2022      0.019   0.100   0.026   0.017   5/28  -0.00007  -0.00090   0.00035  -0.00186
+NCA_Kim2011    0.011     inf   0.011   0.013   9/24   0.00012  -0.00055   0.00196  -0.01129
+
+Pool 5zk only: e_111 L, T, O and k=50; e_000 L, T
+set           n   111 L   111 T   111 O 111 k50   000 L   000 T
+Ai2020        8   0.080   0.046   0.054   0.021   0.023   0.024
+Chen2020     12   0.014   0.014   0.013   0.008   0.054   0.082
+OKane2022    12   0.015   0.019   0.013   0.007   0.067   0.079
+NCA_Kim2011   8   0.011   0.011   0.016   0.008   0.030   0.014
+
+Pool 5zy only: e_111 L, T, O and k=50; e_000 L, T
+set           n   111 L   111 T   111 O 111 k50   000 L   000 T
+Ai2020        8   0.082   0.048   0.056   0.025   0.044   0.047
+Chen2020      8   0.033   0.030   0.019   0.037   0.075   0.084
+OKane2022     8   0.028   0.030   0.018   0.034   0.072   0.083
+NCA_Kim2011   8   0.007   0.006   0.014   0.006   0.033   0.027
+
+Pool 5zz only: e_111 L, T, O and k=50; e_000 L, T
+set           n   111 L   111 T   111 O 111 k50   000 L   000 T
+Ai2020        8   0.085   0.050   0.067   0.013   0.012   0.009
+Chen2020      8   0.032   0.035   0.022   0.018   0.045   0.032
+OKane2022     8   0.034   0.039   0.018   0.020   0.051   0.057
+NCA_Kim2011   8   0.015   0.020   0.011   0.007   0.053   0.035
+
+(e = |ln(L_pred(99)/L_DFN(99))| at kappa = 25.3. L = line through cycles 2..10 (k=10 column);
+ Q = free quadratic on cycles 2..10; T = gamma borrowed from the set's other designs (leave one out);
+ O = own gamma from cycles 2..99 (ceiling). gamma = c/b of R(n) = a + b n + c n^2 over cycles 2..99, per cycle;
+ gQ = the same fitted on cycles 2..10 only. T<L = designs where T beats L)
+
+H260 (e_111 at k=50 <= half of k=10 on >= 3 of 4 sets): refuted (1/4)
+H261 (Q above L on >= 3 of 4 sets, e_111): supported (4/4)
+H262 (T below L on >= 3 of 4 sets, e_111): refuted (1/4)
+H263 (T's e_111 <= 0.015 on both LG M50 sets): inconclusive (0.021, 0.026)
+H264 (T below L on >= 3 of 4 sets, e_000): refuted (1/4)

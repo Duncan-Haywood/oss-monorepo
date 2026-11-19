@@ -14,7 +14,8 @@
 //   node schema/gen-psets.mjs Pset_IFC4X3.ifc IFC4X3 > schema/psets-ifc4x3.json
 //
 // Kept facts only: per schema, each set's name, the classes it applies to
-// (`classes`, upper case, predefined-type suffixes dropped), and (`props`) each property's name and the
+// (`classes`, upper case), the predefined types a class is limited to (`pt`,
+// IFC4 and IFC4X3; IFC2X3's PSD files name classes without them), and (`props`) each property's name and the
 // IFC data type a value of it carries, upper case (IFCLABEL), or null where the
 // template allows none (reference values, complex properties, time series);
 // a table value keeps its defining and defined types as `types`; enumerated
@@ -69,10 +70,13 @@ export function readPsd(xmlText) {
   const name = text(kid(root, "Name"));
   const props = {};
   // "IfcSlab/TRACKSLAB" (IFC4.3), "IFCSHAREDBLDGELEMENTS/IfcWall" (IFC2x3).
-  const classes = kids(kid(root, "ApplicableClasses") || { children: [] }, "ClassName").map((c) => {
+  const named = kids(kid(root, "ApplicableClasses") || { children: [] }, "ClassName").map((c) => {
     const parts = text(c).split("/").map((x) => x.trim());
-    return (parts.find((x) => /^Ifc[A-Z]/.test(x)) || parts[0]).toUpperCase();
-  }).filter(Boolean);
+    const i = parts.findIndex((x) => /^Ifc[A-Z]/.test(x));
+    // A part after the class is its predefined type (IFC4's "IfcActuator/ELECTRICACTUATOR").
+    return [(i < 0 ? parts[0] : parts[i]).toUpperCase(), i >= 0 && parts[i + 1] ? parts[i + 1] : null];
+  }).filter(([c]) => c);
+  const classes = named.map(([c]) => c);
   if (root.local === "QtoSetDef") {
     for (const q of kids(kid(root, "QtoDefs") || { children: [] }, "QtoDef")) {
       const n = text(kid(q, "Name"));
@@ -84,7 +88,29 @@ export function readPsd(xmlText) {
       if (n) props[n] = propertyType(kid(p, "PropertyType"));
     }
   }
-  return name ? { name, classes: [...new Set(classes)], props } : null;
+  return name ? { name, classes: [...new Set(classes)], ...predefinedOf(named), ...templateTypeOf(root.attrs.templatetype), props } : null;
+}
+
+// `tt`: the template type when it limits where the set may sit (IFC4's
+// templatetype attribute, IFC4X3's IfcPropertySetTemplate.TemplateType):
+// PSET_OCCURRENCEDRIVEN and QTO_OCCURRENCEDRIVEN (occurrences only, never a
+// type object), PSET_PERFORMANCEDRIVEN (an IfcPerformanceHistory),
+// PSET_MATERIALDRIVEN, PSET_PROFILEDRIVEN. Omitted for the TYPEDRIVENOVERRIDE
+// default (type or occurrence), for no type (IFC2X3; IFC4's QtoSetDef files
+// carry none) and for TYPEDRIVENONLY, which IDS reads through the type anyway.
+export function templateTypeOf(t) {
+  const v = typeof t === "string" ? t.trim().replace(/^\.|\.$/g, "").toUpperCase() : "";
+  return /^(PSET|QTO)_(OCCURRENCEDRIVEN|PERFORMANCEDRIVEN|MATERIALDRIVEN|PROFILEDRIVEN)$/.test(v) ? { tt: v } : {};
+}
+
+// `pt`: for each class the template names only with a predefined type, those
+// types ({ IFCACTUATOR: ["ELECTRICACTUATOR"] }); a class also named bare takes
+// any type and gets no entry. Omitted when no class is restricted.
+export function predefinedOf(named) {
+  const bare = new Set(named.filter(([, t]) => !t).map(([c]) => c));
+  const pt = {};
+  for (const [c, t] of named) if (t && !bare.has(c)) (pt[c] ||= []).includes(t) || pt[c].push(t);
+  return Object.keys(pt).length ? { pt } : {};
 }
 
 // Templates written as IFC (IfcPropertySetTemplate and IfcSimplePropertyTemplate
@@ -97,10 +123,11 @@ export function readTemplates(stepText) {
   const out = [];
   for (const e of entities.values()) {
     if (e.type !== "IFCPROPERTYSETTEMPLATE") continue;
-    const [, , name, , , applicable, children] = e.args;
+    const [, , name, , templateType, applicable, children] = e.args;
     if (typeof name !== "string") continue;
     // "IfcActuator/ELECTRICACTUATOR,IfcActuatorType/ELECTRICACTUATOR"
-    const classes = typeof applicable === "string" ? applicable.split(",").map((x) => x.trim().split("/")[0].toUpperCase()).filter(Boolean) : [];
+    const named = typeof applicable === "string" ? applicable.split(",").map((x) => x.trim().split("/").map((y) => y.trim())).filter(([c]) => c).map(([c, t]) => [c.toUpperCase(), t || null]) : [];
+    const classes = named.map(([c]) => c);
     const props = {};
     for (const c of children || []) {
       const t = get(c);
@@ -118,7 +145,7 @@ export function readTemplates(stepText) {
       } else if (kind === "P_TABLEVALUE" && primary && secondary) props[pname] = { type: null, types: [...new Set([primary, secondary])] };
       else props[pname] = { type: null };
     }
-    out.push({ name, classes: [...new Set(classes)], props });
+    out.push({ name, classes: [...new Set(classes)], ...predefinedOf(named), ...templateTypeOf(templateType && templateType.enum), props });
   }
   return out;
 }
@@ -129,7 +156,7 @@ export function buildPsets(dir) {
     const sets = {};
     for (const f of readdirSync(join(dir, folder)).filter((f) => f.endsWith(".xml")).sort()) {
       const s = readPsd(readFileSync(join(dir, folder, f), "utf8"));
-      if (s && /^(Pset|Qto)_/.test(s.name)) sets[s.name] = { classes: s.classes, props: s.props };
+      if (s && /^(Pset|Qto)_/.test(s.name)) sets[s.name] = { classes: s.classes, ...(s.pt ? { pt: s.pt } : {}), ...(s.tt ? { tt: s.tt } : {}), props: s.props };
     }
     out[id] = Object.fromEntries(Object.entries(sets).sort(([a], [b]) => (a < b ? -1 : 1)));
   }
@@ -142,7 +169,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   let sets;
   if (src.toLowerCase().endsWith(".ifc")) {
     sets = {};
-    for (const t of readTemplates(readFileSync(src, "utf8")).filter((t) => /^(Pset|Qto)_/.test(t.name)).sort((a, b) => (a.name < b.name ? -1 : 1))) sets[t.name] = { classes: t.classes, props: t.props };
+    for (const t of readTemplates(readFileSync(src, "utf8")).filter((t) => /^(Pset|Qto)_/.test(t.name)).sort((a, b) => (a.name < b.name ? -1 : 1))) sets[t.name] = { classes: t.classes, ...(t.pt ? { pt: t.pt } : {}), ...(t.tt ? { tt: t.tt } : {}), props: t.props };
   } else sets = buildPsets(src)[id];
   // One set per line keeps diffs readable and the file small.
   process.stdout.write("{\n" + Object.entries(sets).map(([n, p]) => JSON.stringify(n) + ":" + JSON.stringify(p)).join(",\n") + "\n}\n");

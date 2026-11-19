@@ -503,7 +503,22 @@ def _residual(c, pat, *, band: int = 240, threads: int | None = None) -> np.ndar
     pad never reaches a kept row, and at the frame's top and bottom the band's edge is the frame's edge. Every
     kept sample is the same arithmetic in the same order as one whole-frame pass, so neither the band height
     nor the thread count changes a bit; the working set is a band, not a dozen full-frame float64 planes
-    (eval/noise-aware-full-frame-cost-2026-11-17.md)."""
+    (eval/noise-aware-full-frame-cost-2026-11-17.md). Since 2026-11-19 the same arithmetic runs in C when a
+    compiler is there (``noise_native.residual``, 7.5x faster on four cores at 24 MP, the same bits;
+    ``_residual_np`` is the numpy reference, eval/noise-aware-native-spread-2026-11-19.md)."""
+
+    from shootflow import noise_native
+
+    c = np.asarray(c, dtype=np.float64)
+    fast = noise_native.residual(c, pat, band=band, threads=threads)
+    if fast is not None:
+        return fast  # the same arithmetic in C, bit for bit (eval/noise-aware-native-spread-2026-11-19.md)
+    return _residual_np(c, pat, band=band, threads=threads)
+
+
+def _residual_np(c, pat, *, band: int = 240, threads: int | None = None) -> np.ndarray:
+    """``_residual`` in numpy: the reference the C path (``noise_native.residual``) must equal bit for bit, and
+    the path taken without a C compiler or with ``SHOOTFLOW_NATIVE=0``."""
 
     from shootflow.raw_develop_np import _run_bands
 
@@ -538,9 +553,14 @@ def _block_spread(c, pat) -> tuple[np.ndarray, np.ndarray]:
     """Per BLOCK x BLOCK block of the mosaic ``c``: its mean level and its noise spread, the median of each
     sensel's leave-one-out residual against its same-colour neighbours (5 x 5, triangle-weighted) as a sigma."""
 
+    from shootflow import noise_native
+
     c = np.asarray(c, dtype=np.float64)
     level = _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
-    spread = _block_stat(_residual(c, pat), lambda t: np.median(t, axis=-1))
+    resid = _residual(c, pat)
+    spread = noise_native.block_median(resid, BLOCK)  # bit for bit with the line below; None without C
+    if spread is None:
+        spread = _block_stat(resid, lambda t: np.median(t, axis=-1))
     return level, spread
 
 

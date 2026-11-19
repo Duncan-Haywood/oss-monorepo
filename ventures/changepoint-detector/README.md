@@ -3618,6 +3618,78 @@ Next: revenue's deafness to a slow seasonal climb at Quiet and Middle (a heavy-t
 pre-registered bar on a second shop); one-day closures (a `--closed` list of dates treated as missing, pre-registered,
 on a second shop); a deployer's real Stripe series.
 
+## Closed days filled as missing (2026-11-19, pre-registered; three of five bars fail, `--closed` not offered)
+
+The section above left "one-day closures (a `--closed` list of dates treated as missing, pre-registered, on a second
+shop)". A closed weekday is a zero the count model reads as a step down and back up, so a shop that shuts on bank
+holidays hears about each one. The rule and four bars were committed before the fill was coded or any watch ran on
+the fresh data (`eval/closed-days.prereg.md`):
+
+- each listed date is filled with the **median of the same weekday in up to 4 earlier weeks** (the `--period` phase
+  when one is given; lag 1 when the labels are not consecutive days), rounded for counts. Only earlier points feed a
+  fill, so filling a whole history once equals filling each prefix and the replay is honest;
+- the closed list is a calendar fact: every non-Saturday day with no orders, cancellations or new customers.
+
+**Fresh data:** UCI **Online Retail II** (Chen 2019, CC BY 4.0), the same shop's earlier year, 2009-12-01 to
+2010-12-09, which no earlier round used (`data/online-retail-2009-daily.csv`, `data/SOURCE.md`). Its 15 closed days
+are the Christmas closure and exactly the 2010 English bank holidays (Good Friday, Easter Monday, the two May
+Mondays, the August Monday). The 2010-11 year from the section above is the design year: reported, not barred.
+Runs: `eval/closed-days.mjs`, output `eval/closed-days.out.txt`; four columns as in the Stripe workflow, `--period 7`,
+the "How eager" replay at the default budget and at about 1 a month, with and without the fill.
+
+| bar (fresh year) | without fill | with fill | result |
+|---|---|---|---|
+| K1: alerts within a day of a closure at the suggested settings (4 columns x 2 budgets) | 10 | 2 | **fails** (bar: 0) |
+| K2: Quiet's alerts, 4 columns | 31 | 22 | passes |
+| K3: alerts away from closures kept (within 3 days) | 42 | 36 kept | passes (86%, bar 80%) |
+| K4a: simulation, no-step series with an alert at a closure (of 100) | 99 | 8 | **fails** (bar: at most 2) |
+| K4b: simulation, +40% steps caught within 7 days (of 100) | 75 | 70 | **fails** (bar: at least 72) |
+
+The simulation (`eval/closed-days-sim/`, 200 series of 371 days, Gamma-Poisson counts with mean 40, Saturdays shut, 6
+random one-day closures, Quiet with `--period 7`; run as 4 shards that each draw all 200 series from the one seed and
+replay every 4th) took the alerts over all 200 series from 1,593 to 775.
+
+On the design year the fill took the closure alerts from 11 to 0, Quiet's from 22 to 14, and kept 26 of 29 alerts
+away from closures.
+
+What the alerts show:
+
+- **The two survivors are one alert, counted at both budgets:** cancellations dated 2010-04-06, the Tuesday after
+  Easter Monday. It does not look like a holiday artefact: cancellations ran at 2 to 6 a day for the whole week after
+  Easter against about 14 on a usual trading day, then came back on 04-12. The bar counted any alert within a day of
+  a closure, and this one is. The verdict stands: the bar was fixed, and a real dip that starts the day a shop
+  reopens is exactly what a stricter rule would have to tell apart from a catch-up day.
+- **Orders, the column a shop owner reads first:** Quiet went from 11 alerts (3 at a closure: after Easter, after
+  the May Monday, after the August Monday) to 6, none at a closure, and the autumn build-up, dated 2010-11-09 either
+  way, was **sent 2010-11-13 instead of 2010-11-19**, six days sooner, because the filled holidays no longer muddied
+  the weeks before it.
+- **A cost on the design year:** Quiet on orders lost its 2011-09-01 alert (the start of that year's build-up, sent
+  2011-09-05), and instead sent a change dated 2011-03-18 on 2011-10-07, seven months late. K3 did not count the lost
+  one, because 2011-09-01 is three days after the August bank holiday and K3 only scored alerts more than 3 days
+  from a closure. Part of what Quiet heard there in 2011 was the holiday's zero.
+
+- **K4a's 8 is the background, not the holidays.** With the fill, Quiet still sent 3.2 alerts per no-step series on
+  this overdispersed noise (321 over 100 series). Six closures with a day either side cover 18 of the 287 watched
+  days, so alerts placed at random would put one near a closure in about 18 of 100 series; 8 is under that. The fill
+  removed the closure effect (99 to 8), but the bar of 2 ignored the base rate of false alerts and could not have
+  passed at Quiet on this noise. The verdict stands as fixed.
+- **K4b: five fewer steps caught** (75 to 70). Not diagnosed. A likely cause, untested: steps drawn from days 150 to 330
+  often fall within a week of a closure, and filling a closed day after a step from the weeks before it puts a
+  pre-step value into the post-step stretch.
+
+So the fill does most of what it was for (closure alerts down 80% on the fresh year, 100% on the design year,
+Quiet quieter, the build-up sooner on the fresh year), but not what was barred, and it moved the one alert a shop
+owner most wants on the design year. Not offered: `fillClosed` stays in `watch-core.mjs` as a module function, with
+its rule and the fresh-year numbers pinned in `closed-days.test.mjs` (5 tests), and the CLI, the page and the agent
+tool are unchanged. A deployer whose shop shuts on holidays should still expect an alert around each one; the
+`--suggest` replay shows where.
+
+Next, pre-registered before it runs: a closure bar scored against the chance rate of the setting's own alerts; fills
+taken from the open days after a step once one is found (so a fill does not pull a new level back); separate a post-holiday dip from a holiday artefact (alerts dated the first
+open day after a closure, held until a second open week agrees), on a third shop's daily series; and a check that
+the fill does not swallow a real change that starts within 3 days of a closure (the 2011-09-01 case), in simulation
+with steps placed next to closures.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
@@ -7169,3 +7241,64 @@ around, fixed before it runs). Then J1 again. It is now seen twice, so it can on
 Test: `update-rate-returns-auto.test.mjs` (a Monday-Friday schedule reads as weekly and a clumpy chain does not,
 the statistic is a non-negative likelihood ratio, each stretch is scored with the cost its test picks, and the
 committed verdict).
+
+## Short returns: a real drop in repeats (2026-11-19, pre-registered; R1-R4 pass in simulation, J1 fails 2 of 8, not offered)
+
+Round 4 above passed its simulation bars and then, on JHU's eight documented returns, found five "returns" whose
+repeat share inside matched the share around (85% and 85%): changes in *which* days publish, which the weekday
+cost reads as a pattern change and the pass's only direction rule ("fewer repeats inside", by any margin) let
+through. No simulated null had moved publication between two sets of days of the same size. This round adds
+those nulls and a guard. `eval/update-rate-returns-guard.mjs` (header, cells, rules and `returnGuardPasses` with the
+`guard` option of `bestReturnCost` and `returnCandidates` in `update-rate.mjs`, committed in 41343d76f before any
+cell ran) kept round 4's per-stretch model and every earlier cell, and added four shift nulls at n 1100:
+Tuesday/Friday moved to Monday/Thursday for 60 days (S2t) or for good (S2p), and Wednesday moved to Monday for 60
+days (S1t) or for good (S1p). The guard replaces "fewer repeats inside" in the search itself, so another interval
+can win. Two guards: `half` (share inside at most half the share around) and `z01` (a one-sided pooled
+two-proportion z of the drop of at least 2.326). Choice on calibration, R1-R3 as before plus R4 (every shift cell
+at most 0.010 false returns a series), then J1 again. The header discloses that round 4's J2 shares had been read
+when the guards were written, and that Michigan 2021's documented return (58% inside, 66% around) fails `half`; so
+the choice was on simulation only, and J1 could only refuse.
+
+**Calibration (seed 20261226, `eval/update-rate-returns-guard.out.txt`).** The new nulls bite without a guard:
+round 4's pass reports a return in 98-100% of shift series at m 3 (S1t falls to 58% only at m 6). `half` removes
+every one of them at every m and costs nothing elsewhere: the power rows are identical to round 4's on the same
+series (R30 162, R60 199, R90 198, I60 23 at m 3). `z01` lets through 5% of the Wednesday-to-Monday shifts at m 3
+and meets the budget only at m 6, where R30 is 0. `half` at m 3 was chosen.
+
+**Confirmation (seed 20261227, `half` at m 3): all four simulation bars pass.**
+
+| confirmation | `half`, m 3 | round 4 (no guard), m 3 |
+|---|---|---|
+| worst null or shift cell, false returns a series | **0.005** (R1, bar 0.020; M60 n300) | 1.000 (S2t, S2p, S1p) |
+| worst shift cell | **0.000** (R4, bar 0.010) | 1.000 |
+| 30 days of daily inside Monday-Friday, found of 200 | 159 | 159 |
+| 60 days | **196** (R2, bar 120; R3 +196) | 196 |
+| 90 days | 197 | 197 |
+| 60 days at 2% inside independent 25% | 29 | 29 |
+
+**J1 fails: 2 of 8 dated, bar 4.** Idaho and Vermont are dated as in round 4. Michigan's Tuesday+Friday to
+Monday/Wednesday/Friday is lost, as the header said it would be: one more publishing day a week is a drop from about
+71% to 57% repeats, not a halving. The other five stay missed. The pass stays in the module, off
+(`SHORT_RETURNS.mult` null); nothing the CLI or the page prints changes.
+
+**What changed on the real series** (J2, post hoc, deciding nothing). The 12 returns on the 27 primary states fall
+to 6, and every one left is a real drop (0-20% repeats inside against 24-43% around: Alabama, Idaho, Indiana,
+Kentucky, Vermont, Washington). The five same-share "returns" and Kansas' and Michigan's 59/68% and 58/66% are gone.
+So the guard does what it was built for on real data too; what it cannot do is find the returns the pass never
+proposed. Read against the documented list (`eval/update-rate-covid-schedules.mjs`, SECONDARY), the other five misses
+are not two-month returns either: by the documented dates the move to more days lasted about four months in Alaska
+(2021-08-02 to 2021-12-07), eight in South Dakota (2021-08-16 to 2022-04-12), five and a half in Alabama
+(2021-09-17 to 2022-03-04, read from struck-through text; the data's drop is dated two months earlier), and has no
+listed end in Arkansas and Nebraska. Those are lasting changes of schedule, which the shipped partition should cut,
+and it misses them too (D3 in `eval/update-rate-covid-schedules.out.txt`). J1 as written counts only the return
+pass's finds, so it mixes two questions: short returns and lasting moves to more days.
+
+Next, pre-registered: why the shipped cut misses lasting moves to more days, with power cells no round has
+simulated (Wednesdays only to Monday-Friday, Monday/Wednesday/Friday to Monday-Friday, each for four to eight
+months), scored by the shipped check and the guarded pass together. A fraction-of-a-day guard (a drop of at least one
+publishing day a week, about 0.14 of the share) would keep Michigan, but it was seen here and needs fresh real
+returns to test.
+
+Test: `update-rate-returns-guard.test.mjs` (both guards on known shares, no guard leaves the search unchanged, a
+same-count shift is a return without the guard and none with it while a real return survives, the committed
+verdict, the pass off by default).
