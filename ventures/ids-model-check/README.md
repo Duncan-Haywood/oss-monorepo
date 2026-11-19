@@ -334,6 +334,7 @@ consultant's model checked against it before it is shared. Today the options are
 | Solibri Office, other commercial model checkers | seat licence (thousands a year) | Windows desktop install; does much more (clash detection, geometry rules) |
 | BIMcollab Zoom, usBIM.IDS-checker, other vendor tools | free tier or subscription | install or an account, and often an upload of the model |
 | IfcTester (IfcOpenShell) | free, LGPL | Python and a command line, or Bonsai/BlenderBIM |
+| Excel2IDS (buildingSMART community) | free, GPL-3.0 | Windows .exe to turn its Excel template into IDS; no checking, cannot read an IDS back |
 | **IDS Model Check** | free, MIT | a browser tab; or Node for CI |
 
 What this does better: nothing to install, nothing uploaded (the model is read
@@ -376,6 +377,31 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 `.ifc` zipped by Python's `zipfile`.
 
 No API key, account or server is involved, so there is nothing to configure.
+
+### Excel2IDS workbooks in, Excel2IDS workbooks out (2026-11-19)
+
+Many BIM managers already agree requirements in buildingSMART-community's
+[Excel2IDS](https://github.com/buildingsmart-community/Excel2IDS) template:
+asset categories in columns, one requirement per row, an `X` where a category
+needs a requirement. `excel2ids.mjs` reads that workbook as it stands, on the
+page (drop it where the IDS goes) or with `node cli.mjs --from-sheet book.xlsx
+-o out.ids`, and writes one IDS per purpose (`out_MEP.ids`, `out_STR.ids`;
+per phase too with `--by-phase`), each audited like any IDS. No Windows tool,
+nothing uploaded. The other way round, which Excel2IDS cannot do, `node
+cli.mjs --to-excel2ids spec.ids -o book.xlsx` (or *as an Excel2IDS workbook*
+after an audit) lays an IDS out in the template, a requirement shared by
+several categories written once, and names every specification the template
+cannot hold.
+
+On 64 public IDS files, 309 of 507 specifications fit the template and all
+309 come back with the same requirements; 256 of 256 on buildingSMART's test
+pairs, with the checker's verdict unchanged on 255 (the one that changes is a
+lower-case class name the reader upper-cases on purpose). What does not fit:
+`partOf` requirements, a material asked for with no name, ranges and lengths.
+The template's own sample, read by its rules, asks every external door to be
+an `IFCWALL`; the audit names it. Details, and where this reader differs from
+the Excel2IDS tool (booleans written `true`, `REPLACEME` rows keep their value
+and URI, no fixed `LOD400` milestone): `eval/excel2ids-2026-11-19.md`.
 
 ### An IDS as a spreadsheet and back (2026-11-19)
 
