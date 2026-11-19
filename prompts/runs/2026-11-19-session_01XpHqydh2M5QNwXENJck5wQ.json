@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqydh2M5QNwXENJck5wQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T10:47:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check flagship: bSDD property sets from a class's property list (uri on both facets)",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17632",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "First corpus run stalled: eval fetch had no timeout and ran one request at a time (~1/s). Added AbortSignal.timeout(30000), dictionaries 4 at a time, class probes 6 at a time, and an on-disk answer cache.",
+    "pkill -f with the pattern repeated elsewhere in the same command was refused by the hook; split into its own call."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml (ids-model-check buildable:)",
+      "issue": "The 600-character buildable cap was 597 full, so a new buildable item only fit after the existing bSDD entry was shortened to a few words."
+    },
+    {
+      "file": "ventures/ids-model-check/eval/bsdd-links-2026-11-19.md",
+      "issue": "Did not say that ids.mjs drops a facet's uri, so the editor writes back every link removed. Found only by building a round trip (0 of 344 links kept)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-ids-from-a-bsdd-class.md",
+    "ventures/ids-model-check/eval/bsdd-spec-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: node --test *.test.mjs in ventures/ids-model-check, 337 pass / 0 fail. check_posts ok; portfolio/router/validate.py ok. Corpus: eval/bsdd-spec-corpus.mjs (5,000+ bSDD requests over three runs, cached): 42 dictionaries, 185 classes, 38 of 42 audit clean, 42 of 42 bSDD-check clean. Editor uri round trip 0 to 344 of 344. bSDD API checked for CORS again (none), so the feature stays CLI only. venture-preflight: PREFLIGHT.",
+  "corrections": [],
+  "redteam": null
+}
