@@ -473,7 +473,9 @@ out can also be taken to be a divisor of n: `--out2 d` fixes it, which leaves on
 (54 with d = 2, 58 with 1 and 29, 62 with 2) found nothing and proved nothing (`eval/near-whist-sat.txt`),
 while tabu found 54 in 9 s and 62 in 148 s. So for these sizes the local search is the tool, and SAT is
 worth it only for a proof of impossibility, which it did not reach. 58 is the one near-whist size up to 62
-that neither method has.
+that neither method has. The same restriction in the tabu search (`WHIST_OUT2=d` in `eval/whist-anneal.c`:
+the two points out fixed to 0 and d) did not change that: 58 with d = 1 and 29, tenures 4 and 6, restarts every
+50,000 steps, 15 minutes each on four cores, found nothing (`eval/whist-anneal.txt`).
 
 ## Americano for 4k+2 players: near-whist designs (2026-11-19)
 
