@@ -482,7 +482,9 @@ def take_share_bound(rms, step: float = 1.0) -> float:
 # would say TAKE_US = 0 but the kept wheels whose fit at 1.5 ms put the take across a revolution's edge fit 1.5 ms
 # better than the step by at least this many more wheels than fit it worse, the Pi advises 1.5 ms. 0 turns it off.
 # A 1.3-2 ms take shows only on such wheels; the sums dilute them with the rest, whose 1.5 ms and step fits differ by
-# noise alone (tests/take_straddle_vote.py).
+# noise alone (tests/take_straddle_vote.py). Chosen on six stored sets (160 to 190 of 300 spread takes named, no instant
+# build misadvised, none un-named), held out on AA-AD with the rule committed first: 58 to 71 of 120, 0 of 12 instant
+# builds misadvised, 0 un-named (eval/take-straddle-vote-2026-11-19.md).
 TAKE_STRADDLE_MARGIN = 2
 
 

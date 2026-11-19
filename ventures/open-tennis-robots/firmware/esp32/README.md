@@ -3653,3 +3653,32 @@ committed first. Fresh jittery-tach sets AA (lag 0.42 s, seed 167) and AB (lag 0
 held-out nine-point data. The whole gain is at 2.4-5 ms takes (4 to 12 of 24); the 1.3-2 ms takes read as instant at
 every blind. `tests/take_survey_pick.py --capture` gained `--tach K`. Everything is in
 `eval/take-blind-nine-2026-11-19.md`.
+
+## Straddling wheels vote on the short takes (2026-11-19, after "The take-blind rule rechecked on the nine-point grid"; `host.TAKE_STRADDLE_MARGIN = 2` on by its pre-registered rule)
+
+**The item.** The 1.3-2 ms takes read as instant at every blind value, and no spread of the 1.5 ms candidate's rms
+told an instant build from a 2 ms one ("A standard-error floor on the take bound"), which asked for a per-wheel
+straddle count instead.
+
+**From the rows, no; from the fit, yes.** Counting kept wheels whose row has 1.5 ms better or worse than the step does
+not separate the two (AUC 0.65-0.84 against the sums' 0.92; the best such rule won back 1 of 7 loosened instant
+bounds). Refitting each stored wheel at 1.5 ms with its t0 and revolution edges (the refit matched the board's rms on
+all 5,456 wheels of six sets) does: on wheels whose take, placed at the fitted t0, falls across an edge, 1.3-2.5 ms
+takes voted 119 for 1.5 ms and 7 against, instant builds 6 and 45; on every other kept wheel the vote splits evenly
+(159 / 159, 56 / 57). The sums carry that noise along with the signal.
+
+**What shipped.** `drop_from_commands_steps` returns an eighth field, `edge` (the take's parts at the fitted t0 cross a
+period's edge). `ResidualSurvey.add(got, edge)` counts `straddle_for` and `straddle_against` on kept wheels at
+`controller.TAKE_STRADDLE_US` (1500); the TAKE_SURVEY frame carries both as two more bytes (the Pi reads the older
+frame with `None`). When the sums say TAKE_US = 0 and for - against reaches `host.TAKE_STRADDLE_MARGIN`, the Pi
+advises 1.5 ms and says how many straddling wheels voted each way. `tests/take_straddle_vote.py` scores it.
+
+**Chosen, then held out.** On six stored sets (336 builds) margin 2 was the least with no harm: 160 to 190 of 300 spread
+takes named, no instant build told to set a take, none un-named (margin 1: 233, but one instant build misadvised and
+three short ones un-named). Rule committed in 4e804643d, then scored on AA and AB (never scored for the vote) and fresh
+AC (lag 0.46 s, seed 179) and AD (0.62 s, seed 181), jittery tach, 132 drills: 58 to 71 of 120 named, 0 of 12 instant
+builds misadvised, 0 un-named, and the board's own frame counts equal to the rebuild on AC and AD. Every clause held.
+Everything is in `eval/take-straddle-vote-2026-11-19.md`.
+
+**Not known.** 26 of 36 held-out 1.3-2.1 ms builds still read 0: many drills have one straddling wheel at 1.5 ms or
+none. Margin 1 is the next candidate (86 of 120 here) and needs its own held-out pair. Simulated only.

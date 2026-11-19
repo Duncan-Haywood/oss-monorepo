@@ -76,4 +76,29 @@ reported, not decided on.
 
 ## Result
 
-(Filled in after the capture.)
+Prediction committed in 4e804643d; AC and AD then captured on that tree (33 drills each, none aborted) and all four sets
+scored (eval/take-straddle-vote-heldout-2026-11-19.txt; AC and AD stored as eval/take-straddle-vote-ac/ad-2026-11-19.jsonl.gz):
+
+| margin | named (of 120 spread) | instant told to set a take (of 12) | right that off was not | wrong that off got right |
+| --- | --- | --- | --- | --- |
+| 0 (off) | 58 | 0 | - | - |
+| 1 | 86 | 0 | 30 | 2 |
+| **2 (pre-registered)** | **71** | **0** | **13** | **0** |
+| 3 | 62 | 0 | 4 | 0 |
+
+(a) held (71 against 58), (b) held, (c) held (0 un-named against 13 newly named), (d) held: the scorer's check that each
+of AC and AD's 66 frames carried the rebuild's counts passed. So **`host.TAKE_STRADDLE_MARGIN` ships at 2**.
+
+The straddling wheels split as on the design: 1.3-2.1 ms takes 36 for and 2 against, 2.4 ms and up 41 and 0, instant
+builds 2 and 13, 0.1-0.9 ms 7 and 30. Per take, margin 2 named 1.3 ms on 2 of 12 builds (off: 0), 1.6 ms on 5 (0), 2 ms
+on 3 (0) and 2.4 ms on 3 more; one 2.8 ms build that read 0 now reads 1.5 (still more than 1 ms off, but no longer
+"instant").
+
+**Not decided on, worth noting.** Margin 1 named 86 and told no instant build to set a take here, but un-named two 0.1 ms
+builds and, on the design, one instant build and three short ones: it is the obvious next candidate, and needs its own
+pre-registered held-out pair. Most 1.3-2 ms builds still read 0 at margin 2 (26 of 36): with one tach pulse a
+revolution many drills have one straddling wheel or none at 1.5 ms (design: the 8 builds the bound's floor exists for had
+none), and nothing at the board's end of the fit can see a take on a ball that did not straddle.
+
+**Not known.** Simulated only: one tach model per set, three launchers, two fresh seeds. A real wheel's straddle flags
+depend on a real tach edge's position, and the vote's first reading on hardware is the frame's two new bytes.
