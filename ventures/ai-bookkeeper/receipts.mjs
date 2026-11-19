@@ -117,6 +117,22 @@ function ruForm(t) {
   for (const [re, form] of RU_MISREAD) if (re.test(g)) return { len: head.length, form };
   return null;
 }
+// Which recogniser a receipt photo wants, from a reading by the Latin one: "cyrillic" or "latin".
+// A Latin recogniser reads a Cyrillic slip in look-alikes, and Cyrillic's lower-case а е о р с у х
+// come out as Latin lower case inside upper-case words: CyMMA (СУММА), nPHXOA (ПРИХОД), KACCOBbIA
+// (КАССОВЫЙ). A lower-case letter followed by two capitals is rare on Latin receipts, whose glued
+// words go lower-to-Capital-lower (ChickenFried) and whose brand prefixes (McDONALD'S, iPHONE,
+// eBAY) are set aside below. Three such words mark the slip as Cyrillic: on val's 149 Russian
+// photos read by RapidOCR's Latin model, 147 have three or more (the other two are a near-blank
+// photo and a 33-word one with two); on the 200 SRD photos (US) none has more than two
+// (eval/receipt-script-2026-11-19.md). Text already in Cyrillic (ten letters or more) is Cyrillic.
+const BRAND_PREFIX = /^(?:Ma?c(?=[A-Z])|[ie](?=(?:PHONE|PAD|MAC|POD|BAY|TUNES|CLOUD|WATCH)))/;
+export function receiptScript(text) {
+  const t = String(text || "");
+  if ((t.match(/[\u0400-\u04ff]/g) || []).length >= 10) return "cyrillic";
+  const words = (t.match(/[A-Za-z0-9]{3,}/g) || []).map((w) => w.replace(BRAND_PREFIX, ""));
+  return words.filter((w) => /[a-z][A-Z]{2}/.test(w)).length >= 3 ? "cyrillic" : "latin";
+}
 export function russianSeller(lines) {
   const text = lines.join("\n");
   if ((text.match(/[а-яё]/gi) ?? []).length < 20 && !lines.some((l) => RU_TOTAL_RE.test(l))) return null;

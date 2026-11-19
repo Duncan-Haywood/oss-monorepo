@@ -4,7 +4,7 @@
 // jsDelivr only when someone picks a photo; nothing is requested before that.
 // `loadEngine` is injectable so the tests can run without a network.
 import { cleanOcr } from "./cleanocr.mjs";
-import { parseReceipt, parseReceiptPasses } from "./receipts.mjs";
+import { parseReceipt, parseReceiptPasses, receiptScript } from "./receipts.mjs";
 import { RAPID_URLS, createRapidOcr, rapidRows, bgrFromRgba, fetchRapidModels } from "./rapidocr-web.mjs";
 
 const CDN = "https://cdn.jsdelivr.net/npm";
@@ -325,7 +325,10 @@ function settleTotals(readings, lead = false) {
 // `rapid` (default on) reads each photo with RapidOCR first (loadRapidEngine); when that
 // reader cannot be loaded (offline, an old browser) the photos are read with tesseract alone
 // and `rapidError` says why. `rapid: false` is tesseract alone.
-// `rapidScript` ("latin" or "cyrillic") picks RapidOCR's recogniser.
+// `rapidScript` ("latin" or "cyrillic") picks RapidOCR's recogniser. "auto" reads each photo
+// with the Latin one first and, when that reading looks like a Cyrillic slip printed in Latin
+// look-alikes (receiptScript), reads it again with the Cyrillic one (downloaded the first
+// time it is needed) and lets that reading lead; `cyrillic` counts those photos.
 export async function readPhotos(files, { loadEngine: load = loadEngine, loadRapid = loadRapidEngine, rapid = true, rapidScript = "latin", onProgress = () => {}, passes = null } = {}) {
   const list = [...files];
   const images = list.filter((f) => IMAGE_TYPES.test(f.type || ""));
@@ -333,7 +336,20 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, loadRap
   if (!images.length) return { text: "", read: 0, skipped, notes: [] };
   let lead = null, rapidError = null;
   // the two readers download side by side
-  const leading = rapid ? (onProgress({ status: "loading rapidocr" }), Promise.resolve().then(() => loadRapid({ script: rapidScript })).then((x) => x, (e) => { rapidError = String(e?.message ?? e).replace(/^Error: /, ""); return null; })) : null;
+  const auto = rapidScript === "auto";
+  const leading = rapid ? (onProgress({ status: "loading rapidocr" }), Promise.resolve().then(() => loadRapid({ script: auto ? "latin" : rapidScript })).then((x) => x, (e) => { rapidError = String(e?.message ?? e).replace(/^Error: /, ""); return null; })) : null;
+  // the Cyrillic reader for "auto", opened once, the first time a photo needs it
+  let cyrOpening = null, cyrError = null, cyrillic = 0;
+  const cyrReader = () => (cyrOpening ??= (onProgress({ status: "loading cyrillic" }), Promise.resolve().then(() => loadRapid({ script: "cyrillic" })).then((x) => x, (e) => { cyrError = String(e?.message ?? e).replace(/^Error: /, ""); return null; })));
+  // a Latin reading that looks Cyrillic is read again by the Cyrillic reader; the Latin text
+  // stays when that reader cannot be loaded or reads nothing
+  const autoRead = async (f, t) => {
+    if (!auto || !t || receiptScript(t) !== "cyrillic") return t;
+    const c = await cyrReader();
+    const t2 = c ? await c.read(f).then((x) => x, () => null) : null;
+    if (t2 && tidy(t2)) { cyrillic++; return t2; }
+    return t;
+  };
   let engine;
   try { engine = await load(onProgress); }
   catch (e) { (await leading)?.close?.(); throw e; }
@@ -348,7 +364,7 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, loadRap
       let led = false;
       // one photo the reader cannot open is skipped; the others are still read
       // RapidOCR reads in its worker while tesseract reads in its own, then leads the vote
-      const rapidText = lead ? lead.read(f).then((t) => t, () => null) : null;
+      const rapidText = lead ? lead.read(f).then((t) => autoRead(f, t), () => null) : null;
       try {
         const first = [];
         // the passes for this photo: as given, or by how evenly it is lit (an engine
@@ -377,6 +393,6 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, loadRap
       if (text) { blocks.push(text); if (note) notes.push({ name: f.name, note }); if (taxNote) notes.push({ name: f.name, note: taxNote }); }
       else skipped.push({ name: f.name, why: "no text found in the photo" });
     }
-  } finally { await engine.close?.(); await lead?.close?.(); }
-  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, shaded, skipped, notes, rapid: rapidRead, rapidError, rapidHow: lead?.how ?? null };
+  } finally { await engine.close?.(); await lead?.close?.(); await (await cyrOpening)?.close?.(); }
+  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, shaded, skipped, notes, rapid: rapidRead, rapidError, rapidHow: lead?.how ?? null, cyrillic, cyrillicError: cyrError };
 }
