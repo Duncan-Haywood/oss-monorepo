@@ -402,12 +402,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "Short takes" (2026-11-19: the fit sees
-      sub-2.5 ms takes, the grid end misses them; grid 0,1.5,2.5,3-8 ms on set M 48
-      vs 41 of 66 within 0.5 ms, failed on one unadvised instant read). Next: that
-      grid on a fresh set, instant clause on advice; a drill-level check of
-      one-wheel verdicts on more fresh sets; the sub-8 advised instant build. Ball
-      hold on fast wheels: LOOP_BALL_GAIN shipped 2026-11-19.
+      see firmware/esp32/README.md, latest "Short takes on a second held-out set"
+      (2026-11-19: grid now 0,1.5,2.5,3-8 ms; set N 45 vs 40 of 66 within 0.5 ms
+      offline, 49 vs 39 on the board; Pi hold 14 s a ball). Next: why 1.4-1.9 ms
+      takes still read 0 (NEXT.md); a drill-level check of one-wheel verdicts on
+      more fresh sets; the sub-8 advised instant build. Ball hold on fast wheels:
+      LOOP_BALL_GAIN shipped 2026-11-19.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

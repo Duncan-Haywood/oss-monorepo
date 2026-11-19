@@ -394,7 +394,8 @@ def esc_lag_check(sv: dict | None, board_ms: int | None) -> str | None:
             f"{pick * 1000} in config.py and re-flash, or this drill's drop fits read spin far off")
 
 
-TAKE_SURVEY_MS = (0, 2, 3, 4, 5, 6, 7, 8)   # the firmware's TAKE_SURVEY_GRID_US, in ms (7 added 2026-11-19)
+TAKE_SURVEY_MS = (0, 1.5, 2.5, 3, 4, 5, 6, 7, 8)   # the firmware's TAKE_SURVEY_GRID_US, in ms (7 added 2026-11-19; 1.5 and
+#                                                   2.5 in place of 2 later that day, README "Short takes on a second held-out set")
 TAKE_SURVEY_S = 16.0          # a contact-time survey (5 t0 levels a fit, 2026-11-18) is the board's work after the last ball
 # Advise a contact time only when the survey's best candidate misses by at most this share of the step's rms (README
 # "The contact time surveyed on the board"): on the simulator 4 of 6 builds with an instant take picked 1.5-2.5 ms at
@@ -410,8 +411,10 @@ TAKE_ADVISE_RATIO = 0.6
 # firmware sends no such count.
 TAKE_SURVEY_MIN_KEPT = 0
 # The longest a calibration drill holds a ball for the last one's surveys: 8 s until the take survey's refits went to 5
-# t0 levels (2026-11-18, README "The first-order take misfit traced"), about 10 s of control ticks a two-wheel ball.
-TAKE_WAIT_S = 12.0
+# t0 levels (2026-11-18, README "The first-order take misfit traced"), about 10 s of control ticks a two-wheel ball;
+# 14 s since the nine-point short-take grid (2026-11-19, README "Short takes on a second held-out set"): one more
+# refit a wheel, and 12 s cut the test drill's surveys short.
+TAKE_WAIT_S = 14.0
 
 
 def _take_count(link) -> int:
@@ -520,8 +523,10 @@ class FeederLink:
             elif cmd == P.ESC_TAU:
                 self.esc_tau_ms = vals[0]
             elif cmd == P.TAKE_SURVEY:
-                # the frame's length says how many candidates it carries: firmware before 2026-11-19 sent seven
-                times = P.TAKE_SURVEY_TIMES if len(vals) == 5 + P.TAKE_SURVEY_TIMES else P.OLDER_TAKE_SURVEY_TIMES
+                # the frame's length says how many candidates it carries: firmware before 2026-11-19 sent seven, and
+                # before that day's short-take grid eight (always with the summed-wheel byte)
+                times = {5 + P.TAKE_SURVEY_TIMES: P.TAKE_SURVEY_TIMES,
+                         5 + P.EIGHT_TAKE_SURVEY_TIMES: P.EIGHT_TAKE_SURVEY_TIMES}.get(len(vals), P.OLDER_TAKE_SURVEY_TIMES)
                 nt = 4 + times
                 self.take_survey = {"t": now, "wheels": vals[0], "least_ms10": vals[1], "refined_ms10": vals[2],
                                     "board_ms10": vals[3], "rms_ppm": [None if v == 65535 else v for v in vals[4:nt]],

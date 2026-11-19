@@ -57,6 +57,32 @@ instant clause failed, so the shipped grid stays. The next test is a fresh set w
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --compare dense-m.jsonl.gz "0,2,3,4,5,6,7,8" "0,1.5,2.5,3,4,5,6,7,8"
 
+PART 3, a second held-out set with the instant clause written on advice (2026-11-19, written after set M's result and
+before set N was captured; M cannot count toward it).
+
+PREDICTION (written before set N was captured): on set N (wheel lag 0.62 s, seed 101, neither used by an earlier take
+capture; takes stratified under 3 ms at points M did not use: 0.2, 0.6, 1.0, 1.4, 1.9, 2.3, 2.75 ms, plus 3.3, 4.6,
+7.4 ms as checks and 0, six builds each (two tachs, three launchers): 66 drills), the candidate grid 0, 1.5, 2.5, 3,
+4, 5, 6, 7, 8 ms with the shipped parabola has more builds within 0.5 ms of true than the shipped grid and fewer off
+by more than 1 ms.
+
+DECISION RULE (written with the prediction): `TAKE_SURVEY_GRID_US` moves to the candidate grid only if, on set N, it
+has at least 4 more builds within 0.5 ms of true, no more builds off by more than 1 ms, no more instant (0 ms) builds
+advised a re-flash (share at most host.TAKE_ADVISE_RATIO, 0.6), and on the 3.3-7.4 ms checks no fewer builds within
+0.5 ms. Otherwise the shipped grid stays and the candidate is not taken to another set (two held-out sets is its
+budget). Rounded instant reads are printed but are not a clause.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture n.jsonl --lag 0.62 --seed 101 --takes "0.2,0.6,1.0,1.4,1.9,2.3,2.75,3.3,4.6,7.4,0"
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --dense dense-n.jsonl.gz n.jsonl
+RESULT (set N, eval/take-short-n-2026-11-19.txt): within 0.5 ms 45 of 66 against 40, off by more than 1 ms 6 against 6
+(the prediction's "fewer" failed; the rule asked for no more, which held), no instant build advised on either, checks
+16 each. Every clause held, so `TAKE_SURVEY_GRID_US` is now 0, 1.5, 2.5, 3, 4, 5, 6, 7, 8 ms. Set N captured again on
+the board with that grid live (`--live`, eval/take-short-n-live-2026-11-19.txt): 49 of 66 within 0.5 ms against 39,
+large misses 3 against 7, no survey cut at host.TAKE_WAIT_S 14 s, balls held 140.4 s against 127.3 s.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --compare dense-n.jsonl.gz "0,2,3,4,5,6,7,8" "0,1.5,2.5,3,4,5,6,7,8" --rule advice
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --live n.jsonl [n9.jsonl ...]
+
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --dense out.jsonl.gz rows-j.jsonl.gz [rows-k ...]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --report out.jsonl.gz
 
@@ -120,8 +146,9 @@ def verdicts(rows, grid_us, pick):
         dl = tsp.DENSE_US[min(range(len(dsum)), key=dsum.__getitem__)] / 1000
         gi = min(range(len(sums)), key=sums.__getitem__)
         _, ref = pick(grid_us, sums)
+        share = (min(sums) / sums[0]) ** 0.5 if sums[0] else 1.0
         out.append((b["take_ms"], round(2 * ref / 1000) / 2, dl, grid_us[gi] / 1000, tuple(b["build"]),
-                    [x / dsum[0] if dsum[0] else 1.0 for x in dsum[:13]], len(kept)))
+                    [x / dsum[0] if dsum[0] else 1.0 for x in dsum[:13]], len(kept), share))
     return out
 
 
@@ -175,9 +202,13 @@ def report(rows):
           f"{'CANDIDATE for a fresh capture' if rule else 'not a candidate'}")
 
 
-def compare(rows, shipped, candidate):
-    """PART 2's rule: two grids (ms, comma-separated) with the shipped parabola on the same dense rows."""
+def compare(rows, shipped, candidate, rule="read"):
+    """PART 2's rule: two grids (ms, comma-separated) with the shipped parabola on the same dense rows. rule "read"
+    (set M) counts instant builds whose rounded verdict is more than 0.5 ms off 0; rule "advice" (set N, PART 3)
+    counts instant builds the Pi would advise a re-flash on (share at most host.TAKE_ADVISE_RATIO, as
+    take_survey_pick.py counts them)."""
     from feeder_sim import controller
+    from tennisbots import host
     res = {}
     for label, gs in (("shipped", shipped), ("candidate", candidate)):
         g = [int(round(float(x) * 1000)) for x in gs.split(",")]
@@ -187,6 +218,8 @@ def compare(rows, shipped, candidate):
             "w5": sum(abs(x[1] - x[0]) <= 0.5 + 1e-9 for x in v),
             "off": sum(abs(x[1] - x[0]) > 1.0 + 1e-9 for x in v),
             "inst": sum(x[0] == 0 and abs(x[1]) > 0.5 for x in v),
+            "inst_adv": sum(x[0] == 0 and x[7] <= host.TAKE_ADVISE_RATIO for x in v),
+            "advised": sum(x[7] <= host.TAKE_ADVISE_RATIO for x in v),
             "checks": sum(x[0] >= 3.0 and abs(x[1] - x[0]) <= 0.5 + 1e-9 for x in v),
             "mae": sum(abs(x[1] - x[0]) for x in v) / len(v),
             "by_take": {t: [x[1] for x in v if x[0] == t] for t in sorted({x[0] for x in v})},
@@ -194,7 +227,7 @@ def compare(rows, shipped, candidate):
         r = res[label]
         print(f"{label:9} {gs:24}: within 0.5 ms {r['w5']}/{r['n']}, off by more than 1 ms {r['off']}, mean abs "
               f"{r['mae']:.3f} ms, instant builds off 0 by more than 0.5 ms {r['inst']}, checks (3 ms and up) within "
-              f"0.5 ms {r['checks']}")
+              f"0.5 ms {r['checks']}, builds advised {r['advised']}, instant builds advised {r['inst_adv']}")
     print("\nBy take: shipped verdicts | candidate verdicts")
     for t in res["shipped"]["by_take"]:
         a = " ".join(f"{x:g}" for x in res["shipped"]["by_take"][t])
@@ -203,14 +236,36 @@ def compare(rows, shipped, candidate):
     s, c = res["shipped"], res["candidate"]
     clauses = {"at least 4 more within 0.5 ms": c["w5"] - s["w5"] >= 4,
                "no more off by more than 1 ms": c["off"] <= s["off"],
-               "no more instant builds moved": c["inst"] <= s["inst"],
+               **({"no more instant builds advised": c["inst_adv"] <= s["inst_adv"]} if rule == "advice" else
+                  {"no more instant builds moved": c["inst"] <= s["inst"]}),
                "checks no worse": c["checks"] >= s["checks"]}
     for k, ok in clauses.items():
         print(f"  {k}: {'held' if ok else 'FAILED'}")
     print("Decision: " + ("the candidate grid ships" if all(clauses.values()) else "the shipped grid stays"))
 
 
+def live(paths):
+    """The board's own verdicts in captures (each drill's TAKE_SURVEY refined time, rounded to 0.5 ms as the Pi rounds
+    it; advised when the best / step rms share is at most host.TAKE_ADVISE_RATIO), one line a capture."""
+    from tennisbots import host
+    for path in paths:
+        v = []
+        for r in load(path):
+            sv = r["survey"]
+            rms = sv["rms_ppm"]
+            v.append((r["take_ms"], round(2 * sv["refined_ms10"] / 10) / 2, min(rms) / rms[0] if rms[0] else 1.0))
+        ok = lambda a, b: abs(a - b) <= 0.5 + 1e-9
+        print(f"{path.split('/')[-1]}: within 0.5 ms {sum(ok(a, b) for a, b, _ in v)}/{len(v)}, off by more than 1 ms "
+              f"{sum(abs(a - b) > 1 + 1e-9 for a, b, _ in v)}, mean abs {sum(abs(a - b) for a, b, _ in v) / len(v):.3f} ms, "
+              f"instant builds off 0 by more than 0.5 ms {sum(a == 0 and abs(b) > 0.5 for a, b, _ in v)}, instant builds "
+              f"advised {sum(a == 0 and x <= host.TAKE_ADVISE_RATIO for a, _, x in v)}, builds advised "
+              f"{sum(x <= host.TAKE_ADVISE_RATIO for *_, x in v)}, checks (3 ms and up) within 0.5 ms "
+              f"{sum(a >= 3 and ok(a, b) for a, b, _ in v)}")
+
+
 def main():
+    if "--live" in sys.argv:
+        return live(sys.argv[sys.argv.index("--live") + 1:])
     if "--dense" in sys.argv:
         i = sys.argv.index("--dense")
         out, ins = sys.argv[i + 1], sys.argv[i + 2:]
@@ -224,7 +279,8 @@ def main():
         return
     if "--compare" in sys.argv:
         i = sys.argv.index("--compare")
-        return compare(load(sys.argv[i + 1]), sys.argv[i + 2], sys.argv[i + 3])
+        rule = sys.argv[sys.argv.index("--rule") + 1] if "--rule" in sys.argv else "read"
+        return compare(load(sys.argv[i + 1]), sys.argv[i + 2], sys.argv[i + 3], rule)
     report(load(sys.argv[sys.argv.index("--report") + 1]))
 
 
