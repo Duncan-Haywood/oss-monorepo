@@ -90,3 +90,15 @@ test("money formatting", () => {
   assert.equal(money(-1234.4), "-$1,234");
   assert.equal(money2(5), "$5.00");
 });
+
+test("audit 2026-11-19: return on ad spend is net of fees, not gross revenue over spend", () => {
+  const r = analyze(job({ listSize: 0, adSpend: 1000, cpc: 2, paidConvPct: 2, processorPct: 10 }));
+  near(r.totals.roas, (10 * 90) / 1000);
+});
+
+test("audit 2026-11-19: break-even list size subtracts the buyers ads already bring", () => {
+  const r = analyze(job({ fixedCosts: 2000, adSpend: 500, cpc: 1, paidConvPct: 2 }));
+  near(r.totals.paidBuyers, 10);
+  near(r.totals.beBuyers, 25);
+  near(r.totals.beListSize, (25 - 10) / (0.1 * 0.05));
+});
