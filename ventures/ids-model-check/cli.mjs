@@ -11,6 +11,8 @@
 //                                              # repair its ids.xsd faults (fix.mjs); stdout without -o;
 //                                              # --word-class also spells a bare \w in patterns as a class
 //                                              # every checker reads alike (xsdregex.mjs spellWordClass)
+//   node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]  # offline: add the IFC 4.3 bSDD uri to standard property
+//                                              # facets that have none (bsdd-suggest.mjs); list on stderr
 //   node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]   # one row per facet (sheet.mjs); CSV on stdout without -o
 //   node cli.mjs --from-sheet SHEET.xlsx|.csv|.tsv [-o OUT.ids] [--by-phase]
 //                                              # a table back to IDS 1.0; stdout without -o. An Excel2IDS
@@ -33,6 +35,7 @@ import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { checkBsdd, bsddReport } from "./bsdd.mjs";
 import { bsddIds } from "./bsdd-spec.mjs";
+import { suggestBsddLinks, addBsddLinks, suggestReport } from "./bsdd-suggest.mjs";
 import { bcfZip } from "./bcf.mjs";
 import { junitXml } from "./ci.mjs";
 import { fixStructure } from "./fix.mjs";
@@ -67,6 +70,16 @@ if (flag("--from-bsdd") && files.length) {
   console.error(`${r.fixes.length} fixed, ${r.remaining.length} left for a person`);
   if (opt("-o")) writeFileSync(opt("-o"), r.text); else process.stdout.write(r.text);
   process.exitCode = r.remaining.length ? 1 : 0;
+} else if (flag("--link-bsdd") && files.length === 1) {
+  // Offline: adds the IFC 4.3 bSDD uri to each requirement property facet on a
+  // standard property that has none (bsdd-suggest.mjs). Lists them on stderr,
+  // writes the IDS to -o or stdout. Exit 0, or 2 when the file is not an IDS.
+  const text = readFileSync(files[0], "utf8");
+  let list;
+  try { list = suggestBsddLinks(text, { psets: resources().psets }); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  console.error(suggestReport(list));
+  const out = addBsddLinks(text, list);
+  if (opt("-o")) writeFileSync(opt("-o"), out); else process.stdout.write(out);
 } else if (flag("--to-sheet") && files.length === 1) {
   // Exit 0, or 2 when the file is not an IDS.
   let r;
@@ -123,7 +136,7 @@ if (flag("--from-bsdd") && files.length) {
   else console.log(auditReport(ids.title, ids.specs, issues) + (bsdd ? "\n" + bsddReport(bsdd) : ""));
   process.exitCode = issues.some((x) => x.level === "error") || (bsdd && bsdd.findings.some((x) => x.level === "error")) ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;

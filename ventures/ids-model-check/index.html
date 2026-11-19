@@ -141,6 +141,7 @@
   import { csvReport } from "./report.mjs";
   import { bcfZip } from "./bcf.mjs";
   import { fixStructure } from "./fix.mjs";
+  import { suggestBsddLinks, addBsddLinks } from "./bsdd-suggest.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
   import { sheetFromIds, rowsToXlsx, rowsToCsv } from "./sheet.mjs";
   import { readRequirementSheet, idsToExcel2Ids, excel2IdsToXlsx } from "./excel2ids.mjs";
@@ -355,11 +356,32 @@
         };
         btn.onclick = () => { record("ids_fixed_downloaded"); if (choice) record("ids_word_class_" + choice); download((state.idsName || "spec.ids").replace(/(\.ids|\.xml)?$/i, "-fixed.ids"), fx.text, "application/xml"); };
       }
+      // bSDD links for standard properties (bsdd-suggest.mjs): offline, from
+      // the IFC 4.3 templates, so the page can offer it without bSDD's API.
+      showBsddLinks(state.ids);
     };
     worker.postMessage({ ids: state.ids, auditOnly: true });
   }
   $("audit").addEventListener("click", runAudit);
 
+  let psets43 = null;
+  async function showBsddLinks(idsText) {
+    let list;
+    try {
+      psets43 = psets43 || await fetch("./schema/psets-ifc4x3.json").then((r) => r.json());
+      list = suggestBsddLinks(idsText, { psets: psets43 });
+    } catch { return; }
+    if (!list.length || state.ids !== idsText) return;
+    const d = document.createElement("details");
+    d.className = "spec";
+    let b = `<summary><span class="tag pass">bSDD</span><span><strong>${list.length} standard propert${list.length > 1 ? "ies" : "y"} can carry ${list.length > 1 ? "their" : "its"} bSDD link</strong> <span class="muted">IDS 1.0's uri, from the IFC 4.3 dictionary; nothing is looked up online</span></span></summary><div class="body"><p>A <code>uri</code> tells authoring tools and readers exactly which dictionary entry a requirement means. Each line below adds one to a facet that has none; nothing else in your file changes.${list.some((x) => x.ifcType) ? " Where the dictionary gives another data type than the facet asks for, it is named: a model following IFC writes that type." : ""}</p><ul class="issues">`;
+    for (const x of list.slice(0, 200)) b += `<li><span class="muted">line ${x.line}</span> ${esc(x.propertySet)}.<strong>${esc(x.baseName)}</strong> <a href="${esc(x.uri)}" rel="noopener" target="_blank">${esc(x.uri.replace("https://identifier.buildingsmart.org/uri/", ""))}</a>${x.ifcType ? ` <span class="muted">dictionary type ${esc(x.ifcType)}, facet asks ${esc(x.dataType)}</span>` : ""}</li>`;
+    if (list.length > 200) b += `<li class="muted">and ${list.length - 200} more</li>`;
+    b += `</ul><div class="row"><button class="ghost" id="dl-bsdd" type="button">Download IDS with bSDD links</button></div></div>`;
+    d.innerHTML = b;
+    $("out").appendChild(d);
+    $("dl-bsdd").onclick = () => { record("ids_bsdd_linked_downloaded"); download((state.idsName || "spec.ids").replace(/(\.ids|\.xml)*$/i, "-bsdd.ids"), addBsddLinks(idsText, list), "application/xml"); };
+  }
   function download(name, data, type) {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([data], { type }));
