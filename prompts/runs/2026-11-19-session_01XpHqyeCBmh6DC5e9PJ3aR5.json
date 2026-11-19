@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyeCBmh6DC5e9PJ3aR5",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T04:38:44Z",
+  "ended": "2026-11-19T04:50:59Z",
+  "wall_minutes": 36.81,
+  "tokens_in": 6743284,
+  "tokens_out": 36224,
+  "cost_usd": 3.0487,
+  "tool_calls": 57,
+  "task": "research/buildbot-sheathing milestone 56: a held-or-free margin weighted by each backlash flip's cost at the nose",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17541",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "A foreground pytest of the full buildbot-sheathing suite took 231 s, past the 120 s tool timeout, and was killed; the 'Long commands' note mentions venture suites but not this research suite's run time."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook asks to commit untracked files while a long background experiment is still writing results.txt and a smoke-run results.json; committing would have pushed partial results, so the hook's advice had to be set aside until the run finished."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md (stop hook)",
+      "why": "Untracked files were partial results of a running experiment",
+      "did": "Waited for the full run to finish before committing results",
+      "result": "Only the full 48-load results were committed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-sheathing-robot-flip-cost-margin.md",
+    "research/buildbot-sheathing/LOG.md (milestone 56 planned and result)"
+  ],
+  "goal": null,
+  "notes": "Routed research (weighted draw); pick_track drew buildbot-sheathing; claim_check HOLD on PR #17541. Hypotheses H223-H225 committed before any run; one 2-load smoke run before the full run (disclosed in LOG). Full run 1710 s on 4 processes: H223 held (worst 0.0178 mm), H224 held (G1 100%, H1 99.6-99.9%), H225 held (bound never beaten in 28158 planned cases). Checks run here: buildbot-sheathing tests 222 passed 4 skipped before the write-up, test_flipcost + test_paper 8 passed after; paper/check_numbers.py 406 of 406; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok. No new citations, so cite_check not needed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2e4528d1-bc71-5aa9-816c-e688abbeab89",
+    "transcripts": 1,
+    "first": "2026-11-19T04:38:44Z",
+    "last": "2026-11-19T05:15:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 114,
+        "output": 36224,
+        "thinking": 6870,
+        "cache_read": 6618156,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125014,
+        "api_equivalent_usd": 3.0487,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 114,
+      "output": 36224,
+      "thinking": 6870,
+      "cache_read": 6618156,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125014,
+      "api_equivalent_usd": 3.0487,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 36.81,
+      "active_minutes": 16.61,
+      "model_minutes": 5.67,
+      "tool_minutes": 10.94,
+      "waiting_on_human_minutes": 20.2,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design and derive the flip-cost bound, code and test it, run three sections, write up a paper paragraph and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 328.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

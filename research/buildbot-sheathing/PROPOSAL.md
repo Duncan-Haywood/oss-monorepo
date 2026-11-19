@@ -486,6 +486,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    0.011 mm, from 0.284; H220 held), but coverage falls to 95.9 to 96.8% (H221, H222 refuted), mostly at the G1
    waist and H1 torso, which nothing preloads; the dropped cases were in spec under the old rule. Next: weight the
    margin by a flip's cost at the nose, or preload the waist.
+56. **A held-or-free margin weighted by each flip's cost at the nose** (done 2026-11-19, `experiments/m56_weighted/`):
+   bound the backlash part of the residual by &Sigma;<sub>j</sub> |w<sub>j</sub>| &times; the worst `held_bias` change
+   reachable in each joint's torque band (`preload.flip_cost`) and plan when it is at most half the spec. Every planned
+   in-envelope case stays in spec in three sections (worst 0.0178 mm; H223 held), coverage is G1 100% and H1 99.6 to
+   99.9% (H224 held; 637 of milestone 55's 667 drops won back), and the bound is never beaten (H225 held). The H1 left
+   knee and right elbow are what still bind. Next: sweep the budget share on a held-out seed, add the z residual.
 
 ## Target venue
 

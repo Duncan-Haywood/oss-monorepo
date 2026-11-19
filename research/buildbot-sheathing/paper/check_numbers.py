@@ -66,6 +66,7 @@ M53 = E + "m53_loadside/results.txt"
 M54 = E + "m54_lhs/results.txt"
 M54P = E + "m54_lhs/posthoc.txt"
 M55 = E + "m55_robust/results.txt"
+M56 = E + "m56_weighted/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -271,6 +272,10 @@ CHECKS = [
     (M55, "g1 96.35%, h1 96.63% -> refuted", "96.4% (G1) and 96.6% (H1)"),
     (M55, "coverage g1 95.87%, h1 96.76% -> refuted", "95.9% and 96.8% on 48 fresh loads"),
     (M55, "largest misfit 2.13e-13 N m", "linear in the load error"),
+    (M56, "A h1 0.0178, B g1 0.0110", "(worst 0.0178 mm)"),
+    (M56, "A h1 99.56%", "99.6% to 99.9% on\nthe H1"),
+    (M56, "B h1 99.89%", "99.6% to 99.9% on\nthe H1"),
+    (M56, "-> held", "flip shift never\nbeats Y"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

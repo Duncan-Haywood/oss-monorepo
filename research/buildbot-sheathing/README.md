@@ -724,6 +724,20 @@ preload the waist. Statics; constant sensor bias.
 
 ![Worst in-envelope residual per fresh hose load under milestone 54's rule and the robust rule, and coverage by section and robot](experiments/m55_robust/figure.png)
 
+**Milestone 56: can the margin be spent only where a flip costs accuracy?** Yes. The residual along the wall is
+linear in the joint error, so each joint's worst flip shifts the nose by c<sub>j</sub> = |w<sub>j</sub>| times the
+largest backlash-term change its torque band can reach (`preload.flip_cost`, 6 tests), and Y = &Sigma; c<sub>j</sub>
+bounds the backlash part of the residual. Planning when Y is at most half the 0.03 mm spec, **every planned
+in-envelope case stays in spec across three load sets (worst 0.0178 mm; H223 held), and coverage returns to 100% on
+the G1 and 99.6 to 99.9% on the H1** (H224 held; from 95.9 to 96.8%): paired with milestone 55, the rule plans every
+case it planned and wins back 637 of its 667 drops. Over 28 158 planned cases the flip shift never beats Y (H225
+held), and on single-joint flips it equals Y, so the bound is tight. The G1 waist and H1 torso that bound milestone
+55 cost nothing here; what is left is 42 H1 cases on the left knee (one flip costs 0.017 to 0.025 mm) or the right
+elbow (0.167 mm). Next: sweep the budget share on a held-out seed and give the z residual a budget too. Statics;
+constant sensor bias.
+
+![The flip bound Y against the flip shift the robot showed, and coverage under milestone 55's and 56's rules](experiments/m56_weighted/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
