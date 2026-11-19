@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtGKvjnQ1LAEjwChCtN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T07:14:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship: fresh-provider real check of the opt-in --spells search (flagships.yaml next: 'next a fresh provider')",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17577",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "My first manual CLI checks passed a file path as a positional argument; cli.mjs reads stdin/--csv, so they printed nothing. Switched to calling spellsResult directly; the venture tests use main() and were unaffected."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Warns that git-ignored fetched data under the venture (covid-data/, nyt-data/) is published by a local build; the eval fetch scripts default to a directory inside the venture, so every eval run trips it. Fetch scripts could default to a path outside the venture."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The brief favours revenue products; the allocator's flagship row was a research-style item. Followed the allocator (owner's 'deepen flagships' default) and shipped one user-facing reporting fix out of the result.",
+      "did": "Pre-registered check on NYT data, honest FAIL recorded, plus edge-spell line in --spells output",
+      "result": "Landed; search stays opt-in, line no longer contradicts the default update-rate line"
+    },
+    {
+      "file": "ventures/changepoint-detector/eval/update-rate-spells-nyt.mjs",
+      "why": "Labels are JHU's documented state schedule changes reused on NYT's series, not a provider documenting its own changes; no NYT-documented schedule list exists that I know of.",
+      "did": "Stated this in the header, README and post",
+      "result": "Next item still asks for a self-documenting provider"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-changepoint-spells-second-provider.md",
+    "ventures/changepoint-detector/README.md (section 'Short spells on a second provider')"
+  ],
+  "goal": null,
+  "notes": "Pre-registration committed in 973ea2dbf before the script read any NYT series (only the header line). Verdict: N1 2/4 FAIL (bar 3), N2 5/9 FAIL (bar <=3). Post hoc (eval/update-rate-spells-nyt-why.mjs, labelled): NYT Alaska spell already cut by the default update-rate line (2021-06-04, 2021-08-01) because NYT's series starts 2020-03-12; Nebraska's documented 2021 Wednesdays-only spell is in neither provider's series; Nebraska's 2022 spell is real in both but unlabelled. Shipped edgeSpellsOf + new --spells wording; committed JHU states print exactly as before (spells-edge.test.mjs). NYT data not committed (attribution, non-commercial terms); fetched by eval/nyt-states-fetch.sh. Verification: see below.",
+  "corrections": [],
+  "redteam": null
+}
