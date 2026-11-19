@@ -403,12 +403,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The straddle vote in the take bound"
-      (2026-11-19: host.TAKE_BOUND_STRADDLE held out on fresh BA-BD + 64 instant
-      seeds, 85 of 204 instant bounded 1.5 ms vs 83, none uncovered;
-      eval/take-bound-vote-2026-11-19.md). Votes: 1.5 ms and 2.5 ms at margin 2.
-      Next: a margin scaled to the straddle count (NEXT.md); 109 of 204 instant
-      builds have no wheel straddling at 1.5 ms.
+      see firmware/esp32/README.md, latest "A straddle margin scaled to the count"
+      (2026-11-19: closed on design, no build of 1302 had over 5 straddling wheels,
+      where a binomial rule is margin 2; eval/take-straddle-scaled-2026-11-19.md).
+      Votes: 1.5 ms and 2.5 ms at margin 2. Next: a longer survey drill for more
+      straddling balls (NEXT.md); count straddles per drill first.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
