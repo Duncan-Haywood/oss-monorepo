@@ -7899,3 +7899,53 @@ check it on.
 
 Tests: `stale-real-trades.test.mjs` (the sampling that labels each repeat, the windows, the bars, the float-noise
 tick rule and the committed verdicts).
+
+## A catch-up test for multi-tick feeds (2026-11-19, pre-registered; G1, G2 and R1 pass, R2 fails, not offered)
+
+The section above ends with the shipped stale test calling every real trade-print window stale (B2, 56 of 56):
+above about 1.5 ticks it scores excess exact repeats, and prices that sit at a quote have them with nothing carried.
+It named what a test at multi-tick moves would have to score instead: the growth of the move that ends a run, since
+a carried figure's next move sums the k + 1 hidden moves it missed and a quote's does not.
+
+`catchUpGrowth` (`update-rate.mjs`) is that test, with nothing fitted. For each move that ends a run, k is the
+repeats directly before it (0 after a move); it correlates the ranks of k and |move| (Pearson on mid-ranks). Under
+the null that the move does not depend on k, the permutation variance of that correlation is exactly 1 / (n - 1)
+whatever the ties, so z = r sqrt(n - 1) needs no simulation. Stale when z >= 1.645 (one-sided 5%), with at least 30
+moves, 10 of them after a run. It runs in microseconds a window; the likelihood test took about a minute.
+`eval/stale-growth.mjs` (header and code committed in aa5ebc85e before the first run) scored it on simulation and
+on the same highfrequency files, windows and plan as the section above (`eval/stale-growth.out.txt`):
+
+| bar | result |
+|---|---|
+| G1 size in simulation: zero-inflated walks (30% quote holds, 3.5-tick Gaussian or t3 steps) called stale (bar <= 7% each) | 5.0% and 5.7%: **pass** |
+| G2 power in simulation: a walk carried forward in runs (share 0.55) called stale (bar 80%) | 96.3%: **pass** |
+| R1 size on the real null: Europe trade-print windows called stale (bar <= 10%) | **1 of 56: pass** (the likelihood test: 56 of 56) |
+| R2 power on the real carried feed: Europe windows with carried share >= 0.30 called stale (bar 80%) | **22 of 85: fail** |
+| reported: share 0.30 carried, t3 steps, volatility regimes in the null | 85.5%, 97.0%, 1.4% |
+| reported: the US sample | prints 0 of 6; carried windows 2 of 48 |
+
+So the test does what the likelihood test could not: it leaves real trade prints alone (whole day pooled, z = -4.8:
+on the prints a move after repeats is if anything smaller). But on a real carried feed it misses most 300-step
+windows. By the pre-registered rule nothing changes in `updateRateChanges` or the lines; `catchUpGrowth` stays an
+exported function with no sentence.
+
+**Why the real feed is harder than the simulation (read afterwards, deciding nothing).** In simulation the mean
+correlation in a carried window is 0.31; on the real D = 1 feed it is 0.09 (whole day 0.08, z = 7.95 over 10,620
+moves). The simulated hidden price moves every second whether anyone trades or not. A real price moves in trade
+time: the seconds with no trade are mostly the seconds when nothing happened, so a carried run hides much less
+movement than k + 1 clock steps would. The growth is real but small, and it takes length to see.
+`eval/stale-growth-length.mjs` (post hoc, `eval/stale-growth-length.out.txt`) reruns the same test on longer windows:
+
+| Europe | 300 steps | 1,000 | 2,000 | 4,000 |
+|---|---|---|---|---|
+| D = 1, carried >= 0.30: called stale | 29 of 99 | 15 of 30 | 11 of 15 | 7 of 7 |
+| D = 2, carried >= 0.30 | 9 of 34 | 5 of 11 | 4 of 5 | 2 of 3 |
+| trade prints | 3 of 111 | 0 of 33 | 0 of 16 | 0 of 8 |
+
+A stale stretch with roughly a thousand moves in it (about 2,000 one-second samples here) is caught most of the
+time, and the prints stay clean at every length. The next item is a pre-registered round on fresh data with a bar
+stated by stretch length (moves >= 600, say), so a user is told the test's reach rather than given a coin flip on a
+short stretch. These prints and samples are now spent for choosing that length.
+
+Tests: `stale-growth.test.mjs` (run lengths, float-noise repeats, the standardised z, the simulation cells, the
+committed verdicts, and that `updateRateChanges` does not call the test).
