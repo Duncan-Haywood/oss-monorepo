@@ -209,7 +209,7 @@ export function reviewHtml(a, c = null, meta = {}) {
 
   const summary = [
     ["Project", `${p.name}${p.code && p.code !== p.name ? ` (${p.code})` : ""}`],
-    ["File", `P6 ${p.version || "?"}; ${p.activities} activities (${p.open} open), ${p.relationships} relationships`],
+    ["File", `${/^MSPDI/.test(p.version || "") ? "Microsoft Project XML" + p.version.slice(5) : "P6 " + (p.version || "?")}; ${p.activities} activities (${p.open} open), ${p.relationships} relationships`],
     ["Data date", p.dataDate || "n/a"],
     ["Forecast finish (recomputed from the logic)", `${p.finish || "n/a"}${p.storedFinish && p.storedFinish !== p.finish ? `; the file stores ${p.storedFinish}` : ""}`],
     ["Contract or must-finish date", p.mustFinish ? `${p.mustFinish}${late ? " (forecast is later)" : ""}` : "none in the file"],
