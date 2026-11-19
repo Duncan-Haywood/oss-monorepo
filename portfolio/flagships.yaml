@@ -381,9 +381,9 @@ flagships:
       promotion.test.mjs; play-off results fill the bracket
       (playoff-results.test.mjs); league page (availability, subs, sign-ups, free
       agents, waivers, ratings: README; next: a real league's use); 2026-11-19
-      balanced teams, two tags, late sign-ups (teams.mjs, eval/late-signups.txt;
-      next: /join free agents by it); bowling seasons, lane pairs rotated evenly: 36
-      of 36 at the bound, repeats 392 to 148 (eval/bowling-repeat-sat.txt)). 3-game
+      balanced teams, two tags, late sign-ups, /join free agents placed by it
+      (eval/free-agent-fit.txt); bowling seasons, lane pairs rotated evenly: 36 of
+      36 at the bound, repeats 392 to 148 (eval/bowling-repeat-sat.txt)). 3-game
       nights (eval/three-game-nights.txt): SAT session designs (session-designs.mjs)
       take every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7
       on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on
