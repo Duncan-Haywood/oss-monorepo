@@ -27,9 +27,11 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 10,
+  "tests_added": 11,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "teamsCsv shipped first without a spreadsheet formula-injection guard; check_csv_formula_guard.py caught it before merge."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -49,7 +51,7 @@
     "docs/posts/2026-11-19-fair-teams-from-a-sign-up-list-with-a-proof-of-evenness.md"
   ],
   "goal": null,
-  "notes": "New: teams.mjs (balanced teams: sizes within one, each tag split evenly, together/apart, least gap of team totals; floor shown, exhaustive search for <=16 players), balanced-teams.html, teams.test.mjs (9), page.test.mjs (+1), eval/balanced-teams-exact.{mjs,txt}: 417 of 417 feasible random 8-16 player lists at the exhaustive least (annealing alone 413), 40-200 players at the floor in <=343 ms; 400x32 gap 2 vs floor 1. Browser: Chromium 390 px over http, example/redraw/hand-off clicked, no console errors, no horizontal scroll. Venture suite: see PR.",
+  "notes": "New: teams.mjs (balanced teams: sizes within one, each tag split evenly, together/apart, least gap of team totals; floor shown, exhaustive search for <=16 players), balanced-teams.html, teams.test.mjs (9), page.test.mjs (+1), eval/balanced-teams-exact.{mjs,txt}: 417 of 417 feasible random 8-16 player lists at the exhaustive least (annealing alone 413), 40-200 players at the floor in <=343 ms; 400x32 gap 2 vs floor 1. Browser: Chromium 390 px over http, example/redraw/hand-off clicked, no console errors, no horizontal scroll. Venture suite: ok, 727 tests (240.9 s) via run_venture_tests.py. unwired_checks.py caught teams.mjs's CSV export with no formula-injection guard; fixed (apostrophe prefix, plain numbers kept) with a test; guard check ok.",
   "corrections": [],
   "redteam": null
 }

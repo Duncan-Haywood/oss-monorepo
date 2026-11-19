@@ -329,7 +329,13 @@ export function checkTeams(parsed, result) {
 
 /** CSV: Team, Player, Rating, Tag. */
 export function teamsCsv(result) {
-  const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+  // Formula-injection guard: a cell a spreadsheet would run (=, +, -, @, tab, CR) gets an apostrophe,
+  // except a plain number such as a negative rating.
+  const q = (c) => {
+    let s = String(c);
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
   const rows = [["Team", "Player", "Rating", "Tag"]];
   for (const T of result.teams) for (const p of T.players) rows.push([T.name, p.name, p.rating, p.tag]);
   return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";

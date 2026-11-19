@@ -101,3 +101,11 @@ test("CSV and text outputs carry every player once", () => {
   for (const pl of p.players) assert.equal(txt.split(`  ${pl.name}\n`).length, 2, pl.name);
   assert.match(txt, /most even possible/);
 });
+
+test("CSV cells a spreadsheet would run as a formula are defused; negative ratings stay numbers", () => {
+  const p = parsePlayers("=HYPERLINK(x),3\nBen,-1\n@cmd,2\nDee,2");
+  const csv = teamsCsv(balanceTeams(p, 2));
+  assert.match(csv, /'=HYPERLINK\(x\)/);
+  assert.match(csv, /'@cmd/);
+  assert.match(csv, /Ben,-1,/);
+});
