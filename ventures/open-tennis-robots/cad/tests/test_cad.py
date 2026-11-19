@@ -2183,6 +2183,31 @@ class BrakesAndBouncesInARowTest(unittest.TestCase):
                     self.assertEqual(repr(q.contactor_bounce_train(load, n, f)),
                                      repr(self._reference_bounce_train(q, load, n, f)), (q.precharge_ohm, load, n, f))
 
+    def test_cached_bounce_trains_match_the_reference_and_stay_private(self):
+        # 2026-11-18: trains are cached by the exact numbers they read. A hit must be the reference's bits, a caller
+        # that edits its copy must not change the next caller's, and a Feeder differing only in a field the train
+        # never reads must reuse the cache with the same answer.
+        from otr_cad import params
+        p = Feeder()
+        params._BOUNCE_TRAINS.clear()
+        ref = repr(self._reference_bounce_train(p, p.bus_idle_a, 3, 0.5))
+        first = p.contactor_bounce_train(p.bus_idle_a, 3, 0.5)
+        self.assertEqual(len(params._BOUNCE_TRAINS), 1)
+        first["makes"][0]["peak_a"] = -1.0
+        first["breaks_a"].append(99.0)
+        self.assertEqual(repr(p.contactor_bounce_train(p.bus_idle_a, 3, 0.5)), ref)
+        q = Feeder(stepper_enable_after_ms=p.stepper_enable_after_ms + 7)
+        self.assertEqual(repr(q.contactor_bounce_train(p.bus_idle_a, 3, 0.5)), ref)
+        self.assertEqual(len(params._BOUNCE_TRAINS), 1)
+        # a field the train does read is a new entry with its own answer
+        w = Feeder(contactor_bounce_ms=p.contactor_bounce_ms * 2)
+        self.assertEqual(repr(w.contactor_bounce_train(p.bus_idle_a, 3, 0.5)),
+                         repr(self._reference_bounce_train(w, p.bus_idle_a, 3, 0.5)))
+        self.assertEqual(len(params._BOUNCE_TRAINS), 2)
+        # contactor_bounces, which reads contactor_inrush once for all its trains, gives the reference's trains
+        for run in p.contactor_bounces()["idle"]["runs"][:4]:
+            self.assertEqual(repr(run), repr(self._reference_bounce_train(p, p.bus_idle_a, run["n"], run["open_frac"])))
+
     def test_several_bounces_never_make_more_than_the_first_closing(self):
         p = Feeder()
         b = p.contactor_bounces()
