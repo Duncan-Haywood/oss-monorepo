@@ -2,7 +2,7 @@
  {
   "file": "construction.ifc",
   "schema": "IFC2X3",
-  "seconds": 0.289,
+  "seconds": 0.434,
   "summary": {
    "elements": 339,
    "computed": 339,
@@ -60,7 +60,7 @@
  {
   "file": "architect.ifc",
   "schema": "IFC2X3",
-  "seconds": 3.668,
+  "seconds": 3.658,
   "summary": {
    "elements": 2527,
    "computed": 2527,
@@ -906,7 +906,7 @@
  {
   "file": "AC20-FZK-Haus.ifc",
   "schema": "IFC4",
-  "seconds": 0.108,
+  "seconds": 0.111,
   "summary": {
    "elements": 82,
    "computed": 82,
@@ -933,7 +933,7 @@
  {
   "file": "C20-Institute-Var-2.ifc",
   "schema": "IFC4",
-  "seconds": 0.312,
+  "seconds": 0.337,
   "summary": {
    "elements": 701,
    "computed": 697,
@@ -962,7 +962,7 @@
  {
   "file": "ISSUE_159_kleine_Wohnung_R22.ifc",
   "schema": "IFC4",
-  "seconds": 0.26,
+  "seconds": 0.263,
   "summary": {
    "elements": 425,
    "computed": 263,
@@ -983,15 +983,15 @@
     "agree": 209,
     "own-dimensions": 8,
     "net-as-gross": 32,
-    "unexplained": 11
+    "unexplained": 8,
+    "unit-slip": 3
    },
    "net": {
     "agree": 226
    }
   },
   "otherByClass": {
-   "IfcWall gross": 8,
-   "IfcSlab gross": 3
+   "IfcWall gross": 8
   },
   "others": [
    {
@@ -1097,49 +1097,13 @@
     "faceted": false,
     "notes": [],
     "netReason": "opening: body IFCADVANCEDBREP"
-   },
-   {
-    "id": 150305,
-    "ifcClass": "IfcSlab",
-    "name": "Basisdach:Titanzink - Eindeckung:361598",
-    "which": "gross",
-    "computed": 10.778668292859654,
-    "stored": 1.00137105155827,
-    "rel": 9.763910416709745,
-    "openings": 0,
-    "faceted": false,
-    "notes": []
-   },
-   {
-    "id": 150440,
-    "ifcClass": "IfcSlab",
-    "name": "Basisdach:Titanzink - Eindeckung:361843",
-    "which": "gross",
-    "computed": 10.778668292859651,
-    "stored": 1.00137105155827,
-    "rel": 9.763910416709741,
-    "openings": 0,
-    "faceted": false,
-    "notes": []
-   },
-   {
-    "id": 150573,
-    "ifcClass": "IfcSlab",
-    "name": "Basisdach:Titanzink - Eindeckung:362146",
-    "which": "gross",
-    "computed": 17.79869648902351,
-    "stored": 1.65355301186761,
-    "rel": 9.763910416709725,
-    "openings": 0,
-    "faceted": false,
-    "notes": []
    }
   ]
  },
  {
   "file": "ISSUE_021_Mini Project.ifc",
   "schema": "IFC2X3",
-  "seconds": 1.027,
+  "seconds": 1.947,
   "summary": {
    "elements": 2636,
    "computed": 2636,
@@ -2877,7 +2841,7 @@
  {
   "file": "schependomlaan.ifc",
   "schema": "IFC2X3",
-  "seconds": 1.271,
+  "seconds": 1.373,
   "summary": {
    "elements": 3573,
    "computed": 3551,
@@ -5256,7 +5220,7 @@
  {
   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
   "schema": "IFC2X3",
-  "seconds": 3.634,
+  "seconds": 4.527,
   "summary": {
    "elements": 4459,
    "computed": 4459,
@@ -5848,7 +5812,7 @@
  {
   "file": "S_Office_Integrated Design Archi.ifc",
   "schema": "IFC2X3",
-  "seconds": 1.119,
+  "seconds": 1.084,
   "summary": {
    "elements": 3462,
    "computed": 2896,
@@ -5878,7 +5842,7 @@
  {
   "file": "dental_clinic.ifc",
   "schema": "IFC2X3",
-  "seconds": 0.508,
+  "seconds": 0.559,
   "summary": {
    "elements": 2586,
    "computed": 2586,
@@ -5905,7 +5869,7 @@
  {
   "file": "Office_A_20110811.ifc",
   "schema": "IFC2X3",
-  "seconds": 0.143,
+  "seconds": 0.207,
   "summary": {
    "elements": 803,
    "computed": 803,
@@ -5932,7 +5896,7 @@
  {
   "file": "duplex.ifc",
   "schema": "IFC2X3",
-  "seconds": 0.091,
+  "seconds": 0.159,
   "summary": {
    "elements": 215,
    "computed": 215,
@@ -5961,7 +5925,7 @@
  {
   "file": "ISSUE_034_HouseZ.ifc",
   "schema": "IFC2X3",
-  "seconds": 0.143,
+  "seconds": 0.168,
   "summary": {
    "elements": 228,
    "computed": 228,

@@ -16,7 +16,7 @@
 // tool's reading of the same model. Where they disagree the row says so,
 // because one of them is wrong and an estimate built on it would be too.
 
-import { Geometry, Unresolved, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid } from "./geom.mjs";
+import { Geometry, Unresolved, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -204,7 +204,7 @@ export function takeoff(model, opts = {}) {
     if (!isElement(e)) continue;
     const id = e.id;
     const row = {
-      id, globalId: e.args[0], ifcClass: prettyClass(e.type), name: str(e.args[2]), tag: str(e.args[7]) ?? null,
+      id, globalId: e.args[0], ifcClass: prettyClass(e.type), ifcType: e.type, name: str(e.args[2]), tag: str(e.args[7]) ?? null,
       type: null, storey: null, material: null, classification: null, parent: null, isAssembly: false,
       stored: {}, storedSet: null, computed: null, check: null,
     };
@@ -243,11 +243,18 @@ export function takeoff(model, opts = {}) {
       }
     }
 
-    if (opts.geometry !== false) row.computed = computeVolume(e, idx, E, geo, bodyOf, worldOf, f);
+    if (opts.geometry !== false) {
+      row.computed = computeVolume(e, idx, E, geo, bodyOf, worldOf, f);
+      if (row.computed.status === "ok") {
+        try { row.computed.areas = computeAreas(e.type, row.computed.solids, worldOf(refId(e.args[5])), f); } catch (err) { row.computed.areas = { error: err.message }; }
+      }
+    }
     row.check = checkVolume(row, tol);
+    row.areaCheck = checkAreas(row, tol);
     rows.push(row);
   }
   explainChecks(rows, tol);
+  explainAreas(rows, tol);
   return { schema: model.schema, units, rows };
 }
 
@@ -308,9 +315,8 @@ export function explainChecks(rows, tol = 0.02) {
         }
       }
       const dims = lhw(r);
-      const ratio = c.stored / c.computed;
-      const pow = Math.round(Math.log10(Math.abs(ratio)));
-      if (pow !== 0 && Math.abs(pow) <= 9 && near(c.computed * 10 ** pow, c.stored)) { c.reason = "unit-slip"; c.factor = 10 ** pow; r.trustStored = false; continue; }
+      const slip = unitSlip(c.computed, c.stored, tol / 4);
+      if (slip) { c.reason = "unit-slip"; c.factor = slip; r.trustStored = false; continue; }
       if (w === "gross" && r.computed.openings > 0 && r.computed.net != null && near(r.computed.net, c.stored)) c.reason = "net-as-gross";
       else if (dims != null && !near(c.stored, dims) && (near(c.computed, dims) || (r.computed.net != null && near(r.computed.net, dims)))) { c.reason = "own-dimensions"; r.trustStored = false; }
       else c.reason = "unexplained";
@@ -319,10 +325,127 @@ export function explainChecks(rows, tol = 0.02) {
   return rows;
 }
 
+// 1 m2 = 10.7639 ft2: a factor some exporters apply to the wrong quantity
+// (kleine_Wohnung's roofs store GrossArea and GrossVolume both divided by it)
+export const SQFT = 10.7639104;
+
+/**
+ * The factor relating stored to computed when it is a power of ten (k from
+ * -9 to 9, not 0) or the square-foot factor 10.7639 or its inverse, else null.
+ * Only those: a wider search (powers of ten times 10.7639) would match about
+ * one random ratio in twenty at a 2% tolerance.
+ */
+export function unitSlip(computed, stored, tol = 0.005) {
+  if (!(computed > 0) || !(stored > 0)) return null;
+  // a slipped unit scales an exact figure: a quarter of the agreement
+  // tolerance keeps chance matches on small parts out
+  const near = (a, b) => Math.abs(a - b) <= tol * Math.abs(b);
+  const pow = Math.round(Math.log10(stored / computed));
+  if (pow !== 0 && Math.abs(pow) <= 9 && near(computed * 10 ** pow, stored)) return 10 ** pow;
+  for (const factor of [SQFT, 1 / SQFT]) if (near(computed * factor, stored)) return factor;
+  return null;
+}
+
+/**
+ * Names the likely cause of each stored-vs-computed area disagreement, in order:
+ *   split / repeated  as for volumes: one stored area on every piece of a
+ *                     wall split by level (the pieces' areas sum to it, or not);
+ *   unit-slip         stored = computed x a power of ten, or x 10.7639 (ft2/m2);
+ *   net-as-gross      a stored gross area equals the computed net;
+ *   gross-as-net      a stored net area equals the computed gross: the
+ *                     openings were not taken out;
+ *   on-a-face         a wall's side area equals the section on one of its
+ *                     faces rather than its middle plane (a corner join makes
+ *                     the faces differ in length);
+ *   matches-stored-volume  stored side area x the wall's width equals the
+ *                     stored volume: the quantity set agrees with itself and
+ *                     describes another body than the geometry;
+ *   unexplained       none of these.
+ * Sets reason on each disagreeing row.areaCheck entry, and trust = false where
+ * the stored figure should not be summed (split, repeated, unit-slip).
+ */
+export function explainAreas(rows, tol = 0.02) {
+  const near = (a, b) => (b !== 0 ? Math.abs(a - b) / Math.abs(b) <= tol : Math.abs(a) < 1e-9);
+  const groups = new Map();
+  for (const r of rows) for (const [k, c] of Object.entries(r.areaCheck || {})) {
+    if (!r.tag) continue;
+    const key = `${k}|${r.tag}|${r.ifcClass}|${c.stored}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(r);
+  }
+  const storedVol = (r, which) => { for (const [k, q] of Object.entries(r.stored)) if (q.kind === "volume" && k.toLowerCase().replace(/\s+/g, "") === `${which}volume`) return q.value; return null; };
+  for (const r of rows) {
+    for (const [k, c] of Object.entries(r.areaCheck || {})) {
+      c.trust = true;
+      if (c.agree) continue;
+      const A = r.computed.areas[c.kind];
+      const grp = r.tag ? groups.get(`${k}|${r.tag}|${r.ifcClass}|${c.stored}`) : null;
+      if (grp && grp.length > 1) {
+        const sum = grp.reduce((x, q) => x + (q.areaCheck[k].computed ?? 0), 0);
+        const biggest = Math.max(...grp.map((q) => q.areaCheck[k].computed ?? 0));
+        if (near(sum, c.stored) || c.stored >= 1.5 * biggest) {
+          c.reason = near(sum, c.stored) ? "split" : "repeated"; c.pieces = grp.length; c.trust = false; continue;
+        }
+      }
+      const slip = unitSlip(c.computed, c.stored, tol / 4);
+      if (slip) { c.reason = "unit-slip"; c.factor = slip; c.trust = false; continue; }
+      const open = r.computed.openings > 0;
+      if (c.which === "gross" && open && A.net != null && near(A.net, c.stored)) { c.reason = "net-as-gross"; continue; }
+      if (c.which === "net" && open && A.gross != null && near(A.gross, c.stored)) { c.reason = "gross-as-net"; continue; }
+      if (c.kind === "side" && A.faces && A.faces[c.which].some((x) => x != null && near(x, c.stored))) { c.reason = "on-a-face"; continue; }
+      if (c.kind === "cross" && scalesWithLength(r, k, c, rows, near)) { c.reason = "scales-with-length"; c.trust = false; continue; }
+      const sv = storedVol(r, c.which);
+      if (c.kind === "side" && sv != null && A.width > 0 && near(c.stored * A.width, sv)) { c.reason = "matches-stored-volume"; continue; }
+      c.reason = "unexplained";
+    }
+  }
+  return rows;
+}
+
+// A stored CrossSectionArea that is the element's stored Length times one
+// constant across every element of its type (whatever their geometry's
+// section) is a face area, not a section. skolebygg's mullions: 50x120 mullions
+// store Length x 2.97 m.
+const lengthRatios = new WeakMap();
+function scalesWithLength(r, k, c, rows, near) {
+  const L = (x) => { for (const [n, q] of Object.entries(x.stored)) if (q.kind === "length" && n.toLowerCase() === "length") return q.value; return null; };
+  const len = L(r);
+  if (!(len > 0) || !r.type || c.stored < 5 * c.computed) return false;
+  let byType = lengthRatios.get(rows);
+  if (!byType) {
+    byType = new Map();
+    for (const x of rows) {
+      const cx = x.areaCheck?.[k], lx = L(x);
+      if (!cx || !(lx > 0) || !x.type) continue;
+      if (!byType.has(x.type)) byType.set(x.type, []);
+      byType.get(x.type).push({ ratio: cx.stored / lx, computed: cx.computed });
+    }
+    lengthRatios.set(rows, byType);
+  }
+  const grp = byType.get(r.type) || [];
+  const mine = c.stored / len;
+  const same = grp.filter((g) => near(g.ratio, mine));
+  // at least three elements share the ratio, and their lengths differ (so the
+  // stored figure follows the length, not just a repeated section)
+  return same.length >= 3 && same.length >= grp.length / 2;
+}
+
+export const AREA_REASON_TEXT = {
+  "scales-with-length": "the stored cross-section area grows with the element's length (length x a constant): a face area, not a section",
+  split: "the same stored area is written on every piece of an element split by level; the pieces' geometry sums to it",
+  repeated: "the same stored area is written on several pieces of one element, and the pieces in this file do not sum to it",
+  "unit-slip": "the stored area is the geometry's times a power of ten or the square-foot factor 10.7639: converted twice or not at all",
+  "net-as-gross": "the stored gross area equals the area with openings taken out (net)",
+  "gross-as-net": "the stored net area equals the gross: the openings were not taken out",
+  "on-a-face": "the stored side area is measured on one face of the wall, not its middle plane",
+  "matches-stored-volume": "the stored area agrees with the stored volume, but both describe a different body than the geometry",
+  unexplained: "no known cause; check the element in a viewer",
+};
+
 export const REASON_TEXT = {
   split: "the same stored volume is written on every piece of an element split by level; the pieces' geometry sums to it",
   repeated: "the same stored volume is written on several pieces of one element, and the pieces in this file do not sum to it",
-  "unit-slip": "the stored volume is the geometry's times a power of ten: written in the wrong unit",
+  "unit-slip": "the stored volume is the geometry's times a power of ten (or the square-foot factor 10.7639): written in the wrong unit",
   "net-as-gross": "the exporter's GrossVolume equals the volume with openings taken out (net)",
   "own-dimensions": "the stored volume disagrees with the element's own stored length x height x width; the geometry agrees with them",
   unexplained: "no known cause; check the element in a viewer",
@@ -336,6 +459,7 @@ function computeVolume(e, idx, E, geo, bodyOf, worldOf, f) {
   const f3 = f * f * f;
   const gross = Math.abs(solidVolume(body)) * f3;
   const out = { status: "ok", gross, net: gross, openings: 0, notes: body.notes.slice(), faceted: body.mesh !== 0 };
+  Object.defineProperty(out, "solids", { value: { body, net: body }, enumerable: false, writable: true });
   const opens = idx.voids.get(e.id) || [];
   if (!opens.length) return out;
   out.openings = opens.length;
@@ -356,11 +480,106 @@ function computeVolume(e, idx, E, geo, bodyOf, worldOf, f) {
       net = subtractCutters(net, cuttersOf(inElem), "opening");
     }
     out.net = Math.abs(solidVolume(net)) * f3;
+    out.solids.net = net;
   } catch (err) {
+    out.solids.net = null;
     out.net = null;
     out.netReason = err instanceof Unresolved ? err.message : `error: ${err.message}`;
   }
   return out;
+}
+
+// ---- areas from geometry ---------------------------------------------------
+//
+// Each area a quantity set stores is a section of the body by a plane through
+// its middle (the definitions in Qto_WallBaseQuantities, Qto_SlabBaseQuantities
+// and the member sets):
+//   side       walls: the middle plane of the wall, normal to its width
+//              (GrossSideArea, NetSideArea);
+//   footprint  walls: the horizontal plane at mid-height (GrossFootprintArea,
+//              NetFootprintArea);
+//   plan       slabs, plates, coverings, roofs: the plane normal to the
+//              extrusion through mid-thickness, i.e. the extruded profile
+//              (GrossArea, NetArea);
+//   cross      columns, beams, members, piles: the plane normal to the
+//              extrusion at mid-length (CrossSectionArea).
+// Gross cuts the body; net cuts the body less its openings.
+
+const AREA_RULES = [
+  { classes: /^IFCWALL/, name: "grosssidearea", kind: "side", which: "gross" },
+  { classes: /^IFCWALL/, name: "netsidearea", kind: "side", which: "net" },
+  { classes: /^IFCWALL/, name: "grossfootprintarea", kind: "footprint", which: "gross" },
+  { classes: /^IFCWALL/, name: "netfootprintarea", kind: "footprint", which: "net" },
+  { classes: /^IFC(SLAB|PLATE|COVERING|ROOF)/, name: "grossarea", kind: "plan", which: "gross" },
+  { classes: /^IFC(SLAB|PLATE|COVERING|ROOF)/, name: "netarea", kind: "plan", which: "net" },
+  { classes: /^IFC(COLUMN|BEAM|MEMBER|PILE)/, name: "crosssectionarea", kind: "cross", which: "gross" },
+];
+export const AREA_KINDS = { side: /^IFCWALL/, footprint: /^IFCWALL/, plan: /^IFC(SLAB|PLATE|COVERING|ROOF)/, cross: /^IFC(COLUMN|BEAM|MEMBER|PILE)/ };
+
+function computeAreas(type, solids, W, f) {
+  const out = {};
+  const { body, net } = solids;
+  if (body.mesh) return { faceted: true };
+  const f2 = f * f;
+  const up = [W[8], W[9], W[10]];
+  const len = Math.hypot(...up);
+  const v = len > 0 ? up.map((x) => x / len) : [0, 0, 1];
+  // at = where along n, as a fraction of the body's extent (0.5: the middle)
+  const cut = (n, at = 0.5) => {
+    const [lo, hi] = extentOf(body, n);
+    if (!(hi > lo)) return { gross: null, net: null, n };
+    const k = lo + (hi - lo) * at + (hi - lo) * 1e-7;
+    const g = sectionArea(body, n, k);
+    const nt = net && g != null ? sectionArea(net, n, k) : null;
+    return { gross: g == null ? null : g * f2, net: nt == null ? null : nt * f2, n };
+  };
+  if (AREA_KINDS.side.test(type)) {
+    const t = thinnestNormal(body, (n) => Math.abs(n[0] * v[0] + n[1] * v[1] + n[2] * v[2]) < 1e-3);
+    if (t) {
+      out.side = { ...cut(t.n), width: t.width * f };
+      // the same plane moved to each face: some tools measure a side there
+      const a = cut(t.n, 1e-4), b = cut(t.n, 1 - 2e-4);
+      out.side.faces = { gross: [a.gross, b.gross], net: [a.net, b.net] };
+    }
+    // the plan at the wall's base: doors cut it, windows do not
+    out.footprint = cut(v, 1e-4);
+  }
+  if (AREA_KINDS.plan.test(type)) {
+    // the extrusion direction: the quantity set's area is "the extruded area"
+    // (its profile), even for a sill or coping extruded along its length; on
+    // schependomlaan choosing the thinnest direction instead dropped 230
+    // agreeing pairs. With no extrusion, the thinnest direction.
+    const n = body.axis ?? thinnestNormal(body)?.n;
+    if (n) out.plan = cut(n);
+  }
+  if (AREA_KINDS.cross.test(type) && body.axis) out.cross = cut(body.axis);
+  return out;
+}
+
+function extentOf(s, n) {
+  const l = Math.hypot(...n);
+  let lo = Infinity, hi = -Infinity;
+  for (const t of s.terms) for (const fc of t.faces) for (const p of fc) { const d = (p[0] * n[0] + p[1] * n[1] + p[2] * n[2]) / l; if (d < lo) lo = d; if (d > hi) hi = d; }
+  return [lo, hi];
+}
+
+/** Compares areas computed from geometry with the stored ones the rules name. */
+function checkAreas(row, tol) {
+  const A = row.computed?.areas;
+  if (!A || A.error || A.faceted) return null;
+  const res = {};
+  for (const [k, q] of Object.entries(row.stored)) {
+    if (q.kind !== "area") continue;
+    const key = k.toLowerCase().replace(/\s+/g, "");
+    const rule = AREA_RULES.find((r) => r.name === key && r.classes.test(row.ifcType));
+    if (!rule) continue;
+    const c = A[rule.kind]?.[rule.which];
+    if (c == null) continue;
+    const diff = c - q.value;
+    const rel = q.value !== 0 ? diff / q.value : (c === 0 ? 0 : Infinity);
+    res[k] = { kind: rule.kind, which: rule.which, computed: c, stored: q.value, diff, rel, agree: Math.abs(rel) <= tol || Math.abs(diff) < 1e-4 };
+  }
+  return Object.keys(res).length ? res : null;
 }
 
 /** Compares computed volumes with the stored GrossVolume / NetVolume. */
@@ -389,13 +608,35 @@ export function rowQuantities(r) {
   const first = (names, kind) => { for (const n of names) for (const [k, q] of Object.entries(s)) if (q.kind === kind && k.toLowerCase() === n) return q.value; return null; };
   const storedNet = r.trustStored === false ? null : first(["netvolume"], "volume") ?? first(["grossvolume", "volume"], "volume");
   const comp = r.computed && r.computed.status === "ok" ? (r.computed.net ?? r.computed.gross) : null;
+  // area: the stored figure unless its check says not to sum it (split,
+  // repeated, unit slip, not a section), else the area cut from the geometry
+  const AREA_NAMES = ["netsidearea", "netarea", "netfloorarea", "netsurfacearea", "grosssidearea", "grossarea", "area"];
+  let area = null, areaSource = null;
+  for (const n of AREA_NAMES) {
+    const hit = Object.entries(s).find(([k, q]) => q.kind === "area" && k.toLowerCase() === n);
+    if (!hit) continue;
+    const chk = r.areaCheck?.[hit[0]];
+    if (chk && chk.trust === false) { area = chk.computed; areaSource = "computed"; } else { area = hit[1].value; areaSource = "stored"; }
+    break;
+  }
+  if (area == null) { const ca = primaryArea(r); if (ca != null) { area = ca; areaSource = "computed"; } }
   return {
     volume: storedNet ?? comp,
     volumeSource: storedNet != null ? "stored" : comp != null ? "computed" : null,
-    area: first(["netsidearea", "netarea", "netfloorarea", "netsurfacearea", "grosssidearea", "grossarea", "area"], "area"),
+    area,
+    areaSource,
     length: first(["length", "netlength", "grosslength"], "length"),
     weight: first(["netweight", "grossweight", "weight"], "weight"),
   };
+}
+
+/** The area a row's geometry gives for its class: a wall's net side area, a slab's net plan area. */
+export function primaryArea(r) {
+  const A = r.computed?.areas;
+  if (!A || A.error || A.faceted) return null;
+  const pick = A.side ?? A.plan;
+  if (!pick) return null;
+  return pick.net ?? pick.gross;
 }
 
 /**
@@ -410,14 +651,14 @@ export function boq(rows, by = ["class", "type"]) {
     const key = by.map((k) => GROUP_KEYS[k](r));
     const k = JSON.stringify(key);
     let L = lines.get(k);
-    if (!L) { L = { key, count: 0, volume: 0, volumeStored: 0, volumeComputed: 0, volumeMissing: 0, area: 0, length: 0, weight: 0, disagree: 0 }; lines.set(k, L); }
+    if (!L) { L = { key, count: 0, volume: 0, volumeStored: 0, volumeComputed: 0, volumeMissing: 0, area: 0, areaComputed: 0, length: 0, weight: 0, disagree: 0 }; lines.set(k, L); }
     const q = rowQuantities(r);
     L.count++;
     if (q.volume != null) { L.volume += q.volume; if (q.volumeSource === "stored") L.volumeStored++; else L.volumeComputed++; } else L.volumeMissing++;
-    if (q.area != null) L.area += q.area;
+    if (q.area != null) { L.area += q.area; if (q.areaSource === "computed") L.areaComputed++; }
     if (q.length != null) L.length += q.length;
     if (q.weight != null) L.weight += q.weight;
-    if (r.check && ((r.check.gross && !r.check.gross.agree) || (r.check.net && !r.check.net.agree))) L.disagree++;
+    if ((r.check && ((r.check.gross && !r.check.gross.agree) || (r.check.net && !r.check.net.agree))) || Object.values(r.areaCheck || {}).some((c) => !c.agree)) L.disagree++;
   }
   return [...lines.values()].sort((a, b) => a.key.join("\u0000").localeCompare(b.key.join("\u0000")));
 }
@@ -429,34 +670,36 @@ const csvCell = (v) => {
 };
 
 export function boqCsv(lines, by, rates = {}) {
-  const head = [...by.map((k) => k[0].toUpperCase() + k.slice(1)), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount"];
+  const head = [...by.map((k) => k[0].toUpperCase() + k.slice(1)), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount"];
   const out = [head.map(csvCell).join(",")];
   for (const L of lines) {
     const k = JSON.stringify(L.key);
     const rate = rates[k];
     let amount = null;
     if (rate && Number.isFinite(rate.rate)) amount = rate.rate * ({ each: L.count, m3: L.volume, m2: L.area, m: L.length, kg: L.weight }[rate.unit] ?? 0);
-    out.push([...L.key, L.count, L.volume, L.area, L.length, L.weight, L.volumeStored, L.volumeComputed, L.volumeMissing, L.disagree, rate ? rate.rate : null, rate ? rate.unit : null, amount].map(csvCell).join(","));
+    out.push([...L.key, L.count, L.volume, L.area, L.length, L.weight, L.volumeStored, L.volumeComputed, L.volumeMissing, L.areaComputed, L.disagree, rate ? rate.rate : null, rate ? rate.unit : null, amount].map(csvCell).join(","));
   }
   return out.join("\r\n") + "\r\n";
 }
 
 export function rowsCsv(rows) {
-  const head = ["Entity", "GlobalId", "Class", "Name", "Type", "Storey", "Material", "Classification", "Assembly", "Part of", "Computed gross m3", "Computed net m3", "Openings", "Geometry status", "Stored GrossVolume m3", "Stored NetVolume m3", "Volume check", "Stored quantities"];
+  const head = ["Entity", "GlobalId", "Class", "Name", "Type", "Storey", "Material", "Classification", "Assembly", "Part of", "Computed gross m3", "Computed net m3", "Openings", "Geometry status", "Stored GrossVolume m3", "Stored NetVolume m3", "Volume check", "Computed gross area m2", "Computed net area m2", "Area measured", "Area check", "Stored quantities"];
   const out = [head.map(csvCell).join(",")];
   for (const r of rows) {
     const c = r.computed || {};
     const g = r.check && r.check.gross, n = r.check && r.check.net;
     const verdict = !r.check ? "" : [g && (g.agree ? "gross agrees" : `gross differs ${(g.rel * 100).toFixed(1)}%`), n && (n.agree ? "net agrees" : `net differs ${(n.rel * 100).toFixed(1)}%`)].filter(Boolean).join("; ");
     const stored = Object.entries(r.stored).map(([k, q]) => `${k}=${Math.round(q.value * 1e6) / 1e6}`).join("; ");
-    out.push([`#${r.id}`, r.globalId, r.ifcClass, r.name, r.type, r.storey, r.material, r.classification, r.isAssembly ? "yes" : "", r.parent ? `#${r.parent}` : "", c.gross, c.net, c.openings, c.status === "ok" ? (c.net == null ? `net not computed: ${c.netReason}` : "ok") : c.status ? `${c.status}${c.reason ? ": " + c.reason : ""}` : "", g ? g.stored : null, n ? n.stored : null, verdict, stored].map(csvCell).join(","));
+    const A = c.areas && !c.areas.error && !c.areas.faceted ? (c.areas.side ? ["side", c.areas.side] : c.areas.plan ? ["plan", c.areas.plan] : c.areas.cross ? ["cross-section", c.areas.cross] : null) : null;
+    const areaVerdict = Object.entries(r.areaCheck || {}).map(([k, a]) => a.agree ? `${k} agrees` : `${k} differs ${a.rel === Infinity ? "" : (a.rel * 100).toFixed(1) + "%"}${a.reason ? " (" + a.reason + ")" : ""}`).join("; ");
+    out.push([`#${r.id}`, r.globalId, r.ifcClass, r.name, r.type, r.storey, r.material, r.classification, r.isAssembly ? "yes" : "", r.parent ? `#${r.parent}` : "", c.gross, c.net, c.openings, c.status === "ok" ? (c.net == null ? `net not computed: ${c.netReason}` : "ok") : c.status ? `${c.status}${c.reason ? ": " + c.reason : ""}` : "", g ? g.stored : null, n ? n.stored : null, verdict, A ? A[1].gross : null, A ? A[1].net : null, A ? A[0] : "", areaVerdict, stored].map(csvCell).join(","));
   }
   return out.join("\r\n") + "\r\n";
 }
 
 /** Totals of the check across rows, for the page's summary and the eval. */
 export function checkSummary(rows) {
-  const s = { elements: rows.length, computed: 0, notRead: 0, noBody: 0, grossPairs: 0, grossAgree: 0, netPairs: 0, netAgree: 0, netNotComputed: 0, reasons: {} };
+  const s = { elements: rows.length, computed: 0, notRead: 0, noBody: 0, grossPairs: 0, grossAgree: 0, netPairs: 0, netAgree: 0, netNotComputed: 0, areaPairs: 0, areaAgree: 0, reasons: {} };
   for (const r of rows) {
     const c = r.computed;
     if (!c) continue;
@@ -466,6 +709,7 @@ export function checkSummary(rows) {
     if (c.status === "ok" && c.net == null) { s.netNotComputed++; s.reasons["net: " + c.netReason] = (s.reasons["net: " + c.netReason] || 0) + 1; }
     if (r.check?.gross) { s.grossPairs++; if (r.check.gross.agree) s.grossAgree++; }
     if (r.check?.net) { s.netPairs++; if (r.check.net.agree) s.netAgree++; }
+    for (const a of Object.values(r.areaCheck || {})) { s.areaPairs++; if (a.agree) s.areaAgree++; }
   }
   return s;
 }
