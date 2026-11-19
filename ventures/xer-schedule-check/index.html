@@ -50,6 +50,13 @@
     .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0 12px; }
     input[type=number] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7b8b99; border-radius: 7px; font: 15px system-ui, sans-serif; }
   </style>
+<style>/* cta-row-phone: when the call-to-action pair wraps on a phone, each button fills its line
+   instead of leaving a ragged stack (polish 2026-11-19). Checked by platform/pages/cta-row-phone.test.mjs. */
+@media (max-width: 560px) {
+  .cta-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cta-row > a.cta { flex: 1 1 auto; text-align: center; margin: 0; }
+}
+</style>
 </head>
 <body>
   <main>
