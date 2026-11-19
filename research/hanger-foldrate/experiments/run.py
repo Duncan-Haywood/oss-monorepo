@@ -1,4 +1,4 @@
-"""hanger-foldrate: hanger-cell with a published fold time. Stdlib only, ~20 s. Writes results.txt.
+"""hanger-foldrate: hanger-cell with a published fold time. Stdlib only, about 3 s. Writes results.txt.
 
 PYTHONPATH=src:../hanger-cell/src python3 experiments/run.py
 """

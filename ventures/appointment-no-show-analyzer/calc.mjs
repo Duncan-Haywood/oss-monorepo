@@ -188,7 +188,7 @@ const ALIASES = {
   start: ["start", "starttime", "startdate", "startdatetime", "date", "datetime", "appointmentdate", "appointmentdatetime", "appointmenttime", "scheduled", "scheduledtime", "scheduleddate", "when", "eventstartdate", "eventstarttime", "eventstart", "bookingdate", "bookingtime", "appointmentstart"],
   time: ["time", "starttime", "appointmenttime", "timeslot", "slot", "hour", "eventtime"],
   status: ["status", "appointmentstatus", "bookingstatus", "state", "outcome", "attendance", "result", "eventstatus"],
-  price: ["price", "serviceprice", "amount", "total", "cost", "fee", "rate", "charge", "revenue", "servicecost", "appointmentprice", "value", "paid", "amountpaid", "totalprice", "baseprice"],
+  price: ["price", "serviceprice", "amount", "total", "cost", "fee", "rate", "charge", "revenue", "servicecost", "appointmentprice", "value", "totalprice", "baseprice"],
   created: ["created", "createdat", "createddate", "createdon", "datecreated", "booked", "bookedat", "bookedon", "datebooked", "bookingcreated", "bookingcreatedat", "bookingcreateddate", "scheduledon", "scheduledat", "madeon", "requestedat"],
   cancelledAt: ["cancelledat", "canceledat", "cancelleddate", "canceleddate", "cancelledon", "canceledon", "datecancelled", "datecanceled", "cancellationdate", "cancellationtime", "cancellationdatetime", "cancelledtime", "canceledtime", "cancelleddatetime", "canceleddatetime", "timecancelled", "timecanceled"],
   id: ["id", "appointmentid", "bookingid", "confirmation", "confirmationnumber", "confirmationcode", "reference", "referencenumber", "uuid", "eventid", "reservationid", "ref"],
@@ -303,6 +303,8 @@ export function normalizeBookings(parsed, { dateOrder = "auto", decimalComma = f
       hasTime: dt.hasTime, hour: dt.hasTime ? d.getUTCHours() : null, dow: (d.getUTCDay() + 6) % 7,
       status, rawStatus, price, priceSource: price === null ? "missing" : "file",
       createdMs: c ? c.ms : null, cancelledMs: x ? x.ms : null,
+      // The booking system itself marked it late ("Late Cancel"): late even with no cancelled-at date.
+      markedLate: status === "cancelled" && /^(late|cancelledlate|canceledlate)/.test(key(rawStatus)),
     };
     const id = get(r, "id");
     const dupKey = id ? `id:${id}` : [clientKey, service.toLowerCase(), dt.ms, status, price].join("|");
@@ -399,7 +401,8 @@ export function analyze(records, opts = {}) {
       if (r.cancelledMs !== null) {
         notice = (r.start - r.cancelledMs) / HOUR_MS;
         late = notice < noticeHours;
-      } else noticeKnown = false;
+      } else if (r.markedLate) late = true;
+      else noticeKnown = false;
     }
     const lead = r.createdMs !== null ? (r.start - r.createdMs) / HOUR_MS : null;
     return { ...r, notice, late, noticeKnown, lead };

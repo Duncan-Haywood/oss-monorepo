@@ -4,3 +4,7 @@ See [`../README.md`](../README.md). Summary: a noisy memoryless variant of the `
 share than the `society-allies` simulation, the deterministic map at higher; the simulation lies between them in 6 of 6
 cells (spread robots, k = 2: 0.06 / 0.10 / 0.18). Prior work: Xie et al. (2011), *Phys. Rev. E* 84, 011130; Centola et al.
 (2018), *Science* 360, 1116.
+
+**Audit correction (2026-11-19):** the bracketing does not survive a matched horizon (resampled with 56 sweeps, about
+the simulation's memory turnover, tips at or above the simulation in 6 of 6 cells) or an exact mean-field (no 1/1000
+lookup table: block cells tip below the simulation). See the README's "Audit correction" section.

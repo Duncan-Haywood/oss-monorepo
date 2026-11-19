@@ -38,7 +38,8 @@ listed with the reason.
 Counted bookings are attended, no-show and client-cancelled; bookings cancelled by the business
 and still-open bookings are left out of every rate. Late cancel = client cancellation less than the
 notice window before the start (needs a cancelled-at date; otherwise counted as a cancellation of
-unknown notice). Revenue lost = price of each no-show; late-cancel revenue is shown apart as at
+unknown notice, unless the status itself reads "Late Cancel"). An amount-paid column is not read as
+the price, since a no-show usually paid nothing. Revenue lost = price of each no-show; late-cancel revenue is shown apart as at
 risk. Rows with no price use their service's average from the file, else the typed placeholder.
 Groups under 5 bookings are marked as small samples. The deposit what-if treats prevented
 no-shows as kept visits and charges the fee percentage on the rest; every input to it is the
