@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtHtDUoaDQvBLyzKzK1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T04:05:57Z",
+  "ended": "2026-11-19T04:15:31Z",
+  "wall_minutes": 9.83,
+  "tokens_in": 4737964,
+  "tokens_out": 27600,
+  "cost_usd": 2.2981,
+  "tool_calls": 52,
+  "task": "Flagship row 4 (league-schedule-generator): crossover play-off seeds for pool play, and the knockout bracket on the pool card",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17534",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "Swap-only seed search hit local optima (3x4, 4x4 pools) against a brute force; fixed by adding an exact pruned DFS before shipping.",
+    "First browser check filled teams without a start date/weekday and got a form error; reused the page's example instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The league-schedule-generator next: is ~2000 chars of landed results and SAT bowling items; finding a user-facing gap took grepping index.html and calc.mjs, not the row."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace refused a +70-char edit even with --make-room (landed clauses are never parked), so I shortened the landed text instead; the message said how, which helped."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's listed open items (bowling SAT seasons, 49 teams on 8x9, carry-over bounds) are solver tuning with little user value; I took a gap a tournament organiser would hit instead: pool play seeded poolmates into early knockout rematches.",
+      "did": "Built poolPlayoffSeeds (lexicographic poolmate-meeting minimiser, exact search) and the bracket on the pool card.",
+      "result": "0 poolmate first-round meetings in all 13 shapes x 500 draws, against 29-86% of draws by record order."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-pool-play-seeds-that-keep-poolmates-apart.md",
+    "ventures/league-schedule-generator/README.md (section 'Pool play into a knockout bracket...')"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py league-schedule-generator: ok, 739 tests, 0 failed; brute-force check of 530 random pool tables (2-5 pools, 1-4 advancing): exact match; Playwright check of the pool card with the example league: seeds by pool and the bracket render, no page errors; check_posts ok; validate.py ok; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "05e4687f-d870-5166-8b23-9869c0f6804b",
+    "transcripts": 1,
+    "first": "2026-11-19T04:05:57Z",
+    "last": "2026-11-19T04:15:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 93,
+        "output": 27600,
+        "thinking": 6737,
+        "cache_read": 4635541,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102330,
+        "api_equivalent_usd": 2.2981,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 93,
+      "output": 27600,
+      "thinking": 6737,
+      "cache_read": 4635541,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102330,
+      "api_equivalent_usd": 2.2981,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.83,
+      "active_minutes": 9.83,
+      "model_minutes": 5.47,
+      "tool_minutes": 4.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design + exact search + tests + page wiring + eval + post for a mid-level JS dev",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 261.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
