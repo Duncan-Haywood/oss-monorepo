@@ -12,7 +12,7 @@ Open `index.html` directly, or serve this directory with `python3 -m http.server
 - **"What it's worth" and "what it nets you" are different numbers, twice over.** A flat percentage is usually applied to an eyeballed retail value. Liquidating a stranger's unit on a deadline realizes a fraction of that as used goods with no provenance, and whatever it does fetch is then cut again by the resale channel's own fees. On the default $4,000 retail estimate, a realistic 35% recovery and 15% blended resale fees net $1,190 — not $4,000, and not even the $1,400 before fees.
 - **Cleanout has its own cash cost, and it does not scale with the contents' value.** Dump loads, a truck, labor hours, and months of holding cost to resell through are the same rough size whether the unit holds antiques or a sofa nobody wants. A percentage-of-value rule has no room for a fixed cost stack at all — which is exactly backwards on a small or hard-to-sell unit, the outcome you cannot rule out sight-unseen. On the worked example that stack is $650, more than half of the $1,190 net resale revenue before a single dollar is bid.
 
-Put together, the default worked example's flat 20%-of-value rule says bid up to $800 — well past the unit's own $482.14 break-even bid, a guaranteed loss before cleanout even starts. The real math supports a $57.14 hammer bid at a 40% target margin.
+Put together, the default worked example's flat 20%-of-value rule says bid up to $800 — well past the unit's own $482.14 break-even bid, a guaranteed loss of $356 once the $650 cleanout is counted. The real math supports a $57.14 hammer bid at a 40% target margin.
 
 ## What it reports
 

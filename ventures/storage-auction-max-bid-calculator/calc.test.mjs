@@ -160,3 +160,19 @@ test('crew size must be at least one person', () => {
 test('the cleanout window must be greater than zero hours', () => {
   assert.throws(() => calculateMaxBid({ ...DEFAULTS, cleanoutWindowHours: 0 }), /greater than zero/);
 });
+
+test('a bid between the target ceiling and break-even clears break-even but misses the target', () => {
+  // Defaults: target-margin ceiling $57.14, break-even $482.14 (quality audit 2026-11-19).
+  const r = calculateMaxBid({ ...DEFAULTS, plannedBid: 200 });
+  assert.equal(r.plannedExceedsTarget, true);
+  assert.equal(r.plannedExceedsBreakEven, false);
+  assert.equal(r.healthy, false);
+});
+
+test('an unreachable target margin never reads as cleared, even at a $0 bid', () => {
+  // At 60% the target ceiling is negative and clamps to 0; a $0 bid still misses it.
+  const r = calculateMaxBid({ ...DEFAULTS, targetMarginPercent: 60, plannedBid: 0 });
+  assert.equal(r.targetUnreachable, true);
+  assert.equal(r.plannedExceedsTarget, true);
+  assert.equal(r.healthy, false);
+});

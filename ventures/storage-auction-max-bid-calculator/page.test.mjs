@@ -241,3 +241,25 @@ test('index links one hop to the equipment-auction-buyer-premium-calculator sibl
 test('index links one hop to the auction-car-flip-calculator sibling', () => {
   assert.match(html, /href="\.\.\/auction-car-flip-calculator\/"/);
 });
+
+test('the loss banner hides the overbid banner so the two never show together', () => {
+  assert.match(html, /if \(r\.plannedExceedsBreakEven\) \{\s*el\('lossWarning'\)\.hidden = false;\s*el\('overbidWarning'\)\.hidden = true;/);
+});
+
+test('the flat-rule loss is described as a loss after cleanout, not before it', () => {
+  // $800 x 1.12 = $896 is below the $1,190 net resale; the loss ($356) comes from the $650 cleanout.
+  const r = calculateMaxBid({ ...DEFAULTS, plannedBid: 800 });
+  assert.ok(r.plannedPurchaseCost < r.netResaleRevenue);
+  assert.equal(Math.round(-r.plannedProfit), 356);
+  for (const f of ['index.html', 'vs-bidding-a-flat-percentage.html', 'README.md']) {
+    assert.doesNotMatch(readFileSync(new URL('./' + f, import.meta.url), 'utf8'), /loss before cleanout/);
+  }
+});
+
+test('the cleanout guide no longer says a 10-hour solo job misses a 48-hour window', () => {
+  const guide = readFileSync(new URL('./how-long-do-you-have-to-clean-out-a-storage-unit.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(guide, /10-person-hour unit[^<]*48-hour window[^<]*still misses/);
+  // The worked example it uses instead: 16 person-hours solo exceeds a 24-hour window only once gate hours bind.
+  const r = calculateMaxBid({ ...DEFAULTS, cleanoutPersonHours: 16, crewSize: 1, cleanoutWindowHours: 24 });
+  assert.equal(r.depositAtRisk, false); // the tool alone does not flag it, which is the stated limit
+});

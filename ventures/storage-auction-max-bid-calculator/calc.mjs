@@ -149,8 +149,11 @@ export function calculateMaxBid(input) {
   const plannedTotalOutlay = plannedPurchaseCost + nonBidCashCost;
   const plannedProfit = netResaleRevenue - plannedTotalOutlay;
   const plannedMarginPercent = netResaleRevenue > 0 ? (plannedProfit / netResaleRevenue) * 100 : null;
-  const plannedExceedsTarget = plannedBid > maxBidAtTargetMargin;
-  const plannedExceedsBreakEven = plannedBid > breakEvenBid;
+  // Compare against the unclamped ceilings: when the target (or break-even)
+  // is unreachable the clamped value is 0, and a $0 bid would wrongly read as
+  // clearing it.
+  const plannedExceedsTarget = plannedBid > maxBidAtTargetMarginRaw || targetUnreachable;
+  const plannedExceedsBreakEven = plannedBid > breakEvenBidRaw || noProfitablePrice;
 
   // Wall-clock hours the cleanout actually takes, once split across the
   // crew, against the facility's own removal window.

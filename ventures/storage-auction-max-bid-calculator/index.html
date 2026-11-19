@@ -142,12 +142,13 @@ function update(count = false) {
     }
     if (r.naiveRuleExceedsBreakEven) {
       el('naiveRuleWarning').hidden = false;
-      el('naiveRuleWarning').textContent = `The ${el('naiveRuleBidPercent').value}%-of-value rule of thumb says bid up to ${money(r.naiveRuleBid)} — that is past this unit's own break-even bid of ${money(r.breakEvenBid)}, a guaranteed loss before cleanout even starts.`;
+      el('naiveRuleWarning').textContent = `The ${el('naiveRuleBidPercent').value}%-of-value rule of thumb says bid up to ${money(r.naiveRuleBid)} — that is past this unit's own break-even bid of ${money(r.breakEvenBid)}, a guaranteed loss once the cleanout costs are counted.`;
     } else {
       el('naiveRuleWarning').hidden = true;
     }
     if (r.plannedExceedsBreakEven) {
       el('lossWarning').hidden = false;
+      el('overbidWarning').hidden = true;
       el('lossWarning').textContent = `Your planned bid of ${money(Number(el('plannedBid').value) || 0)} is above this unit's break-even bid of ${money(r.breakEvenBid)} — at this bid the deal loses ${money(Math.abs(r.plannedProfit))} no matter how the resale goes.`;
     } else {
       el('lossWarning').hidden = true;
