@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtKENCu1H5c3rvRYNAf",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T20:07:08Z",
+  "ended": "2026-11-19T20:25:47Z",
+  "wall_minutes": 18.79,
+  "tokens_in": 3324220,
+  "tokens_out": 29749,
+  "cost_usd": 2.0021,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17778",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Two 2-draw smoke runs failed on loading (a panel file without vstrat/vpsu; panel age read as a labelled factor); fixed before the full run, estimands unchanged.",
+    "Sign error in the m5p accounting block (-slope x age difference with the difference defined young minus old); found after the first full run, fixed, rerun with the same seed, only those 8 lines changed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/catholic-demography/LOG.md",
+      "issue": "m5o's 'Next' proposed separating age from survey year with year fixed effects in cross-sections; with cohort fixed, age and year are collinear, so that design cannot work. The step compared within-cohort and within-person slopes instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-catholic-upbringing-recall-drift.md",
+    "research/catholic-demography/LOG.md (2026-11-19 entry)"
+  ],
+  "goal": null,
+  "notes": "Programme catholic-demography, m5p. P1-P4 pre-registered (2600a9b00). Local checks: pytest test_cathdem.py 17 passed; research/_homepage/build.py ok; check_md_links ok; check_posts ok. Full run 63 s.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "56b15121-e8ac-54d4-8585-b08ecd8a9614",
+    "transcripts": 1,
+    "first": "2026-11-19T20:07:08Z",
+    "last": "2026-11-19T20:25:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 69,
+        "output": 29749,
+        "thinking": 8468,
+        "cache_read": 3229017,
+        "cache_write_5m": 0,
+        "cache_write_1h": 95134,
+        "api_equivalent_usd": 2.0021,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 69,
+      "output": 29749,
+      "thinking": 8468,
+      "cache_read": 3229017,
+      "cache_write_5m": 0,
+      "cache_write_1h": 95134,
+      "api_equivalent_usd": 2.0021,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.79,
+      "active_minutes": 18.79,
+      "model_minutes": 5.09,
+      "tool_minutes": 13.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a demographer designing, coding and writing up a pre-registered two-source drift comparison",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 299.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
