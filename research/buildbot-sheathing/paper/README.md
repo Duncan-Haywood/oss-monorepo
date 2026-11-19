@@ -13,7 +13,7 @@ came from: every entry names a phrase that must be in the draft and the text tha
 a quoted number, fails it (`tests/test_paper.py` runs it).
 
 ```bash
-python3 paper/check_numbers.py   # stdlib only; prints "194 of 194 checks ok"
+python3 paper/check_numbers.py   # stdlib only; prints "N of N checks ok" (420 on 2026-11-19)
 ```
 
 [`build_latex.py`](build_latex.py) (milestone 23) builds the submission source from the same draft:

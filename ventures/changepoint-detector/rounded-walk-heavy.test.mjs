@@ -73,4 +73,5 @@ test('the sentence names the likelihood when the call came from it', () => {
   assert.match(line, /carried forward on about 55% of steps/);
   assert.match(line, /likelihood ratio 12\.3, against 5\.4 at the 1% level/);
   assert.match(line, /read as staleness, not rounding/);
+  assert.match(line, /Trade prints resting at a bid or ask one tick wide/);
 });

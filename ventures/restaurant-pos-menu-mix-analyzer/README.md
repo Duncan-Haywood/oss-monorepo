@@ -38,3 +38,10 @@ combos, seasonality, menu position.
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
+
+## Known gaps
+
+From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-restaurant-pos-menu-mix-analyzer.json`](../../portfolio/quality/audits/2026-11-19-restaurant-pos-menu-mix-analyzer.json)):
+
+- One matrix covers every category in the file, so sides, drinks and desserts are ranked against mains. Menu engineering normally compares items that compete; a per-category view is the next feature.
+- Column aliases have not been checked against a real Toast, Square or Clover export, and size variations of one item (a small and a large latte) merge into one averaged item.

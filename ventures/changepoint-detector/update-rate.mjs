@@ -377,7 +377,7 @@ export function updateRateLines(u, labels) {
     ? `a rounded walk carried forward on about ${pct(c.staleP)} of steps fits it better than the same walk only rounded, even allowing heavy-tailed jumps (likelihood ratio ${c.staleLR.toFixed(1)}, against 5.4 at the 1% level)`
     : `a move that ends two or more repeats is ${c.catchUpRatio.toFixed(1)}x the mean square of a move after a move`;
   const catchNote = caught.length
-    ? ` Around ${caught.map((c) => L(c.index)).join(', ')} most moves in the stickier stretch are one tick (${[...new Set(caught.map(tk))].join(' or ')}), but the moves that end runs of repeats grow with the run, as a stale figure catching up would (${caught.map(lrNote).join('; ')}), so those repeats read as staleness, not rounding.`
+    ? ` Around ${caught.map((c) => L(c.index)).join(', ')} most moves in the stickier stretch are one tick (${[...new Set(caught.map(tk))].join(' or ')}), but the moves that end runs of repeats grow with the run, as a stale figure catching up would (${caught.map(lrNote).join('; ')}), so those repeats read as staleness, not rounding. Trade prints resting at a bid or ask one tick wide can show the same pattern with nothing carried (on real exchange trades, 16 of 68 one-tick windows of prints were called stale: README "The shipped one-tick stale test on real one-tick feeds"), so for trade or quote data check the source's own timestamps before reading it as a stale feed.`
     : '';
   return [`Update-rate check: the share of steps that repeat the previous value exactly changed ${u.changes.length === 1 ? 'once' : `${u.changes.length} times`}: ${parts.join('; ')}.${why}${catchNote}`];
 }

@@ -10,7 +10,7 @@ corresponding author are left for the owner to fill in before any submission.*
 
 - The 1/8 in panel gap shrinks a joint nail's window from ±3.93 to ±3.14 mm.
 - Bowed studs cap single-2x joints at 87% clean sheets, even with perfect reads.
-- Doubled joint studs give 99.94% clean sheets with one read a stud, 76–216 s a sheet.
+- Doubled joint studs give 99.94% clean sheets with one read a stud (94% at high warp).
 - A G1 on a lift base beats a hand crew in only 37% of draws at 100 houses a year.
 - Decayed-wall tests fit only with end nails at about a quarter of their NDS strength.
 
@@ -822,6 +822,12 @@ The nail's angle needs no rows of its own here (milestone 59). Carrying the same
 depth point, 44.4 mm along the nail, on a third held-out set of 48 loads, the two-row rule already leaves the depth
 point at worst 0.0220 mm (G1) and 0.0177 mm (H1), the nail axis tilts at most 0.034 mrad, and the four-row rule plans
 the same presses (100% on the G1, 99.65% on the H1).
+A raised leg preload plans most of what is left (milestone 60). On a fourth held-out set of 48 loads, the four-row
+rule leaves 18 H1 cases unplanned, 17 of them binding on the left knee. Raising that case's leg preload margin from
+0.1 N m to 0.12, 0.16 or 0.18 N m plans all 17, inside 0.03 mm at both points (worst 0.0181 mm at the depth point),
+with no flip between plan and robot, and lifts H1 coverage from 99.67% to 99.98%. The controller's leg effort rises
+by a median 0.1% and at most 13.5%, at the 1.6 m pose. Raising the left knee's margin alone plans the same 17. The
+four cases left are an H1 elbow, which no leg preload moves, and three G1 cases with no plan on any side.
 
 ### 5.12 What the remedies cost (milestone 13)
 

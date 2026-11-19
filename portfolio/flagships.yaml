@@ -119,23 +119,23 @@ flagships:
       RapidOCR's total unless arithmetic confirms the majority, CORD train 542/583;
       page SRD 190/196 (port as lead), page CORD taxes kept (train 205/267),
       WildReceipt held out 360/405, tax 209/272, Russian slips 203/230, 202/221
-      (RapidOCR), merchant 113/146 (Cyrillic, auto-picked; forms, bands), SROIE
-      84.6%, five readings 96.5% held out, dates 94.1% (was 69.1%), US 79.6%, tax
-      74.6%; CLI 78.6%, tax 71.9%; CORD photos val 71.4%, train 62.2%, test 57.9%,
-      tax 16/41; open: OCR-bound); (6) payroll (README): two journal layouts read;
-      open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS
-      TY2025 guidelines (HISTORY): open: a real upload, TY2026 template. A run that
-      lands a slice replaces its item here; keep this under 2,000 characters. More
-      open items: NEXT.md.
+      (RapidOCR), merchant 113/146, page 114 (Cyrillic, bands), SROIE 84.6%, five
+      readings 96.5% held out, dates 94.1% (was 69.1%), US 79.6%, tax 74.6%; CLI
+      78.6%, tax 71.9%; CORD photos val 71.4%, train 62.2%, test 57.9%, tax 16/41;
+      open: OCR-bound); (6) payroll (README): two journal layouts read; open: a real
+      Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
+      guidelines (HISTORY): open: a real upload, TY2026 template. A run that lands a
+      slice replaces its item here; keep this under 2,000 characters. More open
+      items: NEXT.md.
     buildable: >-
       Receipts, item (5): WildReceipt (eval/wildreceipt.py, Hugging Face
       kaydee/wildreceipt; Apache-2.0), SRD (eval/srd-fetch.mjs), CORD
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. WildReceipt all
-      read (eval/wildreceipt-rescore-2026-11-17.md); next: VAT5%: 668. Russian slips
+      read, spent (eval/wildreceipt-rescore-2026-11-17.md). Russian slips
       (cdek-ocr/receipt-ocr-ru, eval/receipt-ocr-ru-2026-11-18.md): all shards read
       (eval/receipt-ocr-ru-train2-2026-11-18.md); Cyrillic RapidOCR:
-      eval/receipt-ocr-ru-eslav-2026-11-18.md; next: bands re-read on the page.
-      SROIE (zzzDavid/ICDAR-2019-SROIE) merchants:
+      eval/receipt-ocr-ru-eslav-2026-11-18.md, bands on CLI and page
+      (eval/receipt-ocr-ru-page-*). SROIE (zzzDavid/ICDAR-2019-SROIE) merchants:
       eval/sroie-five-readings-2026-11-18
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
@@ -197,19 +197,19 @@ flagships:
       pooled); a closure 1-7 days before a step costs ~1/100 and the 2011-09-01
       alert was the holiday's zero (README "A closure in the week before a step"));
       (a) ar1 + floor 2 failed on 5 fresh bee dances (0.244 vs 0.337, README; muted
-      note ships); update-rate: pegs 4 of 7 dated; NYT failed (N1 2/4, N2 5/9,
-      README "Short spells on a second provider"), edge-spell line ships; next a
-      provider that documents its own changes. Stale feeds: real carry-forward 84/85
-      caught but prints 56/56 false; growth test by moves (README "The catch-up test
-      by stretch length", LOBSTER): 1,000 moves 29/38 (fail); AAPL/AMZN/GOOG 28/33,
-      prints 0/34; penny-spread stocks reverse (the half-cent tick passes the gate);
-      next a fresh round gated on the quoted tick, 2,000 moves. joint drift
-      (measured, not offered) and its 2x penalty on fresh multi-column labelled
-      data. Open: (0) drift model: t-walk increments, biweight on fresh data, why it
-      absorbs seat belts and quality control 4, its AR(1) term; notes quote it.
-      Curvature word ships under --shape-word panel (README "A curvature word"):
-      slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items:
-      NEXT.md.
+      note ships); update-rate: pegs 4 of 7 dated; next a provider that documents
+      its own changes. Stale feeds: real carry-forward 84/85 caught but prints 56/56
+      false; AAPL/AMZN/GOOG 28/33, prints 0/34; penny-spread stocks reverse (the
+      half-cent tick passes the gate); quoted-tick gate unscorable on 12 Binance
+      pairs (all one-tick); the shipped one-tick LR on them fails size, prints 16/68
+      stale (README "The shipped one-tick stale test on real one-tick feeds"),
+      caveat ships; next a trade-side (buyer-is-maker) check on a fresh day. joint
+      drift (measured, not offered) and its 2x penalty on fresh multi-column
+      labelled data. Open: (0) drift model: t-walk increments, biweight on fresh
+      data, why it absorbs seat belts and quality control 4, its AR(1) term; notes
+      quote it. Curvature word ships under --shape-word panel (README "A curvature
+      word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open
+      items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -307,24 +307,21 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
-      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise blend: the 11
-      Bayer rows still losing >0.1 dB are over-read noise (D780, D600;
-      eval/near-clean-gate-2026-11-19.md, tools/near_clean_gate.py); X-Trans k
-      unset. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise blend: sweep the
+      metadata-extractor-images raws
+      (eval/near-clean-gate-xtrans-tune-2026-11-19.md) with --clean-truths; X-Trans
+      lift settled off. DNG 1.7.1.0 spec PDF: URL in
+      eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README, HISTORY.md and eval/ (ingest to
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
       CR2; camera DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with
       the 1.7.1.0 text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear
-      matches the Leica T's preview to 0.18 px; WarpRectilinear2). Bayer and X-Trans
-      demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF edge
-      columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
-      (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Coolpix NRW and
-      E-series NEF, Minolta MRW 2026-11-18 (eval/nikon-nrw-reader-*,
-      eval/minolta-mrw-*). Phase One IIQ L and S 2026-11-18, no .dcp: file's matrix
-      (eval/phaseone-iiq-*); Hasselblad 3FR and Phocus .fff (eval/hasselblad-*).
-      Kodak DCR 2026-11-18 = LibRaw (eval/kodak-dcr-*). RW2 RawFormat 8 2026-11-18:
-      S1R II, S5 IIX, S1 II E; 4 x 2 tiles (177 MP); no public file has a tone curve
+      matches the Leica T's preview to 0.18 px; WarpRectilinear2). Phase One IIQ L
+      and S 2026-11-18, no .dcp: file's matrix (eval/phaseone-iiq-*); Hasselblad 3FR
+      and Phocus .fff (eval/hasselblad-*). Kodak DCR 2026-11-18 = LibRaw
+      (eval/kodak-dcr-*). RW2 RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E; 4 x 2
+      tiles (177 MP); no public file has a tone curve
       (eval/panasonic-rw2-format8-grid-*). S1R II 177 MP = LibRaw snapshot 202611,
       every sensel (eval/panasonic-rw2-177mp-libraw-*). IIQ 16-bit (IQ4, IQ3 100MP,
       Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs LibRaw's dE 16, unsettled
@@ -334,10 +331,11 @@ flagships:
       export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
       5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
-      evenly lit frame; Bayer's near-clean leak closed 2026-11-19 (lift_near_detail,
-      k 12: held-out losers 18 to 11, worst SNR 200 -0.27 to -0.14,
-      eval/near-clean-gate-2026-11-19.md); next the 11 left, all over-read noise
-      (D780, D600 tiles), an X-Trans tune pass for its own k. More open items:
+      evenly lit frame; Near-clean leak closed on Bayer 2026-11-19 (k 12,
+      eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
+      day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
+      reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*); next
+      the D780/D600 losers' truth noise, when raw.pixls.us answers. More open items:
       NEXT.md.
 
   - venture: quick-pick-survey
@@ -401,18 +399,20 @@ flagships:
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
       (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
       eval/whist-vs-greedy.txt); Whist 48, 60 and near-whist 46, 54, 62 by tabu
-      search 2026-11-19 (eval/whist-anneal.c, .txt); next: 52, 57 (tabu ~1 CPU-h
-      each none; order-4 multiplier on Z51 none) and near-whist 58 (tabu 25+60
+      search 2026-11-19 (eval/whist-anneal.c, .txt); 52, 57: patterned starters
+      impossible, Z19x|Z3 tabu stops at cost 2 (README "Whist designs for 52 and
+      57"); next: SAT or a product construction; and near-whist 58 (tabu 25+60
       CPU-min, SAT 2.2 h none; sit-out parity and mirror proof: README "Near-whist
       designs by SAT"). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The bound's ppm floor on takes near 2
-      ms" (2026-11-19: floor 2 shown needed, Y+Z floor 0 missed 3 of 54, floor 2
-      none; eval/take-bound-floor-near2-2026-11-19.md). Next: a floor scaled to the
-      survey's noise (NEXT.md); TAKE_SURVEY_BLIND's 1.5 rechecked on a fresh
-      jittery-tach set at the nine-point grid.
+      see firmware/esp32/README.md, latest "The take-blind rule rechecked on the
+      nine-point grid" (2026-11-19: 1.5 kept, AA+AB 30 of 60 vs 22 off, 3 tied; SE
+      floor closed on design, eval/take-bound-floor-se-2026-11-19.md). Next: the
+      1.3-2 ms takes every blind reads as instant
+      (eval/take-blind-nine-2026-11-19.md): a per-wheel straddle count to separate
+      them.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -528,7 +528,9 @@ flagships:
       authors' links, 2 author slips); next: --bsdd over its 54 outputs where bSDD
       is reachable; a page route for bSDD if its API ever allows CORS; a BIM
       manager's real table or filled Excel2IDS workbook via --from-sheet; Excel
-      itself typing into the download; an RVB/ILS author on \s; a Revit/ARCHICAD
+      itself typing into the download (dropdown lists in it 2026-11-19,
+      eval/sheet-dropdowns-2026-11-19.md: 0 strict-list cells out on 476 IDS,
+      LibreOffice agrees 476 of 476); an RVB/ILS author on \s; a Revit/ARCHICAD
       IFC4X3 export to confirm. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and

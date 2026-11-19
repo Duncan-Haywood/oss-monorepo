@@ -1,0 +1,34 @@
+ALL design: 684 builds with a survey
+  fixed 0 ppm: told 393, covered 383 (97.5%), instant 1.5 ms on 48 of 66; misses: take-dense-m 2.9 ms bounded 1.5 (step 14.9 ppm, se 1.6); take-dense-n 1.9 ms bounded 1.5 (step 16.6 ppm, se 1.2); take-bound-o 2 ms bounded 1.5 (step 16.2 ppm, se 2.5); take-bound-o 2 ms bounded 1.5 (step 19.5 ppm, se 4.1); take-bound-floor-p 1.6 ms bounded 1.5 (step 8.1 ppm, se 0.6); take-bound-floor-p 2.8 ms bounded 1.5 (step 12.3 ppm, se 3.4); take-bound-floor-p 3.5 ms bounded 1.5 (step 20.9 ppm, se 8.3); take-bound-floor-near2-z 1.9 ms bounded 1.5 (step 8.7 ppm, se 1.8); take-bound-floor-near2-z 2 ms bounded 1.5 (step 6 ppm, se 0.9); take-bound-floor-near2-z 2.1 ms bounded 1.5 (step 7.5 ppm, se 1.6)
+  fixed 2 ppm: told 393, covered 393 (100.0%), instant 1.5 ms on 41 of 66
+  step  0 SE: told 393, covered 383 (97.5%), instant 1.5 ms on 48 of 66; misses: take-dense-m 2.9 ms bounded 1.5 (step 14.9 ppm, se 1.6); take-dense-n 1.9 ms bounded 1.5 (step 16.6 ppm, se 1.2); take-bound-o 2 ms bounded 1.5 (step 16.2 ppm, se 2.5); take-bound-o 2 ms bounded 1.5 (step 19.5 ppm, se 4.1); take-bound-floor-p 1.6 ms bounded 1.5 (step 8.1 ppm, se 0.6); take-bound-floor-p 2.8 ms bounded 1.5 (step 12.3 ppm, se 3.4); take-bound-floor-p 3.5 ms bounded 1.5 (step 20.9 ppm, se 8.3); take-bound-floor-near2-z 1.9 ms bounded 1.5 (step 8.7 ppm, se 1.8); take-bound-floor-near2-z 2 ms bounded 1.5 (step 6 ppm, se 0.9); take-bound-floor-near2-z 2.1 ms bounded 1.5 (step 7.5 ppm, se 1.6)
+  step  0.5 SE: told 393, covered 389 (99.0%), instant 1.5 ms on 38 of 66; misses: take-bound-o 2 ms bounded 1.5 (step 16.2 ppm, se 2.5); take-bound-floor-p 1.6 ms bounded 1.5 (step 8.1 ppm, se 0.6); take-bound-floor-near2-z 1.9 ms bounded 1.5 (step 8.7 ppm, se 1.8); take-bound-floor-near2-z 2 ms bounded 1.5 (step 6 ppm, se 0.9)
+  step  1 SE: told 393, covered 392 (99.7%), instant 1.5 ms on 33 of 66; misses: take-bound-floor-near2-z 2 ms bounded 1.5 (step 6 ppm, se 0.9)
+  step  1.5 SE: told 393, covered 392 (99.7%), instant 1.5 ms on 30 of 66; misses: take-bound-floor-near2-z 2 ms bounded 1.5 (step 6 ppm, se 0.9)
+  step  2 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 24 of 66
+  step  2.5 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 22 of 66
+  step  3 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 20 of 66
+  step  4 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 20 of 66
+  step  5 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 17 of 66
+  step  6 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 16 of 66
+  pair  0 SE: told 393, covered 383 (97.5%), instant 1.5 ms on 48 of 66; misses: take-dense-m 2.9 ms bounded 1.5 (step 14.9 ppm, se 1.6); take-dense-n 1.9 ms bounded 1.5 (step 16.6 ppm, se 1.2); take-bound-o 2 ms bounded 1.5 (step 16.2 ppm, se 2.5); take-bound-o 2 ms bounded 1.5 (step 19.5 ppm, se 4.1); take-bound-floor-p 1.6 ms bounded 1.5 (step 8.1 ppm, se 0.6); take-bound-floor-p 2.8 ms bounded 1.5 (step 12.3 ppm, se 3.4); take-bound-floor-p 3.5 ms bounded 1.5 (step 20.9 ppm, se 8.3); take-bound-floor-near2-z 1.9 ms bounded 1.5 (step 8.7 ppm, se 1.8); take-bound-floor-near2-z 2 ms bounded 1.5 (step 6 ppm, se 0.9); take-bound-floor-near2-z 2.1 ms bounded 1.5 (step 7.5 ppm, se 1.6)
+  pair  0.5 SE: told 393, covered 385 (98.0%), instant 1.5 ms on 46 of 66; misses: take-dense-n 1.9 ms bounded 1.5 (step 16.6 ppm, se 1.2); take-bound-o 2 ms bounded 1.5 (step 16.2 ppm, se 2.5); take-bound-o 2 ms bounded 1.5 (step 19.5 ppm, se 4.1); take-bound-floor-p 1.6 ms bounded 1.5 (step 8.1 ppm, se 0.6); take-bound-floor-p 2.8 ms bounded 1.5 (step 12.3 ppm, se 3.4); take-bound-floor-p 3.5 ms bounded 1.5 (step 20.9 ppm, se 8.3); take-bound-floor-near2-z 1.9 ms bounded 1.5 (step 8.7 ppm, se 1.8); take-bound-floor-near2-z 2 ms bounded 1.5 (step 6 ppm, se 0.9)
+  pair  1 SE: told 393, covered 390 (99.2%), instant 1.5 ms on 8 of 66; misses: take-bound-floor-p 2.8 ms bounded 1.5 (step 12.3 ppm, se 3.4); take-bound-floor-p 3.5 ms bounded 1.5 (step 20.9 ppm, se 8.3); take-bound-floor-near2-z 1.9 ms bounded 1.5 (step 8.7 ppm, se 1.8)
+  pair  1.5 SE: told 393, covered 392 (99.7%), instant 1.5 ms on 0 of 66; misses: take-bound-floor-p 3.5 ms bounded 1.5 (step 20.9 ppm, se 8.3)
+  pair  2 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 0 of 66
+  pair  2.5 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 0 of 66
+  pair  3 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 0 of 66
+  pair  4 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 0 of 66
+  pair  5 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 0 of 66
+  pair  6 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 0 of 66
+  cap   0 SE: told 393, covered 383 (97.5%), instant 1.5 ms on 48 of 66; misses: take-dense-m 2.9 ms bounded 1.5 (step 14.9 ppm, se 1.6); take-dense-n 1.9 ms bounded 1.5 (step 16.6 ppm, se 1.2); take-bound-o 2 ms bounded 1.5 (step 16.2 ppm, se 2.5); take-bound-o 2 ms bounded 1.5 (step 19.5 ppm, se 4.1); take-bound-floor-p 1.6 ms bounded 1.5 (step 8.1 ppm, se 0.6); take-bound-floor-p 2.8 ms bounded 1.5 (step 12.3 ppm, se 3.4); take-bound-floor-p 3.5 ms bounded 1.5 (step 20.9 ppm, se 8.3); take-bound-floor-near2-z 1.9 ms bounded 1.5 (step 8.7 ppm, se 1.8); take-bound-floor-near2-z 2 ms bounded 1.5 (step 6 ppm, se 0.9); take-bound-floor-near2-z 2.1 ms bounded 1.5 (step 7.5 ppm, se 1.6)
+  cap   0.5 SE: told 393, covered 389 (99.0%), instant 1.5 ms on 44 of 66; misses: take-bound-o 2 ms bounded 1.5 (step 16.2 ppm, se 2.5); take-bound-floor-p 1.6 ms bounded 1.5 (step 8.1 ppm, se 0.6); take-bound-floor-near2-z 1.9 ms bounded 1.5 (step 8.7 ppm, se 1.8); take-bound-floor-near2-z 2 ms bounded 1.5 (step 6 ppm, se 0.9)
+  cap   1 SE: told 393, covered 392 (99.7%), instant 1.5 ms on 42 of 66; misses: take-bound-floor-near2-z 2 ms bounded 1.5 (step 6 ppm, se 0.9)
+  cap   1.5 SE: told 393, covered 392 (99.7%), instant 1.5 ms on 41 of 66; misses: take-bound-floor-near2-z 2 ms bounded 1.5 (step 6 ppm, se 0.9)
+  cap   2 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 41 of 66
+  cap   2.5 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 41 of 66
+  cap   3 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 41 of 66
+  cap   4 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 41 of 66
+  cap   5 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 41 of 66
+  cap   6 SE: told 393, covered 393 (100.0%), instant 1.5 ms on 41 of 66
+  step SE over 393 told builds: min 0.5, median 8, 90% 21.9, max 66.4 ppm

@@ -1970,6 +1970,24 @@ test('links that escape the site are repointed at the repository, not left broke
   assert.ok(!built.includes('href="../cli.py"'));
 });
 
+test('a venture link to ../ stays the hub, not the repository folder', async () => {
+  // The hub is written after the repairs run, so `../` used to look like it
+  // left the site and became `.../blob/main/ventures`: a "More free tools"
+  // link that opened a GitHub directory listing. Isolated, like the case above.
+  const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-hub-root-'));
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-hub-out-'));
+  const siteDir = path.join(repoRoot, 'ventures', 'widget-co');
+  await fs.mkdir(siteDir, { recursive: true });
+  await fs.writeFile(path.join(siteDir, 'index.html'), '<a href="../">More free tools</a>');
+  const destination = path.join(outDir, 'widget-co');
+  await fs.mkdir(destination, { recursive: true });
+  await fs.copyFile(path.join(siteDir, 'index.html'), path.join(destination, 'index.html'));
+
+  const repairs = await repairLinks({ publishedDir: destination, sourceDir: siteDir, repoRoot, outDir });
+  assert.deepEqual(repairs, []);
+  assert.ok((await readText(path.join(destination, 'index.html'))).includes('href="../"'));
+});
+
 test('repair leaves working in-site links untouched', async () => {
   const ebay = await read('ebay-fee-calculator', 'index.html');
   assert.ok(ebay.includes('href="calc.mjs"') || ebay.includes('src="calc.mjs"') || ebay.includes('./calc.mjs'),

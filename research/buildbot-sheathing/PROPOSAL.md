@@ -508,6 +508,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    each, on 48 new loads (seed 59). The two-row bound already keeps the depth point inside 0.03 mm (worst 0.022 mm;
    H232 refuted; tilt at most 0.034 mrad), so the four-row bound holds (H233) and changes no plan or coverage, G1 100%
    and H1 99.65% (H234 held). Next: the H1's left knee and right ankle.
+60. **A raised leg preload for the unplanned presses** (done 2026-11-19, `experiments/m60_jointpreload/`): for each
+   case the four-row rule leaves unplanned, the leg preload margin raised (binding joint only, or every leg joint)
+   up a ladder from 0.12 N m, on 48 new loads (seed 60). 17 of the H1's 18 unplanned cases (all left knee) plan at
+   0.12 to 0.18 N m, in spec at both points with no flip (H237 held); H1 coverage 99.67% to 99.98%; median leg
+   effort +0.1%, at most +13.5%. An H1 elbow case and 3 G1 cases with no plan on any side stay unplanned (H235
+   refuted), and the binding joint alone plans as many as the uniform raise (H236 refuted). Next: the arm-side
+   squeeze for the elbow case, and why the G1's (1.2 m) poses have no plan on any side at one load.
 
 ## Target venue
 

@@ -113,6 +113,8 @@ EXPERIMENTS = {
                    45, []),
     "m59_depth": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m58_tworow/run.py (and so m56's to m38's), reads m50 and m52 results.json",
                   45, []),
+    "m60_jointpreload": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m59_depth/run.py via core.py (and so m58's to m38's), reads m50 and m52 results.json",
+                         35, []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]

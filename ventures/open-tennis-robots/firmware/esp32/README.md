@@ -3624,3 +3624,32 @@ and 2.1 ms bounded at 1.5 ms, step rms 6-8.7 ppm, where 2% is under 0.2 ppm); 1 
 the board changed. The price is tightness on the same small-rms builds: 5 of 12 instant builds bounded at 1.5 ms
 against 8 at floor 0. A floor scaled to the survey's own noise is NEXT.md's next item. Everything is in
 `eval/take-bound-floor-near2-2026-11-19.md`.
+
+## A standard-error floor on the take bound (2026-11-19, after "The bound's ppm floor on takes near 2 ms"; closed on design, nothing changed)
+
+**The item.** The fixed 2 ppm floor is needed but loosens the bound on small-rms instant builds. NEXT.md asked whether
+a floor of k standard errors of the step's rms over the kept wheels, which the board could send, keeps the coverage
+and wins the tightness back.
+
+**Design (all nine stored sets, 393 builds told TAKE_US = 0, 66 instant).** `tests/take_bound_floor_se.py` tried
+three shapes: k step SEs, k paired SEs per candidate, and min(2 ppm, k step SEs). The least k that covers every build
+bounds 24 instant builds at 1.5 ms (step) or none (paired), against the fixed floor's 41. The capped shape at k 2 and
+above is the shipped bound exactly. The instant builds the fixed floor loosens and the real takes floor 0 misses
+overlap on both the 1.5 ms gap (0.2-1.9 against 0.3-1.8 ppm) and the SE (0.9-6.2 against 0.6-8.3 ppm), so no floor
+built from the step's noise separates them. No candidate beat the shipped floor, so no held-out pair was captured.
+`TAKE_BOUND_FLOOR_PPM` stays 2. Everything is in `eval/take-bound-floor-se-2026-11-19.md`.
+
+## The take-blind rule rechecked on the nine-point grid (2026-11-19, after "A standard-error floor on the take bound"; 1.5 kept by its pre-registered rule)
+
+**The item.** `TAKE_SURVEY_BLIND = 1.5` was chosen on the seven-point grid, scored by the old whole-ppm share test.
+The grid now has a 1.5 ms candidate near the step, the frame carries tenths, and the Pi's advice has the rounding
+guard, so the same 1.5 might leave out a different set of wheels.
+
+**Design and held out.** `tests/take_blind_nine.py` rebuilds each capture's frame at several blind values and judges
+it by `host.take_survey_advice`. On the seven stored nine-point sets the rule still pays (jittery tach: 57 of 180
+spread takes named with every wheel kept, 75 at 1.5, 79 at 3), and 3 was held out against 1.5 with the rule
+committed first. Fresh jittery-tach sets AA (lag 0.42 s, seed 167) and AB (lag 0.54 s, seed 173), 66 drills: 22 of
+60 named with every wheel kept, 30 at 1.5, 30 at 3, no instant build misadvised. A tie keeps 1.5, now shown on
+held-out nine-point data. The whole gain is at 2.4-5 ms takes (4 to 12 of 24); the 1.3-2 ms takes read as instant at
+every blind. `tests/take_survey_pick.py --capture` gained `--tach K`. Everything is in
+`eval/take-blind-nine-2026-11-19.md`.

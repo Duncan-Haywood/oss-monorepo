@@ -351,7 +351,54 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Tabu search finds whist designs for 48 and 60 players, and near-whist designs for 46, 54 and 62 (2026-11-19, latest)
+## Whist designs for 52 and 57: two more group structures, and why the shortcuts can't work (2026-11-19, latest)
+
+52 and 57 players are the two whist sizes up to 64 with no stored design (52 plays design 53 with an
+empty seat; 57 falls back to the greedy search, which repeats 89 partnerships over 57 rounds at 14
+courts). Every search so far used one base round on a cyclic group (Z51 + infinity, Z57). This run
+tried two structures that search cannot reach, and checked the literature on why the shortcuts fail.
+
+**Why multipliers and patterned starters fail here (literature, not new).** A base round whose
+partner pairs are all {x, -x} is a *patterned starter* (Finizio's term), the shape the -1
+multiplier forces (the section below). For 4k+1 players it exists only if the size is 1 or 5 mod 12
+(Hu and Ge 2012, confirming Zhang and Chang 2009 and Abel, Anderson and Finizio 2011): 57 is 9 mod 12,
+so none exists. For 4k players on Z_v + infinity with v = 3 mod 12, it needs v = 3^(2a+1) v1 with
+v1 = 1 mod 12 (Hu and Ge): 51 = 3 x 17 and 17 is 5 mod 12, so none exists for 52 either. That
+explains, and proves, what the search found below. Source: the survey in Section 2.1 of
+arXiv:1911.07189 ("Partitionable sets, almost partitionable sets and their applications"), which
+cites those results. A whist design exists for every 4k and 4k+1 size (settled in the 1970s, same survey), so 52 and
+57 are a search problem, not an impossibility.
+
+**Two structures searched** (`eval/whist-orbits.c`, tabu search as in `eval/whist-anneal.c`, but over
+several base rounds or a non-abelian group; results in `eval/whist-orbits.txt`, found lines
+re-checked pair by pair with `checkWhist` by `eval/whist-orbits-check.mjs`):
+
+- **Non-abelian group Z19 x| Z3** (57 players; (a,b)(c,d) = (a + 7^b c, b + d)). Round g is g times
+  the base round. On the small case, Z7 x| Z3 (21 players), it finds a design in 68 ms. At 57 it
+  reached cost 2 (one difference class one game over, another one under) in every one of six runs:
+  2 x 20 min and 4 x 15 min, tenures 3 to 10, restarts every 1,000 to 50,000 steps, about 100 CPU-min.
+  At cost 2 the class over and the class under had different images in Z3 in 4 of 5 dumped states.
+  The level counts that image implies were checked and are satisfiable, so it is not that simple
+  an obstruction.
+- **Three levels, Z17 x {0,1,2} + infinity** (52 players) and Z19 x {0,1,2} (57): three base rounds,
+  each developed mod 17 or 19. It finds 16 players (Z5 x 3 + infinity) but nothing at 21, 28, 33 or
+  40 in 60 s, and its best at 52 in 2 x 20 min was cost 12. This is worse than the plain cyclic
+  search, so drop it.
+- **The base round fixed by (a,b) -> (-a,b)** on the non-abelian group (`WHIST_SIGMA`): 21 is never
+  found (3 x 20 s, cost 2-4), so this symmetry likely carries an obstruction like the -1
+  multiplier's. Not tried at 57.
+
+**57 on design 60 with three empty seats** (`eval/ghost-seats.mjs`, `eval/ghost-seats.txt`): of the
+34,220 choices of 3 ghost seats, 1,298 leave every real player within one game of the rest, with 0
+repeat partners. But each ghost sits at 59 tables and each pair of ghosts shares 3, so at most
+59 x 15 - (177 - 9) = 717 games are left. That is 12.15 busy courts a round of 14, under the 90% that
+`whistWorthIt` asks for (12.6), whichever seats are chosen. So the greedy search stays for 57.
+
+Nothing changes on the page. Next for 57: a SAT encoding on Z19 x| Z3 (the near-whist SAT in
+`eval/near-whist-sat.py` is the template), or a design built from smaller ones (product theorems,
+Anderson, Finizio and Leonard 1999) rather than more tabu hours.
+
+## Tabu search finds whist designs for 48 and 60 players, and near-whist designs for 46, 54 and 62 (2026-11-19, later)
 
 The sizes below were left on a fallback because 20 CPU-minutes of backtracking (`eval/whist-search.c`)
 found nothing for 48, 52, 57 or 60, and 15 minutes of annealing (`eval/near-whist-search.mjs`) nothing

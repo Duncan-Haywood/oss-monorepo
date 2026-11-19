@@ -151,6 +151,18 @@ CLAIMS = [
     ("results_wigley_seakeeping_tank.txt", "fitted zeta (measured_wave_1p0cm): 0.068"),
     ("results_wigley_seakeeping_tank.txt", "row 0.025 2.41 1.74 0.72 -3.69 -13.29 True"),
     ("results_wigley_seakeeping_tank.txt", "row 0.068 1.88 1.36 0.72 -3.09 -11.32 True"),
+    # milestone 7ze: against the published state of the art on the same hull
+    ("results_kashiwagi_baselines.txt", "E1 heave: strip/NSM - 1 over lambda/L 1.0-2.0 (21 points): mean +0.8%, worst -4.6%"),
+    ("results_kashiwagi_baselines.txt", "strip sigma peak 11.42 at lambda/L 1.05; against NSM -1.7%"),
+    ("results_kashiwagi_baselines.txt", "heave rms error over lambda/L 0.8-2.0 (14 measured points): strip 0.166 (n 14), EUT 0.375 (n 14), NSM 0.170 (n 14), modified EUT 0.156 (n 14), modified NSM 0.145 (n 14)"),
+    ("results_kashiwagi_baselines.txt", "strip 1.55, strip+refl 1.82, STAWAVE-2 3.01, EUT 2.75, NSM 1.41, modified EUT 0.95, modified NSM 1.06"),
+    ("results_kashiwagi_baselines.txt", "heave modified EUT: mean error at lambda/L 1.0-1.3 +30.1%"),
+    ("results_kashiwagi_baselines.txt", "measured A35 and A53, strip B: heave mean error at 1.0-1.3 -10.1%"),
+    # milestone 7zf: the A35 = A53 = 0 rule carried to the damping fit and the monohull
+    ("results_a0_coupling_transfer.txt", "fitted zeta (mean): 0.0180"),
+    ("results_a0_coupling_transfer.txt", "row fit A0 0.0180 1.000 2.463 1.78 0.725 -3.75 -13.50 True"),
+    ("results_a0_coupling_transfer.txt", "heave rms (0.8-2.0) 0.135, pitch rms 0.213, mean heave error at 1.0-1.3 +3.3%"),
+    ("results_a0_coupling_transfer.txt", "heave rms (0.8-2.0) 0.179, pitch rms 0.183, mean heave error at 1.0-1.3 -19.1%"),
 ]
 
 def check(claims=CLAIMS, root=EXP):

@@ -8005,3 +8005,68 @@ smallest step, judged at 2,000 moves. LOBSTER's five sample files are now spent 
 
 Tests: `stale-growth-lobster.test.mjs` (the stretch cutting, the LOBSTER reader, the bars, the committed verdicts,
 and that `updateRateChanges` still does not call the growth test).
+
+## The catch-up test gated on the quoted tick, on twelve exchange pairs (2026-11-19, pre-registered; unscorable: every pair is one-tick, Q1 and Q2 fail)
+
+The section above asked for a fresh round that gates on the quoted tick rather than the data's smallest step,
+judged at 2,000 moves. `eval/stale-growth-quoted-tick.mjs` (header and code committed in 78928f6bf before any file
+was downloaded) takes Binance's public spot trades for one UTC day (2026-11-02) on twelve large USDT pairs, chosen
+before download to span prices from a few cents (DOGE) to about a hundred thousand dollars (BTC), and each pair's
+quoted tick (`PRICE_FILTER tickSize` from Binance's public market-data mirror). Data fetched by
+`node eval/binance-fetch.mjs <dir>`, not committed. Series, stretches and the test are the LOBSTER round's,
+unchanged. Gate: a pair is multi-tick when its prints' median move is above 1.5 quoted ticks.
+
+| bar | result |
+|---|---|
+| gate | **all 12 pairs one-tick**: median print move exactly 1 quoted tick on every pair; the smallest step equals the quoted tick on every pair |
+| Q1 power at 2,000 moves (multi-tick pairs, carried >= 0.30, bar 80%, n >= 10) | 0 of 0: unscorable, **fail** |
+| Q2 size at 2,000 moves (multi-tick prints, bar <= 10%, n >= 10) | 0 of 0: unscorable, **fail** |
+| reported: the one-tick pairs on the same rules | carried caught 7 of 234 at 2,000 moves (71 of 1,625 at 300); prints called stale 31 of 368 (124 of 2,474) |
+
+Nothing ships. What the round shows: on a venue whose ticks are small against its prices, every large pair trades
+one tick at a time, and from BTC to DOGE the prints sit on the bid or the ask. The multi-tick regime the growth test
+was built for, where Apple and Amazon were caught on LOBSTER, does not occur here, so the quoted-tick gate selects
+nothing. On these one-tick feeds the growth test is blind (a carried run's catch-up is pinned at one tick) and
+reads bounce as staleness on some pairs (XRP prints 19 of 40 at 1,000 moves, SOL 15 of 53), as it did on the two
+penny-spread stocks. One-tick stretches belong to the shipped likelihood route, and these pairs give that route its
+first real one-tick carried feed. That is the next section.
+
+## The shipped one-tick stale test on real one-tick feeds (2026-11-19, pre-registered; T1, T2 and T3 fail, a caveat ships)
+
+Rounds one to five of the stale test ("One-tick stale feeds") were scored on simulation only, and the one real
+carried feed so far moves 2-4 ticks, where the shipped gate never runs the test. The twelve Binance pairs above
+all move one quoted tick: the regime the shipped route serves. `eval/stale-one-tick-binance.mjs` (header and code
+committed in 8796a6d15 before any likelihood was computed on real data; amended twice before any result was read,
+both recorded in its header: 20 windows a series cut to 6 when the first run hit the session's time limit, and a
+worker-flag clash that made the second run compute each window twice and print nothing) runs the shipped
+`staleTestMarkov` (threshold 6.56) behind the shipped one-tick gate, in the quoted tick, on 300-step windows of
+the prints and of the last-trade price every 0.5, 1, 2 and 5 s: 6 evenly spaced windows a series, 360 in all, 299
+of them passed by the gate. Output `eval/stale-one-tick-binance.out.txt` (44 min on four threads).
+
+| bar (gated windows, pooled) | result |
+|---|---|
+| T1 power: carried share >= 0.30 called stale (bar 80%, n >= 10) | **128 of 164 (78%): fail** |
+| T2 size on the real null: trade-print windows called stale (bar <= 10%) | **16 of 68 (24%): fail** |
+| T3 the estimate: fitted carry share within 0.10, among grid windows called stale (bar 80%) | **93 of 143 (65%): fail** |
+| reported: carried share 0-0.1, 0.1-0.2, 0.2-0.3 | 3 of 36, 4 of 11, 8 of 20 called stale |
+| reported: windows the gate refuses | 61 of 360 (4 of them print windows) |
+
+So the shipped route fails on its first real feed, and fails worst where it matters most to a reader: about one
+window of real trade prints in four, with nothing carried, is called stale. By the pre-registered rule for a T2
+failure, the catch-up sentence (`updateRateLines`) now adds that trade prints resting at a bid or ask one tick wide
+can show the same pattern with nothing carried, and asks the reader of trade or quote data to check the source's
+own timestamps before reading it as a stale feed. The test and its threshold are unchanged.
+
+**Where it went wrong (read afterwards, deciding nothing).** The 16 false calls come from seven of the twelve
+pairs (ETH, SOL, XRP, DOGE, LINK, AVAX, DOT; none from BTC, BNB, ADA, LTC or TRX), on windows where 42-84% of
+prints repeat the last price, with fitted carry shares of 0.17 to 0.55. A print that sits on one side of a
+one-tick book until the queue there is worked off makes clumped exact repeats, which is what the Markov carry
+model was built to find; a rounded walk cannot make that many with steps as large as the bounce. This is the
+LOBSTER penny-spread finding again, now in the likelihood route rather than the growth test, so neither route
+tells resting at a quote from carrying forward on one-tick trade data. Power misses fall mostly on TRX (4 of 16)
+and SOL (4 of 10); AVAX, LINK and BNB were caught 34 of 34. A test that could separate the two would need
+something the prices alone do not hold, such as the trade side (the files carry the buyer-is-maker flag: a print
+resting at the bid is a run of sells), and its own pre-registered round on a fresh day.
+
+Tests: `stale-growth-quoted-tick.test.mjs` (the Binance reader, both rounds' bars, the window picker, the
+committed verdicts and the new clause) and `rounded-walk-heavy.test.mjs` (the clause in a produced line).
