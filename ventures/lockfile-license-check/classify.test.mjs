@@ -71,3 +71,20 @@ test('CLI exit codes follow --fail-on and --deny', () => {
   assert.equal(spawnSync('node', [cli, '/nonexistent'], { encoding: 'utf8' }).status, 2);
   assert.deepEqual(JSON.parse(execFileSync('node', [cli, fixPath, '--json'], { encoding: 'utf8' })), analyze(fixture));
 });
+
+// Found 2026-11-19: a multi-word licence name was categorised by its first
+// word only ("GNU", "3-Clause", "Public"), so a GPL name read as unknown and
+// the "Public Domain" pattern could never match.
+test('licence names with spaces are read whole, not by their first word', () => {
+  assert.equal(categorizeExpression('GNU General Public License v3 (GPLv3)'), 'strong-copyleft');
+  assert.equal(categorizeExpression('GNU General Public License v2 or later (GPLv2+)'), 'strong-copyleft');
+  assert.equal(categorizeExpression('GNU Affero General Public License v3'), 'strong-copyleft');
+  assert.equal(categorizeExpression('GNU Lesser General Public License v3 (LGPLv3)'), 'weak-copyleft');
+  assert.equal(categorizeExpression('Mozilla Public License 2.0 (MPL 2.0)'), 'weak-copyleft');
+  assert.equal(categorizeExpression('Boost Software License 1.0 (BSL-1.0)'), 'permissive');
+  assert.equal(categorizeExpression('3-Clause BSD License'), 'permissive');
+  assert.equal(categorizeExpression('Public Domain'), 'permissive');
+  // Real expressions keep their precedence.
+  assert.equal(categorizeExpression('(MIT OR GPL-3.0)'), 'permissive');
+  assert.equal(categorizeExpression('MIT AND GPL-3.0'), 'strong-copyleft');
+});
