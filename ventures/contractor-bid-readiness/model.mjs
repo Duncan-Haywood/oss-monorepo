@@ -16,6 +16,11 @@ export function daysUntilDue(dueDate, today = new Date()) {
   if (!dueDate) return null;
   const due = Date.parse(`${dueDate}T00:00:00`);
   if (Number.isNaN(due)) return null;
+  // Date.parse rolls a calendar-invalid day over ('2099-02-30' becomes March 2),
+  // which would count days to a date nobody typed; treat it as no deadline.
+  const d = new Date(due);
+  const back = `${String(d.getFullYear()).padStart(4, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  if (back !== dueDate) return null;
   // Both sides collapsed to local midnight before dividing, so a 23- or
   // 25-hour day across a daylight-saving change cannot shift the answer.
   const start = new Date(today).setHours(0, 0, 0, 0);
@@ -58,7 +63,7 @@ export function deadlineSentence(daysRemaining) {
 }
 
 export function markdownReport(result, opportunity, dueDate) {
-  const lines = [`# Bid readiness: ${opportunity || 'Untitled opportunity'}`, '', `Due date: ${dueDate || 'Not set'}`, `Result: ${result.ready ? 'All listed items ready' : `${result.missing.length} item(s) need attention`}`, ''];
+  const lines = [`# Bid readiness: ${opportunity || 'Untitled opportunity'}`, '', `Due date: ${dueDate || 'Not set'}`, `Deadline: ${deadlineSentence(result.daysRemaining)}${result.daysRemaining === null ? '' : ` (${result.urgency})`}`, `Result: ${result.ready ? 'All listed items ready' : `${result.missing.length} item(s) need attention`}`, ''];
   for (const row of result.rows) lines.push(`- [${row.status === 'ready' ? 'x' : ' '}] **${row.name}** (${row.status})${row.owner ? ` | owner: ${row.owner}` : ''}${row.note ? ` | ${row.note}` : ''}`);
   lines.push('', 'This is a private working record, not a determination that a bid is complete or compliant. Review the solicitation and confirm requirements with the issuing authority.');
   return lines.join('\n');

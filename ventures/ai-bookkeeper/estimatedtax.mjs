@@ -228,7 +228,8 @@ export function estimatedTax(books, o = {}) {
   const incomeTax = bracketTax(taxable, table.b);
   // Part II of Form 8959: the SE threshold is lowered by wages, which count first.
   const T = ADDL_MEDICARE_THRESHOLD[filing] ?? D(200000);
-  const addlMedicare = Math.round(0.009 * (Math.max(0, wages - T) + Math.max(0, se.netEarnings - Math.max(0, T - wages))));
+  // 9 / 1000 in integers, not 0.009 * x: 0.009 * 3,087,500 is 27787.4999... in floating point and rounded a cent low.
+  const addlMedicare = Math.round((Math.max(0, wages - T) + Math.max(0, se.netEarnings - Math.max(0, T - wages))) * 9 / 1000);
   if (addlMedicare) warnings.push("Includes the 0.9% Additional Medicare Tax (Form 8959) on earnings above " + T / 100 + "; an employer withholds it on wages over $200,000 only, so check the wage part against your W-2.");
   // Net investment income tax (Form 8960): 3.8% of the smaller of net investment income and modified AGI
   // above a statutory threshold (not indexed). Investment income is part of otherIncome; pass the part of it

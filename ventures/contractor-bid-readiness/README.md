@@ -39,3 +39,17 @@ the authors accept no liability for any loss or damage arising from its use.
 The report is a private working record, not a determination that a bid is
 complete, compliant, or likely to win. Review the original solicitation and
 confirm requirements with the issuing authority.
+
+## Known gaps (quality audit 2026-11-19)
+
+From [`portfolio/quality/audits/2026-11-19-contractor-bid-readiness.json`](../../portfolio/quality/audits/2026-11-19-contractor-bid-readiness.json):
+
+- **The deadline is a date, not a time.** A bid due at 2:00 pm today still
+  reads "urgent" at 3:00 pm, after it can no longer be filed. A due-time and
+  issuing-office time-zone field is the fix; until then the days page says so.
+- **The urgency label is computed but not shown on the page** (the Markdown
+  report now carries it), though several pages describe it.
+- **Checklist rows are not saved** between visits unless a share link is copied.
+- **The DST test only bites when the runner's time zone observes DST**; run
+  `TZ=America/New_York node --test '*.test.mjs'` as well.
+- **Share links cut notes at 120 characters and rows past 100** without saying so.
