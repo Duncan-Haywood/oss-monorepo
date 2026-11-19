@@ -407,10 +407,11 @@ flagships:
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
       see firmware/esp32/README.md, latest "The sub-8 advised instant build was the
       frame's rounding" (2026-11-19: whole-ppm share guard shipped, fresh set 53 of
-      54, eval/take-share-rounding-2026-11-19.md). Next: TAKE_SURVEY rms in 0.1 ppm
-      (a new frame length, protocol.OLDER_FORMATS keeps the old), which removes the
-      guard's cause; TAKE_SURVEY_BLIND's 1.5 rechecked on a fresh jittery-tach set at
-      the nine-point grid.
+      54, eval/take-share-rounding-2026-11-19.md); recaptured on today's tree 0 of
+      72 instant advised (eval/take-instant-sub8-2026-11-19.md). Next: TAKE_SURVEY
+      rms in 0.1 ppm (a new frame length, protocol.OLDER_FORMATS keeps the old),
+      which removes the guard's cause; TAKE_SURVEY_BLIND's 1.5 rechecked on a fresh
+      jittery-tach set at the nine-point grid.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

@@ -3520,3 +3520,39 @@ withholds 6 of 1,244 advices the exact share would give and removes the 2 the ro
 **Not known.** The fresh set shows the guard is free there, not that it helps; that rests on the traced build. Frames
 in tenths of a ppm would remove the cause (a protocol change, not done). A real tach's floor is likelier tens of ppm.
 
+
+## The sub-8 advised instant build, recaptured (2026-11-19, after "The sub-8 advised instant build was the frame's rounding"; the item closed by its pre-registered rule, nothing on the board changed)
+
+**The item.** The section above traced the advised build to the frame's whole-ppm rounding and shipped the share
+guard. A parallel session asked a different question about the same build: does today's tree, with the nine-point
+grid, stretched offsets, blind 1.5 and trim 0, still produce it? The rule was committed before the capture
+(f2e5f923a, eval/take-instant-sub8-2026-11-19.md).
+
+**Recaptured.** The four sub-8 capture sets, recaptured whole on today's tree and scored by the board's frame and
+`host.take_survey_advice` with the share guard (`tests/take_instant_sub8.py --score`):
+
+| set | instant advised (of 18) | spread takes named within 1 ms and advised (of 54), today / stored rows rescored | within 1 ms (of 72) |
+| --- | --- | --- | --- |
+| design (0.3 s, seed 7) | 0 | 37 / 44 | 67 |
+| first held out (0.45 s, seed 11) | 0 | 48 / 42 | 72 |
+| fresh (0.38 s, seed 13) | 0 | 54 / 54 | 68 |
+| third (0.52 s, seed 17) | 0 | 54 / 47 | 67 |
+
+Every clause held. No instant build was advised (0 of 72). The named build now picks 0 ms ("keep TAKE_US = 0", bound
+1.5 ms), and its rms climbs 6, 41, 84 ... 360 ppm across the grid where the stored row was flat to a few ppm. 193 of
+216 spread takes were named and advised against the README's 173 (194 without the guard, so the guard withholds one
+here). The stored row also shows the guard's cause from the other side: the 4 ms candidate won because it was the one
+with no ball where it alone fitted badly. Lone jumps like that (a fit that settled above what its candidate can reach)
+are still on today's rows, but they now sit under rms that climbs steeply with the take.
+
+**The design set's fall, traced in part.** One 3 ms build there read 87 / 59 / 11 ppm on 2026-11-18 and 12 / 8 / 9
+today. Changing one setting at a time on that build: `TAKE_MATCH_SPREAD` False made no difference, and the ball hold's
+gain scale off (`LOOP_BALL_GAIN = False`; "down" since "The ball hold on a wheel faster than told") read
+34 / 34 / 18 / 7, pick 2.9 ms. A paired capture of 96 builds (four sets, jitter 0 and 0.5 us;
+`tests/take_survey_ball_gain.py --compare`) put this in proportion: 66 of 72 named and advised with "down" against 68
+with it off, no instant build advised either way, and shares moving both ways. Two builds in 72 do not justify
+switching the gains off for calibration drills, so `LOOP_BALL_GAIN` stays. The rest of the design set's fall is at
+1-3 us of jitter, which the pair did not capture.
+
+**Not known.** All simulated, and the four sets reuse the stored sets' seeds and lags, so they test the tree, not a new
+plant.
