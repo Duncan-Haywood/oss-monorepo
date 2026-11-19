@@ -2,6 +2,16 @@
 
 Newest first.
 
+## 2026-11-19 · Milestone 7y: where a second measured bending family could come from, and whether a catalogue that draws power only near rated pressure can supply one (7t's Next y; predictions written before any 7y number was computed)
+- Why: 7t's Next (y), the step every gear-pump result since 7q has waited on: a second family whose measured idle drag bends like Danfoss's (b = P<sub>idle</sub>(79)/P<sub>idle</sub>(64) = 1.781, against 1.29 to 1.37 for the other catalogue families). 7x's (e3), reading MDPI's and SAGE's AI rules, was probed first: mdpi.com, sagepub.com, acm.org and ieeeaccess.ieee.org all returned 403 from this container on 2026-11-19, so it stays open.
+- Screen (2026-11-19, before any number): Danfoss GearMe Aluminum Group 2 (3.9 to 25.2 cm<sup>3</sup>/r, about 52 L/min at 2100 r/min, below the bend's flows), Group 4 (no performance graphs), Group 0/1, 2 Flex and 2 Compact (too small or no curves); Parker PGP030 to 076 (input power at 172 bar only); Turolla Alu Group 3 (host returned HTML) and Danfoss Rugid Group 2.5 (empty download), unread. Magister Hydraulics' GP3K catalogue (20 to 90 cm<sup>3</sup>/r, pp. 62 to 66, vector-drawn) is the one new family in range with input-power curves, but it draws them only in a band within 50 bar of each size's maximum (250 to 300 bar on GP3K20 to 28, 170 to 230 bar on GP3K71 to 90) and one flow line per size, so its idle drag would be an extrapolation over 150 to 250 bar.
+- Method fixed now: `experiments/catalogue_screen.py`. On the seven families whose catalogues draw low-pressure curves (Casappa KP30, Danfoss SNP3, Marzocchi ALP3, Rexroth AZPG, AZPU, AZPN, AZPF held), cut each size's power curves to the same top band (curves at or above its highest drawn pressure minus 50 bar; the top two if fewer), keep the flow lines as drawn, and recompute P<sub>idle</sub>(64), P<sub>idle</sub>(79) and b at 7j's central idle condition with the model's own reading (`Gear.idle`). A family "bends" if b &gt; 1.55 (midway between Danfoss and the next family). No Hugging Face data needed.
+- **Predictions:**
+  - PY1: Danfoss's top-band b differs from its full b by more than 0.10. Prior 60%.
+  - PY2: the median |&Delta;b| over the seven families exceeds 0.10. Prior 45%.
+  - PY3: the top-band P<sub>idle</sub>(64) errs by more than 25% in at least four of seven families. Prior 55%.
+  - PY4: at least one family changes class (bends/flat) at b = 1.55. Prior 35%.
+
 ## 2026-11-19 · Milestone 7x (paper step): which venue that allows disclosed AI use fits this paper, and the portfolio's venues read
 - Why: 7w's VENUE.md option 2 ("Which one fits fluid-power work best was not researched in this step") and its register's 10 programmes whose venues were not yet read. Choosing a venue is the owner's; reading the venues' rules is not. No result changes.
 
