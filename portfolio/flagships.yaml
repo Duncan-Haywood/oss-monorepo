@@ -468,13 +468,12 @@ flagships:
       Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
       Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
       levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
-      thickness; next: worn pages (new GABC needed), mottled squares, hollow small
-      notes bridged 2026-11-18 (77 of 84, eval/one-step-hollow-check.md), split
-      heads joined 2026-11-18 (FLECK: podatus tops, quilismas, flecked squares; held
-      out 13 of 13 real, eval/fleck-check.md); 3439/3357 were not liquescentTail;
-      staff lines broken by a white gap joined 2026-11-18 (+82 agreeing; held out 0
-      of 530 staves changed, eval/staff-gap-check.md); next 434:3's F clef, 3524's
-      stemless cephalicus, 3408's strokes. More open items: NEXT.md.
+      thickness; 3439/3357 were not liquescentTail; staff lines broken by a white
+      gap joined 2026-11-18 (+82 agreeing; held out 0 of 530 staves changed,
+      eval/staff-gap-check.md); F clef with a parted stem read on its line
+      2026-11-19 (+59 agreeing, eval/clef-bridge-check.md); next 652:2's border in
+      the clef search, 3524's stemless cephalicus, 3408's strokes. More open items:
+      NEXT.md.
     buildable: >-
       Coda reader, no outside input: a held-out part built on
       eval/release-cells-report.md's cells (picked before any reader runs) to
@@ -482,7 +481,7 @@ flagships:
       -um", "A /u/ release read as a nasal"). Level-matched murmur (murmurSource
       'match', opt-in, eval/murmur-match-check.md): 2,220 nasals vs default 2,141,
       but R, Z, A lose 1-2; next: fresh cells for the voiced-labial misreads. OMR
-      (scan.mjs): 434 staff 3's F clef read 2 steps low (findClef), 3524's stemless
+      (scan.mjs): 652 staff 2's clef read off a border (findClef), 3524's stemless
       cephalicus, 3741's place, 3408's strokes (eval/staff-gap-check.md, What is
       left).
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0

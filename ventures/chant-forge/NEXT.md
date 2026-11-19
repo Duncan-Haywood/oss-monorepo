@@ -12,3 +12,4 @@
 - (2026-11-18) the release kit against a distributor's real form
 - (2026-11-18) --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range with real singers
 - (2026-11-18) --lrc in a real player and --markers/--stems in a DAW
+- (2026-11-19) next: worn pages (new GABC needed), mottled squares, hollow small notes bridged 2026-11-18 (77 of 84, eval/one-step-hollow-check.md), split heads joined 2026-11-18 (FLECK: podatus tops, quilismas, flecked squares; held out 13 of 13 real, eval/fleck-check.md)
