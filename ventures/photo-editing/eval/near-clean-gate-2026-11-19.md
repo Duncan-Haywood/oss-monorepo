@@ -130,6 +130,9 @@ dB either way. By the rule committed above, `NEAR_DETAIL` stays `None` for X-Tra
 
 The lift is a 3 x 3 maximum on the block grid: 1.2 ms for the 275 x 229 blocks of a 36 MP frame
 (numpy, this container), against about 8 s for the develop. Memory: two arrays the size of the grid.
+On a real frame, `shootflow develop` of the fourth set's Pentax K-3 II DNG (24 MP, no NoiseProfile, so the
+frame-read model) took 5.9 s; with the lift switched off the TIFF differs in 0.012% of its values, by at most 8
+codes. The lift only binds beside high-q blocks, so most of a frame keeps its bytes.
 
 ## What changed
 
