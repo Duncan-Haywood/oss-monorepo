@@ -102,3 +102,9 @@ test("a boolean value typed in Excel lands in the IDS as true, which matches an 
   assert.deepEqual(r.errors, []);
   assert.match(r.text, /<simpleValue>true<\/simpleValue>/);
 });
+
+test("our own workbook keeps a CR LF and a literal _x000D_ in a cell", async () => {
+  const { rowsToXlsx } = await import("./sheet.mjs");
+  const rows = [["section", "facet", "instructions"], ["specification", "", "line one\r\nline two _x000D_ kept"]];
+  assert.deepEqual(await xlsxToRows(rowsToXlsx(rows), inflate), rows);
+});

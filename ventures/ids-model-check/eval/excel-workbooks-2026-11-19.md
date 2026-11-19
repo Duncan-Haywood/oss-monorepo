@@ -90,22 +90,62 @@ LibreOffice Calc 7 with the standard column type and special-number (date)
 detection, which is what Excel does when a CSV is double-clicked, saved as
 `.xlsx`, read back, and compared with the same CSV read as text.
 
-RESULTS_TYPED
+Counted over the files whose text CSV makes an IDS at all.
+
+| files | before (old reader) | after |
+| --- | ---: | ---: |
+| public IDS files, same IDS content as the text CSV | 24 of 56 | 47 of 56 |
+| IDS-Audit-tool test files | 32 of 73 | 66 of 73 |
+| buildingSMART test pairs | 288 of 334 | 302 of 334 |
+| buildingSMART test pairs, checker verdict unchanged | 325 of 334 | 329 of 334 |
+| this venture's samples | 2 of 3 | 3 of 3 |
+
+Cells the typing changed, after the fix: 164 line breaks (Calc keeps LF of
+a CR LF), 50 numbers written another way (`1.0` to `1`, `42.0` to `42`,
+`100000.` to `100000`), 25 booleans written `True` or `TRUE` in the original
+that now come back `true`, 1 other. Before the fix 74 more were dates read
+as day counts (`2025-01-01` to `45658`). A number's spelling cannot be read
+back from a number cell: it is the typing, not the reader. It matters for an
+IDS: the 5 test pairs whose verdict still changes are buildingSMART's cases
+that `42.0` is not an integer and that `TRUE` is not a boolean. That is why
+the workbook we hand out is the thing to edit, not a CSV.
 
 ## 3. Does the downloaded workbook survive editing?
 
 **Method.** `node eval/sheet-retype.mjs`: each IDS goes through
 `rowsToXlsx`; `eval/sheet-retype.py` opens the workbook in LibreOffice Calc
-over UNO and retypes every non-empty cell with `XCell.setFormula` (Calc's
-input reading, the one that turns `42.0` into 42), as a person editing every
-cell would, then saves `.xlsx`. The IDS read back is compared with the one
+over UNO and retypes each cell Calc could read as something other than text
+(starting with a digit, sign, point or `=`, or true/false) through
+`.uno:EnterString`, the input line's own dispatch, so Calc's input reading
+runs as on a keyboard; then saves `.xlsx`. (`XCell.setFormula` was tried
+first and dropped: it converts even inside a Text cell, which typing does
+not.) The IDS read back is compared with the one
 the untouched download gives. Before: our workbook's cells had the General
 format. After: every cell, and every column's empty cells (so rows a person
 adds), have the Text format (`@`, numFmtId 49).
 
-RESULTS_RETYPE
+| files | before (General cells, old reader) | after (Text cells) |
+| --- | ---: | ---: |
+| public IDS files, same IDS content after editing | 24 of 56 | 56 of 56 |
+| IDS-Audit-tool test files | 32 of 73 | 71 of 73 |
+| buildingSMART test pairs | 288 of 334 | 334 of 334 |
+| buildingSMART test pairs, checker verdict unchanged | 325 of 334 | 334 of 334 |
+| this venture's samples | 2 of 3 | 3 of 3 |
+
+The two IDS-Audit-tool files left (`RichFile.ids`, `BadRichFile.ids`) have
+CR LF line breaks in their instructions; Calc keeps LF when it loads the
+workbook, before any typing (the same two noted in
+eval/sheet-roundtrip-2026-11-19.md).
+
+Found on the way: the reader's XML-correct handling of a literal CR LF
+(read as LF) would have cost those CRs in our own workbook too, which wrote
+them literally. The writer now stores a CR as `_x000D_`, as Excel does, and a
+literal `_xHHHH_` in a cell as `_x005F_xHHHH_`; `sheet-excel.test.mjs` holds
+both. `node eval/sheet-roundtrip.mjs --libreoffice` gives the same numbers as
+on 2026-11-19 morning (334 of 334, 55 of 64, 66 of 75; LibreOffice-saved 55
+of 64 and 64 of 75).
 
 **Not measured.** Microsoft Excel itself typing into the workbook (no Excel
-here; Calc's input reading and Text format behave as Excel documents its own,
-but that is not a measurement), Google Sheets' `.xlsx` export, and a BIM
+here; Excel documents the same rule for a Text-formatted cell, but that is
+not a measurement), Google Sheets' `.xlsx` export, and a BIM
 manager's real table.

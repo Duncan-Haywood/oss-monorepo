@@ -422,8 +422,11 @@ files (282 saved by Excel), 65,537 of 65,548 cells now read as openpyxl
 reads them, up from 62,182; the rest are cells where no date exists
 (`eval/excel-workbooks-2026-11-19.md`). The downloaded workbook formats every
 cell, and the empty cells of each column, as Text, so a value a person types
-into it later stays as typed (`42.0`, `true`, `1.10`); a CSV opened in a
-spreadsheet still gets typed, so edit the `.xlsx`.
+into it later stays as typed (`42.0`, `true`, `1.10`): retyped through
+LibreOffice Calc's input line, 56 of 56 public IDS files and 334 of 334
+buildingSMART test files come back the same, from 24 and 288 with the
+General format. A CSV opened in a spreadsheet still gets typed, so edit the
+`.xlsx`. Our workbook stores a CR inside a cell as `_x000D_`, as Excel does.
 
 ### Repairing an IDS that validating tools refuse (2026-11-18)
 

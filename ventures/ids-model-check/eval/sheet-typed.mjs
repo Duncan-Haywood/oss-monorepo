@@ -43,6 +43,7 @@ const sets = [
 
 // A cell's change, by kind: what the spreadsheet did and whether the reader undid it.
 function kindOf(text, typed) {
+  if (text.replace(/\r\n?/g, "\n") === typed.replace(/\r\n?/g, "\n")) return "line break CR LF to LF";
   if (/^(true|false)$/i.test(text) && /^(true|false)$/i.test(typed)) return "boolean";
   if (/^\d{4}-\d\d-\d\d/.test(text) || /^\d\d:\d\d/.test(text)) return "date or time";
   if (text.trim() !== "" && Number.isFinite(Number(text))) return "number written another way";
@@ -68,9 +69,12 @@ for (const [label, files] of sets) {
   for (let k = 0; k < csvs.length; k += 100) {
     execFileSync("soffice", ["--headless", "--infilter=CSV:44,34,76,1,,1033,false,true", "--convert-to", "xlsx", "--outdir", dir, ...csvs.slice(k, k + 100)], { stdio: "ignore", timeout: 600000 });
   }
-  const s = { files: items.length, same: 0, cellsChanged: 0, filesTouched: 0, verdicts: 0, verdictSame: 0 };
+  const s = { files: 0, same: 0, cellsChanged: 0, filesTouched: 0, verdicts: 0, verdictSame: 0 };
   for (const { f, i } of items) {
     const asText = csvToRows(readFileSync(join(dir, `f${i}.csv`), "utf8"));
+    const a = back(asText);
+    if (!a) continue; // rows the text CSV cannot make into an IDS either: not the typing's doing
+    s.files++;
     let typed;
     try { typed = await xlsxToRows(new Uint8Array(readFileSync(join(dir, `f${i}.xlsx`))), inflate); } catch (e) { if (verbose) console.log("unread:", f, e.message); continue; }
     let changed = 0;
@@ -84,8 +88,8 @@ for (const [label, files] of sets) {
     }));
     s.cellsChanged += changed;
     if (changed) s.filesTouched++;
-    const a = back(asText), b = back(typed);
-    if (a && b && canonicalIds(a) === canonicalIds(b)) s.same++;
+    const b = back(typed);
+    if (b && canonicalIds(a) === canonicalIds(b)) s.same++;
     const ifc = f.replace(/\.ids$/, ".ifc");
     if (label === "buildingSMART test pairs" && a && existsSync(ifc)) {
       s.verdicts++;

@@ -460,7 +460,14 @@ export function csvToRows(text) {
 
 const colName = (i) => { let s = ""; i++; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
 // XML 1.0 has no place for most control characters.
-const xmlSafe = (s) => String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g, "");
+// A cell's text as an OOXML string (ST_Xstring): characters XML cannot hold
+// written _xHHHH_ (a CR as _x000D_, as Excel writes it: a literal CR would be
+// read as a line end and lost), and a literal _xHHHH_ kept as _x005F_xHHHH_.
+// Other control characters are dropped.
+const xmlSafe = (s) => String(s)
+  .replace(/_x([0-9A-Fa-f]{4})_/g, "_x005F_x$1_")
+  .replace(/\r/g, "_x000D_")
+  .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g, "");
 
 // text: every cell, and every column's empty cells, formatted as Text (@),
 // so what a person types later stays the characters they typed: Excel and

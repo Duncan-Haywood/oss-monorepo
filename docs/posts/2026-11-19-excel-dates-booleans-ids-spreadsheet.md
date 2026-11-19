@@ -50,18 +50,35 @@ first two and names the third, with how to save a plain `.xlsx`.
 
 ## Typing is the other half
 
-Reading a typed cell correctly can't undo the typing. When a spreadsheet
-opens a CSV it turns `42.0` into 42 and `0.0000001` into `1E-07`. That
-matters to an IDS: buildingSMART's test suite has a case where `42.0` must
-be refused as an integer, and once typed it passes.
+Reading a typed cell correctly can't undo the typing. A number cell holds
+42, whether you typed `42` or `42.0`. That matters to an IDS: buildingSMART's
+test suite has a case where `42.0` must be refused as an integer, and once a
+spreadsheet has typed it, it passes.
 
-RESULTS_POST
+We measured that two ways in LibreOffice Calc, since there's no Excel on our
+build machine. First, we opened each IDS's CSV with type detection on, the
+way a double-clicked CSV opens. With the new reader, 47 of 56 public IDS files
+came back with the same content (24 before), and 302 of 334 buildingSMART
+test files (288 before). What is left is mostly numbers whose spelling
+changed, which no reader can recover.
 
-So the workbook the page downloads now formats every cell, and the empty cells
-below it, as Text. What you type there stays the characters you typed.
+Second, we took the workbook our page downloads and retyped every cell a
+spreadsheet could turn into a number, date or boolean, through Calc's own
+input line, as a person editing it would. With the cells formatted as
+General, as they were, 24 of 56 public files came back the same. So the
+download now formats every cell, and the empty cells of each column, as
+Text:
+
+| retyped download | before | after |
+| --- | ---: | ---: |
+| public IDS files, same content | 24 of 56 | 56 of 56 |
+| buildingSMART test files, same content | 288 of 334 | 334 of 334 |
+| buildingSMART verdicts unchanged | 325 of 334 | 334 of 334 |
+
+What you type into the downloaded sheet now stays the characters you typed.
 
 The details and scripts are in
 [`eval/excel-workbooks-2026-11-19.md`](../../ventures/ids-model-check/eval/excel-workbooks-2026-11-19.md).
-We had no copy of Excel itself to type into, so its behaviour on the
-downloaded workbook is documented, not measured. If you have a real
+We had no copy of Excel itself to type into. Excel documents the same rule
+for Text cells, but we haven't measured it. If you have a real
 requirements table, we'd like to run it.

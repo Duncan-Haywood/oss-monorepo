@@ -2,8 +2,9 @@
 // Does the downloaded .xlsx keep an IDS when a person edits it? Each IDS goes
 // to rowsToXlsx; eval/sheet-retype.py retypes every cell in LibreOffice Calc
 // and saves; xlsxToRows reads it back and the IDS content is compared with the
-// original (canonicalIds). WRITER=/other/sheet.mjs writes with another copy
-// (the "before" column, cells not formatted as Text).
+// original (canonicalIds). WRITER=/other/sheet.mjs and READER=/other/sheet.mjs
+// write and read with another copy (the "before" column: cells not formatted
+// as Text, the reader before Excel's types were read).
 //
 //   eval/fetch-audit-corpus.sh; eval/fetch-testcases.sh
 //   soffice --headless --accept='socket,host=localhost,port=2002;urp;' &
@@ -14,10 +15,11 @@ import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { inflateRawSync } from "node:zlib";
 import { pathToFileURL } from "node:url";
-import { idsToRows, rowsToIds, xlsxToRows, canonicalIds } from "../sheet.mjs";
+import { idsToRows, rowsToIds, canonicalIds } from "../sheet.mjs";
 import { check } from "../node.mjs";
 
 const { rowsToXlsx } = await import(process.env.WRITER ? pathToFileURL(process.env.WRITER).href : "../sheet.mjs");
+const { xlsxToRows } = await import(process.env.READER ? pathToFileURL(process.env.READER).href : "../sheet.mjs");
 const here = new URL(".", import.meta.url).pathname;
 const verbose = process.argv.includes("--verbose");
 const walk = (dir, out = []) => {
