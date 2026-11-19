@@ -154,7 +154,7 @@ def main():
             rows = pool.map(dense_one, builds)
         with gzip.open(out, "wt") as f:
             for r in rows:
-                r["dense"] = [[None if x is None else round(x, 3) for x in d] for d in r["dense"]]
+                r["dense"] = [[None if x is None else float(f"{x:.4g}") for x in d] for d in r["dense"]]
                 f.write(json.dumps(r) + "\n")
         return
     report(load(sys.argv[sys.argv.index("--report") + 1]))
