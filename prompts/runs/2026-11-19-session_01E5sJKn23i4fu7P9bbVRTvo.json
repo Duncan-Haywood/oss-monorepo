@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKn23i4fu7P9bbVRTvo",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T18:18:56Z",
+  "ended": "2026-11-19T18:54:26Z",
+  "wall_minutes": 83.92,
+  "tokens_in": 11917678,
+  "tokens_out": 43848,
+  "cost_usd": 4.4292,
+  "tool_calls": 92,
+  "task": "Deepen (flagship 9) league-schedule-generator: whist designs for 52 and 57, near-whist 58",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17752",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here picked ai-bookkeeper again although its only BUILDABLE HERE items need huggingface.co, which this session's probe refused (as for the last 7 sessions that left the row); the pick could skip rows whose buildable hosts all refuse."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "The first --replace was refused at 2001 of 2000 characters; shortening the new text by a few words fixed it. Fine, but the cap leaves almost no room in the league row."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here (row 1, ai-bookkeeper) lists buildable items that all need huggingface.co, refused here; the other items need real exports or a hosted-model key.",
+      "did": "Took flagship 9 (league-schedule-generator), the next Deepen row with no open PR and a compute-only item (whist 52, 57, near-whist 58).",
+      "result": "52 and near-whist 58 found and stored; 57 not found in 3.7 CPU-h."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-americano-52-and-58-players-split-the-search-in-two.md",
+    "ventures/league-schedule-generator/README.md (section 'Whist designs for 52 and near-whist for 58')"
+  ],
+  "goal": null,
+  "notes": "New eval/whist-starter.c: draw a starter (partner differences once each), then solve the matching of partner pairs into tables exactly (branch on the opponent class with fewest candidate tables; near-whist branches on pairs). Near-whist 58 in 2.8 s (first starter), 52 on Z51+inf in 18 CPU-min (8th starter); both verified pair by pair by checkWhist/checkNearWhist and stored via the bases-build scripts. Page effect: 52 players 13 courts go from design 53 with an idle court (53 rounds, 49 games) to 51 rounds, every court every round; 51 players 39 repeat partners -> 0; 58 players 79 repeat partners -> 0. 57 on Z57: 153 starters over six runs, 3 M-60 M nodes each, none matched. Verification: node --test whist.test.mjs 18/18; run_venture_tests.py league-schedule-generator 764 tests ok (418 s); venture-preflight clean; check_posts ok; validate.py ok. No post-only/ledger-only work.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9d2e5d2b-8fef-57fe-b452-cb69a98c49b4",
+    "transcripts": 1,
+    "first": "2026-11-19T18:18:56Z",
+    "last": "2026-11-19T19:42:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 89,
+        "input": 172,
+        "output": 43848,
+        "thinking": 14008,
+        "cache_read": 11767754,
+        "cache_write_5m": 0,
+        "cache_write_1h": 149752,
+        "api_equivalent_usd": 4.4292,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 89,
+      "input": 172,
+      "output": 43848,
+      "thinking": 14008,
+      "cache_read": 11767754,
+      "cache_write_5m": 0,
+      "cache_write_1h": 149752,
+      "api_equivalent_usd": 4.4292,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 92,
+    "tools": {
+      "Bash": 82,
+      "Monitor": 5,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 83.92,
+      "active_minutes": 83.92,
+      "model_minutes": 7.42,
+      "tool_minutes": 76.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a combinatorics-literate engineer writing the two-stage search, running it and wiring and documenting the designs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 135.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
