@@ -32,3 +32,41 @@ together are at least the 173 of 216 the 2026-11-18 tree read (README "Take-blin
 
 Rule: if (a) and (b) hold, the item is closed and comes off the flagship row. If (a) fails, the advised build is
 traced next and the item stays. (c) is reported either way; a fall below 173 is written up as a regression to trace.
+
+## Result (appended after the recapture)
+
+`tests/take_instant_sub8.py --score` on the four recaptured sets (eval/take-instant-sub8-{design,heldout,fresh,third}-2026-11-19.jsonl.gz;
+output eval/take-instant-sub8-2026-11-19.txt):
+
+| set | instant builds advised (of 18) | spread takes named within 1 ms and advised (of 54), today / 2026-11-18 | within 1 ms (of 72) |
+| --- | --- | --- | --- |
+| design (0.3 s, seed 7) | 0 | 38 / 44 | 67 |
+| first held out (0.45 s, seed 11) | 0 | 48 / 42 | 72 |
+| fresh (0.38 s, seed 13) | 0 | 54 / 54 | 68 |
+| third (0.52 s, seed 17) | 0 | 54 / 47 | 67 |
+| all | 0 of 72 | 194 / 187 of 216 | 274 of 288 |
+
+(a) held: no instant build advised. (b) held: the first held-out set's launcher-1 jitter-0 instant build now picks
+0 ms ("keep TAKE_US = 0", bound 1.5 ms), its rms rising 6, 41, 84, ... 360 ppm across the nine candidates where the
+stored row was flat to within a few ppm. (c) held: 194 of 216 against the README's 173 (that board, no blind rule) and 187 with the stored rows rescored as below. By the rule the item is closed.
+
+The 2026-11-18 column is the stored rows rescored by today's ResidualSurvey (blind 1.5, trim 0) on their own
+seven-point grid (tests/take_survey_blind.py, now that it reads each set's grid). "Advised" counts
+host.take_survey_advice telling the builder to flash a non-zero TAKE_US with the pick within 1 ms; on all four sets it
+equals the older count (share at most 0.6 and pick within 1 ms).
+
+### The one regression: the design set, traced to the ball hold's gain scale
+
+The design set fell 44 to 38. Of its 16 misses, 15 picked within 1 ms but at a share over 0.6. One of them (3 ms
+take, launcher 2, jitter 0) read rms 87 / 59 / 11 ... ppm on 2026-11-18 and 12 / 8 / 9 / 9 ... today. Rerunning that
+build with one knob changed at a time: TAKE_MATCH_SPREAD False reads 12 / 9 / 10 / 9 (no better); LOOP_BALL_GAIN False
+(the ball hold's gain scale, "down" since #17530 on 2026-11-18 21:06) reads 34 / 34 / 18 / 7, pick 2.9 ms at share
+0.21. A paired capture of the four sets at jitter 0 and 0.5 us with LOOP_BALL_GAIN False
+(tests/take_survey_ball_gain.py) follows below.
+
+### Whole-ppm rounding
+
+The stored advised build's 0.57 was 4 / 7 in whole ppm; unrounded it was 0.635, not advised. Across the 39 stored
+take-survey sets (1,821 builds rescored by today's board), rounding flips the advice on 3 builds and advises no
+instant build; a conservative share ((least + 0.5) / (step - 0.5)) would drop 4 right advisories and save none. Not
+changed.
