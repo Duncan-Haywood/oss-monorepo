@@ -494,9 +494,9 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      Excel2IDS's tool run on the same workbooks: eval/excel2ids-sidebyside.mjs is
-      written (pip ifctester; needs a session allowed to run the fetched script; it
-      confirms or corrects excel2idsToolNotes). IFC4X3 ifcXML: none public (searched
+      Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
+      EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
+      rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
       2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
       (eval/ifcxml-twins-2026-11-18.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs; IFC4/IFC4X3 STEP
@@ -521,8 +521,9 @@ flagships:
       fit). Excel2IDS tool differences cell by cell 2026-11-19
       (eval/excel2ids-tool-2026-11-19.md: page and CLI list where the .exe writes
       another IDS or stops; download fills purpose General, tool stops 316 to 0 of
-      351; sample's External doors asks True). next: a BIM manager's real table or
-      filled Excel2IDS workbook via --from-sheet; the tool run side by side
-      (eval/excel2ids-sidebyside.mjs); Excel itself typing into the download; an
-      RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. More open
-      items: NEXT.md.
+      351; sample's External doors asks True). Tool run side by side 2026-11-19
+      (eval/excel2ids-sidebyside-2026-11-19.md: 321 workbooks, 0 stops; added
+      version None, _x000D_; applicability in ids.xsd order). next: a BIM manager's
+      real table or filled Excel2IDS workbook via --from-sheet; Excel itself typing
+      into the download; an RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to
+      confirm. More open items: NEXT.md.

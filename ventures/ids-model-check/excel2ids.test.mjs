@@ -259,7 +259,9 @@ test("the workbook this writes is one the tool reads: purpose filled, classes up
   const rows = await xlsxToRows(excel2IdsToXlsx(w.rows), inflate, { sheet: "Requirements" });
   const t = excel2idsToolNotes(rows);
   assert.deepEqual(t.stops, []);
-  assert.deepEqual(t.notes.map((x) => x.message).filter((x) => !/LOD400/.test(x)), []);
+  // What remains is the tool's own: LOD400, and "None" for the empty version cell.
+  assert.deepEqual(t.notes.map((x) => x.message).filter((x) => !/LOD400/.test(x)), [t.notes.find((x) => x.row === 5)?.message].filter(Boolean));
+  assert.match(t.notes.find((x) => x.row === 5).message, /<version>None<\/version>/);
   // Read back here: the purpose is General.
   assert.match(excel2idsToIds(rows).files[0].text, /<purpose>General<\/purpose>/);
 });
@@ -268,4 +270,25 @@ test("xlsxToRows records which cells Excel stored as booleans and numbers", asyn
   const rows = await xlsxToRows(excel2IdsToXlsx([["a", "1"]]), inflate);
   // Every cell this venture writes is text.
   assert.equal(rows.cellTypes.size, 0);
+});
+
+// Found by running the tool itself (eval/excel2ids-sidebyside-2026-11-19.md).
+test("tool notes: an empty version cell and a carriage return, as the tool run showed", async () => {
+  const g = book({
+    meta: { title: "t", version: "", ifc: "IFC4" },
+    cols: [{ name: "A", entity: "IFCDOOR", purpose: "ARC", instructions: "line one\r\nline two" }],
+    reqs: [{ cardinality: "required", aname: "Name", instructions: "ok", marks: { 0: "X" } }],
+  });
+  // Through a saved .xlsx, as a user's file arrives: the CR is stored as _x000D_ and read back.
+  const rows = await xlsxToRows(excel2IdsToXlsx(g), inflate);
+  Object.defineProperty(rows, "sheetName", { value: "Requirements" });
+  const t = excel2idsToolNotes(rows);
+  assert.ok(t.notes.some((x) => x.row === 5 && x.col === 10 && /<version>None<\/version>/.test(x.message)));
+  assert.ok(t.notes.some((x) => x.row === 3 && x.col === 18 && /column R's instructions holds a carriage return: Excel stores it as _x000D_/.test(x.message)));
+  // A version given: no note; a plain line break (LF) is not escaped by Excel: no note.
+  const g2 = book({ meta: { title: "t", version: "1.0", ifc: "IFC4" }, cols: [{ name: "A", entity: "IFCDOOR", purpose: "ARC", instructions: "a\nb" }], reqs: [{ aname: "Name", marks: { 0: "X" } }] });
+  const t2 = excel2idsToolNotes(typed(g2, []));
+  assert.ok(!t2.notes.some((x) => /version|_x000D_/.test(x.message)));
+  // This reader writes the text itself, CR included.
+  assert.match(excel2idsToIds(rows).files[0].text, /instructions="line one&#13;/);
 });

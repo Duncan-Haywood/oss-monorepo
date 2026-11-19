@@ -148,3 +148,28 @@ test("CSV reader: quotes, doubled quotes, line breaks in a cell, tabs, a byte-or
   assert.deepEqual(csvToRows("a\tb\n1\t2"), [["a", "b"], ["1", "2"]]);
   assert.throws(() => csvToRows('a,b\n"open'), /inside a quoted cell/);
 });
+
+// A table may list applicability facets in any order; ids.xsd fixes it
+// (entity, partOf, classification, attribute, property, material). Found when
+// an Excel2IDS category with both a property and an attribute was written in
+// the template's column order (eval/excel2ids-sidebyside-2026-11-19.md).
+test("applicability facets are written in ids.xsd's order, whatever the row order", async () => {
+  const { parseXml } = await import("./xml.mjs");
+  const { structureIssues } = await import("./structure.mjs");
+  const csv = [
+    "Spec,Section,Facet,Name,IFC Version,Entity,Property Set,Property,Attribute,System,Value",
+    "1,specification,,Outdoor spaces,IFC4,,,,,,",
+    ",applicability,material,,,,,,,,concrete",
+    ",applicability,property,,,,P,Kind,,,",
+    ",applicability,attribute,,,,,,Name,,",
+    ",applicability,classification,,,,,,,NL-SfB,",
+    ",applicability,entity,,,IFCSPACE,,,,,",
+    ",requirements,attribute,,,,,,Description,,",
+  ].join("\n");
+  const { text, errors } = rowsToIds(csvToRows(csv));
+  assert.deepEqual(errors, []);
+  const app = /<applicability>([\s\S]*?)<\/applicability>/.exec(text)[1];
+  const order = [...app.matchAll(/^\s*<(\w+)/gm)].map((m) => m[1]);
+  assert.deepEqual(order, ["entity", "classification", "attribute", "property", "material"]);
+  assert.deepEqual(structureIssues(parseXml(text, { spans: true }), text), []);
+});

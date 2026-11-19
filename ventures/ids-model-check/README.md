@@ -417,6 +417,18 @@ The rules also caught this venture's own download: 316 of 351 workbooks it
 wrote had an empty purpose row the tool cannot read; it now writes `General`
 (the tool's default) and 0 of 351 stop. Details: `eval/excel2ids-tool-2026-11-19.md`.
 
+**The tool run itself, side by side (2026-11-19).** The rules above were then
+checked by running the tool (imported unchanged, ifctester 0.9.0) on the same
+321 workbooks: no stops, `LOD400` in every file, the IFC version and the
+sample's `True` as predicted. Two things the source reading missed are now on
+the list: an empty version cell comes out as `<version>None</version>` (311
+of 321 files), and a carriage return in a cell comes out as the escape
+`_x000D_`, because openpyxl does not undo the escape Excel writes. The run
+also found a fault here: the reader wrote applicability facets in the
+template's column order, which broke ids.xsd on one public set (property
+before attribute); every spreadsheet path now writes ids.xsd's order. Details:
+`eval/excel2ids-sidebyside-2026-11-19.md`.
+
 ### An IDS as a spreadsheet and back (2026-11-19)
 
 Requirements are often agreed in a table first and typed into an IDS by hand.
