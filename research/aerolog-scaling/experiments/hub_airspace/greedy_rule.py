@@ -39,7 +39,8 @@ Reported without a prediction: greedy-off+descent at s = 1, the spread (p90, max
 against the blind plan, the band counts chosen, and the CPU time of a greedy pass against 11aq's search.
 
     OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 level_leak_run.py --build     # 11ai's inputs (0.2 s)
-    OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 greedy_rule.py > greedy_rule_results.txt  # writes greedy_rule.json.gz
+    OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl GREEDY_CACHE=gcache python3 greedy_rule.py > greedy_rule_results.txt
+    # writes greedy_rule.json.gz; GREEDY_CACHE (optional) keeps per-layout results so a stopped run resumes
 
 Limits: as 11ao to 11ar (5 flights chosen by their uploaders, one offset per operator for the whole cruise, offsets
 assumed known exactly to the rule); the greedy rule needs the pair-cost table (the scorer's tables), so it saves the
@@ -239,8 +240,20 @@ def main(done):
     keys = [(m, n) for m in (12, 16) for n in dr.SIZES[m]]
     if "--quick" in sys.argv:
         keys = keys[:1]
+    cache = os.environ.get("GREEDY_CACHE")      # optional dir of per-layout results, so a stopped run resumes
+    if cache:
+        os.makedirs(cache, exist_ok=True)
+    def path(k):
+        return os.path.join(cache, "%d_%d.json" % k) if cache else None
+    have = {k: json.load(open(path(k))) for k in keys if cache and os.path.exists(path(k))}
+    todo = [k for k in keys if k not in have]
     with mp.Pool(min(4, os.cpu_count() or 1)) as pool_:
-        res = pool_.map(analyse, [(done[k], aware[k], prev[k]) for k in keys])
+        for k, r in zip(todo, pool_.imap(analyse, [(done[k], aware[k], prev[k]) for k in todo])):
+            have[k] = r
+            if cache:
+                with open(path(k), "w") as f:
+                    json.dump(r, f)
+    res = [have[k] for k in keys]
     if "--quick" not in sys.argv:
         with gzip.open(os.path.join(HERE, "greedy_rule.json.gz"), "wt") as f:
             json.dump(res, f, separators=(",", ":"))
