@@ -3691,23 +3691,32 @@ margin 2 got right against 14 won: two of four clauses failed. Margin 2's second
 62, 0 of 48 instant builds misadvised (0 of 60 with AA-AD). `tests/take_straddle_vote.py --base 2` counts against the
 shipped margin. Everything is in `eval/take-straddle-margin-one-2026-11-19.md`.
 
-## A second straddle vote at 2.5 ms (2026-11-19, after "Straddling wheels vote on the short takes"; `host.TAKE_STRADDLE2_MARGIN = 2` on by its pre-registered rule)
+## A second straddle vote at 2.5 ms (2026-11-19, after "Straddling wheels vote on the short takes"; `host.TAKE_STRADDLE_LONG_MARGIN = 2` on by its pre-registered rule)
 
-**The item.** The 1.5 ms vote names short takes the sums read as instant, but 2.4-3 ms builds that read 0 stayed 0: a
-2.8 ms take's parts placed at 1.5 ms are the wrong shape, so its straddling wheels rarely vote for 1.5 ms.
+**The item.** At the 1.5 ms vote's shipped margin, 2.4-3.5 ms builds still often read TAKE_US = 0 (20 of 36 on AA-AD),
+and a 2.8 ms build the 1.5 ms vote named was told 1.5 ms, more than 1 ms off.
 
-**What shipped.** The same count at the grid's 2.5 ms candidate (`controller.TAKE_STRADDLE2_US`), from the edge flag of
-the 2.5 ms fit the board already runs (no extra fit): `ResidualSurvey.add(got, edge, edge2)` counts `straddle2_for` and
-`straddle2_against`, and the TAKE_SURVEY frame carries them as two more bytes (the Pi reads the 1.5-ms-only frame with
-`None`). When the sums say TAKE_US = 0 and a vote reaches its margin, the Pi advises its candidate; when both do, the
-larger lead wins, 1.5 ms on a tie. `tests/take_straddle_vote.py --margins2` scores it and checks the board's counts.
+**What shipped.** The board already fits every wheel at 2.5 ms, the grid's third candidate, so the same count there
+costs one flag per wheel: `controller.TAKE_STRADDLE_LONG_US` (2500), `ResidualSurvey.long_for` / `long_against`
+(`add(got, edge, edge_long)`), and two more bytes at the end of the TAKE_SURVEY frame (the Pi reads the 1.5-ms-only
+frame with `None`). When the sums say TAKE_US = 0, `host.take_survey_advice` reads the 2.5 ms vote first (a lead of
+`host.TAKE_STRADDLE_LONG_MARGIN`: advise 2.5 ms), then the 1.5 ms vote. On five design builds where both votes led
+by the same count, 2.5 ms was within 1 ms of the true take on all five and 1.5 ms on three.
+`tests/take_straddle_vote.py --long 0,1,2,3` scores it.
 
-**Chosen, then held out.** On every stored set with wheel inputs (fifteen files, 636 builds, refitted at 2.5 ms) margin
-2 was the least with no harm: 333 to 355 of 540 spread takes named, 0 of 96 instant builds misadvised, none un-named
-(margin 1: 406, but 5 instant builds told to set 2.5 ms). Rule committed in d6222e636, then thirty fresh captures (AI-AN,
-lags 0.40-0.64 s, seeds 277-311, and 24 instant-only seeds), 270 builds with 90 instant ones: 102 to 110 of 180 named,
-0 of 90 instant builds misadvised, 0 un-named, and all 270 frames' board counts equal to the rebuild. Every clause
-held. Everything is in `eval/take-straddle-two-2026-11-19.md`.
+**Design, then held out.** At 2.5 ms an instant build's straddling wheel votes "for" about 1 in 14 (1 in 5 at 1.5 ms).
+On all fifteen stored sets with wheel inputs (636 builds) margin 2 named 333 to 356 of 540 spread takes, misadvised no
+instant build of 96 and un-named none; margin 1 misadvised 5. Rule committed in a08ca3779, then scored on fresh AI-AL
+(lags 0.48, 0.56, 0.40, 0.64 s; seeds 277-293) and twelve instant-only captures (seeds 307-373), 168 builds: 70 to 76 of
+120 named, 0 of 48 instant builds misadvised, 0 un-named, the board's own counts equal to the rebuild in every frame.
+Every clause held. Everything is in `eval/take-straddle-long-2026-11-19.md`.
 
-**Not known.** 70 of 180 held-out spread takes are still more than 1 ms off, most of them builds with no straddling
-wheel at either candidate. Simulated only.
+**Not known.** A small gain (6 of 120). 14 of 36 held-out 2.4-3.5 ms builds still read 0, 11 of them with one
+straddling kept wheel at 2.5 ms or none: the one-pulse tach's limit again. Simulated only.
+
+**Replicated (2026-11-19, a second session).** A parallel session built the same vote. On the 162 builds both captured,
+its frames were identical to these, 2.5 ms counts included. Its two extra standard sets (AM, AN) and fourteen fresh
+instant-only seeds (108 builds) give the shipped rule a second held-out reading: 32 to 34 of 60 named, 0 of 48 instant
+builds misadvised, none un-named, board counts equal to the rebuild (`eval/take-straddle-long-2026-11-19.md`,
+"Replicated on 108 more builds").
+

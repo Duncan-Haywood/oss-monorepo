@@ -6,7 +6,7 @@
   <meta name="description" content="Which camera RAW formats ShootFlow reads directly (DNG, CRW, CR2, CR3, ARW, NEF, NRW, ORF, RW2, SRW, PEF, RAF, MRW, DCR, IIQ, 3FR, FFF), the real camera files each was checked on, and what is still refused. Checked sensel for sensel against LibRaw 0.22.">
   <meta name="robots" content="index,follow">
   <meta property="og:title" content="Develop camera RAW files without Adobe DNG Converter | ShootFlow">
-  <meta property="og:description" content="Fourteen RAW formats read directly, each checked on real camera files against LibRaw 0.22, with what is still refused.">
+  <meta property="og:description" content="Fifteen RAW formats read directly, each checked on real camera files against LibRaw 0.22, with what is still refused.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Which camera RAW files can ShootFlow develop without Adobe DNG Converter?","dateModified":"2026-11-18","about":"Camera RAW file decoding: DNG, CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF, MRW, DCR, IIQ, 3FR, FFF","isPartOf":{"@type":"SoftwareApplication","name":"ShootFlow","applicationCategory":"MultimediaApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}}</script>
   <style>
     :root{color-scheme:light dark;font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;--bg:#f5f1e8;--ink:#20252b;--muted:#4f585f;--line:#d9d2c5;--accent:#8f3420;--accent-soft:#f3e3dc;--panel:#fffdf8;--code:#fff;--ok:#2f6b3a;--ok-soft:#e3efe2}
@@ -76,7 +76,7 @@
   <p class="eyebrow"><a href="./">ShootFlow</a> · camera raw support <span>· as of 2026-11-18</span></p>
   <h1>Which camera RAW files can ShootFlow develop without Adobe DNG Converter?</h1>
   <div class="answer">
-    <p><strong>Fourteen formats, read directly:</strong> DNG, Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF (and Coolpix NRW), Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF, including X-Trans and Fujifilm's compressed modes, Minolta and Konica Minolta MRW, Phase One IIQ from the P+ and IQ medium-format backs, and Hasselblad 3FR with the <code>.fff</code> files Phocus writes. Leica's RWL is a Lumix RW2 under another name and is read too.</p>
+    <p><strong>Fifteen formats, read directly:</strong> DNG, Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF (and Coolpix NRW), Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF, including X-Trans and Fujifilm's compressed modes, Minolta and Konica Minolta MRW, Kodak DCR (DCS Pro), Phase One IIQ from the P+ and IQ medium-format backs, and Hasselblad 3FR with the <code>.fff</code> files Phocus writes. Leica's RWL is a Lumix RW2 under another name and is read too.</p>
     <p>Each reader was checked on real camera files from public sample collections against LibRaw 0.22, the open-source decoder behind most raw software. For every format, every sensor value read was equal to LibRaw's, and so were the as-shot white balance and colour filter layout. Source: the project's <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/photo-editing/eval">evaluation records</a>, one per format.</p>
   </div>
   <div class="cta">

@@ -1,74 +1,74 @@
 ---
-title: "Tennis feeder: a second vote at 2.5 ms names longer short contacts"
+title: "Tennis feeder: a second straddle vote, at 2.5 ms, passes its held-out test"
+seo_title: "Tennis feeder: a second straddle vote at 2.5 ms passes held out"
 date: 2026-11-19
 tags: [open-tennis-robots, firmware, simulation, statistics]
-description: "A straddle vote at 2.5 ms named 110 of 180 held-out contact times against 102, and told none of 90 instant builds to change."
+description: "Counting straddling wheels at 2.5 ms as well as 1.5 ms named 76 of 120 short contacts on fresh drills, against 70, and misadvised no instant build."
 ---
 
-The open tennis-ball feeder's ESP32 refits each launcher wheel's speed
-drop at nine assumed ball contact times (the "take", 0 to 8 ms), and the
-Pi turns the summed fit errors into one line: which `TAKE_US` to set.
+The open tennis-ball feeder's ESP32 refits each ball's wheel-speed drop at
+nine assumed contact times, and the Pi tells the builder which `TAKE_US`
+to set. Earlier today a straddle vote shipped. It counts only the balls
+whose contact crosses a tach revolution's edge, because those are the only
+balls that can show a contact shorter than a revolution. That vote asks one
+question: does 1.5 ms fit better than an instant contact?
 
-Earlier today a [straddle vote](2026-11-19-tennis-feeder-straddling-wheels-vote.md)
-fixed part of the survey's blind spot. The tach gives one pulse a
-revolution, so a short contact only changes the fit when it crosses a
-revolution's edge. Counting just those wheels, and asking whether 1.5 ms
-fits them better than an instant contact, named many 1.3-2 ms takes the
-sums had read as instant.
+It helped the 1.3 to 2 ms contacts. Longer short contacts were still often
+read as instant: at the shipped margin, 20 of 36 held-out builds at 2.4 to
+3.5 ms got "keep TAKE_US = 0". One 2.8 ms build was told 1.5 ms, which is
+more than a millisecond off.
 
-It didn't help takes of 2.4 to 3.5 ms that the sums also read as 0. Their
-straddling wheels see a contact of the wrong length at 1.5 ms, so they
-rarely vote for it.
+## The same vote, one candidate up
 
-## The same vote, one grid step up
+The board already fits every wheel at 2.5 ms, since that is the grid's
+third candidate. So a second vote costs one flag per wheel and two bytes at
+the end of the survey frame. No new fit is needed. On a wheel whose 2.5 ms
+fit puts the contact across an edge, 2.5 ms fitting better than instant is
+a vote for it.
 
-The board already fits every wheel at 2.5 ms, so the second vote costs
-no extra fit. It reads the 2.5 ms fit's own "did the contact cross an
-edge" flag, counts the straddling wheels that fit 2.5 ms better or worse
-than instant, and sends both counts in two more frame bytes. If the sums
-say instant and either vote leads by its margin, the Pi advises that
-vote's time. When both lead, the bigger lead wins, and a tie goes to
-1.5 ms.
+On the fifteen stored simulation sets that keep each wheel's raw timing
+(636 builds), the 2.5 ms vote turned out stricter than the 1.5 ms one:
 
-On every stored simulated set that keeps the wheels' raw inputs (636
-builds), straddling wheels at 2.5 ms split like this:
-
-| true take | for 2.5 ms | against |
+| builds | straddling wheels at 1.5 ms: for / against | at 2.5 ms: for / against |
 | --- | --- | --- |
-| instant | 13 | 172 |
-| 2.4 ms and up | 337 | 23 |
+| really instant (96) | 20 / 102 | 13 / 172 |
+| really 0.1-0.9 ms (144) | 35 / 169 | 15 / 289 |
+| really 2.4 ms and up (204) | 163 / 2 | 337 / 23 |
 
-A margin of 1 (one more "for" than "against") named the most takes but
-told 5 of 96 instant builds to set 2.5 ms. A margin of 2 named 22 more
-takes than the 1.5 ms vote alone and harmed none, so it became the
-candidate.
+An instant build's straddling wheel votes for 2.5 ms about one time in 14
+(for 1.5 ms it's one in five). No instant or sub-millisecond build ever led
+by two. When the sums say instant, the Pi now reads the 2.5 ms vote first,
+then the 1.5 ms one. On the design sets a two-wheel margin named 356 of 540
+spread contacts instead of 333 and lost no right answer. A one-wheel margin
+told 5 of 96 instant builds to set 2.5 ms, so it was never a candidate.
 
-## Held out, rule first
+## Rule first, then fresh drills
 
-The prediction and the shipping rule were committed before any test set
-existed. The test used six fresh standard sets and 24 instant-only
-captures, 270 simulated builds in all. Under the rule, the vote shipped
-only if it named more takes, told no instant build to set one, lost
-fewer than one build per five it won, and the board's own counts matched
-a rebuild on every frame.
+Those sets had all been looked at for the first vote, so they could only
+choose the rule. We committed the rule and the prediction. Then we captured
+four fresh sets with new seeds, plus twelve instant-only captures, so a
+rare harm would have 48 instant builds to show up in:
 
-| 2.5 ms margin | named (of 180) | instant builds misadvised (of 90) | won / lost |
+| 2.5 ms margin | named (of 120) | instant builds told to set a take (of 48) | right answers lost |
 | --- | --- | --- | --- |
-| off | 102 | 0 | - |
-| 1 | 128 | 3 | 27 / 4 |
-| **2** | **110** | **0** | **8 / 0** |
+| off | 70 | 0 | - |
+| 2 (the rule) | 76 | 0 | 0 |
+| 1 | 85 | 2 | 3 |
 
-Every clause held, so the Pi's `TAKE_STRADDLE2_MARGIN` is now 2. Margin 1
-failed the instant-build test again, as it did at 1.5 ms.
+Every clause held, so the vote ships at margin 2. The board's own counts
+also matched the offline rebuild in every frame. Margin 1 again told
+instant builds to set a contact time, so it stays closed.
 
-## What's still missing
+## How much it buys
 
-70 of the 180 contact times are still more than 1 ms off, most of them
-1.3 to 2 ms. Those builds mostly had no straddling wheel at either time:
-with one tach pulse a revolution, nothing in the fit can see a contact
-that stays inside one revolution. More tach edges or more balls are the
-only ways in. All of this is simulated. On a real machine, the first
-reading will come from the frame's two new bytes.
+Not much: 6 builds of 120. 14 of the 36 fresh builds at 2.4 to 3.5 ms still
+read instant. 11 of those had one straddling wheel at 2.5 ms or none. With
+one tach pulse a revolution, a 22-ball drill has only a few balls whose
+contact crosses an edge, and nothing the board computes can see a contact
+on a ball that didn't. The bigger lever is still the tach. An earlier test
+found four magnets a revolution not worth it on a clean tach, but promising
+on a jittery one. All of this is simulated. The frame's two new bytes are
+what a real board will report first.
 
-The full note, with commands and stored captures, is
-`ventures/open-tennis-robots/eval/take-straddle-two-2026-11-19.md`.
+The code, data and every number are in the open-tennis-robots venture:
+`tests/take_straddle_vote.py --long` and `eval/take-straddle-long-2026-11-19.md`.

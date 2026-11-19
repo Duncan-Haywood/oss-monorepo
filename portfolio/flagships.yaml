@@ -191,7 +191,9 @@ flagships:
       false/100, floors lose 63-86% of segments): no more label-free floors; next
       per-group floors named by a person (needs a set with metric names), SMD
       10-min: no rescue, delay 4h to 1h (Round 19); a real deployer's repository on
-      GitHub Actions (real shop, README "A real shop's daily series": weekly line
+      GitHub Actions (no-terminal set-up from the watch page 2026-11-19, README
+      "Self-deploy with no terminal"; next: its four links tried on a live empty
+      repository) (real shop, README "A real shop's daily series": weekly line
       ships; next revenue deaf at Quiet; --closed ships; a recent-days fill failed 2
       rounds (README "A closure in the first week after a step": cost ~4/100,
       pooled); a closure 1-7 days before a step costs ~1/100 and the 2011-09-01
@@ -200,14 +202,14 @@ flagships:
       note ships); update-rate: pegs 4 of 7 dated; next a provider that documents
       its own changes. Stale feeds: real carry-forward 84/85 caught but prints 56/56
       false; AAPL/AMZN/GOOG 28/33, prints 0/34; penny-spread stocks reverse (the
-      half-cent tick passes the gate); quoted-tick gate unscorable on 12 Binance
-      pairs (all one-tick); side-adjusted prints fail worse (21/39, README "The
-      trade side"): no price-only fix, the line ends. joint drift (measured, not
-      offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
-      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
-      belts and quality control 4, its AR(1) term; notes quote it. Curvature word
-      ships under --shape-word panel (README "A curvature word"): slope donors
-      straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
+      half-cent tick passes the gate); side-adjusted prints fail worse (21/39,
+      README "The trade side"): no price-only fix, the line ends. joint drift
+      (measured, not offered) and its 2x penalty on fresh multi-column labelled
+      data. Open: (0) drift model: t-walk increments, biweight on fresh data, why it
+      absorbs seat belts and quality control 4, its AR(1) term; notes quote it.
+      Curvature word ships under --shape-word panel (README "A curvature word"):
+      slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items:
+      NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -314,29 +316,26 @@ flagships:
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
       CR2; camera DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with
       the 1.7.1.0 text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear
-      matches the Leica T's preview to 0.18 px; WarpRectilinear2). Phase One IIQ L
-      and S 2026-11-18, no .dcp: file's matrix (eval/phaseone-iiq-*); Hasselblad 3FR
-      and Phocus .fff (eval/hasselblad-*). Kodak DCR 2026-11-18 = LibRaw
-      (eval/kodak-dcr-*). RW2 RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E; 4 x 2
-      tiles (177 MP); no public file has a tone curve
-      (eval/panasonic-rw2-format8-grid-*). S1R II 177 MP = LibRaw snapshot 202611,
-      every sensel (eval/panasonic-rw2-177mp-libraw-*). IIQ 16-bit (IQ4, IQ3 100MP,
-      Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs LibRaw's dE 16, unsettled
-      (eval/phaseone-iiq-16bit-*). IIQ calibration (0x110) 2026-11-19: LibRaw's to 3
-      codes off dead columns (eval/phaseone-iiq-calibration-*). Next: the H 25
-      IT8.7-2 card raw to judge the matrices; an iXU180 dark frame or Capture One
-      export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
-      5.2% blue gap is them, calibration = LibRaw on 13 more files,
+      matches the Leica T's preview to 0.18 px; WarpRectilinear2). S1R II 177 MP =
+      LibRaw snapshot 202611, every sensel (eval/panasonic-rw2-177mp-libraw-*). IIQ
+      16-bit (IQ4, IQ3 100MP, Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs
+      LibRaw's dE 16, unsettled (eval/phaseone-iiq-16bit-*). IIQ calibration (0x110)
+      2026-11-19: LibRaw's to 3 codes off dead columns
+      (eval/phaseone-iiq-calibration-*). Next: the H 25 IT8.7-2 card raw to judge
+      the matrices; an iXU180 dark frame or Capture One export to say if IIQ S
+      offset tables apply (LibRaw skips them; the iXU180's 5.2% blue gap is them,
+      calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
       evenly lit frame; Near-clean leak closed on Bayer 2026-11-19 (k 12,
       eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
       day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
       reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*);
-      D780/D600 truth noise read from the raw 2026-11-19 (truth_grain18; the old
-      column read foliage 3-12x as grain): 6 of 11 losers are real over-reads on
-      clean truths, the read floors on fine foliage at 2.3-5.2x the noise
-      (eval/near-clean-truth-noise-2026-11-19.md); next a texture-robust noise read
-      for them, pre-registered. More open items: NEXT.md.
+      D780/D600: 6 of 11 losers are real over-reads on clean truths
+      (eval/near-clean-truth-noise-2026-11-19.md); a min-eigenvalue read failed its
+      pre-registered pick 2026-11-19: foliage fills the quietest direction too, and
+      the shipped read under-reads white-balanced noise (0.53x at SNR 12;
+      eval/noise-pca-min-eigen-2026-11-19.md); next per-colour ratios with a
+      texture-safe level, pre-registered. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -399,20 +398,20 @@ flagships:
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
       (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
       eval/whist-vs-greedy.txt); Whist 48, 60 and near-whist 46, 54, 62 by tabu
-      search 2026-11-19 (eval/whist-anneal.c, .txt); 52, 57: patterned starters
-      impossible, Z19x|Z3 tabu stops at cost 2 (README "Whist designs for 52 and
-      57"); next: SAT or a product construction; and near-whist 58 (tabu 25+60
-      CPU-min, SAT 2.2 h none; sit-out parity and mirror proof: README "Near-whist
-      designs by SAT"). More open items: NEXT.md.
+      search 2026-11-19 (eval/whist-anneal.c, .txt); 52, near-whist 58 2026-11-19 by
+      starter + exact table matching (eval/whist-starter.c, README "Whist designs
+      for 52 and near-whist for 58"); next: 57 (Z57 starters to 20 M nodes each: no
+      matching; patterned starters impossible; try a product construction or Z19x|Z3
+      starters). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
       see firmware/esp32/README.md, latest "A second straddle vote at 2.5 ms"
-      (2026-11-19: host.TAKE_STRADDLE2_MARGIN 2 held out on 30 fresh captures, 102
-      to 110 of 180 named, 0 of 90 instant misadvised;
-      eval/take-straddle-two-2026-11-19.md). 1.5 ms vote:
-      eval/take-straddle-vote-2026-11-19.md. Next: the votes in the TAKE_US = 0
-      bound, a margin scaled to the straddle count (NEXT.md).
+      (2026-11-19: host.TAKE_STRADDLE_LONG_MARGIN 2 held out on fresh AI-AL + 12
+      instant seeds, 76 of 120 named vs 70, 0 of 48 instant misadvised;
+      eval/take-straddle-long-2026-11-19.md, replicated on 108 more builds). 1.5 ms
+      vote: margin 2, margin 1 failed held out. Next: the vote in the TAKE_US = 0
+      bound; a margin scaled to the straddle count (NEXT.md).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -572,12 +571,13 @@ flagships:
       planted); next progress override, start float and 24-hour lag paths on a real
       P6 file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
       eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
-      appendix 2026-11-19; next a real reviewer's reading; (5) Monte Carlo risk and
-      risk register shipped 2026-11-19 (risk.mjs; eval/risk-check-,
-      eval/risk-register-check-2026-11-19.md); UDF ranges shipped 2026-11-19
-      (eval/udf-ranges-check-*); next: a real file with range UDFs, probabilistic
-      branches; (6) resource levelling shipped 2026-11-19 (level.mjs, --level:
-      serial pass by early start, the file's priority list, crew-size what-if;
-      eval/level-check-2026-11-19.md: 0 h over a limit from placed work on six
-      files, 37,670 of 37,670 links hold, x1e6 limits = CPM). More open items:
-      NEXT.md.
+      appendix 2026-11-19; next a real reviewer's reading; UDF ranges shipped
+      2026-11-19 (eval/udf-ranges-check-*); (6) resource levelling shipped
+      2026-11-19 (level.mjs, --level: serial pass by early start, the file's
+      priority list, crew-size what-if; eval/level-check-2026-11-19.md: 0 h over a
+      limit from placed work on six files, 37,670 of 37,670 links hold, x1e6 limits
+      = CPM); (7) longest path and multiple float paths shipped 2026-11-19
+      (floatpaths.mjs, --float-paths, page panel; eval/longest-path-2026-11-19.md:
+      P6's flag 261/261 on five files); next: a public XER with P6's own float_path
+      values to check path order against, the review section for an interim
+      milestone. More open items: NEXT.md.

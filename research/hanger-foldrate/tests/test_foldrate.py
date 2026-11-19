@@ -32,6 +32,15 @@ class FoldRate(unittest.TestCase):
         txt = (HERE / "experiments" / "results.txt").read_text()
         self.assertTrue(re.search(r"crossover t_fold = [\d.]+ s", txt))
 
+    def test_section_a_matches_utilisation_law(self):
+        # Fold-bound cell: items/h ~ 3600 / (t_fold * folded per item); dryers = items/h * 45/60 / 25.
+        txt = (HERE / "experiments" / "results.txt").read_text()
+        for t in ("90", "120", "600"):
+            row = re.search(r"^.{25} +%s +([\d.]+) +([\d.]+) +[\d.]+ +([\d.]+)" % t, txt, re.M)
+            per_h, dryers, folded = map(float, row.groups())
+            self.assertAlmostEqual(per_h, 3600 / (float(t) * folded / 25), delta=0.03 * per_h)
+            self.assertAlmostEqual(dryers, per_h * 45 / 60 / 25, delta=0.051)
+
 
 if __name__ == "__main__":
     unittest.main()

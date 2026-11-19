@@ -17,7 +17,7 @@
   "tokens_out": 40806,
   "cost_usd": 4.0082,
   "tool_calls": 61,
-  "task": "open-tennis-robots (flagship 10, allocate.py 'Start here'): a second straddle vote at 2.5 ms",
+  "task": "open-tennis-robots (flagship 10): a second straddle vote at 2.5 ms; built in parallel with PR 17771, which merged first; landed as a replication of the shipped rule",
   "projects": [
     "open-tennis-robots"
   ],
@@ -29,23 +29,36 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 2,
-  "outcome": "success",
-  "errors": [],
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [
+    "Built and held out the same 2.5 ms straddle vote that PR 17771 (another session, opened one number earlier) merged while this PR's CI ran; the duplicate firmware/host code was dropped at merge time."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'Start here' sent two sessions opening within the same minute to the same row and the same single item ('a 2.5 ms vote'); the claim's PR number race decides it, but by then both had built it. Two sessions also chose the same 'fresh' seeds (277-373), since each picks the next unused primes after the stored list: seed choice should include something session-specific."
+    },
+    {
       "file": "prompts/ventures/prompt-1.md",
-      "issue": "Says venture-preflight takes over 5 min; fine, but nothing says whether a firmware/host-only change inside a venture (no page or site files touched) needs it, so it was run anyway."
+      "issue": "Does not say whether a firmware/host-only change inside a venture (no page files) needs venture-preflight; ran it anyway (clean, ~6 min)."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Skipped `claim_check.py open-tennis-robots` after opening the claim PR (17772); it would have shown PR 17771 holding the same item.",
+      "did": "Built the full feature and a 270-build held-out test; on the merge conflict, dropped my code and landed only the new evidence: a bit-for-bit cross-check of 162 shared builds and the shipped rule scored on 108 builds it never saw.",
+      "result": "Roughly an hour of duplicated work; the salvage is a real but small replication. Run claim_check every time."
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-19-tennis-feeder-second-straddle-vote.md",
-    "ventures/open-tennis-robots/eval/take-straddle-two-2026-11-19.md"
+    "docs/posts/2026-11-19-tennis-feeder-same-vote-built-twice.md",
+    "ventures/open-tennis-robots/eval/take-straddle-long-2026-11-19.md (section 'Replicated on 108 more builds')"
   ],
   "goal": null,
-  "notes": "Built a second straddle vote at the take survey's 2.5 ms candidate: board counts (ResidualSurvey.straddle2_for/against, from the 2.5 ms fit's own edge flag, no extra fit), two more TAKE_SURVEY frame bytes (older frames decode with None), Pi advice with host.TAKE_STRADDLE2_MARGIN (larger lead wins when both votes fire, 1.5 ms on a tie), and tests/take_straddle_vote.py --margins2. Design on 15 stored sets (636 builds): margin 2 named 333->355 of 540, 0 of 96 instant misadvised; margin 1 misadvised 5. Pre-registered in d6222e636, then 30 fresh captures (270 builds, 90 instant): 102->110 of 180 named, 0 of 90 instant misadvised, 0 lost, board counts equal to rebuild on all 270 frames. Shipped TAKE_STRADDLE2_MARGIN = 2. Verification: python3 -m unittest discover -s tests (see PR), venture-preflight.",
+  "notes": "Built the 2.5 ms straddle vote independently (board counts, frame bytes, Pi advice, scorer), designed on 15 stored sets and pre-registered (d6222e636 on the branch) a 270-build held-out test that passed (102->110 of 180, 0 of 90 instant misadvised). PR 17771 merged the same feature first (2.5 ms first ordering, TAKE_STRADDLE_LONG_MARGIN = 2). Dropped my code. Landed: (1) on the 162 builds both sessions captured with the same seeds, board_scores and all four straddle counts identical across the two implementations; (2) the shipped rule scored on 108 builds only this session captured (AM, AN, 14 instant seeds): 32->34 of 60 named, 0 of 48 instant misadvised, 0 lost, board-count asserts held. Verification: unit suite 283 OK and venture-preflight clean on the dropped branch; the landed diff is eval data, docs and a post (check_posts ok, validate ok).",
   "corrections": [],
   "redteam": null,
   "usage": {

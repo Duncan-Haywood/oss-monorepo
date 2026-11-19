@@ -1,0 +1,246 @@
+{
+ "date": "2026-11-19",
+ "subject": "ventures/photo-editing",
+ "stratum": "flagship",
+ "seed": "2026-11-19-l-c250",
+ "round": 85,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), fourth audit (r4); previous: 2026-11-09-photo-editing-r3.json and -r3-b.json",
+ "status": "audited",
+ "professional": "a colour scientist who has implemented the DNG SDK colour pipeline, paired with a working event/wedding photographer who culls 2,000 frames a shoot; first checks: are the XYZ/sRGB/Bradford matrices, CIE observer and CCT right, does the lossless-JPEG raw decoder reproduce samples exactly, is cull exposure read on the right luma matrix and are soft frames caught, are the page's counts and commands true",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Since r3 the venture grew from ~23k to 49,655 src lines: a camera-raw developer (DNG, CRW/CR2/CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF, MRW, DCR, IIQ, 3FR) was added. Recomputed against sources the author did not write. (1) raw_develop._XYZ_D50_TO_SRGB vs Bruce Lindbloom's published Bradford-adapted XYZ(D50)->sRGB matrix: max element difference 2.2e-4 (the code uses the 6-digit 0.412453 primaries; Lindbloom uses IEC-derived ones), D50 white maps to (1,1,1); dc.bradford(D50->D65) equals an independent numpy Bradford to 4.4e-16. (2) cie1931 table at 450/555/560/600 nm equals the CIE 1931 2-degree values (0.3362,0.038,1.77211 / 0.5120501,1,0.00575 / 0.5945,0.995,0.0039 / 1.0622,0.631,0.0008) exactly. (3) xy_to_cct: D65 6503.0 K, illuminant A 2855.8 K, D50 5001.8 K vs published 6504/2856/5003 (Robertson). (4) srgb_encode(0.18)=0.4613561, (0.5)=0.735357, the IEC 61966-2-1 values. (5) decode_lossless_jpeg on streams encoded by ffmpeg's ljpeg encoder (predictors 1,2,3; 97x61x3, random + ramp): 0 mismatches in 17,751 samples each against ffmpeg's own decode. (6) Cull layer: _laplacian_variance 109771.20795021315 / 971.4876 / 8047.4878 vs numpy 4-neighbour Laplacian .var() equal to 1e-12; dhash_hex 9b4c53ce52a79a75 / 0 / 42bc42bcbc42bc42 equals an independent numpy 9x8 area-average left>right hash. (7) analyze_media on ffmpeg solid patches: red 76, green 149, blue 29, grey 128, orange 151 = BT.601 (76.24/149.69/29.07/128/151.38), not BT.709 (54.21/182.38/18.41) - unchanged since r3; exposure red 0.633333 = 1-|76-120|/120 by hand. LibRaw parity claims could not be re-run here: raw.pixls.us returns a proxy 403 and no real raw file is in the tree, so all recomputation is on synthetic input. 3.",
+  "completeness": "Claimed features exercised: cull end to end (`PYTHONPATH=src python3 -m shootflow.cli cull /tmp/claude-0/-home-user-oss-monorepo/c60ec2f2-d65a-55c0-a345-159b9391aec7/scratchpad/shoot --out /tmp/claude-0/-home-user-oss-monorepo/c60ec2f2-d65a-55c0-a345-159b9391aec7/scratchpad/report --write-xmp` on 4 ffmpeg-made JPEGs: summary 2 groups, 2 keepers, 1 alternate, 1 reject; XMP ratings sharp 4, other 4, blurred 2, darkened -1, matching the documented 4/2/-1); colour/luma metrics (ran, above); lossless-JPEG raw decode (ran, exact); develop colour pipeline matrices (ran). The ffmpeg pipeline, reels/carousels, ingest and launchd are covered by test_ffmpeg_pipeline/test_ingest, which pass in the suite run below; not run by hand this round. No real-shoot run exists (stated). 3 against its README.",
+  "verification": "Full suite with pytest 8 under /usr/bin/python3.13 + numpy 2.5.3, split in three (`PYTHONPATH=src python3 -m pytest -q tests/test_*.py` by thirds): 555 passed 1 skipped (116 s), 437 passed 7 skipped (128 s), 453 passed 1 skipped (64 s): 1,445 passed, 9 skipped, 0 failed. The r3 root/Pillow failures are gone. Mutations via platform/ci/quality_mutate.py: exposure grey target 120->100 SURVIVED and _SHARPNESS_HALF_POINT 60->600 SURVIVED (the same two cull-scoring mutants reported in r1, r2 and r3, now four rounds open); sRGB exponent 1/2.4->1/2.2 in raw_develop CAUGHT (19 failures); sRGB-primaries Y row replaced by BT.601 coefficients SURVIVED the four core colour test files (tests take expected values from rd._XYZ_TO_SRGB_D65 itself: test_raw_develop.py:27, test_cr2.py:203, test_arw.py:167, test_camera_profiles.py:39) and was CAUGHT only by a broader 14-file raw set. The raw/colour core is well guarded; the cull's measurement constants, which decide keeper vs reject, are still not pinned. 2.",
+  "craft": "Read frame_analysis.py (metrics_from_frames, _decode_frames), raw_develop.py (matrices, sRGB curve, decode_lossless_jpeg), dng_colour.py (Bradford, CCT, sRGB), cie1931.py (generated from colour-science, cited). The colour code is cited and clean. Defects: 49,655 lines in src/shootflow (cli.py 2,618, production_adapter.py 3,408, raw_develop.py 2,598); a 3,136-line README that reads as a lab notebook; `ruff check src tests` (ruff 0.16.9): 301 errors, 147 auto-fixable; C compiled at run time with the system compiler and loaded with ctypes (cull_native, *_native) with a silent Python fallback; AGENTS.md:7,22 still says 'stdlib-only, zero third-party dependencies' and 'No pytest' while numpy is used by raw_develop_np/noise_pca (LAPACK eigvalsh) and the suite runs under pytest; `_XYZ_TO_SRGB_D65` is named XYZ->sRGB but holds sRGB->XYZ. 2.",
+  "claims": "The r3 high defect is fixed: site/index.html now says it renders and grades through ffmpeg (FAQ) and gives `PYTHONPATH=src python3 -m shootflow.cli` commands, with 'No app and no installed command' under Not yet. Checked numbers against files: '9-78% less false colour than bilinear' = eval/bayer-directional-demosaic-2026-11-15.md:82 (backed); '6 of 6 closed-eye ... 0 of 99' = eval/blink-landmarker-2026-11-16.md:8 (backed); 'none of 71 public camera raw files' = README.md:1993 (backed); '214 s to 129 s' = README.md:944 (backed); disclaimer and no-warranty present. Not backed: '12 raw formats' (index.html:77, llms.txt:3) while camera-raw-formats.html said 'Fourteen' and its table has 15 format families (DCR added 2026-11-18); the home-page develop FAQ omitted DCR and IIQ and said only DNG and 3FR work without a .dcp, contradicting llms.txt (IIQ needs none). llms.txt:5 and index.html:96,113 still show the non-installed `shootflow cull` / `shootflow develop` form an assistant would copy. Limits are stated honestly (synthetic media only, no real shoot, technical not taste). 3 with those defects.",
+  "fitness": "Job: cull a shoot, develop raws, grade and cut deliverables offline. The cull and develop run from a clone with a PYTHONPATH command; no installer, no UI. In my run a frame blurred with a sigma-6 Gaussian at 1200x800 scored sharpness 0.28 and got 2 stars (alternate), not a reject, because analysis runs on a 320x180 downscale: a photographer checks focus at 100% and would reject it. No real shoot has gone through the pipeline and the cull has no photographer's picks to score against (VENTURE.yaml stage prototype). A photographer could use develop as a LibRaw-grade decoder and the cull as a first pass only. 2.",
+  "domain": "Raw/colour side compared with the Adobe DNG specification and SDK and colour-science references: Bradford adaptation, ProPhoto/D50 connection space, Robertson CCT, CIE 1931 observer, IEC sRGB curve all match; a colour scientist would sign this half off. Cull side compared with Photo Mechanic/Lightroom practice and ITU-R BT.709: exposure is mean BT.601 luma versus a fixed 120 so saturated colour is mis-weighted (red 76 vs 54) and deliberate low-key frames score as bad; focus is judged on a 320x180 grey downscale so critical-focus misses pass (sigma-6 blur kept as alternate). The product's lead job is the cull, so 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "XYZ(D50)->sRGB matrix",
+   "method": "Bruce Lindbloom, RGB/XYZ matrices, sRGB D50 Bradford-adapted",
+   "command": "PYTHONPATH=src /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c60ec2f2-d65a-55c0-a345-159b9391aec7/scratchpad/colour.py",
+   "expected": "3.1338561 -1.6168667 -0.4906146 / -0.9787684 1.9161415 0.0334540 / 0.0719453 -0.2289914 1.4052427",
+   "observed": "3.133765 -1.617086 -0.490593 / -0.978804 1.916254 0.033453 / 0.07196 -0.229022 1.405435 (max diff 2.2e-4)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "CIE 1931 2-degree CMFs at 450, 555, 560, 600 nm",
+   "method": "CIE 015:2018 / CVRL published table",
+   "command": "PYTHONPATH=src /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c60ec2f2-d65a-55c0-a345-159b9391aec7/scratchpad/colour.py",
+   "expected": "555 nm (0.5120501, 1.0, 0.005749999); 600 nm (1.0622, 0.631, 0.0008)",
+   "observed": "identical at all four wavelengths",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Correlated colour temperature of D65, A, D50",
+   "method": "Wyszecki & Stiles (Robertson); CIE published CCTs 6504 K, 2856 K, 5003 K",
+   "command": "PYTHONPATH=src /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c60ec2f2-d65a-55c0-a345-159b9391aec7/scratchpad/colour.py",
+   "expected": "6504 / 2856 / 5003 K",
+   "observed": "6503.0 / 2855.8 / 5001.8 K",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "sRGB encode of 0.18 and 0.5",
+   "method": "IEC 61966-2-1 piecewise curve",
+   "command": "PYTHONPATH=src /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c60ec2f2-d65a-55c0-a345-159b9391aec7/scratchpad/colour.py",
+   "expected": "0.4613561, 0.7353570",
+   "observed": "0.4613561, 0.735357",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Lossless JPEG (SOF3) decode, predictors 1-3",
+   "method": "ffmpeg ljpeg encoder and ffmpeg decoder as reference",
+   "command": "PYTHONPATH=src /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c60ec2f2-d65a-55c0-a345-159b9391aec7/scratchpad/ljcheck.py /tmp/claude-0/-home-user-oss-monorepo/c60ec2f2-d65a-55c0-a345-159b9391aec7/scratchpad/lj",
+   "expected": "0 mismatches",
+   "observed": "pred 1/2/3: 0 mismatches of 17,751 samples",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Laplacian variance and dHash on three 320x180 frames",
+   "method": "independent numpy 4-neighbour Laplacian .var() and 9x8 area-average dHash",
+   "command": "PYTHONPATH=src /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c60ec2f2-d65a-55c0-a345-159b9391aec7/scratchpad/fa.py",
+   "expected": "109771.20795021314 / 9b4c53ce52a79a75",
+   "observed": "109771.20795021315 / 9b4c53ce52a79a75 (all three frames equal)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Cull luma of saturated colour patches through ffmpeg",
+   "method": "ITU-R BT.709 luma (sRGB/Rec.709 content) vs BT.601",
+   "command": "PYTHONPATH=src /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c60ec2f2-d65a-55c0-a345-159b9391aec7/scratchpad/luma.py /tmp/claude-0/-home-user-oss-monorepo/c60ec2f2-d65a-55c0-a345-159b9391aec7/scratchpad/patches",
+   "expected": "BT.709: red 54.21, green 182.38, blue 18.41",
+   "observed": "red 76, green 149, blue 29 (BT.601)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "cull end to end with --write-xmp",
+   "method": "run on 4 ffmpeg-made JPEGs (sharp, gaussian-blurred, darkened, unrelated)",
+   "command": "PYTHONPATH=src python3 -m shootflow.cli cull SHOOT --out REPORT --write-xmp",
+   "expected": "keeper 4, alternate 2, reject -1; blurred frame rejected",
+   "observed": "sharp 4, other 4, darkened -1 (bad exposure), sigma-6 blurred 2 (sharpness 0.2814 > 0.2)",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "full test suite",
+   "method": "pytest in three parts",
+   "command": "PYTHONPATH=src python3 -m pytest -q $(cat part_a?)",
+   "expected": "green",
+   "observed": "1,445 passed, 9 skipped, 0 failed",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'12 raw formats' on the home page and llms.txt",
+   "method": "count format families in site/camera-raw-formats.html table",
+   "command": "grep -o '<tr id=\"f-[a-z0-9]*\"' site/camera-raw-formats.html",
+   "expected": "12",
+   "observed": "17 rows = 15 families (NRW, FFF are variants); formats page said Fourteen",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'9-78% less false colour than bilinear'",
+   "method": "eval file",
+   "command": "grep -n 78 eval/bayer-directional-demosaic-2026-11-15.md",
+   "expected": "9-78%",
+   "observed": "line 82: 9-78% (A7 III 9% ... E-M10 78%)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "page tells users how to run it with a working command",
+   "method": "pyproject.toml has no [project.scripts]",
+   "command": "grep -n 'shootflow cull\\|shootflow develop' llms.txt site/index.html",
+   "expected": "only PYTHONPATH=src python3 -m shootflow.cli forms",
+   "observed": "run-it section correct; llms.txt:5 and index.html:96,113 still use bare `shootflow cull` / `shootflow develop`",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "render/grade denial from r3",
+   "method": "read site/index.html FAQ",
+   "command": "grep -n 'render video or grade' site/index.html",
+   "expected": "truthful",
+   "observed": "'Yes, through local ffmpeg ... tested on synthetic media and small sets'",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "lint",
+   "method": "ruff with the project config",
+   "command": "ruff check src tests --statistics",
+   "expected": "0",
+   "observed": "301 errors (147 fixable)",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/shootflow/frame_analysis.py:190",
+   "change": "abs(mean - 120.0) / 120.0 -> abs(mean - 100.0) / 100.0",
+   "caught": false,
+   "test_cmd": "sh -c PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests/test_frame_analysis.py tests/test_cull.py tests/test_cull_showcase.py tests/test_story.py"
+  },
+  {
+   "where": "src/shootflow/frame_analysis.py:61",
+   "change": "_SHARPNESS_HALF_POINT = 60.0 -> _SHARPNESS_HALF_POINT = 600.0",
+   "caught": false,
+   "test_cmd": "sh -c PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests/test_frame_analysis.py tests/test_cull.py tests/test_cull_showcase.py tests/test_story.py"
+  },
+  {
+   "where": "src/shootflow/raw_develop.py:1774",
+   "change": "1.055 * v ** (1 / 2.4) - 0.055 -> 1.055 * v ** (1 / 2.2) - 0.055",
+   "caught": true,
+   "test_cmd": "sh -c PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests/test_raw_develop.py tests/test_dng_colour.py tests/test_srgb_table.py tests/test_raw_develop_engines.py"
+  },
+  {
+   "where": "src/shootflow/raw_develop.py:1269",
+   "change": "(0.212671, 0.715160, 0.072169) -> (0.299, 0.587, 0.114) (survived the 4 core colour test files; caught by the 14-file raw set below)",
+   "caught": true,
+   "test_cmd": "sh -c PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider -x tests/test_raw_develop.py tests/test_dng_colour.py tests/test_cr2.py tests/test_camera_profiles.py tests/test_arw.py tests/test_dng_profile_tables.py tests/test_default_tone_curve.py tests/test_dng_triple_illuminant.py tests/test_dng_tone_curve.py tests/test_nef.py tests/test_orf.py tests/test_raf.py tests/test_iiq.py tests/test_hasselblad.py"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Exposure grey target (120->100) and sharpness half-point (60->600) can be mutated with every frame_analysis/cull/story test green; the constants that decide keeper vs reject are unpinned. Reported in r1, r2, r3 and now r4.",
+   "where": "ventures/photo-editing/src/shootflow/frame_analysis.py:61,190",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"
+  },
+  {
+   "severity": "medium",
+   "what": "Cull luma is ffmpeg format=gray, i.e. BT.601 (red 76, green 149) not BT.709 (54, 182), undocumented in code or README; exposure is mean luma vs a fixed 120, penalising low-key frames. Open since r3.",
+   "where": "ventures/photo-editing/src/shootflow/frame_analysis.py:190,935",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Focus is judged on a 320x180 downscale: a frame blurred with sigma 6 at 1200x800 scores sharpness 0.28 and is kept as a 2-star alternate rather than rejected.",
+   "where": "ventures/photo-editing/src/shootflow/frame_analysis.py:935",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Home page and llms.txt said '12 raw formats'; the formats page said 'Fourteen' and its table lists 15 families; the home-page develop FAQ omitted DCR and IIQ and said only DNG and 3FR need no .dcp. Fixed in the working tree with tests/test_site_format_count.py.",
+   "where": "ventures/photo-editing/site/index.html:77,204; llms.txt:3; site/camera-raw-formats.html:9,79",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"
+  },
+  {
+   "severity": "medium",
+   "what": "llms.txt's recommend line and two page paragraphs give `shootflow cull ...` / `shootflow develop ...`, a command that is not installed (no [project.scripts]); an assistant quoting llms.txt hands users a failing command.",
+   "where": "ventures/photo-editing/llms.txt:5; site/index.html:96,113",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"
+  },
+  {
+   "severity": "low",
+   "what": "Core colour tests derive expected values from the module's own sRGB primaries matrix, so replacing its Y row with BT.601 passes the four core colour test files.",
+   "where": "ventures/photo-editing/tests/test_raw_develop.py:27; tests/test_arw.py:167; tests/test_cr2.py:203",
+   "category": "tests-check-a-copy",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "AGENTS.md says stdlib-only, zero third-party dependencies and no pytest; numpy (incl. LAPACK eigvalsh) is used by raw_develop_np/noise_pca and C is compiled at run time via ctypes.",
+   "where": "ventures/photo-editing/AGENTS.md:7,22",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "ruff reports 301 errors; 49,655-line src with cli.py 2,618 and production_adapter.py 3,408 lines; 3,136-line README.",
+   "where": "ventures/photo-editing/src/shootflow/",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"],
+ "verdict": "Fourth audit; the project more than doubled since r3 by adding a camera-raw developer. That half is strong: the colour matrices match Lindbloom's published Bradford-adapted sRGB matrix to 2e-4, the CIE 1931 table and Robertson CCT match published values, the sRGB curve is IEC-exact, and the lossless-JPEG decoder reproduces ffmpeg-encoded streams with 0 mismatches. The suite is now green (1,445 passed, 0 failed), and the r3 high defect (the page denying rendering) is fixed. It still does not meet the bar: the cull, the product's lead job, has the same two unpinned scoring constants seeded in all four rounds (both survived again), measures exposure in BT.601 not BT.709, and kept a sigma-6 blurred frame as an alternate. The page's raw-format count was stale (12 vs 15; fixed in the working tree with a test) and llms.txt still names a non-installed `shootflow` command. Scores 3/3/2/2/3/2/2."
+}

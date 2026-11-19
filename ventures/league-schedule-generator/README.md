@@ -351,7 +351,57 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Whist designs for 52 and 57: two more group structures, and why the shortcuts can't work (2026-11-19, latest)
+## Whist designs for 52 and near-whist for 58, by starter and table matching (2026-11-19, newest)
+
+Every earlier search (`eval/whist-search.c`, `eval/whist-anneal.c`, `eval/whist-orbits.c`, the near-whist
+SAT) moved single players around the whole base round, and none found 52, 57 or near-whist 58 in 25 to
+130 CPU-minutes. `eval/whist-starter.c` splits the base round into two problems:
+
+1. **A starter**: pair up the points so the partner differences use each class {d, -d} exactly once
+   (for 58: 1 to 28 once, never 29, with two points out). Random backtracking finds one in microseconds.
+2. **A table matching**: pair up those partner pairs into tables so the four opponent differences of
+   each table cover each class exactly twice (58: at most twice, and 29 exactly once). This is solved
+   exactly, by backtracking on the opponent class with the fewest candidate tables left (for 4k+2, on
+   the partner pair with the fewest tables left, since one class is used only once).
+
+Why this should work: at 57 players a starter has 28 pairs, so 27!! = 2.1 x 10^14 ways to seat them at
+tables, and a seating whose 56 opponent differences land exactly twice in each of 28 classes has
+probability about 56! / (2^28 x 28^56) = 2.4 x 10^-15 if the differences fell at random. That is about
+0.5 designs per starter (0.9 at 52), so the program keeps drawing starters until a matching completes,
+giving up on a starter after a node budget.
+
+Results (`eval/whist-starter.txt`, one line per run; every base re-checked pair by pair by `checkWhist`
+or `checkNearWhist` when `eval/whist-bases-build.mjs` and `eval/near-whist-bases-build.mjs` store it):
+
+| players | group | found | before |
+|---|---|---|---|
+| 58 | Z58, near-whist | 2.8 s, the first starter (1.1 M nodes) | nothing in 25 CPU-min tabu or 2.2 h SAT; greedy |
+| 52 | Z51 + infinity | 18 CPU-min, the 8th starter (149 M nodes, 20 M per starter) | nothing in 60 CPU-min tabu; design 53 with an empty seat |
+| 57 | Z57 | nothing in 6 runs, 3.7 CPU-h: 153 starters at 3 M to 60 M nodes each, none matched |  nothing in 55 CPU-min tabu, 100 CPU-min on Z19 x\| Z3; greedy |
+
+The same program finds every smaller size quickly (21 in 28 ms, 33 in 1.6 s, 40 in 19 s, 45 in 13 s, 48
+in 1.4 s; near-whist 10 to 54 in under 15 s each), but the matching's search tree has a heavy tail:
+at 49 and 53, which have stored designs, it found nothing in 100 s with either 0.3 M or 2 M nodes per
+starter. So a found size says the method works there; a size not found says nothing. At 57 the per-starter
+budget made no difference either (85 starters at 3 M nodes, 32 at 8 M, 31 at 20 M, 5 at 60 M), so the next
+step there is a different structure, not more hours: starters on Z19 x| Z3, or a product construction.
+
+What it changes on the page, with a court for every four players (same players, courts and rounds;
+`americano` before and after, seeds as in the tests):
+
+- **52 players, 13 courts:** 51 rounds, 51 games each, every pair partners exactly once and meets
+  as opponents exactly twice, every court used every round. Before: design 53 with an empty seat,
+  53 rounds of 49 games each with one court idle, 52 partnerships never used.
+- **51 players, 12 courts:** design 52 with one empty seat: 51 rounds, 48 games each, no partner
+  twice, every pair meets once or twice. Before: the greedy search, 39 repeat partnerships and 90
+  pairs who never partner.
+- **58 players, 14 courts:** near-whist: 58 rounds, 56 games each, no partner twice, each player
+  misses exactly one partner (29 pairs never partner), every pair meets once or twice. Before: the
+  greedy search, 79 repeat partnerships and 108 pairs who never partner.
+
+Tested in `whist.test.mjs` ("52 and near-whist 58 ... 51 plays 52 with one empty seat").
+
+## Whist designs for 52 and 57: two more group structures, and why the shortcuts can't work (2026-11-19)
 
 52 and 57 players are the two whist sizes up to 64 with no stored design (52 plays design 53 with an
 empty seat; 57 falls back to the greedy search, which repeats 89 partnerships over 57 rounds at 14

@@ -68,6 +68,12 @@ One cell goes the other way (block 8, k = 5: mean-field 0.24, simulation 0.28), 
 Stylised: binary choice, 1D ring, M = 9, ε = 0.02 (chosen in `society-robotnorms`, not sourced), 500-round horizon.
 Only ρ, block and k are swept.
 
+**Known gap (quality audit 2026-11-19).** `fixed_point` rounds q to 1/1000 before the binomial lookup
+(`src/society_ringmf/__init__.py`, `table[round(q * 1000)]`). For block placements that pins a slowly moving front at
+x ≈ 0.44: at ρ = 0.22, block 4, k = 2 the table version settles at 0.444 while the same map with the exact binomial
+crosses 0.9 (0.910). So the block thresholds reported here are upper bounds from a rounding artefact, not the map's own
+tipping points. See `portfolio/quality/audits/2026-11-19-society-ringnoise.json`.
+
 ## Next steps
 
 1. A pair approximation or finite-size noise term, to test whether it closes the gap for spread robots.

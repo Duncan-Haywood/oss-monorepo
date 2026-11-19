@@ -21,9 +21,9 @@ rms on all 5,456 wheels of the six design sets).
 
 --base N (2026-11-19) counts the gained/lost columns against margin N instead of off (eval/take-straddle-margin-one-2026-11-19.md).
 
---margins2 0,1,2,3 (2026-11-19, README "A second straddle vote at 2.5 ms") scores the second vote's margins
-(host.TAKE_STRADDLE2_MARGIN) with the 1.5 ms vote held at --margin1 (default host.TAKE_STRADDLE_MARGIN), against the
-1.5 ms vote alone (eval/take-straddle-two-2026-11-19.md). Each wheel is then refitted at 2.5 ms too.
+--long L1,L2,... (2026-11-19, README "A second straddle vote at 2.5 ms") also scores the 2.5 ms vote
+(host.TAKE_STRADDLE_LONG_MARGIN) at each margin, with the 1.5 ms vote at --base; gained/lost then count against the
+2.5 ms vote off. The 2.5 ms edge flag is refitted the same way (one more fit a wheel) unless the board counted it.
 
 Simulated only, as the captures are.
 """
@@ -31,9 +31,6 @@ import re
 import sys
 
 MARGINS = (0, 1, 2, 3)
-
-
-SECOND = False   # main(): --margins2 also refits each wheel at TAKE_STRADDLE2_US
 
 
 def _edge(w, us=None):
@@ -49,17 +46,15 @@ def _edge(w, us=None):
     return bool(fit and fit[7])
 
 
-def edges(b, second=None):
-    """Each wheel's straddle flag at TAKE_STRADDLE_US, refitted from its stored inputs (None: no inputs); with `second`
-    (default SECOND) a pair of flags, the second at TAKE_STRADDLE2_US."""
+def edges(b):
+    """Each wheel's straddle flags at TAKE_STRADDLE_US and TAKE_STRADDLE_LONG_US, refitted from its stored inputs (None:
+    no inputs)."""
     import take_misfit_trace  # noqa: F401
     import controller
     ws = b.get("wheels")
     if not ws:
         return None
-    if SECOND if second is None else second:
-        return [(_edge(w), _edge(w, controller.TAKE_STRADDLE2_US)) for w in ws]
-    return [_edge(w) for w in ws]
+    return [(_edge(w), _edge(w, controller.TAKE_STRADDLE_LONG_US)) for w in ws]
 
 
 def frame(b, eds):
@@ -71,55 +66,56 @@ def frame(b, eds):
     rs = controller.ResidualSurvey(grid, controller.TAKE_SURVEY_TRIM, controller.TAKE_SURVEY_BLIND)
     if controller.TAKE_STRADDLE_US in rs.grid:
         rs.vote = rs.grid.index(controller.TAKE_STRADDLE_US)
-    if controller.TAKE_STRADDLE2_US in rs.grid:
-        rs.vote2 = rs.grid.index(controller.TAKE_STRADDLE2_US)
+    if controller.TAKE_STRADDLE_LONG_US in rs.grid:
+        rs.vote_long = rs.grid.index(controller.TAKE_STRADDLE_LONG_US)
     for i, got in enumerate(b["board_scores"]):
         if got and all(g is not None for g in got):
-            e = eds[i] if eds else False
-            e1, e2 = e if isinstance(e, tuple) else (e, False)
-            rs.add([g * g for g in got], bool(e1), bool(e2))
+            rs.add([g * g for g in got], bool(eds and eds[i][0]), bool(eds and eds[i][1]))
     t = rs.report(100, 10)
     if t is None:
         return None
     sv = {"wheels": t[0], "least_ms10": t[1], "refined_ms10": t[2], "board_ms10": 0, "kept": rs.kept_n,
           "rms_ppm": [v / 10 for v in t[3]], "rms_step_ppm": 0.1,
-          "straddle_for": rs.straddle_for, "straddle_against": rs.straddle_against}
-    if eds and isinstance(eds[0], tuple):
-        sv["straddle2_for"], sv["straddle2_against"] = rs.straddle2_for, rs.straddle2_against
+          "straddle_for": rs.straddle_for, "straddle_against": rs.straddle_against,
+          "straddle_long_for": rs.long_for, "straddle_long_against": rs.long_against}
     board = b.get("survey") or {}
     if board.get("straddle_for") is not None:
         # the board counted it itself: its numbers must be the rebuild's
         assert (board["straddle_for"], board["straddle_against"]) == (rs.straddle_for, rs.straddle_against), \
             (board, rs.straddle_for, rs.straddle_against)
-    if board.get("straddle2_for") is not None and "straddle2_for" in sv:
-        assert (board["straddle2_for"], board["straddle2_against"]) == (sv["straddle2_for"], sv["straddle2_against"]), \
-            (board, sv)
+    if board.get("straddle_long_for") is not None:
+        assert (board["straddle_long_for"], board["straddle_long_against"]) == (rs.long_for, rs.long_against), \
+            (board, rs.long_for, rs.long_against)
     return sv
 
 
-def verdict(sv, margin, margin2=0):
+def verdict(sv, margin, long_margin=0):
     from tennisbots import host
-    keep = host.TAKE_STRADDLE_MARGIN, host.TAKE_STRADDLE2_MARGIN
-    host.TAKE_STRADDLE_MARGIN, host.TAKE_STRADDLE2_MARGIN = margin, margin2
+    keep = host.TAKE_STRADDLE_MARGIN, host.TAKE_STRADDLE_LONG_MARGIN
+    host.TAKE_STRADDLE_MARGIN, host.TAKE_STRADDLE_LONG_MARGIN = margin, long_margin
     try:
         line = host.take_survey_advice(sv)
     finally:
-        host.TAKE_STRADDLE_MARGIN, host.TAKE_STRADDLE2_MARGIN = keep
+        host.TAKE_STRADDLE_MARGIN, host.TAKE_STRADDLE_LONG_MARGIN = keep
     if not line or "run more balls" in line and "TAKE_US = " not in line:
         return None
     m = re.search(r"set TAKE_US = (\d+)", line)
     return int(m.group(1)) / 1000 if m else 0.0
 
 
-def score(rows, margin, base=0, margin2=0, base2=0):
-    """Counts over (take ms, frame) rows at `margin` (and `margin2` for the 2.5 ms vote), and the builds whose verdict's
-    judgement changed from `base` (and `base2`)."""
+def score(rows, margin, base=0, long_margin=None):
+    """Counts over (take ms, frame) rows at `margin`, and the builds whose verdict's judgement changed from `base`.
+    With `long_margin` the 1.5 ms vote stays at `margin` and the base is the 2.5 ms vote off."""
     c = dict(named=0, spread=0, wrong=0, bad=0, instant=0, none=0, gained=0, lost=0)
     per = {}
     for t, sv in rows:
         c["spread" if t else "instant"] += 1
-        v = verdict(sv, margin, margin2) if sv else None
-        v0 = verdict(sv, base, base2) if sv else None
+        if long_margin is None:
+            v = verdict(sv, margin) if sv else None
+            v0 = verdict(sv, base) if sv else None
+        else:
+            v = verdict(sv, margin, long_margin) if sv else None
+            v0 = verdict(sv, margin, 0) if sv else None
         ok = (lambda x: x is not None and (abs(x - t) <= 1.0 if t else x == 0))
         c["gained"] += ok(v) and not ok(v0)
         c["lost"] += ok(v0) and not ok(v)
@@ -150,50 +146,15 @@ def rows_for(paths, procs=1):
     return [(take_ms(b), frame(b, e)) for b, e in zip(builds, eds)]
 
 
-def second_vote(rows, margins2, margin1):
-    """The 2.5 ms vote's report: its straddling wheels by take group, then each margin against the 1.5 ms vote alone."""
-    by = {}
-    for t, sv in rows:
-        if sv:
-            g = "instant" if t == 0 else ("0.1-0.9 ms" if t < 1.2 else ("1.3-2.1 ms" if t <= 2.15 else "2.4 ms and up"))
-            f = by.setdefault(g, [0, 0])
-            f[0] += sv["straddle2_for"]
-            f[1] += sv["straddle2_against"]
-    for g in ("instant", "0.1-0.9 ms", "1.3-2.1 ms", "2.4 ms and up"):
-        if g in by:
-            print(f"  {g}: straddling wheels at 2.5 ms {by[g][0]} for, {by[g][1]} against")
-    pers = {}
-    for m in margins2:
-        c, per = score(rows, margin1, margin1, m, 0)
-        pers[m] = per
-        print(f"  2.5 ms margin {m}{' (off)' if m == 0 else ''} with 1.5 ms margin {margin1}: named {c['named']} of "
-              f"{c['spread']} spread takes, wrong {c['wrong']}, instant told to set a take {c['bad']} of "
-              f"{c['instant']}, no verdict {c['none']}; judged right that the 1.5 ms vote alone was not {c['gained']}, "
-              f"judged wrong that it got right {c['lost']}")
-    print("per take: advised TAKE_US in ms at 2.5 ms margin " + " | ".join(str(m) for m in margins2))
-    for t in sorted(pers[margins2[0]]):
-        print(f"  {t:g} ms: " + " | ".join(" ".join("-" if v is None else f"{v:g}" for v in pers[m][t])
-                                         for m in margins2))
-
-
 def main():
-    global SECOND
     a = sys.argv
     margins = tuple(int(x) for x in a[a.index("--margins") + 1].split(",")) if "--margins" in a else MARGINS
     procs = int(a[a.index("--procs") + 1]) if "--procs" in a else 1
     base = int(a[a.index("--base") + 1]) if "--base" in a else 0   # 2026-11-19: compare against a shipped margin
-    skip = {a[a.index(o) + 1] for o in ("--margins", "--procs", "--base", "--margins2", "--margin1") if o in a}
+    longs = tuple(int(x) for x in a[a.index("--long") + 1].split(",")) if "--long" in a else None
+    skip = {a[a.index(o) + 1] for o in ("--margins", "--procs", "--base", "--long") if o in a}
     paths = [x for x in a[1:] if not x.startswith("--") and x not in skip]
-    if "--margins2" in a:
-        from tennisbots import host
-        SECOND = True
-        margins2 = tuple(int(x) for x in a[a.index("--margins2") + 1].split(","))
-        margin1 = int(a[a.index("--margin1") + 1]) if "--margin1" in a else host.TAKE_STRADDLE_MARGIN
     rows = rows_for(paths, procs)
-    if SECOND:
-        print(f"{len(rows)} builds on the nine-point grid with wheel inputs ({len(paths)} files); the second vote:")
-        second_vote(rows, margins2, margin1)
-        return
     sv_ok = [sv for _, sv in rows if sv]
     print(f"{len(rows)} builds on the nine-point grid with wheel inputs ({len(paths)} files); straddling kept wheels "
           f"at 1.5 ms: {sum(s['straddle_for'] + s['straddle_against'] for s in sv_ok)} "
@@ -202,14 +163,32 @@ def main():
     for t, sv in rows:
         if sv:
             g = "instant" if t == 0 else ("0.1-0.9 ms" if t < 1.2 else ("1.3-2.1 ms" if t <= 2.15 else "2.4 ms and up"))
-            f = by.setdefault(g, [0, 0, 0])
+            f = by.setdefault(g, [0, 0, 0, 0, 0])
             f[0] += sv["straddle_for"]
             f[1] += sv["straddle_against"]
             f[2] += 1
+            f[3] += sv["straddle_long_for"]
+            f[4] += sv["straddle_long_against"]
     for g in ("instant", "0.1-0.9 ms", "1.3-2.1 ms", "2.4 ms and up"):
         if g in by:
             f = by[g]
-            print(f"  {g}: {f[2]} builds, straddling wheels {f[0]} for 1.5 ms, {f[1]} against")
+            print(f"  {g}: {f[2]} builds, straddling wheels {f[0]} for 1.5 ms, {f[1]} against; at 2.5 ms {f[3]} for, "
+                  f"{f[4]} against")
+    if longs is not None:
+        print(f"2.5 ms vote, with the 1.5 ms vote at margin {base}:")
+        lp = {}
+        for m in longs:
+            c, per = score(rows, base, long_margin=m)
+            lp[m] = per
+            print(f"  long margin {m}{' (off)' if m == 0 else ''}: named {c['named']} of {c['spread']} spread takes, "
+                  f"wrong {c['wrong']}, instant told to set a take {c['bad']} of {c['instant']}, no verdict "
+                  f"{c['none']}; judged right that long off was not {c['gained']}, judged wrong that long off got "
+                  f"right {c['lost']}")
+        print("per take: advised TAKE_US in ms at long margin " + " | ".join(str(m) for m in longs))
+        for t in sorted(lp[longs[0]]):
+            print(f"  {t:g} ms: " + " | ".join(" ".join("-" if v is None else f"{v:g}" for v in lp[m][t])
+                                             for m in longs))
+        return
     pers = {}
     ref = "off" if base == 0 else f"margin {base}"
     for m in margins:
