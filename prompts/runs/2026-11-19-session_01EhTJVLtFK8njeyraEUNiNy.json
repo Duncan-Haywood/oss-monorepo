@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVLtFK8njeyraEUNiNy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled brief)",
+  "input_sha256": "b984be0c789ab318908f984dafed73ec35ff9bfe22dc84e373312ab5add974dd",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T10:55:50Z",
+  "ended": "2026-11-19T11:07:21Z",
+  "wall_minutes": 11.79,
+  "tokens_in": 7355750,
+  "tokens_out": 29852,
+  "cost_usd": 3.0741,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17636",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/tests/take_survey_blind.py",
+      "issue": "take_survey_blind.py, take_survey_trim.py and take_misfit_trace.survey_score crashed (IndexError) on every stored 7-candidate set after the grid became nine points; only take_survey_kept.py had been fixed. Grid lookup is now shared in take_survey_trim.grid_for."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "The first route without --task drew research; the scheduled brief names ventures work, so route --task was needed. Fine as documented, but easy to miss on a scheduled run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-advised-instant-build-was-rounding.md",
+    "ventures/open-tennis-robots/eval/take-share-rounding-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Flagship row 5 (open-tennis-robots), buildable item 'the sub-8 advised instant build'. Traced to the TAKE_SURVEY frame's whole-ppm rms (frame 7/4 ppm = 0.571; exact 6.81/4.32 -> 0.635). Guard host.take_share_bound pre-registered (commit ea77e89d8) and held on fresh capture set lag 0.57 seed 443: 53/54 either way, 0 instant advised, 0 verdicts changed. tests/test_host.py 144 passed locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "158ae6c5-6056-5a00-aef5-044ee49a1d3d",
+    "transcripts": 1,
+    "first": "2026-11-19T10:55:50Z",
+    "last": "2026-11-19T11:07:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 123,
+        "output": 29852,
+        "thinking": 7003,
+        "cache_read": 7226724,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128903,
+        "api_equivalent_usd": 3.0741,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 123,
+      "output": 29852,
+      "thinking": 7003,
+      "cache_read": 7226724,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128903,
+      "api_equivalent_usd": 3.0741,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 58,
+      "Edit": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.79,
+      "active_minutes": 9.85,
+      "model_minutes": 5.76,
+      "tool_minutes": 4.08,
+      "waiting_on_human_minutes": 1.94,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "trace a sim artefact, fix three scorers, pre-registered fresh capture, guard + tests + write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 130.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -118,3 +118,15 @@ test("rows in a second currency are left out and counted", () => {
   assert.equal(n.otherCurrency, 1);
   assert.equal(n.events.length, 2);
 });
+
+test("the under-the-line finding names the dispute count that reaches the watch line (quality audit 2026-11-19)", () => {
+  const rows = [];
+  for (let i = 0; i < 1000; i++) rows.push(`${i},2026-01-05 10:00:00,10.00,USD,Paid,c${i},visa,,,`);
+  const r = analyze(norm(csv(...rows)).events);
+  const f = r.findings.find((x) => x.severity === "info" && /watch line/.test(x.detail));
+  assert.ok(f, "info finding present");
+  // 0.75% of 1000 is 7.5: 7 disputes is 0.70% (still under), 8 is 0.80%.
+  assert.match(f.detail, /\b8 more disputes would reach/);
+  assert.equal(statusFor(7 / 1000, DEFAULT_OPTIONS), "ok");
+  assert.equal(statusFor(8 / 1000, DEFAULT_OPTIONS), "watch");
+});

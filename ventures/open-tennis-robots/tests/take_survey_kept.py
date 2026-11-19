@@ -24,23 +24,7 @@ Each row is rescored on the grid it was captured with (GRIDS, by the length of i
 """
 import sys
 
-from take_survey_trim import load
-
-# the take survey's grid by the number of candidates a stored board row carries (controller.TAKE_SURVEY_GRID_US is
-# the newest; protocol.OLDER_FORMATS decodes the same three frame lengths)
-GRIDS = {
-    7: (0, 2000, 3000, 4000, 5000, 6000, 8000),            # shipped before 2026-11-19
-    8: (0, 2000, 3000, 4000, 5000, 6000, 7000, 8000),      # README "An eight-point take grid"
-    9: (0, 1500, 2500, 3000, 4000, 5000, 6000, 7000, 8000),  # README "Short takes on a second held-out set"
-}
-
-
-def grid_for(row):
-    for got in row["board_scores"]:
-        if got:
-            return GRIDS[len(got)]
-    return None
-
+from take_survey_trim import GRIDS, grid_for, load  # noqa: F401 (GRIDS kept importable here)
 
 def verdicts(row):
     """Yield (wheels surveyed, wheels kept, pick ms, advised) after each of the row's wheels."""

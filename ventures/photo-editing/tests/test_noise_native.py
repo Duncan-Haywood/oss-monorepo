@@ -77,9 +77,6 @@ def _median_np_block(a, block):
     return xd._block_stat(a, lambda t: np.median(t, axis=-1), block=block)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 def _no_native(name):
     """A context in which ``noise_native.<name>`` declines, so the numpy reference runs."""
@@ -154,3 +151,40 @@ class NativeBlendTest(unittest.TestCase):
         a, a_l = 0.5, 0.25
         want = np.array([a * v + (1 - a) * 0.0 for v in (0.1, 0.3, 0.7)]) + (a_l - a) * y
         self.assertTrue(np.array_equal(got[5, 5], want))
+
+
+@unittest.skipUnless(HAVE, "needs numpy and a C compiler")
+class NativeBlockLevelTest(unittest.TestCase):
+    """Block means of the clipped plane and block maxima in C (2026-11-19, eval/noise-aware-native-levels-2026-11-19.md)."""
+
+    def test_block_mean_and_max_equal_numpy_bit_for_bit(self):
+        rng = np.random.default_rng(11)
+        for trial in range(24):
+            block = (24, 24, 5, 6, 12, 3)[trial % 6]
+            h, w = (int(v) for v in rng.integers(block, 140, 2))
+            # wide dynamic range and negatives (clipped to +0.0; -0.0 too), so the summation order shows
+            a = rng.normal(0.2, 0.3, (h, w)) * 10.0 ** rng.integers(-3, 4, (h, w))
+            a[rng.random((h, w)) < 0.05] = -0.0
+            if trial % 4 == 3:
+                a[rng.integers(0, h), rng.integers(0, w)] = np.nan
+            mean, top = noise_native.block_mean_max(a, block, top=True, threads=int(rng.integers(1, 4)))
+            want_mean = xd._block_stat(np.clip(a, 0.0, None), lambda t: t.mean(axis=-1), block=block)
+            want_top = xd._block_stat(a, lambda t: t.max(axis=-1), block=block)
+            self.assertTrue(np.array_equal(_bits(mean), _bits(want_mean)), (trial, block, h, w))
+            self.assertTrue(np.array_equal(_bits(top), _bits(want_top)), (trial, block, h, w))
+
+    def test_level_and_top_are_the_default_path(self):
+        c = np.random.default_rng(2).normal(0.3, 0.2, (100, 130))
+        self.assertTrue(np.array_equal(_bits(xd._block_level(c)),
+                                       _bits(xd._block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1)))))
+        self.assertTrue(np.array_equal(_bits(xd._block_top(c)), _bits(xd._block_stat(c, lambda t: t.max(axis=-1)))))
+
+    def test_small_planes_go_to_numpy_too(self):
+        self.assertIsNone(noise_native.block_mean_max(np.zeros((10, 30)), 24))
+        c = np.random.default_rng(4).random((12, 30))  # under one block: numpy's single whole-frame block
+        self.assertEqual(xd._block_level(c).shape, (1, 1))
+        self.assertEqual(xd._block_level(c)[0, 0], np.clip(c, 0.0, None).mean())
+
+
+if __name__ == "__main__":
+    unittest.main()

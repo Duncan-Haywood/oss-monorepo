@@ -1,0 +1,283 @@
+{
+ "date": "2026-11-19",
+ "subject": "ventures/chargeback-ratio-monitor",
+ "stratum": "venture",
+ "seed": "2026-11-19-g-0f50",
+ "round": 80,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a payments risk manager / merchant chargeback specialist who tracks Visa VAMP (the 2025 programme that replaced VDMP/VFMP) and Mastercard ECP (ECM/HECM) for a merchant portfolio; first checks: is the ratio Visa's (fraud TC40 + disputes TC15 over same-month settled CNP Visa transactions) or Mastercard's (chargebacks this month over transactions last month), is it computed per brand, are the minimum counts applied, are disputes assigned to the month they were received, and are the thresholds and effective dates current",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed against sources the author did not write. (1) My own Python reader (scratchpad chargeback/indep.py, csv module, no import of calc.mjs) on the tool's own worked example written to sample.csv: monthly charges/disputes/ratios 820/1/0.122%, 860/7/0.814%, 910/4/0.440%, 980/3/0.306%, 1040/13/1.250%, 1100/12/1.091%, July 0 charges 3 disputes, totals 5710/43: identical to analyze().byMonth. (2) Headroom and dilution for June (1100 charges, 12 disputes) by hand: most disputes under 0.75% is ceil(8.25)-1 = 8 -> -4; under 0.90% is 9 -> -3; under 1.50% is 16 -> +4; charges to get under 0.75%: floor(12/0.0075)+1 = 1601, under 0.90%: 1334. Tool: -4/-3/4, 1601/1334. Hand case 1000 charges 8 disputes: 0.80% watch, headroom -1/0/6, 1067 charges: equal. (3) Trend: (1.0909%-0.4396%)/3 = 0.2171 points a month, crosses 1.50% in 2 months: equal to the tool. (4) The headline finding every merchant under the watch line sees is off by one: 1000 charges, 0 disputes -> tool says '7 more disputes would reach the 0.75% watch line'; 7/1000 = 0.70% does not reach it, 8 do (calc.mjs:266 prints headroom, which is defined as disputes that stay UNDER the line). (5) Against the networks' formulas (Stripe docs 'Dispute monitoring programs', fetched 2026-11-19; Visa VAMP fact sheet): Mastercard ECP case Jan 10,000 charges, Feb 5,000 charges with 120 chargebacks -> ECP rate 120/10,000 = 1.20% (under 1.5%); tool shows Feb 2.40% 'excessive' and offers no previous-month denominator. VAMP case 1000 Visa CNP charges, 5 disputes, 6 undisputed early fraud warnings flagged in the file -> VAMP ratio (5+6)/1000 = 1.10%; tool 0.50% 'ok' (the 6 EFWs are counted and then excluded from the ratio). The arithmetic it does is right; the one number it puts in a sentence is wrong by one, and the ratio it computes is neither network's unless the merchant takes Visa only and has no fraud reports.",
+  "completeness": "README/page features walked with node and the served page: CSV parse with quotes/BOM, Stripe header aliases, failed/pending ignored and counted, unknown statuses skipped with a line number (checked: 'Requires Payment Method' and 'Blocked' listed at lines 2 and 3), second-currency rows dropped and counted, monthly table, status, headroom and dilution table, trend, reasons with actions, brand table, repeat disputers, cost with fee/win rate, findings, monthly CSV download wired, example button, opt-out button. All present and wired in index.html:143-206. No stubs or TODOs. served copy: `node platform/pages/served-copy.mjs chargeback-ratio-monitor` -> 'no placeholder or retired origin left'; https://marisstella.app/chargeback-ratio-monitor/ returned 200 and contains 'No warranty'. Gaps: brand table is whole-period only (no per-brand month), no fraud/EFW option in the ratio although the parser reads an EFW column.",
+  "verification": "`node --test` in the subject: 24 pass, 0 fail, ~250 ms. Seeded 8 mutants with quality_mutate.py: 5 caught (headroom -1 dropped, dispute month -> charge month, elevated >= -> >, dilution floor+1 -> ceil, other-currency rows kept), 3 survived (trend slope divisor (n-1) -> (n+3); 'refunded' removed from settled statuses so refunded charges leave the denominator; worst-brand trigger 2x -> 0.2x). No test asserts any finding text or number (the off-by-one at calc.mjs:266 is untested), the projection's numbers, or that refunded charges stay in the denominator.",
+  "craft": "Read calc.mjs (333 lines), index.html script, usage.mjs, all three test files. Pure functions, no dependencies, one engine for page and tests, all file text escaped before innerHTML (esc), labelled inputs, threshold ordering validated, Feb-30 rejected by round-trip. Defects: non-ISO dates go to new Date() and are parsed in the viewer's local time and US order (TZ=America/New_York: '01/31/2026 23:30' -> 2026-02-01T04:30Z, '05/01/2026' -> May 1); a row with status 'Disputed' and no dispute date is silently assigned to the charge month (calc.mjs:159); the 'trend line' is the two-endpoint difference, not a fitted line (least squares on the same 4 months gives 0.290 points/month vs 0.217); findings lines are 300+ characters.",
+  "claims": "Checked 9 claims. Backed: file never uploaded (no fetch/XHR in source, page test greps it); every table reconciles (calc.test.mjs:66 asserts month/reason/brand sums); unreadable rows listed with line and reason (ran it); usage counted only in localStorage with DNT/GPC honoured and opt-out (usage.mjs, index.html:137-138); disclaimer on page and llms.txt; lines labelled as 'starting points, not any provider's rules'; served llms.txt points at marisstella.app. Not backed or misleading: (1) FAQ and FAQPage JSON-LD answer 'What is a chargeback or dispute ratio' with 'disputes opened in a month / settled card charges in that month' as if universal; Mastercard ECP divides by the previous month's transactions and Visa VAMP adds TC40 fraud reports (index.html:12, :120); (2) README:29 and index.html:111 'a straight line through the last three or four months' - it is the endpoint difference, middle months ignored; (3) info finding '7 more disputes would reach the watch line' is one short (calc.mjs:266).",
+  "fitness": "Walked the merchant's job on the worked example: export, drop, read 'June 1.09% elevated, rising 0.22 points a month, crosses 1.50% in about 2 months, fraudulent disputes dominate, 2 repeat disputers'. Useful as a first look for a Stripe-only seller. A risk manager hits these in the first hour: the headline status is blended across brands while both programmes are per brand (worked example June, my per-brand recompute: blended 1.09% 'elevated', Visa 2/554 = 0.36%, Mastercard 9/373 = 2.41%, Amex 1/173 = 0.58%; the Mastercard figure, above a 1.5% line, is visible nowhere in the tool), and the tool has no per-brand monthly view; no previous-month denominator for Mastercard; EFWs cannot be added to the numerator for VAMP; no minimum-count gate, so 16 disputes on 1,000 charges reads 'excessive' with a high-severity finding although VAMP needs 1,500 fraud+disputes and ECM 100 chargebacks; no Stripe-US '5th to 5th' dispute window that Stripe's own guide says to use.",
+  "domain": "Compared with the Visa VAMP fact sheet (corporate.visa.com, 2025; fetched 200) and Stripe's 'Dispute monitoring programs' page (docs.stripe.com, fetched 200); the Mastercard Chargeback Guide PDF returned 403 through the proxy, so ECP figures are from Stripe's page. Sources: VAMP ratio = count of fraud (TC40) + disputes (TC15) / count of settled CNP transactions (TC05), same calendar month, effective 1 June 2025, advisory period to 30 Sep 2025; acquirer Above Standard >= 0.50%, Excessive >= 0.70%; merchant Excessive >= 2.20% with >= 1,500 fraud+disputes (AP, Canada, EU, US), cut to >= 1.50% on 1 April 2026; CEMEA 2.2% with >= 150 and >= USD 75,000; a transaction in both TC40 and TC15 counts twice; pre-dispute-resolved disputes and CE 3.0-qualified TC40s excluded. Mastercard ECM: 100-299 chargebacks and 1.5-2.99% of the previous month's transactions; HECM 300+ and 3%+; chargebacks counted in the month raised. Matches: disputes assigned to the month opened, Visa-style same-month settled denominator, refunded charges kept in the denominator, inclusive >= thresholds, honest 'not any provider's rules' labelling. Departures: numerator excludes fraud reports (VAMP's main component for many merchants); headline ratio blended across Visa, Mastercard and Amex and not limited to card-not-present; no previous-month denominator (Mastercard); no count gates; default lines (0.75/0.90/1.50%) cite nothing - 0.90% is the retired VDMP standard line, 1.50% equals ECM and the post-April-2026 VAMP merchant line, but the page never says so or names VAMP/ECP and the 2025-2026 dates."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "monthly charges, disputes and ratios on the worked example",
+   "method": "own Python csv reader, disputes by Dispute Date month, settled = Paid/Refunded (scratchpad chargeback/indep.py)",
+   "command": "node -e 'import(\"./calc.mjs\").then(m=>process.stdout.write(m.sampleCsv()))' > sample.csv; python3 -I indep.py sample.csv",
+   "expected": "2026-06 1100/12 = 1.091%, 2026-05 1040/13 = 1.250%, totals 5710/43",
+   "observed": "identical for all 7 months",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headroom and charges-to-dilute for June (1100 charges, 12 disputes)",
+   "method": "by hand: max disputes strictly under t is ceil(t*n)-1; smallest n with d/n < t is floor(d/t)+1",
+   "command": "node -e '...analyze(sample).room'",
+   "expected": "-4 / -3 / +4; 1601 and 1334 charges",
+   "observed": "-4 / -3 / 4; 1601, 1334",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "trend slope and months to the excessive line",
+   "method": "by hand from my recomputed ratios, Mar-Jun: (1.0909-0.4396)/3; (1.5-1.0909)/0.2171",
+   "command": "node -e '...analyze(sample).projection'",
+   "expected": "0.2171 points/month, 2 months",
+   "observed": "slope 0.0021712, monthsToExcessive 2",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline finding for a merchant under the watch line (1000 charges, 0 disputes)",
+   "method": "by hand: 7/1000 = 0.70% < 0.75%; 8/1000 = 0.80% reaches it",
+   "command": "node scratchpad/chargeback/cases.mjs (case A)",
+   "expected": "8 more disputes would reach the 0.75% line",
+   "observed": "'7 more disputes would reach the 0.75% watch line this month'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Mastercard ECP rate: Jan 10,000 charges; Feb 5,000 charges, 120 chargebacks",
+   "method": "Stripe docs 'Dispute monitoring programs' (ECP: chargebacks this month / captured payments preceding month; ECM 100-299 and 1.5-2.99%)",
+   "command": "node scratchpad/chargeback/cases.mjs (case C)",
+   "expected": "120/10,000 = 1.20%, below ECM",
+   "observed": "Feb 2.40% 'excessive'; no previous-month option",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "VAMP ratio with 5 disputes and 6 undisputed early fraud warnings on 1000 Visa charges",
+   "method": "Visa VAMP fact sheet 2025: (TC40 + TC15) / TC05",
+   "command": "node scratchpad/chargeback/cases.mjs (case D)",
+   "expected": "11/1000 = 1.10%",
+   "observed": "0.50% 'ok', earlyFraud 6 reported separately",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "minimum-count gate: 16 disputes on 1000 charges",
+   "method": "VAMP merchant count >= 1,500 (fact sheet); ECM >= 100 chargebacks (Stripe docs)",
+   "command": "node scratchpad/chargeback/cases.mjs (case E)",
+   "expected": "ratio above the line but below any programme's count; flagged as such",
+   "observed": "'excessive', high-severity finding, no count caveat (only months under 200 charges get one)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "programme thresholds and dates the page or defaults rely on",
+   "method": "Visa VAMP fact sheet (effective 1 Jun 2025; merchant 2.2% -> 1.5% on 1 Apr 2026; acquirer 0.5/0.7%); Stripe docs ECM/HECM 1.5%/100, 3%/300",
+   "command": "curl -s https://corporate.visa.com/.../visa-acquirer-monitoring-program-fact-sheet-2025.pdf | pdftotext; curl -sL https://docs.stripe.com/disputes/monitoring-programs",
+   "expected": "defaults tied to a named programme or explicitly arbitrary",
+   "observed": "page states lines are not any provider's rules; 0.90% default matches the retired VDMP line; no programme or date named",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "per-brand ratio, worked example June",
+   "method": "own recompute restricted to Card Brand = visa",
+   "command": "python3 -I scratchpad/chargeback/indep.py sample.csv",
+   "expected": "June Visa 2/554 = 0.361%, Mastercard 9/373 = 2.413% (blended 1.091%)",
+   "observed": "tool shows blended 1.09% 'elevated' only; brand table is whole-period (visa 22/2854)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ/JSON-LD ratio definition",
+   "method": "Stripe docs: Visa same month, Mastercard previous month; VAMP includes TC40",
+   "command": "grep -n 'Divide the number of disputes' ventures/chargeback-ratio-monitor/index.html",
+   "expected": "definition qualified by network",
+   "observed": "stated as the general definition (index.html:12, :120)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'straight line through the last three or four months'",
+   "method": "least squares on Mar-Jun ratios by hand (Sxy 1.449 / Sxx 5)",
+   "command": "grep -n 'straight line' ventures/chargeback-ratio-monitor/README.md ventures/chargeback-ratio-monitor/index.html",
+   "expected": "fitted slope 0.290 points/month",
+   "observed": "endpoint slope 0.217 points/month",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, usage tracking, served llms.txt",
+   "method": "served copy and live page",
+   "command": "node platform/pages/served-copy.mjs chargeback-ratio-monitor; curl -s https://marisstella.app/chargeback-ratio-monitor/ | grep -c 'No warranty'",
+   "expected": "disclaimer present, local usage counter, no stale origin",
+   "observed": "'no placeholder or retired origin left'; 1; usage.mjs localStorage only, DNT/GPC honoured",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "non-ISO date parsing",
+   "method": "parseDate under TZ=America/New_York",
+   "command": "TZ=America/New_York node -e '...parseDate(\"01/31/2026 23:30\")'",
+   "expected": "2026-01-31 (column is UTC) or a skipped row",
+   "observed": "2026-02-01T04:30Z (moves to February); '05/01/2026' read as May 1",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/chargeback-ratio-monitor && node --test",
+   "expected": "green",
+   "observed": "24 pass, 0 fail",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:177",
+   "change": "headroom: ceil(t*n) - 1 - d -> ceil(t*n) - d",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:245",
+   "change": "trend slope divisor (n - 1) -> (n + 3)",
+   "caught": false,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:22",
+   "change": "'refunded' removed from SETTLED (refunded charges leave the denominator)",
+   "caught": false,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:159",
+   "change": "disputeMonth monthOf(dDate || at) -> monthOf(at)",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:169",
+   "change": "ratio >= o.elevated -> ratio > o.elevated",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:183",
+   "change": "txnsToDilute floor(d/t)+1 -> ceil(d/t)",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:282",
+   "change": "worst-brand trigger 2 * overall -> 0.2 * overall",
+   "caught": false,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:145",
+   "change": "other-currency rows counted but no longer skipped",
+   "caught": true,
+   "test_cmd": "node --test"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The headline status and ratio blend every card brand, while VAMP and Mastercard ECP are each computed per brand; there is no per-brand monthly ratio (the brand table is whole-period). On the worked example June reads 1.09% 'elevated' blended while Visa is 2/554 = 0.36% and Mastercard 9/373 = 2.41% (above the 1.50% excessive line the tool itself sets), which the tool never shows",
+   "where": "ventures/chargeback-ratio-monitor/calc.mjs:207",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "No previous-month denominator: Mastercard ECP divides this month's chargebacks by last month's transactions (Stripe docs). Jan 10,000 / Feb 5,000 charges with 120 Feb chargebacks: ECP 1.20% (under ECM), tool 2.40% 'excessive'; the FAQ and FAQPage JSON-LD state the same-month formula as the general definition",
+   "where": "ventures/chargeback-ratio-monitor/index.html:120",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Early fraud warnings are parsed and then excluded from the ratio; VAMP's ratio is (TC40 fraud + TC15 disputes) / settled CNP transactions, so with 5 disputes and 6 EFWs on 1,000 charges VAMP is 1.10% and the tool shows 0.50% 'ok'. No option to include them",
+   "where": "ventures/chargeback-ratio-monitor/calc.mjs:157",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Off by one in the finding shown to every merchant under the watch line: it prints headroom (disputes that stay under the line) as the number that 'would reach' it. 1000 charges, 0 disputes: '7 more disputes would reach the 0.75% watch line'; 8 do. No test covers finding text",
+   "where": "ventures/chargeback-ratio-monitor/calc.mjs:266",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17639"
+  },
+  {
+   "severity": "medium",
+   "what": "No minimum-count gate (VAMP merchant >= 1,500 fraud+disputes, ECM >= 100 chargebacks, HECM >= 300): 16 disputes on 1,000 charges is a high-severity 'excessive' finding with no count caveat; the caveat appears only for months under 200 charges",
+   "where": "ventures/chargeback-ratio-monitor/calc.mjs:261",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Default lines 0.75/0.90/1.50% cite no source and name no programme or date; 0.90% is the retired VDMP standard line. The page never mentions VAMP (effective 1 June 2025, merchant line 2.2% cut to 1.5% on 1 April 2026) or ECM/HECM, so a merchant cannot tell which line approximates what",
+   "where": "ventures/chargeback-ratio-monitor/calc.mjs:43",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "'Straight line through the last three or four months' is the endpoint difference; middle months are ignored (least squares on the example's last four months 0.290 vs 0.217 points/month). A mutant changing the divisor survived",
+   "where": "ventures/chargeback-ratio-monitor/README.md:29",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17639"
+  },
+  {
+   "severity": "low",
+   "what": "Non-ISO dates fall through to new Date(): parsed in the viewer's local zone and US order, so '01/31/2026 23:30' lands in February for a US-East viewer and '05/01/2026' is read as May 1",
+   "where": "ventures/chargeback-ratio-monitor/calc.mjs:82",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Tests do not pin that refunded charges stay in the denominator (removing 'refunded' from SETTLED survived) nor any projection number or worst-brand trigger (both mutants survived)",
+   "where": "ventures/chargeback-ratio-monitor/calc.test.mjs:66",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "A row with status Disputed but no dispute date is silently assigned to the charge month, not reported",
+   "where": "ventures/chargeback-ratio-monitor/calc.mjs:159",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17639"],
+ "verdict": "Arithmetically clean: my own Python recompute of the worked example matches every month (5,710 charges, 43 disputes), and headroom, dilution and trend match hand calculation. It does not meet the bar. The one number it writes in a sentence for healthy merchants is one short (calc.mjs:266). More important, the ratio it computes is neither card network's: it is blended across brands while VAMP and ECP are per brand, it never uses Mastercard's previous-month denominator (an ECP rate of 1.20% shows as 2.40% 'excessive'), it leaves out the TC40 fraud reports that VAMP counts, and it applies no minimum counts. The page does honestly say its lines are not any provider's rules. Tests are green (24) but 3 of 8 seeded mutants survived. Small fixes, each with a test, would bring correctness and claims to 3: the off-by-one, the FAQ wording, per-brand monthly ratios, an 'include EFWs' toggle and a previous-month column. Domain needs a VAMP/ECP mode with count gates and dated thresholds."
+}

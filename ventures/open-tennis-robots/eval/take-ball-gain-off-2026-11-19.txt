@@ -1,0 +1,14 @@
+eval/take-ball-gain-off-design-2026-11-19.jsonl (24 builds in both)
+  down: named and advised 14 of 18, instant advised 0 of 6, within 1 ms 22 of 24, mean share 0.39
+  False: named and advised 16 of 18, instant advised 0 of 6, within 1 ms 22 of 24, mean share 0.25
+eval/take-ball-gain-off-heldout-2026-11-19.jsonl (24 builds in both)
+  down: named and advised 16 of 18, instant advised 0 of 6, within 1 ms 24 of 24, mean share 0.27
+  False: named and advised 16 of 18, instant advised 0 of 6, within 1 ms 24 of 24, mean share 0.29
+eval/take-ball-gain-off-fresh-2026-11-19.jsonl (24 builds in both)
+  down: named and advised 18 of 18, instant advised 0 of 6, within 1 ms 23 of 24, mean share 0.31
+  False: named and advised 18 of 18, instant advised 0 of 6, within 1 ms 24 of 24, mean share 0.23
+eval/take-ball-gain-off-third-2026-11-19.jsonl (24 builds in both)
+  down: named and advised 18 of 18, instant advised 0 of 6, within 1 ms 23 of 24, mean share 0.23
+  False: named and advised 18 of 18, instant advised 0 of 6, within 1 ms 22 of 24, mean share 0.24
+all, down: named and advised 66 of 72, instant advised 0 of 24, within 1 ms 92 of 96
+all, False: named and advised 68 of 72, instant advised 0 of 24, within 1 ms 92 of 96

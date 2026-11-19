@@ -115,7 +115,7 @@ class StaleBase(unittest.TestCase):
             check_posts.changed_files = lambda root: names
             try:
                 with contextlib.redirect_stdout(io.StringIO()) as buf:
-                    check_posts.main(["--root", d])
+                    check_posts.main(["--root", d, "--no-fetch"])
             finally:
                 check_posts.changed_files = orig
             return buf.getvalue()
@@ -123,6 +123,35 @@ class StaleBase(unittest.TestCase):
     def test_many_changed_files_print_the_stale_origin_hint(self):
         self.assertIn("origin/main is stale", self._main(check_posts.STALE_HINT_AT + 1))
         self.assertNotIn("origin/main is stale", self._main(2))
+
+
+class Refresh(unittest.TestCase):
+    def test_refresh_relists_after_fetch(self):
+        calls, lines = [], []
+        lists = iter([["a.md"]])
+        got = check_posts.refresh_and_relist(Path("."), 531, fetch=lambda: calls.append(1) or 0,
+                                             relist=lambda root: next(lists), out=lines.append)
+        self.assertEqual(got, ["a.md"])
+        self.assertEqual(calls, [1])
+        self.assertIn("531 files differed", lines[0])
+        self.assertIn("now 1", lines[0])
+
+    def test_failed_or_raising_fetch_keeps_listing(self):
+        lines = []
+        got = check_posts.refresh_and_relist(Path("."), 9, fetch=lambda: 1,
+                                             relist=lambda root: ["x"] * 9, out=lines.append)
+        self.assertEqual(len(got), 9)
+        self.assertIn("failed", lines[0])
+
+        def boom():
+            raise OSError("no network")
+        got = check_posts.refresh_and_relist(Path("."), 9, fetch=boom,
+                                             relist=lambda root: ["x"] * 9, out=lines.append)
+        self.assertEqual(len(got), 9)
+        self.assertIn("could not refresh", lines[1])
+
+    def test_hint_names_fetch_ref_not_a_cutting_depth_fetch(self):
+        self.assertIn("fetch_ref.py main", check_posts.FETCH_HINT)
 
 
 class WrongRoot(unittest.TestCase):
