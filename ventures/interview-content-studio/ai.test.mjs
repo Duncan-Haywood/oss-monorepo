@@ -109,3 +109,17 @@ test("batches are sized as announced", async () => {
   assert.equal(calls.length, callCount(12, 5));
   assert.equal(r.discarded, 12);
 });
+
+// Quality audit round 76 (portfolio/quality/audits/2026-11-19-interview-content-studio.json):
+// the gate saw only digits and let 1 to 10 through everywhere.
+test("vetPiece discards figures written as words, multipliers and percentages", () => {
+  for (const text of ["We now supply two hundred cafes.", "Our bread brought 3x revenue.", "90% of cafes switch to us.", "We doubled sales this year."]) {
+    assert.equal(vetPiece({ id: xPost.slotId, fields: { text } }, xPost, answers).reason, "invented-number", text);
+  }
+  assert.equal(vetPiece({ id: xPost.slotId, fields: { text: "Bread first. Three steps to a better loaf." } }, xPost, answers).kept, true);
+});
+
+test("vetPiece drops a Reddit rewrite that adds a link without a scheme", () => {
+  assert.equal(vetPiece({ fields: { body: "Tasting notes at juniper.example/tasting" } }, reddit, answers).reason, "link-on-reddit");
+  assert.equal(vetPiece({ fields: { body: "More at www.juniper.example" } }, reddit, answers).reason, "link-on-reddit");
+});
