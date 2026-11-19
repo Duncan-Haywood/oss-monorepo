@@ -459,12 +459,15 @@ export function checkMessage(source, locale = null) {
     for (const c of info.categories) {
       if (have.has(c)) continue;
       const ex = info.examples[c];
-      const uncoveredInts = ex.ints.filter((x) => !exact.has(x));
-      const hasDecs = ex.decs.length > 0;
+      // ICU picks the keyword from n - offset but compares exact selectors
+      // with n itself, so the numbers a reader types are the examples + offset.
+      const uncoveredInts = ex.ints.map((x) => x + n.offset).filter((x) => !exact.has(x));
+      const decs = ex.decs.map((x) => (Number(x) + n.offset).toFixed(1));
+      const hasDecs = decs.length > 0;
       if (!uncoveredInts.length && !hasDecs) continue;
       if (!uncoveredInts.length) {
         diagnostics.push({ severity: 'info', code: 'missing-category-decimal', offset: n.start,
-          message: `{${n.name}, ${what}} has no "${c}" option. In ${loc} that category is reached only by decimals like ${ex.decs.slice(0, 3).join(', ')}, which will use "other".`,
+          message: `{${n.name}, ${what}} has no "${c}" option. In ${loc} that category is reached only by decimals like ${decs.slice(0, 3).join(', ')}, which will use "other".`,
           fix: null });
         continue;
       }

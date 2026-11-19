@@ -55,7 +55,7 @@ The locale comes from `@@locale`, then the file name (`fr.json`,
 | Severity | Finding |
 |---|---|
 | error | syntax ICU rejects (unclosed `{`, missing `other`, duplicate selectors, unknown argument type, `.` or `-` in a name, `=x` selectors, offset after a selector, ChoiceFormat); an apostrophe quote that contains a placeholder; a plural keyword that is not a CLDR category (`on`, `2`); a translation that drops a source placeholder or uses one the source lacks |
-| warning | a plural/selectordinal missing a category the locale uses (with the integers that would fall to `other`, after any `=N` selectors); a category the locale never selects; a `select` whose options are plural keywords; an unterminated quote; a stray `}`; a typo of a number or date style; a translation that changes `plural`/`select` into another kind; `select` options missing or added |
+| warning | a plural/selectordinal missing a category the locale uses (with the integers that would fall to `other`, after any `offset:` and `=N` selectors); a category the locale never selects; a `select` whose options are plural keywords; an unterminated quote; a stray `}`; a typo of a number or date style; a translation that changes `plural`/`select` into another kind; `select` options missing or added |
 | info | a category reached only by decimals (`1.5` in French `one`); `#` outside a plural; a key not in the source; a number formatted differently from the source |
 
 ## Sources and verification
