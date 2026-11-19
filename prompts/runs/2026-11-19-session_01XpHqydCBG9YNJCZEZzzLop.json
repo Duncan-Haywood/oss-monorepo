@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqydCBG9YNJCZEZzzLop",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T19:39:09Z",
+  "ended": "2026-11-19T19:59:17Z",
+  "wall_minutes": 20.76,
+  "tokens_in": 11319110,
+  "tokens_out": 43442,
+  "cost_usd": 4.4012,
+  "tool_calls": 77,
+  "task": "open-tennis-robots flagship buildable item: a straddle vote at 2.5 ms for the 2.4-3 ms builds still read 0",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17771",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "a str.replace in a one-off script that renumbered OLDER_FORMATS indices in tests/test_host.py mangled one call (left 'X 24, ...')",
+      "fix": "caught by grep, fixed by sed before any test ran"
+    },
+    {
+      "what": "two early claims in the eval note were miscounted from the per-take lines (8 of 12 for 7 of 12; 12 of 36 for 14 of 36)",
+      "fix": "recounted by script before commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py pytest printed /usr/bin/python3.13, but the venture's tests also need PYTHONPATH=src:tests:firmware/esp32 to import tennisbots; run_venture_tests.py sets it, a bare pytest does not"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-second-straddle-vote.md",
+    "ventures/open-tennis-robots/eval/take-straddle-long-2026-11-19.md"
+  ],
+  "goal": "deepen flagship 10 (open-tennis-robots) with a pre-registered firmware/host change",
+  "notes": "Router: ventures/2, allocate.py Start here row 5 open-tennis-robots. Built controller.TAKE_STRADDLE_LONG_US=2500 vote (ResidualSurvey.long_for/long_against, two more TAKE_SURVEY bytes, host.TAKE_STRADDLE_LONG_MARGIN read before the 1.5 ms vote). Design on 15 stored sets (636 builds): margin 2 333->356 of 540, 0/96 instant misadvised. Pre-registered in a08ca3779, then 16 fresh captures (AI-AL seeds 277-293, instant seeds 307-373): 70->76 of 120 named, 0/48 instant misadvised, 0 lost, board counts == rebuild; ships at 2. Verification: run_venture_tests.py open-tennis-robots ok (464 tests, 59 skipped for build123d) after the code change; rerun after docs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e838da90-b2cf-5c31-aa35-efc38c351408",
+    "transcripts": 1,
+    "first": "2026-11-19T19:39:09Z",
+    "last": "2026-11-19T19:59:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 168,
+        "output": 43442,
+        "thinking": 7638,
+        "cache_read": 11156390,
+        "cache_write_5m": 0,
+        "cache_write_1h": 162552,
+        "api_equivalent_usd": 4.4012,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 168,
+      "output": 43442,
+      "thinking": 7638,
+      "cache_read": 11156390,
+      "cache_write_5m": 0,
+      "cache_write_1h": 162552,
+      "api_equivalent_usd": 4.4012,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 69,
+      "ToolSearch": 3,
+      "Monitor": 2,
+      "TaskStop": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.76,
+      "active_minutes": 14.87,
+      "model_minutes": 7.48,
+      "tool_minutes": 7.39,
+      "waiting_on_human_minutes": 5.89,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "firmware+host change, 16 simulated captures, pre-registered test and write-up; estimate for an engineer familiar with the codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 227.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

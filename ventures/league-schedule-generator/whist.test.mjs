@@ -27,7 +27,7 @@ test("whist: every stored base develops into a design where each pair partners o
 
 test("near-whist: every stored 4k+2 base develops into a design that passes checkNearWhist", () => {
   const sizes = nearWhistSizes();
-  for (const m of [6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 62]) assert.ok(sizes.includes(m), `size ${m} stored`);
+  for (const m of [6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62]) assert.ok(sizes.includes(m), `size ${m} stored`);
   for (const m of sizes) {
     const d = whistDesign(m);
     assert.equal(d.length, m, `round count for ${m}`);
@@ -148,6 +148,28 @@ test("americano: 4k+3 players play the next design with one empty seat", () => {
     assert.equal(st.repeatPartners, 0);
     assert.ok(st.games.every((g) => g === n - 3), `n=${n} everyone plays ${n - 3}`);
     assert.deepEqual(opponentRange(plan, n), [1, 2]);
+  }
+});
+
+test("americano: 52 and near-whist 58 (eval/whist-starter.c) play their own designs; 51 plays 52 with one empty seat", () => {
+  for (const [n, size, near] of [[52, 52, false], [51, 52, false], [58, 58, true]]) {
+    const P = names(n);
+    const plan = americano(P, { courts: Math.floor(n / 4), seed: n });
+    assert.equal(plan.design?.size, size, `n=${n} plays design ${size}`);
+    assert.equal(plan.design.near, near);
+    assert.deepEqual(validateAmericano(P, plan), []);
+    const st = americanoStats(P, plan);
+    assert.equal(st.repeatPartners, 0, `n=${n}`);
+    if (n === 52) {
+      assert.equal(plan.rounds.length, 51);
+      assert.equal(st.unmetPartners, 0);
+      assert.deepEqual(opponentRange(plan, n), [2, 2]);
+      assert.ok(plan.rounds.every((r) => r.matches.length === 13), "every court used every round");
+    }
+    if (n === 58) {
+      assert.equal(st.unmetPartners, 29, "each player misses exactly one partner");
+      assert.deepEqual(opponentRange(plan, n), [1, 2]);
+    }
   }
 });
 

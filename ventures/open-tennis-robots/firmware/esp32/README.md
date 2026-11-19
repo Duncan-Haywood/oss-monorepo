@@ -3690,3 +3690,27 @@ had captured: AE-AH (lags 0.50, 0.58, 0.44, 0.66 s; seeds 191-199) and twelve in
 margin 2 got right against 14 won: two of four clauses failed. Margin 2's second held-out reading: 72 of 120 against off's
 62, 0 of 48 instant builds misadvised (0 of 60 with AA-AD). `tests/take_straddle_vote.py --base 2` counts against the
 shipped margin. Everything is in `eval/take-straddle-margin-one-2026-11-19.md`.
+
+## A second straddle vote at 2.5 ms (2026-11-19, after "Straddling wheels vote on the short takes"; `host.TAKE_STRADDLE_LONG_MARGIN = 2` on by its pre-registered rule)
+
+**The item.** At the 1.5 ms vote's shipped margin, 2.4-3.5 ms builds still often read TAKE_US = 0 (20 of 36 on AA-AD),
+and a 2.8 ms build the 1.5 ms vote named was told 1.5 ms, more than 1 ms off.
+
+**What shipped.** The board already fits every wheel at 2.5 ms, the grid's third candidate, so the same count there
+costs one flag per wheel: `controller.TAKE_STRADDLE_LONG_US` (2500), `ResidualSurvey.long_for` / `long_against`
+(`add(got, edge, edge_long)`), and two more bytes at the end of the TAKE_SURVEY frame (the Pi reads the 1.5-ms-only
+frame with `None`). When the sums say TAKE_US = 0, `host.take_survey_advice` reads the 2.5 ms vote first (a lead of
+`host.TAKE_STRADDLE_LONG_MARGIN`: advise 2.5 ms), then the 1.5 ms vote. On five design builds where both votes led
+by the same count, 2.5 ms was within 1 ms of the true take on all five and 1.5 ms on three.
+`tests/take_straddle_vote.py --long 0,1,2,3` scores it.
+
+**Design, then held out.** At 2.5 ms an instant build's straddling wheel votes "for" about 1 in 14 (1 in 5 at 1.5 ms).
+On all fifteen stored sets with wheel inputs (636 builds) margin 2 named 333 to 356 of 540 spread takes, misadvised no
+instant build of 96 and un-named none; margin 1 misadvised 5. Rule committed in a08ca3779, then scored on fresh AI-AL
+(lags 0.48, 0.56, 0.40, 0.64 s; seeds 277-293) and twelve instant-only captures (seeds 307-373), 168 builds: 70 to 76 of
+120 named, 0 of 48 instant builds misadvised, 0 un-named, the board's own counts equal to the rebuild in every frame.
+Every clause held. Everything is in `eval/take-straddle-long-2026-11-19.md`.
+
+**Not known.** A small gain (6 of 120). 14 of 36 held-out 2.4-3.5 ms builds still read 0, 11 of them with one
+straddling kept wheel at 2.5 ms or none: the one-pulse tach's limit again. Simulated only.
+

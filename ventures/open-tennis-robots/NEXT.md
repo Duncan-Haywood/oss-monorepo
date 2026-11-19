@@ -15,8 +15,9 @@
 
 - (2026-11-19) Straddle vote shipped at margin 2 (eval/take-straddle-vote-2026-11-19.md); margin 1 closed by its own
   pre-registered test (eval/take-straddle-margin-one-2026-11-19.md: 85 of 120 named against 72, but 3 of 48 instant
-  builds told to set 1.5 ms on 2-1 splits). Still open: a vote at 2.5 ms for the 2.4-3 ms builds still read 0, and
-  whether the vote can tighten the TAKE_US = 0 bound (on the design the 8 builds floor 0 misses had no straddling wheel
+  builds told to set 1.5 ms on 2-1 splits). The 2.5 ms vote shipped at margin 2 the same day
+  (eval/take-straddle-long-2026-11-19.md: held out 70 to 76 of 120 named, 0 of 48 instant misadvised; 11 of the 14
+  2.4-3.5 ms builds still at 0 had one straddling wheel or none). Still open: whether the vote can tighten the TAKE_US = 0 bound (on the design the 8 builds floor 0 misses had no straddling wheel
   at all, so "no straddle, no 1.5 ms bound" covered them; it won back 2 of 14 loosened instant bounds there, not yet
   held out). A margin that scales with the straddle count (instant builds vote "for" about 1 in 5) is untested; test it
   on fresh seeds, not AA-AH.

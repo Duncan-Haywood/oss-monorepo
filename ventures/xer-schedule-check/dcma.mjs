@@ -23,6 +23,7 @@
 // project is set to use its own planned dates.
 
 import { schedule, drivingPath, hardConstraint } from "./cpm.mjs";
+import { longestPath } from "./floatpaths.mjs";
 import { parseDate, formatDate, num } from "./xer.mjs";
 
 const DAYS_44 = 44;
@@ -351,6 +352,15 @@ export function assess(xer, opts = {}) {
   }
 
   const path = drivingPath(result, p.id).map((id) => model.tasks.get(id));
+  // every driving branch into the finish, against the longest path P6 itself
+  // flagged at its last run (TASK.driving_path_flag), open activities only
+  const lp = longestPath(result, p.id);
+  const flagged = new Set(open.filter((t) => t.row.driving_path_flag === "Y").map((t) => t.id));
+  const codes = (ids) => ids.map((id) => model.tasks.get(id).code);
+  const longest = {
+    count: lp.size, p6Flagged: flagged.size, agree: [...lp].filter((id) => flagged.has(id)).length,
+    onlyP6: codes([...flagged].filter((id) => !lp.has(id))), onlyHere: codes([...lp].filter((id) => !flagged.has(id))),
+  };
   return {
     project: {
       id: p.id, code: p.code, name: projRow.proj_short_name || p.code,
@@ -367,6 +377,7 @@ export function assess(xer, opts = {}) {
       const r = res.get(t.id);
       return { code: t.code, name: t.name, start: formatDate(r.remES ?? r.es), finish: formatDate(r.ef), float: r.tf === undefined ? null : round1(r.tf / (t.cal.hoursPerDay || 8)) };
     }),
+    longestPath: longest,
     warnings: result.warnings,
     passed: checks.filter((c) => c.pass).length,
   };
