@@ -1,9 +1,9 @@
 // Licence audit of an npm lockfile. Pure functions, shared by the page and the CLI.
 export const CATEGORIES = ['strong-copyleft', 'weak-copyleft', 'unlicensed', 'unknown', 'permissive'];
 
-const STRONG = /^(A?GPL|SSPL|EUPL|OSL|CC-BY-(NC|SA)|Sleepycat|RPL|CPAL)/i;
-const WEAK = /^(LGPL|MPL|EPL|CDDL|CPL|MS-RL|Artistic|APSL)/i;
-const PERMISSIVE = /^(MIT|ISC|BSD|Apache|0BSD|Unlicense|CC0|WTFPL|Zlib|Python|BlueOak|PSF|CC-BY-[\d.]+$|X11|MIT-0|Unicode|BSL-1\.0|NCSA|AFL|Ruby|JSON|Public Domain)/i;
+const STRONG = /^(A?GPL|SSPL|EUPL|OSL|CC-BY-(NC|SA)|Sleepycat|RPL|CPAL|GNU (Affero )?General Public)/i;
+const WEAK = /^(LGPL|MPL|EPL|CDDL|CPL|MS-RL|Artistic|APSL|GNU (Lesser|Library)|Mozilla Public|Eclipse Public|Common Development)/i;
+const PERMISSIVE = /^(MIT|ISC|BSD|Apache|0BSD|Unlicense|CC0|WTFPL|Zlib|Python|BlueOak|PSF|CC-BY-[\d.]+$|X11|MIT-0|Unicode|BSL-1\.0|NCSA|AFL|Ruby|JSON|Public Domain|Boost Software|[23]-Clause BSD|Zero-Clause BSD|The Unlicense|CMU License|Expat)/i;
 
 // Lower rank = safer. Used to pick the best choice of an OR and the worst of an AND.
 const RANK = { permissive: 0, unknown: 1, 'weak-copyleft': 2, 'strong-copyleft': 3, unlicensed: 4 };
@@ -41,7 +41,11 @@ export function categorizeExpression(expr) {
     return categorizeId(id);
   };
   if (!tokens.length) return 'unknown';
-  return parseOr();
+  const result = parseOr();
+  // Tokens left over mean this was a licence *name* ("GNU General Public
+  // License v3 (GPLv3)", "Public Domain"), not an expression: read it whole
+  // rather than by its first word.
+  return pos < tokens.length ? categorizeId(String(expr).trim()) : result;
 }
 
 export function normalizeLicense(field) {

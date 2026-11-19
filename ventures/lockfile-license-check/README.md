@@ -37,4 +37,13 @@ records none. Not legal advice. No warranty.
 node --test
 ```
 
+`spdx.diff.test.mjs` checks the expression handling (precedence, parentheses,
+`WITH`, `+`) against [spdx-expression-parse](https://github.com/jslicense/spdx-expression-parse.js)
+(MIT), the SPDX parser bundled inside npm: 20,000 random valid expressions,
+each folded best-of-OR / worst-of-AND over the oracle's own tree. It is skipped,
+not faked, when npm's copy is not found (`SPDX_ORACLE_DIR`). All matched on
+2026-11-19 (spdx-expression-parse 4.0.0). A field that is a licence *name*
+rather than an expression ("GNU General Public License v3 (GPLv3)") is read
+whole; before 2026-11-19 it was read by its first word and came out unknown.
+
 MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
