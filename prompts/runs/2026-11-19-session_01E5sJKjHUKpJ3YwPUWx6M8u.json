@@ -30,16 +30,22 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "A command that imported a downloaded wheel (trove-classifiers) was refused by the auto-mode classifier; I read its classifier list as text with grep instead."
+    "A command that imported a downloaded wheel (trove-classifiers) was refused by the auto-mode classifier; I read its classifier list as text with grep instead.",
+    "run_workflow_locally --for-changes: check_third_party.py flagged licence names in my test inputs (GNU General Public License, Mozilla Public License, Eclipse Public License) as third-party banners; added the two files to the existing 'licence tooling and its tests' not_third_party entry in platform/ci/third_party.json."
   ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_third_party.py",
+      "issue": "No pull-request workflow runs it, so only the local --for-changes run caught it; licence-tool ventures need each new file listed by path in third_party.json, where a glob such as ventures/license-*/** would cover new files."
+    }
+  ],
   "deviations": [],
   "writeups": [
     "docs/posts/2026-11-19-license-checkers-read-limited-as-mit.md"
   ],
   "goal": null,
-  "notes": "Explore idea: differential-test the three license tools' SPDX parsers against spdx-expression-parse 4.0.0 (bundled in npm). Parsers matched on 50,000 random expressions (now spdx.diff.test.mjs in license-compat-check and lockfile-license-check; each test failed on a seeded precedence fault). Running every SPDX id, all 89 PyPI License:: trove names and the 45 local license strings found word-matching bugs: license-drift-check read 'Proprietary, limited use' as permissive, 'Universal' as source-available, Elastic-2.0 as unknown; lockfile-license-check categorised multi-word names by first word; license-compat-check ignored trove names' parenthesised ids. All fixed with regression tests. Verified: run_venture_tests.py on the 3 slugs, 122 tests pass; check_posts ok. spdx-correct was rejected as an oracle for trove names (EPL-2.0->EPL-1.0 etc.).",
+  "notes": "Explore idea: differential-test the three license tools' SPDX parsers against spdx-expression-parse 4.0.0 (bundled in npm). Parsers matched on 50,000 random expressions (now spdx.diff.test.mjs in license-compat-check and lockfile-license-check; each test failed on a seeded precedence fault). Running every SPDX id, all 89 PyPI License:: trove names and the 45 local license strings found word-matching bugs: license-drift-check read 'Proprietary, limited use' as permissive, 'Universal' as source-available, Elastic-2.0 as unknown; lockfile-license-check categorised multi-word names by first word; license-compat-check ignored trove names' parenthesised ids. All fixed with regression tests. Verified: run_venture_tests.py on the 3 slugs, 122 tests pass; check_posts ok. spdx-correct was rejected as an oracle for trove names (EPL-2.0->EPL-1.0 etc.). Local CI: run_workflow_locally --for-changes passed every workflow except check_third_party (fixed in the third_party.json inventory); test_check_third_party passes.",
   "corrections": [],
   "redteam": null,
   "usage": {
