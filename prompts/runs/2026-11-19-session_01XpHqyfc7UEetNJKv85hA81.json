@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyfc7UEetNJKv85hA81",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T15:39:01Z",
+  "ended": "2026-11-19T16:33:50Z",
+  "wall_minutes": 54.98,
+  "tokens_in": 11859217,
+  "tokens_out": 58107,
+  "cost_usd": 4.7892,
+  "tool_calls": 88,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17712",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/README.md",
+      "issue": "The 52/57 whist gap was framed as 'a pattern to test' (3 x prime group orders); the literature already proves patterned-starter (-1 multiplier) designs impossible at both sizes, which earlier runs could have looked up before spending CPU-hours."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-the-two-americano-sizes-a-search-still-cannot-fill.md",
+    "ventures/league-schedule-generator/README.md section 'Whist designs for 52 and 57'"
+  ],
+  "goal": null,
+  "notes": "Flagship row 4 (league-schedule-generator), item: whist designs 52 and 57. New eval/whist-orbits.c (tabu over several base rounds on Z_m x levels, or over the non-abelian Z_p x| Z_q). Z7 x| Z3 finds 21 in 68 ms; Z19 x| Z3 for 57 stalls at cost 2 in 6 runs (~100 CPU-min); three levels fail at 21-40 and stall at cost 12 for 52; the (a,b)->(-a,b) symmetry never finds 21. Literature (arXiv:1911.07189 survey): no patterned starter at 57 (9 mod 12) or 52 (51 = 3 x 17, 17 = 5 mod 12). eval/ghost-seats.mjs: 57 on design 60 with 3 ghosts caps at 12.15 busy courts of 14 (< 90% whistWorthIt), by counting. No product change; outcome partial because no design was found. Checks: node --test whist.test.mjs 17/17; run_venture_tests league-schedule-generator (see PR); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9320270f-ca6c-5430-bb73-b4965f020212",
+    "transcripts": 1,
+    "first": "2026-11-19T15:39:01Z",
+    "last": "2026-11-19T16:34:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 179,
+        "output": 58107,
+        "thinking": 23922,
+        "cache_read": 11698194,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160844,
+        "api_equivalent_usd": 4.7892,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 179,
+      "output": 58107,
+      "thinking": 23922,
+      "cache_read": 11698194,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160844,
+      "api_equivalent_usd": 4.7892,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 88,
+    "tools": {
+      "Bash": 74,
+      "Write": 4,
+      "ToolSearch": 4,
+      "Monitor": 2,
+      "WebFetch": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 54.98,
+      "active_minutes": 22.46,
+      "model_minutes": 10.75,
+      "tool_minutes": 11.71,
+      "waiting_on_human_minutes": 32.52,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a combinatorial-design researcher writing a multi-structure tabu search, running it, and checking the Z-cyclic whist literature",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 208.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
