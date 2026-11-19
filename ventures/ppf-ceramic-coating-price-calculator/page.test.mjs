@@ -55,3 +55,12 @@ test("the share link only carries known keys and the page reads it back", () => 
   assert.match(html, /decodeShare\(location\.hash\)/);
   assert.match(html, /encodeShare\(read\(\)\)/);
 });
+
+test("the FAQ does not promise a coating on/off column the package table lacks", async () => {
+  const { plan, sampleInput } = await import("./calc.mjs");
+  const html = page("index.html");
+  assert.doesNotMatch(html, /coating on or off/);
+  // The package table follows the single coating choice: no row carries both states.
+  const withCoat = plan(sampleInput()).packages.map((p) => p.pkg);
+  assert.equal(new Set(withCoat).size, withCoat.length);
+});
