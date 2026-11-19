@@ -1,0 +1,10 @@
+{
+  // Hand-written fixture: SystemJS output with classic resolution.
+  "compilerOptions": {
+    "module": "system",
+    "moduleResolution": "classic",
+    "outFile": "out/app.js",
+    "target": "es2015",
+    "noEmit": true
+  }
+}

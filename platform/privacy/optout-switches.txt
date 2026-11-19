@@ -1223,6 +1223,7 @@ ventures/trial-conversion-timing-analyzer/usage.mjs
 ventures/trial-converter/usage.mjs
 ventures/truck-detention-pay-calculator/usage.mjs
 ventures/trump-account-calculator/usage.mjs
+ventures/tsconfig-ts7-check/usage.mjs
 ventures/tuckpointing-bid-calculator/usage.mjs
 ventures/turo-earnings-report-analyzer/usage.mjs
 ventures/turo-host-payout-calculator/usage.mjs

@@ -26,6 +26,11 @@ hearth-and-horizon | UV-C | an ultraviolet lamp in a ventilation duct of a crowd
 hearth-and-horizon | heat island, urban heat island | a town square that stays several degrees warmer than the fields at night; stone and tarmac give back the day's heat
 hearth-and-horizon | thermal bridge, cold bridge | one steel beam through an insulated wall that grows mould in a line; heat takes the shortest conductive path
 hearth-and-horizon | hysteresis | a thermostat or a pump float switch that must not switch on and off at the same point, or it chatters itself to death
+hearth-and-horizon | fog net, fog collector | a mountain school on a dry coast catching drinking water from fog on mesh nets; the yield is litres per square metre per day and swings with the wind, and the net that tears in a gale is the cost of a bigger one
+hearth-and-horizon | Trombe wall | a sunlit glazed masonry wall heating a cold-climate chapel or classroom by day and night; the thermal lag through the wall sets when the heat arrives, and covering the glass at night matters as much as the sun
+hearth-and-horizon | thermosiphon, solar water heater | a rooftop solar water heater with no pump, where hot water rises on its own; it stops working the day the tank is mounted lower than the panel
+hearth-and-horizon | rammed earth | a village building a clinic or school from rammed earth; wall thickness, moisture content at ramming and the cure time set its strength, and the reasonable shortcut is cement that cracks it differently
+hearth-and-horizon | biochar | a farm co-op making char from crop waste in a kiln; how much carbon stays in the soil is uncertain and the yield by weight is small, and the honest claim is smaller than the brochure's
 
 for-other-minds | p-hacking, forking paths | an agent asked to "find what helps attendance" tries forty cuts of the data and one comes out significant; the honest report says how many were tried
 for-other-minds | confounding, confounder | the parish that installs a coffee rota and sees attendance rise the same year the new estate opened next door

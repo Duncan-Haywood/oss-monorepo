@@ -1,0 +1,2575 @@
+{
+ "summary": {
+  "date": "2026-11-19",
+  "tsc6": "Version 6.0.3",
+  "tsc7": "Version 7.0.2",
+  "configs": 61,
+  "agree": 61,
+  "suggestionsClean": 61,
+  "configsTsc7Rejects": 28
+ },
+ "rows": [
+  {
+   "id": "synthetic/amd-outfile-library.jsonc",
+   "predicted": [
+    "alwaysStrict:TS5108",
+    "module:TS5108",
+    "outFile:TS5102",
+    "target:TS5108"
+   ],
+   "tsc7Removed": [
+    "alwaysStrict:TS5108",
+    "module:TS5108",
+    "outFile:TS5102",
+    "target:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "alwaysStrict",
+    "module",
+    "outFile",
+    "target"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": true,
+   "tsc7RootDirError": true,
+   "findings": [
+    "error:removed:target=es5",
+    "error:removed:outFile",
+    "error:removed:module=amd",
+    "error:removed:alwaysStrict=false",
+    "warning:default:strict",
+    "warning:default:types",
+    "warning:default:rootDir",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2015",
+    "module": "esnext",
+    "declaration": true,
+    "lib": [
+     "dom",
+     "es2015"
+    ],
+    "strict": false,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "synthetic/angular-2019-style.jsonc",
+   "predicted": [
+    "baseUrl:TS5102",
+    "downlevelIteration:TS5102",
+    "moduleResolution:TS5108",
+    "target:TS5108"
+   ],
+   "tsc7Removed": [
+    "baseUrl:TS5102",
+    "downlevelIteration:TS5102",
+    "moduleResolution:TS5108",
+    "target:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "baseUrl",
+    "downlevelIteration",
+    "moduleResolution",
+    "target"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": true,
+   "tsc7RootDirError": true,
+   "findings": [
+    "error:removed:target=es5",
+    "error:removed:downlevelIteration",
+    "error:removed:moduleResolution=node10",
+    "error:removed:baseUrl",
+    "warning:default:strict",
+    "warning:default:types",
+    "warning:default:rootDir",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "experimentalDecorators": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "importHelpers": true,
+    "target": "es2015",
+    "typeRoots": [
+     "node_modules/@types"
+    ],
+    "lib": [
+     "es2018",
+     "dom"
+    ],
+    "strict": false,
+    "types": [
+     "*"
+    ],
+    "rootDir": "./src"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "synthetic/ignore-deprecations-6.jsonc",
+   "predicted": [
+    "baseUrl:TS5102",
+    "moduleResolution:TS5108",
+    "target:TS5108"
+   ],
+   "tsc7Removed": [
+    "baseUrl:TS5102",
+    "moduleResolution:TS5108",
+    "target:TS5108"
+   ],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:target=es5",
+    "error:removed:moduleResolution=node10",
+    "error:removed:baseUrl",
+    "warning:ignoreDeprecations",
+    "warning:default:strict",
+    "warning:default:types",
+    "info:default:esModuleInterop",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2015",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
+    "outDir": "build",
+    "rootDir": "src",
+    "strict": false,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "synthetic/modern-clean.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:esModuleInterop"
+   ],
+   "suggestion": {
+    "target": "es2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": [
+     "node"
+    ],
+    "strict": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "noUncheckedSideEffectImports": true
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "synthetic/module-none.jsonc",
+   "predicted": [
+    "module:TS6046"
+   ],
+   "tsc7Removed": [
+    "module:TS6046"
+   ],
+   "tsc6Deprecated": [
+    "module"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:module=none",
+    "warning:default:strict",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "module": "esnext",
+    "target": "es2016",
+    "noEmit": true,
+    "strict": false,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "synthetic/node-commonjs-legacy.jsonc",
+   "predicted": [
+    "allowSyntheticDefaultImports:TS5108",
+    "baseUrl:TS5102",
+    "esModuleInterop:TS5108",
+    "moduleResolution:TS5108",
+    "target:TS5108"
+   ],
+   "tsc7Removed": [
+    "allowSyntheticDefaultImports:TS5108",
+    "baseUrl:TS5102",
+    "esModuleInterop:TS5108",
+    "moduleResolution:TS5108",
+    "target:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "allowSyntheticDefaultImports",
+    "baseUrl",
+    "esModuleInterop",
+    "moduleResolution",
+    "target"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": true,
+   "tsc7RootDirError": true,
+   "findings": [
+    "error:removed:target=es5",
+    "error:removed:moduleResolution=node10",
+    "error:removed:baseUrl",
+    "error:removed:esModuleInterop=false",
+    "error:removed:allowSyntheticDefaultImports=false",
+    "warning:default:strict",
+    "warning:default:types",
+    "warning:default:rootDir",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2015",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "outDir": "dist",
+    "paths": {
+     "@lib/*": [
+      "./src/lib/*"
+     ],
+     "@config": [
+      "./src/config/index.ts"
+     ]
+    },
+    "sourceMap": true,
+    "strict": false,
+    "types": [
+     "*"
+    ],
+    "rootDir": "./src"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "synthetic/removed-in-5-5.jsonc",
+   "predicted": [
+    "importsNotUsedAsValues:TS5023",
+    "keyofStringsOnly:TS5023",
+    "noImplicitUseStrict:TS5023",
+    "noStrictGenericChecks:TS5023",
+    "preserveValueImports:TS5023",
+    "suppressExcessPropertyErrors:TS5023",
+    "suppressImplicitAnyIndexErrors:TS5023"
+   ],
+   "tsc7Removed": [
+    "importsNotUsedAsValues:TS5023",
+    "keyofStringsOnly:TS5023",
+    "noImplicitUseStrict:TS5023",
+    "noStrictGenericChecks:TS5023",
+    "preserveValueImports:TS5023",
+    "suppressExcessPropertyErrors:TS5023",
+    "suppressImplicitAnyIndexErrors:TS5023"
+   ],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [
+    "keyofStringsOnly:TS5102",
+    "noImplicitUseStrict:TS5102",
+    "noStrictGenericChecks:TS5102",
+    "preserveValueImports:TS5102",
+    "suppressExcessPropertyErrors:TS5102",
+    "suppressImplicitAnyIndexErrors:TS5102"
+   ],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:noImplicitUseStrict",
+    "error:removed:keyofStringsOnly",
+    "error:removed:suppressExcessPropertyErrors",
+    "error:removed:suppressImplicitAnyIndexErrors",
+    "error:removed:noStrictGenericChecks",
+    "error:removed:importsNotUsedAsValues",
+    "error:removed:preserveValueImports",
+    "warning:default:strict",
+    "warning:default:types",
+    "info:default:moduleResolution",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2017",
+    "noEmit": true,
+    "verbatimModuleSyntax": true,
+    "strict": false,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "synthetic/system-classic.jsonc",
+   "predicted": [
+    "module:TS5108",
+    "moduleResolution:TS5108",
+    "outFile:TS5102"
+   ],
+   "tsc7Removed": [
+    "module:TS5108",
+    "moduleResolution:TS5108",
+    "outFile:TS5102"
+   ],
+   "tsc6Deprecated": [
+    "module",
+    "moduleResolution",
+    "outFile"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:moduleResolution=classic",
+    "error:removed:outFile",
+    "error:removed:module=system",
+    "warning:default:strict",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2015",
+    "noEmit": true,
+    "strict": false,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "synthetic/umd-none.jsonc",
+   "predicted": [
+    "module:TS5108"
+   ],
+   "tsc7Removed": [
+    "module:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "module"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:module=umd",
+    "warning:default:strict",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "module": "esnext",
+    "target": "es2015",
+    "noEmit": true,
+    "strict": false,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/bun-1.0.12.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "ESNext"
+    ],
+    "target": "ESNext",
+    "types": [
+     "bun"
+    ],
+    "module": "Preserve",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/create-react-app-1.0.3.jsonc",
+   "predicted": [
+    "moduleResolution:TS5108"
+   ],
+   "tsc7Removed": [
+    "moduleResolution:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "moduleResolution"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:moduleResolution=node10",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "esnext"
+    ],
+    "module": "esnext",
+    "target": "es2015",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/create-react-app-2.0.12.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "esnext"
+    ],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2015",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/cypress-1.0.6.jsonc",
+   "predicted": [
+    "target:TS5108"
+   ],
+   "tsc7Removed": [
+    "target:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "target"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:target=es5",
+    "warning:default:strict",
+    "info:default:moduleResolution",
+    "info:default:esModuleInterop",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2015",
+    "lib": [
+     "es5",
+     "dom"
+    ],
+    "types": [
+     "cypress"
+    ],
+    "strict": false
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/deno-1.0.15.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "warning:default:target",
+    "warning:default:module",
+    "info:default:moduleResolution",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "jsx": "react",
+    "lib": [],
+    "resolveJsonModule": true,
+    "strict": true,
+    "types": [
+     "*"
+    ],
+    "target": "es2015",
+    "module": "commonjs"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/docusaurus-1.0.7.jsonc",
+   "predicted": [
+    "baseUrl:TS5102"
+   ],
+   "tsc7Removed": [
+    "baseUrl:TS5102"
+   ],
+   "tsc6Deprecated": [
+    "baseUrl"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:baseUrl",
+    "warning:default:strict",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "allowJs": true,
+    "esModuleInterop": true,
+    "jsx": "react",
+    "lib": [
+     "DOM"
+    ],
+    "moduleResolution": "Node16",
+    "noEmit": true,
+    "types": [
+     "node",
+     "@docusaurus/module-type-aliases",
+     "@docusaurus/theme-classic"
+    ],
+    "paths": {
+     "@site/*": [
+      "./*"
+     ]
+    },
+    "skipLibCheck": true,
+    "strict": false,
+    "module": "node16"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/docusaurus-2.0.10.jsonc",
+   "predicted": [
+    "baseUrl:TS5102"
+   ],
+   "tsc7Removed": [
+    "baseUrl:TS5102"
+   ],
+   "tsc6Deprecated": [
+    "baseUrl"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:baseUrl",
+    "warning:default:strict",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "allowJs": true,
+    "esModuleInterop": true,
+    "jsx": "react",
+    "lib": [
+     "dom"
+    ],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "types": [
+     "node",
+     "@docusaurus/module-type-aliases",
+     "@docusaurus/theme-classic"
+    ],
+    "paths": {
+     "@site/*": [
+      "./*"
+     ]
+    },
+    "skipLibCheck": true,
+    "strict": false
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/ember-1.1.0.jsonc",
+   "predicted": [
+    "moduleResolution:TS5108"
+   ],
+   "tsc7Removed": [
+    "moduleResolution:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "moduleResolution"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:moduleResolution=node10",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "ES2021",
+    "module": "ES2020",
+    "moduleResolution": "bundler",
+    "allowJs": false,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "allowSyntheticDefaultImports": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noEmitOnError": true,
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/ember-3.0.13.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2023",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "allowSyntheticDefaultImports": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noEmitOnError": false,
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "declaration": false,
+    "declarationMap": false,
+    "inlineSourceMap": false,
+    "inlineSources": false,
+    "types": []
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/esm-1.0.5.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:strict",
+    "warning:default:types",
+    "warning:default:target",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "strict": false,
+    "types": [
+     "*"
+    ],
+    "target": "es2015"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/next-1.0.5.jsonc",
+   "predicted": [
+    "moduleResolution:TS5108",
+    "target:TS5108"
+   ],
+   "tsc7Removed": [
+    "moduleResolution:TS5108",
+    "target:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "moduleResolution",
+    "target"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:target=es5",
+    "error:removed:moduleResolution=node10",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2015",
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/next-2.0.7.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/node-lts-26.0.1.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:strict",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "es2025",
+     "ESNext.Collection",
+     "ESNext.Temporal"
+    ],
+    "module": "nodenext",
+    "target": "es2025",
+    "types": [
+     "node"
+    ],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": false
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/node10-1.0.14.jsonc",
+   "predicted": [
+    "moduleResolution:TS5108"
+   ],
+   "tsc7Removed": [
+    "moduleResolution:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "moduleResolution"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:moduleResolution=node10",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "es2018"
+    ],
+    "module": "nodenext",
+    "target": "es2018",
+    "types": [
+     "node"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "nodenext"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/node12-12.1.9.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "es2019",
+     "es2020.promise",
+     "es2020.bigint",
+     "es2020.string"
+    ],
+    "module": "node16",
+    "target": "es2019",
+    "types": [
+     "node"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node16"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/node14-14.1.10.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "es2020"
+    ],
+    "module": "node16",
+    "target": "es2020",
+    "types": [
+     "node"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node16"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/node16-16.1.10.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "es2021"
+    ],
+    "module": "node16",
+    "target": "es2021",
+    "types": [
+     "node"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node16"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/node18-18.2.8.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "es2023"
+    ],
+    "module": "node16",
+    "target": "es2022",
+    "types": [
+     "node"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node16"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/node20-20.1.11.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "es2023"
+    ],
+    "module": "nodenext",
+    "target": "es2022",
+    "types": [
+     "node"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node16"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/node22-22.0.7.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "es2024",
+     "ESNext.Array",
+     "ESNext.Collection",
+     "ESNext.Iterator"
+    ],
+    "module": "nodenext",
+    "target": "es2022",
+    "types": [
+     "node"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node16"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/node24-24.0.6.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "es2024",
+     "ESNext.Array",
+     "ESNext.Collection",
+     "ESNext.Error",
+     "ESNext.Iterator",
+     "ESNext.Promise"
+    ],
+    "module": "nodenext",
+    "target": "es2024",
+    "types": [
+     "node"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node16"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/nuxt-1.0.1.jsonc",
+   "predicted": [
+    "baseUrl:TS5102",
+    "moduleResolution:TS5108"
+   ],
+   "tsc7Removed": [
+    "baseUrl:TS5102",
+    "moduleResolution:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "baseUrl",
+    "moduleResolution"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:moduleResolution=node10",
+    "error:removed:baseUrl",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "ES2018",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": [
+     "ESNext",
+     "ESNext.AsyncIterable",
+     "DOM"
+    ],
+    "esModuleInterop": true,
+    "allowJs": true,
+    "sourceMap": true,
+    "strict": true,
+    "noEmit": true,
+    "paths": {
+     "~/*": [
+      "./*"
+     ],
+     "@/*": [
+      "./*"
+     ]
+    },
+    "types": [
+     "@types/node",
+     "@nuxt/types"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/nuxt-2.0.6.jsonc",
+   "predicted": [
+    "baseUrl:TS5102"
+   ],
+   "tsc7Removed": [
+    "baseUrl:TS5102"
+   ],
+   "tsc6Deprecated": [
+    "baseUrl"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:baseUrl",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": [
+     "esnext",
+     "esnext.asynciterable",
+     "dom"
+    ],
+    "esModuleInterop": true,
+    "allowJs": true,
+    "sourceMap": true,
+    "strict": true,
+    "noEmit": true,
+    "paths": {
+     "~/*": [
+      "./*"
+     ],
+     "@/*": [
+      "./*"
+     ]
+    },
+    "types": [
+     "@types/node",
+     "@nuxt/types"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/react-native-1.0.5.jsonc",
+   "predicted": [
+    "moduleResolution:TS5108"
+   ],
+   "tsc7Removed": [
+    "moduleResolution:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "moduleResolution"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:moduleResolution=node10",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "esnext",
+    "module": "nodenext",
+    "lib": [
+     "es2017"
+    ],
+    "allowJs": true,
+    "jsx": "react-native",
+    "noEmit": true,
+    "isolatedModules": true,
+    "strict": true,
+    "moduleResolution": "nodenext",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": false,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/react-native-3.0.10.jsonc",
+   "predicted": [
+    "moduleResolution:TS5108"
+   ],
+   "tsc7Removed": [
+    "moduleResolution:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "moduleResolution"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:moduleResolution=node10",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "esnext",
+    "module": "nodenext",
+    "types": [
+     "react-native",
+     "jest"
+    ],
+    "lib": [
+     "es2019",
+     "es2020.bigint",
+     "es2020.date",
+     "es2020.number",
+     "es2020.promise",
+     "es2020.string",
+     "es2020.symbol.wellknown",
+     "es2021.promise",
+     "es2021.string",
+     "es2021.weakref",
+     "es2022.array",
+     "es2022.object",
+     "es2022.string"
+    ],
+    "allowJs": true,
+    "jsx": "react-native",
+    "noEmit": true,
+    "isolatedModules": true,
+    "strict": true,
+    "moduleResolution": "nodenext",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/recommended-1.0.14.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "info:default:moduleResolution",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2016",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/remix-1.0.4.jsonc",
+   "predicted": [
+    "baseUrl:TS5102",
+    "moduleResolution:TS5108"
+   ],
+   "tsc7Removed": [
+    "baseUrl:TS5102",
+    "moduleResolution:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "baseUrl",
+    "moduleResolution"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:moduleResolution=node10",
+    "error:removed:baseUrl",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "DOM",
+     "DOM.Iterable",
+     "ES2019"
+    ],
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "target": "ES2019",
+    "strict": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+     "~/*": [
+      "./app/*"
+     ]
+    },
+    "noEmit": true,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/remix-2.0.8.jsonc",
+   "predicted": [
+    "baseUrl:TS5102"
+   ],
+   "tsc7Removed": [
+    "baseUrl:TS5102"
+   ],
+   "tsc6Deprecated": [
+    "baseUrl"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:baseUrl",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "es2019"
+    ],
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "target": "es2019",
+    "strict": true,
+    "allowJs": true,
+    "paths": {
+     "~/*": [
+      "./app/*"
+     ]
+    },
+    "noEmit": true,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/strictest-1.0.2.jsonc",
+   "predicted": [
+    "importsNotUsedAsValues:TS5023"
+   ],
+   "tsc7Removed": [
+    "importsNotUsedAsValues:TS5023"
+   ],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [
+    "importsNotUsedAsValues:TS5102"
+   ],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:importsNotUsedAsValues",
+    "warning:default:types",
+    "warning:default:target",
+    "warning:default:module",
+    "info:default:moduleResolution",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "strict": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
+    "types": [
+     "*"
+    ],
+    "target": "es2015",
+    "module": "commonjs"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/strictest-2.0.9.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "warning:default:target",
+    "warning:default:module",
+    "info:default:moduleResolution",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "strict": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": [
+     "*"
+    ],
+    "target": "es2015",
+    "module": "commonjs"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/svelte-1.0.13.jsonc",
+   "predicted": [
+    "importsNotUsedAsValues:TS5023",
+    "moduleResolution:TS5108"
+   ],
+   "tsc7Removed": [
+    "importsNotUsedAsValues:TS5023",
+    "moduleResolution:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "moduleResolution"
+   ],
+   "tsc6Rejected": [
+    "importsNotUsedAsValues:TS5102"
+   ],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:moduleResolution=node10",
+    "error:removed:importsNotUsedAsValues",
+    "info:default:noUncheckedSideEffectImports",
+    "info:default:alwaysStrictWithStrictOff"
+   ],
+   "suggestion": {
+    "moduleResolution": "bundler",
+    "target": "es2017",
+    "isolatedModules": true,
+    "sourceMap": true,
+    "types": [
+     "svelte"
+    ],
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/svelte-5.0.9.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2017",
+    "verbatimModuleSyntax": true,
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/taro-1.0.7.jsonc",
+   "predicted": [
+    "moduleResolution:TS5108"
+   ],
+   "tsc7Removed": [
+    "moduleResolution:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "moduleResolution"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:moduleResolution=node10",
+    "warning:default:types",
+    "info:default:esModuleInterop",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2017",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/vite-react-1.0.1.jsonc",
+   "predicted": [
+    "esModuleInterop:TS5108",
+    "moduleResolution:TS5108"
+   ],
+   "tsc7Removed": [
+    "esModuleInterop:TS5108",
+    "moduleResolution:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "esModuleInterop",
+    "moduleResolution"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:moduleResolution=node10",
+    "error:removed:esModuleInterop=false",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": [
+     "DOM",
+     "DOM.Iterable",
+     "ESNext"
+    ],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "tsconfig-bases/vite-react-8.1.2.jsonc",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:strict",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "lib": [
+     "ES2023",
+     "DOM"
+    ],
+    "module": "esnext",
+    "types": [
+     "vite/client"
+    ],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "strict": false
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/ai-first-markets/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "ES2017",
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "paths": {
+     "@/*": [
+      "./src/*"
+     ]
+    },
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/local-site-studio/convex/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "lib": [
+     "es2022"
+    ],
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/local-site-studio/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "ES2017",
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "types": [
+     "vite/client"
+    ],
+    "paths": {
+     "@/*": [
+      "./src/*"
+     ]
+    }
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/photo-editing/docs-site/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "ES2017",
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "paths": {
+     "@/*": [
+      "./src/*"
+     ]
+    },
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/print-atelier/tsconfig.json",
+   "predicted": [
+    "target:TS5108"
+   ],
+   "tsc7Removed": [
+    "target:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "target"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:target=es5",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2015",
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "paths": {
+     "@/*": [
+      "./src/*"
+     ]
+    },
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/quick-pick-survey/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "ES2017",
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "paths": {
+     "@/*": [
+      "./src/*"
+     ]
+    },
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/real-estate-agent-photo-app/docs-site/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "paths": {
+     "@/*": [
+      "./src/*"
+     ],
+     "react/jsx-runtime": [
+      "./node_modules/@types/react/jsx-runtime.d.ts"
+     ],
+     "react/jsx-dev-runtime": [
+      "./node_modules/@types/react/jsx-dev-runtime.d.ts"
+     ]
+    },
+    "target": "ES2017",
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/real-estate-agent-photo-app/pipeline/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": [
+     "ES2022"
+    ],
+    "types": [
+     "node"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noEmit": true
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/real-estate-agent-photo-app/research/tsconfig.json",
+   "predicted": [
+    "target:TS5108"
+   ],
+   "tsc7Removed": [
+    "target:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "target"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:target=es5",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2015",
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "paths": {
+     "@/*": [
+      "./src/*"
+     ]
+    },
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/retail-pilot-intel/apps/docs/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "ES2022",
+    "lib": [
+     "ES2022",
+     "DOM",
+     "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/retail-pilot-intel/apps/portal/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "ES2022",
+    "lib": [
+     "ES2022",
+     "DOM",
+     "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "types": [
+     "vite/client",
+     "node"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/retail-pilot-intel/packages/analytics/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:strict",
+    "warning:default:types",
+    "warning:default:target",
+    "warning:default:module",
+    "info:default:moduleResolution",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "noEmit": false,
+    "strict": false,
+    "types": [
+     "*"
+    ],
+    "target": "es2015",
+    "module": "commonjs"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/retail-pilot-intel/packages/edge/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:strict",
+    "warning:default:types",
+    "warning:default:target",
+    "warning:default:module",
+    "info:default:moduleResolution",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "noEmit": false,
+    "strict": false,
+    "types": [
+     "*"
+    ],
+    "target": "es2015",
+    "module": "commonjs"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/retail-pilot-intel/packages/pos/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:strict",
+    "warning:default:types",
+    "warning:default:target",
+    "warning:default:module",
+    "info:default:moduleResolution",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "noEmit": false,
+    "strict": false,
+    "types": [
+     "*"
+    ],
+    "target": "es2015",
+    "module": "commonjs"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/retail-pilot-intel/packages/schemas/tsconfig.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:strict",
+    "warning:default:types",
+    "warning:default:target",
+    "warning:default:module",
+    "info:default:moduleResolution",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true,
+    "noEmit": false,
+    "strict": false,
+    "types": [
+     "*"
+    ],
+    "target": "es2015",
+    "module": "commonjs"
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/retail-pilot-intel/tsconfig.base.json",
+   "predicted": [],
+   "tsc7Removed": [],
+   "tsc6Deprecated": [],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "ES2022",
+    "lib": [
+     "ES2022"
+    ],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  },
+  {
+   "id": "repo/ventures/vendor-watch/tsconfig.json",
+   "predicted": [
+    "target:TS5108"
+   ],
+   "tsc7Removed": [
+    "target:TS5108"
+   ],
+   "tsc6Deprecated": [
+    "target"
+   ],
+   "tsc6Rejected": [],
+   "removedMatch": true,
+   "predictsRootDir": false,
+   "tsc7RootDirError": false,
+   "findings": [
+    "error:removed:target=es5",
+    "warning:default:types",
+    "info:default:noUncheckedSideEffectImports"
+   ],
+   "suggestion": {
+    "target": "es2015",
+    "lib": [
+     "dom",
+     "dom.iterable",
+     "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "paths": {
+     "@/*": [
+      "./src/*"
+     ]
+    },
+    "types": [
+     "*"
+    ]
+   },
+   "afterTsc6": [],
+   "afterTsc7": [],
+   "suggestionClean": true,
+   "rootDirMatch": true
+  }
+ ]
+}

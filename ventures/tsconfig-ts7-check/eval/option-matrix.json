@@ -1,0 +1,1696 @@
+[
+ {
+  "name": "preserveWatchOutput",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "preserveWatchOutput",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "listFiles",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "listFiles",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "explainFiles",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "explainFiles",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "listEmittedFiles",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "listEmittedFiles",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "pretty",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "pretty",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "traceResolution",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "traceResolution",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "diagnostics",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "diagnostics",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "extendedDiagnostics",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "extendedDiagnostics",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "declaration",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "declaration",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "declarationMap",
+  "value": true,
+  "5.9": "TS5069 Option 'declarationMap' cannot be specified without specifying option 'declaration' or option 'composite'.",
+  "6.0": "TS5069 Option 'declarationMap' cannot be specified without specifying option 'declaration' or option 'composite'.",
+  "7.0": "TS5069 Option 'declarationMap' cannot be specified without specifying option 'declaration' or option 'composite'."
+ },
+ {
+  "name": "declarationMap",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "emitDeclarationOnly",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "emitDeclarationOnly",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "sourceMap",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "sourceMap",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "inlineSourceMap",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "inlineSourceMap",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noCheck",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noCheck",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noEmit",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noEmit",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "assumeChangesOnlyAffectDirectDependencies",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "assumeChangesOnlyAffectDirectDependencies",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "es3",
+  "5.9": "TS5108 Option 'target=ES3' has been removed. Please remove it from your configuration.",
+  "6.0": "TS5108 Option 'target=ES3' has been removed. Please remove it from your configuration.",
+  "7.0": "TS6046 Argument for '--target' option must be: 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'es2025', 'esnext'."
+ },
+ {
+  "name": "target",
+  "value": "es5",
+  "5.9": "",
+  "6.0": "TS5107 Option 'target=ES5' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5108 Option 'target=ES5' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "target",
+  "value": "es6",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "es2015",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "es2016",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "es2017",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "es2018",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "es2019",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "es2020",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "es2021",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "es2022",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "es2023",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "es2024",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "es2025",
+  "5.9": "TS6046 Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "target",
+  "value": "esnext",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "module",
+  "value": "none",
+  "5.9": "",
+  "6.0": "TS5107 Option 'module=None' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS6046 Argument for '--module' option must be: 'commonjs', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+ },
+ {
+  "name": "module",
+  "value": "commonjs",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "module",
+  "value": "amd",
+  "5.9": "",
+  "6.0": "TS5107 Option 'module=AMD' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5095 Option 'bundler' can only be used when 'module' is set to 'preserve', 'commonjs', or 'es2015' or later. | TS5108 Option 'module=AMD' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "module",
+  "value": "system",
+  "5.9": "",
+  "6.0": "TS5107 Option 'module=System' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5095 Option 'bundler' can only be used when 'module' is set to 'preserve', 'commonjs', or 'es2015' or later. | TS5108 Option 'module=System' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "module",
+  "value": "umd",
+  "5.9": "",
+  "6.0": "TS5107 Option 'module=UMD' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5095 Option 'bundler' can only be used when 'module' is set to 'preserve', 'commonjs', or 'es2015' or later. | TS5108 Option 'module=UMD' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "module",
+  "value": "es6",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "module",
+  "value": "es2015",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "module",
+  "value": "es2020",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "module",
+  "value": "es2022",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "module",
+  "value": "esnext",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "module",
+  "value": "node16",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "module",
+  "value": "node18",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "module",
+  "value": "node20",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "module",
+  "value": "nodenext",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "module",
+  "value": "preserve",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "lib",
+  "value": [
+   "es2020"
+  ],
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowJs",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowJs",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "checkJs",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "checkJs",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "jsx",
+  "value": "preserve",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "jsx",
+  "value": "react-native",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "jsx",
+  "value": "react-jsx",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "jsx",
+  "value": "react-jsxdev",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "jsx",
+  "value": "react",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "outFile",
+  "value": "./x",
+  "5.9": "TS6131 Cannot compile modules using option 'outFile' unless the '--module' flag is 'amd' or 'system'.",
+  "6.0": "TS5101 Option 'outFile' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5102 Option 'outFile' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "outDir",
+  "value": "./x",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "rootDir",
+  "value": "./x",
+  "5.9": "TS6059 File '<tmp>/a.ts' is not under 'rootDir' '<tmp>/x'. 'rootDir' is expected to contain all source files.",
+  "6.0": "TS6059 File '<tmp>/a.ts' is not under 'rootDir' '<tmp>/x'. 'rootDir' is expected to contain all source files.",
+  "7.0": "TS6059 File '<tmp>/a.ts' is not under 'rootDir' '<tmp>/x'. 'rootDir' is expected to contain all source files."
+ },
+ {
+  "name": "removeComments",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "removeComments",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "importHelpers",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "importHelpers",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "importsNotUsedAsValues",
+  "value": "remove",
+  "5.9": "",
+  "6.0": "",
+  "7.0": "TS5023 Unknown compiler option 'importsNotUsedAsValues'."
+ },
+ {
+  "name": "importsNotUsedAsValues",
+  "value": "preserve",
+  "5.9": "TS5102 Option 'importsNotUsedAsValues' has been removed. Please remove it from your configuration.",
+  "6.0": "TS5102 Option 'importsNotUsedAsValues' has been removed. Please remove it from your configuration.",
+  "7.0": "TS5023 Unknown compiler option 'importsNotUsedAsValues'."
+ },
+ {
+  "name": "importsNotUsedAsValues",
+  "value": "error",
+  "5.9": "TS5102 Option 'importsNotUsedAsValues' has been removed. Please remove it from your configuration.",
+  "6.0": "TS5102 Option 'importsNotUsedAsValues' has been removed. Please remove it from your configuration.",
+  "7.0": "TS5023 Unknown compiler option 'importsNotUsedAsValues'."
+ },
+ {
+  "name": "downlevelIteration",
+  "value": true,
+  "5.9": "",
+  "6.0": "TS5101 Option 'downlevelIteration' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5102 Option 'downlevelIteration' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "downlevelIteration",
+  "value": false,
+  "5.9": "",
+  "6.0": "TS5101 Option 'downlevelIteration' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5102 Option 'downlevelIteration' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "isolatedModules",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "isolatedModules",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "verbatimModuleSyntax",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "verbatimModuleSyntax",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "isolatedDeclarations",
+  "value": true,
+  "5.9": "TS5069 Option 'isolatedDeclarations' cannot be specified without specifying option 'declaration' or option 'composite'.",
+  "6.0": "TS5069 Option 'isolatedDeclarations' cannot be specified without specifying option 'declaration' or option 'composite'.",
+  "7.0": "TS5069 Option 'isolatedDeclarations' cannot be specified without specifying option 'declaration' or option 'composite'."
+ },
+ {
+  "name": "isolatedDeclarations",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "erasableSyntaxOnly",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "erasableSyntaxOnly",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "libReplacement",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "libReplacement",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "strict",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "strict",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noImplicitAny",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noImplicitAny",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "strictNullChecks",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "strictNullChecks",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "strictFunctionTypes",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "strictFunctionTypes",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "strictBindCallApply",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "strictBindCallApply",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "strictPropertyInitialization",
+  "value": true,
+  "5.9": "TS5052 Option 'strictPropertyInitialization' cannot be specified without specifying option 'strictNullChecks'.",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "strictPropertyInitialization",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "strictBuiltinIteratorReturn",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "strictBuiltinIteratorReturn",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "stableTypeOrdering",
+  "value": true,
+  "5.9": "TS5023 Unknown compiler option 'stableTypeOrdering'.",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "stableTypeOrdering",
+  "value": false,
+  "5.9": "TS5023 Unknown compiler option 'stableTypeOrdering'.",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noImplicitThis",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noImplicitThis",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "useUnknownInCatchVariables",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "useUnknownInCatchVariables",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "alwaysStrict",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "alwaysStrict",
+  "value": false,
+  "5.9": "",
+  "6.0": "TS5107 Option 'alwaysStrict=false' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5108 Option 'alwaysStrict=false' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "noUnusedLocals",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noUnusedLocals",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noUnusedParameters",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noUnusedParameters",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "exactOptionalPropertyTypes",
+  "value": true,
+  "5.9": "TS5052 Option 'exactOptionalPropertyTypes' cannot be specified without specifying option 'strictNullChecks'.",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "exactOptionalPropertyTypes",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noImplicitReturns",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noImplicitReturns",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noFallthroughCasesInSwitch",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noFallthroughCasesInSwitch",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noUncheckedIndexedAccess",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noUncheckedIndexedAccess",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noImplicitOverride",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noImplicitOverride",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noPropertyAccessFromIndexSignature",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noPropertyAccessFromIndexSignature",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "moduleResolution",
+  "value": "node10",
+  "5.9": "",
+  "6.0": "TS5107 Option 'moduleResolution=node10' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5108 Option 'moduleResolution=node10' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "moduleResolution",
+  "value": "node",
+  "5.9": "",
+  "6.0": "TS5107 Option 'moduleResolution=node10' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5108 Option 'moduleResolution=node10' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "moduleResolution",
+  "value": "classic",
+  "5.9": "",
+  "6.0": "TS5107 Option 'moduleResolution=classic' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5108 Option 'moduleResolution=Classic' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "moduleResolution",
+  "value": "node16",
+  "5.9": "TS5110 Option 'module' must be set to 'Node16' when option 'moduleResolution' is set to 'Node16'.",
+  "6.0": "TS5110 Option 'module' must be set to 'Node16' when option 'moduleResolution' is set to 'Node16'.",
+  "7.0": "TS5110 Option 'module' must be set to 'Node16' when option 'moduleResolution' is set to 'Node16'."
+ },
+ {
+  "name": "moduleResolution",
+  "value": "nodenext",
+  "5.9": "TS5110 Option 'module' must be set to 'NodeNext' when option 'moduleResolution' is set to 'NodeNext'.",
+  "6.0": "TS5110 Option 'module' must be set to 'NodeNext' when option 'moduleResolution' is set to 'NodeNext'.",
+  "7.0": "TS5110 Option 'module' must be set to 'NodeNext' when option 'moduleResolution' is set to 'NodeNext'."
+ },
+ {
+  "name": "moduleResolution",
+  "value": "bundler",
+  "5.9": "TS5095 Option 'bundler' can only be used when 'module' is set to 'preserve' or to 'es2015' or later.",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "baseUrl",
+  "value": "./x",
+  "5.9": "",
+  "6.0": "TS5101 Option 'baseUrl' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5102 Option 'baseUrl' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "paths",
+  "value": {
+   "a/*": [
+    "./x/*"
+   ]
+  },
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "rootDirs",
+  "value": [
+   "./x"
+  ],
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "typeRoots",
+  "value": [
+   "./x"
+  ],
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "types",
+  "value": [
+   "./x"
+  ],
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowSyntheticDefaultImports",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowSyntheticDefaultImports",
+  "value": false,
+  "5.9": "",
+  "6.0": "TS5107 Option 'allowSyntheticDefaultImports=false' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5108 Option 'allowSyntheticDefaultImports=false' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "esModuleInterop",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "esModuleInterop",
+  "value": false,
+  "5.9": "",
+  "6.0": "TS5107 Option 'esModuleInterop=false' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.",
+  "7.0": "TS5108 Option 'esModuleInterop=false' has been removed. Please remove it from your configuration."
+ },
+ {
+  "name": "preserveSymlinks",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "preserveSymlinks",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowUmdGlobalAccess",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowUmdGlobalAccess",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "moduleSuffixes",
+  "value": [
+   ".ios",
+   ""
+  ],
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowImportingTsExtensions",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowImportingTsExtensions",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "rewriteRelativeImportExtensions",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "rewriteRelativeImportExtensions",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "resolvePackageJsonExports",
+  "value": true,
+  "5.9": "TS5098 Option 'resolvePackageJsonExports' can only be used when 'moduleResolution' is set to 'node16', 'nodenext', or 'bundler'.",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "resolvePackageJsonExports",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "resolvePackageJsonImports",
+  "value": true,
+  "5.9": "TS5098 Option 'resolvePackageJsonImports' can only be used when 'moduleResolution' is set to 'node16', 'nodenext', or 'bundler'.",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "resolvePackageJsonImports",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "customConditions",
+  "value": [
+   "./x"
+  ],
+  "5.9": "TS5098 Option 'customConditions' can only be used when 'moduleResolution' is set to 'node16', 'nodenext', or 'bundler'.",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noUncheckedSideEffectImports",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noUncheckedSideEffectImports",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "sourceRoot",
+  "value": "./x",
+  "5.9": "TS5051 Option 'sourceRoot can only be used when either option '--inlineSourceMap' or option '--sourceMap' is provided.",
+  "6.0": "TS5051 Option 'sourceRoot can only be used when either option '--inlineSourceMap' or option '--sourceMap' is provided.",
+  "7.0": "TS5051 Option 'sourceRoot can only be used when either option '--inlineSourceMap' or option '--sourceMap' is provided."
+ },
+ {
+  "name": "mapRoot",
+  "value": "./x",
+  "5.9": "TS5069 Option 'mapRoot' cannot be specified without specifying option 'sourceMap' or option 'declarationMap'.",
+  "6.0": "TS5069 Option 'mapRoot' cannot be specified without specifying option 'sourceMap' or option 'declarationMap'.",
+  "7.0": "TS5069 Option 'mapRoot' cannot be specified without specifying option 'sourceMap' or option 'declarationMap'."
+ },
+ {
+  "name": "inlineSources",
+  "value": true,
+  "5.9": "TS5051 Option 'inlineSources can only be used when either option '--inlineSourceMap' or option '--sourceMap' is provided.",
+  "6.0": "TS5051 Option 'inlineSources can only be used when either option '--inlineSourceMap' or option '--sourceMap' is provided.",
+  "7.0": "TS5051 Option 'inlineSources can only be used when either option '--inlineSourceMap' or option '--sourceMap' is provided."
+ },
+ {
+  "name": "inlineSources",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "experimentalDecorators",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "experimentalDecorators",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "emitDecoratorMetadata",
+  "value": true,
+  "5.9": "TS5052 Option 'emitDecoratorMetadata' cannot be specified without specifying option 'experimentalDecorators'.",
+  "6.0": "TS5052 Option 'emitDecoratorMetadata' cannot be specified without specifying option 'experimentalDecorators'.",
+  "7.0": "TS5052 Option 'emitDecoratorMetadata' cannot be specified without specifying option 'experimentalDecorators'."
+ },
+ {
+  "name": "emitDecoratorMetadata",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "jsxFactory",
+  "value": "h",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "jsxFragmentFactory",
+  "value": "Fragment",
+  "5.9": "TS5052 Option 'jsxFragmentFactory' cannot be specified without specifying option 'jsxFactory'.",
+  "6.0": "TS5052 Option 'jsxFragmentFactory' cannot be specified without specifying option 'jsxFactory'.",
+  "7.0": "TS5052 Option 'jsxFragmentFactory' cannot be specified without specifying option 'jsxFactory'."
+ },
+ {
+  "name": "jsxImportSource",
+  "value": "react",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "resolveJsonModule",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "resolveJsonModule",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowArbitraryExtensions",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowArbitraryExtensions",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "out",
+  "value": "./x",
+  "5.9": "TS5102 Option 'out' has been removed. Please remove it from your configuration.",
+  "6.0": "TS5102 Option 'out' has been removed. Please remove it from your configuration.",
+  "7.0": "TS5023 Unknown compiler option 'out'."
+ },
+ {
+  "name": "reactNamespace",
+  "value": "React",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "skipDefaultLibCheck",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "skipDefaultLibCheck",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "charset",
+  "value": "utf8",
+  "5.9": "TS5102 Option 'charset' has been removed. Please remove it from your configuration.",
+  "6.0": "TS5102 Option 'charset' has been removed. Please remove it from your configuration.",
+  "7.0": "TS5023 Unknown compiler option 'charset'."
+ },
+ {
+  "name": "emitBOM",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "emitBOM",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "newLine",
+  "value": "crlf",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "newLine",
+  "value": "lf",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noErrorTruncation",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noErrorTruncation",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noLib",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noLib",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noResolve",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noResolve",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "stripInternal",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "stripInternal",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "disableSizeLimit",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "disableSizeLimit",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "disableSourceOfProjectReferenceRedirect",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "disableSourceOfProjectReferenceRedirect",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "disableSolutionSearching",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "disableSolutionSearching",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "disableReferencedProjectLoad",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "disableReferencedProjectLoad",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noImplicitUseStrict",
+  "value": true,
+  "5.9": "TS5102 Option 'noImplicitUseStrict' has been removed. Please remove it from your configuration.",
+  "6.0": "TS5102 Option 'noImplicitUseStrict' has been removed. Please remove it from your configuration.",
+  "7.0": "TS5023 Unknown compiler option 'noImplicitUseStrict'."
+ },
+ {
+  "name": "noImplicitUseStrict",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": "TS5023 Unknown compiler option 'noImplicitUseStrict'."
+ },
+ {
+  "name": "noEmitHelpers",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noEmitHelpers",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noEmitOnError",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noEmitOnError",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "preserveConstEnums",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "preserveConstEnums",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "declarationDir",
+  "value": "./x",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "skipLibCheck",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "skipLibCheck",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowUnusedLabels",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowUnusedLabels",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowUnreachableCode",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "allowUnreachableCode",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "suppressExcessPropertyErrors",
+  "value": true,
+  "5.9": "TS5102 Option 'suppressExcessPropertyErrors' has been removed. Please remove it from your configuration.",
+  "6.0": "TS5102 Option 'suppressExcessPropertyErrors' has been removed. Please remove it from your configuration.",
+  "7.0": "TS5023 Unknown compiler option 'suppressExcessPropertyErrors'."
+ },
+ {
+  "name": "suppressExcessPropertyErrors",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": "TS5023 Unknown compiler option 'suppressExcessPropertyErrors'."
+ },
+ {
+  "name": "suppressImplicitAnyIndexErrors",
+  "value": true,
+  "5.9": "TS5102 Option 'suppressImplicitAnyIndexErrors' has been removed. Please remove it from your configuration.",
+  "6.0": "TS5102 Option 'suppressImplicitAnyIndexErrors' has been removed. Please remove it from your configuration.",
+  "7.0": "TS5023 Unknown compiler option 'suppressImplicitAnyIndexErrors'."
+ },
+ {
+  "name": "suppressImplicitAnyIndexErrors",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": "TS5023 Unknown compiler option 'suppressImplicitAnyIndexErrors'."
+ },
+ {
+  "name": "forceConsistentCasingInFileNames",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "forceConsistentCasingInFileNames",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "maxNodeModuleJsDepth",
+  "value": 2,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "noStrictGenericChecks",
+  "value": true,
+  "5.9": "TS5102 Option 'noStrictGenericChecks' has been removed. Please remove it from your configuration.",
+  "6.0": "TS5102 Option 'noStrictGenericChecks' has been removed. Please remove it from your configuration.",
+  "7.0": "TS5023 Unknown compiler option 'noStrictGenericChecks'."
+ },
+ {
+  "name": "noStrictGenericChecks",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": "TS5023 Unknown compiler option 'noStrictGenericChecks'."
+ },
+ {
+  "name": "useDefineForClassFields",
+  "value": true,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "useDefineForClassFields",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "preserveValueImports",
+  "value": true,
+  "5.9": "TS5102 Option 'preserveValueImports' has been removed. Please remove it from your configuration.",
+  "6.0": "TS5102 Option 'preserveValueImports' has been removed. Please remove it from your configuration.",
+  "7.0": "TS5023 Unknown compiler option 'preserveValueImports'."
+ },
+ {
+  "name": "preserveValueImports",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": "TS5023 Unknown compiler option 'preserveValueImports'."
+ },
+ {
+  "name": "keyofStringsOnly",
+  "value": true,
+  "5.9": "TS5102 Option 'keyofStringsOnly' has been removed. Please remove it from your configuration.",
+  "6.0": "TS5102 Option 'keyofStringsOnly' has been removed. Please remove it from your configuration.",
+  "7.0": "TS5023 Unknown compiler option 'keyofStringsOnly'."
+ },
+ {
+  "name": "keyofStringsOnly",
+  "value": false,
+  "5.9": "",
+  "6.0": "",
+  "7.0": "TS5023 Unknown compiler option 'keyofStringsOnly'."
+ },
+ {
+  "name": "plugins",
+  "value": [
+   {
+    "name": "x"
+   }
+  ],
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "moduleDetection",
+  "value": "auto",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "moduleDetection",
+  "value": "legacy",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "moduleDetection",
+  "value": "force",
+  "5.9": "",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "ignoreDeprecations",
+  "value": "6.0",
+  "5.9": "TS5103 Invalid value for '--ignoreDeprecations'.",
+  "6.0": "",
+  "7.0": ""
+ },
+ {
+  "name": "references.prepend",
+  "value": true,
+  "5.9": "TS5102 Option 'prepend' has been removed. Please remove it from your configuration. | TS6053 File '<tmp>/ref' not found.",
+  "6.0": "TS5102 Option 'prepend' has been removed. Please remove it from your configuration. | TS6053 File '<tmp>/ref' not found.",
+  "7.0": "TS6053 File '<tmp>/ref' not found."
+ }
+]

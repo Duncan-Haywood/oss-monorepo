@@ -1,0 +1,13 @@
+{
+  // Hand-written fixture: a config already written for TypeScript 6/7.
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node"],
+    "strict": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "noUncheckedSideEffectImports": true
+  }
+}

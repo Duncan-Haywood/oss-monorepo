@@ -15,6 +15,9 @@ node_modules/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+# setuptools writes these on every `pip install -e`; tracked copies were rewritten
+# by test steps and voided run_workflow_locally.py sweeps (UNSTABLE CHECKOUT).
+*.egg-info/
 .mypy_cache/
 .ruff_cache/
 
