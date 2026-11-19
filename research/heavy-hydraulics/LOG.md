@@ -2,6 +2,21 @@
 
 Newest first.
 
+## 2026-11-19 · Milestone 7s: does 7r's bend table survive a different bend shape? (7r's Next y3; predictions written before any 7s number was computed)
+- Why: 7r's Next (y3). 7r's table beat the two-price rule (0.0052 against 0.0056 in (A)) with rows built on one synthetic shape, a power of flow pivoting at 64 L/min, (q/64)<sup>&gamma;</sup>. 7r's own reading put its 0.0004 margin "well inside what a different synthetic shape could move". 7s rebuilds the rows with three other shapes that give the same two-point bend b and asks whether the margin over owh holds.
+- Disclosed before the run: no 7s curve, pick, feature, fit or score has been computed or looked at. 7r's results file must reproduce byte for byte first on the rebuilt caches.
+- Method fixed now: `experiments/gear_pump_bendshape.py`, on 7j to 7r's 22 conditions and 4312 cells, 7r's grid &beta; = 1.2 to 1.9 by 0.1, donors, e<sub>m</sub>, row construction, the grid lookup (nearest b(k)) and the owds form unchanged; only the shape of the bent curve changes. For donor j with bend b<sub>j</sub> and target &beta;: **(p) power, pivot 64** (7r): P(q) (q/64)<sup>&gamma;</sup>, &gamma; = ln(&beta;/b<sub>j</sub>)/ln(79/64). **(h) hinge:** P(q) unchanged up to 64 L/min, P(q) (q/64)<sup>&gamma;</sup> above (same &gamma;), so the bend acts only above the lower quartile pick. **(v) power, pivot 79:** P(q) (q/79)<sup>&gamma;</sup>, the same bend with the level held at 79 L/min instead of 64 (a level shift of the whole curve by (64/79)<sup>&gamma;</sup>). **(x) exponential:** P(q) exp(&kappa;(q &minus; 64)), &kappa; = ln(&beta;/b<sub>j</sub>)/15, level held at 64. All four give b = &beta; exactly; standby kW unchanged. **Rules:** owh, owdm, owdtp as references; owdb (7r's, shape p), owdbh, owdbv, owdbx2 (shapes h, v, x), each the owds form with the fold's test rows reading its table feature and training rows 7n's kW<sub>s</sub>. **Scores** exactly as 7j to 7r: (A) 308 diagonals; (B1) nine half-speed conditions held out; (B2) S = 0.20 and 0.50 held out. **Diagnostics:** per shape the Danfoss-fold row median pick at each grid &beta;, Danfoss's kW/kW<sub>m</sub> at the central condition, per-variant (A).
+- Disclosures: every shape is synthetic; the four were chosen as the obvious one-parameter alternatives (where the curve is anchored, and power against exponential in flow), not tuned; training rows read 7n's own picks; donors keep their own efficiency shapes.
+- **Predictions:**
+  - PS1: owdb reproduces 7r's 0.0052 in (A). Prior 99%.
+  - PS2: owdbh's (A) RMS is below owh's 0.0056. Prior 45%.
+  - PS3: owdbv's (A) RMS is below owh's 0.0056. Prior 45%.
+  - PS4: owdbx2's (A) RMS is below owh's 0.0056. Prior 60% (close to the power law over 64 to 79 L/min).
+  - PS5: the four shapes' (A) RMS span at most 0.0005. Prior 55%.
+  - PS6: all four shapes' (A) RMS are below owdtp's 0.0061. Prior 65%.
+  - PS7: the hinge row's median pick for Danfoss's fold at &beta; = 1.8 is at least 7r's 68.0 L/min (the hinge leaves small sizes' drag unchanged, so it pulls picks down less). Prior 60%.
+  - PS8: at least three of the four shapes beat owh in all three scores (A, B1, B2). Prior 35%.
+
 ## 2026-11-18 · Milestone 7r: a pick table by bend, with rows the model builds for synthetic bending curves (7q's Next y2; predictions written before any 7r number was computed)
 - Why: 7q's Next (y2). 7q's pick table failed because no donor bends like Danfoss (b 1.781 against 1.281 to 1.497), so every row put its picks near 72 L/min. Until a second bending family is measured, a publisher can still print a row for a bend no measured pump has: bend each donor's own idle curve to a target b, run the motion model on that donor with the bent curve, and tabulate the picks. A builder reads the row nearest their pump's data-sheet bend. This is a sensitivity (the rows rest on synthetic curves, not a second measured family), registered against owh.
 - Disclosed before the run: no 7r curve, pick, feature, fit or score has been computed or looked at. 7q's results file must reproduce byte for byte first on the rebuilt caches.
