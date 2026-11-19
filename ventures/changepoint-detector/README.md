@@ -8005,3 +8005,28 @@ smallest step, judged at 2,000 moves. LOBSTER's five sample files are now spent 
 
 Tests: `stale-growth-lobster.test.mjs` (the stretch cutting, the LOBSTER reader, the bars, the committed verdicts,
 and that `updateRateChanges` still does not call the growth test).
+
+## The catch-up test gated on the quoted tick, on twelve exchange pairs (2026-11-19, pre-registered; unscorable: every pair is one-tick, Q1 and Q2 fail)
+
+The section above asked for a fresh round that gates on the quoted tick rather than the data's smallest step,
+judged at 2,000 moves. `eval/stale-growth-quoted-tick.mjs` (header and code committed in 78928f6bf before any file
+was downloaded) takes Binance's public spot trades for one UTC day (2026-11-02) on twelve large USDT pairs, chosen
+before download to span prices from a few cents (DOGE) to about a hundred thousand dollars (BTC), and each pair's
+quoted tick (`PRICE_FILTER tickSize` from Binance's public market-data mirror). Data fetched by
+`node eval/binance-fetch.mjs <dir>`, not committed. Series, stretches and the test are the LOBSTER round's,
+unchanged. Gate: a pair is multi-tick when its prints' median move is above 1.5 quoted ticks.
+
+| bar | result |
+|---|---|
+| gate | **all 12 pairs one-tick**: median print move exactly 1 quoted tick on every pair; the smallest step equals the quoted tick on every pair |
+| Q1 power at 2,000 moves (multi-tick pairs, carried >= 0.30, bar 80%, n >= 10) | 0 of 0: unscorable, **fail** |
+| Q2 size at 2,000 moves (multi-tick prints, bar <= 10%, n >= 10) | 0 of 0: unscorable, **fail** |
+| reported: the one-tick pairs on the same rules | carried caught 7 of 234 at 2,000 moves (71 of 1,625 at 300); prints called stale 31 of 368 (124 of 2,474) |
+
+Nothing ships. What the round shows: on a venue whose ticks are small against its prices, every large pair trades
+one tick at a time, and from BTC to DOGE the prints sit on the bid or the ask. The multi-tick regime the growth test
+was built for, where Apple and Amazon were caught on LOBSTER, does not occur here, so the quoted-tick gate selects
+nothing. On these one-tick feeds the growth test is blind (a carried run's catch-up is pinned at one tick) and
+reads bounce as staleness on some pairs (XRP prints 19 of 40 at 1,000 moves, SOL 15 of 53), as it did on the two
+penny-spread stocks. One-tick stretches belong to the shipped likelihood route, and these pairs give that route its
+first real one-tick carried feed. That is the next section.
