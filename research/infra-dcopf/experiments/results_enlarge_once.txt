@@ -1,0 +1,61 @@
+Rule O (E-once): rule E's box enlargement at most once per base point (research/grid-linopf)
+Plan, rule O and predictions O1 to O6: LOG.md 2026-11-19 (committed before this ran).
+Cases whose frozen run has no failed hard QP are identical by construction (not rerun, counted as frozen).
+
+Development, cap 2: 34 cases (18 rerun), 30-round budget
+  failed hard QPs 88; blocked (an enlarged step already taken from this base point) 38; rule fired (1 < t <= cap) on 43; enlarged hard QP solved on 43; repeats (the 2026-11-19 diagnostic) 0
+  case               kind   frozen@  E@   O@    cost% over AC optimum frozen / E / O   O fired/ok of failed, blocked
+  case118_ieee       api     None None None   - / - / -   5/5 of 28, 23 blocked
+  case162_ieee_dtc   api       11   13   13   +0.317 / +0.317 / +0.317   2/2 of 2, 0 blocked  <-
+  case200_activ      api       10 None    7   +0.130 / - / +1.623   4/4 of 6, 2 blocked  <-
+  case240_pserc      api       17   16   16   +0.052 / +0.048 / +0.048   1/1 of 1, 0 blocked  <-
+  case24_ieee_rts    api       10   12   12   +0.711 / +0.691 / +0.691   3/3 of 3, 0 blocked  <-
+  case300_ieee       api       12   10   10   +1.017 / +0.319 / +0.319   2/2 of 5, 0 blocked  <-
+  case30_ieee        api        7 None None   +0.337 / - / -   15/15 of 28, 13 blocked  <-
+  case57_ieee        api       12   11   11   +0.710 / +1.440 / +1.440   1/1 of 1, 0 blocked  <-
+  case73_ieee_rts    api     None   12   12   - / +3.258 / +3.258   2/2 of 2, 0 blocked  <-
+  case118_ieee       sad       12   10   10   +0.379 / +0.354 / +0.354   1/1 of 1, 0 blocked  <-
+  case14_ieee        sad        2    2    2   +3.845 / +3.320 / +3.320   1/1 of 1, 0 blocked
+  case162_ieee_dtc   sad       10    8    8   +0.514 / +0.788 / +0.788   1/1 of 1, 0 blocked  <-
+  case179_goc        sad       11   11   11   +0.830 / +0.056 / +0.056   1/1 of 2, 0 blocked
+  case200_activ      sad        3    2    2   +0.004 / +0.010 / +0.010   1/1 of 2, 0 blocked  <-
+  case240_pserc      sad       20   20   20   +0.374 / +0.374 / +0.374   0/0 of 2, 0 blocked
+  case30_ieee        sad        7    2    2   +0.076 / +0.061 / +0.061   1/1 of 1, 0 blocked  <-
+  case162_ieee_dtc   typ        8    8    8   +0.261 / +0.238 / +0.238   1/1 of 1, 0 blocked
+  case179_goc        typ       10   11   11   +0.003 / +0.003 / +0.003   1/1 of 1, 0 blocked  <-
+  reproduction gate 1 (no enlarged step taken: equals the frozen run): 1 of 1
+  reproduction gate 2 (never blocked: equals rule E's run): 15 of 15
+  finishers: frozen 31 of 34, rule O 31; gained 1, lost 1 (sign test P = 1.000)
+  on the 30 cases both finish: rounds O minus frozen mean -0.40, median +0.0 (O faster on 8, slower on 3, sign test P = 0.227); cost points mean +0.014, max |.| 1.493
+
+Held-out, cap 2: 19 cases (17 rerun), 20-round budget
+  failed hard QPs 161; blocked (an enlarged step already taken from this base point) 37; rule fired (1 < t <= cap) on 62; enlarged hard QP solved on 62
+  case               kind   frozen@  E@   O@    cost% over AC optimum frozen / E / O   O fired/ok of failed, blocked
+  case1354_pegase    api     None None None   - / - / -   9/9 of 14, 5 blocked
+  case1888_rte       api       13 None None   +0.617 / - / -   3/3 of 3, 0 blocked  <-
+  case500_goc        api       14   17   17   +0.805 / +0.633 / +0.633   1/1 of 2, 0 blocked  <-
+  case588_sdet       api       19   19   19   +0.868 / +3.551 / +3.551   1/1 of 19, 0 blocked
+  case793_goc        api       17 None None   +0.254 / - / -   10/10 of 20, 10 blocked  <-
+  case1354_pegase    sad     None None None   - / - / -   7/7 of 15, 7 blocked
+  case1888_rte       sad     None None None   - / - / -   0/0 of 20, 0 blocked
+  case1951_rte       sad       20   16   16   +0.050 / +0.053 / +0.053   1/1 of 2, 0 blocked  <-
+  case2000_goc       sad     None None None   - / - / -   1/1 of 1, 0 blocked
+  case500_goc        sad     None    5    5   - / +1.364 / +1.364   1/1 of 1, 0 blocked  <-
+  case588_sdet       sad     None None None   - / - / -   11/11 of 18, 7 blocked
+  case793_goc        sad       16   15   15   +0.865 / +0.478 / +0.478   4/4 of 4, 0 blocked  <-
+  case1354_pegase    typ     None None None   - / - / -   6/6 of 13, 7 blocked
+  case1888_rte       typ     None None None   - / - / -   0/0 of 20, 0 blocked
+  case1951_rte       typ       17   18   18   +0.019 / +0.019 / +0.019   1/1 of 2, 0 blocked  <-
+  case588_sdet       typ       20 None   20   +2.124 / - / +0.076   5/5 of 6, 1 blocked
+  case793_goc        typ       17   14   14   +0.140 / +0.065 / +0.065   1/1 of 1, 0 blocked  <-
+  reproduction gate 1 (no enlarged step taken: equals the frozen run): 2 of 2
+  reproduction gate 2 (never blocked: equals rule E's run): 11 of 11
+  finishers: frozen 10 of 19, rule O 9; gained 1, lost 2 (sign test P = 1.000)
+  on the 8 cases both finish: rounds O minus frozen mean -0.50, median +0.0 (O faster on 3, slower on 2, sign test P = 1.000); cost points mean +0.001, max |.| 2.683
+
+O1 (development: at most 1 of the frozen finishers lost): held (1)
+O2 (case73 API fully clean within 30 rounds): held (12)
+O3 (development finishers at least 32 of 34): refuted (31)
+O4 (development, both finish: median rounds O minus frozen <= 0): held (+0.0)
+O5 (held-out finishers at least the frozen 10): refuted (9)
+O6 (held-out case500 SAD finishes): held (5)

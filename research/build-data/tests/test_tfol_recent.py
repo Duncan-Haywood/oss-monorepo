@@ -85,3 +85,54 @@ class OpenShares(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Session105(unittest.TestCase):
+    def test_batch_days(self):
+        """A day closing more than BATCH_N permits issued over 8 years earlier drops every completion that day."""
+        import datetime
+        import numpy as np
+        import pandas as pd
+        import rounds
+        n = rounds.BATCH_N + 1
+        old = ["2005-01-01"] * n  # 11 old permits, all completed 2017-03-01 (> 8 years later)
+        y_old = [(datetime.date(2017, 3, 1) - datetime.date(2005, 1, 1)).days] * n
+        d = pd.DataFrame(dict(start=old + ["2016-01-01", "2016-02-29", "2005-01-01", "2015-01-01"],
+                              y=y_old + [425.0, 366.0, 4000.0, np.inf]))
+        m = rounds.batch_days(d)
+        # the 2016-01-01 + 425 and 2016-02-29 + 366 builds also end 2017-03-01: masked; the lone old one is not
+        self.assertEqual(m.tolist(), [True] * n + [True, True, False, False])
+        self.assertFalse(rounds.batch_days(d.iloc[1:]).any())  # 10 old completions that day: not a batch
+
+    def test_robust_threshold(self):
+        import datetime
+        import pandas as pd
+        import rounds
+        D = datetime.date(2020, 1, 1)
+        d = pd.DataFrame(dict(start=[str(datetime.date(2019, 1, 1) - datetime.timedelta(days=k)) for k in
+                                     range(100)], y=[float(k) for k in range(100)]))
+        t95, nb = rounds.recent_threshold_robust(d, D, "cpin_es3_ncr95")
+        self.assertAlmostEqual(t95, 94.05)
+        self.assertEqual(nb, 0)
+        self.assertIn("cpin_es3_ncrd", rounds.VARIANTS)
+
+    def test_robust_summary(self):
+        import json, tempfile
+        grid = {"cells": [grid_cell(h, Y, 80.0, 81.0, 82.0) for h in ("sf", "seattle") for Y in tfol_boot.ALL_YEARS]}
+        R = {}
+        for v, val in (("cpin_es3_ncr95", 80.5), ("cpin_es3_ncrd", 84.0)):
+            for h in ("sf", "seattle"):
+                other = "seattle" if h == "sf" else "sf"
+                for Y in tfol_boot.ALL_YEARS:
+                    R[f"{h} {Y} {v}"] = {"test_loss": {"0.9": val},
+                                         "stale_threshold_days": {other: 1500.0, "austin": 1200.0}}
+        with tempfile.TemporaryDirectory() as td:
+            p, g = os.path.join(td, "r.json"), os.path.join(td, "g.json")
+            json.dump(R, open(p, "w"))
+            json.dump(grid, open(g, "w"))
+            s = tfol_boot.robust_summary(p, None, g)
+        P = s["predictions"]
+        self.assertFalse(P["M0"])  # no rows saved
+        self.assertTrue(P["M1"] and P["M3a"] and P["M4"])
+        self.assertFalse(P["M2"] or P["M3b"])
+        self.assertAlmostEqual(s["variants"]["cpin_es3_ncrd"]["mean_regret"], 4.0)

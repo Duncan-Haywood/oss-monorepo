@@ -59,9 +59,9 @@ import fnmatch
 import json
 import os
 import re
-import subprocess
 import sys
 from dataclasses import dataclass
+from repo_files import ls_files
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 INVENTORY = os.path.join(ROOT, "platform", "ci", "third_party.json")
@@ -116,10 +116,7 @@ class Signal:
 
 
 def tracked_files(root: str) -> list[str]:
-    out = subprocess.run(
-        ["git", "ls-files", "-z"], cwd=root, capture_output=True, check=True
-    ).stdout
-    return [p for p in out.decode("utf-8", "surrogateescape").split("\0") if p]
+    return ls_files(root)
 
 
 def read_text(path: str, limit: int = 4_000_000) -> str | None:

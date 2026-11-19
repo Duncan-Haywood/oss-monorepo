@@ -307,8 +307,9 @@ def _patch(v, ok, xs):
 class WigleyStrip:
     """Heave/pitch and Gerritsma-Beukelman added resistance of a Wigley hull in regular head waves."""
 
-    def __init__(self, length, beam, draft, n_stations=30, kyy=0.25, rho=RHO, table=None, n_panels=16):
+    def __init__(self, length, beam, draft, n_stations=30, kyy=0.25, rho=RHO, table=None, n_panels=16, zeta_v=0.0):
         self.l, self.bm, self.t, self.rho, self.kyy = length, beam, draft, rho, kyy
+        self.zeta_v = zeta_v          # equivalent linear viscous damping in heave and pitch, fraction of critical
         dx = length / n_stations
         self.dx = dx
         self.x = [-length / 2 + dx * (i + 0.5) for i in range(n_stations)]
@@ -319,6 +320,42 @@ class WigleyStrip:
         self.mass = rho * self.vol
         self.iyy = self.mass * (kyy * length) ** 2
         self.dm = 2.0 * draft / 3.0          # mean section depth: area / waterline beam (area coefficient 2/3)
+        self.bv33 = self.bv55 = 0.0
+        if zeta_v:
+            self.set_viscous(zeta_v)
+
+    def restoring(self):
+        """(C33, C55): heave and pitch hydrostatic stiffness from the waterline, rho g int 2 h dx and rho g int 2 h x^2 dx."""
+        c33 = sum(self.rho * G * 2.0 * h * self.dx for h in self.hb)
+        c55 = sum(self.rho * G * 2.0 * h * x * x * self.dx for h, x in zip(self.hb, self.x))
+        return c33, c55
+
+    def natural(self, iters=40):
+        """Zero-speed uncoupled heave and pitch natural frequencies with the strip added mass at that frequency.
+
+        Returns ((w3, A33, B33_rad), (w5, A55, B55_rad)); the radiation damping is the strip sum of b33 (x^2 b33).
+        """
+        c33, c55 = self.restoring()
+        out = []
+        for c, inertia, wt in ((c33, self.mass, lambda x: 1.0), (c55, self.iyy, lambda x: x * x)):
+            w = math.sqrt(c / inertia)
+            for _ in range(iters):
+                a, b = self.sections(w)
+                am = sum(ai * wt(x) * self.dx for ai, x in zip(a, self.x))
+                w = math.sqrt(c / (inertia + am))
+            a, b = self.sections(w)
+            am = sum(ai * wt(x) * self.dx for ai, x in zip(a, self.x))
+            bm = sum(bi * wt(x) * self.dx for bi, x in zip(b, self.x))
+            out.append((w, am, bm))
+        return tuple(out)
+
+    def set_viscous(self, zeta_v):
+        """B_v = 2 zeta sqrt(C (M + A)) per mode, A at the zero-speed natural frequency."""
+        self.zeta_v = zeta_v
+        c33, c55 = self.restoring()
+        (_, a33, _), (_, a55, _) = self.natural()
+        self.bv33 = 2.0 * zeta_v * math.sqrt(c33 * (self.mass + a33))
+        self.bv55 = 2.0 * zeta_v * math.sqrt(c55 * (self.iyy + a55))
 
     def sections(self, omega_e):
         nu_t = omega_e * omega_e / G * self.t
@@ -359,10 +396,11 @@ class WigleyStrip:
             f1 += f0 * dx
             f2 += x * f0 * dx
         # -we^2 M z = F,  -we^2 I theta = M_y, with F = f1 + h11 z + h12 theta etc.
-        m11 = -we * we * self.mass - h11
+        # viscous damping force -B_v dz/dt = -i we B_v z: moves to the left side as + i we B_v
+        m11 = -we * we * self.mass - h11 + 1j * we * self.bv33
         m12 = -h12
         m21 = -h21
-        m22 = -we * we * self.iyy - h22
+        m22 = -we * we * self.iyy - h22 + 1j * we * self.bv55
         det = m11 * m22 - m12 * m21
         z = (f1 * m22 - m12 * f2) / det
         th = (m11 * f2 - m21 * f1) / det
@@ -371,7 +409,7 @@ class WigleyStrip:
             zs = smith * cmath.exp(1j * k * x)
             vz = 1j * omega * zs - (1j * we * z + 1j * we * x * th - u * th)    # Ds/Dt
             raw += bp[i] * abs(vz) ** 2 * dx
-        raw *= k / (2.0 * we)
+        raw *= k / (2.0 * we)          # radiated energy only: viscous damping changes R_aw through the motions
         return z, th, raw, we
 
     def spectral(self, u, t01, omegas=None, hs=1.0):

@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtK677WJqeqyKZoyTd3",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T09:06:49Z",
+  "ended": "2026-11-19T09:14:25Z",
+  "wall_minutes": 7.82,
+  "tokens_in": 5320966,
+  "tokens_out": 33409,
+  "cost_usd": 2.6467,
+  "tool_calls": 55,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17610",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/PROPOSAL.md",
+      "issue": "Named IJFP and Bath/ASME as target venues from the start; neither venue's AI rule was read in ~60 milestones, and both forbid AI-generated content. PROGRAMMES.md's bar asks for a named venue but not a check of its AI policy."
+    },
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "7v's Next (e) labelled the journal-template step 'owner', but reading the author guidelines needs no owner; only the author block and the venue choice do."
+    },
+    {
+      "file": ".github/workflows/research-ci.yml",
+      "issue": "Runs only test_programme_check and test_pick_track in research/_shared; a new _shared test is not picked up, and adding it is a CODEOWNERS (control-plane) edit."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "why": "Took 7v's Next (e), marked owner, instead of the modelling steps (y5) etc., because 7u/7v's own reading said further modelling gains were small and the venue step had an unchecked prerequisite.",
+      "did": "Read the venues' author pages and AI rules; did the non-owner part of the format pass.",
+      "result": "Found both named venues forbid AI-generated content; notified the owner."
+    },
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "Left the heavy-hydraulics venue cell unchanged: choosing a venue is the owner's decision.",
+      "did": "Marked the venue 'open' in PROPOSAL.md and manuscript.md with a pointer to VENUE.md.",
+      "result": "Facts recorded; nothing submitted."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-our-fluid-power-paper-cannot-go-to-its-target-journal.md",
+    "docs/reports/2026-11-19-venue-ai-policies.md",
+    "research/heavy-hydraulics/paper/VENUE.md"
+  ],
+  "goal": null,
+  "notes": "Checks run locally: venue_check tests 5 + paper_tex 10 passed (pytest); _shared/test_venue_policy 4 passed (unittest); check_numbers --paper manuscript.md 181 claims 0 missing 0 orphans; draft.md 339 0 missing; build_tex manuscript 0 problems; research/_homepage/build.py ok; research_live_links 0 missing; check_md_links ok; check_posts ok. Sources read 2026-11-19: IJFP submissions + pubethics pages, River author guidelines PDF and style zip, ASME AI position statement, IEEE submission policies, Elsevier generative-AI policy, arXiv moderation policy; ASCE 403.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ac5a2972-afc5-5dc4-a9bb-1bf091b72e38",
+    "transcripts": 1,
+    "first": "2026-11-19T09:06:49Z",
+    "last": "2026-11-19T09:14:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 98,
+        "output": 33409,
+        "thinking": 5982,
+        "cache_read": 5203697,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117171,
+        "api_equivalent_usd": 2.6467,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 98,
+      "output": 33409,
+      "thinking": 5982,
+      "cache_read": 5203697,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117171,
+      "api_equivalent_usd": 2.6467,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 46,
+      "Write": 6,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "PushNotification": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.82,
+      "active_minutes": 7.82,
+      "model_minutes": 6.2,
+      "tool_minutes": 1.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "reading six venues' author/AI pages, writing a register+checker with tests, cutting a checked abstract, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 151.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

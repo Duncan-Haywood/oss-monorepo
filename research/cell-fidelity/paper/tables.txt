@@ -1,0 +1,33 @@
+cell-fidelity paper tables: triage results 7c to 7h, regenerated from experiments/*/summary.json.
+
+Table 1. In-sample: 7c drift signal and the DFN cycles flag-and-extend saves against running all 104
+designs to cycle 50 (7d at t = 1.25; 7e mean over 21 targets t = 1.00 to 2.00, cell 000).
+set            n  rho O1  p_holm  q75 k10  q75 k50  7d S_C  7d rnd  7e unif  7e S_C  7e rnd  7e orc  strict
+Ai2020        24   0.368  0.2409    0.045    0.027     36%     24%      36%     55%     48%     70%   14/21
+Chen2020      28   0.796  0.0003    0.114    0.057     68%     40%      39%     61%     52%     70%   18/21
+OKane2022     28   0.797  0.0003    0.100    0.040      4%      4%      27%     33%     30%     41%   21/21
+NCA_Kim2011   24  -0.078  0.8097    0.075    0.022     44%     20%      18%     46%     31%     49%   21/21
+
+Table 2. Out of batch: held-out target met (q75 <= 1.25 x the scored pool's all-50 q75), Wilson 95%,
+mean DFN cycles per design, saving against U50, and the worst miss (q75 / target).
+look                       rule      met    Wilson 95%  cycles  saved worst miss
+7f nested (pools reused)   theta    9/12     0.47-0.91    40.0    20%       1.16
+7f nested (pools reused)   F       10/12     0.55-0.95    40.0    20%       1.40
+7f nested (pools reused)   U       12/12     0.76-1.00    50.0     0%          -
+7g frozen 7f policies      theta    9/12     0.47-0.91    41.7    17%       1.15
+7g frozen 7f policies      F        9/12     0.47-0.91    40.5    19%       1.27
+7g frozen 7f policies      U       12/12     0.76-1.00    50.0     0%          -
+7h frozen 7f policies      theta    9/12     0.47-0.91    39.3    21%       1.58
+7h frozen 7g refits        theta    4/4      0.51-1.00    37.8    24%          -
+7h lopo5 (5 pools)         theta   19/20     0.76-0.99    43.5    13%       1.58
+7h lopo5 (5 pools)         F       16/20     0.58-0.92    43.2    14%       1.40
+7h lopo5 (5 pools)         U       19/20     0.76-0.99    48.0     4%       1.01
+7h lopo5 (5 pools)         R50     18/20     0.70-0.97    42.1    16%       1.40
+
+Pooled fresh-pool hit rate, frozen 7f threshold policies on 7g and 7h:
+  18/24 = 0.75; Wilson 95% 0.55-0.88; set-clustered bootstrap (8 clusters, 20000 draws) 0.67-0.88
+  mean cycles 40.5 (bootstrap 36.7-43.8), saved 19% (12%-27%)
+
+Paired lopo5 folds, threshold (theta) minus uniform (U), DFN cycles per design:
+  n = 20; mean -4.50 (set-clustered bootstrap -8.50 to +0.25); theta cheaper on 14, dearer on 4, tied on 2; exact sign test p = 0.0309
+  both met 18, only theta met 1, only U met 1

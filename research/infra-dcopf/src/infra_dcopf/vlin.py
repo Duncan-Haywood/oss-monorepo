@@ -474,7 +474,8 @@ VBOX = 0.03
 
 
 def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, screen=False, solver="pips",
-        record=False, warm=None, warm_check=False, merit_fn=None, enlarge=None, info=None):
+        record=False, warm=None, warm_check=False, merit_fn=None, enlarge=None, info=None,
+        enlarge_once=False):
     """Successive linearisation in (P, V): C's step rules (no P box in round 1, then 20 % of range,
     halved on a rejected step), a V box of VBOX pu from round 1 halved with P's, elastic fallback.
     Each history entry keeps its point under "pg" and "vg".
@@ -484,7 +485,9 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
     merit_fn: the acceptance merit (default `merit`, the frozen test; `merit_sum` is rule S).
     enlarge: None (frozen) or rule E's cap as a multiple of the first boxes (LOG.md 2026-11-19): when
     the hard QP fails, re-solve it once at the smallest non-empty box scale (times 1.1, capped) before
-    the elastic fallback. info: a list that collects rule E's per-round record."""
+    the elastic fallback. info: a list that collects rule E's per-round record.
+    enlarge_once: rule O (LOG.md 2026-11-19, E-once): rule E at most once per base point; after an enlarged
+    step from the current base point, a failed hard QP goes to the elastic chain (recorded as blocked)."""
     mf = merit_fn or merit
     lay = Layout(ppc)
     g = ppc["gen"]
@@ -494,6 +497,7 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
     pg, v = pg_start.copy(), lay.v_of(vg_start)
     cur = check(ppc, pg, lay.vg_of(v), warm)
     hist = []
+    used_here = False  # rule O: an enlarged step has been taken from the current base point
     for it in range(1, rounds + 1):
         lin = linearise(ppc, pg, v, lay, warm, analytic=analytic)
         if lin is None:
@@ -507,13 +511,17 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
                                 solver=solver, record=record, **kw)
             if ok:
                 break
-            if not kw and enlarge is not None:
+            if not kw and enlarge is not None and enlarge_once and used_here:
+                if info is not None:
+                    info.append({"it": it, "blocked": True})
+            elif not kw and enlarge is not None:
                 xp, xv, ok, inf = enlarged_step(ppc, lin, pt, vtrust, margin, enlarge * p_first,
                                                 enlarge * VBOX, solver, screen)
                 if info is not None:
                     info.append({"it": it, **inf})
                 if ok:
                     kw = {"enlarged": inf["t_used"]}
+                    used_here = True
                     break
         if not ok:
             hist.append({"it": it, "status": "QP infeasible"})
@@ -531,6 +539,7 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
             break
         if cur is None or mf(c, ppc["baseMVA"]) < mf(cur, ppc["baseMVA"]):
             pg, v, cur = xp.copy(), xv.copy(), c
+            used_here = False
         else:
             ptrust, vtrust = ptrust / 2, vtrust / 2
     return hist
