@@ -8143,3 +8143,56 @@ their sign-ups will not take. The watch page now has a **"No terminal?"** box th
   if it does not.
 - **Counted.** `watch_repo_zip` and `watch_repo_link`, in local storage only, like the page's other events
   (listed in the index page's privacy line).
+
+## A shop shut one weekday: revenue's slow climb (2026-11-19, pre-registered twice; round 1 fails F1, round 2 fails F4; not offered)
+
+"A real shop's daily series" left one item open: on the UCI Online Retail shop, **Quiet and Middle never alerted on
+daily revenue while it climbed from about £26k to £50k a day** (September to November 2011), and the suggested fix
+was `--log`. Exploring on that year (the design year) pointed away from the heavy tails. `--log` on the trading days
+made Quiet deafer (0 alerts). The shop never trades on Saturdays, so one row in seven is a 0 that belongs to the
+week; with those rows left out, Quiet heard the build-up (dated 2011-09-15, sent 2011-09-21) at 2 alerts in 257
+checks (2 in 300 before, neither of them the climb).
+
+**The rule tested** (`watch-core.mjs` `shutWeekdays`, `dropShutWeekdays`): on labels that are consecutive calendar
+days, a weekday whose value is 0 in each of its **last 8 weeks** (round 2; round 1: on every occurrence) is left out
+before a level model reads the series, and `--period 7` becomes 7 minus the days left out. Counts would be untouched.
+
+**Pre-registered** (`eval/shut-weekday.prereg.md`), on the fresh year (UCI Online Retail II, 2009-12 to 2010-12, the
+same shop's earlier year) and on 200 simulated shops (`eval/shut-weekday-sim.mjs`: Saturdays shut, lognormal revenue
+(sd 0.35) with 3% wholesale days x4, a weekday pattern, five random one-day closures, an AR(1) wobble in the level;
+100 with no change and 100 with a +30% step). Arms, Quiet only: **D** the default with `--period 7`; **T** the rule.
+
+| bar | D | T | result |
+|---|---|---|---|
+| F1, fresh year: a revenue alert dated 2010-08-15..11-30, sent within 14 days | dated 2010-09-28, sent 2010-11-26 (59 days) | round 1: same run (never fired); round 2: sent **2010-10-04 (6 days)** | round 1 **fails**, round 2 passes |
+| F2, fresh year: at most 2 alerts per 100 checks | 0.33 | 0.39 | passes |
+| F3, simulation, no step: T at most 2 false alerts per 100 checks | 1.93 (572 / 29,700) | 1.89 (480 / 25,400) | passes |
+| F4, simulation, +30% step: T catches at least 60 and D + 15 | 38 | 34 | **fails** |
+
+Outputs: `eval/shut-weekday.out.txt` (round 1), `eval/shut-weekday-r2.out.txt` (round 2, both years),
+`eval/shut-weekday-sim.out.txt` (every shop). The simulation's rows count for both rounds: every simulated Saturday
+is 0, so both rules leave out the same rows.
+
+What it shows:
+
+- **Round 1 failed because of one Saturday.** The fresh year's first Saturday, 2009-12-05, took £9,803 (30 orders),
+  so "zero on every occurrence" left nothing out. Round 2, written down before it ran, changed only that test.
+- **On the real shop the drop works in both years; in the simulation it does nothing.** The simulated default was
+  not deaf (38 of 100 steps caught, 31 of them by both arms), so the shut Saturday is not, by itself, what deafened
+  the real watch. Something the simulation lacks does: the real climb is gradual over weeks rather than a step, and
+  the real Saturday zeros may interact with the AR(1) estimate on a rising level in a way an i.i.d. wobble does not
+  show. The pre-registered bar asked for a gain on simulated steps, and there was none.
+- **Not offered.** The CLI and the page are unchanged. The helpers stay in `watch-core.mjs` for the eval and a later
+  round. A shop owner can do the same by hand today: drop the shut weekday's rows from the CSV and use `--period 6`.
+  On this shop that would have sent the autumn climb within a week in both years; on simulated steps it gives no
+  gain and loses 4 in 100.
+- **Middle is deaf to the climb** on both years, with or without the drop, and `--suggest` picks it at the default
+  budget because it is "more eager" and under budget.
+
+**Checked:** `shut-weekday.test.mjs` (4 tests): the rule on toy shops (an every-week zero, a one-off zero Friday, a
+recent trading Saturday, short, non-daily and all-zero series); round 1 against round 2 on a trading first Saturday;
+both real years' Quiet alerts with and without the drop.
+
+Next (most useful first): a simulation with a gradual climb (a ramp over 4 to 8 weeks) instead of a step, to see
+whether the real result is about ramps; Middle's deafness to slow climbs (the suggestion picks it); a deployer's real
+Stripe series; a shop with two shut days, which no data here has.
