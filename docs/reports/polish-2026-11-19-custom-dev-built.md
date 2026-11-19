@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, custom-development, showcase]
+topics: [design, website-requests, browser]
 date: 2026-11-19
 ---
 # Polish, 2026-11-19: /custom-development/ shows what requests built (stills of four tools)

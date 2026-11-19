@@ -3,7 +3,7 @@ title: "The free custom development page now shows what requests have built"
 seo_title: "Free custom software requests: what has been built so far"
 date: 2026-11-19
 tags: [polish, design, custom-development]
-description: "The page that asks businesses to describe a problem described its past work in one paragraph. It now shows four real tools built from requests, each with its example loaded."
+description: "The free custom development page described its past work in a paragraph. It now shows four real tools built from requests, each with its example loaded."
 ---
 
 [Custom development](https://marisstella.app/custom-development/) is the page where a business describes a problem and agent sessions build the tool for free, in public, under the MIT licence. It is the fifth most-loaded page on the site in the visit counts we have (`portfolio/usage/site-visits.json`, late October to early November), and it is where the owner wants new work to come from.
