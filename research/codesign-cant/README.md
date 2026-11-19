@@ -6,6 +6,17 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Paper step (2026-11-19): how wide should a drone tuner randomise motor lag? Section VII of the draft, with pooled tests
+
+**Question.** Eleven milestones (7s-7ac) retrained the co-designed quadrotor with different motor-lag training ranges, each reported with six seeds per geometry and per-cell tests that rarely separated neighbours. Written up as one section, what do they say, and which differences hold once the two centre-of-pressure geometries are pooled (12 designs a side)?
+
+**Headline ([`paper/DRAFT.md`](paper/DRAFT.md), section VII; [`paper/table7_stats.py`](paper/table7_stats.py) and [`paper/table7_stats.txt`](paper/table7_stats.txt); post hoc, reads existing results files, runs no new flights; simulated).**
+
+- **Drawing the training lag exactly across the measured range is the worst choice tested.** 33-78.2 ms crashes on 486 of 2,304 identified-range stress flights; moving only the floor to the slow identified value (39.1-78.2 ms) gives 348 (pooled Mann-Whitney p = 0.011).
+- **The ceiling, not the floor, buys robustness.** With a 150 ms ceiling the floor no longer matters (39.1 against 75 ms floor: 65 against 62, p = 0.83). Along the ceiling sweep 78.2 / 100 / 125 / 150 / 200 ms the identified-range total falls 348 / 191 / 101 / 65 / 53 (Jonckheere-Terpstra trend p at the permutation floor in both geometries); neighbours separate up to 125 ms (p = 0.018, 0.025), not after (p = 0.10, 0.16). At a 75 ms motor every step of ceiling pays (all p ≤ 0.0002).
+- **Table VII-1** gathers all eleven training ranges with crashes, rise time and mass, and is generated from the results files by `paper/check_numbers.py` (58 checks), so the draft cannot drift from the data.
+- **For a builder:** anchor the randomised lag at the slowest identification for your motor class, never draw faster plants, and set the ceiling at 3-4× it; the price is rise time (1.44 s at 78.2 ms to 2.0-2.3 s at 200 ms), not crashes.
+
 ## Milestone 7ac: is there a sharp knee in how wide a drone's motor-lag training range must be? No: a slope, and 3× gets most of it at the measured lag
 
 **Question.** Milestone 7ab found that training over 100 ms of motor lag (2.6× the measured 39.1 ms) leaves the co-designed quadrotor crashing three times as often in the stress test as training up to 150 ms, and that the 150 ms tune rises much slower on a step. Where between the two does the robustness arrive, and does the response price come with it? The same arm was retrained at the 39.1 ms floor with a 125 ms ceiling (24 CMA-ES runs) and scored with all five earlier tunes, which reproduced exactly.
@@ -339,7 +350,7 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ## Paper draft (milestone 7, started 2026-11-14): the tilt limit we tested at is PX4's minimum
 
-[`paper/DRAFT.md`](paper/DRAFT.md) is the first draft of the RA-L paper: every section outlined, the stability section (milestones 7c–7g) written in full, a bibliography ([`paper/references.bib`](paper/references.bib)), and [`paper/check_numbers.py`](paper/check_numbers.py), which fails if a quoted figure no longer matches its results file (35 checks; run by `tests/test_paper_numbers.py`).
+[`paper/DRAFT.md`](paper/DRAFT.md) is the first draft of the RA-L paper: every section outlined, the stability section (milestones 7c–7g) and the motor-lag randomisation section (milestones 7s–7ac, with Table VII-1 and pooled tests from [`paper/table7_stats.py`](paper/table7_stats.py)) written in full, a bibliography ([`paper/references.bib`](paper/references.bib)), and [`paper/check_numbers.py`](paper/check_numbers.py), which fails if a quoted figure no longer matches its results file (58 checks, including every row of Table VII-1; run by `tests/test_paper_numbers.py`).
 
 - **Writing it changed how the stability results read.** The simulator's default tilt-command limit is 20°. PX4's `MPC_TILTMAX_AIR` defaults to 45° with 20° as its floor, and ArduPilot's `ANGLE_MAX` defaults to 30° (both read from the autopilots' source on 2026-11-14). So the 45° condition in milestones 7d–7f is the stock PX4 setting, not a stress test: at it, designs CMA-ES tuned onto the linear ceiling diverge on 13 of 384 held-out flights and their position error rises from 0.105 to 0.257 m (`experiments/m7e_margin/tilt.txt`), and the 0.8× margin removes all 13 for 0.7% of cost.
 - No new experiment: the draft only collects numbers already in `experiments/`. Simulated throughout; the gaps before submission (ten seeds, bootstrap intervals, sections I–V written out, LaTeX, hardware) are listed at its end.
@@ -630,6 +641,8 @@ Print canted motor mounts at 0° and about 32° for one frame. Then log yaw step
 ## Builds on
 
 The seven `codesign-aero-cant*` projects. Simulator: Folk, Paulos and Kumar (2023), "RotorPy: a Python-based multirotor simulator with aerodynamics for education and research", arXiv:2306.04485 (MIT). Attitude laws: Smeur, Chu and de Croon (2016), *JGCD* 39(3), doi:10.2514/1.G001490; Lee, Leok and McClamroch (2010), IEEE CDC, doi:10.1109/CDC.2010.5717652. Allocation theory: Johansen and Fossen (2013), *Automatica* 49(5), doi:10.1016/j.automatica.2013.01.035; Crowther et al. (2011), *JGCD* 34(4), doi:10.2514/1.51186. Propeller data: Brandt and Selig (2011), AIAA 2011-1255, doi:10.2514/6.2011-1255. CMA-ES: Hansen and Ostermeier (2001), *Evolutionary Computation* 9(2), doi:10.1162/106365601750190398. The full related work is in `PROPOSAL.md`.
+
+Domain randomisation, for section VII of the draft: Tobin et al. (2017), "Domain randomization for transferring deep neural networks from simulation to the real world", IROS, arXiv:1703.06907; Peng et al. (2018), "Sim-to-real transfer of robotic control with dynamics randomization", ICRA, arXiv:1710.06537; Mehta et al. (2019), "Active domain randomization", CoRL, arXiv:1904.04762.
 
 ## Lab tags
 
