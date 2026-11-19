@@ -185,7 +185,7 @@
       $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
       $("#lines").innerHTML = r.season.lines.map((l) => `<tr><th scope="row">${esc(l.label)}</th><td>${usd(l.fee)}</td><td>${usd(l.cost)}</td><td>${usd(l.profit)}</td><td>${l.marginPct}%</td><td>${usd(l.perHour)}</td><td>${usd(l.targetFee)}</td></tr>`).join("");
       $("#batch").innerHTML = r.batchTable.map((x) => `<tr><th scope="row">${x.batch}</th><td>${x.stops}</td><td>${x.driveHours}</td><td>${x.hours}</td><td>${usd(x.net)}</td><td>${usd(x.perHour)}</td></tr>`).join("");
-      $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.scheduled}</td><td>${x.hours}</td><td>${x.utilizationPct}%</td><td>${usd(x.solo)}</td><td>${usd(x.agency)}</td><td>${usd(x.employed)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.scheduled}</td><td>${x.hours}</td><td>${x.utilizationPct}%</td><td>${usd(x.solo)}</td><td>${usd(x.franchise)}</td><td>${usd(x.employed)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Weekly result working solo: ${usd(r.season.soloAfterPay)} after your time, ${usd(r.season.profitPerHour)} per working hour.`;
       if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
