@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [privacy, aeo, honesty]
+topics: [privacy, seo, guardrails]
 date: 2026-11-19
 ---
 # Polish, 2026-11-19: the privacy scanner stops publishing placeholder hosts
