@@ -23,6 +23,9 @@ export const IBAN_LENGTHS = {
   ME: 22, MK: 19, MR: 27, MT: 31, MU: 30, NL: 18, NO: 15, PK: 24, PL: 28, PS: 29, PT: 25, QA: 29,
   RO: 24, RS: 22, SA: 24, SC: 31, SE: 24, SI: 19, SK: 24, SM: 27, ST: 25, SV: 28, TL: 23, TN: 24,
   TR: 26, UA: 29, VA: 22, VG: 24, XK: 20,
+  // Added from SWIFT IBAN Registry release 101 (found by platform/ci/id_oracle/): before, these drew only a
+  // "not in this tool's table" warning, so a dropped or added character in their IBANs passed.
+  BI: 27, DJ: 27, FK: 18, HN: 28, LY: 25, MN: 20, NI: 28, OM: 23, RU: 33, SD: 18, SO: 23, YE: 30,
 };
 
 // IBAN country prefixes this tool treats as inside the SEPA scheme. Newer participants are not in

@@ -37,6 +37,10 @@ order is name, IBAN, amount, mandate id, mandate date, reference, sequence.
 
 Sibling: [`csv-to-sepa-pain001`](../csv-to-sepa-pain001/) makes credit transfer files.
 
+## Checked against python-stdnum (2026-11-19)
+
+A BIC whose fifth and sixth letters are not an ISO 3166 country code (or XK) is now an error; before, `TQKJXXLP` passed the shape check. The creditor-identifier check agreed with python-stdnum's `eu.at_02` on all 3,000 cases. Found by the cross-venture identifier oracle, [`platform/ci/id_oracle/`](../../platform/ci/id_oracle/README.md); stdnum is a test-time oracle only, no bank or registry text was read beyond the registry data it carries.
+
 ## License
 
 MIT. See `LICENSE`.

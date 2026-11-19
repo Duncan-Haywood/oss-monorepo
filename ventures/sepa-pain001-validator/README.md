@@ -41,6 +41,10 @@ disallowed characters in names and reference fields, and lists what changed. It 
 an IBAN, amount, currency, date or identifier, adds or removes an element, or shortens text;
 a control sum is not rebuilt while any amount is unreadable.
 
+## Checked against python-stdnum (2026-11-19)
+
+The twelve countries added in SWIFT IBAN Registry release 101 (BI, DJ, FK, HN, LY, MN, NI, OM, RU, SD, SO, YE) are in the length table. Before, their IBANs drew only a "not in this tool's table" warning, so a character added or dropped passed (4,800 such cases on one seed), and their BICs drew a country warning. Found by the cross-venture identifier oracle, [`platform/ci/id_oracle/`](../../platform/ci/id_oracle/README.md); stdnum is a test-time oracle only, no bank or registry text was read beyond the registry data it carries.
+
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.

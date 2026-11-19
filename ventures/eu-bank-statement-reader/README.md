@@ -32,6 +32,10 @@ different currency; split entries whose parts do not add to the booked total.
 Entries CSV (signed amounts, account masked by default, spreadsheet formula characters
 neutralised) and findings CSV.
 
+## Checked against python-stdnum (2026-11-19)
+
+The IBAN table carries all 89 SWIFT IBAN Registry countries, not only SEPA ones, so a statement for, say, a Turkish account no longer warns "country code not in the list this tool knows". Found by the cross-venture identifier oracle, [`platform/ci/id_oracle/`](../../platform/ci/id_oracle/README.md); stdnum is a test-time oracle only, no bank or registry text was read beyond the registry data it carries.
+
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test '*.test.mjs'`.

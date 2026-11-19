@@ -150,3 +150,11 @@ test("example dates track today: a banking day for the clean file, a Saturday fo
     assert.match(titles(validate(sampleBrokenFile(now), { today: now })).join("|"), /weekend/);
   }
 });
+
+// Found by platform/ci/id_oracle/: Gibraltar IBANs were rejected as "country" although GI is in the SEPA area
+// (the sibling csv-to-sepa tools already carried it).
+test("a Gibraltar IBAN passes", async () => {
+  const { ibanCheck } = await import("./calc.mjs");
+  assert.equal(ibanCheck("GI75NWBK000000007099453").ok, true);
+  assert.equal(ibanCheck("GI75NWBK00000000709945").reason, "length");
+});
