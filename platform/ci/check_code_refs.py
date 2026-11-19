@@ -19,9 +19,9 @@ from __future__ import annotations
 
 import argparse
 import re
-import subprocess
 import sys
 from pathlib import Path
+from repo_files import ls_files
 
 CODE_SPAN_RE = re.compile(r"``(.+?)``|`([^`\n]+)`")
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
@@ -36,11 +36,7 @@ ARCHIVE_DIRS = ("docs/history/", "prompts/experiments.md")
 
 
 def tracked(root: Path) -> list[str]:
-    out = subprocess.run(
-        ["git", "-C", str(root), "ls-files"],
-        capture_output=True, text=True, check=True,
-    ).stdout
-    return [p for p in out.split("\n") if p]
+    return ls_files(root)
 
 
 def default_files(root: Path) -> list[Path]:

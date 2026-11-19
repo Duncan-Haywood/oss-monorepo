@@ -21,6 +21,7 @@ import sys
 from pathlib import Path
 
 from check_storage_guard import _strip
+from repo_files import ls_files
 
 METHODS = ("reset", "submit", "requestSubmit", "checkValidity", "reportValidity")
 _FORM = re.compile(r"<form\b.*?</form\s*>", re.S | re.I)
@@ -92,7 +93,7 @@ def _read(path):
 def check_tree(root):
     root = Path(root)
     try:
-        listed = subprocess.run(["git", "ls-files", "*.html"], cwd=root, capture_output=True, text=True, check=True).stdout.split()
+        listed = ls_files(root, "*.html")
         files = [root / f for f in listed]
     except (subprocess.CalledProcessError, FileNotFoundError):
         files = sorted(root.rglob("*.html"))
