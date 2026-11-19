@@ -38,6 +38,8 @@ class Terminal(unittest.TestCase):
     def test_short_horizon_goods_only(self):
         q = Params(work_h=10.0, vit_cost=1.0, cash_limited=False, horizon=5.0, dt=0.02)
         self.assertEqual(closed_form(q, 0.0)[0], 0.0)
+        # goods only for the whole horizon: a*T + s = 1*5 + 2 (quality round 76 mutant at model.py:28)
+        self.assertAlmostEqual(closed_form(q, 2.0)[1], 7.0)
 
 
 if __name__ == "__main__":

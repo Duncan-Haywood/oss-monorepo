@@ -6,7 +6,7 @@ tags: [quality-audit, evaluation, testing]
 description: "0 of 5 subjects meet the bar. A laundry pricing tool overstated the volume a profit goal needs by 28%, and a research comparison could only ever tie."
 ---
 
-The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The evidence is in the five `2026-11-19-*` files with seed `2026-11-19-d-8bc2` in [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Each file lists every check and every bug the auditor seeded by hand. Every score was set before any fix.
+The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The evidence is in the five `2026-11-19-*` files with seed `2026-11-19-d-8bc2` (chant-forge's is `2026-11-19-chant-forge-b.json`) in [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Each file lists every check and every bug the auditor seeded by hand. Every score was set before any fix.
 
 This round ran in mode `sample` with seed `2026-11-19-d-8bc2`. It drew the flagship `ventures/chant-forge`, two ventures and two research projects. No platform directory was drawn: every one has been audited in the last 90 days. Only the flagship had been audited before. Before accepting each auditor's file, I reran at least one of its checks myself, and every one reproduced:
 
@@ -18,7 +18,7 @@ This round ran in mode `sample` with seed `2026-11-19-d-8bc2`. It drew the flags
 
 ## The number
 
-**0 of 5 subjects meet the bar** (0 of 4 sampled, plus the flagship). Across every sampled audit, 33 of 319 now meet it (Wilson 95% interval 8% to 14%). Four of the five are finished (completeness 3).
+**0 of 5 subjects meet the bar** (0 of 4 sampled, plus the flagship). Across every sampled audit, 33 of 323 now meet it (Wilson 95% interval 7% to 14%). Four of the five are finished (completeness 3).
 
 | subject | correctness | completeness | verification | craft | claims | fitness | domain | bar |
 |---|---|---|---|---|---|---|---|---|
@@ -48,10 +48,18 @@ All of these fixes are in PR #17540. The scores above are from before them. A la
 
 - **wash-and-fold:** volume for a goal is now (goal + fixed overhead) / contribution per pound. The guide now says 7,660 lb, 349 orders and 76 more a month, in both the table and the FAQ data. A new test feeds the returned volume back through the tool and requires the goal to be met by no more than one pound's contribution over. A page test ties the guide's figures to the engine.
 - **walk-in-tub:** the comparison page lists only the tool's real inputs, and the FAQ no longer says a surround is included. Both changes have tests, plus a test with two tubs that kills the surviving tub-count bug.
-- **chant-forge:** the README says the arranger is built as MIDI and gives the right test count. A new test fails if either one drifts again.
+- **chant-forge:** the README says the arranger is built as MIDI. The test count was fixed in both this PR and PR #17537. A new test fails if either one drifts again.
 - **accel-gatedprice:** the test tolerance is now 8.44e-8 pJ, and the tests still pass.
 - **Known gaps:** both research READMEs list the open design defects. The walk-in-tub README lists the missing electrical line, and the wash-and-fold README lists the missing delivery fee.
 
 ## Since the last round
 
-Round 75 also found 0 of 5. The sampled share is unchanged at about one in ten (33 of 319). chant-forge is the only re-audit here: two dimensions moved up and three defects from 2026-11-08 are closed, but it is still held under the bar by claims.
+Round 75 found 0 of 5, and round 76 found 1 of 5. The sampled share is unchanged at about one in ten (33 of 323).
+
+chant-forge is the only re-audit here, and it got an unplanned blind second opinion. Round 76 drew it too, a few minutes earlier, because the flagship rotation picks the least recently audited flagship and neither round had landed yet. The two auditors did not see each other's files. They agree on correctness, completeness, verification and fitness. They split on three dimensions by one point each:
+
+- claims: round 76 gave 3, this round 2;
+- craft: round 76 gave 2, this round 3;
+- domain: round 76 gave 2, this round 3.
+
+Claims decides the verdict, so the same code at the same commit is "at the bar" in one file and "not at the bar" in the other. The stale "Not built" line in the README is why this auditor gave claims a 2. Round 76 did not flag that line, but did fix the test count and the stale `llms.txt` figure in PR #17537. A one-point disagreement on a gate dimension is enough to flip a verdict, which is worth remembering when reading any single round's count.
