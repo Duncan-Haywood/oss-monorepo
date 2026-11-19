@@ -46,3 +46,14 @@ test('two writings of one price set no tick and are no move; exact repeats still
   assert.deepEqual(repeatIndicators(v), [0, 0, 1, 0]);
   assert.equal(smallestStep([1e-12, 2e-12, 3e-12]), 1e-12);
 });
+
+test('the committed verdicts: run 1 refused by the float-noise tick, run 2 B1 and B3 pass, B2 fails', () => {
+  const r1 = readFileSync(new URL('./eval/stale-real-trades-run1.out.txt', import.meta.url), 'utf8');
+  assert.match(r1, /B1: 0 of 85 \(0\.00\) FAIL/);
+  const out = readFileSync(new URL('./eval/stale-real-trades.out.txt', import.meta.url), 'utf8');
+  const eu = out.split('## US sample')[0];
+  assert.match(eu, /B1: 84 of 85 \(0\.99\) pass/);
+  assert.match(eu, /B2: 56 of 56 \(1\.00\) FAIL/);
+  assert.match(eu, /B3: 112 of 119 \(0\.94\) pass/);
+  assert.match(out, /verdict: fails B2/);
+});
