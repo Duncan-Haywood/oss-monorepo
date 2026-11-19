@@ -26,13 +26,19 @@ const psets = JSON.parse(readFileSync(new URL("psets-ifc4x3.json", schemaDir), "
 const sets = Object.keys(psets).sort();
 
 const ask = (path) => getJson(fetch, `${BSDD_API}${path}`);
-const bySet = new Map();
-for (let i = 0; i < sets.length; i += 8) {
-  await Promise.all(sets.slice(i, i + 8).map(async (s) => {
-    const r = await ask(`/api/Class/v1?Uri=${encodeURIComponent(`${IFC43_DICTIONARY}/class/${s}`)}&IncludeClassProperties=true`);
-    bySet.set(s, r);
-  }));
+// bSDD answers bursts with 429 even after getJson's retries, so lookups go 3
+// at a time and the ones that still failed are asked again in later rounds.
+async function askAll(keys, pathOf) {
+  const out = new Map();
+  let todo = keys;
+  for (let round = 0; todo.length && round < 6; round++) {
+    if (round) await new Promise((ok) => setTimeout(ok, 30000));
+    for (let i = 0; i < todo.length; i += 3) await Promise.all(todo.slice(i, i + 3).map(async (k) => out.set(k, await ask(pathOf(k)))));
+    todo = todo.filter((k) => out.get(k).failed);
+  }
+  return out;
 }
+const bySet = await askAll(sets, (s) => `/api/Class/v1?Uri=${encodeURIComponent(`${IFC43_DICTIONARY}/class/${s}`)}&IncludeClassProperties=true`);
 const failed = [...bySet].filter(([, r]) => r.failed);
 if (failed.length) { console.error(`bSDD did not answer for ${failed.length} sets (first: ${failed[0][0]}: ${failed[0][1].failed}); rerun`); process.exit(1); }
 
@@ -56,14 +62,10 @@ for (const s of sets) {
 // Absent pairs: does the rule's link resolve anyway (the property exists in
 // the dictionary, just not under this set)?
 const names = [...new Set(absent.map((a) => a.name))].sort();
-const resolves = new Map();
-for (let i = 0; i < names.length; i += 8) {
-  await Promise.all(names.slice(i, i + 8).map(async (name) => {
-    const r = await ask(`/api/Property/v5?Uri=${encodeURIComponent(ifc43PropUri(name))}`);
-    if (r.failed) { console.error(`bSDD did not answer for prop/${name}: ${r.failed}; rerun`); process.exit(1); }
-    resolves.set(name, !!r.json);
-  }));
-}
+const props = await askAll(names, (name) => `/api/Property/v5?Uri=${encodeURIComponent(ifc43PropUri(name))}`);
+const stuck = [...props].filter(([, r]) => r.failed);
+if (stuck.length) { console.error(`bSDD did not answer for ${stuck.length} properties (first: prop/${stuck[0][0]}: ${stuck[0][1].failed}); rerun`); process.exit(1); }
+const resolves = new Map([...props].map(([k, r]) => [k, !!r.json]));
 const unlinked = names.filter((x) => !resolves.get(x));
 const pairsUnlinked = absent.filter((a) => !resolves.get(a.name));
 
