@@ -1521,6 +1521,14 @@ binned reference is itself at SNR 7 to 17. Sweep rows now carry the reference's 
 `near_clean_gate.py tune|rule --clean-truths` drops rows whose reference is noisier than the noise added. On the
 352 rows left, what ships loses over 0.1 dB on none.
 
+**The reference's noise read from the raw, not the scene (2026-11-19, eval/near-clean-truth-noise-2026-11-19.md).**
+`truth_sigma18` is the shipped noise read run on the reference, so it reads fine texture as grain too: on the 11
+rows still losing on raw.pixls.us (Nikon D780 forest at ISO 100, a D600 wallpaper tile) it says SNR 13 to 25,
+where the raw's own sensels say 74 to 181. `tools/truth_noise_check.py` reads the raw's noise at native resolution
+and measures how much of it survives into the binned reference; sweep rows carry it as `truth_grain18`, and
+`--clean-truths` uses it first. By it, 6 of the 11 losers are real: the frame read stops at the foliage, 2.3 to 5.2
+times the noise added. The Bayer lift still passes all three held-out tests on the rows it keeps.
+
 `shootflow develop FILE.dng --demosaic noise-aware` (numpy, Bayer and X-Trans; opt-in until 2026-11-19) blends the
 directional result toward bilinear block by block (24 x 24). Each block's weight comes from how far
 directional departs from bilinear there, against the noise the sensor has at that brightness. The noise
