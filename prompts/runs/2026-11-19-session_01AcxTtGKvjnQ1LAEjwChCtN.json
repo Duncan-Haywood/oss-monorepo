@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtGKvjnQ1LAEjwChCtN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T07:06:01Z",
+  "ended": "2026-11-19T07:14:18Z",
+  "wall_minutes": 14.36,
+  "tokens_in": 6430625,
+  "tokens_out": 34188,
+  "cost_usd": 2.8916,
+  "tool_calls": 56,
+  "task": "changepoint-detector flagship: fresh-provider real check of the opt-in --spells search (flagships.yaml next: 'next a fresh provider')",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17577",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "My first manual CLI checks passed a file path as a positional argument; cli.mjs reads stdin/--csv, so they printed nothing. Switched to calling spellsResult directly; the venture tests use main() and were unaffected."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Warns that git-ignored fetched data under the venture (covid-data/, nyt-data/) is published by a local build; the eval fetch scripts default to a directory inside the venture, so every eval run trips it. Fetch scripts could default to a path outside the venture."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The brief favours revenue products; the allocator's flagship row was a research-style item. Followed the allocator (owner's 'deepen flagships' default) and shipped one user-facing reporting fix out of the result.",
+      "did": "Pre-registered check on NYT data, honest FAIL recorded, plus edge-spell line in --spells output",
+      "result": "Landed; search stays opt-in, line no longer contradicts the default update-rate line"
+    },
+    {
+      "file": "ventures/changepoint-detector/eval/update-rate-spells-nyt.mjs",
+      "why": "Labels are JHU's documented state schedule changes reused on NYT's series, not a provider documenting its own changes; no NYT-documented schedule list exists that I know of.",
+      "did": "Stated this in the header, README and post",
+      "result": "Next item still asks for a self-documenting provider"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-changepoint-spells-second-provider.md",
+    "ventures/changepoint-detector/README.md (section 'Short spells on a second provider')"
+  ],
+  "goal": null,
+  "notes": "Pre-registration committed in 973ea2dbf before the script read any NYT series (only the header line). Verdict: N1 2/4 FAIL (bar 3), N2 5/9 FAIL (bar <=3). Post hoc (eval/update-rate-spells-nyt-why.mjs, labelled): NYT Alaska spell already cut by the default update-rate line (2021-06-04, 2021-08-01) because NYT's series starts 2020-03-12; Nebraska's documented 2021 Wednesdays-only spell is in neither provider's series; Nebraska's 2022 spell is real in both but unlabelled. Shipped edgeSpellsOf + new --spells wording; committed JHU states print exactly as before (spells-edge.test.mjs). NYT data not committed (attribution, non-commercial terms); fetched by eval/nyt-states-fetch.sh. Verification (local): run_venture_tests.py changepoint-detector ok, 958 tests, 0 failed (297 s); venture-preflight.mjs changepoint-detector: preflight clean; check_posts.py ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4988663c-82a5-5790-8b5f-037ce5de5e88",
+    "transcripts": 1,
+    "first": "2026-11-19T07:06:01Z",
+    "last": "2026-11-19T07:20:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 117,
+        "output": 34188,
+        "thinking": 7312,
+        "cache_read": 6312391,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118117,
+        "api_equivalent_usd": 2.8916,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 117,
+      "output": 34188,
+      "thinking": 7312,
+      "cache_read": 6312391,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118117,
+      "api_equivalent_usd": 2.8916,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.36,
+      "active_minutes": 9.58,
+      "model_minutes": 6.91,
+      "tool_minutes": 2.67,
+      "waiting_on_human_minutes": 4.78,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a data scientist pre-registering, fetching, running and writing up a second-provider check plus a small reporting fix and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 207.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

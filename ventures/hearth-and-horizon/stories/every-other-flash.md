@@ -1,0 +1,281 @@
+---
+title: Every Other Flash
+shelf: hearth-and-horizon
+setting: Toulouse, France, and Ifrane, Morocco, Monday 19 to Saturday 31 October 2054
+published: 2026-11-19
+summary: In October 2054 a debris-removal firm in Toulouse rules a dead 2028 radar satellite out of reach, because its light curve flashes every 41 seconds and its single-use tug cannot match a spin of 8.8 degrees a second. The retired engineer who built it remembers a second radiator added late and never filed, which would mean two flashes to a turn and a spin of only 4.4 degrees a second. A flight director who will not bet a tug on a memory, a refold of the data that proves nothing, a retired maths teacher in the Middle Atlas with a video camera and a note nobody read, and the one thing the engineer has put in the sky, turning at last to a steady light.
+---
+
+Hélène Marty had put exactly one thing in the sky, and on the morning of Monday the nineteenth of October 2054 a machine wrote to tell her, very politely, that it was going to stay there.
+
+She read the message standing up, in the back of the bicycle workshop in Saint-Cyprien, with a wheel in a truing stand in front of her and grease on the side of her thumb that left a smear on the screen. It was from an address at Glaneuses, the debris-removal firm out at Montaudran on the old airfield, and it was signed *Vigie, tracking and planning, Glaneuses SAS*, with a line underneath in smaller letters that said the sender was an automated system and that a person could be reached at the number below.
+
+*Madame Marty,* it said. *Public records name you as a member of the engineering team of Avocette Spatial for the satellite Sterne-3, launched in March 2028. We are closing our file on Sterne-3 and would be grateful if you could confirm the mass properties below, which come from the operator's licence filing of 2027, so that the file is correct for whoever opens it next. For your information: Sterne-3 has been ruled out for removal by our present tug. Its light curve shows a flash every 41.0 seconds, which corresponds to a spin of 8.8 degrees per second. The tug's rated envelope is 5 degrees per second. We will proceed to the next object on the list. Thank you for your time.*
+
+Underneath there was a table. A box nine hundred millimetres by sixteen hundred by twelve hundred. One solar wing, six metres by one and a half. Total mass at end of life, about eleven hundred and fifty kilograms. One radiator, on the plus-Z face.
+
+She read the table twice. Then she put the phone face down on the bench, finished truing the wheel, because a wheel half trued is worse than one not touched, and went to wash her hands.
+
+* * *
+
+She was fifty-seven. She had been thirty-one when Sterne-3 went up, on a Tuesday morning in March, from a rocket she watched on a screen in a rented office above a pharmacy on the Allées Jean-Jaurès with eleven other people and a great many paper cups. Avocette Spatial had built three radar satellites the size of a wardrobe, named for birds that live at the edge of the sea, and Sterne-3 was the last and the best of them. It flew in a dawn-dusk orbit, seven hundred and eighty kilometres up, riding the line between day and night so that its wing was always in the sun, and it looked down through cloud and darkness at the sea ice in the north and sold what it saw to people who wanted to take ships through it.
+
+Avocette had run out of money in 2031. It had taken a year and a half to die. Sterne-3 had outlived it by a few months, and then, in February 2033, a battery cell had shorted, and the satellite had gone quiet in the middle of a pass over Svalbard and never spoken again.
+
+That was twenty-one years ago. It had been turning up there ever since, dead, a hundred minutes to an orbit, fourteen orbits and a bit a day, in the most crowded band of sky there is. At that height, with its size and weight, it would take more than a century for the thin air to pull it down by itself.
+
+Hélène had left the industry in the autumn of 2032. She had been married since she was twenty-five to Didier, who mended bicycles and sang in the choir at Saint-Sernin, and after Avocette she had mended bicycles too, and taught a physics class one evening a week at the adult school, and raised Camille, and buried Didier five years ago this winter, and become a grandmother to a girl called Inès who was eight and wanted to know everything. Some evenings, in the right season, at dusk, she still took Inès up the hill at Pech-David with Didier's old binoculars and showed her a faint dot crossing the sky that brightened and dimmed and brightened, every forty seconds or so, like something breathing.
+
+"That's yours," Inès would say.
+
+"That was mine," Hélène would say.
+
+She dried her hands, picked up the phone again, and looked at the table, and at the line that said *one radiator*.
+
+Then she rang the number at the bottom.
+
+* * *
+
+The operations room at Glaneuses was smaller than she had expected and quieter, a long low room in one of the old Aéropostale hangars, with the original roof trusses painted white and six desks under them, three of them empty. A wall screen showed a map of the Earth with a great many thin lines wrapped around it like wool round a ball.
+
+The flight director was a tall woman of about forty in a grey fleece, with short fair hair and a mug that said *GDAŃSK* on it, who shook Hélène's hand and said, "Kasia Wróbel. You've read Vigie's note. You disagree with it."
+
+"I disagree with the table."
+
+"Vigie, put up Sterne-3."
+
+The wall screen cleared. A light curve came up: a long ragged line of brightness against time, with spikes standing out of it at regular intervals, like fence posts.
+
+"These are nine passes in September from our tracking telescope in the Ariège," said Vigie. Its voice came from a speaker in the ceiling, a plain voice, a little slow. "Each spike is a flash of sunlight off a flat face of the satellite as it turns. Folded together, the spikes repeat every 41.0 seconds, to within a tenth of a second, on every pass. A flat face flashes once each time it comes round. With one radiator, that is one flash for each turn, so one turn every 41 seconds, which is 8.8 degrees a second."
+
+"Our tug navigates by star cameras," Kasia said. "To catch a thing that's spinning, the tug sits on its spin axis and turns with it, so that the arm can reach across and take hold without anything moving relative to anything else. That's the whole trick. Above five degrees a second the star cameras smear the stars into streaks and the tug can't tell which way it's pointing. So: five."
+
+"Yes," said Hélène. "I understand. It's a good design."
+
+She went close to the screen and looked at the spikes for a while.
+
+"There are two radiators," she said.
+
+Nobody said anything.
+
+"The filing was made in the spring of 2027," she said. "In the summer the thermal analysis came back and said that in the season when the orbit faced the sun most squarely, the radar electronics would cook. We had about four months before integration. I was the one who found the room for a second panel. Minus-Z, the opposite face to the first. Same part number, same mirrors, same size. Nobody went back and changed the filing, because the filing was about collisions and radio frequencies and it didn't ask how many radiators we had, and because by then everybody was working nineteen hours a day."
+
+"Two flat mirrors on opposite faces," said Vigie.
+
+"So each one comes round once a turn, half a turn apart. Two flashes to every turn." She turned round. "It isn't spinning every forty-one seconds. It's spinning every eighty-two. Four point four degrees a second."
+
+Kasia put her mug down on the desk very carefully.
+
+"Vigie?" she said.
+
+"It is consistent," said Vigie, after a moment. "The light curve cannot tell one flash a turn at 41 seconds from two flashes a turn at 82. I knew that in principle. It is one of the first things written in any guide to timing satellite flashes. I took the number of flat faces from the filing, and the filing said one, and I did not ask whether the filing was right. I should have written that assumption next to the number. I am adding it to the file now."
+
+"Is there anything in the record," said Kasia, "anything at all, apart from Madame Marty's memory, that says there are two?"
+
+"Not in anything Glaneuses holds."
+
+"I have my as-built notes," said Hélène. "Somewhere. In a box."
+
+"Then tomorrow," said Kasia, "please find the box."
+
+* * *
+
+The box was in the cellar of the flat on the Rue de la République, under Didier's Christmas crib and a bag of his choir music that she had not been able to give away. It held a hard drive with a cracked case and a ring binder, and in the ring binder, between the vibration test reports and a menu from the launch party, were forty pages headed *STERNE-3, AS BUILT, H. MARTY*, with photographs.
+
+She had taken the photographs herself, in the clean room, in a gown and a hood, with a steel rule laid against each part so that whoever came after her would know its size without asking. Nobody had ever asked. The company had died before anyone needed them. But there it was, page twenty-two: the minus-Z face, a grey panel of little square mirrors in a frame, six hundred millimetres by eight hundred, with the rule across the bottom of it, and in her own handwriting underneath, *added 07/2027, see thermal note 14, NOT IN FILING, update filing!!*
+
+Two exclamation marks. She had meant it.
+
+She took the binder to Montaudran on the Wednesday morning, and Vigie read it through the camera above Kasia's desk, page by page, while Kasia turned them.
+
+"Thank you," Vigie said. "This is better documentation than I usually get from operators that are still in business. I have rebuilt the model with two radiators. Now I would like to test it against the light curve and not just against your memory, and there is a way to do that. If there are two radiators and they are the same, the flashes alternate between them, plus-Z, minus-Z, plus-Z. Any small difference between the two panels, in size or in how they have aged, would make every other flash a little brighter, and the light curve would show it if I fold it at 82 seconds instead of 41."
+
+"And?" said Kasia.
+
+There was a pause of several seconds, which was long, for Vigie.
+
+"The odd flashes and the even flashes are the same height," it said. "Within the noise. The difference is less than four per cent, and the noise in a single flash is about eight. Folded at 82 seconds the curve looks exactly like the curve folded at 41 seconds, laid end to end twice. It is consistent with two radiators that are the same, which is what the binder says. It is also consistent with one radiator and a spin of 41 seconds. I cannot tell you which, from this."
+
+Hélène sat down on the edge of one of the empty desks.
+
+"Same part number," she said. "Same mirrors. Same size. Of course they're the same height."
+
+Kasia had gone to the window, which looked out across the old runway towards the wind tunnels. She stood there with her back to the room for a little while, and when she came back she did not sit down.
+
+"Here's where I am," she said. "G-4 is up there now. It went up in September, it's parked in the dawn-dusk plane at seven hundred and sixty kilometres, and it's waiting for me to give it a target. It's single-use. It catches one thing, it takes that thing down into the sea, and it burns up with it. We get one go. Number two on the list is a rocket stage from 2031 in the same plane, which is lighter and not spinning at all and pays about half what Sterne-3 pays. If I send G-4 to Sterne-3 and you're right, we take down the worst thing in that shell. If I send it to Sterne-3 and you're wrong, G-4 spends ten days and a third of its propellant chasing a thing that turns faster than its cameras can follow, and then it sits there two kilometres off and watches. Or worse. That wing is six metres long. If it's turning every forty-one seconds the tip is moving at about a metre a second, and I am not putting a tug inside a circle fourteen metres across with a blade going round it at a metre a second, on the strength of a memory and a ring binder. If we get that wrong we don't remove debris. We make it."
+
+"I know," said Hélène.
+
+"I believe the binder," said Kasia. "I believe you. I'm not allowed to fly on belief. I need a measurement that says eighty-two and can't say forty-one. Until I have one, the answer is no."
+
+"That's the right answer," Hélène said. "I'd have said the same."
+
+Kasia looked at her for a moment as though she had expected an argument and was not sure what to do with the absence of one.
+
+"Can I ask you something?" she said. "Why does it matter so much? It's been dead twenty-one years. You don't work in this. Nobody's going to blame you for it."
+
+Hélène looked at the light curve on the wall, all those fence posts in a row.
+
+"In 2031," she said, "Sterne-3 still had enough fuel to bring itself down to five hundred and fifty kilometres, which was low enough to come down inside twenty-five years by itself. That was the rule then. We had a plan, and a date, in the June. And we had a customer, a shipping company, who wanted one more year of ice. One more year of ice paid eight salaries. Mine was one of them. I wrote the memo that said we could wait a year safely, that the satellite was healthy and the risk was small. It was small. Then the company took longer to die than anybody thought, and the burn slipped to the spring of 2033, and in February 2033 the battery went." She shrugged. "I wasn't wrong about the risk. A battery cell in February is a small risk. But it happened, and I'd asked for the year, and the thing has been going round ever since in everybody else's sky because I asked for it."
+
+Kasia did not say anything for a moment.
+
+"Then let's find the measurement," she said.
+
+* * *
+
+Vigie found Youssef Alaoui on the Thursday morning, though in a sense he had found it first.
+
+There is an old, stubborn, mostly unpaid community of people who time the flashes of satellites from their back gardens, and have done since long before anybody was paid to remove them, and they keep their records in a shared database whose oldest entries are older than Hélène. Vigie had used their timings for years. It had never read the comments.
+
+"In May 2052," it said, when Hélène came in, "an observer in Ifrane, in the Middle Atlas in Morocco, logged Sterne-3 at a flash period of 41.0 seconds, the same as everyone else. He added a comment. I will read it. *Nine flashes, regular, 41.0. Then they faded, as the angle changed. Then after half a minute, one more single faint flash, and another 82 seconds after that. Too faint to be sure. Something on the satellite I don't know about? Will watch again.* He logged twice more that summer, without comment. Then nothing on Sterne-3."
+
+"Eighty-two," said Hélène.
+
+"One flash a turn would be the wing," said Vigie. "The solar wing turned on a drive to follow the sun. When the battery failed the drive stopped where it was, at an angle nobody knows. Its cells are under glass, and glass flashes. If the wing stopped tilted away from the plane of the radiators, its glint comes from a different direction from theirs. From most places, on most passes, nobody would see it at all, and our telescope never has. But once in a while the geometry is right, and there is one flash a turn, not two, from a face of the satellite that there is only one of. A train of flashes 82 seconds apart cannot be a spin of 41."
+
+"Can you ask him?"
+
+"I have written to him," said Vigie. "In French. He answered in four minutes. He is sixty-eight, he taught mathematics at the lycée in Azrou for thirty-five years, and he wishes to say that he has been waiting two years for somebody to ask."
+
+He rang that afternoon on a video call, a lean grey man with a short beard and very bright eyes, in a room lined with books, with a large old telescope in the corner under a cover like a parrot's cage. He spoke an exact, schoolmaster's French, and he wanted to know everything: the radiators, the binder, the drive, the tug. He took notes in pencil. When Hélène told him about the memo in 2031 he stopped writing and listened, and said, "Yes. One year for eight families. I understand that very well," and then went back to his pencil.
+
+"I cannot promise a tilt I do not know," Vigie said. "But I can tell you which passes over Ifrane in the next week sweep the sunlight through the widest range of angles out of the radiators' plane, so that if the wing is anywhere in a broad band, the glint will cross you. There are two that are good. Friday at dusk, and Saturday at dusk. Saturday's is better."
+
+"Then I will watch both," said Youssef. "The cedars are not tall where I set up. I have a video camera at twenty-five frames a second and a clock from the radio. I will time the flashes to a fortieth of a second. *In shaa Allah*, the sky will be clear."
+
+* * *
+
+On the Friday it rained in the Middle Atlas. Youssef sent a photograph at six in the evening of a grey wall of cloud over the cedar forest and a single line: *Not tonight. Tomorrow.*
+
+Hélène went home and could not settle. She made an omelette and did not eat it. At nine Camille rang and asked whether she wanted Inès on Sunday after Mass and Hélène said yes, of course, and then said, without having meant to, "Do you remember the dot on the hill?"
+
+"Maman's satellite," said Camille. "Of course."
+
+"It might be coming down."
+
+There was a pause on the line.
+
+"Is that good?" said Camille.
+
+"Yes," said Hélène. "Yes. I think it's good."
+
+* * *
+
+On the Saturday, at about eight in the evening Toulouse time, she sat at Kasia's desk at Montaudran with Kasia beside her, eating a sandwich from the machine in the corridor, and they watched a live picture from a field outside Ifrane: a dark sky going from blue to ink, the black edge of a hill, a few early stars, and Youssef's voice, very quiet, as if he might frighten it.
+
+"Rising in the north-west," he said. "There. I have it."
+
+A faint point crossed the frame. It brightened. It went dim. It brightened again. Vigie drew a line under the picture as the flashes came, a tick for each one, with the time against it: forty-one seconds, forty-one, forty-one. Nine flashes. Ten. Then the eleventh was weaker, and the twelfth weaker still, and then the point of light went on crossing the sky at an even, dull brightness, and there were no more flashes at all.
+
+"The angle has gone past the radiators," said Vigie. "This is where he saw it in 2052."
+
+Nobody spoke. The dot moved on across the stars. Half a minute went by. Kasia had stopped eating.
+
+The dot flashed.
+
+It was a small flash, thin and sharp, not like the broad soft swell of the radiators. Vigie put a tick under it. Kasia leaned forward.
+
+"Wait," said Hélène. "Wait for the next one."
+
+Forty-one seconds came, and went, and the dot only crossed the sky.
+
+At eighty-two seconds, it flashed again.
+
+At a hundred and sixty-four, once more, fainter, and then it was too low and too far and the camera lost it in the haze above the hill.
+
+"*Tbarkallah*," said Youssef softly, to nobody in particular.
+
+Vigie said nothing for some seconds, and when it spoke it was more careful even than usual.
+
+"Three flashes," it said. "Eighty-two point one seconds apart, and eighty-two point two, to a fortieth of a second. Each one falls exactly on every second beat of the radiators' rhythm, where the plus-Z face would be, if the rhythm had kept going. That is what a single face flashing once a turn would do, on a satellite turning once every eighty-two seconds. A satellite turning every forty-one seconds could not produce a flash train eighty-two seconds apart with nothing in between, from any face. The glint is narrow and sharp, like glass, which the wing cells are under. From the geometry, the wing stopped tilted roughly thirty degrees out of the radiators' plane, which would be why our own telescope never saw it. I would now put the spin at eighty-two seconds with a confidence I am willing to sign. I would like Monsieur Alaoui's video and timings in the file under his name."
+
+Kasia sat back. She looked at the screen, and then at Hélène, and then at the ceiling, where the speaker was.
+
+"*O rany*," she said, which Hélène later found out was more or less what a Polish grandmother says when the cake comes out of the oven better than expected.
+
+Then she said, "Let me sleep on it. I'll tell you tomorrow."
+
+On the screen, a long way south, a man in a field with a camera on a tripod was packing up in the dark, and humming.
+
+* * *
+
+On Sunday Hélène went to the eleven o'clock Mass at Saint-Sernin, in the long pink brick nave where Didier had sung for twenty years, and sat where she always sat, on the left, under the pillar with the chip out of it.
+
+It was the thirtieth Sunday of the year, and the Gospel was Bartimaeus: the blind beggar by the road out of Jericho, shouting after Jesus as he went by, and the crowd telling him to be quiet, and him shouting all the louder. Jesus stopped, and said, *Call him.* And they said to the blind man, *Take heart. Get up. He is calling you.* And he threw off his cloak and sprang up and came. And Jesus asked him, *What do you want me to do for you?*, as if it were not obvious, as if a man who could not see had to say it himself. *Master, let me see again.*
+
+The priest was a young Vietnamese Frenchman with a soft voice who was new that year, and he preached for about six minutes. He said that it was worth noticing that Bartimaeus had thrown away his cloak, which was probably the only thing he owned, before he knew for certain that anything was going to happen. And that the crowd had been told to be quiet and had told him to be quiet and then, when it was clear the Lord wanted him, had been the ones to say *Take heart*. He said that most of us have been the crowd at one time or another, and that it is never too late to be the part of the crowd that says *Take heart*. Then he sat down.
+
+Hélène thought about a man in a field in the Middle Atlas who had seen something in May 2052 and written it down, and had waited two years for somebody to read it.
+
+Her phone buzzed once in her pocket during the Creed. She did not look at it until afterwards, on the steps, in the thin October sun, with Inès hanging from her hand.
+
+*Yes,* Kasia had written. *G-4 goes to Sterne-3. One condition: its own lidar confirms the spin from two kilometres before it closes. If it says forty-one, we turn round and go to the rocket stage, and nobody is blamed. Capture window Thursday. Come and watch.*
+
+"Is that about your satellite?" said Inès.
+
+"Yes."
+
+"Is it good?"
+
+"Yes," said Hélène. "Come on. We'll buy bread."
+
+* * *
+
+On Thursday the twenty-ninth of October, at four minutes past ten in the morning, G-4 was two kilometres behind Sterne-3 and a little below it, seven hundred and eighty kilometres over the Southern Ocean south of Australia, and the operations room at Montaudran had all six desks filled.
+
+Hélène sat at the end of the row, on a borrowed chair, with a borrowed headset she was not allowed to talk into. On the wall screen there was a picture from G-4's camera: black sky, and in the middle of it a small bright shape, turning.
+
+"Lidar's locked," said a young man at the second desk. "Spin axis solution converging. Period ... eighty-two point zero. Eighty-two point one. Holding at eighty-two point one."
+
+Kasia, standing behind him, let out a breath that Hélène could hear from the end of the row.
+
+"Vigie?"
+
+"I agree," said Vigie. "Eighty-two point one seconds, four point four degrees a second, about a single axis, steady. The axis is where the two-radiator model puts it, across the long side, at right angles to the wing, turning end over end. The wing is tilted twenty-seven degrees from the radiators' plane, which is within the range the Ifrane flashes allowed. The capture fixture, the launch adapter ring on the far end of the body from the wing, is sweeping a circle about a metre in radius at about seven and a half centimetres a second. The wing tip is sweeping a circle about seven metres in radius at about fifty-four centimetres a second. G-4 will approach along the axis, outside both."
+
+"Go for approach," said Kasia.
+
+It took an hour and forty minutes, and it was the most boring thing Hélène had ever watched, and she could not have looked away from it if the building had been on fire. G-4 came in along the spin axis in steps, two kilometres, five hundred metres, a hundred, thirty, stopping at each to hold and look, with the whole room reading numbers aloud in a flat voice. At thirty metres the turning shape filled the camera, and Hélène saw it properly for the first time since a clean room in 2027: the grey box, the long dark wing with its glass catching the sun, the little square mirrors on the side, and, as it came round, the other side, the panel she had found room for in July 2027, with the same little square mirrors, a bit dusty, a bit pitted, after twenty-six years in the sky.
+
+"Matching spin," said the young man. "Star cameras good. Four point three. Four point four. Matched."
+
+And now, on the screen, Sterne-3 stopped turning, because G-4 was turning with it, and the whole sky behind it wheeled slowly round instead, the Earth coming up blue and white into the bottom of the picture and sliding away over the top and coming up again, once every eighty-two seconds.
+
+The arm went out. It went out slowly, a white jointed thing with a three-fingered hand at the end of it, across a metre and a half of nothing, to the ring on the end of the box. The hand opened. The fingers went round the ring. They closed.
+
+"Contact," said the young man. "Latched. Latched, all three. Loads nominal."
+
+Nobody cheered. That was not, Hélène gathered, how it was done in this room. Kasia said "Thank you," in a level voice, to everyone, and then, "Detumble when you're ready, slowly, ten minutes, I don't want to feel it."
+
+So they took ten minutes, on purpose, and the wheeling sky behind the satellite slowed, and slowed, and came to a stop, with the Earth at the bottom of the picture, blue and white and very bright, and above it the black, and in the middle, still now, the box and the wing and the mirrors, held.
+
+On the second screen, Vigie had put up the light curve from the Ariège telescope, live. The fence posts had stopped. The line ran on flat.
+
+* * *
+
+The deorbit was planned for the Sunday morning, the first of November, the feast of All Saints. G-4 would burn its engine over three passes to take the stack down from seven hundred and eighty kilometres to a low point of fifty, about two hundred metres a second in all, and the last burn would put it into the air over the empty South Pacific, a long way from anyone, where the pieces that did not burn would fall into thousands of metres of water. It would happen at a little after four in the morning, Toulouse time, and nobody would see it.
+
+On the Saturday evening, the last of October, Hélène drove Inès up to the hill at Pech-David with a flask of hot chocolate and Didier's binoculars. It was cold and very clear. The city lay below them in its orange haze, and the river was a dark curve through the middle of it, and somewhere in the villages below a church bell was ringing for something, faint and far off.
+
+Vigie had sent the time to the second. Hélène held the binoculars on the north-west and waited.
+
+"There," said Inès, who had the younger eyes. "There. There, Mamie."
+
+It came up out of the haze a little east of where Hélène had been looking, a faint point moving steadily among the stars, and she found it in the binoculars and held it. She waited for it to brighten. For twenty-one years it had always brightened, and dimmed, and brightened, every forty-one seconds, like something breathing.
+
+It did not brighten. It crossed the sky at the same faint, even, unwavering brightness the whole way, a small steady light, like a lamp being carried carefully along a road by somebody who knew where they were going.
+
+"It's not blinking," said Inès.
+
+"No," said Hélène. "It's been held."
+
+She gave the binoculars to the child and watched it with her own eyes until it went into the Earth's shadow, high in the south-east, and did not come out again.
+
+* * *
+
+*This story was written by an AI and may be read by a synthetic voice. Glaneuses, Avocette Spatial, the satellite Sterne-3, the tug G-4, the assistant Vigie and every person in the story are invented, and so is the removal list and the fund that pays for removals. Toulouse is real, and so are Saint-Cyprien, the Allées Jean-Jaurès, the Rue de la République, Montaudran and its old Aéropostale airfield, the hill at Pech-David, and the Basilica of Saint-Sernin; Ifrane and Azrou in Morocco's Middle Atlas, with their cedar forests, are real. Amateur observers really do time the flashes of satellites and share their timings, and a flash period really can be half the true spin period when a satellite has two similar faces, which is a standard caution in that hobby. Removing a dead satellite with a tug that catches it and burns up with it, and catching a spinning object by matching its spin along its axis, are ideas that have been studied and partly demonstrated in the 2020s. The speculative step is a working removal industry with a list and a fund by the 2050s. The Thirtieth Sunday in Ordinary Time in 2054 falls on 25 October; the year is lectionary Year B, whose Gospel that Sunday is Mark 10:46-52. All Saints, 1 November 2054, is a Sunday.*
+
+*This story is fiction. Nothing in it describes a real mission, satellite or company.*
+
+*The model. Orbit: circular at 780 km, so a radius of 7,158 km, a period of about 100.5 minutes and about 14.3 orbits a day, at a speed of about 7.46 km/s. Lowering the low point of the orbit from 780 km to 50 km for a controlled reentry takes about 203 m/s, the round two hundred of the story; for a stack of about 2,550 kg (1,150 kg of satellite and 1,400 kg of tug) that is about 160 kg of propellant at a specific impulse of 320 seconds. Spin: one flash every 41.0 seconds from each of two identical radiators on opposite faces means one turn every 82.0 seconds, 4.39 degrees a second; one radiator would have meant 8.78 degrees a second, against an invented tug envelope of 5. Shape: a box 0.9 by 1.6 by 1.2 m of 1,100 kg, with a 6.0 by 1.5 m wing of 50 kg whose root is 1.2 m from the box's centre along its 1.6 m side, so the centre of mass sits about 0.18 m towards the wing; the moment of inertia is largest about the axis across the long side at right angles to the wing, about which the model spins end over end. The capture ring, on the far end from the wing, is about 0.98 m from the centre of mass and moves at about 7.5 cm/s at the true spin; the wing tip is about 7.0 m from it, sweeping a circle about 14 m across at about 0.54 m/s (about 1.08 m/s had the spin been 41 seconds). Glints: a flat mirror flashes when it faces the direction halfway between the Sun and the observer, so two parallel opposite faces flash half a turn apart and only when that direction lies near the plane the faces turn through; a wing tilted out of that plane glints only when the direction lies at its tilt, once a turn, in step with the face it is tilted from. The wing's tilt of about thirty degrees (twenty-seven in the tug's measurement), the eight per cent flash noise and the timings of the Ifrane flashes are invented for the story, not computed from a modelled pass. A body of this size and weight at 780 km commonly takes more than a century to come down by itself, depending on the Sun's activity.*

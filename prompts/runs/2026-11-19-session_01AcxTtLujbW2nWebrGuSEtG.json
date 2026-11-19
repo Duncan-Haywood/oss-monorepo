@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtLujbW2nWebrGuSEtG",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [
+    "redacted"
+  ],
+  "started": "2026-11-19T07:06:54Z",
+  "ended": "2026-11-19T07:09:10Z",
+  "wall_minutes": 3.83,
+  "tokens_in": 2934495,
+  "tokens_out": 11667,
+  "cost_usd": 1.319,
+  "tool_calls": 40,
+  "task": "Critique mode: fix live faults (tracked egg-info voiding local sweeps; false-positive entity test red on main)",
+  "projects": [
+    "platform/ci",
+    "ventures/open-tennis-robots",
+    "ventures/einvoice-preflight",
+    "ventures/open-robot-mower"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17578",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog again held only owner rows; the 'Doc friction by file' list mixes control-plane files (prompts/*, CLAUDE.md) that a process run cannot change without owner approval with ungated ones, so finding an ungated target took scanning the whole list."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "record pre-fills model as the string \"null\" when given --model null; set it to JSON null by hand."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-generated-files-do-not-belong-in-git.md"
+  ],
+  "goal": null,
+  "notes": "Backlog: no agent-owned items (no ids touched). Fix 1: root .gitignore now ignores *.egg-info/, and 15 tracked egg-info files (einvoice-preflight, open-robot-mower, open-tennis-robots) were removed from the index; open-tennis-robots' pip install -e rewrote PKG-INFO and voided every local run_workflow_locally sweep (run record 2026-11-19T03:53); the site build also published them. git check-ignore confirms. Fix 2: main_health.py on main went 276/277; test_research_homepage_publish failed on 'marine-hull/index.html: &amp;S;' (\"A&S;\" in LOG.md, correctly escaped). The test now counts only names in html.entities.html5; 20/20 pass locally. No agent doc: nothing the next run needs beyond the post and this record.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e3132289-9f76-5b7b-b247-1f88696f12da",
+    "transcripts": 1,
+    "first": "2026-11-19T07:06:54Z",
+    "last": "2026-11-19T07:10:44Z",
+    "primary_model": "redacted",
+    "models": {
+      "redacted": {
+        "requests": 39,
+        "input": 77,
+        "output": 11667,
+        "thinking": 2487,
+        "cache_read": 2870517,
+        "cache_write_5m": 0,
+        "cache_write_1h": 63901,
+        "api_equivalent_usd": 1.319,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 77,
+      "output": 11667,
+      "thinking": 2487,
+      "cache_read": 2870517,
+      "cache_write_5m": 0,
+      "cache_write_1h": 63901,
+      "api_equivalent_usd": 1.319,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.83,
+      "active_minutes": 3.83,
+      "model_minutes": 2.66,
+      "tool_minutes": 1.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "diagnose two CI false alarms, untrack files, adjust a test, write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 113.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

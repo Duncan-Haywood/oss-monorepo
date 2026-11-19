@@ -551,15 +551,37 @@ export function spellsResult(values, labels, { u = null, maxPoints = SPELLS_MAX_
   if (!labels || labels.length !== values.length || !labels.every((l) => ISO_DAY.test(String(l)) && !Number.isNaN(Date.parse(String(l).slice(0, 10))))) {
     return { refused: 'it needs a date on every row (YYYY-MM-DD labels), to read the weekday of each update' };
   }
+  u = u || updateRateChanges(values);
   const { spells, penalty } = shortSpells(values, { days: daysFromDates(labels), u });
-  return { spells: spells.map((s) => ({ ...s, fromLabel: String(labels[s.from]), toLabel: String(labels[s.to]) })), penalty };
+  const edgeSpells = edgeSpellsOf(u).map((s) => ({ ...s, fromLabel: String(labels[s.from]), toLabel: String(labels[s.to]) }));
+  return { spells: spells.map((s) => ({ ...s, fromLabel: String(labels[s.from]), toLabel: String(labels[s.to]) })), edgeSpells, penalty };
+}
+
+// README "Short spells on a second provider": the spell search looks INSIDE the update-rate line's stretches, so a
+// spell whose two edges that line already cut (fewer updates, then back to more within EDGE_SPELL_MAX_STEPS) is not
+// found again. On NYT's Alaska series the default line cut 2021-06-04 and 2021-08-01 and the search said "none
+// found". This restates the default line's own two changes as one spell; it adds no test and no new p.
+export const EDGE_SPELL_MAX_STEPS = 120;
+export function edgeSpellsOf(u, maxSteps = EDGE_SPELL_MAX_STEPS) {
+  const out = [];
+  for (let k = 0; k + 1 < u.changes.length; k++) {
+    const a = u.changes[k], b = u.changes[k + 1], mid = u.stretches[k + 1];
+    if (a.direction === 'less often' && b.direction === 'more often' && mid.steps <= maxSteps) {
+      out.push({ from: mid.from, to: mid.to, steps: mid.steps, shareInside: mid.share, shareBefore: u.stretches[k].share, shareAfter: u.stretches[k + 2].share });
+    }
+  }
+  return out;
 }
 
 /** One plain line for the CLI and the page, or null when there is nothing to say. */
 export function spellsLine(res) {
   if (!res) return null;
   if (res.refused) return `Short spells of fewer updates: not searched, because ${res.refused}.`;
-  if (!res.spells.length) return 'Short spells of fewer updates: none found (no stretch of a month or so where the series repeated its last value clearly more often than before and after it).';
+  const edges = (res.edgeSpells || []).filter((e) => !res.spells.some((s) => s.from <= e.to && e.from <= s.to));
+  const edgeText = edges.length ? ` The update-rate line already dates ${edges.length === 1 ? 'a spell' : `${edges.length} spells`} as two changes, fewer updates and then back to more: ${edges.map((e) => `${e.fromLabel} to ${e.toLabel} (${e.steps} steps, ${pct(e.shareInside)} repeats inside, ${pct(e.shareBefore)} before, ${pct(e.shareAfter)} after)`).join('; ')}.` : '';
+  if (!res.spells.length) return edges.length
+    ? `Short spells of fewer updates: none inside the update-rate line's stretches.${edgeText}`
+    : 'Short spells of fewer updates: none found (no stretch of a month or so where the series repeated its last value clearly more often than before and after it).';
   const one = (s) => `${s.fromLabel} to ${s.toLabel} (${s.steps} steps): the value repeated on ${pct(s.shareInside)} of steps inside, against ${pct(s.shareOutside)} before and after${s.kind === 'dow' ? ', read weekday by weekday because the stretch runs on a weekly schedule' : ''}`;
-  return `Short spells of fewer updates: ${res.spells.length === 1 ? 'one spell' : `${res.spells.length} spells`} where the series was refreshed on fewer days for a while and then went back to its old schedule: ${res.spells.map(one).join('; ')}. This is about how often the data was published (a reduced reporting schedule, a holiday spell), not its level; a jump at the end of a spell may be a catch-up.`;
+  return `Short spells of fewer updates: ${res.spells.length === 1 ? 'one spell' : `${res.spells.length} spells`} where the series was refreshed on fewer days for a while and then went back to its old schedule: ${res.spells.map(one).join('; ')}. This is about how often the data was published (a reduced reporting schedule, a holiday spell), not its level; a jump at the end of a spell may be a catch-up.${edgeText}`;
 }

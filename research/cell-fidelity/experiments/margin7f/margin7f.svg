@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 394" role="img" aria-label="Each rule's two points: zero margin (left, cheaper) and the margin chosen by nested leave-one-pool-out. With the margin, triage by threshold or by fraction meets the held-out tail target in 9 and 10 of 12 folds at 40 DFN cycles per design; the uniform rule needs all 50.">
+<rect width="640" height="394" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">cell-fidelity 7f: held-out hits against DFN cycles</text>
+<line x1="64" x2="624" y1="338.0" y2="338.0" stroke="#ddd"/><text x="58" y="342.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="295.9" y2="295.9" stroke="#ddd"/><text x="58" y="299.9" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="253.7" y2="253.7" stroke="#ddd"/><text x="58" y="257.7" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="211.6" y2="211.6" stroke="#ddd"/><text x="58" y="215.6" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<line x1="64" x2="624" y1="169.4" y2="169.4" stroke="#ddd"/><text x="58" y="173.4" text-anchor="end" font-family="sans-serif" font-size="11">8</text>
+<line x1="64" x2="624" y1="127.3" y2="127.3" stroke="#ddd"/><text x="58" y="131.3" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="85.2" y2="85.2" stroke="#ddd"/><text x="58" y="89.2" text-anchor="end" font-family="sans-serif" font-size="11">12</text>
+<text x="64.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">26.4583</text>
+<text x="83.8" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">27.2917</text>
+<text x="247.4" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">34.1667</text>
+<text x="385.3" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">39.9653</text>
+<text x="425.8" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">41.6667</text>
+<text x="624.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="344.0" y="382" text-anchor="middle" font-family="sans-serif" font-size="12">held-out DFN cycles per design</text>
+<text x="14" y="204.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 204.0)">folds meeting the target (of 12)</text>
+<polyline points="64.0,274.8 385.3,148.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="274.8" r="3" fill="#c0392b"/>
+<circle cx="385.3" cy="148.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">threshold on drift score</text>
+<polyline points="83.8,253.7 385.3,127.3" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="83.8" cy="253.7" r="3" fill="#1f6fb2"/>
+<circle cx="385.3" cy="127.3" r="3" fill="#1f6fb2"/>
+<rect x="246.8" y="32" width="14" height="10" fill="#1f6fb2"/><text x="266.8" y="41" font-family="sans-serif" font-size="11">flag fraction</text>
+<polyline points="83.8,253.7 247.4,211.6" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="83.8" cy="253.7" r="3" fill="#2e8b57"/>
+<circle cx="247.4" cy="211.6" r="3" fill="#2e8b57"/>
+<rect x="361.4" y="32" width="14" height="10" fill="#2e8b57"/><text x="381.4" y="41" font-family="sans-serif" font-size="11">fraction + delta</text>
+<polyline points="425.8,190.5 624.0,85.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="425.8" cy="190.5" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="85.2" r="3" fill="#8e44ad"/>
+<rect x="64" y="46" width="14" height="10" fill="#8e44ad"/><text x="84" y="55" font-family="sans-serif" font-size="11">uniform run length</text>
+</svg>
