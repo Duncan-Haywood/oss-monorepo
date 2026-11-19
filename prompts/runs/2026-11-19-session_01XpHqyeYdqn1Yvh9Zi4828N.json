@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyeYdqn1Yvh9Zi4828N",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T21:38:56Z",
+  "ended": "2026-11-19T21:43:53Z",
+  "wall_minutes": 5.17,
+  "tokens_in": 3481263,
+  "tokens_out": 21974,
+  "cost_usd": 1.764,
+  "tool_calls": 45,
+  "task": "polish: shorten the 7 long flagship hero ledes (item 1 of polish-2026-11-19-flagship-hero-order.md)",
+  "projects": [
+    "ai-bookkeeper",
+    "sales-agent",
+    "shift-roster-builder",
+    "league-schedule-generator",
+    "open-tennis-robots",
+    "changepoint-detector",
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17802",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "Tried `git checkout -b` onto the session branch, but the harness had already checked it out (one wasted call)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "It says to start a full build (3-20 min) before choosing. `--only` previews (~30 s each) were enough for the before/after measurements, so the full build went unused."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-one-sentence-under-the-buttons.md",
+    "docs/reports/polish-2026-11-19-short-ledes.md"
+  ],
+  "goal": null,
+  "notes": "Measured with Playwright on --only previews of main and the branch (8 flagships, 390x844 and 1280x800). At 390, first cards moved up 33-171 px. At 1280, five pages are 8-42 px taller (reported). The new lede-word test fails for all 7 edited pages on main and passes on the branch. Ran the 47 venture tests that read index.html and the platform/pages suite; results are in the PR's final state.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fe49e646-30d6-5fb9-ac11-1fcd80eddbb0",
+    "transcripts": 1,
+    "first": "2026-11-19T21:38:56Z",
+    "last": "2026-11-19T21:44:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 79,
+        "output": 21974,
+        "thinking": 4947,
+        "cache_read": 3400674,
+        "cache_write_5m": 0,
+        "cache_write_1h": 80510,
+        "api_equivalent_usd": 1.764,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 79,
+      "output": 21974,
+      "thinking": 4947,
+      "cache_read": 3400674,
+      "cache_write_5m": 0,
+      "cache_write_1h": 80510,
+      "api_equivalent_usd": 1.764,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 38,
+      "Read": 3,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.17,
+      "active_minutes": 5.17,
+      "model_minutes": 3.63,
+      "tool_minutes": 1.54,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "copy rewrite of 7 hero ledes, before/after measurement script, a test, report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 170.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
