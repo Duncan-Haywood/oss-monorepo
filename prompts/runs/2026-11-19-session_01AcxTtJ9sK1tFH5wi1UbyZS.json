@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
   "errors": [
     "First sheet.test.mjs run called checkIds without schema resources (TypeError reading 'IFC4'); switched to node.mjs check().",
-    "run_venture_tests flagged two unguarded PARTS[...] lookups (inherited_keys.py); guarded with Object.hasOwn."
+    "run_venture_tests flagged two unguarded PARTS[...] lookups (inherited_keys.py); guarded with Object.hasOwn.",
+    "CI changed-ventures failed: literal U+FEFF in sheet.mjs and sheet.test.mjs (check_hidden_unicode.py, not run by run_venture_tests locally); written as \\ufeff escapes."
   ],
   "integrity_issues": [],
   "doc_friction": [

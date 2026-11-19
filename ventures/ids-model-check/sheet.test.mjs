@@ -144,7 +144,7 @@ test("IDS 0.9 forms are repaired before the sheet is made", () => {
 });
 
 test("CSV reader: quotes, doubled quotes, line breaks in a cell, tabs, a byte-order mark", () => {
-  assert.deepEqual(csvToRows('﻿a,b\r\n"x, ""y""","line1\nline2"\r\n'), [["a", "b"], ['x, "y"', "line1\nline2"]]);
+  assert.deepEqual(csvToRows('\ufeffa,b\r\n"x, ""y""","line1\nline2"\r\n'), [["a", "b"], ['x, "y"', "line1\nline2"]]);
   assert.deepEqual(csvToRows("a\tb\n1\t2"), [["a", "b"], ["1", "2"]]);
   assert.throws(() => csvToRows('a,b\n"open'), /inside a quoted cell/);
 });

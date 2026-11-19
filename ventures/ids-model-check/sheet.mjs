@@ -423,7 +423,7 @@ export function rowsToCsv(rows, sep = ",") {
     if (FORMULA.test(s)) s = "\\" + s;
     return /["\n\r]/.test(s) || s.includes(sep) || /^\s|\s$/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-  return "﻿" + rows.map((r) => r.map(q).join(sep)).join("\r\n") + "\r\n";
+  return "\ufeff" + rows.map((r) => r.map(q).join(sep)).join("\r\n") + "\r\n";
 }
 
 export function csvToRows(text) {
