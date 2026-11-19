@@ -405,14 +405,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "Short takes on a second held-out set"
-      (2026-11-19: grid now 0,1.5,2.5,3-8 ms; set N 45 vs 40 of 66 within 0.5 ms
-      offline, 49 vs 39 on the board; Pi hold 14 s a ball). TAKE_US = 0 bound: 2 ppm
-      floor shipped 2026-11-19 (eval/take-bound-floor-p-2026-11-19.md, set P 48 of
-      48). One-wheel verdicts by drill closed 2026-11-19
-      (eval/take-survey-kept-drills-2026-11-19.md, 6 of 432). Next: the sub-8
-      advised instant build. 4-magnet tach closed 2026-11-19
-      (eval/tach-pulses-2026-11-19.md).
+      see firmware/esp32/README.md, latest "The sub-8 advised instant build was the
+      frame's rounding" (2026-11-19: whole-ppm share guard shipped, fresh set 53 of
+      54, eval/take-share-rounding-2026-11-19.md). Next: TAKE_SURVEY rms in 0.1 ppm
+      (a new frame length, protocol.OLDER_FORMATS keeps the old), which removes the
+      guard's cause; TAKE_SURVEY_BLIND's 1.5 rechecked on a fresh jittery-tach set at
+      the nine-point grid.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
