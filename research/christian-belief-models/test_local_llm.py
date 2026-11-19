@@ -62,3 +62,14 @@ def test_profile_has_no_item_answers():
                        reliten=1, raised_catholic=1, attend=8, premarsx=1))
     t = llm.profile(r)
     assert 'Catholic' in t and '2018' in t and 'attend' not in t.lower() and 'wrong' not in t.lower()
+
+
+def test_scale_slope_and_loglinear():
+    s = _load('scale')
+    t = np.linspace(-0.3, 0.3, 40)
+    assert abs(s.slope(t, 0.25 * t + 0.01) - 0.25) < 1e-12
+    lo_hi = s.boot_slope(t, 0.25 * t, 200, np.random.default_rng(0))
+    assert abs(lo_hi[0] - 0.25) < 1e-12 and abs(lo_hi[1] - 0.25) < 1e-9 and abs(lo_hi[2] - 0.25) < 1e-9
+    a, b, n1 = s.loglinear([1.0, 2.0, 4.0], [0.1, 0.2, 0.3])
+    assert abs(b - 0.1) < 1e-12 and abs(a - 0.1) < 1e-12 and abs(n1 - 2 ** 9) < 1e-6
+    assert s.loglinear([1.0, 2.0], [0.3, 0.2])[2] == float('inf')
