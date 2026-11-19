@@ -151,3 +151,12 @@ test("regexes inside a template literal's ${...} are found; the template text an
   const src = '#!/usr/bin/env node\nconst a = `x ${b.replace(/(\\n\\s*-{3,}\\s*)+$/, "")} y ${ {k: 1}.k } </td><td>${c}</td>`;\nconst d = /e+f/;\nconst g = `${`${/h+i/.source}`}`;\n';
   assert.deepEqual(extractJsRegexes(src).map((r) => [r.line, r.pattern]), [[2, "(\\n\\s*-{3,}\\s*)+$"], [3, "e+f"], [4, "h+i"]]);
 });
+
+// quality audit 2026-11-19 (portfolio/quality/audits/2026-11-19-regex-redos-check.json): these hung V8 and were reported clean
+test("a flexible bounded count or an optional branch under a repeat is an error", () => {
+  assert.ok(rules("^([a-z0-9]{2,4})+$").includes("nested-quantifier"));
+  assert.ok(rules("^(a{2,4})+$").includes("nested-quantifier"));
+  assert.ok(rules("^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$").includes("nested-quantifier"));
+  assert.ok(rules("^(a|a?)+$").includes("overlapping-alternation"));
+  for (const p of ["^(a{3})+$", "^(?:ab{2,4})+$", "^(a?)+$", "^(\\d{3}-)+\\d{4}$", "(a|b?)+c"]) assert.deepEqual(rules(p), [], p);
+});
