@@ -13,6 +13,8 @@ or is not yet in the register.
     python3 research/_shared/venue_policy.py --json     # machine-readable
     python3 research/_shared/venue_policy.py --strict   # exit 1 if any programme names
                                                         # only prohibiting venues
+    python3 research/_shared/venue_policy.py --venue "IEEE Access" --venue "Energies (MDPI)"
+                                                        # classify candidate venues
 
 Stdlib only; no network.
 """
@@ -86,7 +88,19 @@ def main(argv=None):
     ap.add_argument("--programmes", default=str(RESEARCH / "PROGRAMMES.md"))
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--strict", action="store_true")
+    ap.add_argument("--venue", action="append", default=[],
+                    help="classify this venue text instead of PROGRAMMES.md (repeatable)")
     a = ap.parse_args(argv)
+    if a.venue:
+        reg = load_register()
+        for text in a.venue:
+            hits = classify(text, reg)
+            v = verdict(hits)
+            if {"prohibits", "disclose"} <= {h["policy"] for h in hits}:
+                v = "mixed"  # one venue under two publishers' rules (e.g. co-sponsored)
+            m = ", ".join(f'{h["id"]}={h["policy"]}' for h in hits) or "-"
+            print(f"{v:<20} {text:<48} {m}")
+        return 0
     rows = report(Path(a.programmes).read_text(), load_register())
     if a.json:
         print(json.dumps(rows, indent=1))
