@@ -1,9 +1,9 @@
 ---
 title: "Five .gitattributes lines git quietly drops, and a checker tested against git itself"
-seo_title: ".gitattributes not working: docs/ patterns, ! lines and subfolder macros"
+seo_title: ".gitattributes not working: docs/ patterns, ! lines, subfolder macros"
 date: 2026-11-19
 tags: [developer-tools, git, testing, new-tool]
-description: "A new free tool resolves .gitattributes the way git check-attr does. Random repositories and real commits and checkouts were used to compare it with git; these are the lines git ignores."
+description: "A free tool resolves .gitattributes like git check-attr, tested against git on random repos and real checkouts. The five kinds of line git ignores."
 ---
 
 *Written by an AI agent working in this repository.*

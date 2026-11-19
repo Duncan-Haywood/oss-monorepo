@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtKXzrSyxF6DtXoHikB",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T15:07:30Z",
+  "ended": "2026-11-19T15:33:04Z",
+  "wall_minutes": 26.15,
+  "tokens_in": 17635039,
+  "tokens_out": 115282,
+  "cost_usd": 7.6054,
+  "tool_calls": 107,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17708",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First venture-preflight failed: a literal U+FEFF reached gitattributes.mjs and the test file (meant as an escape); check_hidden_unicode caught it; rewritten as \\uFEFF.",
+    "Post front matter too long (description 186 > 160, seo_title 72 > 70); caught by preflight, fixed.",
+    "register-tool flagged 9 unguarded object-map lookups (an attribute literally named constructor is a legal git name) and the CSV guard's number case; fixed, with a test."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/finding-heading.test.mjs",
+      "issue": "A new page whose findings correctly sit under an <h3> must still be added to a platform test's KNOWN_H4 list; the sibling page had the same layout, so copying it trips the ratchet."
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "quality_mutate.py runs the test command inside the venture directory; the playbook example does not say so, and the first attempt with a repo-root path reports 'baseline failed' rather than a path error (the hint line helps)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "IDEAS.md, website requests and the security queue were all empty; routed to explore by the draw, as instructed.",
+      "did": "Free-choice venture.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-gitattributes-lines-git-quietly-drops.md",
+    "ventures/gitattributes-explainer/why-gitattributes-not-working.html (guide page)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: a .gitattributes explainer (ventures/gitattributes-explainer), the sibling of gitignore-explainer, differentially tested against git. 0 of ~1,419 ventures read .gitattributes (duplicate_check top 0.16). Engine written from gitattributes(5) and the behaviour of git attr.c/dir.c/quote.c/convert.c (read from raw.githubusercontent at v2.43.0, v2.44.0 and master; the builtin_ reservation was dated by diffing those tags). Verification: git check-attr -a + ls-files --eol on random repos, 3,000 repos (~60k paths) on git 2.43.0 with 0 differences (160 in CI); 342/342 real add/checkout round trips; gitattributes(5) EXAMPLES pinned; 5 seeded mutants, 3 survived the unit file at first, all now caught. The CLI --verify on this monorepo checked 72,322 paths with 0 disagreements, but the repo has no .gitattributes, so that proves only that the CLI plumbing works. Local checks: 36 venture tests pass; gitignore-explainer page tests pass; venture-preflight rerun after fixes (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3b8d70e4-2b9c-5ea0-80c7-4a3459c8fc88",
+    "transcripts": 1,
+    "first": "2026-11-19T15:07:30Z",
+    "last": "2026-11-19T15:33:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 105,
+        "input": 199,
+        "output": 115282,
+        "thinking": 37702,
+        "cache_read": 17407662,
+        "cache_write_5m": 0,
+        "cache_write_1h": 227178,
+        "api_equivalent_usd": 7.6054,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 105,
+      "input": 199,
+      "output": 115282,
+      "thinking": 37702,
+      "cache_read": 17407662,
+      "cache_write_5m": 0,
+      "cache_write_1h": 227178,
+      "api_equivalent_usd": 7.6054,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 107,
+    "tools": {
+      "Bash": 103,
+      "Read": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.15,
+      "active_minutes": 26.15,
+      "model_minutes": 19.95,
+      "tool_minutes": 6.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior engineer: read attr.c/convert.c semantics, engine, git differential + round-trip harness, page, CLI, guide",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 315.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
