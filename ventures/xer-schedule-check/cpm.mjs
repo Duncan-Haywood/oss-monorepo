@@ -310,7 +310,7 @@ export function schedule(xer, options = {}) {
   const proj = (t) => projects.get(t.proj) || { dataDate: model.anchor ?? null, retainedLogic: true, progressOverride: false, floatType: "FT_FF" };
   const done = (t) => t.status === "TK_Complete";
   const active = (t) => t.status === "TK_Active";
-  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", bwDoneSuccLag: ["PR_FS"], bwRsrcRemain: "zero", bwDoneSSLeft: true, alapActive: true, activeSSLeft: "future", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ...(options.variant || {}) };
+  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", bwDoneSuccLag: ["PR_FS"], bwRsrcRemain: "zero", bwDoneSSLeft: true, bwDoneLagLeft: true, alapActive: true, activeSSLeft: "future", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ...(options.variant || {}) };
   const delay = options.delay || null; // { taskId, minutes }: added remaining duration (critical path test)
   // options.durations: Map(task id -> remaining minutes) in place of the file's
   // (risk.mjs's sampled durations); options.forwardOnly: stop after the
@@ -479,6 +479,17 @@ export function schedule(xer, options = {}) {
     const fins = [];
     const starts = [];
     if (p.lateEnd !== null && p.lateEnd !== undefined) fins.push(p.lateEnd);
+    // A finished activity's FS or FF lag runs from its actual finish (forward
+    // rule 5). The part of it not yet spent at the data date still runs, so
+    // the node's late date is that much before the successor's (rule 17).
+    const doneLeft = (rel) => {
+      if (!V.bwDoneLagLeft || !done(t) || !rel.lag || t.actEnd === null || t.actEnd === undefined || p.dataDate === null || p.dataDate === undefined) return 0;
+      if (rel.type !== "PR_FS" && rel.type !== "PR_FF") return 0;
+      const lc = lagCalendar(model, rel);
+      const left = rel.lag - (t.actEnd < p.dataDate ? lc.workBetween(t.actEnd, p.dataDate) : 0);
+      return left > 0 ? left : 0;
+    };
+    const minusLeft = (v, rel) => { const l = doneLeft(rel); return l ? lagCalendar(model, rel).subWork(v, l) : v; };
     for (const rel of t.succs) {
       const s = tasks.get(rel.succId);
       if (s.span) continue;
@@ -492,7 +503,7 @@ export function schedule(xer, options = {}) {
         // pushes it by pred + lag), so the backward mirror takes it off.
         const lagd = V.bwDoneSuccLag && !done(t) ? lagCalendar(model, rel) : null;
         const back = (v, types) => lagd && rel.lag && (types.includes(rel.type) || (rel.type === "PR_SS" && active(t) && V.bwDoneSuccLagSSActive)) ? lagd.subWork(v, rel.lag) : v;
-        if (rel.type === "PR_FS") fins.push(back(sv.remLS, V.bwDoneSuccLag));
+        if (rel.type === "PR_FS") fins.push(minusLeft(back(sv.remLS, V.bwDoneSuccLag), rel));
         else if (rel.type === "PR_SS") {
           starts.push(back(sv.remLS, V.bwDoneSuccLag));
           // mirror of rule "maxleft": a started predecessor's SS lag not yet
@@ -504,7 +515,7 @@ export function schedule(xer, options = {}) {
             if (left > 0) starts.push(lc.subWork(sv.remLS, left));
           }
         }
-        else if (rel.type === "PR_FF") fins.push(back(sv.lf, V.bwDoneSuccLag));
+        else if (rel.type === "PR_FF") fins.push(minusLeft(back(sv.lf, V.bwDoneSuccLag), rel));
         continue;
       }
       if (active(s)) {
@@ -521,14 +532,15 @@ export function schedule(xer, options = {}) {
         }
       }
       const lc = lagCalendar(model, rel);
-      if (rel.type === "PR_FS" && V.bwDoneFS && done(t)) fins.push(V.bwDoneFS === "nolag" ? sv.remLS : lc.subWork(sv.remLS, rel.lag));
+      const doneNoLag = V.bwDoneFS === "nolag" || (V.bwDoneFS === "active" && active(s));
+      if (rel.type === "PR_FS" && V.bwDoneFS && done(t)) fins.push(doneNoLag ? minusLeft(sv.remLS, rel) : lc.subWork(sv.remLS, rel.lag));
       else if (rel.type === "PR_FS") fins.push(lc.subWork(sv.remLS, rel.lag));
       else if (rel.type === "PR_SS" && V.bwDoneSS && done(t)) starts.push(V.bwDoneSS === "nolag" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));
       else if (rel.type === "PR_SS" && V.bwSSActivePred && active(t)) starts.push(V.bwSSActivePred === "rem" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));
       else if (rel.type === "PR_SS") starts.push(lc.subWork(sv.remLS, rel.lag));
-      else if (rel.type === "PR_FF" && V.bwDoneFS && done(t)) fins.push(V.bwDoneFS === "nolag" ? sv.lf : lc.subWork(sv.lf, rel.lag));
+      else if (rel.type === "PR_FF" && V.bwDoneFS && done(t)) fins.push(doneNoLag ? minusLeft(sv.lf, rel) : lc.subWork(sv.lf, rel.lag));
       else if (rel.type === "PR_FF") fins.push(lc.subWork(sv.lf, rel.lag));
-      else if (rel.type === "PR_SF" && V.bwDoneFS && done(t)) starts.push(V.bwDoneFS === "nolag" ? sv.lf : lc.subWork(sv.lf, rel.lag));
+      else if (rel.type === "PR_SF" && V.bwDoneFS && done(t)) starts.push(doneNoLag ? sv.lf : lc.subWork(sv.lf, rel.lag));
       else if (rel.type === "PR_SF") starts.push(lc.subWork(sv.lf, rel.lag));
     }
     if (done(t)) {

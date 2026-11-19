@@ -301,7 +301,11 @@ run as a formula in Excel or Sheets.
   predecessor's FS lag into a finished node comes back off, a labour
   assignment's remaining work sets the late start of an activity with no
   remaining duration, unspent SS lag into a finished node, as late as possible
-  on started work, and a future actual start that has spent no lag).
+  on started work, and a future actual start that has spent no lag). A fifth
+  pass (rule 17: a finished activity's FS/FF lag not yet spent at the data
+  date comes back off its late date) brought the late dates P6 stores for
+  finished activities from 1,497 to 1,529 of 1,534 in that file (1,550 of
+  1,555 over the six); the 5 left are one chain.
 - **A seventh P6 file, and edited durations** (`eval/edited-durations-2026-11-19.md`):
   Harbour Pointe Assisted Living Center (P6 17.12, a public copy found by a
   size-split code search) matched on 88 of 113 at first. All 25 that differ
@@ -340,7 +344,7 @@ run as a formula in Excel or Sheets.
   float and free float worked by hand (open ends against a must-finish date,
   negative total float, spent SS lags, finished successors); a file with no data
   date, PROJECT table or calendar pattern; the recomputed-schedule CSV; an SS lag partly spent at the data date and
-  a finished node's late date with no lag back; constraints and negative float against a
+  a finished node's late date with only its unspent lag back; constraints and negative float against a
   must-finish-by date; progress with a lag after a finished predecessor;
   retained logic through out-of-sequence progress (SS from started work,
   finished activities as nodes in both passes); ALAP;
