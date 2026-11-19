@@ -123,6 +123,10 @@ def units():
     return out
 
 
+def counts(us, folds):
+    return ", ".join("%s %d" % (f, sum(u["fold"] == f for u in us)) for f in folds)
+
+
 def mean(us, a):
     return statistics.mean(swc(u["cell"], a) for u in us)
 
@@ -184,9 +188,9 @@ def main(dst):
     out = ["# Milestone 151: the clip's alpha per corner, chosen leave-one-milestone-out at ff and replayed at tt (no flow run)", "",
            f"theta = {THETA}; grid {', '.join(aname(a) for a in GRID)}; {score.DRAWS} draws per cell; design bootstrap {BOOT} "
            f"resamples, seed {SEED}.",
-           f"ff: {len(ff)} designs ({', '.join(f'{f} {sum(u['fold'] == f for u in ff)}' for f in sorted({u['fold'] for u in ff}))}), "
+           f"ff: {len(ff)} designs ({counts(ff, sorted({u['fold'] for u in ff}))}), "
            f"ladder branch {sum(u['cell']['ratio'] > THETA for u in ff)}.",
-           f"tt: {len(tt)} cells ({', '.join(f'{f} {sum(u['fold'] == f for u in tt)}' for f in ('H52', 'B24', 'B42'))}), "
+           f"tt: {len(tt)} cells ({counts(tt, ('H52', 'B24', 'B42'))}), "
            f"ladder branch {sum(u['cell']['ratio'] > THETA for u in tt)}.", ""]
     check = {"ff SWC(1.25)": mean(ff, 1.25), "tt B42 SWC(1.25)": mean([u for u in tt if u["fold"] == "B42"], 1.25)}
     out += ["reproduction: " + "; ".join(f"{k} {v:.2f}%" for k, v in check.items()) + " (published 2.98% and 3.30%)", ""]
@@ -196,7 +200,8 @@ def main(dst):
     table(ff, "ff", out)
     out += ["", "per milestone (mean %):", "alpha | " + " | ".join(sorted({u['fold'] for u in ff}))]
     for a in GRID + EXTRA:
-        out.append(f"{aname(a)} | " + " | ".join(f"{mean([u for u in ff if u['fold'] == f], a):.2f}" for f in sorted({u['fold'] for u in ff})))
+        fs = sorted({u["fold"] for u in ff})
+        out.append(f"{aname(a)} | " + " | ".join("%.2f" % mean([u for u in ff if u["fold"] == f], a) for f in fs))
     best_ff = choose(ff)
 
     # (b) ff LOMO (primary)

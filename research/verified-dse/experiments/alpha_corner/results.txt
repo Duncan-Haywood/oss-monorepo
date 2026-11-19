@@ -1,0 +1,211 @@
+# Milestone 151: the clip's alpha per corner, chosen leave-one-milestone-out at ff and replayed at tt (no flow run)
+
+theta = 3; grid 0, 0.5, 0.8, 1, 1.25; 200 draws per cell; design bootstrap 2000 resamples, seed 151.
+ff: 77 designs (m144 31, m145 20, m146 6, m147 20), ladder branch 73.
+tt: 118 cells (H52 52, B24 24, B42 42), ladder branch 82.
+
+reproduction: ff SWC(1.25) 2.98%; tt B42 SWC(1.25) 3.30% (published 2.98% and 3.30%)
+
+## (a) ff, every alpha, 77 designs
+
+alpha | ff mean % | worst % (design) | better / worse / tied vs 1.25 | 95% interval of mean (alpha - 1.25), points
+0 | 2.69 | 66.62 (m147:csum2) | 12 / 4 / 61 | -2.19 to +1.96
+0.5 | 2.74 | 66.62 (m147:csum2) | 12 / 4 / 61 | -2.16 to +1.99
+0.8 | 3.39 | 66.62 (m147:csum2) | 8 / 5 / 64 | -1.14 to +2.52
+1 | 3.44 | 77.17 (m147:csum2) | 6 / 3 / 68 | -1.22 to +2.83
+1.25 | 2.98 | 32.46 (m144:dot4r) | 0 / 0 / 77 | +0.00 to +0.00
+unclipped (not selectable) | 5.59 | 32.46 (m144:dot4r) | 2 / 21 / 54 | +0.99 to +4.27
+1.5 (not selectable) | 4.02 | 32.46 (m144:dot4r) | 1 / 10 / 66 | +0.31 to +1.95
+2 (not selectable) | 5.05 | 32.46 (m144:dot4r) | 2 / 19 / 56 | +0.59 to +3.57
+3 (not selectable) | 5.35 | 32.46 (m144:dot4r) | 2 / 21 / 54 | +0.81 to +3.94
+
+per milestone (mean %):
+alpha | m144 | m145 | m146 | m147
+0 | 1.46 | 2.50 | 0.11 | 5.55
+0.5 | 1.46 | 2.70 | 0.11 | 5.55
+0.8 | 3.06 | 2.79 | 0.11 | 5.50
+1 | 3.11 | 2.77 | 0.11 | 5.59
+1.25 | 3.78 | 3.48 | 0.11 | 2.09
+unclipped | 5.95 | 7.58 | 0.11 | 4.68
+1.5 | 4.75 | 4.18 | 0.11 | 3.89
+2 | 4.92 | 7.58 | 0.11 | 4.20
+3 | 5.36 | 7.58 | 0.11 | 4.68
+
+## (b) ff leave-one-milestone-out (PRIMARY)
+
+held-out milestone | alpha chosen on the other three | its mean % | SWC(1.25) there %
+m144 | 1.25 | 3.78 | 3.78
+m145 | 0 | 2.50 | 3.48
+m146 | 0 | 0.11 | 0.11
+m147 | 0 | 5.55 | 2.09
+pooled: LOMO 3.62% against SWC(1.25) 2.98%; difference +0.64 points, design-bootstrap 95% interval -0.83 to +2.76; better on 6, worse on 4, tied on 67
+in-sample best alpha at ff: 0 (2.69%)
+
+## (c) tt, every alpha
+
+### H52
+
+alpha | H52 mean % | worst % (design) | better / worse / tied vs 1.25 | 95% interval of mean (alpha - 1.25), points
+0 | 16.31 | 342.95 (large:adder_op64) | 0 / 17 / 35 | +4.60 to +30.07
+0.5 | 6.83 | 46.18 (fanout_rich:bcastadd64) | 0 / 16 / 36 | +2.26 to +10.26
+0.8 | 1.54 | 12.18 (unfaithful:mult20) | 1 / 9 / 42 | +0.20 to +1.52
+1 | 0.97 | 8.24 (large:mult16) | 0 / 3 / 49 | +0.00 to +0.55
+1.25 | 0.77 | 7.06 (hostile:rotmix64) | 0 / 0 / 52 | +0.00 to +0.00
+unclipped (not selectable) | 1.66 | 13.17 (large:mult32) | 0 / 5 / 47 | +0.22 to +1.69
+1.5 (not selectable) | 1.65 | 12.58 (large:mult32) | 0 / 5 / 47 | +0.22 to +1.66
+2 (not selectable) | 1.66 | 13.17 (large:mult32) | 0 / 5 / 47 | +0.22 to +1.69
+3 (not selectable) | 1.66 | 13.17 (large:mult32) | 0 / 5 / 47 | +0.22 to +1.69
+
+### B24
+
+alpha | B24 mean % | worst % (design) | better / worse / tied vs 1.25 | 95% interval of mean (alpha - 1.25), points
+0 | 6.34 | 30.99 (pilot_clip:mult30) | 5 / 11 / 8 | +0.56 to +10.05
+0.5 | 6.34 | 30.99 (pilot_clip:mult30) | 5 / 11 / 8 | +0.56 to +10.05
+0.8 | 4.57 | 16.55 (pilot_clip:sq28) | 5 / 11 / 8 | -0.03 to +6.39
+1 | 1.78 | 11.55 (pilot_clip:barrel256) | 2 / 5 / 17 | -0.33 to +0.66
+1.25 | 1.60 | 11.55 (pilot_clip:barrel256) | 0 / 0 / 24 | +0.00 to +0.00
+unclipped (not selectable) | 3.91 | 11.55 (pilot_clip:barrel256) | 1 / 9 / 14 | +0.85 to +3.74
+1.5 (not selectable) | 3.75 | 11.55 (pilot_clip:barrel256) | 1 / 8 / 15 | +0.71 to +3.59
+2 (not selectable) | 3.91 | 11.55 (pilot_clip:barrel256) | 1 / 9 / 14 | +0.85 to +3.74
+3 (not selectable) | 3.91 | 11.55 (pilot_clip:barrel256) | 1 / 9 / 14 | +0.85 to +3.74
+
+### B42
+
+alpha | B42 mean % | worst % (design) | better / worse / tied vs 1.25 | 95% interval of mean (alpha - 1.25), points
+0 | 3.98 | 26.32 (amount_lanes:pmul4) | 1 / 6 / 35 | -0.26 to +1.86
+0.5 | 3.98 | 26.24 (amount_lanes:pmul4) | 1 / 6 / 35 | -0.26 to +1.85
+0.8 | 3.96 | 26.23 (amount_lanes:pmul4) | 1 / 6 / 35 | -0.26 to +1.82
+1 | 3.36 | 26.16 (amount_lanes:pmul4) | 1 / 5 / 36 | -0.76 to +0.70
+1.25 | 3.30 | 24.78 (amount_lanes:pmul4) | 0 / 0 / 42 | +0.00 to +0.00
+unclipped (not selectable) | 5.08 | 25.97 (blind_probe:gray0) | 3 / 12 / 27 | -0.35 to +3.93
+1.5 (not selectable) | 3.22 | 23.86 (amount_lanes:pmul4) | 3 / 3 / 36 | -1.28 to +0.85
+2 (not selectable) | 5.06 | 34.32 (amount_lanes:avg5) | 4 / 8 / 30 | -0.45 to +4.10
+3 (not selectable) | 5.68 | 34.02 (amount_lanes:avg5) | 3 / 12 / 27 | -0.20 to +5.15
+
+### all 118 tt cells
+
+alpha | tt mean % | worst % (design) | better / worse / tied vs 1.25 | 95% interval of mean (alpha - 1.25), points
+0 | 9.90 | 342.95 (large:adder_op64) | 6 / 34 / 78 | +2.91 to +14.86
+0.5 | 5.71 | 46.18 (fanout_rich:bcastadd64) | 6 / 33 / 79 | +1.86 to +6.13
+0.8 | 3.02 | 26.23 (amount_lanes:pmul4) | 7 / 26 / 85 | +0.42 to +2.12
+1 | 1.99 | 26.16 (amount_lanes:pmul4) | 3 / 13 / 102 | -0.19 to +0.46
+1.25 | 1.84 | 24.78 (amount_lanes:pmul4) | 0 / 0 / 118 | +0.00 to +0.00
+unclipped (not selectable) | 3.33 | 25.97 (blind_probe:gray0) | 4 / 26 / 88 | +0.62 to +2.41
+1.5 (not selectable) | 2.64 | 23.86 (amount_lanes:pmul4) | 4 / 16 / 98 | +0.18 to +1.39
+2 (not selectable) | 3.33 | 34.32 (amount_lanes:avg5) | 5 / 22 / 91 | +0.59 to +2.43
+3 (not selectable) | 3.55 | 34.02 (amount_lanes:avg5) | 4 / 26 / 88 | +0.68 to +2.82
+
+tt leave-one-fold-out: H52 -> 1.25, B24 -> 1.25, B42 -> 1.25; pooled 1.84% against SWC(1.25) 1.84%
+in-sample best alpha at tt: 1.25
+
+## (d) per-corner against single-alpha selection, 7 folds, 195 units
+
+fold | single (chosen on the 6 other folds) | per-corner (chosen on its own corner's other folds)
+B24 | 1.25 | 1.25
+B42 | 1.25 | 1.25
+H52 | 1.25 | 1.25
+m144 | 1.25 | 1.25
+m145 | 1.25 | 0
+m146 | 1.25 | 0
+m147 | 1 | 0
+pooled over 195 units: single 2.65%, per-corner 2.54%, SWC(1.25) everywhere 2.29%
+
+## (e) clip binding share (points where max(period, alpha x mapped delay) = period), median over ladder-branch ff designs
+
+alpha | ff median | ff mean
+0 | 1.000 | 1.000
+0.5 | 1.000 | 0.976
+0.8 | 0.942 | 0.840
+1 | 0.748 | 0.651
+1.25 | 0.456 | 0.428
+
+## ff per design (ladder branch marked *)
+
+design | routed/r2 | 0 | 0.5 | 0.8 | 1 | 1.25
+m144:clamp2l* | 13.65 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:clamp2r* | 5.22 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:clamp3l* | 13.45 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:clamp3r* | 5.28 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:clamp4l* | 13.75 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:clamp4r* | 5.60 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:clamp6l* | 13.92 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:clamp6r* | 5.85 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:csum3* | 4.91 | 14.59 | 14.59 | 14.59 | 14.59 | 25.92
+m144:csum6* | 5.13 | 9.16 | 9.16 | 9.16 | 9.16 | 9.16
+m144:csum8* | 5.48 | 4.70 | 4.70 | 4.70 | 4.70 | 4.70
+m144:div10l* | 9.89 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:div12l* | 9.64 | 0.00 | 0.00 | 0.00 | 1.64 | 1.64
+m144:div14l* | 9.42 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:div14r* | 4.30 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:div8l* | 10.77 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:dot12r* | 4.57 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:dot4l* | 9.07 | 6.02 | 6.02 | 6.02 | 6.02 | 6.02
+m144:dot4r* | 4.14 | 2.47 | 2.47 | 32.46 | 32.46 | 32.46
+m144:dot6r* | 4.20 | 8.23 | 8.23 | 8.23 | 8.23 | 8.23
+m144:dot8l* | 8.88 | 0.00 | 0.00 | 8.61 | 8.61 | 8.61
+m144:eqc16* | 4.72 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:gtc12r* | 4.54 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:gtc24r* | 5.28 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:gtc8l* | 6.54 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:gtc8r* | 3.54 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:isq14* | 4.42 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:rng12r* | 7.35 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:rng6l* | 15.50 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m144:rng8l* | 15.30 | 0.00 | 0.00 | 0.00 | 0.00 | 9.47
+m144:rng8r* | 7.28 | 0.00 | 0.00 | 11.07 | 11.07 | 11.07
+m145:amin10* | 4.10 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m145:avg12* | 5.40 | 0.00 | 0.00 | 0.00 | 0.00 | 6.77
+m145:avg16* | 5.31 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m145:clamp5r* | 5.65 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m145:clamp8r* | 6.12 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m145:csum10* | 5.26 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m145:csum5* | 4.60 | 18.78 | 18.78 | 20.50 | 21.29 | 19.06
+m145:div11r* | 3.99 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m145:div9r* | 4.36 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m145:dot10r* | 4.53 | 0.00 | 0.00 | 0.00 | 0.00 | 3.81
+m145:dot5r* | 4.58 | 16.21 | 16.21 | 16.21 | 15.03 | 15.03
+m145:max10* | 5.33 | 5.56 | 5.56 | 5.56 | 5.56 | 5.56
+m145:max6* | 5.71 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m145:mod14 | 2.46 | 7.75 | 7.75 | 7.75 | 7.75 | 7.75
+m145:rng10r* | 7.44 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m145:rng5r* | 7.04 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m145:sad3* | 5.28 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m145:sad5* | 5.24 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m145:wsum4* | 5.71 | 1.70 | 5.80 | 5.80 | 5.80 | 11.70
+m145:wsum6* | 5.82 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m146:amin4 | 2.83 | 0.69 | 0.69 | 0.69 | 0.69 | 0.69
+m146:amin5* | 3.10 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m146:amin6* | 3.59 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m146:csum32* | 13.23 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m146:csum40* | 14.95 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m146:div4r* | 3.64 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:amin14* | 4.89 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:amin3 | 2.39 | 5.44 | 5.44 | 5.44 | 5.44 | 5.44
+m147:avg32* | 5.52 | 16.72 | 16.82 | 16.79 | 15.89 | 0.00
+m147:csum14* | 5.90 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:csum16* | 5.23 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:csum18* | 5.33 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:csum2* | 5.23 | 66.62 | 66.62 | 66.62 | 77.17 | 0.00
+m147:csum20* | 9.15 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:csum24* | 12.02 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:div13r* | 4.47 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:dot24r* | 4.45 | 1.62 | 1.62 | 1.62 | 5.49 | 5.49
+m147:max2* | 5.07 | 0.00 | 0.00 | 0.00 | 0.00 | 22.87
+m147:max3* | 5.31 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:mod12 | 2.27 | 3.84 | 3.84 | 3.84 | 3.84 | 3.84
+m147:rng14r* | 7.70 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:rng2n4* | 4.73 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:rng2r* | 6.13 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:rng3r* | 6.58 | 4.07 | 4.07 | 4.07 | 4.07 | 4.07
+m147:sad4* | 5.19 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+m147:wsum10w32* | 7.61 | 12.68 | 12.68 | 11.66 | 0.00 | 0.00
+
+## Predictions
+
+(1) PRIMARY: ff LOMO below SWC(1.25): refuted
+(2) in-sample best ff alpha below 1: held
+(3) tt B42: SWC(0) above SWC(1.25): held
+(4) tt all 118: SWC(0) above SWC(1.25): held
+(5) tt LOFO picks 1.25 in all three folds: held
+(6) per-corner below single-alpha over 195 units: held
+(7) ff SWC(1) below SWC(1.25): refuted

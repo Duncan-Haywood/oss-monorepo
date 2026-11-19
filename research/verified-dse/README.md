@@ -161,6 +161,11 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **The clip's alpha should not be taken per corner (milestone 151, replay of 77 ff designs and 118 tt cells, five of seven
+  predictions held; the primary failed).** Chosen leave-one-milestone-out at ff over alpha in {0, 0.5, 0.8, 1, 1.25}, the rule
+  picks area-only on three folds and has 3.62% against SWC(1.25)'s 2.98%; one design (csum2, 66.6% under area-only) decides it.
+  On 118 tt cells every fold keeps 1.25, and area-only has 9.90% against 1.84% (worst cell 343%):
+  [`experiments/alpha_corner/`](experiments/alpha_corner/results.txt).
 - **No pre-routing signal flags the ladder's fast-corner losses well enough to pay (milestone 150, replay of 77 ff designs, one
   of eight predictions held; the primary failed).** A signal read off the mapped pool has already spent the mapping, so its only
   response is to route a different 8 mapped points. Chosen leave-one-milestone-out over eight features, every cut and three
