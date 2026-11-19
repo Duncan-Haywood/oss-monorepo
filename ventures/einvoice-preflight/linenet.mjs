@@ -11,7 +11,7 @@ const parseNumber = parseDecimal;
 export function roundCents(value) {
   if (!Number.isFinite(value)) return null;
   const sign = value < 0 ? -1 : 1;
-  return (sign * Math.round(Number((Math.abs(value) * 100).toPrecision(12)))) / 100;
+  return (sign * Math.round(Number((Math.abs(value) * 100).toPrecision(15)))) / 100;
 }
 
 // A negative invoice (EN 16931 allows one; the Peppol BIS 3.0 example
