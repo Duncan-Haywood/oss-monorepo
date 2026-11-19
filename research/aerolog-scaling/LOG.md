@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-19 · Milestone 11ap: 11ao's pre-registered `--all12` sensitivity, run to completion (no new prediction; 11ao's main results were known)
+- Why: 11ao's run was stopped by the session's 2 h background limit after 8 of 24 `--all12` layouts, and its LOG named the rerun as the first thing to do. 11ao's docstring listed `--all12` as "reported without a prediction" before any result was read, so this entry carries none either.
+- Plan: `OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 speed_offset.py --all12` unchanged (M = 12, 4 draws, s = 0.25 to 2, the c of the 12 distinct flights spanning 5 m/s: -7.44 to +8.86 m at 10 m/s, sd 4.18 m against 3.28 m for the 5-flight pair-difference... compared as reported). Read against 11ao's M = 12 row: does the 5-band, 13.33 m stack at s = 1 survive the wider offset set?
+- Outcome: pending.
+
 ## 2026-11-19 · Milestone 11ao: airframe speed offsets do not cancel between operators (predictions in `experiments/hub_airspace/speed_offset.py`'s docstring, committed and pushed in be77fc025 before any layout was run; 11an's c values and 11ai to 11an results were known)
 - Why: 11an's "Next" (the speed term as a differential error). 11an's v^2 fit gave a static-pressure offset at 10 m/s of -4.70, -1.44, +0.81, +1.06 and +1.55 m in its 5 en-route flights. Every planner since 11al treated the barometer's error as zero-mean per-drone noise plus a shared field; a position error is neither: one operator (one airframe, one cruise speed) shares it, two operators do not.
 - Model: 11an post hoc's `--rtk5` planner, delivery ages; each operator draws b_i = s * c_i * 100 m with replacement from the 5 flights (no extrapolation in speed), 4 draws per layout; a cross-operator pair's support gains b_i - b_j. s = 0.25, 0.5, 1, 2. Planners: aware (knows each b_i), dist (knows only the 25 equally likely differences), blind (11an's plan); all scored under the truth; base = no offsets. 4 new tests. Run: 48 layouts, median 524 CPU s each, about 1 h 50 min on 4 cores.
