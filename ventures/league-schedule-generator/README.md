@@ -414,6 +414,13 @@ Two shortcuts that do not work, so the next run does not retry them:
   opponent pair would then repeat once per orbit (it must appear exactly once). Z54 has the order-3 unit 37
   with 18 fixed points; the model with that symmetry is UNSAT in 0.3 s.
 
+**Which two points sit out.** A partner pair at an odd distance joins an even and an odd point; there are k
+odd distances in 1..2k. With 2k+1 even and 2k+1 odd points, the seated evens and odds pair up only if the
+two points out are an odd distance apart when k is even and an even distance apart when k is odd (every
+stored base agrees, `whist.test.mjs`). Multiplying a design by a unit gives another one, so the second point
+out can also be taken to be a divisor of n: `--out2 d` fixes it, which leaves one case for 62 (d = 2), two for
+58 (1, 29) and three for 54 (2, 6, 18).
+
 RESULTS_54_58_62
 
 ## Americano for 4k+2 players: near-whist designs (2026-11-19)

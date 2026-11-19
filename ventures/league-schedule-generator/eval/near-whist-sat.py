@@ -1,6 +1,6 @@
 """Near-whist base rounds on Z_n (n = 4k+2) found by a SAT solver instead of annealing.
 
-    python3 eval/near-whist-sat.py <n> [--seed S] [--neg]   # one JSON line, eval/near-whist-search.txt format
+    python3 eval/near-whist-sat.py <n> [--seed S] [--neg] [--mult U] [--out2 D]   # one JSON line, eval/near-whist-search.txt format
 
 The base round (whist.mjs, NEAR_WHIST_BASES) seats 4k of the n points at k tables and leaves two out.
 Developed over Z_n it must give partner distances 1..2k exactly once and never 2k+1, opponent
@@ -24,7 +24,7 @@ from pysat.formula import IDPool
 from pysat.solvers import Cadical153
 
 
-def build(n, seed=0, neg=False, mult=None):
+def build(n, seed=0, neg=False, mult=None, out2=None):
     assert n % 4 == 2
     k = (n - 2) // 4
     h = n // 2  # 2k+1, the half-circle distance
@@ -50,6 +50,8 @@ def build(n, seed=0, neg=False, mult=None):
     card([out(p) for p in pts], 2, 2)
     if not mult and not neg:
         cl.append([out(0)])  # translation; with a multiplier only translations by (u-1)-annihilated steps commute
+        if out2:
+            cl.append([out(out2)])  # --out2 d: the other point out is d; multiplying by units, d can be a divisor of n
     for p in pts:
         others = [q for q in pts if q != p]
         # seated: exactly 3 table-mates, exactly 1 partner (out points have none, by the clauses above)
@@ -104,9 +106,10 @@ def main():
     seed = int(sys.argv[sys.argv.index("--seed") + 1]) if "--seed" in sys.argv else 0
     neg = "--neg" in sys.argv
     mult = int(sys.argv[sys.argv.index("--mult") + 1]) if "--mult" in sys.argv else None
+    out2 = int(sys.argv[sys.argv.index("--out2") + 1]) if "--out2" in sys.argv else None
     t0 = time.time()
-    pool, cl, P, T, out = build(n, seed, neg, mult)
-    print(f"# n={n} vars={pool.top} clauses={len(cl)} neg={neg} mult={mult} seed={seed}", file=sys.stderr, flush=True)
+    pool, cl, P, T, out = build(n, seed, neg, mult, out2)
+    print(f"# n={n} vars={pool.top} clauses={len(cl)} neg={neg} mult={mult} out2={out2} seed={seed}", file=sys.stderr, flush=True)
     with Cadical153(bootstrap_with=cl) as s:
         if seed:
             rng = random.Random(seed)
@@ -114,7 +117,7 @@ def main():
         ok = s.solve()
         ms = int((time.time() - t0) * 1000)
         tables = decode(n, s.get_model(), P, T, out) if ok else None
-    print(json.dumps({"n": n, "mods": [n], "kind": "near", "ms": ms, "method": "sat" + (" neg" if neg else "") + (f" mult {mult}" if mult else ""), "seed": seed, "tables": tables}, separators=(",", ":")))
+    print(json.dumps({"n": n, "mods": [n], "kind": "near", "ms": ms, "method": "sat" + (" neg" if neg else "") + (f" mult {mult}" if mult else "") + (f" out2 {out2}" if out2 else ""), "seed": seed, "tables": tables}, separators=(",", ":")))
 
 
 if __name__ == "__main__":
