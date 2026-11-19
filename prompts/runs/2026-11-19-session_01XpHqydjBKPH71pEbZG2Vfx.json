@@ -58,7 +58,7 @@
     "ventures/shift-roster-builder/eval/deputy-time-off-format-2026-11-19.md"
   ],
   "goal": null,
-  "notes": "Idea: Deputy EmployeeAvailability (documented by Deputy as unavailability blocks) and Leave (status 1/4/5 approved) become dated off: cells for --week-start weeks. import-deputy-staff.test.mjs 15/15 pass; CLI end-to-end build on invented files kept people off blocked days (7/7 covered); headless Chromium page upload gave the same lines, no page errors. Full venture suite: see the follow-up commit.",
+  "notes": "Idea: Deputy EmployeeAvailability (documented by Deputy as unavailability blocks) and Leave (status 1/4/5 approved) become dated off: cells for --week-start weeks. import-deputy-staff.test.mjs 15/15 pass; CLI end-to-end build on invented files kept people off blocked days (7/7 covered); headless Chromium page upload gave the same lines, no page errors. Full venture suite: run_venture_tests.py shift-roster-builder ok, 784 tests, 0 failed (195 s), plus site page checks ok.",
   "corrections": [],
   "redteam": null,
   "usage": {
