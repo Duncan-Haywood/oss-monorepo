@@ -117,7 +117,9 @@ export function capacityBookings(o, s) {
   return (s.chairHours * (s.utilPct / 100)) / e.hours;
 }
 
-export function analyzeService(raw, s = SHARED_DEFAULTS) {
+// With no second argument the studio fields are read from `raw` too, so one
+// object holding every field (DEFAULTS, or an agent's call) is analysed as typed.
+export function analyzeService(raw, s = readShared(raw)) {
   const o = readService(raw);
   const warnings = serviceWarnings(o);
   if (warnings.length) return { opts: o, warnings, e: null };

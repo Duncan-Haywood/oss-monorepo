@@ -98,3 +98,10 @@ test("csv has a header and one row per ranked service", () => {
   assert.match(toCsv(cmp), /"Full ""set"""/);
   assert.equal(toCsv({ ranked: [] }), "");
 });
+
+test("analyzeService reads studio fields from the same object when no shared object is passed", () => {
+  const one = analyzeService({ ...SERVICE_DEFAULTS, ...SHARED_DEFAULTS, rent: 3000 });
+  const two = analyzeService(SERVICE_DEFAULTS, readShared({ ...SHARED_DEFAULTS, rent: 3000 }));
+  assert.deepEqual(one, two);
+  assert.notDeepEqual(one.e, analyzeService(SERVICE_DEFAULTS).e, "rent typed into the one object changes the answer");
+});
