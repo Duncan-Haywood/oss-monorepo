@@ -4,12 +4,17 @@ import sys
 import unittest
 from pathlib import Path
 
-import numpy as np
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from shootflow import noise_native  # noqa: E402
-from shootflow import xtrans_demosaic as xd  # noqa: E402
+try:
+    import numpy as np
+
+    from shootflow import noise_native
+    from shootflow import xtrans_demosaic as xd
+
+    HAVE = noise_native.available()
+except ImportError:  # the no-numpy CI job: the noise-aware demosaic needs numpy
+    HAVE = False
 
 XTRANS = [1, 1, 0, 1, 1, 2, 1, 1, 2, 1, 1, 0, 2, 0, 1, 0, 2, 1, 1, 1, 2, 1, 1, 0, 1, 1, 0, 1, 1, 2, 0, 2, 1, 2, 0, 1]
 BAYERS = ([0, 1, 1, 2], [2, 1, 1, 0], [1, 0, 2, 1], [1, 2, 0, 1])
@@ -23,7 +28,7 @@ def _median_np(a):
     return xd._block_stat(a, lambda t: np.median(t, axis=-1))
 
 
-@unittest.skipUnless(noise_native.available(), "no C compiler")
+@unittest.skipUnless(HAVE, "needs numpy and a C compiler")
 class NoiseNativeTest(unittest.TestCase):
     def test_residual_equals_numpy_on_every_cfa_and_odd_sizes(self):
         rng = np.random.default_rng(7)
