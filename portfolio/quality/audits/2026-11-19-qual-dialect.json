@@ -1,0 +1,234 @@
+{
+ "date": "2026-11-19",
+ "subject": "research/qual-dialect",
+ "stratum": "research",
+ "seed": "2026-11-19-g-0f50",
+ "round": 80,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), independent quality auditor subagent",
+ "status": "audited",
+ "professional": "a senior computational social scientist working on measurement error in automated (LLM/classifier) text annotation and prediction-powered inference, with multilingual African-language NLP experience (AfriSenti/NaijaSenti)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the full pipeline in a private copy (HOME redirected to scratch so the downloads stay outside the repo): `cd scratchpad/qual-dialect/research/qual-dialect && HOME=scratchpad/qual-dialect/home python3 experiments/run.py` downloaded the 12 NaijaSenti tsv files and GoEmotions, ran in about 6 s, and `diff` against the committed experiments/results.txt printed nothing: bit-identical. Independent recomputations with my own script (own csv reader, own tokenizer, own confusion matrix, no import of qualdialect/qualreal): pooled row count 63,550 and per-language negative counts by awk over the raw tsv files (hau 7226/22152, ibo 4013/15715, pcm 6380/10556, yor 3296/15127); test-split shares 0.3257/0.2542/0.6027/0.2194 and lexicon-en sensitivity 0.009/0.022/0.090/0.004, specificity 0.995/0.996/0.954/0.999 and true hau-yor gap +0.1063 all match E1/E2; an analytic PPI-vs-human width ratio from the E1 confusion rates (Var(Y-f)+n/N Var(f) over Var(Y)) predicts 1.304 for nb-english on Pidgin at 400 items, observed 1.295. The computations are right; the prose ranges that summarise them are not (see claims).",
+  "completeness": "Claimed: E1 per-language confusion (works), E2 naive gaps (works), E3 naive/human/PPI coverage and width at 200/400/800 for 3 coders (works, 500 reps each), figure (figure.py reads E2; SVG present), unittest suite (6 pass), live page (https://marisstella.app/research/qual-dialect/ returns 200 with the AI-assistance note). No stubs or TODOs. The stated LLM coder is explicitly not done and labelled as such; stratified-audit variant listed as next step.",
+  "verification": "`cd research/qual-dialect && python3 -m unittest test_qualdialect`: 6 tests OK in 0.002 s. Four mutants via platform/ci/quality_mutate.py: NB likelihood denominator n[0]+2 -> n[1]+2 SURVIVED; match_rate off-by-one CAUGHT; dropping set() so token counts replace presence SURVIVED; prior term -> 0 SURVIVED (an equivalent mutant, since match_rate re-thresholds). experiments/run.py (the coverage/width/gap loop that produces every headline number) has no test at all; the only check on the estimator path is ppi_fast vs q.ppi on 10 items.",
+  "craft": "Read qualdialect.py (93 lines), experiments/run.py (110), figure.py (38), test_qualdialect.py (49). Small, stdlib, seeded, deterministic, commits no tweet text. Defects: NB docstring says 'multinomial' but the model is presence-only with (n+2) Bernoulli smoothing and no absence terms (qualdialect.py:49); run.py docstring says 'a few minutes' (measured 6 s); cross-project imports by sys.path.insert into ../qual-real and ../qual-correction make the project fragile to edits there; one blank-line style slip in tests.",
+  "claims": "Checked against results.txt with scratchpad/qual-dialect/tools/claims.py and by hand. Backed: true/coded gaps (+10.6 vs -6.5; +29.3 vs +7.1), naive coverage 0 everywhere, PPI gap coverage 93-96% at 400 (observed 0.930-0.962) and 91.8-96.6% over every target/size, PPI wider in all 54 gap rows, specificities 0.73-1.00, README E3 table rounding. Not backed: the bolded headline says word-list sensitivity 0.4-2.4% (file: 0.4-2.2% on hau/ibo/yor) and English-classifier sensitivity 0.4-10.8% (file: 1.9-10.8%); 'PPI 0.4-26% wider' (file: 0.3-26.4%). Limitations section is honest (no LLM, confounding, pooled sampling).",
+  "fitness": "A researcher can plug any code(text)->0/1 into run.py and reproduce in seconds, which is useful. But the core finding (an English word list and an English-only NB do not read Hausa, Igbo, Yoruba) is near-tautological, and nearest prior work is uncited: PPI++ power tuning (Angelopoulos, Duchi, Zrnic 2023), which by construction is never asymptotically wider than human-only and would remove finding 4's 'never narrower'; design-based supervised learning (Egami et al. NeurIPS 2023); stratified PPI (Fisch et al. 2024) for the stratified audit it proposes; misclassification bias in automated content analysis (TeBlunthuis, Hase, Chan 2024); AfriSenti (Muhammad et al. 2023) with multilingual-model baselines. Novelty is not overstated in words, but the contribution beyond qual-correction is small.",
+  "domain": "Against current practice for measuring differential coder error across groups: (1) vanilla PPI only, no power-tuned PPI++ or DSL, so 'PPI does not pay' is an artefact of the estimator choice; (2) no competent multilingual baseline (e.g. AfroXLMR/mBERT fine-tuned, the NaijaSenti paper's own baselines), so the coders are strawmen and say little about any realistic automated coder; (3) a single seeded train/test split, so nb-in-language results have no split variability; (4) 1,080 of 44,485 test tweets have exact-text duplicates in the training slice (2,415 duplicate rows corpus-wide), a leakage the README does not mention; (5) sensitivities and gaps reported without intervals. PPI formula itself matches Angelopoulos et al. 2023 (checked against qualml.ppi and analytically)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "pipeline reproduces committed results.txt",
+   "method": "re-ran run.py in a private copy with fresh downloads from the dataset authors' repository",
+   "command": "cd scratchpad/qual-dialect/research/qual-dialect && HOME=scratchpad/qual-dialect/home python3 experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/qual-dialect/experiments/results.txt",
+   "expected": "no diff",
+   "observed": "no diff (bit-identical), ~6 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "pooled labelled row count and per-language negative counts",
+   "method": "awk over the raw NaijaSenti tsv files (author data, not the project's loader)",
+   "command": "awk -F'\\t' ... hau_{train,dev,test}.tsv (see scratchpad/qual-dialect)",
+   "expected": "63550 rows (README)",
+   "observed": "22152+15715+10556+15127 = 63550; negatives 7226/4013/6380/3296",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "test-split human negative share per language and lexicon-en sensitivity/specificity",
+   "method": "own script: own csv reader, own regex tokenizer, own confusion counts, no import of qualdialect or qualreal",
+   "command": "python3 -I scratchpad/qual-dialect/tools/recompute.py scratchpad/qual-dialect/home/.cache/qual-dialect",
+   "expected": "shares 0.3257/0.2542/0.6027/0.2194; sens 0.009/0.022/0.090/0.004 (results.txt E1)",
+   "observed": "identical to 3-4 decimals, true hau-yor gap +0.1063",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "PPI interval width relative to human-only for nb-english, Pidgin, 400 items",
+   "method": "analytic variance of Y-f from sensitivity/specificity/prevalence (Angelopoulos et al. 2023 mean-estimation PPI)",
+   "command": "python3 -I scratchpad/qual-dialect/tools/claims.py research/qual-dialect/experiments/results.txt",
+   "expected": "1.304 (theory)",
+   "observed": "1.295 (simulated widths 0.3093/0.2388)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline word-list sensitivity range on Hausa, Igbo, Yoruba",
+   "method": "read results.txt E1",
+   "command": "grep '^lexicon-en' research/qual-dialect/experiments/results.txt",
+   "expected": "0.4-2.4% (README:3)",
+   "observed": "0.004/0.009/0.022 -> 0.4-2.2%",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline English-classifier sensitivity range on Hausa, Igbo, Yoruba",
+   "method": "read results.txt E1",
+   "command": "grep '^nb-english' research/qual-dialect/experiments/results.txt",
+   "expected": "0.4-10.8% (README:3)",
+   "observed": "0.024/0.019/0.108 -> 1.9-10.8%",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "PPI wider than human-only in all 54 gap rows, by 0.4-26%",
+   "method": "parsed every E3 gap row",
+   "command": "python3 -I scratchpad/qual-dialect/tools/claims.py research/qual-dialect/experiments/results.txt",
+   "expected": "54 of 54 wider, 0.4-26%",
+   "observed": "54 of 54 wider, 0.32-26.4%",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "PPI gap coverage 93-96% at 400; 91.8-96.6% over all targets/sizes; naive coverage 0",
+   "method": "parsed E3 blocks",
+   "command": "python3 -I scratchpad/qual-dialect/tools/claims.py research/qual-dialect/experiments/results.txt",
+   "expected": "as README:64",
+   "observed": "0.930-0.962; 0.918-0.966; naive max 0.000",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Hausa-Yoruba gap +10.6 true vs -6.5 nb-english; Hausa-Igbo +29.3 nb-in-language vs +7.1",
+   "method": "read results.txt E2",
+   "command": "grep -A7 '^E2' research/qual-dialect/experiments/results.txt",
+   "expected": "+0.106/-0.065; +0.293/+0.071",
+   "observed": "+0.1063/-0.0648; +0.2926/+0.0714",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "train/test leakage for the in-language coder",
+   "method": "exact-text match of test tweets against the seeded 30% training slice",
+   "command": "python3 -I scratchpad/qual-dialect/tools/recompute.py scratchpad/qual-dialect/home/.cache/qual-dialect",
+   "expected": "0 duplicates or disclosed",
+   "observed": "1080 of 44485 test tweets duplicated in train; 2415 duplicate rows corpus-wide; not mentioned",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "ran suite",
+   "command": "cd research/qual-dialect && python3 -m unittest test_qualdialect",
+   "expected": "pass",
+   "observed": "Ran 6 tests OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page serves",
+   "method": "curl",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/qual-dialect/",
+   "expected": "200 with AI-assistance note",
+   "observed": "200, 'Produced with AI' present",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited (PPI++, DSL, stratified PPI, misclassification-bias literature, AfriSenti baselines)",
+   "method": "read README References",
+   "command": "sed -n '/## References/,$p' research/qual-dialect/README.md",
+   "expected": "cited",
+   "observed": "only NaijaSenti, GoEmotions, PPI (2023) and sibling projects",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "qualdialect.py:65",
+   "change": "/ (self.n[0] + 2) -> / (self.n[1] + 2) in the class-0 likelihood",
+   "caught": false,
+   "test_cmd": "python3 -m unittest test_qualdialect"
+  },
+  {
+   "where": "qualdialect.py:72",
+   "change": "len(scores)) - 1, 0)] -> len(scores)), 0)] (threshold off by one)",
+   "caught": true,
+   "test_cmd": "python3 -m unittest test_qualdialect"
+  },
+  {
+   "where": "qualdialect.py:56",
+   "change": "self.c[y].update(set(tokens(t))) -> self.c[y].update(tokens(t))",
+   "caught": false,
+   "test_cmd": "python3 -m unittest test_qualdialect"
+  },
+  {
+   "where": "qualdialect.py:62",
+   "change": "prior log-odds -> 0.0 (equivalent mutant: match_rate re-thresholds)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest test_qualdialect"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Finding 4 ('PPI ... never narrower', 'does not pay here') rests on vanilla PPI; power-tuned PPI++ (Angelopoulos, Duchi, Zrnic 2023) or DSL (Egami et al. 2023) is by construction no wider than human-only asymptotically, and neither is run or cited, so the conclusion is an artefact of estimator choice",
+   "where": "research/qual-dialect/README.md:64",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Headline sensitivity ranges do not match results.txt: word list 0.4-2.4% (file 0.4-2.2%), English classifier 0.4-10.8% (file 1.9-10.8%); also 'PPI 0.4-26% wider' (file 0.3-26.4%)",
+   "where": "research/qual-dialect/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "No competent multilingual baseline (e.g. fine-tuned AfroXLMR/mBERT, the NaijaSenti/AfriSenti papers' own baselines); an English word list and English-only NB failing on Hausa/Igbo/Yoruba is near-tautological, so the result says little about realistic automated coders; AfriSenti and the misclassification-bias literature (TeBlunthuis et al. 2024) uncited",
+   "where": "research/qual-dialect/README.md:24",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "The experiment loop that produces every headline number (gap, coverage, width aggregation) is untested; NB smoothing and presence-vs-count mutants survive the suite",
+   "where": "research/qual-dialect/experiments/run.py:77",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "1,080 of 44,485 evaluation tweets have an exact-text duplicate in the in-language coder's training slice (2,415 duplicate rows corpus-wide); not deduplicated or disclosed",
+   "where": "research/qual-dialect/experiments/run.py:47",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Single seeded train/test split and no intervals on sensitivities or naive gaps; nb-in-language numbers have no split variability",
+   "where": "research/qual-dialect/experiments/run.py:23",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "NB docstring says multinomial but the model is presence-only with Bernoulli (n+2) smoothing and no absence terms",
+   "where": "research/qual-dialect/qualdialect.py:49",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "run.py docstring says 'a few minutes'; measured about 6 s (README says ~10 s)",
+   "where": "research/qual-dialect/experiments/run.py:5",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The pipeline is honest and reproducible: a fresh download and re-run gives a bit-identical results.txt in about 6 s, and independent recomputations of the row count, per-language shares, lexicon sensitivity/specificity, the true gaps and the PPI width ratio all match. What falls short of a senior measurement-error researcher's bar is the design and its write-up: the bolded headline misstates two sensitivity ranges, the 'PPI never narrower' finding is an artefact of using vanilla PPI with PPI++/DSL uncited, the coders are strawmen with no multilingual baseline, there is a small undisclosed train/test duplicate leak, and the code that produces the headline numbers is untested (3 of 4 seeded mutants survive, one equivalent). Correct, finished, not yet publishable."
+}
