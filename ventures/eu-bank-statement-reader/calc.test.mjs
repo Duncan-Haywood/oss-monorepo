@@ -136,3 +136,11 @@ test("camt: balance dates are read from Bal/Dt/Dt, not left blank", () => {
   assert.equal(s.opening.date, "2026-10-02");
   assert.equal(s.closing.date, "2026-10-03");
 });
+
+// Found by platform/ci/id_oracle/: a statement for an IBAN outside the SEPA area (here Turkey) drew
+// "country code not in the list this tool knows"; the table now carries all 89 SWIFT registry countries.
+test("IBANs from every registry country are known, not only SEPA ones", () => {
+  assert.equal(ibanState("TR33 0006 1005 1978 6457 8413 26").ok, true);
+  assert.equal(ibanState("BI1320001100010000123456789").ok, true);
+  assert.match(ibanState("BI442000110001000012345678").why, /27 characters/);
+});

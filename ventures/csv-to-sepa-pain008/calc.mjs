@@ -47,10 +47,30 @@ export function checkIban(raw) {
   if (mod97(iban) !== 1) return { ok: false, iban, problem: "fails the check-digit test (a character is wrong or two neighbours are swapped)" };
   return { ok: true, iban };
 }
+// ISO 3166-1 alpha-2 codes plus XK (Kosovo), the country part a BIC can carry (python-stdnum 2.2 `bic` uses the same
+// set; platform/ci/id_oracle/ found BICs with made-up countries such as XX passing here).
+const BIC_COUNTRIES = new Set([
+  "AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ", "BA", "BB",
+  "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BV", "BW", "BY",
+  "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CU", "CV", "CW", "CX",
+  "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "EH", "ER", "ES", "ET", "FI", "FJ", "FK",
+  "FM", "FO", "FR", "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS",
+  "GT", "GU", "GW", "GY", "HK", "HM", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR",
+  "IS", "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ", "LA",
+  "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK",
+  "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC", "NE",
+  "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM",
+  "PN", "PR", "PS", "PT", "PW", "PY", "QA", "RE", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SD", "SE", "SG",
+  "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF",
+  "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY",
+  "UZ", "VA", "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS", "XK", "YE", "YT", "ZA", "ZM", "ZW",
+]);
 export function checkBic(raw) {
   const bic = String(raw ?? "").replace(/\s/g, "").toUpperCase();
   if (!bic) return { ok: true, bic: "" };
-  return /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(bic) ? { ok: true, bic } : { ok: false, bic };
+  if (!/^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(bic)) return { ok: false, bic };
+  if (!BIC_COUNTRIES.has(bic.slice(4, 6))) return { ok: false, bic, problem: `its 5th and 6th letters, ${bic.slice(4, 6)}, are not a country code, and a BIC always names its bank's country there` };
+  return { ok: true, bic };
 }
 
 // Amount text to integer cents. Accepts 1200, 1200.5, 1,200.50, 1.200,50 and 1200,50; refuses anything ambiguous.
@@ -222,7 +242,7 @@ export function convert(text, settings = {}) {
   const cIban = checkIban(settings.creditorIban);
   if (!cIban.ok) add("error", null, "Your account IBAN does not pass", `The IBAN ${cIban.problem}.`);
   const cBic = checkBic(settings.creditorBic);
-  if (!cBic.ok) add("error", null, "Your BIC is not valid", "A BIC is 8 or 11 letters and digits (for example COBADEFFXXX). Leave it blank if your bank allows that.");
+  if (!cBic.ok) add("error", null, "Your BIC is not valid", `${(cBic.problem ? "The BIC " + cBic.problem + ". " : "")}A BIC is 8 or 11 letters and digits (for example COBADEFFXXX). Leave it blank if your bank allows that.`);
   const date = normaliseDate(settings.date);
   if (!date) add("error", null, "Collection date missing", "Enter the date as YYYY-MM-DD, the day the money should be taken from the debtors' accounts.");
   else {
@@ -274,7 +294,7 @@ export function convert(text, settings = {}) {
     if (!am.ok) { add("error", line, `Amount for ${p.name || "this row"} does not pass`, `"${cell(r, "amount")}" ${am.problem}.`); p.ok = false; }
     else p.cents = am.cents;
     const bic = checkBic(cell(r, "bic"));
-    if (!bic.ok) { add("error", line, `BIC for ${p.name || "this row"} is not valid`, "A BIC is 8 or 11 letters and digits. Leave the cell blank: SEPA collections are routed by the IBAN alone."); p.ok = false; }
+    if (!bic.ok) { add("error", line, `BIC for ${p.name || "this row"} is not valid`, `${bic.problem ? "The BIC " + bic.problem + ". " : ""}A BIC is 8 or 11 letters and digits. Leave the cell blank: SEPA collections are routed by the IBAN alone.`); p.ok = false; }
     p.bic = bic.bic;
 
     const rawMandate = cell(r, "mandate");

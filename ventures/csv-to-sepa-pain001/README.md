@@ -29,6 +29,10 @@ node --test ventures/csv-to-sepa-pain001/
 - `*.test.mjs`: tests for the logic and the page. When the sibling `sepa-pain001-validator` is present, a test
   checks that this tool's output passes it.
 
+## Checked against python-stdnum (2026-11-19)
+
+A BIC whose fifth and sixth letters are not an ISO 3166 country code (or XK) is now an error; before, `TQKJXXLP` passed the shape check. Found by the cross-venture identifier oracle, [`platform/ci/id_oracle/`](../../platform/ci/id_oracle/README.md); stdnum is a test-time oracle only, no bank or registry text was read beyond the registry data it carries.
+
 ## License
 
 MIT. See `LICENSE`.
