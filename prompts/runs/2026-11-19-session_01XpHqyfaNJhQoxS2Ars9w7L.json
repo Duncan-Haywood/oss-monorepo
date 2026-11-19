@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyfaNJhQoxS2Ars9w7L",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T10:47:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "explore: which of the repo's import cycles throw on load (cyclehound entry-order check); shed-designer phone walkthrough fixes",
+  "projects": [
+    "cyclehound",
+    "shed-designer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17635",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Free choice in a repo with 1,419 ventures and 6,244 posts: about a third of the run went to finding an unbuilt niche (every dev-tool, construction and CSV-check name I tried already existed). A pointer to measured human traffic (portfolio/usage/site-visits.json, where shed-designer leads) or to flagships' open 'Next' items would have saved that."
+    },
+    {
+      "file": "portfolio/usage/site-visits.json",
+      "issue": "Nothing tells you how to read it. Pages are bare keys mixed with prefixed breakdowns (bot:, botpage:, geo:, dev:), so the human-load ranking took three tries to extract."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/cyclehound/README.md",
+      "why": "The README's next item is a CI gate, but wiring a gate means editing .github (CODEOWNERS, owner approval). I shipped the entry-order check as a tool and left the wiring for later.",
+      "did": "tools/entry-order.mjs plus tests, not yet run in CI",
+      "result": "usable today by hand; 0 cycle-order failures on ventures/"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-which-import-cycles-actually-break.md"
+  ],
+  "goal": null,
+  "notes": "Idea: cyclehound lists cycles but cannot say whether one breaks. tools/entry-order.mjs imports each file on a cycle first, in a fresh Node process. ventures/ has 11 static cycles through 34 files; the 21 product modules on them all load from any end (a measured clean result). The planted tdz fixture fails from exactly one end. Also a phone walkthrough of shed-designer, the most-loaded page by human visitors (20 loads, 2026-10-24..11-03): the lean-to plan label overran a 10 ft floor (133 vs 120 SVG units, now 66), the plan hint promised a ridge on a lean-to, and 'Gable end' is now 'End'. Verification: entry-order tests 5/5 pass; check_posts ok; cyclehound suite ok in run_venture_tests; shed-designer suite: see below.",
+  "corrections": [],
+  "redteam": null
+}
