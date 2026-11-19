@@ -43,3 +43,23 @@ as AR(1) (rho 0.5, sd 0.05) around a constant; 3% of trading days carry a wholes
 weekday closures (0). Step shops: level x 1.3 from a day drawn uniformly in days 200 to 340. Watch from day 74 (20%).
 
 All four must pass for the rule to ship on the CLI and the page. Whatever happens, the result is written up.
+
+---
+
+## Round 2 (pre-registered 2026-11-19, after round 1's fresh-year run, before the round-2 rule ran on it)
+
+**Round 1 on the fresh year:** F1 fails, F2 passes (`eval/shut-weekday.out.txt`). The rule never fired: the fresh
+year's first Saturday, 2009-12-05, took £9,803 (30 orders), so Saturday was not "0 on every occurrence" and nothing
+was left out; arms D and T were the same run. Nothing about the treatment's alerts on that year was seen, because
+there were none to see. The simulation (F3, F4) was started before this was written; its result is not yet read.
+
+**The one change:** a weekday is shut when its value is 0 on each of its **last 8 occurrences** in the series (the
+weeks that describe the shop now), instead of on every occurrence. Everything else is round 1's: same arms, same
+bars F1 and F2 on the fresh year, period 7 - k. In the simulation every Saturday is 0, so both rules leave out the
+same rows: round 1's F3 and F4 results count for round 2 unchanged. On the design year likewise (all 53 Saturdays 0).
+
+The replay decides the drop once on the whole series. On the fresh year that equals deciding it at every daily check
+from the watch's first (2010-02-13): the one trading Saturday is more than 8 weeks before it. The shipped watch, run on
+the full CSV each day, decides it afresh at each run.
+
+All of F1 to F4 must pass for the rule to ship.

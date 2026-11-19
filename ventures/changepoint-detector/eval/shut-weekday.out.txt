@@ -1,0 +1,18 @@
+
+== design year 2010-12 to 2011-12: revenue, Quiet; left out: Saturday (53 rows)
+  D (--period 7): 2 alerts in 300 checks (0.67 per 100), watch from 2011-02-13
+    dated 2011-03-30, sent 2011-04-05 (6 days); mean of 24 rows before 22936, after 21856
+    dated 2011-04-18, sent 2011-08-16 (120 days); mean of 24 rows before 21559, after 20186
+  T (drop, --period 6): 2 alerts in 257 checks (0.78 per 100), watch from 2011-02-14
+    dated 2011-03-29, sent 2011-06-14 (77 days); mean of 24 rows before 24196, after 24802
+    dated 2011-09-15, sent 2011-09-21 (6 days); mean of 24 rows before 29424, after 46884
+
+== fresh year 2009-12 to 2010-12: revenue, Quiet; left out: none (0 rows)
+  D (--period 7): 1 alerts in 300 checks (0.33 per 100), watch from 2010-02-13
+    dated 2010-09-28, sent 2010-11-26 (59 days); mean of 24 rows before 28759, after 42156
+  T (drop, --period 7): 1 alerts in 300 checks (0.33 per 100), watch from 2010-02-13
+    dated 2010-09-28, sent 2010-11-26 (59 days); mean of 24 rows before 28759, after 42156
+
+######## Bars (fresh year) ########
+F1 (T: a revenue alert dated 2010-08-15..11-30 sent within 14 days): none -> FAIL
+F2 (T: at most 2 alerts per 100 checks): 0.33 -> PASS
