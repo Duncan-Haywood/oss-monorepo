@@ -551,7 +551,8 @@ flagships:
       (eval/free-float-2026-11-19.md): 9 left in the 24.12 file where P6 stores 0
       against a positive gap; windows check (eval/windows-check.mjs, series made by
       status.mjs); more hand-made or converter XERs (no data date, no PROJECT, blank
-      calendars) through node cli.mjs.
+      calendars) through node cli.mjs; MSPDI files (MPXJ junit/data) through
+      eval/cpm-vs-project.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
@@ -569,15 +570,14 @@ flagships:
       paths on a real file; (4) written review shipped 2026-11-19 (report.mjs, print
       to PDF; eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real
       files); next a real reviewer's reading of one and a full-list appendix option;
-      (5) Monte Carlo finish risk shipped 2026-11-19 (risk.mjs: P10-P90, chance of
-      forecast and must-finish, criticality index; zero-width run = CPM on six
-      files, eval/risk-check-2026-11-19.md); risk register events shipped 2026-11-19
-      (risks: probability x delay on named activities, P80 with/without, events
-      ranked; eval/risk-register-check-2026-11-19.md: 207 of 207 planted events =
-      CPM); next: ranges from a P6 UDF or the three-point columns, probabilistic
-      branches; (6) resource levelling shipped 2026-11-19 (level.mjs, --level:
-      serial pass by early start, the file's priority list, crew-size what-if;
-      eval/level-check-2026-11-19.md: 0 h over a limit from placed work on six
-      files, 37,670 of 37,670 links hold, x1e6 limits = CPM); next: a P6-levelled
-      XER to compare dates with, levelling in the written review and the risk run;
-      (7) expected finish dates.
+      (5) Monte Carlo risk and risk register shipped 2026-11-19 (risk.mjs;
+      eval/risk-check-, eval/risk-register-check-2026-11-19.md); next: ranges from a
+      P6 UDF or the three-point columns, probabilistic branches; (6) resource
+      levelling shipped 2026-11-19 (level.mjs, --level: serial pass by early start,
+      the file's priority list, crew-size what-if; eval/level-check-2026-11-19.md: 0
+      h over a limit from placed work on six files, 37,670 of 37,670 links hold,
+      x1e6 limits = CPM); next: a P6-levelled XER to compare dates with, levelling
+      in the written review and the risk run; (7) expected finish dates; (8)
+      Microsoft Project XML read 2026-11-19 (mspdi.mjs; 2,406 of 2,491 tasks =
+      Project's dates on 102 files, eval/cpm-vs-project-2026-11-19.md); next a real
+      construction .xml, task splits.

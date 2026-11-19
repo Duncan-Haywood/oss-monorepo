@@ -13,6 +13,22 @@ After using this, an owner's rep can **send a contractor a list of the exact
 activities to fix** in a schedule update (not just "fails DCMA point 6"), and a
 scheduler can catch the same list before submitting.
 
+**Microsoft Project files too** (2026-11-19, `mspdi.mjs`): open a schedule
+saved from Microsoft Project as XML (File, Save As, XML Format; also written
+by Project Online, ProjectLibre, GanttProject and most converters) anywhere
+an XER goes: the assessment, the comparison of two updates, windows, risk,
+levelling and the written review. Summary tasks become WBS, the status date
+is the data date, baseline 0 is the planned dates, lags count on the
+successor's calendar as Project does (elapsed lags on a 24-hour clock,
+percent lags as a share of the predecessor), and activities are matched
+between updates by Unique ID, so inserted rows do not break the comparison.
+Manually scheduled tasks, links to summary tasks and deadlines are named in
+the warnings. On 102 files saved by Microsoft Project 2002 to 2019 (MPXJ's
+test corpus, 2,491 open tasks), early finish, late finish and total float
+equal what Project stored on 2,406 (96.6%); the 85 others are resource-driven,
+split or timephased tasks the engine does not model, and four small edge
+cases (eval/cpm-vs-project-2026-11-19.md). `node cli.mjs schedule.xml`.
+
 **Update-to-update comparison** (2026-11-19): open last month's XER next to
 this month's and get the monthly pay-application review: progress claimed
 (started, finished, forecast work that did not happen), actual dates edited
@@ -252,6 +268,15 @@ run as a formula in Excel or Sheets.
   current finish on 120 of 120. No public pair of real consecutive P6 updates
   was found, so the half-step split itself is checked only on the invented
   example pair (+15 = +8 progress, +7 revisions) and by construction.
+- **Microsoft Project XML** (`eval/cpm-vs-project-2026-11-19.md`): 102 MSPDI
+  files saved by Project 2002 to 2019 (MPXJ's test corpus), 2,491 open tasks:
+  early finish, late finish and total float equal Project's stored values on
+  2,406 (96.6%), 86 files on every task; the misses are resource-driven,
+  split and timephased tasks (61) and three small cases the eval names.
+  `mspdi.test.mjs` covers holidays, derived calendars, work weeks, elapsed and
+  percent lags, SS and FF links, manual tasks, constraints, progress with a
+  status date, and a comparison across renumbered rows. These files are small
+  test projects; no real construction schedule from Project has been read yet.
 - **Not checked**: no file used progress override, start or smallest float, the
   successor or 24-hour lag calendar, or mandatory constraints, and no unit test
   covers them yet.
@@ -276,11 +301,14 @@ values) downloads as a CSV from the page or `node cli.mjs file.xer --schedule ou
 schedule with deliberate faults, used by the page's example button and the
 tests; `node samples/make-example.mjs office-fitout.xer` also writes it as an
 XER file for the CLI. `eval/cpm-vs-p6.mjs` is the P6 comparison (dates, total and free float).
+`mspdi.mjs` reads Microsoft Project XML into the same tables (`parseMspdi`,
+and `parseSchedule`, which picks the reader from the text);
+`eval/cpm-vs-project.mjs` compares the engine with Project's stored dates.
 
 ## Disclaimer
 
 Provided free and as-is, without warranty. Not engineering, legal, contractual
 or scheduling advice; it does not replace a qualified scheduler or the
-scheduling software of record. Not affiliated with Oracle, Primavera or the
-Defense Contract Management Agency; Primavera and P6 are named only to describe
-the file format.
+scheduling software of record. Not affiliated with Oracle, Primavera, Microsoft or the
+Defense Contract Management Agency; Primavera, P6 and Microsoft Project are
+named only to describe the file formats.

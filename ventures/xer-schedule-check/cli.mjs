@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // node cli.mjs schedule.xer [--json] [--csv findings.csv] [--schedule activities.csv] [--project CODE]
-// Prints the DCMA 14-point assessment of a Primavera P6 XER file.
+// Prints the DCMA 14-point assessment of a Primavera P6 XER file. Any
+// schedule argument can also be a Microsoft Project XML (MSPDI) file
+// (mspdi.mjs): File, Save As, XML Format in Microsoft Project.
 // node cli.mjs current.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 // Compares two updates of the same project instead (compare.mjs).
 // Either form takes --report review.html [--to NAME] [--from NAME] [--ref TEXT]
@@ -23,7 +25,8 @@
 // driving path behind each.
 import { readFileSync, writeFileSync } from "node:fs";
 import { windows, windowsText, windowsCsv } from "./windows.mjs";
-import { parseXer, decodeXer } from "./xer.mjs";
+import { decodeXer } from "./xer.mjs";
+import { parseSchedule } from "./mspdi.mjs";
 import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
 import { compare, compareCsv, compareText } from "./compare.mjs";
 import { reviewHtml, reviewItems } from "./report.mjs";
@@ -43,7 +46,7 @@ function writeReview(report, cmp, risk = null) {
 if (args.includes("--windows")) {
   const files = args.filter((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
   if (files.length < 2) { console.error("usage: node cli.mjs --windows update1.xer update2.xer [update3.xer ...] [--json] [--csv windows.csv] [--project CODE]"); process.exit(2); }
-  const rep = windows(files.map((f) => ({ xer: parseXer(decodeXer(readFileSync(f))), label: f.split("/").pop() })), { projectName: opt("--project") });
+  const rep = windows(files.map((f) => ({ xer: parseSchedule(decodeXer(readFileSync(f))), label: f.split("/").pop() })), { projectName: opt("--project") });
   if (opt("--csv")) writeFileSync(opt("--csv"), windowsCsv(rep));
   process.stdout.write(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : windowsText(rep));
   process.exit(0);
@@ -71,7 +74,7 @@ function runRisk(x, projId) {
   }
   return riskAnalysis(x, { projId, iterations, range: { min, likely, max }, correlation: Number(opt("--correlation") || 0), ranges, risks, seed: Number(opt("--seed") || 1) });
 }
-const xer = parseXer(decodeXer(readFileSync(file)));
+const xer = parseSchedule(decodeXer(readFileSync(file)));
 const projectFor = (x) => {
   const code = args[args.indexOf("--project") + 1];
   const id = (x.tables.PROJECT || []).find((p) => p.proj_short_name === code)?.proj_id ?? null;
@@ -79,7 +82,7 @@ const projectFor = (x) => {
   return id;
 };
 if (args.includes("--previous")) {
-  const prev = parseXer(decodeXer(readFileSync(args[args.indexOf("--previous") + 1])));
+  const prev = parseSchedule(decodeXer(readFileSync(args[args.indexOf("--previous") + 1])));
   const ids = args.includes("--project") ? { curProjId: projectFor(xer), prevProjId: projectFor(prev) } : {};
   // the review's assessment and the comparison must describe the same project
   const cur = args.includes("--report") ? assess(xer, { projId: ids.curProjId ?? null }) : null;
@@ -135,7 +138,7 @@ if (args.includes("--json")) {
   console.log(JSON.stringify(report, null, 2));
 } else {
   const p = report.project;
-  console.log(`${p.name}  (P6 ${p.version}; data date ${p.dataDate}; forecast finish ${p.finish}${p.mustFinish ? `; must finish by ${p.mustFinish}` : ""})`);
+  console.log(`${p.name}  (${/^MSPDI/.test(p.version || "") ? "Microsoft Project XML" + p.version.slice(5) : "P6 " + p.version}; data date ${p.dataDate}; forecast finish ${p.finish}${p.mustFinish ? `; must finish by ${p.mustFinish}` : ""})`);
   console.log(`${p.open} open of ${p.activities} activities, ${p.relationships} relationships`);
   for (const w of report.warnings) console.log(`WARNING: ${w}`);
   console.log(`DCMA 14-point: ${report.passed} of 14 pass\n`);
