@@ -4,12 +4,12 @@
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>XER Schedule Check — Free DCMA 14-Point Assessment of a Primavera P6 XER File</title>
-  <meta name="description" content="Free DCMA 14-point schedule check for Primavera P6 XER files, in your browser. Recomputes the critical path from the logic, runs the critical path test, lists every activity behind each failing point, and flags loops, out-of-sequence progress and stale float. Nothing is uploaded.">
+  <meta name="description" content="Free DCMA 14-point check of Primavera P6 XER files in your browser, with a recomputed critical path, every activity behind each finding, and an update-to-update comparison of two monthly schedules. Nothing is uploaded.">
   <meta property="og:title" content="XER Schedule Check — DCMA 14-point check of a P6 schedule, free and private">
   <meta property="og:description" content="Open a Primavera P6 .xer file and get the DCMA 14-point assessment, a recomputed critical path and every activity behind each finding. Runs in your browser.">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "XER Schedule Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads a Primavera P6 XER export, recomputes early and late dates and total float with P6's calendar, relationship, constraint and progress rules, and runs the DCMA 14-point schedule assessment, listing every activity behind each finding. Runs in the browser.", "featureList": "XER reader, P6 calendars, critical path method, total and free float, driving path, DCMA 14-point assessment, critical path test, CPLI, BEI, logic loops, out-of-sequence progress, CSV download"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the DCMA 14-point assessment?", "acceptedAnswer": {"@type": "Answer", "text": "A set of fourteen schedule-quality checks published by the US Defense Contract Management Agency and now used across construction and engineering: missing logic, leads, lags, relationship types, hard constraints, high float, negative float, high duration, invalid dates, resources, missed tasks, the critical path test, the critical path length index (CPLI) and the baseline execution index (BEI). Each has a published threshold."}}, {"@type": "Question", "name": "Is my schedule uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. There is no server, no account and no analytics vendor, so a confidential project schedule never leaves your computer."}}, {"@type": "Question", "name": "Does it recompute the schedule or trust the dates in the file?", "acceptedAnswer": {"@type": "Answer", "text": "Both. The float checks use the total float P6 stored in the file, as a reviewer would see it. Separately the tool recomputes every open activity's early and late dates from the logic, calendars, constraints and progress, uses that to run the critical path test, and lists every activity where the file's stored dates disagree with the recomputed ones."}}, {"@type": "Question", "name": "How close is the recomputed schedule to P6's own?", "acceptedAnswer": {"@type": "Answer", "text": "On six public XER files exported from P6 versions 5.0 to 24.12 (19,822 open activities), early finish, late finish and total float all agree with the values P6 stored on 18,133 activities (91.5 percent). Five of the six files agree on 99.9 to 100 percent; a heavily progressed 16,000-activity file agrees on 88 percent, the gap being out-of-sequence progress rules not yet fully modelled."}}, {"@type": "Question", "name": "Why does missed tasks use planned dates instead of a baseline?", "acceptedAnswer": {"@type": "Answer", "text": "A single XER export usually holds only the current project, not the baseline project. P6 keeps each activity's planned start and finish, which equal the baseline when the project uses its own planned dates as the baseline. The tool says so next to the result; compare against the true baseline where it differs."}}, {"@type": "Question", "name": "What does the critical path test do?", "acceptedAnswer": {"@type": "Answer", "text": "It adds 600 working days to an open activity on the longest path and recomputes the schedule. The project finish should move by at least that much. If it moves less, a constraint, a lag, an open end or a broken link is stopping delay from flowing through the path, and the reported critical path cannot be trusted."}}, {"@type": "Question", "name": "Which P6 settings are honoured?", "acceptedAnswer": {"@type": "Answer", "text": "Each activity's own calendar with its holidays and changed days, the lag calendar setting, total float as finish, start or smallest float, retained logic or progress override, the project's planned start and must-finish-by date, primary and secondary constraints including as late as possible, and external dates from links to projects not in the file. Resource levelling and expected finish dates are not modelled."}}, {"@type": "Question", "name": "Does a pass mean the schedule is good?", "acceptedAnswer": {"@type": "Answer", "text": "No. The fourteen points are screening metrics that find common faults; a schedule can pass them all and still be unrealistic, and some failures are justified. Use the lists to decide what to fix or explain, and have a qualified scheduler review the schedule before relying on it."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "XER Schedule Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads a Primavera P6 XER export, recomputes early and late dates and total float with P6's calendar, relationship, constraint and progress rules, and runs the DCMA 14-point schedule assessment, listing every activity behind each finding. Runs in the browser.", "featureList": "XER reader, update-to-update comparison of two XER files, half-step progress and revision split, P6 calendars, critical path method, total and free float, driving path, DCMA 14-point assessment, critical path test, CPLI, BEI, logic loops, out-of-sequence progress, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the DCMA 14-point assessment?", "acceptedAnswer": {"@type": "Answer", "text": "A set of fourteen schedule-quality checks published by the US Defense Contract Management Agency and now used across construction and engineering: missing logic, leads, lags, relationship types, hard constraints, high float, negative float, high duration, invalid dates, resources, missed tasks, the critical path test, the critical path length index (CPLI) and the baseline execution index (BEI). Each has a published threshold."}}, {"@type": "Question", "name": "Is my schedule uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. There is no server, no account and no analytics vendor, so a confidential project schedule never leaves your computer."}}, {"@type": "Question", "name": "Does it recompute the schedule or trust the dates in the file?", "acceptedAnswer": {"@type": "Answer", "text": "Both. The float checks use the total float P6 stored in the file, as a reviewer would see it. Separately the tool recomputes every open activity's early and late dates from the logic, calendars, constraints and progress, uses that to run the critical path test, and lists every activity where the file's stored dates disagree with the recomputed ones."}}, {"@type": "Question", "name": "How close is the recomputed schedule to P6's own?", "acceptedAnswer": {"@type": "Answer", "text": "On six public XER files exported from P6 versions 5.0 to 24.12 (19,822 open activities), early finish, late finish and total float all agree with the values P6 stored on 18,133 activities (91.5 percent). Five of the six files agree on 99.9 to 100 percent; a heavily progressed 16,000-activity file agrees on 88 percent, the gap being out-of-sequence progress rules not yet fully modelled."}}, {"@type": "Question", "name": "Why does missed tasks use planned dates instead of a baseline?", "acceptedAnswer": {"@type": "Answer", "text": "A single XER export usually holds only the current project, not the baseline project. P6 keeps each activity's planned start and finish, but it moves the planned dates of an activity that has not started to its early dates every time it schedules, so they stand in for the baseline only on activities that have started or finished. Late work that has not started yet is therefore not counted as missed, and both missed tasks and BEI can read better than against the true baseline. The tool says so next to the result; compare against the baseline project where you have it."}}, {"@type": "Question", "name": "What does the critical path test do?", "acceptedAnswer": {"@type": "Answer", "text": "It adds 600 working days to an open activity on the longest path and recomputes the schedule. The project finish should move by at least that much. If it moves less, a constraint, a lag, an open end or a broken link is stopping delay from flowing through the path, and the reported critical path cannot be trusted."}}, {"@type": "Question", "name": "Which P6 settings are honoured?", "acceptedAnswer": {"@type": "Answer", "text": "Each activity's own calendar with its holidays and changed days, the lag calendar setting, total float as finish, start or smallest float, retained logic or progress override, the project's planned start and must-finish-by date, primary and secondary constraints including as late as possible, and external dates from links to projects not in the file. Resource levelling and expected finish dates are not modelled."}}, {"@type": "Question", "name": "Does a pass mean the schedule is good?", "acceptedAnswer": {"@type": "Answer", "text": "No. The fourteen points are screening metrics that find common faults; a schedule can pass them all and still be unrealistic, and some failures are justified. Use the lists to decide what to fix or explain, and have a qualified scheduler review the schedule before relying on it."}}, {"@type": "Question", "name": "How does the update-to-update comparison work?", "acceptedAnswer": {"@type": "Answer", "text": "Open this month's XER and last month's. Activities are matched by activity ID and relationships by predecessor, successor and type. The report lists progress claimed, actual dates edited after they were reported, logic, duration, constraint and calendar changes, float used and driving-path changes. A half-step run recomputes last month's schedule with only this month's progress applied, so the change in the forecast finish splits into the part progress caused and the part the revisions caused. On six real P6 files with 720 planted edits, every edit was reported and nothing else."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
     body { max-width: 1040px; margin: auto; padding: 28px; }
@@ -67,6 +67,27 @@
     <p id="form-status" role="status" aria-live="polite">Choose an XER file exported from P6 (File, Export, Primavera PM XER).</p>
   </section>
 
+  <section class="card" aria-labelledby="cmp">
+    <h2 id="cmp">Compare with the previous update</h2>
+    <p class="note">The monthly review before a pay application: open last month's XER here and this month's above. You get what progress was claimed, which actual dates were edited after they were reported, which logic, durations, constraints and calendars changed, how much float was used, how the driving path moved, and a half-step run that splits the finish movement into the part progress caused and the part revisions caused.</p>
+    <label for="prev-file">Previous update (.xer)</label>
+    <input type="file" id="prev-file" accept=".xer,text/plain">
+    <button type="button" id="load-example-pair" class="secondary">Load an example pair of updates</button>
+    <p id="cmp-status" role="status" aria-live="polite">Open this month's file above first, then last month's here.</p>
+  </section>
+
+  <section class="card" id="cmp-report" hidden aria-labelledby="cmp-out">
+    <h2 id="cmp-out">Update-to-update comparison</h2>
+    <div id="cmp-warnings"></div>
+    <div class="big" id="cmp-big"></div>
+    <p class="note" id="cmp-half"></p>
+    <h3>To ask the contractor about</h3>
+    <div class="tablewrap"><table id="cmp-flags"><thead><tr><th>Severity</th><th>What</th><th class="n">Count</th></tr></thead><tbody></tbody></table></div>
+    <div id="cmp-sections"></div>
+    <button type="button" id="cmp-download">Download changes (CSV)</button>
+    <button type="button" id="cmp-download-json" class="secondary">Download full comparison (JSON)</button>
+  </section>
+
   <section class="card" id="report" hidden aria-labelledby="out">
     <h2 id="out">Assessment</h2>
     <div id="warnings"></div>
@@ -109,11 +130,13 @@
     <h3>How close is the recomputed schedule to P6's own?</h3>
     <p>On six public XER files exported from P6 versions 5.0 to 24.12 (19,822 open activities), early finish, late finish and total float all agree with the values P6 stored on 18,133 activities (91.5 percent). Five of the six files agree on 99.9 to 100 percent; a heavily progressed 16,000-activity file agrees on 88 percent, the gap being out-of-sequence progress rules not yet fully modelled.</p>
     <h3>Why does missed tasks use planned dates instead of a baseline?</h3>
-    <p>A single XER export usually holds only the current project, not the baseline project. P6 keeps each activity's planned start and finish, which equal the baseline when the project uses its own planned dates as the baseline. The tool says so next to the result; compare against the true baseline where it differs.</p>
+    <p>A single XER export usually holds only the current project, not the baseline project. P6 keeps each activity's planned start and finish, but it moves the planned dates of an activity that has not started to its early dates every time it schedules, so they stand in for the baseline only on activities that have started or finished. Late work that has not started yet is therefore not counted as missed, and both missed tasks and BEI can read better than against the true baseline. The tool says so next to the result; compare against the baseline project where you have it.</p>
     <h3>What does the critical path test do?</h3>
     <p>It adds 600 working days to an open activity on the longest path and recomputes the schedule. The project finish should move by at least that much. If it moves less, a constraint, a lag, an open end or a broken link is stopping delay from flowing through the path, and the reported critical path cannot be trusted.</p>
     <h3>Which P6 settings are honoured?</h3>
     <p>Each activity's own calendar with its holidays and changed days, the lag calendar setting, total float as finish, start or smallest float, retained logic or progress override, the project's planned start and must-finish-by date, primary and secondary constraints including as late as possible, and external dates from links to projects not in the file. Resource levelling and expected finish dates are not modelled.</p>
+    <h3>How does the update-to-update comparison work?</h3>
+    <p>Open this month's XER and last month's. Activities are matched by activity ID and relationships by predecessor, successor and type. The report lists progress claimed, actual dates edited after they were reported, logic, duration, constraint and calendar changes, float used and driving-path changes. A half-step run recomputes last month's schedule with only this month's progress applied, so the change in the forecast finish splits into the part progress caused and the part the revisions caused. On six real P6 files with 720 planted edits, every edit was reported and nothing else.</p>
     <h3>Does a pass mean the schedule is good?</h3>
     <p>No. The fourteen points are screening metrics that find common faults; a schedule can pass them all and still be unrealistic, and some failures are justified. Use the lists to decide what to fix or explain, and have a qualified scheduler review the schedule before relying on it.</p>
   </section>
@@ -123,7 +146,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -132,7 +155,8 @@
   <script type="module">
     import { parseXer, decodeXer } from "./xer.mjs";
     import { assess, findingsCsv } from "./dcma.mjs";
-    import { EXAMPLE_XER } from "./example.mjs";
+    import { EXAMPLE_XER, EXAMPLE_PREV_XER } from "./example.mjs";
+    import { compare, compareCsv } from "./compare.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -202,7 +226,7 @@
       status.textContent = `Reading ${f.name} (${(f.size / 1e6).toFixed(1)} MB)...`;
       await new Promise((r) => setTimeout(r, 30));
       const text = decodeXer(new Uint8Array(await f.arrayBuffer()));
-      if (load(text, f.name)) record("schedule_checked");
+      if (load(text, f.name)) { record("schedule_checked"); if (prevXer) runCompare(); }
     }
 
     $("#file").addEventListener("change", (e) => readFile(e.target.files[0]));
@@ -217,6 +241,78 @@
     const save = (blob, name) => { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); };
     $("#download").addEventListener("click", () => { if (!last) return; save(new Blob([findingsCsv(last)], { type: "text/csv" }), `${fileName}-dcma-findings.csv`); record("findings_downloaded"); });
     $("#download-json").addEventListener("click", () => { if (!last) return; save(new Blob([JSON.stringify(last, null, 2)], { type: "application/json" }), `${fileName}-dcma-report.json`); record("findings_downloaded"); });
+    // ---- update-to-update comparison
+    let prevXer = null, lastCmp = null;
+    const sgn = (d) => (d === null || d === undefined ? "n/a" : `${d > 0 ? "+" : ""}${d}`);
+    function cmpTable(title, rows, cols) {
+      if (!rows.length) return "";
+      const body = rows.slice(0, LIMIT).map((r) => `<tr>${cols.map(([, f]) => `<td>${esc(f(r))}</td>`).join("")}</tr>`).join("");
+      const more = rows.length > LIMIT ? `<p class="note">Showing ${LIMIT} of ${rows.length}; the CSV has them all.</p>` : "";
+      return `<h3>${esc(title)} <span class="pill warn">${rows.length}</span></h3><details${rows.length <= 8 ? " open" : ""}><summary>show</summary><div class="tablewrap"><table><thead><tr>${cols.map(([h]) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>${more}</details>`;
+    }
+    function renderCompare(c) {
+      lastCmp = c;
+      $("#cmp-warnings").innerHTML = c.warnings.length ? `<div class="warnbox"><strong>Read with care:</strong><ul>${c.warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : "";
+      const tiles = [[`${sgn(c.finish.moved)} days`, `forecast finish moved (${c.previous.finish} to ${c.current.finish})`], [`${c.previous.dataDate.slice(0, 10)} → ${c.current.dataDate.slice(0, 10)}`, `data dates, ${c.period.workingDays ?? "?"} working days`], [`${c.progress.started.length} / ${c.progress.finished.length}`, "activities started / finished"], [`${c.logic.added.length + c.logic.deleted.length + c.logic.lagChanged.length + c.logic.typeChanged.length}`, "relationship changes"], [`${c.float.newlyCritical}`, "activities newly critical"]];
+      $("#cmp-big").innerHTML = tiles.map(([x, l]) => `<div><strong>${esc(x)}</strong>${esc(l)}</div>`).join("");
+      $("#cmp-half").textContent = c.finish.halfStep ? `Half-step (last month's logic and durations with this month's progress): finish ${c.finish.halfStep}. Progress moved the finish ${sgn(c.finish.progressEffect)} working days and the revisions ${sgn(c.finish.revisionEffect)}. Computed with this tool's CPM engine, not P6.` : "";
+      $("#cmp-flags tbody").innerHTML = c.flags.length ? c.flags.map((f) => `<tr><td><span class="pill ${f.severity === "high" ? "fail" : f.severity === "medium" ? "warn" : "pass"}">${esc(f.severity)}</span></td><td>${esc(f.text)}</td><td class="n">${f.count}</td></tr>`).join("") : `<tr><td colspan="3">No changes found between the two updates.</td></tr>`;
+      const P = c.progress, A = ["Activity", (r) => r.code], N = ["Name", (r) => r.name], W = ["Was", (r) => r.was], NOW = ["Now", (r) => r.now];
+      const rel = ["Link", (r) => `${r.pred} → ${r.succ}`];
+      $("#cmp-sections").innerHTML = [
+        cmpTable("Actual dates edited after they were reported", P.actualsEdited, [A, N, ["Field", (r) => r.field], W, NOW]),
+        cmpTable("Actual dates after the data date", P.futureActuals, [A, N, ["Field", (r) => r.field], ["Date", (r) => r.date]]),
+        cmpTable("Progress reversed", P.reversed, [A, N, W, NOW]),
+        cmpTable("Started this period", P.started, [A, N, ["Actual start", (r) => r.actualStart]]),
+        cmpTable("Finished this period", P.finished, [A, N, ["Forecast finish", (r) => r.plannedFinish], ["Actual finish", (r) => r.actualFinish], ["Days vs forecast", (r) => sgn(r.daysLate)]]),
+        cmpTable("Forecast to finish by this data date, not finished", P.plannedNotFinished, [A, N, ["Forecast finish", (r) => r.forecastFinish], ["Now", (r) => r.status]]),
+        cmpTable("Forecast to start by this data date, not started", P.plannedNotStarted, [A, N, ["Forecast start", (r) => r.forecastStart]]),
+        cmpTable("Remaining duration grew on work in progress (days)", P.remainingUp, [A, N, W, NOW]),
+        cmpTable("Original duration changed on work not started (days)", c.durations.origChanged, [A, N, W, NOW, ["Critical", (r) => (r.critical ? "yes" : "")]]),
+        cmpTable("Constraints changed", c.constraints, [A, N, W, NOW]),
+        cmpTable("Calendars changed", c.calendars, [A, N, W, NOW]),
+        cmpTable("Relationships deleted", c.logic.deleted, [rel, ["Type", (r) => r.type], ["Lag (days)", (r) => r.lagDays], ["Note", (r) => [r.critical ? "critical path" : "", r.bothRemain ? "" : "an activity was deleted"].filter(Boolean).join("; ")]]),
+        cmpTable("Relationships added", c.logic.added, [rel, ["Type", (r) => r.type], ["Lag (days)", (r) => r.lagDays]]),
+        cmpTable("Relationship types changed", c.logic.typeChanged, [rel, W, NOW]),
+        cmpTable("Lags changed (days)", c.logic.lagChanged, [rel, ["Type", (r) => r.type], ["Was", (r) => r.wasLagDays], ["Now", (r) => r.lagDays]]),
+        cmpTable("Activities added", c.activities.added, [A, N, ["Status", (r) => r.status], ["Duration (days)", (r) => r.duration]]),
+        cmpTable("Activities deleted", c.activities.deleted, [A, N, ["Status", (r) => r.status], ["Was critical", (r) => (r.wasCritical ? "yes" : "")]]),
+        cmpTable("Renamed", c.activities.renamed, [A, W, NOW]),
+        cmpTable("Float used (working days)", c.float.rows.filter((r) => r.floatUsed > 0), [A, N, ["Float was", (r) => r.floatWas], ["Float now", (r) => r.floatNow], ["Finish moved", (r) => sgn(r.finishMoved)], ["", (r) => (r.becameCritical ? "now critical" : "")]]),
+        cmpTable("Joined the driving path", c.criticalPath.joined, [A, N, ["", (r) => (r.isNew ? "new activity" : "")]]),
+        cmpTable("Left the driving path", c.criticalPath.left, [A, N, ["Now", (r) => r.now]]),
+        cmpTable("Driving path now, and how far each finish moved", c.criticalPath.trail, [A, N, ["Finish was", (r) => r.finishWas], ["Finish now", (r) => r.finishNow], ["Moved (days)", (r) => (r.isNew ? "new" : sgn(r.moved))]]),
+      ].join("");
+      $("#cmp-report").hidden = false;
+    }
+    function runCompare() {
+      if (!xer || !prevXer) { $("#cmp-status").textContent = !xer ? "Open this month's file above first." : "Now open last month's file."; return false; }
+      try {
+        const projId = $("#proj-wrap").hidden ? undefined : $("#proj").value;
+        const c = compare(prevXer, xer, { curProjId: projId });
+        renderCompare(c);
+        $("#cmp-status").textContent = `Done: ${c.flags.length} kinds of change found. Scroll down for the detail.`;
+        return true;
+      } catch (e) {
+        $("#cmp-status").textContent = `Could not compare these files: ${e.message}`;
+        $("#cmp-report").hidden = true;
+        return false;
+      }
+    }
+    $("#prev-file").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      $("#cmp-status").textContent = `Reading ${f.name}...`;
+      try { prevXer = parseXer(decodeXer(new Uint8Array(await f.arrayBuffer()))); } catch (err) { $("#cmp-status").textContent = `This does not look like an XER file: ${err.message}`; return; }
+      if (runCompare()) record("updates_compared");
+    });
+    $("#load-example-pair").addEventListener("click", () => {
+      if (!load(EXAMPLE_XER, "office-fitout-example")) return;
+      prevXer = parseXer(EXAMPLE_PREV_XER);
+      if (runCompare()) { record("example_loaded"); $("#cmp-status").textContent = "Example: two invented monthly updates of an office fit-out with deliberate changes between them, not a real project."; }
+    });
+    $("#cmp-download").addEventListener("click", () => { if (!lastCmp) return; save(new Blob([compareCsv(lastCmp)], { type: "text/csv" }), `${fileName}-update-changes.csv`); record("findings_downloaded"); });
+    $("#cmp-download-json").addEventListener("click", () => { if (!lastCmp) return; save(new Blob([JSON.stringify(lastCmp, null, 2)], { type: "application/json" }), `${fileName}-update-comparison.json`); record("findings_downloaded"); });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>

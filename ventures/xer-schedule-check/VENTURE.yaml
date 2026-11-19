@@ -35,6 +35,16 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: >-
+      Owners' reps reviewing a monthly pay application will open last month's
+      and this month's XER together, because the half-step split and the list
+      of edited actual dates and deleted logic answer the question they must
+      sign off on (did the contractor earn the progress, or move the goalposts);
+      measured as the share of updates_compared events among schedule_checked
+      events (local counters only, added 2026-11-19, no reading yet).
+    status: untested
+    checked: null
+    evidence: customer-contact
 
 economics:
   currency: USD

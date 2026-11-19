@@ -104,17 +104,20 @@ export function nameInAuthorizedDomain(name, domain) {
  * positive that would cost a user trust in the report.
  */
 export function normalizeAnswer(type, data) {
-  let value = String(data ?? '').trim().replace(/\s+/g, ' ');
+  const raw = String(data ?? '').trim();
+  let value = raw.replace(/\s+/g, ' ');
   if (type === 'TXT') {
     // A long TXT record arrives as several quoted chunks; DNS defines the value
     // as their concatenation, so join rather than keeping the split visible.
-    const chunks = value.match(/"(?:[^"\\]|\\.)*"/g);
+    // TXT text is opaque: spacing inside the quotes is kept, as capture.py keeps it.
+    const chunks = raw.match(/"(?:[^"\\]|\\.)*"/g);
     if (chunks) value = chunks.map((c) => c.slice(1, -1)).join('');
     return value;
   }
   // Names are case-insensitive and the root dot carries no information here.
   if (['CNAME', 'NS', 'PTR', 'MX', 'SOA', 'SRV'].includes(type)) {
-    return value.replace(/\.(?=\s|$)/g, '').toLowerCase();
+    // A bare root target (`0 .`, the RFC 7505 null MX) is kept, as capture.py keeps it.
+    return value.replace(/(?<=\S)\.(?=\s|$)/g, '').toLowerCase();
   }
   return value;
 }

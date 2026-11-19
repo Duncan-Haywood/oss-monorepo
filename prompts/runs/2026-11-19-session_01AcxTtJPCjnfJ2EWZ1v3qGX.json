@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJPCjnfJ2EWZ1v3qGX",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T10:07:04Z",
+  "ended": "2026-11-19T10:25:23Z",
+  "wall_minutes": 25.29,
+  "tokens_in": 4693247,
+  "tokens_out": 25216,
+  "cost_usd": 2.1123,
+  "tool_calls": 59,
+  "task": "polish: blog post tables hid columns on small phones (item 1 of polish-2026-11-19-stacked-tables.md)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17627",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First platform/pages suite run: 168 failures, all from my new post's 175-character description (check_posts gate inside the build tests); fixed the front matter, rerun 1853 pass / 0 fail."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-19-stacked-tables.md",
+      "issue": "Measured only at 390 px and called the leftover '5 tables'; at 320 px the same tables showed 190 hidden columns. Polish reports on phone layout should measure 320 and 360 too."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to screenshot five surfaces before choosing; with 59 open items in polish_queue.py the queue already says what is weakest, and the full screenshot sweep would have cost the run's main measurement time. The prompt could point at polish_queue.py first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the five-surface screenshot sweep and picked from polish_queue.py's open items instead, measuring the chosen surface (1,829 tables at four widths) rather than glancing at five.",
+      "did": "Chose stacked-tables item 1, measured it at 320/360/390 px, fixed and re-measured on a full rebuild.",
+      "result": "Found the defect was ~30x larger at 320 px than the queue item said; 190 -> 12."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-small-phone-tables-lost-a-column.md",
+    "docs/reports/polish-2026-11-19-phone-table-cells.md"
+  ],
+  "goal": null,
+  "notes": "Two full local builds (~10 min each). Playwright measurement over 1,663 /writing/ pages (1,829 tables): hidden-column tables 190->12 at 320, 31->1 at 360, 6->0 at 390; total table height -7%. Injected-CSS trials matched the rebuilt site exactly. Rejected overflow-wrap:anywhere (splits figures). Tests: node --test platform/pages/post-table-phone.test.mjs pass; node --test 'platform/pages/*.test.mjs' 1853 pass, 0 fail (~8 min); check_posts ok; promptctl validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b49759ed-bdfd-5e80-8a7f-42e55b13513c",
+    "transcripts": 1,
+    "first": "2026-11-19T10:07:04Z",
+    "last": "2026-11-19T10:32:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 103,
+        "output": 25216,
+        "thinking": 5082,
+        "cache_read": 4607387,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85757,
+        "api_equivalent_usd": 2.1123,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 103,
+      "output": 25216,
+      "thinking": 5082,
+      "cache_read": 4607387,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85757,
+      "api_equivalent_usd": 2.1123,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 53,
+      "Read": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.29,
+      "active_minutes": 25.29,
+      "model_minutes": 5.44,
+      "tool_minutes": 19.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "front-end dev: measure 1,829 tables at 3 widths, trial 3 CSS variants, fix, test, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 189.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

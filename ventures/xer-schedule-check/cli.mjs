@@ -1,23 +1,35 @@
 #!/usr/bin/env node
 // node cli.mjs schedule.xer [--json] [--csv findings.csv] [--project CODE]
 // Prints the DCMA 14-point assessment of a Primavera P6 XER file.
+// node cli.mjs current.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
+// Compares two updates of the same project instead (compare.mjs).
 import { readFileSync, writeFileSync } from "node:fs";
 import { parseXer, decodeXer } from "./xer.mjs";
 import { assess, findingsCsv } from "./dcma.mjs";
+import { compare, compareCsv, compareText } from "./compare.mjs";
 
 const args = process.argv.slice(2);
-const file = args.find((a, i) => !a.startsWith("--") && !["--csv", "--project"].includes(args[i - 1]));
+const file = args.find((a, i) => !a.startsWith("--") && !["--csv", "--project", "--previous"].includes(args[i - 1]));
 if (!file) {
-  console.error("usage: node cli.mjs schedule.xer [--json] [--csv findings.csv] [--project CODE]");
+  console.error("usage: node cli.mjs schedule.xer [--json] [--csv findings.csv] [--project CODE]\n       node cli.mjs current.xer --previous previous.xer [--json] [--csv changes.csv] [--project CODE]");
   process.exit(2);
 }
 const xer = parseXer(decodeXer(readFileSync(file)));
-let projId = null;
-if (args.includes("--project")) {
+const projectFor = (x) => {
   const code = args[args.indexOf("--project") + 1];
-  projId = (xer.tables.PROJECT || []).find((p) => p.proj_short_name === code)?.proj_id ?? null;
-  if (!projId) { console.error(`no project ${code}`); process.exit(2); }
+  const id = (x.tables.PROJECT || []).find((p) => p.proj_short_name === code)?.proj_id ?? null;
+  if (!id) { console.error(`no project ${code}`); process.exit(2); }
+  return id;
+};
+if (args.includes("--previous")) {
+  const prev = parseXer(decodeXer(readFileSync(args[args.indexOf("--previous") + 1])));
+  const ids = args.includes("--project") ? { curProjId: projectFor(xer), prevProjId: projectFor(prev) } : {};
+  const rep = compare(prev, xer, ids);
+  if (args.includes("--csv")) writeFileSync(args[args.indexOf("--csv") + 1], compareCsv(rep));
+  process.stdout.write(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : compareText(rep));
+  process.exit(0);
 }
+const projId = args.includes("--project") ? projectFor(xer) : null;
 const report = assess(xer, { projId });
 if (args.includes("--csv")) writeFileSync(args[args.indexOf("--csv") + 1], findingsCsv(report));
 if (args.includes("--json")) {
@@ -29,7 +41,7 @@ if (args.includes("--json")) {
   for (const w of report.warnings) console.log(`WARNING: ${w}`);
   console.log(`DCMA 14-point: ${report.passed} of 14 pass\n`);
   for (const c of report.checks) {
-    const v = c.value === null ? "n/a" : `${typeof c.value === "number" ? Math.round(c.value * 10) / 10 : c.value}${c.unit ? " " + c.unit : ""}`;
+    const v = c.value === null ? "n/a" : `${typeof c.value === "number" ? (Math.abs(c.value) < 10 ? Math.round(c.value * 1000) / 1000 : Math.round(c.value * 10) / 10) : c.value}${c.unit ? " " + c.unit : ""}`;
     console.log(`${c.pass ? "PASS" : "FAIL"}  ${String(c.id).padStart(2)}. ${c.name.padEnd(36)} ${v.padEnd(22)} (${c.threshold})${c.total ? `  ${c.count}/${c.total}` : ""}`);
   }
   console.log("");

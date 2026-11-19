@@ -697,6 +697,17 @@ class StaleHostsTest(unittest.TestCase):
         self.assertIn("arxiv.org (LOG.md:2), zenodo.org (LOG.md:6)", lines[0])
         self.assertTrue(lines[1].endswith("still refused here: gss.norc.org, data.sf.gov"))
 
+    def test_recheck_names_a_refused_host_the_code_fetches(self):
+        import stale_hosts
+        src = self.root / "prog" / "src"
+        src.mkdir()
+        (src / "data.py").write_text('RECORD = "https://zenodo.org/api/records/1/files/{name}/content"\n')
+        lines = stale_hosts.recheck_lines("prog", answers=lambda u: False, root=self.root)
+        self.assertEqual(len(lines), 2)
+        self.assertIn("its own code fetches from zenodo.org", lines[1])
+        self.assertIn("research/prog/HOSTS", lines[1])
+        self.assertNotIn("gss.norc.org", lines[1])  # named in notes only, not fetched by code
+
     def test_no_notes_no_lines(self):
         import stale_hosts
         (self.root / "empty").mkdir()
