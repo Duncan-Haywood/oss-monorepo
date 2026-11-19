@@ -15,6 +15,7 @@ Usage (from ``ventures/photo-editing``)::
     PYTHONPATH=src python tools/near_clean_gate.py sweep --bayer --cards cards.json --cache /tmp/truths FILES... > rows.jsonl
     python tools/near_clean_gate.py tune rows.jsonl            # pick k (the committed rule)
     python tools/near_clean_gate.py rule rows.jsonl --k K      # the held-out test (the committed rule)
+    # one sweep, both roles: --split tune for the pick, --split held for the test (rows carry split_of(body))
 """
 
 from __future__ import annotations
@@ -113,12 +114,14 @@ def sweep(argv) -> int:
     return 0
 
 
-def load(paths) -> list[dict]:
+def load(paths, split: str | None = None) -> list[dict]:
+    """Scored rows from sweep output; ``split`` keeps only rows whose body ``split_of`` put there."""
+
     rows = []
     for p in paths:
         for line in open(p):
             r = json.loads(line)
-            if "cpsnr" in r:
+            if "cpsnr" in r and (split is None or r.get("split") == split):
                 rows.append(r)
     return rows
 
@@ -145,8 +148,9 @@ def table(rows, ks, base) -> None:
 def tune(argv) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("rows", nargs="+")
+    ap.add_argument("--split", choices=("tune", "held"), help="only rows of this split (default: all)")
     args = ap.parse_args(argv)
-    rows = load(args.rows)
+    rows = load(args.rows, args.split)
     ks = sorted({float(a.split("+")[1]) for a in rows[0]["cpsnr"] if a.startswith("ship+")})
     print(f"{len(rows)} rows")
     for base in ("true", "ship"):
@@ -163,8 +167,9 @@ def rule(argv) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("rows", nargs="+")
     ap.add_argument("--k", type=float, required=True)
+    ap.add_argument("--split", choices=("tune", "held"), help="only rows of this split (default: all)")
     args = ap.parse_args(argv)
-    rows = load(args.rows)
+    rows = load(args.rows, args.split)
     arm = f"ship+{args.k:g}"
     ok = True
     for base in ("ship", "true"):
