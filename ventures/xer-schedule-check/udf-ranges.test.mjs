@@ -101,3 +101,29 @@ test("udfSpec names fields by id or label; a file with no recognisable names rea
   assert.throws(() => udfSpec(x, "nope,-,21"), /no numeric activity UDF "nope"/);
   assert.throws(() => rangesFromUdf(build([udfType("10", "Opt Dur hrs"), udfType("12", "Pess Dur")], [udfVal("10", "2", 1), udfVal("12", "2", 2)])), /different units/);
 });
+
+test("udfFields counts only filled-in numbers; a field with blank values is not guessed", () => {
+  const x = build([udfType("10", "Optimistic Dur"), udfType("12", "Pessimistic Dur")], [udfVal("10", "2", 4), udfVal("12", "2", ""), udfVal("12", "3", "")]);
+  assert.deepEqual(udfFields(x).map((f) => f.values), [1, 0]);
+  assert.equal(rangesFromUdf(x).fields, null);
+});
+
+test("a most-likely field named by the user is read, not dropped", () => {
+  const x = build(three, vals);
+  const spec = udfSpec(x, "10,Most Likely Duration,12");
+  assert.deepEqual(spec, { min: "10", likely: "11", max: "12" });
+  const u = rangesFromUdf(x, spec);
+  assert.equal(u.ranges.get("A").likely, 5);
+  assert.equal(u.fields.likely.label, "Most Likely Duration");
+});
+
+test("negative UDF durations are not drawn: left on the default range with a warning", () => {
+  const x = build(three, [udfVal("10", "2", -20), udfVal("11", "2", -10), udfVal("12", "2", -5), udfVal("10", "3", 5), udfVal("11", "3", 5), udfVal("12", "3", 5)]);
+  const zero = { min: 1, likely: 1, max: 1 };
+  const r = riskAnalysis(x, { iterations: 200, seed: 1, range: zero, ranges: rangesFromUdf(x).ranges });
+  assert.equal(r.inconsistentRanges, 1);
+  assert.equal(r.overrides, 1);
+  // A keeps its 5 days, so no run finishes before the CPM date
+  assert.ok(r.percentiles.every((q) => q.overDeterministic >= 0), JSON.stringify(r.percentiles));
+  assert.ok(r.warnings.some((w) => /negative/.test(w) && /: A$/.test(w)), r.warnings.join(" | "));
+});
