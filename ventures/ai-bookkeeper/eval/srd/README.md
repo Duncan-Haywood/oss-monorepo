@@ -31,3 +31,12 @@ digit is still possible. Misses are scored as they stand, not removed.
 
 Score: `node ../cord-receipts.mjs labels.jsonl --ocr <dir>[,<dir2>...] [--settled]`
 (the parent README, "US receipt photos", gives the full recipe).
+
+## Dates and shop names (2026-11-19)
+
+`dates.jsonl` holds the sale date (`printed` as on the receipt, `date` as ISO,
+`ambiguous` when the day and month order could not be told), the shop name as
+printed (`merchant`) and a `country` guess for each photo. Four agent sessions
+read 50 photos each, by eye, to the brief in `../srd-dates-2026-11-19.md`. 1114
+is byte-identical to 1034 and 1041, which `labels.jsonl` does not mark. Score with
+`node ../srd-dates.mjs dates.jsonl --ocr <dir>[,<dir2>...] [--settled] [--lead]`.

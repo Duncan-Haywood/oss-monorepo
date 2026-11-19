@@ -120,12 +120,11 @@ flagships:
       page SRD 190/196 (port as lead), page CORD taxes kept (train 205/267),
       WildReceipt held out 360/405, tax 209/272, Russian slips 203/230, 202/221
       (RapidOCR), merchant 113/146, page 114 (Cyrillic, bands), SROIE 84.6%, five
-      readings 96.5% held out, dates 94.1%
-      (was 69.1%), US 79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos val 71.4%,
-      train 62.2%, test 57.9%, tax 16/41; open: OCR-bound); (6) payroll (README):
-      two journal layouts read; open: a real Gusto or ADP export; (7) IRIS NEC and
-      MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026
-      template. A run that lands a
+      readings 96.5% held out, dates 94.1%, SRD 93.4%, US 79.6%, tax 74.6%; CLI
+      78.6%, tax 71.9%; CORD photos val 71.4%, train 62.2%, test 57.9%, tax 16/41;
+      open: OCR-bound); (6) payroll (README): two journal layouts read; open: a real
+      Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
+      guidelines (HISTORY): open: a real upload, TY2026 template. A run that lands a
       slice replaces its item here; keep this under 2,000 characters. More open
       items: NEXT.md.
     buildable: >-
