@@ -98,9 +98,20 @@ function side(xer, projId) {
   return { xer, result, p, byCode, rels, path, notes, agreement: { compared, matched }, name: projRow.proj_short_name || p.code || "", version: xer.version };
 }
 
+// The previous file's project that matches the current one: the same project
+// ID (proj_short_name), else the same database key. In a file holding several
+// projects, falling back to "the one with the most open work" can compare the
+// chosen project against a different one.
+export function matchingProject(xer, name, projId) {
+  const rows = xer.tables.PROJECT || [];
+  const byName = name ? rows.filter((r) => r.proj_short_name === name) : [];
+  if (byName.length === 1) return byName[0].proj_id;
+  return rows.some((r) => r.proj_id === projId) ? projId : undefined;
+}
+
 export function compare(prevXer, curXer, opts = {}) {
-  const A = side(prevXer, opts.prevProjId);
   const B = side(curXer, opts.curProjId);
+  const A = side(prevXer, opts.prevProjId ?? matchingProject(prevXer, B.name, B.p.id));
   const warnings = [];
   for (const n of A.notes) warnings.push(`Previous file: ${n}.`);
   for (const n of B.notes) warnings.push(`Current file: ${n}.`);
@@ -269,9 +280,10 @@ export function compareCsv(rep) {
   const rows = [["section", "activity", "name", "was", "now", "detail"]];
   const q = (v) => {
     let s = v === null || v === undefined ? "" : String(v);
-    // a cell a spreadsheet would read as a formula (CSV injection) is written as text; plain numbers stay numbers
+    // activity names come from the contractor's file: a cell a spreadsheet
+    // would read as a formula is written as text (CSV injection)
     if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const push = (...r) => rows.push(r);
   for (const x of rep.progress.actualsEdited) push("actual date edited", x.code, x.name, x.was, x.now, `${x.field}, ${x.days} working days`);

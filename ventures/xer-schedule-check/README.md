@@ -79,8 +79,15 @@ node cli.mjs schedule.xer                 # scorecard
 node cli.mjs schedule.xer --json          # full report
 node cli.mjs schedule.xer --csv out.csv   # one row per finding
 node cli.mjs schedule.xer --project CODE  # a file with several projects
-node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv]
+node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 ```
+
+When a file holds several projects, the comparison takes the project with the
+same project ID (`proj_short_name`) from last month's file, so the two sides
+are the same project; `--project CODE` (or the page's project picker) chooses
+it. The changes CSV writes a cell that starts with `=`, `+`, `-` or `@` with a
+leading apostrophe, so a crafted activity name in a contractor's file can't
+run as a formula in Excel or Sheets.
 
 ## How it was checked
 
