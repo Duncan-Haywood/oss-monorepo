@@ -39,10 +39,29 @@ RESULT (set O, eval/take-bound-o-2026-11-19.md): 49 of 66 builds told TAKE_US = 
 ships. The two misses are 2.0 ms takes at a 16 and 19 ppm step, where one whole ppm is 5-6%; a ppm floor on the
 tolerance is the next test, on a fresh set.
 
+PART 3, A PPM FLOOR (`--floor-design`, `--floor-heldout`; 2026-11-19, eval/take-bound-floor-p-2026-11-19.md). The
+frame carries whole ppm, so at a 16-20 ppm step the 2% bar is cleared by one ppm of rounding. Candidate: a candidate
+counts as worse than the step's only when its mean rms is over max(step * 1.02, step + FLOOR ppm). Design (J to L, M,
+N, and O now seen): floors 0, 1, 2, 3, 4 ppm keep 145 of 145 on J-N; on O 47, 48, 49, 49, 49 of 49; the instant
+builds' bound is 1.5 ms on 20, 20, 17, 15, 15 of 30 (J-N). FLOOR = 2 is the smallest floor that covers all of O.
+
+PREDICTION AND RULE (written before set P was captured): set P is wheel lag 0.58 s, seed 113 (neither used by an
+earlier take capture), the same takes, tachs, launchers and 66 drills as O. FLOOR = 2 ships in host.take_survey_bound
+only if, on P, (a) its coverage of builds told TAKE_US = 0 is at least 95% and at least the no-floor coverage, and
+(b) its bound is 1.5 ms on at least half the instant builds. Otherwise host stays at 2% alone and the floor goes to
+NEXT.md with P's numbers.
+
+RESULT (set P, eval/take-bound-floor-p-2026-11-19.md): 48 of 66 builds told TAKE_US = 0. 2% alone: the true take at
+most the bound on 46 (95.8%; misses a 1.6 and a 2.8 ms take, both bounded at 1.5 ms). With the floor: 48 of 48, and
+the bound 1.5 ms on 4 of 6 instant builds. Both clauses held, so the floor ships (host.TAKE_BOUND_FLOOR_PPM = 2).
+
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_shelf_bound.py --trace eval/take-dense-jkl-2026-11-19.jsonl.gz eval/take-dense-m-2026-11-19.jsonl.gz eval/take-dense-n-2026-11-19.jsonl.gz
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_shelf_bound.py --design eval/take-dense-jkl-2026-11-19.jsonl.gz eval/take-dense-m-2026-11-19.jsonl.gz eval/take-dense-n-2026-11-19.jsonl.gz
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture o.jsonl --lag 0.42 --seed 109 --takes "0.1,0.5,0.9,1.3,1.6,2.0,2.4,2.8,3.5,5.0,0"
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_shelf_bound.py --heldout o.jsonl
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_shelf_bound.py --floor-design eval/take-dense-jkl-2026-11-19.jsonl.gz eval/take-dense-m-2026-11-19.jsonl.gz eval/take-dense-n-2026-11-19.jsonl.gz eval/take-bound-o-2026-11-19.jsonl.gz
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture p.jsonl --lag 0.58 --seed 113 --takes "0.1,0.5,0.9,1.3,1.6,2.0,2.4,2.8,3.5,5.0,0"
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_shelf_bound.py --floor-heldout p.jsonl
 
 Simulated only, as the captures are.
 """
@@ -61,13 +80,13 @@ def _grid():
     return list(controller.TAKE_SURVEY_GRID_US)
 
 
-def bound_ms(rms, grid_ms, tol=TOL):
-    """The first grid contact time after 0 whose mean rms is more than `tol` over the step's, or None (every candidate
-    fits within `tol` of the step). The same arithmetic as host.take_survey_bound."""
+def bound_ms(rms, grid_ms, tol=TOL, floor=2):
+    """The first grid contact time after 0 whose mean rms is more than `tol` and at least `floor` ppm over the step's, or
+    None (every candidate fits within them). The same arithmetic as host.take_survey_bound (floor 2 since set P)."""
     if not rms or not rms[0]:
         return None
     for g, r in zip(grid_ms[1:], rms[1:]):
-        if r > rms[0] * (1 + tol):
+        if r > max(rms[0] * (1 + tol), rms[0] + floor):
             return g
     return None
 
@@ -149,29 +168,56 @@ def trace(paths):
             print(f"  {p.split('/')[-1]} kept {len(kept):2d} rises at {rise} ms | " + " ".join(f"{x:.2f}" for x in c))
 
 
-def score(frames, label):
+def score(frames, label, floor=0):
     from tennisbots import host
     grid_ms = [g / 1000 for g in _grid()]
     told = []
     for t, sv in frames:
         a = host.take_survey_advice(dict(sv, board_ms10=sv.get("board_ms10", 0)))
         if a and "TAKE_US = 0" in a:
-            told.append((t, bound_ms(sv.get("rms_ppm") or [], grid_ms)))
-    ok = sum(x is None or t <= x + 1e-9 for t, x in told)
-    inst = [x for t, x in told if t == 0]
+            told.append((t, bound_ms(sv.get("rms_ppm") or [], grid_ms, floor=floor), (sv.get("rms_ppm") or [0])[0]))
+    ok = sum(x is None or t <= x + 1e-9 for t, x, _ in told)
+    inst = [x for t, x, _ in told if t == 0]
     i15 = sum(x == 1.5 for x in inst)
     print(f"{label}: {len(told)} builds told TAKE_US = 0; true take at most the bound on {ok} "
           f"({ok / len(told):.1%}); instant builds {len(inst)}, bound 1.5 ms on {i15}")
     by = {}
-    for t, x in told:
+    for t, x, _ in told:
         by.setdefault(t, []).append(x)
     for t in sorted(by):
         print(f"  {t:g} ms: bounds [{' '.join('-' if x is None else f'{x:g}' for x in by[t])}]")
     return len(told), ok, len(inst), i15
 
 
+FLOOR = 2           # the candidate ppm floor (PART 3)
+
+
+def floor_heldout(paths):
+    rows = list(frames_capture(paths))
+    n0, ok0, _, _ = score(rows, "held out, 2% alone", floor=0)
+    n, ok, ni, i15 = score(rows, f"held out, max(2%, {FLOOR} ppm)", floor=FLOOR)
+    ca = n > 0 and ok >= 0.95 * n and ok >= ok0
+    cb = ni > 0 and 2 * i15 >= ni
+    print(f"  (a) coverage at least 95% and at least the 2%-alone {ok0} of {n0}: {'held' if ca else 'FAILED'}; "
+          f"(b) bound 1.5 ms on at least half the instant builds: {'held' if cb else 'FAILED'}")
+    print("Decision: " + (f"the {FLOOR} ppm floor ships in host.take_survey_bound" if ca and cb
+                          else "host stays at 2% alone"))
+    return ca and cb
+
+
 def main():
     a = sys.argv
+    if "--floor-design" in a:
+        paths = a[a.index("--floor-design") + 1:]
+        dense = [p for p in paths if "dense" in p]
+        caps = [p for p in paths if "dense" not in p]
+        for f in range(5):
+            score(frames_dense(dense), f"design J-N, floor {f} ppm", floor=f)
+            if caps:
+                score(frames_capture(caps), f"seen O, floor {f} ppm", floor=f)
+        return
+    if "--floor-heldout" in a:
+        return floor_heldout(a[a.index("--floor-heldout") + 1:])
     if "--trace" in a:
         return trace(a[a.index("--trace") + 1:])
     if "--design" in a:

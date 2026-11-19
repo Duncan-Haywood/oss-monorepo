@@ -1,0 +1,82 @@
+cell-fidelity milestone 7f: triage rules with an out-of-batch margin. 12 folds (4 sets x 3 held-out pools);
+target = 1.25 x the held-out pool's all-50 q75 of the cycle-99 lithium-loss error (cell 000).
+
+rule            margin   met  cycles  saved vs U50
+theta-tight       zero   3/12    26.5           47%
+U-tight           zero   7/12    41.7           17%
+F-tight           zero   4/12    27.3           45%
+F+D               zero   4/12    27.3           45%
+theta-tight     nested   9/12    40.0           20%
+U-tight         nested  12/12    50.0            0%
+F-tight         nested  10/12    40.0           20%
+F+D             nested   6/12    34.2           32%
+U50                  -  12/12    50.0            0%
+
+theta-tight, nested margin, per fold:
+set          pool   n  margin inner       policy    q75  target  met  cycles
+Ai2020        5zk   8    1.05    ok    50>=0.041  0.014   0.017  yes    45.0
+Ai2020        5zy   8    1.05    ok    50>=0.045  0.045   0.047  yes    30.0
+Ai2020        5zz   8    1.15    ok    40>=0.041  0.062   0.058   no    36.2
+Chen2020      5zk  12    1.00    no    50>=0.028  0.074   0.077  yes    26.7
+Chen2020      5zy   8    1.00    ok    50>=0.014  0.077   0.097  yes    50.0
+Chen2020      5zz   8    1.15    ok    50>=0.017  0.051   0.064  yes    50.0
+OKane2022     5zk  12    1.00    no    50>=0.031  0.051   0.064  yes    46.7
+OKane2022     5zy   8    1.00    no    50>=0.031  0.053   0.067  yes    50.0
+OKane2022     5zz   8    1.00    no    50>=0.061  0.059   0.050   no    40.0
+NCA_Kim2011   5zk   8    1.15    ok    50>=0.297  0.032   0.032   no    25.0
+NCA_Kim2011   5zy   8    1.10    ok    50>=0.238  0.024   0.025  yes    35.0
+NCA_Kim2011   5zz   8    1.15    ok    50>=0.212  0.025   0.031  yes    45.0
+
+U-tight, nested margin, per fold:
+set          pool   n  margin inner       policy    q75  target  met  cycles
+Ai2020        5zk   8    1.20    ok          U50  0.014   0.017  yes    50.0
+Ai2020        5zy   8    1.20    ok          U50  0.038   0.047  yes    50.0
+Ai2020        5zz   8    1.25    ok          U50  0.046   0.058  yes    50.0
+Chen2020      5zk  12    1.10    ok          U50  0.062   0.077  yes    50.0
+Chen2020      5zy   8    1.10    ok          U50  0.077   0.097  yes    50.0
+Chen2020      5zz   8    1.15    ok          U50  0.051   0.064  yes    50.0
+OKane2022     5zk  12    1.15    ok          U50  0.051   0.064  yes    50.0
+OKane2022     5zy   8    1.20    ok          U50  0.053   0.067  yes    50.0
+OKane2022     5zz   8    1.10    ok          U50  0.040   0.050  yes    50.0
+NCA_Kim2011   5zk   8    1.20    ok          U50  0.025   0.032  yes    50.0
+NCA_Kim2011   5zy   8    1.20    ok          U50  0.020   0.025  yes    50.0
+NCA_Kim2011   5zz   8    1.25    ok          U50  0.025   0.031  yes    50.0
+
+F-tight, nested margin, per fold:
+set          pool   n  margin inner       policy    q75  target  met  cycles
+Ai2020        5zk   8    1.25    ok      50@0.35  0.024   0.017   no    25.0
+Ai2020        5zy   8    1.05    ok      50@0.85  0.038   0.047  yes    45.0
+Ai2020        5zz   8    1.05    ok      40@0.85  0.062   0.058   no    36.2
+Chen2020      5zk  12    1.00    no      50@0.45  0.074   0.077  yes    26.7
+Chen2020      5zy   8    1.00    ok      50@1.00  0.077   0.097  yes    50.0
+Chen2020      5zz   8    1.15    ok      50@0.95  0.051   0.064  yes    50.0
+OKane2022     5zk  12    1.15    ok      50@0.95  0.051   0.064  yes    46.7
+OKane2022     5zy   8    1.20    ok      50@0.90  0.053   0.067  yes    45.0
+OKane2022     5zz   8    1.00    ok      50@0.90  0.040   0.050  yes    45.0
+NCA_Kim2011   5zk   8    1.25    ok      50@0.50  0.025   0.032  yes    30.0
+NCA_Kim2011   5zy   8    1.00    no      50@0.75  0.021   0.025  yes    40.0
+NCA_Kim2011   5zz   8    1.00    no      50@0.70  0.028   0.031  yes    40.0
+
+F+D, nested margin, per fold:
+set          pool   n  margin inner       policy    q75  target  met  cycles
+Ai2020        5zk   8    0.00    ok      50@0.35  0.024   0.017   no    25.0
+Ai2020        5zy   8    0.50    no      40@1.00  0.047   0.047  yes    40.0
+Ai2020        5zz   8    0.50    ok      30@1.00  0.073   0.058   no    30.0
+Chen2020      5zk  12    0.50    no      40@0.80  0.093   0.077   no    35.0
+Chen2020      5zy   8    0.50    no      50@0.55  0.114   0.097   no    30.0
+Chen2020      5zz   8    0.50    no      50@0.70  0.057   0.064  yes    40.0
+OKane2022     5zk  12    0.50    no      40@1.00  0.071   0.064   no    40.0
+OKane2022     5zy   8    0.50    no      40@1.00  0.060   0.067  yes    40.0
+OKane2022     5zz   8    0.50    no      30@1.00  0.068   0.050   no    30.0
+NCA_Kim2011   5zk   8    0.00    ok      50@0.50  0.025   0.032  yes    30.0
+NCA_Kim2011   5zy   8    0.15    ok      50@0.65  0.024   0.025  yes    35.0
+NCA_Kim2011   5zz   8    0.15    ok      50@0.65  0.028   0.031  yes    35.0
+
+(margin: t' for U/F/theta, the training target as a multiple of training q75(U50); D added to f for F+D.
+ inner 'no' = no grid value met both inner folds, so the most conservative was used. U50* = no policy met
+ t' on training, fall back to every design to 50. cycles = held-out pool's realised DFN cycles per design.)
+
+H277 (theta-tight nested meets >= 9 of 12): supported (9/12)
+H278 (theta-tight misses no more than U-tight and costs less): inconclusive (met 9 vs 12; cycles 40.0 vs 50.0)
+H279 (theta-tight meets more folds than F-tight): refuted (9 vs 10)
+H280 (best rule meeting >= 9/12 saves >= 20% vs U50): supported (best: theta-tight, 20%)

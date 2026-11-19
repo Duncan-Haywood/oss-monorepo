@@ -2133,8 +2133,14 @@ class TakeSurveyTest(unittest.TestCase):
         # a pick the Pi acts on is not given a bound
         self.assertNotIn("up to", host.take_survey_advice(dict(shelf, least_ms10=40, refined_ms10=40,
                                                                rms_ppm=[100, 90, 80, 50, 30, 60, 90, 120, 150])))
+        # a ppm floor (2026-11-19, README "A ppm floor on the bound"): at a 16 ppm step, 17 (at 2.5 ms) is 6% over but one ppm
+        # of the frame's rounding, so the bound moves on to the first candidate at least 2 ppm over
+        low = dict(shelf, rms_ppm=[16, 16, 17, 19, 21, 25, 30, 35, 40])
+        self.assertEqual(host.take_survey_bound(low), 3.0)
+        self.assertIn("up to 3 ms", host.take_survey_advice(low))
         import take_shelf_bound
-        for rms in ([100, 100, 112, 128, 160, 200, 250, 300, 350], [100, 103] + [150] * 7, [100] * 9):
+        for rms in ([100, 100, 112, 128, 160, 200, 250, 300, 350], [100, 103] + [150] * 7, [100] * 9,
+                    [16, 16, 17, 19, 21, 25, 30, 35, 40]):
             self.assertEqual(host.take_survey_bound(dict(shelf, rms_ppm=rms)),
                              take_shelf_bound.bound_ms(rms, host.TAKE_SURVEY_MS))
 
