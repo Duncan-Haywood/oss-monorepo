@@ -84,6 +84,16 @@ CLAIMS = [
     ("results_glider_hotel_curve.txt", "x 20.8 to 249.8; min share in band 0.9996; share at band floor 0.9992"),
     ("results_glider_hotel_curve.txt", "20\t0.9988\t"),
     ("results_remus.txt", "implied hotel W: min 104.1, median 133.4, max 174.9"),
+    ("results_hotel_ranking.txt", "monohull leads every rung at every hotel <= 200 W (central): True"),
+    ("results_hotel_ranking.txt", "break-even catamaran: never (to 10 kW); max ratio 0.969"),
+    ("results_hotel_ranking.txt", "break-even SWATH: never (to 10 kW); max ratio 0.733"),
+    ("results_hotel_ranking.txt", "break-even hydrofoil: 659 W"),
+    ("results_hotel_ranking.txt", "break-even planing: 1068 W"),
+    ("results_hotel_ranking.txt", "k 0.40 hydrofoil: 972 feasible of 972; overtake by 10 kW in 972; break-even min 291 W"),
+    ("results_hotel_ranking.txt", "k 0.25 hydrofoil: 972 feasible of 972; overtake by 10 kW in 972; break-even min 310 W, 10th 539, median 881"),
+    ("results_hotel_ranking.txt", "k 0.10 planing: 16 feasible of 16; overtake by 10 kW in 16; break-even min 675 W"),
+    ("results_hotel_ranking.txt", "monohull best speed first above Fn 0.3 at hotel 215 W"),
+    ("results_hotel_ranking.txt", "post hoc planing break-even: 798 W"),
 ]
 
 def check(claims=CLAIMS, root=EXP):
