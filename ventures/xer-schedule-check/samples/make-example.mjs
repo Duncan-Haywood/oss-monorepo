@@ -61,6 +61,12 @@ const planned = { A1010: "2026-03-05 15:30", A1020: "2026-03-19 15:30", A1030: "
 for (const r of rows) if (planned[r.task_code]) r.target_end_date = planned[r.task_code];
 const preds = links.map(([p, s, type, lag], i) => ({ task_pred_id: String(9001 + i), task_id: id[s], pred_task_id: id[p], proj_id: "77", pred_proj_id: "77", pred_type: type, lag_hr_cnt: lag * H }));
 const rsrc = rows.filter((r) => r.task_type === "TT_Task" && !["A1180", "A1040"].includes(r.task_code)).map((r, i) => ({ taskrsrc_id: String(3001 + i), task_id: r.task_id, proj_id: "77", rsrc_id: "1" }));
+// one drywall crew (limit 1 per hour) on both board-and-tape activities,
+// which the logic runs side by side: resource levelling has one to move
+for (const [k, code] of ["A1120", "A1130"].entries()) {
+  const r = rows.find((x) => x.task_code === code);
+  if (r) rsrc.push({ taskrsrc_id: String(3101 + k), task_id: r.task_id, proj_id: "77", rsrc_id: "2", remain_qty: r.remain_drtn_hr_cnt, remain_qty_per_hr: 1, relag_drtn_hr_cnt: 0 });
+}
 
 const tables = {
   PROJECT: [{ proj_id: "77", proj_short_name: "OFFICE-FITOUT", clndr_id: "88", last_recalc_date: dataDate, plan_start_date: "2026-03-02 07:00", plan_end_date: "2026-07-31 15:30", scd_end_date: "" }],
@@ -69,6 +75,11 @@ const tables = {
   TASK: rows,
   TASKPRED: preds,
   TASKRSRC: rsrc,
+  RSRC: [
+    { rsrc_id: "1", rsrc_short_name: "GC", rsrc_name: "General contractor's labour", rsrc_type: "RT_Labor", clndr_id: "88" },
+    { rsrc_id: "2", rsrc_short_name: "DRY", rsrc_name: "Drywall crew", rsrc_type: "RT_Labor", clndr_id: "88" },
+  ],
+  RSRCRATE: [{ rsrc_rate_id: "1", rsrc_id: "2", max_qty_per_hr: 1, cost_per_qty: 0, start_date: "2026-01-01 00:00" }],
 };
 const lines = [`ERMHDR\t23.12\t${exportDate}\tProject\tdemo\tExample\tdbxDatabaseNoName\tProject Management\tUSD`];
 for (const [name, rs] of Object.entries(tables)) {

@@ -13,6 +13,9 @@
 // activity IDs) and ranks them by how far they move the finish. With --report,
 // the written review carries the risk section and its corrections too (also
 // with --previous: the risk run is made on the current file).
+// node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json] [--project CODE]
+// Resource levelling instead (level.mjs): the levelled finish, every activity
+// moved and the resource that moved it, peak use before and after.
 import { readFileSync, writeFileSync } from "node:fs";
 import { parseXer, decodeXer } from "./xer.mjs";
 import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
@@ -20,9 +23,10 @@ import { compare, compareCsv, compareText } from "./compare.mjs";
 import { reviewHtml, reviewItems } from "./report.mjs";
 import { riskAnalysis, riskCsv, parseRanges, parseRisks } from "./risk.mjs";
 import { formatDate } from "./xer.mjs";
+import { level, levelCsv } from "./level.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes"];
+const VALUED = ["--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew"];
 const opt = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
 function writeReview(report, cmp, risk = null) {
   if (!args.includes("--report")) return;
@@ -92,6 +96,21 @@ if (args.includes("--risk")) {
   console.log("\nMost often on the driving path (criticality index; sensitivity = correlation of duration with finish):");
   for (const a of r.activities.slice(0, 15)) console.log(`  ${(a.criticality * 100).toFixed(0).padStart(3)}%  ${a.sensitivity === null ? "   -  " : a.sensitivity.toFixed(2).padStart(6)}  ${a.deterministicCritical ? "*" : " "} ${a.code}  ${a.name}`);
   console.log("  (* on the forecast's driving path)");
+  process.exit(0);
+}
+if (args.includes("--level")) {
+  const crew = Number(opt("--crew") || 1);
+  const r = level(xer, { projId, limitScale: crew !== 1 ? { "*": crew } : null, ...(args.includes("--within-float") ? { withinFloat: true } : {}) });
+  if (args.includes("--csv")) writeFileSync(opt("--csv"), levelCsv(r));
+  if (args.includes("--json")) { const { result, floors, placed, ignored, ...plain } = r; console.log(JSON.stringify(plain, null, 2)); process.exit(0); }
+  console.log(`${r.project.code}: ${r.resources.length} resources levelled${crew !== 1 ? ` at ${crew}x the file's limits` : ""}${r.settings.withinFloat ? ", within float" : ""} (${r.ms} ms)`);
+  for (const w of r.warnings) console.log(`NOTE: ${w}`);
+  console.log(`Finish ${r.finish} -> levelled ${r.levelledFinish} (+${r.extensionDays} working days)${r.lowerBound ? `; no levelling can finish before ${r.lowerBound.date} (${r.lowerBound.resource} work at its limit)` : ""}`);
+  console.log(`${r.activities.filter((a) => a.by.length).length} activities delayed for resources, ${r.activities.filter((a) => !a.by.length).length} carried by their logic, ${r.left.length} left over-allocated`);
+  console.log("\nResource            limit  peak before -> after   hours over before -> after   self-check");
+  for (const q of r.resources) console.log(`  ${q.code.padEnd(18)} ${String(q.limit).padStart(5)}  ${String(q.before.peak).padStart(6)} -> ${String(q.after.peak).padEnd(8)} ${String(q.before.overHours).padStart(9)} -> ${String(q.after.overHours).padEnd(9)} ${q.selfCheckHours}`);
+  console.log("\nMost delayed:");
+  for (const a of r.activities.slice(0, 15)) console.log(`  ${String(a.delayDays).padStart(7)} d  ${a.code}  ${a.levelledStart} -> ${a.levelledFinish}  ${a.by.join(", ") || "(logic)"}`);
   process.exit(0);
 }
 const report = assess(xer, { projId });
