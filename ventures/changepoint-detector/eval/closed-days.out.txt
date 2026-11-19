@@ -1,0 +1,434 @@
+
+================ DESIGN YEAR 2010-12 to 2011-12 (seen; reported, not barred) (online-retail-daily.csv) ================
+closed list (16): 2010-12-24 2010-12-26 2010-12-27 2010-12-28 2010-12-29 2010-12-30 2010-12-31 2011-01-02 2011-01-03 2011-04-22 2011-04-24 2011-04-25 2011-04-29 2011-05-02 2011-05-30 2011-08-29
+
+== orders (poisson), --period 7, without --closed; watch starts 2011-02-13
+  quiet (bocpd): 4 alerts, 1.3 per 100 checks
+    dated 2011-05-03, sent 2011-05-07  <- within 1 day of a closed day
+    dated 2011-05-31, sent 2011-06-04  <- within 1 day of a closed day
+    dated 2011-06-10, sent 2011-06-15
+    dated 2011-09-01, sent 2011-09-05
+  eager (pelt): 12 alerts, 4.0 per 100 checks
+    dated 2011-02-11, sent 2011-02-18
+    dated 2011-03-18, sent 2011-03-23
+    dated 2011-04-22, sent 2011-04-26  <- within 1 day of a closed day
+    dated 2011-04-29, sent 2011-05-03  <- within 1 day of a closed day
+    dated 2011-05-28, sent 2011-06-01
+    dated 2011-06-05, sent 2011-06-09
+    dated 2011-06-24, sent 2011-07-02
+    dated 2011-08-06, sent 2011-08-10
+    dated 2011-08-29, sent 2011-09-02  <- within 1 day of a closed day
+    dated 2011-09-22, sent 2011-09-26
+    dated 2011-10-29, sent 2011-11-02
+    dated 2011-11-04, sent 2011-11-08
+
+== orders (poisson), --period 7, WITH --closed; watch starts 2011-02-13
+  quiet (bocpd): 3 alerts, 1.0 per 100 checks
+    dated 2011-05-05, sent 2011-05-09
+    dated 2011-06-05, sent 2011-06-09
+    dated 2011-03-18, sent 2011-10-07
+  eager (pelt): 13 alerts, 4.3 per 100 checks
+    dated 2011-02-11, sent 2011-02-16
+    dated 2011-03-18, sent 2011-03-22
+    dated 2011-05-05, sent 2011-05-09
+    dated 2011-05-23, sent 2011-05-27
+    dated 2011-05-31, sent 2011-06-04  <- within 1 day of a closed day
+    dated 2011-06-06, sent 2011-06-12
+    dated 2011-06-24, sent 2011-07-02
+    dated 2011-08-06, sent 2011-08-10
+    dated 2011-09-02, sent 2011-09-06
+    dated 2011-09-10, sent 2011-09-19
+    dated 2011-09-22, sent 2011-09-28
+    dated 2011-10-29, sent 2011-11-02
+    dated 2011-11-04, sent 2011-11-09
+  orders at 2/100: suggested quiet without, quiet with; at a closure 2 -> 0; away from closures 1, kept 0
+  orders at 1/month: suggested quiet without, quiet with; at a closure 2 -> 0; away from closures 1, kept 0
+
+== revenue (mean), --period 7, without --closed; watch starts 2011-02-13
+  quiet (bocpd-ar1-window): 2 alerts, 0.7 per 100 checks
+    dated 2011-03-30, sent 2011-04-05
+    dated 2011-04-18, sent 2011-08-16
+  middle (bocpd): 1 alerts, 0.3 per 100 checks
+    dated 2011-03-30, sent 2011-11-05
+  eager (pelt): 12 alerts, 4.0 per 100 checks
+    dated 2011-03-29, sent 2011-04-02
+    dated 2011-04-22, sent 2011-04-26  <- within 1 day of a closed day
+    dated 2011-05-03, sent 2011-05-07  <- within 1 day of a closed day
+    dated 2011-05-28, sent 2011-06-02
+    dated 2011-06-08, sent 2011-06-12
+    dated 2011-08-11, sent 2011-08-19
+    dated 2011-08-17, sent 2011-08-21
+    dated 2011-09-11, sent 2011-09-16
+    dated 2011-09-19, sent 2011-09-23
+    dated 2011-10-03, sent 2011-10-07
+    dated 2011-11-06, sent 2011-11-10
+    dated 2011-11-12, sent 2011-11-16
+
+== revenue (mean), --period 7, WITH --closed; watch starts 2011-02-13
+  quiet (bocpd-ar1-window): 1 alerts, 0.3 per 100 checks
+    dated 2011-03-29, sent 2011-04-02
+  middle (bocpd): 1 alerts, 0.3 per 100 checks
+    dated 2011-03-30, sent 2011-10-10
+  eager (pelt): 12 alerts, 4.0 per 100 checks
+    dated 2011-03-29, sent 2011-04-02
+    dated 2011-05-10, sent 2011-05-14
+    dated 2011-06-08, sent 2011-06-12
+    dated 2011-08-11, sent 2011-08-16
+    dated 2011-08-17, sent 2011-08-21
+    dated 2011-09-11, sent 2011-09-16
+    dated 2011-09-20, sent 2011-09-24
+    dated 2011-10-03, sent 2011-10-07
+    dated 2011-03-17, sent 2011-10-28
+    dated 2011-11-06, sent 2011-11-10
+    dated 2011-11-14, sent 2011-11-20
+    dated 2011-12-05, sent 2011-12-09
+  revenue at 2/100: suggested middle without, middle with; at a closure 0 -> 0; away from closures 1, kept 1
+  revenue at 1/month: suggested middle without, middle with; at a closure 0 -> 0; away from closures 1, kept 1
+
+== cancellations (poisson), --period 7, without --closed; watch starts 2011-02-13
+  quiet (bocpd): 14 alerts, 4.7 per 100 checks
+    dated 2011-02-12, sent 2011-02-16
+    dated 2011-03-02, sent 2011-03-06
+    dated 2011-02-23, sent 2011-03-08
+    dated 2011-03-08, sent 2011-03-16
+    dated 2011-04-21, sent 2011-04-25  <- within 1 day of a closed day
+    dated 2011-05-03, sent 2011-05-07  <- within 1 day of a closed day
+    dated 2011-06-01, sent 2011-06-05
+    dated 2011-08-26, sent 2011-08-30
+    dated 2011-09-01, sent 2011-09-05
+    dated 2011-09-09, sent 2011-09-13
+    dated 2011-10-06, sent 2011-10-10
+    dated 2011-10-25, sent 2011-10-29
+    dated 2011-11-24, sent 2011-11-28
+    dated 2011-11-30, sent 2011-12-04
+  eager (pelt): 21 alerts, 7.0 per 100 checks
+    dated 2011-02-11, sent 2011-02-15
+    dated 2011-02-18, sent 2011-02-22
+    dated 2011-03-02, sent 2011-03-06
+    dated 2011-03-08, sent 2011-03-12
+    dated 2011-03-22, sent 2011-03-28
+    dated 2011-03-28, sent 2011-04-01
+    dated 2011-04-21, sent 2011-04-26  <- within 1 day of a closed day
+    dated 2011-04-29, sent 2011-05-04  <- within 1 day of a closed day
+    dated 2011-05-13, sent 2011-05-17
+    dated 2011-05-28, sent 2011-06-01
+    dated 2011-08-13, sent 2011-08-17
+    dated 2011-08-26, sent 2011-08-30
+    dated 2011-09-01, sent 2011-09-05
+    dated 2011-09-09, sent 2011-09-13
+    dated 2011-09-29, sent 2011-10-04
+    dated 2011-10-06, sent 2011-10-10
+    dated 2011-10-23, sent 2011-10-27
+    dated 2011-11-04, sent 2011-11-08
+    dated 2011-11-18, sent 2011-11-22
+    dated 2011-11-24, sent 2011-11-28
+    dated 2011-11-30, sent 2011-12-04
+
+== cancellations (poisson), --period 7, WITH --closed; watch starts 2011-02-13
+  quiet (bocpd): 10 alerts, 3.3 per 100 checks
+    dated 2011-02-12, sent 2011-02-16
+    dated 2011-02-22, sent 2011-02-26
+    dated 2011-03-02, sent 2011-03-07
+    dated 2011-03-08, sent 2011-03-14
+    dated 2011-09-01, sent 2011-09-05
+    dated 2011-09-09, sent 2011-09-13
+    dated 2011-10-06, sent 2011-10-10
+    dated 2011-10-25, sent 2011-10-29
+    dated 2011-11-24, sent 2011-11-28
+    dated 2011-11-30, sent 2011-12-04
+  eager (pelt): 16 alerts, 5.3 per 100 checks
+    dated 2011-02-11, sent 2011-02-15
+    dated 2011-02-18, sent 2011-02-26
+    dated 2011-03-02, sent 2011-03-06
+    dated 2011-03-08, sent 2011-03-12
+    dated 2011-05-13, sent 2011-05-17
+    dated 2011-05-25, sent 2011-06-10
+    dated 2011-08-26, sent 2011-08-30
+    dated 2011-09-01, sent 2011-09-07
+    dated 2011-09-09, sent 2011-09-13
+    dated 2011-09-29, sent 2011-10-04
+    dated 2011-10-06, sent 2011-10-10
+    dated 2011-10-23, sent 2011-10-27
+    dated 2011-11-04, sent 2011-11-08
+    dated 2011-11-18, sent 2011-11-22
+    dated 2011-11-24, sent 2011-11-28
+    dated 2011-11-30, sent 2011-12-04
+  cancellations at 2/100: suggested quiet without, quiet with; at a closure 2 -> 0; away from closures 9, kept 9
+  cancellations at 1/month: suggested quiet without, quiet with; at a closure 2 -> 0; away from closures 9, kept 9
+
+== new_customers (poisson), --period 7, without --closed; watch starts 2011-02-13
+  quiet (bocpd): 2 alerts, 0.7 per 100 checks
+    dated 2011-04-22, sent 2011-04-26  <- within 1 day of a closed day
+    dated 2011-05-04, sent 2011-05-08
+  eager (pelt): 9 alerts, 3.0 per 100 checks
+    dated 2011-02-15, sent 2011-02-25
+    dated 2011-03-12, sent 2011-03-16
+    dated 2011-04-22, sent 2011-04-26  <- within 1 day of a closed day
+    dated 2011-04-29, sent 2011-05-03  <- within 1 day of a closed day
+    dated 2011-05-23, sent 2011-05-31
+    dated 2011-05-13, sent 2011-06-11
+    dated 2011-06-24, sent 2011-07-01
+    dated 2011-09-11, sent 2011-09-15
+    dated 2011-11-30, sent 2011-12-04
+
+== new_customers (poisson), --period 7, WITH --closed; watch starts 2011-02-13
+  quiet (bocpd): 0 alerts, 0.0 per 100 checks
+  eager (pelt): 8 alerts, 2.7 per 100 checks
+    dated 2011-02-15, sent 2011-02-24
+    dated 2011-04-15, sent 2011-05-03
+    dated 2011-03-25, sent 2011-05-11
+    dated 2011-05-23, sent 2011-05-30
+    dated 2011-05-13, sent 2011-06-06
+    dated 2011-06-24, sent 2011-07-01
+    dated 2011-09-11, sent 2011-09-15
+    dated 2011-11-30, sent 2011-12-04
+  new_customers at 2/100: suggested quiet without, quiet with; at a closure 1 -> 0; away from closures 0, kept 0
+  new_customers at 1/month: suggested eager without, eager with; at a closure 2 -> 0; away from closures 7, kept 6
+
+-- DESIGN YEAR 2010-12 to 2011-12 (seen; reported, not barred) summary --
+K1 (alerts at a closure, suggested settings, 4 columns x 2 budgets): 11 without -> 0 with: PASS
+K2 (Quiet's alerts, 4 columns): 22 without -> 14 with: PASS
+K3 (alerts away from closures kept within 3 days): 26 of 29: PASS
+
+================ FRESH YEAR 2009-12 to 2010-12 (the bars) (online-retail-2009-daily.csv) ================
+closed list (15): 2009-12-24 2009-12-25 2009-12-27 2009-12-28 2009-12-29 2009-12-30 2009-12-31 2010-01-01 2010-01-03 2010-04-02 2010-04-04 2010-04-05 2010-05-03 2010-05-31 2010-08-30
+
+== orders (poisson), --period 7, without --closed; watch starts 2010-02-13
+  quiet (bocpd): 11 alerts, 3.7 per 100 checks
+    dated 2010-03-03, sent 2010-03-07
+    dated 2010-03-11, sent 2010-03-15
+    dated 2010-03-18, sent 2010-03-22
+    dated 2010-04-06, sent 2010-04-10  <- within 1 day of a closed day
+    dated 2010-05-04, sent 2010-05-08  <- within 1 day of a closed day
+    dated 2010-05-29, sent 2010-06-02
+    dated 2010-06-06, sent 2010-06-12
+    dated 2010-06-23, sent 2010-06-29
+    dated 2010-07-09, sent 2010-07-13
+    dated 2010-08-31, sent 2010-09-04  <- within 1 day of a closed day
+    dated 2010-11-09, sent 2010-11-19
+  eager (pelt): 17 alerts, 5.7 per 100 checks
+    dated 2010-03-03, sent 2010-03-07
+    dated 2010-03-11, sent 2010-03-15
+    dated 2010-03-18, sent 2010-03-22
+    dated 2010-04-02, sent 2010-04-06  <- within 1 day of a closed day
+    dated 2010-04-18, sent 2010-04-27
+    dated 2010-05-01, sent 2010-05-05
+    dated 2010-05-11, sent 2010-05-17
+    dated 2010-05-26, sent 2010-06-01
+    dated 2010-06-01, sent 2010-06-05  <- within 1 day of a closed day
+    dated 2010-06-09, sent 2010-06-17
+    dated 2010-06-19, sent 2010-06-28
+    dated 2010-07-03, sent 2010-07-07
+    dated 2010-07-09, sent 2010-07-13
+    dated 2010-08-27, sent 2010-08-31
+    dated 2010-09-19, sent 2010-09-23
+    dated 2010-10-27, sent 2010-11-02
+    dated 2010-11-09, sent 2010-11-13
+
+== orders (poisson), --period 7, WITH --closed; watch starts 2010-02-13
+  quiet (bocpd): 6 alerts, 2.0 per 100 checks
+    dated 2010-03-03, sent 2010-03-07
+    dated 2010-03-11, sent 2010-03-15
+    dated 2010-03-18, sent 2010-03-22
+    dated 2010-06-06, sent 2010-06-12
+    dated 2010-07-09, sent 2010-07-13
+    dated 2010-11-09, sent 2010-11-13
+  eager (pelt): 16 alerts, 5.3 per 100 checks
+    dated 2010-03-03, sent 2010-03-07
+    dated 2010-03-11, sent 2010-03-15
+    dated 2010-03-18, sent 2010-03-22
+    dated 2010-04-10, sent 2010-04-14
+    dated 2010-04-18, sent 2010-04-22
+    dated 2010-05-13, sent 2010-05-18
+    dated 2010-05-26, sent 2010-05-30
+    dated 2010-06-06, sent 2010-06-10
+    dated 2010-06-14, sent 2010-06-19
+    dated 2010-06-23, sent 2010-06-27
+    dated 2010-07-03, sent 2010-07-07
+    dated 2010-07-09, sent 2010-07-13
+    dated 2010-07-31, sent 2010-08-11
+    dated 2010-09-19, sent 2010-09-23
+    dated 2010-10-27, sent 2010-11-02
+    dated 2010-11-09, sent 2010-11-13
+  orders at 2/100: suggested quiet without, quiet with; at a closure 3 -> 0; away from closures 7, kept 6
+  orders at 1/month: suggested quiet without, quiet with; at a closure 3 -> 0; away from closures 7, kept 6
+
+== revenue (mean), --period 7, without --closed; watch starts 2010-02-13
+  quiet (bocpd-ar1-window): 1 alerts, 0.3 per 100 checks
+    dated 2010-09-28, sent 2010-11-26
+  middle (bocpd): 0 alerts, 0.0 per 100 checks
+  eager (pelt): 10 alerts, 3.3 per 100 checks
+    dated 2010-03-18, sent 2010-03-24
+    dated 2010-04-02, sent 2010-04-06  <- within 1 day of a closed day
+    dated 2010-05-30, sent 2010-06-03  <- within 1 day of a closed day
+    dated 2010-06-05, sent 2010-06-11
+    dated 2010-09-20, sent 2010-09-24
+    dated 2010-09-27, sent 2010-10-01
+    dated 2010-10-13, sent 2010-10-18
+    dated 2010-11-04, sent 2010-11-08
+    dated 2010-11-11, sent 2010-11-15
+    dated 2010-11-17, sent 2010-11-21
+
+== revenue (mean), --period 7, WITH --closed; watch starts 2010-02-13
+  quiet (bocpd-ar1-window): 1 alerts, 0.3 per 100 checks
+    dated 2010-09-20, sent 2010-09-25
+  middle (bocpd): 0 alerts, 0.0 per 100 checks
+  eager (pelt): 10 alerts, 3.3 per 100 checks
+    dated 2010-03-18, sent 2010-03-30
+    dated 2010-03-31, sent 2010-04-16
+    dated 2010-06-18, sent 2010-06-26
+    dated 2010-06-07, sent 2010-07-23
+    dated 2010-09-19, sent 2010-09-23
+    dated 2010-09-27, sent 2010-10-01
+    dated 2010-10-13, sent 2010-10-17
+    dated 2010-11-04, sent 2010-11-08
+    dated 2010-11-11, sent 2010-11-15
+    dated 2010-11-17, sent 2010-11-21
+  revenue at 2/100: suggested middle without, middle with; at a closure 0 -> 0; away from closures 0, kept 0
+  revenue at 1/month: suggested middle without, middle with; at a closure 0 -> 0; away from closures 0, kept 0
+
+== cancellations (poisson), --period 7, without --closed; watch starts 2010-02-13
+  quiet (bocpd): 18 alerts, 6.0 per 100 checks
+    dated 2010-02-22, sent 2010-02-26
+    dated 2010-03-31, sent 2010-04-04
+    dated 2010-04-13, sent 2010-04-17
+    dated 2010-04-23, sent 2010-04-27
+    dated 2010-05-04, sent 2010-05-08  <- within 1 day of a closed day
+    dated 2010-05-15, sent 2010-05-21
+    dated 2010-05-29, sent 2010-06-02
+    dated 2010-03-19, sent 2010-06-08
+    dated 2010-06-24, sent 2010-06-28
+    dated 2010-07-01, sent 2010-07-05
+    dated 2010-08-12, sent 2010-08-16
+    dated 2010-08-18, sent 2010-08-22
+    dated 2010-09-02, sent 2010-09-06
+    dated 2010-09-16, sent 2010-09-20
+    dated 2010-07-21, sent 2010-10-04
+    dated 2010-06-04, sent 2010-10-16
+    dated 2010-10-27, sent 2010-10-31
+    dated 2010-12-01, sent 2010-12-05
+  eager (pelt): 30 alerts, 10.0 per 100 checks
+    dated 2010-02-20, sent 2010-02-24
+    dated 2010-03-02, sent 2010-03-07
+    dated 2010-03-11, sent 2010-03-21
+    dated 2010-03-17, sent 2010-03-21
+    dated 2010-03-23, sent 2010-03-27
+    dated 2010-03-31, sent 2010-04-05
+    dated 2010-04-12, sent 2010-04-16
+    dated 2010-04-22, sent 2010-04-26
+    dated 2010-04-30, sent 2010-05-04
+    dated 2010-05-11, sent 2010-05-15
+    dated 2010-05-28, sent 2010-06-01
+    dated 2010-06-03, sent 2010-06-07
+    dated 2010-06-19, sent 2010-06-23
+    dated 2010-06-28, sent 2010-07-05
+    dated 2010-07-06, sent 2010-07-10
+    dated 2010-07-14, sent 2010-07-18
+    dated 2010-07-21, sent 2010-07-25
+    dated 2010-08-04, sent 2010-08-14
+    dated 2010-08-12, sent 2010-08-16
+    dated 2010-08-18, sent 2010-08-22
+    dated 2010-08-26, sent 2010-08-31
+    dated 2010-09-01, sent 2010-09-05
+    dated 2010-09-09, sent 2010-09-13
+    dated 2010-09-16, sent 2010-09-20
+    dated 2010-09-22, sent 2010-09-26
+    dated 2010-10-17, sent 2010-10-21
+    dated 2010-10-24, sent 2010-10-28
+    dated 2010-11-02, sent 2010-11-06
+    dated 2010-11-17, sent 2010-11-21
+    dated 2010-12-01, sent 2010-12-05
+
+== cancellations (poisson), --period 7, WITH --closed; watch starts 2010-02-13
+  quiet (bocpd): 15 alerts, 5.0 per 100 checks
+    dated 2010-02-22, sent 2010-02-26
+    dated 2010-03-19, sent 2010-03-24
+    dated 2010-04-06, sent 2010-04-10  <- within 1 day of a closed day
+    dated 2010-04-15, sent 2010-04-20
+    dated 2010-04-23, sent 2010-04-27
+    dated 2010-04-30, sent 2010-05-16
+    dated 2010-05-18, sent 2010-05-31
+    dated 2010-06-03, sent 2010-06-07
+    dated 2010-06-24, sent 2010-06-28
+    dated 2010-07-01, sent 2010-07-07
+    dated 2010-08-18, sent 2010-08-22
+    dated 2010-09-02, sent 2010-09-06
+    dated 2010-09-16, sent 2010-09-20
+    dated 2010-10-27, sent 2010-10-31
+    dated 2010-12-01, sent 2010-12-05
+  eager (pelt): 29 alerts, 9.7 per 100 checks
+    dated 2010-02-20, sent 2010-02-24
+    dated 2010-03-02, sent 2010-03-07
+    dated 2010-03-11, sent 2010-03-16
+    dated 2010-03-17, sent 2010-03-21
+    dated 2010-03-23, sent 2010-03-27
+    dated 2010-04-06, sent 2010-04-10  <- within 1 day of a closed day
+    dated 2010-04-12, sent 2010-04-16
+    dated 2010-04-22, sent 2010-04-26
+    dated 2010-04-30, sent 2010-05-04
+    dated 2010-05-11, sent 2010-05-15
+    dated 2010-05-28, sent 2010-06-01
+    dated 2010-06-03, sent 2010-06-07
+    dated 2010-06-19, sent 2010-06-23
+    dated 2010-06-30, sent 2010-07-05
+    dated 2010-07-06, sent 2010-07-10
+    dated 2010-07-14, sent 2010-07-18
+    dated 2010-03-31, sent 2010-07-23
+    dated 2010-07-21, sent 2010-07-25
+    dated 2010-08-04, sent 2010-08-14
+    dated 2010-08-18, sent 2010-08-22
+    dated 2010-09-07, sent 2010-09-18
+    dated 2010-09-14, sent 2010-09-18
+    dated 2010-08-30, sent 2010-09-20  <- within 1 day of a closed day
+    dated 2010-09-22, sent 2010-09-26
+    dated 2010-10-17, sent 2010-10-21
+    dated 2010-10-27, sent 2010-10-31
+    dated 2010-11-02, sent 2010-11-11
+    dated 2010-11-17, sent 2010-11-21
+    dated 2010-12-01, sent 2010-12-05
+  cancellations at 2/100: suggested quiet without, quiet with; at a closure 1 -> 1; away from closures 14, kept 12
+  cancellations at 1/month: suggested quiet without, quiet with; at a closure 1 -> 1; away from closures 14, kept 12
+
+== new_customers (poisson), --period 7, without --closed; watch starts 2010-02-13
+  quiet (bocpd): 1 alerts, 0.3 per 100 checks
+    dated 2010-04-02, sent 2010-04-06  <- within 1 day of a closed day
+  eager (pelt): 10 alerts, 3.3 per 100 checks
+    dated 2010-03-11, sent 2010-03-15
+    dated 2010-03-18, sent 2010-03-26
+    dated 2010-04-02, sent 2010-04-06  <- within 1 day of a closed day
+    dated 2010-04-30, sent 2010-05-04
+    dated 2010-05-29, sent 2010-06-02
+    dated 2010-06-06, sent 2010-06-11
+    dated 2010-07-03, sent 2010-07-12
+    dated 2010-09-14, sent 2010-09-21
+    dated 2010-09-27, sent 2010-10-04
+    dated 2010-11-30, sent 2010-12-06
+
+== new_customers (poisson), --period 7, WITH --closed; watch starts 2010-02-13
+  quiet (bocpd): 0 alerts, 0.0 per 100 checks
+  eager (pelt): 9 alerts, 3.0 per 100 checks
+    dated 2010-03-11, sent 2010-03-15
+    dated 2010-03-05, sent 2010-03-24
+    dated 2010-03-18, sent 2010-03-26
+    dated 2010-04-09, sent 2010-04-14
+    dated 2010-06-18, sent 2010-07-09
+    dated 2010-07-03, sent 2010-07-11
+    dated 2010-09-14, sent 2010-09-21
+    dated 2010-09-27, sent 2010-10-04
+    dated 2010-11-30, sent 2010-12-06
+  new_customers at 2/100: suggested quiet without, quiet with; at a closure 1 -> 0; away from closures 0, kept 0
+  new_customers at 1/month: suggested quiet without, eager with; at a closure 1 -> 0; away from closures 0, kept 0
+
+-- FRESH YEAR 2009-12 to 2010-12 (the bars) summary --
+K1 (alerts at a closure, suggested settings, 4 columns x 2 budgets): 10 without -> 2 with: FAIL
+K2 (Quiet's alerts, 4 columns): 31 without -> 22 with: PASS
+K3 (alerts away from closures kept within 3 days): 36 of 42: PASS
+
+FRESH-YEAR BARS: K1 FAIL, K2 PASS, K3 PASS
+
+================ K4 simulation (seeds 20261119, 200 series) ================
+alerts over all 200 series: 1593 without -> 775 with
+no-step series with an alert at a closure: 99 of 100 without -> 8 with
+step series with an alert at a closure: 99 of 100 without -> 14 with
+steps caught (alert within 7 days): 75 of 100 without -> 70 with
+K4a (<= 2 of 100 with --closed): FAIL; K4b (caught with >= without - 3): FAIL
