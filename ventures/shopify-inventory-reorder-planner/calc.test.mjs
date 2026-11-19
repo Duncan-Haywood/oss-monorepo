@@ -146,3 +146,61 @@ test("a skipped row's line is its first line in the file, past blank lines and m
   const s = normalizeStock(parseCsv("sku,on hand\n\nA,3\n\nB,lots"));
   assert.deepEqual(s.skipped.map((x) => x.line), [5]);
 });
+
+// Red team 2026-11-19: Shopify's inventory export has one row per variant per location; the planner kept only
+// the last row, so 40 units in a warehouse plus 5 in the shop read as 5 on hand and a false reorder.
+test("stock rows for the same SKU (one per location) are added up, and the plan says so", () => {
+  const st = normalizeStock(parseCsv("Handle,Title,SKU,Location,Incoming,Available,On hand,Cost per item\nmug,Mug,MUG,Warehouse,10,40,40,\nmug,Mug,MUG,Shop,0,5,5,4.00"));
+  const r = analyze(steady("MUG", 1, 60, 20), st.items, { asOf });
+  const m = r.rows[0];
+  assert.equal(r.rows.length, 1);
+  assert.equal(m.onHand, 45);
+  assert.equal(m.incoming, 10);
+  assert.equal(m.cost, 4); // first cost found on any of its rows
+  assert.equal(m.status, "ok"); // 55 > 21
+  assert.equal(m.orderQty, 0);
+  assert.ok(r.findings.some((f) => /more than one stock row/.test(f.title)));
+  assert.ok(!analyze(steady("MUG", 1, 60), [st.items[0]], { asOf }).findings.some((f) => /more than one stock row/.test(f.title)));
+});
+
+// Red team 2026-11-19: days that did not fill a whole week were piled into the oldest week, so perfectly steady
+// demand over 66 or 69 days got safety stock (6 and 12 units at 2/day) it does not need.
+test("a partial oldest week does not add variation to steady demand", () => {
+  for (const days of [63, 64, 66, 69, 70]) {
+    const a = analyze(steady("A", 2, days), [{ sku: "A", name: "", onHand: 30, incoming: 0, cost: null, price: null }], { asOf }).rows[0];
+    assert.equal(a.safety, 0, `${days} days`);
+    assert.equal(a.reorderPoint, 42, `${days} days`);
+  }
+});
+
+test("amounts default to a decimal point in both files", () => {
+  const s = normalizeSales(parseCsv("sku,date,quantity,price\nA,2026-09-01,1,12.50"));
+  assert.equal(s.items[0].price, 12.5);
+  const st = normalizeStock(parseCsv("sku,on hand,incoming,cost,price\nA,3,2,5.20,12.50\nB,1,,,"));
+  assert.deepEqual(st.items.map((x) => [x.onHand, x.incoming, x.cost, x.price]), [[3, 2, 5.2, 12.5], [1, 0, null, null]]);
+});
+
+test("nothing is at risk on a SKU that is fine", () => {
+  const r = analyze(steady("A", 2, 70), [{ sku: "A", name: "", onHand: 200, incoming: 0, cost: null, price: null }, { sku: "Z", name: "", onHand: 5, incoming: 0, cost: null, price: null }], { asOf });
+  assert.deepEqual(r.rows.map((x) => [x.sku, x.status, x.atRisk]), [["Z", "dead", 0], ["A", "ok", 0]]);
+  assert.equal(r.summary.atRisk, 0);
+});
+
+test("the top-revenue warning names only A SKUs that need action", () => {
+  const sales = [...steady("BIG", 10, 30, 100), ...steady("SMALL", 1, 30, 1)];
+  const quiet = analyze(sales, [{ sku: "BIG", name: "", onHand: 5000, incoming: 0, cost: null, price: null }, { sku: "SMALL", name: "", onHand: 0, incoming: 0, cost: null, price: null }], { asOf });
+  assert.ok(!quiet.findings.some((f) => /top-revenue/.test(f.title)));
+  const loud = analyze(sales, [{ sku: "BIG", name: "", onHand: 0, incoming: 0, cost: null, price: null }, { sku: "SMALL", name: "", onHand: 0, incoming: 0, cost: null, price: null }], { asOf });
+  assert.match(loud.findings.find((f) => /top-revenue/.test(f.title)).title, /^1 of your/);
+});
+
+test("the thin-history note counts SKUs under five units, not five", () => {
+  const five = [0, 1, 2, 3, 4].map((d) => ({ t: asOf - d * D, sku: "F", name: "F", qty: 1, price: 1 }));
+  assert.ok(!analyze([...five, ...steady("A", 1, 30)], [], { asOf }).findings.some((f) => /fewer than 5/.test(f.title)));
+  assert.ok(analyze([...five.slice(1), ...steady("A", 1, 30)], [], { asOf }).findings.some((f) => /^1 SKU\(s\) sold fewer than 5/.test(f.title)));
+});
+
+test("text cells with a number in them do not vote on the decimal mark", async () => {
+  const { detectDecimalComma } = await import("./calc.mjs");
+  assert.equal(detectDecimalComma([["name", "price"], ["Tea 0,25", "1.50"], ["Box 0,5", ""]]), false);
+});

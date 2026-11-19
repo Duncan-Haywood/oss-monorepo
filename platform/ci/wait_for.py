@@ -32,6 +32,7 @@ never fired. It prints what it matched first, so a typo that matches nothing say
 `echo EXIT $?` works as a marker line too: with no `--marker`, a `DONE` line or an
 `EXIT 0` line both end the wait (friction 2026-11-11: runs guessed `--pattern` or
 waited out the timeout on an EXIT log), and the printed tail shows the exit code.
+Lower-case `exit 0` or `done` lines (alone, or with an exit code) end the default wait too.
 `--marker X` waits for X alone. A marker followed by more output, in a log a
 process still has open, is an earlier phase's (a second `>>` phase): the wait
 goes on until a marker ends the log or the writer closes it. The default also accepts the line the harness
@@ -66,12 +67,28 @@ def is_marker(line, marker):
     counts too: `--marker BUILD_EXIT` matches `BUILD_EXIT=0` (friction 2026-11-16,
     a full timeout on a log whose last line was exactly that)."""
     s = line.strip()
+    # A marker given with trailing space (`--marker 'exit '`) meant "exit, then
+    # anything", but no stripped line ends in a space, so it never matched: a full
+    # 540 s wait on a log ending `exit 0` (friction 2026-11-19). Strip it here.
+    marker = marker.strip() or marker
     if marker[-1] in "=:" and s.startswith(marker):
         return True
     return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:-=")
 
 
 DEFAULT_MARKERS = ("DONE", "EXIT", "[exited with code")
+
+
+def is_quiet_marker(line):
+    """A lower- or title-case `done` / `exit` line that only an `echo` writes: the
+    word alone, or followed by an exit code (`exit 0`, `Done 3`). Runs end jobs
+    with `echo exit $?` or `echo done` and the upper-case default waited the full
+    timeout on them (six reports, 2026-11-12..19). Words with more after them
+    (`done loading`, `Exit code was ...`) stay out: a job prints those mid-run."""
+    parts = line.strip().split()
+    if not parts or parts[0].lower() not in ("done", "exit") or len(parts) > 2:
+        return False
+    return len(parts) == 1 or parts[1].lstrip("-").isdigit()
 
 
 def boot_time(stat="/proc/stat"):
@@ -86,7 +103,7 @@ def boot_time(stat="/proc/stat"):
     return None
 
 
-def stale_marker(lines, markers, held):
+def stale_marker(lines, markers, held, quiet=False):
     """True when every marker line is an earlier phase's: output follows the last
     one and a process still has the log open, so the job is still writing.
 
@@ -95,7 +112,7 @@ def stale_marker(lines, markers, held):
     2026-11-15). A finished job holds no descriptor, and a marker that is the
     last line still ends the wait, so a wait called after the job is unchanged.
     """
-    idx = [i for i, l in enumerate(lines) if any(is_marker(l, m) for m in markers)]
+    idx = [i for i, l in enumerate(lines) if any(is_marker(l, m) for m in markers) or (quiet and is_quiet_marker(l))]
     if not idx or not any(l.strip() for l in lines[idx[-1] + 1:]):
         return False
     return bool(held())
@@ -118,7 +135,9 @@ def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.m
             with open(path, errors="replace") as f:
                 lines = f.read().splitlines()
             markers = (marker,) if isinstance(marker, str) else marker
-            if any(is_marker(l, m) for l in lines for m in markers) and not stale_marker(lines, markers, held):
+            quiet = markers == DEFAULT_MARKERS
+            if (any(is_marker(l, m) for l in lines for m in markers) or (quiet and any(map(is_quiet_marker, lines)))) \
+                    and not stale_marker(lines, markers, held, quiet):
                 return True, lines
             if boot is not None and os.stat(path).st_mtime < boot and clock() - start >= min(grace, timeout):
                 return None, lines
@@ -308,13 +327,24 @@ def progress(path, now=time.time, who=holders):
 
 
 def longer(timeout):
-    """How to wait longer in one call. The 100 s default keeps a plain call under
-    the tool's 120 s limit, but the tool takes up to 600 s, and three runs in
+    """How to wait longer. The 100 s default keeps a plain call under the
+    tool's 120 s limit, but the tool takes up to 600 s, and three runs in
     three days waited out 100 s on a ~15 minute job without knowing --timeout
-    existed (friction 2026-11-12)."""
+    existed (friction 2026-11-12). Past 540 s the hint said nothing, so runs
+    re-called a 540 s wait four to six times on a 20 to 50 minute job (seven
+    run records, 2026-11-18/19) although one background wait covers it."""
+    bg = ("for a job of many minutes, run this same wait with run_in_background and a --timeout "
+          "past the job's length (the tool's background timeout takes up to 7200000 ms): the "
+          "harness wakes you when it exits, one call instead of several")
     if timeout >= 540:
-        return ""
-    return "; to wait up to 9 min in one call, pass --timeout 540 and set the tool call's timeout to 600000 ms"
+        return "; " + bg
+    return "; to wait up to 9 min in one call, pass --timeout 540 and set the tool call's timeout to 600000 ms; " + bg
+
+
+# Every timeout line starts with this, so a chained `wait_for ...; grep` or `; tail`, whose
+# own exit 0 the harness reports, still reads as not done: two runs took a background
+# --until wait's "still failing" line for completion (2026-11-18/19 records).
+TIMED_OUT = "wait_for: TIMED OUT (exit 1):"
 
 
 def main(argv=None):
@@ -354,20 +384,20 @@ def main(argv=None):
             print(f"wait_for: no process matches {a.gone!r} any more")
             return 0
         left = matching(a.gone) or []
-        print(f"wait_for: {len(left)} process(es) matching {a.gone!r} still running after {a.timeout:.0f}s"
+        print(f"{TIMED_OUT} {len(left)} process(es) matching {a.gone!r} still running after {a.timeout:.0f}s"
               f"{': ' + str(sorted(left)[0][0]) if left else ''}; call again{longer(a.timeout)}", file=sys.stderr)
         return 1
     if a.pid:
         if wait_pid(a.pid, a.timeout):
             print(f"wait_for: pid {a.pid} has exited")
             return 0
-        print(f"wait_for: pid {a.pid} still running after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
+        print(f"{TIMED_OUT} pid {a.pid} still running after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
         return 1
     timeout = a.timeout
     if a.until:
         started = time.monotonic()
         if not wait_until(a.until, a.timeout):
-            print(f"wait_for: '{a.until}' still failing after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
+            print(f"{TIMED_OUT} '{a.until}' still failing after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
             return 1
         if not a.log:
             print("wait_for: condition met")
@@ -399,7 +429,7 @@ def main(argv=None):
         return 2
     if not ok:
         shown = a.marker or "DONE' or 'EXIT"
-        print(f"wait_for: no '{shown}' line in {a.log} after {a.timeout:.0f}s; {progress(a.log)}{longer(a.timeout)}", file=sys.stderr)
+        print(f"{TIMED_OUT} no '{shown}' line in {a.log} after {a.timeout:.0f}s; {progress(a.log)}{longer(a.timeout)}", file=sys.stderr)
         return 1
     print("\n".join(lines[-15:]))
     return 0

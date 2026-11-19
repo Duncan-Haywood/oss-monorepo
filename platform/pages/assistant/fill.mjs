@@ -633,17 +633,43 @@ export const QUESTION_WORDS = new Set('do does did doing can could should would 
  * "type" + "leave" are both in the chimney-sweep calculator's. When nothing is
  * strong the plain ranking is returned, unless `strongOnly` is set (the page
  * already answered, so weak links only add noise).
+ *
+ * Order within that set weighs each word by how rare it is in the index
+ * (`questionWordWeights`). Whether a match is strong still uses the plain
+ * score, so the weighting only reorders. "How much does Etsy take from a
+ * sale?" shows why: "etsy" is in 0.3% of entries and "take" in 9%, yet each
+ * scored 4 in a name, so "How Much Does Discogs Take Per Sale?" tied with the
+ * Etsy pages and led on index order.
  */
 export function rankForQuestion(data, query, { variants, score, limit = 5, strongOnly = false }) {
   const words = [...new Set(String(query).toLowerCase().split(/[^a-z0-9]+/)
     .filter((w) => w.length >= 2 && !data.stop.has(w) && !QUESTION_WORDS.has(w)))];
   if (!words.length) return [];
   const forms = words.map(variants);
-  const ranked = data.items
-    .map((item, i) => ({ item, i, value: score(item.n, item.x, forms, true) }))
-    .filter(({ value }) => value >= 1)
-    .sort((a, b) => b.value - a.value || a.i - b.i);
+  // Per word: 4 in the name, 1 in the text, 0 (searchScore's own weights, minus
+  // its fractional short-name bonus).
+  const perWord = (item) => forms.map((v) => Math.floor(score(item.n, item.x, [v], true)));
+  const hits = data.items.map(perWord);
+  const weights = questionWordWeights(hits, forms.length);
+  const ranked = [];
+  data.items.forEach((item, i) => {
+    if (!hits[i].some((h) => h > 0)) return;
+    const weighted = hits[i].reduce((sum, h, k) => sum + h * weights[k], 0);
+    ranked.push({ item, i, value: score(item.n, item.x, forms, true), weighted });
+  });
+  ranked.sort((a, b) => b.weighted - a.weighted || b.value - a.value || a.i - b.i);
   const bar = forms.length > 1 ? 5 : 4;
   const strong = ranked.filter(({ value }) => value >= bar);
   return (strong.length || strongOnly ? strong : ranked).slice(0, limit).map(({ item }) => item);
+}
+
+/**
+ * Inverse document frequency of each question word: ln((N + 1) / (df + 1)),
+ * where df counts the entries the word reaches at all (`hits[i][k] > 0`). A
+ * word every entry has weighs ~0; a brand named by a few dozen weighs ~6.
+ */
+export function questionWordWeights(hits, count) {
+  const df = new Array(count).fill(0);
+  for (const row of hits) for (let k = 0; k < count; k++) if (row[k] > 0) df[k]++;
+  return df.map((d) => Math.log((hits.length + 1) / (d + 1)));
 }

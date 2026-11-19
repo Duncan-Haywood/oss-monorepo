@@ -121,10 +121,41 @@ def _cov(p: np.ndarray, idx: np.ndarray) -> np.ndarray:
     return _cov_ref(p, idx) if out is None else out
 
 
-def _eig_sigma2_idx(p: np.ndarray, idx: np.ndarray) -> float:
+EIG_READS = ("chen", "mp", "mpc")
+
+
+def _mp_floor(n: int, dim: int) -> float:
+    """Where white noise's smallest sample-covariance eigenvalue sits, as a fraction of its variance: the lower
+    Marchenko-Pastur edge (1 - sqrt(dim / n))^2 for n patches of ``dim`` samples."""
+
+    return (1.0 - math.sqrt(dim / n)) ** 2
+
+
+def _eig_sigma2_idx(p: np.ndarray, idx: np.ndarray, eig: str = "chen", cols=None) -> float:
+    """sigma^2 of the patches ``idx`` of ``p`` from their covariance's eigenvalues.
+
+    ``eig="chen"`` (the default since 2026-11-17): the mean of the longest ascending prefix whose mean is no
+    larger than its median. ``"mp"`` (2026-11-19, eval/noise-pca-min-eigen-2026-11-19.md): the smallest
+    eigenvalue over the Marchenko-Pastur floor ``_mp_floor``, so white noise reads its variance while texture
+    that fills most directions but not the quietest one drops out. ``"mpc"``: ``"mp"`` on each colour's own
+    columns (``cols``: one index array per colour present), the colours' readings averaged by their share of
+    the patch, so noise whose variance differs by colour (white balance) is read as the mixed mean, as
+    ``"chen"`` reads it, instead of as its quietest colour. Below 4 x dim patches the floor is too loose to
+    trust and ``"chen"`` is used."""
+
     if idx.size < p.shape[1] + 2:
         return float("nan")
-    lam = np.clip(np.linalg.eigvalsh(_cov(p, idx)), 0.0, None)
+    cov = _cov(p, idx)
+    n, dim = int(idx.size), p.shape[1]
+    if eig == "mp" and n >= 4 * dim:
+        return float(max(np.linalg.eigvalsh(cov)[0], 0.0) / _mp_floor(n, dim))
+    if eig == "mpc" and cols is not None and n >= 4 * dim:
+        tot = 0.0
+        for ik in cols:
+            lam0 = max(float(np.linalg.eigvalsh(cov[np.ix_(ik, ik)])[0]), 0.0)
+            tot += ik.size / dim * lam0 / _mp_floor(n, ik.size)
+        return tot
+    lam = np.clip(np.linalg.eigvalsh(cov), 0.0, None)
     for m in range(lam.size, 0, -1):
         head = lam[:m]
         if head.mean() <= np.median(head):
@@ -218,8 +249,9 @@ def _texture_params(d: int, step: int, D: np.ndarray | None, dof: float | None):
 
 
 def _weak_texture_idx(p: np.ndarray, idx: np.ndarray, g: np.ndarray, tr: float, q: float,
-                      iters: int = 6) -> tuple[float, int]:
-    """Liu's iteration on the patches ``idx`` of ``p`` (``g``: every patch's texture energy)."""
+                      iters: int = 6, eig: str = "chen", cols=None) -> tuple[float, int]:
+    """Liu's iteration on the patches ``idx`` of ``p`` (``g``: every patch's texture energy). The patch set is
+    chosen with ``"chen"``'s reading whatever ``eig`` is; ``eig`` reads sigma^2 from the final set."""
 
     gi = g[idx]
     s2 = _eig_sigma2_idx(p, idx)
@@ -234,6 +266,8 @@ def _weak_texture_idx(p: np.ndarray, idx: np.ndarray, g: np.ndarray, tr: float, 
             break
         keep = new
         s2 = _eig_sigma2_idx(p, keep)
+    if eig != "chen" and s2 == s2:
+        s2 = _eig_sigma2_idx(p, keep, eig, cols)
     return s2, int(keep.size)
 
 
@@ -250,7 +284,7 @@ def weak_texture_sigma2(p: np.ndarray, d: int, iters: int = 6, step: int = 1, D:
 
 def pca_bins(c: np.ndarray, period: int, d: int = 4, stride: int = 2, bins: int = 8,
              mosaic: bool = False, pat=None, texture: str | None = None,
-             shifts: tuple = ((0, 0),), info: dict | None = None) -> tuple[np.ndarray, np.ndarray]:
+             shifts: tuple = ((0, 0),), info: dict | None = None, eig: str = "chen") -> tuple[np.ndarray, np.ndarray]:
     """Per brightness bin of the mosaic's patches: (median level, sigma^2). ``mosaic``: d x d patches of the
     mosaic (``mosaic_patches``) instead of a subplane's. ``texture`` (mosaic only): "grad" (same-colour
     differences one period apart), "colour" (each sensel against its colour's mean in the patch) or "near"
@@ -277,6 +311,12 @@ def pca_bins(c: np.ndarray, period: int, d: int = 4, stride: int = 2, bins: int 
     p = np.ascontiguousarray(p, dtype=np.float64)
     D, tr, q = _texture_params(d, step, D, dof)
     g = _energy(p, D)  # once for every patch: a patch's energy does not depend on its bin
+    cols = None
+    if eig not in EIG_READS:
+        raise ValueError(f"unknown eig {eig!r} ({', '.join(EIG_READS)})")
+    if eig == "mpc" and mosaic and pat is not None:  # every mosaic patch starts on the CFA's origin
+        col = np.array([pat[(y % period) * period + (x % period)] for y in range(d) for x in range(d)])
+        cols = [np.flatnonzero(col == k) for k in np.unique(col)]
     res: list = [None] * bins
 
     def run(i0, i1):  # one bin per call; bins are independent, so the thread count changes no bit
@@ -285,7 +325,7 @@ def pca_bins(c: np.ndarray, period: int, d: int = 4, stride: int = 2, bins: int 
             idx = np.flatnonzero(sel)
             if idx.size < d * d + 2:
                 continue
-            s2, k = _weak_texture_idx(p, idx, g, tr, q)
+            s2, k = _weak_texture_idx(p, idx, g, tr, q, eig=eig, cols=cols)
             res[i] = (s2, k, idx.size, float(np.median(lv[sel])))
 
     from shootflow.raw_develop_np import _run_bands
@@ -323,7 +363,7 @@ def fit_line(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
 
 def estimate_noise_pca(c: np.ndarray, pat, d: int = 6, stride: int = 2, mosaic: bool = True,
                        texture: str | None = None, shifts: tuple = ((0, 0),),
-                       info: dict | None = None) -> tuple[float, float]:
+                       info: dict | None = None, eig: str = "chen") -> tuple[float, float]:
     """The (shot, read) model of the mosaic ``c`` from patch PCA on weak-texture patches. The default, 6 x 6
     patches of the mosaic itself, read closest to the truth on the tune tiles
     (eval/noise-pca-estimator-2026-11-17.md; tools/noise_estimator_accuracy.py); on X-Trans with the "near"
@@ -331,7 +371,7 @@ def estimate_noise_pca(c: np.ndarray, pat, d: int = 6, stride: int = 2, mosaic: 
 
     period = 6 if len(pat) == 36 else 2
     return fit_line(*pca_bins(c, period, d, stride, mosaic=mosaic, pat=pat, texture=texture,
-                             shifts=shifts, info=info))
+                             shifts=shifts, info=info, eig=eig))
 
 
 def bin_mosaic(c: np.ndarray, period: int) -> np.ndarray:

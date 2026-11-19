@@ -3,7 +3,8 @@
 Open a **Primavera P6 `.xer` export** in the browser and get the **DCMA 14-point
 schedule assessment** with every activity behind each failing point, a critical
 path recomputed from the logic, the critical path test, and the faults the 14
-points miss: logic loops, out-of-sequence progress, open finishes, and stored
+points miss: logic loops, out-of-sequence progress, open finishes, expected
+finish dates that hide delay, and stored
 float that no longer matches the logic. MIT licensed, no dependencies, nothing
 uploaded.
 
@@ -123,6 +124,27 @@ more of runs (medium), each listed with its criticality; and **no stated
 contingency** when the forecast is met in under half the runs (low). A risk run
 for another project in the same file is left out with a note. Checked on the
 six public files (eval/review-risk-check-2026-11-19.md).
+
+**Windows in the written review, and a full-list appendix** (2026-11-19,
+`report.mjs` `windowItems`, page: run the windows analysis on the job's
+updates, then print the review of the latest one; CLI `--windows u1.xer u2.xer
+... --report review.html [--appendix]`, which reviews the latest update against
+the one before it): the review carries a "Delay by window" section (each
+window's finish movement split into progress and revisions, the driving-path
+activities behind it, the activities named in more than one window) and two
+corrections a windows run can back. **Revisions that moved the finish later**
+in a window ask the contractor to justify each logic, duration, constraint and
+calendar change listed (medium at 5 or more working days, low below).
+**Revisions that took back time progress lost** (progress slipped the finish
+and the revisions pulled back 2 or more working days of it) ask for the
+recovery plan behind the shortened or re-sequenced work: the pattern of a
+schedule held on paper. A windows run of another project, or one that does not
+end at the reviewed update's data date, is left out with a note. With the
+appendix option the body still prints the first 40 activities of each
+correction, and an appendix lists all of them, so the document alone is the
+complete list. `xer.mjs` `xerText` writes a schedule back to XER text (P6 Web's
+multi-line calendars quoted as P6 Web writes them). Checked on the six public
+files: 18 update series built from them with planted re-estimates, slips and paper recoveries, written to disk and read by the CLI in shuffled order: the corrections equal the rules on all 18, every planted activity is named, every recovery plan expected (8) is asked and no other, and the appendix holds every row the body cut (on the 14,270-activity file that is 582 pages, so it is off by default) (eval/review-windows-check-2026-11-19.md).
 **Resource levelling** (2026-11-19, `level.mjs`, the page's "Resource
 levelling" box, `--level`): the logic alone lets every crew work on everything
 at once. This delays not-started activities until each resource stays within
@@ -145,6 +167,27 @@ on each date), and a
 **crew size** multiplier to see what crew holds the date. It warns when a
 file still carries P6's default limit of 1 per hour on resources used far
 above it. Checked on the public files in eval/level-check-2026-11-19.md.
+
+**Expected finish dates** (2026-11-19, `cpm.mjs`, the "Expected finish dates
+setting durations" finding): when a project schedules with P6's "use expected
+end dates", an activity with an expected finish gets the remaining duration
+that ends it on that date, from wherever its remaining work starts; a date at
+or before that start is ignored and the stored duration stands. The engine now
+does the same in every run (assessment, critical path test, comparison and
+half-step, windows, risk, levelling), so a slip upstream is absorbed by such an
+activity as it is in P6. The finding lists each one with the duration the date
+set against the original, and, where the file says how far along it is, the
+time left at the rate so far (a task 2% done after 22 days whose expected
+finish leaves it 6 days); dates already passed are listed to clear. On the
+public P6 24.12 file (23 activities with one): the stored remaining duration is
+the time to the expected finish on 21 of 21, the 2 dates already passed are
+ignored as P6 ignored them, and after adding 80 h to each of the 21 stored
+durations the engine still reproduces P6's dates on 404 of 404 open
+activities with the rule on (0 of 404 with it off). A 10-day slip on a
+predecessor moves 2 of those activities 0 days instead of 10
+(eval/expected-finish-2026-11-19.md). In the risk run an activity with an
+expected finish keeps its date, as in P6, so its sampled duration does not
+count; that is said in the eval, not yet on the page.
 
 ## Why someone would use it
 
@@ -176,6 +219,14 @@ project's updates for delay claims; and the review itself as a service.
   as possible; external dates; loops found and reported (Tarjan). Also free
   float and the driving path. Level of effort and WBS summary activities are
   left out of the network.
+- `floatpaths.mjs`: the longest path (every driving branch into the project
+  finish, compared with the flag P6 stores on each activity) and multiple float
+  paths to any one activity. Relative float is total float computed as if that
+  activity were the only finish: a backward pass from its early finish over its
+  predecessors alone, in hours on each activity's own calendar. Path 1 is the
+  driving chain into it; each later path is the next least relative float. It
+  answers what drives an interim milestone (a handover, a permit, a sectional
+  completion), which total float answers only for the project finish.
 - `dcma.mjs`: the 14 points with the DCMA thresholds, counted over open
   activities (not complete, not level of effort or WBS summary), durations and
   float in working days of each activity's own calendar. The critical path test
@@ -206,8 +257,10 @@ project's updates for delay claims; and the review itself as a service.
   statuses a file as planned to a new data date (optionally with planted
   slips), for the check below and the page's example series.
 - `report.mjs`: the written review. `reviewItems` turns each failing DCMA
-  point, extra check, stale-date list and comparison flag into one ranked
-  correction with its activities; `reviewHtml` lays them out for print.
+  point, extra check, stale-date list, comparison flag, risk finding and
+  windows finding (`windowItems`) into one ranked correction with its
+  activities; `reviewHtml` lays them out for print, with an optional appendix
+  of every activity.
 - `risk.mjs`: the Monte Carlo run. Seeded generator (repeatable), triangular
   draws (one-factor Gaussian copula when correlated), `cpm.mjs` forward pass
   only (`forwardOnly`, `durations`), driving path per run, sensitivity as the
@@ -229,6 +282,7 @@ node cli.mjs schedule.xer --project CODE  # a file with several projects
 node cli.mjs schedule.xer --risk 1000 --range 90,100,130 --correlation 0.3 [--ranges ranges.csv] [--csv drivers.csv]
 node cli.mjs schedule.xer --risk 1000 --risks register.csv   # risk register events, ranked
 node cli.mjs schedule.xer --risk 1000 --ranges-udf auto   # ranges from the file's own UDFs (or "Opt Dur,-,Pess Dur")
+node cli.mjs schedule.xer --float-paths [CODE] [--paths 10] [--csv paths.csv] [--json]   # float paths to CODE (default: the finish)
 node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json]   # resource levelling
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 node cli.mjs --windows jan.xer feb.xer mar.xer apr.xer [--json] [--csv windows.csv] [--project CODE]
@@ -243,6 +297,16 @@ run as a formula in Excel or Sheets.
 
 ## How it was checked
 
+- **Longest path against P6's own flag** (`eval/longest-path-2026-11-19.md`):
+  on five of the six public files the longest path is exactly the set P6
+  flagged (261 of 261 open activities, none extra); the old single chain held 19
+  of the terminal file's 36. On the sixth (CCA) all 56 found are flagged, but
+  P6 flags 548 more that carry up to 3,788 h of P6's own stored float, so those
+  flags are left from an earlier run. The float-path backward pass, seeded at
+  the finish's late date, never gives an activity less float than its total
+  float (0 of 15,240) and equals it everywhere the finish binds (4,211 of 4,211
+  on the hotel file).
+
 - **Against P6 itself** (`eval/cpm-vs-p6-2026-11-19.md`): six public XER files
   from P6 5.0 to 24.12, 19,822 open activities. Early finish, late finish and
   total float all equal P6's stored values on **19,820 (99.99%)**, and late
@@ -256,7 +320,21 @@ run as a formula in Excel or Sheets.
   predecessor's FS lag into a finished node comes back off, a labour
   assignment's remaining work sets the late start of an activity with no
   remaining duration, unspent SS lag into a finished node, as late as possible
-  on started work, and a future actual start that has spent no lag).
+  on started work, and a future actual start that has spent no lag). A fifth
+  pass (rule 17: a finished activity's FS/FF lag not yet spent at the data
+  date comes back off its late date) brought the late dates P6 stores for
+  finished activities from 1,497 to 1,529 of 1,534 in that file (1,550 of
+  1,555 over the six); the 5 left are one chain.
+- **A seventh P6 file, and edited durations** (`eval/edited-durations-2026-11-19.md`):
+  Harbour Pointe Assisted Living Center (P6 17.12, a public copy found by a
+  size-split code search) matched on 88 of 113 at first. All 25 that differ
+  trace to 8 unstarted activities whose duration was changed after P6 last
+  scheduled the file; with the durations the stored dates imply, **113 of
+  113** agree. The assessment now lists such activities ("Durations edited
+  after the last schedule run") and says how many stored-date differences the
+  edits account for. Checked with 300 planted edits on the six files: 300
+  found, 0 extra, every difference they caused explained; none of the six
+  lists anything as found.
 - **Free float against P6** (`eval/free-float-2026-11-19.md`): the same files,
   **19,810 of 19,822 (99.94%)** equal P6's stored free float (19,809 before the
   fourth CPM pass), up from 18,537
@@ -285,7 +363,7 @@ run as a formula in Excel or Sheets.
   float and free float worked by hand (open ends against a must-finish date,
   negative total float, spent SS lags, finished successors); a file with no data
   date, PROJECT table or calendar pattern; the recomputed-schedule CSV; an SS lag partly spent at the data date and
-  a finished node's late date with no lag back; constraints and negative float against a
+  a finished node's late date with only its unspent lag back; constraints and negative float against a
   must-finish-by date; progress with a lag after a finished predecessor;
   retained logic through out-of-sequence progress (SS from started work,
   finished activities as nodes in both passes); ALAP;
@@ -316,9 +394,11 @@ run as a formula in Excel or Sheets.
 ## Limits
 
 Screening metrics, not a verdict: a schedule can pass all fourteen and still be
-unrealistic, and some failures are justified. Not modelled:
-expected finish dates, "make open-ended activities critical", multiple float
-paths (resource levelling is the separate `level.mjs` step; the checks always
+unrealistic, and some failures are justified. Expected finish dates are
+checked on one public file only (23 activities; the rule is read from the
+durations P6 stored, not from a second P6 run). Not modelled: "make open-ended activities critical"; multiple float
+paths follow P6's "free float" style but are not compared with P6's own (no
+public file stores them), and P6's "total float" option is not offered (resource levelling is the separate `level.mjs` step; the checks always
 use the unlevelled dates; it is a serial pass like P6's, not P6's code, so its
 dates can differ from a P6 levelled run, which no public file stores). 2 activities of the heavily progressed CCA file still differ (early
 finish and total float; `eval/cpm-vs-p6-2026-11-19.md`, "What is left"). The float checks use the float the
@@ -331,7 +411,8 @@ values) downloads as a CSV from the page or `node cli.mjs file.xer --schedule ou
 `samples/make-example.mjs` writes `example.mjs`, an invented office fit-out
 schedule with deliberate faults, used by the page's example button and the
 tests; `node samples/make-example.mjs office-fitout.xer` also writes it as an
-XER file for the CLI. `eval/cpm-vs-p6.mjs` is the P6 comparison (dates, total and free float).
+XER file for the CLI. `eval/cpm-vs-p6.mjs` is the P6 comparison (dates, total and free float);
+`eval/longest-path.mjs` checks the longest path against P6's flag and the float-path pass.
 `mspdi.mjs` reads Microsoft Project XML into the same tables (`parseMspdi`,
 and `parseSchedule`, which picks the reader from the text);
 `eval/cpm-vs-project.mjs` compares the engine with Project's stored dates.

@@ -8070,3 +8070,129 @@ resting at the bid is a run of sells), and its own pre-registered round on a fre
 
 Tests: `stale-growth-quoted-tick.test.mjs` (the Binance reader, both rounds' bars, the window picker, the
 committed verdicts and the new clause) and `rounded-walk-heavy.test.mjs` (the clause in a produced line).
+
+## The trade side: the shipped one-tick stale test on side-adjusted prices (2026-11-19, pre-registered; S2 passes, S1 and S3 fail, nothing changes)
+
+The section above ends with the shipped one-tick route calling 16 of 68 real trade-print windows stale with
+nothing carried, and names what the prices alone do not hold: the trade side. Each Binance trade row says
+whether the buyer was the maker (a taker sold, so the print is at the bid). Moving each print half a quoted tick
+toward the middle of the book (bid + tick/2, ask - tick/2) removes the bid-ask bounce when the book is one tick
+wide, so the series moves only when the book does. `eval/stale-side-mid-binance.mjs` (header and code committed in
+9ec8f5430 before any file of the day was downloaded; amended once in fb7571384 before any result was read: the
+first run, with an unadjusted arm for comparison, would have passed the session's two-hour limit, so the
+unadjusted arm, which decided nothing, was dropped) runs the unchanged `staleTestMarkov` behind the unchanged
+one-tick gate on a fresh day, 2026-11-09, on the same twelve pairs: the side-adjusted prints and their last value
+every 0.5, 1 and 2 s, four evenly spaced 300-step windows a series, 192 windows. Output
+`eval/stale-side-mid-binance.out.txt` (32 min on four threads).
+
+| bar (side-adjusted, gated windows, pooled) | result |
+|---|---|
+| S1 size on the real null: trade-print windows called stale (bar <= 10%, n >= 10) | **21 of 39 (54%): fail** |
+| S2 power: carried share >= 0.30 called stale (bar 80%) | **88 of 88: pass** |
+| S3 the estimate: fitted carry share within 0.10, among grid windows called stale (bar 80%) | **55 of 97 (57%): fail** |
+| reported: windows the gate refuses | 56 of 192 (all 32 of BTC's and ETH's: once the bounce is gone their nonzero moves are tens of ticks) |
+| reported: price repeats among prints that keep the side of the print before | 62% (DOT) to 99% (TRX) |
+
+By the pre-registered rule for an S1 failure, nothing in code changes: the trade side does not let this test tell
+resting at a quote from carrying forward, and the shipped caveat (check the source's own timestamps) stands.
+
+**Why it went the wrong way (read afterwards, deciding nothing).** The adjustment removes the bounce, but a
+bounce is a move: a sell at the bid followed by a buy at the ask now lands on the same value, so the adjusted
+prints repeat more than the raw ones, and the repeats come in long runs while the book stands still. That is the
+clumped-repeat pattern the Markov carry model finds. Among the adjusted print windows the gate passed, 18 of
+the 22 with at least half their steps repeating were called stale, against 3 of 17 below that; TRX's adjusted
+prints repeat 92-99% of the time, and all four windows were called stale with fitted carry shares of 0.83 to 0.95.
+A book that does not move for minutes is, to a price series, the same thing as a feed that stopped. So on
+exchange trades the two can only be told apart by something outside the price: the trade timestamps or ids, which
+show that a new trade happened. This line of rounds (real carried feeds, 2026-11-19) ends here; the stale test is
+for sampled series whose source does not say when it last changed, and the README caveat says so.
+
+Tests: `stale-side-mid.test.mjs` (the sided reader, the half-tick transform, the windows, the bars and the
+committed verdicts).
+
+## Self-deploy with no terminal: the watch's repository made on the page (2026-11-19)
+
+The flagship's finish line for a venture is a stranger opening its page, entering their own settings and ending up
+with their own running copy. The metric watch got close (`deploy/make-watch-repo.sh`, a `curl ... | sh` line), but
+that still asked for a terminal, Node, curl and a `git push`: the step most people who want a Slack ping about
+their sign-ups will not take. The watch page now has a **"No terminal?"** box that does the same without one.
+
+- **What it does.** Type the repository you just created (`owner/name`, or its URL), optionally paste your rows,
+  press **Download the files**: `watch-repo.mjs` fetches the watch's modules from the site that served the page,
+  builds a stored zip in the browser (its own CRC-32 and zip writer, no dependency; same inputs, same bytes) and
+  hands it over. Then four links fill in: the repository's upload page (drag the unzipped files in), GitHub's
+  new-file editor opened with `.github/workflows/watch-metric.yml` already in it (the `filename` and `value` query
+  parameters; about 7 KB of URL), the new-variable page for `METRIC_CSV`, and the workflow's page to start the
+  first run. The workflow is a link, not a file in the zip, because a `.github` folder is hidden in most file
+  managers and is the file a drag-and-drop upload would silently miss.
+- **One source.** `deploy/build-watch-repo-files.mjs` reads the README heredoc, `package.json`, `.gitignore` and
+  the module list out of `make-watch-repo.sh`, plus `deploy/watch-metric.yml` and `LICENSE`, into
+  `watch-repo-files.mjs` (the site does not serve `.sh`, `.yml` or `LICENSE`). Its `--check` runs in the test, so
+  editing the script without regenerating fails CI.
+- **How it was checked** (`watch-repo.test.mjs`, 7 tests). The zip, unpacked with Info-ZIP `unzip`, is the folder
+  `make-watch-repo.sh` writes, file for file and byte for byte, less the workflow; `unzip -t` reports no errors;
+  the unpacked folder runs `node watch.mjs data/metric.csv` on 130 pasted tab-separated rows and dates the step at
+  2026-05-01; the workflow link's `value` decodes to the workflow file exactly; repository-name parsing accepts
+  the five usual spellings and refuses eight malformed ones. In headless Chromium at phone width the page made a
+  463 KB zip of 20 files from its own server, the pasted rows came out as `data/metric.csv`, the links filled in,
+  no console errors and no sideways scroll.
+- **Not checked.** No GitHub account was used: the four links follow GitHub's URL patterns (`/upload/<branch>`,
+  `/new/<branch>?filename=&value=`, `/settings/variables/actions/new`, `/actions/workflows/<file>`) but were not
+  opened against a live repository from this session. Whether the upload page accepts a first commit on a
+  brand-new empty repository is the first thing a person trying it would find out; the script route still works
+  if it does not.
+- **Counted.** `watch_repo_zip` and `watch_repo_link`, in local storage only, like the page's other events
+  (listed in the index page's privacy line).
+
+## A shop shut one weekday: revenue's slow climb (2026-11-19, pre-registered twice; round 1 fails F1, round 2 fails F4; not offered)
+
+"A real shop's daily series" left one item open: on the UCI Online Retail shop, **Quiet and Middle never alerted on
+daily revenue while it climbed from about £26k to £50k a day** (September to November 2011), and the suggested fix
+was `--log`. Exploring on that year (the design year) pointed away from the heavy tails. `--log` on the trading days
+made Quiet deafer (0 alerts). The shop never trades on Saturdays, so one row in seven is a 0 that belongs to the
+week; with those rows left out, Quiet heard the build-up (dated 2011-09-15, sent 2011-09-21) at 2 alerts in 257
+checks (2 in 300 before, neither of them the climb).
+
+**The rule tested** (`watch-core.mjs` `shutWeekdays`, `dropShutWeekdays`): on labels that are consecutive calendar
+days, a weekday whose value is 0 in each of its **last 8 weeks** (round 2; round 1: on every occurrence) is left out
+before a level model reads the series, and `--period 7` becomes 7 minus the days left out. Counts would be untouched.
+
+**Pre-registered** (`eval/shut-weekday.prereg.md`), on the fresh year (UCI Online Retail II, 2009-12 to 2010-12, the
+same shop's earlier year) and on 200 simulated shops (`eval/shut-weekday-sim.mjs`: Saturdays shut, lognormal revenue
+(sd 0.35) with 3% wholesale days x4, a weekday pattern, five random one-day closures, an AR(1) wobble in the level;
+100 with no change and 100 with a +30% step). Arms, Quiet only: **D** the default with `--period 7`; **T** the rule.
+
+| bar | D | T | result |
+|---|---|---|---|
+| F1, fresh year: a revenue alert dated 2010-08-15..11-30, sent within 14 days | dated 2010-09-28, sent 2010-11-26 (59 days) | round 1: same run (never fired); round 2: sent **2010-10-04 (6 days)** | round 1 **fails**, round 2 passes |
+| F2, fresh year: at most 2 alerts per 100 checks | 0.33 | 0.39 | passes |
+| F3, simulation, no step: T at most 2 false alerts per 100 checks | 1.93 (572 / 29,700) | 1.89 (480 / 25,400) | passes |
+| F4, simulation, +30% step: T catches at least 60 and D + 15 | 38 | 34 | **fails** |
+
+Outputs: `eval/shut-weekday.out.txt` (round 1), `eval/shut-weekday-r2.out.txt` (round 2, both years),
+`eval/shut-weekday-sim.out.txt` (every shop). The simulation's rows count for both rounds: every simulated Saturday
+is 0, so both rules leave out the same rows.
+
+What it shows:
+
+- **Round 1 failed because of one Saturday.** The fresh year's first Saturday, 2009-12-05, took £9,803 (30 orders),
+  so "zero on every occurrence" left nothing out. Round 2, written down before it ran, changed only that test.
+- **On the real shop the drop works in both years; in the simulation it does nothing.** The simulated default was
+  not deaf (38 of 100 steps caught, 31 of them by both arms), so the shut Saturday is not, by itself, what deafened
+  the real watch. Something the simulation lacks does: the real climb is gradual over weeks rather than a step, and
+  the real Saturday zeros may interact with the AR(1) estimate on a rising level in a way an i.i.d. wobble does not
+  show. The pre-registered bar asked for a gain on simulated steps, and there was none.
+- **Not offered.** The CLI and the page are unchanged. The helpers stay in `watch-core.mjs` for the eval and a later
+  round. A shop owner can do the same by hand today: drop the shut weekday's rows from the CSV and use `--period 6`.
+  On this shop that would have sent the autumn climb within a week in both years; on simulated steps it gives no
+  gain and loses 4 in 100.
+- **Middle is deaf to the climb** on both years, with or without the drop, and `--suggest` picks it at the default
+  budget because it is "more eager" and under budget.
+
+**Checked:** `shut-weekday.test.mjs` (4 tests): the rule on toy shops (an every-week zero, a one-off zero Friday, a
+recent trading Saturday, short, non-daily and all-zero series); round 1 against round 2 on a trading first Saturday;
+both real years' Quiet alerts with and without the drop.
+
+Next (most useful first): a simulation with a gradual climb (a ramp over 4 to 8 weeks) instead of a step, to see
+whether the real result is about ramps; Middle's deafness to slow climbs (the suggestion picks it); a deployer's real
+Stripe series; a shop with two shut days, which no data here has.

@@ -10,8 +10,9 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
-revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (340 of 340,
+revised with milestones 4e–4s and 3b–3t; on 2026-11-19 Section 4 gained the rolling-shutter, causal-prior and pooling
+results on TUM video, and Recommendation 7) and a list of what a submission still needs.
 
 **Milestone 3t headline** (once a causal prior steadies each window, does pooling windows still give an honest error bar on
 the focal length, and how many windows does it take? milestone 3s's 43 TUM windows, pooled in blocks of 1 to 8): **pooling and the

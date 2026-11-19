@@ -1,0 +1,94 @@
+[
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "version": "6.0",
+    "option": true,
+    "open": 14270,
+    "withExpected": 0
+  },
+  {
+    "file": "Expressway_Project.xer",
+    "version": "7.0",
+    "option": false,
+    "open": 823,
+    "withExpected": 0
+  },
+  {
+    "file": "example_xer_file.xer",
+    "version": "24.12",
+    "option": true,
+    "open": 404,
+    "withExpected": 23,
+    "storedEqualsRule": 21,
+    "set": 21,
+    "ignored": 2,
+    "ignoredKeepStored": 2,
+    "base": {
+      "n": 404,
+      "all": 404
+    },
+    "plantedRuleOn": {
+      "n": 404,
+      "all": 404
+    },
+    "plantedRuleOff": {
+      "n": 404,
+      "all": 0
+    },
+    "slips": [
+      {
+        "code": "A10370",
+        "pred": "A10360",
+        "ownOn": 0,
+        "ownOff": 0,
+        "projectOn": 0,
+        "projectOff": 0
+      },
+      {
+        "code": "A10380",
+        "pred": "A10370",
+        "ownOn": 0,
+        "ownOff": 10,
+        "projectOn": 0,
+        "projectOff": 0
+      },
+      {
+        "code": "A10590",
+        "pred": "A10520",
+        "ownOn": 0,
+        "ownOff": 10,
+        "projectOn": 0,
+        "projectOff": 0.9
+      },
+      {
+        "code": "A10210.1",
+        "pred": "A10210",
+        "ownOn": 0,
+        "ownOff": 0,
+        "projectOn": 10,
+        "projectOff": 10
+      }
+    ]
+  },
+  {
+    "file": "hotel-project.xer",
+    "version": "6.0",
+    "option": true,
+    "open": 4236,
+    "withExpected": 0
+  },
+  {
+    "file": "sample.xer",
+    "version": "20.12",
+    "option": true,
+    "open": 42,
+    "withExpected": 0
+  },
+  {
+    "file": "terminal-building-airport.xer",
+    "version": "5.0",
+    "option": true,
+    "open": 66,
+    "withExpected": 0
+  }
+]

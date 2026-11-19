@@ -65,6 +65,13 @@
     .pf-jump { --jump-fg: #17394a; --jump-line: #c9d6db; --jump-bg: #fff; --jump-hover: #1f4e5f; --jump-margin: 8px 0 0; }
     #guides h3 { font-size: 1rem; margin: 16px 0 6px; }
   </style>
+<style>/* cta-row-phone: when the call-to-action pair wraps on a phone, each button fills its line
+   instead of leaving a ragged stack (polish 2026-11-19). Checked by platform/pages/cta-row-phone.test.mjs. */
+@media (max-width: 560px) {
+  .cta-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cta-row > a.cta { flex: 1 1 auto; text-align: center; margin: 0; }
+}
+</style>
 </head>
 <body>
   <header>

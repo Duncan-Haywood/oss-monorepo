@@ -130,6 +130,7 @@ const falsy = (s) => /^(false|no|n|0|f)$/i.test(String(s ?? "").trim());
 export function classifyPlan(s) {
   const t = String(s ?? "").toLowerCase();
   if (/comp|gift|complimentary/.test(t)) return "comp";
+  if (/^\s*(free|none|unpaid|no plan|-)\s*$/.test(t)) return "none"; // a free reader's plan cell, not a paid plan
   if (/found/.test(t)) return "founding";
   if (/year|annual/.test(t)) return "annual";
   if (/month/.test(t)) return "monthly";

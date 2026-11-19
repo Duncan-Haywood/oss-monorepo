@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyftkqSxZgCBhY9P2Ym",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T18:39:13Z",
+  "ended": "2026-11-19T18:45:56Z",
+  "wall_minutes": 6.89,
+  "tokens_in": 5821983,
+  "tokens_out": 26881,
+  "cost_usd": 2.7575,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17756",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "pyenv.py needed (bare python3 lacks numpy); used /usr/bin/python3.13"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "HOSTS RECHECK said mdpi.com passes the proxy now; probing mdpi.com/ethics and the Energies instructions page both returned 403, so the recheck's reachability claim did not hold for the paths 7x's Next (e3) needs."
+    },
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "Next (y) 'a second measured bending family' named no candidate source; finding which catalogues can even supply idle drag (two flow lines and a low-pressure power curve, per measured.gear_pump_point) took most of the run. 7y now records the screen."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-gear-pump-catalogue-high-pressure-curves.md",
+    "research/heavy-hydraulics/LOG.md (7y)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7y: screened 7 reachable gear-pump catalogues for a second measured bending family; only Magister GP3K is in range and it draws power only within 50 bar of rated. Cutting the 7 known families to that band flips 3 of 7 bend classes (Danfoss b 1.781 -> -0.011; AZPG 1.314 -> 5.914; AZPU 1.341 -> 2.620); median idle-drag error 29.5%. Predictions PY1, PY3, PY4 held, PY2 refuted (median |db| 0.098). Checks: tests/test_catalogue_screen.py 3 passed; research build ok; check_posts ok; check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "57f180a7-a60c-5052-bf33-84b234dcbe42",
+    "transcripts": 1,
+    "first": "2026-11-19T18:39:13Z",
+    "last": "2026-11-19T18:46:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 102,
+        "output": 26881,
+        "thinking": 6787,
+        "cache_read": 5686615,
+        "cache_write_5m": 0,
+        "cache_write_1h": 135266,
+        "api_equivalent_usd": 2.7575,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 102,
+      "output": 26881,
+      "thinking": 6787,
+      "cache_read": 5686615,
+      "cache_write_5m": 0,
+      "cache_write_1h": 135266,
+      "api_equivalent_usd": 2.7575,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 45,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.89,
+      "active_minutes": 6.89,
+      "model_minutes": 5.05,
+      "tool_minutes": 1.84,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "screening catalogues, writing and checking the truncation experiment, log and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 217.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

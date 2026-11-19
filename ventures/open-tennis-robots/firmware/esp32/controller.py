@@ -481,6 +481,10 @@ TAKE_SURVEY_BLIND = 1.5
 # builds 6 for and 45 against, while the non-straddling wheels split evenly (159 / 159, 56 / 57). The counts go out in
 # the TAKE_SURVEY frame; the Pi decides (host.TAKE_STRADDLE_MARGIN).
 TAKE_STRADDLE_US = 1500
+# A second vote, counted the same way at 2.5 ms (2026-11-19, README "A second straddle vote at 2.5 ms"): on ten stored
+# sets the 2.4-3.5 ms builds the 1.5 ms vote left at 0 voted 2.5 ms 292 for and 23 against, instant builds 13 and 172.
+# Sent as the TAKE_SURVEY frame's last two bytes; the Pi decides (host.TAKE_STRADDLE_LONG_MARGIN).
+TAKE_STRADDLE_LONG_US = 2500
 
 # The take survey's pick between grid sums (2026-11-18, eval/take-survey-fresh-2026-11-18.md): False refines the least
 # sum by `survey_pick`'s three-point parabola, True by `survey_spline_pick`'s natural spline on log(take + grid[1] / 2).
@@ -505,6 +509,9 @@ class ResidualSurvey:
         self.vote = None            # index of the straddle vote's candidate (TAKE_STRADDLE_US), None: no vote
         self.straddle_for = 0       # kept wheels straddling an edge at that candidate and fitting it better than the step
         self.straddle_against = 0   # ... and fitting it worse
+        self.vote_long = None       # the same at TAKE_STRADDLE_LONG_US (2026-11-19)
+        self.long_for = 0
+        self.long_against = 0
         self.wheels = []
         self.n = 0
         self.trimmed = 0
@@ -512,8 +519,9 @@ class ResidualSurvey:
         self._sums = None
         self._sums_n = -1
 
-    def add(self, got, edge=False):
-        """One wheel's squared rms per candidate; `edge`: its fit at the vote's candidate straddled a revolution's edge."""
+    def add(self, got, edge=False, edge_long=False):
+        """One wheel's squared rms per candidate; `edge`: its fit at the vote's candidate straddled a revolution's edge;
+        `edge_long`: the same at the long vote's candidate."""
         if self.blind > 1 and max(got) <= self.blind * min(got):
             self.blind_n += 1       # the same to every sum: cannot move the pick, only dilute the share
             self.n += 1
@@ -526,6 +534,12 @@ class ResidualSurvey:
                 self.straddle_for += 1
             elif v > got[0]:
                 self.straddle_against += 1
+        if edge_long and self.vote_long is not None:
+            v = got[self.vote_long]
+            if v < got[0]:
+                self.long_for += 1
+            elif v > got[0]:
+                self.long_against += 1
         if len(self.wheels) > SURVEY_KEEP:
             self.wheels.pop(0)
         self.n += 1
@@ -1935,6 +1949,8 @@ class LaunchCheck:
         self.take_survey = ResidualSurvey(take_grid, TAKE_SURVEY_TRIM, TAKE_SURVEY_BLIND) if take_grid else None
         if self.take_survey is not None and TAKE_STRADDLE_US in self.take_survey.grid:
             self.take_survey.vote = self.take_survey.grid.index(TAKE_STRADDLE_US)
+        if self.take_survey is not None and TAKE_STRADDLE_LONG_US in self.take_survey.grid:
+            self.take_survey.vote_long = self.take_survey.grid.index(TAKE_STRADDLE_LONG_US)
         self.take_on = False
         self.esc_tau_us = esc_tau_us  # the ESC's own lag for the drop fit (config ESC_TAU_US; 0: the wheel's lag only)
         self.share, self.dip_min, self.check_ms = share, dip_min, check_ms
@@ -2245,7 +2261,7 @@ class LaunchCheck:
             e0 = edges0[k]
             tk = esc_lagged_ticks(snap[k], [(c - e0, us, u) for c, us, u in ticks[k]], self.esc_tau_us)
             got = []
-            edge = False
+            edge = edge_long = False
             for c in ts.grid:
                 fit = None
                 # with the tau refinement the record's fit has: without it (refine=0, as the ESC-lag survey had until
@@ -2262,8 +2278,10 @@ class LaunchCheck:
                 got.append(fit[4] * fit[4])
                 if c == TAKE_STRADDLE_US:
                     edge = fit[7]
+                elif c == TAKE_STRADDLE_LONG_US:
+                    edge_long = fit[7]
             if len(got) == len(ts.grid):
-                ts.add(got, edge)
+                ts.add(got, edge, edge_long)
 
     def take_report(self):
         """The contact-time survey for the TAKE_SURVEY frame: (wheels, least and refined contact time in 0.1 ms, each
@@ -2288,6 +2306,11 @@ class LaunchCheck:
         to 255, for the TAKE_SURVEY frame's last two bytes."""
         ts = self.take_survey
         return (0, 0) if ts is None else (min(255, ts.straddle_for), min(255, ts.straddle_against))
+
+    def take_straddle_long(self):
+        """The same at TAKE_STRADDLE_LONG_US (2026-11-19), for the TAKE_SURVEY frame's last two bytes."""
+        ts = self.take_survey
+        return (0, 0) if ts is None else (min(255, ts.long_for), min(255, ts.long_against))
 
     def _esc_survey(self, snap, ticks, edges0, targets):
         for k in (0, 1):
@@ -2548,8 +2571,10 @@ class Controller:
             kept = tv[5] if len(tv) > 5 else 255
             per = tv[6] if len(tv) > 6 else 1     # rms units per ppm (10: tenths, 2026-11-19); 1 for a whole-ppm report
             sfor, sagainst = (tv[7], tv[8]) if len(tv) > 8 else (0, 0)   # straddle vote (2026-11-19)
+            lfor, lagainst = (tv[9], tv[10]) if len(tv) > 10 else (0, 0)  # the 2.5 ms vote (2026-11-19)
             out += P.encode(P.TAKE_SURVEY, tv[0], min(65535, tv[1]), min(65535, tv[2]), min(65535, tv[3]), *rms,
-                            min(255, kept), _clamp(per, 1, 255), _clamp(sfor, 0, 255), _clamp(sagainst, 0, 255))
+                            min(255, kept), _clamp(per, 1, 255), _clamp(sfor, 0, 255), _clamp(sagainst, 0, 255),
+                            _clamp(lfor, 0, 255), _clamp(lagainst, 0, 255))
         # The lag the drop fit runs with rides along too (README "Checked before a calibration drill"): the Pi compares
         # it with the last survey before a drill's first ball, since a board told the wrong lag reads spin far off.
         tau = getattr(self.hw, "esc_tau_ms", None)

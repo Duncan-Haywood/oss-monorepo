@@ -46,6 +46,15 @@ class RowFilters(unittest.TestCase):
         self.assertEqual([r["file"] for r in self.ncg.load([p])], ["clean", "grainy", "grainy-low", "old"])
         self.assertEqual([r["file"] for r in self.ncg.load([p], clean_truths=True)], ["clean", "grainy-low", "old"])
 
+    def test_the_raw_grain_reading_wins_over_the_texture_prone_one(self):
+        # eval/near-clean-truth-noise-2026-11-19.md: frame_noise on a foliage truth reads 0.014 (SNR 13) where the
+        # raw holds 0.0012 (SNR 150), so a row at SNR 60 is clean by the raw and was dropped by the old column.
+        row = {"snr": 60.0, "truth_sigma18": 0.014, "truth_grain18": 0.0012}
+        self.assertTrue(self.ncg.clean_enough(row))
+        self.assertFalse(self.ncg.clean_enough(dict(row, snr=200.0)))  # 150 < 200: the truth's grain rivals it
+        self.assertFalse(self.ncg.clean_enough({"snr": 60.0, "truth_sigma18": 0.014}))  # no raw reading: old rule
+        self.assertFalse(self.ncg.clean_enough({"snr": 60.0, "truth_sigma18": 0.0005, "truth_grain18": 0.01}))
+
 
 if __name__ == "__main__":
     unittest.main()

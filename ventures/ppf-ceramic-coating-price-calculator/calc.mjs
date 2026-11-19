@@ -94,7 +94,9 @@ export function plan(input) {
     return { pkg: p, label: PACKAGES[p].label, bayDays: j.bayDays, cost: j.cost, price: j.price, profitPerBayDay: j.profitPerBayDay };
   });
   const best = [...packages].sort((a, b) => b.profitPerBayDay - a.profitPerBayDay)[0];
-  if (best) advice.push(`Per bay day, "${best.label}" earns the most at ${usd(best.profitPerBayDay)}. If the bay is booked solid, sell that one first.`);
+  // Every package is priced at the same margin, so profit per bay day is cost per bay day x m/(1-m):
+  // the ranking shows which package is the biggest job per day, not which one sells best (round 85 audit).
+  if (best) advice.push(`Per bay day, "${best.label}" carries the most profit at ${usd(best.profitPerBayDay)}, because at one margin on every package profit per bay day follows cost per bay day. Which package to sell first when the bay is booked depends on the prices your market will pay; compare these prices with your menu before you push one.`);
   const redos = [0, 3, 6, 12, 20].map((p) => {
     const j = jobCost(v, { redoPct: p });
     return { redoPct: p, cost: j.cost, price: j.price };

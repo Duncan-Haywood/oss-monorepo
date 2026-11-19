@@ -83,3 +83,27 @@ def test_load_never_adds_coverage():
 
 def test_load_sample_has_geometry_unchanged():
     assert np.array_equal(sample_parts(50, 7)[:, :3], sample_parts(50, 7, load=True)[:, :3])
+
+
+def _loaded(proc, w, r, b, F):
+    return bool(feasible(PROCESSES[proc], np.array([[w, r, b, F]]))[0])
+
+
+def test_bending_stress_limit_flips_at_hand_value():
+    # laser 10 x 6 mm steel arm: 6 F 80 / (6 * 10^2) <= 100 MPa  ->  F <= 125 N (deflection 0.21 mm there)
+    assert _loaded("laser", 10, 1, 6, 124.9)
+    assert not _loaded("laser", 10, 1, 6, 125.1)
+
+
+def test_tip_deflection_limit_flips_at_hand_value():
+    # FDM 5 x 6 mm arm: deflection F L^3 / (3 E b w^3 / 12) <= 4 mm  ->  F <= E b w^3 / L^3 = 4.3945 N,
+    # below the stress limit 20 * 6 * 25 / 480 = 6.25 N, so deflection binds
+    assert _loaded("fdm", 5, 0, 6, 4.39)
+    assert not _loaded("fdm", 5, 0, 6, 4.40)
+
+
+def test_casting_draft_narrows_the_loaded_section():
+    # 12 x 6 mm casting, 1.5 deg draft: wa = 12 - 6 tan(1.5 deg) = 11.843 mm,
+    # stress limit 50 * 6 * wa^2 / 480 = 87.66 N (90 N without the draft)
+    assert _loaded("cast", 12, 5, 6, 87.5)
+    assert not _loaded("cast", 12, 5, 6, 87.8)

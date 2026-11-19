@@ -52,6 +52,13 @@
     @media (min-width: 440px) { div.grid:has(#shape) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 452px), 1fr)); } }
   </style>
   <!-- select-track:end -->
+<style>/* cta-row-phone: when the call-to-action pair wraps on a phone, each button fills its line
+   instead of leaving a ragged stack (polish 2026-11-19). Checked by platform/pages/cta-row-phone.test.mjs. */
+@media (max-width: 560px) {
+  .cta-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cta-row > a.cta { flex: 1 1 auto; text-align: center; margin: 0; }
+}
+</style>
 </head>
 <body>
   <header>
@@ -254,7 +261,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> An independent implementation from the published papers; not affiliated with or endorsed by the papers' authors or their institutions.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>agreed_run</code>, <code>drift_run</code>, <code>watch_check</code>, <code>watch_replay</code>, <code>watch_eagerness</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>agreed_run</code>, <code>drift_run</code>, <code>watch_check</code>, <code>watch_replay</code>, <code>watch_eagerness</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>, and on the watch page <code>watch_repo_zip</code> and <code>watch_repo_link</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More research algorithms on your own data: the <a href="../kalman-smoother/">Kalman smoother</a> for the level under a noisy series, with gaps filled and outliers told apart from level shifts; <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. For time-to-event data (churn, failures, relapse), the <a href="../survival-analysis/">survival analysis tool</a> gives Kaplan-Meier curves, log-rank tests and Cox hazard ratios. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>. To check which of many test results survive multiple-testing correction, use <a href="../fdr-multiple-testing/">Benjamini-Hochberg and q-values</a>. To separate a seasonal pattern from the trend before looking for a change, use <a href="../stl-decomposition/">STL decomposition</a>. For measurements from a production line or lab with subgroups, run rules and Cpk, use <a href="../spc-control-charts/">SPC control charts</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>

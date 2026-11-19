@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtGyNkCBZRqZPdSWX3D",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T19:06:27Z",
+  "ended": "2026-11-19T19:22:26Z",
+  "wall_minutes": 16.25,
+  "tokens_in": 3427883,
+  "tokens_out": 17440,
+  "cost_usd": 1.6818,
+  "tool_calls": 39,
+  "task": "open-tennis-robots (flagship 10): straddle vote margin 1 on a fresh pre-registered set",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17764",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "tests/test_host.py under plain unittest outlasted a 110 s foreground timeout; reran via run_venture_tests.py in the background"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/NEXT.md",
+      "issue": "asked for margin 1 'on a fresh pre-registered pair', but a pair carries only 6 instant builds, too few to see the 1-in-36 harm the design showed; and repeating 0 in --takes replays identical drills (same launcher/lag/seed), which nothing documented"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/open-tennis-robots/NEXT.md",
+      "why": "a fresh pair could not test the clause that mattered (no instant build misadvised)",
+      "did": "pre-registered four fresh standard sets plus twelve instant-only captures (48 instant builds) instead of a pair",
+      "result": "the larger instant count caught 3 misadvised instant builds at margin 1 that a pair would likely have missed; margin stays 2"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-margin-one-fails-held-out.md",
+    "ventures/open-tennis-robots/eval/take-straddle-margin-one-2026-11-19.md"
+  ],
+  "goal": "Deepen flagship 10: settle host.TAKE_STRADDLE_MARGIN 1 vs 2 on held-out simulated data",
+  "notes": "Pre-registration e4d48d9f3, then captures AE-AH (seeds 191-199) and instant seeds 211-271, 168 builds. Margin 1: 85/120 named vs margin 2's 72, but 3/48 instant told to set 1.5 ms and 4 lost vs 14 gained: clauses (b) and (c) failed, (a) and (d) held. Margin 2 unchanged; second held-out reading 72 vs off 62, 0/48 instant misadvised. Simulated only. Checks: check_posts ok, validate.py ok, take_straddle_vote unit tests (-k straddle) OK; full venture suite via run_venture_tests.py (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "888722ac-6332-5ba0-8040-c464d44c329e",
+    "transcripts": 1,
+    "first": "2026-11-19T19:06:27Z",
+    "last": "2026-11-19T19:22:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 81,
+        "output": 17440,
+        "thinking": 3036,
+        "cache_read": 3344844,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82958,
+        "api_equivalent_usd": 1.6818,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 81,
+      "output": 17440,
+      "thinking": 3036,
+      "cache_read": 3344844,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82958,
+      "api_equivalent_usd": 1.6818,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.25,
+      "active_minutes": 8.65,
+      "model_minutes": 3.75,
+      "tool_minutes": 4.89,
+      "waiting_on_human_minutes": 7.6,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer pre-registering, running 16 simulation captures, scoring and writing up a held-out test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 297.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -72,7 +72,7 @@ test("long lists are cut at the limit with a pointer to the CSV", () => {
 test("the page offers the review and loads report.mjs", async () => {
   const { readFileSync } = await import("node:fs");
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(html, /import \{ reviewHtml, reviewItems \} from "\.\/report\.mjs"/);
+  assert.match(html, /import \{ reviewHtml, reviewItems, windowsFor \} from "\.\/report\.mjs"/);
   assert.match(html, /id="rev-print"/);
   assert.match(html, /id="rev-download"/);
 });
@@ -155,5 +155,125 @@ test("a risk run on another project is left out, with a note", () => {
 test("the page hands the risk run to the review", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /risk: lastRisk/);
-  assert.match(html, /reviewItems\(last, lastCmp, lastRisk\)/);
+  assert.match(html, /reviewItems\(last, lastCmp, lastRisk, win\)/);
+});
+
+// ---- windows analysis and the full-list appendix in the review
+import { windows } from "./windows.mjs";
+import { exampleSeries } from "./example-series.mjs";
+import { windowItems, windowsFor, WINDOW_LIMITS } from "./report.mjs";
+import { xerText } from "./xer.mjs";
+
+const series = () => exampleSeries();
+const winRun = () => windows(series());
+const juneAssess = () => assess(series()[3].xer);
+
+test("a windows run adds one correction per window whose revisions moved the finish later", () => {
+  const a = juneAssess(), w = winRun();
+  assert.equal(windowsFor(a, w), w);
+  const items = windowItems(w);
+  // the example: window 1 revisions +7 (medium), window 2 +3 (low), window 3 0 (none)
+  assert.deepEqual(items.map((x) => [x.source.match(/window (\d)/)[1], x.severity]), [["1", "medium"], ["2", "low"]]);
+  assert.match(items[0].action, /moved the forecast finish \+7 working days on their own/);
+  assert.match(items[1].measure, /progress 0 working days, revisions \+3 working days/);
+  assert.deepEqual(items[1].items.map((x) => x.code), ["A1150"]);
+  assert.match(items[1].items[0].why, /original duration 8 to 11 days/);
+  const all = reviewItems(a, null, null, w);
+  assert.equal(all.length, reviewItems(a).length + 2);
+});
+
+test("revisions that take back lost progress ask for the recovery plan", () => {
+  const w = winRun();
+  const x = { ...w.windows[2], progressEffect: 6, revisionEffect: -4, moved: 2, drivers: { progress: [{ code: "P1", name: "slow", what: "late" }], revisions: [{ code: "R1", name: "", what: "lag 5 to 0 days" }] } };
+  const items = windowItems({ ...w, windows: [x] });
+  assert.equal(items.length, 1);
+  assert.equal(items[0].severity, "medium");
+  assert.match(items[0].action, /recovery plan.*took back 4 of them/);
+  assert.deepEqual(items[0].items.map((r) => r.code), ["R1", "P1"]);
+  // under the offset floor: nothing asked
+  const small = { ...x, revisionEffect: -(WINDOW_LIMITS.offsetMin - 1) };
+  assert.deepEqual(windowItems({ ...w, windows: [small] }), []);
+});
+
+test("the document prints the delay-by-window section; a mismatched run is left out with a note", () => {
+  const a = juneAssess(), w = winRun();
+  const html = reviewHtml(a, null, { windows: w, date: "2026-11-19" });
+  assert.match(html, /<h2>Delay by window<\/h2>/);
+  assert.match(html, /moved from 2026-07-06 to 2026-08-05, \+22 working days: \+12 caused by progress and \+10 by revisions/);
+  assert.match(html, /<dt>Windows analysis<\/dt><dd>3 windows over 4 updates/);
+  assert.match(html, /Window 3: May update to June update/);
+  assert.match(html, /not this tool's/);
+  assert.ok(!/<script/i.test(html));
+  // the April review cannot carry windows that end in June
+  const apr = assess(cur());
+  assert.equal(windowsFor(apr, w), null);
+  const h2 = reviewHtml(apr, null, { windows: w });
+  assert.ok(!/<h2>Delay by window/.test(h2));
+  assert.match(h2, /windows analysis supplied is of another project or does not end at this update's data date/);
+  assert.equal(windowsFor(a, { ...w, project: "OTHER" }), null);
+});
+
+test("the appendix lists every activity the body cut, numbered like the corrections", () => {
+  const a = assess(cur());
+  const plain = reviewHtml(a, null, { limit: 1 });
+  assert.ok(!/Appendix A/.test(plain));
+  const html = reviewHtml(a, null, { limit: 1, appendix: true });
+  const items = reviewItems(a);
+  const long = items.map((x, i) => [x, i + 1]).filter(([x]) => x.items.length > 1);
+  assert.ok(long.length > 0);
+  assert.match(html, /<h2 class="appendix">Appendix A: every activity behind each correction<\/h2>/);
+  const app = html.slice(html.indexOf("Appendix A:"));
+  for (const [x, n] of long) {
+    assert.match(html, new RegExp(`Appendix A, item ${n}, lists all ${x.items.length}`));
+    assert.ok(app.includes(`Item ${n}: ${x.source.replace(/&/g, "&amp;")} (${x.items.length})`), x.source);
+    for (const r of x.items) assert.ok(app.includes(`<td>${r.code.replace(/>/g, "&gt;")}</td>`), r.code);
+  }
+  // nothing cut, no appendix
+  assert.ok(!/Appendix A/.test(reviewHtml(a, null, { limit: 1e6, appendix: true })));
+});
+
+test("xerText round-trips: the written file reads back to the same tables and assessment", () => {
+  for (const u of series()) {
+    const back = parseXer(xerText(u.xer));
+    assert.deepEqual(Object.keys(back.tables), Object.keys(u.xer.tables));
+    for (const [k, rows] of Object.entries(u.xer.tables)) assert.equal(back.tables[k].length, rows.length, k);
+    const A = assess(u.xer), B = assess(back);
+    assert.deepEqual(B.project, A.project);
+    assert.deepEqual(B.checks.map((c) => c.value), A.checks.map((c) => c.value));
+  }
+});
+
+test("the CLI writes a review with windows from a series given in any order", async () => {
+  const { mkdtempSync, writeFileSync: wf, readFileSync: rf } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { execFileSync } = await import("node:child_process");
+  const dir = mkdtempSync(join(tmpdir(), "xer-win-"));
+  const files = series().map((u, i) => { const f = join(dir, `${["mar", "apr", "may", "jun"][i]}.xer`); wf(f, xerText(u.xer)); return f; });
+  const out = join(dir, "review.html");
+  execFileSync(process.execPath, [new URL("./cli.mjs", import.meta.url).pathname, "--windows", files[2], files[0], files[3], files[1], "--report", out, "--appendix"], { stdio: "pipe" });
+  const html = rf(out, "utf8");
+  assert.match(html, /data date 2026-06-01/);
+  assert.match(html, /<h2>Delay by window<\/h2>/);
+  assert.match(html, /Justify the revisions made between mar\.xer and apr\.xer/);
+  assert.match(html, /Previous update<\/dt><dd>data date 2026-05-04/);
+});
+
+test("the page hands the windows run and the appendix choice to the review", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /windows: lastWin, appendix: \$\("#rev-appendix"\)\.checked/);
+  assert.match(html, /id="rev-appendix"/);
+  assert.match(html, /reviewItems\(last, lastCmp, lastRisk, win\)/);
+});
+
+test("xerText quotes a multi-line value (P6 Web's calendar data) so it reads back whole", () => {
+  const x = parseXer(EXAMPLE_XER);
+  const cal = x.tables.CALENDAR[0];
+  const fields = Object.keys(cal);
+  // a P6 Web export keeps clndr_data last and spread over lines, with a quote inside
+  const k = fields[fields.length - 1];
+  cal[k] = '(0||CalendarData()(\n  (0||DaysOfWeek()(\n    (0||1()())))\n  (0||Note "x"()())))';
+  const back = parseXer(xerText(x));
+  assert.equal(back.tables.CALENDAR[0][k], cal[k]);
+  assert.equal(back.tables.CALENDAR.length, x.tables.CALENDAR.length);
 });

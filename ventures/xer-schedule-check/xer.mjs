@@ -120,3 +120,22 @@ export const num = (s) => {
   const n = Number(s);
   return Number.isFinite(n) ? n : null;
 };
+
+// xerText(xer) -> XER text: the inverse of parseXer for the tables it holds
+// (fields in first-seen order, CRLF line ends, %E at the end), so a schedule
+// built or statused in code (status.mjs) can be saved and read back by P6 or
+// by this tool's CLI. A value holding a line break (P6 Web's clndr_data) is
+// quoted with "" for ", as P6 Web writes it; tabs are not escaped, as P6
+// itself does not.
+export function xerText(xer) {
+  const L = [`ERMHDR\t${xer.version || "20.12"}\t${xer.exportDate || "2026-01-01"}\tProject\tadmin\tadmin\tdbxDatabaseNoName\tProject Management\tUSD`];
+  for (const [name, rows] of Object.entries(xer.tables)) {
+    const fields = [];
+    for (const r of rows) for (const k of Object.keys(r)) if (!fields.includes(k)) fields.push(k);
+    L.push(`%T\t${name}`, `%F\t${fields.join("\t")}`);
+    const cell = (v) => (/[\r\n]/.test(v ?? "") ? `"${v.replace(/"/g, '""')}"` : v ?? "");
+    for (const r of rows) L.push(`%R\t${fields.map((f) => cell(r[f])).join("\t")}`);
+  }
+  L.push("%E");
+  return L.join("\r\n") + "\r\n";
+}

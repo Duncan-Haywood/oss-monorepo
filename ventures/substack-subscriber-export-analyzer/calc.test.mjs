@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, classifyPlan, normalizeRows, analyze, statusOf, sampleCsv } from "./calc.mjs";
+import { parseCsv, detectDelimiter, classifyPlan, normalizeRows, analyze, statusOf, sampleCsv } from "./calc.mjs";
 
 const HEAD = "email,active_subscription,expiry,plan,email_disabled,created_at,first_payment_at,activity_rating\n";
 const load = (body, head = HEAD) => normalizeRows(parseCsv(head + body));
@@ -87,4 +87,15 @@ test("the built-in example parses and produces every table without warnings", ()
   assert.equal(r.summary.counts.total, 400);
   assert.ok(r.summary.mrr > 0 && r.growth.length > 0 && r.findings.length > 0);
   assert.equal(r.summary.counts.paid + r.summary.counts.free + r.summary.counts.comp + r.summary.counts.former, 400);
+});
+
+test("a plan cell reading free or none is not a paid plan", () => {
+  for (const s of ["free", "Free", " none ", "unpaid", "-"]) assert.equal(classifyPlan(s), "none");
+  assert.equal(classifyPlan("monthly"), "monthly");
+  const csv = "email,active_subscription,expiry,plan,email_disabled,created_at,first_payment_at,activity_rating\na@x.org,true,2026-09-20,monthly,false,2026-01-15,2026-02-03,3\nb@x.org,true,,free,false,2026-03-01,,1\nc@x.org,false,,free,false,2026-03-01,,1\n";
+  const n = normalizeRows(parseCsv(csv, detectDelimiter(csv)));
+  const s = analyze(n.members, {}).summary;
+  assert.equal(s.counts.paid, 1);
+  assert.equal(s.counts.free, 2);
+  assert.equal(s.counts.former, 0);
 });

@@ -65,3 +65,15 @@ test("notify formats alerts in the synced currency, not always dollars", async (
   assert.match(sent[0], /€/);
   assert.doesNotMatch(sent[0], /\$/);
 });
+
+// Red team 2026-11-19: two mutants escaped this file's tests.
+test("digest signs ordinary growth with a plus", () => {
+  const summary = { month: "2026-10", mrr: 10000, arr: 120000, customers: 10, netNew: 1000, growthPct: 0.111, rates: { basis: "2026-09", logoChurn: 0, nrr: 1, grr: 1, quickRatio: null } };
+  assert.match(buildDigest({ summary, currency: "usd" }), /\(\+11\.1% vs last month\)/);
+});
+
+test("churn alert works from any positive starting MRR, even one cent", () => {
+  const a = churnAlert({ months: [row({ startMrr: 1, churn: 1 })], currency: "usd" });
+  assert.ok(a);
+  assert.equal(a.churn, 1);
+});

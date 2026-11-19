@@ -394,3 +394,27 @@ test("reconciles: weekday and service rows add up to the counted bookings and th
     }
   }
 });
+
+// Quality audit 2026-11-19 (round 85): three gaps a salon or practice manager would hit.
+test("a status that says Late Cancel counts as late even with no cancelled-at column", () => {
+  const t = ["Client,Start,Status,Price", ...[1, 2, 3, 4, 5, 6].map((d) => `K${d},2026-06-0${d} 10:00,Completed,100`), "L1,2026-06-01 11:00,Late Cancel,100", "L2,2026-06-02 11:00,Late Cancellation,80", "C1,2026-06-03 11:00,Cancelled,100"].join("\n");
+  const a = analyze(load(t).records, OPTS);
+  assert.equal(a.summary.lateCancels, 2);
+  assert.equal(a.summary.lateCancelRevenue, 180);
+  assert.equal(a.summary.cancelledUnknown, 1);
+});
+
+test("an Amount Paid column is not read as the price (a no-show paid nothing)", () => {
+  const t = ["Client,Start,Status,Amount Paid", "A,2026-06-01 10:00,Completed,80", "B,2026-06-02 10:00,No Show,0"].join("\n");
+  const n = load(t);
+  assert.equal(n.hasPrice, false);
+  const a = analyze(n.records, { ...OPTS, defaultPrice: 80 });
+  assert.equal(a.summary.lostRevenue, 80);
+});
+
+test("a no-show with no price is valued at its service's average from the file", () => {
+  const t = ["Client,Start,Status,Service,Price", "A,2026-06-01 10:00,Completed,Cut,40", "B,2026-06-02 10:00,Completed,Cut,60", "C,2026-06-03 10:00,No Show,Cut,"].join("\n");
+  const a = analyze(load(t).records, { ...OPTS, defaultPrice: 999 });
+  assert.equal(a.summary.lostRevenue, 50);
+  assert.equal(a.summary.priceSources["service average"], 1);
+});

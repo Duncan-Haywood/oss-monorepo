@@ -14,6 +14,7 @@ import { COLOURS, FABRICS, GARMENTS } from "./catalogue.mjs";
 import { MOTIFS } from "./motifs.mjs";
 import { splitNegations } from "./negation.mjs";
 import { readQuestion, resolveReference } from "./refer.mjs";
+import { readShift, shiftColour, catalogueName, describeMove } from "./shade.mjs";
 
 const WORD_NUMBERS = {
   zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
@@ -140,6 +141,62 @@ const firstNumber = c => {
 const ARTWORK = /\b(it|print|design|artwork|art|graphic|image|picture|painting|logo|motif|text|words|letters|lettering|writing|halo|cross|wings|crown|laurel|star|frame)\b/;
 const INK_SUBJECT = /\b(text|words|letters|lettering|writing|ink|print|logo|motif|halo|cross|wings|crown|laurel|star|frame|thread|embroidery)\b/;
 
+const GARMENT_SUBJECT = /\b(shirt|tee|t-shirt|garment|hoodie|sweatshirt|crewneck|base|body|top|colou?r)\b/;
+const TEXT_SUBJECT = /\b(text|words|letters|lettering|writing|slogan)\b/;
+
+/**
+ * "make it darker", "make the halo a bit lighter", "a darker green", "warmer
+ * ink": the garment colour or the selected artwork's ink moved in CIELAB
+ * (`shade.mjs`), snapped to a catalogue colour when one is close. Returns
+ * { ops, ui, did } (ops empty with a reason when nothing can change), or null
+ * when the clause is not a relative colour edit.
+ */
+function shadeClause(c, design) {
+  const move = readShift(c);
+  if (!move) return null;
+  const named = colourIn(c);
+  // Which artwork the clause names, if any: a motif by its words, or text.
+  const motifHit = design.placements.filter(p => p.kind === "motif" && MOTIFS[p.motif]?.words.some(w => new RegExp(`\\b${w}\\b`).test(c)));
+  const mentionsMotif = Object.values(MOTIFS).some(m => m.words.some(w => new RegExp(`\\b${w}\\b`).test(c)));
+  const mentionsText = TEXT_SUBJECT.test(c);
+  const selected = design.placements.find(p => p.id === design.selected) ?? design.placements.at(-1) ?? null;
+  const inkNamed = named && selected?.ink && selected.ink.toLowerCase() === COLOURS[named] && COLOURS[named] !== design.colour;
+  const onInk = mentionsMotif || mentionsText || inkNamed
+    || (INK_SUBJECT.test(c) && !GARMENT_SUBJECT.test(c.replace(/\bprint colou?r\b/, "ink")));
+  const nothing = did => ({ ops: [], ui: [], did });
+  if (!onInk) {
+    const base = named ? COLOURS[named] : design.colour;
+    const baseName = named ?? design.colourName ?? null;
+    const r = shiftColour(base, move, { baseName: baseName && !/^#/.test(baseName) ? baseName : null });
+    if (r.none) return nothing(`${r.none} Nothing changed.`);
+    const how = r.catalogue
+      ? `catalogue colour ${r.name}`
+      : `custom colour ${r.hex} (nearest catalogue colour ${r.nearest.name}, ${r.nearest.deltaE} apart; a custom colour means a lab dip and usually a dye minimum at the mill)`;
+    return { ops: [{ op: "colour", value: r.hex, name: r.name }], ui: [], did: `Make the garment ${move.word}: ${how}; ${describeMove(r.moved, move.moves)}` };
+  }
+  let target = selected;
+  const pre = [];
+  if (mentionsText) {
+    target = design.placements.find(p => p.id === design.selected && p.kind === "text") ?? design.placements.filter(p => p.kind === "text").at(-1);
+    if (!target) return nothing("There is no text on the design to change; nothing changed");
+  } else if (mentionsMotif) {
+    target = motifHit.find(p => p.id === design.selected) ?? motifHit.at(-1);
+    if (!target) return nothing("That artwork is not on the design; nothing changed");
+  }
+  if (!target) return nothing("There is no artwork to recolour; nothing changed");
+  if (target.kind === "image") return nothing("An uploaded image keeps its own colours; nothing changed");
+  if (target.id !== design.selected) pre.push({ op: "select", id: target.id });
+  const pname = target.kind === "text" ? `"${target.text}"` : (MOTIFS[target.motif]?.label ?? target.label ?? "artwork").toLowerCase();
+  const inkName = catalogueName(target.ink);
+  const r = shiftColour(named && !inkNamed ? COLOURS[named] : target.ink, move, { baseName: named && !inkNamed ? named : inkName });
+  if (r.none) return nothing(`${r.none} Nothing changed.`);
+  return {
+    ops: [...pre, { op: "ink", value: r.hex }],
+    ui: [],
+    did: `Make the ${pname}'s ink ${move.word}: ${r.catalogue ? r.name : `${r.hex} (${r.name}; nearest catalogue colour ${r.nearest.name})`}; ${describeMove(r.moved, move.moves)}`,
+  };
+}
+
 /**
  * Parse one clause. Returns { ops, ui, did } or null when nothing matched.
  * `ops` go to applyOp; `ui` are actions only the page can take (undo, show
@@ -174,6 +231,10 @@ export function parseClause(raw, design) {
     const value = quoted ?? raw.replace(/^.*?\b(?:call it|name it|name the design|title it)\b\s*/i, "").trim();
     if (value) return { ops: [{ op: "name", value }], ui, did: `Name the design "${value}"` };
   }
+
+  // Relative colour: "make it darker", "a bit more muted", "warmer ink".
+  const shade = design ? shadeClause(c, design) : null;
+  if (shade) return shade;
 
   // Adding artwork.
   const textAdd = /\b(add|write|put|print|say|spell)\b/.test(c) && (quoted != null || /\b(text|words?|saying|caption|slogan)\b/.test(c));
@@ -406,6 +467,7 @@ export function parseCommand(text, design, timeline = null) {
 /** Example commands shown on the page and used by the tests and evals. */
 export const EXAMPLES = [
   "make it cream and add a halo",
+  "make it a bit darker",
   "move the print up a bit",
   "make it 20% bigger",
   "embroider it in 3D",

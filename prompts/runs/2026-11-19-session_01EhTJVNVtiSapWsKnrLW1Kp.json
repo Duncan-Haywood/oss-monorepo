@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVNVtiSapWsKnrLW1Kp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T19:05:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "clothing-design-studio (R-0005): relative colour edits in the command box",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 17760,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Router picked flagship open-tennis-robots (next item: a simulated tach vote margin). Took owner request R-0005 instead: an owner-asked product with a concrete user-facing gap ('make it darker' did nothing), closer to the brief's revenue focus.",
+      "did": "Built shade.mjs relative colour edits",
+      "result": "held out 13/14 first run, 14/14 after one bug fix; shipped"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-make-it-darker-is-a-shopping-question.md",
+    "ventures/clothing-design-studio/eval/shade-edits-2026-11-19.md"
+  ],
+  "goal": "Make 'make it darker / tone it down / warmer ink' real edits, with stock-colour awareness",
+  "notes": "Held-out sentences pre-registered in eval/shade-heldout-2026-11-19.txt before code. main before: dev 3/15, held 2/14. First run 15/15, 13/14 (make it cooler: chroma clip undid a warmth move on royal blue); fix clips warmth/vividness along the move, lightness by chroma; then 15/15, 14/14. Venture tests: python3 platform/ci/run_venture_tests.py clothing-design-studio -> ok, 734 tests, EXIT 0. Other evals unchanged: colour-versions 16/16 12/12, compared-versions 20/20 12/12, history-questions 41/41 20/20, whole-versions 23/23 12/12, negated-feedback 30/30 12/12. Playwright smoke on index.html: four commands applied, no page errors. check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}

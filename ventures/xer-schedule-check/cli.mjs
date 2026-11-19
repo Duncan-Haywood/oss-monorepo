@@ -22,7 +22,15 @@
 // Windows analysis over a series of updates instead (windows.mjs): per window
 // between consecutive data dates, how far the forecast finish moved, the
 // half-step split into progress and revisions, and the activities on the
-// driving path behind each.
+// driving path behind each. With --report review.html [--appendix] [--risk]:
+// the written review of the latest update, compared with the one before it,
+// with a "Delay by window" section and its corrections.
+// node cli.mjs schedule.xer --float-paths [CODE] [--paths N] [--csv paths.csv] [--json] [--project CODE]
+// Multiple float paths to one activity instead (floatpaths.mjs): path 1 is the
+// driving chain into it, each later path the next least float relative to it.
+// With no CODE, the activity the longest path ends on.
+// Any --report also takes --appendix: every activity behind every correction
+// printed in an appendix, not only the first 40 of each.
 import { readFileSync, writeFileSync } from "node:fs";
 // A file that cannot be assessed (no PROJECT table, not an XER at all) ends
 // with one line saying why, not a stack trace. XER_DEBUG=1 keeps the trace.
@@ -32,25 +40,40 @@ import { decodeXer } from "./xer.mjs";
 import { parseSchedule } from "./mspdi.mjs";
 import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
 import { compare, compareCsv, compareText } from "./compare.mjs";
-import { reviewHtml, reviewItems } from "./report.mjs";
+import { reviewHtml, reviewItems, windowsFor } from "./report.mjs";
 import { riskAnalysis, riskCsv, parseRanges, parseRisks } from "./risk.mjs";
 import { rangesFromUdf, udfFields, udfSpec, udfRangeNote } from "./udf-ranges.mjs";
 import { formatDate } from "./xer.mjs";
 import { level, levelCsv } from "./level.mjs";
+import { schedule } from "./cpm.mjs";
+import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths"];
 const opt = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
-function writeReview(report, cmp, risk = null) {
+function writeReview(report, cmp, risk = null, win = null) {
   if (!args.includes("--report")) return;
-  writeFileSync(opt("--report"), reviewHtml(report, cmp, { recipient: opt("--to"), reviewer: opt("--from"), reference: opt("--ref"), notes: opt("--notes"), risk }));
-  const items = reviewItems(report, cmp, risk), n = (s) => items.filter((x) => x.severity === s).length;
+  writeFileSync(opt("--report"), reviewHtml(report, cmp, { recipient: opt("--to"), reviewer: opt("--from"), reference: opt("--ref"), notes: opt("--notes"), risk, windows: win, appendix: args.includes("--appendix") }));
+  const items = reviewItems(report, cmp, risk, windowsFor(report, win)), n = (s) => items.filter((x) => x.severity === s).length;
   console.error(`review written to ${opt("--report")}: ${items.length} corrections (${n("high")} high, ${n("medium")} medium, ${n("low")} low)`);
 }
 if (args.includes("--windows")) {
   const files = args.filter((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
   if (files.length < 2) { console.error("usage: node cli.mjs --windows update1.xer update2.xer [update3.xer ...] [--json] [--csv windows.csv] [--project CODE]"); process.exit(2); }
-  const rep = windows(files.map((f) => ({ xer: parseSchedule(decodeXer(readFileSync(f))), label: f.split("/").pop() })), { projectName: opt("--project") });
+  const ups = files.map((f) => ({ xer: parseSchedule(decodeXer(readFileSync(f))), label: f.split("/").pop() }));
+  const rep = windows(ups, { projectName: opt("--project") });
+  if (args.includes("--report")) {
+    // the review is of the latest update, compared with the one before it,
+    // with the whole series' windows in it
+    const byLabel = (l) => ups.find((u) => u.label === l).xer;
+    const lastX = byLabel(rep.updates[rep.updates.length - 1].label), prevX = byLabel(rep.updates[rep.updates.length - 2].label);
+    const w = rep.windows[rep.windows.length - 1];
+    const idOf = (x) => (x.tables.PROJECT || []).find((p) => p.proj_short_name === rep.project)?.proj_id ?? null;
+    const cur = assess(lastX, { projId: idOf(lastX) });
+    const cmp = compare(prevX, lastX, { curProjId: cur.project.id, ...(idOf(prevX) ? { prevProjId: idOf(prevX) } : {}) });
+    writeReview(cur, cmp, args.includes("--risk") ? runRisk(lastX, cur.project.id) : null, rep);
+    if (w.dataDateTo.slice(0, 16) !== cur.project.dataDate.slice(0, 16)) console.error("note: the latest update's project differs from the windows' project; the windows were left out of the review");
+  }
   if (opt("--csv")) writeFileSync(opt("--csv"), windowsCsv(rep));
   process.stdout.write(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : windowsText(rep));
   process.exit(0);
@@ -129,6 +152,28 @@ if (args.includes("--risk")) {
   console.log("  (* on the forecast's driving path)");
   process.exit(0);
 }
+if (args.includes("--float-paths")) {
+  const result = schedule(xer);
+  const pid = assess(xer, { projId, result }).project.id;
+  const code = opt("--float-paths");
+  let target;
+  if (code && !code.startsWith("--")) {
+    target = [...result.model.tasks.values()].find((t) => t.code === code && t.proj === pid) || [...result.model.tasks.values()].find((t) => t.code === code);
+    if (!target) { console.error(`no activity ${code}`); process.exit(2); }
+  } else target = finishActivity(result, pid);
+  if (!target) { console.error("no open activity finishes on the project finish: name one, --float-paths CODE"); process.exit(2); }
+  const fp = floatPaths(result, target.id, { count: Number(opt("--paths") || 10) });
+  if (!fp.target) { console.error(`${target.code} is finished or not scheduled: float paths run to an open activity`); process.exit(2); }
+  if (args.includes("--csv")) writeFileSync(opt("--csv"), floatPathsCsv(fp));
+  if (args.includes("--json")) { const { bound, ...plain } = fp; console.log(JSON.stringify(plain, null, 2)); process.exit(0); }
+  console.log(`Float paths to ${fp.target.code} ${fp.target.name} (early finish ${fp.target.finish}); relative float in working hours on each activity's calendar`);
+  for (const p of fp.paths) {
+    console.log(`\nPath ${p.n}: ${p.activities.length} activit${p.activities.length === 1 ? "y" : "ies"}, relative float ${+p.float.toFixed(2)} h`);
+    for (const a of p.activities) console.log(`  ${a.code.padEnd(18)} ${a.start} -> ${a.finish}  rel ${String(+a.rf.toFixed(2)).padStart(7)} h  TF ${String(a.tf === undefined ? "-" : +a.tf.toFixed(2)).padStart(7)} h${a.link ? `  ${a.link.type}${a.link.lag ? ` ${a.link.lag} h` : ""} -> ${a.link.to}` : ""}  ${a.name}`);
+  }
+  if (fp.unreached) console.log(`\n${fp.unreached} more activities lead into ${fp.target.code} on later paths (--paths N to list more).`);
+  process.exit(0);
+}
 if (args.includes("--level")) {
   const crew = Number(opt("--crew") || 1);
   const r = level(xer, { projId, limitScale: crew !== 1 ? { "*": crew } : null, ...(args.includes("--within-float") ? { withinFloat: true } : {}) });
@@ -165,5 +210,8 @@ if (args.includes("--json")) {
   console.log(report.recompute.compared
     ? `\nRecomputed vs stored: ${report.recompute.matched} of ${report.recompute.compared} open activities agree on early finish, late finish and total float.`
     : "\nThe file stores no early and late dates to compare with (it was not scheduled before export).");
+  const lp = report.longestPath;
+  if (lp.p6Flagged) console.log(`Longest path: ${lp.count} open activities; P6 flagged ${lp.p6Flagged} at its last run; ${lp.agree} on both${lp.onlyP6.length ? `; only P6: ${lp.onlyP6.slice(0, 5).join(", ")}${lp.onlyP6.length > 5 ? ` and ${lp.onlyP6.length - 5} more` : ""}` : ""}${lp.onlyHere.length ? `; only here: ${lp.onlyHere.slice(0, 5).join(", ")}` : ""}.`);
+  else console.log(`Longest path: ${lp.count} open activities (the file stores no longest-path flag to compare with).`);
   console.log(`Driving path: ${report.drivingPath.length} activities, ${report.drivingPath.slice(0, 3).map((d) => d.code).join(", ")}${report.drivingPath.length > 3 ? " ... " + report.drivingPath.at(-1).code : ""}`);
 }

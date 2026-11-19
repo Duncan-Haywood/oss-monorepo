@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKnXfvTAnBEfyfHKaRV",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T18:19:14Z",
+  "ended": "2026-11-19T18:29:12Z",
+  "wall_minutes": 16.13,
+  "tokens_in": 6199393,
+  "tokens_out": 26235,
+  "cost_usd": 2.5174,
+  "tool_calls": 82,
+  "task": "polish: flagship CTA pairs on phones",
+  "projects": [
+    "wall-framing-takeoff",
+    "open-tennis-robots",
+    "einvoice-preflight",
+    "sales-agent",
+    "changepoint-detector",
+    "ids-model-check",
+    "ai-bookkeeper",
+    "shift-roster-builder",
+    "xer-schedule-check",
+    "league-schedule-generator"
+  ],
+  "pr": 17753,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "Checked out origin/main's ventures/ over the branch to prove the new test fails on main; origin/main had moved, so 18 newer files got staged. Unstaged and removed them before committing.",
+    "Post description was 168 characters; the pre-push hook caught it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Screenshots of the hub at 400 ms caught the stat tiles mid count-up (726 vs 1,080 research projects), which looked like a wrong count. Worth a line: wait for animations or read the HTML before reporting a number."
+    },
+    {
+      "file": "docs/taxonomy.json",
+      "issue": "'flagships' is not a topic id (it's 'depth'). check_post_frontmatter.py told me, which was useful, but I only found out after the first commit."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-two-buttons-on-a-phone.md",
+    "docs/reports/polish-2026-11-19-cta-row-phone.md"
+  ],
+  "goal": null,
+  "notes": "Full build (~13 min) then screenshots at 390 of hub, 5 flagships, research, stories, blog, a post. Picked the inconsistent CTA pair wrap on flagships. Ragged rows before/after (10 pages): 390 px 5->0, 360 px 9->0, 320 px 10->0. Desktop 1280 unchanged (147/213 both). open-tennis-robots scrollWidth at 320: 339->320. New static test cta-row-phone.test.mjs passes and fails on main's pages. Full `node --test platform/pages/*.test.mjs`: 1866/1871 on the first run, all 5 failures from files I edited while it ran (a 168-char post description, since cut; the cache-name test flags a tree that changed). Re-run on a still tree: writing, writing-backlog, cta-row-phone 61/61, the cache-name test 1/1.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6c6bb3dc-dbb9-5b5c-91e7-726d94a1029f",
+    "transcripts": 1,
+    "first": "2026-11-19T18:19:14Z",
+    "last": "2026-11-19T18:35:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 127,
+        "output": 26235,
+        "thinking": 4472,
+        "cache_read": 6102818,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96448,
+        "api_equivalent_usd": 2.5174,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 127,
+      "output": 26235,
+      "thinking": 4472,
+      "cache_read": 6102818,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96448,
+      "api_equivalent_usd": 2.5174,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 62,
+      "Read": 14,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.13,
+      "active_minutes": 16.13,
+      "model_minutes": 4.18,
+      "tool_minutes": 11.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "front-end dev: audit 10 pages at 3 widths, CSS fix, regression test, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 158.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

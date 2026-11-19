@@ -26,6 +26,7 @@
 - SpeedFolding's time covers flattening and folding from a random state with two arms and is a lab prototype figure (self-reported); here it is the fold station's time per item, on a separate mechanism from the picking arm. If the same arms must fold, the arm is busy for the fold too and the result is worse for the learned rule.
 - Hanging quality is not scored. `hanger-fold` says some garments (knits) are better folded; "always hang" is a speed bound only, and the hang success after insertion comes from `hanger-insert`'s geometry model.
 - Pick, sense, feeder and rail times, load size and mix remain `hanger-cell`'s assumptions. The 93% fold success is not modelled (failed folds are not set aside).
+- Items per hour is `hanger-cell`'s single-load rate: 25 items dumped at once, timed until the last fold finishes, averaged over loads. With one fold table this is within about 2% of the long-run rate (3600 / (t_fold x folded share)), but with several tables the arm finishes first and the drain of the last folds is counted, so section C understates continuous operation (a quality-audit re-run with a 250-item load, 2026-11-19, gave about 167/h for 4 tables on one arm against 137 here, and 319/h for 8 tables on two arms against 232).
 - Citation figures were read from the abstract only; the paper body was not read.
 
 ## Next steps
@@ -35,7 +36,7 @@ Source the pick time (published bin-picking or garment-grasp cycle times), and m
 ## Reproduce
 ```bash
 cd research/hanger-foldrate
-python3 -m unittest discover -s tests   # 4 tests
+python3 -m unittest discover -s tests   # 5 tests
 python3 experiments/run.py && python3 experiments/figure.py
 ```
 

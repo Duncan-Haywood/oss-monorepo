@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKmPfBwmeWjAzyjTE9S",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T19:18:48Z",
+  "ended": "2026-11-19T19:30:57Z",
+  "wall_minutes": 12.47,
+  "tokens_in": 18620082,
+  "tokens_out": 151054,
+  "cost_usd": 10.0509,
+  "tool_calls": 223,
+  "task": "quality round 85 (sample mode), seed 2026-11-19-l-c250",
+  "projects": [
+    "ventures/photo-editing",
+    "ventures/appointment-no-show-analyzer",
+    "ventures/ppf-ceramic-coating-price-calculator",
+    "research/hanger-foldrate",
+    "research/society-ringnoise",
+    "research/society-ringmf"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17767",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First test I appended to photo-editing was a bare pytest-style function in a unittest-only suite (would not run under `unittest discover`); moved it into the TestCase before committing."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook asks to commit uncommitted changes while parallel auditor agents are still writing their fixes; committing then would land half-done work. Ignored it until each agent reported."
+    },
+    {
+      "file": ".github/CODEOWNERS",
+      "issue": "`**/AGENTS.md` makes every venture's AGENTS.md owner-gated, so a one-line stale-doc fix in ventures/photo-editing/AGENTS.md cannot ride in an audit PR; reverted and left as an open defect."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "Auditors made the first small fixes inside the subject dirs (uncommitted) rather than me doing each fix after reading the audit, to keep the round in one pass.",
+      "did": "Spot-checked one recomputation per audit myself, reviewed every diff, and committed each subject's fix separately with its audit.",
+      "result": "All five spot-checks reproduced; one test-style mistake caught and fixed before commit."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-quality-audit-round-85.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-19-l-c250, round 85, mode sample. Subjects: ventures/photo-editing (flagship, 3/3/2/2/3/2/2), ventures/appointment-no-show-analyzer (2/3/2/3/3/2/2), ventures/ppf-ceramic-coating-price-calculator (3/3/2/3/2/2/2), research/hanger-foldrate (3/3/1/2/2/2/2), research/society-ringnoise (1/2/1/2/1/1/1). Share meeting the bar: 0 of 5 (sampled overall 35 of 351, Wilson 7%-14%). Seeded mutants caught 8 of 21. Fix PR: #17767 (this PR): PPF circular ranking advice + coating claim; no-show Late Cancel status and Amount Paid alias; photo-editing cull constants pinned (both 4-round survivors now caught), raw-format counts, bare command; hanger-foldrate single-load limitation; society-ringnoise audit correction + ringmf known gap. Spot-checks run by me: PPF 2364.01/3940.02 and profit/day = cost/day*2/3; no-show 39/197=19.80%, 1263.5, 5012.8; hanger 137.3 vs 166.8; ringmf 0.4443 vs 0.9101 exact; photo sRGB 0.4613561, CCT 2855.8. Local checks: venture tests 66/66 and 27/27 ok; photo-editing new tests 8/8 under unittest; research pytest 5/5 each; research homepage build ok; check_md_links ok; check_posts ok; quality_audit validate 0 problems. No AGENTS.md edits (owner-gated).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c60ec2f2-d65a-55c0-a345-159b9391aec7",
+    "transcripts": 6,
+    "first": "2026-11-19T19:18:48Z",
+    "last": "2026-11-19T19:31:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 217,
+        "input": 456,
+        "output": 151054,
+        "thinking": 36268,
+        "cache_read": 18002908,
+        "cache_write_5m": 502124,
+        "cache_write_1h": 114594,
+        "api_equivalent_usd": 10.0509,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 217,
+      "input": 456,
+      "output": 151054,
+      "thinking": 36268,
+      "cache_read": 18002908,
+      "cache_write_5m": 502124,
+      "cache_write_1h": 114594,
+      "api_equivalent_usd": 10.0509,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 223,
+    "tools": {
+      "Bash": 202,
+      "Agent": 5,
+      "SubagentHandback": 5,
+      "Write": 3,
+      "Read": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "ScheduleWakeup": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.47,
+      "active_minutes": 6.04,
+      "model_minutes": 4.42,
+      "tool_minutes": 1.61,
+      "waiting_on_human_minutes": 6.43,
+      "human_prompts": 11,
+      "stalls": 0,
+      "subagent_minutes": 26.19
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "five independent expert audits (~3 h each) plus fixes and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 159.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

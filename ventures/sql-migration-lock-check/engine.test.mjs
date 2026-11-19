@@ -741,3 +741,26 @@ test('a statement of exactly 160 characters is quoted whole; 161 is shortened to
   assert.equal(at161.length, 160);
   assert.ok(at161.endsWith('…'));
 });
+
+// Red team 2026-11-19: three mutants of the timeout parser and the finding
+// order escaped every test above.
+test('lock_timeout under half a millisecond is 0 in every unit, minutes included', () => {
+  const RENAME = 'ALTER TABLE users DROP COLUMN a;';
+  // 0.0000083333 min = 0.499998 ms, which PostgreSQL rounds to 0: still off.
+  for (const v of ["'0.4ms'", "'400us'", "'0.0000083333min'"]) {
+    assert.ok(has(`SET lock_timeout = ${v};\n${RENAME}`, 'no-lock-timeout'), `${v} rounds to 0`);
+  }
+  // 0.00001 min = 0.6 ms rounds to 1 ms: a timeout.
+  assert.ok(!has(`SET lock_timeout = '0.00001min';\n${RENAME}`, 'no-lock-timeout'));
+});
+
+test('a lock_timeout value the parser cannot read counts as a timeout, not as 0', () => {
+  // PostgreSQL rejects real garbage, so no false all-clear ships; a spelling
+  // the regex misses ('1e3') must not raise a false finding.
+  assert.ok(!has("SET lock_timeout = '1e3';\nALTER TABLE users DROP COLUMN a;", 'no-lock-timeout'));
+});
+
+test('findings come back in line order, then by id within a line', () => {
+  const got = analyzeSql('BEGIN;\nALTER TABLE a DROP COLUMN x;\nALTER TABLE b DROP COLUMN y;\nCOMMIT;').findings.map((f) => `${f.line}:${f.id}`);
+  assert.deepEqual(got, ['2:drop-column', '2:no-lock-timeout', '3:drop-column', '3:many-locks-one-transaction', '3:no-lock-timeout']);
+});

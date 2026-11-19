@@ -1,0 +1,22 @@
+
+== design year 2010-12 to 2011-12, rule round 1 (every): left out Saturday (53 rows); Quiet, --period 6
+  2 alerts in 257 checks (0.78 per 100), watch from 2011-02-14
+    dated 2011-03-29, sent 2011-06-14 (77 days); mean of 24 rows before 24196, after 24802
+    dated 2011-09-15, sent 2011-09-21 (6 days); mean of 24 rows before 29424, after 46884
+
+== design year 2010-12 to 2011-12, rule round 2 (last 8): left out Saturday (53 rows); Quiet, --period 6
+  2 alerts in 257 checks (0.78 per 100), watch from 2011-02-14
+    dated 2011-03-29, sent 2011-06-14 (77 days); mean of 24 rows before 24196, after 24802
+    dated 2011-09-15, sent 2011-09-21 (6 days); mean of 24 rows before 29424, after 46884
+
+== fresh year 2009-12 to 2010-12, rule round 1 (every): left out none (0 rows); Quiet, --period 7
+  1 alerts in 300 checks (0.33 per 100), watch from 2010-02-13
+    dated 2010-09-28, sent 2010-11-26 (59 days); mean of 24 rows before 28759, after 42156
+
+== fresh year 2009-12 to 2010-12, rule round 2 (last 8): left out Saturday (53 rows); Quiet, --period 6
+  1 alerts in 257 checks (0.39 per 100), watch from 2010-02-14
+    dated 2010-09-28, sent 2010-10-04 (6 days); mean of 24 rows before 34305, after 46303
+
+######## Round 2 bars (fresh year) ########
+F1 (a revenue alert dated 2010-08-15..11-30 sent within 14 days): 2010-09-28 sent 2010-10-04 -> PASS
+F2 (at most 2 alerts per 100 checks): 0.39 -> PASS

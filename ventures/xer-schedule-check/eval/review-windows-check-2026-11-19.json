@@ -1,0 +1,974 @@
+[
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "seed": 1,
+  "open": 14270,
+  "roundTrip": true,
+  "ms": 18895,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 6.4,
+    "progress": 6.4,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 8,
+    "progress": 0,
+    "revisions": 8
+   },
+   {
+    "n": 4,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   }
+  ],
+  "planted": {
+   "slip1": "T12CO04407C0",
+   "reest": "T16P109601C0",
+   "L": 7,
+   "slip2": null,
+   "cut": "T16CO04407C0",
+   "R": 5,
+   "S2": 7
+  },
+  "reestNamed": true,
+  "w3Expected": "medium",
+  "w3Got": "medium",
+  "recovery": false,
+  "recoveryExpected": false,
+  "recoveryNamed": null,
+  "windowCorrections": 1,
+  "cutItems": 7,
+  "appendixRows": 18588,
+  "appendixOk": true,
+  "pages": 582
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "seed": 2,
+  "open": 14270,
+  "roundTrip": true,
+  "ms": 17012,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 12.4,
+    "progress": 12.4,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 5,
+    "progress": 0,
+    "revisions": 5
+   },
+   {
+    "n": 4,
+    "moved": 3,
+    "progress": 3,
+    "revisions": 0
+   }
+  ],
+  "planted": {
+   "slip1": "T12CO04403C0",
+   "reest": "T20TS01801C0",
+   "L": 5,
+   "slip2": "T15CO04405C0",
+   "cut": "T20R122027C0",
+   "R": 7,
+   "S2": 3
+  },
+  "reestNamed": true,
+  "w3Expected": "medium",
+  "w3Got": "medium",
+  "recovery": false,
+  "recoveryExpected": false,
+  "recoveryNamed": null,
+  "windowCorrections": 1,
+  "cutItems": 8,
+  "appendixRows": 18662,
+  "appendixOk": true,
+  "pages": null
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "seed": 3,
+  "open": 14270,
+  "roundTrip": true,
+  "ms": 16898,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 13.4,
+    "progress": 13.4,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 4,
+    "moved": 3.7,
+    "progress": 4,
+    "revisions": -0.3
+   }
+  ],
+  "planted": {
+   "slip1": "T12CO04403C0",
+   "reest": "T20CO04403C0",
+   "L": 8,
+   "slip2": "T15CO04405C0",
+   "cut": "TGNCZ01090G0",
+   "R": 7,
+   "S2": 4
+  },
+  "reestNamed": false,
+  "w3Expected": "none",
+  "w3Got": "none",
+  "recovery": false,
+  "recoveryExpected": false,
+  "recoveryNamed": null,
+  "windowCorrections": 0,
+  "cutItems": 8,
+  "appendixRows": 18669,
+  "appendixOk": true,
+  "pages": null
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "seed": 1,
+  "open": 823,
+  "roundTrip": true,
+  "ms": 1431,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 2,
+    "progress": 2,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 7,
+    "progress": 0,
+    "revisions": 7
+   },
+   {
+    "n": 4,
+    "moved": 7,
+    "progress": 7,
+    "revisions": 0
+   }
+  ],
+  "planted": {
+   "slip1": "BEW/MO/EF/1010",
+   "reest": "BEW/PR/FC/1040",
+   "L": 7,
+   "slip2": "BEW/MO/EF/1010",
+   "cut": null,
+   "R": 5,
+   "S2": 7
+  },
+  "reestNamed": true,
+  "w3Expected": "medium",
+  "w3Got": "medium",
+  "recovery": false,
+  "recoveryExpected": false,
+  "recoveryNamed": null,
+  "windowCorrections": 1,
+  "cutItems": 6,
+  "appendixRows": 1160,
+  "appendixOk": true,
+  "pages": 54
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "seed": 2,
+  "open": 823,
+  "roundTrip": true,
+  "ms": 1442,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 4,
+    "moved": 3,
+    "progress": 3,
+    "revisions": 0
+   }
+  ],
+  "planted": {
+   "slip1": "BEW/MO/NC/1030",
+   "reest": null,
+   "L": 5,
+   "slip2": "BEW/PR/FC/1040",
+   "cut": null,
+   "R": 7,
+   "S2": 3
+  },
+  "reestNamed": null,
+  "w3Expected": "none",
+  "w3Got": "none",
+  "recovery": false,
+  "recoveryExpected": false,
+  "recoveryNamed": null,
+  "windowCorrections": 0,
+  "cutItems": 6,
+  "appendixRows": 1138,
+  "appendixOk": true,
+  "pages": null
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "seed": 3,
+  "open": 823,
+  "roundTrip": true,
+  "ms": 1477,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 4,
+    "moved": 4,
+    "progress": 4,
+    "revisions": 0
+   }
+  ],
+  "planted": {
+   "slip1": "BEW/MO/NC/1030",
+   "reest": null,
+   "L": 8,
+   "slip2": "BEW/PR/FC/1040",
+   "cut": null,
+   "R": 7,
+   "S2": 4
+  },
+  "reestNamed": null,
+  "w3Expected": "none",
+  "w3Got": "none",
+  "recovery": false,
+  "recoveryExpected": false,
+  "recoveryNamed": null,
+  "windowCorrections": 0,
+  "cutItems": 6,
+  "appendixRows": 1138,
+  "appendixOk": true,
+  "pages": null
+ },
+ {
+  "file": "example_xer_file.xer",
+  "seed": 1,
+  "open": 404,
+  "roundTrip": true,
+  "ms": 418,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 2,
+    "progress": 2,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 7,
+    "progress": 0,
+    "revisions": 7
+   },
+   {
+    "n": 4,
+    "moved": 2,
+    "progress": 7,
+    "revisions": -5
+   }
+  ],
+  "planted": {
+   "slip1": "A10390",
+   "reest": "A10760",
+   "L": 7,
+   "slip2": "A10400",
+   "cut": "A10700",
+   "R": 5,
+   "S2": 7
+  },
+  "reestNamed": true,
+  "w3Expected": "medium",
+  "w3Got": "medium",
+  "recovery": true,
+  "recoveryExpected": true,
+  "recoveryNamed": true,
+  "windowCorrections": 2,
+  "cutItems": 3,
+  "appendixRows": 243,
+  "appendixOk": true,
+  "pages": 15
+ },
+ {
+  "file": "example_xer_file.xer",
+  "seed": 2,
+  "open": 404,
+  "roundTrip": true,
+  "ms": 441,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 4,
+    "progress": 4,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 5,
+    "progress": 0,
+    "revisions": 5
+   },
+   {
+    "n": 4,
+    "moved": -4,
+    "progress": 3,
+    "revisions": -7
+   }
+  ],
+  "planted": {
+   "slip1": "A10390",
+   "reest": "A10780",
+   "L": 5,
+   "slip2": "A10400",
+   "cut": "A10760",
+   "R": 7,
+   "S2": 3
+  },
+  "reestNamed": true,
+  "w3Expected": "medium",
+  "w3Got": "medium",
+  "recovery": true,
+  "recoveryExpected": true,
+  "recoveryNamed": true,
+  "windowCorrections": 2,
+  "cutItems": 3,
+  "appendixRows": 245,
+  "appendixOk": true,
+  "pages": null
+ },
+ {
+  "file": "example_xer_file.xer",
+  "seed": 3,
+  "open": 404,
+  "roundTrip": true,
+  "ms": 416,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 5,
+    "progress": 5,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 8,
+    "progress": 0,
+    "revisions": 8
+   },
+   {
+    "n": 4,
+    "moved": 1,
+    "progress": 4,
+    "revisions": -3
+   }
+  ],
+  "planted": {
+   "slip1": "A10390",
+   "reest": "A10400",
+   "L": 8,
+   "slip2": "A10400",
+   "cut": "A10770",
+   "R": 7,
+   "S2": 4
+  },
+  "reestNamed": true,
+  "w3Expected": "medium",
+  "w3Got": "medium",
+  "recovery": true,
+  "recoveryExpected": true,
+  "recoveryNamed": true,
+  "windowCorrections": 2,
+  "cutItems": 5,
+  "appendixRows": 330,
+  "appendixOk": true,
+  "pages": null
+ },
+ {
+  "file": "hotel-project.xer",
+  "seed": 1,
+  "open": 4217,
+  "roundTrip": true,
+  "ms": 2659,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 4,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   }
+  ],
+  "planted": {
+   "slip1": null,
+   "reest": null,
+   "L": 7,
+   "slip2": null,
+   "cut": null,
+   "R": 5,
+   "S2": 7
+  },
+  "reestNamed": null,
+  "w3Expected": "none",
+  "w3Got": "none",
+  "recovery": false,
+  "recoveryExpected": false,
+  "recoveryNamed": null,
+  "windowCorrections": 0,
+  "cutItems": 5,
+  "appendixRows": 7961,
+  "appendixOk": true,
+  "pages": 190
+ },
+ {
+  "file": "hotel-project.xer",
+  "seed": 2,
+  "open": 4217,
+  "roundTrip": true,
+  "ms": 2607,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 4,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   }
+  ],
+  "planted": {
+   "slip1": null,
+   "reest": null,
+   "L": 5,
+   "slip2": null,
+   "cut": null,
+   "R": 7,
+   "S2": 3
+  },
+  "reestNamed": null,
+  "w3Expected": "none",
+  "w3Got": "none",
+  "recovery": false,
+  "recoveryExpected": false,
+  "recoveryNamed": null,
+  "windowCorrections": 0,
+  "cutItems": 5,
+  "appendixRows": 7961,
+  "appendixOk": true,
+  "pages": null
+ },
+ {
+  "file": "hotel-project.xer",
+  "seed": 3,
+  "open": 4217,
+  "roundTrip": true,
+  "ms": 2613,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 4,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   }
+  ],
+  "planted": {
+   "slip1": null,
+   "reest": null,
+   "L": 8,
+   "slip2": null,
+   "cut": null,
+   "R": 7,
+   "S2": 4
+  },
+  "reestNamed": null,
+  "w3Expected": "none",
+  "w3Got": "none",
+  "recovery": false,
+  "recoveryExpected": false,
+  "recoveryNamed": null,
+  "windowCorrections": 0,
+  "cutItems": 5,
+  "appendixRows": 7961,
+  "appendixOk": true,
+  "pages": null
+ },
+ {
+  "file": "sample.xer",
+  "seed": 1,
+  "open": 42,
+  "roundTrip": true,
+  "ms": 89,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 2,
+    "progress": 2,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 7,
+    "progress": 0,
+    "revisions": 7
+   },
+   {
+    "n": 4,
+    "moved": 2,
+    "progress": 7,
+    "revisions": -5
+   }
+  ],
+  "planted": {
+   "slip1": "A2010",
+   "reest": "A4050",
+   "L": 7,
+   "slip2": "A3000",
+   "cut": "A4050",
+   "R": 5,
+   "S2": 7
+  },
+  "reestNamed": true,
+  "w3Expected": "medium",
+  "w3Got": "medium",
+  "recovery": true,
+  "recoveryExpected": true,
+  "recoveryNamed": true,
+  "windowCorrections": 2,
+  "cutItems": 0,
+  "appendixRows": 0,
+  "appendixOk": true,
+  "pages": 6
+ },
+ {
+  "file": "sample.xer",
+  "seed": 2,
+  "open": 42,
+  "roundTrip": true,
+  "ms": 88,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 4,
+    "progress": 4,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 5,
+    "progress": 0,
+    "revisions": 5
+   },
+   {
+    "n": 4,
+    "moved": -4,
+    "progress": 3,
+    "revisions": -7
+   }
+  ],
+  "planted": {
+   "slip1": "A1040",
+   "reest": "A5020",
+   "L": 5,
+   "slip2": "A3000",
+   "cut": "A5020",
+   "R": 7,
+   "S2": 3
+  },
+  "reestNamed": true,
+  "w3Expected": "medium",
+  "w3Got": "medium",
+  "recovery": true,
+  "recoveryExpected": true,
+  "recoveryNamed": true,
+  "windowCorrections": 2,
+  "cutItems": 0,
+  "appendixRows": 0,
+  "appendixOk": true,
+  "pages": null
+ },
+ {
+  "file": "sample.xer",
+  "seed": 3,
+  "open": 42,
+  "roundTrip": true,
+  "ms": 90,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 5,
+    "progress": 5,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 8,
+    "progress": 0,
+    "revisions": 8
+   },
+   {
+    "n": 4,
+    "moved": 4,
+    "progress": 4,
+    "revisions": 0
+   }
+  ],
+  "planted": {
+   "slip1": "A1040",
+   "reest": "A2050",
+   "L": 8,
+   "slip2": "A2050",
+   "cut": null,
+   "R": 7,
+   "S2": 4
+  },
+  "reestNamed": true,
+  "w3Expected": "medium",
+  "w3Got": "medium",
+  "recovery": false,
+  "recoveryExpected": false,
+  "recoveryNamed": null,
+  "windowCorrections": 1,
+  "cutItems": 0,
+  "appendixRows": 0,
+  "appendixOk": true,
+  "pages": null
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "seed": 1,
+  "open": 66,
+  "roundTrip": true,
+  "ms": 122,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 2,
+    "progress": 2,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 7,
+    "progress": 0,
+    "revisions": 7
+   },
+   {
+    "n": 4,
+    "moved": 2,
+    "progress": 7,
+    "revisions": -5
+   }
+  ],
+  "planted": {
+   "slip1": "BA-P2-10",
+   "reest": "BA-P4-100",
+   "L": 7,
+   "slip2": "BA-P4-10",
+   "cut": "BA-P4-50",
+   "R": 5,
+   "S2": 7
+  },
+  "reestNamed": true,
+  "w3Expected": "medium",
+  "w3Got": "medium",
+  "recovery": true,
+  "recoveryExpected": true,
+  "recoveryNamed": true,
+  "windowCorrections": 2,
+  "cutItems": 0,
+  "appendixRows": 0,
+  "appendixOk": true,
+  "pages": 9
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "seed": 2,
+  "open": 66,
+  "roundTrip": true,
+  "ms": 123,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 4,
+    "progress": 4,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 5,
+    "progress": 0,
+    "revisions": 5
+   },
+   {
+    "n": 4,
+    "moved": -4,
+    "progress": 3,
+    "revisions": -7
+   }
+  ],
+  "planted": {
+   "slip1": "BA-P1-10",
+   "reest": "BA-P4-140",
+   "L": 5,
+   "slip2": "BA-P4-10",
+   "cut": "BA-P4-130",
+   "R": 7,
+   "S2": 3
+  },
+  "reestNamed": true,
+  "w3Expected": "medium",
+  "w3Got": "medium",
+  "recovery": true,
+  "recoveryExpected": true,
+  "recoveryNamed": true,
+  "windowCorrections": 2,
+  "cutItems": 0,
+  "appendixRows": 0,
+  "appendixOk": true,
+  "pages": null
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "seed": 3,
+  "open": 66,
+  "roundTrip": true,
+  "ms": 111,
+  "exact": true,
+  "windows": [
+   {
+    "n": 1,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 2,
+    "moved": 5,
+    "progress": 5,
+    "revisions": 0
+   },
+   {
+    "n": 3,
+    "moved": 0,
+    "progress": 0,
+    "revisions": 0
+   },
+   {
+    "n": 4,
+    "moved": 0,
+    "progress": 4,
+    "revisions": -4
+   }
+  ],
+  "planted": {
+   "slip1": "BA-P1-10",
+   "reest": "BA-P4-20",
+   "L": 8,
+   "slip2": "BA-P4-10",
+   "cut": "BA-P4-170",
+   "R": 7,
+   "S2": 4
+  },
+  "reestNamed": false,
+  "w3Expected": "none",
+  "w3Got": "none",
+  "recovery": true,
+  "recoveryExpected": true,
+  "recoveryNamed": true,
+  "windowCorrections": 1,
+  "cutItems": 0,
+  "appendixRows": 0,
+  "appendixOk": true,
+  "pages": null
+ }
+]
