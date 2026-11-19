@@ -1,6 +1,28 @@
 """Milestone 7u: SureSim's released interval code (irom-princeton/rapid-policy-evaluation, MIT, commit e9e6cb5) run in the m7q setting on our pools.
 python3 suresim_code.py [reps]  ->  results/suresim_code.csv, results/summary.txt   (pre-registration: LOG.md, 2026-10-26 milestone 7u)
-The three functions below are copied from src/suresim/intervals/ppi.py (Copyright (c) 2024 Intelligent Robot Motion Lab, MIT licence); only the shuffle takes a seeded generator."""
+The three functions below are copied from src/suresim/intervals/ppi.py (Copyright (c) 2024 Intelligent Robot Motion Lab, MIT licence); only the shuffle takes a seeded generator.
+
+SureSim's licence, which covers those three functions:
+
+MIT License
+
+Copyright (c) 2024 Intelligent Robot Motion Lab
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+and associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
+OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
 import csv, os, sys, importlib.util
 import numpy as np
 from multiprocessing import Pool
