@@ -2120,6 +2120,12 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertLess(host.take_share_bound([136, 140, 119, 98, 95, 50, 112]), host.TAKE_ADVISE_RATIO)
         self.assertEqual(host.take_share_bound([0, 0, 0]), 1.0)
         self.assertEqual(host.take_share_bound([]), 1.0)
+        # shipped by its pre-registered rule (eval/take-share-rounding-2026-11-19.md): no advice on that build
+        sv = {"wheels": 22, "least_ms10": 30, "refined_ms10": 35, "board_ms10": 0, "rms_ppm": [7, 8, 6, 4, 26, 54, 132]}
+        got = host.take_survey_advice(sv)
+        self.assertIn("keep TAKE_US = 0", got)
+        self.assertIn("too close to the frame's 1 ppm", got)
+        self.assertNotIn("set TAKE_US = 3", got)
 
     def test_instant_verdict_names_its_bound(self):
         # 2026-11-19 (README "Short takes that read 0: no ball saw them"): a TAKE_US = 0 verdict names the first

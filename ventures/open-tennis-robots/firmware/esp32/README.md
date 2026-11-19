@@ -2703,7 +2703,8 @@ against 138 at whole microseconds. `tests/test_host.py` checks that ten take-bli
 ppm on two sets and 25 on another is not traced. And the deeper finding stands: the survey can only see a take on balls
 whose contact straddles a revolution's edge, a few wheels a drill, so a drill's verdict rests on those few. Next: a
 survey that scores only the wheels where some candidate's parts must straddle (or a model whose take is continuous), and
-the advised instant build.
+the advised instant build (traced 2026-11-19 to the frame's whole-ppm rounding: "The sub-8 advised instant build was the
+frame's rounding").
 
 ## The take survey skips take-blind wheels (2026-11-18, after "Take-blind rows traced"; on by its pre-registered rule)
 
@@ -3491,3 +3492,31 @@ its one wheel from ball 16 to 19, then nothing at the end. Everything is in
 direction the minimum assumes, but they occur in about one drill in sixty, so the simulator cannot settle it and it
 barely matters there. A real wheel's blind rows will not tie as exactly, which may make one-wheel verdicts more or less
 common; the question reopens on real logs.
+
+## The sub-8 advised instant build was the frame's rounding (2026-11-19, after "Take-blind rows traced"; guard on by its pre-registered rule)
+
+**The item.** "Take-blind rows traced" left one instant build of 72 advised at 1/8 us (the first held-out capture set's
+launcher 1, 3.5 ms at share 0.57). `TAKE_SURVEY_BLIND = 1.5` later stopped advising it, without saying why.
+
+**A scorer fix first.** `tests/take_survey_blind.py`, `tests/take_survey_trim.py` and `take_misfit_trace.survey_score`
+rescored stored rows on the nine-point grid and raised an IndexError on every set captured with seven candidates.
+`GRIDS` and `grid_for` now live in `tests/take_survey_trim.py`, and each row is scored on its own grid; the blind and
+trim scorers reproduce their stored outputs.
+
+**Why it was advised.** The Pi reads the share from the TAKE_SURVEY frame's rms, sent in whole ppm. At 1/8 us the fit
+floor is a few ppm, so the rounding is a large part of each number: the frame carried 7 ppm for the step and 4 for
+3 ms, 0.571, where the board's own sums give **0.635**. The blind filter moved the rounded 4 to a 5 (0.714); the exact
+share stayed at 0.63. Over 38 stored capture files (5,012 scorings) the rounded and exact shares fall either side of
+0.6 nine times, eight of them within 0.011 of it.
+
+**What shipped.** `host.take_share_bound(rms)`, (min + 0.5) / (step - 0.5), the largest share the frame allows;
+`take_survey_advice` withholds a nonzero contact time when that bound exceeds `TAKE_ADVISE_RATIO`, and says the fits are
+too close to the frame's 1 ppm to tell. Pre-registered (eval/take-share-rounding-2026-11-19.md, committed before the
+capture) on a fresh capture set at 1/8 us (lag 0.57 s, seed 443): every clause held, 53 of 54 spread takes named and
+advised either way, no instant build advised, 0 verdicts changed (as predicted). On the stored sets the guard
+withholds 6 of 1,244 advices the exact share would give and removes the 2 the rounding added
+(`tests/take_share_rounding.py`).
+
+**Not known.** The fresh set shows the guard is free there, not that it helps; that rests on the traced build. Frames
+in tenths of a ppm would remove the cause (a protocol change, not done). A real tach's floor is likelier tens of ppm.
+

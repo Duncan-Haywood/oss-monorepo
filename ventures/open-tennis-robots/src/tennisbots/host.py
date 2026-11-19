@@ -492,6 +492,13 @@ def take_survey_advice(sv: dict | None) -> str | None:
         return (f"contact-time survey: {n} wheels, none told the contact times apart (each ball's contact fitted "
                 f"inside one revolution); keep TAKE_US = {int(board * 1000)} and run more balls")
     gain = min(rms) / rms[0] if rms and rms[0] else 0.0
+    if pick > 0 and gain <= TAKE_ADVISE_RATIO < take_share_bound(rms):
+        # whole-ppm rms can put the share either side of the margin (2026-11-19, firmware/esp32/README.md "The sub-8
+        # advised instant build was the frame's rounding": 4 / 7 ppm read 0.571 where the board's sums gave 0.635)
+        return (f"contact-time survey: {n} wheels pick {pick:g} ms, but its fits sit within a few ppm of the step's "
+                f"({min(rms)} against {rms[0]} ppm), too close to the frame's 1 ppm to tell the {TAKE_ADVISE_RATIO:g} "
+                f"margin: " + ("keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash")
+                + "; run more balls" + _bound_note(sv))
     if pick > 0 and gain > TAKE_ADVISE_RATIO:
         return (f"contact-time survey: {n} wheels pick {pick:g} ms, but its fits miss only {1 - gain:.0%} less than the "
                 f"step's (an instant take's builds reached 34% on the simulator): " +

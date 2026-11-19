@@ -48,3 +48,26 @@ host's advice if all hold:
    a step rms under 10 ppm.
 
 Prediction: 0 or 1 verdict differs between G and the rounded share on that set.
+
+## What it found (after the rule above was committed, ea77e89d8)
+
+`eval/take-share-rounding-fresh-2026-11-19.jsonl.gz` (72 drills, none aborted; scored in
+`eval/take-share-rounding-fresh-2026-11-19.txt` by `tests/take_share_rounding.py`):
+
+| share used | spread takes named within 1 ms and advised (of 54) | instant builds advised (of 18) |
+| --- | --- | --- |
+| rounded (the Pi until now) | 53 | 0 |
+| guard G | 53 | 0 |
+| exact (the board's sums) | 53 | 0 |
+
+G and the rounded share differed on 0 verdicts, as predicted. Clause 1 held (0 instant), clause 2 held (53 against
+53), clause 3 held with nothing to check. By the rule G ships: `host.take_survey_advice` now withholds a nonzero
+contact time when `host.take_share_bound` exceeds `TAKE_ADVISE_RATIO`, and says the fits are too close to the frame's
+1 ppm to tell.
+
+## Not known
+
+The fresh set could not show G's benefit, only that it costs nothing there; the benefit rests on the one traced build
+and its 2 rounding-made advices in 1,944 scorings on the stored sets. A frame in tenths of a ppm would remove the cause rather
+than guard against it (a protocol change for every board; not done). On a real tach the floor is likelier tens of ppm
+than single digits, where rounding hardly matters.
