@@ -79,5 +79,5 @@ The textarea sweep tests the behaviour instead.
 
 - Wire the sweeps into the nightly `browser-checks-ci.yml`. That is a
   control-plane (`.github/`) edit, so it needs its own small PR.
-- `check_button_clicks.js` with `FILL=0` / `FILL=blank` over http has not been
-  run yet.
+- `check_button_clicks.js` with `FILL=0`, `FILL=blank` and `FILL=-1` over
+  http: done, 11 ventures fixed (`2026-11-19-button-click-fill-sweeps.md`).
