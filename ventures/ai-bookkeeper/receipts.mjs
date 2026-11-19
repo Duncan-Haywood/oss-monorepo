@@ -137,9 +137,21 @@ export function receiptScript(text) {
   const words = (t.match(/[A-Za-z0-9]{3,}/g) || []).map((w) => w.replace(/^\d+x(?=[A-Z])/, "").replace(BRAND_PREFIX, ""));
   return words.filter((w) => /[a-z][A-Z]{2}/.test(w)).length >= 3 ? "cyrillic" : "latin";
 }
+const looksRussian = (lines) => (lines.join("\n").match(/[а-яё]/gi) ?? []).length >= 20 || lines.some((l) => RU_TOTAL_RE.test(l));
+// A Russian slip whose reading names no seller: worth a second, enlarged look (ocr.mjs reads
+// the photo again in bands, rapidocr_rows.py --bands).
+export const needsSellerLook = (text) => { const lines = String(text ?? "").split("\n"); return looksRussian(lines) && !russianSeller(lines); };
+// The seller from that second look, put on the reading's first line so the parser takes it;
+// the reading is otherwise unchanged (totals and items still come from the first look).
+// On val 117 to 122 of 146 sellers, none lost (README, "A second look for the seller").
+export function withBandSeller(text, bandText) {
+  const lines = String(text ?? "").split("\n");
+  if (!needsSellerLook(text)) return text;
+  const seller = russianSeller([...String(bandText ?? "").split("\n"), ...lines]);
+  return seller ? `${seller}\n${text}` : text;
+}
 export function russianSeller(lines) {
-  const text = lines.join("\n");
-  if ((text.match(/[а-яё]/gi) ?? []).length < 20 && !lines.some((l) => RU_TOTAL_RE.test(l))) return null;
+  if (!looksRussian(lines)) return null;
   for (const [li, l] of lines.entries()) {
     const segs = l.split(/\s{2,}/);
     for (const [i, seg] of segs.entries()) {

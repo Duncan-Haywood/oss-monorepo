@@ -273,7 +273,9 @@ function cardinalityAttr(c) {
 //   { kind: "partOf", relation, entity, cardinality }  (entity: a class name or an entity facet)
 // Names (set, name, system, predefinedType) may also be value objects.
 export function facetXml(f, S, inRequirements) {
-  const card = inRequirements ? cardinalityAttr(f.cardinality) : "";
+  // A bSDD uri: ids.xsd allows it on requirement property, classification
+  // and material facets only, before cardinality.
+  const card = inRequirements ? (f.uri && ["property", "classification", "material"].includes(f.kind) ? ` uri="${escAttr(f.uri)}"` : "") + cardinalityAttr(f.cardinality) : "";
   if (f.kind === "entity") {
     const ptx = f.predefinedType ? nameXml(f.predefinedType) : "";
     const pt = ptx ? `<predefinedType>${ptx}</predefinedType>` : "";
@@ -884,7 +886,7 @@ function reqFacet(L, r, classes = []) {
     : r.mode === "oneOf" ? oneOfValue(r, temporal) : r.mode === "range" ? rangeValue(r, temporal) : r.mode === "pattern" ? { pattern: r.pattern } : null;
   const k = r.kind === "attribute" && value ? attributeValueKind(L.S, classes, r.name) : null;
   const base = k ? (k.kind === "number" && r.numBase) || k.base : undefined;
-  return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, base, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
+  return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, base, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity, uri: r.uri };
 }
 
 // An applicability row: the same row as a requirement, written without a
@@ -1046,6 +1048,7 @@ export function facetFromParsed(f) {
   if (f.kind === "classification") Object.assign(out, { system: valueOf(f.system), value: valueOf(f.value) });
   if (f.kind === "material") out.value = valueOf(f.value);
   if (f.kind === "partOf") Object.assign(out, { relation: f.relation, entity: f.entity ? facetFromParsed(f.entity) : null });
+  if (f.uri) out.uri = f.uri;
   return out;
 }
 
@@ -1054,6 +1057,8 @@ export function facetFromParsed(f) {
 function editableRow(L, classes, f) {
   const cls = classes[0];
   const r = { ...blankReq(), kind: f.kind, cardinality: f.cardinality, oneOf: [] };
+  // A bSDD link rides along unchanged (the page does not edit it).
+  if (f.uri) r.uri = f.uri;
   if (f.kind === "property") {
     r.set = simpleOf(f.propertySet); r.name = simpleOf(f.baseName);
     if (!r.set || !r.name) return null;

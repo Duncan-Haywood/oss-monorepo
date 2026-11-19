@@ -207,7 +207,7 @@ export function schedule(xer, options = {}) {
   const proj = (t) => projects.get(t.proj) || { dataDate: null, retainedLogic: true, progressOverride: false, floatType: "FT_FF" };
   const done = (t) => t.status === "TK_Complete";
   const active = (t) => t.status === "TK_Active";
-  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ...(options.variant || {}) };
+  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", ...(options.variant || {}) };
   const delay = options.delay || null; // { taskId, minutes }: added remaining duration (critical path test)
 
   // ---- forward pass
@@ -230,6 +230,7 @@ export function schedule(xer, options = {}) {
         // Started: the start link is met, but with retained logic the rest of
         // the work waits for an unfinished predecessor's remaining work to
         // start (an in-progress predecessor's lag is already spent; a not-started one's still runs).
+        if (V.ssDoneNode && r.type === "PR_SS" && pv.done) starts.push(pv.ef);
         if (V.activeSSRem && r.type === "PR_SS" && !pv.done) {
           const pr2 = tasks.get(r.predId);
           starts.push(active(pr2) ? pv.remES : lagCalendar(model, r).addWork(pv.remES, r.lag));
@@ -246,8 +247,9 @@ export function schedule(xer, options = {}) {
           const list = r.type === "PR_FS" ? starts : fins;
           list.push(pv.ef);
           if (!done(t) && aF !== null && r.lag) list.push(lc0.addWork(aF, r.lag));
-        } else if (!done(t) && aS !== null && r.lag) {
-          (r.type === "PR_SS" ? starts : fins).push(lc0.addWork(aS, r.lag));
+        } else {
+          if (r.type === "PR_SS" && V.ssDoneNode) starts.push(pv.ef);
+          if (!done(t) && aS !== null && r.lag) (r.type === "PR_SS" ? starts : fins).push(lc0.addWork(aS, r.lag));
         }
         continue;
       }
@@ -257,6 +259,18 @@ export function schedule(xer, options = {}) {
       const pS = V.ssFromRem ? pv.remES : pv.es;
       const pF = pv.ef;
       if (r.type === "PR_FS") starts.push(lc.addWork(pF, r.lag));
+      else if (r.type === "PR_SS" && active(tasks.get(r.predId)) && V.ssActivePred !== "es") {
+        if (V.ssActivePred === "rem") starts.push(pv.remES);
+        else {
+          starts.push(Math.max(pv.remES, lc.addWork(pS, r.lag)));
+          // the part of the lag not yet spent at the data date still runs,
+          // from where the predecessor's remaining work starts
+          if (V.ssActivePred === "maxleft" && r.lag && p.dataDate !== null) {
+            const left = r.lag - lc.workBetween(tasks.get(r.predId).actStart ?? dd, dd);
+            if (left > 0) starts.push(lc.addWork(pv.remES, left));
+          }
+        }
+      }
       else if (r.type === "PR_SS") starts.push(lc.addWork(pS, r.lag));
       else if (r.type === "PR_FF") fins.push(lc.addWork(pF, r.lag));
       else if (r.type === "PR_SF") fins.push(lc.addWork(pS, r.lag));
@@ -322,7 +336,7 @@ export function schedule(xer, options = {}) {
     const id = order[k];
     const t = tasks.get(id);
     const r = res.get(id);
-    if (done(t)) continue;
+    if (done(t) && !V.bwDoneNode) continue;
     const p = proj(t);
     const cal = t.cal;
     const remain = t.remain + (delay && delay.taskId === id ? delay.minutes : 0);
@@ -331,9 +345,18 @@ export function schedule(xer, options = {}) {
     if (p.lateEnd !== null && p.lateEnd !== undefined) fins.push(p.lateEnd);
     for (const rel of t.succs) {
       const s = tasks.get(rel.succId);
-      if (s.span || done(s)) continue;
+      if (s.span) continue;
       const sv = res.get(rel.succId);
       if (!sv || sv.lf === undefined) continue;
+      if (done(s)) {
+        if (!V.bwDoneNode) continue;
+        // mirror of the forward node: a finished successor's late date
+        // bounds this one, with no lag (its lag was spent)
+        if (rel.type === "PR_FS") fins.push(sv.remLS);
+        else if (rel.type === "PR_SS") starts.push(sv.remLS);
+        else if (rel.type === "PR_FF") fins.push(sv.lf);
+        continue;
+      }
       if (active(s)) {
         if (proj(s).progressOverride) continue;
         if (rel.type === "PR_SF") continue;
@@ -341,17 +364,28 @@ export function schedule(xer, options = {}) {
           // mirror of the forward rule: the remaining work of a started
           // successor waits on this one's start
           const b = V.bwActiveSS;
-          if (b === "rem") starts.push(active(t) ? sv.remLS : lagCalendar(model, rel).subWork(sv.remLS, rel.lag));
+          if (b === "rem") starts.push(active(t) || done(t) ? sv.remLS : lagCalendar(model, rel).subWork(sv.remLS, rel.lag));
           else if (b === "remnolag") starts.push(sv.remLS);
           else if (b === "lf") fins.push(sv.lf);
           continue;
         }
       }
       const lc = lagCalendar(model, rel);
-      if (rel.type === "PR_FS") fins.push(lc.subWork(sv.remLS, rel.lag));
+      if (rel.type === "PR_FS" && V.bwDoneFS && done(t)) fins.push(V.bwDoneFS === "nolag" ? sv.remLS : lc.subWork(sv.remLS, rel.lag));
+      else if (rel.type === "PR_FS") fins.push(lc.subWork(sv.remLS, rel.lag));
+      else if (rel.type === "PR_SS" && V.bwDoneSS && done(t)) starts.push(V.bwDoneSS === "nolag" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));
+      else if (rel.type === "PR_SS" && V.bwSSActivePred && active(t)) starts.push(V.bwSSActivePred === "rem" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));
       else if (rel.type === "PR_SS") starts.push(lc.subWork(sv.remLS, rel.lag));
+      else if (rel.type === "PR_FF" && V.bwDoneFS && done(t)) fins.push(V.bwDoneFS === "nolag" ? sv.lf : lc.subWork(sv.lf, rel.lag));
       else if (rel.type === "PR_FF") fins.push(lc.subWork(sv.lf, rel.lag));
+      else if (rel.type === "PR_SF" && V.bwDoneFS && done(t)) starts.push(V.bwDoneFS === "nolag" ? sv.lf : lc.subWork(sv.lf, rel.lag));
       else if (rel.type === "PR_SF") starts.push(lc.subWork(sv.lf, rel.lag));
+    }
+    if (done(t)) {
+      // a finished activity is a zero-length node in the backward pass too
+      const v = Math.min(fins.length ? Math.min(...fins) : Infinity, starts.length ? Math.min(...starts) : Infinity);
+      r.lf = r.remLS = r.ls = Number.isFinite(v) ? v : r.ef;
+      continue;
     }
     if (t.extLF !== null) fins.push(t.extLF);
     let mandStart = null, mandFin = null;

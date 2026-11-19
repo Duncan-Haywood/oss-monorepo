@@ -93,17 +93,21 @@ run as a formula in Excel or Sheets.
 
 - **Against P6 itself** (`eval/cpm-vs-p6-2026-11-19.md`): six public XER files
   from P6 5.0 to 24.12, 19,822 open activities. Early finish, late finish and
-  total float all equal P6's stored values on **18,133 (91.5%)**: 100% on four
-  files, 4,216 of 4,217 on a hotel schedule, 12,582 of 14,270 (88.2%) on a
-  heavily progressed programme with 2,134 out-of-sequence links. Every rule
-  added to get there is listed there with the count it moved.
+  total float all equal P6's stored values on **19,807 (99.9%)**: 100% on four
+  files, 4,216 of 4,217 on a hotel schedule, 14,256 of 14,270 (99.9%) on a
+  heavily progressed programme with 2,134 out-of-sequence links (88.2% before
+  the retained-logic rules of 2026-11-19, 99.4% before the third pass). Every rule added to get
+  there is listed there with the count it moved.
 - **The simple DCMA counts by hand**: leads, lags and relationship types on the
   Expressway file agree with an awk tally of its TASKPRED table (38, 66, and
   995 / 88 / 11 FS / SS / FF of 1,094).
 - **Unit tests** (`engine.test.mjs`, `page.test.mjs`): calendar arithmetic over
   lunch breaks, weekends, a holiday and a half day; FS/SS/FF links with lags,
-  float and free float worked by hand; constraints and negative float against a
-  must-finish-by date; progress with a lag after a finished predecessor; ALAP;
+  float and free float worked by hand; an SS lag partly spent at the data date and
+  a finished node's late date with no lag back; constraints and negative float against a
+  must-finish-by date; progress with a lag after a finished predecessor;
+  retained logic through out-of-sequence progress (SS from started work,
+  finished activities as nodes in both passes); ALAP;
   loops; DCMA points 1 to 5, 8, 11, 12 and 14 on a small schedule (points 6,
   7, 9, 10 and 13 are checked only against the public XER files above).
 - **Update comparison on real files** (`eval/compare-check-2026-11-19.md`):
@@ -124,8 +128,8 @@ run as a formula in Excel or Sheets.
 Screening metrics, not a verdict: a schedule can pass all fourteen and still be
 unrealistic, and some failures are justified. Not modelled: resource levelling,
 expected finish dates, "make open-ended activities critical", multiple float
-paths, and part of P6's retained-logic rule for started activities with mixed
-FS and SS predecessors (the CCA residual). The float checks use the float the
+paths. 14 activities of the heavily progressed CCA file still differ (10 late
+finishes, 4 early finishes; `eval/cpm-vs-p6-2026-11-19.md`, "What is left"). The float checks use the float the
 file stores; the recomputed float is reported next to it.
 
 ## Files

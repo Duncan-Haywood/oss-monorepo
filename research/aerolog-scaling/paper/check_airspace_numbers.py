@@ -90,6 +90,20 @@ CHECKS = [
     ("speed_offset_results.txt", "1     13.33: 80, 17.14: 16", "80 and 87 of 96"),
     ("speed_offset_results.txt", "  2        24.00    3.0    24.00     1.1631", "3 bands at 24.00 m"),
     ("speed_offset_results.txt", "  2        24.00    3.0    24.00     1.1296", "1.1631 and 1.1296"),
+    # 11ap --all12 and the rule check
+    ("speed_offset_all12_results.txt", "sd of b_i - b_j 5.655", "5.655 m"),
+    ("speed_offset_all12_results.txt", "-7.44, -4.70", "-7.44 to +8.86 m"),
+    ("speed_offset_all12_results.txt", "  1        17.14    4.0    17.14     1.1526    1.9966", "1.1526"),
+    ("speed_offset_all12_results.txt", "1.9966", "1.9966"),
+    ("speed_offset_all12_results.txt", "0.5   13.33: 92, 17.14: 4", "(92 of 96)"),
+    ("speed_offset_all12_results.txt", "  0.5      13.33    5.0    13.33     1.0021", "1.0021"),
+    ("speed_offset_all12_results.txt", "1.2759", "1.2759"),
+    ("rule_check_results.txt", "sigma_pair = 1.061 m", "1.061 m"),
+    ("rule_check_results.txt", "  1       3.281      3.448     17.96       3    24.00   13.33, 13.33", "5, 4, 3 and 2 bands"),
+    ("rule_check_results.txt", "  2       6.561      6.647     27.56       2    40.00   24.00, 24.00", "5, 5, 5 and 3"),
+    ("rule_check_results.txt", "  1       5.655      5.754     24.88       2    40.00   17.14, -", "5, 4, 2 and 1 against 5, 5, 4 and 3"),
+    ("rule_check_results.txt", "0.0663/0.0488", "0.0663"),
+    ("rule_check_results.txt", "0.0663/0.0488", "0.0488"),
 ]
 
 

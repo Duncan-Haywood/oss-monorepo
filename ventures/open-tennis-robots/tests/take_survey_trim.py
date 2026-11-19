@@ -17,6 +17,21 @@ import gzip
 import json
 import sys
 
+# the take survey's grid by the number of candidates a stored board row carries (controller.TAKE_SURVEY_GRID_US is
+# the newest; protocol.OLDER_FORMATS decodes the same three frame lengths)
+GRIDS = {
+    7: (0, 2000, 3000, 4000, 5000, 6000, 8000),            # shipped before 2026-11-19
+    8: (0, 2000, 3000, 4000, 5000, 6000, 7000, 8000),      # README "An eight-point take grid"
+    9: (0, 1500, 2500, 3000, 4000, 5000, 6000, 7000, 8000),  # README "Short takes on a second held-out set"
+}
+
+
+def grid_for(row):
+    for got in row["board_scores"]:
+        if got:
+            return GRIDS[len(got)]
+    return None
+
 
 def load(path):
     with (gzip.open(path, "rt") if path.endswith(".gz") else open(path)) as f:
@@ -28,12 +43,12 @@ def score(rows, trim):
     import controller
     out = {}
     for b in rows:
-        rs = controller.ResidualSurvey(tm.PICK_US, trim)
+        rs = controller.ResidualSurvey(grid_for(b) or tm.PICK_US, trim)
         for got in b["board_scores"]:
             if got and all(g is not None for g in got):
                 rs.add([g * g for g in got])
         rs.sums()
-        out[tuple(b["build"])] = (tm.survey_score(b["board_scores"], trim), rs.trimmed, len(rs.wheels))
+        out[tuple(b["build"])] = (tm.survey_score(b["board_scores"], trim, grid_for(b)), rs.trimmed, len(rs.wheels))
     return out
 
 

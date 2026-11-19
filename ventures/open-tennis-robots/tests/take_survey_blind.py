@@ -12,7 +12,7 @@ take_survey_jitter.py --score prints, plus the wheels left out and the builds le
 """
 import sys
 
-from take_survey_trim import load
+from take_survey_trim import grid_for, load
 
 
 def summary(rows, blind):
@@ -23,7 +23,7 @@ def summary(rows, blind):
     good = bad = within = n = spread = left = wheels = none = 0
     shares = []
     for b in rows:
-        rs = controller.ResidualSurvey(tm.PICK_US, controller.TAKE_SURVEY_TRIM, blind)
+        rs = controller.ResidualSurvey(grid_for(b) or tm.PICK_US, controller.TAKE_SURVEY_TRIM, blind)
         for got in b["board_scores"]:
             if got and all(g is not None for g in got):
                 rs.add([g * g for g in got])

@@ -3088,6 +3088,19 @@ with initials after ИП). **Held-out test: seller right on 104 to 106 of 146 sl
 113 to 117; no slip lost on either split; totals unchanged. Details:
 [`eval/receipt-ocr-ru-forms-2026-11-19.md`](eval/receipt-ocr-ru-forms-2026-11-19.md).
 
+### A second look for the seller (2026-11-19)
+
+When a Russian slip's first RapidOCR reading names no seller (no line opens with ИП, ООО, АО and
+the rest), `--rapidocr` now reads the photo again as three overlapping bands, top, middle and foot,
+each enlarged twice (`rapidocr_rows.py --bands`). A seller found there is taken as the merchant.
+Totals and items still come from the first reading. The seller is often printed small in the fiscal
+block under the items, not in the header, which is why the bands cover the whole slip.
+**Held-out test: seller right on 106 to 113 of 146 slips (77.4%)**; val 117 to 122; no slip lost
+on either split; totals unchanged. It costs a few more seconds, and only on the slips that need it
+(14% to 24% of Russian slips). Details:
+[`eval/receipt-ocr-ru-bands-2026-11-19.md`](eval/receipt-ocr-ru-bands-2026-11-19.md). Tests:
+`receipt-seller-bands.test.mjs`.
+
 ### Russian slips with a Cyrillic recogniser (2026-11-18)
 
 RapidOCR's default recognition model has no Cyrillic: on Russian slips it reads the totals well

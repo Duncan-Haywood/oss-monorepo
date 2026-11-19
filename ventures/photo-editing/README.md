@@ -1097,6 +1097,14 @@ The time noise-aware adds over directional fell by a median 43% (0.094 to 0.053 
 takes 1.46x directional's time instead of 1.74x, and the memory it adds at peak fell by a median 16%. `auto` still
 picks directional. Details: eval/noise-aware-native-blend-2026-11-19.md.
 
+That evening the per-block statistics the noise reading and the blend weights share went to C too. Two
+statistics were done in numpy: each 24 x 24 block's mean level and its largest value. numpy built each one
+from two whole-frame copies. Now one pass computes both. It sums each block in numpy's own pairwise order, so
+the bits stay the same. All 12 of the 12 largest sample raws tried are the same bytes. The noise-aware develop
+is a median 1.11x faster and now takes 1.32x directional's time. The develop is also checked against machine
+dependence: the remaining BLAS step, the patch-PCA noise read, would need an error about 10,000 times larger
+than a BLAS reordering gives before one 16-bit code moved. Details: eval/noise-aware-native-levels-2026-11-19.md.
+
 ## The sRGB encode, interpolated (2026-11-17)
 
 The develop's last step, linear light to sRGB, read a 4,096-entry table at the nearest entry, so a 16-bit

@@ -112,7 +112,7 @@ export function bsddLinks(idsText) {
 // One GET, JSON back, or { notFound } / { failed } -- never throws. bSDD
 // answers 429 to bursts (68 of 205 lookups on the public corpus, run one), so
 // a 429 or 503 is retried after its Retry-After or a doubling wait, 5 times.
-async function getJson(fetchFn, url, wait = defaultWait) {
+export async function getJson(fetchFn, url, wait = defaultWait) {
   try {
     let r;
     for (let attempt = 0; ; attempt++) {

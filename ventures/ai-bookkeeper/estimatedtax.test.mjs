@@ -450,3 +450,10 @@ test("a flat state rate is applied to AGI less the state deduction and kept out 
   assert.equal(r.state.quarterly, Math.ceil(r.state.balance / 4));
   assert.throws(() => estimatedTax(b, { year: 2026, qbi: false, stateRate: 0.5 }), /stateRate/);
 });
+
+test("Additional Medicare Tax rounds half a cent up, not a float cent low (quality audit 2026-11-19)", () => {
+  // profit 250,000.00: net earnings 230,875.00; over 200,000 by 30,875.00; 0.9% is 277.875 -> 277.88
+  const a = estimatedTax(books("250000.00"), { year: 2026, wageBase: 18450000 });
+  assert.equal(a.se.netEarnings, 23087500);
+  assert.equal(a.addlMedicare, 27788);
+});
