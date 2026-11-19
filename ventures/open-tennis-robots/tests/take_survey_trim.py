@@ -28,7 +28,7 @@ def score(rows, trim):
     import controller
     out = {}
     for b in rows:
-        rs = controller.ResidualSurvey(tm.PICK_US, trim)
+        rs = controller.ResidualSurvey(tm.grid_of(b["board_scores"]), trim)
         for got in b["board_scores"]:
             if got and all(g is not None for g in got):
                 rs.add([g * g for g in got])

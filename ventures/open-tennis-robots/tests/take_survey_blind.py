@@ -23,7 +23,7 @@ def summary(rows, blind):
     good = bad = within = n = spread = left = wheels = none = 0
     shares = []
     for b in rows:
-        rs = controller.ResidualSurvey(tm.PICK_US, controller.TAKE_SURVEY_TRIM, blind)
+        rs = controller.ResidualSurvey(tm.grid_of(b["board_scores"]), controller.TAKE_SURVEY_TRIM, blind)
         for got in b["board_scores"]:
             if got and all(g is not None for g in got):
                 rs.add([g * g for g in got])
