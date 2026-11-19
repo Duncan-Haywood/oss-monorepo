@@ -23,6 +23,7 @@ import sys
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from repo_files import ls_files
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MODULE_RE = re.compile(r"^\s*(import|export)\s", re.M)
@@ -55,9 +56,7 @@ def check_text(text: str, suffix: str = ".js") -> str | None:
 
 
 def tracked() -> list[str]:
-    out = subprocess.check_output(
-        ["git", "ls-files", "ventures/*.js", "ventures/*.mjs"], cwd=REPO_ROOT, text=True)
-    return [x for x in out.splitlines() if x and "node_modules/" not in x]
+    return [x for x in ls_files(REPO_ROOT, "ventures/*.js", "ventures/*.mjs") if "node_modules/" not in x]
 
 
 def batch_parses(items: list[tuple[str, str]]) -> list[bool]:

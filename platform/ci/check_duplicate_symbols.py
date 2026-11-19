@@ -55,11 +55,11 @@ left alone: re-assigning one is ordinary Python.
 from __future__ import annotations
 
 import ast
-import subprocess
 import sys
 import warnings
 from collections import defaultdict
 from pathlib import Path
+from repo_files import ls_files
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -74,11 +74,7 @@ def tracked_python_files(repo: Path = REPO) -> list[Path]:
     scripts that rebind short names (`S`, `K`, `R`) as they step through an
     experiment, which is how a script reads rather than a dead definition.
     """
-    result = subprocess.run(
-        ["git", "ls-files", "-z", "--", "*.py", ":(exclude)research/"],
-        cwd=repo, capture_output=True, text=True, check=True,
-    )
-    return [repo / name for name in result.stdout.split("\0") if name]
+    return [repo / name for name in ls_files(repo, "*.py", ":(exclude)research/")]
 
 
 def duplicate_symbols(source: str, filename: str = "<unknown>") -> dict[str, list[int]]:

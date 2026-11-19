@@ -29,9 +29,9 @@ fails the pull request that adds it.
 """
 import ast
 import re
-import subprocess
 import sys
 from pathlib import Path
+from repo_files import ls_files
 
 ROOT = Path(__file__).resolve().parents[2]
 SCOPES = ("ventures", "platform", "research")
@@ -64,9 +64,7 @@ def offending_flags(source, filename="<string>"):
 
 
 def tracked_python(root=ROOT):
-    out = subprocess.run(["git", "ls-files", "--", *(f"{s}/*.py" for s in SCOPES)],
-                         cwd=root, capture_output=True, text=True, check=True).stdout
-    return [root / line for line in out.splitlines() if line]
+    return [root / line for line in ls_files(root, *(f"{s}/*.py" for s in SCOPES))]
 
 
 def main():
