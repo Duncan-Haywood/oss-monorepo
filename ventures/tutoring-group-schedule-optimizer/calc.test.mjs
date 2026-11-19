@@ -174,3 +174,36 @@ test("csv export lists slots and seats, escaping commas", () => {
   assert.match(csv, /student,price,slot/);
   assert.equal(money(-1234.4), "-$1,234");
 });
+
+test("a minimum column placed first in the header is read, not replaced by the default", () => {
+  const s = parseSlots("min,slot,capacity,cost\n3,Mon 4pm,6,40", { min: 1 });
+  assert.equal(s.slots.length, 1);
+  assert.equal(s.slots[0].min, 3);
+});
+
+test("a blank first slot cell (spreadsheet export) still keeps the student", () => {
+  const p = parseStudents("name,price,slots\nAnn,25,,Mon 4pm");
+  assert.equal(p.students.length, 1);
+  assert.deepEqual(p.students[0].avail, ["Mon 4pm"]);
+  assert.equal(p.warnings.length, 0);
+});
+
+test("the sample matches what the page says it is: 34 students, 9 slots", async () => {
+  const { slots, students } = sample();
+  assert.equal(students.length, 34);
+  assert.equal(slots.length, 9);
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, new RegExp(`${students.length} invented students and ${slots.length} slots`));
+});
+
+test("a price or cost typed with a currency sign is read, not skipped", () => {
+  const p = parseStudents("name,price,slots\nAnn,$25,Mon 4pm\nBob,£ 27.50,Mon 4pm\nCy,€30,Mon 4pm");
+  assert.deepEqual(p.students.map((s) => s.price), [25, 27.5, 30]);
+  assert.equal(p.warnings.length, 0);
+  const s = parseSlots("slot,capacity,min,cost\nMon 4pm,6,3,$40");
+  assert.equal(s.slots[0].cost, 40);
+  // a sign alone is still a missing number
+  assert.equal(parseStudents("name,price,slots\nAnn,$,Mon 4pm").error !== undefined, true);
+  assert.equal(parseSlots("slot,capacity,min,cost\nMon 4pm,6,3,$").error !== undefined, true);
+});
