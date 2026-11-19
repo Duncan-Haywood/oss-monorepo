@@ -670,24 +670,49 @@ def _cmd_columns(T, j0, j1, segs, tau):
 ANCHOR_BACK = 0.9
 
 
-def _anchor(periods, back=None, steps=2):
+def _anchor(periods, back=None, steps=2, per=1):
     """The revolution `drop_from_commands_steps` anchors on: the longest period, walked back over a level run
-    (`back` None reads ANCHOR_BACK)."""
+    (`back` None reads ANCHOR_BACK). `per` (2026-11-19, README "More tach pulses a revolution"): the periods are
+    1 / per of a revolution each (already scaled to a whole revolution's length), so the revolution counts scale."""
     if back is None:
         back = ANCHOR_BACK
     k = 0
     for j in range(1, len(periods)):
         if periods[j] > periods[k]:
             k = j
-    if back <= 0 or k < 4:
+    if back <= 0 or k < 4 * per:
         return k
-    pb = sorted(periods[max(0, k - 8):k - 2])
+    pb = sorted(periods[max(0, k - 8 * per):k - 2 * per])
     base = pb[len(pb) // 2]
-    for _ in range(steps):
-        if k < 4 or periods[k - 1] - base <= back * (periods[k] - base):
+    for _ in range(steps * per):
+        if k < 4 * per or periods[k - 1] - base <= back * (periods[k] - base):
             break
         k -= 1
     return k
+
+
+def magnet_spacing(periods, per):
+    """Each magnet's share of a revolution, from a tach's periods at a steady or slowly changing speed (2026-11-19,
+    README "More tach pulses a revolution"). `periods` start at magnet 0's edge. Each period is taken over the mean of
+    the whole revolution ending with it and the one starting with it, which is exactly per times the period at its own
+    place on a linear change of speed, so a wheel still settling does not lean the shares; the shares are averaged by
+    magnet and scaled to sum to 1. Returns `per` shares, or None with fewer than three whole revolutions. A
+    once-a-revolution tach is [1.0]."""
+    n = len(periods)
+    if per == 1:
+        return [1.0]
+    if n < 3 * per:
+        return None
+    acc = [0.0] * per
+    cnt = [0] * per
+    for j in range(per - 1, n - per + 1):
+        back = sum(periods[j - per + 1:j + 1])
+        fwd = sum(periods[j:j + per])
+        acc[j % per] += periods[j] * 2.0 / (back + fwd)
+        cnt[j % per] += 1
+    sh = [acc[i] / cnt[i] for i in range(per)]
+    tot = sum(sh)
+    return [x / tot for x in sh]
 
 
 # Half-sine take offsets stretched to the profile's own spread (2026-11-18, README "The take fit's four parts and its
@@ -733,7 +758,7 @@ def _stopped(was, now):
 
 
 def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, taus=LOOP_TAU_GRID_US, refine=5, levels=3,
-                             edges=False, back=None, polish=True, take=()):
+                             edges=False, back=None, polish=True, take=(), angles=None, per=1):
     """A ball's whole drop on one wheel from its revolution periods and the ESC commands the speed loop sent around it
     (2026-11-16, README "A recovery shaped by the loop's own commands").
 
@@ -762,19 +787,32 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     the vertex of the parabola through the grid's best point and its neighbours: no extra step, and on
     tests/fit_grid_floor.py's 755 noise-free wheels the readings' scatter about the true drop fell from 0.32% / 0.27%
     (first-order / ESC 50 ms plants) to 0.15% / 0.15%. The 3-level grid's last step, 1/64 of a revolution, was the
-    floor; a fourth level does as well again (0.12%) but costs 12 more steps a wheel."""
+    floor; a fourth level does as well again (0.12%) but costs 12 more steps a wheel.
+
+    `per` and `angles` (2026-11-19, README "More tach pulses a revolution"; host-side, the board still sends one
+    pulse a revolution): a tach with `per` magnets a revolution gives `per` periods a revolution, each the time the
+    wheel took to turn `angles[j]` of a revolution (the magnets' spacing, learnt at a steady speed by
+    `magnet_spacing`; None is 1 / per each). The spans stay the real times; each period's mean speed is angles[j] /
+    periods[j]; `pre`, `after`, the anchor's search and the ball's window are still counted in revolutions."""
     n = len(periods)
-    if n < pre + 4:
+    if angles is None and per == 1:
+        rp = periods
+    else:
+        if angles is None:
+            angles = [1.0 / per] * n
+        rp = [periods[j] / (angles[j] * per) for j in range(n)]   # each period stretched to a whole revolution's
+    pre, after = pre * per, after * per
+    if n < pre + 4 * per:
         yield ("fit", None)
         return
-    k = _anchor(periods, back)
+    k = _anchor(rp, back, per=per)
     if k < pre + 1:
         yield ("fit", None)
         return
-    w0 = 3.0 / (periods[k - 4] + periods[k - 3] + periods[k - 2])
-    J = k - 1 if 1.0 / periods[k - 1] < w0 * (1.0 - min_fall) else k
+    w0 = 3.0 * per / sum(rp[k - 4 * per:k - per])
+    J = k - 1 if 1.0 / rp[k - 1] < w0 * (1.0 - min_fall) else k
     j0, j1 = k - 1 - pre, min(n, J + after)
-    if j1 - k < 3:
+    if j1 - k < 3 * per:
         yield ("fit", None)
         return
     T = [0.0]
@@ -795,8 +833,8 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
         return
     segs.insert(0, (ts, u0))
     # deficits below w0, as fractions of it: small numbers, so MicroPython's single-precision floats keep them
-    ys = [1.0 - 1.0 / (periods[j] * w0) for j in range(j0, j1)]
-    t_lo, t_hi = T[k - 1], T[k + 1]
+    ys = [1.0 - 1.0 / (rp[j] * w0) for j in range(j0, j1)]
+    t_lo, t_hi = T[max(0, k - per)], T[min(n, k + per)]
     if take:
         # first contact can come up to the take's last share before the revolution the fall shows in
         t_lo = max(T[j0], t_lo - take[-1])
