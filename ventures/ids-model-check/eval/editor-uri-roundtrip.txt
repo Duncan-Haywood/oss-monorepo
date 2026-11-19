@@ -1,0 +1,1 @@
+53 distinct files with requirement-facet uris; 344 uris; 344 written back by the editor; 53 files with every uri kept; 0 did not open
