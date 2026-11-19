@@ -408,8 +408,24 @@ function pairPrefixes(z, days, kind) {
   return { C, R, W, off };
 }
 
+/**
+ * Direction guard for a candidate return (round 5, README "Short returns: a real drop in repeats"): asks that the
+ * repeat share inside the interval be really lower than around it, not just lower. `guard` is
+ * { kind: 'ratio', r } (share inside <= r x share around) or { kind: 'z', z } (one-sided pooled two-proportion
+ * z of the drop >= z). Off (null) by default everywhere: the shipped pass and rounds 1-4 are unchanged.
+ */
+export function returnGuardPasses(inR, nIn, outR, nOut, guard) {
+  const pIn = inR / nIn, pOut = outR / nOut;
+  if (guard.kind === 'ratio') return pIn <= guard.r * pOut;
+  if (guard.kind === 'z') {
+    const p = (inR + outR) / (nIn + nOut), se = Math.sqrt(p * (1 - p) * (1 / nIn + 1 / nOut));
+    return se > 0 && (pOut - pIn) / se >= guard.z;
+  }
+  throw new Error(`unknown return guard '${guard.kind}'`);
+}
+
 /** Best interval [a, b) of fewer repeats inside z[L..R) under a return cost kind; { a, b, gain } or null. */
-export function bestReturnCost(z, L, R, { kind = 'dow', days = null, minSegment = 20, P = null } = {}) {
+export function bestReturnCost(z, L, R, { kind = 'dow', days = null, minSegment = 20, P = null, guard = null } = {}) {
   if (R - L < 3 * minSegment) return null;
   if (kind !== 'chain' && !days) throw new Error(`a '${kind}' cost needs days`);
   P = P || pairPrefixes(z, days, kind);
@@ -426,6 +442,7 @@ export function bestReturnCost(z, L, R, { kind = 'dow', days = null, minSegment 
     for (let b = a + minSegment; b <= R - minSegment; b++) {
       const inR = Rp[b] - Rp[a];
       if (inR / (b - a) >= (totR - inR) / (R - L - (b - a))) continue; // only fewer repeats inside
+      if (guard && !returnGuardPasses(inR, b - a, totR - inR, R - L - (b - a), guard)) continue;
       let ci = 0, co = 0;
       const bi = b * W, ai = (a + off) * W, ri = R * W, bo = (b + off) * W;
       for (let k = 0; k < W; k += 2) {
@@ -450,14 +467,14 @@ export function daysFromDates(dates) {
  * The best return per stretch under a return cost, with no penalty applied (so a caller can test several):
  * [{ L, R, a, b, gain, shareInside, shareOutside }] in z positions. `u` reuses an updateRateChanges result.
  */
-export function returnCandidates(values, { kind = 'dow', days = null, minSegment = SHORT_RETURNS.minSegment, minRepeats = SHORT_RETURNS.minRepeats, u = null } = {}) {
+export function returnCandidates(values, { kind = 'dow', days = null, minSegment = SHORT_RETURNS.minSegment, minRepeats = SHORT_RETURNS.minRepeats, u = null, guard = null } = {}) {
   const z = repeatIndicators(values);
   if (z.reduce((s, v) => s + v, 0) < minRepeats) return [];
   const st = (u || updateRateChanges(values)).stretches;
   const spans = st.length ? st.map((s) => [s.from - 1, s.to]) : [[0, z.length]];
   const P = pairPrefixes(z, days, kind), out = [];
   for (const [L, R] of spans) {
-    const r = bestReturnCost(z, L, R, { kind, days, minSegment, P });
+    const r = bestReturnCost(z, L, R, { kind, days, minSegment, P, guard });
     if (!r) continue;
     const inR = P.R[r.b] - P.R[r.a], outR = P.R[R] - P.R[L] - inR;
     out.push({ L, R, ...r, shareInside: inR / (r.b - r.a), shareOutside: outR / (R - L - (r.b - r.a)) });

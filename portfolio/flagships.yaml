@@ -197,11 +197,11 @@ flagships:
       first-open-day alerts, third shop); (a) ar1 + floor 2 failed on 5 fresh bee
       dances (0.244 vs 0.337, README; muted note ships); update-rate: pegs 4 of 7
       dated; JHU state switches to weekly reporting 20 of 27, returns to more days 0
-      of 8 (README "A provider's own schedule changes"); short returns: per-stretch
-      weekday-or-chain test passes sims (200 of 200, 0 false) but dates 3 of 8 JHU
-      returns, bar 4 (README "the model chosen per stretch"); next a same-count
-      day-shift null and a real-drop guard. Stale feeds: clumped LR shipped; next a
-      real documented carry-forward. joint drift (measured, not offered) and its 2x
+      of 8 (README "A provider's own schedule changes"); short returns: a half-share
+      guard clears same-count day shifts (1.00 to 0 false, power kept) but JHU 2 of
+      8 (README "a real drop in repeats"); next why the shipped cut misses lasting
+      moves to more days (AK, SD, NE). Stale feeds: clumped LR shipped; next a real
+      documented carry-forward. joint drift (measured, not offered) and its 2x
       penalty on fresh multi-column labelled data. Open: (0) drift model: t-walk
       increments, biweight on fresh data, why it absorbs seat belts and quality
       control 4, its AR(1) term; two covariates: harmless one's warning 0 of 170
