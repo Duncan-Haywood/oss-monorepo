@@ -169,3 +169,75 @@ test('style text balances braces and honours quotes, as ICU4J does', () => {
   assert.throws(() => parse('{n, number, {}'), /Unclosed/);
   assert.equal(parse("{n, number, '{'#}").ast[0].style, "'{'#");
 });
+
+// --- red-team 2026-11-19: guards for faults the suite let through ----------
+
+test('missing-category examples count the offset (ICU picks the category from n - offset)', () => {
+  // n = 2 selects "one" (2 - 1 = 1); =1 covers only n = 1, so n = 2 shows "you and 1 others".
+  const d = checkMessage('{n, plural, offset:1 =1 {just you} other {you and # others}}', 'en').diagnostics;
+  const miss = d.find((x) => x.code === 'missing-category');
+  assert.ok(miss, JSON.stringify(d));
+  assert.match(miss.message, /numbers such as 2 will show/);
+  assert.equal(fmt('{n, plural, offset:1 =1 {just you} other {you and # others}}', { n: 2 }), 'you and 1 others');
+  // =2 covers the one reachable "one" number, so nothing to warn about.
+  assert.deepEqual(codes('{n, plural, offset:1 =1 {just you} =2 {you and one other} other {you and # others}}', 'en'), []);
+  // Without an offset, =1 still covers "one" in English.
+  assert.deepEqual(codes('{n, plural, =1 {just you} other {# people}}', 'en'), []);
+  // Decimal-only categories shift too: fr "one" with =1 and =2 under offset:1 is reached by 1.1, 1.2…
+  const fr = checkMessage('{n, plural, offset:1 =1 {a} =2 {b} other {c}}', 'fr').diagnostics.find((x) => x.code === 'missing-category-decimal');
+  assert.match(fr.message, /decimals like 1\.1, 1\.2, 1\.3/);
+});
+
+test('any whole-number offset parses, not only 0 and 1', () => {
+  const { ast } = parse('{n, plural, offset:25 other {#}}');
+  assert.equal(ast[0].offset, 25);
+  assert.equal(fmt('{n, plural, offset:2 other {# more}}', { n: 5 }), '3 more');
+});
+
+test('exact selectors are duplicates by numeric value (=1, =01, =1.0)', () => {
+  assert.throws(() => parse('{n, plural, =1 {a} =01 {b} other {c}}'), /Duplicate selector "=01"/);
+  assert.throws(() => parse('{n, plural, =1 {a} =1.0 {b} other {c}}'), /Duplicate selector "=1.0"/);
+});
+
+test('diagnostics name selectordinal vs plural correctly', () => {
+  const ord = checkMessage('{n, selectordinal, onr {a} other {b}}', 'en').diagnostics.find((d) => d.code === 'unknown-category');
+  assert.match(ord.message, /\{n, selectordinal\}/);
+  assert.match(ord.fix, /Did you mean "one"/);
+  const card = checkMessage('{n, plural, onr {a} other {b}}', 'en').diagnostics.find((d) => d.code === 'unknown-category');
+  assert.match(card.message, /\{n, plural\}/);
+});
+
+test('typo suggestions use real edit distance', async () => {
+  const { nearest } = await import('./icu.mjs');
+  assert.equal(nearest('onr', ['zero', 'one', 'two', 'few', 'many', 'other']), 'one');
+  assert.equal(nearest('fewr', ['zero', 'one', 'two', 'few', 'many', 'other']), 'few');
+  assert.equal(nearest('xyzzy', ['one', 'other']), null);
+  assert.equal(nearest('abc', ['abd', 'xyz']), 'abd');
+  // A one-letter word is far from 'one' and 'other' (3 and 5 edits), not a match.
+  assert.equal(nearest('x', ['one', 'other']), null);
+  assert.equal(nearest('o', ['zero', 'one']), 'one');
+});
+
+test('argument-format info only when both sides format the value differently', () => {
+  const kinds = (s, t) => compareMessages(parse(s).ast, parse(t).ast).map((d) => d.code);
+  assert.deepEqual(kinds('{n, number}', '{n, date}'), ['argument-format']);
+  assert.deepEqual(kinds('{n, number}', '{n}'), []);
+  assert.deepEqual(kinds('{n}', '{n, number}'), []);
+});
+
+test('date arguments format as dates, time arguments as times', () => {
+  const d = new Date(Date.UTC(2026, 0, 15, 14, 30));
+  const date = fmt('{d, date, long}', { d }, 'en');
+  assert.match(date, /January 1[45], 2026/);
+  assert.doesNotMatch(date, /\d:\d\d/);
+  assert.match(fmt('{d, time, short}', { d }, 'en'), /\d:30/);
+});
+
+test('preview picks the first real select option, and offsets shift decimal samples', () => {
+  const sel = previewRows(parse('{g, select, female {She} male {He} other {They}} replied').ast, 'en');
+  assert.equal(sel.rows[0].text, 'She replied');
+  const fr = previewRows(parse('{n, plural, offset:1 =1 {a} =2 {b} one {c} other {d}}').ast, 'fr');
+  const dec = fr.rows.find((r) => r.category === '"one" (decimals)');
+  assert.equal(dec.value, 1.1);
+  assert.equal(dec.text, 'c');
+});

@@ -67,3 +67,25 @@ def test_orphan_audit_flags_a_number_absent_from_the_pool():
     m = iu.module_from_spec(s)
     s.loader.exec_module(m)
     assert m.orphans("0.9130 and 3.17 and 12.345", "x 0.9130 y 3.175") == ["12.345", "3.17"]
+
+
+def test_supplement_converts_and_is_checked_with_the_manuscript():
+    # milestone 7v: sections 3.6 to 3.10 moved verbatim to supplement.md; it must build and
+    # its numbers are audited by check_numbers.py --paper manuscript.md (test above).
+    md = (PAPER / "supplement.md").read_text()
+    tex, figures = build_tex.convert(md)
+    assert build_tex.check(tex, md) == []
+    assert "supplement.md" in (PAPER / "check_numbers.py").read_text()
+
+
+def test_manuscript_stays_near_journal_length():
+    # milestone 7v cut it from 9,479 to about 7,000 words; growth past 7,500 means detail
+    # that belongs in supplement.md is creeping back.
+    words = len((PAPER / "manuscript.md").read_text().split())
+    assert words <= 7500, words
+
+
+def test_subsection_numbers_are_not_printed_twice():
+    # LaTeX numbers \subsection itself; the markdown's "3.6 " prefix used to print as "3.6 3.6".
+    tex, _ = build_tex.convert("# T\n\n## 3. Results\n\n### 3.6 Drag as a second number\n\ntext\n")
+    assert r"\subsection{Drag as a second number}" in tex
