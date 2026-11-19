@@ -818,6 +818,10 @@ with half of a 0.03 mm spec for each direction, on a second held-out set of 48 l
 presses 0.2713 mm (G1) and 0.2865 mm (H1) across the wall, while the two-row rule keeps every planned case inside
 0.03 mm in both directions (worst 0.0220 mm across) and plans the same share, 100% on the G1 and 99.63% on the H1.
 The second row changes which hold sides and squeeze are chosen, not whether a plan exists.
+The nail's angle needs no rows of its own here (milestone 59). Carrying the same flip cost through the rows of the
+depth point, 44.4 mm along the nail, on a third held-out set of 48 loads, the two-row rule already leaves the depth
+point at worst 0.0220 mm (G1) and 0.0177 mm (H1), the nail axis tilts at most 0.034 mrad, and the four-row rule plans
+the same presses (100% on the G1, 99.65% on the H1).
 
 ### 5.12 What the remedies cost (milestone 13)
 
