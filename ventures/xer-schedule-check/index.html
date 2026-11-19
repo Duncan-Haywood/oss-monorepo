@@ -21,7 +21,7 @@
     .note, footer { font-size: .86rem; color: #4e5b66; }
     .card { background: #fff; border: 1px solid #d7e0e8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #163a5910; margin: 18px 0; }
     label { display: block; font-weight: 600; margin: 12px 0 4px; }
-    select, input[type=file] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7b8b99; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    select, input[type=file], input[type=text], textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7b8b99; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
     @media (max-width: 720px) { body { padding: 16px; } }
     button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5a8c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
     button.secondary { background: #e3ebf2; color: #163a59; }
@@ -114,6 +114,22 @@
     <p class="note">The schedule CSV lists every open activity with its recomputed early and late dates, total float and free float, beside the values the file stores. Free float matches P6's own on 19,809 of 19,822 activities in six public files.</p>
   </section>
 
+  <section class="card" id="review" hidden aria-labelledby="rev">
+    <h2 id="rev">Written review to send</h2>
+    <p>One document for the contractor: a summary, the corrections ranked high, medium and low with the exact activities behind each, the scorecard and the driving path. If you compared with the previous update above, the changes are in it too. Print it or save it as a PDF from the print dialog.</p>
+    <label for="rev-to">To (optional)</label>
+    <input type="text" id="rev-to" placeholder="Contractor's scheduler">
+    <label for="rev-from">From (optional)</label>
+    <input type="text" id="rev-from" placeholder="Your name and role">
+    <label for="rev-ref">Reference (optional)</label>
+    <input type="text" id="rev-ref" placeholder="Contract or submittal number">
+    <label for="rev-notes">Your notes (optional, printed at the top)</label>
+    <textarea id="rev-notes" rows="3"></textarea>
+    <p class="note" id="rev-summary"></p>
+    <button type="button" id="rev-print">Print or save as PDF</button>
+    <button type="button" id="rev-download" class="secondary">Download review (HTML)</button>
+  </section>
+
   <section class="card" aria-labelledby="how">
     <h2 id="how">How it works</h2>
     <p>The file is read table by table (TASK, TASKPRED, CALENDAR, PROJECT, SCHEDOPTIONS, TASKRSRC). Each activity is scheduled on its own work calendar, holidays and changed days included, with finish-to-start, start-to-start, finish-to-finish and start-to-finish links and their lags, the project's lag-calendar and float settings, primary and secondary constraints, the planned start and must-finish-by dates, and progress at the data date under retained logic or progress override. The forward and backward passes give early and late dates, total float and free float, the same quantities P6 computes.</p>
@@ -160,6 +176,7 @@
     import { EXAMPLE_XER, EXAMPLE_PREV_XER } from "./example.mjs";
     import { compare, compareCsv } from "./compare.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { reviewHtml, reviewItems } from "./report.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
@@ -193,6 +210,7 @@
       $("#recompute-list").innerHTML = rc.items.length ? `<details><summary>${rc.items.length} activit${rc.items.length === 1 ? "y" : "ies"} that differ</summary>${itemsTable(rc.items)}</details>` : "";
       $("#path tbody").innerHTML = r.drivingPath.map((d) => `<tr><td>${esc(d.code)}</td><td>${esc(d.name)}</td><td>${esc(d.start)}</td><td>${esc(d.finish)}</td><td class="n">${esc(fmt(d.float))}</td></tr>`).join("");
       report.hidden = false;
+      updateReview();
     }
 
     function run(projId) {
@@ -210,6 +228,7 @@
 
     function load(text, name) {
       fileName = (name || "schedule").replace(/\.xer$/i, "");
+      lastCmp = null; $("#cmp-report").hidden = true;
       try {
         xer = parseXer(text);
       } catch (e) {
@@ -255,6 +274,7 @@
     }
     function renderCompare(c) {
       lastCmp = c;
+      updateReview();
       $("#cmp-warnings").innerHTML = c.warnings.length ? `<div class="warnbox"><strong>Read with care:</strong><ul>${c.warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : "";
       const tiles = [[`${sgn(c.finish.moved)} days`, `forecast finish moved (${c.previous.finish} to ${c.current.finish})`], [`${c.previous.dataDate.slice(0, 10)} → ${c.current.dataDate.slice(0, 10)}`, `data dates, ${c.period.workingDays ?? "?"} working days`], [`${c.progress.started.length} / ${c.progress.finished.length}`, "activities started / finished"], [`${c.logic.added.length + c.logic.deleted.length + c.logic.lagChanged.length + c.logic.typeChanged.length}`, "relationship changes"], [`${c.float.newlyCritical}`, "activities newly critical"]];
       $("#cmp-big").innerHTML = tiles.map(([x, l]) => `<div><strong>${esc(x)}</strong>${esc(l)}</div>`).join("");
@@ -314,6 +334,21 @@
       prevXer = parseXer(EXAMPLE_PREV_XER);
       if (runCompare()) { record("example_loaded"); $("#cmp-status").textContent = "Example: two invented monthly updates of an office fit-out with deliberate changes between them, not a real project."; }
     });
+    function reviewMeta() { return { recipient: $("#rev-to").value.trim(), reviewer: $("#rev-from").value.trim(), reference: $("#rev-ref").value.trim(), notes: $("#rev-notes").value.trim() }; }
+    function updateReview() {
+      if (!last) { $("#review").hidden = true; return; }
+      const items = reviewItems(last, lastCmp), n = (s) => items.filter((x) => x.severity === s).length;
+      $("#rev-summary").textContent = `${items.length} correction${items.length === 1 ? "" : "s"} to request: ${n("high")} high, ${n("medium")} medium, ${n("low")} low${lastCmp ? ", including the changes since the previous update" : ""}.`;
+      $("#review").hidden = false;
+    }
+    $("#rev-print").addEventListener("click", () => {
+      if (!last) return;
+      const w = window.open("", "_blank");
+      if (!w) { $("#rev-summary").textContent = "The browser blocked the new window: use Download review (HTML) and print that file."; return; }
+      w.document.write(reviewHtml(last, lastCmp, reviewMeta())); w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
+      record("review_printed");
+    });
+    $("#rev-download").addEventListener("click", () => { if (!last) return; save(new Blob([reviewHtml(last, lastCmp, reviewMeta())], { type: "text/html" }), `${fileName}-schedule-review.html`); record("review_printed"); });
     $("#cmp-download").addEventListener("click", () => { if (!lastCmp) return; save(new Blob([compareCsv(lastCmp)], { type: "text/csv" }), `${fileName}-update-changes.csv`); record("findings_downloaded"); });
     $("#cmp-download-json").addEventListener("click", () => { if (!lastCmp) return; save(new Blob([JSON.stringify(lastCmp, null, 2)], { type: "application/json" }), `${fileName}-update-comparison.json`); record("findings_downloaded"); });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });

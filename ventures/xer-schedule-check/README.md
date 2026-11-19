@@ -23,6 +23,17 @@ renamed, float used per activity, how the driving path changed, and a
 **half-step** run that splits the finish movement into what progress caused and
 what the revisions caused.
 
+**Written review** (2026-11-19): one document for the contractor, built from
+the assessment and, when loaded, the comparison: a summary (forecast against
+the must-finish date, the half-step split), every correction ranked **high**
+(dates cannot be relied on: loops, negative float, a broken critical path test,
+invalid dates, actuals edited after reporting, critical logic deleted),
+**medium** (logic that can hide delay) or **low** (good practice), each with
+the exact activities behind it, then the scorecard and the driving path. It has
+no scripts or outside files, so it prints the same anywhere; "Save as PDF" in
+the print dialog is the PDF. On the six public files it asks for 2 to 11
+corrections (eval/review-report-2026-11-19.md).
+
 ## Why someone would use it
 
 | Today's option | What it does | What this does better |
@@ -33,10 +44,9 @@ what the revisions caused.
 | A spreadsheet export | Whatever formulas you write | Calendars, lags, constraints and progress handled the way P6 handles them |
 
 **Path to revenue (payment rails off, nothing live):** free tool and lead magnet
-for schedule review. Natural paid paths, each needing the owner: a written
-schedule-review report (PDF) an owner's rep can send to a contractor (now that
-the DCMA check and the update comparison both exist, the report is the
-packaging of the two); a period-by-period windows analysis across a whole
+for schedule review. The written review (PDF via print) now ships free.
+Natural paid paths, each needing the owner: a branded or white-label review for
+consultancies; a period-by-period windows analysis across a whole
 project's updates for delay claims; and the review itself as a service.
 
 ## How it works
@@ -72,12 +82,17 @@ project's updates for delay claims; and the review itself as a service.
   finish minus previous finish, revision effect = current minus half-step, in
   working days of the project calendar. Each file's recomputed-vs-stored
   agreement is checked and a warning shown under 90%.
+- `report.mjs`: the written review. `reviewItems` turns each failing DCMA
+  point, extra check, stale-date list and comparison flag into one ranked
+  correction with its activities; `reviewHtml` lays them out for print.
 - `index.html`: the page. `cli.mjs`: the same from a terminal:
 
 ```
 node cli.mjs schedule.xer                 # scorecard
 node cli.mjs schedule.xer --json          # full report
 node cli.mjs schedule.xer --csv out.csv   # one row per finding
+node cli.mjs schedule.xer --report review.html --to "GC scheduler" --from "Owner's rep"
+node cli.mjs current.xer --previous last.xer --report review.html   # review with the update's changes
 node cli.mjs schedule.xer --project CODE  # a file with several projects
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 ```
