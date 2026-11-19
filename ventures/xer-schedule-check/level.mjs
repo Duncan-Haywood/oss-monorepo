@@ -114,15 +114,18 @@ class Profile {
   remove(taskId) { this.spans = this.spans.filter((x) => x.task !== taskId); }
 }
 
-// peak usage and hours over the limit of a set of spans against limits
-function overload(spans, prof) {
+// peak usage and hours over the limit of a set of spans against limits;
+// hours are working hours on `cal` (the project calendar), not elapsed
+// clock time, which counted nights and weekends (2026-11-19: two parallel
+// 5-day activities read 105 h over, not 40)
+function overload(spans, prof, cal) {
   const ev = [];
   for (const x of spans) { ev.push([x.s, x.rate]); ev.push([x.e, -x.rate]); }
   for (const l of prof.limits) ev.push([l.from, 0]);
   ev.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
   let cur = 0, pk = 0, overMin = 0, prev = null;
   for (const [t, d] of ev) {
-    if (prev !== null && t > prev && cur > prof.limitAt(prev) + EPS) overMin += t - prev;
+    if (prev !== null && t > prev && cur > prof.limitAt(prev) + EPS) overMin += cal.workBetween(prev, t);
     cur += d; prev = t;
     if (cur > pk) pk = cur;
   }
@@ -133,14 +136,14 @@ function overload(spans, prof) {
 // started, not listed as unfittable) is using the resource. Started work is
 // fixed, so it alone may be over the limit; nothing placed may add to that.
 // Zero when the levelling did its job.
-function movedOver(spans, prof) {
+function movedOver(spans, prof, cal) {
   const ev = [];
   for (const x of spans) { ev.push([x.s, x.rate, x.fixed]); ev.push([x.e, -x.rate, x.fixed]); }
   for (const l of prof.limits) ev.push([l.from, 0, true]);
   ev.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
   let cur = 0, moving = 0, over = 0, prev = null;
   for (const [t, d, fixed] of ev) {
-    if (prev !== null && t > prev && moving > EPS && cur > prof.limitAt(prev) * (1 + EPS) + EPS) over += t - prev;
+    if (prev !== null && t > prev && moving > EPS && cur > prof.limitAt(prev) * (1 + EPS) + EPS) over += cal.workBetween(prev, t);
     cur += d; if (!fixed) moving += d; prev = t;
   }
   return Math.round(over / 6) / 10;
@@ -319,6 +322,11 @@ export function* levelSteps(xer, opts = {}) {
         const room = Math.max(0, Math.round(fl * 60) - keepFloat);
         if (t.cal.workBetween(es, s) > room) {
           if (!leftIds.has(id)) { leftIds.add(id); left.push({ id, code: t.code, name: t.name, why: "no float left to level within" }); }
+          // it stays over the limit on purpose, like the other `left` ones:
+          // keep it out of the self-check and the lower bound (2026-11-19:
+          // the self-check read 105 h on a correct within-float run)
+          for (const sp of spansOf(t, es)) ign.add(sp.rsrc);
+          ignore.set(id, ign);
           commit(es); continue;
         }
       }
@@ -362,7 +370,7 @@ export function* levelSteps(xer, opts = {}) {
       }
     }
     const work = b.reduce((n, x) => n + x.rate * x.work, 0);
-    resources.push({ id, code: r.rsrc_short_name, name: r.rsrc_name, type: r.rsrc_type, limit: round3(prof.limits.at(-1).max), activities: b.length, left: [...ignore].filter(([, set]) => set.has(id)).length, before: overload(b, prof), after: overload(after, prof), afterLevelled: overload(levelledOnly, prof), selfCheckHours: movedOver(levelledOnly, prof), _work: work });
+    resources.push({ id, code: r.rsrc_short_name, name: r.rsrc_name, type: r.rsrc_type, limit: round3(prof.limits.at(-1).max), activities: b.length, left: [...ignore].filter(([, set]) => set.has(id)).length, before: overload(b, prof, proj.cal), after: overload(after, prof, proj.cal), afterLevelled: overload(levelledOnly, prof, proj.cal), selfCheckHours: movedOver(levelledOnly, prof, proj.cal), _work: work });
   }
   resources.sort((a, b) => b.before.overHours - a.before.overHours || a.code.localeCompare(b.code));
 
@@ -378,18 +386,17 @@ export function* levelSteps(xer, opts = {}) {
   }
   activities.sort((a, b) => b.delayDays - a.delayDays || a.code.localeCompare(b.code));
 
-  // a bound no levelling can beat: a resource's remaining work at its limit
-  // needs that many working hours from the data date, on the project calendar
+  // a bound no levelling can beat: a resource's remaining work, done at its
+  // limit in force on each date (times any over-allocation allowed), needs
+  // working time from the data date, on the project calendar
   let lowerBound = null;
   const pcal = proj.cal;
   const aloneOver = new Set();
   for (const [id, set] of ignore) for (const k of set) aloneOver.add(k);
   for (const res of resources) {
-    const lim = res.limit;
     if (aloneOver.has(res.id)) continue;
-    if (!(lim > 0) || !Number.isFinite(lim)) continue;
-    const hours = res._work / 60 / lim; // hours of the resource at its limit
-    const bound = pcal.addWork(pcal.nextStart(proj.dataDate), Math.round(hours * 60));
+    const bound = capacityBound(pcal, pcal.nextStart(proj.dataDate), profiles.get(res.id).limits, res._work, limitFactor);
+    if (bound === null) continue;
     if (lowerBound === null || bound > lowerBound.date) lowerBound = { date: bound, rsrc: res.code };
   }
   for (const res of resources) delete res._work;
@@ -435,6 +442,33 @@ export async function levelAsync(xer, opts = {}, onProgress = () => {}) {
     if (Date.now() - t > 50) { onProgress(r.value); await new Promise((ok) => setTimeout(ok, 0)); t = Date.now(); }
   }
 }
+
+// Earliest instant by which `work` (unit-minutes) can be done from `start`
+// with at most limits[i].max * factor units per working hour in each period
+// [limits[i].from, limits[i+1].from). Pricing all the work at one period's
+// limit is wrong both ways when the limit changes over time (2026-11-19: a
+// crew of two that drops to one later gave a "bound" a week after the
+// levelled finish). A period with no limit given (Infinity) that has working
+// time could take all the work, so there is no bound: null.
+function capacityBound(cal, start, limits, work, factor = 1) {
+  let t = start, left = work;
+  if (!(left > 0)) return null;
+  for (let i = 0; i < limits.length; i++) {
+    const end = i + 1 < limits.length ? limits[i + 1].from : Infinity;
+    if (end <= t) continue;
+    const max = limits[i].max * factor;
+    const avail = end === Infinity ? Infinity : cal.workBetween(t, end); // minutes
+    if (!(avail > 0) || !(max > 0)) { if (end !== Infinity) { t = Math.max(t, cal.nextStart(end)); continue; } return null; }
+    if (!Number.isFinite(max)) return null;
+    if (avail * max >= left - EPS) return cal.addWork(t, Math.round(left / max));
+    left -= avail * max;
+    t = cal.nextStart(end);
+  }
+  return null;
+}
+
+// for the tests: the measures behind the resource table
+export const _internal = { Profile, overload, movedOver, capacityBound };
 
 const round3 = (x) => (Number.isFinite(x) ? Math.round(x * 1000) / 1000 : x);
 const rsrcCode = (rsrc, id) => rsrc.get(id)?.rsrc_short_name || id;
