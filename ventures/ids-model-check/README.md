@@ -487,7 +487,9 @@ measure (`bsdd-units.mjs`):
   only a Torque and becomes IFCTORQUEMEASURE.
 - **Kept as IFCREAL, said on stderr:** no unit or dimension; a
   dimensionless unit (`%`: IFC's ratio measures take 0.5 for 50 %, and the
-  dictionary may mean 50; `dB`, a sound pressure or a sound power level);
+  dictionary may mean 50; a `dB` property whose name or physicalQuantity
+  does not say sound pressure or sound power level, such as a reduction index
+  `R_w`);
   units of different measures; a unit against the property's own stated
   dimension; a unit not in bSDD's list (`kg CO2 eq`, `W/mK`); and a value or
   bound that cannot be put in SI because two units are listed (`mm, m`).
@@ -504,6 +506,21 @@ built model (`eval/bsdd-units-model.mjs`), a 200 mm wall stored as
 500 mm wall fails it; IfcTester 0.9.0 gives the same 9 verdicts. The bSDD
 link check (`--bsdd`) reads a measure facet's SI values against bSDD's values
 in the property's unit (18 false `bsdd-value` warnings on kPa strengths to 0).
+
+**Decibels (2026-11-19).** QUDT's `dB` is both a sound pressure and a sound
+power level, so a dB property used to stay IFCREAL, and a model storing
+`IfcSoundPressureLevelMeasure` as IFC means failed it. `levelOf` now reads
+which from the property: physicalQuantity or the name in words ("sound power
+level", Schalldruckpegel, geluidsvermogen, pression acoustique), else the ISO
+symbol its code starts with (`L_W`, `LWA`: power, ISO 3740; `LA_Fmax_nT`,
+`L'nT,w`, `LAeq`, `Ln,w`: pressure, ISO 16032, 717-2). Reduction indices and
+level differences (`R_w`, `DnT,w`, `C_tr`) are in dB but are neither and
+stay IFCREAL. On a built wall class (`eval/bsdd-db-model.mjs`,
+`eval/bsdd-db-model.txt`) a wall typed as IFC means fails the old file only on
+its type and passes the new one; a plain IfcReal now fails; IfcTester 0.9.0
+gives the same 6 verdicts. Not yet run over the 262 dB properties in bSDD (the
+bSDD API did not answer from this session): `node eval/bsdd-units-corpus.mjs
+DIR` on a fresh cache counts them.
 
 ### Excel2IDS workbooks in, Excel2IDS workbooks out (2026-11-19)
 

@@ -1,0 +1,12 @@
+types written after: IFCSOUNDPRESSURELEVELMEASURE, IFCSOUNDPOWERLEVELMEASURE, IFCREAL
+note: https://identifier.buildingsmart.org/uri/example/demo/1/class/Wand: Akoestiek.R_w: Real kept as IFCREAL (unit DeciB: dimensionless, and QUDT gives it 2 kinds (IFCSOUNDPOWERLEVELMEASURE, IFCSOUNDPRESSURELEVELMEASURE); neither the name nor physicalQuantity says which)
+before (dB as IFCREAL): 3 applicable, 1 pass
+  fails: W-01 required property "Akoestiek"."LA_Fmax_nT" (IFCREAL) = <= 30: Akoestiek.LA_Fmax_nT is IFCSOUNDPRESSURELEVELMEASURE, not IFCREAL,required property "Akoestiek"."LWA" (IFCREAL) = <= 45: Akoestiek.LWA is IFCSOUNDPOWERLEVELMEASURE, not IFCREAL
+  fails: W-02 required property "Akoestiek"."LA_Fmax_nT" (IFCREAL) = <= 30: Akoestiek.LA_Fmax_nT is IFCSOUNDPRESSURELEVELMEASURE, not IFCREAL,required property "Akoestiek"."LWA" (IFCREAL) = <= 45: Akoestiek.LWA is IFCSOUNDPOWERLEVELMEASURE, not IFCREAL,required property "Akoestiek"."R_w" (IFCREAL) = >= 50: Akoestiek.R_w is 45, not >= 50
+after (levelOf): 3 applicable, 1 pass
+  fails: W-02 required property "Akoestiek"."LA_Fmax_nT" (IFCSOUNDPRESSURELEVELMEASURE) = <= 30: Akoestiek.LA_Fmax_nT is 35, not <= 30,required property "Akoestiek"."LWA" (IFCSOUNDPOWERLEVELMEASURE) = <= 45: Akoestiek.LWA is 50, not <= 45,required property "Akoestiek"."R_w" (IFCREAL) = >= 50: Akoestiek.R_w is 45, not >= 50
+  fails: P-01 required property "Akoestiek"."LA_Fmax_nT" (IFCSOUNDPRESSURELEVELMEASURE) = <= 30: Akoestiek.LA_Fmax_nT is IFCREAL, not IFCSOUNDPRESSURELEVELMEASURE,required property "Akoestiek"."LWA" (IFCSOUNDPOWERLEVELMEASURE) = <= 45: Akoestiek.LWA is IFCREAL, not IFCSOUNDPOWERLEVELMEASURE
+
+IfcTester 0.9.0 (eval/bsdd-units-ifctester.py), failing walls:
+  before.ids applicable 3 pass 1 failed ['W-01', 'W-02']
+  after.ids applicable 3 pass 1 failed ['P-01', 'W-02']

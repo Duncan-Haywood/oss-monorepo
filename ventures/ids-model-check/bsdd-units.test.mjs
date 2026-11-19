@@ -2,7 +2,7 @@
 // dimension, and its values in SI (schema/bsdd-units.json, no network).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { measureOf, toSI, unitsOf } from "./bsdd-units.mjs";
+import { measureOf, toSI, unitsOf, levelOf } from "./bsdd-units.mjs";
 import { specFromBsddClass, bsddIds } from "./bsdd-spec.mjs";
 import { resources } from "./node.mjs";
 import { parseIds } from "./ids.mjs";
@@ -35,6 +35,21 @@ test("a kind tells apart measures of one dimension", () => {
   assert.equal(m({ units: ["kPa"] }).type, "IFCPRESSUREMEASURE", "QUDT's kPa is also a ModulusOfElasticity");
   assert.equal(m({ units: ["m⁴"] }).type, "IFCMOMENTOFINERTIAMEASURE");
   assert.match(m({ units: ["dB"] }).why, /2 kinds/, "a sound pressure or a sound power level");
+});
+
+test("a decibel property is a pressure or a power level by its name, else no measure", () => {
+  const db = (extra) => m({ units: ["dB"], qudtCodes: ["DeciB"], ...extra });
+  assert.deepEqual(db({ propertyCode: "LA_Fmax_nT" }), { type: "IFCSOUNDPRESSURELEVELMEASURE", scale: 1, offset: 0, unit: "DeciB" });
+  for (const c of ["LC_Smax", "L'nT,w", "L′n,w", "Ln,w", "LAeq", "L_p", "Lden"]) assert.equal(levelOf({ propertyCode: c }), "IFCSOUNDPRESSURELEVELMEASURE", c);
+  for (const c of ["L_W", "LWA", "Lw", "L_WA"]) assert.equal(levelOf({ propertyCode: c }), "IFCSOUNDPOWERLEVELMEASURE", c);
+  for (const c of ["R_w", "R'w", "DnT,w", "D_nT_w", "C_tr", "Length", "Lnw", "L", "NoiseLevel"]) assert.equal(levelOf({ propertyCode: c }), null, c);
+  assert.equal(levelOf({ propertyCode: "X1", physicalQuantity: "Sound power level" }), "IFCSOUNDPOWERLEVELMEASURE");
+  assert.equal(levelOf({ propertyCode: "X1", name: "Schalldruckpegel" }), "IFCSOUNDPRESSURELEVELMEASURE");
+  assert.equal(levelOf({ propertyCode: "LWA", name: "Sound pressure level" }), "IFCSOUNDPRESSURELEVELMEASURE", "words win over the symbol");
+  assert.equal(levelOf({ name: "Sound power and sound pressure level" }), null, "both named: no pick");
+  assert.match(db({ propertyCode: "R_w" }).why, /2 kinds.*neither the name/);
+  assert.match(db({ propertyCode: "LA_Fmax_nT", dimension: "1 0 0 0 0 0 0" }).why, /not of the property's dimension/, "CEN/TC 126's counter in the length slot keeps it IFCREAL");
+  assert.match(m({ units: ["dB"], propertyCode: "LWA" }, R.schemas.IFC2X3).why || "", /not in the chosen IFC schema/);
 });
 
 test("bSDD's \"°\" is read as the degree, not QUDT's GRAD (gon) it links to", () => {

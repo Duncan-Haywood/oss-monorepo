@@ -16,7 +16,8 @@
 //     null when no single unit says how to write values in SI), or
 //   { type: null, why } when none does: no unit and no dimension, a
 //     dimensionless unit (percent, ratio: IFC's ratio measures take 0.5 for
-//     50 % and the dictionary may mean 50), units of different dimensions, a
+//     50 % and the dictionary may mean 50; a decibel whose name does not say
+//     sound pressure or sound power level, levelOf), units of different dimensions, a
 //     dimension no IFC measure has, or a unit disagreeing with the
 //     property's own stated dimension.
 // toSI(value, m) writes one bSDD number in SI ("3000" mm -> "3").
@@ -77,6 +78,34 @@ const BY_DIM = [
 const DIMENSIONLESS = { PlaneAngle: "IFCPLANEANGLEMEASURE", Angle: "IFCPLANEANGLEMEASURE", SolidAngle: "IFCSOLIDANGLEMEASURE", SoundPressureLevel: "IFCSOUNDPRESSURELEVELMEASURE", SoundPowerLevel: "IFCSOUNDPOWERLEVELMEASURE" };
 const LEVELS = new Set(["IFCSOUNDPRESSURELEVELMEASURE", "IFCSOUNDPOWERLEVELMEASURE"]);
 
+// Which level a decibel property is, from the property itself: bSDD's
+// physicalQuantity or the name in words ("sound power level", German
+// Schallleistungspegel, Dutch geluidsvermogenniveau, French puissance
+// acoustique), else the ISO acoustics symbol its code starts with. ISO 3740
+// writes a sound power level L_W (L_WA A-weighted); every other level symbol
+// in building acoustics is a sound pressure level: L_p, L_A, L_C, L_eq, the
+// A- and C-weighted maxima of ISO 16032 and ISO 10052 (LA_Fmax_nT,
+// LC_Smax), and the impact levels L_n, L'nT,w of ISO 717-2 and ISO 16283
+// (a lower-case w after n is "weighted", not power). Reduction indices and
+// level differences (R_w, D_nT,w, ΔL_w) and spectrum terms (C, C_tr) are in
+// dB but are neither level: no measure. Returns the IFC type or null.
+const POWER_WORDS = /sound\s*power|schall\s*leistung|geluids?\s*vermogen|puissance\s+acoustique|potencia\s+ac[uú]stica|potenza\s+sonora/i;
+const PRESSURE_WORDS = /sound\s*pressure|schall\s*druck|geluids?\s*druk|pression\s+acoustique|presi[oó]n\s+(ac[uú]stica|sonora)|pressione\s+sonora/i;
+const PRESSURE_FIRST = /^L(A|C|Z|p|eq|Aeq|Ceq|Zeq|n|nT|Amax|Cmax|AF|AS|AFmax|ASmax|CFmax|CSmax|den|day|night|evening)$/;
+export function levelOf(p) {
+  const words = [p.physicalQuantity, p.name, p.propertyName, p.propertyCode].filter((x) => typeof x === "string").join(" ");
+  const power = POWER_WORDS.test(words);
+  const pressure = PRESSURE_WORDS.test(words);
+  if (power !== pressure) return power ? "IFCSOUNDPOWERLEVELMEASURE" : "IFCSOUNDPRESSURELEVELMEASURE";
+  if (power) return null;
+  const code = String(p.propertyCode || p.code || "").trim();
+  const t = code.split(/[\s_,.'’′-]+/).filter(Boolean);
+  if (!t.length) return null;
+  if (/^L[Ww]A?$/.test(t[0]) || (t[0] === "L" && /^WA?$/.test(t[1] || ""))) return "IFCSOUNDPOWERLEVELMEASURE";
+  if (PRESSURE_FIRST.test(t[0]) || (t[0] === "L" && t.length > 1)) return "IFCSOUNDPRESSURELEVELMEASURE";
+  return null;
+}
+
 const key = (d) => d.join(",");
 const DIM_INDEX = new Map(BY_DIM.map(([d, t, k, g]) => [key(d), { type: t, kinds: k || {}, general: g || [] }]));
 export const MEASURE_TYPES = [...new Set([...BY_DIM.flatMap(([, t, k]) => [t, ...Object.values(k || {})]), ...Object.values(DIMENSIONLESS)])];
@@ -88,7 +117,7 @@ function unitMeasure(u) {
   if (isZero(u.dim)) {
     // dB is both a sound pressure and a sound power level: no one measure.
     const ts = [...new Set(u.kinds.map((k) => DIMENSIONLESS[k]).filter(Boolean))];
-    if (ts.length > 1) return { type: null, why: `dimensionless, and QUDT gives it ${ts.length} kinds (${ts.join(", ")})` };
+    if (ts.length > 1) return { type: null, why: `dimensionless, and QUDT gives it ${ts.length} kinds (${ts.join(", ")})`, levels: ts.every((t) => LEVELS.has(t)) };
     const t = ts[0];
     if (!t) return { type: null, why: "dimensionless" };
     return LEVELS.has(t) ? { type: t, scale: 1, offset: 0 } : { type: t, scale: u.m, offset: u.o || 0 };
@@ -123,7 +152,13 @@ export function measureOf(p, { units, schema = null } = {}) {
   const dim = ownDim(p);
   const { found, unknown } = unitsOf(p, units);
   if (found.length) {
-    const ms = found.map(unitMeasure);
+    // A decibel unit names two levels; the property's name or physical
+    // quantity may say which (levelOf), and then that level is the measure.
+    const ms = found.map(unitMeasure).map((m) => {
+      if (m.type || !m.levels) return m;
+      const t = levelOf(p);
+      return t ? { type: t, scale: 1, offset: 0 } : { type: null, why: `${m.why}; neither the name nor physicalQuantity says which` };
+    });
     const bad = ms.find((m) => !m.type);
     if (bad) return { type: null, why: `unit ${found[ms.indexOf(bad)].code || found[ms.indexOf(bad)].name}: ${bad.why}` };
     if (new Set(ms.map((m) => m.type)).size > 1) return { type: null, why: `units of different measures (${found.map((u) => u.code || u.name).join(", ")})` };
