@@ -351,6 +351,50 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
+## Balanced teams from a player list (2026-11-19)
+
+Before a league can be scheduled it needs teams. Rec, coed and "hat" leagues draft them from a sign-up
+list, usually by hand in a spreadsheet. `balanced-teams.html` (page) and `teams.mjs` (engine, zero
+dependencies) do that draft:
+
+- **Input:** one player per line, `Name, rating, tag` (any rating scale, decimals allowed; the tag is
+  optional, e.g. `F`/`M` for a coed league or `G` for goalies), pasted straight from spreadsheet columns
+  (a header row is skipped). `together: Ana, Ben` keeps a group whole; `apart: Cy, Dee` splits a pair. A
+  missing rating counts at the list's median and the page names who.
+- **Hard rules:** team sizes within one; every tag split so its count per team differs by at most one;
+  together groups whole; apart pairs split. A rule that cannot be kept (a together group bigger than a
+  team, the same pair asked together and apart) is named, never silently dropped; `checkTeams` re-reads
+  the output and confirms each rule independently of the search.
+- **Objective:** inside those rules, the least gap between the strongest and weakest team rating total,
+  then the least sum of squared distances from the mean total. Search: a per-tag snake draft, then
+  simulated annealing on unit swaps and moves (a together group is one unit), six restarts, seeded and
+  deterministic ("Another fair draw" changes the seed). For up to 16 players, when the gap is above the
+  floor, an exhaustive search (with symmetry cut and a 3 million node cap) settles it.
+- **Proof shown on the page:** `spreadLowerBound` (integer ratings whose total does not divide by k force
+  a gap of 1; one unit stronger than the rest combined forces `big - (T - big)/(k - 1)`). When the gap
+  meets that floor, or the exhaustive search finished, the page says "proved the most even possible";
+  otherwise it prints the floor.
+- **Hand-off:** "Build a schedule for these teams" opens the main page with the team names filled in
+  (a share link, `encodeFields`), so the draft flows straight into a round robin.
+
+**How it was checked** (`eval/balanced-teams-exact.mjs`, output `eval/balanced-teams-exact.txt`; invented
+random lists, ratings 1-5, about 40% tagged F, 0-3 random together/apart requests): on 420 lists of 8 to
+16 players (2 to 4 teams), 3 had no split keeping every rule; on the other 417 the shipped search found the
+exhaustive least gap on all 417 with no rule broken. The annealing alone (exhaustive fallback off) found it
+on 413 of 417, which is why the fallback ships. Big lists (ratings 1-10, 8 requests): 40, 80, 120 and 200
+players into 4-16 teams reached the floor (proved least) in 31-343 ms; 400 players into 32 teams ended at
+a gap of 2 against a floor of 1 (1.1 s), not proved. Tests: `teams.test.mjs` (9: parsing, duplicates,
+median fill, the coed example proved, determinism, 40 random lists against the exhaustive search, a
+200-player run, a too-big group named, outputs), and `page.test.mjs` checks the page's disclaimer, usage
+events and FAQ. Clicked through in Chromium at 390 px over http (example, re-draw, hand-off to the
+schedule page): no console errors, no horizontal scroll.
+
+Limits: the rating is whatever the organiser types, so "even on paper" is only as good as those numbers;
+totals are compared, so with uneven team sizes the larger team may carry a higher total. Next: a real
+league's sign-up sheet; position quotas beyond one tag (e.g. one goalie and two women per team at once,
+which needs tag pairs); and placing late sign-ups onto existing teams with the same objective (the
+self-hosted page's free-agent placement uses a simpler least-filled rule, `freeagents.mjs`).
+
 ## Play-off results fill the bracket (2026-11-18, latest)
 
 Until now the bracket stopped at seeding: every later game read "winner of R1M1" for the whole play-off, and the

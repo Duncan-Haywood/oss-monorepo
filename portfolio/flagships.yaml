@@ -385,11 +385,11 @@ flagships:
       schedule, eval/seed-balance.txt; 2026-11-18 limits kept exactly, impossible
       ones named, eval/limit-conflicts.txt; promotion/relegation,
       promotion.test.mjs; play-off results fill the bracket
-      (playoff-results.test.mjs); In/Maybe/Out per game and short teams on the
-      league page, availability.mjs 2026-11-18, subs, reminders, sign-ups, free
-      agents (freeagents.mjs), score confirmation, move requests, notices, waivers,
-      spirit ratings (next: a real league's use); bowling seasons, lane pairs
-      rotated evenly: 36 of 36 at the bound, repeats 392 to 148
+      (playoff-results.test.mjs); league page (availability, subs, sign-ups, free
+      agents, waivers, ratings: README; next: a real league's use); 2026-11-19
+      balanced teams (teams.mjs, balanced-teams.html, eval/balanced-teams-exact.txt;
+      next: two tags at once, late sign-ups); bowling seasons, lane pairs rotated
+      evenly: 36 of 36 at the bound, repeats 392 to 148
       (eval/bowling-repeat-sat.txt)). 3-game nights (eval/three-game-nights.txt):
       SAT session designs (session-designs.mjs) take every even 10-48 teams on 6
       slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on 1x9; 7 on 2x9. Night by night
