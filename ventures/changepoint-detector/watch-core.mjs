@@ -669,10 +669,11 @@ export function agreeAlerts(lines, k = 2, within = 12) {
  * L is `period` if given, else 7 when the labels are consecutive calendar days, else 1; with none of those, the nearest
  * open value before i, else after it. Only earlier points feed a fill (but for a closure at the very start), so filling
  * a whole history once equals filling each prefix and a replay stays honest. `round` rounds the fills (counts).
+ * `lags` (default 4) is how many earlier same-phase open values the median takes (README "Steps beside a closure").
  * Listed dates that are not labels of the series are ignored (a deployer may list next year's holidays ahead).
  * Returns { values, filled: [{ index, label, was, now }] }.
  */
-export function fillClosed(values, labels, closed, { period = null, round = false } = {}) {
+export function fillClosed(values, labels, closed, { period = null, round = false, lags = 4 } = {}) {
   const v = values.map(Number);
   const shut = new Set((closed ?? []).map((s) => String(s).trim()).filter(Boolean));
   if (!shut.size || !labels) return { values: v, filled: [] };
@@ -688,7 +689,7 @@ export function fillClosed(values, labels, closed, { period = null, round = fals
   const out = v.slice(), filled = [];
   for (const i of idx) {
     const same = [];
-    for (let j = i - L; j >= 0 && same.length < 4; j -= L) if (!isShut.has(j)) same.push(v[j]);
+    for (let j = i - L; j >= 0 && same.length < lags; j -= L) if (!isShut.has(j)) same.push(v[j]);
     let x;
     if (same.length) {
       same.sort((a, b) => a - b);
