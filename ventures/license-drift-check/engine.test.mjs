@@ -172,3 +172,36 @@ test("summarizeDiff: changed vs clean", () => {
   );
   assert.equal(summarizeDiff(cleanResult).status, "ok");
 });
+
+// Found 2026-11-19 by running every SPDX id and every PyPI "License ::"
+// trove classifier through the classifier: the keyword scan matched inside
+// words, so a proprietary string read as permissive and "Universal" as
+// source-available.
+test("classifyLicenseFamily: hints match whole words, not letters inside words", () => {
+  assert.equal(classifyLicenseFamily("Proprietary, limited use"), "unclear"); // "mit" in "limited"
+  assert.equal(classifyLicenseFamily("Commercial; redistribution not permitted"), "unknown"); // "mit" in "permitted"
+  assert.equal(classifyLicenseFamily("Miscellaneous"), "unknown"); // "isc"
+  assert.equal(classifyLicenseFamily("CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"), "permissive"); // "rsal" in "Universal"
+  assert.equal(classifyLicenseFamily("Universal Permissive License (UPL)"), "permissive");
+  assert.equal(classifyLicenseFamily("D-FSL-1.0"), "copyleft"); // German Free Software License, not FSL-1.1
+});
+
+test("classifyLicenseFamily: SPDX ids and pip-licenses names the hints missed", () => {
+  assert.equal(classifyLicenseFamily("Elastic-2.0"), "source-available");
+  assert.equal(classifyLicenseFamily("MIT AND Elastic-2.0"), "source-available");
+  assert.equal(classifyLicenseFamily("CC-BY-SA-4.0"), "copyleft");
+  assert.equal(classifyLicenseFamily("PSF-2.0"), "permissive");
+  assert.equal(classifyLicenseFamily("Apache Software License"), "permissive");
+  assert.equal(classifyLicenseFamily("BSD License"), "permissive");
+  assert.equal(classifyLicenseFamily("Python Software Foundation License"), "permissive");
+  assert.equal(classifyLicenseFamily("GNU Affero General Public License v3"), "copyleft");
+  assert.equal(classifyLicenseFamily("GNU Lesser General Public License v3 (LGPLv3)"), "copyleft");
+});
+
+test("classifyLicenseFamily: an expression takes its most restrictive leaf; WITH exceptions are skipped", () => {
+  assert.equal(classifyLicenseFamily("MIT OR GPL-3.0-only"), "copyleft");
+  assert.equal(classifyLicenseFamily("(MIT OR Apache-2.0) AND SSPL-1.0"), "source-available");
+  assert.equal(classifyLicenseFamily("Apache-2.0 WITH LLVM-exception"), "permissive");
+  assert.equal(classifyLicenseFamily("GPL-2.0-only WITH Classpath-exception-2.0"), "copyleft");
+  assert.equal(classifyLicenseFamily("Apache-2.0 WITH Universal-FOSS-exception-1.0"), "permissive");
+});

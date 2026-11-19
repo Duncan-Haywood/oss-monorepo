@@ -137,6 +137,8 @@ def scan_text(text, filename="<workflow>"):
 
 
 def discover_workflow_files(root):
+    if Path(root).is_file() and Path(root).suffix in (".yml", ".yaml"):
+        return [Path(root)]  # one workflow named directly, as pre-commit passes it
     workflows_dir = Path(root) / ".github" / "workflows"
     if not workflows_dir.is_dir():
         return []
@@ -188,6 +190,10 @@ def main(argv=None):
     parser.add_argument("--fail-on-risk", action="store_true",
                         help="exit 2 when a deprecated-runtime or shut-down-version finding exists")
     args = parser.parse_args(argv)
+    if not Path(args.path).exists():
+        # A mistyped path used to report "nothing found" and exit 0, so a CI
+        # gate with a typo passed forever (red-team 2026-11-19).
+        sys.exit(f"path not found: {args.path}")  # exit 1; 2 means "risk found"
     findings = scan_path(args.path)
     if args.format == "json":
         print(json.dumps(findings, indent=2))

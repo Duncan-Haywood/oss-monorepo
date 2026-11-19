@@ -314,8 +314,10 @@ run as a formula in Excel or Sheets.
   by the free-float rules), 14,268 of 14,270 on a heavily progressed programme
   with 2,134 out-of-sequence links (88.2% before the retained-logic rules of
   2026-11-19, 99.4% before the third pass, 14,256 before the fourth). The two
-  left are a finish milestone and its successor whose 608 h lag P6 counts in a
-  way no calendar tried reproduces. Every rule added to get there is listed
+  left are a finish milestone and its successor behind a 608 h lag that P6's
+  own stored dates break: the lag (or its predecessor's actual finish) changed
+  after P6's last schedule run (see "Lags edited after the last schedule run"
+  below). Every rule added to get there is listed
   there with the count it moved; the fourth pass added five (an open
   predecessor's FS lag into a finished node comes back off, a labour
   assignment's remaining work sets the late start of an activity with no
@@ -335,6 +337,24 @@ run as a formula in Excel or Sheets.
   edits account for. Checked with 300 planted edits on the six files: 300
   found, 0 extra, every difference they caused explained; none of the six
   lists anything as found.
+- **Lags edited after the last schedule run** (`eval/edited-lags-2026-11-19.md`):
+  P6 meets every link when it schedules, so a link the stored dates break was
+  lengthened or added afterwards (or its predecessor's actual date moved
+  later). The check tests every link into an
+  unstarted activity on both sides: the successor's stored early start (finish,
+  for FF and SF) against the predecessor's actual date or stored early date
+  plus the lag, and the predecessor's stored late date against the
+  successor's, since a longer lag that moves no early date still eats the
+  predecessor's float. On the seven P6 files it breaks 1 of 46,727 links as
+  found: CCA's FS link BAFT1005509C1 -> BAFT2305509C1, lag 608 h (76 days),
+  where the stored dates leave exactly 440 h (55 days). Rescheduled with 440 h,
+  both of CCA's last two differing activities agree (one but for an overnight
+  gap with no working time in it: P6 wrote 08:00 the next working day where
+  the engine writes 17:00). The assessment lists such links ("Lags edited after
+  the last schedule run") with the lag the dates leave room for, and the
+  written review asks for a reschedule (medium). Planted-edit counts are in
+  the eval file. A shortened lag breaks no link and is not found by this
+  check; it shows up only as stored dates that differ.
 - **Free float against P6** (`eval/free-float-2026-11-19.md`): the same files,
   **19,810 of 19,822 (99.94%)** equal P6's stored free float (19,809 before the
   fourth CPM pass), up from 18,537

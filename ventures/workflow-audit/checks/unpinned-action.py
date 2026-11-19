@@ -89,6 +89,8 @@ def main(argv=None):
     ap.add_argument("--format", choices=("text", "json"), default="text")
     ap.add_argument("--fail-on-risk", action="store_true")
     a = ap.parse_args(argv)
+    if not Path(a.path).exists():
+        sys.exit(f"path not found: {a.path}")  # exit 1; 2 means "risk found" (red-team 2026-11-19)
     findings = scan_path(a.path)
     if a.format == "json":
         print(json.dumps(findings, indent=2))

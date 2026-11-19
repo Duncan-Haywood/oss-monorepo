@@ -1,0 +1,39 @@
+{
+ "results": {
+  "Mohtat2020@3x": [
+   false,
+   "fade 0.0048"
+  ],
+  "Mohtat2020@4x": [
+   false,
+   "fade 0.0061"
+  ],
+  "Ecker2015@2x": [
+   false,
+   "fade 0.0053"
+  ],
+  "Ecker2015@3x": [
+   false,
+   "fade 0.0017"
+  ],
+  "Marquis2019@2x": [
+   false,
+   "fade 0.0016"
+  ],
+  "Marquis2019@3x": [
+   false,
+   "fade 0.0008"
+  ],
+  "Ramadass2004@1x": [
+   true,
+   "fade 0.0504"
+  ],
+  "Ramadass2004@2x": [
+   false,
+   "1 of 4 did not finish"
+  ]
+ },
+ "kept": [
+  "Ramadass2004@1x"
+ ]
+}

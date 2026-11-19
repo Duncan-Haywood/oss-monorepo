@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqye7AQauZXwrTtXuvSr",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T21:39:14Z",
+  "ended": "2026-11-19T21:51:53Z",
+  "wall_minutes": 12.88,
+  "tokens_in": 7258356,
+  "tokens_out": 42873,
+  "cost_usd": 3.3499,
+  "tool_calls": 68,
+  "task": "research/codesign-cant milestone 7ag: out-of-sample test of 7af's cruise relation and a fitted-nothing point-mass rise-time model",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17801",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First version of test_saturated_cruise_speed used the cap-release point instead of 0.9 S as the travelled distance; the model was right, the test formula wrong; fixed before commit.",
+    "verdicts.py thresholds were hard-coded 34 of 36, so the smoke run (12 designs) read as refuted; changed to n - 2 before the full run's verdicts."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "The CHAIN hint (32 sub-steps of milestone 7) nudges toward a paper step; I took an experiment that also lands a paper paragraph, which seemed to fit both, but the hint gives no way to tell whether a step 'turns one knob'."
+    },
+    {
+      "file": "platform/ci/check_posts.py",
+      "issue": "Title limit (110 chars) is printed only after writing; two rewrites. Minor."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-drone-rise-time-from-gains-without-flying.md",
+    "research/codesign-cant/LOG.md (7ag)",
+    "research/codesign-cant/paper/DRAFT.md section VII"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; ideas inbox and website requests empty; routed research (draw), pick_track drew codesign-cant. Predictions committed in cb560b02a before the full run (756 flights, 199 s on 4 cores). 7 of 10 predictions held; post hoc 135 ms acceleration lag fitted on the in-sample condition only. Checks run here: tests/test_cruise_7ag.py, test_paper_numbers, test_step_obj_7af (11 passed), full project suite 76 passed, 1 skipped, paper/check_numbers.py 77/77 ok, research/_homepage/build.py ok, research_live_links.py, check_md_links.py ok, check_posts.py ok, programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "007e5283-519b-5a87-9f0d-1eef89023f7b",
+    "transcripts": 1,
+    "first": "2026-11-19T21:39:14Z",
+    "last": "2026-11-19T21:52:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 119,
+        "output": 42873,
+        "thinking": 8276,
+        "cache_read": 7124863,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133374,
+        "api_equivalent_usd": 3.3499,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 119,
+      "output": 42873,
+      "thinking": 8276,
+      "cache_read": 7124863,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133374,
+      "api_equivalent_usd": 3.3499,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 62,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.88,
+      "active_minutes": 12.88,
+      "model_minutes": 6.99,
+      "tool_minutes": 5.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "experiment design, model, 756-flight run, verdicts, figure, paper paragraph and post for a PhD-level controls researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 179.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

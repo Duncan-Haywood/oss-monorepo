@@ -1,0 +1,445 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKnWzVh5tt6YyyZbgU7",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T21:18:32Z",
+  "ended": "2026-11-19T21:18:57Z",
+  "wall_minutes": 7.49,
+  "tokens_in": 6979176,
+  "tokens_out": 33528,
+  "cost_usd": 2.9142,
+  "tool_calls": 75,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17799",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_venture_tests.py --changed refused: no merge base in the shallow clone; ran it with the 23 slugs named instead.",
+    "My new check_cli_missing_path.py passed on an empty --root, the class it guards against; test_checks_refuse_empty_root.py caught it in the local unwired_checks run, and it now exits 2. My post had a literal U+FEFF that check_hidden_unicode.py flagged; replaced with the escape. versions.json needed --write for 18 changed shipped tools.",
+    "CI changed-ventures went red on fdr-multiple-testing, which this PR did not touch: a wall-clock cap of 8 s met 8.3 s on a loaded runner. Fixed the flake rather than rerunning."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0: 11 of 12 open entries are control-plane (own PR, owner approval), so a red-team session can act on none of them. The list keeps growing and every run re-reads it for nothing. It could print control-plane entries apart from the rest."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` lists a random sample, not the whole set, so grepping it for a chosen --target found nothing. The prompt reads as if it lists every file."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: did not fix the open entries. 11 are control-plane, and the help-keeper stemmer entry needs a help-center eval set that does not exist.",
+      "did": "Went straight to seeding and fixing the defect class found this run.",
+      "result": "Real defects closed in 33 CLIs; open list unchanged."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Seeded 18 mutants across 2 targets (10 + 8) rather than 8 per campaign; the suites took under 1 s.",
+      "did": "Two campaigns.",
+      "result": "3 gaps guarded, 1 equivalent."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-a-typo-in-the-path-passed-33-security-gates.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: platform/ci/check_cli_missing_path.py (+ test). Its first run on main found 33 of 37 gate CLIs exiting 0 on a missing path; after the fix it finds 0. It runs on every ventures/** PR through unwired_checks.py. Verification: run_venture_tests.py on 23 ventures, 23 suites green; redteam rerun, all gaps caught_after_fix true. Local CI: run_workflow_locally.py --for-changes red on distribution-versions (versions.json) and ventures-tests (empty-root, hidden unicode), all three fixed; unwired_checks.py 265/265 pass; distribution-versions-ci 3/3.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/docker-base-image-pin-check/classify.mjs",
+        "test": "node --test ventures/docker-base-image-pin-check/**/*.test.mjs  (in .)",
+        "seed": 292838689,
+        "commit": "ec2ff4608",
+        "sites": 108,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 25,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "const DIGEST_RE = /^([a-z0-9]+(?:[+._-][a-z0-9]+)*):([0-9a-fA-F]{32,})$/;",
+            "after": "const DIGEST_RE = /^([a-z0-9]+(?:[+._-][a-z0-9]+)*):([1-9a-fA-F]{32,})$/;",
+            "line_text": "const DIGEST_RE = /^([a-z0-9]+(?:[+._-][a-z0-9]+)*):([0-9a-fA-F]{32,})$/;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 33,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return m[2].length === want && m[2] === m[2].toLowerCase();",
+            "after": "return m[3].length === want && m[2] === m[2].toLowerCase();",
+            "line_text": "  return m[2].length === want && m[2] === m[2].toLowerCase();",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 68,
+            "col": 43,
+            "operator": "neq-flip",
+            "before": "if (op === \":-\") return isSet && value !== \"\" ? value : word;",
+            "after": "if (op === \":-\") return isSet && value === \"\" ? value : word;",
+            "line_text": "    if (op === \":-\") return isSet && value !== \"\" ? value : word;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test set an ARG that also has a :- default; added to classify.test.mjs (unit + python parity fixture) and test_check.py."
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 98,
+            "col": 69,
+            "operator": "plus-to-minus",
+            "before": "return { name: ref.slice(0, at), tag: null, digest: ref.slice(at + 1) };",
+            "after": "return { name: ref.slice(0, at), tag: null, digest: ref.slice(at - 1) };",
+            "line_text": "    return { name: ref.slice(0, at), tag: null, digest: ref.slice(at + 1) };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 98,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "return { name: ref.slice(0, at), tag: null, digest: ref.slice(at + 1) };",
+            "after": "return { name: ref.slice(0, at), tag: null, digest: ref.slice(at + 2) };",
+            "line_text": "    return { name: ref.slice(0, at), tag: null, digest: ref.slice(at + 1) };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 103,
+            "col": 42,
+            "operator": "plus-to-minus",
+            "before": "const prefix = ref.slice(0, lastSlash + 1);",
+            "after": "const prefix = ref.slice(0, lastSlash - 1);",
+            "line_text": "    const prefix = ref.slice(0, lastSlash + 1);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 119,
+            "col": 24,
+            "operator": "eq-flip",
+            "before": "if (ref.toLowerCase() === \"scratch\") {",
+            "after": "if (ref.toLowerCase() !== \"scratch\") {",
+            "line_text": "  if (ref.toLowerCase() === \"scratch\") {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 204,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "const alias = match[2];",
+            "after": "const alias = match[3];",
+            "line_text": "    const alias = match[2];",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 220,
+            "col": 82,
+            "operator": "neq-flip",
+            "before": "if (classification !== PINNED && classification !== MUTABLE && classification !== UNRESOLVED) continue;",
+            "after": "if (classification !== PINNED && classification !== MUTABLE && classification === UNRESOLVED) continue;",
+            "line_text": "    if (classification !== PINNED && classification !== MUTABLE && classification !== UNRESOLVED) continue;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 257,
+            "col": 75,
+            "operator": "plus-to-minus",
+            "before": "counts[finding.classification] = (counts[finding.classification] ?? 0) + 1;",
+            "after": "counts[finding.classification] = (counts[finding.classification] ?? 0) - 1;",
+            "line_text": "    counts[finding.classification] = (counts[finding.classification] ?? 0) + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_posts.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_posts  (in platform/ci)",
+        "seed": 363973268,
+        "commit": "ec2ff4608",
+        "sites": 41,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/check_posts.py",
+            "line": 44,
+            "col": 74,
+            "operator": "true-to-false",
+            "before": "done = subprocess.run([\"git\", \"-C\", str(root), *args], capture_output=True, text=True)",
+            "after": "done = subprocess.run([\"git\", \"-C\", str(root), *args], capture_output=False, text=True)",
+            "line_text": "    done = subprocess.run([\"git\", \"-C\", str(root), *args], capture_output=True, text=True)",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "every test injected a fake git; RealGit.test_git_lines_on_success_and_none_on_failure runs the real binary on a temp repo."
+          },
+          {
+            "file": "platform/ci/check_posts.py",
+            "line": 45,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "return done.stdout.splitlines() if done.returncode == 0 else None",
+            "after": "return done.stdout.splitlines() if done.returncode == 1 else None",
+            "line_text": "    return done.stdout.splitlines() if done.returncode == 0 else None",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "every test injected a fake git; RealGit.test_git_lines_on_success_and_none_on_failure runs the real binary on a temp repo."
+          },
+          {
+            "file": "platform/ci/check_posts.py",
+            "line": 73,
+            "col": 10,
+            "operator": "const-plus-one",
+            "before": "bad = 0",
+            "after": "bad = 1",
+            "line_text": "    bad = 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_posts.py",
+            "line": 80,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "bad += 1",
+            "after": "bad += 2",
+            "line_text": "        bad += 1",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "bad is read only as a boolean (`1 if bad else 0`, the FAILED/ok line), so += 2 cannot change output or exit code."
+          },
+          {
+            "file": "platform/ci/check_posts.py",
+            "line": 91,
+            "col": 45,
+            "operator": "plus-to-minus",
+            "before": "args = [\"--root\", str(root), *posts] + ([\"--fail\"] if strict else [])",
+            "after": "args = [\"--root\", str(root), *posts] - ([\"--fail\"] if strict else [])",
+            "line_text": "        args = [\"--root\", str(root), *posts] + ([\"--fail\"] if strict else [])",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_posts.py",
+            "line": 95,
+            "col": 24,
+            "operator": "plus-to-minus",
+            "before": "out(\"check_posts: \" + (\"FAILED, see above\" if bad else f\"ok, {len(paths)} file(s)\"))",
+            "after": "out(\"check_posts: \" - (\"FAILED, see above\" if bad else f\"ok, {len(paths)} file(s)\"))",
+            "line_text": "    out(\"check_posts: \" + (\"FAILED, see above\" if bad else f\"ok, {len(paths)} file(s)\"))",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_posts.py",
+            "line": 112,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 2",
+            "after": "return 3",
+            "line_text": "        return 2",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_posts.py",
+            "line": 148,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "if rc == 1:",
+            "after": "if rc == 2:",
+            "line_text": "    if rc == 1:",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/docker-base-image-pin-check/check.py",
+        "issue": "A Dockerfile passed by path (`check.py Dockerfile --fail-on-risk`, how pre-commit hooks and many CI steps call a checker) was skipped: discover_dockerfiles returned [] for anything not a directory, printed 'No Dockerfile found' and exited 0, passing the file the gate exists to reject. Fixed: a named file is scanned whatever its name.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17799"
+      },
+      {
+        "file": "ventures/docker-base-image-pin-check/check.py",
+        "issue": "A mistyped or missing path printed 'No Dockerfile found' and exited 0 even with --fail-on-risk, so a CI gate with a typo passed forever. Fixed: argparse error (exit 2). Same class in 32 sibling gate CLIs (33 of 37 on main), all fixed in this PR.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17799"
+      },
+      {
+        "file": "ventures/docker-base-image-pin-check/check.py",
+        "issue": "Files were read as plain utf-8: a UTF-8 BOM (Windows editors) made line 1 '\\ufeffFROM node:18', which _FROM_RE does not match, so the CLI missed the first FROM while the browser page (JS \\s matches U+FEFF) caught it; a single Latin-1 byte in a comment crashed the scan with UnicodeDecodeError. Fixed: utf-8-sig with errors=replace; parity test in classify.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17799"
+      },
+      {
+        "file": "ventures/fdr-multiple-testing/engine.test.mjs",
+        "issue": "'a large list stays fast' capped analyze() over 200,000 values at 8 s of wall clock. It takes 1.3 s alone but 8.3 s on a CI runner running 91 suites, so it failed this PR's changed-ventures job by chance. Cap raised to 30 s; an O(n^2) regression still takes minutes.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17799"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "17549fc7-e1b0-5ddc-86e7-1051e3c2de25",
+    "transcripts": 1,
+    "first": "2026-11-19T21:18:32Z",
+    "last": "2026-11-19T21:26:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 135,
+        "output": 33528,
+        "thinking": 8075,
+        "cache_read": 6870410,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108631,
+        "api_equivalent_usd": 2.9142,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 135,
+      "output": 33528,
+      "thinking": 8075,
+      "cache_read": 6870410,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108631,
+      "api_equivalent_usd": 2.9142,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 70,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.49,
+      "active_minutes": 7.49,
+      "model_minutes": 5.28,
+      "tool_minutes": 2.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "audit and patch 33 CLIs plus a lint, tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 205.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

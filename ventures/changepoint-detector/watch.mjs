@@ -110,6 +110,14 @@ Options:
                             times the recent wiggle. One number serves columns in different units; temperature=4 sets it
                             per column (--columns). Your own threshold: the automatic k was tested and is not offered
                             (README "Round 15", "Round 16").
+  --overdispersion <nb|nb1|phi>  for counts (--model poisson): score clumped counts (busy days come in bunches, so the
+                            variance is above the mean) with a negative-binomial cost (nb), one that clumps in
+                            proportion to the level (nb1), or a dispersion-tempered Poisson cost (phi), read from the
+                            watched window at each check. In --columns, a count column takes it per column after its
+                            model (orders:poisson:bocpd-window:nb); a global one applies to the count columns only.
+                            Measured on simulated shops (README "Clumped counts in the watch"): with bocpd-window, nb
+                            sent 0.42 false alerts per 1,000 checks against the default's 3.10 and heard 920 of 1,200
+                            steps against 715, but 103 of 200 against 126 on 40% drops in very clumped counts.
   --webhook-env <NAME>      POST each new alert to the URL in environment variable NAME (Slack, Discord, Teams, Mattermost)
   --fail-on-alert           exit 1 when there is a new alert (a CI run then fails and its owner is emailed)
   --alert-history           on the first check, alert on the changes already in the history too (default: record them as the baseline)
@@ -142,6 +150,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     else if (a === '--alerts-per') { const m = /^(\d+(?:\.\d+)?)\/(week|month|year)$/.exec(String(argv[++i] ?? '')); if (!m) throw new Error('--alerts-per takes <n>/week, <n>/month or <n>/year, e.g. 1/month.'); plain = { alerts: Number(m[1]), per: m[2] }; }
     else if (a === '--check-every') { every = argv[++i]; if (!['hour', 'day', 'week'].includes(every)) throw new Error('--check-every takes hour, day or week.'); }
     else if (a === '--detector') { o.detector = argv[++i]; if (!DETECTORS.includes(o.detector)) throw new Error(`--detector takes ${DETECTORS.join(', ')}.`); }
+    else if (a === '--overdispersion') o.overdispersion = parseClumping(argv[++i], '--overdispersion');
     else if (a === '--rho-cap') { o.rhoCap = Number(argv[++i]); if (!(o.rhoCap >= 0 && o.rhoCap <= 0.95)) throw new Error('--rho-cap takes a number from 0 to 0.95.'); }
     else if (a === '--confirm') o.confirm = num(argv[++i], '--confirm');
     else if (a === '--tolerance') o.tolerance = Number(argv[++i]);
@@ -162,6 +171,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   if (budget != null && plain) throw new Error('Give --budget or --alerts-per, not both.');
   if (plain) budget = budgetFromPlain({ ...plain, per: plain.per, every });
   if (auto && o.detector) throw new Error('Give --detector auto or a named detector, not both.');
+  if (o.overdispersion != null && !columnsSpec && (o.model ?? 'mean') !== 'poisson') throw new Error('--overdispersion is for counts: add --model poisson.');
   if (!statePath && !dry && !suggest) throw new Error('Give --state <file> so the next run knows what was already reported (or --dry-run).');
   if (o.column != null && /^\d+$/.test(o.column)) o.column = Number(o.column);
   if (o.labelColumn != null && /^\d+$/.test(o.labelColumn)) o.labelColumn = Number(o.labelColumn);
@@ -243,35 +253,49 @@ export function closedFill(values, labels, closed, opts = {}) {
   return { values: r.values, line, json: { closed: { listed: closed.length, filled: r.filled } } };
 }
 
+/** Clumping costs for counts, by the name the CLI takes, as the engine's `overdispersion` option. */
+export const CLUMPING = { nb: 'nb', nb1: 'nb1', phi: true };
+const clumpingName = (v) => (v === 'nb' ? 'negative-binomial cost' : v === 'nb1' ? 'negative-binomial cost in proportion to the level' : 'dispersion-tempered Poisson cost');
+
+/** `--overdispersion nb|nb1|phi` as the engine's option. */
+export function parseClumping(t, flag = '--overdispersion') {
+  const k = String(t ?? '').trim().toLowerCase();
+  if (!(k in CLUMPING)) throw new Error(`${flag} takes ${Object.keys(CLUMPING).join(', ')}.`);
+  return CLUMPING[k];
+}
+
 /**
- * `--columns`: [{ column, model, detector? }] from "a,b:poisson" or "all" (every numeric column but the label column).
+ * `--columns`: [{ column, model, detector?, overdispersion? }] from "a,b:poisson" or "all" (every numeric column but the label column).
  * After the name, up to two colon parts, each a model (mean, meanvar, poisson) or a detector (DETECTORS), in either
  * order: "orders:poisson:bocpd-window" watches orders as counts with the windowed Bayesian pass while the other
- * columns keep --detector or their model's default (README "A detector per column").
+ * columns keep --detector or their model's default (README "A detector per column"). A count column may also name a
+ * clumping cost (nb, nb1, phi; README "Clumped counts in the watch"): "orders:poisson:bocpd-window:nb".
  * Column names are matched as the single-column watch matches them (case-insensitive, or a 0-based index).
  */
 export function columnSpecs(csv, spec, labelColumn = null) {
   const MODELS = ['mean', 'meanvar', 'poisson'];
+  const CLUMP = Object.keys(CLUMPING);
   let specs;
   if (String(spec).trim().toLowerCase() === 'all') specs = parseColumns(csv, null, labelColumn).names.map((column) => ({ column, model: null }));
   else {
     specs = String(spec).split(',').map((s) => s.trim()).filter(Boolean).map((s) => {
       // A column name may itself hold a colon only if no part after it reads as a model or detector.
       const parts = s.split(':');
-      let model = null, detector = null;
+      let model = null, detector = null, clump = null;
       while (parts.length > 1) {
         const t = parts[parts.length - 1].trim().toLowerCase();
         if (MODELS.includes(t) && model == null) model = t;
         else if (DETECTORS.includes(t) && detector == null) detector = t;
+        else if (CLUMP.includes(t) && clump == null) clump = t;
         else break;
         parts.pop();
       }
       const column = parts.join(':').trim();
       if (!column) throw new Error(`--columns: "${s}" names no column.`);
-      if (parts.length > 1 || (s.includes(':') && model == null && detector == null)) {
-        throw new Error(`--columns: "${s}": each part after a colon is a model (${MODELS.join(', ')}) or a detector (${DETECTORS.join(', ')}), at most one of each.`);
+      if (parts.length > 1 || (s.includes(':') && model == null && detector == null && clump == null)) {
+        throw new Error(`--columns: "${s}": each part after a colon is a model (${MODELS.join(', ')}), a detector (${DETECTORS.join(', ')}) or a clumping cost for counts (${CLUMP.join(', ')}), at most one of each.`);
       }
-      return { column: /^\d+$/.test(column) ? Number(column) : column, model, ...(detector ? { detector } : {}) };
+      return { column: /^\d+$/.test(column) ? Number(column) : column, model, ...(detector ? { detector } : {}), ...(clump ? { overdispersion: CLUMPING[clump] } : {}) };
     });
   }
   if (!specs.length) throw new Error('--columns: no column to watch.');
@@ -329,6 +353,11 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
     const { labels, values: raw, column } = parseSeries(csv, s.column, labelColumn ?? null);
     if (raw.length < 4) throw new Error(`${column}: need at least 4 numbers; got ${raw.length}.`);
     const opts = { ...base, ...(s.model ? { model: s.model } : {}), ...(s.detector ? { detector: s.detector } : {}) };
+    // A clumping cost is for counts: a named one needs a count column; a global --overdispersion skips the others.
+    if (s.overdispersion != null) {
+      if ((opts.model ?? 'mean') !== 'poisson') throw new Error(`--columns: ${column}: a clumping cost (nb, nb1, phi) is for counts; name the model too (${column}:poisson:...).`);
+      opts.overdispersion = s.overdispersion;
+    } else if ((opts.model ?? 'mean') !== 'poisson') delete opts.overdispersion;
     const fill = closedFill(raw, labels, closed, opts);
     return { ...s, column: String(column), labels, values: fill.values, fill, opts };
   });
@@ -378,7 +407,7 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
     }
     const res = advance(st, detectChanges(c.values, c.labels, det), c.values.length, c.labels, { ...o, ...det });
     state.columns[c.column] = res.state;
-    results.push({ column: c.column, model: det.model || 'mean', detector: c.detector ?? null, n: c.values.length, picked, res, fill: c.fill });
+    results.push({ column: c.column, model: det.model || 'mean', detector: c.detector ?? null, clumping: c.overdispersion ?? null, n: c.values.length, picked, res, fill: c.fill });
   }
   const alerting = results.filter((r) => r.res.alerts.length);
   const message = alerting.map((r) => alertText(r.res, { column: r.column, model: r.model })).join('\n');
@@ -391,14 +420,14 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
   if (!dry) await writeFile(statePath, JSON.stringify(state, null, 2) + '\n');
   if (json) {
     out(JSON.stringify({ alerts: alerting.reduce((s, r) => s + r.res.alerts.length, 0), budget: auto ? whole : undefined,
-      columns: results.map((r) => ({ column: r.column, model: r.model, ...(r.detector ? { detector: r.detector } : {}), n: r.n, ...(r.picked ? { picked: r.picked } : {}), ...r.fill.json, ...r.res })) }, null, 2) + '\n');
+      columns: results.map((r) => ({ column: r.column, model: r.model, ...(r.detector ? { detector: r.detector } : {}), ...(r.clumping != null ? { overdispersion: r.clumping === true ? 'phi' : r.clumping } : {}), n: r.n, ...(r.picked ? { picked: r.picked } : {}), ...r.fill.json, ...r.res })) }, null, 2) + '\n');
   } else {
     const head = alerting.length
       ? `New changes in ${alerting.length} of ${k} column${k === 1 ? '' : 's'}: ${alerting.map((r) => r.column).join(', ')}.`
       : `No new confirmed change in ${k} column${k === 1 ? '' : 's'}.`;
     const blocks = results.map((r) => {
       const pick = r.picked ? `How eager: ${NAME[r.picked.key]} (${r.picked.detector}), picked from ${r.picked.n} points: ${r.picked.reason}; budget ${plainBudgetText(whole, every)}. Later runs keep it.\n` : '';
-      const named = r.detector ? `Detector: ${r.detector} (named for this column).\n` : '';
+      const named = r.detector || r.clumping != null ? `${r.detector ? `Detector: ${r.detector}` : 'Detector: default'}${r.clumping != null ? `, ${clumpingName(r.clumping)}` : ''} (named for this column).\n` : '';
       return `== ${r.column} ==\n${named}${pick}${statusText(r.res, { column: r.column, model: r.model, confirm: o.confirm })}`;
     });
     out([head + (results[0].fill.line ? '\n' + results[0].fill.line.trimEnd() : ''), ...blocks].join('\n\n') + '\n');

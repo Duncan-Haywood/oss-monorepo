@@ -199,14 +199,13 @@ flagships:
       zero (README "A closure in the week before a step")); next a provider that
       documents its own changes. Stale feeds: real carry-forward 84/85 caught but
       prints 56/56 false; side-adjusted prints fail worse (21/39, README "The trade
-      side"): no price-only fix, the line ends. Shopify source ships 2026-11-19
-      (README "Shopify as a source"); counts: bocpd-window 84/100 steps vs 60, false
-      1.61 vs 1.21/1000 (prereg fails, README "Counts and the windowed detector");
-      per-column detector ships (orders:poisson:bocpd-window, README "A detector per
-      column"): next a margin rule on fresh seeds. joint drift (measured, not
-      offered). Open: (0) drift model: t-walk increments, biweight on fresh data,
-      why it absorbs seat belts and quality control 4, its AR(1) term; notes quote
-      it. Curvature word ships under --shape-word panel (README "A curvature word"):
+      side"): no price-only fix, the line ends. Counts (README "Clumped counts in
+      the watch", history in HISTORY.md): --overdispersion nb ships opt-in; next a
+      rule for 40% drops in very clumped counts (C1 103 vs 126/200) so it can be the
+      default, then a deployer's real orders. joint drift (measured, not offered).
+      Open: (0) drift model: t-walk increments, biweight on fresh data, why it
+      absorbs seat belts and quality control 4, its AR(1) term; notes quote it.
+      Curvature word ships under --shape-word panel (README "A curvature word"):
       slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items:
       NEXT.md.
   - venture: einvoice-preflight
@@ -396,11 +395,11 @@ flagships:
       (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
       eval/whist-vs-greedy.txt); Whist 48, 60 and near-whist 46, 54, 62 by tabu
       search 2026-11-19 (eval/whist-anneal.c, .txt); 52, near-whist 58 by starter +
-      table matching (eval/whist-starter.c); 57 2026-11-19 from the Singer plane of
-      order 7 (eval/whist-singer.c, Wh(8) on each line, shifts by exact cover, ~4
-      s): every whist size 4-64 stored; also by a base round fixed by multiplier 37
-      (eval/whist-involution.c, 11 s; 69 too); next: a real club's Americano night.
-      More open items: NEXT.md.
+      table matching (eval/whist-starter.c); also by a base round fixed by
+      multiplier 37 (eval/whist-involution.c, 11 s; 69 too); Americano/Mexicano
+      scorer page 2026-11-19 (americano-night.html, night.mjs: live table, sit-out
+      credit; eval/sit-out-credit.txt); next: a real club's night on it. More open
+      items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
@@ -545,7 +544,7 @@ flagships:
       finding and a 600-day critical path test.
     buildable: >-
       The six public XER files in eval/cpm-vs-p6-2026-11-19.md (git clone the four
-      repos): CCA residual: 2 of 14,270 and a 5-node SS chain of late dates
+      repos): CCA residual: a 5-node SS chain of finished-node late dates
       (eval/cpm-vs-p6-2026-11-19.md, What is left) with node eval/cpm-vs-p6.mjs;
       free float 19,809 of 19,822 (eval/free-float-2026-11-19.md): 9 left in the
       24.12 file where P6 stores 0 against a positive gap; windows check
@@ -558,11 +557,12 @@ flagships:
       History and every measurement: README and eval/. Next, most valuable first:
       (1) CPM fourth pass shipped 2026-11-19 (rules 12-16: 19,820 of 19,822, late
       finish 19,822; eval/cpm-vs-p6-2026-11-19.md); fifth pass 2026-11-19 (rule 17,
-      unspent FS/FF lag of a finished node: its late dates 1,529 of 1,534); next the
-      2 left (BAFT/SAFT2305509: 608 h FS lag) and the 5-node SS chain at
-      CFNS103317C0; (2) update comparison shipped 2026-11-19 (compare.mjs, half-step
-      split; eval/compare-check-2026-11-19.md: 720 of 720 planted edits on six real
-      files); windows analysis across many updates shipped 2026-11-19 (windows.mjs,
+      unspent FS/FF lag of a finished node: its late dates 1,529 of 1,534); the 2
+      left trace to a lag edited after P6's run (edited-lags list 2026-11-19,
+      eval/edited-lags-2026-11-19.md); next the 5-node SS chain at CFNS103317C0; (2)
+      update comparison shipped 2026-11-19 (compare.mjs, half-step split;
+      eval/compare-check-2026-11-19.md: 720 of 720 planted edits on six real files);
+      windows analysis across many updates shipped 2026-11-19 (windows.mjs,
       --windows; a not-started re-estimate is now a revision in the half-step;
       eval/windows-check-2026-11-19.md); next a real series of updates to check the
       split and drivers against (windows in the review shipped 2026-11-19); (3)
@@ -579,6 +579,33 @@ flagships:
       limit from placed work on six files, 37,670 of 37,670 links hold, x1e6 limits
       = CPM); (7) longest path and multiple float paths shipped 2026-11-19
       (floatpaths.mjs, --float-paths, page panel; eval/longest-path-2026-11-19.md:
-      P6's flag 261/261 on five files); next: a public XER with P6's own float_path
-      values to check path order against, the review section for an interim
-      milestone. More open items: NEXT.md.
+      P6's flag 261/261 on five files). More open items: NEXT.md.
+  # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
+  # tool, and the first venture that measures IFC solids. Evidence of depth:
+  # eval/stored-vs-computed-2026-11-19.md (13 public models).
+  - venture: ifc-quantity-takeoff
+    why: >-
+      Bill of quantities from an IFC model in the browser, every element's volume
+      recomputed from its body (signed convex pieces: extrusions, clips incl.
+      Revit's boxed half spaces, booleans, mapped items, breps; openings
+      subtracted exactly) and checked against the stored quantities: 4,805 of
+      5,495 stored GrossVolumes agree on 8 public models, 469 of the 690 that do
+      not get a named cause (net-as-gross, unit slip, split by level, own
+      dimensions). Paid market: CostX, Cubit, Autodesk Takeoff, Solibri ITO.
+    buildable: >-
+      The 13 public models in eval/stored-vs-computed-2026-11-19.md (sparse clones
+      of opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
+      areas from geometry (wall side areas, slab top areas) checked against stored
+      NetSideArea/GrossArea; the 221 unexplained (schependomlaan faceted walls 15-28%
+      under, HHS curtain-wall mullions 42% over); planar IfcAdvancedBrep faces
+      (kleine_Wohnung, 162 not read).
+    hosts: [https://github.com]
+    next: >-
+      History and every measurement: ventures/ifc-quantity-takeoff/README.md and
+      eval/. Next, most valuable first: (1) areas computed from geometry and
+      checked like volumes; (2) a method-of-measurement layer (NRM or CESMM style:
+      deduct openings only above a size, MasterFormat/Uniformat mapping from the
+      classification code); (3) the unexplained disagreements; (4) advanced breps
+      with planar faces, openings in faceted bodies; (5) a model-to-model change
+      report (two revisions of one model, quantities by GlobalId); (6) a real
+      estimator's reading of the BoQ CSV (needs a person).

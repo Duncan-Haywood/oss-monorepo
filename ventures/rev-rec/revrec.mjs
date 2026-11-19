@@ -128,7 +128,9 @@ export function minorExponent(currency = "usd") {
 }
 
 export function formatMoney(minor, currency = "usd") {
-  const major = minor / 10 ** minorExponent(currency);
+  // Whole units, and a credit that rounds to nothing reads "$0", not "-$0"
+  // (red team 2026-11-19: a 5-cent credit note showed as -$0).
+  const raw = minor / 10 ** minorExponent(currency), major = Math.abs(raw) < 0.5 ? 0 : raw;
   try { return new Intl.NumberFormat("en-US", { style: "currency", currency: String(currency).toUpperCase(), maximumFractionDigits: 0 }).format(major); }
   catch { return `${major.toFixed(0)} ${currency}`; }
 }

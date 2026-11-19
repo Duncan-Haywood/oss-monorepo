@@ -1,0 +1,494 @@
+{
+ "kept": [
+  "Ramadass2004@1x"
+ ],
+ "verdicts": {
+  "H309": "inconclusive",
+  "H310": "supported",
+  "H311": "inconclusive",
+  "H312": "inconclusive"
+ },
+ "posthoc": {
+  "Ai2020": {
+   "un_turns": 0,
+   "up_turns": 0,
+   "un_max": 3.5774538,
+   "up_min": 3.3007512,
+   "up_max": 5.6008943
+  },
+  "Chen2020": {
+   "un_turns": 0,
+   "up_turns": 0,
+   "un_max": 2.3757656,
+   "up_min": 3.4873809,
+   "up_max": 4.6784285
+  },
+  "NCA_Kim2011": {
+   "un_turns": 0,
+   "up_turns": 0,
+   "un_max": 1.8098086,
+   "up_min": -187.0874831,
+   "up_max": 11.1853057
+  },
+  "OKane2022": {
+   "un_turns": 18,
+   "up_turns": 0,
+   "un_max": 1.8149141,
+   "up_min": 3.4873809,
+   "up_max": 4.6784285
+  },
+  "Ecker2015": {
+   "un_turns": 0,
+   "up_turns": 0,
+   "un_max": 1.6927891,
+   "up_min": 3.4948905,
+   "up_max": 4.58179
+  },
+  "Marquis2019": {
+   "un_turns": 0,
+   "up_turns": 0,
+   "un_max": 1.8023224,
+   "up_min": 0.0104177,
+   "up_max": 4.7141129
+  },
+  "Mohtat2020": {
+   "un_turns": 0,
+   "up_turns": 0,
+   "un_max": 0.9309491,
+   "up_min": 2.8264919,
+   "up_max": 4.3450348
+  },
+  "Ramadass2004": {
+   "un_turns": 0,
+   "up_turns": 7,
+   "un_max": 1728.8826669,
+   "up_min": -2.5633562,
+   "up_max": 57.4421555
+  },
+  "Ramadass2004_E10_median": 1.4507066024922628
+ },
+ "pools": {
+  "Ramadass2004": {
+   "q75_10": 12.58567362548876,
+   "q75_50": 12.429944950059427,
+   "n": 45,
+   "med_sc": 9942009.937298942
+  }
+ },
+ "rho": {
+  "Ramadass2004": {
+   "O1": -0.051623931623931626,
+   "O2": -0.14666666666666667,
+   "O3": -0.26905982905982906
+  }
+ },
+ "lines": {
+  "Ramadass2004": [
+   "O3",
+   7850506.904477379,
+   -17493792.04810072
+  ]
+ },
+ "per_set": {
+  "Ramadass2004": {
+   "theta": {
+    "met": 5,
+    "n": 5,
+    "cycles": 10.0
+   },
+   "theta50": {
+    "met": 5,
+    "n": 5,
+    "cycles": 10.0
+   },
+   "U": {
+    "met": 5,
+    "n": 5,
+    "cycles": 10.0
+   }
+  }
+ },
+ "paired": {
+  "theta": {
+   "four": {
+    "n": 20,
+    "mean": -4.5,
+    "boot": [
+     -8.5,
+     0.25000000000000033
+    ],
+    "cheaper": 14,
+    "dearer": 4,
+    "sign_p": 0.0308837890625,
+    "met_a": 19,
+    "met_b": 19,
+    "per_set": {
+     "Ai2020": -7.0,
+     "Chen2020": 2.666666666666667,
+     "NCA_Kim2011": -10.0,
+     "OKane2022": -3.666666666666667
+    }
+   },
+   "new": {
+    "n": 5,
+    "mean": 0.0,
+    "boot": null,
+    "cheaper": 0,
+    "dearer": 0,
+    "sign_p": 1.0,
+    "met_a": 5,
+    "met_b": 5,
+    "per_set": {
+     "Ramadass2004": 0.0
+    }
+   },
+   "all": {
+    "n": 25,
+    "mean": -3.6,
+    "boot": [
+     -7.533333333333334,
+     0.3333333333333334
+    ],
+    "cheaper": 14,
+    "dearer": 4,
+    "sign_p": 0.0308837890625,
+    "met_a": 24,
+    "met_b": 24,
+    "per_set": {
+     "Ai2020": -7.0,
+     "Chen2020": 2.666666666666667,
+     "NCA_Kim2011": -10.0,
+     "OKane2022": -3.666666666666667,
+     "Ramadass2004": 0.0
+    }
+   }
+  },
+  "theta50": {
+   "four": {
+    "n": 20,
+    "mean": -4.5,
+    "boot": [
+     -8.5,
+     0.25000000000000033
+    ],
+    "cheaper": 14,
+    "dearer": 4,
+    "sign_p": 0.0308837890625,
+    "met_a": 19,
+    "met_b": 19,
+    "per_set": {
+     "Ai2020": -7.0,
+     "Chen2020": 2.666666666666667,
+     "NCA_Kim2011": -10.0,
+     "OKane2022": -3.666666666666667
+    }
+   },
+   "new": {
+    "n": 5,
+    "mean": 0.0,
+    "boot": null,
+    "cheaper": 0,
+    "dearer": 0,
+    "sign_p": 1.0,
+    "met_a": 5,
+    "met_b": 5,
+    "per_set": {
+     "Ramadass2004": 0.0
+    }
+   },
+   "all": {
+    "n": 25,
+    "mean": -3.6,
+    "boot": [
+     -7.533333333333334,
+     0.3333333333333334
+    ],
+    "cheaper": 14,
+    "dearer": 4,
+    "sign_p": 0.0308837890625,
+    "met_a": 24,
+    "met_b": 24,
+    "per_set": {
+     "Ai2020": -7.0,
+     "Chen2020": 2.666666666666667,
+     "NCA_Kim2011": -10.0,
+     "OKane2022": -3.666666666666667,
+     "Ramadass2004": 0.0
+    }
+   }
+  }
+ },
+ "lopo5": {
+  "theta": [
+   {
+    "policy": [
+     "TH",
+     15,
+     Infinity
+    ],
+    "q75": 13.858335932991261,
+    "target": 20.19772276945661,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": 0.0,
+    "share_test": 0.0,
+    "n_test": 10,
+    "set": "Ramadass2004",
+    "pool": "p1"
+   },
+   {
+    "policy": [
+     "TH",
+     15,
+     Infinity
+    ],
+    "q75": 10.197785508738814,
+    "target": 13.317198122839693,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": 0.0,
+    "share_test": 0.0,
+    "n_test": 8,
+    "set": "Ramadass2004",
+    "pool": "p2"
+   },
+   {
+    "policy": [
+     "TH",
+     15,
+     Infinity
+    ],
+    "q75": 15.334912042707295,
+    "target": 20.140228447595714,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": 0.0,
+    "share_test": 0.0,
+    "n_test": 8,
+    "set": "Ramadass2004",
+    "pool": "p3"
+   },
+   {
+    "policy": [
+     "TH",
+     15,
+     Infinity
+    ],
+    "q75": 12.600996856195584,
+    "target": 13.67749969131407,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": 0.0,
+    "share_test": 0.0,
+    "n_test": 8,
+    "set": "Ramadass2004",
+    "pool": "p4"
+   },
+   {
+    "policy": [
+     "TH",
+     15,
+     Infinity
+    ],
+    "q75": 12.714181099177553,
+    "target": 18.23005577319933,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": 0.0,
+    "share_test": 0.0,
+    "n_test": 11,
+    "set": "Ramadass2004",
+    "pool": "p5"
+   }
+  ],
+  "theta50": [
+   {
+    "policy": [
+     "TH",
+     50,
+     Infinity
+    ],
+    "q75": 13.858335932991261,
+    "target": 20.19772276945661,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": 0.0,
+    "share_test": 0.0,
+    "n_test": 10,
+    "set": "Ramadass2004",
+    "pool": "p1"
+   },
+   {
+    "policy": [
+     "TH",
+     50,
+     Infinity
+    ],
+    "q75": 10.197785508738814,
+    "target": 13.317198122839693,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": 0.0,
+    "share_test": 0.0,
+    "n_test": 8,
+    "set": "Ramadass2004",
+    "pool": "p2"
+   },
+   {
+    "policy": [
+     "TH",
+     50,
+     Infinity
+    ],
+    "q75": 15.334912042707295,
+    "target": 20.140228447595714,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": 0.0,
+    "share_test": 0.0,
+    "n_test": 8,
+    "set": "Ramadass2004",
+    "pool": "p3"
+   },
+   {
+    "policy": [
+     "TH",
+     50,
+     Infinity
+    ],
+    "q75": 12.600996856195584,
+    "target": 13.67749969131407,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": 0.0,
+    "share_test": 0.0,
+    "n_test": 8,
+    "set": "Ramadass2004",
+    "pool": "p4"
+   },
+   {
+    "policy": [
+     "TH",
+     50,
+     Infinity
+    ],
+    "q75": 12.714181099177553,
+    "target": 18.23005577319933,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": 0.0,
+    "share_test": 0.0,
+    "n_test": 11,
+    "set": "Ramadass2004",
+    "pool": "p5"
+   }
+  ],
+  "U": [
+   {
+    "policy": [
+     "U",
+     10
+    ],
+    "q75": 13.858335932991261,
+    "target": 20.19772276945661,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": null,
+    "share_test": null,
+    "n_test": 10,
+    "set": "Ramadass2004",
+    "pool": "p1"
+   },
+   {
+    "policy": [
+     "U",
+     10
+    ],
+    "q75": 10.197785508738814,
+    "target": 13.317198122839693,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": null,
+    "share_test": null,
+    "n_test": 8,
+    "set": "Ramadass2004",
+    "pool": "p2"
+   },
+   {
+    "policy": [
+     "U",
+     10
+    ],
+    "q75": 15.334912042707295,
+    "target": 20.140228447595714,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": null,
+    "share_test": null,
+    "n_test": 8,
+    "set": "Ramadass2004",
+    "pool": "p3"
+   },
+   {
+    "policy": [
+     "U",
+     10
+    ],
+    "q75": 12.600996856195584,
+    "target": 13.67749969131407,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": null,
+    "share_test": null,
+    "n_test": 8,
+    "set": "Ramadass2004",
+    "pool": "p4"
+   },
+   {
+    "policy": [
+     "U",
+     10
+    ],
+    "q75": 12.714181099177553,
+    "target": 18.23005577319933,
+    "met": true,
+    "cycles": 10.0,
+    "margin": 1.25,
+    "inner_ok": true,
+    "share_train": null,
+    "share_test": null,
+    "n_test": 11,
+    "set": "Ramadass2004",
+    "pool": "p5"
+   }
+  ]
+ }
+}

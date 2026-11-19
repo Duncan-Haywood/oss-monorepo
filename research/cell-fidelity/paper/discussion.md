@@ -115,6 +115,15 @@ to cycle 10, checkpoint, resume to cycle 50, and compare both the wall time and 
 with the uninterrupted runs.
 
 For the paper, in order of value: (1) a fifth and sixth parameter set, since across-chemistry spread,
-not the number of pools, now limits the main claim (section 4.6, finding 2); (2) the continuation test
+not the number of pools, now limits the main claim (section 4.6, finding 2). Milestone 7p tried this and
+found that PyBaMM's stock cells do not supply one under this protocol. Of eight conditions on the four
+unused cells, `Mohtat2020`, `Ecker2015` and `Marquis2019` lose 0.08 to 0.61% of their cyclable lithium
+from cycle 2 to 20 even at 3x to 4x current (the four committed sets lose 4.8 to 17%). On
+`Ramadass2004@1x`, the only one that fades, the ten-cycle lithium-loss forecast breaks upstream of
+triage (cycle-99 error q75 12.6), so every rule stops at cycle 10 and the pooled interval stays at
+&minus;7.53 to +0.33 cycles per design. Post hoc, its positive OCP fit is not monotone over the 0 to 1
+grid the forecast law inverts. So the paper states its breadth as four parameter sets, gives this
+measured reason, and leaves more sets to degradation parameters fitted to each cell, or to a forecast
+law whose OCP tables are clipped to each cell's window; (2) the continuation test
 above, now done (7k, 7l: free if the runner keeps the `Simulation`; packaging that runner is the artefact step); (3) the measured-cell check of the rankings (`PROPOSAL.md`, milestone 6), an owner step that needs
 built pouch cells and certified test equipment.

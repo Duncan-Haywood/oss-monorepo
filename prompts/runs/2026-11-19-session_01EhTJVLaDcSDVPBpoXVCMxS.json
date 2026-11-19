@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVLaDcSDVPBpoXVCMxS",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products; merge when done.",
+  "input_sha256": "58b5cec786884831b6143a6022f8fc3e1c0cbaf7a02482c3dab18d5ce8f79fa6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T22:04:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Hearth & Horizon story: The Tonne That Was Two-Thirds (biochar, La Mancha), text only",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 17804,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/subjects.txt",
+      "issue": "overlap.mjs --unused reports 0 of 23 hearth-and-horizon candidates unused; added 3 checked candidates (solar cooker, haybox, Archimedes screw) and a new Next up proposal from the first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The scheduled prompt asks for revenue software, but prompt.md's router sent this run to the creative track; followed the router since it is the owner's own allocation of runs.",
+      "did": "wrote the headline-shelf story the bible proposed",
+      "result": "story merged, text only"
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "The proposal suggested rice straw or several feedstocks; chose vine prunings because woody char makes the honest figure come out near two-thirds with IPCC defaults, matching the title, whereas high-ash rice straw would give about two-fifths.",
+      "did": "set the story in La Mancha",
+      "result": "numbers in the closing note reproduce every figure in dialogue"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-the-tonne-that-was-two-thirds.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, project hearth-and-horizon, piece the-tonne-that-was-two-thirds (5,757 words, text only: audio dirs at 577 MB, over the 400 MB cap). Claimed the proposal with a Drafting commit and draft PR #17804 first; no open or merged PR used the phrase or 'biochar'. Numbers worked in code: good burn 1000 x 0.27 x 0.77 x 0.89 x 44/12 = 678 kg less 15 = 663 kg CO2 per dry tonne; first trial 119 kg char from 1,086 kg dry, net 16.5 kg; season 118.0 dry t with three burns at permanence 0.80 = 77.34 t, EUR 11,595 vs brochure 17,700. Weekdays checked (14, 16, 20 Jan; 2, 15 Feb; 25 Mar 2049); Easter 2049 = 18 April so 25 March Annunciation is in Lent and not transferred. Adversarial re-read fixed: trial 2 had no thermocouple so classed medium (season figure 78.3 -> 77.3), signing time moved before the noon Angelus, October/November order of application vs kiln purchase, Spanish decimal comma, metres not feet. Checks: node generate.mjs wrote 7 files; node --test in ventures/hearth-and-horizon 20/20 pass.",
+  "corrections": [],
+  "redteam": null
+}

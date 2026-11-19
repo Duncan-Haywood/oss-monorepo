@@ -265,6 +265,7 @@ FROM \${REG}/app:1
 FROM \${REG}/app@sha256:${"d".repeat(64)}
 FROM node@\${PIN}
 FROM \${REG:-docker.io}/library/python:3.12
+FROM python:\${NODE_VERSION:-3.11}
 `;
   for (const [label, text] of [["plain", dockerfileText], ["build args", argText]]) {
     writeFileSync(path.join(dir, "Dockerfile"), text);
@@ -326,4 +327,25 @@ test("scanText: a FROM split across lines with a backslash is read as one instru
   assert.deepEqual([findings[0].line, findings[0].image, findings[0].tag, findings[0].classification], [1, "node", "20", MUTABLE]);
   assert.equal(findings[0].remediation, "docker buildx imagetools inspect node:20");
   assert.deepEqual([findings[1].line, findings[1].image, findings[1].classification], [5, "ubuntu", PINNED]);
+});
+
+// Red-team 2026-11-19: an escaped mutant (`value !== ""` flipped in the `:-`
+// branch) showed no test set an ARG that has a `:-` default.
+test("expandArgs: a set, non-empty ARG beats its :- default; an empty one does not", () => {
+  const set = scanText("ARG V=3.12\nFROM python:${V:-3.11}\n", "Dockerfile");
+  assert.deepEqual([set[0].image, set[0].tag], ["python", "3.12"]);
+  const empty = scanText('ARG V=""\nFROM python:${V:-3.11}\n', "Dockerfile");
+  assert.equal(empty[0].tag, "3.11");
+});
+
+// Red-team 2026-11-19: check.py read files as plain utf-8, so a byte order
+// mark hid the first FROM from the CLI while this page still saw it.
+test("scanText and check.py agree on a Dockerfile that starts with a UTF-8 BOM", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "dbc-bom-"));
+  writeFileSync(path.join(dir, "Dockerfile"), "\uFEFFFROM node:18\n");
+  const py = JSON.parse(execFileSync("python3", [CLI, dir, "--format", "json"], { encoding: "utf8" }));
+  const js = scanText("\uFEFFFROM node:18\n", "Dockerfile");
+  assert.equal(js.length, 1);
+  assert.equal(py.length, 1);
+  assert.equal(py[0].tag, js[0].tag);
 });

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245a3c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='19'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EQ%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IFC Quantity Takeoff: free bill of quantities from a BIM model</title>
+  <meta name="description" content="Drop an IFC model and get a bill of quantities by class, type, storey or material, with every volume recomputed from the geometry and checked against the model's stored quantities. Free, in your browser.">
+  <link rel="canonical" href="https://marisstella.app/ifc-quantity-takeoff/">
+  <meta property="og:title" content="IFC Quantity Takeoff: a bill of quantities you can check">
+  <meta property="og:description" content="Counts, lengths, areas and volumes from an IFC model, each volume recomputed from the model's own geometry and compared with what the authoring tool stored. MIT licensed, nothing uploaded.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IFC Quantity Takeoff", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the command line", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads IFC2X3, IFC4 and IFC4X3 building models and produces a bill of quantities grouped by class, type, storey, material or classification. Every element's volume is recomputed from its body geometry, openings taken out, and compared with the quantities the authoring tool stored.", "license": "https://opensource.org/licenses/MIT"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does it take off?", "acceptedAnswer": {"@type": "Answer", "text": "Every physical element in the model (walls, slabs, beams, columns, doors, windows, coverings, stairs, pipes, furniture and the rest): its count, and the lengths, areas, volumes and weights the authoring tool stored in the model's quantity sets, converted to metres, square metres, cubic metres and kilograms. It also computes each element's volume from the model's own geometry, with openings taken out. Lines can be grouped by class, type, storey, material and classification code."}}, {"@type": "Question", "name": "Why recompute volumes the model already stores?", "acceptedAnswer": {"@type": "Answer", "text": "Because the stored figures are sometimes wrong, and an estimate built on them is wrong too. On 8 public models the stored GrossVolume agreed with the geometry for 4,805 of 5,495 elements. Most of the rest have a known cause the page names: a wall split by level that writes the whole wall's volume on every piece, a GrossVolume that already has the openings taken out, a volume written in litres under a cubic-metre unit, or a stored volume that disagrees with the element's own stored length, height and width. Where the stored figure is known to be wrong, the bill of quantities uses the computed one."}}, {"@type": "Question", "name": "Is my model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model is read by JavaScript in this browser tab and nothing is sent anywhere. The page fetches only its own sample file, and only when you ask for it. The same code runs offline on the command line."}}, {"@type": "Question", "name": "Which geometry can it measure?", "acceptedAnswer": {"@type": "Answer", "text": "Extruded profiles (rectangles, circles, hollow sections, I, L, T, U, C and Z steel shapes with root radii, and arbitrary outlines with arcs), half-space clips including Revit's boxed and polygonal ones, boolean differences, unions and intersections of those, mapped items, faceted breps, triangulated and polygonal face sets, swept disks, revolved areas and CSG primitives. Openings are subtracted exactly when both the element and the opening are built from those extrusions and clips. Advanced breps (NURBS surfaces) and open shells are reported as not read rather than guessed."}}, {"@type": "Question", "name": "How is this different from Revit schedules, Solibri or CostX?", "acceptedAnswer": {"@type": "Answer", "text": "Revit schedules work inside Revit on the native model; this works on the IFC file anyone on the project can open. Solibri, CostX and similar estimating tools do far more (markups, 2D takeoff, rate libraries, change comparison) and cost a seat licence. This page is free, needs nothing installed, and does one thing they do not advertise: it checks the model's stored quantities against its geometry and tells you which ones not to trust."}}, {"@type": "Question", "name": "Can I price the quantities?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Type a rate and choose its unit (each, m3, m2, m or kg) on any bill-of-quantities line; the page multiplies it out and totals the amounts, and the CSV download carries the rates and amounts. The rates are yours: the page ships none."}}, {"@type": "Question", "name": "What does it not do?", "acceptedAnswer": {"@type": "Answer", "text": "It does not measure areas from geometry yet (areas come from the model's stored quantities), it does not read NURBS surfaces, and it does not take openings out of faceted bodies. It does not know your measurement rules (a method of measurement may deduct only openings above a size), and it is not a cost estimate: quantities are only as good as the model."}}]}</script>
+  <style>
+    :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #245a3c; --pass: #1e7a46; --fail: #b3261e; --warn: #8a5a00; color-scheme: light dark; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #7cc49b; --pass: #5cc48a; --fail: #ff8a80; --warn: #e3b35b; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.2; margin: 0.4em 0 0.3em; }
+    h2 { font-size: 1.25rem; margin-top: 2em; }
+    h3 { font-size: 1.02rem; margin-bottom: 0.2em; }
+    p.lede { font-size: 1.08rem; color: var(--muted); max-width: 46em; }
+    .drop { border: 2px dashed var(--line); border-radius: 10px; padding: 18px; background: var(--card); margin: 18px 0 12px; }
+    .drop.over { border-color: var(--accent); }
+    .drop label { font-weight: 600; display: block; margin-bottom: 6px; }
+    button, .btn { font: inherit; border: 1px solid var(--accent); background: var(--accent); color: var(--bg); padding: 7px 14px; border-radius: 7px; cursor: pointer; }
+    button.ghost { background: transparent; color: var(--accent); }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 10px 0; }
+    .status { color: var(--muted); }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 14px 0; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; }
+    .card b { display: block; font-size: 1.35rem; }
+    .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+    table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { position: sticky; top: 0; background: var(--card); }
+    td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .bad { color: var(--fail); }
+    .ok { color: var(--pass); }
+    .warn { color: var(--warn); }
+    input.rate { width: 6.5em; font: inherit; }
+    td.rate { white-space: nowrap; }
+    select, input[type=number] { font: inherit; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    footer { margin-top: 3em; border-top: 1px solid var(--line); padding-top: 1em; color: var(--muted); font-size: 0.92rem; }
+    code { font-size: 0.92em; }
+    a.cta { display: inline-block; padding: 10px 18px; border-radius: 8px; background: var(--accent); color: var(--bg); font-weight: 700; text-decoration: none; }
+    a.cta.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    @media (max-width: 560px) {
+      .cta-row > a.cta { flex: 1 1 auto; text-align: center; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>IFC Quantity Takeoff</h1>
+  <p class="lede">Drop an IFC model and get a bill of quantities: counts, lengths, areas, volumes and weights by class, type, storey, material or classification code. Every volume is also recomputed from the model's own geometry, openings taken out, and compared with what the authoring tool stored, so you know which numbers to trust before you price them.</p>
+  <p class="cta-row"><a class="cta" href="#drop">Take off a model</a> <a class="cta ghost" href="samples/sample-office.ifc">Get the sample IFC</a></p>
+
+  <div class="drop" id="drop">
+    <label for="ifc">IFC model (.ifc: IFC2X3, IFC4 or IFC4X3)</label>
+    <input type="file" id="ifc" accept=".ifc">
+    <div class="row">
+      <button type="button" id="sample" class="ghost">Try the sample model</button>
+      <span class="status" id="status" role="status" aria-live="polite">Everything on this page runs in your browser; the model is not uploaded.</span>
+    </div>
+  </div>
+
+  <section id="result" hidden>
+    <div class="cards" id="cards"></div>
+    <h2>Bill of quantities</h2>
+    <div class="row">
+      <label for="by">Group by</label>
+      <select id="by">
+        <option value="class,type">Class, then type</option>
+        <option value="class">Class</option>
+        <option value="type">Type</option>
+        <option value="storey,class">Storey, then class</option>
+        <option value="material,class">Material, then class</option>
+        <option value="classification">Classification code</option>
+        <option value="classification,type">Classification code, then type</option>
+      </select>
+      <button type="button" id="dl-boq">Download bill of quantities (CSV)</button>
+      <button type="button" id="dl-rows" class="ghost">Download every element (CSV)</button>
+    </div>
+    <p class="muted">Volume uses the model's stored NetVolume (or GrossVolume) unless that figure is known to be wrong, then the volume computed from the geometry. Assemblies whose parts are elements themselves (a stair and its flights) are counted through their parts only. Type a rate on any line to price it.</p>
+    <div class="tablewrap"><table id="boq"></table></div>
+    <p id="total" class="row"></p>
+
+    <h2>Stored quantities against the geometry</h2>
+    <p class="muted">For each element that stores a GrossVolume or NetVolume, the volume computed from its body. Agreement is within 2%.</p>
+    <div class="row">
+      <label><input type="checkbox" id="only-bad" checked> Only disagreements</label>
+    </div>
+    <div class="tablewrap"><table id="checks"></table></div>
+    <p class="muted" id="checks-more"></p>
+  </section>
+
+  <section aria-labelledby="who">
+    <h2 id="who">Who it is for</h2>
+    <p>Estimators and quantity surveyors handed an IFC instead of drawings; contractors pricing a design-build package from the architect's model; BIM coordinators asked "how many cubic metres of concrete is in this?"; owners checking a consultant's quantities. If your firm works inside Revit, its schedules know the native model better; this is for everyone downstream who only gets the IFC.</p>
+    <h3>A worked example</h3>
+    <p>The sample model is a small two-storey office written by hand so every number can be checked: a 5,000 mm wall with a door opening (3.0 m&sup3; gross, 2.58 m&sup3; net), a wall clipped by a sloped roof plane (2.0 m&sup3;), a wall split by level whose two pieces each store the whole wall's 3.6 m&sup3;, a 5.0 m&sup3; slab, a round column with no stored quantities (0.212 m&sup3; computed) and an IPE 200 beam whose stored volume is wrong. The bill of quantities sums the walls to 8.18 m&sup3;; adding the stored figures blindly would give 11.78 m&sup3;, 44% too much.</p>
+    <h3>What real models get wrong</h3>
+    <p>We ran the takeoff on 8 public models from Revit, ArchiCAD, Tekla and other tools that store volumes. The stored GrossVolume matched the geometry for 4,805 of 5,495 elements (87%) and NetVolume for 6,133 of 6,366 (96%). Of the disagreements, 469 had a cause the page now names: 325 GrossVolumes that already exclude openings, 96 slab volumes stored 1,000 times too large, 27 split-by-level pieces each carrying the whole wall's figure, and 21 stored volumes that contradict the element's own length, height and width. The method and every number are in the repository (<code>eval/stored-vs-computed-2026-11-19.md</code>).</p>
+  </section>
+
+  <section aria-labelledby="faq">
+    <h2 id="faq">Questions</h2>
+    <h3>What does it take off?</h3>
+    <p>Every physical element in the model (walls, slabs, beams, columns, doors, windows, coverings, stairs, pipes, furniture and the rest): its count, and the lengths, areas, volumes and weights the authoring tool stored in the model's quantity sets, converted to metres, square metres, cubic metres and kilograms. It also computes each element's volume from the model's own geometry, with openings taken out. Lines can be grouped by class, type, storey, material and classification code.</p>
+    <h3>Why recompute volumes the model already stores?</h3>
+    <p>Because the stored figures are sometimes wrong, and an estimate built on them is wrong too. On 8 public models the stored GrossVolume agreed with the geometry for 4,805 of 5,495 elements. Most of the rest have a known cause the page names: a wall split by level that writes the whole wall's volume on every piece, a GrossVolume that already has the openings taken out, a volume written in litres under a cubic-metre unit, or a stored volume that disagrees with the element's own stored length, height and width. Where the stored figure is known to be wrong, the bill of quantities uses the computed one.</p>
+    <h3>Is my model uploaded?</h3>
+    <p>No. The model is read by JavaScript in this browser tab and nothing is sent anywhere. The page fetches only its own sample file, and only when you ask for it. The same code runs offline on the command line.</p>
+    <h3>Which geometry can it measure?</h3>
+    <p>Extruded profiles (rectangles, circles, hollow sections, I, L, T, U, C and Z steel shapes with root radii, and arbitrary outlines with arcs), half-space clips including Revit's boxed and polygonal ones, boolean differences, unions and intersections of those, mapped items, faceted breps, triangulated and polygonal face sets, swept disks, revolved areas and CSG primitives. Openings are subtracted exactly when both the element and the opening are built from those extrusions and clips. Advanced breps (NURBS surfaces) and open shells are reported as not read rather than guessed.</p>
+    <h3>How is this different from Revit schedules, Solibri or CostX?</h3>
+    <p>Revit schedules work inside Revit on the native model; this works on the IFC file anyone on the project can open. Solibri, CostX and similar estimating tools do far more (markups, 2D takeoff, rate libraries, change comparison) and cost a seat licence. This page is free, needs nothing installed, and does one thing they do not advertise: it checks the model's stored quantities against its geometry and tells you which ones not to trust.</p>
+    <h3>Can I price the quantities?</h3>
+    <p>Yes. Type a rate and choose its unit (each, m3, m2, m or kg) on any bill-of-quantities line; the page multiplies it out and totals the amounts, and the CSV download carries the rates and amounts. The rates are yours: the page ships none.</p>
+    <h3>What does it not do?</h3>
+    <p>It does not measure areas from geometry yet (areas come from the model's stored quantities), it does not read NURBS surfaces, and it does not take openings out of faceted bodies. It does not know your measurement rules (a method of measurement may deduct only openings above a size), and it is not a cost estimate: quantities are only as good as the model.</p>
+  </section>
+
+  <section aria-labelledby="cli">
+    <h2 id="cli">Command line</h2>
+    <p>The same engine runs in Node 20+ with no dependencies: <code>node cli.mjs model.ifc --by storey,class &gt; boq.csv</code>, <code>--rows elements.csv</code> for every element, <code>--check</code> for the stored-against-computed summary.</p>
+    <p>Checking the same model against a client's information requirements? <a href="../ids-model-check/">IDS Model Check</a> reads the same IFC file. Framing the walls? <a href="../wall-framing-takeoff/">Wall Framing Takeoff</a> lays out studs and plates and orders the lumber.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. The quantities are read and computed from the file you provide; they are not a measured survey, a cost estimate, a design review or professional advice, and they do not replace a quantity surveyor or estimator. You are responsible for checking every quantity against the drawings and your method of measurement before relying on it.</p>
+    <p>IFC is a buildingSMART International standard; this tool is independent and not endorsed by buildingSMART, Autodesk, Graphisoft, Trimble, Nemetschek or RIB. Product names are their owners' trademarks.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-quantity-takeoff">Source (MIT)</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+</main>
+<script type="module">
+  import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  import { parseStep } from "./step.mjs";
+  import { takeoff, boq, boqCsv, rowsCsv, checkSummary, REASON_TEXT } from "./qto.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const fmt = (v, d = 3) => (v == null || v === 0 ? "" : Number(v).toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: 0 }));
+  let current = null, fileName = "model";
+  const rates = {};
+
+  $("optout").checked = usageOptedOut();
+  $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+
+  function download(name, text) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  async function run(bytes, name) {
+    fileName = name.replace(/\.ifc$/i, "");
+    $("status").textContent = `Reading ${name}...`;
+    await new Promise((r) => setTimeout(r, 30));
+    const t0 = performance.now();
+    try {
+      const model = parseStep(bytes);
+      if (!model.schema) throw new Error("no FILE_SCHEMA in the header: is this an IFC file?");
+      current = takeoff(model);
+    } catch (err) {
+      $("status").textContent = `Could not read ${name}: ${err.message}`;
+      record("read_failed");
+      return;
+    }
+    const secs = ((performance.now() - t0) / 1000).toFixed(1);
+    $("status").textContent = `${name}: ${current.schema}, ${current.rows.length} elements, read in ${secs} s.`;
+    record("model_taken_off");
+    render();
+  }
+
+  function render() {
+    const s = checkSummary(current.rows);
+    const disagree = current.rows.filter((r) => r.check && ((r.check.gross && !r.check.gross.agree) || (r.check.net && !r.check.net.agree)));
+    const known = disagree.filter((r) => [r.check.gross, r.check.net].some((c) => c && !c.agree && c.reason && c.reason !== "unexplained")).length;
+    $("cards").innerHTML = [
+      ["Elements", s.elements],
+      ["Volume computed", `${s.computed} of ${s.elements}`],
+      ["Stored volumes checked", s.grossPairs + s.netPairs],
+      ["Disagree with geometry", disagree.length, disagree.length ? "bad" : "ok"],
+      ["...with a known cause", known],
+    ].map(([k, v, c]) => `<div class="card">${esc(k)}<b class="${c || ""}">${esc(v)}</b></div>`).join("");
+    $("result").hidden = false;
+    renderBoq();
+    renderChecks();
+  }
+
+  const byKeys = () => $("by").value.split(",");
+
+  function renderBoq() {
+    const by = byKeys();
+    const lines = boq(current.rows, by);
+    const head = `<tr>${by.map((k) => `<th>${esc(k[0].toUpperCase() + k.slice(1))}</th>`).join("")}<th>Count</th><th>Volume m&sup3;</th><th>Area m&sup2;</th><th>Length m</th><th>Weight kg</th><th>Notes</th><th>Rate</th><th>Amount</th></tr>`;
+    const body = lines.map((L, i) => {
+      const k = JSON.stringify(L.key);
+      const r = rates[k] || { rate: null, unit: "m3" };
+      const notes = [L.volumeComputed ? `${L.volumeComputed} computed` : "", L.volumeMissing ? `${L.volumeMissing} no volume` : "", L.disagree ? `<span class="bad">${L.disagree} disagree</span>` : ""].filter(Boolean).join(", ");
+      return `<tr data-k="${esc(k)}">${L.key.map((v) => `<td>${esc(v)}</td>`).join("")}<td class="n">${L.count}</td><td class="n">${fmt(L.volume)}</td><td class="n">${fmt(L.area, 2)}</td><td class="n">${fmt(L.length, 2)}</td><td class="n">${fmt(L.weight, 1)}</td><td>${notes}</td>
+        <td class="rate"><input class="rate" type="number" step="any" aria-label="Rate for line ${i + 1}" value="${r.rate ?? ""}"> <select aria-label="Rate unit for line ${i + 1}">${["each", "m3", "m2", "m", "kg"].map((u) => `<option${u === r.unit ? " selected" : ""}>${u}</option>`).join("")}</select></td><td class="n amt"></td></tr>`;
+    }).join("");
+    $("boq").innerHTML = head + body;
+    for (const tr of $("boq").querySelectorAll("tr[data-k]")) {
+      const upd = () => {
+        const v = parseFloat(tr.querySelector("input").value);
+        const unit = tr.querySelector("select").value;
+        rates[tr.dataset.k] = { rate: Number.isFinite(v) ? v : null, unit };
+        updateAmounts(lines);
+      };
+      tr.querySelector("input").addEventListener("input", upd);
+      tr.querySelector("select").addEventListener("change", upd);
+    }
+    updateAmounts(lines);
+  }
+
+  function updateAmounts(lines) {
+    let total = 0, priced = 0;
+    for (const tr of $("boq").querySelectorAll("tr[data-k]")) {
+      const L = lines.find((x) => JSON.stringify(x.key) === tr.dataset.k);
+      const r = rates[tr.dataset.k];
+      let amt = null;
+      if (r && Number.isFinite(r.rate)) { amt = r.rate * ({ each: L.count, m3: L.volume, m2: L.area, m: L.length, kg: L.weight }[r.unit] ?? 0); total += amt; priced++; }
+      tr.querySelector(".amt").textContent = amt == null ? "" : amt.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    }
+    $("total").textContent = priced ? `Total of ${priced} priced line${priced > 1 ? "s" : ""}: ${total.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : "";
+  }
+
+  function renderChecks() {
+    const only = $("only-bad").checked;
+    const rows = [];
+    for (const r of current.rows) for (const w of ["gross", "net"]) {
+      const c = r.check && r.check[w];
+      if (!c || (only && c.agree)) continue;
+      rows.push({ r, w, c });
+    }
+    const shown = rows.slice(0, 500);
+    $("checks").innerHTML = `<tr><th>Element</th><th>Class</th><th>Storey</th><th>Quantity</th><th>Stored m&sup3;</th><th>Computed m&sup3;</th><th>Difference</th><th>Likely cause</th></tr>` + shown.map(({ r, w, c }) =>
+      `<tr><td>${esc(r.name || r.globalId)}<div class="muted">#${r.id} ${esc(r.globalId)}</div></td><td>${esc(r.ifcClass)}</td><td>${esc(r.storey)}</td><td>${w === "gross" ? "GrossVolume" : "NetVolume"}</td><td class="n">${fmt(c.stored, 4)}</td><td class="n">${fmt(c.computed, 4)}</td><td class="n ${c.agree ? "ok" : "bad"}">${c.agree ? "agrees" : (c.rel * 100).toFixed(1) + "%"}</td><td>${c.reason ? esc(REASON_TEXT[c.reason]) : ""}</td></tr>`).join("");
+    $("checks-more").textContent = rows.length > shown.length ? `Showing 500 of ${rows.length}; the element CSV has them all.` : rows.length ? "" : only ? "No disagreements: every stored volume matches the geometry within 2%." : "This model stores no GrossVolume or NetVolume to check.";
+  }
+
+  $("by").addEventListener("change", () => current && renderBoq());
+  $("only-bad").addEventListener("change", () => current && renderChecks());
+  $("dl-boq").addEventListener("click", () => { if (!current) return; const by = byKeys(); download(`${fileName}-bill-of-quantities.csv`, boqCsv(boq(current.rows, by), by, rates)); record("boq_downloaded"); });
+  $("dl-rows").addEventListener("click", () => { if (!current) return; download(`${fileName}-elements.csv`, rowsCsv(current.rows)); record("rows_downloaded"); });
+  $("ifc").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) run(new Uint8Array(await f.arrayBuffer()), f.name); });
+  $("sample").addEventListener("click", async () => { const res = await fetch("samples/sample-office.ifc"); run(new Uint8Array(await res.arrayBuffer()), "sample-office.ifc"); record("sample_opened"); });
+  const drop = $("drop");
+  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", async (e) => { e.preventDefault(); drop.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) run(new Uint8Array(await f.arrayBuffer()), f.name); });
+</script>
+</body>
+</html>

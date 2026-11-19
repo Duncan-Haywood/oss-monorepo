@@ -443,5 +443,57 @@ class RedTeam20261116(unittest.TestCase):
         self.assertEqual(len(findings), 1)
         self.assertEqual((findings[0]["line"], findings[0]["image"], findings[0]["tag"]), (1, "node", "20"))
 
+
+class RedTeam20261119(unittest.TestCase):
+    """Red-team 2026-11-19: an escaped mutant (a set ARG beating a `:-`
+    default) and three real defects in how main() reads its input, each of
+    which let `--fail-on-risk` pass a Dockerfile with a mutable base image."""
+
+    def run_main(self, argv):
+        buf = io.StringIO()
+        with unittest.mock.patch("sys.stdout", buf):
+            code = dbc.main(argv)
+        return code, buf.getvalue()
+
+    def test_a_set_arg_beats_its_colon_dash_default(self):
+        findings = dbc.scan_text("ARG V=3.12\nFROM python:${V:-3.11}\n")
+        self.assertEqual((findings[0]["image"], findings[0]["tag"]), ("python", "3.12"))
+        findings = dbc.scan_text('ARG V=""\nFROM python:${V:-3.11}\n')
+        self.assertEqual(findings[0]["tag"], "3.11")
+
+    def test_a_dockerfile_path_is_scanned_not_skipped(self):
+        # Pre-commit hooks and CI steps pass file names; scanning nothing and
+        # exiting 0 passed the very file the gate exists to reject.
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "build.Containerfile")
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write("FROM node:18\n")
+            code, out = self.run_main([path, "--fail-on-risk"])
+            self.assertEqual(code, 2)
+            self.assertIn("node:18", out)
+
+    def test_a_missing_path_is_an_error_not_a_pass(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(SystemExit) as raised, unittest.mock.patch("sys.stderr", io.StringIO()):
+                self.run_main([os.path.join(tmp, "no-such-dir"), "--fail-on-risk"])
+            self.assertNotEqual(raised.exception.code, 0)
+
+    def test_a_utf8_bom_does_not_hide_the_first_from(self):
+        # BuildKit strips a UTF-8 byte order mark (Windows editors write one).
+        with tempfile.TemporaryDirectory() as tmp:
+            with open(os.path.join(tmp, "Dockerfile"), "wb") as handle:
+                handle.write(b"\xef\xbb\xbfFROM node:18\n")
+            code, out = self.run_main([tmp, "--fail-on-risk"])
+            self.assertEqual(code, 2)
+
+    def test_a_non_utf8_byte_does_not_crash_the_scan(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with open(os.path.join(tmp, "Dockerfile"), "wb") as handle:
+                handle.write(b"# caf\xe9\nFROM node:18\n")
+            code, out = self.run_main([tmp, "--fail-on-risk"])
+            self.assertEqual(code, 2)
+            self.assertIn("node:18", out)
+
+
 if __name__ == "__main__":
     unittest.main()
