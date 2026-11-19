@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKmJGkciMzJnYUZtzzi",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T08:18:47Z",
+  "ended": "2026-11-19T08:35:18Z",
+  "wall_minutes": 16.68,
+  "tokens_in": 5490487,
+  "tokens_out": 19616,
+  "cost_usd": 2.351,
+  "tool_calls": 59,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17600",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "run_workflow_locally.py --step with --for-changes exits 2 ('--step needs exactly one workflow named')",
+      "fix": "named the workflow: run_workflow_locally.py ventures-tests --step ..."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "The 2026-11-19 report that --for-changes skips the unwired tree checks did not reproduce: a committed U+FEFF probe in a venture failed check_hidden_unicode inside the ventures-tests step locally (241/243). The earlier miss was likely uncommitted files or an older main."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Most files in measure's 'Doc friction by file' are control plane (prompts/, CLAUDE.md, .github/); filtering to ungated files by hand took a script over prompts/runs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Backlog edits live under prompts/ (CODEOWNERS-gated), so no backlog item was filed; the finding and its metric are in the post and in the code comment instead.",
+      "did": "shipped the fix in an ungated file only",
+      "result": "PR stays mergeable without owner approval"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-a-stalled-pr-held-its-row-for-a-day.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog had only owner rows). main_health 278/278. Lens: concurrent-session collisions on allocate.py Start here (4-7% of ventures records/day 2026-11-14..19). Pool was 2 of 7 rows because CLAIM_FRESH_HOURS=24 counted stalled PRs (#17310 19 h) as live; last 100 merged PRs took 1-140 min open->merge. Set to 4; simulated pool 6 rows. test_allocate 137 OK; promptctl validate ok; unittest discover -s prompts 136 OK. Follow-up metric for a later Verify: collision mentions in ventures run records after 2026-11-19 vs the 4-7%/day baseline.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0cdd6558-557a-5a58-88f9-fca851157f58",
+    "transcripts": 1,
+    "first": "2026-11-19T08:18:47Z",
+    "last": "2026-11-19T08:35:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 109,
+        "output": 19616,
+        "thinking": 5399,
+        "cache_read": 5380102,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110276,
+        "api_equivalent_usd": 2.351,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 109,
+      "output": 19616,
+      "thinking": 5399,
+      "cache_read": 5380102,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110276,
+      "api_equivalent_usd": 2.351,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.68,
+      "active_minutes": 16.68,
+      "model_minutes": 4.28,
+      "tool_minutes": 12.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "data pull, one-constant change with test, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 85.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
