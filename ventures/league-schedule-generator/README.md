@@ -390,10 +390,47 @@ events and FAQ. Clicked through in Chromium at 390 px over http (example, re-dra
 schedule page): no console errors, no horizontal scroll.
 
 Limits: the rating is whatever the organiser types, so "even on paper" is only as good as those numbers;
-totals are compared, so with uneven team sizes the larger team may carry a higher total. Next: a real
-league's sign-up sheet; position quotas beyond one tag (e.g. one goalie and two women per team at once,
-which needs tag pairs); and placing late sign-ups onto existing teams with the same objective (the
-self-hosted page's free-agent placement uses a simpler least-filled rule, `freeagents.mjs`).
+totals are compared, so with uneven team sizes the larger team may carry a higher total. Two tags and late
+sign-ups landed the same day (next section).
+
+### Two tags per player, and late sign-ups onto announced teams (2026-11-19, later)
+
+- **Two tags at once.** The tag cell can hold several tags (`F G`, `F/G`, `F+G`; `splitTags`), so a woman
+  who keeps goal counts toward both splits. Each tag is spread on its own (count per team within one), which
+  covers "one goalie and two women per team" without a separate quota syntax. The CSV writes both tags back
+  and `parseTeamsCsv` reads them. Tested against the exhaustive search on 40 random two-tag lists
+  (`teams.test.mjs`).
+- **Late sign-ups.** Paste the announced teams (the page's CSV, or `Team, Player, Rating, Tag` columns; quotes
+  and the formula-guard apostrophe handled) and put only the new players in the players box. `addLateSignups`
+  pins every announced player to their team (`balanceTeams(..., { fixed, maxMoves, teamNames })`), keeps the
+  team names and order, and places the newcomers with the same hard rules and objective. "Announced players
+  who may switch teams" (default 0) lets the search move up to that many; among equal gaps it moves the
+  fewest, and the page names every new placement, move and `drop: Name` leaver. A re-listed announced player
+  updates their rating or tag. For up to 16 players the exhaustive search runs with the pins (no symmetry cut,
+  since named teams differ). `checkTeams(parsed, result, before)` re-reads the output and also faults a
+  renamed team or more switches than allowed. "Use the teams above" copies a fresh draft in, so a second
+  round of late sign-ups is two clicks.
+- **How it was checked** (`eval/late-signups.mjs`, output `eval/late-signups.txt`; invented lists, ratings
+  1-5, ~40% F, ~20% also G; announced teams drafted by `balanceTeams`, then 3-12 late players):
+  - with 0 moves, on every case where a least-filled rule (smallest team first, ties to the lowest total; the
+    rule `freeagents.mjs` uses) kept the size and tag split, the shipped placement matched its mean gap
+    exactly (e.g. 1.84 vs 1.84 at 9 players, 2.36 vs 2.36 at 40). Least-filled broke the coed or goalie split
+    where the shipped placement kept it in 8, 7 and 22 of 40 small cases, 14 of 30 at 40 players, 15 of 20 at
+    80 and 10 of 10 at 160. So with nobody moved the gain is the rules, not the gap.
+  - allowing 2 moves cuts the mean gap from 2.02-2.52 to 0.65-0.72 at 9-12 players (a full redraft: 0.65-0.70)
+    and 2.50 to 0.87 at 40 (redraft 0.80), moving 0.8-1.1 players on average. At 160 players and 12 late
+    sign-ups on 16 teams 2 moves are not enough (4.40 to 3.60, redraft 0.80).
+  - annealing alone (exhaustive fallback off) equalled the pinned exhaustive search on 95 of 95 small cases
+    with a valid placement; 0 rule faults in any run; 160 players placed in 0.4 s at most.
+  - Tests: `teams.test.mjs` 16 (7 new: tag splitting, two-tag lists against the exhaustive search, CSV read
+    back, pinned placement, pins with and without moves, drops and re-rated players). Clicked through in
+    Chromium at 390 px over http (example, use the teams above, three late players with a drop, 0 then 2
+    moves, bad inputs): no console errors, no horizontal scroll.
+
+Limits: a late player is placed by rating only, like the draft; with tags already uneven on the announced
+teams and no moves allowed the page names the team that is off instead of fixing it. Next: a real league's
+sign-up sheet and late list; the self-hosted page's `/join` free agents placed by this search instead of
+least-filled (`freeagents.mjs`).
 
 ## Play-off results fill the bracket (2026-11-18, latest)
 
