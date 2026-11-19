@@ -89,3 +89,14 @@ test('a one-word question needs only a name hit', () => {
   assert.deepEqual(rankForQuestion(data, 'How much does Poshmark take?', { variants, score, strongOnly: true, limit: 5 }).map((i) => i.t), []);
   assert.deepEqual(rankForQuestion(data, 'Poshmark?', { variants, score, strongOnly: true }).map((i) => i.t), ['Poshmark Fee Calculator']);
 });
+
+test('a reply that links a page that does not load fails, naming the page', () => {
+  const reply = {
+    text: 'These tools match what you asked:',
+    passage: null,
+    links: [{ title: 'Roofing Bid Calculator', href: '../roofing-bid-calculator/' }],
+    dead: ['/roofing-bid-calculator/'],
+  };
+  assert.deepEqual(judgeReply('Which tool prices a roofing job?', reply), ['links /roofing-bid-calculator/, which does not load']);
+  assert.deepEqual(judgeReply('Which tool prices a roofing job?', { ...reply, dead: [] }), []);
+});

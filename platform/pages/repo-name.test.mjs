@@ -1,6 +1,6 @@
 // The repository was renamed from `monorepo-projects` to `oss-monorepo`.
 // GitHub redirects the old name, but 42 published pages still linked it by
-// hand on 2026-11-19 (docs/reports/polish-2026-11-19-ask-examples-check.md):
+// hand on 2026-11-19 (docs/reports/polish-2026-11-19-repaired-link-targets.md):
 // every "source" link paid a redirect and named a repository that is gone,
 // and a redirect lasts only until someone creates a repo under the old name.
 import test from 'node:test';

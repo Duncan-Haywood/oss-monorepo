@@ -2084,22 +2084,6 @@ node platform/pages/fold-check.mjs
 node platform/pages/fold-check.mjs --widths 320,360,375,390 --all
 ```
 
-### Checking /ask/'s example questions still answer
-
-`ask-check.mjs` opens `/ask/` on the built site, taps each example question
-under the greeting (`ASK_SUGGESTIONS` in `assistant.mjs`) with the default
-rule-based engine, and exits 1 when a reply is "I found nothing", has neither a
-passage nor a tool, a "Which tool …" question lists no tool, or any tool it
-links does not load. The rule lives in `ask-examples.mjs` (tested by
-`ask-examples.test.mjs`). About 2 s on a built dist; it serves `DIST` itself or
-checks `BASE_URL`; `--all` prints every reply and its links. Run it after
-renaming or retiring a tool, rewording /ask/'s FAQ, or changing the
-suggestions. Not in CI (Playwright); `pending` beside `fold-check`.
-
-```
-node platform/pages/ask-check.mjs --all
-```
-
 ### Lighthouse on the pages a visitor sees first
 
 `lighthouse.mjs` runs Lighthouse (mobile by default) on the hub, /research/,

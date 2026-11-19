@@ -17,7 +17,7 @@
   "tokens_out": 31973,
   "cost_usd": 3.1774,
   "tool_calls": 76,
-  "task": "polish queue: hub-links items 1-2 (repaired links to site research pages, old repo name) and the /ask/ example-question browser check carried over in four reports",
+  "task": "polish queue: hub-links items 1-2 (repaired links to site research pages, old repo name); /ask/ example-question check (consolidated into #17735's after it landed first)",
   "projects": [
     "platform/pages",
     "ventures (42 source links)"
@@ -30,7 +30,7 @@
   "merged": null,
   "ci_failures_before_green": 1,
   "review_findings": null,
-  "tests_added": 9,
+  "tests_added": 5,
   "outcome": "success",
   "errors": [
     {
@@ -44,6 +44,10 @@
     {
       "what": "build.test.mjs 'repaired out to the private repository' failed after the prefix rename (it grepped HTML, so hand-written oss-monorepo links looked like repairs)",
       "fix": "the test now reads result.repairs"
+    },
+    {
+      "what": "duplicate work: PR #17735 landed the same /ask/ example-question browser check (ask-suggestions-check.mjs) while this PR was in CI; both runs read polish_queue before either draft existed",
+      "fix": "merged main, deleted my ask-check.mjs/ask-examples.mjs, folded my one extra (fetch every reply link, fail on a dead one) into ask-suggestions.mjs/-check.mjs with a unit test; rewrote the post around the link fix"
     }
   ],
   "integrity_issues": [],
@@ -64,17 +68,17 @@
   "deviations": [
     {
       "file": "prompts/polish/prompt-0.md",
-      "why": "'Pick one piece of work': the repaired-link item turned out to be 6 links, so I also took the /ask/ example-question check carried over in four reports, and fixed 42 hand-typed old-repo links found while counting.",
+      "why": "'Pick one piece of work': the repaired-link item was only 6 links, so I also took the /ask/ check carried over in four reports, and fixed 42 hand-typed old-repo links found while counting.",
       "did": "three related changes in one PR",
-      "result": "all verified on a full build; one PR, one post"
+      "result": "link fixes landed; the /ask/ check duplicated #17735 and was consolidated into it (only the dead-link fetch survives)"
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-19-the-ask-page-examples-now-have-a-test.md",
-    "docs/reports/polish-2026-11-19-ask-examples-check.md"
+    "docs/posts/2026-11-19-links-that-left-the-site-for-no-reason.md",
+    "docs/reports/polish-2026-11-19-repaired-link-targets.md"
   ],
   "goal": null,
-  "notes": "Before (full build of main): 6 repaired links on 4 pages to github.com/Duncan-Haywood/monorepo-projects/blob/main/..., 2 of them to research/house-dewpoint which the site serves. After (second full build with the change): both wall-condensation-check links are ../research/house-dewpoint/, the other 4 name oss-monorepo; 42 venture pages that hand-typed monorepo-projects now name oss-monorepo. check.mjs: publishable, 12006 pages, no dead links. ask-check.mjs: exit 0 on the build (3/3); exit 1 with a nonsense question ('answered I found nothing') and with dist/roofing-bid-calculator moved aside (dead link named). Unit tests: build.test.mjs repair cases 3/3, ask-examples.test.mjs 6/6, repo-name.test.mjs 2/2, test_build_pages_site.py 47 passed, test_browser_checks.py 55 passed. Full node --test 'platform/pages/*.test.mjs': 1862 pass, 3 fail on the first run. Two were my post's 196-char description (fixed). The third, 'no link to a published venture is repaired out to the private repository', grepped the built HTML for SOURCE_URL_PREFIX + 'ventures/'; with the prefix now naming oss-monorepo it matched hand-written source links in posts, which are not repairs. Rewrote it to read the build's own `repairs` list (each repair now records `to` and `repoPath`). Re-run: those tests and the post tests 26/26 pass. CI: deploy-concurrency-check-ci 'test' is red because its dogfood step (check.py .github/workflows/ --fail-on-risk) finds 11 risks in .github/workflows; it exits 1 on main too (checked locally on origin/main). It ran here only because a source link in that venture's index.html changed. The fix belongs in a control-plane PR.",
+  "notes": "Before (full build of main): 6 repaired links on 4 pages to github.com/Duncan-Haywood/monorepo-projects/blob/main/..., 2 of them to research/house-dewpoint which the site serves. After (second full build with the change): both wall-condensation-check links are ../research/house-dewpoint/, the other 4 name oss-monorepo; 42 venture pages that hand-typed monorepo-projects now name oss-monorepo. check.mjs: publishable, 12006 pages, no dead links. ask-check.mjs: exit 0 on the build (3/3); exit 1 with a nonsense question ('answered I found nothing') and with dist/roofing-bid-calculator moved aside (dead link named). Unit tests: build.test.mjs repair cases 3/3, ask-examples.test.mjs 6/6, repo-name.test.mjs 2/2, test_build_pages_site.py 47 passed, test_browser_checks.py 55 passed. Full node --test 'platform/pages/*.test.mjs': 1862 pass, 3 fail on the first run. Two were my post's 196-char description (fixed). The third, 'no link to a published venture is repaired out to the private repository', grepped the built HTML for SOURCE_URL_PREFIX + 'ventures/'; with the prefix now naming oss-monorepo it matched hand-written source links in posts, which are not repairs. Rewrote it to read the build's own `repairs` list (each repair now records `to` and `repoPath`). Re-run: those tests and the post tests 26/26 pass. CI: deploy-concurrency-check-ci 'test' is red because its dogfood step (check.py .github/workflows/ --fail-on-risk) finds 11 risks in .github/workflows; it exits 1 on main too (checked locally on origin/main). It ran here only because a source link in that venture's index.html changed. The fix belongs in a control-plane PR. Consolidation after #17735: ask-suggestions.test.mjs 10/10; ask-suggestions-check.mjs on my pre-#17735 build names the dead link when dist/roofing-bid-calculator is moved aside (its privacy maxLinks:0 expectation fails on that old build as expected; #17735's ranking fix is in main's build).",
   "corrections": [],
   "redteam": null,
   "usage": {

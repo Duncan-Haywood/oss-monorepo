@@ -1,6 +1,6 @@
 // Opens the built /ask/ page, taps each example question under the greeting
-// with the default (rule-based) engine, and fails when an answer is empty or
-// misses what ask-suggestions.mjs expects of it.
+// with the default (rule-based) engine, and fails when an answer is empty,
+// misses what ask-suggestions.mjs expects of it, or links a page that does not load.
 //
 //   node platform/pages/ask-suggestions-check.mjs          # serves dist itself
 //   BASE_URL=https://marisstella.app node platform/pages/ask-suggestions-check.mjs
@@ -66,8 +66,15 @@ try {
         text: m.querySelector(':scope > span')?.textContent || '',
         links: [...m.querySelectorAll('ul a')].map((a) => ({ title: a.textContent.trim(), href: a.getAttribute('href') })),
       }));
-      Object.assign(reply, { passage: splitReply(reply.text).passage });
+      Object.assign(reply, { passage: splitReply(reply.text).passage, dead: [] });
     } catch { /* no reply: judged below */ }
+    // Fetch every tool the reply links: a renamed or retired tool the search
+    // index still names would otherwise pass as "a link matching /roof/".
+    for (const { href } of reply?.links || []) {
+      const url = new URL(href, `${BASE}/ask/`);
+      const res = await fetch(url, { signal: AbortSignal.timeout(10000) }).catch(() => null);
+      if (!res || !res.ok) reply.dead.push(url.pathname);
+    }
     const problems = judgeReply(q, reply);
     const got = reply
       ? [reply.passage && `passage "${reply.passage.slice(0, 70)}${reply.passage.length > 70 ? '…' : ''}"`,
@@ -88,4 +95,4 @@ if (failures.length) {
   console.log(failures.join('\n'));
   process.exit(1);
 }
-console.log('Every /ask/ example question gets an answer.');
+console.log('Every /ask/ example question gets an answer, and every link in it loads.');
