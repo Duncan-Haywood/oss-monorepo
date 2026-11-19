@@ -698,19 +698,6 @@ export const STACK_TABLE_CSS = `
 `;
 
 /**
- * Sticky row names for the wide tables that stay tables (`<table class="pin">`, set by
- * `pinTable` in `platform/devlog/markdown.mjs`): inside a `.scroll` box the first column
- * stays put while the rest swipes under it, so column five of a twenty-row table still says
- * which row it is. The background is the table's own panel colour (`--panel` on blog pages,
- * `--pfs-panel` elsewhere) so cells sliding under it are hidden; the edge is an inset shadow
- * because a collapsed border does not travel with a sticky cell in Chromium.
- */
-export const PIN_TABLE_CSS = `
-table.pin th:first-child,table.pin td:first-child{position:sticky;left:0;z-index:1;
-  background:var(--panel,var(--pfs-panel,#fff));box-shadow:inset -1px 0 var(--line,var(--pfs-line,rgba(128,128,128,.34)))}
-`;
-
-/**
  * Contents of `pf-site.css`, the stylesheet every site-owned page links.
  *
  * `REFLOW_CSS` rides at the end, as it does in `pf-chrome.css`. Until
@@ -723,7 +710,7 @@ table.pin th:first-child,table.pin td:first-child{position:sticky;left:0;z-index
  * break. Every rule in it has zero specificity, so a page's own CSS still wins.
  */
 export function renderSiteStyle() {
-  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}${STACK_TABLE_CSS}${PIN_TABLE_CSS}${REFLOW_CSS}`;
+  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}${STACK_TABLE_CSS}${REFLOW_CSS}`;
 }
 
 /** The `<link>` a site-owned page puts in its head. */
