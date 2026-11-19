@@ -270,7 +270,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = VOICED_LEAD, lipShut = true, lipHold = false, levelFade = false, longTilt = false, trace = null } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW, barBurst = true, voicedLead = VOICED_LEAD, lipShut = true, lipHold = false, levelFade = false, longTilt = false, nearRelease = false, noteEnd = null, trace = null } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -486,7 +486,18 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     }
     return out.find((r) => !vowelAgain(r)) || null;
   };
-  const near = nearRun();
+  let near = nearRun();
+  // The vowel's release read as a murmur (2026-11-19, opt-in `nearRelease`, README "Held out where the release
+  // lands"): sing.mjs sings a coda at the end of its note so it finishes as the note does (codaPlan), so a sung
+  // murmur starts before the note's end. On parts K-c every right near-rule read but one started 26 ms or more
+  // before it; 48 of the 50 wrong ones, every one a vowel-only /u/ or /o/ fading after the note, started 19-171 ms
+  // after it (eval/near-tail-sweep.txt; part e's 14, eval/e4-eighth-diag.mjs, 95 ms after). With `noteEnd` (seconds, the score's end of the note) a near run starting at
+  // or after it is thrown out. Read off that sweep, not tuned.
+  if (nearRelease && near && noteEnd != null && vowelAt + 0.06 + fr[near[0]].t >= noteEnd) {
+    if (trace) trace.nearReleased = { t: fr[near[0]].t, after: Math.round(1000 * (vowelAt + 0.06 + fr[near[0]].t - noteEnd)) };
+    near = null;
+  }
+  if (trace && near) trace.near = { at: near[0], t: fr[near[0]].t, ms: msOf(near), left: fr.length - 1 - near[0], endLeft: fr.length - 1 - near[1], lv: fr.slice(near[0], Math.min(near[1] + 1, near[0] + 7)).map((f) => +f.lvl.toFixed(1)), tilt: fr.slice(near[0], Math.min(near[1] + 1, near[0] + 7)).map((f) => Math.round(tiltOf(f))) };
   // Before the obstruent of a cluster (2026-11-16, README "-unt read on its stop"): the n of *sunt*, *ant*,
   // *mens* is a murmur of 40-70 ms (codaPlan) that the obstruent's closure or noise ends, so none of the
   // rules above, which want it quieter (nasal), stepped down under 500 Hz (step) or holding its darkness
