@@ -128,6 +128,11 @@ CLAIMS = [
     ("results_strip_added_resistance.txt", "share 0.25, H_lim none: foilborne 100.0% of hours; central foil break-even 641 W; monohull leads to 200 W: True"),
     ("results_strip_added_resistance.txt", "at or below 200 W: 0"),
     ("results_strip_added_resistance.txt", "convergence: monohull Fr 0.16 strip peak sigma 16.934"),
+    ("results_strip_viscous.txt", "radiation damping 12.9% of critical"),
+    ("results_strip_viscous.txt", "row 0.100 1.76 1.17 0.97 1.20 -2.84 -10.47 True"),
+    ("results_strip_viscous.txt", "row 0.200 1.05 0.90 0.78 1.00 -2.52 -9.39 True"),
+    ("results_strip_viscous.txt", "calibrated zeta 0.091"),
+    ("results_strip_viscous.txt", "calibrated share 0.25: 30 W range 799.8 km (-2.90%)"),
 ]
 
 def check(claims=CLAIMS, root=EXP):
