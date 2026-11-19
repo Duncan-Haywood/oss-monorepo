@@ -85,6 +85,7 @@ import {
   SITE_NAME,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
+  SOURCE_TREE_PREFIX,
   repairLinks,
   pageHasOwnShareControl,
   categoryPagePath,
@@ -1986,6 +1987,41 @@ test('a venture link to ../ stays the hub, not the repository folder', async () 
   const repairs = await repairLinks({ publishedDir: destination, sourceDir: siteDir, repoRoot, outDir });
   assert.deepEqual(repairs, []);
   assert.ok((await readText(path.join(destination, 'index.html'))).includes('href="../"'));
+});
+
+test('a venture link to a research project lands on its site page, not GitHub', async () => {
+  // wall-condensation-check linked `../../research/house-dewpoint/` twice, and
+  // both became GitHub URLs while /research/house-dewpoint/ was on the site
+  // (docs/reports/polish-2026-11-19-hub-links.md, item 1). A file inside the
+  // project, or a project with no page, still goes to the repository, and a
+  // folder goes to its `tree/` URL rather than through blob's redirect.
+  const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-research-root-'));
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-research-out-'));
+  const siteDir = path.join(repoRoot, 'ventures', 'widget-co');
+  await fs.mkdir(siteDir, { recursive: true });
+  for (const slug of ['dew', 'unbuilt']) {
+    await fs.mkdir(path.join(repoRoot, 'research', slug), { recursive: true });
+    await fs.writeFile(path.join(repoRoot, 'research', slug, 'README.md'), '# r');
+    await fs.writeFile(path.join(repoRoot, 'research', slug, 'results.md'), 'r');
+  }
+  await fs.mkdir(path.join(outDir, 'research', 'dew'), { recursive: true });
+  await fs.writeFile(path.join(outDir, 'research', 'dew', 'index.html'), '<h1>dew</h1>');
+  const links = ['../../research/dew/', '../../research/dew/README.md', '../../research/dew/results.md', '../../research/unbuilt/'];
+  await fs.writeFile(path.join(siteDir, 'guide.html'), links.map((l) => `<a href="${l}">x</a>`).join(''));
+  const destination = path.join(outDir, 'widget-co');
+  await fs.mkdir(destination, { recursive: true });
+  await fs.copyFile(path.join(siteDir, 'guide.html'), path.join(destination, 'guide.html'));
+
+  const repairs = await repairLinks({ publishedDir: destination, sourceDir: siteDir, repoRoot, outDir });
+  assert.equal(repairs.length, 4);
+  const hrefs = [...(await readText(path.join(destination, 'guide.html'))).matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(hrefs, [
+    '../research/dew/',
+    '../research/dew/',
+    `${SOURCE_URL_PREFIX}research/dew/results.md`,
+    `${SOURCE_TREE_PREFIX}research/unbuilt`,
+  ]);
+  assert.ok(SOURCE_URL_PREFIX.includes('/oss-monorepo/'), 'repaired links name the repository by its current name');
 });
 
 test('repair leaves working in-site links untouched', async () => {
