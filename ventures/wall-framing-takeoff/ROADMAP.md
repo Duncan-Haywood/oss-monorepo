@@ -356,5 +356,5 @@ From [`2026-11-19-wall-framing-takeoff-r5.json`](../../portfolio/quality/audits/
 - Two-face outlet cable holes: dropping the two-face multiplier survives the suite; the only cable-hole test is single-face.
 - Jack geometry is guarded by two tests; a hand-checked jack/king assertion in the CLI layer would harden it.
 - No default header span table, even as a labelled example.
-- README test count is stale (1,039 against 1,213), and `layoutGable` still repeats `layoutWall`'s opening loop (engine.mjs is 1,718 lines).
+- `layoutGable` still repeats `layoutWall`'s opening loop (engine.mjs is 1,718 lines).
 
