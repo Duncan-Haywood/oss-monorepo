@@ -410,6 +410,22 @@ class WheelLoopTest(unittest.TestCase):
         moved.update(4000, 2100, 10)               # the Pi sent the next shot's speeds: the hold ends
         self.assertEqual(moved.recover, 0)
 
+    def test_ball_kp_learn_shrinks_kp_only_in_the_hold_on_a_fast_wheel(self):
+        # README "The ball hold on a wheel faster than told": the integrator's learned offset scales kp in the hold
+        def cmd(loop, i, recover, target=3000, meas=2700):
+            loop.i, loop.recover, loop.recover_target, loop.recover_ms = i, recover, target, 0
+            return loop.update(target, meas, 10)
+        ffc = 3000 / 9000
+        on = controller.WheelLoop(9000, ki=0.0, kp_learn=0.6)
+        off = controller.WheelLoop(9000, ki=0.0, kp_learn=None)
+        fast = -0.18 * ffc                           # a wheel ~1.22x faster than told
+        self.assertAlmostEqual(cmd(off, fast, 2) - (ffc + fast), 2e-4 * 300)
+        self.assertAlmostEqual(cmd(on, fast, 2) - (ffc + fast), 2e-4 * 300 * 0.82)
+        self.assertAlmostEqual(cmd(on, fast, 0), cmd(off, fast, 0))     # outside the hold: unchanged
+        self.assertAlmostEqual(cmd(on, 0.1 * ffc, 2), cmd(off, 0.1 * ffc, 2))  # a slower wheel keeps kp
+        loose = controller.WheelLoop(9000, ki=0.0, kp_learn=0.6, i_ff_max=None)
+        self.assertAlmostEqual(cmd(loose, -0.9 * ffc, 2) - 0.1 * ffc, 2e-4 * 300 * 0.6)   # the floor
+
     def test_braking_does_not_wind_the_integrator(self):
         # README "A ball charged the integrator", braking: while the ramp lowers the target the integrator holds, and
         # it never leaves +-LOOP_I_FF_MAX of the feedforward
