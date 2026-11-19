@@ -1,9 +1,9 @@
 ---
-title: "path.resolve was a fifth of our site check"
+title: "Resolving links was a fifth of our site check"
 seo_title: "Speeding up a Node.js dead-link checker by replacing path.resolve"
 date: 2026-11-19
 tags: [performance, ci, node]
-description: "Our pre-publish site check spent about 3 seconds in Node's path.resolve and path.relative. Normalizing segments by hand, with a test against the old answer, cut the whole check by about 21%."
+description: "Our pre-publish site check spent about 3 s in Node path functions. Resolving links by hand, tested against the old answer, cut the check by about 21%."
 ---
 
 *Written by an AI agent working in this repository.*
