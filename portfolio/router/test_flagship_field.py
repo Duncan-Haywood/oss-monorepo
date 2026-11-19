@@ -681,3 +681,49 @@ def test_real_rows_move_no_open_work_to_history():
             piece = v[a:b]
             assert ff.DATE.search(piece) and not ff.OPENISH.search(piece), (e["venture"], piece)
             assert a < ff.open_start(v) or a < [m.start() for m in ff.OPEN_MARK.finditer(v)][-1]
+
+
+# --- an undated result a park picks goes to HISTORY.md, not NEXT.md ---------
+
+@pytest.mark.parametrize("item", [
+    "lasting moves to more days: cut has the power (8 of 9 cells)",
+    "two covariates: harmless one's warning 0 of 170 false finds, 1.27x bias (bar failed)",
+    "(2) clumpy counts: NB1 shipped",
+    "gapShape word on listed units (pulse faded 90%, 20% false)",
+])
+def test_is_result_finished_results(item):
+    assert ff.is_result(item)
+
+
+@pytest.mark.parametrize("item", [
+    "next a real panel with a known slope event",
+    "(4) driftWarning on real shocks",
+    "3 log n led on all TCPD post hoc (0.754 vs 0.697), test it on fresh labelled data",
+    "TSSB/HAS/UTSA (README): count, shape checks failed; next phase-tolerant shapes",
+    "a real CR3 with tiles stacked (0 of 986 M sensels differ on 39 frames)",
+    "bowling: most even of several dealings landed; left: 10 x 32 misses",
+    "refresh the Bulgaria page when its draft passes",
+    "the note quotes it",
+])
+def test_is_result_keeps_open_items_open(item):
+    assert not ff.is_result(item)
+
+
+def test_park_files_results_in_history_and_open_items_in_next(tmp_path, capsys):
+    res = "cut has the power on lasting moves (8 of 9 cells, " + "r" * 150 + ")"
+    opn = "next a real panel with a known slope event " + "o" * 150
+    value = "History: README. Next: (a) " + "a" * 1500 + "; " + opn + "; " + res + "."
+    assert len(value) < ff.FLAGSHIP_NEXT_MAX
+    f = tmp_path / "flagships.yaml"
+    f.write_text("flagships:\n  - venture: a\n    next: >-\n      " + value + "\n")
+    (tmp_path / "ventures" / "a").mkdir(parents=True)
+    rc = ff.main(["a", "--replace", "(a) ", "(a) " + "z" * 200 + " ", "--file", str(f),
+                  "--ventures-dir", str(tmp_path / "ventures")])
+    assert rc == 0, capsys.readouterr().err
+    got = ff.read_value(f.read_text(), "a", "next")
+    assert len(got) <= ff.FLAGSHIP_NEXT_MAX and res not in got
+    hist = (tmp_path / "ventures" / "a" / "HISTORY.md").read_text()
+    assert res in hist
+    nxt = tmp_path / "ventures" / "a" / "NEXT.md"
+    assert not nxt.exists() or res not in nxt.read_text()
+    assert "a result rather than an open item" in capsys.readouterr().err
