@@ -7,33 +7,137 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T11:07:16Z",
   "ended": "2026-11-19T11:07:59Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "wall_minutes": 13.96,
+  "tokens_in": 16227263,
+  "tokens_out": 143542,
+  "cost_usd": 9.3924,
+  "tool_calls": 190,
+  "task": "quality audit round 80 (sample mode)",
+  "projects": [
+    "ventures/ai-bookkeeper",
+    "ventures/chargeback-ratio-monitor",
+    "ventures/contractor-bid-readiness",
+    "research/delayed-outer",
+    "research/qual-dialect"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17639",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 11,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "The 'Run it' rule asks the auditor to load the served page, but several auditors' sources (Mastercard Chargeback Guide PDF) 403 through the proxy; the README could say which secondary sources (e.g. a payment provider's docs) are acceptable and how to mark them."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The bare python3 here lacked numpy; /usr/bin/python3.13 had it. pyenv.py is mentioned but finding a ready interpreter first would have saved an auditor a step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 says fix in its own commit with a test; for qual-dialect finding 4 (plain PPI only) I scoped the claim rather than implementing PPI++, and left that defect open.",
+      "did": "README now says the result holds for plain PPI only; defect not marked fixed",
+      "result": "honest scope, real fix left for a research session"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-quality-audit-round-80.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Seed 2026-11-19-g-0f50, round 80, mode sample. Subjects: ventures/ai-bookkeeper (flagship), ventures/chargeback-ratio-monitor, ventures/contractor-bid-readiness, research/delayed-outer, research/qual-dialect; no platform drawn (all within 90 days). Share meeting the bar: 0 of 5 (0 of 4 sampled); cumulative sampled 33 of 335 (Wilson 7-14%). Seeded mutations: 14 of 25 caught. One recomputation per auditor re-run by me and reproduced (SE 200k = 28,234.30; Mastercard June 9/373 = 2.413%; 115 days; Lyapunov var 7.226; README ranges vs results.txt). Fix PR: #17639 (this PR) for 12 defects across 5 audits, each with a test or a doc correction; previously surviving mutants now caught: ai-bookkeeper taxforms.mjs:447 ($400 SE, surviving 3 rounds) and delayed-outer model.py:139. Local checks: ai-bookkeeper full suite 2858 pass 0 fail; chargeback 25/25; bid-readiness 60/60 under UTC, America/New_York, Pacific/Auckland; delayed-outer 14 OK; qual-dialect 7 OK; quality_audit validate 506 files 0 problems; check_posts ok.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c06612bb-69c1-59e4-b4ff-d983d7ed47b5",
+    "transcripts": 6,
+    "first": "2026-11-19T11:07:16Z",
+    "last": "2026-11-19T11:21:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 179,
+        "input": 356,
+        "output": 143542,
+        "thinking": 35414,
+        "cache_read": 15620884,
+        "cache_write_5m": 484089,
+        "cache_write_1h": 121934,
+        "api_equivalent_usd": 9.3924,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 179,
+      "input": 356,
+      "output": 143542,
+      "thinking": 35414,
+      "cache_read": 15620884,
+      "cache_write_5m": 484089,
+      "cache_write_1h": 121934,
+      "api_equivalent_usd": 9.3924,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.963,
+    "tool_calls": 190,
+    "tools": {
+      "Bash": 174,
+      "Agent": 5,
+      "SubagentHandback": 5,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.96,
+      "active_minutes": 7.62,
+      "model_minutes": 6.44,
+      "tool_minutes": 1.18,
+      "waiting_on_human_minutes": 6.34,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 25.17
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "five independent expert audits (~2h each) plus fixes, tests and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 149.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
