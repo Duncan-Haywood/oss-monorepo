@@ -51,6 +51,10 @@ has at least 4 more builds within 0.5 ms of true, no more builds off by more tha
 more than 0.5 ms off 0, and on the 3.6-6.8 ms checks no fewer builds within 0.5 ms. Otherwise the shipped grid stays,
 and the candidate goes to NEXT.md with M's numbers.
 
+RESULT (set M, eval/take-short-m-2026-11-19.txt): within 0.5 ms 48 of 66 against 41, off by more than 1 ms 3 against
+11, checks 18 each, but one instant build read 0.80 ms (share 0.99, not advised) where the shipped grid read 0: the
+instant clause failed, so the shipped grid stays. The next test is a fresh set with that clause written on advice.
+
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --compare dense-m.jsonl.gz "0,2,3,4,5,6,7,8" "0,1.5,2.5,3,4,5,6,7,8"
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --dense out.jsonl.gz rows-j.jsonl.gz [rows-k ...]
