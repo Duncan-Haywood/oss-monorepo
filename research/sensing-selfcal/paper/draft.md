@@ -3,7 +3,8 @@
 *First full draft (milestone 7 of the `sensing-selfcal` programme), 2026-11-13; revised the same day
 with milestones 4e–4g (set size, every disjoint split, a robust jackknife) and on 2026-11-14 with
 milestone 4h (a reference for the robust jackknife derived from a model) and milestone 4i (a reference
-from the unit's own linearised bundle adjustment). Target venue: IEEE
+from the unit's own linearised bundle adjustment), and on 2026-11-19 with milestones 3g–3t (what a short
+natural-feature window's focal length compensates, a causal prior and pooling; Section 4). Target venue: IEEE
 Robotics and Automation Letters (an aim, not a claim of acceptance). Every number below comes from a
 file under `../experiments/`; `python3 paper/check_numbers.py` checks each one against that file.
 Citations are listed in `references.bib`; their DOIs could not be looked up from the session that
@@ -40,7 +41,10 @@ reaches 43% on every split. The jackknife's
 overstatement is a small-set effect (7–8× at 4 views, 1.1–1.4× at 10), while the solver's own σ is
 2–6× too small at every size. The practical message for fleet perception is two-sided: a view-level
 jackknife makes in-field self-calibration safe to gate, and the corner localiser, not the solver,
-decides whether the gate can see a 1–2% change.
+decides whether the gate can see a 1–2% change. On hand-held natural-feature video of the TUM cameras, a
+rolling-shutter term cuts a 1.2 s window's focal error by a third to a half, a prior on k<sub>1</sub> from the
+camera's own earlier windows cuts what is left (2.88% to 2.32%), and five such windows pooled by random effects
+reach 1.17% with a nearly honest bar.
 
 ## 1. Introduction
 
@@ -164,7 +168,51 @@ board's k<sub>1</sub> with k<sub>2</sub> free raises the median error from 5.25%
 distortion curve over the inner image but split it differently between k<sub>1</sub> and k<sub>2</sub>. Pinning both terms,
 from the full covariances the solves stored, is worse still: the median error rises to 8.72% and the conditional bar
 narrows by about 40%, so pooled windows become confidently wrong (rms z 3.07). At first order a past board calibration's
-distortion is not a usable prior for a 1.2 s window; the re-solve with it pinned is the open test.
+distortion is not a usable prior for a 1.2 s window, and the re-solve below confirms it.
+
+**What a short window's focal length compensates (milestones 3g–3q, pre-registered).** Re-solved on the TUM
+images instead of at first order, pinning the board's distortion makes a window's focal error worse still: the
+median rises from 5.25% to 10.5%, with f above the board's in 52 of 53 windows, and pinning the board's principal
+point instead raises it to 5.87% (milestone 3j). The static intrinsics are not what the free f compensates. The
+camera's rolling shutter is part of it. In synthetic windows with hand-held rates of 0.3 rad/s per axis and a 1/30 s
+readout, an unmodelled shutter shifts f by a median 4.2%, with a sign set by the window's geometry, so the window's
+mean rotation rate does not predict the shift (R<sup>2</sup> 0.03; milestone 3k). Given the gyro, a shutter term
+with the readout left free cuts that shift from 4.17% to 1.14% (milestone 3l; shutter models after Karpenko et al.
+2011, Hedborg et al. 2012 and Oth et al. 2013), and of the ways a camera&ndash;IMU rig is wrong only the product of
+gyro scale and readout matters, which a free readout absorbs exactly; a 10° misalignment costs 0.42% and a 10 ms
+offset 0.35% (milestone 3m). On the real video, TUM's motion-capture rates in the window solve find a readout on
+both cameras (Kinect readout 27.6 ms, Xtion 25.9 ms; positive in all 54 windows, near zero with rates from the
+wrong time) and cut the median focal error from 2.87% to 1.88% (fr1/desk), 5.00% to 3.96% (fr1/xyz) and 7.56% to
+3.63% (fr3), as Kerl et al. (2015) would lead one to expect of Kinect-class sensors (milestone 3n). The
+motion-capture velocity and a free mocap&ndash;camera time offset (a median 5.1 ms) leave f where it was
+(milestones 3o&ndash;3p). What is left is scatter between windows, not bias (milestone 3q): per sequence the robust
+sd of the focal error is 2.1&ndash;6.0% against a median of 0.07&ndash;2.5%, a window's signed error tracks its own
+k<sub>1</sub> (Spearman +0.58 on the Kinect) and its principal point (+0.42) along a flat f&ndash;k<sub>1</sub>&ndash;principal-point
+ridge, and the solver's sd barely flags the bad windows (+0.29). The Kinect windows' median sits inside the 1.6% by
+which three honest calibrations of that camera disagree; the Xtion's sits 1.3&ndash;2.5% high against all three.
+
+**A causal prior, then pooling (milestones 3r–3t, pre-registered).** Scatter along a ridge is what a prior is for.
+A soft Gaussian prior on k<sub>1</sub> and the principal point at the median and robust sd of the camera's other
+windows lowers the pooled median focal error from 3.06% to 2.43% over 53 windows (paired Wilcoxon p = 0.0018); the
+k<sub>1</sub> part does the work (milestone 3r). A robot has only its past, so milestone 3s built the prior from the
+camera's earlier windows alone, in recording order, starting once five exist. On the 43 windows that have one, the
+pooled median error falls from 2.88% to 2.32% (lower in 30 of 43, Wilcoxon p = 0.0006), the window-to-window robust
+sd falls to 0.49&ndash;0.72× its value in each sequence, and the image cost rises a median 0.07%: the images barely notice the prior.
+The causal prior keeps about two thirds of the leave-one-out prior's gain (2.32% against 2.07%). Updating the
+memory from the prior-steadied estimates themselves shrinks the k<sub>1</sub> prior to a near-pin within about ten
+windows (its width at the last window is 0.12× the raw-memory prior's on the Kinect, 0.02× on the Xtion); here
+the pin landed near the camera's median and cost little (2.42%), but a pin learned from five windows carries the same risk
+as pinning the board's distortion did above. The prior removes scatter, not bias: the Xtion's +2.8% stays. Pooling
+then averages what scatter is left (milestone 3t). Over blocks of five consecutive windows (6 s of video),
+DerSimonian&ndash;Laird random effects on windows with the causal prior give a pooled median error of 1.17% against
+2.20% without it, and reach 2% at five windows where the windows without the prior need eight. The random-effects
+bar stays about as honest with the prior as without (rms z 1.58 against 1.65), while inverse-variance pooling on
+the solver's sd is badly overconfident (rms z 14.7). The cost of the prior shows only in short pools: three
+prior-steadied windows that agree get &tau; = 0, fall back on the solver's sd and can miss by 11 sd (rms z 2.67).
+The Hartung&ndash;Knapp&ndash;Sidik&ndash;Jonkman variance (IntHout et al. 2014) is slightly more honest at five
+windows (rms z 1.51) but blows up at three (20.2), and its modified form (Röver et al. 2015) does no better than
+DerSimonian&ndash;Laird there; adding 1% of f in quadrature to each pooled sd, about half the references' own
+disagreement, brings the five-window rms z to 0.93.
 
 ## 5. An accept/reject test on disjoint view sets
 
@@ -459,6 +507,13 @@ solves.
    difference and test the best-conditioned ones: the top quarter doubled the TUM cameras' power at ±2%
    (10.0% to 21.5%) without raising false alarms above 2.35%. Read the twin's power as a ranking only; it
    overstates the real rate 1.2–1.9×.
+7. **Self-calibrating from natural features on a rolling-shutter camera: model the shutter, remember k<sub>1</sub>,
+   pool five windows.** Put the gyro rates and a free readout in every short window (on the TUM cameras it cuts
+   the median focal error by a third to a half), keep a running median and robust spread of k<sub>1</sub> and
+   the principal point from the camera's raw window estimates and use them as a soft prior once five exist (not
+   from the prior-steadied estimates, which collapse to a pin), and pool at least five windows by random effects,
+   never by inverse variance on the solver's sd, with the pooled sd floored at about 1% of f. On TUM that gets f
+   to about 1.2% of the board from 6 s of hand-held video, with an error bar that is close to honest.
 
 ## 9. Limitations
 
@@ -468,7 +523,7 @@ and the intervals are too narrow, and a 99th percentile from 180 statistics rest
 them (Section 7 shows how far that moved one result). Scoring every split removes the sampling of
 splits, not the reuse of views; a second pool of 13 views per TUM unit (milestone 4p) shows the in-sample false alarms understate the fresh-view rate (1.40% against 0.35%), but both pools come from one session. The focal and principal-point changes are exact model transforms; the swaps (here and between the
 two TUM units) are the only real changes. The corners are checkerboard corners without mismatches; natural features (SIFT) are tested only on
-short windows of three TUM RGB-D sequences (Section 4). The renders leave out the bend, the clipboard and background clutter, vignetting and the
+short windows of three TUM RGB-D sequences (Section 4). Those windows come from one recording order per camera and one session on the Xtion, the rotation rates come from motion capture rather than an onboard gyro, the Xtion's +2.8% focal bias is unexplained, and milestones 3s–3t re-used saved solves (43 windows; overlapping blocks are not independent tests). The renders leave out the bend, the clipboard and background clutter, vignetting and the
 sensor's own noise. Several findings (the half-width cause, the f-alone power figures in Section 5)
 were found after a pre-registered prediction failed and are labelled so in the log.
 
@@ -479,8 +534,12 @@ were found after a pre-registered prediction failed and are labelled so in the l
   estimate each unit's own tail on views the test never touches.
 - Done for natural features on two cameras (milestones 3b–3g, Section 4): σ is 4–12× too small per 1.2 s window,
   a keyframe jackknife makes it honest and random-effects pooling keeps it honest across windows; neither axis swing
-  nor a one- or two-coefficient distortion prior (first order) explains the remaining bias. Still needed: a re-solve with the whole prior
-  distortion model pinned, rolling shutter, and longer windows with loop closures.
+  nor a one- or two-coefficient distortion prior explains the remaining bias, first order or re-solved (milestone 3j).
+- Done for natural features on two cameras (milestones 3k–3t, Section 4): a rolling-shutter term with mocap rates
+  cuts the window's error by a third to a half, what remains is scatter along an f&ndash;k<sub>1</sub> ridge, and a
+  causal k<sub>1</sub> prior with five-window random-effects pooling reaches about 1.2%. Still needed: the same
+  pipeline on an onboard gyro instead of motion capture, other recording orders (a bad start for the prior), a
+  cause for the Xtion's +2.8%, and longer windows with loop closures.
 - Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
   views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).
   Choosing view sets by the twin's predicted power works as a ranking (milestone 4l), and with the old set
