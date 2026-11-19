@@ -45,7 +45,7 @@ const form = (body) => Object.fromEntries(new URLSearchParams(body));
 export async function importHelpKeeper(base, fetchImpl = fetch) {
   const root = String(base).replace(/\/+$/, "");
   const idx = await fetchImpl(`${root}/llms.txt`).then((r) => { if (!r.ok) throw new Error(`${root}/llms.txt answered ${r.status}`); return r.text(); });
-  const links = [...idx.matchAll(/\]\((https?:\/\/[^)\s]+\/a\/([a-z0-9-]+)\.md)\)/g)].filter((m) => m[1].startsWith(root)).slice(0, 500);
+  const links = [...idx.matchAll(/\]\((https?:\/\/[^)\s]+\/a\/([a-z0-9-]+)\.md)\)/g)].filter((m) => m[1].startsWith(`${root}/`)).slice(0, 500);
   const docs = [];
   for (const [, url, slug] of links) {
     const md = await fetchImpl(url).then((r) => (r.ok ? r.text() : ""));
@@ -66,7 +66,7 @@ export function handler(cfg) {
 
   return async (req, res) => {
     const url = new URL(req.url, "http://x"), path = url.pathname;
-    const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",")[0].trim()) || req.socket.remoteAddress || "?";
+    const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",").pop().trim()) || req.socket.remoteAddress || "?";
     const base = cfg.publicUrl || `http${cfg.trustProxy && req.headers["x-forwarded-proto"] === "https" ? "s" : ""}://${req.headers.host}`;
     const origin = String(req.headers.origin || "");
     const cors = path.startsWith("/api/") ? { "access-control-allow-origin": !origins.length ? "*" : origins.includes(origin) ? origin : "null", "access-control-allow-headers": "content-type", vary: "origin" } : {};

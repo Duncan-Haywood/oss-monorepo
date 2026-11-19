@@ -53,7 +53,7 @@ export function handler(cfg) {
     const reply = (code, body, type = "application/json", extra = {}) => { res.writeHead(code, { "content-type": type, "cache-control": "no-store", "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(typeof body === "string" ? body : JSON.stringify(body, null, 2)); };
     const json = (c, b, extra) => reply(c, b, "application/json", extra);
     const cors = { "access-control-allow-origin": origin, vary: "origin" };
-    const ip = (cfg.trustProxy ? (req.headers["x-forwarded-for"] || "").split(",")[0].trim() : "") || req.socket.remoteAddress || "";
+    const ip = (cfg.trustProxy ? (req.headers["x-forwarded-for"] || "").split(",").pop().trim() : "") || req.socket.remoteAddress || "";
     try {
       if (path === "/healthz") return reply(200, "ok\n", "text/plain");
       if (req.method === "OPTIONS") return reply(204, "", "text/plain", { ...cors, "access-control-allow-headers": "authorization,content-type", "access-control-allow-methods": "GET,POST", "access-control-max-age": "600" });

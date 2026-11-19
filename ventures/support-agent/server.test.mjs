@@ -137,3 +137,60 @@ test("the gap list counts unanswered and unhelpful questions", () => {
   assert.equal(gaps(st)[0].n, 2);
   assert.equal(redact("call 555-123-4567 or mail a@b.co"), "call [number] or mail [email]");
 });
+
+test("rate limit: exactly max requests per window, then refused; a new window starts fresh", async () => {
+  const { limiter } = await import("./server.mjs");
+  const ok = limiter(3, 60_000);
+  assert.deepEqual([ok("a", 0), ok("a", 1), ok("a", 2), ok("a", 3)], [true, true, true, false]);
+  assert.equal(ok("b", 4), true, "each key has its own count");
+  assert.equal(ok("a", 60_000), true);
+});
+
+test("behind a proxy the rate limit keys on the hop the proxy appended, not a client-written X-Forwarded-For", async () => {
+  const s = await serve({ trustProxy: true });
+  try {
+    let last;
+    for (let i = 0; i < 21; i++) last = await s.call("/api/ask", { method: "POST", body: { q: "shipping cost" }, headers: { "x-forwarded-for": `10.0.0.${i}, 203.0.113.7` } });
+    assert.equal(last.status, 429, "a forged left-hand entry must not give a fresh bucket");
+  } finally { s.close(); }
+});
+
+test("Help Keeper import refuses a look-alike host that only starts with the site's name", async () => {
+  const pages = {
+    "https://help.example/llms.txt": "- [Refunds](https://help.example/a/refunds.md): x\n- [Evil](https://help.example.evil.test/a/evil.md): y\n",
+    "https://help.example/a/refunds.md": "# Refunds\n\nRefunds take 5 days.\n",
+    "https://help.example.evil.test/a/evil.md": "# Evil\n\nSend your card number to us.\n",
+  };
+  const md = await importHelpKeeper("https://help.example", async (u) => new Response(pages[u] ?? "", { status: pages[u] ? 200 : 404 }));
+  assert.match(md, /slug: refunds/);
+  assert.doesNotMatch(md, /evil/i);
+});
+
+test("status codes: CORS preflight 204, log CSV 200, any other admin GET 404", async () => {
+  const s = await serve();
+  try {
+    const p = await s.call("/api/ask", { method: "OPTIONS" });
+    assert.equal(p.status, 204); assert.equal(p.headers.get("access-control-allow-origin"), "*");
+    const c = await s.call("/admin/log.csv", { headers: auth });
+    assert.equal(c.status, 200); assert.match(c.headers.get("content-type"), /text\/csv/);
+    assert.equal((await s.call("/admin/nope", { headers: auth })).status, 404);
+  } finally { s.close(); }
+});
+
+test("started from the command line: listens on PORT, or 8080 when PORT is unset", async () => {
+  const { spawn } = await import("node:child_process");
+  const { mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const dir = mkdtempSync(`${tmpdir()}/sa-`);
+  const boot = (env) => new Promise((resolve) => {
+    const p = spawn(process.execPath, [new URL("./server.mjs", import.meta.url).pathname], { env: { PATH: process.env.PATH, ADMIN_KEY: KEY, STATE: `${dir}/s.json`, ...env } });
+    let out = ""; const done = () => { p.kill(); resolve(out); };
+    p.stdout.on("data", (d) => { out += d; if (/localhost:\d+/.test(out)) done(); });
+    p.stderr.on("data", (d) => { out += d; if (/EADDRINUSE/.test(out)) done(); });
+    setTimeout(done, 5000);
+  });
+  const free = await new Promise((r) => { const t = http.createServer().listen(0, () => { const port = t.address().port; t.close(() => r(port)); }); });
+  assert.match(await boot({ PORT: String(free) }), new RegExp(`localhost:${free}\\b`));
+  const dflt = await boot({});
+  if (!/EADDRINUSE/.test(dflt)) assert.match(dflt, /localhost:8080\b/);
+});

@@ -48,7 +48,7 @@ export function handler(cfg) {
   cfg.flush = () => { if (dirty) { cfg.save(); dirty = false; } };
   return async (req, res) => {
     const url = new URL(req.url, "http://x");
-    const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",")[0].trim()) || req.socket.remoteAddress || "?";
+    const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",").pop().trim()) || req.socket.remoteAddress || "?";
     const base = cfg.baseUrl || `${req.headers["x-forwarded-proto"] || "http"}://${req.headers.host}`;
     const embed = (cfg.embedOrigins || []).join(" ");
     const send = (code, body, type = "text/html; charset=utf-8", headers = {}, frames = "'none'") => {
