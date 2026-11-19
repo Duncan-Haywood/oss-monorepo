@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVNWWvAz7zp4firtfmd",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T10:07:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality audit round 79 (mode sample)",
+  "projects": [
+    "ventures/xer-schedule-check",
+    "ventures/dns-configuration-evidence",
+    "ventures/ci-minutes-pricing-calculator",
+    "research/swe-orgs",
+    "research/capture-follow"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17622",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First auditor brief went out with literal SUBJECT/SLUG/STRATUM placeholders; corrected by message before it started work",
+      "fixed": true
+    },
+    {
+      "what": "Local branch claude/pensive-archimedes-s3e8w7 pointed at a stale commit; a reset to local main moved it back weeks before being reset to origin/main's commit",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/runs/",
+      "issue": "run files are named by date but some are 'None-session*.json', so the newest file by name is not the newest run; swe-orgs run.py now reads the latest 'date' field instead"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-quality-audit-round-79.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-19-f-15f5, round 79. Subjects: ventures/xer-schedule-check (flagship), ventures/dns-configuration-evidence, ventures/ci-minutes-pricing-calculator, research/swe-orgs, research/capture-follow. Share meeting the bar: 0 of 5 (0 of 4 sampled); overall sampled 33 of 331 (Wilson 7% to 14%). Seeded mutations caught 15 of 39. Spot-checks rerun by the session: xer CPLI 1.051; dns normaliser '0 ' and 'two spaces'; ci-minutes $49/$80 and 12-month totals; swe-orgs class counts 147/50/31/203/141/95; capture-follow framing-band mutant survived. Fix PR: https://github.com/Duncan-Haywood/oss-monorepo/pull/17622 (marked fixed: xer 1,4,8; dns 0,1,5,6; ci 3,6,7; swe-orgs 1,2,3,4,9; capture-follow 0,4,5,9). Fixes verified with python3 platform/ci/run_venture_tests.py for the three ventures (0 failed) and pytest for both research projects (10 and 12 passed); quality_mutate.py confirms 5 previously-surviving mutants now caught (3 capture-follow, 2 dns). GitHub Linux rate $0.006 read from raw.githubusercontent.com/github/docs data/reusables/billing/actions-standard-runner-prices.md; Buildkite/Bitbucket pages 403, left unchanged and listed as known gaps. Open highs: xer planned-dates-as-baseline, ci-minutes rate card (partly), swe-orgs classifier validity.",
+  "corrections": [],
+  "redteam": null
+}

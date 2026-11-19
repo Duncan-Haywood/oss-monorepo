@@ -1,0 +1,39 @@
+cell-fidelity paper: the triage saving in wall-clock DFN time (milestone 7j).
+
+Fixed cost of a DFN run, in cycle equivalents (a/b from t(k) = a + b k, 192 designs run to
+cycle 10 and to cycle 100, experiments/fade): median 5.66 (IQR 4.65 to 6.18)
+  per set: Ai2020 5.66, NCA_Kim2011 6.37, OKane2022 5.14
+  cross-check, least squares on per-cycle end times of 49 30-cycle DFN runs (experiments/horizon):
+  median 2.63 (IQR 2.04 to 3.01)
+
+Wall time of a 100-cycle x-resolved child run (7g and 7h benches, 3 workers, shared cloud container):
+set           runs  t100 s  s/cycle  fixed s  U50 h/1000  saved h/1000
+Ai2020          24    29.1    0.275     1.56        4.26          0.73
+Chen2020        24     8.9    0.085     0.48        1.31          0.22
+OKane2022       24    24.7    0.234     1.32        3.62          0.62
+NCA_Kim2011     24    18.6    0.176     1.00        2.72          0.47
+(saved h/1000: designs triaged at the pooled fresh-pool rate, 40.5 cycles per design, continuation)
+
+Table 2 in time: saving against U50 in DFN cycles and in wall time (continue the cycle-10 run;
+range over the fixed-cost IQR; restart = rerun a flagged design from cycle 0).
+look                      rule    cycles  flagged cyc saved time saved         range  restart
+7f nested (pools reused)  theta     40.0      75%       20%      18.0%  17.9%-18.4%     -3.0%
+7f nested (pools reused)  F         40.0      75%       20%      18.0%  17.9%-18.4%     -3.0%
+7f nested (pools reused)  U         50.0        -        0%       0.0%   0.0%-0.0%       0.0%
+7g frozen 7f policies     theta     41.7      79%       17%      15.0%  14.8%-15.2%     -7.3%
+7g frozen 7f policies     F         40.5      76%       19%      17.0%  16.9%-17.3%     -4.4%
+7g frozen 7f policies     U         50.0        -        0%       0.0%   0.0%-0.0%       0.0%
+7h frozen 7f policies     theta     39.3      73%       21%      19.3%  19.1%-19.6%     -1.3%
+7h frozen 7g refits       theta     37.8      70%       24%      21.9%  21.7%-22.3%      2.3%
+7h lopo5 (5 pools)        theta     43.5      84%       13%      11.7%  11.6%-11.9%    -11.9%
+7h lopo5 (5 pools)        F         43.2      83%       14%      12.2%  12.1%-12.4%    -11.2%
+7h lopo5 (5 pools)        U         48.0        -        4%       3.6%   3.6%-3.7%       3.6%
+7h lopo5 (5 pools)        R50       42.1      80%       16%      14.1%  14.0%-14.4%     -8.4%
+U is one run per design (no cycle-10 run to continue or restart), so its two columns agree.
+
+Pooled fresh-pool rate (frozen 7f threshold policies on 7g and 7h): 40.5 cycles per design, flagged share 76%,
+  cycles saved 19.1%, wall time saved 17.1% (continue), -4.3% (restart)
+Restarting breaks even with U50 only if at most 72% of designs are flagged (fixed cost 5.66 cycles;
+  76% at the horizon cross-check's 2.63).
+Flagged share assumes every flagged design runs to cycle 50; 7f/7g free-K1 policies with K1 = 40 or 45
+flag slightly more designs than shown, which changes only the restart column.

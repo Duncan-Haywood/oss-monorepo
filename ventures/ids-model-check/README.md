@@ -356,6 +356,7 @@ node cli.mjs model.ifcxml spec.ids              # ifcXML, or an .ifczip, the sam
 node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
+node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
 node cli.mjs --fix spec.ids -o spec-fixed.ids   # repair its ids.xsd faults; exit 1 if some need a person
 node cli.mjs model.ifc spec.ids --no-audit      # run invalid specifications as written
 node cli.mjs --to-sheet spec.ids -o spec.xlsx   # the IDS as a spreadsheet, one row per facet (or .csv)
@@ -377,6 +378,37 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 `.ifc` zipped by Python's `zipfile`.
 
 No API key, account or server is involved, so there is nothing to configure.
+
+### Facet links checked against bSDD (2026-11-19)
+
+An IDS property, classification or material facet may carry a `uri`: the
+buildingSMART Data Dictionary (bSDD) entry it asks for. `ids.xsd` does not tie
+the link to the facet, so an IDS can name `Width` and link IFC's `Name`, or ask
+for an `IFCLABEL` where the dictionary says Boolean; a model authored from the
+dictionary then fails for the IDS author's slip. `node cli.mjs --audit spec.ids
+--bsdd` (bsdd.mjs) looks every link up in bSDD's public API and reports:
+
+- **errors:** a link bSDD does not have (for an IFC link, the IFC 4.3 entry it
+  probably meant is named), a link that is not a property or class, a property
+  facet linking a class, a dataType that cannot hold the dictionary's values;
+- **warnings:** a baseName other than the linked code or name (naming the
+  baseName's own link when the dictionary has one: the uri was pasted from the
+  next row), the IFC dictionary naming another IFC type, values outside the
+  property's allowed values, a classification value, system or required class
+  the bSDD class does not match, an Inactive entry;
+- **notes:** a link bSDD writes another way (http, `ifc-4.3`, case), a
+  dictionary version that is not the latest, a uri outside bSDD.
+
+On every public IDS file with a bSDD link that GitHub code search finds (58
+distinct files, 197 distinct bSDD links), 7 files have a bSDD error and 15 a
+warning, each read by hand: links pasted from the wrong row (in a template and
+in a translation of buildingSMART's own example), a link to an IFC 2x3
+dictionary bSDD never had, case-only name differences, and the Dutch
+Omgevingswet sets relating classes to IFC classes their dictionary does not
+(`eval/bsdd-links-2026-11-19.md`). It is the one option that goes on the
+network: one GET per distinct link to api.bsdd.buildingsmart.org, with the
+link as the only thing sent. It is not on the page: bSDD's API sends no CORS
+header, so a browser cannot ask it.
 
 ### Excel2IDS workbooks in, Excel2IDS workbooks out (2026-11-19)
 
@@ -1143,6 +1175,10 @@ faster than IfcTester; its point is needing no install.
   report warns.
 
 ## Limitations
+
+- bSDD links (`--bsdd`) are checked from the command line only (bSDD's API
+  allows no browser calls) and not against the property set, which bSDD gives
+  only on a class's property list (`eval/bsdd-links-2026-11-19.md`, Limits).
 
 - ifcJSON is not read. ifcXML is checked on 9 real documents from about
   seven exporters and 43 IFC4 STEP/ifcXML twins, not on every tool's output,
