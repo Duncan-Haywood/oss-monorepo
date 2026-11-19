@@ -8109,3 +8109,37 @@ for sampled series whose source does not say when it last changed, and the READM
 
 Tests: `stale-side-mid.test.mjs` (the sided reader, the half-tick transform, the windows, the bars and the
 committed verdicts).
+
+## Self-deploy with no terminal: the watch's repository made on the page (2026-11-19)
+
+The flagship's finish line for a venture is a stranger opening its page, entering their own settings and ending up
+with their own running copy. The metric watch got close (`deploy/make-watch-repo.sh`, a `curl ... | sh` line), but
+that still asked for a terminal, Node, curl and a `git push`: the step most people who want a Slack ping about
+their sign-ups will not take. The watch page now has a **"No terminal?"** box that does the same without one.
+
+- **What it does.** Type the repository you just created (`owner/name`, or its URL), optionally paste your rows,
+  press **Download the files**: `watch-repo.mjs` fetches the watch's modules from the site that served the page,
+  builds a stored zip in the browser (its own CRC-32 and zip writer, no dependency; same inputs, same bytes) and
+  hands it over. Then four links fill in: the repository's upload page (drag the unzipped files in), GitHub's
+  new-file editor opened with `.github/workflows/watch-metric.yml` already in it (the `filename` and `value` query
+  parameters; about 7 KB of URL), the new-variable page for `METRIC_CSV`, and the workflow's page to start the
+  first run. The workflow is a link, not a file in the zip, because a `.github` folder is hidden in most file
+  managers and is the file a drag-and-drop upload would silently miss.
+- **One source.** `deploy/build-watch-repo-files.mjs` reads the README heredoc, `package.json`, `.gitignore` and
+  the module list out of `make-watch-repo.sh`, plus `deploy/watch-metric.yml` and `LICENSE`, into
+  `watch-repo-files.mjs` (the site does not serve `.sh`, `.yml` or `LICENSE`). Its `--check` runs in the test, so
+  editing the script without regenerating fails CI.
+- **How it was checked** (`watch-repo.test.mjs`, 7 tests). The zip, unpacked with Info-ZIP `unzip`, is the folder
+  `make-watch-repo.sh` writes, file for file and byte for byte, less the workflow; `unzip -t` reports no errors;
+  the unpacked folder runs `node watch.mjs data/metric.csv` on 130 pasted tab-separated rows and dates the step at
+  2026-05-01; the workflow link's `value` decodes to the workflow file exactly; repository-name parsing accepts
+  the five usual spellings and refuses eight malformed ones. In headless Chromium at phone width the page made a
+  463 KB zip of 20 files from its own server, the pasted rows came out as `data/metric.csv`, the links filled in,
+  no console errors and no sideways scroll.
+- **Not checked.** No GitHub account was used: the four links follow GitHub's URL patterns (`/upload/<branch>`,
+  `/new/<branch>?filename=&value=`, `/settings/variables/actions/new`, `/actions/workflows/<file>`) but were not
+  opened against a live repository from this session. Whether the upload page accepts a first commit on a
+  brand-new empty repository is the first thing a person trying it would find out; the script route still works
+  if it does not.
+- **Counted.** `watch_repo_zip` and `watch_repo_link`, in local storage only, like the page's other events
+  (listed in the index page's privacy line).
