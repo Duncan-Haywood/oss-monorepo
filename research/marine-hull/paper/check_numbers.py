@@ -141,6 +141,16 @@ CLAIMS = [
     ("results_strip_viscous.txt", "row 0.200 1.05 0.90 0.78 1.00 -2.52 -9.39 True"),
     ("results_strip_viscous.txt", "calibrated zeta 0.091"),
     ("results_strip_viscous.txt", "calibrated share 0.25: 30 W range 799.8 km (-2.90%)"),
+    ("results_wigley_seakeeping_tank.txt", "strip peak 11.42 at lambda/L 1.05"),
+    ("results_wigley_seakeeping_tank.txt", "STAWAVE-2 peak 5.42 at lambda/L 1.09"),
+    ("results_wigley_seakeeping_tank.txt", "peak 9.23 at 1.15"),
+    ("results_wigley_seakeeping_tank.txt", "peak 13.17 at 1.15"),
+    ("results_wigley_seakeeping_tank.txt", "strip 5.540 (0.96); strip+refl 6.862 (1.19); STAWAVE-2 5.438 (0.94)"),
+    ("results_wigley_seakeeping_tank.txt", "STAWAVE-2 2.731 (2.50)"),
+    ("results_wigley_seakeeping_tank.txt", "fitted zeta (mean): 0.025"),
+    ("results_wigley_seakeeping_tank.txt", "fitted zeta (measured_wave_1p0cm): 0.068"),
+    ("results_wigley_seakeeping_tank.txt", "row 0.025 2.41 1.74 0.72 -3.69 -13.29 True"),
+    ("results_wigley_seakeeping_tank.txt", "row 0.068 1.88 1.36 0.72 -3.09 -11.32 True"),
 ]
 
 def check(claims=CLAIMS, root=EXP):

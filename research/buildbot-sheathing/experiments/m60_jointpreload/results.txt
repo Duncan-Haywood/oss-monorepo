@@ -1,0 +1,56 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 60: a raised leg preload for the unplanned presses, held-out section G (48 loads, seed 60; four-row rule, spec 0.03 mm; tau_f 0.2 N m; ladder [0.12, 0.14, 0.16, 0.18, 0.19, 0.25, 0.3] N m; B = 0.20 N)
+errors (6 random directions, seed 60): (-0.153, -0.053, +0.118); (-0.120, -0.122, +0.103); (+0.112, +0.165, -0.017); (+0.170, +0.096, +0.043); (+0.081, +0.030, +0.180); (+0.119, -0.082, +0.138)
+check (four-row, no escalation, against milestone 58's rule_all 'iso', first 2 loads per robot): 408 cases, plan/no-plan mismatches 0, 'how' mismatches 0, largest |y| or |z| difference 0.0e+00 mm
+
+## A. Coverage: robot | in-envelope | planned (m59 rule) | unplanned | + targeted | + uniform | coverage m59 -> uniform | worst |y|, |z|, |y_d|, |z_d| of the base plans (mm)
+  g1 | 3984 | 3981 | 3 | 0 | 0 | 99.92% -> 99.92% | 0.0111, 0.0217, 0.0113, 0.0232
+  h1 | 5424 | 5406 | 18 | 17 | 17 | 99.67% -> 99.98% | 0.0097, 0.0173, 0.0103, 0.0187
+
+## B. Each unplanned case: robot | pose | H N | phi deg | error | binding joint | targeted M (|y|, |z|, |y_d|, |z_d| mm; flips) | uniform M (same) | leg effort base -> uniform (N^2 m^2)
+  g1 | [1.2, -0.15] | 6.38 | 133.5 | 0 | None | - | - | -
+  g1 | [1.2, 0.0] | 6.38 | 133.5 | 0 | None | - | - | -
+  g1 | [1.2, -0.15] | 6.38 | 133.5 | 1 | None | - | - | -
+  h1 | [1.4, 0.15] | 11.40 | 37.2 | 3 | right_elbow | - | - | -
+  h1 | [1.2, 0.15] | 0.26 | 218.4 | 1 | left_knee | 0.12 (0.0085, 0.0020, 0.0089, 0.0023; 0) | 0.12 (0.0085, 0.0020, 0.0089, 0.0023; 0) | 512.3038 -> 512.5638
+  h1 | [1.2, 0.15] | 0.26 | 218.4 | 4 | left_knee | 0.12 (0.0018, 0.0022, 0.0020, 0.0025; 0) | 0.12 (0.0018, 0.0022, 0.0020, 0.0025; 0) | 514.8759 -> 515.1492
+  h1 | [1.2, 0.15] | 0.26 | 218.4 | 5 | left_knee | 0.12 (0.0022, 0.0048, 0.0025, 0.0052; 0) | 0.12 (0.0022, 0.0048, 0.0025, 0.0052; 0) | 516.1894 -> 516.4614
+  h1 | [1.2, 0.15] | 0.95 | 99.7 | 0 | left_knee | 0.12 (0.0089, 0.0039, 0.0095, 0.0043; 0) | 0.12 (0.0089, 0.0039, 0.0095, 0.0043; 0) | 511.0850 -> 511.3467
+  h1 | [1.6, 0.0] | 3.56 | 85.7 | 2 | left_knee | 0.18 (0.0027, 0.0104, 0.0028, 0.0113; 0) | 0.18 (0.0027, 0.0104, 0.0028, 0.0113; 0) | 1758.5455 -> 1986.0836
+  h1 | [1.6, 0.0] | 3.56 | 85.7 | 3 | left_knee | 0.18 (0.0025, 0.0167, 0.0027, 0.0181; 0) | 0.18 (0.0025, 0.0167, 0.0027, 0.0181; 0) | 1753.4707 -> 1978.4618
+  h1 | [1.6, 0.0] | 3.56 | 85.7 | 5 | left_knee | 0.18 (0.0001, 0.0127, 0.0000, 0.0137; 0) | 0.18 (0.0001, 0.0127, 0.0000, 0.0137; 0) | 1774.3497 -> 2013.6050
+  h1 | [1.2, 0.15] | 0.56 | 142.2 | 2 | left_knee | 0.12 (0.0078, 0.0012, 0.0081, 0.0015; 0) | 0.12 (0.0078, 0.0012, 0.0081, 0.0015; 0) | 511.1644 -> 511.4335
+  h1 | [1.2, 0.15] | 0.56 | 142.2 | 3 | left_knee | 0.12 (0.0085, 0.0040, 0.0089, 0.0044; 0) | 0.12 (0.0085, 0.0040, 0.0089, 0.0044; 0) | 512.1513 -> 512.4237
+  h1 | [1.2, 0.15] | 0.56 | 142.2 | 4 | left_knee | 0.12 (0.0018, 0.0022, 0.0020, 0.0025; 0) | 0.12 (0.0018, 0.0022, 0.0020, 0.0025; 0) | 510.0877 -> 510.3459
+  h1 | [1.2, 0.15] | 0.56 | 142.2 | 5 | left_knee | 0.12 (0.0022, 0.0048, 0.0025, 0.0052; 0) | 0.12 (0.0022, 0.0048, 0.0025, 0.0052; 0) | 511.3942 -> 511.6591
+  h1 | [1.4, 0.0] | 7.44 | 149.9 | 0 | left_knee | 0.16 (0.0037, 0.0096, 0.0039, 0.0105; 0) | 0.16 (0.0037, 0.0096, 0.0039, 0.0105; 0) | 1245.8056 -> 1247.5801
+  h1 | [1.4, 0.0] | 7.44 | 149.9 | 1 | left_knee | 0.16 (0.0044, 0.0072, 0.0045, 0.0079; 0) | 0.16 (0.0044, 0.0072, 0.0045, 0.0079; 0) | 1244.2716 -> 1246.0459
+  h1 | [1.4, 0.0] | 7.06 | 184.7 | 2 | left_knee | 0.16 (0.0042, 0.0067, 0.0043, 0.0074; 0) | 0.16 (0.0042, 0.0067, 0.0043, 0.0074; 0) | 1290.6132 -> 1292.6094
+  h1 | [1.4, 0.0] | 7.06 | 184.7 | 3 | left_knee | 0.16 (0.0031, 0.0111, 0.0032, 0.0121; 0) | 0.16 (0.0031, 0.0111, 0.0032, 0.0121; 0) | 1289.1235 -> 1291.1193
+  h1 | [1.4, 0.0] | 7.06 | 184.7 | 4 | left_knee | 0.16 (0.0003, 0.0059, 0.0003, 0.0064; 0) | 0.16 (0.0003, 0.0059, 0.0003, 0.0064; 0) | 1297.2958 -> 1299.3069
+  h1 | [1.4, 0.0] | 7.06 | 184.7 | 5 | left_knee | 0.16 (0.0014, 0.0088, 0.0013, 0.0095; 0) | 0.16 (0.0014, 0.0088, 0.0013, 0.0095; 0) | 1295.1224 -> 1297.1340
+
+## C. Uniform escalation summary: margins used (counts) | worst |y|, |z|, |y_d|, |z_d| (mm) | flips | leg effort ratio median [min, max]
+  0.12: 8, 0.16: 6, 0.18: 3 | 0.0089, 0.0167, 0.0095, 0.0181 | 0 | 1.001 [1.001, 1.135]
+
+## D. Hypotheses (registered in LOG.md before this run)
+H235 (uniform preload at most 0.18 N m plans every unplanned case, inside 0.03 mm at both points both ways): unplanned 21, planned at <= 0.18 17, all in spec True -> refuted
+H236 (the binding joint alone plans fewer cases than the uniform raise): targeted 17, uniform 17 -> refuted
+H237 (no uniform-escalated plan has a flip between plan and robot): plans 17, flips 0 -> held
+
+(run time 1229 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

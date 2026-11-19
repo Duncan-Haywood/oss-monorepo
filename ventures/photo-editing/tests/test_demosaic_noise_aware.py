@@ -179,6 +179,50 @@ class NoiseAwareTests(unittest.TestCase):
             out = blend(b, d, np.full((2, 2), q), 1.0, 2.0)
             np.testing.assert_allclose(out, want, atol=1e-12)
 
+    def test_lift_near_detail_raises_only_neighbours_of_high_q(self):
+        """eval/near-clean-gate-2026-11-19.md: each block's q becomes at least its largest 3 x 3 neighbour's / k;
+        a block with no such neighbour, and every block already above it, keeps its own q."""
+
+        from shootflow.xtrans_demosaic import lift_near_detail
+
+        np = self.np
+        q = np.full((5, 5), 0.3)
+        q[2, 2] = 40.0
+        out = lift_near_detail(q, 16.0)
+        want = np.full((5, 5), 0.3)
+        want[1:4, 1:4] = 2.5
+        want[2, 2] = 40.0
+        np.testing.assert_allclose(out, want)
+        self.assertTrue(np.all(out >= q))
+        np.testing.assert_allclose(lift_near_detail(np.full((3, 4), 1.7), 16.0), 1.7)
+        np.testing.assert_allclose(lift_near_detail(np.array([[2.0]]), 16.0), [[2.0]])
+
+    def test_lift_stops_the_leak_into_a_clean_edge_beside_a_flat_field(self):
+        """A clean frame, half flat and half fine stripes: unlifted, the stripes' blocks beside the flat half take
+        part of its bilinear weight (``blend`` interpolates block weights between centres) and lose to directional;
+        lifted (the Bayer default since 2026-11-19, ``NEAR_DETAIL``), the result there is directional's."""
+
+        from shootflow.bayer_demosaic import directional as bayer
+        from shootflow.xtrans_demosaic import noise_aware
+
+        np = self.np
+        pat = (0, 1, 1, 2)
+        y, x = np.mgrid[0:144, 0:144]
+        # flat left of x = 72 (a block edge), stripes fading in over 4 pixels right of it, so no step edge
+        s = 0.4 + 0.25 * np.clip((x - 72) / 4, 0, 1) * np.sin(x * 0.45 + y * 0.18)
+        truth = np.stack([s, s * 0.9, s * 1.1], -1)
+        c = _mosaic(truth, pat) + self.rng.normal(size=(144, 144)) * 2e-4
+        b, d = _bilinear(c, pat), bayer(c, pat)
+        noise = (0.0, 4e-8)
+        plain = noise_aware(c, pat, bilinear=b, directional_out=d, noise=noise, near_detail=False)
+        lifted = noise_aware(c, pat, bilinear=b, directional_out=d, noise=noise)  # Bayer default: k = 12
+        np.testing.assert_array_equal(lifted, noise_aware(c, pat, bilinear=b, directional_out=d, noise=noise,
+                                                          near_detail=12.0))
+        band = (slice(8, -8), slice(72, 96))  # the stripes' first block column, beside the flat half
+        err = lambda a: float(np.mean((a[band] - truth[band]) ** 2))  # noqa: E731
+        self.assertGreater(err(plain), err(d) * 2)
+        self.assertLessEqual(err(lifted), err(d) * 1.001)
+
     def test_thin_frames_are_one_block(self):
         # under one BLOCK tall but several wide (or the reverse): one block, the whole frame. Until 2026-11-19
         # ``_block_stat`` made hb = 1 but wb = w // BLOCK there and the reshape failed (eval/auto-noise-aware-2026-11-19.md).

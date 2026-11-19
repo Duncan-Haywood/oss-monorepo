@@ -1,0 +1,6 @@
+# Milestone 11ar post hoc: rules against the blind plan, per layout-draw (sort_rule_posthoc.py's docstring)
+  M   s    n    sort(o) < blind   desc(o) < blind   sort(o)/blind med   max
+  12  1     96   19 of 96         25 of 96         1.0507             1.2813
+  12  2     96   58 of 96         76 of 96         0.9783             1.2072
+  16  1     96   12 of 96         24 of 96         1.0905             1.3793
+  16  2     96   43 of 96         65 of 96         1.0120             1.2529

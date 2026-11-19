@@ -25,6 +25,7 @@ import { importShiftsCsv } from "./import-shifts.mjs";
 import { import7shifts, fetch7shifts, within, import7shiftsStaff, fetch7shiftsStaff } from "./import-7shifts.mjs";
 import { importWhenIWork, fetchWhenIWork, within as withinWiw } from "./import-wheniwork.mjs";
 import { importDeputy, fetchDeputy, within as withinDeputy } from "./import-deputy.mjs";
+import { importDeputyStaff, fetchDeputyStaff } from "./import-deputy-staff.mjs";
 import { importSquare, fetchSquare, within as withinSquare } from "./import-square.mjs";
 import { demandShifts, backtestSales, parseStandard, shutMinDays, readSales } from "./demand.mjs";
 import {
@@ -171,6 +172,10 @@ Options:
                       lines with roles, sites: and "wage at <location>:" cells; repeat for more files; --location <name> plans one location
                       at its rates; --wages-as-of <YYYY-MM-DD> applies upcoming wages in force by then
   --fetch-7shifts-staff  the same, fetched with SEVENSHIFTS_ACCESS_TOKEN (two requests per person); --save <file> keeps the responses
+  --import-deputy-staff <json>  convert saved Deputy resource/Employee, EmployeeAgreement, EmployeeWorkplace and Company QUERY answers to
+                      staff lines with sites: and "wage at <location>:" cells; --location <name|id> plans one location at its rates;
+                      --wages-as-of <YYYY-MM-DD> uses the agreements in force then (default today)
+  --fetch-deputy-staff  the same, fetched from DEPUTY_INSTALL with DEPUTY_TOKEN (four paged queries); --save <file> keeps the responses
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
                       --splh <$> flags days with more or fewer hours than that sales per labor hour calls for
@@ -260,6 +265,8 @@ export function parseArgs(argv) {
     }
     else if (a === "--import-7shifts-staff") { const f = argv[++i]; if (!f) throw new Error("--import-7shifts-staff needs a JSON file"); (o.import7Staff ||= []).push(f); }
     else if (a === "--fetch-7shifts-staff") o.fetch7Staff = true;
+    else if (a === "--import-deputy-staff") { const f = argv[++i]; if (!f) throw new Error("--import-deputy-staff needs a JSON file"); (o.importDeputyStaff ||= []).push(f); }
+    else if (a === "--fetch-deputy-staff") o.fetchDeputyStaff = true;
     else if (a === "--wages-as-of") { o.wagesAsOf = argv[++i]; if (!/^\d{4}-\d{2}-\d{2}$/.test(o.wagesAsOf || "")) throw new Error("--wages-as-of takes a date like 2026-11-16"); }
     else if (a === "--import-staff") { o.importStaff = argv[++i]; if (!o.importStaff) throw new Error("--import-staff needs a CSV file"); }
     else if (a === "--check") o.check = true;
@@ -722,6 +729,18 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
         inputs = got.responses;
       } else inputs = await Promise.all(o.import7Staff.map((f) => readFile(f, "utf8")));
       const r = import7shiftsStaff(inputs, { asOf: o.wagesAsOf, location: o.importLocation });
+      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
+      if (!r.rows) process.exit(1);
+      process.stdout.write(r.staffText + "\n"); process.exit(0);
+    }
+    if (o.importDeputyStaff || o.fetchDeputyStaff) {
+      let inputs;
+      if (o.fetchDeputyStaff) {
+        const got = await fetchDeputyStaff({ token: process.env.DEPUTY_TOKEN, install: process.env.DEPUTY_INSTALL });
+        if (o.save7) await writeFile(o.save7, got.responses.map((x) => JSON.stringify(x)).join("\n") + "\n");
+        inputs = got.responses;
+      } else inputs = await Promise.all(o.importDeputyStaff.map((f) => readFile(f, "utf8")));
+      const r = importDeputyStaff(inputs, { asOf: o.wagesAsOf, location: o.importLocation });
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.rows) process.exit(1);
       process.stdout.write(r.staffText + "\n"); process.exit(0);
