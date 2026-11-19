@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { whistDesign, checkWhist, checkNearWhist, whistSizes, nearWhistSizes, whistRotation } from "./whist.mjs";
 import { americano, americanoStats, validateAmericano } from "./calc.mjs";
 import { directBase, multiplierSearch } from "./eval/whist-multiplier.mjs";
+import { WHIST_BASES } from "./whist-bases.mjs";
 
 const names = (n) => Array.from({ length: n }, (_, i) => `P${i + 1}`);
 const opponentRange = (plan, n) => {
@@ -237,4 +238,22 @@ test("whistRotation: a prefix of the design never repeats a partner", () => {
 
 test("whistRotation: refuses a round count longer than the design", () => {
   assert.equal(whistRotation(8, { courts: 2, rounds: 8 }), null);
+});
+
+test("americano: 57 plays its own whist design (eval/whist-involution.c, a base round fixed by multiplier 37)", () => {
+  const n = 57, P = names(n);
+  const plan = americano(P, { courts: 14, seed: n });
+  assert.equal(plan.design?.size, 57);
+  assert.deepEqual(validateAmericano(P, plan), []);
+  const st = americanoStats(P, plan);
+  assert.equal(plan.rounds.length, 57);
+  assert.equal(st.repeatPartners, 0);
+  assert.equal(st.unmetPartners, 0);
+  assert.deepEqual(opponentRange(plan, n), [2, 2]);
+  assert.ok(plan.rounds.every((r) => r.matches.length === 14), "every court used every round");
+  // the stored base round really is fixed by x -> 37x (the structure the search kept)
+  const key = (t) => [[t[0], t[1]].sort((a, b) => a - b).join("-"), [t[2], t[3]].sort((a, b) => a - b).join("-")].sort().join("|");
+  const tables = WHIST_BASES[57].tables;
+  const set = new Set(tables.map(key));
+  assert.ok(tables.every((t) => set.has(key(t.map((x) => (x * 37) % 57)))));
 });

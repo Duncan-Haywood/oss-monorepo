@@ -351,7 +351,43 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Whist designs for 52 and near-whist for 58, by starter and table matching (2026-11-19, newest)
+## A whist design for 57 players: a base round fixed by multiplying by 37 (2026-11-19, newest)
+
+57 was the one whist size up to 64 with no stored design: the page fell back to the greedy search,
+which over 57 rounds on 14 courts repeats 87 partnerships, leaves 87 pairs who never partner, and has
+pairs meeting as opponents anywhere from 0 to 5 times. Earlier runs spent about 6 CPU-hours on plain
+cyclic searches (starter plus table matching, tabu, Z19 x| Z3) and ruled out the -1 multiplier
+(patterned starters need 1 or 5 mod 12) and any order-3 multiplier (a whist table cannot be fixed by
+a 3-cycle, and 14 tables do not split into threes).
+
+The units mod 57 have two more involutions: 20 and 37. `eval/whist-involution.c` searches only base
+rounds that multiplication by m maps onto themselves. It starts from a random m-invariant layout
+(37 fixes 19 and 38, which must share a table as {19, 38} vs {x, 37x}; the other tables are either
+fixed by m or come in pairs T, 37T) and anneals with moves that swap p with q and 37p with 37q
+together. That swap commutes with the multiplier, so every state stays invariant, and the cost is
+the usual one: (partners(d) - 1)^2 + (opponents(d) - 2)^2 summed over the 28 difference classes.
+
+The multiplier was picked from the small cases first: at 21 and 33 the involution that is 1 mod 3
+and -1 mod the other prime (13 and 10) finds a design in 2 to 10 s, while the other one (8 and 23)
+found nothing in 10 s. At 57 that rule gives 37 (1 mod 3, -1 mod 19), and it found a design in
+**11 to 15 CPU-seconds in each of the four seeds that finished** (`eval/whist-involution.txt`; the
+four others were stopped once those had landed, not because they had failed). Every found base round is
+developed and re-checked pair by pair by `checkWhist` when `eval/whist-bases-build.mjs` stores it.
+
+What changes on the page (57 players, 14 courts, seed 57; `americano` with and without the design):
+
+| | before (greedy) | now (whist design) |
+|---|---|---|
+| rounds, games | 57, 798 | 57, 798 |
+| repeat partnerships | 87 | 0 |
+| pairs who never partner | 87 | 0 |
+| times each pair meets as opponents | 0 to 5 | exactly 2 |
+
+Every whist size from 4 to 64 now has a stored design. Tested in `whist.test.mjs` ("57 plays its own
+whist design"), which also checks that the stored base round is fixed by x -> 37x. Not yet used at a
+real 57-player night.
+
+## Whist designs for 52 and near-whist for 58, by starter and table matching (2026-11-19)
 
 Every earlier search (`eval/whist-search.c`, `eval/whist-anneal.c`, `eval/whist-orbits.c`, the near-whist
 SAT) moved single players around the whole base round, and none found 52, 57 or near-whist 58 in 25 to
