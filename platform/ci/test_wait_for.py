@@ -73,6 +73,33 @@ class WaitFor(unittest.TestCase):
             nap = lambda s: t.__setitem__(0, t[0] + s)
             self.assertFalse(wait(p, marker="DONE", timeout=3, clock=lambda: t[0], nap=nap)[0])
 
+    def test_marker_with_trailing_space_matches_as_a_word(self):
+        # friction 2026-11-19: --marker 'exit ' waited 540 s on a log ending 'exit 0'
+        from wait_for import is_marker
+        self.assertTrue(is_marker("exit 0", "exit "))
+        self.assertTrue(is_marker("  DONE  ", " DONE "))
+        self.assertFalse(is_marker("exited", "exit "))
+
+    def test_default_accepts_lower_case_echo_lines_only(self):
+        # friction 2026-11-12..19: `echo exit $?` logs needed --marker exit
+        from wait_for import is_quiet_marker
+        for line in ("exit 0", "exit 137", "done", "Done", "Exit -1", "  exit 2  "):
+            self.assertTrue(is_quiet_marker(line), line)
+        for line in ("done loading", "exit code 0", "exited 0", "Done in 3s", "", "doneish"):
+            self.assertFalse(is_quiet_marker(line), line)
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("tests ran\nexit 0\n")
+            ok, lines = wait(p, timeout=1, held=lambda: [])
+            self.assertTrue(ok)
+            t = [0.0]
+            nap = lambda s: t.__setitem__(0, t[0] + s)
+            # An explicit marker is still strict about case.
+            self.assertFalse(wait(p, marker="EXIT", timeout=3, clock=lambda: t[0], nap=nap)[0])
+            # An earlier phase's lower-case line in a held log is stale, as DONE is.
+            open(p, "w").write("done\nphase two\n")
+            self.assertFalse(wait(p, timeout=3, clock=lambda: t[0], nap=nap, held=lambda: [(1, "x")])[0])
+
     def test_marker_prefix_of_a_word_does_not_count(self):
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "o.log")
