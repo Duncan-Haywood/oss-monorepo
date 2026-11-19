@@ -1,0 +1,8 @@
+# Hosts water-leaks' next steps cannot run without (research/_shared/pick_track.py probes
+# these each run and skips the programme when one does not answer). src/water_leaks/data.py
+# falls back to pinned GitHub mirrors for most BattLeDIM files, but L-TOWN_Real.inp (step 14's
+# leak-free run, residual D) and the two SCADA_Demands files come from Zenodo only. Zenodo's
+# answer varies by session: refused 2026-11-12 and 2026-11-19 (PR #17598's run redrew), answering
+# 2026-11-16 and on the step 27 run. Trust the probe, not a date written here.
+# Delete the line when no next step needs those files.
+https://zenodo.org/

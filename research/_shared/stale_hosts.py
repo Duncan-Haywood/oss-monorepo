@@ -37,6 +37,28 @@ ALIAS = re.compile(r"\b(" + "|".join(ALIASES) + r")\b(?!\.)", re.I)
 # Not data hosts: names of files and the repository's own site.
 SKIP = re.compile(r"\.(?:py|md|json|csv|txt|inp|io\.github)$|^(?:marisstella\.app|localhost)$", re.I)
 NOTES = ("LOG.md", "README.md")
+CODE_DIRS = ("src", "experiments")
+URL = re.compile(r"https?://([a-z0-9.-]+)", re.I)
+
+
+def code_hosts(slug, root=RESEARCH):
+    """Hosts named in URL literals in the programme's own .py files (src/, experiments/, top level).
+
+    Friction 2026-11-19: the draw sent a run to water-leaks while this note's own recheck said
+    "still refused here: zenodo.org"; its data.py fetches two files from Zenodo that no mirror
+    carries, but the programme had no HOSTS file, so the OFFLINE check never probed it."""
+    d = root / slug
+    files = list(d.glob("*.py"))
+    for sub in CODE_DIRS:
+        if (d / sub).is_dir():
+            files += [f for f in (d / sub).rglob("*.py") if ".venv" not in f.parts]
+    found = set()
+    for f in files:
+        try:
+            found |= {m.group(1).lower().rstrip(".") for m in URL.finditer(f.read_text(errors="replace"))}
+        except OSError:
+            pass
+    return found
 
 
 def clauses(line):
@@ -99,6 +121,11 @@ def recheck_lines(slug, answers=None, limit=8, root=RESEARCH):
                      f"(probe the path you need before routing around them): {', '.join(up)}")
     if down:
         lines.append(f"HOSTS RECHECK {slug}: still refused here: {', '.join(down)}")
+        fetched = sorted(h for h in down if h in code_hosts(slug, root))
+        if fetched:
+            lines.append(f"HOSTS RECHECK {slug}: its own code fetches from {', '.join(fetched)}; if a next step "
+                         f"cannot run without it, list it in research/{slug}/HOSTS so the draw skips this "
+                         "programme while it is refused (and pick another now)")
     return lines
 
 
