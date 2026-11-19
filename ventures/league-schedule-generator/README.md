@@ -351,6 +351,73 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
+## Bowling league nights: averages, handicaps, points and standings (2026-11-19, latest)
+
+The bowling page scheduled the lanes and stopped there, but a bowling league's weekly job is the
+secretary's sums: each bowler's average and handicap, every match's games with handicap, points
+won, and the standings sheet, then next week's position round from those standings. Leagues do it in
+a spreadsheet they maintain themselves, or in paid desktop league secretary software, or on their
+centre's scoring system if it has a league module. The page now does it from typed score sheets,
+in the browser, on the schedule it just built (`bowling-recap.mjs`).
+
+- **Input:** a `Week 1` line, then one line per team: `Pin Pals: Ana 180 165 201, Ben 140 152 133,
+  Cy absent`. Optional entering averages (`Ana 165, Ben Ortiz 142`). Rules, all editable: games a
+  night (3), bowlers a team (4), handicap % (90) of basis (220), highest handicap (none), points a
+  game (2) and for the series (2), absent penalty (10), blind score (150).
+- **Rules applied:** average = pins / games through last week, fractions dropped; a bowler with no
+  games uses the entering average, else the night's own games (retroactive first night). Handicap =
+  floor(pct x (basis - average) / 100), floor 0, capped; 0% is a scratch league. Absent bowlers
+  score average - penalty plus handicap and the games never count to their average; absent with no
+  average, or a short lineup, is a blind with no handicap. Ties split points. Against the Vacancy a
+  team bowls to its par (each spot's average plus handicap). Standings: points won, then handicap pins.
+  Position rounds are paired from the standings before that night (`1st place` v `2nd place` on the
+  schedule becomes two team names).
+- **Output:** standings, the last night match by match (each bowler's average, handicap, games and
+  series, team totals and points), bowlers' averages and next week's handicap, highs and absences;
+  copy as text, standings CSV and bowlers CSV (formula cells guarded). The typed nights stay in that
+  browser's `localStorage` and are worked out again on the next visit; nothing is uploaded.
+- **Checked:** `bowling-recap.test.mjs` (7 tests): handicap arithmetic (90% of 220: 160 gives 54,
+  165 gives 49, cap, scratch); two nights worked by hand (retroactive average, absent at average - 10,
+  absent with no average as a blind, 16-0 points, averages that skip absences); split points on ties
+  with entering averages; a position round paired from night one's standings; a Vacancy match against
+  par (tie, loss, win, tied series); typing slips named (no week line, unknown team, wrong game count,
+  over 300, missing opponent, one bowler on two teams, a week past the season, too many bowlers);
+  names with spaces and a team name inside another. In Chromium at 390 px: sample nights on the
+  8-team sample season fill the tables, no sideways scroll, the nights return on reload, no console
+  errors. Not yet used by a real league.
+- **Not done:** split handicaps per game, mid-night substitutions, USBC sanctioned-average reports,
+  awards and the prize fund; the league's own and its association's rules decide.
+
+## Pool play into a knockout bracket, seeded so poolmates meet late (2026-11-19, latest)
+
+Pool play listed its play-off seeds by record alone: every pool winner (best record first), then every
+runner-up, and so on. Fed into a standard bracket (1 v 4, 2 v 3), that often pairs two teams from the
+same pool in the first knockout round, a rematch nobody wants: with two pools of three and two
+advancing, `b1, a1, a2, b2` puts b1 against b2 in the semifinal. Tournaments avoid this with a
+crossover (A1 v B2, B1 v A2).
+
+- **`poolPlayoffSeeds(tables, perPool)`** (`calc.mjs`) keeps the places in order (every winner is
+  still seeded above every runner-up) and reorders teams inside each place so that poolmates can
+  meet as late as the bracket allows. The objective is lexicographic: fewest possible same-pool
+  meetings in round 1, then round 2, and so on, then the least movement from the record order, with
+  a move near the top weighing more. It climbs by swaps inside a place, then runs an exact
+  depth-first search over the places' orderings, pruned whenever a partial count is already worse
+  (counts only grow as seeds are placed) and capped at 300,000 nodes. It returns the seeds, each
+  seed's pool, and the possible poolmate meetings per round for the new order and the record order.
+- **The pool card** now prints each seed's pool, a one-line note when the crossover changed the
+  order, and the knockout bracket itself (single or double elimination and the third-place game,
+  from the step 4 play-off options; play-off results typed in step 4 fill it in).
+- **Checked:** the tests compare the result with a brute force over every ordering for 2 to 5
+  pools; a swap-only version stalled in a local optimum on 3 pools x 4 and 4 pools x 4 (rounds-1-2
+  counts 0, 1 against 0, 0), which is why the exact search follows. `eval/crossover-seeds.mjs`
+  draws 500 random pool tables per shape: by record order, poolmates could meet in the first
+  knockout round in 29 to 86% of draws (2 x 4: 383 of 500; 4 x 4: 428), and in rounds 1-2 in up to
+  every draw; the crossover order has 0 in round 1 for every shape, and 0 in rounds 1-2 for every
+  shape with three or more pools (`eval/crossover-seeds.txt`). Two pools can't keep poolmates out of
+  rounds 1-2: each half of the bracket holds at least two teams of one pool, and they meet by round 2.
+- **Not done:** pools with uneven strength (a pool's winner may deserve a lower seed than another
+  pool's runner-up); places stay in order, the usual convention.
+
 ## Balanced teams from a player list (2026-11-19)
 
 Before a league can be scheduled it needs teams. Rec, coed and "hat" leagues draft them from a sign-up
