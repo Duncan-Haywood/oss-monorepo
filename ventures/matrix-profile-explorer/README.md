@@ -49,7 +49,9 @@ node ../../platform/agents/tools.mjs call matrix-profile-explorer analyze --inpu
   CSV has `year` and `month` columns, positions are labelled `YYYY-MM`; otherwise by the first column.
 - **Optional:** remove a least-squares straight line before analysis (`--detrend`, page checkbox).
 - **Size:** warns above 20,000 points; refuses above 200,000. Measured on this repository's cloud runner (4-core
-  2.1 GHz Xeon, Node 22): 20,000 points with m = 100 took 1.2 to 2.8 s across runs; 5,000 points took under 0.2 s.
+  2.1 GHz Xeon, Node 22): 20,000 points with m = 100 took 0.9 to 1.1 s across runs (2.0 to 2.1 s before the
+  2026-11-19 correlation screen, `docs/history/ci-perf-2026-11-19-matrix-profile-correlation-screen.md`);
+  50,000 points take about 6.7 s.
 
 Not included: AB-joins of two series, multidimensional matrix profiles, approximate/anytime algorithms (SCRIMP++),
 and streaming updates.
