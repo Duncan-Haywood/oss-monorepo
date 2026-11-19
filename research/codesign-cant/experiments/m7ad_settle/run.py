@@ -82,6 +82,15 @@ def fly(d, law, test, band):
     return r
 
 
+KEEP = {"step": ("settle", "rise", "over", "tail_off"), "wind3": ("peak", "resid"), "wind6": ("peak", "resid")}
+
+
+def compact(rs):
+    """Drop the per-episode fields the verdicts never read (rms, tail_pp), keeping results.json near earlier milestones' size."""
+    drop = {"rms", "tail_pp"}
+    return [{k: v for k, v in r.items() if k not in drop or k in KEEP[r["test"]]} for r in rs]
+
+
 def evaluate(law, d, band):
     P.PINT_BAND = band
     r = X.evaluate(law, d)
@@ -107,7 +116,7 @@ if __name__ == "__main__":
     t_s = time.time() - t0 - t_a - t_r
     sfx = "_smoke" if SMOKE else ""
     json.dump(dict(bands=BANDS, held=HELD, laws=U.LAWS, test_ep=M7.TEST_EP, test_seed=M7.TEST_SEED, resp_ep=Y.EP, resp_seed=Y.SEED,
-                   calls=calls, resp_held=Y.rnd(resp_held), resp=Y.rnd(resp), runs=runs,
+                   calls=calls, resp_held=compact(Y.rnd(resp_held)), resp=compact(Y.rnd(resp)), runs=runs,
                    wall=dict(a=t_a, resp=t_r, stress=t_s)),
               open(os.path.join(HERE, f"results{sfx}.json"), "w"), separators=(",", ":"))
     print(f"wall {time.time() - t0:.0f} s (A {t_a:.0f}, response {t_r:.0f}, stress {t_s:.0f})")
