@@ -56,6 +56,21 @@ open. MIT licensed, no dependencies, nothing uploaded.
   class/set pairs the editor offers draw the warning with no type and audit
   clean with theirs (`eval/predefined-sets-2026-11-19.md`); 1 of 65 public IDS
   files has one, sand strata picked by material.
+- **Where a set may sit** (2026-11-19): the templates' own template type
+  says whether a set goes on occurrences only (`PSET_OCCURRENCEDRIVEN`, 16 IFC4
+  and 105 IFC4X3 sets such as `Pset_FanOccurrence`; 14 IFC4X3 quantity sets),
+  or on the `IfcPerformanceHistory` that records an element's performance over
+  time (`PSET_PERFORMANCEDRIVEN`, 42 and 44 sets such as `Pset_FanPHistory`). A
+  specification requiring an occurrence set on a type object (`IFCFANTYPE`)
+  draws `pset-occurrence` and names the occurrence class; one requiring a
+  performance set on the element draws `pset-performance`. Requiring a
+  performance set on `IFCPERFORMANCEHISTORY`, where the standard puts it, was a
+  false `pset-class` error and now audits clean. The editor no longer offers
+  occurrence sets on type objects (647 pairs) and offers performance sets on
+  `IFCPERFORMANCEHISTORY` instead of the element. All 1,280 such pairs the
+  editor used to offer agree with the audit, and every pair it offers now
+  draws neither warning (`eval/template-types-2026-11-19.md`). No public IDS
+  file of the 65 read has either case.
 - **IDS editor** (`editor.html`, 2026-11-16): pick a class, then a standard
   set that class can carry, then a property; the editor writes the template's
   `dataType`, offers the standard's enumeration values, lists subclasses (IDS
@@ -1061,8 +1076,10 @@ faster than IfcTester; its point is needing no install.
   imported XMLSchema.xsd inside an `xs:restriction`. Property
   set templates are checked for names, data types, applicable classes and,
   in IFC4 and IFC4X3, the predefined types a set is limited to (since
-  2026-11-19); not in IFC2X3, whose templates name classes without types, and
-  not for property set template types (occurrence versus type driven).
+  2026-11-19), and for where the template type puts a set (occurrences only,
+  or a performance history; since 2026-11-19); not in IFC2X3, whose templates
+  name classes without types or template types, and not for material and
+  profile sets, which are left to the class check.
 - Tested on five real models (and 65 public IDS files on four of them); every BIM authoring tool writes IFC a little
   differently, so check surprising results and report them.
 

@@ -524,15 +524,15 @@ flagships:
       from the root, not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB
       1,770 to 1,481 MB, fits 768 MB). nested ifcXML read as it closes 2026-11-18
       (eval/nested-early-2026-11-18.md: same numbers and notes on 57 files; smallest
-      heap 160 to 96 MB on C20, federated unchanged at 704 MB). STEP and ifcXML from
-      bytes 2026-11-18 (eval/step-bytes-*, eval/ifcxml-bytes-*: 670/680 MB files
-      check). xs:pattern as XML Schema regex 2026-11-18
-      (eval/xsd-regex-2026-11-18.md: same verdict as elementpath on 78 of 78 corpus
-      patterns; anchors, (?: and \/ flagged and repaired; 4 of 65 public IDS read
-      differently per tool). Editor repair on open, bare \w/\s, subclass boxes
-      2026-11-18/19 (eval/editor-open-repair-*, eval/word-class-*,
-      eval/deprecated-subclasses-*). Sets for one predefined type 2026-11-19
-      (eval/predefined-sets-2026-11-19.md: 186 IFC4, 343 IFC4X3 sets; audit warns
-      pset-predefined, editor fills the type; 1,008 of 1,008 offers agree). next: an
-      RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. More open
-      items: NEXT.md.
+      heap 160 to 96 MB on C20, federated unchanged at 704 MB). xs:pattern as XML
+      Schema regex 2026-11-18 (eval/xsd-regex-2026-11-18.md: same verdict as
+      elementpath on 78 of 78 corpus patterns; anchors, (?: and \/ flagged and
+      repaired; 4 of 65 public IDS read differently per tool). Editor repair on
+      open, bare \w/\s, subclass boxes 2026-11-18/19 (eval/editor-open-repair-*,
+      eval/word-class-*, eval/deprecated-subclasses-*). Sets for one predefined type
+      2026-11-19 (eval/predefined-sets-2026-11-19.md: 186 IFC4, 343 IFC4X3 sets;
+      audit warns pset-predefined, editor fills the type; 1,008 of 1,008 offers
+      agree). Template types 2026-11-19 (eval/template-types-2026-11-19.md:
+      occurrence sets on types, performance sets off IfcPerformanceHistory warned,
+      1,280 of 1,280 editor pairs agree). next: an RVB/ILS author on \s; a
+      Revit/ARCHICAD IFC4X3 export to confirm. More open items: NEXT.md.
