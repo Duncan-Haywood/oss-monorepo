@@ -1,5 +1,16 @@
 # buildbot-sheathing research log
 
+## 2026-11-19 · Milestone 58 planned: put the across-wall row into the flip bound: does a two-row budget (Y<sub>y</sub> and Y<sub>z</sub>) keep every planned press in spec in both directions on all four sections, and what coverage does it cost?
+
+- **Why.** Milestone 57 found that the flips milestone 56's y-only budget admits are cheap along the wall and expensive across it: at &beta; = 0.5 the worst |z| of a planned press was 0.277 / 0.289 mm (G1 / H1) against 0.026 / 0.019 mm at &beta; = 0. Its "Next" asked for the same bound with the z row of the nose Jacobian added, each row with its own budget.
+- **Rule.** For each squeeze on milestone 38's grid, c<sup>y</sup><sub>j</sub> and c<sup>z</sup><sub>j</sub> are `preload.flip_cost` with the y and z rows of the nose Jacobian; Y<sub>y</sub> = &Sigma; c<sup>y</sup><sub>j</sub>, Y<sub>z</sub> = &Sigma; c<sup>z</sup><sub>j</sub>. The squeeze minimises max(Y<sub>y</sub>, Y<sub>z</sub>) (ties as milestone 56). Pass when Y<sub>y</sub> &le; &beta; &middot; 0.03 mm and Y<sub>z</sub> &le; &beta; &middot; Z, Z the across-wall spec. If the pose's sides fail and a leg joint has a cost in either row (or the pose's sides have no plan), every hold-side combination is tried and the passing one with the smallest max(Y<sub>y</sub>, Y<sub>z</sub>) is taken; else no plan. Every combination is stored, so one pass gives the rule at every &beta; and Z.
+- **Z is not sourced.** No standard gives the across-wall tolerance of a nail-gun nose (it depends on what the press aligns to). Registered: Z = 0.03 mm, the along-wall spec (isotropic in the plane). Reported, not registered: Z = 0.1 and 0.3 mm, and &beta; in {0, 0.25, 0.5, 0.75, 1}.
+- **Sections.** A, B, C as milestone 56 (seeds 54, 55, 56) and D as milestone 57 (seed 57), 48 loads each, both robots.
+- **Hypotheses, registered before the run** (&beta; = 0.5, Z = 0.03 mm).
+  - **H229 (the two-row bound).** On every planned case in all four sections the flip shift along the wall is at most Y<sub>y</sub> and across it at most Y<sub>z</sub> (to 1e-9 mm). Refuted if either is beaten.
+  - **H230 (spec in both directions).** Every planned in-envelope case has |y| &le; 0.03 mm and |z| &le; 0.03 mm, all four sections. Refuted by any case over.
+  - **H231 (coverage).** Coverage inside milestone 51's envelope is at least 99% on each robot and section. Refuted if any is lower.
+
 ## 2026-11-19 · Milestone 57 result: on a held-out seed the &beta; = 0.5 rule replicates (H226 held) and coverage is flat from &beta; = 0 to 0.5 (H228 held), but &beta; = 1 puts one H1 press over spec (0.0315 mm; H227 refuted), and every flip the budget allows is a leg pitch joint that moves the nose 0.27 to 0.29 mm across the wall, the direction no rule budgets
 
 `experiments/m57_beta/` (run, results, figure), `reproduce.py` (m57 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL and project card. No new library code, so no new tests. Run time 768 s on 4 processes. One 2-load smoke run (`M57_N=2`) ran after the hypotheses were committed and before the full run; it is not reported.
