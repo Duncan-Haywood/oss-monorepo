@@ -3,7 +3,7 @@ title: "Our bookkeeper got slower every month of the year, and how we stopped it
 seo_title: "Bank transfer matching: from all-pairs to a date window"
 date: 2026-11-19
 tags: [performance, ai-bookkeeper, algorithms, bookkeeping]
-description: "Importing a month of bank lines took 165 ms in January and up to 620 ms by December. Transfer matching compared every inflow with every outflow; a date window brings December to 185 ms with identical books."
+description: "A bank import took 165 ms in January and up to 620 ms by December. Matching transfers in a date window, not all pairs, cut December to 185 ms."
 ---
 
 [AI Bookkeeper](/ai-bookkeeper/) runs in your browser. You import a bank
