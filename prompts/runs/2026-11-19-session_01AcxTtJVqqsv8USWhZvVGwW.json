@@ -50,7 +50,7 @@
     "docs/reports/polish-2026-11-19-hub-links.md"
   ],
   "goal": null,
-  "notes": "Full build on main: 14 html pages linked blob/main/ventures (11 'More free tools', 3 'All tools'). After fix, second full build: 0. check.mjs: publishable, 11985 pages, no dead links. node --test platform/pages/*.test.mjs: 1856 pass, 0 fail. New test fails with build.mjs change reverted.",
+  "notes": "Full build on main: 14 html pages linked blob/main/ventures (11 'More free tools', 3 'All tools'). After fix, second full build: 0. check.mjs: publishable, 11985 pages, no dead links. node --test platform/pages/*.test.mjs: 1856 pass, 0 fail. New test fails with build.mjs change reverted. CI changed-ventures was red from main (#17715 left a raw U+FEFF in shift-roster-builder/import-deputy-staff.mjs); fixed forward as \\uFEFF, deputy tests 19/19 pass, check_hidden_unicode ok.",
   "corrections": [],
   "redteam": null,
   "usage": {
