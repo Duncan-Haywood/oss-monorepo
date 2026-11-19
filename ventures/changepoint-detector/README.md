@@ -7949,3 +7949,59 @@ short stretch. These prints and samples are now spent for choosing that length.
 
 Tests: `stale-growth.test.mjs` (run lengths, float-noise repeats, the standardised z, the simulation cells, the
 committed verdicts, and that `updateRateChanges` does not call the test).
+
+## The catch-up test by stretch length, on five fresh stocks (2026-11-19, pre-registered; L2 and L3 pass, L1 fails 29 of 38, not offered)
+
+The section above ends with a table read afterwards: on highfrequency's European stock, a carried stretch with
+about a thousand moves was caught most of the time and the prints stayed clean at every length. That table chose
+the length; this round asks whether it holds on data it has not seen, with the bar stated in moves rather than
+samples, so that a user could be told the test's reach.
+
+Data: LOBSTER's free sample files (lobsterdata.com; Nasdaq, 2012-06-21, 09:30 to 16:00; AAPL, AMZN, GOOG, INTC,
+MSFT), fetched from a public mirror by `node eval/lobster-fetch.mjs <dir>` and not committed. A trade is an
+execution message (visible or hidden); executions sharing a timestamp are one print at the last price. The series
+are the prints (the real null) and the last-trade price every 0.5, 1, 2 and 5 seconds (the print times say which
+samples were carried). `eval/stale-growth-lobster.mjs` (header and code committed in 7218ed4ab before the first
+run) cuts each series into consecutive stretches that each hold exactly M moves as `catchUpGrowth` counts them
+(M = 300, 600, 1000, 2000) and calls the unchanged test on each. Which stocks are judged was fixed by a rule
+before scoring: multi-tick when the day's median print move, in the file's own tick, is above 1.5. Output:
+`eval/stale-growth-lobster.out.txt` (one second to run).
+
+| bar (multi-tick stocks: AAPL, AMZN, GOOG, MSFT) | result |
+|---|---|
+| L1 power: grid stretches of 1,000 moves with carried share >= 0.30 called stale (bar 80%) | **29 of 38 (76%): fail** |
+| L2 size: print stretches of 1,000 moves called stale (bar <= 10%) | **2 of 25: pass** |
+| L3 size at every length (bar <= 10% each) | 300 moves 7 of 90, 600 3 of 45, 1,000 2 of 25, 2,000 1 of 12: **pass** |
+| reported: power at 300, 600 and 2,000 moves | 77 of 145, 49 of 70, 14 of 15 |
+| reported: INTC (one-tick by the rule) | carried 0 of 4 at 1,000 moves; prints 2 of 2 called stale |
+
+By the pre-registered rule nothing ships: `catchUpGrowth` stays an exported function with no sentence, and the
+update-rate line is unchanged.
+
+**Where the misses fall (read afterwards, deciding nothing;** `eval/stale-growth-lobster-read.mjs`,
+`eval/stale-growth-lobster-read.out.txt`**).** The files set a tick of half a cent, because hidden orders execute
+at the midpoint. That put MSFT past the gate with a median move of two half-cents, though it is a one-cent stock
+like INTC: in both, 43-52% of moves are an odd number of half-cents (1-2% in the others).
+
+| stock | price | median move | 1,000 moves: carried caught | prints called stale | 2,000 moves: carried | prints | whole day's prints, z |
+|---|---|---|---|---|---|---|---|
+| AAPL | 583 | 2 cents | 16 of 19 | 0 of 15 | 8 of 8 | 0 of 7 | -5.1 |
+| AMZN | 222 | 2 cents | 7 of 7 | 0 of 4 | 3 of 3 | 0 of 2 | -1.6 |
+| GOOG | 568 | 4 cents | 5 of 7 | 0 of 4 | 3 of 3 | 0 of 2 | -2.0 |
+| MSFT | 30 | 1 cent | 1 of 5 | 2 of 2 | 0 of 1 | 1 of 1 | +6.7 |
+| INTC | 27 | half a cent | 0 of 4 | 2 of 2 | 0 of 0 | 1 of 1 | +8.9 |
+
+On the three stocks that move several cents, the length rule held: 28 of 33 carried stretches caught at 1,000
+moves, 14 of 14 at 2,000, and none of 34 print stretches (23 at 1,000 moves, 11 at 2,000) called stale. On the two penny-spread stocks it reverses.
+Their prints bounce between bid, ask and midpoint, so a move after a run of same-price prints (a queue being worked
+at one side) is the jump across the spread, larger than the half-cent steps between midpoint prints: the prints
+grow with the run (z = 6.7 and 8.9 over the day) with nothing carried. And a carried run hides little, because the
+price is pinned inside a one-cent spread: whatever happened while it was carried, the catch-up is one cent. So the
+growth test is a test for staleness only where moves are several quoted ticks, which is what the gate was meant to
+select; a tick inferred from the data's smallest step (here half the quoted tick) selects the wrong stocks.
+
+Next: a fresh-data round that gates on the quoted tick (or on the share of odd half-tick moves) rather than the
+smallest step, judged at 2,000 moves. LOBSTER's five sample files are now spent for choosing that gate.
+
+Tests: `stale-growth-lobster.test.mjs` (the stretch cutting, the LOBSTER reader, the bars, the committed verdicts,
+and that `updateRateChanges` still does not call the growth test).

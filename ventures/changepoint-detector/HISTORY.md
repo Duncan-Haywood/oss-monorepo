@@ -5,3 +5,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 ## Moved from flagships.yaml `next:`
 
 - (moved 2026-11-19) openings (README "Short spells under different series openings"): edge line 0 false, O1/O2 fail on spells with few differing weekdays
+- (moved 2026-11-19) weekday score ships

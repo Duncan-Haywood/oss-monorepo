@@ -198,11 +198,12 @@ flagships:
       alert was the holiday's zero (README "A closure in the week before a step"));
       (a) ar1 + floor 2 failed on 5 fresh bee dances (0.244 vs 0.337, README; muted
       note ships); update-rate: pegs 4 of 7 dated; NYT failed (N1 2/4, N2 5/9,
-      README "Short spells on a second provider"), edge-spell line ships; weekday
-      score ships; next a provider that documents its own changes. Stale feeds: real
-      carry-forward 84/85 caught but prints 56/56 false; growth test (README "A
-      catch-up test for multi-tick feeds"): prints 1/56, carried 22/85 at 300 steps,
-      7/7 at 4000; next a fresh-data round with a bar by stretch length. joint drift
+      README "Short spells on a second provider"), edge-spell line ships; next a
+      provider that documents its own changes. Stale feeds: real carry-forward 84/85
+      caught but prints 56/56 false; growth test by moves (README "The catch-up test
+      by stretch length", LOBSTER): 1,000 moves 29/38 (fail); AAPL/AMZN/GOOG 28/33,
+      prints 0/34; penny-spread stocks reverse (the half-cent tick passes the gate);
+      next a fresh round gated on the quoted tick, 2,000 moves. joint drift
       (measured, not offered) and its 2x penalty on fresh multi-column labelled
       data. Open: (0) drift model: t-walk increments, biweight on fresh data, why it
       absorbs seat belts and quality control 4, its AR(1) term; notes quote it.
