@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "run_venture_tests.py --changed refused: no merge base in the shallow clone; ran it with the 23 slugs named instead."
+    "run_venture_tests.py --changed refused: no merge base in the shallow clone; ran it with the 23 slugs named instead.",
+    "My new check_cli_missing_path.py passed on an empty --root, the class it guards against; test_checks_refuse_empty_root.py caught it in the local unwired_checks run, and it now exits 2. My post had a literal U+FEFF that check_hidden_unicode.py flagged; replaced with the escape. versions.json needed --write for 18 changed shipped tools."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -61,7 +62,7 @@
     "docs/posts/2026-11-19-a-typo-in-the-path-passed-33-security-gates.md"
   ],
   "goal": null,
-  "notes": "Guard added: platform/ci/check_cli_missing_path.py (+ test). Its first run on main found 33 of 37 gate CLIs exiting 0 on a missing path; after the fix it finds 0. It runs on every ventures/** PR through unwired_checks.py. Verification: run_venture_tests.py on 23 ventures, 23 suites green; redteam rerun, all gaps caught_after_fix true.",
+  "notes": "Guard added: platform/ci/check_cli_missing_path.py (+ test). Its first run on main found 33 of 37 gate CLIs exiting 0 on a missing path; after the fix it finds 0. It runs on every ventures/** PR through unwired_checks.py. Verification: run_venture_tests.py on 23 ventures, 23 suites green; redteam rerun, all gaps caught_after_fix true. Local CI: run_workflow_locally.py --for-changes red on distribution-versions (versions.json) and ventures-tests (empty-root, hidden unicode), all three fixed; unwired_checks.py 265/265 pass; distribution-versions-ci 3/3.",
   "corrections": [],
   "redteam": {
     "campaigns": [

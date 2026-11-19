@@ -58,6 +58,10 @@ class MissingPath(unittest.TestCase):
                    "ventures/a/tool.py": no_flag}) as d:
             self.assertEqual(c.gate_clis(Path(d)), [])
 
+    def test_an_empty_root_refuses(self):
+        with tree({}) as d:
+            self.assertEqual(self.run_main(d)[0], 2)
+
     def test_the_real_tree_has_gates_and_none_passes_a_missing_path(self):
         clis = c.gate_clis()
         self.assertGreater(len(clis), 20)

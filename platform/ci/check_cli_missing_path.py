@@ -69,6 +69,10 @@ def main(argv=None):
     args = ap.parse_args(argv)
     root = Path(args.root)
     clis = gate_clis(root)
+    if not clis:
+        # A wrong --root must not pass as "nothing to check" (test_checks_refuse_empty_root.py).
+        print(f"check_cli_missing_path: no venture gate CLI found under {root}; wrong --root?")
+        return 2
     if args.list:
         for c in clis:
             print(c.relative_to(root))

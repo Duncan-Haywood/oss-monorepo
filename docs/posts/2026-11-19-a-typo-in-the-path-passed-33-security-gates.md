@@ -24,7 +24,7 @@ the command-line tool as someone setting up that CI step would.
    [workflow audit](https://marisstella.app/workflow-audit/) reads 2 as a successful run with
    findings.)
 3. **A byte order mark.** Windows editors can save a Dockerfile with a UTF-8 BOM, which BuildKit
-   ignores. The CLI read the file as plain UTF-8, so line 1 became `﻿FROM node:18`, and its
+   ignores. The CLI read the file as plain UTF-8, so line 1 became `\ufeffFROM node:18`, and its
    regex skipped it. The browser page caught that same line, because JavaScript's `\s` matches
    U+FEFF and Python's does not. A single Latin-1 byte in a comment crashed the scan outright.
    Both now read the file the way BuildKit does.
