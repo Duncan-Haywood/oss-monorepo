@@ -118,7 +118,7 @@ if (flag("--from-bsdd") && files.length) {
   const issues = auditIds(ids, resources());
   // --bsdd: exit 1 also when a link is broken or its dataType cannot hold the
   // dictionary's values (level "error"); warnings and notes do not fail.
-  const bsdd = flag("--bsdd") ? await checkBsdd(readFileSync(files[0], "utf8"), { schemas: resources().schemas }) : null;
+  const bsdd = flag("--bsdd") ? await checkBsdd(readFileSync(files[0], "utf8"), { schemas: resources().schemas, units: resources().bsddUnits }) : null;
   if (flag("--json")) console.log(JSON.stringify({ title: ids.title, valid: !issues.some((x) => x.level === "error"), issues, ...(bsdd ? { bsdd } : {}) }, null, 2));
   else console.log(auditReport(ids.title, ids.specs, issues) + (bsdd ? "\n" + bsddReport(bsdd) : ""));
   process.exitCode = issues.some((x) => x.level === "error") || (bsdd && bsdd.findings.some((x) => x.level === "error")) ? 1 : 0;

@@ -494,7 +494,16 @@ measure (`bsdd-units.mjs`):
   Integer properties are not touched, and a standard set's template type
   still wins.
 
-Measured on bSDD (`eval/bsdd-units-2026-11-19.md`).
+Measured on bSDD (`eval/bsdd-units-2026-11-19.md`): of 1,625 Real class
+properties outside IFC in 22 dictionaries, 867 get a measure (18
+dictionaries), and on the same 188 classes the generated own-set facets typed
+as a measure go from 1 to 454, with the audit and the bSDD link check
+unchanged (39 of 43 files audit clean, 43 of 43 with no link error). On a
+built model (`eval/bsdd-units-model.mjs`), a 200 mm wall stored as
+`IfcLengthMeasure` failed the old IFCREAL facet and passes the new one, and a
+500 mm wall fails it; IfcTester 0.9.0 gives the same 9 verdicts. The bSDD
+link check (`--bsdd`) reads a measure facet's SI values against bSDD's values
+in the property's unit (18 false `bsdd-value` warnings on kPa strengths to 0).
 
 ### Excel2IDS workbooks in, Excel2IDS workbooks out (2026-11-19)
 

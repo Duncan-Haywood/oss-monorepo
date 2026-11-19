@@ -121,3 +121,19 @@ test("bsddIds with units writes an IDS the audit passes", async () => {
   const issues = auditIds(parseIds(r.text), { schemas: R.schemas, typeMap: R.typeMap, psets: R.psets });
   assert.deepEqual(issues.filter((x) => x.level === "error"), []);
 });
+
+test("the bSDD link check reads a measure facet's SI values against bSDD's unit", async () => {
+  const { checkBsdd } = await import("./bsdd.mjs");
+  const P = `${LCA}/prop/Druk`;
+  const entry = { code: "Druk", name: "Druk", uri: P, dataType: "Real", units: ["kPa"], dictionaryUri: LCA, status: "Active", allowedValues: [{ value: "100" }, { value: "200" }] };
+  const ids = `<?xml version="1.0" encoding="UTF-8"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications><specification name="s" ifcVersion="IFC4X3_ADD2"><applicability><entity><name><simpleValue>IFCWALL</simpleValue></name></entity></applicability><requirements><property dataType="IFCPRESSUREMEASURE" uri="${P}"><propertySet><simpleValue>Maten</simpleValue></propertySet><baseName><simpleValue>Druk</simpleValue></baseName><value><xs:restriction base="xs:double"><xs:enumeration value="100000"/><xs:enumeration value="200000"/></xs:restriction></value></property></requirements></specification></specifications></ids>`;
+  const fetch = async (url) => {
+    const u = new URL(url);
+    const hit = u.pathname.startsWith("/api/Dictionary") ? { dictionaries: [{ name: "Demo", uri: LCA, isLatestVersion: true }] } : entry;
+    return { ok: true, status: 200, text: async () => JSON.stringify(hit) };
+  };
+  const without = await checkBsdd(ids, { fetch, schemas: R.schemas });
+  assert.ok(without.findings.some((f) => f.code === "bsdd-value"), "kPa values in Pa look wrong without the unit table");
+  const withUnits = await checkBsdd(ids, { fetch, schemas: R.schemas, units: U });
+  assert.deepEqual(withUnits.findings.filter((f) => f.code === "bsdd-value"), []);
+});
