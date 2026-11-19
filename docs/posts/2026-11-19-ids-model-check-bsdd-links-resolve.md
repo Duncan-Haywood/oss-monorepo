@@ -1,9 +1,9 @@
 ---
-title: "617 bSDD links written offline, all looked up live: one IFC name bSDD lacks"
+title: "617 bSDD links written offline, all looked up live: 77 IFC names bSDD lacks"
 seo_title: "Do offline bSDD links for IDS files resolve?"
 date: 2026-11-19
 tags: [ids-model-check, ventures]
-description: "IDS Model Check writes bSDD links for standard IFC properties without a lookup. Checked live, 617 of 617 resolve once one name, Reference, is skipped."
+description: "IDS Model Check writes bSDD links for standard IFC properties offline. Checked live, 617 of 617 resolve; 77 template names bSDD lacks are now skipped."
 ---
 
 Earlier today IDS Model Check learned to write bSDD links for you. An IDS
@@ -48,17 +48,24 @@ bSDD for all 760 IFC 4.3 template sets and compares them pair by pair with
 the templates the tool ships. Of 3,988 set-property pairs, 3,683 sit in
 bSDD's copy of their set at exactly the link the rule writes, and none at a
 different one. All 108 pairs missing from a set bSDD has are `Reference`.
-35 sets (197 pairs), mostly infrastructure and railway ones, are not in
-bSDD as sets at all; for those the sweep asks each property link directly.
+35 sets (197 pairs) are not in bSDD as sets at all: the profile sets
+(`Pset_ProfileMechanical`, `Pset_ProfileArbitraryDoubleT`, ...), alignment
+cant and vertical segments, construction resources and a few railway ones.
+For those the sweep asks each property link directly. 116 pairs still
+resolve, because the name is shared with a set bSDD does carry. 81 do not:
+`MomentOfInertiaY`, `ShearCentreZ`, `CantDeficiency`, `ActualCost` and 72
+other names have no bSDD entry anywhere, nor do 4 more `Reference` pairs.
 
-So the fix is one name. The suggester now skips `Reference` (a list
-called `BSDD_UNLINKED`), and the sweep fails whenever that list stops
-matching what bSDD says, so a future dictionary release that adds it, or
-drops something else, shows up as a failing eval rather than a broken link
-in someone's file. Rerun on the corpus: 617 links, all resolve.
+So 77 names in all. The suggester now skips them (a list called
+`BSDD_UNLINKED`), and the sweep fails whenever that list stops matching what
+bSDD says, so a dictionary release that adds the profile sets, or drops
+something else, shows up as a failing eval rather than a broken link in
+someone's file. Only `Reference` turned up in the public corpus; the other
+76 are names a structural or infrastructure IDS would use, and none of the
+corpus files did yet. Rerun on the corpus: 617 links, all resolve.
 
 bSDD rate-limits bursts. The sweep goes three requests at a time and asks
-again for anything that came back 429; one run takes about twenty minutes.
+again for anything that came back 429; a full run took about 25 minutes, and a throttled second one passed an hour before it was stopped, so the sweep takes `--sets` to rerun a part.
 
 Try it at [marisstella.app](https://marisstella.app/ids-model-check/): audit
 an IDS and the bSDD box lists the links it would add. The numbers are in

@@ -438,9 +438,11 @@ the check `--audit OUT.ids --bsdd` runs): every one of the 617 links
 resolves. The first run found 2 that did not, both `Pset_PlateCommon.Reference`:
 bSDD's IFC 4.3 dictionary has no `prop/Reference`, although `Reference` is
 in 108 template sets. `node eval/bsdd-template-sweep.mjs` then asked bSDD
-for all 760 template sets and found `Reference` is the only template name
-whose link does not resolve, so it is skipped (`BSDD_UNLINKED`; the sweep
-fails when that list goes out of date). The 24 other findings on the
+for all 760 template sets: 3,683 of 3,988 set-property pairs sit in bSDD's
+set at exactly the rule's link, and 77 names have no bSDD entry at all
+(`Reference`, plus 76 from 35 profile, alignment and resource sets bSDD does
+not carry). Those are skipped (`BSDD_UNLINKED`; the sweep fails when that
+list goes out of date). The 24 other findings on the
 inserted links are the facets' own dataTypes, which the suggester already
 names (`eval/bsdd-suggest-live-2026-11-19.md`).
 

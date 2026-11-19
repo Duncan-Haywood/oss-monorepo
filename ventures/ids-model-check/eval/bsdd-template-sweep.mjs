@@ -12,7 +12,7 @@
 // For each absent pair whose name is in no bSDD set at all, it then asks the
 // rule's property link itself, so a name bSDD codes nowhere is told apart
 // from a name bSDD has under other sets only.
-//   node eval/bsdd-template-sweep.mjs
+//   node eval/bsdd-template-sweep.mjs [--sets Pset_A,Pset_B]
 // The names whose rule link bSDD does not resolve must be exactly
 // BSDD_UNLINKED in bsdd-suggest.mjs (the suggester skips them); the last line
 // says whether they are, and the exit code is 1 when they are not.
@@ -23,7 +23,10 @@ import { IFC43_DICTIONARY, ifc43PropUri, BSDD_UNLINKED } from "../bsdd-suggest.m
 
 const schemaDir = new URL("../schema/", import.meta.url);
 const psets = JSON.parse(readFileSync(new URL("psets-ifc4x3.json", schemaDir), "utf8"));
-const sets = Object.keys(psets).sort();
+// --sets A,B,...: only those sets (a quicker rerun of a part, e.g. the sets
+// bSDD lacks; the BSDD_UNLINKED comparison then covers only their names).
+const only = process.argv.includes("--sets") ? process.argv[process.argv.indexOf("--sets") + 1].split(",") : null;
+const sets = Object.keys(psets).sort().filter((s) => !only || only.includes(s));
 
 const ask = (path) => getJson(fetch, `${BSDD_API}${path}`);
 // bSDD answers bursts with 429 even after getJson's retries, so lookups go 3
@@ -78,10 +81,10 @@ const orphanUnlinked = orphan.filter((a) => !known(a.name));
 console.log(`${sets.length} IFC 4.3 template sets, ${Object.values(psets).reduce((t, s) => t + Object.keys(s.props).length, 0)} set-property pairs; ${bySet.size - noSet.length} sets found in bSDD (${noSet.length} not: ${noSet.join(", ") || "none"})`);
 console.log(`pairs bSDD lists in that set at the rule's link: ${n.same}; at another link: ${n.other}; not in bSDD's set: ${n.absent}; set not in bSDD: ${n.noSet}`);
 for (const o of other) console.log(`  other  ${o}`);
-console.log(`of the ${n.absent} absent pairs (${names.length} distinct names), the rule's link still resolves for ${absent.length - pairsUnlinked.length}; it does not for ${pairsUnlinked.length} (${unlinked.length} names)`);
+console.log(`of the ${n.absent} absent pairs (${new Set(absent.map((a) => a.name)).size} distinct names), the rule's link still resolves for ${absent.length - pairsUnlinked.length}; it does not for ${pairsUnlinked.length} (${new Set(pairsUnlinked.map((a) => a.name)).size} names)`);
 console.log(`of the ${orphan.length} pairs in sets bSDD lacks, the rule's link resolves for ${orphan.length - orphanUnlinked.length} (${orphanAsk.length} names asked one by one, the rest listed under other sets); it does not for ${orphanUnlinked.length}`);
 for (const name of unlinked) console.log(`  unlinked  ${name}: ${[...absent, ...orphan].filter((a) => a.name === name && !known(a.name)).map((a) => a.set).join(", ")}`);
-const want = [...BSDD_UNLINKED].sort();
+const want = [...BSDD_UNLINKED].sort().filter((x) => !only || names.includes(x));
 const missing = unlinked.filter((x) => !BSDD_UNLINKED.has(x)), stale = want.filter((x) => !unlinked.includes(x));
 if (!missing.length && !stale.length) console.log(`BSDD_UNLINKED in bsdd-suggest.mjs matches: ${want.length} names`);
 else { console.log(`BSDD_UNLINKED in bsdd-suggest.mjs is out of date: add ${JSON.stringify(missing)}, remove ${JSON.stringify(stale)}`); process.exitCode = 1; }
