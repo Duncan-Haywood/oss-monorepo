@@ -73,6 +73,33 @@ class WaitFor(unittest.TestCase):
             nap = lambda s: t.__setitem__(0, t[0] + s)
             self.assertFalse(wait(p, marker="DONE", timeout=3, clock=lambda: t[0], nap=nap)[0])
 
+    def test_marker_with_trailing_space_matches_as_a_word(self):
+        # friction 2026-11-19: --marker 'exit ' waited 540 s on a log ending 'exit 0'
+        from wait_for import is_marker
+        self.assertTrue(is_marker("exit 0", "exit "))
+        self.assertTrue(is_marker("  DONE  ", " DONE "))
+        self.assertFalse(is_marker("exited", "exit "))
+
+    def test_default_accepts_lower_case_echo_lines_only(self):
+        # friction 2026-11-12..19: `echo exit $?` logs needed --marker exit
+        from wait_for import is_quiet_marker
+        for line in ("exit 0", "exit 137", "done", "Done", "Exit -1", "  exit 2  "):
+            self.assertTrue(is_quiet_marker(line), line)
+        for line in ("done loading", "exit code 0", "exited 0", "Done in 3s", "", "doneish"):
+            self.assertFalse(is_quiet_marker(line), line)
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("tests ran\nexit 0\n")
+            ok, lines = wait(p, timeout=1, held=lambda: [])
+            self.assertTrue(ok)
+            t = [0.0]
+            nap = lambda s: t.__setitem__(0, t[0] + s)
+            # An explicit marker is still strict about case.
+            self.assertFalse(wait(p, marker="EXIT", timeout=3, clock=lambda: t[0], nap=nap)[0])
+            # An earlier phase's lower-case line in a held log is stale, as DONE is.
+            open(p, "w").write("done\nphase two\n")
+            self.assertFalse(wait(p, timeout=3, clock=lambda: t[0], nap=nap, held=lambda: [(1, "x")])[0])
+
     def test_marker_prefix_of_a_word_does_not_count(self):
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "o.log")
@@ -402,10 +429,34 @@ class PidProbe(unittest.TestCase):
 
 
 class LongerHint(unittest.TestCase):
+    def _main(self, *argv):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = main(list(argv))
+        return code, out.getvalue(), err.getvalue()
+
     def test_short_timeouts_name_the_longer_form(self):
         import wait_for
         self.assertIn("--timeout 540", wait_for.longer(100))
-        self.assertEqual(wait_for.longer(540), "")
+        self.assertIn("run_in_background", wait_for.longer(100))
+
+    def test_a_long_timeout_still_names_the_background_route(self):
+        # A 540 s wait that timed out said nothing more, so 40-minute jobs took five calls.
+        import wait_for
+        hint = wait_for.longer(540)
+        self.assertIn("run_in_background", hint)
+        self.assertNotIn("--timeout 540", hint)
+
+    def test_every_timeout_line_says_timed_out(self):
+        # A chained `; grep` hides exit 1; the text itself must say the wait did not finish.
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("working\n")
+            for args in (("--until", "false", "--timeout", "0"), (p, "--timeout", "0"),
+                         ("--pid", str(os.getpid()), "--timeout", "0")):
+                code, _, err = self._main(*args)
+                self.assertEqual(code, 1, args)
+                self.assertTrue(err.startswith("wait_for: TIMED OUT (exit 1):"), (args, err))
 
 
 class Restart(unittest.TestCase):

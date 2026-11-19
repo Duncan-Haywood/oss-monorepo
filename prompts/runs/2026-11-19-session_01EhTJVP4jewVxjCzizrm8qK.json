@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVP4jewVxjCzizrm8qK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T17:56:48Z",
+  "ended": "2026-11-19T18:07:47Z",
+  "wall_minutes": 11.26,
+  "tokens_in": 10265926,
+  "tokens_out": 41174,
+  "cost_usd": 4.2196,
+  "tool_calls": 76,
+  "task": "Deepen (flagship 13) xer-schedule-check: windows analysis and full-list appendix in the written review",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17745",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First xerText dropped P6 Web's quotes on multi-line clndr_data, so the 24.12 file read back with empty calendars (as-planned window moved 20.7 days)",
+      "fix": "quote values holding line breaks; test added; caught by the eval's round-trip check"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here picked ai-bookkeeper again; its buildable items still need huggingface.co, which this session's probe refused (same reason as the last recorded leaver). The row's buildable list should say so or carry inputs_only for HF-blocked sessions."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace with a slightly longer text silently parked an unrelated open item ('a real construction .xml, task splits') to NEXT.md; fine, but a --dry-run first would have shown it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here picked ai-bookkeeper (row 1), whose buildable items need huggingface.co, refused here; the other items need real inputs.",
+      "did": "Took flagship 13 xer-schedule-check (construction direction, github-hosted data reachable), items (2) windows in the written review and (4) full-list appendix.",
+      "result": "landed both with an 18-series eval on six public P6 files"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-schedule-review-windows-recovery-plan.md",
+    "ventures/xer-schedule-check/eval/review-windows-check-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: run_venture_tests.py xer-schedule-check ok (121 tests); check_posts ok; validate.py ok; venture-preflight run in background (see PR). Eval: 18 of 18 series exact, 8 of 8 recovery asks, appendix complete; CCA review with appendix 582 pages, so appendix is opt-in.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "43671e3e-68fb-5686-8cda-c2adfdb61804",
+    "transcripts": 1,
+    "first": "2026-11-19T17:56:48Z",
+    "last": "2026-11-19T18:08:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 139,
+        "output": 41174,
+        "thinking": 6056,
+        "cache_read": 10093688,
+        "cache_write_5m": 0,
+        "cache_write_1h": 172099,
+        "api_equivalent_usd": 4.2196,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 139,
+      "output": 41174,
+      "thinking": 6056,
+      "cache_read": 10093688,
+      "cache_write_5m": 0,
+      "cache_write_1h": 172099,
+      "api_equivalent_usd": 4.2196,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 72,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.26,
+      "active_minutes": 11.26,
+      "model_minutes": 7.09,
+      "tool_minutes": 4.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior scheduler/dev: report section, CLI, page wiring, XER writer, eval on six files",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 237.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

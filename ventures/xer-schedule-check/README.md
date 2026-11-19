@@ -3,7 +3,8 @@
 Open a **Primavera P6 `.xer` export** in the browser and get the **DCMA 14-point
 schedule assessment** with every activity behind each failing point, a critical
 path recomputed from the logic, the critical path test, and the faults the 14
-points miss: logic loops, out-of-sequence progress, open finishes, and stored
+points miss: logic loops, out-of-sequence progress, open finishes, expected
+finish dates that hide delay, and stored
 float that no longer matches the logic. MIT licensed, no dependencies, nothing
 uploaded.
 
@@ -123,6 +124,27 @@ more of runs (medium), each listed with its criticality; and **no stated
 contingency** when the forecast is met in under half the runs (low). A risk run
 for another project in the same file is left out with a note. Checked on the
 six public files (eval/review-risk-check-2026-11-19.md).
+
+**Windows in the written review, and a full-list appendix** (2026-11-19,
+`report.mjs` `windowItems`, page: run the windows analysis on the job's
+updates, then print the review of the latest one; CLI `--windows u1.xer u2.xer
+... --report review.html [--appendix]`, which reviews the latest update against
+the one before it): the review carries a "Delay by window" section (each
+window's finish movement split into progress and revisions, the driving-path
+activities behind it, the activities named in more than one window) and two
+corrections a windows run can back. **Revisions that moved the finish later**
+in a window ask the contractor to justify each logic, duration, constraint and
+calendar change listed (medium at 5 or more working days, low below).
+**Revisions that took back time progress lost** (progress slipped the finish
+and the revisions pulled back 2 or more working days of it) ask for the
+recovery plan behind the shortened or re-sequenced work: the pattern of a
+schedule held on paper. A windows run of another project, or one that does not
+end at the reviewed update's data date, is left out with a note. With the
+appendix option the body still prints the first 40 activities of each
+correction, and an appendix lists all of them, so the document alone is the
+complete list. `xer.mjs` `xerText` writes a schedule back to XER text (P6 Web's
+multi-line calendars quoted as P6 Web writes them). Checked on the six public
+files: 18 update series built from them with planted re-estimates, slips and paper recoveries, written to disk and read by the CLI in shuffled order: the corrections equal the rules on all 18, every planted activity is named, every recovery plan expected (8) is asked and no other, and the appendix holds every row the body cut (on the 14,270-activity file that is 582 pages, so it is off by default) (eval/review-windows-check-2026-11-19.md).
 **Resource levelling** (2026-11-19, `level.mjs`, the page's "Resource
 levelling" box, `--level`): the logic alone lets every crew work on everything
 at once. This delays not-started activities until each resource stays within
@@ -145,6 +167,27 @@ on each date), and a
 **crew size** multiplier to see what crew holds the date. It warns when a
 file still carries P6's default limit of 1 per hour on resources used far
 above it. Checked on the public files in eval/level-check-2026-11-19.md.
+
+**Expected finish dates** (2026-11-19, `cpm.mjs`, the "Expected finish dates
+setting durations" finding): when a project schedules with P6's "use expected
+end dates", an activity with an expected finish gets the remaining duration
+that ends it on that date, from wherever its remaining work starts; a date at
+or before that start is ignored and the stored duration stands. The engine now
+does the same in every run (assessment, critical path test, comparison and
+half-step, windows, risk, levelling), so a slip upstream is absorbed by such an
+activity as it is in P6. The finding lists each one with the duration the date
+set against the original, and, where the file says how far along it is, the
+time left at the rate so far (a task 2% done after 22 days whose expected
+finish leaves it 6 days); dates already passed are listed to clear. On the
+public P6 24.12 file (23 activities with one): the stored remaining duration is
+the time to the expected finish on 21 of 21, the 2 dates already passed are
+ignored as P6 ignored them, and after adding 80 h to each of the 21 stored
+durations the engine still reproduces P6's dates on 404 of 404 open
+activities with the rule on (0 of 404 with it off). A 10-day slip on a
+predecessor moves 2 of those activities 0 days instead of 10
+(eval/expected-finish-2026-11-19.md). In the risk run an activity with an
+expected finish keeps its date, as in P6, so its sampled duration does not
+count; that is said in the eval, not yet on the page.
 
 ## Why someone would use it
 
@@ -206,8 +249,10 @@ project's updates for delay claims; and the review itself as a service.
   statuses a file as planned to a new data date (optionally with planted
   slips), for the check below and the page's example series.
 - `report.mjs`: the written review. `reviewItems` turns each failing DCMA
-  point, extra check, stale-date list and comparison flag into one ranked
-  correction with its activities; `reviewHtml` lays them out for print.
+  point, extra check, stale-date list, comparison flag, risk finding and
+  windows finding (`windowItems`) into one ranked correction with its
+  activities; `reviewHtml` lays them out for print, with an optional appendix
+  of every activity.
 - `risk.mjs`: the Monte Carlo run. Seeded generator (repeatable), triangular
   draws (one-factor Gaussian copula when correlated), `cpm.mjs` forward pass
   only (`forwardOnly`, `durations`), driving path per run, sensitivity as the
@@ -316,8 +361,9 @@ run as a formula in Excel or Sheets.
 ## Limits
 
 Screening metrics, not a verdict: a schedule can pass all fourteen and still be
-unrealistic, and some failures are justified. Not modelled:
-expected finish dates, "make open-ended activities critical", multiple float
+unrealistic, and some failures are justified. Expected finish dates are
+checked on one public file only (23 activities; the rule is read from the
+durations P6 stored, not from a second P6 run). Not modelled: "make open-ended activities critical", multiple float
 paths (resource levelling is the separate `level.mjs` step; the checks always
 use the unlevelled dates; it is a serial pass like P6's, not P6's code, so its
 dates can differ from a P6 levelled run, which no public file stores). 2 activities of the heavily progressed CCA file still differ (early

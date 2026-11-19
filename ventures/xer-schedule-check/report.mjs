@@ -8,7 +8,7 @@
 // No scripts and no outside files, so it prints the same anywhere (the browser's
 // "Save as PDF" is the PDF step) and opens in any mail client or archive.
 //
-// reviewItems(assessment, comparison?, risk?) is the ranked list on its own, so
+// reviewItems(assessment, comparison?, risk?, windows?) is the ranked list on its own, so
 // the CLI and tests can read the same decisions the document prints.
 //
 // meta.risk, a Monte Carlo result from risk.mjs for the same project, adds a
@@ -17,6 +17,19 @@
 // ranked, the activities that drive the finish) and the corrections a risk run
 // can support: a must-finish date the runs rarely meet, near-critical work the
 // single driving path hides, and a forecast with no stated contingency.
+//
+// meta.windows, a windows analysis from windows.mjs over the job's updates
+// (ending at this update), adds a "Delay by window" section (each window's
+// finish movement split into progress and revisions, the driving-path
+// activities behind it, the activities named in the most windows) and the
+// corrections a windows run can support: revisions that moved the finish
+// later, which the contract usually asks the contractor to justify, and
+// revisions that took back time progress lost, which hold a date on paper and
+// need a recovery plan behind them.
+//
+// meta.appendix: true prints every activity behind every correction in an
+// appendix at the end (the body still shows the first meta.limit of each), so
+// the document alone is the complete list, with no CSV to send alongside.
 
 import { formatDate } from "./xer.mjs";
 
@@ -45,6 +58,7 @@ const DCMA_ACTION = {
 const EXTRA_ACTION = {
   loops: ["high", "Break each logic loop listed; P6 refuses to schedule a loop and the dates around it are not valid."],
   "out-of-sequence": ["medium", "Correct the out-of-sequence progress listed: either the logic is wrong or the actual dates are; retained logic and progress override give different finish dates here."],
+  "expected-finish": ["medium", "Replace each expected finish listed with a remaining duration estimated from the work left, or clear the ones already passed; an expected finish absorbs predecessor delay instead of passing it on."],
   "open-finish": ["low", "Add a finish-side successor to each activity listed; with only start-to-start successors it can run long without moving anything."],
 };
 
@@ -94,8 +108,47 @@ export function riskItems(r) {
   return out;
 }
 
-export function reviewItems(a, c = null, r = null) {
-  const out = riskItems(riskFor(a, r));
+// Thresholds for the windows corrections, in working days. A revision that
+// moved the finish 5 or more working days later (a working week) is medium;
+// less is low. Revisions that took back 2 or more of the days progress lost
+// in the same window are medium: compressing the remaining work to hold a
+// date is the pattern a reviewer must see a recovery plan for.
+export const WINDOW_LIMITS = { revisionMedium: 5, offsetMin: 2 };
+
+// the windows run belongs to the assessment only if it read the same project
+// and ends at this update's data date
+export function windowsFor(a, w) {
+  if (!w || !a || !w.windows?.length) return null;
+  if (String(w.project) !== String(a.project.code) && String(w.project) !== String(a.project.name)) return null;
+  const end = w.windows[w.windows.length - 1].dataDateTo;
+  return end && a.project.dataDate && end.slice(0, 16) === a.project.dataDate.slice(0, 16) ? w : null;
+}
+
+const wd = (d) => `${d > 0 ? "+" : ""}${d} working day${Math.abs(d) === 1 ? "" : "s"}`;
+const wItems = (rows) => rows.map((x) => ({ code: x.code, name: x.name, why: x.what }));
+
+export function windowItems(w) {
+  if (!w) return [];
+  const out = [];
+  for (const x of w.windows) {
+    if (!x.halfStep || x.revisionEffect === null || x.progressEffect === null) continue;
+    const src = `Windows analysis, window ${x.n} (${x.dataDateFrom.slice(0, 10)} to ${x.dataDateTo.slice(0, 10)})`;
+    const span = `between ${x.from} and ${x.to}`;
+    if (x.revisionEffect > 0) {
+      out.push({ severity: x.revisionEffect >= WINDOW_LIMITS.revisionMedium ? "medium" : "low", source: src,
+        action: `Justify the revisions made ${span}: they moved the forecast finish ${wd(x.revisionEffect)} on their own, apart from progress. Give the reason for each logic, duration, constraint and calendar change listed, and whether it is a change to the work or a correction of the plan.`,
+        measure: `finish ${wd(x.moved)}: progress ${wd(x.progressEffect)}, revisions ${wd(x.revisionEffect)} (half-step)`, items: wItems(x.drivers.revisions) });
+    } else if (x.progressEffect > 0 && -x.revisionEffect >= WINDOW_LIMITS.offsetMin) {
+      out.push({ severity: "medium", source: src,
+        action: `Show the recovery plan behind the revisions made ${span}: progress lost ${wd(x.progressEffect)} on the driving path and the revisions took back ${-x.revisionEffect} of them, so the forecast holds only if the shortened or re-sequenced work listed is achievable.`,
+        measure: `finish ${wd(x.moved)}: progress ${wd(x.progressEffect)}, revisions ${wd(x.revisionEffect)} (half-step)`, items: wItems([...x.drivers.revisions, ...x.drivers.progress]) });
+    }
+  }
+  return out;
+}
+
+export function reviewItems(a, c = null, r = null, w = null) {
+  const out = [...riskItems(riskFor(a, r)), ...windowItems(windowsFor(a, w))];
   for (const k of a.checks) {
     if (k.pass) continue;
     // the critical path test with nothing to delay: the finish has no driving logic
@@ -145,7 +198,7 @@ export function reviewItems(a, c = null, r = null) {
       out.push({ severity: f.severity, source: "Change since the previous update", action: FLAG_ACTION(f.text), measure: `${f.count}`, items: Object.hasOwn(lists, f.text) ? lists[f.text] : [] });
     }
   }
-  // stable sort: severity, then the order above (risk, DCMA, extra, recompute, changes)
+  // stable sort: severity, then the order above (risk, windows, DCMA, extra, recompute, changes)
   return out.map((x, i) => [x, i]).sort((p, q) => RANK[p[0].severity] - RANK[q[0].severity] || p[1] - q[1]).map(([x]) => x);
 }
 
@@ -184,17 +237,39 @@ ${r.warnings.length ? `<p class="small"><strong>Read with care:</strong> ${r.war
 <p class="small">The ranges are inputs to this analysis, not data from the file; the result is only as good as they are. Resource limits and probabilistic branches are not modelled.</p>`;
 }
 
+function windowsSection(w, limit) {
+  const t = w.total;
+  const sg = (d) => (d === null || d === undefined ? "n/a" : `${d > 0 ? "+" : ""}${d}`);
+  const lead = `${w.updates.length} updates, ${w.windows.length} windows from ${w.updates[0].dataDate.slice(0, 10)} to ${w.updates[w.updates.length - 1].dataDate.slice(0, 10)}. The forecast finish moved from ${t.firstFinish.slice(0, 10)} to ${t.lastFinish.slice(0, 10)}, ${sg(t.moved)} working days: ${sg(t.progress)} caused by progress and ${sg(t.revisions)} by revisions, by a half-step run in each window (the windows add to ${sg(t.sumOfWindows)}).`;
+  const rows = w.windows.map((x) => [x.n, `${x.from} to ${x.to}`, `${x.dataDateFrom.slice(0, 10)} to ${x.dataDateTo.slice(0, 10)}`, x.workingDays ?? "?", sg(x.moved), sg(x.progressEffect), sg(x.revisionEffect), x.finishTo.slice(0, 10)]);
+  const per = w.windows.filter((x) => x.drivers.progress.length || x.drivers.revisions.length).map((x) => {
+    const part = (title, list) => (list.length ? `<p class="small"><strong>${esc(title)}</strong>${list.length > limit ? ` (first ${limit} of ${list.length})` : ""}</p>${table(["Activity", "Name", "Detail"], list.slice(0, limit).map((d) => [d.code, d.name, d.what]))}` : "");
+    return `<section class="item"><h3>Window ${x.n}: ${esc(x.from)} to ${esc(x.to)}, finish ${esc(sg(x.moved))} working days</h3>
+<p class="small">Driving path at the start: ${esc(x.pathAtStart.join(", "))}${x.pathLength > x.pathAtStart.length ? `, ... (${x.pathLength} activities)` : ""}</p>
+${part("On the driving path, progress", x.drivers.progress)}${part("Revisions touching the driving path", x.drivers.revisions)}</section>`;
+  }).join("\n");
+  const rec = w.recurring.filter((x) => x.windows.length > 1);
+  return `<h2>Delay by window</h2>
+<p>${esc(lead)}</p>
+${table(["Window", "Updates", "Data dates", "Working days", "Finish moved", "Progress", "Revisions", "Finish at end"], rows)}
+${per}
+${rec.length ? `<h3>Named in more than one window</h3>${table(["Activity", "Name", "Windows"], rec.slice(0, limit).map((x) => [x.code, x.name, x.windows.join(", ")]))}` : ""}
+${w.warnings.length ? `<p class="small"><strong>Read with care:</strong> ${w.warnings.slice(0, 8).map(esc).join(" ")}</p>` : ""}
+<p class="small">The activities listed are candidates that can explain each window's movement. Which party is responsible for a delay, and whether it is excusable or compensable, is the analyst's and the contract's question, not this tool's.</p>`;
+}
+
 function table(head, rows) {
   if (!rows.length) return "";
   return `<table><thead><tr>${head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
 }
 
-// meta: { reviewer, recipient, reference, notes, date, limit }
+// meta: { reviewer, recipient, reference, notes, date, limit, risk, windows, appendix }
 export function reviewHtml(a, c = null, meta = {}) {
   const limit = meta.limit ?? 40;
   const p = a.project;
   const r = riskFor(a, meta.risk);
-  const items = reviewItems(a, c, r);
+  const win = windowsFor(a, meta.windows);
+  const items = reviewItems(a, c, r, win);
   const n = { high: 0, medium: 0, low: 0 };
   for (const x of items) n[x.severity]++;
   const date = meta.date || new Date().toISOString().slice(0, 10);
@@ -224,9 +299,13 @@ export function reviewHtml(a, c = null, meta = {}) {
     summary.push(["Finish date risk", `forecast met in ${pct(r.pDeterministic)} of ${r.iterations} runs; P80 ${day(p80(r).date)} (+${p80(r).overDeterministic} working days)${r.pMustFinish !== null ? `; must-finish met in ${pct(r.pMustFinish)}` : ""}`]);
   }
 
+  if (win) {
+    summary.push(["Windows analysis", `${win.windows.length} windows over ${win.updates.length} updates: finish ${days(win.total.moved)} (progress ${days(win.total.progress)}, revisions ${days(win.total.revisions)})`]);
+  }
+
   const corr = items.map((x, i) => {
     const shown = x.items.slice(0, limit);
-    const more = x.items.length > limit ? `<p class="small">${x.items.length - limit} more not printed; the CSV download from the page lists them all.</p>` : "";
+    const more = x.items.length > limit ? `<p class="small">${x.items.length - limit} more not printed${meta.appendix ? ` here; Appendix A, item ${i + 1}, lists all ${x.items.length}` : "; the CSV download from the page lists them all"}.</p>` : "";
     return `<section class="item"><h3><span class="sev ${x.severity}">${x.severity}</span> ${i + 1}. ${esc(x.action)}</h3>
 <p class="small">${esc(x.source)}: ${esc(x.measure)}</p>
 ${table(["Activity", "Name", "Detail"], shown.map((r) => [r.code, r.name, r.why]))}${more}</section>`;
@@ -245,7 +324,13 @@ ${c.criticalPath.trail.length ? `<h3>Driving path now, and how far each finish m
 
   const warn = [...a.warnings, ...(c ? c.warnings : [])];
   if (meta.risk && !r) warn.push("The risk analysis supplied was run on another project and is left out of this review.");
+  if (meta.windows && !win) warn.push("The windows analysis supplied is of another project or does not end at this update's data date, and is left out of this review.");
   const riskSec = r ? riskSection(r, limit) : "";
+  const winSec = win ? windowsSection(win, limit) : "";
+  const long = meta.appendix ? items.map((x, i) => [x, i]).filter(([x]) => x.items.length > limit) : [];
+  const appendix = long.length ? `<h2 class="appendix">Appendix A: every activity behind each correction</h2>
+<p class="small">The corrections above print their first ${limit} activities; these are all of them, in the same order.</p>
+${long.map(([x, i]) => `<h3>Item ${i + 1}: ${esc(x.source)} (${x.items.length})</h3>${table(["Activity", "Name", "Detail"], x.items.map((d) => [d.code, d.name, d.why]))}`).join("\n")}` : "";
   const to = [meta.recipient && `To: ${meta.recipient}`, meta.reviewer && `From: ${meta.reviewer}`, meta.reference && `Reference: ${meta.reference}`, `Date: ${date}`].filter(Boolean);
 
   return `<!doctype html>
@@ -261,7 +346,7 @@ dl{display:grid;grid-template-columns:minmax(150px,38%) 1fr;gap:3px 12px;margin:
 .sev{display:inline-block;font:bold 8pt Arial,sans-serif;text-transform:uppercase;padding:1px 6px;border-radius:3px;border:1px solid}
 .sev.high{color:#8a1010;border-color:#8a1010}.sev.medium{color:#7a5200;border-color:#7a5200}.sev.low{color:#445;border-color:#667}
 .small{font-size:9pt;color:#444;margin:2px 0}.verdict{font-weight:bold}.notes{white-space:pre-wrap;border-left:3px solid #999;padding-left:10px}
-.item{break-inside:avoid-page}footer{margin-top:26px;font-size:8.5pt;color:#555;border-top:1px solid #bbb;padding-top:6px}
+.item{break-inside:avoid-page}.appendix{break-before:page}footer{margin-top:26px;font-size:8.5pt;color:#555;border-top:1px solid #bbb;padding-top:6px}
 @media print{body{margin:0;max-width:none}h2{break-after:avoid}thead{display:table-header-group}}
 </style></head><body>
 <h1>${esc(title)}</h1>
@@ -279,6 +364,8 @@ ${score}
 ${path ? `<h2>Driving path to the forecast finish</h2>${path}` : ""}
 ${changes}
 ${riskSec}
+${winSec}
+${appendix}
 <footer>Prepared with XER Schedule Check (MIT licence), https://marisstella.app/xer-schedule-check/. The checks are computed from the XER file alone; they are not engineering, legal, contractual or scheduling advice, and no warranty is given. Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency.</footer>
 </body></html>
 `;
