@@ -22,8 +22,8 @@ tenths frame, the same rows tests/take_bound_floor_tenths.py scores.
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_bound_floor_se.py --design FILES...
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_bound_floor_se.py --heldout FILES...
 
-Simulated only, as the captures are. The prediction and rule for the held-out sets are in
-eval/take-bound-floor-se-2026-11-19.md, written before the sets were captured.
+Simulated only, as the captures are. Result (closed on design, no SE floor beat the fixed 2 ppm):
+eval/take-bound-floor-se-2026-11-19.md.
 """
 import math
 import sys
@@ -35,7 +35,7 @@ import take_survey_pick as tsp
 TOL = 0.02
 CAP_PPM = 2          # 'cap': min(the shipped fixed floor, k step SEs), so it can only tighten the shipped bound
 KS = (0, 0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6)
-CANDIDATE = None     # (kind, k): set from the design before the held-out sets are captured
+CANDIDATE = None     # (kind, k) to hold out; none beat the fixed 2 ppm on the design, so the item closed there
 
 
 def _kept(scores, grid):
