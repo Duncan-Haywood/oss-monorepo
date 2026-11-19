@@ -3,7 +3,7 @@ title: "A shop's closed Saturday hid a 50% revenue climb from our change alerts"
 seo_title: "Why a closed weekday hides revenue changes from alerts"
 date: 2026-11-19
 tags: [changepoint-detection, ecommerce, monitoring, statistics]
-description: "Our metric watch never heard a UK shop's autumn revenue climb. The cause was the Saturday the shop never opens, not heavy tails. Leaving it out fixed it in both years."
+description: "Our metric watch never heard a UK shop's autumn revenue climb. The cause was the Saturday it never opens, not heavy tails. Leaving it out fixed both years."
 ---
 
 The [changepoint detector](../../ventures/changepoint-detector/README.md)'s metric watch is meant for the numbers a
