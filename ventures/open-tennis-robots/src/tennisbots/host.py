@@ -417,6 +417,38 @@ TAKE_SURVEY_MIN_KEPT = 0
 TAKE_WAIT_S = 14.0
 
 
+# The bound named when the Pi says TAKE_US = 0 (2026-11-19, firmware/esp32/README.md "Short takes that read 0: no ball
+# saw them"): the first grid contact time whose mean rms is more than this share over the step's. A take shorter than
+# a revolution shows only on balls whose contact straddles a revolution's edge; on 11 of the 17 short builds off by
+# more than 1 ms no kept wheel did, and those balls fit an instant take as well as the true one. On five stored sets
+# the true take was at most the bound on every build told TAKE_US = 0 (tests/take_shelf_bound.py), held out on set O.
+TAKE_BOUND_TOL = 0.02
+# The grid each frame length carries (older firmware: eight candidates before the short-take grid, seven before 7 ms)
+TAKE_SURVEY_GRIDS_MS = {9: TAKE_SURVEY_MS, 8: (0, 2, 3, 4, 5, 6, 7, 8), 7: (0, 2, 3, 4, 5, 6, 8)}
+
+
+def take_survey_bound(sv: dict | None) -> float | None:
+    """The longest contact time, in ms, the survey's balls cannot tell from an instant one: the first grid candidate
+    whose mean rms is more than TAKE_BOUND_TOL over the step's (0 ms). None without rms, or when every candidate fits
+    within the tolerance (the balls bound nothing)."""
+    rms = list((sv or {}).get("rms_ppm") or ())
+    grid = TAKE_SURVEY_GRIDS_MS.get(len(rms))
+    if not grid or not rms[0] or any(v is None for v in rms):
+        return None
+    for g, r in zip(grid[1:], rms[1:]):
+        if r > rms[0] * (1 + TAKE_BOUND_TOL):
+            return float(g)
+    return None
+
+
+def _bound_note(sv: dict) -> str:
+    b = take_survey_bound(sv)
+    if b is None:
+        return ""
+    return (f" (these balls cannot tell an instant take from one up to {b:g} ms: only a ball whose contact crosses a "
+            f"revolution's edge shows a short one, so more balls narrow it)")
+
+
 def _take_count(link) -> int:
     return link.take_survey["wheels"] if link.take_survey else 0
 
@@ -447,10 +479,10 @@ def take_survey_advice(sv: dict | None) -> str | None:
     if pick > 0 and gain > TAKE_ADVISE_RATIO:
         return (f"contact-time survey: {n} wheels pick {pick:g} ms, but its fits miss only {1 - gain:.0%} less than the "
                 f"step's (an instant take's builds reached 34% on the simulator): " +
-                ("keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash"))
+                ("keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash") + _bound_note(sv))
     if pick == 0:
         return f"contact-time survey: {n} wheels pick an instant take; " + (
-            "keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash")
+            "keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash") + _bound_note(sv)
     if pick >= TAKE_SURVEY_MS[-1]:
         # the grid's last contact time: no candidate above it to refine against (2026-11-18, firmware/esp32/README.md
         # "The take survey's pick between contact times": every simulated 7 ms take read 8 ms)
