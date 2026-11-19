@@ -2074,7 +2074,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     np_engine = _numpy_engine(settings.engine) if (w >= 2 and h >= 2) else None
     if settings.engine == "numpy" and np_engine is None:
         raise DevelopError("engine 'numpy' needs numpy and an image at least 2x2")
-    demosaic = _demosaic_method(settings.demosaic, pat, np_engine is not None, w, h, notes)
+    demosaic = _demosaic_method(settings.demosaic, pat, np_engine is not None, w, h, notes, half=settings.half)
     noise = None
     if demosaic == "noise-aware":
         noise = noise_profile_planes(ifd, ifd0)
@@ -2226,12 +2226,13 @@ def noise_profile_planes(ifd, ifd0=None) -> list[tuple[float, float]] | None:
     return None
 
 
-def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes: list[str]) -> str | None:
-    """The demosaic a CFA gets ("bilinear" or "directional"); None for LinearRaw. "auto" is directional
-    whenever the numpy engine runs: on X-Trans at full and half size (X-Trans half size demosaics at
-    full size, then averages; eval/xtrans-directional-demosaic-2026-11-14.md), and on Bayer at full size
-    since 2026-11-15 (eval/bayer-directional-demosaic-2026-11-15.md; Bayer half size bins each 2x2
-    block and demosaics nothing). "learned" (opt-in, Bayer): the directional demosaic with a per-sensel
+def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes: list[str],
+                     half: bool = False) -> str | None:
+    """The demosaic a CFA gets; None for LinearRaw. "auto" is noise-aware whenever the numpy engine runs
+    (since 2026-11-19, eval/auto-noise-aware-2026-11-19.md; directional before): on X-Trans at full and
+    half size (X-Trans half size demosaics at full size, then averages; eval/xtrans-directional-demosaic-2026-11-14.md),
+    and on Bayer at full size (eval/bayer-directional-demosaic-2026-11-15.md). Bayer half size bins each 2x2
+    block and demosaics nothing, so "auto" reports directional there as before and reads no noise. "learned" (opt-in, Bayer): the directional demosaic with a per-sensel
     Laplacian weight from a fitted model, 0.01-0.39 dB colour and 0.02-0.66 dB luma above the default on
     ten held-out frames, at 4-6x the time (eval/bayer-learned-laplace-2026-11-16.md); in C since 2026-11-16,
     bit-identical, 2.6-3.3x the default's time (eval/bayer-learned-native-2026-11-16.md). "noise-aware"
@@ -2261,7 +2262,7 @@ def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes
     # auto
     if w >= least and h >= least:
         if numpy_engine:
-            return "directional"
+            return "directional" if (half and not xtrans) else "noise-aware"
         if xtrans:  # (Bayer: report.demosaic says "bilinear"; its half size demosaics nothing, so no note)
             notes.append("bilinear X-Trans demosaic: the directional one needs the numpy engine")
     return "bilinear"
