@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
@@ -54,7 +54,7 @@
     "ventures/changepoint-detector/README.md (The trade side: ...)"
   ],
   "goal": null,
-  "notes": "Pre-registered round (header 9ec8f5430 before download; amendment fb7571384 before any result). Binance spot 2026-11-09, 12 pairs, side-adjusted prints (p +/- tick/2 by buyer-is-maker), shipped staleTestMarkov behind the one-tick gate, 192 windows, 32 min. S1 size 21/39 fail, S2 power 88/88 pass, S3 estimate 55/97 fail; by rule nothing in code changes. Local checks: node --test stale-side-mid.test.mjs stale-growth-quoted-tick.test.mjs 15/15 pass; run_venture_tests.py changepoint-detector (see PR); check_posts ok; validate.py ok.",
+  "notes": "Pre-registered round (header 9ec8f5430 before download; amendment fb7571384 before any result). Binance spot 2026-11-09, 12 pairs, side-adjusted prints (p +/- tick/2 by buyer-is-maker), shipped staleTestMarkov behind the one-tick gate, 192 windows, 32 min. S1 size 21/39 fail, S2 power 88/88 pass, S3 estimate 55/97 fail; by rule nothing in code changes. Local checks: node --test stale-side-mid.test.mjs stale-growth-quoted-tick.test.mjs 15/15 pass; run_venture_tests.py changepoint-detector 1000 tests ok (CI: ok, 334.9 s); check_posts ok; validate.py ok. CI changed-ventures red on one unrelated timing assertion (shift-roster-builder cg-hardstop.test.mjs: 'stopped at 814 ms for a 300 ms share', run because flagships.yaml changed); that suite passes locally (778 tests), so merged on the local check.",
   "corrections": [],
   "redteam": null,
   "usage": {
