@@ -155,6 +155,8 @@ class QualityAuditTest(unittest.TestCase):
         # the tail survives the claim-PR title parse, so a later run sees it as held
         assert q.free_seed("2026-11-13", [{"seed": "2026-11-13-3fa2"}, {"seed": "2026-11-13-b-0c1d"}]) == "2026-11-13-c"
         assert q.parse_round_titles(["quality: round 70 (seed 2026-11-13-p-3fa2)"]) == [(70, "2026-11-13-p-3fa2")]
+        # the claim title sample prints is the one the open-round search reads back
+        assert q.parse_round_titles([q.claim_title(71, "2026-11-19-c-0a1b")]) == [(71, "2026-11-19-c-0a1b")]
         # and two seeds that differ only in the tail draw different subjects
         pop = q.population()
         a = q.draw("2026-11-13-o-0001", audits=[], pop=pop)
