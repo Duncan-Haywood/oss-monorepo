@@ -31,3 +31,4 @@
 - (2026-11-18) 43 IFC4 STEP/ifcXML twins 2026-11-18 (eval/ifcxml-twins-2026-11-18.md: verdicts 108 to 129 of 129; href refs, decimal commas, flat point lists; B-spline rows from knot counts)
 - (2026-11-18) a model's property values 2026-11-17 (eval/model-values-2026-11-17.md: one-of or range from the model, ranges rounded outward, 1,014 of 1,014 pass their model; 82.0% of public facets editable)
 - (2026-11-18) landed, kept for reference: ifcXML and .ifczip read 2026-11-16 (eval/ifcxml-xbim-2026-11-16.md); several IFC versions per spec 2026-11-17 (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page audit in every named schema, false page errors 18 to 0 on 18 public files).
+- (2026-11-19) landed, kept for reference: STEP and ifcXML from bytes 2026-11-18 (eval/step-bytes-*, eval/ifcxml-bytes-*: 670/680 MB files check)

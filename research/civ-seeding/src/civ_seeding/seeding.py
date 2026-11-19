@@ -458,7 +458,8 @@ def false_reports(v, rng, fp: float, mode: str = "uniform"):
 
 
 def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None,
-                  recall: "float | np.ndarray" = 0.85, fp: float = 0.0, fp_mode: str = "uniform"):
+                  recall: "float | np.ndarray" = 0.85, fp: float = 0.0, fp_mode: str = "uniform",
+                  recip: bool = False):
     """A survey whose respondents forget ties (milestone 11). Each surveyed household i reports
     each true tie (i, j) independently with probability `recall` (R[i, j], drawn once per survey
     after stage 1); a tie is seen if a surveyed end reported it. uniform: k random households.
@@ -470,7 +471,12 @@ def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None
     strength); a constant array gives exactly the same draws as the scalar.
     fp > 0 (milestone 16): each household also names spurious ties (`false_reports`, drawn right
     after the recall draw), which enter the stage-1 counts, the seen ties and the degree estimate
-    like true reports; fp = 0 draws nothing extra, so earlier milestones' draws are unchanged."""
+    like true reports; fp = 0 draws nothing extra, so earlier milestones' draws are unchanged.
+    recip (milestone 17): the reciprocity filter. A tie between two surveyed households is kept
+    only if both name each other; a tie with one surveyed end cannot be checked and is kept on
+    that one report. Stage-1 counts (which pick stage 2 and estimate unsurveyed degrees) are
+    unfiltered, since a field team has not yet surveyed the other end. It uses no random draws,
+    so recip changes nothing but the filter."""
     if design not in ("uniform", "adaptive"):
         raise ValueError(design)
     n = v.n
@@ -494,20 +500,26 @@ def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None
         order = cand[np.lexsort((tie, -named[cand]))]
         s[order[: k - k1]] = True
     rep = R & s[:, None]
-    seen = (rep | rep.T).astype(v.A.dtype)
+    seen = rep | rep.T
+    if recip:
+        both = s[:, None] & s[None, :]
+        seen &= ~both | (R & R.T)
+    seen = seen.astype(v.A.dtype)
     est = np.where(s, seen.sum(1), named / (k1 / n))
     return s, est.astype(float), seen
 
 
 def rule_recall_degree(v, b, rng, f: float, design: str = "uniform", split: float | None = None,
-                       recall: float = 0.85, fp: float = 0.0, fp_mode: str = "uniform"):
-    _, est, _ = survey_recall(v, f, rng, design, split, recall, fp, fp_mode)
+                       recall: float = 0.85, fp: float = 0.0, fp_mode: str = "uniform",
+                       recip: bool = False):
+    _, est, _ = survey_recall(v, f, rng, design, split, recall, fp, fp_mode, recip)
     return _top(est, b)
 
 
 def rule_recall_dd(v, b, rng, f: float, design: str = "uniform", split: float | None = None,
-                   recall: float = 0.85, p: float = 0.05, fp: float = 0.0, fp_mode: str = "uniform"):
-    _, est, seen = survey_recall(v, f, rng, design, split, recall, fp, fp_mode)
+                   recall: float = 0.85, p: float = 0.05, fp: float = 0.0, fp_mode: str = "uniform",
+                   recip: bool = False):
+    _, est, seen = survey_recall(v, f, rng, design, split, recall, fp, fp_mode, recip)
     return _dd_pick(est, seen, b, p)
 
 

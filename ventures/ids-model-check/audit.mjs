@@ -440,6 +440,36 @@ function predefinedIssue(S, spec, setName, set, classes, id) {
   return { code: "pset-predefined", message: `${setName} is the ${id} standard set only for ${on} of predefined type ${list}; the applicability selects predefined type ${named.join(", ")}, which the standard does not give this set`, predefinedType: types };
 }
 
+// Where the template type says a standard set may sit (schema/psets-*.json
+// `tt`, IFC4 and IFC4X3). PSET_OCCURRENCEDRIVEN and QTO_OCCURRENCEDRIVEN sets
+// go on occurrences only (Pset_FanOccurrence on each IfcFan, never on an
+// IfcFanType), so a type object selected for one is asked for a set the
+// standard never gives it: warns pset-occurrence. PSET_PERFORMANCEDRIVEN sets
+// (Pset_ActuatorPHistory) go on the IfcPerformanceHistory that records the
+// element's performance over time, not on the element: warns
+// pset-performance for any selected class that is not a performance history.
+// Warnings, like pset-predefined: the template type is the standard's
+// guidance, not a schema rule, and a model can still satisfy the
+// specification. Material and profile sets are left to pset-class.
+function templateTypeIssue(S, setName, set, classes, id) {
+  const tt = set.tt;
+  if (!tt) return null;
+  const list = (xs) => xs.slice(0, 4).join(", ") + (xs.length > 4 ? ", ..." : "");
+  if (/OCCURRENCEDRIVEN$/.test(tt)) {
+    // Type objects that reach the set only as the type of its occurrence.
+    const types = classes.filter((c) => isA(S, c, "IFCTYPEOBJECT") && canCarry(S, c, set.classes));
+    if (!types.length) return null;
+    const occ = [...new Set(types.map((c) => c.replace(/TYPE$/, "")).filter((c) => S.has(c) && canCarry(S, c, set.classes)))];
+    return { code: "pset-occurrence", message: `${setName} is an occurrence set in the ${id} templates (${tt}): the standard puts it on each ${list(set.classes)} and never on a type, so ${list(types)} ${types.length === 1 ? "is" : "are"} asked for a set ${types.length === 1 ? "it" : "they"} should not have${occ.length ? `. Select ${list(occ)} instead` : ""}`, occurrences: occ };
+  }
+  if (tt === "PSET_PERFORMANCEDRIVEN") {
+    const others = classes.filter((c) => !isA(S, c, "IFCPERFORMANCEHISTORY"));
+    if (!others.length || !S.has("IFCPERFORMANCEHISTORY")) return null;
+    return { code: "pset-performance", message: `${setName} is a performance history set in the ${id} templates (${tt}): the standard puts it on the IfcPerformanceHistory that records the performance of ${list(set.classes)} over time, not on the element itself, so ${list(others)} ${others.length === 1 ? "is" : "are"} asked for a set ${others.length === 1 ? "it" : "they"} should not carry. Select IFCPERFORMANCEHISTORY instead` };
+  }
+  return null;
+}
+
 // Standard property set template checks, following buildingSMART's
 // IDS-Audit-tool: a Pset_/Qto_ set the templates lack, a property its standard
 // set lacks, a dataType the template does not give, and a set the applicable
@@ -474,9 +504,14 @@ function templateIssues(f, spec, ctx, where) {
       const mappedTypes = id === "IFC2X3" && ef ? (listedNames(ef.name) || []).map((n) => own(ctx.typeMap, n)).filter((m) => m && m[1]).map((m) => m[1]) : [];
       for (const [setName, set] of found) {
         const classes = applicableClasses(spec, S, ctx.typeMap, id);
-        if (classes && classes.length && set.classes.length && !classes.some((c) => canCarry(S, c, set.classes)) && !mappedTypes.some((t) => S.has(t) && canCarry(S, t, set.classes))) {
+        // A performance set sits on the IfcPerformanceHistory that records
+        // the element's performance, so selecting the history is right.
+        const history = set.tt === "PSET_PERFORMANCEDRIVEN" && classes && classes.some((c) => isA(S, c, "IFCPERFORMANCEHISTORY"));
+        if (classes && classes.length && set.classes.length && !history && !classes.some((c) => canCarry(S, c, set.classes)) && !mappedTypes.some((t) => S.has(t) && canCarry(S, t, set.classes))) {
           return { error: { code: "pset-class", message: `${setName} applies to ${set.classes.slice(0, 4).join(", ")}${set.classes.length > 4 ? ", ..." : ""} in ${id}; the applicability selects ${classes.join(", ")}, which cannot carry it` } };
         }
+        // The wrong kind of object outranks a missing predefined type.
+        if (classes && classes.length) ptWarning ||= templateTypeIssue(S, setName, set, classes, id);
         if (classes && classes.length && !mappedTypes.length) ptWarning ||= predefinedIssue(S, spec, setName, set, classes, id);
       }
     }

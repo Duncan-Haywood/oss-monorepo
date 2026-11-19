@@ -788,6 +788,15 @@ held; the excess lives in direction spans 2.75 to 4.75 degrees wide, which a 45 
 Per-load sides clear the 3 H1 cases but not the G1's, an arm joint. The grid's drag limits are also up to
 2.17 N optimistic between directions on the G1's low grips, though only at limits above 23 N.
 
+A held-or-free margin sized from the sensor bound closes those misses, at a coverage cost (milestone 55).
+Planned-to-settled torque is linear in the load error, so a 0.2 N bound moves each joint by at most
+r<sub>j</sub> = 0.2 N &times; ||G<sub>j</sub>||, up to 0.27 N m. Planning only when every joint sits further than
+that from the friction torque at both press ends, with the squeeze and the hold sides re-chosen, every planned
+in-envelope case on the same 48 loads is in spec (worst 0.0107 mm on the G1) with no held or side flip between
+plan and robot, but coverage falls to 96.4% (G1) and 96.6% (H1), and to 95.9% and 96.8% on 48 fresh loads with
+off-axis sensor errors. Most drops bind on the G1 waist or the H1 torso, which no preload in the model reaches,
+and the dropped cases were inside spec under the old rule, so the margin should be weighted by a flip's cost.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

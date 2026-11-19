@@ -63,7 +63,7 @@ export function compute(raw) {
   const num = (k, label, { min = 0, max = Infinity } = {}) => {
     const s = String(raw[k] ?? "").trim();
     const n = s === "" ? 0 : Number(s);
-    if (!Number.isFinite(n) || n < min || n > max) { errors.push(`${label} must be a number between ${min} and ${max}.`); return 0; }
+    if (!Number.isFinite(n) || n < min || n > max) { errors.push(max === Infinity ? `${label} must be a number, ${min} or more.` : `${label} must be a number between ${min} and ${max}.`); return 0; }
     return n;
   };
   const v = {

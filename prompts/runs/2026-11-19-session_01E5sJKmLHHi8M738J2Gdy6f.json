@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKmLHHi8M738J2Gdy6f",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T02:18:10Z",
+  "ended": "2026-11-19T02:40:56Z",
+  "wall_minutes": 37.8,
+  "tokens_in": 7147795,
+  "tokens_out": 22385,
+  "cost_usd": 2.7789,
+  "tool_calls": 71,
+  "task": "Button-click sweep with FILL=blank, 0 and -1 over http (open item from docs/reports/2026-11-19-textarea-edge-sweep.md); fix what it finds",
+  "projects": [
+    "shared-kitchen-rate-planner",
+    "crop-insurance-coverage-calculator",
+    "appliance-repair-quote-calculator",
+    "ebay-fee-calculator",
+    "parking-lot-striping-bid-calculator",
+    "cannabis-280e-tax-calculator",
+    "grant-indirect-cost-calculator",
+    "uk-mortgage-overpayment-calculator",
+    "clothing-design-studio",
+    "git-timesheet",
+    "job-margin-variance"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17507",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here row 6 chant-forge again: its OMR items need archive.org page images, and archive.org was refused by the proxy this session (allocate's own probe said so); the coda-reader items are synthesiser tuning. 17th session to leave the row."
+    },
+    {
+      "file": "docs/reports/2026-11-19-textarea-edge-sweep.md",
+      "issue": "Filed clipboard write denials as 'not bugs'; two of the three pages claimed success or gave no feedback when the copy was refused, which real browsers also do."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is the start-here flagship (chant-forge). Its buildable OMR items need archive.org (refused here) and the rest are narrow synthesiser tuning; every other Deepen row had a PR opened within the hour.",
+      "did": "Ran the unrun button-click sweep passes (blank, 0, -1) over all 1,407 venture pages and fixed the 11 ventures with real user-visible bugs.",
+      "result": "11 ventures fixed, each re-swept clean and its test suite green."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "'No new calculator work': most fixes are in calculators. The prompt allows fixing broken ones.",
+      "did": "Fixes only, no features.",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-blank-zero-and-minus-one-in-every-field.md",
+    "docs/reports/2026-11-19-button-click-fill-sweeps.md"
+  ],
+  "goal": null,
+  "notes": "Sweeps: blank 6,121 clicks 8 hits (6 real), 0 6,105 clicks 5 hits (1 new), -1 6,096 clicks 8 hits (4 ventures). Every fixed venture re-swept with SWEEP_ROOT and FILL: 0 hits. node --test per venture: shared-kitchen 22/0, appliance 128/0, ebay 505/0, clothing 726/0, git-timesheet 35/0, job-margin 52/0, crop 21/0, cannabis 30/0, grant 18/0 (one assertion updated to the new 'Travel must be 0 or more' wording), uk-mortgage 25/0, parking 147/0. PR had no check runs; run_workflow_locally.py --for-changes run locally: 12/12 selected workflows passed (ventures-tests, portfolio-validate 100/100, portfolio-pages build, pages, link/contrast/integrity checks); not run: agent-cross-review reviewers and the deploy jobs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "18252650-ee5e-5af6-9834-a1762e101766",
+    "transcripts": 1,
+    "first": "2026-11-19T02:18:10Z",
+    "last": "2026-11-19T02:55:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 136,
+        "output": 22385,
+        "thinking": 2775,
+        "cache_read": 7032135,
+        "cache_write_5m": 0,
+        "cache_write_1h": 115524,
+        "api_equivalent_usd": 2.7789,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 136,
+      "output": 22385,
+      "thinking": 2775,
+      "cache_read": 7032135,
+      "cache_write_5m": 0,
+      "cache_write_1h": 115524,
+      "api_equivalent_usd": 2.7789,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 37.8,
+      "active_minutes": 37.8,
+      "model_minutes": 5.44,
+      "tool_minutes": 32.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "three full-portfolio browser sweeps triaged and 11 small fixes across ventures, each re-checked, plus post and report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 179.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

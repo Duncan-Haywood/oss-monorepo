@@ -6,7 +6,7 @@
 const num = (v, name, { min = 0, max = Infinity } = {}) => {
   const n = Number(v);
   if (!Number.isFinite(n)) throw new Error(`${name} must be a number`);
-  if (n < min || n > max) throw new Error(`${name} must be between ${min} and ${max}`);
+  if (n < min || n > max) throw new Error(max === Infinity ? `${name} must be ${min} or more` : `${name} must be between ${min} and ${max}`);
   return n;
 };
 const cents = (n) => Math.round((n + Number.EPSILON) * 100) / 100 + 0;

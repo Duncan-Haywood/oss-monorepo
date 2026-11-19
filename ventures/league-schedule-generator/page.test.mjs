@@ -956,3 +956,21 @@ test("the sportsmanship guide's worked table matches spiritTable() and is linked
   assert.match(page("sitemap.xml"), new RegExp(name.replace(/\./g, "\\.")));
   assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(/\./g, "\\.")}"`));
 });
+
+test("balanced teams page: disclaimer, private, usage events named, FAQ matches its JSON-LD", () => {
+  const html = page("balanced-teams.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal or financial advice/i);
+  assert.match(html, /never uploaded/);
+  assert.match(html, /Turn usage counting off/);
+  for (const ev of [...html.matchAll(/record\("([a-z_]+)"\)/g)].map((m) => m[1]).concat([...html.matchAll(/build\("([a-z_]+)"\)/g)].map((m) => m[1]))) {
+    assert.ok(html.includes(`<code>${ev}</code>`), `event ${ev} named in the footer`);
+  }
+  const faq = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of faq.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  assert.match(html, /<link rel="canonical" href="\.\/balanced-teams\.html">/);
+  assert.match(page("index.html"), /href="\.\/balanced-teams\.html"/);
+});

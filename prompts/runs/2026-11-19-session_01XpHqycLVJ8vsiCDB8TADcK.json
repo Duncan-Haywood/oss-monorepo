@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqycLVJ8vsiCDB8TADcK",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T02:38:49Z",
+  "ended": "2026-11-19T02:44:37Z",
+  "wall_minutes": 6.08,
+  "tokens_in": 3632589,
+  "tokens_out": 31255,
+  "cost_usd": 2.1975,
+  "tool_calls": 36,
+  "task": "research programme marine-hull, milestone 7x: measured NDBC ocean wind in place of still air on the hydrofoil/monohull crossover",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17511",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "CHAIN notice suggested a paper step; the paper-ready next items (method figure, slender-hull curve) need pdflatex or tank data the container lacks, so the cheap experiment that closes a stated paper limit was the better fit; the notice could list which 'Next' items are paper steps"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Pre-registered expectations committed in the PR's first commit (60e37ace4) rather than a separate earlier PR, as the claim-PR doubles as the pre-registration timestamp",
+      "did": "plan + W1-W7 in LOG.md, pushed and PR opened before the script existed",
+      "result": "worked; outcome entry cites the commit"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-marine-hull-ocean-wind-hydrofoil-crossover.md",
+    "research/marine-hull/LOG.md (milestone 7x entry)"
+  ],
+  "goal": "advance the marine-hull paper: close the still-air limit of 7w with measured wind",
+  "notes": "Five of seven pre-registered expectations held. W3 refuted (sign): wind raises the foil crossover 700->706 W at CdA 0.1, 818->841 W at 0.4, though it costs the slow monohull the most 30 W range (-2.21%/-8.23%). W5 refuted (SWATH/catamaran ratios move >1% at larger CdA). 200 W scope holds in all 24 scenario rows and 972 foil cases. Post hoc diagnostics marked in script. Local checks: paper/check_numbers.py ok; research/_homepage/build.py ok; check_posts ok; marine-hull pytest 429 passed (bare python3 unittest: 11 modules error on missing numpy, environment only); run_workflow_locally --for-changes 10/10 passed (reviewer bots and deploy steps not runnable locally). No pdflatex in container, main.tex not compiled. No agent doc in docs/reports: the LOG entry's Next carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d9040e8a-25ba-577e-b840-e9e08e4c8573",
+    "transcripts": 1,
+    "first": "2026-11-19T02:38:49Z",
+    "last": "2026-11-19T02:44:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 71,
+        "output": 31255,
+        "thinking": 7728,
+        "cache_read": 3524107,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108411,
+        "api_equivalent_usd": 2.1975,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 71,
+      "output": 31255,
+      "thinking": 7728,
+      "cache_read": 3524107,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108411,
+      "api_equivalent_usd": 2.1975,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.08,
+      "active_minutes": 6.08,
+      "model_minutes": 4.82,
+      "tool_minutes": 1.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "graduate researcher: wind-averaged drag model, NDBC aggregation, sensitivity runs, paper paragraph and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 273.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -903,7 +903,7 @@
       if (!f) return;
       try { history.replace(sanitizeDesign(JSON.parse(await f.text()))); render(); } catch { log('<span class="miss">That file is not a design saved by this studio.</span>'); }
     });
-    $("#copy-quote").addEventListener("click", () => navigator.clipboard?.writeText($("#quote").textContent).then(() => recordUsage("quote_copy")));
+    $("#copy-quote").addEventListener("click", () => navigator.clipboard?.writeText($("#quote").textContent).then(() => recordUsage("quote_copy"), () => { /* refused: the quote stays on screen to select */ }));
     const SHOP_KEY = "clothing-design-studio-shop";
     const shopFields = { brand: "#sh-brand", email: "#sh-email", currency: "#sh-cur", link: "#sh-link", shipping: "#sh-ship", returns: "#sh-ret" };
     const shopState = () => Object.fromEntries(Object.entries(shopFields).map(([k, sel]) => [k, $(sel).value]));
@@ -933,10 +933,14 @@
     });
     $("#sh-dl").addEventListener("click", () => { download(`${shelf.length > 1 ? "shop" : slugify(d().name)}-store.html`, buildShop().html, "text/html"); recordUsage("storefront_download"); });
     $("#lk-csv").addEventListener("click", () => { download(`${slugify(d().name)}-products.csv`, launchKit(d()).storeCsv, "text/csv"); recordUsage("store_csv"); });
-    $("#share").addEventListener("click", () => {
+    $("#share").addEventListener("click", async () => {
       const url = `${location.href.split("#")[0]}#d=${encodeDesign(d())}`;
-      navigator.clipboard?.writeText(url);
-      log(`Share link copied${d().placements.some(p => p.kind === "image") ? " (uploaded images are not in the link; send the design file instead)" : ""}.`);
+      const note = d().placements.some(p => p.kind === "image") ? " (uploaded images are not in the link; send the design file instead)" : "";
+      // Only say "copied" when the browser copied it: a refused clipboard used to
+      // log success and leave the person pasting nothing.
+      let copied = false;
+      try { await navigator.clipboard.writeText(url); copied = true; } catch { /* permission refused or no clipboard */ }
+      log(copied ? `Share link copied${note}.` : `Copy it from here: ${url}${note}`);
       recordUsage("share_link");
     });
     $("#brief-dl").addEventListener("click", () => {

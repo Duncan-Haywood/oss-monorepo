@@ -147,7 +147,15 @@ central case and in all 972 hydrofoil cases. It moves the central hydrofoil's br
 to 700\,W at 0.1\,m$^2$ and 818\,W at 0.4\,m$^2$ (box median 935\,W and 1{,}063\,W, minimum 398\,W),
 and the planing hull's to 1{,}744\,W at 0.4\,m$^2$, where its best speed falls to 23.5\,m/s and the
 hydrofoil out-ranges it at every load. Air drag therefore sharpens the scope statement rather than
-changing it; spray drag and waves remain unmodelled.
+changing it. Still air is the kind case for a slow hull: in a wind $w$ met on every heading, the
+heading-averaged along-track force $\tfrac12\rho_a C_DA\,\overline{|V_a|(u+w\cos\theta)}$ grows roughly as
+$1.5\,uw$ when $w\gg u$. Averaging it over 84{,}776 ten-minute NDBC buoy records (19 buoy-months, 2024,
+mean 5.68\,m/s~\cite{ndbc2024}; \texttt{results\_wind\_air\_drag.txt}) costs the monohull 2.21\% of its
+30\,W range at $C_DA=0.1$\,m$^2$ and 8.23\% at 0.4\,m$^2$, more than any other rung, yet moves the
+hydrofoil's break-even up, not down: 706\,W and 841\,W (box median 1{,}086\,W, minimum 420\,W), because at
+the crossover the monohull already runs at 2.3\,m/s and the foil's whole hull is in air. The
+200\,W scope holds in every case, with winds scaled by 0.86 or 1.5 (874\,W at 0.4\,m$^2$), and
+per buoy-month the break-even spans only 701 to 711\,W at 0.1\,m$^2$. Spray drag and waves remain unmodelled.
 
 \begin{figure}[t]
 \centering

@@ -7241,3 +7241,64 @@ around, fixed before it runs). Then J1 again. It is now seen twice, so it can on
 Test: `update-rate-returns-auto.test.mjs` (a Monday-Friday schedule reads as weekly and a clumpy chain does not,
 the statistic is a non-negative likelihood ratio, each stretch is scored with the cost its test picks, and the
 committed verdict).
+
+## Short returns: a real drop in repeats (2026-11-19, pre-registered; R1-R4 pass in simulation, J1 fails 2 of 8, not offered)
+
+Round 4 above passed its simulation bars and then, on JHU's eight documented returns, found five "returns" whose
+repeat share inside matched the share around (85% and 85%): changes in *which* days publish, which the weekday
+cost reads as a pattern change and the pass's only direction rule ("fewer repeats inside", by any margin) let
+through. No simulated null had moved publication between two sets of days of the same size. This round adds
+those nulls and a guard. `eval/update-rate-returns-guard.mjs` (header, cells, rules and `returnGuardPasses` with the
+`guard` option of `bestReturnCost` and `returnCandidates` in `update-rate.mjs`, committed in 41343d76f before any
+cell ran) kept round 4's per-stretch model and every earlier cell, and added four shift nulls at n 1100:
+Tuesday/Friday moved to Monday/Thursday for 60 days (S2t) or for good (S2p), and Wednesday moved to Monday for 60
+days (S1t) or for good (S1p). The guard replaces "fewer repeats inside" in the search itself, so another interval
+can win. Two guards: `half` (share inside at most half the share around) and `z01` (a one-sided pooled
+two-proportion z of the drop of at least 2.326). Choice on calibration, R1-R3 as before plus R4 (every shift cell
+at most 0.010 false returns a series), then J1 again. The header discloses that round 4's J2 shares had been read
+when the guards were written, and that Michigan 2021's documented return (58% inside, 66% around) fails `half`; so
+the choice was on simulation only, and J1 could only refuse.
+
+**Calibration (seed 20261226, `eval/update-rate-returns-guard.out.txt`).** The new nulls bite without a guard:
+round 4's pass reports a return in 98-100% of shift series at m 3 (S1t falls to 58% only at m 6). `half` removes
+every one of them at every m and costs nothing elsewhere: the power rows are identical to round 4's on the same
+series (R30 162, R60 199, R90 198, I60 23 at m 3). `z01` lets through 5% of the Wednesday-to-Monday shifts at m 3
+and meets the budget only at m 6, where R30 is 0. `half` at m 3 was chosen.
+
+**Confirmation (seed 20261227, `half` at m 3): all four simulation bars pass.**
+
+| confirmation | `half`, m 3 | round 4 (no guard), m 3 |
+|---|---|---|
+| worst null or shift cell, false returns a series | **0.005** (R1, bar 0.020; M60 n300) | 1.000 (S2t, S2p, S1p) |
+| worst shift cell | **0.000** (R4, bar 0.010) | 1.000 |
+| 30 days of daily inside Monday-Friday, found of 200 | 159 | 159 |
+| 60 days | **196** (R2, bar 120; R3 +196) | 196 |
+| 90 days | 197 | 197 |
+| 60 days at 2% inside independent 25% | 29 | 29 |
+
+**J1 fails: 2 of 8 dated, bar 4.** Idaho and Vermont are dated as in round 4. Michigan's Tuesday+Friday to
+Monday/Wednesday/Friday is lost, as the header said it would be: one more publishing day a week is a drop from about
+71% to 57% repeats, not a halving. The other five stay missed. The pass stays in the module, off
+(`SHORT_RETURNS.mult` null); nothing the CLI or the page prints changes.
+
+**What changed on the real series** (J2, post hoc, deciding nothing). The 12 returns on the 27 primary states fall
+to 6, and every one left is a real drop (0-20% repeats inside against 24-43% around: Alabama, Idaho, Indiana,
+Kentucky, Vermont, Washington). The five same-share "returns" and Kansas' and Michigan's 59/68% and 58/66% are gone.
+So the guard does what it was built for on real data too; what it cannot do is find the returns the pass never
+proposed. Read against the documented list (`eval/update-rate-covid-schedules.mjs`, SECONDARY), the other five misses
+are not two-month returns either: by the documented dates the move to more days lasted about four months in Alaska
+(2021-08-02 to 2021-12-07), eight in South Dakota (2021-08-16 to 2022-04-12), five and a half in Alabama
+(2021-09-17 to 2022-03-04, read from struck-through text; the data's drop is dated two months earlier), and has no
+listed end in Arkansas and Nebraska. Those are lasting changes of schedule, which the shipped partition should cut,
+and it misses them too (D3 in `eval/update-rate-covid-schedules.out.txt`). J1 as written counts only the return
+pass's finds, so it mixes two questions: short returns and lasting moves to more days.
+
+Next, pre-registered: why the shipped cut misses lasting moves to more days, with power cells no round has
+simulated (Wednesdays only to Monday-Friday, Monday/Wednesday/Friday to Monday-Friday, each for four to eight
+months), scored by the shipped check and the guarded pass together. A fraction-of-a-day guard (a drop of at least one
+publishing day a week, about 0.14 of the share) would keep Michigan, but it was seen here and needs fresh real
+returns to test.
+
+Test: `update-rate-returns-guard.test.mjs` (both guards on known shares, no guard leaves the search unchanged, a
+same-count shift is a return without the guard and none with it while a real return survives, the committed
+verdict, the pass off by default).
