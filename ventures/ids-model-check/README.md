@@ -425,13 +425,24 @@ that has none, lists them on stderr, and changes nothing else in the file.
 On the page, auditing an IDS shows the same list with a "Download IDS with
 bSDD links" button; it runs offline, so it works where the bSDD check cannot.
 
-On the public corpus it suggests 619 links in 54 files; for the 212 facets
+On the public corpus it suggests 617 links in 54 files; for the 212 facets
 that already link the IFC dictionary it gives the same link 196 times, and
 the 2 where it differs are author slips the bSDD check had already found
 (`Width` linked to `Name`, `AreaPerOccupant` to `OccupancyNumberPeak`). It
 leaves alone facets with no standard set, patterns, misspelt names and
 classification or material facets. All 54 outputs are the input plus the
 attributes, byte for byte (`eval/bsdd-suggest-2026-11-19.md`).
+
+Looked up in bSDD itself (2026-11-19, `node eval/bsdd-suggest-live.mjs`,
+the check `--audit OUT.ids --bsdd` runs): every one of the 617 links
+resolves. The first run found 2 that did not, both `Pset_PlateCommon.Reference`:
+bSDD's IFC 4.3 dictionary has no `prop/Reference`, although `Reference` is
+in 108 template sets. `node eval/bsdd-template-sweep.mjs` then asked bSDD
+for all 760 template sets and found `Reference` is the only template name
+whose link does not resolve, so it is skipped (`BSDD_UNLINKED`; the sweep
+fails when that list goes out of date). The 24 other findings on the
+inserted links are the facets' own dataTypes, which the suggester already
+names (`eval/bsdd-suggest-live-2026-11-19.md`).
 
 ### An IDS from a bSDD class (2026-11-19)
 
