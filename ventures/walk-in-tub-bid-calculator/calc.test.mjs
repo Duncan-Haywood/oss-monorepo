@@ -456,3 +456,13 @@ test('extraCost never double-counts extras labor already inside laborCost', () =
   const result = calculateBid(special());
   assert.ok(Math.abs(result.extraCost - result.extraHardware) < 1e-9);
 });
+
+test('per-tub extras scale with the tub count (two tubs, handheld and grab bars on)', () => {
+  // Quality audit 2026-11-19 (round 77): dropping the tubCount factor on the
+  // handheld hours left every test green.
+  const one = calculateBid({ ...special(), tubCount: 1, includeHandheld: true, includeGrabBars: true });
+  const two = calculateBid({ ...special(), tubCount: 2, includeHandheld: true, includeGrabBars: true });
+  assert.ok(one.hoursHandheld > 0);
+  assert.equal(two.hoursHandheld, 2 * one.hoursHandheld);
+  assert.equal(two.hoursGrab, 2 * one.hoursGrab);
+});
