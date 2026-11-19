@@ -163,6 +163,14 @@ test('design search returns only passing, undominated designs', () => {
   assert.equal(searchDesigns(EXAMPLE, { maxInterval: 1, minPctPop: 99 }).frontier.length, 0);
 });
 
+// Quality round 88 (portfolio/quality/audits/2026-11-19-elevator-traffic-analysis.json):
+// dropping speed from the dominance test left every test green. Pin the whole frontier.
+test('design search frontier for the example is exactly the seven undominated designs', () => {
+  const s = searchDesigns(EXAMPLE, { maxInterval: 30, minPctPop: 12 });
+  assert.deepEqual(s.frontier.map((d) => `${d.lifts}x${d.ratedLoad}@${d.speed}`),
+    ['5x1275@2.5', '6x800@3', '6x1000@1.6', '7x630@2.5', '7x800@1.6', '7x1000@1', '8x630@1.6']);
+});
+
 test('bad input is refused with a reason', () => {
   assert.throws(() => normalise({ ...EXAMPLE, floors: [] }), /at least one served floor/);
   assert.throws(() => normalise({ ...EXAMPLE, lifts: 2.5 }), /whole number/);

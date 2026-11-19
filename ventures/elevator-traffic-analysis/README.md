@@ -66,6 +66,14 @@ Up-peak only: no lunch, down-peak or inter-floor traffic, no multiple
 entrances, double-deck cars or destination dispatch, and nothing about car
 or shaft sizes, accessibility, fire-fighting lifts or code compliance.
 
+The design search judges designs on interval and handling capacity only. It
+does not yet filter speed against rise, so for the 43 m example it lists
+7 × 1000 kg at 1.0 m/s as passing, though the lobby-to-top flight takes about
+45 s; check the top-floor flight time of any design it suggests. Rated
+persons follow the load table and ignore the EN 81-20 car-area cap. Both were
+found in the 2026-11-19 quality audit
+([`portfolio/quality/audits/2026-11-19-elevator-traffic-analysis.json`](../../portfolio/quality/audits/2026-11-19-elevator-traffic-analysis.json)).
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of
