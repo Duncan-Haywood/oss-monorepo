@@ -4,7 +4,7 @@
 // jsDelivr only when someone picks a photo; nothing is requested before that.
 // `loadEngine` is injectable so the tests can run without a network.
 import { cleanOcr } from "./cleanocr.mjs";
-import { parseReceipt, parseReceiptPasses, receiptScript } from "./receipts.mjs";
+import { parseReceipt, parseReceiptPasses, receiptScript, needsSellerLook, withBandSeller } from "./receipts.mjs";
 import { RAPID_URLS, createRapidOcr, rapidRows, bgrFromRgba, fetchRapidModels } from "./rapidocr-web.mjs";
 
 const CDN = "https://cdn.jsdelivr.net/npm";
@@ -142,6 +142,14 @@ export async function loadRapidWorker(worker, { draw = drawPixels, script = "lat
         worker.postMessage({ type: "read", id, width, height, rgba }, [rgba.buffer]);
       });
     },
+    readBands: (file) => readBands(file, async (px) => {
+      if (dead) throw dead;
+      const id = nextId++;
+      return new Promise((resolve, reject) => {
+        waiting.set(id, { resolve, reject });
+        worker.postMessage({ type: "read", id, width: px.width, height: px.height, rgba: px.rgba }, [px.rgba.buffer]);
+      });
+    }, drawBand),
     close: async () => { worker.terminate(); fail("closed"); },
   };
 }
@@ -155,6 +163,56 @@ async function drawPixels(file) {
   g.drawImage(bmp, 0, 0);
   bmp.close?.();
   return { rgba: g.getImageData(0, 0, c.width, c.height).data, width: c.width, height: c.height };
+}
+
+// The second look the CLI takes at a Russian slip whose reading names no seller
+// (rapidocr_rows.py --bands, ocr.mjs receiptTextRapid): the photo read again as three
+// overlapping horizontal bands, each enlarged, rows printed band after band. A Russian fiscal
+// slip prints its seller anywhere from the top to the fiscal block near the foot, in small type
+// the detector misses at the photo's own size (README, "A second look for the seller").
+// The CLI enlarges each band twice and RapidOCR then fits it to 2,000 px on its long side;
+// the page draws the band at that fitted size directly (the same pixels reach the detector,
+// without a canvas twice the photo's size).
+export const BANDS = [[0, 0.4], [0.3, 0.7], [0.6, 1]];
+export const BAND_SCALE = 2;
+export const BAND_SIDE = 2000;
+// the band's size as drawn: `scale` times the crop, capped at `side` on the long side
+export function bandSize(width, height, top, bottom, { scale = BAND_SCALE, side = BAND_SIDE } = {}) {
+  const y0 = Math.floor(height * top), y1 = Math.floor(height * bottom);
+  const h = y1 - y0, k = Math.min(scale, side / Math.max(width, h, 1));
+  return { y0, h, w2: Math.max(1, Math.round(width * k)), h2: Math.max(1, Math.round(h * k)) };
+}
+export async function readBands(file, readPixels, draw = drawBand, bands = BANDS) {
+  const out = [];
+  for (const [top, bottom] of bands) {
+    const px = await draw(file, top, bottom);
+    if (px) out.push(await readPixels(px));
+  }
+  return out.join("");
+}
+// one band of the photo as RGBA pixels, enlarged with the browser's high-quality smoothing
+async function drawBand(file, top, bottom) {
+  const bmp = await createImageBitmap(file);
+  const { y0, h, w2, h2 } = bandSize(bmp.width, bmp.height, top, bottom);
+  if (h < 1) { bmp.close?.(); return null; }
+  const c = document.createElement("canvas");
+  c.width = w2; c.height = h2;
+  const g = c.getContext("2d", { willReadFrequently: true });
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+  g.drawImage(bmp, 0, y0, bmp.width, h, 0, 0, w2, h2);
+  bmp.close?.();
+  return { rgba: g.getImageData(0, 0, w2, h2).data, width: w2, height: h2 };
+}
+// A Russian slip whose RapidOCR reading names no seller: read the photo again in bands with
+// the same reader and put a seller found there on the reading's first line (receipts.mjs
+// withBandSeller; totals and items still come from the first reading). A reader without
+// bands, or a second look that fails, keeps the first reading. `looked` says whether it ran.
+export async function withSecondLook(reader, file, text) {
+  if (!text || !reader?.readBands || !needsSellerLook(text)) return { text, looked: false, found: false };
+  const bands = await reader.readBands(file).then((x) => x, () => null);
+  if (!bands) return { text, looked: true, found: false };
+  const t = withBandSeller(text, cleanOcr(bands));
+  return { text: t, looked: true, found: t !== text };
 }
 
 // RapidOCR on the page's own thread (the tab stalls while a photo is read): the fallback
@@ -174,6 +232,7 @@ export async function loadRapidInPage({ fetchBytes = defaultFetchBytes, script =
       const { rgba, width, height } = await drawPixels(file);
       return rapidRows(await engine.read(bgrFromRgba(rgba, width, height)));
     },
+    readBands: (file) => readBands(file, async ({ rgba, width, height }) => rapidRows(await engine.read(bgrFromRgba(rgba, width, height))), drawBand),
     close: () => engine.close(),
   };
 }
@@ -343,11 +402,20 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, loadRap
   const cyrReader = () => (cyrOpening ??= (onProgress({ status: "loading cyrillic" }), Promise.resolve().then(() => loadRapid({ script: "cyrillic" })).then((x) => x, (e) => { cyrError = String(e?.message ?? e).replace(/^Error: /, ""); return null; })));
   // a Latin reading that looks Cyrillic is read again by the Cyrillic reader; the Latin text
   // stays when that reader cannot be loaded or reads nothing
+  // then a Russian slip with no seller in the reading gets the CLI's second look in bands,
+  // from the reader that made the reading (withSecondLook); `bandLooks` and `bandSellers` count
+  let bandLooks = 0, bandSellers = 0;
+  const look = async (reader, f, t) => {
+    const r = await withSecondLook(reader, f, t);
+    if (r.looked) bandLooks++;
+    if (r.found) bandSellers++;
+    return r.text;
+  };
   const autoRead = async (f, t) => {
-    if (!auto || !t || receiptScript(t) !== "cyrillic") return t;
+    if (!auto || !t || receiptScript(t) !== "cyrillic") return t && look(lead, f, t);
     const c = await cyrReader();
     const t2 = c ? await c.read(f).then((x) => x, () => null) : null;
-    if (t2 && tidy(t2)) { cyrillic++; return t2; }
+    if (t2 && tidy(t2)) { cyrillic++; return look(c, f, t2); }
     return t;
   };
   let engine;
@@ -394,5 +462,5 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, loadRap
       else skipped.push({ name: f.name, why: "no text found in the photo" });
     }
   } finally { await engine.close?.(); await lead?.close?.(); await (await cyrOpening)?.close?.(); }
-  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, shaded, skipped, notes, rapid: rapidRead, rapidError, rapidHow: lead?.how ?? null, cyrillic, cyrillicError: cyrError };
+  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, shaded, skipped, notes, rapid: rapidRead, rapidError, rapidHow: lead?.how ?? null, cyrillic, cyrillicError: cyrError, bandLooks, bandSellers };
 }
