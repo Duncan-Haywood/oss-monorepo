@@ -1,0 +1,267 @@
+{
+ "lemma": {
+  "multisets": 1364,
+  "mismatches": 0
+ },
+ "by_class": {
+  "1": {
+   "all": {
+    "pairs": 1,
+    "separable": 0
+   },
+   "serial": {
+    "pairs": 1,
+    "separable": 0
+   },
+   "reflexive": {
+    "pairs": 1,
+    "separable": 0
+   },
+   "transitive": {
+    "pairs": 1,
+    "separable": 0
+   },
+   "symmetric": {
+    "pairs": 1,
+    "separable": 0
+   },
+   "S4": {
+    "pairs": 1,
+    "separable": 0
+   }
+  },
+  "2": {
+   "all": {
+    "pairs": 32,
+    "separable": 4
+   },
+   "serial": {
+    "pairs": 24,
+    "separable": 0
+   },
+   "reflexive": {
+    "pairs": 12,
+    "separable": 0
+   },
+   "transitive": {
+    "pairs": 24,
+    "separable": 4
+   },
+   "symmetric": {
+    "pairs": 16,
+    "separable": 0
+   },
+   "S4": {
+    "pairs": 12,
+    "separable": 0
+   }
+  },
+  "3": {
+   "all": {
+    "pairs": 2304,
+    "separable": 264
+   },
+   "serial": {
+    "pairs": 1764,
+    "separable": 36
+   },
+   "reflexive": {
+    "pairs": 384,
+    "separable": 6
+   },
+   "transitive": {
+    "pairs": 630,
+    "separable": 150
+   },
+   "symmetric": {
+    "pairs": 288,
+    "separable": 0
+   },
+   "S4": {
+    "pairs": 159,
+    "separable": 0
+   }
+  },
+  "4": {
+   "all": {
+    "pairs": 524288,
+    "separable": 43872
+   },
+   "serial": {
+    "pairs": 432000,
+    "separable": 11592
+   },
+   "reflexive": {
+    "pairs": 40960,
+    "separable": 1128
+   },
+   "transitive": {
+    "pairs": 23788,
+    "separable": 6780
+   },
+   "symmetric": {
+    "pairs": 8192,
+    "separable": 0
+   },
+   "S4": {
+    "pairs": 2968,
+    "separable": 0
+   }
+  }
+ },
+ "violations": {
+  "b_reach_w": 0,
+  "c_acyclic": 0,
+  "d_transitive": 0,
+  "decider_vs_brute": 0
+ },
+ "kt_reduction": {
+  "1p_1e": {
+   "hypergraphs": 1,
+   "2-colourable": 0,
+   "lemma_search_checked": 1,
+   "mismatches": 0
+  },
+  "1p_2e": {
+   "hypergraphs": 0,
+   "2-colourable": 0,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "1p_3e": {
+   "hypergraphs": 0,
+   "2-colourable": 0,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "1p_4e": {
+   "hypergraphs": 0,
+   "2-colourable": 0,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "2p_1e": {
+   "hypergraphs": 3,
+   "2-colourable": 1,
+   "lemma_search_checked": 3,
+   "mismatches": 0
+  },
+  "2p_2e": {
+   "hypergraphs": 3,
+   "2-colourable": 0,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "2p_3e": {
+   "hypergraphs": 1,
+   "2-colourable": 0,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "2p_4e": {
+   "hypergraphs": 0,
+   "2-colourable": 0,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "3p_1e": {
+   "hypergraphs": 7,
+   "2-colourable": 4,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "3p_2e": {
+   "hypergraphs": 21,
+   "2-colourable": 6,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "3p_3e": {
+   "hypergraphs": 35,
+   "2-colourable": 3,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "3p_4e": {
+   "hypergraphs": 35,
+   "2-colourable": 0,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "4p_1e": {
+   "hypergraphs": 15,
+   "2-colourable": 11,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "4p_2e": {
+   "hypergraphs": 105,
+   "2-colourable": 55,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "4p_3e": {
+   "hypergraphs": 455,
+   "2-colourable": 161,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  },
+  "4p_4e": {
+   "hypergraphs": 1365,
+   "2-colourable": 294,
+   "lemma_search_checked": 0,
+   "mismatches": 0
+  }
+ },
+ "fano_kt": {
+  "worlds": 46,
+  "reflexive": true,
+  "two_colourable": false,
+  "separable": false
+ },
+ "fano_minus_line_kt": {
+  "separable": true,
+  "witness_valid": true
+ },
+ "gac_gap": {
+  "frame": {
+   "0": [
+    0
+   ],
+   "1": [
+    1,
+    5,
+    6
+   ],
+   "2": [
+    2,
+    4,
+    5
+   ],
+   "3": [
+    0,
+    1,
+    3
+   ],
+   "4": [
+    3,
+    4
+   ],
+   "5": [
+    3,
+    5
+   ],
+   "6": [
+    0,
+    3,
+    6
+   ]
+  },
+  "w": 2,
+  "v": 4,
+  "reflexive": true,
+  "arc_consistent": true,
+  "separable_exhaustive": false
+ },
+ "seconds": 20.5
+}

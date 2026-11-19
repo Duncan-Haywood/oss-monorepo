@@ -449,3 +449,32 @@ def test_e27_separability_is_hypergraph_two_colouring():
         R = e27.frame(pts, edges)
         assert (e27.separable_bt(R, 0, 1) is not None) == e27.two_col(pts, edges)
         assert e27.separable_brute(R, len(R), 0, 1) == e27.two_col(pts, edges)
+
+
+def test_e28_frame_classes():
+    """E28: separability is NP-hard already on reflexive frames (H32 (e)), never holds once v
+    reaches w, always holds when v is on no cycle, and in transitive frames iff not v R v."""
+    e28 = _load("e28_frame_classes")
+    import itertools as it
+    for labs in it.product(e28.LABELS, repeat=3):
+        assert e28.cond_labels(labs) == e28.lemma(labs)
+    for edges in [((0, 1),), ((0,),), ((0, 1), (1, 2), (0, 2)), ((0, 1, 2), (0, 1))]:
+        pts = sorted({p for e in edges for p in e})
+        R = e28.kt_frame(pts, edges)
+        assert all(t in R[t] for t in R)
+        wit = e28.separable_bt(R, 0, 1)
+        assert (wit is not None) == e28.two_col(pts, edges)
+        if wit is not None:
+            assert e28.check_witness(R, 0, 1, *wit)
+    R = e28.kt_frame([0, 1], ((0, 1),))
+    assert e28.sep_lemma(R, 0, 1)
+    # transitive: S4 chain never separable; irreflexive successor separable
+    R = {0: [0, 1], 1: [1]}
+    assert e28.separable_bt(R, 0, 1) is None
+    R = {0: [1, 2], 1: [2], 2: [2]}
+    assert e28.separable_bt(R, 0, 1) is not None
+    # symmetric: never
+    R = {0: [1], 1: [0, 2], 2: [1]}
+    assert e28.separable_bt(R, 0, 1) is None
+    Rg = {0: [0], 1: [1, 5, 6], 2: [2, 4, 5], 3: [0, 1, 3], 4: [3, 4], 5: [3, 5], 6: [0, 3, 6]}
+    assert e28.gac(Rg, 2, 4) and not e28.separable_brute(Rg, 7, 2, 4)
