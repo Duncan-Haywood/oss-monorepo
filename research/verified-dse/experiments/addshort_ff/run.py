@@ -8,13 +8,15 @@ milestone runs fresh designs of that kind and scores SWC(0) against SWC(1.25) on
 before any point runs.
 
 Fixed here, before any point (baselines included) runs:
-  Candidates: 16 add chains (milestone 145's ADD rule: the amount cone sums three or more multi-bit terms written as an adder
+  Candidates: 15 add chains (milestone 145's ADD rule: the amount cone sums three or more multi-bit terms written as an adder
   chain; sadsh_w at K = 2 and csumsh_w count, as in milestone 147), all W = 128, SW = 7, short chains (K <= 10), with no sequence
   point at ff in milestones 144 to 147 (tests/test_addshort_ff.py checks this against those tables). Six of them (csum7, dot3r,
   dot7r, sad2, wsum3, avg8) were candidates in milestone 147 whose ff baselines were measured but that were not
   drawn into a cell; their baseline periods were therefore seen, their sequence points never were.
+  Disclosed fix before any sequence point: the list first had 16, including avg4; avgsh_w needs NB + 2 >= SW, so avg4 maps to no
+  cells at all and its baseline crashed the stat parser (no period was produced for any design). avg4 was removed, no replacement.
   Band: a candidate is kept only if its own ff baseline no-wire period (empty ABC sequence) is FAST, <= 15.0 ns (milestone 147's
-  band; csum2 was 8.65). Order: the kept candidates in a seed-152 shuffle of the list below; all are run (at most 16).
+  band; csum2 was 8.65). Order: the kept candidates in a seed-152 shuffle of the list below; all are run (at most 15).
   Clock: in that order, tight, relaxed, tight, ... (target = own baseline x 1.0 or 1.5, milestones 24, 28 and 143 to 147).
   If the flow stops for time, the analysed set is the longest prefix of the order whose designs are complete.
   Milestone 108's 120 fresh ABC sequences (seed 108). Random routing's and the ladder's tie-break seeds come from the cell builder
@@ -64,7 +66,6 @@ CANDIDATES = {
     "wsum3": ("wsumsh_w", "wsumsh_w", B | {"OW": 12, "K": 3}, ""),
     "wsum5": ("wsumsh_w", "wsumsh_w", B | {"OW": 12, "K": 5}, ""),
     "wsum8": ("wsumsh_w", "wsumsh_w", B | {"OW": 12, "K": 8}, ""),
-    "avg4": ("avgsh_w", "avgsh_w", B | {"NB": 4}, ""),
     "avg6": ("avgsh_w", "avgsh_w", B | {"NB": 6}, ""),
     "avg8": ("avgsh_w", "avgsh_w", B | {"NB": 8}, ""),
     "avg10": ("avgsh_w", "avgsh_w", B | {"NB": 10}, ""),
