@@ -122,6 +122,16 @@ const meanCellChars = (rows, from = 1) => {
   return body.reduce((n, c) => n + c.length, 0) / Math.max(1, body.length);
 };
 
+/**
+ * Whether a plain (unstacked) table keeps its first column in view while the reader swipes
+ * sideways (`.pin`, styled in `pf-site.css` by `PIN_TABLE_CSS`). These are the tables
+ * `stackTable` leaves as tables on purpose, mostly long data tables: before 2026-11-19 a
+ * reader who swiped to column five of a twenty-row table lost the row names. Sticky does
+ * nothing on a table that fits, so four columns is a safe floor.
+ */
+export const pinTable = (cols) => cols >= PIN_MIN_COLS;
+export const PIN_MIN_COLS = 4;
+
 /** A cell's label for `data-label`: the header's text, without markup, attribute-safe. */
 const labelOf = (cellHtml) =>
   String(cellHtml).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().replace(/"/g, '&quot;');
@@ -133,7 +143,7 @@ const labelOf = (cellHtml) =>
 export function renderTable(headHtml, rowsHtml) {
   if (!stackTable(headHtml.length, rowsHtml)) {
     return (
-      `<div class="scroll"><table><thead><tr>${headHtml.map((c) => `<th>${c}</th>`).join('')}</tr></thead><tbody>` +
+      `<div class="scroll"><table${pinTable(headHtml.length) ? ' class="pin"' : ''}><thead><tr>${headHtml.map((c) => `<th>${c}</th>`).join('')}</tr></thead><tbody>` +
       rowsHtml.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('') +
       '</tbody></table></div>'
     );
