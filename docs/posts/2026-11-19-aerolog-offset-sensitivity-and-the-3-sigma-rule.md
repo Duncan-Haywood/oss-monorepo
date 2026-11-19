@@ -3,7 +3,7 @@ title: "Which flights you trust moves the drone layer stack, and the 3-sigma spa
 seo_title: "Drone altitude layer spacing: offset sensitivity and the 3-sigma rule"
 date: 2026-11-19
 tags: [research, uav, airspace, PX4, barometer]
-description: "With all 12 flights' barometer offsets, delivery-drone layers thin from 5 bands to 4; the 3-sigma spacing rule picks 1 to 2 bands too few for per-operator offsets."
+description: "With all 12 flights' barometer offsets, drone layers thin from 5 bands to 4; the 3-sigma spacing rule picks 1 to 2 bands too few for per-operator offsets."
 ---
 
 `aerolog-scaling` asks how delivery-drone operators sharing a city should be
