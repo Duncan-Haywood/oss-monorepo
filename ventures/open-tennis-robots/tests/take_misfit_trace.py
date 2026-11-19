@@ -66,17 +66,6 @@ from feeder_sim import controller
 LAGS = (0.3, 0.6)
 PICK_US = controller.TAKE_SURVEY_GRID_US
 
-
-def grid_of(wheels_rms):
-    """The take grid (us) a stored set's board rows were captured on, by their length (host.TAKE_SURVEY_GRIDS_MS: 7, 8
-    or 9 candidates); PICK_US when no row is complete. Sets before 2026-11-19 carry seven, and summing them on the
-    nine-point grid raised an IndexError (2026-11-19, eval/take-instant-sub8-2026-11-19.md)."""
-    from tennisbots import host
-    for got in wheels_rms:
-        if got and all(g is not None for g in got) and len(got) in host.TAKE_SURVEY_GRIDS_MS:
-            return tuple(int(round(1000 * g)) for g in host.TAKE_SURVEY_GRIDS_MS[len(got)])
-    return PICK_US
-
 # the shipped fine step with an exact exponential sub-step: the wheel's speed at the sub-step's end from the
 # first-order solution, the revolutions from its integral (Euler moves the speed first and then counts revolutions
 # at the new speed, which leads the true response by one sub-step)
@@ -249,11 +238,11 @@ def capture_survey(args):
                   "board_levels": getattr(controller, "TAKE_SURVEY_LEVELS", 3), "wheels": wheels}
 
 
-def survey_score(wheels_rms, trim=None):
+def survey_score(wheels_rms, trim=None, grid=None):
     """The board's own scoring (controller.ResidualSurvey, survey_pick): (least, refined ms, rms per candidate in ppm,
-    best / step share). `trim` None is the board's take-survey trim (controller.TAKE_SURVEY_TRIM)."""
-    rs = controller.ResidualSurvey(grid_of(wheels_rms), getattr(controller, "TAKE_SURVEY_TRIM", None) if trim is None
-                                   else trim)
+    best / step share). `trim` None is the board's take-survey trim (controller.TAKE_SURVEY_TRIM); `grid` None is the
+    board's grid (a stored row captured on an older grid passes its own, take_survey_trim.grid_for)."""
+    rs = controller.ResidualSurvey(grid or PICK_US, getattr(controller, "TAKE_SURVEY_TRIM", None) if trim is None else trim)
     for got in wheels_rms:
         if got and all(g is not None for g in got):
             rs.add([g * g for g in got])

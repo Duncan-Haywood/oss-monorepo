@@ -1,5 +1,5 @@
 ---
-title: "The tennis feeder's last wrongly advised instant contact was a rounding error; today's firmware reads 0"
+title: "The tennis feeder's wrongly advised instant contact, recaptured: today's firmware reads it as 0"
 seo_title: "Tennis feeder: the last wrongly advised instant contact, closed"
 date: 2026-11-19
 tags: [open-tennis-robots, firmware, simulation, statistics]
@@ -26,10 +26,9 @@ other candidates.
 The 57% itself was 4 / 7. The board sends each candidate's error as a whole
 number of parts per million, and at a 4 to 7 ppm floor that rounding is
 large. Unrounded the share was 0.635, which would not have been advised.
-Across all 39 stored survey sets (1,821 builds) rounding flips the advice on
-three builds, and no instant build is advised on any of them. A
-conservative share that allows for the rounding would have dropped four
-correct advisories and saved none, so it wasn't built.
+Another session reached the same reading while this one was running and
+shipped a guard: the Pi now holds back advice when the rounding alone
+could put the share under the cut-off.
 
 ## Recaptured on today's firmware
 
@@ -45,7 +44,8 @@ advised and the named build reads 0.
 | fresh | 0 of 18 | 54 of 54 (54) |
 | third | 0 of 18 | 54 of 54 (47) |
 
-Both clauses held, and the named build now says "keep TAKE_US = 0". Its
+Both clauses held (193 of 216 with the new rounding guard, which holds
+back one advice here), and the named build now says "keep TAKE_US = 0". Its
 error climbs from 6 ppm at the instant model to 360 ppm at 8 ms, where the
 stored row had been flat.
 

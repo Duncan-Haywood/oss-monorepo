@@ -27,19 +27,18 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 4,
+  "tests_added": 2,
   "outcome": "success",
-  "errors": [
-    {
-      "what": "take_survey_blind.py, take_survey_trim.py and take_misfit_trace.survey_score raised IndexError on every stored seven-candidate set since the nine-point grid shipped",
-      "fix": "take_misfit_trace.grid_of reads each set's grid from row length"
-    }
-  ],
+  "errors": [],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "tests/take_survey_jitter.py",
       "issue": "a 72-drill sub-8 capture takes about 16 min on 4 cores, not the few minutes earlier write-ups imply; four sets plus a paired capture filled most of the run"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "PR #17636 worked the same item (sub-8 advised instant build) in parallel and merged first; this run's draft claim PR #17637 was open from the start, but the other session's claim check did not stop it. The overlap cost this run's scorer fix and rounding analysis, both superseded by #17636 at merge."
     }
   ],
   "deviations": [],
@@ -48,7 +47,7 @@
     "ventures/open-tennis-robots/eval/take-instant-sub8-2026-11-19.md"
   ],
   "goal": null,
-  "notes": "Prediction committed first (f2e5f923a). Recapture of four sub-8 sets on today's tree: instant advised 0 of 72, the named build picks 0 ms, spread takes named and advised 194 of 216 (README 173, stored rows rescored 187). The stored advised build was whole-ppm rounding (4/7; unrounded 0.635). Design set 44 -> 38: one build traced to LOOP_BALL_GAIN 'down'; paired 96-build capture 66 vs 68 of 72, kept. Checks: run_venture_tests open-tennis-robots (see PR), check_posts ok, validate.py ok, unittest tests.test_take_instant_sub8 + test_take_survey_kept 8 OK.",
+  "notes": "Prediction committed first (f2e5f923a). Recapture of four sub-8 sets on today's tree: instant advised 0 of 72, named build picks 0 ms, spread takes named and advised 193 of 216 with #17636's share guard (194 without; README 173, stored rescored 187). #17636 landed the rounding trace and guard in parallel; at merge this PR took main's scorer fix (grid_for) and dropped its own. Design set 44 -> 37: one build traced to LOOP_BALL_GAIN 'down'; paired 96-build capture 66 vs 68 of 72, kept. Checks: run_venture_tests open-tennis-robots 456 ok (pre-merge), unittest test_take_instant_sub8 + test_take_survey_kept OK after merge, check_posts ok, validate ok.",
   "corrections": [],
   "redteam": null
 }

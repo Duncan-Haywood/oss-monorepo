@@ -18,7 +18,7 @@ build's pick, and spread takes named within 1 ms and advised.
 import math
 import sys
 
-from take_survey_trim import load
+from take_survey_trim import grid_for, load
 
 STORED = "eval/take-survey-capture-sub8-heldout-2026-11-18.jsonl.gz"
 BUILD = (0, 0, 1, 0.45, 11)         # instant take, jitter 0, launcher 1, lag 0.45 s, seed 11
@@ -41,7 +41,7 @@ def stored(path):
     import controller
     from tennisbots import host
     row = next(b for b in load(path) if tuple(b["build"]) == BUILD)
-    grid = tm.grid_of(row["board_scores"])
+    grid = grid_for(row)
     print(f"{path}: build {list(BUILD)} (instant take), grid {', '.join(f'{g / 1000:g}' for g in grid)} ms")
     print("wheel | rms per candidate, ppm | the step alone worse than every take")
     lone = 0

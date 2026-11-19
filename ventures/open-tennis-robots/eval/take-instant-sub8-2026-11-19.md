@@ -40,7 +40,7 @@ output eval/take-instant-sub8-2026-11-19.txt):
 
 | set | instant builds advised (of 18) | spread takes named within 1 ms and advised (of 54), today / 2026-11-18 | within 1 ms (of 72) |
 | --- | --- | --- | --- |
-| design (0.3 s, seed 7) | 0 | 38 / 44 | 67 |
+| design (0.3 s, seed 7) | 0 | 38 / 44 (37 with #17636's share guard) | 67 |
 | first held out (0.45 s, seed 11) | 0 | 48 / 42 | 72 |
 | fresh (0.38 s, seed 13) | 0 | 54 / 54 | 68 |
 | third (0.52 s, seed 17) | 0 | 54 / 47 | 67 |
@@ -66,10 +66,10 @@ build with one knob changed at a time: TAKE_MATCH_SPREAD False reads 12 / 9 / 10
 
 ### Whole-ppm rounding
 
-The stored advised build's 0.57 was 4 / 7 in whole ppm; unrounded it was 0.635, not advised. Across the 39 stored
-take-survey sets (1,821 builds rescored by today's board), rounding flips the advice on 3 builds and advises no
-instant build; a conservative share ((least + 0.5) / (step - 0.5)) would drop 4 right advisories and save none. Not
-changed.
+The stored advised build's 0.57 was 4 / 7 in whole ppm; unrounded it was 0.635, not advised. A parallel session
+(#17636, eval/take-share-rounding-2026-11-19.md) reached the same reading and shipped host.take_share_bound, a guard
+on the frame's rounding, while this recapture ran. Rescored with that guard on main, the four recaptured sets give 193
+of 216 named and advised (194 without it) and still 0 instant builds advised (eval/take-instant-sub8-2026-11-19.txt).
 
 ### The paired ball-gain capture (appended)
 
