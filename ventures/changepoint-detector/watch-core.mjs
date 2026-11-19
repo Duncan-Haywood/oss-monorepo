@@ -516,6 +516,39 @@ export function eagernessText(res, { column = 'the series', every = 'day' } = {}
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const dayNumber = (s) => (/^\d{4}-\d{2}-\d{2}$/.test(String(s)) ? Date.parse(`${s}T00:00:00Z`) / 864e5 : NaN);
 
+/**
+ * Weekdays a business never opens: on labels that are consecutive calendar days, the weekdays whose value is 0 on every
+ * one of at least `minWeeks` occurrences (a shop shut every Saturday). Returns their names, or [] (labels not daily,
+ * too short, or no such weekday). A weekday with a single non-zero day is open and is not listed.
+ */
+export function shutWeekdays(values, labels, { minWeeks = 4 } = {}) {
+  if (!labels || labels.length < 7 * minWeeks || labels.length !== values.length) return [];
+  const d0 = dayNumber(labels[0]), d1 = dayNumber(labels[1]), dn = dayNumber(labels[labels.length - 1]);
+  if (!Number.isFinite(d0) || d1 - d0 !== 1 || dn - d0 !== labels.length - 1) return [];
+  const seen = new Array(7).fill(0), open = new Array(7).fill(false);
+  for (let i = 0; i < values.length; i++) {
+    const w = ((d0 + i + 4) % 7 + 7) % 7; // 1970-01-01 was a Thursday
+    seen[w]++;
+    if (Number(values[i]) !== 0) open[w] = true;
+  }
+  const out = [];
+  for (let w = 0; w < 7; w++) if (seen[w] >= minWeeks && !open[w]) out.push(WEEKDAYS[w]);
+  return out.length === 7 ? [] : out;
+}
+
+/**
+ * Leave out the rows of the weekdays a business never opens (shutWeekdays) before a level model reads the series, so a
+ * week's built-in zero is neither noise nor a step (README "A shop shut one weekday: revenue's slow climb"). Labels stay
+ * the dates of the rows kept, so alerts and the state file name the same days. Every-week zeros only: a closure on a
+ * weekday the shop usually opens (a bank holiday) is kept, and is `--closed`'s job. Returns { values, labels, dropped }.
+ */
+export function dropShutWeekdays(values, labels, opts = {}) {
+  const days = shutWeekdays(values, labels, opts);
+  if (!days.length) return { values, labels, dropped: [] };
+  const keep = labels.map((l) => !days.includes(WEEKDAYS[((dayNumber(l) + 4) % 7 + 7) % 7]));
+  return { values: values.filter((_, i) => keep[i]), labels: labels.filter((_, i) => keep[i]), dropped: days };
+}
+
 /** P(X >= k) for X ~ Binomial(n, p), summed in log space (n is an alert count, small). */
 function binomialTail(k, n, p) {
   let lc = 0, t = 0;
