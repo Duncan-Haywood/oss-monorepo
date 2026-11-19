@@ -130,7 +130,7 @@ import {
   renderInvalidStyle,
 } from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
-import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
+import { REFLOW_CSS, TABLE_SCROLL_CLASS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
 import { PAPER_INK_JS } from './paper.mjs';
 import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
 import { JUMP_ROW_CSS } from './jump-row.mjs';
@@ -10768,6 +10768,46 @@ const SCROLL_A11Y_SCRIPT = `
       if(o==='auto'||o==='scroll')candidates.push(all[i]);
     }
   };
+  // A table that scrolls sideways keeps its row names in view (data-pf-pin,
+  // styled in reflow.mjs's REFLOW_CSS): swiped to column six, a phone reader
+  // otherwise sees six numbers and no row they belong to. Measured 2026-11-19
+  // at 390px: 107 tables across the tool pages lost their first column when
+  // swiped to the end (docs/reports/polish-2026-11-19-pinned-row-names.md).
+  // Only our own box around a table of 2+ columns, and only while the first
+  // column is at most half the box, so pinning it leaves room to read the
+  // rest. A cell spanning rows breaks the column, so such a table is left
+  // alone; a cell spanning columns (a section heading row) just scrolls, the
+  // CSS skips it. Re-checked on every width check, because a calculator fills
+  // its table after load and the first column only then has its real width.
+  // The pinned cell needs an opaque background or the columns sliding under
+  // it show through, so the nearest painted background above the table is
+  // copied onto the box once.
+  var pin=function(el){
+    if(el.className!==${JSON.stringify(TABLE_SCROLL_CLASS)})return;
+    var t=el.firstElementChild,ok=false,w=0;
+    // A venture that already turns its rows into cards on a phone (display:
+    // block rows) has solved this its own way; pinning a card would break it.
+    if(t&&t.tagName==='TABLE'&&el.children.length===1&&t.rows&&t.rows.length&&
+      getComputedStyle(t).display==='table'&&getComputedStyle(t.rows[t.rows.length-1]).display==='table-row'){
+      ok=true;
+      for(var r=0;r<t.rows.length&&ok;r++){
+        var c=t.rows[r].cells[0];
+        if(!c||c.rowSpan>1)ok=false;
+        else if(c.colSpan===1&&t.rows[r].cells.length>1&&!w)w=c.offsetWidth;
+      }
+      ok=ok&&w>0&&w<=el.clientWidth*0.5;
+    }
+    if(!ok){el.removeAttribute('data-pf-pin');return;}
+    if(!el.style.getPropertyValue('--pf-pin-bg')){
+      var n=t;
+      while(n&&n.nodeType===1){
+        var b=getComputedStyle(n).backgroundColor;
+        if(b&&b!=='transparent'&&!/rgba\\([^)]*,\\s*0\\)$/.test(b)){el.style.setProperty('--pf-pin-bg',b);break;}
+        n=n.parentElement;
+      }
+    }
+    if(!el.hasAttribute('data-pf-pin'))el.setAttribute('data-pf-pin','');
+  };
   var measure=function(){
     for(var i=0;i<candidates.length;i++){
       var el=candidates[i];
@@ -10776,11 +10816,13 @@ const SCROLL_A11Y_SCRIPT = `
           el.setAttribute('tabindex','0');
           el.setAttribute('data-pf-scrollable','');
         }
+        if(el.hasAttribute('data-pf-scrollable'))pin(el);
       }else if(el.hasAttribute('data-pf-scrollable')){
         // It fits now — drop the tab stop rather than stranding a keyboard user
         // on a box that no longer moves.
         el.removeAttribute('tabindex');
         el.removeAttribute('data-pf-scrollable');
+        el.removeAttribute('data-pf-pin');
       }
     }
   };
