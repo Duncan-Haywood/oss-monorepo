@@ -311,18 +311,13 @@ flagships:
       card sets' tiles (eval/noise-card-floor-rank-2026-11-18.md). DNG 1.7.1.0 spec
       PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
-      History and every measurement: README and eval/ (ingest to masters; DNG
-      developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
-      DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with the 1.7.1.0
-      text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear matches the Leica
-      T's preview to 0.18 px; WarpRectilinear2). Lensfun lens correction (--lens-db,
-      grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
-      NEF, ORF, RW2, SRW, PEF, RAF (X-Trans; compressed 2026-11-15, eval/fujifilm-*)
-      read directly since 2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from
-      maker notes (eval/*-lens-2026-11-14.md); RW2 RawFormat 5-8 2026-11-15; Leica
-      RWL, and a card copy that keeps all 27 raw formats, 2026-11-16. Bayer and
-      X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF
-      edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
+      History and every measurement: README, HISTORY.md and eval/ (ingest to
+      masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
+      CR2; camera DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with
+      the 1.7.1.0 text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear
+      matches the Leica T's preview to 0.18 px; WarpRectilinear2). Bayer and X-Trans
+      demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF edge
+      columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
       (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Coolpix NRW and
       E-series NEF, Minolta MRW 2026-11-18 (eval/nikon-nrw-reader-*,
       eval/minolta-mrw-*). Phase One IIQ L and S 2026-11-18, no .dcp: file's matrix
@@ -509,13 +504,8 @@ flagships:
       nested ifcXML through eval/ifc4-layout.mjs.
     hosts: [https://github.com]
     next: >-
-      History and every measurement: README ("How it was checked"). Next, most
-      valuable first: (audit 2026-11-16: 26 of 27 invalid-* files INVALID, 0 of 307
-      valid; Pset_/Qto_ template audit 2026-11-16: 5 of 5 IDS-Audit-tool pset files,
-      faults in 21 of 64 public IDS, eval/audit-corpus.mjs); ids.xsd repair
-      2026-11-18 (eval/fix-structure-2026-11-18.md: one-answer faults fixed in the
-      file's own text, 6 of 12 failing public IDS then valid; IDS 0.9
-      name/datatype/bare text read as written). ifcXML streams 2026-11-18
+      History and every measurement: README ("How it was checked") and HISTORY.md.
+      Next, most valuable first: ifcXML streams 2026-11-18
       (eval/lazy-ifcxml-2026-11-18.md: 374 MB federated ifcXML 4.0 to 1.5 GB peak,
       fits 1 GB; strings keep whitespace, 731 MEP labels). nested IFC4 ifcXML at
       scale 2026-11-18 (eval/ifc4-layout-scale-2026-11-18.md: 4 real IFC4/IFC4X3
