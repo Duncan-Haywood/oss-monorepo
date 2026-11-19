@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyd1J9mkcXPW1dTvJjd",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T12:39:25Z",
+  "ended": "2026-11-19T12:44:34Z",
+  "wall_minutes": 5.29,
+  "tokens_in": 3573623,
+  "tokens_out": 22049,
+  "cost_usd": 1.7911,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17666",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Ran `git checkout -b` on a branch the harness had already created and checked out; the && chain skipped the commit and the push sent main's tip. Re-committed; no harm."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud session already checks out the work branch, so the usual `git checkout -b <branch>` fails; worth one line saying the branch may already be current."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-a-stepped-star-is-still-a-star.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: conformance-test a product's core matcher against the reference implementation's source. cron-dst-drift-check claimed Vixie cron day semantics but treated only a bare * as a star; cronie entry.c sets DOM_STAR/DOW_STAR from the first character and cron.c ANDs the two sets. New cronie-oracle.test.mjs (independent minute-walk oracle, 400 seeded expressions, 2,348 run times): 85 differed before, 0 after. '0 0 */2 * MON' in 2027: 211 runs before, 27 after. Added dayRuleNote (page, CLI, JSON). Local: run_venture_tests.py cron-dst-drift-check ok, 85 tests; check_posts ok. cron-heartbeat was already right; actions-minutes-estimator uses the bare-* reading, but GitHub's rule is undocumented, so it was left alone.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5b7696cf-ec91-5d3f-9270-00f6eb40ef5e",
+    "transcripts": 1,
+    "first": "2026-11-19T12:39:25Z",
+    "last": "2026-11-19T12:44:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 83,
+        "output": 22049,
+        "thinking": 5048,
+        "cache_read": 3492116,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81424,
+        "api_equivalent_usd": 1.7911,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 83,
+      "output": 22049,
+      "thinking": 5048,
+      "cache_read": 3492116,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81424,
+      "api_equivalent_usd": 1.7911,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.29,
+      "active_minutes": 5.29,
+      "model_minutes": 3.88,
+      "tool_minutes": 1.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "read cronie source, fix engine, write oracle test, UI note, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 167.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
