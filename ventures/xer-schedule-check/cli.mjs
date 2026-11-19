@@ -29,6 +29,10 @@
 // Multiple float paths to one activity instead (floatpaths.mjs): path 1 is the
 // driving chain into it, each later path the next least float relative to it.
 // With no CODE, the activity the longest path ends on.
+// node cli.mjs schedule.xer --lookahead [WEEKS] [--from YYYY-MM-DD] [--csv lookahead.csv] [--html lookahead.html] [--by NAME] [--json] [--project CODE]
+// A look-ahead instead (lookahead.mjs): the next WEEKS weeks (3) of work by
+// WBS with a bar per day and a make-ready check of what each activity still
+// waits on; --html writes a page to print for the site meeting.
 // Any --report also takes --appendix: every activity behind every correction
 // printed in an appendix, not only the first 40 of each.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -47,9 +51,14 @@ import { formatDate } from "./xer.mjs";
 import { level, levelCsv } from "./level.mjs";
 import { schedule } from "./cpm.mjs";
 import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
+import { lookahead, lookaheadText, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by"];
+// Print and exit only once stdout has taken it all: to a pipe, process.exit()
+// straight after a write cuts the output off at 64 KB (a --json report of a
+// large file).
+const emit = (text) => new Promise((done) => process.stdout.write(text, done));
 const opt = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
 function writeReview(report, cmp, risk = null, win = null) {
   if (!args.includes("--report")) return;
@@ -75,7 +84,7 @@ if (args.includes("--windows")) {
     if (w.dataDateTo.slice(0, 16) !== cur.project.dataDate.slice(0, 16)) console.error("note: the latest update's project differs from the windows' project; the windows were left out of the review");
   }
   if (opt("--csv")) writeFileSync(opt("--csv"), windowsCsv(rep));
-  process.stdout.write(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : windowsText(rep));
+  await emit(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : windowsText(rep));
   process.exit(0);
 }
 const file = args.find((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
@@ -126,7 +135,7 @@ if (args.includes("--previous")) {
   const rep = compare(prev, xer, cur ? { ...ids, curProjId: cur.project.id } : ids);
   writeReview(cur, rep, cur && args.includes("--risk") ? runRisk(xer, cur.project.id) : null);
   if (args.includes("--csv")) writeFileSync(args[args.indexOf("--csv") + 1], compareCsv(rep));
-  process.stdout.write(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : compareText(rep));
+  await emit(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : compareText(rep));
   process.exit(0);
 }
 const projId = args.includes("--project") ? projectFor(xer) : null;
@@ -135,7 +144,7 @@ if (args.includes("--risk")) {
   const r = runRisk(xer, assessed ? assessed.project.id : projId);
   writeReview(assessed, null, r);
   if (args.includes("--csv")) writeFileSync(opt("--csv"), riskCsv(r));
-  if (args.includes("--json")) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  if (args.includes("--json")) { await emit(JSON.stringify(r, null, 2) + "\n"); process.exit(0); }
   const p = r.project;
   console.log(`${p.code}: ${r.iterations} runs, ${r.varied} activities varied, correlation ${r.correlation}, seed ${r.seed}`);
   for (const w of r.warnings) console.log(`NOTE: ${w}`);
@@ -152,6 +161,16 @@ if (args.includes("--risk")) {
   console.log("  (* on the forecast's driving path)");
   process.exit(0);
 }
+if (args.includes("--lookahead")) {
+  const result = schedule(xer);
+  const pid = assess(xer, { projId, result }).project.id;
+  const w = opt("--lookahead");
+  const la = lookahead(xer, { weeks: w && /^\d+$/.test(w) ? Number(w) : 3, from: opt("--from"), projId: pid, result });
+  if (opt("--csv")) writeFileSync(opt("--csv"), lookaheadCsv(la));
+  if (opt("--html")) { writeFileSync(opt("--html"), lookaheadHtml(la, { by: opt("--by") })); console.error(`look-ahead written to ${opt("--html")}`); }
+  await emit(args.includes("--json") ? JSON.stringify(la, null, 2) + "\n" : lookaheadText(la));
+  process.exit(0);
+}
 if (args.includes("--float-paths")) {
   const result = schedule(xer);
   const pid = assess(xer, { projId, result }).project.id;
@@ -165,7 +184,7 @@ if (args.includes("--float-paths")) {
   const fp = floatPaths(result, target.id, { count: Number(opt("--paths") || 10) });
   if (!fp.target) { console.error(`${target.code} is finished or not scheduled: float paths run to an open activity`); process.exit(2); }
   if (args.includes("--csv")) writeFileSync(opt("--csv"), floatPathsCsv(fp));
-  if (args.includes("--json")) { const { bound, ...plain } = fp; console.log(JSON.stringify(plain, null, 2)); process.exit(0); }
+  if (args.includes("--json")) { const { bound, ...plain } = fp; await emit(JSON.stringify(plain, null, 2) + "\n"); process.exit(0); }
   console.log(`Float paths to ${fp.target.code} ${fp.target.name} (early finish ${fp.target.finish}); relative float in working hours on each activity's calendar`);
   for (const p of fp.paths) {
     console.log(`\nPath ${p.n}: ${p.activities.length} activit${p.activities.length === 1 ? "y" : "ies"}, relative float ${+p.float.toFixed(2)} h`);
@@ -178,7 +197,7 @@ if (args.includes("--level")) {
   const crew = Number(opt("--crew") || 1);
   const r = level(xer, { projId, limitScale: crew !== 1 ? { "*": crew } : null, ...(args.includes("--within-float") ? { withinFloat: true } : {}) });
   if (args.includes("--csv")) writeFileSync(opt("--csv"), levelCsv(r));
-  if (args.includes("--json")) { const { result, floors, placed, ignored, ...plain } = r; console.log(JSON.stringify(plain, null, 2)); process.exit(0); }
+  if (args.includes("--json")) { const { result, floors, placed, ignored, ...plain } = r; await emit(JSON.stringify(plain, null, 2) + "\n"); process.exit(0); }
   console.log(`${r.project.code}: ${r.resources.length} resources levelled${crew !== 1 ? ` at ${crew}x the file's limits` : ""}${r.settings.withinFloat ? ", within float" : ""} (${r.ms} ms)`);
   for (const w of r.warnings) console.log(`NOTE: ${w}`);
   console.log(`Finish ${r.finish} -> levelled ${r.levelledFinish} (+${r.extensionDays} working days)${r.lowerBound ? `; no levelling can finish before ${r.lowerBound.date} (${r.lowerBound.resource} work at its limit)` : ""}`);
