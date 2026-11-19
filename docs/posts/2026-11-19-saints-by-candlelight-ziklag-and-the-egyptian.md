@@ -1,6 +1,6 @@
 ---
 title: "Saints by Candlelight: David at Ziklag and the Egyptian in the field"
-seo_title: "Ziklag, the brook Besor and the Egyptian in First Samuel 30, a bedtime podcast episode"
+seo_title: "David at Ziklag in First Samuel 30, a bedtime podcast episode"
 date: 2026-11-19
 tags: [fiction, saints-by-candlelight, saints, writing, scripture]
 description: "Episode 148 tells First Samuel 30: Ziklag burned, a starving Egyptian fed with figs, and David's rule that the men by the baggage share alike."
