@@ -2,7 +2,7 @@
 
 Privacy-first retail analytics for small-format pilot stores (initial target: ~10 m² leather boutique, Italy).
 
-**Live page:** https://marisstella.app/retail-pilot-intel/
+**Not published:** the docs app is passcode-gated and left out of the public site build (`EXCLUDED_SLUGS` in `platform/pages/build.mjs`), so there is no live page on marisstella.app.
 
 **Stack:** TypeScript monorepo (pnpm), TSX documentation site, Node 22+ with built-in SQLite.
 
