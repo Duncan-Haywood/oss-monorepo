@@ -1,5 +1,19 @@
 # buildbot-sheathing research log
 
+## 2026-11-19 · Milestone 60 result: raising the leg preload to 0.12 to 0.18 N m plans 17 of the H1's 18 unplanned presses in spec with no flip (H237 held; H1 coverage 99.67% to 99.98%), but an elbow case and 3 G1 cases stay unplanned (H235 refuted), and the binding joint alone does as well (H236 refuted)
+
+`experiments/m60_jointpreload/` (core, run, results, figure), `reproduce.py` (m60 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL. No new library code (`tiered.solve_tiered` takes a per-row margin), so no new tests. Run time 1229 s on 4 processes. One 2-load smoke run (`M60_N=2`, no unplanned case) and one single-case path check on seed 59 ran after the hypotheses were committed and before the full run; neither is reported.
+
+- **Check.** With no escalation, on the first 2 loads of each robot (408 cases), the four-row rule and milestone 58's own `rule_all` ("iso") agree on every plan/no-plan and how, and |y| and |z| differ by 0.0 mm.
+- **Unplanned.** Section G (48 Latin-hypercube loads, seed 60; 6 random-direction 0.2 N errors, seed 60): G1 3 of 3984, H1 18 of 5424. The H1's: 17 bind on the left knee (at (1.2 m, 0.15), (1.4 m, 0) and (1.6 m, 0)), 1 on the right elbow at (1.4 m, 0.15). The G1's 3 are one load (6.38 N at 133.5 degrees) at (1.2 m, &minus;0.15) and (1.2 m, 0), with no plan on any side.
+- **The raise (H237 held; H235 refuted).** The uniform raise plans all 17 left-knee cases: 8 at 0.12 N m (pose (1.2 m, 0.15)), 6 at 0.16 (1.4 m) and 3 at 0.18 (1.6 m), the taller the pose the larger. Worst residuals |y| 0.0089, |z| 0.0167, |y<sub>d</sub>| 0.0095, |z<sub>d</sub>| 0.0181 mm; none over spec; no flip between plan and robot in any. The elbow case and the G1's 3 are not planned at any margin on the ladder (a leg preload cannot move an arm joint, and the G1 cases have no plan at the pose's sides or any other), so H235 fails on 4 of 21.
+- **Coverage.** H1 99.67% to 99.98%; G1 99.92% unchanged.
+- **Cost.** Leg effort (sum of squared leg torques at the window's high end) rises by a median 0.1% (ratio 1.001); at the 1.6 m pose, 0.18 N m costs 12.9 to 13.5%.
+- **One joint is enough here (H236 refuted).** The targeted raise (left knee only) plans the same 17 at the same margins. On the development seed (59) it failed every right-ankle case, where the uniform raise succeeded; seed 60 had no right-ankle case, so the difference did not arise.
+- **What it means.** The last coverage gap on the H1 was a preload level, not a geometry limit: the 0.1 N m margin set in milestone 37 is too small at the tall poses, where the stance pushes the left knee's torque toward its holding threshold. A per-case margin of up to 0.18 N m clears it at a small effort cost. 0.18 N m is the last ladder step below where a free leg joint's margin becomes infeasible (0.2 N m), so the tallest pose has little room left.
+- **Not measured.** One held-out seed (9408 in-envelope cases); statics; constant sensor bias; &mu; 0.5 not measured; the ladder's steps are chosen, not tuned; motor heating or wear from the higher preload; re-posing not tried.
+- **Next.** The arm-side squeeze (milestone 38) for the H1 elbow case; why the G1's (1.2 m) poses have no plan on any side at 6.38 N, 133.5 degrees.
+
 ## 2026-11-19 · Milestone 60 planned: does a raised leg preload, for the presses milestone 59's bound leaves without a plan, close the H1's last coverage gap in spec?
 
 - **Why.** Milestones 58 and 59 left 19 to 20 in-envelope H1 cases without a plan on two seeds, binding on the left knee and right ankle, all at the tallest poses (1.4 m and 1.6 m, offset 0). Their "Next" asked for a preload or re-pose for those joints. The leg preload (milestone 37, 0.1 N m from the holding threshold &tau;<sub>f</sub> = 0.2 N m) is what keeps leg joints out of the band a 0.2 N sensor error can carry across.
