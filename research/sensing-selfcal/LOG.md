@@ -1,5 +1,21 @@
 # sensing-selfcal research log
 
+## 2026-11-19 · Milestone 3t planned: on TUM, once a causal prior steadies each window, does pooling windows still give an honest error bar on f, and how many windows does it take to reach 2%?
+
+Written before `experiments/m3t_poolprior/analyse.py` was written or run. Milestone 3d pooled windows by random effects and found about eight 1.2 s windows give f to 2% with an honest bar; milestone 3s's causal prior cuts each window's scatter by a quarter to a half but leaves the Xtion's +2.8% bias. A prior that removes scatter but not bias could make a pooled bar *less* honest: the between-window spread that random effects reads as uncertainty shrinks, the bias does not. The TUM host refused this session (CONNECT 403), so this step re-uses saved solves only; no window is re-solved. **Seen before this plan:** milestone 3s's per-window medians, robust sds and tail counts (its LOG entry) and milestone 3d's pooled figures (on milestone 3c's jackknife sds, an older model); no pooled figure of est, est_c or est_cr.
+
+- **Method** (`analyse.py`, analysis only). Windows: milestone 3s's 43 scored windows (each has est from milestone 3p and est_c, est_cr from milestone 3s; a model's non-converged solve drops the blocks containing it). Within each sequence, windows in recording order; a block of size K is K consecutive scored windows (sliding, step 1), K &isin; {1, 3, 5, 8}, K = 5 the main figure. Each window's sd is its solver's sd<sub>f</sub> (milestone 3d used milestone 3c's jackknife sd, which these models do not have). Pools per block: **ivw** (inverse-variance), **re** (DerSimonian&ndash;Laird random effects, milestone 3d's `dl_pool`), **hk** (the DL mean with the Hartung&ndash;Knapp&ndash;Sidik&ndash;Jonkman variance q/&sum;w*, q = &sum;w*(f &minus; &mu;)<sup>2</sup>/(K &minus; 1)). Scored against milestone 4n's board calibration: z = (f<sub>pool</sub> &minus; R)/sd<sub>pool</sub>, rms z over blocks (1 = honest), median |e|, "usable" = sd &le; 2% and |e| &le; 2%.
+- **H223 (pooling with the prior is more accurate).** K = 5, all blocks: median |e| of re for est_c &le; 0.85 &times; est's.
+- **H224 (independence is still overconfident).** K = 5: ivw rms z for est_c &gt; 2.
+- **H225 (the prior makes the random-effects bar less honest).** K = 5: re rms z for est_c &gt; est's.
+- **H226 (but not dishonest).** K = 5: re rms z for est_c &le; 2.
+- **H227 (Hartung&ndash;Knapp is at least as honest).** K = 5: |hk rms z &minus; 1| &le; |re rms z &minus; 1| for est_c.
+- **H228 (more usable blocks).** K = 5: share of usable re blocks for est_c &ge; est's + 0.10.
+- **H229 (fewer windows to 2%).** The smallest K with re median |e| &le; 2% is smaller for est_c than for est (est not reaching 2% by K = 8 counts as K = &infin;).
+- **H230 (the recursive near-pin is the least honest).** K = 5: re rms z for est_cr is the largest of est, est_c, est_cr.
+- **Reported, unscored.** Per sequence; against TUM's and the target-free references; the median &tau; and I<sup>2</sup> per model; rms z with 1% of f added in quadrature to every pooled sd (about the 1.6% the three references disagree by, halved); `poolprior.png`.
+- **Caveat set in advance.** Sliding blocks overlap, so blocks are not independent; 43 windows, three sequences, two cameras, one ordering; the per-window sd is the solver's, not a jackknife, so this is not a like-for-like rerun of milestone 3d; windows that share a causal prior are not independent of each other, which no pool here models.
+
 ## 2026-11-19 · Milestone 3s result: on TUM, a causal prior from the camera's earlier windows alone cuts the pooled focal error from 2.88% to 2.32% (paired p = 0.0006) and keeps most of milestone 3r's leave-one-out gain; updated from its own history the prior shrinks to a near-pin on k<sub>1</sub> yet costs almost nothing; all eight predictions held
 
 - **Run.** `experiments/m3s_causal/run.py` on milestone 3p's 53 counted windows in recording order (fr1: 17 xyz then 13 desk windows; fr3: 23), 43 scored windows with N<sub>min</sub> = 5, two prior models each, about 15 min on 4 cores; then `analyse.py` (`summary.json`, `causal.png`), as planned below. `tests/test_m3s.py` (3 tests) passed before the run. Converged: est_c 43/43, est_cr 43/43.
