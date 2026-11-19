@@ -752,3 +752,34 @@ def test_neg_floor_default_is_the_7az_joint_trigger():
         off = S.audit_interval({kk: v for kk, v in plan.items() if kk != "neg_pseudo"}, f, labels)
         assert (off[2] - off[1]) <= (lib[2] - lib[1]) + 1e-15
     assert seen["cells"] > 0 and 0 < seen["floored"] < seen["cells"], seen
+
+
+def test_tested_second_phase_check_fires_only_on_excess_misses():
+    """7bd: the tested modes equal the untouched interval unless 7bb's upper-tail test rejects, then the named action."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
+    from llmci import audit_design as AD
+    saved = AD.RARE_FALLBACK, AD.NEG_FLOOR
+    import h7bd_tested_check as D  # its imports pin the library defaults off; restored below
+    import h7bb_second_phase as BB
+    AD.RARE_FALLBACK, AD.NEG_FLOOR = saved
+    rng = random.Random(7)
+    f = [0] * 600 + [1] * 200
+    c0, c1 = list(range(600)), list(range(600, 800))
+    plan = {"design": "cells", "cells": [c0, c1]}
+    pilot = set(c0[:300] + c1[:60])
+    for excess, want in ((False, False), (True, True)):
+        y = [0] * 800
+        for i in c0[:300]:
+            y[i] = int(rng.random() < 0.02)  # the pilot under-sees cell 0's misses
+        for i in c0[300:360]:
+            y[i] = int(rng.random() < (0.25 if excess else 0.02))
+        for i in c1[:100]:
+            y[i] = int(rng.random() < 0.7)
+        labels = {i: y[i] for i in c0[:360] + c1[:100]}
+        assert D.rejects(plan, labels, pilot, 0.10) == want
+        base = D._INTERVAL(plan, f, labels, pilot, False, None)
+        for mode, act in (("q10v2", "v2"), ("q10tp", "tp")):
+            got = D.interval(plan, f, labels, pilot, False, mode)
+            ref = D._INTERVAL(plan, f, labels, pilot, False, act) if want else base
+            assert got == ref
+    assert BB.upper_tail(60, 0.02, 0) == 1.0
