@@ -71,6 +71,46 @@ it stays at 0 and the item closes for simulated sets: on the simulator one infor
 advice than two, and the question reopens only on a real wheel's logs (a real tach's blind rows will not tie as
 exactly as the simulator's).
 
-## Held-out result
+## Held-out result (captured after the pre-registration was committed, a9af0c377)
 
-(Filled in after the capture.)
+`tests/take_survey_jitter.py --capture ... --lag <lag> --seed <seed> --procs 4` for the six sets, 432 drills, none
+aborted; rows `eval/take-survey-kept-drills-{q,r,s,t,u,v}-2026-11-19.jsonl.gz`, scored output
+`eval/take-survey-kept-drills-heldout-2026-11-19.txt`.
+
+| pooled, six fresh sets | drills | wrong |
+| --- | --- | --- |
+| with a verdict on one kept wheel | 6 | 1 (17%) |
+| with a verdict on two or more | 149 | 1 (1%) |
+
+| | min kept 0 (today) | min kept 2 |
+| --- | --- | --- |
+| end of drill: right / wrong / invented / held | 134 / 1 / 0 / 0 | 134 / 1 / 0 / 0 |
+| prefixes: right / wrong / invented / held | 948 / 10 / 0 / 0 | 933 / 6 / 0 / 19 |
+
+A minimum of two spares 1 drill and silences none. Advised prefix verdicts by kept wheels: 1, 15 right and 4 wrong;
+2, 56 and 0; 3, 112 and 0; 4, 137 and 0; 5, 125 and 6; 6 or more, 503 and 0.
+
+- (a) **void**: 6 drills had a verdict on one kept wheel, fewer than the 8 the rule asked for. (Had it counted, 17%
+  against 1% with two wrong drills asked and one seen, it would have failed on the count.)
+- (b) held: 0 silenced, 1 spared.
+- (c) held: 134 right at the drill's end either way.
+- (d) held: neither invents a take.
+
+**Decision, by the rule: `host.TAKE_SURVEY_MIN_KEPT` stays 0, and the item closes for simulated sets.**
+
+## What the six drills were
+
+All six are half-sine takes (four 6 ms, one 3 ms) on the jittery tach at 1-3 us. Five read within 1 ms on their one
+wheel (3 ms read 2.5; 6 ms read 5.0-6.0) and were advised right or kept quiet at the end. The wrong one is set U's
+6 ms build at 3 us of jitter, launcher 2: its one kept wheel read 8 ms from the 16th to the 19th wheel, and by the
+drill's end (3 kept wheels) the pick was 3.5 ms at a share over 0.6, so the Pi said nothing. A builder whose drill
+stopped at 16-19 balls would have been told 8 ms for a 6 ms take.
+
+## What it means
+
+Over all nineteen sets (thirteen seen, six fresh) a one-kept-wheel verdict was wrong in 3 of 22 drills (14%) and a
+verdict on two or more in 11 of 677 (2%). The direction is the one the minimum assumes, but a one-wheel verdict turns
+up in about one drill in sixty (22 of 1,365), and over all 1,365 drills a minimum of two would have spared 3 and
+silenced 6. That is too rare to settle on the simulator, and too rare to matter much for a builder either way: the
+16-wheel minimum and the 0.6 share bar already keep most single-wheel reads quiet. Reopen it with a real wheel's logs,
+whose blind rows will not tie as exactly as the simulator's, so the kept count, and how often it is one, may differ.
