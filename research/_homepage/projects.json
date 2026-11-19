@@ -2434,7 +2434,7 @@
     {
      "slug": "simdesign-meshconverge",
      "title": "Does the feasible boundary of the 2&nbsp;mm laser-cut bracket converge when the mesh is refined to 0.5&nbsp;mm?",
-     "summary": "A negative result (stylised, preliminary). Scanning web width from 15.0 to 16.0&nbsp;mm (the slenderness rule forbids wider) at four fillet radii on 1.5, 1.0, 0.75 and 0.5&nbsp;mm meshes, the feasible widths found at 1.5&nbsp;mm are all infeasible at 1.0 and 0.5&nbsp;mm under the 100&nbsp;MPa peak-stress limit, with a single feasible point at 0.75&nbsp;mm. The lowest peak stress rises 11&ndash;14% from 1.5 to 0.5&nbsp;mm and is still creeping up, so convergence is not shown. One gauge, one load, a peak measure at a near-sharp fillet floor; no search was run on the fine meshes."
+     "summary": "A negative result (stylised, preliminary). Scanning web width from 15.0 to 16.0&nbsp;mm (the slenderness rule forbids wider) at four fillet radii on 1.5, 1.0, 0.75 and 0.5&nbsp;mm meshes, the feasible widths found at 1.5&nbsp;mm are all infeasible at 1.0 and 0.5&nbsp;mm under the 100&nbsp;MPa peak-stress limit, with a single feasible point at 0.75&nbsp;mm. The lowest peak stress rises 11&ndash;14% from 1.5 to 0.5&nbsp;mm and is still creeping up, so convergence is not shown. One gauge, one load, a peak measure on a fillet drawn as a fixed 24-segment polygon that is not refined with the mesh; no search was run on the fine meshes."
     },
     {
      "slug": "simdesign-lbuckle",

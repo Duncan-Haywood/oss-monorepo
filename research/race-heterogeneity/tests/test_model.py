@@ -72,6 +72,33 @@ class T(unittest.TestCase):
         T = expected_kth([m[0]] * 4 + [m[1]] * 4, k, 6000)
         self.assertAlmostEqual(T, mean_cost_time(8, k, 1.0, [1.0] * 4 + [2.0] * 4), delta=2e-3)
 
+    def test_expected_kth_long_tail_and_mixed_scales(self):
+        # quality round 88: the old t=-2 ln w substitution truncated near t~19 and gave 15.89 here; exact is 18.000
+        # (scipy.integrate.quad of the Poisson-binomial survival function; 18.0001 because the rates are rounded)
+        self.assertAlmostEqual(expected_kth([0.136802] * 4 + [0.040358] * 4, 6), 18.0001, delta=1e-3)
+        # one fast type and a nearly idle slow type: two time scales 1000x apart (quad: 0.249775, 277.788081)
+        self.assertAlmostEqual(expected_kth([1.0] * 4 + [0.0009] * 4, 1), 0.249775, delta=1e-4)
+        self.assertAlmostEqual(expected_kth([1.0] * 4 + [0.0009] * 4, 5), 277.788081, delta=1e-2)
+        self.assertEqual(expected_kth([1.0, 0.0, 0.0], 2), math.inf)
+
+    def test_marginal_win_probabilities_sum_to_n_minus_k_round_times(self):
+        # sum_i x-derivative of pi_i at its own rate = (n-k) E X_(k) for any rates: d pi_i/dx_i = E[X_(k); i not in first k]
+        rng = random.Random(7)
+        for n, k in [(4, 1), (5, 2), (6, 4)]:
+            rates = [rng.uniform(0.2, 3.0) for _ in range(n)]
+            eps, tot = 1e-5, 0.0
+            for i in range(n):
+                others = rates[:i] + rates[i + 1:]
+                tot += (win_prob(rates[i] + eps, others, k, 6000) - win_prob(rates[i] - eps, others, k, 6000)) / (2 * eps)
+            self.assertAlmostEqual(tot, (n - k) * expected_kth(rates, k), delta=2e-3)
+
+    def test_mean_cost_law_exact_at_ratio_8(self):
+        # with linear cost and every type active the law is exact (R c_i = R dpi_i/dx_i, summed); it was reported 11.7% low
+        counts, costs, k = [4, 4], [1.0, 8.0], 6
+        m = solve(counts, costs, k, steps=1500, iters=400, damp=0.7, tol=1e-11)
+        T = expected_kth([m[0]] * 4 + [m[1]] * 4, k)
+        self.assertAlmostEqual(T / mean_cost_time(8, k, 1.0, [1.0] * 4 + [8.0] * 4), 1.0, delta=5e-3)
+
 
 def _o(counts, m, t):
     from race_heterogeneity.model import _others
