@@ -7,14 +7,16 @@
   "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T10:39:18Z",
   "ended": "2026-11-19T10:47:48Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 10.54,
+  "tokens_in": 8424800,
+  "tokens_out": 30679,
+  "cost_usd": 3.2645,
+  "tool_calls": 79,
   "task": "explore: which of the repo's import cycles throw on load (cyclehound entry-order check); shed-designer phone walkthrough fixes",
   "projects": [
     "cyclehound",
@@ -30,7 +32,9 @@
   "review_findings": null,
   "tests_added": 5,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "A combined run_venture_tests run reported shed-designer failed. The failing test name was lost to tail -8. A solo rerun passed."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -54,7 +58,85 @@
     "docs/posts/2026-11-19-which-import-cycles-actually-break.md"
   ],
   "goal": null,
-  "notes": "Idea: cyclehound lists cycles but cannot say whether one breaks. tools/entry-order.mjs imports each file on a cycle first, in a fresh Node process. ventures/ has 11 static cycles through 34 files; the 21 product modules on them all load from any end (a measured clean result). The planted tdz fixture fails from exactly one end. Also a phone walkthrough of shed-designer, the most-loaded page by human visitors (20 loads, 2026-10-24..11-03): the lean-to plan label overran a 10 ft floor (133 vs 120 SVG units, now 66), the plan hint promised a ridge on a lean-to, and 'Gable end' is now 'End'. Verification: entry-order tests 5/5 pass; check_posts ok; cyclehound suite ok in run_venture_tests; shed-designer suite: see below.",
+  "notes": "Idea: cyclehound lists cycles but cannot say whether one breaks. tools/entry-order.mjs imports each file on a cycle first, in a fresh Node process. ventures/ has 11 static cycles through 34 files; the 21 product modules on them all load from any end (a measured clean result). The planted tdz fixture fails from exactly one end. Also a phone walkthrough of shed-designer, the most-loaded page by human visitors (20 loads, 2026-10-24..11-03): the lean-to plan label overran a 10 ft floor (133 vs 120 SVG units, now 66), the plan hint promised a ridge on a lean-to, and 'Gable end' is now 'End'. Verification: entry-order tests 5/5 pass; check_posts ok; cyclehound suite ok in run_venture_tests; shed-designer suite (run_venture_tests.py shed-designer) 1 suite, 0 failed with the change. A first combined run of cyclehound + shed-designer reported shed-designer failed, but the failing test's name was cut off by tail; the solo rerun on the same tree passed, so it looks load-flaky. Not chased.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "03c83555-7c20-51fe-ac1b-4915cfc2e7fc",
+    "transcripts": 1,
+    "first": "2026-11-19T10:39:18Z",
+    "last": "2026-11-19T10:49:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 153,
+        "output": 30679,
+        "thinking": 7709,
+        "cache_read": 8300885,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123762,
+        "api_equivalent_usd": 3.2645,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 153,
+      "output": 30679,
+      "thinking": 7709,
+      "cache_read": 8300885,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123762,
+      "api_equivalent_usd": 3.2645,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 66,
+      "Read": 7,
+      "ToolSearch": 2,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.54,
+      "active_minutes": 10.53,
+      "model_minutes": 5.37,
+      "tool_minutes": 5.16,
+      "waiting_on_human_minutes": 0.01,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an engineer writing the entry-order script, fixture and tests, measuring the repo, a phone walkthrough and three copy fixes, plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 122.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
