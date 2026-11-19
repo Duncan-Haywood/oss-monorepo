@@ -54,8 +54,11 @@ export function parseClndrData(s) {
 
 function hm(t) {
   const m = /^(\d{1,2}):(\d{2})$/.exec(t.trim());
-  if (!m) throw new Error(`calendar data: bad time '${t}'`);
-  return +m[1] * 60 + +m[2];
+  // 00:00 to 24:00 only: a time past the day's end (25:00, 17:60) would put
+  // working periods into the next day and silently shift every date
+  const v = m ? +m[1] * 60 + +m[2] : NaN;
+  if (!m || +m[2] > 59 || v > 24 * 60) throw new Error(`calendar data: bad time '${t}'`);
+  return v;
 }
 
 function periodOf(params) {

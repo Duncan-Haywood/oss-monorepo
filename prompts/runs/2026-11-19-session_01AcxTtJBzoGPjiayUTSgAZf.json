@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJBzoGPjiayUTSgAZf",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T15:07:09Z",
+  "ended": "2026-11-19T15:33:12Z",
+  "wall_minutes": 26.34,
+  "tokens_in": 12346681,
+  "tokens_out": 57958,
+  "cost_usd": 5.0802,
+  "tool_calls": 91,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17704",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "The first run of the new experiment was written to experiments/run_wigley_tank.py and results_wigley_tank.txt, which already held milestone 3a's script and results (the Write tool's 'has been updated' reply was the only hint). check_numbers.py caught it through 3a's claims. Both files were restored from git and the new work renamed to *_wigley_seakeeping_tank*, before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "issue": "7zc's Next said TU Delft repository and CORE return 403. The repository now answers 200, and its JSON search (/search/data?search_term=) works but holds no record of Journee's 1992 Wigley report. CORE serves a Cloudflare challenge, and shipmotions.nl gets a 502 at the gateway. Recorded in 7zd's Why so the next run doesn't probe again."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "A plain `python3 -m unittest discover` on marine-hull reports 11 import errors because some test modules import pytest. Only the pyenv.py interpreter runs the whole suite (459 pass). Worth one line saying which projects need pytest."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py (CHAIN note)",
+      "why": "The note suggested a paper step after 29 knob-turning sub-steps. Instead I took a real-data test the programme had named as its deciding open question (tank data for the wave term), using a newly found open source.",
+      "did": "Validated strip theory and STAWAVE-2 against Kashiwagi 2022's measured slender-Wigley data, then rewrote the paper sentence around the result.",
+      "result": "The tank data withdraw 7za's 2.90% best estimate and replace it with 3.7%. That is a paper-level change, not one more knob turn."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-marine-hull-wigley-tank-data-strip-theory-vs-stawave2.md",
+    "research/marine-hull/LOG.md (7zd entry)",
+    "research/marine-hull/README.md (7zd paragraph)"
+  ],
+  "goal": null,
+  "notes": "Programme marine-hull, milestone 7zd. Read 64 measured added-resistance points and 41 motion points from the vector figures of Kashiwagi (2022, JSR 66(1), open copy at Osaka University) for a slender modified Wigley (L/B 6.67, B/T 2.4, Fn 0.2), a hull inside STAWAVE-2's range. Strip theory peaks at 11.42 against measured 9.23 to 13.17; STAWAVE-2 peaks at 5.42. STAWAVE-2's area agrees (0.94) only because its reflection term is 2.5 times the measurement in short waves. Tank-fitted zeta is 0.025, and the monohull 30 W loss is 3.69% (3.09% to 4.31%). Expectations: K2, K3, K6, K7 held; K1 refuted (heave); K4 and K5 split. Verification: marine-hull pytest 459 passed; check_numbers ok (140 claims); cite_check ok; research/_homepage/build.py ok; research_live_links and check_md_links ok; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4d70782b-7b36-598d-8de0-78ed01a8f2a3",
+    "transcripts": 1,
+    "first": "2026-11-19T15:07:09Z",
+    "last": "2026-11-19T15:33:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 171,
+        "output": 57958,
+        "thinking": 14317,
+        "cache_read": 12160478,
+        "cache_write_5m": 0,
+        "cache_write_1h": 186032,
+        "api_equivalent_usd": 5.0802,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 171,
+      "output": 57958,
+      "thinking": 14317,
+      "cache_read": 12160478,
+      "cache_write_5m": 0,
+      "cache_write_1h": 186032,
+      "api_equivalent_usd": 5.0802,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 91,
+    "tools": {
+      "Bash": 81,
+      "WebSearch": 3,
+      "Read": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.34,
+      "active_minutes": 26.34,
+      "model_minutes": 12.32,
+      "tool_minutes": 14.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "finding an open tank dataset, vector digitising, extending a strip solver to a new hull form, the comparison and calibration, paper and log edits: about two days for a naval-architecture postdoc",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 314.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

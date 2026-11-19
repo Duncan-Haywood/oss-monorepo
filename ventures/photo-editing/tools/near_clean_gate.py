@@ -1,0 +1,231 @@
+"""The noise-aware blend near clean: does lifting smooth blocks beside detail stop the leak?
+
+``xtrans_demosaic.blend`` interpolates block weights between block centres, so a detailed block beside a
+smooth one takes part of the smooth block's bilinear weight. ``lift_near_detail(q, k)`` raises each block's
+``q`` to at least its largest 3 x 3 neighbour's over ``k``. This sweep scores that lift for several ``k``,
+with the true noise model and with what ships (``frame_noise``), on the raw.pixls.us sets of 2026-11-18
+(LibRaw truths binned 4 x 4, re-mosaicked, noise added as ``tools/noise_aware_estimated.py sweep`` adds it:
+same seeds, same tiles).
+
+Arms: ``D`` (directional), ``true`` and ``true+k`` (the oracle model, unlifted and lifted), ``ship`` and
+``ship+k`` (``frame_noise``, unlifted and lifted).
+
+Usage (from ``ventures/photo-editing``)::
+
+    PYTHONPATH=src python tools/near_clean_gate.py sweep --bayer --cards cards.json --cache /tmp/truths FILES... > rows.jsonl
+    python tools/near_clean_gate.py tune rows.jsonl            # pick k (the committed rule)
+    python tools/near_clean_gate.py rule rows.jsonl --k K      # the held-out test (the committed rule)
+    # one sweep, both roles: --split tune for the pick, --split held for the test (rows carry split_of(body))
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+import time
+from collections import defaultdict
+
+import numpy as np
+
+KS = (4.0, 6.0, 8.0, 12.0, 16.0, 24.0, 32.0, 48.0)
+
+
+def emit(row: dict) -> None:
+    sys.stdout.write(json.dumps(row) + "\n")
+    sys.stdout.flush()
+
+
+def arms(c, pat, b, d, model, ks) -> dict:
+    from shootflow import xtrans_demosaic as xd
+
+    cfa = 6 if len(pat) == 36 else 2
+    ramp, luma = xd.RAMPS[cfa], xd.LUMA_RAMPS[cfa]
+    out = {"D": d}
+    for name, noise in (("true", model), ("ship", xd.frame_noise(c, pat))):
+        q = xd.frame_measures(c, pat, b, d, noise=noise, blocks=True)["q_blocks"]
+        out[name] = xd.blend(b, d, q, ramp[0], ramp[1], luma_ramp=luma)
+        for k in ks:
+            out[f"{name}+{k:g}"] = xd.blend(b, d, xd.lift_near_detail(q, k), ramp[0], ramp[1], luma_ramp=luma)
+    return out
+
+
+def sweep(argv) -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("files", nargs="+")
+    ap.add_argument("--raf", help="take the X-Trans layout from this RAF (default with --bayer: RGGB)")
+    ap.add_argument("--bayer", action="store_true")
+    ap.add_argument("--cache")
+    ap.add_argument("--cards", help="tools/card_scenes.py output: skip repeat scenes")
+    ap.add_argument("--ks", help="comma-separated k (default KS)")
+    args = ap.parse_args(argv)
+    ks = tuple(float(x) for x in args.ks.split(",")) if args.ks else KS
+    cards = json.load(open(args.cards)) if args.cards else None
+
+    import rawpy
+
+    sys.path.insert(0, __file__.rsplit("/", 1)[0])
+    import xtrans_demosaic_check as chk
+    from noise_aware_estimated import card_of, seed_of
+    from noise_aware_planes import carries, draw, gains_of
+    from xtrans_frame_choice import _truth, split_of, tiles
+
+    from shootflow.xtrans_demosaic import frame_noise as xd_frame_noise
+
+    if args.bayer:
+        from shootflow.bayer_demosaic import directional
+
+        pat = (0, 1, 1, 2)
+    else:
+        from shootflow.xtrans_demosaic import directional
+
+        pat = chk._pattern(rawpy.imread(args.raf))
+    for path in args.files:
+        name = path.rsplit("/", 1)[-1]
+        if cards is not None and not cards.get(name, {}).get("keep"):
+            continue
+        try:
+            truth_full = _truth(path, args.cache)
+            gains = gains_of(path)
+        except Exception as exc:  # noqa: BLE001
+            emit({"file": name, "skipped": f"{type(exc).__name__}: {exc}"})
+            continue
+        for (ty, tx), truth in tiles(truth_full, 480, 3):
+            clean = chk.mosaic(truth, pat)
+            # The truth's own noise (the source frame's grain survives 4 x 4 binning): frame_noise on the clean
+            # mosaic, as sigma at 18% grey. Where it rivals the noise added, the score rewards keeping that grain.
+            ts, tr = xd_frame_noise(clean, pat)
+            truth_sigma18 = round(float((ts * 0.18 + tr) ** 0.5), 6)
+            for snr in (200.0, 60.0, 25.0, 12.0):
+                for sc in ("equal", "wb"):
+                    t0 = time.perf_counter()
+                    seed = seed_of(name, ty, tx, snr, sc)
+                    if sc == "equal":
+                        c = chk.add_noise(clean, snr, seed=seed)
+                        sig2 = (0.18 / snr) ** 2
+                        model = (0.8 * sig2 / 0.18, 0.2 * sig2)
+                    else:
+                        c, raw_model = draw(clean, pat, gains, snr, ((1.0, 1.0),) * 3, seed)
+                        model, _ = carries(raw_model, gains)
+                    b = chk.ours_bilinear(c, pat)
+                    d = directional(c, pat)
+                    cps, lps = {}, {}
+                    for arm, arr in arms(c, pat, b, d, model, ks).items():
+                        s = chk.scores(arr, truth)
+                        cps[arm], lps[arm] = s["cpsnr"], s["lpsnr"]
+                    emit({"layout": "bayer" if args.bayer else "xtrans", "file": name,
+                          "card": card_of(name, cards), "split": split_of(card_of(name, cards)),
+                          "tile": [ty, tx], "snr": snr, "scenario": sc, "truth_sigma18": truth_sigma18, "cpsnr": cps, "lpsnr": lps,
+                          "s": round(time.perf_counter() - t0, 2)})
+    return 0
+
+
+def clean_enough(row: dict) -> bool:
+    """The truth is at least as clean as the noise added: its own SNR at 18% grey (``truth_sigma18``) is no lower
+    than the row's ``snr``. Rows from before the field was recorded count as clean."""
+
+    t = row.get("truth_sigma18")
+    return t is None or t <= 0 or 0.18 / t >= row["snr"]
+
+
+def load(paths, split: str | None = None, clean_truths: bool = False) -> list[dict]:
+    """Scored rows from sweep output; ``split`` keeps only rows whose body ``split_of`` put there;
+    ``clean_truths`` drops rows whose truth is noisier than the noise added (``clean_enough``)."""
+
+    rows = []
+    for p in paths:
+        for line in open(p):
+            r = json.loads(line)
+            if "cpsnr" in r and (split is None or r.get("split") == split) and (not clean_truths or clean_enough(r)):
+                rows.append(r)
+    return rows
+
+
+def g(rows, metric, arm, ref="D") -> np.ndarray:
+    m = "cpsnr" if metric == "c" else "lpsnr"
+    return np.array([r[m][arm] - r[m][ref] for r in rows])
+
+
+def losers(rows, arm, bar=0.1) -> set:
+    return {i for i, r in enumerate(rows) if min(r["cpsnr"][arm] - r["cpsnr"]["D"], r["lpsnr"][arm] - r["lpsnr"]["D"]) < -bar}
+
+
+def table(rows, ks, base) -> None:
+    print(f"{'arm':10s} {'luma':>8s} {'colour':>8s} {'losers':>6s} {'worst':>6s}  SNR 200 luma / SNR 12 luma")
+    for arm in [base] + [f"{base}+{k:g}" for k in ks]:
+        lw = min(g(rows, "l", arm).min(), g(rows, "c", arm).min())
+        hi = [r for r in rows if r["snr"] == 200.0]
+        lo = [r for r in rows if r["snr"] == 12.0]
+        print(f"{arm:10s} {g(rows, 'l', arm).mean():+8.4f} {g(rows, 'c', arm).mean():+8.4f} "
+              f"{len(losers(rows, arm)):6d} {lw:+6.2f}  {g(hi, 'l', arm).mean():+.4f} / {g(lo, 'l', arm).mean():+.4f}")
+
+
+def tune(argv) -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("rows", nargs="+")
+    ap.add_argument("--split", choices=("tune", "held"), help="only rows of this split (default: all)")
+    ap.add_argument("--clean-truths", action="store_true", help="drop rows whose truth is noisier than the noise added")
+    args = ap.parse_args(argv)
+    rows = load(args.rows, args.split, args.clean_truths)
+    ks = sorted({float(a.split("+")[1]) for a in rows[0]["cpsnr"] if a.startswith("ship+")})
+    print(f"{len(rows)} rows")
+    for base in ("true", "ship"):
+        table(rows, ks, base)
+    # The committed pick: the k maximising mean (luma + colour) gain of ship+k over D; ties to the larger k.
+    score = {k: float((g(rows, "l", f"ship+{k:g}") + g(rows, "c", f"ship+{k:g}")).mean()) for k in ks}
+    best = max(ks, key=lambda k: (round(score[k], 4), k))
+    print("pick: k =", f"{best:g}", f"(mean luma + colour gain over D {score[best]:+.4f}; unlifted "
+          f"{float((g(rows, 'l', 'ship') + g(rows, 'c', 'ship')).mean()):+.4f})")
+    return 0
+
+
+def rule(argv) -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("rows", nargs="+")
+    ap.add_argument("--k", type=float, required=True)
+    ap.add_argument("--split", choices=("tune", "held"), help="only rows of this split (default: all)")
+    ap.add_argument("--clean-truths", action="store_true", help="drop rows whose truth is noisier than the noise added")
+    args = ap.parse_args(argv)
+    rows = load(args.rows, args.split, args.clean_truths)
+    arm = f"ship+{args.k:g}"
+    ok = True
+    for base in ("ship", "true"):
+        lifted = f"{base}+{args.k:g}"
+        dl, dc = g(rows, "l", lifted, base), g(rows, "c", lifted, base)
+        cells = defaultdict(list)
+        for i, r in enumerate(rows):
+            cells[(r["snr"], r["scenario"])].append(i)
+        worst_cell = min((float(min(dl[ix].mean(), dc[ix].mean())), key) for key, ix in cells.items())
+        new = losers(rows, lifted) - losers(rows, base)
+        print(f"{base}: {len(rows)} rows; lifted - unlifted mean luma {dl.mean():+.4f}, colour {dc.mean():+.4f}; "
+              f"worst cell {worst_cell[0]:+.4f} at SNR {worst_cell[1][0]:g} {worst_cell[1][1]}; "
+              f"losers > 0.1 dB vs D {len(losers(rows, base))} -> {len(losers(rows, lifted))}, new {len(new)}")
+        for key in sorted(cells):
+            ix = cells[key]
+            print(f"   SNR {key[0]:>5g} {key[1]:5s} n={len(ix):4d}  luma {dl[ix].mean():+.4f}  colour {dc[ix].mean():+.4f}"
+                  f"  (gain over D: {g([rows[i] for i in ix], 'l', base).mean():+.3f} -> {g([rows[i] for i in ix], 'l', lifted).mean():+.3f})")
+        if base == "ship":
+            h1 = dl.mean() >= -0.005 and dc.mean() >= -0.005 and worst_cell[0] >= -0.02
+            h2 = len(losers(rows, arm)) < len(losers(rows, "ship")) and not new
+            hi = [r for r in rows if r["snr"] == 200.0]
+            h3 = min(g(hi, "l", arm).min(), g(hi, "c", arm).min()) > min(g(hi, "l", "ship").min(), g(hi, "c", "ship").min())
+            for label, passed in (("h1 means within 0.005 dB, every cell within 0.02 dB", h1),
+                                  ("h2 fewer rows lose > 0.1 dB to D, none new", h2),
+                                  ("h3 the worst SNR 200 row improves", h3)):
+                print(("PASS " if passed else "FAIL ") + label)
+                ok &= passed
+    print("verdict:", "ship the lift" if ok else "the lift stays off")
+    return 0
+
+
+def main(argv=None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    cmd = {"sweep": sweep, "tune": tune, "rule": rule}.get(argv[0] if argv else "")
+    if cmd is None:
+        print(__doc__)
+        return 2
+    return cmd(argv[1:])
+
+
+if __name__ == "__main__":
+    sys.exit(main())

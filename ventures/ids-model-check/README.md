@@ -645,6 +645,25 @@ buildingSMART test files come back the same, from 24 and 288 with the
 General format. A CSV opened in a spreadsheet still gets typed, so edit the
 `.xlsx`. Our workbook stores a CR inside a cell as `_x000D_`, as Excel does.
 
+### Dropdowns in the downloaded workbook (2026-11-19)
+
+The `.xlsx` the page and `--to-sheet -o spec.xlsx` write now offers each
+column's words as an in-cell dropdown (data validation, from a hidden *Lists*
+sheet). `section` takes only its four words; `facet`, `cardinality` and
+partOf `relation` warn on another word but let you keep it (a `min..max`
+cardinality is legal on a specification row); `entity`, `propertySet`,
+`dataType` and `ifcVersion` offer the IFC schema's concrete classes, standard
+set names and data types for the versions the IDS names, and take anything,
+so a restriction such as `one of: IFCWALL | IFCSLAB` still fits. Each column
+shows a one-line hint when selected.
+
+Measured (`eval/sheet-dropdowns-2026-11-19.md`): on 476 real and test IDS
+files, no `section` or `facet` cell falls outside its list; the only
+`relation` outside it is a lone `IFCRELFILLSELEMENT`, which ids.xsd refuses.
+LibreOffice Calc's *Mark Invalid Data* circles exactly the cells the script
+predicts in 476 of 476 workbooks, and the round trip is unchanged. Not
+measured in Microsoft Excel itself.
+
 ### Repairing an IDS that validating tools refuse (2026-11-18)
 
 An IDS that breaks `ids.xsd` is refused whole by IfcTester, the

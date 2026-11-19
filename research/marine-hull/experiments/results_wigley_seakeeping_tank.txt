@@ -1,0 +1,97 @@
+hull: modified Wigley (Kashiwagi 2022 eq. 42) L 2 m B 0.3 m d 0.125 m (L/B 6.67, B/T 2.40); from the form: volume 0.04208 m3 (CB 0.5610), Aw 0.4163 m2, Smith depth 0.1011 m; kyy 0.248 L; fresh water; Fn 0.2 (U 0.886 m/s); 30 stations, 16 panels
+check: section table 15 stations x 90 nu T: 76 points near irregular frequencies interpolated; max kept near/far damping mismatch 2.96%
+zero-speed natural: heave 7.633 rad/s (radiation damping 14.0% of critical), pitch 7.833 rad/s (13.3%)
+## A. motions against measured (Fig. 2)
+heave lambda/L 0.500: measured 0.050, strip 0.033 (-34%)
+heave lambda/L 0.599: measured 0.076, strip 0.077 (+2%)
+heave lambda/L 0.698: measured 0.089, strip 0.091 (+2%)
+heave lambda/L 0.804: measured 0.188, strip 0.034 (-82%)
+heave lambda/L 0.851: measured 0.326, strip 0.104 (-68%)
+heave lambda/L 0.897: measured 0.412, strip 0.249 (-40%)
+heave lambda/L 0.959: measured 0.638, strip 0.532 (-17%)
+heave lambda/L 0.963: measured 0.672, strip 0.552 (-18%)
+heave lambda/L 1.048: measured 0.821, strip 0.945 (+15%) *
+heave lambda/L 1.100: measured 0.839, strip 1.070 (+28%) *
+heave lambda/L 1.151: measured 0.747, strip 1.112 (+49%) *
+heave lambda/L 1.290: measured 0.937, strip 1.063 (+13%) *
+heave lambda/L 1.352: measured 0.909, strip 1.032 (+14%)
+heave lambda/L 1.527: measured 0.852, strip 0.982 (+15%)
+heave lambda/L 1.650: measured 0.938, strip 0.971 (+3%)
+heave lambda/L 1.799: measured 0.873, strip 0.968 (+11%)
+heave lambda/L 1.988: measured 0.920, strip 0.971 (+5%)
+heave lambda/L 2.202: measured 0.948, strip 0.977 (+3%)
+heave lambda/L 2.383: measured 0.964, strip 0.981 (+2%)
+heave lambda/L 2.703: measured 0.984, strip 0.988 (+0%)
+heave lambda/L 2.981: measured 0.972, strip 0.993 (+2%)
+heave in lambda/L 1.0-1.3: 4 points, mean error +26.3%, worst +48.9%
+pitch lambda/L 0.599: measured 0.033, strip 0.019 (-42%)
+pitch lambda/L 0.698: measured 0.095, strip 0.035 (-63%)
+pitch lambda/L 0.804: measured 0.269, strip 0.195 (-27%)
+pitch lambda/L 0.851: measured 0.438, strip 0.325 (-26%)
+pitch lambda/L 0.897: measured 0.532, strip 0.489 (-8%)
+pitch lambda/L 0.959: measured 0.808, strip 0.758 (-6%)
+pitch lambda/L 0.963: measured 0.851, strip 0.775 (-9%)
+pitch lambda/L 1.048: measured 1.085, strip 1.079 (-1%)
+pitch lambda/L 1.100: measured 1.203, strip 1.162 (-3%)
+pitch lambda/L 1.151: measured 1.205, strip 1.197 (-1%)
+pitch lambda/L 1.290: measured 1.676, strip 1.216 (-27%)
+pitch lambda/L 1.352: measured 1.478, strip 1.211 (-18%) *
+pitch lambda/L 1.527: measured 1.211, strip 1.182 (-2%) *
+pitch lambda/L 1.650: measured 1.210, strip 1.161 (-4%) *
+pitch lambda/L 1.799: measured 1.101, strip 1.140 (+4%) *
+pitch lambda/L 1.988: measured 1.094, strip 1.120 (+2%) *
+pitch lambda/L 2.202: measured 1.101, strip 1.103 (+0%)
+pitch lambda/L 2.383: measured 1.093, strip 1.091 (-0%)
+pitch lambda/L 2.703: measured 1.097, strip 1.076 (-2%)
+pitch lambda/L 2.981: measured 1.071, strip 1.065 (-1%)
+pitch in lambda/L 1.3-2.0: 5 points, mean error -3.7%, worst -18.1%
+K1 (within 25%): False
+## B. added resistance against measured (Fig. 3)
+# table: lambda_L measured_mean n strip strip_plus_refl stawave2 stawave2_motion
+row 0.30 1.108 3 0.048 2.097 2.190 0.141
+row 0.40 1.060 3 0.166 2.198 2.448 0.416
+row 0.50 1.100 3 0.388 2.356 2.871 0.902
+row 0.60 1.109 4 0.610 2.428 3.416 1.597
+row 0.70 1.394 4 0.955 2.526 4.006 2.435
+row 0.80 2.263 4 2.100 3.364 4.565 3.301
+row 0.90 4.654 4 5.375 6.335 5.030 4.069
+row 1.00 7.773 4 10.454 11.158 5.332 4.628
+row 1.05 7.716 5 11.420 12.019 5.404 4.804
+row 1.10 10.616 4 10.811 11.320 5.416 4.906
+row 1.15 11.267 5 9.412 9.846 5.365 4.931
+row 1.20 9.462 4 7.867 8.236 5.109 4.740
+row 1.30 5.987 3 5.234 5.504 4.151 3.881
+row 1.40 4.242 6 3.453 3.653 3.139 2.939
+row 1.60 1.479 4 1.615 1.730 1.698 1.583
+row 2.00 0.544 4 0.481 0.526 0.537 0.492
+strip peak 11.42 at lambda/L 1.05
+strip+refl peak 12.02 at lambda/L 1.05
+STAWAVE-2 peak 5.42 at lambda/L 1.09
+measured series:
+  dyn_2p5cm: 16 points, lambda/L 0.30-2.00, peak 11.82 at 1.10; area 6.113; strip+refl/measured 1.12, STAWAVE-2/measured 0.89
+  dyn_1p0cm: 19 points, lambda/L 0.30-2.00, peak 13.17 at 1.15; area 6.174; strip+refl/measured 1.11, STAWAVE-2/measured 0.88
+  measured_wave_1p0cm: 19 points, lambda/L 0.30-2.00, peak 9.23 at 1.15; area 4.631; strip+refl/measured 1.48, STAWAVE-2/measured 1.17
+  superposed_wave_1p0cm: 10 points, lambda/L 0.60-2.00, peak 11.51 at 1.10; area 6.314; strip+refl/measured 0.98, STAWAVE-2/measured 0.73
+area over lambda/L 0.30-2.00 (trapezoid on the measured lambdas): measured mean 5.773; strip 5.540 (0.96); strip+refl 6.862 (1.19); STAWAVE-2 5.438 (0.94)
+short waves lambda/L 0.3-0.6 (4 lambdas): measured mean 1.094; strip 0.303 (0.28); strip+refl 2.270 (2.07); STAWAVE-2 2.731 (2.50)
+## C. zeta fitted to the measured area (strip+refl), carried to the 4 m monohull
+fitted zeta (mean): 0.025
+fitted zeta (dyn_2p5cm): 0.016
+fitted zeta (dyn_1p0cm): 0.015
+fitted zeta (measured_wave_1p0cm): 0.068
+fitted zeta (superposed_wave_1p0cm): 0.000
+reference: calm 30 W range 823.7 km at 1.00 m/s
+# table: zeta pooled_1ms_motion_N ratio_to_stawave2 pooled_1ms_reflection_N loss30W_share025 loss30W_share1 scope200W
+row 0.000 2.95 2.13 0.72 -4.31 -15.06 True
+row 0.015 2.60 1.87 0.72 -3.90 -13.98 True
+row 0.016 2.58 1.86 0.72 -3.88 -13.90 True
+row 0.025 2.41 1.74 0.72 -3.69 -13.29 True
+row 0.068 1.88 1.36 0.72 -3.09 -11.32 True
+row 0.091 1.72 1.24 0.72 -2.90 -10.67 True
+note: zeta 0.091 is 7za's STAWAVE-2-calibrated value, kept for comparison
+## D. post hoc: reflection term scaled to the short-wave measurements, zeta refitted
+reflection scale f_r 0.402 (lambda/L 0.3-0.6)
+refitted zeta 0.006: peak 10.72 at lambda/L 1.05; rms error against the measured mean 1.27 (strip+refl at zeta 0: 1.69; STAWAVE-2: 2.75)
+# table: zeta pooled_1ms_motion_N ratio_to_stawave2 pooled_1ms_reflection_N loss30W_share025 loss30W_share1 scope200W
+row_scaled 0.006 2.80 2.02 0.29 -3.65 -13.14 True
+row_scaled 0.000 2.95 2.13 0.29 -3.82 -13.62 True
