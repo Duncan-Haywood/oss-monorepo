@@ -60,3 +60,16 @@ test('fresh year (Online Retail II 2009-10), orders, Quiet, --period 7: 3 of 11 
   assert.equal(off.alerts.find((a) => a.label === '2010-11-09').reportedAtLabel, '2010-11-19');
   assert.equal(on.alerts.find((a) => a.label === '2010-11-09').reportedAtLabel, '2010-11-13');
 });
+
+test('lags: 1 takes the nearest earlier same-weekday open day (README "Steps beside a closure")', () => {
+  const l = days(36);
+  const v = l.map((_, i) => 10 + i);
+  assert.equal(fillClosed(v, l, [l[35]], { lags: 1 }).values[35], 38); // index 28
+  // a closed same weekday is skipped: 28 shut too, so 35 takes 21
+  const r = fillClosed(v, l, [l[28], l[35]], { lags: 1 });
+  assert.equal(r.values[35], 31);
+  // prefix-honest as the default is
+  const shut = [l[9], l[16], l[30], l[31]];
+  const whole = fillClosed(v, l, shut, { lags: 1 }).values;
+  for (let n = 10; n <= 36; n++) assert.deepEqual(fillClosed(v.slice(0, n), l.slice(0, n), shut, { lags: 1 }).values, whole.slice(0, n));
+});
