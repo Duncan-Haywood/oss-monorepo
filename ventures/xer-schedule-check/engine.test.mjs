@@ -201,6 +201,70 @@ test("CPM: an SS lag not yet spent at the data date still runs; a finished node 
   assert.equal(formatDate(before.tasks.get("4").lf), "2025-12-03 08:00");
 });
 
+test("CPM: five more P6 rules from the CCA file (lag back into a finished node, assignment work, unspent SS lag, ALAP when started, a future actual start)", () => {
+  // Data date Wed 3 Dec 08:00 for all five (eval/cpm-vs-p6-2026-11-19.md, fourth pass).
+  // 1. O (8 h, open) -> FS lag 16 -> F (finished) -> FS -> H. Forward, O's lag
+  //    reaches F's node, so going back O's late finish is F's late date less 16 h.
+  const off = (k) => Object.fromEntries(k.map((n) => [n, false]));
+  const one = project(
+    [
+      task("1", "O", 8),
+      task("2", "F", 0, { status_code: "TK_Complete", act_start_date: "2025-12-01 08:00", act_end_date: "2025-12-01 17:00", target_drtn_hr_cnt: 8 }),
+      task("3", "H", 8),
+    ],
+    [link("1", "2", "1", "PR_FS", 16), link("2", "3", "2")],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  assert.equal(at(schedule(one), one, "O").tf, 0);
+  assert.equal(at(schedule(one, { variant: off(["bwDoneSuccLag"]) }), one, "O").tf, 16);
+  // 2. Z started, no remaining duration, but its labour row runs 16 h more
+  //    (restart Wed 08:00, reend Thu 17:00): its late start is 16 h before its late finish.
+  const two = parseXer(xerText({
+    ...Object.fromEntries(Object.entries(project([], []).tables).filter(([k]) => k !== "TASK" && k !== "TASKPRED")),
+    PROJECT: [{ proj_id: "1", proj_short_name: "TEST", clndr_id: "C1", last_recalc_date: "2025-12-03 08:00", plan_start_date: "2025-12-01 00:00" }],
+    TASK: [task("1", "Z", 0, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 32 }), task("2", "Y", 24), task("3", "W", 40)],
+    TASKPRED: [link("1", "2", "1")],
+    TASKRSRC: [{ taskrsrc_id: "9", task_id: "1", restart_date: "2025-12-03 08:00", reend_date: "2025-12-04 17:00", rsrc_type: "RT_Labor" }],
+  }));
+  const z = at(schedule(two), two, "Z");
+  // W (40 h) ends the project Tue 9 Dec, so Y may start Fri and Z finish Thu
+  assert.equal(z.lf, "2025-12-04 17:00");
+  assert.equal(z.ls, "2025-12-03 08:00");
+  assert.equal(at(schedule(two, { variant: off(["bwRsrcRemain"]) }), two, "Z").ls, "2025-12-04 17:00");
+  // 3. A started Mon 08:00, SS lag 24 to G (finished) -> FS -> J: 16 h of the
+  //    lag ran by the data date, so A's remaining work starts 8 h before G's late date.
+  const three = project(
+    [
+      task("1", "A", 40, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 56 }),
+      task("2", "G", 0, { status_code: "TK_Complete", act_start_date: "2025-12-01 08:00", act_end_date: "2025-12-01 17:00", target_drtn_hr_cnt: 8 }),
+      task("3", "J", 80),
+    ],
+    [link("1", "2", "1", "PR_SS", 24), link("2", "3", "2")],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  const g = formatDate(schedule(three).tasks.get("2").lf);
+  const cal = Calendar.fromXer({ clndr_id: "C1", clndr_data: WEEK, day_hr_cnt: "8" });
+  assert.equal(at(schedule(three), three, "A").ls, formatDate(cal.nextStart(cal.subWork(parseDate(g), 8 * 60))));
+  assert.equal(at(schedule(three, { variant: off(["bwDoneSSLeft"]) }), three, "A").ls, formatDate(cal.nextStart(parseDate(g))));
+  // 4. B started, as late as possible: its remaining 8 h move up to its successor's start.
+  const four = project(
+    [task("1", "B", 8, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 24, cstr_type: "CS_ALAP" }), task("2", "Q", 16), task("3", "R", 8)],
+    [link("1", "3", "1"), link("2", "3", "2")],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  assert.equal(at(schedule(four), four, "B").es, "2025-12-04 08:00");
+  assert.equal(at(schedule(four, { variant: off(["alapActive"]) }), four, "B").es, "2025-12-03 08:00");
+  // 5. P's actual start (Fri 5 Dec) is after the data date, so none of its SS
+  //    lag of 16 h has run: started successor S waits 16 h from P's remaining start.
+  const five = project(
+    [task("1", "P", 24, { status_code: "TK_Active", act_start_date: "2025-12-05 08:00", target_drtn_hr_cnt: 24 }), task("2", "S", 8, { status_code: "TK_Active", act_start_date: "2025-12-05 08:00", target_drtn_hr_cnt: 8 })],
+    [link("1", "2", "1", "PR_SS", 16)],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  assert.equal(at(schedule(five), five, "S").es, "2025-12-05 08:00");
+  assert.equal(at(schedule(five, { variant: off(["activeSSLeft"]) }), five, "S").es, "2025-12-03 08:00");
+});
+
 test("CPM: as late as possible takes up free float; loops are found and reported", () => {
   const x = project(
     [task("1", "A", 8), task("2", "B", 8, { cstr_type: "CS_ALAP" }), task("3", "C", 24), task("4", "End", 0, { task_type: "TT_FinMile" })],
