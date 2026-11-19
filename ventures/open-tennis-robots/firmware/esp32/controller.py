@@ -442,7 +442,10 @@ SURVEY_KEEP = 128      # wheels whose residuals the board keeps for the median (
 # refitting each wheel at them and keeping the least did as well as the true contact time. Each fit costs four times the
 # exponentials of a step and keeps the tau refinement (36 steps a fit, not 15), about 5 s of control ticks a two-wheel
 # ball, so it runs only while the Pi has asked for it (SURVEY_TAKE, sent for a calibration drill, which then waits).
-TAKE_SURVEY_GRID_US = (0, 2000, 3000, 4000, 5000, 6000, 8000)
+# 2026-11-19 (README "An eight-point take grid", eval/take-grid-eight-2026-11-19.md): 7 ms added. With only 6 and 8 ms
+# to bend between, the parabola read 6.6 ms takes as 6.0 and 7.15 ms ones as 8.0; on three fresh held-out sets the
+# eight-point grid had 185 of 216 builds within 0.5 ms against 149, the same 15 large misses, by its pre-registered rule.
+TAKE_SURVEY_GRID_US = (0, 2000, 3000, 4000, 5000, 6000, 7000, 8000)
 # The take survey's t0 search depth (2026-11-18, README "The first-order take misfit traced"). At the record fit's 3
 # levels a noise-free wheel's first, coarse t0 grid now and then settled in the wrong basin, so its rms against tau had
 # cliffs (227 ppm at 300 ms, 42 at 305) and the golden section stopped at 277-330 ms on single candidates, with 3-12

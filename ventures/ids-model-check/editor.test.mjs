@@ -963,3 +963,16 @@ test("sets the standard gives only some predefined types: named, and left out on
   // IFC4's IfcMaterial/Concrete is a category, not a type: no limit.
   assert.equal(setTypeLimit(loadFor("IFC4"), "Pset_MaterialConcrete", ["IFCMATERIAL"]), null);
 });
+
+test("template types: occurrence sets are not offered on type objects, performance sets are offered on IFCPERFORMANCEHISTORY", () => {
+  for (const id of ["IFC4", "IFC4X3"]) {
+    const S = R.schemas[id], ps = R.psets[id];
+    assert.ok(setsFor(ps, S, "IFCFAN").includes("Pset_FanOccurrence"), id);
+    assert.ok(!setsFor(ps, S, "IFCFANTYPE").includes("Pset_FanOccurrence"), id);
+    assert.ok(setsFor(ps, S, "IFCFANTYPE").includes("Pset_FanTypeCommon"), id);
+    assert.ok(!setsFor(ps, S, "IFCFAN").includes("Pset_FanPHistory"), id);
+    assert.ok(setsFor(ps, S, "IFCPERFORMANCEHISTORY").includes("Pset_FanPHistory"), id);
+    assert.ok(classesWithSets(ps, S).includes("IFCPERFORMANCEHISTORY"), id);
+  }
+  assert.ok(!setsFor(R.psets.IFC4X3, R.schemas.IFC4X3, "IFCAIRTERMINALTYPE").includes("Pset_AirTerminalOccurrence"));
+});

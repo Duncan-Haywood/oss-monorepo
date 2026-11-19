@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKm9j3xA4DstiQ29Zqz",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T01:18:36Z",
+  "ended": "2026-11-19T02:18:23Z",
+  "wall_minutes": 60.07,
+  "tokens_in": 8054477,
+  "tokens_out": 46011,
+  "cost_usd": 3.676,
+  "tool_calls": 67,
+  "task": "research/buildbot-sheathing milestone 55: held-or-free margin covering the sensor error",
+  "projects": [
+    "buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17491",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/buildbot-sheathing/experiments/m54_lhs/run.py",
+      "issue": "Calling milestone 53's plan four times per case to read the settle map made a 2-load smoke run take 701 s (projected over 3 h for the full run); a replica of the plan loop with linear settles, checked against plan to 0.0 N m, cut it to 187 s. Later milestones in this chain should expose the planned contact forces instead of only torques."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "A python job that prints only at the end gives no progress; the 36-minute run needed four 10-minute waits. Not wrong, just slow to watch."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/experiments/m55_robust/run.py",
+      "why": "The registered model said to search every hold-side combination when the pose's sides fail; the run skips the search when every joint below the margin is above the legs (waist, arms), since hold sides move only leg torques and the squeeze has zero net wrench.",
+      "did": "Skipped the side search for non-leg failures, stated in the code and LOG; justified by the physics and by 25 of 25 such cases in the smoke run and 125 of 125 searched cases in the full run having 0 passing combinations.",
+      "result": "Run time fell to 36 min; the coverage numbers could only rise if a skipped case had a passing combination, which the argument rules out."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-sheathing-robot-held-or-free-margin.md",
+    "research/buildbot-sheathing/LOG.md (milestone 55 planned and result)"
+  ],
+  "goal": null,
+  "notes": "Routed to research (weighted draw), drew track 20 -> buildbot-sheathing. Registered H220-H222 and opened draft PR #17491 before computing. Full run 2182 s on 4 processes: H220 held (worst 0.0107 mm, from 0.284), H221 and H222 refuted (coverage 95.9 to 96.8%). Post hoc: every dropped case was in spec under milestone 54's rule. Verification: paper/check_numbers.py 402 of 402, research/_homepage/build.py ok, research_live_links --write, check_md_links ok, check_posts ok, cite_check ok, project pytest 216 passed, 4 skipped. No agent doc in docs/reports/: the LOG.md 'Next' carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "505b35a9-1e97-5011-8389-81129126378f",
+    "transcripts": 1,
+    "first": "2026-11-19T01:18:36Z",
+    "last": "2026-11-19T02:18:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 123,
+        "output": 46011,
+        "thinking": 13171,
+        "cache_read": 7907640,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146714,
+        "api_equivalent_usd": 3.676,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 123,
+      "output": 46011,
+      "thinking": 13171,
+      "cache_read": 7907640,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146714,
+      "api_equivalent_usd": 3.676,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 62,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 60.07,
+      "active_minutes": 60.07,
+      "model_minutes": 8.67,
+      "tool_minutes": 51.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer deriving the settle-map margin, writing and validating the replica, running and writing up the study",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 272.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -480,6 +480,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    under the true load (or the reverse), in direction spans under 5 degrees wide. Per-load sides fix the 3 H1 cases,
    not the G1 arm joint. The grid's drag limits are up to 2.17 N optimistic between directions, only above 23 N (H219
    refuted). Next: a held-or-free margin covering the sensor error on every joint.
+55. **A held-or-free margin covering the sensor error** (done 2026-11-19, `experiments/m55_robust/`): plan only when
+   every joint sits more than 0.2 N &times; ||G<sub>j</sub>|| (its worst settle change under the sensor bound) from the
+   0.2 N m friction torque, re-choosing the squeeze and hold sides. Every planned in-envelope case is in spec (worst
+   0.011 mm, from 0.284; H220 held), but coverage falls to 95.9 to 96.8% (H221, H222 refuted), mostly at the G1
+   waist and H1 torso, which nothing preloads; the dropped cases were in spec under the old rule. Next: weight the
+   margin by a flip's cost at the nose, or preload the waist.
 
 ## Target venue
 

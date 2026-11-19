@@ -65,6 +65,7 @@ M52 = E + "m52_slackcal/results.txt"
 M53 = E + "m53_loadside/results.txt"
 M54 = E + "m54_lhs/results.txt"
 M54P = E + "m54_lhs/posthoc.txt"
+M55 = E + "m55_robust/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -266,6 +267,10 @@ CHECKS = [
     (M54, "worst g1 0.2841, h1 0.0423 -> refuted", "the worst 0.284 mm on the G1"),
     (M54, "phi 202.6, limit 26.44 N, smaller neighbour 28.61 N, shortfall 2.17 N", "up to\n2.17 N optimistic"),
     (M54P, "over 0.03 mm at offsets -1.75 to +3.00 deg (20 points)", "spans 2.75 to 4.75 degrees wide"),
+    (M55, "worst g1 0.0107, h1 0.0099 -> held", "(worst 0.0107 mm on the G1)"),
+    (M55, "g1 96.35%, h1 96.63% -> refuted", "96.4% (G1) and 96.6% (H1)"),
+    (M55, "coverage g1 95.87%, h1 96.76% -> refuted", "95.9% and 96.8% on 48 fresh loads"),
+    (M55, "largest misfit 2.13e-13 N m", "linear in the load error"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

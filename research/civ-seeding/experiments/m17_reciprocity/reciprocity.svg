@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 408" role="img" aria-label="pooled joint median worst-case regret of three seeding rules as respondents name triadic-closure false ties, with every reported tie kept or only reciprocated ones">
+<rect width="640" height="408" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Worst-case regret with and without the reciprocity filter (closure false ties, recall 0.85)</text>
+<line x1="64" x2="624" y1="352.0" y2="352.0" stroke="#ddd"/><text x="58" y="356.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="302.6" y2="302.6" stroke="#ddd"/><text x="58" y="306.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="253.2" y2="253.2" stroke="#ddd"/><text x="58" y="257.2" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="203.8" y2="203.8" stroke="#ddd"/><text x="58" y="207.8" text-anchor="end" font-family="sans-serif" font-size="11">3</text>
+<line x1="64" x2="624" y1="154.4" y2="154.4" stroke="#ddd"/><text x="58" y="158.4" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="105.0" y2="105.0" stroke="#ddd"/><text x="58" y="109.0" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<text x="64.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="624.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="344.0" y="396" text-anchor="middle" font-family="sans-serif" font-size="12">false ties named per true tie (phi)</text>
+<text x="14" y="218.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 218.0)">joint median worst-case regret (%)</text>
+<line x1="64" x2="624" y1="153.3" y2="153.3" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,138.2 344.0,100.5 624.0,99.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="138.2" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="100.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="99.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">census top degree, as reported</text>
+<polyline points="64.0,127.1 344.0,123.7 624.0,123.1" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="127.1" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="123.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="123.1" r="3" fill="#1f6fb2"/>
+<rect x="284" y="32" width="14" height="10" fill="#1f6fb2"/><text x="304" y="41" font-family="sans-serif" font-size="11">census top degree, reciprocated only</text>
+<polyline points="64.0,262.1 344.0,257.0 624.0,214.7" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="262.1" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="257.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="214.7" r="3" fill="#2e8b57"/>
+<rect x="64" y="46" width="14" height="10" fill="#2e8b57"/><text x="84" y="55" font-family="sans-serif" font-size="11">census degree discount, as reported</text>
+<polyline points="64.0,256.8 344.0,243.3 624.0,244.3" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="256.8" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="243.3" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="244.3" r="3" fill="#8e44ad"/>
+<rect x="315" y="46" width="14" height="10" fill="#8e44ad"/><text x="335" y="55" font-family="sans-serif" font-size="11">census degree discount, reciprocated only</text>
+<polyline points="64.0,237.7 344.0,218.4 624.0,209.3" fill="none" stroke="#222222" stroke-width="2"/>
+<circle cx="64.0" cy="237.7" r="3" fill="#222222"/>
+<circle cx="344.0" cy="218.4" r="3" fill="#222222"/>
+<circle cx="624.0" cy="209.3" r="3" fill="#222222"/>
+<rect x="64" y="60" width="14" height="10" fill="#222222"/><text x="84" y="69" font-family="sans-serif" font-size="11">half survey, as reported</text>
+<polyline points="64.0,227.7 344.0,225.4 624.0,209.7" fill="none" stroke="#d68910" stroke-width="2"/>
+<circle cx="64.0" cy="227.7" r="3" fill="#d68910"/>
+<circle cx="344.0" cy="225.4" r="3" fill="#d68910"/>
+<circle cx="624.0" cy="209.7" r="3" fill="#d68910"/>
+<rect x="246.8" y="60" width="14" height="10" fill="#d68910"/><text x="266.8" y="69" font-family="sans-serif" font-size="11">half survey, reciprocated only</text>
+</svg>
