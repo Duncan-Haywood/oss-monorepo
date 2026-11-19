@@ -285,7 +285,9 @@ const round3 = (x) => Math.round(x * 1000) / 1000;
 // Flat rows for a CSV download: one per finding.
 export function findingsCsv(report) {
   const esc = (v) => {
-    const s = String(v ?? "");
+    let s = String(v ?? "");
+    // a cell a spreadsheet would read as a formula is written as text
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const rows = [["check", "activity", "name", "detail"]];

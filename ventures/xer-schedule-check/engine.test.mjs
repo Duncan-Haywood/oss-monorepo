@@ -181,6 +181,8 @@ test("DCMA: each point counts what it should on a small schedule", () => {
   const csv = findingsCsv(r);
   assert.match(csv, /^check,activity,name,detail\n/);
   assert.match(csv, /Logic,Loose,Activity Loose,no predecessor or successor/);
+  r.checks[0].items[0].name = "=HYPERLINK(1)";
+  assert.match(findingsCsv(r), /,'=HYPERLINK\(1\),/);
 });
 
 test("the bundled example parses cleanly and its calendar is the 8-hour one", async () => {
