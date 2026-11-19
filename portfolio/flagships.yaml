@@ -494,11 +494,13 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      IFC4X3 ifcXML: none public (searched 2026-11-18); B-spline control points cut
-      into rows from knot counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md); more
-      real exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs;
-      IFC4/IFC4X3 STEP exports (ThatOpen/engine_web-ifc tests/ifcfiles/public) as
-      nested ifcXML through eval/ifc4-layout.mjs.
+      Excel2IDS's tool beside excel2ids.mjs on the same workbooks (pip ifctester; a
+      session allowed to run it; eval/excel2ids-2026-11-19.md). IFC4X3 ifcXML: none
+      public (searched 2026-11-18); B-spline control points cut into rows from knot
+      counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md); more real exports through
+      eval/model-inventory.mjs and eval/model-attr-ranges.mjs; IFC4/IFC4X3 STEP
+      exports (ThatOpen/engine_web-ifc tests/ifcfiles/public) as nested ifcXML
+      through eval/ifc4-layout.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked") and HISTORY.md.
@@ -520,8 +522,11 @@ flagships:
       1,280 of 1,280 editor pairs agree). IDS as a spreadsheet 2026-11-19
       (eval/sheet-roundtrip-2026-11-19.md: .xlsx/CSV both ways; 334 of 334 test IDS,
       62 of 64 public same back). Excel-saved workbooks 2026-11-19
-      (eval/excel-workbooks-2026-11-19.md: dates, 15-digit numbers, true/false,
-      _x000D_, .xls named; 65,537 of 65,548 cells agree with openpyxl on 321 POI
-      workbooks; download cells as Text). next: a BIM manager's real table via
-      --from-sheet; Excel itself typing into the download; an RVB/ILS author on \s;
-      a Revit/ARCHICAD IFC4X3 export to confirm. More open items: NEXT.md.
+      (eval/excel-workbooks-2026-11-19.md: 65,537 of 65,548 cells agree with
+      openpyxl). Excel2IDS template workbooks both ways 2026-11-19 (excel2ids.mjs,
+      eval/excel2ids-2026-11-19.md: 309 of 309 public specs that fit come back the
+      same; partOf, unnamed material, ranges do not fit). next: a BIM manager's real
+      table or filled Excel2IDS workbook via --from-sheet; Excel2IDS's own tool run
+      side by side on the same workbooks; Excel itself typing into the download; an
+      RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. More open
+      items: NEXT.md.
