@@ -43,16 +43,22 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 13,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First push: changed-ventures failed on test_checks_refuse_empty_root.py, because the new check_open_range_messages.py passed on an empty --root. Fixed: it counts scanned files and exits 2 on none."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/ci/check_button_clicks.js",
       "issue": "Each full FILL run reports the same three kinds of known non-bug (headless clipboard denials, error-keeper's sample stack trace, quickbooks-iif's 'an undefined account'); with no allowlist every run re-triages them by hand. Listed in the report now."
+    },
+    {
+      "file": "platform/ci/test_checks_refuse_empty_root.py",
+      "issue": "The rule that a new check_*.py with --root must exit nonzero on an empty root is in that test's docstring only; a short line in the check-writing guidance (or the check_local_assets.py header) would have caught it before CI."
     }
   ],
   "deviations": [],

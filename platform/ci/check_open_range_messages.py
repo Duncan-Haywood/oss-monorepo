@@ -47,7 +47,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--root", type=Path, default=ROOT / "ventures")
     args = ap.parse_args(argv)
-    found = 0
+    found = scanned = 0
     for path in sorted(args.root.rglob("*")):
         if path.suffix not in SUFFIXES or "node_modules" in path.parts:
             continue
@@ -57,13 +57,19 @@ def main(argv=None):
             text = path.read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError):
             continue
+        scanned += 1
         for n, line in scan(text):
             found += 1
             print(f"{path.relative_to(args.root.parent) if args.root.parent in path.parents else path}:{n}: {line[:160]}")
+    if not scanned:
+        # A wrong --root must not pass while it scans nothing
+        # (test_checks_refuse_empty_root.py).
+        print(f"no .mjs/.js/.html files under {args.root}: wrong --root?")
+        return 2
     if found:
         print(f"{found} range message(s) can print 'Infinity' as a bound; say '${{min}} or more' when max is Infinity.")
         return 1
-    print("open-ended range messages: 0 can print Infinity")
+    print(f"open-ended range messages: 0 of {scanned} files can print Infinity")
     return 0
 
 
