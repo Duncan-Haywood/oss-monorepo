@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 1,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 31,
   "outcome": "success",
@@ -43,6 +43,10 @@
     {
       "what": "Local CI: sibling-links failed (new tool had no inbound sibling link) and secondary-schema failed (guide page had no JSON-LD)",
       "fix": "footer links from hvac-load-calc and wall-condensation-check with href tests; a visible FAQ + FAQPage block on the guide, its numbers tested against the engine"
+    },
+    {
+      "what": "Remote CI caught three more: reportCsv had no spreadsheet formula-injection guard (check_csv_formula_guard), the new usage.mjs was missing from platform/privacy/optout-switches.txt, and the chart printed RH labels as ${f * 100}% (0.7*100 = 70.00000000000001%, a real visible bug caught by percent-float.test.mjs)",
+      "fix": "csvCell-style guard with a numeric pass-through (negative temperatures stay numbers); sync_tree_counts.py; Math.round on the label plus a calc.test assertion"
     }
   ],
   "integrity_issues": [

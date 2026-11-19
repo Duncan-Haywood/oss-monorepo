@@ -171,6 +171,7 @@ test("the chart, table and CSV render every point", () => {
     const svg = c.chartSvg(r);
     assert.match(svg, /^<svg /);
     assert.doesNotMatch(svg, /NaN|undefined|Infinity/, proc);
+    assert.doesNotMatch(svg, />\d+\.\d+%</, `${proc}: RH labels are whole percentages`);
     for (const p of r.points) assert.ok(svg.includes(`>${p.label}</text>`), `${proc} ${p.label}`);
     const rows = c.propertyRows(r);
     assert.equal(rows.length, 10);

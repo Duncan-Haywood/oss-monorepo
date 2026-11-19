@@ -511,7 +511,7 @@ export function chartSvg(r) {
     parts.push(`<polyline fill="none" stroke="#b9cbd3" stroke-width="0.9" points="${curve((t) => humRatio(f * satPressure(t), p))}"/>`);
     const tLab = tHi - (tHi - tLo) * 0.06;
     const wLab = humRatio(f * satPressure(tLab), p);
-    if (wLab < wTop * 0.95) parts.push(`<text x="${(X(tLab) - 4).toFixed(1)}" y="${(Y(wLab) - 3).toFixed(1)}" text-anchor="end">${f * 100}%</text>`);
+    if (wLab < wTop * 0.95) parts.push(`<text x="${(X(tLab) - 4).toFixed(1)}" y="${(Y(wLab) - 3).toFixed(1)}" text-anchor="end">${Math.round(f * 100)}%</text>`);
   }
   parts.push(`<polyline fill="none" stroke="#163c4e" stroke-width="2" points="${curve((t) => satHumRatio(t, p))}"/>`);
   // process lines and points
