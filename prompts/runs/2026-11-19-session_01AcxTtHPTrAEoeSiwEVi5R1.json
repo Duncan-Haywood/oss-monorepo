@@ -30,7 +30,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
@@ -64,7 +64,7 @@
     "docs/reports/polish-2026-11-19-reflow-320.md"
   ],
   "goal": null,
-  "notes": "Sweep: Playwright over 1,414 built venture pages at 390/360/320 (4 min, 8 tabs). Before: 21 sideways at 320, 0 at 360/390. After (--only preview of the 44 touched pages): 0 at every width; computed grid-template-columns identical before/after at 768 and 1280 on 44 of 44 pages. pairwise-ranking stays 1 px over at 320 (not touched). Codemod: 62 grids in 56 files. New check platform/pages/grid-min-reflow.test.mjs 0.5 s. Changed ventures' own tests and platform/pages suite run locally (results in PR).",
+  "notes": "Sweep: Playwright over 1,414 built venture pages at 390/360/320 (4 min, 8 tabs). Before: 21 sideways at 320, 0 at 360/390. After (--only preview of the 44 touched pages): 0 at every width; computed grid-template-columns identical before/after at 768 and 1280 on 44 of 44 pages. pairwise-ranking stays 1 px over at 320 (not touched). Codemod: 62 grids in 56 files. New check platform/pages/grid-min-reflow.test.mjs 0.5 s. Changed ventures' own tests and platform/pages suite run locally (results in PR). Local: platform/pages suite 1,877/1,878 (the one failure, 'identical build produces an identical cache name', came from committing during the run; it passes alone); the 44 changed ventures' own tests 0 failures. CI: all green except changed-ventures, where fdr-multiple-testing 'a large list stays fast' took 8,284 ms against an 8,000 ms limit (an engine timing test this PR doesn't touch; 1.4 s locally; the job runs 56 suites at once). Merged with that noted.",
   "corrections": [],
   "redteam": null,
   "usage": {
