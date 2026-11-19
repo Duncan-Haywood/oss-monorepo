@@ -3101,6 +3101,14 @@ on either split; totals unchanged. It costs a few more seconds, and only on the 
 [`eval/receipt-ocr-ru-bands-2026-11-19.md`](eval/receipt-ocr-ru-bands-2026-11-19.md). Tests:
 `receipt-seller-bands.test.mjs`.
 
+The page does the same since 2026-11-19 (`photoocr.mjs` `withSecondLook`). It draws the three
+bands on a canvas and reads them with the same RapidOCR reader in the browser. **In headless
+Chromium, held-out test sellers went from 105 to 114 of 146 (78.1%) and val from 116 to 121, with
+none lost.** Every seller the bands put first was right, and totals did not change. The status
+line says when a slip was read again. Details:
+[`eval/receipt-ocr-ru-page-bands-2026-11-19.md`](eval/receipt-ocr-ru-page-bands-2026-11-19.md).
+Tests: `receipt-seller-bands-page.test.mjs`.
+
 ### Russian slips with a Cyrillic recogniser (2026-11-18)
 
 RapidOCR's default recognition model has no Cyrillic: on Russian slips it reads the totals well
