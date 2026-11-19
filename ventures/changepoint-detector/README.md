@@ -59,7 +59,8 @@ where it departs from the paper.
   you just analysed ("What a daily watch would have sent"), and agents call `replayWatch` in `watch-core.mjs`
   (README "Replaying the watch on your own history").
 - **Watch several metrics in one run** (2026-11-13): `node watch.mjs kpi.csv --state s.json --columns all` (or
-  `--columns orders:poisson,revenue,signups:poisson`, a model per column) watches every column of one CSV, keeps a
+  `--columns orders:poisson,revenue,signups:poisson`, a model per column, and a detector per column since
+  2026-11-19: `orders:poisson:bocpd-window`, README "A detector per column") watches every column of one CSV, keeps a
   record per column in one state file and sends the day's new changes as one webhook message. README "Several metrics in
   one watch".
 - **Watch your Stripe account** (2026-11-16): `STRIPE_API_KEY=rk_live_... node stripe-metrics.mjs --out data/stripe.csv`
@@ -3611,10 +3612,43 @@ seeds 101-120, steps at point 108, found = an alert within 3 points of it.
 checks (one more alert in 620 checks, on the overdispersed null), so part (a) fails and **the default stays
 `bocpd`**. The trade is printed, not hidden: a merchant who would rather hear a 30% drop in orders (18 of 20
 against 10 of 20 here) at about one more false alert in 600 days can add `--detector bocpd-window` with a count
-column (`--column orders --model poisson --detector bocpd-window`). With `--columns` the detector applies to every
-column, so for a mixed CSV it is set per run. Next: a fresh-seed re-test with a rule written for the margin (the
-nulls' 95% interval at 620 checks is wide enough that one alert decides it), and a per-column detector in
-`--columns` so a count column can take `bocpd-window` beside a level column's default.
+column (`--column orders --model poisson --detector bocpd-window`), or, in a mixed CSV, name it for that column alone
+(next section). Next: a fresh-seed re-test with a rule written for the margin (the nulls' 95% interval at 620 checks
+is wide enough that one alert decides it).
+
+## A detector per column (2026-11-19)
+
+The section above ended with "a per-column detector in `--columns` so a count column can take `bocpd-window` beside a
+level column's default". Until now `--detector` applied to every column of a `--columns` run, so a Shopify or Stripe
+watch could not give orders the windowed pass without moving revenue off its level default
+(`bocpd-ar1-window`) as well. Now a column names its own detector after its model, in either order:
+
+```
+node watch.mjs data/shopify.csv --state watch-state.json --columns orders:poisson:bocpd-window,revenue,cancelled:poisson
+```
+
+- each part after a colon is a model (`mean`, `meanvar`, `poisson`) or a detector (any of `--detector`'s), at most
+  one of each; anything else is refused with both lists;
+- `--detector X` applies to the columns that name none; a named one keeps its own;
+- `--detector auto` picks for the columns that name none and leaves a named one alone (it writes no `choice` for it,
+  so naming a detector later takes effect at once);
+- the text output starts a named column's block with `Detector: bocpd-window (named for this column).`, and `--json`
+  carries `detector` on that column.
+
+The default is unchanged: the switch for counts failed its pre-registered rule above, so this is the opt-in that
+section printed, made usable in the mixed CSVs the Stripe and Shopify workflows watch. The made repository's README,
+the workflow's comment and the guide page (`watch-a-metric-for-changes.html`) say how, with the trade (84 of 100 test
+steps against 60, about one more false alert in 600 checks).
+
+**Checked** (`watch-column-detector.test.mjs`, 3 tests; `watch.test.mjs`'s `--columns` test updated for the new
+message): the parser (both orders, case, a second model or detector refused, a bare `:poisson` refused); a shop
+whose orders fall from 30 to 21 a day at day 108 of 120 (cell S2 of `eval/poisson-window.mjs`; seed 5 is the first
+of 1-199 where the replay with `bocpd` misses the drop and `bocpd-window` hears it) watched daily from day 90 through
+the CLI: `orders:poisson,revenue` sends no orders alert within 3 days of the drop,
+`orders:poisson:bocpd-window,revenue` sends one (dated 2026-04-18, day 107, 29.5 to 20.8 a day, sent 6 days later),
+revenue's record is the same in both runs, and the orders record equals a one-column watch with
+`--detector bocpd-window`; `--detector auto` and `--detector pelt` beside a named column. One seed shows the wiring,
+not the rate: the rates are the table above.
 
 ## A real shop's daily series through `--suggest` (2026-11-18, pre-registered; all three bars fail; a weekly-cycle line ships)
 

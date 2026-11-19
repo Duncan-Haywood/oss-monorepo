@@ -318,7 +318,7 @@ test('--columns: names, all, a model per column, and the mistakes it refuses', a
   assert.deepEqual(columnSpecs(csv, 'orders:poisson, revenue'), [{ column: 'orders', model: 'poisson' }, { column: 'revenue', model: null }]);
   assert.deepEqual(columnSpecs(csv, 'all').map((s) => s.column), ['orders', 'revenue', 'signups']);
   assert.deepEqual(columnSpecs(csv, '1,3'), [{ column: 1, model: null }, { column: 3, model: null }]);
-  assert.throws(() => columnSpecs(csv, 'orders:counts'), /after the colon is the model/);
+  assert.throws(() => columnSpecs(csv, 'orders:counts'), /after a colon is a model/);
   assert.throws(() => columnSpecs(csv, 'orders,ORDERS'), /listed twice/);
   await assert.rejects(main(['x.csv', '--columns', '--dry-run'], { out: () => {} }), /comma list/);
 });

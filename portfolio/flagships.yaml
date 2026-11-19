@@ -201,11 +201,12 @@ flagships:
       prints 56/56 false; side-adjusted prints fail worse (21/39, README "The trade
       side"): no price-only fix, the line ends. Shopify source ships 2026-11-19
       (README "Shopify as a source"); counts: bocpd-window 84/100 steps vs 60, false
-      1.61 vs 1.21/1000 (prereg fails, README "Counts and the windowed detector"):
-      next a margin rule, per-column detector. joint drift (measured, not offered).
-      Open: (0) drift model: t-walk increments, biweight on fresh data, why it
-      absorbs seat belts and quality control 4, its AR(1) term; notes quote it.
-      Curvature word ships under --shape-word panel (README "A curvature word"):
+      1.61 vs 1.21/1000 (prereg fails, README "Counts and the windowed detector");
+      per-column detector ships (orders:poisson:bocpd-window, README "A detector per
+      column"): next a margin rule on fresh seeds. joint drift (measured, not
+      offered). Open: (0) drift model: t-walk increments, biweight on fresh data,
+      why it absorbs seat belts and quality control 4, its AR(1) term; notes quote
+      it. Curvature word ships under --shape-word panel (README "A curvature word"):
       slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items:
       NEXT.md.
   - venture: einvoice-preflight
