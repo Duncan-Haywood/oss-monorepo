@@ -1,10 +1,10 @@
 // Loads every venture index.html offline in headless Chromium and reports
 // NaN/Infinity/undefined/[object Object] in visible text and uncaught page errors.
 // Usage: node platform/ci/check_page_runtime.js out.json   (prose mentions are listed, review by eye)
-// Pages are served over http:// by sweep_server.js: module scripts (1,384 of 1,408 pages) do not load from file:// (2026-11-19).
+// SWEEP_ROOT=ventures/<slug> sweeps one venture. Pages are served over http:// by sweep_server.js: module scripts (1,384 of 1,408 pages) do not load from file:// (2026-11-19).
 const {chromium}=require('playwright');const {serve}=require('./sweep_server.js');const fs=require('fs');const path=require('path');
 const root=process.cwd();
-const files=require('child_process').execSync("find ventures -name index.html -not -path '*/node_modules/*' -maxdepth 3").toString().trim().split('\n');
+const files=require('child_process').execSync(`find ${process.env.SWEEP_ROOT||"ventures"} -name index.html -not -path '*/node_modules/*' -maxdepth 3`).toString().trim().split('\n');
 (async()=>{const srv=await serve(root);const b=await chromium.launch();const ctx=await b.newContext();
 await ctx.route('**/*',r=>{const u=r.request().url();if(u.startsWith(srv.base))r.continue();else r.abort();});
 const hits=[];let i=0;

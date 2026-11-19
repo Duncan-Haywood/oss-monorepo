@@ -3,10 +3,10 @@
 // dispatches the change, and for each text/number input presses Enter, then reports any
 // NaN/Infinity/undefined/[object Object] that newly appears in visible text or a new uncaught page error.
 // Usage: node platform/ci/check_select_keys.js out.json [limit]
-// Pages are served over http:// by sweep_server.js: module scripts (1,384 of 1,408 pages) do not load from file:// (2026-11-19).
+// SWEEP_ROOT=ventures/<slug> sweeps one venture. Pages are served over http:// by sweep_server.js: module scripts (1,384 of 1,408 pages) do not load from file:// (2026-11-19).
 const {chromium}=require('playwright');const {serve}=require('./sweep_server.js');const fs=require('fs');const path=require('path');
 const root=process.cwd();
-let files=require('child_process').execSync("find ventures -name index.html -not -path '*/node_modules/*' -maxdepth 3").toString().trim().split('\n').sort();
+let files=require('child_process').execSync(`find ${process.env.SWEEP_ROOT||"ventures"} -name index.html -not -path '*/node_modules/*' -maxdepth 3`).toString().trim().split('\n').sort();
 if(process.argv[3])files=files.slice(0,+process.argv[3]);
 const BAD=/.{0,30}\b(NaN|Infinity|undefined|\[object Object\])\b.{0,30}/;
 (async()=>{const srv=await serve(root);const b=await chromium.launch();const ctx=await b.newContext();
