@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtL2GTXyMG4KxFVia31",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T18:07:34Z",
+  "ended": "2026-11-19T20:24:40Z",
+  "wall_minutes": 137.5,
+  "tokens_in": 10066922,
+  "tokens_out": 37246,
+  "cost_usd": 3.7981,
+  "tool_calls": 81,
+  "task": "ids-model-check (flagship 12): look up the offline --link-bsdd suggestions in bSDD now that its API answers",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17747",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First template sweep ran 8 requests at a time and lost 43 of 760 sets to bSDD 429s after getJson's retries",
+      "fix": "3 at a time plus up to 5 retry rounds 30 s apart; full run then completed in about 25 min"
+    },
+    {
+      "what": "A second full sweep hung over an hour under throttling, and two background waiters hit their time limit (one waited on pgrep -x node, which also matched the long-lived MCP node process)",
+      "fix": "stopped it; added --sets to rerun only the 35 sets bSDD lacks (a few minutes)"
+    },
+    {
+      "what": "First README/post draft claimed Reference was the only unresolved template name before the 35 missing sets had been checked; the check found 76 more",
+      "fix": "rewrote README, llms.txt, post and code comment from the measured numbers before merge"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ids-model-check next: said '--bsdd over its 54 outputs where bSDD is reachable' and the earlier eval said the proxy 403s bSDD; today api.bsdd.buildingsmart.org answered from Node fetch and curl. allocate.py's host probe does not include api.bsdd.buildingsmart.org, so a run cannot tell from the probe line."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "buildable: cap is 600 characters; the row was at 529, so even a one-line rerun note had to be shortened twice."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-ids-model-check-bsdd-links-resolve.md",
+    "ventures/ids-model-check/eval/bsdd-suggest-live-2026-11-19.md"
+  ],
+  "goal": "Deepen a flagship (ids-model-check): make the offline bSDD link writer only write links that resolve, measured live",
+  "notes": "bSDD API reachable this run. eval/bsdd-suggest-live.mjs: 619 corpus suggestions through checkBsdd; 2 bsdd-not-found (Pset_PlateCommon.Reference). eval/bsdd-template-sweep.mjs over all 760 IFC 4.3 template sets: 3,683 of 3,988 pairs at the rule's link in bSDD, 0 at another link; 108 absent pairs all Reference; 35 sets (197 pairs) not in bSDD, 116 of those still resolve, 81 (77 names incl. Reference) do not. bsdd-suggest.mjs now skips those 77 (BSDD_UNLINKED); the sweep exits 1 when the list drifts. Corpus after fix: 617 links, 617 resolve, 593 clean, the 24 others are the facets' own dataType slips (24 of the suggester's 27 type hints agree with bSDD; the 3 are Qto quantities bSDD stores as plain Real). Venture tests: 361 pass (run_venture_tests.py ids-model-check). check_posts ok. venture-preflight: see PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4af92a64-56cb-551f-a7b2-e3381a1ba197",
+    "transcripts": 1,
+    "first": "2026-11-19T18:07:34Z",
+    "last": "2026-11-19T20:25:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 83,
+        "input": 166,
+        "output": 37246,
+        "thinking": 5612,
+        "cache_read": 9933528,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133228,
+        "api_equivalent_usd": 3.7981,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 83,
+      "input": 166,
+      "output": 37246,
+      "thinking": 5612,
+      "cache_read": 9933528,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133228,
+      "api_equivalent_usd": 3.7981,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 70,
+      "Write": 4,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 137.5,
+      "active_minutes": 28.16,
+      "model_minutes": 7.1,
+      "tool_minutes": 21.05,
+      "waiting_on_human_minutes": 109.34,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a BIM tooling engineer scripting a rate-limited sweep of 760 bSDD sets, the corpus lookup, fix and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 158.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
