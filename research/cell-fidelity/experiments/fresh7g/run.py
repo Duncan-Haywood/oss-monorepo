@@ -252,5 +252,30 @@ def report():
     print("\n".join(L))
 
 
+# ---------- post hoc (after the report; descriptive) ----------
+
+def posthoc():
+    """Per set: the S_C scale on the 104 (leave-one-out) against the fresh pool (fit on the 104), and the hindsight
+    cheapest threshold and uniform policies on the fresh pool itself (what a rule could at best have cost there)."""
+    rs, fr = F7.load(), load_fresh()
+    med = lambda xs: sorted(xs)[len(xs) // 2]
+    L = ["cell-fidelity 7g post hoc (written after the report; descriptive, not a test).", "",
+         f"{'set':12s}{'S_C med 104':>12s}{'S_C med new':>12s}{'S_C max new':>12s}{'hind theta':>14s}{'cyc':>6s}"
+         f"{'hind U':>8s}{'cyc':>6s}"]
+    for st in SETS:
+        old = [M7.sc(r) for r in rs if r["set"] == st]
+        te = [r for r in fr if r["set"] == st]
+        new = [M7.sc(r) for r in te]
+        tg = target(te)
+        th = [p for p in M7.theta_policies(te) if p[2] <= tg + EPS]
+        bt = min(th, key=lambda p: (round(p[0], 12), -p[1][2], p[1][1]))
+        E = {k: [r["E"][k] for r in te] for k in KS}
+        cu, lu = F7.cheapest(F7.uniform_policies(E), tg)
+        L.append(f"{st:12s}{med(old):12.3f}{med(new):12.3f}{max(new):12.3f}{lab_s(bt[1]):>14s}{bt[0]:6.1f}"
+                 f"{lab_s(lu):>8s}{cu:6.1f}")
+    (HERE / "posthoc.txt").write_text("\n".join(L) + "\n")
+    print("\n".join(L))
+
+
 if __name__ == "__main__":
-    {"bench": bench, "rows": rows, "report": report}[sys.argv[1]]()
+    {"bench": bench, "rows": rows, "report": report, "posthoc": posthoc}[sys.argv[1]]()
