@@ -154,3 +154,23 @@ test("risk register: no events leave the duration draws exactly as they were; ba
   assert.match(w, /risk R1: S finished or a milestone/);
   assert.match(w, /risk R2 left out/);
 });
+
+test("histogram bins hold the runs that fall in them, from the earliest finish on", () => {
+  const r = riskAnalysis(merge(), { iterations: 500, range: { min: 0.5, likely: 1, max: 2 }, seed: 9 });
+  const h = r.histogram;
+  assert.ok(h[0].from > 0, "the earliest finish is days after the start");
+  assert.ok(h[0].count > 0 && h[h.length - 1].count > 0, JSON.stringify(h));
+  assert.equal(h.reduce((s, b) => s + b.count, 0), 500);
+});
+
+test("the no-event column's must-finish chance is a share of runs", () => {
+  const x = project(
+    [task("1", "S", 0, { task_type: "TT_Mile" }), task("2", "A", 40), task("3", "B", 40), task("4", "C", 8)],
+    [link("1", "2", "1"), link("2", "3", "1"), link("3", "4", "2"), link("4", "4", "3")],
+    { plan_end_date: "2026-01-30 17:00" },
+  );
+  const { risks } = parseRisks("Late,0.5,5,5,5,C");
+  const r = riskAnalysis(x, { iterations: 300, seed: 2, range: { min: 1, likely: 1, max: 1 }, risks });
+  assert.equal(r.withoutRisks.pMustFinish, 1);
+  assert.equal(r.pMustFinish, 1);
+});

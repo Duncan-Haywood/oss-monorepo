@@ -73,7 +73,8 @@ import time
 PIP_NAMES = {"sklearn": "scikit-learn", "yaml": "pyyaml", "PIL": "pillow",
              "skfem": "scikit-fem", "skimage": "scikit-image", "cv2": "opencv-python-headless",
              "bs4": "beautifulsoup4", "dateutil": "python-dateutil",
-             "opendssdirect": "OpenDSSDirect.py", "pysat": "python-sat"}
+             "opendssdirect": "OpenDSSDirect.py", "pysat": "python-sat",
+             "mauve": "mauve-text"}
 APT_NAMES = {"sklearn": "python3-sklearn", "yaml": "python3-yaml", "PIL": "python3-pil",
              "skimage": "python3-skimage", "cv2": "python3-opencv", "bs4": "python3-bs4",
              "dateutil": "python3-dateutil"}

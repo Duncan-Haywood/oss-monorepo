@@ -1,0 +1,71 @@
+# Milestone 153: SWC(1) against SWC(1.25) blind at tt_025C_1v80 on milestone 152's fresh short add chains (flow run)
+
+theta = 3; grid 0, 0.5, 0.8, 1, 1.25; bootstrap 2000 resamples, seed 153
+tools: {'yosys': 'Yosys 0.71+post (git sha1 v0.71, Release, GNU /nix/store/ii6p6kc1brz3vycqg88q4zb4xd2dmqwp-gcc-wrapper-16.2.0/bin/g++ 16.2.0)', 'openroad': '26Q3'}
+liberty sha256: ec0e1067a35c8bf20b11e58d1e8ac53326067e4dac84a125cc1b917a3518d0d9
+
+design | clock | tt baseline no-wire period ns | ff baseline ns (milestone 152) | tt/ff
+wsum3 | tight | 10.990 | 7.090 | 1.55
+wsum8 | relaxed | 8.370 | 8.630 | 0.97
+sad7 | tight | 14.380 | 7.930 | 1.81
+dot7r | relaxed | 19.160 | 7.220 | 2.65
+avg10 | tight | 13.090 | 7.360 | 1.78
+dot9r | relaxed | 18.280 | 10.750 | 1.70
+sad6 | tight | 26.560 | 13.990 | 1.90
+csum7 | tight | 17.770 | 12.630 | 1.41
+dot3r | relaxed | 16.800 | 6.630 | 2.53
+avg8 | tight | 11.410 | 7.520 | 1.52
+csum9 | relaxed | 20.580 | 14.010 | 1.47
+wsum5 | tight | 11.900 | 7.020 | 1.70
+sad2 | relaxed | 12.750 | 10.370 | 1.23
+
+complete designs (order prefix): 13 of 13
+
+## Per design at tt (regret %)
+
+design | routed/r2 | branch | random | SWC(0) | SWC(0.5) | SWC(0.8) | SWC(1) | SWC(1.25) | d(1) | d(0) | ff d(1) | ff d(0)
+wsum3 | 4.63 | ladder | 6.21 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | +0.00 | +0.00 | +0.00 | +6.64
+wsum8 | 4.90 | ladder | 2.44 | 1.58 | 1.58 | 1.58 | 1.58 | 0.00 | +1.58 | +1.58 | +0.00 | +0.00
+sad7 | 4.84 | ladder | 2.16 | 0.11 | 0.11 | 0.11 | 0.11 | 0.11 | +0.00 | +0.00 | -11.66 | -14.39
+dot7r | 4.08 | ladder | 4.17 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | +0.00 | +0.00 | +0.00 | +0.00
+avg10 | 4.27 | ladder | 1.66 | 3.86 | 3.86 | 3.86 | 3.86 | 0.00 | +3.86 | +3.86 | -12.60 | +0.00
+dot9r | 4.12 | ladder | 1.16 | 1.51 | 1.51 | 1.51 | 1.51 | 1.51 | +0.00 | +0.00 | +0.00 | +0.00
+sad6 | 5.49 | ladder | 11.75 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | +0.00 | +0.00 | +0.00 | +0.00
+csum7 | 4.81 | ladder | 1.92 | 2.18 | 2.18 | 2.18 | 2.18 | 2.18 | +0.00 | +0.00 | +0.00 | -16.74
+dot3r | 3.88 | ladder | 1.09 | 7.62 | 7.62 | 7.62 | 7.62 | 7.62 | +0.00 | +0.00 | +0.00 | -3.34
+avg8 | 4.28 | ladder | 1.67 | 0.00 | 0.00 | 0.00 | 0.00 | 0.35 | -0.35 | -0.35 | +0.00 | +13.47
+csum9 | 4.80 | ladder | 2.33 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | +0.00 | +0.00 | +0.00 | +0.00
+wsum5 | 4.72 | ladder | 2.41 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | +0.00 | +0.00 | +0.00 | -1.14
+sad2 | 4.68 | ladder | 2.52 | 10.24 | 10.24 | 10.24 | 10.24 | 10.24 | +0.00 | +0.00 | +0.00 | +0.00
+
+## Fresh tt designs
+
+alpha | mean regret % | worst % (design)
+0 | 2.08 | 10.24 (sad2)
+0.5 | 2.08 | 10.24 (sad2)
+0.8 | 2.08 | 10.24 (sad2)
+1 | 2.08 | 10.24 (sad2)
+1.25 | 1.69 | 10.24 (sad2)
+random | 3.19 |
+
+(1) PRIMARY mean d(1) = +0.39 points (SWC(1) 2.08% against SWC(1.25) 1.69%), 95% interval -0.05 to +1.01; SWC(1) better / worse / tied 1 / 2 / 10 (sign p = 1.000): held
+(2) mean d(0) = +0.39 points, 95% interval -0.05 to +1.01: held
+(3) SWC(1.25) 1.69% against random 3.19%: held
+(4) ladder branch at tt: 13 of 13: held
+(5) these designs at both corners (26 units): 0 3.17%, 0.5 3.17%, 0.8 3.34%, 1 2.83%, 1.25 3.57%; best 1: held
+(6) Spearman of d(0) at ff against tt over 13 designs: -0.170: refuted
+(7) every unit (223: ff 92, tt 131): 0 6.70%, 0.5 4.51%, 0.8 3.32%, 1 2.73%, 1.25 2.58%; best 1.25: held
+
+## Reported, not predicted
+
+all ff units (92): best alpha 0; 0 3.25%, 0.5 3.30%, 0.8 3.89%, 1 3.78%, 1.25 3.66%
+all tt units (131): best alpha 1.25; 0 9.12%, 0.5 5.35%, 0.8 2.93%, 1 2.00%, 1.25 1.82%
+
+family | designs | mean tt d(1) points
+avg | 2 | +1.75
+csum | 2 | +0.00
+dot | 3 | +0.00
+sad | 3 | +0.00
+wsum | 3 | +0.53
+
+Spearman of d(1) at ff against tt: -0.461; these 13 at ff: SWC(1) 3.58% against SWC(1.25) 5.45%

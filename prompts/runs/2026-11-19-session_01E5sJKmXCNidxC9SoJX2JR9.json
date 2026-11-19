@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKmXCNidxC9SoJX2JR9",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T17:10:21Z",
+  "ended": "2026-11-19T17:27:00Z",
+  "wall_minutes": 17.27,
+  "tokens_in": 7662628,
+  "tokens_out": 31973,
+  "cost_usd": 3.1774,
+  "tool_calls": 76,
+  "task": "polish queue: hub-links items 1-2 (repaired links to site research pages, old repo name); /ask/ example-question check (consolidated into #17735's after it landed first)",
+  "projects": [
+    "platform/pages",
+    "ventures (42 source links)"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17734",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "started the first site build with a shell '&' instead of run_in_background, then launched a second build that refused to run (another build writing dist) and overwrote the first one's log",
+      "fix": "waited on dist.building instead; no harm beyond a few minutes"
+    },
+    {
+      "what": "waited 540 s on wait_for.py --marker 'exit ' when the log's last line was 'exit 0' (the marker match wants a whole line)",
+      "fix": "read the log directly"
+    },
+    {
+      "what": "build.test.mjs 'repaired out to the private repository' failed after the prefix rename (it grepped HTML, so hand-written oss-monorepo links looked like repairs)",
+      "fix": "the test now reads result.repairs"
+    },
+    {
+      "what": "duplicate work: PR #17735 landed the same /ask/ example-question browser check (ask-suggestions-check.mjs) while this PR was in CI; both runs read polish_queue before either draft existed",
+      "fix": "merged main, deleted my ask-check.mjs/ask-examples.mjs, folded my one extra (fetch every reply link, fail on a dead one) into ask-suggestions.mjs/-check.mjs with a unit test; rewrote the post around the link fix"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-19-hub-links.md",
+      "issue": "item 1 suggested a general research-link fix after checking 'the whole repaired-link list'; the build only logs a count, so finding the list meant grepping dist for the blob prefix. It was 6 links on 4 pages, smaller than the item implied."
+    },
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "the 'Repointed N off-site link(s)' line prints only a count; printing the targets (or writing them to the build report) would let a run see what is repaired without grepping 12,000 pages."
+    },
+    {
+      "file": "ventures/deploy-concurrency-check (deploy-concurrency-check-ci.yml)",
+      "issue": "the dogfood step fails on main with 11 findings in .github/workflows (uitest-ci, opencode-high-throughput...). Any PR touching that venture shows a red check it didn't cause. Not recorded in any report or backlog that I could find; the fix (concurrency groups) is control plane."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "'Pick one piece of work': the repaired-link item was only 6 links, so I also took the /ask/ check carried over in four reports, and fixed 42 hand-typed old-repo links found while counting.",
+      "did": "three related changes in one PR",
+      "result": "link fixes landed; the /ask/ check duplicated #17735 and was consolidated into it (only the dead-link fetch survives)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-links-that-left-the-site-for-no-reason.md",
+    "docs/reports/polish-2026-11-19-repaired-link-targets.md"
+  ],
+  "goal": null,
+  "notes": "Before (full build of main): 6 repaired links on 4 pages to github.com/Duncan-Haywood/monorepo-projects/blob/main/..., 2 of them to research/house-dewpoint which the site serves. After (second full build with the change): both wall-condensation-check links are ../research/house-dewpoint/, the other 4 name oss-monorepo; 42 venture pages that hand-typed monorepo-projects now name oss-monorepo. check.mjs: publishable, 12006 pages, no dead links. ask-check.mjs: exit 0 on the build (3/3); exit 1 with a nonsense question ('answered I found nothing') and with dist/roofing-bid-calculator moved aside (dead link named). Unit tests: build.test.mjs repair cases 3/3, ask-examples.test.mjs 6/6, repo-name.test.mjs 2/2, test_build_pages_site.py 47 passed, test_browser_checks.py 55 passed. Full node --test 'platform/pages/*.test.mjs': 1862 pass, 3 fail on the first run. Two were my post's 196-char description (fixed). The third, 'no link to a published venture is repaired out to the private repository', grepped the built HTML for SOURCE_URL_PREFIX + 'ventures/'; with the prefix now naming oss-monorepo it matched hand-written source links in posts, which are not repairs. Rewrote it to read the build's own `repairs` list (each repair now records `to` and `repoPath`). Re-run: those tests and the post tests 26/26 pass. CI: deploy-concurrency-check-ci 'test' is red because its dogfood step (check.py .github/workflows/ --fail-on-risk) finds 11 risks in .github/workflows; it exits 1 on main too (checked locally on origin/main). It ran here only because a source link in that venture's index.html changed. The fix belongs in a control-plane PR. Consolidation after #17735: ask-suggestions.test.mjs 10/10; ask-suggestions-check.mjs on my pre-#17735 build names the dead link when dist/roofing-bid-calculator is moved aside (its privacy maxLinks:0 expectation fails on that old build as expected; #17735's ranking fix is in main's build).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "86e5a316-8c50-5be4-9969-aeed77230f52",
+    "transcripts": 1,
+    "first": "2026-11-19T17:10:21Z",
+    "last": "2026-11-19T17:27:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 134,
+        "output": 31973,
+        "thinking": 5673,
+        "cache_read": 7533657,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128837,
+        "api_equivalent_usd": 3.1774,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 134,
+      "output": 31973,
+      "thinking": 5673,
+      "cache_read": 7533657,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128837,
+      "api_equivalent_usd": 3.1774,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 68,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.27,
+      "active_minutes": 17.27,
+      "model_minutes": 5.01,
+      "tool_minutes": 12.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "a senior web engineer: trace and fix the link-repair path with a test, write and verify a Playwright check with negative cases, fix 42 pages, write report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 157.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

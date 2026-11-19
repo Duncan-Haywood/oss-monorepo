@@ -34,7 +34,9 @@ function startSnapBack(cal, t) {
 }
 
 export function buildModel(xer) {
-  const warnings = [];
+  // a Microsoft Project file's reader notes (manual tasks, summary links,
+  // deadlines) belong with the schedule's own warnings
+  const warnings = xer.format === "mspdi" ? [...xer.warnings] : [];
   // A TASK row with no task_id cannot be linked or reported (a hand-made
   // table headed Task_ID, say): it is left out, and said so.
   const noId = (xer.tables.TASK || []).filter((r) => !r.task_id).length;
@@ -175,6 +177,8 @@ export function buildModel(xer) {
     const succ = tasks.get(r.task_id);
     const pred = tasks.get(r.pred_task_id);
     const rel = { id: r.task_pred_id, succId: r.task_id, predId: r.pred_task_id, type: r.pred_type, lag: Math.round(readHours(r, "lag_hr_cnt", "lag") * 60), external: !succ || !pred };
+    // a per-link lag calendar (not in P6; mspdi.mjs sets it for Project's elapsed lags)
+    if (r.lag_calendar === "24h") rel.lagCal = "rcal_24Hour";
     rels.push(rel);
     if (!succ || !pred) continue;
     succ.preds.push(rel);
@@ -207,7 +211,7 @@ function lagCalendar(model, rel) {
   const pred = model.tasks.get(rel.predId);
   const succ = model.tasks.get(rel.succId);
   const proj = model.projects.get(succ.proj);
-  switch (proj ? proj.lagCal : "rcal_Predecessor") {
+  switch (rel.lagCal || (proj ? proj.lagCal : "rcal_Predecessor")) {
     case "rcal_Successor": return succ.cal;
     case "rcal_24Hour": return Calendar.allDay();
     case "rcal_ProjDefault": return proj.cal;

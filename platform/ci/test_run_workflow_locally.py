@@ -2568,6 +2568,36 @@ class PickSteps(unittest.TestCase):
         self.assertIn("not selected by --step", out.getvalue())
 
 
+class ResearchTests(unittest.TestCase):
+    """--for-changes runs the diff's research projects' own suites."""
+
+    def setUp(self):
+        self.repo = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.repo, True)
+        os.makedirs(os.path.join(self.repo, "platform", "ci"))
+        for d in ("research/a/tests", "research/b", "research/_shared/tests"):
+            os.makedirs(os.path.join(self.repo, d))
+        with open(os.path.join(self.repo, "platform", "ci", "run_research_tests.py"), "w") as f:
+            f.write("import sys\nprint(' '.join(sys.argv[1:]))\nsys.exit(1)\n")
+
+    def test_only_projects_with_tests_are_run(self):
+        calls = []
+        real = subprocess.run
+
+        def spy(cmd, **kw):
+            calls.append(cmd)
+            return real(cmd, **kw)
+        with mock.patch.object(runner.subprocess, "run", spy), \
+                contextlib.redirect_stdout(io.StringIO()):
+            rc = runner.research_tests(["research/a/x.py", "research/b/y.py",
+                                        "research/_shared/z.py", "README.md"], repo=self.repo)
+        self.assertEqual(rc, 1)
+        self.assertEqual(calls[-1][2:], ["research/a"])
+
+    def test_no_research_diff_runs_nothing(self):
+        self.assertEqual(runner.research_tests(["docs/posts/x.md"], repo=self.repo), 0)
+
+
 class PostPrecheck(unittest.TestCase):
     """A diff's post over a front-matter cap stops --for-changes before the sweep."""
 

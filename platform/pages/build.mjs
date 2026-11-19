@@ -6125,7 +6125,32 @@ export async function copyTree(from, to, baseUrl, skip = null) {
 // Link repair
 // ---------------------------------------------------------------------------
 
-export const SOURCE_URL_PREFIX = 'https://github.com/Duncan-Haywood/monorepo-projects/blob/main/';
+// The repository was renamed from `monorepo-projects` to `oss-monorepo`.
+// GitHub redirects the old name, but every repaired link paid a redirect and
+// named a repository that no longer exists under that name
+// (docs/reports/polish-2026-11-19-repaired-link-targets.md).
+export const SOURCE_URL_PREFIX = `${REPO_WEB_URL}/blob/main/`;
+// A folder is a `tree/` URL on GitHub; `blob/` on a folder only works through
+// a redirect.
+export const SOURCE_TREE_PREFIX = `${REPO_WEB_URL}/tree/main/`;
+
+/**
+ * The site's own page for a repository path a venture links to, or null.
+ *
+ * A research project (`research/<slug>/`, or its README) is published at
+ * `/research/<slug>/`, so a venture's "the research behind this tool" link
+ * belongs there rather than on GitHub's file view: wall-condensation-check's
+ * two links to `research/house-dewpoint/` were repaired to GitHub while the
+ * site served the page (docs/reports/polish-2026-11-19-hub-links.md, item 1).
+ * Only the project folder and its README map; a link to one results file
+ * inside it still means that file.
+ */
+export function sitePageForRepoPath(repoRelative, outDir) {
+  const m = /^research\/([^/]+)(?:\/(?:readme\.md)?)?$/i.exec(repoRelative);
+  if (!m || m[1].startsWith('_')) return null;
+  const page = path.join(outDir, RESEARCH_PATH, m[1], 'index.html');
+  return existsSync(page) ? page : null;
+}
 
 /**
  * Every venture page was written assuming its own directory was the site root,
@@ -6169,9 +6194,17 @@ export async function repairLinks({ publishedDir, sourceDir, repoRoot, outDir })
       const inRepo = path.resolve(path.dirname(sourceOfFile), pathPart);
       if (!inRepo.startsWith(`${repoRoot}${path.sep}`) || !existsSync(inRepo)) return whole;
 
+      const repoRelative = path.relative(repoRoot, inRepo).split(path.sep).join('/');
       changed = true;
-      repaired.push({ file: path.relative(outDir, file), from: ref });
-      return `${open}${SOURCE_URL_PREFIX}${path.relative(repoRoot, inRepo).split(path.sep).join('/')}${close}`;
+      const sitePage = sitePageForRepoPath(repoRelative, outDir);
+      if (sitePage) {
+        const href = `${path.relative(path.dirname(file), path.dirname(sitePage)).split(path.sep).join('/')}/`;
+        repaired.push({ file: path.relative(outDir, file), from: ref, to: href });
+        return `${open}${href}${close}`;
+      }
+      const prefix = statSync(inRepo).isDirectory() ? SOURCE_TREE_PREFIX : SOURCE_URL_PREFIX;
+      repaired.push({ file: path.relative(outDir, file), from: ref, to: `${prefix}${repoRelative}`, repoPath: repoRelative });
+      return `${open}${prefix}${repoRelative}${close}`;
     });
 
     if (changed) await fs.writeFile(file, next);
@@ -13238,6 +13271,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // directory; `mapLimit` returns results in input order, so `surfaces` and
   // `repairs` keep the slug order the hub and the report depend on.
   const sourceDates = await loadLastChanged(REPO_ROOT);
+  // The research pages must exist before the repairs ask whether a venture's
+  // `research/<slug>/` link has a page on this site (`sitePageForRepoPath`).
+  // Pass 1 takes minutes and the research build about two seconds, so this
+  // await costs nothing in practice.
+  await researchBuild;
   const repairLists = await mapLimit(discovered, 16, (surface) =>
     repairLinks({
       publishedDir: path.join(outDir, surface.slug),

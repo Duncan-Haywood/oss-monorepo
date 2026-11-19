@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKkZS2yA1seLx43P9Pf",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T15:18:30Z",
+  "ended": "2026-11-19T17:27:17Z",
+  "wall_minutes": 129.05,
+  "tokens_in": 13382532,
+  "tokens_out": 51516,
+  "cost_usd": 6.2775,
+  "tool_calls": 91,
+  "task": "research programme codesign-cant (pick_track draw): milestone 7af, a set-point step in the training objective; plus paper figures VII-a/VII-b",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17705",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First smoke run failed pickling `fly` for the scoring pool: wrappers must live in the experiment's own __main__ module (as 7ae does), not be passed as AE.fly; fixed before the full run.",
+    "Loading an experiment run.py with `import run` collides with experiments/m6_poshold/run.py on sys.path; load it with importlib under another name."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "--until defaults to a 100 s timeout and exits 0 with 'still failing' text, so a background `wait_for ... ; grep` reports completion without the condition met; pass --timeout 540 explicitly."
+    },
+    {
+      "file": "research/codesign-cant/experiments/*/run.py",
+      "issue": "Each milestone's .cache/ training directory is neither committed nor gitignored, so the stop hook flags it as untracked during long runs; added a local .git/info/exclude entry. A research/.gitignore line for experiments/*/.cache*/ would save the next run this."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/codesign-cant (milestone chain)",
+      "why": "pick_track flagged 31 sub-steps of milestone 7 and suggested a paper step might serve better; the draft already covered 7ad/7ae, and 7ae named the step objective as the one open question, so I ran that milestone and used the ~2 h training wait to land the paper's outstanding figures VII-a/VII-b.",
+      "did": "one experiment milestone plus a paper-figure step in the same PR",
+      "result": "both landed; the experiment overturned 7ae's reading, which the draft now records"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-drone-tuner-rise-time-is-set-by-kd.md",
+    "research/codesign-cant/LOG.md (7af entry)",
+    "research/codesign-cant/README.md (7af section)",
+    "research/codesign-cant/paper/DRAFT.md (section VII, figures)"
+  ],
+  "goal": null,
+  "notes": "Predictions committed in 3dbb3a805 before the full run. 9 predictions, 7 held (AF3 kp rises and AF8 overshoot <= 3 cm refuted). Step term: rise 1.83 -> 1.41 s pooled (p = 3.7e-05), crashes 97 vs 107 of 2304 (p = 0.84), 12/12 certified and settled; kd 6.52 -> 4.65; Spearman(kd, rise) 0.999 over 36 designs; post hoc rise = 0.90*0.9 m/(A_P/kd) + 0.33 s, r 0.9994. Overshoot 4.7-5.3 cm vs 1.1-1.8. Training 6662 s on 4 cores. Local checks: 14 targeted pytest pass (paper numbers, 7ad, 7ae, 7af), paper/check_numbers.py 71/71, homepage build ok, research_live_links, check_md_links, check_posts ok. No new citations.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f2aed278-2c09-503b-b47b-84b0318324dd",
+    "transcripts": 1,
+    "first": "2026-11-19T15:18:30Z",
+    "last": "2026-11-19T17:27:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 89,
+        "input": 174,
+        "output": 51516,
+        "thinking": 10357,
+        "cache_read": 13052872,
+        "cache_write_5m": 0,
+        "cache_write_1h": 329486,
+        "api_equivalent_usd": 6.2775,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 89,
+      "input": 174,
+      "output": 51516,
+      "thinking": 10357,
+      "cache_read": 13052872,
+      "cache_write_5m": 0,
+      "cache_write_1h": 329486,
+      "api_equivalent_usd": 6.2775,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 91,
+    "tools": {
+      "Bash": 85,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 129.05,
+      "active_minutes": 29.93,
+      "model_minutes": 8.17,
+      "tool_minutes": 21.76,
+      "waiting_on_human_minutes": 99.11,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "experiment design, ~2 h compute, analysis, figures, paper and post edits for a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 191.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

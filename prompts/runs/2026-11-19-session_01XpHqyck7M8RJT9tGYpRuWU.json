@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyck7M8RJT9tGYpRuWU",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T16:39:21Z",
+  "ended": "2026-11-19T17:24:55Z",
+  "wall_minutes": 45.76,
+  "tokens_in": 6355664,
+  "tokens_out": 33037,
+  "cost_usd": 2.8113,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": 17726,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_research_tests.py's first pass reported 4 FAILs that were runner faults (sibling src imports, a unittest-only suite under pytest, missing GL, mauve's pip name); fixed and re-run before writing anything up"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Names pyenv.py with hand-listed modules for tests; pyenv.py --for and now run_research_tests.py exist, and bare `unittest discover` is what runs keep reaching for (6 friction reports 2026-11-17..19). A one-line pointer to run_research_tests.py would help; control plane, so left for the owner."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "The backlog had no agent-owned items, so Critique mode was the only option; the friction_rank.py --live --ungated table was the fastest route to a live problem and the prompt does not name it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-no-ci-ran-the-research-tests.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog: only owner rows). main_health.py: 296/296 green. Lens: research test suites. Found no CI workflow runs research projects' own tests (research-ci.yml runs only research/_shared tests). Built platform/ci/run_research_tests.py, wired into run_workflow_locally.py --for-changes (--no-research-tests skips), added mauve->mauve-text to pyenv.py PIP_NAMES. Seeded audit on main 71547b1f2 (--sample 40 --seed 2026-11-19; --sample 150 --seed 2026-11-19b): 181 PASS, 8 ENV (7 chip-* need yosys/iverilog, homebot needs GL), 1 TIMEOUT (verified-dse >300 s), 0 FAIL. Filed P069 (owner: add the step to research-ci.yml). Checks: python3 -m unittest test_run_workflow_locally test_pyenv test_run_research_tests (platform/ci) OK; promptctl validate ok; check_post_frontmatter + check_posts ok. Backlog ids: P069.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f536ca47-4371-5a93-8dac-f11e1515db70",
+    "transcripts": 1,
+    "first": "2026-11-19T16:39:21Z",
+    "last": "2026-11-19T17:25:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 118,
+        "output": 33037,
+        "thinking": 7022,
+        "cache_read": 6242850,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112696,
+        "api_equivalent_usd": 2.8113,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 118,
+      "output": 33037,
+      "thinking": 7022,
+      "cache_read": 6242850,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112696,
+      "api_equivalent_usd": 2.8113,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 61,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 45.76,
+      "active_minutes": 45.76,
+      "model_minutes": 5.76,
+      "tool_minutes": 40.0,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "tool + tests + 190-project audit + triage of runner faults + post, as a senior engineer would estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 213.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

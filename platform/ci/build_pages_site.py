@@ -322,7 +322,8 @@ def _iter_web_assets(root: Path):
 
 # Where a link that escapes the published site still resolves. Mirrors
 # `SOURCE_URL_PREFIX` in `platform/pages/build.mjs`.
-SOURCE_URL_PREFIX = "https://github.com/Duncan-Haywood/monorepo-projects/blob/main/"
+SOURCE_URL_PREFIX = "https://github.com/Duncan-Haywood/oss-monorepo/blob/main/"
+SOURCE_TREE_PREFIX = "https://github.com/Duncan-Haywood/oss-monorepo/tree/main/"
 
 _LOCAL_REF_RE = re.compile(r'((?:href|src)=")([^"]+)(")')
 _ABSOLUTE_REF_RE = re.compile(r"^(?:[a-z][a-z0-9+.-]*:|//|#)")
@@ -364,7 +365,8 @@ def repoint_offsite_links(text: str, page_source: Path, page_dest: Path, out_dir
         in_repo = (page_source.resolve().parent / path_part).resolve()
         if REPO_ROOT not in in_repo.parents or not in_repo.exists():
             return whole
-        return f"{opener}{SOURCE_URL_PREFIX}{in_repo.relative_to(REPO_ROOT).as_posix()}{closer}"
+        prefix = SOURCE_TREE_PREFIX if in_repo.is_dir() else SOURCE_URL_PREFIX
+        return f"{opener}{prefix}{in_repo.relative_to(REPO_ROOT).as_posix()}{closer}"
 
     return _LOCAL_REF_RE.sub(replace, text)
 
