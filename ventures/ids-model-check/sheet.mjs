@@ -10,7 +10,9 @@
 //   rowsToIds(rows)               -> { text, errors: [{row, message}], warnings }
 //   rowsToCsv(rows, sep = ",")    -> CSV text (RFC 4180)
 //   csvToRows(text)               -> string[][] (comma, semicolon or tab, found from the header)
-//   rowsToXlsx(rows)              -> Uint8Array (an .xlsx with a "Read me" sheet)
+//   rowsToXlsx(rows, { lists })   -> Uint8Array (an .xlsx with a "Read me" sheet and dropdown lists)
+//   sheetLists({ schemas, psets }) -> { entity, propertySet, dataType } words for those dropdowns
+//   sheetVersions(rows)           -> the schema ids (IFC2X3, IFC4, IFC4X3) the rows name
 //   sheetsToXlsx([{ name, rows, widths }]) -> Uint8Array (any worksheets, cells as Text)
 //   await xlsxToRows(bytes, inflateRaw, { sheet }) -> string[][] (the sheet named, else the one named IDS, else the first;
 //                                    dates as ISO 8601, numbers as Excel shows them)
@@ -499,6 +501,7 @@ export const README_ROWS = [
   ["  base: integer          (when the restriction is not on string, double, or a date/time/duration its bounds already show)"],
   ["A leading backslash keeps a cell literal: \\one of: x is the plain value \"one of: x\". In a clause, ;; is a literal ; and in a one-of list || is a literal |."],
   ["An empty cell means no element. cardinality on a requirement row is required (or empty), optional or prohibited."],
+  ["Columns with a fixed set of words (section, facet, cardinality, relation) offer them as a dropdown; entity, propertySet, dataType and ifcVersion suggest the IFC schema's words but take anything, so a restriction (one of: ..., pattern: ...) still fits. The words are on the hidden Lists sheet."],
   ["The IDS sheet's cells are formatted as Text, so 42.0, true and 2024-01-01 stay as typed. Keep that format when you paste: use Paste Special > Values."],
   ["Made by IDS Model Check (MIT): https://marisstella.app/ids-model-check/ . Not legal or professional advice; check the IDS you hand over."],
 ];
@@ -520,16 +523,108 @@ export function sheetsToXlsx(sheets) {
 
 const STYLES_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="49" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyNumberFormat="1"/><xf numFmtId="49" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs></styleSheet>`;
 
-export function rowsToXlsx(rows) {
+// ----------------------------------------------------- dropdown lists ----
+//
+// The downloaded workbook offers each fixed-word column as an in-cell
+// dropdown (Excel and LibreOffice "data validation"), from a hidden "Lists"
+// sheet. Columns whose words come from the IFC schema (entity, propertySet,
+// dataType, ifcVersion) only suggest: a cell there may hold a restriction
+// (one of: ..., pattern: ...) or several versions, so typing past the list
+// raises no alert. section is held to its list; facet, cardinality and
+// relation warn but let a person keep what they typed (an info row's field,
+// a min..max cardinality).
+
+export const INFO_FIELDS = ["title", "copyright", "version", "description", "author", "date", "purpose", "milestone"];
+export const RELATION_WORDS = ["IFCRELAGGREGATES", "IFCRELASSIGNSTOGROUP", "IFCRELCONTAINEDINSPATIALSTRUCTURE", "IFCRELNESTS", "IFCRELVOIDSELEMENT IFCRELFILLSELEMENT"];
+const BASE_LISTS = {
+  section: ["info", "specification", "applicability", "requirements"],
+  facet: [...FACETS, ...INFO_FIELDS],
+  cardinality: ["required", "optional", "prohibited"],
+  relation: RELATION_WORDS,
+  ifcVersion: ["IFC2X3", "IFC4", "IFC4X3_ADD2"],
+};
+// How each column is held: "stop" refuses another value, "warning" asks,
+// "suggest" only offers the list. Titles <= 32 and texts <= 255 characters
+// (Excel's limits).
+const VALIDATION = {
+  section: { style: "stop", title: "section", prompt: "info, specification, applicability or requirements.", error: "section is info, specification, applicability or requirements." },
+  facet: { style: "warning", title: "facet", prompt: "entity, partOf, classification, attribute, property or material; on an info row the info field (title, author, ...).", error: "Not a facet or an IDS info field. ids.xsd allows title, copyright, version, description, author, date, purpose and milestone." },
+  cardinality: { style: "warning", title: "cardinality", prompt: "required, optional or prohibited (empty means required). On a specification row min..max also works.", error: "cardinality is required, optional or prohibited, or min..max on a specification row." },
+  relation: { style: "warning", title: "relation (partOf)", prompt: "How the element is part of the class in entity. Empty means any of these relations.", error: "Not an IDS 1.0 partOf relation; tools that validate against ids.xsd refuse the file." },
+  ifcVersion: { style: "suggest", title: "ifcVersion", prompt: "IFC2X3, IFC4 or IFC4X3_ADD2; several are separated by a space." },
+  entity: { style: "suggest", title: "entity", prompt: "An IFC class in upper case (IFCWALL), or a restriction: one of: IFCWALL | IFCSLAB, pattern: ..." },
+  propertySet: { style: "suggest", title: "propertySet", prompt: "A standard set from the list or the project's own set name, or a restriction (pattern: Pset_.*)." },
+  dataType: { style: "suggest", title: "dataType", prompt: "The IFC type the value is checked as, upper case (IFCLABEL, IFCLENGTHMEASURE, IFCBOOLEAN)." },
+};
+
+// Schema-word lists for the IFC versions given, from schema/<v>.json and
+// schema/psets-<v>.json objects: classes that can be instances (upper case,
+// as IDS writes them), standard property and quantity set names, and the
+// data types a property facet can name (selects left out). Each sorted, no
+// repeats; the IFC versions in the order given.
+export function sheetLists({ schemas = [], psets = [] } = {}) {
+  const entity = new Set(), propertySet = new Set(), dataType = new Set();
+  for (const S of schemas) {
+    for (const [k, e] of Object.entries(S.entities || {})) if (!e.abstract) entity.add(k);
+    for (const [k, t] of Object.entries(S.types || {})) if (t.kind !== "select") dataType.add(k);
+  }
+  for (const P of psets) for (const k of Object.keys(P || {})) propertySet.add(k);
+  const sorted = (x) => [...x].sort();
+  return { entity: sorted(entity), propertySet: sorted(propertySet), dataType: sorted(dataType) };
+}
+
+// The IFC versions a sheet's specification rows name, as schema file ids
+// (IFC2X3, IFC4, IFC4X3); all three when none is named.
+export function sheetVersions(rows) {
+  const i = (rows[0] || []).indexOf("ifcVersion");
+  const out = new Set();
+  if (i >= 0) for (const r of rows.slice(1)) for (const v of String(r[i] ?? "").toUpperCase().split(/\s+/)) {
+    if (v === "IFC2X3") out.add("IFC2X3");
+    else if (v === "IFC4") out.add("IFC4");
+    else if (v.startsWith("IFC4X3")) out.add("IFC4X3");
+  }
+  return out.size ? [...out] : ["IFC2X3", "IFC4", "IFC4X3"];
+}
+
+const listName = (col) => "ids_" + col;
+
+// The data validations for the IDS sheet, one per listed column the header
+// names, over the whole column below the header.
+function validationsXml(header, lists) {
+  const out = [];
+  for (const [col, v] of Object.entries(VALIDATION)) {
+    const ci = header.indexOf(col);
+    if (ci < 0 || !lists[col] || !lists[col].length) continue;
+    const L = colName(ci);
+    const err = v.style === "suggest" ? ` showErrorMessage="0"` : ` showErrorMessage="1"${v.style === "warning" ? ` errorStyle="warning"` : ""} errorTitle="${escAttr(v.title)}" error="${escAttr(v.error)}"`;
+    out.push(`<dataValidation type="list" allowBlank="1" showInputMessage="1"${err} promptTitle="${escAttr(v.title)}" prompt="${escAttr(v.prompt)}" sqref="${L}2:${L}1048576"><formula1>${listName(col)}</formula1></dataValidation>`);
+  }
+  return out.length ? `<dataValidations count="${out.length}">${out.join("")}</dataValidations>` : "";
+}
+
+// rows -> .xlsx: the IDS sheet (cells as Text, header frozen, dropdowns), a
+// "Read me" sheet, and a hidden "Lists" sheet the dropdowns read. opts.lists
+// adds schema words ({ entity, propertySet, dataType }, from sheetLists);
+// without it the fixed IDS words still get their dropdowns.
+export function rowsToXlsx(rows, opts = {}) {
   const widths = rows[0].map((h, i) => Math.min(60, Math.max(8, ...rows.slice(0, 200).map((r) => String(r[i] ?? "").length + 2))));
+  const lists = { ...BASE_LISTS, ...(opts.lists || {}) };
+  const listCols = Object.keys(VALIDATION).filter((c) => lists[c] && lists[c].length && rows[0].includes(c));
+  const longest = Math.max(1, ...listCols.map((c) => lists[c].length));
+  const listRows = [listCols, ...Array.from({ length: longest }, (_, i) => listCols.map((c) => lists[c][i] ?? ""))];
+  const names = listCols.map((c, i) => `<definedName name="${listName(c)}">Lists!$${colName(i)}$2:$${colName(i)}$${lists[c].length + 1}</definedName>`).join("");
+  const sheet1 = sheetXml(rows, { widths, freeze: true, bold: true, text: true }).replace("</sheetData>", "</sheetData>" + validationsXml(rows[0], lists));
+  const ws = (i) => `<Override PartName="/xl/worksheets/sheet${i}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`;
+  const rel = (i, target) => `<Relationship Id="rId${i}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/${target ? "worksheet" : "styles"}" Target="${target || "styles.xml"}"/>`;
   const files = [
-    { name: "[Content_Types].xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>` },
+    { name: "[Content_Types].xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${ws(1)}${ws(2)}${listCols.length ? ws(3) : ""}<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>` },
     { name: "_rels/.rels", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
-    { name: "xl/workbook.xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="IDS" sheetId="1" r:id="rId1"/><sheet name="Read me" sheetId="2" r:id="rId2"/></sheets></workbook>` },
-    { name: "xl/_rels/workbook.xml.rels", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>` },
-    { name: "xl/styles.xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="49" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyNumberFormat="1"/><xf numFmtId="49" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs></styleSheet>` },
-    { name: "xl/worksheets/sheet1.xml", data: sheetXml(rows, { widths, freeze: true, bold: true, text: true }) },
+    { name: "xl/workbook.xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="IDS" sheetId="1" r:id="rId1"/><sheet name="Read me" sheetId="2" r:id="rId2"/>${listCols.length ? `<sheet name="Lists" sheetId="3" state="hidden" r:id="rId4"/>` : ""}</sheets>${names ? `<definedNames>${names}</definedNames>` : ""}</workbook>` },
+    { name: "xl/_rels/workbook.xml.rels", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rel(1, "worksheets/sheet1.xml")}${rel(2, "worksheets/sheet2.xml")}${rel(3)}${listCols.length ? rel(4, "worksheets/sheet3.xml") : ""}</Relationships>` },
+    { name: "xl/styles.xml", data: STYLES_XML },
+    { name: "xl/worksheets/sheet1.xml", data: sheet1 },
     { name: "xl/worksheets/sheet2.xml", data: sheetXml(README_ROWS, { widths: [120], bold: true }) },
+    ...(listCols.length ? [{ name: "xl/worksheets/sheet3.xml", data: sheetXml(listRows, { widths: listCols.map((c) => Math.min(48, Math.max(12, ...lists[c].map((x) => x.length + 2)))), bold: true, text: true }) }] : []),
   ];
   return zipStore(files);
 }
