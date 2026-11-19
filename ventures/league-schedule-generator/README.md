@@ -351,7 +351,55 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Americano: partner everyone once, face everyone twice (whist designs, 2026-11-19, latest)
+## Americano for 4k+2 players: near-whist designs (2026-11-19, latest)
+
+The whist designs below cover 4k and 4k+1 players (and 4k+3 with one empty seat). 6, 10, 14, 18, 22 ...
+players stayed on the greedy search, because two empty seats idle a court. A whist design for 4k+2
+players cannot exist: there are (4k+2)(4k+1)/2 pairs, an odd number, and every game uses two
+partnerships. So the best possible night leaves some pairs unpartnered, and for everyone to play the
+same number of games the unpartnered pairs must form a perfect matching: each player misses exactly
+one partner.
+
+`whist.mjs` now plays exactly that bound, a **near-whist design**, built cyclically on Z_{4k+2} from one
+stored base round (`near-whist-bases.mjs`): k tables seat 4k of the 4k+2 points and two sit out; round g
+adds g to every seat. A pair at distance d (1 to 2k) recurs once per base occurrence; distance 2k+1
+(half the circle) only every other round, which is what makes the matching {x, x+2k+1}. The base round
+needs partner distances 1..2k exactly once and never 2k+1, opponent distances 1..2k at most twice and
+2k+1 exactly once (4k opponent slots, so exactly one distance is used once). Over 4k+2 rounds:
+
+- nobody partners anyone twice; each player partners 4k of their 4k+1 others;
+- the one they miss, they face exactly twice; everyone else they face once or twice (no pair never meets);
+- everyone plays 4k games and sits out exactly twice.
+
+`eval/near-whist-search.mjs` finds the bases by simulated annealing on the base round (swap moves,
+short restarts): 6 to 34 in under 12 s each, 38 in 108 s, 42 in 45 s, 50 in 8.6 min; 46 found nothing in 15 min
+(seed 1) and 54 nothing in 10 min, so those stay on greedy (`eval/near-whist-search.txt`).
+`eval/near-whist-bases-build.mjs` keeps only bases whose developed design passes `checkNearWhist`, an
+independent pair-by-pair check. Stored: 6, 10, 14, 18, 22, 26, 30, 34, 38, 42 and 50 players. Against the greedy search on the same
+players, courts and rounds (`eval/whist-vs-greedy.txt`, a court for every four players):
+
+| players | greedy repeat partners | greedy never partner | greedy opponents | near-whist repeat partners | near-whist never partner | near-whist opponents |
+|---|---|---|---|---|---|---|
+| 6 | 0 | 3 | 1-4 | 0 | 3 | 1-2 |
+| 10 | 2 | 7 | 0-3 | 0 | 5 | 1-2 |
+| 14 | 1 | 8 | 1-3 | 0 | 7 | 1-2 |
+| 18 | 1 | 10 | 1-4 | 0 | 9 | 1-2 |
+| 22 | 1 | 12 | 0-4 | 0 | 11 | 1-2 |
+| 26 | 1 | 14 | 1-4 | 0 | 13 | 1-2 |
+| 30 | 5 | 20 | 0-4 | 0 | 15 | 1-2 |
+| 34 | 11 | 28 | 0-4 | 0 | 17 | 1-2 |
+| 38 | 15 | 34 | 0-5 | 0 | 19 | 1-2 |
+| 42 | 24 | 45 | 0-5 | 0 | 21 | 1-2 |
+
+With fewer courts than tables the design is dealt into rounds as before (26 players on 3 courts: 52
+rounds, 0 repeats, against greedy's 25 on the same 52 rounds), and the page hints that round count.
+A shorter night still keeps the better of the design's first rounds and the greedy search. The page
+says which it used ("Built from a near-whist design ..."). Tested in `whist.test.mjs` (every stored
+size checked, 4k+2 nights from 6 to 30 players, broken designs rejected). An annealing try at the
+missing 4k and 4k+1 whist sizes (40, 41, 45, 48, 49) did not reach even 29, 32 and 33 in 25 s each
+(the exact "twice" condition leaves no slack), so it was dropped (not kept in eval/); those stay on greedy.
+
+## Americano: partner everyone once, face everyone twice (whist designs, 2026-11-19)
 
 The Americano card (rotating partners for padel, pickleball, badminton and tennis nights) used a greedy
 round-by-round search. Over a full cycle with a court for every four players it repeats partners from 20
@@ -376,8 +424,8 @@ How `americano()` uses them (the greedy search stays as the fallback and the com
 - **4k+3 players (7, 11, 15, 19, 23, 27 ...):** the next design up with one empty seat; the table holding
   it sits out. Same games per player as greedy, no repeat partner, every pair meets once or twice
   (greedy 0-4).
-- **4k+2 players (6, 10, 14 ...):** two empty seats idle a court and cost each player 2-3 games over the
-  evening (18 players: 13-14 games against greedy's 16), so these stay on greedy.
+- **4k+2 players (6, 10, 14 ...):** a near-whist design (section above, 2026-11-19); two empty seats in a
+  bigger design would idle a court and cost each player 2-3 games (18 players: 13-14 against 16).
 - **Fewer courts than tables (20 players on 3 courts):** the design's games are dealt into rounds of at
   most 3, least-played players first. The whole design then takes 32 rounds instead of 19; the page says
   so ("set Rounds to 32") and uses it when asked. A prefix measured no better than greedy, so a blank
