@@ -1,0 +1,21 @@
+132 builds on the nine-point grid with wheel inputs (4 files); straddling kept wheels at 1.5 ms: 131 (86 for, 45 against)
+  instant: 12 builds, straddling wheels 2 for 1.5 ms, 13 against
+  0.1-0.9 ms: 36 builds, straddling wheels 7 for 1.5 ms, 30 against
+  1.3-2.1 ms: 36 builds, straddling wheels 36 for 1.5 ms, 2 against
+  2.4 ms and up: 48 builds, straddling wheels 41 for 1.5 ms, 0 against
+  margin 0 (off): named 58 of 120 spread takes, wrong 62, instant told to set a take 0 of 12, no verdict 0; judged right that off was not 0, judged wrong that off got right 0
+  margin 1: named 86 of 120 spread takes, wrong 34, instant told to set a take 0 of 12, no verdict 0; judged right that off was not 30, judged wrong that off got right 2
+  margin 2: named 71 of 120 spread takes, wrong 49, instant told to set a take 0 of 12, no verdict 0; judged right that off was not 13, judged wrong that off got right 0
+  margin 3: named 62 of 120 spread takes, wrong 58, instant told to set a take 0 of 12, no verdict 0; judged right that off was not 4, judged wrong that off got right 0
+per take: advised TAKE_US in ms at margin 0 | 1 | 2 | 3
+  0 ms: 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0
+  0.1 ms: 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 1.5 0 0 0 0 0 0 0 1.5 0 | 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0
+  0.5 ms: 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 1.5 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0
+  0.9 ms: 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0
+  1.3 ms: 0 0 0 0 0 0 0 0 0 0 0 0 | 0 1.5 1.5 0 1.5 0 1.5 0 0 0 0 0 | 0 0 0 0 1.5 0 1.5 0 0 0 0 0 | 0 0 0 0 0 0 0 0 0 0 0 0
+  1.6 ms: 0 0 0 0 0 0 0 0 0 0 0 0 | 0 1.5 1.5 1.5 1.5 1.5 1.5 1.5 0 1.5 0 1.5 | 0 1.5 0 1.5 1.5 0 1.5 0 0 0 0 1.5 | 0 0 0 1.5 0 0 0 0 0 0 0 0
+  2 ms: 0 0 0 0 0 0 0 0 0 0 0 0 | 1.5 1.5 1.5 1.5 1.5 1.5 1.5 0 1.5 0 0 1.5 | 1.5 0 1.5 0 0 0 0 0 0 0 0 1.5 | 0 0 1.5 0 0 0 0 0 0 0 0 1.5
+  2.4 ms: 0 0 0 2.5 2.5 0 0 0 0 0 0 0 | 1.5 1.5 1.5 2.5 2.5 1.5 0 1.5 1.5 0 1.5 1.5 | 0 1.5 0 2.5 2.5 0 0 1.5 0 0 0 1.5 | 0 0 0 2.5 2.5 0 0 0 0 0 0 1.5
+  2.8 ms: 0 2.5 0 3 2.5 0 3 2.5 0 0 0 0 | 1.5 2.5 0 3 2.5 1.5 3 2.5 1.5 0 1.5 1.5 | 0 2.5 0 3 2.5 0 3 2.5 0 0 0 1.5 | 0 2.5 0 3 2.5 0 3 2.5 0 0 0 1.5
+  3.5 ms: 0 0 0 3.5 0 3.5 0 3.5 0 0 3 3.5 | 0 0 0 3.5 1.5 3.5 0 3.5 0 0 3 3.5 | 0 0 0 3.5 0 3.5 0 3.5 0 0 3 3.5 | 0 0 0 3.5 0 3.5 0 3.5 0 0 3 3.5
+  5 ms: 5 0 4.5 5 4.5 4.5 4.5 5 4.5 0 5 4.5 | 5 0 4.5 5 4.5 4.5 4.5 5 4.5 0 5 4.5 | 5 0 4.5 5 4.5 4.5 4.5 5 4.5 0 5 4.5 | 5 0 4.5 5 4.5 4.5 4.5 5 4.5 0 5 4.5
