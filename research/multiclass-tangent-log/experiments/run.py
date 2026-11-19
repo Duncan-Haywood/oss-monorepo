@@ -27,7 +27,7 @@ for rho in (.5, .2, .05, .01, .001, .0001):
     K = 5
     p = rare_class(K, rho)
     d = [1, -1, 0, 0, 0]
-    t = curv_per_range(p, d, min(rho, 0.2))
+    t = curv_per_range(p, d, rho)  # eps = rho, as the paper states (was min(rho, 0.2) until 2026-11-19)
     print(f" rho={rho:<7g} tangent/range {t:9.2f}  brier/range {brier_curv_per_range(d):.3f}  ratio {t/brier_curv_per_range(d):9.2f}")
 
 print("\nE4 best cutoff for truth rho=0.001 (K=5): curvature per range of 0<->1 shift as eps varies")

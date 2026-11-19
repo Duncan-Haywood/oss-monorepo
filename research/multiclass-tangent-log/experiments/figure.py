@@ -20,7 +20,7 @@ def main():
         raise SystemExit("no E3 rows parsed")
     rho = [float(r) for r, _, _ in rows]
     series = [("tangent / range", rho, [float(t) for _, t, _ in rows]), ("Brier / range", rho, [float(b) for _, _, b in rows])]
-    lines("Tangent score: curvature per payment range", "Log-log line plot of curvature per unit payment range against the rare-class probability rho: the tangent score rises from about 1.3 at rho 0.5 to about 490 at rho 0.0001 while Brier stays at 1", "rare-class probability rho (log scale)", "curvature per payment range (log scale)", series, "curvature_ratio.svg", True, True)
+    lines("Tangent score: curvature per payment range", "Log-log line plot of curvature per unit payment range against the rare-class probability rho: the tangent score rises from about 1.2 at rho 0.5 to about 490 at rho 0.0001 while Brier stays at 1", "rare-class probability rho (log scale)", "curvature per payment range (log scale)", series, "curvature_ratio.svg", True, True)
 
 def lines(title, alt, xlabel, ylabel, series, fname, logx=False, logy=False, hline=None):
     W, H, L, R, T, B = 640, 380, 64, 16, 56, 56

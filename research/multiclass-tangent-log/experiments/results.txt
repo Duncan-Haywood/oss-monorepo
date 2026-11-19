@@ -12,7 +12,7 @@ E2 worst-case regret (vertex formula), K=5, truth rare_class(5, rho), eps=rho; a
  rho=0.001  tangent   6.5090 /range 0.823   brier 1.2475 /range 0.624
 
 E3 curvature per unit payment range, moving mass between rare class 0 and class 1 (K=5), eps=rho vs Brier (=1.000)
- rho=0.5     tangent/range      1.34  brier/range 1.000  ratio      1.34
+ rho=0.5     tangent/range      1.18  brier/range 1.000  ratio      1.18
  rho=0.2     tangent/range      1.92  brier/range 1.000  ratio      1.92
  rho=0.05    tangent/range      3.03  brier/range 1.000  ratio      3.03
  rho=0.01    tangent/range      9.28  brier/range 1.000  ratio      9.28
