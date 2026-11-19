@@ -6,7 +6,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { serveRapid } from "./rapidocr-worker.mjs";
 import { loadRapidEngine, loadRapidWorker, readPhotos } from "./photoocr.mjs";
-import { charList, RAPID_URLS } from "./rapidocr-web.mjs";
+import { charList, RAPID_URLS, RAPID_RECOGNISERS, rapidModelUrls, fetchRapidModels } from "./rapidocr-web.mjs";
 
 const KEYS = "T\nO\nA\nL\n9\n.\n";
 // the detector marks dark pixels, the classifier says upright, the recogniser spells "TOTAL 9.99"
@@ -159,4 +159,50 @@ test("readPhotos: tesseract failing to load closes the RapidOCR reader it loaded
   let closed = false;
   await assert.rejects(readPhotos([{ name: "a.jpg", type: "image/jpeg" }], { loadEngine: async () => { throw new Error("offline"); }, loadRapid: async () => ({ read: async () => "", close: async () => { closed = true; } }) }), /offline/);
   assert.equal(closed, true);
+});
+
+// ---- the Cyrillic recogniser (2026-11-19): Russian slips read with the East Slavic model
+
+test("rapidModelUrls: cyrillic swaps only the recogniser and keys, pinned to a Hugging Face revision with hashes", () => {
+  const l = rapidModelUrls(), c = rapidModelUrls("cyrillic");
+  assert.equal(l.rec, RAPID_URLS.rec); assert.deepEqual(l.sha256, {});
+  assert.equal(c.det, RAPID_URLS.det); assert.equal(c.cls, RAPID_URLS.cls);
+  assert.match(c.rec, /^https:\/\/huggingface\.co\/monkt\/paddleocr-onnx\/resolve\/[0-9a-f]{40}\/languages\/eslav\/rec\.onnx$/);
+  assert.match(c.keys, /\/eslav\/dict\.txt$/);
+  assert.match(c.sha256.rec, /^[0-9a-f]{64}$/); assert.match(c.sha256.keys, /^[0-9a-f]{64}$/);
+  assert.throws(() => rapidModelUrls("greek"), /no RapidOCR recogniser for "greek"/);
+});
+
+test("fetchRapidModels: a pinned file whose bytes do not hash right is refused, the right bytes are used", async () => {
+  const body = new TextEncoder().encode("А\nБ\nВ\n");
+  const hex = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", body)), (x) => x.toString(16).padStart(2, "0")).join("");
+  RAPID_RECOGNISERS.__test = { rec: "u:rec", keys: "u:keys", sha256: { keys: hex } };
+  try {
+    const got = await fetchRapidModels(async (u) => (u === "u:keys" ? body : u), "__test");
+    assert.equal(got.keys, "А\nБ\nВ\n"); assert.equal(got.rec, "u:rec");
+    await assert.rejects(fetchRapidModels(async (u) => (u === "u:keys" ? new TextEncoder().encode("A\nB\n") : u), "__test"), /__test RapidOCR character list did not match its pinned hash/);
+  } finally { delete RAPID_RECOGNISERS.__test; }
+});
+
+test("serveRapid and loadRapidWorker: open with script cyrillic downloads the East Slavic files, and a wrong one is an error", async () => {
+  const asked = [];
+  const w = fakeWorker({ loadOrt: async () => fakeOrt(), fetchBytes: async (u) => { asked.push(u); return modelFetch(u); } });
+  // the fake files do not hash to the pinned values, so the open must fail, naming the hash
+  await assert.rejects(loadRapidWorker(w, { draw: async () => rgbaBar(), script: "cyrillic" }), /cyrillic RapidOCR (model|character list) did not match its pinned hash/);
+  assert.ok(asked.includes(RAPID_RECOGNISERS.cyrillic.rec)); assert.ok(asked.includes(RAPID_RECOGNISERS.cyrillic.keys));
+  assert.ok(!asked.includes(RAPID_URLS.rec));
+  // the hash failure is not retried on the page's own thread (it would fail the same way)
+  let inPage = false;
+  await assert.rejects(loadRapidEngine({ script: "cyrillic", makeWorker: () => fakeWorker({ loadOrt: async () => fakeOrt(), fetchBytes: modelFetch }), inPage: async () => { inPage = true; } }), /pinned hash/);
+  assert.equal(inPage, false);
+});
+
+test("readPhotos: rapidScript reaches the RapidOCR loader", async () => {
+  let script = null;
+  const photo = { name: "чек.jpg", type: "image/jpeg" };
+  const tesseract = { recognize: async () => "ИТОГ  100.00", close: async () => {} };
+  const r = await readPhotos([photo], { passes: ["6"], rapidScript: "cyrillic", loadEngine: async () => tesseract, loadRapid: async (o) => { script = o.script; return { read: async () => "ООО \"ЛЕНТА\"\nИТОГ  100.00\n", close: async () => {} }; } });
+  assert.equal(script, "cyrillic");
+  assert.equal(r.rapid, 1);
+  assert.match(r.text, /ЛЕНТА/);
 });

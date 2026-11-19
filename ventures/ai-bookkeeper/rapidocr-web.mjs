@@ -29,6 +29,49 @@ export const RAPID_URLS = {
   keys: `${CDN}/@gutenye/ocr-models@1.4.2/assets/ppocr_keys_v1.txt`,
 };
 
+// The recogniser by the receipt's script. "latin" is the default above (Latin, digits and
+// Chinese). "cyrillic" is PaddleOCR's East Slavic PP-OCRv5 recogniser (Apache-2.0; 517
+// characters: Russian, Ukrainian, Belarusian, Bulgarian and Latin), the model the CLI reads
+// Russian slips with (RAPIDOCR_REC_MODEL; eval/receipt-ocr-ru-eslav-2026-11-18.md). It is not
+// on npm, so it comes from Hugging Face at a pinned revision, and the bytes must hash to the
+// sha256 below or the reader refuses them (a moved or altered file is an error, not a guess).
+// Detection and the classifier are the same models for both.
+const HF_ESLAV = "https://huggingface.co/monkt/paddleocr-onnx/resolve/7b02d0a30a07ba2b92ad1ff5a8941ae2c633de65/languages/eslav";
+export const RAPID_RECOGNISERS = {
+  latin: { rec: RAPID_URLS.rec, keys: RAPID_URLS.keys },
+  cyrillic: {
+    rec: `${HF_ESLAV}/rec.onnx`, keys: `${HF_ESLAV}/dict.txt`,
+    sha256: {
+      rec: "dc6bf0e855247decce214ba6dae5bc135fa0ad725a5918a7fcfb59fad6c9cdee",
+      keys: "3e95f1581557162870cacdba5af91a4c6be2890710d395b0c3c7578e7ee5e6eb",
+    },
+  },
+};
+
+// the four downloads for a script: { det, cls, rec, keys } URLs and the hashes to check
+export function rapidModelUrls(script = "latin") {
+  const r = RAPID_RECOGNISERS[script];
+  if (!r) throw new Error(`no RapidOCR recogniser for "${script}" (use ${Object.keys(RAPID_RECOGNISERS).join(" or ")})`);
+  return { det: RAPID_URLS.det, cls: RAPID_URLS.cls, rec: r.rec, keys: r.keys, sha256: r.sha256 ?? {} };
+}
+
+// Downloads the det, cls, rec models and the keys with `fetchBytes(url)`, checks any pinned
+// hash, and returns { det, cls, rec, keys } ready for createRapidOcr.
+export async function fetchRapidModels(fetchBytes, script = "latin") {
+  const u = rapidModelUrls(script);
+  const get = async (k) => {
+    const b = await fetchBytes(u[k]);
+    if (u.sha256[k]) {
+      const bytes = b instanceof Uint8Array ? b : new Uint8Array(b);
+      const got = Array.from(new Uint8Array(await globalThis.crypto.subtle.digest("SHA-256", bytes)), (x) => x.toString(16).padStart(2, "0")).join("");
+      if (got !== u.sha256[k]) throw new Error(`the ${script} RapidOCR ${k === "keys" ? "character list" : "model"} did not match its pinned hash, so it was not used`);
+    }
+    return b;
+  };
+  const [det, cls, rec, keys] = await Promise.all([get("det"), get("cls"), get("rec"), get("keys")]);
+  return { det, cls, rec, keys: new TextDecoder().decode(keys) };
+}
+
 export const RAPID_CONFIG = {
   textScore: 0.5, minHeight: 30, widthHeightRatio: 8, maxSideLen: 2000, minSideLen: 30,
   limitSideLen: 736, thresh: 0.3, boxThresh: 0.5, maxCandidates: 1000, unclipRatio: 1.6,
