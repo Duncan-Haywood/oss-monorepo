@@ -402,12 +402,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "Short takes" (2026-11-19: the fit sees
-      sub-2.5 ms takes, the grid end misses them; grid 0,1.5,2.5,3-8 ms on set M 48
-      vs 41 of 66 within 0.5 ms, failed on one unadvised instant read). Next: that
-      grid on a fresh set, instant clause on advice; a drill-level check of
-      one-wheel verdicts on more fresh sets; the sub-8 advised instant build. Ball
-      hold on fast wheels: LOOP_BALL_GAIN shipped 2026-11-19.
+      see firmware/esp32/README.md, latest "Short takes on a second held-out set"
+      (2026-11-19: grid now 0,1.5,2.5,3-8 ms; set N 45 vs 40 of 66 within 0.5 ms
+      offline, 49 vs 39 on the board; Pi hold 14 s a ball). Next: why 1.4-1.9 ms
+      takes still read 0 (NEXT.md); a drill-level check of one-wheel verdicts on
+      more fresh sets; the sub-8 advised instant build. Ball hold on fast wheels:
+      LOOP_BALL_GAIN shipped 2026-11-19.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -519,6 +519,9 @@ flagships:
       occurrence sets on types, performance sets off IfcPerformanceHistory warned,
       1,280 of 1,280 editor pairs agree). IDS as a spreadsheet 2026-11-19
       (eval/sheet-roundtrip-2026-11-19.md: .xlsx/CSV both ways; 334 of 334 test IDS,
-      62 of 64 public same back). next: an Excel-saved workbook and a BIM manager's
-      real table via --from-sheet; an RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3
-      export to confirm. More open items: NEXT.md.
+      62 of 64 public same back). Excel-saved workbooks 2026-11-19
+      (eval/excel-workbooks-2026-11-19.md: dates, 15-digit numbers, true/false,
+      _x000D_, .xls named; 65,537 of 65,548 cells agree with openpyxl on 321 POI
+      workbooks; download cells as Text). next: a BIM manager's real table via
+      --from-sheet; Excel itself typing into the download; an RVB/ILS author on \s;
+      a Revit/ARCHICAD IFC4X3 export to confirm. More open items: NEXT.md.

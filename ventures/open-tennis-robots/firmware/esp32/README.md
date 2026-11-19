@@ -3381,3 +3381,27 @@ scaling ki as well buys little either way. **`LOOP_BALL_GAIN` stays "down".** 0.
 still dip (53 of 144 at 0.15 s), which is the ESC's lag.
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/ball_recovery_sweep.py --band 0.005 --ball-gain off,down --heldout --rows rows.jsonl
+
+## Short takes on a second held-out set (2026-11-19, after "Short takes: the fit sees them, the grid's end does not"; 1.5 and 2.5 ms in place of 2 by its pre-registered rule)
+
+**The item.** On set M the grid 0, 1.5, 2.5, 3-8 ms failed only its instant-read clause, on a build the Pi would not
+have advised. Does it pass a fresh set with that clause written on advice, decided before the capture?
+
+**How it was checked.** Set N (wheel lag 0.62 s, seed 101; 66 drills, takes 0.2-2.75 ms at points M did not use,
+3.3, 4.6, 7.4 ms as checks, and an instant build). The prediction and a four-clause rule (at least 4 more builds
+within 0.5 ms, no more off by more than 1 ms, no more instant builds advised, checks no worse) were committed first
+(7348979a6); a fail would have retired the candidate.
+
+**What it found.** Within 0.5 ms 45 of 66 against 40, off by more than 1 ms 6 against 6, no instant build advised or
+read off 0 on either, checks 16 each. Every clause held, so **`TAKE_SURVEY_GRID_US` is now 0, 1.5, 2.5, 3, 4, 5, 6,
+7, 8 ms** (`controller.py`, `config.py`); `host.TAKE_SURVEY_MS` and `protocol.TAKE_SURVEY_TIMES` (9) follow, and the
+Pi still decodes the eight- and seven-candidate frames of older boards. The prediction's "fewer large misses" did not
+happen (6 each). Set N captured again with the new grid live on the board: 49 of 66 within 0.5 ms against the old
+board's 39, large misses 3 against 7, checks 17 against 16.
+
+**The cost.** One more refit a wheel. The Pi's 12 s hold a ball (`host.TAKE_WAIT_S`) cut the unit test's surveys
+short, so it is now 14 s; on set N the balls were held 140.4 s a drill against 127.3 s (+10%), no survey cut. The
+TAKE_SURVEY frame is 26 bytes. Everything is in `eval/take-short-n-2026-11-19.md`.
+
+**Not known.** All simulated. Whether real contacts are under 3 ms is unmeasured. The large misses left are 1.4-1.9 ms
+takes reading 0.
