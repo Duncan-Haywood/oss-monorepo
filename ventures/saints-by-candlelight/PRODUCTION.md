@@ -194,8 +194,8 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Othniel and Achsah and the upper and lower springs, Caleb's daughter who asked for water and the first judge of Israel (Joshua 15:13-19, Judges 1:11-15 and 3:7-11; left by episode 142).
 - The Gibeonites and the mouldy bread, the neighbours who tricked Joshua with worn-out sandals and kept their oath anyway (Joshua 9; left by episode 145).
 - Joshua and the twelve stones at Gilgal and the commander of the Lord's army before Jericho (Joshua 3-5; left by episode 143).
-- David in the cave at En-gedi and the corner of Saul's robe, the first time he spared the king, and 'you are more righteous than I' (First Samuel 24; left by episode 147).
-- David and the song of the bow, the lament for Saul and Jonathan, 'how the mighty have fallen' (Second Samuel 1; left by episode 147).
+- Shimei and the stones on the road from Jerusalem, and David who would not let Abishai take his head, then forgave him at the Jordan (Second Samuel 16:5-14 and 19:16-23; left by episode 147).
+- David and the Song of the Bow, the lament for Saul and Jonathan, swifter than eagles and stronger than lions (Second Samuel 1; left by episode 147).
 - David at Ziklag and the Egyptian left sick in the field, and the rule that those who stay with the baggage share alike (First Samuel 30; left by episode 146).
 - Mephibosheth at the king's table, the lame grandson of Saul whom David sought out for Jonathan's sake (Second Samuel 9; left by episode 144).
 - Saint Silvanus of Tarsus and the councils of Seleucia, the bishop who would not silence a guest (Theodoret, Sozomen and Socrates on the council of three hundred and fifty-nine; a sequel to episode 136).
