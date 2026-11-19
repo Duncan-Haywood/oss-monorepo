@@ -25,3 +25,7 @@ test("accuracy numbers on the page match the README", () => {
   const html = page("index.html"), readme = page("README.md");
   for (const n of ["99.3%", "12,952", "99.9%", "98.8%"]) { assert.ok(html.includes(n), n); assert.ok(readme.includes(n), n); }
 });
+
+test("links its sibling ids-model-check (crawlable pair, platform/pages/siblings.mjs)", () => {
+  assert.match(page("index.html"), /href="\.\.\/ids-model-check\/"/);
+});
