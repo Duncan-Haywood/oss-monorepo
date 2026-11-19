@@ -670,6 +670,34 @@ html{overflow-x:clip}
 `;
 
 /**
+ * Opt-in phone layout for wide tables: `<table class="stack">` with a `data-label` on every
+ * body cell becomes one bordered card per row under 600 px, the first cell as the card's
+ * title and the rest as label / value pairs. Built for /ask/ (2026-11-19, where four- and
+ * five-column tables squeezed to one word per line) and moved here the same day so the
+ * blog's Markdown tables (`platform/devlog/markdown.mjs`, `stackTable`) use it too: at
+ * 390 px, 108 of the blog's 202 tables with five or more columns ran past their scroller.
+ * The page keeps a real table on wider screens and for crawlers; `thead` is only visually
+ * hidden, and the ARIA roles keep row and cell semantics where `display:block` drops them.
+ */
+export const STACK_TABLE_CSS = `
+@media (max-width:600px){
+  table.stack thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block}
+  table.stack{background:none;border:0}
+  table.stack tr{border:1px solid var(--pfs-line,rgba(128,128,128,.34));border-radius:10px;
+    background:var(--pfs-panel,transparent);padding:2px 12px;margin:0 0 10px}
+  table.stack td{border:0;border-top:1px solid var(--pfs-line,rgba(128,128,128,.34));padding:7px 0;
+    display:grid;grid-template-columns:minmax(6.5em,34%) minmax(0,1fr);gap:10px;text-align:left}
+  table.stack td::before{content:attr(data-label);color:var(--pfs-muted,inherit);font-size:13px;font-weight:600;line-height:1.5}
+  table.stack td:first-child{display:block;border-top:0;font-weight:650;padding:9px 0 7px}
+  table.stack td:first-child::before{content:none}
+  table.stack.compact tr{display:flex;flex-wrap:wrap;column-gap:18px}
+  table.stack.compact td{flex:1 1 9.5em;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  table.stack.compact td:first-child{flex-basis:100%}
+}
+`;
+
+/**
  * Contents of `pf-site.css`, the stylesheet every site-owned page links.
  *
  * `REFLOW_CSS` rides at the end, as it does in `pf-chrome.css`. Until
@@ -682,7 +710,7 @@ html{overflow-x:clip}
  * break. Every rule in it has zero specificity, so a page's own CSS still wins.
  */
 export function renderSiteStyle() {
-  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}${REFLOW_CSS}`;
+  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}${STACK_TABLE_CSS}${REFLOW_CSS}`;
 }
 
 /** The `<link>` a site-owned page puts in its head. */
