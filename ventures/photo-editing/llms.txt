@@ -32,7 +32,7 @@ Needs Python 3.10+ and `ffmpeg`. Run from `ventures/photo-editing/` in a clone:
 
 ## Raw formats it develops
 
-DNG, Canon CR3 (full quality and C-RAW, every body from the 2018 EOS R and M50 to the R6 Mark III, tiled files included), CR2 and CRW, Sony ARW, Nikon NEF and Coolpix NRW, Fujifilm RAF (X-Trans, lossless and lossy compressed), Olympus ORF, Panasonic RW2, Leica RWL, Pentax PEF, Samsung SRW, Minolta / Konica Minolta MRW, Kodak DCR (DCS Pro SLR/n; compression 65000), Phase One IIQ (IIQ L, the 16-bit IIQ L of the IQ4 150MP and Trichromatic, and IIQ S; the 16-bit format 8 refused) and Hasselblad 3FR and Phocus .fff. Every format but DNG, IIQ, 3FR and .fff needs the camera's `.dcp` profile. The long first bullet under Limits below has the per-format detail and the measurements.
+DNG, Canon CR3 (full quality and C-RAW, every body from the 2018 EOS R and M50 to the R6 Mark III, tiled files included), CR2 and CRW, Sony ARW, Nikon NEF and Coolpix NRW, Fujifilm RAF (X-Trans, lossless and lossy compressed), Olympus ORF, Panasonic RW2, Leica RWL, Pentax PEF, Samsung SRW, Minolta / Konica Minolta MRW, Kodak DCR (DCS Pro SLR/n; compression 65000), Phase One IIQ (IIQ L, the 16-bit IIQ L of the IQ4 150MP and Trichromatic, and IIQ S; since 2026-11-19 with the back's own sensor calibration applied, as Capture One does: flat fields, defect maps, sensor-half and tile curves, within 3 codes of LibRaw's calibrated render outside dead columns on ten backs, eval/phaseone-iiq-calibration-2026-11-19.md) and Hasselblad 3FR and Phocus .fff. Every format but DNG, IIQ, 3FR and .fff needs the camera's `.dcp` profile. The long first bullet under Limits below has the per-format detail and the measurements.
 
 ## Limits
 
