@@ -482,15 +482,22 @@ catch rate untested, and the base target unclamped in firmware. Both were
 fixed on 2026-11-14: tests now pin the catch window, hand-computed drag and
 Magnus accelerations, exact study counts and the README's 3.0 m / 2.5 m/s
 cell (274 of 300), and `SET_BASE` clamps the target to the +/- 4.0 m rail.
-Still open:
+Both items the audit left open are now closed:
 
-- **The feed interlock** (wheels within 5% of target before a ball is
-  released) lives only in the board layer, `firmware/esp32/main.py`, which
-  no test drives; `safety.md` relies on it.
-- **E-stop reset** takes the button released plus a `CLEAR_ESTOP` from the
-  Pi. That is a separate reset after release, but it can come from a phone
-  or script away from the machine; a reset at the machine (a button on the
-  feeder that must be pressed after release) is the safer design.
+- **The feed interlock** (wheels held within 3% of target before a ball is
+  released; `safety.md` said 5%, the gate's figure before 2026-11-11, until
+  2026-11-18) is driven through `firmware/esp32/main.py` by the simulated board
+  (`tests/feeder_sim.py`): `tests/test_host.py` holds the gate shut after a FEED
+  and checks no ball leaves until it reopens, and caps the wait.
+- **E-stop reset at the machine** (2026-11-18). Releasing the e-stop or the fob
+  no longer re-powers the feeder's motors, and no command from the Pi or a phone
+  can: a latch relay after them is set only by a RESET button on the feeder, and
+  power returns 0.5 s after RESET is let go, never while it is held
+  ([`hardware/electronics.md`](hardware/electronics.md), "Reset at the machine").
+  The CAD build checks the logic (`Feeder.check_estop_reset`), the BOM carries the
+  relay and the button, and the simulated feeder, the drill runner and the phone
+  page all know it (`tests/test_host.py` `ResetAtTheMachineTest`,
+  `tests/test_remote.py`). Not yet wired on a built machine.
 
 ## Safety, warranty, privacy
 

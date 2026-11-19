@@ -91,7 +91,14 @@ class DrillServerTest(unittest.TestCase):
         self.assertTrue(sim.ctl.estop)
         sim.estop_button = False
         sim.run_ms(50)
-        self.assertTrue(srv.clear()["cleared"])
+        r = srv.clear()                                  # the board's stop clears, but the motors stay unpowered
+        self.assertTrue(r["cleared"])
+        self.assertFalse(r["powered"])
+        self.assertIn("RESET on the feeder", r["message"])
+        sim.press_reset()                                # until RESET at the machine (2026-11-18)
+        sim.run_ms(300)
+        r = srv.clear()
+        self.assertTrue(r["cleared"] and r["powered"], r)
         self.assertFalse(sim.ctl.estop)
         srv.start(example())                             # and it runs again after the clear
         srv.join(300)

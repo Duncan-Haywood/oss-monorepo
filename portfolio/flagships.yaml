@@ -436,13 +436,14 @@ flagships:
       home switch on a printed sector to calibrate AZ_HOME_DEG; push a sector into a
       stop with a scale; hang a real hose from a tube; bend a built cable loop
       through the actuator's travel. Scope a real contactor's pull-in and bounce.
-      Regen (cad/README.md): scope the bus on a 20% slow-down; log a real ESC
-      braking and the battery reading noise. Lift (cad/README.md): weigh a belt and
-      a flight, film the empty strands; drag a capped cleat over a strip; scope the
-      lift shunt on a start and a stall; read the gearmotor's rotor inertia; set a
-      built slip hub with a scale, hold a flight, watch it slip and trip; twist a
-      jaw coupling with a lever and a scale for its stiffness and play. More open
-      items: NEXT.md.
+      Wire the RESET latch (2026-11-18, hardware/electronics.md "Reset at the
+      machine") and check a released e-stop stays dark until RESET. Regen
+      (cad/README.md): scope the bus on a 20% slow-down; log a real ESC braking and
+      the battery reading noise. Lift (cad/README.md): weigh a belt and a flight,
+      film the empty strands; drag a capped cleat over a strip; scope the lift shunt
+      on a start and a stall; read the gearmotor's rotor inertia; set a built slip
+      hub with a scale, hold a flight, watch it slip and trip; twist a jaw coupling
+      with a lever and a scale for its stiffness and play. More open items: NEXT.md.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqycfey4YXdJy3yTPugm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T23:39:25Z",
+  "ended": "2026-11-18T23:55:30Z",
+  "wall_minutes": 16.33,
+  "tokens_in": 10337978,
+  "tokens_out": 39085,
+  "cost_usd": 4.0957,
+  "tool_calls": 83,
+  "task": "Deepen flagship open-tennis-robots: e-stop reset at the machine (quality audit 2026-11-08's last open safety gap)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17465",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/hardware/safety.md",
+      "issue": "Said the feed interlock allows 5% wheel error; the firmware gate has been 3% held for 150 ms / 6 revolutions since 2026-11-11. Fixed here."
+    },
+    {
+      "file": "ventures/open-tennis-robots/README.md (Known gaps)",
+      "issue": "Still listed the feed interlock as untested although tests/feeder_sim.py drives main.py's gate (test_release_waits_while_the_gate_rechecks_the_wheels). Updated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (open-tennis-robots buildable:)",
+      "why": "The BUILDABLE HERE list named another round of take-grid tuning on simulated wheels (eight-point grid, fit reading under 2 ms), which recent runs show has reached diminishing returns (14 vs 12 large misses, grid kept). The README's 2026-11-08 audit still listed an open safety gap (a remote CLEAR_ESTOP plus an e-stop release re-powered the motors) that matters more to a builder.",
+      "did": "Built the reset-at-the-machine latch (relay K0 + RESET button with NO/NC contacts), its CAD logic model and check, BOM and manifest, simulated-feeder latch, runner and phone-page messages; left the take-grid items for a later run.",
+      "result": "Audit gap closed in design and simulation; 255 Python tests and the CAD suite pass; flagships next: gains a person item to wire and check it on a build."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-a-ball-machine-that-waits-for-reset.md",
+    "ventures/open-tennis-robots/hardware/electronics.md (Reset at the machine)",
+    "ventures/open-tennis-robots/cad/README.md (Reset at the machine)"
+  ],
+  "goal": null,
+  "notes": "Verified locally: PYTHONPATH=src python3 -m unittest discover -s tests -> Ran 255 tests OK (167 s). CAD: build123d 0.13.0 venv, python -m otr_cad feeder rebuilt the package (design_rules [], new BOM rows, manifest 'estop reset' line); CAD unittest suite: Ran 146 tests OK (289 s), committed package fresh. check_posts ok; validate.py ok. Not run on a built machine; coil currents and the button's DC rating are assumptions.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ba6efbd2-d649-5e0a-961f-f26cc3a58129",
+    "transcripts": 1,
+    "first": "2026-11-18T23:39:25Z",
+    "last": "2026-11-18T23:55:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 141,
+        "output": 39085,
+        "thinking": 9824,
+        "cache_read": 10178110,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159727,
+        "api_equivalent_usd": 4.0957,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 141,
+      "output": 39085,
+      "thinking": 9824,
+      "cache_read": 10178110,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159727,
+      "api_equivalent_usd": 4.0957,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 77,
+      "Edit": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.33,
+      "active_minutes": 16.33,
+      "model_minutes": 6.88,
+      "tool_minutes": 9.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an electrical/controls engineer designing a latching reset circuit, modelling it, updating BOM, firmware-host messages and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 146.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

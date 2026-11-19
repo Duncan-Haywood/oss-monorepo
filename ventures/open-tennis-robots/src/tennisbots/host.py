@@ -52,7 +52,12 @@ MAX_WHEEL_RPM = 7000
 MIN_WHEEL_RPM = 500
 FAULT_FLAGS = {P.FLAG_ESTOP: "e-stop", P.FLAG_WATCHDOG: "watchdog (heartbeats missed)",
                P.FLAG_ELEV_FAULT: "elevation actuator fault",
-               P.FLAG_BUS_OFF: "switched bus off (contactor open: wireless e-stop, its coil wire or the timer)"}
+               P.FLAG_BUS_OFF: "switched bus off (contactor open: wireless e-stop, RESET not yet pressed at the "
+                               "feeder, its coil wire or the timer)"}
+# Since 2026-11-18 the motors get power back only when someone presses and lets go of RESET on the feeder after the
+# e-stop and the fob are released (hardware/electronics.md "Reset at the machine"); no command can do it.
+RESET_HINT = ("the motors have no power: release the e-stop and the fob, then press and let go of RESET on the feeder "
+              "(no command can power them)")
 # Reported once and the drill goes on: the hopper still holds balls, only their return has stopped (2026-11-15).
 WARN_FLAGS = {P.FLAG_LIFT_JAM: "ball lift jammed and off after its retry: balls stop returning to the hopper; clear the "
                                "jam, then press and release the e-stop",
@@ -641,6 +646,9 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
             elif now - start > link_timeout_s:
                 raise Abort(f"{what}: no telemetry at all (wrong port, baud rate or role?)")
             if now - start > timeout:
+                last = link.last
+                if what == "connect" and last is not None and last.flags & P.FLAG_BUS_OFF:
+                    raise Abort(f"{what}: {RESET_HINT}")
                 raise Abort(f"{what}: not done in {timeout:.1f} s")
             sleep(tick_s)
 
