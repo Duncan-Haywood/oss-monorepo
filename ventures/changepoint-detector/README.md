@@ -7682,3 +7682,67 @@ changes (rather than JHU's labels reused) is still wanted.
 
 Test: `spells-edge.test.mjs` (a fewer-then-more pair is one edge spell, a long or same-direction pair is not; the
 line's new wording; the committed JHU states unchanged; the committed NYT verdicts).
+
+## Short spells under different series openings (2026-11-19, pre-registered; O3 and O4 pass, O1 and O2 fail, nothing changes)
+
+The section above found the spell search fragile to where a series starts: NYT's Alaska opens 50 days later than
+JHU's, the default line then cut both edges of the spell, and the search, which looks inside that line's
+stretches, had nothing left to find. `eval/update-rate-spells-openings.mjs` (header committed in c99ca0229 before
+any cell ran) plants the spells round's five spell shapes after six openings (120, 250, 500 or 800 steps of the
+base schedule, or a quiet start of 50 all-but-always-repeating steps, as a series that begins with its zeros, then
+250 or 500), 200 series a cell, and asks which line dates the spell: the search, the default line's two cuts
+(`edgeSpellsOf`, restated since the round above), both, or neither. It also gives the edge restatement the null
+check it shipped without, on four no-spell schedules (Monday-Friday, Monday/Wednesday/Friday, daily, and a lasting
+move to Wednesdays only) under the same six openings. Module functions unchanged; 142 s.
+
+**The edge restatement is needed, and costs nothing on the nulls (O3, O4 pass).** No null series at any opening
+printed a false spell or produced an edge spell (0.000 a series in all 24 null cells; bar 0.020). Meanwhile, on
+Alaska's own shape (Monday/Wednesday/Friday for 60 days inside Monday-Friday) the default line's two cuts are what
+date the spell in 149 to 186 of 200 series at every opening, the search in 10 to 43. Before the round above the
+line said "none found" for those. On South Dakota's shape (Wednesdays only, 60 days) the prediction from Alaska
+holds exactly: the shorter the opening, the more spells move from the search to the edges (edge only 98 of 200
+at 120 steps, 52 at 250, 19 at 500, 3 at 800), and the line a user reads dates all 200 at every opening. Spells
+the search and the edges both date: none in any cell, as built (the search never looks across a cut).
+
+| found of 200 by the `--spells` line | 120 | 250 | 500 | 800 | quiet + 250 | quiet + 500 |
+|---|---|---|---|---|---|---|
+| Wednesdays only, 30 days | 199 | 200 | 200 | 199 | 200 | 200 |
+| Wednesdays only, 60 days | 200 | 200 | 200 | 200 | 200 | 200 |
+| Mon/Wed/Fri, 30 days | 174 | **135** | 181 | 160 | **139** | **141** |
+| Mon/Wed/Fri, 60 days | 196 | 194 | 193 | 197 | 198 | 192 |
+| Monday-Friday inside daily, 60 days | **146** | **178** | **156** | **141** | **145** | **162** |
+
+**O1 fails** (each shape within 30 of its 500-step cell): the 30-day Mon/Wed/Fri spell falls to 135-141 at three
+openings. **O2 fails** (at most 20 of 200 with neither line, 60-day cells): the 60-day Monday-Friday spell inside
+daily has 22 to 59 at every opening; at the 500-step opening this is the spells round's own cell (157 there, 156
+here), so O2 was set above a power the confirmation had already measured. That bar was wrongly written, not a
+new loss.
+
+**Why O1 failed, read afterwards** (`eval/update-rate-spells-openings-why.mjs`, post hoc, deciding nothing,
+fresh seed): changing the opening's length also changed the spell's first weekday, and the three failing cells
+are the three whose spells start Friday, Saturday or Sunday. A Mon/Wed/Fri spell differs from Monday-Friday only on
+Tuesdays and Thursdays; 30 days hold 9 of them from a Monday to Thursday start and 8 otherwise. Holding the
+opening at 500 and moving only the first step over one week:
+
+| first day of the spell | Thu | Fri | Sat | Sun | Mon | Tue | Wed |
+|---|---|---|---|---|---|---|---|
+| Mon/Wed/Fri 30 days: informative days | 9 | 8 | 8 | 8 | 9 | 9 | 9 |
+| found of 200 | 164 | 146 | 120 | 139 | 163 | 167 | 174 |
+| Monday-Friday in daily, 60 days: weekend days | 18 | 18 | 18 | 17 | 16 | 16 | 17 |
+| found of 200 | 172 | 170 | 177 | 138 | 144 | 134 | 144 |
+
+One weekday's difference in where a spell starts moves its power as much as any opening did (120 to 174 at one
+opening). The 60-day shapes with many informative days (Wednesdays only: 34-35; Mon/Wed/Fri: 16-18 inside
+Monday-Friday, 195-199 found) do not move. So the opening matters to *which* line dates a spell, not to *whether*
+the line a user reads does; what limits the line is how many days inside the spell the two schedules differ on,
+about 16 or more for 60-day spells and more than a 30-day Mon/Wed/Fri spell's 8 or 9.
+
+**What ships.** Nothing in the search, the restatement or their settings changes; both stay behind `--spells`.
+The round adds the null check the edge restatement lacked (it passes) and a measured caveat for the line: a
+spell with fewer than about 16 days on which the schedules differ (a one-month spell of three publishing days
+inside five, or a two-month weekdays-only spell inside daily) is dated in 60-87% of series, depending on its
+weekdays. Next: a spell search that counts informative days directly (a score on the differing weekdays only),
+pre-registered against these cells; and still a provider that documents its own schedule changes.
+
+Test: `spells-openings.test.mjs` (the series builder; a Wednesdays-only spell after the shortest opening is dated
+by the line, and no printed edge spell overlaps a search spell; the committed verdicts and the post hoc table).
