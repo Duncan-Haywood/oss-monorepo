@@ -454,7 +454,7 @@ export function toCsv(register) {
   for (const it of register.items) {
     rows.push([it.id, it.section, it.sectionTitle, it.article, it.para, it.type, it.sd, it.phase, it.label, it.description, it.approval, it.reviewer, it.flags.join(" "), it.file || "", it.filePage ?? it.page, "", "", "", "", ""]);
   }
-  return "﻿" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
+  return "\ufeff" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
 }
 
 /** Plain-text summary for the CLI. */

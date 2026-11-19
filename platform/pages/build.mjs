@@ -5081,7 +5081,8 @@ const SUBCATEGORY_RULES = {
       // `wall-framing-takeoff` joined 2026-10-28: studs and plates go up
       // before the drywall here, and its lumber list is the same job as `cut-list`.
       // `ids-model-check` joined 2026-11-16 beside it: the IFC model check before the build.
-      test: (slug) => /^(ids-model-check|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
+      // `submittal-register` joined 2026-11-19 beside it: the submittal log from the spec book.
+      test: (slug) => /^(ids-model-check|submittal-register|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
     },
     {
       id: 'trades-site',

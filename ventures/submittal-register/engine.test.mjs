@@ -134,7 +134,7 @@ test("the copy of a section with the most body wins", () => {
 test("CSV: header, quoting and a formula guard", () => {
   const r = reg(["SECTION 09 91 23 - PAINTING", "PART 1", "1.1 ACTION SUBMITTALS", 'A. Product Data: "Brand", 2 coats.', "B. =HYPERLINK(1)"].join("\n"));
   const csv = toCsv(r);
-  assert.ok(csv.startsWith("﻿Submittal No.,Spec Section"));
+  assert.ok(csv.startsWith("\ufeffSubmittal No.,Spec Section"));
   assert.match(csv, /"Product Data: ""Brand"", 2 coats\."/);
   assert.match(csv, /,'=HYPERLINK\(1\),/);
 });
