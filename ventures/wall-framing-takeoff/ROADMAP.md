@@ -348,3 +348,13 @@ Ticked items are on `main`.
 - 2026-11-10 (later): the CLI refuses two output formats at once (`--json`, `--csv`, `--pdf`). Before, `--json --csv` printed JSON and `--csv --pdf` printed a PDF with no word that the other flag was dropped. Found by running the CLI on the example plan with pairs of report flags. Test in `cli-flags.test.mjs`; CLI and procurement suites pass (83). Invented plan only.
 - 2026-11-10 (later): the CLI refuses `--drawings` beside `--json` or `--csv`. Before, the HTML shop drawings printed and the other format was dropped with no word. Found by running the CLI on a small plan with pairs of report flags. Test in `cli-flags.test.mjs`; CLI suites pass (66). Invented plan only.
 - 2026-11-10 (later): the CLI refuses `--drawings` beside `--pdf`. Before, the PDF printed and the HTML request was dropped with no word. Found by running the CLI on the example plan with pairs of report flags. Test in `cli-flags.test.mjs`. Invented plan only.
+
+## Known gaps (quality audit 2026-11-19)
+
+From [`2026-11-19-wall-framing-takeoff-r5.json`](../../portfolio/quality/audits/2026-11-19-wall-framing-takeoff-r5.json). The zero-flow water-supply branch it found is fixed (design flow never falls below the largest fixture a run feeds).
+
+- Two-face outlet cable holes: dropping the two-face multiplier survives the suite; the only cable-hole test is single-face.
+- Jack geometry is guarded by two tests; a hand-checked jack/king assertion in the CLI layer would harden it.
+- No default header span table, even as a labelled example.
+- README test count is stale (1,039 against 1,213), and `layoutGable` still repeats `layoutWall`'s opening loop (engine.mjs is 1,718 lines).
+

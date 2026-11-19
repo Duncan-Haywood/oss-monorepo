@@ -269,7 +269,13 @@ export function sizeSupply(d) {
     const s = /** @type {Segment} */ (byId.get(id));
     const counts = /** @type {Record<string, number>} */ (fed.get(id));
     const dist = demandDistribution(types.map((t) => ({ gpm: t.gpm, p: t.p, count: counts[t.id] ?? 0 })));
-    const demand = dist.quantile(q);
+    // A run that feeds any fixture must carry at least the largest one running
+    // alone: when every fixture is busy less than 1 - q of the hour the quantile
+    // is 0 gpm, which sized a lone shower branch for no flow and no friction
+    // (quality audit 2026-11-19). Hunter's curve and IPC Table E103.3(3) never
+    // fall below one fixture's flow either.
+    const single = types.reduce((m, t) => ((counts[t.id] ?? 0) > 0 ? Math.max(m, t.gpm) : m), 0);
+    const demand = Math.max(dist.quantile(q), single);
     const fixtures = Object.values(counts).reduce((a, b) => a + b, 0);
     return { id, parent: s.parent ?? null, lengthFt: s.lengthFt, riseFt: s.riseFt ?? 0, fittingsFt: s.fittingsFt ?? 0, fixturesHere: Object.values(s.fixtures || {}).some((n) => n > 0), fixtures, counts,
       demandGpm: demand, allOnGpm: +dist.allOn.toFixed(4), meanGpm: +dist.mean.toFixed(4), normalGpm: +Math.min(dist.allOn, dist.mean + z * Math.sqrt(dist.variance)).toFixed(4),
