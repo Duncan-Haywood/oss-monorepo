@@ -3491,3 +3491,47 @@ its one wheel from ball 16 to 19, then nothing at the end. Everything is in
 direction the minimum assumes, but they occur in about one drill in sixty, so the simulator cannot settle it and it
 barely matters there. A real wheel's blind rows will not tie as exactly, which may make one-wheel verdicts more or less
 common; the question reopens on real logs.
+
+## The sub-8 advised instant build, closed (2026-11-19, after "One informative wheel, counted by drill"; closed by its pre-registered rule, nothing on the board changed)
+
+**The item.** "Take-blind rows traced" left one instant build of 72 advised at 1/8 us: the first held-out sub-8 set's
+launcher 1 at jitter 0 (lag 0.45 s, seed 11) picked 3.5 ms at a best / step share of 0.57, just inside the 0.6 margin.
+It has been on the flagship row since.
+
+**What the stored row says.** `tests/take_instant_sub8.py --stored` (eval/take-instant-sub8-stored-2026-11-19.txt):
+the 4 ms candidate won because it was the one with no wheel where it alone fitted badly. Two wheels fitted the step
+alone at 10.7 and 17.1 ppm against 2-5 for every take, and other wheels had the same kind of lone jump on 2, 3, 5 or 8 ms.
+The share was 4 / 7 in the frame's whole ppm and **0.635 unrounded**, so rounding put it under the margin. Across all
+39 stored take-survey sets (1,821 builds rescored by today's board) rounding flips the advice on 3 builds and advises no
+instant build. A conservative share would have cost 4 right advisories and saved none, so it was not built.
+
+**Recaptured on today's tree.** Prediction and rule committed first (f2e5f923a,
+eval/take-instant-sub8-2026-11-19.md): the four sub-8 capture sets recaptured with the nine-point grid, stretched
+offsets, blind 1.5, trim 0 and the floored bound, scored by the board's own frame and `host.take_survey_advice`:
+
+| set | instant advised (of 18) | spread takes named within 1 ms and advised (of 54), today / stored rows rescored | within 1 ms (of 72) |
+| --- | --- | --- | --- |
+| design (0.3 s, seed 7) | 0 | 38 / 44 | 67 |
+| first held out (0.45 s, seed 11) | 0 | 48 / 42 | 72 |
+| fresh (0.38 s, seed 13) | 0 | 54 / 54 | 68 |
+| third (0.52 s, seed 17) | 0 | 54 / 47 | 67 |
+
+Every clause held: no instant build is advised (0 of 72), the named build now picks 0 ms ("keep TAKE_US = 0", bound
+1.5 ms; its rms climbs 6, 41, 84 ... 360 ppm across the grid where the stored row was flat), and 194 of 216 spread
+takes are named and advised against the README's 173. **The item is closed.**
+
+**The design set's fall, traced in part.** One 3 ms build there read 87 / 59 / 11 ppm on 2026-11-18 and 12 / 8 / 9
+today. Changing one knob at a time on that build pointed at the ball hold's gain scale (`LOOP_BALL_GAIN = "down"`, "The
+ball hold on a wheel faster than told"): off, it reads 34 / 34 / 18 / 7, pick 2.9 ms. A paired capture of 96 builds
+(four sets, jitter 0 and 0.5 us; `tests/take_survey_ball_gain.py`) put it in proportion: 66 of 72 named and advised with
+"down" against 68 with it off, no instant build advised either way, shares moving both ways. Two builds in 72 do not
+justify switching the gains off for calibration drills, so `LOOP_BALL_GAIN` stays. The rest of the design set's fall
+sits at 1-3 us of jitter, which the pair did not capture.
+
+**Also fixed.** `take_misfit_trace.survey_score`, `tests/take_survey_trim.py` and `tests/take_survey_blind.py` summed stored
+seven-candidate rows on the nine-point grid and raised an IndexError since the grid changed this morning; they now read
+each set's grid from its row length (`take_misfit_trace.grid_of`, `tests/test_take_instant_sub8.py`).
+
+**Not known.** All simulated. The lone jumps on single candidates (a fit that settled above what that candidate can
+reach) are still there on today's rows; they now sit under rms that rises more steeply with the take, so they no longer
+decide a verdict on these sets.

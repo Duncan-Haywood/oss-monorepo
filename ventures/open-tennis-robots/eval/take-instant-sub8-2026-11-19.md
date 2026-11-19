@@ -70,3 +70,21 @@ The stored advised build's 0.57 was 4 / 7 in whole ppm; unrounded it was 0.635, 
 take-survey sets (1,821 builds rescored by today's board), rounding flips the advice on 3 builds and advises no
 instant build; a conservative share ((least + 0.5) / (step - 0.5)) would drop 4 right advisories and save none. Not
 changed.
+
+### The paired ball-gain capture (appended)
+
+`tests/take_survey_ball_gain.py --compare` (eval/take-ball-gain-off-2026-11-19.txt): the same 96 builds (four sets,
+jitter 0 and 0.5 us) with LOOP_BALL_GAIN "down" (shipped) and False.
+
+| set (24 builds) | named and advised (of 18), down / False | mean share, down / False |
+| --- | --- | --- |
+| design | 14 / 16 | 0.39 / 0.25 |
+| first held out | 16 / 16 | 0.27 / 0.29 |
+| fresh | 18 / 18 | 0.31 / 0.23 |
+| third | 18 / 18 | 0.23 / 0.24 |
+| all | 66 / 68 of 72 | |
+
+No instant build advised either way; within 1 ms 92 of 96 either way. The gain scale costs the survey two builds of
+72, both on the design set (lag 0.3 s), and the share moves both ways on the others. Too small to justify switching the
+ball hold's gains off during a calibration drill, so nothing changes; the 3 ms build above is the large case, not the
+typical one. The rest of the design set's fall (44 to 38) sits at jitters 1-3 us, which this pair did not capture.
