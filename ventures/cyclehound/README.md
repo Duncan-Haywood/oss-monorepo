@@ -127,6 +127,36 @@ directory with no tsconfig), by TypeScript's own rules:
 `resolveModuleName` sends the same 1,436 imports to the same files
 ([`BENCHMARK.md`](BENCHMARK.md), "Path aliases").
 
+## Which cycles break: entry order
+
+A cycle is only a bug when one module reads another's top-level value while
+that other module is still loading, and which one is "still loading"
+depends on which file the program imports first. A test suite that always
+enters from the same file never sees it; a new page or worker that enters
+from another one gets `ReferenceError: Cannot access 'X' before
+initialization`. [`tools/entry-order.mjs`](tools/entry-order.mjs) takes the
+cycles cyclehound finds and loads each `.mjs`/`.js`/`.cjs` file on them first,
+in its own Node process:
+
+```sh
+cargo build --release
+node tools/entry-order.mjs ventures/          # exit 1 on a cycle-order failure
+node tools/entry-order.mjs --json ventures/   # every file's result
+```
+
+It runs those modules' top-level code, so point it only at code you trust.
+Other load errors (a module that needs a browser) are listed but only fail
+the run with `--strict`. `tests/fixtures/tdz/` holds a cycle that fails from
+one end and one that is safe from both (`tools/entry-order.test.mjs`).
+
+On this repository's `ventures/` (2026-11-19): cyclehound found 11 static
+cycles through 34 files in 0.58 s; the 21 product modules on them
+(ai-bookkeeper, league-schedule-generator, shed-designer,
+babysitting-business-kit and two `platform/pages` files) all load cleanly
+whichever one comes first. The three other load errors are the `ring`
+fixture's deliberate directory import, and the TypeScript files are not run.
+The whole pass takes about 2 s.
+
 ## Limits
 
 - No bundler aliases (webpack `resolve.alias`, Vite `resolve.alias`): those
@@ -158,7 +188,7 @@ cp target/wasm32-unknown-unknown/release/cyclehound.wasm web/
 ```sh
 cargo test --release                      # lexer, resolver, aliases, components, cycles, exports (26 tests)
 cargo clippy --release --all-targets -- -D warnings
-node --test web/cyclehound.test.mjs page.test.mjs usage.test.mjs
+node --test web/cyclehound.test.mjs page.test.mjs usage.test.mjs tools/entry-order.test.mjs
 ```
 
 `web/cyclehound.test.mjs` compares the WebAssembly report with the native

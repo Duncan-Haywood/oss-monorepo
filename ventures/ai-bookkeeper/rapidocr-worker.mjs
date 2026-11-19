@@ -6,22 +6,19 @@
 // (eval/rapidocr-worker-2026-11-17.md). The pipeline is rapidocr-web.mjs unchanged, so the
 // text is the same as when it ran on the main thread.
 //
-// Messages in:  { type: "open" } | { type: "read", id, width, height, rgba } | { type: "close" }
+// Messages in:  { type: "open", script? ("latin" | "cyrillic"; the recogniser, rapidocr-web.mjs RAPID_RECOGNISERS) } | { type: "read", id, width, height, rgba } | { type: "close" }
 // Messages out: { type: "ready" } | { type: "rows", id, text } | { type: "error", id?, message }
-import { RAPID_URLS, createRapidOcr, rapidRows, bgrFromRgba } from "./rapidocr-web.mjs";
+import { RAPID_URLS, createRapidOcr, rapidRows, bgrFromRgba, fetchRapidModels } from "./rapidocr-web.mjs";
 
 // The message handler, separate from the worker global so tests can drive it in Node with a
 // fake runtime. `loadOrt` returns the onnxruntime-web module; `fetchBytes` a model's bytes.
 export function serveRapid(post, { loadOrt = defaultLoadOrt, fetchBytes = defaultFetchBytes, threads = 1 } = {}) {
-  let engine = null, opening = null;
+  let engine = null, opening = null, script = "latin";
   const open = () => (opening ??= (async () => {
     const ort = await loadOrt();
     ort.env.wasm.wasmPaths = RAPID_URLS.wasm;
     ort.env.wasm.numThreads = threads;
-    const [det, cls, rec, keys] = await Promise.all([
-      fetchBytes(RAPID_URLS.det), fetchBytes(RAPID_URLS.cls), fetchBytes(RAPID_URLS.rec),
-      fetchBytes(RAPID_URLS.keys).then((b) => new TextDecoder().decode(b)),
-    ]);
+    const { det, cls, rec, keys } = await fetchRapidModels(fetchBytes, script);
     engine = createRapidOcr({ ort, models: { det, cls, rec }, keys });
     await engine.open();
     return engine;
@@ -32,6 +29,8 @@ export function serveRapid(post, { loadOrt = defaultLoadOrt, fetchBytes = defaul
   return (msg) => (queue = queue.then(async () => {
     const m = msg?.data ?? msg;
     if (m?.type === "open") {
+      // a different script after an open reader starts a new one
+      if (m.script && m.script !== script) { await engine?.close?.(); engine = null; opening = null; script = m.script; }
       try { await open(); post({ type: "ready" }); }
       catch (e) { opening = null; post({ type: "error", message: why(e) }); }
     } else if (m?.type === "read") {
