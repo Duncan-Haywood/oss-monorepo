@@ -1938,6 +1938,37 @@ team members' wages (`/v2/labor/team-member-wages`, `/v2/team-members/search`) a
 by CSV or by hand; Deputy's API docs were not reachable from the session, so Deputy was then read only from its CSV
 export (its API is read since 2026-11-17, next section).
 
+## Deputy staff and wages (2026-11-19)
+
+`--import-deputy-staff` reads saved answers from Deputy's resource API for the team, the staff half of `--import-deputy`:
+`POST /api/v1/resource/Employee/QUERY` (people and their main location), `EmployeeAgreement/QUERY` (each person's
+`BaseRate`, the location it pays at and its start and end dates), `EmployeeWorkplace/QUERY` (one row per extra location,
+naming the agreement that pays there) and `Company/QUERY` (location names). Files can come in any order, several per
+flag or as the NDJSON `--save` writes. `--fetch-deputy-staff` fetches the same four lists from `DEPUTY_INSTALL` with
+`DEPUTY_TOKEN` (four paged queries, not one per person; the token goes only to the `*.deputy.com` host). The page's
+"convert a staff export" box takes the saved JSON and tells it from 7shifts' by Deputy's `EmployeeId` / `FirstName`.
+
+- **Rates.** A person's own wage is their latest-starting agreement in force on `--wages-as-of` (default today) with a
+  base rate. At each location, the agreement that location's workplace row names first, else an agreement paying at
+  that location; where it differs from the own wage, a `wage at <location>:` cell is written, so the build prices each
+  shift at that person's rate there (the same cells the 7shifts and CSV readers write).
+- **Sites.** Main location first, then the workplace rows in Deputy's sort order, as a `sites:` cell when the team spans
+  more than one location; `--location <name|id>` plans one location at each person's rate there.
+- **Left out or flagged.** Inactive and already-terminated people are left out; an agreement with a salary pay rule and
+  no base rate gives wage 0 with a note; ended, future and inactive agreements are not used (a later
+  `--wages-as-of` applies the future ones). Max hours is 40 and availability `any`; Deputy's areas a person may work
+  are an association on OperationalUnit, not a field of these rows, so no `role:` cell is written.
+
+Checked: `import-deputy-staff.test.mjs` (9 tests: one and two locations, workplace agreements, `--location` by name and
+id, agreements in force by date, inactive, terminated, salaried and agreement-less people, repeated names and files,
+NDJSON, an error answer, telling the JSON from rosters and 7shifts, the fetch's host, header, resources and paging
+against a stub; every output line parses with `parseStaff`). The CLI on three invented files gave
+`Ana Silva, 24, 40, 0, any, sites: Harbour St | Airport, wage at Airport: 27.25`, and a build of three site-tagged
+shifts from it gave the two Airport shifts to the $22 colleague rather than Ana at $27.25 there (payroll $544). A
+headless-Chromium upload of the same files on the page filled the staff box with the same lines, no page errors.
+Field names come from the MIT communityds/deputy-api-wrapper models (Deputy's reference did not answer from the
+session; `eval/deputy-staff-format-2026-11-19.md`); no Deputy account, token or real response was used.
+
 ## Reading Deputy directly (2026-11-17)
 
 `--import-deputy rosters.json` reads saved answers from Deputy's resource API (`POST /api/v1/resource/Roster/QUERY`, plus

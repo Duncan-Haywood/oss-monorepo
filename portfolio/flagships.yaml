@@ -291,11 +291,12 @@ flagships:
       leave records; a manager's read on whether the steadier plan is the one they
       would post. More open items: NEXT.md.
     buildable: >-
-      Deputy staff and wages from its API (no account needed to build):
-      resource/Employee and EmployeeAgreement field names are in the MIT
-      communityds/deputy-api-wrapper models (git clone works; api.github.com does
-      not), see eval/deputy-api-format-2026-11-17.md; mirror import-7shifts.mjs's
-      staff reader. Homebase stays account-gated.
+      Deputy availability from its API (no account needed to build):
+      EmployeeAvailability (Employee, Date, StartTime, EndTime, Type, Schedule) is
+      in the MIT communityds/deputy-api-wrapper models (git clone works); turn it
+      into each staff line's availability cell beside import-deputy-staff.mjs (staff
+      and wages landed 2026-11-19, README "Deputy staff and wages"). Homebase stays
+      account-gated.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
