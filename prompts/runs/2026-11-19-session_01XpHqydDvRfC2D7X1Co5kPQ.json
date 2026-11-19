@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqydDvRfC2D7X1Co5kPQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T04:53:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship: a closure 1-7 days before a step (the real 2011-09-01 case), scored against clean",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17539",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/eval/closed-recent.mjs",
+      "issue": "Each simulated series costs ~1 min per arm-set on this container (400 series x 3 arms took ~100 min on 4 cores); the README's estimate (1,000 series ~5 h) holds, so these rounds dominate a run's wall time."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "A one-item replacement pushed next: 5 chars past the cap and auto-parked an unrelated item (two covariates) to NEXT.md; worked as documented but the choice of what to park is the last item, not the least valuable."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-changepoint-holiday-before-a-sales-rise.md",
+    "ventures/changepoint-detector/README.md (A closure in the week before a step)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered eval/closed-before.prereg.md before any run. Fresh seeds 20261123, 300 step + 100 null series: clean 183, zeros 274 (122 only via closure alerts), fill1 179; delay 5/4/5; V1-V4 PASS. Real design-year orders: 2011-09-01 alert appears only while 2011-08-29 is a zero; reading it as an ordinary Monday removes it too. Verification: node --test closed-days.test.mjs watch.test.mjs 38/38 pass; full venture suite and venture-preflight results appended below when done.",
+  "corrections": [],
+  "redteam": null
+}
