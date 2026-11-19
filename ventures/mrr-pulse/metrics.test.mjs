@@ -351,3 +351,8 @@ test("logo churn is a rate with a single starting customer, not null (red team 2
   assert.equal(s.rates.logoChurn, 1);
   assert.equal(s.rates.revenueChurn, 1);
 });
+
+test("concentration: the largest subscription decides 'high', not the top two together", () => {
+  // top1 = 20% (moderate), top2 = 40%: a mutant reading share(2) said high.
+  assert.equal(concentration({ a: 200, b: 200, ...Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`s${i}`, 100])) }).risk, "moderate");
+});

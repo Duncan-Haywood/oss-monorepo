@@ -110,10 +110,9 @@ COMPANY_NAME=Acme node server.mjs
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
     const pc = (v) => (v === null || v === undefined ? "n/a" : `${(v * 100).toFixed(1)}%`);
     function run() {
-      const { subs, skipped, missing } = subsFromCsv($("csv").value);
+      const { subs, skipped, missing, currency: cur } = subsFromCsv($("csv").value);
       if (missing.length) { $("out").hidden = true; $("msg").textContent = `Missing column(s): ${missing.join(", ")}. Check the header row.`; return; }
       if (!subs.length) { $("out").hidden = true; $("msg").textContent = "No usable rows."; return; }
-      const cur = (subs.find((s) => s.currency)?.currency) || "usd";
       const { months } = backfill(subs, Date.now(), 12);
       const s = summarize(months), r = s.rates, M = (v) => formatMoney(v, cur);
       $("msg").textContent = `${subs.length} subscriptions read` + (skipped.length ? `; ${skipped.length} skipped (first: line ${skipped[0].line}, ${skipped[0].why})` : "") + ".";

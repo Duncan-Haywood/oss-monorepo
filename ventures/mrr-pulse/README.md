@@ -70,8 +70,9 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
   Shares only, no customer or subscription ids. A customer with several
   subscriptions counts once per subscription.
 - One currency per instance (`CURRENCY`, default: your most common); other
-  subscriptions are left out and the dashboard says how many.
-- **CSV import is strict** (browser demo and `node import.mjs`): a date that
+  subscriptions are left out and the dashboard says how many. A CSV in the
+  browser demo does the same: rows in other currencies are listed as skipped.
+- **CSV import is strict** (the browser demo): a date that
   does not exist (2026-02-30), a filled-in end or trial date that is not a
   date, and a canceled row with no end date are listed as skipped with the
   reason. Read as "never ended", any of them would count that subscription as

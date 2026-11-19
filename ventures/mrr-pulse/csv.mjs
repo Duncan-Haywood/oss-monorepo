@@ -1,4 +1,4 @@
-// Subscription CSV -> subs, for the browser demo and for `node import.mjs`.
+// Subscription CSV -> subs, for the browser demo.
 // Reads the columns of Stripe's Subscriptions export (Dashboard > Billing >
 // Subscriptions > Export) by header name, in any order, and amounts in major
 // units (dollars), as that export writes them.
@@ -44,16 +44,18 @@ const toMs = (v) => {
   return Number.isFinite(t) ? t : null;
 };
 
-// Returns {subs, skipped:[{line, why}], missing:[...]}.
+// Returns {subs, skipped:[{line, why}], missing:[...], currency}. Like the
+// server, it keeps one currency, the most common (a tie goes to the first
+// row's): adding yen to cents gave a headline in neither (red team 2026-11-19).
 export function subsFromCsv(text) {
   const rows = parseCsv(text);
-  if (rows.length < 2) return { subs: [], skipped: [], missing: ["header and at least one row"] };
+  if (rows.length < 2) return { subs: [], skipped: [], missing: ["header and at least one row"], currency: "usd" };
   const head = rows[0].map(norm);
   const col = {};
   for (const [k, names] of Object.entries(ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const missing = ["amount", "interval", "created"].filter((k) => col[k] < 0);
-  if (missing.length) return { subs: [], skipped: [], missing };
-  const subs = [], skipped = [], byId = new Map();
+  if (missing.length) return { subs: [], skipped: [], missing, currency: "usd" };
+  const subs = [], skipped = [], byId = new Map(), lineOf = new Map();
   rows.slice(1).forEach((r, i) => {
     const get = (k) => (col[k] >= 0 ? (r[col[k]] ?? "").trim() : "");
     const amount = Number(get("amount").replace(/[$,£€\s]/g, ""));
@@ -88,9 +90,16 @@ export function subsFromCsv(text) {
       return;
     }
     byId.set(sub.id, sub);
+    lineOf.set(sub, i + 2);
     subs.push(sub);
   });
-  return { subs, skipped, missing: [] };
+  const counts = new Map();
+  for (const s of subs) counts.set(s.currency, (counts.get(s.currency) || 0) + 1);
+  let currency = "usd", best = 0;
+  for (const [c, n] of counts) if (n > best) { currency = c; best = n; }
+  for (const s of subs) if (s.currency !== currency) skipped.push({ line: lineOf.get(s), why: `in ${s.currency.toUpperCase()}, not ${currency.toUpperCase()} (one currency at a time)` });
+  skipped.sort((a, b) => a.line - b.line);
+  return { subs: subs.filter((s) => s.currency === currency), skipped, missing: [], currency };
 }
 
 // Deterministic demo data: a small SaaS that grew for 18 months with some churn.
