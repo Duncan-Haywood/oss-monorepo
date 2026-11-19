@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqycx8QuD88tKzDMdyUG",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T18:37:58Z",
+  "ended": "2026-11-19T18:49:05Z",
+  "wall_minutes": 12.88,
+  "tokens_in": 4272530,
+  "tokens_out": 26393,
+  "cost_usd": 2.2739,
+  "tool_calls": 44,
+  "task": "research programme marine-hull, milestone 7zg: heave and pitch damping fitted to tank motions only, added resistance held out",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17755",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "Header line of the first run mislabelled the fit's point count ('16 heave + pitch points'); fixed and rerun, all results identical otherwise.",
+    "Plain `python3 -m unittest` hit 11 import errors (numpy/pytest missing); rerun with pyenv's /usr/bin/python3.13: 473 passed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "issue": "The plan text said 'all 41 Fig. 2 points at lambda/L 0.5 to 2.0'; only 32 of the 41 lie in that range. Corrected in the outcome entry."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "pick_track's CHAIN note suggested a paper step after 13 knob-turning entries; the hold-out test seemed more useful because it changes the paper's headline number, so took it and added one paper sentence."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py (CHAIN note)",
+      "why": "Chose a hold-out validation step over a paper section",
+      "did": "Fitted damping to motions, tested on held-out added resistance",
+      "result": "Refuted the 0.95-1.12 expectation; best estimate moves from 3.7% to 3.7-4.2%"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-marine-hull-motion-fitted-damping-holdout.md",
+    "research/marine-hull/LOG.md (7zg)"
+  ],
+  "goal": null,
+  "notes": "Plan committed a873dddcd before the run. Local checks: marine-hull pytest 473 passed (python3.13), paper/check_numbers.py ok, research/_homepage/build.py ok, check_md_links ok, check_posts ok, research_live_links 0 updates. Results deterministic across two runs (3 min each). Findings: motion fit zeta3 0.0375 / zeta5 0; held-out area 1.134; 30 W loss 4.18% (4.10-4.23%).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1f7d8f59-42bf-5227-8198-86c67e60b693",
+    "transcripts": 1,
+    "first": "2026-11-19T18:37:58Z",
+    "last": "2026-11-19T18:50:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 77,
+        "output": 26393,
+        "thinking": 3314,
+        "cache_read": 4158187,
+        "cache_write_5m": 0,
+        "cache_write_1h": 114266,
+        "api_equivalent_usd": 2.2739,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 77,
+      "output": 26393,
+      "thinking": 3314,
+      "cache_read": 4158187,
+      "cache_write_5m": 0,
+      "cache_write_1h": 114266,
+      "api_equivalent_usd": 2.2739,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 38,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.88,
+      "active_minutes": 12.88,
+      "model_minutes": 4.47,
+      "tool_minutes": 8.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researcher writing the fit, grid, hold-out and monohull carry-over on existing code and documenting it",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 263.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

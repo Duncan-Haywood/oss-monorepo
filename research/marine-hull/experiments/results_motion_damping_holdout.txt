@@ -1,0 +1,39 @@
+tank hull: modified Wigley L 2 m B 0.3 m d 0.125 m, Fn 0.2; fit on Fig. 2 heave+pitch, lambda/L 0.5-2.0 (16 heave + 16 pitch points); Fig. 3 held out (measured mean area 5.773)
+grid: zeta3, zeta5 in 0 to 0.100 step 0.0025 (41^2 cells); objective SSE of |z|/zeta_a and |theta|/(k zeta_a)
+## A. tank hull, coupling plain
+best: zeta3 0.0375, zeta5 0.0000, SSE 0.4958 (zeta 0: 0.7097; best single zeta 0.0050: 0.6938); 28 cells within 10%: zeta3 0.0200-0.0600, zeta5 0.0000-0.0025
+edge check: best on grid edge zeta3 False, zeta5 True
+zeta 0 (0.0000, 0.0000): heave rms (0.8-2.0) 0.166, pitch rms 0.151, mean heave error at 1.0-1.3 +26.3% | hold-out: strip+refl area 1.189 of measured mean, sigma rms 1.687, peak 12.02 at 1.05; per series dyn_2p5cm 1.12, dyn_1p0cm 1.11, measured_wave_1p0cm 1.48, superposed_wave_1p0cm 0.98
+single (0.0050, 0.0050): heave rms (0.8-2.0) 0.152, pitch rms 0.162, mean heave error at 1.0-1.3 +21.0% | hold-out: strip+refl area 1.144 of measured mean, sigma rms 1.529, peak 11.21 at 1.05; per series dyn_2p5cm 1.08, dyn_1p0cm 1.07, measured_wave_1p0cm 1.43, superposed_wave_1p0cm 0.94
+fit (0.0375, 0.0000): heave rms (0.8-2.0) 0.127, pitch rms 0.138, mean heave error at 1.0-1.3 +3.1% | hold-out: strip+refl area 1.134 of measured mean, sigma rms 1.555, peak 11.30 at 1.05; per series dyn_2p5cm 1.07, dyn_1p0cm 1.06, measured_wave_1p0cm 1.41, superposed_wave_1p0cm 0.93
+hold-out area ratio over the 28 near cells: 1.105 to 1.154
+## A. tank hull, coupling A0
+best: zeta3 0.0000, zeta5 0.0000, SSE 0.5266 (zeta 0: 0.5266; best single zeta 0.0000: 0.5266); 6 cells within 10%: zeta3 0.0000-0.0075, zeta5 0.0000-0.0025
+edge check: best on grid edge zeta3 True, zeta5 True
+zeta 0 (0.0000, 0.0000): heave rms (0.8-2.0) 0.140, pitch rms 0.133, mean heave error at 1.0-1.3 -7.3% | hold-out: strip+refl area 1.129 of measured mean, sigma rms 1.520, peak 11.15 at 1.05; per series dyn_2p5cm 1.07, dyn_1p0cm 1.06, measured_wave_1p0cm 1.41, superposed_wave_1p0cm 0.93
+single (0.0000, 0.0000): heave rms (0.8-2.0) 0.140, pitch rms 0.133, mean heave error at 1.0-1.3 -7.3% | hold-out: strip+refl area 1.129 of measured mean, sigma rms 1.520, peak 11.15 at 1.05; per series dyn_2p5cm 1.07, dyn_1p0cm 1.06, measured_wave_1p0cm 1.41, superposed_wave_1p0cm 0.93
+fit (0.0000, 0.0000): heave rms (0.8-2.0) 0.140, pitch rms 0.133, mean heave error at 1.0-1.3 -7.3% | hold-out: strip+refl area 1.129 of measured mean, sigma rms 1.520, peak 11.15 at 1.05; per series dyn_2p5cm 1.07, dyn_1p0cm 1.06, measured_wave_1p0cm 1.41, superposed_wave_1p0cm 0.93
+hold-out area ratio over the 6 near cells: 1.109 to 1.129
+## B. carried to the 4 m monohull (30 W range loss, 200 W scope)
+reference: calm 30 W range 823.7 km at 1.00 m/s
+# table: case coupling zeta3 zeta5 pooled_1ms_motion_N loss30W_share025 loss30W_share1 scope200W
+row zeta0 plain 0.0000 0.0000 2.954 -4.31 -15.06 True
+row fit plain 0.0375 0.0000 2.844 -4.18 -14.79 True
+row near_0 plain 0.0200 0.0000 2.885 -4.23 -14.89 True
+row near_1 plain 0.0500 0.0025 2.767 -4.10 -14.58 True
+row near_2 plain 0.0600 0.0000 2.814 -4.15 -14.72 True
+row zeta0 A0 0.0000 0.0000 2.860 -4.20 -14.86 True
+row fit A0 0.0000 0.0000 2.860 -4.20 -14.86 True
+row near_0 A0 0.0000 0.0000 2.860 -4.20 -14.86 True
+row near_1 A0 0.0025 0.0025 2.796 -4.13 -14.68 True
+row near_2 A0 0.0075 0.0000 2.851 -4.19 -14.84 True
+plain: 30 W loss (share 0.25) over the fit and near cells 4.10% to 4.23%
+A0: 30 W loss (share 0.25) over the fit and near cells 4.13% to 4.20%
+## expectations
+G1 plain zeta3 0.0375 in 0.015-0.04: True
+G2 plain zeta5 0.0000 < zeta3 and <= 0.01: True
+G3 plain hold-out area ratio 1.134 in 0.95-1.12: False
+G4 rule zeta3 0.0000 < plain 0.0375 and area 1.129 > 1.134: False
+G5 plain 30 W loss at fit 4.18% in 3.1-4.3 and near cells 4.10-4.23% in 3.0-4.5: True
+G6 200 W scope holds at both fits: True
+G7 plain fit heave rms 0.127 <= 0.140 and pitch rms 0.138 <= 0.160: True
