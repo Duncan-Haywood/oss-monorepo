@@ -43,6 +43,8 @@ class MainTest(unittest.TestCase):
             self.assertEqual(c.main(["--root", d]), 1)
             (root / "bad.mjs").unlink()
             self.assertEqual(c.main(["--root", d]), 0)
+            (root / "good.mjs").unlink()
+            self.assertEqual(c.main(["--root", d]), 2)  # a scan of nothing is not a pass
 
     def test_repository_is_clean(self):
         self.assertEqual(c.main([]), 0)

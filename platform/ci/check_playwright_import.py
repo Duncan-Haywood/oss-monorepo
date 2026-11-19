@@ -65,6 +65,9 @@ def main(argv=None):
         print(f"{p.relative_to(root)}: loads Playwright by ESM import only, which ignores NODE_PATH; "
               "use platform/pages/load-playwright.mjs or add a require() fallback")
     print(f"{scanned} files name playwright, {len(bad)} load it by ESM import only")
+    if not scanned:
+        print(f"no file under {root} names playwright: wrong --root? A scan of nothing is not a pass.")
+        return 2
     return 1 if bad else 0
 
 
