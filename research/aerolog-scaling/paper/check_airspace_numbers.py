@@ -120,6 +120,26 @@ CHECKS = [
     ("arrangement_posthoc_results.txt", "  16  2     13.33   32    0.4885", "0.3731 and 0.4885"),
     ("arrangement_posthoc_results.txt", "  12  2     24.00   50    0.9108   1.7927   50 of 50", "all 107 such draws"),
     ("arrangement_posthoc_results.txt", "  16  2     24.00   57    0.9045   1.6275   57 of 57", "all 107 such draws"),
+    # 11ar sort-and-space rule
+    ("sort_rule_results.txt", "blind labels and h equal 11aq's in 48 of 48", "reproduce exactly"),
+    ("sort_rule_results.txt", "max relative difference from its F 0.00e+00", "every aware score reproduce exactly"),
+    ("sort_rule_results.txt", "  1     1.0342   1.0995", "**1.0995** (12 operators)"),
+    ("sort_rule_results.txt", "  1     1.0183   1.1279", "**1.1279** (16)"),
+    ("sort_rule_results.txt", "  1     1.0342   1.0995", "**1.0342** and **1.0183**"),
+    ("sort_rule_results.txt", "  2     1.1631   1.1623", "1.1631 and 1.1296, the sorted plan is 1.1623 and 1.1725"),
+    ("sort_rule_results.txt", "  2     1.1296   1.1725", "1.1631 and 1.1296, the sorted plan is 1.1623 and 1.1725"),
+    ("sort_rule_results.txt", "1.7527   1.0520", "1.0520 and 1.0605"),
+    ("sort_rule_results.txt", "1.7108   1.0605", "1.0520 and 1.0605"),
+    ("sort_rule_results.txt", "1.0628   1.1656", "1.1656 and 1.2328"),
+    ("sort_rule_results.txt", "1.0716   1.2328", "1.1656 and 1.2328"),
+    ("sort_rule_results.txt", "k=5 2.536", "2.536 m and 2.869 m"),
+    ("sort_rule_results.txt", "k=5 2.869", "2.536 m and 2.869 m"),
+    ("sort_rule_results.txt", "Q3 M=12 s=1 closed-form median bands >= 4: 4 -> held", "a median of 4 bands at s = 1"),
+    ("sort_rule_results.txt", "Q4 M=16 s=2 closed-form median bands = 3: 2 -> refuted", "2 at s = 2 (search 3)"),
+    ("sort_rule_posthoc_results.txt", "  12  1     96   19 of 96", "19 and 12 of 96"),
+    ("sort_rule_posthoc_results.txt", "  16  1     96   12 of 96", "19 and 12 of 96"),
+    ("sort_rule_posthoc_results.txt", "  12  2     96   58 of 96         76 of 96", "76 and 65 of 96"),
+    ("sort_rule_posthoc_results.txt", "  16  2     96   43 of 96         65 of 96", "76 and 65 of 96"),
 ]
 
 
