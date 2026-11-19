@@ -1,0 +1,137 @@
+CALIBRATION, seed 20261232, 200 series a cell: per arm and beta, the worst null cell's mean false spells and found summed over the five spell cells, by m
+  A beta 0: m 1.5 0.400/990  m 2 0.120/990  m 2.5 0.050/986  m 3 0.015/964  m 3.5 0.010/926  m 4 0.005/871  m 5 0.005/763
+  A beta 2: m 1.5 0.400/992  m 2 0.050/990  m 2.5 0.015/982  m 3 0.005/951  m 3.5 0.005/895  m 4 0.005/807  m 5 0.005/749
+  A beta 4: m 1.5 0.395/992  m 2 0.045/988  m 2.5 0.010/971  m 3 0.005/929  m 3.5 0.005/836  m 4 0.005/783  m 5 0.005/725
+  A beta 6: m 1.5 0.395/990  m 2 0.045/981  m 2.5 0.005/957  m 3 0.005/904  m 3.5 0.005/800  m 4 0.005/767  m 5 0.005/698
+  B beta 0: m 1.5 1.000/990  m 2 0.950/990  m 2.5 0.735/987  m 3 0.435/977  m 3.5 0.235/957  m 4 0.150/908  m 5 0.055/797
+  B beta 2: m 1.5 0.755/992  m 2 0.430/990  m 2.5 0.215/983  m 3 0.115/964  m 3.5 0.075/926  m 4 0.050/844  m 5 0.015/782
+  B beta 4: m 1.5 0.475/992  m 2 0.130/988  m 2.5 0.075/972  m 3 0.035/942  m 3.5 0.025/867  m 4 0.015/818  m 5 0.005/754
+  B beta 6: m 1.5 0.400/990  m 2 0.065/981  m 2.5 0.040/958  m 3 0.015/917  m 3.5 0.005/831  m 4 0.005/800  m 5 0.005/724
+
+Eligible (smallest m with every null cell <= 0.010):
+  A beta 0 m 3.5: found 926 (P1w30 200, P1w60 200, P3w30 161, P3w60 200, P5d60 165)
+  A beta 2 m 3: found 951 (P1w30 200, P1w60 200, P3w30 169, P3w60 200, P5d60 182)
+  A beta 4 m 2.5: found 971 (P1w30 200, P1w60 200, P3w30 177, P3w60 200, P5d60 194)
+  A beta 6 m 2.5: found 957 (P1w30 200, P1w60 200, P3w30 163, P3w60 200, P5d60 194)
+  B beta 4 m 5: found 754 (P1w30 190, P1w60 200, P3w30 1, P3w60 180, P5d60 183)
+  B beta 6 m 3.5: found 831 (P1w30 199, P1w60 200, P3w30 36, P3w60 200, P5d60 196)
+Chosen: arm A, beta 4, m 2.5
+
+CONFIRMATION 1, seed 20261233, spells round's cells: mean false spells a series (nulls); found new / shipped search / shipped change alone
+  B10 n300           0.000
+  B10 n600           0.000
+  B25 n300           0.005
+  B25 n600           0.000
+  B40 n300           0.000
+  B40 n600           0.000
+  B60 n300           0.005
+  B60 n600           0.000
+  M40 n300           0.000
+  M40 n600           0.005
+  M60 n300           0.000
+  M60 n600           0.000
+  W5 n1100           0.000
+  W3 n1100           0.000
+  W5c n1100          0.000
+  S2t n1100          0.000
+  S1t n1100          0.000
+  S2p n1100          0.000
+  S1p n1100          0.010
+  R30 as null        0.000
+  R60 as null        0.000
+  R90 as null        0.000
+  I60 as null        0.000
+  P1w30              199 / 200 / 0
+  P1w60              200 / 200 / 14
+  P3w30              182 / 173 / 0
+  P3w60              197 / 197 / 157
+  P5d60              186 / 167 / 14
+
+CONFIRMATION 2, seed 20261234, openings round's cells: LINE found new / shipped (spell cells); false spells printed a series new / shipped (null cells)
+  P1w30      P120     199 / 199
+  P1w60      P120     200 / 200
+  P3w30      P120     177 / 167
+  P3w60      P120     196 / 197
+  P5d60      P120     186 / 144
+  null W5    P120     0.000 / 0.000
+  null W3    P120     0.000 / 0.000
+  null W7    P120     0.000 / 0.000
+  null LAST  P120     0.000 / 0.000
+  P1w30      P250     200 / 200
+  P1w60      P250     200 / 200
+  P3w30      P250     158 / 141
+  P3w60      P250     193 / 193
+  P5d60      P250     187 / 171
+  null W5    P250     0.000 / 0.000
+  null W3    P250     0.000 / 0.000
+  null W7    P250     0.000 / 0.000
+  null LAST  P250     0.000 / 0.000
+  P1w30      P500     200 / 200
+  P1w60      P500     200 / 200
+  P3w30      P500     184 / 177
+  P3w60      P500     195 / 195
+  P5d60      P500     194 / 173
+  null W5    P500     0.000 / 0.000
+  null W3    P500     0.000 / 0.000
+  null W7    P500     0.000 / 0.000
+  null LAST  P500     0.000 / 0.000
+  P1w30      P800     200 / 200
+  P1w60      P800     200 / 200
+  P3w30      P800     178 / 155
+  P3w60      P800     198 / 198
+  P5d60      P800     184 / 131
+  null W5    P800     0.000 / 0.000
+  null W3    P800     0.000 / 0.000
+  null W7    P800     0.000 / 0.000
+  null LAST  P800     0.000 / 0.000
+  P1w30      Z50P250  200 / 200
+  P1w60      Z50P250  200 / 200
+  P3w30      Z50P250  148 / 131
+  P3w60      Z50P250  198 / 198
+  P5d60      Z50P250  188 / 145
+  null W5    Z50P250  0.000 / 0.000
+  null W3    Z50P250  0.000 / 0.000
+  null W7    Z50P250  0.000 / 0.000
+  null LAST  Z50P250  0.000 / 0.000
+  P1w30      Z50P500  200 / 200
+  P1w60      Z50P500  200 / 200
+  P3w30      Z50P500  154 / 134
+  P3w60      Z50P500  193 / 193
+  P5d60      Z50P500  190 / 176
+  null W5    Z50P500  0.000 / 0.000
+  null W3    Z50P500  0.000 / 0.000
+  null W7    Z50P500  0.000 / 0.000
+  null LAST  Z50P500  0.000 / 0.000
+
+C1 every spells-round null cell <= 0.020 (worst 0.010): pass
+C2 every shift cell <= 0.010 (worst 0.010): pass
+C3 every openings null cell <= 0.020 printed (worst 0.000): pass
+C4 weak cells' LINE gain over shipped >= 150 (283): pass
+C5 no spell cell loses more than 10: pass
+C6 (reported) O1 within 30 of P500 at every opening: FAIL (P3w30 Z50P250 148 vs 184)
+
+REAL (seen) check K1: a spell ending in the documented return's +-10 day window
+Alaska         2021-08-02 Mon/Wed/Fri -> Mon-Fri             DATED spell 2021-06-04..2021-07-29 (56 days, weekdays), repeats 57% inside, 32% around
+South Dakota   2021-08-16 Wednesdays only -> Mon-Fri         DATED spell 2021-07-03..2021-08-10 (39 days, weekdays), repeats 85% inside, 32% around
+
+K1 dated 2 of 2 (bar: both): pass
+
+K2 (descriptive) every spell on the 27 primary states and the 8 'more often' states: new search, then [shipped]
+  Alabama               2022-02-28..2022-07-03 (126 days, weekdays) 29% inside, 14% around
+  Alabama               [shipped 2022-03-01..2022-07-08 (130 days, dow)]
+  Alaska                2021-06-04..2021-07-29 (56 days, weekdays) 57% inside, 32% around
+  Alaska                [shipped 2021-06-08..2021-07-29 (52 days, dow)]
+  District of Columbia  2022-02-19..2022-07-06 (138 days, weekdays) 56% inside, 35% around
+  District of Columbia  [shipped 2022-03-02..2022-07-06 (127 days, dow)]
+  Idaho                 2021-03-28..2021-09-05 (162 days, weekdays) 31% inside, 17% around
+  Idaho                 [shipped 2021-03-28..2021-09-05 (162 days, dow)]
+  Kentucky              2022-03-05..2022-04-05 (32 days, weekdays) 78% inside, 30% around
+  Kentucky              [shipped 2022-03-05..2022-03-31 (27 days, dow)]
+  South Dakota          2021-07-03..2021-08-10 (39 days, weekdays) 85% inside, 32% around
+  South Dakota          [shipped 2021-07-03..2021-08-10 (39 days, dow)]
+  Washington            2021-06-27..2022-01-01 (189 days, weekdays) 33% inside, 19% around
+  Washington            [shipped 2021-07-03..2022-01-01 (183 days, dow)]
+  Arkansas              2021-06-21..2021-07-18 (28 days, weekdays) 29% inside, 1% around
+  Arkansas              [shipped 2021-06-21..2021-07-20 (30 days, dow)]
+K2 spells: new 8, shipped 8
+(393.8 s)

@@ -892,6 +892,8 @@ const CATEGORY_RULES = [
     // same site reader as `wall-framing-takeoff` and the concrete bid calculators.
     // `wall-condensation-check` joined 2026-11-11 on its first commit: the month-by-month
     // Glaser moisture check of a wall a builder or designer runs beside `hvac-load-calc`.
+    // `psychrometric-calculator` joined 2026-11-19 on its first commit: moist-air states and
+    // coil, mixing and evaporative processes an HVAC technician reads beside `hvac-load-calc`.
     // `hvac-load-calc` joined 2026-11-11 on its first commit: the room-by-room heating and
     // cooling load an installer or builder checks before quoting a heat pump, beside the
     // furnace, mini-split and heat pump bid calculators.
@@ -913,7 +915,10 @@ const CATEGORY_RULES = [
     // model against a client's buildingSMART IDS, beside the IFC reader in `wall-framing-takeoff`.
     // `submittal-register` joined 2026-11-19 on its first commit: a GC's project engineer
     // turning the project manual into the submittal log, beside `ids-model-check`.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'submittal-register' || slug === 'concrete-maturity' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'voltage-drop-calculator' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    // `xer-schedule-check` joined 2026-11-19 on its first commit: an owner's rep, claims
+    // consultant or scheduler running the DCMA 14-point check on a P6 XER update, beside
+    // `submittal-register`.
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'submittal-register' || slug === 'xer-schedule-check' || slug === 'concrete-maturity' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'voltage-drop-calculator' || slug === 'wall-condensation-check' || slug === 'psychrometric-calculator' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -5063,10 +5068,11 @@ const SUBCATEGORY_RULES = {
       // `voltage-drop-calculator` (2026-11-17): voltage drop and wire size for DC, single and three-phase runs, the conductor step after the service and string sizing.
       // `hvac-load-calc` (2026-11-11): room-by-room heating and cooling loads, the sizing step before a heat pump, mini-split or furnace bid.
       // `wall-condensation-check` (2026-11-11): the moisture check on the same wall `hvac-load-calc` sizes heat for.
+      // `psychrometric-calculator` (2026-11-19): moist-air properties, coil load, SHR, ADP and bypass factor, the air side of the same HVAC job.
       // `water-supply-sizing` (2026-11-13): peak water demand and supply pipe sizes, the plumbing step beside the water heater and softener bids.
       // `sprinkler-hydraulic-calc` (2026-11-13): fire sprinkler hydraulics for trees, loops and grids, the pipe work beside the domestic water sizing.
       // `elevator-traffic-analysis` (2026-11-14): up-peak lift traffic (round trip time, interval, handling capacity), the vertical transportation step of the same building services.
-      test: (slug) => /^(hvac-load-calc|water-supply-sizing|sprinkler-hydraulic-calc|elevator-traffic-analysis|wall-condensation-check|service-load-check|pv-string-sizer|voltage-drop-calculator|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
+      test: (slug) => /^(hvac-load-calc|water-supply-sizing|sprinkler-hydraulic-calc|elevator-traffic-analysis|wall-condensation-check|psychrometric-calculator|service-load-check|pv-string-sizer|voltage-drop-calculator|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
@@ -5084,7 +5090,8 @@ const SUBCATEGORY_RULES = {
       // before the drywall here, and its lumber list is the same job as `cut-list`.
       // `ids-model-check` joined 2026-11-16 beside it: the IFC model check before the build.
       // `submittal-register` joined 2026-11-19 beside it: the submittal log from the spec book.
-      test: (slug) => /^(ids-model-check|submittal-register|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
+      // `xer-schedule-check` joined 2026-11-19 beside it: the DCMA check of the P6 schedule.
+      test: (slug) => /^(ids-model-check|submittal-register|xer-schedule-check|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
     },
     {
       id: 'trades-site',
@@ -13581,7 +13588,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       options: toolCardOptions(surface, { baseUrl: base }),
     });
   }
-  await renderCards(cardJobs);
+  // Drawn beside the chrome pass below, and awaited before the page finish.
+  // Until 2026-11-19 the build waited here: on a cold card cache that was
+  // about 15 s of a 4-core build with the main thread idle while workers drew
+  // ~1,400 tool cards, then about 15 s of chrome with the workers idle. Nothing
+  // between here and the await reads a card: the chrome pass lists only
+  // `.html` files and names a tool's card by its path, and the finish pass
+  // draws the remaining cards on the same pool once these are done
+  // (docs/history/pages-build-perf-2026-11-19-tool-cards-beside-chrome.md).
+  const toolCards = renderCards(cardJobs);
+  // A failed draw is reported at the await; until then this keeps it from
+  // counting as an unhandled rejection.
+  toolCards.catch(() => {});
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
@@ -13602,6 +13620,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // below, which hashes the finished HTML: a cache named from a hash taken
   // earlier would ship pages that no longer match it.
   // One read and one write per page for all four (`finishPagesInOneWalk`).
+  await toolCards;
   const { sponsored, noscripted, retitled, shareCards } = await finishPagesInOneWalk(outDir, {
     baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE, log,
   });

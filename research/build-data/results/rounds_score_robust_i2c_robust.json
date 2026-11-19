@@ -1,0 +1,565 @@
+{
+ "variants": {
+  "cpin_es3_ncr95": {
+   "n": 12,
+   "mean_regret": 2.5097846908774293,
+   "within_1day": 3,
+   "max_regret": 5.661324220396736,
+   "ncr_mean": 82.13106383908907,
+   "grid_means": {
+    "cpin_es3_nc3": 81.35516204972626,
+    "cpin_es3_nc4": 80.40460701759831,
+    "cpin_es3_nc5": 81.28697108383518
+   },
+   "seattle_threshold_late": 731.9916666666662,
+   "seattle_threshold_early": 633.5,
+   "beats_grid": 0,
+   "cells": [
+    {
+     "held": "sf",
+     "year": 2017,
+     "ncr": 82.62846407161642,
+     "grid": {
+      "cpin_es3_nc3": 81.80392166003298,
+      "cpin_es3_nc4": 83.1672935837123,
+      "cpin_es3_nc5": 90.66474665877104
+     },
+     "oracle": "cpin_es3_nc3",
+     "regret": 0.8245424115834368,
+     "regret_vs": {
+      "cpin_es3_nc3": 0.8245424115834368,
+      "cpin_es3_nc4": -0.538829512095873,
+      "cpin_es3_nc5": -8.036282587154616
+     },
+     "thresholds": {
+      "austin": 508.0,
+      "seattle": 753.0
+     }
+    },
+    {
+     "held": "sf",
+     "year": 2018,
+     "ncr": 86.63400560136971,
+     "grid": {
+      "cpin_es3_nc3": 86.18686794737779,
+      "cpin_es3_nc4": 85.45754081611453,
+      "cpin_es3_nc5": 89.13071959340351
+     },
+     "oracle": "cpin_es3_nc4",
+     "regret": 1.1764647852551775,
+     "regret_vs": {
+      "cpin_es3_nc3": 0.4471376539919163,
+      "cpin_es3_nc4": 1.1764647852551775,
+      "cpin_es3_nc5": -2.496713992033804
+     },
+     "thresholds": {
+      "austin": 521.0,
+      "seattle": 1105.0
+     }
+    },
+    {
+     "held": "sf",
+     "year": 2019,
+     "ncr": 83.87899841973662,
+     "grid": {
+      "cpin_es3_nc3": 83.3078649348975,
+      "cpin_es3_nc4": 81.74835971751996,
+      "cpin_es3_nc5": 82.17087599500668
+     },
+     "oracle": "cpin_es3_nc4",
+     "regret": 2.1306387022166575,
+     "regret_vs": {
+      "cpin_es3_nc3": 0.5711334848391232,
+      "cpin_es3_nc4": 2.1306387022166575,
+      "cpin_es3_nc5": 1.708122424729936
+     },
+     "thresholds": {
+      "austin": 518.0,
+      "seattle": 1111.0
+     }
+    },
+    {
+     "held": "sf",
+     "year": 2020,
+     "ncr": 78.99662819678223,
+     "grid": {
+      "cpin_es3_nc3": 79.05358622322974,
+      "cpin_es3_nc4": 78.12169615031048,
+      "cpin_es3_nc5": 77.96732962924091
+     },
+     "oracle": "cpin_es3_nc5",
+     "regret": 1.0292985675413178,
+     "regret_vs": {
+      "cpin_es3_nc3": -0.056958026447517796,
+      "cpin_es3_nc4": 0.8749320464717414,
+      "cpin_es3_nc5": 1.0292985675413178
+     },
+     "thresholds": {
+      "austin": 520.0,
+      "seattle": 1145.7000000000007
+     }
+    },
+    {
+     "held": "sf",
+     "year": 2021,
+     "ncr": 70.94306768033402,
+     "grid": {
+      "cpin_es3_nc3": 70.79361141817806,
+      "cpin_es3_nc4": 71.33493265866998,
+      "cpin_es3_nc5": 72.35000701709188
+     },
+     "oracle": "cpin_es3_nc3",
+     "regret": 0.1494562621559652,
+     "regret_vs": {
+      "cpin_es3_nc3": 0.1494562621559652,
+      "cpin_es3_nc4": -0.3918649783359598,
+      "cpin_es3_nc5": -1.4069393367578584
+     },
+     "thresholds": {
+      "austin": 525.0,
+      "seattle": 928.0
+     }
+    },
+    {
+     "held": "sf",
+     "year": 2022,
+     "ncr": 58.545774304328084,
+     "grid": {
+      "cpin_es3_nc3": 58.164812844803286,
+      "cpin_es3_nc4": 59.043103413342656,
+      "cpin_es3_nc5": 61.20789694314692
+     },
+     "oracle": "cpin_es3_nc3",
+     "regret": 0.3809614595247979,
+     "regret_vs": {
+      "cpin_es3_nc3": 0.3809614595247979,
+      "cpin_es3_nc4": -0.49732910901457217,
+      "cpin_es3_nc5": -2.662122638818836
+     },
+     "thresholds": {
+      "austin": 550.0,
+      "seattle": 1002.0
+     }
+    },
+    {
+     "held": "seattle",
+     "year": 2017,
+     "ncr": 81.47688946640878,
+     "grid": {
+      "cpin_es3_nc3": 80.34002654923742,
+      "cpin_es3_nc4": 79.90537468137705,
+      "cpin_es3_nc5": 81.72753431671903
+     },
+     "oracle": "cpin_es3_nc4",
+     "regret": 1.5715147850317237,
+     "regret_vs": {
+      "cpin_es3_nc3": 1.1368629171713565,
+      "cpin_es3_nc4": 1.5715147850317237,
+      "cpin_es3_nc5": -0.25064485031025185
+     },
+     "thresholds": {
+      "sf": 700.0,
+      "austin": 508.0
+     }
+    },
+    {
+     "held": "seattle",
+     "year": 2018,
+     "ncr": 92.49888247803868,
+     "grid": {
+      "cpin_es3_nc3": 89.68356810158957,
+      "cpin_es3_nc4": 88.48004798048767,
+      "cpin_es3_nc5": 88.6020020865897
+     },
+     "oracle": "cpin_es3_nc4",
+     "regret": 4.018834497551012,
+     "regret_vs": {
+      "cpin_es3_nc3": 2.815314376449109,
+      "cpin_es3_nc4": 4.018834497551012,
+      "cpin_es3_nc5": 3.896880391448974
+     },
+     "thresholds": {
+      "sf": 746.0,
+      "austin": 521.0
+     }
+    },
+    {
+     "held": "seattle",
+     "year": 2019,
+     "ncr": 83.80239855641912,
+     "grid": {
+      "cpin_es3_nc3": 82.25331007698172,
+      "cpin_es3_nc4": 80.30459934049496,
+      "cpin_es3_nc5": 80.79278907576246
+     },
+     "oracle": "cpin_es3_nc4",
+     "regret": 3.497799215924161,
+     "regret_vs": {
+      "cpin_es3_nc3": 1.5490884794374011,
+      "cpin_es3_nc4": 3.497799215924161,
+      "cpin_es3_nc5": 3.009609480656664
+     },
+     "thresholds": {
+      "sf": 808.0,
+      "austin": 518.0
+     }
+    },
+    {
+     "held": "seattle",
+     "year": 2020,
+     "ncr": 100.66265557329946,
+     "grid": {
+      "cpin_es3_nc3": 99.75021527573604,
+      "cpin_es3_nc4": 97.25351151915673,
+      "cpin_es3_nc5": 95.31070073441913
+     },
+     "oracle": "cpin_es3_nc5",
+     "regret": 5.3519548388803315,
+     "regret_vs": {
+      "cpin_es3_nc3": 0.9124402975634212,
+      "cpin_es3_nc4": 3.409144054142729,
+      "cpin_es3_nc5": 5.3519548388803315
+     },
+     "thresholds": {
+      "sf": 869.0,
+      "austin": 520.0
+     }
+    },
+    {
+     "held": "seattle",
+     "year": 2021,
+     "ncr": 91.27391876804961,
+     "grid": {
+      "cpin_es3_nc3": 91.0691272883791,
+      "cpin_es3_nc4": 87.82120945690377,
+      "cpin_es3_nc5": 85.61259454765288
+     },
+     "oracle": "cpin_es3_nc5",
+     "regret": 5.661324220396736,
+     "regret_vs": {
+      "cpin_es3_nc3": 0.20479147967051858,
+      "cpin_es3_nc4": 3.4527093111458385,
+      "cpin_es3_nc5": 5.661324220396736
+     },
+     "thresholds": {
+      "sf": 912.9499999999971,
+      "austin": 525.0
+     }
+    },
+    {
+     "held": "seattle",
+     "year": 2022,
+     "ncr": 74.23108295268601,
+     "grid": {
+      "cpin_es3_nc3": 73.85503227627184,
+      "cpin_es3_nc4": 72.21761489308956,
+      "cpin_es3_nc5": 69.90645640821818
+     },
+     "oracle": "cpin_es3_nc5",
+     "regret": 4.324626544467833,
+     "regret_vs": {
+      "cpin_es3_nc3": 0.3760506764141667,
+      "cpin_es3_nc4": 2.0134680595964483,
+      "cpin_es3_nc5": 4.324626544467833
+     },
+     "thresholds": {
+      "sf": 1015.0,
+      "austin": 550.0
+     }
+    }
+   ]
+  },
+  "cpin_es3_ncrd": {
+   "n": 12,
+   "mean_regret": 1.9994779155358071,
+   "within_1day": 7,
+   "max_regret": 10.365165014099446,
+   "ncr_mean": 81.62075706374743,
+   "grid_means": {
+    "cpin_es3_nc3": 81.35516204972626,
+    "cpin_es3_nc4": 80.40460701759831,
+    "cpin_es3_nc5": 81.28697108383518
+   },
+   "seattle_threshold_late": 1457.143333333331,
+   "seattle_threshold_early": 1565.2916666666642,
+   "beats_grid": 4,
+   "cells": [
+    {
+     "held": "sf",
+     "year": 2017,
+     "ncr": 92.16908667413243,
+     "grid": {
+      "cpin_es3_nc3": 81.80392166003298,
+      "cpin_es3_nc4": 83.1672935837123,
+      "cpin_es3_nc5": 90.66474665877104
+     },
+     "oracle": "cpin_es3_nc3",
+     "regret": 10.365165014099446,
+     "regret_vs": {
+      "cpin_es3_nc3": 10.365165014099446,
+      "cpin_es3_nc4": 9.001793090420136,
+      "cpin_es3_nc5": 1.504340015361393
+     },
+     "thresholds": {
+      "austin": 1660.6599999999744,
+      "seattle": 2025.1200000000208
+     }
+    },
+    {
+     "held": "sf",
+     "year": 2018,
+     "ncr": 92.32290172134476,
+     "grid": {
+      "cpin_es3_nc3": 86.18686794737779,
+      "cpin_es3_nc4": 85.45754081611453,
+      "cpin_es3_nc5": 89.13071959340351
+     },
+     "oracle": "cpin_es3_nc4",
+     "regret": 6.865360905230233,
+     "regret_vs": {
+      "cpin_es3_nc3": 6.136033773966972,
+      "cpin_es3_nc4": 6.865360905230233,
+      "cpin_es3_nc5": 3.1921821279412512
+     },
+     "thresholds": {
+      "austin": 1377.140000000014,
+      "seattle": 2255.0
+     }
+    },
+    {
+     "held": "sf",
+     "year": 2019,
+     "ncr": 84.02121032997411,
+     "grid": {
+      "cpin_es3_nc3": 83.3078649348975,
+      "cpin_es3_nc4": 81.74835971751996,
+      "cpin_es3_nc5": 82.17087599500668
+     },
+     "oracle": "cpin_es3_nc4",
+     "regret": 2.2728506124541497,
+     "regret_vs": {
+      "cpin_es3_nc3": 0.7133453950766153,
+      "cpin_es3_nc4": 2.2728506124541497,
+      "cpin_es3_nc5": 1.8503343349674282
+     },
+     "thresholds": {
+      "austin": 1208.0,
+      "seattle": 2158.6399999999994
+     }
+    },
+    {
+     "held": "sf",
+     "year": 2020,
+     "ncr": 77.90952905460192,
+     "grid": {
+      "cpin_es3_nc3": 79.05358622322974,
+      "cpin_es3_nc4": 78.12169615031048,
+      "cpin_es3_nc5": 77.96732962924091
+     },
+     "oracle": "cpin_es3_nc5",
+     "regret": -0.05780057463898913,
+     "regret_vs": {
+      "cpin_es3_nc3": -1.1440571686278247,
+      "cpin_es3_nc4": -0.2121670957085655,
+      "cpin_es3_nc5": -0.05780057463898913
+     },
+     "thresholds": {
+      "austin": 1111.1399999999849,
+      "seattle": 1753.0
+     }
+    },
+    {
+     "held": "sf",
+     "year": 2021,
+     "ncr": 69.71082643507941,
+     "grid": {
+      "cpin_es3_nc3": 70.79361141817806,
+      "cpin_es3_nc4": 71.33493265866998,
+      "cpin_es3_nc5": 72.35000701709188
+     },
+     "oracle": "cpin_es3_nc3",
+     "regret": -1.082784983098648,
+     "regret_vs": {
+      "cpin_es3_nc3": -1.082784983098648,
+      "cpin_es3_nc4": -1.624106223590573,
+      "cpin_es3_nc5": -2.6391805820124716
+     },
+     "thresholds": {
+      "austin": 1096.75,
+      "seattle": 1597.3199999999997
+     }
+    },
+    {
+     "held": "sf",
+     "year": 2022,
+     "ncr": 58.338820832176886,
+     "grid": {
+      "cpin_es3_nc3": 58.164812844803286,
+      "cpin_es3_nc4": 59.043103413342656,
+      "cpin_es3_nc5": 61.20789694314692
+     },
+     "oracle": "cpin_es3_nc3",
+     "regret": 0.17400798737359935,
+     "regret_vs": {
+      "cpin_es3_nc3": 0.17400798737359935,
+      "cpin_es3_nc4": -0.7042825811657707,
+      "cpin_es3_nc5": -2.8690761109700347
+     },
+     "thresholds": {
+      "austin": 1097.0,
+      "seattle": 1652.0
+     }
+    },
+    {
+     "held": "seattle",
+     "year": 2017,
+     "ncr": 80.65936724226052,
+     "grid": {
+      "cpin_es3_nc3": 80.34002654923742,
+      "cpin_es3_nc4": 79.90537468137705,
+      "cpin_es3_nc5": 81.72753431671903
+     },
+     "oracle": "cpin_es3_nc4",
+     "regret": 0.7539925608834608,
+     "regret_vs": {
+      "cpin_es3_nc3": 0.31934069302309354,
+      "cpin_es3_nc4": 0.7539925608834608,
+      "cpin_es3_nc5": -1.0681670744585148
+     },
+     "thresholds": {
+      "sf": 1767.25,
+      "austin": 1660.6599999999744
+     }
+    },
+    {
+     "held": "seattle",
+     "year": 2018,
+     "ncr": 88.32320376303328,
+     "grid": {
+      "cpin_es3_nc3": 89.68356810158957,
+      "cpin_es3_nc4": 88.48004798048767,
+      "cpin_es3_nc5": 88.6020020865897
+     },
+     "oracle": "cpin_es3_nc4",
+     "regret": -0.1568442174543918,
+     "regret_vs": {
+      "cpin_es3_nc3": -1.3603643385562947,
+      "cpin_es3_nc4": -0.1568442174543918,
+      "cpin_es3_nc5": -0.27879832355642975
+     },
+     "thresholds": {
+      "sf": 1686.9199999999983,
+      "austin": 1377.140000000014
+     }
+    },
+    {
+     "held": "seattle",
+     "year": 2019,
+     "ncr": 80.03636808497936,
+     "grid": {
+      "cpin_es3_nc3": 82.25331007698172,
+      "cpin_es3_nc4": 80.30459934049496,
+      "cpin_es3_nc5": 80.79278907576246
+     },
+     "oracle": "cpin_es3_nc4",
+     "regret": -0.2682312555156017,
+     "regret_vs": {
+      "cpin_es3_nc3": -2.2169419920023614,
+      "cpin_es3_nc4": -0.2682312555156017,
+      "cpin_es3_nc5": -0.7564209907830985
+     },
+     "thresholds": {
+      "sf": 1691.7799999999988,
+      "austin": 1208.0
+     }
+    },
+    {
+     "held": "seattle",
+     "year": 2020,
+     "ncr": 97.07130246824742,
+     "grid": {
+      "cpin_es3_nc3": 99.75021527573604,
+      "cpin_es3_nc4": 97.25351151915673,
+      "cpin_es3_nc5": 95.31070073441913
+     },
+     "oracle": "cpin_es3_nc5",
+     "regret": 1.7606017338282953,
+     "regret_vs": {
+      "cpin_es3_nc3": -2.678912807488615,
+      "cpin_es3_nc4": -0.18220905090930728,
+      "cpin_es3_nc5": 1.7606017338282953
+     },
+     "thresholds": {
+      "sf": 1732.0,
+      "austin": 1111.1399999999849
+     }
+    },
+    {
+     "held": "seattle",
+     "year": 2021,
+     "ncr": 88.34101291030568,
+     "grid": {
+      "cpin_es3_nc3": 91.0691272883791,
+      "cpin_es3_nc4": 87.82120945690377,
+      "cpin_es3_nc5": 85.61259454765288
+     },
+     "oracle": "cpin_es3_nc5",
+     "regret": 2.7284183626528034,
+     "regret_vs": {
+      "cpin_es3_nc3": -2.728114378073414,
+      "cpin_es3_nc4": 0.5198034534019058,
+      "cpin_es3_nc5": 2.7284183626528034
+     },
+     "thresholds": {
+      "sf": 1848.9700000000012,
+      "austin": 1096.75
+     }
+    },
+    {
+     "held": "seattle",
+     "year": 2022,
+     "ncr": 70.5454552488335,
+     "grid": {
+      "cpin_es3_nc3": 73.85503227627184,
+      "cpin_es3_nc4": 72.21761489308956,
+      "cpin_es3_nc5": 69.90645640821818
+     },
+     "oracle": "cpin_es3_nc5",
+     "regret": 0.6389988406153293,
+     "regret_vs": {
+      "cpin_es3_nc3": -3.309577027438337,
+      "cpin_es3_nc4": -1.6721596442560553,
+      "cpin_es3_nc5": 0.6389988406153293
+     },
+     "thresholds": {
+      "sf": 1857.0,
+      "austin": 1097.0
+     }
+    }
+   ]
+  }
+ },
+ "rows_check_max_abs": 7.62939453125e-06,
+ "threshold_check_max_abs": 0.0,
+ "seattle_sweep_thresholds": {
+  "cpin_es3_ncr95": [
+   1105.0,
+   1111.0,
+   1145.7000000000007
+  ],
+  "cpin_es3_ncrd": [
+   2255.0,
+   2158.6399999999994,
+   1753.0
+  ]
+ },
+ "predictions": {
+  "M0": true,
+  "M1": false,
+  "M2": false,
+  "M3a": false,
+  "M3b": false,
+  "M4": false
+ },
+ "note": "session 105: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds on completed test rows (days); ncr95 = per-source cut at the 0.95 quantile of builds completed in the 3 years before D; ncrd = the 0.99 quantile after dropping completion days that closed more than 10 permits issued over 8 years earlier; grid = staleness cuts 3, 4, 5 years (sessions 101 to 103); regret = variant minus grid oracle"
+}

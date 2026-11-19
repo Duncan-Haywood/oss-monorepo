@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqybkTuXdfvaHMNA9Ada",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T09:39:22Z",
+  "ended": "2026-11-19T09:43:16Z",
+  "wall_minutes": 4.04,
+  "tokens_in": 2332676,
+  "tokens_out": 15624,
+  "cost_usd": 1.4341,
+  "tool_calls": 27,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17618",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "A replacement 146 characters longer than the text it replaced parked an older item to NEXT.md by itself; working as documented, but the 2000-character cap means every result costs an older line."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/eval/update-rate-spells-nyt.mjs",
+      "why": "The original N1 bar (search spells only) could not pass for reasons already known (Alaska dated by the default line's edges, Nebraska's spell absent from both providers), so the pre-registered header restated it as W1 on the line a user reads and reported N1 for comparison.",
+      "did": "Disclosed both facts in the header committed before the run.",
+      "result": "W1 passed 3/4; W2 (the original N2 bar, unchanged) failed 4/8, so the check stays opt-in."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-changepoint-weekday-spells-on-a-second-provider.md",
+    "ventures/changepoint-detector/README.md (The weekday spell score on NYT's state series)"
+  ],
+  "goal": null,
+  "notes": "Flagship row 2 changepoint-detector, item: NYT rerun of the weekday spell score. Pre-registration committed d07f29184 before the run. W1 pass 3/4, W2 fail 4/8 (dow 5/9). Nothing in update-rate.mjs changed. No agent doc in docs/reports: README and flagships next carry the hand-off.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "12db73c2-8a8a-5e9d-a9d4-0aa4a12c3a99",
+    "transcripts": 1,
+    "first": "2026-11-19T09:39:22Z",
+    "last": "2026-11-19T09:43:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 54,
+        "output": 15624,
+        "thinking": 3108,
+        "cache_read": 2248657,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83965,
+        "api_equivalent_usd": 1.4341,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 54,
+      "output": 15624,
+      "thinking": 3108,
+      "cache_read": 2248657,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83965,
+      "api_equivalent_usd": 1.4341,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 27,
+    "tools": {
+      "Bash": 25,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.04,
+      "active_minutes": 4.04,
+      "model_minutes": 2.44,
+      "tool_minutes": 1.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "pre-registering, running and writing up one replication check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 278.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

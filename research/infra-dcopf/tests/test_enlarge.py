@@ -74,3 +74,21 @@ def test_enlarge_none_is_frozen():
     b = vlin.slp(ppc, pg, vf, rounds=4, margin=vlin.MARGIN, analytic=True, solver="clarabel", enlarge=None)
     assert [x["status"] for x in a] == [x["status"] for x in b]
     assert [x.get("qp") for x in a] == [x.get("qp") for x in b]
+
+
+def test_enlarge_once_default_is_rule_e():
+    """Rule O (E-once, 2026-11-19) is opt-in: enlarge_once=False reproduces rule E, and on a run where rule E
+    never takes an enlarged step rule O is identical too (it can only block a second firing)."""
+    ppc = load_m(case_path("case14_ieee", "sad"))
+    dc = rundcopf(ppc, ppoption(VERBOSE=0, OUT_ALL=0))
+    pg, vf = dc["gen"][:, PG].copy(), file_schedule(ppc)
+    kw = dict(rounds=4, margin=vlin.MARGIN, analytic=True, solver="clarabel", enlarge=2.0)
+    ie, io = [], []
+    e = vlin.slp(ppc, pg, vf, info=ie, **kw)
+    d = vlin.slp(ppc, pg, vf, enlarge_once=False, **kw)
+    o = vlin.slp(ppc, pg, vf, enlarge_once=True, info=io, **kw)
+    assert [x["status"] for x in e] == [x["status"] for x in d]
+    assert [x.get("qp") for x in e] == [x.get("qp") for x in d]
+    if sum(1 for x in ie if x.get("ok")) <= 1:
+        assert [x["status"] for x in e] == [x["status"] for x in o]
+    assert not any(x.get("blocked") for x in ie)

@@ -27,6 +27,15 @@ and health sites; the tool says so rather than promising otherwise.
 
 Open `index.html` through any static server. Tests: `node --test`.
 
+## Known gaps
+
+From the quality audit of 2026-11-19 ([`2026-11-19-json-ld-rich-result-validator.json`](../../portfolio/quality/audits/2026-11-19-json-ld-rich-result-validator.json)); the SoftwareApplication rule it found too lenient is fixed (it now needs `offers.price` and a rating or review).
+
+- Only top-level and `@graph` nodes are checked: a Product under `WebPage.mainEntity` or inside an ItemList is not validated.
+- A node with several types is checked against the first type that has a rule, so `["Organization","LocalBusiness"]` skips the LocalBusiness checks.
+- `@id` references are not resolved, so `@graph` markup from SEO plugins can get false "missing name" warnings.
+- Dates are checked for shape only (`2026-13-45` passes), decimal durations such as `PT1.5H` are rejected, and the review-snippet properties are not checked.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or

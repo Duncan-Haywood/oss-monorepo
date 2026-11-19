@@ -9,14 +9,14 @@
 // add-ons (extra seats, larger runners, concurrency, caching and artifact storage), contracts and each vendor's own
 // minute multipliers (macOS and Windows runners bill at several times Linux), none of which this file reproduces.
 
-export const PRICES_AS_OF = "approximate public list prices as best known in 2025 for Linux runners -- vendors change packaging often and bill macOS/Windows at multiples; verify each at its own pricing page";
+export const PRICES_AS_OF = "GitHub Actions Linux 2-core checked against GitHub's runner pricing reference on 2026-11-19 ($0.006 a minute); the other providers are approximate public list prices from 2025, not rechecked since -- vendors change packaging often and bill macOS/Windows at multiples; verify each at its own pricing page";
 
 // Editable. For a provider: no charge at or below `freeMinutes` a month. Above it
 // the buyer picks the cheapest `plans` entry: `price` USD a month for `minutes`
 // included, then `overagePer1k` USD for each further 1,000. Pay-as-you-go
 // providers use a single plan of 0 minutes at $0 and only the overage rate.
 export const DEFAULT_PROVIDERS = {
-  github: { label: "GitHub Actions (Linux 2-core)", url: "https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-github-actions/about-billing-for-github-actions", freeMinutes: 2000, plans: [{ minutes: 2000, price: 0 }], overagePer1k: 8 },
+  github: { label: "GitHub Actions (Linux 2-core)", url: "https://docs.github.com/en/billing/reference/actions-runner-pricing", freeMinutes: 2000, plans: [{ minutes: 2000, price: 0 }], overagePer1k: 6 },
   circleci: { label: "CircleCI (Linux medium)", url: "https://circleci.com/pricing/", freeMinutes: 3000, plans: [{ minutes: 3000, price: 15 }], overagePer1k: 6 },
   gitlab: { label: "GitLab Premium (1 seat)", url: "https://about.gitlab.com/pricing/", freeMinutes: 400, plans: [{ minutes: 10000, price: 29 }], overagePer1k: 10 },
   bitbucket: { label: "Bitbucket Pipelines Standard (1 seat)", url: "https://www.atlassian.com/software/bitbucket/pricing", freeMinutes: 50, plans: [{ minutes: 2500, price: 3 }], overagePer1k: 10 },
@@ -31,7 +31,8 @@ export function providerCost(p, volIn) {
   if (vol <= p.freeMinutes) return 0;
   let best = Infinity;
   for (const plan of p.plans) {
-    const over = Math.max(0, vol - plan.minutes);
+    // A free allowance larger than the plan's included minutes still applies.
+    const over = Math.max(0, vol - Math.max(plan.minutes, p.freeMinutes || 0));
     best = Math.min(best, plan.price + (over / 1000) * (p.overagePer1k || 0));
   }
   return round2(best);

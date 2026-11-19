@@ -7746,3 +7746,104 @@ pre-registered against these cells; and still a provider that documents its own 
 
 Test: `spells-openings.test.mjs` (the series builder; a Wednesdays-only spell after the shortest opening is dated
 by the line, and no printed edge spell overlaps a search spell; the committed verdicts and the post hoc table).
+
+## Short spells scored on the weekdays that differ (2026-11-19, pre-registered; C1-C5 and K1 pass, ships behind `--spells`)
+
+The round above found that what limits the `--spells` line is how many days inside a spell the two schedules
+differ on, and asked for a search that counts those days directly. The weekday search's gain is a sum over the
+seven weekdays of one likelihood ratio each (inside against around). On weekdays where the old and the spell
+schedule agree (a Mon/Wed/Fri spell inside Monday-Friday agrees on five of seven) that ratio is noise, and the
+penalty has to sit above the noise of all seven. A diagnostic of the shipped search on a scratch seed, read before
+the header and disclosed in it, showed both weak cells' misses: 11 of 11 missed one-month Mon/Wed/Fri spells had
+the search's best interval at the spell with gain 25-46 against a penalty of 49; 12 of 12 missed Monday-Friday
+spells inside daily had a weekday candidate at the spell, but the stretch failed the weekly-pattern test (it is
+daily outside the spell), so the two-state chain was used.
+
+`eval/update-rate-spells-weekdays.mjs` (header committed in 18bfdf885 before any cell ran) scores an interval by
+summing only the weekdays whose repeat share rises inside and whose ratio clears a floor beta, each less beta
+(`bestSpellWeekdays` in `update-rate.mjs`). Arm A keeps round 5's choice of model per stretch; arm B also tries the
+score where the weekly test says the stretch is not weekly. Beta in {0, 2, 4, 6}, m in {1.5 ... 5}: per arm and
+beta the smallest m with every null cell at most 0.010 false spells a series, then the most spells found. 394 s.
+
+**Calibration (seed 20261232): arm A, beta 4, m 2.5.** Arm A at beta 0 is close to the shipped search and needs its
+m 3.5 (926 of 1,000 found over the five spell cells); with beta 4 the weekdays that agree stop adding noise, the
+null budget is met at m 2.5, and 971 are found. Arm B raises false spells on the clumpy two-state chains (0.235
+a series at beta 0, m 3.5): on a stretch with no weekly pattern a weekday score reads clumps as a calendar, the
+reason round 5 chose the model per stretch. It was not chosen.
+
+**Confirmation (fresh seeds 20261233 and 20261234): all five bars pass.**
+
+| bar | result |
+|---|---|
+| C1 spells round's 23 null cells, false spells a series (bar 0.020) | worst **0.010** (S1p) |
+| C2 shift cells (bar 0.010) | worst **0.010** |
+| C3 openings round's 24 null cells, false spells the line prints (bar 0.020) | **0.000** in every cell |
+| C4 the 12 weak cells (one-month Mon/Wed/Fri, two-month Monday-Friday inside daily, six openings): line found, new minus shipped on the same series (bar 150) | **+283** |
+| C5 no spell cell loses more than 10 | **pass** (worst: P3w60 at P120, 196 vs 197) |
+| C6, reported: the openings round's O1 (each shape within 30 of its 500-step cell) | fails once: one-month Mon/Wed/Fri after a quiet start, 148 vs 184 |
+
+| line found of 200, new / shipped | 120 | 250 | 500 | 800 | quiet + 250 | quiet + 500 |
+|---|---|---|---|---|---|---|
+| Mon/Wed/Fri, 30 days | 177 / 167 | 158 / 141 | 184 / 177 | 178 / 155 | 148 / 131 | 154 / 134 |
+| Monday-Friday inside daily, 60 days | 186 / 144 | 187 / 171 | 194 / 173 | 184 / 131 | 188 / 145 | 190 / 176 |
+
+The other three shapes are unchanged within one series (Wednesdays only: 199-200 both; Mon/Wed/Fri 60 days:
+193-198 both). The Monday-Friday-inside-daily gain comes from arm A, which never applies the weekday score to a
+stretch the weekly test calls not weekly; but arm A applies the chosen penalty (m 2.5, was 3.5) to the chain
+search on those stretches too, which is one likely source. Which part of the gain is the chain's and which the
+score's was not measured. The one-month Mon/Wed/Fri spell is
+still the hardest shape (8 or 9 informative days); the score lifts it by 7 to 23 a cell, but it stays 30 below
+its own 500-step cell after a quiet start, so the measured caveat from the round above stands in a smaller form.
+
+**The real check K1 passes** (seen data): Alaska's spell 2021-06-04 to 2021-07-29 (four days earlier than the
+shipped search's start, 2021-06-08) and South Dakota's 2021-07-03 to 2021-08-10 both end in their documented
+return's window. On the 35 states (K2) the new search reports the same eight spells as the shipped one, with edges
+within 11 days of the old ones.
+
+**What ships.** `SHORT_SPELLS` is now `{ score: 'weekdays', arm: 'A', beta: 4, mult: 2.5 }`, still behind
+`--spells` and the page's box, still not a default line. The line names the weekdays it read: on South Dakota's
+Wednesdays-only spell inside Monday-Friday, "read on the weekdays where the schedule changed (Mondays, Tuesdays,
+Thursdays and Fridays)"; on Kentucky's March 2022 spell, Tuesdays, Wednesdays and Fridays. Kentucky's spell now
+runs to 2022-04-05 (was 03-31); the other committed states print what they printed. Round 5's search stays
+reachable as `score: 'dow'` (`SHORT_SPELLS_DOW`), and the earlier rounds' eval files now pass it, so their committed
+outputs reproduce. Simulated and seen evidence only; the NYT check that failed the shipped search has not been
+rerun on this score. Next: that rerun as a fresh pre-registered check (NYT's file is fetched, not committed), and
+still a provider that documents its own schedule changes.
+
+Test: `spells-weekdays.test.mjs` (beta 0 is the weekday gain less falling weekdays, beta 4 keeps Tuesdays and
+Thursdays on a planted Mon/Wed/Fri spell; the two arms; the committed verdicts; the shipped setting, South
+Dakota's spell under both scores, the weekday names in the line).
+
+## The weekday spell score on NYT's state series (2026-11-19, pre-registered; W1 passes, W2 fails 4 of 8, stays an opt-in)
+
+The section above shipped the weekday score behind `--spells` on simulated and seen evidence and asked for a fresh
+rerun of the NYT check that had failed the earlier `dow` search. `eval/update-rate-spells-weekdays-nyt.mjs` (header
+committed in d07f29184 before the script first ran) runs the shipped `spellsResult` (default `SHORT_SPELLS`:
+weekdays, arm A, beta 4, m 2.5; nothing changed) on the same NYT `us-states.csv`, with the same 35 states, labels,
++-10 day rule and "explained" rule, imported from the NYT round's script. What was known beforehand is disclosed in
+the header: Alaska's spell is dated by the default line's two cuts on NYT whatever the score does, and Nebraska's
+documented Wednesdays-only spell is in neither provider's series, so the old N1 (search only) could not pass. The
+bars were restated on the line a user reads. 4.5 s.
+
+| bar | result |
+|---|---|
+| W1: the line (search spells plus the edge spells it prints) ends a spell within 10 days of each documented return (bar 3 of 4) | **3 of 4: pass** (Alaska by the edge restatement 2021-06-04..07-31; South Dakota 2021-07-03..08-10 and Arkansas 2021-06-21..07-18 by the score; Nebraska missed, as disclosed) |
+| W2: unexplained search spells on the 35 states (bar at most 3; `dow` had 5 of 9) | **4 of 8: fail** (Idaho 372 days, Kentucky 182, Michigan 105, Nebraska 175) |
+| W3, reported: everything the line prints | 10 spells (8 search, 2 edge), 5 unexplained (the four above and Alabama's edge spell 2021-05-29..07-12) |
+| W4, reported: against `dow` on the same series | same spells within 4 days on eight states; Nevada's 95-day spell (2022-05-07..08-09, unexplained) is gone; 3 of 8 JHU spells seen on NYT, as before |
+
+So the weekday score is one false-looking spell better than the search it replaced on a fresh provider, and keeps
+both short spells the search had found, but it does not meet the bar the first NYT round set. The opt-in stays an
+opt-in; nothing in `update-rate.mjs` changes.
+
+**Read afterwards (post hoc, deciding nothing):** the four unexplained spells are the four longest the score
+reports (105-372 days), with small rises in repeats for three of them (Kentucky 17% inside against 5%, Idaho 33% against
+20%, Michigan 86% against 72%), and Nebraska 2022 is the real schedule change on both providers that the JHU
+README does not list (read in the first NYT round). Every documented spell that ends in a return runs 28-58 days.
+A length cap is the obvious next idea and the data already argue against it: at 120 days it would remove all four
+here but also DC's explained 126-day spell on NYT, and on JHU it would remove three of the seven explained spells
+(Alabama 130 days, DC 127, Idaho 162) with the one unexplained (Washington 184). What would settle it is a
+provider that documents its own schedule changes, including the slow ones, which is still the open item.
+
+Test: `spells-weekdays-nyt.test.mjs` (the line's spell list skips an edge the search overlaps; the committed
+verdicts).

@@ -57,11 +57,11 @@ from __future__ import annotations
 
 import argparse
 import re
-import subprocess
 import sys
 import unicodedata
 from collections import Counter
 from pathlib import Path
+from repo_files import ls_files
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 BASELINE = Path(__file__).with_name("hidden_unicode_baseline.txt")
@@ -178,10 +178,7 @@ def read_text(path: Path) -> str | None:
 
 
 def tracked_files(root: Path) -> list[str]:
-    listing = subprocess.run(
-        ["git", "ls-files", "-z"], cwd=root, capture_output=True, text=True, check=True
-    ).stdout
-    return [name for name in listing.split("\0") if name]
+    return ls_files(root)
 
 
 def scan(root: Path, names: list[str]) -> dict[str, list[tuple[int, int, int, str]]]:

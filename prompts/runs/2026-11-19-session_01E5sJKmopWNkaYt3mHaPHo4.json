@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKmopWNkaYt3mHaPHo4",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T10:18:32Z",
+  "ended": "2026-11-19T10:22:19Z",
+  "wall_minutes": 3.93,
+  "tokens_in": 2614493,
+  "tokens_out": 12173,
+  "cost_usd": 1.3688,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17629",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Two of the first three ungated friction targets I checked (quality_audit concurrent-round draw, queue 'changed since audit') were already fixed on main; measure's live filter still listed them, so each cost a grep to rule out."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/stale_hosts.py",
+      "why": "friction asked for an automatic skip of programmes whose notes call a host refused; mirrors make code-names-host a weak signal",
+      "did": "declared the one confirmed dependency in water-leaks/HOSTS (automatic skip) and made the recheck suggest HOSTS for refused hosts the code fetches",
+      "result": "test passes; scan finds 5 more candidates left to their next runs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-process-a-refused-host-the-draw-did-not-know-about.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode; no backlog id touched (none agent-owned). Source friction: run record 2026-11-19-session_01E5sJKjqRgNzsuPLQGBtuko (PR #17598). main_health 279/279; test_pick_track 86 OK; check_posts, check_md_links, homepage build ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f47c6fcb-ba3a-5622-a84e-aecca370641a",
+    "transcripts": 1,
+    "first": "2026-11-19T10:18:32Z",
+    "last": "2026-11-19T10:22:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 65,
+        "output": 12173,
+        "thinking": 2756,
+        "cache_read": 2537218,
+        "cache_write_5m": 0,
+        "cache_write_1h": 77210,
+        "api_equivalent_usd": 1.3688,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 65,
+      "output": 12173,
+      "thinking": 2756,
+      "cache_read": 2537218,
+      "cache_write_5m": 0,
+      "cache_write_1h": 77210,
+      "api_equivalent_usd": 1.3688,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 30,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.93,
+      "active_minutes": 3.93,
+      "model_minutes": 2.8,
+      "tool_minutes": 1.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "read friction and tool, small code change + test, scan, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 146.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

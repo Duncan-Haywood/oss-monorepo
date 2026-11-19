@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23285e78'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Psychrometric Calculator — Moist Air Properties, Coil ADP and Bypass, Mixing, with Chart</title>
+  <meta name="description" content="Free psychrometric calculator for HVAC technicians and engineers. Fix a point by any two of dry bulb, wet bulb, dew point, RH, humidity ratio or enthalpy, at any altitude, then mix airstreams, read a cooling coil's load, SHR, ADP and bypass factor, or size an evaporative cooler.">
+  <meta property="og:title" content="Psychrometric Calculator — free, private, in your browser">
+  <meta property="og:description" content="Moist-air properties from any two values, cooling coil loads with apparatus dew point and bypass factor, airstream mixing, heating and evaporative cooling, plotted on a psychrometric chart.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Psychrometric Calculator", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Moist-air properties from any two of dry bulb, wet bulb, dew point, relative humidity, humidity ratio and enthalpy at any altitude, with airstream mixing, cooling coil load, sensible heat ratio, apparatus dew point and bypass factor, sensible heating and evaporative cooling, plotted on a psychrometric chart. Runs in your browser.", "featureList": "ASHRAE Fundamentals psychrometric equations, Hyland-Wexler saturation pressure, altitude correction, IP and SI units, mixing, cooling coil ADP and bypass factor, evaporative cooler, SVG psychrometric chart, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find relative humidity from dry bulb and wet bulb?", "acceptedAnswer": {"@type": "Answer", "text": "Choose dry bulb and wet bulb as the two properties and enter both. The tool finds the humidity ratio from the adiabatic-saturation balance in ASHRAE Fundamentals, then the vapour pressure, and divides by the saturation pressure at the dry bulb. Set the altitude too: the same two readings give a different humidity at 5,000 ft than at sea level."}}, {"@type": "Question", "name": "Why does altitude change the answer?", "acceptedAnswer": {"@type": "Answer", "text": "Humidity ratio depends on the vapour pressure as a share of the total pressure. At altitude the total pressure is lower, so the same dew point holds more water per pound of dry air, air is less dense, and a fan moving the same cubic feet per minute moves fewer pounds of air and less heat. A sea-level chart used in Denver under-reads humidity ratio by roughly a fifth."}}, {"@type": "Question", "name": "What is the apparatus dew point of a coil?", "acceptedAnswer": {"@type": "Answer", "text": "The effective coil surface temperature. Draw the line from the air entering a cooling coil through the air leaving it and carry it on until it meets the saturation curve: that temperature is the apparatus dew point. Air that touched the fins would leave there; the leaving air is a mix of that and air that slipped past."}}, {"@type": "Question", "name": "What is a coil bypass factor?", "acceptedAnswer": {"@type": "Answer", "text": "The share of the air that acts as if it never touched the coil. It is the leaving-to-ADP temperature difference divided by the entering-to-ADP difference. Deeper coils and slower face velocities give a lower bypass factor; a typical comfort coil is somewhere around 0.05 to 0.2."}}, {"@type": "Question", "name": "What is the sensible heat ratio?", "acceptedAnswer": {"@type": "Answer", "text": "The share of a coil's total cooling that lowers the temperature rather than removing moisture. A sensible heat ratio of 0.70 means 70% sensible and 30% latent. Humid climates and crowded rooms need a lower ratio, which usually means a colder coil or slower airflow."}}, {"@type": "Question", "name": "How cold can an evaporative cooler get the air?", "acceptedAnswer": {"@type": "Answer", "text": "No colder than the entering wet bulb. A direct evaporative cooler with 85% effectiveness takes the air 85% of the way from the dry bulb down to the wet bulb, adding moisture as it goes, so it works well in dry air and poorly in humid air."}}, {"@type": "Question", "name": "Is anything I enter uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #172026; background: #f2f5f6; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f66; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #163c4e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #163c4e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5a63; }
+    .card { background: #fff; border: 1px solid #d6e0e4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #163c4e10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8791; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f66; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2ecef; color: #163c4e; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6edf0; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a63; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e6edf0; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e2ecef; color: #163c4e; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef4f6; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.4rem; color: #163c4e; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e4; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    fieldset { border: 0; padding: 0; margin: 0; }
+    svg text { font: 11px system-ui, sans-serif; fill: #4a5a63; }
+    svg text.pt { font-weight: 700; fill: #7a1f10; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PSYCHROMETRIC CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Psychrometric calculator and chart</h1>
+    <p>Fix a point of moist air by <strong>any two</strong> of dry bulb, wet bulb, dew point, relative humidity, humidity ratio or enthalpy, at your altitude. Get every other property, then run it through a process: <strong>mix two airstreams</strong>, read a <strong>cooling coil's load, sensible heat ratio, apparatus dew point and bypass factor</strong>, heat it, or send it through an <strong>evaporative cooler</strong>. Everything is plotted on a psychrometric chart drawn for your pressure.</p>
+    <p class="note">Nothing you type leaves this browser tab. Arithmetic from the ASHRAE Fundamentals psychrometric equations on your numbers, not engineering advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Units and site</h2>
+    <div class="grid">
+      <div><label for="units">Units</label><select id="units"><option value="IP">IP (°F, gr/lb, Btu/lb, cfm)</option><option value="SI">SI (°C, g/kg, kJ/kg, m³/h)</option></select></div>
+      <div><label for="altitude">Altitude (<span class="u-alt">ft</span>)</label><input id="altitude" inputmode="decimal" placeholder="0"></div>
+      <div><label for="pressure">Or barometric pressure (<span class="u-p">psia</span>, optional)</label><input id="pressure" inputmode="decimal" placeholder="from altitude"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Point A</h2>
+    <div class="grid">
+      <div><label for="k1">First property</label><select id="k1" class="kind"></select></div>
+      <div><label for="v1">Value (<span data-unit-for="k1"></span>)</label><input id="v1" inputmode="decimal"></div>
+      <div><label for="k2">Second property</label><select id="k2" class="kind"></select></div>
+      <div><label for="v2">Value (<span data-unit-for="k2"></span>)</label><input id="v2" inputmode="decimal"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Process (optional)</h2>
+    <label for="process">What happens to the air</label>
+    <select id="process"></select>
+    <fieldset data-for="mix coil">
+      <p class="note" id="b-note">Point B: the second stream (mixing) or the air leaving the coil.</p>
+      <div class="grid">
+        <div><label for="bk1">B: first property</label><select id="bk1" class="kind"></select></div>
+        <div><label for="bv1">Value (<span data-unit-for="bk1"></span>)</label><input id="bv1" inputmode="decimal"></div>
+        <div><label for="bk2">B: second property</label><select id="bk2" class="kind"></select></div>
+        <div><label for="bv2">Value (<span data-unit-for="bk2"></span>)</label><input id="bv2" inputmode="decimal"></div>
+      </div>
+    </fieldset>
+    <div class="grid">
+      <div data-for="mix coil adp heat evap"><label for="flowA">Airflow of A (<span class="u-flow">cfm</span>, at A's conditions)</label><input id="flowA" inputmode="decimal"></div>
+      <div data-for="mix"><label for="flowB">Airflow of B (<span class="u-flow">cfm</span>, at B's conditions)</label><input id="flowB" inputmode="decimal"></div>
+      <div data-for="heat"><label for="leaving">Leaving dry bulb (<span class="u-t">°F</span>)</label><input id="leaving" inputmode="decimal"></div>
+      <div data-for="adp"><label for="adpT">Apparatus dew point (<span class="u-t">°F</span>)</label><input id="adpT" inputmode="decimal"></div>
+      <div data-for="adp"><label for="bypass">Bypass factor (0 to 1)</label><input id="bypass" inputmode="decimal"></div>
+      <div data-for="evap"><label for="eff">Saturation effectiveness (%)</label><input id="eff" inputmode="decimal"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load the example coil</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fix point A with two properties, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Properties</h3>
+    <div class="scroll"><table id="prop-table"><thead></thead><tbody></tbody></table></div>
+    <h3>Psychrometric chart</h3>
+    <div class="scroll" id="chart"></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>The equations are those in Chapter 1 of the ASHRAE Handbook, Fundamentals. Saturation vapour pressure comes from the Hyland and Wexler formulas, over liquid water at and above 0 °C and over ice below it (so below freezing the dew point is the frost point). Humidity ratio is 0.621945 times the vapour pressure over the dry-air pressure; enthalpy is 1.006 t + W (2501 + 1.86 t) kJ/kg of dry air, shown on the IP chart's own datum (0 °F dry air) in IP units; specific volume uses the ideal-gas form with the 1.607858 factor for water vapour. The wet bulb is the thermodynamic wet bulb from the adiabatic-saturation balance, solved by bisection. Pressure comes from the standard atmosphere at your altitude unless you type a barometric pressure.</p>
+    <p>When neither property is the dry bulb, the tool searches dry bulbs from −76 to 212 °F (−60 to 100 °C) for the one where both match. Airflows are converted to mass of dry air at each stream's own specific volume, not at "standard air", so they stay right at altitude and in hot air. Mixing conserves dry air, water and enthalpy. Coil load is the mass flow times the enthalpy drop; the latent part is the water removed times 2501 kJ/kg, and the rest is sensible. The apparatus dew point is where the coil line, extended, meets saturation; the bypass factor is (leaving − ADP) / (entering − ADP) in dry bulb. The ADP mode mixes the saturated ADP air with bypassed entering air by mass. The evaporative cooler holds the wet bulb constant.</p>
+    <p><strong>Not modelled:</strong> fan and duct heat gain, the enthalpy of the condensate leaving a coil (under 1% of the load), coil performance at other airflows (enter the leaving air you measured or the maker's rating), wet-bulb psychrometer errors from poor airflow over the wick, and supersaturated fog states beyond flagging them. <strong>Unverified:</strong> checked against published saturation pressures, the standard atmosphere and hand calculations in its unit tests, not against a commercial psychrometric program.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find relative humidity from dry bulb and wet bulb?</h3>
+    <p>Choose dry bulb and wet bulb as the two properties and enter both. The tool finds the humidity ratio from the adiabatic-saturation balance in ASHRAE Fundamentals, then the vapour pressure, and divides by the saturation pressure at the dry bulb. Set the altitude too: the same two readings give a different humidity at 5,000 ft than at sea level.</p>
+    <h3>Why does altitude change the answer?</h3>
+    <p>Humidity ratio depends on the vapour pressure as a share of the total pressure. At altitude the total pressure is lower, so the same dew point holds more water per pound of dry air, air is less dense, and a fan moving the same cubic feet per minute moves fewer pounds of air and less heat. A sea-level chart used in Denver under-reads humidity ratio by roughly a fifth.</p>
+    <h3>What is the apparatus dew point of a coil?</h3>
+    <p>The effective coil surface temperature. Draw the line from the air entering a cooling coil through the air leaving it and carry it on until it meets the saturation curve: that temperature is the apparatus dew point. Air that touched the fins would leave there; the leaving air is a mix of that and air that slipped past.</p>
+    <h3>What is a coil bypass factor?</h3>
+    <p>The share of the air that acts as if it never touched the coil. It is the leaving-to-ADP temperature difference divided by the entering-to-ADP difference. Deeper coils and slower face velocities give a lower bypass factor; a typical comfort coil is somewhere around 0.05 to 0.2.</p>
+    <h3>What is the sensible heat ratio?</h3>
+    <p>The share of a coil's total cooling that lowers the temperature rather than removing moisture. A sensible heat ratio of 0.70 means 70% sensible and 30% latent. Humid climates and crowded rooms need a lower ratio, which usually means a colder coil or slower airflow.</p>
+    <h3>How cold can an evaporative cooler get the air?</h3>
+    <p>No colder than the entering wet bulb. A direct evaporative cooler with 85% effectiveness takes the air 85% of the way from the dry bulb down to the wet bulb, adding moisture as it goes, so it works well in dry air and poorly in humid air.</p>
+    <h3>Is anything I enter uploaded?</h3>
+    <p>No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal or code-compliance advice, and it does not replace a qualified professional or the equipment maker's data. Results are arithmetic on the numbers you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any equipment manufacturer, standards body or software vendor, and no product is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>point_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Sizing the equipment? The <a href="../hvac-load-calc/">HVAC load calculator</a> works out room-by-room heating and cooling loads, and the <a href="../wall-condensation-check/">wall condensation check</a> follows the same dew point through a wall. Guide: <a href="reading-a-cooling-coil.html">reading a cooling coil on the psychrometric chart</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, chartSvg, propertyRows, reportCsv, sampleInput, KINDS, PROCESSES } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = ["units", "altitude", "pressure", "k1", "v1", "k2", "v2", "process", "bk1", "bv1", "bk2", "bv2", "flowA", "flowB", "leaving", "adpT", "bypass", "eff"];
+    const BLANK = { units: "IP", k1: "t", k2: "rh", process: "none", bk1: "t", bk2: "rh" };
+    const START = "Fix point A with two properties, then click Calculate.";
+    let last = null;
+
+    document.querySelectorAll("select.kind").forEach((s) => { s.innerHTML = Object.entries(KINDS).map(([k, x]) => `<option value="${k}">${esc(x.label)}</option>`).join(""); });
+    $("#process").innerHTML = Object.entries(PROCESSES).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join("");
+
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { $("#" + k).value = x[k] ?? BLANK[k] ?? ""; }); refresh(); }
+
+    function refresh() {
+      const u = $("#units").value;
+      const ip = u === "IP";
+      document.querySelectorAll("[data-unit-for]").forEach((el) => { el.textContent = KINDS[$("#" + el.dataset.unitFor).value][u]; });
+      document.querySelectorAll(".u-t").forEach((el) => { el.textContent = ip ? "°F" : "°C"; });
+      document.querySelectorAll(".u-flow").forEach((el) => { el.textContent = ip ? "cfm" : "m³/h"; });
+      document.querySelectorAll(".u-alt").forEach((el) => { el.textContent = ip ? "ft" : "m"; });
+      document.querySelectorAll(".u-p").forEach((el) => { el.textContent = ip ? "psia" : "kPa"; });
+      const proc = $("#process").value;
+      document.querySelectorAll("[data-for]").forEach((el) => { el.hidden = !el.dataset.for.split(" ").includes(proc); });
+      $("#b-note").textContent = proc === "mix" ? "Point B: the second airstream." : "Point B: the air leaving the coil.";
+    }
+    ["units", "k1", "k2", "bk1", "bk2", "process"].forEach((k) => $("#" + k).addEventListener("change", refresh));
+
+    function run() {
+      const r = analyze(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const U = r.unitLabels, ip = r.units === "IP";
+      const a = r.a, b = r.result;
+      const f = (v, d) => v.toFixed(d);
+      const tile = (s, name) => [`${f(ip ? s.t * 9 / 5 + 32 : s.t, 1)} ${U.t}`, `${name}: ${f(s.rh * 100, 0)}% RH`];
+      const tiles = [tile(a, "A")];
+      if (b) tiles.push(tile(b, r.process === "mix" ? "Mixed" : "Leaving"));
+      const load = (x) => ip ? `${Math.round(x.display).toLocaleString("en-US")} Btu/h` : `${f(x.display, 2)} kW`;
+      if (r.coil) {
+        tiles.push([load(r.coil.total), ip ? `total, ${f(r.coil.total.tons, 2)} tons` : "total cooling"]);
+        tiles.push([f(r.coil.shr, 2), "sensible heat ratio"]);
+        if (r.coil.adp) tiles.push([`${f(r.coil.adp.t, 1)} ${U.t}`, `ADP, bypass ${f(r.coil.bypass, 2)}`]);
+        tiles.push([`${f(r.coil.condensate, ip ? 2 : 1)} ${U.water}`, "condensate"]);
+      }
+      if (r.heat) tiles.push([load({ display: Math.abs(r.heat.load.display) }), r.heat.load.kw >= 0 ? "heating" : "cooling"]);
+      if (r.evap) tiles.push([`${f(r.evap.water, ip ? 2 : 1)} ${U.water}`, "water evaporated"]);
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
+      $("#prop-table thead").innerHTML = `<tr><th>Property</th><th>Unit</th>${r.points.map((p) => `<th class="n">${esc(p.label)}</th>`).join("")}</tr>`;
+      $("#prop-table tbody").innerHTML = propertyRows(r).map((row) => `<tr><td>${esc(row.name)}</td><td>${esc(row.unit)}</td>${row.values.map((v) => `<td class="n">${v}</td>`).join("")}</tr>`).join("") + `<tr><td>Barometric pressure</td><td>${U.p}</td><td class="n">${f(r.pDisplay, 3)}</td></tr>`;
+      $("#chart").innerHTML = chartSvg(r);
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calculate").addEventListener("click", () => { if (run()) record("point_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Example: a coil at the AHRI rating's entering air (80 °F dry bulb, 67 °F wet bulb) leaving at 55/54, 1,200 cfm at sea level."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = START; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "psychrometric-calculator.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    fill(sampleInput());
+    $("#process").value = "none";
+    refresh();
+  </script>
+</body>
+</html>

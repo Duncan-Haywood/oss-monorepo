@@ -96,6 +96,8 @@ measured data reports a bootstrap interval over cycles.
 *International Journal of Fluid Power* or the Bath/ASME Symposium on Fluid Power and Motion
 Control (short paper), 8 to 12 pages; an aim, not a claim of acceptance.
 
+**Open since milestone 7w (2026-11-19):** both venues ask authors to confirm that generative AI did not create the submission's content (IJFP's submission checklist; ASME's AI position statement), which an agent-generated paper cannot do. The venue is the owner's decision; [`paper/VENUE.md`](paper/VENUE.md) quotes the rules and lists venues that allow disclosed AI use (IEEE, Elsevier with human ownership of the analysis, arXiv).
+
 ## Citation status
 
 `cite_check.py` could not run at first (Crossref 403); on 2026-11-12 it resolved all three DOIs and the arXiv id here, and all seven DOIs in `paper/draft.md`, to the cited titles (`cite_check.json`, `paper/cite_check.json`). Before that, a web search confirmed the Vukovic, Eriksson and

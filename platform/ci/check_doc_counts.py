@@ -27,6 +27,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from repo_files import ls_files
 
 ROOT = Path(__file__).resolve().parents[2]
 REGISTRY = ROOT / "platform" / "ci" / "doc_counts.json"
@@ -52,8 +53,7 @@ def compute(name, spec, root=ROOT, timeout=300):
 def docs(root=ROOT):
     root = Path(root)
     try:  # git ls-files is ~25x faster than walking node_modules and build output
-        out = subprocess.run(["git", "ls-files", "-z", "--", *SCAN], cwd=root, capture_output=True, text=True, check=True)
-        rels = [r for r in out.stdout.split("\0") if r]
+        rels = ls_files(root, *SCAN)
     except (OSError, subprocess.CalledProcessError):
         rels = [p.relative_to(root).as_posix() for pat in SCAN for p in root.rglob(pat)]
     for rel in rels:

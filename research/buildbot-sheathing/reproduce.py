@@ -107,6 +107,10 @@ EXPERIMENTS = {
                    40, []),
     "m56_weighted": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m55_robust/run.py (and so m54's to m38's), reads m50, m52 and m55 results.json",
                      60, []),
+    "m57_beta": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m56_weighted/run.py (and so m55's to m38's), reads m50 and m52 results.json",
+                 20, []),
+    "m58_tworow": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m56_weighted/run.py (and so m55's to m38's), reads m50 and m52 results.json",
+                   45, []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]

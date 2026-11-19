@@ -15,8 +15,8 @@ code on Stripe's list
 """
 import pathlib
 import re
-import subprocess
 import sys
+from repo_files import ls_files
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 STRIPE_ZERO = {"bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf",
@@ -44,9 +44,7 @@ def short_lists(text):
 
 
 def tracked(root=ROOT):
-    out = subprocess.run(["git", "ls-files", "ventures", "platform"], cwd=root,
-                         capture_output=True, text=True, check=True).stdout
-    for rel in out.splitlines():
+    for rel in ls_files(root, "ventures", "platform"):
         p = root / rel
         if p.suffix in SUFFIXES and "node_modules" not in p.parts and not re.search(r"(\.test\.|/test_)", rel):
             yield rel, p

@@ -805,6 +805,20 @@ case stays inside 0.03 mm in three load sets (worst 0.0178 mm), coverage is 100%
 the H1, 637 of the 667 cases milestone 55 dropped are won back, and in 28 158 planned cases the flip shift never
 beats Y. The waist and torso cost nothing at this budget; the H1's left knee and right elbow are what still bind.
 
+The half-spec budget replicates on a held-out load set but buys little (milestone 57). On 48 new loads with new
+sensor errors, the rule with &beta; = 0.5 keeps every planned case inside 0.03 mm (worst 0.0178 mm) and plans
+99.93% of in-envelope cases on the G1 and 99.54% on the H1. Sweeping &beta; over 0, 0.25, 0.5, 0.75 and 1, coverage
+does not move between 0 and 0.5; 0.75 recovers the H1's 25 left-knee cases, and at 1 one H1 case leaves 0.0315 mm,
+because the bound then spends the whole spec and the windup term adds to it. The flips the budget admits are on knee
+and ankle pitch joints, which move the nose little along the wall and 0.27 to 0.29 mm across it, a direction the
+bound leaves out; with no budget the worst residual across the wall is 0.026 mm. The bound should carry both rows.
+
+Carrying both rows closes the gap at no cost (milestone 58). Pricing each flip through the across-wall row as well,
+with half of a 0.03 mm spec for each direction, on a second held-out set of 48 loads, the y-only rule again leaves
+presses 0.2713 mm (G1) and 0.2865 mm (H1) across the wall, while the two-row rule keeps every planned case inside
+0.03 mm in both directions (worst 0.0220 mm across) and plans the same share, 100% on the G1 and 99.63% on the H1.
+The second row changes which hold sides and squeeze are chosen, not whether a plan exists.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

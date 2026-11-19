@@ -351,7 +351,45 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Americano for 4k+2 players: near-whist designs (2026-11-19, latest)
+## Americano whist designs for 40 to 64 players: a field construction and multipliers (2026-11-19, latest)
+
+The plain backtracking search below stopped at 37 players plus 44: 40, 41, 45, 48 and 49 found nothing in
+25 minutes each, so big socials (the card takes up to 64) fell back to greedy, which at 48 players on 12
+courts repeats 45 partnerships over the cycle. Two kinds of structure instead of search
+(`eval/whist-multiplier.mjs`, results in `eval/whist-multiplier.txt`, every base checked pair by pair with
+`eval/whist-multiplier-check.mjs`):
+
+- **4k+1 players, no search at all.** Take the field (or product of fields) R of that size and an E with
+  E^2 = -1; multiplying by E splits the nonzero elements into foursomes {a, Ea, -a, -Ea}. Seat each foursome
+  as a & -a vs Ea & -Ea. Partner differences are 2a times the foursome and opponent differences (1-E)a
+  times it, twice, so as long as 2 and 1-E are units every pair partners once and meets twice. That needs
+  each prime-power factor of the size to be 1 mod 4: **41** (GF(41)), **45** (GF(9) x GF(5), stored on
+  Z3 x Z3 x Z5), **49** (GF(49) on Z7 x Z7), **53** and **61**. Checked from 5 to 101 in `whist.test.mjs`.
+- **4k players: search one table per orbit.** Require the base round on Z_{4k-1} + infinity to be mapped
+  onto itself by multiplying by a unit of order 3. For 40 players (Z39, unit 16) that fixes 0, 13 and 26,
+  which must join infinity at its table; the other 9 tables come in 3 orbits, so only 3 tables are
+  searched. **40** is found in about 1 s and **64** (Z63, unit 4) in about 4 s.
+
+What does not work, and why (so the next run does not retry it): with the multiplier -1 every table must
+be a & -a vs b & -b, and summing the squares of the opponent differences forces x^2 = 1^2 + 2^2 + ... +
+h^2 (mod v) for the class x at infinity's table (h = (v-1)/2), or that sum = 0 (mod v) with no infinity.
+Neither holds for Z47, Z51, Z55, Z59 (48, 52, 56, 60 players) or Z57 (57 players); the search agreed on
+every small size (none for 8 to 24, found at once for 28 and 40, where the condition holds). Those groups
+have no other usable multiplier, so 48, 52, 56, 57 and 60 need the plain search: `eval/whist-search.c` is
+that search in C, about 60 times faster than the JavaScript one (29 players in 0.6 s against 37 s).
+Run for 20 CPU-minutes each (`eval/whist-search-c.txt`), it found **56** (Z55, 191 s) and nothing for
+48, 52, 57 or 60.
+
+Stored now: every 4k and 4k+1 size from 4 to 45, plus 49, 53, 56, 61 and 64. The existing one-empty-seat
+rule (use the next design up when its rounds fill at least 90% of the courts) now also covers 39, 55 and 63
+players, and 48, 52 and 60, where it costs a court: 48 players on 12 courts play design 49 with one empty
+seat, so one court sits idle each round. Over the cycle that is 0 repeat partners and every pair meeting
+once or twice, against greedy's 45 repeat partners and pairs meeting up to 5 times, but 45 games each in
+49 rounds instead of 47 in 47 (`eval/whist-vs-greedy.txt`). Still on greedy: 47, 51, 57 and 59 players.
+Tested in `whist.test.mjs` (stored sizes, full-court nights at 40, 41, 45, 49, 56 and 64, one-seat nights
+at 39 and 63, the field construction from 5 to 101).
+
+## Americano for 4k+2 players: near-whist designs (2026-11-19)
 
 The whist designs below cover 4k and 4k+1 players (and 4k+3 with one empty seat). 6, 10, 14, 18, 22 ...
 players stayed on the greedy search, because two empty seats idle a court. A whist design for 4k+2
@@ -397,7 +435,8 @@ A shorter night still keeps the better of the design's first rounds and the gree
 says which it used ("Built from a near-whist design ..."). Tested in `whist.test.mjs` (every stored
 size checked, 4k+2 nights from 6 to 30 players, broken designs rejected). An annealing try at the
 missing 4k and 4k+1 whist sizes (40, 41, 45, 48, 49) did not reach even 29, 32 and 33 in 25 s each
-(the exact "twice" condition leaves no slack), so it was dropped (not kept in eval/); those stay on greedy.
+(the exact "twice" condition leaves no slack), so it was dropped (not kept in eval/). 40, 41, 45 and 49 have
+designs since (section "Americano whist designs for 40 to 64 players").
 
 ## Americano: partner everyone once, face everyone twice (whist designs, 2026-11-19)
 
@@ -413,9 +452,10 @@ the elements of an abelian group and round g adds g to every seat of the base ro
 fixed player ("infinity") joins a group of order 4k-1. `eval/whist-search.mjs` finds the base rounds by
 randomised backtracking on the difference counts (partner differences once, opponent differences twice);
 9 players has no Z9 base (exhaustive), so it uses Z3 x Z3. `eval/whist-bases-build.mjs` stores only bases
-whose developed design passes `checkWhist`. Stored: 4, 5, 8, 9, 12, 13, 16, 17, 20, 21, 24, 25, 28, 29, 32, 33, 36, 37 and 44 players. Search times are in
+whose developed design passes `checkWhist`. Stored by this search: 4, 5, 8, 9, 12, 13, 16, 17, 20, 21, 24, 25, 28, 29, 32, 33, 36, 37 and 44 players (more in the section above). Search times are in
 `eval/whist-search.txt` (seconds up to 28; 37 s to 19 min from 29 on, eleven processes sharing four cores). 40, 41,
-45, 48 and 49 found nothing in 25 minutes each (4e8-node budget) and stay on greedy.
+45, 48 and 49 found nothing in 25 minutes each (4e8-node budget); all but 48 are stored now by other means
+(section "Americano whist designs for 40 to 64 players").
 
 How `americano()` uses them (the greedy search stays as the fallback and the comparison):
 

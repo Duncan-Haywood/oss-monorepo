@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKivDt8KhQkYggBRZE2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T09:18:05Z",
+  "ended": "2026-11-19T09:24:40Z",
+  "wall_minutes": 21.4,
+  "tokens_in": 6987751,
+  "tokens_out": 29797,
+  "cost_usd": 3.0043,
+  "tool_calls": 60,
+  "task": "Deepen (flagship 10) open-tennis-robots: drill-level check of one-wheel take-survey verdicts on fresh sets",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17615",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "tests/take_survey_kept.py crashed (IndexError) on every stored set since the grid went to nine points; fixed with a per-row grid and a unittest"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/tests/take_survey_kept.py",
+      "issue": "Rescored stored rows on the board's current grid; the 2026-11-19 grid change broke it silently (no test imported it). Other rescoring scripts that read tm.PICK_US against stored seven-candidate rows may have the same latent break."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here picked ai-bookkeeper, whose only BUILDABLE items need huggingface.co (403 again this session); rows 2-4 each had an open PR under 1 h old, so row 5 was the first free one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here picked ai-bookkeeper; its buildable items (receipt OCR datasets and models) need huggingface.co, which refused this session (probed: CONNECT 403).",
+      "did": "Took the first Deepen row with no fresh PR, open-tennis-robots, and its BUILDABLE item. Did not add inputs_only to ai-bookkeeper because reachability varies by session.",
+      "result": "Landed the item with a pre-registered held-out test."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-one-wheel-verdicts-too-rare-to-test.md",
+    "ventures/open-tennis-robots/eval/take-survey-kept-drills-2026-11-19.md"
+  ],
+  "goal": "Settle whether host.TAKE_SURVEY_MIN_KEPT should be 2, counted by drill on fresh sets",
+  "notes": "Pre-registration committed in a9af0c377 before capture. Six fresh jittery sets Q-V (432 drills, none aborted): 6 drills ever rested a verdict on one kept wheel (1 wrong) vs 1 of 149 on two+; clause (a) void (<8), so TAKE_SURVEY_MIN_KEPT stays 0 and the item closes for simulated sets. Verification: tests/test_take_survey_kept.py (4 tests) pass; rescoring reproduces eval/take-survey-kept-heldout-2026-11-18.txt exactly; check_posts ok; portfolio/router/validate.py ok; run_venture_tests.py open-tennis-robots result in the PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "830bd067-fe84-5b9b-930e-144f1a602bf7",
+    "transcripts": 1,
+    "first": "2026-11-19T09:18:05Z",
+    "last": "2026-11-19T09:39:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 119,
+        "output": 29797,
+        "thinking": 7000,
+        "cache_read": 6858100,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129532,
+        "api_equivalent_usd": 3.0043,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 119,
+      "output": 29797,
+      "thinking": 7000,
+      "cache_read": 6858100,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129532,
+      "api_equivalent_usd": 3.0043,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.4,
+      "active_minutes": 8.43,
+      "model_minutes": 6.44,
+      "tool_minutes": 1.99,
+      "waiting_on_human_minutes": 12.97,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an engineer writing the scorer fix, test, pre-registration, six simulated captures and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 133.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

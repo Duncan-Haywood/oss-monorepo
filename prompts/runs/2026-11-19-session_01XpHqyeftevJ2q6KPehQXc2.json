@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyeftevJ2q6KPehQXc2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T09:38:24Z",
+  "ended": "2026-11-19T09:57:29Z",
+  "wall_minutes": 26.78,
+  "tokens_in": 6976736,
+  "tokens_out": 30348,
+  "cost_usd": 2.9849,
+  "tool_calls": 66,
+  "task": "ai-bookkeeper flagship item (5): Russian receipt sellers whose legal form the OCR misreads (\u0418\u041b, \u0417\u0414\u041e, AD, \u0434\u043e; wrapped \u041e\u041e\u041e)",
+  "projects": [
+    "ventures/ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17617",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "venture-preflight failed check_venture_regression.py: the checkout was older than main (a new venture, xer-schedule-check, landed meanwhile)",
+      "fix": "merged origin/main and reran"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The empty-commit claim push printed 'a branch named ... already exists' from git checkout -b because the harness had already created the work branch; harmless, but the claim recipe in allocate.py assumes a fresh branch."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight's regression check fails whenever main gained a venture after the checkout; the preflight could say 'merge main first' before its 5-minute run rather than after."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-ai-bookkeeper-misread-legal-forms-on-russian-receipts.md",
+    "ventures/ai-bookkeeper/eval/receipt-ocr-ru-forms-2026-11-19.md"
+  ],
+  "goal": "Deepen flagship 2 (ai-bookkeeper): receipts OCR on real Russian slips",
+  "notes": "Re-read cdek-ocr/receipt-ocr-ru val and test with RapidOCR 1.4.4 + East Slavic PP-OCRv5 (sha256 matched the 2026-11-18 record; labels rebuilt byte-for-byte). Val baseline reproduced (139/145 totals, 113/146 sellers). Rule written on val misses only (labels printed locally, never committed): 113->117, none lost. A short-form output variant measured on val (116) and dropped. Rule committed (ff67bcb33) before scoring test once: 104->106 of 146, none lost; totals 137/148 unchanged; default-model val unchanged (140, 20). run_venture_tests.py ai-bookkeeper: ok, 3406 tests. check_posts ok; validate.py ok. Preflight: first run failed only on check_venture_regression (stale tree), rerun after merging main: 'preflight clean for ai-bookkeeper' (exit 0). Default-model test unchanged (137/148 totals, 16/146 sellers, same as 2026-11-18).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ac06b679-29bf-5c50-8ab9-f092e3c54728",
+    "transcripts": 1,
+    "first": "2026-11-19T09:38:24Z",
+    "last": "2026-11-19T10:05:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 120,
+        "output": 30348,
+        "thinking": 4746,
+        "cache_read": 6850707,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125909,
+        "api_equivalent_usd": 2.9849,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 120,
+      "output": 30348,
+      "thinking": 4746,
+      "cache_read": 6850707,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125909,
+      "api_equivalent_usd": 2.9849,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 58,
+      "ToolSearch": 3,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.78,
+      "active_minutes": 26.78,
+      "model_minutes": 4.86,
+      "tool_minutes": 21.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer re-running OCR on 300 photos, triaging misses, writing and measuring the rule, eval note and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 167.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
