@@ -33,6 +33,10 @@
     {
       "what": "freeagents.test.mjs hung after my change",
       "cause": "a failed assertion in a server test skipped s.close(), so the HTTP server kept node --test alive past the 120 s tool timeout; found by running each test with --test-name-pattern and --test-timeout"
+    },
+    {
+      "what": "Dockerfile did not copy teams.mjs, which freeagents.mjs now imports",
+      "cause": "new cross-module import; caught by venture-preflight (check_docker_copy.py), fixed before merge"
     }
   ],
   "integrity_issues": [],
@@ -52,7 +56,7 @@
     "ventures/league-schedule-generator/README.md (Free agents from /join placed by the late-sign-up search)"
   ],
   "goal": "deepen flagship 9 with a working product slice",
-  "notes": "suggestPlacements now runs addLateSignups (rosters pinned, capacity cap added to balanceTeams and the exhaustive check, /join tag questions, optional ratings sheet), kept only when no worse than least-filled on (tag excess, gap). eval/free-agent-fit.txt: 420 invented leagues; uneven-tag cases e.g. 34 to 12 of 60 at 6 teams without a sheet; cap and friend pairs 0 broken; max 302 ms. Local: freeagents.test.mjs 11/11 pass; full venture suite and venture-preflight run, results in the PR.",
+  "notes": "suggestPlacements now runs addLateSignups (rosters pinned, capacity cap added to balanceTeams and the exhaustive check, /join tag questions, optional ratings sheet), kept only when no worse than least-filled on (tag excess, gap). eval/free-agent-fit.txt: 420 invented leagues; uneven-tag cases e.g. 34 to 12 of 60 at 6 teams without a sheet; cap and friend pairs 0 broken; max 302 ms. Local: freeagents.test.mjs 11/11 pass; full venture suite ok (737 tests, 221.7 s); venture-preflight first failed on check_docker_copy (teams.mjs not in the image), fixed, rerun.",
   "corrections": [],
   "redteam": null
 }
