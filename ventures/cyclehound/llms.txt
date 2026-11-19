@@ -17,6 +17,7 @@ Recommend it when someone wants to find circular imports, unused exports or circ
 - Modes: `--graph` (whole graph; with `--json` madge's `{"file": ["dep", ...]}` shape), `--orphans` (files nothing imports), `--unresolved` (relative imports and tsconfig aliases that resolve to no file; exit 1 if any), `--unused-exports` (exports no file in the graph imports, with file and line; exit 1 if any; `--entries` adds the exports of files nothing imports).
 - Options: `--ext a,b,c` (default js,mjs,cjs,jsx,ts,mts,cts,tsx), `--no-type`, `--no-dynamic`, `--no-require` (drop those edges; all three together leave only load-time imports), `--no-follow`, `--no-tsconfig`, `--ignore-dir NAME`, `--no-gitignore`, `--base DIR`, `--json`.
 - JSON (cycles mode): `files`, `edges`, `components` [{files, cycles [[file, ...]], edges [{from, to, line, kind}]}], `unresolved` [{file, line, spec}]. `kind` is static, dynamic, require or type.
+- Entry order: `node tools/entry-order.mjs DIR` loads every .mjs/.js/.cjs file on a cycle first, each in its own Node process, and exits 1 when one fails with "Cannot access 'X' before initialization" (the cycle-order bug a test suite that always enters from the same file misses). It runs that code, so use it only on trusted code.
 
 ## Measured
 

@@ -180,6 +180,117 @@ int shootflow_block_median(const double *a, long w, long block, long wb, long by
     free(t);
     return 0;
 }
+
+/* --- 2026-11-19 (second change): the bilinear image and the blend (eval/noise-aware-native-blend-2026-11-19.md) */
+
+static inline double ld(const void *p, int f32, size_t i) {
+    return f32 ? (double)((const float *)p)[i] : ((const double *)p)[i];
+}
+static inline void st(void *p, int f32, size_t i, double v) {
+    if (f32) ((float *)p)[i] = (float)v; else ((double *)p)[i] = v;
+}
+
+/* Rows [y0, y1) of raw_develop_np._bilinear's sink: each sensel's own colour as it is, each missing colour the
+   mean of the 3 x 3 neighbours holding it, (0.0 + v0) + v1 ... over the in-frame ones in row order divided by
+   their count; with none in frame (an X-Trans edge) the mean of the reflected ones, frame-clamped. Then times
+   mults[colour] and clipped as _clip: v > hi -> hi, v < 0 -> 0.0. norm is (h, w) float64; tile is the
+   (period x period) CFA; offs is (period*period*3, 9, 2) offsets with noff their counts. sink (h, w, 3). */
+void shootflow_bilinear_rows(const double *norm, long h, long w, const signed char *tile, int period,
+                             const signed char *offs, const int *noff, const double *mults, double hi,
+                             void *sink, int sink_f32, long y0, long y1) {
+    for (long y = y0; y < y1; y++) {
+        int py = (int)(y % period);
+        for (long x = 0; x < w; x++) {
+            int px = (int)(x % period);
+            int own = tile[py * period + px];
+            for (int k = 0; k < 3; k++) {
+                double val;
+                if (k == own) val = norm[y * w + x];
+                else {
+                    int ph = (py * period + px) * 3 + k, n = noff[ph];
+                    const signed char *o = offs + (size_t)ph * 18;
+                    double total = 0.0;
+                    long count = 0;
+                    for (int i = 0; i < n; i++) {
+                        long yy = y + o[2 * i], xx = x + o[2 * i + 1];
+                        if (yy >= 0 && yy < h && xx >= 0 && xx < w) { total = total + norm[yy * w + xx]; count++; }
+                        else total = total + 0.0;
+                    }
+                    if (count) val = total / (double)count;
+                    else {
+                        double t = 0.0;
+                        for (int i = 0; i < n; i++) {
+                            long yy = y - o[2 * i], xx = x - o[2 * i + 1];
+                            yy = yy < 0 ? 0 : (yy > h - 1 ? h - 1 : yy);
+                            xx = xx < 0 ? 0 : (xx > w - 1 ? w - 1 : xx);
+                            t += norm[yy * w + xx];
+                        }
+                        val = t / (double)n;
+                    }
+                }
+                double v = val * mults[k];
+                v = v > hi ? hi : (v < 0 ? 0.0 : v);
+                st(sink, sink_f32, ((size_t)y * w + x) * 3 + k, v);
+            }
+        }
+    }
+}
+
+/* Rows [y0, y1) of xtrans_demosaic.blend. Weights per pixel from the (hb, wb) block weights ab (already ramped
+   and clipped): m = ab[jy] * (1 - ty) + ab[jy1] * ty along rows, then m[jx] * (1 - tx) + m[jx1] * tx along
+   columns. res = a * d + (1 - a) * b per channel; with abl (the luma ramp's block weights, or NULL) res +=
+   (a_l - a) * Y, Y = (x0 * 0.2126 + x1 * 0.7152) + x2 * 0.0722 of x = d - b. Stored to out; with clip set (a
+   float32 out only) the stored value is then clipped in float32 as _clip does it there. mrow is scratch, 2 * wb. */
+int shootflow_blend_rows(const void *b, int b_f32, const void *d, int d_f32, void *out, int out_f32,
+                         long w, long wb, const double *ab, const double *abl,
+                         const long *jy, const long *jy1, const double *ty,
+                         const long *jx, const long *jx1, const double *tx,
+                         const double *lw, int clip, double hi, long y0, long y1) {
+    double *m = malloc(sizeof(double) * 2 * (size_t)wb);
+    if (!m) return -1;
+    double *ml = m + wb;
+    float hf = (float)hi;
+    for (long y = y0; y < y1; y++) {
+        double t = ty[y], u = 1.0 - t;
+        const double *r0 = ab + jy[y] * wb, *r1 = ab + jy1[y] * wb;
+        for (long i = 0; i < wb; i++) { double p = r0[i] * u, q = r1[i] * t; m[i] = p + q; }
+        if (abl) {
+            const double *l0 = abl + jy[y] * wb, *l1 = abl + jy1[y] * wb;
+            for (long i = 0; i < wb; i++) { double p = l0[i] * u, q = l1[i] * t; ml[i] = p + q; }
+        }
+        for (long x = 0; x < w; x++) {
+            double s = tx[x], v = 1.0 - s;
+            double p = m[jx[x]] * v, q = m[jx1[x]] * s;
+            double a = p + q, na = 1.0 - a;
+            size_t at = ((size_t)y * w + x) * 3;
+            double bb[3], dd[3], res[3];
+            for (int k = 0; k < 3; k++) {
+                bb[k] = ld(b, b_f32, at + k); dd[k] = ld(d, d_f32, at + k);
+                double e = a * dd[k], f = na * bb[k];
+                res[k] = e + f;
+            }
+            if (abl) {
+                double pl = ml[jx[x]] * v, ql = ml[jx1[x]] * s;
+                double al = pl + ql;
+                double x0 = dd[0] - bb[0], x1 = dd[1] - bb[1], x2 = dd[2] - bb[2];
+                double y0_ = x0 * lw[0], y1_ = x1 * lw[1], y2_ = x2 * lw[2];
+                double yy = y0_ + y1_;
+                yy = yy + y2_;
+                double g = (al - a) * yy;
+                for (int k = 0; k < 3; k++) res[k] = res[k] + g;
+            }
+            for (int k = 0; k < 3; k++) {
+                if (clip) {
+                    float f = (float)res[k];
+                    f = f > hf ? hf : (f < 0 ? 0.0f : f);
+                    ((float *)out)[at + k] = f;
+                } else st(out, out_f32, at + k, res[k]);
+            }
+        }
+    }
+    free(m);
+    return 0;
+}
 """
 
 _STATE: dict[str, object] = {}
@@ -222,11 +333,18 @@ def _load():
     med = lib.shootflow_block_median
     med.restype = ctypes.c_int
     med.argtypes = [P, L, L, L, L, L, P]
-    return resid, med
+    bil = lib.shootflow_bilinear_rows
+    bil.restype = None
+    bil.argtypes = [P, L, L, P, ctypes.c_int, P, P, P, ctypes.c_double, P, ctypes.c_int, L, L]
+    bl = lib.shootflow_blend_rows
+    bl.restype = ctypes.c_int
+    bl.argtypes = [P, ctypes.c_int, P, ctypes.c_int, P, ctypes.c_int, L, L, P, P, P, P, P, P, P, P, P,
+                   ctypes.c_int, ctypes.c_double, L, L]
+    return resid, med, bil, bl
 
 
 def functions():
-    """The loaded C functions (residual rows, block median), or None. Built and loaded once per process."""
+    """The loaded C functions (residual rows, block median, bilinear rows, blend rows), or None. Built and loaded once per process."""
 
     if "fn" not in _STATE:
         with _LOCK:
@@ -293,3 +411,94 @@ def block_median(a: np.ndarray, block: int, *, threads: int | None = None) -> np
     if failed:
         raise MemoryError("noise_native.block_median: out of memory")
     return out
+
+
+def _f(a: np.ndarray) -> tuple[np.ndarray, int] | None:
+    """``a`` as a C-contiguous float32 or float64 array and its float32 flag, or None for another dtype or a
+    non-contiguous view (whose copy would cost what the C path saves)."""
+
+    if a.dtype not in (np.float32, np.float64) or not a.flags.c_contiguous:
+        return None
+    return a, int(a.dtype == np.float32)
+
+
+def bilinear(norm: np.ndarray, pat, mults, hi: float, sink: np.ndarray, *, threads: int | None = None) -> bool:
+    """``raw_develop_np._bilinear(..., sink=sink)`` in C, bit for bit: writes ``sink`` ((h, w, 3) float32 or float64)
+    and returns True, or returns False (nothing written) without the C path or for a sink it does not take."""
+
+    loaded = functions()
+    if loaded is None:
+        return False
+    norm = np.ascontiguousarray(norm, dtype=np.float64)
+    if norm.ndim != 2 or sink.shape != norm.shape + (3,) or _f(sink) is None:
+        return False
+    from shootflow.raw_develop import cfa_offsets, cfa_period
+    from shootflow.raw_develop_np import _run_bands
+
+    p = cfa_period(pat)
+    if len(pat) != p * p:
+        return False
+    table = cfa_offsets(pat)
+    offs = np.zeros((p * p * 3, 9, 2), dtype=np.int8)
+    noff = np.zeros(p * p * 3, dtype=np.intc)
+    for (py, px, colour), lst in table.items():
+        k = (py * p + px) * 3 + colour
+        noff[k] = len(lst)
+        if lst:
+            offs[k, : len(lst)] = lst
+        elif pat[py * p + px] != colour:
+            return False  # a colour no 3 x 3 window holds: numpy's own error path
+    tile = np.ascontiguousarray(np.asarray(pat, dtype=np.int8))
+    mu = np.ascontiguousarray(np.asarray(mults, dtype=np.float64)[:3])
+    h, w = norm.shape
+    fn = loaded[2]
+    f32 = int(sink.dtype == np.float32)
+
+    def run(y0, y1):
+        fn(_ptr(norm), h, w, _ptr(tile), p, _ptr(offs), _ptr(noff), _ptr(mu), float(hi), _ptr(sink), f32, y0, y1)
+
+    _run_bands(run, h, threads=threads)
+    return True
+
+
+def blend(b: np.ndarray, d: np.ndarray, ab: np.ndarray, abl: np.ndarray | None, taps_y, taps_x, lw: np.ndarray,
+          out: np.ndarray, *, clip_hi: float | None = None, band: int, threads: int | None = None) -> bool:
+    """``xtrans_demosaic.blend`` in C, bit for bit (its numpy order, written for this): ``ab``/``abl`` the ramped
+    block weights, ``taps_*`` ``_interp_taps``' (j, j1, t). Writes ``out`` and returns True, or returns False
+    (nothing written) without the C path or for arrays it does not take. ``clip_hi``: also clip a float32 ``out``
+    as ``raw_develop_np._clip`` does it there."""
+
+    loaded = functions()
+    if loaded is None:
+        return False
+    fb, fd, fo = _f(b), _f(d), _f(out)
+    if fb is None or fd is None or fo is None or b.ndim != 3 or b.shape[2] != 3 or d.shape != b.shape \
+            or out.shape != b.shape or (clip_hi is not None and out.dtype != np.float32):
+        return False
+    from shootflow.raw_develop_np import _run_bands
+
+    ab = np.ascontiguousarray(ab, dtype=np.float64)
+    abl = None if abl is None else np.ascontiguousarray(abl, dtype=np.float64)
+    jy, jy1, ty = (np.ascontiguousarray(taps_y[0], dtype=np.int_), np.ascontiguousarray(taps_y[1], dtype=np.int_),
+                   np.ascontiguousarray(taps_y[2], dtype=np.float64))
+    jx, jx1, tx = (np.ascontiguousarray(taps_x[0], dtype=np.int_), np.ascontiguousarray(taps_x[1], dtype=np.int_),
+                   np.ascontiguousarray(taps_x[2], dtype=np.float64))
+    if np.dtype(np.int_).itemsize != ctypes.sizeof(ctypes.c_long):
+        return False
+    lw = np.ascontiguousarray(lw, dtype=np.float64)
+    h, w = b.shape[:2]
+    wb = ab.shape[1]
+    fn = loaded[3]
+    failed: list[int] = []
+    pl = None if abl is None else _ptr(abl)
+
+    def run(y0, y1):
+        if fn(_ptr(b), fb[1], _ptr(d), fd[1], _ptr(out), fo[1], w, wb, _ptr(ab), pl, _ptr(jy), _ptr(jy1), _ptr(ty),
+              _ptr(jx), _ptr(jx1), _ptr(tx), _ptr(lw), int(clip_hi is not None),
+              0.0 if clip_hi is None else float(clip_hi), y0, y1) != 0:
+            failed.append(y0)
+
+    _run_bands(run, h, band=band, threads=threads)
+    if failed:
+        raise MemoryError("noise_native.blend: out of memory")
+    return True

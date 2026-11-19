@@ -134,8 +134,8 @@ flagships:
       read (eval/wildreceipt-rescore-2026-11-17.md); next: VAT5%: 668. Russian slips
       (cdek-ocr/receipt-ocr-ru, eval/receipt-ocr-ru-2026-11-18.md): all shards read
       (eval/receipt-ocr-ru-train2-2026-11-18.md); Cyrillic RapidOCR:
-      eval/receipt-ocr-ru-eslav-2026-11-18.md; next: the page's port, a header
-      re-read. SROIE (zzzDavid/ICDAR-2019-SROIE) merchants:
+      eval/receipt-ocr-ru-eslav-2026-11-18.md; page done; next: a header re-read.
+      SROIE (zzzDavid/ICDAR-2019-SROIE) merchants:
       eval/sroie-five-readings-2026-11-18
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
@@ -333,8 +333,9 @@ flagships:
       export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
       5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
-      evenly lit frame; noise-aware's blend in C (guard in C 2026-11-19,
-      eval/noise-aware-native-spread-*). More open items: NEXT.md.
+      evenly lit frame; noise-aware's frame_noise in C (guard, blend, bilinear in C
+      2026-11-19: 1.46x directional, eval/noise-aware-native-blend-*). More open
+      items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -404,14 +405,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "Short takes on a second held-out set"
-      (2026-11-19: grid now 0,1.5,2.5,3-8 ms; set N 45 vs 40 of 66 within 0.5 ms
-      offline, 49 vs 39 on the board; Pi hold 14 s a ball). TAKE_US = 0 bound: 2 ppm
-      floor shipped 2026-11-19 (eval/take-bound-floor-p-2026-11-19.md, set P 48 of
-      48). One-wheel verdicts by drill closed 2026-11-19
-      (eval/take-survey-kept-drills-2026-11-19.md, 6 of 432). Next: the sub-8
-      advised instant build. 4-magnet tach closed 2026-11-19
-      (eval/tach-pulses-2026-11-19.md).
+      see firmware/esp32/README.md, latest "The sub-8 advised instant build was the
+      frame's rounding" (2026-11-19: whole-ppm share guard shipped, fresh set 53 of
+      54, eval/take-share-rounding-2026-11-19.md). Next: TAKE_SURVEY rms in 0.1 ppm
+      (a new frame length, protocol.OLDER_FORMATS keeps the old), which removes the
+      guard's cause; TAKE_SURVEY_BLIND's 1.5 rechecked on a fresh jittery-tach set at
+      the nine-point grid.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

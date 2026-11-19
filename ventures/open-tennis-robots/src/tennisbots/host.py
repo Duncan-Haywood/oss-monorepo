@@ -459,6 +459,16 @@ def _take_count(link) -> int:
     return link.take_survey["wheels"] if link.take_survey else 0
 
 
+def take_share_bound(rms) -> float:
+    """The largest best / step share the TAKE_SURVEY frame's rms allow: each is whole ppm, so +-0.5 ppm (2026-11-19,
+    firmware/esp32/README.md "The sub-8 advised instant build was the frame's rounding"). 1.0 when the step's rms is
+    under 1 ppm and the frame cannot bound it."""
+    rms = [v for v in rms if v is not None]
+    if not rms or rms[0] < 1:
+        return 1.0
+    return min(1.0, (min(rms) + 0.5) / (rms[0] - 0.5))
+
+
 def take_survey_advice(sv: dict | None) -> str | None:
     """One line on the board's contact-time survey (firmware/esp32/README.md "The contact time surveyed on the board"):
     the contact time its balls pick and whether config.TAKE_US should change. None without a survey. Times are in ms;
@@ -482,6 +492,13 @@ def take_survey_advice(sv: dict | None) -> str | None:
         return (f"contact-time survey: {n} wheels, none told the contact times apart (each ball's contact fitted "
                 f"inside one revolution); keep TAKE_US = {int(board * 1000)} and run more balls")
     gain = min(rms) / rms[0] if rms and rms[0] else 0.0
+    if pick > 0 and gain <= TAKE_ADVISE_RATIO < take_share_bound(rms):
+        # whole-ppm rms can put the share either side of the margin (2026-11-19, firmware/esp32/README.md "The sub-8
+        # advised instant build was the frame's rounding": 4 / 7 ppm read 0.571 where the board's sums gave 0.635)
+        return (f"contact-time survey: {n} wheels pick {pick:g} ms, but its fits sit within a few ppm of the step's "
+                f"({min(rms)} against {rms[0]} ppm), too close to the frame's 1 ppm to tell the {TAKE_ADVISE_RATIO:g} "
+                f"margin: " + ("keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash")
+                + "; run more balls" + _bound_note(sv))
     if pick > 0 and gain > TAKE_ADVISE_RATIO:
         return (f"contact-time survey: {n} wheels pick {pick:g} ms, but its fits miss only {1 - gain:.0%} less than the "
                 f"step's (an instant take's builds reached 34% on the simulator): " +

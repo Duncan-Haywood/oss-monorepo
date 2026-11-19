@@ -179,7 +179,7 @@ export function drawPlan(svg, design, hooks) {
   const ridgeAt = salt ? Y(roofSides(design).ridgeY) : W / 2;
   if (!lean) el('line', { x1: 0, y1: ridgeAt, x2: L, y2: ridgeAt, class: 'ridge' }, g);
   const lab = (x, y, s, cls = 'plan-label') => { const e = el('text', { x, y, class: cls, 'text-anchor': 'middle' }, g); e.textContent = s; return e; };
-  lab(L / 2, ridgeAt - 4, lean ? 'one slope, falling to the back' : salt ? 'ridge (off centre)' : 'ridge', 'plan-muted');
+  lab(L / 2, ridgeAt - 4, lean ? 'slopes to back' : salt ? 'ridge (off centre)' : 'ridge', 'plan-muted');
   lab(L / 2, W + 26, `FRONT${lean ? ' (TALL)' : salt ? ' (STEEP)' : ''}  ${fmtFtIn(L)}`);
   lab(L / 2, -22, lean ? 'BACK (LOW)' : salt ? 'BACK (LONG SLOPE)' : 'BACK', 'plan-muted');
   const side = lab(-26, W / 2, fmtFtIn(W));

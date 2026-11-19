@@ -86,6 +86,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Gauge and the Hour Meter</title>
+      <link>https://example.invalid/hearth-and-horizon/the-gauge-and-the-hour-meter.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-gauge-and-the-hour-meter.html</guid>
+      <pubDate>Thu, 19 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A Shetland parish hall's records agent orders heating oil from a photograph of the tank's float gauge, and twice the tanker finds the tank fuller than the gauge said and takes oil back. Splitting the difference with the boiler's hour meter drags a good figure 96 litres toward a bad photo, a week after the caretaker's stick had fixed it. The fix is to trust each reading by how often it has been right, a one-dimensional Kalman filter whose weight on the gauge grows from 0.15 to about a third, with the caretaker's dip as the rare reading that resets it. A story about combining noisy measurements, and about keeping the number that is actually right. Setting: Saint Sunniva's hall (invented), Sandwick, Shetland, Scotland, Thursday 14 November 2052 to Friday 3 January 2053. Read the full text at https://example.invalid/hearth-and-horizon/the-gauge-and-the-hour-meter.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A Shetland parish hall's records agent orders heating oil from a photograph of the tank's float gauge, and twice the tanker finds the tank fuller than the gauge said and takes oil back. Splitting the difference with the boiler's hour meter drags a good figure 96 litres toward a bad photo, a week after the caretaker's stick had fixed it. The fix is to trust each reading by how often it has been right, a one-dimensional Kalman filter whose weight on the gauge grows from 0.15 to about a third, with the caretaker's dip as the rare reading that resets it. A story about combining noisy measurements, and about keeping the number that is actually right.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Square That Stays Warm</title>
       <link>https://example.invalid/hearth-and-horizon/the-square-that-stays-warm.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-square-that-stays-warm.html</guid>

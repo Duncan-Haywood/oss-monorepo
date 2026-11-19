@@ -1,0 +1,331 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyfahtkZRfJm5iV77RZ",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T10:39:02Z",
+  "ended": "2026-11-19T10:41:19Z",
+  "wall_minutes": 7.07,
+  "tokens_in": 4587296,
+  "tokens_out": 24282,
+  "cost_usd": 2.2175,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17634",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "PR #17621 merged with the changed-ventures job red (check_csv_formula_guard.py failing on its new compareCsv exporter), leaving main red on that check until this PR."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but all 12 open entries are control-plane edits (most already waiting in owner-gated PRs, e.g. #14612, #15945) or need a new eval set; the step could say to skip entries whose fix sits in an open control-plane PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 (fix the open list first): 11 of 12 entries are control-plane paths whose fixes already sit in owner-gated PRs or patches; the 12th (help-keeper stemming) needs a help-centre eval set the last run said was missing.",
+      "did": "Left them open and spent the run on the newest product code (xer-schedule-check compare.mjs, merged hours earlier).",
+      "result": "3 real defects found and fixed in a day-old feature; main's CSV guard green again."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-a-schedule-comparison-that-compared-the-wrong-project.md"
+  ],
+  "goal": null,
+  "notes": "Target chosen as the file that changed most recently on main (#17621). Guard: no new lint needed: check_csv_formula_guard.py already caught the CSV defect in CI; the miss was a merge on red. Verification: node --test ventures/xer-schedule-check/**/*.test.mjs 34/34 pass; python3 platform/ci/check_csv_formula_guard.py ok (was exit 1 on main); redteam rerun: 7/7 gaps caught_after_fix.; python3 platform/ci/unwired_checks.py: 244/244 pass; python3 -m unittest discover -s prompts: 136 OK; check_posts ok. Merge conflict with #17625 in compareCsv (same guard written twice) resolved keeping this branch's version.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/compare.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 487026202,
+        "commit": "db1ed1bd4",
+        "sites": 214,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/compare.mjs",
+            "line": 38,
+            "col": 119,
+            "operator": "const-plus-one",
+            "before": "for (const t of model.tasks.values()) if (t.status !== \"TK_Complete\") counts.set(t.proj, (counts.get(t.proj) || 0) + 1);",
+            "after": "for (const t of model.tasks.values()) if (t.status !== \"TK_Complete\") counts.set(t.proj, (counts.get(t.proj) || 0) + 2);",
+            "line_text": "  for (const t of model.tasks.values()) if (t.status !== \"TK_Complete\") counts.set(t.proj, (counts.get(t.proj) || 0) + 1);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Counts open activities by 2 instead of 1 for every project alike, so every comparison between projects, and the pick, is unchanged."
+          },
+          {
+            "file": "ventures/xer-schedule-check/compare.mjs",
+            "line": 40,
+            "col": 103,
+            "operator": "or-to-and",
+            "before": "for (const p of model.projects.values()) if (!best || (counts.get(p.id) || 0) > (counts.get(best.id) || 0)) best = p;",
+            "after": "for (const p of model.projects.values()) if (!best || (counts.get(p.id) || 0) > (counts.get(best.id) && 0)) best = p;",
+            "line_text": "  for (const p of model.projects.values()) if (!best || (counts.get(p.id) || 0) > (counts.get(best.id) || 0)) best = p;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "With the bigger project listed first, `&& 0` lets any later project with open work win. Test: 'with no project picked, the one holding the most open activities is compared'."
+          },
+          {
+            "file": "ventures/xer-schedule-check/compare.mjs",
+            "line": 51,
+            "col": 37,
+            "operator": "or-to-and",
+            "before": "tables.TASK = (prevXer.tables.TASK || []).map((r) => {",
+            "after": "tables.TASK = (prevXer.tables.TASK && []).map((r) => {",
+            "line_text": "  tables.TASK = (prevXer.tables.TASK || []).map((r) => {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/compare.mjs",
+            "line": 88,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "let compared = 0, matched = 0;",
+            "after": "let compared = 0, matched = 1;",
+            "line_text": "  let compared = 0, matched = 0;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Agreement started at 1 matched. Test: agreement on the example (0/0) and with one agreeing and one disagreeing stored early finish (2/1)."
+          },
+          {
+            "file": "ventures/xer-schedule-check/compare.mjs",
+            "line": 98,
+            "col": 128,
+            "operator": "or-to-and",
+            "before": "return { xer, result, p, byCode, rels, path, notes, agreement: { compared, matched }, name: projRow.proj_short_name || p.code || \"\", version: xer.version };",
+            "after": "return { xer, result, p, byCode, rels, path, notes, agreement: { compared, matched }, name: projRow.proj_short_name || p.code && \"\", version: xer.version };",
+            "line_text": "  return { xer, result, p, byCode, rels, path, notes, agreement: { compared, matched }, name: projRow.proj_short_name || p.code || \"\", version: xer.version };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A file with no proj_short_name named the project undefined instead of ''. Test in 'agreement counts, the project name fallback...'."
+          },
+          {
+            "file": "ventures/xer-schedule-check/compare.mjs",
+            "line": 112,
+            "col": 30,
+            "operator": "or-to-and",
+            "before": "const hpd = cal.hoursPerDay || 8;",
+            "after": "const hpd = cal.hoursPerDay && 8;",
+            "line_text": "  const hpd = cal.hoursPerDay || 8;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A calendar row with no day_hr_cnt made hpd null, so every working-day figure became Infinity/null. Test strips day_hr_cnt and expects 20 working days, +15 finish, lag 5 -> 10."
+          },
+          {
+            "file": "ventures/xer-schedule-check/compare.mjs",
+            "line": 114,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "const wd = (a, b) => (a === null || b === null || a === undefined || b === undefined || !Number.isFinite(a) || !Number.isFinite(b) ? null : round1(cal.workBetween(a, b) / 60 / hpd));",
+            "after": "const wd = (a, b) => (a === null && b === null || a === undefined || b === undefined || !Number.isFinite(a) || !Number.isFinite(b) ? null : round1(cal.workBetween(a, b) / 60 / hpd));",
+            "line_text": "  const wd = (a, b) => (a === null || b === null || a === undefined || b === undefined || !Number.isFinite(a) || !Number.isFinite(b) ? null : round1(cal.workBetween(a, b) / 60 / hpd));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "With a === null && b === null, a lone null still returns null through !Number.isFinite(null) (true) further along the same condition."
+          },
+          {
+            "file": "ventures/xer-schedule-check/compare.mjs",
+            "line": 114,
+            "col": 40,
+            "operator": "eq-flip",
+            "before": "const wd = (a, b) => (a === null || b === null || a === undefined || b === undefined || !Number.isFinite(a) || !Number.isFinite(b) ? null : round1(cal.workBetween(a, b) / 60 / hpd));",
+            "after": "const wd = (a, b) => (a === null || b !== null || a === undefined || b === undefined || !Number.isFinite(a) || !Number.isFinite(b) ? null : round1(cal.workBetween(a, b) / 60 / hpd));",
+            "line_text": "  const wd = (a, b) => (a === null || b === null || a === undefined || b === undefined || !Number.isFinite(a) || !Number.isFinite(b) ? null : round1(cal.workBetween(a, b) / 60 / hpd));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/compare.mjs",
+            "line": 123,
+            "col": 157,
+            "operator": "div-to-times",
+            "before": "for (const [code, t] of A.byCode) if (!B.byCode.has(code)) deleted.push({ ...label(t), status: STATUS.get(t.status) || t.status, duration: tDays(t, t.orig / 60), wasCritical: A.path.includes(code) });",
+            "after": "for (const [code, t] of A.byCode) if (!B.byCode.has(code)) deleted.push({ ...label(t), status: STATUS.get(t.status) || t.status, duration: tDays(t, t.orig * 60), wasCritical: A.path.includes(code) });",
+            "line_text": "  for (const [code, t] of A.byCode) if (!B.byCode.has(code)) deleted.push({ ...label(t), status: STATUS.get(t.status) || t.status, duration: tDays(t, t.orig / 60), wasCritical: A.path.includes(code) });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Deleted activities' duration multiplied instead of divided. Test pins A1205 at 3 days."
+          },
+          {
+            "file": "ventures/xer-schedule-check/compare.mjs",
+            "line": 143,
+            "col": 49,
+            "operator": "eq-flip",
+            "before": "if (a.status === \"TK_NotStart\" && b.status === \"TK_NotStart\" && (ra.remES ?? ra.es) < ddB) plannedNotStarted.push({ ...label(b), forecastStart: formatDate(ra.remES ?? ra.es) });",
+            "after": "if (a.status === \"TK_NotStart\" && b.status !== \"TK_NotStart\" && (ra.remES ?? ra.es) < ddB) plannedNotStarted.push({ ...label(b), forecastStart: formatDate(ra.remES ?? ra.es) });",
+            "line_text": "      if (a.status === \"TK_NotStart\" && b.status === \"TK_NotStart\" && (ra.remES ?? ra.es) < ddB) plannedNotStarted.push({ ...label(b), forecastStart: formatDate(ra.remES ?? ra.es) });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Activities forecast to start that did start were reported as missed starts. Test pins plannedNotStarted to A1040, A1060, A1070, A1090."
+          },
+          {
+            "file": "ventures/xer-schedule-check/compare.mjs",
+            "line": 151,
+            "col": 33,
+            "operator": "neq-flip",
+            "before": "if ((a.cal.name || a.cal.id) !== (b.cal.name || b.cal.id)) calChanged.push({ ...label(b), was: a.cal.name || String(a.cal.id), now: b.cal.name || String(b.cal.id) });",
+            "after": "if ((a.cal.name || a.cal.id) === (b.cal.name || b.cal.id)) calChanged.push({ ...label(b), was: a.cal.name || String(a.cal.id), now: b.cal.name || String(b.cal.id) });",
+            "line_text": "    if ((a.cal.name || a.cal.id) !== (b.cal.name || b.cal.id)) calChanged.push({ ...label(b), was: a.cal.name || String(a.cal.id), now: b.cal.name || String(b.cal.id) });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/compare.mjs",
+            "line": 167,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "for (let i = relsDeleted.length - 1; i >= 0; i--) {",
+            "after": "for (let i = relsDeleted.length - 2; i >= 0; i--) {",
+            "line_text": "  for (let i = relsDeleted.length - 1; i >= 0; i--) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The loop skipped the last deleted link, so a type change on it read as one deletion plus one addition. Test changes the file's last relationship (A1150 -> A1190 SS +2d) to FS."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/compare.mjs",
+        "issue": "compareCsv wrote activity names, constraint text and other cells from the contractor's XER with no formula-injection guard, so a task name like =HYPERLINK(...) ran when the owner's rep opened the 'update changes' CSV. platform/ci/check_csv_formula_guard.py exits 1 on main since #17621 (it runs as an unwired check in ventures-tests). Fixed: cells starting = + - @ tab CR get an apostrophe unless a plain number; CR also forces quoting. The same one-line guard also landed concurrently in #17625 (hearth-and-horizon run, which saw main's guard red); this PR keeps that guard, adds CR quoting and the failing-first test.",
+        "patched": true
+      },
+      {
+        "file": "ventures/xer-schedule-check/compare.mjs",
+        "issue": "In a multi-project XER the page passed only curProjId, so the previous file fell back to the project with the most open activities: picking OFFICE-FITOUT compared it with OTHER and reported all 22 activities added and 46 deleted. Fixed: the previous project is matched by proj_short_name, then proj_id (matchingProject).",
+        "patched": true
+      },
+      {
+        "file": "ventures/xer-schedule-check/cli.mjs",
+        "issue": "--project was ignored with --previous (compare mode), so the CLI compared whichever project had the most open work. Fixed: --project picks the project by ID in both files and exits 2 when either lacks it.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7f693489-a495-5de2-a527-83437be365df",
+    "transcripts": 1,
+    "first": "2026-11-19T10:39:02Z",
+    "last": "2026-11-19T10:46:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 92,
+        "output": 24282,
+        "thinking": 5241,
+        "cache_read": 4482843,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104361,
+        "api_equivalent_usd": 2.2175,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 92,
+      "output": 24282,
+      "thinking": 5241,
+      "cache_read": 4482843,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104361,
+      "api_equivalent_usd": 2.2175,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.07,
+      "active_minutes": 7.07,
+      "model_minutes": 3.89,
+      "tool_minutes": 3.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a QA engineer reading a new 340-line module, writing 7 targeted tests and 3 fixes with repros",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 180.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

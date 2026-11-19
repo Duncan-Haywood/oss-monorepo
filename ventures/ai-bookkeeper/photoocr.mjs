@@ -5,7 +5,7 @@
 // `loadEngine` is injectable so the tests can run without a network.
 import { cleanOcr } from "./cleanocr.mjs";
 import { parseReceipt, parseReceiptPasses } from "./receipts.mjs";
-import { RAPID_URLS, createRapidOcr, rapidRows, bgrFromRgba } from "./rapidocr-web.mjs";
+import { RAPID_URLS, createRapidOcr, rapidRows, bgrFromRgba, fetchRapidModels } from "./rapidocr-web.mjs";
 
 const CDN = "https://cdn.jsdelivr.net/npm";
 export const OCR_URLS = {
@@ -86,17 +86,19 @@ export async function loadEngine(onProgress = () => {}) {
 // the page only draws the photo and hands the pixels over. Where a worker cannot start or
 // load the reader, it runs on the page as before (loadRapidInPage); `how` on the engine says
 // which ("worker" or "page"). `makeWorker` and `fetchBytes` are injectable for tests.
-export async function loadRapidEngine({ makeWorker = defaultMakeWorker, fetchBytes = defaultFetchBytes, inPage = loadRapidInPage } = {}) {
+// `script` picks the recogniser: "latin" (the default) or "cyrillic" (Russian, Ukrainian,
+// Belarusian and Bulgarian slips; rapidocr-web.mjs RAPID_RECOGNISERS).
+export async function loadRapidEngine({ makeWorker = defaultMakeWorker, fetchBytes = defaultFetchBytes, inPage = loadRapidInPage, script = "latin" } = {}) {
   let w = null;
   try {
     w = makeWorker();
-    if (w) return await loadRapidWorker(w);
+    if (w) return await loadRapidWorker(w, { script });
   } catch (e) {
     w?.terminate?.();
-    // the reader could not be downloaded: the page would fail the same way
-    if (/could not download/.test(String(e?.message ?? e))) throw e;
+    // the reader could not be downloaded or failed its hash: the page would fail the same way
+    if (/could not download|pinned hash/.test(String(e?.message ?? e))) throw e;
   }
-  return inPage({ fetchBytes });
+  return inPage({ fetchBytes, script });
 }
 
 function defaultMakeWorker() {
@@ -105,7 +107,7 @@ function defaultMakeWorker() {
 }
 
 // drives a started rapidocr-worker.mjs: open, then one read per photo, matched by id
-export async function loadRapidWorker(worker, { draw = drawPixels } = {}) {
+export async function loadRapidWorker(worker, { draw = drawPixels, script = "latin" } = {}) {
   const waiting = new Map();
   let nextId = 1, ready = null, dead = null;
   const fail = (why) => {
@@ -125,7 +127,7 @@ export async function loadRapidWorker(worker, { draw = drawPixels } = {}) {
   };
   // a module the worker cannot load (an old browser, a blocked script) arrives as an error event
   worker.onerror = (ev) => { ev?.preventDefault?.(); fail(`the RapidOCR worker stopped (${ev?.message || "it could not start"})`); };
-  await new Promise((resolve, reject) => { ready = { resolve, reject }; worker.postMessage({ type: "open" }); });
+  await new Promise((resolve, reject) => { ready = { resolve, reject }; worker.postMessage({ type: "open", script }); });
   ready = null;
   return {
     how: "worker",
@@ -156,16 +158,13 @@ async function drawPixels(file) {
 }
 
 // RapidOCR on the page's own thread (the tab stalls while a photo is read): the fallback
-export async function loadRapidInPage({ fetchBytes = defaultFetchBytes } = {}) {
+export async function loadRapidInPage({ fetchBytes = defaultFetchBytes, script = "latin" } = {}) {
   if (!globalThis.ort) await loadScript(RAPID_URLS.ort);
   const ort = globalThis.ort;
   ort.env.wasm.wasmPaths = RAPID_URLS.wasm;
   // threads need a cross-origin-isolated page, which a static page is not
   ort.env.wasm.numThreads = globalThis.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 1) : 1;
-  const [det, cls, rec, keys] = await Promise.all([
-    fetchBytes(RAPID_URLS.det), fetchBytes(RAPID_URLS.cls), fetchBytes(RAPID_URLS.rec),
-    fetchBytes(RAPID_URLS.keys).then((b) => new TextDecoder().decode(b)),
-  ]);
+  const { det, cls, rec, keys } = await fetchRapidModels(fetchBytes, script);
   const engine = createRapidOcr({ ort, models: { det, cls, rec }, keys });
   await engine.open();
   return {
@@ -326,14 +325,15 @@ function settleTotals(readings, lead = false) {
 // `rapid` (default on) reads each photo with RapidOCR first (loadRapidEngine); when that
 // reader cannot be loaded (offline, an old browser) the photos are read with tesseract alone
 // and `rapidError` says why. `rapid: false` is tesseract alone.
-export async function readPhotos(files, { loadEngine: load = loadEngine, loadRapid = loadRapidEngine, rapid = true, onProgress = () => {}, passes = null } = {}) {
+// `rapidScript` ("latin" or "cyrillic") picks RapidOCR's recogniser.
+export async function readPhotos(files, { loadEngine: load = loadEngine, loadRapid = loadRapidEngine, rapid = true, rapidScript = "latin", onProgress = () => {}, passes = null } = {}) {
   const list = [...files];
   const images = list.filter((f) => IMAGE_TYPES.test(f.type || ""));
   const skipped = list.filter((f) => !images.includes(f)).map((f) => ({ name: f.name, why: "not a PNG, JPEG, WebP, BMP or GIF image" }));
   if (!images.length) return { text: "", read: 0, skipped, notes: [] };
   let lead = null, rapidError = null;
   // the two readers download side by side
-  const leading = rapid ? (onProgress({ status: "loading rapidocr" }), Promise.resolve().then(() => loadRapid()).then((x) => x, (e) => { rapidError = String(e?.message ?? e).replace(/^Error: /, ""); return null; })) : null;
+  const leading = rapid ? (onProgress({ status: "loading rapidocr" }), Promise.resolve().then(() => loadRapid({ script: rapidScript })).then((x) => x, (e) => { rapidError = String(e?.message ?? e).replace(/^Error: /, ""); return null; })) : null;
   let engine;
   try { engine = await load(onProgress); }
   catch (e) { (await leading)?.close?.(); throw e; }
