@@ -408,8 +408,8 @@ flagships:
       offline, 49 vs 39 on the board; Pi hold 14 s a ball). TAKE_US = 0 bound: 2 ppm
       floor shipped 2026-11-19 (eval/take-bound-floor-p-2026-11-19.md, set P 48 of
       48). Next: a drill-level check of one-wheel verdicts on more fresh sets; the
-      sub-8 advised instant build. Ball hold on fast wheels: LOOP_BALL_GAIN shipped
-      2026-11-19.
+      sub-8 advised instant build. 4-magnet tach closed 2026-11-19
+      (eval/tach-pulses-2026-11-19.md).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
