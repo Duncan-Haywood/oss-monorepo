@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVKZURk6FkzR1fLWp9B",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T11:15:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots flagship: the sub-8 advised instant build",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 17637,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "take_survey_blind.py, take_survey_trim.py and take_misfit_trace.survey_score raised IndexError on every stored seven-candidate set since the nine-point grid shipped",
+      "fix": "take_misfit_trace.grid_of reads each set's grid from row length"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "tests/take_survey_jitter.py",
+      "issue": "a 72-drill sub-8 capture takes about 16 min on 4 cores, not the few minutes earlier write-ups imply; four sets plus a paired capture filled most of the run"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-advised-instant-build-closed.md",
+    "ventures/open-tennis-robots/eval/take-instant-sub8-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Prediction committed first (f2e5f923a). Recapture of four sub-8 sets on today's tree: instant advised 0 of 72, the named build picks 0 ms, spread takes named and advised 194 of 216 (README 173, stored rows rescored 187). The stored advised build was whole-ppm rounding (4/7; unrounded 0.635). Design set 44 -> 38: one build traced to LOOP_BALL_GAIN 'down'; paired 96-build capture 66 vs 68 of 72, kept. Checks: run_venture_tests open-tennis-robots (see PR), check_posts ok, validate.py ok, unittest tests.test_take_instant_sub8 + test_take_survey_kept 8 OK.",
+  "corrections": [],
+  "redteam": null
+}
