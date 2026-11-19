@@ -64,20 +64,27 @@ export function partitionRates(z, { kind = 'bernoulli', mult = 1, penalty = null
   if (n > exactUpTo) return gridPartition(z, P, { kind, beta, minSegment, step: Math.ceil(n / exactUpTo) });
   const F = new Float64Array(n + 1).fill(Infinity), last = new Int32Array(n + 1);
   F[0] = -beta;
-  let cand = [0];
+  // cand holds the live start positions; fs[i] keeps F[cand[i]] + cost(cand[i], t) from the search so the
+  // pruning pass reuses it instead of computing the same cost a second time (same floats, same cuts).
+  let cand = new Int32Array(n + 1), nc = 1, keep = new Int32Array(n + 1);
+  const fs = new Float64Array(n + 1);
+  cand[0] = 0;
   for (let t = minSegment; t <= n; t++) {
     let best = Infinity, arg = 0;
-    for (const s of cand) {
+    for (let i = 0; i < nc; i++) {
+      const s = cand[i];
       if (t - s < minSegment) continue;
-      const v = F[s] + segmentCost(P, s, t, kind) + beta;
+      const c = F[s] + segmentCost(P, s, t, kind);
+      fs[i] = c;
+      const v = c + beta;
       if (v < best) { best = v; arg = s; }
     }
     F[t] = best; last[t] = arg;
     // PELT pruning (Killick, Fearnhead and Eckley 2012): drop s that can never be optimal again.
-    const keep = [];
-    for (const s of cand) if (t - s < minSegment || F[s] + segmentCost(P, s, t, kind) <= F[t]) keep.push(s);
-    if (t - minSegment + 1 >= minSegment) keep.push(t - minSegment + 1);
-    cand = keep;
+    let nk = 0;
+    for (let i = 0; i < nc; i++) { const s = cand[i]; if (t - s < minSegment || fs[i] <= best) keep[nk++] = s; }
+    if (t - minSegment + 1 >= minSegment) keep[nk++] = t - minSegment + 1;
+    const sw = cand; cand = keep; keep = sw; nc = nk;
   }
   const cuts = [];
   for (let t = n; t > 0; t = last[t]) if (last[t] > 0) cuts.push(last[t]);
@@ -95,6 +102,7 @@ function gridPartition(z, P, { kind, beta, minSegment, step }) {
   for (let t = step; t < n; t += step) pos.push(t);
   pos.push(n);
   const m = pos.length, F = new Float64Array(m).fill(Infinity), last = new Int32Array(m);
+  const fs = new Float64Array(m); // F[i] + cost(pos[i], t) from the search, reused by the pruning below
   F[0] = -beta;
   let cand = [0];
   for (let j = 1; j < m; j++) {
@@ -102,13 +110,15 @@ function gridPartition(z, P, { kind, beta, minSegment, step }) {
     let best = Infinity, arg = -1;
     for (const i of cand) {
       if (t - pos[i] < minSegment) continue;
-      const v = F[i] + segmentCost(P, pos[i], t, kind) + beta;
+      const c = F[i] + segmentCost(P, pos[i], t, kind);
+      fs[i] = c;
+      const v = c + beta;
       if (v < best) { best = v; arg = i; }
     }
     if (arg < 0) continue; // too close to the start for any segment
     F[j] = best; last[j] = arg;
     const keep = [];
-    for (const i of cand) if (t - pos[i] < minSegment || F[i] + segmentCost(P, pos[i], t, kind) <= F[j]) keep.push(i);
+    for (const i of cand) if (t - pos[i] < minSegment || fs[i] <= F[j]) keep.push(i);
     keep.push(j);
     cand = keep;
   }

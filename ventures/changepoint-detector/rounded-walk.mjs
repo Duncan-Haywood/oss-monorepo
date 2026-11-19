@@ -141,6 +141,14 @@ function golden(fn, lo, hi, iters) {
   return best;
 }
 
+// The coordinate ascent below re-asks the filter questions it already answered: when a round moves
+// neither s nor p, the next round's golden searches probe exactly the same points (one stale-feed test:
+// 10,640 roundedWalkLogLik calls, 3,040 distinct). The likelihood is a pure function of its arguments,
+// so each fit keeps its answers by argument (a JS number's string form round-trips exactly); the fits
+// and their results are unchanged (docs/history/ci-perf-2026-11-19-rounded-walk-fit-memo.md).
+function memo2(fn) { const m = new Map(); return (x, y) => { const key = `${x},${y}`; let v = m.get(key); if (v === undefined) { v = fn(x, y); m.set(key, v); } return v; }; }
+function memo3(fn) { const m = new Map(); return (x, y, z) => { const key = `${x},${y},${z}`; let v = m.get(key); if (v === undefined) { v = fn(x, y, z); m.set(key, v); } return v; }; }
+
 export const STALE_LR = { G: 10, sMin: 0.15, sMax: 6, pMax: 0.95, iters: 18, rounds: 3, threshold: 5.41, minSteps: 30, maxSteps: 2000 };
 
 /**
@@ -151,7 +159,7 @@ export function staleLikelihoodRatio(k, opts = {}) {
   const o = { ...STALE_LR, ...opts };
   if (k.length - 1 < o.minSteps || k.length - 1 > o.maxSteps) return null;
   if (o.nus) return staleLRHeavy(k, o);
-  const L = (s, p) => roundedWalkLogLik(k, s, p, o.G);
+  const L = memo2((s, p) => roundedWalkLogLik(k, s, p, o.G));
   const ls = [Math.log(o.sMin), Math.log(o.sMax)];
   const m0 = golden((x) => L(Math.exp(x), 0), ls[0], ls[1], o.iters);
   // M1 by coordinate ascent from M0's fit; the best point seen is kept, so l1 >= l0.
@@ -174,7 +182,7 @@ function staleLRHeavy(k, o) {
   const ls = [Math.log(o.sMin), Math.log(o.sMax)];
   let best0 = null, best1 = null;
   for (const nu of o.nus) {
-    const L = (s, p) => roundedWalkLogLik(k, s, p, o.G, nu);
+    const L = memo2((s, p) => roundedWalkLogLik(k, s, p, o.G, nu));
     const m0 = golden((x) => L(Math.exp(x), 0), ls[0], ls[1], o.iters);
     let s = Math.exp(m0.x), p = 0, l1 = m0.f;
     for (let r = 0; r < o.rounds; r++) {
@@ -288,7 +296,7 @@ function staleLRMarkovFit(k, opts) {
   const ls = [Math.log(o.sMin), Math.log(o.sMax)];
   let best0 = null, best1 = null, bestM = null;
   for (const nu of o.nus) {
-    const L = (s, p) => roundedWalkLogLik(k, s, p, o.G, nu);
+    const L = memo2((s, p) => roundedWalkLogLik(k, s, p, o.G, nu));
     const m0 = golden((x) => L(Math.exp(x), 0), ls[0], ls[1], o.iters);
     let s = Math.exp(m0.x), p = 0, l1 = m0.f;
     for (let r = 0; r < o.rounds; r++) {
@@ -299,7 +307,7 @@ function staleLRMarkovFit(k, opts) {
     }
     if (!best0 || m0.f > best0.l) best0 = { l: m0.f, s: Math.exp(m0.x), nu };
     if (!best1 || l1 > best1.l) best1 = { l: l1, s, p, nu };
-    const LM = (s2, pe, ps) => roundedWalkLogLikMarkov(k, s2, pe, ps, o.G, nu);
+    const LM = memo3((s2, pe, ps) => roundedWalkLogLikMarkov(k, s2, pe, ps, o.G, nu));
     let ms = s, pe = p, ps = p, lm = l1;
     for (let r = 0; r < o.rounds; r++) {
       const bq = golden((q) => LM(ms, pe, q), 0, o.pMax, o.iters);
