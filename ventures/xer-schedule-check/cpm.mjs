@@ -18,7 +18,7 @@
 // nothing; they are reported but left out of the network).
 
 import { Calendar } from "./calendar.mjs";
-import { parseDate, num } from "./xer.mjs";
+import { parseDate, formatDate, num } from "./xer.mjs";
 
 const SPAN_TYPES = new Set(["TT_LOE", "TT_WBS"]);
 const HARD = new Set(["CS_MSO", "CS_MEO", "CS_MSOB", "CS_MEOB", "CS_MANDSTART", "CS_MANDFIN"]);
@@ -38,6 +38,15 @@ export function buildModel(xer) {
   const warnings = [];
   const cals = new Map();
   for (const row of T.CALENDAR || []) {
+    if (!(row.clndr_data || "").trim()) {
+      // no work pattern stored (hand-made files, some converters): a
+      // Monday-to-Friday week of the calendar's hours per day, said aloud
+      const h = num(row.day_hr_cnt);
+      const cal = Calendar.weekdays(h !== null && h > 0 && h <= 24 ? h : 8, row.clndr_id, row.clndr_name || "");
+      cals.set(row.clndr_id, cal);
+      warnings.push(`calendar ${row.clndr_id} (${row.clndr_name || "no name"}) stores no work pattern; assumed Monday to Friday, ${cal.hoursPerDay} h a day from 08:00`);
+      continue;
+    }
     try {
       cals.set(row.clndr_id, Calendar.fromXer(row));
     } catch (e) {
@@ -50,7 +59,17 @@ export function buildModel(xer) {
   for (const o of T.SCHEDOPTIONS || []) opts.set(o.proj_id, o);
   const firstOpt = (T.SCHEDOPTIONS || [])[0] || {};
   const projects = new Map();
-  for (const p of T.PROJECT || []) {
+  const projRows = [...(T.PROJECT || [])];
+  // activities whose project is not in the PROJECT table (or a file with no
+  // PROJECT table) still get a project, so the file can be assessed
+  const known = new Set(projRows.map((p) => p.proj_id));
+  for (const r of T.TASK || []) {
+    if (known.has(r.proj_id)) continue;
+    known.add(r.proj_id);
+    projRows.push({ proj_id: r.proj_id, proj_short_name: r.proj_id ? `project ${r.proj_id}` : "(no project)" });
+    warnings.push(`activities name project ${r.proj_id || "(none)"}, which the file's PROJECT table does not list; assessed as their own project`);
+  }
+  for (const p of projRows) {
     const o = opts.get(p.proj_id) || firstOpt;
     projects.set(p.proj_id, {
       id: p.proj_id,
@@ -70,6 +89,24 @@ export function buildModel(xer) {
       criticalHours: num(p.critical_drtn_hr_cnt) ?? 0,
       criticalType: p.critical_path_type || "CT_TotFloat",
     });
+  }
+  // A file with no data date (hand-made, or written by another tool) would
+  // leave an activity with no predecessor nothing to start from: count from
+  // the earliest date the file stores instead, and say so.
+  let anchor = null;
+  for (const p of T.PROJECT || []) for (const k of ["last_recalc_date", "plan_start_date"]) {
+    const d = parseDate(p[k]);
+    if (d !== null && (anchor === null || d < anchor)) anchor = d;
+  }
+  for (const r of T.TASK || []) for (const k of ["act_start_date", "restart_date", "early_start_date", "target_start_date"]) {
+    const d = parseDate(r[k]);
+    if (d !== null && (anchor === null || d < anchor)) anchor = d;
+  }
+  if (anchor === null) anchor = Date.UTC(2000, 0, 3) / 60000; // a Monday, when the file stores no date at all
+  for (const p of projects.values()) {
+    if (p.dataDate !== null && p.dataDate !== undefined) continue;
+    p.dataDate = anchor;
+    warnings.push(`project ${p.code || p.id}: no data date or planned start in the file, so dates are counted from ${formatDate(anchor)}`);
   }
   const tasks = new Map();
   for (const r of T.TASK || []) {
@@ -113,7 +150,7 @@ export function buildModel(xer) {
     succ.preds.push(rel);
     pred.succs.push(rel);
   }
-  return { tasks, projects, rels, cals, fallback, warnings };
+  return { tasks, projects, rels, cals, fallback, warnings, anchor };
 }
 
 function lagCalendar(model, rel) {
@@ -204,10 +241,10 @@ export function schedule(xer, options = {}) {
   const { order, stuck } = topoOrder(model, inNet);
   const loops = stuck.length ? findLoops(model, stuck) : [];
   const res = new Map();
-  const proj = (t) => projects.get(t.proj) || { dataDate: null, retainedLogic: true, progressOverride: false, floatType: "FT_FF" };
+  const proj = (t) => projects.get(t.proj) || { dataDate: model.anchor ?? null, retainedLogic: true, progressOverride: false, floatType: "FT_FF" };
   const done = (t) => t.status === "TK_Complete";
   const active = (t) => t.status === "TK_Active";
-  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", ...(options.variant || {}) };
+  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ...(options.variant || {}) };
   const delay = options.delay || null; // { taskId, minutes }: added remaining duration (critical path test)
 
   // ---- forward pass
@@ -433,17 +470,42 @@ export function schedule(xer, options = {}) {
     r.tf = (ft === "FT_SF" ? startF : ft === "FT_FF" ? finF : Math.min(startF, finF)) / 60;
   }
 
-  // ---- free float (FS: successor early start - lag - early finish, etc.)
+  // ---- free float: the working time this activity can slip before it
+  // delays any successor's early dates (FS: successor early start - lag -
+  // early finish, and so on), measured the way the forward pass links them.
   const freeFloat = (t, r) => {
     let best = Infinity;
     for (const rel of t.succs) {
       const s = tasks.get(rel.succId);
-      if (s.span || done(s)) continue;
+      if (s.span) continue;
       const sv = res.get(rel.succId);
       if (!sv) continue;
+      if (done(s) && !V.ffDoneSucc) continue;
       const lc = lagCalendar(model, rel);
       let gap;
-      if (rel.type === "PR_FS") gap = t.cal.workBetween(r.ef, lc.subWork(sv.remES, rel.lag));
+      if (done(s)) {
+        // a finished successor is a zero-length node, reached with no lag:
+        // this one may slip until it would push that node
+        gap = rel.type === "PR_SF" ? Infinity
+          : t.cal.workBetween(rel.type === "PR_SS" ? r.remES : r.ef, sv.ef);
+      } else if (active(s) && (rel.type === "PR_SS" || rel.type === "PR_SF")) {
+        // mirror of the forward rule for a started successor: an SF link is
+        // met, and an SS link waits only for this one's remaining work to
+        // start (its lag already spent once this one has started)
+        if (rel.type === "PR_SF") continue;
+        gap = t.cal.workBetween(r.remES, active(t) ? sv.remES : lc.subWork(sv.remES, rel.lag));
+      } else if (rel.type === "PR_SS" && active(t) && V.ffSSActivePred) {
+        // a started predecessor: the successor waits for the later of this
+        // one's remaining start and its actual start plus the lag (forward
+        // rule "maxleft"), so the lag already spent is not free float
+        const p = proj(t);
+        let v = Math.max(r.remES, lc.addWork(t.actStart ?? r.remES, rel.lag));
+        if (rel.lag && p.dataDate !== null && p.dataDate !== undefined) {
+          const left = rel.lag - lc.workBetween(t.actStart ?? p.dataDate, p.dataDate);
+          if (left > 0) v = Math.max(v, lc.addWork(r.remES, left));
+        }
+        gap = t.cal.workBetween(v, sv.remES);
+      } else if (rel.type === "PR_FS") gap = t.cal.workBetween(r.ef, lc.subWork(sv.remES, rel.lag));
       else if (rel.type === "PR_SS") gap = t.cal.workBetween(r.remES, lc.subWork(sv.remES, rel.lag));
       else if (rel.type === "PR_FF") gap = t.cal.workBetween(r.ef, lc.subWork(sv.ef, rel.lag));
       else gap = t.cal.workBetween(r.remES, lc.subWork(sv.ef, rel.lag));
@@ -451,9 +513,14 @@ export function schedule(xer, options = {}) {
     }
     if (best === Infinity) {
       const p = proj(t);
-      best = p.lateEnd !== null && p.lateEnd !== undefined ? t.cal.workBetween(r.ef, p.lateEnd) : 0;
+      // an open end's free float runs to the project's early finish, not
+      // to a must-finish date (P6: 24.12 file, 34 open ends)
+      const end = V.ffOpenEnd === "late" ? p.lateEnd : p.finish;
+      best = end !== null && end !== undefined ? t.cal.workBetween(r.ef, end) : 0;
     }
-    return Math.min(best / 60, r.tf);
+    // P6's free float is the plain gap, not capped at a negative total
+    // float, and never below zero (none of 20,127 stored values is)
+    return (V.ffFloor ? Math.max(0, best) : best) / 60;
   };
 
   // ---- as late as possible: the early dates take up the free float, so the

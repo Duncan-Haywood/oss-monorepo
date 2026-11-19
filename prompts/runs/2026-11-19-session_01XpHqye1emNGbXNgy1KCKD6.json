@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqye1emNGbXNgy1KCKD6",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T11:39:34Z",
+  "ended": "2026-11-19T12:02:23Z",
+  "wall_minutes": 23.0,
+  "tokens_in": 4088487,
+  "tokens_out": 42552,
+  "cost_usd": 2.5268,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17648",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "fd2.py summary helper indexed an empty list at a clock time the solar-time samples missed; fixed with nearest-sample lookup"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Next up for Hearth & Horizon held a single proposal, so taking it emptied the shelf; this run added one (thermosiphon), but subjects.txt has only 3 unused hearth-and-horizon candidates left"
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "no friction beyond the audio cap: 577 MB, so text only again, as for most recent creative runs; the move of enclosures off Pages is still the open fix"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-the-wall-that-is-warm-at-nine.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon (science fiction shelf). Piece: the-wall-that-is-warm-at-nine (Trombe wall, Puno altiplano, 2048), ~5,860 words with notes, text only (audio dirs 577 MB > 400 MB cap). Numbers from a 1D finite-difference wall model worked in code (54.5 kWh absorbed, 19.1 to room, peak 1.1 kW ~21:15; 28.4 with night shutter; 10 cm wall peaks ~16:35). Adversarial re-read fixed 6 slips before commit (lag per depth 'three hours' -> 'nearly four'; 08:00 flow two-thirds -> half; night share 'most' -> 'more than half'; 10 cm peak time; Southern Cross position in August; core-drill hole shape). Local checks: run_workflow_locally --for-changes 11/11 workflows passed; agent-cross-review and deploy jobs not run locally; node --test 20/20 in hearth-and-horizon; check_posts ok. Climate grounding: SENAMHI frost bulletins for Mazocruz via web search.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3cef483f-16e8-523f-af86-2b31d5a04e80",
+    "transcripts": 1,
+    "first": "2026-11-19T11:39:34Z",
+    "last": "2026-11-19T12:02:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 82,
+        "output": 42552,
+        "thinking": 16208,
+        "cache_read": 3978437,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109968,
+        "api_equivalent_usd": 2.5268,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 82,
+      "output": 42552,
+      "thinking": 16208,
+      "cache_read": 3978437,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109968,
+      "api_equivalent_usd": 2.5268,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 38,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.0,
+      "active_minutes": 23.0,
+      "model_minutes": 8.01,
+      "tool_minutes": 14.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "researching, modelling and writing a checked 5,800-word technical short story",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 395.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

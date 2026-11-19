@@ -119,7 +119,7 @@ flagships:
       RapidOCR's total unless arithmetic confirms the majority, CORD train 542/583;
       page SRD 190/196 (port as lead), page CORD taxes kept (train 205/267),
       WildReceipt held out 360/405, tax 209/272, Russian slips 203/230, 202/221
-      (RapidOCR), merchant 113/146 (Cyrillic model, forms, bands re-read), SROIE
+      (RapidOCR), merchant 113/146 (Cyrillic, auto-picked; forms, bands), SROIE
       84.6%, five readings 96.5% held out, dates 94.1% (was 69.1%), US 79.6%, tax
       74.6%; CLI 78.6%, tax 71.9%; CORD photos val 71.4%, train 62.2%, test 57.9%,
       tax 16/41; open: OCR-bound); (6) payroll (README): two journal layouts read;
@@ -405,13 +405,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The sub-8 advised instant build was the
-      frame's rounding" (2026-11-19: whole-ppm share guard shipped, fresh set 53 of
-      54, eval/take-share-rounding-2026-11-19.md); recaptured on today's tree 0 of
-      72 instant advised (eval/take-instant-sub8-2026-11-19.md). Next: TAKE_SURVEY
-      rms in 0.1 ppm (a new frame length, protocol.OLDER_FORMATS keeps the old),
-      which removes the guard's cause; TAKE_SURVEY_BLIND's 1.5 rechecked on a fresh
-      jittery-tach set at the nine-point grid.
+      see firmware/esp32/README.md, latest "The take survey's rms in tenths of a
+      ppm" (2026-11-19: new frame with a scale byte; on 2,964 stored drills the
+      guard withholds 1 right verdict, not 6; eval/take-share-tenths-2026-11-19.md).
+      Next: TAKE_BOUND_FLOOR_PPM (2, set on whole ppm) retested on tenths with a
+      held-out set; TAKE_SURVEY_BLIND's 1.5 rechecked on a fresh jittery-tach set at
+      the nine-point grid.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -546,13 +545,16 @@ flagships:
       The six public XER files in eval/cpm-vs-p6-2026-11-19.md (git clone the four
       repos named there): CCA residual down to 14 of 14,270 (three late-finish
       chains, eval/cpm-vs-p6-2026-11-19.md, What is left) with node
-      eval/cpm-vs-p6.mjs; free float on the 24.12 file (361 of 404).
+      eval/cpm-vs-p6.mjs; free float 19,809 of 19,822
+      (eval/free-float-2026-11-19.md): 9 left in the 24.12 file where P6 stores 0
+      against a positive gap; more hand-made or converter XERs (no data date, no
+      PROJECT, blank calendars) through node cli.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
-      (1) CCA rules 10-11 shipped 2026-11-19 (no lag back from finished nodes,
-      unspent SS lag; 99.9%, 19,807 of 19,822 overall); next the 14 left: three
-      late-finish chains where P6 is 3-20 days earlier
+      (1) CCA rules 10-11 and free float shipped 2026-11-19 (99.9%, 19,808 of 19,822
+      overall; free float 19,809, eval/free-float-2026-11-19.md; recomputed-schedule
+      CSV); next the 14 left: three late-finish chains where P6 is 3-20 days earlier
       (eval/cpm-vs-p6-2026-11-19.md, "What is left"); (2) update comparison shipped
       2026-11-19 (compare.mjs, half-step split; eval/compare-check-2026-11-19.md:
       720 of 720 planted edits on six real files); next a real pair of consecutive

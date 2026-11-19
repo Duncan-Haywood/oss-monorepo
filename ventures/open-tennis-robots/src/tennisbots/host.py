@@ -459,14 +459,15 @@ def _take_count(link) -> int:
     return link.take_survey["wheels"] if link.take_survey else 0
 
 
-def take_share_bound(rms) -> float:
-    """The largest best / step share the TAKE_SURVEY frame's rms allow: each is whole ppm, so +-0.5 ppm (2026-11-19,
-    firmware/esp32/README.md "The sub-8 advised instant build was the frame's rounding"). 1.0 when the step's rms is
-    under 1 ppm and the frame cannot bound it."""
+def take_share_bound(rms, step: float = 1.0) -> float:
+    """The largest best / step share the TAKE_SURVEY frame's rms allow: each is rounded to `step` ppm (whole ppm before
+    2026-11-19's tenths frame, 0.1 since), so +-step/2 (firmware/esp32/README.md "The sub-8 advised instant build was
+    the frame's rounding", "The take survey's rms in tenths of a ppm"). 1.0 when the step's rms is under one `step`
+    and the frame cannot bound it."""
     rms = [v for v in rms if v is not None]
-    if not rms or rms[0] < 1:
+    if not rms or rms[0] < step:
         return 1.0
-    return min(1.0, (min(rms) + 0.5) / (rms[0] - 0.5))
+    return min(1.0, (min(rms) + step / 2) / (rms[0] - step / 2))
 
 
 def take_survey_advice(sv: dict | None) -> str | None:
@@ -492,11 +493,13 @@ def take_survey_advice(sv: dict | None) -> str | None:
         return (f"contact-time survey: {n} wheels, none told the contact times apart (each ball's contact fitted "
                 f"inside one revolution); keep TAKE_US = {int(board * 1000)} and run more balls")
     gain = min(rms) / rms[0] if rms and rms[0] else 0.0
-    if pick > 0 and gain <= TAKE_ADVISE_RATIO < take_share_bound(rms):
+    step = sv.get("rms_step_ppm") or 1.0
+    if pick > 0 and gain <= TAKE_ADVISE_RATIO < take_share_bound(rms, step):
         # whole-ppm rms can put the share either side of the margin (2026-11-19, firmware/esp32/README.md "The sub-8
         # advised instant build was the frame's rounding": 4 / 7 ppm read 0.571 where the board's sums gave 0.635)
         return (f"contact-time survey: {n} wheels pick {pick:g} ms, but its fits sit within a few ppm of the step's "
-                f"({min(rms)} against {rms[0]} ppm), too close to the frame's 1 ppm to tell the {TAKE_ADVISE_RATIO:g} "
+                f"({min(rms):g} against {rms[0]:g} ppm), too close to the frame's {step:g} ppm to tell the "
+                f"{TAKE_ADVISE_RATIO:g} "
                 f"margin: " + ("keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash")
                 + "; run more balls" + _bound_note(sv))
     if pick > 0 and gain > TAKE_ADVISE_RATIO:
@@ -579,12 +582,18 @@ class FeederLink:
                 self.esc_tau_ms = vals[0]
             elif cmd == P.TAKE_SURVEY:
                 # the frame's length says how many candidates it carries: firmware before 2026-11-19 sent seven, and
-                # before that day's short-take grid eight (always with the summed-wheel byte)
-                times = {5 + P.TAKE_SURVEY_TIMES: P.TAKE_SURVEY_TIMES,
-                         5 + P.EIGHT_TAKE_SURVEY_TIMES: P.EIGHT_TAKE_SURVEY_TIMES}.get(len(vals), P.OLDER_TAKE_SURVEY_TIMES)
+                # before that day's short-take grid eight (always with the summed-wheel byte); since the tenths frame
+                # (README "The take survey's rms in tenths of a ppm") a last byte gives the rms slots' units per ppm
+                times, scaled = {5 + P.TAKE_SURVEY_TIMES + 1: (P.TAKE_SURVEY_TIMES, True),
+                                 5 + P.TAKE_SURVEY_TIMES: (P.TAKE_SURVEY_TIMES, False),
+                                 5 + P.EIGHT_TAKE_SURVEY_TIMES: (P.EIGHT_TAKE_SURVEY_TIMES, False)}.get(
+                                     len(vals), (P.OLDER_TAKE_SURVEY_TIMES, False))
                 nt = 4 + times
+                per = (vals[nt + 1] or 1) if scaled else 1
                 self.take_survey = {"t": now, "wheels": vals[0], "least_ms10": vals[1], "refined_ms10": vals[2],
-                                    "board_ms10": vals[3], "rms_ppm": [None if v == 65535 else v for v in vals[4:nt]],
+                                    "board_ms10": vals[3],
+                                    "rms_ppm": [None if v == 65535 else (v if per == 1 else v / per) for v in vals[4:nt]],
+                                    "rms_step_ppm": 1 / per,   # the frame's resolution: 1 ppm, or 0.1 since tenths
                                     "kept": vals[nt] if len(vals) > nt else None}   # None: firmware before 2026-11-18
             elif cmd == P.ESC_SURVEY:
                 self.esc_survey = {"t": now, "wheels": vals[0], "least_ms": vals[1], "refined_ms": vals[2],
