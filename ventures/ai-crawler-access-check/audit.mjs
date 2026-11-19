@@ -4,12 +4,14 @@
 // logic runs in the browser page (pasted text) and the Node CLI (fetched or
 // read-from-disk text).
 //
-// The robots.txt matching implements the "longest matching rule wins, ties
-// go to Allow" algorithm that Google publishes for its own crawlers (also
-// followed by Bing and most other major crawlers) -- not a full RFC 9309
-// parser. Percent-encoding normalisation, `Crawl-delay`, and multiple
-// disjoint blocks for the same user-agent token are deliberately out of
-// scope; see the README for exactly what is and isn't covered.
+// The robots.txt parsing and matching follow RFC 9309 as Google's open-source
+// parser implements it (github.com/google/robotstxt, Apache-2.0; read, not
+// copied, at commit 22b355f): every group naming a crawler is merged, the
+// User-agent value is cut to its product token, the longest match wins and a
+// tie goes to Allow, plus Google's own leniencies (common key typos, a missing
+// colon, a byte-order mark, "index.html" meaning the directory). The cases
+// in conformance.test.mjs restate that project's unit tests in our own words.
+// Crawl-delay and other non-standard lines are ignored, as Google ignores them.
 
 // Purpose is summarised from public reporting and each operator's own
 // crawler documentation. Operators add crawlers and change stated purposes
@@ -38,87 +40,224 @@ export const KNOWN_BOTS = [
   { token: "Google-CloudVertexBot", operator: "Google", purpose: "user-browsing", note: "Crawls at the request of a site owner who is building a Vertex AI agent over their own site; not a general-purpose crawler." },
 ];
 
-export function parseRobotsTxt(text) {
-  const lines = String(text ?? "").split(/\r?\n/);
-  const records = [];
-  const sitemaps = [];
-  let pendingAgents = [];
-  let currentRules = null;
+// Google accepts these misspellings of the three keys (robots.cc,
+// kAllowFrequentTypos). Keys are matched by prefix, case-insensitively.
+const KEY_PREFIXES = [
+  ["user-agent", "user-agent"], ["useragent", "user-agent"], ["user agent", "user-agent"],
+  ["allow", "allow"],
+  ["disallow", "disallow"], ["dissallow", "disallow"], ["dissalow", "disallow"],
+  ["disalow", "disallow"], ["diasllow", "disallow"], ["disallaw", "disallow"],
+  ["sitemap", "sitemap"], ["site-map", "sitemap"],
+];
 
-  const stripComment = (line) => {
-    const idx = line.indexOf("#");
-    return idx === -1 ? line : line.slice(0, idx);
-  };
+function keyType(key) {
+  const lower = key.toLowerCase();
+  for (const [prefix, type] of KEY_PREFIXES) if (lower.startsWith(prefix)) return type;
+  return null;
+}
 
-  for (const raw of lines) {
-    const line = stripComment(raw).trim();
-    if (!line) continue;
-    const colon = line.indexOf(":");
-    if (colon === -1) continue;
-    const field = line.slice(0, colon).trim().toLowerCase();
-    const value = line.slice(colon + 1).trim();
+// Google ignores everything past 8 * 2083 bytes on one line.
+const MAX_LINE_BYTES = 2083 * 8 - 1;
+const utf8 = new TextEncoder();
 
-    if (field === "user-agent") {
-      if (currentRules) {
-        // A rule already started for the running batch, so this User-agent
-        // line begins a brand-new record rather than extending the old one.
-        pendingAgents = [];
-        currentRules = null;
-      }
-      pendingAgents.push(value);
-    } else if (field === "allow" || field === "disallow") {
-      if (!pendingAgents.length) continue; // a rule with no preceding User-agent is not valid
-      if (!currentRules) {
-        currentRules = [];
-        records.push({ agents: pendingAgents.slice(), rules: currentRules });
-      }
-      if (field === "disallow" && value === "") continue; // empty Disallow means "block nothing"
-      currentRules.push({ allow: field === "allow", pattern: value });
-    } else if (field === "sitemap") {
-      sitemaps.push(value);
+function clipLine(line) {
+  if (line.length * 3 <= MAX_LINE_BYTES) return line;
+  const bytes = utf8.encode(line);
+  if (bytes.length <= MAX_LINE_BYTES) return line;
+  return new TextDecoder().decode(bytes.slice(0, MAX_LINE_BYTES)).replace(/�$/, "");
+}
+
+// Split one line into [key, value], or null when it holds no directive.
+// Rules look like `key: value`; with no colon Google still accepts
+// `key value` when the line is exactly two words ("disallow /").
+function keyValue(raw) {
+  const hash = raw.indexOf("#");
+  const line = (hash === -1 ? raw : raw.slice(0, hash)).trim();
+  if (!line) return null;
+  let sep = line.indexOf(":");
+  if (sep === -1) {
+    const m = /^(\S+)[ \t]+(\S+)$/.exec(line);
+    if (!m) return null;
+    return [m[1], m[2]];
+  }
+  const key = line.slice(0, sep).trim();
+  if (!key) return null;
+  return [key, line.slice(sep + 1).trim()];
+}
+
+/**
+ * Percent-encode what RFC 9309 says must be encoded before comparison:
+ * octets outside US-ASCII become %XX, and existing escapes are upper-cased
+ * (%2f -> %2F), as Google's MaybeEscapePattern does for Allow/Disallow values.
+ */
+export function escapePattern(value) {
+  let out = "";
+  for (let i = 0; i < value.length; i++) {
+    const c = value[i];
+    if (c === "%" && /^[0-9A-Fa-f]{2}$/.test(value.slice(i + 1, i + 3))) {
+      out += "%" + value.slice(i + 1, i + 3).toUpperCase();
+      i += 2;
+    } else if (value.charCodeAt(i) > 0x7f) {
+      const cp = value.codePointAt(i);
+      const ch = String.fromCodePoint(cp);
+      for (const b of utf8.encode(ch)) out += "%" + b.toString(16).toUpperCase().padStart(2, "0");
+      i += ch.length - 1;
+    } else {
+      out += c;
     }
   }
+  return out;
+}
+
+/** The product token a crawler compares: the leading [A-Za-z_-] run ("CCBot/2.0" -> "CCBot"). */
+export function productToken(value) {
+  return /^[A-Za-z_-]*/.exec(value)[0];
+}
+
+function isGlobalAgent(value) {
+  // Google: "*" alone, or "*" followed by whitespace and anything, is the global group.
+  return value === "*" || /^\*\s/.test(value);
+}
+
+/**
+ * Parse robots.txt into groups. Each record is one group as written:
+ * `{ agents, rules, line }`, rules `{ allow, pattern, line }` with the
+ * pattern percent-encoded. Rules before any User-agent line are dropped,
+ * and a group is closed only by a User-agent line after a rule (Sitemap and
+ * unknown lines do not close it). Empty Allow/Disallow values are dropped:
+ * they match nothing.
+ */
+export function parseRobotsTxt(text) {
+  const body = String(text ?? "").replace(/^\uFEFF/, "");
+  const lines = body.split(/\r\n|\r|\n/);
+  const records = [];
+  const sitemaps = [];
+  let current = null; // the group User-agent lines are being added to
+  let sawRule = false;
+
+  lines.forEach((raw, i) => {
+    const kv = keyValue(clipLine(raw));
+    if (!kv) return;
+    const type = keyType(kv[0]);
+    const value = kv[1];
+    const line = i + 1;
+    if (type === "user-agent") {
+      if (!current || sawRule) {
+        current = { agents: [], rules: [], line };
+        records.push(current);
+        sawRule = false;
+      }
+      current.agents.push(value);
+    } else if (type === "allow" || type === "disallow") {
+      if (!current) return; // a rule with no preceding User-agent belongs to no group
+      sawRule = true;
+      if (value === "") return; // an empty pattern matches nothing
+      current.rules.push({ allow: type === "allow", pattern: escapePattern(value), line });
+    } else if (type === "sitemap") {
+      if (value) sitemaps.push(value);
+    }
+  });
 
   return { records, sitemaps };
 }
 
-function escapeForPattern(segment) {
-  return segment.replace(/[.+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function pathMatchesPattern(path, pattern) {
-  const anchored = pattern.endsWith("$");
-  const core = anchored ? pattern.slice(0, -1) : pattern;
-  const body = core.split("*").map(escapeForPattern).join(".*");
-  const re = new RegExp(`^${body}${anchored ? "$" : ""}`);
-  return re.test(path);
-}
-
-function findGroup(records, token) {
-  const lower = token.toLowerCase();
-  const named = records.find((r) => r.agents.some((a) => a.toLowerCase() === lower));
-  if (named) return { group: named, matchedAs: "named" };
-  const wildcard = records.find((r) => r.agents.some((a) => a === "*"));
-  if (wildcard) return { group: wildcard, matchedAs: "wildcard" };
-  return { group: null, matchedAs: "none" };
+/**
+ * Google's matcher (RobotsMatchStrategy::Matches): `*` is any run of
+ * characters, a trailing `$` anchors the end, anything else is literal.
+ * Linear in path length times pattern length, with no regular expression,
+ * so a pasted pattern full of `*` cannot make it backtrack.
+ */
+export function pathMatchesPattern(path, pattern) {
+  const n = path.length;
+  let pos = [0];
+  for (let k = 0; k < pattern.length; k++) {
+    const c = pattern[k];
+    if (c === "$" && k === pattern.length - 1) return pos[pos.length - 1] === n;
+    if (c === "*") {
+      const from = pos[0];
+      pos = [];
+      for (let p = from; p <= n; p++) pos.push(p);
+    } else {
+      const next = [];
+      for (const p of pos) if (p < n && path[p] === c) next.push(p + 1);
+      if (!next.length) return false;
+      pos = next;
+    }
+  }
+  return true;
 }
 
 /**
- * @returns {{allowed: boolean, matchedAs: 'named'|'wildcard'|'none', matchedRule: object|null}}
+ * The path a crawler compares: what follows scheme and host, without the
+ * fragment, starting with "/". A bare path is kept as is. Characters outside
+ * US-ASCII are percent-encoded, as a crawler's request line would carry them.
+ */
+export function pathOf(urlOrPath) {
+  const url = String(urlOrPath ?? "");
+  let start = url.startsWith("//") ? 2 : 0;
+  const early = url.slice(start).search(/[/?;]/);
+  let proto = url.indexOf("://", start);
+  if (early !== -1 && early + start < proto) proto = -1;
+  start = proto === -1 ? start : proto + 3;
+  const rest = url.slice(start);
+  const p = rest.search(/[/?;]/);
+  if (p === -1) return "/";
+  const hash = url.indexOf("#", url.startsWith("//") ? 2 : 0);
+  if (hash !== -1 && hash < start + p) return "/";
+  let out = url.slice(start + p, hash === -1 ? url.length : hash);
+  if (out[0] !== "/") out = "/" + out;
+  return out.replace(/[^\x00-\x7f]/gu, (ch) => [...utf8.encode(ch)].map((b) => "%" + b.toString(16).toUpperCase().padStart(2, "0")).join(""));
+}
+
+function groupsFor(records, token) {
+  const lower = token.toLowerCase();
+  const named = records.filter((r) => r.agents.some((a) => !isGlobalAgent(a) && productToken(a).toLowerCase() === lower && lower !== ""));
+  if (named.length) return { groups: named, matchedAs: "named" };
+  const wildcard = records.filter((r) => r.agents.some(isGlobalAgent));
+  if (wildcard.length) return { groups: wildcard, matchedAs: "wildcard" };
+  return { groups: [], matchedAs: "none" };
+}
+
+// Score one rule against a path: the pattern's length when it matches, else -1.
+// Google's "index.html" leniency: `Allow: /dir/index.html` also allows `/dir/`.
+function score(rule, path) {
+  if (pathMatchesPattern(path, rule.pattern)) return rule.pattern.length;
+  if (rule.allow) {
+    const slash = rule.pattern.lastIndexOf("/");
+    if (slash !== -1 && rule.pattern.slice(slash).startsWith("/index.htm")) {
+      const dir = rule.pattern.slice(0, slash + 1) + "$";
+      if (pathMatchesPattern(path, dir)) return dir.length;
+    }
+  }
+  return -1;
+}
+
+/**
+ * @param {Array} records  from parseRobotsTxt
+ * @param {string} token   the crawler's product token, e.g. "GPTBot"
+ * @param {string} path    a path ("/a/b?q") or a full URL
+ * @returns {{allowed: boolean, matchedAs: 'named'|'wildcard'|'none', matchedRule: object|null, groupLines: number[]}}
  */
 export function isAllowed(records, token, path = "/") {
-  const { group, matchedAs } = findGroup(records, token);
-  if (!group) return { allowed: true, matchedAs, matchedRule: null };
-
-  const matching = group.rules.filter((r) => pathMatchesPattern(path, r.pattern));
-  if (!matching.length) return { allowed: true, matchedAs, matchedRule: null };
-
-  const topLength = Math.max(...matching.map((r) => r.pattern.length));
-  const topMatches = matching.filter((r) => r.pattern.length === topLength);
-  const allowed = topMatches.some((r) => r.allow);
-  // Prefer showing a disallow rule when the decision is a block, an allow rule when it isn't.
-  const matchedRule = topMatches.find((r) => r.allow === allowed) || topMatches[0];
-  return { allowed, matchedAs, matchedRule };
+  const target = pathOf(path);
+  const { groups, matchedAs } = groupsFor(records, token);
+  const groupLines = groups.map((g) => g.line);
+  // RFC 9309 section 2.2.2: /robots.txt itself is implicitly allowed.
+  if (target === "/robots.txt") return { allowed: true, matchedAs, matchedRule: null, groupLines };
+  let best = { allow: null, disallow: null };
+  for (const g of groups) {
+    for (const r of g.rules) {
+      const s = score(r, target);
+      if (s <= 0) continue;
+      const slot = r.allow ? "allow" : "disallow";
+      if (!best[slot] || s > best[slot].s) best[slot] = { s, r };
+    }
+  }
+  const a = best.allow?.s ?? 0;
+  const d = best.disallow?.s ?? 0;
+  if (!a && !d) return { allowed: true, matchedAs, matchedRule: null, groupLines };
+  const allowed = d <= a; // longest wins; a tie goes to Allow
+  return { allowed, matchedAs, matchedRule: (allowed ? best.allow : best.disallow).r, groupLines };
 }
 
 /**

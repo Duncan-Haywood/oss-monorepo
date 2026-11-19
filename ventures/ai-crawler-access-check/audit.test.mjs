@@ -6,7 +6,7 @@ test("parses a single named block", () => {
   const { records } = parseRobotsTxt("User-agent: GPTBot\nDisallow: /\n");
   assert.equal(records.length, 1);
   assert.deepEqual(records[0].agents, ["GPTBot"]);
-  assert.deepEqual(records[0].rules, [{ allow: false, pattern: "/" }]);
+  assert.deepEqual(records[0].rules, [{ allow: false, pattern: "/", line: 2 }]);
 });
 
 test("groups consecutive User-agent lines into one record", () => {

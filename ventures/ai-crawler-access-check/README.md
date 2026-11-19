@@ -25,8 +25,9 @@ AI search and citations — but `robots.txt` treats every user-agent as an
 independent group, and it's easy to write a wildcard block that silently
 misses (or accidentally reaches) a named bot, or a named-bot rule that never
 gets checked again after the wildcard group changes. This reads the file
-mechanically and reports the actual, current effect per crawler, using the
-same longest-match-wins algorithm Google documents for its own crawlers.
+mechanically and reports the actual, current effect per crawler, by the
+rules of RFC 9309 as Google's open-source parser applies them (see "How the
+matching was checked" below).
 
 **What this is not:** an enforcement mechanism, a guarantee any crawler
 honors your file, or a complete list of every AI-related crawler that
@@ -73,8 +74,6 @@ public reporting and each operator's own documentation as of this tool's
 last update; operators add crawlers and change stated purposes over time.
 Verify anything load-bearing directly with the operator.
 
-## Disclaimers
-
 **No warranty.** This tool is provided free and as-is, without warranty of
 any kind, express or implied. It reports what a robots.txt or llms.txt
 file says — it is not a guarantee that any crawler will honor those
@@ -102,15 +101,48 @@ Track and Global Privacy Control are honoured, and a button on the page
 turns it off entirely. The CLI records nothing and makes no network call
 beyond the domain you name.
 
+## How the matching was checked
+
+`conformance-cases.mjs` holds 71 cases, each restating in our own files one
+behaviour that the unit tests of Google's open-source robots.txt parser
+([google/robotstxt](https://github.com/google/robotstxt), Apache-2.0, read at
+commit `22b355f`; no code or text copied) check: 19 behaviours, 14 of them
+required by [RFC 9309](https://www.rfc-editor.org/rfc/rfc9309.html) and 5 of
+them Google's leniencies. `conformance.test.mjs` runs them on every change.
+
+The matcher this tool shipped before 2026-11-19 got 55 of the 71 right
+([eval/conformance-2026-11-19.md](eval/conformance-2026-11-19.md)). What it
+missed, all now fixed:
+
+- It read only the **first** group naming a crawler (and only the first `*`
+  group); the RFC merges every matching group.
+- `User-agent: CCBot/2.0` did not match CCBot: the value is cut to its product
+  token before comparing.
+- A named group with no rules at the end of the file fell through to `*`.
+- Non-ASCII patterns (`/café/`) were not percent-encoded, and lower-case
+  escapes (`%c3%a9`) were not normalised.
+- Old-Mac line endings (a lone CR) read the whole file as one line.
+- Google's accepted typos (`Useragent`, `Dissallow`, `Disalow`), a missing
+  colon (`Disallow /`) and `Allow: /dir/index.html` meaning `/dir/` were not
+  honoured, and `/robots.txt` itself could be reported blocked.
+- Patterns were matched with a regular expression built from the `*`s. A
+  pasted pattern of 30 `*a` pairs took **26 seconds** against a 40-character
+  path and froze the page (and the CLI on a hostile site's file). The matcher
+  is now Google's position-set algorithm, linear in path times pattern
+  (0.1 ms on the same input).
+
+Still out of scope: `Crawl-delay` and other non-standard lines (Google ignores
+them too), and what a crawler does when `robots.txt` returns an error status.
+
 ## Development
 
 ```sh
-node --test audit.test.mjs cli.test.mjs page.test.mjs
+node --test audit.test.mjs conformance.test.mjs cli.test.mjs page.test.mjs
 ```
 
 `audit.test.mjs` covers the robots.txt parser and matcher (grouping,
 wildcards, `$` anchors, tie-breaking, case-insensitivity) and the `llms.txt`
-structural checks. `cli.test.mjs` covers the CLI with a stubbed `fetch` and
+structural checks; `conformance.test.mjs` the 71 RFC 9309 cases above. `cli.test.mjs` covers the CLI with a stubbed `fetch` and
 stubbed file reads — no real network call runs in CI.
 
 ## Status
