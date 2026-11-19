@@ -1,0 +1,30 @@
+cell-fidelity milestone 7o: the triage policy refit on state-read observables. 200 designs (5zk 40, 5zy 32,
+5zz 32, 7g 32, 7h 64), each re-run for its first ten DFN cycles; O1..O3 read from the dead-lithium state and,
+from the same solution, with 7m's trapezoid rule. Cell 000; theta50 rule; PyBaMM 26.10.1.1.
+
+observable   trap vs rows: med       max  state vs trap: med       max
+O1                     0.0e+00   2.3e-05             6.5e-06   2.8e-04
+O2                     0.0e+00   1.3e-02             4.5e-04   1.8e-01
+O3                     0.0e+00   1.4e-02             0.0e+00   0.0e+00
+
+control: committed observables through this code, mC against the committed mC: max |diff| 3.7e-14; refit 3/4 at 40.0 cycles, lopo5 19/20 at 43.50 (7h: 3/4 at 40.0, 19/20 at 43.50)
+
+set          pick trap pick state theta trap theta state met trap met state  |dmC| med      max
+Ai2020              O1         O1    0.04463     0.04462        y         y    8.3e-06  3.7e-05
+Chen2020            O2         O2    0.02594     0.02596        n         n    2.1e-05  1.1e-04
+OKane2022           O2         O2    0.03123     0.03123        y         y    1.7e-06  3.3e-05
+NCA_Kim2011         O1         O1    0.21169     0.21172        y         y    7.6e-05  3.2e-04
+(theta: the theta50 threshold refit on 5zk, 5zy, 5zz and 7g with its nested margin, the replay7h policy;
+ met: its q75 on 7h within 1.25 x 7h's all-50 q75; |dmC|: state against trapezoid drift estimate, all pools)
+
+trap   refit on four pools, scored on 7h: 3/4 met, 40.0 cycles (20.0% saved); lopo5: 19/20 met, 43.50 cycles (13.0% saved)
+state  refit on four pools, scored on 7h: 3/4 met, 40.0 cycles (20.0% saved); lopo5: 19/20 met, 43.50 cycles (13.0% saved)
+
+7h decisions, state-refit policy on state scores against replay7h on trapezoid scores: agree on 64 of 64 (62 of 62 more than 1% from theta)
+
+10-cycle look: median 2.93 s, total 583 s over 200 designs
+
+H305 (the looks reproduce the committed observables): max rel diff O1 2.3e-05, O2 1.3e-02, O3 1.4e-02 -> refuted
+H306 (the correction barely moves): picks unchanged on 4 of 4 sets; |dmC| median 1.2e-05, max 3.2e-04 -> supported
+H307 (the refit policy keeps the held-out triage): decisions agree on 64 of 64 (62 of 62 away from theta); met sets state ['Ai2020', 'OKane2022', 'NCA_Kim2011'] vs trapezoid ['Ai2020', 'OKane2022', 'NCA_Kim2011'] -> supported
+H308 (the headline holds): lopo5 state 19/20 at 43.50 cycles, trapezoid 19/20 at 43.50 -> supported

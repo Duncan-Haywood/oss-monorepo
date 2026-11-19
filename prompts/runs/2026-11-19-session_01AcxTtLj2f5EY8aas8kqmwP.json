@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtLj2f5EY8aas8kqmwP",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T21:07:09Z",
+  "ended": "2026-11-19T21:19:23Z",
+  "wall_minutes": 12.39,
+  "tokens_in": 5176761,
+  "tokens_out": 35554,
+  "cost_usd": 2.7161,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17794",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/experiments (7h/7m docs)",
+      "issue": "7m reported the runner reproduces 7h's observables 'to every printed digit', which held for 7g/7h but not for the 5zk/5zy/5zz pools; a ten-cycle look of an old-pool design differs from its committed 100-cycle-run observables by up to 1.4% (O3). Cost a hypothesis bar set from the wrong expectation until a probe caught it."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "says a bare python3 often lacks pytest; true here, and pybamm lived only in /usr/bin/python3.13 (pyenv.py found it in a few seconds). The research tests are unittest-runnable, so `python3 tests/test_x.py` worked without pytest."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-battery-triage-score-quadrature-does-not-matter.md",
+    "research/cell-fidelity/LOG.md (7o plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7o of cell-fidelity: 200 ten-cycle DFN looks (all ok, ~10 min on 3 workers), policy refit on state-read observables. H305 refuted (old pools not bit-reproducible; immaterial downstream), H306-H308 supported: 64/64 decisions, 3/4 met, lopo5 19/20 at 43.5 cycles unchanged. Local checks: tests test_state7o/test_lean7n/test_runner7m OK, research build ok, check_md_links ok, research_live_links ok, programme_check ok, check_posts ok, cite_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9f5e00b1-7f64-576c-9788-8f9ed12dc61a",
+    "transcripts": 1,
+    "first": "2026-11-19T21:07:09Z",
+    "last": "2026-11-19T21:19:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 89,
+        "output": 35554,
+        "thinking": 7475,
+        "cache_read": 5052403,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124269,
+        "api_equivalent_usd": 2.7161,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 89,
+      "output": 35554,
+      "thinking": 7475,
+      "cache_read": 5052403,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124269,
+      "api_equivalent_usd": 2.7161,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 45,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.39,
+      "active_minutes": 12.39,
+      "model_minutes": 5.99,
+      "tool_minutes": 6.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer scripting the 200-design rerun, refit pipeline, report and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 220.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
