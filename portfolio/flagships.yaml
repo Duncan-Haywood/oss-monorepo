@@ -573,10 +573,10 @@ flagships:
       files, eval/risk-check-2026-11-19.md); risk register events shipped 2026-11-19
       (risks: probability x delay on named activities, P80 with/without, events
       ranked; eval/risk-register-check-2026-11-19.md: 207 of 207 planted events =
-      CPM); next: ranges from a P6 UDF or the three-point columns, probabilistic
-      branches; (6) resource levelling shipped 2026-11-19 (level.mjs, --level:
-      serial pass by early start, the file's priority list, crew-size what-if;
-      eval/level-check-2026-11-19.md: 0 h over a limit from placed work on six
-      files, 37,670 of 37,670 links hold, x1e6 limits = CPM); next: a P6-levelled
-      XER to compare dates with, levelling in the written review and the risk run;
-      (7) expected finish dates.
+      CPM); UDF ranges shipped 2026-11-19 (udf-ranges.mjs, --ranges-udf: 24/24 =
+      CSV, eval/udf-ranges-check-*); next: a real file with range UDFs,
+      probabilistic branches; (6) resource levelling shipped 2026-11-19 (level.mjs,
+      --level: serial pass by early start, the file's priority list, crew-size
+      what-if; eval/level-check-2026-11-19.md: 0 h over a limit from placed work on
+      six files, 37,670 of 37,670 links hold, x1e6 limits = CPM). More open items:
+      NEXT.md.

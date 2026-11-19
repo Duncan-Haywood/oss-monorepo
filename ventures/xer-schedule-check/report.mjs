@@ -71,7 +71,7 @@ export function riskFor(a, r) {
 export function riskItems(r) {
   if (!r) return [];
   const out = [], src = `Finish date risk (${r.iterations} Monte Carlo runs)`, q = p80(r);
-  const basis = r.overrides ? `${r.overrides} activity ranges supplied, ${rangeText(r)} on the rest` : `ranges assumed at ${rangeText(r)}`;
+  const basis = r.overrides ? `${r.overrides} activity ranges ${r.rangeSource ? "from the file's UDFs or the reviewer" : "supplied"}, ${rangeText(r)} on the rest` : `ranges assumed at ${rangeText(r)}`;
   if (r.pMustFinish !== null && r.pMustFinish < RISK_LIMITS.mustMedium) {
     out.push({ severity: r.pMustFinish < RISK_LIMITS.mustHigh ? "high" : "medium", source: src,
       action: r.project.finish > r.project.mustFinish
@@ -161,7 +161,7 @@ const days = (d) => (d === null || d === undefined ? "n/a" : `${d > 0 ? "+" : ""
 function riskSection(r, limit) {
   const w = r.withoutRisks;
   const assumptions = [
-    `${r.iterations} runs (seed ${r.seed}) over ${r.varied} open activities, each remaining duration drawn from a triangular range: ${r.overrides ? `${r.overrides} activity ranges supplied by the reviewer, ${rangeText(r)} on the rest` : rangeText(r)}.`,
+    `${r.iterations} runs (seed ${r.seed}) over ${r.varied} open activities, each remaining duration drawn from a triangular range: ${r.overrides ? `${r.overrides} activity ranges ${r.rangeSource ? `from the schedule itself or the reviewer (${r.rangeSource})` : "supplied by the reviewer"}, ${rangeText(r)} on the rest` : rangeText(r)}.`,
     r.correlation ? `A shared factor correlates the draws (${r.correlation}), for causes such as weather or productivity that move many activities together.` : "The draws are independent; a cause that moves many activities together (weather, productivity) would widen the spread.",
     r.risks.length ? `${r.risks.length} risk register event${r.risks.length === 1 ? "" : "s"} added (below); every run is also scheduled without them on the same draws.` : "No risk register events were added.",
   ];
