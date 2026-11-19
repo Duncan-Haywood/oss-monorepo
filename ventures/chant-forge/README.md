@@ -13,8 +13,10 @@ released track:
    transcribed from a cited public-domain edition ([`corpus/`](corpus/README.md)).
 2. **Convert** (this slice): GABC to a MIDI choir line with Latin lyrics,
    transposed for men's voices and fitted to a grid.
-3. **Arrange:** genre templates (drums, bass, synths, guitars) built around
-   the line. Not built.
+3. **Arrange:** genre templates built around the line: drums, bass and
+   chords as MIDI in `genre.mjs` (`cli.mjs --genre NAME`, with `--sections`
+   for intro, verse, build, drop and outro from the chant's double bars).
+   Built as MIDI; recorded or rendered guitars and synth sounds are not.
 4. **Voice:** a real men's choir (recorded) or a singing synthesiser. A first synthesised choir that sings each syllable's opening consonants, vowel and final consonants is in `sing.mjs` (`render-cli.mjs --sing`, 2026-11-15); a real choir is not.
 5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
    distributor upload (done: `node release-cli.mjs release.json`, 7 tests, 2026-11-03).
@@ -151,7 +153,7 @@ wrote dies-irae.mid
   - an optional drone on the final, an octave down (GM Church Organ).
 
 Tests: `node --test ventures/chant-forge/chant-forge.test.mjs` (14 tests,
-passing 2026-11-03). On 2026-11-03 the example's output was also read back with
+passing 2026-11-19). On 2026-11-03 the example's output was also read back with
 an independent parser (Python `mido` 1.x): 3 tracks, 3.87 s, lyrics in order.
 
 ## A second voice: `--organum` (2026-11-17)

@@ -53,3 +53,9 @@ test('the comparison page links back to the calculator and to the pricing walkth
   assert.match(html, /<a href="index\.html">/);
   assert.match(html, /href="how-much-to-charge-to-install-a-walk-in-tub\.html"/);
 });
+
+test('lists only inputs the calculator actually has', () => {
+  // Quality audit 2026-11-19 (round 77): the page claimed a freestanding
+  // unit and a valve rough-in input; neither exists in calc.mjs.
+  assert.doesNotMatch(html, /freestanding|valve rough-in/i);
+});

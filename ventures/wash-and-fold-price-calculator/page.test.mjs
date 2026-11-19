@@ -163,3 +163,21 @@ test("copying a link is wired to the id the page actually renders", () => {
   assert.match(html, /id="copy-link"/);
   assert.match(html, /\$\("#copy-link"\)\.addEventListener\("click"/);
 });
+
+test("the guide's profit-goal figures match the engine (fixed overhead counted once)", () => {
+  // Quality audit 2026-11-19 (round 77) found the guide quoting 9,837 lb /
+  // 448 orders, which earned $4,533.87 against the $3,000 goal.
+  const guide = page("how-much-to-charge-for-wash-and-fold.html");
+  const r = computeWashAndFold({
+    pricePerPound: 1.75, avgOrderPounds: 22, minimumCharge: 20, minimumOrderPounds: 10,
+    laborMinutesPerPound: 0.9, fixedMinutesPerOrder: 9, wagePerHour: 16, payrollLoadPct: 18,
+    poundsPerWasherLoad: 20, washCostPerLoad: 1.35, poundsPerDryerLoad: 30, dryCostPerLoad: 1.1,
+    suppliesCostPerPound: 0.06, deliveryStopsPerOrder: 2, driveMinutesPerStop: 7, milesPerStop: 4,
+    vehicleCostPerMile: 0.55, monthlyOverhead: 2400, monthlyPounds: 6000, targetMarginPct: 35,
+    monthlyProfitGoal: 3000,
+  });
+  const lb = r.poundsForGoal.toLocaleString("en-US");
+  assert.ok(guide.includes(`${lb} lb (${r.ordersForGoal} orders)`), `table should say ${lb} lb (${r.ordersForGoal} orders)`);
+  assert.equal(guide.split(`${lb} lb in all, which is ${r.ordersForGoal} orders`).length - 1, 2, "FAQ text and JSON-LD");
+  assert.doesNotMatch(guide, /9,837|448 orders/);
+});

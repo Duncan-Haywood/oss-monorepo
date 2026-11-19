@@ -1,0 +1,230 @@
+{
+ "date": "2026-11-19",
+ "subject": "research/mimic-codeloop",
+ "stratum": "research",
+ "seed": "2026-11-19-d-8bc2",
+ "round": 77,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior ML / program-synthesis researcher who reviews for NeurIPS or ICSE (LLM code generation with execution feedback, LLM-guided program search); first checks: is there a baseline that can move at the chosen budget, how many seeds and what uncertainty, are failures of the harness (sandbox, token cap, no retry) separated from failures of the model, and is the nearest prior work (FunSearch, ELM/OpenELM, Eureka, Self-Debug, Reflexion, CodeT) cited and compared",
+ "scores": {
+  "correctness": 3,
+  "completeness": 2,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "The reported numbers reproduce. (a) report.py and experiments/figure.py rerun on a copy of research/{mimic-codeloop,mimic-cursor,_shared} in the scratchpad with /usr/bin/python3.13: results.txt, results.json and figure.svg byte-identical to the committed files. (b) My own script reading results/run_*_0.json directly (no import of report.py) gives blind: 24 candidates, banned token 10, does not load 3 (SyntaxError 1, ValueError 1, NameError 1), invalid-after-run 4, valid 7; feedback: banned 7, does not load 7 (SyntaxError 6, NameError 1), invalid 4, valid 6; totals 17/10/8 of 48 as README:26 says. Reference AUROC is exactly 1.0 at every round 0-6 in both runs. (c) The component-search comparison recomputed from mimic-cursor/results/run_blind_*.json and run_d2i_*.json at round 6: blind values 0.99825-1.0 (mean 0.99954), d2i 0.99945-1.0 (mean 0.99990), consistent with '1.000 (0.999 to 1.000)'. (d) README:27's claim that neither final program has pixel rounding or a human event clock, which the author checked only by reading, I measured by running both final programs through sandbox.run on 200 random start/end pairs: 100% of interior points non-integer, the only event interval 16.0 ms. Partial: the blind final program is not 'a random direction added to a line' but a straight line at a 0-20 degree heading that ignores the target, so the sandbox's endpoint pin makes the last step a jump of median 1.25 chords. Runtime claims (about 1 min per candidate, about 30 min per run) match the logged seconds (1,543 s and 1,938 s for 24 candidates). The experiment itself could not be rerun (torch, transformers, sklearn absent; a 1.5B model on CPU).",
+  "completeness": "What the README lists exists: codeloop.py, sandbox.py, report.py, figure, 2 result files with every candidate's outcome and the final program, 4 tests as stated, live page https://marisstella.app/research/mimic-codeloop/ returns 200. But the designed experiment ran one third: codeloop.py:199 defaults to 3 seeds and the README says 3 were planned, 1 ran. Candidate source code and model replies are not saved (codeloop.py:173-185 records only valid/score/error), so the failure breakdown that is the study's 'informative number' cannot be inspected; the banned token is not logged (sandbox.py:263-264). No blog post in docs/posts and no entry in research/PROGRAMMES.md.",
+  "verification": "`/usr/bin/python3.13 -m unittest discover -s tests -v` in research/mimic-codeloop: 4 tests OK in 1.0 s (bare python3 fails: no numpy, while README:43 says `python3 -m unittest`). Tests cover only sandbox.py. Mutations via quality_mutate.py: time-not-increasing `<= 0` -> `< 0` caught; failure cap MAX_FAIL -> 0.5 in codeloop.py:163 SURVIVED; report.py:49 outcome label collapsing 'crashes or copies' into 'valid' SURVIVED (it would change the headline valid share); dropping the endpoint pin at sandbox.py:79 SURVIVED (the test generator already ends at the target). codeloop.py and report.py have no tests and no test pins a results.txt number. 3 of 4 mutants survive.",
+  "craft": "Read codeloop.py (219 lines), sandbox.py (87), report.py (69), experiments/figure.py (31), tests/test_sandbox.py (44). Small and readable. Defects: codeloop.py:84-93 monkeypatches mimic-cursor's game.imitate at import time; codeloop.py:173-185 discards the model's reply and source for rejected and losing candidates, so failures cannot be diagnosed (the README admits it does not know which token was banned); sandbox.py:263-264 raises 'banned token' without the token; sandbox.py:235 bans `open` as a bare word anywhere in code, so a variable or keyword argument named open is rejected as unsafe; sandbox.py:265 exposes the whole numpy module, so np.load/np.save/np.fromfile give file access although the docstring and README:16 say no file builtins (README does say it is not a security boundary); Code.imitate (codeloop.py:76-80) silently substitutes the naive bot for crashed strokes up to the 2% cap. report.py:44 hardcodes 4 candidates per round instead of G.BUDGET.",
+  "claims": "Checked 8 claims; 6 backed (24 candidates, 7/24 and 6/24 valid, 17/10/8 split, AUROC 1.000 rounds 0-6, component search 1.000 at 24 candidates, ~1 min per candidate). The limits section is candid (one seed, ceiling, sandbox may cause rejections). Not backed or overstated: (1) README:26 'A 1.5B code model mostly fails at the contract' attributes all 35 failures to the model, but 17 are the sandbox's own token ban (unlogged) and 7 of 10 load failures are SyntaxError with max_new_tokens=450 (codeloop.py:139), plausibly truncation by the harness; neither cause was separated, and no repair round was given. (2) README:27 describes the blind final program as 'a random direction added to a line'; it is a line in a near-fixed wrong direction pinned to the end point. (3) README:7 'tied at the ceiling' is accurate but the framing as a comparison oversells it: at 24 candidates the baseline cannot be distinguished from doing nothing (round 0 also 1.000). No prior work for LLM program search is cited, though novelty is not claimed outright.",
+  "fitness": "A researcher cannot build on the result: n=1 per condition, every value at AUROC 1.000 including the start program, so the experiment has no power to show anything about code models vs component search or about feedback. Nearest prior work, none cited: FunSearch (Romera-Paredes et al., Nature 2024) and Evolution through Large Models / OpenELM (Lehman et al. 2022) for LLM-written programs selected by a fitness function; Eureka (Ma et al. 2023) for LLM-written reward code refined from feature-level feedback, which is close to the 'feedback' condition; Self-Debugging (Chen et al. 2023), Reflexion (Shinn et al. 2023) and CodeT (Chen et al. 2022) for execution-feedback repair and test-based selection, the standard fix for the 71-75% invalid rate observed here. The finding that a 1.5B model given no error feedback and a 450-token cap produces mostly unusable code is expected from that literature and not new. One session, not part of a multi-session programme; far from the research/CLAUDE.md PhD+ bar.",
+  "domain": "A program-synthesis reviewer would reject the design before the numbers: (1) the budget (24 candidates) was chosen where the baseline also cannot move: mimic-cursor's component search stays at 0.998-1.000 at round 6 in all 16 runs and only dips (min 0.82-0.96) later in its 30 rounds, so a tie at the ceiling is guaranteed and uninformative; (2) no execution-feedback repair (errors are not shown to the model, codeloop.py:182-185), no pass@k or valid-rate-by-temperature analysis, and failure causes not logged; (3) harness confounds (sandbox token ban, 450-token cap) not separated from model ability; (4) selection on a 3-feature loop detector with the endpoint pin lets degenerate programs (a line in the wrong direction teleporting to the target) win; (5) one seed, no uncertainty; (6) no comparison with FunSearch/ELM-style islands or best-of-n sampling. The method is a reasonable first harness, not a study a reviewer would sign off on."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "candidate outcome counts per condition (banned/does not load/crash/valid)",
+   "method": "own Python over results/run_{blind,feedback}_0.json, not importing report.py",
+   "command": "cd research && python3 -c \"import json,collections;[print(c,collections.Counter((k.get('error') or ('valid' if k['valid'] else 'invalid')).split(':')[0] for x in json.load(open(f'mimic-codeloop/results/run_{c}_0.json'))['rounds'][1:] for k in x['candidates'])) for c in ('blind','feedback')]\"",
+   "expected": "README:26: 17 banned, 10 do not load, 8 crash/cap, 13 valid of 48 (7 blind, 6 feedback)",
+   "observed": "blind: banned 10, valid 7, invalid 4, does not load 3; feedback: banned 7, does not load 7, valid 6, invalid 4",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "component-search reference AUROC at round 6 (24 candidates)",
+   "method": "raw mimic-cursor/results/run_blind_*.json and run_d2i_*.json read directly (author's comparison source, my own reading)",
+   "command": "cd research && python3 -c \"import json,glob;[print(p,[json.load(open(f))['rounds'][6]['reference'] for f in sorted(glob.glob('mimic-cursor/results/'+p+'.json'))]) for p in ('run_blind_*','run_d2i_*')]\"",
+   "expected": "1.000 (0.999 to 1.000) blind, 1.000 (1.000 to 1.000) d2i",
+   "observed": "blind 0.99825-1.0, mean 0.99954; d2i 0.99945-1.0, mean 0.99990",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "final programs have no pixel rounding and a constant 16 ms clock (README:27, stated as checked only by reading)",
+   "method": "measured: ran both final programs through sandbox.run on 200 random start/end pairs",
+   "command": "cd research/mimic-codeloop && /usr/bin/python3.13 -c '<script in run record: compile_generator(rounds[-1].src), share of non-integer interior points, set of np.diff(t)>'",
+   "expected": "no rounding, single fixed interval",
+   "observed": "blind and feedback: non-integer share 1.000, only interval 16.0 ms; blind final step/chord median 1.25 (line ignores target, endpoint pinned)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "reference AUROC stays 1.000 from round 0 to 6 in both runs",
+   "method": "raw rounds[*].reference in results/run_*_0.json",
+   "command": "cd research && python3 -c \"import json;[print(c,[x['reference'] for x in json.load(open(f'mimic-codeloop/results/run_{c}_0.json'))['rounds']]) for c in ('blind','feedback')]\"",
+   "expected": "1.000 every round",
+   "observed": "1.0 at all 7 rounds in both",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "description of the blind final program",
+   "method": "read and executed results/run_blind_0.json rounds[-1].src",
+   "command": "python3 -c \"import json;print(json.load(open('research/mimic-codeloop/results/run_blind_0.json'))['rounds'][-1]['src'])\"",
+   "expected": "README:27: 'a random direction added to a line'",
+   "observed": "a straight line at heading 10 +/- 10 degrees independent of the target, of chord length, pinned to the end point by sandbox.py:79",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "report and figure regenerate the committed outputs",
+   "method": "rerun on a scratchpad copy of research/{mimic-codeloop,mimic-cursor,_shared}",
+   "command": "cd $SCRATCH/r/mimic-codeloop && /usr/bin/python3.13 report.py && diff results.txt <committed> && /usr/bin/python3.13 experiments/figure.py && diff experiments/figure.svg <committed>",
+   "expected": "identical",
+   "observed": "results.txt, results.json and figure.svg identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "planned 3 seeds per condition",
+   "method": "codeloop.py:199 default and results/ listing",
+   "command": "ls research/mimic-codeloop/results",
+   "expected": "run_{blind,feedback}_{0,1,2}.json",
+   "observed": "run_blind_0.json, run_feedback_0.json only",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd research/mimic-codeloop && /usr/bin/python3.13 -m unittest discover -s tests -v",
+   "expected": "4 tests pass",
+   "observed": "Ran 4 tests in 1.039s OK (bare python3 3.11: ImportError numpy)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'A 1.5B code model mostly fails at the contract' (README:26)",
+   "method": "error strings in results/*.json and harness settings codeloop.py:139, sandbox.py:235",
+   "command": "python3 -c \"import json,collections;print(collections.Counter(k.get('error','-') for c in ('blind','feedback') for x in json.load(open(f'research/mimic-codeloop/results/run_{c}_0.json'))['rounds'][1:] for k in x['candidates']))\"",
+   "expected": "failures attributable to the model",
+   "observed": "17 'banned token' (token not logged, sandbox rule), 7 SyntaxError under a 450-token cap with replies not saved; harness and model causes not separated",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited (FunSearch, ELM, Eureka, Self-Debug, Reflexion, CodeT)",
+   "method": "grep README and mimic-cursor README",
+   "command": "grep -niE 'FunSearch|Reflexion|self-debug|Eureka|ELM|CodeT' research/mimic-codeloop/README.md research/mimic-cursor/README.md",
+   "expected": "at least the closest LLM program-search and execution-feedback work",
+   "observed": "no matches",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "budget at which the baseline can move",
+   "method": "mimic-cursor raw runs, min reference over 30 rounds vs round 6",
+   "command": "cd research && python3 -c \"import json,glob;[print(f.split('/')[-1],min(x['reference'] for x in json.load(open(f))['rounds'])) for f in sorted(glob.glob('mimic-cursor/results/run_blind_*.json'))]\"",
+   "expected": "a budget where component search departs from 1.000",
+   "observed": "round 6: 0.998-1.000 in all 16 runs; minima over 30 rounds 0.82-0.999; the chosen budget makes the comparison non-discriminating",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "sandbox.py:74",
+   "change": "if np.any(np.diff(out[:, 0]) <= 0): -> if np.any(np.diff(out[:, 0]) < 0):",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "codeloop.py:163",
+   "change": "if code.fails / max(code.total, 1) > MAX_FAIL or -> if code.fails / max(code.total, 1) > 0.5 or",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "report.py:49",
+   "change": "e = k.get(\"error\") or (\"crashes or copies\" if not k[\"valid\"] else \"valid\") -> e = k.get(\"error\") or \"valid\"",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "sandbox.py:79",
+   "change": "out[0, 1:], out[-1, 1:] = start, end -> out[0, 1:] = start",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The comparison is run at a budget (24 candidates) where the baseline cannot move: component search is 0.998-1.000 at round 6 in all 16 runs and the naive start is 1.000, so 'tied at the ceiling' is guaranteed and the study cannot show anything about code models, feedback, or the baseline; one seed per condition, no uncertainty",
+   "where": "research/mimic-codeloop/codeloop.py:198",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "No execution-feedback repair: rejected or crashing candidates are dropped without showing the error to the model (Self-Debug/Reflexion-style), though invalid code (71-75%) is the study's main finding",
+   "where": "research/mimic-codeloop/codeloop.py:182",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited or compared: FunSearch, ELM/OpenELM, Eureka (LLM-written code under fitness/feature feedback), Self-Debugging, Reflexion, CodeT",
+   "where": "research/mimic-codeloop/README.md:51",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Headline attributes failures to the model ('mostly fails at the contract') while 17 of 48 are the sandbox's own token ban (token not logged) and 7 are SyntaxErrors under a 450-token cap with replies not saved; harness and model causes are not separated",
+   "where": "research/mimic-codeloop/README.md:26",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Model replies and candidate source are not saved, and the banned token is not recorded, so the failure breakdown cannot be audited",
+   "where": "research/mimic-codeloop/sandbox.py:264",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Only the sandbox is tested; the failure cap, outcome labelling in report.py and endpoint pin all survive seeded mutations (3 of 4)",
+   "where": "research/mimic-codeloop/tests/test_sandbox.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Blind final program described as 'a random direction added to a line'; it is a line at a 0-20 degree heading that ignores the target and jumps to the pinned end point (final step median 1.25 chords)",
+   "where": "research/mimic-codeloop/README.md:27",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Sandbox exposes the whole numpy module (np.load/np.save/np.fromfile) while the docstring and README say no file access; and bans the bare word 'open' anywhere, rejecting harmless code",
+   "where": "research/mimic-codeloop/sandbox.py:235",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Reproduce block says `python3 -m unittest`, which fails without numpy in this container; report.py hardcodes 4 candidates per round instead of G.BUDGET",
+   "where": "research/mimic-codeloop/report.py:44",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "Planned 3 seeds, 1 ran; no blog post and no PROGRAMMES.md entry",
+   "where": "research/mimic-codeloop/README.md:32",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "An honest, small, preliminary negative result whose numbers all reproduce (report and figure byte-identical on rerun; candidate counts, AUROCs and the component-search comparison recomputed from raw JSON; the no-rounding/16 ms claim confirmed by running the final programs). It does not meet the bar: the design cannot discriminate (the chosen 24-candidate budget leaves both the baseline and the naive start at AUROC 1.000, one seed), the main finding (71-75% invalid code) is confounded with the harness (token ban unlogged, 450-token cap, no error-feedback repair) and expected from the self-repair literature, none of the nearest prior work (FunSearch, ELM, Eureka, Self-Debug, Reflexion, CodeT) is cited, and only the sandbox is tested (3 of 4 seeded mutants survive)."
+}

@@ -65,7 +65,8 @@ class T(unittest.TestCase):
             c = lambda G: r["e_icg_pj"] / G
             self.assertLess(c(g["g_star"]), g["e_weight_pj"] * ratio)
             if g["g_star"] > 1:
-                self.assertGreaterEqual(c(g["g_star"] - 1) + 8.44e-5, g["e_weight_pj"] * ratio - 1e-6)
+                self.assertGreaterEqual(c(g["g_star"] - 1) + 8.44e-8,  # flop leakage at 10 ns, in pJ (quality audit 2026-11-19: was 1000x too large)
+                                  g["e_weight_pj"] * ratio - 1e-6)
 
     def test_real_libraries_if_present(self):
         p = os.path.join(HERE, "..", "..", "accel-pdkprice", "pdk", "orfs", "flow", "platforms", "sky130hd", "lib",
