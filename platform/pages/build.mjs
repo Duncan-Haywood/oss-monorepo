@@ -5701,6 +5701,45 @@ function stripJsComments(src) {
 // never reaches the published exception list.
 const PLAUSIBLE_HOST = /^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?(?::\d+)?$/i;
 
+// A URL whose host can never be a real third party is not a disclosure: it
+// is a test fixture, a placeholder or a parsing base. Before this filter the
+// scanner published four kinds of them as places "what you type also goes":
+//
+//   - single-label hosts (`x`, `r`, `k`, `spam`): `new URL(req.url,
+//     "http://x")` is the usual way a self-hosted server parses its own
+//     request path, and 25 tools do it. Six tool pages (changelog-keeper,
+//     error-keeper, sign-keeper, survey-keeper, testimonial-keeper,
+//     webhook-relay) told visitors their text "also goes to x".
+//   - names reserved by RFC 2606 / RFC 6761 / RFC 6762 (`*.example`, `*.test`,
+//     `*.invalid`, `*.localhost`, `*.local`, `example.com|net|org`): fixtures
+//     such as `evil.example` and llm-spend-guard's `http://proxy.local` base,
+//     which its page published as "also goes to proxy.local".
+//   - `http://www.w3.org/...`: XML, XSLT and SVG namespace identifiers, which
+//     no browser requests (and an https page could not load over http anyway).
+//
+// `localhost` and loopback IPs stay listed: a tool that talks to a local model
+// (Ollama on localhost:11434) really does send your text there, and saying so
+// is true. Each of the seven tools this removes from the list entirely was
+// read by hand on 2026-11-19: their browser code fetches only same-origin
+// paths or a server the user runs themselves (docs/reports/
+// polish-2026-11-19-reserved-hosts.md).
+const RESERVED_TLD = /\.(?:example|test|invalid|localhost|local)$/i;
+const RESERVED_DOMAIN = /(?:^|\.)example\.(?:com|net|org)$/i;
+export function isPlaceholderHost(url) {
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+  const name = parsed.hostname.toLowerCase();
+  if (name === 'localhost' || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(name) || name.startsWith('[')) return false;
+  if (!name.includes('.')) return true;
+  if (RESERVED_TLD.test(name) || RESERVED_DOMAIN.test(name)) return true;
+  if (parsed.protocol === 'http:' && name === 'www.w3.org') return true;
+  return false;
+}
+
 export async function surfaceExternalFetchHosts(dir) {
   // `.mjs` too, not just `.js`: ventures overwhelmingly ship ES modules
   // (`calc.mjs`, `share.mjs`, …), and a scanner that only reads `.js` never
@@ -5771,7 +5810,7 @@ export async function surfaceExternalFetchHosts(dir) {
         // back holding `$`/`{`/`(`/… — characters no real hostname has —
         // which `PLAUSIBLE_HOST` below exists to catch.
         const host = new URL(url).host;
-        if (PLAUSIBLE_HOST.test(host)) hosts.add(host);
+        if (PLAUSIBLE_HOST.test(host) && !isPlaceholderHost(url)) hosts.add(host);
       } catch {
         // Not a resolvable absolute URL — skip rather than guess.
       }
