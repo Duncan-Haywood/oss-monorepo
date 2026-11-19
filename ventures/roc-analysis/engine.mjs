@@ -110,42 +110,73 @@ const CURVE_POINTS = 600;
 
 // ---------- input ----------
 
-function splitLine(line, delim) {
-  if (delim === "ws") return line.trim().split(/\s+/);
+// Quote-aware over the whole text, so a quoted field may hold the delimiter,
+// doubled quotes or a line break. Blank records and lines starting with #
+// are skipped.
+function records(text, delim) {
   const out = [];
+  let row = [];
   let cur = "";
   let q = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
+  let atStart = true;
+  let comment = false;
+  const endRow = () => {
+    row.push(cur.trim());
+    if (!comment && row.some((c) => c !== "")) out.push(row);
+    row = [];
+    cur = "";
+    atStart = true;
+    comment = false;
+  };
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (comment) {
+      if (ch === "\n") endRow();
+      continue;
+    }
     if (q) {
-      if (ch === '"' && line[i + 1] === '"') {
+      if (ch === '"' && text[i + 1] === '"') {
         cur += '"';
         i++;
       } else if (ch === '"') q = false;
       else cur += ch;
-    } else if (ch === '"') q = true;
+      continue;
+    }
+    if (atStart && ch === "#" && row.length === 0 && cur.trim() === "") {
+      comment = true;
+      continue;
+    }
+    if (ch === '"') {
+      q = true;
+      atStart = false;
+    } else if (ch === "\n") endRow();
+    else if (ch === "\r") continue;
     else if (ch === delim) {
-      out.push(cur.trim());
+      row.push(cur.trim());
       cur = "";
-    } else cur += ch;
+      atStart = false;
+    } else {
+      cur += ch;
+      if (ch !== " " && ch !== "\t") atStart = false;
+    }
   }
-  out.push(cur.trim());
+  endRow();
   return out;
 }
 
 export function parseCsv(text) {
-  const lines = String(text ?? "")
-    .replace(/^﻿/, "")
-    .split(/\r?\n/)
-    .filter((l) => l.trim() !== "" && !/^\s*#/.test(l));
-  if (lines.length < 2) throw new Error("Paste a header row and at least a few rows of data.");
-  const head = lines[0];
-  const counts = { ",": (head.match(/,/g) || []).length, "\t": (head.match(/\t/g) || []).length, ";": (head.match(/;/g) || []).length };
+  const t = String(text ?? "").replace(/^\uFEFF/, "");
+  const firstLine = t.split(/\r?\n/).find((l) => l.trim() !== "" && !/^\s*#/.test(l)) ?? "";
+  const counts = { ",": (firstLine.match(/,/g) || []).length, "\t": (firstLine.match(/\t/g) || []).length, ";": (firstLine.match(/;/g) || []).length };
   let delim = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0];
-  if (counts[delim] === 0) delim = "ws";
-  const header = splitLine(head, delim).map((h, i) => h || `column ${i + 1}`);
-  const rows = lines.slice(1).map((l) => splitLine(l, delim));
-  return { header, rows };
+  let all;
+  if (counts[delim] === 0) {
+    delim = "ws";
+    all = t.split(/\r?\n/).filter((l) => l.trim() !== "" && !/^\s*#/.test(l)).map((l) => l.trim().split(/\s+/));
+  } else all = records(t, delim);
+  if (all.length < 2) throw new Error("Paste a header row and at least a few rows of data.");
+  const header = all[0].map((h, i) => h || `column ${i + 1}`);
+  return { header, rows: all.slice(1) };
 }
 
 // A plain number; a trailing % divides by 100.

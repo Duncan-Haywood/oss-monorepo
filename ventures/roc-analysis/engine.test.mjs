@@ -215,3 +215,11 @@ test("report, summary and CSV of every cut-off", () => {
   assert.equal(lines.length, 1 + distinct);
   assert.ok(r.results.every((x) => x.curve.length <= 600));
 });
+
+test("parseCsv keeps a quoted field with commas, quotes and line breaks together", () => {
+  const p = parseCsv('\uFEFFnote,y,s\r\n# a comment\r\n"two\nlines, and ""quotes""",1,0.5\n\nplain,0,0.2\n');
+  assert.deepEqual(p.header, ["note", "y", "s"]);
+  assert.equal(p.rows.length, 2);
+  assert.deepEqual(p.rows[0], ['two\nlines, and "quotes"', "1", "0.5"]);
+  assert.deepEqual(parseCsv("a b\n1 2\n3 4").rows, [["1", "2"], ["3", "4"]]);
+});
