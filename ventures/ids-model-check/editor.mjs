@@ -39,11 +39,17 @@ function ancestors(S, cls) {
 // occurrence the type is for (IFCWALLTYPE carries Pset_WallCommon). IFC2X3
 // occurrences in the type mapping table also carry their type's sets
 // (IFCFLOWTERMINAL typed as an air terminal).
+// The template type (`tt`, IFC4 and IFC4X3) narrows that: an occurrence set
+// (PSET_/QTO_OCCURRENCEDRIVEN, Pset_FanOccurrence) is not offered on a type
+// object, and a performance set (PSET_PERFORMANCEDRIVEN, Pset_FanPHistory)
+// is offered on IFCPERFORMANCEHISTORY, which carries it, not on the fan. The
+// audit's pset-occurrence and pset-performance warnings read the same field.
 function setApplies(S, cls, set, typeMap) {
   if (!set.classes.length) return false;
   const anc = ancestors(S, cls);
+  if (set.tt === "PSET_PERFORMANCEDRIVEN") return anc.includes("IFCPERFORMANCEHISTORY");
   if (set.classes.some((c) => anc.includes(c))) return true;
-  if (cls.endsWith("TYPE")) {
+  if (cls.endsWith("TYPE") && !/OCCURRENCEDRIVEN$/.test(set.tt || "")) {
     for (const t of anc) {
       if (!t.endsWith("TYPE")) continue;
       const occ = t.slice(0, -4);
