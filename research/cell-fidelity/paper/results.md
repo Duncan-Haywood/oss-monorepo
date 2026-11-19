@@ -159,6 +159,10 @@ clusters, too few for a percentile interval to be more than indicative.
 
 ## What the next section needs
 
+Written in milestone 7j: [`discussion.md`](discussion.md) (section 5), with the figures and the wall-time
+accounting. The original note follows.
+
+
 A discussion section (what a modelling engineer adopts: fit the law through 30 to 50 cycles; triage by
 S<sub>C</sub> with a nested margin, expect a seventh to a fifth of the DFN budget back), one figure per table
 generated from `tables.json`, and the measured-cell check (`PROPOSAL.md`, milestone 6), which is an owner step.
