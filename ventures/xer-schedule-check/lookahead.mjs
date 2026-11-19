@@ -56,6 +56,8 @@ const WEEKDAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const CSTR = { CS_MSO: "start on", CS_MSOA: "start on or after", CS_MSOB: "start on or before", CS_MEO: "finish on", CS_MEOA: "finish on or after", CS_MEOB: "finish on or before", CS_MANDSTART: "mandatory start", CS_MANDFIN: "mandatory finish", CS_ALAP: "as late as possible", CS_SNLF: "start no later than", CS_FNLF: "finish no later than" };
 const START_CSTR = new Set(["CS_MSO", "CS_MSOA", "CS_MANDSTART"]);
 const LINK = { PR_FS: "FS", PR_SS: "SS", PR_FF: "FF", PR_SF: "SF" };
+// own keys only: a file value such as "constructor" must not find Object.prototype
+const own = (map, k, fallback) => (Object.hasOwn(map, k) ? map[k] : fallback);
 const r2 = (v) => (v === undefined || v === null ? null : Math.round(v * 100) / 100);
 const dateOnly = (min) => formatDate(min).slice(0, 10);
 
@@ -160,7 +162,7 @@ export function lookahead(xer, opts = {}) {
     const preds = [...t.preds, ...model.rels.filter((rel) => rel.external && rel.succId === t.id)];
     for (const rel of preds) {
       const pr = model.tasks.get(rel.predId);
-      const type = LINK[rel.type] || rel.type;
+      const type = own(LINK, rel.type, rel.type);
       if (!pr) { waitsOn.push({ code: rel.predId, name: "(not in this file)", type, lag: r2(rel.lag / 60), state: "external", inLookahead: false, driving: false, date: null }); continue; }
       if (pr.span) continue;
       const pv = res.get(pr.id);
@@ -198,13 +200,13 @@ export function lookahead(xer, opts = {}) {
     else if (!gating.length) ready = "ready";
     else if (gating.every((w) => w.inLookahead)) ready = "waits";
     else ready = "waits outside";
-    const cs = t.cstr.filter((c) => c.type).map((c) => `${CSTR[c.type] || c.type}${c.date !== null && c.date !== undefined ? ` ${formatDate(c.date)}` : ""}`);
+    const cs = t.cstr.filter((c) => c.type).map((c) => `${own(CSTR, c.type, c.type)}${c.date !== null && c.date !== undefined ? ` ${formatDate(c.date)}` : ""}`);
     let drivenBy;
     if (t.status === "TK_Active") drivenBy = "started";
     else if (driving) drivenBy = `${driving.type}${driving.lag ? ` ${driving.lag} h` : ""} from ${driving.code}`;
     else {
       const sc = t.cstr.find((c) => START_CSTR.has(c.type) && c.date !== null && Math.abs(c.date - s) < 1 + DAY);
-      drivenBy = sc ? `constraint: ${CSTR[sc.type]} ${formatDate(sc.date)}` : s <= t.cal.nextStart(dd) + 1 ? "data date" : p.plannedStart !== null && p.plannedStart !== undefined && s <= t.cal.nextStart(p.plannedStart) + 1 ? "project planned start" : "a lag or calendar";
+      drivenBy = sc ? `constraint: ${own(CSTR, sc.type, sc.type)} ${formatDate(sc.date)}` : s <= t.cal.nextStart(dd) + 1 ? "data date" : p.plannedStart !== null && p.plannedStart !== undefined && s <= t.cal.nextStart(p.plannedStart) + 1 ? "project planned start" : "a lag or calendar";
     }
     activities.push({
       id: t.id, code: t.code, name: t.name, wbs: wbs(t.wbs).path, wbsKey: wbs(t.wbs).key, status: t.status === "TK_Active" ? "in progress" : "not started",
@@ -255,7 +257,7 @@ export function lookaheadText(la) {
   let wbs = null;
   for (const a of la.activities) {
     if (a.wbsKey !== wbs) { wbs = a.wbsKey; out.push("", `== ${a.wbs || "(no WBS)"}`, header); }
-    out.push(`${a.code.padEnd(11).slice(0, 11)} ${a.bars}  ${a.name}  [${a.start} to ${a.finish}, TF ${a.tf ?? "-"} h${a.critical ? ", critical" : ""}] ${READY_TEXT[a.ready]}${a.ready !== "in progress" ? `, driven by ${a.drivenBy}` : ""}${waitText(a) ? `: ${waitText(a)}` : ""}${a.note ? `; ${a.note}` : ""}`);
+    out.push(`${a.code.padEnd(11).slice(0, 11)} ${a.bars}  ${a.name}  [${a.start} to ${a.finish}, TF ${a.tf ?? "-"} h${a.critical ? ", critical" : ""}] ${own(READY_TEXT, a.ready, a.ready)}${a.ready !== "in progress" ? `, driven by ${a.drivenBy}` : ""}${waitText(a) ? `: ${waitText(a)}` : ""}${a.note ? `; ${a.note}` : ""}`);
   }
   for (const w of la.warnings) out.push(`warning: ${w}`);
   out.push("", "# = working on that day, . = a working day it is not on, M = milestone, blank = non-working day.");
@@ -271,7 +273,7 @@ export function lookaheadCsv(la) {
   };
   const head = ["wbs", "activity", "name", "status", "start", "finish", "remaining (h)", "total float (h)", "free float (h)", "critical", "make-ready", "driven by", "waits on", "resources", "constraints", "note", ...la.days.map((d) => d.date)];
   const lines = [head.map(q).join(",")];
-  for (const a of la.activities) lines.push([a.wbs, a.code, a.name, a.status, a.start, a.finish, a.remainingHours, a.tf, a.ff, a.critical ? "Y" : "N", READY_TEXT[a.ready], a.ready === "in progress" ? "" : a.drivenBy, waitText(a), a.resources.join("; "), a.constraints.join("; "), a.note, ...[...a.bars].map((c) => (c === "#" ? "x" : c === "M" ? "M" : ""))].map(q).join(","));
+  for (const a of la.activities) lines.push([a.wbs, a.code, a.name, a.status, a.start, a.finish, a.remainingHours, a.tf, a.ff, a.critical ? "Y" : "N", own(READY_TEXT, a.ready, a.ready), a.ready === "in progress" ? "" : a.drivenBy, waitText(a), a.resources.join("; "), a.constraints.join("; "), a.note, ...[...a.bars].map((c) => (c === "#" ? "x" : c === "M" ? "M" : ""))].map(q).join(","));
   return lines.join("\n") + "\n";
 }
 
@@ -290,7 +292,7 @@ export function lookaheadHtml(la, meta = {}) {
     if (a.wbsKey !== wbs) { wbs = a.wbsKey; body += `<tr class="g"><td colspan="${cols}">${esc(a.wbs || "(no WBS)")}</td></tr>`; }
     const cells = [...a.bars].map((c) => `<td class="c ${c === "#" ? (a.critical ? "on crit" : "on") : c === "M" ? "ms" : c === "." ? "" : "off"}">${c === "M" ? "&#9670;" : ""}</td>`).join("");
     const wait = waitText(a);
-    body += `<tr><td class="code">${esc(a.code)}</td><td>${esc(a.name)}${a.resources.length ? `<div class="sub">${esc(a.resources.join(", "))}</div>` : ""}</td><td class="dt">${esc(a.start)}</td><td class="dt">${esc(a.finish)}</td><td class="n">${a.tf ?? ""}</td><td class="mr ${a.ready.replace(/ /g, "-")}">${esc(READY_TEXT[a.ready])}${a.ready !== "in progress" ? `<div class="sub">driven by ${esc(a.drivenBy)}</div>` : ""}${wait ? `<div class="sub">${esc(wait)}</div>` : ""}${a.note ? `<div class="sub warn">${esc(a.note)}</div>` : ""}${a.constraints.length ? `<div class="sub">${esc(a.constraints.join("; "))}</div>` : ""}</td>${cells}</tr>`;
+    body += `<tr><td class="code">${esc(a.code)}</td><td>${esc(a.name)}${a.resources.length ? `<div class="sub">${esc(a.resources.join(", "))}</div>` : ""}</td><td class="dt">${esc(a.start)}</td><td class="dt">${esc(a.finish)}</td><td class="n">${a.tf ?? ""}</td><td class="mr ${a.ready.replace(/ /g, "-")}">${esc(own(READY_TEXT, a.ready, a.ready))}${a.ready !== "in progress" ? `<div class="sub">driven by ${esc(a.drivenBy)}</div>` : ""}${wait ? `<div class="sub">${esc(wait)}</div>` : ""}${a.note ? `<div class="sub warn">${esc(a.note)}</div>` : ""}${a.constraints.length ? `<div class="sub">${esc(a.constraints.join("; "))}</div>` : ""}</td>${cells}</tr>`;
   }
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
 <style>

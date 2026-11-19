@@ -113,7 +113,7 @@ for (const f of files) {
       const pr = byCode.get(w.code);
       if (!pr) continue;
       const pd0 = parseDate(w.state === "waits for finish" ? pr.row.early_end_date : (pr.row.restart_date || pr.row.early_start_date));
-      const rel = t.preds.find((x) => x.predId === pr.id && (LINK[x.type] || x.type) === w.type);
+      const rel = t.preds.find((x) => x.predId === pr.id && (Object.hasOwn(LINK, x.type) ? LINK[x.type] : x.type) === w.type);
       // the link's lag (a lead when negative) on the file's lag calendar
       const pd = pd0 === null ? null : rel ? lagCalendar(result.model, rel).addWork(pd0, rel.lag) : pd0;
       if (pd === null || pd > sS) { ok = false; if (contra.length < 5) contra.push(`${a.code} <- ${w.code} ${w.type}: P6 ${w.state === "waits for finish" ? "EF" : "ES"} ${pr.row.early_end_date} after ES ${t.row.early_start_date}`); }
