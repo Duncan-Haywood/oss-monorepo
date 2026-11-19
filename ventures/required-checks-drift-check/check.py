@@ -571,6 +571,10 @@ def main(argv=None):
         help="exit 2 when any required check is stale (no job can report it)",
     )
     args = parser.parse_args(argv)
+    if not Path(args.path).exists():
+        # A mistyped path used to report "nothing found" and exit 0, so a CI
+        # gate with a typo passed forever (red-team 2026-11-19).
+        sys.exit(f"path not found: {args.path}")  # exit 1; 2 means "risk found"
 
     reports = scan_path(args.path)
     results = None

@@ -163,7 +163,10 @@ test("a large list stays fast", () => {
   const t = Date.now();
   const r = analyze({ values: p });
   assert.equal(r.m, 200000);
-  assert.ok(Date.now() - t < 8000);
+  // About 1.3 s alone; 8.3 s on a CI runner sharing 91 suites (2026-11-19),
+  // which failed an 8 s cap. An O(n^2) regression at 200,000 values takes
+  // minutes, so 30 s still catches what this test is for.
+  assert.ok(Date.now() - t < 30000);
 });
 
 test("the simulation's normal tail matches scipy.stats.norm.sf, and a small run is reproducible", async () => {

@@ -91,6 +91,7 @@
     <p>Same logic, zero dependencies, one file:</p>
     <pre class="cmd"><code>python3 check.py                  # scan every Dockerfile under the current directory
 python3 check.py /path/to/repo    # scan a specific checkout
+python3 check.py ci/Dockerfile    # or one file, whatever its name
 python3 check.py --format json    # machine-readable
 python3 check.py --fail-on-risk   # exit 2 if any mutable (unpinned) base image is found</code></pre>
     <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-risk</code> into your own CI to block a newly-added unpinned base image before it merges.</p>
