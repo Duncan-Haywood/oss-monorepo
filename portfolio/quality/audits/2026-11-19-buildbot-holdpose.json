@@ -1,0 +1,222 @@
+{
+ "date": "2026-11-19",
+ "subject": "research/buildbot-holdpose",
+ "stratum": "research",
+ "seed": "2026-11-19-e-09fc",
+ "round": 78,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), round 78, see run record",
+ "status": "audited",
+ "professional": "a humanoid whole-body control researcher (reviewer at Humanoids/ICRA/RA-L) who works on static balance, support polygons and torque-optimal redundancy resolution",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the full experiment (copy of experiments/run.py in scratch with the sibling src dirs symlinked; mujoco 4.0.1, Python 3.13): real 10m47s on 4 cores. Diff against experiments/results.txt: every line identical except the lightweight-block row, where seed 2 gives 1.72 not 1.57 (searched best 1.71, README says 1.57), so 'deterministic given seed' does not hold across MuJoCo versions. Independent statics (hand script summing m_i g cross-products about the joint anchor from body masses and xipos, not MuJoCo's qfrc_bias or Jacobians): waist pitch -45.477 N m (ratio 0.9095) at dx=0 and -37.193 (0.7439) at dx=0.06, equal to the model; right shoulder pitch -5.690 / -3.228 equal; sum of foot Fz 364.3546 N = (M+m)g. Hold time by hand -ln(1-(0.33/0.487)^2)=0.615 and -ln(1-(0.33/0.91)^2)=0.141 match the README's 0.61 and 0.14 (with rho exactly 1/3, as the README writes it, 0.632). Re-ran seed 1 at dx=0.06: 0.4874 on right_shoulder_pitch_joint, reproducing the headline. But the toe-edge bound is wrong: the foot contact spheres are at x=0.12 (radius 0.005) and touch flat ground directly below their centres, so the support polygon's front edge is 0.12-0.035=0.085 m ahead of the sole point, not 0.09; the 'at the toe edge' row (0.586) is 5 mm outside the support polygon and every 'cm from the toe edge' label is off by 5 mm. Held at 2: the mechanics are right, one bound and one headline inference are not.",
+  "completeness": "README promises: 5 tests (5 passed in 8.9 s), CoP sweep, five other tasks, load sweep, sustainable-load table, figure, a ~15 min run (measured 10m47s). All sections A-D regenerate from run.py; nailer row absent but disclosed ('The nailer row is not in this run'). results.json, results.txt and figure.png present. Heel/lateral CoP bound declared not searched.",
+  "verification": "`/usr/bin/python3.13 -m pytest -q tests` in the subject root: 5 passed in 8.89s. quality_mutate: 1 of 5 seeded bugs caught (only the CoP sign flip). Disabling self-collision rejection, disabling the foot-unload check, killing the ES step-size growth, and restarting each refinement step from the default pose instead of the incumbent all survive. No test checks that a rejected posture is rejected, that the search improves on the default at all, or that the toe edge is the support-polygon edge (test_toe_edge_matches_foot_geometry encodes the same pos+radius error as the constant).",
+  "craft": "Read src/buildbot_holdpose/__init__.py (88 lines), experiments/run.py, tests/test_holdpose.py, ../buildbot-payload/src/buildbot_payload/model.py. Code is short and readable and reuses the sibling IK/statics rather than copying them. Defects: run.py does `import run as P` after putting buildbot-payload/experiments on sys.path, importing another project's script by a name that collides with its own; mujoco is unpinned (>=3.1) while results depend on exact float paths (the block row did not reproduce under 4.0.1); 'Deterministic' docstrings overstate; evaluate re-creates MjData per call (fine at this scale).",
+  "claims": "Checked: 0.91 default (pass, 0.9095), 0.744 at 3 cm (pass), 0.487 best of three with seeds 0.63/0.68 (pass), 0.910->0.756 sole point (pass), 0.586 'at the toe edge' (fail: 5 mm outside the support polygon), 2x6 0.93->0.68 (pass), block 2.08->1.57 (fail on rerun: 1.71), 0.14->0.61 hold at rho 1/3 (pass with rho=0.33; 0.63 with 1/3), 'a continuous rating of 0.5 of peak makes the stud sustainable' (contradicted by the same README's section D and the load sweep: 3 kg 0.57 and 4.5 kg 0.55 are above 0.5, sustainable load at rho=0.5 is 1 kg; the claim rests on one lucky seed). Limits, AI-assistance note and 'not a rated runtime' disclaimer are present and honest about search noise.",
+  "fitness": "A researcher could rerun it (it reproduced in 11 min) and reuse evaluate(). As a research result it is thin: no prior work is cited at all. The nearest prior work is torque-optimal redundancy resolution (Hollerbach and Suh 1987, IEEE J. Robotics and Automation), null-space / whole-body control for humanoids (Khatib 1987; Sentis and Khatib 2005) and, closest of all, the sibling buildbot-holdheat's own posesearch.py (added 2026-10-23), which already found the stud at 0.33 of peak by moving the hands to 0.15 m / 0.7 m; holdpose's README says 'it was a 0.14 time-constant hold ... before' without mentioning that 0.33 result. The novelty claim is implicitly 'a search moves the number', which is expected for any redundant arm; the contribution is a numeric case study of one model.",
+  "domain": "Static equilibrium, min-norm foot-wrench split and CoP = CoM offset are standard and verified. Departures a whole-body-control reviewer hits first: (1) the support-polygon edge is computed as sphere centre + radius instead of the contact point; (2) only hand position is constrained, so the search freely changes palm orientation: in the 0.487 posture the left and right hand frames differ by ~40 deg and the left x-axis points 37 deg upward while the default points 53 deg down, which is not the same 'two-handed stud hold'; (3) a smooth min-max problem is attacked with 221 random/ES evaluations instead of a gradient/SQP or CMA-ES optimiser (acknowledged); (4) best-of-3 reporting on a 0.2 seed spread (acknowledged as upper bound)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Waist-pitch torque at the default stud pose, CoP on the sole point",
+   "method": "hand statics: sum over distal bodies of (x_i - anchor) x m_i g plus half the load at each palm, projected on the joint axis; author-independent of MuJoCo inverse dynamics",
+   "command": "/usr/bin/python3.13 scratchpad/hp/hand.py 0.0",
+   "expected": "0.910 of 50 N m peak (README)",
+   "observed": "hand -45.477 N m, model -45.477, ratio 0.9095",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Waist-pitch and shoulder torque at CoP 0.06 m",
+   "method": "same hand statics",
+   "command": "/usr/bin/python3.13 scratchpad/hp/hand.py 0.06",
+   "expected": "0.744 (README A)",
+   "observed": "waist 0.7439 hand = model; shoulder -3.228 both; sum Fz 364.3546 = (M+m)g",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Hold time at u=0.487 and u=0.91, rho 1/3",
+   "method": "first-order thermal model by hand: t/tau = -ln(1-(rho/u)^2)",
+   "command": "python3 -c \"import math;f=lambda u,r:-math.log(1-(r/u)**2);print(f(0.487,0.33),f(0.487,1/3),f(0.91,0.33))\"",
+   "expected": "0.61 and 0.14 (README)",
+   "observed": "0.615, 0.632 (rho exactly 1/3), 0.141",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Toe edge of the support polygon ahead of the sole point",
+   "method": "Menagerie g1.xml foot geoms: sphere centres at x=0.12, radius 0.005; a sphere on flat ground contacts directly below its centre (contact point, not sphere extent, bounds the CoP)",
+   "command": "python -c reading geom_pos/geom_size of left_ankle_roll_link spheres",
+   "expected": "0.12 - 0.035 = 0.085 m",
+   "observed": "TOE_EDGE = 0.09 (centre + radius)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Full rerun of experiments/run.py reproduces results.txt",
+   "method": "rerun on a scratch copy, diff",
+   "command": "cd scratch/rr/research/buildbot-holdpose/experiments && python3.13 run.py > results.txt; diff with committed results.txt",
+   "expected": "identical",
+   "observed": "identical except lightweight-block row: seed 2 1.72 vs 1.57, searched 1.71 vs 1.57",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Headline 0.487 (seed 1, CoP 0.06)",
+   "method": "re-run search seed 1 independently of run.py",
+   "command": "/usr/bin/python3.13 scratchpad/hp/best.py",
+   "expected": "0.487 right_shoulder_pitch_joint",
+   "observed": "0.4874 right_shoulder_pitch_joint; per-foot CoP x 0.06, y 0.0",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "/usr/bin/python3.13 -m pytest -q tests",
+   "expected": "5 pass",
+   "observed": "5 passed in 8.89s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'a continuous rating of 0.5 of peak makes the stud sustainable'",
+   "method": "compare to the README's own section D / load sweep in results.txt",
+   "command": "grep -n 'rho 0.5\\|3 kg\\|4.5 kg' experiments/results.txt",
+   "expected": "sweep consistent with 3.8 kg <= 0.5",
+   "observed": "3 kg 0.57, 4.5 kg 0.55 (both > 0.5); D: sustainable load at rho 0.5 = 1 kg",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Runtime and test-count claims",
+   "method": "timed run",
+   "command": "time python3.13 run.py",
+   "expected": "about 15 min on 4 cores; 5 tests",
+   "observed": "10m47s; 5 tests",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Nearest prior work cited",
+   "method": "read README; compare with buildbot-holdheat README line 11 (posesearch.py, 0.33 at 0.15 m / 0.7 m)",
+   "command": "grep -n 'Pose search' ../buildbot-holdheat/README.md",
+   "expected": "prior work and sibling grid search cited",
+   "observed": "no literature cited; sibling 0.33 result not mentioned",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Hand orientation held fixed between default and searched hold",
+   "method": "read wrist_yaw_link frames in the 0.487 posture",
+   "command": "/usr/bin/python3.13 scratchpad/hp/best.py",
+   "expected": "palms in a comparable gripping orientation",
+   "observed": "left x-axis [0.74,0.29,0.61], right [1.0,0.01,0.1]; default [0.59,+-0.02,-0.8]: orientation unconstrained and asymmetric",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/buildbot_holdpose/__init__.py:55",
+   "change": "p.ok and n == 0 and min -> p.ok and n >= 0 and min (self-collision rejection off)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/buildbot_holdpose/__init__.py:55",
+   "change": "min(s.foot_fz) > 0 -> min(s.foot_fz) > -1e9 (foot-unload rejection off)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/buildbot_holdpose/__init__.py:25",
+   "change": "return (-f[4] / f[2], -f[10] / f[8]) -> return (f[4] / f[2], f[10] / f[8])",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/buildbot_holdpose/__init__.py:84",
+   "change": "step *= 1.5 -> step *= 0.01",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/buildbot_holdpose/__init__.py:79",
+   "change": "perturbed(robot, best[3], rng, step) -> perturbed(robot, data0, rng, step) (ES no longer refines the incumbent)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Headline says a continuous rating of 0.5 of peak 'makes the stud sustainable', resting on one seed of three (0.487; others 0.63, 0.68); the README's own load sweep has 3 kg at 0.57 and 4.5 kg at 0.55 and section D gives 1 kg as the sustainable load at rho = 0.5, so the stud is not sustainable by the project's own sweep",
+   "where": "research/buildbot-holdpose/README.md:7",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Toe edge taken as sphere centre + radius (0.09 m); a contact sphere on flat ground touches below its centre, so the support-polygon edge is 0.085 m. The 'at the toe edge' row (0.586) is 5 mm outside the support polygon (statically infeasible) and every 'cm from the toe edge' label is 5 mm off; the test encodes the same error",
+   "where": "research/buildbot-holdpose/src/buildbot_holdpose/__init__.py:14",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work cited: torque-optimal redundancy resolution (Hollerbach and Suh 1987), null-space whole-body control (Khatib 1987; Sentis and Khatib 2005), and the sibling buildbot-holdheat posesearch (stud at 0.33 of peak by moving the hands) are not mentioned, so novelty and the 'before' baseline are overstated",
+   "where": "research/buildbot-holdpose/README.md:3",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Only hand positions are constrained; wrist joints are searched freely, so the searched 'hold' changes palm orientation (in the 0.487 posture the two hands differ by ~40 deg and point upward vs downward in the default), a confound when comparing against the default two-handed grip",
+   "where": "research/buildbot-holdpose/src/buildbot_holdpose/__init__.py:13",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "4 of 5 seeded bugs survive: no test checks that self-colliding or foot-unloading postures are rejected or that refinement improves on the anchor",
+   "where": "research/buildbot-holdpose/tests/test_holdpose.py:33",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Results not reproducible across MuJoCo versions despite 'Deterministic given seed': under mujoco 4.0.1 the lightweight-block row gives 1.71 (seed 2 1.72), README and results.txt say 1.57; mujoco is unpinned (>=3.1)",
+   "where": "research/buildbot-holdpose/pyproject.toml:10",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "run.py imports buildbot-payload's experiments/run.py as `run` via sys.path, a module name that collides with its own script",
+   "where": "research/buildbot-holdpose/experiments/run.py:16",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Hold times quoted 'at rho = 1/3' are computed with rho = 0.33 (0.61 vs 0.63 at u=0.487)",
+   "where": "research/buildbot-holdpose/experiments/run.py:18",
+   "category": "other",
+   "origin": "audit"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The mechanics are right: an independent hand statics reproduces the waist and shoulder torques to 1e-3 N m, foot loads sum to (M+m)g, hold times recompute, and a full 11-minute rerun reproduces results.txt except one block row (1.71 vs 1.57). It misses the bar on claims, verification and research design: the headline 'rho = 0.5 makes the stud sustainable' rests on one of three seeds and is contradicted by the project's own load sweep (3 and 4.5 kg above 0.5; sustainable load 1 kg), the toe edge is 5 mm beyond the real support polygon (so the 'at the toe edge' row is infeasible), 4 of 5 seeded bugs survive, palm orientation is unconstrained, and no prior work is cited, including the sibling project's grid search that already reached 0.33 of peak. A reviewer at a robotics venue would read it as a short case study with a weak optimiser, not a result."
+}
