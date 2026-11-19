@@ -166,7 +166,8 @@
    "what": "README limitation and the homepage summary blame possible unbounded peak growth on 'the near-sharp fillet floor (0.2 mm)', but every scanned fillet is 8-14 mm and the peak is on the r=14 arc near its tangent point (15.98, 28.35); no 0.2 mm radius exists in any scanned geometry. The actual driver is the faceted arc.",
    "where": "research/simdesign-meshconverge/README.md:48",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
   },
   {
    "severity": "medium",
@@ -187,14 +188,16 @@
    "what": "make_mesh sets the boundary-distance array to None when grid*boundary exceeds 4e7 entries and then crashes on `d > 0.6 * h` (TypeError at h=0.3 for w=16, r=14), so the mesher cannot reach the finer meshes the README's own limitation says are needed. A cKDTree(bnd).query(grid)[0] gives bitwise-identical results at h>=0.5 and works at h=0.25.",
    "where": "research/simdesign-meshconverge/src/simdesign_meshconverge/model.py:71",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
   },
   {
    "severity": "low",
    "what": "Dead code: line 105 builds fb with `if False else None`, line 107 reassigns an unused fb; only fbasis (line 109) is used.",
    "where": "research/simdesign-meshconverge/src/simdesign_meshconverge/model.py:105",
    "category": "code-craft",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
   },
   {
    "severity": "low",
@@ -218,6 +221,6 @@
    "origin": "design"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"],
  "verdict": "A small, honest, fully reproducible scan: meshscan.txt and .json rebuild byte for byte in 90 s, both README tables match the data, and mass, nominal bending stress and tip deflection agree with hand calculations and a Castigliano frame bracket. Its headline, that the coarse-mesh feasible gauge-2 designs are infeasible on fine meshes under the 100 MPa peak-stress limit, survives an independent refinement (extrapolated about 105.6 MPa at r=14, w=16 with an exact-ish 96-facet fillet). It does not meet the bar. The convergence study refines the mesh on a fixed 24-facet fillet whose kinks keep the peak rising at order 0.35, so its own question (converges or grows without bound) is confounded by geometry error; it blames the wrong feature (a 0.2 mm fillet floor that is not in any scanned geometry); it reports no observed order or GCI; and 3 of 4 seeded core mutants pass its tests. As research it is one textbook-direction step of a 20-plus project micro-cluster, not a programme a V&V reviewer would sign off."
 }

@@ -188,7 +188,8 @@
       "what": "FAQ claims travel (25% of hours on defaults) is more than either the edging or the bed-weeding line; bed weeding is 36.6%, so the claim is false for the tool's own figures (also in the FAQPage JSON-LD)",
       "where": "ventures/lawn-care-bid-calculator/index.html:267",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
     },
     {
       "severity": "medium",
@@ -202,14 +203,16 @@
       "what": "Copied summary labels the calculated price 'Proposed price per visit' though 'proposed' elsewhere is the operator's typed price",
       "where": "ventures/lawn-care-bid-calculator/index.html:465",
       "category": "code-craft",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
     },
     {
       "severity": "low",
       "what": "README events list omits share_copied, proposal_printed and company_forgotten, which the page records",
       "where": "ventures/lawn-care-bid-calculator/README.md:86",
       "category": "stale-docs",
-      "origin": "maintenance"
+      "origin": "maintenance",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
     },
     {
       "severity": "low",
@@ -230,9 +233,10 @@
       "what": "'350 sq ft of beds at 400 sq ft per hour is another 50 minutes' is 52.5 minutes",
       "where": "ventures/lawn-care-bid-calculator/how-to-price-lawn-mowing.html:38",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"],
   "verdict": "A tidy, private, well-tested recurring-stop calculator whose arithmetic reproduces by hand to the cent (default $459.73/month, $106.09/visit, margin on price) and whose guide-page figures all reproduce. It does not meet the bar: correctness and claims are 2. Its signature 'honest annual' drops year-round fixed costs (a $40/mo equipment share recovers $295 of $480 on a 32-week season), a two-person crew's windshield time is charged once, a blank wage prices labour at zero, an FAQ claim about travel share is false on the tool's own numbers, and the proposal calls a monthly amount 'Total price'. 119 tests pass and 4 of 5 seeded mutants were caught. Finished (completeness 3), not senior-operator grade until the fixed-cost and crew-travel handling are fixed."
 }
