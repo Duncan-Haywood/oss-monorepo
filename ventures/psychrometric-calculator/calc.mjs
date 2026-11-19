@@ -434,22 +434,27 @@ export function propertyRows(r) {
 
 /** CSV of the property table and the process results. */
 export function reportCsv(r) {
-  const q = (s) => (/[",\n]/.test(s) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+  // Spreadsheet formula-injection guard: text starting =, +, -, @, tab or CR gets an apostrophe; plain numbers (negative temperatures) pass.
+  const q = (c) => {
+    let s = String(c);
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
   const lines = [["Property", "Unit", ...r.points.map((p) => p.label)].map(q).join(",")];
   for (const row of propertyRows(r)) lines.push([row.name, row.unit, ...row.values].map(q).join(","));
   lines.push(["Pressure", r.unitLabels.p, r.pDisplay.toFixed(r.units === "IP" ? 3 : 3)].map(q).join(","));
   if (r.coil) {
     const c = r.coil, U = r.unitLabels;
-    lines.push(["Total load", U.load, c.total.display.toFixed(r.units === "IP" ? 0 : 3)].join(","));
-    lines.push(["Sensible load", U.load, c.sensible.display.toFixed(r.units === "IP" ? 0 : 3)].join(","));
-    lines.push(["Latent load", U.load, c.latent.display.toFixed(r.units === "IP" ? 0 : 3)].join(","));
-    lines.push(["Sensible heat ratio", "", c.shr.toFixed(3)].join(","));
-    lines.push(["Condensate", U.water, c.condensate.toFixed(3)].join(","));
-    if (c.adp) lines.push(["Apparatus dew point", U.t, c.adp.t.toFixed(2)].join(","));
-    if (c.bypass !== null) lines.push(["Bypass factor", "", c.bypass.toFixed(3)].join(","));
+    lines.push(["Total load", U.load, c.total.display.toFixed(r.units === "IP" ? 0 : 3)].map(q).join(","));
+    lines.push(["Sensible load", U.load, c.sensible.display.toFixed(r.units === "IP" ? 0 : 3)].map(q).join(","));
+    lines.push(["Latent load", U.load, c.latent.display.toFixed(r.units === "IP" ? 0 : 3)].map(q).join(","));
+    lines.push(["Sensible heat ratio", "", c.shr.toFixed(3)].map(q).join(","));
+    lines.push(["Condensate", U.water, c.condensate.toFixed(3)].map(q).join(","));
+    if (c.adp) lines.push(["Apparatus dew point", U.t, c.adp.t.toFixed(2)].map(q).join(","));
+    if (c.bypass !== null) lines.push(["Bypass factor", "", c.bypass.toFixed(3)].map(q).join(","));
   }
-  if (r.heat) lines.push(["Load (positive = heating)", r.unitLabels.load, r.heat.load.display.toFixed(r.units === "IP" ? 0 : 3)].join(","));
-  if (r.evap) lines.push(["Water evaporated", r.unitLabels.water, r.evap.water.toFixed(3)].join(","));
+  if (r.heat) lines.push(["Load (positive = heating)", r.unitLabels.load, r.heat.load.display.toFixed(r.units === "IP" ? 0 : 3)].map(q).join(","));
+  if (r.evap) lines.push(["Water evaporated", r.unitLabels.water, r.evap.water.toFixed(3)].map(q).join(","));
   return lines.join("\n") + "\n";
 }
 

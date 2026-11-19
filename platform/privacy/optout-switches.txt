@@ -903,6 +903,7 @@ ventures/property-tax-appeal-calculator/usage.mjs
 ventures/proposal-maker/usage.mjs
 ventures/provider-credentialing-delay-cost-calculator/usage.mjs
 ventures/pslf-vs-refinance-calculator/usage.mjs
+ventures/psychrometric-calculator/usage.mjs
 ventures/pte-tax-election-calculator/usage.mjs
 ventures/pto-accrual-liability-calculator/usage.mjs
 ventures/public-record-watch/usage.js
