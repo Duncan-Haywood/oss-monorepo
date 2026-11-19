@@ -3,7 +3,7 @@ title: "\"Cancelled\" with two Ls: the subscriptions an MRR history forgot"
 seo_title: "A CSV status spelled 'Cancelled' erased churn from an MRR history"
 date: 2026-11-19
 tags: [redteam, testing, mrr-pulse, csv, saas-metrics]
-description: "A subscriptions CSV with 'Cancelled' instead of Stripe's 'canceled' made those rows vanish from every month, their churn uncounted and nothing flagged. Fixed, plus 18 seeded faults."
+description: "A CSV status spelled 'Cancelled' made those subscriptions vanish from every month of MRR history, churn uncounted, nothing flagged. Fixed and guarded."
 ---
 
 [MRR Pulse](https://marisstella.app/mrr-pulse/) rebuilds monthly recurring revenue,
