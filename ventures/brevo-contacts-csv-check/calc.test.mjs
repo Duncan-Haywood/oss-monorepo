@@ -105,3 +105,20 @@ test("findings CSV round-trips and COLUMNS are all in the sample header", () => 
   assert.match(csv, /^severity,line,code,title,detail/);
   for (const c of COLUMNS) assert.ok(sampleFile().split("\r\n")[0].includes(c), c);
 });
+
+test("a consistent day-first or month-first date column is not 'mixed' (quality round 88)", () => {
+  const c = (t) => codes(validate(t));
+  assert.ok(!c("EMAIL,SIGNUP_DATE\na@example.com,03/04/2026\nb@example.com,15/04/2026\n").includes("date-mixed"));
+  assert.ok(!c("EMAIL,SIGNUP_DATE\na@example.com,03/04/2026\nb@example.com,04/15/2026\n").includes("date-mixed"));
+  assert.ok(c("EMAIL,SIGNUP_DATE\na@example.com,15/04/2026\nb@example.com,04/15/2026\n").includes("date-mixed"));
+  assert.ok(c("EMAIL,SIGNUP_DATE\na@example.com,2026-04-03\nb@example.com,15/04/2026\n").includes("date-mixed"));
+  assert.ok(c("EMAIL,SIGNUP_DATE\na@example.com,03/04/2026\nb@example.com,05/06/2026\n").includes("date-ambiguous"));
+});
+
+test("SMS digit limit counts digits after the + or 00 prefix (quality round 88)", () => {
+  const c = (sms) => codes(validate(`EMAIL,SMS\na@example.com,${sms}\n`));
+  assert.ok(!c("00123456789012345").includes("sms-length")); // 15 digits after 00
+  assert.ok(!c("+123456789012345").includes("sms-length"));
+  assert.ok(c("+1234567890123456").includes("sms-length")); // 16
+  assert.ok(c("001234567890123456").includes("sms-length"));
+});
