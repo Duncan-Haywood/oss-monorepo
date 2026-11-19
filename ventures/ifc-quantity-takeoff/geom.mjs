@@ -177,7 +177,99 @@ export function solidVolume(s) {
 }
 
 function transformSolid(s, m) {
-  return solid(s.terms.map((t) => ({ s: t.s, faces: transformPoly(t.faces, m) })), s.mesh * Math.abs(det(m)), s.notes);
+  const out = solid(s.terms.map((t) => ({ s: t.s, faces: transformPoly(t.faces, m) })), s.mesh * Math.abs(det(m)), s.notes);
+  if (s.axis) { out.axis = unit(applyDir(m, s.axis)); out.axisWeight = (s.axisWeight ?? 0) * Math.abs(det(m)); }
+  return out;
+}
+
+// ---- sections: the area a plane cuts from a solid ----------------------------
+//
+// The cut of a signed sum of convex polyhedra by a plane is the signed sum of
+// the convex polygons each one cuts, so its area adds up term by term, exactly
+// as the volume does. This is how the quantity sets define their areas: a
+// wall's side area is "as viewed by an elevation view of the middle plane of
+// the wall", a slab's area is the area of its extruded profile, a member's
+// cross-section is the profile (Qto_WallBaseQuantities, Qto_SlabBaseQuantities,
+// Qto_BeamBaseQuantities). Faceted parts ("mesh") have no terms and no section.
+
+/** Area of the convex polygon the plane n.x = k cuts from a convex polyhedron. */
+export function polySection(faces, n, k) {
+  const nn = unit(n);
+  const eps = EPS_REL * (scaleOf(faces) + Math.abs(k) + 1);
+  const pts = [];
+  const tol = eps * 10;
+  const addPt = (p) => { if (!pts.some((q) => Math.abs(q[0] - p[0]) <= tol && Math.abs(q[1] - p[1]) <= tol && Math.abs(q[2] - p[2]) <= tol)) pts.push(p); };
+  let above = false, below = false;
+  for (const f of faces) {
+    const m = f.length;
+    for (let i = 0; i < m; i++) {
+      const a = f[i], b = f[(i + 1) % m];
+      const da = dot(nn, a) - k, db = dot(nn, b) - k;
+      if (da > eps) above = true; else if (da < -eps) below = true;
+      if (Math.abs(da) <= eps) addPt(a);
+      else if ((da < -eps && db > eps) || (da > eps && db < -eps)) addPt(add(a, mulS(sub(b, a), da / (da - db))));
+    }
+  }
+  // a plane that only touches the solid (a face lying in it) cuts nothing of measure
+  if (!above || !below || pts.length < 3) return 0;
+  const c = mulS(pts.reduce((s, p) => add(s, p), [0, 0, 0]), 1 / pts.length);
+  const u = unit(Math.abs(nn[0]) < 0.9 ? cross(nn, [1, 0, 0]) : cross(nn, [0, 1, 0]));
+  const v = cross(nn, u);
+  const uv = pts.map((p) => [dot(sub(p, c), u), dot(sub(p, c), v)]);
+  uv.sort((p, q) => Math.atan2(p[1], p[0]) - Math.atan2(q[1], q[0]));
+  return Math.abs(signedArea(uv));
+}
+
+/** Smallest and largest n.x over a solid's polyhedral terms. */
+export function solidExtent(s, n) {
+  const nn = unit(n);
+  let lo = Infinity, hi = -Infinity;
+  for (const t of s.terms) for (const f of t.faces) for (const p of f) { const d = dot(nn, p); if (d < lo) lo = d; if (d > hi) hi = d; }
+  return [lo, hi];
+}
+
+/**
+ * Area of the section of a solid by the plane normal to n through the middle
+ * of its extent along n (or at offset k when given). null when the solid has a
+ * faceted part, which has no polyhedral terms to cut.
+ */
+export function sectionArea(s, n, k = null) {
+  if (s.mesh || !s.terms.length) return null;
+  const nn = unit(n);
+  if (!nn) return null;
+  let at = k;
+  if (at == null) {
+    const [lo, hi] = solidExtent(s, nn);
+    if (!(hi > lo)) return null;
+    // a hair off the exact middle, so a face lying in the middle plane
+    // (two layers meeting there) is never counted from both sides
+    at = (lo + hi) / 2 + (hi - lo) * 1e-7;
+  }
+  let A = 0;
+  for (const t of s.terms) A += t.s * polySection(t.faces, nn, at);
+  return Math.abs(A);
+}
+
+/**
+ * The direction, among the solid's own face normals that pass `keep`, along
+ * which the solid is thinnest: a wall's width direction when only horizontal
+ * normals are kept, a slab's thickness direction otherwise.
+ */
+export function thinnestNormal(s, keep = () => true) {
+  const seen = [];
+  for (const t of s.terms) for (const [n] of polyPlanes(t.faces)) {
+    const m = n[2] < -1e-9 || (Math.abs(n[2]) <= 1e-9 && (n[1] < -1e-9 || (Math.abs(n[1]) <= 1e-9 && n[0] < 0))) ? mulS(n, -1) : n;
+    if (!keep(m)) continue;
+    if (!seen.some((q) => Math.abs(dot(q, m)) > 1 - 1e-9)) seen.push(m);
+    if (seen.length > 200) break;
+  }
+  let best = null, bestW = Infinity;
+  for (const n of seen) {
+    const [lo, hi] = solidExtent(s, n);
+    const w = hi - lo;
+    if (w < bestW - 1e-12 * Math.max(1, Math.abs(bestW === Infinity ? w : bestW))) { bestW = w; best = n; }
+  }
+  return best ? { n: best, width: bestW } : null;
 }
 
 function guard(terms) {
@@ -196,7 +288,9 @@ function subtractCutters(a, cutters, what) {
   }
   const notes = a.notes.slice();
   if (a.mesh) notes.push(`${what} not taken from a faceted part`);
-  return solid(guard(terms), a.mesh, notes);
+  const out = solid(guard(terms), a.mesh, notes);
+  if (a.axis) { out.axis = a.axis; out.axisWeight = a.axisWeight; }
+  return out;
 }
 
 const cuttersOf = (s) => s.terms.map((t) => ({ s: t.s, planes: polyPlanes(t.faces) }));
@@ -546,14 +640,18 @@ export class Geometry {
             terms.push({ s: l.s * piece.s, faces: transformPoly(faces, m) });
           }
         }
-        return solid(guard(terms));
+        const out = solid(guard(terms));
+        // the profile plane's normal: a member's cross-section is cut normal to it
+        out.axis = unit([m[2], m[6], m[10]]);
+        out.axisWeight = Math.abs(solidVolume(out));
+        return out;
       }
       case "IFCBOOLEANCLIPPINGRESULT":
       case "IFCBOOLEANRESULT": {
         const op = a[0] && a[0].enum;
         const first = this.item(a[1], depth + 1);
         const second = this.get(a[2]);
-        if (op === "DIFFERENCE") return this.difference(first, second, depth);
+        if (op === "DIFFERENCE") { const r = this.difference(first, second, depth); if (first.axis) { r.axis = first.axis; r.axisWeight = first.axisWeight; } return r; }
         const b = this.item(a[2], depth + 1);
         if (first.mesh || b.mesh) throw new Unresolved(`${op} with a faceted operand`);
         const both = [];
@@ -782,13 +880,17 @@ export class Geometry {
     const terms = [];
     let mesh = 0;
     const notes = [];
+    let axis = null, axisWeight = -1;
     for (const it of r.args[3]) {
       const s = this.item(it, depth + 1);
       terms.push(...s.terms);
       mesh += s.mesh;
       notes.push(...s.notes);
+      if (s.axis && (s.axisWeight ?? 0) > axisWeight) { axis = s.axis; axisWeight = s.axisWeight ?? 0; }
     }
-    return solid(guard(terms), mesh, notes);
+    const out = solid(guard(terms), mesh, notes);
+    if (axis) { out.axis = axis; out.axisWeight = axisWeight; }
+    return out;
   }
 }
 

@@ -48,7 +48,26 @@ test("the page's corpus numbers match the committed eval", () => {
   assert.ok(html.includes(`${n(t.gross.agree)} of ${n(sum(t.gross))}`));
   assert.ok(html.includes(`${n(t.net.agree)} of ${n(sum(t.net))}`));
   assert.ok(html.includes(`${t.gross["net-as-gross"]} GrossVolumes that already exclude openings`));
-  assert.ok(html.includes(`${t.gross["unit-slip"]} slab volumes`));
+  assert.ok(html.includes(`${t.gross["unit-slip"]} slab volumes written in the wrong unit`));
   assert.ok(html.includes(`${t.gross.split + t.gross.repeated} split-by-level pieces`));
   assert.ok(html.includes(`${t.gross["own-dimensions"]} stored volumes that contradict`));
+});
+
+test("the page's area numbers match the committed area eval", () => {
+  const html = page("index.html");
+  const j = JSON.parse(page("eval/areas-vs-stored-2026-11-19.json"));
+  let pairs = 0, agree = 0;
+  const why = {};
+  for (const v of Object.values(j.total)) { pairs += v.pairs; agree += v.agree; for (const [k, n] of Object.entries(v.reasons)) why[k] = (why[k] || 0) + n; }
+  const n = (x) => x.toLocaleString("en-US");
+  const named = Object.entries(why).filter(([k]) => k !== "unexplained").reduce((a, [, v]) => a + v, 0);
+  assert.ok(html.includes(`${n(agree)} of ${n(pairs)} stored areas`));
+  assert.ok(html.includes(`every one of ${n(j.total.GrossFootprintArea.pairs)} wall footprints`));
+  assert.equal(j.total.GrossFootprintArea.agree, j.total.GrossFootprintArea.pairs);
+  assert.ok(html.includes(`Of the ${n(pairs - agree)} that did not, the page names a cause for ${n(named)}`));
+  assert.ok(html.includes(`${why["scales-with-length"]} "cross-section areas"`));
+  assert.ok(html.includes(`${why["gross-as-net"]} net footprints`));
+  assert.ok(html.includes(`${why["on-a-face"]} side areas measured on a wall face`));
+  assert.ok(html.includes(`${why["unit-slip"]} written in the wrong unit`));
+  assert.ok(html.includes(`${why.split + why.repeated} split-by-level pieces`));
 });

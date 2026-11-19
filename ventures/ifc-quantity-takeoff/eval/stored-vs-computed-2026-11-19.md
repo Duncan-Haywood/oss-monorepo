@@ -57,16 +57,16 @@ The 690 GrossVolume disagreements:
 | Cause | Count | Where |
 |---|---:|---|
 | net-as-gross | 325 | skolebygg 260, HHS architect 33, kleine_Wohnung 32: the exporter's "GrossVolume" has the openings taken out |
-| unit-slip | 96 | skolebygg slabs, stored 1,000 times the geometry (354,722.9 for a 354.72 m3 slab): litres written under a m3 unit |
+| unit-slip | 99 | 96 skolebygg slabs, stored 1,000 times the geometry (354,722.9 for a 354.72 m3 slab): litres written under a m3 unit; 3 kleine_Wohnung roof slabs whose GrossVolume (and GrossArea) is the geometry divided by 10.7639, the m2-to-ft2 factor (rerun 2026-11-19 after the area check found the factor; 10.7639 and its inverse were added to the unit-slip test, and its tolerance tightened to 0.5%) |
 | split / repeated | 27 | HHS walls exported per level: every piece stores the whole wall (three pieces of one wall store 11.60 m3 each; their bodies sum to 11.61) |
 | own-dimensions | 21 | the stored volume contradicts the element's own stored Length x Height x Width (HHS construction #656: 16.94 m3 stored, 8.30 x 3.30 x 0.20 = 5.48, body 5.55) |
-| unexplained | 221 | below |
+| unexplained | 218 | below |
 
-So 469 of the 690 have a cause the tool can name, and in 144 of those (split,
+So 472 of the 690 have a cause the tool can name, and in 147 of those (split,
 repeated, unit-slip, own-dimensions) the stored figure is the wrong one: the
 bill of quantities uses the computed volume for those rows instead.
 
-**Unexplained (221 gross, 233 net), by class:**
+**Unexplained (218 gross, 233 net), by class:**
 
 - schependomlaan: 91 walls and 14 slabs (gross), 69 windows, 18 doors (net), all
   faceted breps. Walls 15-28% under the stored figure; not diagnosed.
@@ -78,8 +78,9 @@ bill of quantities uses the computed volume for those rows instead.
   60 x 1 mm tube 400 mm long is pi (30^2 - 29^2) x 400 = 74,141 mm3, which is
   what this tool computes (7.414e-5 m3); Tekla stores 7.225e-5, its own faceted
   approximation. On these the stored figure is the less exact one.
-- skolebygg: 22 slabs, 18 + 5 members, 1 wall; kleine_Wohnung: 8 walls and 3
-  slabs whose openings are advanced breps (net not computable here).
+- skolebygg: 22 slabs, 18 + 5 members, 1 wall; kleine_Wohnung: 8 walls
+  whose openings are advanced breps (net not computable here); its 3 slabs
+  are now unit slips (the square-foot factor, above).
 
 **Not read.** 162 elements of kleine_Wohnung are `IfcAdvancedBrep` (NURBS) and
 511 of S_Office are open shells or boolean differences against faceted solids;
@@ -101,6 +102,6 @@ computed for 49 elements whose openings are advanced breps or faceted.
 ## What this does not show
 
 Eight models with stored volumes is a small sample, three of them from one
-tool family. Areas are not yet computed from geometry, so stored areas are
-taken on trust. Overlapping openings in one element would be subtracted twice; whether any
+tool family. Areas are checked separately in
+[areas-vs-stored-2026-11-19.md](areas-vs-stored-2026-11-19.md). Overlapping openings in one element would be subtracted twice; whether any
 model here has them was not checked.

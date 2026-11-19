@@ -1,6 +1,6 @@
 # IFC Quantity Takeoff
 
-> Free, open-source (MIT) bill of quantities from an IFC building model (IFC2X3, IFC4, IFC4X3), in the browser or with Node 20+. Groups elements by class, type, storey, material or classification code with count, volume, area, length and weight; recomputes every element's volume from its body geometry (openings taken out) and flags stored quantities that disagree with it, naming the likely cause. Nothing is uploaded.
+> Free, open-source (MIT) bill of quantities from an IFC building model (IFC2X3, IFC4, IFC4X3), in the browser or with Node 20+. Groups elements by class, type, storey, material or classification code with count, volume, area, length and weight; recomputes every element's volume and its side, footprint, plan or cross-section area from its body geometry (openings taken out) and flags stored quantities that disagree with it, naming the likely cause. Nothing is uploaded.
 
 Page: https://marisstella.app/ifc-quantity-takeoff/
 Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-quantity-takeoff
@@ -14,8 +14,13 @@ Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-qu
 ## What it found on public models (eval/stored-vs-computed-2026-11-19.md)
 
 - 8 public models that store volumes: stored GrossVolume agreed with the geometry (within 2%) for 4,805 of 5,495 elements, NetVolume for 6,133 of 6,366.
-- Named causes of disagreement: 325 GrossVolumes that already exclude openings, 96 slab volumes stored 1,000 times too large (unit slip), 27 split-by-level wall pieces each storing the whole wall's volume, 21 stored volumes contradicting the element's own stored length x height x width. 221 unexplained.
+- Named causes of disagreement: 325 GrossVolumes that already exclude openings, 99 slab volumes in the wrong unit (96 stored 1,000 times too large, 3 divided by the square-foot factor 10.764), 27 split-by-level wall pieces each storing the whole wall's volume, 21 stored volumes contradicting the element's own stored length x height x width. 218 unexplained.
+- Areas (eval/areas-vs-stored-2026-11-19.md): 6,509 of 7,883 stored areas agree with the section cut from the geometry; all 1,667 wall GrossFootprintAreas agree. Named causes for 1,100 of the 1,374 others: 558 mullion CrossSectionAreas that are length x a constant (a face area), 325 gross side areas with openings out, 82 net footprints with doors left in, 55 side areas measured on a wall face, 31 matching an equally wrong stored volume, 25 unit slips, 24 split-by-level pieces.
 - Where they agree the two figures match to about 1e-15 relative.
+
+## How it computes areas
+
+Each stored area is cut from the body by a plane, as Qto_WallBaseQuantities, Qto_SlabBaseQuantities and the member sets define it: a wall's side area on its middle plane, its footprint at its base, a slab/plate/covering/roof area as its extruded profile, a member's cross-section normal to its extrusion. The cut of a signed sum of convex polyhedra is the signed sum of convex polygons, so areas are exact like volumes. Faceted bodies are not cut.
 
 ## How it computes volumes
 
@@ -30,4 +35,4 @@ Each solid becomes a signed sum of convex polyhedra: extruded profiles (rectangl
 
 ## Limits and disclaimer
 
-Areas are taken from the model's stored quantities (not computed). Overlapping openings are subtracted twice. Quantities are not a measured survey or a cost estimate; check them against the drawings and your method of measurement. Not endorsed by buildingSMART or any software vendor.
+Areas are not cut from faceted bodies (the stored area is kept). Overlapping openings are subtracted twice. Quantities are not a measured survey or a cost estimate; check them against the drawings and your method of measurement. Not endorsed by buildingSMART or any software vendor.
