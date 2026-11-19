@@ -3742,3 +3742,21 @@ held. Everything is in `eval/take-bound-vote-2026-11-19.md`.
 
 **Not known.** A 1% gain. 119 of 204 held-out instant builds are still bounded at 2.5 ms or more because their 1.5 ms
 rms sits within 2% of the step's; 109 of the 204 had no kept wheel straddling at 1.5 ms. Simulated only.
+
+## A straddle margin scaled to the count (2026-11-19, after "The straddle vote in the take bound"; closed on design, nothing changed)
+
+**The item.** On instant builds a straddling wheel votes "for" about 1 time in 5, so a fixed lead of 2 means a 4%
+chance at 2-0 but 1.7% at 4-2, and refuses 4-3 (3.3%). NEXT.md asked whether a margin scaled to the count, a binomial
+tail test, names more short takes.
+
+**What it found.** `tests/take_straddle_scaled.py` scores margins 0-3, the binomial rule at alphas 0.01-0.1, and
+"margin 2 or binomial" on every stored nine-point capture with wheel inputs (78 files, 1302 builds, 402 instant). At
+alpha 0.05 the binomial rule fires on exactly margin 2's splits up to six straddling wheels and first differs at 4-3;
+no build had more than five straddling wheels. So it names the same 595 of 900 spread takes as margin 2 (0 of 402
+instant builds misadvised); lower alphas refuse 2-0 and name 548. The only splits a rule could still win are 2-1 (as
+common on instant builds as on 1.3-2.1 ms ones, 1.5% and 1.7%: margin 1's failure) and 1-0 (3% of instant builds,
+34% at 1.3-2.1 ms). `host.TAKE_STRADDLE_MARGIN` stays 2. Everything is in `eval/take-straddle-scaled-2026-11-19.md`.
+
+**Not known.** No fresh capture: a held-out set from the same drill cannot hold a split the rule treats differently.
+The vote's limit is the straddle count a drill produces, so the next lever is the drill (more balls or more tach
+pulses a revolution), not the vote's threshold. Simulated only.
