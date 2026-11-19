@@ -27,7 +27,12 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "literal BOM characters in two new files",
+      "fix": "written as \\uFEFF escapes"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -45,7 +50,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Verification: node --test mspdi.test.mjs (7 pass); python3 platform/ci/run_venture_tests.py xer-schedule-check: ok (94 tests) + site page checks ok; node eval/cpm-vs-project.mjs on MPXJ junit/data: 102 files, 2406/2491 match (EF 2447, LF 2426, TF 2411); Playwright: page opens an MSPDI file, 'Done: 10 of 14 points pass', no console errors; check_posts ok; validate.py ok. No real construction MSPDI found in this session (next step).",
+  "notes": "Verification: node --test mspdi.test.mjs (7 pass); python3 platform/ci/run_venture_tests.py xer-schedule-check: ok (94 tests) + site page checks ok; node eval/cpm-vs-project.mjs on MPXJ junit/data: 102 files, 2406/2491 match (EF 2447, LF 2426, TF 2411); Playwright: page opens an MSPDI file, 'Done: 10 of 14 points pass', no console errors; check_posts ok; validate.py ok. No real construction MSPDI found in this session (next step). run_workflow_locally --for-changes: every selected workflow passed except ventures-tests, which caught two literal U+FEFF characters in mspdi.mjs/mspdi.test.mjs (hidden-unicode check); escaped as \\uFEFF, then run_venture_tests --since base: 94 tests ok, 262/262 unwired checks pass. Not run locally: agent-cross-review jobs and the portfolio-pages deploy/gate jobs.",
   "corrections": [],
   "redteam": null
 }

@@ -450,7 +450,7 @@ export function parseMspdi(text) {
 
 // An XML file (after a BOM and white space) is MSPDI; anything else is read as XER.
 export function isXml(text) {
-  return /^﻿?\s*</.test(text);
+  return /^\uFEFF?\s*</.test(text);
 }
 export function parseSchedule(text) {
   return isXml(text) ? parseMspdi(text) : parseXer(text);

@@ -62,7 +62,7 @@ test("durations and XML basics", () => {
   assert.equal(root.children[0].text, "1 < 2 & A");
   assert.equal(root.children[2].text, "<raw>");
   assert.throws(() => parseXml("<a><b></a>"), /does not close/);
-  assert.ok(isXml("﻿  <?xml?>"));
+  assert.ok(isXml("\uFEFF  <?xml?>"));
   assert.ok(!isXml("ERMHDR\t8.0"));
   assert.throws(() => parseMspdi("<NotProject/>"), /no <Project>/);
 });
