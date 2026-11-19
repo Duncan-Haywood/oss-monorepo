@@ -198,17 +198,17 @@ flagships:
       alert was the holiday's zero (README "A closure in the week before a step"));
       (a) ar1 + floor 2 failed on 5 fresh bee dances (0.244 vs 0.337, README; muted
       note ships); update-rate: pegs 4 of 7 dated; NYT failed (N1 2/4, N2 5/9,
-      README "Short spells on a second provider"), edge-spell line ships; openings
-      (README "Short spells under different series openings"): edge line 0 false,
-      O1/O2 fail on spells with few differing weekdays; weekday score ships; next a
-      provider that documents its own changes. Stale feeds: real carry-forward
-      (README "A real carried-forward feed"): 84/85 caught, trade prints 56/56
-      false; next a catch-up-growth test on the prints. joint drift (measured, not
-      offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
-      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
-      belts and quality control 4, its AR(1) term; notes quote it. Curvature word
-      ships under --shape-word panel (README "A curvature word"): slope donors
-      straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
+      README "Short spells on a second provider"), edge-spell line ships; weekday
+      score ships; next a provider that documents its own changes. Stale feeds: real
+      carry-forward 84/85 caught but prints 56/56 false; growth test (README "A
+      catch-up test for multi-tick feeds"): prints 1/56, carried 22/85 at 300 steps,
+      7/7 at 4000; next a fresh-data round with a bar by stretch length. joint drift
+      (measured, not offered) and its 2x penalty on fresh multi-column labelled
+      data. Open: (0) drift model: t-walk increments, biweight on fresh data, why it
+      absorbs seat belts and quality control 4, its AR(1) term; notes quote it.
+      Curvature word ships under --shape-word panel (README "A curvature word"):
+      slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items:
+      NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
