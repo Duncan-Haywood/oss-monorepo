@@ -3618,6 +3618,78 @@ Next: revenue's deafness to a slow seasonal climb at Quiet and Middle (a heavy-t
 pre-registered bar on a second shop); one-day closures (a `--closed` list of dates treated as missing, pre-registered,
 on a second shop); a deployer's real Stripe series.
 
+## Closed days filled as missing (2026-11-19, pre-registered; three of five bars fail, `--closed` not offered)
+
+The section above left "one-day closures (a `--closed` list of dates treated as missing, pre-registered, on a second
+shop)". A closed weekday is a zero the count model reads as a step down and back up, so a shop that shuts on bank
+holidays hears about each one. The rule and four bars were committed before the fill was coded or any watch ran on
+the fresh data (`eval/closed-days.prereg.md`):
+
+- each listed date is filled with the **median of the same weekday in up to 4 earlier weeks** (the `--period` phase
+  when one is given; lag 1 when the labels are not consecutive days), rounded for counts. Only earlier points feed a
+  fill, so filling a whole history once equals filling each prefix and the replay is honest;
+- the closed list is a calendar fact: every non-Saturday day with no orders, cancellations or new customers.
+
+**Fresh data:** UCI **Online Retail II** (Chen 2019, CC BY 4.0), the same shop's earlier year, 2009-12-01 to
+2010-12-09, which no earlier round used (`data/online-retail-2009-daily.csv`, `data/SOURCE.md`). Its 15 closed days
+are the Christmas closure and exactly the 2010 English bank holidays (Good Friday, Easter Monday, the two May
+Mondays, the August Monday). The 2010-11 year from the section above is the design year: reported, not barred.
+Runs: `eval/closed-days.mjs`, output `eval/closed-days.out.txt`; four columns as in the Stripe workflow, `--period 7`,
+the "How eager" replay at the default budget and at about 1 a month, with and without the fill.
+
+| bar (fresh year) | without fill | with fill | result |
+|---|---|---|---|
+| K1: alerts within a day of a closure at the suggested settings (4 columns x 2 budgets) | 10 | 2 | **fails** (bar: 0) |
+| K2: Quiet's alerts, 4 columns | 31 | 22 | passes |
+| K3: alerts away from closures kept (within 3 days) | 42 | 36 kept | passes (86%, bar 80%) |
+| K4a: simulation, no-step series with an alert at a closure (of 100) | 99 | 8 | **fails** (bar: at most 2) |
+| K4b: simulation, +40% steps caught within 7 days (of 100) | 75 | 70 | **fails** (bar: at least 72) |
+
+The simulation (`eval/closed-days-sim/`, 200 series of 371 days, Gamma-Poisson counts with mean 40, Saturdays shut, 6
+random one-day closures, Quiet with `--period 7`; run as 4 shards that each draw all 200 series from the one seed and
+replay every 4th) took the alerts over all 200 series from 1,593 to 775.
+
+On the design year the fill took the closure alerts from 11 to 0, Quiet's from 22 to 14, and kept 26 of 29 alerts
+away from closures.
+
+What the alerts show:
+
+- **The two survivors are one alert, counted at both budgets:** cancellations dated 2010-04-06, the Tuesday after
+  Easter Monday. It does not look like a holiday artefact: cancellations ran at 2 to 6 a day for the whole week after
+  Easter against about 14 on a usual trading day, then came back on 04-12. The bar counted any alert within a day of
+  a closure, and this one is. The verdict stands: the bar was fixed, and a real dip that starts the day a shop
+  reopens is exactly what a stricter rule would have to tell apart from a catch-up day.
+- **Orders, the column a shop owner reads first:** Quiet went from 11 alerts (3 at a closure: after Easter, after
+  the May Monday, after the August Monday) to 6, none at a closure, and the autumn build-up, dated 2010-11-09 either
+  way, was **sent 2010-11-13 instead of 2010-11-19**, six days sooner, because the filled holidays no longer muddied
+  the weeks before it.
+- **A cost on the design year:** Quiet on orders lost its 2011-09-01 alert (the start of that year's build-up, sent
+  2011-09-05), and instead sent a change dated 2011-03-18 on 2011-10-07, seven months late. K3 did not count the lost
+  one, because 2011-09-01 is three days after the August bank holiday and K3 only scored alerts more than 3 days
+  from a closure. Part of what Quiet heard there in 2011 was the holiday's zero.
+
+- **K4a's 8 is the background, not the holidays.** With the fill, Quiet still sent 3.2 alerts per no-step series on
+  this overdispersed noise (321 over 100 series). Six closures with a day either side cover 18 of the 287 watched
+  days, so alerts placed at random would put one near a closure in about 18 of 100 series; 8 is under that. The fill
+  removed the closure effect (99 to 8), but the bar of 2 ignored the base rate of false alerts and could not have
+  passed at Quiet on this noise. The verdict stands as fixed.
+- **K4b: five fewer steps caught** (75 to 70). Not diagnosed. A likely cause, untested: steps drawn from days 150 to 330
+  often fall within a week of a closure, and filling a closed day after a step from the weeks before it puts a
+  pre-step value into the post-step stretch.
+
+So the fill does most of what it was for (closure alerts down 80% on the fresh year, 100% on the design year,
+Quiet quieter, the build-up sooner on the fresh year), but not what was barred, and it moved the one alert a shop
+owner most wants on the design year. Not offered: `fillClosed` stays in `watch-core.mjs` as a module function, with
+its rule and the fresh-year numbers pinned in `closed-days.test.mjs` (5 tests), and the CLI, the page and the agent
+tool are unchanged. A deployer whose shop shuts on holidays should still expect an alert around each one; the
+`--suggest` replay shows where.
+
+Next, pre-registered before it runs: a closure bar scored against the chance rate of the setting's own alerts; fills
+taken from the open days after a step once one is found (so a fill does not pull a new level back); separate a post-holiday dip from a holiday artefact (alerts dated the first
+open day after a closure, held until a second open week agrees), on a third shop's daily series; and a check that
+the fill does not swallow a real change that starts within 3 days of a closure (the 2011-09-01 case), in simulation
+with steps placed next to closures.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
