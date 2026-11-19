@@ -568,6 +568,8 @@ flagships:
       files, eval/risk-check-2026-11-19.md); risk register events shipped 2026-11-19
       (risks: probability x delay on named activities, P80 with/without, events
       ranked; eval/risk-register-check-2026-11-19.md: 207 of 207 planted events =
-      CPM); next: ranges from a P6 UDF or the three-point columns, risk in the
-      written review, probabilistic branches; (6) resource levelling and expected
-      finish dates.
+      CPM); risk in the written review shipped 2026-11-19 (report.mjs riskItems;
+      eval/review-risk-check-2026-11-19.md: CCA's 18 near-critical activities all
+      carry 15.7-18.7 d float, none in a float<10 d filter); next: ranges from a P6
+      UDF or the three-point columns, probabilistic branches; (6) resource levelling
+      and expected finish dates.
