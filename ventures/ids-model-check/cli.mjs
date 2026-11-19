@@ -9,7 +9,11 @@
 //                                              # --word-class also spells a bare \w in patterns as a class
 //                                              # every checker reads alike (xsdregex.mjs spellWordClass)
 //   node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]   # one row per facet (sheet.mjs); CSV on stdout without -o
-//   node cli.mjs --from-sheet SHEET.xlsx|.csv|.tsv [-o OUT.ids]  # a table back to IDS 1.0; stdout without -o
+//   node cli.mjs --from-sheet SHEET.xlsx|.csv|.tsv [-o OUT.ids] [--by-phase]
+//                                              # a table back to IDS 1.0; stdout without -o. An Excel2IDS
+//                                              # workbook (excel2ids.mjs) gives one IDS per purpose,
+//                                              # OUT_<purpose>.ids (and per phase with --by-phase)
+//   node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx  # the IDS in the Excel2IDS template layout
 //
 // MODEL may be a STEP .ifc, an .ifcxml, or an .ifczip holding either.
 //
@@ -25,6 +29,7 @@ import { junitXml } from "./ci.mjs";
 import { fixStructure } from "./fix.mjs";
 import { sheetFromIds, rowsToCsv, rowsToXlsx, sheetToRows, rowsToIds } from "./sheet.mjs";
 import { inflateRawSync } from "node:zlib";
+import { readRequirementSheet, idsToExcel2Ids, excel2IdsToXlsx } from "./excel2ids.mjs";
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
@@ -53,16 +58,37 @@ if (flag("--fix") && files.length === 1) {
   else writeFileSync(out, /\.xlsx$/i.test(out) ? rowsToXlsx(r.rows) : rowsToCsv(r.rows, /\.tsv$/i.test(out) ? "\t" : ","));
 } else if (flag("--from-sheet") && files.length === 1) {
   // Exit 0 when the IDS was written, 1 when rows could not be read (listed on stderr), 2 on a read error.
-  let rows;
+  let r;
   try {
     const bytes = readFileSync(files[0]);
-    rows = await sheetToRows(new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.length), (b) => inflateRawSync(b));
+    r = await readRequirementSheet(new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.length), (b) => inflateRawSync(b), { byPhase: flag("--by-phase") });
   } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
-  const r = rowsToIds(rows);
+  if (r.format === "excel2ids") console.error(`read as an Excel2IDS workbook: ${r.files.length} IDS file(s)${r.phases.length && !flag("--by-phase") ? `; phases ${r.phases.join(", ")} named (--by-phase writes one file per phase)` : ""}`);
   for (const w of r.warnings) console.error(`warning row ${w.row}: ${w.message}`);
-  for (const x of r.errors) console.error(`error   row ${x.row}: ${x.message}`);
-  if (!r.text) process.exit(1);
-  if (opt("-o")) writeFileSync(opt("-o"), r.text); else process.stdout.write(r.text);
+  if (!r.files.length) { console.error("no specification has a requirement switched on (an X, or a REPLACEME value, in a column whose toggle is TRUE)"); process.exit(1); }
+  let failed = false;
+  const out = opt("-o");
+  if (!out && r.files.length > 1) { console.error("this workbook gives several IDS files; name one with -o OUT.ids and each is written as OUT_<purpose>.ids"); process.exit(2); }
+  for (const f of r.files) {
+    const tag = r.files.length > 1 ? `[${f.suffix}] ` : "";
+    for (const w of f.warnings) console.error(`${tag}warning row ${w.row}: ${w.message}`);
+    for (const x of f.errors) console.error(`${tag}error   row ${x.row}: ${x.message}`);
+    if (!f.text) { failed = true; continue; }
+    if (!out) { process.stdout.write(f.text); continue; }
+    const path = r.files.length > 1 || (r.format === "excel2ids" && f.suffix) ? out.replace(/(\.ids)?$/i, `_${f.suffix}.ids`) : out;
+    writeFileSync(path, f.text);
+    if (r.format === "excel2ids") console.error(`wrote ${path}`);
+  }
+  if (failed) process.exit(1);
+} else if (flag("--to-excel2ids") && files.length === 1) {
+  // Exit 0 when every specification fits the template, 1 when some are left out (listed), 2 on a read error.
+  let w;
+  try { w = idsToExcel2Ids(fixStructure(readFileSync(files[0], "utf8")).text || readFileSync(files[0], "utf8")); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  for (const n of w.notes) console.error(`not in the workbook: ${n}`);
+  console.error(`${w.kept} of ${w.total} specification(s) in the workbook, ${w.requirementRows} requirement row(s)`);
+  if (!opt("-o")) { console.error("name the workbook with -o OUT.xlsx"); process.exit(2); }
+  writeFileSync(opt("-o"), excel2IdsToXlsx(w.rows));
+  process.exitCode = w.kept === w.total ? 0 : 1;
 } else if (flag("--audit") && files.length === 1) {
   let ids;
   try { ids = parseIds(readFileSync(files[0], "utf8")); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
@@ -71,7 +97,7 @@ if (flag("--fix") && files.length === 1) {
   else console.log(auditReport(ids.title, ids.specs, issues));
   process.exitCode = issues.some((x) => x.level === "error") ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids]");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;
