@@ -1,3 +1,9 @@
+---
+kind: note
+date: 2026-11-19
+subjects: [heavy-hydraulics]
+topics: [research-integrity]
+---
 # Target venues and generative-AI rules (for research runs)
 
 Found 2026-11-19 (heavy-hydraulics milestone 7w): some publication venues ask authors to
