@@ -45,7 +45,7 @@ Lowest peak von Mises stress (MPa) over the usable window, with the width where 
 
 ## Limitations
 - Gauge 2 mm, one process, one load, the peak stress measure, four values of r, a 0.1 mm step and a window of 1 mm in w. No optimiser run was made on the fine meshes, so the effect on the search answer is inferred, not measured. The second "next step" of `simdesign-pocketmesh` (differential evolution at h = 1.5 mm) is still open.
-- Whether the peak stress converges, or grows slowly without bound at the near-sharp fillet floor (0.2 mm), is not decided by four mesh sizes.
+- Whether the peak stress converges is not decided by these four mesh sizes. The fillet (8 to 14 mm here) is drawn as a fixed 24-segment polygon that is not refined with h, and its kinks act as weak stress raisers: a quality audit (2026-11-19) found the peak still rising to h = 0.25 mm with 24 segments (observed order 0.35, GCI 12%) but settling with 96 (order 1.3, GCI 1%, extrapolated about 105.6 MPa at r = 14, w = 16). The infeasibility verdict at the 100 MPa limit holds either way. See [`portfolio/quality/audits/2026-11-19-simdesign-meshconverge.json`](../../portfolio/quality/audits/2026-11-19-simdesign-meshconverge.json).
 - Stylised 2D plane stress, assumed rule values and materials. Nothing was made or tested. Simulated results only.
 
 ## Next steps

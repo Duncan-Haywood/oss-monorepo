@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "simdesign-meshconverge"
 version = "0.1.0"
-description = "Do the isolated feasible pockets of the gauge-2 bracket move or vanish when the mesh is refined?"
+description = "Are the gauge-2 bracket designs found feasible on coarse meshes still feasible under the peak-stress measure on finer meshes?"
 requires-python = ">=3.9"
 dependencies = ["numpy", "scipy", "scikit-fem", "matplotlib", "shapely"]
 license = { text = "MIT" }
