@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKiYski27cLdk8nndoW",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T02:18:19Z",
+  "ended": "2026-11-19T02:40:54Z",
+  "wall_minutes": 22.98,
+  "tokens_in": 7735297,
+  "tokens_out": 28545,
+  "cost_usd": 3.0043,
+  "tool_calls": 76,
+  "task": "Explore: run check_button_clicks.js with FILL=0, FILL=blank and FILL=-1 over http (open follow-up in docs/reports/2026-11-19-textarea-edge-sweep.md) and fix what it finds",
+  "projects": [
+    "appliance-repair-quote-calculator",
+    "ebay-fee-calculator",
+    "parking-lot-striping-bid-calculator",
+    "crop-insurance-coverage-calculator",
+    "shared-kitchen-rate-planner",
+    "cannabis-280e-tax-calculator",
+    "grant-indirect-cost-calculator",
+    "uk-mortgage-overpayment-calculator",
+    "bail-bond-agency-exposure-calculator",
+    "cash-flow-risk-forecaster",
+    "elevator-traffic-analysis",
+    "hvac-load-calc",
+    "percentage-rent-audit-checker",
+    "retainage-cashflow-calculator",
+    "workers-comp-audit-dispute-checker",
+    "workers-comp-premium-calculator",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17508",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_button_clicks.js",
+      "issue": "Each full FILL run reports the same three kinds of known non-bug (headless clipboard denials, error-keeper's sample stack trace, quickbooks-iif's 'an undefined account'); with no allowlist every run re-triages them by hand. Listed in the report now."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-what-a-button-says-when-you-type-minus-one.md",
+    "docs/reports/2026-11-19-textarea-edge-sweep.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Idea: finish the filled-input button sweep over http. Three full runs (1,407 pages, ~6,100 clicks each): FILL=0 8 hits/4 real, blank 6/1 (dup), -1 10/6 hits from 4 bugs; 8 distinct bugs fixed (2 silent copy/download throws, 3 parking compare throws, NaN break-even, $Infinity cost/hour, 'between 0 and Infinity' x3) plus the same message in 8 more tools via grep. New lint platform/ci/check_open_range_messages.py (auto-run by unwired_checks.py) flags 4/4 sampled pre-fix files from main, 0 on the fixed tree. Verified: run_venture_tests.py on all 16 ventures green; per-venture SWEEP_ROOT re-sweeps at the fill that found each bug report 0 hits; test_check_open_range_messages.py 5/5.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b34b7b2a-252d-589a-8f46-fa8489971e89",
+    "transcripts": 1,
+    "first": "2026-11-19T02:18:19Z",
+    "last": "2026-11-19T02:41:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 148,
+        "output": 28545,
+        "thinking": 3957,
+        "cache_read": 7621588,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113561,
+        "api_equivalent_usd": 3.0043,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 148,
+      "output": 28545,
+      "thinking": 3957,
+      "cache_read": 7621588,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113561,
+      "api_equivalent_usd": 3.0043,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 69,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.98,
+      "active_minutes": 7.62,
+      "model_minutes": 5.79,
+      "tool_minutes": 1.83,
+      "waiting_on_human_minutes": 15.36,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "triaging 24 sweep hits, fixing 8 bugs plus 8 same-pattern tools with tests, a lint, and a post: about a day's half for a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 166.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
