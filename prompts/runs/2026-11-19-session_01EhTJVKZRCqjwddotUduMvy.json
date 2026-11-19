@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVKZRCqjwddotUduMvy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures prompt (prompts/ventures/prompt-1.md brief)",
+  "input_sha256": "20b6aad4c7749bfe57783787f0f3f9a9b8479b84f65050c730d7f1e9113b4831",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T12:10:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship: frame_noise patch PCA in C, fixed order",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 17653,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "src/shootflow/noise_native.py",
+      "why": "Raised the helper's flags from -O2 to -O3 (still -ffp-contract=off, no fast-math) for the covariance kernel's loops; all existing bit-for-bit tests still pass.",
+      "did": "-O3",
+      "result": "C covariance 7.1 to 5.6 ms per bin; same bytes on 12 raws"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-photo-editing-noise-read-without-blas.md",
+    "ventures/photo-editing/eval/noise-pca-native-2026-11-19.md"
+  ],
+  "goal": "Land the flagship's 'noise-aware patch PCA in a fixed order' item: remove BLAS from the noise read, keep bytes identical, cut time.",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py photo-editing -> ok (111.3s, 1448 tests, 10 skipped). tools/noise_aware_cost.py on the 12 largest ARW/NEF/RAF of drewnoakes/metadata-extractor-images, main vs branch alternating: 12 of 12 byte-identical; noise-aware develop median 1.03x faster, 1.31x to 1.26x directional's time. Patch-PCA step on the real planes: median 1.25x (0.202 to 0.152 s), (shot, read) within 1.8e-12 relative. check_posts ok. raw.pixls.us refused by the proxy; github.com sparse checkout worked.",
+  "corrections": [],
+  "redteam": null
+}

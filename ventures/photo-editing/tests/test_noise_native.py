@@ -185,6 +185,59 @@ class NativeBlockLevelTest(unittest.TestCase):
         self.assertEqual(xd._block_level(c).shape, (1, 1))
         self.assertEqual(xd._block_level(c)[0, 0], np.clip(c, 0.0, None).mean())
 
+    def test_patch_cov_equals_the_fixed_order_numpy_bit_for_bit(self):
+        from shootflow import noise_pca
+
+        rng = np.random.default_rng(11)
+        for trial in range(30):
+            dd = int(rng.choice([4, 16, 36]))
+            n = int(rng.choice([2, 7, 8, 9, 64, 127, 128, 129, 300, 1031, 5000]))
+            p = rng.normal(0.2, 0.05, (n + 50, dd)) * 10.0 ** rng.uniform(-3, 2, (n + 50, 1))
+            idx = np.sort(rng.choice(n + 50, n, replace=False))
+            got = noise_native.patch_cov(p, idx)
+            self.assertTrue(np.array_equal(_bits(got), _bits(noise_pca._cov_ref(p, idx))), (dd, n))
+            self.assertTrue(np.array_equal(got, got.T))
+
+    def test_patch_energy_equals_the_fixed_order_numpy_bit_for_bit(self):
+        from shootflow import noise_pca
+
+        rng = np.random.default_rng(12)
+        p = rng.normal(0.2, 0.05, (70001, 36))
+        for D in (noise_pca._grad_matrix(6, 2), noise_pca._near_matrix(XTRANS, 6),
+                  noise_pca._colour_residual_matrix(XTRANS, 6)[0]):
+            csr = noise_pca._csr(D)
+            ref = noise_pca._energy_ref(p, *csr)
+            for threads in (1, 3):
+                got = noise_native.patch_energy(p, *csr, threads=threads)
+                self.assertTrue(np.array_equal(_bits(got), _bits(ref)))
+
+    def test_patch_pca_is_the_same_with_and_without_c_and_any_thread_count(self):
+        import os
+
+        from shootflow import noise_pca
+
+        rng = np.random.default_rng(13)
+        h, w = 300, 420
+        y, x = np.mgrid[0:h, 0:w]
+        scene = 0.2 + 0.1 * np.sin(x / 9.0) * np.cos(y / 13.0)
+        c = scene + rng.normal(0, 1, (h, w)) * np.sqrt(4e-4 * scene + 1e-5)
+        for pat in (BAYERS[0], XTRANS):
+            want = noise_pca.estimate_noise_pca(c, pat)
+            old = os.environ.get("SHOOTFLOW_THREADS")
+            try:
+                os.environ["SHOOTFLOW_THREADS"] = "1"
+                self.assertEqual(noise_pca.estimate_noise_pca(c, pat), want)
+                os.environ["SHOOTFLOW_NATIVE"] = "0"
+                noise_native._STATE.clear()
+                self.assertEqual(noise_pca.estimate_noise_pca(c, pat), want)
+            finally:
+                os.environ.pop("SHOOTFLOW_NATIVE", None)
+                noise_native._STATE.clear()
+                if old is None:
+                    os.environ.pop("SHOOTFLOW_THREADS", None)
+                else:
+                    os.environ["SHOOTFLOW_THREADS"] = old
+
 
 if __name__ == "__main__":
     unittest.main()
