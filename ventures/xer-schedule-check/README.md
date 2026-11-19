@@ -87,9 +87,10 @@ file stores; the recomputed float is reported next to it.
 
 ## Files
 
-`samples/make-example.mjs` writes `example.mjs` and `samples/office-fitout.xer`,
-an invented office fit-out schedule with deliberate faults, used by the page's
-example button and the tests. `eval/cpm-vs-p6.mjs` is the P6 comparison.
+`samples/make-example.mjs` writes `example.mjs`, an invented office fit-out
+schedule with deliberate faults, used by the page's example button and the
+tests; `node samples/make-example.mjs office-fitout.xer` also writes it as an
+XER file for the CLI. `eval/cpm-vs-p6.mjs` is the P6 comparison.
 
 ## Disclaimer
 
