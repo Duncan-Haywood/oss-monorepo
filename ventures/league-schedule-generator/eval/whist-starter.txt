@@ -2,3 +2,9 @@
 # 2026-11-19, one core each of four, sharing the machine with the other runs listed.
 {"n":58,"mods":[58],"kind":"near","ms":2763,"method":"starter+matching (C)","seed":1,"starters":1,"nodes":1125947,"tables":[[1,24,2,29],[3,18,11,37],[8,10,14,22],[32,42,44,47],[28,56,41,57],[5,50,40,52],[12,21,46,51],[17,23,34,55],[7,43,25,39],[4,15,31,48],[6,30,9,13],[16,54,19,38],[20,53,26,33],[27,45,35,36]]}
 {"n":52,"mods":[51],"kind":"whist","ms":1100111,"method":"starter+matching (C)","seed":1,"starters":8,"nodes":148989458,"tables":[[11,47,28,49],[4,35,7,33],[30,36,41,46],[10,39,22,40],[13,21,17,31],[15,25,18,45],[5,24,6,48],[0,16,29,42],[8,9,20,23],[-1,37,32,43],[1,50,27,44],[3,26,12,19],[2,14,34,38]]}
+{"n":57,"mods":[57],"kind":"whist","ms":1631625,"method":"starter+matching (C)","seed":1,"starters":9,"nodes":180000907,"tables":null}
+{"n":57,"mods":[57],"kind":"whist","ms":1637686,"method":"starter+matching (C)","seed":2,"starters":9,"nodes":180000923,"tables":null}
+{"n":57,"mods":[57],"kind":"whist","ms":2401230,"method":"starter+matching (C)","seed":3,"starters":85,"nodes":255009954,"tables":null}
+{"n":57,"mods":[57],"kind":"whist","ms":2833685,"method":"starter+matching (C)","seed":4,"starters":5,"nodes":300000527,"tables":null}
+{"n":57,"mods":[57],"kind":"whist","ms":2460651,"method":"starter+matching (C)","seed":5,"starters":13,"nodes":260001219,"tables":null}
+{"n":57,"mods":[57],"kind":"whist","ms":2410104,"method":"starter+matching (C)","seed":6,"starters":32,"nodes":256003621,"tables":null}
