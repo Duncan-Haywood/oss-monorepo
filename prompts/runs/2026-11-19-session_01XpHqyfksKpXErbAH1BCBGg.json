@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyfksKpXErbAH1BCBGg",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T04:39:18Z",
+  "ended": "2026-11-19T05:08:44Z",
+  "wall_minutes": 29.6,
+  "tokens_in": 11751149,
+  "tokens_out": 104913,
+  "cost_usd": 6.1527,
+  "tool_calls": 78,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17542",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally first stopped on the post's front matter (description 187 > 160, seo_title 73 > 70); fixed",
+    "sibling-links and hero-lede gates failed: no sibling linked the new tool and the lede was 101 words; fixed by linking from scale-reliability and item-response-theory and trimming the lede"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "The definition-of-done table does not mention the sibling-link gate (platform/pages/siblings.mjs) or the 100-word hero-lede test, both of which fail a new research tool's PR; I found them only through run_workflow_locally."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-alcohol-lifts-wine-grades-except-from-4-to-5.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: ordinal regression (proportional odds / ordered logit, ordered probit, Brant 1990 test with per-cut slopes) as a research-algorithm tool, ventures/ordinal-regression. 0 of 1,414 venture READMEs mentioned ordinal/ordered logistic regression, proportional odds, polr or Brant. Verified against statsmodels 0.15.0 OrderedModel (loglik within 3e-12 on wine, simulated Likert survey and a planted non-PO set, both links; coefs ~1e-8; SEs ~2e-6 because statsmodels uses a numerical Hessian) and a numpy Brant implementation (5e-11); Brant size 6.0% at 5% on 400 PO simulations. Example: UCI Wine Quality red (CC BY 4.0): alcohol OR 2.43 per %, Brant rejects PO (92.8 on 24 df), alcohol slope 0.28 at the 4|5 cut vs ~1 elsewhere. Local checks: run_workflow_locally --for-changes 12/14 workflows, the 2 failures (sibling links, hero lede) fixed and their tests rerun green; unwired_checks 241/241; venture tests 40 pass; headless Chromium no console errors, no external requests, no overflow at 380px. No agent doc in docs/reports: the README and research-tools candidates line carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "42b5c15a-6bc4-56e4-acab-ce0ba03c3e26",
+    "transcripts": 1,
+    "first": "2026-11-19T04:39:18Z",
+    "last": "2026-11-19T05:08:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 139,
+        "output": 104913,
+        "thinking": 18820,
+        "cache_read": 11532594,
+        "cache_write_5m": 0,
+        "cache_write_1h": 218416,
+        "api_equivalent_usd": 6.1527,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 139,
+      "output": 104913,
+      "thinking": 18820,
+      "cache_read": 11532594,
+      "cache_write_5m": 0,
+      "cache_write_1h": 218416,
+      "api_equivalent_usd": 6.1527,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 66,
+      "Write": 9,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.6,
+      "active_minutes": 29.6,
+      "model_minutes": 14.75,
+      "tool_minutes": 14.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 30.0,
+      "basis": "a statistician implementing and validating ordered logit/probit, Brant's test, a page, CLI and tests against statsmodels",
+      "rate_usd_per_hour": 100.0,
+      "usd": 3000.0
+    },
+    "leverage": 487.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
