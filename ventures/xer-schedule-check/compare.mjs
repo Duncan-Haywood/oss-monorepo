@@ -267,11 +267,10 @@ function round1(x) { return x === null || x === undefined || !Number.isFinite(x)
 // One CSV row per change, for a spreadsheet or a letter to the contractor.
 export function compareCsv(rep) {
   const rows = [["section", "activity", "name", "was", "now", "detail"]];
-  // Activity names come from the uploaded XER: a cell starting = + - @ tab or CR is defused with an
-  // apostrophe so a spreadsheet does not run it as a formula (plain numbers such as -3 stay as they are).
   const q = (v) => {
     let s = v === null || v === undefined ? "" : String(v);
-    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+    // a cell a spreadsheet would read as a formula (CSV injection) is written as text; plain numbers stay numbers
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const push = (...r) => rows.push(r);

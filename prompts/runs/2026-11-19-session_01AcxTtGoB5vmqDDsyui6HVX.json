@@ -33,7 +33,8 @@
   "tests_added": 1,
   "outcome": "success",
   "errors": [
-    "PR CI changed-ventures went red on check_csv_formula_guard.py: ventures/xer-schedule-check/compare.mjs (merged to main in PR #17621) exported XER activity names to CSV with no formula guard. Fixed forward in this PR: guard plus a test; check and its unit test pass locally."
+    "PR CI changed-ventures went red on check_csv_formula_guard.py: ventures/xer-schedule-check/compare.mjs (merged to main in PR #17621) exported XER activity names to CSV with no formula guard. Fixed forward in this PR: guard plus a test; check and its unit test pass locally.",
+    "Merge conflict at merge time: main landed an identical compareCsv guard concurrently; took main's version, kept this PR's test."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -51,7 +52,7 @@
       "file": "prompts/perf/prompt-0.md",
       "why": "Main was red on the CSV formula guard from another PR, which blocked this PR's CI.",
       "did": "Fixed xer-schedule-check's compareCsv guard in this perf PR rather than a separate one.",
-      "result": "check_csv_formula_guard.py exit 0, xer suite green."
+      "result": "Guard duplicated by a concurrent main commit; resolved to main's code, this PR adds only the pinning test."
     }
   ],
   "writeups": [
