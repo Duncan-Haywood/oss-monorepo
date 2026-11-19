@@ -27,12 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 3,
   "outcome": "success",
   "errors": [
-    "git checkout -b failed because the harness had already created the work branch; switched to it instead"
+    "git checkout -b failed because the harness had already created the work branch; switched to it instead",
+    "CI changed-ventures failed on platform/ci/test_shallow_repair.py (from PR #17478 on main, not this diff): passes locally, fails on the runner; fixed forward by naming the fake git process with a shell script instead of a renamed copy of sleep (a multi-call coreutils binary refuses an unknown name; hypothesis, confirmed only if the rerun goes green)"
   ],
   "integrity_issues": [],
   "doc_friction": [

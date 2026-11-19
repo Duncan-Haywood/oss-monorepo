@@ -1,5 +1,4 @@
 """Tests for shallow_repair.py, on a throwaway local repository (no network)."""
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -116,12 +115,17 @@ class LockTest(unittest.TestCase):
         self.assertFalse(self.lock.exists())
         self.assertFalse(sr.clear_stale_lock(self.repo))  # nothing left to remove
 
-    @unittest.skipUnless(Path("/proc").is_dir() and shutil.which("sleep"), "needs /proc and sleep")
+    @unittest.skipUnless(Path("/proc").is_dir() and Path("/bin/sh").exists(), "needs /proc and /bin/sh")
     def test_a_lock_is_kept_while_a_git_process_runs_in_the_repo(self):
-        fake = self.repo / "git-sleeper"  # /proc/<pid>/comm starts with "git"
-        shutil.copy(shutil.which("sleep"), fake)
+        # A script, not a renamed copy of `sleep`: execve names the process after the script
+        # ("git-sleeper", so /proc/<pid>/comm starts with "git"), while a multi-call coreutils
+        # binary copied under another name refuses to run and exits at once. No `exec`, so the
+        # shell keeps that name; short sleeps end soon after the shell is killed.
+        fake = self.repo / "git-sleeper"
+        fake.write_text("#!/bin/sh\nwhile :; do sleep 0.1; done\n")
+        fake.chmod(0o755)
         self.lock.write_text("x")
-        p = subprocess.Popen([str(fake), "30"], cwd=self.repo / ".git")
+        p = subprocess.Popen([str(fake)], cwd=self.repo / ".git")
         try:
             for _ in range(50):
                 if sr.git_processes_in(self.repo):
