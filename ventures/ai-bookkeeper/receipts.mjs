@@ -45,6 +45,29 @@ export function wholeStyle(text) {
   const grouped = (t.match(GROUPED) ?? []).length;
   return grouped > decimals || (decimals === 0 && /(?<![\p{L}\d.,\/:-])\d{3,}(?![.,]?\d|%|[\/:-]\d)/u.test(t));
 }
+// The merchant line as an OCR engine misreads it, put back (eval/sroie-merchant-names-2026-11-18.md):
+// - Malaysia's "SDN BHD" as San Bhd, SIN BHD, SONBHD, 5dn Bhd, SDN 3HD, SDN.BHZ, Sdn.Rhd; "S/B" as 5/B, S/R or S/D at the end;
+// - 0, 1 and 5 inside a word ("C0.", "F00DICI0US", "S0ON", "1DEA", "D.1.Y."): in a token whose only digits
+//   are 0, 1 or 5, one or two of them between letters, or one before two letters, are O, I and S
+//   ("LOT10", "OLIVE9", "99SPEED" and "7-ELEVEN" are left);
+// - a registration number ("578519537-X)") left at the end after its opening bracket was misread.
+export function shopName(line) {
+  let s = String(line ?? "").replace(/\s*[(（]?\s*\d{5,}\s*[-·]\s*[a-z]\s*[)）]?\s*[,.;]?\s*$/i, "");
+  // spaced ("San Bhd", "SDN 3HD") or glued to the name ("MALAYSIASONBHD", "SDNBHD")
+  // (glued only with no space inside: "HASAN BHD" is not "HA SDN BHD")
+  s = s.replace(/(?:\b|(?<=[A-Za-z)）]))([S5][ADIO0]N)(\.?\s*)([B38R][HN][DOZ0])(?![A-Za-z0-9])/gi, (m, a, sep, b, at, all) => {
+    if (at > 0 && /[A-Za-z]/.test(all[at - 1]) && /\s/.test(sep)) return m;
+    const up = a.slice(1) === a.slice(1).toUpperCase() && b === b.toUpperCase();
+    return ` ${up ? "SDN" : "Sdn"}${sep.includes(".") ? "." : " "}${up ? "BHD" : "Bhd"}`;
+  }).replace(/\s+(?=\s(?:SDN|Sdn)[. ])/g, "").trim();
+  s = s.replace(/(?<=\s|^)([S5])\/([BR8D])$/i, "S/B");
+  const asLetter = (d) => d.replace(/0/g, "O").replace(/1/g, "I").replace(/5/g, "S");
+  s = s.replace(/[A-Za-z0-9]+/g, (w) => (/^[A-Za-z015]+$/.test(w) ? w.replace(/(?<=[A-Za-z])[015]{1,2}(?=[A-Za-z])|^[015](?=[A-Za-z]{2})/g, asLetter) : w));
+  s = s.replace(/\bC0(?=\.)/g, "CO");
+  // single letters between dots ("MR.D.1.Y.") are one token each
+  s = s.replace(/(?<=(?:^|[.\s])[A-Za-z]\.)1(?=\.)/g, "I");
+  return s.replace(/\s{2,}/g, " ");
+}
 // style: false (12.50), true (12,50) or "whole" (12,500 / 12.500 / 12500)
 const moneyRe = (style) => (style === "whole" ? WHOLE : style ? MONEY_C : MONEY);
 const DATE_RES = [
@@ -715,13 +738,16 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   if (!date) notes.push("no date found");
 
   // merchant: the first line that is words, not an address, phone, date or amount
-  const BOILER = /^(receipt|invoice|order|thank|tax invoice|cash\s*(?:sale|bill)|goods sold|ref(?:erence)?\.?\s*no|your order|welcome|tq\b|please|customer|official|duplicate|copy|simplified|for feedback|cashier|company\s*no|[*\s]+thank|redeem|pcl xl|warning|error\b|jln\b|jalan\b|lorong\b|taman\b|lot\s|level\s|no[.:]?\s*\d)/i;
+  // (OCR glues and misspells these too: "TQFORSHOPPING...", "GOODSSOLDARE...", "For feedtack", "Company Reg. No.")
+  const BOILER = /^(receipt|invoice|order|thank|tax invoice|cash\s*(?:sale|bill)|goods\s*sold|ref(?:erence)?\.?\s*no|your order|welcome|tq\b|tq\s*for|please|customer|official|duplicate|copy|simplified|for\W*fee|cashier|company\s*(?:reg\b|reg(?:istration)?\.?\s*no|no)|[*\s]+thank|redeem|pcl xl|warning|error\b|jln\b|jalan\b|lorong\b|taman\b|lot\s|level\s|no[.:]?\s*\d)/i;
   const ENTITY = /\b(?:sdn\.?\s*b(?:hd|nd|ho|h0)\.?|s\/b|enterprise|trading|holdings?|ltd|llc|inc|corp|gmbh|pte|pty|co\.|company)\b/i;
   // OCR noise lines (mostly symbols), GST registration lines and state names are not a shop name
   const NOTNAME = /^[^a-z]*(?:gst|sst|reg(?:istration)?\b|tax\s*id)|^(?:\W*\w{1,2}\W+)?(?:selangor|johor|kuala lumpur|penang|pulau pinang|perak|kedah|melaka|negeri sembilan|pahang|sabah|sarawak|terengganu|kelantan|wilayah)\b/i;
   const wordy = (l) => { const t = l.replace(/\s/g, ""); return t.length > 0 && (t.match(/[^a-z0-9.&()'\/,:-]/gi) ?? []).length / t.length < 0.15 && (t.match(/[a-z]/gi) ?? []).length / t.length >= 0.5; };
   // a company registration number in brackets, "AEON CO. (M) BHD (126926-H)", is not part of the name
-  const REGNO = /\s*\(\s*(?:no\.?\s*)?\d{4,}\s*-?\s*[a-z]?\s*\)\s*$/i;
+  // RapidOCR prints the brackets full width ("(126926-H）"), drops the closing one, reads the
+  // dash as "·" or the letter as 0, and leaves a comma after it
+  const REGNO = /\s*[(（]\s*(?:no\.?\s*)?\d{4,}\s*[-·.]?\s*[a-z0-9]?\s*(?:[)）]\s*[,.;]?)?\s*$/i;
   // an OCR line of stray two-letter fragments ("eee ee ee Ty Pee ee") is the logo or a rule, not a name
   const FRAGMENTS = (l) => { const w = l.split(/\s+/).filter(Boolean); return w.length >= 3 && w.filter((x) => /^[a-z]{1,2}$/i.test(x)).length * 2 > w.length; };
   const eligible = lines.map((l) => l.replace(REGNO, "")).filter((l) => /[a-z]{3}/i.test(l) && !BOILER.test(l.replace(/^[^A-Za-z0-9]+/, "")) && !FRAGMENTS(l) && !NOTNAME.test(l) && wordy(l)
@@ -747,7 +773,7 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     && !/(?:restaurant|cafe|mart|market|shop|store|pharmacy|bakery|kitchen)/i.test(first)) merchantLine = /^[A-Z]{1,3}\.\s*\(M\)/.test(second.trim()) && /^[A-Z][A-Z .&']+$/.test(first.trim()) ? `${first.trim()} ${second.trim()}` : second; // "POPULAR BOOK" over "CO. (M) SDN BHD": one name wrapped over two lines
   // a stray mark before the name ("- UAN HING ...") and the engine's SON/SDN BHO for SDN BHD
   const ruSeller = russianSeller(lines);
-  const merchant = ruSeller ?? merchantLine ? ruSeller ?? merchantLine.replace(/\s{2,}.*$/, "").replace(/^(?:[^A-Za-z0-9(]+|[a-z]{1,2}\s+(?=[A-Z]{3}))/, "").replace(/\bS[OD]N\.?\s+B(?:HD|ND|HO|H0)\b/g, "SDN BHD").slice(0, 60) : null;
+  const merchant = ruSeller ?? merchantLine ? ruSeller ?? shopName(merchantLine.replace(/\s{2,}.*$/, "").replace(/^(?:[^A-Za-z0-9(]+|[a-z]{1,2}\s+(?=[A-Z]{3}))/, "")).slice(0, 60) : null;
   if (!merchant) notes.push("no merchant found");
 
   // total: the last total-looking line with an amount; else the largest amount on the page

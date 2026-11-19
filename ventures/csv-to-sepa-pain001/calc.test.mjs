@@ -123,3 +123,11 @@ test("instant mode tags the batch INST and refuses a payment over 100,000.00", (
   assert.ok(over.findings.some((f) => /instant limit/.test(f.title)));
   assert.ok(convert(csv.replace("100000.00", "100000.01"), S3).xml);
 });
+
+// Found by platform/ci/id_oracle/: a BIC with a made-up country (XX, QQ) passed the shape check.
+test("a BIC whose country part is not a country is refused", () => {
+  assert.equal(checkBic("TQKJXXLP").ok, false);
+  assert.match(checkBic("TQKJXXLP").problem, /XX/);
+  assert.equal(checkBic("COBADEFFXXX").ok, true);
+  assert.equal(checkBic("ABCDXKPR").ok, true);
+});

@@ -33,6 +33,10 @@ block and group transaction counts and control sums.
 `repair()` rewrites `NbOfTxs` and `CtrlSum` only. It never edits a payment: a wrong IBAN or
 amount is a payment decision, not a typo.
 
+## Checked against python-stdnum (2026-11-19)
+
+Gibraltar (GI) IBANs are accepted; before they were rejected as an unknown country. Found by the cross-venture identifier oracle, [`platform/ci/id_oracle/`](../../platform/ci/id_oracle/README.md); stdnum is a test-time oracle only, no bank or registry text was read beyond the registry data it carries.
+
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.

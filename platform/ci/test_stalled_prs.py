@@ -42,7 +42,7 @@ def run(prs, files=None, checks=None, records=None, main=None):
         head_time_of=lambda sha: NOW - dt.timedelta(hours=by_sha[sha]["_quiet"]),
         rules=RULES, now=NOW,
         record_of=None if records is None else lambda path, sha: records[(path, sha)],
-        main_blob=None if main is None else main.get)
+        main_blob=None if main is None else main.get, nap=lambda s: None)
 
 
 class ChecksState(unittest.TestCase):
@@ -76,7 +76,26 @@ class Buckets(unittest.TestCase):
         self.assertEqual(self.bucket(rows, 2), "pending")
         self.assertEqual(self.bucket(rows, 3), "no checks")
         self.assertEqual(self.bucket(rows, 4), "conflicted")
-        self.assertEqual(self.bucket(rows, 5), "ready", "mergeable None is not yet computed, not a conflict")
+        self.assertEqual(self.bucket(rows, 5), "unknown merge",
+                         "mergeable None is not computed yet: neither a conflict nor safe to call ready")
+
+    def test_null_mergeable_is_asked_again_until_github_answers(self):
+        # 2026-11-19: #17310 read mergeable null once, was listed ready, and was dirty.
+        answers = iter([None, None, False])
+        naps = []
+        got = sp.settled_detail(7, lambda n: {"number": n, "mergeable": next(answers)}, naps.append)
+        self.assertIs(got["mergeable"], False)
+        self.assertEqual(naps, [2.0, 2.0])
+        rows = sp.stalled([pr(8, 5, mergeable=None)], files_of=lambda n: [{"filename": "ventures/x/a.mjs"}],
+                          detail_of=lambda n: dict(pr(8, 5), mergeable=False), checks_of=lambda sha: GREEN,
+                          head_time_of=lambda sha: NOW - dt.timedelta(hours=5), rules=RULES, now=NOW,
+                          nap=lambda s: None)
+        self.assertEqual(rows[0]["bucket"], "conflicted")
+
+    def test_known_mergeable_is_read_once(self):
+        calls = []
+        sp.settled_detail(7, lambda n: calls.append(n) or {"mergeable": True}, lambda s: 1 / 0)
+        self.assertEqual(calls, [7])
 
     def test_named_blocker_is_left_alone(self):
         rows = run([pr(1, 50, title="Parked: x (do not merge as-is)"),

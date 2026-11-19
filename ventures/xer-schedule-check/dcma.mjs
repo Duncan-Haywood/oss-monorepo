@@ -242,6 +242,40 @@ export function assess(xer, opts = {}) {
       note: "An activity whose successors all hang off its start can run long without moving anything: its finish is open-ended even though DCMA point 1 passes." });
   }
 
+  // expected finish dates: with "use expected end dates" on, the activity's
+  // remaining duration is whatever is left to the date typed in, so it
+  // finishes there however late its predecessors run (delay is absorbed, not
+  // passed on), and a date already behind the remaining start is ignored
+  if (p.useExpectedFinish) {
+    const items = [];
+    for (const t of open) {
+      if (t.expEnd === null || t.expEnd === undefined || t.type === "TT_Mile" || t.type === "TT_FinMile") continue;
+      const r = res.get(t.id);
+      if (!r) continue;
+      const start = r.remES ?? r.es;
+      const d = (min) => round1(min / 60 / hpd(t));
+      if (t.expEnd <= start) {
+        items.push({ code: t.code, name: t.name, kind: "ignored", why: `expected finish ${formatDate(t.expEnd)} is ${dd !== null && t.expEnd < dd ? `before the data date ${formatDate(dd)}` : `not after where its remaining work starts, ${formatDate(start)}`}, so it is ignored and the remaining ${d(r.rem ?? t.remain)} d stands: update or clear it` });
+        continue;
+      }
+      let why = `finishes on its expected finish ${formatDate(t.expEnd)}: remaining duration set to ${d(r.rem ?? t.remain)} d (original ${d(t.orig)} d); up to that much delay to its predecessors is absorbed instead of passed on`;
+      // the rate it has gone at so far, where the file says how far along it is
+      const pct = num(t.row.phys_complete_pct);
+      if (t.status === "TK_Active" && t.actStart !== null && dd !== null && dd > t.actStart && pct !== null && pct < 100) {
+        const spent = t.cal.workBetween(t.actStart, dd) / 60 / hpd(t);
+        if (spent >= 1) {
+          if (pct > 0) {
+            const atRate = (spent * (100 - pct)) / pct;
+            if (atRate > (r.rem ?? t.remain) / 60 / hpd(t) * 1.5) why += `; ${round1(pct)}% done in ${round1(spent)} d, so ${round1(atRate)} d left at the rate so far`;
+          } else if (spent >= 5) why += `; 0% done after ${round1(spent)} d`;
+        }
+      }
+      items.push({ code: t.code, name: t.name, kind: "set", why });
+    }
+    extra.push({ id: "expected-finish", name: "Expected finish dates setting durations", count: items.length, pass: items.length === 0, items,
+      note: "The project schedules with \"use expected end dates\": each activity listed takes the remaining duration that ends it on a date someone typed, not one estimated from the work left. A late predecessor shortens it instead of moving its successors, so delay can be hidden; dates already passed are ignored and should be cleared." });
+  }
+
   // agreement between the file's stored dates and the recomputed ones
   let compared = 0, matched = 0;
   const stale = [];
@@ -282,7 +316,7 @@ export function assess(xer, opts = {}) {
       dataDate: formatDate(dd), finish: formatDate(p.finish), storedFinish: formatDate(p.storedFinish), mustFinish: formatDate(p.mustFinish),
       activities: all.filter((t) => !t.span).length, open: open.length, relationships: model.rels.filter((r) => model.tasks.get(r.succId)?.proj === p.id).length,
       version: xer.version, calendars: model.cals.size, projects: model.projects.size,
-      settings: { floatType: p.floatType, lagCalendar: p.lagCal, retainedLogic: p.retainedLogic, progressOverride: p.progressOverride },
+      settings: { floatType: p.floatType, lagCalendar: p.lagCal, retainedLogic: p.retainedLogic, progressOverride: p.progressOverride, expectedFinish: !!p.useExpectedFinish },
     },
     checks,
     extra,

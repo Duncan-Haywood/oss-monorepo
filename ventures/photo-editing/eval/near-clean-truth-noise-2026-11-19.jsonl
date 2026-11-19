@@ -1,0 +1,15 @@
+{"file": "Nikon_D600__DSC_3294.NEF", "tile": [258, 510], "iso": 400, "exposure": 0.016666666666666666, "truth_sigma18": 0.003501, "raw_grain18": 0.002594, "t": 1.646, "g": 4.8245, "spread": 3.49}
+{"file": "Nikon_D600__DSC_3294.NEF", "tile": [0, 0], "iso": 400, "exposure": 0.016666666666666666, "truth_sigma18": 0.00208, "raw_grain18": 0.002694, "t": 1.646, "g": 4.8245, "spread": 3.49}
+{"file": "Nikon_D600__DSC_3294.NEF", "tile": [0, 1026], "iso": 400, "exposure": 0.016666666666666666, "truth_sigma18": 0.007261, "raw_grain18": 0.002426, "t": 1.646, "g": 4.8245, "spread": 3.49}
+{"file": "Nikon_D780__DSC_0334.NEF", "tile": [264, 516], "iso": 100, "exposure": 0.0025, "truth_sigma18": 0.013177, "raw_grain18": 0.001709, "t": 0.904, "g": 2.6039, "spread": 1.26}
+{"file": "Nikon_D780__DSC_0334.NEF", "tile": [0, 0], "iso": 100, "exposure": 0.0025, "truth_sigma18": 0.010466, "raw_grain18": 0.001071, "t": 0.904, "g": 2.6039, "spread": 1.26}
+{"file": "Nikon_D780__DSC_0334.NEF", "tile": [0, 1032], "iso": 100, "exposure": 0.0025, "truth_sigma18": 0.010872, "raw_grain18": 0.001095, "t": 0.904, "g": 2.6039, "spread": 1.26}
+{"file": "Nikon_D780__DSC_0336.NEF", "tile": [264, 516], "iso": 100, "exposure": 0.0025, "truth_sigma18": 0.01139, "raw_grain18": 0.00223, "t": 0.9556, "g": 2.7881, "spread": 7.5}
+{"file": "Nikon_D780__DSC_0336.NEF", "tile": [0, 0], "iso": 100, "exposure": 0.0025, "truth_sigma18": 0.014041, "raw_grain18": 0.001179, "t": 0.9556, "g": 2.7881, "spread": 7.5}
+{"file": "Nikon_D780__DSC_0336.NEF", "tile": [0, 1032], "iso": 100, "exposure": 0.0025, "truth_sigma18": 0.001871, "raw_grain18": 0.001077, "t": 0.9556, "g": 2.7881, "spread": 7.5}
+{"file": "Nikon_D780__DSC_0338.NEF", "tile": [264, 516], "iso": 100, "exposure": 0.0025, "truth_sigma18": 0.006566, "raw_grain18": 0.001305, "t": 0.8925, "g": 2.6185, "spread": 1.46}
+{"file": "Nikon_D780__DSC_0338.NEF", "tile": [0, 0], "iso": 100, "exposure": 0.0025, "truth_sigma18": 0.009607, "raw_grain18": 0.000997, "t": 0.8925, "g": 2.6185, "spread": 1.46}
+{"file": "Nikon_D780__DSC_0338.NEF", "tile": [0, 1032], "iso": 100, "exposure": 0.0025, "truth_sigma18": 0.006727, "raw_grain18": 0.000747, "t": 0.8925, "g": 2.6185, "spread": 1.46}
+{"file": "k1ii.pef", "tile": [372, 678], "iso": null, "exposure": null, "truth_sigma18": 0.01062, "raw_grain18": 0.011263, "t": 11.1486, "g": 33.0978, "spread": 2.57}
+{"file": "k1ii.pef", "tile": [0, 0], "iso": null, "exposure": null, "truth_sigma18": 0.027254, "raw_grain18": 0.007044, "t": 11.1486, "g": 33.0978, "spread": 2.57}
+{"file": "k1ii.pef", "tile": [0, 1362], "iso": null, "exposure": null, "truth_sigma18": 0.02215, "raw_grain18": 0.006561, "t": 11.1486, "g": 33.0978, "spread": 2.57}

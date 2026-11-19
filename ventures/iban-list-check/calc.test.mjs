@@ -160,3 +160,16 @@ test("the page passes the groups-of-four option under the name repair reads", as
   assert.match(html, /groups: \$\("#groups"\)\.checked/);
   assert.equal(repair("iban\nGB82WEST12345698765432\n", { groups: true }).text, "iban\nGB82 WEST 1234 5698 7654 32\n");
 });
+
+// Found by platform/ci/id_oracle/ (python-stdnum 2.2 as oracle): a letter swapped with a neighbouring digit can leave
+// the mod-97 remainder at 1, so only the SWIFT registry's BBAN structure catches it.
+test("a letter-digit swap that passes mod-97 is caught by the registry BBAN structure", async () => {
+  const { BBAN_STRUCTURE, bbanRegex, ibanLength } = await import("./iban-registry.mjs");
+  assert.equal(mod97("BG91CTHP42118B1DQG5BHR"), 1);
+  assert.equal(classify("BG91CTHP42118B1DQG5BHR").why, "wrong format");
+  assert.equal(classify("LI856440B1Z00QHVMFBDD").why, "wrong format");
+  assert.equal(classify("GB82WEST12345698765432").kind, "ok");
+  assert.equal(Object.keys(BBAN_STRUCTURE).length, 89);
+  for (const cc of Object.keys(BBAN_STRUCTURE)) assert.equal(ibanLength(cc), COUNTRIES[cc], cc);
+  assert.ok(bbanRegex("FR").test("20041010050500013M02606"));
+});

@@ -1,0 +1,48 @@
+c1: rows 1272 max |diff| vs committed held rows (D, ship, ship+12): 0
+rows without truth_grain18: 88
+tiles 159 truth_sigma18 / truth_grain18: median 1.04, p10 0.52, p90 4.01, max 13.5; share above 2: 24%
+truth SNR by raw grain: median 143, p10 63, min 11
+SNR 200: kept by old column 74 of 318, by raw grain 66
+SNR 60: kept by old column 230 of 318, by raw grain 284
+SNR 25: kept by old column 298 of 318, by raw grain 294
+SNR 12: kept by old column 318 of 318, by raw grain 314
+
+ship+12 rows losing > 0.1 dB to D: all 11 | old-column clean 0 | raw-grain clean 6
+   Nikon_D600__DSC_3294.NEF [0, 1026] 200.0 equal worst -0.12 oracle 0.00 truth SNR old 25 raw 74 dropped
+   Nikon_D600__DSC_3294.NEF [0, 1026] 200.0 wb worst -0.14 oracle 0.00 truth SNR old 25 raw 74 dropped
+   Nikon_D600__DSC_3294.NEF [0, 1026] 60.0 equal worst -0.11 oracle 0.00 truth SNR old 25 raw 74 kept
+   Nikon_D780__DSC_0334.NEF [0, 0] 200.0 equal worst -0.14 oracle 0.00 truth SNR old 17 raw 168 dropped
+   Nikon_D780__DSC_0334.NEF [0, 0] 200.0 wb worst -0.11 oracle 0.00 truth SNR old 17 raw 168 dropped
+   Nikon_D780__DSC_0334.NEF [0, 0] 60.0 wb worst -0.11 oracle 0.00 truth SNR old 17 raw 168 kept
+   Nikon_D780__DSC_0336.NEF [0, 0] 200.0 equal worst -0.14 oracle 0.00 truth SNR old 13 raw 153 dropped
+   Nikon_D780__DSC_0336.NEF [0, 0] 60.0 equal worst -0.18 oracle 0.00 truth SNR old 13 raw 153 kept
+   Nikon_D780__DSC_0336.NEF [0, 0] 60.0 wb worst -0.17 oracle 0.00 truth SNR old 13 raw 153 kept
+   Nikon_D780__DSC_0336.NEF [0, 0] 25.0 wb worst -0.12 oracle 0.00 truth SNR old 13 raw 153 kept
+   Nikon_D780__DSC_0338.NEF [0, 0] 60.0 wb worst -0.12 oracle 0.00 truth SNR old 19 raw 181 kept
+
+dropped by raw grain, per body (top): [('Nikon/D5600', 44), ('Nikon/D7200', 36), ('Canon/EOS R7', 24), ('Nikon/D7100', 24), ('Nikon/Z 5', 24), ('Nikon/D610', 18), ('Nikon/D780', 18), ('Panasonic/DMC-TX1', 14)] total 314
+dropped by old column, per body (top): [('Nikon/D780', 56), ('Nikon/D5600', 38), ('Canon/EOS R7', 28), ('Nikon/D3S', 24), ('Nikon/D7100', 24), ('Nikon/D7200', 24), ('Nikon/Z 5', 16), ('Panasonic/DMC-TX1', 16)] total 352
+
+## rule --k 12 --clean-truths (raw grain where present)
+ship: 958 rows; lifted - unlifted mean luma +0.0025, colour +0.0014; worst cell +0.0000 at SNR 12 equal; losers > 0.1 dB vs D 8 -> 6, new 0
+   SNR    12 equal n= 157  luma +0.0000  colour +0.0000  (gain over D: +1.268 -> +1.268)
+   SNR    12 wb    n= 157  luma +0.0000  colour +0.0000  (gain over D: +0.925 -> +0.925)
+   SNR    25 equal n= 147  luma +0.0010  colour +0.0007  (gain over D: +0.783 -> +0.784)
+   SNR    25 wb    n= 147  luma +0.0003  colour +0.0001  (gain over D: +0.668 -> +0.668)
+   SNR    60 equal n= 142  luma +0.0075  colour +0.0045  (gain over D: +0.387 -> +0.395)
+   SNR    60 wb    n= 142  luma +0.0025  colour +0.0011  (gain over D: +0.323 -> +0.326)
+   SNR   200 equal n=  33  luma +0.0145  colour +0.0079  (gain over D: +0.096 -> +0.111)
+   SNR   200 wb    n=  33  luma +0.0106  colour +0.0055  (gain over D: +0.078 -> +0.088)
+PASS h1 means within 0.005 dB, every cell within 0.02 dB
+PASS h2 fewer rows lose > 0.1 dB to D, none new
+PASS h3 the worst SNR 200 row improves
+true: 958 rows; lifted - unlifted mean luma +0.0041, colour +0.0032; worst cell +0.0000 at SNR 12 equal; losers > 0.1 dB vs D 5 -> 2, new 0
+   SNR    12 equal n= 157  luma +0.0000  colour +0.0000  (gain over D: +1.408 -> +1.408)
+   SNR    12 wb    n= 157  luma +0.0000  colour +0.0000  (gain over D: +1.694 -> +1.694)
+   SNR    25 equal n= 147  luma +0.0022  colour +0.0028  (gain over D: +0.961 -> +0.963)
+   SNR    25 wb    n= 147  luma +0.0003  colour +0.0014  (gain over D: +1.164 -> +1.164)
+   SNR    60 equal n= 142  luma +0.0094  colour +0.0063  (gain over D: +0.497 -> +0.506)
+   SNR    60 wb    n= 142  luma +0.0123  colour +0.0086  (gain over D: +0.636 -> +0.648)
+   SNR   200 equal n=  33  luma +0.0039  colour +0.0024  (gain over D: +0.148 -> +0.152)
+   SNR   200 wb    n=  33  luma +0.0112  colour +0.0064  (gain over D: +0.196 -> +0.207)
+verdict: ship the lift

@@ -1,7 +1,11 @@
 // IBAN list checker. Pure functions, no I/O, no network.
 // ISO 13616 check: move the first four characters to the end, map letters A=10..Z=35, the number mod 97 must be 1.
-// The mod-97 check catches every single-character error and every adjacent transposition, which is what lets a
-// transposed pair be suggested with proof rather than guessed.
+// The mod-97 check catches every single-character error and every adjacent transposition of two digits or two
+// letters, which is what lets a transposed pair be suggested with proof rather than guessed. A letter swapped with a
+// neighbouring digit can slip past it (a letter counts as two digits), so the BBAN is also matched against the
+// country's structure in the SWIFT IBAN Registry (iban-registry.mjs), which catches those.
+
+import { bbanRegex } from "./iban-registry.mjs";
 
 // Country code -> total IBAN length, and the BBAN shape where it is simple enough to state with confidence.
 export const COUNTRIES = {
@@ -13,11 +17,6 @@ export const COUNTRIES = {
   VG: 24, XK: 20,
   // Added from SWIFT IBAN Registry release 101 (round 63 quality audit): previously reported as "unknown country".
   BI: 27, DJ: 27, FK: 18, HN: 28, LY: 25, MN: 20, NI: 28, OM: 23, RU: 33, SD: 18, SO: 23, YE: 30,
-};
-const BBAN_SHAPE = {
-  DE: /^\d{18}$/, AT: /^\d{16}$/, BE: /^\d{12}$/, ES: /^\d{20}$/, DK: /^\d{14}$/, FI: /^\d{14}$/, NO: /^\d{11}$/,
-  PL: /^\d{24}$/, PT: /^\d{21}$/, SE: /^\d{20}$/, CZ: /^\d{20}$/, SK: /^\d{20}$/, HR: /^\d{17}$/, SI: /^\d{15}$/,
-  GB: /^[A-Z]{4}\d{14}$/, NL: /^[A-Z]{4}\d{10}$/, IE: /^[A-Z]{4}\d{14}$/, LU: /^\d{3}[A-Z0-9]{13}$/,
 };
 // Countries in the SEPA credit-transfer scheme as long established: EU 27 plus IS, LI, NO, CH, GB, AD, MC, SM, VA.
 // Newer or territory participants (for example ME, MK, MD, AL, RS, GI) are deliberately left out: a SEPA-only check
@@ -128,7 +127,7 @@ export function classify(raw) {
     const diff = s.length - want;
     return { kind: "bad", why: "wrong length", cc, detail: `${s} has ${s.length} characters; an IBAN for ${cc} has ${want} (${diff > 0 ? diff + " too many" : -diff + " missing"}).` };
   }
-  const shape = BBAN_SHAPE[cc];
+  const shape = bbanRegex(cc);
   if (shape && !shape.test(s.slice(4))) return { kind: "bad", why: "wrong format", detail: `${s} has the right length for ${cc} but its account part has characters in positions a ${cc} IBAN does not allow.` };
   if (checkOk(s)) return { kind: "ok", value: s, fixed: notes.length > 0, notes };
   return { kind: "bad", why: "check digits", iban: s, swap: findTransposition(s) };
@@ -138,7 +137,7 @@ function findTransposition(s) {
   for (let i = 0; i < s.length - 1; i++) {
     if (s[i] === s[i + 1]) continue;
     const t = s.slice(0, i) + s[i + 1] + s[i] + s.slice(i + 2);
-    if (checkOk(t) && (!BBAN_SHAPE[t.slice(0, 2)] || BBAN_SHAPE[t.slice(0, 2)].test(t.slice(4)))) hits.push({ pos: i + 1, value: t });
+    if (checkOk(t) && (!bbanRegex(t.slice(0, 2)) || bbanRegex(t.slice(0, 2)).test(t.slice(4)))) hits.push({ pos: i + 1, value: t });
   }
   return hits.length ? hits : null;
 }

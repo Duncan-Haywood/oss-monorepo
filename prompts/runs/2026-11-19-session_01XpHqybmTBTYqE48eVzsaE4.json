@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqybmTBTYqE48eVzsaE4",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T17:39:08Z",
+  "ended": "2026-11-19T17:48:23Z",
+  "wall_minutes": 9.47,
+  "tokens_in": 8550662,
+  "tokens_out": 47260,
+  "cost_usd": 3.8641,
+  "tool_calls": 67,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17743",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A sed rewrite of the BIC error messages left a placeholder (BICVAR) in two files; caught by grep and redone in Python before any test ran.",
+    "The first registry-table generation wrote len.txt/struct.txt into the repo root (wrong cwd); moved to the scratchpad before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook rejects a bracketed pattern when the same word also appears earlier in the command line (here the npx http-server launch); CLAUDE.md only says to bracket the first letter."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Wanted to add 'identifier checkers vs python-stdnum' to the list of sweeps already done, but prompts/ is under CODEOWNERS; the control-plane edit belongs in its own PR.",
+      "did": "Recorded it here and in platform/ci/id_oracle/README.md instead.",
+      "result": "The PR stays outside the control plane and can merge without the owner's approval."
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "why": "No llms.txt or marketing-page change; the fixes are validator internals with no new feature to describe.",
+      "did": "Updated the venture READMEs only.",
+      "result": "null"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-fourteen-identifier-checkers-one-oracle.md",
+    "platform/ci/id_oracle/README.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: a cross-venture identifier oracle. python-stdnum 2.2 labels ~116k cases per seed (89 SWIFT-registry IBAN countries: valid, typo, swap, length+/-1 with check digits recomputed, check-digit aliases; GTIN, ISBN, ABA, BIC, SEPA creditor id), and every one of 14 ventures' own checkers is run against them. The check-digit maths agreed everywhere. The country tables did not: sepa-pain001-validator lacked the 12 registry-101 countries (4,800 false accepts, 75 false BIC warnings); the statement readers were SEPA-only (53 countries warned); sepa-payment-file-validator rejected GI; csv-to-sepa-pain001/008 accepted BICs with made-up countries (1,000/1,000); iban-list-check missed letter-digit swaps that pass mod 97 (now checks the registry BBAN structure for all 89 countries). After the fixes, 0 false rejects on seeds 7 and 11. Verification: run_venture_tests.py on the 7 ventures passed (7 suites, 0 failed); 4 pages loaded in Chromium over http with no errors. Open: 00/01/99 check digits (ISO text unread); SEPA membership of AL/MD/ME/MK/RS (the EPC PDF returned 403).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "800e2afa-e89e-5f08-b5d7-a15cdf681c82",
+    "transcripts": 1,
+    "first": "2026-11-19T17:39:08Z",
+    "last": "2026-11-19T17:48:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 130,
+        "output": 47260,
+        "thinking": 10503,
+        "cache_read": 8395630,
+        "cache_write_5m": 0,
+        "cache_write_1h": 154902,
+        "api_equivalent_usd": 3.8641,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 130,
+      "output": 47260,
+      "thinking": 10503,
+      "cache_read": 8395630,
+      "cache_write_5m": 0,
+      "cache_write_1h": 154902,
+      "api_equivalent_usd": 3.8641,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 57,
+      "Write": 3,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "WebFetch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.47,
+      "active_minutes": 9.47,
+      "model_minutes": 8.1,
+      "tool_minutes": 1.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "survey 14 validators, write a differential harness, fix 7 ventures with tests, write it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 258.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

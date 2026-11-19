@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { convert, parseCents, checkCreditorId, sampleFile, sampleBrokenFile, findingsCsv, formatCents } from "./calc.mjs";
+import { convert, parseCents, checkBic, checkCreditorId, sampleFile, sampleBrokenFile, findingsCsv, formatCents } from "./calc.mjs";
 
 const S = {
   creditorName: "Example Gym Club", creditorId: "DE98ZZZ09999999999", creditorIban: "FR1420041010050500013M02606",
@@ -146,4 +146,12 @@ test("a collection date on Good Friday warns and names the next open day; one da
   assert.ok(thin.findings.some((x) => /Less than one business day/.test(x.title)));
   const fri = convert(sampleFile(), { ...S, date: "2026-10-26", today: new Date(Date.UTC(2026, 9, 24)) });
   assert.ok(!fri.findings.some((x) => /Less than one business day/.test(x.title)));
+});
+
+// Found by platform/ci/id_oracle/: a BIC with a made-up country (XX, QQ) passed the shape check.
+test("a BIC whose country part is not a country is refused", () => {
+  assert.equal(checkBic("TQKJXXLP").ok, false);
+  assert.match(checkBic("TQKJXXLP").problem, /XX/);
+  assert.equal(checkBic("COBADEFFXXX").ok, true);
+  assert.equal(checkBic("ABCDXKPR").ok, true);
 });

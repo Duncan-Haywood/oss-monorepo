@@ -480,3 +480,12 @@ test("a large file validates quickly and the totals stay exact", () => {
   assert.equal(r.summary.transactions, 5000);
   assert.ok(Date.now() - t0 < 5000);
 });
+
+// Found by platform/ci/id_oracle/: the twelve countries added in SWIFT IBAN Registry release 101 drew only a
+// "not in this tool's table" warning, so a dropped or added character passed, and their BICs drew a warning.
+test("IBAN registry release 101 countries get a length check and known BIC countries", () => {
+  assert.equal(checkIban("BI1320001100010000123456789").ok, true);
+  assert.ok(checkIban("BI442000110001000012345678").problems.some((p) => p.code === "IBAN-LENGTH"));
+  for (const cc of ["BI", "DJ", "FK", "HN", "LY", "MN", "NI", "OM", "RU", "SD", "SO", "YE"]) assert.ok(IBAN_LENGTHS[cc], cc);
+  assert.equal(checkBic("AGXRDJENXXX").warn, undefined);
+});

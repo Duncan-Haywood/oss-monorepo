@@ -29,6 +29,10 @@ node --test 'ventures/camt053-to-ofx-converter/*.test.mjs'
   `portfolio/usage/README.md` in the monorepo).
 - `*.test.mjs`: tests for the logic and the page.
 
+## Checked against python-stdnum (2026-11-19)
+
+The IBAN table carries all 89 SWIFT IBAN Registry countries, not only SEPA ones, so a statement for, say, a Turkish account no longer warns "country code not in the list this tool knows". Found by the cross-venture identifier oracle, [`platform/ci/id_oracle/`](../../platform/ci/id_oracle/README.md); stdnum is a test-time oracle only, no bank or registry text was read beyond the registry data it carries.
+
 ## License
 
 MIT. See `LICENSE`.

@@ -41,6 +41,10 @@ node --test ventures/iban-list-check/
   `portfolio/usage/README.md` in the monorepo).
 - `*.test.mjs`: tests for the logic and the page.
 
+## Checked against python-stdnum (2026-11-19)
+
+An IBAN's BBAN is now matched against its country's structure from the SWIFT IBAN Registry (release 101, all 89 countries, `iban-registry.mjs`), not only the 18 countries with a hand-written shape. A letter swapped with a neighbouring digit can keep the mod-97 remainder at 1 (`BG91CTHP42118B1DQG5BHR` passes mod 97), and now fails as "wrong format". 89,005 of 89,005 cases agree with python-stdnum 2.2 on two seeds. Found by the cross-venture identifier oracle, [`platform/ci/id_oracle/`](../../platform/ci/id_oracle/README.md); stdnum is a test-time oracle only, no bank or registry text was read beyond the registry data it carries.
+
 ## License
 
 MIT. See `LICENSE`.

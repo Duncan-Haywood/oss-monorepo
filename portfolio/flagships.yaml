@@ -120,11 +120,12 @@ flagships:
       page SRD 190/196 (port as lead), page CORD taxes kept (train 205/267),
       WildReceipt held out 360/405, tax 209/272, Russian slips 203/230, 202/221
       (RapidOCR), merchant 113/146, page 114 (Cyrillic, bands), SROIE 84.6%, five
-      readings 96.5% held out, dates 94.1% (was 69.1%), US 79.6%, tax 74.6%; CLI
-      78.6%, tax 71.9%; CORD photos val 71.4%, train 62.2%, test 57.9%, tax 16/41;
-      open: OCR-bound); (6) payroll (README): two journal layouts read; open: a real
-      Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
-      guidelines (HISTORY): open: a real upload, TY2026 template. A run that lands a
+      readings 96.5% held out, dates 94.1%
+      (was 69.1%), US 79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos val 71.4%,
+      train 62.2%, test 57.9%, tax 16/41; open: OCR-bound); (6) payroll (README):
+      two journal layouts read; open: a real Gusto or ADP export; (7) IRIS NEC and
+      MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026
+      template. A run that lands a
       slice replaces its item here; keep this under 2,000 characters. More open
       items: NEXT.md.
     buildable: >-
@@ -291,12 +292,11 @@ flagships:
       leave records; a manager's read on whether the steadier plan is the one they
       would post. More open items: NEXT.md.
     buildable: >-
-      Deputy availability from its API (no account needed to build):
-      EmployeeAvailability (Employee, Date, StartTime, EndTime, Type, Schedule) is
-      in the MIT communityds/deputy-api-wrapper models (git clone works); turn it
-      into each staff line's availability cell beside import-deputy-staff.mjs (staff
-      and wages landed 2026-11-19, README "Deputy staff and wages"). Homebase stays
-      account-gated.
+      Deputy areas as role: cells: developer.deputy.com answers from a cloud session
+      (its llms.txt indexes the V1 resource OpenAPI pages); find how a person's
+      allowed areas (OperationalUnit association) come back from Employee/QUERY or
+      INFO and write role: cells in import-deputy-staff.mjs (time off landed
+      2026-11-19, README "Deputy time off"). Homebase stays account-gated.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -334,9 +334,12 @@ flagships:
       evenly lit frame; Near-clean leak closed on Bayer 2026-11-19 (k 12,
       eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
       day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
-      reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*); next
-      the D780/D600 losers' truth noise, when raw.pixls.us answers. More open items:
-      NEXT.md.
+      reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*);
+      D780/D600 truth noise read from the raw 2026-11-19 (truth_grain18; the old
+      column read foliage 3-12x as grain): 6 of 11 losers are real over-reads on
+      clean truths, the read floors on fine foliage at 2.3-5.2x the noise
+      (eval/near-clean-truth-noise-2026-11-19.md); next a texture-robust noise read
+      for them, pre-registered. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -564,21 +567,21 @@ flagships:
       updates shipped 2026-11-19 (windows.mjs, --windows; a not-started re-estimate
       is now a revision in the half-step; eval/windows-check-2026-11-19.md); next a
       real series of updates to check the split and drivers against (windows in the
-      written review and its justify / recovery-plan corrections shipped 2026-11-19,
-      eval/review-windows-check-2026-11-19.md); (3) GitHub ERMHDR search done
-      2026-11-19 (245 files, none a new scored P6 export;
-      eval/converter-files-2026-11-19.md); next progress override, start float and
-      24-hour lag paths on a real P6 file; (4) written review shipped 2026-11-19
-      (report.mjs, print to PDF; eval/review-report-2026-11-19.md: 2-11 ranked
-      corrections on six real files); full-list appendix shipped 2026-11-19; next a
-      real reviewer's reading of one; (5) Monte Carlo risk and risk register shipped
-      2026-11-19 (risk.mjs; eval/risk-check-,
+      review shipped 2026-11-19); (3) GitHub ERMHDR search done 2026-11-19 (245
+      files, none a new scored P6 export; eval/converter-files-2026-11-19.md); next
+      progress override, start float and 24-hour lag paths on a real P6 file; (4)
+      written review shipped 2026-11-19 (report.mjs, print to PDF;
+      eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
+      appendix 2026-11-19; next a real reviewer's reading; (5) Monte Carlo risk and
+      risk register shipped 2026-11-19 (risk.mjs; eval/risk-check-,
       eval/risk-register-check-2026-11-19.md); UDF ranges shipped 2026-11-19
       (eval/udf-ranges-check-*); next: a real file with range UDFs, probabilistic
       branches; (6) resource levelling shipped 2026-11-19 (level.mjs, --level:
       serial pass by early start, the file's priority list, crew-size what-if;
       eval/level-check-2026-11-19.md: 0 h over a limit from placed work on six
       files, 37,670 of 37,670 links hold, x1e6 limits = CPM); (7) expected finish
-      dates; (8) Microsoft Project XML read 2026-11-19 (mspdi.mjs; 2,406 of 2,491
-      tasks = Project's dates on 102 files, eval/cpm-vs-project-2026-11-19.md). More
-      open items: NEXT.md.
+      dates shipped 2026-11-19 (cpm.mjs rule + finding;
+      eval/expected-finish-2026-11-19.md: 21 of 21 durations, 404 of 404 with 80 h
+      planted); next a second P6 file using them, a risk-page switch to sample them;
+      (8) MSPDI: next a real construction .xml, task splits. More open items:
+      NEXT.md.
