@@ -547,7 +547,7 @@ function computeAreas(type, solids, W, f) {
   if (AREA_KINDS.plan.test(type)) {
     // the extrusion direction: the quantity set's area is "the extruded area"
     // (its profile), even for a sill or coping extruded along its length; on
-    // schependomlaan choosing the thinnest direction instead dropped 230
+    // the 8 corpus models choosing the thinnest direction instead dropped 226
     // agreeing pairs. With no extrusion, the thinnest direction.
     const n = body.axis ?? thinnestNormal(body)?.n;
     if (n) out.plan = cut(n);
