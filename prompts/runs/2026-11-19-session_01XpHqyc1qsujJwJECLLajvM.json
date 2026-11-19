@@ -27,12 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": 0,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 1,
   "outcome": "success",
   "errors": [
-    "A PreToolUse hook rejected a combined command because 'http.server' appeared both in the bracketed pkill pattern and in the server launch; the whole command (including writing the Playwright script) did not run, so the script was rewritten with Write."
+    "A PreToolUse hook rejected a combined command because 'http.server' appeared both in the bracketed pkill pattern and in the server launch; the whole command (including writing the Playwright script) did not run, so the script was rewritten with Write.",
+    "CI changed-ventures failed on an unrelated platform/ci/test_shallow_repair.py lock-timing test (passes locally 3/3)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -51,7 +52,7 @@
     "ventures/ids-model-check/eval/deprecated-subclasses-2026-11-19.md"
   ],
   "goal": "Deepen flagship ids-model-check",
-  "notes": "Deprecation list taken from buildingSMART/IFC4.3.x-development (19face7) docs text, not memory; only IFCWALLSTANDARDCASE and IFCELECTRICDISTRIBUTIONBOARD(TYPE) remain in IFC4X3_ADD2. Counted in 107 public IFC STEP files (IFC4.3.x-sample-models ef22440, Sample-Test-Files 5030f65, engine_web-ifc c051791c): IFC4X3 0 of 25 walls standard case; IFC4 151 of 572; IFC2X3 9,657 of 10,866. Editor: boxSubclasses/deprecatedFor; IFC4X3-only specs skip deprecated classes, named beside the box. Verification: node --test *.test.mjs 277 pass 0 fail (1 skipped); eval/also-subclasses.mjs public names 368->270, bSDD templates 79->30 classes; eval/editor-open.mjs 64/64, 12/12, 187/187 write back the same, audit-change list identical to before; Chromium check of the page labels in IFC4X3 and IFC4, no console errors; check_posts ok; validate.py ok. venture-preflight first failed on inherited_keys.py (DEPRECATED[S.name] unguarded), fixed with own(); rerun: preflight clean.",
+  "notes": "Deprecation list taken from buildingSMART/IFC4.3.x-development (19face7) docs text, not memory; only IFCWALLSTANDARDCASE and IFCELECTRICDISTRIBUTIONBOARD(TYPE) remain in IFC4X3_ADD2. Counted in 107 public IFC STEP files (IFC4.3.x-sample-models ef22440, Sample-Test-Files 5030f65, engine_web-ifc c051791c): IFC4X3 0 of 25 walls standard case; IFC4 151 of 572; IFC2X3 9,657 of 10,866. Editor: boxSubclasses/deprecatedFor; IFC4X3-only specs skip deprecated classes, named beside the box. Verification: node --test *.test.mjs 277 pass 0 fail (1 skipped); eval/also-subclasses.mjs public names 368->270, bSDD templates 79->30 classes; eval/editor-open.mjs 64/64, 12/12, 187/187 write back the same, audit-change list identical to before; Chromium check of the page labels in IFC4X3 and IFC4, no console errors; check_posts ok; validate.py ok. venture-preflight first failed on inherited_keys.py (DEPRECATED[S.name] unguarded), fixed with own(); rerun: preflight clean. CI: 24 of 25 checks green; changed-ventures ran ids-model-check's 278 tests ok but failed on platform/ci/test_shallow_repair.py test_a_lock_is_kept_while_a_git_process_runs_in_the_repo (this branch leaves platform/ alone); the same suite passed 3 of 3 runs locally, so it reads as a runner timing flake. Merged on that basis.",
   "corrections": [],
   "redteam": null,
   "usage": {
