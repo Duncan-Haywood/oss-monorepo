@@ -16,6 +16,7 @@
 // that round. Every real pair still partners at most once and games stay within one of each other.
 import { WHIST_BASES } from "./whist-bases.mjs";
 import { NEAR_WHIST_BASES } from "./near-whist-bases.mjs";
+import { orbitDesign, orbitSizes } from "./whist-orbits.mjs";
 
 function groupOps(mods) {
   const co = (x) => mods.map((m) => { const c = x % m; x = Math.floor(x / m); return c; });
@@ -25,7 +26,7 @@ function groupOps(mods) {
 
 /** The sizes with a stored design. */
 export function whistSizes() {
-  return Object.keys(WHIST_BASES).map(Number).sort((a, b) => a - b);
+  return [...new Set([...Object.keys(WHIST_BASES).map(Number), ...orbitSizes()])].sort((a, b) => a - b);
 }
 
 /** The 4k+2 sizes with a stored near-whist design. */
@@ -40,7 +41,7 @@ export function nearWhistSizes() {
  */
 export function whistDesign(m) {
   const base = m % 4 === 2 ? NEAR_WHIST_BASES[m] : WHIST_BASES[m];
-  if (!base) return null;
+  if (!base) return m % 4 === 2 ? null : orbitDesign(m); // several base rounds (whist-orbits.mjs)
   const v = base.mods.reduce((a, b) => a * b, 1);
   const { add } = groupOps(base.mods);
   const inf = m % 4 === 0 ? m - 1 : null;
