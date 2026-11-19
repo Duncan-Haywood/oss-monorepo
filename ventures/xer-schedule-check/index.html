@@ -156,7 +156,7 @@
 
   <section class="card" id="review" hidden aria-labelledby="rev">
     <h2 id="rev">Written review to send</h2>
-    <p>One document for the contractor: a summary, the corrections ranked high, medium and low with the exact activities behind each, the scorecard and the driving path. If you compared with the previous update above, the changes are in it too. Print it or save it as a PDF from the print dialog.</p>
+    <p>One document for the contractor: a summary, the corrections ranked high, medium and low with the exact activities behind each, the scorecard and the driving path. If you compared with the previous update above, the changes are in it too; if you ran the finish date risk analysis, its P50 and P80 dates, the chance of the must-finish date, the risk events and the near-critical activities are too. Print it or save it as a PDF from the print dialog.</p>
     <label for="rev-to">To (optional)</label>
     <input type="text" id="rev-to" placeholder="Contractor's scheduler">
     <label for="rev-from">From (optional)</label>
@@ -326,6 +326,7 @@
           (done, of) => { st.textContent = `Running: ${done} of ${of}...`; });
         lastRisk = r;
         renderRisk(r);
+        updateReview();
         st.textContent = `Done: ${r.iterations} runs over ${r.varied} activities.${pr.bad.length ? ` Skipped range line${pr.bad.length === 1 ? "" : "s"} ${pr.bad.join(", ")} (need ID, optimistic, most likely, pessimistic).` : ""}${pk.bad.length ? ` Skipped risk line${pk.bad.length === 1 ? "" : "s"} ${pk.bad.join(", ")} (need ID, probability, optimistic, most likely, pessimistic days, activity IDs).` : ""}`;
         record("risk_run");
       } catch (e) {
@@ -422,11 +423,12 @@
       prevXer = parseXer(EXAMPLE_PREV_XER);
       if (runCompare()) { record("example_loaded"); $("#cmp-status").textContent = "Example: two invented monthly updates of an office fit-out with deliberate changes between them, not a real project."; }
     });
-    function reviewMeta() { return { recipient: $("#rev-to").value.trim(), reviewer: $("#rev-from").value.trim(), reference: $("#rev-ref").value.trim(), notes: $("#rev-notes").value.trim() }; }
+    function reviewMeta() { return { recipient: $("#rev-to").value.trim(), reviewer: $("#rev-from").value.trim(), reference: $("#rev-ref").value.trim(), notes: $("#rev-notes").value.trim(), risk: lastRisk }; }
     function updateReview() {
       if (!last) { $("#review").hidden = true; return; }
-      const items = reviewItems(last, lastCmp), n = (s) => items.filter((x) => x.severity === s).length;
-      $("#rev-summary").textContent = `${items.length} correction${items.length === 1 ? "" : "s"} to request: ${n("high")} high, ${n("medium")} medium, ${n("low")} low${lastCmp ? ", including the changes since the previous update" : ""}.`;
+      const items = reviewItems(last, lastCmp, lastRisk), n = (s) => items.filter((x) => x.severity === s).length;
+      const parts = [lastCmp && "the changes since the previous update", lastRisk && "the finish date risk run above"].filter(Boolean);
+      $("#rev-summary").textContent = `${items.length} correction${items.length === 1 ? "" : "s"} to request: ${n("high")} high, ${n("medium")} medium, ${n("low")} low${parts.length ? `, including ${parts.join(" and ")}` : ""}.`;
       $("#review").hidden = false;
     }
     $("#rev-print").addEventListener("click", () => {
