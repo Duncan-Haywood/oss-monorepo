@@ -175,7 +175,9 @@ Options:
   --import-deputy-staff <json>  convert saved Deputy resource/Employee, EmployeeAgreement, EmployeeWorkplace and Company QUERY answers to
                       staff lines with sites: and "wage at <location>:" cells; --location <name|id> plans one location at its rates;
                       --wages-as-of <YYYY-MM-DD> uses the agreements in force then (default today)
-  --fetch-deputy-staff  the same, fetched from DEPUTY_INSTALL with DEPUTY_TOKEN (four paged queries); --save <file> keeps the responses
+                      with --week-start <Monday> [--weeks <n>], EmployeeAvailability and Leave answers become dated off: cells
+                      (unavailability blocks and approved leave in those weeks; --tz <zone> for blocks with no localized time)
+  --fetch-deputy-staff  the same, fetched from DEPUTY_INSTALL with DEPUTY_TOKEN (four paged queries, six with --week-start); --save <file> keeps the responses
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
                       --splh <$> flags days with more or fewer hours than that sales per labor hour calls for
@@ -736,11 +738,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     if (o.importDeputyStaff || o.fetchDeputyStaff) {
       let inputs;
       if (o.fetchDeputyStaff) {
-        const got = await fetchDeputyStaff({ token: process.env.DEPUTY_TOKEN, install: process.env.DEPUTY_INSTALL });
+        const got = await fetchDeputyStaff({ token: process.env.DEPUTY_TOKEN, install: process.env.DEPUTY_INSTALL, week: o.weekStart, weeks: o.weeks });
         if (o.save7) await writeFile(o.save7, got.responses.map((x) => JSON.stringify(x)).join("\n") + "\n");
         inputs = got.responses;
       } else inputs = await Promise.all(o.importDeputyStaff.map((f) => readFile(f, "utf8")));
-      const r = importDeputyStaff(inputs, { asOf: o.wagesAsOf, location: o.importLocation });
+      const r = importDeputyStaff(inputs, { asOf: o.wagesAsOf, location: o.importLocation, week: o.weekStart, weeks: o.weeks, timeZone: o.tz7 });
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.rows) process.exit(1);
       process.stdout.write(r.staffText + "\n"); process.exit(0);

@@ -133,3 +133,93 @@ test("fetchDeputyStaff: four paged QUERY calls to the install, OAuth header, nev
   const denied = async () => ({ ok: false, status: 403, json: async () => ({}) });
   await assert.rejects(fetchDeputyStaff({ token: "x", install: "a.na.deputy.com", fetchImpl: denied }), /403.*cannot read/);
 });
+
+// Time off (2026-11-19). Rows in the shape of Deputy's documented EmployeeAvailability sample response ("Setting an
+// Employees Unavailability", developer.deputy.com) and its Leave fields. Invented values; no real account was used.
+// Sydney in November is UTC+11.
+const unix = (iso) => Math.floor(Date.parse(iso) / 1000);
+const un = (Id, Employee, startIso, endIso, extra = {}) => ({ Id, Employee, Type: 0, MaxDateRecurringGenerated: null, StartTime: unix(startIso), EndTime: unix(endIso), Date: startIso.slice(0, 10) + "T00:00:00+11:00", Comment: "", Schedule: 0, Creator: 1, StartTimeLocalized: startIso, EndTimeLocalized: endIso, ...extra });
+const lv = (Id, Employee, DateStart, DateEnd, Status = 1, extra = {}) => ({ Id, Employee, EmployeeHistory: 1, Company: 1, LeaveRule: 2, DateStart, DateEnd, Days: 1, Status, ApprovalComment: "", Comment: "", ...extra });
+const week = "2026-11-16";
+
+test("unavailability blocks become dated off: cells for the week, split at midnight, and apply in parseStaff", () => {
+  const r = importDeputyStaff([
+    [emp(10, "Ana", "Silva"), emp(11, "Ben", "Ng")],
+    [ag(100, 10, 24), ag(101, 11, 22)],
+    [
+      un(1, 10, "2026-11-18T09:00:00+11:00", "2026-11-18T13:30:00+11:00"),          // Wed morning lecture
+      un(2, 10, "2026-11-20T00:00:00+11:00", "2026-11-21T00:00:00+11:00"),          // all of Friday (documented sample shape)
+      un(3, 11, "2026-11-21T22:00:00+11:00", "2026-11-22T06:00:00+11:00", { Type: 1, Schedule: 7 }), // Sat night into Sun
+      un(4, 11, "2026-11-25T09:00:00+11:00", "2026-11-25T17:00:00+11:00"),          // next week: not written
+    ],
+    [companies[0]],
+  ], { asOf, week });
+  assert.match(r.staffText, /^Ana Silva, 24, 40, 0, any, off: 2026-11-18 9-13:30; 2026-11-20$/m);
+  assert.match(r.staffText, /^Ben Ng, 22, 40, 0, any, off: 2026-11-21 22-24; 2026-11-22 0-6$/m);
+  assert.equal(r.counts.offPeople, 2);
+  assert.match(r.notes.join(" "), /3 unavailability blocks \(1 from a recurring pattern\) and 0 approved leave requests written as 4 dated off: entries for 2 people/);
+  const p = parseStaff(r.staffText, { weekStart: week });
+  assert.deepEqual(p.errors, []);
+  const ana = p.staff.find((x) => x.name === "Ana Silva");
+  // Wednesday (index 2): free 0-9 and 13:30-24; Friday (index 4): nothing.
+  assert.deepEqual(ana.days[2], [[0, 540], [810, 1440]]);
+  assert.deepEqual(ana.days[4], []);
+  assert.deepEqual(ana.days[0], [[0, 1440]]);
+});
+
+test("approved leave is whole days; awaiting, declined and cancelled are not applied; overlapping pieces merge", () => {
+  const r = importDeputyStaff([
+    [emp(10, "Ana", "Silva"), emp(11, "Ben", "Ng"), emp(12, "Cy", "Ito")],
+    [ag(100, 10, 24), ag(101, 11, 22), ag(102, 12, 21)],
+    [lv(1, 10, "2026/11/14", "2026/11/17", 1), lv(2, 11, "2026-11-19", "2026-11-19", 0), lv(3, 11, "2026-11-20", "2026-11-20", 2), lv(4, 12, "2026-11-21T00:00:00+11:00", "2026-11-21T00:00:00+11:00", 4, { AllDay: false })],
+    [un(1, 10, "2026-11-18T09:00:00+11:00", "2026-11-18T12:00:00+11:00"), un(2, 10, "2026-11-18T11:00:00+11:00", "2026-11-18T15:00:00+11:00")],
+  ], { asOf, week });
+  assert.match(r.staffText, /^Ana Silva, 24, 40, 0, any, off: 2026-11-16; 2026-11-17; 2026-11-18 9-15$/m);
+  assert.match(r.staffText, /^Ben Ng, 22, 40, 0, any$/m);
+  assert.match(r.staffText, /^Cy Ito, 21, 40, 0, any, off: 2026-11-21$/m);
+  const n = r.notes.join(" ");
+  assert.match(n, /1 leave request awaiting approval/);
+  assert.match(n, /1 part-day leave request blocked for the whole day/);
+  assert.deepEqual(parseStaff(r.staffText, { weekStart: week }).errors, []);
+});
+
+test("time off without a week is read but not applied, and a week that is not a Monday is refused", () => {
+  const inputs = [[emp(10, "Ana", "Silva")], [ag(100, 10, 24)], [un(1, 10, "2026-11-18T09:00:00+11:00", "2026-11-18T13:00:00+11:00")]];
+  const none = importDeputyStaff(inputs, { asOf });
+  assert.doesNotMatch(none.staffText, /off:/);
+  assert.match(none.notes.join(" "), /1 Deputy unavailability or leave row read but not applied/);
+  assert.match(importDeputyStaff(inputs, { week: "2026-11-18" }).notes[0], /not a Monday/);
+  // --weeks 2 reaches the second week.
+  const two = importDeputyStaff([...inputs, [un(2, 10, "2026-11-27T09:00:00+11:00", "2026-11-27T10:00:00+11:00")]], { asOf, week, weeks: 2 });
+  assert.match(two.staffText, /off: 2026-11-18 9-13; 2026-11-27 9-10$/m);
+});
+
+test("blocks with only Unix times read at the Date offset, or a named zone, or UTC with a note", () => {
+  const bare = (o) => { const x = un(1, 10, "2026-11-18T09:00:00+11:00", "2026-11-18T13:00:00+11:00", o); delete x.StartTimeLocalized; delete x.EndTimeLocalized; return x; };
+  const base = [[emp(10, "Ana", "Silva")], [ag(100, 10, 24)]];
+  assert.match(importDeputyStaff([...base, [bare()]], { asOf, week }).staffText, /off: 2026-11-18 9-13$/m);
+  assert.match(importDeputyStaff([...base, [bare({ Date: null })]], { asOf, week, timeZone: "Australia/Sydney" }).staffText, /off: 2026-11-18 9-13$/m);
+  const utc = importDeputyStaff([...base, [bare({ Date: null })]], { asOf, week });
+  assert.match(utc.staffText, /off: 2026-11-17 22-24; 2026-11-18 0-2$/m);
+  assert.match(utc.notes.join(" "), /read in UTC: pass --tz/);
+});
+
+test("unavailability rows are not read as rosters by the roster import", async () => {
+  const { importDeputy } = await import("./import-deputy.mjs");
+  const r = importDeputy([[un(1, 10, "2026-11-18T09:00:00+11:00", "2026-11-18T13:00:00+11:00")]]);
+  assert.equal(r.rows || 0, 0);
+});
+
+test("fetch with a week adds the EmployeeAvailability and Leave queries for those days", async () => {
+  const calls = [];
+  const fetchImpl = async (url, init) => { calls.push({ url, body: JSON.parse(init.body) }); return { ok: true, json: async () => [] }; };
+  const got = await fetchDeputyStaff({ token: "t", install: "acme.au.deputy.com", week, fetchImpl });
+  assert.equal(got.responses.length, 6);
+  const av = calls.find((c) => c.url.endsWith("/resource/EmployeeAvailability/QUERY"));
+  assert.ok(av);
+  assert.equal(av.body.search.s1.data, unix("2026-11-16T00:00:00Z") - 2 * 86400);
+  const leave = calls.find((c) => c.url.endsWith("/resource/Leave/QUERY"));
+  assert.deepEqual([leave.body.search.s1.data, leave.body.search.s2.data], [week, "2026-11-22"]);
+  const plain = await fetchDeputyStaff({ token: "t", install: "acme.au.deputy.com", fetchImpl });
+  assert.equal(plain.responses.length, 4);
+});
