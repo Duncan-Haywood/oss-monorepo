@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVPNm7zJXZ49bi5LuS5",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell revenue-generating products); merge when done",
+  "input_sha256": "3922f8a202cf7420fe7c6a9e481fdb272927e9d3ecf1239a1946e1617d40a96a",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": "2026-11-19T00:50:00Z",
+  "ended": "2026-11-19T02:50:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/aerolog-scaling milestone 11ao: operator-specific barometer speed offsets vs the altitude-layer stack",
+  "projects": [
+    "aerolog-scaling"
+  ],
+  "pr": 17483,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "The chained background run (main + --all12) used a 2 h run_in_background timeout; the main run took about 1 h 50 min, so the --all12 sensitivity was killed after 8 of 24 layouts and is not reported."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Every outbound host except github.com (arXiv, Crossref, OpenAlex, Semantic Scholar, NTRS, logs.px4.io) answered 403 to CONNECT this session, so the paper's open literature step could not advance; the run picked an offline milestone from committed data instead."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "run_in_background's 7200000 ms cap also caps a chain of jobs in one command; start each multi-hour job as its own background command."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The draw flagged a long chain of milestone-11 sub-steps; a paper step (literature) was the suggested alternative but no literature host answered, so this run added one new question (11ao) and folded it straight into the paper (section 6.5, Q7, discussion point) rather than leaving it LOG-only.",
+      "did": "new milestone + paper section in the same PR",
+      "result": "paper check 70 of 70"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-aerolog-airframe-speed-offset.md"
+  ],
+  "goal": null,
+  "notes": "11ao: offsets drawn from 11an's 5 en-route RTK flights. s=1: aware h* 13.33 m (5 bands) at both M; blind/aware 1.0342 (M=12), 1.0183 (M=16), worst 1.7254; dist/aware 1.0277, 1.0219; aware/base 1.0355, 1.0538. s<=0.5: no change. s=2: 3 bands at 24 m, blind/aware 1.1631, 1.1296. P3, P4 held; P1, P2, P5 refuted. Checks run here: aerolog-scaling tests 260 passed; paper/check_airspace_numbers.py 70 of 70; research/_homepage/build.py ok; check_md_links ok; check_posts ok; research_live_links 0 updates. Predictions pushed in be77fc025 before any layout ran; --all12 restricted to M=12 by an edit made after the main run started but before any result was read (and then not completed).",
+  "corrections": [],
+  "redteam": null
+}
