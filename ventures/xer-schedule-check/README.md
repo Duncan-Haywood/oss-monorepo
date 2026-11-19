@@ -123,6 +123,27 @@ more of runs (medium), each listed with its criticality; and **no stated
 contingency** when the forecast is met in under half the runs (low). A risk run
 for another project in the same file is left out with a note. Checked on the
 six public files (eval/review-risk-check-2026-11-19.md).
+
+**Windows in the written review, and a full-list appendix** (2026-11-19,
+`report.mjs` `windowItems`, page: run the windows analysis on the job's
+updates, then print the review of the latest one; CLI `--windows u1.xer u2.xer
+... --report review.html [--appendix]`, which reviews the latest update against
+the one before it): the review carries a "Delay by window" section (each
+window's finish movement split into progress and revisions, the driving-path
+activities behind it, the activities named in more than one window) and two
+corrections a windows run can back. **Revisions that moved the finish later**
+in a window ask the contractor to justify each logic, duration, constraint and
+calendar change listed (medium at 5 or more working days, low below).
+**Revisions that took back time progress lost** (progress slipped the finish
+and the revisions pulled back 2 or more working days of it) ask for the
+recovery plan behind the shortened or re-sequenced work: the pattern of a
+schedule held on paper. A windows run of another project, or one that does not
+end at the reviewed update's data date, is left out with a note. With the
+appendix option the body still prints the first 40 activities of each
+correction, and an appendix lists all of them, so the document alone is the
+complete list. `xer.mjs` `xerText` writes a schedule back to XER text (P6 Web's
+multi-line calendars quoted as P6 Web writes them). Checked on the six public
+files: 18 update series built from them with planted re-estimates, slips and paper recoveries, written to disk and read by the CLI in shuffled order: the corrections equal the rules on all 18, every planted activity is named, every recovery plan expected (8) is asked and no other, and the appendix holds every row the body cut (on the 14,270-activity file that is 582 pages, so it is off by default) (eval/review-windows-check-2026-11-19.md).
 **Resource levelling** (2026-11-19, `level.mjs`, the page's "Resource
 levelling" box, `--level`): the logic alone lets every crew work on everything
 at once. This delays not-started activities until each resource stays within
@@ -206,8 +227,10 @@ project's updates for delay claims; and the review itself as a service.
   statuses a file as planned to a new data date (optionally with planted
   slips), for the check below and the page's example series.
 - `report.mjs`: the written review. `reviewItems` turns each failing DCMA
-  point, extra check, stale-date list and comparison flag into one ranked
-  correction with its activities; `reviewHtml` lays them out for print.
+  point, extra check, stale-date list, comparison flag, risk finding and
+  windows finding (`windowItems`) into one ranked correction with its
+  activities; `reviewHtml` lays them out for print, with an optional appendix
+  of every activity.
 - `risk.mjs`: the Monte Carlo run. Seeded generator (repeatable), triangular
   draws (one-factor Gaussian copula when correlated), `cpm.mjs` forward pass
   only (`forwardOnly`, `durations`), driving path per run, sensitivity as the

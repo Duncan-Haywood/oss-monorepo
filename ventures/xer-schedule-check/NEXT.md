@@ -5,3 +5,4 @@
 ## Parked from flagships.yaml `next:`
 
 - (2026-11-19) next: a P6-levelled XER to compare dates with, levelling in the written review and the risk run
+- (2026-11-19) next a real construction .xml, task splits
