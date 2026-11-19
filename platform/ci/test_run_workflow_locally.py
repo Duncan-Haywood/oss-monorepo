@@ -2627,6 +2627,45 @@ class PostPrecheck(unittest.TestCase):
         pick.assert_called_once()
 
 
+class BrowserSweepPrecheck(unittest.TestCase):
+    """A venture page the diff touches is swept in a browser before the workflows."""
+
+    def _sweep(self, result, **kw):
+        args = argparse.Namespace(for_changes="origin/main", list=False,
+                                  workflow_timeout=0, no_post_check=True, **kw)
+        out = io.StringIO()
+        with mock.patch.object(runner, "changed_paths", return_value=["ventures/x/index.html"]), \
+             mock.patch.object(runner, "browser_sweep_precheck", return_value=result) as pre, \
+             mock.patch.object(runner, "pick_workflows", return_value=([], [])) as pick, \
+             mock.patch.object(runner, "_run_selected", return_value=0), \
+             contextlib.redirect_stdout(out):
+            code = runner.run_for_changes(args)
+        return code, out.getvalue(), pick, pre
+
+    def test_a_hit_stops_before_selecting_workflows(self):
+        code, out, pick, _ = self._sweep((1, "html_injection 1 hit(s)"))
+        self.assertEqual(code, 1)
+        self.assertIn("html_injection 1 hit", out)
+        self.assertIn("--no-browser-sweeps", out)
+        pick.assert_not_called()
+
+    def test_no_playwright_notes_and_sweeps_on(self):
+        code, out, pick, _ = self._sweep((2, "venture_sweeps: Playwright is not importable"))
+        self.assertEqual(code, 0)
+        self.assertIn("not importable", out)
+        pick.assert_called_once()
+
+    def test_the_flag_skips_it(self):
+        code, _, pick, pre = self._sweep((1, "hit"), no_browser_sweeps=True)
+        self.assertEqual(code, 0)
+        pre.assert_not_called()
+        pick.assert_called_once()
+
+    def test_a_diff_without_venture_pages_runs_nothing(self):
+        self.assertEqual(runner.browser_sweep_precheck(["docs/posts/p.md", "ventures/x/README.md"]),
+                         (0, ""))
+
+
 class UncommittedNote(unittest.TestCase):
     """--for-changes names uncommitted files a `"$BASE" HEAD` step cannot see."""
 
