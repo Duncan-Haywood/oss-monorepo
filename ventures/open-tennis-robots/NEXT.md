@@ -13,4 +13,4 @@
 
 ## Buildable here (added 2026-11-18)
 
-- The nine-point take grid (0-8 ms by 1) decided on its own held-out set: offline from the dense refits it came within 0.5 ms on 47, 52 and 49 builds of 54 against the shipped grid's 43, 46 and 48 (eval/take-survey-fresh-2026-11-18.md). It lengthens the TAKE_SURVEY frame (nine rms values) and costs two fits a wheel, so check the frame, the Pi's parser and the survey's time per wheel too.
+- (2026-11-19) The eight-point grid (0, 2, 3, 4, 5, 6, 7, 8 ms) shipped (eval/take-grid-eight-2026-11-19.md). The nine-point grid now adds only the 1 ms point; G to I's large misses at 1-2.5 ms are the fit's (the same builds on every grid), so test the fit's take-blindness under 2.5 ms before another grid point.

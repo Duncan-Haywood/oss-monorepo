@@ -71,4 +71,50 @@ Otherwise the shipped grid stays. The nine-point grid and the spline are not sco
 
 ## Results
 
-(Filled in after the capture.)
+Rows: `take-grid-eight-j-2026-11-19.jsonl.gz`, `-k-` and `-l-`. Full tables and the by-take verdicts of both grids:
+`take-grid-eight-j-2026-11-19.txt`, `-k-` and `-l-`. No drill aborted (216 of 216). Each set took about 3 minutes to
+capture on four cores and about 3 to score.
+
+### The decision: the eight-point grid ships
+
+Parabola, verdicts rounded to 0.5 ms, shipped (0, 2, 3, 4, 5, 6, 8) / eight-point (0, 2, 3, 4, 5, 6, 7, 8):
+
+| | J (0.48 s, 79) | K (0.38 s, 83) | L (0.68 s, 89) | pooled |
+| --- | --- | --- | --- | --- |
+| within 0.5 ms | 50 / 62 | 48 / 61 | 51 / 62 | **149 / 185** |
+| builds off by more than 1 ms | 6 / 6 | 4 / 4 | 5 / 5 | 15 / 15 |
+| mean absolute error, ms | 0.443 / 0.353 | 0.432 / 0.339 | 0.514 / 0.426 | 0.463 / 0.373 |
+| within 1 ms | 66 / 66 | 68 / 68 | 67 / 67 | 201 / 201 |
+| spread takes named within 1 ms and advised | 50 / 50 | 48 / 48 | 48 / 48 | 146 / 146 |
+| instant builds advised | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
+
+Clause 1 needed 6 more builds within 0.5 ms and got 36. Clauses 2 to 6 held: the same large misses, a lower mean
+absolute error, the same advice, no instant build advised, and more builds within 0.5 ms on every set (+12, +13,
++11). So `TAKE_SURVEY_GRID_US` is now 0, 2, 3, 4, 5, 6, 7, 8 ms in `controller.py` and `config.py`,
+`host.TAKE_SURVEY_MS` gained 7, `protocol.TAKE_SURVEY_TIMES` is 8, and the Pi still reads both older frames (seven
+candidates with and without the summed-wheel byte; `protocol.OLDER_FORMATS`, `test_seven_candidate_frame_still_reads`).
+
+### The predictions
+
+- (e1) **held, with a correction.** +36, not merely 6. The gains came at 6.6 ms (15: 2 of 18 to 17 of 18 within
+  0.5 ms), 7.15 ms (13: 5 to 18) and 6.1 ms (8: 8 to 16). The 6.1 ms gain was not predicted: with only 5 and 8 ms to
+  bend through around a least at 6, the shipped parabola read 6.1 ms takes as 5.5 on 10 of 18 builds.
+- (e2) **held.** Below 5 ms every verdict is the same on both grids (the by-take tables, 0 to 4.2 ms).
+- (e3) **held.** 15 large misses on each grid, the same builds; all sit at 2.35 ms or below, the fit's
+  take-blindness under 2.5 ms (`eval/take-grid-fresh-g-i-2026-11-18.md`), which no grid point at 7 ms can reach.
+- (e4) **held.** No instant build advised.
+
+### What it costs
+
+One more refit a surveyed wheel. On the simulator's calibration drill (12 balls, `drill.calibration.json`, wheel
+lag 0.4 and 0.65 s), the Pi held its balls for the board's surveys 127.4 s against 114.4 s on the seven-point grid
+(+13 s, +11%), 10.6 s a ball on average against `host.TAKE_WAIT_S` of 12 s; no ball's survey was cut
+(`survey_cut` 0) and 22 wheels were summed on both grids. The TAKE_SURVEY frame grows by two bytes, to 24.
+
+## Not known
+
+All simulated: the simulator's first-order wheel and continuous half-sine take, one seed per set, one draw of takes,
+weighted on purpose toward 5-8 ms. The eight-point verdicts are offline refits of wheels the board surveyed on the
+seven-point grid, not an eight-candidate board run end to end; the board run above checks the frame, the parser and
+the hold time, not the verdicts. A real ball's contact time on a real wheel has not been measured, so how often a real
+build's take falls in 6-7.5 ms, where the gain sits, is unknown.
