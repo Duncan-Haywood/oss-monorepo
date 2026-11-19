@@ -89,6 +89,25 @@ class QualityAuditTest(unittest.TestCase):
         assert len([p for p in later if p["stratum"] == "research"]) == 2
 
 
+    def test_draw_skips_subjects_rounds_in_flight_hold(self):
+        today = dt.date(2026, 11, 19)
+        first = q.draw("2026-11-19-d-0001", audits=[], pop=POP, today=today)
+        assert first[0]["subject"] == "ventures/a"
+        # replaying an open round's seed holds what it drew, so a second round gets the other flagship
+        held = q.held_subjects([(76, "2026-11-19-d-0001")], [], pop=POP, today=today)
+        assert held == {p["subject"] for p in first}
+        second = q.draw("2026-11-19-e-0002", audits=[], pop=POP, today=today, exclude=held)
+        assert second[0]["subject"] == "ventures/b"
+        assert not held & {p["subject"] for p in second}
+        # a third round replays both in round order and finds no flagship free
+        held2 = q.held_subjects([(77, "2026-11-19-e-0002"), (76, "2026-11-19-d-0001")], [], pop=POP, today=today)
+        assert {"ventures/a", "ventures/b"} <= held2
+        third = q.draw("2026-11-19-f-0003", audits=[], pop=POP, today=today, exclude=held2)
+        assert all(p["stratum"] != "flagship" for p in third)
+        # stale, unseeded or undated claims hold nothing
+        assert q.held_subjects([(34, "2026-11-10-c"), (60, None), (61, "custom")], [], pop=POP, today=today) == set()
+
+
     def test_summary_uses_latest_audit_and_reports_sampled_share(self):
         rows = [
             audit(subject="ventures/a", date="2026-11-01", scores={**FULL, "correctness": 1}),
