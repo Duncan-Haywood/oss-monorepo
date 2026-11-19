@@ -66,8 +66,26 @@ test("support comes first and the combined take stays within the support cap", (
   const a = analyze(base({ orders: [{ type: "ordinary", demand: "" }, { type: "support", demand: "300" }] }));
   assert.equal(a.results[0].type, "support");
   assert.equal(a.results[0].take, 300);
-  assert.equal(a.results[1].take, 111.75);
+  // $300 support is more than 25% of disposable earnings, so nothing is left
+  // for the ordinary debt (DOL Fact Sheet #30).
+  assert.equal(a.results[1].take, 0);
   assert.ok(a.summary.totalTake <= a.summary.supportCap);
+});
+
+test("Fact Sheet #30 example: $370 weekly with $140 support leaves nothing for a creditor", () => {
+  const a = analyze({ period: "weekly", gross: "370", orders: [{ type: "support", demand: "140" }, { type: "ordinary", demand: "" }] });
+  assert.deepEqual(a.results.map((r) => [r.type, r.take]), [["support", 140], ["ordinary", 0]]);
+  assert.equal(a.summary.totalTake, 140);
+});
+
+test("support below 25% leaves only the rest of the 25% for a student loan", () => {
+  const a = analyze({ period: "weekly", gross: "1000", orders: [{ type: "support", demand: "200" }, { type: "student", demand: "" }] });
+  assert.equal(a.results[1].take, 50);
+});
+
+test("a state percent does not cut a federal student-loan garnishment", () => {
+  const a = analyze({ period: "weekly", gross: "1000", stateLimitPct: "10", orders: [{ type: "student", demand: "" }] });
+  assert.equal(a.results[0].take, 150);
 });
 
 test("a lower state limit reduces the ordinary-debt cap", () => {

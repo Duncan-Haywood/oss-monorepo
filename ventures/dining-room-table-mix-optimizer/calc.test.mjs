@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  analyze, normalize, drawServices, evaluate, runService, search, toCsv, mulberry32, PARTY_SIZES,
+  analyze, enumerateMixes, normalize, drawServices, evaluate, runService, search, toCsv, mulberry32, PARTY_SIZES,
   EXAMPLE_SHARED, EXAMPLE_TABLES, EXAMPLE_PARTIES, TABLE_DEFAULTS, PARTY_DEFAULTS,
 } from "./calc.mjs";
 
@@ -119,4 +119,27 @@ test("parties above MAX_PARTIES are refused with a message, not simulated for mi
   assert.ok(a.warnings.some((w) => w.includes(`up to ${MAX_PARTIES} parties`) && w.includes("100,000")));
   const atCap = analyze(EXAMPLE_TABLES, EXAMPLE_PARTIES, { ...EXAMPLE_SHARED, partiesPerService: String(MAX_PARTIES) });
   assert.equal(atCap.ok, true);
+});
+
+test("the recommendation beats every feasible mix, not just a local optimum (combining off)", () => {
+  // Before the exhaustive check, local search stopped at [3,11,1,0] (112.28 guests a
+  // service on the report set) while [7,7,2,0] seats 116.71 (quality audit 2026-11-19).
+  const a = analyze(EXAMPLE_TABLES, EXAMPLE_PARTIES, { ...EXAMPLE_SHARED, combine: "no" });
+  assert.equal(a.exhaustive, true);
+  assert.deepEqual(a.recCounts, [7, 7, 2, 0]);
+  const all = enumerateMixes(a.types, 460, 5000);
+  assert.equal(all.length, 944);
+});
+
+test("money outputs follow from the guest gain, spend, services and margin", () => {
+  const a = analyze(EXAMPLE_TABLES, EXAMPLE_PARTIES, EXAMPLE_SHARED);
+  const s = a.shared;
+  assert.ok(Math.abs(a.monthlyRevenue - a.deltaGuests * s.spendPerGuest * s.servicesPerMonth) < 1e-6);
+  assert.ok(Math.abs(a.monthlyContribution - a.monthlyRevenue * s.marginPct / 100) < 1e-6);
+  assert.ok(s.servicesPerMonth > 1 && s.marginPct > 0 && s.marginPct < 100);
+  const diff = a.rec.guests.map((g, i) => g - a.cur.guests[i]);
+  const m = diff.reduce((x, y) => x + y, 0) / diff.length;
+  const sd = Math.sqrt(diff.reduce((x, d) => x + (d - m) ** 2, 0) / (diff.length - 1));
+  assert.ok(Math.abs(a.deltaSe - sd / Math.sqrt(diff.length)) < 1e-9);
+  assert.equal(diff.length, 300);
 });
