@@ -21,6 +21,12 @@ The two cases below marked "regression" are the exact pair that were red.
 """
 import importlib.util
 import unittest
+
+# The validator calls sys.exit() when PyYAML is missing, which a test runner
+# reports as a plain failure. Importing it here first makes a missing package a
+# ModuleNotFoundError, which platform/ci/unwired_checks.py reports as a named
+# skip, the way it treats every other suite on a runner without PyYAML.
+import yaml  # noqa: F401
 from pathlib import Path
 
 _SPEC = importlib.util.spec_from_file_location(
