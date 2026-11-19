@@ -34,10 +34,9 @@ def majority_prob(q, m):
     return sum(comb(m, s) * q**s * (1 - q) ** (m - s) for s in range(m // 2 + 1, m + 1))
 
 
-def fixed_point(n=200, rho=0.12, block=1, k=2, m=9, eps=0.02, iters=3000, tol=1e-10):
+def fixed_point(n=200, rho=0.12, block=1, k=2, m=9, eps=0.02, iters=20000, tol=1e-12):
     """Iterate the local map from x = 0. Returns (mean x over people, iterations used)."""
     robot = block_placement(n, round(rho * n), block)
-    table = [majority_prob(i / 1000, m) for i in range(1001)]
     x = [0.0] * n
     for it in range(1, iters + 1):
         c = [1.0 if i in robot else (1 - eps) * x[i] + eps / 2 for i in range(n)]
@@ -47,7 +46,9 @@ def fixed_point(n=200, rho=0.12, block=1, k=2, m=9, eps=0.02, iters=3000, tol=1e
             if i in robot:
                 continue
             q = sum(c[(i + d) % n] + c[(i - d) % n] for d in range(1, k + 1)) / (2 * k)
-            v = table[round(q * 1000)]
+            # exact binomial, not a 1/1000 lookup: the rounded table made the map piecewise
+            # constant and froze slowly moving fronts (quality audits 2026-11-19).
+            v = majority_prob(q, m)
             delta = max(delta, abs(v - x[i]))
             new[i] = v
         x = new
