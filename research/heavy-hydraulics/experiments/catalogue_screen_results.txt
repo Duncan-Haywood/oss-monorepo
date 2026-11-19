@@ -1,0 +1,38 @@
+Milestone 7y: idle drag read from a catalogue's top pressure band only (curves within 50 bar of each size's maximum, as Magister GP3K draws them) against the full catalogue reading
+Central idle condition ('PVG32', 2.0, 1.0); bend b = P_idle(79) / P_idle(64); 'bends' means b > 1.55
+
+Catalogues screened for a second measured bending family (2026-11-19):
+  Danfoss GearMe Aluminum Group 2 (BC319580185580en-000105): power at 2-3 pressures and flow, 3.9-25.2 cm3/r; largest size gives about 52 L/min at 2100 r/min: b would be read entirely above the family's range (held or spun, as AZPF), not measured
+  Danfoss GearMe Aluminum Group 4 (BC319660010597en-000103): no performance graphs, 58-194 cm3/r; no curves to read
+  Danfoss GearMe Group 0/1, Group 2 Flex, Group 2 Compact: Group 0/1 power for tiny sizes; Flex and Compact none; below the excavator's flow range or no curves
+  Parker PGP030/031/050/051/075/076 (HY09-030/US): a table of average input power at 172 bar (138 bar for some); one pressure: no zero-pressure intercept
+  Magister Hydraulics GP3K (gear pumps catalogue, pp. 62-66): flow at max pressure; power at 3 pressures within 50 bar of each size's maximum, 20-90 cm3/r, 16 mm2/s at 60 C; drag only by extrapolation over 150-250 bar; this script measures that error on the seven readable families
+  Turolla Alu Group 3 (hainzl.at copy): not read: the host returned an HTML page, not the PDF; the same SNP3 line as Danfoss in any case, so not independent
+  Danfoss Rugid cast iron Group 2.5 (BC424862587147en-000401): not read: empty download; unread
+
+  family            P64 full  P64 top   err%  P79 full  P79 top  b full   b top      db  class full/top  P(0) err% (median over sizes)
+  casappa KP30         2.373    3.866  +62.9     3.258    4.928   1.373   1.275  -0.098  flat/flat     +178.8
+  danfoss SNP3         2.418    1.706  -29.5     4.308   -0.019   1.781  -0.011  -1.793  bends/flat     +22.4
+  marzocchi ALP3       2.485    2.567   +3.3     3.218    3.097   1.295   1.206  -0.089  flat/flat      +21.7
+  rexroth AZPG         1.766    0.073  -95.9     2.322    0.430   1.314   5.914  +4.600  flat/bends    -362.7
+  rexroth AZPU         1.693    0.649  -61.7     2.269    1.701   1.341   2.620  +1.280  flat/bends    -132.9
+  rexroth AZPN         1.776    1.545  -13.0     2.274    1.860   1.281   1.203  -0.077  flat/flat     -133.7
+  rexroth AZPF         1.837    1.492  -18.8     2.379    1.956   1.295   1.311  +0.016  flat/flat     -100.3
+
+Power curves kept per size (bar):
+  casappa KP30     27: 200,280; 34: 200,260; 38: 200,260; 43: 200,250; 51: 150,230; 56: 150,215; 61: 150,200; 73: 100,180
+  danfoss SNP3     22: 150,250; 26: 150,250; 33: 150,250; 38: 150,250; 44: 150,250; 48: 150,230; 55: 150,230; 63: 150,210; 75: 150,180; 90: 100,140
+  marzocchi ALP3   30: 200,250; 33: 200,250; 40: 200,250; 50: 200,250; 60: 200,250; 66: 200,250; 80: 200,250; 94: 200,250; 110: 150,200; 120: 150,200; 135: 150,200
+  rexroth AZPG     22: 250,280; 25: 250,280; 28: 250,280; 32: 250,280; 36: 250,280; 40: 250,280; 45: 250,280; 50: 200,250; 56: 200,225; 63: 150,200
+  rexroth AZPU     22: 250,280; 25: 250,280; 28: 250,280; 32: 250,280; 36: 250,280; 40: 250,280; 45: 250,280; 50: 200,250; 56: 200,225; 63: 150,200
+  rexroth AZPN     20: 200,250; 22: 200,250; 25: 200,250; 28: 200,230; 32: 150,200; 36: 150,180
+  rexroth AZPF     4: 250,280; 5: 250,280; 8: 250,280; 11: 250,280; 14: 250,280; 16: 250,280; 19: 200,230; 22: 150,210; 25: 200,225; 28: 150,200
+
+|db|: median 0.098, max 4.600; Danfoss db -1.793; Danfoss's measured gap to the next family's b 0.408
+|P64 err|: median 29.5%, max 95.9%; families above 25%: 4 of 7
+Misclassified at b = 1.55: 3 of 7 (danfoss SNP3, rexroth AZPG, rexroth AZPU)
+
+PY1 (Danfoss |db| > 0.10): held
+PY2 (median |db| over seven > 0.10): refuted
+PY3 (|P64 err| > 25% in at least 4 of 7): held
+PY4 (at least one family misclassified at b = 1.55): held
