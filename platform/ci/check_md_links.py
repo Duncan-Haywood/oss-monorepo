@@ -26,6 +26,7 @@ import subprocess
 import sys
 from pathlib import Path
 from urllib.parse import unquote
+from repo_files import ls_files
 
 _TARGET_BODY = r"(?:[^()\s>]|\([^()\s]*\))+"
 _TITLE = r"(?:\s+\"[^\"]*\")?"
@@ -45,11 +46,7 @@ LINE_ANCHOR_RE = re.compile(r"L\d+(?:-L\d+)?", re.I)
 
 
 def tracked_markdown(root: Path) -> list[Path]:
-    out = subprocess.run(
-        ["git", "-C", str(root), "ls-files", "*.md"],
-        capture_output=True, text=True, check=True,
-    ).stdout.split("\n")
-    return [root / p for p in out if p and not p.startswith(ARCHIVE_DIRS)]
+    return [root / p for p in ls_files(root, "*.md") if not p.startswith(ARCHIVE_DIRS)]
 
 
 def links_in(text: str):
@@ -95,10 +92,7 @@ def tracked_paths(root: Path) -> set[str]:
     """Every tracked file and directory, so a sparse checkout that omits a
     PNG or MP3 still sees the link target as present."""
     try:
-        out = subprocess.run(
-            ["git", "-C", str(root), "ls-files"],
-            capture_output=True, text=True, check=True,
-        ).stdout.split("\n")
+        out = ls_files(root)
     except (OSError, subprocess.CalledProcessError):
         return set()
     paths = set()
