@@ -24,6 +24,9 @@ import {
   SITE,
   toJson,
   usableResult,
+  responsiveness,
+  variants,
+  canon,
 } from './tools.mjs';
 
 const REAL = '401k-loan-vs-withdrawal-calculator';
@@ -272,6 +275,43 @@ test('findExample: DEFAULTS as input, a shipped sample through a parse step, and
   assert.equal(d.example.function, 'compute');
   assert.deepEqual(d.example.input, {});
   assert.equal((await describe('sum-tool', root)).example, undefined, 'off by default: the fleet test stays fast');
+});
+
+test('variants, canon and responsiveness', async () => {
+  assert.deepEqual(variants(0), [1, 5, 100]);
+  assert.deepEqual(variants(true), [false]);
+  assert.deepEqual(variants('mtdc'), []);
+  assert.equal(canon({ b: 1, a: [2, { d: 3, c: Infinity }] }), canon({ a: [2, { c: Infinity, d: 3 }], b: 1 }));
+  assert.equal(await responsiveness((o) => ({ t: o.a * 2 }), { a: 1, b: 2, on: true }), 1);
+});
+
+test('entryCandidates leaves out CSV plumbing that only looks like an entry', () => {
+  const f = () => 1;
+  assert.deepEqual(entryCandidates({ detectDelimiter: f, detectDecimalComma: f, detectSpikes: f, analyze: f }), ['analyze', 'detectSpikes']);
+});
+
+test('findExample prefers the function that reads its inputs, and passes over one that reads none', async () => {
+  const root = await fixtureRoot({
+    // summarize(result) runs on DEFAULTS too and comes first in the conventional order.
+    'ventures/budget-tool/index.html': page('Budget', 'd', 'import { computeBudget, summarize } from "./calc.mjs";'),
+    'ventures/budget-tool/calc.mjs':
+      'export const DEFAULTS = { a: 1, b: 2, c: 3, rate: 10 };\n' +
+      'export function summarize(r) { return { text: r.direct ? "ok" : "Enter a cost." }; }\n' +
+      'export function computeBudget(o) { return { direct: o.a + o.b + o.c, indirect: (o.a + o.b + o.c) * o.rate / 100 }; }\n',
+    // DEFAULTS are options; with no rows the answer ignores them all. The sample text is the real first call.
+    'ventures/tiers-tool/index.html': page('Tiers', 'd', 'import { analyze } from "./calc.mjs";'),
+    'ventures/tiers-tool/calc.mjs':
+      'export const DEFAULTS = { royaltyPct: 6 };\n' +
+      'export const SAMPLE_TEXT = "a,10\\nb,20";\n' +
+      'export function analyze(x) { if (typeof x !== "string") return { errors: ["Add at least one tier."], tiers: [] };\n' +
+      '  return { tiers: x.split("\\n").map((l) => Number(l.split(",")[1]) * 0.94) }; }\n',
+    // Nothing better: the unresponsive DEFAULTS call is still returned rather than null.
+    'ventures/only-tool/index.html': page('Only', 'd', 'import { analyze } from "./calc.mjs";'),
+    'ventures/only-tool/calc.mjs': 'export const DEFAULTS = { fee: 1 };\nexport function analyze(o) { return { rows: [] }; }\n',
+  });
+  assert.deepEqual(await findExample('budget-tool', root), { module: 'calc.mjs', function: 'computeBudget', input: {} });
+  assert.deepEqual(await findExample('tiers-tool', root), { module: 'calc.mjs', function: 'analyze', text: 'a,10\nb,20' });
+  assert.deepEqual(await findExample('only-tool', root), { module: 'calc.mjs', function: 'analyze', input: {} });
 });
 
 test('findExample gives a real catalogue tool a call that call() then runs', async () => {
