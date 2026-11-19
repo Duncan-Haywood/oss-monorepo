@@ -138,6 +138,39 @@ test("CPM: progress at the data date, retained logic and lag from a finished pre
   assert.equal(at(out, x, "D").es, "2025-12-04 08:00");
 });
 
+test("CPM: retained logic through out-of-sequence progress (SS from started work, finished nodes both ways)", () => {
+  // data date Wed 3 Dec 08:00. P (16 h) not started; C started Mon but waits
+  // on P (FS), so its 8 h left run Fri. S follows C SS lag 16: the lag from
+  // C's actual start is spent, but S waits for C's remaining work (Fri).
+  // F finished, though its predecessor P has not: F is a node at P's finish
+  // (Thu 17:00) and G (SS lag 8 after F) starts no earlier than that node.
+  const x = project(
+    [
+      task("1", "P", 16),
+      task("2", "C", 8, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 16 }),
+      task("3", "S", 8),
+      task("4", "F", 0, { status_code: "TK_Complete", act_start_date: "2025-12-01 08:00", act_end_date: "2025-12-01 17:00", target_drtn_hr_cnt: 8 }),
+      task("5", "G", 8),
+    ],
+    [link("1", "2", "1"), link("2", "3", "2", "PR_SS", 16), link("3", "4", "1"), link("4", "5", "4", "PR_SS", 8)],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  const out = schedule(x);
+  assert.equal(at(out, x, "C").es, "2025-12-05 08:00");
+  assert.equal(at(out, x, "S").es, "2025-12-05 08:00"); // was Wed 3 Dec (actual start + lag)
+  assert.equal(at(out, x, "G").es, "2025-12-05 08:00"); // was Wed 3 Dec (data date)
+  // backward: the finished node F gets late dates of its own, with no lag
+  // back from G, and bounds P's late finish
+  const F = out.tasks.get("4");
+  assert.equal(formatDate(F.lf), at(out, x, "G").ls);
+  assert.ok(out.tasks.get("1").lf <= F.lf);
+  assert.equal(at(out, x, "S").tf, 0);
+  // the old behaviour is still there as a variant, for comparison runs
+  const old = schedule(x, { variant: { ssActivePred: "es", ssDoneNode: false } });
+  assert.equal(at(old, x, "S").es, "2025-12-03 08:00");
+  assert.equal(at(old, x, "G").es, "2025-12-03 08:00");
+});
+
 test("CPM: as late as possible takes up free float; loops are found and reported", () => {
   const x = project(
     [task("1", "A", 8), task("2", "B", 8, { cstr_type: "CS_ALAP" }), task("3", "C", 24), task("4", "End", 0, { task_type: "TT_FinMile" })],
