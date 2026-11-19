@@ -813,6 +813,12 @@ because the bound then spends the whole spec and the windup term adds to it. The
 and ankle pitch joints, which move the nose little along the wall and 0.27 to 0.29 mm across it, a direction the
 bound leaves out; with no budget the worst residual across the wall is 0.026 mm. The bound should carry both rows.
 
+Carrying both rows closes the gap at no cost (milestone 58). Pricing each flip through the across-wall row as well,
+with half of a 0.03 mm spec for each direction, on a second held-out set of 48 loads, the y-only rule again leaves
+presses 0.2713 mm (G1) and 0.2865 mm (H1) across the wall, while the two-row rule keeps every planned case inside
+0.03 mm in both directions (worst 0.0220 mm across) and plans the same share, 100% on the G1 and 99.63% on the H1.
+The second row changes which hold sides and squeeze are chosen, not whether a plan exists.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

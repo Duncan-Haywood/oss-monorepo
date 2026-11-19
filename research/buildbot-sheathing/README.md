@@ -749,6 +749,17 @@ sensor bias.
 
 ![Coverage against the worst residual for each budget share, and the worst residual along and across the wall](experiments/m57_beta/figure.png)
 
+**Milestone 58: price each flip across the wall too.** Each joint's flip cost now goes through both in-plane rows of
+the nose Jacobian, along the wall (Y<sub>y</sub>) and across it (Y<sub>z</sub>), each with half of a 0.03 mm spec,
+and the squeeze and hold sides minimise the larger of the two. On 48 more held-out loads (seed 58), the y-only rule
+again leaves 4 G1 and 5 H1 presses over 0.03 mm across the wall (worst 0.27 and 0.29 mm; H231 held). **With both rows,
+every planned press is inside 0.03 mm in both directions (worst z 0.022 mm on the G1, 0.018 mm on the H1; H229
+held), and coverage does not move: 100% on the G1, 99.63% on the H1 (H230 held).** The z row moves plans to other
+hold sides rather than dropping them, and a looser 0.3 mm z spec gives the same plans. One seed; statics; constant
+sensor bias; the z spec is carried over from y, not sourced.
+
+![Worst residual along and across the wall, and coverage, under the y-only and two-row bounds](experiments/m58_tworow/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

@@ -1378,6 +1378,7 @@ ventures/workers-comp-audit-dispute-checker/usage.mjs
 ventures/workers-comp-premium-calculator/usage.mjs
 ventures/workflow-audit/usage.mjs
 ventures/world-clock-widget/site/usage.mjs
+ventures/xer-schedule-check/usage.mjs
 ventures/xero-bank-statement-csv-check/usage.mjs
 ventures/xero-contacts-csv-check/usage.mjs
 ventures/xero-invoice-csv-check/usage.mjs

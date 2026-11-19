@@ -40,8 +40,9 @@ Not applied: ``0x412`` (a curve chosen by the nearest ``0x21a`` value; no file a
 entries no reader documents (``0x402``-``0x408``, ``0x40f``, ``0x413``, ``0x414``, ``0x418``, ``0x41c``,
 ``0x420``-``0x439``). The block's layout and the arithmetic as LibRaw 0.22 reads them (``phase_one_correct``,
 ``phase_one_flat_field``, ``cubic_spline``; LGPL-2.1/CDDL), read for the format only; this is an independent
-implementation, compared sensel for sensel with LibRaw's render on ten backs
-(``tools/iiq_calibration_check.py``, ``eval/phaseone-iiq-calibration-2026-11-19.md``).
+implementation, compared sensel for sensel with LibRaw's render on 16 backs in IIQ L, 16-bit IIQ L and IIQ S
+(``tools/iiq_calibration_check.py``, ``eval/phaseone-iiq-calibration-2026-11-19.md``,
+``eval/phaseone-iiq-calibration-newer-backs-2026-11-19.md``).
 """
 
 from __future__ import annotations

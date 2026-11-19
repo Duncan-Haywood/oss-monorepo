@@ -17,10 +17,29 @@ spread and further off, and "invented" when the build's take is instant and a no
 minimum holds back is "held". Pick-0 verdicts are left out (their advice, keep or set TAKE_US = 0, is not a take).
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_kept.py rows.jsonl[.gz] ... [--ks 0,2] [--by-kept]
+    ... [--drills]      # also count by drill (2026-11-19, README "One informative wheel, counted by drill")
+
+Each row is rescored on the grid it was captured with (GRIDS, by the length of its board rows): the stored sets before
+2026-11-19 carry seven candidates, and rescoring them on the board's nine-point grid raised an IndexError.
 """
 import sys
 
 from take_survey_trim import load
+
+# the take survey's grid by the number of candidates a stored board row carries (controller.TAKE_SURVEY_GRID_US is
+# the newest; protocol.OLDER_FORMATS decodes the same three frame lengths)
+GRIDS = {
+    7: (0, 2000, 3000, 4000, 5000, 6000, 8000),            # shipped before 2026-11-19
+    8: (0, 2000, 3000, 4000, 5000, 6000, 7000, 8000),      # README "An eight-point take grid"
+    9: (0, 1500, 2500, 3000, 4000, 5000, 6000, 7000, 8000),  # README "Short takes on a second held-out set"
+}
+
+
+def grid_for(row):
+    for got in row["board_scores"]:
+        if got:
+            return GRIDS[len(got)]
+    return None
 
 
 def verdicts(row):
@@ -28,7 +47,8 @@ def verdicts(row):
     import take_misfit_trace as tm  # (puts controller on the path)
     import controller
     from tennisbots import host
-    rs = controller.ResidualSurvey(tm.PICK_US, controller.TAKE_SURVEY_TRIM, controller.TAKE_SURVEY_BLIND)
+    grid = grid_for(row) or tm.PICK_US
+    rs = controller.ResidualSurvey(grid, controller.TAKE_SURVEY_TRIM, controller.TAKE_SURVEY_BLIND)
     for got in row["board_scores"]:
         if not (got and all(g is not None for g in got)):
             continue
@@ -82,6 +102,46 @@ def tally(rows, ks):
     return out, by_kept
 
 
+def drills(rows):
+    """Count by drill, not by verdict (prefixes of one drill are near-repeats). For each drill, its advised verdicts
+    from host.ESC_SURVEY_MIN_WHEELS wheels on (and at its end) are split by the kept wheels they rest on: a drill is in
+    "one" when some advised verdict rests on exactly one kept wheel, and wrong there when any of those is wrong or
+    invented; likewise "two+" for verdicts on two or more. "K=2 spares" counts drills that told a wrong or invented
+    time at some point with no minimum and never with a minimum of two; "K=2 silences" counts drills that advised a
+    right time with no minimum and no time at all with a minimum of two."""
+    import take_survey_sweep as tss
+    from tennisbots import host
+    out = dict(one=0, one_wrong=0, two=0, two_wrong=0, spares=0, silences=0, drills=0)
+    for b in rows:
+        ms = tss.TAKES[b["build"][0]][1]
+        vs = list(verdicts(b))
+        if not vs:
+            continue
+        out["drills"] += 1
+        adv = [(kept, classify(ms, pick)) for i, (n, kept, pick, a) in enumerate(vs)
+               if a and (n >= host.ESC_SURVEY_MIN_WHEELS or i == len(vs) - 1)]
+        one = [c for k, c in adv if k == 1]
+        two = [c for k, c in adv if k >= 2]
+        if one:
+            out["one"] += 1
+            out["one_wrong"] += any(c != "right" for c in one)
+        if two:
+            out["two"] += 1
+            out["two_wrong"] += any(c != "right" for c in two)
+        bad0, bad2 = any(c != "right" for k, c in adv), any(c != "right" for c in two)
+        out["spares"] += bad0 and not bad2
+        out["silences"] += any(c == "right" for k, c in adv) and not two
+    return out
+
+
+def fmt_drills(d):
+    def share(a, b):
+        return f"{a} of {b} ({100 * a / b:.0f}%)" if b else f"{a} of 0"
+    return (f"{d['drills']} drills with a verdict; one kept wheel: wrong in {share(d['one_wrong'], d['one'])} drills; "
+            f"two or more: wrong in {share(d['two_wrong'], d['two'])}; K=2 spares {d['spares']}, silences "
+            f"{d['silences']}")
+
+
 def fmt(c):
     return f"{c['right']} right, {c['wrong']} wrong, {c['invented']} invented, {c['held']} held"
 
@@ -92,8 +152,13 @@ def main():
     paths = [a for a in sys.argv[1:] if not a.startswith("--") and a != skip]
     total = None
     total_kept = {}
+    total_drills = None
     for path in paths:
         rows = load(path)
+        if "--drills" in sys.argv:
+            d = drills(rows)
+            print(f"\n{path}: by drill: {fmt_drills(d)}")
+            total_drills = d if total_drills is None else {k: total_drills[k] + d[k] for k in d}
         t, bk = tally(rows, ks)
         print(f"\n{path}: {len(rows)} survey drills")
         for k in ks:
@@ -116,6 +181,8 @@ def main():
                 s[key] += c[key]
     if len(paths) > 1:
         print(f"\nall {len(paths)} sets:")
+        if total_drills is not None:
+            print(f"  by drill: {fmt_drills(total_drills)}")
         for k in ks:
             print(f"  min kept {k}: end of drill {fmt(total[k]['end'])}; prefixes {fmt(total[k]['prefix'])}")
         for kept in sorted(total_kept):
