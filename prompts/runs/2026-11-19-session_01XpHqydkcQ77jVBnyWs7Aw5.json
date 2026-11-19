@@ -29,15 +29,29 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Duplicate work: the run wrote episode 147 (First Samuel 26, 7,255 words). PR #17572 from another session opened and merged the same episode while this run was writing; the open-PR search at the start had found nothing. The draft was dropped and main's version kept."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'search open PRs so you do not write the episode another session is already writing' only covers PRs that are already open. Two sessions routed to creative within minutes both took the same next-up list entry (the first sequel left by episode 146), and the second one found no PR because the first had not pushed yet. Claiming the entry in PRODUCTION.md in the first push, before writing, would have shown it, but only if the other session had done the same."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "why": "The next sequel after the duplicate was En-gedi (First Samuel 24), but episodes 146 and 147 already tell that scene, in full and in summary. The run took Ziklag (First Samuel 30) instead, the earlier-listed sequel from episode 146.",
+      "did": "Pushed a claim on the list line first, then wrote episode 148.",
+      "result": "Landed episode 148 with no further collision."
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-19-saints-by-candlelight-the-spear-and-the-water-jar.md"
+    "docs/posts/2026-11-19-saints-by-candlelight-ziklag-and-the-egyptian.md"
   ],
   "goal": null,
-  "notes": "Project: Saints by Candlelight. Piece: episode 147, david-and-the-spear-and-the-water-jar-by-sauls-head (First Samuel 26), 7,255 words, text only (audio folders 577 MB > 400 MB cap). It was picked because Saints by Candlelight had the oldest last commit of the three creative projects and there was no open PR for it; it is the sequel episode 146 left. The adversarial review fixed the Hebron anointing (2 Sam 5:3), softened a Chrysostom ranking that could not be quoted to a summary labelled as the narrator's, changed 'twice' to 'more than once' for the spear, and corrected the baggage line (1 Sam 10:22). Checks: --check-script ok; node --test 18/18; run_workflow_locally --for-changes 11/11 workflows passed (uses: steps, the cross-review and the deploy jobs not run locally). No agent doc: nothing new for the next run beyond the PRODUCTION.md list, which now holds the two sequels.",
+  "notes": "Project: Saints by Candlelight. Piece: episode 148, david-at-ziklag-and-the-egyptian-in-the-field (First Samuel 30), 5,681 words, text only (audio folders at 577 MB, over the 400 MB cap). This replaces a first draft of episode 147, dropped as a duplicate of PR #17572. The adversarial review fixed two things: Nob (the draft said Saul's men killed the priests; per 22:17-18 his guards refused and Doeg did it) and David's protest in 29:8 (the draft called it a show; now left open). Checks: --check-script ok; node --test 18/18; run_workflow_locally --for-changes on the first draft, 11/11 workflows passed; re-run for the final diff is noted in the PR. Lesson for the next run: claim the list line in your first push before writing.",
   "corrections": [],
   "redteam": null,
   "usage": {
