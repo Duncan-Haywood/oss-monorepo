@@ -3,7 +3,7 @@ title: "Moving a team off Deputy: the per-location pay rate is the part that mat
 seo_title: "Import Deputy employees and pay rates into a free scheduler"
 date: 2026-11-19
 tags: [scheduling, shift-roster-builder, deputy, integrations]
-description: "Shift Roster Builder now reads Deputy's Employee, EmployeeAgreement and EmployeeWorkplace answers into staff lines, with each person's rate at each location, so a multi-site week is priced right."
+description: "Shift Roster Builder now reads Deputy employees, pay agreements and workplaces into staff lines, with each person's rate at each location."
 ---
 
 The [Shift Roster Builder](../../ventures/shift-roster-builder/) could already read a team's
