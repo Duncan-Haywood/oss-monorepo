@@ -3114,6 +3114,17 @@ unchanged. PaddleOCR's older `cyrillic_PP-OCRv3` read a sample slip as noise aft
 was not scored. Details: [`eval/receipt-ocr-ru-eslav-2026-11-18.md`](eval/receipt-ocr-ru-eslav-2026-11-18.md).
 Tests: `receipt-russian-seller.test.mjs`.
 
+### Russian slips on the page (2026-11-19)
+
+The page's RapidOCR now has a "RapidOCR alphabet" choice: Latin (the default) or Cyrillic
+(Russian, Ukrainian, Belarusian, Bulgarian). Cyrillic loads the same East Slavic recogniser the
+CLI uses above, about 8 MB once, from Hugging Face at a pinned revision, and the page refuses the
+files unless they hash to the pinned sha256. On the 149 val slips, read in headless Chromium the
+way the page reads them: **totals 139 of 145, seller taken as the merchant 116 of 146, item names
+412 of 482**, against the CLI's Python reading 139, 117 and 412; the Latin model takes the seller on
+about 20. Details: [`eval/receipt-ocr-ru-page-2026-11-19.md`](eval/receipt-ocr-ru-page-2026-11-19.md).
+Tests: `rapidocr-worker.test.mjs`.
+
 ### WildReceipt: 472 held-out photos from a new source (2026-11-17)
 
 Every CORD photo had been read, so the reader was measured on a source no rule was written from:
