@@ -46,7 +46,7 @@ The associations travel between groups, but the levels do not:
 
 Gradient boosting adds almost nothing over logistic regression (median +0.003 AUC).
 
-**Paper draft (milestone 6):** [`paper/draft.md`](paper/draft.md), a methods paper for *Sociological Methods & Research* on rotating an item off a subgroup's ballot: why a transferred model misses the level, how big a calibration subsample to keep, shrinkage with robust empirical Bayes intervals, and the by-kind prior rule with its fresh-item test. Every number is tied to a results file by `paper/check_numbers.py` (82 checks); citations in [`paper/references.bib`](paper/references.bib). Six print-size figures (vector PDF and SVG, journal column widths) are in [`paper/figures/`](paper/figures/), drawn from the committed CSVs by `paper/figures.py`, which first recomputes the numbers each figure shows and stops if one differs from the text; for example [the n* check](paper/figures/fig2_nstar.svg) and [the prior comparison](paper/figures/fig5_priors.svg).
+**Paper draft (milestone 6):** [`paper/draft.md`](paper/draft.md), a methods paper for *Sociological Methods & Research* on rotating an item off a subgroup's ballot: why a transferred model misses the level, how big a calibration subsample to keep, shrinkage with robust empirical Bayes intervals, and the by-kind prior rule with its fresh-item test. Every number is tied to a results file by `paper/check_numbers.py` (82 checks), and the pre-registration table (107 predictions over milestones 1 to 6: 59 held, 22 partly, 26 refuted) is recounted from `LOG.md` by `paper/prereg_count.py --check`; citations in [`paper/references.bib`](paper/references.bib). Six print-size figures (vector PDF and SVG, journal column widths) are in [`paper/figures/`](paper/figures/), drawn from the committed CSVs by `paper/figures.py`, which first recomputes the numbers each figure shows and stops if one differs from the text; for example [the n* check](paper/figures/fig2_nstar.svg) and [the prior comparison](paper/figures/fig5_priors.svg).
 
 Research programme, AI-assisted (Claude), on the owner's request: [`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md) (hypotheses written before each run, then outcomes), full tables in [`experiments/m1_imputation/results/summary.md`](experiments/m1_imputation/results/summary.md).
 
@@ -104,6 +104,7 @@ python3 experiments/m6_allocation/summarise.py             # results/summary.md 
 python3 experiments/m6_kindsel/run.py                     # ~40 s on 4 cores; per-kind prior choice without the rotated item, from committed CSVs
 python3 -m pytest test_recode.py test_mice.py test_drift_intervals.py test_mixture.py test_period_mixture.py test_shift_bound.py test_calibration.py test_design_variance.py test_design_shrinkage.py test_allocation.py test_prior.py test_kindsel.py test_paper_numbers.py test_figures.py
 python3 paper/check_numbers.py                  # stdlib; every number in paper/draft.md against the results files
+python3 paper/prereg_count.py --check           # stdlib; Section 11's pre-registration table against LOG.md
 python3 paper/figures.py                        # the paper's six figures from the committed CSVs (numpy, pandas, matplotlib)
 ```
 
