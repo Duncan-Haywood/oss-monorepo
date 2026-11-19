@@ -167,35 +167,40 @@
    "what": "Every 'feasible' design behind the price table exceeds the 100 MPa limit at the check mesh (peak-searched 112-146 MPa, patch-searched 103-111 MPa, results.json); the h=2.5 search mesh underestimates the converged fillet peak by ~27% (99.8 vs ~137 MPa on seed 0). The README computes these check values but reports none, so the prices compare under-designed parts by design-dependent margins.",
    "where": "research/simdesign-filletfloor/README.md:10",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17470"
   },
   {
    "severity": "medium",
    "what": "Conclusion that the peak scatter 'is a property of the search landscape' ignores the confound visible in the project's own data: search-mesh peak error varies by design (check peak 112-146 MPa for designs all at the limit on the search mesh); simdesign-gaugemesh later found the gauge-2 region is itself a mesh effect.",
    "where": "research/simdesign-filletfloor/README.md:32",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17470"
   },
   {
    "severity": "medium",
    "what": "The tested hypothesis (near-sharp 0.2 mm fillet floor drives the scatter) was already refuted by simdesign-patchsearch's committed results.json (laser A fillets 8.46/13.59/10.74 mm); the experiment re-derives it at ~44 CPU-minutes without saying so.",
    "where": "research/simdesign-filletfloor/README.md:3",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17470"
   },
   {
    "severity": "medium",
    "what": "Four of four seeded mutants in core logic (plane-stress lambda, lightest-gauge selection, clamp-zone exclusion, patch search) leave all 6 tests green; two tests only assert constants, none checks a stress or deflection against an analytic value or covers optimise().",
    "where": "research/simdesign-filletfloor/tests/test_filletfloor.py:1",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17470"
   },
   {
    "severity": "low",
    "what": "make_mesh crashes for fine meshes (h <= ~0.3 mm on these designs): the distance matrix is skipped above 4e7 entries, leaving d=None, then `d > 0.6*h` raises TypeError, so the convergence study the README's next steps call for cannot be run with this code.",
    "where": "research/simdesign-filletfloor/src/simdesign_filletfloor/model.py:71",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17470"
   },
   {
    "severity": "low",
@@ -209,9 +214,10 @@
    "what": "No prior work on stress-constrained shape/topology optimisation or the mesh dependence of stress constraints is cited (e.g. Duysinx and Bendsoe 1998; Le et al. 2010; Holmberg et al. 2013); only software citations.",
    "where": "research/simdesign-filletfloor/README.md:7",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17470"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17470"],
  "verdict": "The code computes what it says, and it reproduces: three reruns match results.json exactly, the README table matches results.txt, and mass, far-field beam stresses (112.5 vs 110.2 MPa, 44.33 vs 44.27 MPa) and the tip deflection (0.617 mm inside the 0.542-0.692 hand-frame bounds) agree with hand calculations. The narrow negative result also stands: peak-searched designs have 7.6-14.3 mm fillets, so a 0.2 or 1.0 mm floor cannot bind. But a senior FEA engineer would stop at the stress constraint. The 2.5 mm search mesh reads the governing fillet peak about 27% low (99.8 MPa there, about 137 converged on seed 0), and the project's own check-mesh numbers, which the README leaves out, put every one of its 40 'feasible' designs over the 100 MPa limit (peak 112-146, patch 103-111). That under-resolution, which differs from design to design, is the obvious candidate for the scatter the README attributes to the search landscape. The hypothesis was also already refutable from simdesign-patchsearch's committed data, the related optimisation literature is not cited, and none of four seeded mutants is caught by the six tests. Finished as described, below the bar."
 }

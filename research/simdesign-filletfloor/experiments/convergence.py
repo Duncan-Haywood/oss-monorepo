@@ -3,7 +3,9 @@
 Added by the 2026-11-18 quality fix (portfolio/quality/audits/2026-11-17-simdesign-filletfloor.json, defect 0):
 the designs were searched at h = 2.5 mm, where the fillet peak reads low. Each design is re-solved at
 h = 2.5, 1.25, 0.8, 0.55, 0.4, 0.3 and 0.25 mm. The converged peak is estimated by fitting
-sigma(h) = s_inf + C h^q to the four finest meshes (least squares; q free). Repair: in this model (2D plane
+sigma(h) = s_inf + C h^q to the four finest meshes (least squares; q free); where the fit is not sane
+(q pinned at a bound, or s_inf outside [0.98, 1.25] x the finest value) the finest-mesh peak is used, a lower
+bound because the peaks rise as h falls. `--refit` re-fits the stored peaks without re-solving. Repair: in this model (2D plane
 stress, load F spread over the end face, mesh independent of the depth b) every stress scales exactly as 1/b,
 so the smallest depth that meets the limit on the converged peak is b * s_inf / limit; laser designs round
 up to the next stock gauge and must still satisfy web >= thickness, the free twin is continuous. Mass scales
@@ -34,8 +36,10 @@ def extrapolate(hs, sig):
                                  bounds=([0, -np.inf, 0.3], [np.inf, np.inf, 4.0]), maxfev=20000)
     except RuntimeError:
         return None, None
-    # sane: converging towards the finest value from below, within 25% of it
-    if not (sig[-1] * 0.98 <= s <= sig[-1] * 1.25):
+    # sane: converging towards the finest value from below, within 25% of it, and q not stuck at a bound
+    # (a q pinned at 0.3 or 4 means four points cannot pin the rate; the finest value is used instead,
+    # which is a lower bound on the converged peak here because the peaks rise as h falls)
+    if not (sig[-1] * 0.98 <= s <= sig[-1] * 1.25) or not (0.31 < q < 3.99):
         return None, None
     return float(s), float(q)
 
@@ -51,13 +55,14 @@ def repair_depth(proc, w, b, sigma, limit):
     return g, (proc.b_min_ratio_w == 0 or w >= proc.b_min_ratio_w * g)
 
 
-def task(r):
+def task(r, peaks=None, patches=None):
     proc = proc_for(r["floor"])
     p = Params(w=r["w"], r=r["r"], b=r["b"])
-    peaks, patches = [], []
-    for h in HS:
-        fe = evaluate(proc, p, h=h)["fe"]
-        peaks.append(fe["peak_mpa"]); patches.append(fe["patch_mpa"])
+    if peaks is None:
+        peaks, patches = [], []
+        for h in HS:
+            fe = evaluate(proc, p, h=h)["fe"]
+            peaks.append(fe["peak_mpa"]); patches.append(fe["patch_mpa"])
     s_inf, q = extrapolate(FIT_HS, peaks[-4:])
     sigma = s_inf if s_inf is not None else peaks[-1]
     b_new, rules_ok = repair_depth(proc, r["w"], r["b"], sigma, r["limit"])
@@ -78,6 +83,9 @@ def summarise(res):
                  + ("none" if r["b_repaired"] is None else f"{r['b_repaired']:.2f}") + f" | {r['repair_rules_ok']} | "
                  + ("-" if r["mass_repaired_g"] is None else f"{r['mass_repaired_g']:.2f}"))
     over = [r for r in res if r["sigma_used"] > r["limit"]]
+    fin = [r["peak"][-1] for r in res]
+    L.append(f"finest-mesh (h={HS[-1]}) peak over the limit: {sum(f > 100 for f in fin)} of {len(res)} "
+             f"(lowest {min(fin):.1f} MPa); fit accepted for {sum(r['peak_inf'] is not None for r in res)} of {len(res)}")
     L.append(f"designs over the limit on the converged peak: {len(over)} of {len(res)}; "
              f"over by {min(100 * (r['sigma_used'] / r['limit'] - 1) for r in res):.0f}% to "
              f"{max(100 * (r['sigma_used'] / r['limit'] - 1) for r in res):.0f}%")
@@ -97,9 +105,12 @@ def summarise(res):
 
 
 def main():
-    designs = [r for r in json.load(open(os.path.join(OUT, "results.json"))) if r["feasible"]]
-    with Pool(4) as pool:
-        res = pool.map(task, designs, chunksize=1)
+    if "--refit" in sys.argv:  # re-fit and re-summarise the stored FE peaks without re-solving
+        res = [task(r, r["peak"], r["patch"]) for r in json.load(open(os.path.join(OUT, "convergence.json")))]
+    else:
+        designs = [r for r in json.load(open(os.path.join(OUT, "results.json"))) if r["feasible"]]
+        with Pool(4) as pool:
+            res = pool.map(task, designs, chunksize=1)
     json.dump(res, open(os.path.join(OUT, "convergence.json"), "w"), indent=1)
     lines = summarise(res)
     open(os.path.join(OUT, "convergence.txt"), "w").write("\n".join(lines) + "\n")
