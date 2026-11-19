@@ -409,3 +409,16 @@ test("ids and plan names like toString, constructor or __proto__ are ordinary ke
   assert.ok(Object.hasOwn(st.ever, "__proto__") && Object.hasOwn(st.ever, "toString"));
   assert.equal(applySync(st, live, now + 1000).new, 0);
 });
+
+test("forecast keeps a complete month with any positive starting MRR, however small", () => {
+  const f = forecast([mo("2026-01", 1), mo("2026-02", 1), mo("2026-03", 1)], { horizon: 1 });
+  assert.ok(f);
+  assert.deepEqual(f.basis, ["2026-01", "2026-02"]);
+});
+
+test("formatMoney never shows a negative zero for a change that rounds to nothing", async () => {
+  const { formatMoney } = await import("./metrics.mjs");
+  assert.equal(formatMoney(-30, "usd"), "$0");
+  assert.equal(formatMoney(-150, "usd"), "-$2");
+  assert.equal(formatMoney(-0.4, "jpy"), "¥0");
+});
