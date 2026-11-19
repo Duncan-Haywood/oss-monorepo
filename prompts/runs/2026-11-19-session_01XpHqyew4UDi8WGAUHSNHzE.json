@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyew4UDi8WGAUHSNHzE",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T19:38:12Z",
+  "ended": "2026-11-19T20:03:10Z",
+  "wall_minutes": 25.2,
+  "tokens_in": 6471835,
+  "tokens_out": 36884,
+  "cost_usd": 3.0042,
+  "tool_calls": 62,
+  "task": "cell-fidelity milestone 7m: the triage runner as an artefact (pick_track draw)",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17770",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "the pyenv.py route was not needed: pybamm is not on the image, so a direct venv + pip install pybamm==26.10.1.1 (about a minute in the background) was the fastest path; the cell-fidelity README names the version but not the install step"
+    },
+    {
+      "file": "research/cell-fidelity/LOG.md",
+      "issue": "7l's 'Next' said 'the frozen 7f threshold', but 7f's 12 policies are per held-out pool; the rule that matches a K1 = 50 in-place runner is 7h's refit theta50 policy. Took a few minutes of reading fresh7h/run.py to pick"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/cell-fidelity/LOG.md (7l Next)",
+      "why": "benched all 64 designs of the 7h pool instead of 'a handful': only 3 of 7l's 16 picks stop at cycle 10 under the policy, too few to test a saving",
+      "did": "64 designs, 128 processes, 13 minutes",
+      "result": "H300 testable; worked"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-a-battery-triage-runner-that-matches-its-own-analysis.md",
+    "research/cell-fidelity/LOG.md (7m plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Plan committed before the bench (H297 to H300). Bench 64/64 ok. H297 supported (scores match to 3.2e-13, 64/64 decisions), H298 supported (0.860 vs 0.819), H299 inconclusive (score read 1.26 cycle equivalents vs 0.5 planned), H300 supported (14.0% per design; 9.7% compute-weighted). Local checks: run_workflow_locally --for-changes 9/9 passed (agent-cross-review and deploy steps cannot run locally), research tests PASS, research/_homepage/build.py ok, check_posts ok, check_md_links ok, cite_check ok. No agent doc in docs/reports: LOG.md and README carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dbfda6b6-6e51-5026-8f05-f49d71d4f859",
+    "transcripts": 1,
+    "first": "2026-11-19T19:38:12Z",
+    "last": "2026-11-19T20:03:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 110,
+        "output": 36884,
+        "thinking": 8296,
+        "cache_read": 6347150,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124575,
+        "api_equivalent_usd": 3.0042,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 110,
+      "output": 36884,
+      "thinking": 8296,
+      "cache_read": 6347150,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124575,
+      "api_equivalent_usd": 3.0042,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 55,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.2,
+      "active_minutes": 25.2,
+      "model_minutes": 6.17,
+      "tool_minutes": 19.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer building, verifying and benching a per-design PyBaMM triage runner with a pre-registered replay: about 10 hours",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 332.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -398,20 +398,20 @@ flagships:
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
       (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
       eval/whist-vs-greedy.txt); Whist 48, 60 and near-whist 46, 54, 62 by tabu
-      search 2026-11-19 (eval/whist-anneal.c, .txt); 52, 57: patterned starters
-      impossible, Z19x|Z3 tabu stops at cost 2 (README "Whist designs for 52 and
-      57"); next: SAT or a product construction; and near-whist 58 (tabu 25+60
-      CPU-min, SAT 2.2 h none; sit-out parity and mirror proof: README "Near-whist
-      designs by SAT"). More open items: NEXT.md.
+      search 2026-11-19 (eval/whist-anneal.c, .txt); 52, near-whist 58 2026-11-19 by
+      starter + exact table matching (eval/whist-starter.c, README "Whist designs
+      for 52 and near-whist for 58"); next: 57 (Z57 starters to 20 M nodes each: no
+      matching; patterned starters impossible; try a product construction or Z19x|Z3
+      starters). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "Straddling wheels vote on the short
-      takes" (2026-11-19: host.TAKE_STRADDLE_MARGIN 2 held out, AA-AD 71 of 120
-      named vs 58, 0 instant misadvised; eval/take-straddle-vote-2026-11-19.md).
-      Margin 1 failed held out (3 of 48 instant misadvised;
-      eval/take-straddle-margin-one-2026-11-19.md). Next: a 2.5 ms vote, the vote in
-      the TAKE_US = 0 bound (NEXT.md).
+      see firmware/esp32/README.md, latest "A second straddle vote at 2.5 ms"
+      (2026-11-19: host.TAKE_STRADDLE_LONG_MARGIN 2 held out on fresh AI-AL + 12
+      instant seeds, 76 of 120 named vs 70, 0 of 48 instant misadvised;
+      eval/take-straddle-long-2026-11-19.md). 1.5 ms vote: margin 2, margin 1 failed
+      held out. Next: the vote in the TAKE_US = 0 bound; a margin scaled to the
+      straddle count (NEXT.md).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -571,12 +571,13 @@ flagships:
       planted); next progress override, start float and 24-hour lag paths on a real
       P6 file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
       eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
-      appendix 2026-11-19; next a real reviewer's reading; (5) Monte Carlo risk and
-      risk register shipped 2026-11-19 (risk.mjs; eval/risk-check-,
-      eval/risk-register-check-2026-11-19.md); UDF ranges shipped 2026-11-19
-      (eval/udf-ranges-check-*); next: a real file with range UDFs, probabilistic
-      branches; (6) resource levelling shipped 2026-11-19 (level.mjs, --level:
-      serial pass by early start, the file's priority list, crew-size what-if;
-      eval/level-check-2026-11-19.md: 0 h over a limit from placed work on six
-      files, 37,670 of 37,670 links hold, x1e6 limits = CPM). More open items:
-      NEXT.md.
+      appendix 2026-11-19; next a real reviewer's reading; UDF ranges shipped
+      2026-11-19 (eval/udf-ranges-check-*); (6) resource levelling shipped
+      2026-11-19 (level.mjs, --level: serial pass by early start, the file's
+      priority list, crew-size what-if; eval/level-check-2026-11-19.md: 0 h over a
+      limit from placed work on six files, 37,670 of 37,670 links hold, x1e6 limits
+      = CPM); (7) longest path and multiple float paths shipped 2026-11-19
+      (floatpaths.mjs, --float-paths, page panel; eval/longest-path-2026-11-19.md:
+      P6's flag 261/261 on five files); next: a public XER with P6's own float_path
+      values to check path order against, the review section for an interim
+      milestone. More open items: NEXT.md.
