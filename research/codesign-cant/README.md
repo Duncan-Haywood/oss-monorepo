@@ -6,6 +6,20 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7af: ask a drone tuner for a fast set-point step and it wins back the rise time by lowering kd, with no extra crashes
+
+**Question.** Gating the position integrator near the set point (milestone 7ad) fixed every tune that stopped short of a 1 m step but slowed the rise by 10%, and retraining with the gate on (7ae) did not win it back. The training objective (gusts, small start offsets, yaw steps) never contained a set-point step. If one is added as a fourth training condition, does the tuner buy the rise time back, and at what cost?
+
+**Headline (`experiments/m7af_step_obj/verdicts.txt`, `results.json`; about 2 h on 4 cores; simulated; 9 predictions committed first, 7 held).**
+
+- **All the rise time comes back, and more.** Trained with the gate and a 1 m step, the 12 designs rise to 90% in a median 1.41 s against 1.83 s for 7ae's (Mann-Whitney p = 3.7e-05), faster than the original always-on-integrator tunes (1.57, 1.65 s).
+- **The knob is kd, because the proportional term is capped.** With the proportional request capped at A_P = 3.5 m/s² the vehicle cruises most of the step at about A_P/kd. The tuner lowered kd from about 6.5 to 4.7 s⁻¹ (and kp from about 17 to 13 s⁻²); over 36 designs rise time follows kd with Spearman ρ = 0.999, and rise ≈ 0.90 · 0.9 m / (A_P/kd) + 0.33 s (r = 0.9994, post hoc).
+- **No crash price:** 97 against 107 crashes over the identified lags (of 2,304, p = 0.84), every design certified and settled with the gate.
+- **The price is overshoot:** 4.7-5.3 cm median against 1.1-1.8 cm, a few millimetres more wind-step drift and 0.5-3.6% worse gust tracking. Two of twelve designs reach 1.37-1.41 s at 2.3-2.5 cm, off the frontier 7ae's sets sat on, so 7ae's "slower rise is the price of not overshooting" was too strong: the rise was slow because training never asked for it.
+- **For a builder:** gate the integrator and put a set-point step in the tuning objective; with a capped proportional term, read the rise time off A_P/kd before flying.
+
+![Left: rise time against overshoot on a 1 m step, one point per design, all flown with the integrator gated at 0.25 m. 7ac's designs (orange) and 7ae's band-trained designs (blue) rise in 1.65-2.35 s with 1-3.5 cm overshoot; 7af's designs trained with a 1 m step (green) rise in 1.3-1.6 s with 2.3-7.3 cm. Right: rise time against outer-loop kd for the same 36 designs: one straight rising line from 1.3 s at kd 4.1 to 2.35 s at kd 8.6, with the cruise speed A_P/kd on the top axis.](experiments/m7af_step_obj/m7af_step_obj.png)
+
 ## Milestone 7ae: if a drone tuner trains with integrator anti-windup on, does it win back the rise time? No: it drops the integral gain instead
 
 **Question.** Milestone 7ad fixed the tunes that stop short of a 1 m step by running the position integrator only within 0.25 m of the set point (conditional integration), at no crash cost but a 10% slower rise. That fix was bolted on after training. If the CMA-ES tuner sees the band while it tunes, does it raise the other gains and buy the rise time back?

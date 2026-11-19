@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVLXb6tpH6kj2RUVDrw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T17:09:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17731",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "literal BOM characters in two new files",
+      "fix": "written as \\uFEFF escapes"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "A bare `route` (no --task) drew the research track although the scheduled message asks for revenue products; only re-routing with --task picked ventures. Scheduled routines with a fixed product message could pass --task automatically."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here picked ai-bookkeeper (row 1), whose open items are incremental OCR measurements; took flagship 13 xer-schedule-check with a new item instead (Microsoft Project XML input), which widens who can use the product rather than another point of agreement.",
+      "did": "Built mspdi.mjs and wired it into the page, CLI and review",
+      "result": "2,406 of 2,491 tasks equal Project's stored dates and float on 102 MSPDI files; 94 venture tests pass (7 new)"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Verification: node --test mspdi.test.mjs (7 pass); python3 platform/ci/run_venture_tests.py xer-schedule-check: ok (94 tests) + site page checks ok; node eval/cpm-vs-project.mjs on MPXJ junit/data: 102 files, 2406/2491 match (EF 2447, LF 2426, TF 2411); Playwright: page opens an MSPDI file, 'Done: 10 of 14 points pass', no console errors; check_posts ok; validate.py ok. No real construction MSPDI found in this session (next step). run_workflow_locally --for-changes: every selected workflow passed except ventures-tests, which caught two literal U+FEFF characters in mspdi.mjs/mspdi.test.mjs (hidden-unicode check); escaped as \\uFEFF, then run_venture_tests --since base: 94 tests ok, 262/262 unwired checks pass. Not run locally: agent-cross-review jobs and the portfolio-pages deploy/gate jobs.",
+  "corrections": [],
+  "redteam": null
+}

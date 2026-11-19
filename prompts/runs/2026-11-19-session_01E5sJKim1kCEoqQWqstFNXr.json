@@ -35,6 +35,10 @@
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "Step 0's open list held 12 entries, 11 of them control-plane fixes waiting on owner approval; re-checking each by grep is the only step-0 work an ordinary run can do, which the prompt does not say."
+    },
+    {
+      "file": "platform/ci/test_browser_checks.py",
+      "issue": "The registry test runs only via the unwired set in ventures-tests.yml, so a polish PR that touched platform/pages landed it red and the next venture PR inherited the failure (the open 2026-11-13 entry on ventures-tests.yml paths is the same root cause)."
     }
   ],
   "deviations": [
@@ -49,7 +53,7 @@
     "docs/posts/2026-11-19-negative-udf-durations-xer-risk.md"
   ],
   "goal": null,
-  "notes": "Targets: ventures/xer-schedule-check/udf-ranges.mjs (new on main 2026-11-19) and risk.mjs, 10 mutants each. 16/20 caught before, 20/20 after rerun. Real defect fixed at the single consumer (riskAnalysis override check), so every range source (CSV, UDF, future ones) is guarded: the class fix for step 4. No new CI guard: the venture suite already runs in ventures-tests.yml. Verification: run_venture_tests.py xer-schedule-check: 106 tests, 0 failed.",
+  "notes": "Targets: ventures/xer-schedule-check/udf-ranges.mjs (new on main 2026-11-19) and risk.mjs, 10 mutants each. 16/20 caught before, 20/20 after rerun. Real defect fixed at the single consumer (riskAnalysis override check), so every range source (CSV, UDF, future ones) is guarded: the class fix for step 4. No new CI guard: the venture suite already runs in ventures-tests.yml. Verification: run_venture_tests.py xer-schedule-check: 106 tests, 0 failed. Second defect: main went red mid-run (ask-suggestions-check unregistered); fixed in this PR after merging main. The local --for-changes run was stopped when main was merged in; CI on the merged head is the verification.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -359,6 +363,12 @@
         "file": "ventures/xer-schedule-check/risk.mjs",
         "issue": "Ranges read from the file's own P6 UDFs (udf-ranges.mjs) reached riskAnalysis with only an order check, so negative points were drawn as negative work: an activity with -20/-10/-5 day UDFs pulled the simulated P10-P90 finish to 1 working day against a 6-day CPM finish, with no warning. parseRanges (the CSV path) already rejected min < 0. Fix: the override check also needs a >= 0; such ranges fall back to the default range and the warning now says a point is negative or out of order. Failing-first test in udf-ranges.test.mjs.",
         "patched": true
+      },
+      {
+        "file": "platform/ci/test_browser_checks.py",
+        "issue": "platform/pages/ask-suggestions-check.mjs (PR #17735) landed on main without joining CHECKS or `pending`, so test_browser_checks failed main and every PR's changed-ventures job (seen on PR #17739). Patched: listed in `pending` beside framerate with its reason; registering it needs the same control-plane PR as framerate.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17739"
       }
     ]
   },
