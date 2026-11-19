@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 486" role="img" aria-label="Bar chart, one row per PyBaMM parameter set, of the set-median error of the cycle-99 lithium-loss forecast made from ten cycles, on 8 designs per set never used to fit the thickness line: Ai2020 NS 1.2%, NL40 2.6%, NL 3.4%, NR 3.4%, C 8.5%; Chen2020 NS 4.5%, NL40 5.4%, NL 4.7%, NR 4.7%, C 7.0%; OKane2022 NS 5.1%, NL40 6.5%, NL 6.2%, NR 6.2%, C 4.6%; NCA_Kim2011 NS 5.3%, NL40 4.8%, NL 4.7%, NR 3.7%, C 0.7%.">
+<rect width="640" height="486" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Ten-cycle forecast error, second fresh pool of 32 DFN designs (set medians, %)</text>
+<line x1="84.0" x2="84.0" y1="74" y2="442" stroke="#ddd"/><text x="84.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<line x1="208.9" x2="208.9" y1="74" y2="442" stroke="#ddd"/><text x="208.9" y="458" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<line x1="333.9" x2="333.9" y1="74" y2="442" stroke="#ddd"/><text x="333.9" y="458" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<line x1="458.8" x2="458.8" y1="74" y2="442" stroke="#ddd"/><text x="458.8" y="458" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<line x1="583.8" x2="583.8" y1="74" y2="442" stroke="#ddd"/><text x="583.8" y="458" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<line x1="84.0" x2="84.0" y1="74" y2="442" stroke="#555"/>
+<text x="350.6" y="476" text-anchor="middle" font-family="sans-serif" font-size="12">forecast error at cycle 99 (%)</text>
+<text x="76" y="124.0" text-anchor="end" font-family="sans-serif" font-size="12">Ai2020</text>
+<rect x="84.0" y="80" width="74.0" height="13" fill="#c0392b"/>
+<text x="162.0" y="90" font-family="sans-serif" font-size="10">1.2</text>
+<rect x="84.0" y="96" width="163.5" height="13" fill="#1f6fb2"/>
+<text x="251.5" y="106" font-family="sans-serif" font-size="10">2.6</text>
+<rect x="84.0" y="112" width="214.7" height="13" fill="#2e8b57"/>
+<text x="302.7" y="122" font-family="sans-serif" font-size="10">3.4</text>
+<rect x="84.0" y="128" width="214.7" height="13" fill="#8e44ad"/>
+<text x="302.7" y="138" font-family="sans-serif" font-size="10">3.4</text>
+<rect x="84.0" y="144" width="533.2" height="13" fill="#222222"/>
+<text x="621.2" y="154" font-family="sans-serif" font-size="10">8.5</text>
+<text x="76" y="216.0" text-anchor="end" font-family="sans-serif" font-size="12">Chen2020</text>
+<rect x="84.0" y="172" width="282.8" height="13" fill="#c0392b"/>
+<text x="370.8" y="182" font-family="sans-serif" font-size="10">4.5</text>
+<rect x="84.0" y="188" width="337.4" height="13" fill="#1f6fb2"/>
+<text x="425.4" y="198" font-family="sans-serif" font-size="10">5.4</text>
+<rect x="84.0" y="204" width="295.2" height="13" fill="#2e8b57"/>
+<text x="383.2" y="214" font-family="sans-serif" font-size="10">4.7</text>
+<rect x="84.0" y="220" width="295.2" height="13" fill="#8e44ad"/>
+<text x="383.2" y="230" font-family="sans-serif" font-size="10">4.7</text>
+<rect x="84.0" y="236" width="437.1" height="13" fill="#222222"/>
+<text x="525.1" y="246" font-family="sans-serif" font-size="10">7.0</text>
+<text x="76" y="308.0" text-anchor="end" font-family="sans-serif" font-size="12">OKane2022</text>
+<rect x="84.0" y="264" width="319.6" height="13" fill="#c0392b"/>
+<text x="407.6" y="274" font-family="sans-serif" font-size="10">5.1</text>
+<rect x="84.0" y="280" width="405.6" height="13" fill="#1f6fb2"/>
+<text x="493.6" y="290" font-family="sans-serif" font-size="10">6.5</text>
+<rect x="84.0" y="296" width="388.7" height="13" fill="#2e8b57"/>
+<text x="476.7" y="306" font-family="sans-serif" font-size="10">6.2</text>
+<rect x="84.0" y="312" width="388.7" height="13" fill="#8e44ad"/>
+<text x="476.7" y="322" font-family="sans-serif" font-size="10">6.2</text>
+<rect x="84.0" y="328" width="289.3" height="13" fill="#222222"/>
+<text x="377.3" y="338" font-family="sans-serif" font-size="10">4.6</text>
+<text x="76" y="400.0" text-anchor="end" font-family="sans-serif" font-size="12">NCA_Kim2011</text>
+<rect x="84.0" y="356" width="333.3" height="13" fill="#c0392b"/>
+<text x="421.3" y="366" font-family="sans-serif" font-size="10">5.3</text>
+<rect x="84.0" y="372" width="301.0" height="13" fill="#1f6fb2"/>
+<text x="389.0" y="382" font-family="sans-serif" font-size="10">4.8</text>
+<rect x="84.0" y="388" width="294.4" height="13" fill="#2e8b57"/>
+<text x="382.4" y="398" font-family="sans-serif" font-size="10">4.7</text>
+<rect x="84.0" y="404" width="228.7" height="13" fill="#8e44ad"/>
+<text x="316.7" y="414" font-family="sans-serif" font-size="10">3.7</text>
+<rect x="84.0" y="420" width="45.4" height="13" fill="#222222"/>
+<text x="133.4" y="430" font-family="sans-serif" font-size="10">0.7</text>
+<rect x="84" y="32" width="14" height="10" fill="#c0392b"/><text x="104" y="41" font-family="sans-serif" font-size="11">uniform lever NS</text>
+<rect x="217.2" y="32" width="14" height="10" fill="#1f6fb2"/><text x="237.2" y="41" font-family="sans-serif" font-size="11">line on 40 designs NL40</text>
+<rect x="393.8" y="32" width="14" height="10" fill="#2e8b57"/><text x="413.8" y="41" font-family="sans-serif" font-size="11">line on 72 designs NL</text>
+<rect x="84" y="46" width="14" height="10" fill="#8e44ad"/><text x="104" y="55" font-family="sans-serif" font-size="11">line in range, else NS (NR)</text>
+<rect x="285.4" y="46" width="14" height="10" fill="#222222"/><text x="305.4" y="55" font-family="sans-serif" font-size="11">measured-OCP ceiling C</text>
+</svg>
