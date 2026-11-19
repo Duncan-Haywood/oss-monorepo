@@ -6170,6 +6170,12 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         <p>Hosts: ${listProse([...new Set(exceptions.flatMap((x) => x.hosts))].map(escapeHtml))}.</p>
       </details>`
     : '';
+  // The warranty and hosting paragraphs are PRODUCT_PLAYBOOK.md §5b's text and
+  // stay open. The Privacy section leads with its one plain promise (and the
+  // exceptions to it); the counter, feedback and email details sit in a
+  // <details> under a summary that says what they are. Open, they were
+  // ~700 px of a 2,128 px footer on a 390 px phone, on every page:
+  // polish-2026-11-19-footer-trim.md.
   return `
       <h2>No warranty</h2>
       <p>
@@ -6196,10 +6202,14 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         server that could receive it.${exceptionNote}${feedbackOn() ? ` The one thing
         that is sent on purpose is a message you choose to submit through the
         <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a>, which
-        is published in this site's public GitHub repository.` : ''} We count anonymous, aggregate events —
+        is published in this site's public GitHub repository.` : ''}
+      </p>${exceptionList}
+      <details class="pfs-exceptions pfs-privacy-more">
+        <summary>What is counted, and what happens to email you send</summary>
+      <p>We count anonymous, aggregate events —
         which tools get opened, never anything about who opened them — and that
         count stays in your own browser's local storage.
-      </p>${exceptionList}
+      </p>
       <p>${counter ? `
         Each page load also adds one to a daily per-page total on our own
         open-source counter, and those totals are published in the repository.
@@ -6226,7 +6236,8 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         you, never published or sold, and deleted after 90 days; reply asking
         and we delete it sooner. You can ask what we hold about you, have it
         corrected or deleted, and complain to your data-protection authority.
-      </p>`;
+      </p>
+      </details>`;
 }
 
 /**
