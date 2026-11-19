@@ -1,6 +1,6 @@
 // Read-only Stripe client, no SDK. Needs a restricted key (rk_...) with
 // Subscriptions: read, and nothing else. This code never writes to Stripe.
-import { monthlyAmount } from "./metrics.mjs";
+import { monthlyAmount, dict, put } from "./metrics.mjs";
 
 // One Stripe subscription -> {id, customer, status, mrr, currency, created, endedAt, trialEnd}.
 // Every item is normalised to a month and summed; a percent-off discount is
@@ -8,7 +8,7 @@ import { monthlyAmount } from "./metrics.mjs";
 export function normalizeSubscription(s) {
   const items = s.items?.data?.length ? s.items.data : s.plan ? [{ price: s.plan, quantity: s.quantity ?? 1 }] : [];
   let gross = 0, currency = s.currency || "usd";
-  const lines = {};
+  const lines = dict();
   for (const it of items) {
     const p = it.price || it.plan || {};
     if (p.recurring?.usage_type === "metered" || p.usage_type === "metered") continue;
@@ -23,7 +23,7 @@ export function normalizeSubscription(s) {
   const net = Math.round(gross * (1 - Math.min(100, pctOff) / 100));
   // Per-plan share of the discounted MRR; rounding drift goes to the largest line.
   const plans = {};
-  for (const [k, v] of Object.entries(lines)) plans[k] = gross > 0 ? Math.round((v * net) / gross) : 0;
+  for (const [k, v] of Object.entries(lines)) put(plans, k, gross > 0 ? Math.round((v * net) / gross) : 0);
   const top = Object.keys(plans).sort((a, b) => plans[b] - plans[a])[0];
   if (top) plans[top] += net - Object.values(plans).reduce((a, b) => a + b, 0);
   return {

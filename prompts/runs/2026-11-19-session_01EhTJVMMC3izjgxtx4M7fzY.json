@@ -1,0 +1,243 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVMMC3izjgxtx4M7fzY",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (revenue products)",
+  "input_sha256": "180ecdfefaa12275ae73d59afa1209522e705da82874916854ba46dd0921db32",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T17:59:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "redteam ventures/mrr-pulse/stripe.mjs",
+  "projects": [
+    "mrr-pulse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17746",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "restored stripe.mjs with `git checkout` after a hand-applied mutant, which also reverted the uncommitted fix",
+      "fix": "copied back from the backup taken just before; tests 106/106 after"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 12 open entries are control-plane PRs needing owner approval, or the help-keeper stemmer change, which needs a help-centre eval set; none could be fixed safely here. Step 4b: no new CI guard added; the defect class (user-keyed plain objects) is too syntactic to lint without many false positives.",
+      "did": "campaign plus fixes only",
+      "result": "1 real defect patched, 7 gaps closed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-mrr-pulse-plan-named-tostring.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: 12 open entries, none safe to fix here (see deviations). Campaign: --mutants 12 on ventures/mrr-pulse/stripe.mjs, 5/12 caught. Real defect: plain-object maps keyed by price nicknames and CSV ids (toString/constructor/__proto__) gave NaN plan shares, dropped MRR, miscounted new MRR, and polluted Object.prototype in breakdown(); fixed with dict/has/put in metrics.mjs (used in stripe.mjs and server.mjs). The new stripe test fails on the old code (69 pass, 2 fail); the metrics test imports put. rerun: 6 gaps caught_after_fix true; line 26 changed (now put()), re-applied by hand: 2 tests fail. Verification: run_venture_tests.py mrr-pulse ok (106 pass), check_posts ok, check_storage_guard ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/mrr-pulse/stripe.mjs",
+        "test": "node --test ventures/mrr-pulse/**/*.test.mjs  (in .)",
+        "seed": 25711585,
+        "commit": "c47ea6d35",
+        "sites": 67,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/mrr-pulse/stripe.mjs",
+            "line": 13,
+            "col": 34,
+            "operator": "or-to-and",
+            "before": "const p = it.price || it.plan || {};",
+            "after": "const p = it.price || it.plan && {};",
+            "line_text": "    const p = it.price || it.plan || {};",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "legacy item with only `plan` read as {} (0 MRR); new test 'legacy plan-only items count'"
+          },
+          {
+            "file": "ventures/mrr-pulse/stripe.mjs",
+            "line": 16,
+            "col": 125,
+            "operator": "or-to-and",
+            "before": "const m = monthlyAmount(p.unit_amount ?? p.amount ?? 0, p.recurring?.interval || p.interval, p.recurring?.interval_count || p.interval_count || 1, it.quantity ?? 1);",
+            "after": "const m = monthlyAmount(p.unit_amount ?? p.amount ?? 0, p.recurring?.interval || p.interval, p.recurring?.interval_count && p.interval_count || 1, it.quantity ?? 1);",
+            "line_text": "    const m = monthlyAmount(p.unit_amount ?? p.amount ?? 0, p.recurring?.interval || p.interval, p.recurring?.interval_count || p.interval_count || 1, it.quantity ?? 1);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "quarterly price (recurring.interval_count 3) read as monthly; new test 'quarterly price is divided by its interval_count'"
+          },
+          {
+            "file": "ventures/mrr-pulse/stripe.mjs",
+            "line": 19,
+            "col": 37,
+            "operator": "plus-to-minus",
+            "before": "lines[name] = (lines[name] || 0) + m;",
+            "after": "lines[name] = (lines[name] || 0) - m;",
+            "line_text": "    lines[name] = (lines[name] || 0) + m;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "per-plan line sums went negative, hidden by the drift fix-up on the top line; new test 'each plan line gets its own share'"
+          },
+          {
+            "file": "ventures/mrr-pulse/stripe.mjs",
+            "line": 21,
+            "col": 158,
+            "operator": "const-plus-one",
+            "before": "const pctOff = [s.discount, ...(Array.isArray(s.discounts) ? s.discounts : [])].reduce((a, d) => a + (d && typeof d === \"object\" ? d.coupon?.percent_off || 0 : 0), 0);",
+            "after": "const pctOff = [s.discount, ...(Array.isArray(s.discounts) ? s.discounts : [])].reduce((a, d) => a + (d && typeof d === \"object\" ? d.coupon?.percent_off || 1 : 0), 0);",
+            "line_text": "  const pctOff = [s.discount, ...(Array.isArray(s.discounts) ? s.discounts : [])].reduce((a, d) => a + (d && typeof d === \"object\" ? d.coupon?.percent_off || 0 : 0), 0);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "amount-off coupon counted as 1% off; new test 'amount-off coupon is not counted as 1% off'"
+          },
+          {
+            "file": "ventures/mrr-pulse/stripe.mjs",
+            "line": 23,
+            "col": 38,
+            "operator": "min-to-max",
+            "before": "const net = Math.round(gross * (1 - Math.min(100, pctOff) / 100));",
+            "after": "const net = Math.round(gross * (1 - Math.max(100, pctOff) / 100));",
+            "line_text": "  const net = Math.round(gross * (1 - Math.min(100, pctOff) / 100));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/stripe.mjs",
+            "line": 26,
+            "col": 83,
+            "operator": "times-to-div",
+            "before": "for (const [k, v] of Object.entries(lines)) plans[k] = gross > 0 ? Math.round((v * net) / gross) : 0;",
+            "after": "for (const [k, v] of Object.entries(lines)) plans[k] = gross > 0 ? Math.round((v / net) / gross) : 0;",
+            "line_text": "  for (const [k, v] of Object.entries(lines)) plans[k] = gross > 0 ? Math.round((v * net) / gross) : 0;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "per-plan shares computed v/net/gross, total masked by drift fix-up; new test 'each plan line gets its own share' [rerun: line changed; triage by hand]; rerun reported 'line changed' (the line now calls put()), re-applied by hand as Math.round((v / net) / gross): 2 stripe tests fail"
+          },
+          {
+            "file": "ventures/mrr-pulse/stripe.mjs",
+            "line": 28,
+            "col": 71,
+            "operator": "plus-to-minus",
+            "before": "if (top) plans[top] += net - Object.values(plans).reduce((a, b) => a + b, 0);",
+            "after": "if (top) plans[top] += net - Object.values(plans).reduce((a, b) => a - b, 0);",
+            "line_text": "  if (top) plans[top] += net - Object.values(plans).reduce((a, b) => a + b, 0);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/stripe.mjs",
+            "line": 33,
+            "col": 19,
+            "operator": "and-to-or",
+            "before": "status: paused && s.status === \"active\" ? \"paused\" : s.status,",
+            "after": "status: paused || s.status === \"active\" ? \"paused\" : s.status,",
+            "line_text": "    status: paused && s.status === \"active\" ? \"paused\" : s.status,",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "every active unpaused subscription read as paused (dropped from MRR); no test checked status of an unpaused sub; new test 'an active, unpaused subscription stays active'"
+          },
+          {
+            "file": "ventures/mrr-pulse/stripe.mjs",
+            "line": 54,
+            "col": 30,
+            "operator": "lt-to-le",
+            "before": "for (let page = 0; page < maxPages; page++) {",
+            "after": "for (let page = 0; page <= maxPages; page++) {",
+            "line_text": "      for (let page = 0; page < maxPages; page++) {",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "one extra Stripe request past maxPages; test asserted only the rejection; new test 'pagination stops at exactly maxPages requests'"
+          },
+          {
+            "file": "ventures/mrr-pulse/stripe.mjs",
+            "line": 56,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "for (const s of j.data || []) out.push(normalizeSubscription(s));",
+            "after": "for (const s of j.data && []) out.push(normalizeSubscription(s));",
+            "line_text": "        for (const s of j.data || []) out.push(normalizeSubscription(s));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/stripe.mjs",
+            "line": 58,
+            "col": 37,
+            "operator": "minus-to-plus",
+            "before": "after = j.data[j.data.length - 1].id;",
+            "after": "after = j.data[j.data.length + 1].id;",
+            "line_text": "        after = j.data[j.data.length - 1].id;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/stripe.mjs",
+            "line": 58,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "after = j.data[j.data.length - 1].id;",
+            "after": "after = j.data[j.data.length - 2].id;",
+            "line_text": "        after = j.data[j.data.length - 1].id;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/mrr-pulse/metrics.mjs",
+        "issue": "Maps keyed by user text were plain {}: a subscription id or price nickname 'toString'/'constructor' read as an existing entry (plan share NaN; an unseen sub counted as neither new nor reactivated), and '__proto__' was dropped from MRR, or in breakdown() wrote mrr/subs onto Object.prototype for the whole server process. Repro: normalizeSubscription with nickname 'toString' -> plans {toString: NaN}; '__proto__' -> line vanished. Fixed in stripe.mjs, metrics.mjs (liveMap, mapAt, movements, backfill, applySync, breakdown) and server.mjs with dict()/has()/put(); failing-first tests in stripe.test.mjs and metrics.test.mjs.",
+        "patched": true
+      }
+    ]
+  }
+}
