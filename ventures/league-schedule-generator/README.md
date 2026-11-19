@@ -429,8 +429,48 @@ sign-ups landed the same day (next section).
 
 Limits: a late player is placed by rating only, like the draft; with tags already uneven on the announced
 teams and no moves allowed the page names the team that is off instead of fixing it. Next: a real league's
-sign-up sheet and late list; the self-hosted page's `/join` free agents placed by this search instead of
-least-filled (`freeagents.mjs`).
+sign-up sheet and late list. The `/join` free agents went onto this search the same day (next section).
+
+### Free agents from `/join` placed by the late-sign-up search (2026-11-19, latest)
+
+The self-hosted league page used to pre-pick each free agent's team by a least-filled rule (smallest roster
+first, ties to the least free-agent experience). It now runs `addLateSignups` from `teams.mjs`:
+
+- **Rostered players are pinned**, free agents are the late sign-ups, friend pairs are `together` groups.
+  Team sizes are evened up (the shortest rosters fill first), each team is capped at the organiser's
+  "Roster size to fill teams up to" (`balanceTeams(..., { capacity })`, a new hard rule that the annealing
+  and the exhaustive check both read), then the gap between the strongest and weakest team total is made as
+  small as it can be.
+- **Tag questions on `/join`.** The organiser types `Woman=F, Goalie=G` (up to 4; a plain label works too)
+  and `/join` shows a checkbox for each. Each tag is spread so its count per team differs by at most one,
+  like the balanced-teams page. The `/admin` list shows each player's answers and the CSV gains a `tags`
+  column.
+- **Optional ratings sheet.** Paste the balanced-teams page's CSV (`Team, Player, Rating, Tag`) in `/admin`:
+  named rostered players count at their rating and tags, and a free agent's experience (1-3) is mapped onto
+  the sheet's range (1 = lowest, 3 = highest). Without it rostered players count as 2 and carry no tags.
+- **Kept only when it is no worse.** Who can be placed at all is still decided by the old rule (a group too
+  big for any team's room stays unplaced with the reason). The search's answer replaces the old picks only
+  if it keeps every tag at least as evenly (tag excess, the sum over tags of how far each tag's per-team
+  spread goes past one) and its gap is no larger; the `/admin` note shows both gaps.
+- **How it was checked** (`eval/free-agent-fit.mjs`, output `eval/free-agent-fit.txt`; invented leagues of
+  4-16 teams with rosters of 6-11, 3-30 free agents, levels 1-3, ~40% ticking Woman and ~10% Goalie, ~20%
+  in friend pairs, half with a cap of 12; 420 cases):
+  - no sheet: cases with a tag split unevenly fall from 25-34 of 60 to 12 (4-6 teams), 32 to 13 of 40
+    (8 teams), 26 to 11 of 30 (12) and 17 to 6 of 20 (16); mean tag excess 0.47-1.23 to 0.20-0.37; mean gap
+    2.58-3.50 to 2.35-3.25.
+  - with a sheet (ratings 1-10, rostered tags random, so most rosters are already uneven): mean gap 21.4-31.0
+    to 18.3-25.6, mean tag excess 3.0-6.2 to 2.1-5.3.
+  - the cap was never broken and friend pairs never split (0 of 420); the search's answer was kept in 410 of
+    420 cases (in the rest the old picks stood). One suggestion took at most 302 ms (16 teams, 30 free
+    agents); the `/admin` page computes it on each load.
+  - Tests: `freeagents.test.mjs` 11 (3 new: tag questions and the form, the fit spreading tagged players
+    under a cap with a pair kept together, a ratings sheet), the server test now sets a tag question through
+    `/admin`, ticks it on `/join` and reads it back in `/admin`.
+
+Limits: the ratings are what the organiser types or a 1-3 self-rating; size and tag rules are weighed the same,
+so with a sheet the smallest roster after placing averaged 0.05-0.15 players smaller than the old rule in
+three of the five sheet rows (it traded a short roster for a tag split). Placing still happens one click at a
+time or all at once; nobody already on a roster is ever moved. Next: a real league's free-agent list.
 
 ## Play-off results fill the bracket (2026-11-18, latest)
 
