@@ -88,7 +88,19 @@ export function readPsd(xmlText) {
       if (n) props[n] = propertyType(kid(p, "PropertyType"));
     }
   }
-  return name ? { name, classes: [...new Set(classes)], ...predefinedOf(named), props } : null;
+  return name ? { name, classes: [...new Set(classes)], ...predefinedOf(named), ...templateTypeOf(root.attrs.templatetype), props } : null;
+}
+
+// `tt`: the template type when it limits where the set may sit (IFC4's
+// templatetype attribute, IFC4X3's IfcPropertySetTemplate.TemplateType):
+// PSET_OCCURRENCEDRIVEN and QTO_OCCURRENCEDRIVEN (occurrences only, never a
+// type object), PSET_PERFORMANCEDRIVEN (an IfcPerformanceHistory),
+// PSET_MATERIALDRIVEN, PSET_PROFILEDRIVEN. Omitted for the TYPEDRIVENOVERRIDE
+// default (type or occurrence), for no type (IFC2X3; IFC4's QtoSetDef files
+// carry none) and for TYPEDRIVENONLY, which IDS reads through the type anyway.
+export function templateTypeOf(t) {
+  const v = typeof t === "string" ? t.trim().replace(/^\.|\.$/g, "").toUpperCase() : "";
+  return /^(PSET|QTO)_(OCCURRENCEDRIVEN|PERFORMANCEDRIVEN|MATERIALDRIVEN|PROFILEDRIVEN)$/.test(v) ? { tt: v } : {};
 }
 
 // `pt`: for each class the template names only with a predefined type, those
@@ -111,7 +123,7 @@ export function readTemplates(stepText) {
   const out = [];
   for (const e of entities.values()) {
     if (e.type !== "IFCPROPERTYSETTEMPLATE") continue;
-    const [, , name, , , applicable, children] = e.args;
+    const [, , name, , templateType, applicable, children] = e.args;
     if (typeof name !== "string") continue;
     // "IfcActuator/ELECTRICACTUATOR,IfcActuatorType/ELECTRICACTUATOR"
     const named = typeof applicable === "string" ? applicable.split(",").map((x) => x.trim().split("/").map((y) => y.trim())).filter(([c]) => c).map(([c, t]) => [c.toUpperCase(), t || null]) : [];
@@ -133,7 +145,7 @@ export function readTemplates(stepText) {
       } else if (kind === "P_TABLEVALUE" && primary && secondary) props[pname] = { type: null, types: [...new Set([primary, secondary])] };
       else props[pname] = { type: null };
     }
-    out.push({ name, classes: [...new Set(classes)], ...predefinedOf(named), props });
+    out.push({ name, classes: [...new Set(classes)], ...predefinedOf(named), ...templateTypeOf(templateType && templateType.enum), props });
   }
   return out;
 }
@@ -144,7 +156,7 @@ export function buildPsets(dir) {
     const sets = {};
     for (const f of readdirSync(join(dir, folder)).filter((f) => f.endsWith(".xml")).sort()) {
       const s = readPsd(readFileSync(join(dir, folder, f), "utf8"));
-      if (s && /^(Pset|Qto)_/.test(s.name)) sets[s.name] = { classes: s.classes, ...(s.pt ? { pt: s.pt } : {}), props: s.props };
+      if (s && /^(Pset|Qto)_/.test(s.name)) sets[s.name] = { classes: s.classes, ...(s.pt ? { pt: s.pt } : {}), ...(s.tt ? { tt: s.tt } : {}), props: s.props };
     }
     out[id] = Object.fromEntries(Object.entries(sets).sort(([a], [b]) => (a < b ? -1 : 1)));
   }
@@ -157,7 +169,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   let sets;
   if (src.toLowerCase().endsWith(".ifc")) {
     sets = {};
-    for (const t of readTemplates(readFileSync(src, "utf8")).filter((t) => /^(Pset|Qto)_/.test(t.name)).sort((a, b) => (a.name < b.name ? -1 : 1))) sets[t.name] = { classes: t.classes, ...(t.pt ? { pt: t.pt } : {}), props: t.props };
+    for (const t of readTemplates(readFileSync(src, "utf8")).filter((t) => /^(Pset|Qto)_/.test(t.name)).sort((a, b) => (a.name < b.name ? -1 : 1))) sets[t.name] = { classes: t.classes, ...(t.pt ? { pt: t.pt } : {}), ...(t.tt ? { tt: t.tt } : {}), props: t.props };
   } else sets = buildPsets(src)[id];
   // One set per line keeps diffs readable and the file small.
   process.stdout.write("{\n" + Object.entries(sets).map(([n, p]) => JSON.stringify(n) + ":" + JSON.stringify(p)).join(",\n") + "\n}\n");

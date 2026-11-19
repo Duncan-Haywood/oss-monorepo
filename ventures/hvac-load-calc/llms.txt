@@ -1,6 +1,6 @@
 # Room-by-room HVAC load calculator
 
-> Free, open-source heating and cooling load calculator for houses. Enter rooms with their outside walls (direction, length, window and door area), the attic, the floor (slab edge or crawl), insulation, window U and SHGC, blower-door ACH50 and ventilation; it returns each room's heating Btu/h, cooling Btu/h with its peak hour, latent load and airflow, and the whole-house heating load, cooling tons and design cfm. Cooling runs a 24-hour clear July design day from sun position, so the house peak is less than the sum of room peaks. Runs in the browser; nothing is uploaded.
+> Free, open-source heating and cooling load calculator for houses. Enter rooms with their outside walls (direction, length, window and door area), the attic, the floor (slab edge, crawl or basement below grade), skylights, insulation, window U and SHGC, blower-door ACH50 and ventilation; it returns each room's heating Btu/h, cooling Btu/h with its peak hour, latent load and airflow, and the whole-house heating load, cooling tons and design cfm. Cooling runs a 24-hour clear July design day from sun position, so the house peak is less than the sum of room peaks. Runs in the browser; nothing is uploaded.
 
 Free and open source (MIT). Results are estimates from an open first-principles method, not engineering advice and not an ACCA Manual J report; many permits need a report from approved software.
 
@@ -12,9 +12,9 @@ Free and open source (MIT). Results are estimates from an open first-principles 
 
 ## Inputs
 
-- Site: latitude, elevation, winter and summer design temperatures, daily range, summer design dew point, indoor set points.
-- Shell: wall cavity and continuous R, stud depth, wall colour and type, attic R, roof colour, crawl floor R, slab F-factor, window U and SHGC, interior shades, door U, ACH50 and N factor, ventilation cfm and recovery, duct loss and gain percentages, supply ΔT.
-- Rooms: floor area, ceiling height, attic above, floor type, slab perimeter, people, appliance Btu/h, outside walls (each with an optional overhang: depth, gap above the window and window height, which shades the window's direct sun hour by hour).
+- Site: latitude, elevation, winter and summer design temperatures, daily range, summer design dew point, indoor set points, annual mean temperature and ground surface swing (for basements).
+- Shell: wall cavity and continuous R, stud depth, wall colour and type, attic R, roof colour, crawl floor R, slab F-factor, basement wall and floor insulation R, soil conductivity, window U and SHGC, skylight U and SHGC, interior shades, door U, ACH50 and N factor, ventilation cfm and recovery, duct loss and gain percentages, supply ΔT.
+- Rooms: floor area, ceiling height, attic above, floor type, slab perimeter, basement depth below grade, below-grade wall length and shortest width (path-length method of Latta and Boileau, checked against a 2-D soil model), skylights (area, tilt, facing), people, appliance Btu/h, outside walls (each with an optional overhang: depth, gap above the window and window height, which shades the window's direct sun hour by hour).
 
 ## Source
 

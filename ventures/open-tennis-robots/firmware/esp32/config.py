@@ -141,5 +141,5 @@ ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 150000, 200000, 400000)
 # told its contact time. `tennisbots run` on a calibration drill asks the board to survey it (SURVEY_TAKE) and prints
 # the contact time its balls pick; set it here and re-flash.
 TAKE_US = 0
-# The survey's contact times (seven, the TAKE_SURVEY frame's slots), or () to turn it off.
-TAKE_SURVEY_GRID_US = (0, 2000, 3000, 4000, 5000, 6000, 8000)
+# The survey's contact times (eight since 2026-11-19, the TAKE_SURVEY frame's slots), or () to turn it off.
+TAKE_SURVEY_GRID_US = (0, 2000, 3000, 4000, 5000, 6000, 7000, 8000)

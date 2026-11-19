@@ -87,9 +87,3 @@ test("summarize explains the effective rate and the cap", () => {
   assert.equal(summarize(computeBudget({ salaries: 0, fringe: 0, supplies: 0, travel: 0, services: 0, otherDirect: 0 })).status, "error");
   assert.equal(money(-0.001), "$0.00");
 });
-
-test("an open-ended range says '0 or more', not 'between 0 and Infinity'", () => {
-  // Button sweep, FILL=-1, 2026-11-19.
-  assert.throws(() => computeBudget({ salaries: -1 }), /^Error: Salaries must be 0 or more\.$/);
-  assert.throws(() => computeBudget({ ratePct: 150 }), /between 0 and 100/);
-});

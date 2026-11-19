@@ -19,14 +19,6 @@
   "tool_calls": 76,
   "task": "Explore: run check_button_clicks.js with FILL=0, FILL=blank and FILL=-1 over http (open follow-up in docs/reports/2026-11-19-textarea-edge-sweep.md) and fix what it finds",
   "projects": [
-    "appliance-repair-quote-calculator",
-    "ebay-fee-calculator",
-    "parking-lot-striping-bid-calculator",
-    "crop-insurance-coverage-calculator",
-    "shared-kitchen-rate-planner",
-    "cannabis-280e-tax-calculator",
-    "grant-indirect-cost-calculator",
-    "uk-mortgage-overpayment-calculator",
     "bail-bond-agency-exposure-calculator",
     "cash-flow-risk-forecaster",
     "elevator-traffic-analysis",
@@ -35,6 +27,10 @@
     "retainage-cashflow-calculator",
     "workers-comp-audit-dispute-checker",
     "workers-comp-premium-calculator",
+    "cannabis-280e-tax-calculator",
+    "uk-mortgage-overpayment-calculator",
+    "shared-kitchen-rate-planner",
+    "crop-insurance-coverage-calculator",
     "platform/ci"
   ],
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17508",
@@ -45,7 +41,7 @@
   "merged": null,
   "ci_failures_before_green": 1,
   "review_findings": null,
-  "tests_added": 13,
+  "tests_added": 9,
   "outcome": "success",
   "errors": [
     "First push: changed-ventures failed on test_checks_refuse_empty_root.py, because the new check_open_range_messages.py passed on an empty --root. Fixed: it counts scanned files and exits 2 on none."
@@ -61,13 +57,20 @@
       "issue": "The rule that a new check_*.py with --root must exit nonzero on an empty root is in that test's docstring only; a short line in the check-writing guidance (or the check_local_assets.py header) would have caught it before CI."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "'Duplicate PRs': PR #17507 (another session, same day) ran the identical FILL sweeps and merged while this PR was open; my duplicate-PR search at the start found nothing because it did not exist yet.",
+      "did": "Merged main in, took #17507's versions of every venture file both PRs touched (8 ventures + report), dropped my 3 implementation-coupled page tests, kept my behavioural tests that pass on its code, and kept only what is new: the 8 extra tools found by grep, check_open_range_messages.py with tests, a report section and a post about that part. Replaced my sweep post, which duplicated #17507's.",
+      "result": "Main's fixes re-swept clean at FILL=0/-1/blank for the three button bugs; lint 0 on the merged tree; no duplicate post."
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-19-what-a-button-says-when-you-type-minus-one.md",
-    "docs/reports/2026-11-19-textarea-edge-sweep.md (extended)"
+    "docs/posts/2026-11-19-one-error-message-eleven-tools.md",
+    "docs/reports/2026-11-19-button-click-fill-sweeps.md (extended: grep + lint section)"
   ],
   "goal": null,
-  "notes": "Idea: finish the filled-input button sweep over http. Three full runs (1,407 pages, ~6,100 clicks each): FILL=0 8 hits/4 real, blank 6/1 (dup), -1 10/6 hits from 4 bugs; 8 distinct bugs fixed (2 silent copy/download throws, 3 parking compare throws, NaN break-even, $Infinity cost/hour, 'between 0 and Infinity' x3) plus the same message in 8 more tools via grep. New lint platform/ci/check_open_range_messages.py (auto-run by unwired_checks.py) flags 4/4 sampled pre-fix files from main, 0 on the fixed tree. Verified: run_venture_tests.py on all 16 ventures green; per-venture SWEEP_ROOT re-sweeps at the fill that found each bug report 0 hits; test_check_open_range_messages.py 5/5.",
+  "notes": "Idea: finish the filled-input button sweep over http. My three full runs (FILL=0/blank/-1, ~6,100 clicks each) found the same 8 bugs PR #17507 fixed in parallel and merged first; consolidated onto its fixes. Unique to this PR: grep for the 'between ${min} and ${max}' + Infinity-default pattern found 8 more tools the sweep never surfaced (bail-bond, cash-flow-risk, elevator-traffic, hvac-load, percentage-rent, retainage, two workers-comp), all fixed; new lint platform/ci/check_open_range_messages.py (auto-run via unwired_checks.py) flags 4/4 sampled pre-fix files from main, 0 on the merged tree, exits 2 on empty --root. Verified: run_venture_tests.py green on touched ventures; unwired_checks.py 241/241 before the merge; re-sweeps of main's three button fixes 0 hits at each fill. Lesson: two sessions picked the same report 'Next' item within minutes; a claim marker on report follow-ups would avoid it.",
   "corrections": [],
   "redteam": null,
   "usage": {

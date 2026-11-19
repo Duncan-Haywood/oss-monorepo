@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVMh7sGii3yUd8g5nmB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "81e5291c5a6f5ce849df079cc13c27fdbb43204449c00ae7b9c6f7742db70807",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T02:22:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "New venture submittal-register: submittal log from a construction project manual PDF",
+  "projects": [
+    "ventures/submittal-register",
+    "ventures/bank-statement-pdf-to-csv"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17500",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 22,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Most Deepen rows' next: items are now single-measurement refinements or need outside inputs; allocate.py still sends runs there first, so a run that finds them thin has to argue its way out in deviations."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here pointed at ids-model-check, whose remaining next: items need outside inputs (an RVB/ILS author, a Revit/ARCHICAD IFC4X3 export) and which had landed a PR 0.3 h earlier; the brief also asks to start new ventures. Started a new construction venture with no duplicate (duplicate_check top score 0.23) in the owner's construction direction instead.",
+      "did": "new venture submittal-register",
+      "result": "shipped with a published eval: 99.3% recall / 99.9% precision on 12,952 UFGS-tagged submittals"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-submittal-register-from-a-spec-book.md",
+    "ventures/submittal-register/eval/ufgs-2026-11-19.md"
+  ],
+  "goal": "A deep construction product: spec book PDF to submittal register, measured on real tagged data",
+  "notes": "Built ventures/submittal-register (engine, Web Worker PDF reader, page, CLI, eval). Ground truth: UFGS SpecsIntact XML tags each submittal (<ITM> under SD-nn); eval renders sections to printed text and to Chromium PDFs. Results: 690 UFGS_M sections text 99.3% recall / 99.9% precision (12,952 items); 2019 package 99.8/98.7; PDF 60 sections 99.1/99.3, 150 sections (1,954 pages) 98.8/99.4. Browser: 1,954-page PDF read in 25.4 s, no console errors, no horizontal scroll at 390 px. The PDF eval found the PDF reader copied from bank-statement-pdf-to-csv read browser-printed pages bottom to top (5.8% recall); fixed in both ventures, with a regression test in bank-statement-pdf-to-csv that fails before the fix. Also fixed a call-stack overflow (push(...lines)) on 2,000-page books found by the browser run. Not measured: a real commercial SectionFormat project manual (wbdg.org and agency hosts refused the proxy). Checks run: run_venture_tests (submittal-register 18, bank-statement 96 pass), platform/pages faq-visible/secondary-schema/css-lint pass, check_posts ok, validate.py ok, check_csv_formula_guard ok, venture-preflight clean after fixes (catalogue sub-group keyword, BOM escape, ids-model-check<->submittal-register sibling links for the orphan budget, FAQ JSON-LD = visible text, formula guard lets plain numbers through).",
+  "corrections": [],
+  "redteam": null
+}

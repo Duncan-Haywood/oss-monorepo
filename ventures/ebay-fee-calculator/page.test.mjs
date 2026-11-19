@@ -611,10 +611,3 @@ test('index links to the where-to-sell calculator', () => {
 test('index links to the marketplace fee comparison', () => {
   assert.match(page, /href="\.\.\/marketplace-fee-compare\/"/);
 });
-
-test('Download repricing CSV reports a rejected input instead of throwing', () => {
-  // The button sweep with FILL=0 (2026-11-19) found an uncaught "Units must
-  // be a whole number" on the click, and no file and no message.
-  const fn = page.slice(page.indexOf('function downloadScenarios'), page.indexOf('function shareLink'));
-  assert.match(fn, /catch \(error\) \{ window\.alert\(`No CSV downloaded: \$\{error\.message\}`\); return; \}/);
-});

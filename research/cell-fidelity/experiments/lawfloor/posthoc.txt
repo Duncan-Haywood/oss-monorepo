@@ -1,0 +1,17 @@
+Post hoc, descriptive (after the 7b report, not hypothesised): the shape of R(L_n) against cycle n on each
+cell's table, 104 designs, set medians. e99 = a line through all of cycles 2..99 read at 99 (how far R is from
+a line at all); e_late = a ten-cycle line through cycles 11..20 instead of 2..10 (does skipping the first ten
+cycles help); s_mid/s_early, s_late/s_early = the slope of R per cycle over cycles 11..50 and 51..99 against 2..10; q25, q75 = quartiles of late/early.
+
+cell 000:  set              e99  e_late  mid/early late/early     q25     q75
+            Ai2020         0.004   0.021      0.955      0.966   0.857   1.015
+            Chen2020       0.009   0.044      1.015      0.874   0.757   1.106
+            OKane2022      0.006   0.033      1.087      1.083   0.864   1.161
+            NCA_Kim2011    0.003   0.023      0.746      0.689   0.526   0.872
+
+cell 111:  set              e99  e_late  mid/early late/early     q25     q75
+            Ai2020         0.003   0.040      1.218      1.266   1.235   1.340
+            Chen2020       0.005   0.019      1.005      0.985   0.899   1.033
+            OKane2022      0.005   0.019      1.009      0.992   0.894   1.047
+            NCA_Kim2011    0.002   0.009      0.890      0.944   0.862   1.060
+

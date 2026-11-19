@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVQ7shFGYJynWSe4sTj",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "3bacb6da1d6597aa438387432ba02aaf5ca117fccd8dc4fb52cfe978038d7aa0",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T02:21:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "polish: shorten the shared footer on phones (polish_queue item 2 of polish-2026-11-19-about-one-list.md)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 17498,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "contrast.mjs needs axe-core, which the cloud container lacks; the prompt lists it as a measure without saying how to get it"
+    },
+    {
+      "file": "platform/pages/sideways.mjs",
+      "issue": "imports bare 'playwright', which fails in the repo; needed a node_modules/playwright symlink to /opt/node-tools (prompt says use the absolute import path in your own scripts but the repo script doesn't)"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-a-footer-a-quarter-shorter-on-every-page.md",
+    "docs/reports/polish-2026-11-19-footer-trim.md"
+  ],
+  "goal": null,
+  "notes": "Footer on /c/ at 390: 2,128 -> 1,595 px (hub 2,254 -> 1,716). Warranty+hosting stay open verbatim; privacy promise, exceptions and feedback sentence open; counter/email detail in <details>. Footer nav grouped into 4 labelled lists. Local: node --test platform/pages/*.test.mjs pass 1832 fail 0; check.mjs publishable 11,738 pages no dead links; sideways.mjs 120 pages at 320/390 none scroll; run_workflow_locally --for-changes: only failure was report front matter, fixed (check_post_frontmatter ok). Cross-review and deploy jobs can't run outside PR CI.",
+  "corrections": [],
+  "redteam": null
+}

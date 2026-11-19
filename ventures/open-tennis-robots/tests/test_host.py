@@ -2052,13 +2052,13 @@ class SpreadTakeTest(unittest.TestCase):
 
 class TakeSurveyTest(unittest.TestCase):
     """2026-11-17, firmware/esp32/README.md "The contact time surveyed on the board": with SURVEY_TAKE on, the board
-    refits each launched wheel at seven contact times, the TAKE_SURVEY frame carries the sums to the Pi, and the Pi says
+    refits each launched wheel at eight contact times (seven before 2026-11-19), the TAKE_SURVEY frame carries the sums to the Pi, and the Pi says
     which TAKE_US the balls pick."""
 
     def test_frames_round_trip(self):
         (cmd, vals), = list(P.Decoder().feed(P.encode(P.SURVEY_TAKE, 1)))
         self.assertEqual((cmd, vals), (P.SURVEY_TAKE, (1,)))
-        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 650, 620, 600, 590, 588, 640, 9)
+        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 650, 620, 600, 590, 588, 610, 640, 9)
         (cmd, vals), = list(P.Decoder().feed(frame))
         self.assertEqual((cmd, vals[:4], len(vals)), (P.TAKE_SURVEY, (24, 60, 57, 0), 5 + P.TAKE_SURVEY_TIMES))
         self.assertEqual(vals[-1], 9)                              # wheels summed (2026-11-18)
@@ -2102,9 +2102,43 @@ class TakeSurveyTest(unittest.TestCase):
         finally:
             host.TAKE_SURVEY_MIN_KEPT = saved
 
+    def _older_link(self, fmt, *vals):
+        body = struct.pack(fmt, *vals)
+        b = bytes([P.TAKE_SURVEY, len(body)]) + body
+        frame = bytes([P.SYNC]) + b + bytes([P.crc8(b)])
+
+        class Port:
+            def __init__(self):
+                self.data = frame
+
+            def read(self):
+                d, self.data = self.data, b""
+                return d
+
+            def write(self, _):
+                pass
+        link = host.FeederLink(Port(), lambda: 0.0)
+        link.poll()
+        return link
+
+    def test_seven_candidate_frame_still_reads(self):
+        # firmware from 2026-11-18 to 2026-11-19 sends seven candidates (no 7 ms) and the summed-wheel byte
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][0], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112, 9)
+        self.assertEqual(link.take_survey["kept"], 9)
+        self.assertEqual(link.take_survey["rms_ppm"], [136, 140, 119, 98, 95, 50, 112])
+        self.assertIn("set TAKE_US = 5500", host.take_survey_advice(link.take_survey))
+
+    def test_eight_candidate_frame_reads(self):
+        frame = P.encode(P.TAKE_SURVEY, 24, 70, 68, 0, 136, 140, 119, 98, 95, 70, 50, 112, 9)
+        link = self._older_link(P.FORMATS[P.TAKE_SURVEY], 24, 70, 68, 0, 136, 140, 119, 98, 95, 70, 50, 112, 9)
+        self.assertEqual(len(frame), 4 + 1 + 2 * 3 + 2 * 8 + 1)
+        self.assertEqual(link.take_survey["kept"], 9)
+        self.assertEqual(link.take_survey["rms_ppm"][-2:], [50, 112])
+        self.assertIn("set TAKE_US = 7000", host.take_survey_advice(link.take_survey))
+
     def test_older_frame_still_reads(self):
         # firmware before 2026-11-18 sends the frame without the summed-wheel byte: it decodes, and the Pi has no count
-        body = struct.pack(P.OLDER_FORMATS[P.TAKE_SURVEY], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112)
+        body = struct.pack(P.OLDER_FORMATS[P.TAKE_SURVEY][1], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112)
         b = bytes([P.TAKE_SURVEY, len(body)]) + body
         frame = bytes([P.SYNC]) + b + bytes([P.crc8(b)])
 
@@ -2152,8 +2186,8 @@ class TakeSurveyTest(unittest.TestCase):
         # 2026-11-18, README "Take-blind rows traced": take-blind wheels fit every candidate alike and well; a wheel
         # whose take straddles a revolution's edge tells them apart but fits worse at every candidate. SURVEY_TRIM's
         # 5 x the median best drops it and the pick falls to the step; the take survey sums every wheel.
-        blind = [(3e-6 + 1e-7 * i) ** 2 for i in range(7)]          # 3.0-3.6 ppm, the step least
-        straddle = [(300e-6 - 40e-6 * i) ** 2 for i in range(6)] + [(200e-6) ** 2]   # 6 ms (index 5) at 100 ppm
+        blind = [(3e-6 + 1e-7 * i) ** 2 for i in range(8)]          # 3.0-3.7 ppm, the step least
+        straddle = [(300e-6 - 40e-6 * i) ** 2 for i in range(6)] + [(200e-6) ** 2] * 2   # 6 ms (index 5) at 100 ppm
         for trim, pick, dropped in ((None, 0, 1), (controller.TAKE_SURVEY_TRIM, 5, 0)):
             rs = controller.ResidualSurvey(controller.TAKE_SURVEY_GRID_US, trim)
             for _ in range(10):
@@ -2170,8 +2204,8 @@ class TakeSurveyTest(unittest.TestCase):
         # same to every sum, so it cannot move the pick but pulls the best / step share toward 1. Leaving such wheels
         # out (TAKE_SURVEY_BLIND) keeps the pick and sharpens the share; a wheel that tells them apart stays in.
         grid = controller.TAKE_SURVEY_GRID_US
-        blind = [(30e-6 * (1 + 1e-3 * i)) ** 2 for i in range(7)]   # 30 ppm, every candidate within 0.6% of the step
-        tells = [(60e-6 - 8e-6 * i) ** 2 for i in range(6)] + [(40e-6) ** 2]   # 6 ms (index 5) at 20 ppm, step 60
+        blind = [(30e-6 * (1 + 1e-3 * i)) ** 2 for i in range(8)]   # 30 ppm, every candidate within 0.7% of the step
+        tells = [(60e-6 - 8e-6 * i) ** 2 for i in range(6)] + [(40e-6) ** 2] * 2   # 6 ms (index 5) at 20 ppm, step 60
         shares = {}
         for b in (0, controller.TAKE_SURVEY_BLIND):
             rs = controller.ResidualSurvey(grid, 0, b)
@@ -2195,7 +2229,7 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertEqual(lc.take_survey.blind, controller.TAKE_SURVEY_BLIND)
 
     def test_take_survey_spline_flag_picks_the_report(self):
-        grid = controller.TAKE_SURVEY_GRID_US
+        grid = (0, 2000, 3000, 4000, 5000, 6000, 8000)    # the seven-point grid shipped before 2026-11-19
         sums = [9.0, 6.0, 4.0, 2.5, 1.2, 1.0, 1.4]          # least at 6 ms, a shallow side toward 8
         saved = controller.TAKE_SURVEY_SPLINE
         try:

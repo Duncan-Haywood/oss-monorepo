@@ -196,34 +196,53 @@ export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [
  * support line, so every page that carries the row carries that too.
  */
 export function renderSiteFooterNav({ toRoot = '' } = {}) {
-  const links = [
-    ['c/', 'All tools by category'],
-    ['research/', 'Research'],
-    ['writing/', 'Blog'],
-    ['writing/podcast/', 'Podcast'],
-    ['stories/', 'Stories'],
-    ['updates/', 'Updates &amp; roadmap'],
-    ['changelog/', 'Changelog'],
-    ['queue/', 'Work queue'],
-    ['guides/', 'Guides'],
-    ['compare/', 'Comparisons'],
-    ['deploy/', 'Deploy your own copy'],
-    ['about/', 'About &amp; press kit'],
-    ['lab/', 'Lab'],
-    ['feedback/', 'Report a problem or suggest a feature'],
-    ['custom-development/', 'Request custom development'],
-    ['engineering/', 'Engineering status'],
-    ['dev/', 'Development dashboard'],
-    ['dev/daily/', 'Daily brief &amp; The Merge Report'],
-    ['catalog.json', 'Machine-readable catalog'],
-    ['llms.txt', 'llms.txt'],
-    ['sitemap.xml', 'Sitemap'],
-    ['feed.xml', 'New tools feed'],
-    ['changelog/feed.xml', 'Changelog feed'],
+  // Four labelled groups rather than one run of 24 links (2026-11-19,
+  // polish-2026-11-19-footer-trim.md): on a phone the old two-column grid
+  // read as an unsorted list, and four labels wrapped onto a second line.
+  // Every href is unchanged; four labels got shorter so each fits one line
+  // in a 165 px phone column. `pfs-foot` stays on the container because
+  // the band's CSS selects `footer:has(.pfs-foot)`.
+  const groups = [
+    ['Tools', [
+      ['c/', 'All tools by category'],
+      ['guides/', 'Guides'],
+      ['compare/', 'Comparisons'],
+      ['deploy/', 'Deploy your own copy'],
+      ['lab/', 'Lab'],
+    ]],
+    ['Read', [
+      ['research/', 'Research'],
+      ['writing/', 'Blog'],
+      ['writing/podcast/', 'Podcast'],
+      ['stories/', 'Stories'],
+      ['updates/', 'Updates &amp; roadmap'],
+      ['changelog/', 'Changelog'],
+    ]],
+    ['Project', [
+      ['about/', 'About &amp; press kit'],
+      ['feedback/', 'Report a problem'],
+      ['custom-development/', 'Custom development'],
+      ['queue/', 'Work queue'],
+      ['engineering/', 'Engineering status'],
+      ['dev/', 'Development dashboard'],
+      ['dev/daily/', 'Daily brief'],
+      [REPO_URL, 'Source on GitHub'],
+    ]],
+    ['For machines', [
+      ['catalog.json', 'catalog.json'],
+      ['llms.txt', 'llms.txt'],
+      ['sitemap.xml', 'Sitemap'],
+      ['feed.xml', 'New tools feed'],
+      ['changelog/feed.xml', 'Changelog feed'],
+    ]],
   ];
-  return `<p class="pfs-support">${sponsorsNote()}</p><p class="pfs-foot">${links
-    .map(([href, label]) => `<a href="${esc(`${toRoot}${href}`)}">${label}</a>`)
-    .join('<span aria-hidden="true"> · </span>')}<span aria-hidden="true"> · </span><a href="${REPO_URL}">Source on GitHub</a></p><p class="pfs-foot">A ${esc(SITE_NAME)} project, MIT licensed.</p>`;
+  const href = (h) => (/^https?:/.test(h) ? h : `${toRoot}${h}`);
+  const cols = groups
+    .map(([title, links]) => `<div class="pfs-col"><h2>${title}</h2><ul>${links
+      .map(([h, label]) => `<li><a href="${esc(href(h))}">${label}</a></li>`)
+      .join('')}</ul></div>`)
+    .join('');
+  return `<p class="pfs-support">${sponsorsNote()}</p><nav class="pfs-foot" aria-label="Site links">${cols}</nav><p class="pfs-foot pfs-credit">A ${esc(SITE_NAME)} project, MIT licensed.</p>`;
 }
 
 /**
@@ -560,12 +579,14 @@ footer:has(.pfs-foot) code{background:rgba(148,170,210,.16);color:inherit}
 .pfs-foot{margin:18px 0 0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.9}
 .pfs-foot a,.pfs-support a{color:var(--pfs-accent)}
 .pfs-support{margin:18px 0 0;font-size:14px;line-height:1.6}
-footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:6px 24px;
+footer .pfs-foot{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 24px;
   margin-top:26px;padding-top:22px;border-top:1px solid rgba(148,170,210,.24);line-height:1.6}
-footer .pfs-foot>span{display:none}
+footer .pfs-foot h2{margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#eef2f8}
+footer .pfs-foot ul{list-style:none;margin:0;padding:0}
+footer .pfs-foot li{margin:0;padding:2px 0}
 footer .pfs-foot+*{margin-top:16px}
-footer .pfs-foot+.pfs-foot{display:block}
-@media (max-width:560px){footer .pfs-foot{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px}footer .pfs-foot+.pfs-foot{display:block}}
+footer .pfs-foot.pfs-credit{display:block;margin-top:22px;padding-top:16px}
+@media (max-width:720px){footer .pfs-foot{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}}
 footer .pfs-foot a{text-decoration:none}
 footer .pfs-foot a:hover,footer .pfs-foot a:focus-visible{text-decoration:underline;text-underline-offset:3px}
 footer .pfs-exceptions{margin:-4px 0 16px;font-size:14px;line-height:1.6}
@@ -649,6 +670,34 @@ html{overflow-x:clip}
 `;
 
 /**
+ * Opt-in phone layout for wide tables: `<table class="stack">` with a `data-label` on every
+ * body cell becomes one bordered card per row under 600 px, the first cell as the card's
+ * title and the rest as label / value pairs. Built for /ask/ (2026-11-19, where four- and
+ * five-column tables squeezed to one word per line) and moved here the same day so the
+ * blog's Markdown tables (`platform/devlog/markdown.mjs`, `stackTable`) use it too: at
+ * 390 px, 108 of the blog's 202 tables with five or more columns ran past their scroller.
+ * The page keeps a real table on wider screens and for crawlers; `thead` is only visually
+ * hidden, and the ARIA roles keep row and cell semantics where `display:block` drops them.
+ */
+export const STACK_TABLE_CSS = `
+@media (max-width:600px){
+  table.stack thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block}
+  table.stack{background:none;border:0}
+  table.stack tr{border:1px solid var(--pfs-line,rgba(128,128,128,.34));border-radius:10px;
+    background:var(--pfs-panel,transparent);padding:2px 12px;margin:0 0 10px}
+  table.stack td{border:0;border-top:1px solid var(--pfs-line,rgba(128,128,128,.34));padding:7px 0;
+    display:grid;grid-template-columns:minmax(6.5em,34%) minmax(0,1fr);gap:10px;text-align:left}
+  table.stack td::before{content:attr(data-label);color:var(--pfs-muted,inherit);font-size:13px;font-weight:600;line-height:1.5}
+  table.stack td:first-child{display:block;border-top:0;font-weight:650;padding:9px 0 7px}
+  table.stack td:first-child::before{content:none}
+  table.stack.compact tr{display:flex;flex-wrap:wrap;column-gap:18px}
+  table.stack.compact td{flex:1 1 9.5em;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  table.stack.compact td:first-child{flex-basis:100%}
+}
+`;
+
+/**
  * Contents of `pf-site.css`, the stylesheet every site-owned page links.
  *
  * `REFLOW_CSS` rides at the end, as it does in `pf-chrome.css`. Until
@@ -661,7 +710,7 @@ html{overflow-x:clip}
  * break. Every rule in it has zero specificity, so a page's own CSS still wins.
  */
 export function renderSiteStyle() {
-  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}${REFLOW_CSS}`;
+  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}${STACK_TABLE_CSS}${REFLOW_CSS}`;
 }
 
 /** The `<link>` a site-owned page puts in its head. */

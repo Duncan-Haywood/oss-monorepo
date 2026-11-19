@@ -35,6 +35,8 @@ candidate) under the variants that early-stop, and records the round each quanti
   cpin_es3_nc4, _nc6  the same rule at 4 and 6 years (session 102: is 5 years a plateau?)
   cpin_es3_ncq the same rule with a threshold per source city: its own 0.99 quantile of build days over its
                years <= Y-2 completed by D (session 93, q_threshold)
+  cpin_es3_ncr as ncq, the quantile taken only over the source's builds completed in the 3 years before D
+               (session 104, recent_threshold: a cut that moves with recent completions)
   cpin_es3_nc5_clean  cpin_es3_nc5 with the source permits completed by D whose close-out status is dead (expired,
                void, withdrawn, ... or Seattle's "Closed as Incomplete" marker; src/status_pull.py) dropped from
                training and early stopping: their completion date is an administrative closure, not a build's
@@ -83,7 +85,7 @@ VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "c
             "cens_cut_cap", "cens_es3_cap", "cpin_cut", "cpin_es3", "cpin_es3_done",
             "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8", "cpin_es3_ncq",
             "cpin_es3_nc5_clean", "cpin_es3_nc5_stamp", "cpin_es3_nc3_clean",
-            "cpin_es3_nc5_stamp_len", "cpin_es3_nc5_stamp_long", "cpin_es3_nc4", "cpin_es3_nc6")
+            "cpin_es3_nc5_stamp_len", "cpin_es3_nc5_stamp_long", "cpin_es3_nc4", "cpin_es3_nc6", "cpin_es3_ncr")
 STALE_DAYS = 1826  # session 91: 5 years; the cpin_es3_nc5 staleness rule (fixed before any run)
 # session 92: the staleness threshold swept, in days (2, 3, 5, 8 years; the grid session 91's "Next" named)
 STALE = {"cpin_es3_nc2": 730, "cpin_es3_nc3": 1095, "cpin_es3_nc5": STALE_DAYS, "cpin_es3_nc8": 2922,
@@ -109,6 +111,20 @@ def q_threshold(d, decision, q=STALE_Q):
     win = np.array([(decision - x).days for x in s], dtype=float)
     y = d.y.to_numpy(float)
     return float(np.quantile(y[y <= win], q))
+
+
+RECENT_YEARS = 3  # session 104, cpin_es3_ncr: only builds completed in the RECENT_YEARS years before D count
+
+
+def recent_threshold(d, decision, q=STALE_Q, years=RECENT_YEARS):
+    """Session 104 (cpin_es3_ncr): the q-quantile of issue-to-completion days over d's rows whose completion
+    date (start + y) falls in the `years` years before `decision`: a cut that moves with the source's recent
+    completions (session 93's q_threshold pooled every year). A deployment on `decision` can compute it."""
+    s = pd.to_datetime(d.start).dt.date
+    win = np.array([(decision - x).days for x in s], dtype=float)
+    y = d.y.to_numpy(float)
+    m = np.isfinite(y) & (y <= win) & (win - y < 365.25 * years)
+    return float(np.quantile(y[m], q))
 
 
 def stale_drop(d, decision, days=STALE_DAYS):
@@ -260,6 +276,13 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         if variant == "cpin_es3_ncq":
             # session 93: a cut per source city, from its own builds of years <= Y-2 completed by D
             thresholds = {c: q_threshold(frames[c][(frames[c].year <= Y - 2) & np.isfinite(frames[c].y)], D)
+                          for c in src}
+            tr = pd.concat([stale_drop(frames[c][(frames[c].year <= Y - 4) | (frames[c].year == Y - 2)], D,
+                                       thresholds[c]) for c in src])
+            ca = pd.concat([stale_drop(frames[c][frames[c].year == Y - 3], D, thresholds[c]) for c in src])
+        if variant == "cpin_es3_ncr":
+            # session 104: a cut per source city from its builds completed in the 3 years before D
+            thresholds = {c: recent_threshold(frames[c][(frames[c].year <= Y - 1) & np.isfinite(frames[c].y)], D)
                           for c in src}
             tr = pd.concat([stale_drop(frames[c][(frames[c].year <= Y - 4) | (frames[c].year == Y - 2)], D,
                                        thresholds[c]) for c in src])

@@ -909,7 +909,9 @@ const CATEGORY_RULES = [
     // beside `concrete-maturity` and the excavation and grading bid calculators.
     // `ids-model-check` joined 2026-11-16 on its first commit: checking a design team's IFC
     // model against a client's buildingSMART IDS, beside the IFC reader in `wall-framing-takeoff`.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'concrete-maturity' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'voltage-drop-calculator' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    // `submittal-register` joined 2026-11-19 on its first commit: a GC's project engineer
+    // turning the project manual into the submittal log, beside `ids-model-check`.
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'submittal-register' || slug === 'concrete-maturity' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'voltage-drop-calculator' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -5079,7 +5081,8 @@ const SUBCATEGORY_RULES = {
       // `wall-framing-takeoff` joined 2026-10-28: studs and plates go up
       // before the drywall here, and its lumber list is the same job as `cut-list`.
       // `ids-model-check` joined 2026-11-16 beside it: the IFC model check before the build.
-      test: (slug) => /^(ids-model-check|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
+      // `submittal-register` joined 2026-11-19 beside it: the submittal log from the spec book.
+      test: (slug) => /^(ids-model-check|submittal-register|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
     },
     {
       id: 'trades-site',
@@ -6170,6 +6173,12 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         <p>Hosts: ${listProse([...new Set(exceptions.flatMap((x) => x.hosts))].map(escapeHtml))}.</p>
       </details>`
     : '';
+  // The warranty and hosting paragraphs are PRODUCT_PLAYBOOK.md §5b's text and
+  // stay open. The Privacy section leads with its one plain promise (and the
+  // exceptions to it); the counter, feedback and email details sit in a
+  // <details> under a summary that says what they are. Open, they were
+  // ~700 px of a 2,128 px footer on a 390 px phone, on every page:
+  // polish-2026-11-19-footer-trim.md.
   return `
       <h2>No warranty</h2>
       <p>
@@ -6196,10 +6205,14 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         server that could receive it.${exceptionNote}${feedbackOn() ? ` The one thing
         that is sent on purpose is a message you choose to submit through the
         <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a>, which
-        is published in this site's public GitHub repository.` : ''} We count anonymous, aggregate events —
+        is published in this site's public GitHub repository.` : ''}
+      </p>${exceptionList}
+      <details class="pfs-exceptions pfs-privacy-more">
+        <summary>What is counted, and what happens to email you send</summary>
+      <p>We count anonymous, aggregate events —
         which tools get opened, never anything about who opened them — and that
         count stays in your own browser's local storage.
-      </p>${exceptionList}
+      </p>
       <p>${counter ? `
         Each page load also adds one to a daily per-page total on our own
         open-source counter, and those totals are published in the repository.
@@ -6226,7 +6239,8 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         you, never published or sold, and deleted after 90 days; reply asking
         and we delete it sooner. You can ask what we hold about you, have it
         corrected or deleted, and complain to your data-protection authority.
-      </p>`;
+      </p>
+      </details>`;
 }
 
 /**

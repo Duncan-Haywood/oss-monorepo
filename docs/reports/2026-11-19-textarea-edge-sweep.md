@@ -79,45 +79,5 @@ The textarea sweep tests the behaviour instead.
 
 - Wire the sweeps into the nightly `browser-checks-ci.yml`. That is a
   control-plane (`.github/`) edit, so it needs its own small PR.
-- ~~`check_button_clicks.js` with `FILL=0` / `FILL=blank` over http has not been
-  run yet.~~ Done, with `FILL=-1` too: see below.
-
-## Button sweep with filled inputs, over http (2026-11-19, PR #17508)
-
-`FILL=<v> node platform/ci/check_button_clicks.js out.json` sets every text,
-number and range input to `v` before each click. Full runs, 1,407 pages, 1,382
-with buttons, about 6,100 clicks each:
-
-| fill | hits | real hits (bugs) | known non-bugs |
-|---|---|---|---|
-| `0` | 8 | 4 (4) | clipboard (2), error-keeper sample stack trace, IIF finding text |
-| `blank` | 6 | 1 (1, same as `0`) | clipboard (3), error-keeper, IIF |
-| `-1` | 10 | 6 (4) | clipboard (2), error-keeper, IIF |
-
-Fixed:
-
-- appliance-repair-quote-calculator: Copy quote summary threw uncaught on a
-  rejected input (0 or blank years) and copied nothing, silently.
-- ebay-fee-calculator: Download repricing CSV threw uncaught on 0 units.
-- parking-lot-striping-bid-calculator: all three compare buttons threw on -1.
-- crop-insurance-coverage-calculator: break-even yield printed NaN at a zero
-  projected price (calc.mjs returns NaN on purpose; the page now prints "—").
-- shared-kitchen-rate-planner: "cost per used hour $Infinity" at zero use.
-- "must be between 0 and Infinity": cannabis-280e, grant-indirect and
-  uk-mortgage-overpayment (sweep), plus eight tools with the same `num()`
-  helper (grep): bail-bond, cash-flow-risk, elevator-traffic, hvac-load,
-  percentage-rent, retainage-cashflow and both workers-comp tools. They now
-  say "0 or more" (or "N or less"). `platform/ci/check_open_range_messages.py`
-  keeps it that way; `unwired_checks.py` runs it on every PR.
-
-Known non-bugs, so the next run can skip them: error-keeper's textarea
-placeholder is a sample stack trace ("Cannot read properties of undefined");
-quickbooks-iif-file-check's sample finding says "an undefined account";
-clipboard denials are headless Chromium.
-
-## Next
-
-- Wire the sweeps into the nightly `browser-checks-ci.yml` (control plane,
-  own PR); the button sweep could run with `FILL=0` and `FILL=-1` there.
-- An allowlist for the four known non-bugs would make a clean run read 0.
-- `FILL=1e308` (overflow) has not been run over http.
+- `check_button_clicks.js` with `FILL=0`, `FILL=blank` and `FILL=-1` over
+  http: done, 11 ventures fixed (`2026-11-19-button-click-fill-sweeps.md`).
