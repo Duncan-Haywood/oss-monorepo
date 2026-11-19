@@ -1902,7 +1902,7 @@ class LoopFitUnsureTest(unittest.TestCase):
         for rpm, tau in ((2500, 0.2), (4000, 0.4), (6000, 0.8)):
             ps, tk = lr.wheel(rpm, 0.08, tau)
             got = controller.drop_from_commands(ps, tk)
-            self.assertEqual(len(got), 7)
+            self.assertEqual(len(got), 8)    # 8th: the take straddles an edge (2026-11-19)
             self.assertLess(got[5], controller.LOOP_SE_MAX, (rpm, tau))
         ps, tk = lr.wheel(4000, 0.06, 0.4, jitter_us=20, seed=3)
         got = controller.drop_from_commands(ps, tk)
