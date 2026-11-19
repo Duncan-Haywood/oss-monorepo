@@ -1,0 +1,12 @@
+{
+  // Hand-written fixture: deprecations silenced for TypeScript 6.
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "target": "es5",
+    "moduleResolution": "node10",
+    "module": "commonjs",
+    "baseUrl": ".",
+    "outDir": "build",
+    "rootDir": "src"
+  }
+}

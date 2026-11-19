@@ -1,0 +1,1 @@
+{ "compilerOptions": { "module": "none", "target": "es2016", "noEmit": true } }

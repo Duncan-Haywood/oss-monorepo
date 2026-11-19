@@ -1,0 +1,5 @@
+{
+  // Hand-written fixture: UMD output and module none in a references layout.
+  "compilerOptions": { "module": "umd", "target": "es2015", "noEmit": true },
+  "references": []
+}

@@ -1,0 +1,14 @@
+{
+  // Hand-written fixture: options TypeScript 5.5 already removed.
+  "compilerOptions": {
+    "target": "es2017",
+    "noImplicitUseStrict": true,
+    "keyofStringsOnly": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "suppressExcessPropertyErrors": true,
+    "noStrictGenericChecks": true,
+    "importsNotUsedAsValues": "remove",
+    "preserveValueImports": true,
+    "noEmit": true
+  }
+}

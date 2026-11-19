@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232f5d8a'/%3E%3Ctext%20x='16'%20y='21'%20font-size='13'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ETS7%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TypeScript 7 tsconfig Checker: Removed Options and Changed Defaults</title>
+<meta name="description" content="Free TypeScript 7 readiness check for tsconfig.json: finds options tsc 7 removed (baseUrl, target ES5, moduleResolution node, outFile, AMD), defaults 6.0 changed (strict, types, rootDir) and suggests a fixed config. Runs in your browser.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/tsconfig-ts7-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Will your tsconfig.json work in TypeScript 7?">
+<meta property="og:description" content="Paste a tsconfig and see what TypeScript 7 rejects (baseUrl, ES5, node10 resolution, outFile, AMD/UMD) and which TypeScript 6 default changes affect you, with a suggested fix checked against the real compilers.">
+<meta property="og:url" content="https://example.invalid/tsconfig-ts7-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "tsconfig TypeScript 7 Check",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser); a Node.js CLI does the same checks",
+  "description": "Checks a tsconfig.json for the options TypeScript 7.0 removed and the defaults TypeScript 6.0 changed, and suggests a config that tsc 6 and 7 accept. Every rule was confirmed by running tsc 5.9.3, 6.0.3 and 7.0.2.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Flags every option TypeScript 7.0 rejects: target ES5 and ES3, moduleResolution node/node10/classic, baseUrl, outFile, module AMD/UMD/System/None, downlevelIteration, esModuleInterop false, allowSyntheticDefaultImports false, alwaysStrict false, and the options removed in 5.5",
+    "Gives the exact error code each compiler prints (TS5101/TS5107 in 6.0; TS5102, TS5108, TS5023 or TS6046 in 7.0)",
+    "Explains the defaults TypeScript 6.0 changed when an option is left out: strict, types, target, module, moduleResolution, esModuleInterop, rootDir, noUncheckedSideEffectImports",
+    "Suggests compilerOptions with removed options taken out, baseUrl folded into paths and changed defaults pinned",
+    "Follows extends across the files you add; the CLI resolves relative and node_modules extends",
+    "Nothing is uploaded: the config is read in your browser"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Which tsconfig options did TypeScript 7 remove?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "TypeScript 6.0 deprecated, and 7.0 removed: target ES5, downlevelIteration, moduleResolution node (node10) and classic, baseUrl, outFile, module AMD, UMD, System and None, and the false values of esModuleInterop, allowSyntheticDefaultImports and alwaysStrict. TypeScript 7 stops with error TS5102 or TS5108 for most of them and TS6046 for module None. The options removed back in 5.5 (charset, out, keyofStringsOnly, importsNotUsedAsValues and others) are unknown options in 7, error TS5023, even when set to false."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I replace baseUrl in TypeScript 7?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Delete baseUrl and write every paths target relative to the tsconfig file. With baseUrl set to src and \"@lib/*\": [\"lib/*\"], write \"@lib/*\": [\"./src/lib/*\"]. Imports that only worked because baseUrl made src a lookup root, such as import \"utils/date\" meaning ./src/utils/date, need a paths entry like \"*\": [\"./src/*\"] or a relative import. The suggested config on this page does the paths rewrite for you."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does \"ignoreDeprecations\": \"6.0\" work in TypeScript 7?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. In TypeScript 6 it silences the TS5101 and TS5107 deprecation errors. TypeScript 7 still accepts the setting but reports every removed option as an error regardless, so it only buys time on 6.0. Fix the options, then delete it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why are process, Buffer or describe undefined after upgrading to TypeScript 6 or 7?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the default of types changed from loading every package in node_modules/@types to an empty list. Globals that came from @types/node, @types/jest or @types/mocha are no longer declared unless you list them, for example \"types\": [\"node\", \"jest\"]. \"types\": [\"*\"] restores the old load-everything behaviour."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "If this check finds nothing, will my project compile with TypeScript 7?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not necessarily. The check covers the config file: removed options and changed defaults. Your code can still hit new type errors, packages may resolve differently under bundler or nodenext resolution, and editor plugins listed in plugins are a separate question. Run tsc 7 on the project; this page tells you why the first errors appear and what to change in the config."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; --bg: #f9fafb; --fg: #17202a; --muted: #56606b; --line: #d2d8de; --card: #ffffff; --accent: #2f5d8a; --error: #b3261e; --warning: #9a5a00; --info: #4f5b67; --ok: #11713f; font: 16px/1.55 system-ui, sans-serif; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #12161a; --fg: #e4e9ee; --muted: #a0a9b2; --line: #333b43; --card: #1a1f24; --accent: #93bde6; --error: #ff8a80; --warning: #f0b45a; --info: #a8b4c0; --ok: #6fd69a; } }
+  body { background: var(--bg); color: var(--fg); max-width: 960px; margin: 0 auto; padding: 1.25rem 16px 2rem; }
+  h1 { font-size: clamp(1.55rem, 4.5vw, 2.3rem); line-height: 1.2; margin: 0.4rem 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.8rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1rem 0 0.3rem; }
+  a { color: var(--accent); }
+  .lede { font-size: 1.08rem; color: var(--muted); margin-top: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0; }
+  label { display: block; font-weight: 600; margin: 0.6rem 0 0.25rem; }
+  label.inline { display: inline-flex; gap: 0.4rem; align-items: center; font-weight: 400; margin-right: 1rem; }
+  textarea { width: 100%; box-sizing: border-box; padding: 0.5rem 0.6rem; font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); min-height: 260px; resize: vertical; }
+  button { font: inherit; padding: 0.45rem 0.95rem; cursor: pointer; margin: 0.6rem 0.5rem 0 0; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--fg); }
+  button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  ul.diags { list-style: none; padding: 0; margin: 0.4rem 0; }
+  ul.diags li { border-left: 4px solid var(--line); padding: 0.35rem 0.7rem; margin: 0.5rem 0; }
+  ul.diags li.error { border-color: var(--error); } ul.diags li.warning { border-color: var(--warning); } ul.diags li.info { border-color: var(--info); }
+  .sev { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-right: 0.4rem; }
+  .sev.error { color: var(--error); } .sev.warning { color: var(--warning); } .sev.info { color: var(--info); }
+  .fix, .codes { color: var(--muted); font-size: 0.92rem; }
+  .ok { color: var(--ok); font-weight: 700; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; overflow-wrap: anywhere; }
+  pre { background: var(--card); border: 1px solid var(--line); padding: 0.7rem 0.85rem; border-radius: 8px; overflow-x: auto; font-size: 0.86rem; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .muted { color: var(--muted); font-size: 0.9rem; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: 0.86rem; color: var(--muted); }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>Will your tsconfig.json work in TypeScript 7?</h1>
+<p class="lede">TypeScript 7.0 removed the options 6.0 deprecated, and 6.0 changed defaults such as <code>strict</code>, <code>types</code> and <code>rootDir</code>. Paste your tsconfig to see what tsc 7 will reject, which default changes reach your project, and a suggested config. Every rule here was confirmed by running tsc 5.9.3, 6.0.3 and 7.0.2. It runs in your browser; nothing is uploaded.</p>
+
+<section class="card" aria-labelledby="check-h">
+  <h2 id="check-h" style="margin-top:0">Check a tsconfig</h2>
+  <label for="cfg">tsconfig.json (comments and trailing commas are fine)</label>
+  <textarea id="cfg" spellcheck="false"></textarea>
+  <label for="bases">Configs it extends (optional; matched by file name)</label>
+  <input id="bases" type="file" accept=".json,application/json" multiple>
+  <div>
+    <button type="button" class="primary" id="run">Check for TypeScript 7</button>
+    <button type="button" id="ex">Load a legacy Node config</button>
+  </div>
+  <div id="out" aria-live="polite"></div>
+</section>
+
+<section aria-labelledby="what-h">
+  <h2 id="what-h">What it checks</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">Setting</th><th scope="col">TypeScript 6.0</th><th scope="col">TypeScript 7.0</th></tr></thead>
+    <tbody>
+      <tr><td><code>"target": "es5"</code>, <code>downlevelIteration</code>, <code>baseUrl</code>, <code>outFile</code>, <code>"moduleResolution": "node"</code> / <code>"node10"</code> / <code>"classic"</code>, <code>"module": "amd"</code> / <code>"umd"</code> / <code>"system"</code>, <code>esModuleInterop</code>, <code>allowSyntheticDefaultImports</code> or <code>alwaysStrict</code> set to <code>false</code></td><td>error TS5101 / TS5107 (deprecated; <code>"ignoreDeprecations": "6.0"</code> silences it)</td><td>error TS5102 / TS5108 (removed)</td></tr>
+      <tr><td><code>"module": "none"</code></td><td>error TS5107</td><td>error TS6046 (not a valid value)</td></tr>
+      <tr><td><code>charset</code>, <code>out</code>, <code>keyofStringsOnly</code>, <code>noImplicitUseStrict</code>, <code>suppressExcessPropertyErrors</code>, <code>suppressImplicitAnyIndexErrors</code>, <code>noStrictGenericChecks</code>, <code>importsNotUsedAsValues</code>, <code>preserveValueImports</code> (removed in 5.5)</td><td>error TS5102 when switched on</td><td>error TS5023 (unknown option), whatever the value</td></tr>
+      <tr><td><code>"target": "es3"</code></td><td>error TS5108</td><td>error TS6046</td></tr>
+      <tr><td><code>"prepend": true</code> on a project reference</td><td>error TS5102</td><td>silently ignored</td></tr>
+      <tr><td>Left out: <code>strict</code>, <code>types</code>, <code>target</code>, <code>module</code>, <code>moduleResolution</code>, <code>esModuleInterop</code>, <code>rootDir</code>, <code>noUncheckedSideEffectImports</code></td><td colspan="2">New defaults since 6.0: strict on, <code>types</code> empty, target ES2025, module from the target, bundler resolution, interop on, rootDir at the tsconfig folder, unresolved side-effect imports are errors</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Checked against 61 real and hand-written configs, including 35 versions of the 25 <code>@tsconfig/bases</code> packages (the current release of each, plus older majors): the checker named exactly the options tsc 7.0.2 rejected in every one, and every suggested config compiled with no config errors under tsc 6.0.3 and 7.0.2. The method and data are in the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tsconfig-ts7-check/eval">eval folder</a>.</p>
+</section>
+
+<section aria-labelledby="cli-h">
+  <h2 id="cli-h">The same check in CI</h2>
+  <p>The CLI needs Node.js 20 or later and nothing else. It follows relative and <code>node_modules</code> <code>extends</code>, names the <code>@types</code> packages the new <code>types</code> default stops loading, and exits 1 when TypeScript 7 would reject the config (add <code>--strict</code> to fail on warnings too).</p>
+  <pre>node cli.mjs                                  # ./tsconfig.json
+node cli.mjs packages/*/tsconfig.json --strict
+node cli.mjs tsconfig.json --suggest          # print a fixed compilerOptions
+node cli.mjs tsconfig.json --json</pre>
+  <p>Source and README: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tsconfig-ts7-check">ventures/tsconfig-ts7-check</a>.</p>
+</section>
+
+<section aria-labelledby="faq-h">
+  <h2 id="faq-h">Questions</h2>
+  <h3>Which tsconfig options did TypeScript 7 remove?</h3>
+  <p>TypeScript 6.0 deprecated, and 7.0 removed: target ES5, downlevelIteration, moduleResolution node (node10) and classic, baseUrl, outFile, module AMD, UMD, System and None, and the false values of esModuleInterop, allowSyntheticDefaultImports and alwaysStrict. TypeScript 7 stops with error TS5102 or TS5108 for most of them and TS6046 for module None. The options removed back in 5.5 (charset, out, keyofStringsOnly, importsNotUsedAsValues and others) are unknown options in 7, error TS5023, even when set to false.</p>
+  <h3>How do I replace baseUrl in TypeScript 7?</h3>
+  <p>Delete baseUrl and write every paths target relative to the tsconfig file. With baseUrl set to src and "@lib/*": ["lib/*"], write "@lib/*": ["./src/lib/*"]. Imports that only worked because baseUrl made src a lookup root, such as import "utils/date" meaning ./src/utils/date, need a paths entry like "*": ["./src/*"] or a relative import. The suggested config on this page does the paths rewrite for you.</p>
+  <h3>Does "ignoreDeprecations": "6.0" work in TypeScript 7?</h3>
+  <p>No. In TypeScript 6 it silences the TS5101 and TS5107 deprecation errors. TypeScript 7 still accepts the setting but reports every removed option as an error regardless, so it only buys time on 6.0. Fix the options, then delete it.</p>
+  <h3>Why are process, Buffer or describe undefined after upgrading to TypeScript 6 or 7?</h3>
+  <p>Because the default of types changed from loading every package in node_modules/@types to an empty list. Globals that came from @types/node, @types/jest or @types/mocha are no longer declared unless you list them, for example "types": ["node", "jest"]. "types": ["*"] restores the old load-everything behaviour.</p>
+  <h3>If this check finds nothing, will my project compile with TypeScript 7?</h3>
+  <p>Not necessarily. The check covers the config file: removed options and changed defaults. Your code can still hit new type errors, packages may resolve differently under bundler or nodenext resolution, and editor plugins listed in plugins are a separate question. Run tsc 7 on the project; this page tells you why the first errors appear and what to change in the config.</p>
+</section>
+</main>
+<footer>
+  <label class="inline"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a guarantee.</strong> The findings compare your config with rules taken from the TypeScript 6.0.3 compiler source and confirmed on tsc 5.9.3, 6.0.3 and 7.0.2. Later TypeScript releases may change them.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or professional advice. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+  <p><strong>Nothing leaves your browser.</strong> The configs you check are read on this page and never uploaded. There are no accounts, tracking cookies or analytics vendor. The only thing stored is an anonymous local count of which buttons were used and the day, in this browser's storage; turn it off with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does. Not affiliated with Microsoft or the TypeScript project; TypeScript is a trademark of Microsoft.</p>
+  <p>Related: <a href="../cyclehound/">Cyclehound</a> finds circular imports in a TypeScript project and reads its tsconfig paths; <a href="../package-exports-drift-check/">package exports drift check</a> finds package.json "exports" that point at missing files, which bundler and nodenext resolution now read.</p>
+</footer>
+<script type="module">
+  import { parseJsonc, lineCol, checkConfig, extendsList, suggestOptions } from './tsconfig7.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const count = (event) => recordUsage(usageStorage(), $('usageOptOut')?.checked ?? false, event);
+
+  const EXAMPLE = `// A Node service config from the TypeScript 3/4 era.
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "baseUrl": "src",
+    "paths": { "@lib/*": ["lib/*"], "@config": ["config/index.ts"] },
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": false,
+    "sourceMap": true
+  }
+}
+`;
+
+  let baseFiles = [];
+  const baseName = (p) => p.split(/[\\/]/).pop();
+  // Resolve extends against the added files by file name, nearest first,
+  // the order tsc applies them (later entries in a list win).
+  function chain(cfg, seen = new Set()) {
+    const bases = []; const unresolved = [];
+    for (const spec of extendsList(cfg).reverse()) {
+      const want = baseName(spec);
+      const f = baseFiles.find((b) => b.name === want || b.name === `${want}.json` || (want === '' && b.name === 'tsconfig.json'));
+      if (!f || seen.has(f.name)) { if (!f) unresolved.push(spec); continue; }
+      seen.add(f.name);
+      const p = parseJsonc(f.text);
+      if (p.error) { unresolved.push(spec); continue; }
+      const sub = chain(p.value, seen);
+      bases.push({ name: f.name, config: p.value }, ...sub.bases);
+      unresolved.push(...sub.unresolved);
+    }
+    return { bases, unresolved };
+  }
+
+  function run() {
+    const text = $('cfg').value;
+    const p = parseJsonc(text);
+    if (p.error) {
+      const { line, col } = lineCol(text, p.offset);
+      $('out').innerHTML = `<ul class="diags"><li class="error"><span class="sev error">error</span>Not valid tsconfig JSON at line ${line}, column ${col}: ${esc(p.error)}</li></ul>`;
+      return;
+    }
+    const c = chain(p.value);
+    const r = checkConfig(p.value, { bases: c.bases, unresolvedExtends: c.unresolved });
+    const s = r.summary;
+    let html = `<p><strong>${s.errors ? `TypeScript 7 would reject this config: ${s.errors} error${s.errors === 1 ? '' : 's'}` : '<span class="ok">TypeScript 7 accepts these options</span>'}, ${s.warnings} warning${s.warnings === 1 ? '' : 's'}, ${s.infos} note${s.infos === 1 ? '' : 's'}.</strong></p>`;
+    if (r.findings.length) {
+      html += `<ul class="diags">${r.findings.map((f) => `<li class="${f.severity}"><span class="sev ${f.severity}">${f.severity}</span>${esc(f.message)}${f.ts6 ? `<div class="codes">TypeScript 6.0: ${esc(f.ts6)} · TypeScript 7.0: ${esc(f.ts7)}</div>` : ''}${f.fix ? `<div class="fix">Fix: ${esc(f.fix)}</div>` : ''}</li>`).join('')}</ul>`;
+    }
+    const sug = suggestOptions(p.value, r.effective);
+    if (sug.notes.length) {
+      html += `<h3>Suggested compilerOptions</h3><p class="muted">Removed options taken out and changed defaults pinned so the file states its choices. It keeps 5.9's behaviour where that is safe (strict off, every @types package); tighten those when you are ready.</p><pre id="sug">${esc(JSON.stringify(sug.compilerOptions, null, 2))}</pre><button type="button" id="copy">Copy</button><ul>${sug.notes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>`;
+    }
+    $('out').innerHTML = html;
+    $('copy')?.addEventListener('click', () => { navigator.clipboard?.writeText($('sug').textContent).catch(() => {}); });
+    count('config_checked');
+  }
+
+  $('cfg').value = EXAMPLE;
+  $('run').addEventListener('click', run);
+  $('ex').addEventListener('click', () => { $('cfg').value = EXAMPLE; run(); });
+  $('bases').addEventListener('change', async (e) => {
+    baseFiles = await Promise.all([...e.target.files].map(async (f) => ({ name: f.name, text: await f.text() })));
+  });
+  const usageControl = $('usageOptOut');
+  usageControl.checked = readOptOut(usageStorage());
+  usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
+</script>
+</body>
+</html>
