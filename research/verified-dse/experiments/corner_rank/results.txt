@@ -1,0 +1,50 @@
+# Milestone 154: the clipped ladder's rank information at ff against tt on 13 paired short add chains (replay)
+
+alpha = 1.25; bootstrap 2000 resamples, seed 154; points = sequences ok at both corners
+
+design | common points | tau tt | tau ff | tauA tt | tauA ff | tauD tt | tauD ff | rank tt | rank ff | d tt | d ff | delay share tt | delay share ff | tau-b r4 tt vs ff
+wsum3 | 102 | 0.560 | 0.487 | 0.890 | 0.884 | 0.307 | 0.222 | 0.000 | 0.010 | -6.21 | -13.81 | 0.54 | 0.60 | 0.389
+wsum8 | 103 | 0.538 | 0.589 | 0.925 | 0.936 | 0.214 | 0.291 | 0.074 | 0.039 | -2.44 | -4.62 | 0.47 | 0.61 | 0.289
+sad7 | 102 | 0.145 | 0.316 | 0.893 | 0.936 | -0.141 | 0.002 | 0.347 | 0.267 | -2.05 | +9.40 | 0.69 | 0.49 | 0.274
+dot7r | 103 | 0.533 | 0.218 | 0.893 | 0.915 | -0.139 | -0.173 | 0.039 | 0.108 | -4.17 | +11.77 | 0.52 | 0.59 | 0.121
+avg10 | 103 | 0.401 | 0.276 | 0.916 | 0.911 | 0.190 | -0.017 | 0.064 | 0.157 | -1.66 | +1.58 | 0.67 | 0.61 | 0.231
+dot9r | 103 | 0.475 | 0.420 | 0.921 | 0.898 | 0.176 | 0.052 | 0.402 | 0.029 | +0.35 | -2.85 | 0.66 | 0.50 | 0.171
+sad6 | 103 | 0.487 | 0.402 | 0.925 | 0.949 | 0.142 | -0.002 | 0.000 | 0.010 | -11.75 | -7.93 | 0.60 | 0.41 | 0.245
+csum7 | 102 | 0.378 | 0.089 | 0.939 | 0.934 | -0.004 | -0.087 | 0.198 | 0.277 | +0.26 | +10.10 | 0.25 | 0.64 | 0.014
+dot3r | 103 | 0.363 | 0.150 | 0.915 | 0.920 | 0.029 | -0.285 | 0.123 | 0.672 | +6.53 | +2.04 | 0.66 | 0.57 | 0.248
+avg8 | 100 | 0.167 | 0.340 | 0.903 | 0.918 | -0.011 | 0.129 | 0.141 | 0.040 | -1.32 | -10.28 | 0.60 | 0.60 | 0.166
+csum9 | 103 | 0.569 | 0.171 | 0.929 | 0.945 | 0.085 | -0.068 | 0.020 | 0.260 | -2.33 | +1.30 | 0.21 | 0.76 | 0.102
+wsum5 | 103 | 0.639 | 0.637 | 0.929 | 0.935 | 0.428 | 0.395 | 0.015 | 0.147 | -2.41 | -5.75 | 0.62 | 0.56 | 0.416
+sad2 | 103 | 0.474 | 0.579 | 0.925 | 0.950 | 0.056 | 0.093 | 0.088 | 0.069 | +7.72 | -10.53 | 0.57 | 0.31 | 0.217
+
+quantity | mean tt | mean ff | mean ff - tt | 95% interval | ff higher / lower / tied (sign p)
+tau | 0.441 | 0.360 | -0.081 | -0.176 to +0.008 | 4 / 9 / 0 (0.267)
+tauA | 0.916 | 0.925 | +0.010 | +0.001 to +0.018 | 9 / 4 / 0 (0.267)
+tauD | 0.102 | 0.042 | -0.060 | -0.133 to +0.006 | 4 / 9 / 0 (0.267)
+rank | 0.116 | 0.160 | +0.044 | -0.065 to +0.161 | 8 / 5 / 0 (0.581)
+d | -1.499 | -1.507 | -0.008 | -4.799 to +5.004 | 6 / 7 / 0 (1.000)
+rand | 3.192 | 6.957 | +3.765 | +1.530 to +5.800 | 11 / 2 / 0 (0.022)
+swc | 1.693 | 5.450 | +3.757 | -0.581 to +8.157 | 6 / 4 / 3 (0.754)
+dshare | 0.543 | 0.557 | +0.014 | -0.096 to +0.141 | 5 / 8 / 0 (0.581)
+
+(1) PRIMARY mean tau(ff) - tau(tt) = -0.081, interval -0.176 to +0.008: refuted
+(2) mean tauD(ff) - tauD(tt) = -0.060: held
+(3) |mean tauA(ff) - tauA(tt)| = 0.010: held
+(4) mean d(ff) - d(tt) = -0.01 points: refuted
+(5) Spearman of tau against d over 26 units: -0.623: held
+(6) median rank(ff) - rank(tt) = +0.010: held
+(7) mean random regret ff 6.96% against tt 3.19%: held
+
+## Reported, not predicted
+
+median tau-b of routed score between corners (common sequences): 0.231
+Spearman of tauD against d over 26 units: -0.575
+Spearman of tauA against d over 26 units: +0.043
+
+## Post hoc: SWC(1.25) against equal-cost random by unit set (added after the first run, for the paper's corner table)
+
+set | units | SWC % | random % | SWC better / worse / tied | sign p
+ff milestones 144 to 147 (milestone 148's pool) | 77 | 2.98 | 8.95 | 59 / 14 / 4 | 0.0000
+ff milestone 152, all fresh | 15 | 7.18 | 8.23 | 8 / 7 / 0 | 1.0000
+ff milestone 152, the 13 paired | 13 | 5.45 | 6.96 | 7 / 6 / 0 | 1.0000
+tt milestone 153, the 13 paired | 13 | 1.69 | 3.19 | 9 / 4 / 0 | 0.2668

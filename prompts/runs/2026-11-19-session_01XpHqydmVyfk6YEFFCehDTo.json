@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqydmVyfk6YEFFCehDTo",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T22:39:20Z",
+  "ended": "2026-11-19T22:50:47Z",
+  "wall_minutes": 11.7,
+  "tokens_in": 4622270,
+  "tokens_out": 27624,
+  "cost_usd": 2.4337,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17814",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Deleted a background job's stdout log while the job still ran; harmless because analyse.py also writes results.txt, but the wait_for marker never came. Waited on the pid instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/experiments/*/analyse.py",
+      "issue": "A replay that loads the milestone 152/153 cells takes ~74 s, and a second loader call (ac.units()) pushes it past the 120 s foreground limit; the first foreground run fit, the re-run with the post hoc table timed out and had to go to the background."
+    },
+    {
+      "file": "research/verified-dse/README.md",
+      "issue": "The status line said 'milestones 1 to 144 done' while LOG.md was at 153; ten milestones had not updated it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/verified-dse/paper/build.sh",
+      "why": "PAPER.md gained a corner table and a paragraph, but paper/main.tex was not regenerated (needs pdflatex, about 10 min to install, and earlier milestones did not regenerate it each time).",
+      "did": "Left main.tex as it was; PAPER.md is the source of truth.",
+      "result": "main.tex lags PAPER.md by this milestone's section."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-verified-dse-corner-rank.md",
+    "research/verified-dse/LOG.md (milestone 154)"
+  ],
+  "goal": null,
+  "notes": "Programme verified-dse, milestone 154: paired replay (experiments/corner_rank/), seven predictions committed in 178c61c57 before the first run; five held, primary refuted narrowly (tau change -0.081, interval -0.176 to +0.008). Post hoc SWC-vs-random table added after the first run, labelled; predicted lines unchanged (test pins them). PAPER.md gained the corner table. Checks: tests/test_corner_rank.py 3 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok; programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4ba3211d-ac90-5ae8-bfbe-0310607de41a",
+    "transcripts": 1,
+    "first": "2026-11-19T22:39:20Z",
+    "last": "2026-11-19T22:51:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 82,
+        "output": 27624,
+        "thinking": 7002,
+        "cache_read": 4499566,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122622,
+        "api_equivalent_usd": 2.4337,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 82,
+      "output": 27624,
+      "thinking": 7002,
+      "cache_read": 4499566,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122622,
+      "api_equivalent_usd": 2.4337,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.7,
+      "active_minutes": 11.7,
+      "model_minutes": 4.43,
+      "tool_minutes": 7.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design a paired pre-registered replay, analysis script, tests, paper table and post for an EDA researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 246.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

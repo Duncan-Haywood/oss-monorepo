@@ -1,0 +1,83 @@
+construction.ifc: median |rel| of agreeing pairs 1.3e-4; elements storing an area but faceted (not cut): 0
+  IfcColumn.CrossSectionArea: 257 / 257 agree
+  IfcWall.GrossSideArea: 11 / 36 agree; matches-stored-volume 6, split 17, repeated 2
+architect.ifc: median |rel| of agreeing pairs 9.1e-16; elements storing an area but faceted (not cut): 58
+  IfcWall.GrossSideArea: 70 / 112 agree; split 5, matches-stored-volume 4, net-as-gross 33
+  IfcMember.CrossSectionArea: 1392 / 1392 agree
+AC20-FZK-Haus.ifc: median |rel| of agreeing pairs 1.3e-16; elements storing an area but faceted (not cut): 11
+  IfcWall.GrossFootprintArea: 13 / 13 agree
+  IfcWall.NetFootprintArea: 9 / 13 agree; gross-as-net 4
+  IfcWall.GrossSideArea: 11 / 13 agree; on-a-face 2
+  IfcWall.NetSideArea: 9 / 13 agree; on-a-face 3, unexplained 1
+  IfcBeam.CrossSectionArea: 1 / 1 agree
+  IfcSlab.GrossArea: 4 / 4 agree
+  IfcSlab.NetArea: 4 / 4 agree
+    #18698 IfcWallStandardCase NetSideArea computed 14.2173 stored 13.9173 (2.2%) openings 2 Wand-Int-ERDG-3
+C20-Institute-Var-2.ifc: median |rel| of agreeing pairs 1.3e-16; elements storing an area but faceted (not cut): 227
+  IfcSlab.GrossArea: 5 / 5 agree
+  IfcSlab.NetArea: 5 / 5 agree
+  IfcWall.GrossFootprintArea: 121 / 121 agree
+  IfcWall.NetFootprintArea: 97 / 121 agree; gross-as-net 24
+  IfcWall.GrossSideArea: 86 / 121 agree; unexplained 25, on-a-face 4, net-as-gross 6
+  IfcWall.NetSideArea: 79 / 121 agree; unexplained 29, on-a-face 13
+  IfcColumn.CrossSectionArea: 0 / 2 agree; unexplained 2
+    #31190 IfcWallStandardCase GrossSideArea computed 48.6000 stored 46.8450 (3.7%) openings 12 Wand-002
+    #31190 IfcWallStandardCase NetSideArea computed 30.6000 stored 28.8450 (6.1%) openings 12 Wand-002
+    #35819 IfcWallStandardCase NetSideArea computed 30.6000 stored 29.6550 (3.2%) openings 12 Wand-006
+    #47404 IfcWallStandardCase GrossSideArea computed 47.7900 stored 46.4400 (2.9%) openings 6 Wand-015
+    #47404 IfcWallStandardCase NetSideArea computed 35.1900 stored 33.8400 (4.0%) openings 6 Wand-015
+    #50078 IfcWallStandardCase GrossSideArea computed 79.9200 stored 78.0300 (2.4%) openings 5 Wand-014
+    #50078 IfcWallStandardCase NetSideArea computed 69.4200 stored 67.5300 (2.8%) openings 5 Wand-014
+    #52075 IfcWallStandardCase NetSideArea computed 11.7300 stored 11.4600 (2.4%) openings 2 Wand-016
+ISSUE_159_kleine_Wohnung_R22.ifc: median |rel| of agreeing pairs 1.4e-15; elements storing an area but faceted (not cut): 0
+  IfcWall.GrossFootprintArea: 210 / 210 agree
+  IfcWall.GrossSideArea: 162 / 210 agree; matches-stored-volume 11, net-as-gross 32, on-a-face 5
+  IfcWall.NetSideArea: 173 / 173 agree
+  IfcSlab.GrossArea: 50 / 53 agree; unit-slip 3
+  IfcSlab.NetArea: 53 / 53 agree
+ISSUE_021_Mini Project.ifc: median |rel| of agreeing pairs 0.0e+0; elements storing an area but faceted (not cut): 211
+  IfcMember.CrossSectionArea: 228 / 228 agree
+  IfcSlab.NetArea: 20 / 24 agree; unexplained 4
+    #3639 IfcSlab NetArea computed 0.0531 stored 0.0925 (-42.6%) openings 0 KONZOLE
+    #13969 IfcSlab NetArea computed 0.0531 stored 0.0925 (-42.6%) openings 0 KONZOLE
+    #23436 IfcSlab NetArea computed 0.0531 stored 0.0925 (-42.6%) openings 0 KONZOLE
+    #23469 IfcSlab NetArea computed 0.0531 stored 0.0925 (-42.6%) openings 0 KONZOLE
+schependomlaan.ifc: median |rel| of agreeing pairs 1.6e-16; elements storing an area but faceted (not cut): 1544
+  IfcWall.GrossFootprintArea: 282 / 282 agree
+  IfcWall.NetFootprintArea: 228 / 282 agree; gross-as-net 54
+  IfcWall.GrossSideArea: 270 / 282 agree; unexplained 12
+  IfcWall.NetSideArea: 270 / 282 agree; unexplained 12
+  IfcBeam.CrossSectionArea: 32 / 32 agree
+  IfcSlab.GrossArea: 130 / 130 agree
+  IfcSlab.NetArea: 130 / 130 agree
+  IfcCovering.GrossArea: 130 / 137 agree; unexplained 6, unit-slip 1
+  IfcCovering.NetArea: 130 / 137 agree; unexplained 6, unit-slip 1
+    #44220 IfcCovering GrossArea computed 0.0101 stored 0.0611 (-83.4%) openings 0 afdekker
+    #44220 IfcCovering NetArea computed 0.0101 stored 0.0611 (-83.4%) openings 0 afdekker
+    #46142 IfcWallStandardCase GrossSideArea computed 0.0060 stored 0.0024 (150.1%) openings 0 buitenblad
+    #46142 IfcWallStandardCase NetSideArea computed 0.0060 stored 0.0024 (150.1%) openings 0 buitenblad
+    #46349 IfcWallStandardCase GrossSideArea computed 0.0060 stored 0.0024 (150.0%) openings 0 buitenblad
+    #46349 IfcWallStandardCase NetSideArea computed 0.0060 stored 0.0024 (150.0%) openings 0 buitenblad
+    #182673 IfcWallStandardCase GrossSideArea computed 0.5222 stored 0.1089 (379.5%) openings 0 liftwand
+    #182673 IfcWallStandardCase NetSideArea computed 0.5222 stored 0.1089 (379.5%) openings 0 liftwand
+ISSUE_068_ARK_NUS_skolebygg.ifc: median |rel| of agreeing pairs 2.0e-15; elements storing an area but faceted (not cut): 0
+  IfcWall.GrossFootprintArea: 1041 / 1041 agree
+  IfcWall.GrossSideArea: 683 / 1041 agree; net-as-gross 254, on-a-face 28, matches-stored-volume 10, unexplained 66
+  IfcSlab.GrossArea: 95 / 115 agree; unit-slip 20
+  IfcMember.CrossSectionArea: 18 / 687 agree; unexplained 111, scales-with-length 558
+    #47061 IfcMember CrossSectionArea computed 0.0133 stored 138.4225 (-100.0%) openings 0 Rectangular Mullion:50x180 Glassfasade 6-7:1905989
+    #47171 IfcMember CrossSectionArea computed 0.0133 stored 138.4225 (-100.0%) openings 0 Rectangular Mullion:50x180 Glassfasade 6-7:1905992
+    #47243 IfcMember CrossSectionArea computed 0.0133 stored 138.4225 (-100.0%) openings 0 Rectangular Mullion:50x180 Glassfasade 6-7:1906027
+    #47315 IfcMember CrossSectionArea computed 0.0133 stored 138.4225 (-100.0%) openings 0 Rectangular Mullion:50x180 Glassfasade 6-7:1906028
+    #47367 IfcMember CrossSectionArea computed 0.0133 stored 138.4225 (-100.0%) openings 0 Rectangular Mullion:50x180 Glassfasade 6-7:1906029
+    #47412 IfcMember CrossSectionArea computed 0.0133 stored 138.4225 (-100.0%) openings 0 Rectangular Mullion:50x180 Glassfasade 6-7:1906030
+    #47457 IfcMember CrossSectionArea computed 0.0133 stored 138.4225 (-100.0%) openings 0 Rectangular Mullion:50x180 Glassfasade 6-7:1906032
+    #47502 IfcMember CrossSectionArea computed 0.0133 stored 138.4225 (-100.0%) openings 0 Rectangular Mullion:50x180 Glassfasade 6-7:1906033
+TOTAL
+  CrossSectionArea: 1928 / 2599 agree; unexplained 113, scales-with-length 558
+  GrossSideArea: 1293 / 1815 agree; matches-stored-volume 31, split 22, repeated 2, net-as-gross 325, on-a-face 39, unexplained 103
+  GrossFootprintArea: 1667 / 1667 agree
+  NetFootprintArea: 334 / 416 agree; gross-as-net 82
+  NetSideArea: 531 / 589 agree; on-a-face 16, unexplained 42
+  GrossArea: 414 / 444 agree; unit-slip 24, unexplained 6
+  NetArea: 342 / 353 agree; unexplained 10, unit-slip 1

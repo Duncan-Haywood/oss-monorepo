@@ -569,6 +569,20 @@ MANUSCRIPT_CHECKS = [
     ("0.0050 to 0.0052 on rows the model builds", "gear_pump_anchor_results.txt", "owdbq   0.0052  (max 0.0060"),
     ("(61.1 to 65.4 L/min)", "gear_pump_anchor_results.txt", "pivot  61.1"),
     ("anchored at 79 L/min it scores 0.0059", "gear_pump_bendshape_results.txt", "owdbv   0.0059  (max 0.0072"),
+    # milestone 7zb: Supplement S5, whether a family bends is a reading of family, valve and idle speed
+    ("Polaris 30, gives b = 1.272", "gear_pump_argo_results.txt", "casappa PLP30 2.650 3.372 1.272"),
+    ("Argo-Hytos GP3, gives 1.263", "gear_pump_argo_results.txt", "argo GP3 1.453 1.835 1.263"),
+    ("Danfoss at 1.781", "gear_pump_argo_results.txt", "danfoss SNP3 2.418 4.308 1.781"),
+    ("which is 1.318 on the PVG 32 reading", "gear_pump_floor_results.txt", "PVG32, n_r 1.0: b0 1.318"),
+    ("= 1.881 on either Salami reading", "gear_pump_floor_results.txt", "Salami-curve, n_r 1.0: b0 1.881"),
+    ("sit at 0.966 to 1.042", "gear_pump_floor_results.txt", "casappa PLP30 2.650 3.372 1.272 0.966"),
+    ("sit at 0.966 to 1.042", "gear_pump_floor_results.txt", "casappa KP30 2.373 3.258 1.373 1.042"),
+    ("Danfoss at 1.352", "gear_pump_floor_results.txt", "Danfoss r 1.352, next casappa KP30 r 1.042 (gap +0.310)"),
+    ("by 0.288 to 0.310", "gear_pump_floor_results.txt", "next rexroth AZPU r 0.921 (gap +0.288)"),
+    ("KP30 reads r 1.220 against Danfoss's 1.277", "gear_pump_floor_results.txt", "Danfoss r 1.277, next casappa KP30 r 1.220 (gap +0.057)"),
+    ("1.469 against 1.015", "gear_pump_floor_results.txt", "Danfoss r 1.015, next casappa KP30 r 1.469 (gap -0.454)"),
+    ("94.1% of its idle power", "gear_pump_floor_results.txt", "danfoss SNP3 1.252 2.390 1.909 1.015 94.1/ 95.2"),
+    ("seven of nine families read above 1.55", "gear_pump_floor_results.txt", "7 of 9 read b > 1.55"),
 ]
 
 
