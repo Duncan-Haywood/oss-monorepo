@@ -25,7 +25,7 @@ export function exportCsv(result) {
     ["True 3PL cost per order", result.perOrder.toFixed(2)],
     ["In-house estimate", result.inHouse.toFixed(2)],
     ["Difference (in-house minus 3PL)", result.delta.toFixed(2)],
-    ["Break-even volume", Math.ceil(result.breakEvenOrders)],
+    ["Break-even volume", result.breakEvenFound ? Math.ceil(result.breakEvenOrders) : "none"],
   ];
   if (result.warnings.length) rows.push(["Input warnings", result.warnings.join(" ")]);
   rows.push(["Review note", "Verify every rate, assumption, contract term, and operational requirement before relying on this record."]);
@@ -49,7 +49,7 @@ export function exportJson(result) {
     true_3pl_cost_per_order: Number(result.perOrder.toFixed(2)),
     in_house_estimate: Number(result.inHouse.toFixed(2)),
     difference_in_house_minus_3pl: Number(result.delta.toFixed(2)),
-    break_even_orders_per_month: Math.ceil(result.breakEvenOrders),
+    break_even_orders_per_month: result.breakEvenFound ? Math.ceil(result.breakEvenOrders) : null,
     warnings: result.warnings,
     review_note: "Verify every rate, assumption, contract term, and operational requirement before relying on this record.",
   }, null, 2) + "\n";

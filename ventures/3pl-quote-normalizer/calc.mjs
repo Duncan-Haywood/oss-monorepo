@@ -957,7 +957,7 @@ export function summary(result) {
     `Difference (in-house minus 3PL): ${money(result.delta)}`,
     `True 3PL cost per order: ${money(result.perOrder)}`,
     `Largest cost driver: ${driver.label} (${money(driver.amount)}, ${driver.share}% of subtotal)`,
-    `Break-even volume: about ${Math.ceil(result.breakEvenOrders)} orders/month`,
+    `Break-even volume: ${breakEvenText(result)}`,
     ...(result.minimumOrders > 0 ? [`Orders needed to clear the minimum on volume alone: ${Math.ceil(result.minimumOrders)} orders/month`] : []),
     "",
     "Line items",
@@ -972,4 +972,14 @@ export function summary(result) {
     "",
     "Review these figures against the signed rate card before relying on them.",
   ].join("\n");
+}
+
+// The break-even line as text. When no volume makes the 3PL cheaper (its
+// variable cost per order is above the in-house rate), the engine returns
+// orders: 0 with found: false; printing "0" would read as "cheaper at any
+// volume", the opposite decision (quality audit 2026-11-19).
+export function breakEvenText(result) {
+  if (!result.breakEvenFound) return "none: the 3PL is not cheaper than in-house at any volume searched";
+  if (result.breakEvenOrders <= 0) return "0 orders/month (the 3PL is cheaper at every volume)";
+  return `about ${Math.ceil(result.breakEvenOrders)} orders/month`;
 }

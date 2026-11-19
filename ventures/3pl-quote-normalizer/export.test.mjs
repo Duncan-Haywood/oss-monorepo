@@ -56,3 +56,11 @@ test("exports a named comparison and optional target as CSV", () => {
   assert.match(csv, /"First within target","yes"/);
   assert.match(csv, /"Review note","Verify every rate, assumption/);
 });
+
+test("no break-even is exported as none, not as 0 orders (quality audit 2026-11-19)", () => {
+  // In-house $10/order against a 3PL variable cost of about $12.51/order: no volume makes the 3PL cheaper.
+  const r = calculate({ inHousePerOrder: 10 });
+  assert.equal(r.breakEvenFound, false);
+  assert.match(exportCsv(r), /Break-even volume"?,"?none/);
+  assert.equal(JSON.parse(exportJson(r)).break_even_orders_per_month, null);
+});

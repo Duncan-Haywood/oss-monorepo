@@ -712,3 +712,11 @@ test("inbound comparison reports a tie when every method costs the same", () => 
   assert.equal(comparison.monthlySpread, 0);
   assert.match(inboundComparisonSummary(comparison), /same normalized monthly total/);
 });
+
+test("summary never prints 'about 0 orders' when there is no break-even (quality audit 2026-11-19)", async () => {
+  const { calculate, summary, breakEvenText } = await import("./calc.mjs");
+  const none = calculate({ inHousePerOrder: 10 });
+  assert.ok(!summary(none).includes("about 0 orders"));
+  assert.match(summary(none), /Break-even volume: none/);
+  assert.match(breakEvenText(calculate({})), /about 345 orders/);
+});

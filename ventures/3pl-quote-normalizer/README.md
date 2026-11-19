@@ -119,10 +119,19 @@ financial recommendation, or claim that one fulfillment method is suitable for
 your business. Verify every rate, assumption, contract term, and operational
 requirement yourself.
 
+## Known gaps (quality audit 2026-11-19)
+
+From [`portfolio/quality/audits/2026-11-19-3pl-quote-normalizer.json`](../../portfolio/quality/audits/2026-11-19-3pl-quote-normalizer.json), not yet fixed:
+
+- **Custom return fees are lost on reload.** `return-fields.js` adds the return-handling and restock inputs after the saved values are restored, so they come back at their defaults.
+- **In-house cost is a single per-order rate.** The break-even search re-prices the 3PL quote at each volume but holds the in-house rate fixed, so in-house rent and software folded into it are treated as scaling with volume.
+- **Rate-card gaps.** No per-bin or cubic-foot storage line, no peak-season surcharge; the account minimum always includes postage; pallets stored stay fixed while the volume sweep runs.
+- **Inbound pallets are billed fractionally** (150 units at 60 per pallet is 2.5 pallets), and receiving per unit defaults differently in `calculate` (0.12) and the inbound comparison (0.45).
+
 ## Development
 
 ```sh
-node --test calc.test.mjs page.test.mjs
+node --test '*.test.mjs'
 ```
 
 The page saves the current form values in browser local storage and restores

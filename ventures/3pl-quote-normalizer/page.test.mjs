@@ -368,3 +368,9 @@ test('index links one hop to the 3pl-invoice-audit-checker sibling', async () =>
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(page, /href="\.\.\/3pl-invoice-audit-checker\/"/);
 });
+
+test("the page shows no break-even as none, not 0 orders", async () => {
+  const { readFileSync } = await import("node:fs");
+  const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /r\.breakEvenFound\?Math\.ceil\(r\.breakEvenOrders\)/);
+});
