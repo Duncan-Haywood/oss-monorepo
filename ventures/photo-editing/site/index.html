@@ -74,7 +74,7 @@
     <a class="btn" href="camera-raw-formats.html">Which cameras it reads</a>
   </div>
   <ul class="facts" aria-label="At a glance">
-    <li><strong>12 raw formats</strong>DNG, Canon, Sony, Nikon, Fujifilm and more, each checked on real files against LibRaw</li>
+    <li><strong>15 raw formats</strong>DNG, Canon, Sony, Nikon, Fujifilm and more, each checked on real files against LibRaw</li>
     <li><strong>Nothing uploaded</strong>Runs on your machine with Python and ffmpeg; no account, no cloud</li>
     <li><strong>Card never deleted</strong>Every copy is verified by SHA-256 and listed in a manifest</li>
   </ul>
@@ -93,7 +93,7 @@
 
   <section aria-labelledby="report">
     <h2 id="report">What a cull report looks like</h2>
-    <p>Two bursts from a real run of <code>shootflow cull --thumbs</code>. The original frame is kept in the first; the darkened copy is rejected for exposure and the softened one becomes an alternate. In the second, the blurred copy is rejected, and the keeper is a slightly reframed copy that tied the original at 0.79, so the report marks it a close call to check by eye.</p>
+    <p>Two bursts from a real run of <code>python3 -m shootflow.cli cull --thumbs</code>. The original frame is kept in the first; the darkened copy is rejected for exposure and the softened one becomes an alternate. In the second, the blurred copy is rejected, and the keeper is a slightly reframed copy that tied the original at 0.79, so the report marks it a close call to check by eye.</p>
     <figure class="shot">
       <img src="cull-report.webp" width="1200" height="987" loading="lazy" decoding="async" alt="ShootFlow cull report: a summary line (13 photos in 5 groups: 5 keepers, 6 alternates, 2 rejects, 2 close calls) and a contact sheet of two bursts. Building: original kept with a green border (0.86), a softened copy and a 4% tighter reframe faded as alternates in the same group (0.79, 0.86). Butterfly: original kept (0.93), a dark copy rejected with a red border for bad exposure (0.57), a softened copy faded as an alternate (0.81).">
       <figcaption>The full run was 13 frames made from five OpenCV sample photos (Apache-2.0) by blurring, darkening or reframing them, so every right answer is known. Two of its 13 calls fall short: a copy at 30% brightness was kept as an alternate instead of rejected, and a 4% reframe was split into its own group. <code>tools/cull_showcase.py</code> rebuilds this report; it has not been tested on a real wedding or event shoot.</figcaption>
@@ -110,7 +110,7 @@
       </article>
       <article>
         <h3>Develop raw without Lightroom</h3>
-        <p><code>shootflow develop IMG_0001.dng</code> writes a neutral 16-bit TIFF master: as-shot white balance, the camera's colour matrix and its <code>.dcp</code> profile, sRGB. Bayer files are demosaiced along their edges when numpy is installed.</p>
+        <p><code>python3 -m shootflow.cli develop IMG_0001.dng</code> writes a neutral 16-bit TIFF master: as-shot white balance, the camera's colour matrix and its <code>.dcp</code> profile, sRGB. Bayer files are demosaiced along their edges when numpy is installed.</p>
         <p class="proof">Sensor values equal LibRaw's on real files from Nikon, Canon, Olympus, Lumix, Leica and Fujifilm bodies; 9–78% less false colour than bilinear on five real frames.</p>
       </article>
       <article>
@@ -201,7 +201,7 @@ PYTHONPATH=src python3 -m shootflow.cli run-local-pipeline \
     <h3>Can it write Lightroom or Bridge ratings?</h3>
     <p>Yes, with <code>--write-xmp</code> it writes sidecar files: keeper 4 stars, alternate 2, reject -1.</p>
     <h3>Can it develop raw files without Lightroom?</h3>
-    <p>Yes. <code>develop</code> turns DNG, Canon CR3, CR2 and CRW, Sony ARW, Nikon NEF, Fujifilm RAF, Olympus ORF, Panasonic RW2, Leica RWL, Pentax PEF, Samsung SRW, Minolta MRW and Hasselblad 3FR files into neutral 16-bit TIFF masters. Formats other than DNG and 3FR need the camera's <code>.dcp</code> profile. Other formats can go through Adobe's free DNG Converter first.</p>
+    <p>Yes. <code>develop</code> turns DNG, Canon CR3, CR2 and CRW, Sony ARW, Nikon NEF, Fujifilm RAF, Olympus ORF, Panasonic RW2, Leica RWL, Pentax PEF, Samsung SRW, Minolta MRW, Kodak DCR, Phase One IIQ and Hasselblad 3FR files into neutral 16-bit TIFF masters. Formats other than DNG, IIQ and 3FR need the camera's <code>.dcp</code> profile. Other formats can go through Adobe's free DNG Converter first.</p>
     <h3>Does it render video or grade images yet?</h3>
     <p>Yes, through local ffmpeg: graded masters, review proxies, reels and carousels, with your LUT. It has been tested on synthetic media and small sets, not yet on a full real shoot, and there is no app yet. Treat it as a tested core.</p>
     <h3>Has the culling been tested on real shoots?</h3>
