@@ -246,6 +246,10 @@ class Registry(unittest.TestCase):
                                 "register in the same control-plane PR as framerate",
             "fold-check": "first tool card on every c/for-* page within a 390x844 "
                           "screen; register in the same control-plane PR as framerate",
+            # 2026-11-19 polish run: taps /ask/'s example questions; passes on
+            # the 2026-11-19 build (docs/reports/polish-2026-11-19-ask-examples-check.md).
+            "ask-check": "every /ask/ example question answers and links live "
+                         "tools; register in the same control-plane PR as framerate",
             # 2026-11-19 explore run: print legibility. With PAPER_INK_JS in
             # pf-site.js, 5 pages / 15 runs remain (all also screen-contrast
             # issues); fix or exempt those before registering, so the nightly
