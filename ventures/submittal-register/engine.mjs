@@ -16,8 +16,8 @@
 //     one item per line and "; G" for items needing Government approval).
 // Pure functions; no DOM, no network.
 
-/** @typedef {{page: number, text: string, indent: number}} Line */
-/** @typedef {{id: string, section: string, sectionTitle: string, article: string, para: string, label: string, type: string, sd: string, phase: string, description: string, approval: string, reviewer: string, flags: string[], page: number}} Item */
+/** @typedef {{page: number, text: string, indent: number, file?: string, filePage?: number}} Line */
+/** @typedef {{id: string, section: string, sectionTitle: string, article: string, para: string, label: string, type: string, sd: string, phase: string, description: string, approval: string, reviewer: string, flags: string[], page: number, file?: string, filePage?: number}} Item */
 
 // ---------------------------------------------------------------- input
 
@@ -223,6 +223,7 @@ export const SD = {
 };
 
 // First match wins; checked against the paragraph's label, then its text.
+/** @type {[RegExp, string][]} */
 const TYPE_RULES = [
   [/\b(maintenance materials?|extra (stock|materials?)|attic stock|spare parts)\b/i, "SD-11"],
   [/\b(operation|operating|maintenance)( and maintenance)? (data|manuals?|instructions)\b|\bO\s?&\s?M\b/i, "SD-10"],
@@ -267,6 +268,7 @@ const G_TAIL = /;\s*G\b(?:\s*,\s*(?:([A-Z][A-Z/&-]{0,7})\b|_+))?\s*/;
 function parseSdList(lines) {
   const items = [];
   let sd = "";
+  /** @type {any} */
   let prev = null;
   for (const l of lines) {
     const t = l.text;
@@ -306,7 +308,7 @@ function paragraphTree(lines) {
     const t = l.text;
     if (!t) continue;
     let m = null, level = 0;
-    for (const [re, lv] of [[P1, 1], [P2, 2], [P3, 3], [P4, 4]]) { m = t.match(re); if (m) { level = lv; break; } }
+    for (const [re, lv] of /** @type {[RegExp, number][]} */ ([[P1, 1], [P2, 2], [P3, 3], [P4, 4]])) { m = t.match(re); if (m) { level = lv; break; } }
     // "1." under no "A." paragraph is still a paragraph; "a." under "A." only after a "1.".
     if (m) {
       while (stack.length > 1 && stack[stack.length - 1].level >= level) stack.pop();
@@ -371,6 +373,7 @@ function shortTitle(text) {
 
 /** Submittal rows for one section. */
 export function sectionItems(section) {
+  /** @type {Item[]} */
   const items = [];
   for (const a of findArticles(section.body)) {
     if (a.part > 1 || !isSubmittalHeading(a.title)) continue;

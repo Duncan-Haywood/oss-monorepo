@@ -1,4 +1,3 @@
-// @ts-check
 // The same score as ufgs-eval.mjs, but through a real PDF: the rendered
 // sections are printed to PDF by Chromium (Playwright; embedded subset
 // TrueType fonts with ToUnicode maps, as most PDF writers make), read back with
