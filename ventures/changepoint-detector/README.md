@@ -105,6 +105,17 @@ where it departs from the paper.
   or the `call_tool` tool of the repository's MCP server
   ([`platform/agents/`](../../platform/agents/README.md)).
 
+### Code layout (2026-11-20)
+
+`engine.mjs` is the entry point and re-exports everything below, so `import { ... } from './engine.mjs'` keeps working:
+PELT, the pre-steps (season, trend, AR(1), holidays) and `analyze()` live there (2,546 lines, down from 3,004).
+`bocpd.mjs` holds Bayesian online changepoint detection, its priors and marginals and `peaks`; `parse-series.mjs`
+the CSV reader; `stats-core.mjs` the numerical helpers every module shares (median by selection, robust sd, the
+log-gamma family, the NB1 cost terms, the seeded RNG, lag-1, Prais-Winsten and least squares), which
+`hinge-test.mjs`, `two-hinge.mjs`, `known-date.mjs`, `slope-breaks.mjs` and `drift-level.mjs` used to copy. A new
+module the watch needs goes in `deploy/make-watch-repo.sh` too (then `node deploy/build-watch-repo-files.mjs`), or a
+deployer's repository is missing it.
+
 ## Verification
 
 `node --test '*.test.mjs'` (1,027 tests on 2026-11-19, about 5 minutes). What they check:

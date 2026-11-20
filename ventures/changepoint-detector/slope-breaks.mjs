@@ -12,6 +12,7 @@
 // taken from a table. More breaks by binary segmentation: the same test inside each side.
 // 95th percentile of the largest W over 400 seeded null series with 15% trimming: 9.0, 9.2, 8.6 at n = 100, 200, 400 with white-noise growth;
 // 10.9, 9.8, 8.8 at rho 0.3; 12.0, 10.0, 8.9 at rho 0.5 (eval/slope-calibrate.mjs). 11 holds 95% in all nine cells; it is a bar for n >= 100.
+import { mulberry } from './stats-core.mjs';
 export const CRITICAL = { 0.15: 11 };
 
 // Bar by series length and serial correlation: the null 95th percentile of the largest W (eval/slope-bar-table.mjs, 3000 seeded
@@ -92,7 +93,6 @@ export function lsKnotDate(x, margin = 0.15, lineRss) {
   return best;
 }
 
-function mulberry(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
 /** Largest W over splits of the differences d (15% trimmed), no threshold applied. */
 function supW(d, margin, rhoCap) {

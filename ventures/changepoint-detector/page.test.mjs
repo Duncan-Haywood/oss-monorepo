@@ -49,7 +49,7 @@ test("every input has a label and nothing is sent anywhere", () => {
   const reads = html.match(/fetch\([^)]*\)/g) ?? [];
   assert.deepEqual(reads, ['fetch(url, { credentials: "omit" })']);
   assert.doesNotMatch(html.replace('fetch(url, { credentials: "omit" })', ''), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/);
-  for (const f of ["engine.mjs", "watch-core.mjs", "example-data.mjs", "example-fx.mjs", "usage.mjs", "report.mjs", "multivariate.mjs", "multi-view.mjs", "synth-view.mjs", "example-prop99.mjs", "synth-cli.mjs", "synth-control.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
+  for (const f of ["engine.mjs", "stats-core.mjs", "parse-series.mjs", "bocpd.mjs", "watch-core.mjs", "example-data.mjs", "example-fx.mjs", "usage.mjs", "report.mjs", "multivariate.mjs", "multi-view.mjs", "synth-view.mjs", "example-prop99.mjs", "synth-cli.mjs", "synth-control.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
   assert.doesNotMatch(html, /<form[^>]+action=/i);
 });
 

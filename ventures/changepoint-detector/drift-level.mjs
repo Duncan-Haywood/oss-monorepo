@@ -22,13 +22,9 @@
 // difference is barely moved by a few jumps, so a least-squares line through the robust variances
 // at lags 1..K gives both. Pure code, no dependencies; same results in the browser and Node.
 
+import { median } from './stats-core.mjs';
 const MAD = 1.482602218505602; // 1 / Phi^-1(0.75): MAD to sd under normal noise
 
-function median(a) {
-  const s = Float64Array.from(a).sort();
-  const m = s.length >> 1;
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
-}
 
 // Robust variance of the lag-k differences, k = 1..maxLag, and the fitted (sigma, omega).
 export function driftNoise(x, { maxLag = 10 } = {}) {
