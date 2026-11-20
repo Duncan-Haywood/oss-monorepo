@@ -3,7 +3,7 @@ title: "The tennis feeder's slowest CAD test checked the lift against itself 18 
 seo_title: "build123d clash checks: intersect the parts that don't move once"
 date: 2026-11-20
 tags: [process, ci, open-tennis-robots, cad, build123d, performance]
-description: "One pose test spent two thirds of its 51 s re-intersecting the ball lift's own parts at every head pose. Splitting the clash check cut it to 14 s and the CAD suite from 281 s to 229 s."
+description: "A pose test re-intersected the ball lift's own parts at every head pose. Doing it once cut the test from 51 s to 14 s and the CAD suite from 281 s to 229 s."
 ---
 
 The [open tennis robots](https://marisstella.app/open-tennis-robots/) feeder
