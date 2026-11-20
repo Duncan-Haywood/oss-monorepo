@@ -65,14 +65,25 @@ TABLES = {
 }
 
 NUM = re.compile(r"(?<![\w.$])\$?(\d{1,3}(?:[,_]\d{3})+|\d{4,9})(?![\w])")
+# NUM's matches, found faster (perf, 2026-11-20): NUM starts with a
+# lookbehind, so `re` tries it at every character (5.8 s over the 148 MB of
+# shipped venture files). NUM_FAST starts with the character class `[\d$]`,
+# which `re` skips to in C, then asserts the same lookbehind on the character
+# before it: a `$` is followed by NUM's number, a digit starts it. The match
+# without its `$` is NUM's group 1 (test_check_irs_table_figures pins the two
+# against each other; 1.7 s).
+NUM_FAST = re.compile(
+    r"[\d$](?<![\w.$].)"
+    r"(?:(?<=\$)(?:\d{1,3}(?:[,_]\d{3})+|\d{4,9})|(?<=\d)(?:\d{0,2}(?:[,_]\d{3})+|\d{3,8}))(?!\w)"
+)
 NEAR = 0.005  # a typo or a figure copied from a neighbouring table, not a different rule
 EXT = {".html", ".mjs", ".js", ".py"}
 
 
 def numbers(text: str) -> set[int]:
     found = set()
-    for m in NUM.finditer(text):
-        n = int(re.sub(r"[,_]", "", m.group(1)))
+    for m in NUM_FAST.finditer(text):
+        n = int(re.sub(r"[,_]", "", m.group().lstrip("$")))
         found.add(n)
         if n % 100 == 0 and n >= 100000:  # cents
             found.add(n // 100)

@@ -55,8 +55,11 @@ def clobbered_calls(html, modules=""):
     form owner: an enclosing `<form>`, or the form its `form="..."` attribute
     names (a `form` attribute naming no form leaves it with no owner).
     `modules` is the text of the page's own .js/.mjs files, where the call
-    often lives (cash-runway-planner's `form.reset()` is in app.mjs); inline
-    `on*` handler attributes count as script too.
+    often lives (cash-runway-planner's `form.reset()` is in app.mjs), or a
+    function that returns it, called only when a control hides a method (perf,
+    2026-11-20: `check_tree` read every page's sibling modules, about 30,000
+    file reads, for the few pages that need them); inline `on*` handler
+    attributes count as script too.
     """
     form_ids = {_attrs(m.group(1)).get("id") for m in _FORM_TAG.finditer(html)} - {None, ""}
     spans = [f.span() for f in _FORM.finditer(html)]
@@ -72,6 +75,8 @@ def clobbered_calls(html, modules=""):
                 hidden.setdefault(name, html.count("\n", 0, m.start()) + 1)
     if not hidden:
         return []
+    if callable(modules):
+        modules = modules()
     # Comments and strings blanked: a comment explaining the fix names the call.
     scripts = _strip("\n".join(s.group(1) for s in _SCRIPT.finditer(html)) + "\n" + _handlers(html) + "\n" + modules)
     out = []
@@ -105,7 +110,8 @@ def check_tree(root):
             html = path.read_text()
         except (OSError, UnicodeDecodeError):
             continue
-        modules = "\n".join(_read(m) for m in sorted(path.parent.glob("*.*js"))
+        def modules(folder=path.parent):
+            return "\n".join(_read(m) for m in sorted(folder.glob("*.*js"))
                              if m.suffix in (".js", ".mjs") and ".test." not in m.name)
         for name, line in clobbered_calls(html, modules):
             problems.append(f"{path}:{line}: a control named '{name}' hides form.{name}(), which a script calls")

@@ -59,6 +59,22 @@ class ScanFile(unittest.TestCase):
         got = kinds("a/b.c", "/* This program is distributed under the GNU General Public License */\n")
         self.assertEqual(got, [("banner", "GPL family")])
 
+    def test_whole_file_prefilters_keep_every_line_signal(self):
+        """scan_file skips a pattern the whole text lacks; each spelling still reaches its line."""
+        cases = [
+            ("// COPYRIGHT 2020 Acme Corp\n", [("copyright", "Acme Corp")]),
+            ("// coPyRiGhT (c) 2019-2021 Acme\n", [("copyright", "Acme")]),
+            ("// \u00a9 2018 Acme Ltd\n", [("copyright", "Acme Ltd")]),
+            ("/* CC BY-NC 4.0 */\n", [("banner", "CC non-commercial")]),
+            ("/* CC-BY-NC-SA */\n", [("banner", "CC non-commercial")]),
+            ("/* Attribution-NonCommercial 4.0 */\n", [("banner", "CC non-commercial")]),
+            ("/* BY-NC alone is no banner */\n", []),
+            ("let a = 1;\n// Copyright 2020 Acme\n/* Mozilla Public License */\n",
+             [("copyright", "Acme"), ("banner", "MPL-2.0")]),
+        ]
+        for text, want in cases:
+            self.assertEqual(kinds("a/b.js", text), want, text)
+
     def test_prose_is_not_scanned_for_banners(self):
         self.assertEqual(kinds("docs/posts/x.md", "the GNU General Public License says\n"), [])
 

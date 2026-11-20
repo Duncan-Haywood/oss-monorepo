@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKkDjNr5K6L2M7dXmXM",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T14:19:26Z",
+  "ended": "2026-11-20T14:55:44Z",
+  "wall_minutes": 36.61,
+  "tokens_in": 14587517,
+  "tokens_out": 58652,
+  "cost_usd": 5.41,
+  "tool_calls": 107,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17927",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A scratch copy of the old check_third_party.py left in platform/ci made one test_check_third_party test fail until removed (my error, not the code's)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "No tool times the unwired-checks pool item by item; I wrote a scratch wrapper around unwired_checks.run_mixed(jobs=1). A --times flag on unwired_checks.py would save the next run that step."
+    },
+    {
+      "file": "platform/ci/venture_suite_times.json",
+      "issue": "Taken 2026-11-17, three days and many perf passes stale; it ranked suites that have since been worked on."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Where to look, step 2 (ci_profile.py over 600 runs): skipped it. The unwired pool runs inside every ventures-tests job and earlier notes pointed there, so a per-item reading of it was the more direct measure.",
+      "did": "Timed all 267 pool items one at a time, before and after.",
+      "result": "Found four scans with the same cause. Six pool items went from 37.0 s to 13.8 s run alone."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-where-a-regex-starts-decides-how-fast-it-scans.md",
+    "docs/history/ci-perf-2026-11-20-four-tree-scans.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall seconds per item, run alone with bash time, warm cache, 4-core container, one run each. Before -> after: check_hidden_unicode 5.1->1.6, its test 5.9->2.6, check_third_party 11.6->4.3, its test 11.4->4.7, check_irs_table_figures 6.7->2.5, check_form_clobbering 2.6->0.8, its test 5.1->2.0 (48.4->18.5 s in all). Unwired pool timed item by item, serial: 368 s before (some contention from this run's own profiling scripts) -> 294 s after. Output: cmp identical for --list, --signals, --json (also at --min-hits 1), plus equivalence tests on every code point and seeded random strings. Local: run_workflow_locally --for-changes, 7/7 workflows passed (agent-cross-review and the deploy jobs cannot run locally). PR CI green.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e18f143c-dce5-5f95-b9da-140141914a73",
+    "transcripts": 1,
+    "first": "2026-11-20T14:19:26Z",
+    "last": "2026-11-20T14:56:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 108,
+        "input": 212,
+        "output": 58652,
+        "thinking": 21176,
+        "cache_read": 14418242,
+        "cache_write_5m": 0,
+        "cache_write_1h": 169063,
+        "api_equivalent_usd": 5.41,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 108,
+      "input": 212,
+      "output": 58652,
+      "thinking": 21176,
+      "cache_read": 14418242,
+      "cache_write_5m": 0,
+      "cache_write_1h": 169063,
+      "api_equivalent_usd": 5.41,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 107,
+    "tools": {
+      "Bash": 99,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "TaskStop": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 36.61,
+      "active_minutes": 22.75,
+      "model_minutes": 12.67,
+      "tool_minutes": 10.08,
+      "waiting_on_human_minutes": 13.86,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: profile four checks, write and prove equivalent fast paths with tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 110.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -24,6 +24,26 @@ class CheckText(unittest.TestCase):
         found = c.check_text(SINGLE_OK.replace("256225", "256252"))
         self.assertTrue(any(f["irs"] == 256225 and f["file_has"] == [256252] for f in found))
 
+    def test_fast_number_pattern_matches_num(self):
+        """NUM_FAST finds NUM's matches: same numbers, same order, on edge cases and random strings."""
+        import random
+
+        def slow(t):
+            return [m.group(1) for m in c.NUM.finditer(t)]
+
+        def fast(t):
+            return [m.group().lstrip("$") for m in c.NUM_FAST.finditer(t)]
+
+        cases = ["$201,750", "a$201,750", ".201750", "$$201750", "1234567890", "12,345,678 and 12_345",
+                 "x 1234, 5678.", "201,75", "$1,000x", "(98900)", "1234", "$1234", "\u0663\u0664\u0665\u0666"]
+        for t in cases:
+            self.assertEqual(fast(t), slow(t), t)
+        rng = random.Random(20261120)
+        alphabet = "0123456789$,_.a -\n"
+        for _ in range(20000):
+            t = "".join(rng.choice(alphabet) for _ in range(rng.randint(0, 30)))
+            self.assertEqual(fast(t), slow(t), repr(t))
+
     def test_formats_and_cents(self):
         self.assertTrue({201750, 201775, 24150}.issubset(c.numbers("$201,750 201_775 2415000")))
 
