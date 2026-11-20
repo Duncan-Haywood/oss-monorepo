@@ -1,0 +1,94 @@
+construction.ifc: 9 openings in 3 elements; volumes cut 3 (additive 3, not 0), areas cut 3 (additive 3)
+  0.50 m2 / 0.05 m3: openings under area 0, under volume 0; measured area 7751.645 -> 7751.645 (+0 m2, 0%), volume 2246.695 -> 2246.695 (+0 m3, 0%); rows not adjusted 0
+    area +0 left in, -0 taken from gross figures; volume +0 / -0; by class: none
+  1.00 m2 / 0.10 m3: openings under area 0, under volume 0; measured area 7751.645 -> 7751.645 (+0 m2, 0%), volume 2246.695 -> 2246.695 (+0 m3, 0%); rows not adjusted 0
+    area +0 left in, -0 taken from gross figures; volume +0 / -0; by class: none
+  by work section: openings under area 0, under volume 0; measured area 7751.645 -> 7751.645 (+0 m2, 0%), volume 2246.695 -> 2246.695 (+0 m3, 0%); rows not adjusted 0
+    area +0 left in, -0 taken from gross figures; volume +0 / -0; by class: none
+  0.7 s
+architect.ifc: 218 openings in 69 elements; volumes cut 69 (additive 69, not 0), areas cut 69 (additive 69)
+  0.50 m2 / 0.05 m3: openings under area 106, under volume 104; measured area 8900.382 -> 8907.609 (+7.227 m2, 0.081%), volume 1115.383 -> 1116.47 (+1.087 m3, 0.097%); rows not adjusted 1
+    area +7.227 left in, -0 taken from gross figures; volume +1.087 / -0; by class: IfcWallStandardCase +0.017 m2 (0.001%) +0.005 m3 (0.002%); IfcSlab +7.21 m2 (0.172%) +1.081 m3 (0.177%)
+  1.00 m2 / 0.10 m3: openings under area 107, under volume 113; measured area 8900.382 -> 8907.609 (+7.227 m2, 0.081%), volume 1115.383 -> 1116.547 (+1.164 m3, 0.104%); rows not adjusted 5
+    area +7.227 left in, -0 taken from gross figures; volume +1.164 / -0; by class: IfcWallStandardCase +0.017 m2 (0.001%) +0.082 m3 (0.026%); IfcSlab +7.21 m2 (0.172%) +1.081 m3 (0.177%)
+  by work section: openings under area 4, under volume 104; measured area 8900.382 -> 8900.399 (+0.017 m2, 0%), volume 1115.383 -> 1116.47 (+1.087 m3, 0.097%); rows not adjusted 1
+    area +0.017 left in, -0 taken from gross figures; volume +1.087 / -0; by class: IfcWallStandardCase +0.017 m2 (0.001%) +0.005 m3 (0.002%); IfcSlab +0 m2 (0%) +1.081 m3 (0.177%)
+  stored Width x Height vs cut area, wall openings: 99 of 99 within 2%
+  5.8 s
+AC20-FZK-Haus.ifc: 17 openings in 9 elements; volumes cut 9 (additive 9, not 0), areas cut 9 (additive 9)
+  0.50 m2 / 0.05 m3: openings under area 0, under volume 0; measured area 575.423 -> 575.423 (+0 m2, 0%), volume 135.582 -> 135.582 (+0 m3, 0%); rows not adjusted 0
+    area +0 left in, -0 taken from gross figures; volume +0 / -0; by class: none
+  1.00 m2 / 0.10 m3: openings under area 2, under volume 0; measured area 575.423 -> 576.994 (+1.57 m2, 0.273%), volume 135.582 -> 135.582 (+0 m3, 0%); rows not adjusted 0
+    area +1.57 left in, -0 taken from gross figures; volume +0 / -0; by class: IfcWallStandardCase +1.57 m2 (0.824%) +0 m3 (0%)
+  by work section: openings under area 0, under volume 0; measured area 575.423 -> 575.423 (+0 m2, 0%), volume 135.582 -> 135.582 (+0 m3, 0%); rows not adjusted 0
+    area +0 left in, -0 taken from gross figures; volume +0 / -0; by class: none
+  stored Width x Height vs cut area, wall openings: 14 of 16 within 2%; e.g. #60579 cut 0.785 vs 1, #68400 cut 0.785 vs 1
+  0.1 s
+C20-Institute-Var-2.ifc: 287 openings in 49 elements; volumes cut 49 (additive 49, not 0), areas cut 49 (additive 49)
+  0.50 m2 / 0.05 m3: openings under area 0, under volume 0; measured area 5633.989 -> 5633.989 (+0 m2, 0%), volume 1694.562 -> 1694.562 (+0 m3, 0%); rows not adjusted 0
+    area +0 left in, -0 taken from gross figures; volume +0 / -0; by class: none
+  1.00 m2 / 0.10 m3: openings under area 0, under volume 0; measured area 5633.989 -> 5633.989 (+0 m2, 0%), volume 1694.562 -> 1694.562 (+0 m3, 0%); rows not adjusted 0
+    area +0 left in, -0 taken from gross figures; volume +0 / -0; by class: none
+  by work section: openings under area 0, under volume 0; measured area 5633.989 -> 5633.989 (+0 m2, 0%), volume 1694.562 -> 1694.562 (+0 m3, 0%); rows not adjusted 0
+    area +0 left in, -0 taken from gross figures; volume +0 / -0; by class: none
+  stored Width x Height vs cut area, wall openings: 283 of 283 within 2%
+  0.5 s
+ISSUE_159_kleine_Wohnung_R22.ifc: 168 openings in 73 elements; volumes cut 73 (additive 73, not 0), areas cut 73 (additive 73)
+  0.50 m2 / 0.05 m3: openings under area 14, under volume 7; measured area 4024.725 -> 4027.658 (+2.932 m2, 0.073%), volume 736.792 -> 737.032 (+0.24 m3, 0.033%); rows not adjusted 0
+    area +2.933 left in, -0 taken from gross figures; volume +0.24 / -0; by class: IfcWall +0 m2 (0%) +0 m3 (0%); IfcSlab +2.932 m2 (0.169%) +0.24 m3 (0.08%)
+  1.00 m2 / 0.10 m3: openings under area 17, under volume 14; measured area 4024.725 -> 4027.658 (+2.932 m2, 0.073%), volume 736.792 -> 737.45 (+0.659 m3, 0.089%); rows not adjusted 2
+    area +2.933 left in, -0 taken from gross figures; volume +0.659 / -0; by class: IfcWall +0 m2 (0%) +0.072 m3 (0.018%); IfcSlab +2.932 m2 (0.169%) +0.587 m3 (0.195%)
+  by work section: openings under area 2, under volume 7; measured area 4024.725 -> 4024.725 (+0 m2, 0%), volume 736.792 -> 737.032 (+0.24 m3, 0.033%); rows not adjusted 0
+    area +0 left in, -0 taken from gross figures; volume +0.24 / -0; by class: IfcWall +0 m2 (0%) +0 m3 (0%); IfcSlab +0 m2 (0%) +0.24 m3 (0.08%)
+  stored Width x Height vs cut area, wall openings: 45 of 49 within 2%; e.g. #283082 cut 0 vs 2.15, #285866 cut 0 vs 2.15, #134839 cut 1.55 vs 2.15, #139165 cut 0.6 vs 2.15
+  3.5 s
+schependomlaan.ifc: 79 openings in 71 elements; volumes cut 71 (additive 71, not 0), areas cut 57 (additive 57)
+  0.50 m2 / 0.05 m3: openings under area 2, under volume 5; measured area 5764.859 -> 5765.504 (+0.644 m2, 0.011%), volume 1011.959 -> 1012.08 (+0.12 m3, 0.012%); rows not adjusted 0
+    area +0.644 left in, -0 taken from gross figures; volume +0.12 / -0; by class: IfcSlab +0 m2 (0%) +0.08 m3 (0.015%); IfcCovering +0.644 m2 (0.092%) +0.04 m3 (0.041%)
+  1.00 m2 / 0.10 m3: openings under area 5, under volume 9; measured area 5764.859 -> 5767.788 (+2.929 m2, 0.051%), volume 1011.959 -> 1012.08 (+0.12 m3, 0.012%); rows not adjusted 0
+    area +2.929 left in, -0 taken from gross figures; volume +0.12 / -0; by class: IfcSlab +1.34 m2 (0.05%) +0.08 m3 (0.015%); IfcCovering +1.589 m2 (0.226%) +0.04 m3 (0.041%)
+  by work section: openings under area 2, under volume 2; measured area 5764.859 -> 5765.504 (+0.644 m2, 0.011%), volume 1011.959 -> 1012.04 (+0.08 m3, 0.008%); rows not adjusted 0
+    area +0.644 left in, -0 taken from gross figures; volume +0.08 / -0; by class: IfcSlab +0 m2 (0%) +0.08 m3 (0.015%); IfcCovering +0.644 m2 (0.092%) +0 m3 (0%)
+  stored Width x Height vs cut area, wall openings: 60 of 60 within 2%
+  2.6 s
+ISSUE_068_ARK_NUS_skolebygg.ifc: 789 openings in 363 elements; volumes cut 363 (additive 353, not 10), areas cut 363 (additive 353)
+  0.50 m2 / 0.05 m3: openings under area 52, under volume 47; measured area 32121.711 -> 32119.504 (-2.207 m2, -0.007%), volume 138252.311 -> 138252.333 (+0.022 m3, 0%); rows not adjusted 29
+    area +0 left in, -2.207 taken from gross figures; volume +0.022 / -0; by class: IfcSlab -2.207 m2 (-0.019%) +0.022 m3 (0%); IfcWall +0 m2 (0%) +0 m3 (0%)
+  1.00 m2 / 0.10 m3: openings under area 92, under volume 52; measured area 32121.711 -> 32120.482 (-1.229 m2, -0.004%), volume 138252.311 -> 138252.333 (+0.022 m3, 0%); rows not adjusted 38
+    area +0 left in, -1.229 taken from gross figures; volume +0.022 / -0; by class: IfcSlab -1.229 m2 (-0.011%) +0.022 m3 (0%); IfcWall +0 m2 (0%) +0 m3 (0%)
+  by work section: openings under area 49, under volume 47; measured area 32121.711 -> 32121.711 (+0 m2, 0%), volume 138252.311 -> 138252.333 (+0.022 m3, 0%); rows not adjusted 29
+    area +0 left in, -0 taken from gross figures; volume +0.022 / -0; by class: IfcSlab +0 m2 (0%) +0.022 m3 (0%); IfcWall +0 m2 (0%) +0 m3 (0%)
+  stored Width x Height vs cut area, wall openings: 598 of 629 within 2%; e.g. #43836 cut 0.024 vs 3.684, #43869 cut 0.024 vs 3.684, #53044 cut 0.058 vs 0.641, #1654878 cut 2.588 vs 2.91, #544470 cut 0.012 vs 2.952, #544696 cut 0.012 vs 2.952
+  10.4 s
+duplex.ifc: 48 openings in 29 elements; volumes cut 29 (additive 29, not 0), areas cut 19 (additive 19)
+  0.50 m2 / 0.05 m3: openings under area 0, under volume 1; measured area 1517.097 -> 1517.097 (+0 m2, 0%), volume 347.837 -> 347.837 (+0 m3, 0%); rows not adjusted 0
+    area +0 left in, -0 taken from gross figures; volume +0 / -0; by class: none
+  1.00 m2 / 0.10 m3: openings under area 12, under volume 1; measured area 1517.097 -> 1524.556 (+7.459 m2, 0.492%), volume 347.837 -> 347.837 (+0 m3, 0%); rows not adjusted 0
+    area +7.459 left in, -0 taken from gross figures; volume +0 / -0; by class: IfcWallStandardCase +7.459 m2 (1.355%) +0 m3 (0%)
+  by work section: openings under area 0, under volume 0; measured area 1517.097 -> 1517.097 (+0 m2, 0%), volume 347.837 -> 347.837 (+0 m3, 0%); rows not adjusted 0
+    area +0 left in, -0 taken from gross figures; volume +0 / -0; by class: none
+  0.2 s
+Office_A_20110811.ifc: 181 openings in 62 elements; volumes cut 62 (additive 62, not 0), areas cut 61 (additive 61)
+  0.50 m2 / 0.05 m3: openings under area 6, under volume 15; measured area 9260.149 -> 9262.622 (+2.473 m2, 0.027%), volume 1152.328 -> 1152.692 (+0.364 m3, 0.032%); rows not adjusted 0
+    area +2.473 left in, -0 taken from gross figures; volume +0.364 / -0; by class: IfcWallStandardCase +2.473 m2 (0.04%) +0.364 m3 (0.037%)
+  1.00 m2 / 0.10 m3: openings under area 18, under volume 17; measured area 9260.149 -> 9273.057 (+12.908 m2, 0.139%), volume 1152.328 -> 1152.811 (+0.483 m3, 0.042%); rows not adjusted 0
+    area +12.908 left in, -0 taken from gross figures; volume +0.483 / -0; by class: IfcWallStandardCase +12.908 m2 (0.21%) +0.483 m3 (0.049%)
+  by work section: openings under area 6, under volume 14; measured area 9260.149 -> 9262.622 (+2.473 m2, 0.027%), volume 1152.328 -> 1152.692 (+0.364 m3, 0.032%); rows not adjusted 0
+    area +2.473 left in, -0 taken from gross figures; volume +0.364 / -0; by class: IfcWallStandardCase +2.473 m2 (0.04%) +0.364 m3 (0.037%)
+  0.4 s
+dental_clinic.ifc: 403 openings in 245 elements; volumes cut 245 (additive 245, not 0), areas cut 209 (additive 209)
+  0.50 m2 / 0.05 m3: openings under area 29, under volume 42; measured area 15415.522 -> 15426.169 (+10.647 m2, 0.069%), volume 1885.459 -> 1886.764 (+1.306 m3, 0.069%); rows not adjusted 0
+    area +10.647 left in, -0 taken from gross figures; volume +1.306 / -0; by class: IfcWallStandardCase +10.647 m2 (0.091%) +1.306 m3 (0.079%)
+  1.00 m2 / 0.10 m3: openings under area 34, under volume 45; measured area 15415.522 -> 15430.123 (+14.601 m2, 0.095%), volume 1885.459 -> 1886.955 (+1.497 m3, 0.079%); rows not adjusted 0
+    area +14.601 left in, -0 taken from gross figures; volume +1.497 / -0; by class: IfcWallStandardCase +14.601 m2 (0.125%) +1.497 m3 (0.09%)
+  by work section: openings under area 29, under volume 38; measured area 15415.522 -> 15426.169 (+10.647 m2, 0.069%), volume 1885.459 -> 1886.764 (+1.306 m3, 0.069%); rows not adjusted 0
+    area +10.647 left in, -0 taken from gross figures; volume +1.306 / -0; by class: IfcWallStandardCase +10.647 m2 (0.091%) +1.306 m3 (0.079%)
+  1.4 s
+Schultz_Residence.ifc: 53 openings in 32 elements; volumes cut 30 (additive 30, not 0), areas cut 29 (additive 29)
+  0.50 m2 / 0.05 m3: openings under area 7, under volume 6; measured area 787.389 -> 789.046 (+1.657 m2, 0.21%), volume 146.329 -> 146.366 (+0.037 m3, 0.025%); rows not adjusted 0
+    area +1.657 left in, -0 taken from gross figures; volume +0.037 / -0; by class: IfcWallStandardCase +1.657 m2 (0.351%) +0.037 m3 (0.047%)
+  1.00 m2 / 0.10 m3: openings under area 20, under volume 13; measured area 787.389 -> 798.49 (+11.101 m2, 1.41%), volume 146.329 -> 146.888 (+0.559 m3, 0.382%); rows not adjusted 0
+    area +11.101 left in, -0 taken from gross figures; volume +0.559 / -0; by class: IfcWallStandardCase +11.101 m2 (2.35%) +0.559 m3 (0.709%)
+  by work section: openings under area 7, under volume 5; measured area 787.389 -> 789.046 (+1.657 m2, 0.21%), volume 146.329 -> 146.366 (+0.037 m3, 0.025%); rows not adjusted 0
+    area +1.657 left in, -0 taken from gross figures; volume +0.037 / -0; by class: IfcWallStandardCase +1.657 m2 (0.351%) +0.037 m3 (0.047%)
+  2.0 s

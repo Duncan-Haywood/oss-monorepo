@@ -16,7 +16,7 @@
 // tool's reading of the same model. Where they disagree the row says so,
 // because one of them is wrong and an estimate built on it would be too.
 
-import { applyRule, ruleActive } from "./measure.mjs";
+import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
 import { planRect, assignEnvelope, assignRailingSides } from "./envelope.mjs";
 import { Geometry, Unresolved, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, solidExtent } from "./geom.mjs";
@@ -916,7 +916,7 @@ export const keyLabel = (k) => ({ uniformat: "Uniformat II element", uniformat2:
 export function boqCsv(lines, by, rates = {}, rule = null) {
   const measured = ruleActive(rule);
   const head = [...by.map(keyLabel), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount"];
-  if (measured) head.push(`Voids not deducted (area up to ${rule.areaMax} m2, volume up to ${rule.volumeMax} m3)`, "Area added back m2", "Volume added back m3", "Rows the rule could not adjust");
+  if (measured) head.push(`Voids not deducted (${ruleLabel(rule)})`, "Area added back m2", "Volume added back m3", "Rows the rule could not adjust");
   const out = [head.map(csvCell).join(",")];
   for (const L of lines) {
     const k = JSON.stringify(L.key);

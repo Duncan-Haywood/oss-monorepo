@@ -44,7 +44,14 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   2% of width x height; 216 of 2,252 openings were at or under 0.50 m2
   ([eval/measure-rules-2026-11-20.md](eval/measure-rules-2026-11-20.md)). The
   thresholds are yours to check against your contract's method; the tool
-  claims no standard's rules.
+  claims no standard's rules. **Per work section**, too: walls, slabs and
+  roofs, coverings, and beams, columns and members can each have their own
+  pair (the "By work section" preset judges walls and finishes by area and
+  slabs and frames by volume; on the command line
+  `--voids-up-to "0.5,0.05;slabs=0,0.05;coverings=0.5,0"`). On 4 of 11 public
+  models a single pair also adjusted slab areas or covering volumes that a
+  per-section rule leaves alone, by up to 7.2 m2 of slab area in one
+  ([eval/measure-sections-2026-11-20.md](eval/measure-sections-2026-11-20.md)).
 - **What changed since the last issue.** Drop the earlier revision too and
   get the change on every bill-of-quantities line (priced with the same
   rates, for a change order) and every element added, removed, changed (a
@@ -325,6 +332,7 @@ node cli.mjs model.ifc --by uniformat2,uniformat   # elemental estimate (Uniform
 node cli.mjs model.ifc --rows elements.csv     # every element
 node cli.mjs model.ifc --check                 # stored vs computed summary
 node cli.mjs model.ifc --voids-up-to 0.5,0.05  # leave in openings up to 0.5 m2 (areas) / 0.05 m3 (volumes)
+node cli.mjs model.ifc --voids-up-to "0,0;walls=0.5,0.05;slabs=0,0.05"  # per work section (walls, slabs, coverings, frames, other)
 node cli.mjs new.ifc --compare old.ifc         # change in the BoQ since old.ifc, CSV to stdout
 node cli.mjs new.ifc --compare old.ifc --changes changes.csv   # and every changed element
 node --test                                    # tests
