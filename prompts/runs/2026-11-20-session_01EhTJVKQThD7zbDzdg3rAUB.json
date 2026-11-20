@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVKQThD7zbDzdg3rAUB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on revenue-generating software products)",
+  "input_sha256": "549ed257455cab168a36258c84cdba91f7289a6cca9783b42df71a46e160b990",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T21:09:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector (flagship row 2): split engine.mjs and share copied helpers (quality round 89 defect 0, partial)",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17972",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "A bare `route` drew process for the scheduled ventures brief; step 1's --task line re-routed to ventures (same cluster as many 2026-11-19/20 reports)."
+    },
+    {
+      "file": "ventures/changepoint-detector/deploy/make-watch-repo.sh",
+      "issue": "Splitting engine.mjs needed the new modules added to the watch repo's copy list, and no test checked that MODULES is import-closed, so a split would have shipped broken deployer repos silently. Added watch-modules-closed.test.mjs in this PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took the row's NEXT.md quality-audit item (engine split, shared helpers) instead of a next: statistical round; the brief's revenue focus is better served by a maintainable engine than another simulation round on a venture with 104 commits in 7 days.",
+      "did": "refactor + two input-handling fixes the preflight surfaced",
+      "result": "all venture tests pass; 68 engine exports unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-splitting-a-3000-line-engine-without-breaking-deployed-copies.md"
+  ],
+  "goal": null,
+  "notes": "engine.mjs 3,004 -> 2,546 lines; stats-core.mjs, bocpd.mjs, parse-series.mjs new; engine re-exports all (68 exports compared before/after by import). Copies of mulberry/gauss/lag1/corrected/pw/resid2/median/ols removed from hinge-test, two-hinge, known-date, slope-breaks, drift-level and engine. Preflight's ratchet checks fired on the moved parser: fixed decimal-comma parsing ('29,99' read as 2999) and Math.max spread overflow; baselines for engine.mjs removed. Verification: run_venture_tests.py changepoint-detector 1036 tests pass (333.7 s) before the comma fix, 1040 pass (265.6 s) after it; venture-preflight clean (repository checks, site tests, privacy tests, build + check.mjs); watch-modules-closed.test.mjs added after that run, passes alone. main_health.py: 305/305 pass on main at start. Audit defect 0 not marked fixed: engine still holds analyze/GARCH/pre-steps (NEXT.md).",
+  "corrections": [],
+  "redteam": null
+}

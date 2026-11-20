@@ -27,33 +27,11 @@
 // compares the two, failed its pre-registered bend bar, eval/hinge-step-or-bend-prereg-2026-11-15.md). Size and power:
 // eval/hinge-test-sim.mjs; real series: eval/hinge-test-real.mjs.
 
-function mulberry(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-function gauss(r) { return Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r()); }
 
-function lag1(e) {
-  let num = 0, den = 0;
-  for (let i = 0; i < e.length; i++) { den += e[i] * e[i]; if (i) num += e[i] * e[i - 1]; }
-  return den > 0 ? num / den : 0;
-}
 
-// Prais-Winsten transform of a column
-function pw(v, rho) {
-  const n = v.length, out = new Float64Array(n), f = Math.sqrt(Math.max(0, 1 - rho * rho));
-  out[0] = f * v[0];
-  for (let t = 1; t < n; t++) out[t] = v[t] - rho * v[t - 1];
-  return out;
-}
 
-// residual of v on the two columns c1, c2 (normal equations), and that residual's sum of squares
-function resid2(v, c1, c2) {
-  let a11 = 0, a12 = 0, a22 = 0, b1 = 0, b2 = 0;
-  for (let t = 0; t < v.length; t++) { a11 += c1[t] * c1[t]; a12 += c1[t] * c2[t]; a22 += c2[t] * c2[t]; b1 += c1[t] * v[t]; b2 += c2[t] * v[t]; }
-  const det = a11 * a22 - a12 * a12, g1 = (a22 * b1 - a12 * b2) / det, g2 = (a11 * b2 - a12 * b1) / det;
-  const e = new Float64Array(v.length); let ss = 0;
-  for (let t = 0; t < v.length; t++) { e[t] = v[t] - g1 * c1[t] - g2 * c2[t]; ss += e[t] * e[t]; }
-  return { e, ss, g: [g1, g2] };
-}
 
+import { mulberry, gauss, lag1, pw, resid2, corrected } from './stats-core.mjs';
 function trimOf(n, margin) { return Math.max(3, Math.floor(n * margin)); }
 
 // sup-F scan over knots k (hinge column (t - k)+, zero up to and at k) with the series and columns transformed by rho
@@ -89,7 +67,6 @@ function olsHinge(x, margin) {
   return { k: best.k, rhoHinge: lag1(e), rhoLine: lag1(line.e), line };
 }
 
-const corrected = (rho, n) => rho + (1 + 3 * rho) / n;
 
 function statistic(x, margin, rhoCap) {
   const o = olsHinge(x, margin);

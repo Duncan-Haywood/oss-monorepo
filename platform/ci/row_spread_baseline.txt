@@ -1,6 +1,5 @@
 # Row readers that still spread rows into Math.min/max (check_row_spread.py). Only shrinks.
 ventures/airbnb-earnings-report-analyzer/calc.mjs
-ventures/changepoint-detector/engine.mjs
 ventures/changepoint-detector/multivariate.mjs
 ventures/client-concentration-risk-analyzer/engine.mjs
 ventures/donor-retention-analyzer/calc.mjs

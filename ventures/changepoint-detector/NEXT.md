@@ -49,5 +49,5 @@
 - (2026-11-19) NYT rerun: line 3/4 ends, 4/8 unexplained (all 105-372 days; README "The weekday spell score on NYT's state series")
 - (2026-11-19) quoted-tick gate unscorable on 12 Binance pairs (all one-tick)
 - (2026-11-19) AAPL/AMZN/GOOG 28/33, prints 0/34
-- (2026-11-19) quality round 89 (`portfolio/quality/audits/2026-11-19-changepoint-detector-r2.json`, craft 2): `engine.mjs` is 3,004 lines (2,243 at the 11-09 audit); mulberry, lag1 and median are copied across 3 modules and `known-date.mjs` has its own least squares. Split the engine and share the helpers.
 - (2026-11-19) same audit, low: `shopify-metrics.mjs:185` buckets days at a fixed UTC offset, so DST-zone stores get days an hour off for half the year.
+- (2026-11-20) quality round 89 defect 0, what is left after the split (README "Code layout"): the copied helpers are now one `stats-core.mjs`, BOCPD and CSV input left the engine (3,004 to 2,546 lines). Still in `engine.mjs`: the ~300-line `analyze()`, the pre-steps and GARCH; `solveSym` and a local Gauss-Jordan (engine.mjs ~line 525) could use `stats-core.mjs`'s `invert`/`ols`. Mark the audit defect fixed once the engine is split further.

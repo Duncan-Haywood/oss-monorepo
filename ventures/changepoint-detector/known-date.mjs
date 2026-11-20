@@ -19,50 +19,7 @@
 // What it does not do: a synthetic control built from many series (CausalImpact), covariates beyond one control, non-Gaussian noise, dependence
 // beyond AR(1), or say what caused the change. A small p says the pre-date line does not carry on through the date.
 
-function mulberry(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-function gauss(r) { return Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r()); }
-
-function lag1(e) {
-  let num = 0, den = 0;
-  for (let i = 0; i < e.length; i++) { den += e[i] * e[i]; if (i) num += e[i] * e[i - 1]; }
-  return den > 0 ? num / den : 0;
-}
-const corrected = (rho, n) => rho + (1 + 3 * rho) / n;
-
-function pw(v, rho) {
-  const n = v.length, out = new Float64Array(n);
-  out[0] = Math.sqrt(Math.max(0, 1 - rho * rho)) * v[0];
-  for (let t = 1; t < n; t++) out[t] = v[t] - rho * v[t - 1];
-  return out;
-}
-
-// Inverse of a symmetric positive definite matrix (Gauss-Jordan with partial pivoting); null when singular.
-function invert(A) {
-  const p = A.length, M = A.map((row, i) => [...row, ...Array.from({ length: p }, (_, j) => (i === j ? 1 : 0))]);
-  for (let i = 0; i < p; i++) {
-    let m = i; for (let q = i + 1; q < p; q++) if (Math.abs(M[q][i]) > Math.abs(M[m][i])) m = q;
-    if (!(Math.abs(M[m][i]) > 1e-12)) return null;
-    [M[i], M[m]] = [M[m], M[i]];
-    const piv = M[i][i]; for (let c = 0; c < 2 * p; c++) M[i][c] /= piv;
-    for (let q = 0; q < p; q++) if (q !== i) { const f = M[q][i]; if (f) for (let c = 0; c < 2 * p; c++) M[q][c] -= f * M[i][c]; }
-  }
-  return M.map((row) => row.slice(p));
-}
-
-// Least squares of y on the columns of X (arrays of length n). Returns coefficients, (X'X)^-1, residuals, rss.
-function ols(y, X) {
-  const p = X.length, n = y.length, A = Array.from({ length: p }, () => new Array(p).fill(0)), b = new Array(p).fill(0);
-  for (let i = 0; i < p; i++) {
-    for (let j = i; j < p; j++) { let s = 0; for (let t = 0; t < n; t++) s += X[i][t] * X[j][t]; A[i][j] = A[j][i] = s; }
-    let s = 0; for (let t = 0; t < n; t++) s += X[i][t] * y[t]; b[i] = s;
-  }
-  const inv = invert(A);
-  if (!inv) return null;
-  const beta = inv.map((row) => row.reduce((s, v, j) => s + v * b[j], 0));
-  const e = new Float64Array(n); let rss = 0;
-  for (let t = 0; t < n; t++) { let f = 0; for (let i = 0; i < p; i++) f += beta[i] * X[i][t]; e[t] = y[t] - f; rss += e[t] * e[t]; }
-  return { beta, inv, e, rss };
-}
+import { mulberry, gauss, lag1, corrected, pw, ols } from './stats-core.mjs';
 
 // Iterated Prais-Winsten: GLS coefficients, rho and the untransformed residuals.
 function gls(x, X, rhoCap, iters = 30) {

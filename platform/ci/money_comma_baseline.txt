@@ -55,7 +55,6 @@ ventures/cash-flow-risk-forecaster/calc.mjs 1
 ventures/cd-treasury-ladder-planner/calc.mjs 1
 ventures/cdl-school-payback-calculator/calc.mjs 1
 ventures/certified-payroll-calculator/wh347.mjs 1
-ventures/changepoint-detector/engine.mjs 1
 ventures/chargeback-ratio-monitor/calc.mjs 1
 ventures/charity-bunching-planner/calc.mjs 1
 ventures/childcare-enrollment-mix-optimizer/calc.mjs 1
