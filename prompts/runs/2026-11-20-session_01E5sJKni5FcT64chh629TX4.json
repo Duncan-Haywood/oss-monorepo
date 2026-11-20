@@ -29,15 +29,23 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Raw U+034F/U+206A landed in calc.test.mjs from the heredoc; CI's check_hidden_unicode.py failed; rewrote them as escapes.",
+    "portfolio/distribution/versions.json went stale (devsec-toolkit ships hidden-unicode-check); ran versions.mjs --write."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hidden-unicode-check/README.md",
+      "issue": "Nothing says the venture ships inside devsec-toolkit, so a change needs platform/distribution/versions.mjs --write; found only from CI."
+    }
+  ],
   "deviations": [],
   "writeups": [
     "docs/posts/2026-11-20-hidden-unicode-check-against-the-ucd.md"
   ],
   "goal": null,
-  "notes": "Explore idea: conformance-test hidden-unicode-check's hand-written invisible-character table against the UCD (Default_Ignorable_Code_Point + Bidi_Control) through Node 22's ICU regex property escapes (Unicode 17.0, offline; unicode.org 403s through the proxy). Exhaustive over all 1,112,064 scalar values: 0 over-flagged, 3,794 missed (30 assigned: U+034F, 17B4-5, 180B-D, 180F, 206A-F, 1BCA0-3, 1D173-A; 3,764 reserved unassigned). Fixed; new test fails 3 of 30 on the old table and passes on the new one; run_venture_tests hidden-unicode-check ok (67 tests); CLI scan of prompts/ docs/ .github/ shows no new findings. No agent doc: nothing the next run needs beyond the post and README.",
+  "notes": "Explore idea: conformance-test hidden-unicode-check's hand-written invisible-character table against the UCD (Default_Ignorable_Code_Point + Bidi_Control) through Node 22's ICU regex property escapes (Unicode 17.0, offline; unicode.org 403s through the proxy). Exhaustive over all 1,112,064 scalar values: 0 over-flagged, 3,794 missed (30 assigned: U+034F, 17B4-5, 180B-D, 180F, 206A-F, 1BCA0-3, 1D173-A; 3,764 reserved unassigned). Fixed; new test fails 3 of 30 on the old table and passes on the new one; run_venture_tests hidden-unicode-check ok (67 tests); CLI scan of prompts/ docs/ .github/ shows no new findings. No agent doc: nothing the next run needs beyond the post and README. CI then showed the repo guard platform/ci/check_hidden_unicode.py caught a raw U+034F I had pasted into the test but not a raw U+206A: same gap, extended it (format-control, reserved-ignorable classes; VS left out for emoji), 21 unit tests ok, 73,367 files still clean. Also refreshed devsec-toolkit version (0.1.10) for versions.mjs --check.",
   "corrections": [],
   "redteam": null,
   "usage": {

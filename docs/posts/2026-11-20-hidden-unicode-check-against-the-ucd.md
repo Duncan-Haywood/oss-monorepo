@@ -53,6 +53,16 @@ failed on the old table (27 pass, 3 fail) and passes on the new one. A CLI
 scan of this repository's `prompts/`, `docs/` and `.github/` trees turned up
 no new findings, so the wider table adds no false positives there.
 
+## The repository's own guard had the same gap
+
+This repository also runs `platform/ci/check_hidden_unicode.py`, which fails
+CI when instruction files pick up hidden characters. It caught a raw U+034F
+that I had pasted into the new test by mistake, but not the raw U+206A next
+to it. Its table had the same holes. It now covers the same assigned format
+controls and reserved ranges. Variation selectors stay out on purpose,
+because emoji depend on them. A rescan of all 73,367 tracked files is still
+clean.
+
 ## What's still out of scope
 
 Some format characters (`Cf`) that aren't default-ignorable still go

@@ -38,6 +38,13 @@ class Findings(unittest.TestCase):
         line = f'if (isAdmin) {{ {RLO} {LRI}// check later{PDI} {PDF} return; }}'
         self.assertEqual(classes(line).count("bidi-control"), 4)
 
+    def test_deprecated_format_controls_and_reserved_ignorables(self):
+        text = "a\u206ab\U0001d173c\U000e0080d\ufff0e"
+        self.assertEqual(classes(text), ["format-control", "format-control", "reserved-ignorable", "reserved-ignorable"])
+
+    def test_variation_selectors_stay_out(self):
+        self.assertEqual(guard.findings_in_text("\u2764\ufe0f ok"), [])
+
     def test_position_is_line_and_column(self):
         text = "ok\nab" + ZWSP + "c\n"
         self.assertEqual(guard.findings_in_text(text), [(2, 3, 0x200B, "zero-width")])

@@ -81,10 +81,20 @@ for _cp in (0x115F, 0x1160, 0x3164, 0xFFA0, 0x180E, 0x034F):
 CLASSES[0x00AD] = "soft-hyphen"
 for _cp in range(0xE0000, 0xE0080):
     CLASSES[_cp] = "tag"
+# The rest of Unicode's Default_Ignorable_Code_Point that renders as nothing
+# and has no everyday use (variation selectors stay out: emoji need them).
+# Found by diffing ventures/hidden-unicode-check against the UCD, 2026-11-20.
+for _cp in (0x17B4, 0x17B5, 0x180B, 0x180C, 0x180D, 0x180F,
+            *range(0x206A, 0x2070), *range(0x1BCA0, 0x1BCA4), *range(0x1D173, 0x1D17B)):
+    CLASSES[_cp] = "format-control"
+for _cp in (0x2065, *range(0xFFF0, 0xFFF9), *range(0xE0080, 0xE0100), *range(0xE01F0, 0xE1000)):
+    CLASSES[_cp] = "reserved-ignorable"
 
 PATTERN = re.compile(
     "[\u202a-\u202e\u2066-\u2069\u200b-\u200f\u061c\u2060-\u2064\ufeff"
-    "\u115f\u1160\u3164\uffa0\u180e\u034f\u00ad\U000e0000-\U000e007f]"
+    "\u115f\u1160\u3164\uffa0\u180e\u034f\u00ad\U000e0000-\U000e007f"
+    "\u17b4\u17b5\u180b-\u180d\u180f\u2065-\u206f\ufff0-\ufff8"
+    "\U0001bca0-\U0001bca3\U0001d173-\U0001d17a\U000e0080-\U000e00ff\U000e01f0-\U000e0fff]"
 )
 
 # Files an agent loads as instructions, or that steer CI and the agents'

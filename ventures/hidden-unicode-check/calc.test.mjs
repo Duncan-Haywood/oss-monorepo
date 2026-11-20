@@ -243,7 +243,7 @@ test("covers every Default_Ignorable_Code_Point and Bidi_Control, and flags noth
 });
 
 test("flags the combining grapheme joiner and deprecated format controls", () => {
-  const r = scanText("ad͏min⁪ \u{1d173}x");
+  const r = scanText("ad\u034fmin\u206a \u{1d173}x");
   assert.deepEqual(r.findings.map((f) => f.hex), ["U+034F", "U+206A", "U+1D173"]);
   assert.equal(r.findings[1].category, "format-control");
 });
