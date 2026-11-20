@@ -1,0 +1,267 @@
+{
+  "date": "2026-11-20",
+  "subject": "ventures/cra-evidence-desk",
+  "stratum": "venture",
+  "seed": "2026-11-20-d447",
+  "drawn_by": "census",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a product-security (PSIRT) lead at a software vendor preparing for EU Cyber Resilience Act (Regulation (EU) 2024/2847) Article 14 reporting; first checks: does an SBOM-vs-advisory match report every advisory that names a component (no silent drops), do real purl/OSV spellings meet (PyPI PEP 503 names, Go 'v' versions, apk/deb vs Alpine/Debian), is 'not evaluated' coverage disclosed, and are the Article 14 deadlines, recipients and notification contents stated as the regulation states them.",
+  "scores": {
+    "correctness": 1,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Independent script /tmp/claude-0/audit-cra-evidence-desk/indep.py (expected values from the purl spec, OSV schema and PEP 503; subject run only through its CLI) on 8 cases: 2 pass, 6 fail. Maven namespace/name vs OSV group:artifact and npm %40-scoped purls match (pass). FAIL: two real advisories enumerating lodash 4.17.15 (GHSA-p6mc-m468-83gw, GHSA-35jh-r3h4-6jhm) give 1 finding, not 2: core.match indexes advisories in a dict keyed by (ecosystem,name,version) so the last one overwrites the first, and the browser port (site/match.mjs:256, Map.set) does the same (node /tmp/claude-0/audit-cra-evidence-desk/browser.mjs -> 1 ['GHSA-35jh-r3h4-6jhm']). A component named by several advisories is the normal case (log4j-core 2.14.1 has CVE-2021-44228 and CVE-2021-45046), so the evidence record silently omits advisories a user would act on. FAIL: pkg:pypi/typing-extensions vs OSV PyPI typing_extensions (PEP 503 equivalent) no match; pkg:golang/...@v0.7.0 vs OSV Go version 0.7.0 no match (OSV Go SEMVER has no 'v'); pkg:apk/alpine/openssl vs OSV Alpine:v3.19 no match; an OSV record with one enumerated package and one range-only package is not listed under advisories_not_evaluated; advisory_count reports 4 for 2 records (it counts enumerated versions). Example fixtures reproduce (CLI JSON on examples/*.osv.json: 1 finding, 1 not evaluated).",
+    "completeness": "Claimed features run end to end: CycloneDX, SPDX and native SBOMs; OSV (bare/vulns) and native advisories; purl folding; nested sub-components; advisories_not_evaluated; JSON and draft output; usage counter; browser page with example. Live page: `node platform/pages/served-copy.mjs cra-evidence-desk` -> no placeholder or retired origin. No stubs/TODOs. The 'golang vs Go meet' claim is hollow in practice because versions differ by the 'v' prefix.",
+    "verification": "`PYTHONPATH=src /usr/bin/python3.13 -m pytest -q`: 24 passed in 0.21 s; `cd site && node --test '*.test.mjs'`: 69 pass. quality_mutate.py, 5 mutants, 2 survived: dropping .lower() from the component key (core.py:25) and from the browser key (site/match.mjs:261) both leave every test green. Caught: has_ranges and not has_exact -> has_ranges (normalize.py:297), maven ':' separator -> '/' (normalize.py:75), dropping the OSV distribution qualifier split (normalize.py:68). No test supplies two advisories for one component, which is how the dedup defect shipped.",
+    "craft": "Read core.py (69), cli.py (65), normalize.py (302), site/match.mjs (362), test_*.py, parity.test.mjs. Clean, well-commented stdlib code; malformed purls skipped not raised; usage counter robust to corrupt files. Defects: last-wins dict index (core.py:22); report() normalises SBOM and advisories twice; the engine is duplicated in JS, mitigated by parity.test.mjs reading the Python ECOSYSTEM_ALIASES table, but parity does not cover match semantics; advisory_count is a count of version entries labelled as advisories.",
+    "claims": "Checked: nothing uploaded (pass, match.mjs reads File locally); exact match only, ranges listed not dropped (pass for whole-record range-only; partial for mixed records); CycloneDX/SPDX/OSV accepted (pass); golang/Go and cargo/crates.io fold (ecosystem pass, Go versions fail); disclaimer and no-warranty on page, README and CLI epilog (pass); Art 14 start date 11 September 2026 (pass, Art 71(2)); applies to products already on the market (pass, Art 69(3)); 24 h / 72 h (pass, Art 14(2)(a),(b) and 14(4)(a),(b)). FAIL: index.html:36 and :243 say the final report for an actively exploited vulnerability is due '14 days ... after the 72-hour notification'; Art 14(2)(c) says no later than 14 days after a corrective or mitigating measure is available (the one-month incident deadline after the notification, Art 14(4)(c), is right). It says 'must notify ENISA'; Art 14(1)/(3) require notification to the CSIRT designated as coordinator and to ENISA simultaneously via the single reporting platform (Art 16). vs-dependency-track.html says the draft is 'built around that one document', but the draft carries none of the Art 14(2)/(4) content headings.",
+    "fitness": "Job walked: a vendor with a syft CycloneDX SBOM and an osv.dev export wants the list of advisories naming their components and a draft for counsel. Works for npm/Maven with enumerated versions. A Go, PyPI-with-underscores or Alpine/Debian SBOM gets false 'no match'; a component with several advisories loses all but one; the draft has to be rewritten into Art 14 shape by hand. Usable as a first pass, not as the evidence record it is sold as.",
+    "domain": "Compared against Regulation (EU) 2024/2847 Art 14(1)-(4), 16, 69(3), 71(2), and OSV/purl practice. Departures: an advisory match is neither an 'actively exploited vulnerability' (14(1)) nor a 'severe incident' (14(3)), yet the draft is titled 'INCIDENT NOTIFICATION' and conflates the two; the draft lacks 14(2)/(4) content (Member States where the product is made available, general nature of the exploit, corrective or mitigating measures taken and available to users, sensitivity of the information); final-report timing misstated for vulnerabilities; name/version normalisation below what OSV-Scanner or Dependency-Track do (PEP 503, Go 'v')."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "two advisories enumerating the same component version both reported",
+      "method": "OSV schema: each record is an independent advisory; real GHSA ids for lodash 4.17.15",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cra-evidence-desk/indep.py",
+      "expected": "2 findings",
+      "observed": "1 finding (GHSA-35jh-r3h4-6jhm only); browser port same",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Maven purl namespace/name vs OSV group:artifact",
+      "method": "purl spec maven type; OSV Maven naming",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cra-evidence-desk/indep.py",
+      "expected": "1 match",
+      "observed": "1",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "npm scoped purl with %40 namespace",
+      "method": "purl spec npm type (namespace percent-encoded @)",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cra-evidence-desk/indep.py",
+      "expected": "1 match",
+      "observed": "1",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "PyPI typing-extensions vs typing_extensions",
+      "method": "PEP 503 name normalisation; purl spec pypi type",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cra-evidence-desk/indep.py",
+      "expected": "1 match",
+      "observed": "0",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Go purl version v0.7.0 vs OSV Go 0.7.0",
+      "method": "OSV schema: Go ecosystem SEMVER versions carry no 'v'; purl golang keeps it",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cra-evidence-desk/indep.py",
+      "expected": "1 match",
+      "observed": "0",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "pkg:apk/alpine/openssl vs OSV Alpine:v3.19",
+      "method": "purl spec apk type vs OSV ecosystem list",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cra-evidence-desk/indep.py",
+      "expected": "1 match",
+      "observed": "0",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "mixed OSV record (one package enumerated, one range-only) discloses unevaluated part",
+      "method": "README coverage boundary: range-only advisories listed, not dropped",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cra-evidence-desk/indep.py",
+      "expected": "advisories_not_evaluated present",
+      "observed": "absent",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "advisory_count for 2 OSV records (3 + 1 enumerated versions)",
+      "method": "count by hand",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-cra-evidence-desk/indep.py",
+      "expected": "2",
+      "observed": "4",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "Python and Node suites",
+      "method": "run",
+      "command": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q; cd site && node --test '*.test.mjs'",
+      "expected": "green",
+      "observed": "24 passed; 69 pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Art 14 final report timing for actively exploited vulnerabilities",
+      "method": "Regulation (EU) 2024/2847 Art 14(2)(c)",
+      "command": "grep -n '14 days' ventures/cra-evidence-desk/site/index.html",
+      "expected": "14 days after a corrective or mitigating measure is available",
+      "observed": "'14 days ... after the 72-hour notification' (index.html:36, 243)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Art 14 recipient",
+      "method": "Art 14(1),(3), Art 16 single reporting platform",
+      "command": "grep -n ENISA ventures/cra-evidence-desk/site/index.html",
+      "expected": "CSIRT coordinator and ENISA via the single reporting platform",
+      "observed": "'must notify ENISA'",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "Art 14 start date and existing products",
+      "method": "Art 71(2), Art 69(3)",
+      "command": "grep -n '11 September 2026' ventures/cra-evidence-desk/site/index.html",
+      "expected": "11 September 2026; applies to products placed before 11 Dec 2027",
+      "observed": "stated",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimer and no-warranty present",
+      "method": "read page, README, CLI --help",
+      "command": "grep -n 'No warranty' ventures/cra-evidence-desk/site/index.html ventures/cra-evidence-desk/README.md",
+      "expected": "present",
+      "observed": "present on all three",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "served copy has no placeholder origins",
+      "method": "served-copy.mjs",
+      "command": "node platform/pages/served-copy.mjs cra-evidence-desk",
+      "expected": "clean",
+      "observed": "no placeholder or retired origin",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "draft carries Art 14(2)/(4) notification content",
+      "method": "Art 14(2)(b), 14(4)(b)",
+      "command": "PYTHONPATH=src python3 -m cra_evidence_desk examples/sbom.cyclonedx.json examples/advisories.osv.json --product D --version 1",
+      "expected": "Member States, nature of exploit, corrective/mitigating measures, sensitivity",
+      "observed": "product, version, matched list, not-evaluated list only",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/cra_evidence_desk/normalize.py:297",
+      "change": "if has_ranges and not has_exact: -> if has_ranges:",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q"
+    },
+    {
+      "where": "src/cra_evidence_desk/normalize.py:75",
+      "change": "separator ':' for maven -> '/'",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q"
+    },
+    {
+      "where": "src/cra_evidence_desk/core.py:25",
+      "change": "component[\"name\"].lower() -> component[\"name\"]",
+      "caught": false,
+      "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q"
+    },
+    {
+      "where": "src/cra_evidence_desk/normalize.py:68",
+      "change": "text.split(':', 1)[0] -> text",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m pytest -q"
+    },
+    {
+      "where": "site/match.mjs:261",
+      "change": "${component.name.toLowerCase()} -> ${component.name}",
+      "caught": false,
+      "test_cmd": "cd site && node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "A component named by more than one advisory is reported with only the last advisory: match() indexes advisories in a dict/Map keyed by (ecosystem,name,version), so earlier advisories are overwritten and silently missing from the evidence record and the Article 14 draft (lodash 4.17.15 with two GHSAs -> 1 finding). Same in the browser port.",
+      "where": "ventures/cra-evidence-desk/src/cra_evidence_desk/core.py:22",
+      "category": "logic-error",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+    },
+    {
+      "severity": "medium",
+      "what": "Page states the actively-exploited-vulnerability final report is due 14 days after the 72-hour notification; Art 14(2)(c) sets 14 days after a corrective or mitigating measure is available. It also says notifications go to ENISA, where Art 14(1)/(3) and 16 require the coordinating CSIRT and ENISA via the single reporting platform.",
+      "where": "ventures/cra-evidence-desk/site/index.html:243",
+      "category": "domain-rule",
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+    },
+    {
+      "severity": "medium",
+      "what": "Go components never match: purl versions keep the 'v' prefix (v0.7.0) and OSV Go versions do not (0.7.0); the README's 'golang vs Go' folding claim only fixes the ecosystem.",
+      "where": "ventures/cra-evidence-desk/src/cra_evidence_desk/normalize.py:105",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "PyPI names are compared by lowercasing only; PEP 503 treats '-', '_' and '.' as equivalent, so typing-extensions (purl) vs typing_extensions (OSV) misses.",
+      "where": "ventures/cra-evidence-desk/src/cra_evidence_desk/core.py:22",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Ecosystem table lacks purl apk/deb/rpm vs OSV Alpine/Debian/Red Hat spellings, so OS-package SBOMs from syft/trivy never meet OSV distro advisories, despite the code comment claiming Alpine qualifier handling makes them meet.",
+      "where": "ventures/cra-evidence-desk/src/cra_evidence_desk/normalize.py:35",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "An OSV record with an enumerated package and a range-only package is not listed in advisories_not_evaluated, though the range-only package was never evaluated; a clean report overstates coverage.",
+      "where": "ventures/cra-evidence-desk/src/cra_evidence_desk/normalize.py:297",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Article 14 draft has none of the content Art 14(2)(b)/(4)(b) asks for (Member States where made available, general nature of the exploit/vulnerability, corrective or mitigating measures, sensitivity) and is titled 'INCIDENT NOTIFICATION' for what is at most a vulnerability lead; vs-dependency-track.html calls it 'built around that one document'.",
+      "where": "ventures/cra-evidence-desk/src/cra_evidence_desk/core.py:63",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "advisory_count counts enumerated version entries, not advisories (2 records -> 4).",
+      "where": "ventures/cra-evidence-desk/src/cra_evidence_desk/core.py:45",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Case-insensitive name matching is untested: removing .lower() from the component key survives both suites (Python and browser).",
+      "where": "ventures/cra-evidence-desk/site/match.mjs:261",
+      "category": "untested-core",
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"],
+  "verdict": "Clean, honest-in-intent local matcher with a good disclaimer and a real coverage disclosure, but its core output is wrong in the common case: a component named by several advisories keeps only the last one (recomputed with two real lodash GHSAs: 1 finding, expected 2), in both the CLI and the page. Purl/OSV folding misses Go versions, PyPI PEP 503 names and distro packages; the page misstates the Art 14(2)(c) final-report deadline; the draft is not shaped to Art 14's content. Below the bar on correctness, claims and verification (2 of 5 mutants survived)."
+}

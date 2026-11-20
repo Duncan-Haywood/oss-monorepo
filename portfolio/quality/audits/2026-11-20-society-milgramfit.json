@@ -1,0 +1,223 @@
+{
+ "date": "2026-11-20",
+ "subject": "research/society-milgramfit",
+ "stratum": "research",
+ "seed": "2026-11-20-d447",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a social psychologist who runs field experiments on queue norms (the Milgram et al. 1986 / Schmitt, Dube & Leclerc 1992 literature), paired with a computational social scientist who models norm tipping; first checks: are the Milgram et al. (1986) figures taken from the paper and read in the right unit (share of lines vs share of objections), does a 'reaction' map onto the model's p0, and is the enforcer-share result new relative to committed-minority tipping work.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "`/usr/bin/python3.13 experiments/run.py` reproduces experiments/results.txt byte-identically (diff empty). Independent script /tmp/claude-0/audit-society-milgramfit/indep.py (no subject import; model re-coded from the society-enforcers docstring, norm tested by a grid scan for the least fixed point of x->F(x) rather than by 4,000-step iteration) gives p* = 0.9011/0.8455/0.7855/0.7388/0.6978 for M = 3/5/9/15/25 (results.txt: 0.901/0.846/0.786/0.739/0.698) and e_min = 0.0746, 0.1231, 0.0923, 0.1261, 0.0543 for (p0, rho) = (0.5,0), (0.1,0), (0.5,0.3), (0.1,0.3), (0.9,0.3) (results.txt: 0.075, 0.123, 0.092, 0.126, 0.054). Closed forms: per-viewer 1-0.5^(1/10) = 0.0670; hazard exponent log2(ln 0.09/ln 0.5) = 1.797; independent two-intruder 1-0.5^2 = 0.75. All match. Numbers are right for the model; whether the inputs are Milgram's is a domain/claims issue, not arithmetic.",
+  "completeness": "README 'Reproduce' block works: `python3 -m unittest discover -s tests` OK (6 tests at audit time), run.py reproduces results.txt, figure.py regenerates enforcers_by_objection.svg byte-identically (cmp with a pre-run copy). Tables A-E all present. Next step 1 (read the 1986 paper) is open and disclosed; step 2 done only for 0.5 and 0.91 (disclosed). No stubs.",
+  "verification": "`/usr/bin/python3.13 -m pytest -q tests`: 6 passed in 0.41 s. Seven mutants via quality_mutate.py: caught 4 (p_star guard >= -> <=; contagion c*k -> c*(k+1); independent_two exponent; per_viewer 1/view -> 1/(view+1)); survived 3: p_star eps default 0.02 -> 0.021 (a real change, p* moves off results.txt, no test pins a value), and two near-equivalent ones (return hi -> lo, within tol 1e-4; q default with e = 0 has no effect). The bisection threshold 0.5 -> 0.3 also survived but is equivalent in this bistable map (p* unchanged at 0.78558). No test touches min_enforcers or any number in results.txt, so the whole headline table (B, C) is unpinned and a change to the imported society-enforcers model would leave results.txt and the README stale with every test green.",
+  "craft": "Read src/society_milgramfit/__init__.py (59 lines), tests/test_model.py, experiments/run.py, figure.py. Clear and small, but: the core model is imported by sys.path insertion into the sibling ../society-enforcers/src (__init__.py:12), so the pyproject package is not installable on its own and the dependency is undeclared; critical_share is imported only to re-export (noqa F401); contagion_any keeps an unused variable `none` (line 41); p_star exposes q and view parameters that cannot affect it when e = 0.",
+  "claims": "Pass: 0.786 (A), 7.5%/12.3% at rho=0 and 9.2%/12.6% at 30% cutters vs 5.4% at 0.9 (B), same 0.075 for M=3..15 (C), 0.067 / 0.129 per viewer (D), a = 1.80 (E), stdlib only, AI-assistance note, 'simulated agents not real people' limit. Partial/fail: the bold headline states 'Milgram's field crowds reacted to a single intruder about half the time ... and physically ejected the intruder 10% of the time' as findings, yet the only source is a 2008 popular blog (spring.org.uk) and the paper was not read (disclosed lower down); as the auditor recalls the 1986 abstract, objections occurred in 46.6% of lines overall and about 10% of objections were physical (verbal 73.3%, nonverbal 16.6%), i.e. 10.1% is a share of objections, not of trials, and 'physical' is not 'ejected'. The auditor could not reach the paper either, so this is flagged for checking, not asserted. No sources file in the tree backs any input. The whitepaper cites Young (1993) and Xie et al. (2011) which the README never mentions or uses.",
+  "fitness": "A researcher could reuse p*(M) as a threshold for the sibling model, but the contribution is a parameter sweep of an unvalidated binary memory-majority toy model with two of five inputs (L, q) unsourced and the empirical input unread. Nearest prior work: Milgram et al. (1986) itself; Mann (1969) 'Queue culture', Am. J. Sociology 75:340-354; Schmitt, Dube & Leclerc (1992) JPSP 63:806-815 (the direct replication/extension of line-intrusion responses, not cited); committed-minority tipping, Xie et al. (2011) PRE 84:011130 (~10%) and Centola et al. (2018) Science 360:1116 (~25%, not cited). The finding that a ~7-12% enforcer minority holds a norm is a restatement of the committed-minority result in a queue setting, not new; the 'viewer influence cannot move P(any reaction)' result is true by construction of the model (influence acts only after a first reaction). Far from the PhD/publishable bar in research/CLAUDE.md.",
+  "domain": "A field-experiment psychologist would first ask for the paper's own condition table; the subject never read it. The p0 sweep 0.1-0.5 makes the qualitative conclusion ('people alone cannot hold the norm at Milgram-like rates in this model') robust, which is good practice per research/CLAUDE.md ('when nothing exists, sweep'), but here the figure does exist and was not obtained. Mapping: Milgram's line-level objection rate (anyone in line objects) is a reasonable proxy for the model's crowd-level p0, but an objection is not a stopped cut (disclosed). The independence baseline treats two intruders cutting together as two independent single intrusions, which is not Milgram's design; the a = 1.80 fit is one parameter to one number (disclosed). Milgram's finding that objection comes mostly from people behind the intrusion point (who bear the cost) is not modelled at all."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "least p0 for people-alone norm, M=3,5,9,15,25",
+   "method": "independent re-implementation from the society-enforcers docstring rule, least-fixed-point grid scan + bisection",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-society-milgramfit/indep.py",
+   "expected": "0.901/0.846/0.786/0.739/0.698 (results.txt A)",
+   "observed": "0.9011/0.8455/0.7855/0.7388/0.6978",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "enforcer share needed, five corners of table B",
+   "method": "independent script, same re-implementation",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-society-milgramfit/indep.py",
+   "expected": "0.075, 0.123, 0.092, 0.126, 0.054",
+   "observed": "0.0746, 0.1231, 0.0923, 0.1261, 0.0543",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "per-viewer rate and hazard exponent",
+   "method": "closed form by hand: 1-0.5^(1/10); log2(ln(1-0.91)/ln(0.5))",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-society-milgramfit/indep.py",
+   "expected": "0.067; 1.80",
+   "observed": "0.06697; 1.7966",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "independence baseline under the paper's single-intruder rate",
+   "method": "1-(1-p)^2 with p as the auditor recalls Milgram et al. 1986 (single intruder ~0.54; two intruders 0.913)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-society-milgramfit/indep.py",
+   "expected": "two-intruder rate under independence well below 0.91",
+   "observed": "0.791 (vs 0.75 with the blog's 0.5); the qualitative point survives",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "results.txt reproduces",
+   "method": "rerun and diff",
+   "command": "cd research/society-milgramfit && /usr/bin/python3.13 experiments/run.py | diff - experiments/results.txt",
+   "expected": "no diff",
+   "observed": "no diff",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates",
+   "method": "run figure.py, cmp against pre-run copy",
+   "command": "cd research/society-milgramfit && python3 experiments/figure.py && cmp experiments/enforcers_by_objection.svg /tmp/claude-0/audit-society-milgramfit/copy/experiments/enforcers_by_objection.svg",
+   "expected": "identical",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "/usr/bin/python3.13 -m pytest -q tests",
+   "expected": "green",
+   "observed": "6 passed in 0.41 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "headline numbers pinned by a test",
+   "method": "grep tests for min_enforcers / 0.786 / 0.075",
+   "command": "grep -n 'min_enforcers\\|0.786\\|0.075' research/society-milgramfit/tests/*.py",
+   "expected": "at least one test",
+   "observed": "none",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README headline numbers vs results.txt",
+   "method": "compare each bold figure to results.txt A-C",
+   "command": "cat research/society-milgramfit/experiments/results.txt",
+   "expected": "0.786, 7.5%, 12.3%, 9.2%, 12.6%, 5.4%",
+   "observed": "all present",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'physically ejected the intruder 10% of the time' as a Milgram finding",
+   "method": "Milgram, Liberty, Toledo & Wackenhut (1986) JPSP 51:683-689 abstract as the auditor recalls it (paper unreachable here): objections in 46.6% of lines; of objections ~10.1% physical, 73.3% verbal, 16.6% nonverbal",
+   "command": "n/a (paper not reachable; README itself says it was not read)",
+   "expected": "a stop-rate lower bound in units of trials",
+   "observed": "blog figure likely a share of objections, and 'physical' is not ejection; unverified either way",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work cited for norm tipping by a committed minority and line-intrusion responses",
+   "method": "compare to Schmitt, Dube & Leclerc 1992; Mann 1969; Centola et al. 2018",
+   "command": "grep -rn 'Schmitt\\|Mann\\|Centola' research/society-milgramfit",
+   "expected": "cited and positioned",
+   "observed": "none cited; Xie 2011 only in the whitepaper",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "standalone install",
+   "method": "read import path",
+   "command": "sed -n 10,13p research/society-milgramfit/src/society_milgramfit/__init__.py",
+   "expected": "declared dependency",
+   "observed": "sys.path insert into ../society-enforcers/src",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/society_milgramfit/__init__.py:15",
+   "change": "p_star eps default 0.02 -> 0.021",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests/test_model.py"
+  },
+  {
+   "where": "src/society_milgramfit/__init__.py:22",
+   "change": "bisection threshold < 0.5 -> < 0.3 (equivalent: p* unchanged 0.78558)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/society_milgramfit/__init__.py:26",
+   "change": "return hi -> return lo (near-equivalent, within tol)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/society_milgramfit/__init__.py:18",
+   "change": "guard >= 0.5 -> <= 0.5",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/society_milgramfit/__init__.py:47",
+   "change": "r0 + c*k -> r0 + c*(k+1)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/society_milgramfit/__init__.py:31",
+   "change": "(1/view) -> (1/(view+1))",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "No test pins any number in results.txt or the README (p* by M, enforcer table B/C); a change to p_star's defaults (eps 0.02 -> 0.021 survived) or to the imported society-enforcers model leaves the headline stale with every test green.",
+   "where": "research/society-milgramfit/tests/test_model.py:1",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+  },
+  {
+   "severity": "medium",
+   "what": "Empirical inputs taken from a 2008 popular blog, paper never read; 'physically ejected the intruder 10% of the time' is likely the paper's share of objections that were physical (10.1%), not a share of trials, and physical action is not ejection. Stated as Milgram's finding in the bold headline and project.json lede.",
+   "where": "research/society-milgramfit/README.md:6",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited or positioned: Schmitt, Dube & Leclerc (1992) on line intrusions, Mann (1969) queue culture, Centola et al. (2018) committed-minority tipping; the enforcer-share result restates committed-minority tipping without saying so.",
+   "where": "research/society-milgramfit/README.md:21",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'Viewer influence cannot explain 0.5 -> 0.91' is presented as a checked result but holds by construction (influence acts only after a first reaction).",
+   "where": "research/society-milgramfit/README.md:66",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Core model imported via sys.path insertion into a sibling project; dependency undeclared in pyproject; unused variable `none` and re-export-only import.",
+   "where": "research/society-milgramfit/src/society_milgramfit/__init__.py:12",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "Whitepaper cites Young (1993) and Xie et al. (2011), which the README neither mentions nor uses; L and q (which set every enforcer share) remain unsourced.",
+   "where": "research/society-milgramfit/paper/whitepaper.md:13",
+   "category": "source-data",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"],
+ "verdict": "The arithmetic is right: an independent re-implementation reproduces p*(M) and the enforcer table to 3 dp, and results.txt and the figure regenerate exactly. It does not meet the bar. The one empirical input, Milgram et al. (1986), was taken from a popular blog and never read, and one of its figures (10% 'ejected') is probably a share of objections misread as a share of trials. No test pins any headline number. The nearest prior work (Schmitt et al. 1992; committed-minority tipping, Centola et al. 2018) is not positioned, and the result is a parameter sweep of a toy model, far from the PhD bar. Median 2; claims and verification below 3."
+}

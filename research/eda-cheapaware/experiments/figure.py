@@ -1,4 +1,4 @@
-"""Write experiments/screen_hv.svg: mean hypervolume ratio against syntheses, parsed from results.txt.
+"""Write experiments/cheapaware_hv.svg: mean hypervolume ratio against syntheses, parsed from results.txt.
 
     python experiments/figure.py
 

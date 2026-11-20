@@ -74,6 +74,13 @@ test('posts along a side use floor-plus-one, not a third post on a 12-foot span'
   assert.equal(postsAlong(24, 8), 4);
 });
 
+test('a side shorter than the post spacing still gets its two corner posts', () => {
+  assert.equal(postsAlong(6, 8), 2);
+  assert.equal(postsAlong(7.5, 8), 2);
+  assert.equal(suggestedPostCount(6, 6, 8, 'freestanding'), 4);
+  assert.equal(suggestedBeamLf(6, 6, 8, 'freestanding'), 12);
+});
+
 test('a 10×10 freestanding frame is four posts; a 12×16 is six', () => {
   assert.equal(suggestedPostCount(10, 10, 8, 'freestanding'), 4);
   assert.equal(suggestedPostCount(16, 12, 8, 'freestanding'), 6);

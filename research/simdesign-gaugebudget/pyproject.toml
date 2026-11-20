@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "simdesign-gaugebudget"
 version = "0.1.0"
-description = "Does a patch-averaged stress measure change the mass price of manufacturability of a bracket?"
+description = "How much of the peak-stress price scatter of laser-cutting rules for a bracket is search budget? (search-mesh results; see README)"
 requires-python = ">=3.9"
 dependencies = ["numpy", "scipy", "scikit-fem", "matplotlib", "shapely"]
 license = { text = "MIT" }

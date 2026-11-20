@@ -163,3 +163,10 @@ test("the page is indexable and declares a canonical", () => {
 test("links to the Shopify permission drift record", () => {
   assert.match(html, /href="\.\.\/shopify-permission-drift\/"/, "the sibling-tool link is missing");
 });
+
+test("Article 14 final-report deadline for vulnerabilities is tied to the fix, not the notification", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.ok(!/14 days \(actively exploited/.test(html.replace(/\s+/g, " ")));
+  assert.equal((html.replace(/\s+/g, " ").match(/14 days after a corrective or mitigating measure is available/g) || []).length, 2);
+});

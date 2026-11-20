@@ -1,0 +1,247 @@
+{
+ "date": "2026-11-20",
+ "subject": "research/simdesign-gaugebudget",
+ "stratum": "research",
+ "seed": "2026-11-20-d447",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior FE / structural-optimisation analyst (the reviewer for a stress-constrained shape-optimisation paper in Structural and Multidisciplinary Optimization); first checks: is the stress constraint mesh-converged, does the solver match beam theory, is the optimiser exploiting discretisation error, and are the per-gauge masses and prices traceable to the committed results.",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Bookkeeping is exact: an independent closed-form area script (/tmp/claude-0/audit-gaugebudget/indep.py, L*w + (H-w)*w + r^2(1-pi/4), no subject import) reproduces every feasible mass in results.json to 1e-4 g and every price, mean, sd and range in both budget tables (base 1.145 1.054 0.990 0.994 1.054, mean 1.047 sd 0.063; big mean 1.037 sd 0.025). Rerunning three sub-searches (seed 0 gauge 3, seed 0 gauge 2, seed 2 gauge 2, base budget) reproduces 41.01 g / infeasible / 33.32 g exactly. The solver itself is right on a fine mesh: at h=0.6 the extrapolated outer-fibre stress of a w=12 b=4 arm is 79.13 / 75.03 MPa against beam theory 6M/(bw^2) +- F/(wb) = 79.17 / 75.00. But the headline designs are not feasible: the elementary beam stress of the 33.29 g gauge-2 design (w 14.38, b 2) is 109.0 MPa against the 100 MPa limit, and all five 33.3-33.5 g designs read 107.8-109.7 MPa by that one-line formula; FE peak for the same design rises 99.99 (h 2.5) -> 117.8 (1.25) -> 129.8 MPa (0.6). So the masses and prices are right for the h=2.5 mesh and wrong as statements about the bracket.",
+  "completeness": "`python3.13 -m pytest -q tests`: 8 passed in 5.7 s (README says 8). experiments/figure.py regenerates mass_vs_gauge.svg byte-identically. run.py (15 min) not rerun in full; three of its 90 sub-search tasks reproduced exactly. Every README results bullet matches results.txt (checked line by line). The fine-mesh path crashes: solve(h=0.3) raises TypeError because make_mesh sets d=None above 4e7 pairs; the README does not claim a fine-mesh check, so this is a gap rather than a broken claim. Live page https://marisstella.app/research/simdesign-gaugebudget/ returned 000 from this container (not verified).",
+  "verification": "8 tests pass, all smoke-level. quality_mutate.py, 5 seeded mutants in core logic, 5 survived: optimise() keeping the heaviest feasible gauge (optimise.py:39), dropping the plane-stress lambda correction (model.py:102, i.e. plane strain), zeroing the stock-thickness rule (dfm.py:109), BARRIER 500 -> 0 (optimise.py:9), doubling shear stress (model.py:128). No test compares against an analytic result, and no test exercises optimise() or run.py's summary.",
+  "craft": "Read model.py, measures.py, dfm.py, optimise.py, run.py, figure.py, the test file. Engine copied from simdesign-filletfloor minus the 2026-11-18 quality fix (_min_dist), so the d=None crash at fine meshes persists here (model.py:71). Dead code in solve: `fb = basis.boundary(...) if False else None` and an unused `fb = ... if hasattr(...)` (model.py:105,107). pyproject description is copied from the patch-measure project. run.py is clear, parallel, and writes both JSON and text; figure parses results.txt rather than retyping.",
+  "claims": "Every number in the README results table and bullets is backed by results.txt (pass, ten checks). Consistency with simdesign-filletfloor holds (its results.txt:3 gives the same five prices). 'About four times the evaluations' holds (FE evaluations 20,282 vs 5,032 rules, 13,644 vs 3,506 twin). Not backed: '33.3 g is a repeatable optimum that other seeds miss' and 'more budget helps' read search-mesh artefacts as properties of the design problem; the sibling simdesign-gaugemesh already showed 0 of 39 gauge-2 designs stay feasible at h <= 1.5 and simdesign-gaugescatter's README carries a 'superseded on a finer mesh' note, while this README cites neither. The limitation 'no fine-mesh check' is disclosed, which keeps this above 1.",
+  "fitness": "A researcher could not build on the result: the quantity studied (seed scatter of the gauge-2 optimum under the peak element stress at h=2.5) is a discretisation artefact, and at h=2.5 the objective is discontinuous because every design is remeshed: peak stress jumps 98.7 -> 113.1 MPa for a 0.02 mm change in w (/tmp/claude-0/audit-gaugebudget/noise.py), so 'several nearby optima' cannot be told from remeshing noise. Nearest prior work: stress-constrained shape and topology optimisation (Duysinx and Bendsoe 1998, IJNME 43:1453; Le et al. 2010, SMO 41:605) and evolutionary optimisation under noisy objectives (Jin and Branke 2005, IEEE TEVC 9:303): that a DE with ~150 evaluations per gauge is seed-dependent on a noisy constraint is well known, none of this is cited, and the project is not part of a PROGRAMMES.md programme. Not new; not sound as a statement about the bracket.",
+  "domain": "An FE analyst would check mesh convergence of the governing stress before reading anything into the optimum; here the constraint is the maximum element-centroid von Mises at h=2.5 mm, which under-reads even the nominal beam stress by ~9% for the gauge-2 designs and the peak by ~30% (129.8 MPa at h=0.6). The optimiser with more budget finds more of that under-read (four of five big-budget seeds land on the w~14.4 designs at ~109 MPa nominal), so 'more budget helps' is the search exploiting discretisation error. Standard practice (convergence study of the constraint, a fixed or adaptive mesh with smooth dependence on parameters, p-norm or patch aggregation) is not followed in this project."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "mass of every feasible design in results.json",
+   "method": "closed-form L-section area L*w + (H-w)*w + r^2(1-pi/4), times b and steel density 7.85e-3 g/mm^3; independent script, no subject import",
+   "command": "python3 -I /tmp/claude-0/audit-gaugebudget/indep.py experiments/results.json",
+   "expected": "equal to reported to 0.01 g",
+   "observed": "max abs difference 0.0000 g; seed 1 big gauge 2: 33.294 vs 33.294",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "price by seed, mean, sd and range at both budgets",
+   "method": "recomputed from results.json with closed-form masses (independent script)",
+   "command": "python3 -I /tmp/claude-0/audit-gaugebudget/indep.py experiments/results.json",
+   "expected": "base 1.145 1.054 0.990 0.994 1.054 mean 1.047 sd 0.063 range 0.155; big mean 1.037 sd 0.025 range 0.061",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "FE outer-fibre bending stress in the vertical arm (w 12, r 6, b 4, steel, h 0.6)",
+   "method": "Euler-Bernoulli: 6F(L-w/2)/(b w^2) +- F/(w b) = 79.17 / 75.00 MPa",
+   "command": "python3.13 /tmp/claude-0/audit-gaugebudget/beam_stress.py src",
+   "expected": "79.17 / 75.00 MPa within 2%",
+   "observed": "79.13 / 75.03 MPa",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tip deflection vs Castigliano L-frame (bending only, centreline lengths)",
+   "method": "delta = F a^3/(3EI) + F a^2 c/(EI), a = L - w/2, c = H - w/2; FE should be stiffer (rigid corner) and approach 1 for small fillets",
+   "command": "python3.13 /tmp/claude-0/audit-gaugebudget/fe_check.py src",
+   "expected": "FE/beam ratio 0.85-1.0, rising as r -> 0",
+   "observed": "0.860 (w14.38 r11.02), 0.892 (w11.63 r8.46), 0.973 (w10 r0.2)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "is the 33.29 g gauge-2 'repeatable optimum' within the 100 MPa stress limit?",
+   "method": "one-line beam formula 6F(L-w/2)/(b w^2) + F/(w b) (lower bound: ignores the fillet concentration) and FE mesh refinement",
+   "command": "python3.13 /tmp/claude-0/audit-gaugebudget/noise.py src experiments/results.json",
+   "expected": "<= 100 MPa if feasible",
+   "observed": "beam 109.0 MPa; FE peak 99.99 (h 2.5), 117.8 (h 1.25), 129.8 MPa (h 0.6); all five 33.3-33.5 g designs 107.8-109.7 MPa by the beam formula",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "rerun three sub-searches of run.py (base budget)",
+   "method": "_search + evaluate with run.py settings",
+   "command": "python3.13 -c '... _search(PROCESSES[\"laser cutting\"], g, s, 4, 17, 2.5, \"peak\") ...'",
+   "expected": "seed 0 g3 41.01 g; seed 0 g2 infeasible; seed 2 g2 33.32 g",
+   "observed": "41.01 True; 7.46 False; 33.32 True",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates from results.txt",
+   "method": "run figure.py, cmp with committed svg",
+   "command": "python3 experiments/figure.py && cmp experiments/mass_vs_gauge.svg <copy>",
+   "expected": "identical",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "fine-mesh solve (needed for any convergence check)",
+   "method": "solve(design, h=0.3)",
+   "command": "python3.13 /tmp/claude-0/audit-gaugebudget/noise.py src experiments/results.json",
+   "expected": "a result",
+   "observed": "TypeError: '>' not supported between NoneType and float (model.py:71 sets d=None above 4e7 pairs)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "/usr/bin/python3.13 -m pytest -q -p no:warnings tests",
+   "expected": "pass",
+   "observed": "8 passed in 5.7 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "base prices equal simdesign-filletfloor (peak, floor 0.2)",
+   "method": "compare research/simdesign-filletfloor/experiments/results.txt:3",
+   "command": "grep -n peak ../simdesign-filletfloor/experiments/results.txt",
+   "expected": "1.145 1.054 0.990 0.994 1.054",
+   "observed": "same",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'about four times the evaluations' for the big budget",
+   "method": "sum n_fe in results.json",
+   "command": "python3 -I /tmp/claude-0/audit-gaugebudget/indep.py experiments/results.json",
+   "expected": "~4x",
+   "observed": "rules 20,282 / 5,032 = 4.03x; twin 13,644 / 3,506 = 3.89x",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README bullets: gauge spreads 0.17-2.21 g, 2 mm designs r 10.8-13.7 w 14.3-15.4, twin falls 0.9-3.7 g to 32.2-32.7",
+   "method": "read against results.txt and results.json",
+   "command": "cat experiments/results.txt",
+   "expected": "as stated",
+   "observed": "as stated (twin drops 3.65, 0.86, 0.98, 1.04, 1.14 g)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'33.3 g is a repeatable optimum' and 'more budget helps'",
+   "method": "beam formula, mesh refinement, sibling simdesign-gaugemesh (0/39 gauge-2 designs feasible at h <= 1.5)",
+   "command": "python3.13 /tmp/claude-0/audit-gaugebudget/noise.py src experiments/results.json",
+   "expected": "a feasible optimum of the bracket problem",
+   "observed": "an artefact of h=2.5 (109 MPa nominal); not disclosed beyond 'no fine-mesh check'; gaugemesh not cited",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "pyproject description",
+   "method": "read",
+   "command": "grep description pyproject.toml",
+   "expected": "describes the search-budget study",
+   "observed": "'Does a patch-averaged stress measure change the mass price...' (copied)",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "is the gauge-2 objective smooth enough to speak of 'several nearby optima'?",
+   "method": "21-point sweep of w +- 0.2 mm around the 33.29 g design at h 2.5 and 0.9",
+   "command": "python3.13 /tmp/claude-0/audit-gaugebudget/noise.py src experiments/results.json",
+   "expected": "smooth if 'local optima' is the right reading",
+   "observed": "h 2.5: 98.7 -> 113.1 MPa jump in one 0.02 mm step; h 0.9: jumps of ~4.5 MPa; remeshing noise dominates",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/simdesign_gaugebudget/optimise.py:39",
+   "change": "e[\"mass_g\"] < best[1][\"mass_g\"] -> e[\"mass_g\"] > best[1][\"mass_g\"]",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:warnings tests"
+  },
+  {
+   "where": "src/simdesign_gaugebudget/model.py:102",
+   "change": "lam = 2 * lam * mu / (lam + 2 * mu) (plane stress) -> pass (plane strain)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:warnings tests"
+  },
+  {
+   "where": "src/simdesign_gaugebudget/dfm.py:109",
+   "change": "v[\"stock thickness\"] = min(abs(p.b - s) ...) / p.b -> 0.0",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:warnings tests"
+  },
+  {
+   "where": "src/simdesign_gaugebudget/optimise.py:9",
+   "change": "BARRIER = 500.0 -> 0.0",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:warnings tests"
+  },
+  {
+   "where": "src/simdesign_gaugebudget/model.py:128",
+   "change": "sxy = c * (1 - mat.nu) / 2 * gxy -> c * (1 - mat.nu) * gxy",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:warnings tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The headline reading ('33.3 g is a repeatable optimum that other seeds miss', 'more budget helps', scatter localised to gauge 2) is an artefact of the h=2.5 mm search mesh: the 33.29 g design carries 109.0 MPa by the one-line beam formula against the 100 MPa limit and 129.8 MPa at h=0.6; more budget finds more of the mesh under-read. simdesign-gaugemesh had already shown 0/39 gauge-2 designs feasible at finer meshes; the README neither cites it nor says the results hold only for the search mesh.",
+   "where": "research/simdesign-gaugebudget/README.md:29",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+  },
+  {
+   "severity": "medium",
+   "what": "5 of 5 seeded mutants in core logic survive (optimise keeps heaviest gauge, plane strain instead of plane stress, stock rule off, barrier off, shear doubled): no analytic test of the solver and no test of optimise()'s selection.",
+   "where": "research/simdesign-gaugebudget/tests/test_gaugebudget.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "make_mesh sets d=None when grid*boundary pairs >= 4e7, so solve() raises TypeError at h <= ~0.3 mm; the fix landed in simdesign-filletfloor on 2026-11-18 but was not carried into this copy, which blocks the fine-mesh check the README lists as missing.",
+   "where": "research/simdesign-gaugebudget/src/simdesign_gaugebudget/model.py:71",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+  },
+  {
+   "severity": "medium",
+   "what": "Each design is remeshed, so the search-mesh objective is discontinuous in (w, r): peak stress jumps 98.7 -> 113.1 MPa for a 0.02 mm change in w at h=2.5. The 'several nearby optima' hypothesis cannot be separated from remeshing noise, and no noisy-optimisation or stress-constrained-optimisation prior work is cited.",
+   "where": "research/simdesign-gaugebudget/README.md:31",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "pyproject description is copied from the patch-measure project ('Does a patch-averaged stress measure change the mass price ...').",
+   "where": "research/simdesign-gaugebudget/pyproject.toml:8",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+  },
+  {
+   "severity": "low",
+   "what": "Dead code in solve(): `fb = basis.boundary(...) if False else None` and an unused `fb = basis.boundary(facets=...) if hasattr(...)`.",
+   "where": "research/simdesign-gaugebudget/src/simdesign_gaugebudget/model.py:105",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"],
+ "verdict": "Below the bar (correctness 2, claims 2, verification 1; median 2). The bookkeeping is faithful: closed-form masses and every price, mean and sd reproduce from results.json, three sub-searches rerun exactly, the figure regenerates byte-identically, and the FE solver matches beam theory to 0.1% on a fine mesh. But the study reads a coarse-mesh artefact as a property of the design problem: the 33.29 g 'repeatable optimum' is over the 100 MPa limit by a one-line beam formula (109.0 MPa) and reads 129.8 MPa at h=0.6, the objective jumps 14 MPa for a 0.02 mm change in w because each design is remeshed, and the sibling simdesign-gaugemesh had already shown no gauge-2 design survives mesh refinement. All five seeded mutants survive, the fine-mesh path crashes (a fix the parent project has was not copied), and no prior work on noisy or stress-constrained optimisation is cited."
+}

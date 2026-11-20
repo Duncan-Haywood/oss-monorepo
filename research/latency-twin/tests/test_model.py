@@ -71,6 +71,23 @@ class T(unittest.TestCase):
         p = id_error_mc(1.0, 40, random.Random(5), runs=6000)
         self.assertLess(abs(p - id_error_gauss(1.0, 40)), 0.015)
 
+    def test_best_static_gain_is_the_grid_minimum(self):
+        # independent check: a fine grid inside the exact stable interval must not beat the golden-section result
+        for d in (1, 3):
+            k, c = best_static_gain(A, B, R, S2, d)
+            lo, hi = static_gain_stable_range(A, B, d)
+            grid = min(cost(A, B, R, S2, lo + (hi - lo) * i / 97, d) for i in range(1, 97))
+            self.assertLessEqual(c, grid + 1e-9, d)
+        k, c = best_static_gain(A, B, R, S2, 1)
+        self.assertAlmostEqual(k, 0.4494, places=3)
+        self.assertAlmostEqual(c, 3.552, places=3)
+
+    def test_id_samples_formula(self):
+        # z(0.01) = 2.326348 from the standard normal table; n = z^2 * 2 (1 + 1/snr)
+        self.assertAlmostEqual(id_samples(1.0, 1e-2), 2.326348 ** 2 * 4, places=3)
+        for snr in (0.25, 1.0, 4.0):
+            self.assertAlmostEqual(id_error_gauss(snr, id_samples(snr, 1e-3)), 1e-3, places=9)
+
 
 if __name__ == "__main__":
     unittest.main()
