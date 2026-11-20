@@ -1,0 +1,227 @@
+{
+ "date": "2026-11-20",
+ "subject": "research/eda-cheapaware",
+ "stratum": "research",
+ "seed": "2026-11-20-d447",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior EDA design-space-exploration researcher (the kind who reviews multi-objective DSE / Bayesian-optimisation papers for DAC, ICCAD or IEEE TCAD); first checks: does the hypervolume and the baseline reproduce from the table, is the baseline set fair (would a zero-cost designer prior such as 'cells grow with lanes x width' match the surrogate), is the decomposition of the lead into parts baseline-independent, and is prior work on multi-objective optimisation with heterogeneous objective costs cited.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Reran on a scratch copy: `PYTHONPATH=src python3.13 experiments/run.py` (50 s) rewrites experiments/results.txt byte-identically. Independent script /tmp/claude-0/audit-eda-cheapaware/indep.py (no subject import; own dominance test, own exact hypervolume by grid-cell decomposition, own layering and own Python-random simulation of cheap-aware random and plain random, 2000 draws) on table.jsonl: true front 12 of 80 (matches results.txt:1), true HV 1.20660; cheap-aware random 0.783 / 0.901 / 0.901 / 0.933 at 4/12/20/30 against the subject's 0.777 [0.767,0.788] / 0.901 / 0.901 / 0.933; plain random 0.695 / 0.863 / 0.915 / 0.946 against 0.700 / 0.860 / 0.911 / 0.943 (inside sampling error of 100 seeds); full-front share 0.00 for cheap-aware random at every budget (README: 'on none of the seeds'). README arithmetic: 0.990-0.860 = 0.130, 0.130-0.041 = 0.089. One prose error: the free-objective layers are 2, 10, 12, 14, ... designs, so 'synthesises the free-objective Pareto layer first, and once that layer is exhausted (by 12 syntheses ...)' is two layers (2+10), and the stall lasts through all of layer 3 (syntheses 13-24), not 'until 20'.",
+  "completeness": "Reproduce block works: unittest 8 tests OK in 0.58 s; run.py reproduces results.txt byte-identically ('about a minute': 50 s); figure.py (run in a scratch copy with research/_shared alongside) regenerates cheapaware_hv.svg byte-identically. Every README table value is in results.txt (sections mean/CI, full-front share, H, paired differences). No TODOs or stubs. Live page https://marisstella.app/research/eda-cheapaware/ returned 000 through this container's proxy (unverified, not counted against).",
+  "verification": "`PYTHONPATH=src python3.13 -m unittest discover -s tests`: 8 tests OK. quality_mutate.py, 5 mutants, 3 survived: hypervolume base case ref-min -> ref-max (hv.py:20, the metric every result rests on: no test pins a known hypervolume, and the oracle test only checks a ratio of two equally wrong volumes); CheapRandom's uniform draw within a layer replaced by layer[0] (screen.py:103, the new method's only stochastic step); bootstrap upper percentile 97.5 -> 95 (bench.py:56). Caught: CheapRandom taking the worst layer (screen.py:101) and space.cheap reading cells instead of cycles (space.py:33).",
+  "craft": "Read hv.py (27 lines), proposers.py (186), screen.py (103), bench.py (56), space.py (36), tests/test_screen.py (75), experiments/run.py, figure.py. Code is short and readable, but hv.py, proposers.py, space.py are byte-identical copies of eda-screen's (and screen.py/bench.py copies plus a few lines), i.e. a third copy of the same engine rather than an import; proposers.py carries four proposers (Grid, Annealing, Genetic, NSGA2) never used here; two dominance helpers with opposite argument order (hv.dominated(a,b) means b dominates a; screen.dominates(a,b) means a dominates b), an easy future bug; figure.py docstring names screen_hv.svg but writes cheapaware_hv.svg; run.py writes into the committed results.txt with no output flag.",
+  "claims": "Checked: '0.901 at 12', '0.860 random', '0.878 TPE', '0.990 screen k=4', '+0.041 / 74% of paired seeds', '87% of seeds by 20', 'none of the seeds even at 30', table rows 4-30: all backed by experiments/results.txt and reproduced. 'Stylised and preliminary' label and limitations present. Unbacked or misleading: 'the cell-count surrogate is worth the other +0.089' (README:8) attributes the remainder to the fitted surrogate, but a zero-synthesis designer prior (cells proportional to p x wb, fast 10% larger), ranked by the same non-dominated sorting with random ties, reaches 0.978 at 12 and the whole front on 100% of draws at 20 (/tmp/claude-0/audit-eda-cheapaware/proxy.py), so about +0.077 of the +0.089 needs no syntheses or model at all; the limitation 'relative to it' does not tell a reader that. Layer prose error noted under correctness.",
+  "fitness": "A researcher could build on the harness (fast, deterministic, reproducible) but not on the conclusion. Nearest prior work: multi-objective optimisation with heterogeneous objective evaluation costs (Allmendinger, Handl and Knowles 2015, 'Multiobjective optimization: when objectives exhibit non-uniform latencies', EJOR 243(2):497; Chugh et al. 2018 on heterogeneous objectives in surrogate-assisted EAs; Wang et al. 2022 on transfer-learning heterogeneous objectives) and learning-based HLS DSE (Liu and Carloni 2013, DAC). None is cited; exploiting cheap objectives first is the standard move in that literature, so the result is an ablation on one 80-point space rather than a new finding. Sound within its stated limits, but the missing monotone-prior baseline changes the reading of its headline split.",
+  "domain": "Against DSE practice: equal-synthesis budget accounting, exact hypervolume with a fixed reference, 100 paired seeds and bootstrap intervals are fine. Departures: no PPA-aware prior baseline (an EDA designer knows area scales with lanes x bit width before any synthesis; this is the first baseline a reviewer asks for); a single 80-design space where the cheap objectives depend only on (p, wb), so the two ABC scripts always tie; degenerate bootstrap intervals (0.901 to 0.901) reported as 95% intervals without saying the quantity is deterministic at that budget; generic-gate cell count, no place and route (stated)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "true Pareto front size and hypervolume of the 80-design table",
+   "method": "independent exact hypervolume by grid-cell decomposition and own dominance test, no subject import",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-eda-cheapaware/indep.py experiments/table.jsonl",
+   "expected": "true front 12 of 80 (results.txt:1)",
+   "observed": "12 points, HV 1.20660",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "cheap-aware random hypervolume ratio at 4, 12, 20, 30 syntheses",
+   "method": "independent re-implementation from the README's method text (layering on cycles,error; uniform within best unmeasured layer), Python random, 2000 draws",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-eda-cheapaware/indep.py experiments/table.jsonl",
+   "expected": "0.777 / 0.901 / 0.901 / 0.933 (results.txt H)",
+   "observed": "0.783 / 0.901 / 0.901 / 0.933 (0.783 inside subject CI 0.767-0.788)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "plain random hypervolume ratio at 4, 12, 20, 30",
+   "method": "independent simulation, 2000 draws",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-eda-cheapaware/indep.py experiments/table.jsonl",
+   "expected": "0.700 / 0.860 / 0.911 / 0.943",
+   "observed": "0.695 / 0.863 / 0.915 / 0.946 (within 100-seed sampling error)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "free-objective layer structure behind the README's 'Pareto layer first ... by 12' explanation",
+   "method": "independent non-dominated sorting on (cycles, err)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-eda-cheapaware/indep.py experiments/table.jsonl",
+   "expected": "README: one layer exhausted by 12",
+   "observed": "layers 2, 10, 12, 14, 16, 14, 6, 4, 2: the first two layers make 12; layer 3 (13-24) adds no hypervolume",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline arithmetic +0.130 and +0.089",
+   "method": "hand arithmetic from results.txt",
+   "command": "grep -n '^    12' experiments/results.txt",
+   "expected": "0.990-0.860=0.130; 0.130-0.041=0.089",
+   "observed": "0.130, 0.089",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py reproduces committed results",
+   "method": "rerun in scratch copy, diff",
+   "command": "PYTHONPATH=src /usr/bin/python3.13 experiments/run.py; diff results.txt",
+   "expected": "identical",
+   "observed": "identical, 50 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates",
+   "method": "figure.py in scratch copy with research/_shared",
+   "command": "/usr/bin/python3.13 experiments/figure.py; cmp",
+   "expected": "identical svg",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "run suite",
+   "command": "PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests",
+   "expected": "green",
+   "observed": "Ran 8 tests OK 0.58 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'the cell-count surrogate is worth the other +0.089'",
+   "method": "auditor's zero-synthesis monotone prior baseline (cells ~ p*wb), same ranking, 500 draws",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-eda-cheapaware/proxy.py experiments/table.jsonl",
+   "expected": "a model-free prior well below the screen's 0.990 if the surrogate earns +0.089",
+   "observed": "0.978 at 12, 1.000 (full front on 100%) at 20",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'cheap-aware random better on 74% of paired seeds', 'screen reaches front on 87% by 20', 'none even at 30'",
+   "method": "compare with results.txt rows",
+   "command": "grep -n 'cheaprandom\\|^    20\\|^    30' experiments/results.txt",
+   "expected": "0.74, 0.87, 0.00",
+   "observed": "0.74, 0.87, 0.00",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work on heterogeneous-cost objectives cited",
+   "method": "read README Method and references",
+   "command": "grep -n 'Allmendinger\\|heterogeneous\\|latenc' README.md",
+   "expected": "nearest prior work named",
+   "observed": "only Deb 2002 and Zitzler 1999 cited",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "figure.py docstring matches its output",
+   "method": "read",
+   "command": "head -3 experiments/figure.py",
+   "expected": "cheapaware_hv.svg",
+   "observed": "says screen_hv.svg",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/eda_cheapaware/screen.py:101",
+   "change": "r = min(self.rank[x] for x in cand) -> r = max(self.rank[x] for x in cand)",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/eda_cheapaware/space.py:33",
+   "change": "return self.evaluate(x)[1:] -> return self.evaluate(x)[:2]",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/eda_cheapaware/screen.py:103",
+   "change": "return layer[int(self.rng.integers(len(layer)))] -> return layer[0]",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/eda_cheapaware/hv.py:20",
+   "change": "return ref[0] - min(p[0] for p in pts) -> return ref[0] - max(p[0] for p in pts)",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/eda_cheapaware/bench.py:56",
+   "change": "np.percentile(m, 97.5) -> np.percentile(m, 95)",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Headline attributes the remaining +0.089 of the screen's lead to 'the cell-count surrogate', but no PPA-aware prior baseline was run: a zero-synthesis designer prior (cells proportional to lanes x width) with the same ranking reaches 0.978 at 12 and the whole front at 20, so roughly +0.077 of the +0.089 needs no fitted model; the decomposition is baseline-dependent and the README reads as if it were not.",
+   "where": "research/eda-cheapaware/README.md:8",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Hypervolume, the metric every number rests on, has no known-value test: changing the 1-D base case to ref-max leaves all tests green (the oracle test checks only a ratio of two equally wrong volumes).",
+   "where": "research/eda-cheapaware/src/eda_cheapaware/hv.py:20",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+  },
+  {
+   "severity": "medium",
+   "what": "CheapRandom's uniform draw within a layer (the new method's only stochastic step) is untested: replacing it by layer[0] leaves all tests green.",
+   "where": "research/eda-cheapaware/src/eda_cheapaware/screen.py:103",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+  },
+  {
+   "severity": "low",
+   "what": "README explains the plateau as one free-objective Pareto layer exhausted by 12; the layers are 2, 10, 12, ... designs, so it is two layers, and the stall runs through syntheses 13-24 (all of layer 3), not 'until 20'.",
+   "where": "research/eda-cheapaware/README.md:10",
+   "category": "other",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work on multi-objective optimisation with heterogeneous objective costs (Allmendinger, Handl and Knowles 2015, EJOR; Chugh et al. 2018) and learning-based HLS DSE (Liu and Carloni 2013) not cited; novelty of 'use the free objectives first' not positioned.",
+   "where": "research/eda-cheapaware/README.md:24",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "hv.py, proposers.py, space.py copied byte-for-byte from eda-screen (third copy of the engine), four unused proposers carried along, and two dominance helpers with opposite argument order (hv.dominated vs screen.dominates).",
+   "where": "research/eda-cheapaware/src/eda_cheapaware/proposers.py:1",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "figure.py docstring says it writes experiments/screen_hv.svg; it writes cheapaware_hv.svg.",
+   "where": "research/eda-cheapaware/experiments/figure.py:1",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"],
+ "verdict": "Numbers are right: results.txt reruns byte-identically and an independent hypervolume and cheap-aware-random simulation reproduce the table (0.901 at 12, 0.933 at 30, 12-point true front). It does not meet the bar: 3 of 5 seeded mutants survive (including the hypervolume itself), and the headline split '+0.041 free objectives, +0.089 surrogate' omits the baseline a DSE reviewer asks for first: a zero-synthesis 'cells grow with lanes x width' prior reaches 0.978 at 12 and the full front at 20, so most of the surrogate's credited share is available without any model. Prior work on heterogeneous-cost multi-objective optimisation is not cited."
+}
