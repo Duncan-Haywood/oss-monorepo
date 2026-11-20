@@ -41,6 +41,8 @@ def steps_to(x0, k, eps):
     """Twin (d=0) steps until |x| <= eps: x_n = (1-k)^n x0."""
     if abs(x0) <= eps:
         return 0
+    if k >= 1:
+        return 1  # (1-k) = 0: the twin lands on 0 in one step; log(0) would raise
     return math.ceil(math.log(eps / abs(x0)) / math.log(1 - k))
 
 
