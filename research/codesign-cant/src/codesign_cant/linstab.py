@@ -28,11 +28,13 @@ PLANT_CORNERS = [(t, m, l) for t in A.PLANT_RANGES["wide"]["tau"] for m in A.PLA
 def step(x, d):
     """One `rollout` step of the linearised axis. x (..., 11); d holds broadcastable arrays: kp, kd, ki (attitude, share of
     tau_max per rad), kpp, kdp, kip (position), lam (side force per torque, signed), tmax (nominal torque limit), I (actual
-    inertia), m (actual mass), m_nom, lag (actual), lag_nom, tau_s (torque scale), ff (gain), mode ("cmd" or "integ"), b_ff."""
+    inertia), m (actual mass), m_nom, lag (actual), lag_nom, tau_s (torque scale), ff (gain), mode ("cmd" or "integ"), b_ff;
+    optional acc_in (milestone 7ai), a horizontal acceleration request added to the position loop's output (the affine input of
+    `accel_step`)."""
     p, w, pint, th, thp, om, omp, integ, tq, tqh, fff = (x[..., k] for k in range(NX))
     ep, ev = -p, w
     pint = pint + ep * A.DT
-    acc = d["kpp"] * ep - d["kdp"] * ev + d["kip"] * pint
+    acc = d["kpp"] * ep - d["kdp"] * ev + d["kip"] * pint + d.get("acc_in", 0.0)   # acc_in (milestone 7ai): an added request, inert at 0
     if d["mode"] == "integ":
         fff = d["lam"] * d["ki"] * integ * d["tmax"]
         tqh = 0.0 * tqh                            # unused in this mode; held, it would add a spurious eigenvalue of exactly 1
@@ -118,3 +120,18 @@ def ki_ceiling(dp, ff=1.0, mode="integ", plants=None, hi=4.0, iters=40):
         good = ok(mid)
         lo_s, hi_s = np.where(good, mid, lo_s), np.where(good, hi_s, mid)
     return np.where(~st0, 0.0, np.where(sth, hi, lo_s))
+
+
+def accel_step(dp, amp=1.0, steps=1000, tau_s=1.0, mass_s=1.0, lag_s=1.0, ff=1.0, mode="integ", axis_sign=1.0):
+    """Milestone 7ai: the linearised axis's response to an open-outer-loop acceleration step, with no flight. Position gains set to
+    zero, `acc_in` = amp from the first step (as `rollout(acc_cmd=...)`), plant scales as in `radius` (scalars). Returns the achieved
+    acceleration a_t = (p_t - 2 p_{t-1} + p_{t-2}) / DT^2 per design and step, shape (N, steps), the second difference `m7ah` takes."""
+    N = len(dp["kp"]); z = np.zeros(N)
+    d = dict(kp=dp["kp"], kd=dp["kd"], ki=dp["ki"], kpp=z, kdp=z, kip=z, lam=axis_sign * dp["lat"], tmax=dp["tmax"],
+             I=dp["I0"] * mass_s, m=dp["m_nom"] * mass_s, m_nom=dp["m_nom"], lag=dp["lag_nom"] * lag_s, lag_nom=dp["lag_nom"],
+             tau_s=tau_s, ff=ff, mode=mode, b_ff=dp["b_ff"], acc_in=amp)
+    x = np.zeros((N, NX)); p = [z, z]
+    for _ in range(int(steps)):
+        x = step(x, d); p.append(x[:, 0])
+    p = np.stack(p, 1)
+    return (p[:, 2:] - 2 * p[:, 1:-1] + p[:, :-2]) / A.DT ** 2
