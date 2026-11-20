@@ -1,0 +1,18 @@
+AI0 (check: base reproduces 7ah's 36 ms flights per episode, no flight dead): held; max |difference| 0.00e+00 s; dead 0 of 13824
+AI1 (box-mean linear 63% time within 15 ms of flown for >= 34/36, A = 1): held; 34/36; median |diff| 2.0 ms, max 126.0 ms, bias +0.0 ms
+AI2 (box-mean linear area tau within 10 ms of flown for >= 34/36, A = 1): held; 36/36; median |diff| 0.5 ms, max 1.6 ms
+AI3 (nominal-plant linear 63% time within 15 ms for >= 34/36): refuted; 18/36; median |diff| 15.0 ms, max 37.0 ms; nominal area tau within 10 ms: 36/36
+AI4 (no-flight tau in the lagged point mass: >= 35/36 within 0.10 s in all 7 conditions, median |error| within 0.005 s of 7ah's flown 63% tau): held; fewest 36/36; worst excess +0.0010 s
+AI5 (early jump is the side force: nolat 50 ms share <= 0.15 for all, base median exceeds nolat's by >= 0.10): refuted; nolat max 0.156, median 0.101; base median 0.220 (range 0.122-0.481); box-mean linear with lat: 0.210, lat = 0: 0.104
+AI6 (lean map is the amplitude-dependent overshoot: exact a_ss/A at 3.5 within 0.01 of 1.0's, >= 0.03 below base's at 3.5): held; exact 1.015 (A=1), 1.017 (A=3.5); base 1.019, 1.062
+AI7 (the rest is the loop's ring: exact-map flown a_ss/A at 3.5 within 0.01 of the box-mean linear's for >= 34/36): held; 36/36; median |diff| 0.0034; linear median 1.015 (range 0.946-1.068)
+AI8 (side force is first-order in the lag: nolat 63% time differs from base's by > 15 ms for >= 12/36): held; 28/36; median |diff| 23.0 ms, max 179.0 ms; nolat shorter for 20, longer for 8
+
+  A_P    S | n<=0.1s pm/lin/7ah63 | MAE pm    lin  7ah63
+  2.0  1.0 |             36/36/36 |  0.002  0.002  0.002
+  2.5  1.0 |             36/36/36 |  0.006  0.002  0.002
+  3.5  1.0 |             36/36/36 |  0.020  0.005  0.004
+  5.0  1.0 |             35/36/36 |  0.040  0.008  0.007
+  8.0  1.0 |             23/36/36 |  0.085  0.018  0.017
+  3.5  0.5 |             31/36/36 |  0.062  0.010  0.011
+  3.5  2.0 |             36/36/36 |  0.005  0.004  0.004
