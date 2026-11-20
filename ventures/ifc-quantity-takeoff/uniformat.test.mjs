@@ -81,3 +81,50 @@ test("sample: the bill of quantities groups by Uniformat element", () => {
   assert.ok(lines.some((l) => l.key[0] === "B1010 Floor Construction"));
   assert.match(boqCsv(lines, ["uniformat"]), /^Uniformat II element,Count/);
 });
+
+// red team 2026-11-20: wrong answers found by hand, and the escaped mutants
+test("a malformed code is not read as its first three characters", () => {
+  assert.equal(parseUniformat("B201"), null); // was B20
+  assert.equal(parseUniformat("B20"), "B20");
+  assert.equal(parseUniformat("B2010.10"), "B2010");
+  assert.equal(parseUniformat("B 2010"), "B2010");
+});
+
+test("a door that is part of a curtain wall is a door, not wall", () => {
+  const cw = row({ id: 40, cls: "IfcCurtainWall" });
+  const icw = row({ id: 41, cls: "IfcCurtainWall", ext: false });
+  const ctx = (id) => ({ 40: cw, 41: icw })[id];
+  assert.equal(ruleCode(row({ cls: "IfcDoor", ext: true, parent: 40 }), ctx).code, "B2030");
+  assert.equal(ruleCode(row({ cls: "IfcDoor", ext: false, parent: 40 }), ctx).code, "C1020");
+  assert.equal(ruleCode(row({ cls: "IfcDoor", parent: 40 }), ctx).code, "B2030"); // the curtain wall is taken as exterior
+  assert.equal(ruleCode(row({ cls: "IfcDoor", parent: 41 }), ctx).code, "C1020");
+});
+
+test("coverings in a roof or stair are roof coverings and stair finishes", () => {
+  const roof = row({ id: 50, cls: "IfcRoof" }), stair = row({ id: 51, cls: "IfcStair" });
+  const ctx = (id) => ({ 50: roof, 51: stair })[id];
+  assert.equal(ruleCode(row({ cls: "IfcCovering", pdt: "ROOFING", parent: 50 }), ctx).code, "B3010");
+  assert.equal(ruleCode(row({ cls: "IfcCovering", pdt: "ROOFING" }), none).code, "B3010");
+  assert.equal(ruleCode(row({ cls: "IfcCovering", parent: 50 }), ctx).code, "B3010");
+  assert.equal(ruleCode(row({ cls: "IfcCovering", pdt: "INSULATION", parent: 50 }), ctx).code, "B3010");
+  assert.equal(ruleCode(row({ cls: "IfcCovering", pdt: "CEILING", parent: 50 }), ctx).code, "C3030");
+  assert.equal(ruleCode(row({ cls: "IfcCovering", pdt: "FLOORING" }), none).code, "C3020");
+  assert.equal(ruleCode(row({ cls: "IfcCovering", pdt: "FLOORING", parent: 51 }), ctx).code, "C2020");
+  assert.equal(ruleCode(row({ cls: "IfcSlab", pdt: "BASESLAB", parent: 50 }), ctx).code, "B1020"); // a slab in a roof is still roof construction
+});
+
+test("members, transport elements and paving", () => {
+  assert.equal(ruleCode(row({ cls: "IfcMember", pdt: "MULLION" }), none).code, "B2010");
+  assert.equal(ruleCode(row({ cls: "IfcMember" }), none).code, "B10");
+  assert.equal(ruleCode(row({ cls: "IfcTransportElement", pdt: "ELEVATOR" }), none).code, "D1010");
+  assert.equal(ruleCode(row({ cls: "IfcTransportElement", pdt: "ESCALATOR" }), none).code, "D1020");
+  assert.equal(ruleCode(row({ cls: "IfcTransportElement" }), none).code, "D10");
+  for (const cls of ["IfcKerb", "IfcPavement", "IfcCourse"]) assert.equal(ruleCode(row({ cls }), none).code, "G20", cls);
+});
+
+test("the summary counts every source from zero", () => {
+  const rows = [row({ ext: true }), row({ id: 2, codes: [{ code: "C1010", from: "Assembly Code" }] }), row({ id: 3 })];
+  assignUniformat(rows);
+  const s = uniformatSummary(rows);
+  assert.deepEqual([s.rows, s.model, s.rule, s.none, s.level3, s.compared, s.ruleSilent], [3, 1, 1, 1, 2, 1, 1]);
+});
