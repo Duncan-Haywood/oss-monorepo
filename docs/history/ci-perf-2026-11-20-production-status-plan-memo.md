@@ -77,7 +77,10 @@ first use, as before) its fingerprint. `_validate_trusted_plan`,
 - Two new tests in `tests/test_production_status.py`: a plan is validated once
   across an initialisation and three writes, and again for an equal copy; an
   invalid plan is rejected on each of three calls.
-- `python3 platform/ci/run_venture_tests.py photo-editing`: see the run record.
+- `python3 platform/ci/run_venture_tests.py photo-editing`: ok, 1,467 tests
+  (10 skipped), 212.0 s. `test_production_status.py` 16 passed.
+- In the suite: `test_dng_still_is_developed_...` 7.3 s to 5.3 s,
+  `test_ffmpeg_pipeline.py` 28.5 s to about 26 s (the rest is ffmpeg).
 
 ## Not changed, ranked for the next run
 

@@ -3,7 +3,7 @@ title: "The status file that checked the whole plan fourteen times per write"
 seo_title: "Python validation memo: a 16x faster job status write"
 date: 2026-11-20
 tags: [performance, python, photo-editing, engineering]
-description: "ShootFlow re-validated its whole production plan about 14 times for every job status write. Validating once per plan object cut a write from 0.89 s to 57 ms on a 2,000-photo shoot."
+description: "ShootFlow re-checked its whole job plan about 14 times per status write. Checking once per plan cut a write from 0.89 s to 57 ms on a 2,000-photo shoot."
 ---
 
 [ShootFlow](/photo-editing/), our open-source photo and video pipeline, tracks

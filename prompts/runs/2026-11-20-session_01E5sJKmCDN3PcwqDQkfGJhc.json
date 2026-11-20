@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKmCDN3PcwqDQkfGJhc",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T21:26:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf step 3: photo-editing (ShootFlow) production status writes",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17975",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First push failed lint (ruff F401/I001 in the new bench script), mypy (plan_ref annotated as object) and the pages tests (post description 180 chars > 160); all fixed in the second push. The local ruff (0.16.9) differs from CI's pinned 0.15.8 and flags pre-existing code; run_workflow_locally.py pins the right version."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The venture-test note says use pyenv.py for pytest, but photo-editing's tests also need PYTHONPATH=src (ModuleNotFoundError: shootflow) when run directly; run_venture_tests.py sets it, a bare pytest call does not."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-the-status-file-that-checked-the-whole-plan-fourteen-times.md",
+    "docs/history/ci-perf-2026-11-20-production-status-plan-memo.md"
+  ],
+  "goal": null,
+  "notes": "Metric: ms per compare_and_write_production_job_status, mean of 20 pending->running writes on build_production_plan of N photo assets (ventures/photo-editing/tools/bench_status_writes.py, python3.13, this container). Before (main): 100 assets/305 jobs 44.1 ms, 500/1505 232.1 ms, 2000/6005 889.7 ms. After: 3.3, 13.5, 56.7 ms (13-17x). Cause from cProfile: 273 full trusted-plan validations for 20 writes. Suite: run_venture_tests.py photo-editing ok, 1467 tests, 212.0 s; test_dng_still... 7.3 s -> 5.3 s (pytest --durations). Old-vs-new differential: 204 comparisons identical (fingerprints, manifest bytes, errors of ten invalid plans twice each). Readings that led nowhere: ai-bookkeeper 350 files 84.6 s summed, max 2.8 s per file; youth-lineup-rotator, workflow-audit, trial-conversion all under 5 s. Local CI: run_workflow_locally.py --for-changes: 10/11 workflows passed on the first push; photo-editing-ci lint failed (fixed, then ruff 0.15.8 + mypy 1.19.1 clean); its unittest step UNRUN locally (no PIL._imaging) but run_venture_tests.py photo-editing ran the same 1467 tests green; agent-cross-review and deploy jobs not runnable locally.",
+  "corrections": [],
+  "redteam": null
+}

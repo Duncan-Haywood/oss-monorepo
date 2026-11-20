@@ -8,7 +8,7 @@ import re
 import threading
 import uuid
 import weakref
-from collections.abc import Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -361,7 +361,7 @@ def _status_index_for_job(manifest: ProductionStatusManifest, job_id: str) -> in
 
 @dataclass
 class _ValidatedPlan:
-    plan_ref: object  # weakref.ref to the plan, or a callable returning None
+    plan_ref: Callable[[], ProductionPlan | None]  # weakref.ref to the plan, or a stand-in returning None
     shoot_slug: str
     jobs: tuple[ProductionJob, ...]
     jobs_by_id: dict[str, ProductionJob]
