@@ -102,12 +102,19 @@ case-insensitive alternation, gets no such prefix.
 | `check_hidden_unicode.py` | 5.1 s | 1.6 s |
 | `test_check_hidden_unicode.py` (21 -> 23 tests) | 5.9 s | 2.6 s |
 | `check_third_party.py` | 11.6 s | 4.3 s |
-| `test_check_third_party.py` (23 -> 24 tests) | TP_TEST_BEFORE | TP_TEST_AFTER |
+| `test_check_third_party.py` (24 tests both ways: the new test run against `main`'s check) | 11.4 s | 4.7 s |
 | `check_irs_table_figures.py` | 6.7 / 6.9 s | 2.5 s |
 | `check_form_clobbering.py` | 2.6 s | 0.8 s |
 | `test_check_form_clobbering.py` (15 -> 16 tests) | 5.1 s | 2.0 s |
 
-POOL_AFTER
+The whole pool, timed item by item the same way after the change: 368 s ->
+294 s of serial work (267 items, 0 failed). The before total includes some
+contention from this run's profiling scripts (the hidden-Unicode test read
+20.6 s pooled against 5.9 s alone), so the per-item table above, taken alone,
+is the honest measure: about 23 s less across the six pool items here (37.0 s to 13.8 s), and 48 s to 18 s counting the third-party suite
+(`test_check_third_party.py` is not one of the pool's items, so it is counted in the table only).
+In the pool after: hidden-Unicode test 2.5 s, check 2.0 s; third-party 4.4 s;
+IRS figures 2.9 s; form clobbering 0.8 s, its test 1.5 s.
 
 One-off wall times on a shared 4-core box, not medians.
 

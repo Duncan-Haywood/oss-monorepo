@@ -1,5 +1,5 @@
 ---
-title: "Where a regex starts decides how fast it scans: four tree checks, 31 s to 10 s"
+title: "Where a regex starts decides how fast it scans: four tree checks, 48 s to 18 s"
 seo_title: "Python regex speed: why a leading lookbehind scans every character"
 date: 2026-11-20
 tags: [performance, python, regex, ci]
@@ -10,8 +10,8 @@ Every pull request here that touches a venture also runs a pool of
 repository-wide checks: nobody slips hidden Unicode into a file, no
 third-party licence comes in unrecorded, no copied IRS tax table has one
 figure wrong, no form button hides `form.reset()`. Each one reads most of
-the 74,000 tracked files. Timed one at a time, four of them together took
-about 31 seconds of CPU on every run of the job, counting their test suites.
+the 74,000 tracked files. Timed one at a time, four of them and their test suites took about 48
+seconds between them, much of it on every run of the job.
 
 They were slow for the same reason, and it is a detail of Python's `re`
 worth knowing.
