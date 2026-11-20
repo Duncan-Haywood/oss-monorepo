@@ -1,0 +1,471 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKnaXpXJjKrCHR69EuH",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T11:18:19Z",
+  "ended": "2026-11-20T11:18:56Z",
+  "wall_minutes": 8.35,
+  "tokens_in": 5976717,
+  "tokens_out": 30941,
+  "cost_usd": 2.6389,
+  "tool_calls": 61,
+  "task": "redteam: ifc-quantity-takeoff uniformat.mjs (landed today, #17901) and qto.mjs",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17906",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first post description was 190 chars; check_post_frontmatter (via run_workflow_locally --for-changes) stopped the sweep",
+      "fixed": true
+    },
+    {
+      "what": "test_check_date_digit_boundary.py errored once in the unwired sweep (scandir of platform/ci raced a temp dir another check deleted); passed alone, not caused by this diff",
+      "fixed": false
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 0 says fix the open list first, but 11 of 12 entries are control-plane edits needing their own owner-approved PRs (several already open: #14612, #15945); the list grows run on run with nothing a red-team run can do. It would help to mark entries that have an open control-plane PR (redteam.py open could print them separately)."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`redteam.py targets` with no args listed only 21 files; finding a just-landed target needed --under <venture> --limit 50 (the prompt suggests --target for recent files but not how to check a specific file is guarded)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 0: the 12 open defects all still reproduce; 11 are control-plane (.github/workflows, prompts/, platform/ci/control_plane_guard.py) and several already have open PRs waiting for owner approval; the help-keeper stemmer entry needs a help-centre eval set the record says is missing",
+      "did": "checked each still reproduces on main by grep for its fix, left them patched:false, did not open duplicate control-plane PRs",
+      "result": "seeding went ahead on a freshly landed venture file; open list unchanged at 12"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 4b asks for a guard that runs without an agent; the defects found are product-rule errors in one venture, not a repeatable class a lint can catch",
+      "did": "added the guards as tests in the venture's own suite, which ventures-tests.yml already runs on every PR",
+      "result": "11 new tests, all mutants caught after"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-redteam-a-door-in-a-curtain-wall-is-not-a-wall.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: uniformat.mjs 10 mutants (5 caught), qto.mjs 10 (4 caught); 11 gaps, rerun caught_after_fix true for all. 3 real defects found by reading uniformat.mjs, each with a failing-first test, all patched. Re-ran eval/uniformat-check.mjs on the same 17 public models (sparse clones of ThatOpen/engine_web-ifc tests/ifcfiles/public and opensourceBIM/IFC-files): old code reproduces the committed .txt/.json byte for byte, and the new code's output is byte-identical (0 rows change: no model aggregates a door or covering, none writes a 3-digit code). Venture suite: node --test 70+ pass. Guard added: tests in uniformat.test.mjs and engine.test.mjs. Local verification (run_workflow_locally --for-changes): 8/10 workflows green; prompts-ci validate failed only on the record's outcome=None snapshot taken before it was filled (validate ok after); ventures-tests' unwired set failed test_check_date_digit_boundary with FileNotFoundError on a platform/ci/tmp* dir another parallel check removed mid-scandir, which passes alone (5 OK). run_venture_tests.py ifc-quantity-takeoff: 75 tests ok. prompts unittest 136 OK.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+        "test": "node --test ventures/ifc-quantity-takeoff/**/*.test.mjs  (in .)",
+        "seed": 905779460,
+        "commit": "46478c454",
+        "sites": 186,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+            "line": 68,
+            "col": 28,
+            "operator": "plus-to-minus",
+            "before": "if (!m[3] && titleOf(m[1] + m[2])) return m[1] + m[2];",
+            "after": "if (!m[3] && titleOf(m[1] - m[2])) return m[1] + m[2];",
+            "line_text": "  if (!m[3] && titleOf(m[1] + m[2])) return m[1] + m[2];",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+            "line": 68,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "if (!m[3] && titleOf(m[1] + m[2])) return m[1] + m[2];",
+            "after": "if (!m[3] && titleOf(m[1] + m[2])) return m[2] + m[2];",
+            "line_text": "  if (!m[3] && titleOf(m[1] + m[2])) return m[1] + m[2];",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+            "line": 119,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "if (pdt === \"BASESLAB\") return { code: \"A1030\", why: \"slab, BASESLAB\" };",
+            "after": "if (pdt !== \"BASESLAB\") return { code: \"A1030\", why: \"slab, BASESLAB\" };",
+            "line_text": "      if (pdt === \"BASESLAB\") return { code: \"A1030\", why: \"slab, BASESLAB\" };",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+            "line": 142,
+            "col": 18,
+            "operator": "true-to-false",
+            "before": "if (ext === true) return { code: \"B2030\", why: \"door, IsExternal\" };",
+            "after": "if (ext === false) return { code: \"B2030\", why: \"door, IsExternal\" };",
+            "line_text": "      if (ext === true) return { code: \"B2030\", why: \"door, IsExternal\" };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+            "line": 145,
+            "col": 12,
+            "operator": "and-to-or",
+            "before": "if (h && h.isExternal === true) return { code: \"B2030\", why: \"door in an exterior wall\" };",
+            "after": "if (h || h.isExternal === true) return { code: \"B2030\", why: \"door in an exterior wall\" };",
+            "line_text": "      if (h && h.isExternal === true) return { code: \"B2030\", why: \"door in an exterior wall\" };",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+            "line": 152,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "if (pdt === \"ROOFING\") return { code: \"B3010\", why: \"covering, ROOFING\" };",
+            "after": "if (pdt !== \"ROOFING\") return { code: \"B3010\", why: \"covering, ROOFING\" };",
+            "line_text": "      if (pdt === \"ROOFING\") return { code: \"B3010\", why: \"covering, ROOFING\" };",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test reached covering ROOFING; added to 'coverings in a roof or stair'"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+            "line": 161,
+            "col": 55,
+            "operator": "or-to-and",
+            "before": "case cls === \"IFCMEMBER\" && /^(MULLION)$/.test(pdt || \"\"): return { code: \"B2010\", why: \"member, MULLION\" };",
+            "after": "case cls === \"IFCMEMBER\" && /^(MULLION)$/.test(pdt && \"\"): return { code: \"B2010\", why: \"member, MULLION\" };",
+            "line_text": "    case cls === \"IFCMEMBER\" && /^(MULLION)$/.test(pdt || \"\"): return { code: \"B2010\", why: \"member, MULLION\" };",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "MULLION member rule untested; added 'members, transport elements and paving'"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+            "line": 168,
+            "col": 36,
+            "operator": "eq-flip",
+            "before": "if (pdt === \"ELEVATOR\" || pdt === \"LIFTINGGEAR\") return { code: \"D1010\", why: `transport element, ${pdt}` };",
+            "after": "if (pdt === \"ELEVATOR\" || pdt !== \"LIFTINGGEAR\") return { code: \"D1010\", why: `transport element, ${pdt}` };",
+            "line_text": "      if (pdt === \"ELEVATOR\" || pdt === \"LIFTINGGEAR\") return { code: \"D1010\", why: `transport element, ${pdt}` };",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "LIFTINGGEAR/default transport branch untested; same new test checks ESCALATOR and plain transport element"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+            "line": 193,
+            "col": 52,
+            "operator": "or-to-and",
+            "before": "case cls === \"IFCKERB\" || cls === \"IFCPAVEMENT\" || cls === \"IFCCOURSE\": return { code: \"G20\", why: \"paving\" };",
+            "after": "case cls === \"IFCKERB\" || cls === \"IFCPAVEMENT\" && cls === \"IFCCOURSE\": return { code: \"G20\", why: \"paving\" };",
+            "line_text": "    case cls === \"IFCKERB\" || cls === \"IFCPAVEMENT\" || cls === \"IFCCOURSE\": return { code: \"G20\", why: \"paving\" };",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "only IfcKerb/IfcPavement/IfcCourse each tested by the new paving loop"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+            "line": 227,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const s = { rows: 0, model: 0, rule: 0, none: 0, level3: 0, level2: 0, level1: 0, compared: 0, agree3: 0, agree2: 0, agree1: 0, ruleSilent: 0 };",
+            "after": "const s = { rows: 0, model: 1, rule: 0, none: 0, level3: 0, level2: 0, level1: 0, compared: 0, agree3: 0, agree2: 0, agree1: 0, ruleSilent: 0 };",
+            "line_text": "  const s = { rows: 0, model: 0, rule: 0, none: 0, level3: 0, level2: 0, level1: 0, compared: 0, agree3: 0, agree2: 0, agree1: 0, ruleSilent: 0 };",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "summary counts asserted only for compared/agree; new 'the summary counts every source from zero' pins rows/model/rule/none/level3"
+          }
+        ]
+      },
+      {
+        "target": "ventures/ifc-quantity-takeoff/qto.mjs",
+        "test": "node --test ventures/ifc-quantity-takeoff/**/*.test.mjs  (in .)",
+        "seed": 548601412,
+        "commit": "46478c454",
+        "sites": 796,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/ifc-quantity-takeoff/qto.mjs",
+            "line": 54,
+            "col": 45,
+            "operator": "times-to-div",
+            "before": "else if (name === \"CUBIC_METRE\") f = p * p * p;",
+            "after": "else if (name === \"CUBIC_METRE\") f = p / p * p;",
+            "line_text": "      else if (name === \"CUBIC_METRE\") f = p * p * p;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test read a prefixed cubic-metre volume unit (mm3 gives 1e-9); new 'units: millimetre volumes...' test"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/qto.mjs",
+            "line": 68,
+            "col": 50,
+            "operator": "and-to-or",
+            "before": "if (u && u.type && Object.hasOwn(out, u.type) && u.type !== \"names\") { out[u.type] = u.f; out.names[u.type] = u.name; }",
+            "after": "if (u && u.type && Object.hasOwn(out, u.type) || u.type !== \"names\") { out[u.type] = u.f; out.names[u.type] = u.name; }",
+            "line_text": "    if (u && u.type && Object.hasOwn(out, u.type) && u.type !== \"names\") { out[u.type] = u.f; out.names[u.type] = u.name; }",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a non-SI unit in the assignment (IFCMONETARYUNIT, common in exports) makes factorOf null and the mutant throws; same new units test"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/qto.mjs",
+            "line": 161,
+            "col": 65,
+            "operator": "and-to-or",
+            "before": "if (code) out.push({ code, name: str(c.args[2]), system: src && src.type === \"IFCCLASSIFICATION\" ? str(src.args[3]) : null });",
+            "after": "if (code) out.push({ code, name: str(c.args[2]), system: src || src.type === \"IFCCLASSIFICATION\" ? str(src.args[3]) : null });",
+            "line_text": "    if (code) out.push({ code, name: str(c.args[2]), system: src && src.type === \"IFCCLASSIFICATION\" ? str(src.args[3]) : null });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/qto.mjs",
+            "line": 304,
+            "col": 18,
+            "operator": "or-to-and",
+            "before": "if (!name || name in row.stored) continue;",
+            "after": "if (!name && name in row.stored) continue;",
+            "line_text": "        if (!name || name in row.stored) continue;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "first-set-wins for duplicate quantity names and dropping nameless quantities were untested; new 'stored quantities' test"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/qto.mjs",
+            "line": 388,
+            "col": 28,
+            "operator": "and-to-or",
+            "before": "else if (dims != null && !near(c.stored, dims) && (near(c.computed, dims) || (r.computed.net != null && near(r.computed.net, dims)))) { c.reason = \"own-dimensions\"; r.trustStored = false; }",
+            "after": "else if (dims != null || !near(c.stored, dims) && (near(c.computed, dims) || (r.computed.net != null && near(r.computed.net, dims)))) { c.reason = \"own-dimensions\"; r.trustStored = false; }",
+            "line_text": "      else if (dims != null && !near(c.stored, dims) && (near(c.computed, dims) || (r.computed.net != null && near(r.computed.net, dims)))) { c.reason = \"own-dimensions\"; r.trustStored = false; }",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test had stored L/H/W that did not explain the mismatch; new 'own dimensions are named only...' test"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/qto.mjs",
+            "line": 540,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "let mean = (out + inn) / 2;",
+            "after": "let mean = (out + inn) / 3;",
+            "line_text": "  let mean = (out + inn) / 2;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/qto.mjs",
+            "line": 647,
+            "col": 61,
+            "operator": "minus-to-plus",
+            "before": "out.voids.push({ id: o.id, volume: Math.max(0, gross - Math.abs(solidVolume(alone)) * f3) });",
+            "after": "out.voids.push({ id: o.id, volume: Math.max(0, gross + Math.abs(solidVolume(alone)) * f3) });",
+            "line_text": "        out.voids.push({ id: o.id, volume: Math.max(0, gross - Math.abs(solidVolume(alone)) * f3) });",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/qto.mjs",
+            "line": 718,
+            "col": 19,
+            "operator": "and-to-or",
+            "before": "const nt = net && g != null ? sectionArea(net, n, k) : null;",
+            "after": "const nt = net || g != null ? sectionArea(net, n, k) : null;",
+            "line_text": "    const nt = net && g != null ? sectionArea(net, n, k) : null;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a wall whose opening cannot be read (net null) had no test; with the mutant sectionArea(null) throws and the wall loses its gross areas; new 'areas: a wall whose opening cannot be read...' test"
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/qto.mjs",
+            "line": 725,
+            "col": 81,
+            "operator": "const-plus-one",
+            "before": "const t = thinnestNormal(body, (n) => Math.abs(n[0] * v[0] + n[1] * v[1] + n[2] * v[2]) < 1e-3);",
+            "after": "const t = thinnestNormal(body, (n) => Math.abs(n[0] * v[0] + n[1] * v[1] + n[3] * v[2]) < 1e-3);",
+            "line_text": "    const t = thinnestNormal(body, (n) => Math.abs(n[0] * v[0] + n[1] * v[1] + n[2] * v[2]) < 1e-3);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ifc-quantity-takeoff/qto.mjs",
+            "line": 923,
+            "col": 46,
+            "operator": "or-to-and",
+            "before": "for (const a of Object.values(r.areaCheck || {})) { s.areaPairs++; if (a.agree) s.areaAgree++; }",
+            "after": "for (const a of Object.values(r.areaCheck && {})) { s.areaPairs++; if (a.agree) s.areaAgree++; }",
+            "line_text": "    for (const a of Object.values(r.areaCheck || {})) { s.areaPairs++; if (a.agree) s.areaAgree++; }",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "checkSummary's area counts were never asserted; new 'summary: area pairs are counted' test"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+        "issue": "parseUniformat read a malformed 3-digit code ('B201') as level-2 'B20' (regex let a stray digit follow the level-2 digits). Fixed: two or four digits after the letter (?!\\d); test 'a malformed code is not read as its first three characters'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+        "issue": "a door aggregated into an IfcCurtainWall inherited the curtain wall's code: B2010 Exterior Walls even with IsExternal true (should be B2030) or false (C1020). Fixed: doors never inherit; a door in a curtain wall takes B2030/C1020 by its own flag, else the curtain wall's (assumed exterior); test 'a door that is part of a curtain wall is a door, not wall'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/ifc-quantity-takeoff/uniformat.mjs",
+        "issue": "coverings inherited their aggregate's code: ROOFING in an IfcRoof gave B1020 (not B3010 Roof Coverings), FLOORING in an IfcStair gave C2010 (not C2020 Stair Finishes). Fixed: coverings keep their own element; in a roof anything but CEILING is B3010, on a stair or ramp C2020; test 'coverings in a roof or stair are roof coverings and stair finishes'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0eba7047-9c95-5b82-9462-ae336c384545",
+    "transcripts": 1,
+    "first": "2026-11-20T11:18:19Z",
+    "last": "2026-11-20T11:26:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 114,
+        "output": 30941,
+        "thinking": 8346,
+        "cache_read": 5870924,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105679,
+        "api_equivalent_usd": 2.6389,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 114,
+      "output": 30941,
+      "thinking": 8346,
+      "cache_read": 5870924,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105679,
+      "api_equivalent_usd": 2.6389,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 58,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.35,
+      "active_minutes": 8.35,
+      "model_minutes": 5.94,
+      "tool_minutes": 2.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a BIM-literate developer reading two modules, writing 11 tests, fixing three rules and rerunning a 17-model eval",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 227.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
