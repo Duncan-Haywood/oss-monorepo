@@ -14,8 +14,8 @@
 //                          touching along an edge): volume from the faces as
 //                          written, no section
 //   unexplained            none of these
-// Breps not read (faces on surfaces other than planes and cylinders) are
-// counted by reason.
+// Breps not read (a face round a whole closed surface, bounds off their
+// surface, ...) are counted by reason.
 
 import { readFileSync } from "node:fs";
 import { parseStep } from "../step.mjs";

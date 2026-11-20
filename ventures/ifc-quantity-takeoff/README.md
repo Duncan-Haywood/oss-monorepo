@@ -297,13 +297,27 @@ polyhedra: one if it is convex, otherwise signed tetrahedra (each face fanned
 and coned to the shell's centre), which add up to the shell exactly. An
 advanced brep's edges are sampled once (arcs at 360 segments to the turn) and
 its cylindrical faces cut into triangles that join points of nearly the same
-angle, so it becomes a faceted shell. A plane
+angle, so it becomes a faceted shell. A face on any other surface (a surface
+of revolution with a line or circle profile, a surface of linear extrusion, a
+B-spline surface, rational or not) is cut the same way through the surface's
+own parameters (`surface.mjs`): its boundary goes to (u, v) (by formula, or
+Newton's method on a B-spline), dense straight runs of it are set aside, the
+rest is triangulated there and refined by longest-edge bisection until every
+inner edge's midpoint on the surface lies within 2e-4 of the face's size of
+the straight edge, and the set-aside points are fanned back in. Boundary
+points are never moved or added, so the face still meets its neighbours point
+for point; a point where the surface pinches (the tip of a ruled face) is run
+along in (u, v) as the segment it is. Checked against IfcOpenShell and by
+formula in [eval/curved-breps-2026-11-20.md](eval/curved-breps-2026-11-20.md).
+A plane
 cuts it by summing, over its faces fanned into triangles, the edge each
 triangle leaves in the plane (`shellSection`): concave faces, holes and voids
 need no special case.
 
-**Not read:** advanced brep faces on other surfaces (surfaces of revolution,
-B-spline surfaces), open shells, tapered extrusions, swept
+**Not read:** an advanced brep face that wraps all the way round a closed
+surface (a band or cap on a surface of revolution), a curved face other than a
+cylinder's with a hole in it, a face whose boundary lies more than 1e-3 of its
+size off its surface, open shells, tapered extrusions, swept
 solids along curves other than disks, centre-line profiles, sloped flanges.
 Overlapping openings in one element are taken out once (each opening is
 subtracted from the body less the ones before it, so their overlap is added

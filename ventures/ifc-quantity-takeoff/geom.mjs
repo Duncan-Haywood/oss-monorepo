@@ -25,6 +25,8 @@
 
 const EPS_REL = 1e-9;
 const ARC_SEGS = 360;
+import { bsplineCurve, bsplineSurface, invertSurface, surfaceGrid, meshFace } from "./surface.mjs";
+
 export const MAX_TERMS = 20000;
 
 export class Unresolved extends Error {}
@@ -50,6 +52,7 @@ export function apply(m, p) {
     m[8] * p[0] + m[9] * p[1] + m[10] * p[2] + m[11],
   ];
 }
+const wrapTo = (d, P) => d - P * Math.round(d / P);
 const applyDir = (m, d) => [m[0] * d[0] + m[1] * d[1] + m[2] * d[2], m[4] * d[0] + m[5] * d[1] + m[6] * d[2], m[8] * d[0] + m[9] * d[1] + m[10] * d[2]];
 
 export function mul(a, b) {
@@ -918,7 +921,7 @@ export class Geometry {
       });
       if (surf.type === "IFCPLANE") { out.push(bounds); continue; }
       if (surf.type === "IFCCYLINDRICALSURFACE") { for (const t of this.cylinderTriangles(surf, bounds)) out.push([t]); continue; }
-      throw new Unresolved(`advanced face on ${surf.type}`);
+      for (const t of this.surfaceTriangles(surf, bounds)) out.push([t]);
     }
     this.shellCache.set(sh.id, out); // only once read whole
     return out;
@@ -1019,7 +1022,194 @@ export class Geometry {
       return earClip(uv.map(([t, h]) => [r * t, h])).map(([i, j, k]) => [pts[i], pts[j], pts[k]]);
     }
     if (P.length === 2 && Math.abs(P[0].winding) === 1 && Math.abs(P[1].winding) === 1) return zipBand(P);
+    if (P.length === 1) return this.surfaceTriangles(surf, bounds);
     throw new Unresolved("cylindrical face bounds not read");
+  }
+
+  /**
+   * A surface's parameter map: at(u, v) -> point, uv(p, prev) -> [u, v] (prev
+   * the last point's, for continuity), and the period of each parameter (0
+   * when it has none). Surfaces of revolution (line or circle profile, in a
+   * plane through the axis), of linear extrusion, B-spline surfaces (rational
+   * too) and cylinders; anything else is not read.
+   */
+  surfaceMap(surf) {
+    this.surfaceCache ??= new Map();
+    if (this.surfaceCache.has(surf.id)) return this.surfaceCache.get(surf.id);
+    const a = surf.args;
+    const TAU = 2 * Math.PI;
+    let map;
+    if (surf.type === "IFCCYLINDRICALSURFACE") {
+      const m = this.placement(a[0]), inv = invert(m), r = this.num(a[1]);
+      map = {
+        at: (u, v) => apply(m, [r * Math.cos(u), r * Math.sin(u), v]),
+        uv: (p) => { const q = apply(inv, p); return [Math.atan2(q[1], q[0]), q[2]]; },
+        periods: [TAU, 0],
+      };
+    } else if (surf.type === "IFCSURFACEOFREVOLUTION") {
+      const pos = a[1] ? this.placement(a[1]) : IDENTITY;
+      const ax = this.get(a[2]);
+      const A = apply(pos, this.point(ax.args[0]));
+      const D = unit(applyDir(pos, this.dir(ax.args[1], [0, 0, 1])));
+      const prof = this.get(a[0]);
+      if (prof.type !== "IFCARBITRARYOPENPROFILEDEF") throw new Unresolved(`revolved ${prof.type}`);
+      let c = this.get(prof.args[2]);
+      while (c.type === "IFCTRIMMEDCURVE") c = this.get(c.args[0]);
+      // the meridian frame: X0 towards the profile, Y0 = D x X0
+      const toRH = (p, X0, Y0) => { const q = sub(p, A); const h = dot(q, D); const x = dot(q, X0), y = dot(q, Y0); return [Math.hypot(x, y), h, Math.atan2(y, x)]; };
+      let ref, meridian, period = 0;
+      if (c.type === "IFCLINE") {
+        const L0 = apply(pos, this.point(c.args[0]));
+        const vec = this.get(c.args[1]);
+        const Ld = mulS(applyDir(pos, this.dir(vec.args[0], [1, 0, 0])), this.num(vec.args[1]) ?? 1);
+        ref = sub(L0, A);
+        if (norm(sub(ref, mulS(D, dot(ref, D)))) < 1e-12) ref = add(ref, Ld);
+        meridian = { L0, Ld };
+      } else if (c.type === "IFCCIRCLE") {
+        const m = mul(pos, this.placement(c.args[0]));
+        const C = [m[3], m[7], m[11]], N = [m[2], m[6], m[10]];
+        ref = sub(C, A);
+        if (Math.abs(dot(N, D)) > 1e-6) throw new Unresolved("revolved circle not in a plane through the axis");
+        meridian = { C, rho: this.num(c.args[1]) };
+        period = TAU;
+      } else throw new Unresolved(`revolved ${c.type}`);
+      const X0 = unit(sub(ref, mulS(D, dot(ref, D))));
+      if (!X0) throw new Unresolved("revolved profile on the axis");
+      const Y0 = cross(D, X0);
+      const lift = (th, r, h) => add(A, add(mulS(D, h), add(mulS(X0, r * Math.cos(th)), mulS(Y0, r * Math.sin(th)))));
+      if (meridian.Ld) {
+        // the profile in the meridian half-plane through X0: r signed there,
+        // so a line running towards the axis keeps its direction
+        const inPlane = (p) => [dot(sub(p, A), X0), dot(sub(p, A), D)];
+        const p0 = inPlane(meridian.L0), p1 = inPlane(add(meridian.L0, meridian.Ld));
+        // a line skew to the axis sweeps a hyperboloid, not read
+        if (Math.abs(dot(cross(sub(meridian.L0, A), meridian.Ld), D)) > 1e-9 * (norm(meridian.Ld) * (norm(sub(meridian.L0, A)) + 1))) throw new Unresolved("revolved line skew to the axis");
+        const dr = p1[0] - p0[0], dh = p1[1] - p0[1], l2 = dr * dr + dh * dh;
+        map = {
+          at: (th, s) => lift(th, p0[0] + s * dr, p0[1] + s * dh),
+          uv: (p) => { const [r, h, th] = toRH(p, X0, Y0); return [th, ((r - p0[0]) * dr + (h - p0[1]) * dh) / l2]; },
+          periods: [TAU, 0],
+        };
+      } else {
+        const rc = dot(sub(meridian.C, A), X0), hc = dot(sub(meridian.C, A), D), rho = meridian.rho;
+        map = {
+          at: (th, phi) => lift(th, rc + rho * Math.cos(phi), hc + rho * Math.sin(phi)),
+          uv: (p) => { const [r, h, th] = toRH(p, X0, Y0); return [th, Math.atan2(h - hc, r - rc)]; },
+          periods: [TAU, period],
+        };
+      }
+    } else if (surf.type === "IFCSURFACEOFLINEAREXTRUSION" || surf.type === "IFCBSPLINESURFACEWITHKNOTS" || surf.type === "IFCRATIONALBSPLINESURFACEWITHKNOTS") {
+      let S;
+      if (surf.type === "IFCSURFACEOFLINEAREXTRUSION") {
+        const pos = a[1] ? this.placement(a[1]) : IDENTITY;
+        const prof = this.get(a[0]);
+        if (prof.type !== "IFCARBITRARYOPENPROFILEDEF") throw new Unresolved(`extruded ${prof.type}`);
+        const C = this.curveMap(prof.args[2]);
+        const d = applyDir(pos, mulS(this.dir(a[2], [0, 0, 1]), 1));
+        const depth = this.num(a[3]) ?? 1;
+        S = { at: (u, v) => add(apply(pos, C.at(u)), mulS(d, v)), domain: [[C.u0, C.u1], [-depth, 2 * depth]] };
+      } else {
+        const rows = a[2].map((row) => row.map((r) => this.point(r)));
+        const W = surf.type === "IFCRATIONALBSPLINESURFACEWITHKNOTS" ? a[12].map((row) => row.map((w) => this.num(w))) : null;
+        const n = (l) => l.map((v) => this.num(v));
+        S = bsplineSurface(rows, this.num(a[0]), this.num(a[1]), n(a[7]), n(a[8]), n(a[9]), n(a[10]), W);
+      }
+      const grid = surfaceGrid(S);
+      map = { at: S.at, uv: (p, prev) => { const r = invertSurface(S, p, prev, grid); return [r[0], r[1]]; }, periods: [0, 0] };
+    } else throw new Unresolved(`advanced face on ${surf.type}`);
+    this.surfaceCache.set(surf.id, map);
+    return map;
+  }
+
+  /** A profile curve as at(u) over [u0, u1]: B-spline curves (rational too). */
+  curveMap(ref) {
+    let c = this.get(ref);
+    while (c.type === "IFCTRIMMEDCURVE") c = this.get(c.args[0]);
+    if (c.type === "IFCBSPLINECURVEWITHKNOTS" || c.type === "IFCRATIONALBSPLINECURVEWITHKNOTS") {
+      return bsplineCurve(c.args[1].map((r) => this.point(r)), this.num(c.args[0]),
+        c.args[5].map((v) => this.num(v)), c.args[6].map((v) => this.num(v)),
+        c.type === "IFCRATIONALBSPLINECURVEWITHKNOTS" ? c.args[8].map((v) => this.num(v)) : null);
+    }
+    throw new Unresolved(`extruded ${c.type}`);
+  }
+
+  /**
+   * A face on a curved surface cut into triangles (3D point loops): its one
+   * bound taken to the surface's (u, v), ear clipped there, and every edge
+   * inside the face halved until its midpoint on the surface lies within
+   * 2e-5 of the face's size of the straight edge. Boundary points are kept as
+   * they are, so the face meets its neighbours point for point.
+   */
+  surfaceTriangles(surf, bounds) {
+    if (bounds.length !== 1) throw new Unresolved(`face with ${bounds.length} bounds on ${surf.type}`);
+    const S = this.surfaceMap(surf);
+    const pts = bounds[0].slice();
+    let n = pts.length;
+    let lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+    for (const p of pts) { lo = lo.map((x, k) => Math.min(x, p[k])); hi = hi.map((x, k) => Math.max(x, p[k])); }
+    const size = norm(sub(hi, lo));
+    const uv = [];
+    let prev = null;
+    for (const p of pts) {
+      let q = S.uv(p, prev);
+      if (prev) q = q.map((x, k) => (S.periods[k] ? prev[k] + wrapTo(x - prev[k], S.periods[k]) : x));
+      uv.push(q);
+      prev = q;
+    }
+    for (let k = 0; k < 2; k++) {
+      if (!S.periods[k]) continue;
+      const total = uv[n - 1][k] - uv[0][k] + wrapTo(uv[0][k] - uv[n - 1][k], S.periods[k]);
+      if (Math.abs(total) > S.periods[k] / 2) throw new Unresolved(`face round a closed ${surf.type}`);
+    }
+    // A pole: a boundary point where the surface pinches (all of one
+    // parameter's line maps to one point, as at the tip of a ruled B-spline
+    // face that narrows to a point). Its (u, v) is a whole segment, which the
+    // loop must run along: the point is written twice, at the pinched
+    // parameter of the point before it and of the point after it.
+    {
+      const h = 1e-6;
+      const scaleAt = (q, k) => { const d = k ? [0, h] : [h, 0]; return norm(sub(S.at(q[0] + d[0], q[1] + d[1]), S.at(q[0] - d[0], q[1] - d[1]))) / (2 * h); };
+      const ref = [0, 1].map((k) => Math.max(...uv.map((q) => scaleAt(q, k))));
+      for (let i = n - 1; i >= 0; i--) {
+        for (let k = 0; k < 2; k++) {
+          if (scaleAt(uv[i], k) > 1e-6 * ref[k]) continue;
+          const a = uv[(i + n - 1) % n], b = uv[(i + 1) % n];
+          const q0 = uv[i].slice(), q1 = uv[i].slice();
+          q0[k] = a[k]; q1[k] = b[k];
+          uv.splice(i, 1, q0, q1);
+          pts.splice(i, 1, pts[i], pts[i]);
+          break;
+        }
+      }
+      n = pts.length;
+    }
+    // every boundary point must lie on the surface: within 1e-3 of the face's
+    // size, as exporters write B-spline edges that only approximate a circle
+    // (kleine_Wohnung's ruled B-spline faces sit 2e-4 of their size off
+    // their circular edges); the triangles keep the boundary points as given
+    let off = 0;
+    for (let i = 0; i < n; i++) off = Math.max(off, norm(sub(S.at(uv[i][0], uv[i][1]), pts[i])));
+    if (off > 1e-3 * size + 1e-9) throw new Unresolved(`face bound off its ${surf.type}`);
+    // parameter scales at the middle, so the ear clipping sees lengths
+    const mid = [uv.reduce((s, q) => s + q[0], 0) / n, uv.reduce((s, q) => s + q[1], 0) / n];
+    const h = 1e-6;
+    const P0 = S.at(mid[0], mid[1]);
+    const su = norm(sub(S.at(mid[0] + h, mid[1]), P0)) / h || 1, sv = norm(sub(S.at(mid[0], mid[1] + h), P0)) / h || 1;
+    // a loop monotone in u (or v) is walked by that parameter, so triangles
+    // join nearby points (as on a cylinder); ear clipping only otherwise
+    const triangulate = [
+      (q, ids) => zipMonotone(q, ids),
+      (q, ids) => zipMonotone(q.map(([u, v]) => [v, u]), ids),
+      (q, ids) => earClip(q.map(([u, v]) => [u * su, v * sv])).map((t) => t.map((i) => ids[i])),
+    ];
+    const V3 = pts.slice(), UV = uv.map((q) => q.slice());
+    let out;
+    try {
+      out = meshFace(V3, UV, S.at, triangulate, { tol: 2e-4 * size, maxLen: size / 4, su, sv, maxTris: 60000 });
+    } catch (err) { throw new Unresolved(`face on ${surf.type} not cut into triangles: ${err.message}`); }
+    // a triangle on a pole's two copies has no area: dropped, its other two
+    // edges then pair with their neighbours' at the one point
+    return out.map(([i, j, k]) => [V3[i], V3[j], V3[k]]).filter(([a, b, c]) => a !== b && b !== c && a !== c);
   }
 
   faceSetLoops(e) {

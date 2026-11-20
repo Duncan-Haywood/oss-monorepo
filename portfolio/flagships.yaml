@@ -599,9 +599,9 @@ flagships:
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
       the 192 unexplained areas (eval/joins-and-host-figures-2026-11-20.md: HHS's 58
       mullions storing no Length, schependomlaan's 17 footing beams, 30 walls); the
-      160 unexplained GrossVolumes; kleine_Wohnung's 8 breps on surfaces of
-      revolution/NURBS (eval/breps-vs-ifcopenshell.mjs); more revision series via
-      eval/revision-diff.mjs (Kegonsa done 2026-11-20;
+      160 unexplained GrossVolumes; curved breps left
+      (eval/curved-breps-2026-11-20.md: #162827 band, 4 unexplained); more revision
+      series via eval/revision-diff.mjs (Kegonsa done 2026-11-20;
       Lake_Mills_Residence_Expansion 2 IFC commits; Kegonsa's
       Lake_Kegonsa_Home_2015.ifc pair).
     hosts: [https://github.com]
@@ -627,8 +627,9 @@ flagships:
       (eval/slab-on-grade-2026-11-20.md), railings by what they stand on 2026-11-20
       (stair C2010, outside B2010, inside C1010 by the envelope rays: coded 77 to
       461 of 486; eval/railings-2026-11-20.md), next roofs as blockers for knee
-      walls; (3) the unexplained disagreements; (4) advanced breps on revolved/NURBS
-      surfaces (8 in kleine_Wohnung; planes and cylinders read 2026-11-20, 703 of
-      767 = IfcOpenShell to 0.1%; faceted openings as signed tetrahedra;
-      eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a union. More
-      open items: NEXT.md.
+      walls; (3) the unexplained disagreements; (4) curved breps read 2026-11-20
+      (surface.mjs: revolution, extrusion, B-spline faces meshed in (u, v); 24 of 27
+      read, 13 within 0.3% of IfcOpenShell, 4 where it is wrong by formula;
+      eval/curved-breps-2026-11-20.md): next a face round a whole surface
+      (seam/cap), 4 unexplained, speed on MEP fittings; overlapping shell pieces as
+      a union. More open items: NEXT.md.

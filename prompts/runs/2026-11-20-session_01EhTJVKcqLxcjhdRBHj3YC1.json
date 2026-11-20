@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVKcqLxcjhdRBHj3YC1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled ventures brief)",
+  "input_sha256": "1380f9eea91bde311ad7325e3c2c41452af57fa9bead7b098a672fd19b3898b6",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T20:35:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff (flagship row 9, the allocator's Start here): read advanced brep faces on surfaces of revolution, linear extrusion and B-spline surfaces",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17964",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first meshing passes looped to the triangle cap on curved faces",
+      "fix": "four causes found and closed (twisted cone chords from an unsigned meridian radius, zero-area triangles from the u-walk, bisection toward an unsplittable boundary edge, inner edges no shorter than the boundary's own out-of-tolerance steps); eval/curved-breps-2026-11-20.md"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-reading-curved-ifc-breps-in-the-browser.md",
+    "ventures/ifc-quantity-takeoff/eval/curved-breps-2026-11-20.md"
+  ],
+  "goal": "Every advanced brep in the public corpus read, so curved MEP fittings and handles get computed volumes instead of 'not read'",
+  "notes": "New surface.mjs (B-spline curve/surface eval and inversion, meshFace: straight boundary runs set aside, Rivara refinement to 2e-4 of face size, boundary never moved, poles run along in (u,v)); geom.mjs surfaceMap/surfaceTriangles. Survey of the 28 web-ifc public .ifc models: 30 unread breps in two models; now 24 of 27 curved breps read (3 cylinder-face ones still not). Against IfcOpenShell 0.9.0 (pip, fine tessellation): 13 within 0.3% (inscribed triangles run 0.02-0.3% light), 4 where IfcOpenShell is wrong by Pappus (a half-disc ring 0.004043 formula vs ours 0.0040357 vs IOS 0.02457; a pipe bend 3.517e-4 vs ours 3.524e-4 vs IOS 1.325e-4), 2 IOS over box, 1 overlapping pieces, 4 unexplained (ray parity agrees with our mesh on 3). Elements read: kleine_Wohnung 413 -> 419 of 425, FM_ARC_DigitalHub 662 -> 690 of 705; no stored-volume pair changed. FM_ARC takeoff 4.7 s -> 13.4 s. Checks run here: node --test surface.test.mjs (8 ok); python3 platform/ci/run_venture_tests.py ifc-quantity-takeoff (102 tests ok, site page checks ok); check_posts ok; venture-preflight result in PR body.",
+  "corrections": [],
+  "redteam": null
+}

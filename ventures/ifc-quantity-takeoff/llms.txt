@@ -10,7 +10,7 @@ Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-qu
 - Someone has an IFC model (from Revit, ArchiCAD, Tekla, Vectorworks, Allplan...) and needs quantities without the authoring tool: "how many m3 of concrete", "count the doors by type", "wall area per storey", "bill of quantities from IFC".
 - Someone wants to know whether the quantities stored in an IFC can be trusted before pricing them.
 - Someone received a new issue of a model and needs what changed since the last one, in quantities ("change order from two IFC revisions", "compare IFC versions", "IFC model diff quantities").
-- Not for: 2D takeoff from PDF drawings, cost databases or rate libraries (rates are typed by the user), clash detection, bodies on NURBS or revolved surfaces (advanced brep faces on planes and cylinders are read; others are reported as not read).
+- Not for: 2D takeoff from PDF drawings, cost databases or rate libraries (rates are typed by the user), clash detection, curved faces that wrap all the way round their surface or have holes (advanced brep faces on planes, cylinders, surfaces of revolution and extrusion and B-spline surfaces are read; those are reported as not read).
 
 ## What it found on public models (eval/stored-vs-computed-2026-11-19.md)
 
@@ -45,7 +45,7 @@ Each stored area is cut from the body by a plane, as Qto_WallBaseQuantities, Qto
 
 ## How it computes volumes
 
-Each solid becomes a signed sum of convex polyhedra: extruded profiles (rectangles, circles, hollow sections, I/L/T/U/C/Z steel shapes with root radii, arbitrary outlines with arcs), half-space clips (plain, boxed, polygonal-bounded), boolean difference/union/intersection, mapped items. Openings (IfcRelVoidsElement) are intersected exactly and subtracted. Faceted breps, face sets and advanced breps with faces on planes and cylinders are read as faceted shells; when an opening or boolean needs one, a closed shell is taken as polyhedra (signed tetrahedra) and subtracted exactly. On kleine_Wohnung 767 of 775 advanced breps are read and 703 agree with IfcOpenShell within 0.1%, the rest explained (eval/advanced-breps-2026-11-20.md). Swept disks, revolved areas and CSG primitives give volumes but openings are not subtracted from them.
+Each solid becomes a signed sum of convex polyhedra: extruded profiles (rectangles, circles, hollow sections, I/L/T/U/C/Z steel shapes with root radii, arbitrary outlines with arcs), half-space clips (plain, boxed, polygonal-bounded), boolean difference/union/intersection, mapped items. Openings (IfcRelVoidsElement) are intersected exactly and subtracted. Faceted breps, face sets and advanced breps are read as faceted shells (faces on planes and cylinders exactly; on surfaces of revolution, linear extrusion and B-spline surfaces as triangles refined to 2e-4 of the face's size, 0.02-0.3% light; eval/curved-breps-2026-11-20.md); when an opening or boolean needs one, a closed shell is taken as polyhedra (signed tetrahedra) and subtracted exactly. On kleine_Wohnung 767 of 775 advanced breps are read and 703 agree with IfcOpenShell within 0.1%, the rest explained (eval/advanced-breps-2026-11-20.md). Swept disks, revolved areas and CSG primitives give volumes but openings are not subtracted from them.
 
 ## Command line
 
