@@ -29,9 +29,11 @@ export const E24_BASE = [
   4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1,
 ];
 
-/** Rounds to 6 significant decimal places to suppress binary float noise. */
+/** Rounds to 9 significant figures to suppress binary float noise. */
 function clean(n) {
-  return Math.round(n * 1e6) / 1e6;
+  // Significant figures, not fixed decimals: a 1M/1M divider draws 2.5 µA,
+  // which six decimal places rounded to 3 µA (quality census 2026-11-20).
+  return Number.parseFloat(n.toPrecision(9));
 }
 
 /** Finds the closest standard E24 resistor value to an arbitrary resistance. */

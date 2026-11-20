@@ -234,6 +234,10 @@
   // included, which is exactly the difference portfolio/usage/ exists to
   // measure. Real-interaction call sites pass `true`; the on-load call
   // passes nothing.
+  // Currents below 1 mA print in µA so a high-value (battery-sense) divider
+  // does not read 0.000 mA.
+  const formatAmps = (a) => (a >= 1e-3 ? `${(a * 1000).toFixed(3)} mA` : `${(a * 1e6).toFixed(3)} µA`);
+
   function updateDivider(userAction) {
     const inputs = {
       vin: Number(vin.value),
@@ -246,7 +250,7 @@
       let html = `
         <dl>
           <dt>Unloaded V<sub>out</sub></dt>
-          <dd><strong>${r.unloadedVout.toFixed(4)} V</strong> at ${(r.unloadedCurrentAmps * 1000).toFixed(3)} mA, dissipating ${(r.unloadedR1PowerWatts * 1000).toFixed(2)} mW in R1 and ${(r.unloadedR2PowerWatts * 1000).toFixed(2)} mW in R2</dd>
+          <dd><strong>${r.unloadedVout.toFixed(4)} V</strong> at ${formatAmps(r.unloadedCurrentAmps)}, dissipating ${(r.unloadedR1PowerWatts * 1000).toFixed(2)} mW in R1 and ${(r.unloadedR2PowerWatts * 1000).toFixed(2)} mW in R2</dd>
       `;
       if (r.loadedVout !== null) {
         const dropClass = r.loadDropPercent > 5 ? ' class="warn"' : "";

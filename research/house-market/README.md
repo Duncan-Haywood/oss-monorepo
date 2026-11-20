@@ -70,7 +70,7 @@ NAHB's *Cost of Constructing a Home-2024* (41 builders; average 2,647 sq ft on a
 | Construction stage | USD | Share of construction | Share of price |
 |---|---:|---:|---:|
 | Site work (includes permit $7,640, impact $6,367, water/sewer $6,260) | 32,719 | 7.6% | 4.9% |
-| Foundations | 44,748 | 10.5% | 6.7% |
+| Foundations | 44,748 | 10.4% | 6.7% |
 | Framing | 70,982 | 16.6% | 10.7% |
 | Exterior finishes | 57,510 | 13.4% | 8.6% |
 | Major systems rough-ins (plumbing, electrical, HVAC) | 82,319 | 19.2% | 12.4% |
@@ -170,7 +170,7 @@ A 1,200 sq ft home at each benchmark, lot excluded (section H):
 The site-built rows are lower bounds. Kitchens, baths and fixed fees do not shrink with floor area, so a small house costs more per sq ft than the ~2,150 sq ft averages behind these figures ([`house-cost`](../house-cost) finds +57% per sq ft at 800 sq ft against 2,000).
 
 My reading of the sources, not a finding of a model:
-1. **Land and soft costs are as big a lever as the build.** In NAHB's average, the lot, profit, overhead, commission, financing, marketing and permit/impact/water fees together are 38.5% of the price. A backyard ADU (now by right in Colorado), infill on land already owned, and low-fee jurisdictions remove costs no construction technique can touch. In Colorado, water and sewer tap fees alone vary by a factor of 15.
+1. **Land and soft costs are as big a lever as the build.** In NAHB's average, the lot, profit, overhead, commission, financing, marketing and permit/impact/water fees together are 38.7% of the price. A backyard ADU (now by right in Colorado), infill on land already owned, and low-fee jurisdictions remove costs no construction technique can touch. In Colorado, water and sewer tap fees alone vary by a factor of 15.
 2. **The factory has to build the whole house.** Wall-system choice moves the price a few percent at most. Manufactured housing's roughly 50% advantage comes from building in a factory on one code, systems and finishes included. A chassis-free HUD-code home under the 2026 ROAD to Housing Act, or a CrossMod-style home, is the closest existing route to a "low-cost nice home". Volumetric modular has the same promise but a record of factory failures.
 3. **On site, keep the wood frame and simplify it.** Advanced framing, prefabricated trusses (−40–55% roof lumber in [`house-truss`](../house-truss)), a slab or frost-protected shallow foundation, and a simple one-storey or two-storey box are the low-risk savings. They are worth single-digit percentages, not halves.
 4. **Timing.** Builders are cutting prices and land development loans cost 12.6% effective. A buyer's market for finished lots and for builders' unsold stock may be cheaper than building new in 2026–27.
@@ -179,7 +179,7 @@ My reading of the sources, not a finding of a model:
 ```bash
 pip install pytest
 cd research/house-market
-python -m pytest -q tests                                              # 9 tests
+python -m pytest -q tests                                              # 10 tests
 PYTHONPATH=src python experiments/run.py > experiments/results.txt     # instant, deterministic
 python experiments/figure.py                                           # experiments/price_breakdown.svg from results.txt
 ```

@@ -1,0 +1,261 @@
+{
+ "date": "2026-11-20",
+ "subject": "ventures/ai-engineering-academy",
+ "stratum": "venture",
+ "seed": "2026-11-20-be43",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior electronics engineer who also teaches an introductory EE / circuits lab; first checks: are the textbook formulas right (Ohm's law, divider with load, first-order RC/RL cutoff, RC charge time, NE555 astable/monostable per the TI datasheet), are the IEC 60062 colour-code and IEC 60063 E-series tables complete and correct, do the design modes snap to buyable parts and report the achieved value, and do the warnings (resistor derating, 555 discharge-pin current, electrolytic tolerance) match bench practice. The 'academy' (curriculum, AI mentor) does not exist yet and the README says so; the shipped product is the six calculators, which is what was audited, with the constitution docs in docs/ read only for claims.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Probe script /tmp/claude-0/audit-ai-engineering-academy/probe.mjs imports every shipped calc.mjs; independent Python /tmp/claude-0/audit-ai-engineering-academy/indep.py (no subject import) recomputes from the TI NE555 datasheet formulas and first-principles circuit equations. Matches: 555 astable 1k/10k/1uF -> 68.6998 Hz, duty 52.381% (datasheet 0.693/1.44 forms give 68.70/68.57); astable design 1 kHz 60% 10 nF -> exact R1 28853.9, R2 57707.8, snapped 30k/56k, achieved 1015.98 Hz; monostable 100k/10uF 1.0986 s (datasheet 1.1RC); RC 1k/100nF 1591.549 Hz, RL 100 ohm/10 mH 1591.549 Hz; RC charge 5 V to 3.3 V at tau 1 s 1.07881 s, discharge 9 V to 1 V 2.19722 s; divider 12 V 10k/4.7k unloaded 3.836735 V, with 10k load 2.907216 V; LED 5 V/2 V/20 mA 150 ohm 0.06 W; 4-band yellow-violet-red-gold 4.7 kohm 5%. All core formulas right. Fails: voltage-divider clean() rounds to 6 decimal places, not significant figures, so a 1M/1M divider at 5 V reports 3 uA (true 2.5 uA, +20%) and a 10M/10M at 3.3 V reports 0 A current and 0 W in every resistor (true 0.165 uA) - exactly the battery-sense dividers where draw is the question; resistor decoder rejects orange and yellow tolerance bands and black/green/grey tempco bands that IEC 60062 defines. Core right with real edge errors: 3, not 4.",
+  "completeness": "README claims six working calculators plus a hub and a built site. All six run: `node --test '*.test.mjs'` in each tool dir: 555 45/45, LED 39/39, RC filter 45/45, RC time 31/31, resistor 34/34, divider 26/26, site/tools.test.mjs 17/17 (all green, each < 1 s). Each claimed mode exists and returns sane values (astable analyse/design, diode-mod design, monostable analyse/design, four RC/RL topologies both directions, RC charge/discharge plus inverse design and voltageAtTime, divider loaded/unloaded, designDividerForLoad, suggestDividerForTarget, LED with N in series, colour code 4/5/6 band, Ohm's law any two). `node platform/pages/served-copy.mjs ai-engineering-academy` builds the served tree: hub plus six tool pages plus comparison pages, no placeholder origins. The 'academy' itself (curriculum, AI mentor, 30-50 projects) is honestly marked not started, so it is not counted against completeness. Gaps: decoder table incomplete (above), hand-written llms.txt not shipped.",
+  "verification": "Suites green (above). quality_mutate.py, 7 seeded mutants in core logic, 4 survived: 555 R1-minimum threshold halved (calc.mjs:111, test uses an R1 far below 1k so the boundary is unpinned); divider loaded R2 power computed from the unloaded Vout (calc.mjs:105, a displayed number, no test asserts r2PowerWatts under load); RC-filter capacitor snapping series E12 -> E24 (calc.mjs:221, no test pins the snapped capacitor); resistor grey tolerance 0.05 -> 0.5 (calc.mjs:40). Caught: 555 discharge-current 2/3 -> 1/3 Vcc, RC-time discharge ratio using supply instead of initial voltage, LED derating factor 2 -> 1.5. No test covers high-value (MOhm) dividers, which is how the clean() rounding bug went unseen. 3 of 7 caught: 2.",
+  "craft": "Read all six calc.mjs, resistor-calculator/index.html LED wiring, voltage-divider index.html rendering, site/build.mjs and tools.mjs. Pure, documented ES modules with good reasons in comments (555 discharge-current derivation, diode-mod caveats). Defects: nearestStandardResistor / nearestPreferred and E24_BASE are copied into five modules (555:59, led:50, divider:50, rc-filter:123, rc-time:23); clean() means 6 decimal places in led/divider but 9 significant figures in 555, and the decimal-place version is the source of the uA rounding bug; there are two LED-resistor engines that disagree on the same input - resistor-calculator/calc.mjs:194 says buy 0.25 W for 0.06 W (quarter-watt floor) while led-resistor-calculator says 0.125 W; nearest-value search uses linear rather than ratio distance (9.54 -> 9.1, though 10 is marginally closer by ratio, 1.0482 vs 1.0484; minor). A senior reviewer would ask for one shared units/E-series module before a seventh tool.",
+  "claims": "Checked: llms.txt worked examples (LED 150 ohm 0.06 W 1/8 W, RC 1591.5 Hz 100 us, 555 68.7 Hz 52.4% with electrolytic warning) all reproduce - pass. Disclaimer present on every tool page (served copy, 'Disclaimer' h2 on LED and RC-filter pages, datasheet/learning-aid text on the others) - pass. 'Nothing you type leaves the browser' - pages import local calc.mjs/usage.mjs only - pass. Fails: README.md:72 'None is yet deployed to a live URL' contradicts README.md:7 'Live: ... marisstella.app' and VENTURE.yaml production link; README per-tool test counts are all stale (resistor 21 vs 17 calc / 34 total, LED 16 vs 12/39, divider 14 vs 17/26, 555 29 vs 36/45, filter 24 vs 20/45, RC time 6 vs 9/31); README.md:40 'adding a fifth' with six present; the hand-written ventures/ai-engineering-academy/llms.txt is never served because the deploy root is tools/ (platform/ci/build_pages_site.py:245), and the derived llms.txt that ships lists four tool families and omits the RC filter and RC time calculators. Live host returned 000 through the proxy; served-copy used.",
+  "fitness": "Job walked: a hobbyist sizing an LED resistor on 12 V for three white LEDs gets 120 ohm, 0.048 W, buy 1/8 W, with the formula shown - done in under a minute. A learner designing a 1 kHz 60% 555 astable on 10 nF gets 30k/56k and the achieved 1016 Hz - usable. But the venture's stated product is an AI-mentored, project-first engineering education platform for undergrad/grad learners (VENTURE.yaml, PROJECT_BRIEF.md); none of that exists beyond ~3,400 lines of constitution prose, and the six calculators are commodity tools that Omni, DigiKey and All About Circuits already offer, with no lesson, exercise or project attached. A battery-monitor divider user gets a wrong (zero) current. For the intended learner the job 'learn circuits by building a project' cannot be started here: 2.",
+  "domain": "Compared against the TI NE555 datasheet (SLFS022), IEC 60062 (colour code), IEC 60063 (E-series) and standard first-order filter/RC theory. The method choices are what a bench engineer would want and beyond a bare formula calculator: 2x resistor derating, 555 discharge-pin current from both R1 (Vcc) and R2 (2/3 Vcc cap), 1 kohm R1 floor and 1 Mohm leakage limit for bipolar 555, electrolytic -20/+80% warning, diode-mod for <50% duty with the diode-drop caveat, E12 for capacitors and E24 for resistors, loaded-divider bleeder sizing. Departures: IEC 60062 colour tables incomplete (orange 0.05% and yellow 0.02% tolerance, black/green/grey tempco missing; grey tolerance given as 0.05% where IEC 60062:2016 lists 0.01%, though many vendor charts print 0.05%); the resistor-calculator LED mode's 0.25 W floor disagrees with the dedicated LED tool; the 200 mA discharge 'limit' is the output-sink absolute rating applied to pin 7, a conservative rule of thumb rather than a datasheet discharge spec."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "555 astable R1=1k R2=10k C=1uF: frequency and duty",
+   "method": "TI NE555 datasheet tH=0.693(RA+RB)C, tL=0.693RBC, f=1.44/((RA+2RB)C); independent Python, no subject import",
+   "command": "python3 -I /tmp/claude-0/audit-ai-engineering-academy/indep.py; node /tmp/claude-0/audit-ai-engineering-academy/probe.mjs",
+   "expected": "68.70 Hz (exact ln2) / 68.57 Hz (1.44 approx), duty 52.38%",
+   "observed": "frequencyHz 68.6997639, dutyCyclePercent 52.3809524",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "555 astable design 1 kHz, 60%, 10 nF and monostable 100k/10uF",
+   "method": "R1=K(2D-1), R2=K(1-D), K=1/(ln2 f C) derived by hand from the datasheet equations; monostable 1.1RC (datasheet)",
+   "command": "python3 -I /tmp/claude-0/audit-ai-engineering-academy/indep.py; node /tmp/claude-0/audit-ai-engineering-academy/probe.mjs",
+   "expected": "R1 28853.9, R2 57707.8; pulse ~1.1 s",
+   "observed": "exactR1 28853.9008, exactR2 57707.8016, snapped 30k/56k achieved 1015.98 Hz; pulse 1.09861 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "RC/RL first-order cutoff and RC charge/discharge times",
+   "method": "fc=1/(2 pi R C), fc=R/(2 pi L); t=-RC ln(1-Vth/Vs), t=RC ln(V0/Vth); independent Python",
+   "command": "python3 -I /tmp/claude-0/audit-ai-engineering-academy/indep.py; node /tmp/claude-0/audit-ai-engineering-academy/probe.mjs",
+   "expected": "1591.549 Hz (both); 1.07881 s; 2.19722 s",
+   "observed": "1591.54943 / 1591.54943; 1.07880966; 2.19722458",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Loaded voltage divider 12 V, 10k/4.7k, 10k load",
+   "method": "R2||RL then divider ratio, by hand / independent Python",
+   "command": "python3 -I /tmp/claude-0/audit-ai-engineering-academy/indep.py; node /tmp/claude-0/audit-ai-engineering-academy/probe.mjs",
+   "expected": "unloaded 3.83673 V, loaded 2.90722 V",
+   "observed": "3.836735 / 2.907216",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Divider current for high-value (battery-sense) dividers: 1M/1M at 5 V, 10M/10M at 3.3 V",
+   "method": "I = Vin/(R1+R2) by hand",
+   "command": "node /tmp/claude-0/audit-ai-engineering-academy/probe.mjs",
+   "expected": "2.5 uA; 0.165 uA (and nonzero resistor power)",
+   "observed": "unloadedCurrentAmps 0.000003 (+20%); 0 A, 0 W in R1, R2 and load",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Colour-code decode: 4-band and IEC 60062 tolerance / tempco colours",
+   "method": "IEC 60062 colour table (tolerance orange 0.05%, yellow 0.02%; tempco black 250, green 20, grey 1 ppm/K)",
+   "command": "node /tmp/claude-0/audit-ai-engineering-academy/probe.mjs",
+   "expected": "yellow-violet-red-gold = 4.7 kohm 5%; orange/yellow tolerance and black/green/grey tempco decoded",
+   "observed": "4.7 kohm 5% pass; orange, yellow tolerance and black, green, grey tempco throw 'Unrecognised ... band color'",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "LED series resistor 5 V, 2 V, 20 mA in both LED engines",
+   "method": "R=(Vs-Vf)/I, P=(Vs-Vf)I by hand; 2x derating",
+   "command": "node /tmp/claude-0/audit-ai-engineering-academy/probe.mjs",
+   "expected": "150 ohm, 0.06 W, smallest rating >= 0.12 W = 1/8 W",
+   "observed": "led-resistor-calculator: 150 ohm, 0.06 W, 0.125 W; resistor-calculator LED mode: 150 ohm, 0.06 W, 0.25 W (two pages disagree)",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "All test suites",
+   "method": "run each tool's tests",
+   "command": "for d in tools/*/ site; do (cd $d && node --test *.test.mjs); done",
+   "expected": "green",
+   "observed": "555 45/45, LED 39/39, RC filter 45/45, RC time 31/31, resistor 34/34, divider 26/26, site 17/17",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Served tree builds with hub and six tools, no stale origins",
+   "method": "deploy rewrite into a scratch copy",
+   "command": "node platform/pages/served-copy.mjs ai-engineering-academy",
+   "expected": "hub + six tool pages, no placeholder origins",
+   "observed": "hub + six tool dirs + comparison pages; 'no placeholder or retired origin left'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README deployment status and per-tool test counts",
+   "method": "compare README.md:7, :44-72 with VENTURE.yaml links.production and test runs",
+   "command": "grep -n 'None is yet deployed\\|passing' ventures/ai-engineering-academy/README.md",
+   "expected": "consistent live status; counts match",
+   "observed": "README.md:72 'None is yet deployed' vs README.md:7 'Live'; counts 21/16/14/29/24/6 vs calc tests 17/12/17/36/20/9",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt that ships lists all six tools",
+   "method": "served copy vs source llms.txt; deploy root from build_pages_site.py:245 ('tools')",
+   "command": "head -5 /tmp/served-copy/ai-engineering-academy/llms.txt",
+   "expected": "the hand-written llms.txt with six tools and worked examples",
+   "observed": "derived llms.txt naming four families (no RC filter, no RC time); source llms.txt sits outside tools/ and is not served",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt worked examples reproduce from shipped modules",
+   "method": "rerun via probe",
+   "command": "node /tmp/claude-0/audit-ai-engineering-academy/probe.mjs",
+   "expected": "150 ohm 0.06 W 1/8 W; 1591.5 Hz 100 us; 68.7 Hz 52.4% + electrolytic warning",
+   "observed": "all three match",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer on every tool page",
+   "method": "grep served copy",
+   "command": "grep -c -i 'disclaim\\|datasheet\\|learning aid' /tmp/served-copy/ai-engineering-academy/*/index.html",
+   "expected": ">=1 per page",
+   "observed": "2-4 matches on each of six pages",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page",
+   "method": "curl",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/ai-engineering-academy/",
+   "expected": "200",
+   "observed": "000 through this container's proxy; served-copy used instead",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "tools/555-timer-calculator/calc.mjs:144",
+   "change": "((2 / 3) * supplyVolts) / r2 -> ((1 / 3) * supplyVolts) / r2 in dischargePeakAmps",
+   "caught": true,
+   "test_cmd": "cd ventures/ai-engineering-academy/tools/555-timer-calculator && node --test '*.test.mjs'"
+  },
+  {
+   "where": "tools/555-timer-calculator/calc.mjs:111",
+   "change": "if (r1 < MIN_R1_OHMS) { -> if (r1 < MIN_R1_OHMS / 2) {",
+   "caught": false,
+   "test_cmd": "cd ventures/ai-engineering-academy/tools/555-timer-calculator && node --test '*.test.mjs'"
+  },
+  {
+   "where": "tools/voltage-divider-calculator/calc.mjs:105",
+   "change": "r2PowerWatts = clean((loadedVout * loadedVout) / r2) -> clean((unloadedVout * unloadedVout) / r2)",
+   "caught": false,
+   "test_cmd": "cd ventures/ai-engineering-academy/tools/voltage-divider-calculator && node --test '*.test.mjs'"
+  },
+  {
+   "where": "tools/rc-time-calculator/calc.mjs:58",
+   "change": "discharge ratio thresholdVolts / initialVolts -> thresholdVolts / supplyVolts",
+   "caught": true,
+   "test_cmd": "cd ventures/ai-engineering-academy/tools/rc-time-calculator && node --test '*.test.mjs'"
+  },
+  {
+   "where": "tools/led-resistor-calculator/calc.mjs:66",
+   "change": "recommendedPowerRating safetyFactor = 2 -> 1.5",
+   "caught": true,
+   "test_cmd": "cd ventures/ai-engineering-academy/tools/led-resistor-calculator && node --test '*.test.mjs'"
+  },
+  {
+   "where": "tools/rc-filter-calculator/calc.mjs:221",
+   "change": "capacitor snap nearestPreferred(exactValue, E12_BASE) -> E24_BASE",
+   "caught": false,
+   "test_cmd": "cd ventures/ai-engineering-academy/tools/rc-filter-calculator && node --test '*.test.mjs'"
+  },
+  {
+   "where": "tools/resistor-calculator/calc.mjs:40",
+   "change": "grey: 0.05 -> grey: 0.5 (tolerance)",
+   "caught": false,
+   "test_cmd": "cd ventures/ai-engineering-academy/tools/resistor-calculator && node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "clean() rounds to 6 decimal places, not significant figures, so divider current and power collapse for high-value dividers: 1M/1M at 5 V reports 3 uA (true 2.5 uA), 10M/10M at 3.3 V reports 0 A and 0 W in R1, R2 and the load (true 0.165 uA). High-value dividers are the battery-sense case where quiescent draw is the point of the calculation.",
+   "where": "ventures/ai-engineering-academy/tools/voltage-divider-calculator/calc.mjs:33",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17841"
+  },
+  {
+   "severity": "medium",
+   "what": "4 of 7 seeded mutants survive: the 555 R1 1 kohm floor boundary, the loaded R2 power, the RC-filter capacitor E12 snapping and the colour-code tolerance table are not pinned by any test; no test exercises MOhm-scale dividers.",
+   "where": "ventures/ai-engineering-academy/tools/voltage-divider-calculator/calc.test.mjs:50",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Colour-code tables incomplete against IEC 60062: orange (0.05%) and yellow (0.02%) tolerance bands and black (250), green (20), grey (1) ppm/K tempco bands throw 'Unrecognised band color' on real precision resistors.",
+   "where": "ventures/ai-engineering-academy/tools/resistor-calculator/calc.mjs:34",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Two LED-resistor engines disagree on the same input: the resistor-calculator page recommends 0.25 W for 0.06 W dissipation (quarter-watt floor) while the dedicated LED page recommends 0.125 W.",
+   "where": "ventures/ai-engineering-academy/tools/resistor-calculator/calc.mjs:194",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "E24 table and nearest-preferred search copied into five modules, with three different float-cleaning conventions (6 decimal places, 6 sig figs, 9 sig figs).",
+   "where": "ventures/ai-engineering-academy/tools/led-resistor-calculator/calc.mjs:50",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "README contradicts itself and drifted: 'None is yet deployed to a live URL' against the 'Live:' line and VENTURE.yaml production link; all six per-tool test counts stale; 'adding a fifth' with six present.",
+   "where": "ventures/ai-engineering-academy/README.md:72",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "The hand-written llms.txt (six tools, worked examples) is never served because the deploy root is tools/; the derived llms.txt that ships names four tool families and omits the RC filter and RC time calculators.",
+   "where": "ventures/ai-engineering-academy/llms.txt:1",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "medium",
+   "what": "The venture's stated product (AI-mentored, project-first EE course for undergrad/grad learners) has no lesson, exercise or project; the only shipped artifacts are six commodity calculators not tied to any curriculum, so the intended learner cannot start the stated job.",
+   "where": "ventures/ai-engineering-academy/VENTURE.yaml:2",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17841"],
+ "verdict": "Six small, well-commented, client-side electronics calculators whose core formulas are right: an independent Python recomputation from the TI NE555 datasheet and first-principles circuit equations matches the 555 astable/monostable (68.70 Hz, 52.38%; R1 28853.9/R2 57707.8; 1.0986 s), RC/RL cutoff (1591.549 Hz), RC charge/discharge (1.0788 s, 2.1972 s), loaded divider (2.907216 V) and LED (150 ohm, 0.06 W) outputs, and the bench-practice warnings (2x derating, 555 discharge-pin current from both resistors, electrolytic tolerance, diode-mod caveat) are better than a bare formula page. All 237 tests pass. It misses the bar on verification and claims: 4 of 7 seeded mutants survive, a decimal-place rounding helper makes MOhm battery-sense dividers report 3 uA instead of 2.5 uA or 0 A instead of 0.165 uA, the colour-code decoder rejects IEC 60062 orange/yellow tolerance and three tempco colours, the README says nothing is deployed while linking the live site and carries stale test counts, and the llms.txt that ships omits two of the six tools. As the 'AI Engineering Academy' it is a vision document plus calculators: no lesson or project exists."
+}

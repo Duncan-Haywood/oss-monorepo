@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKk6ck6T9FtYFVz1o1q",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T02:19:27Z",
+  "ended": "2026-11-20T02:32:18Z",
+  "wall_minutes": 13.33,
+  "tokens_in": 15774259,
+  "tokens_out": 152222,
+  "cost_usd": 10.0409,
+  "tool_calls": 188,
+  "task": "quality census (mode draw: census), six never-audited subjects",
+  "projects": [
+    "ventures/saas-seat-true-up",
+    "research/mimic-cursor",
+    "research/loopclosure-twin",
+    "ventures/construction-evidence-log",
+    "research/house-market",
+    "ventures/ai-engineering-academy"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17841",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "Two audit files (house-market, loopclosure-twin) were committed while their auditors were still writing, because a stop hook asked for untracked files to be committed; the final versions were committed afterwards, so the end state is correct.",
+    "My first CSV guard in construction-evidence-log defused plain negative numbers too; run_workflow_locally (test_check_csv_formula_guard) caught it; fixed with the anchored number exemption and removed the file from csv_formula_guard_baseline.txt."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "mark-fixed is per defect; one defect that bundles several surviving mutants (mimic-cursor defect 0) cannot record a partial fix, so a fix that closes one of five mutants is left unmarked, and the PR is missing from that audit's fix_prs."
+    },
+    {
+      "file": "Stop hook (untracked files)",
+      "issue": "Fires while background auditors are still writing their files into the tree, which pushes half-written audit files. Auditors writing to the scratchpad first and copying at the end would avoid this."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 says to fix small defects 'in its own commit'. I did that, but the fixes went into the same PR as the audits rather than separate PRs. The README allows this (fix_prs lists the round PR).",
+      "did": "Fix commits are separate in the round PR #17841",
+      "result": "Audits and their fixes land together; fixed_by points at #17841"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-quality-census-seed-be43.md"
+  ],
+  "goal": null,
+  "notes": "Mode: census (seeded draw). Seed 2026-11-20-be43. Subjects: ventures/saas-seat-true-up, research/mimic-cursor, research/loopclosure-twin, ventures/construction-evidence-log, research/house-market, ventures/ai-engineering-academy. Share meeting the bar: 0 of 6 (census, not counted in the sampled share, which stays 36/367, Wilson 7-13%); finished 6/6. Seeded mutations caught 12/32; checks failed or partial 35/79; defects 45 (1 high). Fix PR: #17841 (saas tile label + 14-day boundary test; construction-evidence-log day count + CSV formula neutralisation; house-market headline pin test + two README figures; loopclosure-twin published-row pin test; mimic-cursor copy-cap test (partial, unmarked); ai-engineering-academy divider significant figures + \u00b5A display). Spot-checks I ran myself: seat arithmetic, Denver row in results.txt, 38.7% from facts.csv, loopclosure dof and c*c mutants now caught, mimic copy-cap mutant now caught. Local verification: node --test for the three ventures (69, 29, 27 pass), unittest/pytest for the three research projects (12, 10, 10 pass), check_posts ok, check_md_links ok, quality_audit validate 0 problems; run_workflow_locally --for-changes: 16/17 workflows passed first time; ventures-tests failed on test_check_csv_formula_guard (my guard lacked a number exemption), fixed and rerun green.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2a4afe95-49ed-55f1-a32b-ad28ea682824",
+    "transcripts": 7,
+    "first": "2026-11-20T02:19:27Z",
+    "last": "2026-11-20T02:32:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 175,
+        "input": 360,
+        "output": 152222,
+        "thinking": 35840,
+        "cache_read": 15043900,
+        "cache_write_5m": 617931,
+        "cache_write_1h": 112068,
+        "api_equivalent_usd": 10.0409,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 175,
+      "input": 360,
+      "output": 152222,
+      "thinking": 35840,
+      "cache_read": 15043900,
+      "cache_write_5m": 617931,
+      "cache_write_1h": 112068,
+      "api_equivalent_usd": 10.0409,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.954,
+    "tool_calls": 188,
+    "tools": {
+      "Bash": 164,
+      "Read": 7,
+      "Agent": 6,
+      "SubagentHandback": 6,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.33,
+      "active_minutes": 8.41,
+      "model_minutes": 6.83,
+      "tool_minutes": 1.58,
+      "waiting_on_human_minutes": 4.92,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 27.02
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "six first audits at ~2 h each with recomputation and mutation, plus six small fixes with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 139.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

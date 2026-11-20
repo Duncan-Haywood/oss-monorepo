@@ -131,6 +131,42 @@ class TestGame(unittest.TestCase):
         finally:
             G.N_CTX, G.cv_auroc, P.mutate = old_n, real, real_mut
 
+    def test_copy_cap_rejects_over_cap_candidates(self):
+        # Quality census 2026-11-20 (portfolio/quality/audits/2026-11-20-mimic-cursor.json):
+        # loosening the copy cap (> MAX_COPY -> > 10 * MAX_COPY) left every test
+        # green. Candidates here look far more human to the detector but copy
+        # every stroke, so the cap alone must keep the starting genome.
+        P.set_human(toy_humans(300, seed=4))
+        pool = toy_humans(300, seed=5)
+        G.COPY["bank"] = np.array([P.shape_vec(x) for x in pool[:150]])
+        G.COPY["ref"] = np.array([P.shape_vec(x) for x in toy_humans(150, seed=6)])
+        old_n, real_copy = G.N_CTX, G.copy_rate
+        G.N_CTX = 40
+        try:
+            pl = G.Player("blind", np.random.default_rng(0))
+            G.detector_step(pl, pool, 1, 1)
+            start = pl.genome
+            calls = {"copy": 0, "dec": 0}
+
+            def fake_copy(strokes):
+                calls["copy"] += 1
+                return 0.0 if calls["copy"] == 1 else 1.0
+
+            real_dec = pl.clf.decision_function
+
+            def fake_dec(X):
+                calls["dec"] += 1
+                if calls["dec"] > G.BUDGET + 1:
+                    return real_dec(X)
+                return np.full(len(X), 0.0 if calls["dec"] == 1 else 10.0)
+
+            G.copy_rate = fake_copy
+            pl.clf.decision_function = fake_dec
+            G.imitator_step(pl, pool, 1, 2)
+            self.assertIs(pl.genome, start)
+        finally:
+            G.N_CTX, G.copy_rate = old_n, real_copy
+
 
 if __name__ == "__main__":
     unittest.main()
