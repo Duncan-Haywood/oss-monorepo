@@ -3,7 +3,7 @@ title: "The payment guard knew Stripe and PayPal, and our chosen rail was neithe
 seo_title: "Scan a repo for hardcoded merchant-of-record checkout links"
 date: 2026-11-20
 tags: [redteam, security, payments, ci, mutation-testing]
-description: "A red-team run found that our CI check for hardcoded payment accounts missed Lemon Squeezy, Polar, Paddle and Gumroad links, and never looked outside ventures/. Both fixed."
+description: "Our CI check for hardcoded payment accounts missed Lemon Squeezy, Polar, Paddle and Gumroad links and never scanned outside ventures/. Both fixed."
 ---
 
 This repository has one firm rule about money: no product may carry a
