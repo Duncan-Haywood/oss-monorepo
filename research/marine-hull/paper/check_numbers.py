@@ -183,6 +183,11 @@ CLAIMS = [
     ("results_maruo_check.txt", "Q1 energy identity worst T 0.0092, M 0.0138"),
     ("results_maruo_check.txt", "Q0 cylinder worst 0.0132"),
     ("results_panel_check.txt", "P6 GB area panel/strip motions T 1.055, M 1.009"),
+    # milestone 7zn: Capytaine forward-speed approximation at Fn 0.2
+    ("results_panel_speed.txt", "panel mean error 1.0-1.3 +36.0%"),
+    ("results_panel_speed.txt", "S5 area strip 0.929 (7zh 0.929), panel 1.222"),
+    ("results_panel_speed.txt", "S6 Journee ratios panel I 0.821, III 0.849"),
+    ("results_panel_speed.txt", "30 W loss 3.80% (strip 3.39%)"),
     ("results_faltinsen_reflection.txt", "row Faltinsen_kT_speed 2.844 0.028 -3.39 -12.32 True"),
     ("results_faltinsen_reflection.txt", "row STAWAVE-2 2.844 0.725 -4.18 -14.79 True"),
     ("results_faltinsen_reflection.txt", "I/B 0.0195"),
