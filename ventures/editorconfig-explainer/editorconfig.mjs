@@ -432,6 +432,18 @@ export function sectionHints(name) {
   if (/\\(?![\\*?\[\]{},#;!-])/.test(body)) hints.push({ kind: "backslash", text: "contains `\\`, which escapes the next character rather than separating folders; use `/` even on Windows" });
   if (/\\[*?\[]/.test(body)) hints.push({ kind: "escaped-wildcard", text: "escapes a wildcard with `\\`, which the specification and the npm core read as a literal character but editorconfig-core-py 0.17.1 still reads as a wildcard, so editors disagree on which files match" });
   if (/(^|\/)\.\.?(\/|$)/.test(body)) hints.push({ kind: "dot-segment", text: "contains a `.` or `..` folder, which globs do not resolve; paths are matched as written, from the .editorconfig's own folder down" });
+  // a comma outside every {...} is literal text, so [a,b] or [x/**.py,] names one odd file
+  {
+    let depth = 0, stray = false;
+    for (let i = 0; i < body.length; i++) {
+      const c = body[i];
+      if (c === "\\") { i++; continue; }
+      if (c === "{" && closingBrace(body, i) >= 0) depth++;
+      else if (c === "}" && depth > 0) depth--;
+      else if (c === "," && depth === 0) stray = true;
+    }
+    if (stray) hints.push({ kind: "stray-comma", text: `has a \`,\` outside any braces, and a comma there is literal text, so it only matches names containing a comma; list alternatives inside braces, like {a,b}, and check for a trailing comma` });
+  }
   // single-alternative braces, outside brackets
   for (const m of body.matchAll(/(?<!\\)\{([^{},]*)\}/g)) {
     const inner = m[1];
@@ -496,7 +508,7 @@ export function analyze(input = {}) {
     const seenKeys = new Map();
     for (const sec of f.sections) {
       for (const h of sectionHints(sec.name)) {
-        add({ severity: h.kind === "spaces" || h.kind === "trailing-slash" || h.kind === "single-brace" || h.kind === "range-reversed" || h.kind === "backslash" ? "medium" : "low", kind: `glob-${h.kind}`, file: f.file, line: sec.line, text: `[${sec.name}]`, title: `[${sec.name}] ${h.text.split(",")[0]}`, detail: `The section name ${h.text}.` });
+        add({ severity: h.kind === "spaces" || h.kind === "trailing-slash" || h.kind === "single-brace" || h.kind === "range-reversed" || h.kind === "backslash" || h.kind === "stray-comma" ? "medium" : "low", kind: `glob-${h.kind}`, file: f.file, line: sec.line, text: `[${sec.name}]`, title: `[${sec.name}] ${h.text.split(",")[0]}`, detail: `The section name ${h.text}.` });
       }
       seenKeys.clear();
       for (const p of sec.pairs) {

@@ -36,8 +36,11 @@ for (const repo of repos) {
   try {
     git(["clone", "-q", "--depth", "1", "--filter=blob:none", "--no-checkout", `https://github.com/${repo.name}`, dir]);
     const commit = git(["rev-parse", "HEAD"], dir).trim();
-    const paths = git(["ls-tree", "-r", "--name-only", "-z", "HEAD"], dir).split("\0").filter(Boolean);
-    const configs = paths.filter((p) => p === ".editorconfig" || p.endsWith("/.editorconfig"));
+    // "<mode> <type> <sha>\t<path>"; a symlinked .editorconfig (mode 120000) is
+    // a blob holding the link target, not the file, so it is left out
+    const entries = git(["ls-tree", "-r", "-z", "HEAD"], dir).split("\0").filter(Boolean).map((e) => ({ mode: e.slice(0, 6), path: e.slice(e.indexOf("\t") + 1) }));
+    const paths = entries.map((e) => e.path);
+    const configs = entries.filter((e) => e.mode !== "120000" && (e.path === ".editorconfig" || e.path.endsWith("/.editorconfig"))).map((e) => e.path);
     if (!configs.includes(".editorconfig")) { results.push({ repo: repo.name, commit, editorconfig: false, nested: configs.length }); continue; }
     const sources = configs.map((p) => `==> ${p} <==\n${git(["show", `HEAD:${p}`], dir)}`).join("\n");
     const report = analyze({ sources, paths: paths.filter((p) => !configs.includes(p)) });

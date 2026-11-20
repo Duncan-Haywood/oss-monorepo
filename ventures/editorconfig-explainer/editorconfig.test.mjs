@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { sectionMatches, parseFile, resolvePath, analyze, why, splitSources, reportCsv, coreOutput, legacyValue, nearKey, DEFAULTS } from "./editorconfig.mjs";
+import { sectionHints, sectionMatches, parseFile, resolvePath, analyze, why, splitSources, reportCsv, coreOutput, legacyValue, nearKey, DEFAULTS } from "./editorconfig.mjs";
 
 const m = (name, path, dir = "") => sectionMatches(name, dir, path);
 
@@ -141,4 +141,13 @@ test("CSV has a row per property", () => {
   const csv = reportCsv(analyze(DEFAULTS));
   assert.match(csv, /^path,key,value,file,line,section,overrides\n/);
   assert.match(csv, /Makefile,indent_style,tab,\.editorconfig,14,Makefile,\.editorconfig:4=space/);
+});
+
+test("a trailing comma outside braces is literal and flagged (as in Linux's tools/perf section)", () => {
+  const name = "tools/{perf,power,rcu,testing/kunit}/**.py,";
+  assert.ok(!m(name, "tools/perf/x.py"));
+  assert.ok(m(name, "tools/perf/x.py,"));
+  assert.deepEqual(sectionHints(name).map((h) => h.kind), ["stray-comma"]);
+  assert.deepEqual(sectionHints("*.{js,ts}").map((h) => h.kind), []);
+  assert.deepEqual(sectionHints("{a\\,b,c}.txt").map((h) => h.kind), []);
 });

@@ -72,6 +72,22 @@ gives `insert_final_newline=true`, because the valid
 `[tests/node_compat/test/**]` section further down is never read. The tool now
 reports this line as high severity and names what each core does with it.
 
+The Linux kernel's `.editorconfig` has a quieter problem, one that every core
+agrees on:
+
+```
+# this must be below the general *.py to overwrite it
+[tools/{perf,power,rcu,testing/kunit}/**.py,]
+indent_style = tab
+indent_size = 8
+```
+
+The trailing comma sits outside the braces, so it is literal text. The section
+only matches file names that end in `.py,`. We checked with both cores:
+`tools/perf/x.py` gets `indent_style=space` and `indent_size=4` from the
+general `[*.py]` section, the opposite of what the comment says it wants. The
+explainer now flags a comma outside braces.
+
 ## What is next
 
 The CLI (`cli/check.mjs --strict`) already fails a build on a high finding, so
