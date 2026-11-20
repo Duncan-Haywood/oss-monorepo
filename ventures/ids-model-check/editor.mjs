@@ -9,7 +9,7 @@
 // misspelt set, a property the set lacks or a dataType the standard does not
 // give: the faults auditIds() finds in 21 of 64 public IDS files.
 
-import { temporalKind, temporalKey, lexRange } from "./temporal.mjs";
+import { temporalKind, temporalKey, lexRange, dateRangePattern } from "./temporal.mjs";
 import { nearName } from "./audit.mjs";
 import { fixStructure } from "./fix.mjs";
 
@@ -149,29 +149,25 @@ export const temporalType = (dataType) => (dataType && Object.hasOwn(TEMPORAL, S
 // An example of each form, for a range row's placeholders and hints.
 export const TEMPORAL_EXAMPLE = { date: ["2024-01-01", "2030-12-31"], dateTime: ["2024-01-01T00:00:00", "2030-12-31T23:59:59"], time: ["07:00:00", "19:00:00"], duration: ["PT30M", "P1Y"] };
 
-// An XSD pattern that matches the ISO dates (YYYY-MM-DD, with or without a
-// time zone) a date range asks for, or null when a bound is not a plain date.
-// IfcTester 0.9.0 reads range bounds only as numbers (float("2024-01-01")
-// fails), so it fails every object on an xs:date range that this checker and
-// IDS 1.0's DataTypes table accept; a pattern both read the same way
-// (eval/date-ranges-2026-11-17.md). Fixed-width dates order as strings, so the
-// pattern is the lexical range between the bounds, built digit by digit.
-// Exclusive bounds move one day inward. The pattern matches only well-formed
-// dates' shape between the bounds; it does not check a day exists.
-const DAY = 86400000;
-const PLAIN_DATE = /^\d{4}-\d{2}-\d{2}$/;
-const isoDay = (t) => new Date(t).toISOString().slice(0, 10);
+// An XSD pattern that passes exactly the strings this checker passes on a
+// date range (temporal.mjs dateRangePattern), or null when a bound is not a
+// plain date or no date can pass. IfcTester 0.9.0 reads range bounds only as
+// numbers (float("2024-01-01") fails), so it fails every object on an xs:date
+// range that this checker and IDS 1.0's DataTypes table accept; a pattern both
+// read the same way (eval/date-ranges-2026-11-17.md). Since 2026-11-20 the
+// pattern is exact, not a shape: only days that exist (no 2024-02-30), ASCII
+// digits only (XSD's \d is any Unicode digit), and a day written with a time
+// zone is placed by its instant as the range check places it
+// (eval/date-pattern-exact-2026-11-20.md).
 export function datePattern(min, max, minEx = false, maxEx = false) {
   const blank = (x) => x === "" || x == null;
   if (blank(min) && blank(max)) return null;
-  if ((!blank(min) && !PLAIN_DATE.test(min)) || (!blank(max) && !PLAIN_DATE.test(max))) return null;
-  const t = (d) => Date.parse(d + "T00:00:00Z");
-  if ((!blank(min) && Number.isNaN(t(min))) || (!blank(max) && Number.isNaN(t(max)))) return null;
-  const lo = blank(min) ? "0000-00-00" : minEx ? isoDay(t(min) + DAY) : min;
-  const hi = blank(max) ? "9999-99-99" : maxEx ? isoDay(t(max) - DAY) : max;
-  if (lo > hi) return null;
-  const body = lexRange(lo, hi);
-  return body === null ? null : `${body}(Z|[+\\-]\\d{2}:\\d{2})?`;
+  const r = {};
+  if (!blank(min)) r[minEx ? "minExclusive" : "minInclusive"] = min;
+  if (!blank(max)) r[maxEx ? "maxExclusive" : "maxInclusive"] = max;
+  if (Object.values(r).some((v) => !/^\d{4}-\d{2}-\d{2}$/.test(v))) return null;
+  const p = dateRangePattern(r);
+  return p ? p : null;
 }
 
 // The XSD base IDS uses for a value restriction on this dataType.
