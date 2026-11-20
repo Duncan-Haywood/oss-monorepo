@@ -18,3 +18,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-20) its hotel residual traced to calendar slack, shipped 2026-11-20 (calslack.mjs, --calendar-slack, page panel; eval/calendar-slack-2026-11-20.md: 188 activities gain 1-17 h, 188/188 hold and tight)
 - (moved 2026-11-20) EV by window shipped 2026-11-20 (evmseries.mjs, --windows --earned-value, windows panel; earned vs the last update's promise; eval/evm-series-check-2026-11-20.md: 435/435 planted slips, 250/250 overruns)
 - (moved 2026-11-20) edited-durations list shipped (eval/edited-durations-2026-11-19.md: 300/300 planted)
+- (moved 2026-11-20) windows analysis across many updates shipped 2026-11-19 (windows.mjs, --windows; a not-started re-estimate is now a revision in the half-step; eval/windows-check-2026-11-19.md)

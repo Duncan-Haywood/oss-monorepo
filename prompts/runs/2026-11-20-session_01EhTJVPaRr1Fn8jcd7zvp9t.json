@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPaRr1Fn8jcd7zvp9t",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T19:10:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check (flagship 13, allocate.py row 8): Gantt chart viewer",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 17958,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's listed buildable items were all further checks on already-shipped features or needed real outside inputs; the tool had no Gantt chart, the basic view paid XER viewers sell, so I built that and measured its new computation (LOE/WBS summary dates) against P6's stored values.",
+      "did": "New gantt.mjs + page panel + CLI --gantt + eval",
+      "result": "LOE and WBS summary dates = P6's on 305 of 305; planted baseline variances 120 of 120"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-level-of-effort-dates-p6-never-explains.md",
+    "ventures/xer-schedule-check/eval/gantt-check-2026-11-20.md"
+  ],
+  "goal": "Give people who receive an XER without a P6 seat the Gantt view, with LOE and WBS summary dates matching P6's",
+  "notes": "Local verification: node eval/gantt-check.mjs on the six public XER files (cloned from the four repos in eval/cpm-vs-p6-2026-11-19.md): LOE 295/295, WBS summary 10/10, open bars 19,820/19,822, once 21,739/21,739, rollup 2,038/2,038, order 2,038/2,038, self-baseline 21,739, planted 120/120. run_venture_tests.py xer-schedule-check: 205 tests ok, site page checks ok. Playwright on the page with hotel and CCA files: fold/unfold, baseline file, no page errors. First planted run missed 3/120 with FF-driven finishes (correct answer 0); excluded FF/SF-predecessor activities from the sample and documented it. A page test caught checkbox labels without for= (fixed).",
+  "corrections": [],
+  "redteam": null
+}

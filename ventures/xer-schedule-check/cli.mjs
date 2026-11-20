@@ -35,6 +35,12 @@
 // Multiple float paths to one activity instead (floatpaths.mjs): path 1 is the
 // driving chain into it, each later path the next least float relative to it.
 // With no CODE, the activity the longest path ends on.
+// node cli.mjs schedule.xer --gantt [--baseline baseline.xer] [--html gantt.html] [--csv gantt.csv] [--level N] [--critical] [--links] [--json]
+// A Gantt chart instead (gantt.mjs): the WBS tree with a summary bar per
+// node, a bar per activity (level of effort and WBS summary activities given
+// P6's dates), and each activity's finish variance against the baseline
+// file, or the planned dates the file keeps. --html writes a printable page
+// with the chart; the text output lists the WBS rows and the late activities.
 // node cli.mjs schedule.xer --lookahead [WEEKS] [--from YYYY-MM-DD] [--csv lookahead.csv] [--html lookahead.html] [--by NAME] [--json] [--project CODE]
 // A look-ahead instead (lookahead.mjs): the next WEEKS weeks (3) of work by
 // WBS with a bar per day and a make-ready check of what each activity still
@@ -89,9 +95,10 @@ import { calendarSlack, calendarSlackText, calendarSlackCsv } from "./calslack.m
 import { milestoneCalendars, milestoneCalendarsText, milestoneCalendarsCsv } from "./milestones.mjs";
 import { earnedValue, earnedValueText, earnedValueCsv, sCurveCsv } from "./evm.mjs";
 import { earnedValueSeries, earnedValueSeriesText, earnedValueSeriesCsv } from "./evmseries.mjs";
+import { gantt, ganttText, ganttCsv, ganttHtml } from "./gantt.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--xer", "--event", "--baseline", "--level"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -213,6 +220,17 @@ if (args.includes("--tia")) {
   if (opt("--xer")) { writeFileSync(opt("--xer"), xerText(r.impactedXer)); console.error(`impacted schedule written to ${opt("--xer")}`); }
   const { impactedXer, ...plain } = r;
   await emit(args.includes("--json") ? JSON.stringify(plain, null, 2) + "\n" : timeImpactText(r));
+  process.exit(0);
+}
+if (args.includes("--gantt")) {
+  const result = schedule(xer);
+  const pid = assess(xer, { projId, result }).project.id;
+  const baseline = opt("--baseline") ? parseSchedule(decodeXer(readFileSync(opt("--baseline")))) : null;
+  const g = gantt(xer, { projId: pid, result, baseline });
+  const view = { level: opt("--level") ? Number(opt("--level")) : 99, critical: args.includes("--critical"), links: args.includes("--links") };
+  if (opt("--csv")) writeFileSync(opt("--csv"), ganttCsv(g));
+  if (opt("--html")) { writeFileSync(opt("--html"), ganttHtml(g, view, { by: opt("--by") })); console.error(`Gantt chart written to ${opt("--html")}`); }
+  await emit(args.includes("--json") ? JSON.stringify(g, null, 2) + "\n" : ganttText(g, view));
   process.exit(0);
 }
 if (args.includes("--lookahead")) {
