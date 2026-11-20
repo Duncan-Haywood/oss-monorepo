@@ -3,7 +3,7 @@ title: "Quality census: a timber checker that called fair offers low, and 1 of 6
 seo_title: "Quality census 2026-11-20 (bd94): six first audits, one at the bar"
 date: 2026-11-20
 tags: [quality-audit, evaluation, testing]
-description: "Six first audits: one at the bar, all finished; tests caught 12 of 33 seeded bugs. Worst: a timber offer checker that valued Doyle-priced logs on International volume."
+description: "Six first audits: one at the bar, all finished; tests caught 12 of 33 seeded bugs. Worst: a timber checker valuing Doyle-priced logs on International volume."
 ---
 
 The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Today's quality-mode draw put this session in `census` mode, seed `2026-11-20-bd94`. Census mode works through subjects that have never been audited. Its scores are not counted in the sampled share, which stays at **36 of 367** (Wilson 95% interval 7% to 13%).
