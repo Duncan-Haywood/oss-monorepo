@@ -42,6 +42,41 @@ class Proxy(unittest.TestCase):
         self.assertGreater(P.critical_path(*heavy, "le"), P.critical_path(*base, "le"))
         self.assertEqual(P.critical_path(*heavy, "unit"), P.critical_path(*base, "unit"))
 
+    def test_arrival_is_the_latest_input(self):
+        # NOT(2)->10, NOT(10)->11, NAND(10, 11)->12: the NAND waits for its later input (11), so depth 3, not 2
+        g, l = P.load(netlist([("$_NOT_", [2], 10), ("$_NOT_", [10], 11), ("$_NAND_", [10, 11], 12)], [12]))
+        self.assertEqual(P.critical_path(g, l, "unit"), 3)
+
+    def test_and_is_nand_plus_inverter(self):
+        # AND driving 3 inverters: NAND stage into the internal inverter (4/3*1 + 2) + inverter driving h=3 (3 + 1),
+        # then a fan-out-1 inverter (1 + 1)
+        g, l = P.load(netlist([("$_AND_", [2, 3], 10), ("$_NOT_", [10], 11), ("$_NOT_", [10], 12),
+                               ("$_NOT_", [10], 13)], [11, 12, 13]))
+        self.assertAlmostEqual(P.critical_path(g, l, "le"), 4 / 3 + 2 + 3 + 1 + 2)
+        self.assertAlmostEqual(P.critical_path(g, l, "type"), 4 / 3 + 2 + 1 + 1 + 2)
+
+    def test_xor_textbook_value(self):
+        # 2-input XOR: g = 4, p = 4 (Sutherland, Sproull and Harris, Tables 1.1 and 1.2), h = 1
+        g, l = P.load(netlist([("$_XOR_", [2, 3], 10)], [10]))
+        self.assertAlmostEqual(P.critical_path(g, l, "le"), 8.0)
+
+    def test_fanout_model(self):
+        # NAND with three readers costs 1 + 0.5 * 2, each inverter 1
+        g, l = P.load(netlist([("$_NAND_", [2, 3], 10), ("$_NOT_", [10], 11), ("$_NOT_", [10], 12),
+                               ("$_NOT_", [10], 13)], [11, 12, 13]))
+        self.assertAlmostEqual(P.critical_path(g, l, "fanout"), 3.0)
+
+    def test_flip_flop_is_cut_and_its_d_pin_is_a_load(self):
+        # NAND(2, 3)->10 drives a flip-flop D pin and an output port (h = 2); the flip-flop's Q (20) starts a new path
+        doc = json.loads(netlist([("$_NAND_", [2, 3], 10), ("$_NOT_", [20], 21)], [10, 21]))
+        doc["modules"]["accel"]["cells"]["ff"] = {"type": "$_DFF_P_", "connections": {"C": [1], "D": [10], "Q": [20]},
+                                                  "port_directions": {"C": "input", "D": "input", "Q": "output"}}
+        g, l = P.load(json.dumps(doc))
+        self.assertEqual(len(g), 2)
+        self.assertEqual(l[10], 2)
+        self.assertAlmostEqual(P.critical_path(g, l, "le"), 4 / 3 * 2 + 2)
+        self.assertEqual(P.critical_path(g, l, "unit"), 1)
+
     def test_loop_detected(self):
         g, l = P.load(netlist([("$_NOT_", [11], 10), ("$_NOT_", [10], 11)], [10]))
         with self.assertRaises(ValueError):
