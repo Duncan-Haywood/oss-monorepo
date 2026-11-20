@@ -34,10 +34,11 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 8,
+  "tests_added": 9,
   "outcome": "success",
   "errors": [
-    "Two audit files (house-market, loopclosure-twin) were committed while their auditors were still writing, because a stop hook asked for untracked files to be committed; the final versions were committed afterwards, so the end state is correct."
+    "Two audit files (house-market, loopclosure-twin) were committed while their auditors were still writing, because a stop hook asked for untracked files to be committed; the final versions were committed afterwards, so the end state is correct.",
+    "My first CSV guard in construction-evidence-log defused plain negative numbers too; run_workflow_locally (test_check_csv_formula_guard) caught it; fixed with the anchored number exemption and removed the file from csv_formula_guard_baseline.txt."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -62,7 +63,7 @@
     "docs/posts/2026-11-20-quality-census-seed-be43.md"
   ],
   "goal": null,
-  "notes": "Mode: census (seeded draw). Seed 2026-11-20-be43. Subjects: ventures/saas-seat-true-up, research/mimic-cursor, research/loopclosure-twin, ventures/construction-evidence-log, research/house-market, ventures/ai-engineering-academy. Share meeting the bar: 0 of 6 (census, not counted in the sampled share, which stays 36/367, Wilson 7-13%); finished 6/6. Seeded mutations caught 12/32; checks failed or partial 35/79; defects 45 (1 high). Fix PR: #17841 (saas tile label + 14-day boundary test; construction-evidence-log day count + CSV formula neutralisation; house-market headline pin test + two README figures; loopclosure-twin published-row pin test; mimic-cursor copy-cap test (partial, unmarked); ai-engineering-academy divider significant figures + \u00b5A display). Spot-checks I ran myself: seat arithmetic, Denver row in results.txt, 38.7% from facts.csv, loopclosure dof and c*c mutants now caught, mimic copy-cap mutant now caught. Local verification: node --test for the three ventures (69, 29, 27 pass), unittest/pytest for the three research projects (12, 10, 10 pass), check_posts ok, check_md_links ok, quality_audit validate 0 problems; run_workflow_locally --for-changes result below.",
+  "notes": "Mode: census (seeded draw). Seed 2026-11-20-be43. Subjects: ventures/saas-seat-true-up, research/mimic-cursor, research/loopclosure-twin, ventures/construction-evidence-log, research/house-market, ventures/ai-engineering-academy. Share meeting the bar: 0 of 6 (census, not counted in the sampled share, which stays 36/367, Wilson 7-13%); finished 6/6. Seeded mutations caught 12/32; checks failed or partial 35/79; defects 45 (1 high). Fix PR: #17841 (saas tile label + 14-day boundary test; construction-evidence-log day count + CSV formula neutralisation; house-market headline pin test + two README figures; loopclosure-twin published-row pin test; mimic-cursor copy-cap test (partial, unmarked); ai-engineering-academy divider significant figures + \u00b5A display). Spot-checks I ran myself: seat arithmetic, Denver row in results.txt, 38.7% from facts.csv, loopclosure dof and c*c mutants now caught, mimic copy-cap mutant now caught. Local verification: node --test for the three ventures (69, 29, 27 pass), unittest/pytest for the three research projects (12, 10, 10 pass), check_posts ok, check_md_links ok, quality_audit validate 0 problems; run_workflow_locally --for-changes: 16/17 workflows passed first time; ventures-tests failed on test_check_csv_formula_guard (my guard lacked a number exemption), fixed and rerun green.",
   "corrections": [],
   "redteam": null,
   "usage": {

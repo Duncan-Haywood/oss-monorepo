@@ -75,7 +75,6 @@ ventures/coffee-roaster-margin-calculator/calc.mjs
 ventures/commercial-solar-ppa-lease-buy-calculator/calc.mjs
 ventures/concrete-maturity/maturity.mjs
 ventures/construction-delay-claim-calculator/calc.mjs
-ventures/construction-evidence-log/record.mjs
 ventures/container-load-planner/calc.mjs
 ventures/convenience-store-gas-station-profit-calculator/calc.mjs
 ventures/courier-van-route-profit-calculator/calc.mjs

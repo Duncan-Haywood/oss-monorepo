@@ -139,3 +139,8 @@ test('entriesToCsv neutralises formula-leading cells', () => {
   assert.match(csv, /"'@sum"/);
   assert.doesNotMatch(csv, /,"=/);
 });
+
+test('entriesToCsv leaves a plain negative number as a number', () => {
+  const csv = entriesToCsv([makeRecord({ ...complete, crew: '-12.50' })]);
+  assert.match(csv, /,"-12\.50",/);
+});

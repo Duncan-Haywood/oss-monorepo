@@ -87,7 +87,7 @@ export function entriesToCsv(entries) {
   // Sheets (OWASP "CSV injection"); a leading apostrophe keeps it as text.
   const quote = (value) => {
     let text = String(value ?? '');
-    if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+    if (/^[=+\-@\t\r]/.test(text) && !/^-?\d+(\.\d+)?$/.test(text)) text = `'${text}`;
     return `"${text.replaceAll('"', '""')}"`;
   };
   const rows = entries.map((e) => {
