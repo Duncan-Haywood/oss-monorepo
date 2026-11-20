@@ -5,11 +5,11 @@ from osrobot_deadlineloss import fleet as F
 
 N = 16
 print("# osrobot-deadlineloss results: cheapest fleet (fleet cost + late-yield loss) for 16 equal fields (no new simulation)")
-print("# Loss = 2% of field revenue per leaf stage of delay past the window (Knezevic et al. 2003). Stage length, working day and revenue are swept, prices ASSUMED.\\n")
+print("# Loss = 2% of field revenue per leaf stage of delay past the window (Knezevic et al. 2003). Stage length, working day and revenue are swept, prices ASSUMED.\n")
 
 for ha in (0.18, 0.72, 1.62):
     for rev in (1000.0, 2000.0):
-        print(f"\\n# Sweep 1: {N} fields of {ha} ha, revenue {rev:.0f} USD/ha, 8 h working day. Total USD/ha = fleet + late loss; window closes at D hours")
+        print(f"\n# Sweep 1: {N} fields of {ha} ha, revenue {rev:.0f} USD/ha, 8 h working day. Total USD/ha = fleet + late loss; window closes at D hours")
         print("  stage_d  window_h   pipe: s,k  fleet  loss  total  mk_h   inline: n  fleet  loss  total  mk_h   pipe/inl")
         for sd in (2, 4, 8):
             for d in (4, 8, 16, 32):

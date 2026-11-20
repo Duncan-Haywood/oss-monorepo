@@ -14,7 +14,7 @@ Follow-up to `osrobot-deadline` (track 9, open-source purpose-built robots), who
 ## Reproduce
 ```bash
 cd research/osrobot-deadlineloss
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests, under a second
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, under a second
 PYTHONPATH=src python3 experiments/run.py > experiments/results.txt   # a few seconds
 python3 experiments/figure.py                             # experiments/loss.svg, parsed from results.txt
 ```
