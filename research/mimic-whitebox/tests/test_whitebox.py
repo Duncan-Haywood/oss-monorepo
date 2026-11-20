@@ -33,6 +33,28 @@ class WhiteboxTests(unittest.TestCase):
         self.assertEqual([x["k"] for x in d], whitebox.BUDGETS)
         self.assertLess(d[-1]["auroc_fixed"], d[0]["auroc_fixed"])
 
+    def test_committed_numbers_pinned(self):
+        r = json.load(open(os.path.join(HERE, "results.json")))
+        d = {x["k"]: x["auroc_fixed"] for x in r["modes"]["delete"]}
+        self.assertAlmostEqual(d[0], 0.948, 3)
+        self.assertAlmostEqual(d[10], 0.738, 3)
+        self.assertAlmostEqual(d[20], 0.487, 3)
+
+    def test_human_filler_is_the_most_human_ward_unigram(self):
+        vec, clf = DET
+        f = whitebox.human_filler(DET)
+        w = {t: clf.coef_[0][j] for t, j in vec.vocabulary_.items() if " " not in t}
+        self.assertEqual(w[f], min(w.values()))
+
+    def test_ranking_edits_the_most_machine_ward_word_first(self):
+        vec, clf = DET
+        out = whitebox.attack(DET, M[0], 1, "delete", "x")
+        gone = set(M[0].split()) - set(out.split())
+        self.assertEqual(len(gone), 1)
+        X = vec.transform([M[0]]).toarray()[0]
+        contrib = {t: X[vec.vocabulary_[t]] * clf.coef_[0][vec.vocabulary_[t]] for t in M[0].split() if t in vec.vocabulary_}
+        self.assertAlmostEqual(contrib[gone.pop()], max(contrib.values()))  # ties allowed; a reversed ranking picks the minimum
+
 
 if __name__ == "__main__":
     unittest.main()
