@@ -80,3 +80,14 @@ test("summary names the source and says it is not advice", () => {
   assert.ok(t.includes(VERIFY));
   assert.match(t, /Not tax advice/);
 });
+
+test("employer payments in a year come off that year's costs in full, not pro rata by weeks (quality census 2026-11-20)", () => {
+  // Employer paid GBP 156 for 26 weeks of required home working: the employee bore nothing, so there is no claim (ITEPA 2003 s336).
+  assert.equal(run({ reimbursed: 156, weeks2022: 26, weeks2023: 0, weeks2024: 0, weeks2025: 0 }).claimable, 0);
+  // GBP 100 paid against 46 weeks at GBP 6 (276): 176 of expenses, 35.20 at 20%.
+  const r = run({ reimbursed: 100, weeks2022: 46, weeks2023: 0, weeks2024: 0, weeks2025: 0 });
+  assert.equal(r.rows[0].flat, 176);
+  assert.equal(r.claimable, 35.2);
+  // Actual costs: GBP 1,040 a year over 26 weeks is 520 borne, less 156 paid = 364.
+  assert.equal(run({ reimbursed: 156, actual: 1040, weeks2022: 26, weeks2023: 0, weeks2024: 0, weeks2025: 0 }).rows[0].actual, 364);
+});

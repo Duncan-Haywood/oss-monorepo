@@ -49,8 +49,8 @@ export function compute(input) {
     if (!w) continue;
     const dl = deadline(y);
     const daysLeft = Math.ceil((Date.parse(dl) - today) / 86400000);
-    const flat = Math.max(0, r2(w * WEEKLY - reimbursed * (w / 52)));
-    const act = actual ? Math.max(0, r2(actual * (w / 52) - reimbursed * (w / 52))) : null;
+    const flat = Math.max(0, r2(w * WEEKLY - reimbursed));
+    const act = actual ? Math.max(0, r2(actual * (w / 52) - reimbursed)) : null;
     const expenses = act !== null && act > flat ? act : flat;
     const method = act !== null && act > flat ? "actual costs" : "flat rate";
     const relief = required ? r2(expenses * rate / 100) : 0;

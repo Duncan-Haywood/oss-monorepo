@@ -1,0 +1,211 @@
+{
+ "date": "2026-11-20",
+ "subject": "research/qual-features-outcomes",
+ "stratum": "research",
+ "seed": "2026-11-20-67e4",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a computational social scientist / applied ML statistician who reviews text-as-data and LLM-annotation papers (ICWSM, EMNLP CSS track); first checks: is the bag-of-words baseline competitive, are the feature-set differences larger than their uncertainty, do rare-class cells hide dropped draws, and what is new against the LLM-annotation-as-features literature (Ziems et al. 2024; Egami et al. 2023 DSL; TabLLM, LLooM)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Reproduced end to end in a private copy (/tmp/claude-0/audit-qual-features-outcomes/research/, qual-real, qual-correction and _shared copied alongside): `cd /tmp/claude-0/audit-qual-features-outcomes/research/qual-features-outcomes && time /usr/bin/python3.13 experiments/run.py` (numpy 2.5.3, scikit-learn 1.9.1, scipy 1.18.1) took 5m19s and `diff` against the committed experiments/results.txt printed IDENTICAL (bit-for-bit). Own script with no subject import (`/usr/bin/python3.13 -I /tmp/claude-0/audit-qual-features-outcomes/indep.py`) parsing the GoEmotions CSV directly: 5,313 items, prevalences A 0.594, D 0.037, B 0.499 all match; Hanley & McNeil (1982) SE of an AUC on the 3,000-item test set is 0.0105-0.0106, matching README's 'about 0.011'; a hand Mann-Whitney U AUC equals sklearn's to 6 decimals. Independent pipeline (`/usr/bin/python3.13 /tmp/claude-0/audit-qual-features-outcomes/indep2.py ...`): plain LogisticRegression(C=1) on the 28 codes at n=1,600 gives 0.527 (author 0.527). Numbers are right as computed; but the same script shows the tf-idf bow baseline is weak (MultinomialNB on raw counts: 0.595 vs the author's 0.557) and the outcome-D n=50 cell averages 7 of 30 draws, so some cells do not mean what the table implies.",
+  "completeness": "README claims checked: run.py reproduces results.txt exactly (about 5 minutes: 5m19s observed); tests pass (5 OK); figure.py and SVG present; outcomes A, B, C, D all in results.txt; Method bullets (3,000/2,313 split, 2,368 terms, C grid, 30 draws) match code and output. Gap: the Reproduce/Outside-dependencies sections omit that run.py transitively imports research/qual-correction/qualml.py via qual-real (first run in a copy without it failed with ModuleNotFoundError: No module named 'qualml'). Live page not loadable (proxy 403 for marisstella.app); project.json is consumed by platform/pages/research-registry.mjs.",
+  "verification": "`cd research/qual-features-outcomes && /usr/bin/python3.13 -m unittest test_qualfeaturesout`: Ran 5 tests, OK. Four seeded mutants via quality_mutate.py: negating the decision function was caught; changing the minority-class guard from <3 to <1, mean->median of AUCs, and silently dropping draws with AUC<=0.5 all SURVIVED. The tests cover helpers, not the sweep's aggregation or the dropped-draw path; nothing checks results.txt against a rerun.",
+  "craft": "Read qualfeaturesout.py (67 lines), experiments/run.py (107), figure.py, test file. Clean and small, but: sweep() computes the number of usable draws (qualfeaturesout.py:66) and run.py's block_table (run.py:56-60) never prints it, so silent drops in rare-class cells are invisible; `import run as real` relies on run.py running as __main__ (importing it as a module makes `run` resolve to itself; my indep2.py hit AttributeError: module 'run' has no attribute 'fetch'); an undeclared transitive dependency on qual-correction through two sys.path inserts.",
+  "claims": "Headline numbers (0.527, 0.557, 0.595, 0.494-0.511, 5% error) all backed by results.txt; the 'human codes, not an LLM' caveat is prominent and honest. Unbacked: finding 2 (README:32) reads LSA's 0.595 as 'a dense embedding can use labels more efficiently than a 2,368-dimensional sparse one', but MultinomialNB on the same sparse counts reaches 0.595 too, so the gap is baseline tuning, not density. README:34 'about 85 in the pool' is wrong: the seeded pool holds 77 positives (indep.py). Outcome D's n=50 cell (0.543, the highest D numeric value) averages only 7 usable draws of 30, undisclosed.",
+  "fitness": "A researcher on track 19 could reuse the harness (fixed split, budget sweep, coder-error simulation) and it reproduces exactly. But the study does not answer its title question: no LLM coder ran, and both real outcomes were chosen for availability and are not expected to load on an emotion codebook, so 'emotion codes do not predict reply structure' is close to expected. Nearest prior work: the sibling qual-features (codes ahead of words on an emotional target); Ziems et al. 2024 'Can LLMs transform computational social science?' and Egami et al. 2023 (DSL, imperfect LLM surrogates in downstream models) are the standard references and are not cited. Not new; sound only for the narrow negative.",
+  "domain": "Against text-as-data practice (Grimmer, Roberts & Stewart 2022; standard competitive baselines): the bow baseline is a single untuned tf-idf logistic, beaten by 0.04 AUC by a default NB; feature-set comparisons rest on differences of 0.001-0.02 with no paired test across draws and one fixed test split (HM SE ~0.011), e.g. codes+numeric 0.556 vs bow 0.557; rare-outcome cells condition on draws with >=3 positives without saying so; symmetric bit-flip noise is acknowledged as a stress test. The negative control and fixed seeded split are good practice."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Full rerun reproduces committed results.txt",
+   "method": "rerun in private copy, diff",
+   "command": "cd /tmp/claude-0/audit-qual-features-outcomes/research/qual-features-outcomes && time /usr/bin/python3.13 experiments/run.py; diff experiments/results.txt /home/user/oss-monorepo/research/qual-features-outcomes/experiments/results.txt",
+   "expected": "identical",
+   "observed": "IDENTICAL, 5m19s",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Item count and outcome prevalences A, D, B",
+   "method": "auditor's own csv parse of the GoEmotions source CSV (Demszky et al. 2020), no subject import",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-qual-features-outcomes/indep.py",
+   "expected": "5313; 0.594, 0.037, 0.499 (results.txt)",
+   "observed": "5313; 0.594, 0.037, 0.499",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Standard error of a test AUC on 3,000 items",
+   "method": "Hanley & McNeil (1982) formula",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-qual-features-outcomes/indep.py",
+   "expected": "about 0.011 (README:35)",
+   "observed": "0.0105 (B, AUC .5), 0.0106 (A, AUC .55)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "AUC metric implementation",
+   "method": "Mann-Whitney U statistic / (n1 n0) via scipy vs sklearn roc_auc_score",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-qual-features-outcomes/indep.py",
+   "expected": "equal",
+   "observed": "0.555507 vs 0.555507",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Codes-only AUC on outcome A at n=1,600",
+   "method": "auditor's own pipeline: plain LogisticRegression(C=1), own draw seeds",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/audit-qual-features-outcomes/indep2.py /tmp/claude-0/audit-qual-features-outcomes/research/qual-features-outcomes/experiments /tmp/claude-0/audit-qual-features-outcomes/research/qual-features-outcomes",
+   "expected": "0.527 (README:31)",
+   "observed": "0.527 sd 0.007",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Is the bag-of-words baseline competitive?",
+   "method": "MultinomialNB on raw unigram counts (min_df=3), standard text-classification baseline",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/audit-qual-features-outcomes/indep2.py ...",
+   "expected": "near the author's bow 0.557 at n=1,600",
+   "observed": "0.595 sd 0.005 (matches LSA+numeric; finding 2's density explanation not supported)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Outcome D positives in the pool",
+   "method": "replicated seeded shuffle, counted",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-qual-features-outcomes/indep.py",
+   "expected": "about 85 (README:34)",
+   "observed": "77 in pool, 117 in test",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Usable draws in the outcome-D small-n cells",
+   "method": "hypergeometric P(>=3 positives) via scipy.stats, and the author's sweep's own count",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-qual-features-outcomes/indep.py; /usr/bin/python3.13 /tmp/claude-0/audit-qual-features-outcomes/indep2.py ...",
+   "expected": "30 draws per cell (README Method, results.txt header)",
+   "observed": "n=50: P=0.231, 7 usable of 30; n=100: 23 of 30; not reported anywhere",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Unit tests",
+   "method": "run",
+   "command": "cd research/qual-features-outcomes && /usr/bin/python3.13 -m unittest test_qualfeaturesout",
+   "expected": "pass",
+   "observed": "Ran 5 tests OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Reproduce instructions list dependencies",
+   "method": "rerun in a copy with only qual-real alongside",
+   "command": "cd /tmp/claude-0/audit-qual-features-outcomes/research/qual-features-outcomes && /usr/bin/python3.13 experiments/run.py",
+   "expected": "runs",
+   "observed": "ModuleNotFoundError: No module named 'qualml' until research/qual-correction was also copied",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Null control within 0.494-0.511 and every AUC <= 0.60",
+   "method": "read rerun results.txt",
+   "command": "grep in rerun results.txt",
+   "expected": "as stated",
+   "observed": "B range 0.494-0.511; max 0.595",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page",
+   "method": "curl https://marisstella.app/research/qual-features-outcomes/",
+   "command": "curl -sS https://marisstella.app/research/qual-features-outcomes/",
+   "expected": "200",
+   "observed": "proxy 403 (not checkable); project.json consumed by platform/pages/research-registry.mjs",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "qualfeaturesout.py:40",
+   "change": "len(ytr) - ytr.sum()) < 3 -> len(ytr) - ytr.sum()) < 1",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest test_qualfeaturesout"
+  },
+  {
+   "where": "qualfeaturesout.py:66",
+   "change": "(float(np.mean(aucs)) -> (float(np.median(aucs))",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest test_qualfeaturesout"
+  },
+  {
+   "where": "qualfeaturesout.py:45",
+   "change": "roc_auc_score(yte, clf.decision_function -> roc_auc_score(yte, -clf.decision_function",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m unittest test_qualfeaturesout"
+  },
+  {
+   "where": "qualfeaturesout.py:64",
+   "change": "if a is not None: -> if a is not None and a > 0.5:",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest test_qualfeaturesout"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Finding 2 attributes LSA's 0.595 to a dense embedding using labels more efficiently than the sparse bow, but the bow baseline is an untuned tf-idf logistic; a default MultinomialNB on the same unigram counts reaches 0.595 at n=1,600, so the gap is baseline weakness, and 'codes vs words' is compared against an under-powered words baseline",
+   "where": "research/qual-features-outcomes/README.md:32",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "sweep() silently drops draws with fewer than 3 minority-class labels and run.py never reports the usable count: outcome D's n=50 cell (0.543) averages 7 of 30 draws and n=100 23 of 30, conditioned on positives, while the header says 30 draws per cell",
+   "where": "research/qual-features-outcomes/experiments/run.py:59",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'about 85 in the pool' for outcome D positives; the seeded pool holds 77 (117 in test)",
+   "where": "research/qual-features-outcomes/README.md:34",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests cover helpers only: 3 of 4 seeded mutants in fit_auc/sweep survived (minority guard, mean->median, dropping low-AUC draws)",
+   "where": "research/qual-features-outcomes/qualfeaturesout.py:66",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Reproduce/Outside dependencies omit the transitive import of research/qual-correction/qualml.py via qual-real; `import run as real` only works when run.py is __main__ (module-name collision)",
+   "where": "research/qual-features-outcomes/experiments/run.py:23",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "medium",
+   "what": "Feature-set rankings rest on 0.001-0.03 AUC differences on one fixed test split with no paired comparison or interval across sets (e.g. codes+numeric 0.556 vs bow 0.557); LLM-annotation-as-features prior work (Ziems et al. 2024, Egami et al. 2023 DSL) not cited, and the title question (LLM codes) is not tested",
+   "where": "research/qual-features-outcomes/README.md:31",
+   "category": "research-design",
+   "origin": "design"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"],
+ "verdict": "Reproduces bit-for-bit (5m19s rerun, diff IDENTICAL) and its headline numbers are honest and independently recomputed (prevalences, AUC SE, codes-only 0.527). It does not meet the bar: the bag-of-words baseline is weak (default NB on counts gets 0.595, not 0.557), which undercuts finding 2's interpretation; rare-outcome cells silently average 7 of 30 draws; 3 of 4 seeded mutants survive; and the study cannot answer its title question (no LLM, outcomes not expected to load on emotion). Scores 3/3/2/2/2/2/2, median 2; finished (completeness 3) but not senior-grade research."
+}
