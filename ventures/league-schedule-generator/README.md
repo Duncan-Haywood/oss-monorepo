@@ -54,8 +54,21 @@ holes and net point; the absentee counts par + 3 in the team net. Bye: each play
 their full handicap. A night worked by hand is in the tests (Hawks 12.5, Owls 9.5) and on the page.
 
 **Limits.** A league handicap only, not a Handicap Index under the World Handicap System; no score
-posting; one stroke-index row per course (no separate men's/women's tees); subs play under the rostered
-name; no skins, flighted play-offs or two-course leagues yet. Not yet used by a real league.
+posting; subs play under the rostered name; no flighted play-offs or two-course leagues yet. Not yet used by
+a real league.
+
+**Tee rows and skins (2026-11-20, later).** The course card takes more sets of tees ("Par (forward):",
+"Index (forward):"; a tee giving one row keeps the main tees' other) and a roster marks a player's tees
+("Ben (forward)"). Handicaps are worked over the player's own par and net double bogey on their own holes.
+Across tees, the player whose tees have the higher par for the nine gets the difference as extra strokes
+(the World Handicap System's mixed-tee adjustment, applied here to a league handicap), on the receiver's own
+stroke index; team net is each net over own par, put on the main par. Skins (`skinsGame`): gross, net (a
+share of the handicap) or both; one low score on a hole wins it, a tie wins nothing or carries over; players
+on different tees compared against their own par; an optional entry makes a pot shared by the skins won, and
+a night with none won returns the entries. Worked by hand in `golf.test.mjs`: a forward-tee 5 against a 2
+(6 v 2 after the par step, 4 strokes on holes 1, 2, 4, 6; 5.5 - 4.5), the Hawks/Owls night's gross skins
+(Cy 5, Ana 3, hole 4 tied) and net skins (only hole 8 not tied, Dee), and carry-over (4 and 5 skins share a
+pot of 15 as 6.67 and 8.33).
 
 ## Americano and Mexicano scorer (2026-11-19, `americano-night.html`, `night.mjs`)
 
