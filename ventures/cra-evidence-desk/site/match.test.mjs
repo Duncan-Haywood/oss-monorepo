@@ -227,3 +227,18 @@ test("the exported record carries the spec it was produced under", () => {
   assert.equal(result.spec, "cra-exact-coordinate-v1");
   assert.equal(result.coverage, "Exact name, ecosystem, and version matches only; no range or reachability analysis.");
 });
+
+test("every advisory naming a component is reported, not only the last", () => {
+  const osv = (id) => ({ id, modified: "2024-01-01T00:00:00Z",
+    affected: [{ package: { ecosystem: "npm", name: "lodash" }, versions: ["4.17.15"] }] });
+  const result = report({ components: [{ purl: "pkg:npm/lodash@4.17.15" }] },
+    { vulns: [osv("GHSA-p6mc-m468-83gw"), osv("GHSA-35jh-r3h4-6jhm")] }, "P", "V");
+  assert.deepEqual(result.matched_findings.map((f) => f.advisory),
+    ["GHSA-p6mc-m468-83gw", "GHSA-35jh-r3h4-6jhm"]);
+});
+
+test("name matching ignores case", () => {
+  const found = match({ components: [{ ecosystem: "npm", name: "Demo-Parser", version: "1.0" }] },
+    [{ ecosystem: "npm", name: "demo-parser", version: "1.0", id: "A" }]);
+  assert.deepEqual(found.map((f) => f.advisory), ["A"]);
+});

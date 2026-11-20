@@ -19,12 +19,18 @@ def _components(sbom: dict[str, Any]) -> list[dict[str, str]]:
 
 def match(sbom: dict[str, Any], advisories: list[dict[str, Any]]) -> list[dict[str, str]]:
     """Match exact component coordinates; never infer affected ranges."""
-    indexed = {(a["ecosystem"], a["name"].lower(), a["version"]): a for a in normalize_advisories(advisories)}
+    # A list per coordinate, not one advisory: a component is routinely named by
+    # several advisories (log4j-core 2.14.1 by CVE-2021-44228 and -45046), and
+    # a last-wins index silently dropped all but one from the evidence record.
+    indexed: dict[tuple[str, str, str], list[dict[str, str]]] = {}
+    for a in normalize_advisories(advisories):
+        key = (a["ecosystem"], a["name"].lower(), a["version"])
+        if not any(seen["id"] == a["id"] for seen in indexed.setdefault(key, [])):
+            indexed[key].append(a)
     findings = []
     for component in _components(sbom):
         key = (component["ecosystem"], component["name"].lower(), component["version"])
-        advisory = indexed.get(key)
-        if advisory:
+        for advisory in indexed.get(key, []):
             findings.append({
                 "component": f"{component['name']}@{component['version']}",
                 "ecosystem": component["ecosystem"] or "unspecified",

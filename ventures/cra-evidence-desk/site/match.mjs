@@ -251,16 +251,21 @@ export function unmatchableAdvisories(document) {
 
 /** Match exact component coordinates; never infer affected ranges. */
 export function match(sbom, advisories) {
+  // A list per coordinate, not one advisory: a component is routinely named by
+  // several advisories, and a last-wins Map silently dropped all but one.
   const indexed = new Map();
   for (const advisory of normalizeAdvisories(advisories)) {
-    indexed.set(`${advisory.ecosystem} ${advisory.name.toLowerCase()} ${advisory.version}`, advisory);
+    const key = `${advisory.ecosystem}\u0000${advisory.name.toLowerCase()}\u0000${advisory.version}`;
+    const list = indexed.get(key) || [];
+    if (!list.some((seen) => seen.id === advisory.id)) list.push(advisory);
+    indexed.set(key, list);
   }
   const findings = [];
   for (const component of normalizeSbom(sbom)) {
-    const advisory = indexed.get(
-      `${component.ecosystem} ${component.name.toLowerCase()} ${component.version}`,
-    );
-    if (advisory) {
+    const list = indexed.get(
+      `${component.ecosystem}\u0000${component.name.toLowerCase()}\u0000${component.version}`,
+    ) || [];
+    for (const advisory of list) {
       findings.push({
         component: `${component.name}@${component.version}`,
         ecosystem: component.ecosystem || "unspecified",
