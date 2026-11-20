@@ -7,14 +7,16 @@
   "input_sha256": "dc863d996529215194f3f7e08c0ff10d37c02074faf430854d83d999c5ff8542",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T18:56:20Z",
   "ended": "2026-11-20T19:24:49Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 34.24,
+  "tokens_in": 26125271,
+  "tokens_out": 137766,
+  "cost_usd": 10.5725,
+  "tool_calls": 107,
   "task": "Deepen (flagship 10) open-tennis-robots: BUILDABLE HERE item 'the same guide for the feeder' (assembly guide generated from the CAD with fastener-stack checks)",
   "projects": [
     "ventures/open-tennis-robots"
@@ -63,7 +65,86 @@
     "ventures/open-tennis-robots/cad/README.md (Feeder assembly guide)"
   ],
   "goal": "Make the feeder's manufacturing package buildable by a stranger: a generated, checked assembly guide.",
-  "notes": "Feeder package rebuilt with every sweep: exit 0, guide all pass. Collector package byte-identical. Guide tests pass. Full CAD suite, venture tests and preflight: results added in a later commit.",
+  "notes": "Verification: feeder package rebuilt with every sweep (python -m otr_cad feeder): exit 0, no design-rule or collision findings, guide all pass. Collector package rebuilt byte-identical to the committed one. Full CAD suite (build123d 0.13 venv, pytest cad/tests): 162 passed in 338 s. run_venture_tests.py open-tennis-robots: 488 tests, 0 failed. venture-preflight.mjs open-tennis-robots: clean. check_posts.py on the post: ok.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1f6d37dd-5aa3-5d10-a0ed-5c6e3e7795f2",
+    "transcripts": 1,
+    "first": "2026-11-20T18:56:20Z",
+    "last": "2026-11-20T19:30:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 104,
+        "input": 207,
+        "output": 137766,
+        "thinking": 66659,
+        "cache_read": 25792841,
+        "cache_write_5m": 0,
+        "cache_write_1h": 332223,
+        "api_equivalent_usd": 10.5725,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 104,
+      "input": 207,
+      "output": 137766,
+      "thinking": 66659,
+      "cache_read": 25792841,
+      "cache_write_5m": 0,
+      "cache_write_1h": 332223,
+      "api_equivalent_usd": 10.5725,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 107,
+    "tools": {
+      "Bash": 97,
+      "Read": 3,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.24,
+      "active_minutes": 29.84,
+      "model_minutes": 23.96,
+      "tool_minutes": 5.88,
+      "waiting_on_human_minutes": 4.4,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a mechanical engineer reconciling a 100-part BOM against the CAD, writing a 25-step guide and fixing 12 fit faults",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 151.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
