@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPyh4u5DyzrsV6yFgA",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T02:19:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: new venture drawing-set-index (sheet index, set check and revision compare from a construction drawing set PDF)",
+  "projects": [
+    "ventures/drawing-set-index"
+  ],
+  "pr": 17837,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 15,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First single-sheet eval read 74.0% of sheet numbers: the PDF tokenizer copied from submittal-register (originally bank-statement-pdf-to-csv) skipped inline images by searching for the next 'EI', which occurs inside binary image data; Ghostscript-written sheets with 1,000+ inline hatch images lost their title blocks.",
+      "fix": "skipInlineImage: unfiltered images skipped by W*H*components*bpc, filtered ones to a whitespace-delimited EI; regression test added. The same tokenizer lives in submittal-register and bank-statement-pdf-to-csv and may carry the bug (not changed in this PR)."
+    },
+    {
+      "what": "git ls-tree -l on a blobless clone fetched every blob (minutes, background task stopped).",
+      "fix": "Use --name-only on blobless clones."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-a-sheet-index-read-from-the-title-blocks.md",
+    "ventures/drawing-set-index/README.md",
+    "ventures/drawing-set-index/eval/README.md"
+  ],
+  "goal": "Ship a construction-document tool with measured accuracy on real public drawing sets (owner direction: construction; depth over calculators).",
+  "notes": "Idea: drawing-set-index, a free in-browser sheet index for construction drawing set PDFs (number, title, NCS discipline and sheet type), a set check (no number, duplicates, order within discipline, split discipline, cover drawing index vs sheets) and a text compare of two issues. Number found by a set-wide vote for the title block's number cell; title by size, boilerplate frequency, ruled cell borders (new: straight rules collected from the content stream), address and revision-row filters. Eval on public OpeningDesign GitHub PDFs (not stored; eval/fetch.sh): 123 single-sheet PDFs with filename truth, number 121/123 (98.4%), number+title 115/123 (93.5%), 3 misses are filename errors verified with pdftotext; 14 whole sets / 180 pages: number on 172/172 text pages, 25/25 against filename truth. Found a real duplicate A501 in a public set. Verified: node --test engine.test.mjs page.test.mjs (15 pass), page driven in Chromium (sample + 25-sheet set, no console errors, 390 px no horizontal scroll), run_workflow_locally.py --for-changes (sibling-links failed once, fixed by a reciprocal link from submittal-register). Next if it pays off: other offices' sets (AutoCAD, public bid sets), revision table vs changed sheets, linework signature, slip-sheeting a combined PDF.",
+  "corrections": [],
+  "redteam": null
+}

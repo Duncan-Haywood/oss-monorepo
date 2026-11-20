@@ -340,6 +340,7 @@ ventures/dog-walking-route-pricing/usage.mjs
 ventures/donor-acknowledgment-letter-generator/usage.mjs
 ventures/donor-retention-analyzer/usage.mjs
 ventures/dotenv-exposure-check/usage.mjs
+ventures/drawing-set-index/usage.mjs
 ventures/drip-keeper/usage.mjs
 ventures/driving-instructor-lesson-pricing-calculator/usage.mjs
 ventures/driving-school-profit-calculator/usage.mjs
