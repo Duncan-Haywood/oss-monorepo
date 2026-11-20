@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKm6BiTShXoyLfN4zDX",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T01:18:26Z",
+  "ended": "2026-11-20T01:34:38Z",
+  "wall_minutes": 16.45,
+  "tokens_in": 6688091,
+  "tokens_out": 41327,
+  "cost_usd": 3.2464,
+  "tool_calls": 57,
+  "task": "research/codesign-cant milestone 7ah: identify the point mass's acceleration lag from a flown acceleration step",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17833",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "verdicts.py first imported 7ag's verdicts by module name, which collided with its own name when figure.py imported it; fixed with importlib",
+    "first smoke at 3.5 m/s^2 marked every probe flight dead: the open-loop vehicle travels 7 m past poshold.DEAD_POS; lifted the bound for the probe",
+    "a unit test with arbitrary unit-cube gains did not reach the requested acceleration; replaced with a check on the 36 real designs' results"
+  ],
+  "integrity_issues": [
+    "AH0 (steady acceleration within 10% of the request) was mis-set: the controller's small-angle lean map alone puts it 4.5% high at 3.5 m/s^2; reported refuted, not re-cut",
+    "the identified lags were blind to the rise times but scored against 7ag's already-published flights, disclosed in Limits"
+  ],
+  "doc_friction": [
+    {
+      "file": "research/codesign-cant/experiments/m6_poshold/run.py",
+      "issue": "imports cma, which python3.13 from pyenv.py (asked for pytest numpy scipy matplotlib) lacked; the project's pyproject lists it, so `pyenv.py -r` style with the project's deps would have saved a round trip"
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "CHAIN warning (33 sub-steps of milestone 7) was useful: chose the sub-step that turns a post hoc fit into a builder rule and a paper paragraph rather than another knob"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-read-a-drone-attitude-lag-off-one-lean-step.md",
+    "research/codesign-cant/README.md (milestone 7ah section)",
+    "research/codesign-cant/paper/DRAFT.md (section VII paragraph)"
+  ],
+  "goal": null,
+  "notes": "Predictions committed in 45be9bc6f before the full run (seed 9999). Full run 216 flights 27 s. Verdicts AH1, AH2, AH7, AH8 held; AH0, AH3-AH6 refuted. Local checks: research/_homepage/build.py ok; check_md_links ok; check_posts ok; paper/check_numbers.py 80/80; tests/test_att_step_7ah.py 4 passed; full project test suite: 80 passed, 1 skipped (135 s).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a6bc540e-5175-5234-8cee-ee2fc57ba0ef",
+    "transcripts": 1,
+    "first": "2026-11-20T01:18:26Z",
+    "last": "2026-11-20T01:34:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 108,
+        "output": 41327,
+        "thinking": 8764,
+        "cache_read": 6549286,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138697,
+        "api_equivalent_usd": 3.2464,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 108,
+      "output": 41327,
+      "thinking": 8764,
+      "cache_read": 6549286,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138697,
+      "api_equivalent_usd": 3.2464,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 52,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.45,
+      "active_minutes": 16.45,
+      "model_minutes": 7.98,
+      "tool_minutes": 8.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a controls researcher designing, running and writing up a pre-registered system-identification check on an existing simulator, about a day and a half",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 308.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

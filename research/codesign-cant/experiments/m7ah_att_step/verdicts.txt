@@ -1,0 +1,18 @@
+AH0 (check: no flight dead, a_ss within 10% of the request for every design): refuted; dead 0; a_ss/A median 1: 1.019 (0.949-1.073), 3.5: 1.062 (0.984-1.123)
+AH1 (law does not move tau: under 33 and 39.1 ms, per-design tau within 10 ms of the 36 ms law's for >= 34/36, A = 3.5): held; worse law 36/36; median tau by law id 33 ms D^0: 170.8 ms, mid 36 ms D^0: 170.7 ms, id 39.1 ms D^0: 170.6 ms
+AH2 (amplitude does not move tau: per-design tau at 3.5 within 15 ms of tau at 1.0 for >= 34/36): held; 36/36; median tau A=1: 165.9 ms, A=3.5: 170.7 ms; range at 3.5: 43-292 ms
+AH3 (identified tau agrees with 7ag's fitted 135 ms: median over designs within 110-160 ms, A = 3.5): refuted; 170.7 ms; 63% time median 182.0 ms
+AH4 (per-design identified tau: within 0.10 s for >= 33/36 at A_P 8 and 36/36 at S 0.5): refuted; 34/36 and 35/36
+AH5 (per-design identified tau has the smaller median |error| than the no-lag point mass in all 7 conditions): refuted; 6/7
+AH6 (per-design tau beats one pooled tau, the median, in median |error| in >= 5 of 7 conditions): refuted; 2/7
+AH7 (63% time does at least as well as the area estimate in >= 5 of 7 conditions): held; 6/7
+AH8 (identified tau's median |error| within 0.01 s of the fitted 135 ms's in every condition): held; worst excess +0.0005 s
+
+  A_P    S |  n<=0.1s pm/id/63/pool/fit | MAE pm     id    t63   pool fit135 | bias id
+  2.0  1.0 |             36/36/36/36/36 |  0.002  0.002  0.002  0.002  0.002 |  -0.001
+  2.5  1.0 |             36/36/36/36/36 |  0.006  0.002  0.002  0.002  0.002 |  -0.002
+  3.5  1.0 |             36/36/36/36/36 |  0.020  0.006  0.004  0.005  0.006 |  -0.005
+  5.0  1.0 |             35/36/36/36/36 |  0.040  0.008  0.007  0.008  0.012 |  -0.008
+  8.0  1.0 |             23/34/36/33/33 |  0.085  0.020  0.017  0.025  0.035 |  -0.019
+  3.5  0.5 |             31/35/36/36/36 |  0.062  0.012  0.011  0.013  0.020 |  -0.008
+  3.5  2.0 |             36/36/36/36/36 |  0.005  0.004  0.004  0.004  0.004 |  -0.004
