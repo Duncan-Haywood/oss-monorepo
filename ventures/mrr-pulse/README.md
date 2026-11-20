@@ -31,7 +31,10 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
 
 - **MRR**: active and past-due subscriptions; every price normalised to a
   month (yearly / 12, weekly × 4.348 (30.4375 / 7), interval counts and seat quantities
-  applied); percent-off coupons netted.
+  applied); percent-off coupons netted, read from the subscription's
+  `discounts` list (expanded on the list call, since Stripe's 2025-03-31.basil
+  API version deprecated the single `discount` field) and the legacy field,
+  each discount counted once.
 - **Not counted**: trials, paused subscriptions, incomplete and
   incomplete-expired subscriptions (the first payment never succeeded), metered usage, tiered
   (graduated or volume) prices, fixed-amount
