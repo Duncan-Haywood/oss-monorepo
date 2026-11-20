@@ -245,8 +245,12 @@ def labels_report(text, extra="", gap=2):
 
 # A heading that reports writing the paper, not one that merely says "paper" (aerolog-scaling's
 # "census paper weights" is a model term, not a write-up step).
+# `· Paper: ...` / `· Paper sync ...` headings and "(a writing step, no experiment)" milestones
+# count too: missing them made pick_track's CHAIN cue say "32 entries since a paper step" one
+# entry after `Paper: Section 6.1` landed (llm-coding-inference, 2026-11-19; 3 friction reports).
 PAPER_STEP = re.compile(r"\bpaper (section|step|draft|catch-up)|\bfull paper\b|\bDRAFT\.md\b|"
-                        r"\bmanuscript\b|\bwrite-up step\b|\bthe paper draft\b", re.I)
+                        r"\bmanuscript\b|\bwrite-up step\b|\bthe paper draft\b|"
+                        r"·\s*paper\b|\bwriting step\b", re.I)
 
 
 def chain(text):

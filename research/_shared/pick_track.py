@@ -807,7 +807,9 @@ def chain_line(slug, minimum=CHAIN_MIN, text=None):
     """A cue when the programme's newest milestone number has `minimum`+ sub-steps, else None.
     Why: a research run on 2026-11-18 (PR #17327) found marine-hull's last ten milestones were
     single-knob reruns and the draw gave no sign of a chain past diminishing returns; that day
-    four programmes had 40-89 labels under one number (research_log.py, `chain`)."""
+    four programmes had 40-89 labels under one number (research_log.py, `chain`). It stays quiet
+    when the newest entry is a paper step and names the last one otherwise, since runs had to
+    read LOG.md to learn which paper step it meant (friction_rank.py, 2026-11-19..20)."""
     try:
         from research_log import chain
         if text is None:
@@ -821,8 +823,15 @@ def chain_line(slug, minimum=CHAIN_MIN, text=None):
     if not c or c[1] < minimum:
         return None
     num, n, first, last, d0, d1, since = c
-    paper = ("no LOG heading names a paper step yet" if since is None
-             else f"{since} entries since a LOG heading named a paper step")
+    if since == 0:  # the newest entry is itself a paper step: the cue would be stale
+        return None
+    if since is None:
+        paper = "no LOG heading names a paper step yet"
+    else:
+        from research_log import newest
+        head = newest(text, since + 1)[since][1]
+        head = head if len(head) <= 70 else head[:67].rstrip() + "..."
+        paper = f"{since} entr{'y' if since == 1 else 'ies'} since the last paper step, \"{head}\""
     return (f"CHAIN: milestone {num} has {n} sub-steps ({first}..{last}, {d0}..{d1}); {paper}. "
             "If the recent ones each turn one knob, a paper section or a new question may serve "
             "the programme more (research/PROGRAMMES.md, 'A programme is done when ...'); your call")

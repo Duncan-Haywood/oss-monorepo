@@ -133,6 +133,12 @@ class ChainTest(unittest.TestCase):
         self.assertIsNone(rl.chain(text)[6])
         self.assertIn("no paper/ directory", rl.chain_report(text, has_paper_dir=False)[1])
 
+    def test_paper_colon_and_writing_step_headings_count(self):
+        for head in ("Paper: Section 6.1, validity", "Paper sync: section 6 cites 36",
+                     "Milestone 7y: certificate moves into the main text (a writing step, no experiment)"):
+            text = f"## 2026-11-16 · Milestone 6c: knob\n## 2026-11-15 · {head}\n## 2026-11-14 · Milestone 6b: x\n"
+            self.assertEqual(rl.chain(text)[6], 1, head)
+
     def test_too_few_labels(self):
         self.assertIsNone(rl.chain("## 2026-11-15 · Milestone 1: only\n"))
 
