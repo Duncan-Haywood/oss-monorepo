@@ -390,10 +390,6 @@ def test_e24_separability_block_algebra():
                     pairs.add((Rr, w))
     assert len(pairs) == 36
 
-if __name__ == "__main__":
-    for name, fn in list(globals().items()):
-        if name.startswith("test_"):
-            fn(); print("ok", name)
 
 
 def test_swinburne_reproduced_exactly():
@@ -497,3 +493,9 @@ def test_e29_euclidean():
         R = e29.eucl_closure({t: [s for s in range(4) if rng.random() < 0.3] for t in range(4)}, 4)
         e29.check(R, 4, viol)
     assert sum(viol.values()) == 0
+
+
+if __name__ == "__main__":
+    for name, fn in list(globals().items()):
+        if name.startswith("test_"):
+            fn(); print("ok", name)
