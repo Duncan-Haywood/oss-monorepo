@@ -84,7 +84,7 @@ the browser sends Do Not Track or Global Privacy Control. See
 [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `preset_applied`, `proposed_price_compared`,
-`summary_copied`.
+`summary_copied`, `proposal_printed`.
 
 ## Limitations
 
