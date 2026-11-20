@@ -137,6 +137,13 @@ test(`flagship ledes are at most ${LEDE_MAX_WORDS} words`, () => {
 // repeated what the lede says a line later. Report:
 // docs/reports/polish-2026-11-20-two-item-eyebrows.md.
 export const EYEBROW_MAX_ITEMS = 2;
+// Measured 2026-11-20 at 390 px (12.5 to 14 px capitals, 0.08em tracking): every venture eyebrow
+// of 38 characters or fewer sat on one line, and 3 of 11 at 39 wrapped. 39 is the cap; a
+// wide-lettered 39 can still wrap, so measure in the browser when you're near it.
+export const EYEBROW_MAX_CHARS = 39;
+export function eyebrowText(items) {
+  return items.join(' · ').replace(/&amp;/g, '&').replace(/&#?\w+;/g, 'x');
+}
 
 /** The items of each `p.eyebrow` in the html (split on · or &middot;). */
 export function eyebrowItems(html) {
@@ -149,7 +156,12 @@ test('eyebrowItems splits on the middle dot in either spelling', () => {
   assert.deepEqual(eyebrowItems('<p class="note">A · B · C</p>'), []);
 });
 
-test(`venture eyebrows name at most ${EYEBROW_MAX_ITEMS} items`, async () => {
+test('eyebrowText counts an entity as one character', () => {
+  assert.equal(eyebrowText(['FOR BARS &amp; CAFES']), 'FOR BARS & CAFES');
+  assert.equal(eyebrowText(['A', 'B&nbsp;C']).length, 7);
+});
+
+test(`venture eyebrows name at most ${EYEBROW_MAX_ITEMS} items and ${EYEBROW_MAX_CHARS} characters`, async () => {
   const { readdirSync } = await import('node:fs');
   const bad = [];
   let checked = 0;
@@ -159,8 +171,10 @@ test(`venture eyebrows name at most ${EYEBROW_MAX_ITEMS} items`, async () => {
     for (const items of eyebrowItems(readFileSync(file, 'utf8'))) {
       checked++;
       if (items.length > EYEBROW_MAX_ITEMS) bad.push(`ventures/${slug}/index.html: ${items.join(' · ')}`);
+      const text = eyebrowText(items);
+      if (text.length > EYEBROW_MAX_CHARS) bad.push(`ventures/${slug}/index.html: ${text.length} chars: ${text}`);
     }
   }
   assert.ok(checked >= 50, `checked ${checked} eyebrows`);
-  assert.deepEqual(bad, [], 'keep two items; the lede says the rest:\n' + bad.join('\n'));
+  assert.deepEqual(bad, [], `keep two items and ${EYEBROW_MAX_CHARS} characters (one line on a 390 px phone); the lede says the rest:\n` + bad.join('\n'));
 });

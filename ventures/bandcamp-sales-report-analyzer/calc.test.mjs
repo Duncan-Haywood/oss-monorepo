@@ -101,7 +101,9 @@ test("physical profit and break-even price use typed costs and the observed fee 
   near(r.physical.profit, 6 * 22.5 - 96);
   const rate = 15 / 150;
   near(r.physical.feeRate, rate, 1e-9);
-  near(r.physical.breakEven, (10 + (6 * 6 - 30) / 6) / (1 - rate), 1e-9);
+  // (6p + 30 shipping)(1 - 0.10) = 96 costs  ->  p = 12.7778; the fee also applies to shipping
+  near(r.physical.breakEven, 12.7778, 1e-3);
+  near((r.physical.breakEven * 6 + 30) * (1 - rate) - r.physical.costs, 0, 1e-9);
   assert.equal(analyze(load(body).members, { unitCost: -1 }).invalid, "Unit cost must be a number, zero or more.");
 });
 
@@ -120,4 +122,14 @@ test("the built-in example parses cleanly and reconciles", () => {
   const r = analyze(n.members, { unitCost: 9, postage: 4 });
   assert.equal(r.reconciles, true);
   assert.ok(r.findings.length >= 3);
+});
+
+test("a European export with decimal commas reads 8,50 as 8.5, not 850", () => {
+  const t = parseCsv("date;item type;item name;quantity;sub total;transaction fee;net amount\n02.01.2026;album;A;1;8,50;1,50;7,00\n", ";");
+  const m = normalizeRows(t).members[0];
+  assert.equal(m.gross, 8.5);
+  assert.equal(m.net, 7);
+  // a US file with a thousands comma is unchanged
+  const us = normalizeRows(parseCsv("date,item type,item name,quantity,sub total,transaction fee,net amount\n2026-01-02,album,A,1,\"1,234.50\",100.00,1134.50\n")).members[0];
+  assert.equal(us.gross, 1234.5);
 });

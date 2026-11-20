@@ -53,3 +53,16 @@ test('the design year: the climb from 2011-09-15 is sent on 2011-09-21; before, 
   const before = replayWatch(values, labels, { model: 'mean', period: 7 });
   assert.ok(!before.alerts.some((a) => a.label >= '2011-08-15'));
 });
+
+// Round 3 (eval/shut-weekday-ramp.prereg.md, README "A shop shut one weekday, round 3"): P1-P3 fail. A gradual climb
+// does not deafen the default the way the real shop's climb did; this pins one simulated shop of that kind.
+test('round 3: with the shut Saturdays in, Quiet hears a simulated x1.9 climb over five weeks', () => {
+  let s = 7;
+  const rand = () => { s = (s + 0x6d2b79f5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const gauss = () => { let u = 0; while (!u) u = rand(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rand()); };
+  const lab = days(371), a = 250, len = 35, FACT = [0.6, 1.2, 1, 1, 1, 1, 0];
+  const v = lab.map((_, i) => { const w = (i + 1) % 7; if (w === 6) return 0; return Math.round(30000 * Math.exp(Math.min(1, Math.max(0, (i - a) / len)) * Math.log(1.9)) * FACT[w] * Math.exp(0.35 * gauss())); });
+  const day = (l) => Date.parse(l + 'T00:00:00Z') / 864e5, d0 = day(lab[a]);
+  const r = replayWatch(v, lab, { model: 'mean', period: 7, from: 74 });
+  assert.ok(r.alerts.some((x) => day(x.label) - d0 >= -7 && day(x.label) - d0 <= len && day(x.reportedAtLabel) >= d0 && day(x.reportedAtLabel) - day(x.label) <= 14), JSON.stringify(r.alerts.map((x) => [x.label, x.reportedAtLabel])));
+});

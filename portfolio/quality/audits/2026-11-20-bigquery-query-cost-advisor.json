@@ -1,0 +1,268 @@
+{
+ "date": "2026-11-20",
+ "subject": "ventures/bigquery-query-cost-advisor",
+ "stratum": "venture",
+ "seed": "2026-11-20-c394",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a FinOps / data platform engineer who owns a BigQuery bill; first checks: on-demand $/TiB and the 1 TiB monthly free tier, the 10 MB minimum per table referenced and per query, Editions pay-as-you-go slot-hour prices for Standard / Enterprise / Enterprise Plus, how the autoscaler bills (1-minute minimum, 50-slot steps, idle baseline), whether the slot-hours input is per run and correctly derived from INFORMATION_SCHEMA, and whether the guardrail and reservation commands are real bq syntax that does what is claimed.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `node cli.mjs analyze fixtures/queries.csv` and an independent Python recomputation (/tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/bq/indep.py, no subject import) from Google's BigQuery pricing page, fetched 2026-11-20 via curl (HTTP 200, cloud.google.com/bigquery/pricing): on-demand '$6.25 / 1 tebibyte ... The first 1 TiB per month is free', Editions PAYG Standard $0.04, Enterprise $0.06, Enterprise Plus $0.10 per slot-hour, 'Billed per second with a 1-minute minimum', '10 MB data processed per table referenced ... and per query'. Matches to the cent: 1223.2704 TiB, on-demand $7639.19 after the free TiB, Editions at $0.06 $4188.00, saving $3451.19 ($41414/yr), per-run $1.02/$35.24/$0.54/$227.37/$0.00, dominance 58% of $7645.44 gross, maximum_bytes_billed caps 7750000000000 and 50000000000000 (ceil(1.25 x bytes)). GB=1e9 and TiB=2^40 handled correctly (the classic GiB/GB slip avoided). Fail: the tool's own slot-hours-missing finding tells users to enter SUM(total_slot_ms)/3600000 per group, but the engine multiplies the column by runs; entering the dashboard group's SUM (4300 x 6 = 25800) gives Editions $6,656,400/month and 'on-demand-cheaper' (true $1548). Header 'label,query_runs,gb,slot_hours' maps the name column onto runs (name '10'). Core arithmetic right against a source the author did not write; edge paths wrong: 3.",
+  "completeness": "README/page claim six rules, CLI flags --json/--prices/--guardrail-usd/--fail-on, stdin, header remapping, and a browser page. All exercised: fixture fires editions-cheaper, expensive-single-run x2, group-dominates, repeated-large-scan; heavy-slot input fires on-demand-cheaper; missing slots fire slot-hours-missing; --prices {\"slotHour\":0.04} changes Editions to $2792.00; --fail-on warn exits 1 (cli.test.mjs). `node platform/pages/served-copy.mjs bigquery-query-cost-advisor` builds the served tree with 'no placeholder or retired origin left'. Gaps: the browser page has no price or guardrail inputs (CLI only, which the page says); no stubs or dead links found.",
+  "verification": "`cd ventures/bigquery-query-cost-advisor && node --test '*.test.mjs'`: 33/33 pass in 0.12 s. quality_mutate.py, 5 mutants in engine.mjs: 2 survived - free-tier credit Math.min(totalTib, freeTib) -> freeTib (engine.mjs:72; a sub-1-TiB workload would show a negative on-demand bill, no test has total < 1 TiB) and the guardrail threshold perRunUsd >= guardrailUsd -> > guardrailUsd*2 (engine.mjs:89; fixture runs are $35 and $227, nothing near $5). Caught: repeated-large-scan thresholds, the 1.25 cap factor, the dominance threshold. Tests pin fixture outputs the author computed, but no boundary is tested: 2.",
+  "craft": "Read engine.mjs (117 lines), cli.mjs, index.html script, all four test files. Small, pure, dependency-free; good comments on GB vs TiB and why the Editions figure is a floor; negative and blank inputs skipped and counted, not guessed. Defects: header column mapping uses first-match regexes that collide (/group|name|query/ matches 'query_runs', so name and runs share a column) (engine.mjs:38); --prices merges any JSON keys, so a misspelt key ({\"slot_hour\":0.04}) is silently ignored and the default $0.06 used (cli.mjs:58); naive comma split cannot read a quoted CSV group name. A senior JS reviewer would accept it with those fixes: 3.",
+  "claims": "Pass: $6.25/TiB, 1 TiB free, $0.04 Standard / $0.06 Enterprise, 1-minute minimum, maximum_bytes_billed 'fails without charge', column-level billing, the guide's '$1.02 a run' for 180 GB (recomputed 1.0232) - all match Google's page; disclaimer and no-warranty on both pages; 'no network call' - pages import only ./engine.mjs and ./usage.mjs; llms.txt served copy rewritten to marisstella.app. Fail/partial: the in-tool instruction SUM(total_slot_ms) per group (engine.mjs:85) contradicts the page FAQ and README (AVG per run); 'Editions ... $0.04 to $0.06' on index.html:109 and the guide omits Enterprise Plus at $0.10; the 1-minute minimum is stated as fixed while Google now offers opt-in fluid scaling with no minimum; README.md:33 says prices are 'dated' but PRICES_AS_OF (engine.mjs:13) carries no date anywhere. Live host returned 000 through this proxy; served-copy used: 2.",
+  "fitness": "Job walked: a FinOps engineer pastes a JOBS_BY_PROJECT export and asks 'should we move to Editions?'. They get a correct on-demand total and an Editions floor at one price ($0.06 Enterprise) with a capped-reservation command. To decide they still need: Standard vs Enterprise vs Enterprise Plus side by side (the Standard figure, $2792 for the fixture, is cheaper but invisible unless they write a prices JSON), commitment/CUD prices ($0.048-$0.054 Enterprise, $0.032-$0.036 Standard spend-based per Google's page), a realistic autoscaler estimate (the fixture's dashboard uses 6 slot-hours per run; if each run lasts ~30 s it needs ~720 slots and bills 750 slots x 60 s = 12.5 slot-hours, 2x the floor), and the actual SQL to pull the rows. The bytes-billed guardrails and repeat-scan list are usable today. Gaps hit in the first hour: 2.",
+  "domain": "Compared against Google's BigQuery pricing page (fetched 2026-11-20) and Editions/reservations practice (from the auditor's knowledge: autoscaler adds slots in 50-slot increments; Standard capped at 1,600 slots and has no commitments; a reservation does nothing until a project assignment exists). Right: per-TiB billing on bytes billed, free TiB applied once per account-month, column-level billing advice, require_partition_filter, maximum_bytes_billed, custom daily quota. Departures: the Editions cost is total_slot_ms priced flat, a lower bound that ignores the 1-minute minimum, 50-slot steps and idle baseline, yet it drives a 'warn' with an annual saving; real sizing uses JOBS_TIMELINE peak concurrency; only one edition price is compared; the pilot command (bq mk --reservation ...) omits the bq mk --reservation_assignment step without which no query moves; the 10 MB per-table/per-query minimum is not applied (harmless for total_bytes_billed input, which already includes it, but not for hand-estimated rows). A practitioner would treat it as a first-pass screen, not sign off on the Editions recommendation: 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Fixture on-demand total after the 1 TiB free tier",
+   "method": "Google BigQuery pricing page (fetched 2026-11-20): $6.25 per TiB (2^40 bytes), first 1 TiB per month free per account; independent Python",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/bq/indep.py ventures/bigquery-query-cost-advisor/fixtures/queries.csv; cd ventures/bigquery-query-cost-advisor && node cli.mjs analyze fixtures/queries.csv",
+   "expected": "1223.2704 TiB, $7639.19/month",
+   "observed": "1223.27 TiB, $7639.19/month",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Editions slot-hour cost at Enterprise $0.06 and saving",
+   "method": "Google pricing page: Enterprise PAYG $0.06/slot-hour (Standard $0.04, Enterprise Plus $0.10); independent Python",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/bq/indep.py ventures/bigquery-query-cost-advisor/fixtures/queries.csv",
+   "expected": "$4188.00, saving $3451.19/month, $41414/year",
+   "observed": "$4188.00, $3451.19/month, $41414/year",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Per-run cost and maximum_bytes_billed cap for expensive runs",
+   "method": "bytes/2^40 x $6.25; cap = ceil(1.25 x GB x 1e9) by hand",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/bq/indep.py ventures/bigquery-query-cost-advisor/fixtures/queries.csv",
+   "expected": "$35.2429 cap 7750000000000; $227.3737 cap 50000000000000; tiny-lookup $0.0023 no cap",
+   "observed": "$35.24 cap 7750000000000; $227.37 cap 50000000000000; tiny-lookup not flagged",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Guide claim: dashboard over 180 GB costs about $1.02 a run",
+   "method": "180e9/2^40 x 6.25 by hand",
+   "command": "python3 -c 'print(180e9/2**40*6.25)'",
+   "expected": "1.0232",
+   "observed": "page says about $1.02",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Following the tool's own instruction SUM(total_slot_ms)/3600000 per group",
+   "method": "engine multiplies slot column by runs; SUM for dashboard group = 4300 x 6 = 25800 slot-hours; correct Editions = 4300 x 6 x 0.06",
+   "command": "cd ventures/bigquery-query-cost-advisor && printf 'a,4300,180,25800\\n' | node cli.mjs analyze -",
+   "expected": "Editions $1548.00/month",
+   "observed": "Editions $6656400.00/month, on-demand-cheaper",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Header remapping with a 'query_runs' column",
+   "method": "by inspection of expected mapping: label=name, query_runs=runs",
+   "command": "cd ventures/bigquery-query-cost-advisor && printf 'label,query_runs,gb,slot_hours\\nx,10,500,1\\n' | node cli.mjs analyze - --json",
+   "expected": "name x, runs 10",
+   "observed": "name \"10\", runs 10",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "10 MB minimum per table referenced and per query",
+   "method": "Google pricing page: 'minimum 10 MB data processed per table referenced by the query, and ... per query'",
+   "command": "cd ventures/bigquery-query-cost-advisor && echo 'a,100,0.001,0.0001' | node cli.mjs analyze -",
+   "expected": "not applicable to total_bytes_billed input (already includes the minimum); hand-estimated 1 MB rows should be raised to >=10 MB",
+   "observed": "no minimum applied; documented input is total_bytes_billed so the common path is unaffected",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/bigquery-query-cost-advisor && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "33/33 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Prices and billing rules stated on index.html, guide, README vs Google's page",
+   "method": "curl https://cloud.google.com/bigquery/pricing (200, 2026-11-20) and text search",
+   "command": "grep -n '0.04 to \\$0.06\\|one-minute minimum' ventures/bigquery-query-cost-advisor/*.html ventures/bigquery-query-cost-advisor/README.md",
+   "expected": "Standard $0.04, Enterprise $0.06, Enterprise Plus $0.10; 1-minute minimum by default, fluid scaling opt-in removes it",
+   "observed": "on-demand, Standard, Enterprise, 1-min minimum correct; Enterprise Plus omitted from the stated range; fluid scaling not mentioned",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Slot-hours derivation consistent across surfaces",
+   "method": "compare engine.mjs:85 with index.html FAQ and README",
+   "command": "grep -n 'total_slot_ms' ventures/bigquery-query-cost-advisor/*.mjs ventures/bigquery-query-cost-advisor/*.html ventures/bigquery-query-cost-advisor/README.md",
+   "expected": "AVG(total_slot_ms)/3600000 per run everywhere",
+   "observed": "README, FAQ, INPUT_NOTES say AVG per run; slot-hours-missing finding says SUM per group",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Prices are illustrative and dated'",
+   "method": "look for an as-of date",
+   "command": "grep -n '2025\\|2026\\|as of' ventures/bigquery-query-cost-advisor/engine.mjs ventures/bigquery-query-cost-advisor/README.md ventures/bigquery-query-cost-advisor/*.html",
+   "expected": "a price date",
+   "observed": "no date anywhere; PRICES_AS_OF has none",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served copy and llms.txt hosts",
+   "method": "deploy rewrite into scratch copy",
+   "command": "node platform/pages/served-copy.mjs bigquery-query-cost-advisor",
+   "expected": "no placeholder or retired origins",
+   "observed": "'no placeholder or retired origin left'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer and no-network claim",
+   "method": "read both pages' footers and script imports",
+   "command": "grep -n 'No warranty\\|import ' ventures/bigquery-query-cost-advisor/index.html ventures/bigquery-query-cost-advisor/bigquery-on-demand-vs-editions-cost.html",
+   "expected": "disclaimer on both; only local imports",
+   "observed": "both carry no-warranty; imports ./engine.mjs and ./usage.mjs only",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "--prices changes the Editions price; misspelt key",
+   "method": "run CLI with two prices files",
+   "command": "cd ventures/bigquery-query-cost-advisor && node cli.mjs analyze fixtures/queries.csv --prices /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/bq/p2.json; node cli.mjs analyze fixtures/queries.csv --prices /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/bq/p.json",
+   "expected": "slotHour 0.04 -> $2792.00; unknown key rejected",
+   "observed": "$2792.00; {\"slot_hour\":0.04} silently ignored, $4188.00",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Autoscaler granularity effect on the fixture dashboard group",
+   "method": "Google: billed per second, 1-minute minimum; autoscaler 50-slot steps (auditor knowledge). 6 slot-h in a 30 s run = 720 slots -> 750 slots x 60 s",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/bq/indep.py ventures/bigquery-query-cost-advisor/fixtures/queries.csv",
+   "expected": "a realistic Editions estimate or range",
+   "observed": "12.5 slot-h billed vs 6 used (2.1x); tool prints only the floor and warns editions-cheaper",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page",
+   "method": "curl",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/bigquery-query-cost-advisor/",
+   "expected": "200",
+   "observed": "000 through this proxy; served-copy used",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "engine.mjs:72",
+   "change": "Math.min(totalTib, prices.freeTib) -> prices.freeTib",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:89",
+   "change": "if (g.perRunUsd >= o.guardrailUsd) -> if (g.perRunUsd > o.guardrailUsd * 2)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:94",
+   "change": "row.runs >= o.scanRuns && row.gbPerRun >= o.scanGb -> row.runs > o.scanRuns && row.gbPerRun > o.scanGb * 2",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:90",
+   "change": "row.gbPerRun * 1.25 * 1e9 -> row.gbPerRun * 1.5 * 1e9",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:93",
+   "change": "g.share >= o.dominatesShare -> g.share > 0.6",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The slot-hours-missing finding tells users to supply SUM(total_slot_ms)/3600000 per group, but the column is slot-hours per run and the engine multiplies it by runs; a user who follows the tool's own instruction gets an Editions cost inflated by the run count (dashboard group: $6,656,400 instead of $1,548/month) and is told to stay on on-demand. README, FAQ and INPUT_NOTES correctly say AVG per run.",
+   "where": "ventures/bigquery-query-cost-advisor/engine.mjs:85",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
+  },
+  {
+   "severity": "medium",
+   "what": "2 of 5 seeded mutants survive: the free-tier cap Math.min(totalTib, freeTib) (a sub-1-TiB workload would show a negative bill) and the $5 guardrail threshold (doubling it changes nothing) are not pinned; no test sits near any threshold.",
+   "where": "ventures/bigquery-query-cost-advisor/engine.test.mjs:26",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
+  },
+  {
+   "severity": "medium",
+   "what": "The Editions figure is total slot-hours at a flat price, a floor that ignores the 1-minute minimum, 50-slot steps and idle baseline, yet it raises a 'warn' with an annual saving; for short, wide queries like the fixture dashboard (6 slot-h per run) the billed figure can be about 2x the floor, enough to flip the recommendation. No range or JOBS_TIMELINE-based estimate is offered.",
+   "where": "ventures/bigquery-query-cost-advisor/engine.mjs:83",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Only one edition price is compared (Enterprise $0.06); Standard ($0.04), Enterprise Plus ($0.10) and commitment/CUD prices are not shown side by side, and the browser page cannot change prices at all.",
+   "where": "ventures/bigquery-query-cost-advisor/engine.mjs:14",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Price claims incomplete or undated: '$0.04 to $0.06' omits Enterprise Plus $0.10; the 1-minute minimum is stated as fixed though Google now offers opt-in fluid scaling with no minimum; README says prices are 'dated' but no as-of date exists in PRICES_AS_OF or anywhere else.",
+   "where": "ventures/bigquery-query-cost-advisor/engine.mjs:13",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Header remapping uses first-match regexes that collide: /group|name|query/ matches a 'query_runs' header, so name and runs read the same column and the group is named '10'.",
+   "where": "ventures/bigquery-query-cost-advisor/engine.mjs:38",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "--prices merges arbitrary JSON keys over the defaults, so a misspelt key (slot_hour) is silently ignored and the default price used.",
+   "where": "ventures/bigquery-query-cost-advisor/cli.mjs:58",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "The pilot command creates a reservation but never assigns a project (bq mk --reservation_assignment), so following it moves no query; the 10 MB per-table/per-query minimum is not applied to hand-estimated rows.",
+   "where": "ventures/bigquery-query-cost-advisor/engine.mjs:83",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"],
+ "verdict": "A small, clean, zero-dependency BigQuery cost screen whose arithmetic is right: an independent recomputation from Google's pricing page (fetched 2026-11-20: $6.25/TiB, 1 TiB free, Enterprise $0.06/slot-hour) reproduces the fixture to the cent (1223.27 TiB, $7639.19 on-demand, $4188.00 Editions, $3451.19 saving, caps 7750000000000 and 50000000000000 bytes), and it handles GB vs TiB correctly. It misses the bar on verification, claims, fitness and domain: its own slot-hours-missing hint says SUM per group where the engine needs AVG per run (following it inflates Editions by the run count and flips the recommendation), 2 of 5 seeded mutants survive (free-tier cap, guardrail threshold), the Editions comparison is a flat floor at one edition price that ignores the autoscaler minimum and still warns with an annual saving, Enterprise Plus and fluid scaling are missing from the price claims, and the 'dated' prices carry no date. Tests 33/33 green."
+}

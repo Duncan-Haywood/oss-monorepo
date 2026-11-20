@@ -143,3 +143,11 @@ test('index links one hop to the plantation-shutter-bid-calculator sibling', () 
     'index must link ../plantation-shutter-bid-calculator/ so crawlers reach the plantation shutter calculator in one hop',
   );
 });
+
+test('trade window sizes are read as feet and inches (3040 = 84 UI, 6048 = 128 UI)', async () => {
+  const { readFile } = await import('node:fs/promises');
+  for (const f of ['index.html', 'how-much-to-charge.html']) {
+    const page = await readFile(new URL(`./${f}`, import.meta.url), 'utf8');
+    assert.doesNotMatch(page, /3040[^.]{0,20}\(?70\s*(&nbsp;)?UI|6048[^.]{0,30}108\s*(&nbsp;)?UI/, f);
+  }
+});
