@@ -88,13 +88,13 @@ export function parseLogDate(v) {
     return new Date(t).getUTCDate() === d ? t / 60000 : null;
   };
   let m;
-  if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?/.exec(s))) return at(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
-  if ((m = /^(\d{1,2})[/.](\d{1,2})[/.](\d{2}|\d{4})(?:\s+(\d{1,2}):(\d{2}))?$/.exec(s))) {
+  if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(?:[ T](\d{1,2}):(\d{2}))?/.exec(s))) return at(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
+  if ((m = /^(\d{1,2})[/.](\d{1,2})[/.](\d{4}|\d{2})(?!\d)(?:\s+(\d{1,2}):(\d{2}))?$/.exec(s))) {
     let a = +m[1], b = +m[2];
     if (a > 12 && b <= 12) [a, b] = [b, a]; // day first
     return at(+m[3], a - 1, b, +(m[4] || 0), +(m[5] || 0));
   }
-  if ((m = /^(\d{1,2})[-\s]([A-Za-z]{3})[a-z]*[-\s,]+(\d{2}|\d{4})$/.exec(s)) && Object.hasOwn(MON, m[2].toLowerCase())) return at(+m[3], MON[m[2].toLowerCase()], +m[1]);
+  if ((m = /^(\d{1,2})[-\s]([A-Za-z]{3})[a-z]*[-\s,]+(\d{4}|\d{2})(?!\d)$/.exec(s)) && Object.hasOwn(MON, m[2].toLowerCase())) return at(+m[3], MON[m[2].toLowerCase()], +m[1]);
   if ((m = /^([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})$/.exec(s)) && Object.hasOwn(MON, m[1].toLowerCase())) return at(+m[3], MON[m[1].toLowerCase()], +m[2]);
   if (/^\d{5}(\.\d+)?$/.test(s)) { const n = Number(s); if (n > 20000 && n < 80000) return Math.round((Date.UTC(1899, 11, 30) / 60000) + n * DAY); }
   return null;
