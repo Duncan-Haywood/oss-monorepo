@@ -542,6 +542,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    held); coverage stays at least 99.85%, so the planner gives no warning. At 0.3 N every failure is a flip at the
    press pose; from 0.4 N calibration flips and the bias's direct effect add more (H249 refuted). The bound is a sensor
    specification to enforce. Next: the planner re-sized to a larger bias and its coverage cost; dynamics.
+65. **The planner sized to the bias** (done 2026-11-20, `experiments/m65_resized/`): every margin sized to B = 0.3
+   to 1.0 N and the true bias B along milestone 63's worst direction, 12 new loads (seed 65; 48 registered, cut for run
+   time). At 0.3 N no planned press leaves 0.03 mm and coverage is G1 100%, H1 99.1% (H251 held). From 0.4 N on
+   presses fail again (H1 2.5% at 0.4 N; 47 to 48% at 1.0 N; H250 refuted), but 465 of the 485 failures have no flip:
+   the bias's direct effect grows about 0.075 to 0.097 mm per N and the flip budget does not price it. Coverage stays
+   at least 85.6% at 1.0 N (H252 refuted). Next: budget the direct term beside the flips; dynamics.
 
 ## Target venue
 

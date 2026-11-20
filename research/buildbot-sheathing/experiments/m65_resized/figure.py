@@ -36,3 +36,7 @@ a2.legend(fontsize=7)
 fig.tight_layout()
 fig.savefig(os.path.join(HERE, "figure.png"), dpi=110)
 print("wrote figure.png")
+nf = sum(o["flips"] == 0 for o in D["OV"])
+print(f"over-spec planned presses with no flip: {nf} of {len(D['OV'])}")
+for n in ("g1", "h1"):
+    print(f"  {n} worst/B (mm per N): " + "; ".join(f"{b:g} -> {D['S'][f'{n} {b:g}']['wmax'] / b:.4f}" for b in BP))

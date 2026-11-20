@@ -1,0 +1,4 @@
+wrote figure.png
+over-spec planned presses with no flip: 465 of 485
+  g1 worst/B (mm per N): 0.2 -> 0.0899; 0.3 -> 0.0899; 0.4 -> 0.0745; 0.6 -> 0.0745; 1 -> 0.0730
+  h1 worst/B (mm per N): 0.2 -> 0.0968; 0.3 -> 0.0968; 0.4 -> 0.0968; 0.6 -> 0.0968; 1 -> 0.0936
