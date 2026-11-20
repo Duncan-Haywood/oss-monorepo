@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKmRu8swztq8UjZiDVk",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T03:18:56Z",
+  "ended": "2026-11-20T06:02:50Z",
+  "wall_minutes": 164.21,
+  "tokens_in": 17678167,
+  "tokens_out": 87193,
+  "cost_usd": 6.9541,
+  "tool_calls": 111,
+  "task": "research programme hanger-codesign, milestone 4d (drawn by pick_track.py)",
+  "projects": [
+    "research/hanger-codesign"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17847",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First part-A launch: 4a's start noise drawn on midpoints (1.9 mm apart on 3.75 mm) folded midpoint triangles; four stages hit the 400-step cap with residuals 1e5 to 4e6 x tolerance (1.2 core-hours lost); fixed by drawing the start on vertices and averaging to midpoints, disclosed in LOG.md and kept as run_log_attempt1_midpoint_start.txt",
+    "Cylinder isotropy first stated as 0.6% from a mis-read of coarse-patch numbers; measured 1.8%, docstring and test corrected before results",
+    "A backgrounded '&&' chain ran cp after a foreground grep, briefly confusing which log held part A"
+  ],
+  "integrity_issues": [
+    "Pilots (F1, 7.5 mm) were run before writing predictions and are disclosed in run.py's docstring",
+    "Start changed after the first 3.75 mm solves stalled; predictions unchanged; disclosed",
+    "D5 is scored as registered but includes two unconverged chains (F3, F9 at gamma 0.01, 3.75 mm); the converged-only figure (5 of 7) is reported beside it"
+  ],
+  "doc_friction": [
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "Crossref, DataCite and OpenAlex all refused by the proxy this session; three DOIs recorded by hand from web search"
+    },
+    {
+      "file": "research/hanger-codesign/experiments (module layout)",
+      "issue": "m3c_branches imports m3_fem_tier/run.py as 'run', so a new experiment's run.py cannot be imported by name for a quick check (python3 -c 'import run' fails with No module named cusick); tests must preload m3 as sys.modules['run'] as test_m4c does"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "experiments/m4d_nonconforming/run.py",
+      "why": "4c's Next (a) named 2.5 mm; the edge-midpoint element has about 3x the unknowns, so 5 and 3.75 mm were used",
+      "did": "registered 5 and 3.75 mm lattices up front",
+      "result": "63 chains in about 7.3 core-hours; 2.5 mm left as Next (a)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-hanger-drape-nonconforming.md",
+    "research/hanger-codesign/LOG.md (2026-11-20 entry)",
+    "research/hanger-codesign/README.md (milestone 4d section)"
+  ],
+  "goal": null,
+  "notes": "Built a Crouzeix-Raviart cloth element (cr.py) with a tangential jump penalty gamma*G. Registered D1-D8 before any 5/3.75 mm solve. D5, D6, D8 held; D1, D2, D3, D4, D7 refuted. Locking gone at the top of the ladder (local exponent -0.63 to -0.91 vs conforming -0.10 to +0.30); bias +0.133 -> +0.102 at 3.75 mm; gamma 0.01 to 1 moves DC by about 0.05. Checks run here: pytest research/hanger-codesign/tests (86 passed), research/_homepage/build.py ok, check_md_links ok, check_posts ok, research_live_links --write.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7617cbb3-7ec0-52e7-b933-49c606536601",
+    "transcripts": 1,
+    "first": "2026-11-20T03:18:56Z",
+    "last": "2026-11-20T06:03:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 103,
+        "input": 203,
+        "output": 87193,
+        "thinking": 31275,
+        "cache_read": 17463376,
+        "cache_write_5m": 0,
+        "cache_write_1h": 214588,
+        "api_equivalent_usd": 6.9541,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 103,
+      "input": 203,
+      "output": 87193,
+      "thinking": 31275,
+      "cache_read": 17463376,
+      "cache_write_5m": 0,
+      "cache_write_1h": 214588,
+      "api_equivalent_usd": 6.9541,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 111,
+    "tools": {
+      "Bash": 98,
+      "Write": 5,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 164.21,
+      "active_minutes": 164.21,
+      "model_minutes": 15.76,
+      "tool_minutes": 148.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 40.0,
+      "basis": "implementing and verifying a nonconforming cloth element with stabilisation, 63 solver chains, analysis and write-up, as a PhD student would",
+      "rate_usd_per_hour": 100.0,
+      "usd": 4000.0
+    },
+    "leverage": 575.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
