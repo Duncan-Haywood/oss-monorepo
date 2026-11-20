@@ -1,0 +1,10 @@
+lake build: Build completed successfully (no warnings, no sorry); axioms of the E29 theorems:
+'TheismFormal.AndersonK.eucl_succ_refl' does not depend on any axioms
+'TheismFormal.AndersonK.eucl_reach' does not depend on any axioms
+'TheismFormal.AndersonK.eucl_sep_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.AndersonK.eucl_not_sep_refl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.AndersonK.eucl_not_sep_trans' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.AndersonK.eucl_sep_iff_not_back' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.AndersonK.eucl_none_sep_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.AndersonK.eucl_essential_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.AndersonK.back_symm' does not depend on any axioms
