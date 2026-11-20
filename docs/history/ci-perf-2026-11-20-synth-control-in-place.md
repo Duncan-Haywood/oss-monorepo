@@ -40,7 +40,10 @@ is unchanged.
   passes, and the whole suite passes under `run_venture_tests.py
   changepoint-detector`.
 
-**Before / after** (each file alone, two runs each, seconds, same sandbox):
+**Before / after** (each file alone, two runs each, seconds, same sandbox; the
+venture timing sweep above was still running in the background for both the
+before and the after runs, so both carry the same extra load and absolute
+numbers are higher than on a quiet machine):
 
 | file | before | after |
 |---|---|---|
