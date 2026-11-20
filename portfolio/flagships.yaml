@@ -568,17 +568,17 @@ flagships:
       17.12) 113/113 once 8 durations edited after its last run are put back;
       edited-durations list shipped (eval/edited-durations-2026-11-19.md: 300/300
       planted); next progress override, start float and 24-hour lag paths on a real
-      P6 file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
-      eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
-      appendix 2026-11-19; next a real reviewer's reading; (7) longest path and
-      multiple float paths shipped 2026-11-19 (floatpaths.mjs, --float-paths, page
-      panel; eval/longest-path-2026-11-19.md: P6's flag 261/261 on five files). (9)
-      look-ahead shipped 2026-11-19 (lookahead.mjs, --lookahead, page panel;
+      P6 file; appendix 2026-11-19; next a real reviewer's reading; (7) longest path
+      and multiple float paths shipped 2026-11-19 (floatpaths.mjs, --float-paths,
+      page panel; eval/longest-path-2026-11-19.md: P6's flag 261/261 on five files).
+      (9) look-ahead shipped 2026-11-19 (lookahead.mjs, --lookahead, page panel;
       eval/lookahead-check-2026-11-19.md: 6,476 of 6,479 windowed activities =
-      P6's); constraints log merged into make-ready shipped 2026-11-20
-      (constraints.mjs, --constraints; finish what-if = CS_MSOA route,
-      eval/constraints-check-2026-11-20.md); next a real site's log and a
-      superintendent's reading. More open items: NEXT.md.
+      P6's); constraints log shipped 2026-11-20
+      (eval/constraints-check-2026-11-20.md); its hotel residual traced to calendar
+      slack, shipped 2026-11-20 (calslack.mjs, --calendar-slack, page panel;
+      eval/calendar-slack-2026-11-20.md: 188 activities gain 1-17 h, 188/188 hold
+      and tight); next the mirror (start milestones, NEXT.md), a real site's log.
+      More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
