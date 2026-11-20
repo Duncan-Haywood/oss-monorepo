@@ -14,6 +14,33 @@ date, by how much, and how sure the evidence is**, instead of eyeballing a chart
 Part of [research algorithms as free tools](../../portfolio/research-tools/README.md):
 methods from published papers, run on your own data, with the papers cited.
 
+## Which option do I need?
+
+Start with no options: the page and `cli.mjs` lead with the changes every one
+of six settings agrees on. Reach for a flag only when your data looks like a
+row below. Every flag's measurements are in the README section named after it.
+
+| Your data, or your question | Use (CLI; the page has the same choice) |
+|---|---|
+| A level that steps up or down | nothing (`--model mean`, the default) |
+| The spread changes too (returns, latency) | `--model meanvar`; clustered volatility `--garch`; heavy tails `--bootstrap` |
+| Counts per day (orders, visits, incidents) | `--model poisson`; clumpy counts add `--overdispersion nb` (or `nb1`) |
+| Each point looks like the last (sticky noise) | `--ar1` (`--ar1 joint` for more power on small shifts) |
+| A weekly or yearly cycle | `--period 7` (daily) or `--period 12` (monthly); `--drift` if the cycle's shape changes |
+| A steady growth under the steps | `--trend` (`bend`, `bends`); percentage growth `--log` |
+| A smooth curve cut at every bend | `--noise-floor-local 25` |
+| A level that wanders between real jumps (prices, populations) | `--model drift` |
+| Did the slope change? | `--hinge-test` (one change), `--two-hinge-test` (two) |
+| Did it change at a date I name (a launch, a law)? | `--known-date <label>`; with comparison columns `--donors all` (synthetic control) |
+| Several columns measured at the same points | `--columns a,b,c` |
+| A feed that repeats stale values for a while | `--spells` |
+| Tell me when a daily metric shifts, from now on | `watch.mjs daily.csv --state s.json` (see "Watching a growing series"); pick a setting with `--suggest --alerts-per 1/month` |
+| ...from Stripe or Shopify | `stripe-metrics.mjs` or `shopify-metrics.mjs`, then the watch with `--columns` |
+| ...for a shop that shuts some days | `--period 7`, plus `--closed <dates>` for holidays |
+| ...for a level that wanders all the time | `watch.mjs --detector drift` |
+
+`node cli.mjs --help` and `node watch.mjs --help` list every flag.
+
 ## Methods and citations
 
 - **PELT**: Killick, R., Fearnhead, P. & Eckley, I. A. (2012). Optimal
