@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVM1mzxCxCZ8hzBZN2H",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "3bacb6da1d6597aa438387432ba02aaf5ca117fccd8dc4fb52cfe978038d7aa0",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T22:05:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/aerolog-scaling milestone 11aw: cheap layer-planning rules (11ar-11at) rerun on the corrected spacing grid",
+  "projects": [
+    "aerolog-scaling"
+  ],
+  "pr": 17977,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/aerolog-scaling/experiments/hub_airspace/ref_mix.py",
+      "issue": "hgrid rounding also leaves k = 9 (H/17) without a widest spacing of its own; exact_grid's NEW grid gets k = 9 only from another spacing, so code that maps k to H/(2k-1) by nearest grid point is wrong for k = 1 and 9 (caught by a test here)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "the scheduled prompt asks for venture work; the router drew the research track (draw 0.193), which this run followed",
+      "did": "advanced the drawn research programme",
+      "result": "one milestone landed with a paper section and a post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-aerolog-cheap-rules-on-corrected-grid.md"
+  ],
+  "goal": "close the paper's limitation that sections 6.8-6.10 ran on the 30-spacing grid without a 6-band spacing",
+  "notes": "Predictions pushed in 4bfa49323 before the run. Check: 11av's aware F and blind ratios reproduced exactly in 384 of 384 draws. W1, W2, W3, W5 held; W4 refuted (random-20 1.0055 at M=16 s=1). Local checks: aerolog-scaling tests 294 passed; research/_homepage/build.py ok; check_airspace_numbers 198/198; check_posts ok; check_md_links ok; programme_check ok.",
+  "corrections": [],
+  "redteam": null
+}
