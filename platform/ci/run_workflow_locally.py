@@ -2132,6 +2132,9 @@ def run_for_changes(args) -> int:
                        args.list)
     if hint:
         print(hint, flush=True)
+    cost = local_cost_hint([name for name, *_ in selected], args.list)
+    if cost:
+        print(cost, flush=True)
     note = uncommitted_note(changed)
     if note:
         print(note, flush=True)
@@ -2278,6 +2281,47 @@ def budget_hint(n_selected: int, per_workflow_s: int, listing: bool) -> str | No
             f"{worst // 60} min, past a {TOOL_CAP_S} s foreground tool call: "
             "run this in the background (log to a file), or --list first and "
             "run the workflows you need by name.")
+
+
+# What a sweep costs here, measured, so a run can choose before it starts.
+# The budget hint above gives the worst case ("up to 65 min"), which says
+# nothing about the usual one. Three doc-friction reports (2026-11-19/20) ran
+# --for-changes on text-only diffs (an episode, a story, a post) for 10+
+# minutes while the PR's CI, with runners, went green in about 4. Measured
+# 2026-11-20 on the 4-core cloud container, sweeping commit 1544fcef2 (an
+# episode + post, 8 files, 13 workflows): 918 s of steps in all. The sweep is
+# CPU-bound, so running workflows side by side would not save it: portfolio-
+# pages' site-builder suite alone used 1,045 CPU-s in 334 s of wall time (3.1
+# of 4 cores) and builds the full site twice; its `build` job builds it again.
+# CI runs those jobs on separate runners at once. Seconds per workflow, from
+# that sweep; a workflow not listed counts as nothing.
+MEASURED_LOCAL_S = {
+    "portfolio-pages.yml": 525,
+    "portfolio-validate.yml": 235,
+    "ventures-tests.yml": 83,
+    "prompts-ci.yml": 29,
+    "page-integrity-ci.yml": 15,
+    "pages.yml": 14,
+}
+COST_HINT_MIN_S = 300
+
+
+def local_cost_hint(names, listing: bool) -> str | None:
+    """A line on what the selected workflows measured here, when it is long."""
+    if listing:
+        return None
+    known = sorted(((MEASURED_LOCAL_S[n], n) for n in set(names)
+                    if n in MEASURED_LOCAL_S), reverse=True)
+    total = sum(s for s, _ in known)
+    if total < COST_HINT_MIN_S:
+        return None
+    top = ", ".join(f"{n} ~{s // 60 or 1} min" for s, n in known[:2])
+    return (f"  measured here: about {total // 60} min for this selection ({top}; "
+            "2026-11-20, CPU-bound, so it does not parallelise), where CI runs the "
+            "same jobs on separate runners in about 4-5 min. If the PR's CI got "
+            "runners (ci_starvation.py --run <id> exits 0), its verdict comes first "
+            "and this sweep adds nothing: wait for CI, or run only the workflow "
+            "your change is about, by name.")
 
 
 GONE = "-"  # a tracked path deleted from the worktree
