@@ -30,7 +30,7 @@
 // `boqDelta` sums each revision by the same grouping as the bill of
 // quantities and subtracts: the lines an estimator prices for a change order.
 
-import { boq, rowQuantities } from "./qto.mjs";
+import { boq, rowQuantities, keyLabel } from "./qto.mjs";
 
 const QTY = ["volume", "area", "length", "weight"];
 const ATTRS = ["ifcClass", "name", "type", "storey", "material", "classification"];
@@ -227,7 +227,7 @@ const csvCell = (v) => {
 
 /** Lines of `boqDelta` as CSV, changed lines only unless `all`. */
 export function boqDeltaCsv(lines, by, { all = false } = {}) {
-  const cap = (k) => k[0].toUpperCase() + k.slice(1);
+  const cap = keyLabel;
   const head = [...by.map(cap), "Count before", "Count after", "Count change", "Volume m3 before", "Volume m3 after", "Volume m3 change", "Area m2 before", "Area m2 after", "Area m2 change", "Length m before", "Length m after", "Length m change", "Weight kg before", "Weight kg after", "Weight kg change", "Amount before", "Amount after", "Amount change"];
   const out = [head.map(csvCell).join(",")];
   const small = (d) => Math.abs(d.count) < 0.5 && Math.abs(d.volume) < 1e-6 && Math.abs(d.area) < 1e-4 && Math.abs(d.length) < 1e-4 && Math.abs(d.weight) < 1e-3;

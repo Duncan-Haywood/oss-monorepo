@@ -606,27 +606,18 @@ flagships:
     hosts: [https://github.com]
     next: >-
       History and every measurement: ventures/ifc-quantity-takeoff/README.md and
-      eval/. Areas from geometry shipped 2026-11-19 (plane sections: wall side and
-      footprint, slab plan, member cross-section;
-      eval/areas-vs-stored-2026-11-19.md); faceted bodies cut through their faces
-      2026-11-20 (2,915 of 4,251 new pairs agree;
-      eval/areas-vs-stored-2026-11-20.md); their misses named 2026-11-20
-      (unexplained 1,499 to 358; eval/faceted-causes-2026-11-20.md); joined walls
-      (ArchiCAD finishes areas) and copied curtain-wall figures named 2026-11-20
-      (unexplained 358 to 192; eval/joins-and-host-figures-2026-11-20.md); revision
-      change report shipped 2026-11-20 (diff.mjs, page and cli --compare: BoQ change
-      per line, elements matched by GlobalId, Tag, geometry, Revit parts/host
-      paired; 190 of 1,011 GlobalId-only adds/removes on five real Aalseth Residence
-      exports were the same element; eval/revision-diff-2026-11-20.md). Next, most
-      valuable first: (1) the covering up-cut rule tested on a second model, the
-      joins rule on an ArchiCAD export with partitions on both faces; (2) method of
-      measurement: small voids left in shipped 2026-11-20 (measure.mjs, page and cli
-      --voids-up-to; 1,099 of 1,136 opening cuts = stored WxH;
-      eval/measure-rules-2026-11-20.md); next thresholds per class or work section,
-      Uniformat/MasterFormat mapping from the classification code, the 35 openings
-      barely meeting their host; (3) the unexplained disagreements; (4) advanced
-      breps on revolved/NURBS surfaces (8 in kleine_Wohnung; planes and cylinders
-      read 2026-11-20, 703 of 767 = IfcOpenShell to 0.1%; faceted openings as signed
+      eval/. Next, most valuable first: (1) the covering up-cut rule tested on a
+      second model, the joins rule on an ArchiCAD export with partitions on both
+      faces; (2) method of measurement: small voids left in shipped 2026-11-20
+      (measure.mjs, page and cli --voids-up-to; 1,099 of 1,136 opening cuts = stored
+      WxH; eval/measure-rules-2026-11-20.md); next thresholds per class or work
+      section, the 35 openings barely meeting their host; Uniformat II grouping
+      shipped 2026-11-20 (uniformat.mjs, --by uniformat; rules vs authors' codes 482
+      of 588 at level 3, held-out 66 of 69; eval/uniformat-2026-11-20.md), next an
+      envelope test from geometry for walls with no IsExternal, frames split
+      B1010/B1020; (3) the unexplained disagreements; (4) advanced breps on
+      revolved/NURBS surfaces (8 in kleine_Wohnung; planes and cylinders read
+      2026-11-20, 703 of 767 = IfcOpenShell to 0.1%; faceted openings as signed
       tetrahedra; eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a
       union; (5) the change report on more revision series (OpeningDesign's
       Lake_Kegonsa_Home and Lake_Mills repos commit IFCs repeatedly; an ArchiCAD

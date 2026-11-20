@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPEF9UKRiqZWZ6hceT",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (standing ventures brief)",
+  "input_sha256": "bd21f1129ba809e796b68a1d2bf7670ff90157ecee0ebfc70c69514b21bd90b4",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T11:08:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 14) ifc-quantity-takeoff item (2): Uniformat II grouping of the BoQ from the classification code and IFC class rules",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17901",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here named open-tennis-robots (marginal survey-drill firmware tuning, 25 records in 2 days); took flagship row 9 ifc-quantity-takeoff item (2), Uniformat mapping, which an estimator uses directly and needs no outside input",
+      "did": "built uniformat.mjs, --by uniformat, page grouping, eval on 17 public models",
+      "result": "merged with tests; rules agree with 482 of 588 authors' codes at level 3"
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "why": "first route (no --task) drew research; the scheduled message is the ventures brief, so routed with --task as prompt.md says"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-every-window-flagged-interior-uniformat-from-ifc.md",
+    "ventures/ifc-quantity-takeoff/eval/uniformat-2026-11-20.md"
+  ],
+  "goal": "An elemental (Uniformat II) bill of quantities from any IFC, checked against the codes authors set in real models",
+  "notes": "Local checks: node --test in the venture 65/65 pass; run_venture_tests.py ifc-quantity-takeoff ok; check_posts ok; validate.py ok; page loaded in Chromium at 390 px, Uniformat grouping renders, no console errors, no horizontal scroll. Eval: 17 public models (opensourceBIM/IFC-files, ThatOpen/engine_web-ifc), 33,893 elements: 588 author-coded, 28,086 rule-coded, 5,219 uncoded; rules vs authors L1 525, L3 482; first pass before tuning L3 15 of 166; held-out dental_clinic 66/69 (weak hold-out: same Revit sample family as Office_A). Finding: Schultz_Residence flags all 25 windows and their host walls IsExternal=false while the author codes them B2020.",
+  "corrections": [],
+  "redteam": null
+}

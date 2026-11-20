@@ -2,7 +2,8 @@
 // Quantity takeoff from an IFC file on the command line.
 //
 //   node cli.mjs model.ifc                     bill of quantities by class and type (CSV to stdout)
-//   node cli.mjs model.ifc --by storey,class   group by other keys (class, type, storey, material, classification)
+//   node cli.mjs model.ifc --by storey,class   group by other keys (class, type, storey, material, classification,
+//                                              uniformat, uniformat2, uniformat1: Uniformat II element at level 3, 2, 1)
 //   node cli.mjs model.ifc --rows rows.csv     every element with stored and computed volumes
 //   node cli.mjs model.ifc --check             summary of computed vs stored volumes
 //   node cli.mjs model.ifc --json out.json     everything as JSON
@@ -22,11 +23,11 @@ const VALUED = ["--rows", "--json", "--by", "--compare", "--changes", "--toleran
 const file = args.find((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
 const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
 if (!file || args.includes("--help")) {
-  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 14).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
+  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 15).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
   process.exit(file ? 0 : 2);
 }
 const by = (opt("--by") || "class,type").split(",").map((s) => s.trim()).filter(Boolean);
-for (const k of by) if (!["class", "type", "storey", "material", "classification"].includes(k)) { console.error(`unknown --by key: ${k}`); process.exit(2); }
+for (const k of by) if (!["class", "type", "storey", "material", "classification", "uniformat", "uniformat2", "uniformat1"].includes(k)) { console.error(`unknown --by key: ${k}`); process.exit(2); }
 let rule = null;
 if (opt("--voids-up-to")) {
   const [a, v] = opt("--voids-up-to").split(",").map(Number);

@@ -1,6 +1,6 @@
 # IFC Quantity Takeoff
 
-> Free, open-source (MIT) bill of quantities from an IFC building model (IFC2X3, IFC4, IFC4X3), in the browser or with Node 20+. Groups elements by class, type, storey, material or classification code with count, volume, area, length and weight; recomputes every element's volume and its side, footprint, plan or cross-section area from its body geometry (openings taken out) and flags stored quantities that disagree with it, naming the likely cause. Compares two revisions of a model: the change on every BoQ line and every element added, removed, changed, moved or resized, matching elements that got a new GlobalId. Nothing is uploaded.
+> Free, open-source (MIT) bill of quantities from an IFC building model (IFC2X3, IFC4, IFC4X3), in the browser or with Node 20+. Groups elements by class, type, storey, material, classification code or Uniformat II element (elemental estimate) with count, volume, area, length and weight; recomputes every element's volume and its side, footprint, plan or cross-section area from its body geometry (openings taken out) and flags stored quantities that disagree with it, naming the likely cause. Compares two revisions of a model: the change on every BoQ line and every element added, removed, changed, moved or resized, matching elements that got a new GlobalId. Nothing is uploaded.
 
 Page: https://marisstella.app/ifc-quantity-takeoff/
 Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-quantity-takeoff
@@ -19,6 +19,11 @@ Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-qu
 - Areas (eval/areas-vs-stored-2026-11-19.md): 6,509 of 7,883 stored areas agree with the section cut from the geometry; all 1,667 wall GrossFootprintAreas agree. Named causes for 1,100 of the 1,374 others: 558 mullion CrossSectionAreas that are length x a constant (a face area), 325 gross side areas with openings out, 82 net footprints with doors left in, 55 side areas measured on a wall face, 31 matching an equally wrong stored volume, 25 unit slips, 24 split-by-level pieces.
 - With faceted and advanced-brep bodies cut too (eval/joins-and-host-figures-2026-11-20.md): 9,451 of 12,167 stored areas agree; 192 disagreements are unexplained. Two causes named 2026-11-20: ArchiCAD's wall side area is the mean of both faces with the strips covered by T-joined walls taken off (55 pairs, a finishes figure), and Revit mullions that store their curtain wall's area and length on every piece (111, the section is used instead).
 - Where they agree the two figures match to about 1e-15 relative.
+
+## Uniformat II elements (eval/uniformat-2026-11-20.md)
+
+- `--by uniformat` (level 3), `uniformat2`, `uniformat1`; page "Group by". NISTIR 6389 codes (public domain). The model's own code (classification reference or Revit Assembly Code) wins; else rules on class, PredefinedType, IsExternal, host wall, parent assembly, storey elevation, and family names for proxies/generic terminals. Stops at level 2 or 1 when it cannot tell more; per-element code, source and reason in the element CSV.
+- 17 public models, 33,893 elements: 588 author-coded, 28,086 rule-coded, 5,219 uncoded. Rules vs authors: 525 of 588 agree at level 1, 482 at level 3; held-out dental_clinic 66 of 69. Walls, slabs and frames have no author's code in any model, so those rules are unchecked against one. Windows are taken as exterior regardless of IsExternal (Schultz_Residence flags all 25 interior).
 
 ## Method-of-measurement rule (eval/measure-rules-2026-11-20.md)
 
@@ -43,7 +48,7 @@ Each solid becomes a signed sum of convex polyhedra: extruded profiles (rectangl
 ## Command line
 
     node cli.mjs model.ifc                      # BoQ by class and type as CSV
-    node cli.mjs model.ifc --by storey,class    # grouping keys: class, type, storey, material, classification
+    node cli.mjs model.ifc --by storey,class    # grouping keys: class, type, storey, material, classification, uniformat, uniformat2, uniformat1
     node cli.mjs model.ifc --rows elements.csv  # every element with stored and computed volumes
     node cli.mjs model.ifc --check              # stored vs computed summary
     node cli.mjs model.ifc --voids-up-to 0.5,0.05   # leave in openings up to 0.5 m2 / 0.05 m3
