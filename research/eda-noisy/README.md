@@ -10,7 +10,7 @@ Why it seemed worth doing: `eda-proposers` and `eda-refpoint` assumed every sear
 Each proposer queries a view of the table whose three scaled objectives (cells, cycles, error) each carry an error drawn from N(0, sigma), fixed per design within a run (re-querying gives the same value, as a deterministic cheap model would). The found set is then scored on the *true* objectives. Sigma is in scaled units, where each objective spans 1.0 over the table: 0, 0.05, 0.1, 0.2, 0.4, 0.8. 100 seeds, budgets 16 and 30. Random search ignores objective values, so it is the same set of designs at every sigma; each proposer is compared with random on the same seed (paired).
 
 ## Result
-- **TPE's lead over random shrinks smoothly with noise and is gone at sigma 0.8.** Budget 30, paired gain over random: +0.037 (sigma 0), +0.032 (0.05), +0.027 (0.1), +0.022 (0.2), +0.013 (0.4), +0.006 (0.8, 95% CI [-0.001, +0.013]). At sigma 0.4, TPE is still better than random on 65% of seeds.
+- **TPE's lead over random shrinks smoothly with noise and is no longer distinguishable from zero at sigma 0.8** (mean still +0.006). Budget 30, paired gain over random: +0.037 (sigma 0), +0.032 (0.05), +0.027 (0.1), +0.022 (0.2), +0.013 (0.4), +0.006 (0.8, 95% CI [-0.001, +0.013]). At sigma 0.4, TPE is still better than random on 65% of seeds.
 - **NSGA-II and the genetic method lose their lead at about sigma 0.1.** NSGA-II: +0.016 (0), +0.008 (0.05), -0.001 (0.1). The genetic method: +0.012, +0.010, +0.006 with a CI containing 0. Both are indistinguishable from random, or slightly worse, from sigma 0.1 up.
 - **Annealing is worse than random at every sigma, including 0** (budget 30: -0.015 at sigma 0; -0.021 to -0.033 with noise), as in `eda-proposers`.
 - **At budget 16 only TPE is above random** (+0.026 at sigma 0 to +0.004 at 0.8, CI crossing 0 at 0.8).
@@ -22,8 +22,8 @@ Full tables: `experiments/results.txt`. Figure: `experiments/gain_vs_noise.png`.
 ```bash
 pip install numpy matplotlib
 cd research/eda-noisy
-PYTHONPATH=src python -m unittest discover -s tests      # 5 tests
-PYTHONPATH=src python experiments/run.py                 # about 1 minute; writes experiments/results.txt
+PYTHONPATH=src python -m unittest discover -s tests      # 7 tests
+PYTHONPATH=src python experiments/run.py                 # about 50 s; writes experiments/results.txt
 python experiments/figure.py
 ```
 
@@ -32,6 +32,12 @@ python experiments/figure.py
 - One 80-design table and five untuned proposers; the true front has 12 points. Nothing here says how large real rung error is: that needs `eda-fidelity`-style measurements.
 - Proposers here are given a fixed budget of noisy queries and never re-measure a design on the true rung, which is what a multi-fidelity search would do.
 - Cell counts are Yosys generic-gate counts (version 0.33), not area; nothing here is a claim about silicon.
+
+## Known gaps
+From the quality audit [`portfolio/quality/audits/2026-11-20-eda-noisy.json`](../../portfolio/quality/audits/2026-11-20-eda-noisy.json):
+- Noise is put on all three objectives, but in `eda-fidelity`'s ladder cycles are exact from rung 1 and accuracy is not a rung quantity at all; only cells are estimated cheaply. A cells-only error run would match the stated motivation.
+- The "loses its lead at about sigma 0.1" readings come from 48 uncorrected 95% intervals (4 proposers, 6 sigmas, 2 budgets); a threshold read off where one interval first crosses zero is fragile.
+- The nearest prior work, noise-robust evolutionary multi-objective optimisation (for example Goh and Tan, 2007, *IEEE Trans. Evol. Comput.*; the survey by Rakshit, Konar and Das, 2017; both named from memory, not re-read) and noisy-hypervolume Bayesian optimisation, is not cited or compared with, so the result is a measurement on this table, not a new finding about proposers under noise.
 
 ## Next steps
 Replace the synthetic error with the measured disagreement between `eda-fidelity`'s rungs; let each proposer spend part of its budget re-checking its picks on the true rung.

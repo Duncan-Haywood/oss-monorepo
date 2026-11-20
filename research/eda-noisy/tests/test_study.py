@@ -38,6 +38,24 @@ class T(unittest.TestCase):
         self.assertTrue(0 < r <= 1.0)
         self.assertEqual(r, study.run(ROWS, TPE, 0.2, 16, 4))
 
+    def test_found_set_is_scored_on_true_objectives(self):
+        # The same picks must score the same whatever noise the proposer saw: scoring is on the truth, not the view.
+        from eda_proposers import bench
+        order = bench.run_once(study.NoisySpace(ROWS, 0.8, 2), TPE, 16, 2)
+        expect = study.hv_ratio(table.Space(ROWS), order, 16)
+        self.assertNotAlmostEqual(expect, study.hv_ratio(study.NoisySpace(ROWS, 0.8, 2), order, 16), places=6)
+        self.assertEqual(study.run(ROWS, TPE, 0.8, 16, 2), expect)
+
+    def test_ratio_uses_exactly_the_first_budget_designs(self):
+        # Hand check against the front: the 12 true-front designs alone score 1.0; dropping one scores below 1.0.
+        from eda_proposers.hv import nondominated
+        sp = table.Space(ROWS)
+        front = set(nondominated([sp.evaluate(x) for x in sp.all()]))
+        fx = [x for x in sp.all() if sp.evaluate(x) in front]
+        self.assertEqual(len(fx), 12)
+        self.assertAlmostEqual(study.hv_ratio(sp, fx, 12), 1.0)
+        self.assertLess(study.hv_ratio(sp, fx, 11), 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()
