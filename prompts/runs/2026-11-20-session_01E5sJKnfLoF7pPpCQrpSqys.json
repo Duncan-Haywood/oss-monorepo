@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKnfLoF7pPpCQrpSqys",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T03:09:23Z",
+  "ended": "2026-11-20T03:18:32Z",
+  "wall_minutes": 18.71,
+  "tokens_in": 5003137,
+  "tokens_out": 24247,
+  "cost_usd": 2.3609,
+  "tool_calls": 49,
+  "task": "xer-schedule-check (flagship 13): the 9 free-float disagreements left in the public P6 24.12 XER",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17845",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/xer-schedule-check/eval/free-float-2026-11-19.md",
+      "issue": "Said 'No rule found explains them from the file'; every one of the 9 has TASK.expect_end_date set, a field one dump of the rows shows. Worth a habit: print every non-empty field of a residual before calling it unexplained."
+    },
+    {
+      "file": "(ad-hoc XER parsing)",
+      "issue": "A naive line-split Python reader of the 24.12 XER misparses TASK because P6 Web exports put real line breaks inside quoted calendar fields; use xer.mjs's parseXer even for quick probes."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-p6-expected-finish-free-float-zero.md",
+    "ventures/xer-schedule-check/eval/free-float-expected-2026-11-20.md"
+  ],
+  "goal": "Deepen a flagship: match P6's stored free float on the last unexplained activities",
+  "notes": "Free float vs P6 on six public XER files 19,810 -> 19,820 of 19,822 (24.12 file 395 -> 404). Rule fit on one file: 23/23 expected-finish activities store 0, 72/72 others with a positive gap store the gap. Local checks: run_venture_tests.py xer-schedule-check 151 tests 0 failed; check_posts.py ok; portfolio/router/validate.py ok. venture-preflight.mjs xer-schedule-check: clean. run_workflow_locally.py --for-changes: 14/14 selected workflows passed (cross-review bots and Pages deploy jobs selected but not run).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "323a20d1-4077-520b-9f99-2ab5be81460c",
+    "transcripts": 1,
+    "first": "2026-11-20T03:09:23Z",
+    "last": "2026-11-20T03:28:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 93,
+        "output": 24247,
+        "thinking": 5800,
+        "cache_read": 4890863,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112181,
+        "api_equivalent_usd": 2.3609,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 93,
+      "output": 24247,
+      "thinking": 5800,
+      "cache_read": 4890863,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112181,
+      "api_equivalent_usd": 2.3609,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 46,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.71,
+      "active_minutes": 18.71,
+      "model_minutes": 4.79,
+      "tool_minutes": 13.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a scheduler-engineer tracing 9 P6 free-float residuals, writing the rule, test and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 169.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
