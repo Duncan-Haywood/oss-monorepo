@@ -24,10 +24,18 @@ export function splitLine(line, semi = false) {
 
 export const numCell = (s, decimalComma = false) => {
   if (s == null) return NaN;
-  const t = decimalComma
-    ? String(s).replace(/[$\s.]/g, '').replace(',', '.')
-    : String(s).replace(/[$,\s]/g, '');
-  return t === '' ? NaN : Number(t);
+  if (decimalComma) {
+    const t = String(s).replace(/[$\s.]/g, '').replace(',', '.');
+    return t === '' ? NaN : Number(t);
+  }
+  // Read a comma by its shape (platform/ci/check_money_comma.py): thousands commas are dropped, a decimal comma
+  // ('29,99' from an EU-locale export) becomes a point, and any other comma is not a number (the row is skipped).
+  const t = String(s).replace(/[$\s]/g, '');
+  if (!t.includes(',')) return t === '' ? NaN : Number(t);
+  const m = /^([+-]?)(.*)$/.exec(t), sign = m[1], body = m[2];
+  if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(body)) return Number(sign + body.split(',').join(''));
+  if (/^(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$/.test(body)) return Number(sign + body.split('.').join('').replace(',', '.'));
+  return NaN;
 };
 
 /**
@@ -42,7 +50,8 @@ export function parseSeries(csv, column = null, labelColumn = null) {
   const semi = lines.some((l) => l.replace(/"[^"]*"/g, '').includes(';'));
   const rows = lines.map((l) => splitLine(l, semi));
   const num = (s) => numCell(s, semi);
-  const width = Math.max(...rows.map((r) => r.length));
+  let width = 0;
+  for (const r of rows) if (r.length > width) width = r.length; // a loop, not a spread: spreading every row into one call overflows the stack past ~125k rows
   const first = rows[0];
   const header = first.some((c) => c !== '' && Number.isNaN(num(c))) ? first : null;
   const body = header ? rows.slice(1) : rows;

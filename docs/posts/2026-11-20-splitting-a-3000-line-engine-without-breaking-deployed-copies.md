@@ -40,6 +40,15 @@ The list now includes the new modules, the page test that asserts no module make
 the README's new "Code layout" section says that a module the watch needs belongs in that list. The lesson is general
 for anything in this portfolio that people deploy themselves: the copy step is part of the interface.
 
+## Two old faults the move surfaced
+
+The repository's ratchet checks track known faults per file, so moving the CSV reader into a new file made two of
+them fire as new. Both were real, so they were fixed rather than re-baselined. The number reader stripped every
+comma, so a quoted `"29,99"` (how a European-locale export writes 29.99) read as 2,999; it now reads a comma by its
+shape (thousands, decimal, or not a number, in which case the row is skipped and counted). And the column count
+used `Math.max(...rows)`, which overflows the call stack past about 125,000 rows; it is a loop now, with a test at
+200,000 rows.
+
 ## What is left
 
 The engine still holds PELT, the pre-steps (season, trend, AR(1), holidays), GARCH and a roughly 300-line
