@@ -66,8 +66,8 @@
       "hash": "sha256-00eca1c1004b28cdc22446e4c72ff5688cb1671dafbe00c3fb9d4d8ee2cb26fd"
     },
     "devsec-toolkit": {
-      "version": "0.1.10",
-      "hash": "sha256-316da9b030808e9ce343742f2031917ee81ba9292452a20a3d106e216acdf417"
+      "version": "0.1.11",
+      "hash": "sha256-ecd71a4fb93c232029ece8514e9c3f909db582449491d2ff567ef019327bbbe7"
     },
     "docker-base-image-eol-check": {
       "version": "0.1.1",
