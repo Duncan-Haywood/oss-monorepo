@@ -690,6 +690,10 @@ def test_real_rows_move_no_open_work_to_history():
     "two covariates: harmless one's warning 0 of 170 false finds, 1.27x bias (bar failed)",
     "(2) clumpy counts: NB1 shipped",
     "gapShape word on listed units (pulse faded 90%, 20% false)",
+    # dated entries that end on their evidence (DATED_EVIDENCE), PR #17951's row
+    "two courses 2026-11-20 (golf-courses.test.mjs)",
+    "facet-result cache 2026-11-18 (eval/applies-cache-2026-11-18.md: 68 IDS 7.9 to 4.6 s)",
+    "Americano scorer page 2026-11-19 (americano-night.html, night.mjs: live table)",
 ])
 def test_is_result_finished_results(item):
     assert ff.is_result(item)
@@ -704,6 +708,11 @@ def test_is_result_finished_results(item):
     "bowling: most even of several dealings landed; left: 10 x 32 misses",
     "refresh the Bulgaria page when its draft passes",
     "the note quotes it",
+    # dated, with evidence, but open work follows the bracket or is the point
+    "home-and-away breaks exact since 2026-11-13 (eval/pair-exact.txt): a timetable search on it",
+    "quality round 89 (`audits/2026-11-19-r2.json`, craft 2): engine.mjs is 3,004 lines. Split it",
+    "golf two courses 2026-11-20 (README)",
+    "a rebuild after 2026-11-23 (eval/rebuild.md: needs the new feed)",
 ])
 def test_is_result_keeps_open_items_open(item):
     assert not ff.is_result(item)
