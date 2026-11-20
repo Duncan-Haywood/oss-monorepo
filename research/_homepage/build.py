@@ -134,6 +134,7 @@ _PARA_START = re.compile(
     r"|(?:Limits?|Limitations?|Caveats?)\s*:")
 _ABBREV = re.compile(r"(?:\b(?:e\.g|i\.e|cf|vs|al|approx|Fig|Figs|Eq|Eqs|No|Nos|Ref|Refs|St|Dr|Mr|Ms|Jr|Inc|Ltd|Co|ca|resp|incl|etc)"
                      r"|\b[A-Z])\.$")
+_ENDS = (".", "!", "?", ".)", ".&rdquo;", '."')
 _INLINE = {"em", "strong", "code", "sup", "sub", "a", "b", "i", "span", "abbr", "small", "mark", "var", "kbd", "q"}
 
 
@@ -152,7 +153,7 @@ def summary_paragraphs(summary, limit=PARA_WORDS):
     depth, parens, i, n = 0, 0, 0, len(s)
     prev_end = False  # the text before this point ends a sentence
     while i < n:
-        if s.startswith("<br", i):
+        if s[i] == "<" and s.startswith("<br", i):
             j = s.index(">", i) + 1
             while True:  # a run of <br>s and spaces is one break
                 k = j
@@ -183,8 +184,14 @@ def summary_paragraphs(summary, limit=PARA_WORDS):
         elif c == ")":
             parens = max(parens - 1, 0)
         if depth == 0 and parens == 0 and c == " " and i > 0:
-            before = s[:i].rstrip()
-            ends = before.endswith((".", "!", "?", ".)", ".&rdquo;", '."')) and not _ABBREV.search(before)
+            # the text before this space, trailing whitespace dropped, read in place: copying
+            # s[:i] and searching it at every space made this quadratic (2026-11-20, 1.5 s of a
+            # 5.7 s build). _ABBREV ends in `\.$` and is at most 8 characters long, so a search
+            # from 16 back is the same search (\b still sees the character before `pos`).
+            j = i
+            while j > 0 and s[j - 1].isspace():
+                j -= 1
+            ends = s.endswith(_ENDS, 0, j) and not _ABBREV.search(s, max(0, j - 16), j)
             if ends:
                 k = i
                 while k < n and s[k] == " ":
@@ -258,7 +265,7 @@ def short_lede(lede, limit=LEDE_WORDS):
         elif c == ")":
             parens = max(parens - 1, 0)
         elif c == " " and depth == 0 and parens == 0 and (lede[i - 1] == ";" or (
-                lede[i - 1] == "." and not _ABBREV.search(lede[:i]))):
+                lede[i - 1] == "." and not _ABBREV.search(lede, max(0, i - 16), i))):
             cuts.append(i - 1)
         i += 1
     fits = [k for k in cuts if _words(lede[:k]) <= limit]
@@ -277,8 +284,13 @@ SUMMARY_FOLD = 700
 SUMMARY_OPEN = 300
 
 
+_PARAS = {}  # summary -> its paragraphs: a project page and its topic card both split it
+
+
 def summary_html(summary, indent="  ", fold=False):
-    ps = summary_paragraphs(summary)
+    if summary not in _PARAS:
+        _PARAS[summary] = summary_paragraphs(summary)
+    ps = _PARAS[summary]
     lines = [f"{indent}<p>{p}</p>" for p in ps]
     total = sum(_words(p) for p in ps)
     if not fold or total <= SUMMARY_FOLD:
