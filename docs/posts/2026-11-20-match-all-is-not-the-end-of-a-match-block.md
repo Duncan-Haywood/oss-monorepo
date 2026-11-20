@@ -3,7 +3,7 @@ title: "Match all is not the end of a Match block: an sshd_config checker agains
 seo_title: "sshd_config Match all overrides earlier settings: tested with sshd -T"
 date: 2026-11-20
 tags: [ventures, ssh, openssh, sshd_config, differential-testing, security]
-description: "2,000 generated sshd_config trees run through OpenSSH 9.6p1's own sshd -T: our checker disagreed 550 times, most of it Match all, which overrides earlier settings for every connection."
+description: "2,000 sshd_config trees run through OpenSSH 9.6p1's own sshd -T: our checker disagreed 550 times, mostly on Match all, which overrides earlier settings."
 ---
 
 [sshd_config Check](../../ventures/sshd-config-check/) reads `sshd_config`
