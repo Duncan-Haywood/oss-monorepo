@@ -2,7 +2,7 @@
 // category tiers, then balanced so no tool is left without an inbound link.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { relatedTools, relatedToolScore, relatedToolsTable, categoryFor } from './build.mjs';
+import { relatedTools, relatedToolScore, relatedToolScores, relatedToolsTable, categoryFor, subcategoryFor } from './build.mjs';
 
 const tool = (slug, title, description = '') => ({ slug, title, description });
 
@@ -96,4 +96,57 @@ test('the table gives an orphan a slot from a related tool without making a new 
     assert.ok(!list.some((r) => r.slug === slug), `${slug} lists itself`);
     assert.equal(new Set(list.map((r) => r.slug)).size, list.length, `${slug} lists a tool twice`);
   }
+});
+
+// relatedTools ranked every candidate with a full sort and scored each pair
+// word by word until 2026-11-20; it now keeps the top `limit` and scores one
+// tool against all others through a word index
+// (docs/history/pages-build-perf-2026-11-20-mask-and-related-tools.md). The
+// old ranking, kept here verbatim over relatedToolScore, must pick the same
+// tools in the same order on a catalogue with many ties and many overlaps.
+test('the indexed ranking picks exactly what the full sort picked', () => {
+  let seed = 20261120;
+  const rand = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  const words = ['roof', 'metal', 'shingle', 'fee', 'ebay', 'etsy', 'invoice', 'tax', 'payroll', 'mileage',
+    'deck', 'fence', 'paint', 'tile', 'solar', 'vendor', 'watch', 'statement', 'bank', 'csv', 'import', 'check'];
+  const pick = (n) => Array.from({ length: n }, () => words[Math.floor(rand() * words.length)]);
+  const surfaces = Array.from({ length: 150 }, (_, k) => {
+    const name = pick(1 + Math.floor(rand() * 3));
+    return tool(`${name.join('-')}-${k}-${k % 3 ? 'bid-calculator' : 'log'}`, name.join(' '), pick(Math.floor(rand() * 6)).join(' '));
+  });
+  const BONUS = 5;
+  const reference = (slug, limit) => {
+    const others = surfaces.filter((s) => s.slug !== slug);
+    const category = categoryFor(slug).id;
+    const subcategory = subcategoryFor(slug)?.id ?? null;
+    const inCategory = (s) => categoryFor(s.slug).id === category;
+    const inSub = (s) => subcategory !== null && inCategory(s) && subcategoryFor(s.slug)?.id === subcategory;
+    const sameSubcategory = others.filter(inSub);
+    const sameCategory = others.filter((s) => inCategory(s) && !inSub(s));
+    const rest = others.filter((s) => !inCategory(s));
+    const offset = Math.max(0, surfaces.findIndex((s) => s.slug === slug));
+    const rotate = (list, bonus) => {
+      if (list.length === 0) return [];
+      const at = offset % list.length;
+      return [...list.slice(at), ...list.slice(0, at)].map((surface) => ({ surface, bonus }));
+    };
+    return [...rotate(sameSubcategory, 2 * BONUS), ...rotate(sameCategory, BONUS), ...rotate(rest, 0)]
+      .map((x, i) => ({ ...x, i, s: x.bonus + relatedToolScore(surfaces, slug, x.surface.slug) }))
+      .sort((a, b) => b.s - a.s || a.i - b.i)
+      .slice(0, limit)
+      .map((x) => x.surface.slug);
+  };
+  let ties = 0;
+  const tiers = new Set(surfaces.map((s) => `${categoryFor(s.slug).id}/${subcategoryFor(s.slug)?.id ?? ''}`));
+  assert.ok(tiers.size >= 3, `the fixture must span tiers (${[...tiers]})`);
+  for (const s of surfaces) {
+    const scores = relatedToolScores(surfaces, s.slug);
+    for (const o of surfaces) assert.equal(scores.get(o.slug) ?? 0, relatedToolScore(surfaces, s.slug, o.slug));
+    for (const limit of [1, 4, 20]) {
+      assert.deepEqual(relatedTools(surfaces, s.slug, limit).map((x) => x.slug), reference(s.slug, limit), `${s.slug} @ ${limit}`);
+    }
+    const top = reference(s.slug, 5).map((slug) => relatedToolScore(surfaces, s.slug, slug));
+    if (new Set(top).size < top.length) ties++;
+  }
+  assert.ok(ties > 10, `the fixture must exercise ties (${ties})`);
 });

@@ -56,9 +56,22 @@ import { stripForInjection } from './jobs.mjs';
  * and the mirror (2026-09-23).
  */
 export function maskScriptAndStyleBodies(html) {
-  return html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, (block) =>
-    block.replace(/[^\n]/g, ' '),
-  );
+  return html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, blankKeepingNewlines);
+}
+
+// `block.replace(/[^\n]/g, ' ')`, a run of spaces per line instead of one
+// callback per character: the same string (both count UTF-16 code units),
+// about six times faster on the built site's pages, where this ran twice per
+// page (docs/history/pages-build-perf-2026-11-20-mask-and-related-tools.md).
+function blankKeepingNewlines(block) {
+  let out = '';
+  let start = 0;
+  for (;;) {
+    const nl = block.indexOf('\n', start);
+    if (nl < 0) return out + ' '.repeat(block.length - start);
+    out += ' '.repeat(nl - start) + '\n';
+    start = nl + 1;
+  }
 }
 
 /** Written into the page; the runtime file and its stylesheet live at the
