@@ -14,3 +14,6 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-19) Excel-saved workbooks 2026-11-19 (eval/excel-workbooks-2026-11-19.md: 65,537 of 65,548 cells agree with openpyxl)
 - (moved 2026-11-19) Excel2IDS template workbooks both ways 2026-11-19 (excel2ids.mjs, eval/excel2ids-2026-11-19.md: 309 of 309 public specs that fit come back the same; partOf, unnamed material, ranges do not fit)
 - (moved 2026-11-19) Excel2IDS tool differences cell by cell 2026-11-19 (eval/excel2ids-tool-2026-11-19.md: page and CLI list where the .exe writes another IDS or stops; download fills purpose General, tool stops 316 to 0 of 351; sample's External doors asks True)
+- (moved 2026-11-20) Tool run side by side 2026-11-19 (eval/excel2ids-sidebyside-2026-11-19.md: 321 workbooks, 0 stops; added version None, _x000D_; applicability in ids.xsd order)
+- (moved 2026-11-20) bSDD links 2026-11-19 (bsdd.mjs, cli --audit --bsdd, eval/bsdd-links-2026-11-19.md: 58 public IDS, 197 bSDD links; 7 files with an error, 15 a warning, all read by hand)
+- (moved 2026-11-20) IDS from a bSDD class 2026-11-19 (--from-bsdd, bsdd-spec.mjs, eval/bsdd-spec-2026-11-19.md: 185 classes in 42 dictionaries, 38 of 42 audit clean, 42 of 42 bSDD-check clean; editor keeps uris, 0 to 344 of 344)

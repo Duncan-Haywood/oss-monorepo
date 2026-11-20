@@ -19,6 +19,11 @@
 //                                              # workbook (excel2ids.mjs) gives one IDS per purpose,
 //                                              # OUT_<purpose>.ids (and per phase with --by-phase)
 //   node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx  # the IDS in the Excel2IDS template layout
+//   node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]
+//                                              # what a revision of an IDS adds, removes, asks more or
+//                                              # less of (revision.mjs); with a model, the elements that
+//                                              # newly fail or no longer fail. Exit 0 when the revision
+//                                              # asks nothing more, 1 when it does, 2 on a read error
 //   node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]  # the IDS in plain English, every specification as
 //                                              # sentences (spec-doc.mjs); Markdown on stdout without -o
 //   node cli.mjs --from-bsdd CLASS_URI... [-o OUT.ids] [--sets Pset_A,Pset_B] [--schema IFC4]
@@ -45,6 +50,8 @@ import { fixStructure } from "./fix.mjs";
 import { sheetFromIds, rowsToCsv, rowsToXlsx, sheetToRows, rowsToIds, sheetLists, sheetVersions } from "./sheet.mjs";
 import { inflateRawSync } from "node:zlib";
 import { readRequirementSheet, idsToExcel2Ids, excel2IdsToXlsx } from "./excel2ids.mjs";
+import { diffIds, revisionImpact, revisionReport } from "./revision.mjs";
+import { parseModel } from "./node.mjs";
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
@@ -61,6 +68,24 @@ if (flag("--from-bsdd") && files.length) {
   console.error(`${r.specs.length} of ${files.length} class(es) written`);
   if (opt("-o")) writeFileSync(opt("-o"), r.text); else process.stdout.write(r.text);
   process.exitCode = r.specs.length === files.length ? 0 : 1;
+} else if (flag("--diff") && (files.length === 2 || files.length === 3)) {
+  let idsFiles = files.filter((f) => /\.(ids|xml)$/i.test(f));
+  const modelPath = files.find((f) => !idsFiles.includes(f)) || (files.length === 3 ? files[2] : null);
+  if (files.length === 3 && idsFiles.length === 3) idsFiles = files.slice(0, 2);
+  if (idsFiles.length !== 2) { console.error("--diff takes OLD.ids NEW.ids and optionally a model"); process.exit(2); }
+  let d, impact = null;
+  try {
+    const [a, b] = idsFiles.map((f) => parseIds(readFileSync(f, "utf8")));
+    d = diffIds(a, b);
+    if (modelPath) {
+      const model = parseModel((await readModel(modelPath)).bytes);
+      impact = revisionImpact(check(a, model), check(b, model), d);
+    }
+  } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  if (flag("--json")) console.log(JSON.stringify(impact ? { ...d, impact } : d, null, 2));
+  else console.log(revisionReport(d, impact));
+  const s = d.summary;
+  process.exitCode = s.added || s.tighter || s.mixed ? 1 : 0;
 } else if (flag("--fix") && files.length === 1) {
   // Exit 0 when the repaired file breaks ids.xsd nowhere, 1 when faults that
   // need a person remain (listed on stderr), 2 when the file is not XML.
@@ -157,7 +182,7 @@ if (flag("--from-bsdd") && files.length) {
   else console.log(auditReport(ids.title, ids.specs, issues) + (bsdd ? "\n" + bsddReport(bsdd) : ""));
   process.exitCode = issues.some((x) => x.level === "error") || (bsdd && bsdd.findings.some((x) => x.level === "error")) ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;
