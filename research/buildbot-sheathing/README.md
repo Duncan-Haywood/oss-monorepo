@@ -808,6 +808,19 @@ bisection.
 
 ![Balance limit minus the planner's limit, on the pose's own hold sides and on the best hold-side combination](experiments/m62_exactgate/figure.png)
 
+**Milestone 63: does the 0.03 mm guarantee survive a sensor bias aimed at the robot's weakest joint?** Every check
+since milestone 55 drew the 0.2 N wrist-sensor bias in 6 random directions per seed. A real sensor's offset is not
+random, so here, for each pose and load, the bias is aimed (both signs) along the settle gradient of the joint the plan
+leaves nearest its friction threshold, on 48 new held-out loads (seed 63). **No planned press leaves 0.03 mm under
+the aimed bias: worst G1 0.0180 mm, H1 0.0203 mm** (H244 held), and the chain plans G1 1359 of 1360 and H1 1812 of
+1812 balance-envelope cases (H245 held); the one refused load sits 0.06 N under its balance limit, inside milestone
+62's 0.5 N band. The aimed bias sets a new worst on the H1 (0.0203 against 0.0182 mm for random directions) but not on
+the G1 (0.0180 against 0.0238; H246 refuted): the rule keeps the weakest joint from flipping, and what is left comes
+from flips the budget admits on other joints. One seed; statics; a first-order adversary aimed at the margin, not a
+search for the largest residual.
+
+![Worst residual under the aimed 0.2 N bias against the worst of 6 random biases, per pose and load](experiments/m63_worstbias/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

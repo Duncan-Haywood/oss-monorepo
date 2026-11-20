@@ -837,6 +837,13 @@ Over every hold-side combination (milestone 62, a sixth held-out set) the planne
 to 0.01 N in 712 of 720 G1 and 904 of 912 H1 pose-direction pairs; the only pairs more than 0.5 N short are 7 on the
 G1 at 46 to 60 N, above any working hose load. With hold sides chosen per load, the balance test is the planner's
 envelope, and the chain plans every case inside it: 3996 of 3996 on the G1 and 5400 of 5400 on the H1.
+A sensor bias aimed at the robot's weakest joint does not break the bound (milestone 63, a seventh held-out set).
+For each pose and load the 0.2 N bias is set along the settle gradient of the joint the plan leaves nearest its
+friction threshold, both signs. No planned press leaves 0.03 mm: the worst is 0.0180 mm on the G1 and 0.0203 mm on the
+H1, against 0.0238 and 0.0182 mm under six random directions on the same loads. The chain plans 1359 of 1360 G1 and
+1812 of 1812 H1 cases under the aimed bias; the one refusal is a load 0.06 N under its balance limit. The aimed bias is
+worse than random on the H1 only, because the rule keeps the targeted joint from flipping and the residual comes from
+admitted flips elsewhere.
 
 ### 5.12 What the remedies cost (milestone 13)
 

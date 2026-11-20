@@ -1,0 +1,42 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 63: the worst-direction bias, held-out section J (48 loads, seed 63; milestone 61's chain, spec 0.03 mm per row; B = 0.20 N)
+random errors (seed 63): (+0.048, +0.158, -0.113); (-0.011, +0.151, +0.131); (+0.151, +0.022, +0.130); (+0.166, +0.064, +0.092); (-0.062, -0.189, -0.024); (-0.010, +0.190, -0.061)
+
+## A. Coverage and residuals by error set: robot | set | balance-envelope cases | planned | unplanned | coverage % | over spec | worst |y|, |z|, |y_d|, |z_d| (mm) | cases with a flip | escalated
+  g1 | adv | 1360 | 1359 | 1 | 99.93 | 0 | 0.0112, 0.0168, 0.0114, 0.0180 | 15 | 0
+  g1 | rand | 4080 | 4078 | 2 | 99.95 | 0 | 0.0110, 0.0225, 0.0111, 0.0238 | 36 | 0
+  h1 | adv | 1812 | 1812 | 0 | 100.00 | 0 | 0.0101, 0.0188, 0.0108, 0.0203 | 15 | 2
+  h1 | rand | 5436 | 5436 | 0 | 100.00 | 0 | 0.0087, 0.0168, 0.0093, 0.0182 | 32 | 20
+
+## B. The adversary: robot | poses x loads | direction from the gradient | from the load | binding joints (count) | margin of j* at the true load, median and min (N m) | B ||G_j*||, median and max (N m)
+  g1 | 720 | 671 | 49 | right_hip_roll_joint 192, left_hip_roll_joint 157, right_wrist_roll_joint 141, right_wrist_yaw_joint 45, waist_yaw_joint 26 | 0.0103, -0.1186 | 0.0669, 0.2159
+  h1 | 912 | 896 | 16 | right_hip_yaw 419, left_hip_yaw 175, right_hip_roll 78, right_shoulder_roll 46, torso 45 | 0.0416, -0.1172 | 0.0581, 0.2127
+
+## C. Same case, adversarial against random: robot | cases planned under both | adversarial worst row > every random one's | median ratio adversarial/random-worst | planned under every random, not under an adversarial sign | the reverse
+  g1 | 679 | 13 | 0.435 | 0 | 0
+  h1 | 906 | 162 | 0.783 | 0 | 0
+
+## D. Each balance-envelope case unplanned under an adversarial sign: robot | pose | H N | phi deg | sign | binding (rule) | adversary's j* | leg M | squeeze S | planned under every random error
+  g1 | [1.2, 0.15] | 16.89 | 111.2 | adv- | None | right_hip_pitch_joint | None | None | False
+
+## E. Hypotheses (registered in LOG.md before this run)
+H244 (every press planned under the worst-direction bias is inside 0.03 mm at both points both ways): over spec 0 (cases with a flip 30; worst G1 0.0180, H1 0.0203 mm) -> held
+H245 (coverage of the balance envelope under the worst-direction bias is at least 99.5% on each robot): G1 99.93%, H1 100.00% -> held
+H246 (the worst residual under the adversarial bias exceeds the worst under 6 random directions on each robot): G1 0.0180 vs 0.0238, H1 0.0203 vs 0.0182 mm -> refuted
+
+(run time 1846 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)
