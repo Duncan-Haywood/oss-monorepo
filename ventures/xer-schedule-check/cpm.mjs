@@ -330,6 +330,14 @@ export function schedule(xer, options = {}) {
   // whose FF lag runs on a 7-day calendar then has the Friday too. Off by
   // default: P6 stores the tighter dates (eval/calendar-slack-2026-11-20.md).
   const calSlack = !!options.calendarSlack;
+  // options.milestones24h: milestones run on a 24-hour calendar, so one sits
+  // at the instant its logic gives instead of its own calendar's next work
+  // start (forward) or last work end (backward). A start milestone on a
+  // Friday-off calendar after a Thursday finish otherwise sits at Saturday
+  // 08:00 and holds a Mon-Fri successor off the Friday. Off by default: P6
+  // snaps to the milestone's calendar (milestones.mjs,
+  // eval/milestone-calendars-2026-11-20.md). Mandatory dates are left alone.
+  const ms24 = !!options.milestones24h;
   // activities whose remaining duration an expected finish set in this run:
   // task id -> { from: file or sampled minutes, to: minutes }
   const expected = new Map();
@@ -433,11 +441,11 @@ export function schedule(xer, options = {}) {
     if (t.type === "TT_FinMile") {
       let v = Math.max(sMax, fMax);
       if (mandFin !== null) v = mandFin;
-      es = ef = finishSnap(cal, v);
+      es = ef = ms24 && mandFin === null ? v : finishSnap(cal, v);
     } else if (t.type === "TT_Mile" || remain === 0) {
       let v = Math.max(sMax, fMax);
       if (mandStart !== null) v = mandStart;
-      es = ef = cal.nextStart(v);
+      es = ef = ms24 && mandStart === null && t.type === "TT_Mile" ? v : cal.nextStart(v);
     } else {
       es = cal.nextStart(mandStart ?? sMax);
       // expected finish: the remaining duration is what is left to it (the
@@ -573,14 +581,14 @@ export function schedule(xer, options = {}) {
       let v = Math.min(fMin, sMin);
       if (mandFin !== null) v = mandFin;
       if (!Number.isFinite(v)) v = r.ef;
-      ls = lf = cal.prevEnd(v);
+      ls = lf = ms24 && mandFin === null ? v : cal.prevEnd(v);
     } else if (t.type === "TT_Mile" || remain === 0) {
       let v = Math.min(fMin, sMin);
       if (mandStart !== null) v = mandStart;
       if (!Number.isFinite(v)) v = r.ef;
       // a start milestone may sit at a period's start; a zero-length task
       // finishes, so it snaps back to a period's end
-      ls = lf = t.type === "TT_Mile" ? startSnapBack(cal, v) : cal.prevEnd(v);
+      ls = lf = t.type === "TT_Mile" ? (ms24 && mandStart === null ? v : startSnapBack(cal, v)) : cal.prevEnd(v);
     } else {
       lf = Number.isFinite(fMin) ? cal.prevEnd(fMin) : r.ef;
       if (mandFin !== null) lf = mandFin;

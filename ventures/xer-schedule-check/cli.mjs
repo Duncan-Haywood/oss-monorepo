@@ -47,6 +47,10 @@
 // Float P6's late dates miss across calendars instead (calslack.mjs): the FF/SF
 // lags that end in a successor's non-work time on a calendar that works then,
 // and every activity whose total float is larger than P6 shows because of it.
+// node cli.mjs schedule.xer --milestone-calendars [--csv held.csv] [--json] [--project CODE]
+// Time milestones hold back across calendars instead (milestones.mjs): the
+// milestones whose own calendar's non-work time delays a successor on another
+// calendar, and what comes back with every milestone on a 24-hour calendar.
 // node cli.mjs schedule.xer --earned-value [--csv activities.csv] [--curve s-curve.csv] [--json] [--project CODE]
 // Earned value from the resource assignments instead (evm.mjs): budget,
 // planned, earned and actual cost (or labour hours), SPI, CPI, the estimates
@@ -74,6 +78,7 @@ import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
 import { lookahead, lookaheadText, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
 import { constraintLogCsv } from "./constraints.mjs";
 import { calendarSlack, calendarSlackText, calendarSlackCsv } from "./calslack.mjs";
+import { milestoneCalendars, milestoneCalendarsText, milestoneCalendarsCsv } from "./milestones.mjs";
 import { earnedValue, earnedValueText, earnedValueCsv, sCurveCsv } from "./evm.mjs";
 import { earnedValueSeries, earnedValueSeriesText, earnedValueSeriesCsv } from "./evmseries.mjs";
 
@@ -217,6 +222,14 @@ if (args.includes("--calendar-slack")) {
   const r = calendarSlack(xer, { projId: pid, base: result });
   if (opt("--csv")) writeFileSync(opt("--csv"), calendarSlackCsv(r));
   await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : calendarSlackText(r));
+  process.exit(0);
+}
+if (args.includes("--milestone-calendars")) {
+  const result = schedule(xer);
+  const pid = assess(xer, { projId, result }).project.id;
+  const r = milestoneCalendars(xer, { projId: pid, base: result });
+  if (opt("--csv")) writeFileSync(opt("--csv"), milestoneCalendarsCsv(r));
+  await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : milestoneCalendarsText(r));
   process.exit(0);
 }
 if (args.includes("--float-paths")) {

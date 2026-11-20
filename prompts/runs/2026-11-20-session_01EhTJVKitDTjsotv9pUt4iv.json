@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVKitDTjsotv9pUt4iv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures routine (standing brief)",
+  "input_sha256": "46983b5d2b4849b2c355fff2dd9819681449ba788bdcb6fbd8527ca3de11d6af",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T11:06:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 13): xer-schedule-check, calendar slack the mirror (milestone calendars)",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17900",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace with a longer text auto-parked an unrelated open item ('next a real series and baseline export') to NEXT.md; had to shorten and put it back by hand. A dry-run warning before parking a different item would help."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-p6-milestone-calendars-lose-a-day.md",
+    "ventures/xer-schedule-check/eval/milestone-calendars-2026-11-20.md"
+  ],
+  "goal": "Find P6 milestones whose own calendar holds back successors on other calendars, and check the time is real",
+  "notes": "New engine option schedule(xer,{milestones24h:true}) and milestones.mjs (CLI --milestone-calendars, page panel, CSV). Six public XER files: hotel 8 start milestones hold 11 successors 1-9 h, 205 activities earlier, 2,201 gain float (max 24 h), 115 leave critical, finish unchanged; Expressway 1 milestone, 28 activities 1 h; other four nothing. Forward what-ifs: 2,001/2,001 gains sound and tight. Default engine unchanged: eval/cpm-vs-p6.mjs 19,820/19,822. node --test in the venture: 178 pass, 5 of them new. Preflight and run_venture_tests results in the PR body.",
+  "corrections": [],
+  "redteam": null
+}

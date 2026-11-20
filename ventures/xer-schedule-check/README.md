@@ -269,6 +269,27 @@ new float the finish holds (188 of 188), one working hour more and it moves or
 another activity runs late (188 of 188). The other five public files join no
 calendars this way and show nothing (eval/calendar-slack-2026-11-20.md).
 
+**Time milestones hold back across calendars** (2026-11-20, `milestones.mjs`,
+the page's "Time milestones hold back across calendars" panel, `node cli.mjs
+schedule.xer --milestone-calendars [--csv held.csv] [--json]`): a milestone
+has no duration, but P6 places it on its own calendar. A start milestone after
+a Thursday 16:00 finish, on a calendar with Friday off, sits at Saturday
+08:00, and a successor crew on a Monday-to-Friday calendar then waits until
+Monday. The check schedules the file a second time with every milestone on a
+24-hour calendar (`schedule(xer, { milestones24h: true })`; mandatory dates
+kept) and lists the milestones that hold work back, each successor they drive
+and the hours it loses, the activities that could start earlier and the float
+that comes back. On the public hotel file 8 start milestones on the
+Friday-off calendar hold 11 successors back by 1 to 9 h; 205 activities
+could start earlier, 2,201 gain 1 to 24 h of float and 115 that P6 marks
+critical are not, while the finish does not move. The Expressway file has one
+(a 7-day milestone starting at 08:00 holding 5-day crews that start at 07:00,
+1 h). The other four files show nothing. Each gain was checked by rescheduling
+(eval/milestone-calendars-2026-11-20.md). This is the mirror of the calendar
+slack item above, the case where P6's float there would be too long if the
+milestone's placement were ignored: the engine keeps P6's rule, and the panel
+shows what moving the milestones would give.
+
 **Earned value and the S-curve** (2026-11-20, `evm.mjs`, the page's "Earned
 value and the S-curve", CLI `--earned-value [--csv activities.csv] [--curve
 s-curve.csv]`): from the cost loaded on the resource assignments and project
