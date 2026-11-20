@@ -203,7 +203,8 @@
    "what": "clean() rounds to 6 decimal places, not significant figures, so divider current and power collapse for high-value dividers: 1M/1M at 5 V reports 3 uA (true 2.5 uA), 10M/10M at 3.3 V reports 0 A and 0 W in R1, R2 and the load (true 0.165 uA). High-value dividers are the battery-sense case where quiescent draw is the point of the calculation.",
    "where": "ventures/ai-engineering-academy/tools/voltage-divider-calculator/calc.mjs:33",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17841"
   },
   {
    "severity": "medium",
@@ -255,6 +256,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17841"],
  "verdict": "Six small, well-commented, client-side electronics calculators whose core formulas are right: an independent Python recomputation from the TI NE555 datasheet and first-principles circuit equations matches the 555 astable/monostable (68.70 Hz, 52.38%; R1 28853.9/R2 57707.8; 1.0986 s), RC/RL cutoff (1591.549 Hz), RC charge/discharge (1.0788 s, 2.1972 s), loaded divider (2.907216 V) and LED (150 ohm, 0.06 W) outputs, and the bench-practice warnings (2x derating, 555 discharge-pin current from both resistors, electrolytic tolerance, diode-mod caveat) are better than a bare formula page. All 237 tests pass. It misses the bar on verification and claims: 4 of 7 seeded mutants survive, a decimal-place rounding helper makes MOhm battery-sense dividers report 3 uA instead of 2.5 uA or 0 A instead of 0.165 uA, the colour-code decoder rejects IEC 60062 orange/yellow tolerance and three tempco colours, the README says nothing is deployed while linking the live site and carries stale test counts, and the llms.txt that ships omits two of the six tools. As the 'AI Engineering Academy' it is a vision document plus calculators: no lesson or project exists."
 }

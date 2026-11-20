@@ -158,7 +158,8 @@
    "what": "Tests do not guard the repair and inflation results: a wrong degrees-of-freedom in fitted_regret (n*k/2 -> n*k/2+1, halves the n=1 regret) survives because test_fit_regret_matches_simulation's delta=0.0015 is ~12% of the n=8 value; c -> c*c in gate_inflation_regret survives (only c=1 tested); the quadrature cut-off change survives; no test pins any results.txt row.",
    "where": "research/loopclosure-twin/tests/test_model.py:65",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17841"
   },
   {
    "severity": "medium",
@@ -196,6 +197,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17841"],
  "verdict": "A small, clean and fully reproducible stylised study: run.py and figure.py regenerate results.txt and the SVG byte-for-byte, and independent scripts (closed-form chi-square CDFs, bisection optimum, untruncated quadrature and Monte Carlo) reproduce every number in all seven result blocks except the n=1 repair row (0.10734 printed vs 0.10788, a 0.5% quadrature truncation the paper calls 'exact'). A latent bug lets regret() go negative when the optimum is the g=0 boundary. It misses the bar on verification: 3 of 4 seeded mutants survive, including a wrong degrees-of-freedom in the repair that halves its n=1 result, because the simulation test's tolerance is ~12% and no test pins a published number. As research it restates the classical unequal-variance likelihood-ratio threshold and plug-in variance estimation without saying so, omits the loop-closure verification (RRR, DCS, PCM) and covariance-consistency literature, and uses no odometry data. Correct and finished; not yet a contribution a SLAM reviewer would accept."
 }
