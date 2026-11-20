@@ -618,8 +618,9 @@ flagships:
       of 588 at level 3, held-out 66 of 69; eval/uniformat-2026-11-20.md), envelope
       from geometry shipped 2026-11-20 (envelope.mjs: unflagged walls placed by
       rays, 268 coded; uniform flags set aside; flag vs geometry 3,534 of 4,564;
-      eval/envelope-2026-11-20.md), next roofs as blockers for knee walls, frames
-      split B1010/B1020; (3) the unexplained disagreements; (4) advanced breps on
+      eval/envelope-2026-11-20.md), frames split B1010/B1020/A1010 by the deck they
+      carry 2026-11-20 (level 3 19,767 to 22,546 elements; eval/frames-2026-11-20.md),
+      next slabs named as roofs, roofs as blockers for knee walls; (3) the unexplained disagreements; (4) advanced breps on
       revolved/NURBS surfaces (8 in kleine_Wohnung; planes and cylinders read
       2026-11-20, 703 of 767 = IfcOpenShell to 0.1%; faceted openings as signed
       tetrahedra; eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a
