@@ -151,6 +151,14 @@
    "by": "DATED_EVIDENCE in is_result (this PR)",
    "at": "2026-11-20T18:23:46Z",
    "note": ""
+  },
+  {
+   "file": "portfolio/router/flagship_field.py",
+   "match": "8 breps still unread|moved open item",
+   "verdict": "fixed",
+   "by": "numbered open-list items need shipped/landed to read as results (this PR)",
+   "at": "2026-11-20T20:22:54Z",
+   "note": ""
   }
  ]
 }

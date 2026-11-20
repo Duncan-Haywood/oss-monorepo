@@ -724,13 +724,26 @@ DATED_EVIDENCE = re.compile(r"\b20\d\d-\d\d-\d\d \(((?:[^()]|\([^()]*\))*)\)\.?$
 EVIDENCE = re.compile(r"\beval/|\b[\w*.-]+\.(?:mjs|js|ts|py|txt|md|json|csv|html|c|rs|go|ipynb)\b")
 
 
+# A numbered item ("(4) advanced breps on ...") is an entry in the row's ordered
+# open list ("Next, most valuable first: (1) ..."); rows keep each area's
+# progress so far inside it ("A run that lands a slice replaces its item").
+# A count or share in that progress ("703 of 767 = IfcOpenShell to 0.1%") is
+# not a sign the area is done, so only an explicit SHIPPED_WORD or the
+# DATED_EVIDENCE shape makes one a result. Why: on 2026-11-20 an implicit park
+# filed ifc-quantity-takeoff's open item (4) in HISTORY.md as a result (PR
+# #17963's record); 7 of the 13 numbered items on main then read as results.
+NUMBERED = re.compile(r"^\(\d+[a-z]?\)\s")
+SHIPPED_WORD = re.compile(r"\b(?:ships|shipped|landed)\b", re.I)
+
+
 def is_result(item: str) -> bool:
-    """True when a parked item reads as a finished result: RESULTISH or a
-    DATED_EVIDENCE entry, and no STILL_OPEN cue."""
+    """True when a parked item reads as a finished result: RESULTISH (only
+    SHIPPED_WORD for a NUMBERED open-list item) or a DATED_EVIDENCE entry, and no
+    STILL_OPEN cue."""
     body = ROW_NOTE.sub("", " ".join(item.split())).strip(" ;")
     if STILL_OPEN.search(body):
         return False
-    if RESULTISH.search(body):
+    if (SHIPPED_WORD if NUMBERED.match(body) else RESULTISH).search(body):
         return True
     m = DATED_EVIDENCE.search(body)
     return bool(m and EVIDENCE.search(m.group(1)))
