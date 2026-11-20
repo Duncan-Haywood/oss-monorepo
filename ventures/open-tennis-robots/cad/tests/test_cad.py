@@ -826,9 +826,10 @@ class FeederGeometryTest(unittest.TestCase):
         plate = next(x for x in self.parts if x.name == "mast_plate")
         centres = [(e.arc_center.X, e.arc_center.Y) for e in plate.flat.edges()
                    if e.geom_type == GeomType.CIRCLE and abs(e.radius - 2.75) < 1e-6]
-        for px, py in [(x, y) for x, y in self.F._post_xy(self.p)]:
+        # two holes per post, over its end's core bores (one at each end's centre, on the web, until 2026-11-20)
+        for px, py in self.F._cores(self.F._post_xy(self.p)):
             self.assertTrue(any(math.hypot(px - cx, py - cy) < 0.01 for cx, cy in centres), (px, py))
-        self.assertEqual(len(centres), 8)
+        self.assertEqual(len(centres), 12)
 
     def test_laser_parts_fit_a_standard_sheet(self):
         for part in self.parts:
