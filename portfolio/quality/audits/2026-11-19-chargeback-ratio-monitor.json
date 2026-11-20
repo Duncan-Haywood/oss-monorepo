@@ -211,7 +211,7 @@
    "where": "ventures/chargeback-ratio-monitor/calc.mjs:207",
    "category": "domain-rule",
    "origin": "spec",
-   "fixed_by": "PENDING"
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17944"
   },
   {
    "severity": "high",
@@ -219,7 +219,7 @@
    "where": "ventures/chargeback-ratio-monitor/index.html:120",
    "category": "domain-rule",
    "origin": "spec",
-   "fixed_by": "PENDING"
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17944"
   },
   {
    "severity": "medium",
@@ -227,7 +227,7 @@
    "where": "ventures/chargeback-ratio-monitor/calc.mjs:157",
    "category": "domain-rule",
    "origin": "spec",
-   "fixed_by": "PENDING"
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17944"
   },
   {
    "severity": "medium",
@@ -243,7 +243,7 @@
    "where": "ventures/chargeback-ratio-monitor/calc.mjs:261",
    "category": "scope-gap",
    "origin": "spec",
-   "fixed_by": "PENDING"
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17944"
   },
   {
    "severity": "low",
@@ -282,6 +282,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17639", "PENDING"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17639", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17944"],
  "verdict": "Arithmetically clean: my own Python recompute of the worked example matches every month (5,710 charges, 43 disputes), and headroom, dilution and trend match hand calculation. It does not meet the bar. The one number it writes in a sentence for healthy merchants is one short (calc.mjs:266). More important, the ratio it computes is neither card network's: it is blended across brands while VAMP and ECP are per brand, it never uses Mastercard's previous-month denominator (an ECP rate of 1.20% shows as 2.40% 'excessive'), it leaves out the TC40 fraud reports that VAMP counts, and it applies no minimum counts. The page does honestly say its lines are not any provider's rules. Tests are green (24) but 3 of 8 seeded mutants survived. Small fixes, each with a test, would bring correctness and claims to 3: the off-by-one, the FAQ wording, per-brand monthly ratios, an 'include EFWs' toggle and a previous-month column. Domain needs a VAMP/ECP mode with count gates and dated thresholds."
 }

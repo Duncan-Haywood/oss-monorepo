@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVKo4jiAVmWbK4vJYhv",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell revenue software; merge when done)",
+  "input_sha256": "b4e139341cc30db77aadefe2f1d6acdc8c06b760de564ce28b012ede901c39ab",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T17:01:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality fix mode: two high-severity product defects",
+  "projects": [
+    "ventures/chargeback-ratio-monitor",
+    "ventures/us-freelancer-tax-set-aside-calculator"
+  ],
+  "pr": 17944,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Bash heredocs containing JS template literals (${...}) trip the built-in rm safety check as 'cannot parse'; writing the script with the Write tool works"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "mode drew census (seed 2026-11-20), but a census round (seed 2026-11-20-bd94, PR #17935) had already landed today and 28 high defects were open; fixing wrong numbers users act on is worth more than six more audits",
+      "did": "ran fix mode instead: queue --severity high (seed 2026-11-20-01e5), took the two venture rows",
+      "result": "5 high defects across 2 products closed with tests, awaiting reaudit"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-quality-fix-the-brand-the-blend-hid.md"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (deviation from drawn census). Queue seed 2026-11-20-01e5. Subjects: chargeback-ratio-monitor (2026-11-19 audit defects 0,1 high; 2,4 medium) and us-freelancer-tax-set-aside-calculator (2026-11-20 audit defect 0 high). Share meeting bar: not re-scored (fix round). Fix PR: #17944. Verification: node --test in both ventures (32 and 33 pass); run_venture_tests.py both ok; quality_audit.py validate 582 files 0 problems; mutants caught: MC same-month denominator, VAMP without fraud warnings, freelancer old total. Recomputations: MC June 9/373=2.41% (matches audit); ECP 120/10000=1.20%; freelancer $10k gig on $100k W-2 = 1412.96 SE + 1635.66 federal = 3048.62 (audit ~3049). Playwright smoke of chargeback page: no page errors, programme table renders.",
+  "corrections": [],
+  "redteam": null
+}

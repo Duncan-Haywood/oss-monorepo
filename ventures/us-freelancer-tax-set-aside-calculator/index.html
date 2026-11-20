@@ -143,7 +143,7 @@
       if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
       last = r;
       $("#due").textContent = `Set aside ${cad(r.total)} · ${r.setAsidePct}% of revenue · ${cad(r.quarter)} a quarter`;
-      const rows = [["Net business income", r.net], ["Self-employment tax", r.se.total + r.se.additional], ["QBI deduction", r.qbi], ["Taxable income", r.taxable], ["Federal income tax", r.federal], ["State tax (estimate)", r.state], ["Total to set aside", r.total], ["Left after tax", r.afterTax]];
+      const rows = [["Net business income", r.net], ["Self-employment tax", r.se.total + r.se.additional], ["QBI deduction", r.qbi], ["Taxable income", r.taxable], [r.totalAll > r.total ? "Federal income tax this work adds" : "Federal income tax", r.federal], ["State tax (estimate)", r.state], ["Total to set aside", r.total], ["Left after tax", r.afterTax]];
       $("#rows").innerHTML = rows.map(([k, v], i) => `<tr class="${i === 6 ? "total" : ""}"><td>${esc(k)}</td><td class="n">${cad(v)}</td></tr>`).join("");
       $("#summary").textContent = summaryText(r);
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
