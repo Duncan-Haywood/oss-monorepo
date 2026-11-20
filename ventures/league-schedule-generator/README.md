@@ -5227,6 +5227,37 @@ still to play. Points only, ties counted against the team tested, so "clinched" 
 
 **Team sheets with duties, to print (2026-11-10, later).** `divisionsTeamSheetsHtml(schedule, { title, contact, duties })` in `divisions.mjs` writes one printable page per team: its fixtures in date order (date, time, court, venue, home or away, opponent, official when assigned) with a "Your duty" column filled on the nights `assignDivisionDuties` gave it one, a games-and-duties count, the organiser's contact line, and a final duty-rota page night by night with unfilled slots marked "no team free, find a volunteer". A team with two games in a night carries its duty on the first row only. Teams that share a name in two divisions get a sheet each. Page: "Download team sheets to print" on `multi-division-league-schedule.html`, with a title and contact box; duties are optional (no duty column or rota page without them) and the download is refused when `validateDivisionDuties` finds a fault. CLI: `node divisions.mjs spec.json --team-sheets > sheets.html` (spec fields `duties`, `title`, `contact`). This is the multi-division counterpart of the single-league print pack and, unlike that one, free and unbranded (no logo or accent). Checked: `divisions.test.mjs` (93 pass; new test: every match on both teams' sheets, duty cells equal the rota rows and sit on the team's own night, rota page, unfilled marked, title and hostile team names escaped), `page.test.mjs` (54 pass), and the Chromium click in `eval/browser-click.mjs` (downloads `team-sheets.html` with the duty column and rota on the example league). Made-up league only; not printed on paper, no real league's rota compared.
 
+## Officials pick their own games on the league page (2026-11-20)
+
+`officiating.mjs`, wired into `server.mjs`. The organiser lists officials in the browser page's format
+(`Sam Ortiz (Hawks): Tue, Thu max 8`) in a new Officials box in `/admin`. Every game gets one official by
+`assignOfficials`' rule (least loaded, then fewest games with these teams), and saving pins those picks
+per fixture id, so adding an official later does not reshuffle games people were already told about,
+and a rained-out game keeps its official when the new night still suits them.
+
+Each official has a private link, `/league?t=LEAGUE_TOKEN&o=KEY` (KEY an HMAC of the name under
+ADMIN_KEY, like a captain's; a wrong key counts against the same lockout as a wrong token). It shows:
+
+- their upcoming games, with **Can't make it**: the game opens at once for everyone else; inside two
+  days it is flagged short notice and, with SMTP set, the organiser (REMINDER_TO) gets an email;
+- **open games they can take**: only those they are free for (weekday, not their own team, not
+  already on a game at that time, under their cap), so a take can never break a rule; a second
+  official who tries the same game is told someone took it first;
+- a calendar feed of only their games (`/league/ics?t=...&o=KEY`, the same fixture event ids), which
+  drops a given-back game and adds a taken one on the next poll.
+
+Every saved pick is re-checked each time the page is built. A pick a later change broke (the game
+moved to a night the official cannot work, the official's team joined, the name left the list) is
+taken off the game and named in `/admin` with the reason; nothing stays silently wrong. `/admin`
+also lists every game with no official, each with an Assign box holding only the officials free
+for it, plus **Fill open games** (the dealing rule over the open games) and **Deal upcoming games
+again**. The league page shows who officiates the next two game nights.
+
+Tested in `officiating.test.mjs` (6 tests: keys, dealing under the rules with `validateOfficials`
+re-checking from the output, pins surviving a new official, a broken pick named, a rainout keeping
+its official, give back / take / organiser assign / fill / deal again, and the full server flow with
+the email and the feed). No real league's officials have used it yet; that is the next information.
+
 ## Flighted play-offs for golf leagues (2026-11-20)
 
 `golfPlayoffs(recap, season, opts)` in `golf-playoffs.mjs`, and a "Play-offs by flight" block on `golf-league-schedule.html` under the recap, turn the season's standings into the play-off nights: consecutive places cut into flights (as even as possible, larger first, or `sizes: [8, 2]`), a single-elimination bracket per flight (byes for the top seeds of an uneven field, optional third-place match), the date and nine of each round, and a tee time or shotgun hole for every group. Every flight's final is on the last night (a shorter flight starts later); a tie across a flight cut is named, never broken. Text and CSV. Tested in `golf-playoffs.test.mjs` (6 tests, hand-checked pairings); no real league's play-off night has used it yet.

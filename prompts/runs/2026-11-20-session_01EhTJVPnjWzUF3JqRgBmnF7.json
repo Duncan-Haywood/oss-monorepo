@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPnjWzUF3JqRgBmnF7",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T21:03:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 9 league-schedule-generator: referees picking slots on the league page",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": 17971,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First full suite run failed deploy.test.mjs: officiating.mjs was missing from the Dockerfile COPY line. Fixed by adding it, and the full suite was re-run."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The router can send a scheduled run whose stored prompt is explicitly about revenue software to the creative track; which of the two wins is not stated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The router drew creative/0, but the stored scheduled prompt asks for revenue-generating software work, and the creative shelf already had 9 pieces land today with audio over its 400 MB cap. So the run took allocate.py's 'Start here' flagship row instead.",
+      "did": "Shipped officiating.mjs on the league-schedule-generator self-hosted league page",
+      "result": "Merged a product feature with 6 passing tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-referees-give-back-and-take-games.md"
+  ],
+  "goal": null,
+  "notes": "league-schedule-generator: officiating.mjs plus server.mjs wiring. Each official gets a private link with their games, a give-back button, open games they can take (rules checked) and an ICS feed. Picks are pinned per fixture and re-checked on every build. node --test officiating.test.mjs: 6/6. The full venture suite was run locally via run_venture_tests.py league-schedule-generator.",
+  "corrections": [],
+  "redteam": null
+}
