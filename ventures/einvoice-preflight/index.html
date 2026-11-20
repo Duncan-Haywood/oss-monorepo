@@ -346,14 +346,11 @@
     <p>Free and open source. If it caught a defect before a rejection, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { preflightDocuments, buildChecklist, buildMarkdown, buildJsonReport, buildRemediationCsv, summarizePreflight } from "./report.mjs";
-    import { addOfficialFindings, officialNote } from "./official.mjs";
-    import { repairInvoice } from "./repair.mjs";
-    import { repairUbl } from "./repair-ubl.mjs";
-    import { repairCii } from "./repair-cii.mjs";
-    import { repairFacturX } from "./repair-facturx.mjs";
-    import { looksLikeCii } from "./cii.mjs";
-    import { auditPackHtml } from "./auditpack.mjs";
+    // The checker engine (114 modules, about 3.3 MB) loads on demand, so the
+    // handlers below are attached as soon as the page is (page-engine.mjs).
+    let engine = null;
+    let engineLoad = null;
+    const loadEngine = () => (engineLoad ||= import("./page-engine.mjs").then((m) => (engine = m)));
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
@@ -386,6 +383,14 @@
 
     let latest = null;
     let dropped = [];
+
+    // Start fetching the engine once the visitor touches the input section,
+    // so "Check" rarely has to wait for it.
+    {
+      const inputSection = drop.closest("section");
+      const warm = () => loadEngine().catch(() => { engineLoad = null; });
+      for (const type of ["pointerdown", "focusin", "dragenter", "keydown"]) inputSection.addEventListener(type, warm, { once: true, passive: true });
+    }
 
     function setDropped(fileList) {
       dropped = [...fileList];
@@ -510,7 +515,7 @@
 
     function render(result) {
       latest = result;
-      const summary = summarizePreflight(result);
+      const summary = engine.summarizePreflight(result);
       overall.className = `status ${summary.status === "pass" ? "pass" : "fail"}`;
       overall.textContent = `Overall: ${summary.status.toUpperCase()}`;
       metrics.innerHTML = [
@@ -523,7 +528,7 @@
 
       const articles = result.reports.map((report) => {
         const envelope = (report.envelope ? `<p class="note">${escapeHtml(report.envelope)}</p>` : "")
-          + (report.schematron ? `<p class="note">${escapeHtml(officialNote(report))}</p>` : "");
+          + (report.schematron ? `<p class="note">${escapeHtml(engine.officialNote(report))}</p>` : "");
         if (!report.errors.length) {
           return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}<p class="pass">PASS — no supported defects found.</p></article>`;
         }
@@ -574,7 +579,7 @@
       });
       $("pack-open").addEventListener("click", () => {
         if (!latest) { $("pack-state").textContent = "Run a check first."; return; }
-        const html = auditPackHtml(latest, { title: $("pack-title").value, author: $("pack-author").value, contact: $("pack-contact").value, accent: $("pack-accent").value, scope: $("pack-scope").value, logo: packLogo, notes: $("pack-notes").value, date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
+        const html = engine.auditPackHtml(latest, { title: $("pack-title").value, author: $("pack-author").value, contact: $("pack-contact").value, accent: $("pack-accent").value, scope: $("pack-scope").value, logo: packLogo, notes: $("pack-notes").value, date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
         const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
         window.open(url, "_blank", "noopener");
       });
@@ -600,6 +605,7 @@
       }
       const profile = document.getElementById("xrechnung").checked ? "xrechnung" : document.getElementById("peppol").checked ? "peppol" : document.getElementById("france").checked ? "france" : document.getElementById("slovakia").checked ? "slovakia" : "";
       const peppolNext = document.getElementById("peppolNext").checked;
+      const { preflightDocuments, addOfficialFindings } = await loadEngine();
       const result = await preflightDocuments(inputs, { profile });
       if (document.getElementById("official").checked || peppolNext) await addOfficialFindings(result, inputs, { profile, peppolNext });
       render(result);
@@ -613,6 +619,7 @@
       log.innerHTML = "";
       inputError.textContent = "";
       const text = paste.value;
+      const { repairInvoice, repairUbl, repairCii, repairFacturX, looksLikeCii } = await loadEngine();
       const pdfFile = !text.trim() && dropped.length === 1 && /\.pdf$/i.test(dropped[0].name) ? dropped[0] : null;
       if (pdfFile) {
         let x;
@@ -682,7 +689,7 @@
 
     copyBtn.addEventListener("click", async () => {
       if (!latest) return;
-      const text = buildChecklist(latest);
+      const text = engine.buildChecklist(latest);
       try {
         await copyText(text);
         copyStatus.textContent = "Checklist copied. It contains filenames and rule IDs, not invoice values.";
@@ -693,17 +700,17 @@
     });
     downloadMd.addEventListener("click", () => {
       if (!latest) return;
-      download("einvoice-preflight.md", buildMarkdown(latest), "text/markdown");
+      download("einvoice-preflight.md", engine.buildMarkdown(latest), "text/markdown");
       recordUsage(usageStorage(), optedOut(), "report_downloaded");
     });
     downloadJson.addEventListener("click", () => {
       if (!latest) return;
-      download("einvoice-preflight.json", JSON.stringify(buildJsonReport(latest), null, 2) + "\n", "application/json");
+      download("einvoice-preflight.json", JSON.stringify(engine.buildJsonReport(latest), null, 2) + "\n", "application/json");
       recordUsage(usageStorage(), optedOut(), "report_downloaded");
     });
     downloadRemediationCsv.addEventListener("click", () => {
       if (!latest) return;
-      download("einvoice-preflight-remediation.csv", buildRemediationCsv(latest), "text/csv");
+      download("einvoice-preflight-remediation.csv", engine.buildRemediationCsv(latest), "text/csv");
       recordUsage(usageStorage(), optedOut(), "report_downloaded");
     });
 
