@@ -16,23 +16,24 @@ import math
 G = 9.81
 
 
-def wigley_halfbreadth(length, beam, draft, modified=False):
-    """y(x, z) >= 0 of the Wigley form (x forward from midship, z up, -T <= z <= 0)."""
+def wigley_halfbreadth(length, beam, draft, modified=False, alpha=1.0):
+    """y(x, z) >= 0 of the Wigley form (x forward from midship, z up, -T <= z <= 0); with `modified`, Kashiwagi's
+    form with the bilge term scaled by alpha (1: Kashiwagi and Journee's Wigley I; 0: Journee's Wigley III)."""
     def y(x, z):
         xi, c = 2.0 * x / length, z / draft
         if modified:     # Kashiwagi (2022) eq. 42, as `strip.modified_wigley_section`
-            v = (1 - c * c) * (1 - xi * xi) * (1 + 0.2 * xi * xi) + c * c * (1 - c ** 8) * (1 - xi * xi) ** 4
+            v = (1 - c * c) * (1 - xi * xi) * (1 + 0.2 * xi * xi) + alpha * c * c * (1 - c ** 8) * (1 - xi * xi) ** 4
         else:
             v = (1 - xi * xi) * (1 - c * c)
         return 0.5 * beam * max(v, 0.0)
     return y
 
 
-def hull_mesh(length, beam, draft, nx=40, nz=8, modified=False, lid=True):
+def hull_mesh(length, beam, draft, nx=40, nz=8, modified=False, lid=True, alpha=1.0):
     """(half mesh y >= 0, lid half mesh or None) as Capytaine meshes; nx panels along, nz down (cosine in z)."""
     import numpy as np
     import capytaine as cpt
-    y = wigley_halfbreadth(length, beam, draft, modified)
+    y = wigley_halfbreadth(length, beam, draft, modified, alpha)
     # cosine spacing in x too, so the fine ends of the waterline are resolved
     xs = [-0.5 * length * math.cos(math.pi * i / nx) for i in range(nx + 1)]
     zs = [-draft * (1.0 - 0.5 * (1.0 - math.cos(math.pi * k / nz))) for k in range(nz + 1)]   # keel -> waterline
@@ -69,10 +70,10 @@ def hull_mesh(length, beam, draft, nx=40, nz=8, modified=False, lid=True):
 class PanelHull:
     """Heave/pitch radiation and head-wave excitation of a Wigley hull at zero speed by Capytaine."""
 
-    def __init__(self, length, beam, draft, rho=1025.0, nx=40, nz=8, modified=False, lid=True):
+    def __init__(self, length, beam, draft, rho=1025.0, nx=40, nz=8, modified=False, lid=True, alpha=1.0):
         import capytaine as cpt
         self.l, self.bm, self.t, self.rho = length, beam, draft, rho
-        half, lid_half = hull_mesh(length, beam, draft, nx, nz, modified, lid)
+        half, lid_half = hull_mesh(length, beam, draft, nx, nz, modified, lid, alpha)
         mesh = cpt.ReflectionSymmetricMesh(half, plane="xOz")
         kw = {}
         if lid_half is not None:
@@ -146,3 +147,77 @@ def gb_added_resistance(hull, omega, z, th):
         vz = 1j * omega * (smith * cmath.exp(1j * k * x) - z - x * th)
         raw += b[i] * abs(vz) ** 2 * hull.dx
     return raw * k / (2.0 * omega)
+
+
+def strip_coupling_restoring(hull):
+    """Heave-pitch restoring cross term of the strip waterline, sum rho g 2 b(x) x dx (bow-up pitch; ~0 for a
+    fore-aft symmetric hull). In Capytaine's bow-down pitch the restoring matrix carries minus this off-diagonal."""
+    return sum(hull.rho * G * 2.0 * h * x * hull.dx for h, x in zip(hull.hb, hull.x))
+
+
+class PanelHullSpeed(PanelHull):
+    """Heave and pitch of a Wigley hull in head waves at forward speed U by Capytaine's forward-speed option
+    (milestone 7zn), labelled an approximation: the zero-speed free-surface Green function at the encounter
+    frequency, the uniform-stream m-terms -U d(dof)/dx . n in the radiation boundary condition, and the linearised
+    pressure rho (i omega_e phi + U dphi/dx); no steady wave field, no forward-speed free-surface condition."""
+
+    def at_speed(self, omega, u):
+        """dict at absolute wave frequency omega, head waves (beta = pi), speed u: we (encounter), the 2x2 added mass
+        A[i][j] and damping B[i][j] (i influenced, j radiating; 0 heave, 1 pitch bow-down) and F3, F5, all in
+        Capytaine's e^{-i omega_e t} convention."""
+        import capytaine as cpt
+        from capytaine.bem.airy_waves import froude_krylov_force
+        dofs = ("Heave", "Pitch")
+        a = [[0.0, 0.0], [0.0, 0.0]]
+        b = [[0.0, 0.0], [0.0, 0.0]]
+        we = None
+        for j, dof in enumerate(dofs):
+            pb = cpt.RadiationProblem(body=self.body, radiating_dof=dof, omega=omega, wave_direction=math.pi,
+                                      forward_speed=u, rho=self.rho, g=G)
+            r = self.solver.solve(pb, keep_details=False)
+            we = float(r.encounter_omega) if u else omega
+            for i, d in enumerate(dofs):
+                a[i][j] = r.added_mass[d]
+                b[i][j] = r.radiation_damping[d]
+        pd = cpt.DiffractionProblem(body=self.body, wave_direction=math.pi, omega=omega, forward_speed=u,
+                                    rho=self.rho, g=G)
+        rd = self.solver.solve(pd, keep_details=False)
+        fk = froude_krylov_force(pd)
+        return {"we": we, "A": a, "B": b, "F3": complex(rd.forces["Heave"] + fk["Heave"]),
+                "F5": complex(rd.forces["Pitch"] + fk["Pitch"])}
+
+
+def motions_speed(q, mass, iyy, c33, c55, c35_up=0.0, bv33=0.0, bv55=0.0):
+    """Coupled heave and bow-down pitch from `PanelHullSpeed.at_speed` with the given mass, inertia, restoring and
+    linear viscous damping, Capytaine convention: [-we^2 (M + A) - i we (B + Bv) + C] x = F."""
+    we, a, b = q["we"], q["A"], q["B"]
+    m = (mass, iyy)
+    bv = (bv33, bv55)
+    c = [[c33, -c35_up], [-c35_up, c55]]
+    k = [[-we * we * ((m[i] if i == j else 0.0) + a[i][j]) - 1j * we * (b[i][j] + (bv[i] if i == j else 0.0)) + c[i][j]
+          for j in range(2)] for i in range(2)]
+    f = (q["F3"], q["F5"])
+    det = k[0][0] * k[1][1] - k[0][1] * k[1][0]
+    return (f[0] * k[1][1] - k[0][1] * f[1]) / det, (k[0][0] * f[1] - k[1][0] * f[0]) / det
+
+
+def gb_added_resistance_speed(hull, omega, u, z, th):
+    """Gerritsma-Beukelman added resistance per zeta^2 at speed u with given motions (strip convention, bow-up
+    pitch), on the strip sections of `hull`: the same sum as `strip.WigleyStrip.response`,
+    k / (2 omega_e) sum (b33 - U da33/dx) |Ds/Dt|^2 dx."""
+    import cmath
+    k = omega * omega / G
+    we = omega + k * u
+    a, b = hull.sections(we)
+    n = len(hull.x)
+    ap = []
+    for i in range(n):
+        lo, hi = max(i - 1, 0), min(i + 1, n - 1)
+        ap.append((a[hi] - a[lo]) / (hull.x[hi] - hull.x[lo]))
+    smith = math.exp(-k * hull.dm)
+    raw = 0.0
+    for i, x in enumerate(hull.x):
+        zs = smith * cmath.exp(1j * k * x)
+        vz = 1j * omega * zs - (1j * we * z + 1j * we * x * th - u * th)
+        raw += (b[i] - u * ap[i]) * abs(vz) ** 2 * hull.dx
+    return raw * k / (2.0 * we)
