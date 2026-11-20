@@ -3789,3 +3789,27 @@ drill when the standard survey reads TAKE_US = 0 and a short take is suspected. 
 
 **Not known.** The 1.5x clause held by one build (26 against 25.5). 1.3 ms takes are still mostly missed. Twice the
 balls and drill time; a real ball wears, so a long survey's late balls may not match its early ones. Simulated only.
+
+## The 36-shot survey drill: the instant set it lacked (2026-11-20, after "Straddling wheels per drill against the survey's length"; not recommended by its pre-registered rule)
+
+**The item.** The triple survey (the calibration drill's twelve shots three times,
+`eval/take-straddle-count-drill-triple-2026-11-20.json`) had been captured on two spread seeds and no instant builds, so
+it could say nothing about false alarms. This run captured the two missing spread seeds (9107, 9109) and the 36-build
+instant set (9201-9223 odd) on the same settings (jittery tach, lag 0.5 s, three launchers).
+
+**Pre-registered, then captured** (rule committed in 908bba03f: recommend the triple after the long drill only if 0 of 36
+instant builds are misadvised, at least 30 of 36 1.3-2.1 ms takes are named, four more than the long drill, and 24 of
+24 2.4-2.8 ms):
+
+| drill | survey wheels | straddling at 1.5 ms, 1.3-2.1 ms takes | 1.3-2.1 ms named | 1.3 ms named | 2.4-2.8 ms named | instant misadvised |
+| --- | --- | --- | --- | --- | --- | --- |
+| survey-long (24 shots) | 46 | 2.72 (max 5) | 26 of 36 | 4 of 12 | 24 of 24 | 0 of 36 |
+| triple (36 shots) | 70 | 3.39 (max 6) | 27 of 36 | 4 of 12 | 24 of 24 | 0 of 36 |
+
+Paired, the triple named one short-take build the long drill missed (a 1.6 ms build) and lost none. The rule failed
+(27, needed 30), so the README says the long drill is as far as the survey should go. Two builds reached 7 straddling
+wheels, where the scaled margin first differs from margin 2; both were already called right, so it changed nothing.
+No firmware or `host.py` change. Everything is in `eval/take-straddle-triple-2026-11-20.md`.
+
+**Not known.** Why 1.3 ms does not move. A guess: the triple repeats the same wheel speeds, so a contact that misses a
+revolution's edge on one pass misses it on the next; a drill with other wheel speeds would test that. Simulated only.

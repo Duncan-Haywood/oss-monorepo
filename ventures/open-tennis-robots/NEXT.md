@@ -23,9 +23,11 @@
   balls, not on the frame's reading). A margin scaled to the straddle count closed on design (eval/take-straddle-scaled-2026-11-19.md:
   no build of 1302 had more than 5 straddling wheels, and below 7 a binomial rule at alpha 0.05 is margin 2). The longer survey
   shipped 2026-11-20 as a recommended drill (drill.survey-long.json, 24 shots; eval/take-straddle-count-2026-11-20.md:
-  1.3-2.1 ms takes named 26 of 36 against 17, 0 of 36 instant misadvised, 1.72x the straddles for 2x the balls). Still
-  open: 1.3 ms takes (4 of 12); the long drill's straddle maximum is 5, so the scaled margin still cannot act; an instant
-  set for the 36-shot drill (eval/take-straddle-count-drill-triple-2026-11-20.json, 30 spread builds only).
+  1.3-2.1 ms takes named 26 of 36 against 17, 0 of 36 instant misadvised, 1.72x the straddles for 2x the balls). The 36-shot
+  triple closed by its pre-registered rule 2026-11-20 (eval/take-straddle-triple-2026-11-20.md: 0 of 36 instant
+  misadvised, but 27 of 36 short takes named against the long drill's 26, needed 30; 1.3 ms still 4 of 12; the scaled
+  margin changed no verdict on its 2 builds at 7+ straddles). Still open: 1.3 ms takes, by a survey drill whose wheel
+  speeds put a 1.3 ms contact across a revolution's edge (a different shot mix, not more of the same shots).
 - (2026-11-19) More tach pulses a revolution: tested host-side and closed by its pre-registered rule
   (eval/tach-pulses-2026-11-19.md: four magnets saw 46 of 128 short-take balls against 38, not twice; the step's drop
   error rose 0.11% to 0.55%). Reopen only with a survey-level test written first (the board sums ~22 wheels) and a plan

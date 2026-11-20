@@ -404,11 +404,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "Straddling wheels per drill against the
-      survey's length" (2026-11-20: drill.survey-long.json, 24 shots, names 26 of 36
-      short takes against 17, 0 of 36 instant misadvised;
-      eval/take-straddle-count-2026-11-20.md). Next: 1.3 ms takes (4 of 12 named),
-      an instant set for a 36-shot survey (NEXT.md).
+      see firmware/esp32/README.md, latest "The 36-shot survey drill: the instant
+      set it lacked" (2026-11-20: 27 of 36 short takes against the 24-shot drill's
+      26, 0 of 36 instant misadvised, not recommended;
+      eval/take-straddle-triple-2026-11-20.md). Next: 1.3 ms takes (4 of 12 on both
+      drills), by a survey drill with other wheel speeds (NEXT.md).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

@@ -340,6 +340,9 @@ many of them. On 36 matched simulated builds with a 1.3-2.0 ms contact it named
 26 against the standard drill's 17, lost none the standard drill named, and told
 none of 36 instant-contact builds to set a take (firmware/esp32/README.md,
 "Straddling wheels per drill against the survey's length").
+Do not go longer: feeding the same twelve shots a third time (36 balls) named
+27 of 36 against 26 and found no more 1.3 ms contacts (firmware/esp32/README.md,
+"The 36-shot survey drill: the instant set it lacked").
 [`firmware/esp32/README.md`](firmware/esp32/README.md), "Shot log", "The
 drop from the pulse times" and "A recovery shaped by the loop's own commands".
 
