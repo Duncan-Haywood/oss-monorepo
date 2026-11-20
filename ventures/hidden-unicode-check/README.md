@@ -58,7 +58,15 @@ sits in.
   ordinary encoding marker, and at medium severity anywhere else), and
   Unicode variation selectors — including the Variation Selectors
   Supplement block, documented since 2024 as a byte-smuggling channel in its
-  own right.
+  own right. Also the rest of Unicode's `Default_Ignorable_Code_Point`
+  property: the combining grapheme joiner, the Mongolian free variation
+  selectors, the Khmer inherent vowels, the deprecated format controls
+  U+206A–U+206F, the musical beam/tie/slur controls and the shorthand format
+  controls, plus the 3,764 unassigned code points Unicode reserves as
+  invisible (U+2065, U+FFF0–U+FFF8 and the unused parts of U+E0000–U+E0FFF).
+  `calc.test.mjs` checks every code point against the JavaScript engine's
+  copy of the Unicode Character Database, so the list is exactly
+  `Default_Ignorable_Code_Point` plus `Bidi_Control`, nothing more or less.
 - **Unicode Tag characters** — U+E0000–U+E007F, flagged at high severity.
   Because each one maps directly onto an ASCII character, a consecutive run
   is **decoded back into plain text** and shown on the page, rather than

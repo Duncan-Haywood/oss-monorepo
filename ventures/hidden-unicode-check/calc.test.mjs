@@ -219,3 +219,38 @@ test("summaryText lists each finding and any decoded hidden message", () => {
   assert.match(text, /Decoded hidden message/);
   assert.match(text, /"secret"/);
 });
+
+// ---- conformance with the Unicode Character Database ------------------------
+// The oracle is the JavaScript engine's own ICU copy of the UCD (Node 22 ships
+// Unicode 15.1+), read through regex property escapes, so the test needs no
+// download. Every code point Unicode calls Default_Ignorable_Code_Point or
+// Bidi_Control must be flagged, and nothing else may be.
+
+test("covers every Default_Ignorable_Code_Point and Bidi_Control, and flags nothing else", () => {
+  const oracle = /^[\p{Default_Ignorable_Code_Point}\p{Bidi_Control}]$/u;
+  const missed = [];
+  const extra = [];
+  for (let cp = 0; cp <= 0x10ffff; cp++) {
+    if (cp >= 0xd800 && cp <= 0xdfff) continue;
+    const c = String.fromCodePoint(cp);
+    const flagged = visualize(c) !== c;
+    const expected = oracle.test(c);
+    if (expected && !flagged) missed.push(cp.toString(16));
+    if (flagged && !expected) extra.push(cp.toString(16));
+  }
+  assert.deepEqual(missed, [], `missed: ${missed.slice(0, 20).join(" ")}`);
+  assert.deepEqual(extra, [], `over-flagged: ${extra.slice(0, 20).join(" ")}`);
+});
+
+test("flags the combining grapheme joiner and deprecated format controls", () => {
+  const r = scanText("ad͏min⁪ \u{1d173}x");
+  assert.deepEqual(r.findings.map((f) => f.hex), ["U+034F", "U+206A", "U+1D173"]);
+  assert.equal(r.findings[1].category, "format-control");
+});
+
+test("flags reserved default-ignorable code points inside the tag block", () => {
+  const r = scanText("a\u{e0002}b\u{e0080}c");
+  assert.equal(r.findings.length, 2);
+  assert.ok(r.findings.every((f) => f.category === "reserved-ignorable" && f.kind === "invisible"));
+  assert.equal(r.decodedTagMessages.length, 0);
+});
