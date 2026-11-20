@@ -23,7 +23,5 @@
 
 ## From quality audit round 87 (2026-11-19, `portfolio/quality/audits/2026-11-19-league-schedule-generator-r87.json`)
 
-- Double round robin: reverse leg one's round order when mirroring, so breaks drop from 3(n−2) to 2(n−2) (8 instead of 12 at 6 teams) with each pair still once home, once away.
-- Head-to-head mini-table (`calc.mjs`, around line 2749) counts a 3-2 volleyball win as a full win even when set scoring (2-1 for a three-set win) is on.
-- The Americano table's tie-break order (difference before wins, `night.mjs` leaderboard sort) has no test that fails if swapped.
+- Double round robin: reverse leg one's round order when mirroring (trade-off to weigh: the last pair of leg one would then meet in back-to-back rounds, so offer it as an option, not a new default), so breaks drop from 3(n−2) to 2(n−2) (8 instead of 12 at 6 teams) with each pair still once home, once away.
 - `calc.mjs` is 4,149 lines; split by feature.

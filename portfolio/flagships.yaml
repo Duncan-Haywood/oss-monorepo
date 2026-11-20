@@ -375,7 +375,7 @@ flagships:
     next: >-
       Landed work and every measurement are in
       ventures/league-schedule-generator/README.md and eval/ (divisions, venues,
-      rainouts, standings, officials, duty rota, team sheets; carry-over and break
+      rainouts, standings (set scoring in race, odds, post, H2H 2026-11-20), officials, duty rota, team sheets; carry-over and break
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
       schedule, eval/seed-balance.txt; 2026-11-18 limits kept exactly, impossible
