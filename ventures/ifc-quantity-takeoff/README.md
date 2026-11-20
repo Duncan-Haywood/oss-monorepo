@@ -100,7 +100,7 @@ quantities inherits those errors; this tool says which they are
   within 0.1%. Each of the other 64 is a brep whose IfcOpenShell volume exceeds
   its own bounding box (35), a shell in overlapping pieces (27, noted on the
   element) or a shell that is not closed (2). Openings and booleans now subtract
-  faceted shapes too, which unblocked 209 S_Office elements and every net
+  faceted shapes too, which unblocked 209 S_Office elements (182 agree with IfcOpenShell gross, 27 unexplained) and every net
   volume on skolebygg and duplex
   ([eval/advanced-breps-2026-11-20.md](eval/advanced-breps-2026-11-20.md)).
 - **Seeded faults.** Flipping the half-space side, switching off the unit-slip
