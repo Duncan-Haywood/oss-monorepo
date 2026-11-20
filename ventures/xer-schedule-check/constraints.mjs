@@ -56,7 +56,7 @@ const MON = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, se
 const YES = /^(y|yes|x|done|closed|cleared|complete|completed|removed|true|ok|✓|✔)$/i;
 const NO = /^(n|no|open|pending|outstanding|false|-|tbd|tbc)?$/i;
 
-function splitRows(text) {
+export function splitRows(text) {
   const s = String(text ?? "").replace(/^\uFEFF/, "");
   const first = s.split(/\r?\n/, 1)[0] || "";
   const delim = first.includes("\t") ? "\t" : !first.includes(",") && first.includes(";") ? ";" : ",";

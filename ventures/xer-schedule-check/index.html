@@ -175,6 +175,21 @@
     </div>
     <p class="note" id="ev-status"></p>
     <div id="ev-out"></div>
+    <h2 style="margin-top:22px" id="tia">Time impact analysis (fragnet)</h2>
+    <p class="note">For an extension of time request, or reviewing one: write the delay event as a fragnet, the new activities it added with their working days, what each follows and what each holds up (<code>A1030</code>, <code>A1030 SS</code>, <code>F110 FS+2</code>; several separated by <code>;</code>), and optionally the date the event happened (it starts on or after it) and an event name. <code>+10</code> on an existing activity's row makes it 10 days longer. The fragnet is inserted into this update and the schedule recomputed with the file's own calendars, logic and options (AACE RP 52R-06): how far the finish and each milestone move, the float every other activity gives up, and with two or more events, each event alone, so concurrent delay shows. Download the impacted schedule as an XER to import into P6 and confirm. It models the delay; who caused it, and whether time is due, is for the contract.</p>
+    <label for="tia-frag">Fragnet (CSV or pasted from a spreadsheet)</label>
+    <textarea id="tia-frag" rows="6" style="width:100%;font-family:ui-monospace,monospace;font-size:12px" placeholder="Activity ID,Name,Duration,Predecessors,Successors,Not before,Event&#10;F100,Owner change notice,0,A1030,F110,2026-04-08,CO-03&#10;F110,Redesign MEP rough-in,12,F100,A1100,,CO-03"></textarea>
+    <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:6px">
+      <label for="tia-file">Open a CSV</label> <input id="tia-file" type="file" accept=".csv,.txt,.tsv,text/csv">
+      <button type="button" id="tia-example" class="secondary">Example fragnet (for the example schedule)</button>
+      <input type="checkbox" id="tia-noexp"> <label for="tia-noexp">without expected finish dates</label>
+      <button type="button" id="tia-run" class="secondary">Run time impact analysis</button>
+      <button type="button" id="tia-print" class="secondary" hidden>Printable exhibit (HTML)</button>
+      <button type="button" id="tia-csv" class="secondary" hidden>Download (CSV)</button>
+      <button type="button" id="tia-xer" class="secondary" hidden>Impacted schedule (XER)</button>
+    </div>
+    <p class="note" id="tia-status"></p>
+    <div id="tia-out"></div>
     <h2 style="margin-top:22px">Look-ahead for the site meeting</h2>
     <p class="note">The next few weeks of work from the recomputed dates, grouped by WBS, a bar for each working day on the activity's own calendar, and a make-ready check from the logic: <b>ready</b> (every predecessor that gates the start has finished or started), <b>waits</b> on work in the look-ahead (named, with its date), waits on work outside it, or <b>no predecessor</b> (an open start). Crews, materials and permits are not in the file: they are the meeting's to check.</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end">
@@ -342,7 +357,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -366,6 +381,8 @@
     import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
     import { calendarSlack, calendarSlackCsv } from "./calslack.mjs";
     import { milestoneCalendars, milestoneCalendarsCsv } from "./milestones.mjs";
+    import { timeImpact, timeImpactCsv, timeImpactHtml, EXAMPLE_FRAGNET } from "./tia.mjs";
+    import { xerText } from "./xer.mjs";
     import { earnedValue, earnedValueCsv, sCurveCsv, sCurveSvg } from "./evm.mjs";
     import { earnedValueSeries, earnedValueSeriesCsv } from "./evmseries.mjs";
     import { lookahead, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
@@ -410,6 +427,7 @@
       $("#fp-out").innerHTML = ""; $("#fp-status").textContent = ""; $("#fp-csv").hidden = true; lastFp = null;
       $("#cs-out").innerHTML = ""; $("#cs-status").textContent = ""; $("#cs-csv").hidden = true; lastCs = null;
       $("#mc-out").innerHTML = ""; $("#mc-status").textContent = ""; $("#mc-csv").hidden = true; lastMc = null;
+      $("#tia-out").innerHTML = ""; $("#tia-status").textContent = ""; for (const b of ["#tia-print", "#tia-csv", "#tia-xer"]) $(b).hidden = true; lastTia = null;
       $("#ev-out").innerHTML = ""; $("#ev-status").textContent = ""; $("#ev-csv").hidden = true; $("#ev-curve").hidden = true; lastEv = null;
       report.hidden = false;
       $("#risk").hidden = false; $("#risk-out").hidden = true; $("#risk-status").textContent = ""; lastRisk = null;
@@ -511,6 +529,36 @@
       } catch (e) { st.textContent = `Could not check calendar slack: ${e.message}`; }
     });
     // ---- milestone calendars
+    let lastTia = null;
+    $("#tia-example").addEventListener("click", () => { $("#tia-frag").value = EXAMPLE_FRAGNET; });
+    $("#tia-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) $("#tia-frag").value = await f.text(); });
+    $("#tia-run").addEventListener("click", () => {
+      const st = $("#tia-status");
+      if (!xer || !last) { st.textContent = "Open a schedule first (or load the example above)."; return; }
+      const text = $("#tia-frag").value.trim();
+      if (!text) { st.textContent = "Write or paste a fragnet first, or press Example fragnet."; return; }
+      try {
+        const r = timeImpact(xer, text, { projId: last.project.id, expectedFinish: !$("#tia-noexp").checked });
+        lastTia = r;
+        const d = r.finish.delayDays;
+        st.innerHTML = `Finish ${esc(r.finish.base)} &rarr; <b>${esc(r.finish.impacted)}</b>: ${d > 0 ? `<b>${esc(d)} working days later</b>` : d < 0 ? `${esc(-d)} working days earlier` : "no change"}. ${esc(r.milestonesMoved)} of ${esc(r.milestones.length)} open milestones move; ${esc(r.summary.activitiesLessFloat)} activities give up float (${esc(r.summary.nowCritical)} become critical, ${esc(r.summary.nowNegative)} go negative).${r.fragnetOnPath.length ? ` On the new driving path: ${esc(r.fragnetOnPath.join(", "))}.` : ""}`;
+        const ev = r.byEvent.length ? `<h3>Each event alone</h3><div class="tablewrap"><table><thead><tr><th>Event</th><th>Finish</th><th class="n">Days</th></tr></thead><tbody>${r.byEvent.map((e) => `<tr><td>${esc(e.event)}</td><td>${esc(e.finish)}</td><td class="n">${esc(e.delayDays)}</td></tr>`).join("")}<tr><td>All together</td><td>${esc(r.finish.impacted)}</td><td class="n">${esc(d)}</td></tr></tbody></table></div>${r.overlapDays > 0 ? `<p class="note">${esc(r.overlapDays)} days are concurrent: the events delay the same finish at the same time.</p>` : ""}` : "";
+        const fr = `<h3>Fragnet</h3><div class="tablewrap"><table><thead><tr><th>Activity</th><th>Name</th><th>Kind</th><th class="n">Days</th><th>Start</th><th>Finish</th><th class="n">Float (d)</th></tr></thead><tbody>${r.fragnet.map((f) => `<tr><td>${esc(f.code)}</td><td>${esc(f.name)}${f.driving ? ' <span class="note">drives the finish</span>' : ""}</td><td>${esc(f.kind)}</td><td class="n">${esc(f.days)}</td><td>${esc(f.start)}</td><td>${esc(f.finish)}</td><td class="n">${esc(f.floatDays)}</td></tr>`).join("")}</tbody></table></div>`;
+        const ms = r.milestones.filter((m) => m.delayDays !== 0);
+        const mt = ms.length ? `<h3>Milestones moved</h3><div class="tablewrap"><table><thead><tr><th>Milestone</th><th>Name</th><th>Before</th><th>After</th><th class="n">Days</th></tr></thead><tbody>${ms.slice(0, 50).map((m) => `<tr><td>${esc(m.code)}</td><td>${esc(m.name)}</td><td>${esc(m.base)}</td><td>${esc(m.impacted)}</td><td class="n">${esc(m.delayDays)}</td></tr>`).join("")}</tbody></table></div>` : "";
+        const ct = r.consumed.length ? `<h3>Float given up</h3><div class="tablewrap"><table><thead><tr><th>Activity</th><th>Name</th><th class="n">Before (d)</th><th class="n">After (d)</th></tr></thead><tbody>${r.consumed.slice(0, 30).map((c) => `<tr><td>${esc(c.code)}</td><td>${esc(c.name)}</td><td class="n">${esc(c.floatBefore)}</td><td class="n">${esc(c.floatAfter)}</td></tr>`).join("")}</tbody></table></div>${r.consumed.length > 30 ? `<p class="note">${esc(r.consumed.length - 30)} more in the CSV.</p>` : ""}` : "";
+        const wn = r.warnings.length ? `<p class="note">${r.warnings.map(esc).join("<br>")}</p>` : "";
+        $("#tia-out").innerHTML = wn + ev + fr + mt + ct;
+        for (const b of ["#tia-print", "#tia-csv", "#tia-xer"]) $(b).hidden = false;
+        record("tia_run");
+      } catch (e) {
+        st.textContent = `Could not run: ${e.message}`;
+        $("#tia-out").innerHTML = "";
+      }
+    });
+    $("#tia-print").addEventListener("click", () => { if (!lastTia) return; save(new Blob([timeImpactHtml(lastTia)], { type: "text/html" }), `${fileName}-time-impact.html`); record("findings_downloaded"); });
+    $("#tia-csv").addEventListener("click", () => { if (!lastTia) return; save(new Blob([timeImpactCsv(lastTia)], { type: "text/csv" }), `${fileName}-time-impact.csv`); record("findings_downloaded"); });
+    $("#tia-xer").addEventListener("click", () => { if (!lastTia) return; save(new Blob([xerText(lastTia.impactedXer)], { type: "text/plain" }), `${fileName}-impacted.xer`); record("findings_downloaded"); });
     let lastMc = null;
     $("#mc-run").addEventListener("click", () => {
       if (!xer || !last) return;

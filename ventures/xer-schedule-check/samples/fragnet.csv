@@ -1,0 +1,5 @@
+Activity ID,Name,Duration,Predecessors,Successors,Not before,Event
+F100,Owner change notice: level 2 MEP layout,0,A1030,,2026-04-08,CO-03 MEP layout
+F110,Redesign level 2 MEP rough-in,12,F100,F120,,CO-03 MEP layout
+F120,Re-approve level 2 MEP drawings,5,F110,A1100,,CO-03 MEP layout
+A1040,,+25,,,,Late hardware approval
