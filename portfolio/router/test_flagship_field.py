@@ -689,6 +689,8 @@ def test_real_rows_move_no_open_work_to_history():
     "lasting moves to more days: cut has the power (8 of 9 cells)",
     "two covariates: harmless one's warning 0 of 170 false finds, 1.27x bias (bar failed)",
     "(2) clumpy counts: NB1 shipped",
+    "(7) longest path shipped 2026-11-19 (floatpaths.mjs; eval/longest-path-2026-11-19.md: 26 of 26)",
+    "(5) foo exporter 2026-11-20 (eval/foo-2026-11-20.md)",
     "gapShape word on listed units (pulse faded 90%, 20% false)",
     # dated entries that end on their evidence (DATED_EVIDENCE), PR #17951's row
     "two courses 2026-11-20 (golf-courses.test.mjs)",
@@ -713,6 +715,11 @@ def test_is_result_finished_results(item):
     "quality round 89 (`audits/2026-11-19-r2.json`, craft 2): engine.mjs is 3,004 lines. Split it",
     "golf two courses 2026-11-20 (README)",
     "a rebuild after 2026-11-23 (eval/rebuild.md: needs the new feed)",
+    # a numbered open-list item holding its progress so far (PR #17963's record)
+    "(4) advanced breps on revolved/NURBS surfaces (8 in kleine_Wohnung; planes and "
+    "cylinders read 2026-11-20, 703 of 767 = IfcOpenShell to 0.1%; faceted openings as "
+    "signed tetrahedra; eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a union",
+    "(4) loans: LendingClub rounds payments up (99.97% of 445k, README), `--round up`",
 ])
 def test_is_result_keeps_open_items_open(item):
     assert not ff.is_result(item)
