@@ -25,11 +25,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First push left page.test.mjs's wiring test counting 2 set-scoring call sites; there are now 4 (CI changed-ventures red, fixed)."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -59,7 +61,7 @@
     "docs/posts/2026-11-20-volleyball-set-scoring-and-the-playoff-race.md"
   ],
   "goal": null,
-  "notes": "Process track drawn first (critique mode: backlog had only owner rows; the run_workflow_locally exit-0 friction row was already fixed, exit 2 verified), re-routed with --task to ventures per the scheduled brief. allocate.py picked flagship row 4. Verified: new tests fail on old calc.mjs (3) and with swapped Americano sort (1), pass now; full league-schedule-generator suite via run_venture_tests.py; check_posts ok; portfolio/router/validate.py ok. main_health: 298/299, the one red is missing pytest in the container.",
+  "notes": "Process track drawn first (critique mode: backlog had only owner rows; the run_workflow_locally exit-0 friction row was already fixed, exit 2 verified), re-routed with --task to ventures per the scheduled brief. allocate.py picked flagship row 4. Verified: new tests fail on old calc.mjs (3) and with swapped Americano sort (1), pass now; full league-schedule-generator suite via run_venture_tests.py; check_posts ok; portfolio/router/validate.py ok. main_health: 298/299, the one red is missing pytest in the container. eval/browser-click-single.mjs failed on main too: it read the standings before the async rebuild replaced them (each reading one step behind); now empties the table and waits for new rows, all 4 checks pass in Chromium.",
   "corrections": [],
   "redteam": null
 }

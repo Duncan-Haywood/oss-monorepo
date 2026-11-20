@@ -46,7 +46,11 @@ for (const id of ["blackouts", "timeLimits", "grounds"]) await page.fill("#" + i
 await page.fill("#teams", "Aces\nBlockers\nChamps");
 await page.fill("#results", "Aces 3 - 2 Blockers\nAces 3 - 0 Champs");
 const pts = async () => {
+  // Empty the old table first: the rebuild is asynchronous, and reading while the previous table is
+  // still shown gave the last build's numbers (every reading one step behind, 2026-11-20).
+  await page.evaluate(() => { document.querySelector("#standings tbody").innerHTML = ""; });
   await page.click("#build");
+  await page.waitForSelector("#standings tbody tr", { timeout: 5000 });
   await page.waitForSelector("#standings-wrap:not([hidden])", { timeout: 5000 }).catch(async () => { throw new Error("no standings: " + (await page.locator("#form-status").textContent())); });
   const rows = await page.locator("#standings tbody tr").all();
   const out = {};
