@@ -1,0 +1,43 @@
+# Milestone 157: the max-RC corner on the designs milestone 156 did not reach (flow run, resumed)
+
+complete designs (paired prefix of milestone 143's order): 27 of 27; fresh (past milestone 156's 12): 15
+tools: {'yosys': 'Yosys 0.71+post (git sha1 v0.71, Release, GNU /nix/store/ii6p6kc1brz3vycqg88q4zb4xd2dmqwp-gcc-wrapper-16.2.0/bin/g++ 16.2.0)', 'openroad': '26Q3'}
+
+## Fresh designs
+
+design | clock | ratio nom | ratio rcmax | wire nom | wire rcmax | tauD nom | tauD rcmax | tauR | same best | random nom | SWC nom | random rcmax | SWC rcmax | d nom | d rcmax
+rng6l | relaxed | 12.28 | 12.22 | 0.475 | 0.484 | -0.067 | -0.030 | 0.809 | True | 6.59 | 0.00 | 9.13 | 0.00 | -6.59 | -9.13
+div14l | relaxed | 8.73 | 8.76 | 0.265 | 0.272 | -0.143 | -0.133 | 0.880 | True | 9.09 | 0.00 | 6.89 | 0.00 | -9.09 | -6.89
+clamp6l | relaxed | 11.94 | 11.99 | 0.712 | 0.721 | 0.087 | 0.071 | 0.922 | True | 6.16 | 0.00 | 6.22 | 0.00 | -6.16 | -6.22
+rng12r | relaxed | 6.19 | 6.27 | 0.899 | 0.919 | 0.176 | 0.118 | 0.895 | True | 6.43 | 0.00 | 5.93 | 0.00 | -6.43 | -5.93
+isq14 | tight | 3.74 | 3.77 | 0.322 | 0.329 | -0.017 | 0.015 | 0.811 | False | 4.22 | 0.00 | 5.83 | 0.00 | -4.22 | -5.83
+clamp4l | tight | 11.28 | 11.50 | 0.579 | 0.596 | 0.014 | 0.006 | 0.908 | True | 6.05 | 0.00 | 5.45 | 0.00 | -6.05 | -5.45
+clamp4r | tight | 5.60 | 5.73 | 0.827 | 0.836 | -0.057 | -0.061 | 0.891 | True | 6.30 | 0.00 | 5.14 | 0.00 | -6.30 | -5.14
+div8l | tight | 9.11 | 9.19 | 0.203 | 0.206 | -0.076 | -0.050 | 0.820 | False | 2.54 | 0.00 | 6.76 | 2.27 | -2.54 | -4.49
+gtc8r | tight | 3.40 | 3.43 | 0.423 | 0.427 | 0.220 | 0.230 | 0.886 | True | 5.31 | 0.00 | 4.45 | 0.00 | -5.31 | -4.45
+div12l | tight | 8.69 | 8.82 | 0.235 | 0.239 | 0.004 | -0.018 | 0.856 | True | 5.06 | 0.00 | 4.15 | 0.00 | -5.06 | -4.15
+clamp2l | tight | 11.35 | 11.41 | 0.404 | 0.411 | 0.003 | 0.018 | 0.810 | True | 6.60 | 4.24 | 5.01 | 0.98 | -2.36 | -4.04
+div14r | relaxed | 3.81 | 3.90 | 0.450 | 0.456 | -0.212 | -0.234 | 0.867 | False | 4.46 | 0.00 | 3.56 | 0.00 | -4.46 | -3.56
+rng8r | tight | 5.76 | 5.88 | 0.791 | 0.806 | 0.050 | 0.053 | 0.891 | False | 4.31 | 0.00 | 3.16 | 0.00 | -4.31 | -3.16
+dot4l | tight | 9.98 | 9.94 | 0.273 | 0.276 | 0.201 | 0.138 | 0.767 | True | 4.69 | 1.97 | 5.34 | 3.79 | -2.73 | -1.56
+gtc24r | relaxed | 5.00 | 5.04 | 0.443 | 0.452 | 0.212 | 0.150 | 0.890 | False | 3.31 | 0.00 | 3.78 | 2.27 | -3.31 | -1.51
+
+## Predictions
+
+(1) PRIMARY fresh: mean d change +0.23 points, interval -0.51 to +0.93; higher on 10 of 15: held
+(2) fresh: mean tauD change -0.008, interval -0.025 to +0.007; lower on 8 of 15: held
+(3) fresh: wire higher under rcmax on 15 of 15 (median 0.443 nom, 0.452 rcmax): held
+(4) fresh: median tauR 0.880 (range 0.767 to 0.922); same routed-best on 10 of 15: held
+(5) pooled 27: mean d change +0.17 points, interval -0.61 to +1.01: held
+(6) pooled rcmax: SWC better on 22, worse on 5, tied on 0; sign p = 0.001514: held
+(7) control: 12 points re-run, 11 ok in both; mapped identical on 11, routed identical on 11: held
+
+## Reported, not predicted
+
+fresh nom: mean regret SWC 0.41%, random 5.41%
+fresh rcmax: mean regret SWC 0.62%, random 5.39%
+pooled nom: mean regret SWC 1.38%, random 6.12%; SWC better on 24, worse on 3, tied on 0; sign p = 0.000049
+pooled rcmax: mean regret SWC 1.56%, random 6.12%
+pooled: mean tauD change -0.007; median tauR 0.867; ladder branch under rcmax 27 of 27
+pooled: Spearman of tauD against d over 54 units +0.096
+failed points (fresh): nom 255, rcmax 255

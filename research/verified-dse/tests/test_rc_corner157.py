@@ -22,3 +22,11 @@ def test_same_build_reproduces_milestone_156_rows():
     b = _load("analyse157.py", "vdse_t157_ctl")
     n, both, mapped, routed = b.control()
     assert n == 12 and both == 11 and mapped == 11 and routed == 11
+
+
+def test_results_record_the_outcome():
+    text = (RC / "results157.txt").read_text()
+    assert "complete designs (paired prefix of milestone 143's order): 27 of 27; fresh (past milestone 156's 12): 15" in text
+    assert "(1) PRIMARY fresh: mean d change +0.23 points, interval -0.51 to +0.93; higher on 10 of 15: held" in text
+    assert "(5) pooled 27: mean d change +0.17 points, interval -0.61 to +1.01: held" in text
+    assert "(6) pooled rcmax: SWC better on 22, worse on 5, tied on 0; sign p = 0.001514: held" in text
