@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPVerg3xSkQF5SUeJH",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T07:30:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "capture-sync step 4a: milestone 4 baselines on equal windows (Kammerl-style feature xcorr, Wang landmarks, Haitsma-Kalker) against GCC on step 3h's 62,000 twin windows",
+  "projects": [
+    "capture-sync"
+  ],
+  "pr": 17872,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "WebFetch of research.google and the USPTO patent host failed (not in the allowed domains), so Kammerl et al.'s frame settings could not be read; zenodo.org refused, so no real-phone run"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/capture-sync/LOG.md",
+      "issue": "the plan entry cited Shrestha et al. (2007) as using Haitsma-Kalker fingerprints, which could not be verified; corrected after the run (wording only, recorded in the outcome entry)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "the scheduled prompt asked for venture/revenue work, but the router drew the research track; followed the router as the master prompt says",
+      "did": "advanced the drawn programme (capture-sync milestone 4)",
+      "result": "one milestone step landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-capture-sync-fingerprints-against-gcc.md"
+  ],
+  "goal": null,
+  "notes": "Replay 62/62 of step 3h. Predictions: (a) held, (b) failed (landmarks 14-17% with no noise), (c) primary held 10/10 (fn summed -10 dB 1.09/1.27 vs best baseline hk 4.30/4.92), (d) failed (flatness lost to energy), (e) failed 0/4 (landmarks not burst-robust; hk was, 4/4), (f) held, (g) held. Post hoc landmark sweep labelled as such. Local checks: pytest tests/ 59 passed; research/_homepage/build.py ok; check_md_links ok; check_posts ok; cite_check ok (Shrestha DOI confirmed by web search).",
+  "corrections": [],
+  "redteam": null
+}

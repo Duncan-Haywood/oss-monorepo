@@ -14,7 +14,7 @@ envelope-normalised estimator `fn` and five baselines on the same (a, b) pair an
                         confidence the PSR of that curve;
   wang                  Wang (2003) landmark hashing (32 ms frames, 8 ms hop, 30 peaks/s, fan-out 5);
                         confidence the vote margin;
-  hk                    Haitsma and Kalker (2002) bits as used by Shrestha et al. (2007) (0.37 s frames,
+  hk                    Haitsma and Kalker (2002) bits (the Philips fingerprint; cf. Shrestha et al. 2007) (0.37 s frames,
                         11.6 ms hop, 33 bands 300-2000 Hz); confidence 0.5 minus the bit-error rate.
 
 Failure: more than a 30 fps frame from the speech truth (a nan delay, wang with no matching hash, fails).

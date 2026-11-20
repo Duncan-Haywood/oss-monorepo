@@ -13,8 +13,9 @@ confidence where larger means more trustworthy):
   * landmarks: Wang (2003) constellation hashing, the method of Shazam and of most open audio-alignment tools:
     local spectrogram peaks, pairs of peaks hashed as (f1, f2, dt), and the lag with most matching hashes.
     Confidence: votes in the winning bin minus the largest bin more than a frame away (0 if no match).
-  * hk_bits: Haitsma and Kalker (2002) binary fingerprints, used for multi-camera sync by Shrestha et al.
-    (2007): 33 log-spaced bands 300-2000 Hz, 0.37 s frames every 11.6 ms, one bit per band pair from the sign
+  * hk_bits: Haitsma and Kalker (2002) binary fingerprints, from the Philips lab whose Shrestha et al. (2007)
+    synchronised multi-camera recordings by matching audio fingerprints (which fingerprint they used could not
+    be read from this session): 33 log-spaced bands 300-2000 Hz, 0.37 s frames every 11.6 ms, one bit per band pair from the sign
     of the time difference of the band-energy difference; the lag of least bit-error rate. Confidence:
     0.5 minus the bit-error rate at that lag (0 is chance).
 
