@@ -183,3 +183,22 @@ test("describeFinding labels risk and notice, and the EOL table is dated and hon
   assert.equal(eolFor(21).approx, true);
   assert.equal(eolFor(99), null);
 });
+
+test("engines.node no version satisfies is one engines-unsatisfiable risk, not engines-unbounded", () => {
+  for (const eng of [">=20 <18", "<0.0.0", ">*", "^20 ^22"]) {
+    const alone = analyze([pkg(eng)], { today: TODAY });
+    assert.deepEqual(kinds(alone), [K.ENGINES_UNSATISFIABLE], eng);
+    assert.ok(hasRisk(alone));
+    assert.match(alone.findings[0].message, /satisfied by no Node\.js version/);
+    // A pin under it is not blamed: the range is the root cause.
+    const pinned = analyze([pkg(eng), { path: ".nvmrc", text: "22\n" }], { today: TODAY });
+    assert.deepEqual(kinds(pinned), [K.ENGINES_UNSATISFIABLE], `${eng} + .nvmrc`);
+  }
+});
+
+test("numeric parts with a leading zero are rejected, as node-semver rejects them", () => {
+  for (const r of ["01.2.3", ">=018", "^20.01", "1.2.03"]) assert.equal(parseRange(r), null, r);
+  assert.ok(parseRange("0.10.0"));
+  assert.ok(parseRange("^20.0.0"));
+  assert.deepEqual(kinds(analyze([pkg(">=018")], { today: TODAY })), [K.UNREADABLE]);
+});
