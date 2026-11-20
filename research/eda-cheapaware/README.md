@@ -7,7 +7,7 @@ Why it seemed worth doing: `eda-screen` listed one gap in its own limitations, t
 ## Result
 A random search that gets the same free objectives (cycles, held-out error) as the screen but has no cell-count model reaches 0.901 of the true front's hypervolume at 12 syntheses (95% bootstrap interval 0.901 to 0.901; 100 seeds), against 0.860 for plain random, 0.878 for TPE and 0.990 for the screen with 4 fitting syntheses. So of the screen's +0.130 over random at 12, using the free objectives alone is worth +0.041 (cheap-aware random better than random on 74% of paired seeds), and the cell-count surrogate is worth the other +0.089.
 
-The cheap-aware baseline is stronger than random only at small budgets. It synthesises the free-objective Pareto layer first, and once that layer is exhausted (by 12 syntheses the interval is degenerate) it starts the next layer at random and stalls at 0.901 until 20, where plain random catches up (0.911) and TPE passes it (0.944). At 30 it is *below* both (0.933 against random 0.943 and TPE 0.980), because the layers it prefers hold designs that never reach the front. It reaches the whole true front on none of the seeds even at 30. The screen reaches it on 87% of seeds by 20.
+The cheap-aware baseline is stronger than random only at small budgets. It synthesises the free-objective layers in order; on this table they hold 2, 10, 12, 14, ... designs, so the first two layers are exhausted at exactly 12 syntheses (hence the degenerate interval). The third layer (syntheses 13 to 24) adds no hypervolume, so it stalls at 0.901 through 20, where plain random catches up (0.911) and TPE passes it (0.944). At 30 it is *below* both (0.933 against random 0.943 and TPE 0.980), because the layers it prefers hold designs that never reach the front. It reaches the whole true front on none of the seeds even at 30. The screen reaches it on 87% of seeds by 20.
 
 | syntheses | random | TPE | cheap-aware random | screen, k=4 | free objectives only (ordered) | oracle |
 |---|---|---|---|---|---|---|
@@ -30,12 +30,14 @@ pip install numpy
 cd research/eda-cheapaware
 PYTHONPATH=src python -m unittest discover -s tests     # about a second
 PYTHONPATH=src python experiments/run.py                # about a minute; writes results.txt
+PYTHONPATH=src python experiments/prior_baseline.py     # zero-synthesis prior baseline, about a second
 python experiments/figure.py                            # draws experiments/cheapaware_hv.svg
 ```
 
 ## Limitations
 - One small, smooth, 80-point space; the free-objective layers happen to hold about a dozen designs, which is why the baseline plateaus at 12. In a space where cycles and error do not separate designs, the baseline reduces to plain random.
 - The free-objectives assumption (cycles and error cost nothing to evaluate) is inherited from `eda-screen` and not measured here.
+- The headline split was made without a zero-synthesis designer prior. A quality audit (2026-11-20, `portfolio/quality/audits/2026-11-20-eda-cheapaware.json`) ranked designs with cells assumed proportional to lanes x weight width (fast 10% larger) and the same non-dominated sorting, ties at random (`experiments/prior_baseline.py`, 100 seeds): 0.975 at 12 and the whole front on every seed at 20. So most of the "+0.089 from the surrogate" is available from that monotone prior without any fitting syntheses; the fitted surrogate's own margin over it is about +0.015 at 12 (0.990 against 0.975).
 - A stronger cheap-aware baseline is possible (for example TPE restricted to the free-objective layers); only this one simple version was run, so "the surrogate is worth +0.089" is relative to it.
 - Cell count is Yosys generic cells; the `-fast` rows were not gate-level re-simulated (inherited). Not a claim about silicon.
 

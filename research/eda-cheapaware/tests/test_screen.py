@@ -70,6 +70,31 @@ class T(unittest.TestCase):
         r = np.mean([bench.curve(self.sp, bench.run_once(self.sp, "random", 12, i), [12])[0] for i in range(20)])
         self.assertGreaterEqual(s, r - 0.02)
 
+    def test_hypervolume_known_values(self):
+        # hand-computed boxes: single point, two overlapping 2-D boxes, two overlapping 3-D boxes
+        self.assertAlmostEqual(hv.hypervolume([(0.1, 0.2, 0.3)], (1.1, 1.1, 1.1)), 1.0 * 0.9 * 0.8)
+        self.assertAlmostEqual(hv.hypervolume([(0.0, 0.5), (0.5, 0.0)], (1.0, 1.0)), 0.75)
+        self.assertAlmostEqual(hv.hypervolume([(0.0, 0.0, 0.5), (0.5, 0.5, 0.0)], (1.0, 1.0, 1.0)), 0.5 + 0.25 - 0.125)
+        self.assertAlmostEqual(hv.hypervolume([(1.2, 0.0)], (1.1, 1.1)), 0.0)
+        # true front of the committed table, from an independent grid-decomposition hypervolume (quality audit 2026-11-20)
+        true = hv.nondominated([self.sp.evaluate(x) for x in self.sp.all()])
+        self.assertEqual(len(true), 12)
+        self.assertAlmostEqual(hv.hypervolume(true, bench.REF), 1.2065969206, places=8)
+
+    def test_cheaprandom_draws_uniformly_within_layer_on_real_table(self):
+        # free-objective layers on the table are 2, 10, 12, ... designs: the first draw is one of two designs and
+        # must vary across seeds; the first 12 draws are always exactly layers 0 and 1
+        firsts, sets = set(), set()
+        for s in range(20):
+            order = bench.run_once(self.sp, "cheaprandom", 12, s)
+            firsts.add(order[0])
+            sets.add(frozenset(order))
+        self.assertEqual(len(firsts), 2)
+        self.assertEqual(len(sets), 1)
+        c = screen.CheapRandom(self.sp.sizes, np.random.default_rng(0), None, self.sp)
+        sizes = [list(c.rank.values()).count(r) for r in sorted(set(c.rank.values()))]
+        self.assertEqual(sizes[:3], [2, 10, 12])
+
 
 if __name__ == "__main__":
     unittest.main()
