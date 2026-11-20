@@ -169,7 +169,7 @@ Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-  const NINE = { front: "Front 9", back: "Back 9" };
+  const NINE = (n) => (n === "back" ? "Back 9" : "Front 9");
   let last = null, seed = 1;
   function readSpec() {
     const skip = parseDateList($("#skip").value);
@@ -197,7 +197,7 @@ Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
       const isTee = s.startType === "tee";
       const head = isTee ? slotNames(s, "front") : Array.from({ length: s.nSlots }, (_, i) => `Start ${i + 1}`);
       $("#sched").innerHTML = `<thead><tr><th>Week</th><th>Night</th><th>Nine</th>${head.map((l) => `<th>${esc(l)}</th>`).join("")}</tr></thead><tbody>` +
-        s.weeks.map((wk) => { const names = slotNames(s, wk.nine); return `<tr><td>${wk.week}</td><td>${esc(dayLabel(wk.day))}</td><td>${NINE[wk.nine]}</td>` +
+        s.weeks.map((wk) => { const names = slotNames(s, wk.nine); return `<tr><td>${wk.week}</td><td>${esc(dayLabel(wk.day))}</td><td>${NINE(wk.nine)}</td>` +
           head.map((_, k) => { const g = wk.groups.find((x) => x.slot === k); return `<td>${g ? `${isTee ? "" : `<small>${esc(names[k])}</small><br>`}${esc(s.teams[g.a])} v ${esc(g.b === null ? BYE : s.teams[g.b])}` : ""}</td>`; }).join("") + "</tr>"; }).join("") + "</tbody>";
       $("#counts").innerHTML = `<thead><tr><th>Team</th>${head.map((l) => `<th>${esc(l)}</th>`).join("")}<th>Spread</th><th>Same slot two weeks running</th><th>Front / back</th></tr></thead><tbody>` +
         r.rows.map((row) => { const lo = Math.floor(row.weeks / s.nSlots), hi = Math.ceil(row.weeks / s.nSlots); return `<tr><td>${esc(row.name)}</td>${row.counts.map((c) => `<td${c < lo || c > hi ? ' class="off"' : ""}>${c}</td>`).join("")}<td>${row.spread}</td><td>${row.repeats}</td><td>${row.front} / ${row.back}</td></tr>`; }).join("") + "</tbody>";
@@ -275,7 +275,7 @@ Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
     $("#r-standings").innerHTML = "<thead><tr><th>Place</th><th>Team</th><th>Points</th><th>Matches</th><th>Holes won</th><th>Team net total</th></tr></thead><tbody>" +
       r.standings.map((x) => `<tr><td>${x.place}</td><td>${esc(x.team)}</td><td>${pt(x.points)}</td><td>${x.played}</td><td>${x.holesWon}</td><td>${x.net}</td></tr>`).join("") + "</tbody>";
     const n = r.nights[r.nights.length - 1];
-    $("#r-night-h").textContent = `Week ${n.week}, ${dayLabel(n.day)} (${NINE[n.nine]}, par ${n.parTotal})`;
+    $("#r-night-h").textContent = `Week ${n.week}, ${dayLabel(n.day)} (${NINE(n.nine)}, par ${n.parTotal})`;
     const who = (p) => (p.par ? "Par" : `${esc(p.name)} (${p.handicap})${p.absent ? " <small>absent</small>" : p.retro ? " <small>handicap set tonight</small>" : ""}`);
     const gross = (p) => (p.par ? n.parTotal : p.absent ? "&ndash;" : p.holes.reduce((a, b) => a + b, 0));
     $("#r-night").innerHTML = "<thead><tr><th>Pairing</th><th>Gross</th><th>Net</th><th>Holes won</th><th>Points</th></tr></thead><tbody>" +

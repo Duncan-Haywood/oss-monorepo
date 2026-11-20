@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "parseTime returns 'HH:MM' string, first draft treated it as minutes (caught in testing)",
-    "two hand-worked expected values in the first test draft were wrong and corrected after rechecking by hand"
+    "two hand-worked expected values in the first test draft were wrong and corrected after rechecking by hand",
+    "first suite run flagged NINES[...] object-map lookups, a CSV exporter without a named formula guard and comma-split Number lists; fixed (nineName(), comment naming csvCell, smallInts())"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -57,7 +58,7 @@
     "ventures/league-schedule-generator/README.md (Golf leagues section)"
   ],
   "goal": null,
-  "notes": "Golf tee-time balance: 71 of 77 seasons with every team at share (hand rotation 4); 6 SAT-proved out of reach. golf.test.mjs + page.test.mjs 69 pass; Chromium run of the page with sample nights and shotgun, no console errors, 390px no overflow.",
+  "notes": "Golf tee-time balance: 71 of 77 seasons with every team at share (hand rotation 4); 6 SAT-proved out of reach. golf.test.mjs + page.test.mjs 69 pass; Chromium run of the page with sample nights and shotgun, no console errors, 390px no overflow. Full league-schedule-generator suite: 1 suite, 0 failed; unwired_checks 265/265.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -19,6 +19,8 @@
 // it keeps a tee time (a group of its own) and its players are scored against net par (golf-recap
 // below), so it still earns points.
 
+// CSV cells go through csvCell (calc.mjs), the formula-injection guard: a cell starting =, +, -, @,
+// tab or CR gets an apostrophe so a team name never runs as a spreadsheet formula.
 import { roundRobin, dayLabel, dayIso, csvCell, parseTeams, parseTime } from "./calc.mjs";
 import { hungarian } from "./bowling.mjs";
 import { TEE_TABLE, TEE_OUT_OF_REACH } from "./golf-tee-table.mjs";
@@ -28,7 +30,7 @@ const outOfReach = new Set(TEE_OUT_OF_REACH);
 export function teeBoundOutOfReach(nTeams, weeks) { return outOfReach.has(`${nTeams},${weeks}`); }
 
 export const BYE = "Bye (v the course)";
-const NINES = { front: "Front 9", back: "Back 9" };
+const nineName = (n) => (n === "back" ? "Back 9" : "Front 9");
 
 function hhmm(min) {
   const h = Math.floor(min / 60) % 24, m = min % 60;
@@ -330,7 +332,7 @@ export function golfCsv(season) {
   const lines = [["Week", "Date", "Nine", season.startType === "shotgun" ? "Starting hole" : "Tee time", "Team", "Opponent"].join(",")];
   for (const wk of season.weeks) {
     const names = slotNames(season, wk.nine);
-    for (const g of wk.groups) lines.push([wk.week, dayIso(wk.day), NINES[wk.nine], names[g.slot], ...groupCells(season, g)].map(csvCell).join(","));
+    for (const g of wk.groups) lines.push([wk.week, dayIso(wk.day), nineName(wk.nine), names[g.slot], ...groupCells(season, g)].map(csvCell).join(","));
   }
   return lines.join("\n") + "\n";
 }
@@ -338,7 +340,7 @@ export function golfCsv(season) {
 export function golfText(season) {
   const out = [];
   for (const wk of season.weeks) {
-    out.push(`Week ${wk.week}, ${dayLabel(wk.day)}: ${NINES[wk.nine]}`);
+    out.push(`Week ${wk.week}, ${dayLabel(wk.day)}: ${nineName(wk.nine)}`);
     const names = slotNames(season, wk.nine);
     for (const g of wk.groups) { const [a, b] = groupCells(season, g); out.push(`  ${names[g.slot]}  ${a} v ${b}`); }
   }
@@ -399,6 +401,12 @@ export function readGolfRules(input = {}) {
   return { rules: r, errors };
 }
 
+/** Par, index and hole scores are small numbers: split on spaces, ";" or a comma that is not a
+ * thousands separator, so a stray "1,500" reads as one bad number (NaN, an error), not 1 and 500. */
+function smallInts(text) {
+  return String(text).split(/[\s;]+|,(?!\d{3}(?!\d))/).filter(Boolean).map((t) => Number(t.replace(/,/g, "") === t ? t : NaN));
+}
+
 /** "Par: 4 4 3 5 ..." and "Index: 7 15 3 ..." (18 numbers each; commas or spaces). */
 export function parseCourse(text) {
   const errors = [];
@@ -408,7 +416,7 @@ export function parseCourse(text) {
     if (!line) continue;
     const m = line.match(/^(par|index|hdcp|handicap|si|stroke index)\s*:?\s*(.*)$/i);
     if (!m) { errors.push(`Course line "${line.slice(0, 30)}": start it with "Par:" or "Index:".`); continue; }
-    const nums = m[2].split(/[\s,;]+/).filter(Boolean).map(Number);
+    const nums = smallInts(m[2]);
     if (nums.length !== 18 || nums.some((x) => !Number.isInteger(x))) { errors.push(`${/^par/i.test(m[1]) ? "Par" : "Index"} needs 18 whole numbers, hole 1 to 18 (got ${nums.length}).`); continue; }
     if (/^par/i.test(m[1])) par = nums; else index = nums;
   }
@@ -509,7 +517,7 @@ export function parseCards(text, playerTeam) {
       const m = line.match(/^(.*?\S)\s*:?\s+((?:\d{1,2}[\s,]+){8}\d{1,2})$/);
       if (!m) { errors.push(`Line ${i + 1}: "${line.slice(0, 40)}" should be a player's name and nine hole scores (or "absent").`); continue; }
       name = m[1];
-      card = { absent: false, holes: m[2].split(/[\s,]+/).map(Number) };
+      card = { absent: false, holes: smallInts(m[2]) };
       if (card.holes.some((h) => h < 1 || h > 15)) { errors.push(`Line ${i + 1}: ${name}'s hole scores must be 1 to 15.`); continue; }
     }
     const k = keyOf(name);
@@ -648,7 +656,7 @@ export function golfRecapText(recap) {
   const out = [];
   const n = recap.nights[recap.nights.length - 1];
   if (n) {
-    out.push(`Week ${n.week}, ${dayLabel(n.day)} (${NINES[n.nine]}, par ${n.parTotal})`);
+    out.push(`Week ${n.week}, ${dayLabel(n.day)} (${nineName(n.nine)}, par ${n.parTotal})`);
     for (const m of n.matches) {
       out.push(`  ${m.a} ${fmt(m.points[0])} - ${fmt(m.points[1])} ${m.b ?? "the course"}`);
       for (const p of m.pairings) {
