@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKkpwCSCL6A9EATvuQx",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T10:18:20Z",
+  "ended": "2026-11-20T10:22:38Z",
+  "wall_minutes": 4.69,
+  "tokens_in": 3020876,
+  "tokens_out": 18863,
+  "cost_usd": 1.61,
+  "tool_calls": 39,
+  "task": "Little Lamps story: Raymond of Penyafort and the Cloak on the Sea (BIBLE.md Next up proposal)",
+  "projects": [
+    "hearth-and-horizon",
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17898",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First draft said Raymond died 'on the day after the Epiphany'; he died on 6 January 1275, the Epiphany itself. Caught on the adversarial re-read before commit.",
+    "PR CI changed-ventures went red on check_csv_formula_guard.py: main had broken when #17894 (golf-playoffs.mjs, a new CSV exporter) and #17895 (the checker's perf rewrite) landed together. The exporter already used calc.mjs csvCell, but it lacked the marker comment the checker looks for. Fixed forward here: added the sibling exporters' comment and a test that a '=SUM(...)' team name never starts a CSV cell. My first version of that test wrongly expected an apostrophe: cells carry a '#1 ' seed prefix, so they are already safe."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to use search_pull_requests via the GitHub MCP; that tool is not exposed in this session (the system prompt says to use gh api search/issues), which cost one failed call."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Little Lamps proposals ask to check saints' dates against sources, but the reference hosts (Wikipedia, New Advent, Gutenberg) are blocked by the proxy in cloud sessions; the bible could say so and name what to do (cite standard references unquoted, hedge, ask readers to report errors), as recent stories already do."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (577 MB > 400 MB).",
+      "did": "Landed text and pages without audio, per the prompt's own rule.",
+      "result": "Story, page, feeds and llms.txt regenerated; node --test 20/20."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "The CLAUDE.md 'control plane / small PR' advice suggests keeping unrelated fixes separate; this one is a two-line comment plus a test in a venture, not the control plane, and main was red for every PR.",
+      "did": "Fixed the red check on main inside this creative PR instead of opening a second PR.",
+      "result": "check_csv_formula_guard.py and its unittest pass locally."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-raymond-of-penyafort-and-the-cloak-on-the-sea.md"
+  ],
+  "goal": "Creative track: a new Little Lamps story for the 7 January memorial, keeping the shelf's run through the Christmas season going.",
+  "notes": "Project: hearth-and-horizon, shelf little-lamps, slug raymond-of-penyafort-and-the-cloak-on-the-sea (1,609-word story plus grown-ups' note). Security queue empty; IDEAS.md and website requests empty; route drew creative. Claimed the proposal in BIBLE.md first (draft PR #17898), then marked it Done (bible_done.mjs moved it to DONE.md) and added the next Little Lamps proposal (Agnes, 21 January; overlap.mjs shows no Agnes story on Little Lamps or Saints by Candlelight). Source hosts unreachable, so the note cites standard references without quoting and marks uncertain points (birth year, age at death, Pope's penance, Aquinas request, cloak legend). Weekday check: 7 Jan 2027 is a Thursday. Verification: node --test in ventures/hearth-and-horizon 20 pass 0 fail; run_workflow_locally --for-changes run (result in PR). Also fixed main's red csv formula guard check (league-schedule-generator/golf-playoffs.mjs marker comment + test). The local run_workflow_locally --for-changes run handed off portfolio-validate and ventures-tests; the PR's own CI is the authority for those.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d1e9349f-cb44-573e-9d81-a88f61ffe572",
+    "transcripts": 1,
+    "first": "2026-11-20T10:18:20Z",
+    "last": "2026-11-20T10:23:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 68,
+        "output": 18863,
+        "thinking": 4131,
+        "cache_read": 2940253,
+        "cache_write_5m": 0,
+        "cache_write_1h": 80555,
+        "api_equivalent_usd": 1.61,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 68,
+      "output": 18863,
+      "thinking": 4131,
+      "cache_read": 2940253,
+      "cache_write_5m": 0,
+      "cache_write_1h": 80555,
+      "api_equivalent_usd": 1.61,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 2,
+      "mcp__github__search_pull_requests": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebFetch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.69,
+      "active_minutes": 4.69,
+      "model_minutes": 3.77,
+      "tool_minutes": 0.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "researching a saint's life and drafting a 1,600-word children's story with a sourced note, plus a blog post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 248.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
