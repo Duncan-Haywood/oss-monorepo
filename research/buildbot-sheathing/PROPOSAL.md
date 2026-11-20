@@ -522,6 +522,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    or lay past L<sub>p</sub> (H238, H239 untestable). The balance gate exceeds L<sub>p</sub> by up to 31 N (G1) and
    44 N (H1) in two direction bands. Next: the gate as the planner's limit over every hold-side combination, or
    dynamics and measured sensor bias.
+62. **The exact envelope gate** (done 2026-11-20, `experiments/m62_exactgate/`): the planner's limit over every
+   hold-side combination, L<sub>any</sub>, bisected at every pose and direction against the balance limit, on 48 new
+   loads (seed 62). L<sub>any</sub> equals the balance limit to 0.01 N in 712 of 720 G1 and 904 of 912 H1 pairs and is
+   more than 0.5 N short only in 7 G1 pairs at 46 to 60 N (H241 held); the chain plans every case inside
+   H &le; L<sub>any</sub> &minus; 0.5 N, 9384 of 9384, and every balance-envelope case (H242 held); the 0.5 N band drops
+   12 G1 cases the chain plans (0.30%, H243 refuted at its ceiling). The balance gate is the planner's envelope at
+   working loads once hold sides are chosen per load. Next: dynamics (the press's impulse) or measured sensor bias.
 
 ## Target venue
 

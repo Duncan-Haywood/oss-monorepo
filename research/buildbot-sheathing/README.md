@@ -795,6 +795,19 @@ statics; the squeeze ladder and the 0.5 N band are chosen, not derived.
 
 ![Balance limit minus the planner's own limit for every pose and hose direction](experiments/m61_lastfour/figure.png)
 
+**Milestone 62: is the robot's balance check the right "can this press be planned?" test?** Milestone 61 found the
+quick balance test up to 44 N more generous than the planner's own hold limit. Here the planner's limit is bisected
+over **every** hold-side combination (64 on the G1, 16 on the H1) at every pose and hose direction of 48 new held-out
+loads (seed 62). **Choosing hold sides per load closes the gap: the planner's limit equals the balance limit to
+0.01 N in 712 of 720 G1 and 904 of 912 H1 pose-direction pairs** (H241 held); the 7 G1 pairs short by more than
+0.5 N are all at 46 to 60 N, far above any working hose load. The chain plans every press inside the exact gate,
+9384 of 9384, and every press inside the balance gate, G1 3996 of 3996 and H1 5400 of 5400, all inside 0.03 mm
+(worst 0.024 mm; H242 held), the second held-out seed in a row with full coverage. The 0.5 N safety band costs 12 G1 presses (0.30%,
+H243 refuted at its 0.3% ceiling) that the chain plans anyway. One seed; statics; monotone feasibility assumed in the
+bisection.
+
+![Balance limit minus the planner's limit, on the pose's own hold sides and on the best hold-side combination](experiments/m62_exactgate/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

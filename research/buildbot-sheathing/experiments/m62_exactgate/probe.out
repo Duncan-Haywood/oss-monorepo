@@ -17,4 +17,3 @@ grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
 g1: pairs 720; L_any none 0; ok above a binding balance limit + 0.5 N 0; pose-side gap > 0.01: 314 (max 31.44); any-side gap > 0.01: 11 (max 7.22); > 0.5: 10; evaluations 1510
 h1: pairs 912; L_any none 0; ok above a binding balance limit + 0.5 N 0; pose-side gap > 0.01: 115 (max 44.37); any-side gap > 0.01: 9 (max 0.15); > 0.5: 0; evaluations 1389
 run time 192 s
-
