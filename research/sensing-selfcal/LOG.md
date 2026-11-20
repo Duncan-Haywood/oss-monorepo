@@ -1,5 +1,21 @@
 # sensing-selfcal research log
 
+## 2026-11-20 · Milestone 3u planned: on TUM, does a floor on the between-window spread &tau;, learned causally from the camera's own earlier windows, make a three-window random-effects pool honest where DerSimonian&ndash;Laird's &tau; = 0 blocks were 11 sd off?
+
+Written before `experiments/m3u_taufloor/analyse.py` was written or run. Milestone 3t found five pooled windows honest (DL rms z 1.58 with the causal prior) but three not (2.67, max |z| 11.0): three prior-steadied windows that agree get &tau; = 0 and fall back to the solver's sd. A robot does not have to estimate &tau; from the block alone: it has seen how much its earlier windows scattered. The TUM host still refuses this session, so this re-uses milestone 3s's saved solves; no window is re-solved. **Seen before this plan:** milestone 3t's logged figures (DL, HKSJ, ivw at K = 3 and 5; the 1% quadrature floor at K = 5 only: est_c 0.93, est 1.29); no figure of any history-based floor, and no K = 1 or K = 3 figure of the 1% floor.
+
+- **Method** (`analyse.py`, analysis only). Same 43 scored windows, sliding blocks of K &isin; {1, 3, 5, 8} consecutive windows within a sequence, as milestone 3t. For a block whose first window has camera rank r, the **history** is every counted window of the same camera with rank &lt; r (across sequences, as the causal prior uses), each window's value being the model's own estimate where it has one and `est` otherwise (before the prior starts the robot only had `est`). &tau;<sub>hist</sub><sup>2</sup> = max(0, s<sup>2</sup> &minus; median sd<sup>2</sup>) with s the robust sd (1.4826 MAD) of the history's f and sd its solver sds; with fewer than 5 history windows there is no floor. **tf** pool: DL with &tau;<sup>2</sup> = max(&tau;<sup>2</sup><sub>DL</sub>, &tau;<sup>2</sup><sub>hist</sub>), mean reweighted by 1/(sd<sup>2</sup> + &tau;<sup>2</sup>), sd = (&sum;w)<sup>&minus;1/2</sup>; at K = 1 it is the window with sd<sup>2</sup> + &tau;<sup>2</sup><sub>hist</sub>. **q1** pool: milestone 3t's DL sd with 1% of f in quadrature. Scored against milestone 4n's board calibration as in 3t (rms z, max |z|, median |e|, usable = sd &le; 2% and |e| &le; 2%).
+- **H231 (the floor fixes K = 3).** est_c, K = 3: tf rms z &le; 2 (DL 2.67).
+- **H232 (no far-off blocks).** est_c, K = 3: tf max |z| &le; 4 (DL 11.0).
+- **H233 (not overcorrected).** est_c: tf rms z &ge; 0.7 at both K = 3 and K = 5.
+- **H234 (little accuracy lost).** est_c, K = 5: tf median |e| &le; 1.1 &times; DL's.
+- **H235 (still usable).** est_c, K = 5: tf usable share &ge; 0.20 (DL 0.29).
+- **H236 (history beats a fixed 1%).** est_c, K = 3: |tf rms z &minus; 1| &lt; |q1 rms z &minus; 1|.
+- **H237 (it helps the recursive memory too).** est_cr, K = 3: tf rms z &le; 2 (DL 2.36).
+- **H238 (a one-window bar).** est_c, K = 1: tf rms z in [0.5, 2] (the solver sd alone is far from it).
+- **Reported, unscored.** The same against TUM's and the target-free references; per sequence; the share of DL &tau; = 0 blocks and their rms z under each pool; median &tau;<sub>hist</sub> against median &tau;<sub>DL</sub>; est at every K; `taufloor.png`.
+- **Caveat set in advance.** The history mixes `est` and prior-steadied values for est_c and est_cr, so the floor is larger than their own scatter early on; blocks overlap and share history, so they are far from independent; the board reference itself disagrees with TUM's and the target-free ones by about 1.6%, which no floor learned from the windows can see.
+
 ## 2026-11-19 · Paper step: a letter-length version of the draft (`paper/ral.md`, 3,927 words of prose, three figures, one table, about 6.2 pages by a stated rule of thumb) built around the update test, with a checker that every one of its 196 numbers is copied from the checked draft
 
 - **Why now.** The previous paper step named cutting the 8,200-word draft to RA-L's 8 pages as the next one, and every open experiment in Section 10 needs the TUM images, whose hosts the proxy refused from this session (`cvg.cit.tum.de`, probed). No new experiment was run.
