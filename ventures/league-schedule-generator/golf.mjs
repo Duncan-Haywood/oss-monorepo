@@ -742,6 +742,7 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
       matches.push({ slot: g.slot, a: season.teams[g.a], b: g.b === null ? null : season.teams[g.b], pairings, teamNet: [na, nb], points: pts });
     }
     // Skins, on tonight's handicaps (before tonight's rounds count).
+    /** @type {{ gross?: ReturnType<typeof skinsGame>, net?: ReturnType<typeof skinsGame> } | null} */
     let skins = null;
     if (rules.skins !== "off") {
       const field = [...tonight.values()].filter((c) => !c.absent && (!skinsIn.keys.size || skinsIn.keys.has(c.key)));
