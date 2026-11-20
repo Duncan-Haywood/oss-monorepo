@@ -1,0 +1,294 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKn7X8FJRUX4ifzyjCS",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T05:18:29Z",
+  "ended": "2026-11-20T05:21:21Z",
+  "wall_minutes": 8.17,
+  "tokens_in": 3251273,
+  "tokens_out": 21144,
+  "cost_usd": 1.7158,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17863",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` without --under probes the whole tree for minutes; `--under ventures/<slug> --limit 50 --probe 20` was the fast way to time one venture's files."
+    },
+    {
+      "file": "platform/ci/check_share_decoders.py",
+      "issue": "Docstring implied it covers every share link, but it only globbed share.mjs; 110 encode/decode modules elsewhere were unchecked (fixed here)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix open entries first; all 12 are control-plane (owner approval) or a measured-mixed design change (help-keeper stem).",
+      "did": "Left them open, re-confirmed blocked status by reading each entry, spent the run on a fresh target.",
+      "result": "Two real defects found and patched, guard widened."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-redteam-keeper-limit-zero-from-a-shared-link.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/youth-lineup-rotator/calc.mjs (changed in last 3 days, 2.7 s suite). 10 mutants seed 20: 5 caught; 2 gaps closed (padding length, preset table), 3 equivalent. Guard added: check_share_decoders.py now covers encodeX/decodeX pairs outside share.mjs (314 modules, 0 crashes, 0.5 s); test_check_share_decoders 4 OK. Verified: run_venture_tests.py youth-lineup-rotator 40/40 ok; check_posts and check_post_frontmatter clean.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/youth-lineup-rotator/calc.mjs",
+        "test": "node --test ventures/youth-lineup-rotator/**/*.test.mjs  (in .)",
+        "seed": 20,
+        "commit": "b1a5f38c9",
+        "sites": 351,
+        "baseline_seconds": 2.3,
+        "mutants": [
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 12,
+            "col": 90,
+            "operator": "const-plus-one",
+            "before": "lacrosse: { label: \"Lacrosse 10v10\", slots: \"G, D x3, M x3, A x3\", periods: 4, minutes: 12 },",
+            "after": "lacrosse: { label: \"Lacrosse 10v10\", slots: \"G, D x3, M x3, A x3\", periods: 4, minutes: 13 },",
+            "line_text": "  lacrosse: { label: \"Lacrosse 10v10\", slots: \"G, D x3, M x3, A x3\", periods: 4, minutes: 12 },",
+            "caught": false,
+            "seconds": 2.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Preset defaults were unpinned; new test pins every preset's periods and minutes."
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 79,
+            "col": 33,
+            "operator": "eq-flip",
+            "before": "if (key === \"skill\" || key === \"late\" || key === \"leaves\" || key === \"sat\") {",
+            "after": "if (key === \"skill\" || key !== \"late\" || key === \"leaves\" || key === \"sat\") {",
+            "line_text": "      if (key === \"skill\" || key === \"late\" || key === \"leaves\" || key === \"sat\") {",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 86,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "} else if (key === \"can\" || key === \"not\") {",
+            "after": "} else if (key !== \"can\" || key === \"not\") {",
+            "line_text": "      } else if (key === \"can\" || key === \"not\") {",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 103,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "if (players.length < 2) errors.push(\"Add at least two players.\");",
+            "after": "if (players.length < 3) errors.push(\"Add at least two players.\");",
+            "line_text": "  if (players.length < 2) errors.push(\"Add at least two players.\");",
+            "caught": true,
+            "seconds": 2.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 180,
+            "col": 12,
+            "operator": "gt-to-ge",
+            "before": "if (t > 0 && last[p] === ns && onField[base - N + p]) cost += 15;",
+            "after": "if (t >= 0 && last[p] === ns && onField[base - N + p]) cost += 15;",
+            "line_text": "      if (t > 0 && last[p] === ns && onField[base - N + p]) cost += 15;",
+            "caught": false,
+            "seconds": 2.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "At t=0 last[] is all -1 (filled just above), so last[p] === ns is false whatever the t guard says; the onField read at a negative index never matters."
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 200,
+            "col": 17,
+            "operator": "times-to-div",
+            "before": "cost += 10 * c * c;",
+            "after": "cost += 10 / c * c;",
+            "line_text": "      cost += 10 * c * c;",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 250,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "const temp = 300 * (1 - i / iters) + 1;",
+            "after": "const temp = 301 * (1 - i / iters) + 1;",
+            "line_text": "    const temp = 300 * (1 - i / iters) + 1;",
+            "caught": false,
+            "seconds": 2.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Annealing start temperature 300 vs 301: a search-tuning constant. No hard rule or reported number depends on it; every property test (fair time, no double bench, keeper cap, validateLineup) still holds. Pinning exact grids would be a change detector."
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 338,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "const over = stats.filter((s) => (s.positions[n] || 0) > ctx.keeperMax);",
+            "after": "const over = stats.filter((s) => (s.positions[n] || 1) > ctx.keeperMax);",
+            "line_text": "    const over = stats.filter((s) => (s.positions[n] || 0) > ctx.keeperMax);",
+            "caught": false,
+            "seconds": 2.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "After this run's fix buildContext clamps keeperMax to a whole number >= 1, so for a player who never kept (positions[n] undefined) both 0 > k and 1 > k are false. Before the fix it was reachable with keeperMax 0 from a shared link: see real_defects[0]."
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 387,
+            "col": 128,
+            "operator": "const-plus-one",
+            "before": "return Array.from({ length: result.periods }, (_, t) => result.slotNames.map((pos, s) => ({ pos, player: result.grid[t][s] >= 0 ? result.playerNames[result.grid[t][s]] : null })));",
+            "after": "return Array.from({ length: result.periods }, (_, t) => result.slotNames.map((pos, s) => ({ pos, player: result.grid[t][s] >= 1 ? result.playerNames[result.grid[t][s]] : null })));",
+            "line_text": "  return Array.from({ length: result.periods }, (_, t) => result.slotNames.map((pos, s) => ({ pos, player: result.grid[t][s] >= 0 ? result.playerNames[result.grid[t][s]] : null })));",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 452,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "const bin = atob(b64 + \"=\".repeat((4 - (b64.length % 4)) % 4));",
+            "after": "const bin = atob(b64 + \"=\".repeat((4 - (b64.length % 4)) % 5));",
+            "line_text": "    const bin = atob(b64 + \"=\".repeat((4 - (b64.length % 4)) % 4));",
+            "caught": false,
+            "seconds": 2.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Only one round-trip length was tested and it needed padding; new test decodes links at every length mod 4 (0, 2, 3): '====' makes atob throw."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/youth-lineup-rotator/calc.mjs",
+        "issue": "keeperMax was taken as given: 0 (a shared link whose keepermax the select lacks leaves it empty, Number('') is 0) warned 'Ana, Ben, Dee, Eli must play GK more than 0 period' for a lineup that shared the keeper job; NaN silently lifted the keeper cap. Fixed: buildContext clamps to a whole number >= 1 (default 1); openFromHash resets empty selects to their defaults.",
+        "patched": true
+      },
+      {
+        "file": "ventures/youth-lineup-rotator/calc.mjs",
+        "issue": "lineupText and playerMessages printed negative minute counts ('plays 2 of 4 periods (-10 min)') when the minutes box held a negative number (render clamped, the copy buttons did not). Fixed: both clean minutes (negative or junk = none); a shared link's negative minutes reset to 0.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "23393bfa-ad4f-5993-91c9-2c6cda920929",
+    "transcripts": 1,
+    "first": "2026-11-20T05:18:29Z",
+    "last": "2026-11-20T05:26:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 78,
+        "output": 21144,
+        "thinking": 5225,
+        "cache_read": 3168834,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82361,
+        "api_equivalent_usd": 1.7158,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 78,
+      "output": 21144,
+      "thinking": 5225,
+      "cache_read": 3168834,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82361,
+      "api_equivalent_usd": 1.7158,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 38,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.17,
+      "active_minutes": 8.17,
+      "model_minutes": 5.08,
+      "tool_minutes": 3.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

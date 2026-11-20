@@ -311,3 +311,46 @@ test("a child allowed in no position is an error, not a silent full game on the 
   assert.match(clash.errors[0], /^Ann: no position/);
   assert.deepEqual(parsePlayers("Ann | can: GK | not: DEF\nBob", slots, 4).errors, []);
 });
+
+test("preset defaults: periods and minutes a coach sees when picking a sport", () => {
+  // Pinned so a slip in the table (a 13-minute lacrosse quarter) is a deliberate change.
+  const got = Object.fromEntries(Object.entries(PRESETS).map(([k, p]) => [k, [p.periods, p.minutes]]));
+  assert.deepEqual(got, {
+    soccer7: [4, 12], soccer9: [4, 12], soccer11: [2, 30], soccer5: [4, 10],
+    basketball: [4, 8], hockey: [3, 15], lacrosse: [4, 12], volleyball: [3, 25],
+  });
+});
+
+test("setup links decode at every padding length", () => {
+  // base64url drops '='; a link whose length is a multiple of 4 needs none added back.
+  const lengths = new Set();
+  for (let i = 0; i < 6; i++) {
+    const setup = { players: "A".repeat(i) };
+    const link = encodeSetup(setup);
+    lengths.add(link.length % 4);
+    assert.deepEqual(decodeSetup(link).setup, setup, link);
+  }
+  assert.ok(lengths.has(0) && lengths.has(2) && lengths.has(3), [...lengths].join());
+});
+
+test("a keeper limit that is not a whole number of at least 1 falls back to 1", () => {
+  // A shared link with an unknown keepermax leaves the select empty: Number("") is 0.
+  const spec = make(PRESETS.soccer7.slots, EXAMPLE.players, 4, { seed: 1 });
+  for (const keeperMax of [0, -2, NaN, "", undefined]) {
+    assert.equal(buildContext(spec.players, spec.slotNames, 4, { keeperMax }).keeperMax, 1, String(keeperMax));
+    const r = buildLineup({ ...spec, keeperMax });
+    assert.ok(!r.warnings.some((w) => /more than 0 period|NaN/.test(w)), r.warnings.join(" / "));
+    for (const s of r.stats) assert.ok((s.positions.GK || 0) <= 1, `${s.name} kept ${s.positions.GK} with keeperMax ${keeperMax}`);
+  }
+  assert.equal(buildContext(spec.players, spec.slotNames, 4, { keeperMax: 99 }).keeperMax, 99);
+  assert.equal(buildContext(spec.players, spec.slotNames, 4, { keeperMax: "2" }).keeperMax, 2);
+});
+
+test("negative or junk minutes print no minute counts", () => {
+  const r = buildLineup(make(PRESETS.soccer7.slots, EXAMPLE.players, 4, { seed: 1 }));
+  for (const minutes of [-5, NaN, "x"]) {
+    assert.doesNotMatch(playerMessages(r, { minutes }).join("\n"), /min\)/, String(minutes));
+    assert.doesNotMatch(lineupText(r, { minutes }), /\d min/, String(minutes));
+  }
+  assert.match(playerMessages(r, { minutes: 12 })[0], /\(\d+ min\)/);
+});

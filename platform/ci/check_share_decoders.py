@@ -17,10 +17,18 @@ the ventures use (percent-encoded JSON, base64url, base64, with and without a
 a crash, not a decision. A decoder may still return null or throw its own
 Error with a message ("Invalid shared calculation link"); its page catches it.
 
+It also covers share links that live outside a `share.mjs`: any other
+`ventures/*/*.mjs` (tests aside) exporting an `encodeX` and a `decodeX` with
+the same suffix, such as youth-lineup-rotator's `encodeSetup`/`decodeSetup`
+in `calc.mjs`. Red team 2026-11-20: 110 such modules, 161 decoders, none
+checked before. Only their `decode*` exports are fed, since a `parse*` there
+is usually a text parser that takes more than one argument, not a link reader.
+
     python3 platform/ci/check_share_decoders.py [--root DIR]   # exit 1 on a crash
 """
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -29,7 +37,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 NODE = r"""
 import { pathToFileURL } from "node:url";
-const files = JSON.parse(process.argv[1]);
+const files = JSON.parse(process.argv[1]);  // [path, name pattern]
 const payloads = ["null", "[]", "7", '"x"', "true", "[null]", '{"a":null}'];
 const b64url = (s) => Buffer.from(s).toString("base64url");
 const inputs = [];
@@ -38,12 +46,13 @@ for (const p of payloads)
     for (const pre of ["", "#", "#s=", "#d=", "?s="]) inputs.push(pre + enc);
 const CRASH = new Set(["TypeError", "RangeError", "ReferenceError"]);
 const out = { decoders: 0, crashes: [], unloadable: [] };
-for (const file of files) {
+for (const [file, pattern] of files) {
+  const wanted = new RegExp(pattern, "i");
   let mod;
   try { mod = await import(pathToFileURL(file)); }
   catch (e) { out.unloadable.push([file, String(e && e.message).slice(0, 120)]); continue; }
   for (const [name, fn] of Object.entries(mod)) {
-    if (typeof fn !== "function" || !/^(decode|parse)/i.test(name)) continue;
+    if (typeof fn !== "function" || !wanted.test(name)) continue;
     out.decoders++;
     for (const x of inputs) {
       try {
@@ -63,8 +72,25 @@ def share_modules(root):
     return sorted([*root.glob("ventures/*/share.mjs"), *root.glob("ventures/*/site/share.mjs")])
 
 
-def run(root, timeout=120):
-    files = [str(p) for p in share_modules(root)]
+ENCODER = re.compile(r"export\s+(?:async\s+)?function\s+encode(\w*)\s*\(")
+DECODER = re.compile(r"export\s+(?:async\s+)?function\s+decode(\w*)\s*\(")
+
+
+def paired_modules(root):
+    """Other venture modules exporting an encodeX/decodeX pair: share links too."""
+    out = []
+    for p in sorted(root.glob("ventures/*/*.mjs")):
+        if p.name == "share.mjs" or ".test." in p.name or p.name.startswith("test"):
+            continue
+        text = p.read_text(encoding="utf-8", errors="replace")
+        if set(DECODER.findall(text)) & set(ENCODER.findall(text)):
+            out.append(p)
+    return out
+
+
+def run(root, timeout=300):
+    files = [[str(p), "^(decode|parse)"] for p in share_modules(root)]
+    files += [[str(p), "^decode"] for p in paired_modules(root)]
     proc = subprocess.run(["node", "--input-type=module", "-e", NODE, json.dumps(files)],
                           cwd=root, capture_output=True, text=True, timeout=timeout)
     if proc.returncode != 0:
@@ -83,7 +109,7 @@ def main(argv=None):
               "(return null or throw your own Error so the page can say the link is damaged)")
     for file, err in out["unloadable"]:
         print(f"{Path(file).relative_to(root)}: could not be imported in node: {err}")
-    print(f"{n} share module(s), {out['decoders']} decoder(s) fed non-object JSON; "
+    print(f"{n} share-link module(s), {out['decoders']} decoder(s) fed non-object JSON; "
           f"{len(out['crashes'])} crashed, {len(out['unloadable'])} unloadable.")
     return 1 if out["crashes"] or out["unloadable"] else 0
 
