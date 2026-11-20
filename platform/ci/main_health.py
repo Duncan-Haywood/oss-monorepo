@@ -15,8 +15,10 @@ counts as red, and its line says TIME, not FAIL: run beside a full venture-suite
 run (load ~34 on 4 cores), check_js_syntax.py hit the 300 s cap and read like a
 real red check (run record 2026-11-11T22:23).
 
-It also runs each platform/ci/test_*.py file (`python -m unittest <file>` from
-platform/ci, one job per file; `--checks-only` skips them). Those tests run in CI
+It also runs each platform/ci/test_*.py file from platform/ci, one job per file
+(`--checks-only` skips them): unittest for a TestCase module, pytest for plain test
+functions (unwired_checks.run_suite; 18 files ran 0 tests under unittest and read ok
+until 2026-11-20), SKIP when no python3 here has pytest. Those tests run in CI
 only on the workflows whose path filters name the module, so a change elsewhere
 can leave one red on main unseen: #15891 renamed `unwired_checks.run_all` and
 test_run_venture_tests.py stayed red until #15894 while this script printed 73/73
