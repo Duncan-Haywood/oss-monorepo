@@ -271,7 +271,7 @@ export function shellVolume(loops) {
   return v / 6;
 }
 
-function* solidPoints(s) {
+export function* solidPoints(s) {
   for (const t of s.terms) for (const f of t.faces) yield* f;
   if (s.shells) for (const sh of s.shells) for (const f of sh.loops) yield* f;
 }

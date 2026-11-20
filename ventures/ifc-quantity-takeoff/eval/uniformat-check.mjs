@@ -2,9 +2,10 @@
 // How far the Uniformat II rules (uniformat.mjs) get on real models, and how
 // often they agree with the code a model's author set where one is set.
 //
-//   node eval/uniformat-check.mjs model.ifc [more.ifc ...] [--json out.json] [--list N]
+//   node eval/uniformat-check.mjs model.ifc [more.ifc ...] [--json out.json] [--list N] [--geometry]
 //
-// Geometry is not read (the rules do not need it). Assemblies whose parts are
+// Geometry is not read unless --geometry is given; with it, walls with no
+// IsExternal are placed by the envelope test (envelope.mjs), as on the page. Assemblies whose parts are
 // elements are left out, as the bill of quantities leaves them out.
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -16,10 +17,11 @@ import { uniformatSummary, cutCode, levelOf } from "../uniformat.mjs";
 const args = process.argv.slice(2);
 const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : null; };
 const files = args.filter((a, i) => !a.startsWith("--") && !["--json", "--list"].includes(args[i - 1]));
+const geometry = args.includes("--geometry");
 const list = Number(opt("--list") ?? 15);
 const all = [], total = {};
 for (const f of files) {
-  const res = takeoff(parseStep(readFileSync(f)), { geometry: false });
+  const res = takeoff(parseStep(readFileSync(f)), { geometry });
   const rows = res.rows.filter((r) => !r.isAssembly);
   const s = uniformatSummary(res.rows);
   for (const [k, v] of Object.entries(s)) total[k] = (total[k] || 0) + v;

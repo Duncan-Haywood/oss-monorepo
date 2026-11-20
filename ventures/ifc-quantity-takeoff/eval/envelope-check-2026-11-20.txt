@@ -1,0 +1,134 @@
+dental_clinic.ifc (IFC2X3): 1080 walls, 80 flagged exterior; no plan 5; 1.5 s
+  flag set on 1075: exterior/exterior 66, exterior flag read interior 13, interior flag read exterior 60 (59 of them as an inner leaf or lining), interior/interior 936; agree 1002 of 1075
+  where they disagree, the type name sides with the geometry 0, with the flag 14, names a lining 59, says neither 0
+    #504 flag exterior, open at 4 of 9: Basic Wall:Exterior - Insul Panel on Mtl. Stud:142525 |  | First Floor | 0.63 m x 0.267 m
+    #527 flag exterior, open at 0 of 9: Basic Wall:Exterior - Insul Panel on Mtl. Stud:187224 |  | First Floor | 6.03 m x 0.267 m
+    #543 flag interior, open at 9 of 9 as a leaf: Basic Wall:Interior - Furring (38 mm Stud):394831 |  | Second Floor | 2.55 m x 0.054 m
+    #544 flag interior, open at 6 of 9 as a leaf: Basic Wall:Interior - Furring (38 mm Stud):394996 |  | Second Floor | 3.15 m x 0.054 m
+    #609 flag interior, open at 5 of 9: Basic Wall:Interior - Partition (92mm Stud):282168 |  | Second Floor | 6.18 m x 0.124 m
+    #672 flag interior, open at 9 of 9 as a leaf: Basic Wall:Interior - Furring (152 mm Stud):180035 |  | First Floor | 5.53 m x 0.168 m
+    #699 flag exterior, open at 0 of 9: Basic Wall:Exterior - Insul Panel on Mtl. Stud:187053 |  | First Floor | 1.78 m x 0.267 m
+    #700 flag exterior, open at 0 of 9: Basic Wall:Exterior - Insul Panel on Mtl. Stud:186606 |  | First Floor | 6.03 m x 0.267 m
+architect.ifc (IFC2X3): 112 walls, 112 flagged exterior; no plan 0; flag set aside (the same on every wall); 8.2 s
+  flag set on 112: exterior/exterior 42, exterior flag read interior 70, interior flag read exterior 0 (0 of them as an inner leaf or lining), interior/interior 0; agree 42 of 112
+  where they disagree, the type name sides with the geometry 7, with the flag 0, names a lining 0, says neither 63
+    #172 flag exterior, open at 0 of 9: Basic Wall:MW 11.5:573383 |  | Level 2 | 8.09 m x 0.115 m
+    #7871 flag exterior, open at 0 of 9: Basic Wall:MW 17.5:573582 |  | Level 1 | 2.26 m x 0.175 m
+    #14733 flag exterior, open at 0 of 9: Basic Wall:MW 17.5:573585 |  | Level 1 | 2.26 m x 0.175 m
+    #692 flag exterior, open at 0 of 9: Basic Wall:MW 17.5:573574 |  | Level 1 | 10.89 m x 0.175 m
+    #14934 flag exterior, open at 1 of 9: Basic Wall:MW 11.5:573589 |  | Level 1 | 7.99 m x 0.115 m
+    #14978 flag exterior, open at 3 of 9: Basic Wall:MW 11.5:573590 |  | Level 1 | 7.99 m x 0.115 m
+    #34645 flag exterior, open at 0 of 9: Basic Wall:MW 11.5:573603 |  | Level 1 | 8.69 m x 0.115 m
+    #34738 flag exterior, open at 0 of 9: Basic Wall:MW 11.5:573605 |  | Level 1 | 6.22 m x 0.115 m
+construction.ifc (IFC2X3): 48 walls, 48 flagged exterior; no plan 0; 0.7 s
+  flag set on 48: exterior/exterior 47, exterior flag read interior 1, interior flag read exterior 0 (0 of them as an inner leaf or lining), interior/interior 0; agree 47 of 48
+  where they disagree, the type name sides with the geometry 0, with the flag 0, names a lining 0, says neither 1
+    #16667 flag exterior, open at 3 of 9: Basic Wall:STB 20.0:573703 |  | Level 2 | 5.8 m x 0.2 m
+MEP.ifc (IFC2X3): 0 walls, 0 flagged exterior; no plan 0; 4.1 s
+duplex.ifc (IFC2X3): 57 walls, 23 flagged exterior; no plan 0; 0.3 s
+  flag set on 57: exterior/exterior 16, exterior flag read interior 7, interior flag read exterior 0 (0 of them as an inner leaf or lining), interior/interior 34; agree 50 of 57
+  where they disagree, the type name sides with the geometry 0, with the flag 0, names a lining 0, says neither 7
+    #4287 flag exterior, open at 0 of 9: Basic Wall:Party Wall - CMU Residential Unit Dimising Wall:139234 |  | Level 1 | 4.2 m x 0.55 m
+    #4399 flag exterior, open at 0 of 9: Basic Wall:Party Wall - CMU Residential Unit Dimising Wall:139347 |  | Level 1 | 4.2 m x 0.55 m
+    #4465 flag exterior, open at 0 of 9: Basic Wall:Party Wall - CMU Residential Unit Dimising Wall:139374 |  | Level 1 | 2.2 m x 0.55 m
+    #4968 flag exterior, open at 0 of 9: Basic Wall:Foundation - Concrete (435mm):140913 |  | T/FDN | 4.2 m x 0.435 m
+    #5057 flag exterior, open at 0 of 9: Basic Wall:Foundation - Concrete (435mm):140987 |  | T/FDN | 4.2 m x 0.435 m
+    #5106 flag exterior, open at 0 of 9: Basic Wall:Foundation - Concrete (435mm):141018 |  | T/FDN | 1.77 m x 0.435 m
+    #5399 flag exterior, open at 0 of 9: Basic Wall:Party Wall - CMU Residential Unit Dimising Wall:143239 |  | Level 2 | 16.97 m x 0.55 m
+AC20-FZK-Haus.ifc (IFC4): 13 walls, 0 flagged exterior; no plan 0; 0.1 s
+  no flag on 13: read exterior 8, interior 5
+C20-Institute-Var-2.ifc (IFC4): 121 walls, 0 flagged exterior; no plan 0; 0.6 s
+  no flag on 121: read exterior 44, interior 77
+ISSUE_159_kleine_Wohnung_R22.ifc (IFC4): 211 walls, 168 flagged exterior; no plan 0; 3.9 s
+  flag set on 211: exterior/exterior 34, exterior flag read interior 134, interior flag read exterior 22 (18 of them as an inner leaf or lining), interior/interior 21; agree 55 of 211
+  where they disagree, the type name sides with the geometry 134, with the flag 0, names a lining 0, says neither 22
+    #4380 flag interior, open at 9 of 9 as a leaf: Basiswand:Ziegel 0.24 m:297029 | Basiswand:Ziegel 0.24 m | BT-A_1010_OG01_RDOK_3,000 | 15.13 m x 0.24 m
+    #4630 flag interior, open at 9 of 9 as a leaf: Basiswand:Ziegel 0.24 m:297170 | Basiswand:Ziegel 0.24 m | BT-A_1010_OG01_RDOK_3,000 | 7.52 m x 0.24 m
+    #4940 flag exterior, open at 0 of 9: Basiswand:GK 12.5:297658 | Basiswand:GK 12.5 | BT-A_1010_OG01_RDOK_3,000 | 5.86 m x 0.125 m
+    #5159 flag exterior, open at 0 of 9: Basiswand:GK 12.5:297730 | Basiswand:GK 12.5 | BT-A_1010_OG01_RDOK_3,000 | 1.17 m x 0.125 m
+    #5263 flag exterior, open at 0 of 9: Basiswand:GK 12.5:297813 | Basiswand:GK 12.5 | BT-A_1010_OG01_RDOK_3,000 | 1.42 m x 0.125 m
+    #5367 flag exterior, open at 0 of 9: Basiswand:GK 12.5:297914 | Basiswand:GK 12.5 | BT-A_1010_OG01_RDOK_3,000 | 0.64 m x 0.125 m
+    #5471 flag exterior, open at 0 of 9: Basiswand:GK 12.5:298050 | Basiswand:GK 12.5 | BT-A_1010_OG01_RDOK_3,000 | 3.17 m x 0.125 m
+    #5575 flag exterior, open at 0 of 9: Basiswand:GK 12.5:298173 | Basiswand:GK 12.5 | BT-A_1010_OG01_RDOK_3,000 | 1.63 m x 0.125 m
+Schultz_Residence.ifc (IFC2X3): 105 walls, 32 flagged exterior; no plan 5; 2.0 s
+  flag set on 100: exterior/exterior 30, exterior flag read interior 2, interior flag read exterior 25 (2 of them as an inner leaf or lining), interior/interior 43; agree 73 of 100
+  where they disagree, the type name sides with the geometry 13, with the flag 0, names a lining 0, says neither 14
+    #522 flag interior, open at 9 of 9: Basic Wall:Ext. Wall Siding:161374 | Basic Wall:Ext. Wall Siding | P6 | 1.58 m x 0.133 m
+    #793 flag interior, open at 6 of 9: Basic Wall:2x4 stud:164513 | Basic Wall:2x4 stud | 2nd Floor | 0.56 m x 0.114 m
+    #850 flag interior, open at 9 of 9: Basic Wall:Ext. Wall Siding:164582 | Basic Wall:Ext. Wall Siding | 2nd Floor | 3.41 m x 0.133 m
+    #940 flag interior, open at 8 of 9: Basic Wall:Ext. Wall Siding:164837 | Basic Wall:Ext. Wall Siding | 2nd Floor | 2.04 m x 0.133 m
+    #1245 flag interior, open at 9 of 9: Basic Wall:Ext. Wall Siding:165014 | Basic Wall:Ext. Wall Siding | 2nd Floor | 2.32 m x 0.133 m
+    #1428 flag interior, open at 9 of 9: Basic Wall:Ext. Wall Siding:184302 | Basic Wall:Ext. Wall Siding | 2nd Floor | 4.14 m x 0.133 m
+    #1480 flag interior, open at 9 of 9: Basic Wall:Ext. Wall Siding:184372 | Basic Wall:Ext. Wall Siding | 3rd Floor | 6.13 m x 0.133 m
+    #2668 flag interior, open at 9 of 9: Basic Wall:Ext. Wall Siding:186535 | Basic Wall:Ext. Wall Siding | 3rd Floor | 6.36 m x 0.133 m
+schependomlaan.ifc (IFC2X3): 930 walls, 643 flagged exterior; no plan 8; 2.9 s
+  flag set on 922: exterior/exterior 589, exterior flag read interior 54, interior flag read exterior 53 (7 of them as an inner leaf or lining), interior/interior 226; agree 815 of 922
+  where they disagree, the type name sides with the geometry 0, with the flag 38, names a lining 7, says neither 62
+    #15461 flag exterior, open at 0 of 9: opgaand werk | IFC_kalkzandsteen_100mm 100 | -1 fundering | 0.22 m x 0.1 m
+    #20030 flag exterior, open at 1 of 9: opgaand werk | IFC_kalkzandsteen_100mm 100 | -1 fundering | 0.22 m x 0.1 m
+    #28080 flag exterior, open at 0 of 9: binnenblad | IFC_kalkzandsteen_214mm 214 | 00 begane grond | 0.43 m x 0.214 m
+    #28451 flag exterior, open at 4 of 9: binnenblad | IFC_kalkzandsteen_214mm 214 | 00 begane grond | 0.44 m x 0.214 m
+    #31226 flag exterior, open at 0 of 9: binnenblad | IFC_kalkzandsteen_214mm 214 | 00 begane grond | 0.43 m x 0.214 m
+    #46142 flag exterior, open at 0 of 9: buitenblad | IFC_baksteen_kopergeel_100mm_liggend 100 | 00 begane grond | 0.1 m x 0.04 m
+    #46349 flag exterior, open at 0 of 9: buitenblad | IFC_baksteen_kopergeel_100mm_liggend 100 | 00 begane grond | 0.1 m x 0.04 m
+    #55074 flag exterior, open at 0 of 9: HSB-element | IFC_HSB_155_wandelement_Rc=3,67 155 | 00 begane grond | 0.18 m x 0.104 m
+FM_ARC_DigitalHub.ifc (IFC4): 178 walls, 100 flagged exterior; no plan 0; 5.4 s
+  flag set on 178: exterior/exterior 33, exterior flag read interior 67, interior flag read exterior 0 (0 of them as an inner leaf or lining), interior/interior 78; agree 111 of 178
+  where they disagree, the type name sides with the geometry 0, with the flag 0, names a lining 0, says neither 67
+    #28683 flag exterior, open at 0 of 9: Basiswand:STB 200:2400313 | Basiswand:STB 200 | E01_OKRD | 7.15 m x 0.2 m
+    #28732 flag exterior, open at 0 of 9: Basiswand:STB 200:2400371 | Basiswand:STB 200 | E01_OKRD | 5.55 m x 0.2 m
+    #28781 flag exterior, open at 0 of 9: Basiswand:STB 200:2400438 | Basiswand:STB 200 | E01_OKRD | 6.95 m x 0.2 m
+    #28830 flag exterior, open at 0 of 9: Basiswand:STB 200:2400487 | Basiswand:STB 200 | E01_OKRD | 5.35 m x 0.2 m
+    #28879 flag exterior, open at 0 of 9: Basiswand:STB 200:2400555 | Basiswand:STB 200 | E01_OKRD | 7.15 m x 0.2 m
+    #28928 flag exterior, open at 0 of 9: Basiswand:STB 200:2400603 | Basiswand:STB 200 | E01_OKRD | 5.55 m x 0.2 m
+    #28977 flag exterior, open at 0 of 9: Basiswand:STB 200:2400656 | Basiswand:STB 200 | E01_OKRD | 6.95 m x 0.2 m
+    #29026 flag exterior, open at 0 of 9: Basiswand:STB 200:2400703 | Basiswand:STB 200 | E01_OKRD | 5.35 m x 0.2 m
+ISSUE_021_Mini Project.ifc (IFC2X3): 0 walls, 0 flagged exterior; no plan 0; 4.1 s
+ISSUE_034_HouseZ.ifc (IFC2X3): 140 walls, 0 flagged exterior; no plan 6; 0.7 s
+  no flag on 134: read exterior 90, interior 44
+advanced_model.ifc (IFC2X3): 133 walls, 133 flagged exterior; no plan 0; flag set aside (the same on every wall); 13.6 s
+  flag set on 133: exterior/exterior 13, exterior flag read interior 120, interior flag read exterior 0 (0 of them as an inner leaf or lining), interior/interior 0; agree 13 of 133
+  where they disagree, the type name sides with the geometry 7, with the flag 0, names a lining 0, says neither 113
+    #552392 flag exterior, open at 0 of 9: Muro básico:STB 30.0:573299 | Muro básico:STB 30.0 | Level 1 | 8.87 m x 0.3 m
+    #552611 flag exterior, open at 0 of 9: Muro básico:STB 20.0:573317 | Muro básico:STB 20.0 | Level 1 | 8.4 m x 0.2 m
+    #552761 flag exterior, open at 0 of 9: Muro básico:STB 20.0:573318 | Muro básico:STB 20.0 | Level 1 | 8.15 m x 0.2 m
+    #552894 flag exterior, open at 0 of 9: Muro básico:STB 20.0:573319 | Muro básico:STB 20.0 | Level 1 | 7.97 m x 0.2 m
+    #553010 flag exterior, open at 0 of 9: Muro básico:STB 20.0:573320 | Muro básico:STB 20.0 | Level 1 | 8.35 m x 0.2 m
+    #553575 flag exterior, open at 1 of 9: Muro básico:STB 20.0:573324 | Muro básico:STB 20.0 | Level 1 | 3.9 m x 0.2 m
+    #553718 flag exterior, open at 0 of 9: Muro básico:STB 20.0:573325 | Muro básico:STB 20.0 | Level 1 | 9 m x 0.2 m
+    #555082 flag exterior, open at 0 of 9: Muro básico:STB 20.0:573378 | Muro básico:STB 20.0 | Level 2 | 8.4 m x 0.2 m
+S_Office_Integrated Design Archi.ifc (IFC2X3): 186 walls, 10 flagged exterior; no plan 0; 16.2 s
+  flag set on 186: exterior/exterior 10, exterior flag read interior 0, interior flag read exterior 125 (4 of them as an inner leaf or lining), interior/interior 51; agree 61 of 186
+  where they disagree, the type name sides with the geometry 0, with the flag 42, names a lining 0, says neither 83
+    #14230 flag interior, open at 8 of 9: FW-01 | SH - Partition Wall 135 | Ground Floor | 0.34 m x 0.135 m
+    #14416 flag interior, open at 7 of 9: FW-03 | SH - Restroom Wall Tiles 2-Sides 160 | Ground Floor | 1.03 m x 0.16 m
+    #35182 flag interior, open at 9 of 9: FW-01 | SH - Partition Wall 135 | Ground Floor | 3.73 m x 0.135 m
+    #36419 flag interior, open at 9 of 9: FW-04 | SH - Restroom Wall Shaft Tiles 2-Sides 300 | Ground Floor | 1.7 m x 0.3 m
+    #36567 flag interior, open at 9 of 9: FW-03 | SH - Restroom Wall Tiles 2-Sides 160 | Ground Floor | 1.9 m x 0.16 m
+    #39722 flag interior, open at 9 of 9: FW-01 | SH - Partition Wall 135 | Ground Floor | 3.73 m x 0.135 m
+    #43442 flag interior, open at 8 of 9: FW-02 | SH - Restroom Wall Tiles 1-Side 145 | Ground Floor | 4.11 m x 0.145 m
+    #48600 flag interior, open at 9 of 9: FW-01 | SH - Partition Wall 135 | Ground Floor | 3.73 m x 0.135 m
+ISSUE_068_ARK_NUS_skolebygg.ifc (IFC2X3): 1057 walls, 382 flagged exterior; no plan 2; 11.4 s
+  flag set on 1055: exterior/exterior 164, exterior flag read interior 218, interior flag read exterior 24 (6 of them as an inner leaf or lining), interior/interior 649; agree 813 of 1055
+  where they disagree, the type name sides with the geometry 67, with the flag 117, names a lining 0, says neither 58
+    #53772 flag exterior, open at 0 of 9: Basic Wall:IVA 1.1T 121mm 44dB (H-95-H):1700390 | Basic Wall:IVA 1.1T 121mm 44dB (H-95-H) | Plan 02 | 4.27 m x 0.124 m
+    #54410 flag exterior, open at 0 of 9: Basic Wall:IVA 1.1 121mm 44dB (H-95-H):1700429 | Basic Wall:IVA 1.1 121mm 44dB (H-95-H) | Plan 02 | 4.04 m x 0.123 m
+    #55682 flag exterior, open at 0 of 9: Basic Wall:IVA 1.1 121mm 44dB (H-95-H):1700916 | Basic Wall:IVA 1.1 121mm 44dB (H-95-H) | Plan 03 | 4.01 m x 0.123 m
+    #135558 flag exterior, open at 0 of 9: Basic Wall:IVA 1.1 121mm 44dB (H-95-H):1720482 | Basic Wall:IVA 1.1 121mm 44dB (H-95-H) | Plan 02 | 6.99 m x 0.125 m
+    #154144 flag exterior, open at 0 of 9: Basic Wall:IVA 1.1 121mm 44dB (H-95-H):1753222 | Basic Wall:IVA 1.1 121mm 44dB (H-95-H) | Plan 01 | 7.48 m x 0.125 m
+    #159858 flag exterior, open at 0 of 9: Basic Wall:IVA 3.3 145mm 44dB (RN-95-NR):1753257 | Basic Wall:IVA 3.3 145mm 44dB (RN-95-NR) | Plan 01 | 5.99 m x 0.151 m
+    #178601 flag interior, open at 9 of 9: Basic Wall:IVL 5.1 100mm leca EI60:1769948 | Basic Wall:IVL 5.1 100mm leca EI60 | Plan 00U | 15.14 m x 0.109 m
+    #178744 flag interior, open at 9 of 9: Basic Wall:IV 100:1769965 | Basic Wall:IV 100 | Plan 00U | 12.6 m x 0.108 m
+Office_A_20110811.ifc (IFC2X3): 487 walls, 18 flagged exterior; no plan 0; 0.4 s
+  flag set on 487: exterior/exterior 16, exterior flag read interior 2, interior flag read exterior 33 (33 of them as an inner leaf or lining), interior/interior 436; agree 452 of 487
+  where they disagree, the type name sides with the geometry 0, with the flag 2, names a lining 33, says neither 0
+    #319 flag interior, open at 9 of 9 as a leaf: Basic Wall:Interior - Furring (38 mm Stud):156659 |  | Level 1 | 4.35 m x 0.054 m
+    #321 flag interior, open at 7 of 9 as a leaf: Basic Wall:Interior - Furring (38 mm Stud):161271 |  | Level 1 | 0.47 m x 0.054 m
+    #323 flag exterior, open at 0 of 9: Basic Wall:Exterior - Insul Panel on Mtl. Stud:180923 |  | Roof | 49.93 m x 0.267 m
+    #331 flag exterior, open at 0 of 9: Basic Wall:Exterior - Insul Panel on Mtl. Stud:181528 |  | Roof | 49.93 m x 0.267 m
+    #348 flag interior, open at 9 of 9 as a leaf: Basic Wall:Interior - Furring (38 mm Stud):160795 |  | Level 1 | 4.22 m x 0.054 m
+    #397 flag interior, open at 9 of 9 as a leaf: Basic Wall:Interior - Furring (38 mm Stud):167069 |  | Level 2 | 5.33 m x 0.054 m
+    #412 flag interior, open at 9 of 9 as a leaf: Basic Wall:Interior - Furring (38 mm Stud):141941 |  | Level 1 | 5.94 m x 0.054 m
+    #430 flag interior, open at 9 of 9 as a leaf: Basic Wall:Interior - Furring (38 mm Stud):146039 |  | Level 1 | 6.21 m x 0.054 m
+TOTAL 17 models, 4858 walls: flag set and read 4564, agree 3534 (exterior 1060 of 1748, interior 2474 of 2816; 129 of the 342 interior-flagged walls read exterior are inner leaves or linings); no flag 268 (exterior 142, interior 126); no plan 26
+  where flag and geometry disagree (1030), the type name sides with the geometry 228, with the flag 213, names a lining read with its exterior wall 99, says neither 490
