@@ -1,0 +1,10 @@
+ISSUE_159_kleine_Wohnung_R22.ifc (IFC4, 425 elements, 5.9 s): volume computed 419, not read 6, no body 0, net not computed 0
+  GrossVolume pairs 260: agree 209, own-dimensions 7, net-as-gross 34, unexplained 7, unit-slip 3
+  NetVolume pairs 265: agree 265
+    unexplained: 7 x IfcWall gross
+    not read: 6 x face round a closed IFCSURFACEOFREVOLUTION
+FM_ARC_DigitalHub.ifc (IFC4, 705 elements, 16.2 s): volume computed 690, not read 15, no body 0, net not computed 0
+  GrossVolume pairs 0: agree 0
+  NetVolume pairs 0: agree 0
+    not read: 13 x face bound off its IFCSURFACEOFREVOLUTION
+    not read: 2 x cylindrical face bounds not read
