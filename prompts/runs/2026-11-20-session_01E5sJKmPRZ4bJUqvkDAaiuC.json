@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKmPRZ4bJUqvkDAaiuC",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T06:10:24Z",
+  "ended": "2026-11-20T06:22:04Z",
+  "wall_minutes": 11.96,
+  "tokens_in": 14888078,
+  "tokens_out": 163619,
+  "cost_usd": 9.8588,
+  "tool_calls": 188,
+  "task": "quality census (mode draw), seed 2026-11-20-71e1",
+  "projects": [
+    "ventures/commercial-property-cap-rate-calculator",
+    "ventures/stripe-churn-cohort-analyzer",
+    "research/eda-noisy",
+    "research/capture-aliaswin",
+    "ventures/janitorial-bid-calculator",
+    "ventures/delivery-app-margin-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The Stop hook demands commit-and-push of uncommitted changes while parallel auditor subagents are still editing the tree; I committed their in-progress edits as a WIP commit (a68bb5167), which is harmless but splits each subject's changes across commits."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 5 describes the sample-round post; census rules for the post name live only in portfolio/quality/README.md (Five modes). Fine, but the track prompt could point at the mode table first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "mode draw gave census, not sample; followed portfolio/quality/README.md census procedure (census --n 6) and named the post quality-census-seed-71e1",
+      "did": "census of six never-audited subjects",
+      "result": "six audit files validate; 25 of 46 defects fixed in the same PR"
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "fix PRs: fixes land in the same PR as the audits rather than separate PRs (same as earlier census rounds), each defect marked fixed_by PR #17867",
+      "did": "one PR",
+      "result": "scores recorded before fixes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-quality-census-seed-71e1.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-20-71e1 (census). Subjects: commercial-property-cap-rate-calculator, stripe-churn-cohort-analyzer, eda-noisy, capture-aliaswin, janitorial-bid-calculator, delivery-app-margin-calculator. Meets bar 1 of 6 (janitorial-bid-calculator); finished 6 of 6. Mutations caught 17/34; checks failed or partial 33/78; defects 46 (1 high: stripe churn counted trialing rows as MRR, fixed). Fix PR: #17867 (25 defects marked fixed_by). Spot-checks by me: DS 116073.14 / DSCR 1.2556; churn 41/435=9.43%; DoorDash match price 47.1534; janitorial 2183.44; capture-aliaswin soft:1:0.25:0.8 -> 0.000. Local: venture suites 30/56/75/247 pass; research pytest 7 and 5 pass; quality_audit validate 0 problems; post checks clean. Open: delivery-app default commission rates (source-data, needs cited rate cards); capture-aliaswin asymmetric window design; eda-noisy noise model.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "72522c0b-0f09-5597-8409-7d6a2d0d859b",
+    "transcripts": 7,
+    "first": "2026-11-20T06:10:24Z",
+    "last": "2026-11-20T06:22:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 179,
+        "input": 376,
+        "output": 163619,
+        "thinking": 41078,
+        "cache_read": 14187929,
+        "cache_write_5m": 616944,
+        "cache_write_1h": 82829,
+        "api_equivalent_usd": 9.8588,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 179,
+      "input": 376,
+      "output": 163619,
+      "thinking": 41078,
+      "cache_read": 14187929,
+      "cache_write_5m": 616944,
+      "cache_write_1h": 82829,
+      "api_equivalent_usd": 9.8588,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.953,
+    "tool_calls": 188,
+    "tools": {
+      "Bash": 159,
+      "Agent": 6,
+      "SubagentHandback": 6,
+      "Write": 5,
+      "Read": 3,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "WebFetch": 2,
+      "Edit": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.96,
+      "active_minutes": 5.03,
+      "model_minutes": 3.74,
+      "tool_minutes": 1.28,
+      "waiting_on_human_minutes": 6.93,
+      "human_prompts": 9,
+      "stalls": 0,
+      "subagent_minutes": 32.84
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "six first audits with independent recomputation, ~4h each for a senior reviewer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 243.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
