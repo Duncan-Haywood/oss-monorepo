@@ -1,0 +1,3 @@
+whole league: iframe 891px, inner scroll 0px; sections: Next games | Latest results | Standings; background rgb(255, 255, 255); sideways scroll no; console errors: none
+one team, dark, club colour: iframe 673px, inner scroll 0px; sections: Next games for Dink Dynasty | Latest results for Dink Dynasty | Standings; background rgb(21, 23, 26); sideways scroll no; console errors: none
+season view: iframe 924px, inner scroll 0px; sections: Season; background rgb(255, 255, 255); sideways scroll no; console errors: none
