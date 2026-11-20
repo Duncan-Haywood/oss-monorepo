@@ -1,0 +1,20 @@
+{
+ "arxiv:2011.04809": {
+  "checked": "2026-11-20",
+  "source": "web search result arxiv.org/abs/2011.04809, comments say it appeared in RANDOM 2002",
+  "title": "On the 2-colorability of random hypergraphs (2020 preprint of RANDOM 2002)",
+  "via": "hand"
+ },
+ "doi:10.1007/3-540-45726-7_7": {
+  "checked": "2026-11-20",
+  "source": "OpenAlex record and dblp conf/random/AchlioptasM02, RANDOM 2002 pp. 78-90",
+  "title": "On the 2-Colorability of Random Hypergraphs (2002)",
+  "via": "hand"
+ },
+ "doi:10.1007/978-3-319-94144-8_26": {
+  "checked": "2026-11-20",
+  "source": "unpaywall record; SAT 2018 LNCS 10929 pp. 428-437",
+  "title": "PySAT: A Python Toolkit for Prototyping with SAT Oracles (2018)",
+  "via": "hand"
+ }
+}
