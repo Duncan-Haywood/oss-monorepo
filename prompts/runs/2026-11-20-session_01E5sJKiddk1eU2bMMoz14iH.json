@@ -1,0 +1,433 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKiddk1eU2bMMoz14iH",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T16:19:27Z",
+  "ended": "2026-11-20T16:20:04Z",
+  "wall_minutes": 20.66,
+  "tokens_in": 5285024,
+  "tokens_out": 29834,
+  "cost_usd": 2.4567,
+  "tool_calls": 66,
+  "task": "redteam campaigns on mrr-pulse/metrics.mjs and rrule-explainer/rrule.mjs; hunt real bugs in mrr-pulse CSV import",
+  "projects": [
+    "mrr-pulse",
+    "etsy-ads-roi-analyzer",
+    "rrule-explainer",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17941",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "First run_workflow_locally sweep stopped on post front matter (description >160, seo_title >70, tag spelled red-team); fixed and re-ran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but 11 of 12 are control-plane and cannot land without the owner; the list grows each run and every redteam run re-reads it for nothing. It could filter control-plane entries into their own section."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: none of the 12 open entries fixed; 11 are control-plane edits already written up or in owner-approval PRs (#14612, #15945 etc.) and the help-keeper stemmer needs a help-centre eval set the entry says is missing.",
+      "did": "Re-checked each still reproduces on main (grep of the named workflows/scripts), left them open, went to seeding.",
+      "result": "No step-0 progress; run time went to the CSV defect class instead."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No agent doc in docs/reports: the ratchet's docstring and baseline carry everything the next run needs (what to fix and how), so a report would repeat it.",
+      "did": "Post only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-redteam-29-99-read-as-2999.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: metrics.mjs 8 seeded/5 caught/3 equivalent; rrule.mjs 10/8/1 equivalent + 1 gap (line 866, test added, rerun caught_after_fix true). Catch rate 13/14 non-equivalent before, 14/14 after. Real defects: mrr-pulse csv.mjs decimal comma (29,99 -> 2999/mo; 1.234,56 -> 1.23) and interval count '3 months'/0/-3 -> 1 (3x MRR); etsy-ads-roi-analyzer parseNumber decimal comma. Guard added: platform/ci/check_money_comma.py ratchet (355 parsers in 340 CSV-mentioning venture files baselined; starts green; picked up by unwired_checks.py so venture PRs run it). Verification: node --test mrr-pulse 119/119, etsy-ads 24/24, rrule.test 41/41; python3 -m unittest test_check_money_comma 7 OK; run_workflow_locally --for-changes: 9/10 workflows passed (ventures-tests 5/5, portfolio-validate 100/100, portfolio-pages 12/12, pages 6/6), prompts-ci red only on this unfilled record; agent-cross-review and deploy jobs not runnable locally.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/mrr-pulse/metrics.mjs",
+        "test": "node --test ventures/mrr-pulse/**/*.test.mjs  (in .)",
+        "seed": 657422953,
+        "commit": "b3ab2b18d",
+        "sites": 285,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 13,
+            "col": 22,
+            "operator": "or-to-and",
+            "before": "if (f === undefined || !Number.isFinite(Number(amount))) return 0;",
+            "after": "if (f === undefined && !Number.isFinite(Number(amount))) return 0;",
+            "line_text": "  if (f === undefined || !Number.isFinite(Number(amount))) return 0;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 99,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "const emptyMonth = (month) => ({ month, mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0, approximate: false });",
+            "after": "const emptyMonth = (month) => ({ month, mrr: 1, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0, approximate: false });",
+            "line_text": "const emptyMonth = (month) => ({ month, mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0, approximate: false });",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "emptyMonth's mrr is always overwritten: backfill spreads mrr: sum(cur) after it, applySync assigns row.mrr = sum(cur) before returning; no other caller."
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 99,
+            "col": 97,
+            "operator": "const-plus-one",
+            "before": "const emptyMonth = (month) => ({ month, mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0, approximate: false });",
+            "after": "const emptyMonth = (month) => ({ month, mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 1, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0, approximate: false });",
+            "line_text": "const emptyMonth = (month) => ({ month, mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0, approximate: false });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 184,
+            "col": 61,
+            "operator": "and-to-or",
+            "before": "const eligible = subs.filter((s) => s.mrr > 0 && s.created && [\"active\", \"past_due\", \"canceled\"].includes(s.status) && !neverPaid(s));",
+            "after": "const eligible = subs.filter((s) => s.mrr > 0 && s.created || [\"active\", \"past_due\", \"canceled\"].includes(s.status) && !neverPaid(s));",
+            "line_text": "  const eligible = subs.filter((s) => s.mrr > 0 && s.created && [\"active\", \"past_due\", \"canceled\"].includes(s.status) && !neverPaid(s));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 233,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "if (months.length < 2) return null;",
+            "after": "if (months.length < 3) return null;",
+            "line_text": "  if (months.length < 2) return null;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Redundant guard: with exactly 2 months, usable = months.slice(0,-1) holds 1 entry and the usable.length < 2 check returns null anyway."
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 249,
+            "col": 96,
+            "operator": "const-plus-one",
+            "before": "const labels = Array.from({ length: horizon }, (_, i) => new Date(Date.UTC(y, mo - 1 + i + 1, 1)).toISOString().slice(0, 7));",
+            "after": "const labels = Array.from({ length: horizon }, (_, i) => new Date(Date.UTC(y, mo - 1 + i + 1, 2)).toISOString().slice(0, 7));",
+            "line_text": "  const labels = Array.from({ length: horizon }, (_, i) => new Date(Date.UTC(y, mo - 1 + i + 1, 1)).toISOString().slice(0, 7));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Labels keep only YYYY-MM (slice(0,7)); day 2 of a month is in the same month as day 1 for every month."
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 264,
+            "col": 37,
+            "operator": "plus-to-minus",
+            "before": "const total = v.reduce((a, b) => a + b, 0);",
+            "after": "const total = v.reduce((a, b) => a - b, 0);",
+            "line_text": "  const total = v.reduce((a, b) => a + b, 0);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 277,
+            "col": 59,
+            "operator": "const-plus-one",
+            "before": "const exp = minorExponent(currency), major = (v) => (v / 10 ** exp).toFixed(exp);",
+            "after": "const exp = minorExponent(currency), major = (v) => (v / 11 ** exp).toFixed(exp);",
+            "line_text": "  const exp = minorExponent(currency), major = (v) => (v / 10 ** exp).toFixed(exp);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/rrule-explainer/rrule.mjs",
+        "test": "node --test ventures/rrule-explainer/**/*.test.mjs  (in .)",
+        "seed": 587347387,
+        "commit": "b3ab2b18d",
+        "sites": 1098,
+        "baseline_seconds": 4.1,
+        "mutants": [
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 25,
+            "col": 22,
+            "operator": "times-to-div",
+            "before": "const yoe = y - era * 400;",
+            "after": "const yoe = y - era / 400;",
+            "line_text": "  const yoe = y - era * 400;",
+            "caught": true,
+            "seconds": 10.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 49,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "const daysInYear = (y) => (isLeap(y) ? 366 : 365);",
+            "after": "const daysInYear = (y) => (isLeap(y) ? 366 : 366);",
+            "line_text": "const daysInYear = (y) => (isLeap(y) ? 366 : 365);",
+            "caught": true,
+            "seconds": 3.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 237,
+            "col": 25,
+            "operator": "and-to-or",
+            "before": "else if (s[i] === ch && !q) return i;",
+            "after": "else if (s[i] === ch || !q) return i;",
+            "line_text": "    else if (s[i] === ch && !q) return i;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 320,
+            "col": 14,
+            "operator": "minus-to-plus",
+            "before": "return wall - t;",
+            "after": "return wall + t;",
+            "line_text": "  return wall - t;",
+            "caught": true,
+            "seconds": 3.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 330,
+            "col": 19,
+            "operator": "times-to-div",
+            "before": "const wall = day * 86400 + sec;",
+            "after": "const wall = day / 86400 + sec;",
+            "line_text": "  const wall = day * 86400 + sec;",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 613,
+            "col": 25,
+            "operator": "plus-to-minus",
+            "before": "idx = Math.max(idx + 1, Math.ceil((target - base) / k));",
+            "after": "idx = Math.max(idx - 1, Math.ceil((target - base) / k));",
+            "line_text": "      idx = Math.max(idx + 1, Math.ceil((target - base) / k));",
+            "caught": false,
+            "seconds": 3.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "p lies in day n, so target > base + idx*k and ceil((target-base)/k) >= idx+1 > idx-1; Math.max always picks the ceil term. Integer arithmetic, no float edge."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 617,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const h = Math.floor(sod / 3600);",
+            "after": "const h = Math.floor(sod / 3601);",
+            "line_text": "    const h = Math.floor(sod / 3600);",
+            "caught": true,
+            "seconds": 3.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 670,
+            "col": 70,
+            "operator": "const-plus-one",
+            "before": "const excluded = (w) => (exW.size > 0 && exW.has(w)) || (exD.size > 0 && exD.has(Math.floor(w / 86400)));",
+            "after": "const excluded = (w) => (exW.size > 0 && exW.has(w)) || (exD.size > 1 && exD.has(Math.floor(w / 86400)));",
+            "line_text": "  const excluded = (w) => (exW.size > 0 && exW.has(w)) || (exD.size > 0 && exD.has(Math.floor(w / 86400)));",
+            "caught": true,
+            "seconds": 3.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 866,
+            "col": 8,
+            "operator": "eq-flip",
+            "before": "if (f === \"YEARLY\" && rule.byweekno.length && rule.byday.some((x) => x.n)) F(\"error\", \"forbidden-part\", \"An ordinal BYDAY cannot be combined with BYWEEKNO\", \"RFC 5545 3.3.10 forbids it with FREQ=YEARLY and BYWEEKNO.\");",
+            "after": "if (f !== \"YEARLY\" && rule.byweekno.length && rule.byday.some((x) => x.n)) F(\"error\", \"forbidden-part\", \"An ordinal BYDAY cannot be combined with BYWEEKNO\", \"RFC 5545 3.3.10 forbids it with FREQ=YEARLY and BYWEEKNO.\");",
+            "line_text": "  if (f === \"YEARLY\" && rule.byweekno.length && rule.byday.some((x) => x.n)) F(\"error\", \"forbidden-part\", \"An ordinal BYDAY cannot be combined with BYWEEKNO\", \"RFC 5545 3.3.10 forbids it with FREQ=YEARLY and BYWEEKNO.\");",
+            "caught": false,
+            "seconds": 3.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test exercised YEARLY + BYWEEKNO + ordinal BYDAY. Added two asserts to rrule.test.mjs ('parse errors and RFC restrictions become findings'): 1MO is flagged, plain MO is not."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 989,
+            "col": 77,
+            "operator": "ge-to-gt",
+            "before": "const usable = parsed.dtstart.date ? rules.filter((r) => FREQ_RANK[r.freq] >= FREQ_RANK.DAILY) : rules;",
+            "after": "const usable = parsed.dtstart.date ? rules.filter((r) => FREQ_RANK[r.freq] > FREQ_RANK.DAILY) : rules;",
+            "line_text": "  const usable = parsed.dtstart.date ? rules.filter((r) => FREQ_RANK[r.freq] >= FREQ_RANK.DAILY) : rules;",
+            "caught": true,
+            "seconds": 3.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/mrr-pulse/csv.mjs",
+        "issue": "Amounts parsed with replace(/[$,\u00a3\u20ac\\s]/g,''), so a decimal comma '29,99' read as 2999 (100x MRR) and '1.234,56' as 1.23; interval count '3 months', 0 or -3 fell back to 1 (quarterly price counted at 3x MRR). Fixed: toAmount reads the comma by shape, bad interval count skipped with a reason; tests in csv.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17941"
+      },
+      {
+        "file": "ventures/etsy-ads-roi-analyzer/calc.mjs",
+        "issue": "parseNumber stripped every comma (and \u20ac), so '\u20ac29,99' read as 2999 and '1.234,56' as 1.23456. Fixed the same way; test in calc.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17941"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cee39c54-56d2-5179-89d9-e2db8733378d",
+    "transcripts": 1,
+    "first": "2026-11-20T16:19:27Z",
+    "last": "2026-11-20T16:40:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 111,
+        "output": 29834,
+        "thinking": 6101,
+        "cache_read": 5182018,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102895,
+        "api_equivalent_usd": 2.4567,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 111,
+      "output": 29834,
+      "thinking": 6101,
+      "cache_read": 5182018,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102895,
+      "api_equivalent_usd": 2.4567,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 58,
+      "Edit": 5,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.66,
+      "active_minutes": 20.66,
+      "model_minutes": 5.73,
+      "tool_minutes": 14.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "two venture fixes with tests, a CI ratchet with tests, 18-mutant triage, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 203.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
