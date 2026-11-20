@@ -3,6 +3,12 @@
   "checked": "2026-11-15",
   "title": "Parametric Empirical Bayes Inference: Theory and Applications (1983)"
  },
+ "doi:10.21105/joss.01341": {
+  "checked": "2026-11-20",
+  "source": "DOI badge in the capytaine 3.0.0 PyPI package metadata (README), read 2026-11-20; doi.org and the JOSS page refused by the proxy, so the DOI is confirmed but the title is written from memory, not opened",
+  "title": "Capytaine: a Python-based linear potential flow solver (2019)",
+  "via": "hand"
+ },
  "doi:10.5957/JOSR.04200028": {
   "checked": "2026-11-19",
   "title": "Enhanced Unified Theory with Forward-Speed Effect Taken into Account in the Inner Free-Surface Condition (2020)"
