@@ -24,6 +24,7 @@ Test files are skipped. Exit 1 lists each hit.
 Usage: python3 platform/ci/check_decimal_format.py [root ...]
 """
 import json
+import os
 import pathlib
 import re
 import shutil
@@ -51,9 +52,21 @@ def scan_text(text):
     return [i for i, line in enumerate(text.splitlines(), 1) if DELIM_ONLY.search(line + "\n")]
 
 
+def walk(root):
+    """Every file under root, sorted. os.walk skips a directory that vanishes mid-walk, where
+    rglob raised FileNotFoundError: main_health.py runs tests in parallel and
+    test_check_docker_copy.py's temp dir under platform/ci/ came and went during this scan
+    (red on 2026-11-20, passing alone)."""
+    out = []
+    for d, dirs, names in os.walk(root):
+        dirs.sort()
+        out.extend(pathlib.Path(d) / n for n in names)
+    return sorted(out)
+
+
 def files(roots):
     for root in roots:
-        for p in sorted(pathlib.Path(root).rglob("*")):
+        for p in walk(root):
             if p.suffix not in SUFFIXES or not p.is_file() or SKIP_PARTS & set(p.parts):
                 continue
             if ".test." in p.name or p.name.endswith(".min.js"):

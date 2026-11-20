@@ -775,3 +775,14 @@ class ChainLineTest(unittest.TestCase):
 
     def test_missing_log_prints_nothing(self):
         self.assertIsNone(pick_track.chain_line("no-such-programme-slug"))
+
+    def test_newest_entry_a_paper_step_prints_nothing(self):
+        text = "## 2026-11-19 · Paper step: Section 4 carries 6a..6ze\n" + self.LOG
+        self.assertIsNone(pick_track.chain_line("x", text=text))
+
+    def test_names_the_last_paper_step(self):
+        # llm-coding-inference, 2026-11-20: `Paper: Section 6.1` one entry back read as "32 since"
+        text = (self.LOG.split("\n", 1)[0] + "\n## 2026-11-13 · Paper: Section 6.1, validity\n"
+                + self.LOG.split("\n", 1)[1])
+        line = pick_track.chain_line("x", text=text)
+        self.assertIn("1 entry since the last paper step, \"2026-11-13 · Paper: Section 6.1, validity\"", line)
