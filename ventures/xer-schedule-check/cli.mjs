@@ -37,6 +37,10 @@
 // permits, RFIs: constraints.mjs) into make-ready and says how far the
 // finish moves if every open row clears on its expected date;
 // --constraints-csv OUT writes the log back with the schedule's need-by dates.
+// node cli.mjs schedule.xer --calendar-slack [--csv slack.csv] [--json] [--project CODE]
+// Float P6's late dates miss across calendars instead (calslack.mjs): the FF/SF
+// lags that end in a successor's non-work time on a calendar that works then,
+// and every activity whose total float is larger than P6 shows because of it.
 // Any --report also takes --appendix: every activity behind every correction
 // printed in an appendix, not only the first 40 of each.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -57,6 +61,7 @@ import { schedule } from "./cpm.mjs";
 import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
 import { lookahead, lookaheadText, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
 import { constraintLogCsv } from "./constraints.mjs";
+import { calendarSlack, calendarSlackText, calendarSlackCsv } from "./calslack.mjs";
 
 const args = process.argv.slice(2);
 const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv"];
@@ -175,6 +180,14 @@ if (args.includes("--lookahead")) {
   if (opt("--constraints-csv") && la.constraintLog) writeFileSync(opt("--constraints-csv"), constraintLogCsv(la.constraintLog));
   if (opt("--html")) { writeFileSync(opt("--html"), lookaheadHtml(la, { by: opt("--by") })); console.error(`look-ahead written to ${opt("--html")}`); }
   await emit(args.includes("--json") ? JSON.stringify(la, null, 2) + "\n" : lookaheadText(la));
+  process.exit(0);
+}
+if (args.includes("--calendar-slack")) {
+  const result = schedule(xer);
+  const pid = assess(xer, { projId, result }).project.id;
+  const r = calendarSlack(xer, { projId: pid, base: result });
+  if (opt("--csv")) writeFileSync(opt("--csv"), calendarSlackCsv(r));
+  await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : calendarSlackText(r));
   process.exit(0);
 }
 if (args.includes("--float-paths")) {

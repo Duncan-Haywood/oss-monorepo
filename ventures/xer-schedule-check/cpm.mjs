@@ -322,6 +322,14 @@ export function schedule(xer, options = {}) {
   // after constraint, so logic, calendars and other constraints still apply)
   const levelStart = options.levelStart || null;
   const useExp = options.expectedFinish !== false;
+  // options.calendarSlack: credit the float P6's backward pass misses where a
+  // finish falls in its own calendar's non-work time. The forward pass lets a
+  // finish pushed by an FF or SF link land anywhere up to the next work start
+  // (finishSnap), so an activity whose successors allow a finish at, say,
+  // Saturday 08:00 may finish then, not only at Thursday 16:00; a predecessor
+  // whose FF lag runs on a 7-day calendar then has the Friday too. Off by
+  // default: P6 stores the tighter dates (eval/calendar-slack-2026-11-20.md).
+  const calSlack = !!options.calendarSlack;
   // activities whose remaining duration an expected finish set in this run:
   // task id -> { from: file or sampled minutes, to: minutes }
   const expected = new Map();
@@ -539,9 +547,9 @@ export function schedule(xer, options = {}) {
       else if (rel.type === "PR_SS" && V.bwSSActivePred && active(t)) starts.push(V.bwSSActivePred === "rem" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));
       else if (rel.type === "PR_SS") starts.push(lc.subWork(sv.remLS, rel.lag));
       else if (rel.type === "PR_FF" && V.bwDoneFS && done(t)) fins.push(doneNoLag ? minusLeft(sv.lf, rel) : lc.subWork(sv.lf, rel.lag));
-      else if (rel.type === "PR_FF") fins.push(lc.subWork(sv.lf, rel.lag));
+      else if (rel.type === "PR_FF") fins.push(lc.subWork(calSlack ? sv.lfAbs ?? sv.lf : sv.lf, rel.lag));
       else if (rel.type === "PR_SF" && V.bwDoneFS && done(t)) starts.push(doneNoLag ? sv.lf : lc.subWork(sv.lf, rel.lag));
-      else if (rel.type === "PR_SF") starts.push(lc.subWork(sv.lf, rel.lag));
+      else if (rel.type === "PR_SF") starts.push(lc.subWork(calSlack ? sv.lfAbs ?? sv.lf : sv.lf, rel.lag));
     }
     if (done(t)) {
       // a finished activity is a zero-length node in the backward pass too
@@ -586,6 +594,13 @@ export function schedule(xer, options = {}) {
       ls = cal.nextStart(ls);
     }
     r.lf = lf;
+    // the latest instant this activity may finish, which an FF or SF link to
+    // it may count back from: up to the next work start when every bound on
+    // its finish allows that (calendar slack; finishSnap in the forward pass)
+    if (calSlack && t.type !== "TT_Mile" && remain !== 0 || calSlack && t.type === "TT_FinMile") {
+      const ns = cal.nextStart(lf);
+      r.lfAbs = mandFin === null && mandStart === null && Number.isFinite(fMin) && lf === cal.prevEnd(fMin) && ns > lf && ns <= fMin ? ns : lf;
+    }
     r.remLS = ls;
     r.ls = active(t) ? ls : ls;
     // total float, in hours on the activity's calendar

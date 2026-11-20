@@ -344,7 +344,7 @@ drops into a CI job (`node cli.mjs model.ifc spec.ids` exits 1 on a fail).
 
 ## Run it
 
-Browser: open `index.html` (the checker) or `editor.html` (the IDS editor) through any static server (`npx serve .` or
+Browser: open `index.html` (the checker), `editor.html` (the IDS editor) or `revision.html` (compare two IDS versions) through any static server (`npx serve .` or
 `python3 -m http.server`), drop a model and an IDS. The page loads only its own
 `schema/*.json` tables.
 
@@ -364,8 +364,32 @@ node cli.mjs --fix spec.ids -o spec-fixed.ids   # repair its ids.xsd faults; exi
 node cli.mjs model.ifc spec.ids --no-audit      # run invalid specifications as written
 node cli.mjs --to-sheet spec.ids -o spec.xlsx   # the IDS as a spreadsheet, one row per facet (or .csv)
 node cli.mjs --from-sheet spec.xlsx -o spec.ids # a spreadsheet back to IDS 1.0; exit 1 names bad rows
+node cli.mjs --diff old.ids new.ids [model.ifc]  # what a revision adds, removes, asks more or less of;
+                                                 # with a model, elements newly failing; exit 1 if it asks more
 node cli.mjs --to-doc spec.ids -o spec.html     # the IDS in plain English, printable (or .md; Markdown on stdout)
 ```
+
+Comparing two versions of an IDS (2026-11-20, `revision.mjs`, page
+`revision.html`, `cli.mjs --diff`): specifications pair by name, then by an
+identical applicability (a rename), then by a leading section number (`3.3`,
+`(3.3)`); facets pair by what they ask about (a property by set and name, an
+attribute by name, a classification by system). Each change is graded for the
+person who must meet the IDS: *asks more* (a new required facet, optional to
+required, fewer enumerated values, a narrower numeric range, a data type
+added, an applicability condition removed or more classes selected), *asks
+less* (the reverse), *different* (neither contains the other: another
+pattern, class or value; to or from prohibited; a move to a number base) or
+metadata (names, descriptions, IFC versions, bSDD links). With a model, both
+versions are checked and elements are matched by GlobalId: newly failing,
+already failing with a new reason, no longer failing; a side that is invalid
+IDS is not run, so its elements are not compared. On 69 committed revisions
+of 27 public IDS files in 6 GitHub repositories (of 13 searched): 0 errors,
+185 of 233 changes graded asks more or less, 6 different, 42 metadata; 23
+revisions changed nothing the checker reads. The DFE Education Estates Stage 4
+to Stage 5 COBie IDS adds six required properties, four with `(?:` patterns
+that are not XSD, so the Stage 5 specification is invalid as published; after
+`--fix`, all 340 Schultz Residence elements it applies to were already failing
+and gain the new requirements (eval/revision-diff-2026-11-20.md).
 
 Library: `import { check } from "./node.mjs"; check(idsText, ifcText)` in Node,
 or `checkIds(idsText, ifcText, { schemas, typeMap, measureUnits })` from

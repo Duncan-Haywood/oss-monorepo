@@ -508,19 +508,11 @@ flagships:
       History and every measurement: README ("How it was checked") and HISTORY.md.
       Next, most valuable first: Editor repair on open, bare \w/\s, subclass boxes
       2026-11-18/19 (eval/editor-open-repair-*, eval/word-class-*,
-      eval/deprecated-subclasses-*). Tool run side by side 2026-11-19
-      (eval/excel2ids-sidebyside-2026-11-19.md: 321 workbooks, 0 stops; added
-      version None, _x000D_; applicability in ids.xsd order). bSDD links 2026-11-19
-      (bsdd.mjs, cli --audit --bsdd, eval/bsdd-links-2026-11-19.md: 58 public IDS,
-      197 bSDD links; 7 files with an error, 15 a warning, all read by hand). IDS
-      from a bSDD class 2026-11-19 (--from-bsdd, bsdd-spec.mjs,
-      eval/bsdd-spec-2026-11-19.md: 185 classes in 42 dictionaries, 38 of 42 audit
-      clean, 42 of 42 bSDD-check clean; editor keeps uris, 0 to 344 of 344). bSDD
-      units to measure types 2026-11-19 (bsdd-units.mjs,
-      eval/bsdd-units-2026-11-19.md: 867 of 1,625 non-IFC Reals get a measure,
-      values in SI; IfcTester agrees 9 of 9; dB as pressure/power level 2026-11-19,
-      eval/bsdd-db-2026-11-19.md, 6 of 6; count on a bSDD cache). bSDD links written
-      offline 2026-11-19 (--link-bsdd, bsdd-suggest.mjs,
+      eval/deprecated-subclasses-*). bSDD units to measure types 2026-11-19
+      (bsdd-units.mjs, eval/bsdd-units-2026-11-19.md: 867 of 1,625 non-IFC Reals get
+      a measure, values in SI; IfcTester agrees 9 of 9; dB as pressure/power level
+      2026-11-19, eval/bsdd-db-2026-11-19.md, 6 of 6; count on a bSDD cache). bSDD
+      links written offline 2026-11-19 (--link-bsdd, bsdd-suggest.mjs,
       eval/bsdd-suggest-2026-11-19.md: 619 in 54 public files; 196 of 198 match
       authors' links, 2 author slips; looked up live 2026-11-19,
       eval/bsdd-suggest-live-2026-11-19.md: 617 of 617 resolve, 77 names bSDD lacks
@@ -529,9 +521,13 @@ flagships:
       Excel2IDS workbook via --from-sheet; Excel itself typing into the download
       (dropdown lists in it 2026-11-19, eval/sheet-dropdowns-2026-11-19.md: 0
       strict-list cells out on 476 IDS, LibreOffice agrees 476 of 476); an RVB/ILS
-      author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. Readable document
-      2026-11-20 (--to-doc, spec-doc.mjs, eval/spec-doc-2026-11-20.md: 4,458 of
-      4,458 facets agree with IfcTester's reading); next: a BIM manager's read of
+      author on \s; IDS revision diff 2026-11-20 (revision.mjs, revision.html, cli
+      --diff; eval/revision-diff-2026-11-20.md: 69 public revisions, 0 errors, 185
+      of 233 changes graded asks more/less, model impact by GlobalId), next: pattern
+      inclusion so a tightened xs:pattern grades as asks more, and a client's real
+      stage-to-stage IDS pair; a Revit/ARCHICAD IFC4X3 export to confirm. Readable
+      document 2026-11-20 (--to-doc, spec-doc.mjs, eval/spec-doc-2026-11-20.md: 4,458
+      of 4,458 facets agree with IfcTester's reading); next: a BIM manager's read of
       its wording. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
@@ -570,17 +566,17 @@ flagships:
       17.12) 113/113 once 8 durations edited after its last run are put back;
       edited-durations list shipped (eval/edited-durations-2026-11-19.md: 300/300
       planted); next progress override, start float and 24-hour lag paths on a real
-      P6 file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
-      eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
-      appendix 2026-11-19; next a real reviewer's reading; (7) longest path and
-      multiple float paths shipped 2026-11-19 (floatpaths.mjs, --float-paths, page
-      panel; eval/longest-path-2026-11-19.md: P6's flag 261/261 on five files). (9)
-      look-ahead shipped 2026-11-19 (lookahead.mjs, --lookahead, page panel;
+      P6 file; appendix 2026-11-19; next a real reviewer's reading; (7) longest path
+      and multiple float paths shipped 2026-11-19 (floatpaths.mjs, --float-paths,
+      page panel; eval/longest-path-2026-11-19.md: P6's flag 261/261 on five files).
+      (9) look-ahead shipped 2026-11-19 (lookahead.mjs, --lookahead, page panel;
       eval/lookahead-check-2026-11-19.md: 6,476 of 6,479 windowed activities =
-      P6's); constraints log merged into make-ready shipped 2026-11-20
-      (constraints.mjs, --constraints; finish what-if = CS_MSOA route,
-      eval/constraints-check-2026-11-20.md); next a real site's log and a
-      superintendent's reading. More open items: NEXT.md.
+      P6's); constraints log shipped 2026-11-20
+      (eval/constraints-check-2026-11-20.md); its hotel residual traced to calendar
+      slack, shipped 2026-11-20 (calslack.mjs, --calendar-slack, page panel;
+      eval/calendar-slack-2026-11-20.md: 188 activities gain 1-17 h, 188/188 hold
+      and tight); next the mirror (start milestones, NEXT.md), a real site's log.
+      More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
@@ -620,14 +616,16 @@ flagships:
       paired; 190 of 1,011 GlobalId-only adds/removes on five real Aalseth Residence
       exports were the same element; eval/revision-diff-2026-11-20.md). Next, most
       valuable first: (1) the covering up-cut rule tested on a second model, the
-      joins rule on an ArchiCAD export with partitions on both faces; (2) a
-      method-of-measurement layer (NRM or CESMM style: deduct openings only above a
-      size, MasterFormat/Uniformat mapping from the classification code); (3) the
-      unexplained disagreements; (4) advanced breps on revolved/NURBS surfaces (8 in
-      kleine_Wohnung; planes and cylinders read 2026-11-20, 703 of 767 =
-      IfcOpenShell to 0.1%; faceted openings as signed tetrahedra;
-      eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a union; (5)
-      the change report on more revision series (OpeningDesign's Lake_Kegonsa_Home
-      and Lake_Mills repos commit IFCs repeatedly; an ArchiCAD series), wall parts
-      that stay unpaired; (6) a real estimator's reading of the BoQ CSV (needs a
-      person).
+      joins rule on an ArchiCAD export with partitions on both faces; (2) method of
+      measurement: small voids left in shipped 2026-11-20 (measure.mjs, page and cli
+      --voids-up-to; 1,099 of 1,136 opening cuts = stored WxH;
+      eval/measure-rules-2026-11-20.md); next thresholds per class or work section,
+      Uniformat/MasterFormat mapping from the classification code, the 35 openings
+      barely meeting their host; (3) the unexplained disagreements; (4) advanced
+      breps on revolved/NURBS surfaces (8 in kleine_Wohnung; planes and cylinders
+      read 2026-11-20, 703 of 767 = IfcOpenShell to 0.1%; faceted openings as signed
+      tetrahedra; eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a
+      union; (5) the change report on more revision series (OpeningDesign's
+      Lake_Kegonsa_Home and Lake_Mills repos commit IFCs repeatedly; an ArchiCAD
+      series), wall parts that stay unpaired; (6) a real estimator's reading of the
+      BoQ CSV (needs a person).

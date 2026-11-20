@@ -20,6 +20,12 @@ Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-qu
 - With faceted and advanced-brep bodies cut too (eval/joins-and-host-figures-2026-11-20.md): 9,451 of 12,167 stored areas agree; 192 disagreements are unexplained. Two causes named 2026-11-20: ArchiCAD's wall side area is the mean of both faces with the strips covered by T-joined walls taken off (55 pairs, a finishes figure), and Revit mullions that store their curtain wall's area and length on every piece (111, the section is used instead).
 - Where they agree the two figures match to about 1e-15 relative.
 
+## Method-of-measurement rule (eval/measure-rules-2026-11-20.md)
+
+- The BoQ can leave in small voids: openings whose area in the element's measured section (wall middle plane, slab plan) is at most a set m2, or whose volume is at most a set m3, are not deducted (page "Openings" control; CLI `--voids-up-to AREA,VOLUME`). Presets: every opening deducted; 0.50 m2 / 0.05 m3. The tool names no standard; the user checks the thresholds against their contract's method.
+- Each opening is cut from its element on its own. On 12 public models, 1,099 of 1,136 wall openings that store Width and Height measured within 2% of Width x Height (2 misses are round windows, pi/4 of their box). 216 of 2,252 openings were at or under 0.50 m2; wall and slab area moved under 0.25% per model at 0.50 m2 and up to 1.41% at 1.00 m2.
+- Elements whose openings overlap (separate deductions do not sum to the joint one) are left as modelled and counted.
+
 ## Comparing revisions (eval/revision-diff-2026-11-20.md)
 
 - Matching: GlobalId (a repeated GlobalId pairs with its own class), then Tag within a class when unique on both sides (Revit's ElementId), then same class, world box within 10 mm and volume within 0.5%. Revit parts in one revision and their host in the other are paired when the host's box holds the parts' centres on the same storey and the volumes agree within 2%.
@@ -40,8 +46,9 @@ Each solid becomes a signed sum of convex polyhedra: extruded profiles (rectangl
     node cli.mjs model.ifc --by storey,class    # grouping keys: class, type, storey, material, classification
     node cli.mjs model.ifc --rows elements.csv  # every element with stored and computed volumes
     node cli.mjs model.ifc --check              # stored vs computed summary
+    node cli.mjs model.ifc --voids-up-to 0.5,0.05   # leave in openings up to 0.5 m2 / 0.05 m3
     node cli.mjs new.ifc --compare old.ifc --changes changes.csv   # BoQ change since old.ifc, and every changed element
 
 ## Limits and disclaimer
 
-Faceted bodies clipped by a half-space, and faceted shells that are not closed, are not cut (the stored area is kept); faces written the wrong way round are turned to match their neighbours first. Openings are taken out of closed faceted bodies; the overlapping pieces of one shell are counted once each (noted). Overlapping openings are subtracted twice. Quantities are not a measured survey or a cost estimate; check them against the drawings and your method of measurement. Not endorsed by buildingSMART or any software vendor.
+Faceted bodies clipped by a half-space, and faceted shells that are not closed, are not cut (the stored area is kept); faces written the wrong way round are turned to match their neighbours first. Openings are taken out of closed faceted bodies; the overlapping pieces of one shell are counted once each (noted). Overlapping openings are taken out once (their separate deductions exceed the joint one on 10 ARK_NUS elements). Quantities are not a measured survey or a cost estimate; check them against the drawings and your method of measurement. Not endorsed by buildingSMART or any software vendor.

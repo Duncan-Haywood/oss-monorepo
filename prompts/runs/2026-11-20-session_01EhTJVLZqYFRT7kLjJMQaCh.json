@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVLZqYFRT7kLjJMQaCh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T04:56:30Z",
+  "ended": "2026-11-20T05:18:40Z",
+  "wall_minutes": 22.51,
+  "tokens_in": 12194513,
+  "tokens_out": 60366,
+  "cost_usd": 5.2499,
+  "tool_calls": 82,
+  "task": "Deepen (flagship 12): ids-model-check, IDS revision diff",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17858",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first impact version counted elements of an invalid (not run) specification as fixed (218 on HHS)",
+      "fixed": "revisionImpact skips invalid sides, reports not compared"
+    },
+    {
+      "what": "entity class was in the facet key but not compared; base-only and empty-restriction changes graded changed",
+      "fixed": "compared; numeric-base rule; (any base) display"
+    },
+    {
+      "what": "7 unguarded object-map lookups flagged by inherited_keys.py",
+      "fixed": "Object.hasOwn helper"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py route",
+      "issue": "bare route drew the research track although the scheduled prompt is explicitly about revenue products; needed --task to land on ventures"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here named ids-model-check, whose buildable list was largely done (ifc4-layout already measured 2026-11-18); I picked a new item (revision diff) instead of the listed ones"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (ids-model-check buildable:)",
+      "why": "listed buildable items were already measured or marginal; built an unlisted user-facing feature (compare two IDS versions) that serves the coordinator's real next step after a client revision",
+      "did": "revision.mjs + revision.html + cli --diff + eval over 69 public git revisions",
+      "result": "shipped with 8 tests, 0 errors on the corpus"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-what-the-new-ids-asks-for.md",
+    "ventures/ids-model-check/eval/revision-diff-2026-11-20.md"
+  ],
+  "goal": "A coordinator who receives a revised IDS sees what it asks more or less of, and which model elements newly fail",
+  "notes": "Verification: node --test revision.test.mjs 8/8; run_venture_tests.py ids-model-check ok (369 tests); inherited_keys 0 new; check_posts ok; validate.py ok; revision.html driven in Chromium at 390px: example renders, 0 console errors, no horizontal scroll. Corpus: 13 repos cloned, 69 revision pairs of 27 files, 0 errors, 185/233 changes graded.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "029c4e8e-81a1-5abe-a957-6cb427277a8a",
+    "transcripts": 1,
+    "first": "2026-11-20T04:56:30Z",
+    "last": "2026-11-20T05:19:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 149,
+        "output": 60366,
+        "thinking": 9408,
+        "cache_read": 11988836,
+        "cache_write_5m": 0,
+        "cache_write_1h": 205528,
+        "api_equivalent_usd": 5.2499,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 149,
+      "output": 60366,
+      "thinking": 9408,
+      "cache_read": 11988836,
+      "cache_write_5m": 0,
+      "cache_write_1h": 205528,
+      "api_equivalent_usd": 5.2499,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 73,
+      "Write": 6,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.51,
+      "active_minutes": 22.51,
+      "model_minutes": 9.98,
+      "tool_minutes": 12.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "senior JS dev: diff engine, page, CLI, corpus eval and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 228.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

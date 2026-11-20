@@ -1,0 +1,2781 @@
+{
+ "date": "2026-11-20",
+ "top": 300,
+ "results": [
+  {
+   "repo": "codecrafters-io/build-your-own-x",
+   "commit": "94e4be4102452119008fe47199f3cb915abe0c50",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "sindresorhus/awesome",
+   "commit": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 23,
+   "findings": []
+  },
+  {
+   "repo": "public-apis/public-apis",
+   "commit": "8e6c7d6d6228ee22ebdaa1074d6da8ce38c4677b",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "morluto/rea",
+   "commit": "2474e6ec6c9793684101b90d38beded4e8178bc9",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "freeCodeCamp/freeCodeCamp",
+   "commit": "cb6130cf8d3e3aab7a61d559a62826f6a746bdff",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 19955,
+   "findings": []
+  },
+  {
+   "repo": "EbookFoundation/free-programming-books",
+   "commit": "10e33dd516cc53864e6bece7e6bd51f2a035d06c",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 235,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 21,
+     "text": "[*.{bat,cmd}]",
+     "title": "[*.{bat,cmd}] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 25,
+     "text": "[*.{js,ts}]",
+     "title": "[*.{js,ts}] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 30,
+     "text": "[*.{json,jsonc}]",
+     "title": "[*.{json,jsonc}] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 35,
+     "text": "[Makefile]",
+     "title": "[Makefile] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 43,
+     "text": "[*.{ps1,psd1,psm1}]",
+     "title": "[*.{ps1,psd1,psm1}] matches none of the listed files"
+    }
+   ]
+  },
+  {
+   "repo": "openclaw/openclaw",
+   "commit": "77dfd800710409bc397dc96dcfcec2acc7e567ca",
+   "editorconfig": false,
+   "nested": 1
+  },
+  {
+   "repo": "donnemartin/system-design-primer",
+   "commit": "ae9bbd7b02d90b9866215de185217d33f39ab733",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "nilbuild/developer-roadmap",
+   "commit": "e23da87b60cd576b7e603d19fcbde8ab04964495",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "jwasham/coding-interview-university",
+   "commit": "2399df2f688ba9fafe11c399cc067d7270921bb1",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "awesome-selfhosted/awesome-selfhosted",
+   "commit": "2a8926e0ac5014de75c00472319cdd6cb6a1f95d",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "vinta/awesome-python",
+   "commit": "4c3cb15dc695e95ae64add86b9994add8277f323",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "mattpocock/skills",
+   "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "obra/superpowers",
+   "commit": "22f0b463e7a5e579904dd6211a520321035526f7",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "affaan-m/ECC",
+   "commit": "4adeee6732a12d1540f49a4d50a38ce8c97f9a53",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "practical-tutorials/project-based-learning",
+   "commit": "f99ea242247b9b6df9bd277f832fa5a8f1da28e1",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "deepseek-ai/deepseek-harness",
+   "commit": "2e39e70496aa02986ca6a820c5d497e816b69d7e",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 22247,
+   "findings": []
+  },
+  {
+   "repo": "996icu/996.ICU",
+   "commit": "f5e35f48d769bf92ed885888bfe911d3e5b5a63d",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "NousResearch/hermes-agent",
+   "commit": "6f533d4ccdc5de106c855dd5f4cf833c5e6e163b",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "trimstray/the-book-of-secret-knowledge",
+   "commit": "7d37069a361d3fd9f214480755f7969744e866fa",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "torvalds/linux",
+   "commit": "65e4fd942f72a9dba0e4e257290c4fa1aa756854",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 97371,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "glob-stray-comma",
+     "file": ".editorconfig",
+     "line": 18,
+     "text": "[tools/{perf,power,rcu,testing/kunit}/**.py,]",
+     "title": "[tools/{perf,power,rcu,testing/kunit}/**.py,] has a `"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 18,
+     "text": "[tools/{perf,power,rcu,testing/kunit}/**.py,]",
+     "title": "[tools/{perf,power,rcu,testing/kunit}/**.py,] matches none of the listed files"
+    },
+    {
+     "severity": "low",
+     "kind": "no-root",
+     "file": ".editorconfig",
+     "line": 1,
+     "text": "",
+     "title": "No `root = true` at the top of the project"
+    }
+   ]
+  },
+  {
+   "repo": "react/react",
+   "commit": "e04279e76e2703ceb0d99c3599f0b74f01770dd4",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 7282,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 15,
+     "text": "[COMMIT_EDITMSG]",
+     "title": "[COMMIT_EDITMSG] matches none of the listed files"
+    },
+    {
+     "severity": "low",
+     "kind": "invalid-value",
+     "file": ".editorconfig",
+     "line": 13,
+     "text": "max_line_length = 0",
+     "title": "`max_line_length = 0` is not a whole number or off"
+    },
+    {
+     "severity": "low",
+     "kind": "invalid-value",
+     "file": ".editorconfig",
+     "line": 16,
+     "text": "max_line_length = 0",
+     "title": "`max_line_length = 0` is not a whole number or off"
+    }
+   ]
+  },
+  {
+   "repo": "multica-ai/andrej-karpathy-skills",
+   "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "anomalyco/opencode",
+   "commit": "eb2dfb2638c8d4d37af804880d89eb70440681a9",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 11718,
+   "findings": []
+  },
+  {
+   "repo": "TheAlgorithms/Python",
+   "commit": "30507bbe41397065728167fb09aa820f9fce8dc7",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "vuejs/vue",
+   "commit": "9e88707940088cb1f4cd7dd210c9168a50dc347c",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 508,
+   "findings": []
+  },
+  {
+   "repo": "n8n-io/n8n",
+   "commit": "273d130277573ee02d204e8c9b8882d1375f3db7",
+   "editorconfig": true,
+   "configs": 4,
+   "paths": 35822,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": "packages/@n8n/ai-utilities/.editorconfig",
+     "line": 18,
+     "text": "[*.yml]",
+     "title": "[*.yml] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": "packages/@n8n/nodes-langchain/.editorconfig",
+     "line": 18,
+     "text": "[*.yml]",
+     "title": "[*.yml] matches none of the listed files"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "packages/@n8n/ai-utilities/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "packages/@n8n/ai-utilities/.editorconfig has root = true, so files under packages/@n8n/ai-utilities/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "packages/@n8n/nodes-langchain/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "packages/@n8n/nodes-langchain/.editorconfig has root = true, so files under packages/@n8n/nodes-langchain/ never read .editorconfig"
+    }
+   ]
+  },
+  {
+   "repo": "ossu/computer-science",
+   "commit": "8f8272b1d378d31494240aa1d667aa6b045c6552",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "yt-dlp/yt-dlp",
+   "commit": "4adbf698d9a7d79d67a7d11669d04efde3722951",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 1233,
+   "findings": []
+  },
+  {
+   "repo": "DigitalPlatDev/FreeDomain",
+   "commit": "9c7c54110705760267b07b6e6a6d406d1172a1bf",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "firecrawl/firecrawl",
+   "commit": "484be117975ac7b8be085c25f1fbd54d005f17ff",
+   "editorconfig": false,
+   "nested": 1
+  },
+  {
+   "repo": "tensorflow/tensorflow",
+   "commit": "4cf170a621286a99fd05b5b372ad8a6ef28906c9",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "massgravel/Microsoft-Activation-Scripts",
+   "commit": "6cfd6f455ffb4983ce567231d800f08c44c39f00",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "anthropics/skills",
+   "commit": "e4bb5d960d87126ff3b3a8af1a104b7db67560ba",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "microsoft/markitdown",
+   "commit": "ed178952a6672abdfd35b5f9e76a80b6cefc086e",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "trekhleb/javascript-algorithms",
+   "commit": "85293e3e2b88f4d2ce330d956b139cf628aa1e82",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 679,
+   "findings": []
+  },
+  {
+   "repo": "microsoft/vscode",
+   "commit": "9ee054bbc0a961d38750ccce8da69e047d31a570",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 21564,
+   "findings": []
+  },
+  {
+   "repo": "DietrichGebert/ponytail",
+   "commit": "96608e078b2d5ea607c5c3b8b5a54d1c1fba6846",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "avelino/awesome-go",
+   "commit": "c99b19726520b184a8de8e4aa793f71a916d7deb",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "ultraworkers/claw-code",
+   "commit": "508b4d862d42a5fa5bde8df5b2d3670f4d4ca324",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "ohmyzsh/ohmyzsh",
+   "commit": "c0140703a53eb0d22be44f7bac318d0baacc927c",
+   "editorconfig": true,
+   "configs": 2,
+   "paths": 1199,
+   "findings": []
+  },
+  {
+   "repo": "521xueweihan/HelloGitHub",
+   "commit": "d65699c2892f3ad7516398a3fbd3855913f9d17d",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Significant-Gravitas/AutoGPT",
+   "commit": "eda70873cde1d9cb0b720bdcac8983d62f0f8d25",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "jackfrued/Python-100-Days",
+   "commit": "44b2575bf42a02d0a38d9dada3f60335c95c5ec2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "ollama/ollama",
+   "commit": "73ee71ddcc088451457845b22d03c349b7c4dd6b",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "CyC2018/CS-Notes",
+   "commit": "cb9f180fb26da7b7100fde250a5dd137455b3a02",
+   "editorconfig": false,
+   "nested": 1
+  },
+  {
+   "repo": "getify/You-Dont-Know-JS",
+   "commit": "7a83c851af26c422893219d41c53f607a2f1bfe0",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 81,
+   "findings": []
+  },
+  {
+   "repo": "flutter/flutter",
+   "commit": "f4998a602f521d4cf07284364eaa27d9d2f2a0b6",
+   "editorconfig": false,
+   "nested": 2
+  },
+  {
+   "repo": "f/prompts.chat",
+   "commit": "29417a15542c01938e2230d4c2dcee95771ae6aa",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "github/gitignore",
+   "commit": "b71db924d35085e481ad7c7ad8a7435b8d8b3016",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "twbs/bootstrap",
+   "commit": "ca7e91518e8b4ef454840008793cdea2940f1302",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 1001,
+   "findings": []
+  },
+  {
+   "repo": "msitarzewski/agency-agents",
+   "commit": "8ae6164602c95ca78828b148b9052460ee426885",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "huggingface/transformers",
+   "commit": "1031277cef60200fda98628e9adc8fb15f0e1549",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "AUTOMATIC1111/stable-diffusion-webui",
+   "commit": "82a973c04367123ae98bd9abdf80d9eda9b910e2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "jlevy/the-art-of-command-line",
+   "commit": "6b50745d2e788add2e8f1ed29010e72659a9a074",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "langgenius/dify",
+   "commit": "5d2a55b4b763037dd1b1ee2346433ce9b1b0e8d7",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 16423,
+   "findings": []
+  },
+  {
+   "repo": "Snailclimb/JavaGuide",
+   "commit": "992dae31eade2a34ba8dbbbcf5ed9de5511325ec",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "clash-verge-rev/clash-verge-rev",
+   "commit": "3f7af9ab022d04ebc45d96b56b58cd67e90fe90d",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 765,
+   "findings": []
+  },
+  {
+   "repo": "open-webui/open-webui",
+   "commit": "0666e59d26a4d056e0bacee41742486badd71cf8",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "langflow-ai/langflow",
+   "commit": "21381e5b2964fb4c714dc91fcd5187d4cfc2a67f",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "anthropics/claude-code",
+   "commit": "688120e365aff198e348965cc115f7dd79275dff",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "farion1231/cc-switch",
+   "commit": "2a750c3fcbbefa9550047d7dd3363d9120e545ed",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Genymobile/scrcpy",
+   "commit": "c939183a7cdca4599cee337e60bc0e147b6c9828",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "nextlevelbuilder/ui-ux-pro-max-skill",
+   "commit": "2de1134dc4d1cfe112934611ae5803ae17a1bd7e",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "github/spec-kit",
+   "commit": "61d3abb13b39413a7048770ab9738ab44b8c2f5f",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 1069,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 27,
+     "text": "[Makefile]",
+     "title": "[Makefile] matches none of the listed files"
+    }
+   ]
+  },
+  {
+   "repo": "Graphify-Labs/graphify",
+   "commit": "f51d46c63d6280a5906277b29b118dc2dd119991",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "langchain-ai/langchain",
+   "commit": "e8a78d547970628c35cf5f3c7b054766099ea0bc",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 3308,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 49,
+     "text": "[*.ipynb]",
+     "title": "[*.ipynb] matches none of the listed files"
+    }
+   ]
+  },
+  {
+   "repo": "airbnb/javascript",
+   "commit": "8ed19247bef145e3cc41b24a02dd1fe6d9b5e681",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 63,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "invalid-value",
+     "file": ".editorconfig",
+     "line": 14,
+     "text": "indent_size = false",
+     "title": "`indent_size = false` is not a whole number or tab"
+    }
+   ]
+  },
+  {
+   "repo": "Comfy-Org/ComfyUI",
+   "commit": "1994420682258539f9ea1d22a9857a14df6acd32",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Shubhamsaboo/awesome-llm-apps",
+   "commit": "14c5f8ff0094659f321801385d2b52ccc65fea3b",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "x1xhlol/system-prompts-and-models-of-ai-tools",
+   "commit": "162db92f54d717d8ebd12292e155aeef32bb4b3c",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "harry0703/MoneyPrinterTurbo",
+   "commit": "bdd8d328cc366fe70d9fa67ffd0443ba34b4a3e1",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "iptv-org/iptv",
+   "commit": "728ededae68c786eb511b5af3ca6eb612d1ebee9",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "vercel/next.js",
+   "commit": "59164d1b22472a01efdc6c2ee26b5284023dc2f0",
+   "editorconfig": false,
+   "nested": 2
+  },
+  {
+   "repo": "yangshun/tech-interview-handbook",
+   "commit": "e1d28e8886c0b6ff3e50da991ce0e895134ddc59",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 603,
+   "findings": []
+  },
+  {
+   "repo": "ripienaar/free-for-dev",
+   "commit": "b3911362f8a94549d10463690cda100850cf4256",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "garrytan/gstack",
+   "commit": "1bd86d9a4547ed8df0c5da37380c838e61a91b9b",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "ytdl-org/youtube-dl",
+   "commit": "bc069d2bb40bcbc5bdfdf352ca15bf586c7792cb",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "microsoft/PowerToys",
+   "commit": "f9f0ce2028fe50b083af910b52914c8eaf264584",
+   "editorconfig": false,
+   "nested": 2
+  },
+  {
+   "repo": "golang/go",
+   "commit": "0351fe5c9795a37afd08c3c7568abd3186c629b4",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "labuladong/fucking-algorithm",
+   "commit": "5e4d13259282bc150a13dc7b1545a149aa904c9d",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "excalidraw/excalidraw",
+   "commit": "2c3dcc06ec807e81ab9437eceb1a8f7a3c590743",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 1342,
+   "findings": []
+  },
+  {
+   "repo": "openai/codex",
+   "commit": "a0a30c40e8dbcc44af52e2df64dcce64368d4422",
+   "editorconfig": false,
+   "nested": 1
+  },
+  {
+   "repo": "ggml-org/llama.cpp",
+   "commit": "b94959a64d011915d77a5381c7d4846dcda99530",
+   "editorconfig": true,
+   "configs": 2,
+   "paths": 4482,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 21,
+     "text": "[prompts/*.txt]",
+     "title": "[prompts/*.txt] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 24,
+     "text": "[tools/server/deps_*]",
+     "title": "[tools/server/deps_*] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 36,
+     "text": "[models/templates/*.jinja]",
+     "title": "[models/templates/*.jinja] matches none of the listed files"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "models/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "models/.editorconfig has root = true, so files under models/ never read .editorconfig"
+    }
+   ]
+  },
+  {
+   "repo": "krahets/hello-algo",
+   "commit": "53611a0ae928e0ed95aaaaca2cffbdc645c9c352",
+   "editorconfig": false,
+   "nested": 6
+  },
+  {
+   "repo": "rustdesk/rustdesk",
+   "commit": "304e60492dc87717767c2aab7191c7bbe3af1fe7",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "stablyai/orca",
+   "commit": "73e833274d55332e21eba47adf5273a38e401a57",
+   "editorconfig": false,
+   "nested": 1
+  },
+  {
+   "repo": "Chalarangelo/30-seconds-of-code",
+   "commit": "bd756f8b2283a38560efe83cb30af38324d4e9e9",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "kubernetes/kubernetes",
+   "commit": "dee14a0ede00099d6441a8991ad6137b938d2a9d",
+   "editorconfig": false,
+   "nested": 6
+  },
+  {
+   "repo": "shadcn-ui/ui",
+   "commit": "f50887ae68d0fdcbfbe86b57be08af94a4c88a68",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 6411,
+   "findings": []
+  },
+  {
+   "repo": "VoltAgent/awesome-design-md",
+   "commit": "fcc70284932276d085f01ef9f83edde90b1258cb",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "react/react-native",
+   "commit": "bbfd391496baa6e0461262f76f1ae9a819a7ecd2",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 8413,
+   "findings": []
+  },
+  {
+   "repo": "Hack-with-Github/Awesome-Hacking",
+   "commit": "440486fd08b0a0d9ad9a041a0bb234dcdf65dee2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "electron/electron",
+   "commit": "b3afd52d4d62f5b7cb62eec1cf2be850f6cdc071",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "microsoft/generative-ai-for-beginners",
+   "commit": "e45c369a8c76bdae831cb5a172d36a6a0fc3a6a2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "nodejs/node",
+   "commit": "3c26849e1724c8789d8789229e3051f4e8110198",
+   "editorconfig": true,
+   "configs": 3,
+   "paths": 57421,
+   "findings": [
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "deps/undici/src/.editorconfig",
+     "line": 3,
+     "text": "root = true",
+     "title": "deps/undici/src/.editorconfig has root = true, so files under deps/undici/src/ never read .editorconfig"
+    }
+   ]
+  },
+  {
+   "repo": "TauricResearch/TradingAgents",
+   "commit": "9fa1196fffbcfd9de5146d2dd2869df84ab99838",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "earendil-works/pi",
+   "commit": "edfe6b2ef32283d31efc9e26db86fe48be19d3b2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "rust-lang/rust",
+   "commit": "4b5350e87e487aed08ab2f9f0160a4b2616438bc",
+   "editorconfig": true,
+   "configs": 8,
+   "paths": 64765,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 43,
+     "text": "[Makefile]",
+     "title": "[Makefile] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": "src/tools/rust-analyzer/.editorconfig",
+     "line": 19,
+     "text": "[COMMIT_EDITMSG]",
+     "title": "[COMMIT_EDITMSG] matches none of the listed files"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "library/compiler-builtins/.editorconfig",
+     "line": 3,
+     "text": "root = true",
+     "title": "library/compiler-builtins/.editorconfig has root = true, so files under library/compiler-builtins/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "src/doc/rustc-dev-guide/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "src/doc/rustc-dev-guide/.editorconfig has root = true, so files under src/doc/rustc-dev-guide/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "src/tools/clippy/.editorconfig",
+     "line": 5,
+     "text": "root = true",
+     "title": "src/tools/clippy/.editorconfig has root = true, so files under src/tools/clippy/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "src/tools/miri/.editorconfig",
+     "line": 5,
+     "text": "root = true",
+     "title": "src/tools/miri/.editorconfig has root = true, so files under src/tools/miri/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "src/tools/rust-analyzer/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "src/tools/rust-analyzer/.editorconfig has root = true, so files under src/tools/rust-analyzer/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "src/tools/rustfmt/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "src/tools/rustfmt/.editorconfig has root = true, so files under src/tools/rustfmt/ never read .editorconfig"
+    }
+   ]
+  },
+  {
+   "repo": "JuliusBrussee/caveman",
+   "commit": "a192894723a8f47e7f504c7b5041967ff1f18e55",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 1825,
+   "findings": []
+  },
+  {
+   "repo": "browser-use/browser-use",
+   "commit": "ccbdb8095fbaf903c748880a600054a34c7b6191",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "2dust/v2rayN",
+   "commit": "9bb74a097b50e76ed490444bf56b20bbea6746f7",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 616,
+   "findings": []
+  },
+  {
+   "repo": "godotengine/godot",
+   "commit": "73ca6be2cebd5192d8b279979d04f29ea45c266e",
+   "editorconfig": true,
+   "configs": 6,
+   "paths": 14464,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": "modules/mono/glue/GodotSharp/.editorconfig",
+     "line": 4,
+     "text": "[**/Generated/**.cs]",
+     "title": "[**/Generated/**.cs] matches none of the listed files"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "modules/mono/editor/Godot.NET.Sdk/Godot.SourceGenerators.Tests/TestData/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "modules/mono/editor/Godot.NET.Sdk/Godot.SourceGenerators.Tests/TestData/.editorconfig has root = true, so files under modules/mono/editor/Godot.NET.Sdk/Godot.SourceGenerators.Tests/TestData/ never read .editorconfig, modules/mono/.editorconfig"
+    }
+   ]
+  },
+  {
+   "repo": "immich-app/immich",
+   "commit": "33da8766c2e4bba0fb285522ee9fb23d5c2c0dcd",
+   "editorconfig": true,
+   "configs": 2,
+   "paths": 3714,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": "packages/cli/.editorconfig",
+     "line": 19,
+     "text": "[*.{yml,yaml}]",
+     "title": "[*.{yml,yaml}] matches none of the listed files"
+    },
+    {
+     "severity": "low",
+     "kind": "overridden-pair",
+     "file": "packages/cli/.editorconfig",
+     "line": 5,
+     "text": "charset = utf-8",
+     "title": "`charset = utf-8` in [*] is overridden for every listed file it applies to"
+    },
+    {
+     "severity": "low",
+     "kind": "duplicate-key",
+     "file": "packages/cli/.editorconfig",
+     "line": 9,
+     "text": "charset = utf-8",
+     "title": "`charset` is set twice in [*]"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "packages/cli/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "packages/cli/.editorconfig has root = true, so files under packages/cli/ never read .editorconfig"
+    }
+   ]
+  },
+  {
+   "repo": "justjavac/free-programming-books-zh_CN",
+   "commit": "cc1108ac90f53a1fd4f773b61f5c6b91b91389ca",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 8,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 22,
+     "text": "[{package.json,bower.json}]",
+     "title": "[{package.json,bower.json}] matches none of the listed files"
+    }
+   ]
+  },
+  {
+   "repo": "addyosmani/agent-skills",
+   "commit": "8c99fa36d90068c82d547f7c12a9d67a3e95f4ee",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "mrdoob/three.js",
+   "commit": "8b92052852735b67cfa8393f78e707b3f07a0eec",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 6101,
+   "findings": []
+  },
+  {
+   "repo": "Leonxlnx/taste-skill",
+   "commit": "f6b76575f949707b4e3c37cd86cb44b0b98643e8",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "jaywcjlove/awesome-mac",
+   "commit": "6d9547dd218be1598ea4e4df9ce6f6f8ebc82123",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "thedotmack/claude-mem",
+   "commit": "c0f37d60b2e4860851575e3cbb003f23fc340d4e",
+   "editorconfig": false,
+   "nested": 1
+  },
+  {
+   "repo": "paperclipai/paperclip",
+   "commit": "c41145e72a38d664650eb73174e5eccb514f2550",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "supabase/supabase",
+   "commit": "0ce2a96c5382e4293859c5866d2f3f1985ef7fc4",
+   "editorconfig": false,
+   "nested": 2
+  },
+  {
+   "repo": "sherlock-project/sherlock",
+   "commit": "c588d7c8b476df9f9c84912a05d1430fb8cdcdae",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 56,
+   "findings": []
+  },
+  {
+   "repo": "debpalash/VoiceStudio",
+   "commit": "d41f5c0ab1e516d31bcdf679ce35c1ca08820284",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "d3/d3",
+   "commit": "db118c93a429e82b83f091dbaa18fd0a82c06130",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "pbakaus/impeccable",
+   "commit": "b49177d32788f2dc585c42831d845dacf1ebed2c",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Panniantong/Agent-Reach",
+   "commit": "c70ae6da5d39bc90e09ad2ae0575ccc89f31e284",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "openai/whisper",
+   "commit": "86098128c0b4f24f0e2aa2994de830614b474227",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "tauri-apps/tauri",
+   "commit": "207c9e0dcf4c6135a7d5a55cb066b5a749ba509c",
+   "editorconfig": true,
+   "configs": 2,
+   "paths": 1149,
+   "findings": [
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "crates/tauri-cli/templates/mobile/android/.editorconfig",
+     "line": 4,
+     "text": "root = true",
+     "title": "crates/tauri-cli/templates/mobile/android/.editorconfig has root = true, so files under crates/tauri-cli/templates/mobile/android/ never read .editorconfig"
+    }
+   ]
+  },
+  {
+   "repo": "microsoft/TypeScript",
+   "commit": "f5a247c0ca4e85f1f6ed304c71f149c9f6b3290e",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 69628,
+   "findings": []
+  },
+  {
+   "repo": "papers-we-love/papers-we-love",
+   "commit": "0b33c953aae0c90e6d15c4ed41b01e76358f3c28",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "fatedier/frp",
+   "commit": "a2c975efb5e55102068065d61cfc17ffe34e939d",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "axios/axios",
+   "commit": "9f0f4ddfe72b4c06afafe1a658e6ee53d35b5760",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "denoland/deno",
+   "commit": "d8c551b5a5b46d8ec3892a91d0364cfcbca2c681",
+   "editorconfig": true,
+   "configs": 9,
+   "paths": 14954,
+   "findings": [
+    {
+     "severity": "high",
+     "kind": "invalid-line",
+     "file": ".editorconfig",
+     "line": 11,
+     "text": "[*.out] # make editor neutral to .out files",
+     "title": "Line 11 is not valid EditorConfig (a section header must end with ])"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 15,
+     "text": "[tests/node_compat/test/**]",
+     "title": "[tests/node_compat/test/**] matches none of the listed files"
+    },
+    {
+     "severity": "low",
+     "kind": "overridden-pair",
+     "file": "tests/specs/fmt/editorconfig/nested/.editorconfig",
+     "line": 5,
+     "text": "indent_size = 4",
+     "title": "`indent_size = 4` in [*.ts] is overridden for every listed file it applies to"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "tests/specs/fmt/editorconfig/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "tests/specs/fmt/editorconfig/.editorconfig has root = true, so files under tests/specs/fmt/editorconfig/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "tests/specs/fmt/editorconfig/cache_invalidation/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "tests/specs/fmt/editorconfig/cache_invalidation/.editorconfig has root = true, so files under tests/specs/fmt/editorconfig/cache_invalidation/ never read .editorconfig, tests/specs/fmt/editorconfig/.editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "tests/specs/fmt/editorconfig/long_lines/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "tests/specs/fmt/editorconfig/long_lines/.editorconfig has root = true, so files under tests/specs/fmt/editorconfig/long_lines/ never read .editorconfig, tests/specs/fmt/editorconfig/.editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "tests/specs/fmt/editorconfig/nested/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "tests/specs/fmt/editorconfig/nested/.editorconfig has root = true, so files under tests/specs/fmt/editorconfig/nested/ never read .editorconfig, tests/specs/fmt/editorconfig/.editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "tests/specs/fmt/editorconfig/opt_out/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "tests/specs/fmt/editorconfig/opt_out/.editorconfig has root = true, so files under tests/specs/fmt/editorconfig/opt_out/ never read .editorconfig, tests/specs/fmt/editorconfig/.editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "tests/specs/fmt/editorconfig/tabs/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "tests/specs/fmt/editorconfig/tabs/.editorconfig has root = true, so files under tests/specs/fmt/editorconfig/tabs/ never read .editorconfig, tests/specs/fmt/editorconfig/.editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "tests/specs/fmt/editorconfig/with_deno_json/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "tests/specs/fmt/editorconfig/with_deno_json/.editorconfig has root = true, so files under tests/specs/fmt/editorconfig/with_deno_json/ never read .editorconfig, tests/specs/fmt/editorconfig/.editorconfig"
+    }
+   ]
+  },
+  {
+   "repo": "google-gemini/gemini-cli",
+   "commit": "d4cb1713fd7fc30f1c03f9ca7cbfed341c97dffd",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 3066,
+   "findings": []
+  },
+  {
+   "repo": "rasbt/LLMs-from-scratch",
+   "commit": "0311973e2c974b9e0223933103dc400c7a536179",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "nexu-io/open-design",
+   "commit": "07258801b9e4ae80553816bb1606af7aa9a63dff",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "ruanyf/weekly",
+   "commit": "23a6b554638e8c5049450397fcb1b9e75b0ac1e9",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "goldbergyoni/nodebestpractices",
+   "commit": "dc3d60c29d5483d9ea99cf261bbd6203516a2ba7",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "pytorch/pytorch",
+   "commit": "4e829dd97cda1ebbea670f9098362bb829b43443",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 22489,
+   "findings": []
+  },
+  {
+   "repo": "microsoft/terminal",
+   "commit": "92f2a771057116d4313a5f1ef7801d9e04902a85",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 3679,
+   "findings": []
+  },
+  {
+   "repo": "fastapi/fastapi",
+   "commit": "05e6df7e906c3decba377c37548019973f40bf15",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "deepseek-ai/DeepSeek-V3",
+   "commit": "9b4e9788e4a3a731f7567338ed15d3ec549ce03b",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "ruvnet/RuView",
+   "commit": "13b47883a73d5070f35a3f04aec2ffa778b47e29",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "D4Vinci/Scrapling",
+   "commit": "2998c9ebba52ef6116f0a483c7d2f21908250024",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Anduin2017/HowToCook",
+   "commit": "58c1b9af7900a9489c340bca39ef94a9a62314b1",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "neovim/neovim",
+   "commit": "2843068c7a9c78c206189c37b53cdb6f464e57ae",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 3953,
+   "findings": []
+  },
+  {
+   "repo": "react/create-react-app",
+   "commit": "6254386531d263688ccfa542d0e628fbc0de0b28",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "angular/angular",
+   "commit": "ee18d5756387b6ba5a2ad2c10eee4f47fa3566f6",
+   "editorconfig": true,
+   "configs": 13,
+   "paths": 11729,
+   "findings": [
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "integration/animations/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "integration/animations/.editorconfig has root = true, so files under integration/animations/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "integration/cli-hello-world-ivy-i18n/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "integration/cli-hello-world-ivy-i18n/.editorconfig has root = true, so files under integration/cli-hello-world-ivy-i18n/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "integration/cli-hello-world-lazy/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "integration/cli-hello-world-lazy/.editorconfig has root = true, so files under integration/cli-hello-world-lazy/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "integration/cli-hello-world/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "integration/cli-hello-world/.editorconfig has root = true, so files under integration/cli-hello-world/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "integration/cli-signal-inputs/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "integration/cli-signal-inputs/.editorconfig has root = true, so files under integration/cli-signal-inputs/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "integration/defer/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "integration/defer/.editorconfig has root = true, so files under integration/defer/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "integration/legacy-animations-async/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "integration/legacy-animations-async/.editorconfig has root = true, so files under integration/legacy-animations-async/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "integration/legacy-animations/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "integration/legacy-animations/.editorconfig has root = true, so files under integration/legacy-animations/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "integration/platform-server-zoneless/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "integration/platform-server-zoneless/.editorconfig has root = true, so files under integration/platform-server-zoneless/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "integration/platform-server/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "integration/platform-server/.editorconfig has root = true, so files under integration/platform-server/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "integration/standalone-bootstrap/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "integration/standalone-bootstrap/.editorconfig has root = true, so files under integration/standalone-bootstrap/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "integration/trusted-types/.editorconfig",
+     "line": 2,
+     "text": "root = true",
+     "title": "integration/trusted-types/.editorconfig has root = true, so files under integration/trusted-types/ never read .editorconfig"
+    }
+   ]
+  },
+  {
+   "repo": "NationalSecurityAgency/ghidra",
+   "commit": "66b3412bdf679197c43858fabf7c3ea2f833bc31",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "mtdvio/every-programmer-should-know",
+   "commit": "e47b7c483b27475f48a01c3a176b724dbfb6d2de",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "microsoft/playwright",
+   "commit": "a018f24a4fc76e2120d3b35d2415f1e5bd4b073e",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 3154,
+   "findings": []
+  },
+  {
+   "repo": "ant-design/ant-design",
+   "commit": "8ca4ecfa1dcdb391682e468613047e7eaebdde83",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 5072,
+   "findings": []
+  },
+  {
+   "repo": "karpathy/autoresearch",
+   "commit": "228791fb499afffb54b46200aca536f79142f117",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "localsend/localsend",
+   "commit": "e05d12a9c0fd4d8c0245d2ec5c3c177e7e0f759b",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "mui/material-ui",
+   "commit": "1d94055b267ba5f6f0edbcbe8a364d5d2a441385",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 41601,
+   "findings": []
+  },
+  {
+   "repo": "OpenCut-app/OpenCut",
+   "commit": "e668010778568641babef2cc40be4703ae6916d6",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "tailwindlabs/tailwindcss",
+   "commit": "d49dd3ea67605b1a77f85b506b2b0f6cbe7f685d",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "florinpop17/app-ideas",
+   "commit": "9e8dd00f10b881babc273d66949b7ffa0e310097",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "hacksider/Deep-Live-Cam",
+   "commit": "08896a51c9a6198f50dc9f7508acf39fc460c8f1",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "punkpeye/awesome-mcp-servers",
+   "commit": "5fb385c3c56a004eacad6a21cb446205c787926b",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "tt-a1i/archify",
+   "commit": "44781293f38728baf04dbad33ce1a0cef8c39cca",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "nvbn/thefuck",
+   "commit": "c7e7e1d884d3bb241ea6448f72a989434c2a35ec",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 436,
+   "findings": []
+  },
+  {
+   "repo": "vllm-project/vllm",
+   "commit": "efb6ed2fe36ae358ed3b001e51221ef411484113",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "microsoft/Web-Dev-For-Beginners",
+   "commit": "93b9967af14efd43246c713217dad40d7c27c2f5",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Stirling-Tools/Stirling-PDF",
+   "commit": "e4053a8d0cb0264a40d9f742a9c02d5c9db266d1",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 8907,
+   "findings": []
+  },
+  {
+   "repo": "oven-sh/bun",
+   "commit": "eaeb8564cb11a9521d6e728d8d259a3cea37e182",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 100471,
+   "findings": []
+  },
+  {
+   "repo": "3b1b/manim",
+   "commit": "fafa083a4fb274bba9cabde0b6e2f50ba6da0622",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "nvm-sh/nvm",
+   "commit": "ecf142d1f006aaa88a0bf7ae4c1a5989bdfcd7a5",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 555,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "invalid-value",
+     "file": ".editorconfig",
+     "line": 13,
+     "text": "indent_size = false",
+     "title": "`indent_size = false` is not a whole number or tab"
+    },
+    {
+     "severity": "medium",
+     "kind": "invalid-value",
+     "file": ".editorconfig",
+     "line": 16,
+     "text": "indent_size = false",
+     "title": "`indent_size = false` is not a whole number or tab"
+    },
+    {
+     "severity": "medium",
+     "kind": "invalid-value",
+     "file": ".editorconfig",
+     "line": 19,
+     "text": "indent_size = false",
+     "title": "`indent_size = false` is not a whole number or tab"
+    },
+    {
+     "severity": "medium",
+     "kind": "invalid-value",
+     "file": ".editorconfig",
+     "line": 22,
+     "text": "insert_final_newline = off",
+     "title": "`insert_final_newline = off` is not one of true, false"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 24,
+     "text": "[test/**/.urchin*]",
+     "title": "[test/**/.urchin*] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "invalid-value",
+     "file": ".editorconfig",
+     "line": 25,
+     "text": "insert_final_newline = off",
+     "title": "`insert_final_newline = off` is not one of true, false"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 30,
+     "text": "[test/fixtures/nvmrc/**]",
+     "title": "[test/fixtures/nvmrc/**] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "invalid-value",
+     "file": ".editorconfig",
+     "line": 31,
+     "text": "indent_style = off",
+     "title": "`indent_style = off` is not one of tab, space"
+    },
+    {
+     "severity": "medium",
+     "kind": "invalid-value",
+     "file": ".editorconfig",
+     "line": 32,
+     "text": "insert_final_newline = off",
+     "title": "`insert_final_newline = off` is not one of true, false"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 34,
+     "text": "[test/fixtures/actual/alias/empty]",
+     "title": "[test/fixtures/actual/alias/empty] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "invalid-value",
+     "file": ".editorconfig",
+     "line": 35,
+     "text": "insert_final_newline = off",
+     "title": "`insert_final_newline = off` is not one of true, false"
+    }
+   ]
+  },
+  {
+   "repo": "puppeteer/puppeteer",
+   "commit": "6b9bc638b8ab90751d88380154096140132ec9de",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 1598,
+   "findings": []
+  },
+  {
+   "repo": "odysseus-dev/odysseus",
+   "commit": "cbd87ecda5bc565c07572727425237e59456bad2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "zed-industries/zed",
+   "commit": "7279c76ef71d45504d7cfea00ee054f852ca0fbf",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "iluwatar/java-design-patterns",
+   "commit": "4cabb204f240240bea319605a5ffa46ded728001",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 3827,
+   "findings": []
+  },
+  {
+   "repo": "ryanmcdermott/clean-code-javascript",
+   "commit": "5311f64b03fc0c2450ab17a45ee9818669c8b9b5",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "louislam/uptime-kuma",
+   "commit": "196c40321f4bc9bdb5d7a9df1b1cb1c1eca5000a",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 937,
+   "findings": []
+  },
+  {
+   "repo": "infiniflow/ragflow",
+   "commit": "8ec6eac4dd540947e2654aef30ee8fe50537a256",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "OpenHands/OpenHands",
+   "commit": "428b3dc2a0e8d3d0f689a909e2607e33d973da76",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Egonex-AI/Understand-Anything",
+   "commit": "bb70fdb0489f8839ce55bf99dae0125ea067f712",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "PaddlePaddle/PaddleOCR",
+   "commit": "dab3fe35379033fdcb2d0e9572fac0b36c9a9ebf",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "astral-sh/uv",
+   "commit": "c99faeeeeb8318d874007b4c48635d009838c1a0",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 1895,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 19,
+     "text": "[crates/uv/tests/help.rs]",
+     "title": "[crates/uv/tests/help.rs] matches none of the listed files"
+    }
+   ]
+  },
+  {
+   "repo": "home-assistant/core",
+   "commit": "f93f45674efaa8db1c41dcd8ee0a7e82e015f768",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "microsoft/ML-For-Beginners",
+   "commit": "8e5c0dfffdb56181450363f9ccd880bc69737ae8",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "modelcontextprotocol/servers",
+   "commit": "c799c8552b0f27b7a33a7b9233773da144dddcf5",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "deepseek-ai/DeepSeek-R1",
+   "commit": "0cf78561f1d51c84a21b2190626b21116d5c68bb",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "django/django",
+   "commit": "c67d872765e05ebd009fadf7de8d834b01bae9e4",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 7104,
+   "findings": []
+  },
+  {
+   "repo": "storybookjs/storybook",
+   "commit": "eebe6352750ac0dcad1a5a8080944723114e4af5",
+   "editorconfig": true,
+   "configs": 3,
+   "paths": 9463,
+   "findings": [
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "code/core/src/common/utils/__tests-formatter__/withoutEditorConfig/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "code/core/src/common/utils/__tests-formatter__/withoutEditorConfig/.editorconfig has root = true, so files under code/core/src/common/utils/__tests-formatter__/withoutEditorConfig/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "code/core/src/common/utils/__tests-formatter__/withoutPrettierConfig/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "code/core/src/common/utils/__tests-formatter__/withoutPrettierConfig/.editorconfig has root = true, so files under code/core/src/common/utils/__tests-formatter__/withoutPrettierConfig/ never read .editorconfig"
+    }
+   ]
+  },
+  {
+   "repo": "opencv/opencv",
+   "commit": "ecd208bc9fb3d38fc0a1da731861e2e80c5820dc",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 7418,
+   "findings": []
+  },
+  {
+   "repo": "MunGell/awesome-for-beginners",
+   "commit": "f7bf7d43cb26d555e51a4c6c83af563a08795605",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "ByteByteGoHq/system-design-101",
+   "commit": "b28380a4710c5ec9638ec037d4168e288f334cba",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "mermaid-js/mermaid",
+   "commit": "7a027f757cbecf87d93cb7da591506b66f6f134d",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 4547,
+   "findings": []
+  },
+  {
+   "repo": "koala73/worldmonitor",
+   "commit": "a7b102e67e843f9d129753d9564b33b091a8363d",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "bitcoin/bitcoin",
+   "commit": "079437cca7a8e2997a6dcd83ad38350014352544",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 3087,
+   "findings": []
+  },
+  {
+   "repo": "syncthing/syncthing",
+   "commit": "f2ed52347ec461a2b7a70787192f3615bcb6bafd",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "gohugoio/hugo",
+   "commit": "68434ddaf46afc1a485547bb282b97da3f719df3",
+   "editorconfig": false,
+   "nested": 1
+  },
+  {
+   "repo": "PanJiaChen/vue-element-admin",
+   "commit": "6858a9ad67483025f6a9432a926beb9327037be3",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 307,
+   "findings": []
+  },
+  {
+   "repo": "sveltejs/svelte",
+   "commit": "a0823d965a7894b621e0e30ad845ddd5a05d9d39",
+   "editorconfig": true,
+   "configs": 3,
+   "paths": 9900,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 10,
+     "text": "[test/**/expected.css]",
+     "title": "[test/**/expected.css] matches none of the listed files"
+    }
+   ]
+  },
+  {
+   "repo": "gin-gonic/gin",
+   "commit": "0f09c3a9b4626d9fe9979cf4d0521d6ae32ab646",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "ChatGPTNextWeb/NextChat",
+   "commit": "1d3dc331512929a4b1d3e82354e72acce33b5c7a",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "cheaper-inference/OmniRoute",
+   "commit": "bd9b1324abb82f0e00066f631b6dd7744e5d975a",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 29151,
+   "findings": []
+  },
+  {
+   "repo": "unclecode/crawl4ai",
+   "commit": "bf0c7925e21992af972039672fecd8e85163b575",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "datawhalechina/hello-agents",
+   "commit": "2eb1c7547018b519b85cb57acf5533f12d65bf8e",
+   "editorconfig": false,
+   "nested": 1
+  },
+  {
+   "repo": "rtk-ai/rtk",
+   "commit": "91ad6d278f462f1b49f44a41b799f5d21ac861a2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "heygen-com/hyperframes",
+   "commit": "fab75fb9160d8bdf88c62d1713a0ccedd855364d",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 10549,
+   "findings": []
+  },
+  {
+   "repo": "bregman-arie/devops-exercises",
+   "commit": "9e49ef97f16377d901db01f3562187394828ca6a",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "666ghj/MiroFish",
+   "commit": "7657031ac01184afe2cb220f5ee3545573b5e843",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "lobehub/lobehub",
+   "commit": "5d4975b805136d9c952089aa650d9ac759bafd55",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 26523,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 15,
+     "text": "[Makefile]",
+     "title": "[Makefile] matches none of the listed files"
+    }
+   ]
+  },
+  {
+   "repo": "DopplerHQ/awesome-interview-questions",
+   "commit": "bcb0c90a0ab3c495857ca9ea63f367e68848346c",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "bytedance/deer-flow",
+   "commit": "5bb4da91ea5d9d898c82c129fd53f9a258f2fce6",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "laravel/laravel",
+   "commit": "a255d7688770af9713daff1439c47ff9bc6abd47",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 66,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 17,
+     "text": "[{compose,docker-compose}.{yml,yaml}]",
+     "title": "[{compose,docker-compose}.{yml,yaml}] matches none of the listed files"
+    }
+   ]
+  },
+  {
+   "repo": "mlabonne/llm-course",
+   "commit": "7abd96e8284bfae232048fdb77b52397a2114847",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "macrozheng/mall",
+   "commit": "dcaa93b3150352e5044708d7211b5bed0af4509f",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Developer-Y/cs-video-courses",
+   "commit": "bcb4d9f93c1fc89eb09592353f360442ae018ab5",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "TapXWorld/ChinaTextbook",
+   "commit": "e2b3f62213c77bb8c33c5be355f97625ea1b8b61",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "fighting41love/funNLP",
+   "commit": "29f4ac896f11058e87e10968569f999c69679b6f",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "realworld-apps/realworld",
+   "commit": "25588846c314b15a5e427ffe816e6b4af7be68c7",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "junegunn/fzf",
+   "commit": "bf4869b7fa7748d973eeb414da4dde0d7fe4cd3c",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 164,
+   "findings": []
+  },
+  {
+   "repo": "opendatalab/MinerU",
+   "commit": "097de7f63f54722c9b805ee1c9a14a0c5b02e078",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "vitejs/vite",
+   "commit": "c7326770e1121733435e0527af972f387d64d344",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 3016,
+   "findings": []
+  },
+  {
+   "repo": "jesseduffield/lazygit",
+   "commit": "54cc6af1d77b5a6cec3dc9ad0b203afdb4ad3451",
+   "editorconfig": true,
+   "configs": 4,
+   "paths": 2635,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": "vendor/github.com/creack/pty/.editorconfig",
+     "line": 26,
+     "text": "[*.feature]",
+     "title": "[*.feature] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": "vendor/github.com/creack/pty/.editorconfig",
+     "line": 30,
+     "text": "[*.json]",
+     "title": "[*.json] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": "vendor/github.com/creack/pty/.editorconfig",
+     "line": 38,
+     "text": "[*.tf]",
+     "title": "[*.tf] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": "vendor/github.com/creack/pty/.editorconfig",
+     "line": 46,
+     "text": "[{Makefile,*.mk}]",
+     "title": "[{Makefile,*.mk}] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": "vendor/github.com/creack/pty/.editorconfig",
+     "line": 53,
+     "text": "[*.sql]",
+     "title": "[*.sql] matches none of the listed files"
+    },
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": "vendor/github.com/sahilm/fuzzy/.editorconfig",
+     "line": 9,
+     "text": "[*.sh]",
+     "title": "[*.sh] matches none of the listed files"
+    },
+    {
+     "severity": "low",
+     "kind": "invalid-value",
+     "file": "vendor/github.com/creack/pty/.editorconfig",
+     "line": 44,
+     "text": "max_line_length = 0",
+     "title": "`max_line_length = 0` is not a whole number or off"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "vendor/github.com/creack/pty/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "vendor/github.com/creack/pty/.editorconfig has root = true, so files under vendor/github.com/creack/pty/ never read .editorconfig"
+    },
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "vendor/github.com/spf13/afero/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "vendor/github.com/spf13/afero/.editorconfig has root = true, so files under vendor/github.com/spf13/afero/ never read .editorconfig"
+    }
+   ]
+  },
+  {
+   "repo": "career-ops-hq/career-ops",
+   "commit": "5286f2d1a694f6d39f6b10df6e91be17dabdee67",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 4255,
+   "findings": []
+  },
+  {
+   "repo": "animate-css/animate.css",
+   "commit": "3f8ab233dbbd9d2fe577528d2296382954be3d1a",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 150,
+   "findings": []
+  },
+  {
+   "repo": "swisskyrepo/PayloadsAllTheThings",
+   "commit": "08ea40e77db3f42ef8f20c65196f3936a19b6c86",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "d2l-ai/d2l-zh",
+   "commit": "e6b18ccea71451a55fcd861d7b96fddf2587b09a",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "tonsky/FiraCode",
+   "commit": "1a2ebc6a8133cfdafb98cc7fcdd209878acf04bf",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "ruvnet/ruflo",
+   "commit": "6c6293dab6eea3b6f623411a25c146ce9e2db058",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Z4nzu/hackingtool",
+   "commit": "c3a858990f1f772e5c59f10c51f1a7aeb888ef23",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "spring-projects/spring-boot",
+   "commit": "7844ec9772a8a91a37840efbd7382348d1926f48",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 11996,
+   "findings": []
+  },
+  {
+   "repo": "OpenMontageInc/OpenMontage",
+   "commit": "2e003e65fa99a0f329478a2c1cdcf26bc481933a",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "netdata/netdata",
+   "commit": "4fe60db332c7b4d9c9ef101015a5ae698275107f",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "abi/screenshot-to-code",
+   "commit": "f2e5bbdd1dd5d93c259548d9bccf54e2a5f06a30",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Ebony-Vinyl/dsh-our-free-model",
+   "commit": "ba266c6e268bc5fb9227fb1353149e4a99f77739",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "ventoy/Ventoy",
+   "commit": "8308a527ac54aaf75b50c7140e5cc854784152f5",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "hoppscotch/hoppscotch",
+   "commit": "55908a76a1d0555c9bbb5d74244c14173df95b06",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 2523,
+   "findings": []
+  },
+  {
+   "repo": "shareAI-lab/learn-claude-code",
+   "commit": "448c75bb596917ad196cc1fb7558f459c5c50fdd",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "storytold/photocraft",
+   "commit": "359051359fee33177349d93fd12ac44af9ae4e1a",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "microsoft/ai-agents-for-beginners",
+   "commit": "3bee2ddf8e7aab27b17ef9e1d4a3f2c541a1913e",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "dair-ai/Prompt-Engineering-Guide",
+   "commit": "57673726396dd94acb23bdb1e67f27c78ee85a8e",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "awesomedata/awesome-public-datasets",
+   "commit": "5493fd3e5d4b8af01630588947932198203ada40",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "headroomlabs-ai/headroom",
+   "commit": "3a8270b836bc9ffa050eb7066a902ea936bc7ef2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "coder/code-server",
+   "commit": "e7ff0c41be5cff7d2a82d1a21e58eda83c2db160",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 267,
+   "findings": []
+  },
+  {
+   "repo": "ComposioHQ/awesome-claude-skills",
+   "commit": "be2a406907dbc61b73e6827ded415c96139d13a2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "anuraghazra/github-readme-stats",
+   "commit": "54a7985aeefda00d5eadb55b80c17c7f976c37d2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "unslothai/unsloth",
+   "commit": "183466ec17f8615b0d3afe130f45b924b8c84426",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "obsproject/obs-studio",
+   "commit": "1a44b7f40140ec202da2658ba74068da8adb5a7e",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 5262,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 37,
+     "text": "[*.qss]",
+     "title": "[*.qss] matches none of the listed files"
+    },
+    {
+     "severity": "low",
+     "kind": "overridden-pair",
+     "file": ".editorconfig",
+     "line": 22,
+     "text": "indent_style = space",
+     "title": "`indent_style = space` in [CMakeLists.txt] is overridden for every listed file it applies to"
+    },
+    {
+     "severity": "low",
+     "kind": "overridden-pair",
+     "file": ".editorconfig",
+     "line": 23,
+     "text": "indent_size = 2",
+     "title": "`indent_size = 2` in [CMakeLists.txt] is overridden for every listed file it applies to"
+    }
+   ]
+  },
+  {
+   "repo": "rohitg00/ai-engineering-from-scratch",
+   "commit": "9712e323fde8cb2ec933310ac619e920e8e31017",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "caddyserver/caddy",
+   "commit": "edcdfa0ed88f7dcc1c53720d25218fde9d63eb1e",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 780,
+   "findings": [
+    {
+     "severity": "low",
+     "kind": "no-root",
+     "file": ".editorconfig",
+     "line": 1,
+     "text": "",
+     "title": "No `root = true` at the top of the project"
+    }
+   ]
+  },
+  {
+   "repo": "AppFlowy-IO/AppFlowy",
+   "commit": "8fcee27d9bd93aad4ee0191d5d8d915d6a9a4e93",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "doocs/advanced-java",
+   "commit": "8aa03929436ab88e6e34273ccf2281886843d91a",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Asabeneh/30-Days-Of-Python",
+   "commit": "50c11a80a6e3924a7be58c89f409697e12cb4d70",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "elastic/elasticsearch",
+   "commit": "05e0b1253c2c0c5429e3878686d00ccbb5df4088",
+   "editorconfig": true,
+   "configs": 2,
+   "paths": 52605,
+   "findings": [
+    {
+     "severity": "low",
+     "kind": "overridden-pair",
+     "file": ".editorconfig",
+     "line": 26,
+     "text": "ij_groovy_names_count_to_use_import_on_demand = 999",
+     "title": "`ij_groovy_names_count_to_use_import_on_demand = 999` in [*.groovy] is overridden for every listed file it applies to"
+    },
+    {
+     "severity": "low",
+     "kind": "overridden-pair",
+     "file": ".editorconfig",
+     "line": 27,
+     "text": "ij_groovy_imports_layout = *,|,com.**,|,org.**,|,java.**,javax.**,|,$*",
+     "title": "`ij_groovy_imports_layout = *,|,com.**,|,org.**,|,java.**,javax.**,|,$*` in [*.groovy] is overridden for every listed file it applies to"
+    }
+   ]
+  },
+  {
+   "repo": "hugohe3/ppt-master",
+   "commit": "d8f704bc8c1552d53a8769b55d1eecd22c782042",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "python/cpython",
+   "commit": "b09a7e92fb0ab958a52ad94e376402cdd3da09b2",
+   "editorconfig": true,
+   "configs": 2,
+   "paths": 5676,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": "Tools/wasm/emscripten/.editorconfig",
+     "line": 4,
+     "text": "[*.{html,js}]",
+     "title": "[*.{html,js}] matches none of the listed files"
+    }
+   ]
+  },
+  {
+   "repo": "colbymchenry/codegraph",
+   "commit": "69bbb389780410f43de7b514b90b2f7ba6b12584",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "grafana/grafana",
+   "commit": "0468ba706ff130a09e2b4b4e3bcb428c1e5228d0",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 24908,
+   "findings": [
+    {
+     "severity": "medium",
+     "kind": "section-unmatched",
+     "file": ".editorconfig",
+     "line": 29,
+     "text": "[*.star]",
+     "title": "[*.star] matches none of the listed files"
+    }
+   ]
+  },
+  {
+   "repo": "tensorflow/models",
+   "commit": "8f3b2e48fff92a7fa8d504908b51a6eb51e868a0",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "tesseract-ocr/tesseract",
+   "commit": "9c1f34d35195c8a7dae843b906924bb3f5b8b9f2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "redis/redis",
+   "commit": "fd7710ca2bf6ff025aedb3cf1d5da146854a6db2",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "nomic-ai/gpt4all",
+   "commit": "b666d16db5aeab8b91aaf7963adcee9c643734d7",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "openai/openai-cookbook",
+   "commit": "dfd760b4de0bd175b51ad05b9b5260c36dfea09c",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "ocornut/imgui",
+   "commit": "77fe4588e6af934b4167b91312174ca3fbb0d71a",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 299,
+   "findings": []
+  },
+  {
+   "repo": "nestjs/nest",
+   "commit": "9aaa3e1b596982286091c184cd8a8f42f260dc2e",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "FortAwesome/Font-Awesome",
+   "commit": "14c65a3747d0f3b751f15831fc719236aea8729d",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "PKUFlyingPig/cs-self-learning",
+   "commit": "2c591834a1e4101e2e7579dc7f49bdeb4a6153a2",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 286,
+   "findings": []
+  },
+  {
+   "repo": "chrislgarry/Apollo-11",
+   "commit": "e7576d50f7c279a707cfaa71be2020592dbf43a8",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 262,
+   "findings": []
+  },
+  {
+   "repo": "usestrix/strix",
+   "commit": "a1ccf777d80e812edf23fc8b82bdc17def6143ac",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "eternity4719/HowToLiveBetter",
+   "commit": "49fceab4254c8c2df0f7cdb1b2959cab6c451b96",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "MisterBooo/LeetCodeAnimation",
+   "commit": "e853d7a5a893292b9d4636c78c080daf11552c81",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "sdmg15/Best-websites-a-programmer-should-visit",
+   "commit": "3f13b0712c4f385194f0a5799d991ca3d409c6b5",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "hiyouga/LlamaFactory",
+   "commit": "b4e4d3fcb2a5a13ce6b9431d395e3939f84b8ec1",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "cloudflare/security-audit-skill",
+   "commit": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "binhnguyennus/awesome-scalability",
+   "commit": "c9ca9f248d4dbbde63a8460188f6324f00f34ddd",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "typicode/json-server",
+   "commit": "89a34a44b7a6a5311dc84f3b8a1b8b45c0905aea",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "tw93/Mole",
+   "commit": "eff45ab55f08cc14509b04b488ff2cadd8c004b0",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 377,
+   "findings": []
+  },
+  {
+   "repo": "apache/superset",
+   "commit": "d73b7822eaba93740f21ebf932db1d5f6546eb20",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 11686,
+   "findings": []
+  },
+  {
+   "repo": "openbq-org/OpenBB",
+   "commit": "f0f1852b96dd3fc4d5868f8863cbe053ff49c6cd",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Eugeny/tabby",
+   "commit": "467ce8ebfa467fb88cf6d154c9a5891e3d3647f0",
+   "editorconfig": true,
+   "configs": 2,
+   "paths": 892,
+   "findings": []
+  },
+  {
+   "repo": "enaqx/awesome-react",
+   "commit": "e6fd973eefe57d288a60e6d21bb9d8f343addfe9",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "Fission-AI/OpenSpec",
+   "commit": "0c737dc1b543249b38b0f4716816fcf493d894dd",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "pallets/flask",
+   "commit": "49943b5a94413a530761350f04e896f76e8d620e",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 236,
+   "findings": []
+  },
+  {
+   "repo": "toeverything/AFFiNE",
+   "commit": "dc2b2212441602452f3cf0ea50a4eaedaf03bcc2",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 10283,
+   "findings": []
+  },
+  {
+   "repo": "juliangarnier/anime",
+   "commit": "01b81be1df6843ccfe0a71c0699a746bf740dd77",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "josephmisiti/awesome-machine-learning",
+   "commit": "2c9222982b4fba6fd5ce135cce41f24a4f2c6983",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "danielmiessler/SecLists",
+   "commit": "f90961c9c5be42d80e2f1b6e27b968530918862d",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "thedaviddias/Front-End-Checklist",
+   "commit": "e8d14d049010e2ce25afcd5e8609dfcbbe63e47e",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "fffaraz/awesome-cpp",
+   "commit": "7af10c25faa623d4252a22845b32c510ac3771d8",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "remotion-dev/remotion",
+   "commit": "d6cac5559dcf6ff52c7aa7a288f5d9394fa3c54e",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "twitter/the-algorithm",
+   "commit": "c54bec0d4e029fe34926ef3258a86ccacc0d0182",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "unionlabs/union",
+   "commit": "031785bb6dc6b957c624e62bc64c184409c97d7b",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "CompVis/stable-diffusion",
+   "commit": "21f890f9da3cfbeaba8e2ac3c425ee9e998d5229",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "strapi/strapi",
+   "commit": "2db7f2eefa10c9a229082b07e2a7609ebfb8a222",
+   "editorconfig": true,
+   "configs": 2,
+   "paths": 7644,
+   "findings": [
+    {
+     "severity": "info",
+     "kind": "nested-root",
+     "file": "packages/core/content-releases/.editorconfig",
+     "line": 1,
+     "text": "root = true",
+     "title": "packages/core/content-releases/.editorconfig has root = true, so files under packages/core/content-releases/ never read .editorconfig"
+    }
+   ]
+  },
+  {
+   "repo": "ZhuLinsen/daily_stock_analysis",
+   "commit": "92f0209ec5325c152a7532d714a69e09d102399a",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "vuejs/awesome-vue",
+   "commit": "cb2c2314e5e25e2c24aeac3083e052499bb959d6",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "prakhar1989/awesome-courses",
+   "commit": "e0b02ce4084c3b426304ae03ffcb072f7c8057f3",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "nektos/act",
+   "commit": "ac4c09993f474fc8091608f2f7cf85a69dfd012f",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 466,
+   "findings": []
+  },
+  {
+   "repo": "ai-job-search-dev/ai-job-search",
+   "commit": "d2afe00bfc9b7be8ffc2ee41acc22570970b76d4",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "hakimel/reveal.js",
+   "commit": "e240e175232fa2de660a02bc0d7bf5f655b159bb",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "moby/moby",
+   "commit": "e4a1cf166e421bb6e05ff64b674681dfcf527bb0",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "protocolbuffers/protobuf",
+   "commit": "4260ce9ec662fb08d81404506533c42df8c57c60",
+   "editorconfig": false,
+   "nested": 1
+  },
+  {
+   "repo": "asgeirtj/system_prompts_leaks",
+   "commit": "56eeb3792e700a7e2165ffcd91f93c3115b210c7",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 2219,
+   "findings": []
+  },
+  {
+   "repo": "Alishahryar1/free-claude-code",
+   "commit": "62db82ecb2bb79866247a59e31d02beba59e757e",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "cline/cline",
+   "commit": "20b042723a14412f6c1e84230b008708534d6e8c",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "binary-husky/gpt_academic",
+   "commit": "d6bde0fa54373309bd05823a49bda8da019d2c77",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "ansible/ansible",
+   "commit": "f0d3af98967e19549d65342a632504fe58d9651d",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "NanmiCoder/MediaCrawler",
+   "commit": "09ed1ec62d885dab422a53de999f52ac0bd4966b",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "FoundationAgents/MetaGPT",
+   "commit": "11cdf466d042aece04fc6cfd13b28e1a70341b1f",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "blader/humanizer",
+   "commit": "a32f24407364c74c812b43c15926d638bee1e072",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "daytonaio/daytona",
+   "commit": "ec4c21b2d597091ac09ecc278f3bcc172575a987",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "dani-garcia/vaultwarden",
+   "commit": "baff1cabae39f55fd5111d0724d1389d08d00a63",
+   "editorconfig": true,
+   "configs": 1,
+   "paths": 616,
+   "findings": []
+  },
+  {
+   "repo": "microsoft/AI-For-Beginners",
+   "commit": "1ff3c870707ec312f4c4a3bba4eaf0d9e06456a3",
+   "editorconfig": false,
+   "nested": 0
+  },
+  {
+   "repo": "code-yeongyu/oh-my-openagent",
+   "commit": "b036a83c622e637bb483c423733449af8f7f3923",
+   "editorconfig": false,
+   "nested": 2
+  }
+ ]
+}
