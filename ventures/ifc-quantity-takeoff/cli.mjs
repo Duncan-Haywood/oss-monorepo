@@ -12,10 +12,11 @@
 //   --voids-up-to 0.5,0.05                     leave in openings up to 0.5 m2 (areas) and 0.05 m3 (volumes)
 //   --tolerance 0.02                           relative difference that still counts as agreeing (default 2%)
 //   --no-geometry                              stored quantities only (faster)
+//   --trust-declared-units                     keep a named unit's declared factor even when it is not that unit
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
-import { takeoff, boq, boqCsv, rowsCsv, checkSummary } from "./qto.mjs";
+import { takeoff, boq, boqCsv, rowsCsv, checkSummary, unitRepairNote } from "./qto.mjs";
 import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
 
 const args = process.argv.slice(2);
@@ -23,7 +24,7 @@ const VALUED = ["--rows", "--json", "--by", "--compare", "--changes", "--toleran
 const file = args.find((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
 const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
 if (!file || args.includes("--help")) {
-  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 15).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
+  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 16).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
   process.exit(file ? 0 : 2);
 }
 const by = (opt("--by") || "class,type").split(",").map((s) => s.trim()).filter(Boolean);
@@ -36,10 +37,13 @@ if (opt("--voids-up-to")) {
 }
 const t0 = Date.now();
 const model = parseStep(readFileSync(file));
-const res = takeoff(model, { geometry: !args.includes("--no-geometry"), tolerance: opt("--tolerance") ? Number(opt("--tolerance")) : undefined });
+const trustDeclaredUnits = args.includes("--trust-declared-units");
+const res = takeoff(model, { geometry: !args.includes("--no-geometry"), tolerance: opt("--tolerance") ? Number(opt("--tolerance")) : undefined, trustDeclaredUnits });
 const secs = (Date.now() - t0) / 1000;
+if (unitRepairNote(res.units)) console.error(`${file}: ${unitRepairNote(res.units)}`);
 if (opt("--compare")) {
-  const before = takeoff(parseStep(readFileSync(opt("--compare"))), { geometry: !args.includes("--no-geometry") });
+  const before = takeoff(parseStep(readFileSync(opt("--compare"))), { geometry: !args.includes("--no-geometry"), trustDeclaredUnits });
+  if (unitRepairNote(before.units)) console.error(`${opt("--compare")}: ${unitRepairNote(before.units)}`);
   const d = diffTakeoffs(before.rows, res.rows);
   const s = d.summary;
   console.error(`${opt("--compare")} -> ${file}: ${s.before} -> ${s.after} elements; ${s.unchanged} unchanged, ${s.changed} changed (${s.quantityChanged} quantity, ${s.attributeChanged} attribute, ${s.moved} moved, ${s.reshaped} reshaped), ${s.added} added, ${s.removed} removed, ${s.merged} merged, ${s.split} split; ${s.byTag + s.byGeometry} matched under a new GlobalId (${s.byTag} by Tag, ${s.byGeometry} by geometry)`);
