@@ -35,6 +35,7 @@ export const SAMPLE = {
   stateRate: "5",
   qbi: "yes",
   priorYearTax: "",
+  priorYearAgi: "",
 };
 
 const num = (v) => {
@@ -99,12 +100,14 @@ export function compute(input) {
   const other = num(input.otherIncome) ?? 0;
   const stateRate = num(input.stateRate) ?? 0;
   const prior = num(input.priorYearTax);
+  const priorAgi = num(input.priorYearAgi);
   if (revenue === null || Number.isNaN(revenue) || revenue < 0) errors.push("Enter your gross business revenue for the year (0 or more).");
   if (Number.isNaN(expenses) || expenses < 0) errors.push("Expenses must be 0 or more.");
   if (Number.isNaN(w2) || w2 < 0) errors.push("W-2 wages must be 0 or more.");
   if (Number.isNaN(other) || other < 0) errors.push("Other income must be 0 or more.");
   if (Number.isNaN(stateRate) || stateRate < 0 || stateRate > 20) errors.push("State tax rate must be between 0 and 20 percent.");
   if (Number.isNaN(prior) || (prior !== null && prior < 0)) errors.push("Last year's total tax must be 0 or more.");
+  if (Number.isNaN(priorAgi)) errors.push("Last year's AGI must be a number.");
   if (errors.length) return { errors };
 
   const p = { status, w2, other, stateRate, qbi: input.qbi !== "no" };
@@ -136,16 +139,23 @@ export function compute(input) {
   // withholding does not cover); the 90% target is of all federal tax, and
   // withholding counts toward it.
   const allFederal = r2(L.totalAll - L.state);
-  if (federalTotal >= PENALTY_FLOOR) {
-    const safe = prior !== null && prior > 0 ? prior * (L.agi > 150000 ? 1.1 : 1) : null;
+  if (federalTotal >= PENALTY_FLOOR && prior === 0) {
+    // IRS Pub. 505: no underpayment penalty if last year's return showed no
+    // total tax, covered 12 months, and you were a US citizen or resident all year.
+    findings.push({ severity: "info", title: `Last year's total tax was $0, so if that return covered a full 12 months and you were a US citizen or resident all year, the IRS charges no underpayment penalty for ${TAX_YEAR} and estimated payments (Form 1040-ES) are optional. The tax itself is still due by April 15, ${TAX_YEAR + 1}: keep setting the money aside.` });
+  } else if (federalTotal >= PENALTY_FLOOR) {
+    // The 110% rule keys on LAST year's AGI (IRC 6654(d)(1)(C)); this year's
+    // AGI stands in only when last year's is not entered.
+    const agiForSafe = priorAgi ?? L.agi;
+    const safe = prior !== null && prior > 0 ? prior * (agiForSafe > 150000 ? 1.1 : 1) : null;
     const ninety = r2(allFederal * 0.9);
     const needed = safe !== null ? Math.min(ninety, r2(safe)) : ninety;
     const withheld = r2(L.totalAll - L.state - federalTotal);
     const estimates = r2(Math.max(0, needed - withheld));
-    findings.push({ severity: "medium", title: `You probably owe $${PENALTY_FLOOR.toLocaleString("en-US")} or more after withholding, so the IRS expects estimated payments (Form 1040-ES) on ${DUE_DATES.join(", ")}. Paying at least $${needed.toFixed(2)} in total (${safe !== null && safe < ninety ? "100%/110% of last year's tax" : "90% of this year's federal tax"}) avoids the federal underpayment penalty (your state has its own estimated-tax rules). ${withheld > 0 ? `Withholding on your wages counts toward it: if it equals the tax on the wages alone (about $${withheld.toFixed(2)}), about $${estimates.toFixed(2)} is left for estimates, $${r2(estimates / 4).toFixed(2)} a quarter.` : `The even split is about $${r2(needed / 4).toFixed(2)} per quarter.`}` });
+    findings.push({ severity: "medium", title: `You probably owe $${PENALTY_FLOOR.toLocaleString("en-US")} or more after withholding, so the IRS expects estimated payments (Form 1040-ES) on ${DUE_DATES.join(", ")}. Paying at least $${needed.toFixed(2)} in total (${safe !== null && safe < ninety ? `${agiForSafe > 150000 ? "110%" : "100%"} of last year's tax${priorAgi === null ? ", judged on this year's AGI since last year's was not entered" : ""}` : "90% of this year's federal tax"}) avoids the federal underpayment penalty (your state has its own estimated-tax rules). ${withheld > 0 ? `Withholding on your wages counts toward it: if it equals the tax on the wages alone (about $${withheld.toFixed(2)}), about $${estimates.toFixed(2)} is left for estimates, $${r2(estimates / 4).toFixed(2)} a quarter.` : `The even split is about $${r2(needed / 4).toFixed(2)} per quarter.`}` });
   }
   if (!p.qbi) findings.push({ severity: "info", title: "The 20% qualified business income deduction is switched off, so the federal figure is higher than most sole proprietors will see." });
-  else if (L.qbi === 0 && net > 0) findings.push({ severity: "info", title: `Taxable income is above the $${QBI_LIMIT[status].toLocaleString("en-US")} line where the QBI deduction is limited by business type, wages and property. This tool takes no QBI deduction there, which errs toward saving more. A tax professional can tell you what you qualify for.` });
+  else if (L.qbi === 0 && net > 0 && L.taxable > QBI_LIMIT[status]) findings.push({ severity: "info", title: `Taxable income is above the $${QBI_LIMIT[status].toLocaleString("en-US")} line where the QBI deduction is limited by business type, wages and property. This tool takes no QBI deduction there, which errs toward saving more. A tax professional can tell you what you qualify for.` });
   if (w2 + other > 0) findings.push({ severity: "info", title: `Of $${L.totalAll.toFixed(2)} total tax on all your income this year, $${r2(L.totalAll - total).toFixed(2)} is the tax on your W-2 wages and other income alone, which the set-aside assumes your paycheck withholding already covers. If nothing is withheld from that income, set that aside too, or raise your W-4 withholding.` });
   if (L.se.additional > 0) findings.push({ severity: "info", title: `Additional Medicare Tax of $${L.se.additional.toFixed(2)} (0.9%) is included because earnings pass $${ADDITIONAL_MEDICARE_THRESHOLD[status].toLocaleString("en-US")}.` });
   findings.push({ severity: "info", title: "State tax is a flat share of profit after half of self-employment tax, using the rate you entered. Real state brackets, local tax and credits differ, so treat it as a planning number." });

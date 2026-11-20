@@ -4,6 +4,11 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it handles
+
+- The 1040-ES safe harbor: 90% of this year's federal tax, or 100% of last year's (110% when last year's AGI was over $150,000; enter it, or this year's stands in). With $0 tax last year it reports no underpayment penalty.
+- With W-2 wages, the set-aside is only the tax the freelance profit adds.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/us-freelancer-tax-set-aside-calculator/)
