@@ -201,7 +201,7 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Saint Silvanus of Tarsus and the councils of Seleucia, the bishop who would not silence a guest (Theodoret, Sozomen and Socrates on the council of three hundred and fifty-nine; a sequel to episode 136).
 - The ark at Kiriath-jearim, twenty years in the house of Abinadab on the hill, and Eleazar who kept it (First Samuel 6:19 to 7:2, with Second Samuel 6:1-4 and Psalm 132:6; left by episode 149).
 - The men of Gibeon on the wall, Nehemiah's list of who rebuilt which stretch, gate by gate (Nehemiah 3; left by episode 149).
-- Jonathan and his armour-bearer at Michmash, the climb up the crag and the honey on the end of his staff (First Samuel 14; left by episode 151).
+- *(Claimed 2026-11-20: episode 153, in progress.)* Jonathan and his armour-bearer at Michmash, the climb up the crag and the honey on the end of his staff (First Samuel 14; left by episode 151).
 - Michal and the image in David's bed, the night she let him down through the window (First Samuel 19:11-17; left by episode 151).
 - Saul among the prophets at Naioth in Ramah, three lots of messengers and then the king himself (First Samuel 19:18-24; left by episode 151).
 - Absalom at the city gate and the long flight up the Mount of Olives, Ittai the Gittite who would not go home and Zadok who carried the ark back (Second Samuel 15; left by episode 152).
