@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKkKpFFqvnCdnToSxk7",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T15:19:24Z",
+  "ended": "2026-11-20T15:40:06Z",
+  "wall_minutes": 20.91,
+  "tokens_in": 3883374,
+  "tokens_out": 34580,
+  "cost_usd": 2.264,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17933",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/subjects.txt",
+      "issue": "'p-hacking, forking paths' is listed as an unused For Other Minds candidate, but Toss It Again already covers multiple comparisons and DONE.md records a 'fortieth cut' proposal rejected for repeating it; I drafted a 'forty-first cut' proposal from it before overlap.mjs --titles on 'Bonferroni' showed the clash. The candidate's terms should include 'multiple comparisons' and 'Bonferroni' so --unused drops it."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The one Hearth & Horizon proposal was already claimed by open PR #17928; the search for it worked as documented, but the shelf had no second proposal, so the headline shelf could not be fed without writing one first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The science fiction shelf is the headline, but its only proposal was being drafted in PR #17928",
+      "did": "Took the unclaimed For Other Minds proposal instead and wrote a new For Other Minds proposal (instrumental variable) to replace it",
+      "result": "Story landed without a duplicate; no Hearth & Horizon proposal was added this run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-for-other-minds-the-two-who-were-born-a-day-apart.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, For Other Minds shelf. Piece: the-two-who-were-born-a-day-apart (regression discontinuity, text only; audio dirs 577 MB, over the 400 MB cap). Model in plain Python, seed 2066 chosen after a scan of seeds 2040 to 2074 for a draw typical of the model (seed 2049 gave a 2-SD fluke step of 8 against a true 3); the closing note states the seed and true effect. The adversarial re-read caught three claims the model had not computed (14 of 16 schools, smooth births across the line, a 30 June age of '2 months 1 day'); all fixed from computed values. Local: node --test in hearth-and-horizon 20/20; run_workflow_locally --for-changes passed every workflow that finished (pages, ventures-tests, portfolio-validate 100/100, doc-refs, conflict-markers and others); PR CI green. New For Other Minds proposal: 'The ones who live past the bridge' (instrumental variable).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d263def0-984c-5976-a17e-1ded55723e97",
+    "transcripts": 1,
+    "first": "2026-11-20T15:19:24Z",
+    "last": "2026-11-20T15:40:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 79,
+        "output": 34580,
+        "thinking": 11251,
+        "cache_read": 3781313,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101982,
+        "api_equivalent_usd": 2.264,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 79,
+      "output": 34580,
+      "thinking": 11251,
+      "cache_read": 3781313,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101982,
+      "api_equivalent_usd": 2.264,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 38,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.91,
+      "active_minutes": 20.91,
+      "model_minutes": 7.51,
+      "tool_minutes": 13.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a 3,400-word short story with a worked statistical model and a blog post, at a writer's pace",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 353.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
