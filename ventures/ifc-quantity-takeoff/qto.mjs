@@ -17,6 +17,7 @@
 // because one of them is wrong and an estimate built on it would be too.
 
 import { applyRule, ruleActive } from "./measure.mjs";
+import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
 import { Geometry, Unresolved, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
@@ -79,7 +80,7 @@ const QTY = {
 
 /** Index of the relationships an element's row needs, built once per model. */
 function indexModel(E) {
-  const storeyOf = new Map(), typeOf = new Map(), qsets = new Map(), material = new Map(), classif = new Map(), voids = new Map(), parentOf = new Map(), children = new Map(), pathJoins = new Map();
+  const storeyOf = new Map(), typeOf = new Map(), qsets = new Map(), psets = new Map(), material = new Map(), classif = new Map(), voids = new Map(), parentOf = new Map(), children = new Map(), pathJoins = new Map(), fills = new Map(), openingHost = new Map();
   const push = (m, k, v) => { const a = m.get(k); if (a) a.push(v); else m.set(k, [v]); };
   for (const e of E.values()) {
     const t = e.type;
@@ -90,12 +91,16 @@ function indexModel(E) {
     } else if (t === "IFCRELDEFINESBYPROPERTIES") {
       const d = E.get(refId(e.args[5]));
       if (d && d.type === "IFCELEMENTQUANTITY") for (const r of e.args[4] || []) push(qsets, refId(r), d.id);
+      else if (d && d.type === "IFCPROPERTYSET") for (const r of e.args[4] || []) push(psets, refId(r), d.id);
     } else if (t === "IFCRELASSOCIATESMATERIAL") {
       for (const r of e.args[4] || []) material.set(refId(r), refId(e.args[5]));
     } else if (t === "IFCRELASSOCIATESCLASSIFICATION") {
       for (const r of e.args[4] || []) push(classif, refId(r), refId(e.args[5]));
     } else if (t === "IFCRELVOIDSELEMENT") {
       push(voids, refId(e.args[4]), refId(e.args[5]));
+      openingHost.set(refId(e.args[5]), refId(e.args[4]));
+    } else if (t === "IFCRELFILLSELEMENT") {
+      fills.set(refId(e.args[5]), refId(e.args[4]));
     } else if (t === "IFCRELCONNECTSPATHELEMENTS") {
       // a wall whose start or end sits on another wall's path (a T-join):
       // its end covers a strip of that wall's face
@@ -106,7 +111,7 @@ function indexModel(E) {
       if (t === "IFCRELAGGREGATES") for (const r of e.args[5] || []) { parentOf.set(refId(r), refId(e.args[4])); push(children, refId(e.args[4]), refId(r)); }
     }
   }
-  return { storeyOf, typeOf, qsets, material, classif, voids, parentOf, children, pathJoins };
+  return { storeyOf, typeOf, qsets, psets, material, classif, voids, parentOf, children, pathJoins, fills, openingHost };
 }
 
 function materialName(E, id, depth = 0) {
@@ -143,6 +148,44 @@ function classificationCode(E, ids) {
     }
   }
   return null;
+}
+
+/** Every code an element's classification references carry: [{ code, name, system }]. */
+function classificationCodes(E, ids) {
+  const out = [];
+  for (const id of ids || []) {
+    const c = E.get(id);
+    if (!c || c.type !== "IFCCLASSIFICATIONREFERENCE") continue;
+    const code = str(c.args[1]);
+    const src = E.get(refId(c.args[3]));
+    if (code) out.push({ code, name: str(c.args[2]), system: src && src.type === "IFCCLASSIFICATION" ? str(src.args[3]) : null });
+  }
+  return out;
+}
+
+/** The first enumeration in args[from..] that is a real choice (not NOTDEFINED or USERDEFINED). */
+function predefinedOf(e, from) {
+  for (let i = from; i < (e?.args.length ?? 0); i++) {
+    const v = e.args[i];
+    if (v && typeof v === "object" && typeof v.enum === "string") return v.enum === "NOTDEFINED" || v.enum === "USERDEFINED" ? null : v.enum;
+  }
+  return null;
+}
+
+/** IsExternal and an Assembly Code from a list of property sets. */
+function readProps(E, ids, out) {
+  for (const id of ids || []) {
+    const ps = E.get(id);
+    if (!ps || ps.type !== "IFCPROPERTYSET") continue;
+    for (const pr of ps.args[4] || []) {
+      const p = E.get(refId(pr));
+      if (!p || p.type !== "IFCPROPERTYSINGLEVALUE") continue;
+      const name = str(p.args[0]);
+      const v = p.args[2] && typeof p.args[2] === "object" && "typed" in p.args[2] ? p.args[2].value : p.args[2];
+      if (name === "IsExternal" && typeof v === "boolean" && out.isExternal == null) out.isExternal = v;
+      else if ((name === "Assembly Code" || name === "AssemblyCode") && typeof v === "string" && v.trim()) out.codes.push({ code: v.trim(), from: name });
+    }
+  }
 }
 
 /** Chooses the body representation of a product shape: 'Body', else the first solid-looking one. */
@@ -212,7 +255,7 @@ export function takeoff(model, opts = {}) {
     const id = e.id;
     const row = {
       id, globalId: e.args[0], ifcClass: prettyClass(e.type), ifcType: e.type, name: str(e.args[2]), tag: str(e.args[7]) ?? null,
-      type: null, storey: null, material: null, classification: null, parent: null, isAssembly: false,
+      type: null, storey: null, storeyElevation: null, material: null, classification: null, parent: null, isAssembly: false,
       stored: {}, storedSet: null, computed: null, check: null, box: null,
       pathJoins: idx.pathJoins.get(id) || [],
     };
@@ -221,13 +264,26 @@ export function takeoff(model, opts = {}) {
     // storey: own containment, else the aggregate parent's
     let sid = idx.storeyOf.get(id), p = idx.parentOf.get(id), hop = 0;
     while (!sid && p && hop++ < 10) { sid = idx.storeyOf.get(p); p = idx.parentOf.get(p); }
-    if (sid) { const s = E.get(sid); row.storey = s ? (str(s.args[2]) ?? `#${sid}`) : null; }
+    if (sid) { const s = E.get(sid); row.storey = s ? (str(s.args[2]) ?? `#${sid}`) : null; if (s && s.type === "IFCBUILDINGSTOREY" && numOf(s.args[9]) != null) row.storeyElevation = numOf(s.args[9]) * f; }
     const parent = idx.parentOf.get(id);
     if (parent) { const pe = E.get(parent); if (pe && isElement(pe)) row.parent = parent; }
     row.isAssembly = (idx.children.get(id) || []).some((c) => { const ce = E.get(c); return ce && isElement(ce); });
     const mid = idx.material.get(id) ?? (tId ? idx.material.get(tId) : undefined);
     if (mid) row.material = materialName(E, mid);
     row.classification = classificationCode(E, idx.classif.get(id) ?? (tId ? idx.classif.get(tId) : undefined));
+    // what the Uniformat rules read (uniformat.mjs)
+    const te = tId ? E.get(tId) : null;
+    const generic = /^IFC(FLOW|ENERGYCONVERSION|DISTRIBUTION|BUILDINGELEMENTPROXY)/.test(e.type);
+    row.effectiveClass = generic && te && te.type.endsWith("TYPE") ? te.type.slice(0, -4) : e.type;
+    row.predefinedType = predefinedOf(e, 8) ?? (te ? predefinedOf(te, 8) : null);
+    const props = { isExternal: null, codes: [] };
+    readProps(E, idx.psets.get(id), props);
+    if (te) readProps(E, (te.args[5] || []).map(refId), props);
+    row.isExternal = props.isExternal;
+    const refs = [...classificationCodes(E, idx.classif.get(id)), ...(tId ? classificationCodes(E, idx.classif.get(tId)) : [])];
+    row.uniformatCodes = [...refs.map((c) => ({ code: c.code, from: `classification${c.system ? " (" + c.system + ")" : ""}` })), ...props.codes];
+    const op = idx.fills.get(id);
+    row.host = op != null ? idx.openingHost.get(op) ?? null : null;
 
     for (const qs of idx.qsets.get(id) || []) {
       const set = E.get(qs);
@@ -265,6 +321,7 @@ export function takeoff(model, opts = {}) {
   }
   explainChecks(rows, tol);
   explainAreas(rows, tol);
+  assignUniformat(rows);
   return { schema: model.schema, units, rows };
 }
 
@@ -745,7 +802,7 @@ function checkVolume(row, tol) {
   return Object.keys(res).length ? res : null;
 }
 
-const GROUP_KEYS = { class: (r) => r.ifcClass, type: (r) => r.type ?? "(no type)", storey: (r) => r.storey ?? "(no storey)", material: (r) => r.material ?? "(no material)", classification: (r) => r.classification ?? "(none)" };
+const GROUP_KEYS = { class: (r) => r.ifcClass, type: (r) => r.type ?? "(no type)", storey: (r) => r.storey ?? "(no storey)", material: (r) => r.material ?? "(no material)", classification: (r) => r.classification ?? "(none)", uniformat: (r) => uniformatLabel(r, 3), uniformat2: (r) => uniformatLabel(r, 2), uniformat1: (r) => uniformatLabel(r, 1) };
 
 /** The quantity of a row a BoQ line sums: the stored value when present, else the computed one. */
 export function rowQuantities(r) {
@@ -816,9 +873,12 @@ const csvCell = (v) => {
   return /[",\n\r]/.test(s) || /^[=+\-@\t\r]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) && typeof v !== "number" ? "'" : "") + s.replace(/"/g, '""')}"` : s;
 };
 
+/** Column heading for a group key. */
+export const keyLabel = (k) => ({ uniformat: "Uniformat II element", uniformat2: "Uniformat II group", uniformat1: "Uniformat II major group" })[k] ?? k[0].toUpperCase() + k.slice(1);
+
 export function boqCsv(lines, by, rates = {}, rule = null) {
   const measured = ruleActive(rule);
-  const head = [...by.map((k) => k[0].toUpperCase() + k.slice(1)), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount"];
+  const head = [...by.map(keyLabel), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount"];
   if (measured) head.push(`Voids not deducted (area up to ${rule.areaMax} m2, volume up to ${rule.volumeMax} m3)`, "Area added back m2", "Volume added back m3", "Rows the rule could not adjust");
   const out = [head.map(csvCell).join(",")];
   for (const L of lines) {
@@ -834,7 +894,7 @@ export function boqCsv(lines, by, rates = {}, rule = null) {
 }
 
 export function rowsCsv(rows) {
-  const head = ["Entity", "GlobalId", "Class", "Name", "Type", "Storey", "Material", "Classification", "Assembly", "Part of", "Computed gross m3", "Computed net m3", "Openings", "Geometry status", "Stored GrossVolume m3", "Stored NetVolume m3", "Volume check", "Computed gross area m2", "Computed net area m2", "Area measured", "Area check", "Stored quantities"];
+  const head = ["Entity", "GlobalId", "Class", "Name", "Type", "Storey", "Material", "Classification", "Uniformat II", "Uniformat source", "Uniformat basis", "Assembly", "Part of", "Computed gross m3", "Computed net m3", "Openings", "Geometry status", "Stored GrossVolume m3", "Stored NetVolume m3", "Volume check", "Computed gross area m2", "Computed net area m2", "Area measured", "Area check", "Stored quantities"];
   const out = [head.map(csvCell).join(",")];
   for (const r of rows) {
     const c = r.computed || {};
@@ -843,7 +903,7 @@ export function rowsCsv(rows) {
     const stored = Object.entries(r.stored).map(([k, q]) => `${k}=${Math.round(q.value * 1e6) / 1e6}`).join("; ");
     const A = c.areas && !c.areas.error && !c.areas.faceted ? (c.areas.side ? ["side", c.areas.side] : c.areas.plan ? ["plan", c.areas.plan] : c.areas.cross ? ["cross-section", c.areas.cross] : null) : null;
     const areaVerdict = Object.entries(r.areaCheck || {}).map(([k, a]) => a.agree ? `${k} agrees` : `${k} differs ${a.rel === Infinity ? "" : (a.rel * 100).toFixed(1) + "%"}${a.reason ? " (" + a.reason + ")" : ""}`).join("; ");
-    out.push([`#${r.id}`, r.globalId, r.ifcClass, r.name, r.type, r.storey, r.material, r.classification, r.isAssembly ? "yes" : "", r.parent ? `#${r.parent}` : "", c.gross, c.net, c.openings, c.status === "ok" ? (c.net == null ? `net not computed: ${c.netReason}` : "ok") : c.status ? `${c.status}${c.reason ? ": " + c.reason : ""}` : "", g ? g.stored : null, n ? n.stored : null, verdict, A ? A[1].gross : null, A ? A[1].net : null, A ? A[0] : "", areaVerdict, stored].map(csvCell).join(","));
+    out.push([`#${r.id}`, r.globalId, r.ifcClass, r.name, r.type, r.storey, r.material, r.classification, r.uniformat?.code ?? "", r.uniformat?.source ?? "", r.uniformat?.why ?? "", r.isAssembly ? "yes" : "", r.parent ? `#${r.parent}` : "", c.gross, c.net, c.openings, c.status === "ok" ? (c.net == null ? `net not computed: ${c.netReason}` : "ok") : c.status ? `${c.status}${c.reason ? ": " + c.reason : ""}` : "", g ? g.stored : null, n ? n.stored : null, verdict, A ? A[1].gross : null, A ? A[1].net : null, A ? A[0] : "", areaVerdict, stored].map(csvCell).join(","));
   }
   return out.join("\r\n") + "\r\n";
 }

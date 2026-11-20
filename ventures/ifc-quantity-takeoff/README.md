@@ -8,8 +8,9 @@ checked against the quantities the authoring tool stored.
 
 Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
 
-- **A bill of quantities** grouped by class, type, storey, material or
-  classification code: count, volume (m3), area (m2), length (m) and weight
+- **A bill of quantities** grouped by class, type, storey, material,
+  classification code or **Uniformat II element** (an elemental estimate:
+  A1010 Standard Foundations, B2010 Exterior Walls, C1010 Partitions ...): count, volume (m3), area (m2), length (m) and weight
   (kg) per line. Type a rate on a line (per each, m3, m2, m or kg) and the page
   prices it and totals the priced lines. Download as CSV.
 - **Every element** as CSV: GlobalId, class, name, type, storey, material,
@@ -160,6 +161,27 @@ the EU/ArcelorMittal IPE section table for the IPE 200 area. The person who
 would sign this off is a quantity surveyor or cost estimator; it has not been
 reviewed by one.
 
+## Uniformat II elements
+
+Group by `uniformat` (level 3, e.g. `B2010 Exterior Walls`), `uniformat2`
+(`B20 Exterior Enclosure`) or `uniformat1` (`B Shell`), on the page or with
+`--by`. Codes and titles are NISTIR 6389's (NIST, public domain), in
+`uniformat.mjs`. An element takes the model's own Uniformat code when it has
+one (a classification reference, or Revit's `Assembly Code`); otherwise a rule
+reads its class with PredefinedType, IsExternal, the wall a door fills, the
+assembly it belongs to, its storey's elevation and, for proxies and generic
+terminals, its family name. A rule that cannot tell level 3 stops at the level
+it can (`B10 Superstructure (not told further)` for a beam), or the element
+goes to `(no Uniformat element)`; the element CSV says which code, source and
+reason each element got.
+
+On 17 public models (33,893 elements): 588 carry their author's code, the rules
+code 28,086 more and leave 5,219 uncoded. Against the 588 authors' codes the
+rules agree on 525 at level 1 and 482 at level 3; on dental_clinic, held out
+while the rules were written, 66 of 69. Walls, slabs and frames carry no
+author's code in any of the models, so those rules are not checked against
+one. Details: [eval/uniformat-2026-11-20.md](eval/uniformat-2026-11-20.md).
+
 ## Geometry it reads
 
 Extruded area solids (rectangle, rounded and hollow rectangle, circle and hollow
@@ -210,6 +232,7 @@ its developed length.
 ```
 node cli.mjs model.ifc                         # BoQ by class and type, CSV to stdout
 node cli.mjs model.ifc --by storey,class       # other groupings
+node cli.mjs model.ifc --by uniformat2,uniformat   # elemental estimate (Uniformat II group, element)
 node cli.mjs model.ifc --rows elements.csv     # every element
 node cli.mjs model.ifc --check                 # stored vs computed summary
 node cli.mjs model.ifc --voids-up-to 0.5,0.05  # leave in openings up to 0.5 m2 (areas) / 0.05 m3 (volumes)
@@ -220,6 +243,7 @@ node eval/stored-vs-computed.mjs a.ifc b.ifc   # the corpus check, volumes
 node eval/areas-vs-stored.mjs a.ifc b.ifc      # the corpus check, areas
 node eval/measure-rules.mjs a.ifc b.ifc         # what a small-void rule changes, and opening areas vs stored width x height
 node eval/revision-diff.mjs r1.ifc r2.ifc r3.ifc   # the change report on consecutive revisions
+node eval/uniformat-check.mjs a.ifc b.ifc      # Uniformat coverage, and the rules against authors' codes
 ```
 
 Node 20+, no dependencies. To host your own copy, serve this directory as
