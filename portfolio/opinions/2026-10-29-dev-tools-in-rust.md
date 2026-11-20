@@ -69,6 +69,18 @@ been measured yet.
   (with `extends`) resolve by TypeScript's rules; on 16 configs in
   `ventures/` cyclehound and TypeScript 5.9.3's `resolveModuleName` agree on
   all 1,436 alias imports, at no measurable time cost. Next: a CI gate.
+- *Unused and undeclared dependencies* (depcheck, knip's dependency check):
+  *Done 2026-11-20:* `cyclehound --deps`. `--depcheck` reproduces depcheck
+  1.4.7's rules and matched its answer on 474 packages (this repository and
+  153 published npm packages) apart from 9 names in files depcheck's parser
+  rejected; 1.9 s and 180 MB against 341 to 369 s and up to 2.5 GB on the
+  npm packages. depcheck also `require()`s project config files, so it runs
+  the code it checks; cyclehound does not. Rust ports already exist:
+  `depcheck-rs` 0.0.28 on crates.io, and knip-like `skif` and `fallow`; none
+  was measured (installing third-party crates was not allowed in that
+  session). Next: run `depcheck-rs` on the same corpus and publish the
+  comparison, wins or losses
+  ([`ventures/cyclehound/BENCHMARK.md`](../../ventures/cyclehound/BENCHMARK.md), "Dependencies").
 - *yamllint*: Python, run on every YAML file in a repository (this one has
   550 workflow files). *Checked 2026-11-12: taken.* `ryl` and `yamllint-rs`
   are Rust ports of yamllint on crates.io already; skip unless a measured

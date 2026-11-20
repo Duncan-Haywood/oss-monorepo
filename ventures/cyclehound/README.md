@@ -42,6 +42,7 @@ cyclehound --graph --json src/           # whole graph, madge --json shape
 cyclehound --unresolved src/             # relative or alias imports that point at no file
 cyclehound --orphans src/                # files nothing imports
 cyclehound --unused-exports src/         # exports no file imports; exit 1 if any
+cyclehound --deps .                      # package.json deps nobody imports, imports nobody declared
 ```
 
 Options: `--entries` (with `--unused-exports`, also report the exports of
@@ -102,6 +103,72 @@ the two agree on 5,419 findings; every difference is explained in
 Files nothing imports are entry points (a page script, a CLI, a test, a
 package's public API), so their exports are skipped unless `--entries`.
 CommonJS `module.exports` is not read.
+
+## Dependencies (`--deps`)
+
+`--deps` does depcheck's job: for every `package.json` under the given
+folders, it lists the `dependencies` and `devDependencies` no file uses and
+the packages files import without declaring them, with the file and line of
+each use. Each package is checked on its own; a folder with its own
+`package.json` belongs to that package, not its parent. It exits 1 when there
+is a finding (`--warn` exits 0).
+
+```
+ventures/ai-first-markets/package.json
+  unused devDependency: @eslint/eslintrc
+  unused devDependency: esbuild
+ventures/local-site-studio/package.json
+  missing: vite (ventures/local-site-studio/tsconfig.json)
+```
+
+The rules are depcheck 1.4.7's, read from its source: the same import forms
+(`import`, `export ... from`, `import()`, `System.import()`, `require()` with
+one argument, `require.resolve()`, `import x = require()`,
+`grunt.loadNpmTasks()`), the same package-name rule, Node's built-ins, URL
+and webpack `a!b!./c` loader handling, `@types/x` for TypeScript files,
+`import type` with only `@types/x` declared, tsconfig `types` and `extends`,
+package.json `imports` (`#x`), the React 17 JSX rule, and installed packages'
+binaries in scripts and peer dependencies. **`--depcheck`** stops there, and
+on 474 packages (this repository's 32 and 442 inside 153 npm tarballs) it
+gives depcheck's answer on every package, except for 9 package names whose
+only uses sit in the 56 files depcheck's parser rejected (cyclehound's lexer
+never rejects a file). It took 0.5 s against 10 s here and 1.9 s against
+369 s on the tarballs ([`BENCHMARK.md`](BENCHMARK.md),
+"Dependencies").
+
+Without `--depcheck`, a few guesses remove what depcheck gets wrong on a fresh
+checkout (on this repository: 81 findings with `--depcheck`, 4 without, each
+checked by hand). Each guess but the last can only remove a finding, never add one.
+
+- **Scripts, nothing installed.** depcheck sees a script's command only
+  through `node_modules/<pkg>/package.json`, so before `npm install` it calls
+  `tsx`, `eslint` and `typescript` unused. cyclehound counts a script word
+  equal to the package's name, or a known binary (`tsc` for `typescript`,
+  `cap` for `@capacitor/cli`).
+- **Config files.** `tsconfig.json` uses `typescript`; `postcss.config.*`
+  uses `postcss`, `tailwind.config.*` `tailwindcss`, and so on for 22 tools;
+  a string or object key in a `*.config.*` or `*rc*` file that is exactly a
+  declared name uses it (`plugins: { autoprefixer: {} }`).
+- **Stylesheets and pragmas.** `@import`, `@plugin`, `@use` and `@config` of
+  a bare package in `.css`, `.scss`, `.sass`, `.less`; `// @vitest-environment
+  jsdom` and `@jest-environment` in test files.
+- **Framework peers, nothing installed.** `next` uses `react` and
+  `react-dom`; `@testing-library/react` uses `@testing-library/dom`;
+  `@types/x` is used whenever `x` is.
+- **Not packages.** A tsconfig `paths` alias that lands on a file
+  (`@/lib/x`), a scheme (`bun:test`, `virtual:x`, `data:`) and a package
+  importing itself by name.
+- **Types.** `import("x")` in a TypeScript type (`x: import("y").T`, and
+  every `import()` in a `.d.ts`), which depcheck's default detectors skip,
+  counts as a use: the types need the package. This is the one default
+  that can add a "missing" finding (nock 15.0.6's published types use
+  `undici-types` without declaring it).
+
+What it does not do: depcheck's twelve config readers that `require()` the
+project's own `webpack.config.js`, `jest.config.js`, `.babelrc.js` and the
+like (cyclehound never runs project code, which also makes it safe on code
+you did not write); Vue, Svelte, CoffeeScript and GraphQL files; workspace
+protocols beyond reading each package.json on its own.
 
 ## Path aliases
 
@@ -186,7 +253,7 @@ cp target/wasm32-unknown-unknown/release/cyclehound.wasm web/
 ## Tests
 
 ```sh
-cargo test --release                      # lexer, resolver, aliases, components, cycles, exports (26 tests)
+cargo test --release                      # lexer, resolver, aliases, components, cycles, exports, deps (36 tests)
 cargo clippy --release --all-targets -- -D warnings
 node --test web/cyclehound.test.mjs page.test.mjs usage.test.mjs tools/entry-order.test.mjs
 ```
@@ -203,6 +270,14 @@ loaded in Chromium (Playwright, 390 px wide): the example finds its
 three-file loop and the dynamic self-import, unticking `import()` drops the
 latter, no console errors, no horizontal scroll. Benchmarks and graph
 agreement: [`BENCHMARK.md`](BENCHMARK.md).
+
+2026-11-20, `--deps`: 36 Rust tests and 21 Node tests pass, `cargo clippy
+-D warnings` and `cargo fmt --check` clean; `tests/bench/compare_deps.cjs`
+agrees with depcheck 1.4.7 on all 474 packages (BENCHMARK.md). The same run
+fixed a lexer bug: a keyword used as a property name (`o.else / e`) started a
+regex and hid every later import on the line (it hid 22 of 23 `require()`
+calls in next's bundled `@vercel/nft`). The graph of `ventures/` and of the
+npm corpus is byte-identical before and after the fix.
 
 ## Licence
 

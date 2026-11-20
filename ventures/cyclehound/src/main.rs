@@ -22,6 +22,12 @@ OPTIONS:
     --unused-exports   list exports no file in the graph imports; exit 1 if any
                        (files nothing imports are entry points and skipped;
                        --entries reports theirs too)
+    --deps             check package.json dependencies: declared but unused,
+                       and imported but undeclared (depcheck's job); every
+                       package.json under PATH is checked on its own; exit 1
+                       if any
+    --depcheck         with --deps: depcheck 1.4.7's rules only, without the
+                       script, config-file and alias guesses
     --json             JSON output (cycles: components, cycles and edges with
                        line numbers; with --graph, the adjacency map)
     --ext a,b,c        extensions to read and to try on extensionless imports
@@ -49,6 +55,7 @@ enum Mode {
     Orphans,
     Unresolved,
     UnusedExports,
+    Deps,
 }
 
 struct Args {
@@ -61,6 +68,7 @@ struct Args {
     base: Option<PathBuf>,
     warn: bool,
     entries: bool,
+    depcheck: bool,
 }
 
 fn parse_args() -> Result<Option<Args>, String> {
@@ -74,6 +82,7 @@ fn parse_args() -> Result<Option<Args>, String> {
         base: None,
         warn: false,
         entries: false,
+        depcheck: false,
     };
     let mut it = std::env::args().skip(1);
     while let Some(arg) = it.next() {
@@ -92,6 +101,8 @@ fn parse_args() -> Result<Option<Args>, String> {
             "--unresolved" => a.mode = Mode::Unresolved,
             "--unused-exports" => a.mode = Mode::UnusedExports,
             "--entries" => a.entries = true,
+            "--deps" => a.mode = Mode::Deps,
+            "--depcheck" => a.depcheck = true,
             "--circular" => a.mode = Mode::Cycles,
             "--json" => a.json = true,
             "--ext" | "--extensions" => {
@@ -174,6 +185,163 @@ fn walk(a: &Args) -> Result<Vec<PathBuf>, String> {
     Ok(out.into_iter().collect())
 }
 
+/// Every file under the roots (any type), for --deps.
+fn walk_all(a: &Args) -> Result<Vec<PathBuf>, String> {
+    let mut out = BTreeSet::new();
+    let always = ["node_modules", ".git", "target"];
+    for root in &a.roots {
+        if !root.is_dir() {
+            return Err(format!("--deps needs a directory: {}", root.display()));
+        }
+        let ignore_dirs = a.ignore_dirs.clone();
+        let w = ignore::WalkBuilder::new(root)
+            .standard_filters(a.gitignore)
+            .hidden(false)
+            .filter_entry(move |e| {
+                let name = e.file_name().to_string_lossy();
+                if e.file_type().map(|t| t.is_dir()).unwrap_or(false) {
+                    !always.contains(&name.as_ref())
+                        && !ignore_dirs.iter().any(|d| d == name.as_ref())
+                } else {
+                    true
+                }
+            })
+            .build();
+        for entry in w.flatten() {
+            if entry.file_type().map(|t| t.is_file()).unwrap_or(false) {
+                out.insert(normalize(entry.path()));
+            }
+        }
+    }
+    Ok(out.into_iter().collect())
+}
+
+/// Group files by the nearest folder above them that holds a package.json,
+/// and check each package.
+fn run_deps(a: &Args) -> ExitCode {
+    let t0 = Instant::now();
+    let files = match walk_all(a) {
+        Ok(f) => f,
+        Err(e) => {
+            eprintln!("cyclehound: {e}");
+            return ExitCode::from(2);
+        }
+    };
+    let manifests: BTreeSet<PathBuf> = files
+        .iter()
+        .filter(|f| f.file_name().map(|n| n == "package.json").unwrap_or(false))
+        .cloned()
+        .collect();
+    let dirs: std::collections::HashMap<PathBuf, PathBuf> = manifests
+        .iter()
+        .map(|m| (m.parent().unwrap_or(Path::new("")).to_path_buf(), m.clone()))
+        .collect();
+    let mut groups: std::collections::BTreeMap<PathBuf, Vec<PathBuf>> =
+        manifests.iter().map(|m| (m.clone(), Vec::new())).collect();
+    for f in &files {
+        let mut d = f.parent();
+        while let Some(cur) = d {
+            if let Some(m) = dirs.get(cur) {
+                groups.get_mut(m).unwrap().push(f.clone());
+                break;
+            }
+            d = cur.parent();
+        }
+    }
+    let opts = DepOptions {
+        depcheck: a.depcheck,
+    };
+    let reports: Vec<DepReport> = groups
+        .iter()
+        .map(|(m, fs)| check_package(&Disk, m, fs, &opts))
+        .collect();
+    let base = normalize(a.base.as_deref().unwrap_or(a.roots[0].as_path()));
+    let rel = |p: &Path| relative(p, &base);
+    let at = |u: &Use| {
+        if u.line == 0 {
+            rel(&u.file)
+        } else {
+            format!("{}:{}", rel(&u.file), u.line)
+        }
+    };
+    let mut findings = 0;
+    for r in &reports {
+        findings += r.unused.len() + r.unused_dev.len() + r.missing.len() + r.invalid as usize;
+    }
+    if a.json {
+        let list = |v: &[String]| v.iter().map(|x| json_str(x)).collect::<Vec<_>>().join(", ");
+        let mut parts = Vec::new();
+        for r in &reports {
+            let miss: Vec<String> = r
+                .missing
+                .iter()
+                .map(|(n, us)| {
+                    let w: Vec<String> = us.iter().map(|u| json_str(&at(u))).collect();
+                    format!("{}: [{}]", json_str(n), w.join(", "))
+                })
+                .collect();
+            let using: Vec<String> = r
+                .using
+                .iter()
+                .map(|(n, us)| {
+                    let w: Vec<String> = us.iter().map(|u| json_str(&at(u))).collect();
+                    format!("{}: [{}]", json_str(n), w.join(", "))
+                })
+                .collect();
+            parts.push(format!(
+                "{{\"package\": {}, \"name\": {}, \"files\": {}, \"invalid\": {}, \"dependencies\": [{}], \"devDependencies\": [{}], \"missing\": {{{}}}, \"using\": {{{}}}}}",
+                json_str(&rel(&r.manifest)),
+                r.name.as_deref().map(json_str).unwrap_or_else(|| "null".into()),
+                r.files,
+                r.invalid,
+                list(&r.unused),
+                list(&r.unused_dev),
+                miss.join(", "),
+                using.join(", ")
+            ));
+        }
+        println!("[{}]", parts.join(",\n "));
+    } else {
+        for r in &reports {
+            if r.unused.is_empty() && r.unused_dev.is_empty() && r.missing.is_empty() && !r.invalid
+            {
+                continue;
+            }
+            println!("{}", rel(&r.manifest));
+            if r.invalid {
+                println!("  cannot parse package.json");
+            }
+            for d in &r.unused {
+                println!("  unused dependency: {d}");
+            }
+            for d in &r.unused_dev {
+                println!("  unused devDependency: {d}");
+            }
+            for (n, us) in &r.missing {
+                let w: Vec<String> = us.iter().take(3).map(&at).collect();
+                let more = if us.len() > 3 {
+                    format!(" and {} more", us.len() - 3)
+                } else {
+                    String::new()
+                };
+                println!("  missing: {n} ({}{more})", w.join(", "));
+            }
+        }
+        eprintln!(
+            "{} findings in {} packages ({} files, {:.2}s)",
+            findings,
+            reports.len(),
+            files.len(),
+            t0.elapsed().as_secs_f64()
+        );
+    }
+    if findings == 0 || a.warn {
+        ExitCode::SUCCESS
+    } else {
+        ExitCode::from(1)
+    }
+}
+
 fn main() -> ExitCode {
     let a = match parse_args() {
         Ok(Some(a)) => a,
@@ -183,6 +351,9 @@ fn main() -> ExitCode {
             return ExitCode::from(2);
         }
     };
+    if a.mode == Mode::Deps {
+        return run_deps(&a);
+    }
     let t0 = Instant::now();
     let files = match walk(&a) {
         Ok(f) => f,
@@ -322,11 +493,7 @@ fn main() -> ExitCode {
                 for (f, l, s) in &u {
                     println!("{f}:{l}: cannot resolve {s}");
                 }
-                eprintln!(
-                    "{} unresolved imports in {} files",
-                    u.len(),
-                    g.files.len()
-                );
+                eprintln!("{} unresolved imports in {} files", u.len(), g.files.len());
             }
             if u.is_empty() || a.warn {
                 ExitCode::SUCCESS
@@ -334,6 +501,7 @@ fn main() -> ExitCode {
                 ExitCode::from(1)
             }
         }
+        Mode::Deps => unreachable!(),
         Mode::Cycles => {
             let comps = strongly_connected(&g);
             let cyc = cycles(&g, &comps);

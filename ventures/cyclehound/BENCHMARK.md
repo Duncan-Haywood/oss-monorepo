@@ -241,3 +241,127 @@ One `.mjs`-only edge changed: `--ext mjs` now follows an alias from
 `quick-pick-survey/src/lib/groupRanking.ts` (reached from an `.mjs` file) to
 `glicko2.ts`, so the 2026-11-13 madge comparison, which read `.mjs` without
 aliases, should be rerun with `--no-tsconfig` to reproduce it.
+
+## Dependencies: against depcheck 1.4.7 (2026-11-20)
+
+Measured at commit `5e630e5ce` plus this change, on the same kind of 4-core
+container, with Node 22.23.5. depcheck 1.4.7 is the current release on npm.
+
+**Input.** Two sets of packages:
+
+- this repository: every `package.json` outside `node_modules`, 32 packages
+  (Next.js apps, Vite apps, Capacitor shells, a few Node tools), nothing
+  installed;
+- 153 popular npm packages as published
+  ([`tests/bench/npm_corpus.txt`](tests/bench/npm_corpus.txt), fetched with
+  `npm pack` on 2026-11-20, 57,394 files, 1.1 GB unpacked), which hold 442
+  `package.json` files once the nested ones (`dist/esm/package.json` and the
+  like) are counted; each is a package to both tools.
+
+**How depcheck was run.** Through its API, once per package, in one Node
+process with `NODE_PATH` removed from the environment. With `NODE_PATH` set
+(this container points it at globally installed tools) depcheck resolves
+`eslint` and `typescript` from the global folder and reports them used: its
+answer depends on what the machine has installed, not on the project. On the
+tarballs it ran with only its `bin` and `react17` specials, the two that read
+nothing but JSON: its other specials `require()` the project's
+`webpack.config.js`, `jest.config.js`, `.babelrc.js`, `next.config.js` and
+similar files (`dist/special/webpack.js`, `jest.js`, `utils/index.js`
+`tryRequire`), which runs code from the packages being checked. On this
+repository it ran with every special (the default).
+
+**Agreement.** [`tests/bench/compare_deps.cjs`](tests/bench/compare_deps.cjs)
+runs `cyclehound --deps --depcheck --json` and depcheck on the same packages
+and compares the three lists (unused `dependencies`, unused
+`devDependencies`, missing) package by package.
+
+| Set | Packages | depcheck findings | Packages that agree | Explained by depcheck parse failures |
+|---|---|---|---|---|
+| this repository | 32 | 81 | 32 | 0 |
+| npm tarballs | 442 | 5,184 | 442 | 9 names in 9 packages |
+
+depcheck's Babel parser rejected 56 files in the tarballs (mostly `.d.ts`
+files with newer TypeScript syntax and bundled chunks); a package used only
+in those files is "unused" or not "missing" to depcheck and the opposite to
+cyclehound, whose lexer reads every file. The script counts a difference as
+explained only when every use cyclehound found is in a file depcheck
+rejected: `zod` (playwright-core), `@prisma/client` (@prisma/client),
+`fsevents` (rollup's `dist/es`), `@types/estree` (rollup, svelte),
+`@types/validator` (sequelize), `open` and `file:` (storybook),
+`react-docgen` (@storybook/react). Nothing else differs.
+
+Getting there took five depcheck behaviours that its README does not
+describe, each now reproduced under `--depcheck` and pinned by a test in
+[`tests/deps.rs`](tests/deps.rs):
+
+1. A relative import becomes the package name `.` (require-package-name's
+   rule), which depcheck then resolves as a folder; the folder is the package
+   itself, so the package's own `peerDependencies` count as used. A package
+   that declares a peer also as a devDependency never sees it reported unused
+   (styled-components 6.6.0: `react-dom`, `css-to-react-native`; ts-node
+   10.9.2: `@swc/core`, `@types/node`).
+2. A package's own name resolves to itself when its package.json has
+   `exports` (Node's self-reference), so its own `bin` makes its own name
+   "used" by a script (rollup 4.68.7).
+3. Parentheses around the string do not matter: webpack 5.113.0 writes
+   `require(/** @type {string} */ ("webpack"))`.
+4. URLs are dropped and webpack loader chains (`style-loader!css-loader!./x`)
+   split only for `import` declarations and `require()`; in `export ... from`
+   and `import()` an `https://` specifier becomes the package `https:`.
+5. `import("x")` in a TypeScript type position is not a use (the default
+   detectors leave out `typescriptImportType`), and `import type ... from "x"`
+   uses only `@types/x` when that is declared.
+
+The comparison also found a bug in cyclehound's lexer that the madge
+comparison had not: `o.else / e` (a keyword as a property name, then a
+division) started a regex literal. In next 16.4.6's bundled `@vercel/nft`,
+one line of minified code, it hid 22 of the file's 23 `require()` calls. The
+fix leaves the import graph of `ventures/` and of the tarballs byte-identical.
+
+**Time and memory.** Wall clock for the whole set; cyclehound's peak RSS from
+`getrusage`, depcheck's RSS at the end of its run (three cyclehound runs each).
+
+| Set | depcheck 1.4.7 | cyclehound `--deps --depcheck` | cyclehound `--deps` |
+|---|---|---|---|
+| this repository (32 packages, 73,811 files walked) | 9.2 to 10.0 s, 285 to 305 MB | 0.52 to 0.61 s, 22 to 23 MB | 0.55 to 0.65 s, 22 to 24 MB |
+| npm tarballs (442 packages, 57,394 files) | 341 to 369 s, 1.5 to 2.5 GB | 1.82 to 1.93 s, 171 to 185 MB | 2.47 to 2.73 s, 174 to 180 MB |
+
+On the tarballs that is 180 to 200 times faster. depcheck was never slow on
+this repository's small apps; it is on large published bundles, where its
+Babel parse of every file dominates.
+
+**The default mode.** Without `--depcheck`, the README's guesses (scripts and
+config files with nothing installed, stylesheets, test pragmas, framework
+peers, aliases) take this repository from 81 findings to 4, each checked by
+hand:
+
+- `ventures/ai-first-markets`: `esbuild` and `@eslint/eslintrc` appear in no
+  file but package.json;
+- `research/marriage-divorce-evidence/report-app`: `@lexical/history` is
+  never imported (it arrives as a dependency of `@lexical/react`);
+- `ventures/local-site-studio`: tsconfig `types` names `vite/client`, and
+  `vite` is not declared (vitest brings it in transitively).
+
+On the tarballs the default mode reports 4,582 findings against 5,183; most
+of what remains is real for a published package (devDependencies for tests
+and builds that are not shipped).
+
+Reproduce:
+
+```sh
+cd ventures/cyclehound && cargo build --release
+npm install --prefix /tmp/dc depcheck@1.4.7
+node tests/bench/compare_deps.cjs /tmp/dc target/release/cyclehound ../..
+mkdir -p /tmp/corpus/tgz /tmp/corpus/pkgs && cd /tmp/corpus/tgz
+xargs -n1 npm pack --silent < ~/oss-monorepo/ventures/cyclehound/tests/bench/npm_corpus.txt
+for t in *.tgz; do n=${t%.tgz}; mkdir -p ../pkgs/$n; tar -xzf $t -C ../pkgs/$n --strip-components=1; done
+cd ~/oss-monorepo/ventures/cyclehound
+node tests/bench/compare_deps.cjs /tmp/dc target/release/cyclehound /tmp/corpus/pkgs --safe-specials
+```
+
+**Other Rust tools.** `depcheck-rs` 0.0.28 (crates.io, MIT,
+github.com/Dominionys/depcheck-rs) is a Rust port of depcheck, and `skif`
+and `fallow` cover knip's ground. None was measured here: installing
+third-party crates was not allowed in the session that wrote this section.
+Running `depcheck-rs` through `compare_deps.cjs`'s package list is the next
+comparison to make.
