@@ -1,0 +1,243 @@
+{
+  "date": "2026-11-20",
+  "subject": "research/robofab-motorcurve",
+  "stratum": "research",
+  "seed": "2026-11-20-bd94",
+  "drawn_by": "census",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a robotics actuator / motion-planning engineer refereeing for ICRA or IEEE T-RO (time-optimal path parameterisation with actuator limits); first checks: are the arm dynamics right, is the torque-speed bound the real DC-motor envelope (Kt*(V-Ke*w)/R, stall Kt*V/R, no-load V/Ke, and the braking quadrant), is the time-optimal profile actually feasible under that bound (not only at its nodes), is the baseline (tuned trapezoid) feasible so the 'edge' is fair, does the result converge in n, and what does the nearest prior work (Tarkiainen and Shiller 1993 on time-optimal motions with actuator/voltage dynamics; TOPP-RA, Pham and Pham 2018; Verscheure et al. 2009 convex TOPP) already say.",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 1,
+    "domain": 1
+  },
+  "evidence": {
+    "correctness": "Reran `PYTHONPATH=src python3 experiments/run.py` on a scratch copy (5 min 0 s, README says ~15 min): results.txt and results.json byte-identical to committed (`diff` empty); figure.py regenerates edge.svg identically. Independent numeric-Lagrangian dynamics (/tmp/claude-0/audit-robofab-motorcurve/scripts/indep.py: mass matrix from integrating rod points, Christoffel symbols by finite differences, gravity from the potential; no subject import) agrees with Arm.torque to 3.0e-5 relative over 20 random states (the quadrature error). joint_limits equals Kt*(V-Ke*w)/R from DC motor equations to 8.9e-16 (Kt=Ke=1 N m/A, V=12, R=2.4: stall Kt*V/R=5 N m, no-load V/Ke=12 rad/s, Kv=9.549 rpm/V). Edge recomputed from results.json for all 45 cells: 0 mismatches with the README table; T recomputed from the solver's u by my own quadrature matches. But: (1) a dense independent check (4,000 samples plus both corners, own dynamics) of the subject's own best trapezoids in row L=0.12 m, no cap, w0=10 finds the motor line exceeded on every part, peak |tau|/limit 1.07 to 1.14, at t/T=0.90005 (start of the deceleration ramp, full cruise speed and full deceleration), which the midpoint sampling misses (sampled ratio 0.999); so the baseline times are infeasible and every edge is understated by an unquantified amount. (2) The time-optimal profiles ride at exactly the no-load speed (vpk=4.00/6.00/10.00/20.00 in results.txt) and at n=1600 an interior node demands 0.116-0.128 N m where the limit is 0.0 (L=0.08, w0=4), with larger first-order violations at the end nodes (3.9 N m over at n=400). (3) The dropped `cover` part at L=0.08 m, no cap, w0=4 is a solver artefact: it is feasible at n=6400 (sum rises 0.9923 -> 1.4521 with it included). Reading code alone would cap this at 2; with runs it stays 2 because the comparator is outside its own constraint.",
+    "completeness": "Claimed in README and checked: 58-test suite (ran: 58 OK in 7.2 s); run.py reproduces results.txt/results.json byte-identically; figure.py reproduces edge.svg identically; the README table matches results.json in all 45 cells; dropped parts are listed in results.txt as claimed; 'Eight new tests' = 8 tests in tests/test_motor.py. Limitations and next steps are stated (no convergence repeat, cover part not investigated, no MuJoCo). No stubs or TODOs. Live page not loaded from this container.",
+    "verification": "`env PYTHONPATH=src python3 -m unittest discover -s tests -q`: 58 tests OK (7.2 s). quality_mutate.py: 3 of 6 mutants caught (trapezoid room 1-|w|/w0 halved; motor line w0 scaled 1.3x; forward-pass acceleration 2.2x), 3 survived: the no-load-speed guard `min(tls) <= 0.0` -> `<= -1.0` (lets a negative limit flip the interval), the trapezoid treating any sample above 0.8 w0 as infeasible (room > 1e-9 -> room > 0.2, would inflate every edge), and coarsening the VLC scan grid 1.1 -> 1.6. No test samples the trapezoid at its corners, so the 7-14% baseline violation above passes. The motor-line torque test allows 5% slack plus 0.02 N m and skips 5 end nodes.",
+    "craft": "Read topp.py, trap.py, model.py, run.py, test_motor.py. Copied-engine design (arm model, solver and trapezoid copied from robofab-torquebound 'so the project is self-contained'; the wrist finite-difference acceleration block is duplicated three times in model.move, topp.wrist_force and trap.move). Unused `floor` parameter in joint_limits (topp.py:58); `wrist_force` re-imports G already imported at module top (topp.py:179); pyproject description copied from another project ('Converged time-optimal carry vs ramp-resolved trapezoid'). run.py writes results.json relative to cwd. Code is short and readable, standard library only.",
+    "claims": "Backed: every number in the bullets and the table (results.json, recomputed), 'never slower' over 45 cells, the 0.2 m k=5 non-monotone sequence, factor ~8 (0.332 -> 2.583 s = 7.8x), 58 tests, 'Preliminary and stylised' labels, limitations. Not backed or misleading: the method text says the trapezoid's torque is 'compared with 5 N m' as if the baseline satisfies the line, but the tuned trapezoids exceed it by up to 14% between samples; 'the linear DC-motor line ... not taken from a paper' while Tarkiainen and Shiller (ICRA 1993) and the TOPP literature model exactly this voltage-limited envelope; pyproject says 'Converged' though the README itself says convergence under the motor line was not checked (and the cover part flips feasibility with n).",
+    "fitness": "As research a referee could build on: reproducible in 5 min with the stdlib and clearly labelled toy. But the nearest prior work on speed-dependent actuator limits in TOPP (Tarkiainen and Shiller 1993; Verscheure et al. 2009; Pham and Pham 2018 TOPP-RA, which handles such constraints generically) is not cited, so the novelty is not located; the 'edge' compares an optimum against a baseline that violates the same constraint; parameters (5 N m, w0 4-20 rad/s, no gear, no current limit) are not tied to any actuator. The finding (time-optimal planning beats a trapezoid by a varying margin) is expected from first principles and not new. Not at the PhD/publishable bar research/CLAUDE.md sets.",
+    "domain": "Compared against DC motor four-quadrant behaviour and standard TOPP practice. Departures: the bound 5(1-|w|/w0) is applied symmetrically to braking torque, but a voltage-limited drive can deliver Kt*(V+Ke*w)/R against the motion (6.375 N m at w=3.3 rad/s in my check3_motor.py) so deceleration is over-constrained; a sensitivity run with a stall-current limit in braking left row L=0.12 w0=10 nearly unchanged (edge 17.64% -> 17.44%) but changed per-part trapezoid times by up to 25% in the L=0.08 w0=4 row (my variant not fully consistent, recorded partial). No current limit, no gearing or reflected rotor inertia, no thermal (RMS torque) limit; the solved profiles cruise at the no-load speed where the motor has zero torque, which no practitioner would accept as a plan."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "arm inverse dynamics Arm.torque",
+      "method": "own numeric Lagrangian (rod-point integration for M, Christoffel symbols, potential gradient), no subject code in the evaluation",
+      "command": "python3 /tmp/claude-0/audit-robofab-motorcurve/scripts/check1_dyn.py",
+      "expected": "relative difference at quadrature level (<1e-4)",
+      "observed": "3.02e-05 max over 20 random states",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "motor torque-speed line joint_limits vs DC motor equations",
+      "method": "tau = Kt*(V-Ke*w)/R with Kt=Ke (SI); stall Kt*V/R; no-load V/Ke; Kv = 60/(2 pi Kt) rpm/V",
+      "command": "python3 /tmp/claude-0/audit-robofab-motorcurve/scripts/check3_motor.py",
+      "expected": "5.0, 4.5833, 3.6250, 2.0833, 0.0417 N m at w = 0, 1, 3.3, 7, 11.9 rad/s (w0=12)",
+      "observed": "identical, max error 8.9e-16",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "subject's tuned trapezoid satisfies the motor line it is claimed to meet (L=0.12 m, no cap, w0=10)",
+      "method": "dense resampling (4,000 points + both corners) with own dynamics",
+      "command": "python3 /tmp/claude-0/audit-robofab-motorcurve/scripts/check6_trapdense.py 1.5 10",
+      "expected": "peak |tau|/limit <= 1.0 (six-part T_trap 1.295)",
+      "observed": "T_trap 1.295 reproduced; peak |tau|/limit 1.071-1.143 on all six parts, at t/T=0.90005",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "time-optimal profile obeys the motor line at interior nodes (n=1600)",
+      "method": "own dynamics; per-segment constant s'' = (u[k+1]-u[k])/(2 ds) checked at both segment ends, nodes in [2%,98%] of path",
+      "command": "python3 /tmp/claude-0/audit-robofab-motorcurve/scripts/check2_interior.py 1600",
+      "expected": "no node over the limit beyond discretisation noise",
+      "observed": "L=0.08 w0=4: 0.116 N m over where the limit is 0.0 (speed 4.000 = w0); L=0.08 k=2 w0=4: 0.128 N m over at limit 0.0; other cases 0.03 N m",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "total time T from the solver's u, and edges in README table",
+      "method": "own trapezoid-rule quadrature of 1/sqrt(u); 1 - T_opt/T_trap from results.json for 45 cells",
+      "command": "python3 /tmp/claude-0/audit-robofab-motorcurve/scripts/check2_feas.py 400 ; python3 (inline edge recompute over experiments/results.json)",
+      "expected": "same T; README table equal to 2 dp",
+      "observed": "T identical to 4 dp for all parts; 0 of 45 cells differ",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "node-count convergence under the motor line and the dropped cover part",
+      "method": "solve at n = 400, 1600, 6400 for three rows",
+      "command": "python3 /tmp/claude-0/audit-robofab-motorcurve/scripts/conv.py",
+      "expected": "totals converge; cover part's infeasibility persists if real",
+      "observed": "L=0.12 none w0=20: 0.5964/0.5985/0.5991; L=0.08 k=2 w0=4: 1.5951/1.5362/1.5318; L=0.08 none w0=4: cover infeasible at 400 and 1600 but feasible at 6400 (sum 0.9923 -> 1.4521)",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "rerun experiments and figure, diff against committed",
+      "method": "run.py and figure.py on a scratch copy",
+      "command": "cd /tmp/claude-0/audit-robofab-motorcurve/copy && PYTHONPATH=src python3 experiments/run.py > ../rerun.txt; diff ../rerun.txt <committed results.txt>; diff results.json; python3 experiments/figure.py; diff edge.svg",
+      "expected": "identical",
+      "observed": "results.txt, results.json and edge.svg byte-identical; runtime 5 min 0 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run as README states",
+      "command": "cd research/robofab-motorcurve && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+      "expected": "58 tests pass, ~10 s",
+      "observed": "58 OK in 7.2 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "braking-quadrant torque available to a voltage-limited DC drive",
+      "method": "Kt*(V+Ke*w)/R vs subject's symmetric tau_s(1-|w|/w0)",
+      "command": "python3 /tmp/claude-0/audit-robofab-motorcurve/scripts/check3_motor.py",
+      "expected": "braking bound >= stall torque (6.375 N m at 3.3 rad/s)",
+      "observed": "subject allows 3.625 N m in braking too (symmetric line, topp.py:65, trap.py:85)",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "sensitivity of the edge to the braking-quadrant rule",
+      "method": "monkeypatched acc_bounds with |tau| <= tau_s when torque opposes motion; own sign-aware trapezoid bisection",
+      "command": "python3 /tmp/claude-0/audit-robofab-motorcurve/scripts/check4_quadrant.py 1.5 10 ; python3 /tmp/claude-0/audit-robofab-motorcurve/scripts/check5_part.py",
+      "expected": "edge stable if the assumption is immaterial",
+      "observed": "L=0.12 w0=10: 17.64% -> 17.44%; L=0.08 w0=4: per-part trapezoid times change by up to 25% (my variant's speed caps differ between solver and trapezoid, so not a clean number)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "'the linear DC-motor line used here is ... not taken from a paper' / prior work",
+      "method": "literature knowledge: Tarkiainen and Shiller, ICRA 1993, time-optimal motions with actuator (voltage) dynamics; Pham and Pham 2018 TOPP-RA",
+      "command": "grep -n 'not taken from a paper' research/robofab-motorcurve/README.md",
+      "expected": "nearest prior work cited",
+      "observed": "README.md:29 cites only Bobrow 1985 and Pfeiffer-Johanni 1987",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README numbers (edge ranges, factor 8, non-monotone row)",
+      "method": "recomputed from results.json",
+      "command": "python3 (inline over experiments/results.json)",
+      "expected": "3.5-28.6%, constant 9.0-22.9%, 0.332 -> 2.583 s",
+      "observed": "3.46-28.61%, 8.98-22.86%, 0.3315 -> 2.5830 s",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/robofab_motorcurve/trap.py:85",
+      "change": "room = 1.0 - abs(qd[i]) / w0 -> room = 1.0 - 0.5 * abs(qd[i]) / w0",
+      "caught": true,
+      "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests -q"
+    },
+    {
+      "where": "src/robofab_motorcurve/topp.py:65",
+      "change": "tau * max(floor, 1.0 - abs(d) * r / w0) -> tau * max(floor, 1.0 - abs(d) * r / (1.3 * w0))",
+      "caught": true,
+      "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests -q"
+    },
+    {
+      "where": "src/robofab_motorcurve/topp.py:143",
+      "change": "u[k + 1] = min(u[k] + 2 * ds * bd[1], cap[k + 1]) -> u[k + 1] = min(u[k] + 2.2 * ds * bd[1], cap[k + 1])",
+      "caught": true,
+      "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests -q"
+    },
+    {
+      "where": "src/robofab_motorcurve/topp.py:78",
+      "change": "if min(tls) <= 0.0: -> if min(tls) <= -1.0:",
+      "caught": false,
+      "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests -q"
+    },
+    {
+      "where": "src/robofab_motorcurve/trap.py:86",
+      "change": "use[i] = max(use[i], abs(t[i]) / room if room > 1e-9 else math.inf) -> ... if room > 0.2 else math.inf",
+      "caught": false,
+      "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests -q"
+    },
+    {
+      "where": "src/robofab_motorcurve/topp.py:102",
+      "change": "grid = [1e-4 * 1.1 ** i -> grid = [1e-4 * 1.6 ** i",
+      "caught": false,
+      "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests -q"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "The tuned-trapezoid baseline violates the motor torque-speed line it is checked against: midpoint plus ramp sampling misses the start of the deceleration ramp (full cruise speed and full deceleration), where |tau|/limit reaches 1.07-1.14 on all six parts of row L=0.12 m, no cap, w0=10 (dense independent check). Every T_trap is optimistic and every published edge is computed against an infeasible baseline (understated by an unquantified amount).",
+      "where": "research/robofab-motorcurve/src/robofab_motorcurve/trap.py:76",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "The motor line 5(1-|w|/w0) is applied to braking torque as well; a voltage-limited DC drive delivers Kt*(V+Ke*w)/R against the motion (bounded in practice by the current limit), so deceleration is over-constrained for both methods; no current, gearing, reflected-inertia or thermal (RMS) limit is modelled.",
+      "where": "research/robofab-motorcurve/src/robofab_motorcurve/topp.py:65",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Time-optimal profiles cruise at exactly the no-load speed (vpk = w0 in results.txt) and at n=1600 demand 0.12 N m at interior nodes where the available torque is 0; end nodes violate by several N m at n=400. Feasibility is only enforced at nodes with an explicit-Euler step; no between-node or end-segment check.",
+      "where": "research/robofab-motorcurve/src/robofab_motorcurve/topp.py:132",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "The 0.08 m no-cap row drops the `cover` part at w0=4 as infeasible, but it is feasible at n=6400; the dropped part (and hence the five-part totals in all five columns of that row) is a solver discretisation artefact. README leaves this 'not investigated'.",
+      "where": "research/robofab-motorcurve/README.md:56",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Nearest prior work on time-optimal path following with speed-dependent actuator (voltage) limits is not cited (Tarkiainen and Shiller, ICRA 1993; Verscheure et al. 2009; TOPP-RA, Pham and Pham 2018), and the README says the DC-motor line is 'not taken from a paper'; novelty is not located and the result is expected from first principles.",
+      "where": "research/robofab-motorcurve/README.md:29",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Tests miss core guards: the no-load-speed guard mutant (min(tls) <= -1.0) and a trapezoid that rejects any sample above 0.8 w0 both pass the 58-test suite; no test samples the trapezoid at its ramp corners.",
+      "where": "research/robofab-motorcurve/tests/test_motor.py:1",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "pyproject description copied from another project claims 'Converged time-optimal carry vs ramp-resolved trapezoid in the torque- and jaw-bound rows', while the README says convergence under the motor line was not checked.",
+      "where": "research/robofab-motorcurve/pyproject.toml:8",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Unused `floor` parameter in joint_limits, redundant re-import of G in wrist_force, wrist-acceleration finite-difference block duplicated in three modules (copied engines).",
+      "where": "research/robofab-motorcurve/src/robofab_motorcurve/topp.py:58",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "README runtime 'about 15 min' for run.py; it ran in 5 min 0 s here.",
+      "where": "research/robofab-motorcurve/README.md:18",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A tidy, reproducible toy (results, JSON and figure rerun byte-identically in 5 minutes; dynamics and the motor line agree with an independent Lagrangian and the DC-motor equations to 3e-5 and 1e-15), but not at the research bar. The headline 'edge' compares the time-optimal carry with a trapezoid that itself breaks the motor line by up to 14% between samples, the optimal profiles ride at the no-load speed where no torque exists, one dropped part is a discretisation artefact, the braking quadrant is modelled wrongly for a voltage-limited drive, and the nearest prior work on TOPP with actuator voltage limits is not cited. Three of six seeded bugs survive the tests. Scores before any fix; this audit added one test for the no-load guard (tests/test_motor.py) inside the subject, which kills the surviving guard mutant, and updated the README test count to 59."
+}
