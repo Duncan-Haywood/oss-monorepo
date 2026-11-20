@@ -124,7 +124,12 @@ eval/reference.json` (about 3 minutes; the Python likelihood is a plain loop).
   a time.
 - Intervals rest on the normal approximation, which is rough for players
   with only a few games and for strengths near the edge of existence.
-- Up to 2,000 players and 200,000 rows in the browser.
+- Up to 2,000 players and 200,000 rows in the browser, but the fit is slow at
+  the top of that range: 500 players took 3.7 s and 2,000 took 147 s in Node
+  ([audit 2026-11-20](../../portfolio/quality/audits/2026-11-20-pairwise-ranking.json)).
+- A header row the reader does not recognise (for example "Team A,Team B") is
+  read as a game between two players with those names; use the documented
+  column names.
 - Not betting, financial or professional advice; a competition's own rules
   decide standings.
 

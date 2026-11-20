@@ -38,6 +38,18 @@ class TestMotorCurve(unittest.TestCase):
                 lim = 5.0 * (1 - abs(dq[i]) * math.sqrt(prof["u"][k]) / w0)
                 self.assertLessEqual(abs(tau), 1.05 * lim + 0.02)   # sdd is a finite difference: 5% slack
 
+    def test_no_torque_at_or_beyond_no_load_speed(self):
+        # acc_bounds must refuse any node where a joint is at or past w0 (the motor line gives no torque there);
+        # without this guard a negative limit flips the interval and the solver could plan above the no-load speed
+        w0 = 6.0
+        dq = (self.qb[0] - self.qa[0], self.qb[1] - self.qa[1])
+        c = topp.coeffs(self.arm, self.qa, self.qb, 0.5)
+        dmax = max(abs(dq[0]), abs(dq[1]))
+        for ratio in (1.0, 1.2, 1.5):
+            u = (ratio * w0 / dmax) ** 2
+            self.assertIsNone(topp.acc_bounds(c, u, 5.0, sp=(dq, w0)))
+        self.assertIsNotNone(topp.acc_bounds(c, 0.0, 5.0, sp=(dq, w0)))
+
     def test_trapezoid_none_matches_constant_limit(self):
         a = trap.move(self.arm, self.qa, self.qb, 0.5, 0.2)
         b = trap.move(self.arm, self.qa, self.qb, 0.5, 0.2, w0=None)

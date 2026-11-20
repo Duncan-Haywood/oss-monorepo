@@ -74,13 +74,17 @@ export function appraise(rows, prices, rule = "doyle") {
 const r2 = (x) => Math.round(x * 100) / 100;
 
 /**
- * check({rows, prices, offer, offerRule, foresterFeePct})
+ * check({rows, prices, offer, offerRule, priceRule, foresterFeePct})
  * offer: { kind: "lump" | "perMbf", amount }
+ * priceRule: the log rule the owner's $/MBF prices are quoted under (defaults to offerRule).
+ *   Value = volume under that rule x those prices, so a like-for-like offer reads 100%.
  */
-export function check({ rows, prices = {}, offer, offerRule = "doyle", foresterFeePct = 8 }) {
+export function check({ rows, prices = {}, offer, offerRule = "doyle", priceRule, foresterFeePct = 8 }) {
+  priceRule = priceRule ?? offerRule;
   if (!rows?.length) return { error: "Add at least one log row." };
   if (!offer || !(offer.amount > 0)) return { error: "Enter the offer amount." };
   if (!RULES[offerRule]) return { error: "Choose a log rule." };
+  if (!RULES[priceRule]) return { error: "Choose the log rule your prices are quoted under." };
   if (foresterFeePct < 0 || foresterFeePct >= 50) return { error: "Forester fee must be between 0 and 49 percent." };
 
   const rules = Object.keys(RULES).map((k) => appraise(rows, prices, k));
@@ -90,7 +94,9 @@ export function check({ rows, prices = {}, offer, offerRule = "doyle", foresterF
 
   const intl = rules.find((a) => a.rule === "international");
   const doyle = rules.find((a) => a.rule === "doyle");
-  const fairValue = intl.totalValue; // true-volume benchmark at the owner's own prices
+  const atPriceRule = rules.find((a) => a.rule === priceRule);
+  // A $/MBF price only means something with its log rule: value the logs under the rule the prices were quoted in.
+  const fairValue = atPriceRule.totalValue;
   const ratio = fairValue > 0 ? offered / fairValue : null;
   const fee = foresterFeePct / 100;
   const breakEvenUpliftPct = fee > 0 ? r2((fee / (1 - fee)) * 100) : 0;
@@ -101,6 +107,7 @@ export function check({ rows, prices = {}, offer, offerRule = "doyle", foresterF
   if (offerRule === "doyle" && doyle.totalBf > 0 && intl.totalBf > doyle.totalBf) {
     advice.push(`Doyle counts ${Math.round((1 - doyle.totalBf / intl.totalBf) * 100)}% fewer board feet than International on these logs (it undercounts small logs), so a per-MBF price is not comparable across rules.`);
   }
+  advice.push(`Value uses your prices as ${RULES[priceRule]} prices${priceRule === offerRule ? ", the same rule as the offer" : ""}. If your prices come from a report quoted under a different rule, change "Log rule your prices use".`);
   if (ratio !== null) {
     if (ratio < 0.75) advice.push(`The offer is ${Math.round(ratio * 100)}% of the value these logs have at your prices. Ask what rule, prices and deductions it is based on before accepting.`);
     else advice.push(`The offer is ${Math.round(ratio * 100)}% of the value at your prices. Not an outlier on your own numbers; confirm the prices are current for your area.`);
@@ -111,6 +118,7 @@ export function check({ rows, prices = {}, offer, offerRule = "doyle", foresterF
     offered: Math.round(offered),
     impliedPerMbf: impliedPerMbf === null ? null : r2(impliedPerMbf),
     fairValue: Math.round(fairValue),
+    priceRule,
     ratio: ratio === null ? null : r2(ratio),
     belowThreshold: ratio !== null && ratio < 0.75,
     breakEvenUpliftPct,
