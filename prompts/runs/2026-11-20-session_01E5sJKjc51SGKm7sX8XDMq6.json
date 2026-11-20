@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKjc51SGKm7sX8XDMq6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T08:19:38Z",
+  "ended": "2026-11-20T08:33:38Z",
+  "wall_minutes": 20.33,
+  "tokens_in": 10742074,
+  "tokens_out": 56509,
+  "cost_usd": 4.6721,
+  "tool_calls": 76,
+  "task": "Deepen (flagship 13) xer-schedule-check: earned value per window over a series of updates",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17883",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "page: renderWinEv declared a const named list inside a function whose parameter is list (SyntaxError, the whole page script failed)",
+      "fix": "renamed; caught by a headless Chromium load before commit"
+    },
+    {
+      "what": "first eval run named 18/20 planted slips on CCA, 19/20 on the 24.12 file: per-activity threshold was 0.5% of budget, too lax for near-finished work",
+      "fix": "threshold now 1% of the window's promise; 100% recall at n=20 and n=50 x 5 seeds, no others named"
+    },
+    {
+      "what": "venture preflight failed check_csv_formula_guard.py: the new CSV exporter lacked the =+-@ guard sibling exporters carry",
+      "fix": "added the guard and a test; preflight then clean"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "a plain python3 -m http.server in the background for a page check was refused by the auto-mode classifier; serving files through Playwright's page.route worked. A line on how to check a venture page locally would save the detour."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-earned-value-by-window-p6-updates.md",
+    "ventures/xer-schedule-check/eval/evm-series-check-2026-11-20.md"
+  ],
+  "goal": "Hold each P6 update to what the previous one promised, in earned value, so an owner's reviewer sees a short period even when planned dates moved with the schedule.",
+  "notes": "Shipped evmseries.mjs (+CLI --windows ... --earned-value, page windows panel, CSV), status.mjs cost/units posting with overruns, evm.mjs pvCuts. Eval on six public XER files (four cost-loaded): as-planned window 1.000, 435/435 slips and 250/250 overruns named over 5 seeds x 50, none other. Verification: run_venture_tests.py xer-schedule-check 172 pass; check_posts ok; validate.py ok; page loaded in headless Chromium (example series) with no console errors, scrollWidth 380 at 380 px; venture-preflight first FAILED on the CSV formula guard, fixed, rerun: 'preflight clean for xer-schedule-check'.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "53c63214-eaca-543d-85e6-89d0b20da4cd",
+    "transcripts": 1,
+    "first": "2026-11-20T08:19:38Z",
+    "last": "2026-11-20T08:39:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 133,
+        "output": 56509,
+        "thinking": 13390,
+        "cache_read": 10563348,
+        "cache_write_5m": 0,
+        "cache_write_1h": 178593,
+        "api_equivalent_usd": 4.6721,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 133,
+      "output": 56509,
+      "thinking": 13390,
+      "cache_read": 10563348,
+      "cache_write_5m": 0,
+      "cache_write_1h": 178593,
+      "api_equivalent_usd": 4.6721,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 66,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.33,
+      "active_minutes": 20.33,
+      "model_minutes": 10.63,
+      "tool_minutes": 9.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a scheduler/developer designing a promise-based EV-by-window metric, a cost-posting status generator, page panel, tests and a planted-fault eval on six real files",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 342.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

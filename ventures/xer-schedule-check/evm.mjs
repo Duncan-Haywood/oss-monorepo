@@ -125,7 +125,22 @@ export function percentComplete(row, evType = null, evUserPct = null) {
   return od > 0 ? clamp01(1 - rd / od) : 0;
 }
 
-export function earnedValue(xer, { projId = null, result = null } = {}) {
+// The part of `amount`, spread evenly over the working time of [s, e), that
+// falls before `cut`.
+function partBefore(cal, s, e, amount, cut) {
+  if (!amount || !Number.isFinite(s) || !Number.isFinite(e)) return 0;
+  if (e < s) [s, e] = [e, s];
+  const total = e > s && cal ? cal.workBetween(s, e) : 0;
+  if (!(total > 0)) return e <= cut ? amount : 0;
+  if (cut <= s) return 0;
+  if (cut >= e) return amount;
+  return (amount * cal.workBetween(s, cut)) / total;
+}
+
+// pvCuts: [minutes]: also return the planned value at each of those dates
+// (pvAt, same order), from this file's planned dates: how a series of updates
+// holds the first update's planned curve as its baseline (evmseries.mjs).
+export function earnedValue(xer, { projId = null, result = null, pvCuts = null } = {}) {
   result = result || schedule(xer);
   const model = result.model;
   const T = xer.tables;
@@ -174,6 +189,7 @@ export function earnedValue(xer, { projId = null, result = null } = {}) {
   const daily = { pv: new Map(), ac: new Map(), fc: new Map() };
   const adder = (m) => (d, v) => m.set(d, (m.get(d) || 0) + v);
   let missingPlan = 0;
+  const pvAt = (pvCuts || []).map(() => 0);
   for (const it of items) {
     const A = getAct(it.task);
     const r = A.row, cal = A.t?.cal || proj?.cal;
@@ -190,6 +206,7 @@ export function earnedValue(xer, { projId = null, result = null } = {}) {
     }
     see(ps); see(pf);
     A.pv += spread(cal, ps, pf, it.bac, adder(daily.pv), dd ?? Infinity);
+    if (pvCuts) for (let k = 0; k < pvCuts.length; k++) pvAt[k] += partBefore(cal, ps, pf, it.bac, pvCuts[k]);
     // actual: actual start to actual finish, or to the data date
     if (it.ac) {
       const as = it.as ?? parseDate(r.act_start_date) ?? dd ?? ps;
@@ -311,7 +328,7 @@ export function earnedValue(xer, { projId = null, result = null } = {}) {
   if (dd === null) notes.push("The file has no data date, so planned value is not cut at a date.");
   if (actualsFromProgress) notes.push(`Actual ${measure} equals earned value on ${mirrored.length} of ${withAc.length} activities with actuals: they were computed from percent complete, not booked, so CPI and the CPI-based estimates are not cost evidence.`);
   notes.push("Planned value follows the planned dates stored in the file (P6's planned start and finish), spread evenly over working time. If the scheduler re-baselined, planned dates may have moved too; a baseline export gives a firmer curve.");
-  return { ...empty, currency, totals, earnedSchedule, curve, wbs, activities: acts, findings, plannedStart: n ? formatDate(d0 * DAY) : null, forecastFinish: formatDate(proj ? result.projects.get(proj.id)?.finish ?? null : null) };
+  return { ...empty, currency, totals, earnedSchedule, ...(pvCuts ? { pvAt: pvAt.map(r2) } : {}), curve, wbs, activities: acts, findings, plannedStart: n ? formatDate(d0 * DAY) : null, forecastFinish: formatDate(proj ? result.projects.get(proj.id)?.finish ?? null : null) };
 }
 
 const money = (v, unit) => (v === null || v === undefined ? "-" : unit === "h" ? `${Math.round(v).toLocaleString("en-US")} h` : `${unit ? unit + " " : ""}${Math.round(v).toLocaleString("en-US")}`);
