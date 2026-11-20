@@ -6,6 +6,21 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7ah: how do you get a drone's attitude-loop lag without fitting it to a position step? Fly one acceleration step and read its 63% time
+
+**Question.** 7ag's point mass predicts a capped, gated position loop's rise time from its gains, and one first-order lag on the achieved acceleration fixes its misses on short steps and hard caps. But that lag (135 ms) was fitted on a flown position step, the very thing it predicts. Can a builder read it off a test that does not contain the answer: an open-outer-loop acceleration (lean) step?
+
+**Headline (`experiments/m7ah_att_step/verdicts.txt`, `results.json`, `posthoc.txt`; 216 probe flights, 27 s on 4 cores; simulated; 9 predictions committed first, 4 held).**
+
+- **The lag is the attitude loop's, and it is about 170-180 ms, not 135.** From hover, the horizontal acceleration request stepped to 3.5 m/s² (new probe `poshold.rollout(acc_cmd=...)`), the achieved acceleration's area estimate is 171 ms and its 63% time 182 ms (medians over 36 designs). Neither the motor law (33 to 39.1 ms) nor the step size (1 or 3.5 m/s²) moves any design's lag by more than 10-15 ms.
+- **The identified lag predicts rise at least as well as the fitted one.** With each design's 63% time, the lagged point mass puts 36 of 36 designs within 0.10 s in all seven of 7ag's conditions, A_P = 8 m/s² and the 0.5 m step included (median error 0.017 and 0.011 s, against 0.035 and 0.020 s fitted and 0.085 and 0.062 s with no lag). The area estimate does nearly as well (34 and 35 of 36).
+- **One lag per airframe class is enough:** the pooled median does as well as each design's own in 5 of 7 conditions.
+- **Why the fit came out short:** 7ag's grid stopped at 150 ms and its in-sample objective is flat (0.006 s error at 135 ms, 0.004 s at 190 ms). The response is not first order: about a fifth of the request arrives within 50 ms, before the frame has leaned far (most likely the canted rotors' side force; not isolated), then the lean, 95% at 0.5 s.
+- **For a builder:** fly one acceleration step, read the time to 63% of the steady acceleration, and integrate the lagged point mass with that lag; no position flight is needed to predict rise time.
+- **Limits:** one simulator, whose attitude loop is the stylised one of the earlier milestones; the lags were identified blind to the rise times, but scored against 7ag's already-published flights; one evaluation seed; calm air.
+
+![Left: achieved over steady acceleration after a 3.5 m/s² request step for the designs with the shortest, median and longest identified lag, against a 171 ms first-order lag; the curves jump to about 0.1-0.3 within 50 ms, then rise, reaching about 0.95 by 0.5 s. Right: median rise-prediction error per condition; the no-lag point mass reaches 85 ms at A_P 8 and 62 ms at the 0.5 m step, the fitted 135 ms lag 35 and 20 ms, the identified lags 17-20 and 11-12 ms.](experiments/m7ah_att_step/m7ah_att_step.png)
+
 ## Milestone 7ag: can you predict a drone's step-response rise time from its position gains without flying it? Yes, to 0.04 s, where the proportional cap governs
 
 **Question.** 7af fitted a line through 36 flown designs: with the proportional request capped at A_P, a 1 m step's rise time follows A_P/kd. A builder can only use that where it was not fitted. Flown again at other caps (2 to 8 m/s²) and step sizes (0.5 to 2 m), does it hold, and does a fitted-nothing model of the outer loop do better?

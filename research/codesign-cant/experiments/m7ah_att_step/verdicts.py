@@ -9,7 +9,8 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 AGD = os.path.join(HERE, "..", "m7ag_cruise")
 sys.path.insert(0, AGD)
-import verdicts as V  # noqa: E402  (7ag's)
+_spec = importlib.util.spec_from_file_location("verdicts_7ag", os.path.join(AGD, "verdicts.py"))
+V = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(V)   # 7ag's verdicts (same file name as this one)
 from posthoc import lagged  # noqa: E402
 
 SFX = "_smoke" if os.environ.get("SMOKE") == "1" else ""

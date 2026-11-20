@@ -69,6 +69,10 @@ CHECKS = [
     ("A_P = 8 (23 of 36)", "m7ag_cruise/verdicts.txt", r"AG3: REFUTED \(point mass within 0\.10 s at A_P 8: 23\)"),
     ("(135 ms, post hoc)", "m7ag_cruise/posthoc.txt", r"tau fitted on \(3\.5, 1\) only: 135 ms"),
     ("those to 36 and 33 of 36", "m7ag_cruise/posthoc.txt", r"8\.0  1\.0 \|    23/36     33/36[\s\S]*3\.5  0\.5 \|    31/36     36/36"),
+    # section VII: the lag identified from an acceleration step (milestone 7ah)
+    ("in a median 182 ms (area estimate 171 ms)", "m7ah_att_step/verdicts.txt", r"AH3 [^\n]*; 170\.7 ms; 63% time median 182\.0 ms"),
+    ("36 of 36 designs in all seven conditions", "m7ah_att_step/verdicts.txt", r"(?:\n[^\n]*\|\s+\d+/\d+/36/\d+/\d+ \|[^\n]*){7}"),
+    ("0.017 s at A_P = 8, 0.011 s at S = 0.5 m", "m7ah_att_step/verdicts.txt", r"8\.0  1\.0 \|[^\n]*\|  0\.085  0\.020  0\.017[\s\S]*3\.5  0\.5 \|[^\n]*\|  0\.062  0\.012  0\.011"),
 ]
 ARMS = [("M=1.00", -0.001, 9, 32), ("M=1.11", -0.012, 3, 22), ("M=1.25", -0.011, 0, 12), ("M=1.43", -0.010, 0, 13), ("M=1.67", -0.012, 0, 12)]
 

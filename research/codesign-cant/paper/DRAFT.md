@@ -297,6 +297,14 @@ first-order lag on the achieved acceleration, fitted on the in-sample condition 
 those to 36 and 33 of 36 (`m7ag_cruise/verdicts.txt`, `posthoc.txt`). The braking lean comes late, and the
 shorter the step or the harder the cap, the more of the travel is braking.
 
+**The lag, identified rather than fitted (milestone 7ah).** Fitting that lag on a position step uses the answer.
+Flown instead with the outer loop open, from hover with the acceleration request stepped to 3.5 m/s², the
+36 designs reach 63% of their steady acceleration in a median 182 ms (area estimate 171 ms), with no design
+moving more than 10–15 ms between the three motor laws or between a 1 and a 3.5 m/s² step. With each design's
+63% time the lagged point mass is within 0.10 s for 36 of 36 designs in all seven conditions (median error
+0.017 s at A_P = 8, 0.011 s at S = 0.5 m), better than the fitted 135 ms, whose in-sample objective is flat
+between about 130 and 200 ms; a single pooled lag does about as well (`m7ah_att_step/verdicts.txt`).
+
 **Why a tuner should see plants beyond the test range (a reading, not tested here).** The CMA-ES objective is a mean over
 randomised episodes. When fast plants are in the draw, gains that track them well raise that mean
 and are paid for at the slow edge, where the margin of the attitude loop is thinnest; when the draw
@@ -316,7 +324,7 @@ point; with that, the 125 ms tune has no unsettled designs. Put a set-point step
 objective: without one the tuner has no reason to rise fast. With a capped proportional term, compute
 the rise time before flying from k_p, k_d, k_i, A_P and the step size with the point mass above (within
 0.04 s for steps of 1 m or more and A_P up to about half of g tan of the tilt limit); for shorter steps or
-harder caps, add one acceleration lag fitted on a single flown step.
+harder caps, add one first-order acceleration lag equal to the 63% time of a single flown acceleration step.
 
 **Figures.** Both are drawn by `paper/figures_vii.py` from the parsers that generate Table VII-1, so
 figure and table cannot disagree. VII-a (`paper/fig_VIIa.png`): identified total and the 75 ms count
@@ -349,6 +357,6 @@ real tilt limit. Randomise the motor lag from the slowest identified value up to
 - Ten seeds for the paper figures (proposal, "Evaluation"); bootstrap intervals and Wilcoxon tests in place of sign counts.
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
 - Section VII: the same coverage sweep on the torque-scale and mass ranges; a sweep of the
-  set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier; the point mass's acceleration lag read off a flown attitude step instead of fitted on a position step (7ag); twelve seeds per geometry at 125 and 150 ms.
+  set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier; twelve seeds per geometry at 125 and 150 ms.
 - Sections I–V and VII–VIII written out from the outlines; LaTeX in the RA-L template.
 - Hardware check (milestone 8).
