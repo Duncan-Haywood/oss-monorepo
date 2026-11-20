@@ -97,22 +97,23 @@ class PartyIdentifierTest(unittest.TestCase):
         self.assertEqual(document["customer"]["id"], "4098765000003")
 
 
+class UblPartyFunctionsTest(unittest.TestCase):
+    # Plain pytest functions until 2026-11-20: CI runs this folder with
+    # `unittest discover`, which never collected them.
+    def test_national_tax_number_is_not_read_as_a_vat_id(self):
+        from einvoice_preflight.ubl import _party
+        from xml.etree import ElementTree
 
-
-def test_national_tax_number_is_not_read_as_a_vat_id():
-    from einvoice_preflight.ubl import _party
-    from xml.etree import ElementTree
-
-    xml = (
-        '<AccountingSupplierParty xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" '
-        'xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" '
-        'xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">'
-        "<cac:Party><cac:PartyName><cbc:Name>Solo</cbc:Name></cac:PartyName>"
-        "<cac:PartyTaxScheme><cbc:CompanyID>21/815/08150</cbc:CompanyID>"
-        "<cac:TaxScheme><cbc:ID>FC</cbc:ID></cac:TaxScheme></cac:PartyTaxScheme></cac:Party>"
-        "</AccountingSupplierParty>"
-    )
-    assert "vat_id" not in _party(ElementTree.fromstring(xml))
+        xml = (
+            '<AccountingSupplierParty xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" '
+            'xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" '
+            'xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">'
+            "<cac:Party><cac:PartyName><cbc:Name>Solo</cbc:Name></cac:PartyName>"
+            "<cac:PartyTaxScheme><cbc:CompanyID>21/815/08150</cbc:CompanyID>"
+            "<cac:TaxScheme><cbc:ID>FC</cbc:ID></cac:TaxScheme></cac:PartyTaxScheme></cac:Party>"
+            "</AccountingSupplierParty>"
+        )
+        assert "vat_id" not in _party(ElementTree.fromstring(xml))
 
 
 class UnlabelledTaxSchemeTest(unittest.TestCase):
