@@ -53,6 +53,15 @@ class UnitTestJobs(unittest.TestCase):
         self.assertFalse(mh.is_test(mh.ROOT / "prompts" / "test_promptctl.py"))
         self.assertFalse(mh.is_test(mh.HERE / "check_a.py"))
 
+    def test_skip_prefix_matches_run_suite(self):
+        # A plain pytest-function suite goes through unwired_checks.run_suite; with no
+        # pytest it comes back rc 0 + this prefix, and must read SKIP, not ok.
+        import unwired_checks
+        self.assertEqual(mh.SKIPPED, unwired_checks.SKIPPED)
+        self.assertTrue(mh.is_skip(0, f"{mh.SKIPPED} no pytest"))
+        self.assertFalse(mh.is_skip(1, f"{mh.SKIPPED} no pytest"))
+        self.assertFalse(mh.is_skip(0, "Ran 3 tests OK"))
+
 
 if __name__ == "__main__":
     unittest.main()

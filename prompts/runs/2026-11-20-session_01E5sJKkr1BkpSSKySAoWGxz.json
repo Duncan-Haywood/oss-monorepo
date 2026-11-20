@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKkr1BkpSSKySAoWGxz",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T02:19:08Z",
+  "ended": "2026-11-20T02:25:21Z",
+  "wall_minutes": 6.39,
+  "tokens_in": 2355687,
+  "tokens_out": 11219,
+  "cost_usd": 1.2231,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17842",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/main_health.py",
+      "issue": "Ran every platform/ci test file under unittest; the 18 plain pytest-function files ran 0 tests and read ok, and test_friction_rank.py read FAIL after PR #17828 imported pytest. Fixed in this PR."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "A 2026-11-20T01:31 friction row says 'pass a workflow name or --for-changes, not both' exits 0; on main it returns 2, so the report is stale (probably a masked pipe exit)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-process-eighteen-test-files-that-ran-nothing.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog had only owner rows). main_health before: 298/299, the red one being test_friction_rank.py (no pytest in bare python3). After: 299/299 with the 18 plain suites run under /usr/bin/python3.13 pytest (test_friction_rank 24 passed). python3 -m unittest test_main_health test_unwired_checks: OK. check_posts and check_post_frontmatter: ok. No backlog ids touched; friction_rank --live --ungated row on pick_track was claimed by open PR #17839, so I didn't take it.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cbda465d-201e-54ad-a5c5-8e77c69fdab5",
+    "transcripts": 1,
+    "first": "2026-11-20T02:19:08Z",
+    "last": "2026-11-20T02:25:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 58,
+        "output": 11219,
+        "thinking": 2139,
+        "cache_read": 2288020,
+        "cache_write_5m": 0,
+        "cache_write_1h": 67609,
+        "api_equivalent_usd": 1.2231,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 58,
+      "output": 11219,
+      "thinking": 2139,
+      "cache_read": 2288020,
+      "cache_write_5m": 0,
+      "cache_write_1h": 67609,
+      "api_equivalent_usd": 1.2231,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.39,
+      "active_minutes": 6.39,
+      "model_minutes": 2.61,
+      "tool_minutes": 3.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "diagnose a false red, survey 183 test files, patch and test the runner, short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 122.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

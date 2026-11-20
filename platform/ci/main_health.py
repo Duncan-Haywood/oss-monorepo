@@ -15,8 +15,10 @@ counts as red, and its line says TIME, not FAIL: run beside a full venture-suite
 run (load ~34 on 4 cores), check_js_syntax.py hit the 300 s cap and read like a
 real red check (run record 2026-11-11T22:23).
 
-It also runs each platform/ci/test_*.py file (`python -m unittest <file>` from
-platform/ci, one job per file; `--checks-only` skips them). Those tests run in CI
+It also runs each platform/ci/test_*.py file from platform/ci, one job per file
+(`--checks-only` skips them): unittest for a TestCase module, pytest for plain test
+functions (unwired_checks.run_suite; 18 files ran 0 tests under unittest and read ok
+until 2026-11-20), SKIP when no python3 here has pytest. Those tests run in CI
 only on the workflows whose path filters name the module, so a change elsewhere
 can leave one red on main unseen: #15891 renamed `unwired_checks.run_all` and
 test_run_venture_tests.py stayed red until #15894 while this script printed 73/73
@@ -91,6 +93,13 @@ def run(path, *args, timeout=TIMEOUT):
         return label(path), TIMED_OUT, f"timed out after {timeout} s"
 
 
+SKIPPED = "SKIP:"  # unwired_checks.SKIPPED, the prefix run_suite gives a suite it could not run
+
+
+def is_skip(rc, text):
+    return rc == 0 and text.startswith(SKIPPED)
+
+
 def status(rc):
     return "ok  " if rc == 0 else "TIME" if rc == TIMED_OUT else "FAIL"
 
@@ -159,7 +168,12 @@ def main(argv=None):
         jobs += [(p,) for p in suites.values()]
 
     def job(path, *args):
-        if label(path) in suites:
+        # A platform/ci test file of plain pytest functions (18 of 183 on
+        # 2026-11-20) runs 0 tests under `python -m unittest`, which Python 3.11
+        # calls OK: those lines read "ok" whatever the tests said, and
+        # test_friction_rank.py read FAIL once #17828 imported pytest in it.
+        # run_suite picks unittest or pytest per file, as CI's sweep does.
+        if label(path) in suites or (is_test(path) and not args):
             return unwired_checks.run_suite(path)
         return run(path, *args)
 
@@ -169,7 +183,8 @@ def main(argv=None):
         for f in as_completed(futures):
             results.append(f.result())
             name, rc, text = results[-1]
-            tag = "PEND" if pending_records(name, rc, text) else status(rc)
+            tag = "PEND" if pending_records(name, rc, text) else \
+                "SKIP" if is_skip(rc, text) else status(rc)
             print(f"{tag} {name} ({len(results)}/{len(jobs)})", flush=True)
     results = sorted(rerun_timeouts(jobs, results, job))
     pending = {r[0]: pending_records(*r) for r in results}
@@ -181,7 +196,11 @@ def main(argv=None):
     for name, rc, out in bad:
         print(f"{status(rc)} {name} (exit {rc})\n" + "\n".join(out.splitlines()[-8:]) + "\n")
     tests = sum(1 for j in jobs if is_test(j[0]))
-    print(f"{len(results) - len(bad)}/{len(results)} checks pass"
+    skips = [r[0] for r in results if is_skip(r[1], r[2])]
+    if skips:
+        print(f"SKIP {len(skips)} suite(s) not run here (pytest or a package missing; "
+              "`python3 platform/ci/pyenv.py pytest` finds one): " + ", ".join(skips))
+    print(f"{len(results) - len(bad) - len(skips)}/{len(results)} checks pass"
           + (f" ({len(jobs) - tests - len(suites)} checks, {tests} platform/ci test files"
              + (f", {len(suites)} portfolio test files no PR workflow runs" if suites else "")
              + ")" if tests else ""))
