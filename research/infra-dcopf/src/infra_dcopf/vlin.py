@@ -477,7 +477,8 @@ VBOX = 0.03
 
 def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, screen=False, solver="pips",
         record=False, warm=None, warm_check=False, merit_fn=None, enlarge=None, info=None,
-        enlarge_once=False, enlarge_rel=False, trace=None, enlarge_skip=()):
+        enlarge_once=False, enlarge_rel=False, trace=None, enlarge_skip=(),
+        enlarge_pre=False):
     """Successive linearisation in (P, V): C's step rules (no P box in round 1, then 20 % of range,
     halved on a rejected step), a V box of VBOX pu from round 1 halved with P's, elastic fallback.
     Each history entry keeps its point under "pg" and "vg".
@@ -496,7 +497,9 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
     far, base and trial merits, accepted, the trial's worst rated branch, and the linearised prediction of
     that branch's loading); it does not change the repair.
     enlarge_skip (an ablation, same entry): rounds on which the enlarged step is not tried (the round then
-    goes straight to the elastic chain); default none."""
+    goes straight to the elastic chain); default none.
+    enlarge_pre: rule P (LOG.md 2026-11-20, after the case1888 diagnosis): the enlarged step is tried only
+    before the first halving of the boxes; after it a failed hard QP goes to the elastic chain."""
     mf = merit_fn or merit
     halvings = 0
     lay = Layout(ppc)
@@ -524,6 +527,9 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
             if not kw and enlarge is not None and enlarge_once and used_here:
                 if info is not None:
                     info.append({"it": it, "blocked": True})
+            elif not kw and enlarge is not None and enlarge_pre and halvings > 0:
+                if info is not None:
+                    info.append({"it": it, "post_halving": True})
             elif not kw and enlarge is not None and it in enlarge_skip:
                 if info is not None:
                     info.append({"it": it, "skipped": True})

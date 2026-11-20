@@ -116,3 +116,62 @@ def test_enlarge_rel_default_is_rule_e_and_round1_same_cap(tight14):
     _, _, ok_half, inf_half = vlin.enlarged_step(tppc, lin, t / 3 * pt, t / 3 * vt, vlin.MARGIN,
                                                  2 * t / 3 * pt, 2 * t / 3 * vt, "clarabel")
     assert not ok_half and inf_half["fired"] is False
+
+
+def test_trace_and_skip_change_nothing_unless_asked():
+    """The case1888 diagnostic (2026-11-20): vlin.slp(trace=...) only records, and enlarge_skip on rounds where
+    nothing fires is inert. Every traced trial's linearised worst-end loading is a real number, and a rejected
+    trial is followed by one more halving."""
+    ppc = load_m(case_path("case14_ieee", "sad"))
+    dc = rundcopf(ppc, ppoption(VERBOSE=0, OUT_ALL=0))
+    pg, vf = dc["gen"][:, PG].copy(), file_schedule(ppc)
+    kw = dict(rounds=4, margin=vlin.MARGIN, analytic=True, solver="clarabel", enlarge=2.0, enlarge_rel=True)
+    info, tr = [], []
+    a = vlin.slp(ppc, pg, vf, **kw)
+    b = vlin.slp(ppc, pg, vf, trace=tr, info=info, **kw)
+    assert [x["status"] for x in a] == [x["status"] for x in b]
+    assert [x.get("qp") for x in a] == [x.get("qp") for x in b]
+    assert [t["it"] for t in tr] == [x["it"] for x in b]
+    for t0, t1 in zip(tr, tr[1:]):
+        bumped = ("accepted" in t0 and not t0["accepted"]) or "phi_trial" not in t0
+        assert t1["halvings"] == t0["halvings"] + int(bumped)
+    for t in tr:
+        if "phi_trial" in t:
+            assert np.isfinite(t["worst_pred"]) and np.isfinite(t["worst_base"])
+    quiet = tuple(r for r in range(1, 5) if not any(e.get("it") == r for e in info))
+    c = vlin.slp(ppc, pg, vf, enlarge_skip=quiet, **kw)
+    assert [x["status"] for x in a] == [x["status"] for x in c]
+
+
+def test_check_reports_worst_branch():
+    ppc = load_m(case_path("case14_ieee", "api"))
+    dc = rundcopf(ppc, ppoption(VERBOSE=0, OUT_ALL=0))
+    c = vlin.check(ppc, dc["gen"][:, PG].copy(), file_schedule(ppc))
+    nbr = ppc["branch"].shape[0]
+    assert 0 <= c["worst_br"] < nbr and c["worst_end"] in (c["worst_br"], nbr + c["worst_br"])
+    assert ppc["branch"][c["worst_br"], 5] > 0
+
+
+def test_enlarge_pre_default_is_rule_c_and_declines_after_halving():
+    """Rule P (2026-11-20) is opt-in: enlarge_pre=False reproduces rule C; with it on, no enlarged step is tried
+    once the boxes have halved, in vlin.slp and in converge.traced_slp alike."""
+    from infra_dcopf import converge
+    ppc = load_m(case_path("case30_ieee", "api"))
+    dc = rundcopf(ppc, ppoption(VERBOSE=0, OUT_ALL=0))
+    pg, vf = dc["gen"][:, PG].copy(), file_schedule(ppc)
+    kw = dict(rounds=6, margin=vlin.MARGIN, analytic=True, solver="clarabel", enlarge=2.0, enlarge_rel=True)
+    c = vlin.slp(ppc, pg, vf, **kw)
+    d = vlin.slp(ppc, pg, vf, enlarge_pre=False, **kw)
+    assert [x["status"] for x in c] == [x["status"] for x in d]
+    info, tr = [], []
+    vlin.slp(ppc, pg, vf, enlarge_pre=True, info=info, trace=tr, **kw)
+    halv = {t["it"]: t["halvings"] for t in tr}
+    for e in info:
+        if e.get("fired"):
+            assert halv[e["it"]] == 0
+        if e.get("post_halving"):
+            assert halv[e["it"]] > 0
+    _, trace = converge.traced_slp(ppc, pg, vf, rounds=6, enlarge=2.0, enlarge_rel=True, enlarge_pre=True)
+    for t in trace:
+        if t.get("enlarge", {}).get("fired"):
+            assert t["halvings"] == 0
