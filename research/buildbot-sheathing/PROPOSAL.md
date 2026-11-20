@@ -529,6 +529,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    H &le; L<sub>any</sub> &minus; 0.5 N, 9384 of 9384, and every balance-envelope case (H242 held); the 0.5 N band drops
    12 G1 cases the chain plans (0.30%, H243 refuted at its ceiling). The balance gate is the planner's envelope at
    working loads once hold sides are chosen per load. Next: dynamics (the press's impulse) or measured sensor bias.
+63. **The worst-direction sensor bias** (done 2026-11-20, `experiments/m63_worstbias/`): per pose and load, a 0.2 N
+   bias aimed (both signs) along the settle gradient of the joint the plan leaves nearest its threshold, against 6
+   random directions on the same 48 new loads (seed 63). Every planned press stays inside 0.03 mm (worst 0.0203 mm;
+   H244 held) and coverage is G1 99.93%, H1 100% (H245 held; the one refused load sits 0.06 N under its balance limit,
+   inside milestone 62's band). The aimed bias beats random on the H1 (0.0203 against 0.0182 mm) but not on the G1
+   (0.0180 against 0.0238; H246 refuted): the rule protects the weakest joint, and residuals come from admitted flips
+   elsewhere. Next: dynamics, a residual-maximizing bias search, a bias above the bound.
 
 ## Target venue
 
