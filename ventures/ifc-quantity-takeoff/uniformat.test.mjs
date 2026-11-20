@@ -234,3 +234,26 @@ test("gutters, downspouts and their framing are roof coverings; external railing
   assert.equal(ruleCode(row({ cls: "IfcRailing", ext: true }), ctx).code, "B2010");
   assert.equal(ruleCode(row({ cls: "IfcRailing", ext: false }), ctx).code, null);
 });
+
+test("railings by what they stand on: stair, storey-tall rise, outside or inside", () => {
+  const fr = (o) => ({ ...row(o), box: o.box, railSide: o.side });
+  const flight = () => fr({ id: 1, cls: "IfcStairFlight", box: [0, 0, 0, 1, 4, 3] });
+  const rows = assignUniformat([
+    flight(),
+    fr({ id: 2, cls: "IfcRailing", ext: true, box: [1.05, 0, 0.9, 1.1, 4, 3.9] }), // handrail on the flight, flagged external: still the stair
+    fr({ id: 3, cls: "IfcRailing", ext: false, box: [1.1, 2, 3.95, 1.12, 2.1, 4.05] }), // baluster piece 3.95 m up: not on the flight...
+    fr({ id: 4, cls: "IfcRailing", ext: false, box: [1.1, 2.1, 3.0, 3.0, 2.12, 4.0] }), // ...but this rail along the head of the flight starts at its top
+    fr({ id: 5, cls: "IfcRailing", ext: false, box: [5, 5, 3, 8, 5.05, 4], side: { exterior: false, open: 0, points: 9 } }), // a gallery guard far away
+    fr({ id: 6, cls: "IfcRailing", ext: false, box: [20, 0, 0, 23, 1, 4.5] }), // rises a storey with no stair near: a stair railing
+    fr({ id: 7, cls: "IfcRailing", ext: false, box: [20, 1, 4.5, 21, 1.02, 5.5] }), // joined to that one: the landing guard
+    fr({ id: 8, cls: "IfcRailing", ext: false, box: [30, 0, 3, 33, 0.05, 4], side: { exterior: true, open: 9, points: 9 } }), // balcony
+    fr({ id: 9, cls: "IfcRailing", ext: false, box: [40, 0, 3, 43, 0.05, 4] }), // no rays read
+  ]);
+  const code = (id) => rows.find((r) => r.id === id).uniformat.code;
+  assert.deepEqual([2, 3, 4, 5, 6, 7, 8, 9].map(code), ["C2010", "C2010", "C2010", "C1010", "C2010", "C2010", "B2010", null]);
+  assert.match(rows.find((r) => r.id === 3).uniformat.why, /joined to a railing/);
+  assert.match(rows.find((r) => r.id === 6).uniformat.why, /rising 4\.5 m/);
+  // a level guard standing a storey above the flight's top is not the stair's
+  const up = assignUniformat([flight(), fr({ id: 2, cls: "IfcRailing", box: [1.05, 0, 3.5, 1.1, 4, 4.5], side: { exterior: false, open: 0, points: 9 } })]);
+  assert.equal(up[1].uniformat.code, "C1010");
+});
