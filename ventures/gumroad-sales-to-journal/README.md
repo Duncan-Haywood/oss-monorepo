@@ -10,6 +10,22 @@ rather than dropped. The export is read locally and never uploaded.
 
 **Live tool:** https://marisstella.app/gumroad-sales-to-journal/
 
+## Known gaps
+
+From the 2026-11-20 census audit
+([`portfolio/quality/audits/2026-11-20-gumroad-sales-to-journal.json`](../../portfolio/quality/audits/2026-11-20-gumroad-sales-to-journal.json)):
+before that round the tool rejected both real Gumroad exports (`Sale Price ($)` was not a known
+column) and counted shipping twice. Real headers are now read from Gumroad's own export code
+(github.com/antiwork/gumroad), with tests built from those header lists. Still open:
+
+- The Sales export does not say whether Gumroad kept part of its fee on a refund; the tool assumes a
+  full refund returns the fee and a partial refund returns none, and says so on each row. The payout
+  CSV states the fee and is exact.
+- Affiliate credits, fee credits, PayPal and Stripe Connect payout deductions and technical
+  adjustments in the payout CSV are booked to the uncategorised account with a note, not classified.
+- The built-in sample's fees are not all Gumroad's 10% + 50c.
+- No real export file was tested end to end.
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

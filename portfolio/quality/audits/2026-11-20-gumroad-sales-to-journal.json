@@ -1,0 +1,232 @@
+{
+ "date": "2026-11-20",
+ "subject": "ventures/gumroad-sales-to-journal",
+ "stratum": "venture",
+ "seed": "2026-11-20-c394",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a bookkeeper / CPA who closes the books for digital-product creators and posts marketplace payouts through a clearing account; first checks: does the tool read the export Gumroad actually produces, does each journal balance and tie to the bank deposit, are gross sales, shipping, seller-collected tax, Gumroad fees and refunds each on the right side and in the right account, and are refunds and partial refunds booked from what Gumroad really deducted. Reference source the author did not write: Gumroad's own open-source code (github.com/antiwork/gumroad at c58af153c7e0), app/services/exports/purchase_export_service.rb (Sales export columns), app/services/exports/payouts/csv.rb and base.rb (payout CSV columns and row types), app/modules/purchase/accounting.rb (net_total = price - fee; sub_total = price - tax - shipping) and app/models/purchase.rb:24-30 plus app/controllers/home_controller.rb:83 (fee schedule 10% + 50c direct, 30% Discover). gumroad.com itself does not resolve from this session.",
+ "scores": {
+  "correctness": 1,
+  "completeness": 1,
+  "verification": 1,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Probe /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/probe/probe.mjs and refund.mjs import the shipped calc.mjs. On the author's own synthetic format the arithmetic is right: hand recomputation of the sample gives Sept sales 197.00, fees 21.45 (3.70+15.40+2.35), clearing 175.55 and Oct sales 213.00, shipping 6.50, fees 23.35, refunds 29.00, clearing 167.15, total 342.70 = deposit; every journal and the Xero export sum to 0. Against Gumroad's real exports (column lists from Gumroad's own source): the Sales export header ('Sale Price ($)', 'Fees ($)', 'Net Total ($)', 'Purchase Date', 'Refunded?', 'Partial Refund ($)') is rejected with 'This does not look like a Gumroad sales export / Missing column: price' because norm() turns 'Sale Price ($)' into 'sale-price', which is not an alias (calc.mjs:115); the payout CSV header (Type, Date, Purchase ID, ..., 'Sale Price ($)', 'Gumroad Fees ($)', 'Net Total ($)') is rejected the same way. With the header renamed to an accepted alias the outputs are wrong: the payout CSV's 'Totals' row is read as a sale, so a 133.60 payout journals 267.20; a 'Full Refund' row's returned fee (-3.40) is turned into a +3.40 fee expense by Math.abs (calc.mjs:156); Gumroad's Sale Price includes shipping and seller-collected tax (accounting.rb sub_total = price - tax - shipping), so shipping is double counted (6.50 to uncategorised with an error) and seller tax inside price is booked as revenue with no liability; in the Sales export Net Total stays price - fee on refunded purchases, so a refunded 29.00 sale books refunds Dr 29.00 and fees Cr 25.60 (a negative fee) and a clearing debit of 25.60 that will never arrive; 'Partial Refund ($)' is not read, so a 10.00 partial refund is booked as a 29.00 full refund. Internally consistent, wrong on the data it exists to read: 1.",
+  "completeness": "Claimed (README, VENTURE.yaml, index.html): reads the Gumroad Analytics > Sales export or the payout CSV; splits sales, shipping, tax, fee, refunds; checks against payout row / payout ID / typed deposit; month split; Xero, QBO, IIF and CSV exports; uncategorised catch-all. On the author's own fixture all of these work (39/39 tests, sample month split 2026-09-30 / 2026-10-03, exports balance). End to end on either real Gumroad export nothing works: both are rejected at the header. Gumroad's Sales export has no payout ID column at all, so per-payout grouping only ever applies to the invented fixture. The core claimed job fails: 1.",
+  "verification": "`cd ventures/gumroad-sales-to-journal && node --test '*.test.mjs'`: 39 pass, 0 fail, 0.12 s. Every fixture is built by the author's own buildReport() with an invented header (Type, Sale ID, Price, Fees, Net Total, Refunded, Payout ID), so no test exercises Gumroad's real column names, its Totals row, its refund rows or its Sale Price semantics (tests check a copy of the format, not the format). quality_mutate.py, 5 mutants in core logic, 1 caught: fee sign handling Math.abs removed (survived); multiple payout rows summed -> last one wins (survived); refund amount drops tax-in-net (survived); refundAmt > 0 no longer marks a row refunded (survived, no partial-refund test exists); payout mismatch !== -> < (caught).",
+  "craft": "Read calc.mjs (349 lines), calc.test.mjs, page.test.mjs, index.html script section. Good: integer cents throughout, pure module, CSV formula-injection guard, decimal-comma parsing, strict date validation, BOM/UTF-16 decoding. Defects: dense one-line expressions that are hard to review (calc.mjs:145, :162); Math.abs on the fee silently converts a returned fee into a charge (calc.mjs:156) instead of flagging it; no handling of summary rows (Totals / Subtotal) that the real export always ends with; the refund residual branch books any difference to fees with only an 'info' finding (calc.mjs:168), which hides the price-sized misbooking above.",
+  "claims": "Backed: disclaimer and no-warranty text on page and README; 'nothing uploaded' (page imports only ./calc.mjs and ./usage.mjs, page.test.mjs asserts no network calls); 'layout read from memory, no real export was available' stated on the page (index.html:69) and VENTURE.yaml. Not backed: the headline 'Paste or drop your sales CSV from Gumroad (Analytics > Sales > Export, or Payouts > download CSV)' - both real files are rejected; 'splits every sale into product sales, shipping, tax you collected, the Gumroad fee and refunds' - the split assumes Sale Price excludes shipping and tax, which Gumroad's source contradicts; FAQ 'page only needs ... refund flags and payout IDs' - the Sales export has no payout ID. The honest 'from memory' caveat does not rescue a primary claim that fails on first contact. llms.txt source still names the retired github.io host but served-copy rewrites it (source-only, not filed). Live host returned 000 through the proxy; served-copy used.",
+  "fitness": "Job walked: a bookkeeper exports a month of Gumroad sales (or downloads a payout CSV) and pastes it. Result: an error saying the file is not a Gumroad export. After hand-renaming 'Sale Price ($)' to 'Price' the journal double counts via the Totals row (payout CSV) or misbooks every refund as a negative fee and every shipped item as uncategorised (Sales export). The bookkeeper would be faster booking the payout by hand from Gumroad's own payout CSV, which already lists Sale, Full Refund, Partial Refund and fee columns per row. Commercial analogues (A2X, Synder) read the real data. 1.",
+  "domain": "Compared with standard marketplace clearing-account practice (gross revenue, refunds as contra-revenue, platform fee as expense, tax collected as liability, clearing cleared by the deposit, revenue recognised in the month of sale). The journal structure is what a CPA would want and the month split is correct practice. Departures: Gumroad defines Sale Price as including shipping and seller tax and Net Total as price - fee (accounting.rb), so the tool's 'price + shipping + tax - fee = net' model is wrong; a refund's retained or returned fee (base.rb summarize_full_refund / summarize_partial_refund) is not modelled; Discover (30%) vs direct (10% + 50c) fees are not distinguished (acceptable, since the fee column is read); sample fees 3.70 on 29.00, 2.35 on 19.00 and 4.25 on 35.00+6.50 shipping do not match Gumroad's 10% + 50c (3.40, 2.40, 4.65; only 15.40 on 149.00 matches). 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Sample journal totals and balance",
+   "method": "hand recomputation from the sample rows: Sept 29+149+19 sales, 3.70+15.40+2.35 fees; Oct 149+29+35 sales, 6.50 shipping, 15.40+3.70+4.25 fees, 29.00 refund",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/probe/probe.mjs /home/user/oss-monorepo/ventures/gumroad-sales-to-journal/calc.mjs",
+   "expected": "Sept Cr sales 197.00, Dr fees 21.45, Dr clearing 175.55; Oct Cr 213.00 + 6.50, Dr fees 23.35, Dr refunds 29.00, Dr clearing 167.15; total 342.70; each journal sums to 0",
+   "observed": "sales:Cr19700 fees:Dr2145 clearing:Dr17555; sales:Cr21300 shipping:Cr650 refunds:Dr2900 fees:Dr2335 clearing:Dr16715; bal 0 both; Xero export sums to 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Real Gumroad Sales export header is read",
+   "method": "header from Gumroad source app/services/exports/purchase_export_service.rb PURCHASE_FIELDS (first 26 columns), one sale row",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/probe/probe.mjs /home/user/oss-monorepo/ventures/gumroad-sales-to-journal/calc.mjs",
+   "expected": "one sale parsed and journalled",
+   "observed": "error 'This does not look like a Gumroad sales export' (Missing column: price; 'Sale Price ($)' normalises to 'sale-price', not an alias)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Real Gumroad payout CSV header is read",
+   "method": "header from Gumroad source app/services/exports/payouts/csv.rb HEADERS; Sale, Sale, Full Refund and Totals rows as base.rb builds them",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/probe/probe.mjs /home/user/oss-monorepo/ventures/gumroad-sales-to-journal/calc.mjs",
+   "expected": "payout of 133.60 journalled: sales 178.00, refund 29.00, fees 15.40 net (18.80 charged, 3.40 returned)",
+   "observed": "rejected at header (Missing column: price)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Payout CSV with header renamed to an accepted alias, deposit 133.60 typed in",
+   "method": "Gumroad base.rb row semantics: Totals row is a sum, Full Refund carries negative price and negative (returned) fee",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/probe/probe.mjs /home/user/oss-monorepo/ventures/gumroad-sales-to-journal/calc.mjs",
+   "expected": "journal clearing 133.60, agrees with deposit",
+   "observed": "'rows add up to 267.20 USD but the payout is 133.60 USD' (Totals row read as a sale); fees Dr 37.60 (returned fee booked as a charge); 6.80 to uncategorised",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Shipping and seller-collected tax inside Sale Price",
+   "method": "Gumroad app/modules/purchase/accounting.rb: sub_total = price - tax - shipping, net_total = price - fee",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/probe/probe.mjs /home/user/oss-monorepo/ventures/gumroad-sales-to-journal/calc.mjs",
+   "expected": "price 41.50 incl 6.50 shipping: sales 35.00, shipping 6.50, fee 4.65, clearing 36.85; price 108 incl 8 tax: sales 100, tax payable 8",
+   "observed": "sales Cr 41.50 + shipping Cr 6.50 + uncategorised Dr 6.50 with an error; tax case: sales Cr 108.00, no tax liability",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Refunded purchase in the Sales export (Net Total stays price - fee; Partial Refund ($) column)",
+   "method": "Gumroad purchase_export_service.rb ('Refunded?' 1/0, 'Partial Refund ($)') and accounting.rb net_total",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/probe/refund.mjs /home/user/oss-monorepo/ventures/gumroad-sales-to-journal/calc.mjs",
+   "expected": "full refund nets to the retained fee (or zero); a 10.00 partial refund books refunds Dr 10.00",
+   "observed": "both cases: sales Cr 29.00, refunds Dr 29.00, fees Cr 25.60 (negative fee), clearing Dr 25.60; partial refund amount ignored",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sample fee amounts against Gumroad's fee schedule",
+   "method": "Gumroad app/models/purchase.rb:26-28 (GUMROAD_FLAT_FEE_PER_THOUSAND 100, GUMROAD_FIXED_FEE_CENTS 50) and home_controller.rb:83 '10% + 50c direct, 30% via Discover'",
+   "command": "grep -n 'SAMPLE_ITEMS' -A7 ventures/gumroad-sales-to-journal/calc.mjs",
+   "expected": "29.00 -> 3.40, 149.00 -> 15.40, 19.00 -> 2.40, 41.50 -> 4.65",
+   "observed": "3.70, 15.40, 2.35, 4.25 (1 of 4 matches)",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/gumroad-sales-to-journal && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "39 pass, 0 fail, 0.12 s; all fixtures use the author's invented header",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Served copy builds without stale origins",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs gumroad-sales-to-journal",
+   "expected": "no placeholder origins",
+   "observed": "'no placeholder or retired origin left in llms.txt, sitemap.xml, robots.txt or canonicals'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Page headline: accepts the Analytics > Sales export or the Payouts CSV",
+   "method": "index.html hero paragraph vs checks above",
+   "command": "grep -n 'Analytics &gt; Sales' ventures/gumroad-sales-to-journal/index.html",
+   "expected": "both exports read",
+   "observed": "both rejected at the header",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, independence and 'from memory' caveat on the page",
+   "method": "read index.html and page.test.mjs",
+   "command": "grep -n 'from memory\\|Independent of Gumroad\\|not legal' ventures/gumroad-sales-to-journal/index.html",
+   "expected": "present",
+   "observed": "present (index.html:69 and footer), asserted by page.test.mjs",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Nothing uploaded",
+   "method": "module imports and network calls",
+   "command": "grep -n 'import\\|fetch(' ventures/gumroad-sales-to-journal/index.html",
+   "expected": "local imports only",
+   "observed": "./calc.mjs and ./usage.mjs only; usage counters opt-in",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page",
+   "method": "curl",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/gumroad-sales-to-journal/",
+   "expected": "200",
+   "observed": "000 through this container's proxy; served-copy used",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:156",
+   "change": "const fee = Math.abs(amts.fee); -> const fee = amts.fee;",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:145",
+   "change": "s.stated = (s.stated || 0) + Math.abs(net) -> s.stated = Math.abs(net)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:165",
+   "change": "refund amount default drops (taxInNet ? amts.tax : 0)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:154",
+   "change": "refunded = TRUE.test(refunded) || amts.refundAmt > 0 -> TRUE.test(refunded) only",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:200",
+   "change": "else if (s.stated !== sum) -> else if (s.stated < sum)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Neither real Gumroad export is read: the Sales export and the payout CSV both name the column 'Sale Price ($)' (Gumroad source purchase_export_service.rb, payouts/csv.rb), which normalises to 'sale-price' and is not in the price aliases, so the page rejects the file as 'not a Gumroad sales export'.",
+   "where": "ventures/gumroad-sales-to-journal/calc.mjs:115",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "Split model contradicts Gumroad's definitions: Sale Price includes shipping and seller-collected tax (sub_total = price - tax - shipping; net_total = price - fee), but the parser treats price as goods-only and adds shipping and tax on top, so shipping is double counted (to uncategorised with an error) and seller tax inside price is booked as revenue with no liability.",
+   "where": "ventures/gumroad-sales-to-journal/calc.mjs:159",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "Refunds misbooked against Gumroad's export semantics: in the Sales export Net Total stays price - fee on a refunded purchase and the partial amount is in 'Partial Refund ($)' (not aliased), so a refunded 29.00 sale books refunds Dr 29.00, fees Cr 25.60 and a clearing debit that never arrives, and partial refunds are booked as full; in the payout CSV a Full Refund row's returned (negative) fee is turned into a fee charge by Math.abs.",
+   "where": "ventures/gumroad-sales-to-journal/calc.mjs:156",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "The 'Totals' row (and 'Subtotal - ...' rows) that Gumroad appends to both exports is parsed as a sale, doubling the journal (133.60 payout journalled as 267.20).",
+   "where": "ventures/gumroad-sales-to-journal/calc.mjs:145",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests check a copy of the format: every fixture comes from the author's buildReport() with an invented header, so nothing exercises Gumroad's real columns, Totals row, refund rows or partial refunds; 4 of 5 seeded mutants in fee/refund/deposit logic survive.",
+   "where": "ventures/gumroad-sales-to-journal/calc.test.mjs:5",
+   "category": "tests-check-a-copy",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Headline and FAQ claim the page reads the Analytics > Sales export and the payout CSV and groups by payout ID; both real files are rejected and the Sales export has no payout ID column.",
+   "where": "ventures/gumroad-sales-to-journal/index.html:12",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Sample fees (3.70 on 29.00, 2.35 on 19.00, 4.25 on 41.50) do not follow Gumroad's 10% + 50c (3.40, 2.40, 4.65), so the demo teaches wrong fee amounts.",
+   "where": "ventures/gumroad-sales-to-journal/calc.mjs:332",
+   "category": "source-data",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy, integer-cent journal builder whose clearing-account structure and month split are what a bookkeeper wants, and whose arithmetic is right on its own synthetic fixture (sample recomputed by hand: 175.55 + 167.15 = 342.70, every journal balances). But it was written against an export format from memory, and Gumroad's own open-source code shows that format is wrong: both the Sales export and the payout CSV are rejected at the header because 'Sale Price ($)' is not an accepted alias, and once that is renamed by hand the journals are wrong - the Totals row doubles the payout, shipping and seller tax inside Sale Price are double counted or booked as revenue, refunded sales produce a negative fee and a phantom clearing debit, partial refunds are booked as full, and a returned fee becomes a charge. 39 tests pass, but all use the author's invented header and 4 of 5 seeded mutants survive. Does not meet the bar on correctness, verification and claims."
+}

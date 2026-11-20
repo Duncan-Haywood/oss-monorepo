@@ -28,11 +28,11 @@ test("the module scripts import only local files", () => {
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
 });
 
-test("page documents the model, its limits, and that the layout is read from memory", () => {
+test("page documents the model, its limits, and where each layout comes from", () => {
   const html = page("index.html");
   assert.match(html, /Not checked/);
-  assert.match(html, /read from memory of public help documents/);
-  assert.match(html, /no real Gumroad export and no live Xero or QuickBooks import was available/);
+  assert.match(html, /open-source code \(github\.com\/antiwork\/gumroad\)/);
+  assert.match(html, /No real export file and no live Xero or QuickBooks import was tested/);
   });
 
 test("page states it is independent of Gumroad and accounting vendors", () => {
