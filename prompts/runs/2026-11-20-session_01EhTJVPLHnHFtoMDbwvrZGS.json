@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPLHnHFtoMDbwvrZGS",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T10:00:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: check_csv_formula_guard one walk + split exporter regex",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": 17895,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "left the model field null: the session's harness rules forbid model identifiers in pushed artifacts",
+      "did": "model: null",
+      "result": "record validates"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-20-csv-guard-one-walk.md",
+    "docs/posts/2026-11-20-a-regex-alternation-that-tried-three-branches-everywhere.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of python3 platform/ci/check_csv_formula_guard.py, bash time, warm cache, 4-core container. Before 2.83/3.32 s, after 0.85/0.89/0.84 s. Unit tests (python3 -m unittest test_check_csv_formula_guard from platform/ci): 2.60 s -> 0.90 s. cProfile: regex 1.43 s/7229 searches -> 0.37 s/2437; 26515 -> 18447 reads. Output cmp-identical (scan/scan_weak/scan_shape JSON dump on real tree); is_exporter vs EXPORTER agree on 18446 files. Local checks: unittest test_check_csv_formula_guard OK (16), check exits 0.",
+  "corrections": [],
+  "redteam": null
+}

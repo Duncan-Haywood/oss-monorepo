@@ -130,6 +130,37 @@ class GuardShape(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("ventures/x/calc.mjs:1", out.getvalue())
 
+    def test_split_exporter_matches_the_alternation(self):
+        # is_exporter tries EXPORTER's branches one at a time behind literal
+        # prefilters (docs/history/ci-perf-2026-11-20-csv-guard-one-walk.md);
+        # it must agree with the single alternation on every case.
+        cases = [UNGUARDED, GUARDED, "", "Csv", "toCsv", "function toCsv(r){}", "function toCsvRow(r){}",
+                 "export const toCsv = (rows) => rows.join()", "toCsv = function () {}", "toCsv = async () => 1",
+                 "xtoCsv = () => 1", "import { toCsv } from './calc.mjs';", "export function ratingsCsv(r) {}",
+                 "export async function reportCsv (r) {}", "export function parseCsv(t) {}",
+                 "export function sampleCsv() {}", "export function Csv() {}", "export function findingsCsvRows() {}",
+                 "export\n  function\tstandingsCsv(\n", "export default function aCsv() {}"]
+        for text in cases:
+            self.assertEqual(g.is_exporter(text), g.EXPORTER.search(text) is not None, text)
+
+    def test_scan_all_matches_the_three_scans(self):
+        weak = "const q = (s) => (/^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d/.test(s) ? \"'\" + s : s);\n"
+        shape = "const q = (s) => (/^[=+@]/.test(s) ? \"'\" + s : s);\n"
+        d = CsvFormulaGuard.tree(self, {"ventures/a/calc.mjs": UNGUARDED, "ventures/a/ok.mjs": GUARDED,
+                       "ventures/a/calc.test.mjs": UNGUARDED + weak + shape,
+                       "ventures/a/calc.test.helper.mjs": UNGUARDED,
+                       "ventures/a/node_modules/x/calc.mjs": UNGUARDED + weak,
+                       "ventures/b/dist/calc.mjs": UNGUARDED, "ventures/b/app/page.tsx": shape,
+                       "ventures/b/app/page.ts": weak, "ventures/b/index.html": weak + shape,
+                       "ventures/b/deep/er/x.js": shape})
+        both = g.scan_all(d)
+        self.assertEqual(both, (g.scan(d), g.scan_weak(d), g.scan_shape(d)))
+        self.assertEqual(both[0], ["ventures/a/calc.mjs", "ventures/a/calc.test.helper.mjs"])
+        self.assertEqual(both[1], ["ventures/b/index.html:1"])
+        self.assertEqual(sorted({e.split(":")[0] for e in both[2]}),
+                         ["ventures/b/app/page.ts", "ventures/b/app/page.tsx", "ventures/b/deep/er/x.js",
+                          "ventures/b/index.html"])
+
     def test_repository_has_no_bad_guard_shapes(self):
         self.assertEqual(g.scan_shape(g.ROOT), [])
 
