@@ -115,6 +115,24 @@ def clashes(named: list[tuple[str, object]], tol_mm3: float = 1.0) -> list[str]:
     return out
 
 
+def cross_clashes(first: list[tuple[str, object]], second: list[tuple[str, object]], tol_mm3: float = 1.0) -> list[str]:
+    """The entries `clashes(first + second)` makes for pairs with one solid from each list (`clashes` lists the same
+    entries, interleaved with the pairs inside each list). The pose tests use it when `second` never moves, so its own
+    pairs are intersected once rather than at every pose (2026-11-20)."""
+    pa = [(n, s, F.bbox(s)) for n, s in first]
+    pb = [(n, s, F.bbox(s)) for n, s in second]
+    out = []
+    for na, a, ba in pa:
+        for nb, b, bb in pb:
+            if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
+                    or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
+                continue
+            v = (a & b).volume
+            if v > tol_mm3:
+                out.append(f"{na} x {nb}: {v:.0f} mm^3")
+    return out
+
+
 def elevation_sweep(p: Feeder, steps: int = 4) -> list[str]:
     """Clashes with the head tilted through its whole elevation range."""
     out = []
