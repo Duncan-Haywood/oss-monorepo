@@ -1,0 +1,64 @@
+{
+ "date": "2026-11-20",
+ "session": "https://claude.ai/code/session_01EhTJVMJFhegMGwqbArqRMS",
+ "track": "research",
+ "prompt_version": 0,
+ "input": null,
+ "input_sha256": null,
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-20T16:53:30Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "research/aerolog-scaling milestone 11au: price the pair-cost tables (11at's Next)",
+ "projects": [
+  "aerolog-scaling"
+ ],
+ "pr": 17936,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 4,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [
+  {
+   "issue": "Post hoc finding: ref_mix.hgrid has no 6- or 11-band spacing (rounding of H/(2k-1)), so band-count tallies in milestones since 11ah omit a 6-band option that beats the reported plan in 16-30 of 96 draws at the offset settings. Disclosed in the paper (6.11, limitations), README and LOG; rerun queued as Next."
+  }
+ ],
+ "doc_friction": [
+  {
+   "file": "research/_shared/pick_track.py",
+   "issue": "none blocking; claim flow worked as documented."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "The scheduled prompt asks for venture/revenue work; the router drew the research track (weight 0.27), and I followed the router as the repo's allocation mechanism.",
+   "did": "research track, aerolog-scaling programme",
+   "result": "a programme step landed"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-20-aerolog-leak-tables-one-kernel.md"
+ ],
+ "goal": null,
+ "notes": "Predictions pushed in f9c32031a before the full run. Full run 48 layouts ~50 min on 4 cores. Results: T1-T4, T7 held; T5 refuted; T6 missed by one draw (379 vs 380), all misses search luck per post hoc. Checks run here: tests/test_fast_tables.py + paper/related tests pass; paper/check_airspace_numbers.py 168 of 168; research/_homepage/build.py ok; check_posts ok; check_md_links ok; research_live_links no change.",
+ "corrections": [
+  {
+   "file": "research/aerolog-scaling/experiments/hub_airspace/fast_tables.py",
+   "issue": "docstring said the k-widest set has 12 spacings; it has 10 because ref_mix.hgrid's rounding drops k = 6 and 11. Corrected in place with a dated note; predictions unchanged."
+  }
+ ],
+ "redteam": null
+}
