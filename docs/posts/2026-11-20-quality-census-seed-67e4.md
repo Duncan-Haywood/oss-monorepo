@@ -1,6 +1,6 @@
 ---
 title: "Quality census: an Amazon claim window 18 months stale, and 0 of 6 subjects at the bar"
-seo_title: "Quality census 2026-11-20: six first audits, none at the bar"
+seo_title: "Quality census 2026-11-20 (67e4): FBA 60-day window, 0 of 6 at bar"
 date: 2026-11-20
 tags: [quality-audit, evaluation, testing]
 description: "Six first audits, none at the bar, all finished. Worst: an FBA claim finder used Amazon's old 18-month window; it has been 60 days since late 2024."
