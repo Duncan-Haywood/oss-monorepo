@@ -8,6 +8,7 @@
 //   node cli.mjs model.ifc --json out.json     everything as JSON
 //   node cli.mjs new.ifc --compare old.ifc     change in the BoQ since an earlier revision (CSV to stdout)
 //   --changes changes.csv                      with --compare: every added, removed, changed or re-identified element
+//   --voids-up-to 0.5,0.05                     leave in openings up to 0.5 m2 (areas) and 0.05 m3 (volumes)
 //   --tolerance 0.02                           relative difference that still counts as agreeing (default 2%)
 //   --no-geometry                              stored quantities only (faster)
 
@@ -17,15 +18,21 @@ import { takeoff, boq, boqCsv, rowsCsv, checkSummary } from "./qto.mjs";
 import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--rows", "--json", "--by", "--compare", "--changes", "--tolerance"];
+const VALUED = ["--rows", "--json", "--by", "--compare", "--changes", "--tolerance", "--voids-up-to"];
 const file = args.find((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
 const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
 if (!file || args.includes("--help")) {
-  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 13).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
+  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 14).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
   process.exit(file ? 0 : 2);
 }
 const by = (opt("--by") || "class,type").split(",").map((s) => s.trim()).filter(Boolean);
 for (const k of by) if (!["class", "type", "storey", "material", "classification"].includes(k)) { console.error(`unknown --by key: ${k}`); process.exit(2); }
+let rule = null;
+if (opt("--voids-up-to")) {
+  const [a, v] = opt("--voids-up-to").split(",").map(Number);
+  if (!(a >= 0) || !(v >= 0)) { console.error("--voids-up-to takes AREA_M2,VOLUME_M3, e.g. 0.5,0.05"); process.exit(2); }
+  rule = { areaMax: a, volumeMax: v };
+}
 const t0 = Date.now();
 const model = parseStep(readFileSync(file));
 const res = takeoff(model, { geometry: !args.includes("--no-geometry"), tolerance: opt("--tolerance") ? Number(opt("--tolerance")) : undefined });
@@ -40,7 +47,7 @@ if (opt("--compare")) {
   process.exit(0);
 }
 if (opt("--rows")) writeFileSync(opt("--rows"), rowsCsv(res.rows));
-if (opt("--json")) writeFileSync(opt("--json"), JSON.stringify({ schema: res.schema, units: res.units, summary: checkSummary(res.rows), boq: boq(res.rows, by), rows: res.rows }, null, 1));
+if (opt("--json")) writeFileSync(opt("--json"), JSON.stringify({ schema: res.schema, units: res.units, summary: checkSummary(res.rows), boq: boq(res.rows, by, rule), rows: res.rows }, null, 1));
 if (args.includes("--check")) {
   const s = checkSummary(res.rows);
   console.log(`${file}: ${res.schema}, ${s.elements} elements, ${secs.toFixed(1)} s`);
@@ -53,5 +60,5 @@ if (args.includes("--check")) {
   const top = Object.entries(s.reasons).sort((a, b) => b[1] - a[1]).slice(0, 8);
   for (const [r, n] of top) console.log(`  ${n} x ${r}`);
 } else if (!opt("--rows") && !opt("--json")) {
-  process.stdout.write(boqCsv(boq(res.rows, by), by));
+  process.stdout.write(boqCsv(boq(res.rows, by, rule), by, {}, rule));
 }
