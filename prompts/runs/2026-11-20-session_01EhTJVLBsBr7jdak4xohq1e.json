@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVLBsBr7jdak4xohq1e",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures prompt (continue work on the repo ...)",
+  "input_sha256": "80aa98475ab589b77b3017213e40db2e9199b1291c7eb6a453aebf9debc367c8",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T14:04:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator: player page installs to a phone and opens offline (PWA)",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 17922,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Dockerfile missed pwa.mjs",
+      "caught_by": "deploy.test.mjs",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-league-page-offline-at-the-field.md"
+  ],
+  "goal": null,
+  "notes": "pwa.test.mjs 6/6; eval/offline-browser.mjs in Chromium 11/11 (caught the Show-only restore running before the filter existed; fixed). First full venture run failed 1 test: deploy.test.mjs said the Dockerfile did not copy pwa.mjs; fixed. After the fix: run_venture_tests.py league-schedule-generator ok (824 tests, 287 s); venture-preflight.mjs league-schedule-generator: preflight clean.",
+  "corrections": [],
+  "redteam": null
+}

@@ -181,6 +181,10 @@ export function evaluateConstraints(log, ctx) {
       const hpd = t.cal.hoursPerDay || 8;
       const slack = it.expected !== null && needBy !== null && open && !done ? Math.round(((it.expected < needBy ? t.cal.workBetween(it.expected, needBy) : -t.cal.workBetween(needBy, it.expected)) / 60 / hpd) * 10) / 10 : null;
       const link = { code, id: t.id, name: t.name, status, needBy: needBy === null ? null : formatDate(needBy), latest: latest === null ? null : formatDate(latest), slackDays: slack, inLookahead: rowsById.has(t.id), past: latest !== null && it.expected !== null && open && it.expected > latest };
+      // past the late start but not after the start the schedule already has:
+      // the activity is behind (negative float, from a deadline) without this
+      // row, and the row adds no slip of its own
+      link.alreadyBehind = link.past && needBy !== null && it.expected <= needBy;
       it.links.push(link);
       if (open && !done && !active && it.expected !== null && s !== null && it.expected > s) {
         floors.set(t.id, Math.max(floors.get(t.id) ?? -Infinity, it.expected));
@@ -192,6 +196,52 @@ export function evaluateConstraints(log, ctx) {
     it.status = worstStatus(it.links.map((l) => l.status)) || "not in file";
     it.past = it.links.some((l) => l.past);
     items.push(it);
+  }
+  // "Past late start" read twice more, so the flag says whether the row
+  // itself moves anything:
+  // - against the late dates P6's calendars leave out. P6's backward pass
+  //   does not credit a finish that may fall in its own calendar's non-work
+  //   time (calslack.mjs) or a milestone that could sit at the instant its
+  //   logic gives (milestones.mjs). Past P6's late start but not past these:
+  //   nothing downstream moves (slackOnly).
+  // - with every finish- or start-on-or-before date the schedule already
+  //   misses moved to where the schedule puts that activity. On negative
+  //   float the late start comes from a deadline that a longer path misses
+  //   by more; a row inside that margin adds nothing to the miss
+  //   (alreadyBehind).
+  // A row past both moves the project finish or a kept date. Checked on the
+  // six public files: eval/constraints-slack-2026-11-20.md.
+  if (items.some((i) => i.past)) {
+    const cal = schedule(null, { model, calendarSlack: true, milestones24h: true });
+    const LATE_ONLY = new Set(["CS_MEOB", "CS_MSOB"]);
+    const tasks2 = new Map();
+    for (const [id, t] of model.tasks) {
+      const r0 = res.get(id);
+      if (!r0 || !t.cstr.some((c) => LATE_ONLY.has(c.type))) { tasks2.set(id, t); continue; }
+      const cstr = t.cstr.map((c) => {
+        if (!LATE_ONLY.has(c.type) || c.date === null) return c;
+        const at = c.type === "CS_MEOB" ? r0.ef : (r0.remES ?? r0.es);
+        return Number.isFinite(at) && at > c.date ? { ...c, date: at } : c;
+      });
+      tasks2.set(id, { ...t, cstr });
+    }
+    const rel = schedule(null, { model: { ...model, tasks: tasks2 }, calendarSlack: true, milestones24h: true });
+    const lsOf = (run, id) => { const r1 = run.tasks.get(id); return r1 && Number.isFinite(r1.ls) ? r1.ls : null; };
+    for (const it of items) {
+      if (!it.past) continue;
+      for (const l of it.links) {
+        if (!l.past) continue;
+        const a = lsOf(cal, l.id), b = lsOf(rel, l.id);
+        l.latestLoose = a === null ? null : formatDate(a);
+        l.latestRelaxed = b === null ? null : formatDate(b);
+        l.slackOnly = a !== null && it.expected <= a;
+        l.alreadyBehind = !l.slackOnly && (l.alreadyBehind || (b !== null && it.expected <= b));
+        l.moves = !l.slackOnly && !l.alreadyBehind;
+      }
+      const pl = it.links.filter((l) => l.past);
+      it.pastSlackOnly = pl.every((l) => l.slackOnly);
+      it.pastAlreadyBehind = !it.pastSlackOnly && pl.every((l) => !l.moves);
+    }
   }
   // make-ready: logic and log
   for (const a of activities) if (a.openConstraints.length && a.ready === "ready") a.ready = "constrained";
@@ -227,10 +277,18 @@ export function evaluateConstraints(log, ctx) {
     }
   }
   const n = (st) => items.filter((i) => i.status === st).length;
-  const summary = { rows: items.length, open: items.filter((i) => i.status !== "cleared" && i.status !== "not in file").length, cleared: n("cleared"), overdue: n("overdue"), late: n("late"), noDate: n("no date"), onTrack: n("on track"), activityFinished: n("activity finished"), notInFile: n("not in file"), pastLateStart: items.filter((i) => i.past).length, startsMoved: startMoves.length };
+  const summary = { rows: items.length, open: items.filter((i) => i.status !== "cleared" && i.status !== "not in file").length, cleared: n("cleared"), overdue: n("overdue"), late: n("late"), noDate: n("no date"), onTrack: n("on track"), activityFinished: n("activity finished"), notInFile: n("not in file"), pastLateStart: items.filter((i) => i.past).length, pastSlackOnly: items.filter((i) => i.past && i.pastSlackOnly).length, pastAlreadyBehind: items.filter((i) => i.past && i.pastAlreadyBehind).length, startsMoved: startMoves.length };
   items.sort((a, b) => sev(a.status) - sev(b.status) || (b.finishSlipDays ?? 0) - (a.finishSlipDays ?? 0) || minNeed(a) - minNeed(b) || a.row - b.row);
   return { items, summary, finish, warnings };
 }
+// What "past late start" means for this link, in words (text, page, CSV).
+export function pastLabel(l) {
+  if (!l || !l.past) return "";
+  if (l.slackOnly) return `past P6's late start, within the slack its calendars leave (to ${String(l.latestLoose).slice(0, 10)}): moves nothing`;
+  if (l.alreadyBehind) return `past late start, but a deadline is already missed by more on another path${l.latestRelaxed ? ` (adds to it after ${String(l.latestRelaxed).slice(0, 10)})` : ""}`;
+  return "past late start: moves the finish or a deadline";
+}
+
 const minNeed = (it) => Math.min(...it.links.map((l) => (l.needBy ? Date.parse(l.needBy.replace(" ", "T") + "Z") : Infinity)));
 
 const d10 = (m) => (m === null || m === undefined ? "" : formatDate(m).slice(0, 10));
@@ -242,7 +300,7 @@ export function constraintLogText(cl) {
   if (cl.finish.withLog) out.push(`If every open constraint clears on its expected date: project finish ${cl.finish.base} -> ${cl.finish.withLog} (${cl.finish.slipDays > 0 ? `${cl.finish.slipDays} working days later` : "no change"}); ${s.startsMoved} look-ahead starts move.`);
   for (const it of cl.items) {
     if (it.status === "cleared") continue;
-    const links = it.links.map((l) => `${l.code}${l.needBy ? ` need ${l.needBy.slice(0, 10)}` : ""}${l.slackDays !== null && l.slackDays !== undefined ? ` (${l.slackDays >= 0 ? "+" : ""}${l.slackDays} d)` : ""}${l.past ? " past late start" : ""}`).join(", ");
+    const links = it.links.map((l) => `${l.code}${l.needBy ? ` need ${l.needBy.slice(0, 10)}` : ""}${l.slackDays !== null && l.slackDays !== undefined ? ` (${l.slackDays >= 0 ? "+" : ""}${l.slackDays} d)` : ""}${l.past ? " " + pastLabel(l) : ""}`).join(", ");
     out.push(`  [${it.status}] row ${it.row}: ${it.what || it.type || "(constraint)"}${it.owner ? ` (${it.owner})` : ""}, expected ${d10(it.expected) || "-"}: ${links}${it.finishSlipDays ? `; alone moves the finish ${it.finishSlipDays} d` : ""}`);
   }
   return out.join("\n");
@@ -272,7 +330,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<
 export function constraintLogHtml(cl) {
   if (!cl) return "";
   const s = cl.summary;
-  const rows = cl.items.filter((i) => i.status !== "cleared").map((it) => `<tr><td class="mr ${esc(it.status.replace(/ /g, "-"))}">${esc(it.status)}</td><td>${esc(it.what || it.type || "(constraint)")}${it.type && it.what ? `<div class="sub">${esc(it.type)}</div>` : ""}${it.note ? `<div class="sub">${esc(it.note)}</div>` : ""}</td><td>${esc(it.owner)}</td><td class="dt">${esc(d10(it.expected))}</td><td>${it.links.map((l) => `${esc(l.code)}${l.needBy ? ` <span class="sub">need ${esc(l.needBy.slice(0, 10))}${l.slackDays !== null && l.slackDays !== undefined ? `, ${l.slackDays >= 0 ? "+" : ""}${esc(l.slackDays)} d` : ""}${l.past ? ", past late start" : ""}</span>` : ""}`).join("<br>")}</td><td class="n">${it.finishSlipDays ? esc(it.finishSlipDays) : ""}</td></tr>`).join("");
+  const rows = cl.items.filter((i) => i.status !== "cleared").map((it) => `<tr><td class="mr ${esc(it.status.replace(/ /g, "-"))}">${esc(it.status)}</td><td>${esc(it.what || it.type || "(constraint)")}${it.type && it.what ? `<div class="sub">${esc(it.type)}</div>` : ""}${it.note ? `<div class="sub">${esc(it.note)}</div>` : ""}</td><td>${esc(it.owner)}</td><td class="dt">${esc(d10(it.expected))}</td><td>${it.links.map((l) => `${esc(l.code)}${l.needBy ? ` <span class="sub">need ${esc(l.needBy.slice(0, 10))}${l.slackDays !== null && l.slackDays !== undefined ? `, ${l.slackDays >= 0 ? "+" : ""}${esc(l.slackDays)} d` : ""}${l.past ? ", " + esc(pastLabel(l)) : ""}</span>` : ""}`).join("<br>")}</td><td class="n">${it.finishSlipDays ? esc(it.finishSlipDays) : ""}</td></tr>`).join("");
   return `<h2 style="font-size:15px;margin:16px 0 4px">Constraints log</h2>
 <p>${s.rows} rows: <b>${s.open}</b> open (${s.overdue} overdue, ${s.late} late for the schedule, ${s.noDate} with no expected date, ${s.onTrack} on track), ${s.cleared} cleared.${cl.finish.withLog ? ` If every open constraint clears on its expected date the project finish moves from ${esc(cl.finish.base)} to <b>${esc(cl.finish.withLog)}</b> (${cl.finish.slipDays > 0 ? `${esc(cl.finish.slipDays)} working days later` : "no change"}).` : ""}</p>
 ${rows ? `<table><thead><tr><th>Status</th><th>Constraint</th><th>Owner</th><th>Expected</th><th>Activities (need by, working days to spare)</th><th>Moves finish (d)</th></tr></thead><tbody>${rows}</tbody></table>` : ""}`;

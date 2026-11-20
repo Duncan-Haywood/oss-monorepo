@@ -26,6 +26,7 @@ import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseResults, parsePointSystem, standings, playoffBracket, playBracket, leaguePageHtml, scheduleIcs, sampleFields, WEEKDAYS, dayLabel } from "./calc.mjs";
 import { pathToFileURL } from "node:url";
+import { iconPng, manifestJson, SW_JS, pwaHeadHtml, pwaBodyHtml } from "./pwa.mjs";
 import { upcomingGames, parseAvailability, recordAvailability, availabilityHtml, shortTeamsHtml, dayNumber, parseRosters, parseContacts, availabilityCsv, remindersDue, EMAIL, REMINDER_DAYS } from "./availability.mjs";
 import { smtpConfig, sendMail } from "./mailer.mjs";
 import { parseSubOffer, recordSub, placeSub, subsHtml, placeButtonsHtml, freeSubsLine } from "./subs.mjs";
@@ -110,7 +111,7 @@ export function calendarLinks(base, token, team) {
   return `<a href="${esc(webcal)}">subscribe</a> · <a href="${esc(google)}" rel="noopener">Google Calendar</a> · ${dl} · <input readonly value="${esc(feed)}" aria-label="Calendar address" style="width:auto;min-width:16rem;font-size:.8rem" onfocus="this.select()">`;
 }
 
-function leaguePage(state, token, base = null, today = dayNumber(Date.now()), captain = null) {
+function leaguePage(state, token, base = null, today = dayNumber(Date.now()), captain = null, now = Date.now()) {
   const out = buildLeague(state.fields);
   if (out.error) return page("League", `<p>The organiser has not published a valid league yet.</p>`);
   const html = leaguePageHtml(out.schedule, { title: "League schedule", table: out.table, bracket: out.bracket });
@@ -127,7 +128,8 @@ function leaguePage(state, token, base = null, today = dayNumber(Date.now()), ca
   const waiver = waiverLinkHtml(state, token, captain ? { team: out.schedule.teams[captain.team], rosters } : {});
   const sp = spiritSettings(state.fields);
   const spirit = (captain && sp.mode ? captainSpiritHtml(state.spirit || {}, reportableGames(out.schedule, today), captain.team, sp.mode, { token, cap: captain.key }) : "") + (sp.show ? leagueSpiritHtml(spiritTable(state.spirit || {}, out.schedule, sp.mode), sp.mode) : "");
-  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("</h1>", `</h1>${news}`).replace("<footer>", `${cap}${spirit}${waiver}${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
+  const pwaHead = pwaHeadHtml(token, captain ? captain.key : null), pwaBody = pwaBodyHtml(now, { team: captain ? captain.team : null });
+  return html.replace("<head>", `<head><meta name="robots" content="noindex">${pwaHead}`).replace("</h1>", `</h1>${pwaBody}${news}`).replace("<footer>", `${cap}${spirit}${waiver}${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
 }
 
 function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = process.env, base = null) {
@@ -198,6 +200,7 @@ async function readForm(req) {
 export function handler(state, save, env = process.env, clock = Date.now, mail = sendMail) {
   const adminKey = env.ADMIN_KEY || "", token = env.LEAGUE_TOKEN || "";
   // Throttle guessing of the two URL secrets: MAX_FAILS wrong links from one address in WINDOW_MS locks it out for the rest of the window.
+  const icons = {};
   const MAX_FAILS = 10, WINDOW_MS = 15 * 60 * 1000, fails = new Map(), signups = new Map(), joins = new Map();
   const today = () => new Date(clock()).toISOString().slice(0, 10);
   // The public sign-up page: no secret in the link, so it is closed unless the organiser opened it,
@@ -254,6 +257,9 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
     const url = new URL(req.url, "http://x");
     if (url.pathname === "/healthz") return send(200, "ok\n", "text/plain");
     if (!adminKey || !token) return send(503, "Set ADMIN_KEY and LEAGUE_TOKEN.\n", "text/plain");
+    // The offline worker and the app icons carry no secret, so they are served without a link.
+    if (req.method === "GET" && url.pathname === "/sw.js") return send(200, SW_JS, "text/javascript; charset=utf-8", { "cache-control": "no-cache", "service-worker-allowed": "/" });
+    if (req.method === "GET" && (url.pathname === "/icon-192.png" || url.pathname === "/icon-512.png")) return send(200, icons[url.pathname] ??= iconPng(url.pathname === "/icon-192.png" ? 192 : 512), "image/png", { "cache-control": "public, max-age=86400" });
     const isAdmin = url.pathname.startsWith("/admin"), isLeague = url.pathname.startsWith("/league");
     const hops = String(req.headers["x-forwarded-for"] || "").split(",").map((h) => h.trim()).filter(Boolean);
     const who = hops.length ? hops[hops.length - 1] : req.socket.remoteAddress, now = Date.now();
@@ -283,7 +289,11 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
         }
         captain = { team: ti, key: c };
       }
-      if (req.method === "GET" && url.pathname === "/league") return send(200, state.published ? leaguePage(state, t, publicBase(req, env), dayNumber(clock()), captain) : page("League", "<p>No schedule has been published yet.</p>"));
+      if (req.method === "GET" && url.pathname === "/league/manifest.webmanifest") {
+        const teams = state.published ? buildLeague(state.fields).schedule?.teams ?? [] : [];
+        return send(200, manifestJson({ name: "League schedule", token: t, cap: captain ? captain.key : null, team: captain ? teams[captain.team] : null }), "application/manifest+json", { "cache-control": "no-cache" });
+      }
+      if (req.method === "GET" && url.pathname === "/league") return send(200, state.published ? leaguePage(state, t, publicBase(req, env), dayNumber(clock()), captain, clock()) : page("League", "<p>No schedule has been published yet.</p>"));
       if (req.method === "POST" && url.pathname === "/league/report") {
         if (!captain) return send(401, "captain link required\n", "text/plain");
         const out = buildLeague(state.fields);

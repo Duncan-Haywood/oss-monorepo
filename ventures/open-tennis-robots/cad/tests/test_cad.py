@@ -1224,6 +1224,25 @@ class HoseCurveSearchTest(unittest.TestCase):
 
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class CrossClashesTest(unittest.TestCase):
+    def test_clashes_of_a_union_split_into_its_parts(self):
+        # the pose tests rely on clashes(a + b) holding the entries of clashes(a), cross_clashes(a, b) and clashes(b),
+        # each list in its own order (2026-11-20)
+        from build123d import Box, Location
+        from otr_cad.package import clashes, cross_clashes
+        box = lambda x, y=0.0, z=0.0: Box(10, 10, 10).moved(Location((x, y, z)))
+        a = [("a0", box(0)), ("a1", box(5)), ("a2", box(40)), ("a3", box(0, 9.95))]
+        b = [("b0", box(12)), ("b1", box(8, 3)), ("b2", box(42, 0, 4)), ("b3", box(100))]
+        whole = clashes(a + b)
+        self.assertEqual(sorted(whole), sorted(clashes(a) + cross_clashes(a, b) + clashes(b)))
+        self.assertEqual(cross_clashes(a, b), [c for c in whole if c.startswith("a") and " x b" in c])
+        self.assertEqual(clashes(a), [c for c in whole if c.startswith("a") and " x a" in c])
+        self.assertEqual([c.split(":")[0] for c in cross_clashes(a, b)],
+                         ["a0 x b1", "a1 x b0", "a1 x b1", "a2 x b2", "a3 x b1"])
+        self.assertEqual(cross_clashes(a, b, tol_mm3=1e9), [])
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class TroughCadTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -1940,13 +1959,17 @@ class LiftCadTest(unittest.TestCase):
             self.assertGreaterEqual(p.lift_head_z0 + off - p.LIFT_JACK_K - p.lift_clip_top_z, 1.0 - 1e-6)
 
     def test_lift_stands_outside_the_head_and_turntable_at_every_pose(self):
-        from otr_cad.package import clashes
+        from otr_cad.package import clashes, cross_clashes
         p = self.p
         lift = [(f"{n}[{i}]", s) for n in self.F.LIFT_PARTS for i, s in enumerate(self._solids(n))]
+        # clashes(moving + lift) holds the entries of clashes(moving), cross_clashes(moving, lift) and clashes(lift),
+        # so it equals clashes(lift) exactly when the first two are empty, which is what this asserts. The lift does
+        # not move, so its own 82 touching pairs are intersected once, not at every pose (2026-11-20)
+        own = clashes(lift)
         for elev in (p.elev_min, 0.0, p.elev_max):
             for az in (-p.az_reach_deg, 0.0, p.az_reach_deg):
                 moving, _ = self.F.turned_solids(p, elev, az)
-                self.assertEqual(clashes(moving + lift), [c for c in clashes(lift)], (elev, az))
+                self.assertEqual(clashes(moving) + cross_clashes(moving, lift) + own, own, (elev, az))
 
 
 
@@ -2607,17 +2630,19 @@ class DeckCableCadTest(unittest.TestCase):
     def test_runs_clear_every_part_and_the_head_at_the_actuator_limits(self):
         # the build's sweeps walk -15..+45 deg; a runaway or a hand can take the head to the actuator's own limits,
         # where its rear dips lowest, and turn it to the hard stops' reach
-        from otr_cad.package import clashes
+        from otr_cad.package import clashes, cross_clashes
         p = self.p
         mine = [(f"{n}[{i}]", s) for n in ("deck_cable_main", "deck_cable_stepper", "deck_cable_lift", "deck_cable_saddle",
                                            "deck_cable_hanger", "stepper_driver_carrier")
                 for i, s in enumerate(self._solids(n))]
         ext, ret = p.elev_act_limits()
+        own = clashes(mine)
         for elev in (ext, ret):
             for az in (-p.az_reach_deg, p.az_reach_deg):
                 moving, _ = self.F.turned_solids(p, elev, az)
-                self.assertEqual(clashes(moving + mine), clashes(mine) + clashes(moving), (elev, az))
-        self.assertEqual(clashes(mine), [])
+                both = clashes(moving)   # clashes(moving + mine) split as in the lift test above: same pass/fail
+                self.assertEqual(both + cross_clashes(moving, mine) + own, own + both, (elev, az))
+        self.assertEqual(own, [])
 
     def test_saddles_and_carrier_land_on_their_holes(self):
         p = self.p

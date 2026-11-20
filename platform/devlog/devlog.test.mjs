@@ -56,7 +56,7 @@ test('blocks: title dropped, headings as written, tables, lists, fences', () => 
   assert.ok(!html.includes('Title'));
   assert.ok(html.includes('<h2>Sub</h2>')); // the page's h1 is the title, so no h1 -> h3 skip
   assert.ok(html.includes('<p>Para one continues.</p>'));
-  assert.ok(html.includes('<td>1</td><td>2</td>'));
+  assert.ok(html.includes('<td>1</td><td class="num">2</td>'));
   assert.ok(html.includes('<ul><li>one</li><li>two</li></ul>'));
   assert.ok(html.includes('&lt;b&gt;x&lt;/b&gt;'));
   assert.equal(titleOf(md), 'Title');

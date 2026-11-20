@@ -154,10 +154,49 @@ for (const f of files) {
       else if (it.finishSlipDays > 0) r3.movesNotPast++;
     }
   }
-  out.push({ file: f.split("/").pop(), from, activities: base.activities.length, rows: planted.length, summary: cl.summary, finish: cl.finish, whatIf: r1, alone: r2, rules: r3, seconds: Math.round((Date.now() - t0) / 100) / 10 });
+  // 4. "past late start" against the late dates with calendar slack and
+  // 24-hour milestones credited (constraints.mjs, pastSlackOnly). Each row
+  // past P6's late start is run alone as start floors, forward pass only,
+  // and checked for anything with a date to keep: the project finish, and
+  // every activity whose own constraint bounds it late (finish or start on
+  // or before, mandatory, "on"). A slack-only row must move none of them.
+  const DEAD = new Set(["CS_MEOB", "CS_MSOB", "CS_MEO", "CS_MSO", "CS_MANDFIN", "CS_MANDSTART"]);
+  const r4 = { past: 0, slackOnly: 0, slackOnlyMoves: 0, pastLoose: 0, pastLooseMoves: 0, behind: 0, behindMoves: 0, tightProbed: 0, tightMoves: 0, examples: [] };
+  const fw0 = schedule(null, { model: result.model, forwardOnly: true });
+  const keep = [...result.model.tasks.values()].filter((t) => t.proj === la.project.id && !t.span && t.status !== "TK_Complete" && t.cstr.some((c) => DEAD.has(c.type)));
+  const f0 = fw0.projects.get(la.project.id)?.finish ?? null;
+  for (const it of cl.items) {
+    if (!it.past || it.expected === null) continue;
+    r4.past++;
+    const fm = new Map();
+    for (const l of it.links) if (l.id !== undefined) { const t = result.model.tasks.get(l.id); if (t && t.status === "TK_NotStart") fm.set(l.id, it.expected); }
+    const fw = schedule(null, { model: result.model, levelStart: fm, forwardOnly: true });
+    const f1 = fw.projects.get(la.project.id)?.finish ?? null;
+    const moved = [];
+    if (f0 !== null && f1 !== null && f1 > f0) moved.push("project finish");
+    for (const t of keep) { const a = fw0.tasks.get(t.id), b = fw.tasks.get(t.id); if (a && b && (b.ef > a.ef + 0.5 || (b.remES ?? b.es) > (a.remES ?? a.es) + 0.5)) moved.push(t.code); }
+    // tightness: the same row an hour of work past the loosest late start it
+    // was read against must move a kept date (single-activity rows)
+    if ((it.pastSlackOnly || it.pastAlreadyBehind) && it.links.length === 1) {
+      const l = it.links[0], t = result.model.tasks.get(l.id);
+      const bound = l.slackOnly ? l.latestLoose : l.latestRelaxed;
+      if (t && bound && t.status === "TK_NotStart") {
+        const b = Date.parse(bound.replace(" ", "T") + "Z") / 60000;
+        const fw2 = schedule(null, { model: result.model, levelStart: new Map([[l.id, t.cal.addWork(b, 60)]]), forwardOnly: true });
+        const f2 = fw2.projects.get(la.project.id)?.finish ?? null;
+        let mv = f0 !== null && f2 !== null && f2 > f0;
+        for (const k of keep) { const a = fw0.tasks.get(k.id), c = fw2.tasks.get(k.id); if (a && c && c.ef > a.ef + 0.5) mv = true; }
+        r4.tightProbed++; if (mv) r4.tightMoves++;
+      }
+    }
+    if (it.pastSlackOnly) { r4.slackOnly++; if (moved.length) r4.slackOnlyMoves++; if (r4.examples.length < 6) r4.examples.push({ row: it.row, codes: it.codes, expected: d10(it.expected), latestP6: it.links.map((l) => l.latest), latestLoose: it.links.map((l) => l.latestLoose ?? null), moved: moved.slice(0, 5) }); }
+    else if (it.pastAlreadyBehind) { r4.behind++; if (moved.length) r4.behindMoves++; }
+    else { r4.pastLoose++; if (moved.length) r4.pastLooseMoves++; }
+  }
+  out.push({ file: f.split("/").pop(), from, activities: base.activities.length, rows: planted.length, summary: cl.summary, finish: cl.finish, whatIf: r1, alone: r2, rules: r3, slack: r4, seconds: Math.round((Date.now() - t0) / 100) / 10 });
   const o = out[out.length - 1];
   console.log(`${o.file}: ${o.rows} rows (${cl.summary.late} late, ${cl.summary.onTrack} on track, ${cl.summary.overdue} overdue, ${cl.summary.noDate} no date, ${cl.summary.cleared} cleared); finish ${cl.finish.base} -> ${cl.finish.withLog || "unchanged"}; ` +
-    `what-if = CS_MSOA: finish ${r1.finishAgree}, starts ${r1.startsAgree}/${r1.startsCompared}, look-ahead starts ${r1.windowAgree ?? "-"}/${r1.windowCompared ?? "-"}; alone ${r2.agree}/${r2.compared}; late rule ${r3.lateRuleAgree}/${r3.links}, late starts held ${r3.lateStartsHeld}/${r3.lateLinks}; past+moves ${r3.pastAndMoves}, past only ${r3.pastNoMove}, moves only ${r3.movesNotPast}; ${o.seconds}s`);
+    `what-if = CS_MSOA: finish ${r1.finishAgree}, starts ${r1.startsAgree}/${r1.startsCompared}, look-ahead starts ${r1.windowAgree ?? "-"}/${r1.windowCompared ?? "-"}; alone ${r2.agree}/${r2.compared}; late rule ${r3.lateRuleAgree}/${r3.links}, late starts held ${r3.lateStartsHeld}/${r3.lateLinks}; past+moves ${r3.pastAndMoves}, past only ${r3.pastNoMove}, moves only ${r3.movesNotPast}; past ${r4.past}: slack only ${r4.slackOnly} (move a kept date ${r4.slackOnlyMoves}), already behind ${r4.behind} (move one ${r4.behindMoves}), past the loose late start ${r4.pastLoose} (move one ${r4.pastLooseMoves}); an hour past the bound moves ${r4.tightMoves}/${r4.tightProbed}; ${o.seconds}s`);
   for (const m of [...r1.mismatches, ...r2.mismatches]) console.log("   ", JSON.stringify(m));
 }
 if (jsonOut) writeFileSync(jsonOut, JSON.stringify(out, null, 2) + "\n");
