@@ -206,21 +206,24 @@
    "what": "Rows with Status=trialing are counted as paying MRR, and trials that end without paying count as new and churned MRR, inflating MRR and churn for any trial-led SaaS; the comparison page says trials are not in the export at all.",
    "where": "ventures/stripe-churn-cohort-analyzer/calc.mjs:95",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
   },
   {
    "severity": "medium",
    "what": "An active subscription with a Canceled At date (cancel at period end) is churned on the request date when the export has no Ended At column (the page's own placeholder header), though Stripe keeps it billing until period end.",
    "where": "ventures/stripe-churn-cohort-analyzer/calc.mjs:93",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
   },
   {
    "severity": "medium",
    "what": "Logo churn and the concentration finding count subscriptions, not customers; a customer who drops one of two subscriptions is a lost logo. FAQ and JSON-LD say 'share of customers', README says 'single-customer concentration'.",
    "where": "ventures/stripe-churn-cohort-analyzer/index.html:131",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
   },
   {
    "severity": "medium",
@@ -234,21 +237,24 @@
    "what": "Summary-level outputs are not pinned by tests: mutating the churn window to include the partial month, the LTV divisor, or the plan-gap threshold leaves all 51 tests green.",
    "where": "ventures/stripe-churn-cohort-analyzer/calc.test.mjs:1",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
   },
   {
    "severity": "low",
    "what": "An explicit quantity of 0 silently becomes 1 (`Number(q) || 1`).",
    "where": "ventures/stripe-churn-cohort-analyzer/calc.mjs:104",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
   },
   {
    "severity": "low",
    "what": "Early-churn finding: title says 'first three months', detail says 'within 2 months of starting'; the test is calendar-month difference <= 2 (start month plus two).",
    "where": "ventures/stripe-churn-cohort-analyzer/calc.mjs:187",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
   },
   {
    "severity": "low",
@@ -265,6 +271,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"],
  "verdict": "A tidy, private, dependency-free analyzer whose arithmetic is right: an independent Python recompute of the shipped example reproduces logo churn 9.43%, revenue churn 6.72%, MRR $6,847, LTV $469, quick ratio 1.78, a cohort row and the 12-month what-if to the dollar. It falls short of what a SaaS RevOps analyst would sign off on because of what it counts, not how it adds: trialing subscriptions are treated as paying MRR, cancel-at-period-end rows churn early when only Canceled At is exported, logo churn counts subscriptions while the FAQ says customers, and churn can exceed 100%. Half of six seeded bugs in summary logic survive the 51 tests. Does not meet the bar; finished on its own feature list."
 }
