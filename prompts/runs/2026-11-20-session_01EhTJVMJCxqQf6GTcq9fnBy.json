@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVMJCxqQf6GTcq9fnBy",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "3bacb6da1d6597aa438387432ba02aaf5ca117fccd8dc4fb52cfe978038d7aa0",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T04:02:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/theism-formal-evidence M2 (part): E29, separability on Euclidean (K5) frames",
+  "projects": [
+    "theism-formal-evidence"
+  ],
+  "pr": 17850,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "It printed 'HOSTS RECHECK christian-belief-models: still refused here: gss.norc.org' but still drew that programme; the help says a refused HOSTS URL moves the draw on. Probably the HOSTS file lists only arxiv.org/gss.norc.org as rechecks, not as blocking."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "why": "First draw (christian-belief-models) needs gss.norc.org microdata, refused through this session's proxy (HOSTS RECHECK said so); redrew with --new rather than spend the run on a data-blocked programme.",
+      "did": "redrew",
+      "result": "theism-formal-evidence, offline Lean + search work, landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-godel-ontological-proof-euclidean-frames-modal-cube.md",
+    "research/theism-formal-evidence/experiments/e29_euclidean/results.md"
+  ],
+  "goal": null,
+  "notes": "H33 written to LOG.md and pushed before any code or Lean. lean/build.sh (toolchain v4.15.0 tarball from GitHub releases, zstd apt-installed) built all modules; AndersonK5.lean compiled first time, no sorry, no warnings. e29 run.py 13 s: 0 violations over every Euclidean relation up to 4 worlds and 4,900 random Euclidean frames on 5-7 worlds. test_e28/test_e29 pass; research/_homepage/build.py ok; check_md_links ok; check_posts ok; research_live_links no changes.",
+  "corrections": [],
+  "redteam": null
+}

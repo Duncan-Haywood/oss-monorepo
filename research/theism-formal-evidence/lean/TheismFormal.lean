@@ -16,3 +16,4 @@ import TheismFormal.AndersonHorn
 import TheismFormal.AndersonSep
 import TheismFormal.AndersonNP
 import TheismFormal.AndersonKT
+import TheismFormal.AndersonK5
