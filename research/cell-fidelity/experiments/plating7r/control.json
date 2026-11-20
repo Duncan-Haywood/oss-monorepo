@@ -1,0 +1,50 @@
+[
+ {
+  "cond": "Mohtat2020@3x",
+  "j": 0,
+  "ok": true,
+  "max_rel": 0.0
+ },
+ {
+  "cond": "Mohtat2020@3x",
+  "j": 1,
+  "ok": true,
+  "max_rel": 0.0
+ },
+ {
+  "cond": "Mohtat2020@3x",
+  "j": 2,
+  "ok": true,
+  "max_rel": 0.0
+ },
+ {
+  "cond": "Mohtat2020@3x",
+  "j": 3,
+  "ok": true,
+  "max_rel": 0.0
+ },
+ {
+  "cond": "Ecker2015@2x",
+  "j": 0,
+  "ok": true,
+  "max_rel": 0.0
+ },
+ {
+  "cond": "Ecker2015@2x",
+  "j": 1,
+  "ok": true,
+  "max_rel": 0.0
+ },
+ {
+  "cond": "Ecker2015@2x",
+  "j": 2,
+  "ok": true,
+  "max_rel": 0.0
+ },
+ {
+  "cond": "Ecker2015@2x",
+  "j": 3,
+  "ok": true,
+  "max_rel": 0.0
+ }
+]

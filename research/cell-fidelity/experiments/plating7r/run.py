@@ -1,6 +1,7 @@
 """Milestone 7r: a pre-registered sweep of the plating reaction rate on Mohtat2020 and Ecker2015.
 
     WORKERS=3 OMP_NUM_THREADS=1 python experiments/plating7r/run.py probe   # 2 cells x 4 multipliers x 4 designs x 20 cycles
+    WORKERS=3 python experiments/plating7r/run.py control  # f = 1 through the wrapper against 7p's probe rows
     python experiments/plating7r/run.py choose            # the probe rule per cell -> choose.json (stdlib)
     WORKERS=3 OMP_NUM_THREADS=1 python experiments/plating7r/run.py bench   # kept conditions, 56 designs to cycle 100
     python experiments/plating7r/run.py rows              # 7p's rows code (lawfloor e, drift7c O1..O3 and m; 4 cores)
@@ -180,6 +181,20 @@ def choose_cmd():
     print("kept:", kept)
 
 
+def control():
+    """f = 1 through the wrapper on probe designs 0 to 3 of both cells against 7p's committed probe rows."""
+    bal = _bal()
+    p7 = {(r["cond"], r["j"]): r for r in _load(EXP / "sets7p" / "probe.jsonl")}
+    jobs = [(c, j, bal[(c, j)]["x"], 1.0) for c in CELLS for j in range(N_PROBE)]
+    with ThreadPoolExecutor(WORKERS) as ex:
+        res = list(ex.map(lambda jb: _spawn(jb, PROBE_CYCLES), jobs))
+    out = [dict(cond=r["cond"], j=r["j"], ok=r["ok"],
+                max_rel=max(abs(a - b) / max(abs(b), 1e-30) for a, b in zip(r["lost_mol"], p7[(r["cond"], r["j"])]["lost_mol"]))
+                if r["ok"] else None) for r in res]
+    (HERE / "control.json").write_text(json.dumps(out, indent=1) + "\n")
+    print(out)
+
+
 def bench():
     bal = _bal()
     kept = json.loads((HERE / "choose.json").read_text())["kept"]
@@ -329,4 +344,4 @@ if __name__ == "__main__":
     if sys.argv[1] == "child":
         print(json.dumps(child(json.loads(sys.argv[2]), int(sys.argv[3]))))
     else:
-        {"probe": probe, "choose": choose_cmd, "bench": bench, "rows": rows, "report": report}[sys.argv[1]]()
+        {"probe": probe, "control": control, "choose": choose_cmd, "bench": bench, "rows": rows, "report": report}[sys.argv[1]]()
