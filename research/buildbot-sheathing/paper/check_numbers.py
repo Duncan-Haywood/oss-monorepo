@@ -76,6 +76,8 @@ M62 = E + "m62_exactgate/results.txt"
 M63 = E + "m63_worstbias/results.txt"
 M64 = E + "m64_overbias/results.txt"
 M65 = E + "m65_resized/results.txt"
+M66 = E + "m66_directterm/results.txt"
+M66D = E + "m66_directterm/diag.out"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -318,6 +320,11 @@ CHECKS = [
     (M65, "g1 | 1.0 | 338 | 0 | 331 | 97.93 | 7 | 156 | 0.0569, 0.0676, 0.0577, 0.0730", "0.0730 and 0.0936 mm"),
     (M65, "h1 | 1.0 | 452 | 0 | 387 | 85.62 | 65 | 186 | 0.0506, 0.0867, 0.0538, 0.0936", "97.93% and 85.62%"),
     (M65, "(total over spec: 485)", "Of the 485 presses"),
+    (M66, "h1 | 0.4 | 452 | 444 (98.23%) | 10 | 0 | 0.00 | 0 | 0.0000 | 0 | -0.0122", "the closest by 0.0122 mm"),
+    (M66, "g1 | 1.0 | 334 | 324 (97.01%) | 153 | 0 | 0.00 |", "passes none of them"),
+    (M66, "H254 (|r_k| <= Y_k + D_k on every planned press and row): 0 exceedances -> held", "no row exceeds it"),
+    (M66D, "g1 | 0.4 | lin y 0.1305, z 0.1452, yd 0.1396, zd 0.1540 | 333 | 0.176 |", "median of 0.176 N on the G1"),
+    (M66D, "h1 | 0.4 | lin y 0.1610, z 0.1180, yd 0.1696, zd 0.1223 | 444 | 0.167 |", "0.167 to\n0.169 N on the H1"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

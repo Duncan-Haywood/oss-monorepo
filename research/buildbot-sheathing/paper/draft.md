@@ -858,6 +858,18 @@ cases. At 0.4 N 11 of 445 planned H1 presses leave the spec, and at 1.0 N 156 of
 the worst by 0.0730 and 0.0936 mm; coverage stays at 97.93% and 85.62%. Of the 485 presses over spec, 465 have no flip:
 the residual left is the bias's direct effect, close to linear in B (0.073 to 0.097 mm per N), which a budget built
 from flip costs alone does not price. Below 0.2 N it was smaller than the spec, which is why milestones 55 to 63 held.
+Pricing that direct term does not restore the guarantee; it removes every plan (milestone 66, a tenth held-out set of
+12 loads). The planner bounds each row's no-flip residual over the bias ball to first order, D<sub>k</sub> =
+|v<sub>0,k</sub>(f<sub>m</sub>)| + B ||&part;v<sub>0,k</sub>/&part;f||, from the measured load and the reference
+calibration, and accepts a press only if Y<sub>k</sub> + D<sub>k</sub> &le; 0.03 mm. The bound is sound: on all 2,238
+presses the chain plans at 0.4, 0.6 and 1.0 N no row exceeds it, the closest by 0.0122 mm. But it passes none of them.
+D is linear in B (its median per row changes by under 1% from 0.4 to 1.0 N) at 0.16 to 0.18 mm/N for the worst row,
+against 0.020 to 0.029 mm/N realised by the margin-aimed bias, so the largest bias the gate certifies per press has a
+median of 0.176 N on the G1 and 0.167 to 0.169 N on the H1, and fewer than 10% of presses reach 0.2 N. The four-row
+guarantee of milestones 55 to 65 is therefore an empirical result over the bias directions tested (random, and aimed at
+the weakest joint's margin), not a certificate over the ball. D holds the reference calibration fixed; a constant bias
+also enters that calibration, which may cancel part of the direct effect, so whether an aimed bias breaks 0.2 N is
+open.
 
 ### 5.12 What the remedies cost (milestone 13)
 

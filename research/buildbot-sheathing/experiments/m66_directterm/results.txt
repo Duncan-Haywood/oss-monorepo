@@ -1,0 +1,45 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 66: the bias's direct term priced beside the flips, held-out section M (12 loads, seed 66; milestone 65's re-sized chain, then the gate Y_k + D_k <= 0.03 mm per row; true bias B_plan along milestone 63's adversary at that B_plan)
+modules whose bound was set: 8 (m44, m45, m55, m56, m58, m59, m61, m63)
+
+## A. By robot and B_plan: robot | B_plan N | balance-envelope cases | chain planned | chain over spec | gate passed | gate coverage % | gate passed over spec | worst gate-passed row mm | bound exceedances (rows) | worst |r|-(Y+D) mm
+  g1 | 0.4 | 334 | 333 (99.70%) | 0 | 0 | 0.00 | 0 | 0.0000 | 0 | -0.0161
+  g1 | 0.6 | 334 | 328 (98.20%) | 78 | 0 | 0.00 | 0 | 0.0000 | 0 | -0.0241
+  g1 | 1.0 | 334 | 324 (97.01%) | 153 | 0 | 0.00 | 0 | 0.0000 | 0 | -0.0402
+  h1 | 0.4 | 452 | 444 (98.23%) | 10 | 0 | 0.00 | 0 | 0.0000 | 0 | -0.0122
+  h1 | 0.6 | 452 | 430 (95.13%) | 42 | 0 | 0.00 | 0 | 0.0000 | 0 | -0.0184
+  h1 | 1.0 | 452 | 379 (83.85%) | 173 | 0 | 0.00 | 0 | 0.0000 | 0 | -0.0306
+
+## B. Why the gate refuses, by robot and B_plan: rows over SPEC in Y+D among refused presses (a press can fail several) | median D per row mm (planned presses)
+  g1 | 0.4 | y 325, z 333, yd 325, zd 333 | y 0.0522, z 0.0581, yd 0.0558, zd 0.0616
+  g1 | 0.6 | y 328, z 328, yd 328, zd 328 | y 0.0783, z 0.0870, yd 0.0838, zd 0.0922
+  g1 | 1.0 | y 324, z 324, yd 324, zd 324 | y 0.1305, z 0.1452, yd 0.1396, zd 0.1540
+  h1 | 0.4 | y 438, z 444, yd 438, zd 444 | y 0.0644, z 0.0472, yd 0.0678, zd 0.0489
+  h1 | 0.6 | y 430, z 430, yd 430, zd 430 | y 0.0960, z 0.0708, yd 0.1017, zd 0.0734
+  h1 | 1.0 | y 379, z 379, yd 379, zd 379 | y 0.1593, z 0.1186, yd 0.1683, zd 0.1270
+
+## C. Bound exceedances, |r_k| > Y_k + D_k (first 30): robot | B_plan | case | pose | row | |r| | Y | D | flips | how
+  (total: 0)
+
+## D. Hypotheses (registered in LOG.md before this run)
+H253 (every gate-passed press inside the spec at 0.4, 0.6, 1.0 N, both robots): over spec 0.4 N 0, 0.6 N 0, 1.0 N 0 -> held
+H254 (|r_k| <= Y_k + D_k on every planned press and row): 0 exceedances -> held
+H255 (gate coverage at 0.4 N at least 90% on both robots): G1 0.00%, H1 0.00% -> refuted
+H256 (gate coverage at 1.0 N under 50% on at least one robot): G1 0.00%, H1 0.00% -> held
+
+(run time 3798 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)
