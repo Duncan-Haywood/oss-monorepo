@@ -47,7 +47,7 @@
     "ventures/league-schedule-generator/README.md (Tee rows and skins)"
   ],
   "goal": "Flagship depth: golf league scoring for real leagues with forward tees and skins.",
-  "notes": "golf.test.mjs 14/14 (5 new, every number worked by hand before running: forward-tee pairing 5.5-4.5 with strokes on holes 1,2,4,6; Hawks/Owls gross skins Cy 5 Ana 3, net skins Dee hole 8; carry-over 6.67/8.33 of 15). Page driven in headless Chromium: tee rows, skins both with entry and carry-over, 3 sample nights, no console errors. Full venture suite and venture-preflight run in background (results in PR body).",
+  "notes": "golf.test.mjs 14/14 (5 new, every number worked by hand before running: forward-tee pairing 5.5-4.5 with strokes on holes 1,2,4,6; Hawks/Owls gross skins Cy 5 Ana 3, net skins Dee hole 8; carry-over 6.67/8.33 of 15). Page driven in headless Chromium: tee rows, skins both with entry and carry-over, 3 sample nights, no console errors. run_venture_tests.py league-schedule-generator: ok, 803 tests, 259 s, site page checks ok. venture-preflight.mjs league-schedule-generator: clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
