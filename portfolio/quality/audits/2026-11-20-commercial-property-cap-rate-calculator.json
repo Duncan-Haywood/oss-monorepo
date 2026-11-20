@@ -1,0 +1,204 @@
+{
+ "date": "2026-11-20",
+ "subject": "ventures/commercial-property-cap-rate-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-20-71e1",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior commercial real estate loan underwriter / small-balance CRE broker who prices 5-50 unit multifamily and strip-retail deals; first checks: is NOI built the way an appraiser builds it (vacancy on rent, management on collected income, reserves above the line), is direct capitalization V = NOI / R applied correctly, is the mortgage constant right against a published amortization table, is the loan sized by the lesser of LTV, DSCR and debt yield as a lender sizes it, and does break-even occupancy match the standard (opex + debt service) / potential income test.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Independent Python /tmp/claude-0/audit-commercial-property-cap-rate-calculator/indep.py (no subject import; exact fractions for NOI, the textbook annuity formula checked against the published amortization factor $690.91/mo per $100k at 6.75%/25 yr, break-even occupancy found by bisection on cash flow = 0 rather than the closed form) against node probe.mjs importing the shipped calc.mjs. Sample deal: EGI 229,200, management 11,460, opex 83,460, NOI 145,740, value at 7% 2,082,000, expense ratio 36.41%; debt service 116,073.14, DSCR 1.2556, cash flow 29,666.86, cash-on-cash 4.944%, going-in cap 7.287%, max loan at 1.25x 1,406,258.20, break-even occupancy 79.988%; 0.5-point cap sensitivity 138,800. All match to the cent. Fails at the edges: the sensitivity grid rounds cap rates to one decimal (calc.mjs:37,98), so with a 7.25% cap rate (the input steps by 0.05) the grid's centre column is 7.3% and shows $1,996,438 while the headline value is $2,010,207, and the user's own cap rate is not in the grid; a break-even occupancy above 100% is reported as 'needs about 113% occupancy' with no statement that the deal cannot cover debt even fully leased. Core arithmetic right, edges wrong: 3.",
+  "completeness": "Claimed outputs (README, header, rules card): NOI, value at cap rate, going-in cap rate, DSCR, cash-on-cash, break-even occupancy, cap-rate x vacancy grid, text summary, print, usage counting, disclaimer. All present and working in calc.mjs and index.html wiring. One claimed output is conditional: 'the loan a 1.25x lender test allows' (README) / 'the loan a lender is likely to give' (index.html:52) is only rendered when DSCR fails (calc.mjs:120); on the shipped example (DSCR 1.26x) no loan size appears anywhere (findings printed by node -e over compute(SAMPLE)). Served copy builds clean. 3.",
+  "verification": "`node --test '*.test.mjs'` in the subject: 25/25 pass; the README's repo-root command also 25/25. Six seeded mutants with platform/ci/quality_mutate.py, 2 caught: management term removed from break-even occupancy (caught by the round-trip test), other income moved under vacancy (caught). Survived: vacancy flag threshold 5 -> 3, expense-ratio flag 0.3 -> 0.2, max-loan price cap 0.95 -> 0.75, DSCR finding severity comparison flipped. The test named 'flags ... a low DSCR' (calc.test.mjs:69) never asserts anything about DSCR. Formula engine pinned, every finding threshold unpinned: 2.",
+  "craft": "Read calc.mjs (149 lines), index.html (171), calc.test.mjs, page.test.mjs, usage.mjs. Pure functions, input rejected with messages rather than clamped, esc() on all rendered text, no network calls (page.test pins it). Defects: r1() one-decimal rounding of grid cap rates (calc.mjs:37) is a silent precision loss; Math.min(f.breakevenOcc, 9.99) (calc.mjs:121) is an unexplained magic cap; page.test.mjs builds an always-empty `rendered` Set (dead code copied from a template); a test name that overstates what it checks. Small and readable otherwise: 3.",
+  "claims": "Checked: FAQ worked example '$145,740 of NOI at a 7% cap rate is about $2.08 million' - pass (2,082,000). 'Runs in your browser; nothing is uploaded' - pass (imports only ./calc.mjs, ./usage.mjs; page.test asserts no fetch/XHR/beacon). Disclaimer and not-an-appraisal text - pass (footer, header note). 'Lenders typically underwrite at least 5% vacancy' - consistent with Fannie Mae / Freddie Mac multifamily minimum 5% economic vacancy practice, uncited but true. 'Multi-tenant property usually runs 35-50%' expense ratio - plausible, uncited. Fail: 'the loan a lender is likely to give' (index.html:52) and 'the loan a 1.25x lender test allows' (README) are shown only when the deal fails 1.25x, and the figure is the DSCR test alone (capped at 95% of price), not a lender's lesser-of-LTV/DSCR/debt-yield sizing. Shipped canonical stays relative './index.html' while the sitemap lists the directory URL (served-copy). One headline claim not backed: 2.",
+  "fitness": "Job walked: a small-balance investor screening a $2.0M 7.29%-cap building at 70% LTV gets NOI, value, DSCR 1.26x, 4.9% cash-on-cash and 80% break-even in one click, with a printable summary - a usable first screen. A broker or lender hits gaps in the first hour: no debt yield (NOI / loan, the third sizing test on bank and CMBS loans; 10.4% on the sample), no interest-only period, no loan sizing shown when the deal passes, no multi-year proforma or IRR (honestly listed as not modelled), and a grid that drops their quarter-point cap rate. CoStar/Crexi/Omni calculators give the single-year screen too. 2.",
+  "domain": "Compared against direct capitalization as taught in The Appraisal of Real Estate (Appraisal Institute): NOI = EGI - opex with vacancy on potential rent, management on collected income, reserves above the line (appraiser convention; some lenders put them below) - matches. Mortgage constant matches published amortization tables. DSCR 1.25x is a common bank minimum and the page says lenders differ. Departures a senior underwriter would flag: loan sizing ignores debt yield and is not presented as the lesser of LTV and DSCR; break-even occupancy above 100% is not called out as a deal that cannot service its debt; grid omits the input cap rate. 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Sample NOI build-up and value at a 7% cap rate",
+   "method": "Direct capitalization (The Appraisal of Real Estate, income approach); exact-fraction Python, no subject import",
+   "command": "python3 -I /tmp/claude-0/audit-commercial-property-cap-rate-calculator/indep.py; node /tmp/claude-0/audit-commercial-property-cap-rate-calculator/probe.mjs ventures/commercial-property-cap-rate-calculator",
+   "expected": "EGI 229,200; opex 83,460; NOI 145,740; value 2,082,000; expense ratio 36.41%",
+   "observed": "229,200; 83,460; 145,740; 2,082,000; 0.364136",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Annual debt service and DSCR on $1.4M at 6.75%, 25 yr",
+   "method": "Published amortization factor: $690.91/mo per $100k at 6.75% over 25 years (standard mortgage table); annuity formula in Python",
+   "command": "python3 -I /tmp/claude-0/audit-commercial-property-cap-rate-calculator/indep.py",
+   "expected": "690.91 x 14 x 12 = 116,073; DSCR 1.2556",
+   "observed": "ds 116,073.136; dscr 1.255588",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Break-even occupancy on the sample",
+   "method": "Bisection on (GPR x occ + other) x (1 - mgmt) - fixed opex - debt service = 0, not the shipped closed form",
+   "command": "python3 -I /tmp/claude-0/audit-commercial-property-cap-rate-calculator/indep.py",
+   "expected": "0.79988",
+   "observed": "breakevenOcc 0.799882",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Max loan at 1.25x DSCR, cash-on-cash and going-in cap",
+   "method": "Present value of an annuity paying NOI/1.25/12 for 300 months at 0.5625%/mo; CoC = (NOI - DS)/equity; cap = NOI/price",
+   "command": "python3 -I /tmp/claude-0/audit-commercial-property-cap-rate-calculator/indep.py",
+   "expected": "1,406,258.20; 4.944%; 7.287%",
+   "observed": "1,406,258.20; 0.049445; 0.07287",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sensitivity grid includes the user's cap rate (7.25%)",
+   "method": "By hand: 145,740 / 0.0725 = 2,010,207",
+   "command": "node /tmp/claude-0/audit-commercial-property-cap-rate-calculator/probe.mjs ventures/commercial-property-cap-rate-calculator",
+   "expected": "centre column 7.25% = $2,010,207",
+   "observed": "caps [6.3, 6.8, 7.3, 7.8, 8.3]; centre $1,996,438",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Break-even occupancy above 100% (95% LTV, 9%, 30% vacancy)",
+   "method": "By hand: a break-even above 100% means the building cannot cover debt service even fully leased",
+   "command": "node /tmp/claude-0/audit-commercial-property-cap-rate-calculator/probe.mjs ventures/commercial-property-cap-rate-calculator",
+   "expected": "a statement that the deal cannot break even at full occupancy",
+   "observed": "'The property needs about 113% occupancy to cover its costs and debt.'",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Subject test suite",
+   "method": "run it",
+   "command": "cd ventures/commercial-property-cap-rate-calculator && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "25/25 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Loan size at the 1.25x test shown on the example",
+   "method": "print every finding for compute(SAMPLE)",
+   "command": "node -e 'import(\"./ventures/commercial-property-cap-rate-calculator/calc.mjs\").then(m=>console.log(m.compute(m.SAMPLE).findings.map(f=>f.title).join(\"\\n\")))'",
+   "expected": "a line giving the loan the 1.25x test allows",
+   "observed": "no loan-size line; maxLoan computed but only rendered when DSCR < 1.25",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ worked example $145,740 NOI at 7% is about $2.08 million",
+   "method": "by hand",
+   "command": "grep -n '145,740' ventures/commercial-property-cap-rate-calculator/index.html",
+   "expected": "2,082,000",
+   "observed": "page says about $2.08 million; engine 2,082,000",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Nothing uploaded; disclaimer present",
+   "method": "page.test.mjs assertions plus reading the module imports",
+   "command": "cd ventures/commercial-property-cap-rate-calculator && node --test page.test.mjs",
+   "expected": "only local imports; no-warranty and not-an-appraisal text",
+   "observed": "imports ./calc.mjs, ./usage.mjs only; footer disclaimer present",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt, sitemap and canonical",
+   "method": "deploy rewrite into scratch copy",
+   "command": "node platform/pages/served-copy.mjs commercial-property-cap-rate-calculator",
+   "expected": "absolute marisstella.app URLs",
+   "observed": "llms.txt and sitemap rewritten to https://marisstella.app/commercial-property-cap-rate-calculator/; canonical left as relative ./index.html",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "Lender loan sizing method",
+   "method": "Commercial bank / CMBS practice: loan = lesser of LTV, DSCR and debt-yield constraints",
+   "command": "grep -n 'maxLoan' ventures/commercial-property-cap-rate-calculator/calc.mjs",
+   "expected": "lesser-of sizing with debt yield reported",
+   "observed": "DSCR constraint capped at 95% of price; no debt yield",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {"where": "calc.mjs:115", "change": "((fixedOpex + ds) / (1 - p.mgmt / 100) - p.otherIncome) -> ((fixedOpex + ds) - p.otherIncome)", "caught": true, "test_cmd": "node --test calc.test.mjs"},
+  {"where": "calc.mjs:59", "change": "egi = p.gpr * (1 - vacancy / 100) + p.otherIncome -> (p.gpr + p.otherIncome) * (1 - vacancy / 100)", "caught": true, "test_cmd": "node --test calc.test.mjs"},
+  {"where": "calc.mjs:94", "change": "if (p.vacancy < 5) -> if (p.vacancy < 3)", "caught": false, "test_cmd": "node --test calc.test.mjs"},
+  {"where": "calc.mjs:93", "change": "out.expenseRatio < 0.3) -> out.expenseRatio < 0.2)", "caught": false, "test_cmd": "node --test calc.test.mjs"},
+  {"where": "calc.mjs:114", "change": "p.price * 0.95) : 0 -> p.price * 0.75) : 0", "caught": false, "test_cmd": "node --test calc.test.mjs"},
+  {"where": "calc.mjs:120", "change": "severity: f.dscr < LENDER_DSCR ? \"high\" -> severity: f.dscr > LENDER_DSCR ? \"high\"", "caught": false, "test_cmd": "node --test calc.test.mjs"}
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The page and README promise 'the loan a lender is likely to give' / 'the loan a 1.25x lender test allows', but the loan size is only rendered when DSCR is below 1.25x; on the shipped example (1.26x) no loan size appears.",
+   "where": "ventures/commercial-property-cap-rate-calculator/calc.mjs:120",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
+  },
+  {
+   "severity": "medium",
+   "what": "Sensitivity grid rounds cap rates to one decimal, so a 7.25% input yields columns 6.3..8.3; the centre column (7.3%, $1,996,438) is not the user's cap rate and disagrees with the headline value ($2,010,207).",
+   "where": "ventures/commercial-property-cap-rate-calculator/calc.mjs:98",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
+  },
+  {
+   "severity": "low",
+   "what": "Break-even occupancy above 100% is reported as 'needs about 113% occupancy' with no statement that the deal cannot cover debt even fully leased.",
+   "where": "ventures/commercial-property-cap-rate-calculator/calc.mjs:121",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
+  },
+  {
+   "severity": "medium",
+   "what": "4 of 6 seeded mutants survive: the vacancy and expense-ratio flag thresholds, the max-loan price cap and the DSCR finding severity are unpinned; the test named 'flags ... a low DSCR' asserts nothing about DSCR.",
+   "where": "ventures/commercial-property-cap-rate-calculator/calc.test.mjs:69",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
+  },
+  {
+   "severity": "medium",
+   "what": "Lender loan sizing departs from practice: no debt yield (NOI / loan, a standard bank and CMBS sizing test), no interest-only period, and the max loan is the DSCR test alone rather than the lesser of LTV, DSCR and debt yield.",
+   "where": "ventures/commercial-property-cap-rate-calculator/calc.mjs:114",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Shipped canonical is the relative './index.html' (the deploy does not rewrite it) while the sitemap lists the directory URL, two URLs for one page.",
+   "where": "ventures/commercial-property-cap-rate-calculator/index.html:10",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "Dead code and magic numbers: page.test.mjs builds an always-empty `rendered` Set; Math.min(breakevenOcc, 9.99) caps the display at 999% without explanation.",
+   "where": "ventures/commercial-property-cap-rate-calculator/page.test.mjs:50",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"],
+ "verdict": "A small, clean, private single-year income-approach calculator whose core arithmetic is right: an independent exact-fraction Python recomputation (direct capitalization, the 6.75%/25-yr amortization factor $690.91 per $100k, break-even occupancy by bisection) matches NOI 145,740, value 2,082,000, debt service 116,073, DSCR 1.2556, max loan at 1.25x 1,406,258 and break-even 79.99% to the cent, and all 25 tests pass. It misses the bar on claims and verification: the headline promise of the loan a lender would give is only shown when the deal fails 1.25x, the cap-rate grid rounds a 7.25% input to 7.3% so the user's own cap rate is missing from it, and 4 of 6 seeded mutants (every finding threshold) survive. A senior underwriter would also want debt yield and lesser-of loan sizing."
+}

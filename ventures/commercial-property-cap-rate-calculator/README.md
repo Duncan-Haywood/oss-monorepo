@@ -8,4 +8,6 @@ After using this, you know what a small commercial or multifamily building is wo
 
 Open `index.html`. Tests: `node --test 'ventures/commercial-property-cap-rate-calculator/**/*.test.mjs'`.
 
+**Known gaps** ([2026-11-20 quality audit](../../portfolio/quality/audits/2026-11-20-commercial-property-cap-rate-calculator.json)): no debt yield, no interest-only period, and the loan size is the 1.25x DSCR test alone (capped at 95% of price), not a lender's lesser-of LTV, DSCR and debt-yield sizing; the canonical link is relative (`./index.html`).
+
 **No warranty.** Free and as-is; not an appraisal or financial advice. Example numbers are illustrative, not market data. See `VENTURE.yaml`.

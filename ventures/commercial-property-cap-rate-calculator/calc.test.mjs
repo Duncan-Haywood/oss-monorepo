@@ -87,3 +87,43 @@ test("summary names its sources and the sensitivity grid", () => {
   assert.match(s, /Value by cap rate/);
   assert.match(s, /Verify against/);
 });
+
+// Added by the 2026-11-20 quality audit (portfolio/quality/audits/2026-11-20-commercial-property-cap-rate-calculator.json).
+test("grid centre column is the cap rate typed, even a quarter point", () => {
+  const r = compute({ ...SAMPLE, capRate: 7.25 });
+  assert.deepEqual(r.sensitivity.caps, [6.25, 6.75, 7.25, 7.75, 8.25]);
+  near(r.sensitivity.rows[0].values[2], r.value); // 145,740 / 0.0725 = 2,010,206.90
+  near(r.value, 2010206.9, 0.01);
+});
+
+test("the 1.25x loan size is reported when the deal passes coverage too", () => {
+  const r = compute(SAMPLE); // DSCR 1.2556x
+  const t = r.findings.map((f) => f.title).join("\n");
+  assert.match(t, /coverage test alone would allow a loan of up to \$1,406,258/); // PV of 145,740/1.25 a year, 6.75%, 25 yr
+  assert.ok(r.findings.find((f) => /coverage ratio is 1\.26x/.test(f.title)).severity === "info");
+});
+
+test("a DSCR under 1.25x is high severity and sizes the loan down", () => {
+  const r = compute({ ...SAMPLE, ltv: 90 }); // loan 1.8M, DSCR ~0.98x
+  const f = r.findings.find((x) => /coverage ratio/.test(x.title));
+  assert.equal(f.severity, "high");
+  assert.match(f.title, /under the 1\.25x/);
+  near(r.financing.maxLoan, 1406258.2, 0.5); // under the 95%-of-price cap
+  near(compute({ ...SAMPLE, price: 1000000, ltv: 90 }).financing.maxLoan, 950000); // 95%-of-price cap binds
+});
+
+test("break-even above 100% says the building cannot cover debt fully leased", () => {
+  const r = compute({ ...SAMPLE, ltv: 95, rate: 9, vacancy: 30 });
+  assert.ok(r.financing.breakevenOcc > 1);
+  assert.match(r.findings.map((f) => f.title).join("\n"), /Even fully leased .* above 100%/);
+});
+
+test("vacancy and expense-ratio flag thresholds sit at 5% and 30%", () => {
+  const titles = (o) => compute({ ...SAMPLE, ...o }).findings.map((f) => f.title).join("\n");
+  assert.match(titles({ vacancy: 4.9 }), /optimistic/);
+  assert.doesNotMatch(titles({ vacancy: 5 }), /optimistic/);
+  // expense ratio just under and just over 30%: scale tax to move opex around 0.3 x EGI (229,200)
+  const fixedOther = 9000 + 12000 + 14000 + 6000 + 3000 + 11460; // 55,460
+  assert.match(titles({ tax: Math.floor(0.29 * 229200 - fixedOther) }), /only .*% of income/);
+  assert.doesNotMatch(titles({ tax: Math.ceil(0.31 * 229200 - fixedOther) }), /only .*% of income/);
+});
