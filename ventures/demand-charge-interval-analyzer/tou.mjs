@@ -165,36 +165,53 @@ export function energyDP(load, on, price, h, capF, capP, bat, stepsPerKw = 10) {
  * limits, so the dispatch billed is always physically valid.
  */
 export function jointLP(load, on, price, h, bat, rateF, rateP) {
+  return jointLPPeriods({ load, period: periodsFromOn(on), price, rates: [rateP] }, h, bat, rateF);
+}
+
+/** On-peak flags as demand periods: 0 on-peak, -1 none. */
+export const periodsFromOn = (on) => on.map((x) => (x ? 0 : -1));
+
+/**
+ * jointLP for a tariff with any number of time-of-use demand periods
+ * (2026-11-20, for URDB tariffs: tariff.mjs). mo: {load, period[] (index into
+ * rates, -1 for none), price[], rates[] ($/kW per period)}; rateF the
+ * facility (flat) demand rate. Each period with a positive rate that occurs
+ * in the month gets its own cap column; every interval is in one period at
+ * most, so the band stays 4.
+ */
+export function jointLPPeriods(mo, h, bat, rateF) {
   const L = newLP();
-  const m = addMonthBlock(L, load, on, price, h, bat, rateF > 0, rateP > 0);
+  const m = addBlock(L, mo, h, bat, rateF > 0);
   if (m.fRows.length) L.cols.push({ rows: m.fRows, vals: m.fRows.map(() => -1), cost: rateF, upper: Infinity, dense: true });
-  if (m.pRows.length) L.cols.push({ rows: m.pRows, vals: m.pRows.map(() => -1), cost: rateP, upper: Infinity, dense: true });
+  m.pRows.forEach((rows, k) => { if (rows.length) L.cols.push({ rows, vals: rows.map(() => -1), cost: mo.rates[k], upper: Infinity, dense: true }); });
   const sol = solveBandedLP({ nRows: L.nRows, b: Float64Array.from(L.b), cols: L.cols });
-  return { ok: sol.ok, iterations: sol.iterations, ...simulate(sol.x, m, load, h, bat) };
+  return { ok: sol.ok, iterations: sol.iterations, ...simulate(sol.x, m, mo.load, h, bat) };
 }
 
 const newLP = () => ({ nRows: 0, b: [], cols: [] });
 
 // One month's rows and columns appended to an LP under construction: per
-// interval, in time order, storage, balance, [facility cap], [on-peak cap]
+// interval, in time order, storage, balance, [facility cap], [period cap]
 // rows. The cap columns themselves are left to the caller (returned as the
-// rows they must cover, with coefficient -1), so a month can be priced alone
-// (jointLP) or tied to other months by the ratchet (yearLP).
-function addMonthBlock(L, load, on, price, h, bat, useF, wantP) {
+// rows they must cover, with coefficient -1, one list per demand period), so
+// a month can be priced alone (jointLPPeriods) or tied to other months by the
+// ratchet (yearLP).
+function addBlock(L, mo, h, bat, useF) {
+  const { load, period, price, rates } = mo;
   const n = load.length, eta = Math.sqrt(bat.roundTrip), E = bat.kwh, P = bat.kw;
   const minPrice = Math.min(...price);
-  const useP = wantP && on.some(Boolean);
+  const priced = (t) => period[t] >= 0 && rates[period[t]] > 0;
   const rowOf = [];
   const row = (v) => { L.b.push(v); return L.nRows++; };
   for (let t = 0; t < n; t++) {
     const r = { st: row(t === 0 ? E : 0), bl: row(load[t]) };
     if (useF) r.cf = row(0);
-    if (useP && on[t]) r.cp = row(0);
+    if (priced(t)) r.cp = row(0);
     rowOf.push(r);
   }
   const cols = L.cols;
   const idx = { c: [], d: [] };
-  const fRows = [], pRows = [];
+  const fRows = [], pRows = rates.map(() => []);
   for (let t = 0; t < n; t++) {
     const R = rowOf[t];
     idx.c.push(cols.length); cols.push({ rows: [R.st, R.bl], vals: [-h * eta, -1], cost: 0, upper: P });
@@ -207,7 +224,7 @@ function addMonthBlock(L, load, on, price, h, bat, useF, wantP) {
     if (R.cp !== undefined) { gRows.push(R.cp); gVals.push(1); }
     cols.push({ rows: gRows, vals: gVals, cost: h * price[t], upper: Infinity });
     if (R.cf !== undefined) { cols.push({ rows: [R.cf], vals: [1], cost: 0, upper: Infinity }); fRows.push(R.cf); }
-    if (R.cp !== undefined) { cols.push({ rows: [R.cp], vals: [1], cost: 0, upper: Infinity }); pRows.push(R.cp); }
+    if (R.cp !== undefined) { cols.push({ rows: [R.cp], vals: [1], cost: 0, upper: Infinity }); pRows[period[t]].push(R.cp); }
   }
   return { idx, fRows, pRows };
 }
@@ -247,8 +264,15 @@ function simulate(x, m, load, h, bat) {
 export function yearLP(months, h, bat, rateF, rateP, ratchetPct) {
   const L = newLP();
   const r = ratchetPct / 100;
-  const blocks = months.map((mo) => addMonthBlock(L, mo.load, mo.on, mo.price, h, bat, rateF > 0, rateP > 0));
-  const useF = rateF > 0;
+  // Each month may carry its own demand periods, rates and facility rate
+  // (URDB tariffs: seasonal flat demand); otherwise its on-peak flags are
+  // one period priced at rateP and the facility rate is rateF.
+  const norm = months.map((mo) => ({
+    load: mo.load, price: mo.price,
+    period: mo.period ?? periodsFromOn(mo.on), rates: mo.rates ?? [rateP], rateF: mo.rateF ?? rateF,
+  }));
+  const useF = norm.some((mo) => mo.rateF > 0);
+  const blocks = norm.map((mo) => addBlock(L, mo, h, bat, useF));
   // Ratchet rows at the end: link(m, k) is billed_m - coef x Cf_k - slack = 0.
   const fLinks = blocks.map(() => ({ rows: [], vals: [] })); // extra entries on Cf_k
   const bLinks = blocks.map(() => ({ rows: [], vals: [] })); // entries on billed_m
@@ -267,9 +291,9 @@ export function yearLP(months, h, bat, rateF, rateP, ratchetPct) {
   blocks.forEach((m, j) => {
     if (useF && m.fRows.length) {
       L.cols.push({ rows: [...m.fRows, ...fLinks[j].rows], vals: [...m.fRows.map(() => -1), ...fLinks[j].vals], cost: 0, upper: Infinity, dense: true });
-      L.cols.push({ rows: bLinks[j].rows, vals: bLinks[j].vals, cost: rateF, upper: Infinity, dense: true });
+      L.cols.push({ rows: bLinks[j].rows, vals: bLinks[j].vals, cost: norm[j].rateF, upper: Infinity, dense: true });
     }
-    if (m.pRows.length) L.cols.push({ rows: m.pRows, vals: m.pRows.map(() => -1), cost: rateP, upper: Infinity, dense: true });
+    m.pRows.forEach((rows, k) => { if (rows.length) L.cols.push({ rows, vals: rows.map(() => -1), cost: norm[j].rates[k], upper: Infinity, dense: true }); });
   });
   const sol = solveBandedLP({ nRows: L.nRows, b: Float64Array.from(L.b), cols: L.cols });
   const plans = blocks.map((m, j) => simulate(sol.x, m, months[j].load, h, bat));

@@ -18,7 +18,9 @@ Writes check/data/comstock_year.json: [{building, type, state, sqft, walls[], kw
 Usage (needs pyarrow; downloads ~85 MB of metadata plus ~3 MB per building):
 
     python3 check/fetch_comstock.py
+    python3 check/fetch_comstock.py --states CA,AR --out comstock_ca_ar.json   # check/tariff_gap.py
 """
+import argparse
 import json
 import os
 import sys
@@ -41,12 +43,16 @@ def get(url, path):
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--states", default=",".join(STATES))
+    ap.add_argument("--out", default="comstock_year.json")
+    args = ap.parse_args()
     cache = os.path.join(HERE, "data", "comstock_cache")
     os.makedirs(cache, exist_ok=True)
     meta = pq.read_table(get(f"{BASE}/metadata/metadata.parquet", os.path.join(cache, "metadata.parquet")),
                          columns=["bldg_id", "in.building_type", "in.sqft", "in.state_abbreviation"]).to_pylist()
     out = []
-    for st in STATES:
+    for st in args.states.split(","):
         for ty in TYPES:
             rows = sorted((r for r in meta if r["in.state_abbreviation"] == st and r["in.building_type"] == ty
                            and 20000 <= r["in.sqft"] <= 200000), key=lambda r: r["bldg_id"])
@@ -66,7 +72,7 @@ def main():
                 kw.append(round(4 * kwh, 4))
             out.append(dict(building=f"{st}-{ty}-{bid}", type=ty, state=st, sqft=r["in.sqft"], walls=walls, kw=kw))
             print(out[-1]["building"], len(kw), "readings, peak", max(kw), "kW", file=sys.stderr)
-    with open(os.path.join(HERE, "data", "comstock_year.json"), "w") as f:
+    with open(os.path.join(HERE, "data", args.out), "w") as f:
         json.dump(out, f)
 
 
