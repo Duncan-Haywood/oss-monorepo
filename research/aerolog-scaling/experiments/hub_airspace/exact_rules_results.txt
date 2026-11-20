@@ -1,0 +1,74 @@
+# Milestone 11aw: 11ar-11at's cheap rules against the aware plan on the grid with every band count (exact_rules.py's docstring). deliv ages, Z = 7.62 m, kernel tables, NEW grid 32 spacings, 5-flight offsets, 4 draws, s = 1, 2; random-R R = 1, 2, 5, 10, 20, 50
+# check: base labels on NEW equal 11av's in 48 of 48 layouts; aware F max rel diff from 11av 0.00e+00, blind/aware 0.00e+00 (384 draws)
+
+## M = 12 (24 layouts x 4 draws); median ratio to the NEW-grid aware plan [old grid, 11ar-11at]; p90; max; draws below blind; draws at 6 bands
+  s = 1 (96 draws); aware bands 4: 13, 5: 66, 6: 17
+    blind    1.0438  [1.0342]  p90 1.2417  max 1.7254  <blind  0  6 bands 40
+    sort     1.0944  [1.0995]  p90 1.1809  max 1.3560  <blind 30  6 bands 21
+    sdesc    1.0592  [1.0628]  p90 1.1193  max 1.1629  <blind 38  6 bands 27
+    goff     1.1227  [1.1229]  p90 1.2410  max 1.4068  <blind 23  6 bands 16
+    gdesc    1.0585  [  -   ]  p90 1.1160  max 1.2198  <blind 43  6 bands 26
+    gdeg     1.1876  [  -   ]  p90 1.3443  max 2.1823  <blind 19  6 bands 12
+    rand_1   1.0345  [1.0396]  p90 1.0748  max 1.1697  <blind 58  6 bands 18
+    rand_2   1.0235  [  -   ]  p90 1.0479  max 1.0869  <blind 63  6 bands 20
+    rand_5   1.0112  [  -   ]  p90 1.0299  max 1.0665  <blind 74  6 bands 13
+    rand_10  1.0070  [1.0047]  p90 1.0198  max 1.0665  <blind 79  6 bands 10
+    rand_20  1.0002  [1.0004]  p90 1.0149  max 1.0618  <blind 83  6 bands 11
+    rand_50  1.0000  [  -   ]  p90 1.0064  max 1.0242  <blind 86  6 bands 18
+    closed form (c): bands 2: 1, 3: 30, 4: 46, 5: 19 (median 4); sort at (c) median 1.1835 p90 1.3791; sort+descent at (c) 1.1379
+    median sigma_adj by k (m): k=3 3.043, k=4 2.686, k=5 2.536, k=6 2.259
+  s = 2 (96 draws); aware bands 3: 49, 4: 7, 5: 26, 6: 14
+    blind    1.2048  [1.1631]  p90 1.8635  max 2.7024  <blind  0  6 bands 40
+    sort     1.1623  [1.1623]  p90 1.4551  max 1.7355  <blind 60  6 bands 16
+    sdesc    1.0444  [1.0520]  p90 1.1076  max 1.1891  <blind 86  6 bands 16
+    goff     1.1001  [1.0985]  p90 1.2271  max 1.3411  <blind 68  6 bands 11
+    gdesc    1.0385  [1.0408]  p90 1.1146  max 1.3034  <blind 88  6 bands 12
+    gdeg     1.1547  [  -   ]  p90 1.3370  max 2.2536  <blind 55  6 bands  5
+    rand_1   1.0245  [  -   ]  p90 1.0736  max 1.2007  <blind 85  6 bands  6
+    rand_2   1.0179  [  -   ]  p90 1.0527  max 1.1348  <blind 90  6 bands 13
+    rand_5   1.0041  [  -   ]  p90 1.0349  max 1.0722  <blind 91  6 bands 11
+    rand_10  1.0000  [1.0007]  p90 1.0150  max 1.0543  <blind 91  6 bands 16
+    rand_20  1.0000  [  -   ]  p90 1.0080  max 1.0211  <blind 92  6 bands 14
+    rand_50  1.0000  [  -   ]  p90 1.0009  max 1.0211  <blind 94  6 bands 17
+    closed form (c): bands 2: 58, 3: 26, 4: 12 (median 2); sort at (c) median 1.4338 p90 1.8058; sort+descent at (c) 1.2589
+    median sigma_adj by k (m): k=3 5.801, k=4 5.048, k=5 4.727, k=6 4.127
+  CPU per layout: median 9.9 s
+
+## M = 16 (24 layouts x 4 draws); median ratio to the NEW-grid aware plan [old grid, 11ar-11at]; p90; max; draws below blind; draws at 6 bands
+  s = 1 (96 draws); aware bands 4: 6, 5: 59, 6: 31
+    blind    1.0651  [1.0183]  p90 1.2056  max 1.3480  <blind  0  6 bands 64
+    sort     1.1222  [1.1279]  p90 1.2727  max 1.4330  <blind 22  6 bands 19
+    sdesc    1.0654  [1.0716]  p90 1.1249  max 1.4193  <blind 48  6 bands 34
+    goff     1.1472  [1.1402]  p90 1.2814  max 1.5373  <blind 19  6 bands 20
+    gdesc    1.0605  [  -   ]  p90 1.1533  max 1.3911  <blind 54  6 bands 26
+    gdeg     1.2214  [  -   ]  p90 1.4073  max 1.6414  <blind 21  6 bands 20
+    rand_1   1.0473  [1.0493]  p90 1.0946  max 1.1877  <blind 59  6 bands 16
+    rand_2   1.0366  [  -   ]  p90 1.0838  max 1.1155  <blind 65  6 bands 18
+    rand_5   1.0175  [  -   ]  p90 1.0578  max 1.1017  <blind 76  6 bands 22
+    rand_10  1.0087  [1.0091]  p90 1.0299  max 1.0645  <blind 82  6 bands 24
+    rand_20  1.0055  [1.0035]  p90 1.0232  max 1.0420  <blind 87  6 bands 22
+    rand_50  1.0000  [  -   ]  p90 1.0097  max 1.0248  <blind 90  6 bands 24
+    closed form (c): bands 3: 43, 4: 43, 5: 10 (median 4); sort at (c) median 1.2408 p90 1.4556; sort+descent at (c) 1.2054
+    median sigma_adj by k (m): k=3 3.255, k=4 3.097, k=5 2.869, k=6 2.583
+  s = 2 (96 draws); aware bands 3: 49, 4: 6, 5: 15, 6: 26
+    blind    1.2184  [1.1296]  p90 1.5566  max 1.7664  <blind  0  6 bands 64
+    sort     1.1767  [1.1725]  p90 1.3851  max 1.7108  <blind 51  6 bands  9
+    sdesc    1.0564  [1.0605]  p90 1.1314  max 1.3287  <blind 77  6 bands 21
+    goff     1.1153  [1.1054]  p90 1.2651  max 1.6241  <blind 63  6 bands  8
+    gdesc    1.0517  [1.0528]  p90 1.1570  max 1.5167  <blind 76  6 bands 10
+    gdeg     1.1890  [  -   ]  p90 1.4035  max 1.6619  <blind 49  6 bands 15
+    rand_1   1.0400  [  -   ]  p90 1.0959  max 1.2074  <blind 84  6 bands 15
+    rand_2   1.0258  [  -   ]  p90 1.0682  max 1.1177  <blind 89  6 bands 18
+    rand_5   1.0062  [  -   ]  p90 1.0384  max 1.0894  <blind 92  6 bands 19
+    rand_10  1.0017  [1.0006]  p90 1.0246  max 1.0511  <blind 94  6 bands 19
+    rand_20  1.0000  [  -   ]  p90 1.0149  max 1.0289  <blind 94  6 bands 19
+    rand_50  1.0000  [  -   ]  p90 1.0079  max 1.0271  <blind 94  6 bands 25
+    closed form (c): bands 2: 63, 3: 31, 4: 2 (median 2); sort at (c) median 1.4738 p90 1.8868; sort+descent at (c) 1.3762
+    median sigma_adj by k (m): k=3 6.245, k=4 5.915, k=5 5.435, k=6 4.829
+  CPU per layout: median 13.3 s
+
+# W1 -> held
+# W2 -> held
+# W3 -> held
+# W4 -> refuted
+# W5 -> held

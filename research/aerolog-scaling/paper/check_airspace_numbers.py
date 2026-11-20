@@ -209,6 +209,23 @@ CHECKS = [
     ("exact_grid_results.txt", "NEW median 1.2184", "**1.2048 and 1.2184**"),
     ("exact_grid_results.txt", "OLD median 1.0342 (11ao: 1.0342)", "1.0342 and 1.0183"),
     ("exact_grid_results.txt", "# E6 -> refuted", "Of six predictions, five held"),
+    # 11aw cheap rules on the corrected grid
+    ("exact_rules_results.txt", "aware F max rel diff from 11av 0.00e+00, blind/aware 0.00e+00 (384 draws)", "reproduce exactly in 384 of 384 draws"),
+    ("exact_rules_results.txt", "sort     1.0944  [1.0995]", "**1.0944** and **1.1222**"),
+    ("exact_rules_results.txt", "sort     1.1222  [1.1279]", "**1.0944** and **1.1222**"),
+    ("exact_rules_results.txt", "goff     1.1227  [1.1229]", "**1.1227** and **1.1472**"),
+    ("exact_rules_results.txt", "goff     1.1472  [1.1402]", "**1.1227** and **1.1472**"),
+    ("exact_rules_results.txt", "gdesc    1.0385  [1.0408]  p90 1.1146  max 1.3034  <blind 88", "beating the blind plan in 88 and 76 of 96 draws"),
+    ("exact_rules_results.txt", "gdesc    1.0517  [1.0528]  p90 1.1570  max 1.5167  <blind 76", "**1.0385** and **1.0517**"),
+    ("exact_rules_results.txt", "rand_1   1.0345  [1.0396]", "**1.0345** against 1.0438"),
+    ("exact_rules_results.txt", "rand_1   1.0473  [1.0493]", "**1.0473** against 1.0651"),
+    ("exact_rules_results.txt", "rand_1   1.0245", "1.0245 and 1.0400 against 1.2048 and 1.2184"),
+    ("exact_rules_results.txt", "rand_1   1.0400", "1.0245 and 1.0400 against 1.2048 and 1.2184"),
+    ("exact_rules_results.txt", "rand_20  1.0055  [1.0035]", "(**1.0055**, against a pre-registered 1.005)"),
+    ("exact_rules_results.txt", "k=6 2.259", "2.26 m and 2.58 m"),
+    ("exact_rules_results.txt", "k=6 2.583", "2.26 m and 2.58 m"),
+    ("exact_rules_results.txt", "closed form (c): bands 2: 1, 3: 30, 4: 46, 5: 19 (median 4)", "0 of 384 draws"),
+    ("exact_rules_results.txt", "# W4 -> refuted", "Of five predictions, four held"),
 
 ]
 
