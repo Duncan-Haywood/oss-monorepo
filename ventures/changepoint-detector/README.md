@@ -3819,17 +3819,75 @@ and `orders:poisson:bocpd-window:nb` keeps threshold 0.5.
 **The trade, plainly.** On unclumped counts the new default sends about one false alert per 1,000 daily checks where
 `bocpd` sent almost none (about one in two to three years of a daily check, against 0 to 0.16 per 1,000 for the old
 default across the three rounds on Poisson 30); on bunched counts, where real shops sit ("A real shop, exploratory" above: variance 4 to 6
-times the mean), it sends a twentieth as many and hears more of every step. **Not re-measured:** the "How eager"
-ladder and `--detector auto` still name `bocpd` as Quiet for counts, so `--suggest` and `auto` describe and pick from
-the old ladder; real labelled count series (no deployer's orders yet). On the page's "Keep watching a series" card the counts model's Quiet is the new default and
+times the mean), it sends a twentieth as many and hears more of every step. **Not re-measured here:** the "How eager"
+ladder and `--detector auto` (done the same day, next section: the count default is now Quiet there too); real
+labelled count series (no deployer's orders yet). On the page's "Keep watching a series" card the counts model's Quiet is the new default and
 Middle is plain `bocpd`, so for counts Middle is no longer the more eager of the two.
 
 **Checked** (`watch-count-default.test.mjs`): the defaults apply only when none of the three is named; a clumped null
 shop that the old default alerts on stays quiet under the new one through the CLI, with the column line printed; an
 explicit `--detector bocpd` reproduces the old run.
 
-**Next:** the ladder with the new default as Quiet (a pre-registered round 6 rerun for counts), and a deployer's real
-orders with the changes the merchant knows about.
+**Next:** a deployer's real orders with the changes the merchant knows about.
+
+## The How eager hint for counts (2026-11-20, pre-registered; ships)
+
+The count default above changed what a count watch runs when nothing is named, but not the "How eager" ladder. For
+`--model poisson`, `--suggest` and `--detector auto` still chose between `bocpd` (Quiet) and `pelt` (Eager), and
+`--detector auto` stores its pick as a named detector. So a deployer who used the workflow's suggested
+`WATCH_OPTIONS="--detector auto --alerts-per 1/month"` on an orders column never got the new default: a quiet history
+stored `bocpd`, which is the old default exactly.
+
+**The round** (`eval/watch-eagerness-counts.prereg.md`, committed before the run; `eval/watch-eagerness-counts.mjs`,
+output `eval/watch-eagerness-counts.out.txt`, 37 min on 4 cores). The eleven cells of the count-default rounds, 240
+daily points each, 200 fresh seeds per cell (1001-1200). The hint reads the first 120 points at round 6's budget (2
+alerts per 100 checks); the setting it picks then watches the last 120, scored there (steps at point 180). Today's
+ladder (`bocpd`, `pelt`) against the candidate (count default, `pelt`), with the four bars of the earlier rounds.
+
+| cell | old hint (`bocpd`, `pelt`) | **new hint (default, `pelt`)** | hint (default, `bocpd`, `pelt`) | Quiet only (default) | `bocpd` only |
+|---|---|---|---|---|---|
+| N1 Poisson 30 | 1.83 | 1.88 | 1.83 | 1.04 | 0.04 |
+| N2 NB 30, variance 60 | 5.04 | 3.75 | 4.83 | 0.13 | 2.17 |
+| N3 Poisson 30, weekends 0.6x | 2.71 | 1.88 | 2.71 | 0.13 | 1.13 |
+| N4 Poisson 5 | 1.50 | 1.54 | 1.50 | 0.79 | 0.00 |
+| N5 NB 30, variance 90 | 13.04 | **1.17** | 9.13 | 0.63 | 12.67 |
+| S1 30 to 15 | 198 | 199 | 198 | 199 | 189 |
+| S2 30 to 21 | 181 | 188 | 181 | 179 | 66 |
+| S3 30 to 45 | 193 | 198 | 193 | 199 | 143 |
+| S4 5 to 2 | 182 | 187 | 182 | 170 | 55 |
+| S5 NB (2x) 30 to 18 | 152 | **173** | 154 | 170 | 143 |
+| S6 NB (3x) 30 to 18 | 141 | 140 | 140 | 140 | 140 |
+| pooled false per 1,000 | 4.83 | **2.04** | 4.00 | 0.54 | 3.20 |
+| steps found of 1,200 | 1,047 | **1,085** | 1,048 | 1,057 | 736 |
+
+Against the old hint: **2.78 fewer false alerts per 1,000 checks (2.48 to 3.08 fewer), 38 more steps heard (20 to
+56)**, worst null cell +0.04 (Poisson 5), worst step cell -1 (S6). All four bars pass, so it ships.
+
+**Why it wins, and where it does not.** `pelt`'s history rate is the same in both ladders, so both hints pick Eager on
+the same series (187 to 189 of 200 steady Poisson histories; 2 to 44 of 200 bunched ones or ones with a weekend dip) and differ only where
+Quiet is picked, mostly on bunched counts, where `bocpd` sent 13 false alerts per 1,000 checks (N5) and the count
+default 1.2. Putting `bocpd` back as a middle step does not help (third column): it is quieter than the count default on
+unbunched counts and noisier on bunched ones, so it is not a step up in eagerness, and the hint picks it on exactly the
+series where it is worst. **Read the fourth column too:** never using the hint (Quiet, the count default, alone) sent
+a quarter of the hint's false alerts (0.54 against 2.04 per 1,000) and heard 28 fewer steps. On unbunched counts the
+history leaves `pelt` under budget almost every time and `pelt` costs about one more false alert per 1,000 checks. The
+hint is a menu, and the count default is the safer place to start; `--suggest` now says so for counts.
+
+**What ships** (`watch-core.mjs`): `eagerSettings('poisson')` is (count default, `pelt`) when no clumping cost or
+threshold is named (naming either keeps the old ladder, as the count default does). `chooseDetector` stores the
+count default's cost and threshold with the detector, and `choiceOptions` turns a stored `choice` back into options
+on later runs, in the one-column watch and per `--columns` column. A state file written before stores
+`{ detector: 'bocpd' }` and keeps running plain `bocpd`; delete `choice` to pick again. `--suggest` and the
+`How eager:` line name the setting in full ("Quiet (bocpd-window, negative-binomial cost, alert threshold 0.3)").
+On the page, the hint's table for counts has Quiet and Eager, and "Use Quiet" leaves the watch card on its default.
+`eagernessReplay` also takes a `ladder` option, the list of settings to replay, which the round used.
+
+**Checked** (`watch-eagerness-counts.test.mjs`, 4): the ladder and the named-option fallback; Quiet's replay equals
+the count default's; `--detector auto` on a clumped shop stores the count default and the watch's alerts, run by run,
+equal the count default's replay; an old `bocpd` choice keeps `bocpd`; a `--columns` count column stores it too.
+
+**Next:** a deployer's real orders through `--suggest` (no deployer yet), and whether the hint's Eager step on
+unbunched counts should be the windowed pass at the plain threshold rather than `pelt`.
 
 ## A real shop's daily series through `--suggest` (2026-11-18, pre-registered; all three bars fail; a weekly-cycle line ships)
 

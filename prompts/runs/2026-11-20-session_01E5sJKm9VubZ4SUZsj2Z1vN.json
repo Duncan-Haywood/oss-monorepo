@@ -15,25 +15,35 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "task": "changepoint-detector flagship: the How eager ladder with the count default as Quiet (pre-registered round 6 rerun for counts)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17953",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 4,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "The count-default section's 'Not re-measured' line said the ladder was unchanged but not that --detector auto, the workflow's suggested WATCH_OPTIONS, therefore stored plain bocpd and skipped the new default; found only by reading watch.mjs."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-20-changepoint-auto-setting-skipped-the-new-count-default.md",
+    "ventures/changepoint-detector/README.md (The How eager hint for counts)"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Pre-registered (eval/watch-eagerness-counts.prereg.md, committed before the run), seeds 1001-1200, 37 min on 4 cores. New hint (count default, pelt) vs old (bocpd, pelt): false -2.78 per 1,000 (-3.08 to -2.48), steps +38 (20 to 56), all four bars pass. Reported: always-Quiet count default sent 0.54 per 1,000 and heard 1,057, vs the hint's 2.04 and 1,085; stated in README, --suggest text and post. Local checks: run_venture_tests.py changepoint-detector and venture-preflight (results below).",
   "corrections": [],
   "redteam": null
 }
