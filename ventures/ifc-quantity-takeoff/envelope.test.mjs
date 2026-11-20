@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { planRect, assignEnvelope, isLeaf } from "./envelope.mjs";
+import { planRect, assignEnvelope, assignRailingSides, isLeaf } from "./envelope.mjs";
 import { ruleCode } from "./uniformat.mjs";
 
 // a wall as a box body from (x0,y0) to (x1,y1) in plan, 0..3 m high
@@ -94,4 +94,20 @@ test("a kept flag the geometry disagrees with is named on the row", () => {
   assert.match(ruleCode(rows[4], () => null).why, /geometry reads it inside the building, check it/);
   assert.match(ruleCode(rows[2], () => null).why, /geometry reads it on the outside/);
   assert.equal(ruleCode(rows[0], () => null).why, "wall, IsExternal");
+});
+
+test("railings: a balcony guard outside the walls is open, a gallery guard inside is closed", () => {
+  const rail = (x0, y0, x1, y1, z0 = 3, z1 = 4) => ({ ...wall(x0, y0, x1, y1, { z0, z1 }), ifcClass: "IfcRailing", ifcType: "IFCRAILING", effectiveClass: "IFCRAILING" });
+  const house = () => [wall(0, 0, 10, 0.3, { z1: 6 }), wall(0, 7.7, 10, 8, { z1: 6 }), wall(0, 0, 0.3, 8, { z1: 6 }), wall(9.7, 0, 10, 8, { z1: 6 })];
+  const door = { id: nid++, ifcClass: "IfcDoor", ifcType: "IFCDOOR", effectiveClass: "IFCDOOR", host: 1 };
+  const balcony = rail(2, 9.5, 6, 9.55), gallery = rail(3, 4, 7, 4.05);
+  assignRailingSides([...house(), door, balcony, gallery]);
+  assert.equal(balcony.railSide.exterior, true);
+  assert.equal(gallery.railSide.exterior, false);
+  // a railing above every wall is not read; nor is any railing in a model with no door or window
+  const high = rail(3, 4, 7, 4.05, 7, 8), alone = rail(2, 9.5, 6, 9.55);
+  assignRailingSides([...house(), door, high]);
+  assert.equal(high.railSide, undefined);
+  assignRailingSides([...house(), alone]);
+  assert.equal(alone.railSide, undefined);
 });

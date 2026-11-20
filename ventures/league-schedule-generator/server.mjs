@@ -26,6 +26,7 @@ import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseResults, parsePointSystem, standings, playoffBracket, playBracket, leaguePageHtml, scheduleIcs, sampleFields, WEEKDAYS, dayLabel } from "./calc.mjs";
 import { pathToFileURL } from "node:url";
+import { embedKeyOk, parseEmbedOptions, embedHtml, EMBED_HEADERS, adminEmbedHtml } from "./embed.mjs";
 import { iconPng, manifestJson, SW_JS, pwaHeadHtml, pwaBodyHtml } from "./pwa.mjs";
 import { upcomingGames, parseAvailability, recordAvailability, availabilityHtml, shortTeamsHtml, dayNumber, parseRosters, parseContacts, availabilityCsv, remindersDue, EMAIL, REMINDER_DAYS } from "./availability.mjs";
 import { smtpConfig, sendMail } from "./mailer.mjs";
@@ -188,7 +189,7 @@ ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}
 <p class="note">The five-category scale follows the shape of the score sheet ultimate leagues use (rules, fouls and contact, fair-mindedness, attitude, communication; 0 to 4 each, 2 for a normal game). Switching the scale starts the averages again; earlier ratings stay in the state file.</p></fieldset><p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
 <label><input type="checkbox" name="notify" value="1" style="width:auto"${state.published ? "" : " disabled"}> Email teams whose upcoming games this save moves, cancels or adds (one email per team, to its contacts${smtp && !smtp.error ? "" : "; needs SMTP, see above"})</label>
 <button name="act" value="save">Save</button><button name="act" value="publish">Save and publish</button></form>
-${spiritAdmin}${notices}${waivers}${capLinks}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}). Free agents: <code>/join</code> (${fs.open ? "open" : "closed"}).</p>`);
+${spiritAdmin}${notices}${waivers}${capLinks}${names.length && state.published ? adminEmbedHtml(key, base, names) : ""}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}). Free agents: <code>/join</code> (${fs.open ? "open" : "closed"}).</p>`);
 }
 
 async function readForm(req) {
@@ -260,20 +261,28 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
     // The offline worker and the app icons carry no secret, so they are served without a link.
     if (req.method === "GET" && url.pathname === "/sw.js") return send(200, SW_JS, "text/javascript; charset=utf-8", { "cache-control": "no-cache", "service-worker-allowed": "/" });
     if (req.method === "GET" && (url.pathname === "/icon-192.png" || url.pathname === "/icon-512.png")) return send(200, icons[url.pathname] ??= iconPng(url.pathname === "/icon-192.png" ? 192 : 512), "image/png", { "cache-control": "public, max-age=86400" });
-    const isAdmin = url.pathname.startsWith("/admin"), isLeague = url.pathname.startsWith("/league");
+    const isAdmin = url.pathname.startsWith("/admin"), isLeague = url.pathname.startsWith("/league"), isEmbed = url.pathname === "/embed";
     const hops = String(req.headers["x-forwarded-for"] || "").split(",").map((h) => h.trim()).filter(Boolean);
     const who = hops.length ? hops[hops.length - 1] : req.socket.remoteAddress, now = Date.now();
     if (url.pathname === "/register") return register(req, send, who);
     if (url.pathname === "/join") return join(req, send, who);
-    if (!isAdmin && !isLeague) return send(404, "not found\n", "text/plain");
+    if (!isAdmin && !isLeague && !isEmbed) return send(404, "not found\n", "text/plain");
     let rec = fails.get(who);
     if (rec && now > rec.until) { fails.delete(who); rec = undefined; }
     if (rec && rec.n >= MAX_FAILS) return send(429, "too many wrong links; try again later\n", "text/plain", { "retry-after": String(Math.ceil((rec.until - now) / 1000)) });
-    if (isAdmin ? !same(url.searchParams.get("key") ?? "", adminKey) : !same(url.searchParams.get("t") ?? "", token)) {
+    if (isAdmin ? !same(url.searchParams.get("key") ?? "", adminKey) : isEmbed ? !embedKeyOk(adminKey, url.searchParams.get("k")) : !same(url.searchParams.get("t") ?? "", token)) {
       if (fails.size >= 5000) fails.clear();
       if (!rec) fails.set(who, rec = { n: 0, until: now + WINDOW_MS });
       rec.n++;
       return send(401, "link required\n", "text/plain");
+    }
+    // The club-website embed: read-only, framable by any site, keyed apart from the player link (embed.mjs).
+    if (isEmbed) {
+      if (req.method !== "GET") return send(405, "method not allowed\n", "text/plain", { allow: "GET" });
+      const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
+      if (out.error) return send(200, `<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><p style="font:15px system-ui,sans-serif">The schedule is not published yet.</p>`, "text/html; charset=utf-8", EMBED_HEADERS);
+      const results = String(state.fields.results || "").trim() ? parseResults(state.fields.results, out.schedule.teams).results : [];
+      return send(200, embedHtml(out, results, parseEmbedOptions(url.searchParams, out.schedule.teams), dayNumber(clock())), "text/html; charset=utf-8", EMBED_HEADERS);
     }
     const t = url.searchParams.get("t");
     if (isLeague) {

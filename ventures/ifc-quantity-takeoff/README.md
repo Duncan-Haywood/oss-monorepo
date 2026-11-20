@@ -44,7 +44,14 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   2% of width x height; 216 of 2,252 openings were at or under 0.50 m2
   ([eval/measure-rules-2026-11-20.md](eval/measure-rules-2026-11-20.md)). The
   thresholds are yours to check against your contract's method; the tool
-  claims no standard's rules.
+  claims no standard's rules. **Per work section**, too: walls, slabs and
+  roofs, coverings, and beams, columns and members can each have their own
+  pair (the "By work section" preset judges walls and finishes by area and
+  slabs and frames by volume; on the command line
+  `--voids-up-to "0.5,0.05;slabs=0,0.05;coverings=0.5,0"`). On 4 of 11 public
+  models a single pair also adjusted slab areas or covering volumes that a
+  per-section rule leaves alone, by up to 7.2 m2 of slab area in one
+  ([eval/measure-sections-2026-11-20.md](eval/measure-sections-2026-11-20.md)).
 - **What changed since the last issue.** Drop the earlier revision too and
   get the change on every bill-of-quantities line (priced with the same
   rates, for a change order) and every element added, removed, changed (a
@@ -228,6 +235,33 @@ roofs); 114 columns and 28 beams moved from B1010 to B1020, and the authors'
 codes match as before. Details:
 [eval/slab-roles-2026-11-20.md](eval/slab-roles-2026-11-20.md).
 
+**Slabs on grade, gutters, downspouts and outside railings**
+(`findGroundSlabs`, `rainwaterRole`). A slab named as on grade ("127mm Slab
+on Grade", Bodenplatte, grondplaat) is A1030 Slab on Grade, and so is one
+that by geometry lies at the bottom of the model (within 0.5 m of the lowest
+slab or wall) with nothing under it and no beam or column carrying it; a
+slab on grade with no slab or roof over it, or named exterior, is a patio or
+walk, G2030. Gutters and downpipes (PredefinedType GUTTER, or named gutter,
+takrenne, Dachrinne, downspout, hwa) and box-gutter framing go to B3010 Roof
+Coverings, and railings flagged IsExternal to B2010 (balcony walls and
+handrails). On the 17 models 164 codes changed: 10 slabs to A1030 (HHS
+Office's 3,518 m² ground slab in two models, duplex, HouseZ), 2 to G2030, 75
+gutters, downpipes and gutter framing to B3010, 77 railings to B2010; the
+authors' codes match as before. Details:
+[eval/slab-on-grade-2026-11-20.md](eval/slab-on-grade-2026-11-20.md).
+
+**Railings by what they stand on** (`findStairRailings`,
+`assignRailingSides`). A railing beside a stair, flight, ramp, landing or
+stringer (within 0.3 m in plan, starting between its bottom and top) is
+C2010 Stair Construction, and so is one rising 3 m or more with no stair
+found, and any railing piece joined to one of those; then the IsExternal flag
+true is B2010; then the envelope test's rays, cast from both faces of the
+railing, put it outside (B2010, a balcony or roof guard) or inside (C1010, an
+interior balustrade). On 16 models coded railings went from 77 to 461 of
+486: 343 stair, 95 exterior, 23 interior; the 25 left are railings whose
+geometry is not read or a structural model with no doors. Details:
+[eval/railings-2026-11-20.md](eval/railings-2026-11-20.md).
+
 **Exterior wall or partition, from the geometry** (`envelope.mjs`). A wall
 with no `IsExternal` flag is placed by its geometry: every wall, curtain wall
 and upright facade piece is read in plan as a rectangle, and rays cast from
@@ -298,6 +332,7 @@ node cli.mjs model.ifc --by uniformat2,uniformat   # elemental estimate (Uniform
 node cli.mjs model.ifc --rows elements.csv     # every element
 node cli.mjs model.ifc --check                 # stored vs computed summary
 node cli.mjs model.ifc --voids-up-to 0.5,0.05  # leave in openings up to 0.5 m2 (areas) / 0.05 m3 (volumes)
+node cli.mjs model.ifc --voids-up-to "0,0;walls=0.5,0.05;slabs=0,0.05"  # per work section (walls, slabs, coverings, frames, other)
 node cli.mjs new.ifc --compare old.ifc         # change in the BoQ since old.ifc, CSV to stdout
 node cli.mjs new.ifc --compare old.ifc --changes changes.csv   # and every changed element
 node --test                                    # tests

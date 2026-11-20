@@ -13,7 +13,9 @@ a tested build. Open an issue with what you change and why.
 A first CAD package (plates, mast, base, net frame, with an elevation-sweep
 collision check and a wind-ballast figure) is in
 [`../manufacturing/feeder/`](../manufacturing/feeder/); see
-[`../cad/README.md`](../cad/README.md) for what it does not model yet.
+[`../cad/README.md`](../cad/README.md) for what it does not model yet. Build it
+with [`guide/ASSEMBLY.md`](../manufacturing/feeder/guide/ASSEMBLY.md): 25 steps,
+one drawing each, every bolted joint the CAD draws checked for length.
 
 ![Side view](diagrams/feeder-side.svg)
 

@@ -2802,7 +2802,7 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
   };
   rows.sort((x, y) => y.points - x.points || h2hCmp(x, y)
     || y.gd - x.gd || y.gf - x.gf || x.index - y.index);
-  for (const r of rows) delete r.h2hLevels;
+  for (const r of rows) { if (r.h2hLevels) Object.defineProperty(r, "h2hKey", { value: JSON.stringify(r.h2hLevels), enumerable: false }); delete r.h2hLevels; }
   rows.forEach((r, i) => { r.rank = i + 1; });
   return rows;
 }
@@ -2825,7 +2825,7 @@ export function tieBreakNotes(rows) {
       detail = `${a.h2h.points} v ${b.h2h.points} points, goal difference ${a.h2h.gd} v ${b.h2h.gd}, goals ${a.h2h.gf} v ${b.h2h.gf} among the tied teams`;
     } else if (a.gd !== b.gd) { by = "goal difference"; detail = `${a.gd} v ${b.gd}`; }
     else if (a.gf !== b.gf) { by = "goals for"; detail = `${a.gf} v ${b.gf}`; }
-    else if (a.h2h && b.h2h) { by = "head to head"; detail = "a deeper head-to-head mini-table among the tied teams"; }
+    else if (a.h2h && b.h2h && a.h2hKey !== b.h2hKey) { by = "head to head"; detail = "a deeper head-to-head mini-table among the tied teams"; }
     else { by = "entry order"; detail = "level on every tie-break"; }
     const unresolved = by === "entry order";
     out.push({ above: a.name, below: b.name, rank: a.rank, by, unresolved, text: `${a.name} is above ${b.name} on ${by} (${detail}).${unresolved ? " Still level: decide it by a play-off or a draw." : ""}` });
@@ -3460,7 +3460,7 @@ function slotText(s) {
  * "Hawks beat Owls" with no score, and a level score with the winner named in brackets:
  * "Hawks 2 - 2 Owls (Hawks on penalties)". Returns { a, b, winner, score } (indexes into names) or { error }.
  */
-function readPlayoffLine(line, names) {
+export function readPlayoffLine(line, names) {
   const plain = line.replace(/[\u2212\u2012\u2013\u2014]/g, "-").replace(/[.\s]+$/, "");
   const note = plain.match(/^(.*?)\s*\(([^()]*)\)$/);
   const noScore = (note ? note[1] : plain).match(/^(.*?)\s+(?:beat|beats|defeated|def\.?|won against|knocked out)\s+(.*)$/i);

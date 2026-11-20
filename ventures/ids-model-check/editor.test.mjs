@@ -508,27 +508,34 @@ test("a standard property asked for presence with no dataType opens as a row and
   assert.match(buildIds(stateToDoc({ ...imp.state, specs: [{ ...imp.state.specs[0], reqs: [typed] }] }, L), L.S), /<property dataType="IFCTHERMALTRANSMITTANCEMEASURE">/);
 });
 
-test("datePattern: the pattern of a date range matches exactly the dates the range does, with or without a time zone", () => {
+test("datePattern: the pattern passes exactly the strings the checker passes on the range: days that exist, ASCII digits, zones placed by their instant", () => {
+  const NS = "http://standards.buildingsmart.org/IDS";
+  const rangeValue = (min, max, minEx, maxEx) => parseIds(`<?xml version="1.0"?><ids xmlns="${NS}" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications><specification name="v" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>IFCWALL</simpleValue></name></entity></applicability><requirements><attribute><name><simpleValue>Name</simpleValue></name><value><xs:restriction base="xs:date">${min ? `<xs:${minEx ? "minExclusive" : "minInclusive"} value="${min}"/>` : ""}${max ? `<xs:${maxEx ? "maxExclusive" : "maxInclusive"} value="${max}"/>` : ""}</xs:restriction></value></attribute></requirements></specification></specifications></ids>`).specs[0].requirements[0].value;
   const iso = (t) => new Date(t).toISOString().slice(0, 10);
-  const inRange = (d, [lo, hi, le, he]) => (!lo || (le ? d > lo : d >= lo)) && (!hi || (he ? d < hi : d <= hi));
-  const cases = [["2024-01-01", ""], ["2024-05-01", "", true], ["", "2024-05-01", false, true], ["2023-12-31", "2024-12-31"], ["1999-12-31", "2000-01-01", true, true], ["2024-02-28", "2024-03-01", false, true], ["2010-06-15", "2031-01-09"]];
+  const cases = [["2024-01-01", ""], ["2024-05-01", "", true], ["", "2024-05-01", false, true], ["2023-12-31", "2024-12-31"], ["1999-12-31", "2000-01-01", true, true], ["2024-02-28", "2024-03-01", false, true], ["2010-06-15", "2031-01-09"], ["1896-01-01", "1904-12-31"], ["", "2024-02-29"]];
   let seed = 7;
   const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
-  const day = () => iso(Date.parse("1990-01-01") + Math.floor(rnd() * 365 * 50) * 86400000);
-  for (let k = 0; k < 150; k++) { let a = day(), b = day(); if (a > b) [a, b] = [b, a]; cases.push([a, b, rnd() < 0.3, rnd() < 0.3]); }
+  const day = () => iso(Date.parse("1890-01-01") + Math.floor(rnd() * 365 * 160) * 86400000);
+  for (let k = 0; k < 60; k++) { let a = day(), b = day(); if (a > b) [a, b] = [b, a]; cases.push([rnd() < 0.15 ? "" : a, rnd() < 0.15 ? "" : b, rnd() < 0.3, rnd() < 0.3]); }
+  const zones = ["", "Z", "+00:00", "-00:00", "+01:00", "-05:00", "+14:00", "-12:00", "+23:59", "+24:00"];
+  let compared = 0;
   for (const c of cases) {
     const p = datePattern(...c);
-    if (c[0] && c[1] && iso(Date.parse(c[0]) + (c[2] ? 86400000 : 0)) > iso(Date.parse(c[1]) - (c[3] ? 86400000 : 0))) { assert.equal(p, null); continue; }
+    const v = rangeValue(...c);
+    if (p === null) { assert.ok(!c[0] && !c[1] || (c[0] && c[1]), JSON.stringify(c)); continue; }
     const re = new RegExp(`^(?:${p})$`);
-    for (let t = Date.parse("1985-01-01"); t < Date.parse("2045-01-01"); t += 86400000 * 3) {
-      const d = iso(t);
-      assert.equal(re.test(d), inRange(d, c), `${JSON.stringify(c)} ${d}`);
-    }
-    assert.equal(re.test(`${c[0] || c[1]}+01:00`), inRange(c[0] || c[1], c));
+    const near = [c[0], c[1]].filter(Boolean).flatMap((d) => [-2, -1, 0, 1, 2].map((k) => iso(Date.parse(d) + k * 86400000)));
+    for (let t = Date.parse("1880-01-01"); t < Date.parse("2060-01-01"); t += 86400000 * 37) near.push(iso(t));
+    for (const d of near) for (const z of zones) { const s = d + z; assert.equal(re.test(s), v.match(s, "string"), `${JSON.stringify(c)} ${s}`); compared++; }
+    for (const s of ["2024-02-30", "2023-02-29", "1900-02-29", "2000-02-29", "2024-04-31", "٢٠٢٤-03-01", " 2024-03-01 "]) assert.equal(re.test(s), v.match(s, "string"), `${JSON.stringify(c)} ${JSON.stringify(s)}`);
+    assert.ok(!/\\d/.test(p), "ASCII digits only");
   }
+  assert.ok(compared > 50000, String(compared));
   assert.equal(datePattern("2024-01-01T00:00:00", ""), null);
   assert.equal(datePattern("", ""), null);
-  assert.equal(datePattern("2024-05-01", "2024-05-01"), "2024-05-01(Z|[+\\-]\\d{2}:\\d{2})?");
+  assert.equal(datePattern("2024-04-31", ""), null);
+  assert.equal(datePattern("2024-05-02", "2024-05-01"), null);
+  assert.equal(datePattern("2024-05-01", "2024-05-01"), "[ \\t\\r\\n]*(2024-05-01(Z|[+\\-]00:00)?)[ \\t\\r\\n]*");
   // The pattern audits clean on an IFCDATE property.
   const L = loadFor("IFC4");
   const xml = buildIds(stateToDoc({ title: "t", schema: "IFC4", specs: [{ name: "w", optionality: "required", cls: "IFCDOOR", withSub: false, also: [], predefinedType: "", reqs: [{ ...blankReq(), set: "Pset_Warranty", name: "WarrantyStartDate", mode: "pattern", pattern: datePattern("2024-01-01", "2024-12-31") }] }] }, L), L.S);

@@ -4,6 +4,12 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it computes
+
+- Monthly dispute ratio (disputes opened in a month / settled charges that month) against three editable lines.
+- Per card brand for the latest month, plus the published network programmes: Visa VAMP ((disputes + early fraud warnings) / same-month Visa charges, 1.5% line from April 2026, 1,500 minimum count) and Mastercard ECP (chargebacks / previous month's Mastercard charges, ECM 1.5% and 100, HECM 3.0% and 300).
+- Headroom, a straight-line trend, reasons with what to check, repeat disputers and dispute cost.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/chargeback-ratio-monitor/)

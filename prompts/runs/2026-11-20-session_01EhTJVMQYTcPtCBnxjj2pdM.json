@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVMQYTcPtCBnxjj2pdM",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T17:01:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/verified-dse milestone 158: tool-build sensitivity of the ladder's edge (replay)",
+  "projects": [
+    "verified-dse"
+  ],
+  "pr": 17942,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "nix build of github:NixOS/nixpkgs/nixos-25.05 failed: api.github.com refused (403) through the session proxy",
+      "effect": "no third build; milestone is a two-build replay"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/README.md",
+      "issue": "Reproduce section names only nixpkgs#openroad; pinning an older nixpkgs needs the GitHub API, which cloud sessions refuse, so a third tool build cannot be fetched this way"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-verified-dse-stale-recipe-after-yosys-upgrade.md"
+  ],
+  "goal": "advance verified-dse with a pre-registered result for PAPER.md Section 5/6",
+  "notes": "Predictions committed in f19079155 before first run; all seven held. Mean edge change -0.48 (interval -3.05 to +1.78); per-design |change| 4.39 vs 1.55 for max-RC; transfer of a routed-best sequence across builds 14% regret vs 6% random. Checks run locally: tests/test_tool_build.py, test_rc_corner*.py (11 passed), research/_homepage/build.py ok, check_posts ok, check_md_links ok, research_live_links ok, cite_check (no DOIs).",
+  "corrections": [],
+  "redteam": null
+}

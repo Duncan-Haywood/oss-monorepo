@@ -15,11 +15,146 @@ team, a plain-text version to paste into a group chat, and a share link that car
 ## What you use today, and what this does differently
 
 - **A spreadsheet or a hand-drawn grid:** free, but home/away balance, byes in odd leagues and court sharing are easy to get wrong, and a rainout means redoing the sheet.
+- **Tournament platforms** (paid scheduling and registration for weekend events): this page lays out pools, brackets and fields for a weekend with no signup (`weekend-tournament-schedule.html`, below).
 - **League-management platforms** (TeamSnap, LeagueApps, SportsEngine and similar): registration, payments, team messaging and score apps, usually on a paid plan and with accounts for every team. This tool only makes and maintains the schedule: no signup, no upload, free.
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## The player page on a phone's home screen, readable with no signal (2026-11-20, newest)
+## Weekend tournaments: results on the day fill the pools and the bracket (2026-11-20, newest)
+
+The weekend scheduler below stopped at placeholders: every knockout game read "1st Pool A v 2nd
+Pool B" or "Winner SF1" until the director redrew the bracket by hand, usually on a whiteboard by
+the score table. Now `tournament-results.mjs` and the "Results on the day" box on
+`weekend-tournament-schedule.html` take the scores as they come in and play the weekend forward.
+
+- **What you type.** One game per line, any order, in the league formats (`Hawks 2 - 1 Owls`, `Owls
+  lost to Hawks 1-2`, `Hawks w/o Owls`); a level knockout score names its winner (`Hawks 1 - 1 Owls
+  (Hawks on penalties)`). A club often enters the same name in two age groups (the sample has North
+  Hills Hawks in U10 and U12), so a line whose two teams are both in more than one division is refused
+  with the fix: start it with the division (`U12 Boys: ...`) or put the division's name on a line
+  above a block of its results.
+- **Pool tables.** `standings` from `calc.mjs` per pool: points (3-1-0 or any win-draw-loss), then
+  head to head among teams level on points (or straight to goal difference), then goal difference,
+  then goals for. An optional **goal-difference cap** (the usual youth rule, often 3 to 5) counts a
+  9-0 as 4-0 for goal difference and goals for; the table still shows the real score in the grid.
+- **Knockout places.** A pool's places fill only when every game in it has a result, so a bracket
+  never shows a team that could still drop out. "Best 2nd-placed" places (when the number going
+  through is not a multiple of the pools) fill once every pool is done, compared **per game** (points,
+  then goal difference, then goals for per game played), so a runner-up from a pool of three is not
+  ranked below one from a pool of four for playing one game fewer. Teams level on everything are
+  listed in pool order with a note to settle it by the tournament's own rule.
+- **Bracket.** The division's bracket (the same crossover seeds and labels the schedule was built
+  with) gets the real names in its seed slots, then `playBracket` carries winners into "Winner SF1"
+  slots and losers into the third-place game. The grid shows names, scores and the winner in bold;
+  times and fields never move, so the results survive "Try another order".
+- **Wrong lines are named.** Each refused line gives its line number and the reason: a name not in
+  the division, two teams from different pools while the pools are unfinished ("this would be a
+  knockout game, but Valley United is not in the knockouts yet: Pool A still has games to play"), a
+  second line for a pool pair when neither went through, a level knockout score with no winner.
+- **A fix in the league table on the way.** `tieBreakNotes` said two teams were separated "on head to
+  head" whenever the head-to-head option was on, even when they were level on every tie-break, so the
+  "Still level: decide it by a play-off or a draw" note never showed on head-to-head tables. It now
+  says so only when the deeper head-to-head levels really differ (league page included).
+- **Exports.** `tournamentResultsText` (every pool table, the knockout places, each knockout game
+  with its result, the champion, runner-up and third, and the next twelve games) and
+  `tournamentResultsCsv` (the schedule with the teams filled in and a Result column; one team's games
+  with `team`).
+- **Checked:** `tournament-results.test.mjs` (7 tests): the sample weekend played to the end on 30
+  random score sets (every game has a result; every seed is the team at that place of its pool's final
+  table; every knockout slot holds a real team; times and fields unchanged; each final's teams are its
+  semifinal winners; champion, runner-up and third distinct); pool lines shuffled ten ways give the
+  same tables and seeds; division headings and prefixes; each error; the cap moving a tie; a 10-team
+  division in pools of 4, 3 and 3 whose best runner-up is the 4-pool's on points per game, played to
+  a champion; both exports. In Chromium at 390 px: 35 of the sample's 36 games typed in, champions
+  shown for U10 and U14, the U12 final waiting with its two semifinal winners named, no console
+  errors, no sideways scroll, and the results still there after a reload. Made-up weekends only; no
+  real tournament has used it yet.
+- **Not done:** a pair that meets in its pool and again in the knockouts takes its first line as the
+  pool game (so type pool results before that knockout result); referees for a tournament; a public
+  read-only results page for parents (the league's `/league` page does this for a season).
+
+## Weekend tournaments: every division on shared fields, pools then brackets (2026-11-20)
+
+A club tournament puts several age groups on a few fields over a weekend. Until now the generator
+made league seasons and one-pool days; a director with U10s on 7v7 pitches, U12s on 9v9 and U14s on
+full-size fields still built the weekend grid by hand. `tournament.mjs` and
+`weekend-tournament-schedule.html` do it.
+
+- **Input:** days with hours; fields with the sizes they take and closures ("Field 4: 7v7; closed Sun
+  12:00-15:00"); divisions as blocks ("U12 Boys: 60 min, 9v9, pools of 3, top 4, 3rd place, rest 60,
+  max 3 a day, knockouts Sun", then the teams best first); team arrival and departure limits
+  ("not before Sat 11:00", "not Sun"); teams that share a coach.
+- **Pools and seeds:** snake-drafted pools (`splitPools`), a round robin in each, then a knockout of
+  the top N seeded by `poolPlayoffSeeds` so poolmates meet late (with two pools: 1st A v 2nd B); when N
+  is not a multiple of the pools, the last places go to the best runners-up. `playoffBracket` makes
+  the rounds, byes and the third-place game.
+- **Placement:** randomized list scheduling. Games go in pool-round order, each at the earliest start
+  on any eligible field where the field has its turnover free on both sides, both teams have had their
+  rest and are under the day's cap, no arrival limit or closure is hit, and no coach-mate is playing.
+  Knockout games wait for every pool game of their division plus rest, and for their feeders; a
+  finalist's knockout rounds count toward the cap. About 120 orders are tried (rounds shuffled with a
+  jitter; on some tries the last day's pool games are held back to leave room for knockouts, the
+  divisions with the tightest game budget go first, and a division that had games left out moves up
+  the order on later tries) and the best kept: most placed, earliest finish, shortest longest wait,
+  least total waiting. `validateTournament` re-checks every rule from the output alone.
+- **Before the search:** a field-hours check per group of divisions sharing fields, and `capFits`, a
+  necessary condition on the daily cap: for every spread of the knockout rounds over the days, a pool
+  of n gets b_d = cap - rounds_d places per team on day d, and its n(n-1)/2 games fit only if they do
+  not exceed the sum of floor(n b_d / 2). It catches the parity case: five teams, top 4, 3 a day over
+  two days looks like 6 games in 6 places, but day 1 would need all five teams on three pool games (15
+  places, odd).
+- **Measured** (`node eval/tournament-search.mjs 200 1` and `200 2`, `eval/tournament-search.txt`):
+  400 random weekends (2 to 4 divisions of 4 to 12 teams, 4 to 8 fields of mixed sizes, one or two
+  days, shared coaches). 46 were refused by the parser (top N of N in one pool, no field of a size),
+  194 were warned up front, and no search placed every game in any of those. On the 160 with no
+  warning: every game placed in 83.3% / 88.2% (seeds 1 / 2) by one greedy pass, 92.9% / 96.1% at 120
+  tries (the page), 94.0% / 96.1% at 600; the longest wait between a team's games fell from about 320
+  to 250 minutes on average. 0 results broke a rule. Random weekends, not real tournaments.
+- **Checked:** `tournament.test.mjs` (sample weekend placed in full and clean; parsers; crossover and
+  best-runner-up seeds; a one-a-day cap spreading a pool; short field time; the validator catching a
+  moved game; exports; 40 random weekends clean; `capFits` cases) and `page.test.mjs` (page wiring).
+  The page was loaded in Chromium at phone width: 36 games, no errors, no sideways scroll.
+- **Not done:** (results typed into the bracket: above, 2026-11-20) referees for a tournament, a real tournament's
+  fields and divisions, an exact model for the 4 to 7% of warned-free weekends the search leaves
+  short (some may be infeasible: the checks are necessary, not sufficient).
+
+## The league on the club's own website: a read-only embed (2026-11-20)
+
+Clubs want the schedule on their own site, where new players and parents look. Until now an organiser could
+download a static `league-page.html`, which goes stale at the first rainout. The self-hosted server now serves
+`/embed?k=...` (`embed.mjs`): a small read-only page made for an `<iframe>` on Wix, Squarespace, WordPress, Google
+Sites or a hand-made site, rebuilt from the same state as `/league`, so a posted result or a moved game shows on
+the club page within a minute (it is cached 60 s).
+
+- **Its own key.** The player link (`LEAGUE_TOKEN`) can send scores, availability, sub offers and waiver
+  signatures, and a website's source is public. The embed key is `HMAC(ADMIN_KEY, "embed\nread-only")`, 22
+  characters: nothing new to configure, it opens `/embed` and nothing else, and changing `ADMIN_KEY` retires
+  every pasted copy. A wrong key counts against the same per-address limit as a wrong player link.
+- **What it shows:** next games (the next 3 match days by default, counting doubleheader rounds on one date as one
+  day), the latest 5 results (newest first, winners in bold, forfeits marked) and the table; optionally the whole
+  season. Options in the address: `show=next,results,table,season`, `team=N` or `team=Name` (that team's games,
+  results and byes, its row highlighted), `nights=1..20`, `results=0..20`, `theme=light|dark|auto`, `accent=hex`,
+  `title=`. Unknown values fall back to defaults, so a hand-edited snippet still shows something.
+- **The snippet** (organiser page, "On your club's website", one for the league and one per team) is the iframe
+  plus four lines of script: the embed posts its height to the parent and the script grows the iframe to fit, so
+  there is no scroll box inside the page on a phone. A builder that strips scripts shows it 600 px tall, scrolling.
+- **Headers:** `frame-ancestors *` (any site may frame it), `default-src 'none'`, `form-action 'none'`, inline
+  style and one inline script only; it loads nothing from elsewhere and has no forms.
+- **Alternatives today:** TeamSnap, LeagueApps and SportsEngine offer website schedule widgets as part of paid
+  plans; LeagueLineup and similar free hosts put the schedule on their site, with their ads, not yours. A pasted
+  table or PDF is free but goes stale. This one is free, ad-free, on the club's own page, and current.
+- **Checked:** `embed.test.mjs` (9 tests: key stability and exact check, option parsing and clamps, match days
+  not rounds, newest-first results (it caught `results=0` showing every result, since `slice(-0)` is the whole
+  list), escaping, the server route: 401 for the player token, the admin key and no key; 405 for POST; no form or
+  player token in the page; the embed key refused at `/league` and `/admin`; follows a posted result and the
+  server clock; the guide's FAQ and options). `eval/embed-browser.mjs` in real Chromium on a 390 px phone: a club
+  page on another origin pastes the snippet; the frame loads with no console or CSP errors, grows to fit with 0 px
+  left to scroll inside, no sideways scroll, and the dark theme applies (`eval/embed-browser.txt`; it caught the
+  first height being 4 px short, because `documentElement.scrollHeight` includes the frame's own height, fixed by
+  measuring the body). Not yet pasted into a real Wix or Squarespace site.
+- **Guide:** `how-to-put-a-league-schedule-on-your-website.html` (linked from the main page and the sitemap).
+
+## The player page on a phone's home screen, readable with no signal (2026-11-20)
 
 Players look up their next game at the field, where the signal is often one bar or none. The self-hosted league page
 (`/league?t=...`, and a captain's `&c=...` link) is now an installable web app that opens from the last copy the phone

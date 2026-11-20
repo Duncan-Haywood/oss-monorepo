@@ -1,0 +1,4 @@
+feed-phase-drill-fast-inst-2026-11-20.jsonl.gz 2 {'straddle_for': 3, 'straddle_against': 1, 'straddle_long_for': 1, 'straddle_long_against': 3, 'board_ms10': 0, 'kept': 15} 1.5
+   contact-time survey: 46 wheels; the sums read an instant take, but of the 4 kept wheels whose fit at 1.5 ms put the contact across a revolution's edge, 3 fit 1.5 ms better than an instant take and 1 worse (the only balls
+feed-phase-drill-fast-inst-2026-11-20.jsonl.gz 2 {'straddle_for': 2, 'straddle_against': 0, 'straddle_long_for': 1, 'straddle_long_against': 3, 'board_ms10': 0, 'kept': 22} 1.5
+   contact-time survey: 46 wheels; the sums read an instant take, but of the 2 kept wheels whose fit at 1.5 ms put the contact across a revolution's edge, 2 fit 1.5 ms better than an instant take and 0 worse (the only balls

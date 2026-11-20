@@ -21,14 +21,101 @@
 // take out together (overlapping openings, an opening hanging past the
 // element), the rule is not applied to that element and the row says so.
 
+// A rule may also set its own thresholds per work section, because methods of
+// measurement do: a void left in masonry is judged by its area, one left in
+// in-situ concrete by its volume, and finishes by their own figure. `sections`
+// maps a section key below to { areaMax, volumeMax }; a section it does not
+// name takes the rule's own two numbers, and a number a section leaves out
+// takes the rule's number too.
+export const SECTIONS = {
+  walls: { label: "Walls", test: /^IFCWALL/ },
+  slabs: { label: "Slabs and roofs", test: /^IFC(SLAB|ROOF)/ },
+  coverings: { label: "Coverings and finishes", test: /^IFCCOVERING/ },
+  frames: { label: "Beams, columns and members", test: /^IFC(BEAM|COLUMN|MEMBER)/ },
+  other: { label: "Everything else", test: /./ },
+};
+
+/** The work section an IFC class (IFCWALLSTANDARDCASE, IfcSlab ...) falls in. */
+export function sectionKey(ifcType) {
+  const t = String(ifcType || "").toUpperCase();
+  for (const [k, s] of Object.entries(SECTIONS)) if (s.test.test(t)) return k;
+  return "other";
+}
+
 export const PRESETS = {
   all: { label: "Deduct every opening (as modelled)", areaMax: 0, volumeMax: 0 },
   small: { label: "Leave in voids up to 0.50 m2 / 0.05 m3", areaMax: 0.5, volumeMax: 0.05 },
+  sections: {
+    label: "By work section: walls and finishes by area (0.50 m2), concrete slabs and frames by volume (0.05 m3)",
+    areaMax: 0, volumeMax: 0,
+    sections: {
+      walls: { areaMax: 0.5, volumeMax: 0.05 },
+      coverings: { areaMax: 0.5, volumeMax: 0 },
+      slabs: { areaMax: 0, volumeMax: 0.05 },
+      frames: { areaMax: 0, volumeMax: 0.05 },
+    },
+  },
   custom: { label: "Custom thresholds" },
 };
 
+const pos = (v) => (Number.isFinite(v) && v > 0 ? v : 0);
+
+/** The two thresholds `rule` sets for an element of class `ifcType`. */
+export const ruleFor = (rule, ifcType) => sectionRule(rule, sectionKey(ifcType));
+
+/** The two thresholds `rule` sets for work section `key`. */
+export function sectionRule(rule, key) {
+  if (!rule) return { areaMax: 0, volumeMax: 0 };
+  const s = rule.sections?.[key];
+  return {
+    areaMax: pos(s && s.areaMax != null ? s.areaMax : rule.areaMax),
+    volumeMax: pos(s && s.volumeMax != null ? s.volumeMax : rule.volumeMax),
+  };
+}
+
 /** Is the rule one that changes anything? */
-export const ruleActive = (rule) => !!rule && ((rule.areaMax ?? 0) > 0 || (rule.volumeMax ?? 0) > 0);
+export const ruleActive = (rule) => !!rule && (pos(rule.areaMax) > 0 || pos(rule.volumeMax) > 0 || Object.values(rule.sections || {}).some((s) => s && (pos(s.areaMax) > 0 || pos(s.volumeMax) > 0)));
+
+const fmtN = (v) => String(+(+v).toFixed(4));
+const pair = (t) => !(t.areaMax > 0) && !(t.volumeMax > 0) ? "every opening deducted" : `area up to ${fmtN(t.areaMax)} m2, volume up to ${fmtN(t.volumeMax)} m3`;
+
+/** The rule in words, for a CSV heading or the page: "area up to 0.5 m2, ...; Slabs and roofs: ...". */
+export function ruleLabel(rule) {
+  if (!ruleActive(rule)) return "every opening deducted";
+  const base = { areaMax: pos(rule.areaMax), volumeMax: pos(rule.volumeMax) };
+  const parts = [];
+  const own = Object.keys(SECTIONS).filter((k) => rule.sections?.[k]);
+  if (own.length < Object.keys(SECTIONS).length) parts.push((own.length ? "otherwise " : "") + pair(base));
+  for (const k of own) parts.push(`${SECTIONS[k].label}: ${pair(sectionRule(rule, k))}`);
+  return parts.join("; ");
+}
+
+/**
+ * Read a rule from the command line's --voids-up-to text:
+ *   "0.5,0.05"                          one pair for every element;
+ *   "0.5,0.05;slabs=0,0.05;coverings=0.5,0"  a default pair, then per section;
+ *   "slabs=0,0.05"                      a section alone (the rest deduct every opening).
+ * Returns { rule } or { error }.
+ */
+export function parseRule(text) {
+  const rule = { areaMax: 0, volumeMax: 0 };
+  const nums = (t) => { const v = t.split(",").map((x) => Number(x.trim())); return v.length === 2 && v.every((x) => Number.isFinite(x) && x >= 0) ? v : null; };
+  for (const part of String(text).split(";").map((p) => p.trim()).filter(Boolean)) {
+    const m = /^([a-z]+)\s*=\s*(.*)$/i.exec(part);
+    if (m) {
+      const k = m[1].toLowerCase();
+      if (!SECTIONS[k]) return { error: `unknown work section '${m[1]}' (one of ${Object.keys(SECTIONS).join(", ")})` };
+      const v = nums(m[2]);
+      if (!v) return { error: `'${part}' needs AREA_M2,VOLUME_M3, e.g. ${k}=0,0.05` };
+      (rule.sections ??= {})[k] = { areaMax: v[0], volumeMax: v[1] };
+    } else {
+      const v = nums(part);
+      if (!v) return { error: `'${part}' needs AREA_M2,VOLUME_M3, e.g. 0.5,0.05` };
+      rule.areaMax = v[0]; rule.volumeMax = v[1];
+    }
+  }
+  return { rule };
+}
 
 const STORED_NET_AREA = /^net(side|floor|surface)?area$/;
 const STORED_GROSS_AREA = /^gross(side|floor|surface)?area$/;
@@ -92,8 +179,9 @@ function adjust(base, basisKind, deltas, together, max) {
  * Adds: voidsLeft (openings not deducted from the area or the volume),
  * areaChange / volumeChange (m2 / m3 the rule moved) and notes.
  */
-export function applyRule(r, q, rule) {
+export function applyRule(r, q, ruleIn) {
   const out = { ...q, voidsLeft: 0, areaChange: 0, volumeChange: 0, ruleNotes: [] };
+  const rule = ruleFor(ruleIn, r.ifcType);
   if (!ruleActive(rule) || !r.computed || r.computed.status !== "ok" || !r.computed.openings) return out;
   let left = 0;
   if (q.volume != null && r.computed.voids && rule.volumeMax > 0) {

@@ -10,7 +10,8 @@ named when the advised TAKE_US is within 1 ms of the true take; an instant build
 
 A label may end in @N to score that group with margin N on the 1.5 ms vote (the 2.5 ms vote stays at the shipped 2),
 e.g. fast@3=d.jsonl,e.jsonl (2026-11-20, eval/feed-phase-margin-2026-11-20.md). Per spread take it also prints how
-many builds were named.
+many builds were named. @N/L also sets the 2.5 ms vote's margin to L (host.TAKE_STRADDLE_LONG_MARGIN), e.g.
+fast@2/3=... (2026-11-20, eval/feed-phase-drill-2026-11-20.md).
 
 Simulated only, as the captures are.
 """
@@ -27,8 +28,30 @@ def band(t):
     return None
 
 
-def summary(rows, wheels, margin=2):
+def parse_label(label):
+    """'fast@3' -> ('fast', 3, None); 'fast@2/3' -> ('fast', 2, 3); 'long' -> ('long', 2, None)."""
+    if "@" not in label:
+        return label, 2, None
+    name, m = label.rsplit("@", 1)
+    if "/" in m:
+        a, b = m.split("/", 1)
+        return name, int(a), int(b)
+    return name, int(m), None
+
+
+def summary(rows, wheels, margin=2, long_margin=None):
     """{band: dict(builds, wheels, kept, straddle, named, bad)} for one group."""
+    from tennisbots import host
+    keep = host.TAKE_STRADDLE_LONG_MARGIN
+    if long_margin is not None:
+        host.TAKE_STRADDLE_LONG_MARGIN = long_margin
+    try:
+        return _summary(rows, wheels, margin)
+    finally:
+        host.TAKE_STRADDLE_LONG_MARGIN = keep
+
+
+def _summary(rows, wheels, margin):
     import take_straddle_scaled as tss
     out = {}
     for (t, sv), w in zip(rows, wheels):
@@ -59,12 +82,13 @@ def main():
     import take_straddle_vote as tsv
     for grp in groups:
         label, files = grp.split("=", 1)
-        margin = int(label.rsplit("@", 1)[1]) if "@" in label else 2
+        _, margin, long_margin = parse_label(label)
         paths = files.split(",")
         builds = tsv.load(paths)
         rows = tsv.rows_for(paths, procs)
-        s = summary(rows, [len(b.get("wheels") or ()) for b in builds], margin)
-        print(f"{label}: {len(rows)} builds, margin {margin} at 1.5 ms")
+        s = summary(rows, [len(b.get("wheels") or ()) for b in builds], margin, long_margin)
+        tail25 = f", {long_margin} at 2.5 ms" if long_margin is not None else ""
+        print(f"{label}: {len(rows)} builds, margin {margin} at 1.5 ms{tail25}")
         for g, _, _ in BANDS:
             if g not in s:
                 continue

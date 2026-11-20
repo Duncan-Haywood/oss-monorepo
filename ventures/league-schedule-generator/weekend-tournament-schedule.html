@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tournament Schedule Maker: Divisions, Fields, Pools, Brackets, Rest | Free</title>
+  <meta name="description" content="Schedule a weekend tournament: several age groups on shared fields, pool play then crossover brackets, rest between games, a daily game cap, coach clashes. Free.">
+  <meta property="og:title" content="Weekend Tournament Schedule Maker: Divisions on Shared Fields">
+  <meta property="og:description" content="Pools and brackets for every division laid onto real field time, with rest between games, a cap on games a day, field sizes, closures, arrival times and shared coaches. Free, in your browser, nothing uploaded.">
+  <link rel="canonical" href="./weekend-tournament-schedule.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you schedule a tournament with several divisions on shared fields?","acceptedAnswer":{"@type":"Answer","text":"List the days and their hours, the fields and the sizes each takes, and each division with its game length, pool size and how many go through to the knockouts. The page splits every division into pools by snake seeding, then places every game on a field at the earliest time where the field is free (with turnover), the teams have had their rest, nobody is over the daily cap, and no coach is due on two fields at once. It tries many orders and keeps the one that fits every game and finishes earliest with the least waiting."}},{"@type":"Question","name":"How much rest should teams get between tournament games?","acceptedAnswer":{"@type":"Answer","text":"Many youth soccer tournaments use at least an hour between the end of one game and the start of the next, and cap games at two or three a day by age group. Check your association's rules. Here the rest and the cap are set per division, and every game the page places keeps them."}},{"@type":"Question","name":"How are teams seeded from pools into the bracket?","acceptedAnswer":{"@type":"Answer","text":"Pool winners are seeded above runners-up, and within each place the order is chosen so teams from the same pool meet as late as possible: with two pools the semifinals are 1st A v 2nd B and 1st B v 2nd A. When the number going through is not a multiple of the pools, the extra places go to the best runners-up across pools."}},{"@type":"Question","name":"How do pool results decide who goes through?","acceptedAnswer":{"@type":"Answer","text":"Type the scores under \"Results on the day\". Each pool's table ranks teams by points (3 for a win, 1 for a draw unless you change it), then the games among teams level on points, then goal difference, then goals for. Many youth tournaments cap how many goals a margin counts (often 3 to 5) so nobody runs up a score: set it and a 9-0 counts as 4-0 for goal difference. When the number going through is not a multiple of the pools, the best runners-up are compared per game, so a team from a pool of three is not penalised for playing one game fewer. Teams still level on everything are flagged so you can settle it by your own rule."}},{"@type":"Question","name":"What if the games do not fit?","acceptedAnswer":{"@type":"Answer","text":"Before it searches, the page checks field time and the daily cap. It warns when a group of divisions needs more field-hours than its fields are open, or when no spread of pool games and knockout rounds over the days keeps every team under the cap. Any game it still cannot place is listed with the reason: rest, the cap, or field time."}},{"@type":"Question","name":"Can a team arrive late or leave early?","acceptedAnswer":{"@type":"Answer","text":"Yes. Type a line like \"U12 Boys/Valley United: not before Sat 11:00\", \"not after Sun 13:00\" or \"not Sun\". A team name on its own applies in every division that has a team by that name."}},{"@type":"Question","name":"How do shared coaches work?","acceptedAnswer":{"@type":"Answer","text":"List teams that share a coach on one line, like \"U10 Girls/North Hills Hawks, U12 Boys/North Hills Hawks\". Their games never overlap, and the turnover time is kept between them so the coach can walk from one field to the next."}},{"@type":"Question","name":"Is anything uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The schedule is worked out in your browser. What you type is kept in this browser only so it is there on your next visit."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .9rem; }
+    th, td { text-align: left; padding: 5px 7px; border-bottom: 1px solid #d4dad2; vertical-align: top; }
+    td small { color: #4a5148; }
+    label { display: block; font-weight: 600; margin-top: 12px; }
+    label small { font-weight: 400; color: #4a5148; }
+    textarea, input, select { font: inherit; padding: 6px 8px; border: 1px solid #b9c2b6; border-radius: 6px; background: #fff; color: inherit; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 6em; }
+    textarea#divisions { min-height: 18em; }
+    .row { display: flex; flex-wrap: wrap; gap: 14px; }
+    .row > div { flex: 1 1 150px; }
+    .row input, .row select { width: 100%; box-sizing: border-box; }
+    button { display: inline-block; margin: 12px 8px 0 0; padding: 10px 14px; border-radius: 8px; border: 0; background: #1d5a3f; color: #ffffff; font: inherit; font-weight: 650; cursor: pointer; }
+    button.secondary { background: #e3e8e1; color: #1d2330; }
+    .tool { background: #fff; border: 1px solid #d4dad2; border-radius: 12px; padding: 4px 18px 18px; }
+    .err { color: #9b1c1c; }
+    .warn { background: #fdecc8; padding: 8px 10px; border-radius: 8px; margin: 8px 0; }
+    .ko { background: #eef3fb; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+    @media print { .tool form, .noprint, footer, .guide { display: none; } body { max-width: none; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="noprint"><a href="./">&larr; League schedule generator</a></p>
+  <h1>Weekend tournament schedule maker: every division on shared fields, pools then brackets</h1>
+  <p>A club tournament runs several age groups over a weekend on a handful of fields. U10s play 7v7 on small pitches, U14s need the full-size ones, and everyone wants their pool games before the knockouts. A team should not play twice in an hour or four times in a day, and the coach with two teams cannot be on two fields at once. Directors usually build that grid by hand in a spreadsheet, or pay for a tournament platform.</p>
+  <p>This page builds it in your browser. It splits each division into pools, plays a round robin in each pool, seeds a knockout bracket from the pools so poolmates meet late, and puts every game on a field at a time that keeps every rule. Then it shows the field-by-time grid for each day, each team's games and rest, and how full each field is. Nothing is uploaded.</p>
+
+  <section class="tool">
+    <form id="form" onsubmit="return false">
+      <label for="days">Days and hours <small>one day per line: date, then first start and last finish</small></label>
+      <textarea id="days"></textarea>
+      <label for="fields">Fields <small>"Field 1: 9v9, 11v11" (the sizes it takes; none means any). Add "; closed Sun 12:00-15:00" or "; closed Sat" for closures</small></label>
+      <textarea id="fields"></textarea>
+      <label for="divisions">Divisions <small>a name and settings on one line, then its teams one per line (best seed first), a blank line between divisions. Settings: "50 min", a field size like "7v7", "pools of 4" or "2 pools" or "one pool", "top 4" (or "no playoffs"), "3rd place", "rest 60", "max 3 a day", "knockouts Sun"</small></label>
+      <textarea id="divisions"></textarea>
+      <label for="limits">Team arrival and departure <small>optional: "U14 Boys/Granite Bay Galaxy: not before Sat 11:00", "Hawks: not after Sun 13:00", "Hawks: not Sun"</small></label>
+      <textarea id="limits"></textarea>
+      <label for="coaches">Shared coaches <small>optional: teams on one line never overlap, with the turnover kept between their games</small></label>
+      <textarea id="coaches"></textarea>
+      <div class="row">
+        <div><label for="buffer">Turnover between games on a field (min)</label><input id="buffer" type="number" min="0" max="120" value="10"></div>
+        <div><label for="rest">Default rest between a team's games (min)</label><input id="rest" type="number" min="0" max="600" value="60"></div>
+        <div><label for="cap">Default most games a team plays a day</label><input id="cap" type="number" min="1" max="8" value="3"></div>
+        <div><label for="minutes">Default game length (min)</label><input id="minutes" type="number" min="5" max="300" value="60"></div>
+      </div>
+      <button type="button" id="build">Build the schedule</button>
+      <button type="button" class="secondary" id="again">Try another order</button>
+      <button type="button" class="secondary" id="sample">Load the example</button>
+    </form>
+    <p id="status" aria-live="polite"></p>
+    <div id="out" hidden>
+      <p id="summary"></p>
+      <div id="warnings"></div>
+      <div id="unplaced"></div>
+      <p class="noprint">
+        <button type="button" id="csv">Download CSV</button>
+        <button type="button" class="secondary" id="copy">Copy as text</button>
+        <button type="button" class="secondary" id="print">Print</button>
+        <select id="teamPick" aria-label="One team's games"></select>
+        <button type="button" class="secondary" id="teamCsv">That team's CSV</button>
+      </p>
+      <div id="grids"></div>
+      <h2>Pools and seeds</h2>
+      <div class="scroll"><table id="pools"></table></div>
+      <h2>Teams: games, rest and waiting</h2>
+      <div class="scroll"><table id="teams"></table></div>
+      <h2>Fields</h2>
+      <div class="scroll"><table id="fieldUse"></table></div>
+      <h2 id="results-h">Results on the day</h2>
+      <p>Type each score as it comes in, one game per line, in any order: <code>Hawks 2 - 1 Owls</code>, <code>Hawks w/o Owls</code>, and for a knockout game that ends level, the winner in brackets: <code>Hawks 1 - 1 Owls (Hawks on penalties)</code>. A team name used in two divisions needs the division first (<code>U12 Boys: North Hills Hawks 2-1 Harbor City FC</code>), or put the division's name on its own line above its results. The pool tables update, each finished pool fills its knockout places, and the winners move on through the bracket. Times and fields stay as they are.</p>
+      <label for="results">Results</label>
+      <textarea id="results" rows="8" placeholder="U12 Boys&#10;North Hills Hawks 2-1 Harbor City FC&#10;Lakeview Lightning 0-0 North Hills Hawks"></textarea>
+      <div class="row">
+        <div><label for="pts">Points for a win, draw and loss</label><input id="pts" value="3-1-0"></div>
+        <div><label for="gdcap">Most goals a margin counts in goal difference (blank: no cap)</label><input id="gdcap" type="number" min="1" max="20" placeholder="no cap"></div>
+        <div><label for="h2h">Teams level on points</label><select id="h2h"><option value="1">head to head first</option><option value="0">goal difference first</option></select></div>
+      </div>
+      <button type="button" id="applyResults">Update results</button>
+      <button type="button" class="secondary" id="resultsCsv">CSV with results</button>
+      <button type="button" class="secondary" id="resultsCopy">Copy tables and bracket</button>
+      <div id="resultErrors" aria-live="polite"></div>
+      <div id="resultsOut"></div>
+    </div>
+  </section>
+
+  <div class="guide">
+  <h2>How it decides</h2>
+  <ul>
+    <li><strong>Pools:</strong> teams are listed best first and dealt into pools by snake draft (A, B, B, A...), so every pool gets a spread of strengths. "Pools of 4" picks the number of pools nearest to that size; "2 pools" sets it.</li>
+    <li><strong>Knockouts:</strong> "top 4" takes four teams through. Winners are seeded above runners-up, and inside each place the order keeps poolmates apart for as long as the bracket allows (1st A v 2nd B, 1st B v 2nd A). If the number going through is not a multiple of the pools, the last places go to the best runners-up. A bracket game is never placed before every pool game of its division has finished plus the rest, nor before its feeder games.</li>
+    <li><strong>Placing games:</strong> games go in pool-round order, each at the earliest time any suitable field allows: the field takes the division's size, is open and not closed, and has the turnover free on both sides; both teams have had their rest and are under the day's cap; neither team is outside its arrival or departure limit; no team sharing a coach with them is playing. Small-size fields go to the divisions that need them, and versatile fields are kept for later.</li>
+    <li><strong>Many orders, the best kept:</strong> about 120 orders are tried, shuffling within rounds. The page keeps the one that places the most games, then finishes earliest, then has the shortest longest wait between a team's games, then the least waiting overall. A division that had games left out moves up the order on the tries that follow. Every result is checked again rule by rule before it is shown.</li>
+    <li><strong>Room for the knockouts:</strong> a team that reaches the final plays every knockout round, so the cap counts them in. On some tries a team's pool games on the last day are held back to leave room for its semifinal and final.</li>
+    <li><strong>Before the search:</strong> it warns when a group of divisions needs more field-hours than its fields are open, and when no spread of pool games and knockout rounds over the days can keep every team under the cap. A pool game takes two teams' places, so five teams who all need three games on one day cannot exist (15 places is odd).</li>
+  </ul>
+  <p><strong>Measured.</strong> On 160 random weekends (2 to 4 divisions of 4 to 12 teams, 4 to 8 fields of mixed sizes, one or two days, shared coaches) that passed both checks above, the page's search placed every game in 93% and 96% of them (two seeds), against 83% and 88% for a single greedy pass. It also cut the longest wait between a team's games from about 320 to 250 minutes on average. In 194 weekends that the checks warned about, no search placed every game. No result broke a rule (<code>eval/tournament-search.mjs</code>, <code>eval/tournament-search.txt</code>). The weekends were random, not real tournaments. A tighter weekend can still have a schedule the search misses, and "Try another order" can find it.</p>
+
+  <h2>Questions</h2>
+  <h3>How do you schedule a tournament with several divisions on shared fields?</h3>
+  <p>List the days and their hours, the fields and the sizes each takes, and each division with its game length, pool size and how many go through to the knockouts. The page splits every division into pools by snake seeding, then places every game on a field at the earliest time where the field is free (with turnover), the teams have had their rest, nobody is over the daily cap, and no coach is due on two fields at once. It tries many orders and keeps the one that fits every game and finishes earliest with the least waiting.</p>
+  <h3>How much rest should teams get between tournament games?</h3>
+  <p>Many youth soccer tournaments use at least an hour between the end of one game and the start of the next, and cap games at two or three a day by age group. Check your association's rules. Here the rest and the cap are set per division, and every game the page places keeps them.</p>
+  <h3>How are teams seeded from pools into the bracket?</h3>
+  <p>Pool winners are seeded above runners-up, and within each place the order is chosen so teams from the same pool meet as late as possible: with two pools the semifinals are 1st A v 2nd B and 1st B v 2nd A. When the number going through is not a multiple of the pools, the extra places go to the best runners-up across pools.</p>
+  <h3>What if the games do not fit?</h3>
+  <p>Before it searches, the page checks field time and the daily cap. It warns when a group of divisions needs more field-hours than its fields are open, or when no spread of pool games and knockout rounds over the days keeps every team under the cap. Any game it still cannot place is listed with the reason: rest, the cap, or field time.</p>
+  <h3>Can a team arrive late or leave early?</h3>
+  <p>Yes. Type a line like "U12 Boys/Valley United: not before Sat 11:00", "not after Sun 13:00" or "not Sun". A team name on its own applies in every division that has a team by that name.</p>
+  <h3>How do shared coaches work?</h3>
+  <p>List teams that share a coach on one line, like "U10 Girls/North Hills Hawks, U12 Boys/North Hills Hawks". Their games never overlap, and the turnover time is kept between them so the coach can walk from one field to the next.</p>
+  <h3>Is anything uploaded?</h3>
+  <p>No. The schedule is worked out in your browser. What you type is kept in this browser only so it is there on your next visit.</p>
+  <h3>How do pool results decide who goes through?</h3>
+  <p>Type the scores under "Results on the day". Each pool's table ranks teams by points (3 for a win, 1 for a draw unless you change it), then the games among teams level on points, then goal difference, then goals for. Many youth tournaments cap how many goals a margin counts (often 3 to 5) so nobody runs up a score: set it and a 9-0 counts as 4-0 for goal difference. When the number going through is not a multiple of the pools, the best runners-up are compared per game, so a team from a pool of three is not penalised for playing one game fewer. Teams still level on everything are flagged so you can settle it by your own rule.</p>
+  <p>Not done yet: referee assignment for a tournament. Related: <a href="./how-to-run-a-single-elimination-bracket.html">single-elimination brackets</a>, <a href="./how-long-does-a-round-robin-tournament-take.html">how long a round robin takes</a>, <a href="./youth-soccer-league-schedule.html">youth soccer league schedules</a>.</p>
+  </div>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or professional advice. Check every game, time and field before you publish the schedule; your association's rules on rest, game limits and field sizes apply, and so does your field permit. The example clubs and teams are invented.</p>
+    <p>Everything the tool does runs in your browser; team names are never uploaded. A count of how often the page builds a schedule is kept on your own device only (<button type="button" class="secondary" id="optout" style="margin:0;padding:2px 8px">turn it off</button>). Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+<script type="module">
+  import { tournamentFromText, validateTournament, tournamentCsv, tournamentText, tournamentGrid, SAMPLE } from "./tournament.mjs";
+  import { playTournament, tournamentResultsText, tournamentResultsCsv } from "./tournament-results.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const KEY = "league-schedule-generator-tournament";
+  const boxes = ["days", "fields", "divisions", "limits", "coaches", "buffer", "rest", "cap", "minutes", "results", "pts", "gdcap", "h2h"];
+  let last = null, lastR = null, seed = 1;
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(Object.fromEntries(boxes.map((b) => [b, $(`#${b}`).value])))); } catch {} }
+  function loadSample() { for (const b of ["days", "fields", "divisions", "limits", "coaches"]) $(`#${b}`).value = SAMPLE[b]; }
+  function load() {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(KEY) || "null"); } catch {}
+    if (saved && saved.divisions) for (const b of boxes) { if (saved[b] !== undefined) $(`#${b}`).value = saved[b]; }
+    else loadSample();
+  }
+  const mins = (m) => (m === null ? "&ndash;" : m >= 60 ? `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}` : `${m} min`);
+  function build(event) {
+    save();
+    $("#status").textContent = "Placing the games...";
+    setTimeout(() => {
+      const t = tournamentFromText({ days: $("#days").value, fields: $("#fields").value, divisions: $("#divisions").value, limits: $("#limits").value, coaches: $("#coaches").value,
+        buffer: Number($("#buffer").value), rest: Number($("#rest").value), maxPerDay: Number($("#cap").value), minutes: Number($("#minutes").value), seed });
+      if (t.errors) { $("#status").innerHTML = t.errors.map((e) => `<span class="err">${esc(e)}</span>`).join("<br>"); $("#out").hidden = true; return; }
+      last = t;
+      const problems = validateTournament(t);
+      $("#summary").textContent = `${t.games.length} games placed across ${t.divisions.length} division${t.divisions.length === 1 ? "" : "s"} and ${t.fields.length} field${t.fields.length === 1 ? "" : "s"}` +
+        (t.unplaced.length ? `, ${t.unplaced.length} not placed (below)` : "") + `. Last game ends ${t.finish}. Longest wait any team has between two games on one day: ${t.score.maxWait ? mins(t.score.maxWait).replace("&ndash;", "-") : "none"}. ` +
+        (problems.length ? `Check failed: ${problems.join("; ")}` : "Checked: field sizes, hours, closures, turnover, rest, the daily cap, arrival limits, shared coaches and knockout order all hold.");
+      $("#warnings").innerHTML = t.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      $("#unplaced").innerHTML = t.unplaced.length ? `<p class="warn"><strong>Not placed:</strong><br>${t.unplaced.map((u) => `${esc(u.division)} ${esc(u.stage)}: ${esc(u.home)} v ${esc(u.away)} (${esc(u.why)})`).join("<br>")}</p>` : "";
+      $("#pools").innerHTML = "<thead><tr><th>Division</th><th>Pools</th><th>Knockout seeds</th></tr></thead><tbody>" +
+        t.pools.map((p) => `<tr><td>${esc(p.division)}</td><td>${p.pools.map((x) => `<strong>${esc(x.name)}:</strong> ${x.teams.map(esc).join(", ")}`).join("<br>")}</td><td>${p.seeds.length ? p.seeds.map((s, i) => `${i + 1}. ${esc(s)}`).join("<br>") : "pools only"}</td></tr>`).join("") + "</tbody>";
+      $("#teams").innerHTML = `<thead><tr><th>Division</th><th>Team</th><th>Pool games</th>${t.days.map((d) => `<th>${esc(d.label.slice(0, 3))}</th>`).join("")}<th>First game</th><th>Shortest rest</th><th>Longest wait</th></tr></thead><tbody>` +
+        t.teams.map((r) => `<tr><td>${esc(r.division)}</td><td>${esc(r.team)}</td><td>${r.games}</td>${r.perDay.map((n) => `<td>${n}</td>`).join("")}<td>${esc(r.first || "-")}</td><td>${mins(r.minRest)}</td><td>${mins(r.maxWait || null)}</td></tr>`).join("") + "</tbody>";
+      $("#fieldUse").innerHTML = "<thead><tr><th>Field</th><th>Games</th><th>Hours used</th><th>Hours open</th><th>Share</th></tr></thead><tbody>" +
+        t.fieldUse.map((f) => `<tr><td>${esc(f.field)}</td><td>${f.games}</td><td>${(f.minutes / 60).toFixed(1)}</td><td>${(f.open / 60).toFixed(1)}</td><td>${Math.round(100 * f.share)}%</td></tr>`).join("") + "</tbody>";
+      $("#teamPick").innerHTML = t.divisions.flatMap((d) => d.teams.map((x) => `<option value="${esc(`${d.name}/${x}`)}">${esc(`${d.name}: ${x}`)}</option>`)).join("");
+      renderResults();
+      $("#status").textContent = "";
+      $("#out").hidden = false;
+      if (event) record(event);
+    }, 20);
+  }
+  // Results: names and scores into the grid, pool tables, knockout places and the bracket.
+  function renderResults() {
+    if (!last) return;
+    const r = playTournament(last, $("#results").value, { points: $("#pts").value || "3-1-0", gdCap: $("#gdcap").value || null, headToHead: $("#h2h").value === "1" });
+    lastR = r;
+    const byId = new Map(r.games.map((g) => [g.id, g]));
+    $("#grids").innerHTML = tournamentGrid(last).map((g) => `<h2>${esc(g.day)}</h2><div class="scroll"><table><thead><tr><th>Start</th>${g.fields.map((f) => `<th>${esc(f)}</th>`).join("")}</tr></thead><tbody>` +
+      g.rows.map((row) => `<tr><td>${row.time}</td>${row.cells.map((c0) => { if (!c0) return "<td></td>"; const c = byId.get(c0.id) || c0;
+        return `<td${c.knockout ? ' class="ko"' : ""}><small>${esc(c.division)} &middot; ${esc(c.stage)} &middot; to ${c.end}</small><br>${c.winner === c.home ? `<strong>${esc(c.home)}</strong>` : esc(c.home)} v ${c.winner === c.away ? `<strong>${esc(c.away)}</strong>` : esc(c.away)}${c.result ? `<br><small>${esc(c.result)}</small>` : ""}</td>`; }).join("")}</tr>`).join("") + "</tbody></table></div>").join("");
+    $("#resultErrors").innerHTML = r.errors.map((e) => `<p class="err">${esc(e)}</p>`).join("");
+    $("#resultsOut").innerHTML = `<p>${r.played} of ${r.total} games have a result.</p>` + r.divisions.map((d) => `<h3>${esc(d.name)}</h3>` +
+      (d.champion ? `<p><strong>Champion: ${esc(d.champion)}.</strong>${d.runnerUp ? ` Runner-up: ${esc(d.runnerUp)}.` : ""}${d.third ? ` Third: ${esc(d.third)}.` : ""}</p>` : "") +
+      d.pools.map((p) => `<div class="scroll"><table><caption>${esc(p.name)}: ${p.played} of ${p.total} played${p.complete ? ", final" : ""}</caption><thead><tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>` +
+        p.rows.map((x) => `<tr><td>${x.rank}</td><td>${esc(x.name)}</td><td>${x.played}</td><td>${x.won}</td><td>${x.drawn}</td><td>${x.lost}</td><td>${x.gf}</td><td>${x.ga}</td><td>${x.gd > 0 ? "+" : ""}${x.gd}</td><td>${x.points}</td></tr>`).join("") + "</tbody></table></div>" +
+        p.notes.map((n) => `<p><small>${esc(n)}</small></p>`).join("")).join("") +
+      (d.seeds.length ? `<p><strong>Knockout places:</strong> ${d.seeds.map((s) => `${esc(s.label)}: ${s.team ? esc(s.team) : "<em>not decided</em>"}`).join("; ")}</p>` : "") +
+      d.notes.filter((n) => !d.pools.some((p) => p.notes.some((pn) => n.endsWith(pn)))).map((n) => `<p class="warn">${esc(n)}</p>`).join("")).join("") +
+      (r.next.length ? `<h3>Next up</h3><p>${r.next.slice(0, 10).map((g) => `${esc(g.dayLabel.slice(0, 3))} ${g.start} ${esc(g.field)}: ${esc(g.division)} ${esc(g.stage)}, ${esc(g.home)} v ${esc(g.away)}`).join("<br>")}</p>` : "");
+  }
+  function download(text, name) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" })); a.download = name; a.click(); }
+  $("#build").addEventListener("click", () => { seed = 1; build("tournament_built"); });
+  $("#again").addEventListener("click", () => { seed++; build("tournament_reshuffled"); });
+  $("#sample").addEventListener("click", () => { loadSample(); seed = 1; build("tournament_sample"); });
+  $("#csv").addEventListener("click", () => { if (last) { download(tournamentCsv(last), "tournament-schedule.csv"); record("tournament_csv"); } });
+  $("#teamCsv").addEventListener("click", () => { if (last) { const k = $("#teamPick").value; download(tournamentCsv(last, k), `${k.replace(/[^\w]+/g, "-").toLowerCase()}.csv`); record("tournament_team_csv"); } });
+  $("#copy").addEventListener("click", async () => { if (!last) return; try { await navigator.clipboard.writeText(tournamentText(last)); $("#status").textContent = "Copied."; record("tournament_text"); } catch { $("#status").textContent = "Copy was blocked by the browser; use the CSV instead."; } });
+  $("#applyResults").addEventListener("click", () => { save(); renderResults(); record("tournament_results"); });
+  $("#resultsCsv").addEventListener("click", () => { if (lastR) { download(tournamentResultsCsv(lastR), "tournament-results.csv"); record("tournament_results_csv"); } });
+  $("#resultsCopy").addEventListener("click", async () => { if (!lastR) return; try { await navigator.clipboard.writeText(tournamentResultsText(lastR)); $("#status").textContent = "Copied."; } catch { $("#status").textContent = "Copy was blocked by the browser; use the CSV instead."; } });
+  $("#print").addEventListener("click", () => window.print());
+  $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "off"; $("#optout").disabled = true; });
+  if (usageOptedOut()) { $("#optout").textContent = "off"; $("#optout").disabled = true; }
+  load();
+  build();
+</script>
+</body>
+</html>

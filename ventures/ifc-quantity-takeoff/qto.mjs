@@ -16,9 +16,9 @@
 // tool's reading of the same model. Where they disagree the row says so,
 // because one of them is wrong and an estimate built on it would be too.
 
-import { applyRule, ruleActive } from "./measure.mjs";
+import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
-import { planRect, assignEnvelope } from "./envelope.mjs";
+import { planRect, assignEnvelope, assignRailingSides } from "./envelope.mjs";
 import { Geometry, Unresolved, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
@@ -345,7 +345,7 @@ export function takeoff(model, opts = {}) {
         row.computed.solids.each = null;
         try { row.box = worldBox(row.computed.solids.body, worldOf(refId(e.args[5])), f); } catch { row.box = null; }
         // the plan rectangle the envelope test reads (envelope.mjs)
-        if (/^IFC(WALL|CURTAINWALL$|PLATE|MEMBER)/.test(e.type) || (/^IFC(DOOR|WINDOW)/.test(e.type) && row.host == null)) {
+        if (/^IFC(WALL|CURTAINWALL$|PLATE|MEMBER|RAILING)/.test(e.type) || (/^IFC(DOOR|WINDOW)/.test(e.type) && row.host == null)) {
           try { row.plan = planRect(row.computed.solids.body, worldOf(refId(e.args[5])), f); } catch { row.plan = null; }
         }
       }
@@ -357,6 +357,7 @@ export function takeoff(model, opts = {}) {
   explainChecks(rows, tol);
   explainAreas(rows, tol);
   assignEnvelope(rows);
+  assignRailingSides(rows);
   assignUniformat(rows);
   return { schema: model.schema, units, rows };
 }
@@ -915,7 +916,7 @@ export const keyLabel = (k) => ({ uniformat: "Uniformat II element", uniformat2:
 export function boqCsv(lines, by, rates = {}, rule = null) {
   const measured = ruleActive(rule);
   const head = [...by.map(keyLabel), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount"];
-  if (measured) head.push(`Voids not deducted (area up to ${rule.areaMax} m2, volume up to ${rule.volumeMax} m3)`, "Area added back m2", "Volume added back m3", "Rows the rule could not adjust");
+  if (measured) head.push(`Voids not deducted (${ruleLabel(rule)})`, "Area added back m2", "Volume added back m3", "Rows the rule could not adjust");
   const out = [head.map(csvCell).join(",")];
   for (const L of lines) {
     const k = JSON.stringify(L.key);

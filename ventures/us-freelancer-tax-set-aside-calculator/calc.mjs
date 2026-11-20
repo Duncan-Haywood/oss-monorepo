@@ -8,7 +8,7 @@ export const TAX_YEAR = 2026;
 export const BRACKETS = {
   single: [[12400, 0.10], [50400, 0.12], [105700, 0.22], [201775, 0.24], [256225, 0.32], [640600, 0.35], [Infinity, 0.37]],
   mfj: [[24800, 0.10], [100800, 0.12], [211400, 0.22], [403550, 0.24], [512450, 0.32], [768700, 0.35], [Infinity, 0.37]],
-  hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201775, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],
+  hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201750, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],
 };
 export const STANDARD_DEDUCTION = { single: 16100, mfj: 32200, hoh: 24150 };
 // Above this taxable income (before QBI) the 20% deduction is limited by wages
@@ -109,9 +109,15 @@ export function compute(input) {
 
   const p = { status, w2, other, stateRate, qbi: input.qbi !== "no" };
   const net = r2(Math.max(0, revenue - expenses));
-  const L = liability(net, p);
+  const all = liability(net, p);
+  // The set-aside is the tax this work adds: the tax on everything minus the
+  // tax on the W-2 wages and other income alone, which withholding on those
+  // wages is assumed to cover (quality audit 2026-11-20: a $10k gig on a
+  // $100k salary was told to set aside $16,218.62, 162% of revenue).
+  const base = liability(0, p);
+  const L = { ...all, federalAll: all.federal, federalBase: base.federal, federal: r2(all.federal - base.federal), total: r2(all.total - base.total), totalAll: all.total };
   const next = liability(net + 1000, p);
-  const marginalPer1000 = r2(next.total - L.total);
+  const marginalPer1000 = r2(next.total - all.total);
   const total = L.total;
   const setAsidePct = revenue > 0 ? r2((total / revenue) * 100) : 0;
   const setAsideOfNet = net > 0 ? r2((total / net) * 100) : 0;
@@ -124,14 +130,23 @@ export function compute(input) {
   };
 
   findings.push({ severity: "high", title: `Set aside about $${total.toFixed(2)} (${setAsidePct}% of revenue, ${setAsideOfNet}% of profit): $${r2(L.se.total + L.se.additional).toFixed(2)} self-employment tax, $${L.federal.toFixed(2)} federal income tax and $${L.state.toFixed(2)} state. That is roughly $${out.perThousand.toFixed(0)} from every $1,000 you invoice, and $${marginalPer1000.toFixed(0)} from your next $1,000 of profit.` });
-  if (total >= PENALTY_FLOOR) {
+  // Form 1040-ES and the underpayment penalty are federal: state tax is not part of the 90% / $1,000 tests.
+  const federalTotal = r2(total - L.state);
+  // With wages, the $1,000 test uses the gig's federal share (what
+  // withholding does not cover); the 90% target is of all federal tax, and
+  // withholding counts toward it.
+  const allFederal = r2(L.totalAll - L.state);
+  if (federalTotal >= PENALTY_FLOOR) {
     const safe = prior !== null && prior > 0 ? prior * (L.agi > 150000 ? 1.1 : 1) : null;
-    const ninety = r2(total * 0.9);
+    const ninety = r2(allFederal * 0.9);
     const needed = safe !== null ? Math.min(ninety, r2(safe)) : ninety;
-    findings.push({ severity: "medium", title: `You probably owe $${PENALTY_FLOOR.toLocaleString("en-US")} or more after withholding, so the IRS expects estimated payments (Form 1040-ES) on ${DUE_DATES.join(", ")}. Paying at least $${needed.toFixed(2)} in total (${safe !== null && safe < ninety ? "100%/110% of last year's tax" : "90% of this year's tax"}) avoids the underpayment penalty; the even split is about $${r2(needed / 4).toFixed(2)} per quarter. If you have W-2 withholding, it counts toward this.` });
+    const withheld = r2(L.totalAll - L.state - federalTotal);
+    const estimates = r2(Math.max(0, needed - withheld));
+    findings.push({ severity: "medium", title: `You probably owe $${PENALTY_FLOOR.toLocaleString("en-US")} or more after withholding, so the IRS expects estimated payments (Form 1040-ES) on ${DUE_DATES.join(", ")}. Paying at least $${needed.toFixed(2)} in total (${safe !== null && safe < ninety ? "100%/110% of last year's tax" : "90% of this year's federal tax"}) avoids the federal underpayment penalty (your state has its own estimated-tax rules). ${withheld > 0 ? `Withholding on your wages counts toward it: if it equals the tax on the wages alone (about $${withheld.toFixed(2)}), about $${estimates.toFixed(2)} is left for estimates, $${r2(estimates / 4).toFixed(2)} a quarter.` : `The even split is about $${r2(needed / 4).toFixed(2)} per quarter.`}` });
   }
   if (!p.qbi) findings.push({ severity: "info", title: "The 20% qualified business income deduction is switched off, so the federal figure is higher than most sole proprietors will see." });
   else if (L.qbi === 0 && net > 0) findings.push({ severity: "info", title: `Taxable income is above the $${QBI_LIMIT[status].toLocaleString("en-US")} line where the QBI deduction is limited by business type, wages and property. This tool takes no QBI deduction there, which errs toward saving more. A tax professional can tell you what you qualify for.` });
+  if (w2 + other > 0) findings.push({ severity: "info", title: `Of $${L.totalAll.toFixed(2)} total tax on all your income this year, $${r2(L.totalAll - total).toFixed(2)} is the tax on your W-2 wages and other income alone, which the set-aside assumes your paycheck withholding already covers. If nothing is withheld from that income, set that aside too, or raise your W-4 withholding.` });
   if (L.se.additional > 0) findings.push({ severity: "info", title: `Additional Medicare Tax of $${L.se.additional.toFixed(2)} (0.9%) is included because earnings pass $${ADDITIONAL_MEDICARE_THRESHOLD[status].toLocaleString("en-US")}.` });
   findings.push({ severity: "info", title: "State tax is a flat share of profit after half of self-employment tax, using the rate you entered. Real state brackets, local tax and credits differ, so treat it as a planning number." });
   return out;

@@ -22,3 +22,5 @@
 - (2026-11-20) next a real reviewer's reading
 - (2026-11-20) appendix 2026-11-19
 - (2026-11-20) next progress override, start float and 24-hour lag paths on a real P6 file
+- (2026-11-20) (3) GitHub ERMHDR search, size-split 2026-11-19: a seventh P6 file (Harbour Pointe 17.12) 113/113 once 8 durations edited after its last run are put back
+- (2026-11-20) next a real site's log

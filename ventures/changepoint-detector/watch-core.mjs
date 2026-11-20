@@ -35,7 +35,8 @@ export const defaultDetector = (model = 'mean') => (model === 'mean' ? WATCH_DEF
  * windowed Bayesian pass with the negative-binomial cost at threshold 0.3. Against `bocpd`: 2.23 fewer false alerts per
  * 1,000 checks (1.55 to 2.90), 355 more of 1,200 steps (326 to 385), the 40% drop in very clumped counts 145 of 200
  * against 129. Naming any of the three keeps the rest as before (an explicit `--detector bocpd` is the old default).
- * The "How eager" ladder and `--detector auto` still use `bocpd` as Quiet (not re-measured).
+ * The "How eager" ladder and `--detector auto` use it as Quiet for counts (eagerSettings; README "The How eager hint
+ * for counts").
  */
 export const COUNT_DEFAULTS = { detector: 'bocpd-window', overdispersion: 'nb', threshold: 0.3 };
 export function withCountDefaults(opts = {}) {
@@ -455,7 +456,11 @@ export function replayText(res, { column = 'the series', model = 'mean' } = {}) 
  * (eval/watch-hint-drift.mjs, pre-registered) put it between middle and eager and the hint reached 15 of 31 future marks
  * against 17, because drift is quietest on flat series (it absorbs modest steps as wander) and the rule read that as room
  * to be more eager. The rule assumes nested settings; drift is a different model (README "Round 9"). */
-export function eagerSettings(model = 'mean') {
+export function eagerSettings(model = 'mean', opts = {}) {
+  // Counts with no clumping cost or threshold named: the count default is Quiet, then pelt (README "The How eager hint
+  // for counts", eval/watch-eagerness-counts.prereg.md). bocpd is not between them: on unclumped counts it is quieter
+  // than the count default, on clumped ones noisier, so it is not a step up in eagerness.
+  if (model === 'poisson' && opts.overdispersion == null && opts.threshold == null) return [{ key: 'quiet', ...COUNT_DEFAULTS }, { key: 'eager', detector: 'pelt' }];
   const q = defaultDetector(model);
   return [{ key: 'quiet', detector: q }, ...(q === 'bocpd' ? [] : [{ key: 'middle', detector: 'bocpd' }]), { key: 'eager', detector: 'pelt' }];
 }
@@ -469,20 +474,21 @@ export function eagerSettings(model = 'mean') {
  * Returns { n, from, model, budget, suggest, settings: [{ key, detector, alerts, checks, step, per100, medianDelay }] }.
  */
 export function eagernessReplay(values, labels = null, opts = {}) {
-  const { detector: _d, budget: b0, keepAlerts = false, ...rest } = opts;
+  const { detector: _d, budget: b0, keepAlerts = false, ladder = null, ...rest } = opts;
   const budget = b0 ?? HINT_BUDGET;
   const model = rest.model ?? 'mean';
   let n = 0, from = 0;
   const v = values.map(Number);
-  const settings = eagerSettings(model).map(({ key, detector }) => {
-    const r = replayWatch(values, labels, { ...rest, detector });
+  // ladder: [{ key, detector, ...options }] to replay instead of eagerSettings(model) (the eval scripts compare ladders).
+  const settings = (ladder ?? eagerSettings(model, rest)).map(({ key, detector, ...extra }) => {
+    const r = replayWatch(values, labels, { ...rest, ...extra, detector });
     n = r.n; from = r.from;
     const d = r.alerts.map((a) => a.pointsAfter).sort((x, y) => x - y), m = d.length >> 1;
     // Per daily check after the baseline (n - from), as a watch run after every row would count them, not the
     // replay's own coarse and bisection checks.
     const daily = r.n - r.from;
     const weekly = rest.period > 1 ? null : weekdayBunching(r.alerts.map((a) => a.label), labels, { values: v });
-    return { key, detector, alerts: r.alerts.length, checks: daily, step: r.step, per100: daily ? (100 * r.alerts.length) / daily : 0, medianDelay: d.length ? (d.length % 2 ? d[m] : (d[m - 1] + d[m]) / 2) : null, ...(weekly ? { weekly } : {}), ...(keepAlerts ? { alertLabels: r.alerts.map((a) => a.label) } : {}) };
+    return { key, detector, ...extra, alerts: r.alerts.length, checks: daily, step: r.step, per100: daily ? (100 * r.alerts.length) / daily : 0, medianDelay: d.length ? (d.length % 2 ? d[m] : (d[m - 1] + d[m]) / 2) : null, ...(weekly ? { weekly } : {}), ...(keepAlerts ? { alertLabels: r.alerts.map((a) => a.label) } : {}) };
   });
   return { n, from, model, budget, suggest: suggestFor(settings, budget, n), settings };
 }
@@ -506,7 +512,7 @@ const eagerName = (k) => (Object.hasOwn(EAGER_NAMES, k) ? EAGER_NAMES[k] : Strin
 /** Plain sentences for an eagerness replay, for the page and an agent's answer. */
 export function eagernessText(res, { column = 'the series', every = 'day' } = {}) {
   const lines = [`On the history of ${column} (a watch started at point ${res.from} of ${res.n}, then ${res.n - res.from} daily checks):`];
-  for (const s of res.settings) lines.push(`  ${eagerName(s.key)} (${s.detector}): ${s.alerts} alert${s.alerts === 1 ? '' : 's'}, ${s.per100.toFixed(1)} per 100 checks${s.medianDelay !== null ? `, median ${s.medianDelay} rows late` : ''}.`);
+  for (const s of res.settings) lines.push(`  ${eagerName(s.key)} (${settingWords(s)}): ${s.alerts} alert${s.alerts === 1 ? '' : 's'}, ${s.per100.toFixed(1)} per 100 checks${s.medianDelay !== null ? `, median ${s.medianDelay} rows late` : ''}.`);
   const fb = Number(Number(res.budget).toPrecision(3));
   const pick = res.settings.find((s) => s.key === res.suggest);
   lines.push(res.n < AUTO_MIN_POINTS
@@ -519,6 +525,7 @@ export function eagernessText(res, { column = 'the series', every = 'day' } = {}
       : `Suggested: Quiet. The more eager settings would have sent more than ${fb} alerts per 100 checks on this history.`)
     : `Suggested: ${eagerName(res.suggest)}, the most eager setting that stayed at or under ${fb} alerts per 100 checks on this history.`);
   lines.push(`Budget: ${fb} alert${fb === 1 ? '' : 's'} per 100 checks, ${plainBudgetText(res.budget, every)}.`);
+  if (res.model === 'poisson' && res.settings[0]?.overdispersion === 'nb') lines.push('For counts (README "The How eager hint for counts", pre-registered): on 2,200 simulated shops it sent 2.04 false alerts per 1,000 checks against 4.83 for the ladder it replaced and heard 1,085 of 1,200 steps against 1,047; staying on Quiet (no hint) sent 0.54 and heard 1,057, so the hint buys a few more steps for about four times the false alerts on counts that do not bunch.');
   lines.push('A suggestion from one past, not a promise: on 23 labelled series it reached 17 of 31 later marked changes against the default\'s 16, at 17.5 alerts per 1,000 checks against 15.7 (replayed with the shipped persist 2), and on 6 held-out series it changed nothing. On a second labelled set it was not confirmed: on 47 server, traffic, ad and Twitter series from the Numenta Anomaly Benchmark, watched hourly, it reached 49 of 61 later anomaly windows against the default\'s 50 (README "Round 10"). Nor on a third: on 33 fault runs of a water-pump testbed (SKAB, all 8 sensors watched), picked from a normal run, it reached 118 of 123 marked changes against the default\'s 97, but only 28.4% of its alerts sat at a marked change against the default\'s 36.8%, at 163 alerts per 1,000 checks against 69 (README "Round 12").'
     + (Math.abs(res.budget - HINT_BUDGET) > 1e-9 ? ` Those numbers are for the tested budget of ${HINT_BUDGET} per 100 (${plainBudgetText(HINT_BUDGET)}); at about 1 a month the same series reached 19 of 31 at 19.3 per 1,000, at about 1 a week 29 of 31 at 74.0 per 1,000.` : ''));
   const wk = res.settings.find((s) => s.key === res.suggest)?.weekly ?? res.settings.find((s) => s.weekly)?.weekly;
@@ -663,6 +670,22 @@ export function plainBudgetText(budget, every = 'day') {
   return `about ${r} alert${r === 1 ? '' : 's'} ${unit} at ${EVERY_WORD[every]} check`;
 }
 
+/**
+ * The detector options a stored `choice` (or a replayed setting) stands for: the detector, and for the count default
+ * its cost and threshold. A choice stored before the count ladder (only a detector) gives that detector alone, so a
+ * watch that picked `bocpd` keeps running plain `bocpd`.
+ */
+export function choiceOptions(c) {
+  if (!c || !DETECTORS.includes(c.detector)) return null;
+  return { detector: c.detector, ...(c.overdispersion != null ? { overdispersion: c.overdispersion } : {}), ...(c.threshold != null ? { threshold: c.threshold } : {}) };
+}
+
+/** Plain words for a setting: its detector, and the count default's cost and threshold when it has them. */
+export function settingWords(s) {
+  const nb = s.overdispersion === 'nb' ? ', negative-binomial cost' : s.overdispersion ? ', clumping-corrected cost' : '';
+  return `${s.detector}${nb}${s.threshold != null ? `, alert threshold ${s.threshold}` : ''}`;
+}
+
 /** Below this many points the history is too short to choose from (round 6 skipped series with fewer than 30). */
 export const AUTO_MIN_POINTS = 30;
 
@@ -676,12 +699,13 @@ export function chooseDetector(values, labels = null, opts = {}) {
   const budget = opts.budget ?? HINT_BUDGET;
   const fb = Number(Number(budget).toPrecision(3));
   if (values.length < AUTO_MIN_POINTS) {
-    return { detector: defaultDetector(model), key: 'quiet', budget, n: values.length, per100: null, reason: `under ${AUTO_MIN_POINTS} points of history, so the quiet default` };
+    const { key: _k, ...quiet } = eagerSettings(model, opts)[0];
+    return { ...quiet, key: 'quiet', budget, n: values.length, per100: null, reason: `under ${AUTO_MIN_POINTS} points of history, so the quiet default` };
   }
   const { detector: _d, ...rest } = opts;
   const r = eagernessReplay(values, labels, { ...rest, budget });
   const pick = r.settings.find((s) => s.key === r.suggest);
-  return { detector: pick.detector, key: pick.key, budget, n: values.length, per100: Math.round(pick.per100 * 100) / 100, reason: r.suggest === 'quiet' && pick.per100 > budget
+  return { ...choiceOptions(pick), key: pick.key, budget, n: values.length, per100: Math.round(pick.per100 * 100) / 100, reason: r.suggest === 'quiet' && pick.per100 > budget
     ? `even Quiet sent more than ${fb} alerts per 100 checks on the history, so Quiet`
     : `the most eager setting at or under ${fb} alerts per 100 checks on the history`, replay: r };
 }

@@ -1,0 +1,1113 @@
+[
+ {
+  "file": "construction.ifc",
+  "secs": 0.655,
+  "elementsWithOpenings": 3,
+  "openings": 9,
+  "volumeCut": 3,
+  "areaCut": 3,
+  "additiveVolume": 3,
+  "additiveArea": 3,
+  "notAdditive": 0,
+  "rules": {
+   "0.50 m2 / 0.05 m3": {
+    "areaAdded": 0,
+    "areaRemoved": 0,
+    "volumeAdded": 0,
+    "volumeRemoved": 0,
+    "byClass": {},
+    "voidsLeft": 0,
+    "openingsUnderArea": 0,
+    "openingsUnderVolume": 0,
+    "rowsNotAdjusted": 0,
+    "area": 7751.645,
+    "areaChange": 0,
+    "areaChangePct": 0,
+    "volume": 2246.695,
+    "volumeChange": 0,
+    "volumeChangePct": 0
+   },
+   "1.00 m2 / 0.10 m3": {
+    "areaAdded": 0,
+    "areaRemoved": 0,
+    "volumeAdded": 0,
+    "volumeRemoved": 0,
+    "byClass": {},
+    "voidsLeft": 0,
+    "openingsUnderArea": 0,
+    "openingsUnderVolume": 0,
+    "rowsNotAdjusted": 0,
+    "area": 7751.645,
+    "areaChange": 0,
+    "areaChangePct": 0,
+    "volume": 2246.695,
+    "volumeChange": 0,
+    "volumeChangePct": 0
+   },
+   "by work section": {
+    "areaAdded": 0,
+    "areaRemoved": 0,
+    "volumeAdded": 0,
+    "volumeRemoved": 0,
+    "byClass": {},
+    "voidsLeft": 0,
+    "openingsUnderArea": 0,
+    "openingsUnderVolume": 0,
+    "rowsNotAdjusted": 0,
+    "area": 7751.645,
+    "areaChange": 0,
+    "areaChangePct": 0,
+    "volume": 2246.695,
+    "volumeChange": 0,
+    "volumeChangePct": 0
+   }
+  },
+  "sizeCheck": {
+   "pairs": 0,
+   "agree": 0,
+   "misses": []
+  },
+  "base": {
+   "area": 7751.645,
+   "volume": 2246.695
+  }
+ },
+ {
+  "file": "architect.ifc",
+  "secs": 5.784,
+  "elementsWithOpenings": 69,
+  "openings": 218,
+  "volumeCut": 69,
+  "areaCut": 69,
+  "additiveVolume": 69,
+  "additiveArea": 69,
+  "notAdditive": 0,
+  "rules": {
+   "0.50 m2 / 0.05 m3": {
+    "areaAdded": 7.227,
+    "areaRemoved": 0,
+    "volumeAdded": 1.087,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 0.017,
+      "areaPct": 0.001,
+      "volume": 0.005,
+      "volumePct": 0.002
+     },
+     "IfcSlab": {
+      "area": 7.21,
+      "areaPct": 0.172,
+      "volume": 1.081,
+      "volumePct": 0.177
+     }
+    },
+    "voidsLeft": 105,
+    "openingsUnderArea": 106,
+    "openingsUnderVolume": 104,
+    "rowsNotAdjusted": 1,
+    "area": 8907.609,
+    "areaChange": 7.227,
+    "areaChangePct": 0.081,
+    "volume": 1116.47,
+    "volumeChange": 1.087,
+    "volumeChangePct": 0.097
+   },
+   "1.00 m2 / 0.10 m3": {
+    "areaAdded": 7.227,
+    "areaRemoved": 0,
+    "volumeAdded": 1.164,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 0.017,
+      "areaPct": 0.001,
+      "volume": 0.082,
+      "volumePct": 0.026
+     },
+     "IfcSlab": {
+      "area": 7.21,
+      "areaPct": 0.172,
+      "volume": 1.081,
+      "volumePct": 0.177
+     }
+    },
+    "voidsLeft": 106,
+    "openingsUnderArea": 107,
+    "openingsUnderVolume": 113,
+    "rowsNotAdjusted": 5,
+    "area": 8907.609,
+    "areaChange": 7.227,
+    "areaChangePct": 0.081,
+    "volume": 1116.547,
+    "volumeChange": 1.164,
+    "volumeChangePct": 0.104
+   },
+   "by work section": {
+    "areaAdded": 0.017,
+    "areaRemoved": 0,
+    "volumeAdded": 1.087,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 0.017,
+      "areaPct": 0.001,
+      "volume": 0.005,
+      "volumePct": 0.002
+     },
+     "IfcSlab": {
+      "area": 0,
+      "areaPct": 0,
+      "volume": 1.081,
+      "volumePct": 0.177
+     }
+    },
+    "voidsLeft": 105,
+    "openingsUnderArea": 4,
+    "openingsUnderVolume": 104,
+    "rowsNotAdjusted": 1,
+    "area": 8900.399,
+    "areaChange": 0.017,
+    "areaChangePct": 0,
+    "volume": 1116.47,
+    "volumeChange": 1.087,
+    "volumeChangePct": 0.097
+   }
+  },
+  "sizeCheck": {
+   "pairs": 99,
+   "agree": 99,
+   "misses": []
+  },
+  "base": {
+   "area": 8900.382,
+   "volume": 1115.383
+  }
+ },
+ {
+  "file": "AC20-FZK-Haus.ifc",
+  "secs": 0.136,
+  "elementsWithOpenings": 9,
+  "openings": 17,
+  "volumeCut": 9,
+  "areaCut": 9,
+  "additiveVolume": 9,
+  "additiveArea": 9,
+  "notAdditive": 0,
+  "rules": {
+   "0.50 m2 / 0.05 m3": {
+    "areaAdded": 0,
+    "areaRemoved": 0,
+    "volumeAdded": 0,
+    "volumeRemoved": 0,
+    "byClass": {},
+    "voidsLeft": 0,
+    "openingsUnderArea": 0,
+    "openingsUnderVolume": 0,
+    "rowsNotAdjusted": 0,
+    "area": 575.423,
+    "areaChange": 0,
+    "areaChangePct": 0,
+    "volume": 135.582,
+    "volumeChange": 0,
+    "volumeChangePct": 0
+   },
+   "1.00 m2 / 0.10 m3": {
+    "areaAdded": 1.57,
+    "areaRemoved": 0,
+    "volumeAdded": 0,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 1.57,
+      "areaPct": 0.824,
+      "volume": 0,
+      "volumePct": 0
+     }
+    },
+    "voidsLeft": 2,
+    "openingsUnderArea": 2,
+    "openingsUnderVolume": 0,
+    "rowsNotAdjusted": 0,
+    "area": 576.994,
+    "areaChange": 1.57,
+    "areaChangePct": 0.273,
+    "volume": 135.582,
+    "volumeChange": 0,
+    "volumeChangePct": 0
+   },
+   "by work section": {
+    "areaAdded": 0,
+    "areaRemoved": 0,
+    "volumeAdded": 0,
+    "volumeRemoved": 0,
+    "byClass": {},
+    "voidsLeft": 0,
+    "openingsUnderArea": 0,
+    "openingsUnderVolume": 0,
+    "rowsNotAdjusted": 0,
+    "area": 575.423,
+    "areaChange": 0,
+    "areaChangePct": 0,
+    "volume": 135.582,
+    "volumeChange": 0,
+    "volumeChangePct": 0
+   }
+  },
+  "sizeCheck": {
+   "pairs": 16,
+   "agree": 14,
+   "misses": [
+    {
+     "wall": "#60012 Wand-Ext-OG-1",
+     "opening": "#60579",
+     "cut": 0.785,
+     "widthTimesHeight": 1
+    },
+    {
+     "wall": "#67828 Wand-Ext-OG-3",
+     "opening": "#68400",
+     "cut": 0.785,
+     "widthTimesHeight": 1
+    }
+   ]
+  },
+  "base": {
+   "area": 575.423,
+   "volume": 135.582
+  }
+ },
+ {
+  "file": "C20-Institute-Var-2.ifc",
+  "secs": 0.498,
+  "elementsWithOpenings": 49,
+  "openings": 287,
+  "volumeCut": 49,
+  "areaCut": 49,
+  "additiveVolume": 49,
+  "additiveArea": 49,
+  "notAdditive": 0,
+  "rules": {
+   "0.50 m2 / 0.05 m3": {
+    "areaAdded": 0,
+    "areaRemoved": 0,
+    "volumeAdded": 0,
+    "volumeRemoved": 0,
+    "byClass": {},
+    "voidsLeft": 0,
+    "openingsUnderArea": 0,
+    "openingsUnderVolume": 0,
+    "rowsNotAdjusted": 0,
+    "area": 5633.989,
+    "areaChange": 0,
+    "areaChangePct": 0,
+    "volume": 1694.562,
+    "volumeChange": 0,
+    "volumeChangePct": 0
+   },
+   "1.00 m2 / 0.10 m3": {
+    "areaAdded": 0,
+    "areaRemoved": 0,
+    "volumeAdded": 0,
+    "volumeRemoved": 0,
+    "byClass": {},
+    "voidsLeft": 0,
+    "openingsUnderArea": 0,
+    "openingsUnderVolume": 0,
+    "rowsNotAdjusted": 0,
+    "area": 5633.989,
+    "areaChange": 0,
+    "areaChangePct": 0,
+    "volume": 1694.562,
+    "volumeChange": 0,
+    "volumeChangePct": 0
+   },
+   "by work section": {
+    "areaAdded": 0,
+    "areaRemoved": 0,
+    "volumeAdded": 0,
+    "volumeRemoved": 0,
+    "byClass": {},
+    "voidsLeft": 0,
+    "openingsUnderArea": 0,
+    "openingsUnderVolume": 0,
+    "rowsNotAdjusted": 0,
+    "area": 5633.989,
+    "areaChange": 0,
+    "areaChangePct": 0,
+    "volume": 1694.562,
+    "volumeChange": 0,
+    "volumeChangePct": 0
+   }
+  },
+  "sizeCheck": {
+   "pairs": 283,
+   "agree": 283,
+   "misses": []
+  },
+  "base": {
+   "area": 5633.989,
+   "volume": 1694.562
+  }
+ },
+ {
+  "file": "ISSUE_159_kleine_Wohnung_R22.ifc",
+  "secs": 3.519,
+  "elementsWithOpenings": 73,
+  "openings": 168,
+  "volumeCut": 73,
+  "areaCut": 73,
+  "additiveVolume": 73,
+  "additiveArea": 73,
+  "notAdditive": 0,
+  "rules": {
+   "0.50 m2 / 0.05 m3": {
+    "areaAdded": 2.933,
+    "areaRemoved": 0,
+    "volumeAdded": 0.24,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWall": {
+      "area": 0,
+      "areaPct": 0,
+      "volume": 0,
+      "volumePct": 0
+     },
+     "IfcSlab": {
+      "area": 2.932,
+      "areaPct": 0.169,
+      "volume": 0.24,
+      "volumePct": 0.08
+     }
+    },
+    "voidsLeft": 14,
+    "openingsUnderArea": 14,
+    "openingsUnderVolume": 7,
+    "rowsNotAdjusted": 0,
+    "area": 4027.658,
+    "areaChange": 2.932,
+    "areaChangePct": 0.073,
+    "volume": 737.032,
+    "volumeChange": 0.24,
+    "volumeChangePct": 0.033
+   },
+   "1.00 m2 / 0.10 m3": {
+    "areaAdded": 2.933,
+    "areaRemoved": 0,
+    "volumeAdded": 0.659,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWall": {
+      "area": 0,
+      "areaPct": 0,
+      "volume": 0.072,
+      "volumePct": 0.018
+     },
+     "IfcSlab": {
+      "area": 2.932,
+      "areaPct": 0.169,
+      "volume": 0.587,
+      "volumePct": 0.195
+     }
+    },
+    "voidsLeft": 15,
+    "openingsUnderArea": 17,
+    "openingsUnderVolume": 14,
+    "rowsNotAdjusted": 2,
+    "area": 4027.658,
+    "areaChange": 2.932,
+    "areaChangePct": 0.073,
+    "volume": 737.45,
+    "volumeChange": 0.659,
+    "volumeChangePct": 0.089
+   },
+   "by work section": {
+    "areaAdded": 0,
+    "areaRemoved": 0,
+    "volumeAdded": 0.24,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWall": {
+      "area": 0,
+      "areaPct": 0,
+      "volume": 0,
+      "volumePct": 0
+     },
+     "IfcSlab": {
+      "area": 0,
+      "areaPct": 0,
+      "volume": 0.24,
+      "volumePct": 0.08
+     }
+    },
+    "voidsLeft": 8,
+    "openingsUnderArea": 2,
+    "openingsUnderVolume": 7,
+    "rowsNotAdjusted": 0,
+    "area": 4024.725,
+    "areaChange": 0,
+    "areaChangePct": 0,
+    "volume": 737.032,
+    "volumeChange": 0.24,
+    "volumeChangePct": 0.033
+   }
+  },
+  "sizeCheck": {
+   "pairs": 49,
+   "agree": 45,
+   "misses": [
+    {
+     "wall": "#79969 Basiswand:Ziegel 0.24 m:339632",
+     "opening": "#283082",
+     "cut": 0,
+     "widthTimesHeight": 2.15
+    },
+    {
+     "wall": "#79969 Basiswand:Ziegel 0.24 m:339632",
+     "opening": "#285866",
+     "cut": 0,
+     "widthTimesHeight": 2.15
+    },
+    {
+     "wall": "#134472 Basiswand:173_A_NT_WDVS_0160_TYP01_1S_EPS_0160:353832",
+     "opening": "#134839",
+     "cut": 1.55,
+     "widthTimesHeight": 2.15
+    },
+    {
+     "wall": "#139140 Basiswand:MW_10cm:355815",
+     "opening": "#139165",
+     "cut": 0.6,
+     "widthTimesHeight": 2.15
+    }
+   ]
+  },
+  "base": {
+   "area": 4024.725,
+   "volume": 736.792
+  }
+ },
+ {
+  "file": "schependomlaan.ifc",
+  "secs": 2.552,
+  "elementsWithOpenings": 71,
+  "openings": 79,
+  "volumeCut": 71,
+  "areaCut": 57,
+  "additiveVolume": 71,
+  "additiveArea": 57,
+  "notAdditive": 0,
+  "rules": {
+   "0.50 m2 / 0.05 m3": {
+    "areaAdded": 0.644,
+    "areaRemoved": 0,
+    "volumeAdded": 0.12,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcSlab": {
+      "area": 0,
+      "areaPct": 0,
+      "volume": 0.08,
+      "volumePct": 0.015
+     },
+     "IfcCovering": {
+      "area": 0.644,
+      "areaPct": 0.092,
+      "volume": 0.04,
+      "volumePct": 0.041
+     }
+    },
+    "voidsLeft": 5,
+    "openingsUnderArea": 2,
+    "openingsUnderVolume": 5,
+    "rowsNotAdjusted": 0,
+    "area": 5765.504,
+    "areaChange": 0.644,
+    "areaChangePct": 0.011,
+    "volume": 1012.08,
+    "volumeChange": 0.12,
+    "volumeChangePct": 0.012
+   },
+   "1.00 m2 / 0.10 m3": {
+    "areaAdded": 2.929,
+    "areaRemoved": 0,
+    "volumeAdded": 0.12,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcSlab": {
+      "area": 1.34,
+      "areaPct": 0.05,
+      "volume": 0.08,
+      "volumePct": 0.015
+     },
+     "IfcCovering": {
+      "area": 1.589,
+      "areaPct": 0.226,
+      "volume": 0.04,
+      "volumePct": 0.041
+     }
+    },
+    "voidsLeft": 9,
+    "openingsUnderArea": 5,
+    "openingsUnderVolume": 9,
+    "rowsNotAdjusted": 0,
+    "area": 5767.788,
+    "areaChange": 2.929,
+    "areaChangePct": 0.051,
+    "volume": 1012.08,
+    "volumeChange": 0.12,
+    "volumeChangePct": 0.012
+   },
+   "by work section": {
+    "areaAdded": 0.644,
+    "areaRemoved": 0,
+    "volumeAdded": 0.08,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcSlab": {
+      "area": 0,
+      "areaPct": 0,
+      "volume": 0.08,
+      "volumePct": 0.015
+     },
+     "IfcCovering": {
+      "area": 0.644,
+      "areaPct": 0.092,
+      "volume": 0,
+      "volumePct": 0
+     }
+    },
+    "voidsLeft": 4,
+    "openingsUnderArea": 2,
+    "openingsUnderVolume": 2,
+    "rowsNotAdjusted": 0,
+    "area": 5765.504,
+    "areaChange": 0.644,
+    "areaChangePct": 0.011,
+    "volume": 1012.04,
+    "volumeChange": 0.08,
+    "volumeChangePct": 0.008
+   }
+  },
+  "sizeCheck": {
+   "pairs": 60,
+   "agree": 60,
+   "misses": []
+  },
+  "base": {
+   "area": 5764.859,
+   "volume": 1011.959
+  }
+ },
+ {
+  "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+  "secs": 10.392,
+  "elementsWithOpenings": 363,
+  "openings": 789,
+  "volumeCut": 363,
+  "areaCut": 363,
+  "additiveVolume": 353,
+  "additiveArea": 353,
+  "notAdditive": 10,
+  "rules": {
+   "0.50 m2 / 0.05 m3": {
+    "areaAdded": 0,
+    "areaRemoved": 2.207,
+    "volumeAdded": 0.022,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcSlab": {
+      "area": -2.207,
+      "areaPct": -0.019,
+      "volume": 0.022,
+      "volumePct": 0
+     },
+     "IfcWall": {
+      "area": 0,
+      "areaPct": 0,
+      "volume": 0,
+      "volumePct": 0
+     }
+    },
+    "voidsLeft": 32,
+    "openingsUnderArea": 52,
+    "openingsUnderVolume": 47,
+    "rowsNotAdjusted": 29,
+    "area": 32119.504,
+    "areaChange": -2.207,
+    "areaChangePct": -0.007,
+    "volume": 138252.333,
+    "volumeChange": 0.022,
+    "volumeChangePct": 0
+   },
+   "1.00 m2 / 0.10 m3": {
+    "areaAdded": 0,
+    "areaRemoved": 1.229,
+    "volumeAdded": 0.022,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcSlab": {
+      "area": -1.229,
+      "areaPct": -0.011,
+      "volume": 0.022,
+      "volumePct": 0
+     },
+     "IfcWall": {
+      "area": 0,
+      "areaPct": 0,
+      "volume": 0,
+      "volumePct": 0
+     }
+    },
+    "voidsLeft": 33,
+    "openingsUnderArea": 92,
+    "openingsUnderVolume": 52,
+    "rowsNotAdjusted": 38,
+    "area": 32120.482,
+    "areaChange": -1.229,
+    "areaChangePct": -0.004,
+    "volume": 138252.333,
+    "volumeChange": 0.022,
+    "volumeChangePct": 0
+   },
+   "by work section": {
+    "areaAdded": 0,
+    "areaRemoved": 0,
+    "volumeAdded": 0.022,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcSlab": {
+      "area": 0,
+      "areaPct": 0,
+      "volume": 0.022,
+      "volumePct": 0
+     },
+     "IfcWall": {
+      "area": 0,
+      "areaPct": 0,
+      "volume": 0,
+      "volumePct": 0
+     }
+    },
+    "voidsLeft": 30,
+    "openingsUnderArea": 49,
+    "openingsUnderVolume": 47,
+    "rowsNotAdjusted": 29,
+    "area": 32121.711,
+    "areaChange": 0,
+    "areaChangePct": 0,
+    "volume": 138252.333,
+    "volumeChange": 0.022,
+    "volumeChangePct": 0
+   }
+  },
+  "sizeCheck": {
+   "pairs": 629,
+   "agree": 598,
+   "misses": [
+    {
+     "wall": "#43810 Basic Wall:YV 1.1 517mm:1663810",
+     "opening": "#43836",
+     "cut": 0.024,
+     "widthTimesHeight": 3.684
+    },
+    {
+     "wall": "#43810 Basic Wall:YV 1.1 517mm:1663810",
+     "opening": "#43869",
+     "cut": 0.024,
+     "widthTimesHeight": 3.684
+    },
+    {
+     "wall": "#52944 Basic Wall:YV 1.1 517mm:1696951",
+     "opening": "#53044",
+     "cut": 0.058,
+     "widthTimesHeight": 0.641
+    },
+    {
+     "wall": "#360795 Basic Wall:IVA 2.1 134mm 44dB (H-95-NH):1919519",
+     "opening": "#1654878",
+     "cut": 2.588,
+     "widthTimesHeight": 2.91
+    },
+    {
+     "wall": "#544450 Basic Wall:YV 6.1 299mm rød platekledning basseng:2215720",
+     "opening": "#544470",
+     "cut": 0.012,
+     "widthTimesHeight": 2.952
+    },
+    {
+     "wall": "#544676 Basic Wall:YV 6.1 299mm rød platekledning basseng:2215925",
+     "opening": "#544696",
+     "cut": 0.012,
+     "widthTimesHeight": 2.952
+    }
+   ]
+  },
+  "base": {
+   "area": 32121.711,
+   "volume": 138252.311
+  }
+ },
+ {
+  "file": "duplex.ifc",
+  "secs": 0.234,
+  "elementsWithOpenings": 29,
+  "openings": 48,
+  "volumeCut": 29,
+  "areaCut": 19,
+  "additiveVolume": 29,
+  "additiveArea": 19,
+  "notAdditive": 0,
+  "rules": {
+   "0.50 m2 / 0.05 m3": {
+    "areaAdded": 0,
+    "areaRemoved": 0,
+    "volumeAdded": 0,
+    "volumeRemoved": 0,
+    "byClass": {},
+    "voidsLeft": 1,
+    "openingsUnderArea": 0,
+    "openingsUnderVolume": 1,
+    "rowsNotAdjusted": 0,
+    "area": 1517.097,
+    "areaChange": 0,
+    "areaChangePct": 0,
+    "volume": 347.837,
+    "volumeChange": 0,
+    "volumeChangePct": 0
+   },
+   "1.00 m2 / 0.10 m3": {
+    "areaAdded": 7.459,
+    "areaRemoved": 0,
+    "volumeAdded": 0,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 7.459,
+      "areaPct": 1.355,
+      "volume": 0,
+      "volumePct": 0
+     }
+    },
+    "voidsLeft": 13,
+    "openingsUnderArea": 12,
+    "openingsUnderVolume": 1,
+    "rowsNotAdjusted": 0,
+    "area": 1524.556,
+    "areaChange": 7.459,
+    "areaChangePct": 0.492,
+    "volume": 347.837,
+    "volumeChange": 0,
+    "volumeChangePct": 0
+   },
+   "by work section": {
+    "areaAdded": 0,
+    "areaRemoved": 0,
+    "volumeAdded": 0,
+    "volumeRemoved": 0,
+    "byClass": {},
+    "voidsLeft": 0,
+    "openingsUnderArea": 0,
+    "openingsUnderVolume": 0,
+    "rowsNotAdjusted": 0,
+    "area": 1517.097,
+    "areaChange": 0,
+    "areaChangePct": 0,
+    "volume": 347.837,
+    "volumeChange": 0,
+    "volumeChangePct": 0
+   }
+  },
+  "sizeCheck": {
+   "pairs": 0,
+   "agree": 0,
+   "misses": []
+  },
+  "base": {
+   "area": 1517.097,
+   "volume": 347.837
+  }
+ },
+ {
+  "file": "Office_A_20110811.ifc",
+  "secs": 0.395,
+  "elementsWithOpenings": 62,
+  "openings": 181,
+  "volumeCut": 62,
+  "areaCut": 61,
+  "additiveVolume": 62,
+  "additiveArea": 61,
+  "notAdditive": 0,
+  "rules": {
+   "0.50 m2 / 0.05 m3": {
+    "areaAdded": 2.473,
+    "areaRemoved": 0,
+    "volumeAdded": 0.364,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 2.473,
+      "areaPct": 0.04,
+      "volume": 0.364,
+      "volumePct": 0.037
+     }
+    },
+    "voidsLeft": 16,
+    "openingsUnderArea": 6,
+    "openingsUnderVolume": 15,
+    "rowsNotAdjusted": 0,
+    "area": 9262.622,
+    "areaChange": 2.473,
+    "areaChangePct": 0.027,
+    "volume": 1152.692,
+    "volumeChange": 0.364,
+    "volumeChangePct": 0.032
+   },
+   "1.00 m2 / 0.10 m3": {
+    "areaAdded": 12.908,
+    "areaRemoved": 0,
+    "volumeAdded": 0.483,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 12.908,
+      "areaPct": 0.21,
+      "volume": 0.483,
+      "volumePct": 0.049
+     }
+    },
+    "voidsLeft": 19,
+    "openingsUnderArea": 18,
+    "openingsUnderVolume": 17,
+    "rowsNotAdjusted": 0,
+    "area": 9273.057,
+    "areaChange": 12.908,
+    "areaChangePct": 0.139,
+    "volume": 1152.811,
+    "volumeChange": 0.483,
+    "volumeChangePct": 0.042
+   },
+   "by work section": {
+    "areaAdded": 2.473,
+    "areaRemoved": 0,
+    "volumeAdded": 0.364,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 2.473,
+      "areaPct": 0.04,
+      "volume": 0.364,
+      "volumePct": 0.037
+     }
+    },
+    "voidsLeft": 15,
+    "openingsUnderArea": 6,
+    "openingsUnderVolume": 14,
+    "rowsNotAdjusted": 0,
+    "area": 9262.622,
+    "areaChange": 2.473,
+    "areaChangePct": 0.027,
+    "volume": 1152.692,
+    "volumeChange": 0.364,
+    "volumeChangePct": 0.032
+   }
+  },
+  "sizeCheck": {
+   "pairs": 0,
+   "agree": 0,
+   "misses": []
+  },
+  "base": {
+   "area": 9260.149,
+   "volume": 1152.328
+  }
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "secs": 1.436,
+  "elementsWithOpenings": 245,
+  "openings": 403,
+  "volumeCut": 245,
+  "areaCut": 209,
+  "additiveVolume": 245,
+  "additiveArea": 209,
+  "notAdditive": 0,
+  "rules": {
+   "0.50 m2 / 0.05 m3": {
+    "areaAdded": 10.647,
+    "areaRemoved": 0,
+    "volumeAdded": 1.306,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 10.647,
+      "areaPct": 0.091,
+      "volume": 1.306,
+      "volumePct": 0.079
+     }
+    },
+    "voidsLeft": 43,
+    "openingsUnderArea": 29,
+    "openingsUnderVolume": 42,
+    "rowsNotAdjusted": 0,
+    "area": 15426.169,
+    "areaChange": 10.647,
+    "areaChangePct": 0.069,
+    "volume": 1886.764,
+    "volumeChange": 1.306,
+    "volumeChangePct": 0.069
+   },
+   "1.00 m2 / 0.10 m3": {
+    "areaAdded": 14.601,
+    "areaRemoved": 0,
+    "volumeAdded": 1.497,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 14.601,
+      "areaPct": 0.125,
+      "volume": 1.497,
+      "volumePct": 0.09
+     }
+    },
+    "voidsLeft": 48,
+    "openingsUnderArea": 34,
+    "openingsUnderVolume": 45,
+    "rowsNotAdjusted": 0,
+    "area": 15430.123,
+    "areaChange": 14.601,
+    "areaChangePct": 0.095,
+    "volume": 1886.955,
+    "volumeChange": 1.497,
+    "volumeChangePct": 0.079
+   },
+   "by work section": {
+    "areaAdded": 10.647,
+    "areaRemoved": 0,
+    "volumeAdded": 1.306,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 10.647,
+      "areaPct": 0.091,
+      "volume": 1.306,
+      "volumePct": 0.079
+     }
+    },
+    "voidsLeft": 39,
+    "openingsUnderArea": 29,
+    "openingsUnderVolume": 38,
+    "rowsNotAdjusted": 0,
+    "area": 15426.169,
+    "areaChange": 10.647,
+    "areaChangePct": 0.069,
+    "volume": 1886.764,
+    "volumeChange": 1.306,
+    "volumeChangePct": 0.069
+   }
+  },
+  "sizeCheck": {
+   "pairs": 0,
+   "agree": 0,
+   "misses": []
+  },
+  "base": {
+   "area": 15415.522,
+   "volume": 1885.459
+  }
+ },
+ {
+  "file": "Schultz_Residence.ifc",
+  "secs": 2.042,
+  "elementsWithOpenings": 32,
+  "openings": 53,
+  "volumeCut": 30,
+  "areaCut": 29,
+  "additiveVolume": 30,
+  "additiveArea": 29,
+  "notAdditive": 0,
+  "rules": {
+   "0.50 m2 / 0.05 m3": {
+    "areaAdded": 1.657,
+    "areaRemoved": 0,
+    "volumeAdded": 0.037,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 1.657,
+      "areaPct": 0.351,
+      "volume": 0.037,
+      "volumePct": 0.047
+     }
+    },
+    "voidsLeft": 9,
+    "openingsUnderArea": 7,
+    "openingsUnderVolume": 6,
+    "rowsNotAdjusted": 0,
+    "area": 789.046,
+    "areaChange": 1.657,
+    "areaChangePct": 0.21,
+    "volume": 146.366,
+    "volumeChange": 0.037,
+    "volumeChangePct": 0.025
+   },
+   "1.00 m2 / 0.10 m3": {
+    "areaAdded": 11.101,
+    "areaRemoved": 0,
+    "volumeAdded": 0.559,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 11.101,
+      "areaPct": 2.35,
+      "volume": 0.559,
+      "volumePct": 0.709
+     }
+    },
+    "voidsLeft": 22,
+    "openingsUnderArea": 20,
+    "openingsUnderVolume": 13,
+    "rowsNotAdjusted": 0,
+    "area": 798.49,
+    "areaChange": 11.101,
+    "areaChangePct": 1.41,
+    "volume": 146.888,
+    "volumeChange": 0.559,
+    "volumeChangePct": 0.382
+   },
+   "by work section": {
+    "areaAdded": 1.657,
+    "areaRemoved": 0,
+    "volumeAdded": 0.037,
+    "volumeRemoved": 0,
+    "byClass": {
+     "IfcWallStandardCase": {
+      "area": 1.657,
+      "areaPct": 0.351,
+      "volume": 0.037,
+      "volumePct": 0.047
+     }
+    },
+    "voidsLeft": 8,
+    "openingsUnderArea": 7,
+    "openingsUnderVolume": 5,
+    "rowsNotAdjusted": 0,
+    "area": 789.046,
+    "areaChange": 1.657,
+    "areaChangePct": 0.21,
+    "volume": 146.366,
+    "volumeChange": 0.037,
+    "volumeChangePct": 0.025
+   }
+  },
+  "sizeCheck": {
+   "pairs": 0,
+   "agree": 0,
+   "misses": []
+  },
+  "base": {
+   "area": 787.389,
+   "volume": 146.329
+  }
+ }
+]

@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVMXskThbbSHWzTStAM",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support products); merge when done",
+  "input_sha256": "c80ba5e82dd7c0d78cd065fda4c44b439a58dd31b05efd640ad8e8859ab0292e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T16:08:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality census mode, seed 2026-11-20-bd94: six first audits, small fixes, post",
+  "projects": [
+    "ventures/pairwise-ranking",
+    "ventures/us-freelancer-tax-set-aside-calculator",
+    "research/eda-delayproxy",
+    "ventures/youtube-revenue-rpm-analyzer",
+    "research/robofab-motorcurve",
+    "ventures/timber-sale-offer-checker"
+  ],
+  "pr": 17935,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "freelancer-tax auditor ran git stash/pop on the shared working tree to test its fix against old code; other auditors' edits survived (checked with git diff --stat)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "parallel auditors share one working tree; the README warns against hand mutation but not against git stash to test a fix against the old code. Suggest: test fixes against `git show HEAD:<file>` in a scratch copy."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-quality-census-seed-bd94.md"
+  ],
+  "goal": null,
+  "notes": "Mode census (quality_audit.py mode). Seed 2026-11-20-bd94. Subjects: pairwise-ranking (bar yes, all 3s), youtube-revenue-rpm-analyzer, eda-delayproxy, us-freelancer-tax-set-aside-calculator, timber-sale-offer-checker, robofab-motorcurve (all no). Share meeting bar: 1 of 6 (census, not counted in sampled share 36/367). Tests caught 12 of 33 seeded bugs; 34 of 76 checks failed/partial; 46 defects, 4 high. Spot-checks rerun by the orchestrator: timber ratio 0.66 on a like-for-like Doyle offer; freelancer 90% safe harbor 24,310.18 vs federal 20,128.10; youtube RPM 4.4921; pairwise home LR 12.938207; eda partial Spearman fanout 0.405 / depth -0.096; robofab trapezoid peak torque 1.1427x limit. Fix PR: #17935 (timber price-rule basis + CLI $ parsing; freelancer 90% federal-only + HoH edge; pairwise Ford half-tie; eda 5 tests + headline; youtube page claim; robofab guard test + README warning). Verification: node --test in timber (27/27), freelancer (31/31), pairwise (38/38), youtube (33/33); unittest eda (10 OK), robofab (59 OK); each new test checked to fail on the old code where noted; quality_audit.py validate 582 files 0 problems.",
+  "corrections": [],
+  "redteam": null
+}

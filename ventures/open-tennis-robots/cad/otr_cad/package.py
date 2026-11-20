@@ -8,6 +8,7 @@ writes
     print/*.stl          printed parts (qty and settings in print_parts.csv)
     step/*.step          every made part as a solid, plus assembly.step
     drawings/*.svg       top, side and front views of the assembly
+    guide/ASSEMBLY.md    the step-by-step assembly guide, one drawing a step (guide/step_NN.svg)
     cut_list.csv         stock to cut to length
     bom.csv              everything: made parts, stock, bought-in parts, fasteners
     manifest.json        parameters, derived numbers, design-rule and collision results, file hashes
@@ -39,20 +40,23 @@ DENSITY = {"aluminium 5052": 2.68, "PETG": 1.27 * 0.55, "spring-steel (music) wi
 
 
 def fasteners(p: Collector) -> list[tuple[str, int, str]]:
+    """Every loose fastener. Each line's length is checked against the stack it clamps in the CAD
+    (`guide.joint_checks`), and the assembly guide hands out every one of them (`guide.STEPS`)."""
     clamp_bolts = len(C._clamp_bolts(p))
     cover_bolts = len(C._cover_bolts(p))
     return [
         ("M4 x 50 socket cap screw", 8, "motor clamp caps"),
-        ("M4 x 12 socket cap screw", 4 + 4 + 4 + 4, "clamp cradles, pivot blocks, caster adapter, mast socket (from below)"),
-        ("M4 heat-set insert, 5.7 mm long", 8 + 4 + 4 + 4 + 4, "all printed parts"),
-        ("M4 x 12 button head + nyloc nut", 2 * clamp_bolts, "rod clamp rings"),
+        ("M4 x 12 socket cap screw", 4 + 4, "clamp cradles and pivot blocks, from below"),
+        ("M4 x 20 socket cap screw", 4, "caster adapter, base plate and mast socket, from below"),
+        ("M4 heat-set insert, 5.7 mm long", 8 + 4 + 4 + 4, f"cradles, pivot blocks, mast socket ({p.insert_hole_d:g} mm pockets)"),
+        ("M4 x 16 button head + nyloc nut", 2 * clamp_bolts, "rod clamp rings"),
         ("M5 x 12 button head", cover_bolts, "fixed drum cover"),
         ("M5 thumb screw, 12 mm", cover_bolts, "hatch drum cover"),
-        ("M5 rivet nut (blind insert), aluminium", 2 * cover_bolts, "drum discs, for the covers"),
-        ("M8 x 25 shoulder bolt + nyloc nut", 4, "yoke pivots and drum axles"),
-        ("M8 washer, 3 mm stack", 4, "spacer between drum cover and arm"),
-        ("608 (or F608) bearing, 8 x 22 x 7", 2, "drum hubs"),
-        ("M3 x 8 screw", 8, "tray standoffs"),
+        ("M5 rivet nut (blind insert), aluminium", 2 * cover_bolts, f"drum discs, for the covers ({p.rivet_nut_hole_d:g} mm holes)"),
+        (f"8 mm x {p.pivot_shoulder:g} mm shoulder bolt (ISO 7379, M6 thread) + M6 nyloc nut", 2, "yoke pivots"),
+        ("M8 x 30 hex bolt + M8 nyloc nut", 2, "drum axles, clamping the 608's inner race"),
+        ("M3 x 10 screw", 4, "tray standoffs, from under the base plate"),
+        ("M3 x 8 screw", 4, "tray onto its standoffs"),
         ("M2.5 x 6 screw + 6 mm standoff", 4, "Raspberry Pi"),
         ("Ball caster mounting screws", 1, "to suit the caster bought"),
     ]
@@ -86,6 +90,7 @@ ORDER
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py
                before cutting: the motor, wheel, bearing and caster sizes
                are the ones this package was drawn around.
+5. guide/ASSEMBLY.md  Put it together, step by step, one drawing a step.
 
 CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 {checks}
@@ -386,6 +391,17 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
             w.writeheader()
             w.writerows(rows)
 
+    from . import guide as G
+    joint_rows, guide_bad = G.joint_checks(p, parts)
+    guide_bad += G.tally(p, parts, bom_rows) + G.order_problems(p, parts)
+    if feeder:
+        from . import feeder_guide as FG
+        guide_bad += G.access_problems(p, parts) + FG.end_bore_problems(p, parts)
+    else:
+        guide_bad += G.hatch_check(p, parts)
+    rules = rules + guide_bad
+    G.write(out, p, parts, bom_rows, joint_rows, guide_bad, drawings)
+
     write_csv("laser_parts.csv", laser_rows)
     write_csv("print_parts.csv", print_rows)
     write_csv("cut_list.csv", cut_rows)
@@ -398,6 +414,8 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
 
     if feeder:
         checks, derived = F.summary(p, mass_g, rules, clash, contacts, ground_ok, hopper_g, turning, gravity)
+        checks.append(f"assembly guide (guide/ASSEMBLY.md): {len(joint_rows)} fastener stacks, part and BOM tally, "
+                      f"step order, head access, extrusion end bores: {'pass' if not guide_bad else 'FAIL'}")
     else:
         length, width = p.overall
         checks = [
@@ -408,6 +426,8 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
             f"drum capacity (loose packing): ~{p.drum_capacity()} balls",
             f"overall: {length:.0f} mm long x {width:.0f} mm wide, track {p.track:.0f} mm",
             f"made-part mass (estimate, excludes bought-in parts): {mass_g / 1000:.1f} kg",
+            f"assembly guide (guide/ASSEMBLY.md): {len(joint_rows)} fastener stacks, part and BOM tally, step "
+            f"order, hatch removal: {'pass' if not guide_bad else 'FAIL'}",
         ]
         derived = {"n_rods": p.n_rods, "rod_gap_mm": round(p.rod_gap, 2), "rod_len_mm": p.rod_len,
                    "track_mm": p.track, "overall_mm": [round(length), round(width)],
@@ -459,8 +479,10 @@ ORDER
 3. cut_list.csv  Cut the 2040 / 2020 extrusion and the poles to length;
                tap M5 into the extrusion ends where noted.
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py.
+5. guide/ASSEMBLY.md  Put it together, step by step, one drawing a step.
 
-NOT IN THIS PACKAGE YET: the netting, the deck-side cabling (the trough, the ball lift and the hopper agitator are in it since 2026-11-13). See hardware/feeder-catcher.md. The elevation actuator is
+NOT IN THIS PACKAGE YET: the netting's cut and lacing, the take-up spring's
+bracket. See hardware/feeder-catcher.md. The elevation actuator is
 bought to the window in the elevation check below (any make whose retracted and
 extended lengths span it).
 

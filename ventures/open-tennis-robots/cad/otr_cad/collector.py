@@ -61,6 +61,20 @@ def _holes(points, d):
         Circle(d / 2, mode=Mode.SUBTRACT)
 
 
+def _insert_pocket(p: Collector, x: float, y: float, z: float, up: bool = True, pilot: float = 12.0):
+    """A heat-set insert pocket opening at height z (into the part going up, or down when up=False), with an
+    M4 clearance pilot past it for the screw's tip."""
+    s = 1 if up else -1
+    pocket = Cylinder(p.insert_hole_d / 2, p.insert_depth).moved(Location((x, y, z + s * p.insert_depth / 2)))
+    tip = Cylinder(2.2, pilot).moved(Location((x, y, z + s * pilot / 2)))
+    return pocket + tip
+
+
+def pivot_y(p: Collector) -> float:
+    """Pivot block centre |y|: the block runs from the arm's inner face inward by pivot_depth."""
+    return p.arm_inner_y - p.pivot_depth / 2
+
+
 # ---------------------------------------------------------------- laser parts
 
 def base_plate(p: Collector) -> Part:
@@ -74,14 +88,12 @@ def base_plate(p: Collector) -> Part:
         y_mid = p.motor_face_y - p.clamp_len / 2
         _holes([(sx * 22, sy * y_mid) for sx in (-1, 1) for sy in (-1, 1)], 4.4)
         # Pivot blocks (M4 x2 each).
-        yb = p.arm_inner_y - 15
+        yb = pivot_y(p)
         _holes([(p.pivot_x + dx, sy * yb) for dx in (-12, 12) for sy in (-1, 1)], 4.4)
-        # Caster adapter (M4 on a 40 mm square).
-        _holes([(p.caster_x + dx, dy) for dx in (-20, 20) for dy in (-20, 20)], 4.4)
+        # Caster adapter below and mast socket above share these: M4 on a 40 mm square, from below.
+        _holes(_caster_bolts(p), 4.4)
         # Standoffs for the electronics tray (M3).
         _holes(_tray_corners(p), 3.4)
-        # Mast socket (M4 x4 on a 30 mm square).
-        _holes([(p.mast_x + dx, dy) for dx in (-15, 15) for dy in (-15, 15)], 4.4)
         # Battery strap slots (25 mm strap).
         bx0 = p.battery_x - p.battery[0] / 2
         bx1 = p.battery_x + p.battery[0] / 2
@@ -94,6 +106,10 @@ def base_plate(p: Collector) -> Part:
     solid = extrude(face, p.plate_t)
     return Part("base_plate", "laser", "aluminium 5052", 1, solid, [Location((0, 0, p.base_z))],
                 flat=face, thickness=p.plate_t, notes="All holes are clearance holes; no tapping.")
+
+
+def _caster_bolts(p: Collector):
+    return [(p.caster_x + dx, dy) for dx in (-20, 20) for dy in (-20, 20)]
 
 
 def _tray_corners(p: Collector):
@@ -139,13 +155,14 @@ def drum_disc(p: Collector) -> Part:
                 for i in range(n)]
         _holes(rods, p.rod_d + 0.2)
         _holes(_clamp_bolts(p), 4.4)
-        _holes(_cover_bolts(p), 5.5)
+        _holes(_cover_bolts(p), p.rivet_nut_hole_d)
     face = s.sketch
     solid = extrude(face, p.plate_t)
     locs = [Location((p.drum_x, sy * (p.disc_inner_y + p.plate_t) if sy > 0 else -p.disc_inner_y, p.drum_z), ROT_XZ)
             for sy in (1, -1)]
     return Part("drum_disc", "laser", "aluminium 5052", 2, solid, locs, flat=face, thickness=p.plate_t,
-                notes=f"{n} rod holes on R{p.rod_circle_r:g}; 22 mm bore takes a 608 bearing (press or loctite).")
+                notes=f"{n} rod holes on R{p.rod_circle_r:g}; 22 mm bore takes a 608 bearing flush with the outer face "
+                      f"(press or retaining compound); {p.rivet_nut_hole_d:g} mm holes take M5 rivet nuts.")
 
 
 def _clamp_bolts(p: Collector):
@@ -174,17 +191,38 @@ def clamp_ring(p: Collector) -> Part:
                 flat=face, thickness=p.clamp_ring_t, notes="Holds the rod ends in the disc.")
 
 
-def drum_cover(p: Collector) -> Part:
+def _cover_face(p: Collector, hatch: bool):
     with BuildSketch() as s:
         Circle(p.cover_r)
-        Circle(7, mode=Mode.SUBTRACT)  # axle bolt clearance
+        Circle(7, mode=Mode.SUBTRACT)  # axle spacer clearance
+        if hatch:
+            # Keyhole slot from the axle to the rim, between two thumb screws: the hatch lifts 3 mm off its seat
+            # (inside the rod clamp ring) and slides off past the axle spacer with the drum still hung.
+            with Locations((p.cover_r / 2, 0)):
+                Rectangle(p.cover_r, 14, mode=Mode.SUBTRACT)
         _holes(_cover_bolts(p), 5.5)
-    face = s.sketch
+    return s.sketch
+
+
+def drum_cover(p: Collector) -> list[Part]:
     y0 = p.disc_inner_y + p.plate_t
-    locs = [Location((p.drum_x, y0 + p.cover_t, p.drum_z), ROT_XZ),
-            Location((p.drum_x, -y0, p.drum_z), ROT_XZ)]
-    return Part("drum_cover", "laser", "aluminium 5052", 2, extrude(face, p.cover_t), locs, flat=face,
-                thickness=p.cover_t, notes="Emptying hatch: one side on M5 thumb screws, the other bolted.")
+    fixed, hatch = _cover_face(p, False), _cover_face(p, True)
+    return [Part("drum_cover", "laser", "aluminium 5052", 1, extrude(fixed, p.cover_t),
+                 [Location((p.drum_x, -y0, p.drum_z), ROT_XZ)], flat=fixed, thickness=p.cover_t,
+                 notes="Fixed end cover, M5 button heads into the disc's rivet nuts."),
+            Part("drum_hatch", "laser", "aluminium 5052", 1, extrude(hatch, p.cover_t),
+                 [Location((p.drum_x, y0 + p.cover_t, p.drum_z), ROT_XZ)], flat=hatch, thickness=p.cover_t,
+                 notes="Emptying hatch on M5 thumb screws; its slot lets it off past the axle spacer.")]
+
+
+def hatch_off_path(p: Collector, steps: int = 6):
+    """The hatch's way off the hung drum: out along the axle by cover_t (clear of the rod clamp ring), then up
+    along its slot (the drum turned slot-down, so the cover rises past the spacer) until it clears everything."""
+    lift = p.cover_t + 0.3                      # clear of the clamp ring, with a little air
+    out = [(0.0, lift * k / 3, 0.0) for k in range(1, 4)]
+    rise = p.cover_r + p.disc_r + 10
+    out += [(0.0, lift, rise * k / steps) for k in range(1, steps + 1)]
+    return out
 
 
 def yoke_arm(p: Collector) -> Part:
@@ -205,14 +243,15 @@ def yoke_arm(p: Collector) -> Part:
     y_in = p.arm_inner_y
     locs = [Location((0, y_in + p.arm_t, 0), ROT_XZ), Location((0, -y_in, 0), ROT_XZ)]
     return Part("yoke_arm", "laser", "aluminium 5052", 2, extrude(face, p.arm_t), locs, flat=face,
-                thickness=p.arm_t, notes="M8 shoulder bolts at both ends; drum hangs on its own weight.")
+                thickness=p.arm_t, notes="Swings on an 8 mm shoulder bolt at the pivot; the drum's M8 axle bolt clamps "
+                                         "the 608's inner race; drum hangs on its own weight.")
 
 
 # ---------------------------------------------------------------- printed parts
 
 def motor_clamp(p: Collector) -> list[Part]:
     """Pillow-block style clamp: cradle (bolted to the base) + cap."""
-    w = 60.0
+    w = p.clamp_w
     bore = p.motor_d + 0.4
     z0 = p.base_top
     zc = p.axle_z
@@ -220,33 +259,33 @@ def motor_clamp(p: Collector) -> list[Part]:
     cradle = Box(w, p.clamp_len, zc - z0).moved(Location((0, 0, (zc + z0) / 2)))
     cap = Box(w, p.clamp_len, top - zc).moved(Location((0, 0, (top + zc) / 2)))
     hole = Cylinder(bore / 2, p.clamp_len + 2).moved(Location((0, 0, zc), ROT_Y_AXIS))
-    bolts = [Cylinder(2.2, 200).moved(Location((sx * 22, sy * 12, 0))) for sx in (-1, 1) for sy in (-1, 1)]
-    base_bolts = [Cylinder(2.0, 30).moved(Location((sx * 22, 0, z0 + 10))) for sx in (-1, 1)]  # insert pilot
+    cap_bolts = [(sx * p.clamp_bolt_x, sy * 12) for sx in (-1, 1) for sy in (-1, 1)]
     cradle = cradle - hole
     cap = cap - hole
-    for b in bolts:
-        cradle = cradle - b
-        cap = cap - b
-    for b in base_bolts:
-        cradle = cradle - b
+    for x, y in cap_bolts:
+        cap = cap - Cylinder(2.2, 200).moved(Location((x, y, 0)))
+        cradle = cradle - _insert_pocket(p, x, y, zc, up=False, pilot=zc - z0 - 6)  # insert at the split face
+    for sx in (-1, 1):
+        cradle = cradle - _insert_pocket(p, sx * 22, 0, z0)                         # from the base plate
     y_mid = p.motor_face_y - p.clamp_len / 2
     locs = [Location((0, y_mid, 0)), Location((0, -y_mid, 0))]
-    note = "PETG, 4 walls, 40% infill. M4 heat-set inserts in the cradle; M4x50 through the cap."
+    note = ("PETG, 4 walls, 40% infill. M4 heat-set inserts in the cradle (top and bottom); "
+            "M4x50 through the cap.")
     return [Part("motor_clamp_cradle", "print", "PETG", 2, cradle, locs, notes=note),
             Part("motor_clamp_cap", "print", "PETG", 2, cap, locs, notes=note)]
 
 
 def pivot_block(p: Collector) -> Part:
-    yb = p.arm_inner_y - 15
-    depth = 30.0
+    yb = pivot_y(p)
+    depth = p.pivot_depth
     h = p.pivot_z + 15 - p.base_top
     blk = Box(44, depth, h).moved(Location((0, 0, p.base_top + h / 2)))
     blk = blk - Cylinder(4.2, depth + 2).moved(Location((0, 0, p.pivot_z), ROT_Y_AXIS))
     for dx in (-12, 12):
-        blk = blk - Cylinder(2.0, 12).moved(Location((dx, 0, p.base_top + 6)))
+        blk = blk - _insert_pocket(p, dx, 0, p.base_top)
     locs = [Location((p.pivot_x, yb, 0)), Location((p.pivot_x, -yb, 0))]
     return Part("pivot_block", "print", "PETG", 2, blk, locs,
-                notes="M4 heat-set inserts underneath; M8 pivot bolt through.")
+                notes=f"M4 heat-set inserts underneath; {p.pivot_shoulder:g} mm shoulder bolt through.")
 
 
 def caster_adapter(p: Collector) -> Part:
@@ -254,20 +293,28 @@ def caster_adapter(p: Collector) -> Part:
     blk = Box(56, 56, h).moved(Location((0, 0, h / 2)))
     for dx in (-20, 20):
         for dy in (-20, 20):
-            blk = blk - Cylinder(2.0, h + 2).moved(Location((dx, dy, h / 2)))
+            blk = blk - Cylinder(2.2, h + 2).moved(Location((dx, dy, h / 2)))
+            blk = blk - Cylinder(4.0, CASTER_CBORE).moved(Location((dx, dy, CASTER_CBORE / 2)))  # head below
     return Part("caster_adapter", "print", "PETG", 1, blk, [Location((p.caster_x, 0, p.caster_height))],
-                notes="Spacer between base and a ball caster; drill the caster's own pattern to suit, or edit here.")
+                notes="Spacer between base and a ball caster. Its four M4s go up through the plate into the mast "
+                      "socket; fit them before the caster. Drill the caster's own pattern clear of their heads.")
+
+
+CASTER_CBORE = 4.5   # an M4 socket head is 4 mm tall
 
 
 def mast_socket(p: Collector) -> Part:
-    h = 50.0
-    blk = Box(42, 42, h).moved(Location((0, 0, h / 2)))
+    h, flange = 50.0, MAST_FLANGE_H
+    blk = Box(52, 52, flange).moved(Location((0, 0, flange / 2))) + Box(30, 30, h).moved(Location((0, 0, h / 2)))
     blk = blk - Cylinder(p.mast_d / 2 + 0.2, h).moved(Location((0, 0, h / 2 + 5)))
-    for dx in (-15, 15):
-        for dy in (-15, 15):
-            blk = blk - Cylinder(2.0, 12).moved(Location((dx, dy, 6)))
+    for dx in (-20, 20):
+        for dy in (-20, 20):
+            blk = blk - _insert_pocket(p, dx, dy, 0, pilot=flange - 1.5)
     return Part("mast_socket", "print", "PETG", 1, blk, [Location((p.mast_x, 0, p.base_top))],
-                notes="20 mm tube push fit; add an M4 grub screw if it rattles.")
+                notes="20 mm tube push fit; add an M4 grub screw if it rattles. Held by the caster adapter's M4s.")
+
+
+MAST_FLANGE_H = 12.0
 
 
 # ---------------------------------------------------------------- stock + bought-in
@@ -309,6 +356,18 @@ def envelopes(p: Collector) -> list[Part]:
     caster = Cylinder(15, p.caster_height).moved(Location((0, 0, p.caster_height / 2)))
     out.append(Part("ball_caster", "cots", "", 1, caster, [Location((p.caster_x, 0, 0))],
                     spec=f"ball caster, {p.caster_height:g} mm mounting height (e.g. 3/4-1 in ball)"))
+    bearing = (Cylinder(11, 7) - Cylinder(4, 7)).moved(Location((0, 0, 0), ROT_Y_AXIS))
+    yo = p.disc_inner_y + p.plate_t              # bearing flush with the disc's outer face, 2 mm proud inside
+    out.append(Part("drum_bearing", "cots", "", 2, bearing,
+                    [Location((p.drum_x, yo - 3.5, p.drum_z)), Location((p.drum_x, -(yo - 3.5), p.drum_z))],
+                    spec="608 (or F608) bearing, 8 x 22 x 7"))
+    spacer_len = p.arm_inner_y - yo
+    spacer = (Cylinder(p.axle_spacer_od / 2, spacer_len) - Cylinder(4.1, spacer_len)).moved(Location((0, 0, 0), ROT_Y_AXIS))
+    yc = yo + spacer_len / 2
+    out.append(Part("axle_spacer", "cots", "", 2, spacer,
+                    [Location((p.drum_x, yc, p.drum_z)), Location((p.drum_x, -yc, p.drum_z))],
+                    spec=f"spacer 8.1 mm ID x {p.axle_spacer_od:g} mm OD x {spacer_len:g} mm, aluminium or steel "
+                         f"(through the cover's 14 mm hole, onto the 608's inner race only)"))
     bx, by, bz = p.battery
     bat = Box(bx, by, bz).moved(Location((0, 0, bz / 2)))
     out.append(Part("battery", "cots", "", 1, bat, [Location((p.battery_x, 0, p.base_top))],
@@ -317,6 +376,6 @@ def envelopes(p: Collector) -> list[Part]:
 
 
 def all_parts(p: Collector) -> list[Part]:
-    return [base_plate(p), electronics_tray(p), drum_disc(p), clamp_ring(p), drum_cover(p), yoke_arm(p),
+    return [base_plate(p), electronics_tray(p), drum_disc(p), clamp_ring(p), *drum_cover(p), yoke_arm(p),
             *motor_clamp(p), pivot_block(p), caster_adapter(p), mast_socket(p),
             rods(p), mast(p), standoffs(p), *envelopes(p)]

@@ -27,3 +27,12 @@ is impression-weighted. See the page for what is not modelled.
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
+
+## Known gaps (quality audit 2026-11-20)
+
+From the [first audit](../../portfolio/quality/audits/2026-11-20-youtube-revenue-rpm-analyzer.json):
+
+- Shorts and long-form share one median RPM, though YouTube pays them from different pools (55% of long-form ad revenue vs 45% of the Shorts pool), so Shorts are flagged and the length finding compares unlike things. The "up to 1 min" bucket uses the pre-2024-10-15 Shorts limit (now 3 min).
+- A per-video, per-day export is read as separate videos with no warning; by-day files with "Jun 18, 2024" dates fail to parse.
+- Never checked against a real Studio export (the test layouts were built from memory).
+- Tests derive the expected gap from the median the code produced, so a wrong median passes (4 of 5 seeded mutants survived).

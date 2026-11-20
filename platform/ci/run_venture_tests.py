@@ -472,8 +472,9 @@ def run_one(argv, cwd, timeout, env=None):
     out = "".join(lines) + note
     if note:
         return False, out
-    # unittest exits 5 when it finds no tests: a pytest-style file of bare
-    # functions (shed-designer's). Nothing ran, so nothing failed.
+    # unittest exits 5 when it finds no tests: a folder whose only test file
+    # holds bare pytest functions. Nothing ran, so nothing failed; since
+    # 2026-11-20 check_uncollected_tests.py fails such a file instead.
     return p.returncode == 0 or (p.returncode == 5 and "unittest" in argv), out
 
 

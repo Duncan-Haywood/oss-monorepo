@@ -1,33 +1,37 @@
 item,kind,qty,what,notes
 base_plate,laser,1,aluminium 5052 5 mm,All holes are clearance holes; no tapping.
 electronics_tray,laser,1,aluminium 5052 3 mm,Pi 5 on M2.5 x 58x49; other boards on the 10 mm M3 grid.
-drum_disc,laser,2,aluminium 5052 5 mm,18 rod holes on R158; 22 mm bore takes a 608 bearing (press or loctite).
+drum_disc,laser,2,aluminium 5052 5 mm,18 rod holes on R158; 22 mm bore takes a 608 bearing flush with the outer face (press or retaining compound); 7 mm holes take M5 rivet nuts.
 rod_clamp_ring,laser,2,aluminium 5052 3 mm,Holds the rod ends in the disc.
-drum_cover,laser,2,aluminium 5052 3 mm,"Emptying hatch: one side on M5 thumb screws, the other bolted."
-yoke_arm,laser,2,aluminium 5052 5 mm,M8 shoulder bolts at both ends; drum hangs on its own weight.
-motor_clamp_cradle,print,2,PETG,"PETG, 4 walls, 40% infill. M4 heat-set inserts in the cradle; M4x50 through the cap."
-motor_clamp_cap,print,2,PETG,"PETG, 4 walls, 40% infill. M4 heat-set inserts in the cradle; M4x50 through the cap."
-pivot_block,print,2,PETG,M4 heat-set inserts underneath; M8 pivot bolt through.
-caster_adapter,print,1,PETG,"Spacer between base and a ball caster; drill the caster's own pattern to suit, or edit here."
-mast_socket,print,1,PETG,20 mm tube push fit; add an M4 grub screw if it rattles.
+drum_cover,laser,1,aluminium 5052 3 mm,"Fixed end cover, M5 button heads into the disc's rivet nuts."
+drum_hatch,laser,1,aluminium 5052 3 mm,Emptying hatch on M5 thumb screws; its slot lets it off past the axle spacer.
+yoke_arm,laser,2,aluminium 5052 5 mm,Swings on an 8 mm shoulder bolt at the pivot; the drum's M8 axle bolt clamps the 608's inner race; drum hangs on its own weight.
+motor_clamp_cradle,print,2,PETG,"PETG, 4 walls, 40% infill. M4 heat-set inserts in the cradle (top and bottom); M4x50 through the cap."
+motor_clamp_cap,print,2,PETG,"PETG, 4 walls, 40% infill. M4 heat-set inserts in the cradle (top and bottom); M4x50 through the cap."
+pivot_block,print,2,PETG,M4 heat-set inserts underneath; 40 mm shoulder bolt through.
+caster_adapter,print,1,PETG,Spacer between base and a ball caster. Its four M4s go up through the plate into the mast socket; fit them before the caster. Drill the caster's own pattern clear of their heads.
+mast_socket,print,1,PETG,20 mm tube push fit; add an M4 grub screw if it rattles. Held by the caster adapter's M4s.
 drum_rod,stock,18,"3 mm music wire, cut 460 mm",Deburr ends.
 mast_tube,stock,1,"20 mm OD x 1.5 mm wall aluminium tube, cut 1000 mm",
 standoff,cots,4,M3 x 30 mm female-female hex standoff,
 gearmotor,cots,2,"37 mm gearmotor, 24 V, ~150-200 rpm, 6 mm D shaft, quadrature encoder",
 wheel,cots,2,150 x 40 mm non-marking wheel + 6 mm D-shaft hub,
 ball_caster,cots,1,"ball caster, 25 mm mounting height (e.g. 3/4-1 in ball)",
+drum_bearing,cots,2,"608 (or F608) bearing, 8 x 22 x 7",
+axle_spacer,cots,2,"spacer 8.1 mm ID x 12 mm OD x 7 mm, aluminium or steel (through the cover's 14 mm hole, onto the 608's inner race only)",
 battery,cots,1,"24 V LiFePO4 10 Ah with BMS, max 80 x 180 x 100 mm",
 M4 x 50 socket cap screw,cots,8,M4 x 50 socket cap screw,motor clamp caps
-M4 x 12 socket cap screw,cots,16,M4 x 12 socket cap screw,"clamp cradles, pivot blocks, caster adapter, mast socket (from below)"
-"M4 heat-set insert, 5.7 mm long",cots,24,"M4 heat-set insert, 5.7 mm long",all printed parts
-M4 x 12 button head + nyloc nut,cots,12,M4 x 12 button head + nyloc nut,rod clamp rings
+M4 x 12 socket cap screw,cots,8,M4 x 12 socket cap screw,"clamp cradles and pivot blocks, from below"
+M4 x 20 socket cap screw,cots,4,M4 x 20 socket cap screw,"caster adapter, base plate and mast socket, from below"
+"M4 heat-set insert, 5.7 mm long",cots,20,"M4 heat-set insert, 5.7 mm long","cradles, pivot blocks, mast socket (5.6 mm pockets)"
+M4 x 16 button head + nyloc nut,cots,12,M4 x 16 button head + nyloc nut,rod clamp rings
 M5 x 12 button head,cots,6,M5 x 12 button head,fixed drum cover
 "M5 thumb screw, 12 mm",cots,6,"M5 thumb screw, 12 mm",hatch drum cover
-"M5 rivet nut (blind insert), aluminium",cots,12,"M5 rivet nut (blind insert), aluminium","drum discs, for the covers"
-M8 x 25 shoulder bolt + nyloc nut,cots,4,M8 x 25 shoulder bolt + nyloc nut,yoke pivots and drum axles
-"M8 washer, 3 mm stack",cots,4,"M8 washer, 3 mm stack",spacer between drum cover and arm
-"608 (or F608) bearing, 8 x 22 x 7",cots,2,"608 (or F608) bearing, 8 x 22 x 7",drum hubs
-M3 x 8 screw,cots,8,M3 x 8 screw,tray standoffs
+"M5 rivet nut (blind insert), aluminium",cots,12,"M5 rivet nut (blind insert), aluminium","drum discs, for the covers (7 mm holes)"
+"8 mm x 40 mm shoulder bolt (ISO 7379, M6 thread) + M6 nyloc nut",cots,2,"8 mm x 40 mm shoulder bolt (ISO 7379, M6 thread) + M6 nyloc nut",yoke pivots
+M8 x 30 hex bolt + M8 nyloc nut,cots,2,M8 x 30 hex bolt + M8 nyloc nut,"drum axles, clamping the 608's inner race"
+M3 x 10 screw,cots,4,M3 x 10 screw,"tray standoffs, from under the base plate"
+M3 x 8 screw,cots,4,M3 x 8 screw,tray onto its standoffs
 M2.5 x 6 screw + 6 mm standoff,cots,4,M2.5 x 6 screw + 6 mm standoff,Raspberry Pi
 Ball caster mounting screws,cots,1,Ball caster mounting screws,to suit the caster bought
 Raspberry Pi 5 (4 GB) or Pi 4,cots,1,Raspberry Pi 5 (4 GB) or Pi 4,vision + planning

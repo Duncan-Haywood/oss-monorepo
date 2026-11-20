@@ -19,7 +19,7 @@ import { existsSync } from 'node:fs';
 import process from 'node:process';
 import { parseSeries } from './engine.mjs';
 import { parseColumns } from './multivariate.mjs';
-import { WATCH_DEFAULTS, DETECTORS, HINT_BUDGET, fillClosed, emptyState, detectChanges, advance, alertText, statusText, webhookBody, eagernessReplay, eagernessText, budgetFromPlain, plainBudgetText, chooseDetector, withCountDefaults } from './watch-core.mjs';
+import { WATCH_DEFAULTS, DETECTORS, HINT_BUDGET, fillClosed, emptyState, detectChanges, advance, alertText, statusText, webhookBody, eagernessReplay, eagernessText, budgetFromPlain, plainBudgetText, chooseDetector, withCountDefaults, choiceOptions, settingWords } from './watch-core.mjs';
 import { pathToFileURL } from 'node:url';
 
 // The logic lives in watch-core.mjs (no file or network access, so the page and the agent tool import it too).
@@ -206,12 +206,12 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   if (auto) {
     // The first run picks from the history and the state keeps the pick; later runs reuse it, so the watch does not
     // change setting under the person as the series grows. Delete "choice" from the state file to pick again.
-    if (state.choice && DETECTORS.includes(state.choice.detector)) detOpts.detector = state.choice.detector;
+    if (choiceOptions(state.choice)) Object.assign(detOpts, choiceOptions(state.choice));
     else {
       const { replay: _r, ...c } = chooseDetector(values, labels, { ...detOpts, ...(budget != null ? { budget } : {}) });
       state.choice = c;
       picked = c;
-      detOpts.detector = c.detector;
+      Object.assign(detOpts, choiceOptions(c));
     }
   }
   if (floorSpec?.all) detOpts.minShift = floorSpec.all;
@@ -229,7 +229,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   if (!dry) await writeFile(statePath, JSON.stringify(res.state, null, 2) + '\n');
   const NAME = { quiet: 'Quiet', middle: 'Middle', eager: 'Eager' };
   const pickLine = picked
-    ? `How eager: ${NAME[picked.key]} (${picked.detector}), picked from ${picked.n} points of history: ${picked.reason}${picked.per100 != null ? ` (${picked.per100} per 100 checks there)` : ''}; budget ${plainBudgetText(picked.budget, every)}. Later runs keep it.`
+    ? `How eager: ${NAME[picked.key]} (${settingWords(picked)}), picked from ${picked.n} points of history: ${picked.reason}${picked.per100 != null ? ` (${picked.per100} per 100 checks there)` : ''}; budget ${plainBudgetText(picked.budget, every)}. Later runs keep it.`
     : null;
   out((json ? JSON.stringify({ column, n: values.length, ...(picked ? { picked } : {}), ...fill.json, ...res }, null, 2) : fill.line + (pickLine ? pickLine + '\n' : '') + (countDefault ? COUNT_DEFAULT_LINE + '\n' : '') + statusText(res, textOpts)) + '\n');
   return failOnAlert && res.alerts.length ? 1 : 0;
@@ -402,12 +402,12 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
     let picked = null;
     // A detector named in --columns is the person's own choice for that column: --detector auto leaves it alone.
     if (auto && !c.detector) {
-      if (st.choice && DETECTORS.includes(st.choice.detector)) det.detector = st.choice.detector;
+      if (choiceOptions(st.choice)) Object.assign(det, choiceOptions(st.choice));
       else {
         const { replay: _r, ...ch } = chooseDetector(c.values, c.labels, { ...det, budget: whole });
         st.choice = ch;
         picked = ch;
-        det.detector = ch.detector;
+        Object.assign(det, choiceOptions(ch));
       }
     }
     const res = advance(st, detectChanges(c.values, c.labels, det), c.values.length, c.labels, { ...o, ...det });
@@ -431,7 +431,7 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
       ? `New changes in ${alerting.length} of ${k} column${k === 1 ? '' : 's'}: ${alerting.map((r) => r.column).join(', ')}.`
       : `No new confirmed change in ${k} column${k === 1 ? '' : 's'}.`;
     const blocks = results.map((r) => {
-      const pick = r.picked ? `How eager: ${NAME[r.picked.key]} (${r.picked.detector}), picked from ${r.picked.n} points: ${r.picked.reason}; budget ${plainBudgetText(whole, every)}. Later runs keep it.\n` : '';
+      const pick = r.picked ? `How eager: ${NAME[r.picked.key]} (${settingWords(r.picked)}), picked from ${r.picked.n} points: ${r.picked.reason}; budget ${plainBudgetText(whole, every)}. Later runs keep it.\n` : '';
       const named = r.detector || r.clumping != null ? `${r.detector ? `Detector: ${r.detector}` : 'Detector: default'}${r.clumping != null ? `, ${clumpingName(r.clumping)}` : ''} (named for this column).\n` : '';
       const dflt = r.countDefault ? `${COUNT_DEFAULT_LINE}\n` : '';
       return `== ${r.column} ==\n${named}${dflt}${pick}${statusText(r.res, { column: r.column, model: r.model, confirm: o.confirm })}`;

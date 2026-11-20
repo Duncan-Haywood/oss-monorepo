@@ -1,8 +1,12 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 157 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 158 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
+- **The ladder's edge survives a tool upgrade; tuned recipes do not** (milestone 158): on 27 SKY130 ss designs under Yosys 0.70
+  and 0.71, the clipped ladder beats equal-cost random routing by about 4 points under both (change -0.48, interval -3.05 to
+  +1.78), but a routed-best synthesis sequence carried from one build to the other has 14% mean regret, against 6% for random
+  routing on the new build: [`experiments/tool_build/`](experiments/tool_build/results.txt).
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
 - **Successive halving does not reliably beat random routed search** once budgets exceed a few

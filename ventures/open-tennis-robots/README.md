@@ -32,13 +32,27 @@ or [browse it](manufacturing/collector/) (GitHub renders the STLs in 3D):
 - `print/*.stl`: PETG printed parts
 - `step/*.step`: every part, plus the assembly, for any CAD or CAM tool
 - `bom.csv` (every part and fastener), `cut_list.csv` and assembly drawings
+- [`guide/ASSEMBLY.md`](manufacturing/collector/guide/ASSEMBLY.md): a 14-step
+  assembly guide with one drawing a step, generated from the same model
+  (2026-11-20). Its build checks every bolt's length against the stack the
+  CAD puts under it, hands out every BOM line to the unit, and lifts the
+  emptying hatch off a hung drum. Writing it found six faults in the
+  package that a builder would have hit; they are fixed
+  ([`cad/README.md`](cad/README.md), "Assembly guide")
 
 Every build checks for part-to-part collisions, bolt-hole alignment, ground
 contact and design rules, and is byte-reproducible. CI fails if the
 committed package goes stale.
 
 **The feeder has a first package too** ([`manufacturing/feeder-package.zip`](manufacturing/feeder-package.zip),
-[browse](manufacturing/feeder/)): launcher head plates, trunnion cheeks and
+[browse](manufacturing/feeder/)), with its own 25-step
+[assembly guide](manufacturing/feeder/guide/ASSEMBLY.md) since 2026-11-20:
+24 bolted joints measured against the CAD, every BOM line handed out, every
+screw into an extrusion's end checked against its core bores. Writing it found
+the feeder could not be built as committed (holes over the posts' webs, a pivot
+bolt 9 mm short, servo screws that bottom out, a pole foot and a cable clamp no
+screw could fasten, M10 feet in a slot-6 beam); all fixed
+([`cad/README.md`](cad/README.md), "Feeder assembly guide"). Launcher head plates, trunnion cheeks and
 turntable, the 2040 base with drive and idler brackets, mast, 3 m net beam,
 net poles, elbows and a stereo camera bar. Its build also tilts the head
 through its whole elevation range to check it never hits the mast, and
@@ -343,6 +357,12 @@ none of 36 instant-contact builds to set a take (firmware/esp32/README.md,
 Do not go longer: feeding the same twelve shots a third time (36 balls) named
 27 of 36 against 26 and found no more 1.3 ms contacts (firmware/esp32/README.md,
 "The 36-shot survey drill: the instant set it lacked").
+Hitting the same 24 placements harder (34-40 m/s,
+`eval/feed-phase-drill-fast-2026-11-20.json`) names a few more short contacts
+(over 432 simulated builds, 68 in 100 against 61) but told 4 of 216
+instant-contact builds to set a take against the long drill's 2, so it is not
+the default (firmware/esp32/README.md, "The fast survey drill at the shipped
+margins, on fresh seeds").
 [`firmware/esp32/README.md`](firmware/esp32/README.md), "Shot log", "The
 drop from the pulse times" and "A recovery shaped by the loop's own commands".
 
@@ -484,7 +504,8 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
 7. Spin estimation from longer tracks, to cut prediction error on topspin
    returns (the main error source; see `tests/test_robots.py`).
 8. UWB or line-based localisation for the collector on unlit courts.
-9. An illustrated assembly guide and a kit for sellers.
+9. An illustrated assembly guide (the collector's and the feeder's landed 2026-11-20, generated from the CAD)
+   and a kit for sellers.
 
 ### Known gaps (quality audit, 2026-11-08)
 

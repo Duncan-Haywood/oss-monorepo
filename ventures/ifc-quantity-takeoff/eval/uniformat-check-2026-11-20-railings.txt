@@ -1,0 +1,68 @@
+AC20-FZK-Haus.ifc (IFC4): 82 elements; Uniformat from the model 0, from the rules 82, none 0; level 3 82, level 2 0, level 1 0
+  walls, doors and windows with IsExternal set: 0 of 29
+C20-Institute-Var-2.ifc (IFC4): 701 elements; Uniformat from the model 0, from the rules 701, none 0; level 3 701, level 2 0, level 1 0
+  walls, doors and windows with IsExternal set: 0 of 404
+FM_ARC_DigitalHub.ifc (IFC4): 705 elements; Uniformat from the model 0, from the rules 555, none 150; level 3 555, level 2 0, level 1 0
+  walls, doors and windows with IsExternal set: 289 of 289
+    no code 150 x no rule for IfcBuildingElementProxy
+HHS-architect.ifc (IFC2X3): 2527 elements; Uniformat from the model 0, from the rules 2442, none 85; level 3 2442, level 2 0, level 1 0
+  walls, doors and windows with IsExternal set: 245 of 245
+    no code 85 x no rule for IfcBuildingElementProxy
+HHS-construction.ifc (IFC2X3): 339 elements; Uniformat from the model 0, from the rules 329, none 10; level 3 329, level 2 0, level 1 0
+  walls, doors and windows with IsExternal set: 48 of 48
+    no code 8 x railing whose geometry was not read (balcony, guard or stair cannot be told)
+    no code 2 x railing not beside a stair or ramp, too small or above too few walls for the rays (balcony, guard or gallery cannot be told)
+ISSUE_021_Mini Project.ifc (IFC2X3): 2636 elements; Uniformat from the model 0, from the rules 2227, none 409; level 3 36, level 2 2191, level 1 0
+  walls, doors and windows with IsExternal set: 0 of 0
+    no code 409 x no rule for IfcDiscreteAccessory
+ISSUE_034_HouseZ.ifc (IFC2X3): 228 elements; Uniformat from the model 0, from the rules 222, none 6; level 3 193, level 2 29, level 1 0
+  walls, doors and windows with IsExternal set: 0 of 177
+    no code 6 x wall with no IsExternal: exterior or partition cannot be told
+ISSUE_068_ARK_NUS_skolebygg.ifc (IFC2X3): 4459 elements; Uniformat from the model 154, from the rules 4024, none 281; level 3 3326, level 2 764, level 1 88
+  walls, doors and windows with IsExternal set: 1633 of 1633
+  model's own code on 154: rules silent on 31; agree at level 1 95, level 2 95, level 3 95 (each at the finer of the two codes' levels)
+    differs 26 x IfcBuildingElementProxy: model E1090, rule C1030 (model's classification (Uniformat): E1090900; rule: IfcBuildingElementProxy named as fittings (toilet accessories, partitions, boards, lockers))
+    differs 2 x IfcBuildingElementProxy: model C1030, rule E1090 (model's classification (Uniformat): C1030400; rule: IfcBuildingElementProxy named as appliance)
+    no code 214 x no rule for IfcBuildingElementProxy
+    no code 67 x no rule for IfcFlowTerminal
+ISSUE_159_kleine_Wohnung_R22.ifc (IFC4): 425 elements; Uniformat from the model 2, from the rules 378, none 45; level 3 380, level 2 0, level 1 0
+  walls, doors and windows with IsExternal set: 310 of 310
+  model's own code on 2: rules silent on 0; agree at level 1 2, level 2 0, level 3 0 (each at the finer of the two codes' levels)
+    differs 1 x IfcWindow: model B3020, rule B2020 (model's classification (Uniformat): B3020110; rule: window, IsExternal)
+    differs 1 x IfcWindow: model B3020, rule B2020 (model's classification (Uniformat): B3020110; rule: window flagged not IsExternal, taken as exterior (exporters flag exterior windows so))
+    no code 45 x no rule for IfcBuildingElementProxy
+Office_A_20110811.ifc (IFC2X3): 803 elements; Uniformat from the model 30, from the rules 770, none 3; level 3 792, level 2 8, level 1 0
+  walls, doors and windows with IsExternal set: 658 of 658
+  model's own code on 30: rules silent on 0; agree at level 1 30, level 2 30, level 3 30 (each at the finer of the two codes' levels)
+    no code 3 x railing whose geometry was not read (balcony, guard or stair cannot be told)
+S_Office_Integrated Design Archi.ifc (IFC2X3): 3407 elements; Uniformat from the model 0, from the rules 1248, none 2159; level 3 1165, level 2 83, level 1 0
+  walls, doors and windows with IsExternal set: 251 of 251
+    no code 1711 x no rule for IfcBuildingElementProxy
+    no code 448 x no rule for IfcBuildingElementPart
+Schultz_Residence.ifc (IFC2X3): 846 elements; Uniformat from the model 67, from the rules 641, none 138; level 3 670, level 2 37, level 1 1
+  walls, doors and windows with IsExternal set: 147 of 147
+  model's own code on 67: rules silent on 0; agree at level 1 66, level 2 66, level 3 29 (each at the finer of the two codes' levels)
+    differs 12 x IfcFurnishingElement: model E2010, rule E2020 (model's classification (Uniformat): E2010200; rule: furniture)
+    differs 1 x IfcFurnishingElement: model C1030, rule E2010 (model's classification (Uniformat): C1030400; rule: furniture named as casework)
+    no code 136 x no rule for IfcBuildingElementProxy
+    no code 2 x no rule for IfcFlowTerminal
+advanced_model.ifc (IFC2X3): 6401 elements; Uniformat from the model 135, from the rules 6032, none 234; level 3 5120, level 2 70, level 1 977
+  walls, doors and windows with IsExternal set: 257 of 257
+  model's own code on 135: rules silent on 0; agree at level 1 135, level 2 135, level 3 131 (each at the finer of the two codes' levels)
+    no code 223 x no rule for IfcBuildingElementProxy
+    no code 11 x no rule for IfcFlowTerminal
+dental_clinic.ifc (IFC2X3): 2586 elements; Uniformat from the model 69, from the rules 2509, none 8; level 3 2566, level 2 12, level 1 0
+  walls, doors and windows with IsExternal set: 1392 of 1392
+  model's own code on 69: rules silent on 0; agree at level 1 66, level 2 66, level 3 66 (each at the finer of the two codes' levels)
+    differs 3 x IfcFlowTerminal: model E1020, rule D2010 (model's Assembly Code: E1020810; rule: sanitary terminal)
+    no code 8 x railing whose geometry was not read (balcony, guard or stair cannot be told)
+duplex.ifc (IFC2X3): 215 elements; Uniformat from the model 0, from the rules 211, none 4; level 3 203, level 2 8, level 1 0
+  walls, doors and windows with IsExternal set: 95 of 95
+    no code 4 x railing whose geometry was not read (balcony, guard or stair cannot be told)
+schependomlaan.ifc (IFC2X3): 3569 elements; Uniformat from the model 0, from the rules 3173, none 396; level 3 2011, level 2 1162, level 1 0
+  walls, doors and windows with IsExternal set: 1394 of 1394
+    no code 257 x no rule for IfcBuildingElementPart
+    no code 99 x covering, INSULATION: which element it belongs to is not read
+    no code 27 x no rule for IfcBuildingElementProxy
+    no code 13 x no rule for IfcDistributionElement
+TOTAL 16 models: 29929 elements; model 457, rules 25544, none 3928; level 3 20571, level 2 4364, level 1 1066; model codes compared 457, rules silent 31, agree L1 394, L2 392, L3 351

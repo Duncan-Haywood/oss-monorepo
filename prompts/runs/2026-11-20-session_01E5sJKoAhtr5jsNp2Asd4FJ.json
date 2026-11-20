@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKoAhtr5jsNp2Asd4FJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T19:19:19Z",
+  "ended": "2026-11-20T19:29:51Z",
+  "wall_minutes": 10.69,
+  "tokens_in": 6068074,
+  "tokens_out": 39107,
+  "cost_usd": 3.0339,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17962",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "venture-preflight first run failed check_csv_formula_guard.py on tournament-results.mjs: the exporter is guarded through calc.mjs csvCell, which the static check cannot see across the import; added a comment naming the guard, rerun clean"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_csv_formula_guard.py",
+      "issue": "flags an exporter that imports a guarded csvCell from another file; needs a comment naming the guard to pass, which costs a 5-minute preflight rerun"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-tournament-results-fill-the-bracket.md",
+    "ventures/league-schedule-generator/README.md (Weekend tournaments: results on the day)"
+  ],
+  "goal": null,
+  "notes": "Flagship row 4 (league-schedule-generator), item from the tournament section's Not done list: results typed into the bracket. New tournament-results.mjs + page box; fixed tieBreakNotes reporting fully-level teams as split on head to head. Checks: node --test tournament-results.test.mjs 7/7; run_venture_tests.py league-schedule-generator ok (850 tests, 215.7 s); check_posts ok; clauses ok; Chromium at 390 px clean (35/36 games typed, champions shown, no console errors, no sideways scroll, persists after reload). venture-preflight rerun after the guard comment: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d9fa670e-d5e8-5c8d-b4e4-79df21f177b4",
+    "transcripts": 1,
+    "first": "2026-11-20T19:19:19Z",
+    "last": "2026-11-20T19:30:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 94,
+        "output": 39107,
+        "thinking": 7985,
+        "cache_read": 5934925,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133055,
+        "api_equivalent_usd": 3.0339,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 94,
+      "output": 39107,
+      "thinking": 7985,
+      "cache_read": 5934925,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133055,
+      "api_equivalent_usd": 3.0339,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 46,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.69,
+      "active_minutes": 10.69,
+      "model_minutes": 7.03,
+      "tool_minutes": 3.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a developer building pool tables, cross-pool ranking, bracket fill and a page box with tests: about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 329.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

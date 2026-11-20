@@ -100,3 +100,15 @@ test("Etsy Ads headers (Views, Orders, Revenue, Spend) are recognised", () => {
   const r = analyze(n.listings, { marginPct: 40 });
   assert.ok(Math.abs(r.rows[0].requiredCausedShare - 9 / 36) < 1e-9);
 });
+
+test("parseNumber reads a decimal comma as a decimal and refuses an ambiguous comma (red team 2026-11-20)", () => {
+  // Stripping every comma read €29,99 as 2999 and 1.234,56 as 1.23456.
+  assert.equal(parseNumber("€29,99"), 29.99);
+  assert.equal(parseNumber("1.234,56"), 1234.56);
+  assert.equal(parseNumber("(4,50)"), -4.5);
+  assert.equal(parseNumber("12,5%"), 12.5);
+  assert.equal(parseNumber("1,234"), 1234);
+  assert.equal(parseNumber("$1,234,567.89"), 1234567.89);
+  assert.equal(parseNumber("1,2,3"), null);
+  assert.equal(parseNumber("12,3456"), null);
+});

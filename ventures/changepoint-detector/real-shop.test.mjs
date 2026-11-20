@@ -17,8 +17,12 @@ test('the daily CSV: 374 days, every Saturday zero, the Christmas closure zero',
   for (const l of ['2010-12-24', '2010-12-27', '2010-12-31', '2011-01-03']) assert.equal(orders.values[orders.labels.indexOf(l)], 0, l);
 });
 
+// The 2026-11-18 round ran the count ladder of its day, Quiet = bocpd; README "The How eager hint for counts" made the
+// count default Quiet on 2026-11-20, so these two pin the old ladder to keep that round's numbers checkable.
+const OLD_LADDER = [{ key: 'quiet', detector: 'bocpd' }, { key: 'eager', detector: 'pelt' }];
+
 test('orders without a period: Quiet sends 37 alerts, all on a Sunday or Monday, and the text says weekly cycle', () => {
-  const r = eagernessReplay(orders.values, orders.labels, { model: 'poisson' });
+  const r = eagernessReplay(orders.values, orders.labels, { model: 'poisson', ladder: OLD_LADDER });
   const quiet = r.settings.find((s) => s.key === 'quiet');
   assert.equal(quiet.alerts, 37);
   assert.deepEqual(quiet.weekly.days, ['Sunday', 'Monday']);
@@ -28,11 +32,22 @@ test('orders without a period: Quiet sends 37 alerts, all on a Sunday or Monday,
 });
 
 test('orders with --period 7: Quiet sends 4 alerts and no weekly line', () => {
-  const r = eagernessReplay(orders.values, orders.labels, { model: 'poisson', period: 7 });
+  const r = eagernessReplay(orders.values, orders.labels, { model: 'poisson', period: 7, ladder: OLD_LADDER });
   const quiet = r.settings.find((s) => s.key === 'quiet');
   assert.equal(quiet.alerts, 4);
   assert.ok(r.settings.every((s) => !s.weekly));
   assert.doesNotMatch(eagernessText(r, { column: 'orders' }), /Weekly cycle/);
+});
+
+test('today\'s count ladder on the same orders: Quiet (the count default) sends 2 alerts, and misses the 2011-09-01 build-up', () => {
+  for (const [period, want] of [[undefined, ['2011-05-03', '2011-05-31']], [7, ['2011-04-26', '2011-05-03']]]) {
+    const r = eagernessReplay(orders.values, orders.labels, { model: 'poisson', period, keepAlerts: true });
+    const quiet = r.settings.find((s) => s.key === 'quiet');
+    assert.equal(quiet.detector, 'bocpd-window');
+    assert.deepEqual(quiet.alertLabels, want);
+    assert.equal(r.suggest, 'quiet');
+    assert.ok(!quiet.weekly);
+  }
 });
 
 const days = (n, start = '2024-01-01') => Array.from({ length: n }, (_, i) => new Date(Date.parse(`${start}T00:00:00Z`) + i * 864e5).toISOString().slice(0, 10));

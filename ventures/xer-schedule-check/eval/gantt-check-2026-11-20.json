@@ -1,0 +1,236 @@
+[
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "span": {
+   "loe": 285,
+   "loeStart": 285,
+   "loeFinish": 285,
+   "wbs": 0,
+   "wbsStart": 0,
+   "wbsFinish": 0,
+   "misses": []
+  },
+  "bars": {
+   "n": 14270,
+   "ok": 14268
+  },
+  "once": {
+   "n": 16146,
+   "ok": 16146
+  },
+  "rollup": {
+   "n": 860,
+   "ok": 860
+  },
+  "order": {
+   "n": 860,
+   "ok": 860
+  },
+  "self": {
+   "n": 16146,
+   "ok": 16146
+  },
+  "planted": {
+   "n": 20,
+   "ok": 20,
+   "misses": []
+  },
+  "projects": 1,
+  "ms": 16664
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "span": {
+   "loe": 0,
+   "loeStart": 0,
+   "loeFinish": 0,
+   "wbs": 0,
+   "wbsStart": 0,
+   "wbsFinish": 0,
+   "misses": []
+  },
+  "bars": {
+   "n": 823,
+   "ok": 823
+  },
+  "once": {
+   "n": 823,
+   "ok": 823
+  },
+  "rollup": {
+   "n": 179,
+   "ok": 179
+  },
+  "order": {
+   "n": 179,
+   "ok": 179
+  },
+  "self": {
+   "n": 823,
+   "ok": 823
+  },
+  "planted": {
+   "n": 20,
+   "ok": 20,
+   "misses": []
+  },
+  "projects": 1,
+  "ms": 1511
+ },
+ {
+  "file": "example_xer_file.xer",
+  "span": {
+   "loe": 0,
+   "loeStart": 0,
+   "loeFinish": 0,
+   "wbs": 10,
+   "wbsStart": 10,
+   "wbsFinish": 10,
+   "misses": []
+  },
+  "bars": {
+   "n": 404,
+   "ok": 404
+  },
+  "once": {
+   "n": 435,
+   "ok": 435
+  },
+  "rollup": {
+   "n": 18,
+   "ok": 18
+  },
+  "order": {
+   "n": 18,
+   "ok": 18
+  },
+  "self": {
+   "n": 435,
+   "ok": 435
+  },
+  "planted": {
+   "n": 20,
+   "ok": 20,
+   "misses": []
+  },
+  "projects": 1,
+  "ms": 268
+ },
+ {
+  "file": "hotel-project.xer",
+  "span": {
+   "loe": 0,
+   "loeStart": 0,
+   "loeFinish": 0,
+   "wbs": 0,
+   "wbsStart": 0,
+   "wbsFinish": 0,
+   "misses": []
+  },
+  "bars": {
+   "n": 4217,
+   "ok": 4217
+  },
+  "once": {
+   "n": 4217,
+   "ok": 4217
+  },
+  "rollup": {
+   "n": 951,
+   "ok": 951
+  },
+  "order": {
+   "n": 951,
+   "ok": 951
+  },
+  "self": {
+   "n": 4217,
+   "ok": 4217
+  },
+  "planted": {
+   "n": 20,
+   "ok": 20,
+   "misses": []
+  },
+  "projects": 1,
+  "ms": 2176
+ },
+ {
+  "file": "sample.xer",
+  "span": {
+   "loe": 10,
+   "loeStart": 10,
+   "loeFinish": 10,
+   "wbs": 0,
+   "wbsStart": 0,
+   "wbsFinish": 0,
+   "misses": []
+  },
+  "bars": {
+   "n": 42,
+   "ok": 42
+  },
+  "once": {
+   "n": 52,
+   "ok": 52
+  },
+  "rollup": {
+   "n": 5,
+   "ok": 5
+  },
+  "order": {
+   "n": 5,
+   "ok": 5
+  },
+  "self": {
+   "n": 52,
+   "ok": 52
+  },
+  "planted": {
+   "n": 20,
+   "ok": 20,
+   "misses": []
+  },
+  "projects": 1,
+  "ms": 20
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "span": {
+   "loe": 0,
+   "loeStart": 0,
+   "loeFinish": 0,
+   "wbs": 0,
+   "wbsStart": 0,
+   "wbsFinish": 0,
+   "misses": []
+  },
+  "bars": {
+   "n": 66,
+   "ok": 66
+  },
+  "once": {
+   "n": 66,
+   "ok": 66
+  },
+  "rollup": {
+   "n": 25,
+   "ok": 25
+  },
+  "order": {
+   "n": 25,
+   "ok": 25
+  },
+  "self": {
+   "n": 66,
+   "ok": 66
+  },
+  "planted": {
+   "n": 20,
+   "ok": 20,
+   "misses": []
+  },
+  "projects": 1,
+  "ms": 46
+ }
+]

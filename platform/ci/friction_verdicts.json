@@ -143,6 +143,14 @@
    "by": "holds_new fragment guard + implicit-park size refusal (this PR)",
    "at": "2026-11-20T14:26:49Z",
    "note": ""
+  },
+  {
+   "file": "portfolio/router/flagship_field.py",
+   "match": "two courses 2026-11-20",
+   "verdict": "fixed",
+   "by": "DATED_EVIDENCE in is_result (this PR)",
+   "at": "2026-11-20T18:23:46Z",
+   "note": ""
   }
  ]
 }

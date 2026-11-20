@@ -3,25 +3,31 @@
 import math
 import os
 import sys
+import unittest
 
 sys.path.insert(0, os.path.dirname(__file__))
 
 import take_straddle_scaled as tss  # noqa: E402
 
 
-def test_tail_values():
-    assert math.isclose(tss.tail(2, 2), 0.04)
-    assert math.isclose(tss.tail(2, 3), 0.104)
-    assert math.isclose(tss.tail(0, 5), 1.0)
-    assert abs(tss.tail(4, 7) - 0.0333) < 1e-4
+class TakeStraddleScaledFunctionsTest(unittest.TestCase):
+    # Plain pytest functions until 2026-11-20: CI runs this folder with
+    # `unittest discover`, which never collected them.
+    def test_tail_values(self):
+        assert math.isclose(tss.tail(2, 2), 0.04)
+        assert math.isclose(tss.tail(2, 3), 0.104)
+        assert math.isclose(tss.tail(0, 5), 1.0)
+        assert abs(tss.tail(4, 7) - 0.0333) < 1e-4
+
+    def test_binom_05_is_margin_2_below_seven(self):
+        for n in range(0, 7):
+            for f in range(n + 1):
+                assert tss.fires("binom", 0.05, f, n - f) == tss.fires("margin", 2, f, n - f), (f, n - f)
+
+    def test_first_difference_is_four_three(self):
+        assert tss.fires("binom", 0.05, 4, 3) and not tss.fires("margin", 2, 4, 3)
+        assert tss.fires("either", 0.05, 4, 3)
 
 
-def test_binom_05_is_margin_2_below_seven():
-    for n in range(0, 7):
-        for f in range(n + 1):
-            assert tss.fires("binom", 0.05, f, n - f) == tss.fires("margin", 2, f, n - f), (f, n - f)
-
-
-def test_first_difference_is_four_three():
-    assert tss.fires("binom", 0.05, 4, 3) and not tss.fires("margin", 2, 4, 3)
-    assert tss.fires("either", 0.05, 4, 3)
+if __name__ == "__main__":
+    unittest.main()

@@ -78,7 +78,8 @@ test("sample: the bill of quantities groups by Uniformat element", () => {
   const walls = lines.find((l) => l.key[0] === "B2010 Exterior Walls");
   assert.equal(walls.count, 4);
   assert.ok(Math.abs(walls.volume - 8.18) < 1e-6);
-  assert.ok(lines.some((l) => l.key[0] === "B1010 Floor Construction"));
+  // its one slab is at the bottom of the model with nothing under it
+  assert.ok(lines.some((l) => l.key[0] === "A1030 Slab on Grade"));
   assert.match(boqCsv(lines, ["uniformat"]), /^Uniformat II element,Count/);
 });
 
@@ -193,4 +194,66 @@ test("a top slab with walls under it and no storey on it is the roof, and so is 
   // a roof whose geometry was not read may be the one over it: nothing is decided
   rows = assignUniformat([...base(), row({ id: 9, cls: "IfcRoof" })]);
   assert.equal(code(2), "B1010");
+});
+
+test("slabs on the ground are A1030, by name or by geometry; outside ones are paving", () => {
+  const fr = (o) => ({ ...row(o), box: o.box });
+  const base = () => [
+    fr({ id: 1, cls: "IfcSlab", pdt: "FLOOR", type: "STB 30.0", box: [0, 0, -0.3, 10, 10, 0] }), // lowest, nothing under
+    fr({ id: 2, cls: "IfcSlab", pdt: "FLOOR", type: "STB 30.0", box: [0, 0, 3.0, 10, 10, 3.3] }),
+    fr({ id: 3, cls: "IfcWallStandardCase", ext: true, box: [0, 0, 0, 10, 0.3, 3.0] }),
+    fr({ id: 4, cls: "IfcSlab", pdt: "FLOOR", type: "Floor:150mm Exterior Slab on Grade", box: [10, 0, -0.15, 14, 4, 0] }),
+    fr({ id: 5, cls: "IfcSlab", pdt: "FLOOR", type: "Floor:127mm Slab on Grade", box: [0, 0, -0.13, 10, 10, 0] }),
+    fr({ id: 6, cls: "IfcSlab", pdt: "FLOOR", type: "Concrete 200", box: [20, 0, -0.2, 24, 4, 0] }), // at grade, nothing over
+  ];
+  let rows = assignUniformat(base());
+  const code = (id) => rows.find((r) => r.id === id).uniformat.code;
+  assert.deepEqual([1, 2, 4, 5, 6].map(code), ["A1030", "B1020", "G2030", "A1030", "G2030"]); // 2 is the roof by geometry
+  assert.match(rows.find((r) => r.id === 1).uniformat.why, /slab on grade by geometry/);
+  // on beams (a hollow-core ground floor on foundation beams) it is suspended
+  rows = assignUniformat([...base(), fr({ id: 7, cls: "IfcBeam", box: [4, 0, -0.9, 4.4, 10, -0.3] })]);
+  assert.equal(code(1), "B1010");
+  // a crawl space: the walls go down past it, so it is not at the bottom
+  rows = assignUniformat([...base(), fr({ id: 8, cls: "IfcWallStandardCase", ext: true, box: [0, 0, -1.2, 10, 0.3, -0.3] })]);
+  assert.equal(code(1), "B1010");
+  assert.equal(code(5), "A1030"); // the name still says so
+  // a roof whose geometry was not read: inside or outside cannot be told, so not paving
+  rows = assignUniformat([...base(), row({ id: 9, cls: "IfcRoof" })]);
+  assert.deepEqual([4, 6].map(code), ["G2030", "A1030"]);
+  // nothing higher anywhere in the model (one slab): on grade, not paving
+  rows = assignUniformat([fr({ id: 1, cls: "IfcSlab", pdt: "FLOOR", box: [0, 0, -0.25, 5, 4, 0] })]);
+  assert.equal(code(1), "A1030");
+});
+
+test("gutters, downspouts and their framing are roof coverings; external railings exterior walls", () => {
+  const ctx = () => null;
+  assert.equal(ruleCode(row({ cls: "IfcFlowSegment", eff: "IfcPipeSegment", pdt: "GUTTER", type: "Gutter:Takrenne" }), ctx).code, "B3010");
+  assert.equal(ruleCode(row({ cls: "IfcFlowSegment", eff: "IfcPipeSegment", type: "04 Zink", name: "hwa afvoer" }), ctx).code, "B3010");
+  assert.equal(ruleCode(row({ cls: "IfcFlowSegment", eff: "IfcPipeSegment", type: "Pipe Types:Standard" }), ctx).code, "D");
+  assert.equal(ruleCode(row({ cls: "IfcSlab", pdt: "FLOOR", type: "IFC_gootconstructie_rekwerk_ongeisoleerd 100" }), ctx).code, "B3010");
+  assert.equal(ruleCode(row({ cls: "IfcRailing", ext: true }), ctx).code, "B2010");
+  assert.equal(ruleCode(row({ cls: "IfcRailing", ext: false }), ctx).code, null);
+});
+
+test("railings by what they stand on: stair, storey-tall rise, outside or inside", () => {
+  const fr = (o) => ({ ...row(o), box: o.box, railSide: o.side });
+  const flight = () => fr({ id: 1, cls: "IfcStairFlight", box: [0, 0, 0, 1, 4, 3] });
+  const rows = assignUniformat([
+    flight(),
+    fr({ id: 2, cls: "IfcRailing", ext: true, box: [1.05, 0, 0.9, 1.1, 4, 3.9] }), // handrail on the flight, flagged external: still the stair
+    fr({ id: 3, cls: "IfcRailing", ext: false, box: [1.1, 2, 3.95, 1.12, 2.1, 4.05] }), // baluster piece 3.95 m up: not on the flight...
+    fr({ id: 4, cls: "IfcRailing", ext: false, box: [1.1, 2.1, 3.0, 3.0, 2.12, 4.0] }), // ...but this rail along the head of the flight starts at its top
+    fr({ id: 5, cls: "IfcRailing", ext: false, box: [5, 5, 3, 8, 5.05, 4], side: { exterior: false, open: 0, points: 9 } }), // a gallery guard far away
+    fr({ id: 6, cls: "IfcRailing", ext: false, box: [20, 0, 0, 23, 1, 4.5] }), // rises a storey with no stair near: a stair railing
+    fr({ id: 7, cls: "IfcRailing", ext: false, box: [20, 1, 4.5, 21, 1.02, 5.5] }), // joined to that one: the landing guard
+    fr({ id: 8, cls: "IfcRailing", ext: false, box: [30, 0, 3, 33, 0.05, 4], side: { exterior: true, open: 9, points: 9 } }), // balcony
+    fr({ id: 9, cls: "IfcRailing", ext: false, box: [40, 0, 3, 43, 0.05, 4] }), // no rays read
+  ]);
+  const code = (id) => rows.find((r) => r.id === id).uniformat.code;
+  assert.deepEqual([2, 3, 4, 5, 6, 7, 8, 9].map(code), ["C2010", "C2010", "C2010", "C1010", "C2010", "C2010", "B2010", null]);
+  assert.match(rows.find((r) => r.id === 3).uniformat.why, /joined to a railing/);
+  assert.match(rows.find((r) => r.id === 6).uniformat.why, /rising 4\.5 m/);
+  // a level guard standing a storey above the flight's top is not the stair's
+  const up = assignUniformat([flight(), fr({ id: 2, cls: "IfcRailing", box: [1.05, 0, 3.5, 1.1, 4, 4.5], side: { exterior: false, open: 0, points: 9 } })]);
+  assert.equal(up[1].uniformat.code, "C1010");
 });

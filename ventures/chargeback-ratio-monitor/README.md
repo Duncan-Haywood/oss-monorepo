@@ -31,20 +31,34 @@ The trend is the average month-over-month change between the first and last of t
 are counted as opened: wins and losses are not in the export. Every table
 reconciles to the same totals (a test asserts it).
 
-## Known gaps (quality audit 2026-11-19)
+## Network programmes (added 2026-11-20)
 
-From [`portfolio/quality/audits/2026-11-19-chargeback-ratio-monitor.json`](../../portfolio/quality/audits/2026-11-19-chargeback-ratio-monitor.json):
+Besides your own lines, the report reads each brand in the latest month with
+charges:
 
-- **The headline ratio blends every card brand.** Visa VAMP and Mastercard's
-  Excessive Chargeback Program are each measured per brand. In the sample
-  file June is 1.09% overall while Mastercard alone is 9 of 373 (2.41%).
-  The by-brand table shows totals, not a per-brand month.
-- **Same-month denominator only.** Mastercard divides a month's chargebacks
-  by the *previous* month's transactions; the tool always uses the same month.
-- **Early fraud warnings are not in the ratio.** VAMP counts TC40 fraud
-  reports alongside disputes.
-- **No minimum-count gate.** Network programmes also require a minimum
-  number of disputes (e.g. 100 for Mastercard ECM) before a ratio counts.
+- **Visa VAMP (merchant):** (disputes + early fraud warnings) / Visa charges in
+  the same month, against 1.5% from 1 April 2026 (2.2% before) and a minimum of
+  1,500 fraud reports plus disputes.
+- **Mastercard ECP:** chargebacks this month / Mastercard charges in the
+  *previous* month; ECM at 1.5% and 100 chargebacks, HECM at 3.0% and 300.
+- **Each brand against your lines:** a brand at your elevated or excessive line
+  is a high finding even when the blended ratio is lower (the worked example:
+  June is 1.09% blended, Mastercard alone 9 of 373 = 2.41%).
+- A tick box counts early fraud warnings in the monthly ratio too.
+
+## Known gaps
+
+Fixed from the [2026-11-19 quality audit](../../portfolio/quality/audits/2026-11-19-chargeback-ratio-monitor.json):
+the blended-only headline, the same-month Mastercard denominator, early fraud
+warnings left out, and the missing minimum-count gate. Still open:
+
+- Fraud warnings are placed in the charge month: Stripe's export has no
+  warning date.
+- Card-present and card-not-present charges are not told apart; VAMP counts
+  card-not-present only.
+- Regional variants of the programmes and an acquirer's own lines are not
+  modelled.
+- Non-ISO dates (`01/31/2026`) are read by the browser's own parser.
 
 ## Run
 
