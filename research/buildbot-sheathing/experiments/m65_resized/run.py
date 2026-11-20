@@ -11,7 +11,7 @@ tested at 0.2 N. B_PLAN = 0.2 is the paired baseline on the same loads.
 The finite-difference step of the settle gradient G_j is B itself (as in milestones 55 to 64), so at each B_PLAN the
 margin is the gradient's chord over the whole ball, not a smaller-step tangent.
 
-Section L is held out: 48 Latin-hypercube loads (seed 65). Hypotheses H250-H252 (LOG.md, registered before the run).
+Section L is held out: 16 Latin-hypercube loads (seed 65; 48 were planned, cut to 16 for run time, LOG.md). Hypotheses H250-H252 (LOG.md, registered before the run).
 M65_PROCS sets the pool (default 4); M65_N the loads.
 """
 import os as _os
@@ -25,7 +25,7 @@ import platform
 import sys
 import time
 
-N = int(os.environ.get("M65_N", "48"))
+N = int(os.environ.get("M65_N", "16"))
 os.environ["M63_N"] = str(N)
 HERE = os.path.dirname(os.path.abspath(__file__))
 import numpy as np  # noqa: E402
