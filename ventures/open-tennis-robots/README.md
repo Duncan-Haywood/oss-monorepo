@@ -32,6 +32,13 @@ or [browse it](manufacturing/collector/) (GitHub renders the STLs in 3D):
 - `print/*.stl`: PETG printed parts
 - `step/*.step`: every part, plus the assembly, for any CAD or CAM tool
 - `bom.csv` (every part and fastener), `cut_list.csv` and assembly drawings
+- [`guide/ASSEMBLY.md`](manufacturing/collector/guide/ASSEMBLY.md): a 14-step
+  assembly guide with one drawing a step, generated from the same model
+  (2026-11-20). Its build checks every bolt's length against the stack the
+  CAD puts under it, hands out every BOM line to the unit, and lifts the
+  emptying hatch off a hung drum. Writing it found six faults in the
+  package that a builder would have hit; they are fixed
+  ([`cad/README.md`](cad/README.md), "Assembly guide")
 
 Every build checks for part-to-part collisions, bolt-hole alignment, ground
 contact and design rules, and is byte-reproducible. CI fails if the
@@ -490,7 +497,8 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
 7. Spin estimation from longer tracks, to cut prediction error on topspin
    returns (the main error source; see `tests/test_robots.py`).
 8. UWB or line-based localisation for the collector on unlit courts.
-9. An illustrated assembly guide and a kit for sellers.
+9. An illustrated assembly guide (the collector's landed 2026-11-20, generated from the CAD) and a kit for
+   sellers; the feeder's guide is next.
 
 ### Known gaps (quality audit, 2026-11-08)
 

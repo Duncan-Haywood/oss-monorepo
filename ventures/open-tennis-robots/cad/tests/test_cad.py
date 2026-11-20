@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 try:
@@ -99,30 +100,40 @@ class GeometryTest(unittest.TestCase):
         self.assertTrue(any("wheel" in c for c in collisions(bad)))
 
     def test_printed_part_bolts_line_up_with_base_plate_holes(self):
-        """Every vertical pilot hole in a part sitting on the base must land on a base-plate hole."""
+        """Every vertical insert pocket or clearance hole meeting the base plate lands on a base-plate hole."""
         base = next(x for x in self.parts if x.name == "base_plate")
         holes = [(e.arc_center.X, e.arc_center.Y) for e in base.flat.edges()
                  if e.geom_type == GeomType.CIRCLE and abs(e.radius - 2.2) < 1e-6]
+        radii = (self.p.insert_hole_d / 2, 2.2)
         checked = 0
         for part in self.parts:
             if part.kind != "print":
                 continue
             for solid in part.placed():
                 for f in solid.faces():
-                    if f.geom_type != GeomType.CYLINDER or abs(f.radius - 2.0) > 1e-6:
+                    if f.geom_type != GeomType.CYLINDER or min(abs(f.radius - r) for r in radii) > 1e-6:
                         continue
                     ax = f.axis_of_rotation
                     if abs(abs(ax.direction.Z) - 1) > 1e-6:
                         continue
                     z0 = f.bounding_box().min.Z
-                    # Pilot holes that start at the base top face (z = base_top), or reach down through it.
+                    # Holes that start at the base top face (z = base_top), or reach down through it.
                     if abs(z0 - self.p.base_top) > 1e-3 and abs(f.bounding_box().max.Z - self.p.base_z) > 1e-3:
                         continue
                     x, y = ax.position.X, ax.position.Y
                     self.assertTrue(any(math.hypot(x - hx, y - hy) < 0.01 for hx, hy in holes),
-                                    f"{part.name} pilot hole at ({x:.1f}, {y:.1f}) has no base-plate hole")
+                                    f"{part.name} hole at ({x:.1f}, {y:.1f}) has no base-plate hole")
                     checked += 1
-        self.assertGreaterEqual(checked, 4 + 4 + 4 + 4)
+        self.assertGreaterEqual(checked, 4 + 4 + 4 + 4)   # cradles, pivot blocks, mast socket, caster adapter
+
+    def test_insert_pockets_fit_the_insert(self):
+        """2026-11-20: the pilots were 4.0-4.4 mm, which no M4 heat-set insert fits."""
+        n = 0
+        for part in self.parts:
+            if part.kind == "print":
+                n += sum(1 for f in part.shape.faces() if f.geom_type == GeomType.CYLINDER
+                         and abs(f.radius - self.p.insert_hole_d / 2) < 1e-6)
+        self.assertEqual(n, 4 + 2 + 2 + 4)   # one cradle's top and bottom, one pivot block, the mast socket
 
     def test_laser_parts_fit_a_standard_sheet(self):
         for part in self.parts:
@@ -137,6 +148,71 @@ class GeometryTest(unittest.TestCase):
         self.assertEqual(len(rod_holes), self.p.n_rods)
         for e in rod_holes:
             self.assertAlmostEqual(math.hypot(e.arc_center.X, e.arc_center.Y), self.p.rod_circle_r, places=6)
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class AssemblyGuideTest(unittest.TestCase):
+    """The guide's checks pass on the design and fail on the faults they were written for (2026-11-20)."""
+
+    @classmethod
+    def setUpClass(cls):
+        from otr_cad import collector as C, guide as G
+        from otr_cad.package import COTS_EXTRA, fasteners
+        cls.C, cls.G = C, G
+        cls.p = Collector()
+        cls.parts = C.all_parts(cls.p)
+        cls.rows = [{"item": n, "kind": "cots", "qty": q} for n, q, _ in fasteners(cls.p) + COTS_EXTRA]
+
+    def test_design_passes_every_guide_check(self):
+        rows, bad = self.G.joint_checks(self.p, self.parts)
+        self.assertEqual(bad, [])
+        self.assertEqual(len(rows), 11)
+        self.assertEqual(self.G.tally(self.p, self.parts, self.rows), [])
+        self.assertEqual(self.G.order_problems(self.p, self.parts), [])
+        self.assertEqual(self.G.hatch_check(self.p, self.parts), [])
+
+    def test_joint_stacks_are_measured_from_the_cad(self):
+        rows = {r["joint"]: r for r in self.G.joint_checks(self.p, self.parts)[0]}
+        self.assertEqual(rows["drum axle"]["grip_mm"], 19.0)        # arm 5 + spacer 7 + bearing 7
+        self.assertEqual(rows["rod clamp ring"]["grip_mm"], 8.0)    # ring 3 + disc 5
+        self.assertEqual(rows["yoke pivot"]["spare_mm"], self.p.pivot_float)
+        self.assertEqual(rows["caster adapter + plate to mast socket"]["grip_mm"], 10.5)
+
+    def test_short_fasteners_fail(self):
+        """The BOM's old M4 x 12 on the clamp rings, and a thicker plate under unchanged screws."""
+        import dataclasses
+        j = next(x for x in self.G.joints(self.p) if x.name == "rod clamp ring")
+        old = dataclasses.replace(j, length=12)
+        with unittest.mock.patch.object(self.G, "joints", lambda p: [old]):
+            self.assertTrue(any("rod clamp ring" in b for b in self.G.joint_checks(self.p, self.parts)[1]))
+        thick = Collector(plate_t=8.0)
+        bad = self.G.joint_checks(thick, self.C.all_parts(thick))[1]
+        self.assertTrue(any("rod clamp ring" in b for b in bad))
+        self.assertTrue(any("cradle to base" in b for b in bad))
+
+    def test_old_arm_gap_traps_the_hatch(self):
+        tight = Collector(arm_gap=3.0)
+        self.assertTrue(any("hatch" in r for r in tight.check()))
+        self.assertTrue(self.G.hatch_check(tight, self.C.all_parts(tight)))
+
+    def test_old_mast_position_is_a_rule(self):
+        self.assertTrue(any("mast_x" in r for r in Collector(mast_x=-235.0).check()))
+
+    def test_tally_and_order_catch_a_lost_step(self):
+        rows = [dict(r) for r in self.rows]
+        rows[0]["qty"] += 1
+        self.assertTrue(self.G.tally(self.p, self.parts, rows))
+        real = self.G.steps
+        with unittest.mock.patch.object(self.G, "steps", lambda p: [s for s in real(p) if s.parts != ["base_plate"]]):
+            self.assertTrue(any("base_plate" in b for b in self.G.tally(self.p, self.parts, self.rows)))
+            self.assertTrue(any("touches nothing" in b for b in self.G.order_problems(self.p, self.parts)))
+
+    def test_guide_is_in_the_package(self):
+        out = fresh_build("collector")
+        text = (out / "guide" / "ASSEMBLY.md").read_text()
+        self.assertIn("all pass.", text)
+        self.assertEqual(text.count("![Step"), 11)
+        self.assertEqual(len(list((out / "guide").glob("step_*.svg"))), 11)
 
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")

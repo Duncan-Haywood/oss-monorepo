@@ -41,6 +41,49 @@ that sits on the base plate must land on a hole in the plate. It also checks
 that the DXFs read back in millimetres, that two builds are byte-identical,
 and that the committed package matches a fresh build.
 
+## Assembly guide (2026-11-20)
+
+`python -m otr_cad collector` also writes `guide/ASSEMBLY.md` and one drawing a
+step (`guide/step_NN.svg`, the step's parts in black over what is built in
+grey), from `otr_cad/guide.py`. The build fails if the guide and the package
+disagree:
+
+- **Fastener stacks.** For each bolted joint, a ring around the bolt's axis is
+  intersected with the placed parts to measure what lies under the head. A
+  nyloc needs its height plus two threads past the stack; a screw into a
+  heat-set insert must reach the insert's whole 5.7 mm and not bottom out in
+  its pocket; a shoulder bolt must be 0-1 mm longer than what swings on it.
+  The table is in the guide.
+- **Tally.** Every placed part goes on in exactly one step, and the steps use
+  every bought line of `bom.csv` to the unit.
+- **Order.** Each part a step adds touches something already built (wheels may
+  sit off the gearmotor face by the shaft's length, which is not modelled).
+- **Hatch.** With the drum hung, the emptying hatch, turned slot-down, lifts
+  3.3 mm out of its seat and rises off the axle spacer without touching
+  anything.
+
+Writing the guide against the model found six things a builder of the v0.2
+package as committed before 2026-11-20 would have hit, all fixed in the same change:
+
+| Found | Was | Now |
+| --- | --- | --- |
+| Heat-set insert holes | 4.0-4.4 mm pilots; an M4 insert wants about 5.6 mm | 5.6 x 6.5 mm pockets (`insert_hole_d`, `insert_depth`), M4 clearance past them |
+| Mast socket and caster adapter | each one's M4 heads landed under the other part, on the same patch of plate | one set of four M4 x 20 from below through adapter (heads in counterbores) and plate into the socket's inserts; `mast_x` = `caster_x` is a design rule |
+| Motor clamp cap bolts | 1.1 mm of plastic between the bolt hole and the motor bore (0.5 mm with an insert) | clamp 64 mm wide, bolts at x = +/-25.5: 4 mm to the bore, 3.7 mm to the side |
+| Yoke pivot | an "M8 x 25" shoulder bolt through a 5 mm arm and a 30 mm block | an 8 mm x 40 mm shoulder bolt (ISO 7379, M6 thread); the block is 34.5 mm deep, so the arm swings with 0.5 mm float |
+| Drum axle | the same 25 mm shoulder bolt with a 3 mm M8 washer stack between arm and cover: the washers (16 mm OD) bore on the turning cover, and nothing clamped the bearing's inner race | an M8 x 30 bolt clamping arm, a 12 mm OD x 7 mm spacer (through the cover's 14 mm hole) and the 608's inner race |
+| Emptying hatch | the axle bolt passed through it, so emptying the drum meant unhanging it | a 14 mm slot from the axle to the rim, and a 4 mm arm gap: turn the drum slot-down, undo six thumb screws, lift the hatch out and up |
+
+Smaller ones: the clamp-ring screws were M4 x 12 with nylocs over an 8 mm stack
+(now M4 x 16); the disc holes for the M5 rivet nuts were 5.5 mm (now 7.0 mm,
+`rivet_nut_hole_d`); the standoffs' screws from below reached 3 mm into the
+standoff (now M3 x 10, 5 mm). The yoke-lift microswitches have no mount in the
+CAD yet; the guide says so.
+
+Caveats: the bought-in parts are envelopes drawn from `params.py`, so the stack
+check is only as good as those numbers (nut heights are DIN 985; a rivet nut's
+flange is taken as 1 mm). The guide has not been followed by anyone building one.
+
 ## Changing the design
 
 Edit `otr_cad/params.py`, or override from the command line:
