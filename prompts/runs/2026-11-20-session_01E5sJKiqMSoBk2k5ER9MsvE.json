@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKiqMSoBk2k5ER9MsvE",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T15:19:12Z",
+  "ended": "2026-11-20T15:44:42Z",
+  "wall_minutes": 25.67,
+  "tokens_in": 8080248,
+  "tokens_out": 51247,
+  "cost_usd": 4.0076,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17932",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First S1 mesh expectation used a relative heave change, which blows up at the heave cancellation (lambda/L 0.6, 0.8); reported as refuted-as-written, the test pins the band from 1.0 up instead."
+  ],
+  "integrity_issues": [
+    "Not blind: a prototype on the tank hull (coupling at 3 KL, motions at 6 lambda/L) ran before the plan; its numbers are disclosed in the LOG plan entry."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "CHAIN note said 39 sub-steps of milestone 7 since the last paper step; useful, but the forward-speed step was still the most-named 'Next', so the hint did not change the choice."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-marine-hull-3d-panel-forward-speed-seakeeping.md",
+    "research/marine-hull/LOG.md (7zn)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7zn: Capytaine 3.0.0 forward-speed approximation against Kashiwagi Fn 0.2 tank data, Journee L/B 10 peaks and the monohull. 5 of 9 expectations held. Tank heave +36% (strip +3%), B35 1.6x measured; Journee peak ratios 0.70/0.78 -> 0.82/0.85; monohull 30 W loss 3.39% -> 3.80%, bracket stands. Local checks: marine-hull tests 514 passed; paper/check_numbers.py ok; research/_homepage/build.py ok; check_posts ok; check_md_links ok; research_live_links no change.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "49c64771-9c69-5c0f-b443-b13b0ef53c16",
+    "transcripts": 1,
+    "first": "2026-11-20T15:19:12Z",
+    "last": "2026-11-20T15:44:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 113,
+        "output": 51247,
+        "thinking": 13792,
+        "cache_read": 7904989,
+        "cache_write_5m": 0,
+        "cache_write_1h": 175146,
+        "api_equivalent_usd": 4.0076,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 113,
+      "output": 51247,
+      "thinking": 13792,
+      "cache_read": 7904989,
+      "cache_write_5m": 0,
+      "cache_write_1h": 175146,
+      "api_equivalent_usd": 4.0076,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 58,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.67,
+      "active_minutes": 25.67,
+      "model_minutes": 9.22,
+      "tool_minutes": 16.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a naval-architecture researcher setting up a forward-speed BEM comparison against three tank datasets, running it and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 399.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
