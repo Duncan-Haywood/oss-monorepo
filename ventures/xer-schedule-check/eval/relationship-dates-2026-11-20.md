@@ -131,3 +131,33 @@ leaves both witnesses consistent with the new lag. Started activities: their
 out. The finished-predecessor path has no unit test of its own (the example
 schedule's only such link has its lag fully spent); it rests on the 1,894 real
 links above.
+
+## The 608 h lag's forward gap: searched again, no rule (2026-11-20, later)
+
+P6 put BAFT2305509C1 at 2011-10-05 08:00, 440 working hours after its
+predecessor's actual finish (2011-07-31 08:00) on calendar 12845 (8 h days,
+Fridays off), where the 608 h lag gives 2011-10-29 17:00. Checked and ruled
+out, each against P6's own numbers in the file:
+
+- **Another lag calendar.** The project's lag calendar is the predecessor's
+  (`sched_calendar_on_relationship_lag` rcal_Predecessor); both ends use
+  12845. On the 7-day calendar 12844 the gap is 528 h, on a 24-hour calendar
+  the lag ends before the data date. Neither is 440.
+- **The predecessor's other links.** The same finished milestone feeds
+  BAFT2005509C1 by FS 760 h, same calendar: P6's early start there is
+  2011-11-23 17:00, exactly 760 h after the actual finish, and the engine
+  matches it. So P6 counted that link's lag the normal way in the same run.
+- **Planned dates.** The predecessor's planned start (2011-09-01) gives 232 h
+  to 10-05, not 608 or 440.
+- **Holidays.** The calendar's exceptions between the actual finish and 10-05
+  are two days (08-30, 08-31), 16 h, not 168 h.
+- **External or out-of-project link.** Both ends are in project 8788; the
+  successor has no external dates.
+- **An edit after the run.** `arls` (200 h before the successor's late start
+  = 608 - 408 h spent) says the backward pass used 608 h.
+
+168 h is 21 of this calendar's days or exactly one 24-hour week; neither
+leads to a rule that also leaves the 760 h link where P6 put it. One link of
+46,727 into unstarted activities, with no second case, cannot pick between
+rules, so the item is closed as an unexplained P6 forward date, listed in
+the assessment as such.

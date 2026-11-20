@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKniam3vWvk5PsHQXbr",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T13:13:16Z",
+  "ended": "2026-11-20T13:51:17Z",
+  "wall_minutes": 38.74,
+  "tokens_in": 7483422,
+  "tokens_out": 35541,
+  "cost_usd": 3.147,
+  "tool_calls": 77,
+  "task": "perf: open-tennis-robots CAD CI step (19.4 job-min in 2 h, ci_profile)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17919",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First history/test draft claimed clashes(a + b) == clashes(a) + cross_clashes(a, b) + clashes(b) in order; the new test caught that combinations() interleaves the pairs. Fixed to a same-entries claim; the pose tests' pass/fail condition was unaffected.",
+    "First A/B compared zips with cmp; they differ only by the folder name stored inside, so diff -r of the folders is the real check."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "'Where to look' step 1 again had only owner-gated perf items (P063, P064); the prompt already says so, but the backlog has no agent-landable perf items to start from."
+    },
+    {
+      "file": "ventures/open-tennis-robots/cad/tests/test_cad.py",
+      "issue": "No per-test timing exists for this suite (Python 3.11 unittest has no --durations); I wrote a TextTestResult timer in scratch to find the long pole. The feeder build, which earlier perf runs targeted, runs beside the tests and is no longer the suite's critical path."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-the-lift-test-checked-the-lift-against-itself-eighteen-times.md",
+    "docs/history/ci-perf-2026-11-20-open-tennis-cad-shared-solids.md"
+  ],
+  "goal": "Cut runner minutes of the open-tennis-robots cad job with identical outputs and unchanged test pass/fail conditions.",
+  "notes": "Metric: open-tennis-robots CAD suite wall and CPU, plus feeder package build wall. Before (main, same 4-core sandbox, build123d 0.13.0 venv): feeder build 116.1/115.6 s (`time python -m otr_cad feeder --out d`); suite 281 s wall via a per-test timing runner, 289 s / user 9m28s via `time python -m unittest discover -s tests`. After: feeder build 98.5/97.8 s; suite 229 s wall, user 7m09s, 148 tests OK (147 + new CrossClashesTest) incl. both committed-package freshness checks. Lift pose test 51.3 -> 14.4 s, deck-cable pose test 18.7 -> 9.2 s. Output check: diff -r of feeder package folders main vs branch identical. Changes: placed solids built once per cached parts list and exact bboxes memoised for them (feeder.py _placed_named, bbox); package.cross_clashes; two pose tests intersect stationary parts' own pairs once. Local checks: see run_workflow_locally output summary in PR. CI cad job expected ~50 s shorter per run. CI: cad check on PR #17919 took 5 min 54 s (13:52:21-13:58:15 UTC, incl. pip install), success; all other checks green. Local run_workflow_locally --for-changes: pages.yml 6/6 run steps ok (4 uses: steps not run).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "06b27560-f0e1-557e-afa2-a435d57a0963",
+    "transcripts": 1,
+    "first": "2026-11-20T13:13:16Z",
+    "last": "2026-11-20T13:52:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 139,
+        "output": 35541,
+        "thinking": 8784,
+        "cache_read": 7362900,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120383,
+        "api_equivalent_usd": 3.147,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 139,
+      "output": 35541,
+      "thinking": 8784,
+      "cache_read": 7362900,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120383,
+      "api_equivalent_usd": 3.147,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 74,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 38.74,
+      "active_minutes": 38.74,
+      "model_minutes": 7.33,
+      "tool_minutes": 31.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profile a build123d CAD suite, two cache changes, test split with equivalence proof, A/B timing and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 127.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -52,6 +52,31 @@ one already queued, *every later query on that table queues behind it too*. A
 runs. `SET lock_timeout = '3s'` converts that from an outage into a migration
 that fails and can be retried.
 
+## DO blocks are read, not skipped
+
+Conditional DDL is idiomatic in hand-written migrations, and drizzle-kit
+wraps every foreign key it generates in one:
+
+```sql
+DO $$ BEGIN
+ ALTER TABLE "posts" ADD CONSTRAINT "posts_user_id_users_id_fk"
+   FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+```
+
+The body is a dollar-quoted string, and until 2026-11-20 this tool blanked
+it like any other literal, so that block, a `CREATE INDEX` inside
+`IF NOT EXISTS ... THEN`, or a `DROP COLUMN` with no `lock_timeout` all came
+back `clean`. Now the statements inside a `DO` body are checked at their own
+line numbers, inside the block's single transaction, which is how PostgreSQL
+runs them: `CREATE INDEX CONCURRENTLY` there is reported as the runtime error
+it is, and two exclusive locks there are held together. The new-table rule
+still applies, so a drizzle initial migration that creates `posts` and then
+adds its foreign key stays quiet. Dynamic SQL (`EXECUTE '...'`) is not
+followed.
+
 ## What it deliberately does not flag
 
 A checker that cries wolf gets skipped, and then its true findings are worth

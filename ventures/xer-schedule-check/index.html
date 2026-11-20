@@ -369,7 +369,7 @@
     import { earnedValue, earnedValueCsv, sCurveCsv, sCurveSvg } from "./evm.mjs";
     import { earnedValueSeries, earnedValueSeriesCsv } from "./evmseries.mjs";
     import { lookahead, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
-    import { constraintLogCsv, EXAMPLE_LOG } from "./constraints.mjs";
+    import { constraintLogCsv, EXAMPLE_LOG, pastLabel } from "./constraints.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
@@ -595,7 +595,7 @@
         $("#la-log-csv").hidden = !cl;
         if (cl) {
           const s = cl.summary;
-          const lr = cl.items.filter((i) => i.status !== "cleared").slice(0, LIMIT).map((it) => `<tr><td>${esc(it.status)}</td><td>${esc(it.what || it.type || "(constraint)")}</td><td>${esc(it.owner)}</td><td>${esc(it.expected === null ? "" : new Date(it.expected * 60000).toISOString().slice(0, 10))}</td><td>${esc(it.links.map((l) => `${l.code}${l.needBy ? ` need ${l.needBy.slice(0, 10)}` : ""}${l.slackDays !== null && l.slackDays !== undefined ? ` (${l.slackDays >= 0 ? "+" : ""}${l.slackDays} d)` : ""}${l.past ? ", past late start" : ""}`).join("; "))}</td><td class="n">${it.finishSlipDays ? esc(it.finishSlipDays) : ""}</td></tr>`).join("");
+          const lr = cl.items.filter((i) => i.status !== "cleared").slice(0, LIMIT).map((it) => `<tr><td>${esc(it.status)}</td><td>${esc(it.what || it.type || "(constraint)")}</td><td>${esc(it.owner)}</td><td>${esc(it.expected === null ? "" : new Date(it.expected * 60000).toISOString().slice(0, 10))}</td><td>${esc(it.links.map((l) => `${l.code}${l.needBy ? ` need ${l.needBy.slice(0, 10)}` : ""}${l.slackDays !== null && l.slackDays !== undefined ? ` (${l.slackDays >= 0 ? "+" : ""}${l.slackDays} d)` : ""}${l.past ? ", " + pastLabel(l) : ""}`).join("; "))}</td><td class="n">${it.finishSlipDays ? esc(it.finishSlipDays) : ""}</td></tr>`).join("");
           $("#la-log-out").innerHTML = `<p class="note"><b>Constraints log</b>: ${s.rows} rows, ${s.open} open (${s.overdue} overdue, ${s.late} late for the schedule, ${s.noDate} with no expected date, ${s.onTrack} on track), ${s.cleared} cleared.${cl.finish.withLog ? ` If every open row clears on its expected date, the finish moves from ${esc(cl.finish.base)} to <b>${esc(cl.finish.withLog)}</b> (${cl.finish.slipDays > 0 ? `${esc(cl.finish.slipDays)} working days later` : "no change"}).` : ""}</p>${lr ? `<div class="tablewrap"><table><thead><tr><th>Status</th><th>Constraint</th><th>Owner</th><th>Expected</th><th>Activities (need by, working days to spare)</th><th class="n">Moves finish (d)</th></tr></thead><tbody>${lr}</tbody></table></div>` : ""}`;
           record("constraints_log_used");
         } else $("#la-log-out").innerHTML = "";

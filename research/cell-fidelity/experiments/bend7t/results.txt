@@ -1,0 +1,32 @@
+cell-fidelity milestone 7t: what bends the curve the ten-cycle forecast draws straight. No new simulation;
+rows.json and bench.jsonl of fresh7h (committed sets), plating7r (f = 10), plating7s (f = 30); cell 000.
+T = late (cycles 90-99) over early (2-10) plating per cycle; phi = plating share of the cycle 2-99 loss;
+rho by Spearman, p by 20,000 permutations (seed 7201).
+
+set               cond   n   med T  med phi   med m  med E10  med E50    s10  rho(|m-1|,E10)      rho(T,m)
+Ai2020       committed  16   0.168    0.029   0.996    0.032    0.015  0.197    +0.79 p0.000  -0.07 p0.787
+Chen2020     committed  16   0.310    0.998   0.964    0.058    0.015  0.148    +0.99 p0.000  +0.27 p0.309
+NCA_Kim2011  committed  16   0.037    0.981   0.820    0.037    0.013  0.463    +0.98 p0.000  -0.40 p0.125
+OKane2022    committed  16   0.324    0.998   1.055    0.073    0.034  0.145    +0.98 p0.000  +0.12 p0.663
+Ecker2015          f10  56   0.510    0.999   0.907    0.087    0.076  0.116    +0.99 p0.000  +0.88 p0.000
+Mohtat2020         f10  56   0.555    0.996   1.006    0.043    0.049  0.112    +0.99 p0.000  +0.09 p0.506
+Ecker2015          f30  56   0.239    0.999   0.610    0.243    0.131  0.173    +0.81 p0.000  +0.87 p0.000
+Mohtat2020         f30  56   0.297    0.999   0.806    0.105    0.061  0.153    +0.95 p0.000  +0.83 p0.000
+
+median E_k by window (k = 10, 15, 20, 30, 40, 50) and median s_k on the tuned cells:
+  Mohtat2020 f10  E 0.043 0.040 0.047 0.049 0.052 0.049   s 0.112 0.178 0.241 0.360 0.471 0.574
+  Mohtat2020 f30  E 0.105 0.111 0.107 0.087 0.074 0.061   s 0.153 0.236 0.311 0.444 0.556 0.655
+  Ecker2015  f10  E 0.087 0.095 0.091 0.092 0.085 0.076   s 0.116 0.184 0.250 0.372 0.485 0.591
+  Ecker2015  f30  E 0.243 0.238 0.224 0.191 0.158 0.131   s 0.173 0.265 0.347 0.483 0.591 0.683
+
+look the f = 30 cell needs to reach the f = 10 median E10, and the look a share-scaled rule would pick:
+  Mohtat2020  target 0.043: needed   none cycles; share-matched (s = 0.112)    7.9 cycles
+  Ecker2015   target 0.087: needed   none cycles; share-matched (s = 0.116)    7.4 cycles
+
+across the 8 set-conditions: rho(med T, med |m-1|) = -0.81, p = 0.024
+
+H326 (within every set-condition rho(|m-1|, E10) >= 0.7): supported
+H327 (median T lower at f = 30 than at f = 10 on both cells): supported
+H328 (within every tuned set-condition rho(T, m) >= 0.5): inconclusive
+H329 (f = 30 reaches the f = 10 median E10 within 25 cycles on both cells): refuted
+H330 (across set-conditions rho(med T, med |m-1|) <= -0.5): supported

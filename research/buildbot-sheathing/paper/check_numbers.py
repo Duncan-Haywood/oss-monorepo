@@ -74,6 +74,7 @@ M60 = E + "m60_jointpreload/results.txt"
 M61 = E + "m61_lastfour/results.txt"
 M62 = E + "m62_exactgate/results.txt"
 M63 = E + "m63_worstbias/results.txt"
+M64 = E + "m64_overbias/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -307,6 +308,9 @@ CHECKS = [
     (M63, "h1 | adv | 1812 | 1812 | 0 | 100.00 | 0 | 0.0101, 0.0188, 0.0108, 0.0203", "0.0203 mm on the\nH1"),
     (M63, "g1 | rand | 4080 | 4078 | 2 | 99.95 | 0 | 0.0110, 0.0225, 0.0111, 0.0238", "against 0.0238 and 0.0182 mm"),
     (M63, "h1 | rand | 5436 | 5436 | 0 | 100.00 | 0 | 0.0087, 0.0168, 0.0093, 0.0182", "against 0.0238 and 0.0182 mm"),
+    (M64, "g1 | 1.5 | 0.30 | 1338 | 0 | 1338 | 100.00 | 303 | 0 | 0.2419, 0.2707, 0.2494, 0.2875", "0.2875 mm on the G1"),
+    (M64, "h1 | 1.5 | 0.30 | 1808 | 0 | 1808 | 100.00 | 217 | 0 | 0.2361, 0.4349, 0.2422, 0.4689", "0.4689 mm on the H1"),
+    (M64, "g1 | 5 | 1.00 | 1338 | 0 | 1336 | 99.85 | 1099 |", "at least 99.85% of"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

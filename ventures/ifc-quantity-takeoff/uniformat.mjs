@@ -15,7 +15,9 @@
 //   rule    the IFC class read with the element's PredefinedType (its own or
 //           its type's), IsExternal (Pset_*Common, its own or its type's),
 //           the wall a door or window fills, the assembly it is part of and
-//           the storey's elevation. Each rule's reason is on the row.
+//           the storey's elevation. A wall with no IsExternal is placed by
+//           the envelope test from its geometry (envelope.mjs) when the
+//           geometry was read. Each rule's reason is on the row.
 //
 // The codes and titles are those of NISTIR 6389 (Charette and Marshall,
 // "UNIFORMAT II Elemental Classification for Building Specifications, Cost
@@ -99,7 +101,10 @@ function nameRule(r, cls) {
 export function ruleCode(r, ctx) {
   const cls = r.effectiveClass || r.ifcType || "";
   const pdt = r.predefinedType || null;
-  const ext = r.isExternal; // true, false or null (not set)
+  // true, false or null (not set); a wall flag the model gives every wall
+  // alike while the geometry disagrees is not read (envelope.mjs)
+  const flagNotRead = WALLISH.test(cls) && r.isExternal != null && r.envelope?.flagSaysNothing === true;
+  const ext = flagNotRead ? null : r.isExternal;
   const below = r.storeyElevation != null && r.storeyElevation < BELOW_GRADE;
   const parent = r.parent != null ? ctx(r.parent) : null;
   const pcls = parent ? parent.effectiveClass || parent.ifcType : null;
@@ -126,8 +131,18 @@ export function ruleCode(r, ctx) {
       return { code: "B1010", why: pdt ? `slab, ${pdt}` : "slab" };
     case cls === "IFCROOF": return { code: "B1020", why: "roof" };
     case WALLISH.test(cls):
-      if (ext === true) return below ? { code: "A2020", why: `wall, IsExternal, storey below grade (${r.storey})` } : { code: "B2010", why: "wall, IsExternal" };
-      if (ext === false) return { code: "C1010", why: "wall, not IsExternal" };
+      // a flag the geometry disagrees with is kept, and the row says so for
+      // the estimator to check (on 17 public models the flag was the wrong one
+      // in most such walls looked at: eval/envelope-2026-11-20.md)
+      const doubt = ext != null && r.envelope && r.envelope.exterior !== ext ? `; the geometry reads it ${r.envelope.exterior ? (r.envelope.leaf ? "as an inner leaf or lining of an exterior wall" : "on the outside") : "inside the building"}, check it` : "";
+      if (ext === true) return below ? { code: "A2020", why: `wall, IsExternal, storey below grade (${r.storey})${doubt}` } : { code: "B2010", why: `wall, IsExternal${doubt}` };
+      if (ext === false) return { code: "C1010", why: `wall, not IsExternal${doubt}` };
+      if (r.envelope) {
+        // no flag: the envelope test from the geometry (envelope.mjs)
+        const e = r.envelope, by = `${flagNotRead ? `IsExternal ${r.isExternal} on every wall of the model, not read` : "no IsExternal"}; by geometry, open to the outside at ${e.open} of ${e.points} points${e.leaf ? " through its outer leaf (an inner leaf or lining of an exterior wall)" : ""}`;
+        if (e.exterior) return below ? { code: "A2020", why: `wall, ${by}, storey below grade (${r.storey})` } : { code: "B2010", why: `wall, ${by}` };
+        return { code: "C1010", why: `wall, ${by}` };
+      }
       return { code: null, why: "wall with no IsExternal: exterior or partition cannot be told" };
     case cls === "IFCCURTAINWALL":
       return ext === false ? { code: "C1010", why: "curtain wall, not IsExternal (glazed partition)" } : { code: "B2010", why: `curtain wall${extWhy || ", assumed exterior"}` };
@@ -145,9 +160,11 @@ export function ruleCode(r, ctx) {
       if (ext === true) return { code: "B2030", why: "door, IsExternal" };
       if (ext === false) return { code: "C1020", why: "door, not IsExternal" };
       const h = r.host != null ? ctx(r.host) : null;
-      if (h && h.isExternal === true) return { code: "B2030", why: "door in an exterior wall" };
-      if (h && h.isExternal === false) return { code: "C1020", why: "door in an interior wall" };
+      const hx = h ? (h.envelope?.flagSaysNothing ? null : h.isExternal) : null;
+      if (hx === true) return { code: "B2030", why: "door in an exterior wall" };
+      if (hx === false) return { code: "C1020", why: "door in an interior wall" };
       if (pcls === "IFCCURTAINWALL") return parent.isExternal === false ? { code: "C1020", why: "door in a curtain wall, not IsExternal" } : { code: "B2030", why: `door in a curtain wall${parent.isExternal ? ", IsExternal" : ", assumed exterior"}` };
+      if (h && hx == null && h.envelope) return h.envelope.exterior ? { code: "B2030", why: "door in a wall the geometry puts on the outside" } : { code: "C1020", why: "door in a wall the geometry puts inside" };
       return { code: "C10", why: "door with no IsExternal and no host wall that says" };
     }
     case cls === "IFCCOVERING":
@@ -165,9 +182,33 @@ export function ruleCode(r, ctx) {
       return { code: null, why: "railing not part of a stair or ramp (balcony, guard or stair cannot be told)" };
     case cls === "IFCMEMBER" && /^(RAFTER|PURLIN)$/.test(pdt || ""): return { code: "B1020", why: `member, ${pdt}` };
     case cls === "IFCMEMBER" && /^(MULLION)$/.test(pdt || ""): return { code: "B2010", why: "member, MULLION" };
-    case /^IFC(BEAM|BEAMSTANDARDCASE|COLUMN|COLUMNSTANDARDCASE|MEMBER|MEMBERSTANDARDCASE|PLATE|PLATESTANDARDCASE)$/.test(cls):
+    // a curtain panel is measured with its curtain wall, as a mullion is
+    // (IfcCurtainWall itself is B2010 above); Revit exports many with no parent
+    case /^IFCPLATE/.test(cls) && pdt === "CURTAIN_PANEL": return { code: "B2010", why: "plate, CURTAIN_PANEL (with the curtain wall)" };
+    case cls === "IFCMEMBER" && pdt === "STRINGER": return { code: "C2010", why: "member, STRINGER (stair construction)" };
+    case /^IFC(BEAM|BEAMSTANDARDCASE|COLUMN|COLUMNSTANDARDCASE|MEMBER|MEMBERSTANDARDCASE|PLATE|PLATESTANDARDCASE)$/.test(cls): {
+      // what it carries (findCarried): the nearest slab or roof directly over
+      // it. NISTIR 6389 puts the frame under a floor in B1010, the frame
+      // under the roof (columns that carry only the roof too) in B1020, and
+      // grade beams under a slab on grade in A1010 Standard Foundations.
+      const c = r.carries;
+      if (c) {
+        const what = `${c.ifcClass} ${c.code} ${c.gap <= 0 ? "at its top" : `${c.gap.toFixed(2)} m above its top`}`;
+        if (c.code === "B1020") return { code: "B1020", why: `frame member under the roof (carries ${what})` };
+        if (c.code === "A1030") return /^IFCBEAM/.test(cls) ? { code: "A1010", why: `beam under a slab on grade (carries ${what})` } : { code: "B1010", why: `frame member under a slab on grade (carries ${what})` };
+        // a beam on a below-grade storey whose bottom is at or under that
+        // storey's level bears on the ground, not on a basement floor: a
+        // footing or grade beam under the ground floor (schependomlaan's 82
+        // funderingsbalken on "-1 fundering"), A1010
+        if (below && /^IFCBEAM/.test(cls) && r.box[2] <= r.storeyElevation + 0.5) return { code: "A1010", why: `grade beam: on a storey below grade (${r.storey}) with its bottom at that level, under a floor (carries ${what})` };
+        return { code: "B1010", why: `frame member under a floor (carries ${what})` };
+      }
       if (below && /^IFC(BEAM|COLUMN)/.test(cls)) return { code: "B1010", why: "frame member on a basement storey (floor construction)" };
-      return { code: "B10", why: "frame member: floor or roof construction cannot be told" };
+      // a storey named "Roof" is not read: Revit puts what stands on the roof
+      // level there (advanced_model's 4 struts on Roof Level, coded B1010 by
+      // their author, would land in B1020)
+      return { code: "B10", why: r.box ? "frame member with no slab or roof found over it: floor or roof construction cannot be told" : "frame member: floor or roof construction cannot be told (geometry not read)" };
+    }
     case cls === "IFCSHADINGDEVICE": return { code: "B2010", why: "shading device (exterior sun control)" };
     case cls === "IFCCHIMNEY": return { code: "B10", why: "chimney" };
     case cls === "IFCTRANSPORTELEMENT":
@@ -209,6 +250,7 @@ export function ruleCode(r, ctx) {
 export function assignUniformat(rows) {
   const byId = new Map(rows.map((r) => [r.id, r]));
   const ctx = (id) => byId.get(id) || null;
+  findCarried(rows, ctx);
   for (const r of rows) {
     const rule = ruleCode(r, ctx);
     let code = null, source = null, why = rule.why;
@@ -217,6 +259,46 @@ export function assignUniformat(rows) {
     r.uniformat = { code, title: titleOf(code), level: levelOf(code), source, why, rule: rule.code, ruleWhy: rule.why };
   }
   return rows;
+}
+
+const FRAME = /^IFC(BEAM|COLUMN|MEMBER|PLATE)/;
+const DECK = /^IFC(SLAB|ROOF)/;
+const REACH = 0.6; // m: how far above a member's top a deck may start and still bear on it
+const deckCode = (r, ctx) => {
+  for (const c of r.uniformatCodes || []) { const k = parseUniformat(c.code); if (k) return k; }
+  return ruleCode(r, ctx).code;
+};
+
+/**
+ * Sets row.carries = { id, ifcClass, code, gap } on each beam, column, member
+ * and plate whose box was read: the slab or roof that bears on it, which is
+ * the one with the lowest bottom among those that cover the middle of its
+ * plan, come down to within REACH of its top and do not lie wholly below
+ * its top (a beam whose top is flush with the slab's top is under it). Plan
+ * cover is read from the deck's box, so an L-shaped slab covers its whole
+ * bounding rectangle; a roof's parts are read through their own boxes.
+ */
+export function findCarried(rows, ctx) {
+  const decks = [];
+  for (const d of rows) {
+    const cls = d.effectiveClass || d.ifcType || "";
+    if (!DECK.test(cls) || !d.box) continue;
+    const code = deckCode(d, ctx);
+    if (code === "B1010" || code === "B1020" || code === "A1030") decks.push({ d, code });
+  }
+  if (!decks.length) return;
+  for (const r of rows) {
+    if (!r.box || r.isAssembly || !FRAME.test(r.effectiveClass || r.ifcType || "")) continue;
+    const b = r.box, x = (b[0] + b[3]) / 2, y = (b[1] + b[4]) / 2, top = b[5];
+    let best = null;
+    for (const { d, code } of decks) {
+      const e = d.box;
+      if (x < e[0] - 0.01 || x > e[3] + 0.01 || y < e[1] - 0.01 || y > e[4] + 0.01) continue;
+      if (e[5] < top - 0.05 || e[2] > top + REACH) continue;
+      if (!best || e[2] < best.d.box[2]) best = { d, code };
+    }
+    r.carries = best ? { id: best.d.id, ifcClass: best.d.ifcClass, code: best.code, gap: Math.max(0, best.d.box[2] - top) } : null;
+  }
 }
 
 /** The BoQ group label at a level: "B2010 Exterior Walls", or what is missing. */

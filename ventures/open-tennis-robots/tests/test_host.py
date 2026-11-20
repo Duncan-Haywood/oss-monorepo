@@ -26,6 +26,23 @@ def run(sim, shots, **kw):
     return host.run_drill(link, shots, sim.sleep, **kw), link
 
 
+class FeedJitterTest(unittest.TestCase):
+    """feeder_sim's random release (2026-11-20, eval/feed-phase-2026-11-20.md): off by default, and when on each ball
+    leaves within feed_jitter_ms of when it would have, the drill otherwise the same."""
+
+    def test_release_held_within_the_jitter(self):
+        base = SimFeeder()
+        res, _ = run(base, drill())
+        self.assertTrue(res.ok, res.aborted)
+        held = SimFeeder(feed_jitter_ms=20.0, seed=3)
+        res2, _ = run(held, drill())
+        self.assertTrue(res2.ok, res2.aborted)
+        self.assertEqual(len(held.released), len(base.released))
+        lags = [b[0] - a[0] for a, b in zip(base.released, held.released)]
+        self.assertTrue(all(-0.001 <= d <= 0.021 for d in lags), lags)
+        self.assertGreater(max(lags), 0.0)
+
+
 class DrillOnSimulatedFeederTest(unittest.TestCase):
     def _check_clean_run(self, mode):
         sim = SimFeeder(elev_mode=mode)

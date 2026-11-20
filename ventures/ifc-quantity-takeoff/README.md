@@ -173,7 +173,7 @@ assembly it belongs to (a part of a curtain wall, stair, ramp or roof takes
 that element's code, except a door, which stays a door, and a covering, which
 is a roof covering in a roof and a stair finish on a stair), its storey's elevation and, for proxies and generic
 terminals, its family name. A rule that cannot tell level 3 stops at the level
-it can (`B10 Superstructure (not told further)` for a beam), or the element
+it can, or the element
 goes to `(no Uniformat element)`; the element CSV says which code, source and
 reason each element got.
 
@@ -183,6 +183,37 @@ rules agree on 525 at level 1 and 482 at level 3; on dental_clinic, held out
 while the rules were written, 66 of 69. Walls, slabs and frames carry no
 author's code in any of the models, so those rules are not checked against
 one. Details: [eval/uniformat-2026-11-20.md](eval/uniformat-2026-11-20.md).
+
+Beams, columns and members are placed by what they carry, read from the
+element boxes: the nearest slab or roof over the middle of the member that
+comes down to within 0.6 m of its top. Under the roof is B1020 Roof
+Construction, under a floor B1010 Floor Construction, and a beam under a slab
+on grade, or a beam bearing on a foundation storey under the ground floor, is
+A1010 (a grade beam). With nothing over it, or no geometry read, a member
+stays at `B10 Superstructure (not told further)`. Curtain panels go with the
+curtain wall (B2010) and stair stringers with the stair (C2010). On the 17
+models this took level-3 coverage from 19,767 to 22,546 elements with the
+authors' codes matched as before (482 of 588); 1,168 frame members were
+placed, 3,128 stay at B10 (2,191 of them in one steel model with no slabs).
+A fallback reading a storey named "Roof" was tried and dropped: it misplaced
+the only frame members an author coded. Details:
+[eval/frames-2026-11-20.md](eval/frames-2026-11-20.md).
+
+**Exterior wall or partition, from the geometry** (`envelope.mjs`). A wall
+with no `IsExternal` flag is placed by its geometry: every wall, curtain wall
+and upright facade piece is read in plan as a rectangle, and rays cast from
+nine points along each face of the wall either cross another one or leave the
+building. A wall with one face open at five or more points is exterior; an
+inner leaf or lining reads with the wall it stands against, and its row says
+so. A flag a model gives every wall alike, while the geometry reads a fifth or
+more of them the other way, is set aside (HHS Office's architect model and
+advanced_model flag all their walls exterior, toilet partitions included).
+Any other flag is kept, and where the geometry disagrees the element's reason
+says "check it". On the 17 models the 268 unflagged walls now get a code
+(uncoded elements 5,219 to 4,951), and on the walls that carry a flag, flag
+and geometry agree on 3,534 of 4,564; where they disagree, the wall type's own
+name sides with the geometry 228 times and with the flag 213 times. Details:
+[eval/envelope-2026-11-20.md](eval/envelope-2026-11-20.md).
 
 ## Geometry it reads
 
@@ -246,6 +277,7 @@ node eval/areas-vs-stored.mjs a.ifc b.ifc      # the corpus check, areas
 node eval/measure-rules.mjs a.ifc b.ifc         # what a small-void rule changes, and opening areas vs stored width x height
 node eval/revision-diff.mjs r1.ifc r2.ifc r3.ifc   # the change report on consecutive revisions
 node eval/uniformat-check.mjs a.ifc b.ifc      # Uniformat coverage, and the rules against authors' codes
+node eval/envelope-check.mjs a.ifc b.ifc --svg plans/   # the envelope test against authors' IsExternal flags, with plans
 ```
 
 Node 20+, no dependencies. To host your own copy, serve this directory as

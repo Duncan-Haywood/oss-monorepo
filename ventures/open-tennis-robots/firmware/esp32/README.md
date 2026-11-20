@@ -3813,3 +3813,58 @@ No firmware or `host.py` change. Everything is in `eval/take-straddle-triple-202
 
 **Not known.** Why 1.3 ms does not move. A guess: the triple repeats the same wheel speeds, so a contact that misses a
 revolution's edge on one pass misses it on the next; a drill with other wheel speeds would test that. Simulated only.
+
+## Where the ball lands in a revolution (2026-11-20, after "The 36-shot survey drill: the instant set it lacked"; the fast drill not shipped by its pre-registered rule)
+
+**What the stored sets hid.** A wheel tells the take survey about a short contact only when the contact falls across a
+tach edge. Refitting the long drill's 96 stored builds showed that which wheels did so was fixed by their place in the
+drill: 18 of 46 places straddled on 0 of 96 builds, a few on 16-28, the same on every seed, launcher and take. In
+`tests/feeder_sim.py` the ball left the moment the shuttle reached the wheels, so a drill's timing fixed where in a
+revolution every contact landed. A real gutter does not place a ball to a tenth of a millisecond in a 10-25 ms
+revolution. The simulator now has `SimFeeder(feed_jitter_ms=)` (each ball held a further uniform 0..N ms, its own
+random stream; 0, the default, reproduces every stored result) and `tests/take_survey_pick.py --feed-jitter MS`.
+
+With a random phase, a shot's expected straddles go with the sum of its wheel speeds, so the lever for short takes is
+faster shots. A fast survey drill (`eval/feed-phase-drill-fast-2026-11-20.json`: the long drill's 24 targets at 34-40
+m/s, 1.43 times the summed wheel speed) was tested against the long drill, rule committed first (6f0ef4de6), 96
+builds each, jittery tach, lag 0.5 s, 26 ms release hold:
+
+| set | straddling, 1.3-2.1 ms builds | 1.3-2.1 ms named | 1.3 ms | 2.4-2.8 ms | instant misadvised |
+| --- | --- | --- | --- | --- | --- |
+| long drill, stored (fixed phase) | 2.72 | 26 of 36 | 4 of 12 | 24 of 24 | 0 of 36 |
+| long drill, random release | 2.44 | 21 of 36 | 5 of 12 | 23 of 24 | 1 of 36 |
+| fast drill, random release | 3.56 | 22 of 36 | 4 of 12 | 24 of 24 | 1 of 36 |
+
+The rule (0 instant misadvised, four more short takes than the long drill) failed, so the long drill stays the
+recommendation and nothing on the board or in `host.py` changed. **Read the survey's earlier numbers with this in
+mind:** on a random release the shipped survey names about 21 of 36 short takes, and it told one instant build in 36
+to set 1.5 ms (a 2-0 straddle vote). The vote still separates (instant builds' straddling wheels 11 for, 79 against);
+two or three balls are just too few for margin 2. Exploratory on the same builds: at margin 3 neither drill misadvises,
+the long drill names 11 short takes and the fast drill 18. That is the next pre-registered test, on fresh seeds.
+Everything is in `eval/feed-phase-2026-11-20.md`. Simulated only.
+
+## Margin 3 with the fast drill, on fresh seeds (2026-11-20, after "Where the ball lands in a revolution"; not shipped by its pre-registered rule)
+
+The previous section's exploratory reading (margin 3 on the 1.5 ms vote stopped the random-release false alarms, and
+the fast drill kept more short takes at margin 3 than the long drill) was tested on fresh seeds, rule committed first
+(2c35c8f6f): 288 builds per drill (spread seeds 9301-9323 odd, takes 1.3-2.8 ms; 108 instant builds, seeds 9401-9471
+odd), jittery tach, lag 0.5 s, `--feed-jitter 26`. The candidate needed at most 1 of 108 instant builds misadvised
+and fewer than the shipped pair, and at most 11 fewer short takes named.
+
+| arm | short named (of 108) | 1.3 ms (of 36) | 2.4-2.8 ms (of 72) | instant misadvised (of 108) |
+| --- | --- | --- | --- | --- |
+| long drill, margin 2 (shipped) | 66 | 18 | 61 | 2 |
+| fast drill, margin 3 (candidate) | 48 | 7 | 65 | 2 |
+| long drill, margin 3 (exploratory) | 37 | 6 | 61 | 0 |
+| fast drill, margin 2 (exploratory) | 75 | 19 | 67 | 2 |
+
+The rule failed (2 false alarms against 2; 48 short takes against the 55 needed), so the long drill and
+`TAKE_STRADDLE_MARGIN = 2` stay. The fast drill's extra straddling balls also make bigger chance runs on instant
+builds: its two false alarms were a 3-0 vote at 1.5 ms, which margin 3 lets through, and a 4-1 vote in the 2.5 ms vote,
+which this margin does not touch. **Numbers to quote for the shipped survey on a random release:** 61% of 1.3-2.1 ms
+takes named, 85% of 2.4-2.8 ms takes (not all, as the fixed-phase sets showed) and about 2% of instant builds told to
+set a take. Exploratory on the same builds: the fast drill at the shipped margins names 9 more short takes and 6 more
+long ones with the same false alarms. That swap, the drill alone, is the next pre-registered test on fresh seeds.
+`tests/take_straddle_count.py` now takes `label@N` for the margin and prints takes named per take;
+`tests/take_misadvised_instant.py` prints a set's misadvised instant builds with their votes. Everything is in
+`eval/feed-phase-margin-2026-11-20.md`. Simulated only.

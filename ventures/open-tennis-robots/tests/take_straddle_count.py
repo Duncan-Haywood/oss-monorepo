@@ -8,6 +8,10 @@ named when the advised TAKE_US is within 1 ms of the true take; an instant build
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_straddle_count.py [--procs 4] std=a.jsonl,b.jsonl long=c.jsonl
 
+A label may end in @N to score that group with margin N on the 1.5 ms vote (the 2.5 ms vote stays at the shipped 2),
+e.g. fast@3=d.jsonl,e.jsonl (2026-11-20, eval/feed-phase-margin-2026-11-20.md). Per spread take it also prints how
+many builds were named.
+
 Simulated only, as the captures are.
 """
 import statistics
@@ -23,7 +27,7 @@ def band(t):
     return None
 
 
-def summary(rows, wheels):
+def summary(rows, wheels, margin=2):
     """{band: dict(builds, wheels, kept, straddle, named, bad)} for one group."""
     import take_straddle_scaled as tss
     out = {}
@@ -31,14 +35,18 @@ def summary(rows, wheels):
         g = band(t)
         if g is None or not sv:
             continue
-        c = out.setdefault(g, dict(builds=0, wheels=[], kept=[], straddle=[], named=0, bad=0))
+        c = out.setdefault(g, dict(builds=0, wheels=[], kept=[], straddle=[], named=0, bad=0, by_take={}))
         c["builds"] += 1
         c["wheels"].append(w)
         c["kept"].append(sv.get("kept") or 0)
         c["straddle"].append((sv.get("straddle_for") or 0) + (sv.get("straddle_against") or 0))
-        v = tss.verdict(sv, "margin", 2)
+        v = tss.verdict(sv, "margin", margin)
+        if t:
+            bt = c["by_take"].setdefault(t, [0, 0])
+            bt[1] += 1
         if t and tss._ok(v, t):
             c["named"] += 1
+            bt[0] += 1
         elif not t and v:
             c["bad"] += 1
     return out
@@ -51,11 +59,12 @@ def main():
     import take_straddle_vote as tsv
     for grp in groups:
         label, files = grp.split("=", 1)
+        margin = int(label.rsplit("@", 1)[1]) if "@" in label else 2
         paths = files.split(",")
         builds = tsv.load(paths)
         rows = tsv.rows_for(paths, procs)
-        s = summary(rows, [len(b.get("wheels") or ()) for b in builds])
-        print(f"{label}: {len(rows)} builds")
+        s = summary(rows, [len(b.get("wheels") or ()) for b in builds], margin)
+        print(f"{label}: {len(rows)} builds, margin {margin} at 1.5 ms")
         for g, _, _ in BANDS:
             if g not in s:
                 continue
@@ -66,6 +75,8 @@ def main():
             print(f"  {g}: {c['builds']} builds; per build: survey wheels {m(c['wheels']):.1f}, kept {m(c['kept']):.1f}, "
                   f"straddling at 1.5 ms {m(c['straddle']):.2f} (max {max(c['straddle'])}, none on "
                   f"{sum(1 for x in c['straddle'] if x == 0)}); {tail}")
+            if c["by_take"]:
+                print("    by take: " + ", ".join(f"{t:g} ms {n} of {k}" for t, (n, k) in sorted(c["by_take"].items())))
 
 
 if __name__ == "__main__":

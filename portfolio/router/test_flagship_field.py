@@ -818,3 +818,49 @@ def test_new_budget_splits_the_cut_across_several_replacements():
     assert "2 NEW texts are 100 characters together; at most 90 fit" in got
     assert "60 -> 54" in got and "40 -> 36" in got
     assert sum(int(n) for n in __import__("re").findall(r"-> (\d+)", got)) == 90
+
+
+def test_new_spanning_an_item_break_is_never_moved_or_parked(tmp_path, capsys):
+    # PRs #17798 and #17912: a NEW of "X ships (...); next Y" matched neither
+    # item whole, so "Counts: X ships (...)" read as a result and moved to
+    # HISTORY.md, and the run's next step went with it.
+    new = ('count default ships (README "A count default" ' + "d" * 200 + "); next the eager "
+           "ladder with it as Quiet, then real orders")
+    value = ("History: README. Next: (a) " + "a" * 1500 + "; (b) " + "b" * 250 + "; (c) cc; Counts: nb "
+             "ships opt-in; next a rule so it can be the default. joint drift (measured).")
+    assert len(value) < ff.FLAGSHIP_NEXT_MAX < len(value) + 200
+    f, extra = _row(tmp_path, value)
+    rc = ff.main(["a", "--replace", "nb ships opt-in; next a rule so it can be the default",
+                  new] + extra)
+    assert rc == 0, capsys.readouterr().err
+    got = ff.read_value(f.read_text(), "a", "next")
+    assert "Counts: " + new in got and "(c) cc" in got and "b" * 250 not in got
+    hist = tmp_path / "ventures" / "a" / "HISTORY.md"
+    assert not hist.exists() or "count default ships" not in hist.read_text()
+
+
+@pytest.mark.parametrize("piece, mine", [
+    ('Counts: count default ships (README "A count default")', True),
+    ("next the eager ladder with it as Quiet, then real orders", True),
+    ("an unrelated open item about something else", False),
+    ("the panel ships today with real orders", False),  # "real orders" is under 12
+])
+def test_holds_new_sees_partial_overlap(piece, mine):
+    keep = ('count default ships (README "A count default"); next the eager ladder with it '
+            "as Quiet, then real orders",)
+    assert ff.holds_new(piece, keep) is mine
+
+
+def test_implicit_park_refuses_to_move_a_big_item_for_a_small_overrun(tmp_path, capsys):
+    # PR #17900: an edit a few characters over the cap parked an unrelated open item.
+    big = "a real deployer's repository " + "q" * 700
+    value = "History: README. Next: (a) " + "a" * 1200 + "; own item; " + big + "."
+    f, extra = _row(tmp_path, value)
+    before = f.read_text()
+    grow = "own item " + "y" * (ff.FLAGSHIP_NEXT_MAX - len(value) + 10)
+    rc = ff.main(["a", "--replace", "own item", grow] + extra)
+    err = capsys.readouterr().err
+    assert rc == 1 and f.read_text() == before
+    assert "would park" in err and "Shorten your NEW text by" in err and "--make-room" in err
+    assert ff.main(["a", "--replace", "own item", grow, "--make-room"] + extra) == 0
+    assert big in (tmp_path / "ventures" / "a" / "NEXT.md").read_text()

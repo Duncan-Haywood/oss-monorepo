@@ -95,12 +95,16 @@ const REGEX_AFTER: &[&str] = &[
     "await",
 ];
 
-fn regex_allowed(prev: Option<&Tok>) -> bool {
-    match prev {
+fn regex_allowed(toks: &[Tok]) -> bool {
+    match toks.last() {
         None => true,
         Some(t) => match t.kind {
             Kind::Punct(c) => !matches!(c, b')' | b']'),
-            Kind::Ident => REGEX_AFTER.contains(&t.text),
+            // A keyword spelled as a property (`o.else / e`) is a value.
+            Kind::Ident => {
+                REGEX_AFTER.contains(&t.text)
+                    && !(toks.len() >= 2 && toks[toks.len() - 2].kind == Kind::Punct(b'.'))
+            }
             Kind::Str | Kind::Value => false,
         },
     }
@@ -170,7 +174,7 @@ fn tokenize(src: &str) -> Vec<Tok<'_>> {
                 }
                 i = (i + 2).min(n);
             }
-            b'/' if regex_allowed(toks.last()) => {
+            b'/' if regex_allowed(&toks) => {
                 // A regex literal never spans a line; if no closing slash
                 // turns up first, it was a division after all.
                 let start = i;
@@ -237,13 +241,20 @@ fn tokenize(src: &str) -> Vec<Tok<'_>> {
             }
             b'`' => {
                 let l = line;
+                let start = i;
                 i += 1;
-                if scan_template(&mut i, &mut line) {
+                // A template with no substitution keeps its text, backticks
+                // included (the dependency check reads `require(`x`)`).
+                let text = if scan_template(&mut i, &mut line) {
                     tmpl.push(depth);
-                }
+                    "`"
+                } else {
+                    i = i.min(n);
+                    &src[start..i]
+                };
                 toks.push(Tok {
                     kind: Kind::Value,
-                    text: "`",
+                    text,
                     line: l,
                 });
             }
@@ -1117,6 +1128,9 @@ pub fn cycles_json(
 
 pub mod tsconfig;
 pub use tsconfig::{parse_jsonc, Configs, PathMap};
+
+pub mod deps;
+pub use deps::{check_package, DepOptions, DepReport, Use};
 
 pub mod exports;
 pub use exports::{extract_shape, unused_exports, Export, ModImport, Shape, Unused, Uses};

@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKjYYRpqEh4agZUWYNE",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T13:22:31Z",
+  "ended": "2026-11-20T14:19:37Z",
+  "wall_minutes": 57.33,
+  "tokens_in": 4854068,
+  "tokens_out": 23910,
+  "cost_usd": 2.2422,
+  "tool_calls": 45,
+  "task": "civ-seeding milestone 21: ten-copy check of milestone 20's unexplained kappa dip at phi = 0.25 closure",
+  "projects": [
+    "research/civ-seeding"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17918",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first SMOKE run hit the 120 s foreground timeout",
+      "fix": "reran in background (smoke takes ~3 min, not seconds)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "two waiters with --timeout 3000 were killed by the harness's 30-min background limit before the ~50-min job ended; pass the Bash timeout up to 7200000 explicitly (the third waiter did and worked)"
+    },
+    {
+      "file": "research/civ-seeding/experiments/m20_soft_cells/run.py",
+      "issue": "importing it as a module registers its 34 rules on m6.EXTRA_RANDOMISED as a side effect; a follow-up run must strip m20.NEWFN/REPS before registering its own or it reruns all of milestone 20"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-the-dip-was-noise-half-a-tie-costs-a-step.md",
+    "research/civ-seeding/LOG.md (milestone 21 plan + outcome)",
+    "research/civ-seeding/README.md (milestone 21 section)"
+  ],
+  "goal": null,
+  "notes": "Plan and H65-H68 committed (5a-first commit) before the full run. Full run ~49 min on 4 cores (13:28-14:17 UTC). Sanity: copies 0-4 reproduce m20 to 4.9e-6. H65/H66 refuted (dip is noise), H67/H68 held. Local checks: civ-seeding pytest 90 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ce2005f7-df8c-54bf-804d-ad34fd98932b",
+    "transcripts": 1,
+    "first": "2026-11-20T13:22:31Z",
+    "last": "2026-11-20T14:19:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 102,
+        "output": 23910,
+        "thinking": 3116,
+        "cache_read": 4752322,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101644,
+        "api_equivalent_usd": 2.2422,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 102,
+      "output": 23910,
+      "thinking": 3116,
+      "cache_read": 4752322,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101644,
+      "api_equivalent_usd": 2.2422,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 57.33,
+      "active_minutes": 29.9,
+      "model_minutes": 5.24,
+      "tool_minutes": 24.66,
+      "waiting_on_human_minutes": 27.43,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "pre-registering, adapting harness, running and writing up one simulation milestone",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 267.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

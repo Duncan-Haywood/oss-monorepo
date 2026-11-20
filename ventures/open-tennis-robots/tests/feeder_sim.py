@@ -43,7 +43,8 @@ class SimFeeder:
     def __init__(self, elev_mode="pot", az_start_deg=12.0, wheel_tau_s=WHEEL_TAU_S, wheel_max_rpm=WHEEL_MAX_RPM,
                  rpm_full=None, jam_log=None, balls=None, wheel_inertia=0.00155, launch_eff=1.0,
                  true_launcher=None, tach_jitter_us=0.0, esc_tau_s=0.0, seed=0, take_ms=0.0, take_shape="halfsine",
-                 tach_capture=False, tach_sensor_jitter_us=0.0, tach_capture_sub=None, reset_latch=True):
+                 tach_capture=False, tach_sensor_jitter_us=0.0, tach_capture_sub=None, reset_latch=True,
+                 feed_jitter_ms=0.0):
         self.us = 1_000_000            # board clock, microseconds
         self.rx = bytearray()          # Pi -> board
         self.tx = bytearray()          # board -> Pi
@@ -197,6 +198,14 @@ class SimFeeder:
         self._takes = []               # [start us, (drop rpm top, drop rpm bottom)] of takes still under way
         self.taken = []                # (wheel rpm at contact, total rpm taken) per ball, both wheels: the true drop
         self._rng = random.Random(seed)
+        # The ball's release against the wheels' angle (2026-11-20, eval/feed-phase-2026-11-20.md): with 0 a ball
+        # leaves the moment the shuttle reaches the wheels, so a drill's timing fixes where in a revolution every
+        # contact lands, the same on every seed. A real gutter and shuttle do not hold a ball's arrival to a
+        # fraction of a millisecond; `feed_jitter_ms` > 0 holds each ball a further uniform 0..feed_jitter_ms ms
+        # (drawn from its own stream, so the tach's noise is the same draw for draw).
+        self.feed_jitter_ms = feed_jitter_ms
+        self._feed_rng = random.Random(seed * 7919 + 1)
+        self._feed_wait = None
         self._under_col_ms = 0
         self.shuttle_out_s, self.shuttle_back_s = SHUTTLE_OUT_S, SHUTTLE_BACK_S
         self.ctl = controller.Controller(hw, controller.ROLE_FEEDER, self.us // 1000)
@@ -295,7 +304,13 @@ class SimFeeder:
             gate_out = hw.gate.pwm.duty > int(mid_us / 20000 * 65535)
             if gate_out:
                 self.shuttle = min(1.0, self.shuttle + 0.001 / self.shuttle_out_s)
-                if self.shuttle >= 1.0 and self.loaded:
+                if self.shuttle >= 1.0 and self.loaded and self.feed_jitter_ms > 0:
+                    if self._feed_wait is None:
+                        self._feed_wait = self._feed_rng.uniform(0.0, self.feed_jitter_ms)
+                    self._feed_wait -= 1.0
+                release = self.shuttle >= 1.0 and self.loaded and (self.feed_jitter_ms <= 0 or self._feed_wait <= 0)
+                if release:
+                    self._feed_wait = None
                     self.loaded = False
                     stroke = self.elev_true + self.cfg.ELEV_CLOSED_MM
                     self.released.append((self.clock(), hw.elev.geom.elev(stroke), self.az_true,

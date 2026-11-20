@@ -135,6 +135,14 @@
    "by": "run_workflow_locally.py POST_PRECHECK_STOP",
    "at": "2026-11-18T16:30:09Z",
    "note": "stopping before a multi-minute sweep on a quarter-second failure is the point; --no-post-check sweeps anyway"
+  },
+  {
+   "file": "portfolio/router/flagship_field.py",
+   "match": "new text included|still holds a 'next' clause|auto-parked an unrelated open item",
+   "verdict": "fixed",
+   "by": "holds_new fragment guard + implicit-park size refusal (this PR)",
+   "at": "2026-11-20T14:26:49Z",
+   "note": ""
   }
  ]
 }

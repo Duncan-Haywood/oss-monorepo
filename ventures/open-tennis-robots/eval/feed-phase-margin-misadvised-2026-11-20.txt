@@ -1,0 +1,12 @@
+feed-phase-margin-fast-inst-2026-11-20.jsonl.gz 2 {'straddle_for': 0, 'straddle_against': 1, 'straddle_long_for': 4, 'straddle_long_against': 1, 'board_ms10': 0, 'kept': 25} 2.5
+   contact-time survey: 46 wheels; the sums read an instant take, but of the 5 kept wheels whose fit at 2.5 ms put the contact across a revolution's edge, 4 fit 2.5 ms better than an instant take and 1 worse (the only balls
+feed-phase-margin-fast-inst-2026-11-20.jsonl.gz 3 {'straddle_for': 0, 'straddle_against': 1, 'straddle_long_for': 4, 'straddle_long_against': 1, 'board_ms10': 0, 'kept': 25} 2.5
+   contact-time survey: 46 wheels; the sums read an instant take, but of the 5 kept wheels whose fit at 2.5 ms put the contact across a revolution's edge, 4 fit 2.5 ms better than an instant take and 1 worse (the only balls
+feed-phase-margin-fast-inst-2026-11-20.jsonl.gz 2 {'straddle_for': 3, 'straddle_against': 0, 'straddle_long_for': 0, 'straddle_long_against': 5, 'board_ms10': 0, 'kept': 14} 1.5
+   contact-time survey: 46 wheels; the sums read an instant take, but of the 3 kept wheels whose fit at 1.5 ms put the contact across a revolution's edge, 3 fit 1.5 ms better than an instant take and 0 worse (the only balls
+feed-phase-margin-fast-inst-2026-11-20.jsonl.gz 3 {'straddle_for': 3, 'straddle_against': 0, 'straddle_long_for': 0, 'straddle_long_against': 5, 'board_ms10': 0, 'kept': 14} 1.5
+   contact-time survey: 46 wheels; the sums read an instant take, but of the 3 kept wheels whose fit at 1.5 ms put the contact across a revolution's edge, 3 fit 1.5 ms better than an instant take and 0 worse (the only balls
+feed-phase-margin-long-inst-2026-11-20.jsonl.gz 2 {'straddle_for': 2, 'straddle_against': 0, 'straddle_long_for': 0, 'straddle_long_against': 2, 'board_ms10': 0, 'kept': 10} 1.5
+   contact-time survey: 46 wheels; the sums read an instant take, but of the 2 kept wheels whose fit at 1.5 ms put the contact across a revolution's edge, 2 fit 1.5 ms better than an instant take and 0 worse (the only balls
+feed-phase-margin-long-inst-2026-11-20.jsonl.gz 2 {'straddle_for': 3, 'straddle_against': 1, 'straddle_long_for': 0, 'straddle_long_against': 6, 'board_ms10': 0, 'kept': 19} 1.5
+   contact-time survey: 46 wheels; the sums read an instant take, but of the 4 kept wheels whose fit at 1.5 ms put the contact across a revolution's edge, 3 fit 1.5 ms better than an instant take and 1 worse (the only balls

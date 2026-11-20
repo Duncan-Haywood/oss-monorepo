@@ -1,0 +1,388 @@
+[
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "from": null,
+    "activities": 1887,
+    "rows": 40,
+    "summary": {
+      "rows": 40,
+      "open": 31,
+      "cleared": 9,
+      "overdue": 2,
+      "late": 17,
+      "noDate": 2,
+      "onTrack": 10,
+      "activityFinished": 0,
+      "notInFile": 0,
+      "pastLateStart": 7,
+      "pastSlackOnly": 0,
+      "pastAlreadyBehind": 7,
+      "startsMoved": 23
+    },
+    "finish": {
+      "base": "2013-06-22 16:59",
+      "withLog": "2013-06-22 16:59",
+      "slipDays": 0,
+      "floors": 17
+    },
+    "whatIf": {
+      "floors": 17,
+      "finishAgree": true,
+      "startsCompared": 14270,
+      "startsAgree": 14270,
+      "mismatches": [],
+      "finishLog": "2013-06-22 16:59",
+      "finishCstr": "2013-06-22 16:59",
+      "windowCompared": 422,
+      "windowAgree": 422
+    },
+    "alone": {
+      "compared": 10,
+      "agree": 10,
+      "mismatches": []
+    },
+    "rules": {
+      "links": 33,
+      "lateRuleAgree": 33,
+      "lateStartsHeld": 18,
+      "lateLinks": 18,
+      "pastAndMoves": 0,
+      "pastNoMove": 3,
+      "movesNotPast": 0
+    },
+    "slack": {
+      "past": 7,
+      "slackOnly": 0,
+      "slackOnlyMoves": 0,
+      "pastLoose": 0,
+      "pastLooseMoves": 0,
+      "behind": 7,
+      "behindMoves": 0,
+      "tightProbed": 7,
+      "tightMoves": 7,
+      "examples": []
+    },
+    "seconds": 23
+  },
+  {
+    "file": "Expressway_Project.xer",
+    "from": null,
+    "activities": 87,
+    "rows": 40,
+    "summary": {
+      "rows": 40,
+      "open": 28,
+      "cleared": 12,
+      "overdue": 0,
+      "late": 18,
+      "noDate": 5,
+      "onTrack": 5,
+      "activityFinished": 0,
+      "notInFile": 0,
+      "pastLateStart": 1,
+      "pastSlackOnly": 0,
+      "pastAlreadyBehind": 0,
+      "startsMoved": 19
+    },
+    "finish": {
+      "base": "2016-08-28 17:00",
+      "withLog": "2016-09-04 17:00",
+      "slipDays": 7,
+      "floors": 19
+    },
+    "whatIf": {
+      "floors": 19,
+      "finishAgree": true,
+      "startsCompared": 823,
+      "startsAgree": 823,
+      "mismatches": [],
+      "finishLog": "2016-09-04 17:00",
+      "finishCstr": "2016-09-04 17:00",
+      "windowCompared": 87,
+      "windowAgree": 87
+    },
+    "alone": {
+      "compared": 10,
+      "agree": 10,
+      "mismatches": []
+    },
+    "rules": {
+      "links": 27,
+      "lateRuleAgree": 27,
+      "lateStartsHeld": 21,
+      "lateLinks": 21,
+      "pastAndMoves": 1,
+      "pastNoMove": 0,
+      "movesNotPast": 0
+    },
+    "slack": {
+      "past": 1,
+      "slackOnly": 0,
+      "slackOnlyMoves": 0,
+      "pastLoose": 1,
+      "pastLooseMoves": 1,
+      "behind": 0,
+      "behindMoves": 0,
+      "tightProbed": 0,
+      "tightMoves": 0,
+      "examples": []
+    },
+    "seconds": 1.4
+  },
+  {
+    "file": "example_xer_file.xer",
+    "from": null,
+    "activities": 46,
+    "rows": 25,
+    "summary": {
+      "rows": 25,
+      "open": 20,
+      "cleared": 5,
+      "overdue": 0,
+      "late": 11,
+      "noDate": 5,
+      "onTrack": 4,
+      "activityFinished": 0,
+      "notInFile": 0,
+      "pastLateStart": 0,
+      "pastSlackOnly": 0,
+      "pastAlreadyBehind": 0,
+      "startsMoved": 15
+    },
+    "finish": {
+      "base": "2027-05-06 16:59",
+      "withLog": "2027-05-06 16:59",
+      "slipDays": 0,
+      "floors": 11
+    },
+    "whatIf": {
+      "floors": 11,
+      "finishAgree": true,
+      "startsCompared": 404,
+      "startsAgree": 404,
+      "mismatches": [],
+      "finishLog": "2027-05-06 16:59",
+      "finishCstr": "2027-05-06 16:59",
+      "windowCompared": 25,
+      "windowAgree": 25
+    },
+    "alone": {
+      "compared": 10,
+      "agree": 10,
+      "mismatches": []
+    },
+    "rules": {
+      "links": 16,
+      "lateRuleAgree": 16,
+      "lateStartsHeld": 12,
+      "lateLinks": 12,
+      "pastAndMoves": 0,
+      "pastNoMove": 0,
+      "movesNotPast": 0
+    },
+    "slack": {
+      "past": 0,
+      "slackOnly": 0,
+      "slackOnlyMoves": 0,
+      "pastLoose": 0,
+      "pastLooseMoves": 0,
+      "behind": 0,
+      "behindMoves": 0,
+      "tightProbed": 0,
+      "tightMoves": 0,
+      "examples": []
+    },
+    "seconds": 0.4
+  },
+  {
+    "file": "hotel-project.xer",
+    "from": "2012-06-04",
+    "activities": 32,
+    "rows": 32,
+    "summary": {
+      "rows": 32,
+      "open": 21,
+      "cleared": 11,
+      "overdue": 0,
+      "late": 15,
+      "noDate": 0,
+      "onTrack": 6,
+      "activityFinished": 0,
+      "notInFile": 0,
+      "pastLateStart": 9,
+      "pastSlackOnly": 0,
+      "pastAlreadyBehind": 0,
+      "startsMoved": 26
+    },
+    "finish": {
+      "base": "2014-07-23 16:00",
+      "withLog": "2014-08-06 16:00",
+      "slipDays": 12,
+      "floors": 17
+    },
+    "whatIf": {
+      "floors": 17,
+      "finishAgree": true,
+      "startsCompared": 4217,
+      "startsAgree": 4217,
+      "mismatches": [],
+      "finishLog": "2014-08-06 16:00",
+      "finishCstr": "2014-08-06 16:00",
+      "windowCompared": 32,
+      "windowAgree": 32
+    },
+    "alone": {
+      "compared": 10,
+      "agree": 10,
+      "mismatches": []
+    },
+    "rules": {
+      "links": 25,
+      "lateRuleAgree": 25,
+      "lateStartsHeld": 17,
+      "lateLinks": 17,
+      "pastAndMoves": 9,
+      "pastNoMove": 0,
+      "movesNotPast": 0
+    },
+    "slack": {
+      "past": 9,
+      "slackOnly": 0,
+      "slackOnlyMoves": 0,
+      "pastLoose": 9,
+      "pastLooseMoves": 9,
+      "behind": 0,
+      "behindMoves": 0,
+      "tightProbed": 0,
+      "tightMoves": 0,
+      "examples": []
+    },
+    "seconds": 2.7
+  },
+  {
+    "file": "sample.xer",
+    "from": null,
+    "activities": 5,
+    "rows": 5,
+    "summary": {
+      "rows": 5,
+      "open": 5,
+      "cleared": 0,
+      "overdue": 0,
+      "late": 4,
+      "noDate": 0,
+      "onTrack": 1,
+      "activityFinished": 0,
+      "notInFile": 0,
+      "pastLateStart": 4,
+      "pastSlackOnly": 0,
+      "pastAlreadyBehind": 0,
+      "startsMoved": 5
+    },
+    "finish": {
+      "base": "2021-10-07 16:00",
+      "withLog": "2021-10-19 16:00",
+      "slipDays": 8,
+      "floors": 4
+    },
+    "whatIf": {
+      "floors": 4,
+      "finishAgree": true,
+      "startsCompared": 42,
+      "startsAgree": 42,
+      "mismatches": [],
+      "finishLog": "2021-10-19 16:00",
+      "finishCstr": "2021-10-19 16:00",
+      "windowCompared": 5,
+      "windowAgree": 5
+    },
+    "alone": {
+      "compared": 4,
+      "agree": 4,
+      "mismatches": []
+    },
+    "rules": {
+      "links": 6,
+      "lateRuleAgree": 6,
+      "lateStartsHeld": 4,
+      "lateLinks": 4,
+      "pastAndMoves": 4,
+      "pastNoMove": 0,
+      "movesNotPast": 0
+    },
+    "slack": {
+      "past": 4,
+      "slackOnly": 0,
+      "slackOnlyMoves": 0,
+      "pastLoose": 4,
+      "pastLooseMoves": 4,
+      "behind": 0,
+      "behindMoves": 0,
+      "tightProbed": 0,
+      "tightMoves": 0,
+      "examples": []
+    },
+    "seconds": 0
+  },
+  {
+    "file": "terminal-building-airport.xer",
+    "from": null,
+    "activities": 3,
+    "rows": 2,
+    "summary": {
+      "rows": 2,
+      "open": 2,
+      "cleared": 0,
+      "overdue": 2,
+      "late": 0,
+      "noDate": 0,
+      "onTrack": 0,
+      "activityFinished": 0,
+      "notInFile": 0,
+      "pastLateStart": 0,
+      "pastSlackOnly": 0,
+      "pastAlreadyBehind": 0,
+      "startsMoved": 0
+    },
+    "finish": {
+      "base": "2013-02-27 17:00",
+      "withLog": null,
+      "slipDays": 0,
+      "floors": 0
+    },
+    "whatIf": {
+      "floors": 0,
+      "finishAgree": null,
+      "startsCompared": 0,
+      "startsAgree": 0,
+      "mismatches": []
+    },
+    "alone": {
+      "compared": 0,
+      "agree": 0,
+      "mismatches": []
+    },
+    "rules": {
+      "links": 2,
+      "lateRuleAgree": 2,
+      "lateStartsHeld": 0,
+      "lateLinks": 0,
+      "pastAndMoves": 0,
+      "pastNoMove": 0,
+      "movesNotPast": 0
+    },
+    "slack": {
+      "past": 0,
+      "slackOnly": 0,
+      "slackOnlyMoves": 0,
+      "pastLoose": 0,
+      "pastLooseMoves": 0,
+      "behind": 0,
+      "behindMoves": 0,
+      "tightProbed": 0,
+      "tightMoves": 0,
+      "examples": []
+    },
+    "seconds": 0
+  }
+]

@@ -18,6 +18,7 @@
 
 import { applyRule, ruleActive } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
+import { planRect, assignEnvelope } from "./envelope.mjs";
 import { Geometry, Unresolved, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
@@ -313,6 +314,10 @@ export function takeoff(model, opts = {}) {
         try { row.computed.areas = computeAreas(e.type, row.computed.solids, worldOf(refId(e.args[5])), f); } catch (err) { row.computed.areas = { error: err.message }; }
         row.computed.solids.each = null;
         try { row.box = worldBox(row.computed.solids.body, worldOf(refId(e.args[5])), f); } catch { row.box = null; }
+        // the plan rectangle the envelope test reads (envelope.mjs)
+        if (/^IFC(WALL|CURTAINWALL$|PLATE|MEMBER)/.test(e.type) || (/^IFC(DOOR|WINDOW)/.test(e.type) && row.host == null)) {
+          try { row.plan = planRect(row.computed.solids.body, worldOf(refId(e.args[5])), f); } catch { row.plan = null; }
+        }
       }
     }
     row.check = checkVolume(row, tol);
@@ -321,6 +326,7 @@ export function takeoff(model, opts = {}) {
   }
   explainChecks(rows, tol);
   explainAreas(rows, tol);
+  assignEnvelope(rows);
   assignUniformat(rows);
   return { schema: model.schema, units, rows };
 }

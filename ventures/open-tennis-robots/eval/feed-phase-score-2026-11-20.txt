@@ -1,0 +1,12 @@
+stored-long: 96 builds
+  instant: 36 builds; per build: survey wheels 46.0, kept 14.8, straddling at 1.5 ms 2.33 (max 4, none on 1); misadvised 0 of 36
+  1.3-2.1 ms: 36 builds; per build: survey wheels 46.0, kept 14.3, straddling at 1.5 ms 2.72 (max 5, none on 0); named 26 of 36
+  2.4-2.8 ms: 24 builds; per build: survey wheels 46.0, kept 14.2, straddling at 1.5 ms 3.17 (max 6, none on 1); named 24 of 24
+long-jitter: 96 builds
+  instant: 36 builds; per build: survey wheels 46.0, kept 12.7, straddling at 1.5 ms 2.50 (max 6, none on 3); misadvised 1 of 36
+  1.3-2.1 ms: 36 builds; per build: survey wheels 46.0, kept 14.9, straddling at 1.5 ms 2.44 (max 6, none on 4); named 21 of 36
+  2.4-2.8 ms: 24 builds; per build: survey wheels 46.0, kept 15.0, straddling at 1.5 ms 2.62 (max 7, none on 0); named 23 of 24
+fast-jitter: 96 builds
+  instant: 36 builds; per build: survey wheels 46.0, kept 17.2, straddling at 1.5 ms 3.33 (max 9, none on 3); misadvised 1 of 36
+  1.3-2.1 ms: 36 builds; per build: survey wheels 46.0, kept 17.9, straddling at 1.5 ms 3.56 (max 11, none on 3); named 22 of 36
+  2.4-2.8 ms: 24 builds; per build: survey wheels 46.0, kept 17.3, straddling at 1.5 ms 3.00 (max 6, none on 0); named 24 of 24

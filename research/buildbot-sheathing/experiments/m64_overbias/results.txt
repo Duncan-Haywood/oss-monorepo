@@ -1,0 +1,71 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 64: bias past the design bound, held-out section K (48 loads, seed 64; milestone 61's chain sized to B = 0.20 N, spec 0.03 mm per row; true bias beta*B along milestone 63's adversary)
+
+## A. By robot and beta: robot | beta | bias N | balance-envelope cases | calibration failed | planned | coverage % | over spec | over spec with no flip | worst |y|, |z|, |y_d|, |z_d| (mm) | planned with a flip | escalated
+  g1 | 1.5 | 0.30 | 1338 | 0 | 1338 | 100.00 | 303 | 0 | 0.2419, 0.2707, 0.2494, 0.2875 | 368 | 0
+  g1 | 2 | 0.40 | 1338 | 0 | 1338 | 100.00 | 906 | 370 | 0.3660, 0.3260, 0.3736, 0.3422 | 608 | 0
+  g1 | 3 | 0.60 | 1338 | 0 | 1337 | 99.93 | 997 | 395 | 0.5110, 0.3855, 0.5266, 0.4176 | 675 | 0
+  g1 | 5 | 1.00 | 1338 | 0 | 1336 | 99.85 | 1099 | 405 | 0.5628, 0.5626, 0.5959, 0.5975 | 763 | 0
+  h1 | 1.5 | 0.30 | 1808 | 0 | 1808 | 100.00 | 217 | 0 | 0.2361, 0.4349, 0.2422, 0.4689 | 236 | 6
+  h1 | 2 | 0.40 | 1808 | 0 | 1808 | 100.00 | 521 | 33 | 0.2409, 0.4404, 0.2521, 0.4749 | 509 | 4
+  h1 | 3 | 0.60 | 1808 | 0 | 1808 | 100.00 | 926 | 319 | 0.5442, 0.4515, 0.5605, 0.4868 | 735 | 6
+  h1 | 5 | 1.00 | 1808 | 0 | 1808 | 100.00 | 1358 | 525 | 0.5576, 0.5924, 0.5731, 0.6315 | 936 | 3
+
+## B. Worst residual as a fraction of the spec, by beta (robot: beta -> worst/spec)
+  g1: 1.5 -> 9.58; 2 -> 12.45; 3 -> 17.55; 5 -> 19.92
+  h1: 1.5 -> 15.63; 2 -> 15.83; 3 -> 18.68; 5 -> 21.05
+
+## C. Planned presses over spec (first 30, by beta then worst): robot | beta | case | pose | H N | phi deg | worst row mm | flips | how | adversary's j* (source)
+  h1 | 1.5 | b1.5- | [1.4, 0.15] | 13.75 | 50.0 | 0.4689 | 2 | pose sides | right_elbow (grad)
+  h1 | 1.5 | b1.5- | [1.4, -0.15] | 18.99 | 207.5 | 0.3055 | 1 | pose sides | right_ankle (grad)
+  g1 | 1.5 | b1.5- | [1.2, 0.15] | 13.19 | 95.4 | 0.2875 | 1 | pose sides | left_knee_joint (grad)
+  g1 | 1.5 | b1.5- | [1.2, 0.0] | 14.82 | 295.2 | 0.2860 | 1 | pose sides | left_knee_joint (grad)
+  g1 | 1.5 | b1.5+ | [1.0, 0.15] | 14.55 | 276.8 | 0.2837 | 1 | pose sides | right_ankle_pitch_joint (grad)
+  g1 | 1.5 | b1.5- | [1.0, 0.0] | 19.87 | 283.0 | 0.2837 | 1 | pose sides | right_ankle_pitch_joint (grad)
+  g1 | 1.5 | b1.5+ | [1.0, 0.0] | 3.94 | 32.5 | 0.2837 | 1 | pose sides | right_ankle_pitch_joint (grad)
+  g1 | 1.5 | b1.5- | [1.0, 0.0] | 10.95 | 285.4 | 0.2837 | 1 | pose sides | right_ankle_pitch_joint (grad)
+  g1 | 1.5 | b1.5- | [1.0, 0.0] | 2.55 | 73.7 | 0.2831 | 1 | pose sides | left_knee_joint (grad)
+  g1 | 1.5 | b1.5+ | [1.0, 0.0] | 5.53 | 85.3 | 0.2831 | 1 | pose sides | left_ankle_pitch_joint (grad)
+  h1 | 1.5 | b1.5- | [1.6, 0.15] | 1.81 | 67.2 | 0.2828 | 1 | per-load sides | left_knee (grad)
+  h1 | 1.5 | b1.5- | [1.6, 0.15] | 1.06 | 335.2 | 0.2828 | 1 | per-load sides | left_knee (grad)
+  h1 | 1.5 | b1.5+ | [1.6, 0.0] | 1.81 | 67.2 | 0.2809 | 1 | leg raise | left_knee (grad)
+  h1 | 1.5 | b1.5- | [1.6, 0.0] | 1.06 | 335.2 | 0.2809 | 1 | pose sides | left_knee (grad)
+  h1 | 1.5 | b1.5- | [1.6, 0.0] | 2.55 | 73.7 | 0.2809 | 1 | pose sides | left_knee (grad)
+  h1 | 1.5 | b1.5+ | [1.6, 0.0] | 1.06 | 335.2 | 0.2809 | 1 | per-load sides | left_knee (grad)
+  h1 | 1.5 | b1.5+ | [1.6, 0.0] | 2.55 | 73.7 | 0.2809 | 1 | per-load sides | left_knee (grad)
+  h1 | 1.5 | b1.5- | [1.6, 0.0] | 5.53 | 85.3 | 0.2809 | 1 | leg raise | left_knee (grad)
+  h1 | 1.5 | b1.5+ | [1.6, 0.0] | 5.53 | 85.3 | 0.2809 | 1 | pose sides | left_knee (grad)
+  h1 | 1.5 | b1.5+ | [1.4, 0.15] | 8.65 | 157.6 | 0.2732 | 1 | per-load sides | left_knee (grad)
+  h1 | 1.5 | b1.5- | [1.4, 0.15] | 8.65 | 157.6 | 0.2732 | 1 | pose sides | left_knee (grad)
+  h1 | 1.5 | b1.5- | [1.4, 0.0] | 12.25 | 125.8 | 0.2715 | 1 | leg raise | left_knee (grad)
+  h1 | 1.5 | b1.5+ | [1.2, 0.0] | 19.38 | 107.8 | 0.2683 | 1 | pose sides | left_knee (grad)
+  g1 | 1.5 | b1.5+ | [0.8, 0.0] | 14.55 | 276.8 | 0.2680 | 1 | pose sides | left_ankle_pitch_joint (grad)
+  g1 | 1.5 | b1.5+ | [1.2, 0.0] | 16.87 | 22.6 | 0.2634 | 1 | per-load sides | left_hip_pitch_joint (grad)
+  g1 | 1.5 | b1.5+ | [1.2, 0.0] | 16.14 | 358.6 | 0.2634 | 1 | per-load sides | left_hip_pitch_joint (grad)
+  h1 | 1.5 | b1.5- | [1.2, 0.15] | 12.07 | 102.6 | 0.2621 | 1 | per-load sides | left_knee (grad)
+  h1 | 1.5 | b1.5- | [1.2, 0.15] | 0.10 | 135.8 | 0.2621 | 1 | per-load sides | left_knee (grad)
+  h1 | 1.5 | b1.5+ | [1.2, -0.15] | 1.52 | 184.4 | 0.2584 | 1 | pose sides | left_hip_pitch (grad)
+  h1 | 1.5 | b1.5+ | [1.4, -0.15] | 19.87 | 283.0 | 0.2577 | 1 | pose sides | left_knee (grad)
+  (total over spec: 6327)
+
+## D. Hypotheses (registered in LOG.md before this run)
+H247 (at beta 1.5, 0.3 N, every planned press inside 0.03 mm on both robots): over spec G1 303, H1 217 (worst G1 0.2875, H1 0.4689 mm) -> refuted
+H248 (at beta 5, 1.0 N, at least one planned press over spec on each robot): G1 1099, H1 1358 -> held
+H249 (every over-spec planned press has a flip): 6327 over spec, 2047 with no flip -> refuted
+
+(run time 2468 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

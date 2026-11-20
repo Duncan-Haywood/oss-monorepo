@@ -19,7 +19,66 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## Golf leagues: tee times rotated evenly, match play scored with handicaps (2026-11-20, newest)
+## The player page on a phone's home screen, readable with no signal (2026-11-20, newest)
+
+Players look up their next game at the field, where the signal is often one bar or none. The self-hosted league page
+(`/league?t=...`, and a captain's `&c=...` link) is now an installable web app that opens from the last copy the phone
+saved (`pwa.mjs`):
+
+- **Install:** the page links a web app manifest for that exact link (`/league/manifest.webmanifest?t=...`), so the
+  home-screen icon opens the player's or the captain's own page, standalone, named after the captain's team. Icons
+  (192 and 512 px, maskable) are PNGs drawn in `pwa.mjs` with `node:zlib`: still zero dependencies.
+- **No signal:** a service worker (`/sw.js`, no secret in it) touches only GET page loads of `/league`. It asks the
+  network first and saves each good answer per link (at most 6 links per phone); if the network fails, or takes more
+  than 4 s, it shows the saved copy with a yellow note: "No signal: this is the copy this phone saved 20/11/2026,
+  18:05. Scores and moves since then are not shown." A slow answer that arrives later still refreshes the copy for
+  next time. A refused link (401) never replaces a good copy. Admin pages, forms and calendar feeds are never cached.
+- **My team first:** the "Show only" team is remembered on the phone, and a captain's page starts on the captain's team.
+- **Alternatives today:** TeamSnap, LeagueApps and SportsEngine ship native apps with offline schedules, behind accounts
+  and per-team plans. This gives a self-hosted league the same "open it at the field" behaviour with no app store,
+  no account and no install beyond "Add to Home Screen".
+- **Checked:** `pwa.test.mjs` (icons decoded and CRC-checked, nothing outside the maskable circle but the background;
+  manifests for player and captain links; the worker run against stand-in caches: network first, offline copy marked,
+  never-opened link gets the "not saved yet" page, a 401 keeps the good copy, 6-link cap, a 4.8 s network answered from
+  the copy in under 4.5 s and saved afterwards; the server routes). `eval/offline-browser.mjs` in real Chromium:
+  worker controls the page, Chromium reads the manifest with no errors and reports no installability errors, offline
+  reload shows the saved fixtures with the note and the remembered team (`eval/offline-browser.txt`; it caught the
+  remembered team being restored before the filter existed, fixed). Not yet tried on a real phone at a real field.
+- **Limits:** a phone shows only what it saved the last time it had signal; a page opened for the first time offline
+  shows "not saved yet". iOS keeps a home-screen web app's saved data, but Safari may clear a site's storage after
+  weeks unused in the browser tab.
+
+## Golf leagues on two courses, or a 27-hole course's three nines (2026-11-20)
+
+`golf.mjs` (`parseRotation`, `parseCourses`, `playingHandicap`, `ratedDiff`), `golf-playoffs.mjs`,
+`golf-league-schedule.html`; tested in `golf-courses.test.mjs` (8 tests, every number worked by hand in its comments).
+
+**Who it is for.** Leagues that do not play one 18-hole course front/back: two clubs that take turns
+hosting, a home course and a sister course, or a 27-hole facility whose Red, White and Blue nines rotate.
+Until now the page assumed one card, so such a league had to score each course's nights by hand.
+
+- **Schedule.** An optional rotation, repeating over the season: "Oak front, Pine front, Oak back, Pine
+  back", or "Red, White, Blue" (a name alone is a 9-hole course). The whole league plays the same course a
+  night, as a course books a league; the CSV gains a Course column, the text and table name the course,
+  and the counts table shows each team's nights at each course. Play-off nights carry on the rotation.
+- **Cards.** One card per course under a "Course: Oak" line. A 9-hole card takes 9 pars and 9 index
+  numbers (odd or even ones, as 27-hole cards print them). Each night is scored on its own course's card,
+  tees included; a player's tees missing from a course they play, a rotation course with no card, an 18-hole
+  course with no nine named, or several cards for a one-course schedule are each named, not guessed.
+- **Rating and slope (optional, all courses or none).** Over par, a nine at a hard course counts like one
+  at an easy course, so a league that moves between them drifts. With "Rating:" and "Slope:" (per nine, or
+  the 18-hole numbers, halved for rating) the handicaps follow the World Handicap System's arithmetic: each
+  round's differential is (adjusted gross - rating) x 113 / slope; the league index is the average of the
+  rounds counted (one decimal, capped); tonight's strokes are handicap% x (index x slope / 113 + rating -
+  par), rounded, 0 to the cap. Entering handicaps are read as an index. Worked: index 10 at 90% is 8 strokes
+  on a par-36 nine rated 35.0/113 and 12 on one rated 37.5/135. Match play across tees keeps the par
+  adjustment above (it compares gross strokes, so it is still needed with rating - par in the handicap).
+
+**Limits.** One course a night (a league split over two courses on the same night is not modelled);
+a rated league index is still a league handicap, not a Handicap Index; the 18-hole rating halved per nine
+is an approximation when a card gives no 9-hole ratings. Not yet used by a real league.
+
+## Golf leagues: tee times rotated evenly, match play scored with handicaps (2026-11-20)
 
 `golf-league-schedule.html`, `golf.mjs`, `golf-tee-table.mjs`; tested in `golf.test.mjs`.
 
@@ -54,8 +113,8 @@ holes and net point; the absentee counts par + 3 in the team net. Bye: each play
 their full handicap. A night worked by hand is in the tests (Hawks 12.5, Owls 9.5) and on the page.
 
 **Limits.** A league handicap only, not a Handicap Index under the World Handicap System; no score
-posting; subs play under the rostered name; no flighted play-offs or two-course leagues yet. Not yet used by
-a real league.
+posting; subs play under the rostered name. Flighted play-offs and two-course leagues have landed since
+(sections below). Not yet used by a real league.
 
 **Tee rows and skins (2026-11-20, later).** The course card takes more sets of tees ("Par (forward):",
 "Index (forward):"; a tee giving one row keeps the main tees' other) and a roster marks a player's tees
@@ -130,6 +189,7 @@ third party: zero dependencies, one JSON file on a disk you own.
 - **Run:** `ADMIN_KEY=a LEAGUE_TOKEN=b STATE=./state.json node server.mjs`, or `docker compose up -d`
   (`docker-compose.yml`), Fly (`fly.toml`), or Render (`render.yaml`, deploy from your fork; it generates both
   secrets). Nothing runs on the author's accounts.
+- **On a phone, with no signal (2026-11-20):** the player and captain pages install to the home screen and open from the last saved copy when the field has no signal (`pwa.mjs`; section "The player page on a phone's home screen" above).
 - **Calendar feeds:** the player page links a subscribe-able feed for the whole league and each team (`webcal://`, Google Calendar, or the plain address). Optional `PUBLIC_URL=https://league.example.org` fixes the address in those links; without it the request's host is used (README "Calendar files that follow a rainout").
 - **Score reports:** the player page has a "Report a score" form. A report only waits in `/admin` ("Scores waiting for you"); **Approve** appends it to Results as `Hawks 3 - 2 Owls`, **Decline** drops it, and the table never changes until you approve. At most 100 wait at once.
 - **Captain links and confirmed scores (2026-11-18, `confirm.mjs`):** `/admin` lists one captain link per team (`/league?t=LEAGUE_TOKEN&c=KEY`; the key is an HMAC of the team name under `ADMIN_KEY`, 22 characters, nothing stored), and with SMTP on, **Email each team its captain link** sends each team's link to its contacts only. A captain's page shows their team's games from the last 21 days, each with its state and a score form. When the other captain sends the same score, the line (`Hawks 3 - 1 Owls`, home first) goes into Results straight away and the game is closed, so it cannot be added twice (reports are keyed by fixture id, which follows a rained-out game). Different scores, and games only one captain has reported, wait in `/admin` under **Captain reports** with both scores side by side and **Use Hawks's** / **Use Owls's** / **Clear reports** buttons; a captain can resend to fix a typo until the game is closed. A wrong captain key counts as a wrong link for the lockout. What this replaces: the organiser typing or approving every score, which is the chore score-confirmation in paid league apps exists to remove. Limits: anyone holding a team's captain link can report for that team (the same trust as the league link), a score the organiser typed by hand is not matched to a fixture, so do not also approve that game from captain reports, and nothing here is a dispute process: the organiser's choice is final. Tested in `confirm.test.mjs` (keys, confirm and dispute, the 21-day window, the full server flow and the emails); not yet used by a real league.
