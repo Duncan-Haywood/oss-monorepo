@@ -233,3 +233,11 @@ test('a quoted identifier that starts with an escaped quote ("") keeps it', () =
   // and the closing quote. Only the outer two quotes are blanked.
   assert.equal(maskNonCode('"""a" x').masked, ' ""a  x');
 });
+
+test("a literal holding only a quote ('''') ends where it should (red team 2026-11-20)", () => {
+  // Skipping one character too many after the '' escape stepped over the
+  // closing quote and swallowed the statements after it.
+  const statements = splitStatements("SELECT '''';\nCREATE INDEX i ON t (a);");
+  assert.equal(statements.length, 2);
+  assert.match(statements[1].masked, /^CREATE INDEX i ON t/);
+});

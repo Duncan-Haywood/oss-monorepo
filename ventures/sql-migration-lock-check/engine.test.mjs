@@ -764,3 +764,83 @@ test('findings come back in line order, then by id within a line', () => {
   const got = analyzeSql('BEGIN;\nALTER TABLE a DROP COLUMN x;\nALTER TABLE b DROP COLUMN y;\nCOMMIT;').findings.map((f) => `${f.line}:${f.id}`);
   assert.deepEqual(got, ['2:drop-column', '2:no-lock-timeout', '3:drop-column', '3:many-locks-one-transaction', '3:no-lock-timeout']);
 });
+
+test('lock_timeout in hours is read at its own scale (red team 2026-11-20)', () => {
+  const RENAME = 'ALTER TABLE users DROP COLUMN a;';
+  // 0.00000013888887 h = 0.499999932 ms, which PostgreSQL rounds to 0: off.
+  assert.ok(has(`SET lock_timeout = '0.00000013888887h';\n${RENAME}`, 'no-lock-timeout'));
+  assert.ok(!has(`SET lock_timeout = '0.0000002h';\n${RENAME}`, 'no-lock-timeout'));
+});
+
+// ---------------------------------------------------------------------------
+// DO blocks (red team 2026-11-20). Conditional DDL is idiomatic in hand-written
+// migrations -- `DO $$ BEGIN IF NOT EXISTS (...) THEN ALTER TABLE ... END IF;
+// END $$;` -- and the body is a dollar-quoted string, so the masker blanked it
+// and a blocking CREATE INDEX inside one came back "clean".
+// ---------------------------------------------------------------------------
+
+test('DDL inside a DO block is analysed, at its own line', () => {
+  const sql = `DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx') THEN
+    CREATE INDEX idx ON users (email);
+  END IF;
+END
+$$;`;
+  const r = analyzeSql(sql);
+  assert.equal(r.verdict, 'can-block');
+  const f = r.findings.find((x) => x.id === 'create-index-not-concurrent');
+  assert.ok(f, JSON.stringify(r.findings));
+  assert.equal(f.line, 4);
+  assert.match(f.statement, /^CREATE INDEX idx ON users/);
+  assert.equal(r.statements, 1, 'the DO block is still one statement of the file');
+});
+
+test('a DO block with a tagged quote and LANGUAGE clause is read too', () => {
+  const sql = "SET lock_timeout = '3s';\nDO LANGUAGE plpgsql $body$ BEGIN ALTER TABLE users ADD COLUMN t uuid DEFAULT gen_random_uuid(); END $body$;";
+  const got = ids(sql);
+  assert.ok(got.includes('add-column-volatile-default'), JSON.stringify(got));
+  assert.ok(!got.includes('no-lock-timeout'), 'the SET above still protects the DO body');
+});
+
+test('an exclusive statement in a DO block with no lock_timeout is flagged', () => {
+  assert.ok(has('DO $$ BEGIN ALTER TABLE users DROP COLUMN a; END $$;', 'no-lock-timeout'));
+  // and a SET inside the block protects what follows it there
+  assert.ok(!has("DO $$ BEGIN SET lock_timeout = '3s'; ALTER TABLE users DROP COLUMN a; END $$;", 'no-lock-timeout'));
+});
+
+test('CREATE INDEX CONCURRENTLY in a DO block fails: a DO body runs in one transaction', () => {
+  assert.ok(has('DO $$ BEGIN CREATE INDEX CONCURRENTLY idx ON users (email); END $$;', 'create-index-concurrently-in-tx'));
+});
+
+test('two exclusive locks in one DO block share its transaction; separate DO blocks do not', () => {
+  assert.ok(has('DO $$ BEGIN TRUNCATE a; DROP TABLE b; END $$;', 'many-locks-one-transaction'));
+  assert.ok(!has('DO $$ BEGIN TRUNCATE a; END $$;\nDO $$ BEGIN DROP TABLE b; END $$;', 'many-locks-one-transaction'));
+  assert.ok(!has('DO $$ BEGIN TRUNCATE a; END $$;\nDROP TABLE b;', 'many-locks-one-transaction'));
+});
+
+test('a DO block that only reads or raises stays clean, and CASE ... THEN in DDL is not split', () => {
+  assert.equal(analyzeSql("DO $$ BEGIN RAISE NOTICE 'hello; ALTER TABLE x DROP COLUMN y'; END $$;").verdict, 'clean');
+  const sql = "SET lock_timeout = '3s';\nDO $$ BEGIN ALTER TABLE users ADD COLUMN c int GENERATED ALWAYS AS (CASE WHEN a > 0 THEN 1 ELSE 0 END) STORED; END $$;";
+  const f = analyzeSql(sql).findings;
+  assert.ok(f.every((x) => /STORED/.test(x.statement)), JSON.stringify(f));
+});
+
+test('a DO block does not mistake its END for the end of an explicit transaction', () => {
+  const sql = 'BEGIN;\nDO $$ BEGIN NULL; END $$;\nCREATE INDEX CONCURRENTLY idx ON users (email);\nCOMMIT;';
+  assert.ok(has(sql, 'create-index-concurrently-in-tx'));
+});
+
+test('drizzle-kit foreign keys (DO ... EXCEPTION WHEN duplicate_object) are read, and stay quiet on a new table', () => {
+  // drizzle-kit wraps every generated FOREIGN KEY in this block, so before
+  // DO bodies were read, every FK it added to an existing table was "clean".
+  const fk = `DO $$ BEGIN
+ ALTER TABLE "posts" ADD CONSTRAINT "posts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;`;
+  const r = analyzeSql(fk);
+  assert.deepEqual(r.findings.map((f) => `${f.line}:${f.id}`), ['2:add-constraint-validates', '2:no-lock-timeout']);
+  const fresh = `CREATE TABLE IF NOT EXISTS "posts" ("id" serial PRIMARY KEY, "user_id" integer);\n--> statement-breakpoint\n${fk}`;
+  assert.equal(analyzeSql(fresh).verdict, 'clean');
+});

@@ -38,7 +38,7 @@
 //                                   errors at runtime
 // ---------------------------------------------------------------------------
 
-import { splitStatements, normalize, leadingKeyword, transactionEffect } from './sql.mjs';
+import { splitStatements, maskNonCode, normalize, leadingKeyword, transactionEffect } from './sql.mjs';
 
 export const RISK = 'risk';
 export const WARN = 'warn';
@@ -223,6 +223,65 @@ function shorten(text, limit = 160) {
 }
 
 /**
+ * The statements inside `DO $tag$ ... $tag$` blocks, spliced in after the DO
+ * statement itself (red team 2026-11-20). Conditional DDL is idiomatic in
+ * hand-written migrations (`DO $$ BEGIN IF NOT EXISTS (...) THEN CREATE INDEX
+ * ...; END IF; END $$;`), and the body is a dollar-quoted string, so the
+ * masker blanked it and a blocking statement inside came back "clean".
+ *
+ * The body is PL/pgSQL, not SQL, so it is split at `;` and also after the
+ * control words that run straight into a statement (`BEGIN`, `THEN`, `ELSE`,
+ * `LOOP`, `EXCEPTION`, `DECLARE`) when they sit outside parentheses, so a
+ * `CASE WHEN ... THEN` inside a DDL expression is left whole. Pieces led by a
+ * control word are dropped. Every piece runs inside the block's single
+ * transaction, which is what PostgreSQL does: so `CREATE INDEX CONCURRENTLY`
+ * there fails and two exclusive locks there are held together. Marker
+ * statements (`doBlock: 'start' | 'end'`) let the walk open and close that
+ * implicit transaction. `EXECUTE '...'` (dynamic SQL) is not followed.
+ */
+const PLPGSQL_BREAK = /^(?:BEGIN|THEN|ELSE|LOOP|EXCEPTION|DECLARE)$/i;
+const PLPGSQL_LEAD = /^(?:BEGIN|DECLARE|IF|ELSIF|ELSEIF|ELSE|END|LOOP|FOR|FOREACH|WHILE|EXIT|CONTINUE|EXCEPTION|WHEN|RAISE|PERFORM|RETURN|NULL|EXECUTE|GET|ASSERT|CASE|OPEN|CLOSE|FETCH|MOVE|CALL|COMMIT|ROLLBACK)$/i;
+
+function expandDoBlocks(statements) {
+  const out = [];
+  for (const st of statements) {
+    out.push(st);
+    if (!/^\s*DO\b/i.test(st.masked)) continue;
+    const m = /\bDO\s+(?:LANGUAGE\s+"?plpgsql"?\s+)?(\$[A-Za-z_][A-Za-z0-9_]*\$|\$\$)([\s\S]*?)\1/i.exec(st.text);
+    if (!m) continue;
+    const bodyStart = m.index + m[0].length - m[1].length - m[2].length;
+    const baseLine = st.line + (st.text.slice(m.index, bodyStart).match(/\n/g) || []).length;
+    const body = splitAtControlWords(m[2]);
+    const inner = splitStatements(body)
+      .filter((sub) => !PLPGSQL_LEAD.test(leadingKeyword(sub.masked)))
+      .map((sub) => ({ ...sub, line: baseLine + sub.line - 1, inTransaction: true, inDoBlock: true }));
+    if (!inner.length) continue;
+    out.push({ ...st, doBlock: 'start' }, ...inner, { ...st, doBlock: 'end' });
+  }
+  return out;
+}
+
+/** Put a `;` after each PL/pgSQL control word that leads into a statement. */
+function splitAtControlWords(body) {
+  const { masked } = maskNonCode(body);
+  let depth = 0;
+  let out = '';
+  let last = 0;
+  const word = /[A-Za-z_][A-Za-z0-9_$]*|[()]/g;
+  let w;
+  while ((w = word.exec(masked))) {
+    if (w[0] === '(') { depth += 1; continue; }
+    if (w[0] === ')') { depth = Math.max(0, depth - 1); continue; }
+    if (depth === 0 && PLPGSQL_BREAK.test(w[0])) {
+      const end = w.index + w[0].length;
+      out += `${body.slice(last, end)};`;
+      last = end;
+    }
+  }
+  return out + body.slice(last);
+}
+
+/**
  * Analyse one migration file's text.
  *
  * @param {string} text
@@ -230,6 +289,7 @@ function shorten(text, limit = 160) {
  */
 export function analyzeSql(text) {
   const statements = splitStatements(text);
+  const walk = expandDoBlocks(statements);
   const findings = [];
 
   // Session state, accumulated as we walk the file in order. A `SET
@@ -290,7 +350,18 @@ export function analyzeSql(text) {
     }
   };
 
-  for (const st of statements) {
+  for (const st of walk) {
+    // A DO block outside an explicit transaction runs in one of its own:
+    // locks taken in it are held together until it ends, then released.
+    if (st.doBlock) {
+      if (!st.inTransaction) {
+        if (st.doBlock === 'start') sessionAtBegin = sessionTimeout;
+        exclusiveInTx = [];
+        reportedManyLocks = false;
+        if (st.doBlock === 'end') notValid.clear();
+      }
+      continue;
+    }
     const s = st.masked;
     const upper = s.toUpperCase();
 
