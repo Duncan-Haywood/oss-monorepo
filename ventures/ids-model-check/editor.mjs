@@ -9,7 +9,7 @@
 // misspelt set, a property the set lacks or a dataType the standard does not
 // give: the faults auditIds() finds in 21 of 64 public IDS files.
 
-import { temporalKind, temporalKey } from "./temporal.mjs";
+import { temporalKind, temporalKey, lexRange } from "./temporal.mjs";
 import { nearName } from "./audit.mjs";
 import { fixStructure } from "./fix.mjs";
 
@@ -161,42 +161,6 @@ export const TEMPORAL_EXAMPLE = { date: ["2024-01-01", "2030-12-31"], dateTime: 
 const DAY = 86400000;
 const PLAIN_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const isoDay = (t) => new Date(t).toISOString().slice(0, 10);
-function lexRange(lo, hi) {
-  // Strings of one shape (digits and fixed separators) from lo to hi inclusive.
-  if (lo === hi) return lo;
-  const any = (s) => s.replace(/\d/g, "\\d");
-  let i = 0;
-  while (lo[i] === hi[i]) i++;
-  const pre = lo.slice(0, i);
-  if (!/\d/.test(lo[i])) return null;
-  const a = +lo[i], b = +hi[i];
-  const geq = (s) => {
-    // Strings of s's shape at or above s.
-    if (!s) return "";
-    const j = s.search(/\d/);
-    if (j < 0) return s;
-    const head = s.slice(0, j), d = +s[j], rest = s.slice(j + 1);
-    if (!/[1-9]/.test(rest.replace(/[^\d]/g, "")) && !rest.replace(/[\d]/g, "").length) return head + (d === 9 ? "9" : `[${d}-9]`) + any(rest);
-    const alts = [s[j] + geq(rest)];
-    if (d < 9) alts.push((d + 1 === 9 ? "9" : `[${d + 1}-9]`) + any(rest));
-    return head + (alts.length > 1 ? `(${alts.join("|")})` : alts[0]);
-  };
-  const leq = (s) => {
-    if (!s) return "";
-    const j = s.search(/\d/);
-    if (j < 0) return s;
-    const head = s.slice(0, j), d = +s[j], rest = s.slice(j + 1);
-    if (!/[0-8]/.test(rest.replace(/[^\d]/g, "")) && !rest.replace(/[\d]/g, "").length) return head + (d === 0 ? "0" : `[0-${d}]`) + any(rest);
-    const alts = [s[j] + leq(rest)];
-    if (d > 0) alts.unshift((d - 1 === 0 ? "0" : `[0-${d - 1}]`) + any(rest));
-    return head + (alts.length > 1 ? `(${alts.join("|")})` : alts[0]);
-  };
-  const restLo = lo.slice(i + 1), restHi = hi.slice(i + 1);
-  const alts = [String(a) + geq(restLo)];
-  if (b - a > 1) alts.push((b - a === 2 ? String(a + 1) : `[${a + 1}-${b - 1}]`) + any(restLo));
-  alts.push(String(b) + leq(restHi));
-  return pre + `(${alts.join("|")})`;
-}
 export function datePattern(min, max, minEx = false, maxEx = false) {
   const blank = (x) => x === "" || x == null;
   if (blank(min) && blank(max)) return null;

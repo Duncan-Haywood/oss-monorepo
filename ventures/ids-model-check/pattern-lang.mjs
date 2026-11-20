@@ -6,8 +6,10 @@
 //
 //   restrictionLanguage(idsValue) -> Language | null
 //       null when the restriction is not a set of strings this module can
-//       read exactly: numeric or date bounds, a pattern that is not XSD, a
-//       numeric base, or an automaton past the size caps.
+//       read exactly: numeric bounds, date bounds with a time zone, time,
+//       dateTime or duration bounds, a pattern that is not XSD, a numeric
+//       base, or an automaton past the size caps. Bounds that are plain dates
+//       (minInclusive="2024-01-01") are read exactly: see dateRangePatterns.
 //   languageWithin(L1, L2)        -> { within: true } | { within: false, example } | null
 //       whether every string L1 accepts, L2 accepts too; when not, the
 //       shortest string L1 accepts and L2 refuses (null past the caps).
@@ -27,6 +29,7 @@
 // no U+FFFE/U+FFFF). Eval: eval/pattern-inclusion-2026-11-20.md.
 
 import { parseXsdRegex, SINGLE, CATEGORIES, MULTI_JS, blockJs } from "./xsdregex.mjs";
+import { lexRange, daysInMonth } from "./temporal.mjs";
 
 const MAX_NFA_STATES = 20000;
 const MAX_PRODUCT_STATES = 20000;
@@ -251,6 +254,75 @@ export function patternNfa(p) {
 
 const NUMERIC_BASE = /^(double|float|decimal|integer|int|long|short|byte|nonNegativeInteger|positiveInteger|nonPositiveInteger|negativeInteger|unsignedInt|unsignedLong|unsignedShort|unsignedByte)$/;
 
+// ---- date ranges as languages ----
+//
+// ids.mjs passes a string on a range whose bounds are dates when the string,
+// less XML whitespace around it, is an ISO date (YYYY-MM-DD, optional time
+// zone) of a day that exists, whose instant (midnight in its own zone, no zone
+// read as UTC; temporal.mjs) is within the bounds. Days are whole, and a zone
+// offset is under a day, so for bounds that are plain dates the instant test
+// becomes a test on the written day by the zone's sign: a day written east of
+// UTC (+01:00) starts before its UTC midnight, so it needs a day more to clear
+// a lower bound, and one written west (-05:00) starts after, so it needs a day
+// less to stay under an upper bound. Each sign is then a lexical range of
+// fixed-width days (lexRange), intersected with the calendar (leap years
+// included) and the zone forms Date.parse accepts (hours 00-23, minutes
+// 00-59). The test file checks this against ids.mjs string by string.
+const D = "[0-9]";
+const LEAP = `(${D}${D}(0[48]|[2468][048]|[13579][26])|([02468][048]|[13579][26])00)`;
+const CALENDAR = `(${D}{4}-((0[13578]|1[02])-(0[1-9]|[12]${D}|3[01])|(0[469]|11)-(0[1-9]|[12]${D}|30)|02-(0[1-9]|1${D}|2[0-8]))|${LEAP}-02-29)`;
+const OFFSET = `(00:(0[1-9]|[1-5]${D})|(0[1-9]|1${D}|2[0-3]):[0-5]${D})`;
+const ZONE = { zero: "(Z|[+\\-]00:00)?", east: `\\+${OFFSET}`, west: `\\-${OFFSET}` };
+const WS = "[ \\t\\r\\n]*";
+const PLAIN = /^[ \t\r\n]*(\d{4})-(\d{2})-(\d{2})[ \t\r\n]*$/;
+// Day number <-> "YYYY-MM-DD" over years 0000-9999 (proleptic Gregorian).
+function toDay(s) {
+  const m = s.match(PLAIN);
+  if (!m) return null;
+  const y = +m[1], mo = +m[2], d = +m[3];
+  if (mo < 1 || mo > 12 || d < 1 || d > daysInMonth(y, mo)) return NaN;
+  const t = new Date(0);
+  t.setUTCFullYear(y, mo - 1, d);
+  t.setUTCHours(0, 0, 0, 0);
+  return Math.round(t.getTime() / 864e5);
+}
+function fromDay(n) {
+  const t = new Date(n * 864e5);
+  return String(t.getUTCFullYear()).padStart(4, "0") + "-" + String(t.getUTCMonth() + 1).padStart(2, "0") + "-" + String(t.getUTCDate()).padStart(2, "0");
+}
+const FIRST = toDay("0000-01-01"), LAST = toDay("9999-12-31");
+// The patterns (all must match) for a restriction whose bounds are all plain
+// dates; [null] when no string can pass; null when a bound is not a plain date.
+export function dateRangePatterns(r) {
+  const b = {};
+  for (const k of ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"]) {
+    if (r[k] === undefined) continue;
+    const n = toDay(String(r[k]));
+    if (n === null) return null;
+    if (Number.isNaN(n)) return [null]; // a bound no day can be compared with
+    b[k] = n;
+  }
+  // Lowest and highest written day per zone sign.
+  const span = (sign) => {
+    let lo = FIRST, hi = LAST;
+    if (b.minInclusive !== undefined) lo = Math.max(lo, b.minInclusive + (sign === "east" ? 1 : 0));
+    if (b.minExclusive !== undefined) lo = Math.max(lo, b.minExclusive + (sign === "west" ? 0 : 1));
+    if (b.maxInclusive !== undefined) hi = Math.min(hi, b.maxInclusive - (sign === "west" ? 1 : 0));
+    if (b.maxExclusive !== undefined) hi = Math.min(hi, b.maxExclusive - (sign === "east" ? 0 : 1));
+    return lo <= hi ? [lo, hi] : null;
+  };
+  const alts = [];
+  for (const sign of ["zero", "east", "west"]) {
+    const s = span(sign);
+    if (!s) continue;
+    const body = lexRange(fromDay(s[0]), fromDay(s[1]));
+    if (body === null) return null;
+    alts.push(`${body.replace(/\\d/g, D)}${ZONE[sign]}`);
+  }
+  if (!alts.length) return [null];
+  return [`${WS}${CALENDAR}[\\s\\S]*`, `${WS}(${alts.join("|")})${WS}`];
+}
+
 // The strings an IdsValue lets through, as { nfas: [...] } (all must accept),
 // or null when that is not exact (see the header).
 export function restrictionLanguage(v) {
@@ -259,8 +331,12 @@ export function restrictionLanguage(v) {
     if (v.simple !== undefined) return { nfas: [Nfa.of(lit(v.simple))] };
     const r = v.r;
     if (r.base && NUMERIC_BASE.test(r.base)) return null;
-    if (["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"].some((k) => r[k] !== undefined)) return null;
     const nfas = [];
+    if (["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"].some((k) => r[k] !== undefined)) {
+      const ps = dateRangePatterns(r);
+      if (!ps) return null;
+      for (const p of ps) nfas.push(p === null ? Nfa.of({ t: "set", set: [] }) : Nfa.of(parseAst(p)));
+    }
     if (r.enumeration.length) nfas.push(Nfa.of({ t: "alt", xs: r.enumeration.map(lit) }));
     if (r.pattern.length) {
       if (!r.pattern.every((p) => parseXsdRegex(p).ok)) return null;

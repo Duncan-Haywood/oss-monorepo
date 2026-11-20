@@ -27,6 +27,7 @@
 
 import { parseIds } from "./ids.mjs";
 import { compareLanguages } from "./pattern-lang.mjs";
+import { temporalKind, temporalKey } from "./temporal.mjs";
 
 const own = (o, k) => (Object.hasOwn(o, k) ? o[k] : undefined);
 const parse = (x) => (typeof x === "string" ? parseIds(x) : x);
@@ -101,7 +102,37 @@ export function compareValuesDetail(a, b) {
     const l = compareLanguages(a, b);
     if (l) return l;
   }
+  const ta = temporalShape(a), tb = temporalShape(b);
+  if (ta && tb) {
+    // Values of one ISO form pass only bounds of that form (ids.mjs), so
+    // ranges on two forms share no value.
+    if (ta.kind !== tb.kind) return { effect: "changed" };
+    const bInA = intervalWithin(tb, ta), aInB = intervalWithin(ta, tb);
+    return { effect: bInA && aInB ? "same" : bInA ? "tighter" : aInB ? "looser" : "changed" };
+  }
   return { effect: "changed" };
+}
+
+// A range whose bounds are all dates, dateTimes, times or durations of one
+// form, as an interval on the instants ids.mjs compares (temporal.mjs), or
+// null. Plain-date bounds are read exactly as languages first
+// (pattern-lang.mjs); this covers zoned dates, dateTimes, times and durations.
+function temporalShape(v) {
+  if (!v || !v.present || v.simple !== undefined) return null;
+  const r = v.r;
+  if (r.enumeration.length || r.pattern.length || ["length", "minLength", "maxLength"].some((k) => r[k] !== undefined)) return null;
+  const ks = ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"].filter((k) => r[k] !== undefined);
+  if (!ks.length) return null;
+  const kinds = new Set(ks.map((k) => temporalKind(String(r[k]))));
+  if (kinds.size !== 1 || kinds.has(null)) return null;
+  const key = (k) => temporalKey(String(r[k]));
+  if (ks.some((k) => Number.isNaN(key(k)))) return null;
+  const lo = Math.max(r.minInclusive !== undefined ? key("minInclusive") : -Infinity, r.minExclusive !== undefined ? key("minExclusive") : -Infinity);
+  const hi = Math.min(r.maxInclusive !== undefined ? key("maxInclusive") : Infinity, r.maxExclusive !== undefined ? key("maxExclusive") : Infinity);
+  const loIn = !(r.minExclusive !== undefined && key("minExclusive") === lo);
+  const hiIn = !(r.maxExclusive !== undefined && key("maxExclusive") === hi);
+  if (lo > hi || (lo === hi && !(loIn && hiIn))) return null;
+  return { kind: [...kinds][0], lo, loIn, hi, hiIn };
 }
 
 const NUMERIC = /^(double|float|decimal|integer|int|long|short|nonNegativeInteger|positiveInteger)$/;

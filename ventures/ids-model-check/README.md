@@ -411,6 +411,27 @@ list, pattern and length limits never agree (an enumeration of `EI 30` with
 the pattern `EI[0-9]+`; `[A-Z]{3}-[0-9]{3}` with maxLength 6): none of the 845
 exact restrictions in the public files does (eval/pattern-inclusion-2026-11-20.md).
 
+Date, time and duration ranges are graded too (2026-11-20). A range whose
+bounds are plain dates (`minInclusive="2024-01-01"`) is read as the exact set
+of strings the checker passes on it: an ISO day that exists, in any time zone
+Date.parse accepts, whose instant is inside the bounds. So a date range now
+compares with a pattern, a list of dates or another range like any string
+restriction, with example values: `>= 2024-01-01` to `>= 2024-06-01` asks
+more ("e.g. 2024-01-01 matched before, not now"), and `<= 2024-02-29` to
+`< 2024-03-01` asks less, because a day written west of UTC
+(`2024-02-29-00:01`) is after midnight on the 29th but before 1 March.
+dateTime, time and duration ranges, and dates with zoned bounds, compare as
+intervals on the instants the checker orders. The checker itself was fixed on
+the way: a day the month lacks (`2023-02-29`, `2024-04-31`) used to roll into
+the next month, so `2024-04-31` passed `>= 2024-05-01`; it now passes no
+range, as XSD says it is not a date, and only XML whitespace is trimmed
+around a value. Checked on the 31 distinct temporal ranges in the public and
+buildingSMART files: 574 of 574 strings near their bounds read the same by the
+language and by the checker, 132 of the 236 same-form pairs that read
+"different" now grade asks more or less (the other 104 really overlap only in
+part), and 94 of 94 example values hold on the checker; buildingSMART's test
+pairs stay 334 of 334 (eval/date-range-revisions-2026-11-20.md).
+
 Library: `import { check } from "./node.mjs"; check(idsText, ifcText)` in Node,
 or `checkIds(idsText, ifcText, { schemas, typeMap, measureUnits })` from
 `ids.mjs` anywhere.
