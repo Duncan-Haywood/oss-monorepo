@@ -23,6 +23,16 @@ its three references and the transfer to the TUM cameras, and folds the natural-
 checked draft, that every citation key is in `references.bib` and every figure exists. `draft.md` stays the
 extended version.
 
+**Milestone 3u headline** (how should a robot camera put an error bar on two or three pooled self-calibrations, where the
+block alone cannot estimate the between-window spread? milestone 3s's 43 TUM windows, a floor on &tau; learned from the camera's
+*own earlier* windows): **floor &tau; at the scatter the camera has already seen.** With the causal prior, three-window random-effects pools go
+from overconfident (rms z **2.67**, worst block **11.0** sd) to honest (**1.09**, worst **3.2**) with no change in accuracy (five windows
+still 1.17% from the board); the history floor (about 3% of f) beats a fixed 1%-of-f floor at three windows (1.33), fixes the recursive
+memory's pools too (2.36 &rarr; 0.99), and gives a single 1.2 s window a usable bar (rms z 10.1 &rarr; 1.84). It is a little
+conservative from eight windows up (0.66). All eight predictions held; analysis of saved solves only. [Log](LOG.md).
+
+![rms z and worst-block |z| against windows pooled for DerSimonian-Laird, DL plus 1% of f, and the history floor, with and without the causal prior](experiments/m3u_taufloor/taufloor.png)
+
 **Milestone 3t headline** (once a causal prior steadies each window, does pooling windows still give an honest error bar on
 the focal length, and how many windows does it take? milestone 3s's 43 TUM windows, pooled in blocks of 1 to 8): **pooling and the
 prior are complements.** Five pooled windows with the causal prior land a median **1.17%** from the board's focal length against
@@ -1248,6 +1258,11 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3u: a &tau; floor from the camera's own earlier scatter makes three-window pools and single windows honest at no
+accuracy cost. Next (when the TUM host answers): the bad-start test of the recursive memory, now with the floored pool as the
+acceptance bar; a floor learned from the camera's own prior-steadied windows only (here it mixes in pre-prior `est` values, so it
+starts large); the floored pool as milestone 4's accept/reject statistic; and Section 4 of the draft updated with 3u.
 
 After milestone 3t: with the causal prior, five pooled windows reach about 1.2% with an honest random-effects bar; three-window
 pools are not safe (&tau; = 0 blocks). Next: re-solve on the images when the TUM host answers: the bad-start test of the
