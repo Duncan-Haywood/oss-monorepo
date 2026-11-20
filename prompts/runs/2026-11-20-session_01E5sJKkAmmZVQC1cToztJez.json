@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKkAmmZVQC1cToztJez",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T12:20:19Z",
+  "ended": "2026-11-20T15:15:33Z",
+  "wall_minutes": 175.44,
+  "tokens_in": 6709605,
+  "tokens_out": 29959,
+  "cost_usd": 3.715,
+  "tool_calls": 56,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17911",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "run_confirm.py CP stopped at the 7,200,000 ms background-task limit after 16 of 40 runs (case2869_pegase TYP took ~7,100 s per arm, 6x its frozen run); not restarted, per the harness note"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No guidance that a 2,000-3,000-bus PGLib sweep of rule C/P can exceed the 2-hour background-task cap; the widened arms ran up to 6x slower than the frozen arm, so a per-case time budget or splitting the job by case would have finished it"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The first fetch loop ran inside a backgrounded `cd ... && ( ... ) &` chain, so the foreground cd was relative to the wrong directory; my error, but the cwd drift between tool calls (environment updates) made it easy"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/infra-dcopf/experiments/run_confirm.py",
+      "why": "Landed a partial confirmation outcome instead of waiting for the remaining 12 C/P cases, which would need more than another background slot",
+      "did": "Summary excludes pending cases from every tally and names them; only Q3 (a loss already observed) is stated as final; parts cached so the next run resumes",
+      "result": "Honest partial result on main; verdict provisional"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-grid-repair-widening-fails-first-unused-cases.md",
+    "research/infra-dcopf/LOG.md (2026-11-20 confirmation split plan and partial outcome)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered plan committed (0b16597cf) before any run. Frozen arm complete on 33 cases: 23 reach repair, 9 finish. C=P on 11 scored cases: lose case2848_rte TYP and case2868_rte TYP via round-1 widening, gain none. Checks: pytest test_confirm+test_enlarge 10 passed; build.py ok; research_live_links ok; check_md_links ok; check_posts ok; programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a64cd1e0-3997-594f-ac3a-33378460986f",
+    "transcripts": 1,
+    "first": "2026-11-20T12:20:19Z",
+    "last": "2026-11-20T15:15:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 126,
+        "output": 29959,
+        "thinking": 5412,
+        "cache_read": 6482121,
+        "cache_write_5m": 0,
+        "cache_write_1h": 227358,
+        "api_equivalent_usd": 3.715,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 126,
+      "output": 29959,
+      "thinking": 5412,
+      "cache_read": 6482121,
+      "cache_write_5m": 0,
+      "cache_write_1h": 227358,
+      "api_equivalent_usd": 3.715,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 175.44,
+      "active_minutes": 15.83,
+      "model_minutes": 6.2,
+      "tool_minutes": 9.63,
+      "waiting_on_human_minutes": 159.61,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "pre-registering, running and writing up a 33-case confirmation split for an OPF heuristic",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 215.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
