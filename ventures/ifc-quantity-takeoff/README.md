@@ -31,6 +31,19 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   that contradicts the element's own stored length, height and width. Where the
   stored figure is the wrong one, the bill of quantities uses the computed one.
 
+- **Small voids left in, as a method of measurement does.** Choose
+  "deduct every opening" (as modelled), "leave in voids up to 0.50 m2 /
+  0.05 m3", or your own thresholds (`--voids-up-to 0.5,0.05` on the command
+  line). Each opening is cut from its element on its own, so the area it takes
+  out of the wall's middle plane or the slab's plan and the volume it takes out
+  of the body are known; openings at or under the thresholds are added back to
+  net figures (or only the larger ones taken out of gross ones), and the BoQ
+  says how many and what they added (`measure.mjs`). On 12 public models, 1,099
+  of 1,136 wall openings that store their own width and height measured within
+  2% of width x height; 216 of 2,252 openings were at or under 0.50 m2
+  ([eval/measure-rules-2026-11-20.md](eval/measure-rules-2026-11-20.md)). The
+  thresholds are yours to check against your contract's method; the tool
+  claims no standard's rules.
 - **What changed since the last issue.** Drop the earlier revision too and
   get the change on every bill-of-quantities line (priced with the same
   rates, for a change order) and every element added, removed, changed (a
@@ -181,8 +194,10 @@ need no special case.
 **Not read:** advanced brep faces on other surfaces (surfaces of revolution,
 B-spline surfaces), open shells, tapered extrusions, swept
 solids along curves other than disks, centre-line profiles, sloped flanges.
-Overlapping openings in one element are subtracted twice, and so are the
-overlapping pieces of one shell (the element carries a note). A faceted body
+Overlapping openings in one element are taken out once (each opening is
+subtracted from the body less the ones before it, so their overlap is added
+back; `measure.test.mjs`). The overlapping pieces of one shell are counted
+twice (the element carries a note). A faceted body
 clipped by a half-space, or mixed with a swept disk, revolved area or CSG
 primitive, is not cut: it keeps the stored area. A faceted shell of more than
 4,000 tetrahedra has no openings taken out ("net not computed"). A faceted covering is cut
@@ -197,11 +212,13 @@ node cli.mjs model.ifc                         # BoQ by class and type, CSV to s
 node cli.mjs model.ifc --by storey,class       # other groupings
 node cli.mjs model.ifc --rows elements.csv     # every element
 node cli.mjs model.ifc --check                 # stored vs computed summary
+node cli.mjs model.ifc --voids-up-to 0.5,0.05  # leave in openings up to 0.5 m2 (areas) / 0.05 m3 (volumes)
 node cli.mjs new.ifc --compare old.ifc         # change in the BoQ since old.ifc, CSV to stdout
 node cli.mjs new.ifc --compare old.ifc --changes changes.csv   # and every changed element
 node --test                                    # tests
 node eval/stored-vs-computed.mjs a.ifc b.ifc   # the corpus check, volumes
 node eval/areas-vs-stored.mjs a.ifc b.ifc      # the corpus check, areas
+node eval/measure-rules.mjs a.ifc b.ifc         # what a small-void rule changes, and opening areas vs stored width x height
 node eval/revision-diff.mjs r1.ifc r2.ifc r3.ifc   # the change report on consecutive revisions
 ```
 
