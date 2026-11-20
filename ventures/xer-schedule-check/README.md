@@ -216,11 +216,45 @@ exiting, so a `--json` report piped to another program is no longer cut off
 at 64 KB (`--float-paths --json` on the CCA file was cut at 81,920 of 93,526
 bytes).
 
+**Constraints log in the make-ready check** (2026-11-20, `constraints.mjs`,
+the look-ahead panel's "Constraints log" box, `node cli.mjs schedule.xer
+--lookahead 3 --constraints log.csv [--constraints-csv updated.csv]`): the
+things a P6 file does not hold (materials, permits, RFIs, submittals, crews,
+equipment) kept as the spreadsheet the site team already has, one row per
+constraint, pasted or opened as a CSV. Columns are found by name (activity
+ID, constraint, type, owner, need by, expected, cleared, notes; only the
+activity column is required, and a row may name several activities); dates
+read as typed (2026-04-14, 4/14/2026, 14-Apr-26, an Excel day number). Each
+row gets the date the schedule needs it by (the activity's remaining early
+start, or now for work under way), the latest start before a deadline moves,
+the working days to spare, and a status: **overdue** (open, its promised
+date passed), **late** (it clears after the need-by day), **no date**,
+**on track** or **cleared**; rows against finished work and unknown activity
+IDs are named. An activity that is ready by its logic but has an open row
+becomes **constrained**, the Last Planner "sound" test with the logic and the
+log both clear. Then the what-if: every open row's expected date goes to the
+CPM engine as a start floor on its activities, the schedule is recomputed,
+and the page says how far the finish moves if the log holds as promised and
+which look-ahead starts move; each late row is also run alone and the rows
+are ranked by how far each one moves the finish, the one to chase first.
+The log comes back as a CSV with the schedule's columns added, ready for next
+week's meeting, and the printed sheet gains a constraints section. Checked on
+the six public P6 files with planted logs (eval/constraints-check-2026-11-20.md):
+the what-if equals the same dates written into the file as P6 "start on or
+after" constraints and scheduled from scratch, on the finish and every open
+activity's dates, and each row's own finish slip equals the same route run
+alone. On the CCA file (14,270 open activities) the finish holds, yet 3 planted rows
+pass their late start: the slip lands on an interim finish-on-or-before
+milestone, not the project finish, which a finish-only what-if would hide.
+No public job publishes its constraints log, so the statuses are checked
+against their own rules, not against a site team's.
+
 ## Why someone would use it
 
 | Today's option | What it does | What this does better |
 |---|---|---|
 | A look-ahead made by hand (a filtered P6 layout printed to PDF, or copied into Excel each week) | Works for whoever holds P6 or has the time to copy dates | The 1-6 week sheet straight from the XER, with what each activity waits on and the date it is due, open starts and out-of-sequence work named, printable and as CSV, with no P6 seat |
+| A constraints log in Excel, or a Last Planner board (sticky notes, or paid tools such as Touchplan or vPlanner) | Tracks what each task waits on, kept apart from the schedule; the paid boards need their own plan entered | The same spreadsheet merged with the P6 schedule: the date each row is needed by from the recomputed dates, late and overdue rows named, and how far the finish moves if the log holds, row by row, free and in the browser |
 | P6's own Level Resources | Levels in P6 for people who hold a P6 seat; changes the schedule in the database | The levelled finish, who moved and why, and a crew-size what-if from the XER, without P6 and without touching the contractor's file |
 | Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free, with ranges read from the file's own UDFs; no resource model, no probabilistic branches yet |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
@@ -464,6 +498,9 @@ XER file for the CLI. `eval/cpm-vs-p6.mjs` is the P6 comparison (dates, total an
 `mspdi.mjs` reads Microsoft Project XML into the same tables (`parseMspdi`,
 and `parseSchedule`, which picks the reader from the text);
 `eval/cpm-vs-project.mjs` compares the engine with Project's stored dates.
+`samples/constraints-log.csv` is a constraints log for the example schedule
+(the page's "Example log" button); `eval/constraints-check.mjs` plants logs on
+real files and checks the what-if against P6 start-on-or-after constraints.
 
 ## Disclaimer
 

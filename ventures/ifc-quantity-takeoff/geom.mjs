@@ -736,39 +736,25 @@ export class Geometry {
       }
       case "IFCFACETEDBREP":
       case "IFCFACETEDBREPWITHVOIDS": {
-        const outer = this.shellLoops(a[0]);
-        const vo = shellVolume(outer);
-        let v = Math.abs(vo);
-        const shells = [{ s: Math.sign(vo) || 1, loops: outer }];
-        if (e.type === "IFCFACETEDBREPWITHVOIDS") for (const s of a[1] || []) {
-          const inner = this.shellLoops(s);
-          const vi = shellVolume(inner);
-          v -= Math.abs(vi);
-          shells.push({ s: -(Math.sign(vi) || 1), loops: inner });
-        }
-        return solid([], v, [], shells);
+        const parts = [{ s: 1, loops: this.shellLoops(a[0]) }];
+        if (e.type === "IFCFACETEDBREPWITHVOIDS") for (const s of a[1] || []) parts.push({ s: -1, loops: this.shellLoops(s) });
+        return faceted(parts);
       }
       case "IFCSHELLBASEDSURFACEMODEL":
       case "IFCFACEBASEDSURFACEMODEL": {
-        let v = 0;
-        const shells = [];
+        const parts = [];
         for (const s of a[0]) {
           const sh = this.get(s);
           if (sh.type !== "IFCCLOSEDSHELL" && sh.type !== "IFCCONNECTEDFACESET") throw new Unresolved("open shell");
-          const loops = this.shellLoops(s);
-          const vs = shellVolume(loops);
-          v += Math.abs(vs);
-          shells.push({ s: Math.sign(vs) || 1, loops });
+          parts.push({ s: 1, loops: this.shellLoops(s) });
         }
-        return solid([], v, ["surface model read as closed shells"], shells);
+        return faceted(parts, ["surface model read as closed shells"]);
       }
       case "IFCPOLYGONALFACESET":
       case "IFCTRIANGULATEDFACESET":
       case "IFCTRIANGULATEDIRREGULARNETWORK":
       {
-        const loops = this.faceSetLoops(e);
-        const vs = shellVolume(loops);
-        return solid([], Math.abs(vs), [], [{ s: Math.sign(vs) || 1, loops }]);
+        return faceted([{ s: 1, loops: this.faceSetLoops(e) }]);
       }
       case "IFCSWEPTDISKSOLID":
       case "IFCSWEPTDISKSOLIDPOLYGONAL": {
@@ -969,6 +955,99 @@ export class Geometry {
     if (axis) { out.axis = axis; out.axisWeight = axisWeight; }
     return out;
   }
+}
+
+// ---- orienting faceted shells -----------------------------------------------
+
+const pkey = (p) => `${p[0]},${p[1]},${p[2]}`;
+
+/**
+ * Turns faces so neighbours run their shared edge in opposite directions (a
+ * consistently oriented shell), starting from each connected piece's first
+ * face. Returns { faces, flipped, closed }: closed is false when an edge is
+ * used by one face only or by more than two, or when no consistent turn
+ * exists (a Moebius-like or self-touching shell); such a shell cannot be cut.
+ */
+export function orientShell(faces0) {
+  const faces = faces0.map((f) => f.map((l) => l.slice()));
+  const edges = new Map(); // undirected key -> [{face, forward}]
+  faces.forEach((f, fi) => {
+    for (const l of f) for (let i = 0; i < l.length; i++) {
+      const a = pkey(l[i]), b = pkey(l[(i + 1) % l.length]);
+      if (a === b) continue;
+      const fwd = a < b;
+      const key = fwd ? `${a}|${b}` : `${b}|${a}`;
+      let e = edges.get(key);
+      if (!e) edges.set(key, (e = []));
+      e.push({ fi, fwd });
+    }
+  });
+  let closed = true;
+  const adj = faces.map(() => []);
+  for (const e of edges.values()) {
+    if (e.length !== 2) { closed = false; continue; }
+    const [p, q] = e;
+    if (p.fi === q.fi) continue;
+    // same direction on both sides: one of the two must turn
+    const mustFlip = p.fwd === q.fwd;
+    adj[p.fi].push([q.fi, mustFlip]);
+    adj[q.fi].push([p.fi, mustFlip]);
+  }
+  const turn = new Array(faces.length).fill(null);
+  let flipped = 0;
+  for (let s = 0; s < faces.length; s++) {
+    if (turn[s] !== null) continue;
+    turn[s] = false;
+    const stack = [s];
+    while (stack.length) {
+      const i = stack.pop();
+      for (const [j, mustFlip] of adj[i]) {
+        const want = turn[i] !== mustFlip;
+        if (turn[j] === null) { turn[j] = want; stack.push(j); } else if (turn[j] !== want) closed = false;
+      }
+    }
+  }
+  for (let i = 0; i < faces.length; i++) if (turn[i]) { faces[i] = faces[i].map((l) => l.slice().reverse()); flipped++; }
+  return { faces, flipped, closed };
+}
+
+/**
+ * A shell's face loops turned to agree with their neighbours (each loop is
+ * its own face here: an inner bound shares its edges with the hole's walls,
+ * not with its outer bound). Returns { loops, flipped, closed }; flipped
+ * counts the loops that end up reversed from the file once the shell is also
+ * turned outward, 0 when the whole shell was simply written inside out. A
+ * shell that is not closed keeps its loops as given.
+ */
+export function orientLoops(loops) {
+  const o = orientShell(loops.map((l) => [l]));
+  if (!o.closed) return { loops, flipped: 0, closed: false };
+  let out = o.faces.map((f) => f[0]);
+  let flipped = o.flipped;
+  if (shellVolume(out) < 0) { out = out.map((l) => l.slice().reverse()); flipped = loops.length - flipped; }
+  if (flipped === loops.length) flipped = 0;
+  return { loops: out, flipped, closed: true };
+}
+
+/**
+ * The faceted solid of some shells (sign +1 material, -1 a void): each
+ * oriented, its volume from the oriented faces. Any shell not closed leaves
+ * the solid without a section (its volume is kept as before).
+ */
+function faceted(parts, notes = []) {
+  let v = 0, flipped = 0, open = false;
+  const shells = [];
+  for (const { s, loops } of parts) {
+    const o = orientLoops(loops);
+    const vs = shellVolume(o.loops);
+    v += s * Math.abs(vs);
+    flipped += o.flipped;
+    open ||= !o.closed;
+    shells.push({ s: s * (Math.sign(vs) || 1), loops: o.loops });
+  }
+  const n = notes.slice();
+  if (flipped) n.push(`${flipped} face${flipped === 1 ? "" : "s"} of a faceted body turned to match their neighbours`);
+  return solid([], v, n, open ? null : shells);
 }
 
 // ---- 2D helpers ----------------------------------------------------------------
