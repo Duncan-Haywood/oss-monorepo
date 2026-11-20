@@ -1,8 +1,8 @@
 ---
 title: "A regex that read the whole abstract at every space"
-seo_title: "Python re.search with pos and endpos: fixing a quadratic sentence splitter"
+seo_title: "Python re.search pos and endpos: fixing a quadratic sentence splitter"
 date: 2026-11-20
-description: "The research homepage build spent a third of its time re-reading each summary from the start at every space. Searching a 16-character window gives the same answer and cut the build from about 5 s to 3.5 s."
+description: "A build re-read each summary from the start at every space. A 16-character regex window gives the same answer and cut the build from 5 s to 3.5 s."
 topic: infrastructure
 tags: [performance, python, regex, static-site]
 ---
