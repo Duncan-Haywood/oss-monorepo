@@ -1,0 +1,48 @@
+{
+ "results": {
+  "Mohtat2020@3x*3": {
+   "finished": 4,
+   "plates": true,
+   "fade": 0.013772635538240947
+  },
+  "Mohtat2020@3x*10": {
+   "finished": 4,
+   "plates": true,
+   "fade": 0.042258865127926024
+  },
+  "Mohtat2020@3x*30": {
+   "finished": 4,
+   "plates": true,
+   "fade": 0.10655926074880365
+  },
+  "Mohtat2020@3x*100": {
+   "finished": 4,
+   "plates": true,
+   "fade": 0.23740271294992144
+  },
+  "Ecker2015@2x*3": {
+   "finished": 4,
+   "plates": true,
+   "fade": 0.0159430439125407
+  },
+  "Ecker2015@2x*10": {
+   "finished": 4,
+   "plates": true,
+   "fade": 0.05033796778781636
+  },
+  "Ecker2015@2x*30": {
+   "finished": 4,
+   "plates": true,
+   "fade": 0.12016538698610099
+  },
+  "Ecker2015@2x*100": {
+   "finished": 4,
+   "plates": true,
+   "fade": 0.2250700079343639
+  }
+ },
+ "kept": {
+  "Mohtat2020@3x": 10.0,
+  "Ecker2015@2x": 10.0
+ }
+}
