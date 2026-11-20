@@ -109,7 +109,7 @@ def newton_svd(res):
 
 
 def traced_slp(ppc, pg_start, vg_start, rounds=30, margin=None, analytic=True, solver="clarabel",
-               hook=None, accept=None, enlarge=None, enlarge_once=False):
+               hook=None, accept=None, enlarge=None, enlarge_once=False, enlarge_rel=False):
     """vlin.slp's loop, step for step, with diagnostics. Returns (hist, trace): hist as vlin.slp
     returns it; trace one dict per round.
 
@@ -122,7 +122,8 @@ def traced_slp(ppc, pg_start, vg_start, rounds=30, margin=None, analytic=True, s
     enlarge (optional, a method change; None = frozen): rule E's cap as a multiple of the first boxes
     (vlin.enlarged_step); its per-round record is stored under the trace key "enlarge".
     enlarge_once: rule O, rule E at most once per base point (as vlin.slp); a blocked round's trace has
-    "enlarge" = {"blocked": True}."""
+    "enlarge" = {"blocked": True}.
+    enlarge_rel: rule C, rule E capped at `enlarge` times the current stored boxes (as vlin.slp)."""
     margin = margin or vlin.MARGIN
     lay = vlin.Layout(ppc)
     g = ppc["gen"]
@@ -155,8 +156,9 @@ def traced_slp(ppc, pg_start, vg_start, rounds=30, margin=None, analytic=True, s
             if not kw and enlarge is not None and enlarge_once and used_here:
                 tr["enlarge"] = {"blocked": True}
             elif not kw and enlarge is not None:
-                xp, xv, ok, inf = vlin.enlarged_step(ppc, lin, pt, vtrust, margin, enlarge * p_first,
-                                                     enlarge * vlin.VBOX, solver)
+                xp, xv, ok, inf = vlin.enlarged_step(ppc, lin, pt, vtrust, margin,
+                                                     enlarge * (ptrust if enlarge_rel else p_first),
+                                                     enlarge * (vtrust if enlarge_rel else vlin.VBOX), solver)
                 tr["enlarge"] = inf
                 if ok:
                     kw = {"enlarged": inf["t_used"]}
