@@ -598,12 +598,11 @@ flagships:
     buildable: >-
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
-      the 192 unexplained areas (eval/joins-and-host-figures-2026-11-20.md: HHS's 58
-      mullions storing no Length, schependomlaan's 17 footing beams, 30 walls); the
-      160 unexplained GrossVolumes; curved breps left
-      (eval/curved-breps-2026-11-20.md: #162827 band, 4 unexplained); more revision
-      series via eval/revision-diff.mjs (Kegonsa done 2026-11-20;
-      Lake_Mills_Residence_Expansion 2 IFC commits; Kegonsa's
+      the 117 unexplained areas (eval/cross-sections-2026-11-20.md: 72 slab and
+      covering areas, 43 wall sides, C20's 2 columns); the 160 unexplained
+      GrossVolumes; curved breps left (eval/curved-breps-2026-11-20.md: #162827
+      band, 4 unexplained); more revision series via eval/revision-diff.mjs (Kegonsa
+      done 2026-11-20; Lake_Mills_Residence_Expansion 2 IFC commits; Kegonsa's
       Lake_Kegonsa_Home_2015.ifc pair).
     hosts: [https://github.com]
     next: >-
@@ -630,7 +629,7 @@ flagships:
       (eval/slab-on-grade-2026-11-20.md), railings by what they stand on 2026-11-20
       (stair C2010, outside B2010, inside C1010 by the envelope rays: coded 77 to
       461 of 486; eval/railings-2026-11-20.md), next roofs as blockers for knee
-      walls; (3) the unexplained disagreements; (4) curved breps shipped 2026-11-20
-      (eval/curved-breps-2026-11-20.md): next a face round a whole surface
-      (seam/cap), 4 unexplained, speed on MEP fittings; overlapping shell pieces as
-      a union. More open items: NEXT.md.
+      walls; (3) the unexplained disagreements (cross-sections 77 to 2 2026-11-20:
+      half-surface mullions, prism axis for faceted members;
+      eval/cross-sections-2026-11-20.md); overlapping shell pieces as a union. More
+      open items: NEXT.md.

@@ -19,7 +19,7 @@
 import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
 import { planRect, assignEnvelope, assignRailingSides } from "./envelope.mjs";
-import { Geometry, Unresolved, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, solidExtent } from "./geom.mjs";
+import { Geometry, Unresolved, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, prismAxis, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -474,6 +474,15 @@ export function unitSlip(computed, stored, tol = 0.005) {
  *                     length: one figure copied onto every piece (skolebygg's
  *                     mullions carry their curtain wall's Revit Area and
  *                     Length);
+ *   half-surface      a member's stored CrossSectionArea is half the total
+ *                     area of its body's faces (HHS architect's Revit
+ *                     mullions: 0.66 m2 on a 0.0095 m2 post, its surface
+ *                     1.32 m2), within 0.5%: a surface figure, not a section;
+ *   own-profile       a member's stored CrossSectionArea is its own stored
+ *                     Width x Height, and the geometry was cut across another
+ *                     direction: a piece about as short as it is wide, whose
+ *                     axis its faces do not show (schependomlaan's footing
+ *                     stubs, 0.28-0.35 m long on 0.35-0.5 m profiles);
  *   faces-averaged    the same mean, read from the exporter's own outside and
  *                     inside face areas (ArchiCAD's "Netto-Oberflächenbereich
  *                     an der Außenseite / Innenseite"; gross adds its opening
@@ -522,6 +531,8 @@ export function explainAreas(rows, tol = 0.02) {
       if ((c.kind === "footprint" && exact(L * W)) || (c.kind === "side" && exact(L * H))) { c.reason = "centre-line"; continue; }
       if (c.kind === "side" && sv != null && W > 0 && A.width > 0 && Math.abs(W - A.width) > tol * W && near(c.stored * W, sv)) { c.reason = "other-width"; continue; }
       if (c.kind === "cross" && hostFigure(r, k, c, rows)) { c.reason = "host-figure"; c.trust = false; continue; }
+      if (c.kind === "cross" && A.surface > 0 && exact(A.surface / 2)) { c.reason = "half-surface"; c.trust = false; continue; }
+      if (c.kind === "cross" && exact(W * H)) { c.reason = "own-profile"; continue; }
       if (c.kind === "side" && joinsOff(r, c, byId, exact)) { c.reason = "joins-off"; continue; }
       if (c.kind === "side" && facesAveraged(r, c, exact)) { c.reason = "faces-averaged"; continue; }
       c.reason = "unexplained";
@@ -620,6 +631,8 @@ export const AREA_REASON_TEXT = {
   "matches-stored-volume": "the stored area agrees with the stored volume, but both describe a different body than the geometry",
   zero: "the stored area is 0 while the geometry has one: the exporter left the figure unfilled",
   "host-figure": "the same stored cross-section area and length are written on several members of different lengths: a figure copied from their host (a curtain wall's area and length), not the member's section",
+  "half-surface": "the stored cross-section area is half the total area of the member's faces: a surface figure (as some Revit exports write it), not its section",
+  "own-profile": "the stored cross-section area is the member's own stored width x height; the piece is about as short as it is wide, so its axis cannot be read from the geometry and the cut went across another direction",
   "joins-off": "the stored side area is the mean of the wall's two faces with the strips covered by the walls joined to it taken off (a finishes figure, as ArchiCAD measures it)",
   "faces-averaged": "the stored side area is the mean of the exporter's own outside and inside face areas, its inside face shortened by walls joined to it (a finishes figure)",
   "centre-line": "the stored area is the element's stored centre-line length x its width (footprint) or height (side): a nominal figure that ignores angled or mitred ends",
@@ -794,8 +807,14 @@ function computeAreas(type, solids, W, f) {
   if (AREA_KINDS.cross.test(type)) {
     // a faceted member has no extrusion: its length runs along the face
     // normal (an end face's) in whose direction the body is longest
-    const n = body.axis ?? (body.terms.length ? null : thinnestNormal(body, () => true, true)?.n);
-    if (n) out.cross = cut(n);
+    const n = body.axis ?? (body.terms.length ? null : prismAxis(body) ?? thinnestNormal(body, () => true, true)?.n);
+    if (n) {
+      out.cross = cut(n);
+      // the body's whole surface: Revit writes half of it as some members'
+      // CrossSectionArea (HHS architect's mullions)
+      const S = surfaceArea(body);
+      if (S != null) out.cross.surface = S * f2;
+    }
   }
   return out;
 }
