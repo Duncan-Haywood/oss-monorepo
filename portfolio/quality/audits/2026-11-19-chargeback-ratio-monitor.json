@@ -210,21 +210,24 @@
    "what": "The headline status and ratio blend every card brand, while VAMP and Mastercard ECP are each computed per brand; there is no per-brand monthly ratio (the brand table is whole-period). On the worked example June reads 1.09% 'elevated' blended while Visa is 2/554 = 0.36% and Mastercard 9/373 = 2.41% (above the 1.50% excessive line the tool itself sets), which the tool never shows",
    "where": "ventures/chargeback-ratio-monitor/calc.mjs:207",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "PENDING"
   },
   {
    "severity": "high",
    "what": "No previous-month denominator: Mastercard ECP divides this month's chargebacks by last month's transactions (Stripe docs). Jan 10,000 / Feb 5,000 charges with 120 Feb chargebacks: ECP 1.20% (under ECM), tool 2.40% 'excessive'; the FAQ and FAQPage JSON-LD state the same-month formula as the general definition",
    "where": "ventures/chargeback-ratio-monitor/index.html:120",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "PENDING"
   },
   {
    "severity": "medium",
    "what": "Early fraud warnings are parsed and then excluded from the ratio; VAMP's ratio is (TC40 fraud + TC15 disputes) / settled CNP transactions, so with 5 disputes and 6 EFWs on 1,000 charges VAMP is 1.10% and the tool shows 0.50% 'ok'. No option to include them",
    "where": "ventures/chargeback-ratio-monitor/calc.mjs:157",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "PENDING"
   },
   {
    "severity": "medium",
@@ -239,7 +242,8 @@
    "what": "No minimum-count gate (VAMP merchant >= 1,500 fraud+disputes, ECM >= 100 chargebacks, HECM >= 300): 16 disputes on 1,000 charges is a high-severity 'excessive' finding with no count caveat; the caveat appears only for months under 200 charges",
    "where": "ventures/chargeback-ratio-monitor/calc.mjs:261",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "PENDING"
   },
   {
    "severity": "low",
@@ -278,6 +282,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17639"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17639", "PENDING"],
  "verdict": "Arithmetically clean: my own Python recompute of the worked example matches every month (5,710 charges, 43 disputes), and headroom, dilution and trend match hand calculation. It does not meet the bar. The one number it writes in a sentence for healthy merchants is one short (calc.mjs:266). More important, the ratio it computes is neither card network's: it is blended across brands while VAMP and ECP are per brand, it never uses Mastercard's previous-month denominator (an ECP rate of 1.20% shows as 2.40% 'excessive'), it leaves out the TC40 fraud reports that VAMP counts, and it applies no minimum counts. The page does honestly say its lines are not any provider's rules. Tests are green (24) but 3 of 8 seeded mutants survived. Small fixes, each with a test, would bring correctness and claims to 3: the off-by-one, the FAQ wording, per-brand monthly ratios, an 'include EFWs' toggle and a previous-month column. Domain needs a VAMP/ECP mode with count gates and dated thresholds."
 }
