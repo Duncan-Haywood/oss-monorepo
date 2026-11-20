@@ -64,3 +64,13 @@ test('index links one hop to the saas-renewal-planner sibling', () => {
   const siblingHtml = readIndexForSiblingCheck(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(siblingHtml, /href="\.\.\/saas-renewal-planner\/"/);
 });
+
+// Regression (quality census 2026-11-20, portfolio/quality/audits/2026-11-20-saas-seat-true-up.json):
+// the remaining-term tile was labelled "avoidable through renewal", while the
+// FAQ says that same figure is committed and "usually sunk". Seat reductions
+// take effect at renewal, so the label promised savings a buyer cannot get.
+test('the remaining-term figure is labelled committed, not avoidable', () => {
+  assert.doesNotMatch(html, /avoidable through renewal/);
+  assert.match(html, /<span id="remainingLabel">committed through renewal<\/span>/);
+  assert.match(html, /: 'committed through renewal'/);
+});

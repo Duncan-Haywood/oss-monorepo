@@ -242,3 +242,10 @@ test('with no today given, the count is whole calendar days, whatever the hour',
     globalThis.Date = RealDate;
   }
 });
+
+// Boundary seeded by the 2026-11-20 quality census: a deadline exactly 14 days
+// out is "soon"; 15 days out is not. `<= 14` -> `< 14` survived every test.
+test('notice deadline exactly 14 days away counts as soon, 15 does not', () => {
+  assert.equal(evaluateNoticeDeadline({ renewalDate: '2026-12-14', noticeDays: 0, today: new Date('2026-11-30') }).deadlineSoon, true);
+  assert.equal(evaluateNoticeDeadline({ renewalDate: '2026-12-15', noticeDays: 0, today: new Date('2026-11-30') }).deadlineSoon, false);
+});
