@@ -400,8 +400,9 @@ flagships:
       it. Golf 2026-11-20 (golf.mjs, golf-playoffs.mjs flighted play-offs,
       golf-league-schedule.html): tee times at share in 71 of 77 seasons, other 6
       SAT-proved out (eval/golf-tee-grid.txt); match play recap; tee rows and skins
-      2026-11-20 (golf.test.mjs, worked by hand); next: two-course leagues, a real
-      league's season. More open items: NEXT.md.
+      2026-11-20 (golf.test.mjs, worked by hand); two courses 2026-11-20
+      (golf-courses.test.mjs); next: a real league's season. More open items:
+      NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:

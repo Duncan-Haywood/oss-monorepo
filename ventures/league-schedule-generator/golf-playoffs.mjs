@@ -22,7 +22,7 @@
 //  - A tie on the cut line (two teams level on points and holes won across two flights) is
 //    named, not broken: the standings' own order decides and the line says so.
 import { playoffBracket, dayLabel, csvCell } from "./calc.mjs";
-import { slotLabels } from "./golf.mjs";
+import { slotLabels, whereName } from "./golf.mjs";
 
 const FLIGHT_NAMES = "ABCDEFGH";
 
@@ -34,7 +34,7 @@ export function flightSizes(n, flights) {
 
 /**
  * @param {{ standings: { team: string, place: number, points: number, holesWon: number }[] }} recap  from golfRecap
- * @param {{ weeks: { day: number, nine: string }[], startType?: string, firstTee?: string, interval?: number, nSlots?: number }} season  the season the recap is of
+ * @param {{ weeks: { day: number, nine: string }[], rotation?: { course: string, nine: string }[], startType?: string, firstTee?: string, interval?: number, nSlots?: number }} season  the season the recap is of
  * @param {{ flights?: number, sizes?: number[], flightOrder?: "first-first" | "last-first", thirdPlace?: boolean, nights?: number[], nine?: "alternate" | "front" | "back" }} [opts]
  *   `nights`: day numbers for the play-off nights (default: one week apart after the last regular week).
  */
@@ -80,7 +80,10 @@ export function golfPlayoffs(recap, season, opts = {}) {
   const days = opts.nights ?? Array.from({ length: nNights }, (_, i) => lastWeek.day + 7 * (i + 1));
   if (days.length < nNights) return { errors: [`The longest flight has ${nNights} rounds, so it needs ${nNights} nights; ${days.length} given.`] };
   const nineFirst = lastWeek.nine === "front" ? "back" : "front";
-  const nineOn = (i) => (opts.nine === "front" || opts.nine === "back" ? opts.nine : i % 2 === 0 ? nineFirst : nineFirst === "front" ? "back" : "front");
+  // A league on a course rotation keeps rotating into the play-offs (unless a nine is forced).
+  const rot = season.rotation?.length && opts.nine !== "front" && opts.nine !== "back" ? season.rotation : null;
+  const atOn = (i) => (rot ? rot[(season.weeks.length + i) % rot.length] : null);
+  const nineOn = (i) => (rot ? atOn(i).nine : opts.nine === "front" || opts.nine === "back" ? opts.nine : i % 2 === 0 ? nineFirst : nineFirst === "front" ? "back" : "front");
 
   /** @type {{ night: number, day: number, nine: string, groups: { slot: string, flight: string, round: string, id: string, a: string, b: string }[] }[]} */
   const nights = [];
@@ -103,7 +106,7 @@ export function golfPlayoffs(recap, season, opts = {}) {
     const labels = slotLabels(groups.length, { startType: season.startType, firstTee: season.firstTee, interval: season.interval, nine: nineOn(i) });
     if (season.startType === "shotgun" && groups.length > 18) errors.push(`Night ${i + 1} has ${groups.length} groups, more than a shotgun start takes (18); use tee times or fewer flights.`);
     groups.forEach((g, k) => { g.slot = labels[k]; });
-    nights.push({ night: i + 1, day: days[i], nine: nineOn(i), groups });
+    nights.push({ night: i + 1, day: days[i], nine: nineOn(i), ...(rot ? { course: atOn(i).course } : {}), groups });
   }
   if (errors.length) return { errors };
   return { errors: [], flights, nights, warnings, notInFlights: left };
@@ -115,7 +118,7 @@ export function golfPlayoffsText(p) {
   for (const f of p.flights) out.push(`Flight ${f.name}: ${f.teams.map((t) => `${t.seed}. ${t.team}`).join(", ")}`);
   if (p.notInFlights.length) out.push(`Not in a flight: ${p.notInFlights.join(", ")}`);
   for (const n of p.nights) {
-    out.push("", `Night ${n.night}, ${dayLabel(n.day)} (${n.nine === "back" ? "Back 9" : "Front 9"})`);
+    out.push("", `Night ${n.night}, ${dayLabel(n.day)} (${whereName(n)})`);
     for (const g of n.groups) out.push(`  ${g.slot}  Flight ${g.flight} ${g.round}: ${g.a} v ${g.b}`);
   }
   for (const w of p.warnings) out.push("", `Note: ${w}`);
@@ -126,6 +129,6 @@ export function golfPlayoffsText(p) {
 // @, tab or CR gets an apostrophe), so a team named "=SUM(...)" stays text in a spreadsheet.
 export function golfPlayoffsCsv(p) {
   const rows = [["Night", "Date", "Nine", "Start", "Flight", "Round", "Match", "Side A", "Side B"]];
-  for (const n of p.nights) for (const g of n.groups) rows.push([n.night, dayLabel(n.day), n.nine, g.slot, g.flight, g.round, g.id, g.a, g.b]);
+  for (const n of p.nights) for (const g of n.groups) rows.push([n.night, dayLabel(n.day), whereName(n), g.slot, g.flight, g.round, g.id, g.a, g.b]);
   return rows.map((r) => r.map(csvCell).join(",")).join("\n") + "\n";
 }
