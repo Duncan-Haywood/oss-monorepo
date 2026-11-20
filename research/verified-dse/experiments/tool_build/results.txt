@@ -1,0 +1,55 @@
+# Milestone 158: milestone 143's 27 ss designs under two tool builds (replay, no flow run)
+
+build A: experiments/corner_ss_blind (milestone 143; Yosys 0.70, OpenROAD 26Q3 from the nixpkgs cache of 2026-11-17)
+build B: experiments/rc_corner at nominal RC (milestones 156, 157; {'yosys': 'Yosys 0.71+post (git sha1 v0.71, Release, GNU /nix/store/ii6p6kc1brz3vycqg88q4zb4xd2dmqwp-gcc-wrapper-16.2.0/bin/g++ 16.2.0)', 'openroad': '26Q3'})
+R: build B at SKY130's max-RC corner; tie-break seed 'm158' for every build; theta = 3
+
+design | clock | ratio A | ratio B | tauR A-B | same best | mapped same | tauD A | tauD B | random A | SWC A | random B | SWC B | d A | d B | d R | A's best under B | B's best under A
+div10l | relaxed | 8.46 | 8.81 | 0.360 | False | 0/103 | 0.001 | -0.002 | 20.80 | 18.91 | 23.92 | 0.00 | -1.90 | -23.92 | -23.19 | 59.86 | 45.21
+div14l | relaxed | 8.15 | 8.73 | 0.368 | False | 0/103 | -0.102 | -0.143 | 3.50 | 1.87 | 9.41 | 0.00 | -1.62 | -9.41 | -6.05 | 28.59 | 3.89
+rng8l | tight | 11.71 | 12.41 | 0.642 | True | 23/103 | -0.025 | -0.033 | 7.06 | 6.92 | 7.71 | 0.00 | -0.14 | -7.71 | -1.73 | 0.00 | 0.00
+clamp4r | tight | 5.17 | 5.60 | 0.676 | False | 20/103 | -0.003 | -0.057 | 1.47 | 1.08 | 6.37 | 0.00 | -0.39 | -6.37 | -4.72 | 9.97 | 5.96
+div14r | relaxed | 3.71 | 3.81 | 0.549 | False | 0/103 | -0.204 | -0.212 | 2.16 | 0.44 | 5.77 | 0.00 | -1.72 | -5.77 | -4.29 | 28.64 | 13.24
+gtc8r | tight | 3.36 | 3.40 | 0.541 | False | 1/103 | 0.144 | 0.220 | 2.52 | 1.34 | 4.91 | 0.00 | -1.17 | -4.91 | -3.99 | 18.55 | 37.43
+clamp4l | tight | 11.10 | 11.28 | 0.522 | False | 31/103 | 0.006 | 0.014 | 2.34 | 0.00 | 6.06 | 0.00 | -2.34 | -6.06 | -5.28 | 9.68 | 1.15
+isq14 | tight | 3.71 | 3.74 | 0.247 | False | 0/103 | -0.110 | -0.017 | 2.40 | 1.88 | 4.02 | 0.00 | -0.52 | -4.02 | -5.70 | 9.49 | 19.15
+csum3 | relaxed | 4.74 | 4.90 | 0.669 | True | 27/103 | 0.146 | 0.005 | 2.72 | 6.28 | 3.80 | 4.10 | +3.56 | +0.30 | +1.13 | 0.00 | 0.00
+clamp6r | relaxed | 5.64 | 5.73 | 0.751 | False | 17/103 | 0.070 | 0.058 | 5.10 | 0.00 | 6.54 | 0.00 | -5.10 | -6.54 | -7.60 | 15.96 | 5.44
+csum8 | tight | 5.03 | 5.13 | 0.801 | False | 38/103 | 0.161 | 0.130 | 2.72 | 0.00 | 3.71 | 0.00 | -2.72 | -3.71 | -3.81 | 3.20 | 5.98
+clamp3l | relaxed | 11.28 | 11.36 | 0.631 | False | 29/103 | -0.069 | 0.040 | 7.49 | 0.00 | 8.21 | 0.00 | -7.49 | -8.21 | -9.98 | 19.34 | 12.41
+div12l | tight | 8.23 | 8.69 | 0.378 | False | 0/103 | -0.024 | 0.004 | 4.02 | 0.00 | 4.70 | 0.00 | -4.02 | -4.70 | -3.78 | 32.51 | 5.74
+dot4l | tight | 9.81 | 9.98 | 0.529 | False | 7/103 | 0.052 | 0.201 | 2.06 | 0.00 | 4.35 | 1.97 | -2.06 | -2.38 | -1.21 | 1.97 | 1.21
+gtc8l | tight | 5.92 | 6.25 | 0.426 | False | 0/103 | 0.122 | 0.005 | 9.92 | 0.00 | 9.71 | 0.00 | -9.92 | -9.71 | -10.83 | 45.62 | 23.13
+clamp2r | tight | 4.63 | 4.67 | 0.659 | False | 20/103 | -0.074 | -0.222 | 4.16 | 5.14 | 4.94 | 6.23 | +0.98 | +1.29 | +1.39 | 4.96 | 13.49
+gtc24r | relaxed | 4.89 | 5.00 | 0.608 | False | 9/103 | 0.197 | 0.212 | 3.51 | 0.00 | 2.95 | 0.00 | -3.51 | -2.95 | -1.15 | 4.25 | 9.78
+gtc12r | relaxed | 3.73 | 3.84 | 0.736 | False | 10/103 | 0.244 | 0.231 | 4.74 | 4.31 | 2.48 | 2.83 | -0.42 | +0.36 | +0.94 | 7.44 | 20.18
+rng8r | tight | 5.62 | 5.76 | 0.702 | False | 13/103 | 0.058 | 0.050 | 5.12 | 0.00 | 4.32 | 0.00 | -5.12 | -4.32 | -2.88 | 1.74 | 1.39
+rng12r | relaxed | 6.02 | 6.19 | 0.692 | False | 6/103 | 0.136 | 0.176 | 8.10 | 0.00 | 5.39 | 0.00 | -8.10 | -5.39 | -5.47 | 2.46 | 10.82
+clamp2l | tight | 11.01 | 11.35 | 0.524 | False | 26/103 | -0.111 | 0.003 | 4.85 | 0.00 | 5.81 | 4.24 | -4.85 | -1.57 | -4.54 | 4.24 | 1.81
+dot6r | relaxed | 4.53 | 4.31 | 0.637 | False | 7/103 | -0.155 | -0.206 | 4.56 | 0.00 | 4.35 | 4.35 | -4.56 | +0.01 | +0.56 | 10.85 | 16.84
+clamp6l | relaxed | 11.54 | 11.94 | 0.618 | False | 23/103 | 0.085 | 0.087 | 11.44 | 0.00 | 5.82 | 0.00 | -11.44 | -5.82 | -6.19 | 12.58 | 25.12
+rng6l | relaxed | 11.94 | 12.28 | 0.576 | False | 26/103 | -0.124 | -0.067 | 12.87 | 0.00 | 6.31 | 0.00 | -12.87 | -6.31 | -8.78 | 18.69 | 14.83
+csum6 | relaxed | 4.70 | 4.62 | 0.793 | True | 41/103 | 0.025 | 0.030 | 2.32 | 4.65 | 4.28 | 13.61 | +2.33 | +9.33 | +4.89 | 0.00 | 0.00
+dot4r | tight | 3.88 | 3.99 | 0.706 | True | 0/103 | 0.240 | 0.185 | 9.00 | 0.00 | 1.38 | 0.00 | -9.00 | -1.38 | -3.69 | 0.00 | 0.00
+div8l | tight | 8.98 | 9.11 | 0.287 | False | 0/103 | -0.023 | -0.076 | 15.46 | 0.00 | 2.78 | 0.00 | -15.46 | -2.78 | -3.83 | 27.18 | 51.68
+
+## Predictions
+
+(1) PRIMARY: mean d(B) - d(A) -0.48 points, interval -3.05 to +1.78; higher under B on 13 of 27, lower on 14: held
+(2) Spearman of d(A) against d(B) +0.258: held
+(3) median tauR(A, B) 0.618 (range 0.247 to 0.801); same routed-best on 4 of 27: held
+(4) mapped netlist the same on 374 of 2781 points ok in both (13.4%): held
+(5) SWC better than random under A on 24, worse on 3, tied on 0 (sign p = 0.000049); under B on 22, worse on 5, tied on 0 (sign p = 0.001514): held
+(6) mean |d(B) - d(A)| 4.39 against mean |d(R) - d(B)| 1.55; difference +2.84, interval +1.36 to +4.74: held
+(7) mean tauD(B) - tauD(A) -0.002 (0.025 to 0.023), interval -0.027 to +0.024: held
+
+## Reported, not predicted
+
+mean regret, seed m158: A SWC 1.96% / random 6.02%; B SWC 1.38% / random 5.92%; R SWC 1.56% / random 5.99%
+mean d, seed m158: A -4.06, B -4.54, R -4.44
+own seeds (m143ss, m156nom): mean d A -4.16, B -4.74; change -0.58, interval -3.32 to +1.81; SWC better/worse/tied A (24, 3, 0), B (24, 3, 0)
+seed effect alone (B under m156nom against m158): mean |d| change 0.38 points
+sign of d agrees between builds on 25 of 27 designs untied under both
+transfer: A's routed-best under B, mean regret 13.99% (median 9.68%, max 59.86%); B's under A 12.81% (median 9.78%, max 51.68%)
+sequences ok in both builds per design: 103 to 103
+Spearman of tauR against |d(B) - d(A)|: -0.144
