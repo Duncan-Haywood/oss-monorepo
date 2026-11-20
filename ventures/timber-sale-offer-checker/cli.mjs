@@ -1,27 +1,35 @@
 #!/usr/bin/env node
-// node cli.mjs logs.csv --offer 12000 [--per-mbf] [--rule doyle|scribner|international] [--price "red oak=420"]... [--fee 8] [--json]
+// node cli.mjs logs.csv --offer 12000 [--per-mbf] [--rule doyle|scribner|international] [--price-rule <rule, default --rule>] [--price "red oak=420"]... [--fee 8] [--json]
 // exit 1 when the offer is under 75% of the value at your prices
 import { readFileSync } from "node:fs";
 import { parseLogs, check, money, RULES } from "./calc.mjs";
 
 const args = process.argv.slice(2);
-const opts = { prices: {}, rule: "doyle", fee: 8, perMbf: false, json: false, offer: null, file: null };
+const opts = { prices: {}, rule: "doyle", priceRule: null, fee: 8, perMbf: false, json: false, offer: null, file: null };
 for (let i = 0; i < args.length; i++) {
   const a = args[i];
   if (a === "--offer") opts.offer = Number(args[++i]);
   else if (a === "--rule") opts.rule = args[++i];
+  else if (a === "--price-rule") opts.priceRule = args[++i];
   else if (a === "--fee") opts.fee = Number(args[++i]);
   else if (a === "--per-mbf") opts.perMbf = true;
   else if (a === "--json") opts.json = true;
-  else if (a === "--price") { const [k, v] = String(args[++i]).split("="); opts.prices[k.trim().toLowerCase()] = Number(v); }
+  else if (a === "--price") {
+    const [k, v] = String(args[++i]).split("=");
+    const price = Number(String(v ?? "").replace(/[$,\s]/g, ""));
+    if (!k.trim() || v === undefined || !Number.isFinite(price) || price < 0) { console.error(`--price needs "species=dollars per MBF", got ${args[i]}`); process.exit(2); }
+    opts.prices[k.trim().toLowerCase()] = price;
+  }
   else if (!a.startsWith("--") && !opts.file) opts.file = a;
   else { console.error(`unknown option ${a}`); process.exit(2); }
 }
 if (!opts.file || !opts.offer) { console.error('usage: node cli.mjs logs.csv --offer <dollars> [--per-mbf] [--rule doyle|scribner|international] [--price "species=$/MBF"] [--fee 8] [--json]'); process.exit(2); }
+if (!Number.isFinite(opts.fee)) { console.error("--fee must be a number (percent of the sale)"); process.exit(2); }
+if (opts.priceRule !== null && !RULES[opts.priceRule]) { console.error(`--price-rule must be one of ${Object.keys(RULES).join(", ")}`); process.exit(2); }
 if (!RULES[opts.rule]) { console.error(`rule must be one of ${Object.keys(RULES).join(", ")}`); process.exit(2); }
 const p = parseLogs(readFileSync(opts.file, "utf8"));
 if (p.error) { console.error(p.error); process.exit(2); }
-const r = check({ rows: p.rows, prices: opts.prices, offer: { kind: opts.perMbf ? "perMbf" : "lump", amount: opts.offer }, offerRule: opts.rule, foresterFeePct: opts.fee });
+const r = check({ rows: p.rows, prices: opts.prices, offer: { kind: opts.perMbf ? "perMbf" : "lump", amount: opts.offer }, offerRule: opts.rule, priceRule: opts.priceRule ?? undefined, foresterFeePct: opts.fee });
 if (r.error) { console.error(r.error); process.exit(2); }
 if (opts.json) console.log(JSON.stringify(r, null, 2));
 else {
