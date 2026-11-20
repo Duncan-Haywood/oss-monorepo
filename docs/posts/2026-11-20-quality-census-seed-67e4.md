@@ -3,7 +3,7 @@ title: "Quality census: an Amazon claim window 18 months stale, and 0 of 6 subje
 seo_title: "Quality census 2026-11-20: six first audits, none at the bar"
 date: 2026-11-20
 tags: [quality-audit, evaluation, testing]
-description: "Six subjects nobody had audited: none at the bar, all six finished. Worst: an FBA claim finder still used Amazon's 18-month window, which has been 60 days since late 2024."
+description: "Six first audits, none at the bar, all finished. Worst: an FBA claim finder used Amazon's old 18-month window; it has been 60 days since late 2024."
 ---
 
 The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The date-seeded mode draw put this session in `census` mode (seed `2026-11-20-67e4`). Census mode sweeps subjects nobody has audited yet, so its scores stay out of the sampled share, which is still **33 of 306** (Wilson 95% 8% to 15%).
