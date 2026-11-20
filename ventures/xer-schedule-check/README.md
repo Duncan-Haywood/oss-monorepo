@@ -249,6 +249,26 @@ milestone, not the project finish, which a finish-only what-if would hide.
 No public job publishes its constraints log, so the statuses are checked
 against their own rules, not against a site team's.
 
+**Float P6 does not show across calendars** (2026-11-20, `calslack.mjs`, the
+page's "Float P6 does not show across calendars" panel, `node cli.mjs
+schedule.xer --calendar-slack [--csv slack.csv] [--json]`): where a
+finish-to-finish or start-to-finish link joins two calendars with different
+working days, P6 counts the predecessor's late finish back from the
+successor's late finish, a period end such as Thursday 16:00. But a successor
+on a Friday-off calendar may finish at Saturday 08:00 just as well (nothing
+after it can start earlier), so a predecessor on a 7-day curing calendar can
+finish a day later without delaying anything, and so can all the work driving
+it. The panel lists the links where this enters and every activity with more
+total float than P6 shows, least float first. The page's other figures stay
+P6's (the engine's default still equals P6's stored dates). Found tracing why
+a planted constraints-log row passed an activity's late start without moving
+the finish; on the public hotel file 188 activities gain 1 to 17 h through 22
+links, 27 of them with 8 h or less of P6 float (one curing activity goes from
+8 h to 17 h), and each of the 188 was checked by rescheduling: delayed by the
+new float the finish holds (188 of 188), one working hour more and it moves or
+another activity runs late (188 of 188). The other five public files join no
+calendars this way and show nothing (eval/calendar-slack-2026-11-20.md).
+
 ## Why someone would use it
 
 | Today's option | What it does | What this does better |
