@@ -838,10 +838,15 @@ test("multi-division page: results box feeds divisionsStandings and a CSV downlo
   assert.match(html, /divisionsStandingsCsv\(lastStandings\)/);
 });
 
-test("single-league page: volleyball set-scoring box is passed to both standings calls", () => {
+test("single-league page: volleyball set-scoring box reaches the table, download, race, odds and weekly post", () => {
   const html = page("index.html");
   assert.ok(html.includes('id="setscore"'));
-  assert.equal(html.split('setScoring: $("#setscore").checked').length - 1, 2);
+  // the shared points object (race and odds), both standings calls and the weekly post
+  assert.equal(html.split('setScoring: $("#setscore").checked').length - 1, 4);
+  assert.match(html, /const pts = \{[^}]*setScoring: \$\("#setscore"\)\.checked \}/);
+  assert.match(html, /playoffRace\([^)]*\{ \.\.\.pts,/);
+  assert.match(html, /playoffOdds\([^)]*\{ \.\.\.pts,/);
+  assert.match(html, /weeklyUpdate\(last\.s[^;]*setScoring: \$\("#setscore"\)\.checked/);
 });
 
 test("multi-division page: facility booking button feeds divisionsBookings with the typed game length", () => {

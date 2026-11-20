@@ -812,7 +812,7 @@
       const resText = $("#results").value;
       const ps = parsePointSystem($("#scoring").value);
       if (ps.error) warnings.push(ps.error);
-      const pts = { win: ps.win, draw: ps.draw, loss: ps.loss };
+      const pts = { win: ps.win, draw: ps.draw, loss: ps.loss, setScoring: $("#setscore").checked };
       if (resText.trim()) {
         const pr = parseResults(resText, s.teams);
         warnings.push(...pr.errors);
@@ -1003,7 +1003,7 @@
     $("#copy-week").addEventListener("click", async () => {
       if (!last || !last.table) return;
       const pr = parseResults($("#results").value, last.s.teams);
-      const text = weeklyUpdate(last.s, pr.results, { adjustments: pr.adjustments, points: parsePointSystem($("#scoring").value), headToHead: $("#h2h").checked });
+      const text = weeklyUpdate(last.s, pr.results, { adjustments: pr.adjustments, points: parsePointSystem($("#scoring").value), headToHead: $("#h2h").checked, setScoring: $("#setscore").checked });
       try { await navigator.clipboard.writeText(text); status.textContent = "Copied the weekly update. Paste it into your group chat."; record("text_shared"); }
       catch { status.textContent = "Your browser blocked copying."; }
     });

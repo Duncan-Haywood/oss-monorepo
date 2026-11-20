@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVKVq9fULov9hD2st59",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products)",
+  "input_sha256": "10da92409a39141f39a8a5a7699a4bcff42a9cb95da7bb1191077333847ca0c9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T02:02:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship row 4 league-schedule-generator: set scoring reaches the play-off race, odds, weekly post and head-to-head",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17838",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First push left page.test.mjs's wiring test counting 2 set-scoring call sites; there are now 4 (CI changed-ventures red, fixed)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Plain `route` drew the process track for a scheduled run whose stored prompt is the ventures brief; only `route --task` picked ventures (same report as several on 2026-11-18/19, fix sits in a CODEOWNERS path)."
+    },
+    {
+      "file": "platform/ci/main_health.py",
+      "issue": "Run with bare python3, it reports test_friction_rank.py FAIL from a missing pytest module: an environment gap that reads like a red check on main."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took quality-audit round 87 findings from the flagship's NEXT.md rather than its next: item, which needs a real club.",
+      "did": "Fixed set scoring outside the main table; found and fixed the play-off race clinch error along the way.",
+      "result": "A user-visible correctness bug fixed, with 4 tests that fail on the old code."
+    },
+    {
+      "file": "ventures/league-schedule-generator/NEXT.md",
+      "why": "Audit item 'reverse leg one when mirroring a double round robin' trades break count for back-to-back rematches of leg one's last pair.",
+      "did": "Left it open, annotated as an option rather than a new default.",
+      "result": "No default changed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-volleyball-set-scoring-and-the-playoff-race.md"
+  ],
+  "goal": null,
+  "notes": "Process track drawn first (critique mode: backlog had only owner rows; the run_workflow_locally exit-0 friction row was already fixed, exit 2 verified), re-routed with --task to ventures per the scheduled brief. allocate.py picked flagship row 4. Verified: new tests fail on old calc.mjs (3) and with swapped Americano sort (1), pass now; full league-schedule-generator suite via run_venture_tests.py; check_posts ok; portfolio/router/validate.py ok. main_health: 298/299, the one red is missing pytest in the container. eval/browser-click-single.mjs failed on main too: it read the standings before the async rebuild replaced them (each reading one step behind); now empties the table and waits for new rows, all 4 checks pass in Chromium.",
+  "corrections": [],
+  "redteam": null
+}

@@ -163,3 +163,20 @@ test("README does not claim minimum breaks for the mirrored double round robin u
   assert.doesNotMatch(readme, /\(the minimum possible breaks\)/);
   assert.match(readme, /mirrored double has 3\(n−2\)/);
 });
+
+test("leaderboard tie-breaks: points, then difference before wins, then wins, then list order", () => {
+  // Quality audit round 87: nothing failed if difference and wins were swapped in the sort.
+  const m = (court, a, b) => ({ court, a, b });
+  const round = () => ({ matches: [m(1, [0, 1], [2, 3]), m(2, [4, 5], [6, 7]), m(3, [8, 9], [10, 11]), m(4, [12, 13], [14, 15])], byes: [] });
+  const night = {
+    v: 1, mode: "americano", players: names(16), courts: 4, target: 0, sitOut: "none", seed: 1,
+    rounds: [round(), round()],
+    // every player on 20 points apart from P3-P4 and P7-P8: P1 +10 diff 1 win, P5 +2 diff 2 wins,
+    // P13 0 diff 1 win, P9 0 diff 0 wins (two draws)
+    scores: { "0-1": [20, 0], "0-2": [10, 9], "0-3": [10, 10], "0-4": [15, 5], "1-1": [0, 10], "1-2": [10, 9], "1-3": [10, 10], "1-4": [5, 15] },
+  };
+  const rows = leaderboard(night).filter((r) => r.total === 20);
+  assert.deepEqual(rows.map((r) => r.i), [0, 1, 4, 5, 12, 13, 14, 15, 8, 9, 10, 11]);
+  assert.deepEqual(rows.map((r) => r.rank), [1, 1, 3, 3, 5, 5, 5, 5, 9, 9, 9, 9]);
+  assert.ok(rows[0].wins < rows[2].wins, "the difference leader has fewer wins, so a wins-first sort would fail");
+});
