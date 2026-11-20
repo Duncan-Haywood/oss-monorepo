@@ -44,7 +44,7 @@
   ],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-20-verified-dse-tool-upgrade.md"
+    "docs/posts/2026-11-20-verified-dse-stale-recipe-after-yosys-upgrade.md"
   ],
   "goal": "advance verified-dse with a pre-registered result for PAPER.md Section 5/6",
   "notes": "Predictions committed in f19079155 before first run; all seven held. Mean edge change -0.48 (interval -3.05 to +1.78); per-design |change| 4.39 vs 1.55 for max-RC; transfer of a routed-best sequence across builds 14% regret vs 6% random. Checks run locally: tests/test_tool_build.py, test_rc_corner*.py (11 passed), research/_homepage/build.py ok, check_posts ok, check_md_links ok, research_live_links ok, cite_check (no DOIs).",

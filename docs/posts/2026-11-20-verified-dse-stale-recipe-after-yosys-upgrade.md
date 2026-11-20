@@ -14,7 +14,9 @@ mapped-netlist score. Across many milestones it has beaten spending the same
 budget on randomly chosen routed points.
 
 This step asked whether that result belongs to the method or to one build of
-the tools. Two tables already in the repository answer it. Milestone 143 ran
+the tools. (An [earlier post](2026-11-01-verified-dse-tool-upgrade.md) found an
+OpenROAD upgrade reshuffled the cheap rungs' rankings; this one asks the same
+of the ladder.) Two tables already in the repository answer it. Milestone 143 ran
 27 designs at the slow `ss_100C_1v60` corner with Yosys 0.70 and OpenROAD 26Q3
 from nixpkgs. Milestones 156 and 157 reran the same designs, sequences, clocks,
 liberty and wire RC three days later with Yosys 0.71 and a rebuilt OpenROAD
