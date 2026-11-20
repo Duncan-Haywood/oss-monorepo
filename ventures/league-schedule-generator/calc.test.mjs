@@ -2236,3 +2236,81 @@ test("calendar ids name the fixture: a rainout keeps them, bumps SEQUENCE, and a
   const off = scheduleIcs(s, null, "20261001T000000Z", "Nobody");
   assert.doesNotMatch(off, /STATUS:CANCELLED/);
 });
+
+test("set scoring reaches the head-to-head mini-table: a 3-2 win is worth win - 1 there too", async () => {
+  // Quality audit round 87: the mini-table counted a 3-2 win as a full win while the table did not.
+  const { standings } = await import("./calc.mjs");
+  const teams = ["Ace", "Bolt", "Cork", "Dune"];
+  const results = [
+    { a: 0, b: 1, ga: 3, gb: 2 }, { a: 1, b: 2, ga: 3, gb: 0 }, { a: 2, b: 0, ga: 3, gb: 1 },
+    { a: 0, b: 3, ga: 3, gb: 0 }, { a: 1, b: 3, ga: 2, gb: 3 }, { a: 2, b: 3, ga: 3, gb: 2 },
+  ];
+  const t = standings(teams, results, { setScoring: true, headToHead: true });
+  assert.deepEqual(t.slice(0, 3).map((r) => r.points), [5, 5, 5]);
+  // mini-table among the three: Bolt 1 + 3 = 4, Cork 0 + 3 = 3, Ace 2 + 0 = 2
+  assert.deepEqual(t.map((r) => r.name), ["Bolt", "Cork", "Ace", "Dune"]);
+  assert.deepEqual(t.map((r) => r.h2h?.points ?? null), [4, 3, 2, null]);
+});
+
+test("set scoring reaches the play-off race, odds and weekly post (same points as the table)", async () => {
+  const { standings, playoffRace, playoffOdds, weeklyUpdate, matchPoints } = await import("./calc.mjs");
+  assert.deepEqual(matchPoints(3, 2, { setScoring: true }), [2, 1]);
+  assert.deepEqual(matchPoints(1, 3, { setScoring: true }), [0, 3]);
+  assert.deepEqual(matchPoints(3, 2), [3, 0]);
+  const teams = ["Ace", "Bolt", "Cork"];
+  const results = [{ a: 0, b: 1, ga: 3, gb: 2 }, { a: 1, b: 2, ga: 3, gb: 2 }, { a: 2, b: 0, ga: 2, gb: 3 }];
+  const table = standings(teams, results, { setScoring: true });
+  const race = playoffRace(teams, results, [], 1, { setScoring: true });
+  const odds = playoffOdds(teams, results, [], 1, { setScoring: true, runs: 50 });
+  for (const r of table) {
+    assert.equal(race.find((x) => x.index === r.index).points, r.points);
+    assert.equal(odds[r.index].points, r.points);
+  }
+  const sched = { teams, rounds: [{ label: "Week 1", day: 0, bye: null, matches: [{ home: 0, away: 1, homeName: "Ace", awayName: "Bolt", court: "Court 1" }] }] };
+  assert.match(weeklyUpdate(sched, results.slice(0, 1), { setScoring: true }), /Ace - 2 pts/);
+  assert.match(weeklyUpdate(sched, results.slice(0, 1)), /Ace - 3 pts/);
+});
+
+test("play-off race under set scoring: clinched and eliminated hold in every volleyball outcome", async () => {
+  // Before set scoring reached playoffRace, a team on one-set-loss points could be called out while
+  // the table, which counts those points, still had a path for it.
+  const { standings, playoffRace } = await import("./calc.mjs");
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  const SCORES = [[3, 0], [3, 1], [3, 2], [2, 3], [1, 3], [0, 3]];
+  let checked = 0;
+  for (let trial = 0; trial < 60; trial++) {
+    const n = 4 + Math.floor(rnd() * 2);
+    const teams = Array.from({ length: n }, (_, i) => `T${i}`);
+    const pairs = [];
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) pairs.push([a, b]);
+    pairs.sort(() => rnd() - 0.5);
+    const left = pairs.slice(0, 2 + Math.floor(rnd() * 4));
+    const results = pairs.slice(left.length).map(([a, b]) => { const [ga, gb] = SCORES[Math.floor(rnd() * 6)]; return { a, b, ga, gb }; });
+    const spots = 1 + Math.floor(rnd() * (n - 1));
+    const race = playoffRace(teams, results, left, spots, { setScoring: true });
+    const best = Array(n).fill(n + 1), worst = Array(n).fill(0);
+    const walk = (f, acc) => {
+      if (f === left.length) {
+        const pts = Array(n).fill(0);
+        for (const r of standings(teams, acc, { setScoring: true })) pts[r.index] = r.points;
+        for (let i = 0; i < n; i++) {
+          const above = pts.filter((p, j) => j !== i && p > pts[i]).length;
+          const level = pts.filter((p, j) => j !== i && p === pts[i]).length;
+          best[i] = Math.min(best[i], above + 1);
+          worst[i] = Math.max(worst[i], above + level + 1);
+        }
+        return;
+      }
+      const [a, b] = left[f];
+      for (const [ga, gb] of [[3, 0], [3, 2], [2, 3], [0, 3]]) walk(f + 1, [...acc, { a, b, ga, gb }]);
+    };
+    walk(0, results);
+    for (const r of race) {
+      if (r.status === "clinched") assert.ok(worst[r.index] <= spots, `trial ${trial}: ${r.name} clinched but can finish ${worst[r.index]}`);
+      if (r.status === "eliminated") assert.ok(best[r.index] > spots, `trial ${trial}: ${r.name} out but can finish ${best[r.index]}`);
+      checked++;
+    }
+  }
+  assert.ok(checked > 200);
+});

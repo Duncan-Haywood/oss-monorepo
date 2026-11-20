@@ -2713,6 +2713,31 @@ export function crossTable(teams, results, order = teams.map((_, i) => i)) {
   };
 }
 
+/**
+ * Table points for one result, as [points to side a, points to side b]. A level score is a draw. With
+ * `setScoring` (volleyball, FIVB style; scores are sets won) a one-set win such as 3-2 earns `win - 1`
+ * and the loser 1, and a wider win the full `win` and `loss`. Every table, race, odds and weekly post
+ * counts points through this, so they cannot disagree.
+ */
+export function matchPoints(ga, gb, { win = 3, draw = 1, loss = 0, setScoring = false } = {}) {
+  if (ga === gb) return [draw, draw];
+  const close = setScoring && Math.abs(ga - gb) === 1;
+  const w = close ? win - 1 : win;
+  const l = close ? 1 : loss;
+  return ga > gb ? [w, l] : [l, w];
+}
+
+/**
+ * Every point split one unplayed match can end in: win, draw, loss, and with `setScoring` the two
+ * one-set wins too. A draw stays in under set scoring even though volleyball has none: a wider set of
+ * outcomes only makes "clinched" and "eliminated" more cautious, never wrong.
+ */
+export function matchOutcomes({ win = 3, draw = 1, loss = 0, setScoring = false } = {}) {
+  const out = [[win, loss], [draw, draw], [loss, win]];
+  if (setScoring) out.push([win - 1, 1], [1, win - 1]);
+  return out;
+}
+
 export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToHead = false, adjustments = {}, setScoring = false } = {}) {
   const rows = teams.map((name, i) => ({ index: i, name, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, points: 0 }));
   for (const r of results) {
@@ -2720,18 +2745,11 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
     const B = rows[r.b];
     A.played++; B.played++;
     A.gf += r.ga; A.ga += r.gb; B.gf += r.gb; B.ga += r.ga;
-    if (setScoring && r.ga !== r.gb) {
-      // Volleyball (FIVB) style: scores are sets won. A win by two or more sets earns the full `win`
-      // points and the loser nothing; a one-set win (e.g. 3-2) earns `win - 1` and the loser `1`.
-      const close = Math.abs(r.ga - r.gb) === 1;
-      const [W, L] = r.ga > r.gb ? [A, B] : [B, A];
-      W.won++; L.lost++;
-      W.points += close ? win - 1 : win;
-      L.points += close ? 1 : loss;
-    }
-    else if (r.ga > r.gb) { A.won++; B.lost++; A.points += win; B.points += loss; }
-    else if (r.ga < r.gb) { B.won++; A.lost++; B.points += win; A.points += loss; }
-    else { A.drawn++; B.drawn++; A.points += draw; B.points += draw; }
+    const [pa, pb] = matchPoints(r.ga, r.gb, { win, draw, loss, setScoring });
+    A.points += pa; B.points += pb;
+    if (r.ga > r.gb) { A.won++; B.lost++; }
+    else if (r.ga < r.gb) { B.won++; A.lost++; }
+    else { A.drawn++; B.drawn++; }
   }
   for (const r of rows) { r.form = formString(r.index, results, 5); r.streak = streakOf(formString(r.index, results, Infinity)); r.gd = r.gf - r.ga; r.adj = adjustments[r.index] ?? 0; r.points += r.adj; }
   if (headToHead) {
@@ -2746,9 +2764,9 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
         const A = mini.get(r.a);
         const B = mini.get(r.b);
         A.gf += r.ga; A.ga += r.gb; B.gf += r.gb; B.ga += r.ga;
-        if (r.ga > r.gb) { A.pts += win; B.pts += loss; }
-        else if (r.ga < r.gb) { B.pts += win; A.pts += loss; }
-        else { A.pts += draw; B.pts += draw; }
+        // the same points the main table gives, so a 3-2 volleyball win is not a full win here
+        const [pa, pb] = matchPoints(r.ga, r.gb, { win, draw, loss, setScoring });
+        A.pts += pa; B.pts += pb;
       }
       const parts = new Map();
       for (const i of group) {
@@ -2828,25 +2846,27 @@ export const RACE_EXACT_LIMIT = 12;
  * place whatever the others do (null when out of reach or already clinched). `exact` says whether
  * every outcome was worked through or the safe bounds were used.
  */
-export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, exactLimit = RACE_EXACT_LIMIT, adjustments = {} } = {}) {
+export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, setScoring = false, exactLimit = RACE_EXACT_LIMIT, adjustments = {} } = {}) {
   const n = teams.length;
   const k = Math.max(1, Math.min(spots, n));
+  const scoring = { win, draw, loss, setScoring };
   const pts = Array.from({ length: n }, (_, i) => adjustments[i] ?? 0);
   for (const r of results) {
-    if (r.ga > r.gb) { pts[r.a] += win; pts[r.b] += loss; }
-    else if (r.ga < r.gb) { pts[r.b] += win; pts[r.a] += loss; }
-    else { pts[r.a] += draw; pts[r.b] += draw; }
+    const [pa, pb] = matchPoints(r.ga, r.gb, scoring);
+    pts[r.a] += pa; pts[r.b] += pb;
   }
   const left = Array(n).fill(0);
   for (const [a, b] of remaining) { left[a]++; left[b]++; }
-  const top = Math.max(win, draw, loss);
-  const low = Math.min(win, draw, loss);
+  const outcomes = matchOutcomes(scoring);
+  const top = Math.max(...outcomes.flat());
+  const low = Math.min(...outcomes.flat());
   const maxPts = pts.map((p, i) => p + left[i] * top);
   const minPts = pts.map((p, i) => p + left[i] * low);
   const best = Array(n).fill(n);
   const worst = Array(n).fill(1);
   const worstWon = Array(n).fill(1);
-  const exact = remaining.length <= exactLimit;
+  // the same work budget as 3^exactLimit when a match has more than three outcomes (5 under set scoring)
+  const exact = remaining.length <= Math.floor((exactLimit * Math.log(3)) / Math.log(outcomes.length) + 1e-9);
   const rankAll = (p) => {
     for (let i = 0; i < n; i++) {
       let above = 0;
@@ -2858,7 +2878,6 @@ export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 
     }
   };
   if (exact) {
-    const outcomes = [[win, loss], [draw, draw], [loss, win]];
     const cur = pts.slice();
     const walk = (f) => {
       if (f === remaining.length) { rankAll(cur); return; }
@@ -2925,7 +2944,7 @@ export function remainingFixtures(schedule, results) {
  * so a round counts as played once every one of its matches has a result. The "next round" is the first
  * round with a match still unplayed. Returns "" when there is nothing to post (no rounds).
  */
-export function weeklyUpdate(schedule, results, { adjustments = {}, points = {}, headToHead = false, maxRows = 8 } = {}) {
+export function weeklyUpdate(schedule, results, { adjustments = {}, points = {}, headToHead = false, setScoring = false, maxRows = 8 } = {}) {
   const key = (a, b) => (a < b ? `${a}-${b}` : `${b}-${a}`);
   const pool = new Map();
   for (const r of results) { const k = key(r.a, r.b); pool.set(k, [...(pool.get(k) ?? []), r]); }
@@ -2948,7 +2967,7 @@ export function weeklyUpdate(schedule, results, { adjustments = {}, points = {},
     out.push("");
   }
   if (results.length) {
-    const rows = standings(schedule.teams, results, { ...points, headToHead, adjustments });
+    const rows = standings(schedule.teams, results, { ...points, headToHead, setScoring, adjustments });
     out.push("Table");
     for (const r of rows.slice(0, maxRows)) out.push(`  ${r.rank}. ${r.name} - ${r.points} pts (${r.played} played, GD ${r.gd >= 0 ? "+" : ""}${r.gd})`);
     if (rows.length > maxRows) out.push(`  ...and ${rows.length - maxRows} more`);
@@ -3043,19 +3062,26 @@ export function scheduleStrength(rows, remaining) {
  * still show a small chance, because the race table counts a tie at the cut against the team and
  * here it is a coin flip.
  */
-export function playoffOdds(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, adjustments = {}, runs = 4000, seed = 1 } = {}) {
+export function playoffOdds(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, setScoring = false, adjustments = {}, runs = 4000, seed = 1 } = {}) {
   const n = teams.length;
   const k = Math.max(1, Math.min(spots, n));
   const base = Array.from({ length: n }, (_, i) => adjustments[i] ?? 0);
   const score = Array(n).fill(1);
   const played = Array(n).fill(2);
   let draws = 0;
+  let close = 0;
   for (const r of results) {
-    if (r.ga > r.gb) { base[r.a] += win; base[r.b] += loss; score[r.a] += 1; }
-    else if (r.ga < r.gb) { base[r.b] += win; base[r.a] += loss; score[r.b] += 1; }
-    else { base[r.a] += draw; base[r.b] += draw; score[r.a] += 0.5; score[r.b] += 0.5; draws++; }
+    const [pa, pb] = matchPoints(r.ga, r.gb, { win, draw, loss, setScoring });
+    base[r.a] += pa; base[r.b] += pb;
+    if (r.ga > r.gb) score[r.a] += 1;
+    else if (r.ga < r.gb) score[r.b] += 1;
+    else { score[r.a] += 0.5; score[r.b] += 0.5; draws++; }
+    if (Math.abs(r.ga - r.gb) === 1) close++;
     played[r.a]++; played[r.b]++;
   }
+  // Under set scoring a simulated win is a one-set win (win - 1 and 1) as often as the typed ones were.
+  const pClose = setScoring ? (close + 1) / (results.length - draws + 2) : 0;
+  const [cw, cl] = matchPoints(1, 0, { win, draw, loss, setScoring });
   const strength = score.map((x, i) => x / played[i]);
   const pDraw = (draws + 1) / (results.length + 5);
   const odds = remaining.map(([a, b]) => {
@@ -3074,9 +3100,10 @@ export function playoffOdds(teams, results, remaining, spots, { win = 3, draw = 
     for (let i = 0; i < n; i++) pts[i] = base[i];
     for (const m of odds) {
       const u = rand();
-      if (u < m.winA) { pts[m.a] += win; pts[m.b] += loss; }
-      else if (u < m.drawEnd) { pts[m.a] += draw; pts[m.b] += draw; }
-      else { pts[m.b] += win; pts[m.a] += loss; }
+      if (u >= m.winA && u < m.drawEnd) { pts[m.a] += draw; pts[m.b] += draw; continue; }
+      const [w, l] = u < m.winA ? [m.a, m.b] : [m.b, m.a];
+      if (setScoring && rand() < pClose) { pts[w] += cw; pts[l] += cl; }
+      else { pts[w] += win; pts[l] += loss; }
     }
     for (let i = 0; i < n; i++) { tie[i] = rand(); total[i] += pts[i]; }
     order.sort((x, y) => pts[y] - pts[x] || tie[y] - tie[x]);
