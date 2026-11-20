@@ -23,6 +23,17 @@ its three references and the transfer to the TUM cameras, and folds the natural-
 checked draft, that every citation key is in `references.bib` and every figure exists. `draft.md` stays the
 extended version.
 
+**Milestone 3v headline** (can a robot camera tell, from pooled self-calibrations, that the focal length it holds has gone stale?
+milestone 3s's 43 TUM windows, the board calibration shifted by 0 to 10%, and milestone 3u's floored random-effects pool as a 2-sd
+change test): **an honest bar is too wide to see small staleness.** With the causal prior the gate raises few false alarms (3% of
+five-window blocks) but needs about **7&ndash;10%** staleness to fire four times in five (8.5% at five windows, 7% at eight), and
+catches 5% staleness only **46%** of the time at three windows. Keeping the held value until the gate fires leaves a median error up
+to **4.5%**, where simply adopting the five-window pool is 1.17% from the board. The gate earns its keep the other way round: when
+the held value is right it refuses the outlier pools (95th-percentile error 1.69% against 2.93%). A floor from prior-steadied windows
+alone did not fix 3u's conservative long pools. Three of eight predictions held; analysis of saved solves only. [Log](LOG.md).
+
+![share of blocks flagged against staleness of the held focal length for 1 to 8 pooled windows, and the median error left after the decision against always adopting the pool](experiments/m3v_stale/stale.png)
+
 **Milestone 3u headline** (how should a robot camera put an error bar on two or three pooled self-calibrations, where the
 block alone cannot estimate the between-window spread? milestone 3s's 43 TUM windows, a floor on &tau; learned from the camera's
 *own earlier* windows): **floor &tau; at the scatter the camera has already seen.** With the causal prior, three-window random-effects pools go
@@ -1258,6 +1269,12 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3v: the honest floored pool cannot see a stale focal length below about 7% with a symmetric 2-sd test, and
+holding a stale value costs more than adopting the pool. Next: an asymmetric rule (adopt the pool by default, refuse it only when it
+is implausible against the camera's own history) scored the same way; the same staleness test on k<sub>1</sub> and the principal
+point; a real lens change (the board recordings of milestone 4 at a second focus, or a refocused TUM-like recording) when one is
+reachable; and, when the TUM host answers, the bad-start test of the recursive memory.
 
 After milestone 3u: a &tau; floor from the camera's own earlier scatter makes three-window pools and single windows honest at no
 accuracy cost. Next (when the TUM host answers): the bad-start test of the recursive memory, now with the floored pool as the
