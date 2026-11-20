@@ -375,7 +375,7 @@ export function golfText(season) {
 export const GOLF_DEFAULTS = Object.freeze({
   teamSize: 2, handicapPct: 90, last: 5, best: 5, maxHandicap: 18,
   pointsPerHole: 1, pointsMatchNet: 1, pointsTeamNet: 2, absentPenalty: 3,
-  skins: "off", skinsEntry: 0, skinsCarry: 0, skinsHandicapPct: 100,
+  skins: /** @type {string} */ ("off"), skinsEntry: 0, skinsCarry: /** @type {number} */ (0), skinsHandicapPct: 100,
 });
 
 const SKINS_KINDS = ["off", "gross", "net", "both"];
@@ -635,6 +635,7 @@ export function playPairing(p, q, nine, rules, nineQ = nine) {
 
 /** One night's skins among `entrants`: [{ key, name, team, toPar: 9 numbers }]. */
 export function skinsGame(entrants, { entry = 0, carry = false } = {}) {
+  /** @type {{ hole: number, units: number, key: any, name: any, team: any, toPar: number, value?: number, holeNumber?: number }[]} */
   const won = [];
   let riding = 0, carriedOff = 0;
   for (let h = 0; h < 9; h++) {
@@ -748,10 +749,12 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
         const st = net ? strokesOn(c.nine.rank, Math.round((c.handicap * rules.skinsHandicapPct) / 100 + 1e-9)) : new Array(9).fill(0);
         return { key: c.key, name: c.name, team: c.team, toPar: c.holes.map((g, h) => g - st[h] - c.nine.par[h]) };
       }), { entry: rules.skinsEntry, carry: rules.skinsCarry === 1 });
-      skins = {};
-      if (rules.skins === "gross" || rules.skins === "both") skins.gross = game(false);
-      if (rules.skins === "net" || rules.skins === "both") skins.net = game(true);
-      for (const g of Object.values(skins)) {
+      /** @type {{ gross?: any, net?: any }} */
+      const sk = {};
+      skins = sk;
+      if (rules.skins === "gross" || rules.skins === "both") sk.gross = game(false);
+      if (rules.skins === "net" || rules.skins === "both") sk.net = game(true);
+      for (const g of Object.values(sk)) {
         for (const w of g.won) w.holeNumber = nine.holes[w.hole] + 1;
         for (const [k, pay] of g.payout) { const pl = players.get(k); pl.skins += pay.skins; pl.skinsMoney = Math.round((pl.skinsMoney + pay.money) * 100) / 100; }
       }
