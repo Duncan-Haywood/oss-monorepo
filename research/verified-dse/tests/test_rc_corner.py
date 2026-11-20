@@ -70,3 +70,12 @@ def test_control_shows_the_tool_change():
     assert len(ok) == 11
     assert sum(a["synth_netlist_area"] != b["synth_netlist_area"] or a["synth_netlist_wns"] != b["synth_netlist_wns"] for a, b in ok) == 7
     assert all(a["final_wns"] != b["final_wns"] or a["final_area_notap"] != b["final_area_notap"] for a, b in ok)
+
+
+def test_results_record_the_outcome():
+    text = (RC / "results.txt").read_text()
+    assert "complete designs (paired prefix of milestone 143's order): 12 of 27" in text
+    assert "(2) PRIMARY mean tauD change -0.005 (0.018 to 0.013), interval -0.022 to +0.011; lower on 9 of 12: refuted" in text
+    assert "(4) mean d change +0.10 points, interval -1.44 to +1.84: held" in text
+    assert "(5) median tauR 0.852" in text
+    assert "routed identical on 0; median tau-b of routed score 0.664" in text
