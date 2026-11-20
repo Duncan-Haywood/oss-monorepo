@@ -92,3 +92,27 @@ def test_enlarge_once_default_is_rule_e():
     if sum(1 for x in ie if x.get("ok")) <= 1:
         assert [x["status"] for x in e] == [x["status"] for x in o]
     assert not any(x.get("blocked") for x in ie)
+
+
+def test_enlarge_rel_default_is_rule_e_and_round1_same_cap(tight14):
+    """Rule C (2026-11-20) is opt-in: enlarge_rel=False reproduces rule E. With unhalved boxes the relative cap
+    equals rule E's (the current box is the first box), and after one halving it is half of it in absolute units."""
+    ppc = load_m(case_path("case14_ieee", "sad"))
+    dc = rundcopf(ppc, ppoption(VERBOSE=0, OUT_ALL=0))
+    pg, vf = dc["gen"][:, PG].copy(), file_schedule(ppc)
+    kw = dict(rounds=4, margin=vlin.MARGIN, analytic=True, solver="clarabel", enlarge=2.0)
+    e = vlin.slp(ppc, pg, vf, **kw)
+    d = vlin.slp(ppc, pg, vf, enlarge_rel=False, **kw)
+    assert [x["status"] for x in e] == [x["status"] for x in d]
+    assert [x.get("qp") for x in e] == [x.get("qp") for x in d]
+    tppc, lin = tight14
+    lay = lin["lay"]
+    pt, vt = np.full(lay.ng, 1.0), np.full(lay.nv, 0.001)
+    t = vlin.min_box_scale(tppc, lin, pt, vt, vlin.MARGIN)
+    # need t in units of the current box; halve the box and the need doubles, past a cap of 2 x current box
+    _, _, ok_full, inf_full = vlin.enlarged_step(tppc, lin, t / 1.5 * pt, t / 1.5 * vt, vlin.MARGIN,
+                                                 2 * t / 1.5 * pt, 2 * t / 1.5 * vt, "clarabel")
+    assert inf_full["fired"] and ok_full
+    _, _, ok_half, inf_half = vlin.enlarged_step(tppc, lin, t / 3 * pt, t / 3 * vt, vlin.MARGIN,
+                                                 2 * t / 3 * pt, 2 * t / 3 * vt, "clarabel")
+    assert not ok_half and inf_half["fired"] is False

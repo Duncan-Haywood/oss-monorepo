@@ -475,7 +475,7 @@ VBOX = 0.03
 
 def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, screen=False, solver="pips",
         record=False, warm=None, warm_check=False, merit_fn=None, enlarge=None, info=None,
-        enlarge_once=False):
+        enlarge_once=False, enlarge_rel=False):
     """Successive linearisation in (P, V): C's step rules (no P box in round 1, then 20 % of range,
     halved on a rejected step), a V box of VBOX pu from round 1 halved with P's, elastic fallback.
     Each history entry keeps its point under "pg" and "vg".
@@ -487,7 +487,9 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
     the hard QP fails, re-solve it once at the smallest non-empty box scale (times 1.1, capped) before
     the elastic fallback. info: a list that collects rule E's per-round record.
     enlarge_once: rule O (LOG.md 2026-11-19, E-once): rule E at most once per base point; after an enlarged
-    step from the current base point, a failed hard QP goes to the elastic chain (recorded as blocked)."""
+    step from the current base point, a failed hard QP goes to the elastic chain (recorded as blocked).
+    enlarge_rel: rule C (LOG.md 2026-11-20): rule E with its cap taken as `enlarge` times the current stored
+    boxes instead of the first boxes, so every halving also halves what the widening can reach."""
     mf = merit_fn or merit
     lay = Layout(ppc)
     g = ppc["gen"]
@@ -515,8 +517,9 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
                 if info is not None:
                     info.append({"it": it, "blocked": True})
             elif not kw and enlarge is not None:
-                xp, xv, ok, inf = enlarged_step(ppc, lin, pt, vtrust, margin, enlarge * p_first,
-                                                enlarge * VBOX, solver, screen)
+                xp, xv, ok, inf = enlarged_step(ppc, lin, pt, vtrust, margin,
+                                                enlarge * (ptrust if enlarge_rel else p_first),
+                                                enlarge * (vtrust if enlarge_rel else VBOX), solver, screen)
                 if info is not None:
                     info.append({"it": it, **inf})
                 if ok:
