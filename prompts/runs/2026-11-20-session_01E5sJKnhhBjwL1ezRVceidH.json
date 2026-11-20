@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKnhhBjwL1ezRVceidH",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T04:09:14Z",
+  "ended": "2026-11-20T04:19:26Z",
+  "wall_minutes": 23.73,
+  "tokens_in": 6292458,
+  "tokens_out": 48832,
+  "cost_usd": 3.3602,
+  "tool_calls": 57,
+  "task": "Hearth & Horizon story from BIBLE.md proposal 'The sack that breathed out'",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17853",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "purdue.edu, extension.entm.purdue.edu and pmc.ncbi.nlm.nih.gov do not resolve through the session's network policy; sources were checked from search-result abstracts and citations only, and the note cites only what those confirm"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Pick the project that has gone longest without a piece' via git log does not work on a shallow clone (3 commits shown); the README's platform/ci/creative_due.py is the tool that does, and the prompt does not name it"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud branch already existed locally at main's tip, so 'git checkout -b' failed; harmless, but the land-your-work steps could say 'checkout or create'"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio is over the 400 MB cap (577 MB), so the story landed text only, as the prompt directs",
+      "did": "text, pages, feeds, no MP3",
+      "result": "tests green"
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Chose the story by the BIBLE's only Hearth & Horizon proposal, the headline shelf, rather than running creative_due.py; all shelves had a piece dated 2026-11-19",
+      "did": "wrote the proposal, added a new Hearth & Horizon proposal (The screw that lifted less) so the shelf's Next up is not empty",
+      "result": "claimed by draft PR first, no duplicate found"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-the-sack-that-breathed-out.md",
+    "ventures/hearth-and-horizon/stories/the-sack-that-breathed-out.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, piece the-sack-that-breathed-out (5,400 words, text only). Model in code: 100 kg bag about 60 L air, 12.6 L O2; leak G 0.05/5/90 L air a day; sound bag below 2% O2 on 11 Dec, 0.25% holed; leaky bags settle near 5.5% O2 whatever the leak size, holed 0.65% and 9.8% by early March. Re-read with a calculator: all weekdays checked (16 Nov 2047, 7 Mar 2048, 4 Apr 2048 = Holy Saturday with Easter 5 Apr 2048, 14 Nov 2048 all Saturdays); fixed a member/household count slip and bag numbering before commit. Local checks: node --test in hearth-and-horizon 20/20 pass; check_posts ok; run_workflow_locally --for-changes: control-plane-guard, conflict-markers, doc-refs, link-contrast, readme-live-links, sibling-links, page-integrity, pages, ventures-tests 5/5, portfolio-validate 100/100, portfolio-pages 12/12 passed; prompts-ci validate failed only because this record was still empty when it ran, and passes now.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f5795b1b-61a9-50a9-8f05-bcec91b6cf7f",
+    "transcripts": 1,
+    "first": "2026-11-20T04:09:14Z",
+    "last": "2026-11-20T04:32:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 99,
+        "output": 48832,
+        "thinking": 19986,
+        "cache_read": 6148163,
+        "cache_write_5m": 0,
+        "cache_write_1h": 144196,
+        "api_equivalent_usd": 3.3602,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 99,
+      "output": 48832,
+      "thinking": 19986,
+      "cache_read": 6148163,
+      "cache_write_5m": 0,
+      "cache_write_1h": 144196,
+      "api_equivalent_usd": 3.3602,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 43,
+      "WebSearch": 5,
+      "WebFetch": 3,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.73,
+      "active_minutes": 23.73,
+      "model_minutes": 10.42,
+      "tool_minutes": 13.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "researching hermetic-storage sources, coding the oxygen model and writing and checking a 5,400-word story plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 297.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
