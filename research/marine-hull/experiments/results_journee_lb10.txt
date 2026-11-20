@@ -1,0 +1,55 @@
+data: Journee (1992) DUT-SHL report 0909 peaks as quoted by boatmath docs/seakeeping-findings.md 4.2 (second-hand; report not opened here)
+hulls: L 3 B 0.3 d 0.1875 (L/B 10.0, B/T 1.60), kyy 0.25 L, fresh water; waterline integral I/B 0.0240 (same waterline for I and III)
+## Wigley I (alpha 1): volume 0.09467 m3, CB 0.5610, Smith depth 0.1516 m; section table 101 of 1350 points near irregular frequencies interpolated
+# damping 7zg motion fit (zeta3 0.0375, zeta5 0)
+# table: Fn measured strip_GB(peak@lam) +Faltinsen +STAWAVE2 +NMRI ratio_main(Faltinsen) other_code_GB
+row 0.2 31.8 22.24@1.01 22.25@1.01 23.26@1.01 22.76@1.01 0.700 35.0
+  heave RAO peak 1.006 at lambda/L 1.05
+row 0.3 27.6 27.47@1.21 27.48@1.21 28.19@1.21 27.87@1.21 0.996 51.4
+  heave RAO peak 1.726 at lambda/L 1.26
+row 0.4 14.9 27.97@1.40 27.97@1.40 28.47@1.40 28.26@1.40 1.877 91.8
+  heave RAO peak 2.266 at lambda/L 1.45
+# damping zeta 0 (zeta3 0, zeta5 0)
+# table: Fn measured strip_GB(peak@lam) +Faltinsen +STAWAVE2 +NMRI ratio_main(Faltinsen) other_code_GB
+row 0.2 31.8 23.93@1.00 23.95@1.00 24.99@1.00 24.47@1.00 0.753 35.0
+row 0.3 27.6 32.33@1.20 32.34@1.20 33.08@1.20 32.74@1.20 1.172 51.4
+row 0.4 14.9 35.04@1.39 35.05@1.39 35.56@1.39 35.35@1.39 2.352 91.8
+# damping 7zd area fit (zeta3 0.025, zeta5 0.025)
+# table: Fn measured strip_GB(peak@lam) +Faltinsen +STAWAVE2 +NMRI ratio_main(Faltinsen) other_code_GB
+row 0.2 31.8 15.37@1.01 15.39@1.01 16.41@1.00 15.89@1.01 0.484 35.0
+row 0.3 27.6 20.09@1.20 20.10@1.20 20.84@1.20 20.51@1.20 0.728 51.4
+row 0.4 14.9 21.18@1.39 21.18@1.39 21.69@1.39 21.48@1.39 1.422 91.8
+## Wigley III (alpha 0): volume 0.07805 m3, CB 0.4625, Smith depth 0.1250 m; section table 15 of 1350 points near irregular frequencies interpolated
+# damping 7zg motion fit (zeta3 0.0375, zeta5 0)
+# table: Fn measured strip_GB(peak@lam) +Faltinsen +STAWAVE2 +NMRI ratio_main(Faltinsen) other_code_GB
+row 0.2 22.2 17.35@0.89 17.38@0.89 18.78@0.89 18.11@0.89 0.783 24.0
+  heave RAO peak 0.954 at lambda/L 3.00
+row 0.3 20.2 25.37@1.08 25.39@1.08 26.44@1.08 25.98@1.08 1.257 49.2
+  heave RAO peak 1.285 at lambda/L 1.13
+row 0.4 27.7 27.79@1.25 27.80@1.25 28.56@1.25 28.26@1.25 1.004 71.5
+  heave RAO peak 1.803 at lambda/L 1.30
+# damping zeta 0 (zeta3 0, zeta5 0)
+# table: Fn measured strip_GB(peak@lam) +Faltinsen +STAWAVE2 +NMRI ratio_main(Faltinsen) other_code_GB
+row 0.2 22.2 17.90@0.89 17.93@0.89 19.32@0.89 18.65@0.89 0.807 24.0
+row 0.3 20.2 27.98@1.07 27.99@1.07 29.08@1.07 28.61@1.07 1.386 49.2
+row 0.4 27.7 32.98@1.24 32.99@1.24 33.80@1.23 33.47@1.23 1.191 71.5
+# damping 7zd area fit (zeta3 0.025, zeta5 0.025)
+# table: Fn measured strip_GB(peak@lam) +Faltinsen +STAWAVE2 +NMRI ratio_main(Faltinsen) other_code_GB
+row 0.2 22.2 12.42@0.90 12.45@0.90 13.82@0.89 13.16@0.90 0.561 24.0
+row 0.3 20.2 18.79@1.07 18.80@1.07 19.89@1.07 19.41@1.07 0.931 49.2
+row 0.4 27.7 21.72@1.24 21.73@1.24 22.52@1.23 22.20@1.24 0.785 71.5
+heave RAO, Wigley I Fn 0.3 lambda/L 1.25 (measured 2.52): 7zg motion fit 1.724 (-31.6%), zeta 0 2.220 (-11.9%), 7zd area fit 1.682 (-33.3%)
+## expectations
+J1 Fn 0.2 peak ratio I 0.700, III 0.783 in 0.75-1.25: False
+J2 ratio rises with Fn and > 1.5 at 0.4: I 0.700 0.996 1.877; III 0.783 1.257 1.004: False
+J3 I > III at Fn 0.2 (22.25 vs 17.38) and 0.3 (27.48 vs 25.39): True
+J4 heave 1.724 within 15% of 2.52: False
+J5 Fn 0.2 reflection spread I 4.5%, III 8.0% < 15%: True
+J6 zeta-0 ratio above 7zg at Fn 0.2: I 0.753 vs 0.700, III 0.807 vs 0.783: True
+## C. post hoc (not in the plan): the 4 m monohull, 7zg damping, strip motion term x (measured / model at Fn 0.2)
+# table: scale_from scale pooled_1ms_motion_N pooled_1ms_refl_N loss30W_share025 loss30W_share1 scope200W
+row none_(7zh_row) 1.000 2.844 0.028 -3.39 -12.32 True
+row I,_7zg_motion_fit 1.429 4.064 0.028 -4.77 -16.19 True
+row I,_zeta_0 1.328 3.777 0.028 -4.45 -15.34 True
+row III,_7zg_motion_fit 1.277 3.633 0.028 -4.29 -14.90 True
+row III,_zeta_0 1.238 3.523 0.028 -4.16 -14.57 True

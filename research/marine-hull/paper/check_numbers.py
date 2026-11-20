@@ -174,6 +174,11 @@ CLAIMS = [
     ("results_faltinsen_reflection.txt", "row Faltinsen_kT_speed 2.844 0.028 -3.39"),
     # milestone 7zi: section III-B (wave added resistance against tank data) and Table II
     ("results_faltinsen_reflection.txt", "row strip+STAWAVE-2_refl 1.134 2.084"),
+    ("results_journee_lb10.txt", "J1 Fn 0.2 peak ratio I 0.700, III 0.783"),
+    ("results_journee_lb10.txt", "I 0.700 0.996 1.877; III 0.783 1.257 1.004"),
+    ("results_journee_lb10.txt", "7zg motion fit 1.724 (-31.6%)"),
+    ("results_journee_lb10.txt", "row III,_7zg_motion_fit 1.277 3.633 0.028 -4.29"),
+    ("results_journee_lb10.txt", "row I,_7zg_motion_fit 1.429 4.064 0.028 -4.77"),
     ("results_faltinsen_reflection.txt", "row Faltinsen_kT_speed 2.844 0.028 -3.39 -12.32 True"),
     ("results_faltinsen_reflection.txt", "row STAWAVE-2 2.844 0.725 -4.18 -14.79 True"),
     ("results_faltinsen_reflection.txt", "I/B 0.0195"),
