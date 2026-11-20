@@ -122,6 +122,8 @@ export function golfPlayoffsText(p) {
   return out.join("\n") + "\n";
 }
 
+// Every cell goes through calc.mjs csvCell, the formula-injection guard (a cell starting =, +, -,
+// @, tab or CR gets an apostrophe), so a team named "=SUM(...)" stays text in a spreadsheet.
 export function golfPlayoffsCsv(p) {
   const rows = [["Night", "Date", "Nine", "Start", "Flight", "Round", "Match", "Side A", "Side B"]];
   for (const n of p.nights) for (const g of n.groups) rows.push([n.night, dayLabel(n.day), n.nine, g.slot, g.flight, g.round, g.id, g.a, g.b]);

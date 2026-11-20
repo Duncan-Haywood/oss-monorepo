@@ -19,7 +19,8 @@
   "tool_calls": 39,
   "task": "Little Lamps story: Raymond of Penyafort and the Cloak on the Sea (BIBLE.md Next up proposal)",
   "projects": [
-    "hearth-and-horizon"
+    "hearth-and-horizon",
+    "league-schedule-generator"
   ],
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17898",
   "repo": "Duncan-Haywood/oss-monorepo",
@@ -27,12 +28,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
-  "tests_added": 0,
+  "tests_added": 1,
   "outcome": "success",
   "errors": [
-    "First draft said Raymond died 'on the day after the Epiphany'; he died on 6 January 1275, the Epiphany itself. Caught on the adversarial re-read before commit."
+    "First draft said Raymond died 'on the day after the Epiphany'; he died on 6 January 1275, the Epiphany itself. Caught on the adversarial re-read before commit.",
+    "PR CI changed-ventures went red on check_csv_formula_guard.py: main had broken when #17894 (golf-playoffs.mjs, a new CSV exporter) and #17895 (the checker's perf rewrite) landed together. The exporter already used calc.mjs csvCell, but it lacked the marker comment the checker looks for. Fixed forward here: added the sibling exporters' comment and a test that a '=SUM(...)' team name never starts a CSV cell. My first version of that test wrongly expected an apostrophe: cells carry a '#1 ' seed prefix, so they are already safe."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -51,13 +53,19 @@
       "why": "Audio cap exceeded (577 MB > 400 MB).",
       "did": "Landed text and pages without audio, per the prompt's own rule.",
       "result": "Story, page, feeds and llms.txt regenerated; node --test 20/20."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "The CLAUDE.md 'control plane / small PR' advice suggests keeping unrelated fixes separate; this one is a two-line comment plus a test in a venture, not the control plane, and main was red for every PR.",
+      "did": "Fixed the red check on main inside this creative PR instead of opening a second PR.",
+      "result": "check_csv_formula_guard.py and its unittest pass locally."
     }
   ],
   "writeups": [
     "docs/posts/2026-11-20-raymond-of-penyafort-and-the-cloak-on-the-sea.md"
   ],
   "goal": "Creative track: a new Little Lamps story for the 7 January memorial, keeping the shelf's run through the Christmas season going.",
-  "notes": "Project: hearth-and-horizon, shelf little-lamps, slug raymond-of-penyafort-and-the-cloak-on-the-sea (1,609-word story plus grown-ups' note). Security queue empty; IDEAS.md and website requests empty; route drew creative. Claimed the proposal in BIBLE.md first (draft PR #17898), then marked it Done (bible_done.mjs moved it to DONE.md) and added the next Little Lamps proposal (Agnes, 21 January; overlap.mjs shows no Agnes story on Little Lamps or Saints by Candlelight). Source hosts unreachable, so the note cites standard references without quoting and marks uncertain points (birth year, age at death, Pope's penance, Aquinas request, cloak legend). Weekday check: 7 Jan 2027 is a Thursday. Verification: node --test in ventures/hearth-and-horizon 20 pass 0 fail; run_workflow_locally --for-changes run (result in PR).",
+  "notes": "Project: hearth-and-horizon, shelf little-lamps, slug raymond-of-penyafort-and-the-cloak-on-the-sea (1,609-word story plus grown-ups' note). Security queue empty; IDEAS.md and website requests empty; route drew creative. Claimed the proposal in BIBLE.md first (draft PR #17898), then marked it Done (bible_done.mjs moved it to DONE.md) and added the next Little Lamps proposal (Agnes, 21 January; overlap.mjs shows no Agnes story on Little Lamps or Saints by Candlelight). Source hosts unreachable, so the note cites standard references without quoting and marks uncertain points (birth year, age at death, Pope's penance, Aquinas request, cloak legend). Weekday check: 7 Jan 2027 is a Thursday. Verification: node --test in ventures/hearth-and-horizon 20 pass 0 fail; run_workflow_locally --for-changes run (result in PR). Also fixed main's red csv formula guard check (league-schedule-generator/golf-playoffs.mjs marker comment + test). The local run_workflow_locally --for-changes run handed off portfolio-validate and ventures-tests; the PR's own CI is the authority for those.",
   "corrections": [],
   "redteam": null,
   "usage": {

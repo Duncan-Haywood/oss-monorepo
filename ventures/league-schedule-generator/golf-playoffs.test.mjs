@@ -67,3 +67,13 @@ test("bad input is refused in words", () => {
   assert.match(golfPlayoffs(recapOf(8), s, { nights: [s.weeks[9].day + 7] }).errors[0], /needs 2 nights/);
   assert.match(golfPlayoffsCsv(golfPlayoffs(recapOf(8), s)), /^Night,Date,Nine,Start,Flight/);
 });
+
+test("a team name that looks like a formula stays text in the CSV", () => {
+  const s = golfSchedule({ teams: T(8), weeks: 10, start: START });
+  const r = recapOf(8);
+  r.standings[0].team = "=SUM(A1:A9)";
+  const csv = golfPlayoffsCsv(golfPlayoffs(r, s));
+  assert.match(csv, /#1 =SUM\(A1:A9\)/);
+  assert.doesNotMatch(csv, /(^|,)"?[=+@\t\r]/m);
+  assert.doesNotMatch(csv, /(^|,)"?-(?!\d)/m);
+});
