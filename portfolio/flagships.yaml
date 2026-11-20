@@ -624,15 +624,14 @@ flagships:
       eval/frames-2026-11-20.md), slabs typed FLOOR read as finishes, sun shades or
       roofs by name and roof by geometry 2026-11-20 (slabRole, findRoofDecks: 600
       B1010 slabs to 270 floors, 251 finishes, 18 more roofs; 142 frame members to
-      B1020; eval/slab-roles-2026-11-20.md), next 'slab on grade' in FLOOR names,
-      gutters and parapets as B3010, roofs as blockers for knee walls; (3) the
-      unexplained disagreements; (4) advanced breps on revolved/NURBS surfaces (8 in
-      kleine_Wohnung; planes and cylinders read 2026-11-20, 703 of 767 =
-      IfcOpenShell to 0.1%; faceted openings as signed tetrahedra;
-      eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a union; (5)
-      change report on a second house shipped 2026-11-20 (Lake Kegonsa, 5 Revit
-      exports: 138 GlobalId-only adds/removes the same element; a faulty 'INCH' of
-      3.6576 m repaired by name, qto.mjs NAMED_UNITS;
-      eval/units-repair-2026-11-20.md); next an ArchiCAD series, Lake_Mills, wall
-      parts that stay unpaired; (6) a real estimator's reading of the BoQ CSV (needs
-      a person).
+      B1020; eval/slab-roles-2026-11-20.md), slab on grade A1030/G2030, gutters
+      B3010, IsExternal railings B2010 2026-11-20
+      (eval/slab-on-grade-2026-11-20.md), next railings by what they stand on, roofs
+      as blockers for knee walls; (3) the unexplained disagreements; (4) advanced
+      breps on revolved/NURBS surfaces (8 in kleine_Wohnung; planes and cylinders
+      read 2026-11-20, 703 of 767 = IfcOpenShell to 0.1%; faceted openings as signed
+      tetrahedra; eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a
+      union; (5) change report on a second house shipped 2026-11-20 (Lake Kegonsa, 5
+      Revit exports: 138 GlobalId-only adds/removes the same element; a faulty
+      'INCH' of 3.6576 m repaired by name, qto.mjs NAMED_UNITS;
+      eval/units-repair-2026-11-20.md). More open items: NEXT.md.

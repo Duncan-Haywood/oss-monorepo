@@ -228,6 +228,21 @@ roofs); 114 columns and 28 beams moved from B1010 to B1020, and the authors'
 codes match as before. Details:
 [eval/slab-roles-2026-11-20.md](eval/slab-roles-2026-11-20.md).
 
+**Slabs on grade, gutters, downspouts and outside railings**
+(`findGroundSlabs`, `rainwaterRole`). A slab named as on grade ("127mm Slab
+on Grade", Bodenplatte, grondplaat) is A1030 Slab on Grade, and so is one
+that by geometry lies at the bottom of the model (within 0.5 m of the lowest
+slab or wall) with nothing under it and no beam or column carrying it; a
+slab on grade with no slab or roof over it, or named exterior, is a patio or
+walk, G2030. Gutters and downpipes (PredefinedType GUTTER, or named gutter,
+takrenne, Dachrinne, downspout, hwa) and box-gutter framing go to B3010 Roof
+Coverings, and railings flagged IsExternal to B2010 (balcony walls and
+handrails). On the 17 models 164 codes changed: 10 slabs to A1030 (HHS
+Office's 3,518 m² ground slab in two models, duplex, HouseZ), 2 to G2030, 75
+gutters, downpipes and gutter framing to B3010, 77 railings to B2010; the
+authors' codes match as before. Details:
+[eval/slab-on-grade-2026-11-20.md](eval/slab-on-grade-2026-11-20.md).
+
 **Exterior wall or partition, from the geometry** (`envelope.mjs`). A wall
 with no `IsExternal` flag is placed by its geometry: every wall, curtain wall
 and upright facade piece is read in plan as a rectangle, and rays cast from
