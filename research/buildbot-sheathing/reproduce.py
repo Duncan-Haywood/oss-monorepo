@@ -125,6 +125,8 @@ EXPERIMENTS = {
                      60, []),
     "m65_resized": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m63_worstbias/run.py (and so m61's to m38's), reads m50 and m52 results.json",
                     75, []),
+    "m66_directterm": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m65_resized/run.py (and so m63's to m38's), reads m50 and m52 results.json",
+                       90, []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]
