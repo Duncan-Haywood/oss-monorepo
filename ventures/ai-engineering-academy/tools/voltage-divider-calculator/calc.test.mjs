@@ -142,3 +142,13 @@ test("designDividerForLoad rejects non-positive inputs", () => {
   assert.throws(() => designDividerForLoad({ vin: 5, targetVout: 2.5, loadOhms: 0 }));
   assert.throws(() => designDividerForLoad({ vin: 5, targetVout: 2.5, loadOhms: 1000, bleederMultiple: 0 }));
 });
+
+// Quality census 2026-11-20 (portfolio/quality/audits/2026-11-20-ai-engineering-academy.json):
+// clean() kept six decimals, so 2.5 µA read 3 µA and a 10M/10M divider read 0 A.
+test("high-value divider keeps microamp current", () => {
+  const r = calculateVoltageDivider({ vin: 5, r1: 1e6, r2: 1e6 });
+  assert.ok(Math.abs(r.unloadedCurrentAmps - 2.5e-6) < 1e-12, String(r.unloadedCurrentAmps));
+  const h = calculateVoltageDivider({ vin: 3.3, r1: 1e7, r2: 1e7, loadOhms: 1e7 });
+  assert.ok(h.loadCurrentAmps > 1e-7, String(h.loadCurrentAmps));
+  assert.ok(h.r1PowerWatts > 0);
+});

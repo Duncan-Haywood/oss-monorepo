@@ -6,7 +6,7 @@ Pure Python, no dependencies. A SLAM back end accepts a candidate loop closure w
 
 ```bash
 cd research/loopclosure-twin
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests, ~1 s
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 12 tests, ~1 s
 PYTHONPATH=src python3 experiments/run.py                 # ~5 s; output in experiments/results.txt
 ```
 
