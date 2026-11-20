@@ -13,6 +13,7 @@ ORDER
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py
                before cutting: the motor, wheel, bearing and caster sizes
                are the ones this package was drawn around.
+5. guide/ASSEMBLY.md  Put it together, step by step, one drawing a step.
 
 CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 - design rules: pass
@@ -22,6 +23,7 @@ CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 - drum capacity (loose packing): ~118 balls
 - overall: 802 mm long x 592 mm wide, track 552 mm
 - made-part mass (estimate, excludes bought-in parts): 7.1 kg
+- assembly guide (guide/ASSEMBLY.md): 11 fastener stacks, part and BOM tally, step order, hatch removal: pass
 
 STATUS
 Design v0.2, not yet built. A first build will find things. Please

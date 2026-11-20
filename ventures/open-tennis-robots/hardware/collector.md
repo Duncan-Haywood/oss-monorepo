@@ -65,15 +65,18 @@ switched to the drum.
 ## Making it
 
 1. Send `laser/*.dxf` to a laser or waterjet service (quantities and
-   thickness are in `laser_parts.csv`): 6 parts, 10 pieces, all 5052
+   thickness are in `laser_parts.csv`): 7 parts, 10 pieces, all 5052
    aluminium. There are no bends or tapped holes.
 2. Print `print/*.stl` in PETG (8 pieces).
 3. Cut 18 lengths of 3 mm music wire to 460 mm, and the 20 mm mast tube to
    1 m.
 4. Buy the rest from `bom.csv`, fasteners included.
-5. Assemble: see the STEP assembly and the three drawings. The order is
-   base → motor clamps → wheels → caster → pivot blocks → drum (discs,
-   wires, clamp rings, covers) → yoke arms → tray and electronics.
+5. Assemble with [`guide/ASSEMBLY.md`](../manufacturing/collector/guide/ASSEMBLY.md):
+   14 steps, one drawing each, from inserts and rivet nuts through base,
+   mast socket and caster, motors, wheels, pivot blocks, tray, battery,
+   the drum cage on the bench, its covers, hanging it on the yoke, mast
+   and electronics. Every fastener length in it is checked against the
+   CAD's stack.
 
 ## Open questions (good first issues)
 

@@ -505,6 +505,13 @@ class Collector:
     motor_face_inset: float = 5.0  # motor output face inside the base edge
     clamp_len: float = 45.0       # printed clamp grips this much gearbox
     clamp_wall: float = 8.0
+    clamp_w: float = 64.0         # clamp width across the motor (x)
+    clamp_bolt_x: float = 25.5    # cap bolts at x = +/- this: an insert pocket 4 mm clear of the motor bore (2026-11-20)
+
+    # M4 heat-set inserts (short, 5.7 mm long). Check your insert's datasheet: most M4 short inserts want a
+    # 5.6 mm hole. The pilots before 2026-11-20 were 4.0-4.4 mm, which no M4 insert fits.
+    insert_hole_d: float = 5.6
+    insert_depth: float = 6.5
 
     # Pickup drum ("ball mower" rod cage). Balls squeeze between rods.
     drum_len: float = 450.0       # inside length between the end discs
@@ -526,7 +533,11 @@ class Collector:
     arm_end_r: float = 20.0
     pivot_x: float = 120.0
     pivot_z: float = 70.0
-    arm_gap: float = 3.0          # spacer between drum cover and arm
+    arm_gap: float = 4.0          # axle spacer length past the cover: the hatch lifts 3 mm off its seat in it
+    pivot_shoulder: float = 40.0  # ISO 7379 8 mm shoulder bolt (M6 thread): the arm and pivot block fit its shoulder
+    pivot_float: float = 0.5      # shoulder left past the stack, so the arm swings once the nut is tight
+    axle_spacer_od: float = 12.0  # 8 mm ID spacer from the arm to the 608's inner race (inner race land ~12.1 mm)
+    rivet_nut_hole_d: float = 7.0  # M5 rivet nut body (the disc holes were 5.5 mm before 2026-11-20)
 
     # Caster at the rear.
     caster_x: float = -225.0
@@ -546,7 +557,7 @@ class Collector:
     # Mast (camera) socket.
     mast_d: float = 20.0
     mast_len: float = 1000.0
-    mast_x: float = -235.0
+    mast_x: float = -225.0        # over the caster: the socket and the caster adapter share one set of bolts
 
     notes: list[str] = field(default_factory=list)
 
@@ -629,7 +640,21 @@ class Collector:
         tray_ok = self.tray_x0 > self.base_x0 + 10 and self.tray_x1 < -self.motor_d
         if not tray_ok:
             bad.append("electronics tray does not fit between the rear edge and the motors")
+        if abs(self.mast_x - self.caster_x) > 1e-9:
+            bad.append("mast socket and caster adapter share their four bolts: mast_x must equal caster_x")
+        bore = self.motor_d / 2 + 0.2
+        if self.clamp_bolt_x - self.insert_hole_d / 2 - bore < 3 or self.clamp_w / 2 - self.clamp_bolt_x - self.insert_hole_d / 2 < 2:
+            bad.append("motor clamp cap bolts: under 3 mm of plastic to the motor bore or 2 mm to the clamp's side")
+        if self.arm_gap < self.cover_t + 0.5:
+            bad.append("arm gap: the hatch cover cannot lift clear of the rod clamp ring to come off")
+        if self.pivot_depth < 20:
+            bad.append("pivot block under 20 mm deep: use a longer pivot shoulder bolt")
         return bad
+
+    @property
+    def pivot_depth(self) -> float:
+        """Pivot block depth along y: arm plus block fill the shoulder, less the float."""
+        return self.pivot_shoulder - self.pivot_float - self.arm_t
 
 
 DEFAULT = Collector()
