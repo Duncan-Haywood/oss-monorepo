@@ -19,6 +19,8 @@
 //                                              # workbook (excel2ids.mjs) gives one IDS per purpose,
 //                                              # OUT_<purpose>.ids (and per phase with --by-phase)
 //   node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx  # the IDS in the Excel2IDS template layout
+//   node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]  # the IDS in plain English, every specification as
+//                                              # sentences (spec-doc.mjs); Markdown on stdout without -o
 //   node cli.mjs --from-bsdd CLASS_URI... [-o OUT.ids] [--sets Pset_A,Pset_B] [--schema IFC4]
 //                                              # one specification per bSDD class from its property list
 //                                              # (bsdd-spec.mjs; goes on the network like --bsdd); stdout
@@ -38,6 +40,7 @@ import { bsddIds } from "./bsdd-spec.mjs";
 import { suggestBsddLinks, addBsddLinks, suggestReport } from "./bsdd-suggest.mjs";
 import { bcfZip } from "./bcf.mjs";
 import { junitXml } from "./ci.mjs";
+import { docFromIds, docToMarkdown, docToHtml, classNamesFrom } from "./spec-doc.mjs";
 import { fixStructure } from "./fix.mjs";
 import { sheetFromIds, rowsToCsv, rowsToXlsx, sheetToRows, rowsToIds, sheetLists, sheetVersions } from "./sheet.mjs";
 import { inflateRawSync } from "node:zlib";
@@ -120,6 +123,19 @@ if (flag("--from-bsdd") && files.length) {
     if (r.format === "excel2ids") console.error(`wrote ${path}`);
   }
   if (failed) process.exit(1);
+} else if (flag("--to-doc") && files.length === 1) {
+  // Exit 0, or 2 when the file is not an IDS. A repairable ids.xsd fault is
+  // repaired first (fix.mjs), as for --to-sheet, so the words match the checker.
+  let doc;
+  const load = (v) => JSON.parse(readFileSync(new URL(`./schema/${v}.json`, import.meta.url), "utf8"));
+  try {
+    const text = readFileSync(files[0], "utf8");
+    const fx = fixStructure(text);
+    doc = docFromIds(!fx.error && fx.fixes.length ? fx.text : text, { classNames: classNamesFrom(["ifc2x3", "ifc4", "ifc4x3"].map(load)) });
+  } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  const out = opt("-o");
+  const body = out && /\.html?$/i.test(out) ? docToHtml(doc) : docToMarkdown(doc);
+  if (out) { writeFileSync(out, body); console.error(`${doc.specs.length} specification(s) written to ${out}`); } else process.stdout.write(body);
 } else if (flag("--to-excel2ids") && files.length === 1) {
   // Exit 0 when every specification fits the template, 1 when some are left out (listed), 2 on a read error.
   let w;
@@ -141,7 +157,7 @@ if (flag("--from-bsdd") && files.length) {
   else console.log(auditReport(ids.title, ids.specs, issues) + (bsdd ? "\n" + bsddReport(bsdd) : ""));
   process.exitCode = issues.some((x) => x.level === "error") || (bsdd && bsdd.findings.some((x) => x.level === "error")) ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;
