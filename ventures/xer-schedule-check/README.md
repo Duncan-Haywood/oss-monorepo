@@ -205,7 +205,7 @@ done as out of sequence. The HTML sheet is self-contained and prints
 landscape for the meeting; the CSV has a column per day. On seven public P6
 files, the activities in each 1-, 3- and 6-week window are the ones P6's
 own stored dates put there on 6,476 of 6,479 (the 3 are the CCA pair behind
-a lag edited after P6's last run), no bar is on a wrong day, and every one
+a 608 h lag P6's own forward pass shortened to 440 h), no bar is on a wrong day, and every one
 of 1,259 "waits" names a predecessor P6's dates are consistent with
 (eval/lookahead-check-2026-11-19.md). On those files it surfaced 47 of 87
 activities in Expressway's first three weeks held only by the project start,
@@ -466,9 +466,9 @@ run as a formula in Excel or Sheets.
   with 2,134 out-of-sequence links (88.2% before the retained-logic rules of
   2026-11-19, 99.4% before the third pass, 14,256 before the fourth). The two
   left are a finish milestone and its successor behind a 608 h lag that P6's
-  own stored dates break: the lag (or its predecessor's actual finish) changed
-  after P6's last schedule run (see "Lags edited after the last schedule run"
-  below). Every rule added to get there is listed
+  own stored early dates break by 168 h, while the relationship date P6 wrote
+  on the same link shows it used the full 608 h backward (see "P6's
+  relationship dates" below). Every rule added to get there is listed
   there with the count it moved; the fourth pass added five (an open
   predecessor's FS lag into a finished node comes back off, a labour
   assignment's remaining work sets the late start of an activity with no
@@ -505,7 +505,23 @@ run as a formula in Excel or Sheets.
   the last schedule run") with the lag the dates leave room for, and the
   written review asks for a reschedule (medium). Planted-edit counts are in
   the eval file. A shortened lag breaks no link and is not found by this
-  check; it shows up only as stored dates that differ.
+  check; the relationship-date check below finds it. (Correction 2026-11-20:
+  CCA's 608 h lag was not edited; P6's own relationship date on it shows the
+  608 h was used at that run, so the 440 h gap is P6's forward pass.)
+- **P6's relationship dates** (`eval/relationship-dates-2026-11-20.md`,
+  `reldates.mjs`): every P6 export from 5.0 to 20.12 stores two dates on each
+  link (TASKPRED `aref` and `arls`) that no P6 screen shows. Decoded: `aref` is
+  the early start the link gives the successor, `arls` the late date it gives
+  the predecessor (for SS, less the predecessor's duration); `arls` agrees on
+  **40,476 of 40,476** links between unstarted activities on six files, `aref`
+  on 40,383, and from finished predecessors `arls` takes off only the unspent
+  lag on 1,894 of 1,894 (an independent check of CPM rule 17). Written in the
+  same run as the stored dates, they carry the lag P6 used, so the assessment
+  now lists a lag changed after the last run, **longer or shorter**, with the
+  old lag (1,200 of 1,200 planted edits read back exactly, 1,200 of 1,200
+  planted links added after the run named, 0 false listings). They also close
+  the last finished-node residual: CFNS103317C0's stored late date contradicts
+  the relationship date P6 wrote on its own link, which the engine matches.
 - **Free float against P6** (`eval/free-float-2026-11-19.md`,
   `eval/free-float-expected-2026-11-20.md`): the same files,
   **19,820 of 19,822 (99.99%)** equal P6's stored free float (19,810 before

@@ -1,7 +1,9 @@
 // "Lags edited after the last schedule run" (dcma.mjs): a link whose lag is
 // longer than the working time the stored dates leave for it. Found on CCA
 // (P6 6.0), where one 608 h lag with room for 440 h accounts for the file's
-// two stored-date differences (eval/edited-lags-2026-11-19.md).
+// two stored-date differences (eval/edited-lags-2026-11-19.md; that lag's
+// relationship date shows P6 used 608 h, eval/relationship-dates-2026-11-20.md).
+// Lags changed and read back from the relationship dates: reldates.test.mjs.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseXer, formatDate } from "./xer.mjs";
