@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVMWkmvCxxWZMdEfsA4",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine 2: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "04ce7d539ee6a72fcff92d08910efa5fcac2a2660906cbd7ec4fb64440094a9b",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T13:03:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/cell-fidelity milestone 7t: why the ten-cycle forecast error grows with the plating rate (no new simulation)",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": 17913,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/LOG.md",
+      "issue": "7t plan stated 50 designs per tuned cell (164 total); rows.json holds all 56 finished designs (288 total). Disclosed in the outcome entry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The scheduled prompt asks for revenue products, but the master prompt's route drew the research track; followed the route, as the repo's prompt system intends.",
+      "did": "advanced the drawn programme (cell-fidelity) by one pre-registered milestone",
+      "result": "7t landed: H326, H327, H330 supported, H328 inconclusive, H329 refuted"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-why-a-ten-cycle-battery-fade-forecast-fails-when-plating-throttles.md"
+  ],
+  "goal": null,
+  "notes": "Plan committed (cd2-style: commit 'milestone 7t plan') before report ran. Checks run locally: tests/test_bend7t.py 8 OK; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok; cite_check README OK (no new citations).",
+  "corrections": [],
+  "redteam": null
+}
