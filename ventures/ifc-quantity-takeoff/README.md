@@ -243,6 +243,18 @@ gutters, downpipes and gutter framing to B3010, 77 railings to B2010; the
 authors' codes match as before. Details:
 [eval/slab-on-grade-2026-11-20.md](eval/slab-on-grade-2026-11-20.md).
 
+**Railings by what they stand on** (`findStairRailings`,
+`assignRailingSides`). A railing beside a stair, flight, ramp, landing or
+stringer (within 0.3 m in plan, starting between its bottom and top) is
+C2010 Stair Construction, and so is one rising 3 m or more with no stair
+found, and any railing piece joined to one of those; then the IsExternal flag
+true is B2010; then the envelope test's rays, cast from both faces of the
+railing, put it outside (B2010, a balcony or roof guard) or inside (C1010, an
+interior balustrade). On 16 models coded railings went from 77 to 461 of
+486: 343 stair, 95 exterior, 23 interior; the 25 left are railings whose
+geometry is not read or a structural model with no doors. Details:
+[eval/railings-2026-11-20.md](eval/railings-2026-11-20.md).
+
 **Exterior wall or partition, from the geometry** (`envelope.mjs`). A wall
 with no `IsExternal` flag is placed by its geometry: every wall, curtain wall
 and upright facade piece is read in plan as a rectangle, and rays cast from

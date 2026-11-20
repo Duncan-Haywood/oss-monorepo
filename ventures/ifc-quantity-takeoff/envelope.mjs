@@ -151,6 +151,39 @@ export function assignEnvelope(rows) {
   return rows;
 }
 
+const RAIL_RAY = 0.5; // m above a railing's bottom: where its rays are cast
+const RAIL_NEAR = 4; // fewest walls at that height for the test to be read
+
+/**
+ * Sets row.railSide = { exterior, open, points, near } on every railing row
+ * with a plan rectangle: the same rays as a wall's, cast from both faces of
+ * the railing at RAIL_RAY above its bottom (or half its height when it is
+ * lower), with walls, curtain walls and facade pieces as blockers. A railing
+ * one of whose faces is open at half its points or more stands outside the
+ * building (a balcony or roof guard); one closed on both faces stands inside
+ * (a gallery or void edge). Nothing is set where fewer than RAIL_NEAR
+ * blockers reach that height (a railing above every wall, or a model
+ * without walls), nor in a model with no door or window.
+ */
+export function assignRailingSides(rows) {
+  // a model with no door or window is not an architect's model (HHS Office's
+  // structural model): its walls are not the building's envelope
+  if (!rows.some((r) => /^IFC(DOOR|WINDOW)/.test(r.effectiveClass || r.ifcType || ""))) return rows;
+  const blockers = rows.filter((r) => r.plan && isBlocker(r));
+  for (const r of rows) {
+    if (!r.plan || r.isAssembly || (r.effectiveClass || r.ifcType) !== "IFCRAILING") continue;
+    const p = r.plan;
+    if (!(p.hl > 0.05)) continue;
+    const zr = p.z0 + Math.min(RAIL_RAY, (p.z1 - p.z0) / 2);
+    const near = blockers.filter((b) => b.plan.z0 <= zr && b.plan.z1 >= zr);
+    if (near.length < RAIL_NEAR) continue;
+    const own = openCount(p, near);
+    const open = Math.max(own[0], own[1]);
+    r.railSide = { exterior: open * 2 >= SAMPLES, open, points: SAMPLES, near: near.length };
+  }
+  return rows;
+}
+
 // how many sample points on each face of p have a ray that crosses nothing
 function openCount(p, near) {
   const n = [-p.u[1], p.u[0]];

@@ -14,3 +14,4 @@ then as the roof by geometry (nothing over it, walls or columns under it, no
 storey's walls on it). 17 models: 474 codes changed, authors' codes unchanged
 (482 of 588 at level 3); 18 more roof slabs and 142 more frame members in
 B1020. eval/slab-roles-2026-11-20.md.
+- (moved 2026-11-20) (5) change report on a second house shipped 2026-11-20 (Lake Kegonsa, 5 Revit exports: 138 GlobalId-only adds/removes the same element; a faulty 'INCH' of 3.6576 m repaired by name, qto.mjs NAMED_UNITS; eval/units-repair-2026-11-20.md)

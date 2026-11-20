@@ -238,8 +238,22 @@ export function ruleCode(r, ctx) {
       // a railing flagged IsExternal is a balcony or roof guard: B2010
       // (ASTM E1557 level 4 puts balcony walls and handrails under Exterior
       // Walls). The flag false is not read: Revit writes it on every railing.
+      // A railing beside a stair or ramp is stair construction whatever its
+      // flag (a landing's guard included); then the flag true; then where it
+      // stands by the envelope rays (assignRailingSides): open to the outside
+      // is a balcony or roof guard, B2010; closed in on both faces a gallery
+      // or void edge, C1010, which NISTIR 6389 lists as "interior balustrades
+      // and screens" (eval/railings-2026-11-20.md).
+      if (r.stairRail) {
+        const t = r.stairRail, via = t.via != null ? "joined to a railing " : "";
+        if (t.rise != null) return { code: "C2010", why: `railing ${via}rising ${t.rise.toFixed(1)} m with no stair found beside it (a stair railing; its stair not modelled or not read)` };
+        return { code: "C2010", why: `railing ${via}beside ${t.ifcClass}${t.name ? ` "${t.name}"` : ""} (stair construction)` };
+      }
       if (r.isExternal === true) return { code: "B2010", why: "railing, IsExternal (balcony walls and handrails are exterior walls)" };
-      return { code: null, why: "railing not part of a stair or ramp (balcony, guard or stair cannot be told)" };
+      if (r.railSide) return r.railSide.exterior
+        ? { code: "B2010", why: `railing, by geometry open to the outside at ${r.railSide.open} of ${r.railSide.points} points (balcony or roof guard: exterior walls)` }
+        : { code: "C1010", why: `railing, by geometry closed in on both faces (open at ${r.railSide.open} of ${r.railSide.points} points): interior balustrade` };
+      return { code: null, why: r.box ? "railing not beside a stair or ramp, too small or above too few walls for the rays (balcony, guard or gallery cannot be told)" : "railing whose geometry was not read (balcony, guard or stair cannot be told)" };
     case cls === "IFCMEMBER" && /^(RAFTER|PURLIN)$/.test(pdt || ""): return { code: "B1020", why: `member, ${pdt}` };
     case cls === "IFCMEMBER" && /^(MULLION)$/.test(pdt || ""): return { code: "B2010", why: "member, MULLION" };
     // a curtain panel is measured with its curtain wall, as a mullion is
@@ -313,6 +327,7 @@ export function assignUniformat(rows) {
   findRoofDecks(rows);
   findGroundSlabs(rows);
   findCarried(rows, ctx);
+  findStairRailings(rows, ctx);
   for (const r of rows) {
     const rule = ruleCode(r, ctx);
     let code = null, source = null, why = rule.why;
@@ -413,6 +428,68 @@ export function findRoofDecks(rows) {
       if (/^IFCWALL/.test(w.effectiveClass || w.ifcType) && e[2] >= b[5] - 0.4 && e[2] <= b[5] + 0.5 && e[5] > b[5] + STOREY_WALL) on++;
     }
     if (under && !on) s.roofDeck = { under };
+  }
+}
+
+const STAIR_PAD = 0.3; // m: how far beside a flight's box a railing may stand
+const STAIR_REACH = 0.3; // m: how far past a flight's bottom or top a railing may start
+const STAIR_RISE = 3; // m: a railing rising this far climbs a storey
+const STAIR_WELL = 2; // m: how far from its stair in plan a railing joined to a stair railing may reach
+
+/**
+ * Sets row.stairRail = { id, ifcClass, name } on each railing whose box was
+ * read and which stands on or beside a stair or ramp: some stair, flight,
+ * ramp, landing slab or stringer (or a part of a stair or ramp) has a box
+ * that comes within STAIR_PAD of the railing's in plan, and the railing
+ * starts between that box's bottom and its top, give or take STAIR_REACH. A
+ * flight's handrails and balusters start on it; the guard round the well at
+ * the head of a flight starts at its top and is measured with the stair too
+ * (NISTIR 6389 lists stair railings and balustrades under C2010). Revit
+ * exports Schultz_Residence's stair railings as 253 pieces (balusters, rails):
+ * a piece that touches one found so, and lies within STAIR_WELL of the same
+ * stair in plan, is taken with it.
+ */
+export function findStairRailings(rows, ctx) {
+  const stairs = [];
+  for (const s of rows) {
+    if (!s.box) continue;
+    const cls = s.effectiveClass || s.ifcType || "";
+    const p = s.parent != null ? ctx(s.parent) : null;
+    const pcls = p ? p.effectiveClass || p.ifcType || "" : "";
+    if (STAIRISH.test(cls) || STAIRISH.test(pcls) || (/^IFCSLAB/.test(cls) && s.predefinedType === "LANDING") || (cls === "IFCMEMBER" && s.predefinedType === "STRINGER")) stairs.push(s);
+  }
+  for (const r of stairs.length ? rows : []) {
+    if (!r.box || r.isAssembly || (r.effectiveClass || r.ifcType) !== "IFCRAILING") continue;
+    const b = r.box;
+    for (const s of stairs) {
+      const e = s.box;
+      if (e[0] > b[3] + STAIR_PAD || e[3] < b[0] - STAIR_PAD || e[1] > b[4] + STAIR_PAD || e[4] < b[1] - STAIR_PAD) continue;
+      if (b[2] < e[2] - STAIR_REACH || b[2] > e[5] + STAIR_REACH) continue;
+      r.stairRail = { id: s.id, ifcClass: s.ifcClass, name: s.name ?? null, box: e };
+      break;
+    }
+  }
+  // a railing that rises a storey with no stair found beside it is a stair
+  // railing whose stair was not modelled or not read (S_Office's 4.6 to 5.2 m
+  // railings in a model with no IfcStair); screens and guards are lower
+  // (ARK_NUS's slatted screens rise 2.3 to 2.8 m)
+  for (const r of rows) {
+    if (!r.box || r.stairRail || r.isAssembly || (r.effectiveClass || r.ifcType) !== "IFCRAILING") continue;
+    if (r.box[5] - r.box[2] >= STAIR_RISE) r.stairRail = { id: r.id, ifcClass: r.ifcClass, name: null, box: r.box, rise: r.box[5] - r.box[2] };
+  }
+  // a railing piece that touches a stair railing and stays within STAIR_WELL
+  // of its stair in plan is part of the same railing (the top rail of a
+  // landing guard whose balusters stand on the flight)
+  const rails = rows.filter((r) => r.box && !r.isAssembly && (r.effectiveClass || r.ifcType) === "IFCRAILING");
+  const touch = (a, b) => a[0] <= b[3] + 0.05 && b[0] <= a[3] + 0.05 && a[1] <= b[4] + 0.05 && b[1] <= a[4] + 0.05 && a[2] <= b[5] + 0.05 && b[2] <= a[5] + 0.05;
+  const nearIn = (a, e) => a[0] <= e[3] + STAIR_WELL && a[3] >= e[0] - STAIR_WELL && a[1] <= e[4] + STAIR_WELL && a[4] >= e[1] - STAIR_WELL;
+  for (let changed = true; changed; ) {
+    changed = false;
+    for (const r of rails) {
+      if (r.stairRail) continue;
+      const q = rails.find((q) => q.stairRail && touch(r.box, q.box) && nearIn(r.box, q.stairRail.box));
+      if (q) { r.stairRail = { ...q.stairRail, via: q.id }; changed = true; }
+    }
   }
 }
 
