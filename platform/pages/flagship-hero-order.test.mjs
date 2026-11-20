@@ -128,3 +128,39 @@ test(`flagship ledes are at most ${LEDE_MAX_WORDS} words`, () => {
   assert.ok(checked >= 5, `checked ${checked} flagship ledes`);
   assert.deepEqual(bad, [], 'move the detail into a <details> fold:\n' + bad.join('\n'));
 });
+
+// A venture's hero eyebrow names at most two things ("AI BOOKKEEPER · NOTHING
+// UPLOADED"), on every venture page, not only flagships.
+// WHY: on 2026-11-20 ten venture pages ran three or four items in the eyebrow
+// ("AI BOOKKEEPER · DOUBLE-ENTRY · RUNS IN YOUR BROWSER · NOTHING UPLOADED"),
+// which wrapped to two or three lines of small capitals at 320 to 390 px and
+// repeated what the lede says a line later. Report:
+// docs/reports/polish-2026-11-20-two-item-eyebrows.md.
+export const EYEBROW_MAX_ITEMS = 2;
+
+/** The items of each `p.eyebrow` in the html (split on · or &middot;). */
+export function eyebrowItems(html) {
+  return [...html.matchAll(/<p class="[^"]*\beyebrow\b[^"]*"[^>]*>([^<]*)<\/p>/g)]
+    .map((m) => m[1].split(/·|&middot;|&#183;/).map((s) => s.trim()).filter(Boolean));
+}
+
+test('eyebrowItems splits on the middle dot in either spelling', () => {
+  assert.deepEqual(eyebrowItems('<p class="note eyebrow">A · B</p><p class="eyebrow">C &middot; D &middot; E</p>'), [['A', 'B'], ['C', 'D', 'E']]);
+  assert.deepEqual(eyebrowItems('<p class="note">A · B · C</p>'), []);
+});
+
+test(`venture eyebrows name at most ${EYEBROW_MAX_ITEMS} items`, async () => {
+  const { readdirSync } = await import('node:fs');
+  const bad = [];
+  let checked = 0;
+  for (const slug of readdirSync(join(ROOT, 'ventures'))) {
+    const file = join(ROOT, 'ventures', slug, 'index.html');
+    if (!existsSync(file)) continue;
+    for (const items of eyebrowItems(readFileSync(file, 'utf8'))) {
+      checked++;
+      if (items.length > EYEBROW_MAX_ITEMS) bad.push(`ventures/${slug}/index.html: ${items.join(' · ')}`);
+    }
+  }
+  assert.ok(checked >= 50, `checked ${checked} eyebrows`);
+  assert.deepEqual(bad, [], 'keep two items; the lede says the rest:\n' + bad.join('\n'));
+});

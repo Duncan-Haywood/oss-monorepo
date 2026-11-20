@@ -523,12 +523,13 @@ flagships:
       strict-list cells out on 476 IDS, LibreOffice agrees 476 of 476); an RVB/ILS
       author on \s; IDS revision diff 2026-11-20 (revision.mjs, revision.html, cli
       --diff; eval/revision-diff-2026-11-20.md: 69 public revisions, 0 errors, 185
-      of 233 changes graded asks more/less, model impact by GlobalId), next: pattern
-      inclusion so a tightened xs:pattern grades as asks more, and a client's real
-      stage-to-stage IDS pair; a Revit/ARCHICAD IFC4X3 export to confirm. Readable
-      document 2026-11-20 (--to-doc, spec-doc.mjs, eval/spec-doc-2026-11-20.md: 4,458
-      of 4,458 facets agree with IfcTester's reading); next: a BIM manager's read of
-      its wording. More open items: NEXT.md.
+      of 233 changes graded asks more/less, model impact by GlobalId), pattern
+      inclusion 2026-11-20 (pattern-lang.mjs, eval/pattern-inclusion-2026-11-20.md:
+      3,540 of 3,540 public pairs, examples verified); next: a client's real
+      stage-to-stage IDS pair, patterns against date ranges; a Revit/ARCHICAD IFC4X3
+      export to confirm. Readable document 2026-11-20 (--to-doc, spec-doc.mjs,
+      eval/spec-doc-2026-11-20.md: 4,458 of 4,458 facets agree with IfcTester's
+      reading); next: a BIM manager's read of its wording. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering

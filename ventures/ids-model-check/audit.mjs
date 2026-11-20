@@ -29,6 +29,7 @@
 
 import { temporalKind } from "./temporal.mjs";
 import { parseXsdRegex, repairXsdRegex } from "./xsdregex.mjs";
+import { restrictionLanguage, languageEmpty } from "./pattern-lang.mjs";
 
 const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
 
@@ -112,6 +113,10 @@ function valueProblem(value, prim, enumValues) {
     if (!numeric && prim !== "unknown") return { warning: `${k} compares numbers, but this value is ${prim === "enum" ? "an enumeration" : "text"}, so it can never match` };
   }
   if (prim === "enum" && enumValues && r.enumeration.length && !r.enumeration.some((t) => enumValues.includes(t))) return { warning: `no listed value is a member of the enumeration, so it can never match` };
+  // Facets that each allow something but never the same thing (pattern-lang.mjs):
+  // a list none of whose values fits the pattern, a pattern longer than maxLength.
+  const kinds = [r.enumeration.length > 0, r.pattern.length > 0, ["length", "minLength", "maxLength"].some((k) => r[k] !== undefined)].filter(Boolean).length;
+  if (!numeric && kinds > 1 && languageEmpty(restrictionLanguage(value)) === true) return { warning: `its ${[r.enumeration.length ? "listed values" : "", r.pattern.length ? "pattern" : "", ["length", "minLength", "maxLength"].some((k) => r[k] !== undefined) ? "length limits" : ""].filter(Boolean).join(" and ")} never agree (${value.toString()}), so no value can match` };
   return null;
 }
 

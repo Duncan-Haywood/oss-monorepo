@@ -10,10 +10,10 @@
 // because IDS authors often write those and some checkers accept them.
 // Checked against elementpath's translate_pattern (eval/xsd-regex-2026-11-18.md).
 
-const SINGLE = { n: "\n", r: "\r", t: "\t" };
+export const SINGLE = { n: "\n", r: "\r", t: "\t" };
 const SINGLE_OK = new Set([..."nrt\\|.?*+(){}-[]^"]);
 const MULTI = new Set([..."sSiIcCdDwW"]);
-const CATEGORIES = new Set(["L", "Lu", "Ll", "Lt", "Lm", "Lo", "M", "Mn", "Mc", "Me", "N", "Nd", "Nl", "No",
+export const CATEGORIES = new Set(["L", "Lu", "Ll", "Lt", "Lm", "Lo", "M", "Mn", "Mc", "Me", "N", "Nd", "Nl", "No",
   "P", "Pc", "Pd", "Ps", "Pe", "Pi", "Pf", "Po", "Z", "Zs", "Zl", "Zp", "S", "Sm", "Sc", "Sk", "So",
   "C", "Cc", "Cf", "Co", "Cn"]);
 
@@ -57,13 +57,13 @@ const BLOCKS = {
 const hex = (c) => "\\u{" + c.toString(16) + "}";
 const NAME_START = "[:A-Z_a-z\\u{c0}-\\u{d6}\\u{d8}-\\u{f6}\\u{f8}-\\u{2ff}\\u{370}-\\u{37d}\\u{37f}-\\u{1fff}\\u{200c}-\\u{200d}\\u{2070}-\\u{218f}\\u{2c00}-\\u{2fef}\\u{3001}-\\u{d7ff}\\u{f900}-\\u{fdcf}\\u{fdf0}-\\u{fffd}\\u{10000}-\\u{effff}]";
 const NAME_CHAR = "[\\-.0-9\\u{b7}\\u{300}-\\u{36f}\\u{203f}-\\u{2040}" + NAME_START.slice(1);
-const MULTI_JS = {
+export const MULTI_JS = {
   s: "[\\u{20}\\t\\n\\r]", S: "[^\\u{20}\\t\\n\\r]", d: "\\p{Nd}", D: "\\P{Nd}",
   w: "[^\\p{P}\\p{Z}\\p{C}]", W: "[\\p{P}\\p{Z}\\p{C}]",
   i: NAME_START, I: "[^" + NAME_START.slice(1), c: NAME_CHAR, C: "[^" + NAME_CHAR.slice(1),
 };
 
-function blockJs(name) {
+export function blockJs(name) {
   const r = BLOCKS[name];
   if (!r) return null;
   const s = hex(r[0]) + "-" + hex(r[1]);

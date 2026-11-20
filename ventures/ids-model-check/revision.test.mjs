@@ -38,8 +38,14 @@ test("restrictions compare as sets where that is exact", () => {
   assert.equal(compareValues(val(range(0, 10)), val(range(5, 20))), "changed");
   assert.equal(compareValues(new IdsValue(null), val(enumv("A"))), "tighter");
   assert.equal(compareValues(val(enumv("A")), new IdsValue(null)), "looser");
-  // Patterns are not compared as languages: any difference is "changed".
-  assert.equal(compareValues(val(`<xs:restriction base="xs:string"><xs:pattern value="D-[0-9]+"/></xs:restriction>`), val(`<xs:restriction base="xs:string"><xs:pattern value="D-[0-9]{2}"/></xs:restriction>`)), "changed");
+  // Patterns compare as languages (pattern-lang.mjs): a narrower pattern asks more.
+  const p = (x) => val(`<xs:restriction base="xs:string"><xs:pattern value="${x}"/></xs:restriction>`);
+  assert.equal(compareValues(p("D-[0-9]+"), p("D-[0-9]{2}")), "tighter");
+  assert.equal(compareValues(p("[0-9]{2}"), p("[0-9][0-9]")), "same");
+  assert.equal(compareValues(p("EI[0-9]+"), p("REI[0-9]+")), "changed");
+  assert.equal(compareValues(val(enumv("EI30", "EI60")), p("EI[0-9]{2}")), "looser");
+  // A pattern on a numeric base is not a string language: still "changed".
+  assert.equal(compareValues(val(`<xs:restriction base="xs:integer"><xs:pattern value="[0-9]+"/></xs:restriction>`), val(`<xs:restriction base="xs:integer"><xs:pattern value="[0-9]{2}"/></xs:restriction>`)), "changed");
   // A finite numeric list inside a range: the range lets more through.
   assert.equal(compareValues(val(enumv("30", "60")), val(range(0, 120))), "looser");
 });
@@ -112,6 +118,11 @@ test("on a model: newly failing elements, more to fix, fixed, and invalid sides 
   // The door D-01 now fails a stricter pattern; walls now also need LoadBearing (W-02 lacks it).
   const newT = wrap(spec("Doors named", ent("IFCDOOR"), name(pat("D-[0-9]{3}"))) + spec("Walls external", ent("IFCWALL"), prop("Pset_WallCommon", "IsExternal") + prop("Pset_WallCommon", "LoadBearing")));
   const d = diffIds(oldT, newT);
+  // The pattern edit is graded, with a value that used to pass.
+  const pc = d.specs.find((x) => x.name === "Doors named").changes.find((c) => c.kind === "value");
+  assert.equal(pc.effect, "tighter");
+  assert.equal(pc.nowFails, "D-");
+  assert.match(pc.what, /"D-" matched before, not now/);
   const imp = revisionImpact(check(parseIds(oldT), model), check(parseIds(newT), model), d);
   const door = imp.specs.find((r) => r.name === "Doors named");
   assert.deepEqual(door.newlyFailing.map((e) => e.name), ["D-01"]);

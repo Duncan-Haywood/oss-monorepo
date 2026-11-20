@@ -1,0 +1,83 @@
+Milestone 7zm: Gerritsma-Beukelman (strip sections) against Maruo's far-field formula (Capytaine), zero speed, head waves
+capytaine 3.0.0; compute_kochin + far_field_mean_drift_force as shipped; indirect method; full meshes with a waterplane lid; theta 0-2 pi, 721 points; heave and pitch free, surge restrained
+
+== Q0 code check: fixed vertical cylinder, radius a 1 m, draft 4a, waves along -x, deep water ==
+exact: MacCamy-Fuchs series, near-field mean force over the infinite-draft wall (marine_hull.maruo)
+  ka   exact panel 48x16 panel 96x32 fine/exact
+ 1.0  0.6649      0.6795      0.6737     1.0132
+ 2.0  0.6272      0.6348      0.6334     1.0099
+ 4.0  0.6391      0.6406      0.6429     1.0059
+large-ka limit 2/3; exact at ka 30: 0.6633
+Q0: largest |fine/exact - 1| 0.0132 -> held (< 0.03)
+
+== T (tank, modified Wigley, L/B 6.67): L 2.0 m, B 0.3 m, T 0.1250 m, rho 1000.0, kyy 0.248 L; mass 42.08 kg, Iyy 10.352 kg m2, C33 4083.6 N/m, C55 854.7 N m; waterline integral I/B 0.0517; sigma = R_aw / (rho g zeta^2 B^2 / L) ==
+
+-- T (tank, modified Wigley, L/B 6.67): fine mesh 80x16 per half (2560 hull panels, both halves solved) --
+ lam/L  omega    |z|  |t|/k Maruo fix Maruo free  GB strip  GB panel  Falt U0  GB+Falt GBs/free  E fix E free   E 2X
+  0.30 10.136  0.011  0.008    0.3330     0.3603    1.3777    1.3907   0.1688   1.5465    3.824  1.006  1.006  1.022
+  0.35  9.384  0.031  0.015    0.3749     0.4334    1.6827    1.7002   0.1630   1.8457    3.882  1.006  1.006  1.048
+  0.40  8.778  0.054  0.047    0.4149     0.7489    2.2009    2.1934   0.1528   2.3537    2.939  1.005  1.005  1.205
+  0.45  8.276  0.117  0.093    0.4479     1.1984    2.9710    2.9510   0.1379   3.1089    2.479  1.005  1.005  1.434
+  0.50  7.851  0.210  0.115    0.4812     1.2683    3.1928    3.2947   0.1194   3.3123    2.517  1.005  1.006  1.550
+  0.60  7.167  0.262  0.103    0.5293     0.9492    2.6129    2.8196   0.0807   2.6936    2.753  1.005  1.007  1.666
+  0.70  6.635  0.183  0.201    0.5660     0.9846    2.2070    2.3059   0.0504   2.2574    2.242  1.004  1.005  3.728
+  0.80  6.207  0.135  0.331    0.5857     0.9643    1.8132    1.8695   0.0310   1.8442    1.880  1.004  1.003 -9.745
+  0.90  5.852  0.182  0.452    0.6057     0.7790    1.4146    1.4746   0.0195   1.4341    1.816  1.004  1.001 -3.432
+  1.00  5.551  0.268  0.555    0.6107     0.5527    1.0687    1.1311   0.0127   1.0814    1.934  1.004  0.999 -2.546
+  1.10  5.293  0.355  0.637    0.5990     0.3678    0.7963    0.8516   0.0085   0.8048    2.165  1.004  0.997 -2.167
+  1.25  4.965  0.469  0.730    0.5736     0.1942    0.5110    0.5495   0.0050   0.5160    2.631  1.004  0.995 -1.861
+  1.40  4.692  0.562  0.795    0.5593     0.1063    0.3326    0.3571   0.0031   0.3357    3.129  1.004  0.994 -1.680
+  1.60  4.389  0.656  0.854    0.5553     0.0528    0.1943    0.2073   0.0018   0.1960    3.682  1.004  0.992 -1.520
+  1.80  4.138  0.725  0.894    0.5514     0.0294    0.1186    0.1256   0.0011   0.1196    4.027  1.004  0.992 -1.405
+  2.00  3.925  0.776  0.922    0.5375     0.0180    0.0755    0.0793   0.0007   0.0762    4.191  1.004  0.991 -1.319
+  2.25  3.701  0.822  0.946    0.5053     0.0107    0.0453    0.0471   0.0004   0.0458    4.238  1.004  0.991 -1.241
+  2.50  3.511  0.855  0.962    0.4627     0.0068    0.0287    0.0295   0.0003   0.0290    4.207  1.004  0.991 -1.184
+energy identity (1 = conserved): largest |E - 1| restrained or free 0.0092; with doubled motions the smallest |E - 1| is 0.022 (the check can fail)
+mesh: coarse (640) / fine (2560) free Maruo area on lambda/L 0.5-2.0 differs by 1.94%; restrained 2.00%
+areas on lambda/L 0.5-2.0: fixed 0.8477, free 0.5983, gb_s 1.3758, gb_p 1.4507, gbf 1.4042
+ratios on 0.5-2.0: GB strip / Maruo free 2.299; GB panel motions / Maruo free 2.425; GB + Faltinsen / Maruo free 2.347; coarse mesh GB strip / Maruo free 2.256
+ratios on 0.3-0.6: GB strip / Maruo free 2.761; GB + Faltinsen / Maruo free 2.909; Maruo restrained / Maruo free 0.491
+peaks: Maruo free 1.268 at lambda/L 0.5; GB strip 3.193 at 0.5 (ratio 2.517)
+lambda/L 0.3: Maruo restrained 0.3330, Faltinsen U0 0.1688 (ratio 1.972); lambda/L 2.5: free / restrained 0.0147
+
+== M (4 m monohull, Wigley, L/B 10): L 4.0 m, B 0.4 m, T 0.2744 m, rho 1025.0, kyy 0.25 L; mass 200.00 kg, Iyy 200.000 kg m2, C33 10731.6 N/m, C55 8604.3 N m; waterline integral I/B 0.0195; sigma = R_aw / (rho g zeta^2 B^2 / L) ==
+
+-- M (4 m monohull, Wigley, L/B 10): fine mesh 80x16 per half (2560 hull panels, both halves solved) --
+ lam/L  omega    |z|  |t|/k Maruo fix Maruo free  GB strip  GB panel  Falt U0  GB+Falt GBs/free  E fix E free   E 2X
+  0.30  7.167  0.017  0.011    0.4718     0.5070    2.4868    2.4849   0.0963   2.5831    4.905  1.004  1.004  1.020
+  0.35  6.635  0.058  0.017    0.5382     0.6337    2.9710    2.9916   0.0944   3.0654    4.688  1.003  1.003  1.051
+  0.40  6.207  0.049  0.065    0.5963     1.1318    3.8179    3.7520   0.0907   3.9086    3.373  1.003  1.002  1.225
+  0.45  5.852  0.077  0.098    0.6414     1.3722    4.4789    4.2859   0.0849   4.5637    3.264  1.003  1.002  1.336
+  0.50  5.551  0.115  0.085    0.6806     1.0694    4.1527    4.0938   0.0768   4.2295    3.883  1.002  1.003  1.250
+  0.60  5.068  0.120  0.104    0.7313     0.9261    3.3684    3.4341   0.0570   3.4254    3.637  1.002  1.002  1.420
+  0.70  4.692  0.093  0.221    0.7565     1.0868    2.6999    2.7272   0.0384   2.7383    2.484  1.002  1.001  6.671
+  0.80  4.389  0.135  0.346    0.7627     0.9973    2.0558    2.0686   0.0247   2.0805    2.061  1.002  1.000 -3.457
+  0.90  4.138  0.219  0.457    0.7719     0.7338    1.5093    1.5245   0.0159   1.5252    2.057  1.002  1.000 -2.028
+  1.00  3.925  0.309  0.550    0.7645     0.4781    1.0898    1.1054   0.0105   1.1003    2.279  1.002  1.002 -1.676
+  1.10  3.743  0.392  0.625    0.7410     0.2963    0.7845    0.7969   0.0071   0.7916    2.648  1.002  1.005 -1.522
+  1.25  3.511  0.500  0.710    0.7037     0.1444    0.4843    0.4911   0.0042   0.4885    3.355  1.002  1.010 -1.413
+  1.40  3.318  0.586  0.771    0.6824     0.0749    0.3061    0.3092   0.0026   0.3087    4.087  1.002  1.013 -1.355
+  1.60  3.103  0.673  0.828    0.6699     0.0358    0.1734    0.1743   0.0015   0.1749    4.851  1.002  1.014 -1.299
+  1.80  2.926  0.737  0.868    0.6545     0.0197    0.1033    0.1034   0.0009   0.1042    5.255  1.002  1.013 -1.250
+  2.00  2.776  0.785  0.896    0.6268     0.0120    0.0645    0.0643   0.0006   0.0651    5.367  1.002  1.011 -1.206
+  2.25  2.617  0.828  0.920    0.5770     0.0072    0.0380    0.0376   0.0004   0.0383    5.282  1.002  1.010 -1.161
+  2.50  2.483  0.860  0.938    0.5185     0.0046    0.0236    0.0233   0.0002   0.0239    5.108  1.002  1.009 -1.127
+energy identity (1 = conserved): largest |E - 1| restrained or free 0.0138; with doubled motions the smallest |E - 1| is 0.020 (the check can fail)
+mesh: coarse (640) / fine (2560) free Maruo area on lambda/L 0.5-2.0 differs by 2.11%; restrained 1.98%
+areas on lambda/L 0.5-2.0: fixed 1.0579, free 0.5598, gb_s 1.5660, gb_p 1.5800, gbf 1.5870
+ratios on 0.5-2.0: GB strip / Maruo free 2.798; GB panel motions / Maruo free 2.823; GB + Faltinsen / Maruo free 2.835; coarse mesh GB strip / Maruo free 2.740
+ratios on 0.3-0.6: GB strip / Maruo free 3.734; GB + Faltinsen / Maruo free 3.816; Maruo restrained / Maruo free 0.636
+peaks: Maruo free 1.372 at lambda/L 0.45; GB strip 4.479 at 0.45 (ratio 3.264)
+lambda/L 0.3: Maruo restrained 0.4718, Faltinsen U0 0.0963 (ratio 4.897); lambda/L 2.5: free / restrained 0.0089
+
+== expectations ==
+Q0 cylinder worst 0.0132 -> held
+Q1 energy identity worst T 0.0092, M 0.0138 -> held (< 0.02)
+Q2 mesh change T 1.94%, M 2.11% -> held
+Q3 free/restrained at 2.5: T 0.0147, M 0.0089 -> held
+Q4 GB strip / Maruo free on 0.5-2.0: T 2.299, M 2.798 -> held
+Q5 monohull / tank Q4 ratio 1.217 -> held (0.7-1.3)
+Q6 GB+Faltinsen / Maruo free on 0.3-0.6: T 2.909, M 3.816 -> held
+Q7 restrained Maruo / Faltinsen U0 at 0.3: T 1.972, M 4.897 -> refuted (1.5-4)
+
+run time 207 s
