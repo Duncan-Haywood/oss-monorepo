@@ -1,0 +1,869 @@
+{
+ "key": [
+  "census-degree-r0.85",
+  "census-degree-r0.85-recip",
+  "census-degree-r0.85-recip-w0.5",
+  "census-degree-r0.85-fp0.25-closure",
+  "census-degree-r0.85-fp0.25-closure-recip",
+  "census-degree-r0.85-fp0.25-closure-recip-w0.5",
+  "census-degree-r0.85-fp0.25-closure-recip-j0.5",
+  "census-degree-r0.85-fp0.25-closure-recip-j0.5-w0.5",
+  "census-degree-r0.85-fp0.25-closure-recip-j1",
+  "census-degree-r0.85-fp0.25-closure-recip-j1-w0.5",
+  "census-degree-r0.85-fp0.5-uniform",
+  "census-degree-r0.85-fp0.5-uniform-recip",
+  "census-degree-r0.85-fp0.5-uniform-recip-w0.5",
+  "census-degree-r0.85-fp0.5-uniform-recip-j0.5",
+  "census-degree-r0.85-fp0.5-uniform-recip-j0.5-w0.5",
+  "census-degree-r0.85-fp0.5-uniform-recip-j1",
+  "census-degree-r0.85-fp0.5-uniform-recip-j1-w0.5",
+  "census-dd-r0.85",
+  "census-dd-r0.85-recip",
+  "census-dd-r0.85-recip-w0.5",
+  "census-dd-r0.85-fp0.25-closure",
+  "census-dd-r0.85-fp0.25-closure-recip",
+  "census-dd-r0.85-fp0.25-closure-recip-w0.5",
+  "census-dd-r0.85-fp0.25-closure-recip-j0.5",
+  "census-dd-r0.85-fp0.25-closure-recip-j0.5-w0.5",
+  "census-dd-r0.85-fp0.25-closure-recip-j1",
+  "census-dd-r0.85-fp0.25-closure-recip-j1-w0.5",
+  "census-dd-r0.85-fp0.5-uniform",
+  "census-dd-r0.85-fp0.5-uniform-recip",
+  "census-dd-r0.85-fp0.5-uniform-recip-w0.5",
+  "census-dd-r0.85-fp0.5-uniform-recip-j0.5",
+  "census-dd-r0.85-fp0.5-uniform-recip-j0.5-w0.5",
+  "census-dd-r0.85-fp0.5-uniform-recip-j1",
+  "census-dd-r0.85-fp0.5-uniform-recip-j1-w0.5"
+ ],
+ "kappa": [
+  0.0,
+  0.5,
+  1.0
+ ],
+ "w": 0.5,
+ "cells": [
+  [
+   0.0,
+   "uniform"
+  ],
+  [
+   0.25,
+   "closure"
+  ],
+  [
+   0.5,
+   "uniform"
+  ]
+ ],
+ "rho": 0.85,
+ "rows": {
+  "census-degree-r0.85": {
+   "copies": [
+    0.04556,
+    0.04073,
+    0.04223,
+    0.04527,
+    0.0435
+   ],
+   "pooled": 0.04328,
+   "q5": 0.03285,
+   "q95": 0.05692,
+   "se": 0.00091,
+   "beats_degree": 0.298
+  },
+  "census-degree-r0.85-recip": {
+   "copies": [
+    0.04538,
+    0.04568,
+    0.04718,
+    0.04631,
+    0.0465
+   ],
+   "pooled": 0.04554,
+   "q5": 0.03463,
+   "q95": 0.06195,
+   "se": 0.00032,
+   "beats_degree": 0.172
+  },
+  "census-degree-r0.85-recip-w0.5": {
+   "copies": [
+    0.04555,
+    0.0479,
+    0.04645,
+    0.04673,
+    0.04296
+   ],
+   "pooled": 0.04528,
+   "q5": 0.03347,
+   "q95": 0.06011,
+   "se": 0.00083,
+   "beats_degree": 0.202
+  },
+  "census-degree-r0.85-fp0.25-closure": {
+   "copies": [
+    0.05037,
+    0.05135,
+    0.04766,
+    0.05247,
+    0.05264
+   ],
+   "pooled": 0.05093,
+   "q5": 0.03934,
+   "q95": 0.06368,
+   "se": 0.00091,
+   "beats_degree": 0.028
+  },
+  "census-degree-r0.85-fp0.25-closure-recip": {
+   "copies": [
+    0.043,
+    0.0515,
+    0.04887,
+    0.04512,
+    0.04547
+   ],
+   "pooled": 0.04623,
+   "q5": 0.03531,
+   "q95": 0.06019,
+   "se": 0.00151,
+   "beats_degree": 0.118
+  },
+  "census-degree-r0.85-fp0.25-closure-recip-w0.5": {
+   "copies": [
+    0.04707,
+    0.04745,
+    0.04172,
+    0.0533,
+    0.04628
+   ],
+   "pooled": 0.04723,
+   "q5": 0.03555,
+   "q95": 0.06059,
+   "se": 0.00185,
+   "beats_degree": 0.104
+  },
+  "census-degree-r0.85-fp0.25-closure-recip-j0.5": {
+   "copies": [
+    0.04736,
+    0.05144,
+    0.04596,
+    0.04408,
+    0.05119
+   ],
+   "pooled": 0.04805,
+   "q5": 0.03643,
+   "q95": 0.06105,
+   "se": 0.00145,
+   "beats_degree": 0.084
+  },
+  "census-degree-r0.85-fp0.25-closure-recip-j0.5-w0.5": {
+   "copies": [
+    0.05352,
+    0.04417,
+    0.04234,
+    0.04824,
+    0.05203
+   ],
+   "pooled": 0.04763,
+   "q5": 0.03531,
+   "q95": 0.06264,
+   "se": 0.00216,
+   "beats_degree": 0.104
+  },
+  "census-degree-r0.85-fp0.25-closure-recip-j1": {
+   "copies": [
+    0.05006,
+    0.04356,
+    0.04596,
+    0.0471,
+    0.04847
+   ],
+   "pooled": 0.04688,
+   "q5": 0.03451,
+   "q95": 0.06025,
+   "se": 0.00111,
+   "beats_degree": 0.124
+  },
+  "census-degree-r0.85-fp0.25-closure-recip-j1-w0.5": {
+   "copies": [
+    0.04611,
+    0.047,
+    0.04713,
+    0.04531,
+    0.04558
+   ],
+   "pooled": 0.04594,
+   "q5": 0.03394,
+   "q95": 0.05965,
+   "se": 0.00037,
+   "beats_degree": 0.15
+  },
+  "census-degree-r0.85-fp0.5-uniform": {
+   "copies": [
+    0.04389,
+    0.0425,
+    0.038,
+    0.05015,
+    0.04625
+   ],
+   "pooled": 0.04415,
+   "q5": 0.03388,
+   "q95": 0.05686,
+   "se": 0.00201,
+   "beats_degree": 0.212
+  },
+  "census-degree-r0.85-fp0.5-uniform-recip": {
+   "copies": [
+    0.05075,
+    0.04381,
+    0.04097,
+    0.04673,
+    0.0495
+   ],
+   "pooled": 0.04568,
+   "q5": 0.03321,
+   "q95": 0.06068,
+   "se": 0.0018,
+   "beats_degree": 0.192
+  },
+  "census-degree-r0.85-fp0.5-uniform-recip-w0.5": {
+   "copies": [
+    0.0437,
+    0.04379,
+    0.04703,
+    0.04304,
+    0.04659
+   ],
+   "pooled": 0.04441,
+   "q5": 0.03451,
+   "q95": 0.05609,
+   "se": 0.00082,
+   "beats_degree": 0.222
+  },
+  "census-degree-r0.85-fp0.5-uniform-recip-j0.5": {
+   "copies": [
+    0.04816,
+    0.04674,
+    0.04741,
+    0.04577,
+    0.04417
+   ],
+   "pooled": 0.04583,
+   "q5": 0.03365,
+   "q95": 0.06138,
+   "se": 0.00069,
+   "beats_degree": 0.152
+  },
+  "census-degree-r0.85-fp0.5-uniform-recip-j0.5-w0.5": {
+   "copies": [
+    0.04731,
+    0.04552,
+    0.04104,
+    0.04691,
+    0.04298
+   ],
+   "pooled": 0.04434,
+   "q5": 0.03367,
+   "q95": 0.05686,
+   "se": 0.0012,
+   "beats_degree": 0.214
+  },
+  "census-degree-r0.85-fp0.5-uniform-recip-j1": {
+   "copies": [
+    0.04489,
+    0.04137,
+    0.04235,
+    0.04489,
+    0.04212
+   ],
+   "pooled": 0.04282,
+   "q5": 0.0327,
+   "q95": 0.05563,
+   "se": 0.00074,
+   "beats_degree": 0.314
+  },
+  "census-degree-r0.85-fp0.5-uniform-recip-j1-w0.5": {
+   "copies": [
+    0.04534,
+    0.04686,
+    0.04625,
+    0.04863,
+    0.04155
+   ],
+   "pooled": 0.04536,
+   "q5": 0.03299,
+   "q95": 0.05931,
+   "se": 0.00118,
+   "beats_degree": 0.192
+  },
+  "census-dd-r0.85": {
+   "copies": [
+    0.0179,
+    0.02355,
+    0.02191,
+    0.01687,
+    0.01272
+   ],
+   "pooled": 0.0182,
+   "q5": 0.00952,
+   "q95": 0.0305,
+   "se": 0.00192,
+   "beats_degree": 0.984
+  },
+  "census-dd-r0.85-recip": {
+   "copies": [
+    0.02626,
+    0.02504,
+    0.01666,
+    0.00962,
+    0.02338
+   ],
+   "pooled": 0.01927,
+   "q5": 0.0101,
+   "q95": 0.03259,
+   "se": 0.00312,
+   "beats_degree": 0.988
+  },
+  "census-dd-r0.85-recip-w0.5": {
+   "copies": [
+    0.0196,
+    0.01862,
+    0.01054,
+    0.01752,
+    0.01206
+   ],
+   "pooled": 0.01451,
+   "q5": 0.00751,
+   "q95": 0.02429,
+   "se": 0.00183,
+   "beats_degree": 0.992
+  },
+  "census-dd-r0.85-fp0.25-closure": {
+   "copies": [
+    0.01965,
+    0.02109,
+    0.01966,
+    0.01703,
+    0.02347
+   ],
+   "pooled": 0.01924,
+   "q5": 0.01261,
+   "q95": 0.02981,
+   "se": 0.00105,
+   "beats_degree": 0.984
+  },
+  "census-dd-r0.85-fp0.25-closure-recip": {
+   "copies": [
+    0.01921,
+    0.01723,
+    0.02893,
+    0.02603,
+    0.02171
+   ],
+   "pooled": 0.022,
+   "q5": 0.01369,
+   "q95": 0.03582,
+   "se": 0.00216,
+   "beats_degree": 0.97
+  },
+  "census-dd-r0.85-fp0.25-closure-recip-w0.5": {
+   "copies": [
+    0.01586,
+    0.02523,
+    0.01492,
+    0.01552,
+    0.02361
+   ],
+   "pooled": 0.01841,
+   "q5": 0.01106,
+   "q95": 0.02882,
+   "se": 0.00222,
+   "beats_degree": 0.986
+  },
+  "census-dd-r0.85-fp0.25-closure-recip-j0.5": {
+   "copies": [
+    0.02183,
+    0.02746,
+    0.02241,
+    0.01997,
+    0.02457
+   ],
+   "pooled": 0.02268,
+   "q5": 0.01488,
+   "q95": 0.03291,
+   "se": 0.00128,
+   "beats_degree": 0.982
+  },
+  "census-dd-r0.85-fp0.25-closure-recip-j0.5-w0.5": {
+   "copies": [
+    0.02301,
+    0.02866,
+    0.02763,
+    0.02125,
+    0.02547
+   ],
+   "pooled": 0.02429,
+   "q5": 0.01744,
+   "q95": 0.03502,
+   "se": 0.00138,
+   "beats_degree": 0.972
+  },
+  "census-dd-r0.85-fp0.25-closure-recip-j1": {
+   "copies": [
+    0.03211,
+    0.02763,
+    0.02277,
+    0.03063,
+    0.03004
+   ],
+   "pooled": 0.02766,
+   "q5": 0.01993,
+   "q95": 0.03842,
+   "se": 0.00164,
+   "beats_degree": 0.954
+  },
+  "census-dd-r0.85-fp0.25-closure-recip-j1-w0.5": {
+   "copies": [
+    0.01959,
+    0.02288,
+    0.0237,
+    0.02473,
+    0.02518
+   ],
+   "pooled": 0.02188,
+   "q5": 0.01569,
+   "q95": 0.0325,
+   "se": 0.00099,
+   "beats_degree": 0.986
+  },
+  "census-dd-r0.85-fp0.5-uniform": {
+   "copies": [
+    0.0226,
+    0.01999,
+    0.02514,
+    0.02106,
+    0.02263
+   ],
+   "pooled": 0.02165,
+   "q5": 0.01469,
+   "q95": 0.03103,
+   "se": 0.00087,
+   "beats_degree": 0.99
+  },
+  "census-dd-r0.85-fp0.5-uniform-recip": {
+   "copies": [
+    0.01472,
+    0.02065,
+    0.02026,
+    0.01855,
+    0.01817
+   ],
+   "pooled": 0.01753,
+   "q5": 0.01164,
+   "q95": 0.02732,
+   "se": 0.00105,
+   "beats_degree": 0.99
+  },
+  "census-dd-r0.85-fp0.5-uniform-recip-w0.5": {
+   "copies": [
+    0.02434,
+    0.021,
+    0.02088,
+    0.01225,
+    0.01674
+   ],
+   "pooled": 0.01832,
+   "q5": 0.01027,
+   "q95": 0.03125,
+   "se": 0.00208,
+   "beats_degree": 0.988
+  },
+  "census-dd-r0.85-fp0.5-uniform-recip-j0.5": {
+   "copies": [
+    0.02131,
+    0.02068,
+    0.02133,
+    0.02335,
+    0.0235
+   ],
+   "pooled": 0.02146,
+   "q5": 0.01435,
+   "q95": 0.03219,
+   "se": 0.00058,
+   "beats_degree": 0.992
+  },
+  "census-dd-r0.85-fp0.5-uniform-recip-j0.5-w0.5": {
+   "copies": [
+    0.02421,
+    0.02668,
+    0.02148,
+    0.02325,
+    0.02684
+   ],
+   "pooled": 0.02393,
+   "q5": 0.01627,
+   "q95": 0.03535,
+   "se": 0.00102,
+   "beats_degree": 0.978
+  },
+  "census-dd-r0.85-fp0.5-uniform-recip-j1": {
+   "copies": [
+    0.02875,
+    0.02619,
+    0.02932,
+    0.02713,
+    0.0256
+   ],
+   "pooled": 0.02685,
+   "q5": 0.01998,
+   "q95": 0.037,
+   "se": 0.00072,
+   "beats_degree": 0.972
+  },
+  "census-dd-r0.85-fp0.5-uniform-recip-j1-w0.5": {
+   "copies": [
+    0.02389,
+    0.02049,
+    0.02401,
+    0.02441,
+    0.02158
+   ],
+   "pooled": 0.02232,
+   "q5": 0.0149,
+   "q95": 0.0322,
+   "se": 0.00077,
+   "beats_degree": 0.986
+  }
+ },
+ "gain": {
+  "census-degree|0|uniform|0|hard-unf": {
+   "d": 0.00226,
+   "se": 0.00103
+  },
+  "census-degree|0|uniform|0|soft-unf": {
+   "d": 0.002,
+   "se": 0.00144
+  },
+  "census-degree|0|uniform|0|soft-hard": {
+   "d": -0.00026,
+   "se": 0.00094
+  },
+  "census-degree|0.25|closure|0|hard-unf": {
+   "d": -0.0047,
+   "se": 0.00196
+  },
+  "census-degree|0.25|closure|0|soft-unf": {
+   "d": -0.0037,
+   "se": 0.00128
+  },
+  "census-degree|0.25|closure|0|soft-hard": {
+   "d": 0.001,
+   "se": 0.00275
+  },
+  "census-degree|0.25|closure|0.5|hard-unf": {
+   "d": -0.00289,
+   "se": 0.00146
+  },
+  "census-degree|0.25|closure|0.5|soft-unf": {
+   "d": -0.0033,
+   "se": 0.00184
+  },
+  "census-degree|0.25|closure|0.5|soft-hard": {
+   "d": -0.00041,
+   "se": 0.00247
+  },
+  "census-degree|0.25|closure|1|hard-unf": {
+   "d": -0.00405,
+   "se": 0.00133
+  },
+  "census-degree|0.25|closure|1|soft-unf": {
+   "d": -0.00499,
+   "se": 0.00121
+  },
+  "census-degree|0.25|closure|1|soft-hard": {
+   "d": -0.00094,
+   "se": 0.00136
+  },
+  "census-degree|0.5|uniform|0|hard-unf": {
+   "d": 0.00153,
+   "se": 0.00167
+  },
+  "census-degree|0.5|uniform|0|soft-unf": {
+   "d": 0.00026,
+   "se": 0.00256
+  },
+  "census-degree|0.5|uniform|0|soft-hard": {
+   "d": -0.00127,
+   "se": 0.0022
+  },
+  "census-degree|0.5|uniform|0.5|hard-unf": {
+   "d": 0.00168,
+   "se": 0.00247
+  },
+  "census-degree|0.5|uniform|0.5|soft-unf": {
+   "d": 0.00019,
+   "se": 0.00157
+  },
+  "census-degree|0.5|uniform|0.5|soft-hard": {
+   "d": -0.00149,
+   "se": 0.00125
+  },
+  "census-degree|0.5|uniform|1|hard-unf": {
+   "d": -0.00133,
+   "se": 0.00174
+  },
+  "census-degree|0.5|uniform|1|soft-unf": {
+   "d": 0.00121,
+   "se": 0.00225
+  },
+  "census-degree|0.5|uniform|1|soft-hard": {
+   "d": 0.00254,
+   "se": 0.00114
+  },
+  "census-dd|0|uniform|0|hard-unf": {
+   "d": 0.00107,
+   "se": 0.00356
+  },
+  "census-dd|0|uniform|0|soft-unf": {
+   "d": -0.00369,
+   "se": 0.00239
+  },
+  "census-dd|0|uniform|0|soft-hard": {
+   "d": -0.00476,
+   "se": 0.00325
+  },
+  "census-dd|0.25|closure|0|hard-unf": {
+   "d": 0.00275,
+   "se": 0.00279
+  },
+  "census-dd|0.25|closure|0|soft-unf": {
+   "d": -0.00083,
+   "se": 0.00157
+  },
+  "census-dd|0.25|closure|0|soft-hard": {
+   "d": -0.00359,
+   "se": 0.00401
+  },
+  "census-dd|0.25|closure|0.5|hard-unf": {
+   "d": 0.00343,
+   "se": 0.00088
+  },
+  "census-dd|0.25|closure|0.5|soft-unf": {
+   "d": 0.00505,
+   "se": 0.00118
+  },
+  "census-dd|0.25|closure|0.5|soft-hard": {
+   "d": 0.00161,
+   "se": 0.00082
+  },
+  "census-dd|0.25|closure|1|hard-unf": {
+   "d": 0.00842,
+   "se": 0.00198
+  },
+  "census-dd|0.25|closure|1|soft-unf": {
+   "d": 0.00264,
+   "se": 0.00133
+  },
+  "census-dd|0.25|closure|1|soft-hard": {
+   "d": -0.00578,
+   "se": 0.00214
+  },
+  "census-dd|0.5|uniform|0|hard-unf": {
+   "d": -0.00412,
+   "se": 0.00141
+  },
+  "census-dd|0.5|uniform|0|soft-unf": {
+   "d": -0.00333,
+   "se": 0.00203
+  },
+  "census-dd|0.5|uniform|0|soft-hard": {
+   "d": 0.00079,
+   "se": 0.00258
+  },
+  "census-dd|0.5|uniform|0.5|hard-unf": {
+   "d": -0.00019,
+   "se": 0.00106
+  },
+  "census-dd|0.5|uniform|0.5|soft-unf": {
+   "d": 0.00228,
+   "se": 0.00171
+  },
+  "census-dd|0.5|uniform|0.5|soft-hard": {
+   "d": 0.00247,
+   "se": 0.00112
+  },
+  "census-dd|0.5|uniform|1|hard-unf": {
+   "d": 0.0052,
+   "se": 0.00066
+  },
+  "census-dd|0.5|uniform|1|soft-unf": {
+   "d": 0.00067,
+   "se": 0.00083
+  },
+  "census-dd|0.5|uniform|1|soft-hard": {
+   "d": -0.00453,
+   "se": 0.00053
+  }
+ },
+ "worst": {
+  "census-degree|0|uniform|unfiltered": [
+   0.04328,
+   0.0
+  ],
+  "census-degree|0|uniform|hard": [
+   0.04554,
+   0.0
+  ],
+  "census-degree|0|uniform|soft": [
+   0.04528,
+   0.0
+  ],
+  "census-degree|0.25|closure|unfiltered": [
+   0.05093,
+   0.0
+  ],
+  "census-degree|0.25|closure|hard": [
+   0.04805,
+   0.5
+  ],
+  "census-degree|0.25|closure|soft": [
+   0.04763,
+   0.5
+  ],
+  "census-degree|0.5|uniform|unfiltered": [
+   0.04415,
+   0.0
+  ],
+  "census-degree|0.5|uniform|hard": [
+   0.04583,
+   0.5
+  ],
+  "census-degree|0.5|uniform|soft": [
+   0.04536,
+   1.0
+  ],
+  "census-dd|0|uniform|unfiltered": [
+   0.0182,
+   0.0
+  ],
+  "census-dd|0|uniform|hard": [
+   0.01927,
+   0.0
+  ],
+  "census-dd|0|uniform|soft": [
+   0.01451,
+   0.0
+  ],
+  "census-dd|0.25|closure|unfiltered": [
+   0.01924,
+   0.0
+  ],
+  "census-dd|0.25|closure|hard": [
+   0.02766,
+   1.0
+  ],
+  "census-dd|0.25|closure|soft": [
+   0.02429,
+   0.5
+  ],
+  "census-dd|0.5|uniform|unfiltered": [
+   0.02165,
+   0.0
+  ],
+  "census-dd|0.5|uniform|hard": [
+   0.02685,
+   1.0
+  ],
+  "census-dd|0.5|uniform|soft": [
+   0.02393,
+   0.5
+  ]
+ },
+ "sanity_prior": 4.9607409573770855e-06,
+ "hits": [
+  [
+   0.00819607843137255,
+   0.008431372549019607,
+   0.009235294117647059,
+   0.011980392156862744,
+   0.014176470588235294
+  ],
+  0.0006470588235294118
+ ],
+ "h60": [
+  {
+   "d": 0.002,
+   "se": 0.00144
+  },
+  true
+ ],
+ "h61": [
+  {
+   "0|uniform|0": {
+    "d": -0.00369,
+    "se": 0.00239
+   },
+   "0.25|closure|0": {
+    "d": -0.00083,
+    "se": 0.00157
+   },
+   "0.25|closure|0.5": {
+    "d": 0.00505,
+    "se": 0.00118
+   },
+   "0.25|closure|1": {
+    "d": 0.00264,
+    "se": 0.00133
+   },
+   "0.5|uniform|0": {
+    "d": -0.00333,
+    "se": 0.00203
+   },
+   "0.5|uniform|0.5": {
+    "d": 0.00228,
+    "se": 0.00171
+   },
+   "0.5|uniform|1": {
+    "d": 0.00067,
+    "se": 0.00083
+   }
+  },
+  false
+ ],
+ "h62": [
+  {
+   "0.25|closure": [
+    0.02429,
+    0.02766
+   ],
+   "0.5|uniform": [
+    0.02393,
+    0.02685
+   ]
+  },
+  true
+ ],
+ "h63": [
+  {
+   "d": -0.00333,
+   "se": 0.00203
+  },
+  false
+ ],
+ "h64": [
+  {
+   "0.25|closure": {
+    "d": 0.00505,
+    "se": 0.00118
+   },
+   "0.5|uniform": {
+    "d": 0.00228,
+    "se": 0.00171
+   }
+  },
+  false
+ ],
+ "ref": {
+  "dd-0.05": 0.011815513639757247,
+  "degree": 0.04023766869659956
+ }
+}

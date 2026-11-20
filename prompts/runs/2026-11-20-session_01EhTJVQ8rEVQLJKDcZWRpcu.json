@@ -1,0 +1,48 @@
+{
+ "date": "2026-11-20",
+ "session": "https://claude.ai/code/session_01EhTJVQ8rEVQLJKDcZWRpcu",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "scheduled routine: continue work on the repo (ventures prompt; routed to research)",
+ "input_sha256": "15160cbef90f22a4c90f0f319f6acf4561805b641ace2634024a0d66edffe817",
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-20T02:10:27Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 17829,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "container restart killed the first full run part way; restarted from scratch with the same code and seeds"
+ ],
+ "integrity_issues": [],
+ "doc_friction": [],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "the scheduled prompt asked for venture work; the router drew the research track (weighted draw) and the run followed the router, as the master prompt routes runs",
+   "did": "advanced research/civ-seeding milestone 20",
+   "result": "milestone landed with a blog post"
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "civ-seeding milestone 20: half-weight reciprocity rule taken to three new cells (phi 0, phi 0.25 closure, phi 0.5 uniform). 34 rules x 5 copies, sanity 5.0e-6 vs milestones 17-18. H60 held, H61 refuted (+0.50, z 4.3 at phi 0.25 closure kappa 0.5), H62 held, H63 refuted, H64 refuted. Worst case over four cells: keep every report 2.78%, half weight 2.83%, hard filter 3.41%. Local checks: civ-seeding tests 90 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok; cite_check ok (cached).",
+ "corrections": [],
+ "redteam": null
+}

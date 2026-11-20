@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 408" role="img" aria-label="pooled joint median worst-case regret of census degree discount against the share of false ties both ends report, for keeping every report, dropping one-sided ties and keeping them at half weight, at one false tie per four true ones closing triangles and one per two placed at random">
+<rect width="640" height="408" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Half weight on one-sided ties, two more false-tie cells (census degree discount, recall 0.85)</text>
+<line x1="64" x2="624" y1="352.0" y2="352.0" stroke="#ddd"/><text x="58" y="356.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="289.2" y2="289.2" stroke="#ddd"/><text x="58" y="293.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="226.3" y2="226.3" stroke="#ddd"/><text x="58" y="230.3" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="163.5" y2="163.5" stroke="#ddd"/><text x="58" y="167.5" text-anchor="end" font-family="sans-serif" font-size="11">3</text>
+<line x1="64" x2="624" y1="100.7" y2="100.7" stroke="#ddd"/><text x="58" y="104.7" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<text x="64.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="624.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="396" text-anchor="middle" font-family="sans-serif" font-size="12">share of false ties both ends report (kappa)</text>
+<text x="14" y="218.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 218.0)">joint median worst-case regret (%)</text>
+<line x1="64" x2="624" y1="99.2" y2="99.2" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,231.1 344.0,231.1 624.0,231.1" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="231.1" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="231.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="231.1" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">1 per 4, closing triangles: keep all</text>
+<polyline points="64.0,213.8 344.0,209.5 624.0,178.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="213.8" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="209.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="178.2" r="3" fill="#1f6fb2"/>
+<rect x="321.2" y="32" width="14" height="10" fill="#1f6fb2"/><text x="341.2" y="41" font-family="sans-serif" font-size="11">1 per 4, closing triangles: drop one-sided</text>
+<polyline points="64.0,236.3 344.0,199.4 624.0,214.5" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="236.3" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="199.4" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="214.5" r="3" fill="#2e8b57"/>
+<rect x="64" y="46" width="14" height="10" fill="#2e8b57"/><text x="84" y="55" font-family="sans-serif" font-size="11">1 per 4, closing triangles: half weight</text>
+<polyline points="64.0,216.0 344.0,216.0 624.0,216.0" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="216.0" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="216.0" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="216.0" r="3" fill="#8e44ad"/>
+<rect x="339.8" y="46" width="14" height="10" fill="#8e44ad"/><text x="359.8" y="55" font-family="sans-serif" font-size="11">1 per 2, random: keep all</text>
+<polyline points="64.0,241.9 344.0,217.2 624.0,183.3" fill="none" stroke="#222222" stroke-width="2"/>
+<circle cx="64.0" cy="241.9" r="3" fill="#222222"/>
+<circle cx="344.0" cy="217.2" r="3" fill="#222222"/>
+<circle cx="624.0" cy="183.3" r="3" fill="#222222"/>
+<rect x="64" y="60" width="14" height="10" fill="#222222"/><text x="84" y="69" font-family="sans-serif" font-size="11">1 per 2, random: drop one-sided</text>
+<polyline points="64.0,236.9 344.0,201.6 624.0,211.8" fill="none" stroke="#d68910" stroke-width="2"/>
+<circle cx="64.0" cy="236.9" r="3" fill="#d68910"/>
+<circle cx="344.0" cy="201.6" r="3" fill="#d68910"/>
+<circle cx="624.0" cy="211.8" r="3" fill="#d68910"/>
+<rect x="290.2" y="60" width="14" height="10" fill="#d68910"/><text x="310.2" y="69" font-family="sans-serif" font-size="11">1 per 2, random: half weight</text>
+</svg>
