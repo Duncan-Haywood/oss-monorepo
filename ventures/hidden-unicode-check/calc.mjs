@@ -84,7 +84,50 @@ const CHAR_MAP = new Map([
   [0x200e, entry("LEFT-TO-RIGHT MARK", "bidi-mark", "bidi", "low")],
   [0x200f, entry("RIGHT-TO-LEFT MARK", "bidi-mark", "bidi", "low")],
   [0x061c, entry("ARABIC LETTER MARK", "bidi-mark", "bidi", "low")],
+  // The rest of Unicode's Default_Ignorable_Code_Point property (UCD
+  // DerivedCoreProperties.txt): assigned characters a renderer is told to
+  // draw as nothing when it has no special handling for them. Found missing
+  // by diffing this table against every code point (calc.test.mjs,
+  // "covers every Default_Ignorable_Code_Point").
+  [0x034f, entry("COMBINING GRAPHEME JOINER", "zero-width", "invisible", "medium")],
+  [0x17b4, entry("KHMER VOWEL INHERENT AQ", "zero-width", "invisible", "low")],
+  [0x17b5, entry("KHMER VOWEL INHERENT AA", "zero-width", "invisible", "low")],
+  [0x180b, entry("MONGOLIAN FREE VARIATION SELECTOR ONE", "zero-width", "invisible", "low")],
+  [0x180c, entry("MONGOLIAN FREE VARIATION SELECTOR TWO", "zero-width", "invisible", "low")],
+  [0x180d, entry("MONGOLIAN FREE VARIATION SELECTOR THREE", "zero-width", "invisible", "low")],
+  [0x180f, entry("MONGOLIAN FREE VARIATION SELECTOR FOUR", "zero-width", "invisible", "low")],
+  // Deprecated format characters (Unicode 3.0): no modern use, invisible.
+  [0x206a, entry("INHIBIT SYMMETRIC SWAPPING (deprecated)", "format-control", "invisible", "medium")],
+  [0x206b, entry("ACTIVATE SYMMETRIC SWAPPING (deprecated)", "format-control", "invisible", "medium")],
+  [0x206c, entry("INHIBIT ARABIC FORM SHAPING (deprecated)", "format-control", "invisible", "medium")],
+  [0x206d, entry("ACTIVATE ARABIC FORM SHAPING (deprecated)", "format-control", "invisible", "medium")],
+  [0x206e, entry("NATIONAL DIGIT SHAPES (deprecated)", "format-control", "invisible", "medium")],
+  [0x206f, entry("NOMINAL DIGIT SHAPES (deprecated)", "format-control", "invisible", "medium")],
+  [0x1bca0, entry("SHORTHAND FORMAT LETTER OVERLAP", "format-control", "invisible", "medium")],
+  [0x1bca1, entry("SHORTHAND FORMAT CONTINUING OVERLAP", "format-control", "invisible", "medium")],
+  [0x1bca2, entry("SHORTHAND FORMAT DOWN STEP", "format-control", "invisible", "medium")],
+  [0x1bca3, entry("SHORTHAND FORMAT UP STEP", "format-control", "invisible", "medium")],
+  [0x1d173, entry("MUSICAL SYMBOL BEGIN BEAM", "format-control", "invisible", "medium")],
+  [0x1d174, entry("MUSICAL SYMBOL END BEAM", "format-control", "invisible", "medium")],
+  [0x1d175, entry("MUSICAL SYMBOL BEGIN TIE", "format-control", "invisible", "medium")],
+  [0x1d176, entry("MUSICAL SYMBOL END TIE", "format-control", "invisible", "medium")],
+  [0x1d177, entry("MUSICAL SYMBOL BEGIN SLUR", "format-control", "invisible", "medium")],
+  [0x1d178, entry("MUSICAL SYMBOL END SLUR", "format-control", "invisible", "medium")],
+  [0x1d179, entry("MUSICAL SYMBOL BEGIN PHRASE", "format-control", "invisible", "medium")],
+  [0x1d17a, entry("MUSICAL SYMBOL END PHRASE", "format-control", "invisible", "medium")],
 ]);
+
+// Unassigned code points Unicode reserves as default-ignorable, so a
+// conforming renderer shows nothing for them today and a future character
+// assigned there will also be invisible. Nothing legitimate uses them yet.
+const RESERVED_IGNORABLE = [
+  [0x2065, 0x2065],
+  [0xfff0, 0xfff8],
+  [0xe0000, 0xe0000],
+  [0xe0002, 0xe001f],
+  [0xe0080, 0xe00ff],
+  [0xe01f0, 0xe0fff],
+];
 
 function entry(name, category, kind, severity) {
   return { name, category, kind, severity: typeof severity === "function" ? severity : () => severity };
@@ -103,7 +146,12 @@ function classify(cp) {
   if (cp >= VS_LOW && cp <= VS_HIGH) {
     return entry(`VARIATION SELECTOR-${cp - VS_LOW + 1}`, "zero-width", "invisible", "low");
   }
-  return CHAR_MAP.get(cp) || null;
+  const known = CHAR_MAP.get(cp);
+  if (known) return known;
+  for (const [lo, hi] of RESERVED_IGNORABLE) {
+    if (cp >= lo && cp <= hi) return entry("RESERVED DEFAULT-IGNORABLE (unassigned)", "reserved-ignorable", "invisible", "medium");
+  }
+  return null;
 }
 
 function toHex(cp) {
