@@ -18,7 +18,15 @@ export function normalizeSubscription(s) {
     const name = String(p.nickname || (typeof p.product === "string" ? p.product : p.product?.name || p.product?.id) || p.id || "unknown").slice(0, 80);
     lines[name] = (lines[name] || 0) + m;
   }
-  const pctOff = [s.discount, ...(Array.isArray(s.discounts) ? s.discounts : [])].reduce((a, d) => a + (d && typeof d === "object" ? d.coupon?.percent_off || 0 : 0), 0);
+  // `discount` is the legacy single coupon; `discounts` (expanded by the list
+  // call) holds every discount and, on older API versions, that same one
+  // again. Count each discount id once (red team 2026-11-20).
+  const seen = new Set();
+  const pctOff = [s.discount, ...(Array.isArray(s.discounts) ? s.discounts : [])].reduce((a, d) => {
+    if (!d || typeof d !== "object") return a;
+    if (d.id) { if (seen.has(d.id)) return a; seen.add(d.id); }
+    return a + (d.coupon?.percent_off || 0);
+  }, 0);
   const paused = Boolean(s.pause_collection);
   const net = Math.round(gross * (1 - Math.min(100, pctOff) / 100));
   // Per-plan share of the discounted MRR; rounding drift goes to the largest line.
@@ -49,10 +57,19 @@ export function createStripe({ key, fetchImpl = fetch, base = "https://api.strip
   }
   return {
     // Every subscription, any status, oldest page last (Stripe's default order).
+    // Discounts are expanded: API 2025-03-31.basil deprecated the single
+    // `discount` field for `discounts`, which the list returns as bare ids.
     async listSubscriptions() {
-      const out = []; let after = null;
+      // A key Stripe refuses the expansion for (403) still gets the list, as
+      // before: coupons then net only through the legacy field.
+      const out = []; let after = null, expand = true;
       for (let page = 0; page < maxPages; page++) {
-        const j = await get(`/v1/subscriptions?status=all&limit=100${after ? `&starting_after=${encodeURIComponent(after)}` : ""}`);
+        const path = () => `/v1/subscriptions?status=all&limit=100${expand ? "&expand%5B%5D=data.discounts" : ""}${after ? `&starting_after=${encodeURIComponent(after)}` : ""}`;
+        let j;
+        try { j = await get(path()); } catch (e) {
+          if (!(expand && e.status === 403)) throw e;
+          expand = false; j = await get(path());
+        }
         for (const s of j.data || []) out.push(normalizeSubscription(s));
         if (!j.has_more || !j.data?.length) return out;
         after = j.data[j.data.length - 1].id;

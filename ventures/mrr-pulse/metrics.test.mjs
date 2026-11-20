@@ -422,3 +422,12 @@ test("formatMoney never shows a negative zero for a change that rounds to nothin
   assert.equal(formatMoney(-150, "usd"), "-$2");
   assert.equal(formatMoney(-0.4, "jpy"), "¥0");
 });
+
+test("forecast counts contraction as a loss alongside churn (red team 2026-11-20)", () => {
+  // Contraction only: 100 of 1000 lost each month, so base rolls 1000 -> 900.
+  const ms = [mo("2026-01", 1000, { contraction: 100 }), mo("2026-02", 1000, { contraction: 100 }), mo("2026-03", 1000)];
+  assert.equal(forecast(ms, { horizon: 1 }).base[0], 900);
+  // Churn and contraction add: 50 + 50 of 1000.
+  const both = [mo("2026-01", 1000, { churn: 50, contraction: 50 }), mo("2026-02", 1000, { churn: 50, contraction: 50 }), mo("2026-03", 1000)];
+  assert.equal(forecast(both, { horizon: 1 }).base[0], 900);
+});
