@@ -55,9 +55,94 @@ fabric's secant stiffness, on both lattices. That climb from 150 N/m to the seca
 third of the bias; at 18.75 N/m the bias is +0.045 (RMSE 0.057), but no single stiffness fits all
 nine, so a drape coefficient alone cannot separate a bending error from a stretch error here.
 
+**Milestone 4d (does a locking-free membrane fix it?):** partly. An edge-midpoint
+(Crouzeix–Raviart) membrane, after English and Bridson (2008), stops locking at the wovens' real
+stiffness: over the last doubling of EA its stretch energy keeps falling (local exponent −0.63 to
+−0.91, against −0.10 to +0.30 for the conforming element) and the drape coefficient barely moves
+(0.0005 to 0.0067 per doubling). The over-drape falls from +0.133 to +0.102 on the 3.75 mm lattice
+(RMSE 0.137 to 0.107, Spearman 0.967), a fifth of the error. But the element needs a penalty on the
+in-plane jump across edges to converge at all, and that numerical weight moves the drape
+coefficient by about 0.05 between 0.01 and 1, as much as locking did; it shrinks only about as
+fast as the mesh spacing.
+
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 4d: an edge-midpoint membrane removes the locking, and a fifth of the over-drape goes with it
+
+**Question.** Milestone 4c showed the conforming triangle locks (stretch energy ∝ EA^−0.06 to
+EA^−0.31 at a fixed fold count, where locking-free is EA^−1). Does a membrane built not to lock
+leave the drape coefficient (DC) flat in EA, and how much of 4a's over-drape goes with the
+locking?
+
+**Method** ([`experiments/m4d_nonconforming/cr.py`](experiments/m4d_nonconforming/cr.py),
+[`run.py`](experiments/m4d_nonconforming/run.py)). The unknowns move to the edge midpoints of 3a's
+lattice, the Crouzeix–Raviart space (Crouzeix and Raviart 1973,
+doi:10.1051/m2an/197307R300331), as English and Bridson (2008, doi:10.1145/1360612.1360665) did
+for inextensible cloth. A lattice has about three edges per node, so 9 degrees of freedom per node
+face the same 4 warp/weft inextensibility constraints that lock the conforming element. Each
+triangle keeps 3a's Saint Venant–Kirchhoff membrane. Bending is a discrete-shell hinge at each
+interior edge between the two midpoint triangles that share its midpoint, with a weight calibrated
+so that a cylinder stores B k²/2 per unit area (within 1.8% over axis angles 0 to 90°). DC and fold
+count are measured on vertices rebuilt from the midpoints, which is exact for affine fields.
+Without stabilisation the midpoint field has in-plane zero-energy modes at the free rim (39 on a
+12 mm lattice) and Newton stalls. A penalty γG|PJ|² on the tangential jump J across each edge
+removes them: this is the in-plane part of Hansbo and Larson's (2003, doi:10.1051/m2an:2003020)
+stabilisation, scaled by the shear rigidity G because scaling it by EA re-locked the element in a
+pilot. The rest of 4a's set-up is kept: FAST inputs, seed 0, its start, the ladder from 150 N/m
+to the secant EA, and Newton. The runs cover γ = 0.01, 0.1 and 1 on the 5 and 3.75 mm lattices,
+and the conforming element on 5 mm. Pilots on F1 at 7.5 mm, and one change of start made after the
+first four 3.75 mm stages stalled, are disclosed in the docstring and in `LOG.md`.
+
+**Results** ([`results.txt`](experiments/m4d_nonconforming/results.txt): 63 chains and 268
+stages, about 7.3 core-hours.)
+
+![Simulated minus measured drape coefficient against stretch stiffness for three wovens, conforming and edge-midpoint elements](experiments/m4d_nonconforming/dc_vs_ea_two_elements.svg)
+
+| 3.75 mm lattice, secant EA | bias | RMSE | Pearson r | Spearman |
+|---|---|---|---|---|
+| conforming (4c) | +0.133 | 0.137 | 0.975 | 0.967 |
+| edge-midpoint, γ 0.01 | +0.070 | 0.078 | 0.970 | 0.967 |
+| edge-midpoint, γ 0.1 | +0.102 | 0.107 | 0.974 | 0.967 |
+| edge-midpoint, γ 1 | +0.118 | 0.123 | 0.967 | 0.967 |
+
+- **D1 refuted:** 261 of 268 stages converge. The misses are γ 0.01 on 3.75 mm for F3 and F9,
+  where every stage hits the cap.
+- **D2 refuted (acceptance):** fitted from 150 N/m, p is −0.48 to −0.80 (registered: −0.8 or
+  steeper on 7 of 9; 1 made it). The conforming element gave −0.06 to −0.31.
+- **D3 refuted (acceptance):** from 150 N/m to the secant the DC still rises by +0.007 to +0.069
+  (conforming: +0.022 to +0.069); it is under 0.01 on 1 of 9.
+- **D4 refuted:** the bias falls by 0.030, not the 0.044 4c forecast.
+- **D5 held, as scored:** the γ 1 minus γ 0.01 spread is smaller on 3.75 mm than on 5 mm on 7 of 9,
+  with a mean of 0.059 on 5 mm and 0.048 on 3.75 mm. On the seven converged fabrics alone it is
+  5 of 7, with means of 0.062 and 0.050.
+- **D6 held:** Spearman 0.967. **D7 refuted:** RMSE 0.107. **D8 held:** the 5 to 3.75 mm change
+  is under 0.02 on 7 of 9.
+
+Post hoc (after part A's report): over the last step of each ladder, at the wovens' measured
+stiffness, the conforming element's stretch energy has stopped falling (local exponent −0.10 to
++0.30), while the edge-midpoint element's still falls (−0.63 to −0.91), and the DC rise per doubling
+there is 0.0005 to 0.0067 against 0.0047 to 0.0111. Its DC increments shrink geometrically up the
+ladder (F9: 0.024, 0.018, 0.013, 0.009, 0.005); the conforming ones barely shrink.
+
+**Reading.** At real woven stiffness (800 to 4,800 N/m) the locking is gone: there EA has nearly
+stopped moving the DC, which is what lets a bending calibration be read as a bending correction.
+The registered whole-ladder tests fail because from 150 N/m these fabrics are still stretching
+(strain near 1%), which the 1/EA law does not cover. Removing the locking is worth 0.030 of the
++0.13 bias, a fifth of the error. The price is a numerical weight: the jump penalty moves the DC
+by about 0.05 between γ 0.01 and 1, as much as locking did, and the spread shrinks only about as
+fast as the mesh spacing (0.059 to 0.048 for h from 5 to 3.75 mm). On this tier an absolute DC is
+therefore uncertain by about ±0.025 at 3.75 mm, and the remaining +0.07 to +0.12 bias (by γ) is
+not membrane locking.
+
+**Limits.** Seed 0 only. Two lattices, both coarser than 4a's 2.5 mm. γ has no physical value.
+F3 and F9 at γ 0.01 on 3.75 mm are unconverged. The penalty uses the mean tangent plane, one of
+several choices. 4a's bending factor has not yet been refitted on this element.
+
+**Next.** (a) 2.5 mm at two γ values, or a weight-free (consistent discontinuous Galerkin)
+stabilisation; (b) refit the bending factor on this element; (c) a measured node count;
+(d) milestone 1's hanger choice on the calibrated tier.
 
 ## Milestone 4c: the triangle element locks, and the stretch input carries a third of the over-drape
 

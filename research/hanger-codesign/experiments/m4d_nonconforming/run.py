@@ -149,6 +149,48 @@ def load(kind, code, a, gamma):
     return json.loads(f.read_text()) if f.exists() else None
 
 
+def conf_rows_375():
+    """4c's conforming upward stage rows on 3.75 mm, parsed from its committed results.txt."""
+    lines = (HERE.parent / "m4c_locking" / "results.txt").read_text().splitlines()
+    i = next(k for k, ln in enumerate(lines) if ln.startswith("1. every stage"))
+    out = {}
+    for ln in lines[i + 1:]:
+        if not ln.strip():
+            break
+        t = ln.split()
+        if t[1] == "3.75" and t[2] == "up":
+            out.setdefault(t[0], []).append(dict(ea=float(t[3]), dc=float(t[4]), folds=int(t[5]), stretch=float(t[6])))
+    return out
+
+
+def tail_stats(rows):
+    """Over the last two doublings of the ladder: local exponent of stretch energy on EA and the DC
+    increment per doubling of the last step; None where the fold count changes."""
+    a, b = rows[-2], rows[-1]
+    k = math.log2(b["ea"] / a["ea"])
+    if a["folds"] != b["folds"] or k <= 0:
+        return None, None
+    return math.log(b["stretch"] / a["stretch"]) / math.log(b["ea"] / a["ea"]), (b["dc"] - a["dc"]) / k
+
+
+def posthoc():
+    """Post hoc (added after part A's report was read): the ladder's top end, where the 1/EA law
+    applies once the tension field has settled."""
+    L = ["5. post hoc (after part A's report): last ladder step on 3.75 mm, local stretch exponent and DC rise",
+         "   per doubling, conforming (4c) | edge-midpoint (gamma 0.1)"]
+    conf = conf_rows_375()
+    for c in fabrics.CODES:
+        rows = load("cr", c, 0.00375, MAIN_G)
+        if not rows:
+            continue
+        pc, dc_c = tail_stats(conf[c])
+        pn, dc_n = tail_stats(rows)
+        f = lambda v, fm: "  -   " if v is None else format(v, fm)
+        L.append(f"{c} p_tail {f(pc, '+.3f')} rise {f(dc_c, '+.4f')} | p_tail {f(pn, '+.3f')} rise {f(dc_n, '+.4f')}")
+    L.append("")
+    return L
+
+
 def report():
     meas = {c: fabrics.TABLE[c][9] for c in fabrics.CODES}
     conf375 = json.loads((HERE.parent / "m4c_locking" / "results.json").read_text())["per"]
@@ -255,6 +297,7 @@ def report():
         mean = float(np.mean(spread["3.75"]))
         pred["D5"] = (n5 >= 7 and mean <= 0.05,
                       f"spread smaller on 3.75 mm on {n5} of 9; mean spread 5 mm {np.mean(spread['5']):+.4f}, 3.75 mm {mean:+.4f}")
+    L += posthoc()
     L.append("4. predictions")
     for k in sorted(pred):
         ok, txt = pred[k]

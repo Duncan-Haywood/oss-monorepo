@@ -1,4 +1,16 @@
 {
+ "doi:10.1051/m2an/197307R300331": {
+  "checked": "2026-11-20",
+  "source": "web search 2026-11-20: ESAIM M2AN and Numdam records; registries refused by proxy",
+  "title": "Conforming and nonconforming finite element methods for solving the stationary Stokes equations I (1973)",
+  "via": "hand"
+ },
+ "doi:10.1051/m2an:2003020": {
+  "checked": "2026-11-20",
+  "source": "web search 2026-11-20: Numdam and ESAIM M2AN records; registries refused by proxy",
+  "title": "Discontinuous Galerkin and the Crouzeix-Raviart element: application to elasticity (2003)",
+  "via": "hand"
+ },
  "doi:10.1080/19447023008661529": {
   "checked": "2026-11-17",
   "title": "26—THE “HANDLE” OF CLOTH AS A MEASURABLE QUANTITY (1930)"
@@ -6,6 +18,12 @@
  "doi:10.1145/1360612.1360662": {
   "checked": "2026-11-14",
   "title": "Discrete elastic rods (2008)"
+ },
+ "doi:10.1145/1360612.1360665": {
+  "checked": "2026-11-20",
+  "source": "web search 2026-11-20: SpringerProfessional DOI page and SIGGRAPH history archive; registries refused by proxy",
+  "title": "Animating developable surfaces using nonconforming elements (2008)",
+  "via": "hand"
  },
  "doi:10.1145/280814.280821": {
   "checked": "2026-11-14",
