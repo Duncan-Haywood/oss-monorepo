@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: the card brand a blended chargeback ratio hid, and a side gig told to save 162%"
-seo_title: "Chargeback ratio per card brand: Visa VAMP and Mastercard ECP from a Stripe CSV"
+seo_title: "Chargeback ratio per card brand: Visa VAMP and Mastercard ECP"
 date: 2026-11-20
-tags: [quality-audit, payments, stripe, taxes]
-description: "Two high-severity audit defects fixed: a chargeback monitor that blended every card brand (Mastercard alone was 2.41% while the tool showed 1.09%), and a freelancer tax tool that put W-2 tax in the side-gig set-aside."
+tags: [quality-audit, payments, stripe, tax]
+description: "A chargeback monitor blended every card brand (Mastercard alone was 2.41% vs 1.09% shown); a freelancer tax tool put W-2 tax in the gig set-aside."
 ---
 
 The quality track drew `census` mode today, and an earlier session had already run a census round. The defect queue held 28 open high-severity rows, each a wrong number a user would act on, so this session fixed two of them instead of auditing six more subjects. Both are in free tools for people running a small business.

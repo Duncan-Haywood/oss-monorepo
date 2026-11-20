@@ -43,7 +43,7 @@
       "file": "portfolio/quality/README.md",
       "why": "mode drew census (seed 2026-11-20), but a census round (seed 2026-11-20-bd94, PR #17935) had already landed today and 28 high defects were open; fixing wrong numbers users act on is worth more than six more audits",
       "did": "ran fix mode instead: queue --severity high (seed 2026-11-20-01e5), took the two venture rows",
-      "result": "5 high defects across 2 products closed with tests, awaiting reaudit"
+      "result": "3 high and 2 medium defects across 2 products closed with tests, awaiting reaudit"
     }
   ],
   "writeups": [
