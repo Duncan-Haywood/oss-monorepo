@@ -139,6 +139,6 @@ paper that excludes zero across chemistries. Two qualifications go with it: the 
 cells, so the result is breadth over electrode chemistry at matched fade, not over published
 parameterisations; and on `Mohtat2020` the rule meets its tail target on only 2 of 5 folds (the
 uniform rule on 3), so one of the thirty paired savings is bought with a miss (26 against 27 folds
-met overall); (2) the continuation test
+met overall). Milestone 7s reran the same code at the ladder's other passing step (30), and the interval did not hold: on the faster-fading tuned cells the rule is dearer than a uniform 40 cycles (+5.5 cycles per design over 10 folds, 7 dearer, 1 cheaper) while meeting its target on 9 of 10 folds, and the six-set interval is &minus;6.19 to +3.75. The paper therefore states the across-chemistry result as the four-set interval (&minus;8.50 to +0.25), with the tuned cells as a sensitivity range whose sign depends on the chosen plating rate; (2) the continuation test
 above, now done (7k, 7l: free if the runner keeps the `Simulation`; packaging that runner is the artefact step); (3) the measured-cell check of the rankings (`PROPOSAL.md`, milestone 6), an owner step that needs
 built pouch cells and certified test equipment.
