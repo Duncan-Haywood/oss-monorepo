@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKmAVST1TdUFWo6pLKp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T15:12:17Z",
+  "ended": "2026-11-20T15:27:00Z",
+  "wall_minutes": 14.91,
+  "tokens_in": 5724456,
+  "tokens_out": 35219,
+  "cost_usd": 2.9969,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17931",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ifc-quantity-takeoff/eval/frames-2026-11-20.md",
+      "issue": "Its frame counts (columns B1010 525, B10 69) differ from what the same 17 models give at HEAD before this change (529, 90); the eval reports its own before/after counts from one script rather than reusing the note's table."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The item named 'slabs named as roofs'; the slab-name survey showed 251 finish floors and 36 sun-shade fins filed as B1010, so the same rule reads finishes and fins too.",
+      "did": "slabRole covers finishes (C3020/C2020), sun shades (B2010) and roofs (B1020), plus a geometry roof rule.",
+      "result": "474 codes changed on 17 models, authors' codes unchanged."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-slabs-that-are-not-floors-in-ifc-models.md",
+    "ventures/ifc-quantity-takeoff/eval/slab-roles-2026-11-20.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 14 (ifc-quantity-takeoff), Start-here row. Local checks: run_venture_tests.py ifc-quantity-takeoff exit 0; node --test uniformat.test.mjs 17/17; check_posts ok; validate.py ok; venture-preflight run (see PR). Public models fetched by sparse clones of opensourceBIM/IFC-files and ThatOpen/engine_web-ifc (not committed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "180b3778-d69a-5318-9403-26c735e537c8",
+    "transcripts": 1,
+    "first": "2026-11-20T15:12:17Z",
+    "last": "2026-11-20T15:27:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 88,
+        "output": 35219,
+        "thinking": 11231,
+        "cache_read": 5577280,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147088,
+        "api_equivalent_usd": 2.9969,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 88,
+      "output": 35219,
+      "thinking": 11231,
+      "cache_read": 5577280,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147088,
+      "api_equivalent_usd": 2.9969,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 46,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.91,
+      "active_minutes": 14.91,
+      "model_minutes": 6.8,
+      "tool_minutes": 8.11,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an estimator-developer surveying slab names in 17 models, writing two rules with tests and an eval note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 200.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
