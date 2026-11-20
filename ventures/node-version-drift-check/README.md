@@ -25,6 +25,7 @@ machine" bug.
 | `major-disagreement` | Non-matrix pins in different files naming different majors (per package in a monorepo). A CI matrix is meant to test several majors, so it is exempt |
 | `eol-node` | A pin or matrix entry whose major is past its end-of-life date in the embedded table (notice `eol-soon` within 90 days) |
 | `engines-unbounded` | `engines.node` has no upper bound (for example `>=18`) and no file pins a Node.js version |
+| `engines-unsatisfiable` | `engines.node` is satisfied by no Node.js version at all, for example `>=20 <18` typed for `>=18 <20`. Reported once for the package, not as every pin "violating" it |
 
 Notices that never fail `--fail-on-risk`: `unresolved-pin` (aliases such as
 `lts/*`, `latest`, `node` and untagged `FROM node` are not guessed),
@@ -33,7 +34,21 @@ major) and `unreadable-input`.
 
 The semver range parser is hand-written and supports `^`, `~`, `>=`, `>`,
 `<=`, `<`, `=`, hyphen ranges, x-ranges, spaces as AND and `||`. Prerelease
-and build tags are ignored.
+and build tags are ignored (a prerelease is read as its release), and numeric
+parts with a leading zero (`018`) are rejected, as SemVer and npm reject them.
+
+[`range.diff.test.mjs`](range.diff.test.mjs) checks the parser against
+node-semver, the library npm uses for `engines.node`, on seeded random ranges
+(node-semver is read from the npm that ships with Node and used only as a test
+oracle; the test skips if it is missing). On 150,000 ranges (five seeds) against
+node-semver 7.7.4: every range node-semver accepts was accepted, `satisfies`
+agreed on all 794,376 range and release-version checks, and "can any version
+satisfy both" agreed with `semver.intersects` on all 65,063 pairs where both
+ranges are satisfiable. Where one range is satisfied by nothing, this tool
+answers "no overlap" and node-semver said "overlap" for 1,257 of 51,751 such
+pairs. 3,395 ranges node-semver rejects (regex corner cases such as
+`==1.2.3` or `=1.2.3 - 2`) are still read here. Ranges with prerelease tags are
+not compared.
 
 ### The end-of-life table
 

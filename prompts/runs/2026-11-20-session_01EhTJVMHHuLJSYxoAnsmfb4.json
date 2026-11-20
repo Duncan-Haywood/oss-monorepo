@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVMHHuLJSYxoAnsmfb4",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market revenue software); merge when done",
+  "input_sha256": "112c99aa886d4f036f697bcd90edbd6efeb02a33c680b9c61e33fb403cca4fb2",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T22:27:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 17979,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_csv_formula_guard.py",
+      "issue": "Not run by run_venture_tests.py's quick path, only inside ventures-tests.yml's step, so a new venture's CSV exporter passes its own suite and fails later; copying voltage-drop-calculator's newer exporter would have avoided it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "why": "Built a calculator-shaped tool despite the depth-over-calculators default: it is a network solver (branches, transformers, motors in parallel) with complex impedances, and it found that the point-to-point magnitude sum reads 5.6 % low at the small end-of-feeder panels where ratings are decided, which a chat answer would not show.",
+      "did": "new venture fault-current-check",
+      "result": "merged with tests; usage not yet measured"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Explore idea: fault-current-check, available fault current at every panel (service transformer kVA/%Z/X/R with tolerance and utility MVA, or a known utility figure; motor contribution; feeder tree with sets, steel/PVC conduit, step-down transformers), complex (ohmic) solve plus a magnitude-sum solve equal to point-to-point f/M (tested), X/R, IEC 60909 peak, kA rating check, NEC 110.24 label text, CSV. R from geometry + IACS + IEC 60287 skin effect. Guide page and blog post; linked from service-load-check and voltage-drop-calculator. Verification: venture suite 25 pass; voltage-drop-calculator 26 and service-load-check 41 pass; site page checks pass; run_workflow_locally --for-changes 12/14 then two real failures fixed (csv formula guard pattern; .grid[hidden] so the inactive source fields hide), csv guard script and its unittest OK, portfolio-pages.yml 12/12 run steps pass on rerun (21 not run: uses/deploy steps). Playwright 390px: no console errors, no horizontal scroll, example, known-source toggle and error path work. Next if it pays off: line-to-neutral faults on center-tapped secondaries and arc-flash incident energy from the same network.",
+  "corrections": [],
+  "redteam": null
+}

@@ -318,6 +318,79 @@ export function sectionArea(s, n, k = null) {
 }
 
 /**
+ * Total area of a solid's boundary faces, or null when it cannot be read off
+ * the faces exactly: a faceted part with unknown faces, or more than one
+ * polyhedral term (convex pieces of one body share inner faces that are not
+ * its surface). Loops are summed plane by plane as area vectors, so an inner
+ * bound running against its face's outer bound comes off it.
+ */
+export function surfaceArea(s) {
+  if (s.mesh && !s.shells) return null;
+  const loops = [];
+  if (s.terms.length > 1) return null;
+  for (const t of s.terms) loops.push(...t.faces);
+  if (s.shells) for (const sh of s.shells) loops.push(...sh.loops);
+  if (!loops.length) return null;
+  let scale = 0;
+  for (const l of loops) for (const p of l) scale = Math.max(scale, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2]));
+  const planes = new Map();
+  for (const l of loops) {
+    if (l.length < 3) continue;
+    const a = mulS(newell(l), 0.5);
+    const n = unit(a);
+    if (!n) continue;
+    // one key for both orientations of a plane
+    const i = Math.abs(n[0]) > 1e-9 ? 0 : Math.abs(n[1]) > 1e-9 ? 1 : 2;
+    const c = n[i] < 0 ? mulS(n, -1) : n;
+    const r = (x, q) => Math.round(x / q);
+    const key = `${r(c[0], 1e-6)},${r(c[1], 1e-6)},${r(c[2], 1e-6)},${r(dot(c, l[0]), 1e-6 * (scale || 1))}`;
+    const v = planes.get(key);
+    planes.set(key, v ? add(v, a) : a);
+  }
+  let A = 0;
+  for (const v of planes.values()) A += norm(v);
+  return A;
+}
+
+/**
+ * The extrusion axis of a faceted prism: the direction along which its side
+ * faces lie (perpendicular to their normals) with the most face area. A
+ * prism's side faces all lie along its axis, its end faces, square or mitred,
+ * do not; a box's choice is its longest edge, as before, and a trapezoid in
+ * plan (a footing mitred at both ends, also a prism standing up) picks the
+ * run, whose sides are larger. null when two directions come within 1% of
+ * each other or the body has too many faces to try. Cut normal to it, a
+ * mitred or short piece gives its profile, where the longest extent gives a
+ * slanted or crosswise cut.
+ */
+export function prismAxis(s, maxFaces = 48) {
+  const loops = [];
+  for (const t of s.terms) loops.push(...t.faces);
+  if (s.shells) for (const sh of s.shells) loops.push(...sh.loops);
+  if (loops.length > maxFaces) return null;
+  const faces = [];
+  for (const l of loops) {
+    if (l.length < 3) continue;
+    const a = newell(l), A = norm(a) / 2;
+    if (A > 0) faces.push({ u: mulS(a, 1 / (2 * A)), A });
+  }
+  const ns = [];
+  for (const { u } of faces) if (!ns.some((m) => Math.abs(dot(m, u)) > 1 - 1e-9)) ns.push(u);
+  if (ns.length < 3) return null;
+  const scores = [];
+  for (let i = 0; i < ns.length; i++) for (let j = i + 1; j < ns.length; j++) {
+    const d = unit(cross(ns[i], ns[j]));
+    if (!d || scores.some((e) => Math.abs(dot(e.d, d)) > 1 - 1e-9)) continue;
+    let A = 0;
+    for (const f of faces) if (Math.abs(dot(f.u, d)) < 1e-6) A += f.A;
+    scores.push({ d, A });
+  }
+  scores.sort((x, y) => y.A - x.A);
+  if (!scores.length || (scores[1] && scores[1].A > 0.99 * scores[0].A)) return null;
+  return scores[0].d;
+}
+
+/**
  * The direction, among the solid's own face normals that pass `keep`, along
  * which the solid is thinnest: a wall's width direction when only horizontal
  * normals are kept, a slab's thickness direction otherwise.

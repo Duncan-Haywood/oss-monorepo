@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail if a venture hardcodes a real payment account.
+"""Fail if the tree hardcodes a real payment account (ventures/, platform/, docs/).
 
 The rule (`prompts/goals.md`, "Payments: never the owner's", 2026-10-15):
 payment code is allowed when it is off by default and runs on keys that
@@ -19,6 +19,10 @@ gets hardcoded:
 - a PayPal Payment Link (`paypal.com/ncp/payment/...`);
 - a PayPal hosted-button id (`hosted_button_id=...`, or the same in a form
   input, either attribute order, JSON or object literal).
+- a merchant-of-record checkout link (Lemon Squeezy `/buy/`, Polar
+  `buy.polar.sh/polar_cl_`, Paddle `pay.paddle.io/hsc_`, Gumroad `/l/`) or
+  one of their live API keys (`polar_oat_`, `polar_pat_`, `pdl_live_`): the
+  owner's checkout link is set from owner-only config, never committed.
 
 A donate-to-the-creator profile link (`paypal.me/...`, a coffee link) is the
 owner's stated choice (`goals.md`, the owner's priorities) and passes.
@@ -37,6 +41,12 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES = REPO_ROOT / "ventures"
+# Everything the site serves or a reader copies from, not just ventures/:
+# platform/pages is the catalogue itself and docs/ holds the blog
+# (red-team 2026-11-20: a link there was never scanned).
+SCANNED = (VENTURES, REPO_ROOT / "platform", REPO_ROOT / "docs")
+# This guard's own tests spell out the patterns they must reject.
+SELF_TESTS = {Path(__file__).resolve().parent / "test_check_payment_keys.py"}
 
 # Each pattern carries a literal every match must contain. A plain bytes
 # `in` test on the raw file is far cheaper than decoding it and running the
@@ -51,6 +61,22 @@ PATTERNS = (
         r"""(?i:hosted_button_id)(?:["']?\s*[:=]\s*["']?|["']\s+value=["'])[A-Z0-9]{8,}"""
         # The same hidden input with value= written before name=.
         r"""|(?i:value)=["'][A-Z0-9]{8,}["'][^<>]*?(?i:name)=["'](?i:hosted_button_id)["']""")),
+    # Merchant-of-record hosted checkouts (goals.md, "Payments: the owner's
+    # merchant of record, never a key": the link comes from owner-only config,
+    # never the tree). A product checkout names the seller's account; the
+    # providers' home pages and storefront roots do not, and pass.
+    ("merchant-of-record checkout link", b"lemonsqueezy.com/", re.compile(
+        r"(?i:\.lemonsqueezy\.com/(?:checkout/)?buy)/[A-Za-z0-9-]{8,}")),
+    ("merchant-of-record checkout link", b"polar.sh/polar_cl_", re.compile(
+        r"(?i:buy\.polar\.sh)/polar_cl_[A-Za-z0-9]{8,}")),
+    ("merchant-of-record checkout link", b"paddle.io/hsc_", re.compile(
+        r"(?i:pay\.paddle\.io)/hsc_[A-Za-z0-9]{8,}")),
+    ("merchant-of-record checkout link", b"gumroad.com/l/", re.compile(
+        r"(?i:gumroad\.com/l)/[A-Za-z0-9_-]{3,}")),
+    # Their server-side keys: a Polar organization or personal access token,
+    # a Paddle live API key (sandbox keys, pdl_sdbx_, pass like sk_test_).
+    ("merchant-of-record API key", b"polar_", re.compile(r"(?<![A-Za-z0-9])polar_(?:oat|pat)_[A-Za-z0-9]{16,}")),
+    ("merchant-of-record API key", b"pdl_live_", re.compile(r"(?<![A-Za-z0-9])pdl_live_[A-Za-z0-9_]{16,}")),
 )
 
 # Anything text is scanned (a key in a .sh, .vue or .txt file is as public as
@@ -67,7 +93,7 @@ SKIP_NAMES = {"package-lock.json", "pnpm-lock.yaml", "yarn.lock"}
 def findings_in(root: Path):
     """Yield (path, kind) for every hardcoded payment account under root."""
     for path in root.rglob("*"):
-        if not path.is_file() or path.name in SKIP_NAMES:
+        if not path.is_file() or path.name in SKIP_NAMES or path.resolve() in SELF_TESTS:
             continue
         if any(part in SKIP_DIRS for part in path.relative_to(root).parts):
             continue
@@ -84,8 +110,10 @@ def findings_in(root: Path):
         if not candidates:
             continue
         text = data.decode("utf-8", errors="ignore")
+        seen = set()
         for kind, pattern in candidates:
-            if pattern.search(text):
+            if kind not in seen and pattern.search(text):
+                seen.add(kind)
                 yield path, kind
 
 
@@ -102,8 +130,12 @@ def check(ventures_root: Path = VENTURES) -> list[str]:
     return sorted(out)
 
 
+def check_all(roots=SCANNED) -> list[str]:
+    return sorted(line for root in roots for line in check(root))
+
+
 def main() -> int:
-    violations = check()
+    violations = check_all()
     if not violations:
         print("check_payment_keys: no hardcoded payment account found")
         return 0

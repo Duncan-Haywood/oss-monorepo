@@ -120,6 +120,7 @@ node cli.mjs --today 2026-10-11    # judge end-of-life as of a fixed date</pre>
         <tr><td>Majors disagree</td><td>Non-matrix pins in different files that name different Node.js majors (a CI matrix is meant to test several, so it is exempt)</td></tr>
         <tr><td>End-of-life Node.js</td><td>Any pin or matrix entry whose major is past its end-of-life date in the dated table, plus a notice when one is within 90 days</td></tr>
         <tr><td>Unbounded engines</td><td><code>engines.node</code> like <code>&gt;=18</code> with no upper bound while no file pins a Node.js version at all</td></tr>
+        <tr><td>Unsatisfiable engines</td><td><code>engines.node</code> that no Node.js version satisfies, like <code>&gt;=20 &lt;18</code> typed for <code>&gt;=18 &lt;20</code></td></tr>
       </tbody>
     </table>
     <p class="note">Aliases such as <code>lts/*</code>, <code>latest</code> and <code>node</code> change over time, so they are listed as notices and never guessed. A <code>${{ matrix.x }}</code> reference is resolved from the workflow's own matrix. Also read: <a href="why-node-version-drift-happens.html">why Node.js versions drift</a>, and <a href="vs-eyeballing-and-npm-engine-strict.html">how this compares to eyeballing the files or npm's engine-strict</a>.</p>

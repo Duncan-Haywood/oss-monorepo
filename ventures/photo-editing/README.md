@@ -463,6 +463,10 @@ The intended first workflow is:
    photo sets are split into resumable chunks while preserving stable public
    output names like `photo_00001.jpg`; named reel variants render under
    `deliverables/instagram_reels/` without replacing the default reel handoff.
+   With `ffmpeg-local`, a variant cut from the same clips as a reel already
+   encoded in the run (the hero variant always is) is a copy of that encode,
+   made only while the sources and the earlier file are unchanged; it saves
+   one full reel encode per shoot (about 16 s for a 48 s reel on 4 cores).
 10. Initialize `production_status.json` from the verified ingest manifest when
     a production worker or UI needs durable progress for proxy, analysis,
     grading, storyline, and packaging jobs before render tasks exist.

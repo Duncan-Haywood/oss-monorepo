@@ -392,7 +392,19 @@ function describe(p, plan) {
   const dx = mod(layout.x0 - p.R.x0, px);
   const dy = mod(layout.y0 - p.R.y0, py);
   plan.start = { fromLeft: dx, fromBack: dy, wallCutLeft: dx === 0 ? 0 : Math.max(0, dx - p.grout), wallCutBack: dy === 0 ? 0 : Math.max(0, dy - p.grout) };
+  plan.offsetWarning = offsetWarning(plan.layout.bond, tw, th);
   return plan;
+}
+
+// ANSI A108.02 §4.3.8 (and the TCNA Handbook): for tile with any side longer than
+// 18 in (457 mm), a running-bond offset should be no more than 33% unless the
+// manufacturer says otherwise, because warpage (lippage) is worst at the tile centre
+// and a half offset puts the high centre next to the low ends of its neighbours.
+export const LARGE_TILE_SIDE = 457.2 * U;
+export function offsetWarning(bond, tw, th) {
+  if (!bond || bond.num === 0 || bond.num / bond.den <= 1 / 3 + 1e-9) return null;
+  if (Math.max(tw, th) <= LARGE_TILE_SIDE) return null;
+  return "This tile has a side longer than 18 in (457 mm). ANSI A108.02 and the TCNA Handbook limit a brick offset to 33% for such tile unless the manufacturer allows more: a half offset sets the bowed centre of one tile against the low ends of the next and shows as lippage. Use the one-third offset or check the maker's instructions.";
 }
 
 /**

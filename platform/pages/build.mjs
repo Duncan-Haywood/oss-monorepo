@@ -924,7 +924,7 @@ const CATEGORY_RULES = [
     // `submittal-register`.
     // `drawing-set-index` joined 2026-11-20 on its first commit: the sheet index and
     // revision compare of the drawing set, beside `submittal-register` (the spec book).
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'ifc-quantity-takeoff' || slug === 'submittal-register' || slug === 'drawing-set-index' || slug === 'xer-schedule-check' || slug === 'concrete-maturity' || slug === 'floor-flatness' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'voltage-drop-calculator' || slug === 'wall-condensation-check' || slug === 'psychrometric-calculator' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'ifc-quantity-takeoff' || slug === 'submittal-register' || slug === 'drawing-set-index' || slug === 'xer-schedule-check' || slug === 'concrete-maturity' || slug === 'floor-flatness' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'voltage-drop-calculator' || slug === 'fault-current-check' || slug === 'wall-condensation-check' || slug === 'psychrometric-calculator' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -5082,13 +5082,14 @@ const SUBCATEGORY_RULES = {
       // `service-load-check` (2026-11-11): the NEC service load check electricians run before an EV charger or heat pump job.
       // `pv-string-sizer` (2026-11-11): PV string sizing (cold Voc, hot Vmp, strings per MPPT) for solar installers.
       // `voltage-drop-calculator` (2026-11-17): voltage drop and wire size for DC, single and three-phase runs, the conductor step after the service and string sizing.
+      // `fault-current-check` (2026-11-20): available fault current at every panel, the rating check and the NEC 110.24 label, the short-circuit step beside the service and conductor sizing.
       // `hvac-load-calc` (2026-11-11): room-by-room heating and cooling loads, the sizing step before a heat pump, mini-split or furnace bid.
       // `wall-condensation-check` (2026-11-11): the moisture check on the same wall `hvac-load-calc` sizes heat for.
       // `psychrometric-calculator` (2026-11-19): moist-air properties, coil load, SHR, ADP and bypass factor, the air side of the same HVAC job.
       // `water-supply-sizing` (2026-11-13): peak water demand and supply pipe sizes, the plumbing step beside the water heater and softener bids.
       // `sprinkler-hydraulic-calc` (2026-11-13): fire sprinkler hydraulics for trees, loops and grids, the pipe work beside the domestic water sizing.
       // `elevator-traffic-analysis` (2026-11-14): up-peak lift traffic (round trip time, interval, handling capacity), the vertical transportation step of the same building services.
-      test: (slug) => /^(hvac-load-calc|water-supply-sizing|sprinkler-hydraulic-calc|elevator-traffic-analysis|wall-condensation-check|psychrometric-calculator|service-load-check|pv-string-sizer|voltage-drop-calculator|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
+      test: (slug) => /^(hvac-load-calc|water-supply-sizing|sprinkler-hydraulic-calc|elevator-traffic-analysis|wall-condensation-check|psychrometric-calculator|service-load-check|pv-string-sizer|voltage-drop-calculator|fault-current-check|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
@@ -8461,6 +8462,25 @@ function renderRequestStepper(status) {
 }
 
 /**
+ * The request form's two long pickers (about 1,400 tools and 1,100 research
+ * directions, some 300 kB of `<option>`s), written once to this file and
+ * fetched only when a visitor opens a kind that needs one. Inline, they were
+ * about 90% of every custom development page's bytes, and the form submits
+ * with `fetch` anyway, so nothing works without script either way
+ * (pages-build-perf-2026-11-20-request-form-options.md).
+ */
+export const REQUEST_OPTIONS_FILE = `${CUSTOM_DEV_PATH}form-options.json`;
+
+/** `{ tools, dir }`: the pickers' `<option>` markup, escaped exactly as the inline form escaped it. */
+export function renderRequestFormOptions({ surfaces = [], directions = { programmes: [], themes: [] } }) {
+  const tools = [...surfaces]
+    .sort((a, b) => String(a.title || a.slug).localeCompare(String(b.title || b.slug)))
+    .map((s) => `<option value="${escapeHtml(s.slug)}">${escapeHtml(s.title || s.slug)}</option>`)
+    .join('');
+  return { tools, dir: renderDirectionOptions(directions) };
+}
+
+/**
  * The no-account request form, shared by the custom development page and each
  * request's own page. `fixedRequest` (a request id) preselects "feedback on a
  * preview" for that request. Rendered only when the build knows the feedback
@@ -8474,14 +8494,10 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions
         <div data-cd-for="direction" hidden>
           <label for="cdf-dir">Which research direction does it build on? <span class="cd-opt">(optional)</span></label>
           <p class="cd-hint" id="cdf-dir-hint">All ${dirCount} directions already here: the open programmes first, then every project by theme. Leave it on a new direction if none fits, or browse them on <a href="${escapeHtml(`${toRoot}${RESEARCH_PATH}`)}">the research index</a>.</p>
-          <select id="cdf-dir" name="dir" aria-describedby="cdf-dir-hint"><option value="">A new direction</option>${renderDirectionOptions(directions)}</select>
+          <select id="cdf-dir" name="dir" aria-describedby="cdf-dir-hint"><option value="">A new direction</option></select>
         </div>` : '';
   const kinds = REQUEST_KINDS.map((k) => `
           <label><input type="radio" name="kind" value="${k.id}"${(fixedRequest ? k.id === 'preview' : k.id === 'new') ? ' checked' : ''}> ${escapeHtml(k.label)}</label>`).join('');
-  const tools = [...surfaces]
-    .sort((a, b) => String(a.title || a.slug).localeCompare(String(b.title || b.slug)))
-    .map((s) => `<option value="${escapeHtml(s.slug)}">${escapeHtml(s.title || s.slug)}</option>`)
-    .join('');
   const reqs = requests
     .filter((r) => r.status !== 'declined')
     .map((r) => `<option value="${escapeHtml(r.id)}"${r.id === fixedRequest ? ' selected' : ''}>${escapeHtml(`${r.id}: ${r.title}`)}</option>`)
@@ -8495,7 +8511,7 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions
         </fieldset>
         <div data-cd-for="tool" hidden>
           <label for="cdf-tool">Which tool?</label>
-          <select id="cdf-tool" name="tool"><option value="">Choose a tool</option>${tools}</select>
+          <select id="cdf-tool" name="tool"><option value="">Choose a tool</option></select>
         </div>
         <div data-cd-for="request" hidden>
           <label for="cdf-req">Which request?</label>
@@ -8526,17 +8542,30 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions
   function show(){
     var k=kind(),parts=f.querySelectorAll('[data-cd-for]');
     for(var i=0;i<parts.length;i++)parts[i].hidden=!k[parts[i].getAttribute('data-cd-for')];
+    if(k.tool||k.direction)load();
     document.getElementById('cdf-job-label').textContent=k.job;
     document.getElementById('cdf-job-hint').textContent=k.hint;
   }
   var qk=q.get('kind'),qt=q.get('tool')||'',qr=q.get('req')||'';
   if(qk){var r=f.querySelector('input[name=kind][value="'+qk.replace(/[^a-z]/g,'')+'"]');if(r)r.checked=true;}
-  if(qt&&f.tool.querySelector('option[value="'+qt.replace(/[^a-z0-9._\\/-]/g,'')+'"]'))f.tool.value=qt;
   if(/^R-\\d{4}$/.test(qr))f.req.value=qr;
   var qd=(q.get('dir')||'').replace(/[^a-z0-9-]/g,'');
-  if(qd&&f.dir&&f.dir.querySelector('option[value="'+qd+'"]')){f.dir.value=qd;if(!qk){var rr=f.querySelector('input[name=kind][value=research]');if(rr)rr.checked=true;}}
+  var opts=0;
+  function load(){
+    if(opts)return;opts=1;
+    var k0=kind();
+    fetch(${JSON.stringify(`${toRoot}${REQUEST_OPTIONS_FILE}`)}).then(function(r){if(!r.ok)throw r;return r.json();}).then(function(o){
+      f.tool.insertAdjacentHTML('beforeend',o.tools||'');
+      if(f.dir)f.dir.insertAdjacentHTML('beforeend',o.dir||'');
+      if(qt&&f.tool.querySelector('option[value="'+qt.replace(/[^a-z0-9._\\/-]/g,'')+'"]'))f.tool.value=qt;
+      if(qd&&f.dir&&f.dir.querySelector('option[value="'+qd+'"]')){f.dir.value=qd;if(!qk&&kind()===k0){var rr=f.querySelector('input[name=kind][value=research]');if(rr){rr.checked=true;show();}}}
+    }).catch(function(){
+      var o=document.createElement('option');o.value=qt.replace(/[^a-z0-9._\\/-]/g,'')||'unlisted';o.textContent=qt?o.value:'The list did not load: I name the tool in my message';f.tool.appendChild(o);if(qt)f.tool.value=o.value;
+    });
+  }
   f.addEventListener('change',function(e){if(e.target.name==='kind')show();});
   show();
+  if(qt||qd)load();
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null,live=null;
   if(SR){
     var rows=f.querySelectorAll('.cd-mic-row');for(var j=0;j<rows.length;j++)rows[j].hidden=false;
@@ -13481,6 +13510,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(path.join(dir, 'index.html'), renderCustomRequestPage({ request, surfaces, baseUrl: base, requests: customRequests, directions: researchDirs, showcase }));
   }
+  // The request form's tool and research-direction pickers, fetched on demand.
+  await fs.writeFile(path.join(outDir, REQUEST_OPTIONS_FILE), JSON.stringify(renderRequestFormOptions({ surfaces, directions: researchDirs })));
 
   // The assistant's own page, and the files every page lazy-loads it from.
   const askDir = path.join(outDir, ASK_PATH);

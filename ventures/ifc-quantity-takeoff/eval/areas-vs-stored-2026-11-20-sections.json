@@ -1,0 +1,1619 @@
+{
+ "results": [
+  {
+   "file": "construction.ifc",
+   "schema": "IFC2X3",
+   "seconds": 0.757,
+   "byQty": {
+    "IfcColumn.CrossSectionArea": {
+     "pairs": 257,
+     "agree": 257,
+     "reasons": {}
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 36,
+     "agree": 11,
+     "reasons": {
+      "matches-stored-volume": 6,
+      "split": 17,
+      "repeated": 2
+     }
+    }
+   },
+   "medianAgreeRel": 0.00013372091330845804,
+   "notCut": 0,
+   "others": []
+  },
+  {
+   "file": "architect.ifc",
+   "schema": "IFC2X3",
+   "seconds": 6.291,
+   "byQty": {
+    "IfcWall.GrossSideArea": {
+     "pairs": 112,
+     "agree": 70,
+     "reasons": {
+      "split": 5,
+      "matches-stored-volume": 4,
+      "net-as-gross": 33
+     }
+    },
+    "IfcMember.CrossSectionArea": {
+     "pairs": 1450,
+     "agree": 1392,
+     "reasons": {
+      "half-surface": 58
+     }
+    }
+   },
+   "medianAgreeRel": 9.128201831071402e-16,
+   "notCut": 0,
+   "others": []
+  },
+  {
+   "file": "AC20-FZK-Haus.ifc",
+   "schema": "IFC4",
+   "seconds": 0.214,
+   "byQty": {
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 13,
+     "agree": 13,
+     "reasons": {}
+    },
+    "IfcWall.NetFootprintArea": {
+     "pairs": 13,
+     "agree": 9,
+     "reasons": {
+      "gross-as-net": 4
+     }
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 13,
+     "agree": 11,
+     "reasons": {
+      "on-a-face": 2
+     }
+    },
+    "IfcWall.NetSideArea": {
+     "pairs": 13,
+     "agree": 9,
+     "reasons": {
+      "on-a-face": 3,
+      "joins-off": 1
+     }
+    },
+    "IfcBeam.CrossSectionArea": {
+     "pairs": 1,
+     "agree": 1,
+     "reasons": {}
+    },
+    "IfcSlab.GrossArea": {
+     "pairs": 4,
+     "agree": 4,
+     "reasons": {}
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 4,
+     "agree": 4,
+     "reasons": {}
+    }
+   },
+   "medianAgreeRel": 1.3216940769347102e-16,
+   "notCut": 0,
+   "others": []
+  },
+  {
+   "file": "C20-Institute-Var-2.ifc",
+   "schema": "IFC4",
+   "seconds": 0.444,
+   "byQty": {
+    "IfcSlab.GrossArea": {
+     "pairs": 26,
+     "agree": 20,
+     "reasons": {
+      "on-a-face": 6
+     }
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 26,
+     "agree": 20,
+     "reasons": {
+      "on-a-face": 6
+     }
+    },
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 121,
+     "agree": 121,
+     "reasons": {}
+    },
+    "IfcWall.NetFootprintArea": {
+     "pairs": 121,
+     "agree": 97,
+     "reasons": {
+      "gross-as-net": 24
+     }
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 121,
+     "agree": 86,
+     "reasons": {
+      "faces-averaged": 8,
+      "on-a-face": 4,
+      "joins-off": 17,
+      "net-as-gross": 6
+     }
+    },
+    "IfcWall.NetSideArea": {
+     "pairs": 121,
+     "agree": 79,
+     "reasons": {
+      "faces-averaged": 10,
+      "on-a-face": 13,
+      "joins-off": 19
+     }
+    },
+    "IfcColumn.CrossSectionArea": {
+     "pairs": 2,
+     "agree": 0,
+     "reasons": {
+      "unexplained": 2
+     }
+    }
+   },
+   "medianAgreeRel": 1.261617073437678e-16,
+   "notCut": 0,
+   "others": [
+    {
+     "id": 81382,
+     "ifcClass": "IfcColumn",
+     "name": "Stütze-001",
+     "qty": "CrossSectionArea",
+     "computed": 0.031415926535897865,
+     "stored": 1.25663706144,
+     "rel": -0.9750000000000811,
+     "openings": 0
+    },
+    {
+     "id": 81565,
+     "ifcClass": "IfcColumn",
+     "name": "Stütze-001",
+     "qty": "CrossSectionArea",
+     "computed": 0.031415926535897865,
+     "stored": 1.25663706144,
+     "rel": -0.9750000000000811,
+     "openings": 0
+    }
+   ]
+  },
+  {
+   "file": "ISSUE_159_kleine_Wohnung_R22.ifc",
+   "schema": "IFC4",
+   "seconds": 5.046,
+   "byQty": {
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 210,
+     "agree": 210,
+     "reasons": {}
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 210,
+     "agree": 162,
+     "reasons": {
+      "matches-stored-volume": 10,
+      "net-as-gross": 34,
+      "on-a-face": 4
+     }
+    },
+    "IfcWall.NetSideArea": {
+     "pairs": 210,
+     "agree": 204,
+     "reasons": {
+      "gross-as-net": 2,
+      "on-a-face": 4
+     }
+    },
+    "IfcSlab.GrossArea": {
+     "pairs": 53,
+     "agree": 50,
+     "reasons": {
+      "unit-slip": 3
+     }
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 53,
+     "agree": 53,
+     "reasons": {}
+    }
+   },
+   "medianAgreeRel": 1.5419764230904982e-15,
+   "notCut": 0,
+   "others": []
+  },
+  {
+   "file": "ISSUE_021_Mini Project.ifc",
+   "schema": "IFC2X3",
+   "seconds": 3.309,
+   "byQty": {
+    "IfcMember.CrossSectionArea": {
+     "pairs": 228,
+     "agree": 228,
+     "reasons": {}
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 24,
+     "agree": 20,
+     "reasons": {
+      "unexplained": 4
+     }
+    }
+   },
+   "medianAgreeRel": 0,
+   "notCut": 5,
+   "others": [
+    {
+     "id": 3639,
+     "ifcClass": "IfcSlab",
+     "name": "KONZOLE",
+     "qty": "NetArea",
+     "computed": 0.05312500000000009,
+     "stored": 0.0925,
+     "rel": -0.4256756756756747,
+     "openings": 0
+    },
+    {
+     "id": 13969,
+     "ifcClass": "IfcSlab",
+     "name": "KONZOLE",
+     "qty": "NetArea",
+     "computed": 0.05312500000000009,
+     "stored": 0.0925,
+     "rel": -0.4256756756756747,
+     "openings": 0
+    },
+    {
+     "id": 23436,
+     "ifcClass": "IfcSlab",
+     "name": "KONZOLE",
+     "qty": "NetArea",
+     "computed": 0.05312500000000009,
+     "stored": 0.0925,
+     "rel": -0.4256756756756747,
+     "openings": 0
+    },
+    {
+     "id": 23469,
+     "ifcClass": "IfcSlab",
+     "name": "KONZOLE",
+     "qty": "NetArea",
+     "computed": 0.05312500000000009,
+     "stored": 0.0925,
+     "rel": -0.4256756756756747,
+     "openings": 0
+    }
+   ]
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "schema": "IFC2X3",
+   "seconds": 3.174,
+   "byQty": {
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 927,
+     "agree": 671,
+     "reasons": {
+      "centre-line": 256
+     }
+    },
+    "IfcWall.NetFootprintArea": {
+     "pairs": 927,
+     "agree": 617,
+     "reasons": {
+      "centre-line": 256,
+      "gross-as-net": 54
+     }
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 927,
+     "agree": 749,
+     "reasons": {
+      "other-width": 39,
+      "matches-stored-volume": 98,
+      "centre-line": 25,
+      "unexplained": 15,
+      "on-a-face": 1
+     }
+    },
+    "IfcWall.NetSideArea": {
+     "pairs": 927,
+     "agree": 837,
+     "reasons": {
+      "other-width": 39,
+      "matches-stored-volume": 10,
+      "centre-line": 25,
+      "unexplained": 15,
+      "on-a-face": 1
+     }
+    },
+    "IfcBeam.CrossSectionArea": {
+     "pairs": 127,
+     "agree": 122,
+     "reasons": {
+      "own-profile": 5
+     }
+    },
+    "IfcSlab.GrossArea": {
+     "pairs": 275,
+     "agree": 213,
+     "reasons": {
+      "unexplained": 14,
+      "zero": 2,
+      "on-a-face": 46
+     }
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 275,
+     "agree": 221,
+     "reasons": {
+      "on-a-face": 52,
+      "zero": 2
+     }
+    },
+    "IfcCovering.GrossArea": {
+     "pairs": 728,
+     "agree": 533,
+     "reasons": {
+      "unexplained": 27,
+      "on-a-face": 121,
+      "zero": 46,
+      "unit-slip": 1
+     }
+    },
+    "IfcCovering.NetArea": {
+     "pairs": 728,
+     "agree": 533,
+     "reasons": {
+      "unexplained": 27,
+      "on-a-face": 121,
+      "zero": 46,
+      "unit-slip": 1
+     }
+    }
+   },
+   "medianAgreeRel": 4.347380870299452e-13,
+   "notCut": 1,
+   "others": [
+    {
+     "id": 43828,
+     "ifcClass": "IfcSlab",
+     "name": "vloerstort V0",
+     "qty": "GrossArea",
+     "computed": 27.317804844707634,
+     "stored": 123.46209182,
+     "rel": -0.7787352826928019,
+     "openings": 0
+    },
+    {
+     "id": 44220,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "GrossArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.0611000000897,
+     "rel": -0.8339939871711853,
+     "openings": 0
+    },
+    {
+     "id": 44220,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "NetArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.0611000000897,
+     "rel": -0.8339939871711853,
+     "openings": 0
+    },
+    {
+     "id": 62352,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.0966885507291089,
+     "stored": 0.0885149840591,
+     "rel": 0.09234105114396843,
+     "openings": 0
+    },
+    {
+     "id": 62352,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.0966885507291089,
+     "stored": 0.0885149840591,
+     "rel": 0.09234105114396843,
+     "openings": 0
+    },
+    {
+     "id": 62775,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.052201422057304,
+     "stored": 0.0558894955679,
+     "rel": -0.06598867055644422,
+     "openings": 0
+    },
+    {
+     "id": 62775,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.052201422057304,
+     "stored": 0.0558894955679,
+     "rel": -0.06598867055644422,
+     "openings": 0
+    },
+    {
+     "id": 63166,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.052204840489117006,
+     "stored": 0.0558929139985,
+     "rel": -0.06598463464406187,
+     "openings": 0
+    },
+    {
+     "id": 63166,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.052204840489117006,
+     "stored": 0.0558929139985,
+     "rel": -0.06598463464406187,
+     "openings": 0
+    },
+    {
+     "id": 93584,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.0966749075089489,
+     "stored": 0.088501340839,
+     "rel": 0.09235528628677045,
+     "openings": 0
+    },
+    {
+     "id": 93584,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.0966749075089489,
+     "stored": 0.088501340839,
+     "rel": 0.09235528628677045,
+     "openings": 0
+    },
+    {
+     "id": 96093,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.05220483307735045,
+     "stored": 0.0558929118065,
+     "rel": -0.06598473062054086,
+     "openings": 0
+    },
+    {
+     "id": 96093,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.05220483307735045,
+     "stored": 0.0558929118065,
+     "rel": -0.06598473062054086,
+     "openings": 0
+    },
+    {
+     "id": 103557,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.05218911207264801,
+     "stored": 0.0558771855832,
+     "rel": -0.06600320814405591,
+     "openings": 0
+    },
+    {
+     "id": 103557,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.05218911207264801,
+     "stored": 0.0558771855832,
+     "rel": -0.06600320814405591,
+     "openings": 0
+    },
+    {
+     "id": 310666,
+     "ifcClass": "IfcCovering",
+     "name": "wandtegelwerk",
+     "qty": "GrossArea",
+     "computed": 0.0001500000040499998,
+     "stored": 0.00229000000405,
+     "rel": -0.934497814941172,
+     "openings": 0
+    },
+    {
+     "id": 310666,
+     "ifcClass": "IfcCovering",
+     "name": "wandtegelwerk",
+     "qty": "NetArea",
+     "computed": 0.0001500000040499998,
+     "stored": 0.00229000000405,
+     "rel": -0.934497814941172,
+     "openings": 0
+    },
+    {
+     "id": 310911,
+     "ifcClass": "IfcCovering",
+     "name": "wandtegelwerk",
+     "qty": "GrossArea",
+     "computed": 0.0001500000040499998,
+     "stored": 0.00229000000405,
+     "rel": -0.934497814941172,
+     "openings": 0
+    },
+    {
+     "id": 310911,
+     "ifcClass": "IfcCovering",
+     "name": "wandtegelwerk",
+     "qty": "NetArea",
+     "computed": 0.0001500000040499998,
+     "stored": 0.00229000000405,
+     "rel": -0.934497814941172,
+     "openings": 0
+    },
+    {
+     "id": 318648,
+     "ifcClass": "IfcSlab",
+     "name": "vloerveld",
+     "qty": "GrossArea",
+     "computed": 323.0383066111528,
+     "stored": 12.2894646912,
+     "rel": 25.285791507458235,
+     "openings": 0
+    },
+    {
+     "id": 336488,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "GrossSideArea",
+     "computed": 0.80812,
+     "stored": 0.77634,
+     "rel": 0.04093567251461978,
+     "openings": 0
+    },
+    {
+     "id": 336488,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "NetSideArea",
+     "computed": 0.80812,
+     "stored": 0.77634,
+     "rel": 0.04093567251461978,
+     "openings": 0
+    },
+    {
+     "id": 348804,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.042622261968364,
+     "stored": 0.0463103355418,
+     "rel": -0.07963823907315726,
+     "openings": 0
+    },
+    {
+     "id": 348804,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.042622261968364,
+     "stored": 0.0463103355418,
+     "rel": -0.07963823907315726,
+     "openings": 0
+    },
+    {
+     "id": 349165,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.0940924988580792,
+     "stored": 0.0871969075085,
+     "rel": 0.07908068699462788,
+     "openings": 0
+    },
+    {
+     "id": 349165,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.0940924988580792,
+     "stored": 0.0871969075085,
+     "rel": 0.07908068699462788,
+     "openings": 0
+    },
+    {
+     "id": 349597,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.042622260244867,
+     "stored": 0.0463103338181,
+     "rel": -0.07963824203295962,
+     "openings": 0
+    },
+    {
+     "id": 349597,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.042622260244867,
+     "stored": 0.0463103338181,
+     "rel": -0.07963824203295962,
+     "openings": 0
+    },
+    {
+     "id": 399447,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.09409252044738879,
+     "stored": 0.0871969302049,
+     "rel": 0.07908065371435852,
+     "openings": 0
+    },
+    {
+     "id": 399447,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.09409252044738879,
+     "stored": 0.0871969302049,
+     "rel": 0.07908065371435852,
+     "openings": 0
+    },
+    {
+     "id": 399879,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.044352793037883,
+     "stored": 0.0480408666111,
+     "rel": -0.07676950549357618,
+     "openings": 0
+    },
+    {
+     "id": 399879,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.044352793037883,
+     "stored": 0.0480408666111,
+     "rel": -0.07676950549357618,
+     "openings": 0
+    },
+    {
+     "id": 400315,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.044352787228229745,
+     "stored": 0.048040866103,
+     "rel": -0.0767696166605944,
+     "openings": 0
+    },
+    {
+     "id": 400315,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.044352787228229745,
+     "stored": 0.048040866103,
+     "rel": -0.0767696166605944,
+     "openings": 0
+    },
+    {
+     "id": 421542,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "GrossSideArea",
+     "computed": 1.232296044536644,
+     "stored": 1.19026101855,
+     "rel": 0.035315804963395266,
+     "openings": 0
+    },
+    {
+     "id": 421542,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "NetSideArea",
+     "computed": 1.232296044536644,
+     "stored": 1.19026101855,
+     "rel": 0.035315804963395266,
+     "openings": 0
+    },
+    {
+     "id": 441525,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "GrossArea",
+     "computed": 0.005031403310480018,
+     "stored": 0.0894331938436,
+     "rel": -0.9437412095638796,
+     "openings": 0
+    },
+    {
+     "id": 441525,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "NetArea",
+     "computed": 0.005031403310480018,
+     "stored": 0.0894331938436,
+     "rel": -0.9437412095638796,
+     "openings": 0
+    },
+    {
+     "id": 441852,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "GrossArea",
+     "computed": 0.0050314033104800265,
+     "stored": 0.0894331938436,
+     "rel": -0.9437412095638796,
+     "openings": 0
+    },
+    {
+     "id": 441852,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "NetArea",
+     "computed": 0.0050314033104800265,
+     "stored": 0.0894331938436,
+     "rel": -0.9437412095638796,
+     "openings": 0
+    },
+    {
+     "id": 442809,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "GrossArea",
+     "computed": 0.005031403310480018,
+     "stored": 0.0894331938436,
+     "rel": -0.9437412095638796,
+     "openings": 0
+    },
+    {
+     "id": 442809,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "NetArea",
+     "computed": 0.005031403310480018,
+     "stored": 0.0894331938436,
+     "rel": -0.9437412095638796,
+     "openings": 0
+    },
+    {
+     "id": 596988,
+     "ifcClass": "IfcCovering",
+     "name": "wandtegelwerk",
+     "qty": "GrossArea",
+     "computed": 0.0001500000040499999,
+     "stored": 0.00229000000405,
+     "rel": -0.934497814941172,
+     "openings": 0
+    },
+    {
+     "id": 596988,
+     "ifcClass": "IfcCovering",
+     "name": "wandtegelwerk",
+     "qty": "NetArea",
+     "computed": 0.0001500000040499999,
+     "stored": 0.00229000000405,
+     "rel": -0.934497814941172,
+     "openings": 0
+    },
+    {
+     "id": 597268,
+     "ifcClass": "IfcCovering",
+     "name": "wandtegelwerk",
+     "qty": "GrossArea",
+     "computed": 0.00015000000404999996,
+     "stored": 0.00229000000405,
+     "rel": -0.934497814941172,
+     "openings": 0
+    },
+    {
+     "id": 597268,
+     "ifcClass": "IfcCovering",
+     "name": "wandtegelwerk",
+     "qty": "NetArea",
+     "computed": 0.00015000000404999996,
+     "stored": 0.00229000000405,
+     "rel": -0.934497814941172,
+     "openings": 0
+    },
+    {
+     "id": 603896,
+     "ifcClass": "IfcSlab",
+     "name": "vloerveld",
+     "qty": "GrossArea",
+     "computed": 219.85372570448035,
+     "stored": 19.5806973092,
+     "rel": 10.228084589264448,
+     "openings": 0
+    },
+    {
+     "id": 691798,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "GrossArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.118950000175,
+     "rel": -0.9147291518805472,
+     "openings": 0
+    },
+    {
+     "id": 691798,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "NetArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.118950000175,
+     "rel": -0.9147291518805472,
+     "openings": 0
+    },
+    {
+     "id": 700118,
+     "ifcClass": "IfcSlab",
+     "name": "plat dak",
+     "qty": "GrossArea",
+     "computed": 12.199239121787778,
+     "stored": 13.1480651583,
+     "rel": -0.07216468925948806,
+     "openings": 0
+    },
+    {
+     "id": 739532,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "GrossArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.195000000286,
+     "rel": -0.9479847826468977,
+     "openings": 0
+    },
+    {
+     "id": 739532,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "NetArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.195000000286,
+     "rel": -0.9479847826468977,
+     "openings": 0
+    },
+    {
+     "id": 781879,
+     "ifcClass": "IfcSlab",
+     "name": "vloerveld",
+     "qty": "GrossArea",
+     "computed": 217.65046506204024,
+     "stored": 19.270582953,
+     "rel": 10.294441148608684,
+     "openings": 0
+    },
+    {
+     "id": 785682,
+     "ifcClass": "IfcSlab",
+     "name": "sporenkap",
+     "qty": "GrossArea",
+     "computed": 11.386933686753585,
+     "stored": 12.5030495505,
+     "rel": -0.08926749104195798,
+     "openings": 0
+    },
+    {
+     "id": 795296,
+     "ifcClass": "IfcSlab",
+     "name": "sporenkap",
+     "qty": "GrossArea",
+     "computed": 21.628152801932593,
+     "stored": 28.0887541757,
+     "rel": -0.230006689985438,
+     "openings": 0
+    },
+    {
+     "id": 814276,
+     "ifcClass": "IfcSlab",
+     "name": "sporenkap",
+     "qty": "GrossArea",
+     "computed": 19.962189632092688,
+     "stored": 21.3854699754,
+     "rel": -0.06655361537270542,
+     "openings": 0
+    },
+    {
+     "id": 820583,
+     "ifcClass": "IfcSlab",
+     "name": "sporenkap",
+     "qty": "GrossArea",
+     "computed": 18.397735046556665,
+     "stored": 20.5574857786,
+     "rel": -0.10505908919521664,
+     "openings": 0
+    },
+    {
+     "id": 835340,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 2.101559886052667,
+     "stored": 7.32955986753,
+     "rel": -0.7132761142503807,
+     "openings": 0
+    },
+    {
+     "id": 835340,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 2.101559886052667,
+     "stored": 1.53327988549,
+     "rel": 0.37063031083921005,
+     "openings": 0
+    },
+    {
+     "id": 835684,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 2.1858376558345562,
+     "stored": 2.32033766366,
+     "rel": -0.05796570470406855,
+     "openings": 0
+    },
+    {
+     "id": 835684,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 2.1858376558345562,
+     "stored": 2.32033766366,
+     "rel": -0.05796570470406855,
+     "openings": 0
+    },
+    {
+     "id": 839455,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 2.1015598868979755,
+     "stored": 7.32955986838,
+     "rel": -0.7132761141683029,
+     "openings": 0
+    },
+    {
+     "id": 839455,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 2.1015598868979755,
+     "stored": 1.53327988633,
+     "rel": 0.3706303106396242,
+     "openings": 0
+    },
+    {
+     "id": 839799,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 2.1858376389572007,
+     "stored": 2.3203377122,
+     "rel": -0.057965731684494676,
+     "openings": 0
+    },
+    {
+     "id": 839799,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 2.1858376389572007,
+     "stored": 2.3203377122,
+     "rel": -0.057965731684494676,
+     "openings": 0
+    },
+    {
+     "id": 841075,
+     "ifcClass": "IfcSlab",
+     "name": "sporenkap",
+     "qty": "GrossArea",
+     "computed": 21.628150778014472,
+     "stored": 28.0887541757,
+     "rel": -0.2300067620398306,
+     "openings": 0
+    },
+    {
+     "id": 846800,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "GrossSideArea",
+     "computed": 0.044863321089870005,
+     "stored": 0.061066575378,
+     "rel": -0.26533753019278394,
+     "openings": 0
+    },
+    {
+     "id": 846800,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "NetSideArea",
+     "computed": 0.044863321089870005,
+     "stored": 0.061066575378,
+     "rel": -0.26533753019278394,
+     "openings": 0
+    },
+    {
+     "id": 852067,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "GrossSideArea",
+     "computed": 0.05729756305885103,
+     "stored": 0.0735008151722,
+     "rel": -0.2204499647437581,
+     "openings": 0
+    },
+    {
+     "id": 852067,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "NetSideArea",
+     "computed": 0.05729756305885103,
+     "stored": 0.0735008151722,
+     "rel": -0.2204499647437581,
+     "openings": 0
+    },
+    {
+     "id": 852327,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "GrossSideArea",
+     "computed": 0.04841200480963216,
+     "stored": 0.0614066833635,
+     "rel": -0.21161668147659388,
+     "openings": 0
+    },
+    {
+     "id": 852327,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "NetSideArea",
+     "computed": 0.04841200480963216,
+     "stored": 0.0614066833635,
+     "rel": -0.21161668147659388,
+     "openings": 0
+    },
+    {
+     "id": 852587,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "GrossSideArea",
+     "computed": 0.04486331422203001,
+     "stored": 0.0610665663354,
+     "rel": -0.26533753387042897,
+     "openings": 0
+    },
+    {
+     "id": 852587,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "NetSideArea",
+     "computed": 0.04486331422203001,
+     "stored": 0.0610665663354,
+     "rel": -0.26533753387042897,
+     "openings": 0
+    },
+    {
+     "id": 863768,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 2.0479825040648714,
+     "stored": 6.5640596724,
+     "rel": -0.6880006267042248,
+     "openings": 0
+    },
+    {
+     "id": 863768,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 2.0479825040648714,
+     "stored": 1.73764664593,
+     "rel": 0.17859549227787772,
+     "openings": 0
+    },
+    {
+     "id": 867501,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "GrossSideArea",
+     "computed": 0.04486332108987053,
+     "stored": 0.061066575378,
+     "rel": -0.26533753019277534,
+     "openings": 0
+    },
+    {
+     "id": 867501,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "NetSideArea",
+     "computed": 0.04486332108987053,
+     "stored": 0.061066575378,
+     "rel": -0.26533753019277534,
+     "openings": 0
+    },
+    {
+     "id": 868365,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "GrossSideArea",
+     "computed": 0.04486331422203001,
+     "stored": 0.0610665663354,
+     "rel": -0.26533753387042897,
+     "openings": 0
+    },
+    {
+     "id": 868365,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "NetSideArea",
+     "computed": 0.04486331422203001,
+     "stored": 0.0610665663354,
+     "rel": -0.26533753387042897,
+     "openings": 0
+    },
+    {
+     "id": 868625,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "GrossSideArea",
+     "computed": 0.04486331422202999,
+     "stored": 0.0610665663354,
+     "rel": -0.2653375338704292,
+     "openings": 0
+    },
+    {
+     "id": 868625,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "NetSideArea",
+     "computed": 0.04486331422202999,
+     "stored": 0.0610665663354,
+     "rel": -0.2653375338704292,
+     "openings": 0
+    },
+    {
+     "id": 868801,
+     "ifcClass": "IfcCovering",
+     "name": "vensterbank",
+     "qty": "GrossArea",
+     "computed": 0.004399999999999999,
+     "stored": 0.677710140353,
+     "rel": -0.9935075488206386,
+     "openings": 0
+    },
+    {
+     "id": 868801,
+     "ifcClass": "IfcCovering",
+     "name": "vensterbank",
+     "qty": "NetArea",
+     "computed": 0.004399999999999999,
+     "stored": 0.677710140353,
+     "rel": -0.9935075488206386,
+     "openings": 0
+    },
+    {
+     "id": 876664,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "GrossSideArea",
+     "computed": 0.04486331422195523,
+     "stored": 0.0610665663352,
+     "rel": -0.2653375338692473,
+     "openings": 0
+    },
+    {
+     "id": 876664,
+     "ifcClass": "IfcWall",
+     "name": "knieschot",
+     "qty": "NetSideArea",
+     "computed": 0.04486331422195523,
+     "stored": 0.0610665663352,
+     "rel": -0.2653375338692473,
+     "openings": 0
+    },
+    {
+     "id": 986563,
+     "ifcClass": "IfcSlab",
+     "name": "dakvloer",
+     "qty": "GrossArea",
+     "computed": 135.26354242099328,
+     "stored": 12.6879771912,
+     "rel": 9.660764941696774,
+     "openings": 0
+    },
+    {
+     "id": 986959,
+     "ifcClass": "IfcSlab",
+     "name": "dakvloer",
+     "qty": "GrossArea",
+     "computed": 12.68365311242488,
+     "stored": 13.6997171124,
+     "rel": -0.07416678692258924,
+     "openings": 0
+    },
+    {
+     "id": 988370,
+     "ifcClass": "IfcSlab",
+     "name": "dakvloer",
+     "qty": "GrossArea",
+     "computed": 16.542899951290828,
+     "stored": 17.2126499088,
+     "rel": -0.03891033403094784,
+     "openings": 0
+    },
+    {
+     "id": 991286,
+     "ifcClass": "IfcSlab",
+     "name": "dakvloer",
+     "qty": "GrossArea",
+     "computed": 7.733269996169443,
+     "stored": 8.73727401432,
+     "rel": -0.11491044191873118,
+     "openings": 0
+    },
+    {
+     "id": 994616,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "GrossArea",
+     "computed": 0.009143531421864493,
+     "stored": 1.01148084441,
+     "rel": -0.9909602525125447,
+     "openings": 0
+    },
+    {
+     "id": 994616,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "NetArea",
+     "computed": 0.009143531421864493,
+     "stored": 1.01148084441,
+     "rel": -0.9909602525125447,
+     "openings": 0
+    },
+    {
+     "id": 1017584,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "GrossArea",
+     "computed": 0.0063129924558573474,
+     "stored": 0.69470243309,
+     "rel": -0.9909126668409991,
+     "openings": 0
+    },
+    {
+     "id": 1017584,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "NetArea",
+     "computed": 0.0063129924558573474,
+     "stored": 0.69470243309,
+     "rel": -0.9909126668409991,
+     "openings": 0
+    },
+    {
+     "id": 1018228,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "GrossArea",
+     "computed": 0.009143531351675338,
+     "stored": 1.01148052149,
+     "rel": -0.9909602496959546,
+     "openings": 0
+    },
+    {
+     "id": 1018228,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "NetArea",
+     "computed": 0.009143531351675338,
+     "stored": 1.01148052149,
+     "rel": -0.9909602496959546,
+     "openings": 0
+    },
+    {
+     "id": 1018786,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "GrossArea",
+     "computed": 0.006312996298629186,
+     "stored": 0.694702433091,
+     "rel": -0.9909126613094759,
+     "openings": 0
+    },
+    {
+     "id": 1018786,
+     "ifcClass": "IfcCovering",
+     "name": "dakopstand",
+     "qty": "NetArea",
+     "computed": 0.006312996298629186,
+     "stored": 0.694702433091,
+     "rel": -0.9909126613094759,
+     "openings": 0
+    }
+   ]
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "schema": "IFC2X3",
+   "seconds": 10.761,
+   "byQty": {
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 1041,
+     "agree": 1041,
+     "reasons": {}
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 1041,
+     "agree": 683,
+     "reasons": {
+      "net-as-gross": 254,
+      "on-a-face": 28,
+      "matches-stored-volume": 10,
+      "unexplained": 13,
+      "centre-line": 50,
+      "other-width": 3
+     }
+    },
+    "IfcSlab.GrossArea": {
+     "pairs": 115,
+     "agree": 95,
+     "reasons": {
+      "unit-slip": 20
+     }
+    },
+    "IfcMember.CrossSectionArea": {
+     "pairs": 687,
+     "agree": 18,
+     "reasons": {
+      "host-figure": 111,
+      "scales-with-length": 558
+     }
+    }
+   },
+   "medianAgreeRel": 1.996966823359457e-15,
+   "notCut": 0,
+   "others": [
+    {
+     "id": 556796,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:IVA 3.2 145mm 37dB EI60 (HN-95-NR):2235683",
+     "qty": "GrossSideArea",
+     "computed": 3.6592499999998576,
+     "stored": 3.74742908124755,
+     "rel": -0.02353055370385737,
+     "openings": 1
+    },
+    {
+     "id": 1280178,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:IVA 4.3 172mm 48dB (RN-120-NR):4410967",
+     "qty": "GrossSideArea",
+     "computed": 16.052135065608397,
+     "stored": 15.0873031704494,
+     "rel": 0.06394992426802655,
+     "openings": 1
+    },
+    {
+     "id": 1453862,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YVL 1.1 250mm leca isoblokk:6268030",
+     "qty": "GrossSideArea",
+     "computed": 0.7572999655326591,
+     "stored": 2.59181393921159,
+     "rel": -0.7078108292900748,
+     "openings": 0
+    },
+    {
+     "id": 1453999,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YVL 1.1 250mm leca isoblokk:6268056",
+     "qty": "GrossSideArea",
+     "computed": 0.7574673650910193,
+     "stored": 2.59181393921159,
+     "rel": -0.7077462414908398,
+     "openings": 0
+    },
+    {
+     "id": 1454129,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YVL 1.1 250mm leca isoblokk:6268146",
+     "qty": "GrossSideArea",
+     "computed": 0.7574675862805623,
+     "stored": 2.59181393921159,
+     "rel": -0.7077461561492419,
+     "openings": 0
+    },
+    {
+     "id": 1454265,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YVL 1.1 250mm leca isoblokk:6268165",
+     "qty": "GrossSideArea",
+     "computed": 0.757467365091019,
+     "stored": 2.59181393921157,
+     "rel": -0.7077462414908376,
+     "openings": 0
+    },
+    {
+     "id": 1454401,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 12.1 411 Ventilasjonsrom:6268286",
+     "qty": "GrossSideArea",
+     "computed": 7.39166473517617,
+     "stored": 14.3429412599652,
+     "rel": -0.4846479113870327,
+     "openings": 0
+    },
+    {
+     "id": 1455870,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 12.1 411 Ventilasjonsrom EI 60:6268552",
+     "qty": "GrossSideArea",
+     "computed": 7.391277091545578,
+     "stored": 14.3429412599653,
+     "rel": -0.4846749381748873,
+     "openings": 0
+    },
+    {
+     "id": 1457319,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 13.1 313 Gesims Ventilasjonsrom:6282575",
+     "qty": "GrossSideArea",
+     "computed": 1.0569054065563435,
+     "stored": 2.96252187233517,
+     "rel": -0.6432413153043656,
+     "openings": 0
+    },
+    {
+     "id": 1457449,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 13.1 313 Gesims Ventilasjonsrom:6282647",
+     "qty": "GrossSideArea",
+     "computed": 1.0570908424924386,
+     "stored": 2.96252187233519,
+     "rel": -0.6431787213576948,
+     "openings": 0
+    },
+    {
+     "id": 1457579,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 13.1 313 Gesims Ventilasjonsrom:6282652",
+     "qty": "GrossSideArea",
+     "computed": 1.0570908424924388,
+     "stored": 2.9625218723351,
+     "rel": -0.6431787213576838,
+     "openings": 0
+    },
+    {
+     "id": 1457715,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 13.1 313 Gesims Ventilasjonsrom:6282657",
+     "qty": "GrossSideArea",
+     "computed": 1.0570911910060987,
+     "stored": 2.96252187233517,
+     "rel": -0.6431786037168191,
+     "openings": 0
+    },
+    {
+     "id": 1483180,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:IVA 2.3T 134mm 34dB (R-95-NR):6783271",
+     "qty": "GrossSideArea",
+     "computed": 14.407372330742295,
+     "stored": 9.62722661266609,
+     "rel": 0.4965236521790388,
+     "openings": 3
+    }
+   ]
+  }
+ ],
+ "total": {
+  "CrossSectionArea": {
+   "pairs": 2752,
+   "agree": 2018,
+   "reasons": {
+    "half-surface": 58,
+    "unexplained": 2,
+    "own-profile": 5,
+    "host-figure": 111,
+    "scales-with-length": 558
+   }
+  },
+  "GrossSideArea": {
+   "pairs": 2460,
+   "agree": 1772,
+   "reasons": {
+    "matches-stored-volume": 128,
+    "split": 22,
+    "repeated": 2,
+    "net-as-gross": 327,
+    "on-a-face": 39,
+    "faces-averaged": 8,
+    "joins-off": 17,
+    "other-width": 42,
+    "centre-line": 75,
+    "unexplained": 28
+   }
+  },
+  "GrossFootprintArea": {
+   "pairs": 2312,
+   "agree": 2056,
+   "reasons": {
+    "centre-line": 256
+   }
+  },
+  "NetFootprintArea": {
+   "pairs": 1061,
+   "agree": 723,
+   "reasons": {
+    "gross-as-net": 82,
+    "centre-line": 256
+   }
+  },
+  "NetSideArea": {
+   "pairs": 1271,
+   "agree": 1129,
+   "reasons": {
+    "on-a-face": 21,
+    "joins-off": 20,
+    "faces-averaged": 10,
+    "gross-as-net": 2,
+    "other-width": 39,
+    "matches-stored-volume": 10,
+    "centre-line": 25,
+    "unexplained": 15
+   }
+  },
+  "GrossArea": {
+   "pairs": 1201,
+   "agree": 915,
+   "reasons": {
+    "on-a-face": 173,
+    "unit-slip": 24,
+    "unexplained": 41,
+    "zero": 48
+   }
+  },
+  "NetArea": {
+   "pairs": 1110,
+   "agree": 851,
+   "reasons": {
+    "on-a-face": 179,
+    "unexplained": 31,
+    "zero": 48,
+    "unit-slip": 1
+   }
+  }
+ }
+}

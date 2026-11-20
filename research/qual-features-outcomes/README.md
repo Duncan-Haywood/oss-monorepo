@@ -31,11 +31,17 @@ Mean test AUC, from [`results.txt`](experiments/results.txt) (the file also has 
 1. **Codes alone are the weakest text feature on A** (0.527 at n = 1,600, against 0.557 for words), and codes+numeric (0.556) beats numeric alone (0.540) by about as much as words do, never by more. The emotion codebook does not capture what separates replies from top-level comments.
 2. **LSA pulled ahead only with more labels** (0.595 at n = 1,600), a sign that a dense embedding can use labels more efficiently than a 2,368-dimensional sparse one. This is one run on one corpus and a crude embedding.
 3. **Coder error costs the codes their edge.** codes+numeric at n = 400 falls from 0.535 (perfect codes) to 0.523 at e = 0.02 and 0.513 at e = 0.05, below numeric alone (0.525): flipped cells in rare codes add far more false positives than a real coder would, so read this as a stress test of the worst symmetric error, not a prediction for an LLM.
-4. **Outcome D is too thin to rank anything.** 9 subreddits give 3.7% positives (about 85 in the pool), the test AUC spread is 0.02-0.03 and every set sits between 0.49 and 0.55.
+4. **Outcome D is too thin to rank anything.** 9 subreddits give 3.7% positives (77 in the 2,313-item pool), the test AUC spread is 0.02-0.03 and every set sits between 0.49 and 0.55.
 5. **The null control behaves.** Across all sets and n the coin-flip AUC is 0.494-0.511; the test set is fixed, so a shared 0.01 offset is test-set luck (standard error of an AUC on 3,000 items is about 0.011), not signal.
 
 ## Limitations
 
+- **Found by the 2026-11-20 quality census** ([audit](../../portfolio/quality/audits/2026-11-20-qual-features-outcomes.json)), not yet fixed:
+  - The words baseline is untuned: a default multinomial naive Bayes on raw counts reaches AUC 0.595 at n = 1,600 on outcome A, against 0.557 for the logistic model here. So finding 2 (LSA "uses labels more efficiently") may only reflect a weak sparse baseline, and codes are being compared to a baseline that is too low.
+  - Draws whose labelled sample has fewer than 3 positives are skipped without a count. On outcome D the n = 50 cell averages 7 of the 30 draws the header says and n = 100 averages 23, so the small-n D rows are biased toward lucky samples.
+  - Feature sets are ranked on AUC gaps of 0.001 to 0.03 on one fixed test split with no paired test; treat rankings inside about 0.02 as ties.
+  - The nearest prior work on LLM annotations as downstream features (Egami et al. 2023, design-based supervised learning; Ziems et al. 2024) is not compared against, and no LLM coder ran.
+  - `run.py` also needs `research/qual-correction/qualml.py`, which it imports through `qual-real`.
 - The outcomes were chosen because they are available, not because emotion should drive them. The test this milestone needs is an outcome that loads on a codebook, such as satisfaction from support tickets, and a corpus with one; none is open and offline here. That is the main reason the result is "no".
 - Codes here are human consensus, not LLM codes; a real coder would do worse than the e = 0 row.
 - One seed, one corpus, one model family (regularised logistic regression); no gradient boosting or neural embeddings, and the tf-idf was not tuned.

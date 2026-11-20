@@ -180,6 +180,15 @@
       "license": "MIT",
       "source": "https://github.com/irom-princeton/rapid-policy-evaluation at e9e6cb5 (src/suresim/intervals/ppi.py), three functions",
       "notice": "inline"
+    },
+    {
+      "name": "arcflash IEEE 1584-2018 model (ported)",
+      "paths": [
+        "ventures/fault-current-check/arcflash.mjs"
+      ],
+      "license": "MIT",
+      "source": "https://github.com/LiaungYip/arcflash (PyPI arcflash-calc 0.1.0: arcflash/ieee_1584/{tables,cubicle,equations,calculation}.py), ported to JavaScript",
+      "notice": "inline"
     }
   ],
   "not_third_party": [

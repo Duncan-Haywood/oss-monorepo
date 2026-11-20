@@ -1,0 +1,59 @@
+name: fault-current-check
+description: >-
+  Free browser available fault current calculator for electricians, engineers and
+  inspectors: from the service transformer (kVA, %Z) or the utility's figure,
+  through feeders, parallel sets and step-down transformers with motor
+  contribution, it gives the short-circuit current at every panel, X/R and peak,
+  a check against each panel's kA rating and NEC 110.24 label text, and shows
+  where the point-to-point method reads low, plus IEEE 1584-2018 arc flash
+  incident energy and boundary per panel and on a single-point page.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-20 in an explore run. No venture computed fault current:
+# grep for "available fault", "short-circuit current", "110.24" and "arc flash"
+# across ventures/*/index.html found none; service-load-check sizes the
+# service, voltage-drop-calculator the conductor, pv-string-sizer the strings.
+#
+# Why a tool and not a chatbot answer: it is a network (branches, transformers,
+# motors in parallel at the service) solved per panel, with complex impedances.
+# The engine found that the point-to-point method's magnitude sum reads 5.6 %
+# low at a panel 150 ft down a 1/0 feeder in its own example, the case where
+# the answer decides whether a 10 kA panel is acceptable.
+#
+# First visitor: electricians and engineers who must field-mark service
+# equipment under NEC 110.24 and check panel AIC ratings; searches like
+# "available fault current calculator", "110.24 label"; volume not measured
+# with an external tool.
+#
+# Liability: arithmetic on typed numbers, not engineering advice; the page says
+# a stamped short-circuit study is the document of record. Unverified: hand
+# arithmetic and unit tests against the point-to-point formulas only.
+
+hypotheses:
+  - claim: >-
+      Electricians and engineers who must mark NEC 110.24 labels or check panel
+      ratings will use a no-signup tool that solves every panel at once and
+      writes the label text.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a result that disagrees with a commercial short-circuit study on the same inputs by more than the documented reactance and resistance assumptions explain, and the disagreement is the engine's error.
+
+links:
+  production: https://marisstella.app/fault-current-check/
+  analytics: null

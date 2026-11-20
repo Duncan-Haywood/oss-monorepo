@@ -1,0 +1,208 @@
+{
+ "date": "2026-11-20",
+ "subject": "research/buildbot-nailpay",
+ "stratum": "research",
+ "seed": "2026-11-20-67e4",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a construction cost estimator / construction-robotics economist (the person who prices a framing crew from RSMeans-type productivity data and reviews robot-adoption business cases for Automation in Construction); first checks: is the person's time per sheet a real productivity figure (pneumatic nailing, not hand hammering), is the robot actually able to do the task as costed, is the ownership-cost formula standard, and what is new against existing construction-robot economics and factory panel-nailing lines",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "All outputs reproduce and recompute independently. `PYTHONPATH=src python3 -m unittest discover -s tests -v` 9 OK; re-ran experiments/run.py (results.json redirected to /tmp/claude-0/audit-buildbot-nailpay) and `diff`/`cmp` against experiments/results.txt and results.json: TXT-IDENTICAL, JSON-IDENTICAL. Own script with no subject import (`cd research && python3 -I /tmp/claude-0/audit-buildbot-nailpay/indep.py buildbot-mobilebase/experiments/results.json buildbot-nailpay/experiments/results.json`) using the textbook straight-line ownership cost (price/life + price x upkeep/use) and a first-principles labour-substitution break-even h = r(R + s w)/w: rates 4.267/6.933/12.267 $/h, every README break-even row (18/35/52/94, 56/109/162/295, 15/26/37/64, 25/43/60/104, 51/76/100/161) and every per-house figure ($29/$69/$113/$190; $24/$64/$109/$186) match to the rounded digit. Nail count per IRC Table R602.3(1) (6 in edges, 12 in intermediate studs, 4x8 vertical, 16 in o.c.): 62 if intermediate-stud field rows stop at the plates, 66 on a plain grid; 62 is a defensible convention (partial). The Monte Carlo share (section C) is recomputed within 0.01-0.03 but its base-price draw is mis-specified (defect). Inputs that decide the answer (372 s person time, base price) are unsourced but declared, so 3 not 4.",
+  "completeness": "README claims checked: 9 tests (9 ran, OK); `python experiments/run.py` deterministic under a second (byte-identical rerun); results table rows A-D present; figure.png present (figure.py not rerun: matplotlib absent in this container); live page: proxy returned 000 for marisstella.app, but `loadResearchRegistry('.')` in platform/pages/research-registry.mjs lists the slug under theme buildbot, so the build serves it. Next steps (supervision model, measured person time) honestly marked open. No stubs or TODOs.",
+  "verification": "`env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests` 9 tests OK. 4 seeded mutants via platform/ci/quality_mutate.py: removing the supervision term from saving_per_sheet was caught (test_breakeven_is_zero_saving); dropping the base-price draw in p_saves, shifting the base median index by 3, and swapping the walking 5 s key for the 20 s key all SURVIVED. Tests check algebraic identities and ordering, not the reported numbers (no test pins any break-even or per-house value, nor which mobilebase entry feeds which row).",
+  "craft": "Read src/buildbot_nailpay/model.py (80 lines), experiments/run.py, figure.py, tests/test_model.py. Small, readable, reuses buildbot-cost's robot_rate instead of copying it. Defects: sys.path.insert to a sibling project instead of a declared dependency; run.py and figure.py call main() at import (no __main__ guard); p_saves uses rnd.choice([0.0, rnd.uniform(...)]) so the walking robot is charged for a base in half the draws; 'median' of 24 values is the upper median (88.0 vs 87.7). Senior Python reviewer would accept with small changes.",
+  "claims": "Checked: $37.86 = 29.12 x 1.3 (buildbot-cost/model.py:17, BLS cited there); $16k G1 (buildbot-cost PRICE_USD); 54.1-121.4 s and 84.7/264.7 s (buildbot-mobilebase results.json, read by my script); 32 sheets = 1984/62 (taskbook S4); 'supervision raises threshold 5x' (18->94 = 5.2x) and 'base price under 2x' (15->23) pass; '75 sq ft/h = 2.3 sheets/h' arithmetic passes (75/32). Disclaimer 'Simulated and preliminary', 'Not a quote, not a safety case' present. Gap: the headline and project.json summary present a G1 nailing a sheet in 85 s and pay-off thresholds, while buildbot-taskbook (S4: g1_payload 'no', g1_capacity_kg 0.2 for a 3.4 kg nailer) says the G1 cannot hold the tool; this is mentioned only in Limitations as 'an upper bound', which understates infeasibility. Headline also says 'if a person really took 6 minutes ... would pay by a wide margin' giving prominence to an implausible 6 s/nail input.",
+  "fitness": "Job: a researcher wants the break-even person time to compare against a measured crew rate. The grid lets them do that in one lookup, reproducibly, and the person-time inversion is a useful framing. Nearest prior work: construction-robot adoption economics (e.g. bricklaying-robot feasibility studies, Bock & Linner's construction-robotics texts) and, for this exact task, factory wall-panel lines with automatic nailing bridges, which already nail sheathing at industrial rates; none is cited. The model is the buildbot-cost slowdown break-even re-expressed in seconds (test_matches_cost_model_slowdown proves the identity), so the method is not new; the result is sound arithmetic on unsourced inputs for a robot that per the repo's own taskbook cannot carry the tool. Buildable-on as an internal step, not publishable.",
+  "domain": "Ownership cost (depreciation + upkeep per use hour) and break-even substitution are standard engineering economics: pass. Departures an estimator hits first: (1) sheathing is nailed with a pneumatic nailer at roughly a nail a second, so the taskbook's 0.1 min a nail (hand-hammer pace) is far off practice; the README concedes 'a pro nails a sheet in about a minute' but still headlines 372 s; (2) placing/holding is folded into a scalar supervision rather than a crew model; (3) idle time, setup and moving between walls are not costed; (4) independent draws with the base cost mis-assigned. A senior estimator would not sign off the headline, would accept the grid as a sensitivity table."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Break-even person s/sheet, walking 5 s/step, supervision 0.1/0.3/0.5/1.0",
+   "method": "first-principles labour-substitution break-even and textbook straight-line ownership cost, own script, no subject import",
+   "command": "cd research && python3 -I /tmp/claude-0/audit-buildbot-nailpay/indep.py buildbot-mobilebase/experiments/results.json buildbot-nailpay/experiments/results.json",
+   "expected": "18 / 35 / 52 / 94 (README:41)",
+   "observed": "[18, 35, 52, 94], rate 4.267 $/h",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Break-even rows for walking 20 s, base fastest $10k, base median $10k, base slowest $30k",
+   "method": "same independent script",
+   "command": "cd research && python3 -I /tmp/claude-0/audit-buildbot-nailpay/indep.py buildbot-mobilebase/experiments/results.json buildbot-nailpay/experiments/results.json",
+   "expected": "56/109/162/295; 15/26/37/64; 25/43/60/104; 51/76/100/161",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Dollars per house on 32 wall sheets, supervision 0.3, walking and $20k base median",
+   "method": "independent per-sheet saving (person wage minus robot ownership and supervision) x 32",
+   "command": "cd research && python3 -I /tmp/claude-0/audit-buildbot-nailpay/indep.py buildbot-mobilebase/experiments/results.json buildbot-nailpay/experiments/results.json",
+   "expected": "$29/$69/$113/$190 and $24/$64/$109/$186",
+   "observed": "29 69 113 190 / 24 64 109 186",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Nails per 4x8 wall sheet (NAILS_PER_SHEET = 62)",
+   "method": "IRC 2021 Table R602.3(1): 6 in o.c. panel edges, 12 in o.c. intermediate supports, studs 16 in o.c.",
+   "command": "cd research && python3 -I /tmp/claude-0/audit-buildbot-nailpay/indep.py buildbot-mobilebase/experiments/results.json buildbot-nailpay/experiments/results.json",
+   "expected": "62 to 66 by convention",
+   "observed": "62 excluding field nails at the plates, 66 on a plain grid",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Section C Monte Carlo share for walking robots",
+   "method": "own re-draw with the base price applied only to base configurations",
+   "command": "cd research && python3 -I /tmp/claude-0/audit-buildbot-nailpay/indep.py buildbot-mobilebase/experiments/results.json buildbot-nailpay/experiments/results.json",
+   "expected": "walking 20 s: share with no base cost",
+   "observed": "0.831 without base cost vs subject 0.796 (subject charges a base in half the walking draws)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run it",
+   "command": "cd research/buildbot-nailpay && env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests",
+   "expected": "9 pass",
+   "observed": "Ran 9 tests ... OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Reproduce results.txt and results.json",
+   "method": "rerun experiments/run.py with results.json redirected to scratch, diff",
+   "command": "python3 - (runpy experiments/run.py, results.json -> /tmp/claude-0/audit-buildbot-nailpay); diff /tmp/claude-0/audit-buildbot-nailpay/results.txt experiments/results.txt; cmp /tmp/claude-0/audit-buildbot-nailpay/results.json experiments/results.json",
+   "expected": "identical",
+   "observed": "TXT-IDENTICAL, JSON-IDENTICAL",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Robot can hold the nailer (implicit in headline)",
+   "method": "read buildbot-taskbook taskbook.json task S4",
+   "command": "python3 -c \"import json;tb=json.load(open('research/buildbot-taskbook/experiments/taskbook.json'));print([t for t in tb['tasks'] if t['id']=='S4'])\"",
+   "expected": "G1 payload adequate for a 3.4 kg tool",
+   "observed": "g1_payload 'no', g1_capacity_kg 0.2",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Supervision 0.1->1.0 raises threshold 5x; base price under 2x' (README:49)",
+   "method": "ratios from my recomputed grid",
+   "command": "cd research && python3 -I /tmp/claude-0/audit-buildbot-nailpay/indep.py buildbot-mobilebase/experiments/results.json buildbot-nailpay/experiments/results.json",
+   "expected": "~5x and <2x",
+   "observed": "94/18 = 5.2x; 23/15 = 1.5x",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Live page is built",
+   "method": "proxy probe, then the deploy's registry loader",
+   "command": "curl https://marisstella.app/research/buildbot-nailpay/ ; node -e \"import('./platform/pages/research-registry.mjs').then(m=>{...})\"",
+   "expected": "page served or registered",
+   "observed": "curl 000 (proxy); registry lists slug under theme buildbot: true",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "Person time per sheet vs trade practice",
+   "method": "pneumatic sheathing nailing at roughly one nail a second (standard framing practice) vs taskbook 0.1 min/nail",
+   "command": "cd research && python3 -I /tmp/claude-0/audit-buildbot-nailpay/indep.py buildbot-mobilebase/experiments/results.json buildbot-nailpay/experiments/results.json",
+   "expected": "about 60-90 s of nailing per 62-nail sheet",
+   "observed": "headline input 372 s (6 s a nail); README concedes 'about a minute' for a pro",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/buildbot_nailpay/model.py:74",
+   "change": "rnd.choice([0.0, rnd.uniform(5000, 40000)]) -> 0.0",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/buildbot_nailpay/model.py:35",
+   "change": "\"base, median\": base[len(base) // 2], -> \"base, median\": base[len(base) // 2 - 3],",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/buildbot_nailpay/model.py:63",
+   "change": "robot_s * (rate / wage + supervision) ) -> robot_s * (rate / wage) )",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/buildbot_nailpay/model.py:32",
+   "change": "mb[\"walking\"][\"5.0\"] -> mb[\"walking\"][\"20.0\"]",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Headline and project.json summary present a G1 nailing a sheet in 85 s and the person time above which it pays, but buildbot-taskbook S4 records g1_payload 'no' (capacity 0.2 kg at that pose vs a 3.4 kg nailer); Limitations calls the rows 'an upper bound', understating that the costed robot cannot do the task",
+   "where": "research/buildbot-nailpay/README.md:7",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Headline leans on the taskbook's 372 s a sheet (0.1 min a nail, hand-hammer pace) when sheathing is nailed pneumatically at about a nail a second; the 'pays by a wide margin' branch rests on an input a framer would call implausible",
+   "where": "research/buildbot-nailpay/src/buildbot_nailpay/model.py:43",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests pin no reported number and no input mapping: swapping the walking 5 s/20 s keys, shifting the base median, or removing the base-price draw all leave the 9 tests green",
+   "where": "research/buildbot-nailpay/tests/test_model.py:40",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "p_saves draws base price 0 or $5k-$40k for every configuration, so walking robots pay for a base in half the draws and base robots get a free base in half (walking 20 s share 0.796 vs 0.831 recomputed without base cost)",
+   "where": "research/buildbot-nailpay/src/buildbot_nailpay/model.py:74",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work cited: construction-robot adoption economics and factory wall-panel nailing bridges (the industrial baseline for nailing sheathing) are absent; the method is buildbot-cost's slowdown re-expressed in seconds",
+   "where": "research/buildbot-nailpay/README.md:14",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'base, median' takes the upper median of 24 settings (88.0 s) rather than the median (87.7 s); harmless to rounded results but mislabelled",
+   "where": "research/buildbot-nailpay/src/buildbot_nailpay/model.py:35",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Imports a sibling project via sys.path.insert rather than a declared dependency; run.py and figure.py run main() at import with no __main__ guard",
+   "where": "research/buildbot-nailpay/src/buildbot_nailpay/model.py:16",
+   "category": "repo-hygiene",
+   "origin": "build"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Arithmetically sound and fully reproducible: results.txt/json regenerate byte-identical, and an independent script recomputes every break-even and per-house figure in the README exactly. It misses the bar on claims, verification and domain: the headline costs a G1 nailing sheathing although the repo's own taskbook says the G1 cannot hold the 3.4 kg nailer, and foregrounds a 6 s-a-nail person time that a framer using a pneumatic nailer would reject; three of four seeded mutants survive because no test pins a reported number; the Monte Carlo charges walking robots for a base half the time; no prior work is cited and the method is buildbot-cost's break-even in different units. Useful as a sensitivity grid, not publishable."
+}

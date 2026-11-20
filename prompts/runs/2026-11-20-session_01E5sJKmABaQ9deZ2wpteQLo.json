@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKmABaQ9deZ2wpteQLo",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T23:18:05Z",
+  "ended": "2026-11-20T23:24:41Z",
+  "wall_minutes": 6.73,
+  "tokens_in": 3545193,
+  "tokens_out": 24016,
+  "cost_usd": 1.99,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17989",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "none blocking; the 7t LOG 'Next (a)' gave a precise next step, which made planning fast"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-correct-a-ten-cycle-battery-fade-forecast-dont-lengthen-it.md",
+    "research/cell-fidelity/LOG.md (7u plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "cell-fidelity milestone 7u, pre-registered (plan commit before report). O4 (early plating bend) == 7c's O3 to 3e-4; 7c correction cuts f=30 median ten-cycle error 0.105->0.038 and 0.249->0.072. H331-H333 supported, H334 refuted (tie at f=30), H335 inconclusive. Local checks: tests/test_bend7u.py 8 OK, build.py ok, check_md_links ok, research_live_links ok, programme_check ok, check_posts ok, cite_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5a6d2f0a-88a1-5c08-b435-291b21189601",
+    "transcripts": 1,
+    "first": "2026-11-20T23:18:05Z",
+    "last": "2026-11-20T23:24:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 70,
+        "output": 24016,
+        "thinking": 4259,
+        "cache_read": 3442512,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102611,
+        "api_equivalent_usd": 1.99,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 70,
+      "output": 24016,
+      "thinking": 4259,
+      "cache_read": 3442512,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102611,
+      "api_equivalent_usd": 1.99,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.73,
+      "active_minutes": 6.73,
+      "model_minutes": 4.45,
+      "tool_minutes": 2.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "plan, stdlib analysis over existing benches, tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 301.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

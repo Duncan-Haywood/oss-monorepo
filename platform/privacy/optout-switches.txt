@@ -441,6 +441,7 @@ ventures/farm-crop-mix-optimizer/usage.mjs
 ventures/farmers-market-booth-calculator/usage.mjs
 ventures/farmland-lease-cash-rent-vs-crop-share-calculator/usage.mjs
 ventures/farrier-visit-pricing-calculator/usage.mjs
+ventures/fault-current-check/usage.mjs
 ventures/fba-aged-inventory-fee-analyzer/usage.mjs
 ventures/fba-reimbursement-claim-finder/usage.mjs
 ventures/fbar-8938-checker/usage.mjs

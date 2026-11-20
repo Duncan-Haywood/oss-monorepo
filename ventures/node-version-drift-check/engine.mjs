@@ -74,6 +74,8 @@ function daysBetween(fromIso, toIso) {
 // {lo, loInc, hi, hiInc} over [major, minor, patch] tuples. Supports ^ ~ >=
 // > <= < = , x-ranges, hyphen ranges, space-separated AND and ||. Prerelease
 // and build tags are ignored (a prerelease is treated as its release).
+// Numeric parts with a leading zero are rejected, as SemVer 2.0.0 section 2
+// and node-semver do. range.diff.test.mjs pins all of this to node-semver.
 const INF = Infinity;
 const ANY = Object.freeze({ lo: [0, 0, 0], loInc: true, hi: [INF, INF, INF], hiInc: false });
 
@@ -85,7 +87,7 @@ function cmp(a, b) {
 function parsePartial(text) {
   const s = text.trim().replace(/^v/i, "").replace(/^=\s*/, "");
   if (s === "") return { M: null, m: null, p: null };
-  const m = /^(\d+|[xX*])(?:\.(\d+|[xX*]))?(?:\.(\d+|[xX*]))?(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.exec(s);
+  const m = /^(0|[1-9]\d*|[xX*])(?:\.(0|[1-9]\d*|[xX*]))?(?:\.(0|[1-9]\d*|[xX*]))?(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.exec(s);
   if (!m) return null;
   const num = (g) => (g === undefined || /^[xX*]$/.test(g) ? null : Number(g));
   const out = { M: num(m[1]), m: num(m[2]), p: num(m[3]) };
@@ -388,6 +390,7 @@ export const FINDING_KINDS = Object.freeze({
   MAJOR_DISAGREEMENT: "major-disagreement",
   EOL_NODE: "eol-node",
   ENGINES_UNBOUNDED: "engines-unbounded",
+  ENGINES_UNSATISFIABLE: "engines-unsatisfiable",
   EOL_SOON: "eol-soon",
   ENGINES_ALLOWS_EOL: "engines-allows-eol",
   UNRESOLVED_PIN: "unresolved-pin",
@@ -498,7 +501,9 @@ export function analyze(files, { today = isoToday() } = {}) {
   // 1. pins that cannot satisfy engines.node
   for (const pin of pins) {
     const { pkg } = governing(pin.file, true);
-    if (!pkg || intervalsIntersect(pin.intervals, pkg.intervals)) continue;
+    // An engines.node no version satisfies is reported once, as the root
+    // cause, in step 4 -- not as every pin "violating" it.
+    if (!pkg || !pkg.intervals.length || intervalsIntersect(pin.intervals, pkg.intervals)) continue;
     findings.push({
       kind: FINDING_KINDS.PIN_VIOLATES_ENGINES, severity: "risk", file: pin.file,
       message: `${label(pin)} pins Node.js \`${pin.raw}\`, but ${pkg.file} engines.node is \`${pkg.engines}\` -- no version matching the pin satisfies it.`,
@@ -546,6 +551,13 @@ export function analyze(files, { today = isoToday() } = {}) {
   // when its lower bound already allows an end-of-life major.
   for (const pkg of pkgs.values()) {
     if (!pkg.intervals) continue;
+    if (!pkg.intervals.length) {
+      findings.push({
+        kind: FINDING_KINDS.ENGINES_UNSATISFIABLE, severity: "risk", file: pkg.file,
+        message: `${pkg.file}: engines.node \`${pkg.engines}\` is satisfied by no Node.js version at all, so npm's engines check (EBADENGINE) fails on every Node.js version. Contradictory bounds, such as \`>=20 <18\` typed for \`>=18 <20\`, read this way.`,
+      });
+      continue;
+    }
     const pinned = pins.some((p) => governing(p.file, true).pkg === pkg);
     if (!hasUpperBound(pkg.intervals) && !pinned) {
       findings.push({

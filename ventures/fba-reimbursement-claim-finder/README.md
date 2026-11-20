@@ -25,8 +25,9 @@ that is not read lists the rows skipped and why.
 
 Missing = Lost + Damaged. Found units and lost/damaged reimbursements are taken off, oldest
 loss first; reversals add back; other reasons are ignored. Value = average reimbursement per
-unit for that SKU, else a default you type. Aged against a claim window (18 months) and a wait
-(45 days), both editable because Amazon changes them. Inbound shortages, fee-error disputes and
+unit for that SKU, else a default you type. Aged against Amazon's current 60-day claim window for
+warehouse losses (18 months until late 2024) and a wait (0 days by default), both editable
+because Amazon changes them. Inbound shortages, fee-error disputes and
 Amazon's decisions are not modelled; Amazon decides every claim.
 
 ## Run

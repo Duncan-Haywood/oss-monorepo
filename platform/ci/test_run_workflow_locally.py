@@ -2269,6 +2269,27 @@ class BudgetHintTest(unittest.TestCase):
         self.assertIsNone(runner.budget_hint(13, 0, listing=False))
 
 
+class LocalCostHint(unittest.TestCase):
+    """A sweep names its measured local cost, so a run can wait for CI instead."""
+
+    def test_long_selection_names_cost_and_ci(self):
+        hint = runner.local_cost_hint(
+            ["portfolio-pages.yml", "portfolio-validate.yml", "doc-refs-ci.yml"], listing=False)
+        self.assertIn("about 12 min", hint)
+        self.assertIn("portfolio-pages.yml ~8 min", hint)
+        self.assertIn("ci_starvation.py", hint)
+
+    def test_short_selection_unknown_or_listing_is_quiet(self):
+        self.assertIsNone(runner.local_cost_hint(["pages.yml", "doc-refs-ci.yml"], listing=False))
+        self.assertIsNone(runner.local_cost_hint(["no-such.yml"], listing=False))
+        self.assertIsNone(runner.local_cost_hint(["portfolio-pages.yml"], listing=True))
+
+    def test_table_names_real_workflows(self):
+        wf = os.path.join(runner.REPO, ".github", "workflows")
+        for name in runner.MEASURED_LOCAL_S:
+            self.assertTrue(os.path.isfile(os.path.join(wf, name)), name)
+
+
 class Handoff(unittest.TestCase):
     """A long run under an agent harness detaches instead of being cut off."""
 

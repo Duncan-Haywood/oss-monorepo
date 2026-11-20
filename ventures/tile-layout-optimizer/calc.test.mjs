@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   SYSTEMS, BONDS, buildProblem, optimizeTile, planAll, verifyPlan, purchase, ruleOfThumb, naiveLayout,
-  viewItems, cutList, reportCsv, sampleInput, parseTiles, toU, fromU, lenText, areaText, fmtNum, layoutText,
+  viewItems, cutList, reportCsv, sampleInput, parseTiles, toU, fromU, lenText, areaText, fmtNum, layoutText, offsetWarning,
 } from "./calc.mjs";
 
 const M = SYSTEMS.metric;
@@ -199,7 +199,7 @@ test("random rooms, tiles, cut-outs, bonds and settings always produce a verifie
   let seed = 12345;
   const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
   const pick = (a, b) => a + Math.floor(rnd() * (b - a + 1));
-  for (let n = 0; n < 40; n++) {
+  for (let n = 0; n < 150; n++) {
     const tw = pick(10, 60), th = pick(10, 120);
     const roomW = pick(60, 400), roomL = pick(60, 400);
     const cutouts = [];
@@ -293,4 +293,16 @@ test("parseTiles reads a pasted block", () => {
   assert.equal(t.length, 2);
   assert.deepEqual(t[0], { name: "Plank", w: 20, h: 120, perBox: 6, boxPrice: 62 });
   assert.equal(t[1].boxPrice, 68);
+});
+
+test("a half offset on tile with a side over 18 in carries the ANSI A108.02 33% warning (quality census 2026-11-20)", () => {
+  const [straight, half, third] = BONDS;
+  assert.match(offsetWarning(half, toU(60, 10), toU(30, 10)), /ANSI A108\.02/);
+  assert.equal(offsetWarning(third, toU(60, 10), toU(30, 10)), null);
+  assert.equal(offsetWarning(straight, toU(60, 10), toU(30, 10)), null);
+  assert.equal(offsetWarning(half, toU(40, 10), toU(20, 10)), null, "40 cm is under 18 in");
+  assert.match(offsetWarning(half, toU(24, 25.4), toU(12, 25.4)), /33%/);
+  const forced = best({ roomW: 120, roomL: 60, tiles: [{ name: "p", w: 60, h: 30 }], bonds: ["half"] });
+  assert.match(forced.plan.offsetWarning, /lippage/);
+  assert.equal(best({ roomW: 120, roomL: 60, tiles: [{ name: "p", w: 60, h: 30 }] }).plan.offsetWarning, null);
 });

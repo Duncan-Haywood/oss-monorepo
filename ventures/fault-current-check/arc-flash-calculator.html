@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23a5361d'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Arc Flash Calculator (IEEE 1584-2018) — Incident Energy and Boundary</title>
+  <meta name="description" content="Free IEEE 1584-2018 arc flash calculator: incident energy, arcing current and arc flash boundary for 208 V to 15 kV equipment, with the reduced-arcing-current case, enclosure size correction and label text. Checked against the standard's worked examples.">
+  <meta property="og:title" content="Arc Flash Calculator (IEEE 1584-2018) — free, in your browser">
+  <meta property="og:description" content="Incident energy and arc flash boundary by the 2018 model, both arcing-current cases, every intermediate figure shown. Nothing uploaded.">
+  <link rel="canonical" href="./arc-flash-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Arc Flash Calculator (IEEE 1584-2018)", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Incident energy, arcing current and arc flash boundary by the IEEE 1584-2018 model for three-phase systems from 208 V to 15 kV, with the reduced-arcing-current case, enclosure size correction and label text. Runs in your browser."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What inputs does an IEEE 1584-2018 arc flash calculation need?", "acceptedAnswer": {"@type": "Answer", "text": "The system voltage (208 V to 15 kV, three-phase), the bolted fault current, the electrode configuration (VCB, VCBB, HCB, VOA or HOA), the gap between conductors, the enclosure height, width and depth, the working distance, and the protective device's clearing time at the arcing current. Typical gaps, enclosure sizes and working distances for each equipment type are tabulated in the standard and preloaded here."}}, {"@type": "Question", "name": "Why are there two clearing times?", "acceptedAnswer": {"@type": "Answer", "text": "IEEE 1584-2018 asks for a second calculation at a reduced arcing current, because arcing current varies and a breaker or fuse can be much slower at a lower current. In the standard's own 480 V example the device clears the full arcing current in 61.3 ms but the reduced one in 319 ms, and the incident energy rises from 2.77 to 12.70 cal/cm². Using one time for both would understate it by 78 percent."}}, {"@type": "Question", "name": "What is the arc flash boundary?", "acceptedAnswer": {"@type": "Answer", "text": "The distance from the arc at which the incident energy falls to 1.2 cal/cm², the level associated with the onset of a second-degree burn on bare skin. Inside it, arc-rated protection is needed."}}, {"@type": "Question", "name": "Which electrode configuration should I choose?", "acceptedAnswer": {"@type": "Answer", "text": "VCB (vertical conductors in a box) is the most common for switchgear, panelboards and MCCs. VCBB applies where vertical conductors end in an insulating barrier, HCB where conductors run horizontally toward the opening, and VOA or HOA in open air. If you are not sure, choose the worst of the three enclosed configurations."}}, {"@type": "Question", "name": "Is this the same as the old 2002 method?", "acceptedAnswer": {"@type": "Answer", "text": "No. IEEE 1584-2018 replaced the 2002 equations with a model that adds electrode configuration, enclosure size and a voltage interpolation, and its results can differ substantially from 2002 figures for the same equipment. This page uses only the 2018 model."}}, {"@type": "Question", "name": "Is anything I enter uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1d18; background: #f7f3f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #8a2c14; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #5c1d0d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5c1d0d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a4c46; }
+    .card { background: #fff; border: 1px solid #e6d8d2; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5c1d0d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8f746a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid[hidden] { display: none; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #8a2c14; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f3e4de; color: #5c1d0d; }
+    button.small { padding: 6px 10px; margin: 0; font-size: .85rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #f0e6e2; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #5a4c46; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    #feeders input, #feeders select { padding: 6px; font-size: 14px; min-width: 70px; }
+    .finding { border-bottom: 1px solid #f0e6e2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #efe7e3; color: #5c1d0d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #faf1ee; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #5c1d0d; }
+    footer { margin-top: 28px; border-top: 1px solid #e6d8d2; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    td.bad { background: #f8dcd6; font-weight: 700; }
+    pre.label { background: #fff8e1; border: 2px solid #1f1d18; padding: 14px; font: 600 14px ui-monospace, monospace; white-space: pre-wrap; max-width: 460px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ARC FLASH · IEEE 1584-2018 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Arc flash incident energy, by the 2018 model</h1>
+    <p>Enter the voltage, bolted fault current, equipment and the protective device's clearing times. You get the <strong>arcing current</strong> (full and reduced), the <strong>incident energy at the working distance</strong>, the <strong>arc flash boundary</strong> and every intermediate figure, the way IEEE 1584-2018's worked examples lay them out, plus text for a label.</p>
+    <p class="note">Arithmetic on your numbers, not engineering advice. An arc flash study by a qualified engineer, with the actual protective device curves, is the document of record.</p>
+  </header>
+<main>
+  <section class="card">
+    <h2>System and equipment</h2>
+    <div class="grid">
+      <div><label for="volts">System voltage, line to line, V</label><input type="text" id="volts" inputmode="decimal" placeholder="480" autocomplete="off"></div>
+      <div><label for="ibfKa">Bolted three-phase fault current, kA</label><input type="text" id="ibfKa" inputmode="decimal" placeholder="45" autocomplete="off"></div>
+      <div><label for="equip">Equipment type (fills typical sizes)</label><select id="equip"></select></div>
+      <div><label for="config">Electrode configuration</label><select id="config"><option value="VCB">VCB: vertical conductors in a box</option><option value="VCBB">VCBB: vertical, ending in an insulating barrier</option><option value="HCB">HCB: horizontal conductors in a box</option><option value="worst">Not sure: worst of VCB, VCBB, HCB</option><option value="VOA">VOA: vertical, open air</option><option value="HOA">HOA: horizontal, open air</option></select></div>
+      <div><label for="unit">Dimensions in</label><select id="unit"><option value="mm">millimetres</option><option value="in">inches</option></select></div>
+      <div><label for="gap">Conductor gap</label><input type="text" id="gap" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="dist">Working distance</label><input type="text" id="dist" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="h">Enclosure height</label><input type="text" id="h" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="w">Enclosure width</label><input type="text" id="w" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="d">Enclosure depth</label><input type="text" id="d" inputmode="decimal" autocomplete="off"></div>
+    </div>
+    <h3>Clearing time</h3>
+    <div class="grid">
+      <div><label for="t">At the arcing current, ms</label><input type="text" id="t" inputmode="decimal" placeholder="61.3" autocomplete="off"></div>
+      <div><label for="tMin">At the reduced arcing current, ms</label><input type="text" id="tMin" inputmode="decimal" placeholder="319" autocomplete="off"></div>
+      <div><label for="cap">Cap both at, ms (blank = no cap)</label><input type="text" id="cap" inputmode="decimal" placeholder="" autocomplete="off"></div>
+    </div>
+    <p class="note">Read the times from the device's time-current curve at the two arcing currents this page shows: calculate once to see them, then fill the times in.</p>
+    <button type="button" id="calc">Calculate</button>
+    <button type="button" class="secondary" id="example">The standard's 480 V example</button>
+    <p id="status" role="status" class="note"></p>
+  </section>
+
+  <section class="card" id="result" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="warn"></div>
+    <div class="scroll"><table id="steps"><thead><tr><th>Step</th><th class="n">Full arcing current</th><th class="n">Reduced arcing current</th></tr></thead><tbody></tbody></table></div>
+    <h3>Label text</h3>
+    <div class="grid">
+      <div><label for="name">Equipment name</label><input type="text" id="name" placeholder="MDP" autocomplete="off"></div>
+      <div><label for="date">Date of calculation</label><input type="date" id="date"></div>
+    </div>
+    <pre class="label" id="label"></pre>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>The IEEE 1584-2018 model: arcing currents at 600 V, 2.7 kV and 14.3 kV from the bolted current and gap (Eq. 1, Table 1), carried to your voltage by interpolation (Eqs. 16-18) or, at 600 V and below, by Eq. 25; the reduced arcing current from the variation factor (Eq. 2, Table 2); the enclosure size correction factor from the equivalent enclosure size (Eqs. 11-15, Tables 6 and 7); the incident energy at the working distance (Eqs. 3-6, Tables 3-5); and the arc flash boundary, the distance where that energy falls to 1.2 cal/cm². The higher of the two cases is reported. Ported from the MIT-licensed <code>arcflash</code> Python library by Li-aung Yip; its unit tests here reproduce every intermediate and final figure of the standard's worked examples, Annex D.1 (4.16 kV) and D.2 (480 V).</p>
+    <p><strong>Range:</strong> three-phase AC, 208 V to 15 kV; bolted fault 0.5-106 kA at 600 V and below, 0.2-65 kA above; gap 6.35-76.2 mm (LV) or 19.05-254 mm; working distance at least 305 mm; enclosure at least four gaps wide. Outside that the page refuses rather than extrapolates. <strong>Not modelled:</strong> DC, single-phase and above 15 kV systems, time steps where the current changes during the arc (motor decay, a second device), and the device's curve itself. <strong>Unverified</strong> against commercial study software.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What inputs does an IEEE 1584-2018 arc flash calculation need?</h3>
+    <p>The system voltage (208 V to 15 kV, three-phase), the bolted fault current, the electrode configuration (VCB, VCBB, HCB, VOA or HOA), the gap between conductors, the enclosure height, width and depth, the working distance, and the protective device's clearing time at the arcing current. Typical gaps, enclosure sizes and working distances for each equipment type are tabulated in the standard and preloaded here.</p>
+    <h3>Why are there two clearing times?</h3>
+    <p>IEEE 1584-2018 asks for a second calculation at a reduced arcing current, because arcing current varies and a breaker or fuse can be much slower at a lower current. In the standard's own 480 V example the device clears the full arcing current in 61.3 ms but the reduced one in 319 ms, and the incident energy rises from 2.77 to 12.70 cal/cm². Using one time for both would understate it by 78 percent.</p>
+    <h3>What is the arc flash boundary?</h3>
+    <p>The distance from the arc at which the incident energy falls to 1.2 cal/cm², the level associated with the onset of a second-degree burn on bare skin. Inside it, arc-rated protection is needed.</p>
+    <h3>Which electrode configuration should I choose?</h3>
+    <p>VCB (vertical conductors in a box) is the most common for switchgear, panelboards and MCCs. VCBB applies where vertical conductors end in an insulating barrier, HCB where conductors run horizontally toward the opening, and VOA or HOA in open air. If you are not sure, choose the worst of the three enclosed configurations.</p>
+    <h3>Is this the same as the old 2002 method?</h3>
+    <p>No. IEEE 1584-2018 replaced the 2002 equations with a model that adds electrode configuration, enclosure size and a voltage interpolation, and its results can differ substantially from 2002 figures for the same equipment. This page uses only the 2018 model.</p>
+    <h3>Is anything I enter uploaded?</h3>
+    <p>No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, electrical, legal or code-compliance advice, and it does not replace a qualified engineer's short-circuit or arc flash study, the utility's data, the code that applies to you or a plan review. Results are arithmetic on the numbers you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any equipment or fuse manufacturer, utility, code body or standards organisation, and no product is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>arcflash_calculated</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Sizing the service first? The <a href="../service-load-check/">service load check</a>. Feeder voltage drop? The <a href="../voltage-drop-calculator/">voltage drop calculator</a>. Need the bolted fault current first? The <a href="./">available fault current calculator</a> solves every panel and runs this model on each.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { arcFlash, arcFlashWorstEnclosed, arcLabelText, EQUIPMENT } from "./arcflash.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const DIMS = ["gap", "dist", "h", "w", "d"];
+    let last = null;
+    $("#equip").innerHTML = EQUIPMENT.map((e) => `<option value="${esc(e.id)}">${esc(e.label)}</option>`).join("");
+    const toMm = (v) => { const n = Number(String(v).trim()); return String(v).trim() === "" || !Number.isFinite(n) ? v : $("#unit").value === "in" ? n * 25.4 : n; };
+    const fromMm = (mm) => String(+($("#unit").value === "in" ? mm / 25.4 : mm).toFixed(2));
+    function preset() {
+      const e = EQUIPMENT.find((x) => x.id === $("#equip").value);
+      if (!e) return;
+      [["gap", e.gap], ["dist", e.dist], ["h", e.h], ["w", e.w], ["d", e.d]].forEach(([k, mm]) => { $("#" + k).value = fromMm(mm); });
+    }
+    let unitWas = "mm";
+    $("#unit").addEventListener("change", () => {
+      const u = $("#unit").value;
+      for (const k of DIMS) { const n = Number($("#" + k).value); if ($("#" + k).value.trim() && Number.isFinite(n)) $("#" + k).value = String(+(u === "in" && unitWas === "mm" ? n / 25.4 : u === "mm" && unitWas === "in" ? n * 25.4 : n).toFixed(2)); }
+      unitWas = u;
+    });
+    $("#equip").addEventListener("change", preset);
+    function showLabel() { if (last) $("#label").textContent = arcLabelText($("#name").value || "Equipment", last, $("#date").value); }
+    function run() {
+      const cfg = $("#config").value;
+      const inp = { volts: $("#volts").value, ibfKa: $("#ibfKa").value, config: cfg, gapMm: toMm($("#gap").value), distMm: toMm($("#dist").value), heightMm: toMm($("#h").value), widthMm: toMm($("#w").value), depthMm: toMm($("#d").value), clearMs: $("#t").value, clearMinMs: $("#tMin").value, capMs: $("#cap").value };
+      const r = cfg === "worst" ? arcFlashWorstEnclosed(inp) : arcFlash(inp);
+      if (r.error) { $("#status").textContent = r.error; $("#result").hidden = true; return false; }
+      last = r;
+      const inch = (mm) => `${Math.round(mm / 25.4)} in (${Math.round(mm)} mm)`;
+      $("#big").innerHTML = [[`${r.eCal.toFixed(2)} cal/cm²`, `incident energy at ${inch(r.distMm)}`], [inch(r.afbMm), "arc flash boundary"], [`${r.full.iarcKa.toFixed(2)} kA`, `arcing current (reduced ${r.reduced.iarcKa.toFixed(2)} kA)`], [r.worst === "reduced" ? "reduced" : "full", "case that governs"]].map(([x, l]) => `<div><strong>${esc(x)}</strong>${esc(l)}</div>`).join("");
+      const notes = [...r.warnings];
+      if (r.compared) notes.unshift(`Worst enclosed configuration: ${r.config}. ` + r.compared.map((c) => `${c.config} ${c.eCal.toFixed(2)} cal/cm²`).join(", ") + ".");
+      $("#warn").innerHTML = notes.map((w) => `<div class="finding"><p><span class="pill info">note</span>${esc(w)}</p></div>`).join("");
+      const f = (x, d = 3) => (x === null || x === undefined ? "" : x.toFixed(d));
+      const rows = [];
+      if (r.full.inter) {
+        ["600 V", "2.7 kV", "14.3 kV"].forEach((v, i) => rows.push([`Arcing current at ${v}, kA`, f(r.full.inter.iarcKa[i]), f(r.reduced.inter.iarcKa[i])]));
+      }
+      rows.push(["Arcing current at your voltage, kA", f(r.full.iarcKa), f(r.reduced.iarcKa)]);
+      rows.push(["Clearing time, ms", String(r.full.tMs), String(r.reduced.tMs)]);
+      if (r.full.inter) ["600 V", "2.7 kV", "14.3 kV"].forEach((v, i) => rows.push([`Incident energy at ${v}, J/cm²`, f(r.full.inter.eJ[i]), f(r.reduced.inter.eJ[i])]));
+      rows.push(["Incident energy, J/cm²", f(r.full.eJ), f(r.reduced.eJ)]);
+      rows.push(["Incident energy, cal/cm²", f(r.full.eCal, 2), f(r.reduced.eCal, 2)]);
+      rows.push(["Arc flash boundary, mm", f(r.full.afbMm, 0), f(r.reduced.afbMm, 0)]);
+      const shared = `Enclosure: ${r.box ? `${r.box.toLowerCase()}, equivalent size ${f(r.ees)} in, CF ${f(r.cf)}` : "open air, CF 1"}; variation factor ${f(r.varCf)}.`;
+      $("#steps tbody").innerHTML = rows.map(([a, b, c]) => `<tr><td>${esc(a)}</td><td class="n">${esc(b)}</td><td class="n">${esc(c)}</td></tr>`).join("") + `<tr><td colspan="3" class="note">${esc(shared)}</td></tr>`;
+      showLabel();
+      $("#result").hidden = false;
+      $("#status").textContent = "Done.";
+      return true;
+    }
+    function example() {
+      $("#unit").value = "mm"; unitWas = "mm";
+      Object.entries({ volts: "480", ibfKa: "45", gap: "32", dist: "609.6", h: "610", w: "610", d: "254", t: "61.3", tMin: "319", cap: "", name: "480 V switchgear (IEEE 1584-2018 Annex D.2)" }).forEach(([k, v]) => { $("#" + k).value = v; });
+      $("#equip").value = "lv-swgr"; $("#config").value = "VCB";
+    }
+    try { $("#date").value = new Date().toISOString().slice(0, 10); } catch { /* optional */ }
+    $("#calc").addEventListener("click", () => { if (run()) record("arcflash_calculated"); });
+    $("#example").addEventListener("click", () => { example(); run(); });
+    $("#name").addEventListener("input", showLabel);
+    $("#date").addEventListener("input", showLabel);
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    example();
+  </script>
+</body>
+</html>
