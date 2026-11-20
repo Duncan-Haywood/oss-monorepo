@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 154 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 155 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -161,6 +161,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **Where the ladder loses, across both corners (milestone 155, replay of 223 units, four of seven predictions held; the primary
+  failed).** On 183 ladder-branch units its 38 losses to random routing sit where mapped delay ranks routed delay worst (median
+  tau-b 0.015 against 0.160; loser AUC 0.69), ahead of clip share (0.59; 0.67 at ff, 0.51 at tt) but not significantly
+  (difference +0.11, interval -0.03 to +0.24). No flag on either pays: switching flagged units to area-only has 2.81% (oracle)
+  and 2.98% (one 8-point pilot) against SWC's 2.76%:
+  [`experiments/delay_rank/`](experiments/delay_rank/results.txt).
 - **The ladder's ff edge on short add chains is not thinner on the same designs (milestone 154, paired replay of 13 designs run
   at both ff and tt, five of seven predictions held; the primary failed narrowly).** SWC(1.25) beats equal-cost random routing by
   1.51 points at ff and 1.50 at tt; milestone 152's thinner 1.05 comes from csum4, which ran only at ff. Across the 26 units the
