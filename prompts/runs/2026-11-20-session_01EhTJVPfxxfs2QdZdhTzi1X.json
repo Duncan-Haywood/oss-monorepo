@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPfxxfs2QdZdhTzi1X",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue software; merge when done)",
+  "input_sha256": "ba8d735f1e38a39a22274e4ad88fef0a04499ed59c4100fbefd4f5c8d8d9d9c2",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T07:26:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 17874,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The scheduled prompt asks for revenue product work, but the router drew the research track (weight 0.27); followed the router as the repo's mechanism. A note on which wins when a stored scheduled prompt names a track would save the judgement call."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Expectations were committed after a short prototype (cylinder at 3 ka, tank hull at 5 lambda/L) that was needed to confirm Capytaine's far-field API and conventions; disclosed as 'Not blind' in the LOG plan.",
+      "did": "prototype, then plan commit, then full run",
+      "result": "7 of 8 expectations held; Q7 (not touched by the prototype) refuted"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Milestone 7zm of research/marine-hull: Gerritsma-Beukelman (strip sections) vs Maruo far-field added resistance from Capytaine 3.0.0 Kochin functions at zero speed. GB is 2.299x (tank, L/B 6.67) and 2.798x (monohull, L/B 10) the 3D value over lambda/L 0.5-2.0; cylinder code check within 1.3% of exact; energy identity within 1.4%. Post hoc strip-interference factor explains the gap near lambda/L 1 only. Paper: one Threats sentence + 2 refs + 4 check_numbers claims (ok). Checks run here: tests/test_maruo_check.py 6 passed and test_panel_check.py passed (python3.13 with capytaine), research/_homepage/build.py ok, check_posts ok, check_md_links ok, research_live_links ok, paper/check_numbers.py ok; PR CI green. Paper not recompiled (pdflatex absent).",
+  "corrections": [],
+  "redteam": null
+}
