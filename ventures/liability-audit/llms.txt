@@ -2,7 +2,7 @@
 
 > A free, local scan for consent, auto-renewal, disclosure, licence, leaked-key and runaway-spend problems, with the law or rule behind each finding. Observations, not legal advice.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free and open source (MIT). Findings are pattern matches on the files scanned, a checklist to review, not legal, tax, financial or professional advice.
 
 ## Pages
 

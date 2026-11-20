@@ -1,0 +1,268 @@
+{
+ "date": "2026-11-20",
+ "subject": "ventures/liability-audit",
+ "stratum": "venture",
+ "seed": "2026-11-20-c70f",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a privacy and consumer-protection product counsel (tech-transactions lawyer) who runs pre-launch and diligence compliance reviews for SaaS, paired with an AppSec engineer for the secrets/spend rules; first checks: does a tracker with no real consent gate, an affiliate link with no visible disclosure, a sign-up form with no actual privacy notice, and a subscription checkout with no renewal/cancel wording each get flagged, are the cited laws right, and is a clean report safe to rely on",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Built a realistic SaaS fixture (/tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/la/A: GA gtag.js page with an email form, Stripe checkout mode:'subscription', Next.js POST route calling Anthropic messages.create with process.env.ANTHROPIC_API_KEY, AWS Terraform with no budget, a .env with five live-format keys generated to the providers' published formats, a lockfile v3 with GPL/AGPL/LGPL/OR/dev entries) and ran `node cli.mjs scan A --fail-on high`: all 11 expected findings raised, exit 1, every evidence line matches `grep -n` (index.html:2 googletagmanager, :4 email input, checkout.js:5, route.js:2/3/5, package-lock.json:8/12), LGPL, (MIT OR GPL-3.0) and dev GPL skipped, all five secrets masked. Secret regexes agree with the vendors' documented formats (GitHub ghp_+36 = 40 chars, github_pat_ 93 chars, AWS AKIA+16, Google AIza+35 = 39, Stripe sk_live_; sk_test_ not reported). Law citations checked against the statutes: GDPR Art. 13-14, CalOPPA, ROSCA, Cal. BPC 17600, 16 CFR 255, EU AI Act Art. 50 applying 2 Aug 2026 (Art. 113), PECR, Cal. B.O.T. Act: all correct. Precision on this repo: sweep of 1,421 ventures, 0 high, 1 medium false positive (ig-media-pipeline judge.py:140, max_tokens passed via **self._params). But recall fails on the clearing heuristics (`node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/la/fn.mjs`): an affiliate link written <a rel=\"sponsored\" href=amzn.to> with no disclosure text is reported clean, because the word 'sponsored' in the link's own attribute precedes href; a GA + email-signup page that says 'runs in your browser' counts as having a privacy notice; any occurrence of 'cookie consent' anywhere clears every tracker; a tax tool page saying 'leave it as is' counts as a no-warranty disclaimer; the string 'per day' in a prompt counts as an LLM spend control; an env-key read on a line that also contains a \\s regex is blanked by PATTERN_LINE and the open endpoint is reported clean. A clean report is the output a user acts on, and these are first-hour cases for counsel, so 2.",
+  "completeness": "Every README/page feature ran: scan in text, md, json, sarif (SARIF 2.1.0 parses, 14 rules, 19 results, every ruleId defined), --fail-on (exit 1 high, 0 when only low with --fail-on medium), --only/--skip with unknown-rule exit 2, sweep (md and json; root licence inherited; 1,421 ventures in 16 s), rules, help; browser page imports audit.mjs/example.mjs/usage.mjs and calls auditFiles on a picked folder or pasted HTML; AGENT.md playbook present. ROADMAP lists rules not yet built as 'Next', not claimed. Served copy: `node platform/pages/served-copy.mjs liability-audit` reports no placeholder or retired origin.",
+  "verification": "`node --test '*.test.mjs'` in the subject root: 31 tests, 31 pass, 0.11 s. Six seeded mutants via quality_mutate.py: affiliate disclosure position (audit.mjs:337) CAUGHT, OR-licence skip (:413) CAUGHT, dev-dependency skip (:410) CAUGHT, short-secret mask (:143) CAUGHT, 'per hour/day/user' spend-control alternative removed (:60) SURVIVED, the example/placeholder context suppression of secrets removed (:245) SURVIVED. 4 of 6 caught; tests have positive and negative fixtures per rule but none for the clearing-signal false negatives above.",
+  "craft": "Read audit.mjs (477 lines), cli.mjs (202), index.html inline module, usage.mjs, all three test files. Pure, dependency-free, one engine shared by CLI, page and sweep; facts collected once; findings escaped before innerHTML; storage guarded. Defects: PATTERN_LINE (audit.mjs:156) blanks a whole source line if it contains any regex escape, which hides real code on that line; the mask reports the truncated length (allMatches slices to 120, so a 156-char sk-proj key prints '120 chars', audit.mjs:135/246); SARIF points no-license results at a LICENSE file that does not exist (cli.mjs:111); clearing patterns test raw HTML including attributes rather than visible text (audit.mjs:337).",
+  "claims": "README rules table matches RULES (enforced by page.test.mjs); privacy claim (no upload, local-storage counter, DNT/GPC honoured) backed by usage.mjs:34 and the page script; no-warranty and not-advice text on README, both pages and every CLI output; 'no high-severity false positives on this repo' still holds (0 high on 1,421 ventures). README sweep numbers are dated 2026-10-16 (now 6 findings on 1,421 ventures vs '4 low on 1,274'), acceptable as dated. Gaps: the explainer says it finds 'a tracker script without a consent manager', but any consent-ish token anywhere clears it (ROADMAP item 2 admits script order is not read); llms.txt:5 carries calculator boilerplate 'Results are estimates from the numbers typed in', wrong for a file scanner.",
+  "fitness": "Walked the founder's pre-launch job: scan the repo, get a list with file:line, why and fix, gate CI on high. For a typical Next.js + Stripe + GA app it produces exactly the checklist counsel would start from. But two common real-world shapes pass clean: affiliate blogs (rel=\"sponsored\" is Google's recommended markup, so the one rule an affiliate site needs is silenced) and sites with a hand-rolled or mentioned-but-not-wired cookie banner. Hypotheses about external users are untested; usage unmeasured.",
+  "domain": "Compared with FTC 16 CFR 255 and the FTC's .com Disclosures guidance (disclosure must be clear, conspicuous, visible text near the claim): an invisible rel attribute is accepted as a disclosure. GDPR Art. 13 / CalOPPA require an actual notice; a marketing sentence ('runs in your browser', 'we never collect') satisfies PRIVACY_NOTICE_TEXT. ePrivacy/PECR require prior consent before the tracker loads; the rule accepts any CMP-shaped token. The statute citations and 'why' texts are accurate and the tool consistently frames output as observations, which counsel would accept; the clearing tests are where the method departs. Minor: the output-cap rule's 'why' does not apply to the Anthropic Messages API, where max_tokens is required."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Realistic SaaS fixture: GA + email form + Stripe subscription + Anthropic route + AWS tf + .env keys + lockfile",
+   "method": "expected findings derived from the cited statutes/vendor docs and the fixture's own contents; evidence lines recomputed with grep -n",
+   "command": "node ventures/liability-audit/cli.mjs scan /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/la/A --fail-on high",
+   "expected": "11 findings (5 high incl. tracker, privacy, subscription, secret, llm endpoint), lines index.html:2/:4, checkout.js:5, route.js:2/3/5, package-lock.json:8/12; exit 1",
+   "observed": "11 findings, same rules and lines, exit 1",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Secret formats: sk_test_ ignored; OpenAI legacy and sk-proj, Google AIza, github_pat_ detected and masked",
+   "method": "vendor-published token formats (GitHub token format blog 2021 and fine-grained PAT, Google API key AIza+35, Stripe test/live prefixes, OpenAI T3BlbkFJ marker)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/la/sec.mjs",
+   "expected": "test key none; four detected; no raw value in output",
+   "observed": "test key none; four detected and masked; but sk-proj of 156 chars masked as '120 chars'",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Affiliate link with rel=\"sponsored\" before href and no disclosure text",
+   "method": "FTC 16 CFR 255.5 and .com Disclosures: disclosure must be visible and before the link",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/la/fn.mjs",
+   "expected": "affiliate-links-no-disclosure raised",
+   "observed": "not raised (control without rel is raised)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "GA + email signup page whose only privacy wording is 'The editor runs in your browser.'",
+   "method": "GDPR Art. 13 / CalOPPA: a posted notice of what is collected and why",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/la/fn.mjs",
+   "expected": "personal-data-no-privacy-notice raised",
+   "observed": "not raised",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Tax tool page whose prose says 'leave it as is'",
+   "method": "the rule's own definition (no not-advice or no-warranty line)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/la/fn.mjs",
+   "expected": "advice-without-disclaimer raised",
+   "observed": "not raised (control without the phrase is raised)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Open LLM endpoint whose only 'limit' is the prompt string 'Plan three meals per day'; and one whose key read shares a line with a \\s regex",
+   "method": "the rule's own definition: env key + serves requests + no spend control",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/la/fn.mjs; node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/la/c6.mjs",
+   "expected": "llm-endpoint-no-spend-control raised in both",
+   "observed": "not raised in either; removing the regex from the line makes it raise",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Precision on a large real corpus",
+   "method": "sweep of every ventures/* directory, each finding read against the code",
+   "command": "node ventures/liability-audit/cli.mjs sweep ventures --format json",
+   "expected": "no high false positives (VENTURE.yaml hypothesis 3)",
+   "observed": "1,421 apps, 6 with findings, 0 high; 1 medium false positive (ig-media-pipeline/src/igmp/judge.py:140, max_tokens in **self._params)",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Law citations in the rule 'why' texts",
+   "method": "statute texts: GDPR Art. 13-14, Cal. BPC 22575 (CalOPPA), 15 USC 8401-8405 (ROSCA), Cal. BPC 17600, 16 CFR 255, EU AI Act Art. 50 and Art. 113, PECR reg. 6, Cal. BPC 17940 (B.O.T.)",
+   "command": "node ventures/liability-audit/cli.mjs rules",
+   "expected": "each citation names the right instrument and date",
+   "observed": "all correct, including AI Act Art. 50 from 2 Aug 2026",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "CLI formats, --fail-on, --only/--skip validation, sweep",
+   "method": "ran each",
+   "command": "node ventures/liability-audit/cli.mjs scan /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/la/A --format sarif|json|md; --only nope; --fail-on medium --skip secret-in-tree; sweep /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/la/M",
+   "expected": "valid SARIF 2.1.0, exit codes 2/1/0, sweep table",
+   "observed": "SARIF parses with 19 results all ruleIds defined; exit 2, 1, 0 as expected; sweep rows and per-rule totals correct",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "ran it",
+   "command": "cd ventures/liability-audit && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "31/31 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Explainer: finds 'a tracker script without a consent manager'",
+   "method": "page text vs CONSENT regex behaviour",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/la/fn.mjs",
+   "expected": "tracker raised when no consent manager exists",
+   "observed": "a page that only says 'We have no cookie consent banner' clears the rule",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Privacy claim: no upload, DNT/GPC honoured, local-only counter",
+   "method": "read usage.mjs and index.html script",
+   "command": "grep -n 'doNotTrack\\|globalPrivacyControl\\|fetch' ventures/liability-audit/usage.mjs",
+   "expected": "no network call; DNT/GPC respected",
+   "observed": "usage.mjs:34 honours DNT/GPC, no fetch; page reads files via File API only",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt description",
+   "method": "read",
+   "command": "sed -n 5p ventures/liability-audit/llms.txt",
+   "expected": "describes a file scanner",
+   "observed": "'Results are estimates from the numbers typed in' (calculator boilerplate)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served copy URLs",
+   "method": "served-copy rewrite",
+   "command": "node platform/pages/served-copy.mjs liability-audit",
+   "expected": "no placeholder/retired origin",
+   "observed": "none",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "audit.mjs:337",
+   "change": "if (!AFFILIATE_DISCLOSURE.test(f.text.slice(0, l.index))) -> if (!AFFILIATE_DISCLOSURE.test(f.text))",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "audit.mjs:413",
+   "change": "!/LGPL/.test(lic) && !WEAK_COPYLEFT_OR.test(lic) -> !/LGPL/.test(lic)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "audit.mjs:410",
+   "change": "if (!name || meta.dev) continue; -> if (!name) continue;",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "audit.mjs:143",
+   "change": "return s.length <= 8 ? '****' -> return s.length <= 8 ? s",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "audit.mjs:60",
+   "change": "per[-_ ]?(?:hour|day|minute|user)\\b| -> (removed)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "audit.mjs:245",
+   "change": "|| /example|placeholder|dummy|fake|redacted/i.test(around) -> (removed)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "An affiliate link marked up the recommended way, <a rel=\"sponsored\" href=\"https://amzn.to/...\">, with no disclosure text is reported clean: the disclosure regex runs on raw HTML before the match index, so the link's own rel=\"sponsored\" attribute counts as a disclosure. Fix: test visibleText() of the text before the link's opening tag.",
+   "where": "ventures/liability-audit/audit.mjs:337",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "PRIVACY_NOTICE_TEXT accepts marketing phrases ('runs in your browser', 'we never collect', 'is never uploaded') as a privacy notice, so a page with GA and an email sign-up that says the editor runs in the browser raises no privacy finding.",
+   "where": "ventures/liability-audit/audit.mjs:65",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Any consent-shaped token anywhere in pages or source (including prose 'we have no cookie consent banner' or an unwired div id) clears tracker-without-consent for every tracker; the explainer page claims it finds trackers 'without a consent manager'. ROADMAP item 2 acknowledges script order is not read.",
+   "where": "ventures/liability-audit/audit.mjs:37",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "SPEND_CONTROL matches ordinary words in strings ('per day', 'per user', any '\\w+Limit', 'quota'), so an open LLM endpoint whose prompt says 'per day' is reported as having a spend control; the 'per hour/day/user' alternative is also untested (mutant survived).",
+   "where": "ventures/liability-audit/audit.mjs:60",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "PATTERN_LINE blanks an entire source line if it contains any regex escape (\\s, \\d, \\w, \\b, \\., \\(), so code on that line disappears from every rule: an env-key read sharing a line with .replace(/\\s+/g,...) hides an open LLM endpoint.",
+   "where": "ventures/liability-audit/audit.mjs:156",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "WARRANTY_TEXT /as[-\\s]is\\b/ matches ordinary prose ('leave it as is'), clearing advice-without-disclaimer on a tax tool page with no disclaimer.",
+   "where": "ventures/liability-audit/audit.mjs:68",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Masked secret length is computed from the 120-char truncated match, so a 156-char sk-proj key is reported as '120 chars'.",
+   "where": "ventures/liability-audit/audit.mjs:135",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "The secret rule skips any match with 'example|placeholder|dummy|fake|redacted' within 40 characters before it (e.g. a comment '// example of prod config below' on the previous line hides a real AWS key); this suppression is untested (mutant survived).",
+   "where": "ventures/liability-audit/audit.mjs:245",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt carries calculator boilerplate 'Results are estimates from the numbers typed in', which does not describe a file scanner.",
+   "where": "ventures/liability-audit/llms.txt:5",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "llm-call-no-output-cap misses a cap passed through a kwargs dict (**self._params(task)) and raises a false positive on ig-media-pipeline; its 'why' also does not fit the Anthropic Messages API, where max_tokens is mandatory.",
+   "where": "ventures/liability-audit/audit.mjs:277",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A well-built, honest, dependency-free scanner: on a realistic Next.js + Stripe + GA + Anthropic + Terraform fixture it raises all 11 expected findings at the right lines, its secret formats and law citations check out against vendor docs and statutes, its CLI/SARIF/sweep all work, and on 1,421 real ventures it raises no high false positives. It misses the bar on correctness: the signals that clear a rule are matched loosely against raw text, so common real pages get a clean report they should not (rel=\"sponsored\" affiliate links with no disclosure, a marketing line counted as a privacy notice, any consent-shaped word clearing every tracker, 'per day' in a prompt counted as a spend limit, regex-bearing lines blanked). A privacy counsel would use it as a first-pass checklist but not trust a clear result. Finished (completeness 3), not at the bar (correctness 2)."
+}
