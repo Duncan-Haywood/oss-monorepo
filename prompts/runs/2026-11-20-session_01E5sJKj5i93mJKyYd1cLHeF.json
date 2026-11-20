@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKj5i93mJKyYd1cLHeF",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T18:28:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots: collector assembly guide generated from the CAD (roadmap item 9), with fastener-stack, tally, order and hatch-removal checks",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17952",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "Rendered step drawings first came out with the new parts offset from the built ones: build123d's project_to_viewport centres on each compound unless given a look_at; fixed by one fixed camera (guide.VIEW)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here named open-tennis-robots with a buildable: list that pointed only at more simulated firmware survey tuning, which the venture's own NEXT.md already calls settled ('the next real information is a real wheel's tach log, not another simulated sweep'). Rewrote buildable: so the next pick sees the CAD items."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (open-tennis-robots buildable:)",
+      "why": "The named buildable item (four tach magnets on a jittery tach, another simulated sweep) is on a line of work the venture's notes say has stopped yielding; roadmap item 9 (an illustrated assembly guide) serves a builder directly.",
+      "did": "Built the collector's assembly guide from the CAD with checks, inside the same flagship.",
+      "result": "Found and fixed six fit faults in the 'ready to manufacture' collector package; guide and checks ship in the package."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-writing-the-assembly-guide-found-six-faults.md",
+    "ventures/open-tennis-robots/cad/README.md (Assembly guide)"
+  ],
+  "goal": null,
+  "notes": "No separate docs/reports agent doc: the next-run information lives in cad/README.md 'Assembly guide' and the flagship buildable: field (feeder guide next, microswitch mounts). Verification: tests/test_cad.py collector + new AssemblyGuideTest passed locally (73 passed in the first selection); full CAD suite and run_venture_tests.py results below.",
+  "corrections": [],
+  "redteam": null
+}
