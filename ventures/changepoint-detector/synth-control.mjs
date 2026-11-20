@@ -35,19 +35,24 @@ export function simplexLeastSquares(X, y, { iters = 5000, tol = 1e-10 } = {}) {
   }
   if (!(L > 0)) L = 1;
   const step = 1 / (L * 1.0001);
-  let w = new Float64Array(J).fill(1 / J), z = w.slice(), tk = 1;
+  // The loop runs thousands of times per placebo fit, so it works in place: flat G, preallocated buffers and a native
+  // Float64Array sort for the projection (projectSimplexInto). Same arithmetic, in the same order, as the allocating
+  // form it replaced (pinned bit-for-bit in docs/history/ci-perf-2026-11-20-synth-control-in-place.md).
+  const Gf = new Float64Array(J * J);
+  for (let i = 0; i < J; i++) Gf.set(G[i], i * J);
+  let w = new Float64Array(J).fill(1 / J), z = w.slice(), wn = new Float64Array(J), tk = 1;
+  const tmp = new Float64Array(J), srt = new Float64Array(J);
   const obj = (w0) => { let s = 0; for (let t = 0; t < T; t++) { let f = 0; for (let j = 0; j < J; j++) f += X[t][j] * w0[j]; s += (y[t] - f) ** 2; } return s; };
   let prev = obj(w);
   for (let it = 0; it < iters; it++) {
-    const g = new Float64Array(J);
-    for (let i = 0; i < J; i++) { let s = -b[i]; for (let j = 0; j < J; j++) s += G[i][j] * z[j]; g[i] = s; }
-    const wn = projectSimplex(z.map((e, i) => e - step * g[i]));
-    const tn = (1 + Math.sqrt(1 + 4 * tk * tk)) / 2;
-    z = wn.map((e, i) => e + ((tk - 1) / tn) * (e - w[i]));
-    w = wn; tk = tn;
+    for (let i = 0; i < J; i++) { let s = -b[i]; const o = i * J; for (let j = 0; j < J; j++) s += Gf[o + j] * z[j]; tmp[i] = z[i] - step * s; }
+    projectSimplexInto(tmp, wn, srt);
+    const tn = (1 + Math.sqrt(1 + 4 * tk * tk)) / 2, beta = (tk - 1) / tn;
+    for (let j = 0; j < J; j++) z[j] = wn[j] + beta * (wn[j] - w[j]);
+    const sw = w; w = wn; wn = sw; tk = tn;
     if (it % 50 === 49) {
       const cur = obj(w);
-      if (cur > prev) { z = w.slice(); tk = 1; } // restart (O'Donoghue and Candes 2015)
+      if (cur > prev) { z.set(w); tk = 1; } // restart (O'Donoghue and Candes 2015)
       if (Math.abs(prev - cur) <= tol * Math.max(1, prev)) { prev = cur; break; }
       prev = cur;
     }
@@ -56,6 +61,16 @@ export function simplexLeastSquares(X, y, { iters = 5000, tol = 1e-10 } = {}) {
 }
 
 // Euclidean projection onto { w >= 0, sum w = 1 } (Held, Wolfe and Crowder 1974; Duchi et al. 2008).
+// projectSimplexInto writes the projection of x into out, using srt (length J) as scratch: an ascending typed sort read
+// from the top gives the same descending sequence as the comparator sort below (equal values are interchangeable).
+function projectSimplexInto(x, out, srt) {
+  const J = x.length;
+  srt.set(x); srt.sort();
+  let css = 0, theta = 0;
+  for (let q = J - 1, c = 1; q >= 0; q--, c++) { css += srt[q]; const t = (css - 1) / c; if (srt[q] - t > 0) theta = t; }
+  for (let j = 0; j < J; j++) out[j] = Math.max(0, x[j] - theta);
+}
+
 export function projectSimplex(v) {
   const u = Array.from(v).sort((a, b) => b - a);
   let css = 0, theta = 0;
