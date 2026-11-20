@@ -3,7 +3,7 @@
 // portfolio/requests/requests.json with nothing in it unescaped.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderCustomDevelopmentPage, renderCustomRequestPage, renderRequestShowcase, renderRequestFigure, customRequestPath, REQUEST_KINDS, CUSTOM_DEV_PATH, renderHubSitemap, REQUEST_ASK_CLIP, REQUEST_NOTE_CLIP, noteSentences } from './build.mjs';
+import { renderCustomDevelopmentPage, renderCustomRequestPage, renderRequestShowcase, renderRequestFigure, customRequestPath, REQUEST_KINDS, CUSTOM_DEV_PATH, renderRequestFormOptions, REQUEST_OPTIONS_FILE, renderHubSitemap, REQUEST_ASK_CLIP, REQUEST_NOTE_CLIP, noteSentences } from './build.mjs';
 import { FEEDBACK_TYPES } from '../edge/feedback.mjs';
 import { injectChrome } from './build.mjs';
 import { renderSiteFooterNav } from './site-nav.mjs';
@@ -55,7 +55,10 @@ test('the request form offers every kind, needs the licence box, and posts to th
   for (const k of REQUEST_KINDS) assert.ok(html.includes(`value="${k.id}"`), k.id);
   assert.match(html, /https:\/\/edge\.example\/feedback/);
   assert.match(html, /name="licence"/);
-  assert.match(html, /<option value="roof-pitch">Roof pitch<\/option>/);
+  // The tool list is fetched on demand from one shared file, not inlined on every page.
+  assert.ok(!html.includes('<option value="roof-pitch">'));
+  assert.ok(html.includes(`"../${REQUEST_OPTIONS_FILE}"`));
+  assert.match(renderRequestFormOptions({ surfaces }).tools, /<option value="ai-bookkeeper">AI bookkeeper<\/option><option value="roof-pitch">Roof pitch<\/option>/);
   assert.match(html, /<option value="R-0001">R-0001: Books<\/option>/);
   // Every kind maps to a type the edge accepts, so nothing is refused server side.
   for (const k of REQUEST_KINDS) assert.ok(FEEDBACK_TYPES.includes(k.type), k.id);
@@ -82,6 +85,7 @@ test('a request page shows its stage, links what to try, and presets preview fee
   assert.match(html, /href="\.\.\/\.\.\/ai-bookkeeper\/"><strong>Try it/);
   assert.match(html, /value="preview" checked/);
   assert.match(html, /<option value="R-0001" selected>/);
+  assert.ok(html.includes(`"../../${REQUEST_OPTIONS_FILE}"`), 'a request page fetches the pickers from the root');
   assert.match(html, /No warranty/);
   const declined = renderCustomRequestPage({ request: { ...one, status: 'declined', reason: 'needs a paid account' }, baseUrl: base, surfaces, feedbackUrl: 'https://edge.example' });
   assert.match(declined, /needs a paid account/);
@@ -129,12 +133,14 @@ test('a research request can name any existing research direction, grouped and e
   assert.ok(directions.themes.length > 0);
   const html = renderCustomDevelopmentPage({ baseUrl: base, requests: [], surfaces, feedbackUrl: 'https://edge.example', directions });
   assert.match(html, /id="cdf-dir"/);
-  assert.match(html, /<optgroup label="Open research programmes">/);
-  for (const p of directions.programmes) assert.ok(html.includes(`<option value="${p.slug}">`), p.slug);
-  for (const t of directions.themes) for (const p of t.projects) assert.ok(html.includes(`<option value="${p.slug}">`), p.slug);
+  const { dir } = renderRequestFormOptions({ surfaces, directions });
+  assert.match(dir, /^<optgroup label="Open research programmes">/);
+  for (const p of directions.programmes) assert.ok(dir.includes(`<option value="${p.slug}">`), p.slug);
+  for (const t of directions.themes) for (const p of t.projects) assert.ok(dir.includes(`<option value="${p.slug}">`), p.slug);
   assert.ok(REQUEST_KINDS.find((k) => k.id === 'research').direction);
-  const evil = renderCustomDevelopmentPage({ baseUrl: base, requests: [], surfaces, feedbackUrl: 'https://edge.example', directions: { programmes: [], themes: [{ name: '<b>t</b>', projects: [{ slug: 'x', title: '<script>y</script>' }] }] } });
-  assert.ok(!evil.includes('<script>y</script>') && !evil.includes('<b>t</b>'));
+  const evil = renderRequestFormOptions({ surfaces: [{ slug: 'a"b', title: '<img src=x>' }], directions: { programmes: [], themes: [{ name: '<b>t</b>', projects: [{ slug: 'x', title: '<script>y</script>' }] }] } });
+  assert.ok(!evil.dir.includes('<script>y</script>') && !evil.dir.includes('<b>t</b>'));
+  assert.ok(!evil.tools.includes('<img') && !evil.tools.includes('a"b'));
   // With no directions there is no empty picker.
   assert.ok(!renderCustomDevelopmentPage({ baseUrl: base, requests: [], surfaces, feedbackUrl: 'https://edge.example' }).includes('cdf-dir'));
 });
