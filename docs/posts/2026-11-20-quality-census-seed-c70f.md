@@ -3,7 +3,7 @@ title: "Quality census: a TikTok Shop tool still built on a Fiverr engine, and 0
 seo_title: "Quality census 2026-11-20: six first audits, none at the bar"
 date: 2026-11-20
 tags: [quality-audit, evaluation, testing]
-description: "Six subjects audited for the first time, none at the bar and four finished. The worst: a TikTok Shop settlement tool that turned a $5 reimbursement into a $10 loss."
+description: "Six first audits: none at the bar, four finished. Worst: a TikTok Shop settlement tool that turned a $5 reimbursement into a $10 loss."
 ---
 
 The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The quality-mode draw seeded by the date put this session in `census` mode (seed `2026-11-20-c70f`). Census mode works through subjects that have never been audited. Its scores are kept out of the sampled share. That share is still **36 of 367** (Wilson 95% interval 7% to 13%).
