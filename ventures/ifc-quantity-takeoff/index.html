@@ -10,7 +10,7 @@
   <meta property="og:description" content="Counts, lengths, areas and volumes from an IFC model, each volume recomputed from the model's own geometry and compared with what the authoring tool stored. MIT licensed, nothing uploaded.">
   <meta property="og:type" content="website">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IFC Quantity Takeoff", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the command line", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads IFC2X3, IFC4 and IFC4X3 building models and produces a bill of quantities grouped by class, type, storey, material or classification. Every element's volume is recomputed from its body geometry, openings taken out, and compared with the quantities the authoring tool stored.", "license": "https://opensource.org/licenses/MIT"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does it take off?", "acceptedAnswer": {"@type": "Answer", "text": "Every physical element in the model (walls, slabs, beams, columns, doors, windows, coverings, stairs, pipes, furniture and the rest): its count, and the lengths, areas, volumes and weights the authoring tool stored in the model's quantity sets, converted to metres, square metres, cubic metres and kilograms. It also computes each element's volume from the model's own geometry, with openings taken out, and the side and footprint areas of walls, the areas of slabs and coverings and the cross-sections of members. Lines can be grouped by class, type, storey, material and classification code."}}, {"@type": "Question", "name": "Why recompute volumes the model already stores?", "acceptedAnswer": {"@type": "Answer", "text": "Because the stored figures are sometimes wrong, and an estimate built on them is wrong too. On 8 public models the stored GrossVolume agreed with the geometry for 4,805 of 5,495 elements. Most of the rest have a known cause the page names: a wall split by level that writes the whole wall's volume on every piece, a GrossVolume that already has the openings taken out, a volume written in litres under a cubic-metre unit, or a stored volume that disagrees with the element's own stored length, height and width. Where the stored figure is known to be wrong, the bill of quantities uses the computed one."}}, {"@type": "Question", "name": "Is my model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model is read by JavaScript in this browser tab and nothing is sent anywhere. The page fetches only its own sample file, and only when you ask for it. The same code runs offline on the command line."}}, {"@type": "Question", "name": "Which geometry can it measure?", "acceptedAnswer": {"@type": "Answer", "text": "Extruded profiles (rectangles, circles, hollow sections, I, L, T, U, C and Z steel shapes with root radii, and arbitrary outlines with arcs), half-space clips including Revit's boxed and polygonal ones, boolean differences, unions and intersections of those, mapped items, faceted breps, triangulated and polygonal face sets, swept disks, revolved areas and CSG primitives. Openings are subtracted exactly when both the element and the opening are built from those extrusions and clips. Advanced breps (NURBS surfaces) and open shells are reported as not read rather than guessed."}}, {"@type": "Question", "name": "How is this different from Revit schedules, Solibri or CostX?", "acceptedAnswer": {"@type": "Answer", "text": "Revit schedules work inside Revit on the native model; this works on the IFC file anyone on the project can open. Solibri, CostX and similar estimating tools do far more (markups, 2D takeoff, rate libraries, change comparison) and cost a seat licence. This page is free, needs nothing installed, and does one thing they do not advertise: it checks the model's stored quantities against its geometry and tells you which ones not to trust."}}, {"@type": "Question", "name": "Can I price the quantities?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Type a rate and choose its unit (each, m3, m2, m or kg) on any bill-of-quantities line; the page multiplies it out and totals the amounts, and the CSV download carries the rates and amounts. The rates are yours: the page ships none."}}, {"@type": "Question", "name": "What does it not do?", "acceptedAnswer": {"@type": "Answer", "text": "It does not read NURBS surfaces, and it does not take openings out of faceted bodies (their areas are cut gross; a faceted body clipped by a plane keeps the model's stored areas). It does not know your measurement rules (a method of measurement may deduct only openings above a size), and it is not a cost estimate: quantities are only as good as the model."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does it take off?", "acceptedAnswer": {"@type": "Answer", "text": "Every physical element in the model (walls, slabs, beams, columns, doors, windows, coverings, stairs, pipes, furniture and the rest): its count, and the lengths, areas, volumes and weights the authoring tool stored in the model's quantity sets, converted to metres, square metres, cubic metres and kilograms. It also computes each element's volume from the model's own geometry, with openings taken out, and the side and footprint areas of walls, the areas of slabs and coverings and the cross-sections of members. Lines can be grouped by class, type, storey, material and classification code."}}, {"@type": "Question", "name": "Why recompute volumes the model already stores?", "acceptedAnswer": {"@type": "Answer", "text": "Because the stored figures are sometimes wrong, and an estimate built on them is wrong too. On 8 public models the stored GrossVolume agreed with the geometry for 4,805 of 5,495 elements. Most of the rest have a known cause the page names: a wall split by level that writes the whole wall's volume on every piece, a GrossVolume that already has the openings taken out, a volume written in litres under a cubic-metre unit, or a stored volume that disagrees with the element's own stored length, height and width. Where the stored figure is known to be wrong, the bill of quantities uses the computed one."}}, {"@type": "Question", "name": "Is my model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model is read by JavaScript in this browser tab and nothing is sent anywhere. The page fetches only its own sample file, and only when you ask for it. The same code runs offline on the command line."}}, {"@type": "Question", "name": "Which geometry can it measure?", "acceptedAnswer": {"@type": "Answer", "text": "Extruded profiles (rectangles, circles, hollow sections, I, L, T, U, C and Z steel shapes with root radii, and arbitrary outlines with arcs), half-space clips including Revit's boxed and polygonal ones, boolean differences, unions and intersections of those, mapped items, faceted breps, triangulated and polygonal face sets, swept disks, revolved areas and CSG primitives. Advanced breps whose faces lie on planes and cylinders are read too. Openings are subtracted exactly, from faceted bodies as well when their shells are closed. Advanced breps on other surfaces (NURBS, surfaces of revolution) and open shells are reported as not read rather than guessed."}}, {"@type": "Question", "name": "How is this different from Revit schedules, Solibri or CostX?", "acceptedAnswer": {"@type": "Answer", "text": "Revit schedules work inside Revit on the native model; this works on the IFC file anyone on the project can open. Solibri, CostX and similar estimating tools do far more (markups, 2D takeoff, rate libraries) and cost a seat licence. This page is free, needs nothing installed, and does one thing they do not advertise: it checks the model's stored quantities against its geometry and tells you which ones not to trust. It also compares two revisions of a model, as CostX and Cubit do, and says which elements only look new because the export gave them a new GlobalId."}}, {"@type": "Question", "name": "Can I price the quantities?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Type a rate and choose its unit (each, m3, m2, m or kg) on any bill-of-quantities line; the page multiplies it out and totals the amounts, and the CSV download carries the rates and amounts. The rates are yours: the page ships none."}}, {"@type": "Question", "name": "Can it compare two revisions of a model?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Take off the later revision, then drop the earlier one under Compare with an earlier revision. You get the change on every bill-of-quantities line (priced with your rates, for a change order) and a list of every element added, removed, changed, moved or resized, both as CSV. Elements are matched by GlobalId, then by Revit's element id in the Tag when an export renewed the GlobalId, then by the same place and volume; Revit parts exported in one issue and their host in the other are paired up. On five real exports of one house, a GlobalId-only comparison reported 190 elements as added or removed that were the same element under a new id, or its parts."}}, {"@type": "Question", "name": "What does it not do?", "acceptedAnswer": {"@type": "Answer", "text": "It does not read NURBS surfaces or surfaces of revolution, and a faceted body clipped by a plane keeps the model's stored areas. It does not know your measurement rules (a method of measurement may deduct only openings above a size), and it is not a cost estimate: quantities are only as good as the model."}}]}</script>
   <style>
     :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #245a3c; --pass: #1e7a46; --fail: #b3261e; --warn: #8a5a00; color-scheme: light dark; }
     @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #7cc49b; --pass: #5cc48a; --fail: #ff8a80; --warn: #e3b35b; } }
@@ -56,7 +56,7 @@
 <body>
 <main>
   <h1>IFC Quantity Takeoff</h1>
-  <p class="lede">Drop an IFC model and get a bill of quantities: counts, lengths, areas, volumes and weights by class, type, storey, material or classification code. Every volume and area is also recomputed from the model's own geometry, openings taken out, and compared with what the authoring tool stored, so you know which numbers to trust before you price them.</p>
+  <p class="lede">Drop an IFC model and get a bill of quantities: counts, lengths, areas, volumes and weights by class, type, storey, material or classification code. Every volume and area is also recomputed from the model's own geometry, openings taken out, and compared with what the authoring tool stored, so you know which numbers to trust before you price them. Got a new issue of the model? Drop the old one too and see what changed, line by line and element by element.</p>
   <p class="cta-row"><a class="cta" href="#drop">Take off a model</a> <a class="cta ghost" href="samples/sample-office.ifc">Get the sample IFC</a></p>
 
   <div class="drop" id="drop">
@@ -64,6 +64,7 @@
     <input type="file" id="ifc" accept=".ifc">
     <div class="row">
       <button type="button" id="sample" class="ghost">Try the sample model</button>
+      <button type="button" id="sample-pair" class="ghost">Compare two revisions of it</button>
       <span class="status" id="status" role="status" aria-live="polite">Everything on this page runs in your browser; the model is not uploaded.</span>
     </div>
   </div>
@@ -96,6 +97,27 @@
     </div>
     <div class="tablewrap"><table id="checks"></table></div>
     <p class="muted" id="checks-more"></p>
+
+    <h2 id="compare">Compare with an earlier revision</h2>
+    <p class="muted">Drop the earlier issue of the same model to see what changed since: the bill-of-quantities lines that moved (priced with the rates above), and every element added, removed, changed, moved or resized. Elements are matched by GlobalId, then by Tag (Revit's element id survives a re-export that renews GlobalIds), then by the same place and volume; Revit parts exported in one issue and their host in the other are paired up rather than counted as removed and added.</p>
+    <div class="row">
+      <label for="ifc-old">Earlier revision (.ifc)</label>
+      <input type="file" id="ifc-old" accept=".ifc">
+      <button type="button" id="sample-rev" class="ghost">Try the sample's next revision</button>
+    </div>
+    <div id="diff-out" hidden>
+      <div class="cards" id="diff-cards"></div>
+      <h3>Bill of quantities: change since the earlier revision</h3>
+      <div class="row">
+        <button type="button" id="dl-delta">Download the change in quantities (CSV)</button>
+        <button type="button" id="dl-changes" class="ghost">Download every changed element (CSV)</button>
+      </div>
+      <div class="tablewrap"><table id="delta"></table></div>
+      <p id="delta-total" class="row"></p>
+      <h3>Elements that changed</h3>
+      <div class="tablewrap"><table id="changes"></table></div>
+      <p class="muted" id="changes-more"></p>
+    </div>
   </section>
 
   <section aria-labelledby="who">
@@ -107,6 +129,8 @@
     <p>We ran the takeoff on 8 public models from Revit, ArchiCAD, Tekla and other tools that store volumes. The stored GrossVolume matched the geometry for 4,805 of 5,495 elements (87%) and NetVolume for 6,133 of 6,366 (96%). Of the disagreements, 472 had a cause the page now names: 325 GrossVolumes that already exclude openings, 99 slab volumes written in the wrong unit (96 of them 1,000 times too large), 27 split-by-level pieces each carrying the whole wall's figure, and 21 stored volumes that contradict the element's own length, height and width. The method and every number are in the repository (<code>eval/stored-vs-computed-2026-11-19.md</code>).</p>
     <h3>And the areas</h3>
     <p>Areas are cut from the same geometry by a plane, the way the quantity sets define them: a wall's side area on its middle plane, its footprint at its base, a slab's area as its extruded profile, a member's cross-section normal to its length. On the same 8 models, 6,509 of 7,883 stored areas (83%) matched the geometry, every one of 1,667 wall footprints among them. Of the 1,374 that did not, the page names a cause for 1,100: 558 "cross-section areas" on curtain-wall mullions that grow with the mullion's length (a face area, not a section), 325 gross side areas with the openings already out, 82 net footprints with the doors left in, 55 side areas measured on a wall face instead of its middle, 31 that agree with an equally wrong stored volume, 25 written in the wrong unit (some divided by the square-foot factor 10.764) and 24 split-by-level pieces. Method and numbers: <code>eval/areas-vs-stored-2026-11-19.md</code>.</p>
+    <h3>Comparing revisions</h3>
+    <p>An architect's practice published five IFC exports of one house, made over five days in November 2019, in its public repository (OpeningDesign's Aalseth Residence, CC BY-SA). Between consecutive exports, the same four doors, one window and one wall came out with new GlobalIds every time, and the floors, roofs and some walls switched between one element and its Revit "parts" (two to five layers whose volumes sum to the whole) in three of the four steps. A comparison keyed on GlobalId alone listed 190 element records as added or removed that were the same building element; this page matches them, and the stair rebuilt in the last export shows up as its flights, landing and stringers resized. Method and numbers: <code>eval/revision-diff-2026-11-20.md</code>.</p>
   </section>
 
   <section aria-labelledby="faq">
@@ -118,13 +142,15 @@
     <h3>Is my model uploaded?</h3>
     <p>No. The model is read by JavaScript in this browser tab and nothing is sent anywhere. The page fetches only its own sample file, and only when you ask for it. The same code runs offline on the command line.</p>
     <h3>Which geometry can it measure?</h3>
-    <p>Extruded profiles (rectangles, circles, hollow sections, I, L, T, U, C and Z steel shapes with root radii, and arbitrary outlines with arcs), half-space clips including Revit's boxed and polygonal ones, boolean differences, unions and intersections of those, mapped items, faceted breps, triangulated and polygonal face sets, swept disks, revolved areas and CSG primitives. Openings are subtracted exactly when both the element and the opening are built from those extrusions and clips. Advanced breps (NURBS surfaces) and open shells are reported as not read rather than guessed.</p>
+    <p>Extruded profiles (rectangles, circles, hollow sections, I, L, T, U, C and Z steel shapes with root radii, and arbitrary outlines with arcs), half-space clips including Revit's boxed and polygonal ones, boolean differences, unions and intersections of those, mapped items, faceted breps, triangulated and polygonal face sets, swept disks, revolved areas and CSG primitives. Advanced breps whose faces lie on planes and cylinders are read too. Openings are subtracted exactly, from faceted bodies as well when their shells are closed. Advanced breps on other surfaces (NURBS, surfaces of revolution) and open shells are reported as not read rather than guessed.</p>
     <h3>How is this different from Revit schedules, Solibri or CostX?</h3>
-    <p>Revit schedules work inside Revit on the native model; this works on the IFC file anyone on the project can open. Solibri, CostX and similar estimating tools do far more (markups, 2D takeoff, rate libraries, change comparison) and cost a seat licence. This page is free, needs nothing installed, and does one thing they do not advertise: it checks the model's stored quantities against its geometry and tells you which ones not to trust.</p>
+    <p>Revit schedules work inside Revit on the native model; this works on the IFC file anyone on the project can open. Solibri, CostX and similar estimating tools do far more (markups, 2D takeoff, rate libraries) and cost a seat licence. This page is free, needs nothing installed, and does one thing they do not advertise: it checks the model's stored quantities against its geometry and tells you which ones not to trust. It also compares two revisions of a model, as CostX and Cubit do, and says which elements only look new because the export gave them a new GlobalId.</p>
     <h3>Can I price the quantities?</h3>
     <p>Yes. Type a rate and choose its unit (each, m3, m2, m or kg) on any bill-of-quantities line; the page multiplies it out and totals the amounts, and the CSV download carries the rates and amounts. The rates are yours: the page ships none.</p>
+    <h3>Can it compare two revisions of a model?</h3>
+    <p>Yes. Take off the later revision, then drop the earlier one under Compare with an earlier revision. You get the change on every bill-of-quantities line (priced with your rates, for a change order) and a list of every element added, removed, changed, moved or resized, both as CSV. Elements are matched by GlobalId, then by Revit's element id in the Tag when an export renewed the GlobalId, then by the same place and volume; Revit parts exported in one issue and their host in the other are paired up. On five real exports of one house, a GlobalId-only comparison reported 190 elements as added or removed that were the same element under a new id, or its parts.</p>
     <h3>What does it not do?</h3>
-    <p>It does not read NURBS surfaces, and it does not take openings out of faceted bodies (their areas are cut gross; a faceted body clipped by a plane keeps the model's stored areas). It does not know your measurement rules (a method of measurement may deduct only openings above a size), and it is not a cost estimate: quantities are only as good as the model.</p>
+    <p>It does not read NURBS surfaces or surfaces of revolution, and a faceted body clipped by a plane keeps the model's stored areas. It does not know your measurement rules (a method of measurement may deduct only openings above a size), and it is not a cost estimate: quantities are only as good as the model.</p>
   </section>
 
   <section aria-labelledby="cli">
@@ -143,11 +169,12 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { parseStep } from "./step.mjs";
   import { takeoff, boq, boqCsv, rowsCsv, checkSummary, REASON_TEXT, AREA_REASON_TEXT } from "./qto.mjs";
+  import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
 
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const fmt = (v, d = 3) => (v == null || v === 0 ? "" : Number(v).toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: 0 }));
-  let current = null, fileName = "model";
+  let current = null, fileName = "model", earlier = null, earlierName = "earlier", diff = null;
   const rates = {};
 
   $("optout").checked = usageOptedOut();
@@ -197,6 +224,7 @@
     $("result").hidden = false;
     renderBoq();
     renderChecks();
+    renderDiff();
   }
 
   const byKeys = () => $("by").value.split(",");
@@ -235,6 +263,7 @@
       if (r && Number.isFinite(r.rate)) { amt = r.rate * ({ each: L.count, m3: L.volume, m2: L.area, m: L.length, kg: L.weight }[r.unit] ?? 0); total += amt; priced++; }
       tr.querySelector(".amt").textContent = amt == null ? "" : amt.toLocaleString(undefined, { maximumFractionDigits: 2 });
     }
+    renderDelta();
     $("total").textContent = priced ? `Total of ${priced} priced line${priced > 1 ? "s" : ""}: ${total.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : "";
   }
 
@@ -256,6 +285,92 @@
     $("checks-more").textContent = rows.length > shown.length ? `Showing 500 of ${rows.length}; the element CSV has them all.` : rows.length ? "" : only ? "No disagreements: every stored volume and area matches the geometry within 2%." : "This model stores no volume or area this page can check.";
   }
 
+  async function runEarlier(bytes, name) {
+    if (!current) return;
+    earlierName = name.replace(/\.ifc$/i, "");
+    $("status").textContent = `Reading the earlier revision ${name}...`;
+    await new Promise((r) => setTimeout(r, 30));
+    try {
+      const model = parseStep(bytes);
+      if (!model.schema) throw new Error("no FILE_SCHEMA in the header: is this an IFC file?");
+      earlier = takeoff(model);
+    } catch (err) {
+      $("status").textContent = `Could not read ${name}: ${err.message}`;
+      record("read_failed");
+      return;
+    }
+    $("status").textContent = `Compared ${name} (earlier) with ${fileName}.ifc.`;
+    record("revisions_compared");
+    renderDiff();
+    $("compare").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+
+  function renderDiff() {
+    if (!current || !earlier) { $("diff-out").hidden = true; return; }
+    diff = diffTakeoffs(earlier.rows, current.rows);
+    const s = diff.summary;
+    $("diff-cards").innerHTML = [
+      ["Elements before / after", `${s.before} / ${s.after}`],
+      ["Unchanged", s.unchanged, "ok"],
+      ["Changed", s.changed, s.changed ? "warn" : ""],
+      ["Added", s.added, s.added ? "warn" : ""],
+      ["Removed", s.removed, s.removed ? "warn" : ""],
+      ["New GlobalId, same element", s.byTag + s.byGeometry, s.byTag + s.byGeometry ? "warn" : ""],
+      ["Parts and hosts paired", s.merged + s.split],
+    ].map(([k, v, c]) => `<div class="card">${esc(k)}<b class="${c || ""}">${esc(v)}</b></div>`).join("");
+    $("diff-out").hidden = false;
+    renderDelta();
+    renderChanges();
+  }
+
+  const sgn = (v, d = 3) => (Math.abs(v) < 10 ** -d / 2 ? "" : (v > 0 ? "+" : "\u2212") + Math.abs(v).toLocaleString(undefined, { maximumFractionDigits: d }));
+
+  function renderDelta() {
+    if (!current || !earlier) return;
+    const by = byKeys();
+    const lines = boqDelta(earlier.rows, current.rows, by, rates).filter((l) => Math.abs(l.delta.count) > 0 || Math.abs(l.delta.volume) > 5e-7 || Math.abs(l.delta.area) > 5e-5 || Math.abs(l.delta.length) > 5e-5 || Math.abs(l.delta.weight) > 5e-4);
+    let total = 0, priced = 0;
+    $("delta").innerHTML = `<tr>${by.map((k) => `<th>${esc(k[0].toUpperCase() + k.slice(1))}</th>`).join("")}<th>Count</th><th>Volume m&sup3;</th><th>Area m&sup2;</th><th>Length m</th><th>Weight kg</th><th>Amount</th></tr>` + lines.map((l) => {
+      if (l.amount) { total += l.amount.delta; priced++; }
+      return `<tr>${l.key.map((v) => `<td>${esc(v)}</td>`).join("")}<td class="n">${l.before.count} &rarr; ${l.after.count}</td><td class="n">${sgn(l.delta.volume)}</td><td class="n">${sgn(l.delta.area, 2)}</td><td class="n">${sgn(l.delta.length, 2)}</td><td class="n">${sgn(l.delta.weight, 1)}</td><td class="n">${l.amount ? sgn(l.amount.delta, 2) : ""}</td></tr>`;
+    }).join("");
+    $("delta-total").textContent = !lines.length ? "No bill-of-quantities line changed." : priced ? `Change on ${priced} priced line${priced > 1 ? "s" : ""}: ${sgn(total, 2) || "0"}` : "Type rates in the bill of quantities above to price the change.";
+  }
+
+  const HOW = { tag: "new GlobalId (matched by Tag)", geometry: "new GlobalId (matched by place and volume)" };
+  const howText = (h) => (Object.hasOwn(HOW, h) ? HOW[h] : "");
+  function renderChanges() {
+    const out = [];
+    const what = (c) => [
+      ...Object.entries(c.quantities).map(([k, q]) => `${k} ${sgn(q.delta, 4)}`),
+      ...Object.entries(c.attributes).map(([k, v]) => `${k}: ${v.before ?? "(none)"} \u2192 ${v.after ?? "(none)"}`),
+      ...(c.moved ? [`moved ${c.moved.distance.toFixed(3)} m`] : []),
+      ...(c.reshaped ? ["box resized"] : []),
+      ...(howText(c.how) ? [howText(c.how)] : []),
+    ].join("; ");
+    for (const c of diff.changed) out.push(["Changed", c.b, what(c), "warn"]);
+    for (const c of diff.unchanged) if (howText(c.how)) out.push(["Same element", c.b, howText(c.how), ""]);
+    for (const g of diff.groups) out.push([g.kind === "merged" ? "Parts \u2192 host" : "Host \u2192 parts", g.after.length === 1 ? g.after[0] : g.before[0], `${g.before.length} \u2192 ${g.after.length} elements, volume ${g.volumeBefore.toFixed(3)} \u2192 ${g.volumeAfter.toFixed(3)} m\u00b3`, ""]);
+    for (const r of diff.added) out.push(["Added", r, "", "warn"]);
+    for (const r of diff.removed) out.push(["Removed", r, "", "bad"]);
+    const shown = out.slice(0, 500);
+    $("changes").innerHTML = `<tr><th>Change</th><th>Element</th><th>Class</th><th>Storey</th><th>What</th></tr>` + shown.map(([k, r, w, c]) => `<tr><td class="${c}">${esc(k)}</td><td>${esc(r.name || r.globalId)}<div class="muted">${esc(r.globalId)}</div></td><td>${esc(r.ifcClass)}</td><td>${esc(r.storey)}</td><td>${esc(w)}</td></tr>`).join("");
+    $("changes-more").textContent = out.length > shown.length ? `Showing 500 of ${out.length}; the CSV has them all.` : out.length ? "" : "Nothing changed: every element matches, with the same quantities, attributes and place.";
+  }
+
+  $("ifc-old").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; if (!current) { $("status").textContent = "Drop the later revision at the top first, then the earlier one here."; return; } runEarlier(new Uint8Array(await f.arrayBuffer()), f.name); });
+  async function sampleRevisions() {
+    const bytes = async (res) => new Uint8Array(await (await res).arrayBuffer());
+    const [a, b] = await Promise.all([bytes(fetch("samples/sample-office.ifc")), bytes(fetch("samples/sample-office-rev2.ifc"))]);
+    earlier = null;
+    await run(b, "sample-office-rev2.ifc");
+    await runEarlier(a, "sample-office.ifc");
+    record("sample_opened");
+  }
+  $("sample-rev").addEventListener("click", sampleRevisions);
+  $("sample-pair").addEventListener("click", sampleRevisions);
+  $("dl-delta").addEventListener("click", () => { if (!diff) return; const by = byKeys(); download(`${fileName}-change-since-${earlierName}.csv`, boqDeltaCsv(boqDelta(earlier.rows, current.rows, by, rates), by)); record("delta_downloaded"); });
+  $("dl-changes").addEventListener("click", () => { if (!diff) return; download(`${fileName}-changed-elements-since-${earlierName}.csv`, changesCsv(diff)); record("changes_downloaded"); });
   $("by").addEventListener("change", () => current && renderBoq());
   $("only-bad").addEventListener("change", () => current && renderChecks());
   $("dl-boq").addEventListener("click", () => { if (!current) return; const by = byKeys(); download(`${fileName}-bill-of-quantities.csv`, boqCsv(boq(current.rows, by), by, rates)); record("boq_downloaded"); });

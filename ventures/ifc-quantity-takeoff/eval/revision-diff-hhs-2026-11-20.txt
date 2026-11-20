@@ -1,0 +1,26 @@
+architect.ifc: IFC2X3, 2527 elements (133 without a box), 5.7 s
+architect2.ifc: IFC2X3, 2527 elements (133 without a box), 6.1 s
+
+architect.ifc -> architect2.ifc
+  elements 2527 -> 2527; matched 2527 (GlobalId 2526, Tag 1, geometry 0); unchanged 2526, changed 1; added 0, removed 0; merged 0, split 0
+  a GlobalId-only comparison: 1 added, 1 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"attribute: name":1}
+  new GlobalId: {"tag: IfcWallStandardCase":1}
+  added: {}
+  removed: {}
+
+construction.ifc -> construction2.ifc
+  elements 339 -> 339; matched 339 (GlobalId 338, Tag 1, geometry 0); unchanged 339, changed 0; added 0, removed 0; merged 0, split 0
+  a GlobalId-only comparison: 0 added, 1 removed; GlobalIds repeated within a file: 0 before, 1 after
+  changed: {}
+  new GlobalId: {"tag: IfcColumn":1}
+  added: {}
+  removed: {}
+
+MEP.ifc -> MEP2.ifc
+  elements 3964 -> 3964; matched 3964 (GlobalId 3964, Tag 0, geometry 0); unchanged 3964, changed 0; added 0, removed 0; merged 0, split 0
+  a GlobalId-only comparison: 0 added, 0 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {}
+  new GlobalId: {}
+  added: {}
+  removed: {}
