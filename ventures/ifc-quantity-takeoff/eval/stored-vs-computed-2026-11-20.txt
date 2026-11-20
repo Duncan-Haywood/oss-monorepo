@@ -1,0 +1,102 @@
+construction.ifc (IFC2X3, 339 elements, 0.6 s): volume computed 339, not read 0, no body 0, net not computed 0
+  GrossVolume pairs 293: agree 268, own-dimensions 4, split 17, unexplained 2, repeated 2
+  NetVolume pairs 0: agree 0
+    unexplained: 2 x IfcWallStandardCase gross
+    #1405 IfcWallStandardCase gross computed 2.6565 stored 5.2520 (-49.4%) openings 0
+    #4407 IfcWallStandardCase gross computed 8.2591 stored 16.8414 (-51.0%) openings 0
+architect.ifc (IFC2X3, 2527 elements, 5.2 s): volume computed 2527, not read 0, no body 0, net not computed 0
+  GrossVolume pairs 1562: agree 1520, split 8, net-as-gross 33, own-dimensions 1
+  NetVolume pairs 0: agree 0
+AC20-FZK-Haus.ifc (IFC4, 82 elements, 0.2 s): volume computed 82, not read 0, no body 0, net not computed 0
+  GrossVolume pairs 18: agree 18
+  NetVolume pairs 18: agree 18
+C20-Institute-Var-2.ifc (IFC4, 701 elements, 0.5 s): volume computed 697, not read 4, no body 0, net not computed 0
+  GrossVolume pairs 149: agree 149
+  NetVolume pairs 149: agree 149
+    not read: 4 x open shell
+ISSUE_159_kleine_Wohnung_R22.ifc (IFC4, 425 elements, 0.3 s): volume computed 263, not read 162, no body 0, net not computed 37
+  GrossVolume pairs 260: agree 209, own-dimensions 8, net-as-gross 32, unexplained 8, unit-slip 3
+  NetVolume pairs 226: agree 226
+    unexplained: 8 x IfcWall gross
+    #78918 IfcWall gross computed 14.1649 stored 11.4859 (23.3%) openings 4 net: opening: body IFCADVANCEDBREP
+    #79070 IfcWall gross computed 3.7817 stored 4.0508 (-6.6%) openings 1 net: opening: body IFCADVANCEDBREP
+    #83292 IfcWall gross computed 2.3304 stored 2.2039 (5.7%) openings 1 net: opening: body IFCADVANCEDBREP
+    #87331 IfcWall gross computed 13.0241 stored 9.3118 (39.9%) openings 4 net: opening: body IFCADVANCEDBREP
+    #92201 IfcWall gross computed 8.4321 stored 8.6381 (-2.4%) openings 4 net: opening: body IFCADVANCEDBREP
+    #95188 IfcWall gross computed 14.1649 stored 11.4859 (23.3%) openings 4 net: opening: body IFCADVANCEDBREP
+    #95332 IfcWall gross computed 3.7817 stored 3.5126 (7.7%) openings 1 net: opening: body IFCADVANCEDBREP
+    #98786 IfcWall gross computed 2.3304 stored 2.2039 (5.7%) openings 1 net: opening: body IFCADVANCEDBREP
+    not read: 162 x body IFCADVANCEDBREP
+    not read: 37 x net: opening: body IFCADVANCEDBREP
+ISSUE_021_Mini Project.ifc (IFC2X3, 2636 elements, 2.8 s): volume computed 2636, not read 0, no body 0, net not computed 0
+  GrossVolume pairs 637: agree 615, unexplained 22
+  NetVolume pairs 2636: agree 2516, unexplained 120
+    unexplained: 96 x IfcBeam net
+    unexplained: 24 x IfcDiscreteAccessory net
+    unexplained: 22 x IfcDiscreteAccessory gross
+    #524 IfcBeam net computed 0.0103 stored 0.0101 (2.5%) openings 0
+    #734 IfcBeam net computed 0.0103 stored 0.0101 (2.5%) openings 0
+    #761 IfcBeam net computed 0.0001 stored 0.0001 (2.6%) openings 0
+    #796 IfcBeam net computed 0.0001 stored 0.0001 (2.6%) openings 0
+    #818 IfcBeam net computed 0.0001 stored 0.0001 (2.6%) openings 0
+    #843 IfcBeam net computed 0.0001 stored 0.0001 (2.6%) openings 0
+    #868 IfcBeam net computed 0.0001 stored 0.0001 (2.6%) openings 0
+    #885 IfcBeam net computed 0.0001 stored 0.0001 (2.6%) openings 0
+    #901 IfcBeam net computed 0.0001 stored 0.0001 (2.6%) openings 0
+    #907 IfcBeam net computed 0.0001 stored 0.0001 (2.6%) openings 0
+schependomlaan.ifc (IFC2X3, 3573 elements, 2.1 s): volume computed 3551, not read 18, no body 4, net not computed 0
+  GrossVolume pairs 1345: agree 1240, unexplained 105
+  NetVolume pairs 3274: agree 3184, unexplained 90
+    unexplained: 91 x IfcWall gross (faceted)
+    unexplained: 69 x IfcWindow net (faceted)
+    unexplained: 18 x IfcDoor net (faceted)
+    unexplained: 14 x IfcSlab gross (faceted)
+    unexplained: 2 x IfcCovering net
+    unexplained: 1 x IfcBuildingElementProxy net (faceted)
+    #27645 IfcWall gross computed 1.3573 stored 1.8219 (-25.5%) openings 0
+    #31474 IfcWall gross computed 2.5925 stored 3.0571 (-15.2%) openings 0
+    #31950 IfcWall gross computed 1.1694 stored 1.6340 (-28.4%) openings 0
+    #32565 IfcWall gross computed 1.6925 stored 2.1571 (-21.5%) openings 0
+    #43828 IfcSlab gross computed 9.4246 stored 42.5944 (-77.9%) openings 0
+    #47471 IfcWindow net computed 0.1136 stored 0.0814 (39.5%) openings 0
+    #49098 IfcWall gross computed 1.1781 stored 1.6427 (-28.3%) openings 0
+    #50130 IfcWindow net computed 0.1136 stored 0.0799 (42.2%) openings 0
+    #51386 IfcWall gross computed 1.1694 stored 1.6340 (-28.4%) openings 0
+    #53197 IfcWindow net computed 0.1136 stored 0.0799 (42.2%) openings 0
+    not read: 18 x open shell
+ISSUE_068_ARK_NUS_skolebygg.ifc (IFC2X3, 4459 elements, 9.6 s): volume computed 4459, not read 0, no body 0, net not computed 4
+  GrossVolume pairs 1231: agree 844, net-as-gross 260, unit-slip 96, unexplained 23, own-dimensions 8
+  NetVolume pairs 63: agree 40, unexplained 23
+    unexplained: 22 x IfcSlab gross
+    unexplained: 18 x IfcMember net
+    unexplained: 5 x IfcMember net (faceted)
+    unexplained: 1 x IfcWallStandardCase gross
+    #67904 IfcSlab gross computed 225.0918 stored 20911.7122 (-98.9%) openings 0
+    #68206 IfcSlab gross computed 150.4101 stored 13973.4461 (-98.9%) openings 0
+    #442500 IfcSlab gross computed 157.4922 stored 14631.8221 (-98.9%) openings 0
+    #664887 IfcSlab gross computed 3.0734 stored 285.5311 (-98.9%) openings 0
+    #665047 IfcSlab gross computed 30.5598 stored 2839.0966 (-98.9%) openings 0
+    #665189 IfcSlab gross computed 24.9643 stored 2319.2587 (-98.9%) openings 0
+    #993780 IfcSlab gross computed 153.5287 stored 14263.2853 (-98.9%) openings 0
+    #993822 IfcSlab gross computed 204.9526 stored 19040.7199 (-98.9%) openings 0
+    #1167770 IfcWallStandardCase gross computed 0.4609 stored 0.4705 (-2.0%) openings 0
+    #1186582 IfcSlab gross computed 5.2924 stored 5618.5002 (-99.9%) openings 0
+    not read: 4 x net: opening in a faceted body
+S_Office_Integrated Design Archi.ifc (IFC2X3, 3462 elements, 2.2 s): volume computed 2896, not read 511, no body 55, net not computed 0
+  GrossVolume pairs 0: agree 0
+  NetVolume pairs 0: agree 0
+    not read: 291 x open shell
+    not read: 220 x difference with a faceted solid
+dental_clinic.ifc (IFC2X3, 2586 elements, 1.2 s): volume computed 2586, not read 0, no body 0, net not computed 0
+  GrossVolume pairs 0: agree 0
+  NetVolume pairs 0: agree 0
+Office_A_20110811.ifc (IFC2X3, 803 elements, 0.3 s): volume computed 803, not read 0, no body 0, net not computed 0
+  GrossVolume pairs 0: agree 0
+  NetVolume pairs 0: agree 0
+duplex.ifc (IFC2X3, 215 elements, 0.2 s): volume computed 215, not read 0, no body 0, net not computed 8
+  GrossVolume pairs 0: agree 0
+  NetVolume pairs 0: agree 0
+    not read: 8 x net: opening in a faceted body
+ISSUE_034_HouseZ.ifc (IFC2X3, 228 elements, 0.5 s): volume computed 228, not read 0, no body 0, net not computed 0
+  GrossVolume pairs 0: agree 0
+  NetVolume pairs 0: agree 0

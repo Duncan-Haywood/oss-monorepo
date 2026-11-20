@@ -58,11 +58,13 @@ quantities inherits those errors; this tool says which they are
   checks each against the arithmetic, and the IPE 200 section against the steel
   tables (28.48 cm2; root radii included as (4 - pi) r^2).
 - **Real models.** On 13 public models (Revit, ArchiCAD, Tekla and others), the
-  computed volume agrees with the stored GrossVolume for 4,805 of 5,495
+  computed volume agrees with the stored GrossVolume for 4,863 of 5,495
   elements and with NetVolume for 6,133 of 6,366; where they agree, the median
   difference is 8e-16. Every disagreement is classified in
   [eval/stored-vs-computed-2026-11-19.md](eval/stored-vs-computed-2026-11-19.md),
-  with the raw output beside it.
+  with the raw output beside it (rerun 2026-11-20: 58 Revit members whose
+  faceted faces were written reversed now agree,
+  [eval/faceted-causes-2026-11-20.md](eval/faceted-causes-2026-11-20.md)).
 - **Areas on the same models.** 6,509 of 7,883 stored areas agree with the
   section cut from the geometry (82.6%), all 1,667 wall GrossFootprintAreas
   among them; where they agree the median difference is 1e-15 relative or less
@@ -81,6 +83,13 @@ quantities inherits those errors; this tool says which they are
   Stored areas on meshes miss more often, mostly on small pieces (1,051 of the
   1,225 new unexplained store under 0.6 m2); every stored volume is unchanged
   ([eval/areas-vs-stored-2026-11-20.md](eval/areas-vs-stored-2026-11-20.md)).
+- **Why the faceted areas miss (2026-11-20).** Unexplained disagreements fell
+  from 1,499 to 358 of 12,130 pairs: walls storing centre-line length x width
+  or height (612), sloped or tapered slabs storing a face (on-a-face, now 409),
+  stored zeros (96) and walls measured across another width (81). Faces written
+  the wrong way round are turned back first. An independent ray-parity sampler
+  agrees with 548 faceted sections to a median 0.002%
+  ([eval/faceted-causes-2026-11-20.md](eval/faceted-causes-2026-11-20.md)).
   The sample model's areas are checked by hand in `engine.test.mjs` (a door
   out of a wall's side and footprint, a trapezoidal gable, the IPE 200 section).
 - **Seeded faults.** Flipping the half-space side, switching off the unit-slip
@@ -111,7 +120,9 @@ space clips every piece, and anything subtracted (an opening, a bounded cut) is
 intersected with every piece and enters with the opposite sign. Volumes come
 from the divergence theorem over each piece's faces. Faceted bodies give a
 volume but cannot have openings subtracted; such elements report "net not
-computed" rather than a guess. A faceted body keeps its faces, and a plane
+computed" rather than a guess. A faceted body keeps its faces, turned first
+so neighbours run each shared edge in opposite directions (a shell that is
+not closed gets no section), and a plane
 cuts it by summing, over its faces fanned into triangles, the edge each
 triangle leaves in the plane (`shellSection`): concave faces, holes and voids
 need no special case.

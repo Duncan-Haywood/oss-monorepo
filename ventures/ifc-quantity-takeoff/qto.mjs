@@ -392,15 +392,22 @@ export function explainAreas(rows, tol = 0.02) {
       const open = r.computed.openings > 0;
       if (c.which === "gross" && open && A.net != null && near(A.net, c.stored)) { c.reason = "net-as-gross"; continue; }
       if (c.which === "net" && open && A.gross != null && near(A.gross, c.stored)) { c.reason = "gross-as-net"; continue; }
-      if (c.kind === "side" && A.faces && A.faces[c.which].some((x) => x != null && near(x, c.stored))) { c.reason = "on-a-face"; continue; }
+      if ((c.kind === "side" || c.kind === "plan") && A.faces && A.faces[c.which].some((x) => x != null && near(x, c.stored))) { c.reason = "on-a-face"; continue; }
       if (c.kind === "cross" && scalesWithLength(r, k, c, rows, near)) { c.reason = "scales-with-length"; c.trust = false; continue; }
       const sv = storedVol(r, c.which);
       if (c.kind === "side" && sv != null && A.width > 0 && near(c.stored * A.width, sv)) { c.reason = "matches-stored-volume"; continue; }
+      if (c.stored === 0 && c.computed > 0) { c.reason = "zero"; c.trust = false; continue; }
+      const L = storedLen(r, "length"), W = storedLen(r, "width"), H = storedLen(r, "height");
+      const exact = (x) => x > 0 && Math.abs(x - c.stored) <= 0.005 * Math.abs(c.stored);
+      if ((c.kind === "footprint" && exact(L * W)) || (c.kind === "side" && exact(L * H))) { c.reason = "centre-line"; continue; }
+      if (c.kind === "side" && sv != null && W > 0 && A.width > 0 && Math.abs(W - A.width) > tol * W && near(c.stored * W, sv)) { c.reason = "other-width"; continue; }
       c.reason = "unexplained";
     }
   }
   return rows;
 }
+
+const storedLen = (r, name) => { for (const [k, q] of Object.entries(r.stored)) if (q.kind === "length" && k.toLowerCase() === name) return q.value; return null; };
 
 // A stored CrossSectionArea that is the element's stored Length times one
 // constant across every element of its type (whatever their geometry's
@@ -437,8 +444,11 @@ export const AREA_REASON_TEXT = {
   "unit-slip": "the stored area is the geometry's times a power of ten or the square-foot factor 10.7639: converted twice or not at all",
   "net-as-gross": "the stored gross area equals the area with openings taken out (net)",
   "gross-as-net": "the stored net area equals the gross: the openings were not taken out",
-  "on-a-face": "the stored side area is measured on one face of the wall, not its middle plane",
+  "on-a-face": "the stored area is measured on one face of the element (a wall's side, a tapered or sloped slab's top or bottom), not its middle plane",
   "matches-stored-volume": "the stored area agrees with the stored volume, but both describe a different body than the geometry",
+  zero: "the stored area is 0 while the geometry has one: the exporter left the figure unfilled",
+  "centre-line": "the stored area is the element's stored centre-line length x its width (footprint) or height (side): a nominal figure that ignores angled or mitred ends",
+  "other-width": "the wall is measured across another direction than its thinnest one (a short wall with angled ends): the stored side area is its stored volume / stored width",
   unexplained: "no known cause; check the element in a viewer",
 };
 
@@ -559,7 +569,13 @@ function computeAreas(type, solids, W, f) {
     // (eval/areas-vs-stored-2026-11-20.md). A choice fitted on one model.
     const meshUp = !body.terms.length && /^IFCCOVERING/.test(type);
     const n = body.axis ?? (meshUp ? v : thinnestNormal(body)?.n);
-    if (n) out.plan = cut(n);
+    if (n) {
+      out.plan = cut(n);
+      // the same plane moved to each face: a tapered or sloped slab's stored
+      // area is sometimes its top or bottom face
+      const a = cut(n, 1e-4), b = cut(n, 1 - 2e-4);
+      out.plan.faces = { gross: [a.gross, b.gross], net: [a.net, b.net] };
+    }
   }
   if (AREA_KINDS.cross.test(type)) {
     // a faceted member has no extrusion: its length runs along the face

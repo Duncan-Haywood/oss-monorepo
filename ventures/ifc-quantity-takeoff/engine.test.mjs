@@ -270,3 +270,78 @@ test("sample: a slab written as a faceted brep or a triangulated face set gets i
   close(slab.computed.gross, 5 - 0.15);
   close(slab.computed.areas.plan.gross, 19); // the mid-thickness plane (125 mm) crosses the void
 });
+
+// ---- faceted bodies: closed shells cut by a plane --------------------------
+
+/** A STEP file with one IfcFacetedBrep whose faces are given as point loops (outer first). */
+function brepModelT(faces, { flip = [] } = {}) {
+  const lines = [];
+  let id = 100;
+  const faceIds = [];
+  faces.forEach((loops, fi) => {
+    const bounds = [];
+    loops.forEach((loop, li) => {
+      const pts = loop.map((p) => { const pid = id++; lines.push(`#${pid}=IFCCARTESIANPOINT((${p.map((x) => x.toFixed(6)).join(",")}));`); return `#${pid}`; });
+      const lid = id++;
+      lines.push(`#${lid}=IFCPOLYLOOP((${(flip.includes(fi) ? pts.slice().reverse() : pts).join(",")}));`);
+      const bid = id++;
+      lines.push(`#${bid}=${li === 0 ? "IFCFACEOUTERBOUND" : "IFCFACEBOUND"}(#${lid},.T.);`);
+      bounds.push(`#${bid}`);
+    });
+    const fid = id++;
+    lines.push(`#${fid}=IFCFACE((${bounds.join(",")}));`);
+    faceIds.push(`#${fid}`);
+  });
+  lines.push(`#${id}=IFCCLOSEDSHELL((${faceIds.join(",")}));`);
+  lines.push(`#${id + 1}=IFCFACETEDBREP(#${id});`);
+  const text = `ISO-10303-21;\nHEADER;\nFILE_SCHEMA(('IFC4'));\nENDSEC;\nDATA;\n${lines.join("\n")}\nENDSEC;\nEND-ISO-10303-21;\n`;
+  return { model: parseStep(text), id: id + 1 };
+}
+
+/** Faces of a prism over a simple polygon (counter-clockwise from +z), height h; holes as clockwise loops. */
+function prismFacesT(outer, h, holes = []) {
+  const up = (l, z) => l.map(([x, y]) => [x, y, z]);
+  const faces = [[up(outer, h), ...holes.map((l) => up(l, h))], [up(outer, 0).reverse(), ...holes.map((l) => up(l, 0).reverse())]];
+  for (const l of [outer, ...holes]) for (let i = 0; i < l.length; i++) {
+    const a = l[i], b = l[(i + 1) % l.length];
+    faces.push([[[a[0], a[1], 0], [b[0], b[1], 0], [b[0], b[1], h], [a[0], a[1], h]]]);
+  }
+  return faces;
+}
+
+test("faceted: a face with a hole (a square tube) takes the hole out of the section", async () => {
+  const { Geometry, sectionArea, solidVolume } = await import("./geom.mjs");
+  const outer = [[0, 0], [3, 0], [3, 3], [0, 3]];
+  const hole = [[1, 1], [1, 2], [2, 2], [2, 1]]; // clockwise
+  const { model, id } = brepModelT(prismFacesT(outer, 5, [hole]));
+  const s = new Geometry(model).item(id);
+  close(solidVolume(s), (9 - 1) * 5);
+  close(sectionArea(s, [0, 0, 1]), 8);
+  close(sectionArea(s, [1, 0, 0], 1.5), 2 * 5); // two 1-wide walls, 5 high
+});
+
+test("faceted: faces turned the wrong way are turned back, for the volume and the section", async () => {
+  const { Geometry, sectionArea, solidVolume, orientShell } = await import("./geom.mjs");
+  const L = [[0, 0], [4, 0], [4, 1], [2, 1], [2, 3], [0, 3]];
+  const faces = prismFacesT(L, 2);
+  // Revit's surface models in HHS architect.ifc: a third of the faces reversed
+  const { model, id } = brepModelT(faces, { flip: [0, 3, 5] });
+  const s = new Geometry(model).item(id);
+  close(solidVolume(s), 16);
+  close(sectionArea(s, [0, 0, 1]), 8);
+  assert.ok(s.notes.some((n) => /3 faces of a faceted body turned/.test(n)), s.notes.join("; "));
+  // a shell with a face missing is not closed: volume kept as before, no section
+  const open = orientShell(faces.slice(1));
+  assert.equal(open.closed, false);
+  const m2 = brepModelT(faces.slice(1));
+  assert.equal(sectionArea(new Geometry(m2.model).item(m2.id), [0, 0, 1]), null);
+});
+
+test("faceted: a shell turned inside out as a whole still cuts a positive area", async () => {
+  const { Geometry, sectionArea, solidVolume } = await import("./geom.mjs");
+  const all = prismFacesT([[0, 0], [2, 0], [2, 2], [0, 2]], 1);
+  const { model, id } = brepModelT(all, { flip: all.map((_, i) => i) });
+  const s = new Geometry(model).item(id);
+  close(solidVolume(s), 4);
+  close(sectionArea(s, [0, 0, 1]), 4);
+});
