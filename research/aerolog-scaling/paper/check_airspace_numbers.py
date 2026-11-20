@@ -156,6 +156,26 @@ CHECKS = [
     ("greedy_rule_results.txt", "0.9593", "0.9624 and 0.9593"),
     ("greedy_rule_results.txt", "greedy passes (3 per spacing and draw) per layout: median 0.16 s", "median 0.16 CPU s per layout"),
     ("greedy_rule_results.txt", "G3 M=12 s=1 greedy-off(o) < sort(o): 1.1229 vs 1.0995 -> refuted", "would beat the band sort at both offset sizes"),
+    # 11at restart curves
+    ("few_start_results.txt", "max relative difference from its F 0.00e+00 over 384 draws", "every aware score reproduces exactly over 384 draws"),
+    ("few_start_results.txt", "  random       1    1.0396", "**1.0396** (12 operators)"),
+    ("few_start_results.txt", "  random       1    1.0493", "**1.0493** (16)"),
+    ("few_start_results.txt", "  random      10    1.0047", "**1.0047** and **1.0091**"),
+    ("few_start_results.txt", "  random      10    1.0091", "**1.0047** and **1.0091**"),
+    ("few_start_results.txt", "  random      20    1.0004", "**1.0004** and **1.0035**"),
+    ("few_start_results.txt", "  random      20    1.0035", "**1.0004** and **1.0035**"),
+    ("few_start_results.txt", "  random      10    1.0007", "R = 10 is already 1.0007 and 1.0006"),
+    ("few_start_results.txt", "  random      10    1.0006", "R = 10 is already 1.0007 and 1.0006"),
+    ("few_start_results.txt", "  random     200    1.0000   1.0004   1.0140  77 of 96    8 of 96", "in up to 8 of 96 draws"),
+    ("few_start_results.txt", "  greedy       1    1.0773", "1.0773 and 1.0753 against random 1.0396 and 1.0493"),
+    ("few_start_results.txt", "  greedy       1    1.0753", "1.0773 and 1.0753 against random 1.0396 and 1.0493"),
+    ("few_start_results.txt", "R2 M=16 s=1 R=5 greedy < random: 1.0168 vs 1.0191 -> held", "only 2 of 12 pre-registered comparisons"),
+    ("few_start_results.txt", "R2 M=16 s=1 R=10 greedy < random: 1.0071 vs 1.0091 -> held", "only 2 of 12 pre-registered comparisons"),
+    ("few_start_results.txt", "  greedy      10    1.0059", "**1.0059** and **1.0071**"),
+    ("few_start_results.txt", "  greedy      10    1.0071", "**1.0059** and **1.0071**"),
+    ("few_start_results.txt", "analysis median 252", "**252** s for the whole analysis"),
+    ("few_start_results.txt", "200 random starts x 30 spacings x 8 draws median 7.4", "**7.4 CPU s** per layout"),
+    ("few_start_results.txt", "R3 M=12 s=1 random-10(o) > 1.01: 1.0047 -> refuted", "ten random starts would not suffice"),
 ]
 
 
