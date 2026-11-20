@@ -40,6 +40,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 EXP = HERE.parent
 SEED = 156
+M156_N = 12  # designs complete in both arms at milestone 156's 110-minute stop
 TABLE = HERE / "results.jsonl"
 NOM, MAX = "ss_100C_1v60", "ss_100C_1v60+rcmax"
 
@@ -97,7 +98,7 @@ def boot_seed(v, seed):
 
 def main(dst):
     rs = rows()
-    done = run.complete(rs)
+    done = run.complete(rs)[:M156_N]  # milestone 156's analysed set; analyse157.py scores the designs resumed after it
     out = ["# Milestone 156: ss_100C_1v60 at nominal RC against the PDK's max-RC corner, same tools (flow run)", "",
            f"theta = {score.THETA}; complete designs (paired prefix of milestone 143's order): {len(done)} of {len(run.ORDER)}"]
     if not done:

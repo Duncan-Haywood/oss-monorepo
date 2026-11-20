@@ -36,7 +36,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 SEED = 157
-M156_DONE = 12  # designs complete in both arms at milestone 156's stop (results.txt there)
+M156_DONE = 12  # milestone 156's analysed set (analyse.M156_N)
 
 
 def _load(path, name):
