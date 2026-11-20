@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVMNB5b7sXej4g2AtrS",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue products); merge when done",
+  "input_sha256": "8b42e855a2429af66e3b20054d99534e9e901c55f99740939d7647c8fa3a6342",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T08:06:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: literal prefilters in five paired tree checks (unwired pool)",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": 17880,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "cloud-session note says use gh api for search, but gh search/issues exited 2 here; skipped the duplicate search via gh and relied on the backlog and today's history notes"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-20-paired-check-prefilters.md",
+    "docs/posts/2026-11-20-a-regex-that-tries-every-position.md"
+  ],
+  "goal": null,
+  "notes": "Metric: serial wall seconds of five check_X.py and their test_check_X.py, each run alone on this 4-core container (date before/after; checks run twice). Checks: plan_limits_2026 6.46->1.29, agent_text_on_pages 6.9->1.2, open_range_messages 4.7->0.52, dst_day_step 4.2->1.2, csv_formula_guard 4.2->2.67; sum 26.5->6.9 s. Tests (pytest -q, one run each): 27.6->8.6 s. Total about 54->15.5 s of work per run_everything() call. Same answers: old vs new scripts byte-identical on the tree (cmp); 12,000 seeded texts per check (Unicode fold chars included) gave equal results; CSV gate held on 220k lines and three temp-root scans gave the same entries. 37 tests plus test_checks_refuse_empty_root pass.",
+  "corrections": [],
+  "redteam": null
+}
