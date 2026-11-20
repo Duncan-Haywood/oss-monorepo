@@ -65,6 +65,42 @@ full-size fields still built the weekend grid by hand. `tournament.mjs` and
   fields and divisions, an exact model for the 4 to 7% of warned-free weekends the search leaves
   short (some may be infeasible: the checks are necessary, not sufficient).
 
+## The league on the club's own website: a read-only embed (2026-11-20)
+
+Clubs want the schedule on their own site, where new players and parents look. Until now an organiser could
+download a static `league-page.html`, which goes stale at the first rainout. The self-hosted server now serves
+`/embed?k=...` (`embed.mjs`): a small read-only page made for an `<iframe>` on Wix, Squarespace, WordPress, Google
+Sites or a hand-made site, rebuilt from the same state as `/league`, so a posted result or a moved game shows on
+the club page within a minute (it is cached 60 s).
+
+- **Its own key.** The player link (`LEAGUE_TOKEN`) can send scores, availability, sub offers and waiver
+  signatures, and a website's source is public. The embed key is `HMAC(ADMIN_KEY, "embed\nread-only")`, 22
+  characters: nothing new to configure, it opens `/embed` and nothing else, and changing `ADMIN_KEY` retires
+  every pasted copy. A wrong key counts against the same per-address limit as a wrong player link.
+- **What it shows:** next games (the next 3 match days by default, counting doubleheader rounds on one date as one
+  day), the latest 5 results (newest first, winners in bold, forfeits marked) and the table; optionally the whole
+  season. Options in the address: `show=next,results,table,season`, `team=N` or `team=Name` (that team's games,
+  results and byes, its row highlighted), `nights=1..20`, `results=0..20`, `theme=light|dark|auto`, `accent=hex`,
+  `title=`. Unknown values fall back to defaults, so a hand-edited snippet still shows something.
+- **The snippet** (organiser page, "On your club's website", one for the league and one per team) is the iframe
+  plus four lines of script: the embed posts its height to the parent and the script grows the iframe to fit, so
+  there is no scroll box inside the page on a phone. A builder that strips scripts shows it 600 px tall, scrolling.
+- **Headers:** `frame-ancestors *` (any site may frame it), `default-src 'none'`, `form-action 'none'`, inline
+  style and one inline script only; it loads nothing from elsewhere and has no forms.
+- **Alternatives today:** TeamSnap, LeagueApps and SportsEngine offer website schedule widgets as part of paid
+  plans; LeagueLineup and similar free hosts put the schedule on their site, with their ads, not yours. A pasted
+  table or PDF is free but goes stale. This one is free, ad-free, on the club's own page, and current.
+- **Checked:** `embed.test.mjs` (9 tests: key stability and exact check, option parsing and clamps, match days
+  not rounds, newest-first results (it caught `results=0` showing every result, since `slice(-0)` is the whole
+  list), escaping, the server route: 401 for the player token, the admin key and no key; 405 for POST; no form or
+  player token in the page; the embed key refused at `/league` and `/admin`; follows a posted result and the
+  server clock; the guide's FAQ and options). `eval/embed-browser.mjs` in real Chromium on a 390 px phone: a club
+  page on another origin pastes the snippet; the frame loads with no console or CSP errors, grows to fit with 0 px
+  left to scroll inside, no sideways scroll, and the dark theme applies (`eval/embed-browser.txt`; it caught the
+  first height being 4 px short, because `documentElement.scrollHeight` includes the frame's own height, fixed by
+  measuring the body). Not yet pasted into a real Wix or Squarespace site.
+- **Guide:** `how-to-put-a-league-schedule-on-your-website.html` (linked from the main page and the sitemap).
+
 ## The player page on a phone's home screen, readable with no signal (2026-11-20)
 
 Players look up their next game at the field, where the signal is often one bar or none. The self-hosted league page

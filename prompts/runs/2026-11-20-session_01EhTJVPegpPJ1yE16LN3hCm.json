@@ -31,12 +31,14 @@
   "review_findings": null,
   "tests_added": 10,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Preflight caught two lint findings in tournament.mjs (Object.prototype lookup, CSV formula-guard marker); fixed before the merge."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "portfolio/router/flagship_field.py",
-      "issue": "--history TEXT removed the named result from flagships.yaml `next:` but wrote nothing to the venture's HISTORY.md (checked with git diff); I appended the line by hand. Its --make-room also parked a landed clause ('two courses 2026-11-20') into NEXT.md's open items."
+      "issue": "On the first edit, --history TEXT removed the named result from flagships.yaml `next:` and git diff showed no change to the venture's HISTORY.md, so I appended the line by hand. After merging main, the same command did write HISTORY.md, which left a duplicate I removed. The cause is unclear (possibly the earlier run's make-room path). --make-room also parked a landed clause ('two courses 2026-11-20') into NEXT.md's open items."
     },
     {
       "file": "portfolio/flagships.yaml",
@@ -56,7 +58,7 @@
     "ventures/league-schedule-generator/README.md (Weekend tournaments section)"
   ],
   "goal": "Give tournament directors a free scheduler for multi-division weekends, a workflow paid tournament platforms sell.",
-  "notes": "Checks run here: node --test tournament.test.mjs (9 pass), node --test page.test.mjs (61 pass), python3 platform/ci/check_posts.py ok, portfolio/router/validate.py ok, page loaded in Chromium at 390 px (36 games, no console errors, scrollWidth 390). eval/tournament-search.mjs seeds 1 and 2 (output in eval/tournament-search.txt): on 160 no-warning weekends all games placed 92.9%/96.1% at 120 tries vs 83.3%/88.2% one pass; 194 warned weekends never fully placed; 0 invalid. Full venture suite and venture-preflight: see PR body.",
+  "notes": "Checks run here: node --test tournament.test.mjs (9 pass), node --test page.test.mjs (61 pass), python3 platform/ci/check_posts.py ok, portfolio/router/validate.py ok, page loaded in Chromium at 390 px (36 games, no console errors, scrollWidth 390). eval/tournament-search.mjs seeds 1 and 2 (output in eval/tournament-search.txt): on 160 no-warning weekends all games placed 92.9%/96.1% at 120 tries vs 83.3%/88.2% one pass; 194 warned weekends never fully placed; 0 invalid. Full venture suite and venture-preflight: see PR body. Full venture suite here: 834 tests ok (312 s); venture-preflight: first run failed on inherited_keys (STAGE_SHORT lookup) and check_csv_formula_guard (exporter used the shared csvCell but the checker reads for a local guard marker), both fixed, rerun clean. Merged main (another session's embed.mjs work) and resolved conflicts in the README and flagships.yaml.",
   "corrections": [],
   "redteam": null,
   "usage": {
