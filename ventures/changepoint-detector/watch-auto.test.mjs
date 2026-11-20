@@ -84,9 +84,9 @@ test('auto keeps quiet under 30 points, and when even quiet is over budget', () 
   const none = chooseDetector(series(160, (i) => (i >= 100 ? 3 : 0), 7), null, { budget: -1 });
   assert.equal(none.key, 'quiet');
   assert.match(none.reason, /even Quiet/);
-  // Counts: two settings, and the pick is one of them.
+  // Counts: two settings (the count default, then pelt), and the pick is one of them.
   const counts = series(120, (i) => (i >= 80 ? 12 : 5), 5).map((x) => Math.max(0, Math.round(x)));
-  assert.ok(['bocpd', 'pelt'].includes(chooseDetector(counts, null, { model: 'poisson' }).detector));
+  assert.ok(['bocpd-window', 'pelt'].includes(chooseDetector(counts, null, { model: 'poisson' }).detector));
 });
 
 test('advance carries the pick forward; bad flags are refused', async () => {

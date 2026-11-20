@@ -1,0 +1,43 @@
+model poisson, 240 daily points, hint on the first 120 (budget 2 per 100 checks), watch scored on the last 120; seeds 1001-1200 (200 per cell), paired; steps at 180
+Nulls: false alerts per 1,000 checks. Steps: found of 200 (median delay in checks).
+
+| cell | old hint (bocpd, pelt) | new hint (default, pelt) | hint (default, bocpd, pelt) | fixed default | fixed bocpd |
+|---|---|---|---|---|---|
+| N1 Poisson 30 | 1.83 | 1.88 | 1.83 | 1.04 | 0.04 |
+| N2 NB 30, var 60 | 5.04 | 3.75 | 4.83 | 0.13 | 2.17 |
+| N3 Poisson 30, weekends 0.6x | 2.71 | 1.88 | 2.71 | 0.13 | 1.13 |
+| N4 Poisson 5 | 1.50 | 1.54 | 1.50 | 0.79 | 0.00 |
+| N5 NB 30, var 90 | 13.04 | 1.17 | 9.13 | 0.63 | 12.67 |
+| S1 30 -> 15 | 198 (4) | 199 (4) | 198 (4) | 199 (4) | 189 (4) |
+| S2 30 -> 21 | 181 (4) | 188 (4) | 181 (4) | 179 (4) | 66 (5) |
+| S3 30 -> 45 | 193 (4) | 198 (4) | 193 (4) | 199 (4) | 143 (4) |
+| S4 5 -> 2 | 182 (5) | 187 (5) | 182 (5) | 170 (4) | 55 (6) |
+| S5 NB(2x) 30 -> 18 | 152 (4) | 173 (4) | 154 (4) | 170 (4) | 143 (4) |
+| S6 NB(3x) 30 -> 18 | 141 (4) | 140 (4) | 140 (4) | 140 (5) | 140 (4) |
+| pooled false (nulls equal) | 4.83 | 2.04 | 4.00 | 0.54 | 3.20 |
+| steps found of 1200 | 1047 | 1085 | 1048 | 1057 | 736 |
+
+Picks per cell (hint arms):
+  N1: old hint (bocpd, pelt): pelt 187, bocpd 13; new hint (default, pelt): pelt 187, default 13; hint (default, bocpd, pelt): pelt 187, bocpd 13
+  N2: old hint (bocpd, pelt): bocpd 157, pelt 43; new hint (default, pelt): default 157, pelt 43; hint (default, bocpd, pelt): bocpd 144, pelt 43, default 13
+  N3: old hint (bocpd, pelt): bocpd 166, pelt 34; new hint (default, pelt): default 166, pelt 34; hint (default, bocpd, pelt): bocpd 164, pelt 34, default 2
+  N4: old hint (bocpd, pelt): pelt 189, bocpd 11; new hint (default, pelt): pelt 189, default 11; hint (default, bocpd, pelt): pelt 189, bocpd 11
+  N5: old hint (bocpd, pelt): bocpd 198, pelt 2; new hint (default, pelt): default 198, pelt 2; hint (default, bocpd, pelt): default 66, bocpd 132, pelt 2
+  S1: old hint (bocpd, pelt): pelt 187, bocpd 13; new hint (default, pelt): pelt 187, default 13; hint (default, bocpd, pelt): pelt 187, bocpd 13
+  S2: old hint (bocpd, pelt): pelt 188, bocpd 12; new hint (default, pelt): pelt 188, default 12; hint (default, bocpd, pelt): pelt 188, bocpd 12
+  S3: old hint (bocpd, pelt): pelt 188, bocpd 12; new hint (default, pelt): pelt 188, default 12; hint (default, bocpd, pelt): pelt 188, bocpd 12
+  S4: old hint (bocpd, pelt): pelt 189, bocpd 11; new hint (default, pelt): pelt 189, default 11; hint (default, bocpd, pelt): pelt 189, bocpd 11
+  S5: old hint (bocpd, pelt): bocpd 156, pelt 44; new hint (default, pelt): default 156, pelt 44; hint (default, bocpd, pelt): bocpd 147, default 9, pelt 44
+  S6: old hint (bocpd, pelt): bocpd 197, pelt 3; new hint (default, pelt): default 197, pelt 3; hint (default, bocpd, pelt): default 80, bocpd 117, pelt 3
+
+Against old hint (bocpd, pelt) (10000 stratified paired resamples, 95% percentile intervals):
+new hint (default, pelt): false -2.78 (-3.08 to -2.48); steps +38 (20 to 56); worst null 0.04; worst step cell -1
+  F1 pass, F2 pass, D1 pass, D2 pass -> passes
+hint (default, bocpd, pelt) (reported only): false -0.83 (-1.05 to -0.61); steps +1 (-8 to 10); worst null 0.00; worst step cell -1
+  F1 pass, F2 pass, D1 FAIL, D2 pass
+fixed default (reported only): false -4.28 (-4.74 to -3.86); steps +10 (-12 to 32); worst null -0.71; worst step cell -12
+  F1 pass, F2 pass, D1 FAIL, D2 FAIL
+fixed bocpd (reported only): false -1.63 (-1.93 to -1.33); steps -311 (-336 to -287); worst null -0.38; worst step cell -127
+  F1 pass, F2 pass, D1 FAIL, D2 FAIL
+
+passes: for counts, --suggest and --detector auto pick from (count default, pelt)
