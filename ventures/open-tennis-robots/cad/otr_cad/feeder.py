@@ -85,6 +85,35 @@ CLIP_W = 20.0          # standoff clip and its bundle channel, along y
 CLIP_CHANNEL_H = 20.0  # the channel the bundle is tied in, below the clip point
 CABLE_BAR_X = -190.0   # (= head_x - post_dx) the 2020 crossbar between the rear mast posts, for the axis clamp
 SPIGOT_BOLT_R = 64.0  # M4 ring of the sleeve socket under the shelf (48 until 2026-11-10; the sleeve's wall now sits there)
+# Heat-set insert pockets, and the depths the assembly guide checks each screw against (feeder_guide.joints). Until
+# 2026-11-20 the cheek feet, gear sector, feed floor and roof, sleeve socket and agitator mount had 4.0 mm pilots
+# where their M4 inserts go (an M4 insert wants about 5.6 mm), the collector's fault of the same day.
+INSERT_HOLE_D = 5.6      # M4 heat-set insert, 5.7 mm long
+INSERT_DEPTH = 6.5
+FEED_PILOT_DEPTH = 12.0  # feed floor and roof: pocket and pilot in from each side
+SERVO_LEG_POCKET = 10.0  # servo bracket legs
+CHEEK_FOOT_V = 25.0      # cheek foot, up from the turntable plate
+CHEEK_FOOT_W = 20.0      # cheek foot, across (pilot right through)
+STOP_POCKET = 7.5        # azimuth stop block (6.0 until 2026-11-20: an M4 x 10 then reached 5 of the insert's 5.7 mm)
+SPIGOT_FLANGE = 9.0      # sleeve socket's flange under the shelf (5.0 until 2026-11-20: shorter than the insert)
+SPIGOT_POCKET = 8.0
+AGIT_POCKET = 7.0        # agitator motor mount
+TROUGH_WEB = 6.0         # trough hanger: plastic under the screw head, the counterbore open behind it
+POLE_FOOT_FLOOR = 6.0    # pole foot: plastic under each screw head at the bottom of its counterbore
+CABLE_CLAMP_WEB = 6.0    # cable clamp: plastic under its screw head, against the crossbar's face
+
+
+def _insert_cut(blk, loc: Location, pilot: float):
+    """Cut an M4 insert pocket (INSERT_HOLE_D x INSERT_DEPTH) and a 4 mm pilot to `pilot` mm, both going down local z
+    from `loc`'s origin (the part's face)."""
+    blk = blk - Cylinder(INSERT_HOLE_D / 2, INSERT_DEPTH).moved(loc * Location((0, 0, -INSERT_DEPTH / 2)))
+    return blk - Cylinder(2.0, pilot).moved(loc * Location((0, 0, -pilot / 2)))
+
+
+def _cores(points):
+    """The two core bores of each 2040 end at (x, y), the 40 mm side along y: a screw into the end goes into these,
+    not the end's centre, which is the web between the cells (holes at the centres until 2026-11-20)."""
+    return [(x, y + s * 10.0) for x, y in points for s in (-1, 1)]
 
 
 # ---------------------------------------------------------------- helpers
@@ -238,7 +267,7 @@ def mast_plate(p: Feeder) -> Part:
     with BuildSketch() as s:
         with Locations((p.head_x, 0)):
             RectangleRounded(2 * p.post_dx + 60, 2 * p.post_half_y + 80, 10)
-        _holes([(x, y) for x, y in _post_xy(p)], 5.5)
+        _holes(_cores(_post_xy(p)), 5.5)        # two M5 into each post's end
         _holes([(p.head_x + x, y) for x, y in _ring(60, 4)], 5.5)
         Polygon(*_mast_notch(p), align=None, mode=Mode.SUBTRACT)  # the head's rear dips past it, nose up and turned
         with Locations((p.head_x, 0)):
@@ -352,7 +381,7 @@ def az_stop_block(p: Feeder) -> Part:
     b0, b1, h, yc = _stop_block_dims(p)
     blk = Box(b1 - b0, p.stop_block_depth, h).moved(Location((0, 0, h / 2)))
     for d in (-STOP_INSERT_DT, STOP_INSERT_DT):
-        blk = blk - Cylinder(2.8, 6.0).moved(Location((0, d, 3.0)))
+        blk = _insert_cut(blk, Location((0, d, 0), (180, 0, 0)), STOP_POCKET)
     z0 = p.mast_top_z + p.plate_t
     locs = []
     for deg, side in _stop_frames(p):
@@ -473,7 +502,7 @@ def base_deck(p: Feeder) -> Part:
         n = 5
         xs = [x0 + 30 + i * (x1 - x0 - 60) / (n - 1) for i in range(n)]
         _holes([(x, sy * hw) for x in xs for sy in (-1, 1)], 5.5)
-        _holes(_shelf_posts(p), 5.5)  # hopper posts, M5 from below into their tapped ends
+        _holes(_cores(_shelf_posts(p)), 5.5)  # hopper posts, two M5 from below into each one's tapped core bores
         _holes(deck_cable_saddle_holes(p), 5.5)  # deck-side cable saddles (2026-11-14)
         # Battery strap slots (25 mm strap).
         bx = BATTERY_X
@@ -517,7 +546,7 @@ def hopper_shelf(p: Feeder) -> Part:
     a_o = p.shelf_l / 2 - 55.0
     with BuildSketch() as sk:
         RectangleRounded(p.shelf_l, p.shelf_w, 10)
-        _holes([((x + 0.0 - cx) / math.cos(s), y) for x, y in _shelf_posts(p)], 5.5)
+        _holes([((x + 0.0 - cx) / math.cos(s), y) for x, y in _cores(_shelf_posts(p))], 5.5)
         with Locations((a_o, 0)):
             Circle(80.0 / 2, mode=Mode.SUBTRACT)
         _holes([(a_o + x, y) for x, y in _ring(SPIGOT_BOLT_R, 4, 45)], 4.4)
@@ -586,7 +615,7 @@ def agitator_motor_mount(p: Feeder) -> Part:
         blk = blk - Cylinder(1.7, t + 2).moved(Location((x, y, -t / 2)))
         blk = blk - Cylinder(3.25, 3.5).moved(Location((x, y, -1.75)))
     for x, y in _ring(p.agit_mount_bolt_r, 3, 90):
-        blk = blk - Cylinder(2.0, 7.0).moved(Location((x, y, -3.5)))
+        blk = _insert_cut(blk, Location((x, y, 0)), AGIT_POCKET)
     return Part("hopper_agitator_mount", "print", "PETG", 1, blk, [_agit_loc(p)],
                 notes="Agitator gearmotor's mount: screw the motor's face to it first (M3 from the counterbores in its top), "
                       "then bolt it up under the shelf (M4 from above into its three heat-set inserts). Print top down, 6 walls.")
@@ -611,12 +640,12 @@ def _feed_w(p: Feeder) -> float:
     return 2 * (p.plate_half_y - p.feed_clear)
 
 
-def _pilots(blk, p: Feeder, pts, depth: float = 12.0):
-    """M4 pilot holes drilled inward along y from both sides at head-frame (x, z)."""
+def _pilots(blk, p: Feeder, pts, depth: float = FEED_PILOT_DEPTH):
+    """M4 insert pockets and pilots inward along y from both sides at head-frame (x, z)."""
     w = _feed_w(p)
     for x, z in pts:
         for sy in (-1, 1):
-            blk = blk - Cylinder(2.0, depth).moved(Location((x, sy * (w / 2 - depth / 2), z), ROT_Y_AXIS))
+            blk = _insert_cut(blk, Location((x, sy * w / 2, z), (sy * -90.0, 0, 0)), depth)
     return blk
 
 
@@ -676,6 +705,13 @@ def feed_shuttle(p: Feeder) -> Part:
 
 
 SHUTTLE_DRIVE = ("feed_shuttle", "shuttle_rod", "shuttle_crank")
+SERVO_CRADLE_T = 8.0   # the servo bracket's cradle, which the tab screws' inserts go through
+
+
+def servo_tab_screw(p: Feeder) -> tuple[float, float]:
+    """(head-frame x, world y of the head's seat) of the servo's +x tab screw."""
+    body_cx = p.crank_x - p.servo_shaft_from_end + p.servo_l / 2
+    return body_cx + p.servo_flange_l / 2 - 3.5, p.servo_top_y + p.servo_flange_below + 2.5
 ROD_W = 12.0      # rod and crank width
 LEG_R = 7.0
 
@@ -725,7 +761,7 @@ def shuttle_drive_parts(p: Feeder) -> list[Part]:
                        "horn's own holes, drilled to suit). Print flat, 100% infill.")
     y0 = p.drive_y0
     y_flange = p.servo_top_y + p.servo_flange_below
-    cr_t = 8.0
+    cr_t = SERVO_CRADLE_T
     xs0 = p.crank_x - p.servo_shaft_from_end
     body_cx = xs0 + p.servo_l / 2
     zc = p.shuttle_zc
@@ -771,7 +807,7 @@ def hopper_spigot(p: Feeder) -> Part:
     bore, od = _sleeve_d(p)
     ox, oz = p.hopper_out_x, p.hopper_out_z
     shelf = Location((ox, 0, oz), (0, p.shelf_slope_deg, 0))
-    flange = Cylinder(SPIGOT_BOLT_R + 10.0, 5.0).moved(Location((0, 0, -2.5))).moved(shelf)
+    flange = Cylinder(SPIGOT_BOLT_R + 10.0, SPIGOT_FLANGE).moved(Location((0, 0, -SPIGOT_FLANGE / 2))).moved(shelf)
     top = oz - p.sleeve_top_mm                         # sleeve's top end, under the flange all round
     cup_h = 40.0
     z_hi = oz + (od / 2 + 6.0) * math.tan(s) + 2.0     # reaches the shelf plane all round, then cut flush
@@ -782,7 +818,7 @@ def hopper_spigot(p: Feeder) -> Part:
     blk = blk - Cylinder((od + 0.5) / 2, cup_h).moved(Location((ox, 0, top - cup_h / 2)))
     blk = blk - Box(30.0, 10.0, cup_h + 2.0).moved(Location((ox - od / 2 - 5.0, 0, top - cup_h / 2)))  # the sleeve's slot, carried on
     for x, y in _ring(SPIGOT_BOLT_R, 4, 45):
-        blk = blk - Cylinder(2.0, 14).moved(Location((x, y, -4.0))).moved(shelf)
+        blk = _insert_cut(blk, shelf * Location((x, y, 0)), SPIGOT_POCKET)
     return Part("hopper_spigot", "print", "PETG", 1, blk, [Location((0, 0, 0))],
                 notes=f"Sleeve socket under the shelf's outlet hole: flange on the sloped shelf (M4 heat-set inserts), a vertical "
                       f"cup {od + 0.5:g} mm across and {cup_h:g} mm deep for the sleeve's top end. Print flange down, 6 walls.")
@@ -793,8 +829,9 @@ def hopper_spigot(p: Feeder) -> Part:
 def cheek_foot(p: Feeder) -> Part:
     h = 60.0
     blk = Box(24, 20, h).moved(Location((0, 0, h / 2)))
-    blk = blk - Cylinder(2.0, 25).moved(Location((0, 0, 12.5)))                              # M4 up from the plate
-    blk = blk - Cylinder(2.0, 24).moved(Location((0, 0, 30), ROT_Y_AXIS))                    # M4 through the cheek
+    blk = _insert_cut(blk, Location((0, 0, 0), (180, 0, 0)), CHEEK_FOOT_V)                  # M4 up from the plate
+    for sy in (-1, 1):                         # M4 through the cheek: a pocket in each face (the same part both sides)
+        blk = _insert_cut(blk, Location((0, sy * 10.0, 30), (sy * -90.0, 0, 0)), CHEEK_FOOT_W)
     placements = []
     y_foot = p.plate_half_y + p.plate_t + p.cheek_gap + p.plate_t + 10.0
     for x, _ in _foot_xy(p):
@@ -810,7 +847,7 @@ def az_gear_sector(p: Feeder) -> Part:
         Polygon(*[(p.head_x + x, y) for x, y in az_gear_profile(p)], align=None)
     blk = extrude(sk.sketch, face_mm)
     for x, y in _az_bolts(p):
-        blk = blk - Cylinder(2.0, face_mm).moved(Location((x, y, face_mm / 2)))   # M4 heat-set insert, from the top
+        blk = _insert_cut(blk, Location((x, y, face_mm)), face_mm)                # M4 heat-set insert, from the top
     z0 = p.mast_top_z + p.plate_t + p.az_gear_gap_mm
     return Part("az_gear_sector", "print", "PETG", 1, blk, [Location((0, 0, z0))],
                 notes=f"Azimuth gear: module {p.az_module:g}, {p.az_gear_teeth} teeth on the full circle "
@@ -819,14 +856,28 @@ def az_gear_sector(p: Feeder) -> Part:
                       f"Print flat, 100% infill, 0.1 mm layers for the flanks; grease the teeth.")
 
 
+POLE_FOOT_SCREWS = (-50.0, -30.0)   # foot-frame y of its two screws, inboard of the pole (the pole stands at the beam's end)
+
+
+def pole_foot_screws(p: Feeder) -> list[tuple[float, float]]:
+    """World (x, y) of the pole feet's screws into the net beam's top slot."""
+    return [(-10.0, s * (p.net_w / 2 + dy)) for s in (1, -1) for dy in POLE_FOOT_SCREWS]
+
+
 def pole_foot(p: Feeder) -> Part:
+    """Socket for a vertical net pole on the beam's end, with a tongue inboard that carries its two screws down into
+    the beam's top slot (2026-11-20: the screw hole ran across the foot above the beam, so it reached nothing)."""
     h = 60.0
-    blk = Box(50, 50, h).moved(Location((0, 0, h / 2)))
+    y0, y1 = -65.0, 25.0
+    blk = Box(50, y1 - y0, h).moved(Location((0, (y0 + y1) / 2, h / 2)))
     blk = blk - Cylinder(p.pole_d / 2 + 0.25, 40).moved(Location((0, 0, h - 20)))
-    blk = blk - Cylinder(2.75, 52).moved(Location((0, 0, 10), (0, 90, 0)))
+    for y in POLE_FOOT_SCREWS:
+        blk = blk - Cylinder(2.75, POLE_FOOT_FLOOR + 0.2).moved(Location((0, y, POLE_FOOT_FLOOR / 2)))
+        blk = blk - Cylinder(5.5, h).moved(Location((0, y, POLE_FOOT_FLOOR + h / 2)))
     return Part("pole_foot", "print", "PETG", 2, blk,
-                [Location((-10, s * p.net_w / 2, p.rail_top)) for s in (1, -1)],
-                notes="Sockets a 25 mm vertical pole 40 mm deep; M5 screws and T-nuts into the beam. 6 walls.")
+                [Location((-10, p.net_w / 2, p.rail_top)), Location((-10, -p.net_w / 2, p.rail_top), (0, 0, 180))],
+                notes="Sockets a 25 mm vertical pole 40 mm deep at the beam's end; two M5 x 12 down its counterbores "
+                      "into T-nuts in the beam's top slot. 6 walls.")
 
 
 def pole_elbow(p: Feeder) -> Part:
@@ -1035,7 +1086,9 @@ def envelopes(p: Feeder) -> list[Part]:
                     spec="37 mm gearmotor, 24 V, ~200 rpm, 6 mm D shaft, quadrature encoder"))
     foot = Cylinder(20, p.rail_z).moved(Location((0, 0, p.rail_z / 2)))
     out.append(Part("levelling_foot", "cots", "", 2, foot, [Location((-10, s * p.foot_half_y, 0)) for s in (1, -1)],
-                    spec="M10 levelling foot with a 40 mm rubber pad, 155 mm of stud; T-nut in the beam"))
+                    spec="M6 levelling foot with a 40 mm rubber pad, 155 mm of stud, into an M6 slot-6 T-nut in the "
+                         "beam's bottom slot, with a jam nut (an M10 stud, as listed until 2026-11-20, cannot pass a "
+                         "slot-6 opening)"))
     bx, by, bz = 90.0, 200.0, 130.0
     out.append(Part("battery", "cots", "", 1, Box(bx, by, bz).moved(Location((0, 0, bz / 2))),
                     [Location((BATTERY_X, 0, p.rail_top + p.plate_t))],
@@ -1091,11 +1144,21 @@ def cable_clamp(p: Feeder) -> Part:
     x0, x1 = CABLE_BAR_X + 10.0, p.head_x + bore / 2 + 4.0
     arm = Box(x1 - x0, 20.0, 20.0).moved(Location(((x0 + x1) / 2, 0, p.cable_clamp_z)))
     arm = arm - Cylinder(bore / 2, 22).moved(Location((p.head_x, 0, p.cable_clamp_z)))
-    arm = arm - Cylinder(2.75, x1 - x0 - 2 * bore).moved(Location((x0 + (x1 - x0 - 2 * bore) / 2, 0, p.cable_clamp_z), (0, 90, 0)))  # M5 to the bar
+    # M5 to the bar: through a 6 mm web, its head in a pocket open on top (drop it in, turn it with a key's short
+    # leg). Until 2026-11-20 the hole ran blind from the bar's face, so no screw could be put in it.
+    w = CABLE_CLAMP_WEB
+    arm = arm - Cylinder(2.75, w + 0.2).moved(Location((x0 + w / 2, 0, p.cable_clamp_z), (0, 90, 0)))
+    arm = arm - Box(26.0, 11.0, 16.0).moved(Location((x0 + w + 13.0, 0, p.cable_clamp_z + 2.5)))
     arm = arm - Box(2.5, 22, 4.0).moved(Location((p.head_x - bore / 2 - 2.0, 0, p.cable_clamp_z)))
     return Part("cable_clamp", "print", "PETG", 1, arm, [Location((0, 0, 0))],
-                notes="M5 and a T-nut into the cable crossbar's front slot. Zip-tie the bundle at the bore: the run "
+                notes="An M5 x 12 and a T-nut into the cable crossbar's front slot, its head dropped into the pocket on top. "
+                      "Zip-tie the bundle at the bore: the run "
                       "from here up to the gland twists as the head turns, so keep it free of ties.")
+
+
+def cable_clamp_screw(p: Feeder) -> float:
+    """World x of the cable clamp's screw head seat (the far face of its web)."""
+    return CABLE_BAR_X + 10.0 + CABLE_CLAMP_WEB
 
 
 def cable_bar(p: Feeder) -> Part:
@@ -1377,11 +1440,13 @@ def trough_hangers(p: Feeder) -> list[Part]:
         blk = blk - Box(x1, 32.0, max(z1 - zc, 0) + 1).moved(Location((p.trough_x0 - 1 + x1 / 2, 0, zc + (max(z1 - zc, 0) + 1) / 2)))
         for zb in (p.rail_z + 10.0, p.rail_z + 30.0):
             blk = blk - Cylinder(2.75, 2 * p.trough_x0).moved(Location((0, 0, zb), (0, 90, 0)))
-            blk = blk - Cylinder(5.5, p.trough_x0).moved(Location((6.0 + p.trough_x0 / 2, 0, zb), (0, 90, 0)))
+            # the counterbore runs out through the hanger, so the screw goes in and a key reaches it (until 2026-11-20 it
+            # stopped 30 mm in, closed behind on the hangers whose saddle sits high, and the screws were M5 x 35)
+            blk = blk - Cylinder(5.5, x1).moved(Location((TROUGH_WEB + x1 / 2, 0, zb), (0, 90, 0)))
         blk = blk - Box(4.0, 32.0, 2.5).moved(Location((xc, 0, zc - ro - 4.0)))   # zip-tie slot under the gutter
         name = f"trough_hanger_{'abcdefghij'[k]}"
         out.append(Part(name, "print", "PETG", 1, blk, [Location((0, yh, 0))],
-                        notes=f"At y = {yh:+g} mm (saddle {zc - ro:.0f} mm up). Two M5 x 35 button heads and T-nuts into the "
+                        notes=f"At y = {yh:+g} mm (saddle {zc - ro:.0f} mm up). Two M5 x 12 button heads and T-nuts into the "
                               f"net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the "
                               f"gutter in the saddle."))
     return out
@@ -2301,40 +2366,47 @@ def gravity_table(p: Feeder, steps: int = 4) -> dict[float, float]:
 # ---------------------------------------------------------------- BOM extras and summary
 
 def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
+    """Every loose fastener. The assembly guide (`feeder_guide.steps`) hands out every one, and checks the lengths of
+    those whose stacks the CAD draws (`feeder_guide.joints`); the 2026-11-20 changes are in cad/README.md, "Feeder
+    assembly guide"."""
     return [
-        ("M8 x 110 bolt + nyloc nut + 4 washers", 1, "head pivot through the cheeks"),
-        ("M5 female-female standoff, 80 mm", 4, "between the head plates"),
-        ("M5 x 12 button head", 4 + 4 + 8 + 10 + 8, "standoffs, mast plate to posts, turntable, deck, brackets"),
-        ("M5 T-nut (slot 6)", 10 + 8 + 4 + 4 + 2 + 2, "deck, brackets, feet and mast rails"),
-        ("M5 x 16 button head", 8 + 4 + 4, "posts to rails, pole feet"),
+        ("M8 x 120 bolt + nyloc nut + 4 washers", 1, "head pivot through the cheeks"),
+        ("M5 x 12 button head", 8 + 8 + 8 + 10 + 8, "standoffs (both ends), mast plate to posts, turntable, deck, brackets"),
+        ("M5 T-nut (slot 6)", 10 + 8 + 4, "deck, wheel brackets, pole feet"),
+        ("M5 x 30 button head (frame)", 16, "side and mast rails' tapped ends, through the beam, rear rail and side rails"),
+        ("M5 x 50 button head (mast posts)", 8, "up through the mast rails into the posts' core bores"),
+        ("M5 x 12 button head (pole feet)", 4, "pole feet down into T-nuts in the net beam's top slot"),
+        ("M5 nut (turntable bearing)", 8, "on the lazy-susan's rings, if they are not tapped"),
         ("M4 x 12 socket cap screw", 4 + 4, "cheek feet to the turntable plate and the cheeks"),
         ("M4 heat-set insert, 5.7 mm long", 4 + 4, "cheek feet"),
         ("M4 x 12 socket cap screw (motors)", 8, "launcher motors to the motor plate"),
+        ("M4 x 25 socket cap screw (camera clamps)", 2, "pinch screws, into 3.3 mm holes drilled at assembly"),
         ("M3 x 8 screw", 12, "gearmotor faces"),
-        ("M3 x 10 screw", 4, "azimuth stepper to the mast plate (from above)"),
-        ("M3 x 8 socket cap screw + washer + nut (home switch)", 2, "home switch bracket to the mast plate"),
+        ("M3 x 8 screw (azimuth stepper)", 4, "azimuth stepper to the mast plate (from above; its threads are ~4.5 mm deep)"),
+        ("M3 x 12 socket cap screw + washer + nut (home switch)", 2, "home switch bracket to the mast plate"),
         ("M2 x 10 self-tapping screw", 2, "home switch to its bracket"),
         ("M4 x 12 socket cap screw (azimuth)", 3, "turntable plate down into the gear sector"),
         ("M4 heat-set insert, 5.7 mm long (azimuth)", 3, "gear sector"),
-        ("M4 x 10 socket cap screw (stops)", 4, "mast plate up into the two azimuth stop blocks"),
+        ("M4 x 12 socket cap screw (stops)", 4, "mast plate up into the two azimuth stop blocks"),
         ("M4 heat-set insert, 5.7 mm long (stops)", 4, "azimuth stop blocks"),
         ("Contact adhesive (polyurethane to PETG)", 1, "stop pads to their blocks"),
         ("608 bearing, 8 x 22 x 7", 2, "idler wheels"),
         ("M8 x 60 bolt + nyloc nut", 2, "idler axles"),
-        ("M10 T-nut (levelling foot)", 2, "beam ends"),
+        ("M6 T-nut (slot 6) + M6 jam nut (levelling foot)", 2, "beam ends"),
         ("M4 x 12 socket cap screw (feed)", 8, "feed floor and roof to the head plates (through the plates, into inserts)"),
         ("M4 heat-set insert, 5.7 mm long (feed)", 8 + 4, "feed floor, roof and sleeve socket"),
-        ("M4 x 10 socket cap screw (spigot)", 4, "sleeve socket to the shelf"),
-        ("M5 x 16 button head (hopper)", 4 + 4, "posts to the deck (from below) and to the shelf"),
-        ("M5 T-nut or tapped end (hopper)", 8, "posts, deck and shelf"),
+        ("M4 x 12 socket cap screw (spigot)", 4, "sleeve socket to the shelf"),
+        ("M5 x 16 button head (hopper)", 8 + 8, "posts to the deck (from below) and to the shelf, two per end"),
         ("2020 corner bracket with M5 screws and T-nuts", 6, "hopper braces, two per brace"),
+        ("2020 corner bracket with M5 screws and T-nuts (cable crossbar)", 2, "cable crossbar to the rear mast posts"),
         ("M4 x 30 shoulder bolt (5 mm shoulder) + nyloc", 2, "shuttle drive: shuttle pin (into its insert) and crank pin"),
-        ("M4 x 30 socket cap screw (servo)", 3 + 2, "motor plate into the servo bracket's legs; servo tabs into the bracket"),
+        ("M4 x 12 socket cap screw (servo legs)", 3, "motor plate into the servo bracket's legs, from inside the head"),
+        ("M4 x 10 socket cap screw (servo tabs)", 2, "servo tabs into the bracket"),
         ("M4 heat-set insert, 5.7 mm long (servo)", 3 + 2 + 1, "servo bracket legs and tabs, shuttle side"),
         ("Hose clamp, 80-90 mm", 1, "hose at the column socket"),
         ("Flexible-PVC adhesive or epoxy", 1, "hose's top end into the take-up collar"),
         ("25 mm strap, 1 m", 2, "tub to the shelf"),
-        ("M5 x 35 button head + T-nut (trough)", 2 * len(p.trough_hanger_y), "trough hangers to the net beam's front face"),
+        ("M5 x 12 button head + T-nut (trough)", 2 * len(p.trough_hanger_y), "trough hangers to the net beam's front face"),
         ("M5 x 40 button head + T-nut (sump)", 2, "trough sump's rear tab to the net beam"),
         ("Half-round gutter end cap, 125 mm class", 2, "trough's outer ends"),
         ("Zip ties, 4.8 mm (trough)", len(p.trough_hanger_y), "gutter into each hanger's saddle"),
@@ -2349,11 +2421,12 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("UHMW-PE tape, 25 mm wide, self-adhesive", 1, f"both 20 mm faces of the lift spine ({2 * (p.lift_z_top - p.lift_z_bottom) / 1000:.1f} m)"),
         ("Logic-level N-MOSFET module, 24 V 5 A, + flyback diode", 1, "lift gearmotor from GPIO 12 (module with a gate pull-down)"),
         ("M3 x 10 socket cap screw (agitator)", 4, "agitator gearmotor's face to its mount, from the mount's counterbores"),
-        ("M4 x 10 button head (agitator)", 3, "agitator motor mount up under the shelf, from above (the tub sits over the heads)"),
+        ("M4 x 12 button head (agitator)", 3, "agitator motor mount up under the shelf, from above (the tub sits over the heads)"),
         ("M4 heat-set insert, 5.7 mm long (agitator)", 3, "agitator motor mount"),
         ("M3 x 6 set screw + M3 heat-set insert", 1, "agitator hub onto the shaft's flat"),
         ("Logic-level N-MOSFET module, 24 V 2 A, + flyback diode", 1, "agitator gearmotor from GPIO 2 (module with a gate pull-down)"),
-        ("M5 x 12 button head + nyloc nut (deck cables)", 2 * len(p.deck_cable_ties()["deck"]), "deck-side cable saddles through the deck"),
+        ("M5 x 16 button head + nyloc nut (deck cables)", 2 * len(p.deck_cable_ties()["deck"]), "deck-side cable saddles through the deck"),
+        ("M5 x 12 button head + T-nut (cable clamp)", 1, "axis cable clamp to the crossbar's front slot"),
         ("M5 x 10 button head + T-nut (deck cables)", 2 * len(p.deck_cable_ties()["post"]) + len(p.deck_cable_ties()["crossbar"]),
          "cable saddles on the +y rear mast post, hangers under the cable crossbar"),
         ("M3 x 16 screw + nut (stepper driver carrier)", 4, "carrier to the deck's M3 grid"),
@@ -2369,9 +2442,9 @@ COTS_EXTRA = [
     ("6 V 5 A buck converter (servo supply)", 1, "shuttle servo, on the deck beside the ESP32: 20 AWG supply and return to the servo (manifest cables line)"),
     ("Spiral wrap, 10 mm, 1 m", 1, "the head's wires in the free loop: loose, so each wire bends on its own"),
     ("Snap-in grommet for a 14 mm hole", 1, "the head's wires through the motor plate"),
+    ("25 mm hook-and-loop strap, 600 mm (battery)", 1, "battery, through the deck's two slots"),
     ("Snap-in grommet for a 10 mm hole, 6 mm bore or more", 1, "the elevation actuator's lead through the guard-side cheek"),
     ("Zip ties, 2.5 mm", 14, "cable gland, clamp and clip; the clamp arm's hanger; the actuator's lead to its body (two, side by side)"),
-    ("Storage tub, about 440 x 340 x 250 mm", 1, "hopper; see the part notes for the cut"),
     ("Stepper driver, 2 A class (TMC2209 or A4988), StepStick format, + heatsink", 1, "azimuth stepper, on the printed carrier on the deck"),
     ("1x8 female header, 2.54 mm, + 2.54 mm perfboard scrap", 2, "stepper driver carrier"),
     ("Screw terminal blocks, 5.08 mm, 4-way and 2-way", 1, "stepper driver carrier: motor out, 24 V in"),

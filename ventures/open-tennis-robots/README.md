@@ -45,7 +45,14 @@ contact and design rules, and is byte-reproducible. CI fails if the
 committed package goes stale.
 
 **The feeder has a first package too** ([`manufacturing/feeder-package.zip`](manufacturing/feeder-package.zip),
-[browse](manufacturing/feeder/)): launcher head plates, trunnion cheeks and
+[browse](manufacturing/feeder/)), with its own 25-step
+[assembly guide](manufacturing/feeder/guide/ASSEMBLY.md) since 2026-11-20:
+24 bolted joints measured against the CAD, every BOM line handed out, every
+screw into an extrusion's end checked against its core bores. Writing it found
+the feeder could not be built as committed (holes over the posts' webs, a pivot
+bolt 9 mm short, servo screws that bottom out, a pole foot and a cable clamp no
+screw could fasten, M10 feet in a slot-6 beam); all fixed
+([`cad/README.md`](cad/README.md), "Feeder assembly guide"). Launcher head plates, trunnion cheeks and
 turntable, the 2040 base with drive and idler brackets, mast, 3 m net beam,
 net poles, elbows and a stereo camera bar. Its build also tilts the head
 through its whole elevation range to check it never hits the mast, and
@@ -497,8 +504,8 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
 7. Spin estimation from longer tracks, to cut prediction error on topspin
    returns (the main error source; see `tests/test_robots.py`).
 8. UWB or line-based localisation for the collector on unlit courts.
-9. An illustrated assembly guide (the collector's landed 2026-11-20, generated from the CAD) and a kit for
-   sellers; the feeder's guide is next.
+9. An illustrated assembly guide (the collector's and the feeder's landed 2026-11-20, generated from the CAD)
+   and a kit for sellers.
 
 ### Known gaps (quality audit, 2026-11-08)
 

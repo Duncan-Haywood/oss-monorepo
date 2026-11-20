@@ -8,7 +8,7 @@ writes
     print/*.stl          printed parts (qty and settings in print_parts.csv)
     step/*.step          every made part as a solid, plus assembly.step
     drawings/*.svg       top, side and front views of the assembly
-    guide/ASSEMBLY.md    collector only: the step-by-step assembly guide, one drawing a step (guide/step_NN.svg)
+    guide/ASSEMBLY.md    the step-by-step assembly guide, one drawing a step (guide/step_NN.svg)
     cut_list.csv         stock to cut to length
     bom.csv              everything: made parts, stock, bought-in parts, fasteners
     manifest.json        parameters, derived numbers, design-rule and collision results, file hashes
@@ -391,13 +391,16 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
             w.writeheader()
             w.writerows(rows)
 
-    guide_bad, joint_rows = [], []
-    if not feeder:
-        from . import guide as G
-        joint_rows, guide_bad = G.joint_checks(p, parts)
-        guide_bad += G.tally(p, parts, bom_rows) + G.order_problems(p, parts) + G.hatch_check(p, parts)
-        rules = rules + guide_bad
-        G.write(out, p, parts, bom_rows, joint_rows, guide_bad, drawings)
+    from . import guide as G
+    joint_rows, guide_bad = G.joint_checks(p, parts)
+    guide_bad += G.tally(p, parts, bom_rows) + G.order_problems(p, parts)
+    if feeder:
+        from . import feeder_guide as FG
+        guide_bad += G.access_problems(p, parts) + FG.end_bore_problems(p, parts)
+    else:
+        guide_bad += G.hatch_check(p, parts)
+    rules = rules + guide_bad
+    G.write(out, p, parts, bom_rows, joint_rows, guide_bad, drawings)
 
     write_csv("laser_parts.csv", laser_rows)
     write_csv("print_parts.csv", print_rows)
@@ -411,6 +414,8 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
 
     if feeder:
         checks, derived = F.summary(p, mass_g, rules, clash, contacts, ground_ok, hopper_g, turning, gravity)
+        checks.append(f"assembly guide (guide/ASSEMBLY.md): {len(joint_rows)} fastener stacks, part and BOM tally, "
+                      f"step order, head access, extrusion end bores: {'pass' if not guide_bad else 'FAIL'}")
     else:
         length, width = p.overall
         checks = [
@@ -474,8 +479,10 @@ ORDER
 3. cut_list.csv  Cut the 2040 / 2020 extrusion and the poles to length;
                tap M5 into the extrusion ends where noted.
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py.
+5. guide/ASSEMBLY.md  Put it together, step by step, one drawing a step.
 
-NOT IN THIS PACKAGE YET: the netting, the deck-side cabling (the trough, the ball lift and the hopper agitator are in it since 2026-11-13). See hardware/feeder-catcher.md. The elevation actuator is
+NOT IN THIS PACKAGE YET: the netting's cut and lacing, the take-up spring's
+bracket. See hardware/feeder-catcher.md. The elevation actuator is
 bought to the window in the elevation check below (any make whose retracted and
 extended lengths span it).
 

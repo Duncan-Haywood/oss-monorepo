@@ -11,8 +11,10 @@ ORDER
 3. cut_list.csv  Cut the 2040 / 2020 extrusion and the poles to length;
                tap M5 into the extrusion ends where noted.
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py.
+5. guide/ASSEMBLY.md  Put it together, step by step, one drawing a step.
 
-NOT IN THIS PACKAGE YET: the netting, the deck-side cabling (the trough, the ball lift and the hopper agitator are in it since 2026-11-13). See hardware/feeder-catcher.md. The elevation actuator is
+NOT IN THIS PACKAGE YET: the netting's cut and lacing, the take-up spring's
+bracket. See hardware/feeder-catcher.md. The elevation actuator is
 bought to the window in the elevation check below (any make whose retracted and
 extended lengths span it).
 
@@ -27,7 +29,7 @@ CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 - hose with end directions: fits -15 deg 839-912 mm; +0 deg 812-831 mm; +15 deg 843-864 mm; +30 deg 921-1031 mm; +45 deg 1037-1222 mm; no one cut length fits every pose: needs 206 mm of take-up (103 mm of travel on a floating pulley, which cannot carry balls: its 180 deg wrap climbs, a ball-carrying hose may wrap 60 deg at most; limiting nose-up to +30 deg would need 89 mm; see take_up_line for the sleeve that replaces it)
 - take-up: sleeve 96 mm bore, 300 mm long, under the outlet; the hose's collar slides 236 mm in it, so the free hose runs 521 to 757 mm from 1705 mm up; slide allowed per pose (elevation/azimuth, -azimuth mirrors) -15/0 deg 46-62; -15/15 deg 46-62; -15/30 deg 45-61; +0/0 deg 0-0; +0/15 deg 0-4; +0/30 deg 0-15; +15/0 deg 3-10; +15/15 deg 8-21; +15/30 deg 24-45; +30/0 deg 81-137; +30/15 deg 88-147; +30/30 deg 108-174; +45/0 deg 205-327; +45/15 deg 211-335; +45/30 deg 236-349 mm; hose cut 810 mm; spring 5 N (assumed); balls fall straight down the sleeve, then at least 30 deg
 - hopper frame: full tub 125 N; sway load 60 N; braces carry 185 N (x) and 179 N (y) against buckling loads of 1619 and 1379 N; a post alone buckles at 1824 N (pinned ends, 2040 weak axis; section figures are assumptions)
-- azimuth: NEMA 17 through a 15:150 m1.5 mesh (10:1) to a printed sector under the turntable; turning inertia 0.3477 kg m^2 from the CAD (8.6 kg turning); 30 deg in 1 s needs 1.25 N m at the turntable (inertia 0.73, bearing 0.13, hose 0.40) and 0.139 N m at 100 rpm at the motor, 2.2x under the assumed 0.3 N m pull-out (fastest at 2x: 0.94 s); tooth root 2.8 MPa (PETG allowed 10); one full step 0.180 deg = 75 mm sideways at 24 m, backlash 0.051 deg = 21 mm
+- azimuth: NEMA 17 through a 15:150 m1.5 mesh (10:1) to a printed sector under the turntable; turning inertia 0.3476 kg m^2 from the CAD (8.6 kg turning); 30 deg in 1 s needs 1.25 N m at the turntable (inertia 0.73, bearing 0.13, hose 0.40) and 0.139 N m at 100 rpm at the motor, 2.2x under the assumed 0.3 N m pull-out (fastest at 2x: 0.94 s); tooth root 2.8 MPa (PETG allowed 10); one full step 0.180 deg = 75 mm sideways at 24 m, backlash 0.051 deg = 21 mm
 - azimuth home: roller-lever switch on the mast plate at 45 deg, roller 91.6 mm from the axis; a cam lobe on the gear sector (1.7 mm deep, 45 deg ramp) first touches it at -31.25 deg, clicks at -32 deg and holds it closed down to -84.9 deg (the pinion leaves the teeth at -39.9), so the firmware backs off when it starts closed; click repeatability 0.031 deg = 13 mm at 24 m, under one microstep (0.045 deg = 19 mm); part-to-part click tolerance 0.19 deg = 79 mm: calibrate AZ_HOME_DEG
 - azimuth hard stops: printed blocks on the mast plate with 5 mm polyurethane pads; the gear sector's ends meet them at +-35 deg (5 deg past the working range, 3 past the home click; the pinion leaves the teeth at +-39.9); a runaway at 60 deg/s (0.19 J, inertia 0.349 kg m^2 with the rotor) squeezes a pad 2.2 mm (44%), 174 N plus 36 N of stepper holding torque; worst sector insert 115 N (allowed 300); stalled, the teeth bend at 6.0 MPa; the pad takes up to 68 deg/s within 50%; everything turning clears everything fixed out to +-36.4 deg
 - elevation: linear actuator outboard of the guard-side cheek pushes a pin on the guard plate; the head's weight (from the CAD) pulls its nose up by 0.65 to 12.05 N m over -15 to +45 deg, so the actuator pushes one way all the way (18 to 103 N, hose slack or taut, lever arm at least 100 mm), 2.1x under the assumed 220 N rating; pin-to-anchor 248 to 371 mm (124 mm of travel), so any actuator retracted 245.0 to 247.7 mm (its own retract limit then stops the head short of the turntable plate) and extended at least 374 mm hole to hole fits; at 20 mm/s the head turns 9.2 to 11.4 deg/s, the full range in 6.2 s
@@ -48,7 +50,8 @@ CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 - hopper agitator: two 115 mm arms 27.5-39.5 mm over the tub floor (a floor ball's centre is at 33.5), shaft 103 mm from the outlet's centre, so the tips pass 12 mm beyond it and 12 mm from the tub's walls; at 20 rpm an arm crosses the outlet 40 times a minute (feed rate 36); both arms ploughing a full tub need 0.45 N m (3.3x margin on 1.5 N m assumed), 0.9 W; at the 3 N m stall an arm's root sees 5.9 MPa and a tip pushes 26 N (load, friction and motor figures assumed; one ball freed per pass is an assumption to measure)
 - net: 3000 wide x 2470 mm tall between the poles
 - wind: 69 N on the net at 8 m/s (solidity 0.2, Cd 1.2); ballast needed over the made-part mass (hopper posts, shelf and spigot not credited): 9 kg
-- made-part mass (estimate, excludes bought-in parts): 45.5 kg
+- made-part mass (estimate, excludes bought-in parts): 45.6 kg
+- assembly guide (guide/ASSEMBLY.md): 24 fastener stacks, part and BOM tally, step order, head access, extrusion end bores: pass
 
 STATUS
 Design v0.1, not yet built, and the launcher head throws balls at 30+ m/s:
