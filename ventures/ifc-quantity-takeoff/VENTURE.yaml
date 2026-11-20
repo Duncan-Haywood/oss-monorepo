@@ -53,6 +53,22 @@ hypotheses:
     status: supported
     checked: 2026-11-19
     evidence: in-repo  # eval/stored-vs-computed-2026-11-19.md: 690 of 5,495 (12.6%) on 8 models
+  - claim: >-
+      Between real revisions of one model, a comparison keyed on GlobalId
+      alone misreports elements as added or removed often enough to matter
+      (more than 5% of the elements it calls added or removed are the same
+      element under a new GlobalId, or a host switched to its parts).
+    status: supported
+    checked: 2026-11-20
+    evidence: in-repo  # eval/revision-diff-2026-11-20.md: 190 of 1,011 GlobalId-only adds/removes (18.8%) on five Aalseth Residence exports
+  - claim: >-
+      People who compare two revisions here take the change away: at least
+      one in three revisions_compared events is followed by a
+      delta_downloaded or changes_downloaded event, because the change on
+      each priced line is what a change order needs.
+    status: untested
+    checked: null
+    evidence: customer-contact  # usage counters revisions_compared, delta_downloaded, changes_downloaded (local only)
 
 economics:
   currency: USD

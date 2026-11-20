@@ -1,0 +1,1071 @@
+[
+ {
+  "before": "1-2019-11-08a-7766411.ifc",
+  "after": "2-2019-11-08b-b39c362.ifc",
+  "summary": {
+   "before": 1547,
+   "after": 1023,
+   "matched": 983,
+   "byGlobalId": 977,
+   "byTag": 6,
+   "byGeometry": 0,
+   "unchanged": 929,
+   "changed": 54,
+   "quantityChanged": 7,
+   "attributeChanged": 48,
+   "moved": 0,
+   "reshaped": 6,
+   "added": 3,
+   "removed": 555,
+   "merged": 0,
+   "split": 9,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   }
+  },
+  "gidOnly": {
+   "added": 46,
+   "removed": 570
+  },
+  "what": {
+   "attribute: storey": 48,
+   "quantity: volume": 7,
+   "quantity: area": 6,
+   "reshaped": 6
+  },
+  "reid": {
+   "tag: IfcDoor": 4,
+   "tag: IfcWall": 1,
+   "tag: IfcWindow": 1
+  },
+  "groups": [
+   {
+    "kind": "split",
+    "before": [
+     "IfcSlab Floor:TJI FLOOR - 11 7/8\" w/ gyp crete:1061484"
+    ],
+    "after": [
+     "IfcSlab Part:2638058",
+     "IfcSlab Part:2638059",
+     "IfcSlab Part:2638060",
+     "IfcSlab Part:2638061",
+     "IfcSlab Part:2638062"
+    ],
+    "volumeBefore": 30.68184085494486,
+    "volumeAfter": 30.68184085492782
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcSlab Basic Roof:ROOF OVER LR:1113949"
+    ],
+    "after": [
+     "IfcRoof Part:2638090",
+     "IfcRoof Part:2638091",
+     "IfcRoof Part:2638092",
+     "IfcRoof Part:2638093"
+    ],
+    "volumeBefore": 5.5448563724285345,
+    "volumeAfter": 5.544856372428512
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcSlab Floor:TJI FLOOR - 11 7/8\" w/ gyp crete:1118466"
+    ],
+    "after": [
+     "IfcSlab Part:2638046",
+     "IfcSlab Part:2638047",
+     "IfcSlab Part:2638048",
+     "IfcSlab Part:2638049",
+     "IfcSlab Part:2638050"
+    ],
+    "volumeBefore": 17.34857408403098,
+    "volumeAfter": 17.34857408403137
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcSlab Floor:TJI FLOOR - 11 7/8\":1120694"
+    ],
+    "after": [
+     "IfcSlab Part:2638034",
+     "IfcSlab Part:2638035",
+     "IfcSlab Part:2638036",
+     "IfcSlab Part:2638037"
+    ],
+    "volumeBefore": 2.7260682393828706,
+    "volumeAfter": 2.7260682393820725
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcWall Basic Wall:SHEAR WALL:1191104"
+    ],
+    "after": [
+     "IfcWall Part:2638083",
+     "IfcWall Part:2638084",
+     "IfcWall Part:2638085",
+     "IfcWall Part:2638086",
+     "IfcWall Part:2638087"
+    ],
+    "volumeBefore": 2.023300102082807,
+    "volumeAfter": 2.031457021239997
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcWallStandardCase Basic Wall:BASEMENT FURRING:1581414"
+    ],
+    "after": [
+     "IfcWall Part:2638071",
+     "IfcWall Part:2638072",
+     "IfcWall Part:2638073"
+    ],
+    "volumeBefore": 1.6830866980854,
+    "volumeAfter": 1.6739081659171002
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcSlab Basic Roof:FRONT CANOPY:1618875"
+    ],
+    "after": [
+     "IfcRoof Part:2638052",
+     "IfcRoof Part:2638053",
+     "IfcRoof Part:2638054",
+     "IfcRoof Part:2638055",
+     "IfcRoof Part:2638056"
+    ],
+    "volumeBefore": 5.853398449432481,
+    "volumeAfter": 5.853398449431061
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcWall Basic Wall:INT - W4CØF - (5/8 GYP - 2X4 WOOD(BATT) - 5/8 GYP):2323244"
+    ],
+    "after": [
+     "IfcWall Part:2638116",
+     "IfcWall Part:2638117",
+     "IfcWall Part:2638118"
+    ],
+    "volumeBefore": 0.48720579129598024,
+    "volumeAfter": 0.4883429378053902
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcWallStandardCase Basic Wall:INT - W4CØF - (5/8 GYP - 2X4 WOOD(BATT) - 5/8 GYP):2574872"
+    ],
+    "after": [
+     "IfcWall Part:2638113",
+     "IfcWall Part:2638114",
+     "IfcWall Part:2638115"
+    ],
+    "volumeBefore": 0.504491299144684,
+    "volumeAfter": 0.49639537139859613
+   }
+  ],
+  "added": {
+   "IfcWall": 3
+  },
+  "removed": {
+   "IfcBuildingElementProxy": 419,
+   "IfcMember": 48,
+   "IfcWallStandardCase": 29,
+   "IfcPlate": 21,
+   "IfcFurnishingElement": 12,
+   "IfcSlab": 10,
+   "IfcFlowTerminal": 8,
+   "IfcDoor": 3,
+   "IfcCovering": 2,
+   "IfcDistributionControlelement": 1,
+   "IfcColumn": 1,
+   "IfcBeam": 1
+  },
+  "moves": {},
+  "boqByClass": [
+   {
+    "class": "IfcBeam",
+    "count": [
+     235,
+     234
+    ],
+    "volume": [
+     9.095259311759772,
+     9.052648784581802
+    ]
+   },
+   {
+    "class": "IfcBuildingElementProxy",
+    "count": [
+     462,
+     43
+    ],
+    "volume": [
+     938.8003384507202,
+     893.687274738899
+    ]
+   },
+   {
+    "class": "IfcColumn",
+    "count": [
+     22,
+     21
+    ],
+    "volume": [
+     1.2766736373890246,
+     1.21359400296508
+    ]
+   },
+   {
+    "class": "IfcCovering",
+    "count": [
+     18,
+     16
+    ],
+    "volume": [
+     8.541023334949333,
+     6.588939364629107
+    ]
+   },
+   {
+    "class": "IfcDistributionControlelement",
+    "count": [
+     1,
+     0
+    ],
+    "volume": [
+     0.000018582468128438607,
+     0
+    ]
+   },
+   {
+    "class": "IfcDoor",
+    "count": [
+     37,
+     34
+    ],
+    "volume": [
+     4.097088226170718,
+     3.737818235034719
+    ]
+   },
+   {
+    "class": "IfcFlowTerminal",
+    "count": [
+     26,
+     18
+    ],
+    "volume": [
+     2.525605206795057,
+     2.287619362269974
+    ]
+   },
+   {
+    "class": "IfcFurnishingElement",
+    "count": [
+     45,
+     33
+    ],
+    "volume": [
+     40.09550179140163,
+     35.82969138386568
+    ]
+   },
+   {
+    "class": "IfcMember",
+    "count": [
+     302,
+     254
+    ],
+    "volume": [
+     1.6058789465444845,
+     1.292181892488237
+    ]
+   },
+   {
+    "class": "IfcPlate",
+    "count": [
+     28,
+     7
+    ],
+    "volume": [
+     0.7109262043374803,
+     0.00371009375489933
+    ]
+   },
+   {
+    "class": "IfcRoof",
+    "count": [
+     1,
+     10
+    ],
+    "volume": [
+     8.793218331181526,
+     20.191473153041095
+    ]
+   },
+   {
+    "class": "IfcSlab",
+    "count": [
+     45,
+     44
+    ],
+    "volume": [
+     267.5314881380011,
+     185.41170444149552
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     59,
+     74
+    ],
+    "volume": [
+     51.0355069957561,
+     53.397016148609616
+    ]
+   },
+   {
+    "class": "IfcWallStandardCase",
+    "count": [
+     115,
+     84
+    ],
+    "volume": [
+     218.9893473505328,
+     131.1390475898281
+    ]
+   }
+  ]
+ },
+ {
+  "before": "2-2019-11-08b-b39c362.ifc",
+  "after": "3-2019-11-09a-f1be1d3.ifc",
+  "summary": {
+   "before": 1023,
+   "after": 1065,
+   "matched": 981,
+   "byGlobalId": 975,
+   "byTag": 6,
+   "byGeometry": 0,
+   "unchanged": 962,
+   "changed": 19,
+   "quantityChanged": 12,
+   "attributeChanged": 2,
+   "moved": 7,
+   "reshaped": 10,
+   "added": 75,
+   "removed": 5,
+   "merged": 9,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   }
+  },
+  "gidOnly": {
+   "added": 90,
+   "removed": 48
+  },
+  "what": {
+   "moved": 7,
+   "quantity: volume": 12,
+   "reshaped": 10,
+   "quantity: area": 1,
+   "attribute: name": 2
+  },
+  "reid": {
+   "tag: IfcDoor": 4,
+   "tag: IfcWall": 1,
+   "tag: IfcWindow": 1
+  },
+  "groups": [
+   {
+    "kind": "merged",
+    "before": [
+     "IfcSlab Part:2638058",
+     "IfcSlab Part:2638059",
+     "IfcSlab Part:2638060",
+     "IfcSlab Part:2638061",
+     "IfcSlab Part:2638062"
+    ],
+    "after": [
+     "IfcSlab Floor:TJI FLOOR - 11 7/8\" w/ gyp crete:1061484"
+    ],
+    "volumeBefore": 30.68184085492782,
+    "volumeAfter": 30.68184085494486
+   },
+   {
+    "kind": "merged",
+    "before": [
+     "IfcRoof Part:2638090",
+     "IfcRoof Part:2638091",
+     "IfcRoof Part:2638092",
+     "IfcRoof Part:2638093"
+    ],
+    "after": [
+     "IfcSlab Basic Roof:ROOF OVER LR:1113949"
+    ],
+    "volumeBefore": 5.544856372428512,
+    "volumeAfter": 5.5448563724285345
+   },
+   {
+    "kind": "merged",
+    "before": [
+     "IfcSlab Part:2638046",
+     "IfcSlab Part:2638047",
+     "IfcSlab Part:2638048",
+     "IfcSlab Part:2638049",
+     "IfcSlab Part:2638050"
+    ],
+    "after": [
+     "IfcSlab Floor:TJI FLOOR - 11 7/8\" w/ gyp crete:1118466"
+    ],
+    "volumeBefore": 17.34857408403137,
+    "volumeAfter": 17.34857408403098
+   },
+   {
+    "kind": "merged",
+    "before": [
+     "IfcSlab Part:2638034",
+     "IfcSlab Part:2638035",
+     "IfcSlab Part:2638036",
+     "IfcSlab Part:2638037"
+    ],
+    "after": [
+     "IfcSlab Floor:TJI FLOOR - 11 7/8\":1120694"
+    ],
+    "volumeBefore": 2.7260682393820725,
+    "volumeAfter": 2.7260682393828706
+   },
+   {
+    "kind": "merged",
+    "before": [
+     "IfcWall Part:2638083",
+     "IfcWall Part:2638084",
+     "IfcWall Part:2638085",
+     "IfcWall Part:2638086",
+     "IfcWall Part:2638087"
+    ],
+    "after": [
+     "IfcWall Basic Wall:SHEAR WALL:1191104"
+    ],
+    "volumeBefore": 2.031457021239997,
+    "volumeAfter": 2.023300102082807
+   },
+   {
+    "kind": "merged",
+    "before": [
+     "IfcWall Part:2638071",
+     "IfcWall Part:2638072",
+     "IfcWall Part:2638073"
+    ],
+    "after": [
+     "IfcWallStandardCase Basic Wall:BASEMENT FURRING:1581414"
+    ],
+    "volumeBefore": 1.6739081659171002,
+    "volumeAfter": 1.6830866980854
+   },
+   {
+    "kind": "merged",
+    "before": [
+     "IfcRoof Part:2638052",
+     "IfcRoof Part:2638053",
+     "IfcRoof Part:2638054",
+     "IfcRoof Part:2638055",
+     "IfcRoof Part:2638056"
+    ],
+    "after": [
+     "IfcSlab Basic Roof:FRONT CANOPY:1618875"
+    ],
+    "volumeBefore": 5.853398449431061,
+    "volumeAfter": 5.853398449432481
+   },
+   {
+    "kind": "merged",
+    "before": [
+     "IfcWall Part:2638116",
+     "IfcWall Part:2638117",
+     "IfcWall Part:2638118"
+    ],
+    "after": [
+     "IfcWall Basic Wall:INT - W4CØF - (5/8 GYP - 2X4 WOOD(BATT) - 5/8 GYP):2323244"
+    ],
+    "volumeBefore": 0.4883429378053902,
+    "volumeAfter": 0.48720579129598024
+   },
+   {
+    "kind": "merged",
+    "before": [
+     "IfcWall Part:2638113",
+     "IfcWall Part:2638114",
+     "IfcWall Part:2638115"
+    ],
+    "after": [
+     "IfcWallStandardCase Basic Wall:INT - W4CØF - (5/8 GYP - 2X4 WOOD(BATT) - 5/8 GYP):2574872"
+    ],
+    "volumeBefore": 0.49639537139859613,
+    "volumeAfter": 0.504491299144684
+   }
+  ],
+  "added": {
+   "IfcBuildingElementProxy": 70,
+   "IfcMember": 2,
+   "IfcBeam": 2,
+   "IfcWallStandardCase": 1
+  },
+  "removed": {
+   "IfcWall": 3,
+   "IfcMember": 2
+  },
+  "moves": {
+   "0.00, 0.00, -0.02": 6,
+   "0.15, -0.01, 0.20": 1
+  },
+  "boqByClass": [
+   {
+    "class": "IfcBeam",
+    "count": [
+     234,
+     236
+    ],
+    "volume": [
+     9.052648784581802,
+     9.063016949722693
+    ]
+   },
+   {
+    "class": "IfcBuildingElementProxy",
+    "count": [
+     43,
+     113
+    ],
+    "volume": [
+     893.687274738899,
+     893.7076039534687
+    ]
+   },
+   {
+    "class": "IfcFlowTerminal",
+    "count": [
+     18,
+     18
+    ],
+    "volume": [
+     2.287619362269974,
+     2.287462729649388
+    ]
+   },
+   {
+    "class": "IfcMember",
+    "count": [
+     254,
+     254
+    ],
+    "volume": [
+     1.292181892488237,
+     1.2963029312990337
+    ]
+   },
+   {
+    "class": "IfcRailing",
+    "count": [
+     11,
+     11
+    ],
+    "volume": [
+     0.2302751620431538,
+     0.23144142332374795
+    ]
+   },
+   {
+    "class": "IfcRoof",
+    "count": [
+     10,
+     1
+    ],
+    "volume": [
+     20.191473153041095,
+     8.793218331181526
+    ]
+   },
+   {
+    "class": "IfcSlab",
+    "count": [
+     44,
+     35
+    ],
+    "volume": [
+     185.41170444149552,
+     196.8274537651574
+    ]
+   },
+   {
+    "class": "IfcStairFlight",
+    "count": [
+     8,
+     8
+    ],
+    "volume": [
+     0.6299068587058271,
+     0.6445077327285592
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     74,
+     59
+    ],
+    "volume": [
+     53.397016148609616,
+     51.0355069957561
+    ]
+   },
+   {
+    "class": "IfcWallStandardCase",
+    "count": [
+     84,
+     87
+    ],
+    "volume": [
+     131.1390475898281,
+     133.51272597750463
+    ]
+   }
+  ]
+ },
+ {
+  "before": "3-2019-11-09a-f1be1d3.ifc",
+  "after": "4-2019-11-09b-70e393f.ifc",
+  "summary": {
+   "before": 1065,
+   "after": 1092,
+   "matched": 1055,
+   "byGlobalId": 1049,
+   "byTag": 6,
+   "byGeometry": 0,
+   "unchanged": 1052,
+   "changed": 3,
+   "quantityChanged": 3,
+   "attributeChanged": 0,
+   "moved": 0,
+   "reshaped": 0,
+   "added": 3,
+   "removed": 2,
+   "merged": 0,
+   "split": 8,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   }
+  },
+  "gidOnly": {
+   "added": 43,
+   "removed": 16
+  },
+  "what": {
+   "quantity: volume": 3
+  },
+  "reid": {
+   "tag: IfcDoor": 4,
+   "tag: IfcWall": 1,
+   "tag: IfcWindow": 1
+  },
+  "groups": [
+   {
+    "kind": "split",
+    "before": [
+     "IfcSlab Floor:TJI FLOOR - 11 7/8\" w/ gyp crete:1061484"
+    ],
+    "after": [
+     "IfcSlab Part:2643846",
+     "IfcSlab Part:2643847",
+     "IfcSlab Part:2643848",
+     "IfcSlab Part:2643849",
+     "IfcSlab Part:2643850"
+    ],
+    "volumeBefore": 30.68184085494486,
+    "volumeAfter": 30.68184085492782
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcSlab Basic Roof:ROOF OVER LR:1113949"
+    ],
+    "after": [
+     "IfcRoof Part:2643842",
+     "IfcRoof Part:2643843",
+     "IfcRoof Part:2643844",
+     "IfcRoof Part:2643845"
+    ],
+    "volumeBefore": 5.5448563724285345,
+    "volumeAfter": 5.544856372428512
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcSlab Floor:TJI FLOOR - 11 7/8\" w/ gyp crete:1118466"
+    ],
+    "after": [
+     "IfcSlab Part:2643837",
+     "IfcSlab Part:2643838",
+     "IfcSlab Part:2643839",
+     "IfcSlab Part:2643840",
+     "IfcSlab Part:2643841"
+    ],
+    "volumeBefore": 17.34857408403098,
+    "volumeAfter": 17.34857408403137
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcSlab Floor:TJI FLOOR - 11 7/8\":1120694"
+    ],
+    "after": [
+     "IfcSlab Part:2643833",
+     "IfcSlab Part:2643834",
+     "IfcSlab Part:2643835",
+     "IfcSlab Part:2643836"
+    ],
+    "volumeBefore": 2.7260682393828706,
+    "volumeAfter": 2.7260682393820725
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcWall Basic Wall:SHEAR WALL:1191104"
+    ],
+    "after": [
+     "IfcWall Part:2643828",
+     "IfcWall Part:2643829",
+     "IfcWall Part:2643830",
+     "IfcWall Part:2643831",
+     "IfcWall Part:2643832"
+    ],
+    "volumeBefore": 2.023300102082807,
+    "volumeAfter": 2.032018726265779
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcSlab Basic Roof:FRONT CANOPY:1618875"
+    ],
+    "after": [
+     "IfcRoof Part:2643823",
+     "IfcRoof Part:2643824",
+     "IfcRoof Part:2643825",
+     "IfcRoof Part:2643826",
+     "IfcRoof Part:2643827"
+    ],
+    "volumeBefore": 5.853398449432481,
+    "volumeAfter": 5.853398449431061
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcWall Basic Wall:INT - W4CØF - (5/8 GYP - 2X4 WOOD(BATT) - 5/8 GYP):2323244"
+    ],
+    "after": [
+     "IfcWall Part:2643820",
+     "IfcWall Part:2643821",
+     "IfcWall Part:2643822"
+    ],
+    "volumeBefore": 0.48720579129598024,
+    "volumeAfter": 0.4883429378053902
+   },
+   {
+    "kind": "split",
+    "before": [
+     "IfcWallStandardCase Basic Wall:INT - W4CØF - (5/8 GYP - 2X4 WOOD(BATT) - 5/8 GYP):2574872"
+    ],
+    "after": [
+     "IfcWall Part:2643817",
+     "IfcWall Part:2643818",
+     "IfcWall Part:2643819"
+    ],
+    "volumeBefore": 0.504491299144684,
+    "volumeAfter": 0.49639537139859613
+   }
+  ],
+  "added": {
+   "IfcWall": 3
+  },
+  "removed": {
+   "IfcWallStandardCase": 1,
+   "IfcBeam": 1
+  },
+  "moves": {},
+  "boqByClass": [
+   {
+    "class": "IfcBeam",
+    "count": [
+     236,
+     235
+    ],
+    "volume": [
+     9.063016949722693,
+     9.05758465711148
+    ]
+   },
+   {
+    "class": "IfcFlowTerminal",
+    "count": [
+     18,
+     18
+    ],
+    "volume": [
+     2.287462729649388,
+     2.2876976785802667
+    ]
+   },
+   {
+    "class": "IfcRoof",
+    "count": [
+     1,
+     10
+    ],
+    "volume": [
+     8.793218331181526,
+     20.191473153041095
+    ]
+   },
+   {
+    "class": "IfcSlab",
+    "count": [
+     35,
+     44
+    ],
+    "volume": [
+     196.8274537651574,
+     185.42919894327898
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     59,
+     71
+    ],
+    "volume": [
+     51.0355069957561,
+     51.7236696877183
+    ]
+   },
+   {
+    "class": "IfcWallStandardCase",
+    "count": [
+     87,
+     85
+    ],
+    "volume": [
+     133.51272597750463,
+     132.82213428791346
+    ]
+   }
+  ]
+ },
+ {
+  "before": "4-2019-11-09b-70e393f.ifc",
+  "after": "5-2019-11-13-7257e4c.ifc",
+  "summary": {
+   "before": 1092,
+   "after": 1236,
+   "matched": 1075,
+   "byGlobalId": 1065,
+   "byTag": 8,
+   "byGeometry": 2,
+   "unchanged": 799,
+   "changed": 276,
+   "quantityChanged": 190,
+   "attributeChanged": 49,
+   "moved": 51,
+   "reshaped": 177,
+   "added": 161,
+   "removed": 17,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   }
+  },
+  "gidOnly": {
+   "added": 171,
+   "removed": 27
+  },
+  "what": {
+   "quantity: volume": 190,
+   "quantity: area": 24,
+   "reshaped": 177,
+   "moved": 51,
+   "attribute: material": 29,
+   "attribute: name": 8,
+   "attribute: type": 4,
+   "attribute: storey": 20,
+   "attribute: class": 1
+  },
+  "reid": {
+   "tag: IfcDoor": 4,
+   "tag: IfcWindow": 3,
+   "geometry: IfcWall": 1,
+   "geometry: IfcFlowFitting": 1,
+   "tag: IfcWall": 1
+  },
+  "groups": [],
+  "added": {
+   "IfcBuildingElementProxy": 122,
+   "IfcSlab": 10,
+   "IfcFlowSegment": 6,
+   "IfcMember": 5,
+   "IfcRailing": 5,
+   "IfcBeam": 4,
+   "IfcWall": 4,
+   "IfcFlowFitting": 4,
+   "IfcWallStandardCase": 1
+  },
+  "removed": {
+   "IfcFlowSegment": 7,
+   "IfcFlowFitting": 5,
+   "IfcBeam": 2,
+   "IfcWall": 2,
+   "IfcMember": 1
+  },
+  "moves": {
+   "0.16, -0.01, 0.00": 18,
+   "0.00, 0.01, 0.00": 11,
+   "-0.00, -0.02, 0.00": 5,
+   "-0.00, -0.01, 0.00": 4,
+   "0.00, 0.00, 0.05": 4,
+   "0.00, 0.02, 0.00": 2
+  },
+  "boqByClass": [
+   {
+    "class": "IfcBeam",
+    "count": [
+     235,
+     237
+    ],
+    "volume": [
+     9.05758465711148,
+     10.938845140641012
+    ]
+   },
+   {
+    "class": "IfcBuildingElementProxy",
+    "count": [
+     113,
+     235
+    ],
+    "volume": [
+     893.7076039534687,
+     894.4251363003949
+    ]
+   },
+   {
+    "class": "IfcFlowFitting",
+    "count": [
+     25,
+     24
+    ],
+    "volume": [
+     1.407062070296113,
+     1.357377371536275
+    ]
+   },
+   {
+    "class": "IfcFlowSegment",
+    "count": [
+     41,
+     40
+    ],
+    "volume": [
+     9.969580345394776,
+     9.785387511608596
+    ]
+   },
+   {
+    "class": "IfcFlowTerminal",
+    "count": [
+     18,
+     18
+    ],
+    "volume": [
+     2.2876976785802667,
+     2.287619362269974
+    ]
+   },
+   {
+    "class": "IfcMember",
+    "count": [
+     254,
+     258
+    ],
+    "volume": [
+     1.2963029312990337,
+     1.3117875513012347
+    ]
+   },
+   {
+    "class": "IfcRailing",
+    "count": [
+     11,
+     16
+    ],
+    "volume": [
+     0.23144142332374795,
+     0.18496352554566622
+    ]
+   },
+   {
+    "class": "IfcSlab",
+    "count": [
+     44,
+     54
+    ],
+    "volume": [
+     185.42919894327898,
+     257.9858068473333
+    ]
+   },
+   {
+    "class": "IfcStairFlight",
+    "count": [
+     8,
+     8
+    ],
+    "volume": [
+     0.6445077327285592,
+     0.7324299536903462
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     71,
+     72
+    ],
+    "volume": [
+     51.7236696877183,
+     50.787467322266146
+    ]
+   },
+   {
+    "class": "IfcWallStandardCase",
+    "count": [
+     85,
+     87
+    ],
+    "volume": [
+     132.82213428791346,
+     135.3573351164892
+    ]
+   }
+  ]
+ }
+]
