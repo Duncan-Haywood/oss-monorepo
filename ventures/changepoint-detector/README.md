@@ -8422,3 +8422,64 @@ both real years' Quiet alerts with and without the drop.
 Next (most useful first): a simulation with a gradual climb (a ramp over 4 to 8 weeks) instead of a step, to see
 whether the real result is about ramps; Middle's deafness to slow climbs (the suggestion picks it); a deployer's real
 Stripe series; a shop with two shut days, which no data here has.
+
+## A shop shut one weekday, round 3: a gradual climb is not what deafens the watch (2026-11-20, pre-registered; P1-P3 fail, nothing changes)
+
+Round 2 left a contradiction. On the real shop, dropping the shut Saturdays let Quiet hear the autumn climb within a
+week in both years. On simulated shops with a +30% **step** the default was not deaf (38 of 100 caught) and the drop
+gained nothing (34). The likeliest difference named then was the shape: the real climb is gradual over weeks.
+
+**Pre-registered** (`eval/shut-weekday-ramp.prereg.md`, committed before any ramp shop ran): the round-2 shop with a
+fresh seed (20261120) and three groups of 100: no change (**N**), a linear climb in the log level to +30% over 28 to
+56 days starting in days 200 to 300 (**R30**), and the same to +90% (**R90**, the real shop's £26k to £50k). Caught:
+an alert dated from 7 days before the ramp to its end, sent no earlier than the ramp's start and within 14 days of
+its date. Arms as before: **D** Quiet with `--period 7`; **T** `dropShutWeekdays` with period 6.
+
+| bar | D | T | result |
+|---|---|---|---|
+| P1, the explanation: D catches at most 25 of R30 | **67** | | **fails** |
+| P2, R90: T at least 60 and D + 15 | 73 | 74 | **fails** |
+| P3, R30: T at least D + 10 | 67 | 57 | **fails** |
+| P4, N: T at most 2 alerts per 100 checks | 1.89 | 1.87 | passes |
+
+Descriptive (no bar): Middle catches 58 of R30 and 54 of R90 with the Saturdays in, 45 and 44 with them dropped;
+on N it sends 1.52 (1.46 dropped) alerts per 100 checks. Median delay of a caught ramp, counted from the day the
+climb began: D 17 days (R30) and 19 (R90), T 21 and 22.
+
+Output: `eval/shut-weekday-ramp-sim.out.txt` (every shop; `eval/shut-weekday-ramp-sim.mjs`, run as three processes,
+one per group, each drawing all 300 shops from the one seed in order, so the shops are those of a single run).
+
+What it shows:
+
+- **Ramps are easier for the default than steps, not harder.** D heard 67 of 100 +30% ramps against 38 of 100 +30%
+  steps in round 2. Part of that is the window: a ramp is caught by an alert dated anywhere along it (up to 56 days),
+  a step only within 7 days of its date. Either way, a simulated shop that climbs over weeks with every Saturday 0 is
+  heard, so the shape is not what made the real watch deaf. P1 was the test of that explanation, and it failed.
+- **The drop costs power here.** Leaving the Saturdays out lost 10 of the R30 catches and gained 1 on R90; Middle
+  lost 10 to 13 in both groups. With the steps of round 2 (34 against 38), that is three simulated settings where the
+  drop does no good, against two real years where it does.
+- **Middle is not deaf to simulated climbs either** (58 and 54 of 100), so its deafness on the real shop (README
+  "A real shop's daily series") is also something the simulation lacks.
+
+What the simulation lacks, read off files already here after the round (exploratory, deciding nothing):
+
+- **Heavier tails.** On the design year the log residual about a 13-trading-day running median has sd 0.50 against a
+  robust (MAD) sd of 0.32; the fresh year 0.37 and 0.30. The simulation's lognormal 0.35 with 3% x4 days is closer to
+  the fresh year than to the design year.
+- **A long closure.** The design year opens with the shop shut from 2010-12-24 to 2011-01-03 (all 11 days 0) and has 10 more
+  zero days that are not Saturdays; the simulation has 5 single-day closures.
+- **Late alerts dated to an old change.** On the design year (`eval/closed-days.out.txt`) Quiet's second revenue
+  alert is dated 2011-04-18 but sent 2011-08-16, and Middle's only one is dated 2011-03-30 and sent 2011-11-05. The
+  watch did hear that the level had moved; it placed the move months back, so no bar counts it as the climb.
+
+**Nothing changes.** `dropShutWeekdays` stays a helper for the eval, not offered on the CLI or the page. A shop owner
+can still drop the shut weekday's rows by hand and use `--period 6`; on this shop that sends the autumn climb within a
+week in both years, and in simulation it costs about 1 in 10 catches.
+
+**Checked:** `shut-weekday.test.mjs` adds one test: a simulated x1.9 climb over five weeks with every Saturday 0 is
+heard by Quiet with the Saturdays in.
+
+Next (most useful first): a round whose simulated shop has the design year's tails and a Christmas closure, to see
+which one makes the default place the climb months back; why a late alert is dated to March (the watch's
+`tolerance` and `holdHistory` on a series whose level moves twice); a deployer's real Stripe series; a shop with
+two shut days.
