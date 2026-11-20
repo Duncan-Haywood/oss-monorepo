@@ -137,6 +137,17 @@ quantities inherits those errors; this tool says which they are
   20,858 mm, digit for digit) on every piece; the bill of quantities uses their
   section instead
   ([eval/joins-and-host-figures-2026-11-20.md](eval/joins-and-host-figures-2026-11-20.md)).
+- **Cross-sections: half a surface, and footings cut along their run
+  (2026-11-20).** Unexplained stored areas fell from 192 to 117, and
+  cross-sections from 77 to 2. HHS architect's 58 Revit mullions store half
+  their body's total face area as CrossSectionArea (0.66 m2 on a 0.0095 m2
+  post; #17161 to nine digits), a rule that names no other of 2,093 pairs.
+  Faceted members are now cut normal to their prism axis, the direction their
+  side faces run with the most area, not their longest end-face normal:
+  schependomlaan's mitred strip footings were cut on a slant (7% over) and 13
+  of 17 now agree; the other 5, stubs about as short as they are wide, store
+  their own Width x Height
+  ([eval/cross-sections-2026-11-20.md](eval/cross-sections-2026-11-20.md)).
 - **Advanced breps (2026-11-20).** On kleine_Wohnung, 767 of its 775
   `IfcAdvancedBrep` are now read (faces on planes and cylinders): elements not
   read fell from 162 to 12, and net volume is computed for all 37 walls whose

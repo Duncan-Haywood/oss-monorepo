@@ -591,6 +591,61 @@ test("explanations: one Length and CrossSectionArea copied onto members of diffe
   assert.equal(alike[0].areaCheck.CrossSectionArea.reason, "unexplained");
 });
 
+test("surfaceArea: a box's six faces, a face with a hole, and null for two pieces", async () => {
+  const { surfaceArea } = await import("./geom.mjs");
+  const box = { terms: [{ s: 1, faces: prism([[0, 0], [1, 0], [1, 2], [0, 2]], [0, 0, 3]) }], mesh: 0, shells: [] };
+  assert.ok(Math.abs(surfaceArea(box) - 22) < 1e-9);
+  // a 4 x 4 plate's top as an outer bound and a 1 x 1 inner bound running against it
+  const outer = [[0, 0, 1], [4, 0, 1], [4, 4, 1], [0, 4, 1]], hole = [[1, 1, 1], [1, 2, 1], [2, 2, 1], [2, 1, 1]];
+  assert.ok(Math.abs(surfaceArea({ terms: [], mesh: 1, shells: [{ s: 1, loops: [outer, hole] }] }) - 15) < 1e-9);
+  assert.equal(surfaceArea({ terms: [box.terms[0], box.terms[0]], mesh: 0, shells: [] }), null);
+  assert.equal(surfaceArea({ terms: [], mesh: 1, shells: null }), null);
+});
+
+test("prismAxis: a footing mitred at both ends runs along its sides; a box keeps its longest edge; a cube has none", async () => {
+  const { prismAxis } = await import("./geom.mjs");
+  // schependomlaan #3776 in metres: a 0.5 x 0.25 strip footing, 1.398 m on one side and 1.014 m on the other
+  const plan = [[0, 0], [0, 1.39845], [-0.5, 1.20620], [-0.5, 0.19225]];
+  const strip = { terms: [], mesh: 1, shells: [{ s: 1, loops: prism(plan, [0, 0, 0.25]) }] };
+  const d = prismAxis(strip);
+  assert.ok(Math.abs(Math.abs(d[1]) - 1) < 1e-9, `axis ${d}`);
+  const long = { terms: [{ s: 1, faces: prism([[0, 0], [5, 0], [5, 0.3], [0, 0.3]], [0, 0, 0.4]) }], mesh: 0, shells: [] };
+  assert.ok(Math.abs(Math.abs(prismAxis(long)[0]) - 1) < 1e-9);
+  const cube = { terms: [{ s: 1, faces: prism([[0, 0], [1, 0], [1, 1], [0, 1]], [0, 0, 1]) }], mesh: 0, shells: [] };
+  assert.equal(prismAxis(cube), null);
+});
+
+test("explanations: half the body's surface stored as a Revit mullion's CrossSectionArea (HHS architect #17161)", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const row = (stored, surface) => ({
+    id: 17161, tag: null, ifcClass: "IfcMember", type: null, pathJoins: [], box: [0, 0, 0, 0.06, 0.15, 2.04],
+    stored: { CrossSectionArea: { kind: "area", value: stored } },
+    areaCheck: { CrossSectionArea: { kind: "cross", which: "gross", stored, computed: 0.0095, agree: false } },
+    computed: { openings: 0, areas: { cross: { gross: 0.0095, surface } } },
+  });
+  const rows = [row(0.6607201794, 1.321440357), row(0.9, 1.321440357)];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.CrossSectionArea.reason, "half-surface");
+  assert.equal(rows[0].areaCheck.CrossSectionArea.trust, false);
+  assert.equal(rows[1].areaCheck.CrossSectionArea.reason, "unexplained");
+});
+
+test("explanations: a short stub's stored section is its own width x height (schependomlaan #8123)", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const len = (value) => ({ kind: "length", value });
+  const row = (stored) => ({
+    id: 8123, tag: null, ifcClass: "IfcBeam", type: null, pathJoins: [], box: [0, 0, 0, 0.35, 0.35, 0.66],
+    stored: { Width: len(0.35), Height: len(0.66), CrossSectionArea: { kind: "area", value: stored } },
+    areaCheck: { CrossSectionArea: { kind: "cross", which: "gross", stored, computed: 0.1225, agree: false } },
+    computed: { openings: 0, areas: { cross: { gross: 0.1225 } } },
+  });
+  const rows = [row(0.231), row(0.3)];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.CrossSectionArea.reason, "own-profile");
+  assert.equal(rows[0].areaCheck.CrossSectionArea.trust, true);
+  assert.equal(rows[1].areaCheck.CrossSectionArea.reason, "unexplained");
+});
+
 // ---- red team 2026-11-20: escaped mutants in qto.mjs ------------------------
 
 test("units: millimetre volumes, and money or time units in the assignment are skipped", () => {

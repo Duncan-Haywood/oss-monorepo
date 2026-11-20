@@ -6,3 +6,4 @@
 
 - (2026-11-20) (6) a real estimator's reading of the BoQ CSV (needs a person)
 - (2026-11-20) next an ArchiCAD series, Lake_Mills, wall parts that stay unpaired
+- (2026-11-20) (4) curved breps shipped 2026-11-20 (eval/curved-breps-2026-11-20.md): next a face round a whole surface (seam/cap), 4 unexplained, speed on MEP fittings
