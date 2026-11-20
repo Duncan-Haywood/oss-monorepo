@@ -419,6 +419,8 @@ def materialize_ffmpeg_render_outputs(
                 root,
                 action.outputs[0],
                 build_command=lambda temp_path: reel_command(tools, sources, temp_path),
+                # the hero variant is the primary reel's cut: copy it, do not encode it twice
+                reuse=True,
             )
             return action.outputs
         if len(action.outputs) != len(sources):
