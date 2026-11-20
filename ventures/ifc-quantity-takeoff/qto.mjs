@@ -16,7 +16,7 @@
 // tool's reading of the same model. Where they disagree the row says so,
 // because one of them is wrong and an estimate built on it would be too.
 
-import { Geometry, Unresolved, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, sectionable } from "./geom.mjs";
+import { Geometry, Unresolved, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -397,7 +397,6 @@ export function explainAreas(rows, tol = 0.02) {
       const sv = storedVol(r, c.which);
       if (c.kind === "side" && sv != null && A.width > 0 && near(c.stored * A.width, sv)) { c.reason = "matches-stored-volume"; continue; }
       if (c.stored === 0 && c.computed > 0) { c.reason = "zero"; c.trust = false; continue; }
-      if (c.kind === "plan" && A.upright?.[c.which]?.some((x) => x != null && near(x, c.stored))) { c.reason = "plan-of-upright"; c.trust = false; continue; }
       const L = storedLen(r, "length"), W = storedLen(r, "width"), H = storedLen(r, "height");
       const exact = (x) => x > 0 && Math.abs(x - c.stored) <= 0.005 * Math.abs(c.stored);
       if ((c.kind === "footprint" && exact(L * W)) || (c.kind === "side" && exact(L * H))) { c.reason = "centre-line"; continue; }
@@ -447,10 +446,9 @@ export const AREA_REASON_TEXT = {
   "gross-as-net": "the stored net area equals the gross: the openings were not taken out",
   "on-a-face": "the stored area is measured on one face of the element (a wall's side, a tapered or sloped slab's top or bottom), not its middle plane",
   "matches-stored-volume": "the stored area agrees with the stored volume, but both describe a different body than the geometry",
+  zero: "the stored area is 0 while the geometry has one: the exporter left the figure unfilled",
   "centre-line": "the stored area is the element's stored centre-line length x its width (footprint) or height (side): a nominal figure that ignores angled or mitred ends",
   "other-width": "the wall is measured across another direction than its thinnest one (a short wall with angled ends): the stored side area is its stored volume / stored width",
-  zero: "the stored area is 0 while the geometry has one: the exporter left the figure unfilled",
-  "plan-of-upright": "the element stands upright (cladding, a façade's insulation) and the stored area is its plan, not its face: the face is what it is priced by",
   unexplained: "no known cause; check the element in a viewer",
 };
 
@@ -531,9 +529,8 @@ export const AREA_KINDS = { side: /^IFCWALL/, footprint: /^IFCWALL/, plan: /^IFC
 function computeAreas(type, solids, W, f) {
   const out = {};
   const { body, net } = solids;
-  // a faceted part is cut shell by shell; only mesh volume with no closed
-  // shell to cut (swept disks, revolved areas, open shells) stops the areas
-  if (body.mesh && !sectionable(body)) return { faceted: true };
+  // a faceted part is cut through its faces; null when some of them are unknown
+  if (body.mesh && !body.shells) return { faceted: true };
   const f2 = f * f;
   const up = [W[8], W[9], W[10]];
   const len = Math.hypot(...up);
@@ -563,33 +560,33 @@ function computeAreas(type, solids, W, f) {
     // (its profile), even for a sill or coping extruded along its length; on
     // the 8 corpus models choosing the thinnest direction instead dropped 226
     // agreeing pairs. With no extrusion, the thinnest direction.
-    const n = body.axis ?? thinnestNormal(body)?.n;
+    // A faceted body has lost its extrusion. A slab, plate or roof is still
+    // cut across its thinnest direction (a sloped roof slab too); a covering
+    // normal to the element's own up, as ArchiCAD extrudes cladding and
+    // insulation upward: on schependomlaan's 728 faceted coverings, 533 agree
+    // this way against 196 across the thinnest direction, while its slabs
+    // agree 213 of 275 across the thinnest and 200 normal to up
+    // (eval/areas-vs-stored-2026-11-20.md). A choice fitted on one model.
+    const meshUp = !body.terms.length && /^IFCCOVERING/.test(type);
+    const n = body.axis ?? (meshUp ? v : thinnestNormal(body)?.n);
     if (n) {
       out.plan = cut(n);
       // the same plane moved to each face: a tapered or sloped slab's stored
       // area is sometimes its top or bottom face
       const a = cut(n, 1e-4), b = cut(n, 1 - 2e-4);
       out.plan.faces = { gross: [a.gross, b.gross], net: [a.net, b.net] };
-      // an upright covering or plate (cladding, a façade's insulation): its
-      // horizontal section, which some exporters store as its area
-      // (at its base, mid-height and top: a tapered one's differ)
-      if (Math.abs(n[0] * v[0] + n[1] * v[1] + n[2] * v[2]) < 0.5) {
-        const hs = [cut(v, 1e-4), cut(v), cut(v, 1 - 2e-4)];
-        out.plan.upright = { gross: hs.map((h) => h.gross), net: hs.map((h) => h.net) };
-      }
     }
   }
-  if (AREA_KINDS.cross.test(type) && body.axis) out.cross = cut(body.axis);
+  if (AREA_KINDS.cross.test(type)) {
+    // a faceted member has no extrusion: its length runs along the face
+    // normal (an end face's) in whose direction the body is longest
+    const n = body.axis ?? (body.terms.length ? null : thinnestNormal(body, () => true, true)?.n);
+    if (n) out.cross = cut(n);
+  }
   return out;
 }
 
-function extentOf(s, n) {
-  const l = Math.hypot(...n);
-  let lo = Infinity, hi = -Infinity;
-  for (const t of s.terms) for (const fc of t.faces) for (const p of fc) { const d = (p[0] * n[0] + p[1] * n[1] + p[2] * n[2]) / l; if (d < lo) lo = d; if (d > hi) hi = d; }
-  for (const sh of s.shells || []) for (const fc of sh.faces) for (const p of fc[0]) { const d = (p[0] * n[0] + p[1] * n[1] + p[2] * n[2]) / l; if (d < lo) lo = d; if (d > hi) hi = d; }
-  return [lo, hi];
-}
+const extentOf = solidExtent;
 
 /** Compares areas computed from geometry with the stored ones the rules name. */
 function checkAreas(row, tol) {

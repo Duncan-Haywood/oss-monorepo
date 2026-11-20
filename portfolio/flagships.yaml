@@ -571,14 +571,15 @@ flagships:
       planted); next progress override, start float and 24-hour lag paths on a real
       P6 file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
       eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
-      appendix 2026-11-19; next a real reviewer's reading; UDF ranges shipped
-      2026-11-19 (eval/udf-ranges-check-*); (7) longest path and multiple float
-      paths shipped 2026-11-19 (floatpaths.mjs, --float-paths, page panel;
-      eval/longest-path-2026-11-19.md: P6's flag 261/261 on five files). (9)
+      appendix 2026-11-19; next a real reviewer's reading; (7) longest path and
+      multiple float paths shipped 2026-11-19 (floatpaths.mjs, --float-paths, page
+      panel; eval/longest-path-2026-11-19.md: P6's flag 261/261 on five files). (9)
       look-ahead shipped 2026-11-19 (lookahead.mjs, --lookahead, page panel;
       eval/lookahead-check-2026-11-19.md: 6,476 of 6,479 windowed activities =
-      P6's); next a constraints log (materials, permits, RFIs as a CSV) merged into
-      make-ready, and a real superintendent's reading. More open items: NEXT.md.
+      P6's); constraints log merged into make-ready shipped 2026-11-20
+      (constraints.mjs, --constraints; finish what-if = CS_MSOA route,
+      eval/constraints-check-2026-11-20.md); next a real site's log and a
+      superintendent's reading. More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
@@ -586,30 +587,35 @@ flagships:
     why: >-
       Bill of quantities from an IFC model in the browser, every element's volume
       recomputed from its body (signed convex pieces: extrusions, clips incl.
-      Revit's boxed half spaces, booleans, mapped items, breps; openings
-      subtracted exactly) and checked against the stored quantities: 4,863 of
-      5,495 stored GrossVolumes agree on 13 public models, the rest mostly with a
-      named cause (net-as-gross, unit slip, split by level, own dimensions).
-      Areas cut from the same geometry by plane sections, faceted shells
-      included: 8,669 of 11,977 stored areas agree, all but 271 of the rest named. Paid market: CostX,
-      Cubit, Autodesk Takeoff, Solibri ITO.
+      Revit's boxed half spaces, booleans, mapped items, breps; openings subtracted
+      exactly) and checked against the stored quantities: 4,863 of 5,495 stored
+      GrossVolumes agree on 13 public models, most of the rest with a named cause
+      (net-as-gross, unit slip, split by level, own dimensions). Areas cut from the
+      same geometry by plane sections, faceted bodies too: 9,420 of 12,130 stored
+      areas agree, all but 358 of the rest named. Paid market: CostX, Cubit,
+      Autodesk Takeoff, Solibri ITO.
     buildable: >-
-      The 8 public models in eval/faceted-sections-2026-11-20.md (sparse clones of
+      The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
-      openings in faceted bodies (net areas and volumes; shells are kept now);
-      C20's 54 ArchiCAD side areas 2-4% under; skolebygg's 111 mullions;
-      schependomlaan's 90 unexplained areas; planar IfcAdvancedBrep faces
+      the 358 unexplained areas (eval/areas-vs-stored-2026-11-20-causes.txt: C20's
+      54 ArchiCAD side areas 2-4% under, skolebygg's 111 mullions, schependomlaan's
+      small pieces); the 160 unexplained GrossVolumes; planar IfcAdvancedBrep faces
       (kleine_Wohnung, 162 not read).
     hosts: [https://github.com]
     next: >-
       History and every measurement: ventures/ifc-quantity-takeoff/README.md and
-      eval/. Areas from geometry shipped 2026-11-19 (plane sections: wall side
-      and footprint, slab plan, member cross-section; eval/areas-vs-stored-2026-11-19.md).
-      Faceted shells cut 2026-11-20 (oriented, then Green's theorem face by face;
-      2,051 uncut to 6; 58 Revit volumes fixed; eval/faceted-sections-2026-11-20.md).
-      Next, most valuable first: (1) openings in faceted bodies; (2) a method-of-measurement layer (NRM or CESMM style:
-      deduct openings only above a size, MasterFormat/Uniformat mapping from the
-      classification code); (3) the unexplained disagreements; (4) advanced breps
-      with planar faces, a faceted member's cross-section; (5) a model-to-model change
-      report (two revisions of one model, quantities by GlobalId); (6) a real
-      estimator's reading of the BoQ CSV (needs a person).
+      eval/. Areas from geometry shipped 2026-11-19 (plane sections: wall side and
+      footprint, slab plan, member cross-section;
+      eval/areas-vs-stored-2026-11-19.md); faceted bodies cut through their faces
+      2026-11-20 (2,915 of 4,251 new pairs agree;
+      eval/areas-vs-stored-2026-11-20.md); their misses named 2026-11-20
+      (unexplained 1,499 to 358: centre-line, slab faces, zeros; reversed faces
+      turned, 58 Revit volumes fixed; eval/faceted-causes-2026-11-20.md). Next,
+      most valuable first: (1) the covering up-cut rule tested on a second model,
+      skolebygg's 111 mullions, C20's 54 side areas;
+      (2) a method-of-measurement layer (NRM or CESMM style: deduct openings only
+      above a size, MasterFormat/Uniformat mapping from the classification code);
+      (3) the unexplained disagreements; (4) advanced breps with planar faces,
+      openings in faceted bodies; (5) a model-to-model change report (two revisions
+      of one model, quantities by GlobalId); (6) a real estimator's reading of the
+      BoQ CSV (needs a person).

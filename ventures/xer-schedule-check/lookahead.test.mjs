@@ -120,7 +120,7 @@ test("text, CSV and HTML outputs on the example; CSV and HTML are safe", () => {
   assert.match(txt, /3-week look-ahead: OFFICE-FITOUT, 2026-04-06 07:00 through 2026-04-26/);
   const csv = lookaheadCsv(la).trim().split("\n");
   assert.equal(csv.length, 9);
-  assert.equal(csv[0].split(",").length, 16 + 21);
+  assert.equal(csv[0].split(",").length, 18 + 21);
   assert.ok(csv.some((l) => l.includes(`"'=HYPERLINK(""x"")<script>"`)));
   const html = lookaheadHtml(la, { by: "Site team" });
   assert.ok(!html.includes("<script>"));

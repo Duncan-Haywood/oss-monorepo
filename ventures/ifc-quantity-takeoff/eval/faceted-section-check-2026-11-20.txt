@@ -7,4 +7,4 @@ ISSUE_021_Mini Project.ifc: 0 faceted elements with areas; checking 0
 schependomlaan.ifc: 1850 faceted elements with areas; checking 300
   #875825 IfcWall side: section 863734 sampled 755223 (tol 7.71e+4) OUTSIDE
 ISSUE_068_ARK_NUS_skolebygg.ifc: 42 faceted elements with areas; checking 42
-checked 548 sections; 1 outside tolerance; median relative gap 0.002%; worst 100.00% (#728311 plan: section 2531.00, sampled 0.00000, tolerance 1.02e+4)
+checked 548 sections; 1 outside tolerance; median relative gap 0.002%; worst 173.89% (#1014756 plan: section 11245.1, sampled 30799.5, tolerance 5.25e+4)

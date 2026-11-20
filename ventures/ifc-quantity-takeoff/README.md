@@ -20,7 +20,8 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   middle plane (gross, and net of openings), its footprint at its base (doors
   cut it, windows do not), a slab's, plate's, covering's or roof's area as its
   extruded profile, a column's, beam's or member's cross-section normal to its
-  length. Where a wall or slab stores no area, the bill of quantities uses the
+  length. Faceted bodies (breps and triangle meshes) are cut through their
+  faces. Where a wall or slab stores no area, the bill of quantities uses the
   cut one; where the stored area is known to be wrong, likewise.
 - **The check.** For each element that stores a GrossVolume or NetVolume, the
   volume computed from its body (gross) and its body less its openings (net),
@@ -63,7 +64,7 @@ quantities inherits those errors; this tool says which they are
   [eval/stored-vs-computed-2026-11-19.md](eval/stored-vs-computed-2026-11-19.md),
   with the raw output beside it (rerun 2026-11-20: 58 Revit members whose
   faceted faces were written reversed now agree,
-  [eval/faceted-sections-2026-11-20.md](eval/faceted-sections-2026-11-20.md)).
+  [eval/faceted-causes-2026-11-20.md](eval/faceted-causes-2026-11-20.md)).
 - **Areas on the same models.** 6,509 of 7,883 stored areas agree with the
   section cut from the geometry (82.6%), all 1,667 wall GrossFootprintAreas
   among them; where they agree the median difference is 1e-15 relative or less
@@ -76,19 +77,24 @@ quantities inherits those errors; this tool says which they are
   unit slips (23 of them slab areas divided by the square-foot factor 10.764) and
   24 split-by-level pieces. In 607 the stored figure is the wrong one
   ([eval/areas-vs-stored-2026-11-19.md](eval/areas-vs-stored-2026-11-19.md)).
+- **Faceted bodies, cut too (2026-11-20).** With meshes cut through their
+  faces, 4,251 more stored areas get a pair (2,051 elements were skipped
+  before; 5 still are) and 2,915 of them agree (68.6%): 9,424 of 12,134 in all.
+  Stored areas on meshes miss more often, mostly on small pieces (1,051 of the
+  1,225 new unexplained store under 0.6 m2); every stored volume is unchanged
+  ([eval/areas-vs-stored-2026-11-20.md](eval/areas-vs-stored-2026-11-20.md)).
+- **Why the faceted areas miss (2026-11-20).** Unexplained disagreements fell
+  from 1,499 to 358 of 12,130 pairs: walls storing centre-line length x width
+  or height (612), sloped or tapered slabs storing a face (on-a-face, now 409),
+  stored zeros (96) and walls measured across another width (81). Faces written
+  the wrong way round are turned back first. An independent ray-parity sampler
+  agrees with 548 faceted sections to a median 0.002%
+  ([eval/faceted-causes-2026-11-20.md](eval/faceted-causes-2026-11-20.md)).
   The sample model's areas are checked by hand in `engine.test.mjs` (a door
   out of a wall's side and footprint, a trapezoidal gable, the IPE 200 section).
-- **Faceted bodies (2026-11-20).** Areas are now cut from faceted breps and
-  face sets too: elements storing an area with none computed fell from 2,051
-  to 6, pairs rose to 11,977 and agreements to 8,669, with 271 unexplained
-  (was 274). Four new causes, mostly ArchiCAD's: upright coverings storing
-  their plan as their area (742), walls storing centre-line length x width or
-  height (612), stored zeros (96) and walls measured across another width
-  (81). 548 faceted sections agree with an independent ray-parity sampler to a
-  median 0.002%
-  ([eval/faceted-sections-2026-11-20.md](eval/faceted-sections-2026-11-20.md)).
-- **Seeded faults.** Flipping the half-space side or switching off the unit-slip
-  rule each fails a test.
+- **Seeded faults.** Flipping the half-space side, switching off the unit-slip
+  rule, swapping the exit and entry points of a mesh cut, or adding a brep's
+  void instead of subtracting it each fails a test.
 
 **Spec sources.** IFC4 ADD2 TC1 and IFC2X3 TC1 (buildingSMART International)
 for the entities, attribute order, `AgreementFlag` and profile definitions;
@@ -112,19 +118,21 @@ and spheres.
 outline is fanned into signed triangles, voids enter with a minus sign, a half
 space clips every piece, and anything subtracted (an opening, a bounded cut) is
 intersected with every piece and enters with the opposite sign. Volumes come
-from the divergence theorem over each piece's faces. Faceted bodies keep their
-closed shells: faces reversed against their neighbours are turned back, and a
-plane cuts a shell face by face (each face's stretch inside the plane is a
-piece of the section's boundary, summed by Green's theorem). They cannot have
-openings subtracted; such elements report "net not computed" rather than a
-guess.
+from the divergence theorem over each piece's faces. Faceted bodies give a
+volume but cannot have openings subtracted; such elements report "net not
+computed" rather than a guess. A faceted body keeps its faces, turned first
+so neighbours run each shared edge in opposite directions (a shell that is
+not closed gets no section), and a plane
+cuts it by summing, over its faces fanned into triangles, the edge each
+triangle leaves in the plane (`shellSection`): concave faces, holes and voids
+need no special case.
 
 **Not read:** advanced breps (NURBS), open shells, tapered extrusions, swept
 solids along curves other than disks, centre-line profiles, sloped flanges.
-Overlapping openings in one element are subtracted twice. Areas are not cut
-from open shells, from faceted bodies a clip reaches, or from swept disks,
-revolved areas and CSG primitives: those keep the stored area. A faceted member
-has no extrusion direction, so no CrossSectionArea is cut from it.
+Overlapping openings in one element are subtracted twice. A faceted body
+clipped by a half-space, or mixed with a swept disk, revolved area or CSG
+primitive, is not cut: it keeps the stored area. A faceted covering is cut
+normal to its up direction, a rule fitted on one model.
 A curved wall's side area is the section of its thinnest flat direction, not
 its developed length.
 

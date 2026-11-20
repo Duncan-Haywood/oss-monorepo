@@ -28,7 +28,10 @@ const unit = (a) => { const l = Math.hypot(...a); return a.map((x) => x / l); };
 
 function prepFaces(shells) {
   const out = [];
-  for (const sh of shells) for (const f of sh.faces) {
+  // each face loop on its own: an inner bound's polygon is crossed together
+  // with its outer bound's, so a ray through a hole crosses twice and cancels
+  for (const sh of shells) for (const loop of sh.loops) {
+    const f = [loop];
     const l0 = f[0];
     let n = [0, 0, 0];
     for (let i = 0; i < l0.length; i++) { const a = l0[i], b = l0[(i + 1) % l0.length]; n = [n[0] + (a[1] - b[1]) * (a[2] + b[2]), n[1] + (a[2] - b[2]) * (a[0] + b[0]), n[2] + (a[0] - b[0]) * (a[1] + b[1])]; }

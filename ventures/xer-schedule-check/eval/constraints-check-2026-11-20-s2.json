@@ -1,0 +1,304 @@
+[
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "from": null,
+    "activities": 1887,
+    "rows": 40,
+    "summary": {
+      "rows": 40,
+      "open": 34,
+      "cleared": 6,
+      "overdue": 2,
+      "late": 22,
+      "noDate": 4,
+      "onTrack": 6,
+      "activityFinished": 0,
+      "notInFile": 0,
+      "pastLateStart": 9,
+      "startsMoved": 31
+    },
+    "finish": {
+      "base": "2013-06-22 16:59",
+      "withLog": "2013-06-22 16:59",
+      "slipDays": 0,
+      "floors": 23
+    },
+    "whatIf": {
+      "floors": 23,
+      "finishAgree": true,
+      "startsCompared": 14270,
+      "startsAgree": 14270,
+      "mismatches": [],
+      "finishLog": "2013-06-22 16:59",
+      "finishCstr": "2013-06-22 16:59",
+      "windowCompared": 422,
+      "windowAgree": 422
+    },
+    "alone": {
+      "compared": 10,
+      "agree": 10,
+      "mismatches": []
+    },
+    "rules": {
+      "links": 35,
+      "lateRuleAgree": 35,
+      "lateStartsHeld": 24,
+      "lateLinks": 24,
+      "pastAndMoves": 0,
+      "pastNoMove": 7,
+      "movesNotPast": 0
+    },
+    "seconds": 18.6
+  },
+  {
+    "file": "Expressway_Project.xer",
+    "from": null,
+    "activities": 87,
+    "rows": 40,
+    "summary": {
+      "rows": 40,
+      "open": 33,
+      "cleared": 7,
+      "overdue": 0,
+      "late": 23,
+      "noDate": 5,
+      "onTrack": 5,
+      "activityFinished": 0,
+      "notInFile": 0,
+      "pastLateStart": 2,
+      "startsMoved": 53
+    },
+    "finish": {
+      "base": "2016-08-28 17:00",
+      "withLog": "2016-09-08 17:00",
+      "slipDays": 11,
+      "floors": 25
+    },
+    "whatIf": {
+      "floors": 25,
+      "finishAgree": true,
+      "startsCompared": 823,
+      "startsAgree": 823,
+      "mismatches": [],
+      "finishLog": "2016-09-08 17:00",
+      "finishCstr": "2016-09-08 17:00",
+      "windowCompared": 87,
+      "windowAgree": 87
+    },
+    "alone": {
+      "compared": 10,
+      "agree": 10,
+      "mismatches": []
+    },
+    "rules": {
+      "links": 33,
+      "lateRuleAgree": 33,
+      "lateStartsHeld": 26,
+      "lateLinks": 26,
+      "pastAndMoves": 2,
+      "pastNoMove": 0,
+      "movesNotPast": 0
+    },
+    "seconds": 1.2
+  },
+  {
+    "file": "example_xer_file.xer",
+    "from": null,
+    "activities": 46,
+    "rows": 25,
+    "summary": {
+      "rows": 25,
+      "open": 21,
+      "cleared": 4,
+      "overdue": 0,
+      "late": 15,
+      "noDate": 2,
+      "onTrack": 4,
+      "activityFinished": 0,
+      "notInFile": 0,
+      "pastLateStart": 0,
+      "startsMoved": 15
+    },
+    "finish": {
+      "base": "2027-05-06 16:59",
+      "withLog": "2027-05-06 16:59",
+      "slipDays": 0,
+      "floors": 14
+    },
+    "whatIf": {
+      "floors": 14,
+      "finishAgree": true,
+      "startsCompared": 404,
+      "startsAgree": 404,
+      "mismatches": [],
+      "finishLog": "2027-05-06 16:59",
+      "finishCstr": "2027-05-06 16:59",
+      "windowCompared": 25,
+      "windowAgree": 25
+    },
+    "alone": {
+      "compared": 10,
+      "agree": 10,
+      "mismatches": []
+    },
+    "rules": {
+      "links": 22,
+      "lateRuleAgree": 22,
+      "lateStartsHeld": 17,
+      "lateLinks": 17,
+      "pastAndMoves": 0,
+      "pastNoMove": 0,
+      "movesNotPast": 0
+    },
+    "seconds": 0.3
+  },
+  {
+    "file": "hotel-project.xer",
+    "from": "2012-06-04",
+    "activities": 32,
+    "rows": 32,
+    "summary": {
+      "rows": 32,
+      "open": 28,
+      "cleared": 4,
+      "overdue": 0,
+      "late": 17,
+      "noDate": 3,
+      "onTrack": 8,
+      "activityFinished": 0,
+      "notInFile": 0,
+      "pastLateStart": 9,
+      "startsMoved": 24
+    },
+    "finish": {
+      "base": "2014-07-23 16:00",
+      "withLog": "2014-08-05 16:00",
+      "slipDays": 11,
+      "floors": 17
+    },
+    "whatIf": {
+      "floors": 17,
+      "finishAgree": true,
+      "startsCompared": 4217,
+      "startsAgree": 4217,
+      "mismatches": [],
+      "finishLog": "2014-08-05 16:00",
+      "finishCstr": "2014-08-05 16:00",
+      "windowCompared": 32,
+      "windowAgree": 32
+    },
+    "alone": {
+      "compared": 10,
+      "agree": 10,
+      "mismatches": []
+    },
+    "rules": {
+      "links": 29,
+      "lateRuleAgree": 29,
+      "lateStartsHeld": 19,
+      "lateLinks": 19,
+      "pastAndMoves": 9,
+      "pastNoMove": 0,
+      "movesNotPast": 0
+    },
+    "seconds": 2.2
+  },
+  {
+    "file": "sample.xer",
+    "from": null,
+    "activities": 5,
+    "rows": 5,
+    "summary": {
+      "rows": 5,
+      "open": 4,
+      "cleared": 1,
+      "overdue": 2,
+      "late": 2,
+      "noDate": 0,
+      "onTrack": 0,
+      "activityFinished": 0,
+      "notInFile": 0,
+      "pastLateStart": 2,
+      "startsMoved": 2
+    },
+    "finish": {
+      "base": "2021-10-07 16:00",
+      "withLog": "2021-10-21 16:00",
+      "slipDays": 10,
+      "floors": 2
+    },
+    "whatIf": {
+      "floors": 2,
+      "finishAgree": true,
+      "startsCompared": 42,
+      "startsAgree": 42,
+      "mismatches": [],
+      "finishLog": "2021-10-21 16:00",
+      "finishCstr": "2021-10-21 16:00",
+      "windowCompared": 5,
+      "windowAgree": 5
+    },
+    "alone": {
+      "compared": 2,
+      "agree": 2,
+      "mismatches": []
+    },
+    "rules": {
+      "links": 5,
+      "lateRuleAgree": 5,
+      "lateStartsHeld": 2,
+      "lateLinks": 2,
+      "pastAndMoves": 2,
+      "pastNoMove": 0,
+      "movesNotPast": 0
+    },
+    "seconds": 0
+  },
+  {
+    "file": "terminal-building-airport.xer",
+    "from": null,
+    "activities": 3,
+    "rows": 2,
+    "summary": {
+      "rows": 2,
+      "open": 2,
+      "cleared": 0,
+      "overdue": 1,
+      "late": 0,
+      "noDate": 1,
+      "onTrack": 0,
+      "activityFinished": 0,
+      "notInFile": 0,
+      "pastLateStart": 0,
+      "startsMoved": 0
+    },
+    "finish": {
+      "base": "2013-02-27 17:00",
+      "withLog": null,
+      "slipDays": 0,
+      "floors": 0
+    },
+    "whatIf": {
+      "floors": 0,
+      "finishAgree": null,
+      "startsCompared": 0,
+      "startsAgree": 0,
+      "mismatches": []
+    },
+    "alone": {
+      "compared": 0,
+      "agree": 0,
+      "mismatches": []
+    },
+    "rules": {
+      "links": 1,
+      "lateRuleAgree": 1,
+      "lateStartsHeld": 0,
+      "lateLinks": 0,
+      "pastAndMoves": 0,
+      "pastNoMove": 0,
+      "movesNotPast": 0
+    },
+    "seconds": 0
+  }
+]

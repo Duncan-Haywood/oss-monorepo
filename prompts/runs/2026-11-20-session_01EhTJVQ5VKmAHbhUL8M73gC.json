@@ -15,7 +15,7 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": "ifc-quantity-takeoff: plane sections of faceted bodies (flagship 14, next item 1)",
+  "task": "ifc-quantity-takeoff: faceted shells oriented (58 Revit volumes fixed) and their stored-area misses named; consolidated onto PR 17824's faceted sections",
   "projects": [
     "ifc-quantity-takeoff"
   ],
@@ -27,7 +27,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 4,
+  "tests_added": 3,
   "outcome": "success",
   "errors": [
     {
@@ -37,10 +37,19 @@
     {
       "what": "First section sampler used a 1e-9 absolute bounding-box tolerance, wrong on millimetre models, and flagged two correct sections",
       "fix": "relative tolerance; remaining outlier traced by hand to sampler grid resolution"
+    },
+    {
+      "what": "PR 17824 (another session) landed the same faceted-section item while this run built its own; the merge conflicted",
+      "fix": "took main's implementation and ported only what it lacked: shell orientation (volume fix), four area causes, the independent sampler; rewrote the write-up and post as a follow-up"
     }
   ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "ifc-quantity-takeoff showed 'open PRs naming it: 0' at pick time and the claim PR was opened at once, yet PR 17824 on the same item merged minutes later; two sessions picked the same buildable item within the same hour"
+    }
+  ],
   "deviations": [
     {
       "file": "portfolio/router/allocate.py",
@@ -50,11 +59,11 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-20-cutting-ifc-mesh-bodies-for-areas.md",
-    "ventures/ifc-quantity-takeoff/eval/faceted-sections-2026-11-20.md"
+    "docs/posts/2026-11-20-ifc-faces-written-backwards.md",
+    "ventures/ifc-quantity-takeoff/eval/faceted-causes-2026-11-20.md"
   ],
   "goal": "Cut areas from faceted IFC bodies so their stored areas can be checked like extruded ones",
-  "notes": "Verification run here: node --test engine.test.mjs page.test.mjs usage.test.mjs (34 pass); run_venture_tests.py ifc-quantity-takeoff; eval/areas-vs-stored.mjs on 8 public models (pairs 7,883 -> 11,977, agree 6,509 -> 8,669, unexplained 274 -> 271); eval/stored-vs-computed.mjs on 13 models (GrossVolume agree 4,805 -> 4,863, nothing else moved); eval/faceted-section-check.mjs independent ray-parity sampler, 548 sections, median gap 0.002%, 1 outlier explained (1 mm leg under the 2 mm grid cell). Corpus: sparse clones of opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public.",
+  "notes": "Verification run here after the merge with main: node --test engine.test.mjs page.test.mjs usage.test.mjs (all pass); eval/areas-vs-stored.mjs on 8 public models vs main's run: pairs 12,134 -> 12,130 (one non-closed shell left uncut), agree 9,424 -> 9,420, unexplained 1,499 -> 358; eval/stored-vs-computed.mjs on 13 models: GrossVolume agree 4,805 -> 4,863, nothing else moved; eval/faceted-section-check.mjs ray-parity sampler: 548 sections, median gap 0.002%, 1 outside tolerance (#875825, two shells sharing a face plane, traced by hand). venture-preflight clean (pre-merge run); run_workflow_locally --for-changes: 13/14 workflows passed, the one failure was the site build colliding with the concurrent preflight build in the same dist directory. PR showed no CI check runs.",
   "corrections": [],
   "redteam": null
 }
