@@ -2,7 +2,7 @@
 title: "Cutting an IFC mesh with a plane: 4,251 more stored areas checked"
 date: 2026-11-20
 tags: [ifc-quantity-takeoff, ventures]
-description: "Our IFC takeoff now cuts faceted bodies through their faces. On 8 public models 2,915 of 4,251 newly checked stored areas agree with the mesh. The misses are mostly pieces under 0.6 m²."
+description: "Our IFC takeoff now cuts triangle meshes by a plane. On 8 public models, 2,915 of 4,251 newly checked stored areas agree; most misses are small pieces."
 ---
 
 Yesterday's [IFC Quantity Takeoff](https://marisstella.app/ifc-quantity-takeoff/)
