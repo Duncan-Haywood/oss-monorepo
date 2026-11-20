@@ -109,11 +109,34 @@ const STRUCTURE_WORDS = /\b(betong\w*|beton\w*|concrete|stb|structural|joists?|h
 const STAIR_WORDS = /\b(trapp|trap|treppe|stair|stairs)\b/;
 const SHADE_WORDS = /\b(sonnenschutz|sun ?shades?|brise ?soleil|zonwering)\b/;
 const ROOF_WORDS = /\b(roof|roofs|flat roof|roof deck|plat dak|dak|dakvloer|dakplaat|dach|flachdach|dachdecke|tak|toit|techo|cubierta|tetto)\b/;
+// a slab poured on the ground ("127mm Slab on Grade", duplex; Bodenplatte,
+// Sohlplatte, grondplaat, "plate on grade") is A1030, and one named as
+// outside ("150mm Exterior Slab on Grade") is a patio or walk, G2030
+// Pedestrian Paving (eval/slab-on-grade-2026-11-20.md)
+const GRADE_WORDS = /\b(slab on grade|on grade|slab-on-grade|ground slab|ground bearing slab|ground-bearing slab|plate on grade|bodenplatte|fundamentplatte|sohlplatte|grondplaat|terrengdekke|plate på mark|dekke på grunn)\b/;
+const OUTSIDE_WORDS = /\b(exterior|external|outside|outdoor|patio|terrace|terras|terrasse|sidewalk|walkway|aussen|außen)\b/;
+// the framing a box gutter is built on ("IFC_gootconstructie", schependomlaan)
+// and a gutter modelled as a slab are measured with the roofing: NISTIR 6389
+// lists gutters and downspouts under B3010 Roof Coverings
+const GUTTER_WORDS = /\b(gutters?|gootconstructie|goot|dakgoot|dachrinne|rinne|takrenne|renne)\b/;
 export function slabRole(r) {
   const t = SLAB_TEXT(r);
   if (FINISH_WORDS.test(t) && !STRUCTURE_WORDS.test(t)) return STAIR_WORDS.test(t) ? { code: "C2020", why: "slab named as a stair finish" } : { code: "C3020", why: "slab named as a floor finish" };
   if (SHADE_WORDS.test(t)) return { code: "B2010", why: "slab named as a sun shade (exterior sun control, as a shading device)" };
+  if (GUTTER_WORDS.test(t)) return { code: "B3010", why: "slab named as a gutter or its framing (gutters are roof coverings)" };
+  if (GRADE_WORDS.test(t)) return OUTSIDE_WORDS.test(t) ? { code: "G2030", why: "slab named as an exterior slab on grade (patio or walk: pedestrian paving)" } : { code: "A1030", why: "slab named as a slab on grade" };
   if (ROOF_WORDS.test(t)) return { code: "B1020", why: "slab named as a roof" };
+  return null;
+}
+
+// a rainwater pipe or gutter by its PredefinedType or name: the gutter and
+// the downspout on the outside of the building are B3010 (NISTIR 6389,
+// "gutters and downspouts"); "hwa afvoer" is Dutch for a rainwater downpipe
+const RAINWATER_WORDS = /\b(gutters?|goot|dakgoot|dachrinne|takrenne|downspouts?|down ?pipes?|rain ?water ?pipes?|leaders?|fallrohr|regenfallrohr|regenpijp|hwa|hwa afvoer|hemelwaterafvoer|nedl[øo]p)\b/;
+export function rainwaterRole(r, cls) {
+  if (!/^IFC(PIPESEGMENT|PIPEFITTING|FLOWSEGMENT|FLOWFITTING)$/.test(cls)) return null;
+  if (r.predefinedType === "GUTTER") return { code: "B3010", why: "pipe segment, GUTTER (gutters are roof coverings)" };
+  if (RAINWATER_WORDS.test(SLAB_TEXT(r))) return { code: "B3010", why: "pipe named as a gutter or downspout (roof coverings)" };
   return null;
 }
 
@@ -153,7 +176,11 @@ export function ruleCode(r, ctx) {
       // Revit and ArchiCAD users model finishes and flat roofs as floor
       // slabs; the type name says which (slabRole, eval/slab-roles-2026-11-20.md)
       const role = slabRole(r);
+      if (role && role.code === "A1030" && r.groundSlab?.outside) return { code: "G2030", why: "slab named as a slab on grade with no slab or roof over it (patio or walk: pedestrian paving)" };
       if (role) return role;
+      if (r.groundSlab) return r.groundSlab.outside
+        ? { code: "G2030", why: `slab${pdt ? ", " + pdt : ""}, read as an exterior slab on grade by geometry: at the bottom of the model with nothing under it and no slab or roof over it (patio or walk)` }
+        : { code: "A1030", why: `slab${pdt ? ", " + pdt : ""}, read as a slab on grade by geometry: within ${GRADE_REACH} m of the model's lowest slab or wall, nothing under it, no beam or column carrying it` };
       if (r.roofDeck) return { code: "B1020", why: `slab${pdt ? ", " + pdt : ""}, read as the roof by geometry: nothing over it, ${r.roofDeck.under} wall(s) or column(s) under it, no storey's walls on it` };
       if (below) return { code: "A1030", why: `slab on a storey below grade (${r.storey})` };
       return { code: "B1010", why: pdt ? `slab, ${pdt}` : "slab" };
@@ -208,6 +235,10 @@ export function ruleCode(r, ctx) {
       return { code: "C30", why: pdt ? `covering, ${pdt}` : "covering with no PredefinedType" };
     case STAIRISH.test(cls): return { code: "C2010", why: "stair or ramp" };
     case cls === "IFCRAILING":
+      // a railing flagged IsExternal is a balcony or roof guard: B2010
+      // (ASTM E1557 level 4 puts balcony walls and handrails under Exterior
+      // Walls). The flag false is not read: Revit writes it on every railing.
+      if (r.isExternal === true) return { code: "B2010", why: "railing, IsExternal (balcony walls and handrails are exterior walls)" };
       return { code: null, why: "railing not part of a stair or ramp (balcony, guard or stair cannot be told)" };
     case cls === "IFCMEMBER" && /^(RAFTER|PURLIN)$/.test(pdt || ""): return { code: "B1020", why: `member, ${pdt}` };
     case cls === "IFCMEMBER" && /^(MULLION)$/.test(pdt || ""): return { code: "B2010", why: "member, MULLION" };
@@ -246,7 +277,7 @@ export function ruleCode(r, ctx) {
       return { code: "D10", why: "transport element" };
     case cls === "IFCSANITARYTERMINAL": return { code: "D2010", why: "sanitary terminal" };
     case cls === "IFCWASTETERMINAL": return { code: "D2030", why: "waste terminal" };
-    case /^IFC(PIPESEGMENT|PIPEFITTING|VALVE|PUMP|TANK|FLOWMETER)$/.test(cls): return { code: "D", why: "pipework or its fittings: plumbing, heating or sprinkler system not read" };
+    case /^IFC(PIPESEGMENT|PIPEFITTING|VALVE|PUMP|TANK|FLOWMETER)$/.test(cls): return rainwaterRole(r, cls) || { code: "D", why: "pipework or its fittings: plumbing, heating or sprinkler system not read" };
     case cls === "IFCFIRESUPPRESSIONTERMINAL":
       return pdt === "SPRINKLER" ? { code: "D4010", why: "fire suppression terminal, SPRINKLER" } : { code: "D40", why: "fire suppression terminal" };
     case /^IFC(BOILER|BURNER)$/.test(cls): return { code: "D3020", why: "heat generation" };
@@ -280,6 +311,7 @@ export function assignUniformat(rows) {
   const byId = new Map(rows.map((r) => [r.id, r]));
   const ctx = (id) => byId.get(id) || null;
   findRoofDecks(rows);
+  findGroundSlabs(rows);
   findCarried(rows, ctx);
   for (const r of rows) {
     const rule = ruleCode(r, ctx);
@@ -381,6 +413,68 @@ export function findRoofDecks(rows) {
       if (/^IFCWALL/.test(w.effectiveClass || w.ifcType) && e[2] >= b[5] - 0.4 && e[2] <= b[5] + 0.5 && e[5] > b[5] + STOREY_WALL) on++;
     }
     if (under && !on) s.roofDeck = { under };
+  }
+}
+
+const GRADE_REACH = 0.5; // m: a slab on grade starts this close to the model's lowest slab or wall bottom
+
+/**
+ * Sets row.groundSlab = { outside } on each slab the rules would put in
+ * B1010 (or that is named as on grade) whose box was read and which lies on
+ * the ground by its geometry:
+ *
+ *   - its bottom is within GRADE_REACH of the lowest slab or wall bottom in
+ *     the model (walls count, so a floor over a crawl space, whose walls go
+ *     down past it, is not on the ground);
+ *   - no slab or roof lies under the middle of its plan;
+ *   - no beam or column stops at its underside (a slab on beams or columns
+ *     is suspended: schependomlaan's hollow-core ground floor on its
+ *     foundation beams stays B1010). Walls are not counted, since a house's
+ *     slab on grade often sits on its stem walls;
+ *   - it covers at least 2 m2 of plan, is not part of an assembly and not on
+ *     a storey below grade (those are A1030 already).
+ *
+ * `outside` is true when no slab or roof covers the middle of its plan above
+ * it while some other slab or roof in the model is higher (so the model has
+ * an upper floor or a roof that could have covered it), read only when every
+ * roof's geometry was read.
+ */
+export function findGroundSlabs(rows) {
+  const decks = [], bearers = [];
+  let low = Infinity, roofsRead = true;
+  for (const r of rows) {
+    if (r.isAssembly) continue;
+    const cls = r.effectiveClass || r.ifcType || "";
+    if (DECK.test(cls)) {
+      if (!r.box && (cls === "IFCROOF" || r.predefinedType === "ROOF")) roofsRead = false;
+      if (r.box) decks.push(r);
+    }
+    if (/^IFC(BEAM|COLUMN)/.test(cls) && r.box) bearers.push(r);
+    if (r.box && /^IFCSLAB|^IFCWALL/.test(cls)) low = Math.min(low, r.box[2]);
+  }
+  for (const s of decks) {
+    const cls = s.effectiveClass || s.ifcType || "";
+    if (!/^IFCSLAB/.test(cls) || /^(BASESLAB|ROOF|LANDING)$/.test(s.predefinedType || "") || s.roofDeck) continue;
+    const role = slabRole(s);
+    const named = role && (role.code === "A1030" || role.code === "G2030");
+    if (role && !named) continue;
+    if (s.parent != null || (s.storeyElevation != null && s.storeyElevation < BELOW_GRADE)) continue;
+    const b = s.box, x = (b[0] + b[3]) / 2, y = (b[1] + b[4]) / 2;
+    const covers = (e) => x >= e[0] - 0.01 && x <= e[3] + 0.01 && y >= e[1] - 0.01 && y <= e[4] + 0.01;
+    const higher = (d) => d !== s && d.box[5] > b[5] + OVER && d.box[2] > b[2] + OVER;
+    // outside only in a model that has a floor or roof above it somewhere: a
+    // model of one slab (or a foundations model) says nothing about outside
+    const over = decks.some((d) => higher(d) && covers(d.box)) || !decks.some(higher);
+    if (named) {
+      // the name says on grade; the geometry only says whether it is outside
+      if (role.code === "A1030" && !over && roofsRead) s.groundSlab = { outside: true };
+      continue;
+    }
+    if ((b[3] - b[0]) * (b[4] - b[1]) < 2 || b[2] > low + GRADE_REACH) continue;
+    if (decks.some((d) => d !== s && covers(d.box) && d.box[5] <= b[2] + 0.05)) continue;
+    const overlaps = (e) => e[0] < b[3] && e[3] > b[0] && e[1] < b[4] && e[4] > b[1];
+    if (bearers.some((w) => overlaps(w.box) && w.box[5] <= b[2] + 0.4 && w.box[5] >= b[2] - 0.6)) continue;
+    s.groundSlab = { outside: !over && roofsRead };
   }
 }
 

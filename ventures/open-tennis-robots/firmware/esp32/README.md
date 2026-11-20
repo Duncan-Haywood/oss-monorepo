@@ -3868,3 +3868,23 @@ long ones with the same false alarms. That swap, the drill alone, is the next pr
 `tests/take_straddle_count.py` now takes `label@N` for the margin and prints takes named per take;
 `tests/take_misadvised_instant.py` prints a set's misadvised instant builds with their votes. Everything is in
 `eval/feed-phase-margin-2026-11-20.md`. Simulated only.
+
+## The fast survey drill at the shipped margins, on fresh seeds (2026-11-20, after "Margin 3 with the fast drill, on fresh seeds"; not shipped by its pre-registered rule)
+
+The previous section's exploratory row (the fast drill at the shipped margins named more takes with the same false
+alarms) was tested on fresh seeds, rule committed first (b23266baf): 288 builds per drill (spread seeds 9501-9523 odd,
+takes 1.3-2.8 ms; 108 instant builds, seeds 9601-9671 odd), jittery tach, lag 0.5 s, `--feed-jitter 26`, both margins
+at 2. The fast drill (`eval/feed-phase-drill-fast-2026-11-20.json`, the same 24 placements at 34-40 m/s) needed at
+least 4 more short takes, no fewer long ones less one, and no more than one extra false alarm (at most 3 of 108).
+
+| drill | short named (of 108) | 1.3 / 1.6 / 2.0 ms (of 36) | 2.4-2.8 ms (of 72) | instant misadvised (of 108) |
+| --- | --- | --- | --- | --- |
+| long (shipped) | 65 | 15 / 21 / 29 | 62 | 0 |
+| fast (candidate) | 72 | 17 / 25 / 30 | 68 | 2 |
+
+The rule failed on the false alarms (2 against 0, one more allowed), so `drill.survey-long.json` stays recommended. Both
+false alarms were small votes at 1.5 ms (3-1 and 2-0), so a 2.5 ms margin of 3 (`fast@2/3`, exploratory) stops neither.
+Over both fresh test sets (432 builds per drill, pooled after the fact) the fast drill names 147 of 216 short takes
+against 131 and 135 of 144 long ones against 123, and misadvises 4 of 216 instant builds against 2: about 7 more short
+takes named per 100 for about one more false alarm per 100. `tests/take_straddle_count.py` now takes `label@N/L` to set
+the 2.5 ms vote's margin too. Everything is in `eval/feed-phase-drill-2026-11-20.md`. Simulated only.

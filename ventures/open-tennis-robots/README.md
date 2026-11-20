@@ -343,6 +343,12 @@ none of 36 instant-contact builds to set a take (firmware/esp32/README.md,
 Do not go longer: feeding the same twelve shots a third time (36 balls) named
 27 of 36 against 26 and found no more 1.3 ms contacts (firmware/esp32/README.md,
 "The 36-shot survey drill: the instant set it lacked").
+Hitting the same 24 placements harder (34-40 m/s,
+`eval/feed-phase-drill-fast-2026-11-20.json`) names a few more short contacts
+(over 432 simulated builds, 68 in 100 against 61) but told 4 of 216
+instant-contact builds to set a take against the long drill's 2, so it is not
+the default (firmware/esp32/README.md, "The fast survey drill at the shipped
+margins, on fresh seeds").
 [`firmware/esp32/README.md`](firmware/esp32/README.md), "Shot log", "The
 drop from the pulse times" and "A recovery shaped by the loop's own commands".
 

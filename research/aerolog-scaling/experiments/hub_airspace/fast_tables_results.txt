@@ -1,0 +1,40 @@
+# Milestone 11au: kernel tables and k-widest spacings (fast_tables.py's docstring). deliv ages, Z = 7.62 m, 64 pair-noise sds (0.38 to 1.95 m), kernel grid 1e-03 m, 5-flight offsets, 4 draws, s = 1, 2, 30 spacings, k-widest 10 (M = 12) and 10 (M = 16)
+# T1 max |kernel - loop| over every table entry: 3.65e-08 -> held
+# T2 11aq's aware labels under kernel tables: max relative difference from its F 6.22e-09 over 384 draws -> held
+# T3 R20 on kernel tables returns the loop plan's labels at spacing (o) in 384 of 384 draws; worst truth ratio 1.000000 -> held
+# T4 table build CPU per layout: loop median 214.8 s, kernel median 1.39 s; median ratio 156.1 -> held
+# T5 kernel tables / R20 search CPU (30 spacings, 8 draws): median 2.167, max 2.668 -> refuted
+# T6 k-widest spacings give the 30-spacing best R20 F (loop tables) in 379 of 384 draws
+
+## M = 12, s = 1 (24 layouts x 4 draws): ratio to 11aq's aware F, median / p90 / max
+  R20 loop tables, 30 spacings           1.0014  1.0179  1.0337
+  R20 kernel tables, 30 spacings         1.0014  1.0179  1.0337
+  R20 loop tables, k-widest              1.0014  1.0179  1.0337
+  R20 kernel tables, k-widest (cheap)    1.0014  1.0179  1.0337
+  k-widest / 30 spacings (loop R20): median 1.000000, max 1.003856, equal in 95 of 96
+
+## M = 12, s = 2 (24 layouts x 4 draws): ratio to 11aq's aware F, median / p90 / max
+  R20 loop tables, 30 spacings           1.0000  1.0074  1.0256
+  R20 kernel tables, 30 spacings         1.0000  1.0074  1.0256
+  R20 loop tables, k-widest              1.0000  1.0074  1.0256
+  R20 kernel tables, k-widest (cheap)    1.0000  1.0074  1.0256
+  k-widest / 30 spacings (loop R20): median 1.000000, max 1.000299, equal in 95 of 96
+  M = 12 CPU per layout (8 draws): loop tables 162.8 s; cheap planner about 0.54 s (kernel tables + R20 at the 10 k-widest spacings, prorated from the 30); share of loop tables median 0.0033
+
+## M = 16, s = 1 (24 layouts x 4 draws): ratio to 11aq's aware F, median / p90 / max
+  R20 loop tables, 30 spacings           1.0030  1.0286  1.0583
+  R20 kernel tables, 30 spacings         1.0030  1.0286  1.0583
+  R20 loop tables, k-widest              1.0030  1.0286  1.0583
+  R20 kernel tables, k-widest (cheap)    1.0030  1.0286  1.0583
+  k-widest / 30 spacings (loop R20): median 1.000000, max 1.008493, equal in 94 of 96
+
+## M = 16, s = 2 (24 layouts x 4 draws): ratio to 11aq's aware F, median / p90 / max
+  R20 loop tables, 30 spacings           1.0000  1.0137  1.0736
+  R20 kernel tables, 30 spacings         1.0000  1.0137  1.0736
+  R20 loop tables, k-widest              1.0000  1.0139  1.0736
+  R20 kernel tables, k-widest (cheap)    1.0000  1.0139  1.0736
+  k-widest / 30 spacings (loop R20): median 1.000000, max 1.052508, equal in 95 of 96
+  M = 16 CPU per layout (8 draws): loop tables 274.8 s; cheap planner about 0.81 s (kernel tables + R20 at the 10 k-widest spacings, prorated from the 30); share of loop tables median 0.0030
+
+# T6 -> refuted
+# T7 cheap planner median ratio <= 1.005 in all cells and CPU <= 5% of the loop tables -> held

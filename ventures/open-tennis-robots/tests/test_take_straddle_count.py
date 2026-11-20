@@ -47,6 +47,23 @@ class SummaryMarginTest(unittest.TestCase):
         self.assertEqual(s["1.3-2.1 ms"]["by_take"], {1.3: [1, 2], 2.0: [1, 1]})
         self.assertEqual((s["instant"]["bad"], s["instant"]["by_take"]), (1, {}))
 
+    def test_long_margin_label_reaches_the_2_5_ms_vote_and_is_restored(self):
+        import take_straddle_scaled as tss
+        from tennisbots import host
+        seen = []
+
+        def fake(sv, rule, k):
+            seen.append(host.TAKE_STRADDLE_LONG_MARGIN)
+            return None
+        before = host.TAKE_STRADDLE_LONG_MARGIN
+        self.assertEqual(tsc.parse_label("fast@2/3"), ("fast", 2, 3))
+        self.assertEqual(tsc.parse_label("fast@3"), ("fast", 3, None))
+        self.assertEqual(tsc.parse_label("long"), ("long", 2, None))
+        with mock.patch.object(tss, "verdict", fake):
+            tsc.summary([(0.0, {"v": 1})], [46], margin=2, long_margin=3)
+        self.assertEqual(seen, [3])
+        self.assertEqual(host.TAKE_STRADDLE_LONG_MARGIN, before)
+
 
 if __name__ == "__main__":
     unittest.main()

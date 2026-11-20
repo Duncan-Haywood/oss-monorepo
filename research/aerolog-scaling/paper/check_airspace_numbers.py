@@ -176,6 +176,24 @@ CHECKS = [
     ("few_start_results.txt", "analysis median 252", "**252** s for the whole analysis"),
     ("few_start_results.txt", "200 random starts x 30 spacings x 8 draws median 7.4", "**7.4 CPU s** per layout"),
     ("few_start_results.txt", "R3 M=12 s=1 random-10(o) > 1.01: 1.0047 -> refuted", "ten random starts would not suffice"),
+    # 11au kernel tables and spacing grid
+    ("fast_tables_results.txt", "every table entry: 3.65e-08", "within **3.65e-08**"),
+    ("fast_tables_results.txt", "from its F 6.22e-09 over 384 draws", "within 6.2e-09"),
+    ("fast_tables_results.txt", "in 384 of 384 draws; worst truth ratio 1.000000", "**384 of 384**"),
+    ("fast_tables_results.txt", "loop median 214.8 s, kernel median 1.39 s; median ratio 156.1", "**214.8 s** to **1.39 s** (median ratio 156)"),
+    ("fast_tables_results.txt", "median 2.167", "a median 2.17"),
+    ("fast_tables_results.txt", "(loop tables) in 379 of 384 draws", "same in 379 of 384 draws"),
+    ("fast_tables_results.txt", "  R20 kernel tables, k-widest (cheap)    1.0014", "a median 1.0014 and 1.0030"),
+    ("fast_tables_results.txt", "  R20 kernel tables, k-widest (cheap)    1.0030", "a median 1.0014 and 1.0030"),
+    ("fast_tables_results.txt", "cheap planner about 0.54 s", "**0.54 and 0.81 CPU s**"),
+    ("fast_tables_results.txt", "cheap planner about 0.81 s", "**0.54 and 0.81 CPU s**"),
+    ("fast_tables_posthoc_results.txt", "| 0.994603 |", "ratios 0.9946 to 0.9979"),
+    ("fast_tables_posthoc_results.txt", "| 0.997873 |", "ratios 0.9946 to 0.9979"),
+    ("fast_tables_posthoc_results.txt", "k =  6 (h = 10.9091 m): median 1.0285, min 0.9434; below the aware F in 18 of 96", "in 18 and 30 of 96 draws"),
+    ("fast_tables_posthoc_results.txt", "k =  6 (h = 10.9091 m): median 1.0200, min 0.9140; below the aware F in 30 of 96", "(ratio 0.9140)"),
+    ("fast_tables_posthoc_results.txt", "median 1.0670, min 0.9614; below the aware F in 16 of 96", "(16 and 26 at twice it)"),
+    ("fast_tables_posthoc_results.txt", "median 1.0467, min 0.9403; below the aware F in 26 of 96", "1.0670 and 1.0467 at twice it"),
+    ("fast_tables_posthoc_results.txt", "2 spacings x 200 starts): 72 s", "took 72 CPU s"),
 ]
 
 
