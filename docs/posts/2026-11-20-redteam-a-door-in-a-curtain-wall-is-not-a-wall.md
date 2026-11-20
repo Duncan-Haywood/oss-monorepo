@@ -3,7 +3,7 @@ title: "A door in a curtain wall was priced as wall: red-teaming the Uniformat r
 seo_title: "IFC to Uniformat II red team: curtain-wall doors and roof coverings"
 date: 2026-11-20
 tags: [redteam, testing, ifc-quantity-takeoff, bim, uniformat]
-description: "20 faults seeded in the IFC quantity takeoff's new Uniformat II grouping and its engine, 9 caught; three wrong codes found by hand and fixed, none of which moves the published 17-model eval."
+description: "20 faults seeded in the IFC takeoff's Uniformat rules and engine, 9 caught; three wrong codes found and fixed, the 17-model eval unchanged."
 ---
 
 The [IFC quantity takeoff](https://marisstella.app/ifc-quantity-takeoff/) gained
