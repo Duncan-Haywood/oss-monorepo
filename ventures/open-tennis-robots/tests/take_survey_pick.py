@@ -73,7 +73,7 @@ DENSE_US = tuple(range(0, 8001, 250))
 
 
 def capture(args):
-    ti, ki, li, lag, seed, takes = args
+    ti, ki, li, lag, seed, takes, drill = args
     import min_fit_heldout as h
     import take_misfit_trace as tm
     import take_survey_sweep as tss
@@ -82,10 +82,14 @@ def capture(args):
     plants = list(h.PLANTS)
     plants[TACH_PLANT] = (TACHS[ki][0], dict(h.PLANTS[TACH_PLANT][1], **TACHS[ki][1]))
     h.PLANTS = tuple(plants)
+    if drill:
+        tm.SURVEY_DRILL = drill
     a, r = tm.capture_survey((4 + ti, TACH_PLANT, li, lag))
     if "aborted" not in r:
         r["build"] = [ti, ki, li, lag, seed]
         r["take_ms"] = takes[ti]
+        if drill:
+            r["drill"] = drill
         r["board_scores"] = [w["board"] for w in r["wheels"]]
     return (ti, ki, li, lag, seed), r
 
@@ -294,7 +298,10 @@ def main():
         grid = [g for g in grid if g[1] == tk]
     if only:
         grid = grid[:only]
-    grid = [g + (takes,) for g in grid if g not in done]
+    # --drill (2026-11-20, eval/take-straddle-count-2026-11-20.md): the survey drill to run instead of
+    # drill.calibration.json, e.g. drill.survey-long.json (the same twelve shots, twice)
+    drill = sys.argv[sys.argv.index("--drill") + 1] if "--drill" in sys.argv else None
+    grid = [g + (takes, drill) for g in grid if g not in done]
     with multiprocessing.Pool(procs, maxtasksperchild=1) as pool:
         for a, r in pool.imap_unordered(capture, grid):
             if "aborted" in r:
