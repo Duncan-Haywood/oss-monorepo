@@ -182,42 +182,48 @@
    "what": "Neither real Gumroad export is read: the Sales export and the payout CSV both name the column 'Sale Price ($)' (Gumroad source purchase_export_service.rb, payouts/csv.rb), which normalises to 'sale-price' and is not in the price aliases, so the page rejects the file as 'not a Gumroad sales export'.",
    "where": "ventures/gumroad-sales-to-journal/calc.mjs:115",
    "category": "source-data",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "high",
    "what": "Split model contradicts Gumroad's definitions: Sale Price includes shipping and seller-collected tax (sub_total = price - tax - shipping; net_total = price - fee), but the parser treats price as goods-only and adds shipping and tax on top, so shipping is double counted (to uncategorised with an error) and seller tax inside price is booked as revenue with no liability.",
    "where": "ventures/gumroad-sales-to-journal/calc.mjs:159",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "high",
    "what": "Refunds misbooked against Gumroad's export semantics: in the Sales export Net Total stays price - fee on a refunded purchase and the partial amount is in 'Partial Refund ($)' (not aliased), so a refunded 29.00 sale books refunds Dr 29.00, fees Cr 25.60 and a clearing debit that never arrives, and partial refunds are booked as full; in the payout CSV a Full Refund row's returned (negative) fee is turned into a fee charge by Math.abs.",
    "where": "ventures/gumroad-sales-to-journal/calc.mjs:156",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "medium",
    "what": "The 'Totals' row (and 'Subtotal - ...' rows) that Gumroad appends to both exports is parsed as a sale, doubling the journal (133.60 payout journalled as 267.20).",
    "where": "ventures/gumroad-sales-to-journal/calc.mjs:145",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "medium",
    "what": "Tests check a copy of the format: every fixture comes from the author's buildReport() with an invented header, so nothing exercises Gumroad's real columns, Totals row, refund rows or partial refunds; 4 of 5 seeded mutants in fee/refund/deposit logic survive.",
    "where": "ventures/gumroad-sales-to-journal/calc.test.mjs:5",
    "category": "tests-check-a-copy",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "medium",
    "what": "Headline and FAQ claim the page reads the Analytics > Sales export and the payout CSV and groups by payout ID; both real files are rejected and the Sales export has no payout ID column.",
    "where": "ventures/gumroad-sales-to-journal/index.html:12",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "low",
@@ -227,6 +233,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"],
  "verdict": "A tidy, integer-cent journal builder whose clearing-account structure and month split are what a bookkeeper wants, and whose arithmetic is right on its own synthetic fixture (sample recomputed by hand: 175.55 + 167.15 = 342.70, every journal balances). But it was written against an export format from memory, and Gumroad's own open-source code shows that format is wrong: both the Sales export and the payout CSV are rejected at the header because 'Sale Price ($)' is not an accepted alias, and once that is renamed by hand the journals are wrong - the Totals row doubles the payout, shipping and seller tax inside Sale Price are double counted or booked as revenue, refunded sales produce a negative fee and a phantom clearing debit, partial refunds are booked as full, and a returned fee becomes a charge. 39 tests pass, but all use the author's invented header and 4 of 5 seeded mutants survive. Does not meet the bar on correctness, verification and claims."
 }

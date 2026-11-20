@@ -158,14 +158,16 @@
    "what": "Break-even price understated: the physical fee rate is measured on item+shipping, but the formula treats collected shipping as fee-free, dividing the shipping credit by (1-f). Fixture: 12.22 instead of 12.78 (each unit loses $0.50 at the shown price); built-in example 9.45 instead of 10.15. The test restates the same formula instead of checking profit is zero at the break-even price.",
    "where": "ventures/bandcamp-sales-report-analyzer/calc.mjs:254",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "high",
    "what": "Decimal-comma numbers are read 100x too large: parseNumber has a decimalComma flag but normalizeRows never passes it, so a semicolon-delimited European export ('8,50') reads as 850 with no warning.",
    "where": "ventures/bandcamp-sales-report-analyzer/calc.mjs:169",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "medium",
@@ -210,6 +212,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"],
  "verdict": "A tidy, privacy-respecting single-module CSV analyzer whose plain sums are right: an independent Python pass over the 320-row example reproduces gross 3486.30, fees 677.10, net 3144.20, the 17.72% fee rate, 174/91 buyers and the 48.66% small-sale fee rate exactly. It misses the bar on correctness, verification and claims. The physical break-even price, the number a label would set a vinyl price from, is understated (12.22 vs 12.78 on the test fixture, 9.45 vs 10.15 on the example) because shipping is treated as fee-free in the formula but not in the fee rate; a semicolon/decimal-comma export reads 100x high because the decimal-comma flag is never wired; every figure carries a '$' whatever the currency; and the page claims net reconciles to sales plus shipping minus fees while no such check exists and Bandcamp's revenue share is never separated from processor fees. Five of six seeded mutants survive and the break-even test restates the buggy formula. It is honest about its biggest limit (column names from memory, no real export) and about not modelling splits or conversion."
 }

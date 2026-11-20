@@ -143,14 +143,16 @@
    "what": "Call sizes are read as inches: the tool page, the 'how much to charge' guide and calc.mjs say a 3040 is 70 UI and a 6048 picture is 108 UI. By the trade convention a 3040 is 3'0\" x 4'0\" = 84 UI and a 6048 is 6'0\" x 4'8\" = 128 UI (oversize by the tool's own 120 UI step). The FAQ teaches the reader a wrong UI and calls the 70 UI base 'a stock 3040'.",
    "where": "ventures/window-replacement-bid-calculator/how-much-to-charge.html:50",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "medium",
    "what": "The comparison page calls its worked-example inputs 'this calculator's own shipped cost inputs/defaults', but they differ from every shipped default (wage, burden, scaffold, overhead, speed, setup, minimum hours, trip fee, permit); at the real shipped inputs the easy job is $4,752.50 ($594.06/window), not $4,095.30 ($511.91). Five of the differing inputs are not disclosed on the page.",
    "where": "ventures/window-replacement-bid-calculator/vs-a-flat-price-per-window.html:81",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "medium",
@@ -181,6 +183,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"],
  "verdict": "A clean, pure bid engine whose arithmetic is right: an independent Python rebuild from the page's own published rates matches calc.mjs to the cent on the default seven-opening house ($5,926.99, walk-away $4,445.24), both comparison-page jobs ($4,095.30 and $18,809.65) and the margin-vs-markup FAQ, and the product does what its README lists, including a printable proposal; 129 tests pass. It misses the bar on claims and verification, and domain sits at 2: the pages teach that a 3040 is 70 UI and a 6048 is 108 UI when the trade call-size convention gives 84 and 128; the comparison page presents hand-picked inputs as 'this calculator's own shipped defaults' when every one differs from index.html; 4 of 9 seeded mutants survive, including the 120 UI boundary and the proposed-price block; unknown presets fall back silently; and the default rates are uncited."
 }

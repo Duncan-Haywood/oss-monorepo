@@ -209,14 +209,16 @@
    "what": "The slot-hours-missing finding tells users to supply SUM(total_slot_ms)/3600000 per group, but the column is slot-hours per run and the engine multiplies it by runs; a user who follows the tool's own instruction gets an Editions cost inflated by the run count (dashboard group: $6,656,400 instead of $1,548/month) and is told to stay on on-demand. README, FAQ and INPUT_NOTES correctly say AVG per run.",
    "where": "ventures/bigquery-query-cost-advisor/engine.mjs:85",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "medium",
    "what": "2 of 5 seeded mutants survive: the free-tier cap Math.min(totalTib, freeTib) (a sub-1-TiB workload would show a negative bill) and the $5 guardrail threshold (doubling it changes nothing) are not pinned; no test sits near any threshold.",
    "where": "ventures/bigquery-query-cost-advisor/engine.test.mjs:26",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "medium",
@@ -261,6 +263,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"],
  "verdict": "A small, clean, zero-dependency BigQuery cost screen whose arithmetic is right: an independent recomputation from Google's pricing page (fetched 2026-11-20: $6.25/TiB, 1 TiB free, Enterprise $0.06/slot-hour) reproduces the fixture to the cent (1223.27 TiB, $7639.19 on-demand, $4188.00 Editions, $3451.19 saving, caps 7750000000000 and 50000000000000 bytes), and it handles GB vs TiB correctly. It misses the bar on verification, claims, fitness and domain: its own slot-hours-missing hint says SUM per group where the engine needs AVG per run (following it inflates Editions by the run count and flips the recommendation), 2 of 5 seeded mutants survive (free-tier cap, guardrail threshold), the Editions comparison is a flat floor at one edition price that ignores the autoscaler minimum and still warns with an annual saving, Enterprise Plus and fluid scaling are missing from the price claims, and the 'dated' prices carry no date. Tests 33/33 green."
 }

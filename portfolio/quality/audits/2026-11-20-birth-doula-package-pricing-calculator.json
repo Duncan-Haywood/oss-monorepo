@@ -152,14 +152,16 @@
    "what": "Births needed for the 'yearly pre-tax income goal' divides by net after the notional on-call value and treats annual overhead as a per-birth cost at the planned 24 births: defaults give 91 births where cash reconciliation gives 62, and the same paragraph's $22,596-for-24-clients figure implies 91 births earn ~$85,700.",
    "where": "ventures/birth-doula-package-pricing-calculator/calc.mjs:71",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "medium",
    "what": "No test pins hourly or birthsForGoal values against a hand number; two of three seeded mutants (hourly denominator, ceil->round) survive, and the births test restates the implementation's formula.",
    "where": "ventures/birth-doula-package-pricing-calculator/calc.test.mjs:46",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "medium",
@@ -187,7 +189,8 @@
    "what": "FAQ (page and JSON-LD) says the $1,200 example has 'six hours of visits'; defaults give 4.5 h.",
    "where": "ventures/birth-doula-package-pricing-calculator/index.html:106",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
   },
   {
    "severity": "low",
@@ -197,6 +200,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"],
  "verdict": "A tidy 103-line pure calculator whose per-birth arithmetic (hours, net, hourly, fee for target) recomputes exactly against independent Python, but its headline 'births for your income goal' is wrong by ~45% at the defaults (91 vs 62) because it subtracts a notional on-call value from a cash goal and fixes overhead per birth; tests restate formulas and let 2 of 3 seeded bugs through; blank fields silently become example values; a FAQ figure disagrees with the defaults. SE tax is not computed but is disclosed. Below the bar on correctness, verification and claims."
 }
