@@ -231,7 +231,13 @@ export function earnedValueSeriesText(rep, { limit = 8 } = {}) {
 }
 
 export function earnedValueSeriesCsv(rep) {
-  const esc = (v) => (v === null || v === undefined ? "" : /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  const esc = (v) => {
+    if (v === null || v === undefined) return "";
+    let s = String(v);
+    // a cell that would read as a formula is written as text (CSV injection)
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
   const rows = [["window", "from", "to", "kind", "code", "name", "promised", "earned", "gap", "was", "now"]];
   for (const w of rep.windows) {
     rows.push([w.n, w.dataDateFrom, w.dataDateTo, "window", "", "", w.promised, w.earned, r2((w.earnedOnPromised ?? 0) - (w.promised ?? 0)), "", ""]);

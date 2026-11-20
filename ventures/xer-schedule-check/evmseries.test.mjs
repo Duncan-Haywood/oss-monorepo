@@ -96,3 +96,11 @@ test("text and CSV carry the windows; an unloaded series says so", () => {
   assert.equal(u.windows.length, 0);
   assert.throws(() => earnedValueSeries([{ xer: bare }]));
 });
+
+test("CSV cells that would read as formulas are written as text", () => {
+  const series = exampleSeries();
+  for (const u of series) for (const t of u.xer.tables.TASK) if (t.task_code === "A1120") t.task_name = "=HYPERLINK(1)";
+  const csv = earnedValueSeriesCsv(earnedValueSeries(series));
+  assert.match(csv, /'=HYPERLINK\(1\)/);
+  assert.match(csv, /,-?\d/); // plain negative numbers stay numbers
+});
