@@ -375,7 +375,7 @@ export function golfText(season) {
 export const GOLF_DEFAULTS = Object.freeze({
   teamSize: 2, handicapPct: 90, last: 5, best: 5, maxHandicap: 18,
   pointsPerHole: 1, pointsMatchNet: 1, pointsTeamNet: 2, absentPenalty: 3,
-  skins: "off", skinsEntry: 0, skinsCarry: 0, skinsHandicapPct: 100,
+  skins: /** @type {string} */ ("off"), skinsEntry: 0, skinsCarry: /** @type {number} */ (0), skinsHandicapPct: 100,
 });
 
 const SKINS_KINDS = ["off", "gross", "net", "both"];
@@ -635,6 +635,7 @@ export function playPairing(p, q, nine, rules, nineQ = nine) {
 
 /** One night's skins among `entrants`: [{ key, name, team, toPar: 9 numbers }]. */
 export function skinsGame(entrants, { entry = 0, carry = false } = {}) {
+  /** @type {{ hole: number, units: number, key: any, name: any, team: any, toPar: number, value?: number, holeNumber?: number }[]} */
   const won = [];
   let riding = 0, carriedOff = 0;
   for (let h = 0; h < 9; h++) {
@@ -741,6 +742,7 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
       matches.push({ slot: g.slot, a: season.teams[g.a], b: g.b === null ? null : season.teams[g.b], pairings, teamNet: [na, nb], points: pts });
     }
     // Skins, on tonight's handicaps (before tonight's rounds count).
+    /** @type {{ gross?: ReturnType<typeof skinsGame>, net?: ReturnType<typeof skinsGame> } | null} */
     let skins = null;
     if (rules.skins !== "off") {
       const field = [...tonight.values()].filter((c) => !c.absent && (!skinsIn.keys.size || skinsIn.keys.has(c.key)));

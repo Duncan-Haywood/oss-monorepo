@@ -38,7 +38,9 @@
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "changed-ventures CI failed on 6 pre-existing TS diagnostics in ventures/league-schedule-generator/golf.mjs (from PR #17864), surfaced because this PR touched that venture; fixed with JSDoc types only (typecheck 0 diagnostics, golf tests 14/14)."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -56,7 +58,7 @@
     "docs/reports/polish-2026-11-20-two-item-eyebrows.md"
   ],
   "goal": null,
-  "notes": "Built site in ~10 min. Playwright measure at 390/320 on the built dist (patched copies for after). Flagship eyebrows 390: seven of eight were 2-3 lines, all now 1; first card up 19-37 px. New test fails on main for 10 pages, passes here. node --test 'platform/pages/*.test.mjs': see PR verification.",
+  "notes": "Built site in ~10 min. Playwright measure at 390/320 on the built dist (patched copies for after). Flagship eyebrows 390: seven of eight were 2-3 lines, all now 1; first card up 19-37 px. New test fails on main for 10 pages, passes here. node --test 'platform/pages/*.test.mjs': see PR verification. Local: node --test 'platform/pages/*.test.mjs' 1885/1885 pass.",
   "corrections": [],
   "redteam": null
 }
