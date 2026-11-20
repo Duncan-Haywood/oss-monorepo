@@ -69,3 +69,10 @@ for k in (100, 500, 2000):
     r = m.run(p0[:200], d0[:200], k, F32)
     sp = np.sqrt((r["d"] ** 2).sum(axis=1))
     print("after %4d collisions: mean |d|-1 = %+.2e, sd %.2e" % (k, sp.mean() - 1, sp.std()))
+
+print("\n== 5. per-member lag: first different surface minus first position departure (members where both happen)")
+for name, other in [("float32 arithmetic", f32)] + [("float64, start moved by %g" % dl, ctrl[dl]) for dl in DELTAS]:
+    lag = m.surface_departure(ref["surf"], other["surf"]) - m.departure_index(ref["pos"], other["pos"], THR)
+    lag = lag[~np.isnan(lag)].astype(int)
+    print("%-30s n=%4d  median %+d  lag<0 %4.1f%%  lag=0 %4.1f%%  lag=1 %4.1f%%  lag>=2 %4.1f%%" % (
+        name, len(lag), int(np.median(lag)), 100 * (lag < 0).mean(), 100 * (lag == 0).mean(), 100 * (lag == 1).mean(), 100 * (lag >= 2).mean()))
