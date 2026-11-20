@@ -56,6 +56,10 @@ GUARD = re.compile(r"/\^\[=|\^\[=@\]|\^\[=\+|formula[- ]injection|csv[- ]injecti
 # The formula test followed by a negated exemption regex: `/^[=+\-@\t\r]/.test(s) && !/^-?\d+$/.test(s)`.
 EXEMPTION = re.compile(r"/\^\[=[^\]]*\]/\.test\([^)]*\)\s*&&\s*!\s*/(\^(?:\\/|[^/])*)/[a-z]*\.test\(")
 SKIP_PARTS = {"node_modules", ".next", "dist", "build", ".git", "vendor"}
+# The literal both EXEMPTION and GUARD_TEST start with. Testing it per file and
+# per line before the regexes gives the same entries in a fraction of the time
+# (docs/history/ci-perf-2026-11-20-paired-check-prefilters.md).
+FORMULA_TEST = "/^[="
 
 
 def is_exporter(text):
@@ -102,10 +106,15 @@ def scan_shape(root):
             if SKIP_PARTS & set(rel.parts) or ".test." in p.name:
                 continue
             try:
-                lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+                text = p.read_text(encoding="utf-8", errors="replace")
             except OSError:
                 continue
-            for n, line in enumerate(lines, 1):
+            # guard_shape reports only through GUARD_TEST, which needs "/^[=".
+            if FORMULA_TEST not in text:
+                continue
+            for n, line in enumerate(text.splitlines(), 1):
+                if FORMULA_TEST not in line:
+                    continue
                 for reason in guard_shape(line):
                     out.append(f"{rel.as_posix()}:{n}: {reason}")
     return sorted(out)
@@ -120,11 +129,14 @@ def scan_weak(root):
             if SKIP_PARTS & set(rel.parts) or ".test." in p.name:
                 continue
             try:
-                lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+                text = p.read_text(encoding="utf-8", errors="replace")
             except OSError:
                 continue
-            for n, line in enumerate(lines, 1):
-                if weak_exemptions(line):
+            # EXEMPTION starts with the literal "/^[=".
+            if FORMULA_TEST not in text:
+                continue
+            for n, line in enumerate(text.splitlines(), 1):
+                if FORMULA_TEST in line and weak_exemptions(line):
                     out.append(f"{rel.as_posix()}:{n}")
     return sorted(out)
 
