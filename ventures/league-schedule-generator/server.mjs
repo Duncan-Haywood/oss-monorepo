@@ -38,17 +38,26 @@ import { parseNotice, addNotice, removeNotice, noticesHtml, adminNoticesHtml, no
 import { spiritSettings, parseSpirit, recordSpirit, pruneSpirit, spiritTable, captainSpiritHtml, leagueSpiritHtml, adminSpiritHtml, spiritCsv, SPIRIT_MODES } from "./spirit.mjs";
 import { cleanWaiverText, currentVersion, rememberVersion, parseSignature, parseWaiverForm, recordSignature, removeSignature, waiverFormHtml, registerWaiverHtml, waiverLinkHtml, adminWaiversHtml, waiversCsv, versionText } from "./waivers.mjs";
 import { MAX_TAG_QUESTIONS, MAX_SHEET, faSettings, faClosedReason, parseFreeAgent, allowJoin, addFreeAgent, suggestPlacements, placeFreeAgent, removeFreeAgent, placedEmails, freeAgentsCsv, joinFormHtml, joinedHtml, adminFreeAgentsHtml } from "./freeagents.mjs";
+import { readOfficials, settleOfficials, officialByKey, officialKey, parseOfficialRequest, officialAction, adminAssign, fillOpen, pinDealt, clearUpcoming, withOfficials, officialHtml, leagueOfficialsHtml, adminOfficialsHtml, droppedEmail } from "./officiating.mjs";
 import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
 const MAX_BODY = 64 * 1024;
-const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring", "rosters", "contacts", "playoffResults"];
+const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring", "rosters", "contacts", "playoffResults", "officials"];
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:6rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/league-schedule-generator/">League Schedule Generator</a> (MIT). Check dates and venues with your organiser.</p></body></html>`;
 
-export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], reports: {}, moves: {}, availability: {}, subs: {}, remindersSent: {}, notices: [], noticeSeq: 0, registrations: [], approvedSignups: [], regSeq: 0, freeAgents: [], placedAgents: [], faSeq: 0, waivers: [], waiverVersions: {}, waiverSeq: 0, spirit: {} }; }
+export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], reports: {}, moves: {}, availability: {}, subs: {}, remindersSent: {}, notices: [], noticeSeq: 0, registrations: [], approvedSignups: [], regSeq: 0, freeAgents: [], placedAgents: [], faSeq: 0, waivers: [], waiverVersions: {}, waiverSeq: 0, spirit: {}, refPicks: {} }; }
+
+/** The league's officials and who officiates each game (officiating.mjs), or null when no officials are listed. */
+export function leagueOfficials(state, schedule) {
+  if (!schedule || !String(state.fields.officials || "").trim()) return null;
+  const { officials, errors } = readOfficials(state.fields, schedule.teams);
+  if (!officials.length) return null;
+  return { officials, errors, settled: settleOfficials(schedule, officials, state.refPicks || {}) };
+}
 
 const MAX_PENDING = 100;
 /** A score a team captain sends from the league page, as a pending request: team indexes and goals, nothing free-form. */
@@ -112,7 +121,7 @@ export function calendarLinks(base, token, team) {
   return `<a href="${esc(webcal)}">subscribe</a> · <a href="${esc(google)}" rel="noopener">Google Calendar</a> · ${dl} · <input readonly value="${esc(feed)}" aria-label="Calendar address" style="width:auto;min-width:16rem;font-size:.8rem" onfocus="this.select()">`;
 }
 
-function leaguePage(state, token, base = null, today = dayNumber(Date.now()), captain = null, now = Date.now()) {
+function leaguePage(state, token, base = null, today = dayNumber(Date.now()), captain = null, now = Date.now(), official = null) {
   const out = buildLeague(state.fields);
   if (out.error) return page("League", `<p>The organiser has not published a valid league yet.</p>`);
   const html = leaguePageHtml(out.schedule, { title: "League schedule", table: out.table, bracket: out.bracket });
@@ -129,8 +138,16 @@ function leaguePage(state, token, base = null, today = dayNumber(Date.now()), ca
   const waiver = waiverLinkHtml(state, token, captain ? { team: out.schedule.teams[captain.team], rosters } : {});
   const sp = spiritSettings(state.fields);
   const spirit = (captain && sp.mode ? captainSpiritHtml(state.spirit || {}, reportableGames(out.schedule, today), captain.team, sp.mode, { token, cap: captain.key }) : "") + (sp.show ? leagueSpiritHtml(spiritTable(state.spirit || {}, out.schedule, sp.mode), sp.mode) : "");
+  const lo = leagueOfficials(state, out.schedule);
+  let refs = "";
+  if (lo) {
+    const q = `t=${encodeURIComponent(token)}&o=${official ? encodeURIComponent(official.key) : ""}`;
+    const feed = base ? `${base}/league/ics?${q}` : null;
+    const calendar = official ? (feed ? `<a href="${esc(feed.replace(/^https?:/, "webcal:"))}">subscribe</a> · ` : "") + `<a href="/league/ics?${esc(q)}">download</a>` : "";
+    refs = (official ? officialHtml(lo.settled, lo.officials, official.index, { token, key: official.key, today, calendar }) : "") + leagueOfficialsHtml(lo.settled, today);
+  }
   const pwaHead = pwaHeadHtml(token, captain ? captain.key : null), pwaBody = pwaBodyHtml(now, { team: captain ? captain.team : null });
-  return html.replace("<head>", `<head><meta name="robots" content="noindex">${pwaHead}`).replace("</h1>", `</h1>${pwaBody}${news}`).replace("<footer>", `${cap}${spirit}${waiver}${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
+  return html.replace("<head>", `<head><meta name="robots" content="noindex">${pwaHead}`).replace("</h1>", `</h1>${pwaBody}${news}`).replace("<footer>", `${refs}${cap}${spirit}${waiver}${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
 }
 
 function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = process.env, base = null) {
@@ -143,7 +160,7 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
   const csv = games.length ? `<p><a href="/admin/availability.csv?key=${k}">Download everyone's answers (CSV)</a> for the next games, with roster players who have not answered.</p>` : "";
   const smtp = smtpConfig(env);
   const mailNote = !smtp ? "Reminder emails are off: set SMTP_HOST, SMTP_FROM (and SMTP_USER, SMTP_PASS) on the server to send them from your own mail account." : smtp.error ? `Reminder emails are off: ${smtp.error}.` : `Reminder emails are on: a team still short ${REMINDER_DAYS} days out gets one email at these addresses${EMAIL.test(env.REMINDER_TO || "") ? ", copied to " + env.REMINDER_TO : ""}. ${Object.keys(state.remindersSent || {}).length} sent for the next games.`;
-  const parseNotes = [...rp.errors, ...cp.errors, ...(built.bracket?.errors ?? [])].slice(0, 8).map((e) => `<li>${esc(e)}</li>`).join("");
+  const parseNotes = [...rp.errors, ...cp.errors, ...(built.bracket?.errors ?? [])];
   const pending = (state.pending || []).map((r, i) => names[r.a] === undefined || names[r.b] === undefined ? "" : `<li>${esc(resultLine(names, r))} <form method="post" action="/admin/result?key=${k}" style="display:inline"><input type="hidden" name="i" value="${i}"><button name="act" value="approve">Approve</button><button name="act" value="decline">Decline</button></form></li>`).join("");
   const waiting = (pending ? `<h2>Scores waiting for you</h2><ul>${pending}</ul>` : "") + (built.schedule && state.published ? adminReportsHtml(openReports(state.reports || {}, built.schedule), key) + adminMovesHtml(openMoves(state.moves || {}, built.schedule), key) : "");
   const token = env.LEAGUE_TOKEN || "", capBase = base;
@@ -156,7 +173,10 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
   const sp = spiritSettings(f);
   const spiritAdmin = sp.mode && built.schedule && state.published ? adminSpiritHtml(state.spirit || {}, built.schedule, sp.mode, today, key) : "";
   const spiritOpts = [["", "Off"], ...Object.entries(SPIRIT_MODES).map(([v, m]) => [v, m.label])].map(([v, l]) => `<option value="${v}"${(sp.mode || "") === v ? " selected" : ""}>${esc(l)}</option>`).join("");
-  return page("League admin", `${note}${signups}${freeAgents}${waiting}${short}${csv}${parseNotes ? `<ul class="err">${parseNotes}</ul>` : ""}
+  const lo = built.schedule ? leagueOfficials(state, built.schedule) : null;
+  const refAdmin = lo && state.published ? adminOfficialsHtml(lo.settled, lo.officials, { key, token, base, today, secret: key }) : "";
+  if (lo) parseNotes.push(...lo.errors);
+  return page("League admin", `${note}${signups}${freeAgents}${waiting}${short}${csv}${parseNotes.length ? `<ul class="err">${parseNotes.slice(0, 8).map((e) => `<li>${esc(e)}</li>`).join("")}</ul>` : ""}
 <form method="post" action="/admin/save?key=${k}">
 <label>Season start (YYYY-MM-DD)<input name="start" value="${esc(f.start)}"></label>
 <label>Weekdays, comma separated (${WEEKDAYS.join(" ")})<input name="weekdays" value="${esc((f.weekdays || []).join(", "))}"></label>
@@ -164,7 +184,7 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
 <label>Players a team needs on the night (0 = do not flag short teams)<input name="minPlayers" inputmode="numeric" value="${esc(f.minPlayers ?? 0)}"></label>
 <label><input type="checkbox" name="double" value="1" style="width:auto" ${f.double ? "checked" : ""}> Double round robin</label>
 <label><input type="checkbox" name="reverseLeg" value="1" style="width:auto" ${f.reverseLeg ? "checked" : ""}> Return leg in reverse order (fewer back-to-back home or away games)</label>
-${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}${area("times", "Time slots, e.g. 18:00, 19:00")}${area("skip", "Skip dates")}${area("blackouts", "Blackouts, e.g. Team: 2026-10-20")}${area("rainouts", "Rainouts")}${area("withdrawals", "Withdrawals")}${area("lateTeams", "Late teams")}${area("results", "Results, e.g. Hawks 3 - 2 Owls")}${area("playoffResults", "Play-off results, e.g. Hawks 2 - 1 Owls or Hawks 1 - 1 Owls (Hawks on penalties). They fill the bracket and never touch the table")}${area("rosters", "Rosters (optional), e.g. Hawks: Ana, Ben, Cara. Players pick their name from the list, and you see who has not answered")}${area("contacts", "Team contacts for reminder emails (optional), e.g. Hawks: captain@example.org")}
+${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}${area("times", "Time slots, e.g. 18:00, 19:00")}${area("skip", "Skip dates")}${area("blackouts", "Blackouts, e.g. Team: 2026-10-20")}${area("rainouts", "Rainouts")}${area("withdrawals", "Withdrawals")}${area("lateTeams", "Late teams")}${area("results", "Results, e.g. Hawks 3 - 2 Owls")}${area("playoffResults", "Play-off results, e.g. Hawks 2 - 1 Owls or Hawks 1 - 1 Owls (Hawks on penalties). They fill the bracket and never touch the table")}${area("rosters", "Rosters (optional), e.g. Hawks: Ana, Ben, Cara. Players pick their name from the list, and you see who has not answered")}${area("contacts", "Team contacts for reminder emails (optional), e.g. Hawks: captain@example.org")}${area("officials", "Officials (optional), one per line: a name, their own team in brackets, the weekdays they can work, a game cap, e.g. Sam Ortiz (Hawks): Tue, Thu max 8. Every game gets one, and each official gets a private link to give games back and take open ones")}
 <fieldset><legend>Team sign-ups</legend>
 <label><input type="checkbox" name="regOpen" value="1" style="width:auto" ${rs.open ? "checked" : ""}> Open sign-ups at <code>/register</code> (a public page: share it anywhere)</label>
 <label>Fee per team, as you want it shown (optional), e.g. $450<input name="regFee" maxlength="60" value="${esc(f.regFee ?? "")}"></label>
@@ -189,7 +209,7 @@ ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}
 <p class="note">The five-category scale follows the shape of the score sheet ultimate leagues use (rules, fouls and contact, fair-mindedness, attitude, communication; 0 to 4 each, 2 for a normal game). Switching the scale starts the averages again; earlier ratings stay in the state file.</p></fieldset><p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
 <label><input type="checkbox" name="notify" value="1" style="width:auto"${state.published ? "" : " disabled"}> Email teams whose upcoming games this save moves, cancels or adds (one email per team, to its contacts${smtp && !smtp.error ? "" : "; needs SMTP, see above"})</label>
 <button name="act" value="save">Save</button><button name="act" value="publish">Save and publish</button></form>
-${spiritAdmin}${notices}${waivers}${capLinks}${names.length && state.published ? adminEmbedHtml(key, base, names) : ""}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}). Free agents: <code>/join</code> (${fs.open ? "open" : "closed"}).</p>`);
+${refAdmin}${spiritAdmin}${notices}${waivers}${capLinks}${names.length && state.published ? adminEmbedHtml(key, base, names) : ""}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}). Free agents: <code>/join</code> (${fs.open ? "open" : "closed"}).</p>`);
 }
 
 async function readForm(req) {
@@ -298,11 +318,24 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
         }
         captain = { team: ti, key: c };
       }
+      // An official's link carries o=KEY, checked the same way.
+      let official = null;
+      const o = url.searchParams.get("o");
+      if (o !== null && o !== "" && state.published) {
+        const built = buildLeague(state.fields), lo = built.error ? null : leagueOfficials(state, built.schedule);
+        const oi = lo ? officialByKey(adminKey, lo.officials, o) : -1;
+        if (oi < 0) {
+          if (!rec) fails.set(who, rec = { n: 0, until: now + WINDOW_MS });
+          rec.n++;
+          return send(401, "this official's link is not valid (the name may have changed; ask the organiser for the new one)\n", "text/plain");
+        }
+        official = { index: oi, key: o, name: lo.officials[oi].name };
+      }
       if (req.method === "GET" && url.pathname === "/league/manifest.webmanifest") {
         const teams = state.published ? buildLeague(state.fields).schedule?.teams ?? [] : [];
         return send(200, manifestJson({ name: "League schedule", token: t, cap: captain ? captain.key : null, team: captain ? teams[captain.team] : null }), "application/manifest+json", { "cache-control": "no-cache" });
       }
-      if (req.method === "GET" && url.pathname === "/league") return send(200, state.published ? leaguePage(state, t, publicBase(req, env), dayNumber(clock()), captain, clock()) : page("League", "<p>No schedule has been published yet.</p>"));
+      if (req.method === "GET" && url.pathname === "/league") return send(200, state.published ? leaguePage(state, t, publicBase(req, env), dayNumber(clock()), captain, clock(), official) : page("League", "<p>No schedule has been published yet.</p>"));
       if (req.method === "POST" && url.pathname === "/league/report") {
         if (!captain) return send(401, "captain link required\n", "text/plain");
         const out = buildLeague(state.fields);
@@ -395,6 +428,31 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
         if (w.error) return send(429, page("League waiver", `<p class="err">${esc(w.error)}</p>${back}`));
         save();
         return send(200, page("Waiver signed", `<p class="ok">${w.replaced ? "Signed again" : "Signed"}: ${esc(w.sig.name)}${w.sig.minor ? ` (by ${esc(w.sig.guardian)}, parent or guardian)` : ""} for ${esc(w.sig.team)}, version ${esc(w.sig.version)}, ${esc(new Date(w.sig.at).toISOString().replace("T", " ").slice(0, 16))} UTC.</p><p class="note">The organiser keeps this record. Ask them if you need a copy of the text you signed.</p>${back}`));
+      }
+      if (req.method === "GET" && url.pathname === "/league/ics" && official) {
+        const out = buildLeague(state.fields), lo = leagueOfficials(state, out.schedule);
+        return send(200, scheduleIcs(withOfficials(out.schedule, lo.settled), null, null, official.name, Number(url.searchParams.get("alarm")) || null), "text/calendar; charset=utf-8", { "content-disposition": `inline; filename="officiating.ics"`, "cache-control": "no-cache" });
+      }
+      if (req.method === "POST" && url.pathname === "/league/official") {
+        if (!official) return send(401, "official's link required\n", "text/plain");
+        const body = await readForm(req);
+        if (!body) return send(413, "too large\n", "text/plain");
+        const back = `<p><a href="/league?t=${esc(encodeURIComponent(t))}&amp;o=${esc(encodeURIComponent(o))}#official">Back to your games</a></p>`;
+        const r = parseOfficialRequest(body);
+        if (r.error) return send(400, page("Not saved", `<p class="err">${esc(r.error)}</p>${back}`));
+        const out = buildLeague(state.fields), lo = leagueOfficials(state, out.schedule), day = dayNumber(clock());
+        state.refPicks = state.refPicks || {};
+        pinDealt(state.refPicks, lo.settled, clock());
+        const w = officialAction(state.refPicks, lo.settled, lo.officials, official.index, r.req, day, clock());
+        if (w.error) { save(); return send(409, page("Not saved", `<p class="err">${esc(w.error)}</p>${back}`)); }
+        save();
+        const cfg = smtpConfig(env);
+        if (r.req.act === "drop" && cfg && !cfg.error && EMAIL.test(env.REMINDER_TO || "")) {
+          const base = publicBase(req, env);
+          const msg = droppedEmail(w.game, official.name, w.late, env.REMINDER_TO, base ? `${base}/admin` : "");
+          Promise.resolve().then(() => mail(cfg, msg)).catch((err) => console.error(`give-back email not sent: ${err.message}`));
+        }
+        return send(200, page(r.req.act === "drop" ? "Game given back" : "Game taken", `<p class="ok">${esc(w.message)}</p>${back}`));
       }
       if (req.method === "GET" && url.pathname === "/league/ics") {
         const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
@@ -498,6 +556,8 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
         if (out.error) { save(); return send(400, adminPage(state, adminKey, `<p class="err">${esc(out.error)}</p>`, dayNumber(clock()), env, publicBase(req, env))); }
         state.published = true;
       }
+      // Pin the games dealt so far, so a later edit to the officials list leaves announced games alone.
+      if (state.published && !out.error) { const lo = leagueOfficials(state, out.schedule); if (lo) { state.refPicks = state.refPicks || {}; pinDealt(state.refPicks, lo.settled, clock()); } }
       save();
       let changeNote = "";
       if (wasPublished && prev && !prev.error && !out.error) {
@@ -522,6 +582,28 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
         }
       }
       return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent((out.error ? "Saved, but: " + out.error : "Saved." + (out.warnings.length ? " " + out.warnings.length + " warning(s): " + out.warnings[0] : "")) + changeNote)}` });
+    }
+    if (req.method === "POST" && (url.pathname === "/admin/official" || url.pathname === "/admin/officials")) {
+      const out = buildLeague(state.fields), lo = out.error ? null : leagueOfficials(state, out.schedule);
+      if (!lo) return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent("List officials and publish first.")}` });
+      state.refPicks = state.refPicks || {};
+      const day = dayNumber(clock());
+      let note;
+      if (url.pathname === "/admin/official") {
+        pinDealt(state.refPicks, lo.settled, clock());
+        const w = adminAssign(state.refPicks, lo.settled, lo.officials, String(form.get("fixture") || ""), String(form.get("name") || "").trim(), clock());
+        note = w.error ? w.error : `${w.game.homeName} v ${w.game.awayName}: ${String(form.get("name") || "").trim() || "open"}.`;
+      } else if (form.get("act") === "redeal") {
+        const n = clearUpcoming(state.refPicks, lo.settled, day);
+        pinDealt(state.refPicks, leagueOfficials(state, out.schedule).settled, clock());
+        note = `Dealt ${n} upcoming game${n === 1 ? "" : "s"} again.`;
+      } else {
+        pinDealt(state.refPicks, lo.settled, clock());
+        const n = fillOpen(state.refPicks, leagueOfficials(state, out.schedule).settled, lo.officials, day, clock());
+        note = `Filled ${n} open game${n === 1 ? "" : "s"}.`;
+      }
+      save();
+      return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(note)}#officials` });
     }
     if (req.method === "GET" && url.pathname === "/admin/spirit.csv") {
       const out = buildLeague(state.fields);
