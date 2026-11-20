@@ -1,0 +1,4 @@
+cr F4 3.75mm g0.1 EA 150.00: DC 0.4670 folds 9 Es 6.342e-05 Eg 8.660e-05 Eb 4.724e-04 Ej 1.266e-04 eps99 1.06e-02 steps 399 conv False 1108s
+cr F3 3.75mm g0.1 EA 150.00: DC 0.6742 folds 14 Es 5.959e-05 Eg 5.830e-05 Eb 5.414e-04 Ej 2.571e-04 eps99 1.14e-02 steps 399 conv False 1111s
+cr F1 3.75mm g0.1 EA 150.00: DC 0.3500 folds 8 Es 1.876e-05 Eg 2.037e-05 Eb 3.094e-04 Ej 4.140e-05 eps99 7.92e-03 steps 399 conv False 1117s
+cr F2 3.75mm g0.1 EA 150.00: DC 0.3103 folds 9 Es 1.171e-05 Eg 1.518e-05 Eb 2.814e-04 Ej 6.174e-05 eps99 5.85e-03 steps 399 conv False 1129s
