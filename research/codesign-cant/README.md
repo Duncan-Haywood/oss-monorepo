@@ -6,6 +6,21 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7ai: can you compute a drone's attitude-loop lag from its gains, with no test flight? Yes: linearise the loop, average over the plant range
+
+**Question.** 7ah read the lag between the commanded and achieved horizontal acceleration off one flown acceleration step, and with it the point mass predicts rise time within 0.10 s for 36 of 36 designs. Can a builder get the same lag from the design file alone, and what made 7ah's untraced early jump and steady overshoot?
+
+**Headline (`experiments/m7ai_lag_model/verdicts.txt`, `results.json`, `posthoc.txt`; 216 flights, 67 s on 4 cores; simulated; 9 predictions committed first, 7 held).**
+
+- **The lag is computable.** The 11-state linearisation of the loop (`linstab.accel_step`, outer loop open), averaged over a 3×3×3 grid of the plant randomisation box, gives each design's area lag within 10 ms of the flown one for 36 of 36 (median 0.5 ms) and its 63% time within 15 ms for 34 of 36.
+- **Rise time with no flight at all:** that computed 63% time in the lagged point mass is within 0.10 s of the flown rise for 36 of 36 designs in all seven conditions, never more than 1 ms worse in median error than the flown lag.
+- **Average over the range, not the nominal plant:** at the nominal plant alone the 63% time is within 15 ms for only 18 of 36.
+- **The early jump is the canted rotors' side force:** switched off, the share of the request reached at 50 ms falls from 0.22 to 0.10 (median), and the 63% time moves by more than 15 ms for 28 of 36 designs, so a lag measured on a flat frame does not carry over to a canted one.
+- **7ah's 6% steady overshoot was the small-angle lean map** (with arctan(a/g): 1.7%) plus a slow ring of the loop that the linear model reproduces within 0.01 for 36 of 36.
+- **Limits:** the linear model is the simulator's own linearisation, so this shows the simulated lag is computable, not that a real vehicle's is; one evaluation seed; rise times scored are 7ag's, already published.
+
+![Left: lag from the linear model against the lag read off a flown acceleration step, 36 designs; the area estimates lie on the equal line from about 50 to 285 ms, the 63% times on it except one at 30 ms flown against 156 ms computed and three about 15-40 ms high. Right: achieved over steady acceleration after a 1 m/s² request for the median-lag design: flown and linear curves overlap; with the side force the response jumps to about 0.35 within 50 ms and dips before the lean arrives, without it the rise starts slower, overshoots to about 1.07 of the 2 s window's final value and is still settling at 1 s.](experiments/m7ai_lag_model/m7ai_lag_model.png)
+
 ## Milestone 7ah: how do you get a drone's attitude-loop lag without fitting it to a position step? Fly one acceleration step and read its 63% time
 
 **Question.** 7ag's point mass predicts a capped, gated position loop's rise time from its gains, and one first-order lag on the achieved acceleration fixes its misses on short steps and hard caps. But that lag (135 ms) was fitted on a flown position step, the very thing it predicts. Can a builder read it off a test that does not contain the answer: an open-outer-loop acceleration (lean) step?

@@ -70,7 +70,7 @@ def reference(episodes, seed, steps=None):
     return yaw, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign
 
 
-def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0, mix_mode="hover", tilt_cone=False, tilt_rate=None, perr_max=None, sp_rate=None, trace=None, acc_cmd=None):
+def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0, mix_mode="hover", tilt_cone=False, tilt_rate=None, perr_max=None, sp_rate=None, trace=None, acc_cmd=None, lean_exact=False):
     """gains (N,9) physical: attitude PID roll/pitch kp, kd, ki; yaw kp, kd, ki; position kp, kd, ki.
     Hold the origin from a random offset while yaw steps +-30 deg and the mean wind steps at 3 s. Roll and pitch references come from
     the position loop; every torque request passes the attitude-priority mixer with the collective held at hover.
@@ -112,6 +112,8 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     acc_cmd (milestone 7ah), if given, a horizontal acceleration request (m/s^2, world frame, broadcast to (N, E, 2)) that replaces
     the position loop's output from the first step: an open-outer-loop acceleration step for identifying the attitude loop's lag.
     The side-force feed-forward, tilt limit, attitude loop, mixer and plant are untouched; inert at its default.
+    lean_exact (milestone 7ai probe): map the horizontal acceleration request to a tilt reference with arctan(a / g) per axis
+    instead of the small-angle a / g (exact for a request along one body axis); inert at its default.
     Returns per design: RMS position error (m) over the episode, over the last 3 s (after the wind step), RMS yaw error (deg),
     RMS roll/pitch tracking error (deg), the share of episodes that diverged, and (dead_ep, (N, E)) which ones, with each episode's position RMS (pos_ep, (N, E))."""
     if steps is None:
@@ -189,7 +191,8 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
             rp_ref = np.stack([-ab_y / A.G, ab_x / A.G], -1)
             rn = np.sqrt((rp_ref ** 2).sum(-1, keepdims=True)); rp_ref = rp_ref * np.minimum(1.0, TILT_CMD_MAX / np.maximum(rn, 1e-12))
         else:
-            rp_ref = np.stack([np.clip(-ab_y / A.G, -TILT_CMD_MAX, TILT_CMD_MAX), np.clip(ab_x / A.G, -TILT_CMD_MAX, TILT_CMD_MAX)], -1)
+            lm = np.arctan if lean_exact else (lambda v: v)
+            rp_ref = np.stack([np.clip(lm(-ab_y / A.G), -TILT_CMD_MAX, TILT_CMD_MAX), np.clip(lm(ab_x / A.G), -TILT_CMD_MAX, TILT_CMD_MAX)], -1)
         if tilt_rate is not None:
             dr = rp_ref - rp_cmd; rp_cmd = np.where(np.abs(dr) <= tilt_rate * A.DT, rp_ref, rp_cmd + np.sign(dr) * tilt_rate * A.DT); rp_ref = rp_cmd
         refv = np.concatenate([rp_ref, np.broadcast_to(yaw_ref[:, t][None, :, None], (N, E, 1))], -1)

@@ -73,6 +73,15 @@ CHECKS = [
     ("in a median 182 ms (area estimate 171 ms)", "m7ah_att_step/verdicts.txt", r"AH3 [^\n]*; 170\.7 ms; 63% time median 182\.0 ms"),
     ("36 of 36 designs in all seven conditions", "m7ah_att_step/verdicts.txt", r"(?:\n[^\n]*\|\s+\d+/\d+/36/\d+/\d+ \|[^\n]*){7}"),
     ("0.017 s at A_P = 8, 0.011 s at S = 0.5 m", "m7ah_att_step/verdicts.txt", r"8\.0  1\.0 \|[^\n]*\|  0\.085  0\.020  0\.017[\s\S]*3\.5  0\.5 \|[^\n]*\|  0\.062  0\.012  0\.011"),
+    # section VII: the lag computed with no flight (milestone 7ai)
+    ("within 10 ms of the flown one for 36 of 36", "m7ai_lag_model/verdicts.txt", r"AI2 [^\n]*; 36/36; median \|diff\| 0\.5 ms"),
+    ("63% time within 15 ms for 34 of 36", "m7ai_lag_model/verdicts.txt", r"AI1 [^\n]*; 34/36;"),
+    ("never more than 0.0010 s worse", "m7ai_lag_model/verdicts.txt", r"AI4 [^\n]*fewest 36/36; worst excess \+0\.0010 s"),
+    ("within 15 ms for only 18 of 36", "m7ai_lag_model/verdicts.txt", r"AI3 [^\n]*; 18/36;"),
+    ("from a median 0.220 to 0.101", "m7ai_lag_model/verdicts.txt", r"AI5 [^\n]*median 0\.101; base median 0\.220"),
+    ("more than 15 ms for 28 of 36", "m7ai_lag_model/verdicts.txt", r"AI8 [^\n]*; 28/36;"),
+    ("1.015 at 1 m/s² and 1.017 at 3.5, against 1.062", "m7ai_lag_model/verdicts.txt", r"AI6 [^\n]*exact 1\.015 \(A=1\), 1\.017 \(A=3\.5\); base 1\.019, 1\.062"),
+    ("within 0.01 for 36 of 36 designs", "m7ai_lag_model/verdicts.txt", r"AI7 [^\n]*; 36/36;"),
 ]
 ARMS = [("M=1.00", -0.001, 9, 32), ("M=1.11", -0.012, 3, 22), ("M=1.25", -0.011, 0, 12), ("M=1.43", -0.010, 0, 13), ("M=1.67", -0.012, 0, 12)]
 

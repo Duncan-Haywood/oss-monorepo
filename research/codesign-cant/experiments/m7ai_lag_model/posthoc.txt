@@ -1,0 +1,10 @@
+Milestone 7ai post hoc (not predicted). A = 1 m/s^2, 36 ms law unless said.
+  above aware lag39c125 cint25 seed 5: linear 63% 156 ms, flown 30 ms; area tau 208 vs 208 ms; lat 6.07; linear response spends 150 ms of the first 0.6 s between 0.55 and 0.70 (at 0.1/0.2/0.3/0.4 s: 0.02, 0.65, 0.76, 0.84; flown -0.03, 0.65, 0.78, 0.84)
+  above aware lag39c125 cint25 seed 3: linear 63% 288 ms, flown 248 ms; area tau 283 vs 283 ms; lat 7.49; linear response spends 120 ms of the first 0.6 s between 0.55 and 0.70 (at 0.1/0.2/0.3/0.4 s: 0.14, 0.45, 0.64, 0.74; flown 0.10, 0.43, 0.64, 0.75)
+  above aware lag39c125 seed 3: linear 63% 274 ms, flown 260 ms; area tau 271 vs 271 ms; lat 4.18; linear response spends 100 ms of the first 0.6 s between 0.55 and 0.70 (at 0.1/0.2/0.3/0.4 s: 0.18, 0.49, 0.66, 0.76; flown 0.15, 0.47, 0.66, 0.76)
+50 ms share against lat: Spearman 0.88 (base), 0.35 (nolat); lat range 1.42-7.49 1/m
+50 ms share, linear (box) against flown: median |diff| 0.006, max 0.089
+63% time with and without the side force: base median 176 ms, nolat 156 ms; linear lat = 0 (box) median 162 ms, within 15 ms of flown nolat for 36/36
+area tau with and without: base median 166 ms, nolat 158 ms
+linear model is amplitude-free (linear): 63% at 3.5 equals 1.0 for 36/36; flown 63% at 3.5 minus 1.0: median +6 ms
+lagged point mass with the box-mean linear AREA tau (no flight) instead of its 63% time: n within 0.10 s / median |error| (s) per condition: A_P 2 S 1: 36/36, 0.002; A_P 2.5 S 1: 36/36, 0.002; A_P 3.5 S 1: 36/36, 0.006; A_P 5 S 1: 36/36, 0.009; A_P 8 S 1: 34/36, 0.019; A_P 3.5 S 0.5: 36/36, 0.013; A_P 3.5 S 2: 36/36, 0.004

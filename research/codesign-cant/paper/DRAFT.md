@@ -1,6 +1,6 @@
 # Draft: when does rotor cant pay on a small quadrotor co-designed with its motors and controller?
 
-Status: **milestone 7, first draft (2026-11-14; section VII added 2026-11-19, milestone 7ad's settling paragraph, 7ae's retraining check and 7af's step objective the same day): outline of every
+Status: **milestone 7, first draft (2026-11-14; section VII added 2026-11-19, milestone 7ad's settling paragraph, 7ae's retraining check and 7af's step objective the same day; 7ag-7ai's rise-time rule 2026-11-19 to 20): outline of every
 section, section VI (stability of the side-force feed-forward, milestones 7c–7g) and section VII
 (motor-lag randomisation, milestones 7s–7ac) written in full. Not submittable.** Target: *IEEE Robotics and
 Automation Letters* (6 pages + 2), fallback ICUAS; an aim, not a claim of acceptance.
@@ -305,6 +305,19 @@ moving more than 10–15 ms between the three motor laws or between a 1 and a 3.
 0.017 s at A_P = 8, 0.011 s at S = 0.5 m), better than the fitted 135 ms, whose in-sample objective is flat
 between about 130 and 200 ms; a single pooled lag does about as well (`m7ah_att_step/verdicts.txt`).
 
+**The lag, computed rather than flown (milestone 7ai).** The same step response follows from the 11-state
+linearisation of section VI with the position gains set to zero (`linstab.accel_step`), averaged over a 3×3×3
+grid of the randomisation box. With no flight, its area estimate is within 10 ms of the flown one for 36 of 36
+designs (median difference 0.5 ms) and its 63% time within 15 ms for 34 of 36; the lagged point mass given that
+63% time is within 0.10 s for 36 of 36 designs in all seven conditions, never more than 0.0010 s worse in median
+error than with the flown lag (`m7ai_lag_model/verdicts.txt`). Averaging over the box is part of the rule: at the
+nominal plant alone the 63% time is within 15 ms for only 18 of 36. The early part of the response is the side
+force: with it switched off the share of the request reached at 50 ms falls from a median 0.220 to 0.101, and the
+63% time moves by more than 15 ms for 28 of 36 designs, so a lag measured on an uncanted frame does not carry over.
+The steady acceleration above the request in milestone 7ah was the small-angle lean map (with arctan(a/g) the
+median a<sub>ss</sub>/A is 1.015 at 1 m/s² and 1.017 at 3.5, against 1.062 with a/g) plus a slow ring of the loop
+that the linear model reproduces within 0.01 for 36 of 36 designs.
+
 **Why a tuner should see plants beyond the test range (a reading, not tested here).** The CMA-ES objective is a mean over
 randomised episodes. When fast plants are in the draw, gains that track them well raise that mean
 and are paid for at the slow edge, where the margin of the attitude loop is thinnest; when the draw
@@ -324,7 +337,8 @@ point; with that, the 125 ms tune has no unsettled designs. Put a set-point step
 objective: without one the tuner has no reason to rise fast. With a capped proportional term, compute
 the rise time before flying from k_p, k_d, k_i, A_P and the step size with the point mass above (within
 0.04 s for steps of 1 m or more and A_P up to about half of g tan of the tilt limit); for shorter steps or
-harder caps, add one first-order acceleration lag equal to the 63% time of a single flown acceleration step.
+harder caps, add one first-order acceleration lag equal to the 63% time of the attitude loop's acceleration
+step, computed from the linearised loop averaged over the randomisation range (or read off one flown step).
 
 **Figures.** Both are drawn by `paper/figures_vii.py` from the parsers that generate Table VII-1, so
 figure and table cannot disagree. VII-a (`paper/fig_VIIa.png`): identified total and the 75 ms count
