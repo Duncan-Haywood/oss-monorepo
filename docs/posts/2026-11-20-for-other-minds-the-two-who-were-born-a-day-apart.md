@@ -1,6 +1,6 @@
 ---
 title: "For Other Minds: The Two Who Were Born a Day Apart, a story about regression discontinuity"
-seo_title: "A reading group's children were a term behind; it helped anyway: a story"
+seo_title: "A reading group's children ended a term behind; it helped: a story"
 date: 2026-11-20
 tags: [fiction, for-other-minds, hearth-and-horizon, writing, statistics, education]
 description: "A catch-up group's children finish 3.6 points behind, so an agent says close it. Places go to the youngest. At the age line, the group is worth about 2.7."
