@@ -60,7 +60,19 @@ const id = Object.fromEntries(rows.map((r) => [r.task_code, r.task_id]));
 const planned = { A1010: "2026-03-05 15:30", A1020: "2026-03-19 15:30", A1030: "2026-04-02 15:30", A1050: "2026-04-03 15:30" };
 for (const r of rows) if (planned[r.task_code]) r.target_end_date = planned[r.task_code];
 const preds = links.map(([p, s, type, lag], i) => ({ task_pred_id: String(9001 + i), task_id: id[s], pred_task_id: id[p], proj_id: "77", pred_proj_id: "77", pred_type: type, lag_hr_cnt: lag * H }));
-const rsrc = rows.filter((r) => r.task_type === "TT_Task" && !["A1180", "A1040"].includes(r.task_code)).map((r, i) => ({ taskrsrc_id: String(3001 + i), task_id: r.task_id, proj_id: "77", rsrc_id: "1" }));
+// The GC's labour is cost loaded at an invented 95 an hour, for earned value
+// (evm.mjs): budget = original duration x rate; actual = budget x percent
+// complete (duration %), times an overrun on two activities (shop drawings
+// 15%, level 1 demolition 30%) so the cost checks have something to find;
+// remaining = budget not yet earned.
+const RATE = 95, OVER = { A1020: 1.15, A1050: 1.3 };
+const costs = (r) => {
+  const od = Number(r.target_drtn_hr_cnt) || 0, rd = Number(r.remain_drtn_hr_cnt) || 0;
+  const pct = r.status_code === "TK_Complete" ? 1 : r.status_code === "TK_Active" && od ? 1 - rd / od : 0;
+  const bac = od * RATE, ac = Math.round(bac * pct * (OVER[r.task_code] || 1) * 100) / 100;
+  return { target_cost: bac, act_reg_cost: ac, act_ot_cost: 0, remain_cost: Math.round(bac * (1 - pct) * 100) / 100 };
+};
+const rsrc = rows.filter((r) => r.task_type === "TT_Task" && !["A1180", "A1040"].includes(r.task_code)).map((r, i) => ({ taskrsrc_id: String(3001 + i), task_id: r.task_id, proj_id: "77", rsrc_id: "1", ...costs(r) }));
 // one drywall crew (limit 1 per hour) on both board-and-tape activities,
 // which the logic runs side by side: resource levelling has one to move
 for (const [k, code] of ["A1120", "A1130"].entries()) {

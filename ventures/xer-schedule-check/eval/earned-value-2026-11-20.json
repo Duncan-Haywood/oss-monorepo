@@ -1,0 +1,138 @@
+[
+ {
+  "file": "sample.xer",
+  "measure": null,
+  "currency": null,
+  "ms": 15,
+  "note": "The file has no resource assignments (TASKRSRC) or expenses (PROJCOST): the schedule is not cost or resource loaded."
+ },
+ {
+  "file": "hotel-project.xer",
+  "measure": "cost",
+  "currency": "USD",
+  "ms": 314,
+  "bac": 601874.78,
+  "pv": 0,
+  "ev": 0,
+  "ac": 0,
+  "eac": 601874.78,
+  "spi": null,
+  "cpi": null,
+  "spit": null,
+  "activities": 1166,
+  "pvCloses": true,
+  "fcCloses": true,
+  "findings": {
+   "unloaded": 2842,
+   "actual-not-started": 0,
+   "remaining-finished": 0,
+   "progress-no-cost": 0,
+   "earned-ahead": 0,
+   "overrun": 0,
+   "actuals-from-progress": 0,
+   "eac-under-actual": 0
+  },
+  "actualVsPercent": {}
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "measure": null,
+  "currency": null,
+  "ms": 15,
+  "note": "The resource assignments carry no budgeted, actual or remaining cost and no labour hours, so there is nothing to earn against."
+ },
+ {
+  "file": "example_xer_file.xer",
+  "measure": "cost",
+  "currency": "USD",
+  "ms": 84,
+  "bac": 2144776.35,
+  "pv": 250430.66,
+  "ev": 50524.72,
+  "ac": 28397.5,
+  "eac": 2105739.65,
+  "spi": 0.202,
+  "cpi": 1.779,
+  "spit": 0.122,
+  "activities": 285,
+  "pvCloses": true,
+  "fcCloses": true,
+  "findings": {
+   "unloaded": 109,
+   "actual-not-started": 0,
+   "remaining-finished": 0,
+   "progress-no-cost": 7,
+   "earned-ahead": 0,
+   "overrun": 0,
+   "actuals-from-progress": 0,
+   "eac-under-actual": 0
+  },
+  "actualVsPercent": {
+   "CP_Phys": {
+    "n": 7,
+    "equal": 1
+   }
+  }
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "measure": "cost",
+  "currency": "EGP",
+  "ms": 2856,
+  "bac": 632621950.03,
+  "pv": 330091169.72,
+  "ev": 440526673.5,
+  "ac": 440526673.31,
+  "eac": 632621949.23,
+  "spi": 1.335,
+  "cpi": 1,
+  "spit": 1.173,
+  "activities": 16042,
+  "pvCloses": true,
+  "fcCloses": true,
+  "findings": {
+   "unloaded": 12352,
+   "actual-not-started": 0,
+   "remaining-finished": 0,
+   "progress-no-cost": 0,
+   "earned-ahead": 0,
+   "overrun": 0,
+   "actuals-from-progress": 2020,
+   "eac-under-actual": 0
+  },
+  "actualVsPercent": {
+   "CP_Units": {
+    "n": 2020,
+    "equal": 2020
+   }
+  }
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "measure": "cost",
+  "currency": "OMR",
+  "ms": 158,
+  "bac": 111527.98,
+  "pv": 0,
+  "ev": 0,
+  "ac": 0,
+  "eac": 668.82,
+  "spi": null,
+  "cpi": null,
+  "spit": null,
+  "activities": 598,
+  "pvCloses": true,
+  "fcCloses": true,
+  "findings": {
+   "unloaded": 800,
+   "actual-not-started": 0,
+   "remaining-finished": 0,
+   "progress-no-cost": 0,
+   "earned-ahead": 0,
+   "overrun": 0,
+   "actuals-from-progress": 0,
+   "eac-under-actual": 21
+  },
+  "actualVsPercent": {}
+ }
+]

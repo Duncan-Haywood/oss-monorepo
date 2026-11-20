@@ -14,3 +14,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-20) UDF ranges shipped 2026-11-19 (eval/udf-ranges-check-*)
 - (2026-11-20) free float: an activity with an expected finish has none (cpm.mjs ffExpected; eval/free-float-expected-2026-11-20.md: 23 of 23 store 0 in the 24.12 file, 72 of 72 without one store the gap); free float 19,820 of 19,822
 - (moved 2026-11-20) (4) written review shipped 2026-11-19 (report.mjs, print to PDF; eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files)
+- (moved 2026-11-20) constraints log shipped 2026-11-20 (eval/constraints-check-2026-11-20.md)

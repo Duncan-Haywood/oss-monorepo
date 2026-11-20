@@ -41,6 +41,12 @@
 // Float P6's late dates miss across calendars instead (calslack.mjs): the FF/SF
 // lags that end in a successor's non-work time on a calendar that works then,
 // and every activity whose total float is larger than P6 shows because of it.
+// node cli.mjs schedule.xer --earned-value [--csv activities.csv] [--curve s-curve.csv] [--json] [--project CODE]
+// Earned value from the resource assignments instead (evm.mjs): budget,
+// planned, earned and actual cost (or labour hours), SPI, CPI, the estimates
+// at completion, earned schedule, the S-curve by month and the cost-loading
+// faults (unloaded work, actuals on unstarted work, actuals computed from
+// percent complete, front-loaded progress, overruns).
 // Any --report also takes --appendix: every activity behind every correction
 // printed in an appendix, not only the first 40 of each.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -62,9 +68,10 @@ import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
 import { lookahead, lookaheadText, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
 import { constraintLogCsv } from "./constraints.mjs";
 import { calendarSlack, calendarSlackText, calendarSlackCsv } from "./calslack.mjs";
+import { earnedValue, earnedValueText, earnedValueCsv, sCurveCsv } from "./evm.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -180,6 +187,15 @@ if (args.includes("--lookahead")) {
   if (opt("--constraints-csv") && la.constraintLog) writeFileSync(opt("--constraints-csv"), constraintLogCsv(la.constraintLog));
   if (opt("--html")) { writeFileSync(opt("--html"), lookaheadHtml(la, { by: opt("--by") })); console.error(`look-ahead written to ${opt("--html")}`); }
   await emit(args.includes("--json") ? JSON.stringify(la, null, 2) + "\n" : lookaheadText(la));
+  process.exit(0);
+}
+if (args.includes("--earned-value")) {
+  const result = schedule(xer);
+  const pid = assess(xer, { projId, result }).project.id;
+  const r = earnedValue(xer, { projId: pid, result });
+  if (opt("--csv")) writeFileSync(opt("--csv"), earnedValueCsv(r));
+  if (opt("--curve")) writeFileSync(opt("--curve"), sCurveCsv(r));
+  await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : earnedValueText(r));
   process.exit(0);
 }
 if (args.includes("--calendar-slack")) {

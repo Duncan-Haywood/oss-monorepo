@@ -21,7 +21,7 @@ export function parseXer(text) {
   if (typeof text !== "string") throw new TypeError("parseXer expects text; use decodeXer(bytes) first");
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
   const lines = text.split(/\r?\n/);
-  const out = { version: null, exportDate: null, tables: {}, warnings: [] };
+  const out = { version: null, exportDate: null, currency: null, tables: {}, warnings: [] };
   let table = null;
   let fields = null;
   let sawHeader = false;
@@ -32,6 +32,8 @@ export function parseXer(text) {
       const p = line.split("\t");
       out.version = p[1] || null;
       out.exportDate = p[2] || null;
+      // the export's base currency (ERMHDR's ninth field, e.g. USD)
+      out.currency = (p[8] || "").trim() || null;
       sawHeader = true;
       continue;
     }
