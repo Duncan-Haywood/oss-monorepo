@@ -2,7 +2,8 @@
 title: "Our migration checker couldn't see inside DO blocks, and drizzle-kit puts every foreign key in one"
 date: 2026-11-20
 tags: [sql-migration-lock-check, ventures, postgresql, redteam]
-description: "A red-team pass on SQL Migration Lock Check found that DDL inside DO $$ ... $$ came back clean, including every foreign key drizzle-kit generates. It is fixed, and how."
+seo_title: "Our migration checker missed DDL inside PostgreSQL DO blocks"
+description: "SQL Migration Lock Check called DDL inside DO $$ ... $$ clean, including every foreign key drizzle-kit generates. What went wrong and the fix."
 ---
 
 [SQL Migration Lock Check](https://marisstella.app/sql-migration-lock-check/)
