@@ -1,0 +1,15 @@
+200 weekends drawn, seed 1: 23 rejected by the parser, 93 warned up front (too little field time or too many games for the daily cap; 0 of them still placed in full), 84 with no warning (below); invalid results over all: 0
+games per weekend (no warning): 37.0
+tries  all-placed  games-left-out  finish(min)  longest-wait(min)  total-wait(min)
+    1       83.3%            0.27         1682                319             3624
+  120       92.9%            0.08         1664                251             3221
+  600       94.0%            0.07         1662                238             3092
+tries=120 strictly better than one pass (fewer left out, or same and earlier finish) on 32 of 84; tries=600 better than 120 on 6
+
+200 weekends drawn, seed 2: 23 rejected by the parser, 101 warned up front (too little field time or too many games for the daily cap; 0 of them still placed in full), 76 with no warning (below); invalid results over all: 0
+games per weekend (no warning): 38.5
+tries  all-placed  games-left-out  finish(min)  longest-wait(min)  total-wait(min)
+    1       88.2%            0.16         1681                322             3852
+  120       96.1%            0.04         1665                248             3498
+  600       96.1%            0.04         1663                237             3413
+tries=120 strictly better than one pass (fewer left out, or same and earlier finish) on 25 of 76; tries=600 better than 120 on 5

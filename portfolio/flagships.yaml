@@ -394,13 +394,13 @@ flagships:
       (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9
       0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with the
       short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Americano whist
-      designs 2026-11-19 (whist.mjs; eval/whist-vs-greedy.txt); Whist 48, 60 and
-      near-whist 46, 54, 62 by tabu search 2026-11-19 (eval/whist-anneal.c, .txt);
-      next: a real club's night on it. Golf 2026-11-20 (golf.mjs, golf-playoffs.mjs
-      flighted play-offs, golf-league-schedule.html): tee times at share in 71 of 77
-      seasons, other 6 SAT-proved out (eval/golf-tee-grid.txt); match play recap;
-      two courses 2026-11-20 (golf-courses.test.mjs); next: a real league's season.
-      More open items: NEXT.md.
+      designs 2026-11-19 (whist.mjs; eval/whist-vs-greedy.txt); next: a real club's
+      night on it. Tournaments 2026-11-20 (tournament.mjs,
+      weekend-tournament-schedule.html, eval/tournament-search.txt); next: a real
+      tournament, results into its bracket. Golf 2026-11-20 (golf.mjs,
+      golf-playoffs.mjs flighted play-offs, golf-league-schedule.html): tee times at
+      share in 71 of 77 seasons, other 6 SAT-proved out (eval/golf-tee-grid.txt);
+      match play recap; next: a real league's season. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:

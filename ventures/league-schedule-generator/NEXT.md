@@ -27,3 +27,4 @@
 - (2026-11-20) also by a base round fixed by multiplier 37 (eval/whist-involution.c, 11 s; 69 too)
 - (2026-11-20) 52, near-whist 58 by starter + table matching (eval/whist-starter.c)
 - (2026-11-20) Americano/Mexicano scorer page 2026-11-19 (americano-night.html, night.mjs: live table, sit-out credit; eval/sit-out-credit.txt)
+- (2026-11-20) two courses 2026-11-20 (golf-courses.test.mjs)

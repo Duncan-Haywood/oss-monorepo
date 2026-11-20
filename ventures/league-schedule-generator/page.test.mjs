@@ -999,3 +999,18 @@ test("golf page: canonical, FAQ schema, disclaimer, usage counter, linked from t
   assert.match(page("sitemap.xml"), /golf-league-schedule\.html/);
   assert.match(page("llms.txt"), /golf-league-schedule\.html/);
 });
+
+test("weekend tournament page: canonical, FAQ schema, disclaimer, usage counter, linked from the index and sitemap", () => {
+  const name = "weekend-tournament-schedule.html";
+  const html = page(name);
+  assert.match(html, /<link rel="canonical" href="\.\/weekend-tournament-schedule\.html">/);
+  const faq = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  assert.equal(faq["@type"], "FAQPage");
+  for (const q of faq.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /from "\.\/usage\.mjs"/);
+  assert.match(html, /from "\.\/tournament\.mjs"/);
+  assert.match(page("index.html"), /href="\.\/weekend-tournament-schedule\.html"/);
+  assert.match(page("sitemap.xml"), /weekend-tournament-schedule\.html/);
+  assert.match(page("llms.txt"), /weekend-tournament-schedule\.html/);
+});

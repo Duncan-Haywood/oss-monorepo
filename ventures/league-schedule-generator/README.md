@@ -15,11 +15,57 @@ team, a plain-text version to paste into a group chat, and a share link that car
 ## What you use today, and what this does differently
 
 - **A spreadsheet or a hand-drawn grid:** free, but home/away balance, byes in odd leagues and court sharing are easy to get wrong, and a rainout means redoing the sheet.
+- **Tournament platforms** (paid scheduling and registration for weekend events): this page lays out pools, brackets and fields for a weekend with no signup (`weekend-tournament-schedule.html`, below).
 - **League-management platforms** (TeamSnap, LeagueApps, SportsEngine and similar): registration, payments, team messaging and score apps, usually on a paid plan and with accounts for every team. This tool only makes and maintains the schedule: no signup, no upload, free.
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## The player page on a phone's home screen, readable with no signal (2026-11-20, newest)
+## Weekend tournaments: every division on shared fields, pools then brackets (2026-11-20, newest)
+
+A club tournament puts several age groups on a few fields over a weekend. Until now the generator
+made league seasons and one-pool days; a director with U10s on 7v7 pitches, U12s on 9v9 and U14s on
+full-size fields still built the weekend grid by hand. `tournament.mjs` and
+`weekend-tournament-schedule.html` do it.
+
+- **Input:** days with hours; fields with the sizes they take and closures ("Field 4: 7v7; closed Sun
+  12:00-15:00"); divisions as blocks ("U12 Boys: 60 min, 9v9, pools of 3, top 4, 3rd place, rest 60,
+  max 3 a day, knockouts Sun", then the teams best first); team arrival and departure limits
+  ("not before Sat 11:00", "not Sun"); teams that share a coach.
+- **Pools and seeds:** snake-drafted pools (`splitPools`), a round robin in each, then a knockout of
+  the top N seeded by `poolPlayoffSeeds` so poolmates meet late (with two pools: 1st A v 2nd B); when N
+  is not a multiple of the pools, the last places go to the best runners-up. `playoffBracket` makes
+  the rounds, byes and the third-place game.
+- **Placement:** randomized list scheduling. Games go in pool-round order, each at the earliest start
+  on any eligible field where the field has its turnover free on both sides, both teams have had their
+  rest and are under the day's cap, no arrival limit or closure is hit, and no coach-mate is playing.
+  Knockout games wait for every pool game of their division plus rest, and for their feeders; a
+  finalist's knockout rounds count toward the cap. About 120 orders are tried (rounds shuffled with a
+  jitter; on some tries the last day's pool games are held back to leave room for knockouts, the
+  divisions with the tightest game budget go first, and a division that had games left out moves up
+  the order on later tries) and the best kept: most placed, earliest finish, shortest longest wait,
+  least total waiting. `validateTournament` re-checks every rule from the output alone.
+- **Before the search:** a field-hours check per group of divisions sharing fields, and `capFits`, a
+  necessary condition on the daily cap: for every spread of the knockout rounds over the days, a pool
+  of n gets b_d = cap - rounds_d places per team on day d, and its n(n-1)/2 games fit only if they do
+  not exceed the sum of floor(n b_d / 2). It catches the parity case: five teams, top 4, 3 a day over
+  two days looks like 6 games in 6 places, but day 1 would need all five teams on three pool games (15
+  places, odd).
+- **Measured** (`node eval/tournament-search.mjs 200 1` and `200 2`, `eval/tournament-search.txt`):
+  400 random weekends (2 to 4 divisions of 4 to 12 teams, 4 to 8 fields of mixed sizes, one or two
+  days, shared coaches). 46 were refused by the parser (top N of N in one pool, no field of a size),
+  194 were warned up front, and no search placed every game in any of those. On the 160 with no
+  warning: every game placed in 83.3% / 88.2% (seeds 1 / 2) by one greedy pass, 92.9% / 96.1% at 120
+  tries (the page), 94.0% / 96.1% at 600; the longest wait between a team's games fell from about 320
+  to 250 minutes on average. 0 results broke a rule. Random weekends, not real tournaments.
+- **Checked:** `tournament.test.mjs` (sample weekend placed in full and clean; parsers; crossover and
+  best-runner-up seeds; a one-a-day cap spreading a pool; short field time; the validator catching a
+  moved game; exports; 40 random weekends clean; `capFits` cases) and `page.test.mjs` (page wiring).
+  The page was loaded in Chromium at phone width: 36 games, no errors, no sideways scroll.
+- **Not done:** results typed into the bracket, referees for a tournament, a real tournament's
+  fields and divisions, an exact model for the 4 to 7% of warned-free weekends the search leaves
+  short (some may be infeasible: the checks are necessary, not sufficient).
+
+## The player page on a phone's home screen, readable with no signal (2026-11-20)
 
 Players look up their next game at the field, where the signal is often one bar or none. The self-hosted league page
 (`/league?t=...`, and a captain's `&c=...` link) is now an installable web app that opens from the last copy the phone
