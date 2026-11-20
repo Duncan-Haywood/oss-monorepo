@@ -145,7 +145,7 @@ export function parseDivisions(text, days, defaults = {}) {
   return { divisions, errors };
 }
 
-function resolveTeams(ref, divisions) {
+export function resolveTeams(ref, divisions) {
   const s = ref.trim().toLowerCase();
   const out = [];
   const slash = s.indexOf("/");

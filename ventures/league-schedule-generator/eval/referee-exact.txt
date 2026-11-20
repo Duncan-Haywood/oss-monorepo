@@ -1,0 +1,173 @@
+Referee crews for a weekend tournament: tournament-referees.mjs against the least possible number
+of empty places (CP-SAT, OR-Tools 9.15, 20 s and 4 workers a case). 2026-11-20.
+
+  node eval/referee-exact.mjs 60 1 > cases.json            # short-handed: 3 to 6 places an official
+  node eval/referee-exact.mjs 60 2 staffed > cases.json    # well staffed: 2 to 3.5 places an official
+  python3 eval/referee-exact.py cases.json                 # pip install ortools
+
+Random weekends: 2 days, 3-5 fields, 2-4 divisions of 5-9 teams (pools of 3 or 4, top 2 or 4),
+60% with a 3-official crew in one division. Random officials: half with a club, hours (all
+weekend, Saturday morning + Sunday, Saturday afternoon, or Sunday only), 40% a daily cap, 30% a
+cap in a row, 20% assistant only, some limited to two divisions, 15% playing for a team.
+Rules in the exact model: per-slot eligibility from validateReferees (hours, divisions, roles,
+own club, own team playing), no overlap, the turnover between fields, daily and weekend caps,
+games in a row (a gap under 30 minutes keeps a run going; every chain of cap+1 games enumerated).
+A case counts as proved when CP-SAT proves it in 20 s, or when its best answer leaves no place
+empty (nothing can be lower). Knockout club risk is a preference, not a rule, so it is not in the
+objective; it is counted.
+
+== Short-handed set (seed 1), search with the depth-3 ejection-chain repair (shipped)
+60 cases, 58 proved optimal (CP-SAT within 20 s, or a 0-empty answer)
+rule breaks in the search's output (1 pass and 80): 0
+1 pass: matches the least empty slots in 34 of 58; 36 empty slots above the least in all (of 2664 slots)
+80 passes: matches the least empty slots in 51 of 58; 8 empty slots above the least in all (of 2664 slots)
+cases where every slot can be filled: 9; of those, 80 passes fill every slot in 9
+unproved: 2; the search's 80 passes vs CP-SAT's best in 20 s: case 11 4 v 4, case 56 3 v 2
+knockout places given to an official whose club has a team in that division (80 passes): 39 of 2815
+
+== Same 60 weekends, before the ejection chain (a one-hand-over repair; for comparison)
+1 pass: matches the least empty slots in 27 of 58; 51 empty slots above the least in all (of 2664 slots)
+80 passes: matches the least empty slots in 47 of 58; 13 empty slots above the least in all (of 2664 slots)
+cases where every slot can be filled: 9; of those, 80 passes fill every slot in 9
+
+== Well-staffed set (seed 2), shipped search
+60 cases, 59 proved optimal (CP-SAT within 20 s, or a 0-empty answer)
+rule breaks in the search's output (1 pass and 80): 0
+1 pass: matches the least empty slots in 50 of 59; 11 empty slots above the least in all (of 2727 slots)
+80 passes: matches the least empty slots in 57 of 59; 2 empty slots above the least in all (of 2727 slots)
+cases where every slot can be filled: 36; of those, 80 passes fill every slot in 36
+unproved: 1; the search's 80 passes vs CP-SAT's best in 20 s: case 48 2 v 2
+knockout places given to an official whose club has a team in that division (80 passes): 18 of 2782
+
+== The page's sample weekend (SAMPLE + SAMPLE_REFEREES: 36 games, 58 places, 10 officials)
+The search leaves 1 place empty (U14 Boys Pool A, Saturday 11:10, Field 2, Assistant 2). CP-SAT
+proves 1 is the least (OPTIMAL): those ten officials cannot fill all 58 places.
+
+== Per case: short-handed set (shipped search)
+case games officials slots | empty: 1 pass, 80 passes, CP-SAT best (proved least) status | rule breaks | ko club risk
+   0    50         9    50 |     25         25            25 (25) OPTIMAL  |           0 | 1
+   1    22        11    42 |      9          9             9 (9) OPTIMAL  |           0 | 0
+   2    32        19    56 |      0          0             0 (0) OPTIMAL  |           0 | 0
+   3    42        13    62 |      5          5             5 (5) OPTIMAL  |           0 | 0
+   4    20        10    40 |      9          8             8 (8) OPTIMAL  |           0 | 0
+   5    34        18    58 |      0          0             0 (0) OPTIMAL  |           0 | 0
+   6    35        12    55 |      7          7             7 (7) OPTIMAL  |           0 | 0
+   7    43        19    71 |      0          0             0 (0) OPTIMAL  |           0 | 0
+   8    41         9    41 |     17         16            16 (16) OPTIMAL  |           0 | 2
+   9    48        19    62 |      0          0             0 (-1) FEASIBLE |           0 | 0
+  10    25         9    45 |     25         24            24 (24) OPTIMAL  |           0 | 0
+  11    46        18    80 |      4          4             4 (-4) FEASIBLE |           0 | 0
+  12    28        19    64 |      2          2             2 (2) OPTIMAL  |           0 | 0
+  13    25         4    25 |     10         10            10 (10) OPTIMAL  |           0 | 0
+  14    19         6    19 |      1          1             1 (1) OPTIMAL  |           0 | 1
+  15    19         9    39 |     18         18            18 (18) OPTIMAL  |           0 | 0
+  16    38        11    52 |      6          4             3 (3) OPTIMAL  |           0 | 1
+  17    16         6    34 |     10         10            10 (10) OPTIMAL  |           0 | 1
+  18    46        26    80 |      0          0             0 (-43) FEASIBLE |           0 | 0
+  19    20         5    20 |      2          1             1 (1) OPTIMAL  |           0 | 4
+  20    22         4    22 |     14         14            14 (14) OPTIMAL  |           0 | 1
+  21    36        13    54 |     13         13            13 (13) OPTIMAL  |           0 | 0
+  22    44        11    60 |     14         13            11 (11) OPTIMAL  |           0 | 0
+  23    32         6    32 |     11         10            10 (10) OPTIMAL  |           0 | 3
+  24    29        13    47 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  25    35        11    59 |     34         32            32 (32) OPTIMAL  |           0 | 0
+  26    15         7    25 |      3          3             3 (3) OPTIMAL  |           0 | 1
+  27    26         6    26 |     11         10            10 (10) OPTIMAL  |           0 | 1
+  28    27         7    27 |      0          0             0 (0) OPTIMAL  |           0 | 1
+  29    24        12    38 |      7          6             6 (6) OPTIMAL  |           0 | 0
+  30    30        12    44 |      6          6             6 (6) OPTIMAL  |           0 | 0
+  31    48        12    68 |     15         13            12 (12) OPTIMAL  |           0 | 1
+  32    36         9    36 |     10         10             9 (9) OPTIMAL  |           0 | 0
+  33    52         9    52 |     15         15            15 (15) OPTIMAL  |           0 | 0
+  34    39        10    59 |     26         25            24 (24) OPTIMAL  |           0 | 1
+  35    29         9    45 |     14         13            13 (13) OPTIMAL  |           0 | 1
+  36    38         7    38 |      9          8             8 (8) OPTIMAL  |           0 | 0
+  37    33        14    57 |      4          2             2 (2) OPTIMAL  |           0 | 3
+  38    30         6    30 |     18         18            18 (18) OPTIMAL  |           0 | 0
+  39    37        12    57 |     10          9             9 (9) OPTIMAL  |           0 | 0
+  40    18        10    36 |      6          6             6 (6) OPTIMAL  |           0 | 1
+  41    22        10    36 |      1          1             1 (1) OPTIMAL  |           0 | 2
+  42    21         8    39 |     13         12            12 (12) OPTIMAL  |           0 | 3
+  43    48        15    82 |     12         10            10 (10) OPTIMAL  |           0 | 0
+  44    19        12    43 |     14         14            14 (14) OPTIMAL  |           0 | 1
+  45    29        16    53 |      0          0             0 (-2) FEASIBLE |           0 | 0
+  46    32        13    52 |     11         11            11 (11) OPTIMAL  |           0 | 1
+  47    42        13    42 |     11         10             9 (9) OPTIMAL  |           0 | 0
+  48    19         3    19 |     11         11            11 (11) OPTIMAL  |           0 | 0
+  49    31        15    49 |      0          0             0 (0) OPTIMAL  |           0 | 1
+  50    46        16    66 |      8          8             8 (8) OPTIMAL  |           0 | 3
+  51    15         4    15 |      9          9             9 (9) OPTIMAL  |           0 | 0
+  52    45        14    71 |     10          9             8 (8) OPTIMAL  |           0 | 0
+  53    22         9    46 |     14         13            13 (13) OPTIMAL  |           0 | 3
+  54    45        11    55 |      7          7             7 (7) OPTIMAL  |           0 | 0
+  55    17         9    37 |      8          7             7 (7) OPTIMAL  |           0 | 0
+  56    51        14    71 |      5          3             2 (-4) FEASIBLE |           0 | 0
+  57    34         6    34 |      5          5             5 (5) OPTIMAL  |           0 | 0
+  58    36        19    70 |     13         13            13 (13) OPTIMAL  |           0 | 0
+  59    28         5    28 |     13         12            12 (12) OPTIMAL  |           0 | 1
+
+== Per case: well-staffed set
+case games officials slots | empty: 1 pass, 80 passes, CP-SAT best (proved least) status | rule breaks | ko club risk
+   0    44        16    44 |      0          0             0 (0) OPTIMAL  |           0 | 0
+   1    30        12    30 |      3          3             3 (3) OPTIMAL  |           0 | 0
+   2    25        22    55 |      6          6             6 (6) OPTIMAL  |           0 | 0
+   3    41        26    65 |      0          0             0 (-8) FEASIBLE |           0 | 0
+   4    36        10    36 |     11          9             9 (9) OPTIMAL  |           0 | 3
+   5    32        10    32 |      2          1             1 (1) OPTIMAL  |           0 | 0
+   6    22        20    42 |      0          0             0 (-16) FEASIBLE |           0 | 0
+   7    14         4    14 |      5          5             5 (5) OPTIMAL  |           0 | 1
+   8    27        22    63 |      0          0             0 (0) OPTIMAL  |           0 | 0
+   9    20         6    20 |      2          2             2 (2) OPTIMAL  |           0 | 0
+  10    17        13    37 |      6          5             5 (5) OPTIMAL  |           0 | 0
+  11    34        26    58 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  12    31        20    55 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  13    34        22    58 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  14    40        12    40 |      9          9             9 (9) OPTIMAL  |           0 | 0
+  15    15        11    29 |      7          7             7 (7) OPTIMAL  |           0 | 0
+  16    19        13    43 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  17    39        15    39 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  18    35        15    35 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  19    46        26    80 |      0          0             0 (-27) FEASIBLE |           0 | 0
+  20    46        21    70 |      0          0             0 (-38) FEASIBLE |           0 | 0
+  21    39        20    63 |      0          0             0 (0) OPTIMAL  |           0 | 1
+  22    19        14    39 |      2          2             2 (2) OPTIMAL  |           0 | 2
+  23    43        19    63 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  24    38        23    56 |      0          0             0 (-3) FEASIBLE |           0 | 0
+  25    26        16    40 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  26    22         8    22 |      3          2             1 (1) OPTIMAL  |           0 | 3
+  27    29        11    29 |      1          1             1 (1) OPTIMAL  |           0 | 0
+  28    26        17    60 |      4          3             3 (3) OPTIMAL  |           0 | 0
+  29    27        16    47 |     18         18            17 (17) OPTIMAL  |           0 | 1
+  30    48        26    68 |      0          0             0 (-8) FEASIBLE |           0 | 0
+  31    16         7    16 |      2          2             2 (2) OPTIMAL  |           0 | 1
+  32    17        20    41 |      0          0             0 (-7) FEASIBLE |           0 | 0
+  33    41        25    65 |      0          0             0 (-21) FEASIBLE |           0 | 0
+  34    34        18    58 |      1          0             0 (0) OPTIMAL  |           0 | 0
+  35    50        26    74 |      0          0             0 (-3) FEASIBLE |           0 | 0
+  36    47        16    47 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  37    30        10    30 |      1          1             1 (1) OPTIMAL  |           0 | 0
+  38    20         8    20 |      5          5             5 (5) OPTIMAL  |           0 | 0
+  39    37        14    37 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  40    39        21    69 |      0          0             0 (0) OPTIMAL  |           0 | 1
+  41    22        20    42 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  42    35        26    59 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  43    18        13    38 |      5          5             5 (5) OPTIMAL  |           0 | 3
+  44    12        10    26 |      3          3             3 (3) OPTIMAL  |           0 | 1
+  45    29        15    47 |      1          1             1 (1) OPTIMAL  |           0 | 0
+  46    48        26    84 |      0          0             0 (-49) FEASIBLE |           0 | 0
+  47    21        14    45 |     10         10            10 (10) OPTIMAL  |           0 | 1
+  48    35        23    55 |      2          2             2 (-4) FEASIBLE |           0 | 0
+  49    54        26    88 |      0          0             0 (-22) FEASIBLE |           0 | 0
+  50    45        21    45 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  51    21         8    21 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  52    22        15    40 |      0          0             0 (-3) FEASIBLE |           0 | 0
+  53    35        18    59 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  54    35        13    35 |      1          0             0 (0) OPTIMAL  |           0 | 0
+  55    39        12    39 |     12         12            12 (12) OPTIMAL  |           0 | 0
+  56    20         7    20 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  57    30        21    54 |      0          0             0 (0) OPTIMAL  |           0 | 0
+  58    17        13    37 |      8          8             8 (8) OPTIMAL  |           0 | 0
+  59    35        26    59 |      1          0             0 (0) OPTIMAL  |           0 | 0
+
+Note: the per-case tables were printed before the 0-empty rule was added to the script, so
+rows shown FEASIBLE with 0 in the CP-SAT column are proved too; the summaries above count them.
