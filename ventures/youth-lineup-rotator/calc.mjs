@@ -115,6 +115,17 @@ function mulberry32(seed) {
   };
 }
 
+// The keeper limit comes from a select, or from a shared link that may name a
+// value the select lacks (its value is then "", and Number("") is 0). Anything
+// that is not a whole number of at least 1 means the default, 1.
+function wholeAtLeastOne(v) {
+  const n = Math.floor(Number(v));
+  return Number.isFinite(n) && n >= 1 ? n : 1;
+}
+
+// Minutes per period from a free number box: negative or junk means none.
+const cleanMinutes = (m) => { const n = Number(m); return Number.isFinite(n) && n > 0 ? n : 0; };
+
 export function buildContext(players, slotNames, periods, options = {}) {
   const names = [...new Set(slotNames)];
   const nameOf = slotNames.map((s) => names.indexOf(s));
@@ -122,7 +133,7 @@ export function buildContext(players, slotNames, periods, options = {}) {
   const avail = players.map((p) => Array.from({ length: periods }, (_, t) => t >= p.late && t < p.leaves));
   return {
     players, slotNames, names, nameOf, periods, okPos, avail,
-    keeperMax: options.keeperMax ?? 1,
+    keeperMax: wholeAtLeastOne(options.keeperMax),
     balance: options.balance ?? 1,
     isKeeper: names.map((n) => KEEPER.test(n)),
   };
@@ -387,7 +398,8 @@ export function periodTable(result) {
   return Array.from({ length: result.periods }, (_, t) => result.slotNames.map((pos, s) => ({ pos, player: result.grid[t][s] >= 0 ? result.playerNames[result.grid[t][s]] : null })));
 }
 
-export function lineupText(result, { minutes = 0, title = "" } = {}) {
+export function lineupText(result, { minutes: rawMinutes = 0, title = "" } = {}) {
+  const minutes = cleanMinutes(rawMinutes);
   const lines = [];
   if (title) lines.push(title);
   for (let t = 0; t < result.periods; t++) {
@@ -432,7 +444,8 @@ export function carryOverText(players, result) {
   }).join("\n");
 }
 
-export function playerMessages(result, { minutes = 0 } = {}) {
+export function playerMessages(result, { minutes: rawMinutes = 0 } = {}) {
+  const minutes = cleanMinutes(rawMinutes);
   return result.stats.map((s) => {
     const plan = s.slots.map((x, t) => `P${t + 1} ${x === null ? "-" : x}`).join(", ");
     return `Hi ${s.name}'s family: today ${s.name} plays ${s.played} of ${s.avail} periods${minutes ? ` (${s.played * minutes} min)` : ""}. ${plan}.`;

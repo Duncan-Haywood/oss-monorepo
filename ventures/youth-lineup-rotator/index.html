@@ -255,6 +255,9 @@
       if (PRESETS[s.preset] || s.preset === "custom") $("#preset").value = s.preset;
       $("#minplay").value = s.minplay ?? "0"; $("#slots").value = s.slots ?? $("#slots").value; $("#periods").value = s.periods ?? 4; $("#minutes").value = s.minutes ?? 0;
       $("#players").value = s.players; $("#title").value = s.title ?? ""; $("#keepermax").value = s.keepermax ?? "1"; $("#balance").value = s.balance ?? "1";
+      // A value the select lacks (an older or hand-edited link) leaves it empty: fall back to the default.
+      for (const [id, dflt] of [["#minplay", "0"], ["#keepermax", "1"], ["#balance", "1"]]) if (!$(id).value) $(id).value = dflt;
+      if (!(Number($("#minutes").value) >= 0)) $("#minutes").value = 0;
       record("link_opened");
       make("lineup_made");
     }

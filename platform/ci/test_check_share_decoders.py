@@ -43,6 +43,20 @@ class ShareDecoders(unittest.TestCase):
         root = tree({"ventures/d/share.mjs": "export function decodeX( {"})
         self.assertEqual(csd.main(["--root", str(root)]), 1)
 
+    def test_covers_encode_decode_pairs_outside_share_mjs(self):
+        # A link decoder in calc.mjs is checked when the module also exports its encoder;
+        # a multi-argument parse* text parser beside it is not fed link payloads.
+        pair = CRASHES + "export function encodeShare(v) { return JSON.stringify(v); }\n" + \
+            "export function parseRoster(text, slots) { return [...slots].length; }\n"
+        root = tree({"ventures/e/calc.mjs": pair,
+                     "ventures/f/calc.mjs": CRASHES,  # no encoder: not a share link module
+                     "ventures/e/calc.test.mjs": pair})
+        n, out = csd.run(root)
+        self.assertEqual((n, out["decoders"]), (1, 1))
+        self.assertEqual([c[1] for c in out["crashes"]], ["decodeShare"])
+        guarded = GUARDED + "export function encodeShare(v) { return JSON.stringify(v); }\n"
+        self.assertEqual(csd.main(["--root", str(tree({"ventures/e/calc.mjs": guarded}))]), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
