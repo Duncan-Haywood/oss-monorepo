@@ -101,7 +101,7 @@
 
   <section class="card" aria-labelledby="win">
     <h2 id="win">Windows analysis across every update</h2>
-    <p class="note">For a delay claim, an extension of time request or a monthly owner's report: open all the job's updates at once (any order). Each window between two data dates gets how far the forecast finish moved, the half-step split into the part progress caused and the part revisions caused, and the activities on the driving path behind it: work that finished late or started late, remaining durations that grew, and the logic, duration and constraint changes that touched the path. The windows add up to the whole movement. It names candidates; who is responsible for a delay is the analyst's call.</p>
+    <p class="note">For a delay claim, an extension of time request or a monthly owner's report: open all the job's updates at once (any order). Each window between two data dates gets how far the forecast finish moved, the half-step split into the part progress caused and the part revisions caused, and the activities on the driving path behind it: work that finished late or started late, remaining durations that grew, and the logic, duration and constraint changes that touched the path. The windows add up to the whole movement. On cost- or hours-loaded updates, each window also gets its earned value: what was earned against what the previous update promised, against the first update's planned curve, and against what was spent, with the activities that fell short. It names candidates; who is responsible for a delay is the analyst's call.</p>
     <label for="win-files">All updates (.xer or .xml, choose several)</label>
     <input type="file" id="win-files" accept=".xer,.xml,text/plain,text/xml,application/xml" multiple>
     <button type="button" id="load-example-series" class="secondary">Load an example series of four updates</button>
@@ -111,7 +111,9 @@
       <div class="big" id="win-big"></div>
       <div class="tablewrap"><table id="win-table"><thead><tr><th>Window</th><th>Data dates</th><th class="n">Working days</th><th class="n">Finish moved</th><th class="n">Progress</th><th class="n">Revisions</th><th>Finish at end</th></tr></thead><tbody></tbody></table></div>
       <div id="win-detail"></div>
+      <div id="win-ev"></div>
       <button type="button" id="win-download">Download windows (CSV)</button>
+      <button type="button" id="win-ev-download" class="secondary" hidden>Download earned value by window (CSV)</button>
       <button type="button" id="win-download-json" class="secondary">Download full analysis (JSON)</button>
     </div>
   </section>
@@ -356,6 +358,7 @@
     import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
     import { calendarSlack, calendarSlackCsv } from "./calslack.mjs";
     import { earnedValue, earnedValueCsv, sCurveCsv, sCurveSvg } from "./evm.mjs";
+    import { earnedValueSeries, earnedValueSeriesCsv } from "./evmseries.mjs";
     import { lookahead, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
     import { constraintLogCsv, EXAMPLE_LOG } from "./constraints.mjs";
 
@@ -676,10 +679,32 @@
       $("#win-detail").innerHTML = r.windows.map((w) => `<h3>Window ${w.n}: ${esc(w.from)} to ${esc(w.to)} <span class="pill ${w.moved > 0 ? "warn" : "pass"}">${sgn(w.moved)} days</span></h3><details${w.moved ? " open" : ""}><summary>show</summary><p class="note">Driving path at the start: ${esc(w.pathAtStart.join(", "))}${w.pathLength > w.pathAtStart.length ? `, ... (${w.pathLength} activities)` : ""}</p>${list("On the driving path, progress", w.drivers.progress)}${list("Revisions touching the driving path", w.drivers.revisions)}${!w.drivers.progress.length && !w.drivers.revisions.length ? "<p>Nothing on the driving path changed beyond plan.</p>" : ""}</details>`).join("");
       $("#win-out").hidden = false;
     }
+    // earned value by window, for cost- or hours-loaded updates
+    let lastWinEv = null;
+    function renderWinEv(list) {
+      lastWinEv = null;
+      $("#win-ev").innerHTML = "";
+      $("#win-ev-download").hidden = true;
+      let r;
+      try { r = earnedValueSeries(list); } catch (e) { $("#win-ev").innerHTML = `<p class="note">Earned value by window: ${esc(e.message)}</p>`; return; }
+      if (!r.measure) { $("#win-ev").innerHTML = `<p class="note">Earned value by window: ${esc(r.notes[0] || "the updates are not cost or resource loaded.")}</p>`; return; }
+      lastWinEv = r;
+      const u = r.measure === "hours" ? "h" : r.currency || "";
+      const m = (v) => (v === null || v === undefined ? "-" : `${u === "h" ? "" : u + " "}${Math.round(v).toLocaleString("en-US")}${u === "h" ? " h" : ""}`);
+      const ix = (v) => (v === null || v === undefined ? "-" : v.toFixed(3));
+      const flag = (v) => (v === null ? "" : v < 0.95 ? " warn" : " pass");
+      const rows = r.windows.map((w) => `<tr><td>${w.n}</td><td>${esc(w.dataDateFrom.slice(0, 10))} → ${esc(w.dataDateTo.slice(0, 10))}</td><td class="n">${m(w.promised)}</td><td class="n">${m(w.earned)}</td><td class="n"><span class="pill${flag(w.performance)}">${ix(w.performance)}</span></td><td class="n">${m(w.baseline)}</td><td class="n">${ix(w.spiBaseline)}</td><td class="n">${m(w.spent)}</td><td class="n">${ix(w.cpi)}</td><td class="n">${w.budgetChange ? m(w.budgetChange) : "-"}</td></tr>`).join("");
+      const ul = (title, xs, f) => (xs.length ? `<p><strong>${esc(title)}</strong> (${xs.length})</p><ul>${xs.slice(0, 15).map((x) => `<li>${esc(x.code)} ${esc(x.name || "")}: ${esc(f(x))}</li>`).join("")}${xs.length > 15 ? `<li>... ${xs.length - 15} more in the CSV</li>` : ""}</ul>` : "");
+      const detail = r.windows.filter((w) => w.behind.length || w.costlier.length || w.budgetChanged.length || w.earnedTakenBack.length || w.actualReversed.length || w.added.length || w.removed.length).map((w) => `<h4>Window ${w.n}: ${esc(w.from)} to ${esc(w.to)}</h4><details${w.behind.length ? " open" : ""}><summary>show</summary>${ul("Earned less than the previous update promised", w.behind, (x) => `promised ${m(x.promised)}, earned ${m(x.earned)}`)}${ul("Earned more than promised", w.ahead, (x) => `promised ${m(x.promised)}, earned ${m(x.earned)}`)}${ul("Spent well past what it earned (period CPI under 0.9)", w.costlier, (x) => `earned ${m(x.earned)}, spent ${m(x.spent)}`)}${ul("Budget changed (a revision, not progress)", w.budgetChanged, (x) => `${m(x.was)} to ${m(x.now)}`)}${ul("Earned value taken back", w.earnedTakenBack, (x) => `${m(x.was)} to ${m(x.now)}`)}${ul("Actuals went down", w.actualReversed, (x) => `${m(x.was)} to ${m(x.now)}`)}${ul("Added", w.added, (x) => `budget ${m(x.bac)}`)}${ul("Removed", w.removed, (x) => `budget ${m(x.bac)}`)}</details>`).join("");
+      $("#win-ev").innerHTML = `<h3>Earned value by window</h3><p class="note">Promised: what the previous update's own forecast would have earned by the next data date. Earned / promised is 1.000 when the period went exactly as that update said; a re-planned baseline cannot hide a shortfall here. Baseline: the planned dates of the earliest update (${esc(r.baseline)}), held for the series.</p>${r.warnings.length ? `<div class="warnbox">${r.warnings.slice(0, 10).map(esc).join("<br>")}</div>` : ""}<div class="tablewrap"><table id="win-ev-table"><thead><tr><th>Window</th><th>Data dates</th><th class="n">Promised</th><th class="n">Earned</th><th class="n">Earned / promised</th><th class="n">Baseline planned</th><th class="n">SPI (baseline)</th><th class="n">Spent</th><th class="n">CPI</th><th class="n">Budget change</th></tr></thead><tbody>${rows}</tbody></table></div>${detail}`;
+      $("#win-ev-download").hidden = false;
+    }
+    $("#win-ev-download").addEventListener("click", () => { if (!lastWinEv) return; save(new Blob([earnedValueSeriesCsv(lastWinEv)], { type: "text/csv" }), `${(lastWinEv.project || "project").replace(/[^\w.-]+/g, "-")}-earned-value-windows.csv`); record("findings_downloaded"); });
     function runWindows(list, note) {
       try {
         const r = windows(list);
         renderWindows(r);
+        renderWinEv(list);
         $("#win-status").textContent = note || `Done: ${r.windows.length} windows from ${r.updates.length} updates, in data-date order.`;
         return true;
       } catch (e) {

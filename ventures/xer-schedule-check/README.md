@@ -294,6 +294,29 @@ reads (so the reading agrees with P6's on all 2,020, and that file's CPI of
 activities budgeted at 111,528 carry 669 to complete
 (eval/earned-value-2026-11-20.md).
 
+**Earned value by window across updates** (2026-11-20, `evmseries.mjs`, the
+page's windows panel on cost- or hours-loaded updates, CLI `--windows u1.xer
+u2.xer ... --earned-value [--csv ev-windows.csv]`): for each window between
+two data dates, what the period earned (the change in earned value, activity
+by activity), against what the previous update's own forecast **promised** by
+the new data date (each open activity worked from its recomputed remaining
+start for the working time to the new data date, its percent complete then
+read as above), against the earliest update's planned curve held as the
+baseline, and against what was spent. Earned / promised is 1.000 when the
+period went exactly as the last update said; unlike a baseline SPI it cannot
+be flattered by planned dates that moved with the schedule. Each window names
+the activities that earned less than promised (or more), that spent well past
+what they earned, whose budget changed (a revision, read on the earlier budget
+so it is not counted as progress), whose earned value or actuals went down,
+and that were added or removed. On series built from four public files with
+planted slips and overruns, window 1 (statused as planned) reads 1.000 on all
+of them with nobody named; with 20 plants of each, 41 of 41 slips and 36 of 36
+overruns are named, and with 50 over five seeds 435 of 435 and 250 of 250, no
+other activity named either way (eval/evm-series-check-2026-11-20.md).
+`status.mjs` now posts cost and units with the work it statuses (at the
+planned rate; `overruns` plants a cost factor), so the example series and
+generated series carry actuals.
+
 ## Why someone would use it
 
 | Today's option | What it does | What this does better |
