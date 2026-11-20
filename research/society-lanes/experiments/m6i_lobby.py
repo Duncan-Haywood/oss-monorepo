@@ -228,6 +228,10 @@ def main():
         cells = cells_of(cache, "B", "lobby", fam, m, v)
         nf, nx, nt = n_failed(cache, "B", "lobby", fam, m, v)
         grid = {c: r for c, r in cells.items() if c[1] in NS}
+        if sum(len(r) for r in grid.values()) < 3:
+            lines.append(f"  {NAMES[fam]} x{m}: too few runs with a crossing to fit ({nf} failed, {nx} no crossing)")
+            summary[(fam, m)] = dict(res={}, pts={}, sc_b=(float("nan"), 0))
+            continue
         coef, rho = G.twin_fit(grid)
         boots = [G.twin_fit(G.resample_cells(grid, rng))[0] for _ in range(B)]
         tlo, thi = float(np.percentile(rho, 5)), float(np.percentile(rho, 95))

@@ -1,0 +1,51 @@
+Milestone 6i: edge entry against lobby entry in the recalibrated twins (HERMES 3.6 m corridor)
+Part A 6 seeds, Part B 16 fresh seeds; 120 s runs, warm-up 40 s; B = 2000; lobby 0.3-1.2 m behind the end, clearance 0.55 m.
+
+Real free curve: 1084 crossings; density 5th/95th 0.370/1.980; T(0.85) 6.58 s, T(1.35) 8.57 s; assigned-exit 1917 crossings
+Operating densities: bo-360-090-090 0.830/m^2; bo-360-160-160 1.721/m^2
+
+Part A: cell-mean transit density by N (runs with no crossing left out), calibration score over cells inside [0.37, 1.98] /m^2
+  social force x0.75 (agent_scale 1000), edge: score 2.32 s over 16 cells; failed 0, no crossing 0, of 108
+    entrance 0.9: max 0.86/m^2; N_op(bo-360-090-090) 108; N20 0.34/6.3s, N40 0.61/7.1s, N60 0.79/8.8s, N75 0.80/8.3s, N90 0.77/8.4s, N105 0.82/9.1s, N120 0.86/9.0s, N140 0.78/8.4s, N160 0.73/8.2s
+    entrance 1.6: max 1.32/m^2; N_op(bo-360-160-160) None; N20 0.35/6.7s, N40 0.63/7.2s, N60 0.84/8.2s, N75 0.97/9.8s, N90 0.99/9.7s, N105 0.87/8.0s, N120 1.32/13.2s, N140 0.86/8.1s, N160 0.92/8.8s
+  social force x0.75 (agent_scale 1000), lobby: score 3.10 s over 16 cells; failed 1, no crossing 0, of 108
+    entrance 0.9: max 1.28/m^2; N_op(bo-360-090-090) 64; N20 0.33/6.3s, N40 0.64/7.7s, N60 0.79/7.3s, N75 0.95/9.3s, N90 0.97/9.2s, N105 0.93/8.4s, N120 1.28/10.7s, N140 0.95/8.7s, N160 0.90/8.4s
+    entrance 1.6: max 1.58/m^2; N_op(bo-360-160-160) None; N20 0.33/6.8s, N40 0.57/6.9s, N60 0.82/7.6s, N75 1.05/10.3s, N90 1.10/9.5s, N105 1.49/13.6s, N120 1.58/14.7s, N140 1.32/11.7s, N160 1.36/16.1s
+  collision-free speed x0.5 (time_gap 0.3), edge: score 0.48 s over 16 cells; failed 0, no crossing 0, of 108
+    entrance 0.9: max 1.22/m^2; N_op(bo-360-090-090) 50; N20 0.37/6.3s, N40 0.71/6.7s, N60 0.96/6.9s, N75 1.03/7.0s, N90 1.03/7.0s, N105 1.04/7.0s, N120 1.02/7.0s, N140 1.04/7.0s, N160 1.22/7.9s
+    entrance 1.6: max 1.58/m^2; N_op(bo-360-160-160) None; N20 0.36/6.4s, N40 0.71/6.7s, N60 1.02/7.0s, N75 1.17/7.2s, N90 1.23/7.2s, N105 1.22/7.1s, N120 1.25/7.3s, N140 1.41/8.2s, N160 1.58/9.7s
+  collision-free speed x0.5 (time_gap 0.3), lobby: score 0.99 s over 15 cells; failed 0, no crossing 0, of 108
+    entrance 0.9: max 1.52/m^2; N_op(bo-360-090-090) 52; N20 0.34/6.4s, N40 0.66/6.6s, N60 0.93/6.9s, N75 1.11/7.0s, N90 1.14/7.1s, N105 1.12/7.0s, N120 1.15/7.1s, N140 1.19/7.3s, N160 1.52/9.7s
+    entrance 1.6: max 2.06/m^2; N_op(bo-360-160-160) 129; N20 0.35/6.4s, N40 0.67/6.7s, N60 0.99/7.0s, N75 1.20/7.3s, N90 1.41/7.7s, N105 1.57/8.0s, N120 1.64/8.2s, N140 1.81/9.2s, N160 2.06/12.5s
+  ORCA x1.0 (tau 2), edge: score 2.51 s over 16 cells; failed 0, no crossing 1, of 108
+    entrance 0.9: max 1.21/m^2; N_op(bo-360-090-090) 49; N20 0.37/6.4s, N40 0.71/6.5s, N60 0.97/6.6s, N75 1.07/6.6s, N90 1.06/6.5s, N105 1.06/6.6s, N120 0.98/7.0s, N140 1.21/8.6s, N160 1.04/16.7s
+    entrance 1.6: max 1.43/m^2; N_op(bo-360-160-160) None; N20 0.35/6.3s, N40 0.70/6.4s, N60 0.99/6.5s, N75 1.15/6.5s, N90 1.23/6.7s, N105 1.31/7.7s, N120 1.43/11.0s, N140 1.23/8.0s, N160 1.11/6.9s
+  ORCA x1.0 (tau 2), lobby: score 2.42 s over 16 cells; failed 0, no crossing 2, of 108
+    entrance 0.9: max 1.44/m^2; N_op(bo-360-090-090) 53; N20 0.34/6.4s, N40 0.67/6.5s, N60 0.91/6.4s, N75 1.00/6.6s, N90 1.01/6.5s, N105 1.07/7.2s, N120 1.29/12.6s, N140 1.44/11.6s, N160 0.97/8.1s
+    entrance 1.6: max 1.38/m^2; N_op(bo-360-160-160) None; N20 0.35/6.3s, N40 0.66/6.5s, N60 0.95/6.5s, N75 1.13/6.5s, N90 1.23/6.6s, N105 1.26/6.7s, N120 1.24/8.1s, N140 1.38/13.7s, N160 1.32/14.4s
+
+Part B: lobby entry, fresh seeds
+  social force x0.75 (agent_scale 1000): failed 1, no crossing 0, of 320; density 5th/95th 0.32/1.83; fresh-seed score 3.18 s over 16 cells
+    curve gap vs free over [0.37, 1.83]: 3.30 s [2.71, 3.83]
+    curve gap vs assigned-exit over [0.44, 1.83]: 3.41 s [2.91, 3.89]
+    bo-360-090-090 (entrance 0.9): N 64 vs 51: twin cost +1.18 s [-0.07, +2.55] (density 0.865 vs 0.729); real curve at those densities +0.39 s [+0.28, +0.51]; transit twin 8.64 s, real 6.63 s; own-right share 0.881, lane order 0.769
+    bo-360-160-160: the twin never reached 1.72/m^2 at entrance 1.6 (Part A)
+  collision-free speed x0.5 (time_gap 0.3): failed 0, no crossing 0, of 352; density 5th/95th 0.34/1.86; fresh-seed score 0.94 s over 15 cells
+    curve gap vs free over [0.37, 1.86]: 0.90 s [0.56, 1.41]
+    curve gap vs assigned-exit over [0.44, 1.86]: 0.82 s [0.51, 1.22]
+    bo-360-090-090 (entrance 0.9): N 52 vs 42: twin cost +0.13 s [+0.01, +0.24] (density 0.833 vs 0.696); real curve at those densities +0.37 s [+0.26, +0.51]; transit twin 6.81 s, real 6.53 s; own-right share 0.952, lane order 0.918
+    bo-360-160-160 (entrance 1.6): N 129 vs 103: twin cost +0.66 s [-0.00, +1.45] (density 1.658 vs 1.535); real curve at those densities +0.72 s [+0.50, +0.96]; transit twin 8.58 s, real 10.25 s; own-right share 0.936, lane order 0.876
+  ORCA x1.0 (tau 2): failed 0, no crossing 0, of 320; density 5th/95th 0.34/1.79; fresh-seed score 2.15 s over 16 cells
+    curve gap vs free over [0.37, 1.79]: 1.28 s [0.68, 2.06]
+    curve gap vs assigned-exit over [0.44, 1.79]: 1.45 s [0.86, 2.24]
+    bo-360-090-090 (entrance 0.9): N 53 vs 42: twin cost +0.02 s [-0.07, +0.11] (density 0.825 vs 0.685); real curve at those densities +0.38 s [+0.26, +0.52]; transit twin 6.50 s, real 6.51 s; own-right share 0.999, lane order 0.998
+    bo-360-160-160: the twin never reached 1.72/m^2 at entrance 1.6 (Part A)
+
+Registered predictions (LOG.md):
+E1 (edge entry: no setting reaches 1.72/m^2 at 1.6 m within N 160): held (social force x0.75 max 1.32; collision-free speed x0.5 max 1.58; ORCA x1.0 max 1.43)
+E2 (lobby entry: every setting reaches 1.72/m^2 at 1.6 m within N 160): refuted (social force x0.75 max 1.58, N_op None; collision-free speed x0.5 max 2.06, N_op 129; ORCA x1.0 max 1.38, N_op None)
+E3 (lobby raises the 1.6 m maximum density by at least 0.25/m^2 in every setting): refuted (social force x0.75 +0.26; collision-free speed x0.5 +0.49; ORCA x1.0 -0.05)
+E4 (lobby: collision-free speed and ORCA keep a Part A calibration score below 1.0 s): refuted (collision-free speed x0.5 edge 0.48, lobby 0.99; ORCA x1.0 edge 2.51, lobby 2.42)
+E5 (dense point: at least one setting's twin cost lies inside the real cost's interval): held (collision-free speed x0.5 twin +0.66, real +0.72 [+0.50, +0.96])
+E6 (dense point: own-right share above 0.6 in every setting that reaches it): held (collision-free speed x0.5 0.936)
+E7 (0.9 m point, lobby: collision-free speed and ORCA both under-price (twin cost below the real interval)): held (collision-free speed x0.5 twin +0.13, real [+0.26, +0.51]; ORCA x1.0 twin +0.02, real [+0.26, +0.52])
