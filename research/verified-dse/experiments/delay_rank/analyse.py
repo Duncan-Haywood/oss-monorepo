@@ -125,18 +125,20 @@ def pilot_tau(rs, seed):
     for _ in range(DRAWS):
         s = rng.sample(idx, PILOT)
         v.append(tau0([mdelay(rs[i]) for i in s], [rdelay(rs[i]) for i in s]))
-    return statistics.mean(v)
+    return v
 
 
 def features(u):
     c, rs = u["cell"], u["rows"]
     md = [mdelay(r) for r in rs]
-    return {"d": ac.swc(c, ALPHA) - c["rand"], "share": c["binds"],
+    f = {"d": ac.swc(c, ALPHA) - c["rand"], "share": c["binds"],
             "tauD": tau0(md, [rdelay(r) for r in rs]),
             "tauA": tau0([r["synth_netlist_area"] for r in rs], [r["final_area_notap"] for r in rs]),
-            "pD": pilot_tau(rs, f"m155{u['corner']}{u['design']}"),
+            "pDs": pilot_tau(rs, f"m155{u['corner']}{u['design']}"),
             "cvD": statistics.pstdev(md) / statistics.mean(md),
             "swc": ac.swc(c, ALPHA), "rand": c["rand"], "area": ac.swc(c, 0), "ratio": c["ratio"]}
+    f["pD"] = statistics.mean(f["pDs"])
+    return f
 
 
 def auc(fs, k):
@@ -241,8 +243,32 @@ def main(dst):
     out += ["", "median by group | share | tauD | tauA | pD", ]
     for label, g in (("losers", [f for f in lad if f["d"] > 1e-9]), ("non-losers", [f for f in lad if f["d"] <= 1e-9])):
         out.append(f"{label} ({len(g)}) | " + " | ".join(f"{statistics.median(f[k] for f in g):.3f}" for k in ("share", "tauD", "tauA", "pD")))
+    out += post_hoc(lad, fs)
     Path(dst).write_text("\n".join(out) + "\n")
     print("\n".join(out))
+
+
+def post_hoc(lad, fs):
+    """Post hoc, added after the first run (no predicted number changes): prediction (5) and the pilot flag used pD, the mean over
+    200 draws, which no single run observes. Here each draw is one realisable pilot: the AUC of a single draw's tau-b, averaged over
+    draws, and the single-draw flag's regret averaged over draws, with the pilot's 8 routed points still not charged."""
+    nl = sum(f["d"] > 1e-9 for f in lad)
+    off = [f for f in fs if f["ratio"] <= THETA]
+    aucs, regs, hits, fas = [], [], [], []
+    for j in range(DRAWS):
+        g = [dict(d=f["d"], p=f["pDs"][j]) for f in lad]
+        aucs.append(auc(g, "p"))
+        fl = [f["share"] < SHARE_CUT and f["pDs"][j] < TAU_CUT for f in lad]
+        regs.append(statistics.mean([f["area"] if x else f["swc"] for f, x in zip(lad, fl)]))
+        hits.append(sum(x and f["d"] > 1e-9 for f, x in zip(lad, fl)))
+        fas.append(sum(x and f["d"] <= 1e-9 for f, x in zip(lad, fl)))
+    aucs.sort()
+    return ["", "## Post hoc: one pilot draw at a time (added after the first run; no predicted number changed)", "",
+            f"single-draw pilot AUC: mean {statistics.mean(aucs):.3f}, 2.5% to 97.5% over draws {aucs[int(0.025 * DRAWS)]:.3f} to "
+            f"{aucs[int(0.975 * DRAWS) - 1]:.3f}",
+            f"single-draw flag (share < {SHARE_CUT}, pilot tau < {TAU_CUT}) -> area-only: mean regret over the ladder branch "
+            f"{statistics.mean(regs):.2f}% (SWC {statistics.mean(f['swc'] for f in lad):.2f}%); mean losers flagged "
+            f"{statistics.mean(hits):.1f} of {nl}, non-losers {statistics.mean(fas):.1f}"]
 
 
 if __name__ == "__main__":
