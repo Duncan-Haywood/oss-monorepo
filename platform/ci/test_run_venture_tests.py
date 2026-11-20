@@ -55,6 +55,20 @@ class FakeVentures(unittest.TestCase):
         slug, ok, _, _ = rvt.run("a")
         self.assertEqual((slug, ok), ("a", True))
 
+    def test_a_named_run_prints_each_step_as_it_starts(self):
+        # A background run redirected to a file showed nothing until the
+        # venture ended (doc friction 2026-11-20T12:38).
+        self.venture("p", {"x.test.mjs": "import test from 'node:test'; test('t', () => {});"})
+        import contextlib, io
+        buf = io.StringIO()
+        with mock.patch.object(rvt, "PROGRESS", True), contextlib.redirect_stdout(buf):
+            self.assertTrue(rvt.run("p")[1])
+        self.assertIn("p: step 1/1 started at 0s: node --test in .", buf.getvalue())
+        buf = io.StringIO()
+        with mock.patch.object(rvt, "PROGRESS", False), contextlib.redirect_stdout(buf):
+            rvt.run("p")
+        self.assertEqual(buf.getvalue(), "")
+
     def test_a_failing_suite_fails_the_run(self):
         self.venture("b", {"sub/y.test.mjs": "import test from 'node:test'; test('t', () => { throw new Error('no'); });"})
         self.assertTrue(rvt.has_tests("b"))
