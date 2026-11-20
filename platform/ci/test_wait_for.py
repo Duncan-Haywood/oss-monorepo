@@ -1,6 +1,6 @@
 import os, sys, tempfile, unittest
 import contextlib, io
-import subprocess
+import signal, subprocess
 from wait_for import main, wait, wait_until, wait_pid, pid_alive, matching, wait_gone, ancestors
 
 
@@ -529,7 +529,12 @@ class Gone(unittest.TestCase):
 
     def test_waits_for_a_named_process_then_returns(self):
         tag = f"gone-test-{os.getpid()}"
-        p = subprocess.Popen(["sh", "-c", f"sleep 30 # {tag}"])
+        # Its own session, so the kill below reaches the shell's `sleep` too. Killing
+        # only the shell left the sleep holding the caller's stdout pipe for 30 s,
+        # and unwired_checks.py's capture_output run of this suite waited it out
+        # (docs/history/ci-perf-2026-11-20-unwired-orphans-and-fetch.md).
+        p = subprocess.Popen(["sh", "-c", f"sleep 30 # {tag}"], start_new_session=True,
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         try:
             self.assertTrue(wait_until(f"grep -q {tag} /proc/{p.pid}/cmdline", timeout=5, interval=0.05))
             self.assertIn(p.pid, [pid for pid, _ in matching(tag)])
@@ -537,7 +542,7 @@ class Gone(unittest.TestCase):
                 self.assertEqual(main(["--gone", tag, "--timeout", "0"]), 1)
             self.assertIn(str(p.pid), err.getvalue())
         finally:
-            p.kill()
+            os.killpg(p.pid, signal.SIGKILL)
             p.wait()
         self.assertEqual(matching(tag), [])
         with contextlib.redirect_stdout(io.StringIO()) as out:
