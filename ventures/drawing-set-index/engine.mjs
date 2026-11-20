@@ -460,7 +460,12 @@ function multisetDiff(a, b) {
 
 // --- Output -------------------------------------------------------------
 
-function csvCell(v) { const s = String(v ?? ''); return /[",\n\r]/.test(s) || /^[=+\-@\t\r]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) ? "'" : '') + s.replace(/"/g, '""')}"` : s; }
+function csvCell(v) {
+  let s = String(v ?? '');
+  // A cell a spreadsheet would run as a formula is kept as text; a plain number is left alone.
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+  return /[",\n\r]/.test(s) || /^'/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
 
 export function indexCsv(index) {
   const head = ['Page', 'File', 'Sheet number', 'Sheet title', 'Discipline', 'Sheet type', 'Found by'];
