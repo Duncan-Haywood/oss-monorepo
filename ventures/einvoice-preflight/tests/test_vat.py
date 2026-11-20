@@ -220,13 +220,16 @@ class VatInvoiceIntegrationTest(unittest.TestCase):
             self.assertNotIn("136695977", report)
 
 
+class VatFunctionsTest(unittest.TestCase):
+    # Plain pytest functions until 2026-11-20: CI runs this folder with
+    # `unittest discover`, which never collected them.
+    def test_french_letter_keys_and_siren_luhn(self):
+        from einvoice_preflight import vat
+        assert vat._fr("4Z123456782")
+        for bad in ("Z4123456782", "IO334175221", "4Z123456783", "40303265046"):
+            assert not vat._fr(bad), bad
+        assert vat._fr("40303265045")
+
+
 if __name__ == "__main__":
     unittest.main()
-
-
-def test_french_letter_keys_and_siren_luhn():
-    from einvoice_preflight import vat
-    assert vat._fr("4Z123456782")
-    for bad in ("Z4123456782", "IO334175221", "4Z123456783", "40303265046"):
-        assert not vat._fr(bad), bad
-    assert vat._fr("40303265045")

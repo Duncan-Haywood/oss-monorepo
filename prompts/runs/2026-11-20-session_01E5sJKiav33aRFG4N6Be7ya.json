@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKiav33aRFG4N6Be7ya",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T18:19:04Z",
+  "ended": "2026-11-20T18:24:39Z",
+  "wall_minutes": 5.95,
+  "tokens_in": 3963474,
+  "tokens_out": 22016,
+  "cost_usd": 1.9118,
+  "tool_calls": 48,
+  "task": "Critique mode (no agent-owned backlog item): checks that never fire. Venture test functions CI never collects.",
+  "projects": [
+    "platform/ci",
+    "ventures/open-tennis-robots",
+    "ventures/einvoice-preflight",
+    "ventures/shed-designer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17955",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "A background command that ran the full open-tennis-robots unittest suite and then git stash/pop to compare before and after was too slow and risked colliding with live edits. I killed it before the stash ran and compared against a git worktree at HEAD instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "Treated unittest's exit 5 (no tests) as a pass and named shed-designer's bare pytest file in a comment as a known case. A known class of silent non-test was documented instead of checked. The comment now points to the new check."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "A 2026-11-20 friction entry said 'pass a workflow name or --for-changes, not both' exits 0. It exits 2 on main (checked), so that report is stale, probably a background run piped through tail."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-eleven-venture-tests-ci-never-called.md"
+  ],
+  "goal": null,
+  "notes": "Backlog: no agent-owned items open, so Critique. Lens: checks that never fire. Source: 2026-11-20 friction entry on open-tennis-robots test_take_straddle_count.py. Venture-wide AST scan: 42 files with module-level test functions in 6 ventures. 36 run under pytest (ig-media-pipeline, vendor-change-watch, ubuntu-agent-server). 6 files with 11 functions run under unittest and were never called. All 11 pass under pytest. Wrapped them in TestCase classes. New check platform/ci/check_uncollected_tests.py (<1 s) plus test_check_uncollected_tests.py (3 tests). unwired_checks.py --list names both, so every PR runs them with no workflow edit. Verification: on a worktree at HEAD the check reports exactly 11 functions and exits 1; on the branch it exits 0. einvoice-preflight unittest discover runs 440 OK. The straddle files run 7 OK (2 before). shed-designer runs 3 OK (0 before). main_health.py before the change: 303/303. Not fixed: research/ has 744 such files in 321 project folders, but research-ci.yml runs no project tests (P069, owner row). No backlog row added: prompts/process/backlog is under CODEOWNERS (/prompts/) and would gate this PR, and P069 already covers research.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5c1ad8bf-6ce5-58cd-bb37-e7f8e72ffced",
+    "transcripts": 1,
+    "first": "2026-11-20T18:19:04Z",
+    "last": "2026-11-20T18:25:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 88,
+        "output": 22016,
+        "thinking": 4654,
+        "cache_read": 3876410,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86976,
+        "api_equivalent_usd": 1.9118,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 88,
+      "output": 22016,
+      "thinking": 4654,
+      "cache_read": 3876410,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86976,
+      "api_equivalent_usd": 1.9118,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 42,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.95,
+      "active_minutes": 5.95,
+      "model_minutes": 4.84,
+      "tool_minutes": 1.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "scan ventures for uncollected tests, convert 6 files, write check+test+post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 156.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
