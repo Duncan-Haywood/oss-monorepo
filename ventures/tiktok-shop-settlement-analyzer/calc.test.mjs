@@ -168,3 +168,12 @@ test("the sample file parses fully and produces every section", () => {
   assert.ok(r.summary.withdrawals === 2 && r.summary.pendingCount > 0 && r.summary.refunds > 0 && r.summary.cancelled > 0);
   assert.ok(r.repeat && r.breakEven && r.byMonth.length >= 3);
 });
+
+test("quality audit 2026-11-20: year-first slash dates parse; a positive Adjustment is not a refund", () => {
+  assert.deepEqual(parseWhen("2026/06/09"), { t: Date.UTC(2026, 5, 9), hasTime: false });
+  const n = load("2026/06/01,1,Order,Settled,Mug,amy,25.00,3.80,21.20\n2026/06/02,2,Adjustment,Settled,,,5.00,0,5.00\n2026/06/03,3,Adjustment,Settled,,,-2.00,0,-2.00\n");
+  assert.equal(n.rows.length, 3);
+  assert.notEqual(n.rows[1].kind, "refund");
+  assert.equal(n.rows[2].kind, "refund");
+  near(analyze(n.rows).summary.takeHome, 21.20 + 5.00 - 2.00);
+});

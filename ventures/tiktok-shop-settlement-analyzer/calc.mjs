@@ -64,7 +64,7 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
+  let m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?!\d)(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
   else {
     m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)(.*)$/);
@@ -141,7 +141,7 @@ const key = (name) => String(name).toLowerCase().replace(/[^a-z0-9]+/g, " ").tri
 const MONTH_FMT = (t) => new Date(t).toISOString().slice(0, 7);
 
 const RE_WITHDRAW = /withdraw|payout to|transfer to|paypal|bank transfer|payoneer|direct deposit|wire/i;
-const RE_REFUND = /refund|chargeback|dispute|resolution|revoked|reversal|adjustment|penalty/i;
+const RE_REFUND = /refund|chargeback|dispute|resolution|revoked|reversal|penalty/i;
 const RE_CANCEL = /cancel|declin|reject|expire|void/i;
 const RE_TIP = /\btips?\b|gratuity/i;
 const RE_PENDING = /pend|clearing|clearance|processing|escrow|\bhold\b|in progress|active|not yet|upcoming/i;
