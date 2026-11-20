@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKiyVpwbqGqn6v5HYdx",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T09:10:13Z",
+  "ended": "2026-11-20T09:26:44Z",
+  "wall_minutes": 16.88,
+  "tokens_in": 7842703,
+  "tokens_out": 28471,
+  "cost_usd": 3.0796,
+  "tool_calls": 62,
+  "task": "changepoint-detector flagship 4: the ramp simulation for the shut-weekday rule (README 'A shop shut one weekday', next item 1)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17889",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First single-process run of the simulation was on course for ~85 min; stopped after 5 shops and restarted as three processes (one per group, same seed and draw order). The stale partial out.txt was deleted before the combined run rewrote it.",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The pkill hook rejects a bracketed pattern if the same word appears anywhere else on the command line (e.g. in a later python heredoc). Kill alone in its own call."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Row 2's printed next: names 'next a ramp sim' with no cost estimate; the 300-shop x 4-arm replay takes ~100 min on 4 cores, worth saying for whoever plans a round on watch-core replays."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-changepoint-slow-climb-is-not-why-the-shop-watch-went-deaf.md",
+    "ventures/changepoint-detector/README.md 'A shop shut one weekday, round 3'"
+  ],
+  "goal": null,
+  "notes": "Pre-registration committed (b/f any ramp shop ran) in eval/shut-weekday-ramp.prereg.md. Result: P1 FAIL (D caught 67/100 R30 ramps, bar <=25), P2 FAIL (R90 T 74 vs D 73), P3 FAIL (R30 T 57 vs D 67), P4 PASS (1.87/100). Nothing shipped on CLI/page. Exploratory leads after the round: real design-year tails heavier (sd 0.50 vs MAD 0.32), an 11-day Christmas closure, and late real alerts dated months back. Local checks: node --test shut-weekday.test.mjs 5/5 pass; check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4f246889-86fa-58f9-b3ee-684313776004",
+    "transcripts": 1,
+    "first": "2026-11-20T09:10:13Z",
+    "last": "2026-11-20T09:27:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 146,
+        "output": 28471,
+        "thinking": 7091,
+        "cache_read": 7721906,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120651,
+        "api_equivalent_usd": 3.0796,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 146,
+      "output": 28471,
+      "thinking": 7091,
+      "cache_read": 7721906,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120651,
+      "api_equivalent_usd": 3.0796,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.88,
+      "active_minutes": 8.61,
+      "model_minutes": 6.28,
+      "tool_minutes": 2.33,
+      "waiting_on_human_minutes": 8.27,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "designing, running and writing up one pre-registered simulation round plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 194.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

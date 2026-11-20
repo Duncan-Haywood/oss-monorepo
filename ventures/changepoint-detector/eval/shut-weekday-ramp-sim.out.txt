@@ -1,0 +1,311 @@
+N shop 1: D 5, T 5, Dmid 4, Tmid 3
+N shop 2: D 2, T 2, Dmid 1, Tmid 1
+N shop 3: D 7, T 7, Dmid 7, Tmid 5
+N shop 4: D 4, T 4, Dmid 4, Tmid 4
+N shop 5: D 4, T 3, Dmid 3, Tmid 3
+N shop 6: D 5, T 4, Dmid 5, Tmid 4
+N shop 7: D 5, T 5, Dmid 4, Tmid 3
+N shop 8: D 7, T 6, Dmid 4, Tmid 5
+N shop 9: D 5, T 4, Dmid 3, Tmid 4
+N shop 10: D 6, T 6, Dmid 5, Tmid 4
+N shop 11: D 6, T 4, Dmid 4, Tmid 2
+N shop 12: D 5, T 4, Dmid 3, Tmid 3
+N shop 13: D 10, T 7, Dmid 7, Tmid 6
+N shop 14: D 4, T 3, Dmid 3, Tmid 2
+N shop 15: D 8, T 6, Dmid 7, Tmid 6
+N shop 16: D 3, T 3, Dmid 3, Tmid 2
+N shop 17: D 4, T 4, Dmid 4, Tmid 4
+N shop 18: D 6, T 6, Dmid 5, Tmid 5
+N shop 19: D 4, T 4, Dmid 2, Tmid 2
+N shop 20: D 4, T 4, Dmid 4, Tmid 2
+N shop 21: D 8, T 7, Dmid 8, Tmid 5
+N shop 22: D 9, T 6, Dmid 3, Tmid 3
+N shop 23: D 3, T 3, Dmid 2, Tmid 2
+N shop 24: D 6, T 5, Dmid 4, Tmid 5
+N shop 25: D 9, T 9, Dmid 9, Tmid 9
+N shop 26: D 5, T 4, Dmid 5, Tmid 4
+N shop 27: D 5, T 4, Dmid 4, Tmid 3
+N shop 28: D 10, T 9, Dmid 9, Tmid 7
+N shop 29: D 8, T 7, Dmid 7, Tmid 7
+N shop 30: D 5, T 1, Dmid 2, Tmid 1
+N shop 31: D 6, T 4, Dmid 5, Tmid 4
+N shop 32: D 7, T 6, Dmid 6, Tmid 4
+N shop 33: D 5, T 3, Dmid 3, Tmid 3
+N shop 34: D 3, T 3, Dmid 3, Tmid 3
+N shop 35: D 9, T 8, Dmid 8, Tmid 6
+N shop 36: D 3, T 3, Dmid 3, Tmid 2
+N shop 37: D 6, T 5, Dmid 5, Tmid 5
+N shop 38: D 8, T 7, Dmid 7, Tmid 6
+N shop 39: D 4, T 3, Dmid 3, Tmid 2
+N shop 40: D 3, T 3, Dmid 3, Tmid 3
+N shop 41: D 4, T 3, Dmid 3, Tmid 1
+N shop 42: D 2, T 2, Dmid 2, Tmid 2
+N shop 43: D 6, T 3, Dmid 4, Tmid 2
+N shop 44: D 6, T 6, Dmid 6, Tmid 4
+N shop 45: D 4, T 3, Dmid 3, Tmid 2
+N shop 46: D 2, T 2, Dmid 2, Tmid 2
+N shop 47: D 8, T 7, Dmid 7, Tmid 7
+N shop 48: D 5, T 5, Dmid 5, Tmid 5
+N shop 49: D 4, T 4, Dmid 3, Tmid 2
+N shop 50: D 5, T 5, Dmid 4, Tmid 4
+N shop 51: D 4, T 4, Dmid 4, Tmid 3
+N shop 52: D 5, T 4, Dmid 4, Tmid 3
+N shop 53: D 7, T 7, Dmid 6, Tmid 2
+N shop 54: D 4, T 4, Dmid 4, Tmid 2
+N shop 55: D 5, T 4, Dmid 5, Tmid 3
+N shop 56: D 4, T 4, Dmid 3, Tmid 4
+N shop 57: D 5, T 3, Dmid 4, Tmid 2
+N shop 58: D 5, T 5, Dmid 4, Tmid 4
+N shop 59: D 8, T 7, Dmid 7, Tmid 6
+N shop 60: D 8, T 5, Dmid 6, Tmid 5
+N shop 61: D 8, T 6, Dmid 5, Tmid 4
+N shop 62: D 2, T 2, Dmid 1, Tmid 0
+N shop 63: D 6, T 5, Dmid 6, Tmid 4
+N shop 64: D 8, T 8, Dmid 8, Tmid 7
+N shop 65: D 6, T 5, Dmid 4, Tmid 4
+N shop 66: D 3, T 2, Dmid 3, Tmid 1
+N shop 67: D 4, T 3, Dmid 3, Tmid 3
+N shop 68: D 6, T 6, Dmid 5, Tmid 5
+N shop 69: D 4, T 4, Dmid 4, Tmid 4
+N shop 70: D 5, T 4, Dmid 5, Tmid 4
+N shop 71: D 5, T 5, Dmid 4, Tmid 2
+N shop 72: D 5, T 4, Dmid 4, Tmid 2
+N shop 73: D 3, T 3, Dmid 2, Tmid 2
+N shop 74: D 4, T 3, Dmid 3, Tmid 3
+N shop 75: D 9, T 8, Dmid 9, Tmid 6
+N shop 76: D 6, T 6, Dmid 3, Tmid 3
+N shop 77: D 9, T 7, Dmid 4, Tmid 2
+N shop 78: D 7, T 7, Dmid 5, Tmid 5
+N shop 79: D 4, T 4, Dmid 3, Tmid 4
+N shop 80: D 5, T 3, Dmid 4, Tmid 3
+N shop 81: D 8, T 6, Dmid 6, Tmid 5
+N shop 82: D 11, T 10, Dmid 9, Tmid 8
+N shop 83: D 6, T 3, Dmid 3, Tmid 2
+N shop 84: D 4, T 2, Dmid 3, Tmid 2
+N shop 85: D 8, T 8, Dmid 8, Tmid 6
+N shop 86: D 8, T 7, Dmid 8, Tmid 7
+N shop 87: D 4, T 4, Dmid 4, Tmid 3
+N shop 88: D 6, T 3, Dmid 5, Tmid 3
+N shop 89: D 2, T 3, Dmid 1, Tmid 1
+N shop 90: D 7, T 7, Dmid 6, Tmid 4
+N shop 91: D 2, T 2, Dmid 2, Tmid 2
+N shop 92: D 7, T 4, Dmid 2, Tmid 3
+N shop 93: D 9, T 7, Dmid 6, Tmid 4
+N shop 94: D 8, T 6, Dmid 6, Tmid 5
+N shop 95: D 5, T 4, Dmid 5, Tmid 4
+N shop 96: D 5, T 4, Dmid 4, Tmid 4
+N shop 97: D 9, T 9, Dmid 8, Tmid 9
+N shop 98: D 4, T 4, Dmid 4, Tmid 3
+N shop 99: D 4, T 2, Dmid 3, Tmid 1
+N shop 100: D 7, T 8, Dmid 7, Tmid 7
+R30 shop 1: ramp 2024-07-26 over 33 days: D caught (dated 2024-07-29, sent 2024-08-02), T caught (dated 2024-07-29, sent 2024-08-04), Dmid missed, Tmid missed
+R30 shop 2: ramp 2024-07-29 over 45 days: D caught (dated 2024-08-14, sent 2024-08-18), T caught (dated 2024-08-14, sent 2024-08-19), Dmid caught (dated 2024-08-14, sent 2024-08-18), Tmid caught (dated 2024-08-14, sent 2024-08-20)
+R30 shop 3: ramp 2024-10-04 over 49 days: D caught (dated 2024-10-04, sent 2024-10-14), T missed, Dmid caught (dated 2024-10-11, sent 2024-10-15), Tmid missed
+R30 shop 4: ramp 2024-08-15 over 29 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 5: ramp 2024-08-30 over 43 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 6: ramp 2024-09-22 over 44 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 7: ramp 2024-08-05 over 34 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 8: ramp 2024-07-29 over 32 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 9: ramp 2024-07-24 over 43 days: D caught (dated 2024-08-03, sent 2024-08-07), T missed, Dmid caught (dated 2024-08-03, sent 2024-08-07), Tmid missed
+R30 shop 10: ramp 2024-09-29 over 56 days: D caught (dated 2024-10-10, sent 2024-10-14), T caught (dated 2024-10-10, sent 2024-10-15), Dmid caught (dated 2024-11-13, sent 2024-11-17), Tmid caught (dated 2024-11-13, sent 2024-11-18)
+R30 shop 11: ramp 2024-09-19 over 35 days: D caught (dated 2024-10-09, sent 2024-10-15), T caught (dated 2024-10-09, sent 2024-10-15), Dmid missed, Tmid caught (dated 2024-10-09, sent 2024-10-16)
+R30 shop 12: ramp 2024-08-18 over 35 days: D caught (dated 2024-08-28, sent 2024-09-01), T missed, Dmid caught (dated 2024-08-28, sent 2024-09-01), Tmid missed
+R30 shop 13: ramp 2024-09-04 over 56 days: D caught (dated 2024-09-26, sent 2024-10-02), T caught (dated 2024-10-21, sent 2024-10-25), Dmid caught (dated 2024-10-21, sent 2024-10-25), Tmid caught (dated 2024-10-21, sent 2024-10-25)
+R30 shop 14: ramp 2024-10-05 over 42 days: D caught (dated 2024-10-01, sent 2024-10-05), T caught (dated 2024-10-01, sent 2024-10-06), Dmid missed, Tmid missed
+R30 shop 15: ramp 2024-07-25 over 56 days: D caught (dated 2024-07-27, sent 2024-07-31), T caught (dated 2024-07-28, sent 2024-08-01), Dmid caught (dated 2024-07-27, sent 2024-07-31), Tmid caught (dated 2024-07-28, sent 2024-08-01)
+R30 shop 16: ramp 2024-07-20 over 51 days: D caught (dated 2024-09-03, sent 2024-09-07), T caught (dated 2024-09-03, sent 2024-09-08), Dmid caught (dated 2024-09-03, sent 2024-09-07), Tmid caught (dated 2024-09-03, sent 2024-09-08)
+R30 shop 17: ramp 2024-09-04 over 48 days: D caught (dated 2024-09-09, sent 2024-09-13), T missed, Dmid missed, Tmid missed
+R30 shop 18: ramp 2024-08-12 over 45 days: D caught (dated 2024-08-29, sent 2024-09-02), T caught (dated 2024-08-29, sent 2024-09-03), Dmid caught (dated 2024-08-29, sent 2024-09-02), Tmid caught (dated 2024-08-29, sent 2024-09-04)
+R30 shop 19: ramp 2024-08-02 over 37 days: D caught (dated 2024-09-06, sent 2024-09-10), T caught (dated 2024-09-06, sent 2024-09-11), Dmid caught (dated 2024-09-06, sent 2024-09-10), Tmid caught (dated 2024-09-06, sent 2024-09-11)
+R30 shop 20: ramp 2024-10-11 over 36 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 21: ramp 2024-08-13 over 56 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 22: ramp 2024-08-24 over 47 days: D caught (dated 2024-09-16, sent 2024-09-20), T missed, Dmid caught (dated 2024-09-16, sent 2024-09-20), Tmid missed
+R30 shop 23: ramp 2024-08-29 over 35 days: D missed, T caught (dated 2024-10-03, sent 2024-10-09), Dmid missed, Tmid missed
+R30 shop 24: ramp 2024-10-03 over 56 days: D caught (dated 2024-11-10, sent 2024-11-14), T caught (dated 2024-11-10, sent 2024-11-14), Dmid caught (dated 2024-11-10, sent 2024-11-14), Tmid caught (dated 2024-11-10, sent 2024-11-14)
+R30 shop 25: ramp 2024-09-23 over 54 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 26: ramp 2024-07-28 over 38 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 27: ramp 2024-08-08 over 47 days: D caught (dated 2024-08-07, sent 2024-08-11), T caught (dated 2024-08-07, sent 2024-08-12), Dmid caught (dated 2024-08-07, sent 2024-08-11), Tmid caught (dated 2024-08-07, sent 2024-08-12)
+R30 shop 28: ramp 2024-09-01 over 55 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 29: ramp 2024-08-24 over 29 days: D caught (dated 2024-09-02, sent 2024-09-06), T caught (dated 2024-09-02, sent 2024-09-06), Dmid caught (dated 2024-09-02, sent 2024-09-06), Tmid missed
+R30 shop 30: ramp 2024-09-27 over 43 days: D caught (dated 2024-09-25, sent 2024-09-29), T caught (dated 2024-09-25, sent 2024-09-30), Dmid caught (dated 2024-09-25, sent 2024-09-29), Tmid caught (dated 2024-09-25, sent 2024-09-30)
+R30 shop 31: ramp 2024-08-15 over 44 days: D caught (dated 2024-08-14, sent 2024-08-20), T missed, Dmid caught (dated 2024-08-14, sent 2024-08-20), Tmid missed
+R30 shop 32: ramp 2024-09-27 over 47 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 33: ramp 2024-08-02 over 29 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 34: ramp 2024-10-19 over 41 days: D caught (dated 2024-10-22, sent 2024-10-28), T caught (dated 2024-10-22, sent 2024-10-29), Dmid caught (dated 2024-10-22, sent 2024-10-28), Tmid missed
+R30 shop 35: ramp 2024-10-24 over 41 days: D caught (dated 2024-11-21, sent 2024-11-25), T caught (dated 2024-11-21, sent 2024-11-26), Dmid caught (dated 2024-11-21, sent 2024-11-25), Tmid caught (dated 2024-11-21, sent 2024-11-26)
+R30 shop 36: ramp 2024-10-24 over 48 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 37: ramp 2024-08-16 over 35 days: D caught (dated 2024-09-20, sent 2024-09-24), T caught (dated 2024-09-20, sent 2024-09-25), Dmid caught (dated 2024-09-20, sent 2024-09-24), Tmid caught (dated 2024-09-20, sent 2024-09-25)
+R30 shop 38: ramp 2024-08-19 over 49 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 39: ramp 2024-10-20 over 39 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 40: ramp 2024-10-08 over 39 days: D caught (dated 2024-11-03, sent 2024-11-07), T caught (dated 2024-11-03, sent 2024-11-07), Dmid caught (dated 2024-11-03, sent 2024-11-07), Tmid caught (dated 2024-11-03, sent 2024-11-07)
+R30 shop 41: ramp 2024-08-05 over 28 days: D caught (dated 2024-08-05, sent 2024-08-09), T caught (dated 2024-08-05, sent 2024-08-09), Dmid caught (dated 2024-08-05, sent 2024-08-09), Tmid caught (dated 2024-08-18, sent 2024-08-22)
+R30 shop 42: ramp 2024-10-20 over 48 days: D caught (dated 2024-10-31, sent 2024-11-04), T caught (dated 2024-10-31, sent 2024-11-05), Dmid caught (dated 2024-10-31, sent 2024-11-04), Tmid caught (dated 2024-10-31, sent 2024-11-05)
+R30 shop 43: ramp 2024-09-25 over 52 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 44: ramp 2024-08-17 over 54 days: D caught (dated 2024-08-27, sent 2024-08-31), T caught (dated 2024-08-27, sent 2024-09-01), Dmid caught (dated 2024-08-27, sent 2024-08-31), Tmid caught (dated 2024-08-27, sent 2024-09-01)
+R30 shop 45: ramp 2024-10-01 over 52 days: D caught (dated 2024-11-01, sent 2024-11-05), T caught (dated 2024-11-01, sent 2024-11-06), Dmid caught (dated 2024-11-01, sent 2024-11-05), Tmid missed
+R30 shop 46: ramp 2024-09-01 over 33 days: D caught (dated 2024-08-28, sent 2024-09-01), T caught (dated 2024-08-28, sent 2024-09-02), Dmid caught (dated 2024-08-28, sent 2024-09-01), Tmid caught (dated 2024-08-28, sent 2024-09-02)
+R30 shop 47: ramp 2024-09-05 over 52 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 48: ramp 2024-09-28 over 33 days: D caught (dated 2024-10-24, sent 2024-10-28), T caught (dated 2024-10-24, sent 2024-10-29), Dmid caught (dated 2024-10-24, sent 2024-10-28), Tmid caught (dated 2024-10-24, sent 2024-10-29)
+R30 shop 49: ramp 2024-09-21 over 48 days: D caught (dated 2024-10-21, sent 2024-10-25), T caught (dated 2024-10-21, sent 2024-10-25), Dmid caught (dated 2024-10-21, sent 2024-10-25), Tmid caught (dated 2024-10-21, sent 2024-10-25)
+R30 shop 50: ramp 2024-10-07 over 53 days: D caught (dated 2024-10-14, sent 2024-10-18), T missed, Dmid caught (dated 2024-10-15, sent 2024-10-21), Tmid missed
+R30 shop 51: ramp 2024-08-21 over 33 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 52: ramp 2024-08-05 over 28 days: D caught (dated 2024-08-02, sent 2024-08-06), T caught (dated 2024-08-02, sent 2024-08-07), Dmid caught (dated 2024-08-02, sent 2024-08-06), Tmid caught (dated 2024-08-02, sent 2024-08-07)
+R30 shop 53: ramp 2024-08-06 over 42 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 54: ramp 2024-08-27 over 50 days: D caught (dated 2024-09-10, sent 2024-09-14), T missed, Dmid caught (dated 2024-09-10, sent 2024-09-14), Tmid missed
+R30 shop 55: ramp 2024-10-21 over 40 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 56: ramp 2024-10-11 over 52 days: D caught (dated 2024-10-26, sent 2024-10-30), T caught (dated 2024-10-27, sent 2024-10-31), Dmid caught (dated 2024-10-26, sent 2024-10-30), Tmid caught (dated 2024-10-27, sent 2024-10-31)
+R30 shop 57: ramp 2024-09-17 over 32 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 58: ramp 2024-08-05 over 38 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 59: ramp 2024-08-06 over 33 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 60: ramp 2024-10-06 over 46 days: D caught (dated 2024-10-25, sent 2024-10-29), T caught (dated 2024-10-25, sent 2024-10-30), Dmid caught (dated 2024-10-25, sent 2024-10-29), Tmid caught (dated 2024-10-25, sent 2024-10-30)
+R30 shop 61: ramp 2024-10-13 over 37 days: D caught (dated 2024-10-29, sent 2024-11-02), T caught (dated 2024-10-28, sent 2024-11-03), Dmid caught (dated 2024-10-29, sent 2024-11-02), Tmid missed
+R30 shop 62: ramp 2024-07-29 over 41 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 63: ramp 2024-08-22 over 29 days: D caught (dated 2024-08-29, sent 2024-09-02), T caught (dated 2024-08-29, sent 2024-09-03), Dmid caught (dated 2024-08-29, sent 2024-09-02), Tmid caught (dated 2024-08-29, sent 2024-09-03)
+R30 shop 64: ramp 2024-10-21 over 44 days: D caught (dated 2024-10-25, sent 2024-10-30), T caught (dated 2024-10-25, sent 2024-10-30), Dmid caught (dated 2024-10-25, sent 2024-10-31), Tmid caught (dated 2024-10-25, sent 2024-10-31)
+R30 shop 65: ramp 2024-09-12 over 49 days: D caught (dated 2024-10-15, sent 2024-10-19), T caught (dated 2024-10-15, sent 2024-10-20), Dmid caught (dated 2024-10-15, sent 2024-10-19), Tmid caught (dated 2024-10-15, sent 2024-10-20)
+R30 shop 66: ramp 2024-07-28 over 48 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 67: ramp 2024-07-21 over 52 days: D caught (dated 2024-07-18, sent 2024-07-23), T caught (dated 2024-07-18, sent 2024-07-23), Dmid missed, Tmid caught (dated 2024-08-27, sent 2024-09-03)
+R30 shop 68: ramp 2024-09-25 over 44 days: D caught (dated 2024-10-24, sent 2024-10-28), T caught (dated 2024-10-24, sent 2024-10-29), Dmid caught (dated 2024-10-24, sent 2024-10-28), Tmid caught (dated 2024-10-24, sent 2024-10-29)
+R30 shop 69: ramp 2024-10-16 over 49 days: D caught (dated 2024-11-26, sent 2024-11-30), T caught (dated 2024-11-26, sent 2024-12-01), Dmid caught (dated 2024-11-26, sent 2024-11-30), Tmid caught (dated 2024-12-01, sent 2024-12-08)
+R30 shop 70: ramp 2024-07-31 over 35 days: D caught (dated 2024-08-09, sent 2024-08-13), T caught (dated 2024-08-09, sent 2024-08-14), Dmid caught (dated 2024-08-09, sent 2024-08-13), Tmid missed
+R30 shop 71: ramp 2024-08-18 over 29 days: D caught (dated 2024-08-20, sent 2024-08-24), T caught (dated 2024-08-20, sent 2024-08-25), Dmid caught (dated 2024-08-20, sent 2024-08-24), Tmid caught (dated 2024-08-20, sent 2024-08-26)
+R30 shop 72: ramp 2024-10-16 over 51 days: D caught (dated 2024-10-10, sent 2024-10-18), T caught (dated 2024-10-10, sent 2024-10-18), Dmid missed, Tmid missed
+R30 shop 73: ramp 2024-09-14 over 37 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 74: ramp 2024-09-05 over 55 days: D caught (dated 2024-09-20, sent 2024-09-24), T missed, Dmid missed, Tmid missed
+R30 shop 75: ramp 2024-10-22 over 31 days: D caught (dated 2024-10-22, sent 2024-10-26), T caught (dated 2024-10-22, sent 2024-10-27), Dmid missed, Tmid missed
+R30 shop 76: ramp 2024-10-27 over 52 days: D caught (dated 2024-11-02, sent 2024-11-06), T caught (dated 2024-11-03, sent 2024-11-07), Dmid caught (dated 2024-11-02, sent 2024-11-06), Tmid caught (dated 2024-11-03, sent 2024-11-07)
+R30 shop 77: ramp 2024-07-23 over 47 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 78: ramp 2024-10-27 over 35 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 79: ramp 2024-07-28 over 44 days: D caught (dated 2024-08-19, sent 2024-08-23), T caught (dated 2024-08-19, sent 2024-08-23), Dmid caught (dated 2024-08-19, sent 2024-08-23), Tmid caught (dated 2024-08-19, sent 2024-08-25)
+R30 shop 80: ramp 2024-09-05 over 48 days: D caught (dated 2024-09-28, sent 2024-10-02), T caught (dated 2024-09-29, sent 2024-10-03), Dmid caught (dated 2024-09-28, sent 2024-10-02), Tmid caught (dated 2024-09-29, sent 2024-10-03)
+R30 shop 81: ramp 2024-08-14 over 44 days: D caught (dated 2024-09-26, sent 2024-09-30), T caught (dated 2024-09-26, sent 2024-10-01), Dmid caught (dated 2024-09-26, sent 2024-09-30), Tmid caught (dated 2024-09-26, sent 2024-10-01)
+R30 shop 82: ramp 2024-07-20 over 52 days: D caught (dated 2024-08-09, sent 2024-08-13), T caught (dated 2024-08-09, sent 2024-08-14), Dmid caught (dated 2024-08-10, sent 2024-08-16), Tmid caught (dated 2024-08-09, sent 2024-08-14)
+R30 shop 83: ramp 2024-09-22 over 29 days: D caught (dated 2024-09-28, sent 2024-10-02), T caught (dated 2024-09-29, sent 2024-10-03), Dmid caught (dated 2024-09-28, sent 2024-10-02), Tmid caught (dated 2024-09-29, sent 2024-10-03)
+R30 shop 84: ramp 2024-08-01 over 28 days: D caught (dated 2024-08-20, sent 2024-08-24), T caught (dated 2024-08-16, sent 2024-08-21), Dmid caught (dated 2024-08-20, sent 2024-08-24), Tmid caught (dated 2024-08-20, sent 2024-08-26)
+R30 shop 85: ramp 2024-09-30 over 42 days: D caught (dated 2024-11-04, sent 2024-11-08), T caught (dated 2024-11-04, sent 2024-11-08), Dmid caught (dated 2024-11-04, sent 2024-11-08), Tmid caught (dated 2024-11-04, sent 2024-11-08)
+R30 shop 86: ramp 2024-09-16 over 31 days: D caught (dated 2024-10-07, sent 2024-10-11), T caught (dated 2024-10-07, sent 2024-10-11), Dmid caught (dated 2024-10-07, sent 2024-10-12), Tmid caught (dated 2024-10-07, sent 2024-10-18)
+R30 shop 87: ramp 2024-08-28 over 56 days: D caught (dated 2024-09-13, sent 2024-09-17), T caught (dated 2024-09-13, sent 2024-09-18), Dmid caught (dated 2024-09-13, sent 2024-09-17), Tmid missed
+R30 shop 88: ramp 2024-10-20 over 29 days: D caught (dated 2024-11-02, sent 2024-11-06), T caught (dated 2024-11-03, sent 2024-11-07), Dmid caught (dated 2024-11-02, sent 2024-11-06), Tmid caught (dated 2024-11-03, sent 2024-11-08)
+R30 shop 89: ramp 2024-09-28 over 53 days: D caught (dated 2024-10-05, sent 2024-10-09), T caught (dated 2024-10-06, sent 2024-10-10), Dmid caught (dated 2024-10-05, sent 2024-10-09), Tmid caught (dated 2024-10-06, sent 2024-10-10)
+R30 shop 90: ramp 2024-10-07 over 38 days: D caught (dated 2024-11-12, sent 2024-11-16), T caught (dated 2024-11-12, sent 2024-11-17), Dmid caught (dated 2024-11-12, sent 2024-11-16), Tmid caught (dated 2024-11-12, sent 2024-11-17)
+R30 shop 91: ramp 2024-08-02 over 31 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 92: ramp 2024-09-05 over 53 days: D caught (dated 2024-08-30, sent 2024-09-05), T caught (dated 2024-10-11, sent 2024-10-16), Dmid caught (dated 2024-10-11, sent 2024-10-15), Tmid caught (dated 2024-10-11, sent 2024-10-18)
+R30 shop 93: ramp 2024-10-12 over 38 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 94: ramp 2024-09-11 over 34 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 95: ramp 2024-08-30 over 55 days: D missed, T missed, Dmid missed, Tmid missed
+R30 shop 96: ramp 2024-07-27 over 37 days: D caught (dated 2024-08-01, sent 2024-08-07), T caught (dated 2024-08-01, sent 2024-08-07), Dmid caught (dated 2024-08-17, sent 2024-08-21), Tmid caught (dated 2024-08-01, sent 2024-08-07)
+R30 shop 97: ramp 2024-10-19 over 32 days: D caught (dated 2024-11-06, sent 2024-11-10), T missed, Dmid caught (dated 2024-11-06, sent 2024-11-10), Tmid missed
+R30 shop 98: ramp 2024-09-01 over 36 days: D caught (dated 2024-09-13, sent 2024-09-17), T caught (dated 2024-09-13, sent 2024-09-18), Dmid caught (dated 2024-09-13, sent 2024-09-17), Tmid caught (dated 2024-09-13, sent 2024-09-18)
+R30 shop 99: ramp 2024-08-11 over 55 days: D caught (dated 2024-09-25, sent 2024-09-29), T caught (dated 2024-09-25, sent 2024-10-01), Dmid missed, Tmid missed
+R30 shop 100: ramp 2024-09-21 over 36 days: D caught (dated 2024-09-21, sent 2024-09-25), T missed, Dmid caught (dated 2024-09-21, sent 2024-09-25), Tmid missed
+R90 shop 1: ramp 2024-09-12 over 35 days: D caught (dated 2024-09-21, sent 2024-09-25), T caught (dated 2024-09-20, sent 2024-09-26), Dmid caught (dated 2024-09-21, sent 2024-09-25), Tmid caught (dated 2024-09-22, sent 2024-09-29)
+R90 shop 2: ramp 2024-08-25 over 56 days: D caught (dated 2024-09-15, sent 2024-09-19), T caught (dated 2024-09-15, sent 2024-09-20), Dmid caught (dated 2024-09-15, sent 2024-09-19), Tmid caught (dated 2024-09-15, sent 2024-09-20)
+R90 shop 3: ramp 2024-10-20 over 43 days: D caught (dated 2024-10-17, sent 2024-10-21), T caught (dated 2024-10-17, sent 2024-10-22), Dmid caught (dated 2024-10-17, sent 2024-10-21), Tmid caught (dated 2024-10-17, sent 2024-10-22)
+R90 shop 4: ramp 2024-08-30 over 35 days: D caught (dated 2024-09-25, sent 2024-09-30), T caught (dated 2024-09-25, sent 2024-09-30), Dmid missed, Tmid missed
+R90 shop 5: ramp 2024-07-30 over 34 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 6: ramp 2024-08-24 over 40 days: D caught (dated 2024-09-03, sent 2024-09-07), T caught (dated 2024-09-03, sent 2024-09-08), Dmid caught (dated 2024-09-03, sent 2024-09-07), Tmid caught (dated 2024-09-03, sent 2024-09-08)
+R90 shop 7: ramp 2024-09-04 over 32 days: D missed, T caught (dated 2024-09-20, sent 2024-09-27), Dmid missed, Tmid missed
+R90 shop 8: ramp 2024-08-08 over 37 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 9: ramp 2024-09-07 over 30 days: D missed, T caught (dated 2024-09-18, sent 2024-09-24), Dmid missed, Tmid missed
+R90 shop 10: ramp 2024-09-26 over 56 days: D caught (dated 2024-09-23, sent 2024-09-27), T caught (dated 2024-10-10, sent 2024-10-15), Dmid caught (dated 2024-10-10, sent 2024-10-14), Tmid caught (dated 2024-10-10, sent 2024-10-15)
+R90 shop 11: ramp 2024-08-31 over 46 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 12: ramp 2024-08-23 over 53 days: D caught (dated 2024-10-07, sent 2024-10-11), T caught (dated 2024-10-07, sent 2024-10-16), Dmid missed, Tmid missed
+R90 shop 13: ramp 2024-07-21 over 29 days: D caught (dated 2024-08-11, sent 2024-08-16), T caught (dated 2024-08-11, sent 2024-08-16), Dmid missed, Tmid missed
+R90 shop 14: ramp 2024-10-07 over 51 days: D missed, T caught (dated 2024-11-10, sent 2024-11-17), Dmid missed, Tmid missed
+R90 shop 15: ramp 2024-09-08 over 55 days: D caught (dated 2024-09-10, sent 2024-09-14), T caught (dated 2024-09-10, sent 2024-09-15), Dmid caught (dated 2024-09-10, sent 2024-09-14), Tmid caught (dated 2024-09-10, sent 2024-09-15)
+R90 shop 16: ramp 2024-08-14 over 32 days: D caught (dated 2024-08-20, sent 2024-08-24), T caught (dated 2024-08-20, sent 2024-09-02), Dmid caught (dated 2024-08-20, sent 2024-08-24), Tmid missed
+R90 shop 17: ramp 2024-09-02 over 52 days: D caught (dated 2024-10-14, sent 2024-10-18), T caught (dated 2024-10-11, sent 2024-10-17), Dmid missed, Tmid missed
+R90 shop 18: ramp 2024-07-19 over 43 days: D caught (dated 2024-07-29, sent 2024-08-02), T missed, Dmid missed, Tmid missed
+R90 shop 19: ramp 2024-08-04 over 40 days: D caught (dated 2024-08-08, sent 2024-08-12), T caught (dated 2024-08-08, sent 2024-08-14), Dmid caught (dated 2024-08-08, sent 2024-08-14), Tmid missed
+R90 shop 20: ramp 2024-10-20 over 28 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 21: ramp 2024-10-21 over 55 days: D caught (dated 2024-11-19, sent 2024-11-23), T caught (dated 2024-11-19, sent 2024-11-24), Dmid caught (dated 2024-11-19, sent 2024-11-23), Tmid caught (dated 2024-11-19, sent 2024-11-24)
+R90 shop 22: ramp 2024-08-26 over 44 days: D caught (dated 2024-09-19, sent 2024-09-24), T caught (dated 2024-09-19, sent 2024-09-24), Dmid caught (dated 2024-10-03, sent 2024-10-07), Tmid caught (dated 2024-10-03, sent 2024-10-08)
+R90 shop 23: ramp 2024-09-13 over 40 days: D caught (dated 2024-09-20, sent 2024-09-24), T caught (dated 2024-09-20, sent 2024-09-25), Dmid caught (dated 2024-09-20, sent 2024-09-24), Tmid caught (dated 2024-09-20, sent 2024-09-25)
+R90 shop 24: ramp 2024-08-29 over 39 days: D caught (dated 2024-09-26, sent 2024-09-30), T caught (dated 2024-09-26, sent 2024-10-01), Dmid caught (dated 2024-09-26, sent 2024-09-30), Tmid caught (dated 2024-09-26, sent 2024-10-01)
+R90 shop 25: ramp 2024-07-19 over 41 days: D caught (dated 2024-08-01, sent 2024-08-07), T caught (dated 2024-08-01, sent 2024-08-07), Dmid missed, Tmid missed
+R90 shop 26: ramp 2024-10-13 over 52 days: D missed, T caught (dated 2024-11-01, sent 2024-11-06), Dmid missed, Tmid missed
+R90 shop 27: ramp 2024-10-19 over 31 days: D caught (dated 2024-10-18, sent 2024-10-22), T caught (dated 2024-10-16, sent 2024-10-21), Dmid caught (dated 2024-10-18, sent 2024-10-23), Tmid caught (dated 2024-10-18, sent 2024-10-24)
+R90 shop 28: ramp 2024-10-10 over 45 days: D caught (dated 2024-10-07, sent 2024-10-11), T caught (dated 2024-10-07, sent 2024-10-11), Dmid caught (dated 2024-10-07, sent 2024-10-11), Tmid caught (dated 2024-10-07, sent 2024-10-11)
+R90 shop 29: ramp 2024-09-21 over 29 days: D caught (dated 2024-09-30, sent 2024-10-04), T caught (dated 2024-09-30, sent 2024-10-04), Dmid missed, Tmid missed
+R90 shop 30: ramp 2024-08-12 over 34 days: D caught (dated 2024-09-08, sent 2024-09-13), T caught (dated 2024-09-08, sent 2024-09-13), Dmid caught (dated 2024-09-08, sent 2024-09-13), Tmid caught (dated 2024-09-08, sent 2024-09-15)
+R90 shop 31: ramp 2024-09-17 over 38 days: D caught (dated 2024-10-17, sent 2024-10-21), T caught (dated 2024-10-17, sent 2024-10-22), Dmid caught (dated 2024-10-17, sent 2024-10-21), Tmid missed
+R90 shop 32: ramp 2024-09-01 over 44 days: D caught (dated 2024-09-17, sent 2024-09-21), T caught (dated 2024-08-27, sent 2024-09-01), Dmid missed, Tmid caught (dated 2024-08-27, sent 2024-09-02)
+R90 shop 33: ramp 2024-10-18 over 55 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 34: ramp 2024-08-25 over 39 days: D caught (dated 2024-09-22, sent 2024-09-26), T caught (dated 2024-09-22, sent 2024-09-27), Dmid caught (dated 2024-09-22, sent 2024-09-27), Tmid caught (dated 2024-09-22, sent 2024-09-29)
+R90 shop 35: ramp 2024-09-25 over 40 days: D caught (dated 2024-10-02, sent 2024-10-06), T caught (dated 2024-10-02, sent 2024-10-07), Dmid caught (dated 2024-10-02, sent 2024-10-06), Tmid caught (dated 2024-10-02, sent 2024-10-07)
+R90 shop 36: ramp 2024-09-23 over 36 days: D caught (dated 2024-10-21, sent 2024-10-25), T caught (dated 2024-10-21, sent 2024-10-25), Dmid caught (dated 2024-10-21, sent 2024-10-25), Tmid caught (dated 2024-10-21, sent 2024-10-25)
+R90 shop 37: ramp 2024-09-08 over 31 days: D caught (dated 2024-09-20, sent 2024-09-24), T caught (dated 2024-09-20, sent 2024-09-25), Dmid caught (dated 2024-09-20, sent 2024-09-24), Tmid caught (dated 2024-09-20, sent 2024-09-25)
+R90 shop 38: ramp 2024-07-21 over 45 days: D caught (dated 2024-08-27, sent 2024-08-31), T caught (dated 2024-08-27, sent 2024-09-01), Dmid missed, Tmid caught (dated 2024-08-27, sent 2024-09-01)
+R90 shop 39: ramp 2024-08-31 over 46 days: D missed, T caught (dated 2024-08-26, sent 2024-09-02), Dmid missed, Tmid missed
+R90 shop 40: ramp 2024-10-09 over 53 days: D caught (dated 2024-10-15, sent 2024-10-21), T caught (dated 2024-10-14, sent 2024-10-22), Dmid missed, Tmid missed
+R90 shop 41: ramp 2024-09-03 over 52 days: D missed, T caught (dated 2024-10-17, sent 2024-10-24), Dmid caught (dated 2024-09-17, sent 2024-09-21), Tmid caught (dated 2024-10-17, sent 2024-10-24)
+R90 shop 42: ramp 2024-10-01 over 31 days: D caught (dated 2024-10-15, sent 2024-10-19), T caught (dated 2024-10-17, sent 2024-10-22), Dmid missed, Tmid missed
+R90 shop 43: ramp 2024-08-27 over 53 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 44: ramp 2024-09-08 over 53 days: D caught (dated 2024-09-23, sent 2024-09-27), T caught (dated 2024-09-23, sent 2024-09-27), Dmid caught (dated 2024-09-24, sent 2024-10-05), Tmid caught (dated 2024-09-24, sent 2024-10-01)
+R90 shop 45: ramp 2024-09-19 over 49 days: D caught (dated 2024-09-17, sent 2024-09-21), T caught (dated 2024-09-17, sent 2024-09-22), Dmid caught (dated 2024-09-17, sent 2024-09-22), Tmid caught (dated 2024-10-08, sent 2024-10-15)
+R90 shop 46: ramp 2024-09-27 over 29 days: D missed, T caught (dated 2024-10-23, sent 2024-10-29), Dmid missed, Tmid missed
+R90 shop 47: ramp 2024-09-09 over 35 days: D caught (dated 2024-09-28, sent 2024-10-02), T caught (dated 2024-09-29, sent 2024-10-03), Dmid caught (dated 2024-09-28, sent 2024-10-02), Tmid caught (dated 2024-09-29, sent 2024-10-03)
+R90 shop 48: ramp 2024-08-13 over 49 days: D caught (dated 2024-08-13, sent 2024-08-17), T caught (dated 2024-08-13, sent 2024-08-18), Dmid caught (dated 2024-08-13, sent 2024-08-17), Tmid caught (dated 2024-08-13, sent 2024-08-18)
+R90 shop 49: ramp 2024-08-18 over 37 days: D caught (dated 2024-08-15, sent 2024-08-19), T caught (dated 2024-08-15, sent 2024-08-21), Dmid caught (dated 2024-08-15, sent 2024-08-21), Tmid missed
+R90 shop 50: ramp 2024-08-09 over 48 days: D caught (dated 2024-08-31, sent 2024-09-04), T missed, Dmid caught (dated 2024-08-31, sent 2024-09-04), Tmid caught (dated 2024-08-04, sent 2024-08-11)
+R90 shop 51: ramp 2024-09-13 over 43 days: D caught (dated 2024-10-10, sent 2024-10-14), T caught (dated 2024-10-10, sent 2024-10-15), Dmid caught (dated 2024-10-10, sent 2024-10-14), Tmid missed
+R90 shop 52: ramp 2024-10-22 over 44 days: D caught (dated 2024-10-18, sent 2024-10-22), T caught (dated 2024-10-17, sent 2024-10-22), Dmid caught (dated 2024-10-18, sent 2024-10-23), Tmid caught (dated 2024-10-18, sent 2024-10-24)
+R90 shop 53: ramp 2024-08-25 over 53 days: D missed, T caught (dated 2024-10-03, sent 2024-10-10), Dmid missed, Tmid missed
+R90 shop 54: ramp 2024-08-19 over 53 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 55: ramp 2024-09-22 over 48 days: D caught (dated 2024-10-16, sent 2024-10-20), T caught (dated 2024-10-16, sent 2024-10-21), Dmid caught (dated 2024-10-16, sent 2024-10-21), Tmid caught (dated 2024-10-16, sent 2024-10-21)
+R90 shop 56: ramp 2024-10-04 over 46 days: D caught (dated 2024-10-02, sent 2024-10-06), T caught (dated 2024-10-27, sent 2024-11-05), Dmid caught (dated 2024-10-27, sent 2024-11-02), Tmid missed
+R90 shop 57: ramp 2024-07-28 over 49 days: D caught (dated 2024-09-13, sent 2024-09-17), T caught (dated 2024-09-13, sent 2024-09-18), Dmid caught (dated 2024-09-13, sent 2024-09-17), Tmid caught (dated 2024-09-13, sent 2024-09-18)
+R90 shop 58: ramp 2024-09-26 over 41 days: D caught (dated 2024-10-30, sent 2024-11-03), T caught (dated 2024-10-30, sent 2024-11-04), Dmid caught (dated 2024-10-30, sent 2024-11-03), Tmid caught (dated 2024-10-30, sent 2024-11-04)
+R90 shop 59: ramp 2024-08-18 over 35 days: D caught (dated 2024-09-09, sent 2024-09-13), T caught (dated 2024-09-09, sent 2024-09-13), Dmid caught (dated 2024-09-09, sent 2024-09-13), Tmid missed
+R90 shop 60: ramp 2024-08-23 over 38 days: D caught (dated 2024-08-25, sent 2024-08-29), T caught (dated 2024-08-25, sent 2024-08-29), Dmid caught (dated 2024-08-25, sent 2024-08-31), Tmid caught (dated 2024-09-22, sent 2024-09-26)
+R90 shop 61: ramp 2024-09-15 over 29 days: D caught (dated 2024-09-25, sent 2024-10-01), T caught (dated 2024-09-25, sent 2024-10-01), Dmid caught (dated 2024-09-25, sent 2024-10-01), Tmid caught (dated 2024-09-25, sent 2024-10-01)
+R90 shop 62: ramp 2024-09-24 over 56 days: D caught (dated 2024-10-11, sent 2024-10-15), T caught (dated 2024-10-11, sent 2024-10-16), Dmid caught (dated 2024-10-11, sent 2024-10-15), Tmid caught (dated 2024-10-11, sent 2024-10-16)
+R90 shop 63: ramp 2024-09-10 over 34 days: D caught (dated 2024-09-12, sent 2024-09-18), T missed, Dmid caught (dated 2024-09-12, sent 2024-09-19), Tmid missed
+R90 shop 64: ramp 2024-09-06 over 50 days: D caught (dated 2024-10-17, sent 2024-10-21), T caught (dated 2024-10-17, sent 2024-10-22), Dmid missed, Tmid missed
+R90 shop 65: ramp 2024-09-26 over 37 days: D caught (dated 2024-10-08, sent 2024-10-12), T caught (dated 2024-10-08, sent 2024-10-13), Dmid caught (dated 2024-10-08, sent 2024-10-12), Tmid caught (dated 2024-10-08, sent 2024-10-13)
+R90 shop 66: ramp 2024-07-29 over 43 days: D caught (dated 2024-09-02, sent 2024-09-06), T caught (dated 2024-09-02, sent 2024-09-08), Dmid caught (dated 2024-09-02, sent 2024-09-08), Tmid missed
+R90 shop 67: ramp 2024-10-19 over 31 days: D caught (dated 2024-10-28, sent 2024-11-01), T caught (dated 2024-11-14, sent 2024-11-19), Dmid caught (dated 2024-10-28, sent 2024-11-01), Tmid caught (dated 2024-11-14, sent 2024-11-19)
+R90 shop 68: ramp 2024-09-08 over 32 days: D caught (dated 2024-09-19, sent 2024-09-24), T caught (dated 2024-09-19, sent 2024-09-26), Dmid caught (dated 2024-09-19, sent 2024-09-25), Tmid missed
+R90 shop 69: ramp 2024-09-07 over 38 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 70: ramp 2024-07-25 over 55 days: D caught (dated 2024-09-09, sent 2024-09-13), T caught (dated 2024-09-06, sent 2024-09-13), Dmid caught (dated 2024-09-09, sent 2024-09-13), Tmid missed
+R90 shop 71: ramp 2024-09-15 over 51 days: D caught (dated 2024-10-17, sent 2024-10-21), T caught (dated 2024-10-18, sent 2024-10-23), Dmid caught (dated 2024-10-18, sent 2024-10-24), Tmid missed
+R90 shop 72: ramp 2024-07-20 over 30 days: D caught (dated 2024-07-29, sent 2024-08-03), T caught (dated 2024-07-29, sent 2024-08-04), Dmid missed, Tmid missed
+R90 shop 73: ramp 2024-08-28 over 37 days: D missed, T caught (dated 2024-09-17, sent 2024-09-23), Dmid missed, Tmid missed
+R90 shop 74: ramp 2024-09-22 over 40 days: D caught (dated 2024-10-27, sent 2024-10-31), T missed, Dmid missed, Tmid missed
+R90 shop 75: ramp 2024-09-18 over 31 days: D caught (dated 2024-09-21, sent 2024-09-25), T caught (dated 2024-09-22, sent 2024-09-26), Dmid caught (dated 2024-09-21, sent 2024-09-25), Tmid caught (dated 2024-09-22, sent 2024-09-26)
+R90 shop 76: ramp 2024-07-31 over 46 days: D caught (dated 2024-08-26, sent 2024-08-30), T caught (dated 2024-08-26, sent 2024-09-01), Dmid missed, Tmid missed
+R90 shop 77: ramp 2024-10-25 over 43 days: D caught (dated 2024-10-31, sent 2024-11-04), T caught (dated 2024-10-31, sent 2024-11-05), Dmid caught (dated 2024-10-31, sent 2024-11-04), Tmid caught (dated 2024-10-31, sent 2024-11-06)
+R90 shop 78: ramp 2024-08-27 over 37 days: D caught (dated 2024-09-19, sent 2024-09-26), T caught (dated 2024-09-19, sent 2024-09-25), Dmid missed, Tmid caught (dated 2024-09-19, sent 2024-09-26)
+R90 shop 79: ramp 2024-10-22 over 56 days: D caught (dated 2024-11-06, sent 2024-11-11), T caught (dated 2024-11-06, sent 2024-11-11), Dmid caught (dated 2024-11-06, sent 2024-11-11), Tmid caught (dated 2024-11-06, sent 2024-11-11)
+R90 shop 80: ramp 2024-10-13 over 53 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 81: ramp 2024-08-02 over 36 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 82: ramp 2024-10-25 over 29 days: D caught (dated 2024-11-13, sent 2024-11-17), T caught (dated 2024-11-13, sent 2024-11-18), Dmid caught (dated 2024-11-13, sent 2024-11-17), Tmid caught (dated 2024-11-13, sent 2024-11-18)
+R90 shop 83: ramp 2024-10-16 over 42 days: D caught (dated 2024-11-19, sent 2024-11-23), T caught (dated 2024-11-19, sent 2024-11-24), Dmid missed, Tmid missed
+R90 shop 84: ramp 2024-08-12 over 42 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 85: ramp 2024-08-09 over 48 days: D caught (dated 2024-09-06, sent 2024-09-10), T missed, Dmid caught (dated 2024-09-06, sent 2024-09-10), Tmid missed
+R90 shop 86: ramp 2024-09-02 over 34 days: D caught (dated 2024-09-18, sent 2024-09-24), T missed, Dmid missed, Tmid missed
+R90 shop 87: ramp 2024-10-04 over 39 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 88: ramp 2024-08-05 over 33 days: D caught (dated 2024-08-09, sent 2024-08-13), T caught (dated 2024-08-09, sent 2024-08-14), Dmid caught (dated 2024-08-09, sent 2024-08-13), Tmid caught (dated 2024-08-09, sent 2024-08-14)
+R90 shop 89: ramp 2024-09-06 over 56 days: D caught (dated 2024-09-13, sent 2024-09-17), T caught (dated 2024-09-13, sent 2024-09-18), Dmid caught (dated 2024-09-13, sent 2024-09-17), Tmid caught (dated 2024-10-08, sent 2024-10-13)
+R90 shop 90: ramp 2024-08-01 over 39 days: D caught (dated 2024-08-10, sent 2024-08-16), T missed, Dmid missed, Tmid missed
+R90 shop 91: ramp 2024-10-02 over 30 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 92: ramp 2024-10-18 over 33 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 93: ramp 2024-10-01 over 45 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 94: ramp 2024-09-23 over 34 days: D caught (dated 2024-10-03, sent 2024-10-07), T caught (dated 2024-10-03, sent 2024-10-08), Dmid caught (dated 2024-10-03, sent 2024-10-07), Tmid caught (dated 2024-10-03, sent 2024-10-08)
+R90 shop 95: ramp 2024-10-26 over 51 days: D caught (dated 2024-11-18, sent 2024-11-22), T caught (dated 2024-11-18, sent 2024-11-22), Dmid caught (dated 2024-10-20, sent 2024-10-26), Tmid caught (dated 2024-11-18, sent 2024-11-22)
+R90 shop 96: ramp 2024-07-19 over 38 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 97: ramp 2024-09-25 over 39 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 98: ramp 2024-08-03 over 49 days: D caught (dated 2024-08-18, sent 2024-08-24), T missed, Dmid missed, Tmid missed
+R90 shop 99: ramp 2024-10-10 over 51 days: D missed, T missed, Dmid missed, Tmid missed
+R90 shop 100: ramp 2024-08-24 over 36 days: D caught (dated 2024-09-02, sent 2024-09-06), T caught (dated 2024-09-02, sent 2024-09-06), Dmid caught (dated 2024-09-02, sent 2024-09-06), Tmid caught (dated 2024-09-02, sent 2024-09-06)
+
+######## Summary ########
+N (no change): D 560 alerts in 29700 checks (1.89 per 100); T 476 alerts in 25400 checks (1.87 per 100); Dmid 452 alerts in 29700 checks (1.52 per 100); Tmid 370 alerts in 25400 checks (1.46 per 100)
+R30: D caught 67 (median 17 days after the ramp began); T caught 57 (median 21 days after the ramp began); Dmid caught 58 (median 20 days after the ramp began); Tmid caught 45 (median 25 days after the ramp began)
+R90: D caught 73 (median 19 days after the ramp began); T caught 74 (median 22 days after the ramp began); Dmid caught 54 (median 16 days after the ramp began); Tmid caught 44 (median 20 days after the ramp began)
+
+######## Bars ########
+P1 (D catches <= 25 of R30): 67 -> FAIL
+P2 (R90: T >= 60 and >= D + 15): T 74, D 73 -> FAIL
+P3 (R30: T >= D + 10): T 57, D 67 -> FAIL
+P4 (N: T <= 2 per 100 checks): 1.87 -> PASS
