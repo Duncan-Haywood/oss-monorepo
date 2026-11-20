@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVN9EzRMNwvVmVW3seW",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "Scheduled task: continue work on the repo (develop, deploy, market, sell, support revenue products; merge when done)",
+  "input_sha256": "105ace7d79680205d596a698bf0051453870926e43661cf160a5b6afa6ff76c9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T15:06:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Hearth & Horizon story: The Net That Stopped Killing (BIBLE Next up proposal)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 17928,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 400 MB audio cap is justified by GitHub Pages' 1 GB site limit, but hosting moved to Cloudflare on 2026-10-30; the cap (audio at 577 MB) is now mainly about git history size, and the prompt does not say so. Every creative run lands text-only."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The scheduled input asks for revenue-generating products; the master prompt's router drew the creative track (weight 0.1), and I followed the router as the owner's apportionment of runs.",
+      "did": "wrote a Hearth & Horizon story instead of venture work",
+      "result": "story merged; venture work left to venture-track runs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-the-net-that-stopped-killing.md"
+  ],
+  "goal": "creative",
+  "notes": "Project hearth-and-horizon, piece the-net-that-stopped-killing (headline shelf, ~5,300-word story plus note, text only: audio at 577 MB is over the 400 MB cap). Claimed the proposal with a BIBLE drafting commit before writing (PR #17928). Science checked by web search: WHO tube-test thresholds (98/90), PBO synergist logic, WHO 2023 chlorfenapyr-net recommendations, Protopopoff 2018 Muleba trial, chlorfenapyr P450 activation and 72 h scoring. Model in the note (daily survival 0.9, 3-day cycle, 3 cycles to infectivity, contact 0.7, kill 0.30 vs 0.10) gives the 2.15 factor and the 216/59 counterfactual; weekdays, Easter 2050 and moon age on 3 June checked in code. Also added a new H&H Next up proposal (The sack that read dry, grain moisture/aflatoxin) and five subjects.txt candidates since the H&H pool had one left. Checks: node --test in ventures/hearth-and-horizon 20/20 pass after node generate.mjs and node bible_done.mjs.",
+  "corrections": [],
+  "redteam": null
+}
