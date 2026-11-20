@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKkir5gXdZZAQrc6Gi5",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T16:19:14Z",
+  "ended": "2026-11-20T20:28:22Z",
+  "wall_minutes": 249.45,
+  "tokens_in": 5932344,
+  "tokens_out": 36277,
+  "cost_usd": 2.9109,
+  "tool_calls": 73,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17939",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First full run (16 loads) was stopped by the 2 h background-job limit after ~2h16m and wrote nothing, because pool.map returns only at the end; rerun at 12 loads with a per-task append log (partial.jsonl) so a stopped run resumes."
+  ],
+  "integrity_issues": [
+    "Registered 48 loads, ran 12: two amendments were committed to LOG.md before each full run, hypotheses unchanged. The 1-load smoke run's outcome was seen before the first amendment (disclosed, not reported)."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to run long experiments with run_in_background but not that the harness kills a background job at 2 h (max timeout 7200000 ms); a multiprocessing pool.map that returns only at the end loses everything. Suggest: checkpoint per task (imap_unordered + append log) for any run estimated over ~1 h."
+    },
+    {
+      "file": "research/buildbot-sheathing/experiments (chain)",
+      "issue": "The sensor bound B is copied into ~8 module globals (m44 B_E, m45, m55, m56, m58, m59, m61, m63); changing it needs a helper that sets every copy. A single source of truth would make bound sweeps safer."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md (milestone 65 plan)",
+      "why": "48 registered loads would take ~7 h here at ~17 min per robot-load task",
+      "did": "amended to 16, then 12 loads before each full run, hypotheses unchanged",
+      "result": "run finished in 4998 s; the hypotheses were decided, on a smaller sample"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-sheathing-robot-planner-sized-to-the-bias.md",
+    "research/buildbot-sheathing/LOG.md (milestone 65 entries)"
+  ],
+  "goal": null,
+  "notes": "Milestone 65 of buildbot-sheathing: the planner sized to B = 0.3-1.0 N. H251 held (0.3 N: no press over spec, coverage G1 100%, H1 99.12%); H250 refuted (from 0.4 N on, presses over spec; 465 of 485 with no flip, so the bias's direct term, ~0.075-0.097 mm/N, is unpriced); H252 refuted (coverage >= 85.62% at 1.0 N). Checks run locally: paper/check_numbers.py 440 of 440 ok, _homepage/build.py ok, check_posts ok, check_md_links ok, research_live_links ok, programme_check ok. No library code changed, so no new tests.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "15b687ce-c9e0-55af-9725-210c4e46c271",
+    "transcripts": 1,
+    "first": "2026-11-20T16:19:14Z",
+    "last": "2026-11-20T20:28:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 103,
+        "output": 36277,
+        "thinking": 7605,
+        "cache_read": 5804226,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128015,
+        "api_equivalent_usd": 2.9109,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 103,
+      "output": 36277,
+      "thinking": 7605,
+      "cache_read": 5804226,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128015,
+      "api_equivalent_usd": 2.9109,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 70,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 249.45,
+      "active_minutes": 249.45,
+      "model_minutes": 7.01,
+      "tool_minutes": 242.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an engineer extending an existing simulation chain: parameter plumbing, a 1.4 h run, analysis and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 412.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
