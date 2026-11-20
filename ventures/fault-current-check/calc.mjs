@@ -20,6 +20,10 @@ export const MATERIALS = {
   al: { name: "aluminium", rho20: 2.8264e-8, alpha: 0.00403 },
 };
 
+import { arcFlash, arcFlashWorstEnclosed, EQUIPMENT } from "./arcflash.mjs";
+
+export { EQUIPMENT, CONFIGS, arcLabelText } from "./arcflash.mjs";
+
 const STRAND = 1.02;
 const KCMIL_MM2 = 0.5067074790975;
 const M_PER_FT = 0.3048;
@@ -47,6 +51,7 @@ export const DEFAULTS = {
   phase: "3", volts: "", freq: "60", sourceMode: "transformer", kva: "", pctZ: "", txXR: "", tolerancePct: "10",
   utilityMva: "", utilityXR: "10", knownA: "", knownXR: "", motorFla: "", motorMult: "4", tempC: "25",
   lengthUnit: "ft", serviceName: "Service", serviceRatingKa: "", segments: [],
+  arcConfig: "VCB", arcCapMs: "", serviceArcEquip: "", serviceClearMs: "", serviceClearMinMs: "",
 };
 
 // The page's example.
@@ -69,10 +74,15 @@ export const EXAMPLE = {
   lengthUnit: "ft",
   serviceName: "Service (transformer secondary)",
   serviceRatingKa: "65",
+  arcConfig: "VCB",
+  arcCapMs: "",
+  serviceArcEquip: "lv-swgr",
+  serviceClearMs: "500",
+  serviceClearMinMs: "750",
   segments: [
-    { name: "MDP", from: 0, size: "400", material: "cu", sets: "6", length: "25", conduit: "magnetic", x: "", ratingKa: "65" },
-    { name: "Panel LP-1", from: 1, size: "1/0", material: "cu", sets: "1", length: "150", conduit: "magnetic", x: "", ratingKa: "10" },
-    { name: "Panel LP-2 (via 75 kVA transformer)", from: 1, size: "1", material: "cu", sets: "1", length: "40", conduit: "magnetic", x: "", ratingKa: "10", txKva: "75", txPctZ: "4.5", txXR: "2", txVolts: "208" },
+    { name: "MDP", from: 0, size: "400", material: "cu", sets: "6", length: "25", conduit: "magnetic", x: "", ratingKa: "65", arcEquip: "lv-swgr", clearMs: "50", clearMinMs: "320" },
+    { name: "Panel LP-1", from: 1, size: "1/0", material: "cu", sets: "1", length: "150", conduit: "magnetic", x: "", ratingKa: "10", arcEquip: "lv-panel", clearMs: "25", clearMinMs: "25" },
+    { name: "Panel LP-2 (via 75 kVA transformer)", from: 1, size: "1", material: "cu", sets: "1", length: "40", conduit: "magnetic", x: "", ratingKa: "10", txKva: "75", txPctZ: "4.5", txXR: "2", txVolts: "208", arcEquip: "lv-panel", clearMs: "16", clearMinMs: "16" },
   ],
 };
 
@@ -289,6 +299,25 @@ export function analyze(input = {}) {
     }));
   }
 
+  // ---- arc flash (IEEE 1584-2018) where a panel names its equipment and a clearing time
+  const arcConfig = ["VCB", "VCBB", "HCB", "VOA", "HOA", "worst"].includes(String(x.arcConfig)) ? String(x.arcConfig) : "VCB";
+  const arcCap = num(x.arcCapMs);
+  if (Number.isNaN(arcCap) || (arcCap !== null && arcCap <= 0)) return { error: "The arc-flash time cap must be blank or more than 0 ms." };
+  const arcInputs = [{ arcEquip: x.serviceArcEquip, clearMs: x.serviceClearMs, clearMinMs: x.serviceClearMinMs }, ...segs.map((s) => s || {})];
+  nodes.forEach((n, i) => {
+    const a = arcInputs[i] || {};
+    const eqId = String(a.arcEquip ?? "").trim();
+    n.arc = null;
+    if (!eqId) return;
+    const eq = EQUIPMENT.find((e) => e.id === eqId);
+    if (!eq) { n.arc = { error: "Unknown equipment type." }; return; }
+    if (!phase3) { n.arc = { error: "IEEE 1584-2018 covers three-phase systems only." }; return; }
+    const inp = { volts: n.volts, config: arcConfig, ibfKa: n.amps / 1000, gapMm: eq.gap, distMm: eq.dist, heightMm: eq.h, widthMm: eq.w, depthMm: eq.d, clearMs: a.clearMs, clearMinMs: a.clearMinMs, capMs: arcCap };
+    const r = arcConfig === "worst" ? arcFlashWorstEnclosed(inp) : arcFlash(inp);
+    n.arc = { ...r, equipment: eq.label };
+  });
+  const arcDone = nodes.filter((n) => n.arc && !n.arc.error);
+
   // ---- findings
   const findings = [];
   const over = nodes.filter((n) => n.ok === false);
@@ -301,12 +330,26 @@ export function analyze(input = {}) {
   if (worst && worst.p2pLowPct >= 2) {
     findings.push({ severity: "medium", title: `Adding impedances as magnitudes reads ${worst.p2pLowPct.toFixed(1)} % low at ${worst.name}`, detail: `The point-to-point method's multipliers add every impedance as if all had the same angle. The transformer is mostly reactance and a long small feeder mostly resistance, so their true (complex) sum is smaller and the real fault current higher: ${fmtA(worst.amps)} A against ${fmtA(worst.ampsP2P)} A here. Use the higher figure when you check equipment ratings.` });
   }
+  const arcFindings = [];
+  for (const n of nodes.filter((m) => m.arc && m.arc.error)) {
+    arcFindings.push({ severity: "medium", title: `${n.name}: no arc-flash result`, detail: n.arc.error });
+  }
+  if (arcDone.length) {
+    const top = arcDone.reduce((m, n) => (n.arc.eCal > m.arc.eCal ? n : m));
+    const a = top.arc;
+    arcFindings.push({ severity: a.eCal > 8 ? "high" : "medium", title: `Highest arc-flash energy: ${a.eCal.toFixed(1)} cal/cm² at ${top.name}`, detail: `IEEE 1584-2018 (${a.config}) at ${Math.round(a.distMm / 25.4)} in, from ${(a.ibfKa).toFixed(2)} kA bolted. Arcing current ${a.full.iarcKa.toFixed(2)} kA (reduced ${a.reduced.iarcKa.toFixed(2)} kA): read your protective device's total clearing time at both on its curve. The ${a.worst === "reduced" ? "reduced arcing current, cleared more slowly," : "full arcing current"} gives the higher energy here. Arc flash boundary ${Math.round(a.afbMm / 25.4)} in. Arc-rated PPE must be rated at least the incident energy.` });
+    const seen = new Set();
+    for (const n of arcDone) for (const w of n.arc.warnings) { const key = w.slice(0, 40); if (!seen.has(key)) { seen.add(key); arcFindings.push({ severity: "info", title: `Arc flash: ${n.name}`, detail: w }); } }
+    if (motorA > 0) arcFindings.push({ severity: "info", title: "Arc flash uses the full bolted current, motors included", detail: "Motor contribution decays within a few cycles, so a long-clearing arc sees less of it. The bolted figure with motors gives the higher arcing current; repeat with the motors left out to see the lower-current case, which can clear more slowly and give more energy." });
+  }
+  findings.push(...arcFindings);
   for (const a of assumptions) findings.push({ severity: "info", title: "Assumption", detail: a });
 
   return {
     input: { phase: phase3 ? "3" : "1", volts: V, freq, tempC, lengthUnit },
     source, motorA, nodes, findings,
     over: over.length,
+    arcConfig, arcMaxCal: arcDone.length ? Math.max(...arcDone.map((n) => n.arc.eCal)) : null,
   };
 }
 
@@ -323,7 +366,7 @@ function csvCell(v) {
 }
 
 export function reportCsv(a) {
-  const head = ["node", "name", "fed_from", "volts", "conductor", "sets", "length_" + a.input.lengthUnit, "transformer", "fault_a_sym", "fault_a_magnitude_sum", "magnitude_sum_low_pct", "x_over_r", "kappa", "peak_a", "rating_ka", "within_rating", "label_a"];
+  const head = ["node", "name", "fed_from", "volts", "conductor", "sets", "length_" + a.input.lengthUnit, "transformer", "fault_a_sym", "fault_a_magnitude_sum", "magnitude_sum_low_pct", "x_over_r", "kappa", "peak_a", "rating_ka", "within_rating", "label_a", "arc_equipment", "arc_config", "arcing_ka", "arcing_ka_reduced", "incident_energy_cal_cm2", "working_distance_in", "arc_flash_boundary_in"];
   const rows = a.nodes.map((n, i) => [
     i, n.name, n.from === null ? "" : n.from, n.volts,
     n.segment && n.segment.size ? `${n.segment.size} ${n.segment.material}` : "",
@@ -332,6 +375,9 @@ export function reportCsv(a) {
     Math.round(n.amps), Math.round(n.ampsP2P), n.p2pLowPct.toFixed(2),
     Number.isFinite(n.xr) ? n.xr.toFixed(2) : "inf", n.kappa.toFixed(3), Math.round(n.peakA),
     n.ratingKa ?? "", n.ok === null ? "" : n.ok ? "yes" : "NO", n.labelA,
+    ...(n.arc && !n.arc.error
+      ? [n.arc.equipment, n.arc.config, n.arc.full.iarcKa.toFixed(3), n.arc.reduced.iarcKa.toFixed(3), n.arc.eCal.toFixed(2), Math.round(n.arc.distMm / 25.4), Math.round(n.arc.afbMm / 25.4)]
+      : [n.arc && n.arc.error ? `error: ${n.arc.error}` : "", "", "", "", "", "", ""]),
   ]);
   return [head, ...rows].map((r) => r.map(csvCell).join(",")).join("\n") + "\n";
 }

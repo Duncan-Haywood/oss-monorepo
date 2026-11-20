@@ -5,7 +5,9 @@ description: >-
   through feeders, parallel sets and step-down transformers with motor
   contribution, it gives the short-circuit current at every panel, X/R and peak,
   a check against each panel's kA rating and NEC 110.24 label text, and shows
-  where the point-to-point method reads low. Nothing is uploaded.
+  where the point-to-point method reads low, plus IEEE 1584-2018 arc flash
+  incident energy and boundary per panel and on a single-point page.
+  Nothing is uploaded.
 stage: prototype
 owner: duncan
 
