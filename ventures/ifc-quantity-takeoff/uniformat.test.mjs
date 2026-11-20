@@ -156,3 +156,41 @@ test("curtain panels go with the curtain wall, stringers with the stair", () => 
   assert.equal(ruleCode(row({ cls: "IfcPlate", pdt: "CURTAIN_PANEL" }), none).code, "B2010");
   assert.equal(ruleCode(row({ cls: "IfcMember", pdt: "STRINGER" }), none).code, "C2010");
 });
+
+test("slabs typed FLOOR that are finishes, sun shades or roofs by their type name", () => {
+  const slab = (type) => ruleCode(row({ cls: "IfcSlab", pdt: "FLOOR", type }), none);
+  assert.equal(slab("Floor:FB 15.0 - Teppich").code, "C3020");
+  assert.equal(slab("Floor:FB 15.0 - Holzdielen").code, "C3020");
+  assert.equal(slab("Floor:Finish Floor - Ceramic Tile").code, "C3020");
+  assert.equal(slab("IFC_dekvloer_zwevend 90").code, "C3020");
+  assert.equal(slab("Floor:Flis - trapp").code, "C2020"); // tiles on a stair
+  assert.equal(slab("Floor:Betongdekke 300 + avretting og flis").code, "B1010"); // a concrete deck naming its topping
+  assert.equal(slab("Floor:Sonnenschutz").code, "B2010");
+  assert.equal(slab("IFC_plat_dak_geisoleerd 171").code, "B1020");
+  assert.equal(ruleCode(row({ cls: "IfcSlab", pdt: "FLOOR", name: "dakvloer" }), none).code, "B1020");
+  assert.equal(slab("Floor:Garage Slab").code, "B1010");
+  assert.equal(slab("Geschossdecke:STB 20.0").code, "B1010");
+});
+
+test("a top slab with walls under it and no storey on it is the roof, and so is the frame under it", () => {
+  const fr = (o) => ({ ...row(o), box: o.box });
+  const base = () => [
+    fr({ id: 1, cls: "IfcSlab", pdt: "FLOOR", type: "STB 30.0", box: [0, 0, 3.0, 10, 10, 3.3] }),
+    fr({ id: 2, cls: "IfcSlab", pdt: "FLOOR", type: "STB 30.0", box: [0, 0, 6.6, 10, 10, 6.9] }),
+    fr({ id: 3, cls: "IfcWallStandardCase", ext: true, box: [0, 0, 3.3, 10, 0.3, 6.6] }), // stops under the top slab
+    fr({ id: 4, cls: "IfcWallStandardCase", ext: true, box: [0, 0, 0, 10, 0.3, 3.0] }),
+    fr({ id: 5, cls: "IfcColumn", box: [5, 5, 3.3, 5.3, 5.3, 6.6] }),
+    fr({ id: 6, cls: "IfcWallStandardCase", ext: true, box: [0, 0, 6.9, 10, 0.2, 7.9] }), // a 1 m parapet
+    fr({ id: 7, cls: "IfcSlab", pdt: "FLOOR", type: "Floor:Sonnenschutz", box: [10, 0, 6.6, 12, 10, 6.7] }), // nothing under it
+  ];
+  let rows = assignUniformat(base());
+  const code = (id) => rows.find((r) => r.id === id).uniformat.code;
+  assert.deepEqual([1, 2, 5, 7].map(code), ["B1010", "B1020", "B1020", "B2010"]);
+  assert.match(rows.find((r) => r.id === 2).uniformat.why, /roof by geometry/);
+  // a storey's walls standing on it: a floor with its roof not modelled, not a roof
+  rows = assignUniformat([...base(), fr({ id: 8, cls: "IfcWallStandardCase", ext: true, box: [0, 9.7, 6.9, 10, 10, 9.9] })]);
+  assert.equal(code(2), "B1010");
+  // a roof whose geometry was not read may be the one over it: nothing is decided
+  rows = assignUniformat([...base(), row({ id: 9, cls: "IfcRoof" })]);
+  assert.equal(code(2), "B1010");
+});
