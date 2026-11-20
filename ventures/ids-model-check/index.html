@@ -273,13 +273,19 @@
   });
 
   let worker = null;
+  // One worker serves both the check and the IDS audit; each request carries
+  // a number the worker echoes, so a reply to an earlier request (an audit
+  // still running when "Try a tiny sample" starts a check) is dropped.
+  let reqNo = 0;
   function run() {
     if (!state.ifc || !state.ids) return;
     $("go").disabled = true;
     $("status").textContent = "Checking...";
     $("out").innerHTML = "";
     worker ||= new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
+    const req = ++reqNo;
     worker.onmessage = (ev) => {
+      if (ev.data.req !== req) return;
       $("go").disabled = false;
       if (ev.data.error) {
         $("status").textContent = "Could not check: " + ev.data.error;
@@ -292,7 +298,7 @@
       if (!state.report.pass) record("model_failed");
       render(state.report);
     };
-    worker.postMessage({ ids: state.ids, ifc: state.ifc });
+    worker.postMessage({ ids: state.ids, ifc: state.ifc, req });
   }
   $("go").addEventListener("click", run);
 
@@ -303,7 +309,9 @@
     $("status").textContent = "Auditing the IDS...";
     $("out").innerHTML = "";
     worker ||= new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
+    const req = ++reqNo;
     worker.onmessage = (ev) => {
+      if (ev.data.req !== req) return;
       ready();
       if (ev.data.error) { $("status").textContent = "Could not audit: " + ev.data.error; record("check_error"); return; }
       const a = ev.data.audit;
@@ -402,7 +410,7 @@
       // the IFC 4.3 templates, so the page can offer it without bSDD's API.
       showBsddLinks(state.ids);
     };
-    worker.postMessage({ ids: state.ids, auditOnly: true });
+    worker.postMessage({ ids: state.ids, auditOnly: true, req });
   }
   $("audit").addEventListener("click", runAudit);
 

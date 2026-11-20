@@ -33,7 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Start here row 7 ids-model-check. Landed: editor's Write as a pattern exact (temporal.mjs dayPattern/dateRangePattern; revision diff shares it). eval/date-pattern-exact-2026-11-20.md: old pattern 50/310 verdicts unlike the range, new 0; IfcTester 0.9.0 (ifcopenshell 0.9.0.post1) same failing doors 10/10; date-range-revisions unchanged 574/574, 94/94. run_venture_tests ids-model-check: 393 ok. check_posts ok. venture-preflight run in background.",
+  "notes": "Start here row 7 ids-model-check. Landed: editor's Write as a pattern exact (temporal.mjs dayPattern/dateRangePattern; revision diff shares it). eval/date-pattern-exact-2026-11-20.md: old pattern 50/310 verdicts unlike the range, new 0; IfcTester 0.9.0 (ifcopenshell 0.9.0.post1) same failing doors 10/10; date-range-revisions unchanged 574/574, 94/94. run_venture_tests ids-model-check: 393 ok. check_posts ok. venture-preflight run in background. Also fixed a pre-existing race on index.html found by run_workflow_locally's button_clicks sweep: the shared worker's late audit reply reached the check handler (\"Cannot read properties of undefined (reading 'seconds')\" on Try a tiny sample); requests now carry a number the worker echoes and stale replies are dropped; sweep 0 hits after. run_workflow_locally --for-changes: 15/15 workflows passed (uses: steps not run). venture-preflight: clean. CI had no check runs on the PR at merge time (verified locally).",
   "corrections": [],
   "redteam": null
 }
