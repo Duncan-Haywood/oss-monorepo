@@ -58,7 +58,10 @@ follows the spec.
 clones each one without file contents, and runs every `.editorconfig` in it
 against its full file list. The results are in
 [the sample report](../../ventures/editorconfig-explainer/eval/wild-sample-2026-11-20.md).
-One finding stood out. deno's top-level `.editorconfig` has this line:
+89 of the 300 have a top-level `.editorconfig` (141 files counting nested
+ones), and 60 of those 89 produce no finding at all. None of them uses an
+inline comment, so for popular projects that disagreement is a trap waiting
+to be stepped in, not a common bug. Two findings stood out. deno's top-level `.editorconfig` has this line:
 
 ```
 [*.out] # make editor neutral to .out files

@@ -28,7 +28,8 @@ and says why a section matched nothing.
 - **Sections that match no listed file** (medium), with a looser glob that would: a `/` anchors the name to its
   file's folder (`[**/src/*.go]`), `*` stops at `/` (`[src/**.go]`), matching is case-sensitive.
 - **Section names that cannot mean what they say**: `{md}` with one item is literal text, a trailing `/`, a `\`
-  used as a separator, spaces inside the brackets, a reversed `{9..1}` (invalid; the npm core counts down and
+  used as a separator, spaces inside the brackets, a comma outside braces (literal text: the Linux kernel's
+  `[tools/{perf,power,rcu,testing/kunit}/**.py,]` matches no Python file for that reason), a reversed `{9..1}` (invalid; the npm core counts down and
   matches it anyway), `\*` (literal in the spec and the npm core, a wildcard in core-py 0.17.1).
 - **Misspelled keys** (`indent-size`, `trim_trailing_whitespaces`), **invalid values** (`indent_size = false`,
   `insert_final_newline = off`, where `unset` is what cancels a setting), pairs above the first section, a key
