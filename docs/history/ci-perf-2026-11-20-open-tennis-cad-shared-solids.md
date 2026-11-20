@@ -78,7 +78,8 @@ This 4-core sandbox, build123d 0.13.0 in a venv, wall time with `time`:
 
 One-off runs on a shared 4-core box, not medians. `main`'s 289 s suite ran from a scratch copy of `cad/`
 without `manufacturing/`, so its freshness tests errored there (6 failures and errors, same 147 tests). The CI cad job runs the same
-suite plus a ~1 min pip install, so expect roughly 50 s off each run.
+suite plus a ~1 min pip install, so expect roughly 50 s off each run. On this PR (#17919) the `cad` check
+ran 13:52:21 to 13:58:15 UTC, 5 min 54 s with the install, success; no same-day `main` baseline was read.
 
 ## Not changed, ranked for the next run
 
