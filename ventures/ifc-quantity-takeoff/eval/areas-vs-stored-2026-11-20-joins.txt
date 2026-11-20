@@ -1,0 +1,84 @@
+construction.ifc (IFC2X3, 0.7 s): median |rel| of agreeing pairs 1.3e-4; elements storing an area but faceted (not cut): 0
+  IfcColumn.CrossSectionArea: 257 / 257 agree
+  IfcWall.GrossSideArea: 11 / 36 agree; matches-stored-volume 6, split 17, repeated 2
+architect.ifc (IFC2X3, 5.8 s): median |rel| of agreeing pairs 9.1e-16; elements storing an area but faceted (not cut): 0
+  IfcWall.GrossSideArea: 70 / 112 agree; split 5, matches-stored-volume 4, net-as-gross 33
+  IfcMember.CrossSectionArea: 1392 / 1450 agree; unexplained 58
+    #17161 IfcMember CrossSectionArea computed 0.0095 stored 0.6607 (-98.6%) openings 0 Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574056
+    #17325 IfcMember CrossSectionArea computed 0.0095 stored 0.5089 (-98.1%) openings 0 Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574058
+    #17663 IfcMember CrossSectionArea computed 0.0095 stored 0.5089 (-98.1%) openings 0 Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574075
+    #18151 IfcMember CrossSectionArea computed 0.0095 stored 0.5089 (-98.1%) openings 0 Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574098
+    #18609 IfcMember CrossSectionArea computed 0.0095 stored 0.5089 (-98.1%) openings 0 Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574121
+    #18937 IfcMember CrossSectionArea computed 0.0095 stored 0.5089 (-98.1%) openings 0 Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574136
+    #19265 IfcMember CrossSectionArea computed 0.0095 stored 0.5089 (-98.1%) openings 0 Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574151
+    #19703 IfcMember CrossSectionArea computed 0.0095 stored 0.6607 (-98.6%) openings 0 Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574173
+AC20-FZK-Haus.ifc (IFC4, 0.2 s): median |rel| of agreeing pairs 1.3e-16; elements storing an area but faceted (not cut): 0
+  IfcWall.GrossFootprintArea: 13 / 13 agree
+  IfcWall.NetFootprintArea: 9 / 13 agree; gross-as-net 4
+  IfcWall.GrossSideArea: 11 / 13 agree; on-a-face 2
+  IfcWall.NetSideArea: 9 / 13 agree; on-a-face 3, joins-off 1
+  IfcBeam.CrossSectionArea: 1 / 1 agree
+  IfcSlab.GrossArea: 4 / 4 agree
+  IfcSlab.NetArea: 4 / 4 agree
+C20-Institute-Var-2.ifc (IFC4, 0.5 s): median |rel| of agreeing pairs 1.3e-16; elements storing an area but faceted (not cut): 0
+  IfcSlab.GrossArea: 20 / 26 agree; on-a-face 6
+  IfcSlab.NetArea: 20 / 26 agree; on-a-face 6
+  IfcWall.GrossFootprintArea: 121 / 121 agree
+  IfcWall.NetFootprintArea: 97 / 121 agree; gross-as-net 24
+  IfcWall.GrossSideArea: 86 / 121 agree; faces-averaged 8, on-a-face 4, joins-off 17, net-as-gross 6
+  IfcWall.NetSideArea: 79 / 121 agree; faces-averaged 10, on-a-face 13, joins-off 19
+  IfcColumn.CrossSectionArea: 0 / 2 agree; unexplained 2
+    #81382 IfcColumn CrossSectionArea computed 0.0314 stored 1.2566 (-97.5%) openings 0 Stütze-001
+    #81565 IfcColumn CrossSectionArea computed 0.0314 stored 1.2566 (-97.5%) openings 0 Stütze-001
+ISSUE_159_kleine_Wohnung_R22.ifc (IFC4, 3.8 s): median |rel| of agreeing pairs 1.5e-15; elements storing an area but faceted (not cut): 0
+  IfcWall.GrossFootprintArea: 210 / 210 agree
+  IfcWall.GrossSideArea: 162 / 210 agree; matches-stored-volume 10, net-as-gross 34, on-a-face 4
+  IfcWall.NetSideArea: 204 / 210 agree; gross-as-net 2, on-a-face 4
+  IfcSlab.GrossArea: 50 / 53 agree; unit-slip 3
+  IfcSlab.NetArea: 53 / 53 agree
+ISSUE_021_Mini Project.ifc (IFC2X3, 3.6 s): median |rel| of agreeing pairs 0.0e+0; elements storing an area but faceted (not cut): 5
+  IfcMember.CrossSectionArea: 228 / 228 agree
+  IfcSlab.NetArea: 20 / 24 agree; unexplained 4
+    #3639 IfcSlab NetArea computed 0.0531 stored 0.0925 (-42.6%) openings 0 KONZOLE
+    #13969 IfcSlab NetArea computed 0.0531 stored 0.0925 (-42.6%) openings 0 KONZOLE
+    #23436 IfcSlab NetArea computed 0.0531 stored 0.0925 (-42.6%) openings 0 KONZOLE
+    #23469 IfcSlab NetArea computed 0.0531 stored 0.0925 (-42.6%) openings 0 KONZOLE
+schependomlaan.ifc (IFC2X3, 2.6 s): median |rel| of agreeing pairs 4.4e-13; elements storing an area but faceted (not cut): 1
+  IfcWall.GrossFootprintArea: 671 / 927 agree; centre-line 256
+  IfcWall.NetFootprintArea: 617 / 927 agree; centre-line 256, gross-as-net 54
+  IfcWall.GrossSideArea: 749 / 927 agree; other-width 39, matches-stored-volume 98, centre-line 25, unexplained 15, on-a-face 1
+  IfcWall.NetSideArea: 837 / 927 agree; other-width 39, matches-stored-volume 10, centre-line 25, unexplained 15, on-a-face 1
+  IfcBeam.CrossSectionArea: 109 / 127 agree; unexplained 17, scales-with-length 1
+  IfcSlab.GrossArea: 213 / 275 agree; unexplained 14, zero 2, on-a-face 46
+  IfcSlab.NetArea: 221 / 275 agree; on-a-face 52, zero 2
+  IfcCovering.GrossArea: 533 / 728 agree; unexplained 27, on-a-face 121, zero 46, unit-slip 1
+  IfcCovering.NetArea: 533 / 728 agree; unexplained 27, on-a-face 121, zero 46, unit-slip 1
+    #3776 IfcBeam CrossSectionArea computed 0.1339 stored 0.1250 (7.1%) openings 0 fund_strook
+    #3946 IfcBeam CrossSectionArea computed 0.0506 stored 0.0473 (7.1%) openings 0 fund_opstort
+    #7939 IfcBeam CrossSectionArea computed 0.0703 stored 0.1250 (-43.8%) openings 0 fund_strook
+    #8123 IfcBeam CrossSectionArea computed 0.1225 stored 0.2310 (-47.0%) openings 0 fund_opstort
+    #8439 IfcBeam CrossSectionArea computed 0.0506 stored 0.0473 (7.1%) openings 0 fund_opstort
+    #8605 IfcBeam CrossSectionArea computed 0.0506 stored 0.0473 (7.1%) openings 0 fund_opstort
+    #8771 IfcBeam CrossSectionArea computed 0.0506 stored 0.0473 (7.1%) openings 0 fund_opstort
+    #8937 IfcBeam CrossSectionArea computed 0.0703 stored 0.1250 (-43.8%) openings 0 fund_strook
+ISSUE_068_ARK_NUS_skolebygg.ifc (IFC2X3, 11.1 s): median |rel| of agreeing pairs 2.0e-15; elements storing an area but faceted (not cut): 0
+  IfcWall.GrossFootprintArea: 1041 / 1041 agree
+  IfcWall.GrossSideArea: 683 / 1041 agree; net-as-gross 254, on-a-face 28, matches-stored-volume 10, unexplained 13, centre-line 50, other-width 3
+  IfcSlab.GrossArea: 95 / 115 agree; unit-slip 20
+  IfcMember.CrossSectionArea: 18 / 687 agree; host-figure 111, scales-with-length 558
+    #556796 IfcWallStandardCase GrossSideArea computed 3.6592 stored 3.7474 (-2.4%) openings 1 Basic Wall:IVA 3.2 145mm 37dB EI60 (HN-95-NR):2235683
+    #1280178 IfcWallStandardCase GrossSideArea computed 16.0521 stored 15.0873 (6.4%) openings 1 Basic Wall:IVA 4.3 172mm 48dB (RN-120-NR):4410967
+    #1453862 IfcWallStandardCase GrossSideArea computed 0.7573 stored 2.5918 (-70.8%) openings 0 Basic Wall:YVL 1.1 250mm leca isoblokk:6268030
+    #1453999 IfcWallStandardCase GrossSideArea computed 0.7575 stored 2.5918 (-70.8%) openings 0 Basic Wall:YVL 1.1 250mm leca isoblokk:6268056
+    #1454129 IfcWallStandardCase GrossSideArea computed 0.7575 stored 2.5918 (-70.8%) openings 0 Basic Wall:YVL 1.1 250mm leca isoblokk:6268146
+    #1454265 IfcWallStandardCase GrossSideArea computed 0.7575 stored 2.5918 (-70.8%) openings 0 Basic Wall:YVL 1.1 250mm leca isoblokk:6268165
+    #1454401 IfcWallStandardCase GrossSideArea computed 7.3917 stored 14.3429 (-48.5%) openings 0 Basic Wall:YV 12.1 411 Ventilasjonsrom:6268286
+    #1455870 IfcWallStandardCase GrossSideArea computed 7.3913 stored 14.3429 (-48.5%) openings 0 Basic Wall:YV 12.1 411 Ventilasjonsrom EI 60:6268552
+TOTAL
+  CrossSectionArea: 2005 / 2752 agree; unexplained 77, scales-with-length 559, host-figure 111
+  GrossSideArea: 1772 / 2460 agree; matches-stored-volume 128, split 22, repeated 2, net-as-gross 327, on-a-face 39, faces-averaged 8, joins-off 17, other-width 42, centre-line 75, unexplained 28
+  GrossFootprintArea: 2056 / 2312 agree; centre-line 256
+  NetFootprintArea: 723 / 1061 agree; gross-as-net 82, centre-line 256
+  NetSideArea: 1129 / 1271 agree; on-a-face 21, joins-off 20, faces-averaged 10, gross-as-net 2, other-width 39, matches-stored-volume 10, centre-line 25, unexplained 15
+  GrossArea: 915 / 1201 agree; on-a-face 173, unit-slip 24, unexplained 41, zero 48
+  NetArea: 851 / 1110 agree; on-a-face 179, unexplained 31, zero 48, unit-slip 1

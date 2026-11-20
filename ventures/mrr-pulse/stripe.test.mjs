@@ -85,3 +85,37 @@ test("pagination stops at exactly maxPages requests", async () => {
   await assert.rejects(s.listSubscriptions(), /MAX_PAGES/);
   assert.equal(n, 3);
 });
+
+// Stripe deprecated subscription.discount in API version 2025-03-31.basil
+// ("Use the discounts parameter and field instead", stripe.com/docs/upgrades),
+// and the list endpoint returns `discounts` as unexpanded ids. An account on a
+// newer API version had every percent-off coupon read as 0% off, so MRR read
+// high (red team 2026-11-20).
+test("the list asks Stripe to expand discounts, so coupons on new API versions are netted", async () => {
+  const calls = [];
+  const fetchImpl = async (url) => { calls.push(url); return { ok: true, json: async () => ({ data: [], has_more: false }) }; };
+  await createStripe({ key: "k", fetchImpl }).listSubscriptions();
+  assert.match(decodeURIComponent(calls[0]), /expand\[\]=data\.discounts/);
+});
+
+test("a discount in both `discount` and expanded `discounts` is counted once", () => {
+  const d = { id: "di_1", coupon: { percent_off: 20 } };
+  const s = normalizeSubscription({ id: "s", status: "active", discount: d, discounts: [d], items: { data: [{ price: price(10000) }] } });
+  assert.equal(s.mrr, 8000);
+  const only = normalizeSubscription({ id: "s", status: "active", discounts: [d], items: { data: [{ price: price(10000) }] } });
+  assert.equal(only.mrr, 8000);
+});
+
+
+test("a key refused the discounts expansion (403) still lists, without it", async () => {
+  const calls = [];
+  const fetchImpl = async (url) => {
+    calls.push(decodeURIComponent(url));
+    if (url.includes("expand")) return { ok: false, status: 403, json: async () => ({ error: { message: "no permission" } }) };
+    return { ok: true, json: async () => ({ data: [{ id: "sub_a", items: { data: [{ price: price(100) }] } }], has_more: false }) };
+  };
+  const out = await createStripe({ key: "rk_x", fetchImpl }).listSubscriptions();
+  assert.deepEqual(out.map((s) => s.id), ["sub_a"]);
+  assert.equal(calls.length, 2);
+  await assert.rejects(createStripe({ key: "k", fetchImpl: async () => ({ ok: false, status: 401, json: async () => ({}) }) }).listSubscriptions(), (e) => e.status === 401);
+});

@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVL7Zz2QE1KsgF7CwQn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled ventures brief)",
+  "input_sha256": "b1c82026cc82c95d5b547c8ce83f59a9c0499c86701501193703810a0c454da0",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T04:10:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff (flagship 14): explain C20's ArchiCAD side areas and skolebygg's mullions",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17851",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Plain `route` drew process again for a scheduled run whose stored prompt is the ventures brief (same as several 2026-11-19/20 reports); I read the process prompt and started measure before re-routing with --task."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here was ai-bookkeeper, whose open items are OCR-bound or need real exports/a hosted key; took ifc-quantity-takeoff (flagship 14, least worked, buildable on GitHub-hosted public models).",
+      "did": "landed the two named unexplained-area groups",
+      "result": "unexplained stored areas 358 to 192 of 12,167"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-archicad-wall-areas-and-copied-mullion-figures.md",
+    "ventures/ifc-quantity-takeoff/eval/joins-and-host-figures-2026-11-20.md"
+  ],
+  "goal": null,
+  "notes": "qto.mjs: reads IfcRelConnectsPathElements (ATPATH joins); new area causes joins-off (37 pairs, geometric), faces-averaged (18, ArchiCAD's own German face names), host-figure (111 skolebygg mullions storing curtain walls #45538/#923565's Revit Area and Length, trust=false). 8-model eval rerun: only those 166 pairs moved. Verified: node --test (49 pass), run_venture_tests.py ifc-quantity-takeoff ok, check_posts ok, flagships validate ok, venture-preflight and unwired_checks run before merge.",
+  "corrections": [],
+  "redteam": null
+}

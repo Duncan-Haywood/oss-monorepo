@@ -78,7 +78,7 @@ const QTY = {
 
 /** Index of the relationships an element's row needs, built once per model. */
 function indexModel(E) {
-  const storeyOf = new Map(), typeOf = new Map(), qsets = new Map(), material = new Map(), classif = new Map(), voids = new Map(), parentOf = new Map(), children = new Map();
+  const storeyOf = new Map(), typeOf = new Map(), qsets = new Map(), material = new Map(), classif = new Map(), voids = new Map(), parentOf = new Map(), children = new Map(), pathJoins = new Map();
   const push = (m, k, v) => { const a = m.get(k); if (a) a.push(v); else m.set(k, [v]); };
   for (const e of E.values()) {
     const t = e.type;
@@ -95,11 +95,17 @@ function indexModel(E) {
       for (const r of e.args[4] || []) push(classif, refId(r), refId(e.args[5]));
     } else if (t === "IFCRELVOIDSELEMENT") {
       push(voids, refId(e.args[4]), refId(e.args[5]));
+    } else if (t === "IFCRELCONNECTSPATHELEMENTS") {
+      // a wall whose start or end sits on another wall's path (a T-join):
+      // its end covers a strip of that wall's face
+      const a = refId(e.args[5]), b = refId(e.args[6]), tb = e.args[9]?.enum, ta = e.args[10]?.enum;
+      if (ta === "ATPATH" && tb && tb !== "ATPATH") push(pathJoins, a, b);
+      if (tb === "ATPATH" && ta && ta !== "ATPATH") push(pathJoins, b, a);
     } else if (t === "IFCRELAGGREGATES" || t === "IFCRELNESTS") {
       if (t === "IFCRELAGGREGATES") for (const r of e.args[5] || []) { parentOf.set(refId(r), refId(e.args[4])); push(children, refId(e.args[4]), refId(r)); }
     }
   }
-  return { storeyOf, typeOf, qsets, material, classif, voids, parentOf, children };
+  return { storeyOf, typeOf, qsets, material, classif, voids, parentOf, children, pathJoins };
 }
 
 function materialName(E, id, depth = 0) {
@@ -207,6 +213,7 @@ export function takeoff(model, opts = {}) {
       id, globalId: e.args[0], ifcClass: prettyClass(e.type), ifcType: e.type, name: str(e.args[2]), tag: str(e.args[7]) ?? null,
       type: null, storey: null, material: null, classification: null, parent: null, isAssembly: false,
       stored: {}, storedSet: null, computed: null, check: null, box: null,
+      pathJoins: idx.pathJoins.get(id) || [],
     };
     const tId = idx.typeOf.get(id);
     if (tId) { const t = E.get(tId); row.type = t ? str(t.args[2]) : null; }
@@ -361,6 +368,21 @@ export function unitSlip(computed, stored, tol = 0.005) {
  *   matches-stored-volume  stored side area x the wall's width equals the
  *                     stored volume: the quantity set agrees with itself and
  *                     describes another body than the geometry;
+ *   joins-off         a wall's side area is the mean of its two faces with the
+ *                     strips covered by the walls T-joined to it taken off:
+ *                     computed - (sum of their widths) x height / 2, the
+ *                     joined walls read from IfcRelConnectsPathElements
+ *                     (ATPATH) and their widths from their own geometry;
+ *   host-figure       a member's stored CrossSectionArea and Length are the
+ *                     same on three or more elements whose bodies differ in
+ *                     length: one figure copied onto every piece (skolebygg's
+ *                     mullions carry their curtain wall's Revit Area and
+ *                     Length);
+ *   faces-averaged    the same mean, read from the exporter's own outside and
+ *                     inside face areas (ArchiCAD's "Netto-Oberflächenbereich
+ *                     an der Außenseite / Innenseite"; gross adds its opening
+ *                     areas), when the joins in the file do not account for
+ *                     the whole difference;
  *   unexplained       none of these.
  * Sets reason on each disagreeing row.areaCheck entry, and trust = false where
  * the stored figure should not be summed (split, repeated, unit-slip).
@@ -374,6 +396,7 @@ export function explainAreas(rows, tol = 0.02) {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(r);
   }
+  const byId = new Map(rows.map((r) => [r.id, r]));
   const storedVol = (r, which) => { for (const [k, q] of Object.entries(r.stored)) if (q.kind === "volume" && k.toLowerCase().replace(/\s+/g, "") === `${which}volume`) return q.value; return null; };
   for (const r of rows) {
     for (const [k, c] of Object.entries(r.areaCheck || {})) {
@@ -402,10 +425,62 @@ export function explainAreas(rows, tol = 0.02) {
       const exact = (x) => x > 0 && Math.abs(x - c.stored) <= 0.005 * Math.abs(c.stored);
       if ((c.kind === "footprint" && exact(L * W)) || (c.kind === "side" && exact(L * H))) { c.reason = "centre-line"; continue; }
       if (c.kind === "side" && sv != null && W > 0 && A.width > 0 && Math.abs(W - A.width) > tol * W && near(c.stored * W, sv)) { c.reason = "other-width"; continue; }
+      if (c.kind === "cross" && hostFigure(r, k, c, rows)) { c.reason = "host-figure"; c.trust = false; continue; }
+      if (c.kind === "side" && joinsOff(r, c, byId, exact)) { c.reason = "joins-off"; continue; }
+      if (c.kind === "side" && facesAveraged(r, c, exact)) { c.reason = "faces-averaged"; continue; }
       c.reason = "unexplained";
     }
   }
   return rows;
+}
+
+// The side area with the strips that T-joined walls cover taken off one face,
+// averaged over the two faces. ArchiCAD measures finishes this way (C20, FZK).
+function joinsOff(r, c, byId, exact) {
+  if (!r.pathJoins?.length) return false;
+  const H = r.box ? r.box[5] - r.box[2] : storedLen(r, "height");
+  if (!(H > 0)) return false;
+  let W = 0;
+  for (const o of r.pathJoins) {
+    const x = byId.get(o);
+    const w = x?.computed?.areas?.side?.width ?? (x ? storedLen(x, "width") : null);
+    if (!(w > 0)) return false;
+    W += w;
+  }
+  return exact(c.computed - (W * H) / 2);
+}
+
+// One stored (Length, CrossSectionArea) pair on many members of different
+// lengths: the figure is not the member's own (it far exceeds its section).
+const hostGroups = new WeakMap();
+function hostFigure(r, k, c, rows) {
+  const L = storedLen(r, "length");
+  if (!(L > 0) || !(c.stored >= 5 * c.computed) || !r.box) return false;
+  let g = hostGroups.get(rows);
+  if (!g) {
+    g = new Map();
+    for (const x of rows) {
+      const cx = x.areaCheck?.[k], lx = storedLen(x, "length");
+      if (!cx || !(lx > 0) || !x.box) continue;
+      const key = `${k}|${cx.stored}|${lx}`;
+      if (!g.has(key)) g.set(key, []);
+      g.get(key).push(Math.max(x.box[3] - x.box[0], x.box[4] - x.box[1], x.box[5] - x.box[2]));
+    }
+    hostGroups.set(rows, g);
+  }
+  const lens = g.get(`${k}|${c.stored}|${L}`) || [];
+  if (lens.length < 3) return false;
+  const lo = Math.min(...lens), hi = Math.max(...lens);
+  return hi > 1.02 * lo;
+}
+
+const storedNamed = (r, re) => { for (const [k, q] of Object.entries(r.stored)) if (q.kind === "area" && re.test(k)) return q.value; return null; };
+function facesAveraged(r, c, exact) {
+  const out = storedNamed(r, /^Netto-Oberfl\u00e4chenbereich an der Au\u00dfenseite$/), inn = storedNamed(r, /^Netto-Oberfl\u00e4chenbereich an der Innenseite$/);
+  if (out == null || inn == null || out === inn) return false;
+  let mean = (out + inn) / 2;
+  if (c.which === "gross") for (const re of [/^Oberfl\u00e4chenbereich der Fenster in der Wand$/, /^Oberfl\u00e4chenbereich der T\u00fcren in der Wand$/, /^Oberfl\u00e4chenbereich der leeren \u00d6ffnungen in der Wand$/]) mean += storedNamed(r, re) ?? 0;
+  return exact(mean);
 }
 
 const storedLen = (r, name) => { for (const [k, q] of Object.entries(r.stored)) if (q.kind === "length" && k.toLowerCase() === name) return q.value; return null; };
@@ -448,6 +523,9 @@ export const AREA_REASON_TEXT = {
   "on-a-face": "the stored area is measured on one face of the element (a wall's side, a tapered or sloped slab's top or bottom), not its middle plane",
   "matches-stored-volume": "the stored area agrees with the stored volume, but both describe a different body than the geometry",
   zero: "the stored area is 0 while the geometry has one: the exporter left the figure unfilled",
+  "host-figure": "the same stored cross-section area and length are written on several members of different lengths: a figure copied from their host (a curtain wall's area and length), not the member's section",
+  "joins-off": "the stored side area is the mean of the wall's two faces with the strips covered by the walls joined to it taken off (a finishes figure, as ArchiCAD measures it)",
+  "faces-averaged": "the stored side area is the mean of the exporter's own outside and inside face areas, its inside face shortened by walls joined to it (a finishes figure)",
   "centre-line": "the stored area is the element's stored centre-line length x its width (footprint) or height (side): a nominal figure that ignores angled or mitred ends",
   "other-width": "the wall is measured across another direction than its thinnest one (a short wall with angled ends): the stored side area is its stored volume / stored width",
   unexplained: "no known cause; check the element in a viewer",

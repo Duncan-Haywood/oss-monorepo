@@ -375,14 +375,15 @@ flagships:
     next: >-
       Landed work and every measurement are in
       ventures/league-schedule-generator/README.md and eval/ (divisions, venues,
-      rainouts, standings (set scoring in race, odds, post, H2H 2026-11-20), officials, duty rota, team sheets; carry-over and break
-      floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
-      2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
-      schedule, eval/seed-balance.txt; 2026-11-18 limits kept exactly, impossible
-      ones named, eval/limit-conflicts.txt; promotion/relegation, play-off results
-      (tests); league page (availability, subs, sign-ups, free agents, waivers,
-      ratings: README; next: a real league's use); 2026-11-19 balanced teams, /join
-      free agents (eval/free-agent-fit.txt), crossover pool seeds
+      rainouts, standings (set scoring in race, odds, post, H2H 2026-11-20),
+      officials, duty rota, team sheets; carry-over and break floors, frontier
+      picker, blackout fit, WebAssembly step: README 2026-11-11 to 2026-11-15
+      sections; 2026-11-17 shorter seasons with even strength of schedule,
+      eval/seed-balance.txt; 2026-11-18 limits kept exactly, impossible ones named,
+      eval/limit-conflicts.txt; promotion/relegation, play-off results (tests);
+      league page (availability, subs, sign-ups, free agents, waivers, ratings:
+      README; next: a real league's use); 2026-11-19 balanced teams, /join free
+      agents (eval/free-agent-fit.txt), crossover pool seeds
       (eval/crossover-seeds.txt); bowling lanes 36 of 36 even
       (eval/bowling-repeat-sat.txt); bowling averages, handicaps, points, standings
       from score sheets (bowling-recap.test.mjs)). 3-game nights
@@ -394,12 +395,12 @@ flagships:
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
       (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
       eval/whist-vs-greedy.txt); Whist 48, 60 and near-whist 46, 54, 62 by tabu
-      search 2026-11-19 (eval/whist-anneal.c, .txt); 52, near-whist 58 by starter +
-      table matching (eval/whist-starter.c); also by a base round fixed by
-      multiplier 37 (eval/whist-involution.c, 11 s; 69 too); Americano/Mexicano
-      scorer page 2026-11-19 (americano-night.html, night.mjs: live table, sit-out
-      credit; eval/sit-out-credit.txt); next: a real club's night on it. More open
-      items: NEXT.md.
+      search 2026-11-19 (eval/whist-anneal.c, .txt); Americano/Mexicano scorer page
+      2026-11-19 (americano-night.html, night.mjs: live table, sit-out credit;
+      eval/sit-out-credit.txt); next: a real club's night on it. Golf 2026-11-20
+      (golf.mjs, golf-league-schedule.html): tee times at share in 71 of 77 seasons,
+      other 6 SAT-proved out (eval/golf-tee-grid.txt); match play recap; next:
+      men's/women's tee rows, skins. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
@@ -595,11 +596,11 @@ flagships:
     buildable: >-
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
-      the 358 unexplained areas (eval/areas-vs-stored-2026-11-20-causes.txt: C20's
-      54 ArchiCAD side areas 2-4% under, skolebygg's 111 mullions, schependomlaan's
-      small pieces); the 160 unexplained GrossVolumes; kleine_Wohnung's 8 breps on
-      surfaces of revolution/NURBS (eval/breps-vs-ifcopenshell.mjs); more revision
-      series through eval/revision-diff.mjs (OpeningDesign repos on GitHub:
+      the 192 unexplained areas (eval/joins-and-host-figures-2026-11-20.md: HHS's 58
+      mullions storing no Length, schependomlaan's 17 footing beams, 30 walls); the
+      160 unexplained GrossVolumes; kleine_Wohnung's 8 breps on surfaces of
+      revolution/NURBS (eval/breps-vs-ifcopenshell.mjs); more revision series
+      through eval/revision-diff.mjs (OpeningDesign repos on GitHub:
       Lake_Kegonsa_Home 4 IFC commits, Lake_Mills_Residence_Expansion 2).
     hosts: [https://github.com]
     next: >-
@@ -609,19 +610,22 @@ flagships:
       eval/areas-vs-stored-2026-11-19.md); faceted bodies cut through their faces
       2026-11-20 (2,915 of 4,251 new pairs agree;
       eval/areas-vs-stored-2026-11-20.md); their misses named 2026-11-20
-      (unexplained 1,499 to 358; eval/faceted-causes-2026-11-20.md); revision change
-      report shipped 2026-11-20 (diff.mjs, page and cli --compare: BoQ change per
-      line, elements matched by GlobalId, Tag, geometry, Revit parts/host paired;
-      190 of 1,011 GlobalId-only adds/removes on five real Aalseth Residence exports
-      were the same element; eval/revision-diff-2026-11-20.md). Next, most valuable
-      first: (1) the covering up-cut rule tested on a second model, skolebygg's 111
-      mullions, C20's 54 side areas; (2) a method-of-measurement layer (NRM or CESMM
-      style: deduct openings only above a size, MasterFormat/Uniformat mapping from
-      the classification code); (3) the unexplained disagreements; (4) advanced
-      breps on revolved/NURBS surfaces (8 in kleine_Wohnung; planes and cylinders read
-      2026-11-20, 703 of 767 = IfcOpenShell to 0.1%; faceted openings as signed
-      tetrahedra; eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a
-      union; (5) the change report on
-      more revision series (OpeningDesign's Lake_Kegonsa_Home and Lake_Mills repos
-      commit IFCs repeatedly; an ArchiCAD series), wall parts that stay unpaired;
-      (6) a real estimator's reading of the BoQ CSV (needs a person).
+      (unexplained 1,499 to 358; eval/faceted-causes-2026-11-20.md); joined walls
+      (ArchiCAD finishes areas) and copied curtain-wall figures named 2026-11-20
+      (unexplained 358 to 192; eval/joins-and-host-figures-2026-11-20.md); revision
+      change report shipped 2026-11-20 (diff.mjs, page and cli --compare: BoQ change
+      per line, elements matched by GlobalId, Tag, geometry, Revit parts/host
+      paired; 190 of 1,011 GlobalId-only adds/removes on five real Aalseth Residence
+      exports were the same element; eval/revision-diff-2026-11-20.md). Next, most
+      valuable first: (1) the covering up-cut rule tested on a second model, the
+      joins rule on an ArchiCAD export with partitions on both faces; (2) a
+      method-of-measurement layer (NRM or CESMM style: deduct openings only above a
+      size, MasterFormat/Uniformat mapping from the classification code); (3) the
+      unexplained disagreements; (4) advanced breps on revolved/NURBS surfaces (8 in
+      kleine_Wohnung; planes and cylinders read 2026-11-20, 703 of 767 =
+      IfcOpenShell to 0.1%; faceted openings as signed tetrahedra;
+      eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a union; (5)
+      the change report on more revision series (OpeningDesign's Lake_Kegonsa_Home
+      and Lake_Mills repos commit IFCs repeatedly; an ArchiCAD series), wall parts
+      that stay unpaired; (6) a real estimator's reading of the BoQ CSV (needs a
+      person).
