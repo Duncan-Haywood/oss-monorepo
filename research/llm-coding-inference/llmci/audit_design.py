@@ -297,8 +297,11 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
         if d is None:
             return {"design": "pooled", "cells": [list(range(len(f_all)))], "to_label": [max(0, n - len(idx))],
                     "ceiling": pilot_ceiling(y, f)}
+        # LOG.md 7be: with neg_only, an ordinary cell whose pilot exceeds its allocation gets no fresh labels while the
+        # two-phase cell keeps its full share, so the plan overspent n (a 0.7n pilot: 604 of 600). Same cap as 7ar's.
+        need = cap_to_budget(d["to_label"], n - len(pilot_y)) if budget_cap else d["to_label"]
         return {"design": "cells", "cells": cells, "pseudo": pseudo, "two_phase": True, "pilot": sorted(pilot_y),
-                "phase2": d["flags"], "to_label": d["to_label"], "ceiling": pilot_ceiling(y, f)}
+                "phase2": d["flags"], "to_label": need, "ceiling": pilot_ceiling(y, f)}
     if two_phase:
         rest, k = two_phase_allocation(n, cells, pilot_y, s2, floor)
         if min(rest) < 2:

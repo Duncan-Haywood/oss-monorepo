@@ -55,6 +55,12 @@ Prediction (written and committed before any draw; a 10-draw smoke test of one c
   own step; this one changes no library code, because the 157 cells chose the 0.40). If none qualifies, the default
   stays p5j40 and Section 6.1 adds the seventh family. My expectation, stated so it can be wrong: jp40 or jt40 passes
   (c) and (d) and fails (e) on NaijaSenti; jf40 fails (d).
+
+Disclosed after the commit above: a 10-draw smoke test of the first cell ran. The first full launch then died on this
+script's budget assertion (nb-in-language 5%, n 600: the priced two-phase replan labelled 604 items), a library bug:
+`plan_audit`'s priced two-phase path did not apply BUDGET_CAP (7ar's fix covered only the one-phase plan). The fix
+(the same `cap_to_budget`, LOG.md 7be) went in before the relaunch; no prediction, candidate or rule changed, and the
+lines the dead run printed were not read.
 """
 import random
 import sys
