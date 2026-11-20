@@ -46,6 +46,19 @@ const toMs = (v) => {
   return Number.isFinite(t) ? t : null;
 };
 
+// A money cell in major units. Commas in groups of three are thousands
+// (1,200.50); a comma with one or two digits after it and no dot after it is a
+// decimal comma (29,99 or 1.234,56, as an EU-locale sheet writes them). Any
+// other comma is ambiguous and reads as NaN, so the row is skipped with a
+// reason: stripping every comma read 29,99 as 2,999 (red team 2026-11-20).
+const toAmount = (v) => {
+  const x = String(v).replace(/[$£€\s]/g, "");
+  if (!x.includes(",")) return x === "" ? NaN : Number(x);
+  if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(x)) return Number(x.replace(/,/g, ""));
+  if (/^-?(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$/.test(x)) return Number(x.replace(/\./g, "").replace(",", "."));
+  return NaN;
+};
+
 // Returns {subs, skipped:[{line, why}], missing:[...], currency}. Like the
 // server, it keeps one currency, the most common (a tie goes to the first
 // row's): adding yen to cents gave a headline in neither (red team 2026-11-19).
@@ -60,7 +73,7 @@ export function subsFromCsv(text) {
   const subs = [], skipped = [], byId = new Map(), lineOf = new Map();
   rows.slice(1).forEach((r, i) => {
     const get = (k) => (col[k] >= 0 ? (r[col[k]] ?? "").trim() : "");
-    const amount = Number(get("amount").replace(/[$,£€\s]/g, ""));
+    const amount = toAmount(get("amount"));
     const created = toMs(get("created"));
     const interval = get("interval").toLowerCase();
     if (get("amount") === "") return skipped.push({ line: i + 2, why: "amount is empty" });
@@ -68,8 +81,12 @@ export function subsFromCsv(text) {
     if (created === null) return skipped.push({ line: i + 2, why: "created is not a date" });
     const quantity = get("quantity") === "" ? 1 : Number(get("quantity"));
     if (!Number.isFinite(quantity) || quantity < 0) return skipped.push({ line: i + 2, why: "quantity is not a number" });
+    // "3 months" or 0 fell back to 1, so a quarterly price read as monthly,
+    // three times its MRR (red team 2026-11-20).
+    const intervalCount = get("intervalCount") === "" ? 1 : Number(get("intervalCount"));
+    if (!Number.isInteger(intervalCount) || intervalCount < 1) return skipped.push({ line: i + 2, why: "interval count is not a whole number" });
     const currency = (get("currency") || "usd").toLowerCase();
-    const mrr = monthlyAmount(Math.round(amount * 10 ** minorExponent(currency)), interval, Number(get("intervalCount")) || 1, quantity);
+    const mrr = monthlyAmount(Math.round(amount * 10 ** minorExponent(currency)), interval, intervalCount, quantity);
     if (!Object.hasOwn(PER_MONTH, interval) && amount > 0) return skipped.push({ line: i + 2, why: `unknown interval "${interval}"` });
     // A filled-in date that does not parse must not read as "never ended" or
     // "no trial", and a canceled row with no end date cannot be placed in the

@@ -16,7 +16,9 @@ for (let i = 0; i < args.length; i++) {
   else if (a === "--json") opts.json = true;
   else if (a === "--price") {
     const [k, v] = String(args[++i]).split("=");
-    const price = Number(String(v ?? "").replace(/[$,\s]/g, ""));
+    // Thousands commas only (1,450): "420,50" is refused, not read as 42050.
+    const raw = String(v ?? "").replace(/[$\s]/g, "");
+    const price = raw === "" || raw.includes(",") && !/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(raw) ? NaN : Number(raw.replace(/,/g, ""));
     if (!k.trim() || v === undefined || !Number.isFinite(price) || price < 0) { console.error(`--price needs "species=dollars per MBF", got ${args[i]}`); process.exit(2); }
     opts.prices[k.trim().toLowerCase()] = price;
   }

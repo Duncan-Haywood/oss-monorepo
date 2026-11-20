@@ -34,6 +34,11 @@ test("--price accepts $ and commas, and bad prices or fees exit 2 instead of pri
   assert.equal(JSON.parse(ok.stdout).fairValue > 0, true);
   assert.doesNotMatch(ok.stdout, /NaN/);
   assert.equal(run(file, "--offer", "5000", "--price", "oak=abc").status, 2);
+  // A comma not in thousands groups is refused, not stripped: "420,50" read as
+  // $42,050 per MBF (red team 2026-11-20, check_money_comma.py).
+  assert.equal(run(file, "--offer", "5000", "--price", "oak=420,50").status, 2);
+  assert.equal(run(file, "--offer", "5000", "--price", "oak=1,2,3").status, 2);
+  assert.equal(run(file, "--offer", "5000", "--price", "oak=").status, 2);
   assert.equal(run(file, "--offer", "5000", "--price", "oak").status, 2);
   assert.equal(run(file, "--offer", "5000", "--price", "oak=450", "--fee", "abc").status, 2);
 });
