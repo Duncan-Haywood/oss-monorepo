@@ -1,5 +1,8 @@
 # Research log
 
+## 2026-11-20 · Confirmation split: frozen, rule C and rule P on 33 unused PGLib cases of 2,001 to 2,999 buses (plan)
+- Plan, split, adoption rule and predictions Q0 to Q6: `research/infra-dcopf/LOG.md` (2026-11-20); script `research/infra-dcopf/experiments/run_confirm.py`.
+
 ## 2026-11-20 · Rule P: outcome. All seven predictions held: development 32 of 34, held-out 11 of 19 (10 of 18 without case1888 API), none lost against the frozen repair or rule C. Leading candidate; needs the unused split
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-20); numbers in `research/infra-dcopf/experiments/results_enlarge_pre.txt`. P0 to P6 held.
 - 53 of 76 development and 123 of 152 held-out failed hard QPs came after a halving and went to the elastic chain. case1888 API finishes at round 17 (+0.268 %); case200 and case57 API return near their frozen cost (+0.237 %, +0.710 %; rule C +2.299 %, +1.440 %).

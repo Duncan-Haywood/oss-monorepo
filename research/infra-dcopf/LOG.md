@@ -1,5 +1,20 @@
 # Research log
 
+## 2026-11-20 · Confirmation split: the frozen repair, rule C and rule P on 33 unused PGLib cases of 2,001 to 2,999 buses (plan, written before any of it ran; `research/grid-linopf`)
+- Why: rule C and rule P were each frozen on development and scored held-out, but rule P came from a held-out case (case1888 API), so held-out cannot confirm it, and neither gain is significant. The last two Next entries named a split not used so far.
+- **Split (fixed here):** every PGLib-OPF v23.07 network from 2,001 to 2,999 buses: case2312_goc, case2383wp_k, case2736sp_k, case2737sop_k, case2742_goc, case2746wop_k, case2746wp_k, case2848_rte, case2853_sdet, case2868_rte, case2869_pegase, each TYP, API and SAD (33 cases), fetched 2026-11-20 from the library's GitHub (`data/pglib/README.md`); scored against the library's published AC objectives (`BASELINE.md`, already in the tree). None was used by any earlier step. Larger networks are left for a later split.
+- **Protocol:** run_heldout_slack.phase_j's, unchanged (largest-PMAX slack, DC start, load continuation, 20 rounds of the repair on Clarabel with constraint generation). Arms: F, the frozen repair; C, rule C (`enlarge=2, enlarge_rel=True`); P, rule P (C with `enlarge_pre=True`). No constant changes. C and P run only where F has a failed hard QP; elsewhere they equal F by construction.
+- **Adoption rule (fixed here):** rule P replaces the frozen repair if, against F, it gains more finishers than it loses and finishes at least as many as rule C; otherwise rule C does if it gains more than it loses against F; otherwise the frozen repair stays.
+- Predictions:
+  - **Q0 (gate):** every C or P rerun that takes no enlarged step equals F's statuses. Prior 95 %.
+  - **Q1:** at least 17 of the 33 cases reach the repair (a DC start and a power flow at full load). Prior 55 %.
+  - **Q2:** rule P finishes at least as many cases as F. Prior 65 %.
+  - **Q3:** rule P loses no F finisher. Prior 50 %.
+  - **Q4:** rule P gains at least one case over F. Prior 50 %.
+  - **Q5:** rule P finishes at least as many cases as rule C. Prior 65 %.
+  - **Q6:** on the cases both finish, P's mean cost change against F is within 0.5 points. Prior 70 %.
+- Script `experiments/run_confirm.py`; results `results_confirm.txt`, `.json`, parts in `results_confirm_parts/`. Reported as found, whatever the verdict.
+
 ## 2026-11-20 · Rule P: outcome. All seven predictions held: development 32 of 34 with none lost (rule C's count, case200 and case57 API back near their frozen cost), held-out 11 of 19 with none lost against the frozen repair or rule C (10 of 18 without case1888 API, the case the rule came from). Leading candidate in place of rule C; held-out is no longer clean for it, so it still needs the unused split
 - Ran as planned (`experiments/run_enlarge_pre.py dev held`; `results_enlarge_pre.txt`, `.json`, per-case parts in `results_enlarge_pre_parts/`; about 15 minutes on 4 processes). **P0 held:** the 12 development cases on which rule C met failed hard QPs only before any halving equal rule C's run; the 4 development and 5 held-out rerun cases with no enlarged step equal the frozen run.
 - **Development.** 76 failed hard QPs: 53 came after a halving and went to the elastic chain, 18 fired (all solved). **P2 held** (case73 API clean at round 12, +3.258 %, rule C's run). **P3, P4 held:** finishers **32 of 34**, gained case73 API, lost none. Against rule C, case200 API finishes at +0.237 % (C +2.299 %, frozen +0.130 %), case57 API at +0.710 % (C +1.440 %, the frozen run's point), case162 API one round sooner than frozen; case30 API is unchanged from C (+1.260 %; its round-4 firing was already the last). On the 31 cases both finish the median round is unchanged (P faster on 6, slower on 4, sign test P = 0.75) and cost moves &minus;0.001 points on average (rule C +0.087).
