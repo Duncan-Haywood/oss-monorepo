@@ -394,9 +394,9 @@ function editDistance(a, b) {
 }
 
 export function nearKey(key) {
-  if (KNOWN[key]) return null;
+  if (Object.hasOwn(KNOWN, key)) return null;
   const norm = key.replace(/[-\s.]/g, "_");
-  if (KNOWN[norm]) return norm;
+  if (Object.hasOwn(KNOWN, norm)) return norm;
   let best = null, bestD = 3;
   for (const k of Object.keys(KNOWN)) {
     if (k === "root") continue;
@@ -407,7 +407,7 @@ export function nearKey(key) {
 }
 
 export function checkValue(key, value) {
-  const spec = KNOWN[key];
+  const spec = Object.hasOwn(KNOWN, key) ? KNOWN[key] : null;
   if (!spec) return null;
   const v = value.toLowerCase();
   if (v === "unset") return null;
@@ -530,7 +530,7 @@ export function analyze(input = {}) {
             const off = /^(off|false|none|no|disable|disabled|ignore)$/i.test(p.value) && p.key !== "max_line_length";
             add({ severity: p.key === "max_line_length" ? "low" : "medium", kind: "invalid-value", file: f.file, line: p.line, text: p.raw.trim(), title: `\`${p.key} = ${p.value}\` is not ${want}`, detail: off ? `Editors ignore a value they do not support, so this does not switch ${p.key} off: files keep whatever an earlier section or the editor set. To cancel an earlier setting, write \`${p.key} = unset\`.` : p.key === "max_line_length" ? "`max_line_length` is not in the specification; the editors that read it document a whole number or `off`, and may ignore this value." : "Editors ignore a value they do not support, so this file keeps whatever the editor or an earlier section set." });
           }
-        } else if (/\s[#;]/.test(p.value) && KNOWN[p.key] === undefined) {
+        } else if (/\s[#;]/.test(p.value) && !Object.hasOwn(KNOWN, p.key)) {
           add({ severity: "low", kind: "inline-comment", file: f.file, line: p.line, text: p.raw.trim(), title: `\`${p.key}\`'s value contains \` #\` or \` ;\``, detail: `Cores that follow the specification read the whole \`${p.value}\`; older ones stop at the \`#\` or \`;\` and read \`${legacyValue(p.value)}\`.` });
         }
       }
@@ -592,7 +592,8 @@ export function analyze(input = {}) {
     }
   }
 
-  findings.sort((a, b) => SEV[a.severity] - SEV[b.severity] || a.file.localeCompare(b.file) || a.line - b.line);
+  const rank = (sv) => (Object.hasOwn(SEV, sv) ? SEV[sv] : 9);
+  findings.sort((a, b) => rank(a.severity) - rank(b.severity) || a.file.localeCompare(b.file) || a.line - b.line);
   const unset = results.reduce((n, r) => n + r.props.filter((e) => e.value.toLowerCase() === "unset").length, 0);
   return {
     files: files.map((f) => ({ file: f.file, root: f.root, sections: f.sections.length, pairs: f.sections.reduce((n, s) => n + s.pairs.length, 0) })),

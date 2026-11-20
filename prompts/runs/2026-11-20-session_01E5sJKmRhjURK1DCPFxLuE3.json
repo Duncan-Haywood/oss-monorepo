@@ -7,14 +7,16 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T04:18:46Z",
   "ended": "2026-11-20T04:44:11Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 48.94,
+  "tokens_in": 27666787,
+  "tokens_out": 114292,
+  "cost_usd": 9.9304,
+  "tool_calls": 147,
   "task": "explore: new venture editorconfig-explainer",
   "projects": [
     "editorconfig-explainer"
@@ -27,15 +29,121 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 31,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First local CI run: README linked eval/wild-sample-2026-11-20.md before it existed; new venture had no sibling link; prototype-unsafe KNOWN/SEV lookups (test_inherited_keys); findings drawn as h4; no launch date",
+      "fixed": true
+    },
+    {
+      "what": "Post front matter: description 221 chars and seo_title 91 chars over the 160/70 caps",
+      "fixed": true
+    },
+    {
+      "what": "First real-project sample read git trees API (403, outside session scope) and treated airbnb's symlinked .editorconfig blobs as files; switched to blobless clones and mode-120000 skip, re-ran",
+      "fixed": true
+    }
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says launched.json/sibling links are needed implicitly via CI only; a new-venture checklist naming launched.mjs --write, a sibling footer link with page.test assertion, h3 finding headings and Object.hasOwn lookups would have saved one 20-minute local CI round (all four tripped here)."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "gh api for repos outside scope (git trees of public repos) returns 403 'not enabled for this session'; worth noting that blobless git clone works for public repos where the API does not."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
-  "goal": null,
-  "notes": "In progress; filled in before merge.",
+  "writeups": [
+    "docs/posts/2026-11-20-three-editorconfig-lines-two-editors-read-differently.md",
+    "docs/reports/editorconfig-explainer-launch.md",
+    "ventures/editorconfig-explainer/eval/wild-sample-2026-11-20.md",
+    "ventures/editorconfig-explainer/why-editorconfig-section-does-not-match.html"
+  ],
+  "goal": "Ship a new developer tool with depth: an EditorConfig resolver verified against the official conformance suite and two shipping cores",
+  "notes": "Explore idea: editorconfig-explainer (new venture). Engine passes 198/198 runnable EditorConfig core-tests (eval/core-tests.mjs on a clone of editorconfig-core-test); differential vs editorconfig-core-py 0.17.1 and npm editorconfig 4.0.1 over 23,149 random cases: npm agrees 23,100, core-py 22,005, every difference in four named causes (inline comments 637, escaped wildcards 452, negated bracket crossing / 55 for core-py; reversed range 49 for npm). Real-project sample of the 300 most-starred repos (89 with .editorconfig, 141 files): found Linux's [tools/{perf,power,rcu,testing/kunit}/**.py,] stray comma (section never matches in any core) and deno's '[*.out] # comment' header that core-py applies and the npm core stops parsing at. Local verification: run_workflow_locally --for-changes run three times; failures fixed are listed in errors; final targeted re-run noted in the PR. Graduation idea: GitHub Action around cli/check.mjs --strict; report core-py differences upstream (owner's account).",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5c3e6c78-8f4d-59fa-bba9-d30cf30afacd",
+    "transcripts": 1,
+    "first": "2026-11-20T04:18:46Z",
+    "last": "2026-11-20T05:07:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 137,
+        "input": 269,
+        "output": 114292,
+        "thinking": 23403,
+        "cache_read": 27395987,
+        "cache_write_5m": 0,
+        "cache_write_1h": 270531,
+        "api_equivalent_usd": 9.9304,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 137,
+      "input": 269,
+      "output": 114292,
+      "thinking": 23403,
+      "cache_read": 27395987,
+      "cache_write_5m": 0,
+      "cache_write_1h": 270531,
+      "api_equivalent_usd": 9.9304,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 147,
+    "tools": {
+      "Bash": 124,
+      "Write": 14,
+      "Monitor": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Edit": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 48.94,
+      "active_minutes": 30.62,
+      "model_minutes": 20.26,
+      "tool_minutes": 10.37,
+      "waiting_on_human_minutes": 18.31,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior developer estimate: glob engine and parser from the spec (6h), core-tests harness and differential vs two cores (6h), CLI, page, guide and tests (8h), real-project sample and write-ups (4h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 241.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }

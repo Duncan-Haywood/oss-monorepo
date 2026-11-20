@@ -151,3 +151,10 @@ test("a trailing comma outside braces is literal and flagged (as in Linux's tool
   assert.deepEqual(sectionHints("*.{js,ts}").map((h) => h.kind), []);
   assert.deepEqual(sectionHints("{a\\,b,c}.txt").map((h) => h.kind), []);
 });
+
+test("keys named like Object.prototype members are ordinary unknown keys", () => {
+  assert.equal(nearKey("constructor"), null);
+  const r = analyze({ sources: "root = true\n[*]\nconstructor = x # y\ntoString = 1\n", paths: "a" });
+  assert.equal(r.paths[0].core.constructor, "x # y");
+  assert.ok(r.findings.every((f) => f.kind === "inline-comment"));
+});

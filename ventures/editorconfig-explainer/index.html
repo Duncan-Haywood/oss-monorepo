@@ -34,7 +34,7 @@
     td code { white-space: pre-wrap; word-break: break-all; }
     .finding { border-bottom: 1px solid #e5eeea; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #f8dcd6; color: #7a1f10; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -167,7 +167,7 @@ node ventures/editorconfig-explainer/cli/check.mjs --strict   # exit 1 on a high
       const t = last.totals;
       status.textContent = `Checked ${t.paths.toLocaleString("en-US")} files against ${t.sections} sections in ${Math.round(performance.now() - t0)} ms.`;
       $("#totals").innerHTML = [["Files checked", t.paths], ["With settings", t.withSettings], ["High findings", t.high], ["Medium findings", t.medium]].map(([k, v]) => `<div><strong>${v.toLocaleString("en-US")}</strong>${k}</div>`).join("");
-      $("#findings").innerHTML = last.findings.length ? last.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${md(f.title)}</h4><p class="note">${esc(f.file)}:${f.line} ${f.text ? `<code>${esc(f.text)}</code>` : ""}</p><p>${md(f.detail)}</p></div>`).join("") : "<p>No findings: every section matches a listed file and every line reads the same in every core we know of.</p>";
+      $("#findings").innerHTML = last.findings.length ? last.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${md(f.title)}</h3><p class="note">${esc(f.file)}:${f.line} ${f.text ? `<code>${esc(f.text)}</code>` : ""}</p><p>${md(f.detail)}</p></div>`).join("") : "<p>No findings: every section matches a listed file and every line reads the same in every core we know of.</p>";
       renderRows();
       $("#report").hidden = false;
       record("editorconfig_checked");
