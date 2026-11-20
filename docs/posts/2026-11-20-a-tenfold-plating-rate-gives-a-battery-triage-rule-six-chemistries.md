@@ -76,3 +76,7 @@ Next: why both rules' margins miss on `Mohtat2020`, and the same check at a mult
 [`experiments/plating7r/results.txt`](../../research/cell-fidelity/experiments/plating7r/results.txt),
 and the plan was committed before the probe ran, in the
 [log](../../research/cell-fidelity/LOG.md).
+
+**Update, same day:** the check at a multiplier of 30 failed. The six-set interval goes back
+across zero (&minus;6.19 to +3.75), and on the tuned cells the rule is dearer than a uniform run
+length. See [the follow-up](2026-11-20-the-battery-triage-interval-did-not-survive-a-second-plating-rate.md).

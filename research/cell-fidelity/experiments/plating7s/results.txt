@@ -1,0 +1,55 @@
+cell-fidelity milestone 7r: the plating exchange-current density scaled by a fixed ladder on Mohtat2020@3x and Ecker2015@2x;
+probe: designs 0 to 3 of 7p's pool (Sobol seed 41), 20 cycles, 5zk's x-resolved DFN (SEI + plating) bench; kept: the smallest multiplier per cell
+with median fade (cycle 2 to 20, share of n_Li) in [0.03, 0.2]; kept cells benched to cycle 100 and put through 7p's code. PyBaMM 26.10.1.1.
+
+cell              mult  done  plates     fade  probe
+Mohtat2020@3x        1     4    True   0.0048  (7p)
+Mohtat2020@3x        3     4    True   0.0138  fail
+Mohtat2020@3x       10     4    True   0.0423  pass
+Mohtat2020@3x       30     4    True   0.1066  pass
+Mohtat2020@3x      100     4    True   0.2374  fail
+Ecker2015@2x         1     4    True   0.0053  (7p)
+Ecker2015@2x         3     4    True   0.0159  fail
+Ecker2015@2x        10     4    True   0.0503  pass
+Ecker2015@2x        30     4    True   0.1202  pass
+Ecker2015@2x       100     4    True   0.2251  fail
+
+fade against multiplier: Mohtat2020@3x rising True, log-log slope 0.85; Ecker2015@2x rising True, log-log slope 0.81
+
+kept: Mohtat2020@3x x30, Ecker2015@2x x30
+
+set              n  q75 E10  med E10  q75 E50   med m med|mC-1|   pick   rho(O1, O2, O3 ; m) on pools 1-3
+Mohtat2020      50    0.132    0.105    0.081   0.806     0.164   O3     +0.17  +0.14  +0.54
+Ecker2015       50    0.294    0.249    0.162   0.585     0.389   O3     -0.32  -0.41  +0.53
+
+lopo5 on the new sets               Mohtat2020             Ecker2015
+theta                           5/5   47.5 cyc        4/5   43.5 cyc
+theta50                         5/5   47.5 cyc        4/5   45.5 cyc
+U                               5/5   40.0 cyc        5/5   40.0 cyc
+
+paired lopo5 folds, threshold rule minus uniform (DFN cycles per design; negative = threshold cheaper):
+rule       sets folds    mean     set bootstrap 95%  cheaper  dearer  sign p  met a/b
+theta      four    20   -4.50        -8.50 to +0.25       14       4   0.031   19/19
+theta       new    10   +5.50        +3.50 to +7.50        1       7   0.070    9/10
+theta       all    30   -1.17        -6.19 to +3.75       15      11   0.557   28/29
+theta50    four    20   -4.50        -8.50 to +0.25       14       4   0.031   19/19
+theta50     new    10   +6.50        +5.50 to +7.50        1       8   0.039    9/10
+theta50     all    30   -0.83        -6.03 to +4.25       15      12   0.701   28/29
+
+per-set mean difference, theta minus U: Ai2020 -7.00, Chen2020 +2.67, Ecker2015 +3.50, Mohtat2020 +7.50, NCA_Kim2011 -10.00, OKane2022 -3.67
+
+H317 (some multiplier in [3.0, 10.0, 30.0, 100.0] makes each cell pass the probe): supported
+H318 (fade rises with the multiplier on each cell, log-log slope 0.5 to 1.5): supported
+H319 (the forecast law works on each kept cell, q75 E10 <= 0.2): inconclusive
+H320 (the all-set bootstrap interval of theta - U lies below zero): inconclusive
+H321 (theta meets >= 4 of 5 lopo5 folds on each kept cell): supported
+
+---- 7s: the same report at f = 30 against 7r's f = 10 (the H317 to H321 lines above are 7r's labels, replayed; 7s is judged below) ----
+bench finished to cycle 100: Mohtat2020@3x 56/56, Ecker2015@2x 56/56
+theta - U      f=10 mean            f=10 95%  f=30 mean            f=30 95%
+all                -3.73      -6.94 to -0.57      -1.17      -6.19 to +3.75
+new                -2.20      -3.40 to -1.00      +5.50      +3.50 to +7.50
+H322 (the forecast law works on each f = 30 cell, q75 E10 <= 0.2): inconclusive
+H323 (the six-set interval of theta - U lies below zero at f = 30): inconclusive
+H324 (the two tuned cells' 10-fold mean of theta - U is negative at f = 30): refuted
+H325 (theta meets >= 4 of 5 lopo5 folds on each f = 30 cell): supported
