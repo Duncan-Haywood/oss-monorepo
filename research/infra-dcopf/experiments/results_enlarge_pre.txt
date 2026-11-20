@@ -1,0 +1,62 @@
+Rule P: rule C with the enlarged step only before the first halving (research/grid-linopf)
+Plan, rule P and predictions P0 to P6: LOG.md 2026-11-20 (committed before this ran).
+Cases whose frozen run has no failed hard QP are identical by construction (not rerun, counted as frozen).
+
+Development: 34 cases (18 rerun), 30-round budget
+  failed hard QPs 76; post-halving (sent to the elastic chain) 53; fired 18; enlarged hard QP solved 18
+  case               kind   frozen@  C@   P@    cost% over AC optimum frozen / C / P
+  case118_ieee       api     None None None   - / - / -
+  case162_ieee_dtc   api       11   13   10   +0.317 / +0.317 / +0.357  <-
+  case200_activ      api       10    9   12   +0.130 / +2.299 / +0.237  <-
+  case240_pserc      api       17   16   16   +0.052 / +0.048 / +0.048  <-
+  case24_ieee_rts    api       10   12   12   +0.711 / +0.691 / +0.691  <-
+  case300_ieee       api       12   13   12   +1.017 / +0.993 / +1.017
+  case30_ieee        api        7   13   12   +0.337 / +1.261 / +1.260  <-
+  case57_ieee        api       12   11   12   +0.710 / +1.440 / +0.710
+  case73_ieee_rts    api     None   12   12   - / +3.258 / +3.258  <-
+  case118_ieee       sad       12   10   10   +0.379 / +0.354 / +0.354  <-
+  case14_ieee        sad        2    2    2   +3.845 / +3.320 / +3.320
+  case162_ieee_dtc   sad       10    8    8   +0.514 / +0.788 / +0.788  <-
+  case179_goc        sad       11   11   11   +0.830 / +0.056 / +0.056
+  case200_activ      sad        3    2    2   +0.004 / +0.010 / +0.010  <-
+  case240_pserc      sad       20   20   20   +0.374 / +0.374 / +0.374
+  case30_ieee        sad        7    2    2   +0.076 / +0.061 / +0.061  <-
+  case162_ieee_dtc   typ        8    8    8   +0.261 / +0.238 / +0.238
+  case179_goc        typ       10   11   11   +0.003 / +0.003 / +0.003  <-
+  gate P0 (rule C met failed hard QPs only before any halving: equals rule C's run): 12 of 12
+  gate (no enlarged step taken: equals the frozen run): 4 of 4
+  finishers (all, 34 cases): frozen 31, rule C 32, rule P 32; P against frozen: gained 1, lost 0 (sign test P = 1.000); P against C: gained 0, lost 0
+    both finish (31): rounds P minus frozen median +0.0 (faster 6, slower 4, sign test P = 0.754); cost points mean -0.001
+
+Held-out: 19 cases (17 rerun), 20-round budget
+  failed hard QPs 152; post-halving (sent to the elastic chain) 123; fired 15; enlarged hard QP solved 15
+  case               kind   frozen@  C@   P@    cost% over AC optimum frozen / C / P
+  case1354_pegase    api     None None None   - / - / -
+  case1888_rte       api       13 None   17   +0.617 / - / +0.268  <-
+  case500_goc        api       14   17   17   +0.805 / +0.633 / +0.633  <-
+  case588_sdet       api       19   19   19   +0.868 / +3.551 / +3.551
+  case793_goc        api       17   13   13   +0.254 / +0.475 / +0.475  <-
+  case1354_pegase    sad     None None None   - / - / -
+  case1888_rte       sad     None None None   - / - / -
+  case1951_rte       sad       20   16   16   +0.050 / +0.053 / +0.053  <-
+  case2000_goc       sad     None None None   - / - / -
+  case500_goc        sad     None    5    5   - / +1.364 / +1.364  <-
+  case588_sdet       sad     None None None   - / - / -
+  case793_goc        sad       16   15   18   +0.865 / +0.478 / +0.513  <-
+  case1354_pegase    typ     None None None   - / - / -
+  case1888_rte       typ     None None None   - / - / -
+  case1951_rte       typ       17   18   18   +0.019 / +0.019 / +0.019  <-
+  case588_sdet       typ       20   20   20   +2.124 / +0.076 / +2.124
+  case793_goc        typ       17   14   17   +0.140 / +0.065 / +0.140
+  gate (no enlarged step taken: equals the frozen run): 5 of 5
+  finishers (all, 19 cases): frozen 10, rule C 10, rule P 11; P against frozen: gained 1, lost 0 (sign test P = 1.000); P against C: gained 1, lost 0
+    both finish (10): rounds P minus frozen median +0.0 (faster 2, slower 4, sign test P = 0.688); cost points mean +0.203
+  finishers (without case1888 API, 18 cases): frozen 9, rule C 10, rule P 10; P against frozen: gained 1, lost 0 (sign test P = 1.000); P against C: gained 0, lost 0
+    both finish (9): rounds P minus frozen median +0.0 (faster 2, slower 3, sign test P = 1.000); cost points mean +0.265
+
+P2 (case73 API fully clean within 30 rounds): held (12)
+P3 (development finishers at least 32 of 34): held (32)
+P4 (development: no frozen finisher lost): held (0)
+P1 (case1888 API fully clean within 20 rounds): held (17)
+P5 (held-out finishers at least 11 of 19): held (11)
+P6 (held-out without case1888 API: at least 10 of 18, rule C's count): held (10)

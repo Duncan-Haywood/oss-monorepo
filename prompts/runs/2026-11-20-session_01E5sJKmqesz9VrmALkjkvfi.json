@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKmqesz9VrmALkjkvfi",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T05:18:01Z",
+  "ended": "2026-11-20T05:37:55Z",
+  "wall_minutes": 20.2,
+  "tokens_in": 8097205,
+  "tokens_out": 46573,
+  "cost_usd": 3.7006,
+  "tool_calls": 67,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17861",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/infra-dcopf/experiments/results_enlarge_rel_parts",
+      "issue": "held-out parts stored only statuses and QP kinds, not halvings or per-round merits, so diagnosing case1888 API needed a rerun with a new trace; vlin.slp(trace=...) now records them"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_in_background with a compound 'cd X && (...) &' in one Bash call backgrounds the cd too, leaving the next command in the old cwd; minor, cost one retry"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "'One step per pull request': this PR lands two linked steps (the case1888 diagnosis and rule P, which the diagnosis suggested), each pre-registered in its own commit before it ran",
+      "did": "plan, outcome, plan, outcome as four LOG entries in one PR",
+      "result": "both ran in about 20 minutes wall time; all predictions recorded before results"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-widen-the-trust-box-only-before-it-shrinks.md",
+    "research/infra-dcopf/LOG.md (2026-11-20 entries)",
+    "research/grid-linopf/README.md"
+  ],
+  "goal": null,
+  "notes": "Diagnosis: rule C loses case1888 API to a 20-round budget miss (12 of 15 tail trials accepted), not a stall; K0,K2,K4,K5 held, K1,K3 refuted. Rule P (widen only before the first halving): P0-P6 held; dev 32/34, held-out 11/19 (10/18 w/o case1888), none lost vs frozen or C. infra-dcopf tests 90 passed; homepage build ok; check_md_links ok; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d8d6b17f-2bdc-5cb9-81cc-de7a55c69cbd",
+    "transcripts": 1,
+    "first": "2026-11-20T05:18:01Z",
+    "last": "2026-11-20T05:38:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 128,
+        "output": 46573,
+        "thinking": 13060,
+        "cache_read": 7949747,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147330,
+        "api_equivalent_usd": 3.7006,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 128,
+      "output": 46573,
+      "thinking": 13060,
+      "cache_read": 7949747,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147330,
+      "api_equivalent_usd": 3.7006,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 62,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.2,
+      "active_minutes": 20.2,
+      "model_minutes": 9.7,
+      "tool_minutes": 10.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a power-systems researcher instrumenting the repair, running five ablation arms and a 53-case rule comparison, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 324.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

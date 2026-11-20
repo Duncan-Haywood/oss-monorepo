@@ -1,0 +1,1 @@
+{"case": "case30_ieee", "kind": "sad", "ac": 8208.515134952386, "secs": 0.06869673728942871, "statuses": ["not clean/enlarged", "clean/hard"], "clean_at": 2, "clean_cost": 8213.495330534937, "enlarge": [{"it": 1, "halvings": 0, "cap": 2.0, "t_min": 1.2806512393990592, "fired": true, "t_used": 1.4087163633389652, "ok": true}]}

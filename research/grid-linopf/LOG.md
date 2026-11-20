@@ -1,5 +1,21 @@
 # Research log
 
+## 2026-11-20 · Rule P: outcome. All seven predictions held: development 32 of 34, held-out 11 of 19 (10 of 18 without case1888 API), none lost against the frozen repair or rule C. Leading candidate; needs the unused split
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-20); numbers in `research/infra-dcopf/experiments/results_enlarge_pre.txt`. P0 to P6 held.
+- 53 of 76 development and 123 of 152 held-out failed hard QPs came after a halving and went to the elastic chain. case1888 API finishes at round 17 (+0.268 %); case200 and case57 API return near their frozen cost (+0.237 %, +0.710 %; rule C +2.299 %, +1.440 %).
+- Next: a confirmation split of PGLib-OPF cases above 2,000 buses with frozen, C and P fixed before it runs.
+
+## 2026-11-20 · Rule P: rule C with the enlarged step only before the first halving (plan)
+- Plan, rule P (`enlarge_pre=True`) and predictions P0 to P6: `research/infra-dcopf/LOG.md` (2026-11-20); script `research/infra-dcopf/experiments/run_enlarge_pre.py`. Held-out is reported with and without case1888 API, where the rule came from.
+
+## 2026-11-20 · Why does every widening variant lose held-out case1888 API? Outcome. A 20-round budget miss, not a stall; withholding any one of rule C's three firings finishes it, each cheaper than the frozen point
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-20); numbers in `research/infra-dcopf/experiments/diag_case1888.txt`. K0, K2, K4, K5 held; K1, K3 refuted.
+- 12 of rule C's 15 tail trials are accepted; it ends at the merit the frozen run had at round 11. The widened steps trade voltage violations (35 to 7) for overloads (178 %, 211 %) that curvature-limited hard QPs repay slowly: rows predicted at 99.9 % land up to 8 points over.
+- Withholding the round-1, 2 or 5 firing finishes at round 18, 20 or 17, at +0.537, +0.229 or +0.268 % against the frozen +0.617 %.
+
+## 2026-11-20 · Why does every widening variant lose held-out case1888 API? (plan)
+- Plan, a per-round trace of the repair on case1888_rte API under the frozen repair and rule C, three single-firing ablations of rule C, and predictions K0 to K5: `research/infra-dcopf/LOG.md` (2026-11-20); script `research/infra-dcopf/experiments/diag_case1888.py`.
+
 ## 2026-11-20 · Rule C: outcome. All seven predictions held: development finishers 32 of 34 (none lost, case73 API clean at +3.26 %), held-out 10 of 19 as frozen (case500 SAD in, case1888 API out), 0 repeats. The leading candidate, not yet adopted
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-20); numbers in `research/infra-dcopf/experiments/results_enlarge_rel.txt`. C1 to C7 held.
 - With the cap at twice the current stored box the rule fired on 25 and declined on 50 of 75 failed development QPs; case30 API and case200 API finish again (later and dearer than frozen) and case73 API keeps rule E's finish.
