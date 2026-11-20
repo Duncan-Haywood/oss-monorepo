@@ -188,6 +188,11 @@ CLAIMS = [
     ("results_panel_speed.txt", "S5 area strip 0.929 (7zh 0.929), panel 1.222"),
     ("results_panel_speed.txt", "S6 Journee ratios panel I 0.821, III 0.849"),
     ("results_panel_speed.txt", "30 W loss 3.80% (strip 3.39%)"),
+    # milestone 7zo: the same model linearised about the double-body flow
+    ("results_panel_doublebody.txt", "strip +3.1%, panel -10.0%"),
+    ("results_panel_doublebody.txt", "H5 Journee ratios I 0.615, III 0.662"),
+    ("results_panel_doublebody.txt", "30 W loss 3.43% in the 3.4-4.2% bracket"),
+    ("results_coupling_symmetry.txt", "S summed over KL / measured 1.744"),
     ("results_faltinsen_reflection.txt", "row Faltinsen_kT_speed 2.844 0.028 -3.39 -12.32 True"),
     ("results_faltinsen_reflection.txt", "row STAWAVE-2 2.844 0.725 -4.18 -14.79 True"),
     ("results_faltinsen_reflection.txt", "I/B 0.0195"),
