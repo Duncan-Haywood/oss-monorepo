@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKjRwosADK3ugWhsUih",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T03:24:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector: Shopify days in the store's own time zone (quality-audit item from NEXT.md)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17848",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The changepoint-detector row's next: lists only research-style items; the sellable surface's open faults (the Shopify DST bug, llms.txt size) sat in NEXT.md, so a revenue-minded run has to read NEXT.md to find them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The flagship default asks for an item from the row's next:. I took a quality-audit fault from NEXT.md instead: the Shopify source cut days at a fixed UTC offset, so stores in daylight-saving zones got wrong days half the year. That fault is on the venture's sellable surface, which fits the brief's revenue focus better than another research round.",
+      "did": "Fixed it (Shop.ianaTimezone default, --time-zone for Shopify and Stripe), cut the two 10,000-character llms.txt lines to summaries, wrote a post. The flagship next: is unchanged, because the item came from NEXT.md.",
+      "result": "shopify and stripe suites 21/21 pass; full venture suite and preflight results are in notes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-shopify-days-in-the-stores-own-time-zone.md",
+    "ventures/changepoint-detector/README.md (Days in the store's own time zone)"
+  ],
+  "goal": null,
+  "notes": "node --test shopify-metrics.test.mjs stripe-metrics.test.mjs: 21 pass, 0 fail. check_posts ok; check_llms_txt_links 0 dead. Full venture suite (run_venture_tests.py changepoint-detector) and venture-preflight were started in the background; their results are added below once they finish.",
+  "corrections": [],
+  "redteam": null
+}
