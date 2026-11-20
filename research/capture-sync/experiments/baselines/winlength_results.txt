@@ -1,0 +1,124 @@
+capture-sync step 4b: step 4a's baselines against GCC at 2, 4 and 8 s windows (MS-SNSD speech and noise,
+statistical rooms, noise independent per device; 400 trials per room and length, 31 conditions each)
+failure = more than a 30 fps frame from the speech truth; methods: plain / fn / kflat / kenergy / kzcr / wang / hk
+windows: 74400
+
+######## L = 2 s (24800 windows) ########
+  RT60 0.2
+    none                       0.000 0.000 0.000 0.000 0.000 0.117 0.000
+    sum of 10 types +10 dB     0.000 0.025 0.217 0.013 0.415 3.312 0.000
+    sum of 10 types +0 dB      0.007 0.007 2.288 1.180 2.720 6.322 0.338
+    white -10 dB               0.005 0.003 0.075 0.013 0.055 0.800 0.422
+    AirConditioner -10 dB      0.098 0.177 0.645 0.490 0.647 0.917 0.440
+    AirportAnnouncements -10 dB 0.235 0.177 0.922 0.905 0.757 0.943 0.642
+    Babble -10 dB              0.535 0.365 0.917 0.950 0.825 0.975 0.815
+    CopyMachine -10 dB         0.305 0.145 0.870 0.938 0.920 0.940 0.733
+    Munching -10 dB            0.307 0.003 0.682 0.695 0.823 0.807 0.170
+    Neighbor -10 dB            0.740 0.080 0.927 0.925 0.912 0.912 0.618
+    ShuttingDoor -10 dB        0.225 0.003 0.632 0.642 0.797 0.690 0.052
+    Typing -10 dB              0.762 0.003 0.645 0.557 0.785 0.887 0.242
+    VacuumCleaner -10 dB       0.018 0.045 0.540 0.485 0.910 0.945 0.357
+    sum of 10 types -10 dB     3.230 1.000 6.857 6.600 7.433 8.817 4.492
+    best baseline minus fn, -10 dB sum: 3.49 (95% session bootstrap 3.19 to 3.79)
+    AUROC (all conditions) plain 0.857  fn 0.981  kflat 0.908  kenergy 0.925  kzcr 0.894  wang 0.843  hk 0.964
+    |error| ms of successes, no noise, median/p95 plain 0.01/0.04  fn 0.00/0.01  kflat 0.66/2.13  kenergy 0.39/1.55  kzcr 1.10/3.45  wang 2.69/14.58  hk 1.70/5.30
+    T4 gate at -10 dB, kept / pooled wrong plain 0.00/1.000  fn 0.76/0.017  kflat 0.01/0.235  kenergy 0.09/0.146  kzcr 0.00/nan  wang 0.00/nan  hk 0.24/0.045
+  RT60 0.8
+    none                       0.000 0.000 0.000 0.000 0.005 0.160 0.000
+    sum of 10 types +10 dB     0.000 0.000 0.450 0.068 0.870 3.697 0.000
+    sum of 10 types +0 dB      0.000 0.000 3.150 1.788 3.775 6.445 0.438
+    white -10 dB               0.000 0.005 0.150 0.037 0.125 0.845 0.517
+    AirConditioner -10 dB      0.165 0.258 0.743 0.660 0.743 0.935 0.517
+    AirportAnnouncements -10 dB 0.242 0.193 0.948 0.927 0.835 0.938 0.693
+    Babble -10 dB              0.635 0.395 0.943 0.963 0.907 0.975 0.850
+    CopyMachine -10 dB         0.350 0.135 0.912 0.927 0.932 0.958 0.777
+    Munching -10 dB            0.312 0.003 0.785 0.757 0.868 0.828 0.223
+    Neighbor -10 dB            0.733 0.060 0.938 0.965 0.917 0.905 0.655
+    ShuttingDoor -10 dB        0.215 0.007 0.700 0.715 0.825 0.713 0.045
+    Typing -10 dB              0.800 0.000 0.695 0.670 0.855 0.895 0.280
+    VacuumCleaner -10 dB       0.035 0.065 0.667 0.608 0.948 0.953 0.400
+    sum of 10 types -10 dB     3.488 1.120 7.480 7.230 7.955 8.943 4.957
+    best baseline minus fn, -10 dB sum: 3.84 (95% session bootstrap 3.63 to 4.07)
+    AUROC (all conditions) plain 0.867  fn 0.987  kflat 0.860  kenergy 0.868  kzcr 0.844  wang 0.832  hk 0.960
+    |error| ms of successes, no noise, median/p95 plain 0.00/0.02  fn 0.00/0.01  kflat 0.81/3.66  kenergy 0.59/2.29  kzcr 1.94/6.98  wang 2.06/11.62  hk 2.15/6.94
+    T4 gate at -10 dB, kept / pooled wrong plain 0.00/nan  fn 0.79/0.025  kflat 0.00/0.500  kenergy 0.00/0.333  kzcr 0.00/nan  wang 0.00/nan  hk 0.19/0.023
+
+######## L = 4 s (24800 windows) ########
+  RT60 0.2
+    none                       0.000 0.000 0.000 0.000 0.000 0.025 0.000
+    sum of 10 types +10 dB     0.000 0.000 0.015 0.000 0.058 1.867 0.000
+    sum of 10 types +0 dB      0.000 0.000 0.865 0.435 1.135 4.885 0.010
+    white -10 dB               0.000 0.000 0.015 0.003 0.005 0.710 0.147
+    AirConditioner -10 dB      0.037 0.070 0.552 0.333 0.545 0.882 0.268
+    AirportAnnouncements -10 dB 0.018 0.015 0.892 0.875 0.682 0.905 0.400
+    Babble -10 dB              0.145 0.102 0.920 0.955 0.772 0.922 0.640
+    CopyMachine -10 dB         0.030 0.010 0.800 0.900 0.917 0.935 0.500
+    Munching -10 dB            0.100 0.000 0.472 0.430 0.713 0.708 0.055
+    Neighbor -10 dB            0.270 0.003 0.895 0.935 0.848 0.830 0.345
+    ShuttingDoor -10 dB        0.072 0.000 0.417 0.430 0.630 0.583 0.003
+    Typing -10 dB              0.517 0.000 0.315 0.295 0.672 0.812 0.040
+    VacuumCleaner -10 dB       0.000 0.000 0.438 0.258 0.892 0.932 0.090
+    sum of 10 types -10 dB     1.190 0.200 5.718 5.412 6.678 8.220 2.487
+    best baseline minus fn, -10 dB sum: 2.29 (95% session bootstrap 2.05 to 2.51)
+    AUROC (all conditions) plain 0.833  fn 0.995  kflat 0.948  kenergy 0.955  kzcr 0.943  wang 0.862  hk 0.975
+    |error| ms of successes, no noise, median/p95 plain 0.01/0.03  fn 0.00/0.01  kflat 0.50/1.46  kenergy 0.32/1.02  kzcr 0.75/2.58  wang 2.25/7.62  hk 1.14/3.54
+    T4 gate at -10 dB, kept / pooled wrong plain 0.47/0.021  fn 0.95/0.012  kflat 0.17/0.057  kenergy 0.18/0.068  kzcr 0.10/0.074  wang 0.00/0.000  hk 0.51/0.032
+  RT60 0.8
+    none                       0.000 0.000 0.000 0.000 0.000 0.035 0.000
+    sum of 10 types +10 dB     0.000 0.000 0.083 0.007 0.220 1.777 0.000
+    sum of 10 types +0 dB      0.000 0.000 1.430 0.625 1.968 5.168 0.037
+    white -10 dB               0.000 0.000 0.018 0.000 0.025 0.752 0.235
+    AirConditioner -10 dB      0.013 0.045 0.665 0.425 0.618 0.925 0.242
+    AirportAnnouncements -10 dB 0.033 0.020 0.905 0.917 0.748 0.920 0.440
+    Babble -10 dB              0.195 0.090 0.938 0.955 0.818 0.965 0.728
+    CopyMachine -10 dB         0.043 0.015 0.870 0.927 0.917 0.948 0.580
+    Munching -10 dB            0.122 0.000 0.620 0.640 0.762 0.718 0.043
+    Neighbor -10 dB            0.292 0.005 0.915 0.940 0.897 0.838 0.390
+    ShuttingDoor -10 dB        0.068 0.000 0.497 0.568 0.750 0.585 0.000
+    Typing -10 dB              0.540 0.000 0.468 0.395 0.728 0.850 0.055
+    VacuumCleaner -10 dB       0.000 0.007 0.537 0.355 0.922 0.940 0.170
+    sum of 10 types -10 dB     1.305 0.182 6.433 6.122 7.185 8.440 2.882
+    best baseline minus fn, -10 dB sum: 2.70 (95% session bootstrap 2.47 to 2.93)
+    AUROC (all conditions) plain 0.843  fn 0.995  kflat 0.922  kenergy 0.931  kzcr 0.914  wang 0.868  hk 0.969
+    |error| ms of successes, no noise, median/p95 plain 0.00/0.01  fn 0.00/0.01  kflat 0.62/2.16  kenergy 0.48/1.67  kzcr 1.27/4.10  wang 1.60/4.88  hk 1.61/5.14
+    T4 gate at -10 dB, kept / pooled wrong plain 0.50/0.067  fn 0.93/0.005  kflat 0.10/0.064  kenergy 0.09/0.037  kzcr 0.00/0.667  wang 0.00/0.200  hk 0.33/0.028
+
+######## L = 8 s (24800 windows) ########
+  RT60 0.2
+    none                       0.000 0.000 0.000 0.000 0.000 0.000 0.000
+    sum of 10 types +10 dB     0.000 0.000 0.000 0.000 0.005 0.488 0.000
+    sum of 10 types +0 dB      0.000 0.000 0.225 0.075 0.328 3.315 0.000
+    white -10 dB               0.000 0.000 0.000 0.000 0.000 0.672 0.020
+    AirConditioner -10 dB      0.000 0.000 0.403 0.163 0.367 0.860 0.060
+    AirportAnnouncements -10 dB 0.000 0.000 0.818 0.875 0.540 0.890 0.115
+    Babble -10 dB              0.020 0.013 0.877 0.907 0.662 0.902 0.405
+    CopyMachine -10 dB         0.000 0.000 0.682 0.815 0.833 0.905 0.212
+    Munching -10 dB            0.020 0.000 0.270 0.253 0.495 0.642 0.000
+    Neighbor -10 dB            0.048 0.000 0.873 0.897 0.795 0.750 0.085
+    ShuttingDoor -10 dB        0.000 0.000 0.195 0.138 0.422 0.430 0.000
+    Typing -10 dB              0.155 0.000 0.113 0.065 0.517 0.805 0.000
+    VacuumCleaner -10 dB       0.000 0.000 0.425 0.055 0.890 0.927 0.015
+    sum of 10 types -10 dB     0.242 0.013 4.655 4.167 5.522 7.785 0.912
+    best baseline minus fn, -10 dB sum: 0.90 (95% session bootstrap 0.76 to 1.10)
+    AUROC (all conditions) plain 0.819  fn 0.999  kflat 0.969  kenergy 0.977  kzcr 0.967  wang 0.908  hk 0.985
+    |error| ms of successes, no noise, median/p95 plain 0.01/0.02  fn 0.00/0.01  kflat 0.45/1.31  kenergy 0.31/0.91  kzcr 0.64/2.08  wang 1.56/4.38  hk 1.05/3.04
+    T4 gate at -10 dB, kept / pooled wrong plain 0.72/0.012  fn 0.97/0.001  kflat 0.32/0.050  kenergy 0.41/0.050  kzcr 0.22/0.041  wang 0.04/0.056  hk 0.79/0.016
+  RT60 0.8
+    none                       0.000 0.000 0.000 0.000 0.000 0.000 0.000
+    sum of 10 types +10 dB     0.000 0.000 0.003 0.000 0.035 0.700 0.000
+    sum of 10 types +0 dB      0.000 0.000 0.453 0.142 0.820 3.880 0.000
+    white -10 dB               0.000 0.000 0.005 0.000 0.007 0.725 0.037
+    AirConditioner -10 dB      0.000 0.003 0.460 0.245 0.512 0.877 0.102
+    AirportAnnouncements -10 dB 0.000 0.000 0.840 0.905 0.608 0.910 0.195
+    Babble -10 dB              0.015 0.005 0.897 0.935 0.703 0.945 0.502
+    CopyMachine -10 dB         0.000 0.000 0.797 0.875 0.875 0.912 0.365
+    Munching -10 dB            0.030 0.000 0.378 0.380 0.637 0.655 0.010
+    Neighbor -10 dB            0.050 0.000 0.910 0.902 0.843 0.775 0.168
+    ShuttingDoor -10 dB        0.000 0.000 0.258 0.273 0.570 0.432 0.003
+    Typing -10 dB              0.158 0.000 0.215 0.217 0.618 0.835 0.003
+    VacuumCleaner -10 dB       0.000 0.000 0.532 0.117 0.955 0.912 0.025
+    sum of 10 types -10 dB     0.253 0.007 5.292 4.850 6.327 7.980 1.410
+    best baseline minus fn, -10 dB sum: 1.40 (95% session bootstrap 1.24 to 1.57)
+    AUROC (all conditions) plain 0.811  fn 1.000  kflat 0.955  kenergy 0.960  kzcr 0.948  wang 0.920  hk 0.979
+    |error| ms of successes, no noise, median/p95 plain 0.00/0.01  fn 0.00/0.01  kflat 0.50/1.42  kenergy 0.37/1.20  kzcr 0.98/3.26  wang 1.27/3.57  hk 1.45/4.44
+    T4 gate at -10 dB, kept / pooled wrong plain 0.64/0.017  fn 0.97/0.001  kflat 0.16/0.035  kenergy 0.20/0.042  kzcr 0.10/0.034  wang 0.02/0.022  hk 0.62/0.037

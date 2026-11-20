@@ -30,6 +30,8 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 
 ![Predicted against observed miss rate per cell, real phones](experiments/threshold/libriwasn_pred_vs_obs.png)
 
+**Step 4b (2026-11-20): do the baselines catch up with more audio? No: longer windows help GCC more.** Rerun at 2, 4 and 8 s windows (74,400 windows), every method fails less, but envelope-normalised GCC's summed -10 dB failure falls from 1.0 to 0.01 while the best baseline's (Haitsma-Kalker) falls from 4.5 to 0.9, so the ratio grows from 4.5x to 70-200x. Haitsma-Kalker needs about four times the audio for GCC's failure share; Kammerl-style feature correlation and landmarks at 8 s are still worse than plain GCC at 2 s ([details](#step-4b-the-same-baselines-at-4-and-8-s-windows-experimentsbaselineswinlengthpy)).
+
 **Step 4a (2026-11-20): do the multi-camera sync literature's own methods do better than GCC on short windows? No, not one of five.** On the same 62,000 2 s windows (step 3h's simulated rooms and ten real noise types, replayed bit for bit), envelope-normalised GCC was put against reimplementations of three lineages: frame-feature cross-correlation in the style of Kammerl et al. (2014) (spectral flatness, energy, zero-crossing rate), Wang (2003) landmark hashing (the Shazam method behind most open alignment tools) and Haitsma-Kalker (2002) binary fingerprints. At -10 dB the failure shares summed over ten noise types are **1.1-1.3 for envelope-normalised GCC against 4.3-4.9 for the best baseline (Haitsma-Kalker) and 6.6-8.9 for the rest**. With no noise all but landmarks are perfect, but GCC's median error is 0.01 ms against 0.4-2.6 ms. GCC's confidence is the only one that supports a useful 1% gate: it keeps 74% of -10 dB windows at 1.9% wrong, against at most 27% kept at 3-6% wrong for any baseline. Two literature claims did not reproduce here: spectral flatness did not beat energy, and landmarks did not shrug off one-sided bursts. Haitsma-Kalker bits did beat plain GCC on impulsive noise ([details](#step-4a-fingerprint-and-feature-baselines-on-equal-windows-experimentsbaselinesfingerprintpy)).
 
 **Step 3l (2026-11-19): what if the noise is partly heard by both devices, as in a real room?** Independent noise per microphone, which every earlier step used, turns out to be the worst case. With devices 3 m apart and noise at -10 dB, making a quarter of the noise power shared cuts failures summed over ten noise types from 3.3 to 0.7 (plain partial-whitening GCC) and from 1.1 to 0.14 (the envelope-normalised default, `fn`); shared steady and speech-like noise acts as signal, as a one-line coherent-SNR rule predicts for 7 of 10 types at rho 0.5. A confidence gate calibrated on fully independent noise keeps wrong-among-accepted at 0.1-1.0% at every mix while coverage rises from 64-70% to 98-99%. Shared repeating sounds still break it (looped door recordings 4.6-8.2% wrong). The first run said the opposite about the gate (4-6% wrong); that was the simulation handing both devices the same recording, found and corrected in the same step ([details](#step-3l-noise-partly-shared-partly-independent-experimentsgatenoisemixpy)).
@@ -159,6 +161,9 @@ python experiments/gate/noisemix.py score /tmp/windows_lb.npz --screened && pyth
 # step 4a: MS-SNSD as above; step 3h's windows with five fingerprint/feature baselines, then the post hoc landmark sweep
 OMP_NUM_THREADS=1 python experiments/baselines/fingerprint.py collect ~/ms-snsd /tmp/windows_4a.npz --procs 4   # ~25 min
 python experiments/baselines/fingerprint.py score /tmp/windows_4a.npz && python experiments/baselines/fingerprint_figure.py
+# step 4b: the same baselines at 2, 4 and 8 s windows
+OMP_NUM_THREADS=1 python experiments/baselines/winlength.py collect ~/ms-snsd /tmp/windows_4b.npz --procs 4   # ~70 min
+python experiments/baselines/winlength.py score /tmp/windows_4b.npz && python experiments/baselines/winlength_figure.py
 OMP_NUM_THREADS=1 python experiments/baselines/wang_sweep.py ~/ms-snsd --procs 4   # ~6 min
 python experiments/gate/noiseselect.py score /tmp/windows_i.npz && python experiments/gate/noiseselect_figure.py
 python experiments/gate/noiseimpulse.py score /tmp/windows_h.npz && python experiments/gate/noiseimpulse_figure.py
@@ -427,6 +432,29 @@ AUROC of -10 against 0 dB windows (`snr_hat` / `ms`): white 1.00 / 1.00, AirCond
 Predictions: (a) replay held; (b) `ms` orders levels at AUROC 0.90 for 7 of 9 types failed (2 of 9; above `snr_hat` for 7 of 9); (c) site calibration at -10 dB for 9 of 10 types failed (4 and 4); (d) the oracle ceiling held, mostly by accepting nothing; (e) `ms` beats `snr_hat` under T3 failed (a tie); (f) the level does not fix a change of kind held; (g) leave-one-out under 8 of 10 held; (h) T0 held; (i) `ctx` between the two held for 5 of 9.
 
 **Limits of step 3e.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The tracker is a simplified minimum-statistics estimator with fixed smoothing and no bias compensation; Martin's full tracker, or a speech-presence-based one, might rank steady-but-coloured noise better, but cannot change the impulsive case, where the noise's bursts look like speech to any single-channel level estimate (an interpretation, not tested here). Context is 4 s; noise that changes kind within it is not modelled.
+
+## Step 4b: the same baselines at 4 and 8 s windows (`experiments/baselines/winlength.py`)
+
+![Summed -10 dB failure share against window length for GCC and five literature baselines](experiments/baselines/winlength_sum10.png)
+
+**Question.** Step 4a's baselines were designed for minutes of overlap, so 2 s may simply be too little audio for them. Do they catch up with GCC when they get 4 or 8 s?
+
+**Method** (plan and predictions in `LOG.md` before the run). Step 4a's harness and methods unchanged, at L = 2, 4 and 8 s; both rooms; 31 noise conditions; 400 trials per room and length with fresh seeds (74,400 windows). 16 s does not fit: VacuumCleaner's per-device noise is 17.3 s. Intervals are 95% session bootstraps over the ten speech sessions.
+
+**Results** ([`experiments/baselines/winlength_results.txt`](experiments/baselines/winlength_results.txt)). Failure shares summed over the ten noise types at -10 dB, 2 / 4 / 8 s:
+
+| | `fn` | plain | `hk` | `kenergy` | `kflat` | `kzcr` | `wang` |
+|---|---|---|---|---|---|---|---|
+| 200 ms room | **1.00 / 0.20 / 0.013** | 3.23 / 1.19 / 0.24 | 4.49 / 2.49 / 0.91 | 6.60 / 5.41 / 4.17 | 6.86 / 5.72 / 4.66 | 7.43 / 6.68 / 5.52 | 8.82 / 8.22 / 7.79 |
+| 800 ms room | **1.12 / 0.18 / 0.007** | 3.49 / 1.31 / 0.25 | 4.96 / 2.88 / 1.41 | 7.23 / 6.12 / 4.85 | 7.48 / 6.43 / 5.29 | 7.96 / 7.19 / 6.33 | 8.94 / 8.44 / 7.98 |
+| T4 gate at 8 s, kept / pooled wrong | 97% / 0.1% (both) | 72% / 1.2%, 64% / 1.7% | 79% / 1.6%, 62% / 3.7% | 41% / 5.0%, 20% / 4.2% | 32% / 5.0%, 16% / 3.5% | 22% / 4.1%, 10% / 3.4% | 4% / 5.6%, 2% / 2.2% |
+
+- **All seven predictions held.** Every method fails less with more audio, and `fn` still fails less than every baseline at 8 s (10 of 10). The best baseline's lead over `fn` shrinks in absolute terms (3.49, 95% interval 3.19-3.79, to 0.90, 0.76-1.10, in the drier room) but grows as a ratio, from 4.5x to 70x (200x in the wetter room).
+- **Per doubling of the window,** `fn`'s failures fall 5-25x, plain GCC's 3-5x, Haitsma-Kalker's about 2x, the frame-feature methods' 1.2-1.3x and landmarks' 1.07x. So Haitsma-Kalker needs about four times the audio for `fn`'s failure share (8 s for `fn`'s 2 s in the drier room, not quite in the wetter), and the feature methods at 8 s are still worse than plain GCC at 2 s.
+- **Landmarks recover with no noise** (0% at 8 s against 12-16% at 2 s) but not under noise (7.8-8.0 of 10 at 8 s).
+- `fn`'s confidence stays the best ranked (AUROC 0.999-1.000 at 8 s, `hk` 0.979-0.985), and its gate keeps 97% of -10 dB windows at 0.1% wrong.
+
+**Limitations.** As step 4a: simulated rooms with real speech and noise, pairwise windows, parameters mine except Haitsma-Kalker's. Lengths stop at 8 s because the shortest noise corpus stops there; past 8 s the baselines' trends are extrapolation.
 
 ## Step 4a: fingerprint and feature baselines on equal windows (`experiments/baselines/fingerprint.py`)
 
