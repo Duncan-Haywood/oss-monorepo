@@ -367,7 +367,7 @@ function ticks(from, to, pxPerDay = 4) {
   }
   const step = pxPerDay * 30.4 >= 34 ? 1 : pxPerDay * 91 >= 46 ? 3 : 12;
   const d = new Date(Date.UTC(d0.getUTCFullYear(), step === 12 ? 0 : d0.getUTCMonth() - (d0.getUTCMonth() % step), 1));
-  for (; d.getTime() / 60000 <= to; d.setUTCMonth(d.getUTCMonth() + step)) {
+  for (; d.getTime() / 60000 <= to; d.setUTCMonth(d.getUTCMonth() + step)) { // month-overflow: ok (always day 1)
     const m = d.getUTCMonth(), y = d.getUTCFullYear();
     out.push({ at: d.getTime() / 60000, label: step === 12 ? String(y) : step === 3 ? `Q${m / 3 + 1} ${y}` : `${MONTHS[m]}${m === 0 || out.length === 0 ? ` ${y}` : ""}`, major: m === 0 });
   }
