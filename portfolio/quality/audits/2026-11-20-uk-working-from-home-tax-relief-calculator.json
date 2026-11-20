@@ -1,0 +1,238 @@
+{
+  "date": "2026-11-20",
+  "subject": "ventures/uk-working-from-home-tax-relief-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-20-67e4",
+  "drawn_by": "census",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a UK chartered tax adviser (CTA) who files employee expense (P87) and overpayment-relief claims; first checks: the GBP 6/week rate and eligibility test per tax year, the four-year claim window (TMA 1970 s43), and that employer reimbursements are netted off (ITEPA 2003 s336/s316A)",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran an independent script (`node /tmp/claude-0/audit-uk-working-from-home-tax-relief-calculator/indep.mjs`) built from GOV.UK homeworking guidance (GBP 6/week from 6 Apr 2020), TMA 1970 s43 and ITEPA 2003 s336. Passes: sample claimable 188 wk x 6 x 20% = 225.6 (observed 225.6); deadline(2022) = 2027-04-05; 52 wk at 40% = 124.8 (matches FAQ 'about GBP 125'); 2021/22 expired as at 2026-11-20; 2025/26 urgent on 2030-01-10. Fails: employer reimbursement is pro-rated by weeks/52, so an employee paid GBP 156 for 26 weeks at home (fully covered) is shown GBP 15.60 relief (expected 0) and GBP 276 for 46 weeks shows GBP 6.37 (expected 0); Scottish rates 41% (2022/23 higher), 46% (2022/23 top) and 47% (2023/24 top) are rejected with 'Pick your income tax rate.' The no-reimbursement path most users take is right; the reimbursement path overstates.",
+    "completeness": "`node --test '*.test.mjs'` in the subject root: 27 pass, 0 fail; README's repo-root command also 27/27. Claimed features checked in code and by running compute(): per-year refund (works), deadline per year (works), lost-to-deadline total (works), urgent within 90 days (works), required-by-employer gate zeroes result (works), actual-costs comparison (works), employer payments taken off (works but wrong arithmetic), P87 vs Self Assessment route (works), summary download text (summaryText runs, names VERIFY and 'Not tax advice'). P87_LIMIT is exported but never used, so expenses over GBP 2,500 still get the P87 route. `node platform/pages/served-copy.mjs uk-working-from-home-tax-relief-calculator`: no placeholder or retired origin in what ships.",
+    "verification": "Tests 27/27 green. Six seeded mutants with platform/ci/quality_mutate.py: deadline +1 day and urgent window 90->60 were caught; dropping the weeks/52 pro-rating on reimbursement, ignoring reimbursement on actual costs, and computing relief from flat instead of the chosen expenses all SURVIVED, as did act>flat -> act>=flat (near-equivalent, tie label only). Reimbursement and actual-cost relief amounts are not asserted by any test (the reimbursed tests hit the max(0) floor or 52-week cases where pro-rating is a no-op).",
+    "craft": "Read calc.mjs (88 lines), calc.test.mjs, page.test.mjs, usage.mjs, index.html. Pure functions, input rejected with messages rather than clamped, strict date validation, escaped output on the page, local-only imports. Defects: P87_LIMIT dead constant (calc.mjs:12); one annual reimbursement figure applied to every tax year (calc.mjs:31) though payments usually differ by year; minified one-line form markup in index.html. Acceptable for a small static tool.",
+    "claims": "Disclaimer, no-warranty and 'Not decided' list present (index.html:101,122; page.test.mjs asserts them). README and page honestly say rules were checked against adviser summaries, not HMRC pages. Unbacked: the finding 'Your employer's payments of GBP 100 a year were taken off' (calc.mjs:73) when run with 10 weeks only took off GBP 19.23 (ran compute with reimbursed 100, weeks 10: 'GBP 8.15 ... on GBP 40.77 of expenses'); FAQ 'Tax-free payments from your employer are taken off first' is likewise not what the code does for part-year home working. 'Not decided: Scottish bands' is stated, but the rate dropdown silently omits year-specific Scottish rates without saying so. llms.txt github.io link is source-only (served copy rewritten).",
+    "fitness": "Walked the job for an employee required to work from home 2022/23-2025/26 with no employer payments: enter weeks, pick rate, get per-year refund, deadlines and P87/SA instructions with evidence to keep: complete and correct. Users who received partial employer payments or Scottish taxpayers in 2022/23-2023/24 higher/top bands get a wrong or unavailable answer. Most target users are in the first group, so the job can usually be finished.",
+    "domain": "Compared with GOV.UK 'Tax relief for employees: working at home', HMRC EIM32815 (flat-rate GBP 6/week, required-to-work-at-home test from 2022/23), TMA 1970 s43 four-year limit, ITEPA 2003 s336 (only unreimbursed expenses). Rate, eligibility gate, deadline and the end of the relief from 6 April 2026 (Autumn Budget 2025) are right. Departures: reimbursement pro-rated over 52 weeks instead of netted against the claimed weeks' costs; single rate list for all years omits Scottish 41/46/47%; a single marginal rate is used where the extra relief straddles a band boundary (stated limit)."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Sample (46+46+48+48 weeks, 20%) total still claimable",
+      "method": "GOV.UK homeworking flat rate GBP 6/week x marginal rate, independent script",
+      "command": "node /tmp/claude-0/audit-uk-working-from-home-tax-relief-calculator/indep.mjs",
+      "expected": "225.6",
+      "observed": "225.6",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Claim deadline for 2022/23",
+      "method": "TMA 1970 s43: four years after end of tax year (5 Apr 2023 + 4y)",
+      "command": "node /tmp/claude-0/audit-uk-working-from-home-tax-relief-calculator/indep.mjs",
+      "expected": "2027-04-05",
+      "observed": "2027-04-05",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Full year (52 weeks) at 40%",
+      "method": "GBP 312 x 40%, GOV.UK flat rate; matches page FAQ 'about GBP 125'",
+      "command": "node /tmp/claude-0/audit-uk-working-from-home-tax-relief-calculator/indep.mjs",
+      "expected": "124.8",
+      "observed": "124.8",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "2021/22 status as at 2026-11-20",
+      "method": "TMA 1970 s43: deadline 5 Apr 2026 has passed",
+      "command": "node /tmp/claude-0/audit-uk-working-from-home-tax-relief-calculator/indep.mjs",
+      "expected": "expired",
+      "observed": "expired",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "26 weeks at home, employer paid GBP 156 (GBP 6/week, fully reimbursed)",
+      "method": "ITEPA 2003 s336 / s316A: relief only on unreimbursed expenses",
+      "command": "node /tmp/claude-0/audit-uk-working-from-home-tax-relief-calculator/indep.mjs",
+      "expected": "0",
+      "observed": "15.6",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "46 weeks at home, employer paid GBP 276 (fully reimbursed)",
+      "method": "ITEPA 2003 s336 / s316A",
+      "command": "node /tmp/claude-0/audit-uk-working-from-home-tax-relief-calculator/indep.mjs",
+      "expected": "0",
+      "observed": "6.37",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "Scottish 2022/23 higher rate 41% and 2023/24 top rate 47% selectable",
+      "method": "Scottish Government income tax rates 2022/23 (19/20/21/41/46) and 2023/24 (19/20/21/42/47)",
+      "command": "node /tmp/claude-0/audit-uk-working-from-home-tax-relief-calculator/indep.mjs",
+      "expected": "accepted",
+      "observed": "'Pick your income tax rate.'",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "2025/26 urgency 85 days before deadline (2030-01-10)",
+      "method": "page's own 90-day rule, deadline 5 Apr 2030 per TMA 1970 s43",
+      "command": "node /tmp/claude-0/audit-uk-working-from-home-tax-relief-calculator/indep.mjs",
+      "expected": "urgent",
+      "observed": "urgent",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Test suite",
+      "method": "run the subject's tests",
+      "command": "node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "27 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Finding says employer payments of GBP X a year were taken off",
+      "method": "run compute with reimbursed 100, weeks2022 10 and compare to the amount actually deducted",
+      "command": "node -e 'import(\".../calc.mjs\").then(m=>console.log(m.compute({...m.SAMPLE,reimbursed:100,weeks2022:10,weeks2023:0,weeks2024:0,weeks2025:0}).findings))'",
+      "expected": "GBP 100 deducted (60 - 100 -> 0 relief)",
+      "observed": "GBP 19.23 deducted, expenses GBP 40.77, relief GBP 8.15",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, privacy line and 'Not decided' limits on the page",
+      "method": "read index.html; page.test.mjs asserts them",
+      "command": "node --test page.test.mjs",
+      "expected": "present",
+      "observed": "present, tests pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Served llms.txt/sitemap/canonical origins",
+      "method": "deploy rewrite copy",
+      "command": "node platform/pages/served-copy.mjs uk-working-from-home-tax-relief-calculator",
+      "expected": "no placeholder or retired origin",
+      "observed": "no placeholder or retired origin left",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "P87 route only offered under the GBP 2,500 limit",
+      "method": "grep P87_LIMIT usage",
+      "command": "grep -n P87_LIMIT ventures/uk-working-from-home-tax-relief-calculator/calc.mjs",
+      "expected": "used in obligations",
+      "observed": "defined at calc.mjs:12, never used",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:18",
+      "change": "return `${year + 5}-04-05` -> return `${year + 5}-04-06`",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs"
+    },
+    {
+      "where": "calc.mjs:57",
+      "change": "daysLeft <= 90 ? \"urgent\" -> daysLeft <= 60 ? \"urgent\"",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs"
+    },
+    {
+      "where": "calc.mjs:52",
+      "change": "r2(w * WEEKLY - reimbursed * (w / 52)) -> r2(w * WEEKLY - reimbursed)",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs"
+    },
+    {
+      "where": "calc.mjs:53",
+      "change": "r2(actual * (w / 52) - reimbursed * (w / 52)) -> r2(actual * (w / 52))",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs"
+    },
+    {
+      "where": "calc.mjs:56",
+      "change": "r2(expenses * rate / 100) -> r2(flat * rate / 100)",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs"
+    },
+    {
+      "where": "calc.mjs:54",
+      "change": "act !== null && act > flat ? act : flat -> act !== null && act >= flat ? act : flat",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Employer reimbursement is pro-rated by weeks/52, so a part-year home worker whose costs the employer fully covered is told they can still claim (GBP 156 for 26 weeks -> GBP 15.60 relief; GBP 276 for 46 weeks -> GBP 6.37). ITEPA s336 allows relief only on unreimbursed costs; the user would file a claim HMRC should refuse.",
+      "where": "ventures/uk-working-from-home-tax-relief-calculator/calc.mjs:52",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Finding text says the employer's whole annual payment 'was taken off' while the code deducted only weeks/52 of it (GBP 100 entered, GBP 19.23 deducted); FAQ repeats the claim.",
+      "where": "ventures/uk-working-from-home-tax-relief-calculator/calc.mjs:73",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "One rate list for every year omits Scottish 41% and 46% (2022/23) and 47% (2023/24); those taxpayers cannot get a result for those years and are not told why.",
+      "where": "ventures/uk-working-from-home-tax-relief-calculator/calc.mjs:11",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Reimbursement, actual-cost relief and the chosen-expenses relief amount are untested: three seeded mutants in that arithmetic survived.",
+      "where": "ventures/uk-working-from-home-tax-relief-calculator/calc.test.mjs:52",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "P87_LIMIT (GBP 2,500) is defined but never used, so actual-cost claims above it are still sent to form P87 rather than Self Assessment.",
+      "where": "ventures/uk-working-from-home-tax-relief-calculator/calc.mjs:12",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "A single annual reimbursement figure is subtracted in every tax year, though payments typically differ by year (or stop).",
+      "where": "ventures/uk-working-from-home-tax-relief-calculator/calc.mjs:31",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt links the old github.io address; the deploy rewrites it (served copy clean).",
+      "where": "ventures/uk-working-from-home-tax-relief-calculator/llms.txt:9",
+      "category": "source-only",
+      "origin": "audit"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A small, honest tool whose main path is right: for an employee required to work from home with no employer payments, the GBP 6/week x marginal-rate refund, the four-year deadline per tax year and the expired 2021/22 window all recompute exactly against GOV.UK guidance and TMA 1970 s43 (5 of 5 such checks pass). It misses the bar on correctness, claims, verification and domain because employer reimbursement is pro-rated over 52 weeks (a fully reimbursed part-year worker is shown a refund), the finding text overstates what was deducted, Scottish 2022/23-2023/24 higher/top rates cannot be selected, and the tests miss the reimbursement and actual-cost arithmetic (4 of 6 mutants survived)."
+}
