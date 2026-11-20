@@ -828,6 +828,11 @@ rule leaves 18 H1 cases unplanned, 17 of them binding on the left knee. Raising 
 with no flip between plan and robot, and lifts H1 coverage from 99.67% to 99.98%. The controller's leg effort rises
 by a median 0.1% and at most 13.5%, at the 1.6 m pose. Raising the left knee's margin alone plans the same 17. The
 four cases left are an H1 elbow, which no leg preload moves, and three G1 cases with no plan on any side.
+On a fifth held-out set (milestone 61) the rule plus the leg raise plans every in-envelope press: 4050 of 4050 on
+the G1 and 5436 of 5436 on the H1, inside 0.03 mm at both points with no flip. Neither of the fourth set's leftover
+mechanisms recurs. A development probe on them found the elbow case planned by a squeeze of 12.5 N, above the 10 N
+chosen in milestone 38, and the G1 cases at or past the planner's own limit on the pose's hold sides, which is up to
+44.4 N tighter than the balance test used as the envelope gate; other hold sides recover most of that gap.
 
 ### 5.12 What the remedies cost (milestone 13)
 

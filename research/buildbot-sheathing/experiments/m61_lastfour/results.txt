@@ -1,0 +1,49 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 61: the last unplanned presses, held-out section H (48 loads, seed 61; four-row rule, spec 0.03 mm; leg ladder [0.12, 0.14, 0.16, 0.18] N m; squeeze ladder [12.5, 15.0, 17.5, 20.0] N (S* 10 N); band 0.5 N; B = 0.20 N)
+errors (6 random directions, seed 61): (-0.071, -0.132, +0.133); (-0.102, -0.161, +0.059); (+0.121, -0.137, -0.081); (+0.185, -0.068, -0.034); (+0.111, +0.070, +0.151); (+0.178, -0.088, +0.026)
+check (four-row, no escalation, against milestone 58's rule_all 'iso', first 2 loads per robot): 390 cases, plan/no-plan mismatches 0, 'how' mismatches 0, largest |y| or |z| difference 0.0e+00 mm
+
+## A. The planner's limit L_p against the balance limit (every pose and load direction): robot | pairs | L_p none | balance - L_p median, max (N) | pairs with L_p < balance - 0.01 N
+  g1 | 720 | 0 | 0.000, 31.436 | 314
+  h1 | 912 | 0 | 0.000, 44.369 | 115
+
+## B. Coverage: robot | in-envelope | m59 rule | + leg raise | + squeeze | unplanned | coverage | planner-envelope cases | of them planned | balance-envelope cases the planner gate drops
+  g1 | 4050 | 4050 | 0 | 0 | 0 | 100.00% | 4002 | 4002 | 48 (1.19%)
+  h1 | 5436 | 5423 | 13 | 0 | 0 | 100.00% | 5394 | 5394 | 42 (0.77%)
+
+## C. Each case the rule leaves unplanned: robot | pose | H N | phi deg | error | binding joint | leg M | squeeze S (|y|, |z|, |y_d|, |z_d| mm; flips) | force plan: pose sides measured, true load, any side | L_p, balance (N) | in planner envelope
+  h1 | [1.4, 0.0] | 19.39 | 332.5 | 0 | left_knee | 0.16 (0.0043, 0.0037, 0.0044, 0.0041; 0) | - | - | 24.805, 24.805 | True
+  h1 | [1.4, 0.0] | 19.39 | 332.5 | 1 | left_knee | 0.16 (0.0045, 0.0060, 0.0045, 0.0066; 0) | - | - | 24.805, 24.805 | True
+  h1 | [1.4, 0.0] | 19.39 | 332.5 | 2 | left_knee | 0.16 (0.0002, 0.0085, 0.0001, 0.0091; 0) | - | - | 24.805, 24.805 | True
+  h1 | [1.6, 0.0] | 17.85 | 92.5 | 0 | None | 0.18 (0.0029, 0.0060, 0.0029, 0.0065; 0) | - | - | 47.697, 60.000 | True
+  h1 | [1.6, 0.0] | 17.85 | 92.5 | 1 | None | 0.18 (0.0029, 0.0093, 0.0030, 0.0101; 0) | - | - | 47.697, 60.000 | True
+  h1 | [1.4, 0.0] | 15.58 | 121.3 | 2 | left_knee | 0.16 (0.0002, 0.0085, 0.0001, 0.0091; 0) | - | - | 45.395, 45.395 | True
+  h1 | [1.4, 0.0] | 15.58 | 121.3 | 3 | right_ankle | 0.16 (0.0012, 0.0126, 0.0014, 0.0136; 0) | - | - | 45.395, 45.395 | True
+  h1 | [1.4, 0.0] | 15.58 | 121.3 | 5 | left_knee | 0.16 (0.0002, 0.0124, 0.0003, 0.0134; 0) | - | - | 45.395, 45.395 | True
+  h1 | [1.2, 0.15] | 0.31 | 267.3 | 0 | left_knee | 0.12 (0.0068, 0.0004, 0.0071, 0.0005; 0) | - | - | 60.000, 60.000 | True
+  h1 | [1.2, 0.15] | 0.31 | 267.3 | 1 | left_knee | 0.12 (0.0078, 0.0010, 0.0081, 0.0012; 0) | - | - | 60.000, 60.000 | True
+  h1 | [1.2, 0.15] | 0.71 | 184.0 | 2 | left_knee | 0.12 (0.0041, 0.0055, 0.0045, 0.0058; 0) | - | - | 32.530, 32.530 | True
+  h1 | [1.2, 0.15] | 0.71 | 184.0 | 3 | left_knee | 0.12 (0.0074, 0.0066, 0.0080, 0.0071; 0) | - | - | 32.530, 32.530 | True
+  h1 | [1.2, 0.15] | 0.71 | 184.0 | 5 | left_knee | 0.12 (0.0060, 0.0066, 0.0065, 0.0071; 0) | - | - | 32.530, 32.530 | True
+
+## D. Hypotheses (registered in LOG.md before this run)
+H238 (a squeeze <= 20 N plans every case left with a pose-side force plan, in spec, no flip): cases 0, planned so 0 -> untestable
+H239 (every case with no force plan on any side has H > L_p - 0.5 N): cases 0, in the band 0 -> untestable
+H240 (the chain plans every case inside the planner envelope, H <= L_p - 0.5 N): cases 9396, unplanned 0 -> held
+
+(run time 1330 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

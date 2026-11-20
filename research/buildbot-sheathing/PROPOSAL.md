@@ -515,6 +515,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    effort +0.1%, at most +13.5%. An H1 elbow case and 3 G1 cases with no plan on any side stay unplanned (H235
    refuted), and the binding joint alone plans as many as the uniform raise (H236 refuted). Next: the arm-side
    squeeze for the elbow case, and why the G1's (1.2 m) poses have no plan on any side at one load.
+61. **The last unplanned presses** (done 2026-11-20, `experiments/m61_lastfour/`): the four-row rule, milestone 60's
+   uniform leg raise, then a squeeze widened past S\* = 10 N (12.5 to 20 N), with the planner's own limit L<sub>p</sub>
+   bisected at every pose and direction, on 48 new loads (seed 61). The rule plus the leg raise plans every
+   in-envelope case, G1 4050 of 4050 and H1 5436 of 5436, in spec with no flip (H240 held); no case needed the squeeze
+   or lay past L<sub>p</sub> (H238, H239 untestable). The balance gate exceeds L<sub>p</sub> by up to 31 N (G1) and
+   44 N (H1) in two direction bands. Next: the gate as the planner's limit over every hold-side combination, or
+   dynamics and measured sensor bias.
 
 ## Target venue
 
