@@ -198,7 +198,7 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - David at the gate of Gath, the first time he fled to Achish and let his spittle run down his beard (First Samuel 21:10-15, with Psalm 34's title; left by episode 148).
 - Abiathar and the bread of the Presence at Nob, the priest's son who escaped with the ephod (First Samuel 21:1-9 and 22, with Mark 2:25-26; left by episode 148).
 - The wise woman of Abel Beth-maacah, who talked Joab out of a siege from the city wall, a mother in Israel (Second Samuel 20:14-22; left by episode 154).
-- The wise woman of Tekoa and the parable of the two brothers, who talked David into bringing Absalom home (Second Samuel 14:1-24; left by episode 154).
+- Amos the herdsman of Tekoa and the basket of summer fruit, the dresser of sycamore figs sent to Bethel (Amos 1:1, 7:10-15 and 8:1-2; left by episode 155).
 - Saint Silvanus of Tarsus and the councils of Seleucia, the bishop who would not silence a guest (Theodoret, Sozomen and Socrates on the council of three hundred and fifty-nine; a sequel to episode 136).
 - The ark at Kiriath-jearim, twenty years in the house of Abinadab on the hill, and Eleazar who kept it (First Samuel 6:19 to 7:2, with Second Samuel 6:1-4 and Psalm 132:6; left by episode 149).
 - The men of Gibeon on the wall, Nehemiah's list of who rebuilt which stretch, gate by gate (Nehemiah 3; left by episode 149).
@@ -212,7 +212,7 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 154 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 154.
+Audio: 29 of 155 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 155.
 <!-- /audio-status -->
 
 Whether to add audio is the creative prompt's call, not this file's: `prompts/creative/prompt-0.md`, "Audio size", says text only while the `du` it names is over 400 MB (577 MB on 2026-11-18), and the higher layer wins. The case that the cap is stale (audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the cost left is git history) is in [`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md); changing the rule is a `prompts/` edit, which waits on the owner's approval. This paragraph used to recommend voicing the backlog against the prompt, and five run records from 2026-11-16 to 2026-11-18 reported the two guides disagreeing. When the rule allows audio, voice the backlog in episode order, about 60 MB a run (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.
