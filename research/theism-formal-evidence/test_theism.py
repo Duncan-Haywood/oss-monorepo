@@ -495,6 +495,36 @@ def test_e29_euclidean():
     assert sum(viol.values()) == 0
 
 
+def test_e30_sat_encoding_matches_exhaustive_search():
+    """E30: the CNF of H34 (a) is satisfiable iff v is separable (stdlib DPLL, so no PySAT
+    needed), within its size bound, and decides E27's and E28's reduction frames."""
+    e30 = _load("e30_sat")
+    import itertools as it
+    for n in range(1, 4):
+        for rows in it.product(range(1 << n), repeat=n):
+            R = {t: [s for s in range(n) if rows[t] >> s & 1] for t in range(n)}
+            for w in range(n):
+                for v in R[w]:
+                    cl, a, s, nv = e30.encode(R, w, v)
+                    bv, bc = e30.size_bound(R, w, v)
+                    assert nv <= bv and len(cl) <= bc
+                    wit = e30.separable_sat(R, w, v, solver=e30.dpll)
+                    assert (wit is not None) == e30.separable_brute(R, n, w, v)
+                    if wit is not None:
+                        assert e30.check_witness(R, w, v, *wit)
+    fano = [(0, 1, 2), (0, 3, 4), (0, 5, 6), (1, 3, 5), (1, 4, 6), (2, 3, 6), (2, 4, 5)]
+    assert not e30.two_col_brute(7, fano) and e30.two_col_brute(7, fano[:6])
+    # K reduction of the Fano plane (not 2-colourable) and of the plane minus a line
+    assert e30.separable_sat(e30.kfr(list(range(7)), fano), 0, 1, solver=e30.dpll) is None
+    R6 = e30.kfr(list(range(7)), fano[:6])
+    assert e30.check_witness(R6, 0, 1, *e30.separable_sat(R6, 0, 1, solver=e30.dpll))
+    # KT reduction (plain DPLL is slow on its Fano frame, as backtracking is): a triangle
+    tri = [(0, 1), (1, 2), (0, 2)]
+    assert e30.separable_sat(e30.kt_frame([0, 1, 2], tri), 0, 1, solver=e30.dpll) is None
+    R2 = e30.kt_frame([0, 1, 2], tri[:2])
+    assert e30.check_witness(R2, 0, 1, *e30.separable_sat(R2, 0, 1, solver=e30.dpll))
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
