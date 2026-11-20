@@ -17,7 +17,9 @@
 //    last; not the least in the file, which a constrained chain can hold).
 //    Checked on activities in the predecessor cone of the activity the
 //    finish rests on; relative float leaves out constraints and other open
-//    ends, so a miss names where those hold the delay back.
+//    ends, so a miss names where those hold the delay back. Activities with an
+//    FF/SF predecessor or only SS/SF successors are left out (tia.mjs warns
+//    about both: added days there move the start, or nothing after it).
 // 2b. Days added to a milestone (which has no duration) are refused with a
 //    warning and move nothing.
 // 3. Two routes to the same delay. An open activity A whose only successor
@@ -88,7 +90,10 @@ for (const file of files) {
   // an FF or SF predecessor holds the finish, so days added move the start
   // earlier instead (tia.mjs warns); left out of checks 2 and 3
   const finHeld = (t) => t.preds.some((rel) => rel.type === "PR_FF" || rel.type === "PR_SF");
-  for (const x of pick(open.filter((t) => onPcal(t) && !isMs(t) && !finHeld(t) && bound.has(t.id)), plants)) {
+  // successors tied only at the start (SS/SF) do not wait for the finish, so
+  // added days reach nothing after it (tia.mjs warns): left out too
+  const startOnly = (t) => { const n = t.succs.filter((rel) => inNet(rel.succId)); return n.length > 0 && n.every((rel) => rel.type === "PR_SS" || rel.type === "PR_SF"); };
+  for (const x of pick(open.filter((t) => onPcal(t) && !isMs(t) && !finHeld(t) && !startOnly(t) && bound.has(t.id)), plants)) {
     const d = 1 + Math.floor(rnd() * 40);
     const res = timeImpact(xer, `Activity ID,Duration\n${x.code},+${d}\n`, { projId: p.id });
     const rf = floatAgainst(base, x.id, bound.get(x.id));

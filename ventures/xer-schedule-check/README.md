@@ -24,8 +24,12 @@ up, and, with two or more named events, each event alone, so concurrent delay
 shows (AACE RP 52R-06; RP 29R-03 MIP 3.6). The impacted schedule downloads as
 an XER to import into P6 and confirm, and as a printable exhibit for the
 extension of time request. Checked on the six public P6 files with planted
-fragnets against answers reached another way (TIA_RESULTS): see "How it was
-checked".
+fragnets against answers reached another way (a null fragnet moves nothing
+120 of 120; a new activity after A equals A made longer 115 of 115; the
+impacted XER reads back to the same finish 115 of 115; the finish moves by
+the days past relative float 112 of 120, the 8 others crossing another
+calendar or absorbed by an expected finish the tool names;
+`eval/tia-check-2026-11-20.md`).
 
 **Microsoft Project files too** (2026-11-19, `mspdi.mjs`): open a schedule
 saved from Microsoft Project as XML (File, Save As, XML Format; also written
@@ -494,6 +498,17 @@ run as a formula in Excel or Sheets.
 
 ## How it was checked
 
+- **Time impact analysis** (`eval/tia-check-2026-11-20.md`): planted
+  fragnets on the six public files. A zero-day fragnet between linked
+  activities moves nothing (120 of 120); a new activity inserted between A
+  and its only successor moves the finish, every milestone and the
+  successor's start exactly as making A longer does (115 of 115); the
+  impacted XER, written and read back, schedules to the same finish (115 of
+  115); an activity made d days longer moves the finish by d minus its float
+  relative to the finish (112 of 120: 7 of the others cross a calendar with
+  different working days, 1 is absorbed by an expected finish date, which the
+  tool names). The run found days on a milestone silently dropped (now
+  refused) and an ID ending in "-1" read as a lag (now taken whole).
 - **Longest path against P6's own flag** (`eval/longest-path-2026-11-19.md`):
   on five of the six public files the longest path is exactly the set P6
   flagged (261 of 261 open activities, none extra); the old single chain held 19
@@ -631,7 +646,7 @@ run as a formula in Excel or Sheets.
 Screening metrics, not a verdict: a schedule can pass all fourteen and still be
 unrealistic, and some failures are justified. Expected finish dates are
 checked on one public file only (23 activities; the rule is read from the
-durations P6 stored, not from a second P6 run). Not modelled: "make open-ended activities critical"; multiple float
+durations P6 stored, not from a second P6 run). Not modelled: "make open-ended activities critical"; time impact analysis models the delay but not its cause, entitlement or apportionment, and is checked against planted fragnets, not a real TIA exhibit; multiple float
 paths follow P6's "free float" style but are not compared with P6's own (no
 public file stores them), and P6's "total float" option is not offered (resource levelling is the separate `level.mjs` step; the checks always
 use the unlevelled dates; it is a serial pass like P6's, not P6's code, so its

@@ -182,6 +182,10 @@ export function insertFragnet(xer, rows, { model, project }) {
         // an FF or SF link to its finish holds the finish where it is: the
         // added days move its start earlier, not its finish (the engine and
         // P6 agree on that, eval/tia-check-2026-11-20.md); say so
+        // successors tied only at its start (SS, or SF) do not wait for its
+        // finish, so added days reach nothing after it
+        const net = t.succs.filter((rel) => { const s2 = model.tasks.get(rel.succId); return s2 && !s2.span; });
+        if (net.length && net.every((rel) => rel.type === "PR_SS" || rel.type === "PR_SF")) warnings.push(`row ${f.row}: ${f.code}'s successors are all tied to its start (start-to-start), so the added days hold none of them up; if the delay does hold them up, insert a fragnet activity after it with finish-to-start links, or add the finish-to-finish links the schedule lacks`);
         if (t.status === "TK_NotStart" && t.preds.some((rel) => rel.type === "PR_FF" || rel.type === "PR_SF")) warnings.push(`row ${f.row}: ${f.code} has a finish-to-finish (or start-to-finish) predecessor, so added days can move its start earlier instead of its finish; to model work that comes after it, insert a new fragnet activity`);
       }
     } else {
