@@ -14,6 +14,26 @@ After using this, an owner's rep can **send a contractor a list of the exact
 activities to fix** in a schedule update (not just "fails DCMA point 6"), and a
 scheduler can catch the same list before submitting.
 
+**Gantt chart** (2026-11-20, `gantt.mjs`, the page's "Gantt chart", CLI
+`--gantt`): the view a P6 user opens first, for the owners, lenders and
+subcontractors who receive an XER and hold no P6 seat. The project's WBS as a
+tree in P6's order with a summary bar per node (click to fold), a bar per
+activity (actual, remaining, critical by the project's own setting or by the
+longest path), milestones, the data date and must-finish lines, the
+relationships between rows on screen, a filter for critical work and a
+search. Level of effort and WBS summary activities, which the schedule engine
+leaves out of the network, get the dates P6 gives them: **305 of 305** on the
+public files equal P6's stored early start and finish to the minute (285 LOE
+on the CCA hospital file, 10 in the P6 20.12 sample, 10 WBS summaries in the
+P6 24.12 file). Open a baseline (or last month's update) next to it for each
+activity's baseline bar and its finish variance in working days; without one
+the planned dates the file keeps stand in. Prints as a landscape page
+(HTML), downloads as CSV. Checked on the six public files: every activity on
+the chart once (21,739 of 21,739), every WBS bar exactly the span of the work
+under it (2,038 of 2,038), the file against itself shows no variance, and a
+baseline with k days planted on one activity shows that activity -k working
+days (120 of 120; `eval/gantt-check-2026-11-20.md`).
+
 **Time impact analysis** (2026-11-20, `tia.mjs`): write a delay event as a
 fragnet (the new activities it added, their working days, what each follows
 and what each holds up, the date the event happened; or "+10" days on an
@@ -381,6 +401,7 @@ generated series carry actuals.
 | P6's own Level Resources | Levels in P6 for people who hold a P6 seat; changes the schedule in the database | The levelled finish, who moved and why, and a crew-size what-if from the XER, without P6 and without touching the contractor's file |
 | Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free, with ranges read from the file's own UDFs; no resource model, no probabilistic branches yet |
 | A time impact analysis done by hand in P6 (copy the update, type the fragnet in, reschedule, compare the finish), or bought from a claims consultant | Needs a P6 seat and an afternoon per event; consultants charge by the hour | The fragnet as a table, the finish and every milestone's move, float used, each event alone and their overlap, a printable exhibit and the impacted XER for P6, in a browser tab, free |
+| Paid XER viewers (desktop readers sold per seat or per year) or asking the contractor for a PDF of their layout | Show the activities and bars from an XER without P6; a PDF is whatever layout the contractor chose | The WBS tree and bars in a browser tab, free, with level of effort and WBS summary dates as P6 gives them (305 of 305 on the public files), the baseline bar and finish variance per activity, critical or longest-path colouring, printable and as CSV |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
 | Open-source XER libraries and checkers (Python packages, local web apps) | A parser or a few checks; you install and run them | All 14 points plus a critical path test on a recomputed schedule, measured against P6's own numbers, in a page |
@@ -483,6 +504,7 @@ node cli.mjs schedule.xer --risk 1000 --range 90,100,130 --correlation 0.3 [--ra
 node cli.mjs schedule.xer --risk 1000 --risks register.csv   # risk register events, ranked
 node cli.mjs schedule.xer --risk 1000 --ranges-udf auto   # ranges from the file's own UDFs (or "Opt Dur,-,Pess Dur")
 node cli.mjs schedule.xer --float-paths [CODE] [--paths 10] [--csv paths.csv] [--json]   # float paths to CODE (default: the finish)
+node cli.mjs schedule.xer --gantt [--baseline baseline.xer] [--html gantt.html] [--csv gantt.csv] [--level 2] [--critical] [--links]   # Gantt chart
 node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json]   # resource levelling
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 node cli.mjs update.xer --tia fragnet.csv [--csv impact.csv] [--html tia.html] [--xer impacted.xer] [--event NAME] [--by NAME] [--json]   # time impact analysis
@@ -498,6 +520,17 @@ run as a formula in Excel or Sheets.
 
 ## How it was checked
 
+- **Gantt chart** (`eval/gantt-check-2026-11-20.md`): on the six public
+  files, the dates given to level of effort and WBS summary activities equal
+  P6's stored early start and finish on 305 of 305 (three rules were found
+  from mismatches: a started LOE's remaining start is where its predecessors
+  allow, the data date only when its successors are already past that; LOEs
+  tied to other LOEs resolve in turn; a started WBS summary's remaining start
+  is the data date); every other open activity's bar equals P6's stored early
+  dates on 19,820 of 19,822 (the engine's two CCA differences); 21,739 of
+  21,739 activities on the chart once; 2,038 of 2,038 WBS bars equal the span
+  of the work under them and follow the WBS order; with planted baselines,
+  120 of 120 finish variances exact.
 - **Time impact analysis** (`eval/tia-check-2026-11-20.md`): planted
   fragnets on the six public files. A zero-day fragnet between linked
   activities moves nothing (120 of 120); a new activity inserted between A
