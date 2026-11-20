@@ -1,5 +1,14 @@
 # buildbot-sheathing research log
 
+## 2026-11-20 · Milestone 64 planned: how far past its 0.2 N design bound can the sensor bias go before a planned press leaves 0.03 mm?
+
+- **Why.** Milestone 63 found the four-row bound holds under the worst-direction bias of its design size (worst 0.0203 mm, 68% of the spec), and named a bias larger than the bound, to find where the guarantee breaks, as an open limit. A force sensor's offset is not guaranteed to stay under the number the planner was sized for; the practitioner question is how much margin the 0.2 N bound leaves, and how the guarantee fails when it is exceeded (gradually, or by a sudden unpriced flip).
+- **Model.** The planner and its margins are unchanged, still sized to B = 0.2 N (milestone 61's chain: four-row rule, uniform leg raise, wider squeeze; reference calibration re-made under the same bias). The true bias is &beta;B along milestone 63's adversarial direction (the settle gradient of the joint nearest its threshold, both signs; the load direction where no pose-side plan exists) for &beta; = 1.5, 2, 3 and 5 (0.3, 0.4, 0.6 and 1.0 N). Gate: the balance envelope. Section K, held out: 48 Latin-hypercube loads (seed 64) (`experiments/m64_overbias/run.py`). Reported per robot and &beta;: coverage, calibration failures, presses over spec, worst four-row residual, flips.
+- **Hypotheses, registered before the run.**
+  - **H247 (margin past the bound).** At &beta; = 1.5 (0.3 N) every planned press is inside 0.03 mm at both points both ways, on both robots. Refuted if any is over.
+  - **H248 (the guarantee does break).** At &beta; = 5 (1.0 N) at least one planned press is over 0.03 mm on each robot. Refuted if either robot has none.
+  - **H249 (it breaks by a flip).** Every planned press over 0.03 mm, at any &beta;, has at least one joint flip between plan and robot. Refuted if any over-spec press has none; untestable if none is over.
+
 ## 2026-11-20 · Milestone 63 result: under a 0.2 N bias aimed at the weakest joint, every planned press stays inside 0.03 mm (worst 0.0203 mm; H244 held) and coverage is G1 99.93%, H1 100% (H245 held); the aimed bias beats six random ones on the H1 (0.0203 against 0.0182 mm) but not the G1 (0.0180 against 0.0238; H246 refuted)
 
 `experiments/m63_worstbias/` (run, results, figure), `reproduce.py` (m63 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL. No new library code (the adversary is `m55.plan_forces` and `m55.settled` at the true load), so no new tests. Run time 1846 s on 4 processes. One 1-load smoke run (`M63_N=1`) ran after the hypotheses were committed and before the full run; it is not reported.
