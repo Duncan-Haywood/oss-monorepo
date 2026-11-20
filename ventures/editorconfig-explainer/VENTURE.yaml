@@ -1,0 +1,56 @@
+name: editorconfig-explainer
+description: >-
+  Free browser tool and CLI for developers: resolves .editorconfig files (root
+  and nested, root = true) the way an EditorConfig core does and names the
+  section and line that set every property for every file, with the values
+  they overrode; finds sections that match no file and suggests a glob that
+  would, a root = true placed where it does nothing, misspelled keys, invalid
+  values, and values that different EditorConfig cores read differently
+  (inline comments, escaped wildcards, reversed ranges). Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-20 in an explore run. duplicate_check.py: top score 0.15,
+# nothing near the 0.45 bar; no venture reads .editorconfig. Siblings
+# gitignore-explainer and gitattributes-explainer resolve git's own pattern
+# files; EditorConfig globs differ ({a,b}, {1..9}, `**` anywhere, no
+# negation, nearer files override, root = true), so the matcher is new.
+#
+# Why a tool and not a chatbot answer: "which section sets this file's
+# indent" is a resolution over every file and every .editorconfig above it,
+# and the edge cases ({md} with one item is literal, `*` stops at `/`, a slash
+# anchors the name, ` # ` is part of the value since spec 0.15) are exactly
+# what a guess gets wrong. The engine passes all 198 runnable core-tests and
+# was compared with editorconfig-core-py and the npm core on 23,000 random
+# cases (README, "How it was checked").
+#
+# First visitor: developers searching "editorconfig not working", "editorconfig
+# indent_size not applied", "editorconfig inline comment"; volume not measured
+# with an external tool.
+
+hypotheses:
+  - claim: >-
+      Developers whose .editorconfig setting is not applied will use a
+      paste-in tool that names the section and line deciding each file, rather
+      than editing and reopening files in their editor.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a file where the tool's resolved settings disagree with the EditorConfig core-tests or the specification and the cause is the engine, twice after fixes.
+
+links:
+  production: https://marisstella.app/editorconfig-explainer/
+  analytics: null
