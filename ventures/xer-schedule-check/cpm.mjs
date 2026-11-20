@@ -310,7 +310,7 @@ export function schedule(xer, options = {}) {
   const proj = (t) => projects.get(t.proj) || { dataDate: model.anchor ?? null, retainedLogic: true, progressOverride: false, floatType: "FT_FF" };
   const done = (t) => t.status === "TK_Complete";
   const active = (t) => t.status === "TK_Active";
-  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", bwDoneSuccLag: ["PR_FS"], bwRsrcRemain: "zero", bwDoneSSLeft: true, bwDoneLagLeft: true, alapActive: true, activeSSLeft: "future", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ...(options.variant || {}) };
+  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", bwDoneSuccLag: ["PR_FS"], bwRsrcRemain: "zero", bwDoneSSLeft: true, bwDoneLagLeft: true, alapActive: true, activeSSLeft: "future", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ffExpected: true, ...(options.variant || {}) };
   const delay = options.delay || null; // { taskId, minutes }: added remaining duration (critical path test)
   // options.durations: Map(task id -> remaining minutes) in place of the file's
   // (risk.mjs's sampled durations); options.forwardOnly: stop after the
@@ -599,6 +599,10 @@ export function schedule(xer, options = {}) {
   // delays any successor's early dates (FS: successor early start - lag -
   // early finish, and so on), measured the way the forward pass links them.
   const freeFloat = (t, r) => {
+    // an activity with an expected finish (option on) has none: P6 24.12
+    // file, 23 of 23 open ones store 0, 9 of them against a positive gap
+    // to every successor (eval/free-float-expected-2026-11-20.md)
+    if (V.ffExpected && useExp && proj(t).useExpectedFinish && t.expEnd !== null && t.expEnd !== undefined) return 0;
     let best = Infinity;
     for (const rel of t.succs) {
       const s = tasks.get(rel.succId);

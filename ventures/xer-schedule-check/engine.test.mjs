@@ -459,6 +459,22 @@ test("expected finish: sets the remaining duration, absorbs a predecessor's slip
   assert.equal(assess(offFile).extra.find((x) => x.id === "expected-finish"), undefined);
 });
 
+test("free float: an activity with an expected finish has none, as P6 stores (24.12 file, 23 of 23)", () => {
+  // B 5 d, expected finish Fri 12-05 17:00 -> C; A 10 d -> C, so C waits
+  // for A (Mon 12-15) and B has a 5 d gap to C
+  const x = project([task("1", "A", 80), task("2", "B", 40, { expect_end_date: "2025-12-05 17:00" }), task("3", "C", 8)],
+    [link("1", "3", "1"), link("2", "3", "2")], {}, { sched_use_expect_end_flag: "Y" });
+  assert.equal(at(schedule(x), x, "B").ef, "2025-12-05 17:00");
+  assert.equal(at(schedule(x), x, "B").ff, 0);
+  assert.equal(at(schedule(x), x, "B").tf, 40); // total float is still the gap
+  // rule off, expected finishes off, or the option off: the plain 5 d gap
+  assert.equal(at(schedule(x, { variant: { ffExpected: false } }), x, "B").ff, 40);
+  assert.equal(at(schedule(x, { expectedFinish: false }), x, "B").ff, 40);
+  const off = project([task("1", "A", 80), task("2", "B", 40, { expect_end_date: "2025-12-05 17:00" }), task("3", "C", 8)],
+    [link("1", "3", "1"), link("2", "3", "2")]);
+  assert.equal(at(schedule(off), off, "B").ff, 40);
+});
+
 test("CPM: a finished node's unspent FS/FF lag comes back off its late date, to finished and open successors (rule 17)", () => {
   // Data date Wed 3 Dec 08:00. F finished Tue 17:00 -> FS lag 24 -> D (also
   // finished) -> FS -> H (8 h, open). 0 h of F's lag ran by the data date
