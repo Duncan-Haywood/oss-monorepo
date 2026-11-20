@@ -163,3 +163,59 @@ test("generic journals CSV carries category and both columns", () => {
 test("parsePayouts on an empty string reports an error and does not throw", () => {
   assert.equal(parsePayouts("").findings[0].severity, "error");
 });
+
+// Gumroad's real header lists, from github.com/antiwork/gumroad at c58af153:
+// app/services/exports/payouts/csv.rb HEADERS and app/services/exports/purchase_export_service.rb PURCHASE_FIELDS.
+// There, Sale Price includes shipping and tax and Net Total = Sale Price - fee (app/modules/purchase/accounting.rb);
+// payout CSV refund rows carry negated amounts (payouts/base.rb, summarize_full_refund).
+const PAYOUT_HEAD = "Type,Date,Purchase ID,Item Name,Buyer Name,Buyer Email,Taxes ($),Shipping ($),Sale Price ($),Gumroad Fees ($),Net Total ($)\n";
+const line = (cats) => (cat) => cats.lines.filter((l) => l.category === cat).reduce((a, l) => a + (l.debit || 0) - (l.credit || 0), 0);
+
+test("reads Gumroad's real payout CSV: shipping inside Sale Price, signed refund rows, Totals row is the deposit", () => {
+  const csv = PAYOUT_HEAD +
+    "Sale,2026-10-02,s1,Zine,A,a@x,0,5.00,34.00,3.90,30.10\n" +
+    "Sale,2026-10-03,s2,Course,B,b@x,0,0,149.00,15.40,133.60\n" +
+    "Full Refund,2026-10-05,s1,Zine,A,a@x,0,-5.00,-34.00,-3.90,-30.10\n" +
+    "Subtotal - activity paid out by Gumroad,,,,,,0,0,149.00,15.40,133.60\n" +
+    "Totals,,,,,,0,0,149.00,15.40,133.60\n";
+  const r = validate(csv);
+  assert.equal(r.findings.filter((f) => f.severity === "error").length, 0, JSON.stringify(r.findings));
+  assert.equal(r.reconciliation[0].stated, 13360);
+  assert.equal(r.reconciliation[0].agrees, true);
+  const sum = line(r.journals[0]);
+  assert.equal(sum("sales"), -(2900 + 14900)); // credit: product sales exclude the $5 shipping
+  assert.equal(sum("shipping"), -500);
+  assert.equal(sum("refunds"), 3400);
+  assert.equal(sum("fees"), 1540); // the refunded sale's fee came back
+  assert.equal(sum("clearing"), 13360);
+});
+
+test("reads Gumroad's real Sales export: full and partial refunds net out, the Totals row is not a sale", () => {
+  const head = "Purchase ID,Item Name,Purchase Date,Subtotal ($),Taxes ($),Shipping ($),Sale Price ($),Fees ($),Net Total ($),Refunded?,Partial Refund ($),Fully Refunded?\n";
+  const csv = head +
+    "s1,Zine,2026-10-02,29.00,0,5.00,34.00,3.90,30.10,true,0,true\n" +
+    "s2,Course,2026-10-03,149.00,0,0,149.00,15.40,133.60,false,0,false\n" +
+    "s3,Kit,2026-10-04,50.00,0,0,50.00,5.50,44.50,true,10.00,false\n" +
+    "Totals,,,228.00,0,5.00,233.00,24.80,208.20,,10.00,\n";
+  const r = validate(csv, { expected: 16810 });
+  assert.equal(r.summary.rows, 3);
+  assert.equal(r.reconciliation[0].agrees, true, JSON.stringify(r.reconciliation));
+  const sum = line(r.journals[0]);
+  assert.equal(sum("sales"), -(2900 + 14900 + 5000));
+  assert.equal(sum("refunds"), 3400 + 1000);
+  assert.equal(sum("fees"), 1540 + 550);
+  assert.ok(r.findings.some((f) => /fully refunded, fee assumed returned/.test(f.title)));
+});
+
+test("seller-collected tax inside Sale Price goes to the payable account, not sales", () => {
+  const r = validate(PAYOUT_HEAD + "Sale,2026-10-02,s1,Zine,A,a@x,2.00,0,22.00,2.70,19.30\nTotals,,,,,,2.00,0,22.00,2.70,19.30\n");
+  const sum = line(r.journals[0]);
+  assert.equal(sum("sales"), -2000);
+  assert.equal(sum("tax"), -200);
+  assert.equal(r.reconciliation[0].agrees, true);
+});
+
+test("a Totals row in the older layout is skipped, not journalled as a second sale", () => {
+  const r = validate("Type,Date,Purchase ID,Price,Gumroad Fees,Net Total\nSale,2026-10-01,s1,149.00,15.40,133.60\nTotals,,,149.00,15.40,133.60\n", { expected: 13360 });
+  assert.equal(r.reconciliation[0].agrees, true);
+});

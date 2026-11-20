@@ -68,7 +68,9 @@ export function scenario(o) {
     afterTaxYearly: yearly * (1 - o.taxPct / 100),
     hourly, hourlyAfterOnCall: netAfterOnCall / h.total,
     feeForTarget, raise: feeForTarget - o.fee,
-    birthsForGoal: netAfterOnCall > 0 ? Math.ceil(o.annualGoal / netAfterOnCall) : null,
+    // births for a cash income goal: on-call value is not cash spent, and overhead is a fixed yearly cost, so it is
+    // added to the goal once rather than spread over a births count that changes with the answer
+    birthsForGoal: net + overhead > 0 ? Math.ceil((o.annualGoal + o.overheadYear) / (net + overhead)) : null,
   };
 }
 

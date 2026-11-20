@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPDdC5tQqy7mq8AXzJ",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "Scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue products); merge when done.",
+  "input_sha256": "ceb417d20dae9bdc92d4f6a821d9a8889eba646f0e5a4ceb1621b07b3680a862",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T09:09:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality census (seed 2026-11-20-c394): first audits of six never-audited subjects, with same-PR fixes",
+  "projects": [
+    "research/mimic-whitebox",
+    "ventures/window-replacement-bid-calculator",
+    "ventures/gumroad-sales-to-journal",
+    "ventures/bigquery-query-cost-advisor",
+    "ventures/bandcamp-sales-report-analyzer",
+    "ventures/birth-doula-package-pricing-calculator"
+  ],
+  "pr": 17886,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 17,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Census audits that record a 'fix_prs' entry for the same round's PR need the PR URL before the PR exists; opening a claim PR first (as the README advises for sample rounds) solved it, but the README only says so for sample mode."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-quality-census-seed-c394.md"
+  ],
+  "goal": null,
+  "notes": "Mode census (quality_audit.py mode). Seed 2026-11-20-c394. Subjects: research/mimic-whitebox, ventures/window-replacement-bid-calculator, gumroad-sales-to-journal, bigquery-query-cost-advisor, bandcamp-sales-report-analyzer, birth-doula-package-pricing-calculator. Share meeting the bar: 0 of 6 (census, not counted in the sampled 36/367); 5 of 6 finished; 12 of 32 seeded mutants caught; 40 of 75 checks failed/partial; 43 defects, 8 high. Spot checks run by the orchestrator: doula births 91 vs 62 by hand; BigQuery 1223.27 TiB / $7,639.19 via one-liner and cli; Bandcamp break-even 12.78 by hand; Gumroad header 'Sale Price ($)' confirmed from antiwork/gumroad payouts/csv.rb. Fix PR: #17886 (all fixes in the same PR, separate commits): gumroad real-export parsing from Gumroad's open-source export code (high x3 + medium x3), bandcamp break-even and decimal commas (high x2), doula births-for-goal (high), bigquery slot-hours hint (high) and threshold tests, window UI sizes and comparison-page defaults claim, mimic-whitebox caveats/tests/dead code. One auditor-proposed test (doula hourly pin) had a wrong hours total (24.5 vs 24.83) and was corrected before commit. Local verification: run_venture_tests on the 5 ventures (5 suites, 0 failed); platform/pages faq-visible/secondary-schema/css-lint pass after aligning FAQ JSON-LD; mimic-whitebox unittest OK (8); research homepage build ok; check_md_links ok; quality_audit.py validate 576 files 0 problems.",
+  "corrections": [],
+  "redteam": null
+}

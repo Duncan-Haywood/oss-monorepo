@@ -156,6 +156,11 @@ export function normalizeRows(table) {
   const cols = findColumns(table[h]);
   const get = (line, f) => (cols[f] === undefined ? "" : (line[cols[f]] ?? "").trim());
   const dmy = detectDmy(table.slice(h + 1).map((l) => get(l, "date")));
+  // Decide once per file whether money cells use a decimal comma ("8,50"), as European exports do: some cell ends in
+  // a comma and one or two digits, and none ends in a point and one or two digits. A thousands comma ("1,234") has three.
+  const moneyFields = ["itemPrice", "subTotal", "shipping", "sellerTax", "marketplaceTax", "fee", "net", "contribution"];
+  const tokens = table.slice(h + 1).flatMap((l) => moneyFields.map((f) => (get(l, f).match(/\d[\d.,]*/) ?? [""])[0]));
+  const decComma = tokens.some((t) => /\d,\d{1,2}$/.test(t)) && !tokens.some((t) => /\d\.\d{1,2}$/.test(t));
   const rowsIn = [];
   const skipped = [];
   const cur = new Map();
@@ -166,7 +171,7 @@ export function normalizeRows(table) {
     if (/^(total|totals|subtotal|grand total|summary)\b/.test(first)) { skipped.push({ line: lineNo, reason: "total row" }); continue; }
     const date = parseWhen(get(line, "date"), dmy);
     if (date === null) { skipped.push({ line: lineNo, reason: get(line, "date") ? "unreadable date" : "empty row" }); continue; }
-    const num = (f) => parseNumber(get(line, f));
+    const num = (f) => parseNumber(get(line, f), decComma);
     const nums = { gross: null, shipping: num("shipping"), sellerTax: num("sellerTax"), marketplaceTax: num("marketplaceTax"), fee: num("fee"), net: cols.net === undefined ? null : num("net"), contribution: num("contribution") };
     const qtyRaw = get(line, "quantity");
     const qty = qtyRaw === "" ? 1 : parseNumber(qtyRaw);
@@ -251,7 +256,7 @@ export function analyze(sales, opts = {}) {
   const pGross = sum(physical, (s) => s.gross), pFee = sum(physical, (s) => s.fee);
   const costs = a.unitCost * pUnits + a.postage * physical.length;
   const pFeeRate = pGross + pShip > 0 ? pFee / (pGross + pShip) : null;
-  const breakEven = pUnits && pFeeRate !== null && pFeeRate < 1 ? (a.unitCost + (a.postage * physical.length - pShip) / pUnits) / (1 - pFeeRate) : null;
+  const breakEven = pUnits && pFeeRate !== null && pFeeRate < 1 ? /* the fee applies to item price and shipping alike: solve (p*units + ship)(1 - rate) = costs */ ((a.unitCost * pUnits + a.postage * physical.length) / (1 - pFeeRate) - pShip) / pUnits : null;
   const out = {
     summary: {
       sales: live.length, units, gross, shipping, tax, fee, net, refunds: refunds.length, refundNet, contribution,

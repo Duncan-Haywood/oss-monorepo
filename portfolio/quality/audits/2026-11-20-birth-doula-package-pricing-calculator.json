@@ -1,0 +1,205 @@
+{
+ "date": "2026-11-20",
+ "subject": "ventures/birth-doula-package-pricing-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-20-c394",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an experienced self-employed birth doula who keeps her own books; first checks: does the package hour count include prenatal visits, birth attendance and postpartum visits plus driving, is on-call (37-42 weeks) valued sensibly, are mileage, card fees, backup-doula pay, supplies and annual overhead all costed, is the self-employment tax treatment (Schedule SE: 15.3% on 92.35% of net earnings) right or at least disclosed, and does the 'births needed for my income goal' number reconcile with the cash per birth.",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Independent Python (/tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/doula/indep.py, no subject import, defaults retyped from the page) vs the shipped calc.mjs (/tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/doula/probe.mjs). Matches to 1e-4: worked hours 24.8333 (4.5 visit + 14 labor + 3 admin + 3.3333 driving), net per birth $941.50 (fee 1200 - card 36 - backup 48 - mileage 87 at the IRS 2026 72.5 c/mi rate - supplies 25 - overhead 62.50), hourly $37.9128, after on-call $26.6376, fee for $40/h after on-call $1,556.81 (solving the linear equation by hand). Fails: births for the $60,000 'pre-tax income goal' is 91 because it divides by net after the notional on-call value and treats overhead as per-birth at 24 births; the cash answer with overhead as a fixed annual cost is 62 (naive cash 64). The same 'Your year' paragraph says 24 clients earn $22,596 from cash net, so 91 births would really be ~$85,700, internally inconsistent. Hours are not reduced on the 8% of births a backup attends (hourly would be $39.82, not $37.91). Core arithmetic right, one headline output wrong: 2.",
+  "completeness": "README/page claim: pay per worked hour, fee for target, labor-length sensitivity (30-hour labor), births per year for an income goal, CSV export, local-only usage counts with opt-out. All present and run: `cd ventures/birth-doula-package-pricing-calculator && node --test '*.test.mjs'` 26/26 pass (calc 12, page 8, usage 6). scenario/sensitivity/toCsv return values for the defaults; sensitivity rows 8,14,20,30,40. Births-for-goal exists but is wrong (see correctness). No stubs or TODOs. 3.",
+  "verification": "`cd ventures/birth-doula-package-pricing-calculator && node --test '*.test.mjs'`: 26 pass, 0 fail, 0.18 s. Three mutants via platform/ci/quality_mutate.py: hourly denominator dropping driving SURVIVED (no test pins r.hourly's value, only monotonicity); Math.ceil -> Math.round in birthsForGoal SURVIVED (default 90.7 rounds and ceils to the same 91, and the test restates the formula); fee-for-target mileage trips*2 -> trips CAUGHT by the round-trip test. 2 of 3 survive: 2.",
+  "craft": "Read calc.mjs (103 lines), index.html script (lines 131-169), calc.test.mjs, page.test.mjs. Small, pure, readable module; analyze validates negatives, >100% and births<1. Defects: index.html:136 opts() silently replaces a blank or unparsable field with the example default (blank fee becomes $1,200, confirmed with node), so analyze's 'must be a number' warnings are unreachable from the UI; the fee-for-target fixed cost re-derives mileage instead of reusing the computed line (calc.mjs:64 duplicates :53). 2.",
+  "claims": "Backed: 'nothing uploaded' (page.test.mjs bans fetch/XHR/beacon; module imports only ./calc.mjs and ./usage.mjs), disclaimer and placeholders note present (index.html:58,125), Not decided section lists SE tax/deductions as accountant matters, mileage note 0.725 for 2026 matches the IRS 2026 standard business rate (72.5 c/mi), served llms.txt rewritten to marisstella.app (served-copy.mjs: no placeholder origin). Not backed: FAQ (index.html:13 and :106) says the $1,200 example has 'six hours of visits' but defaults are 4.5 h (2x1.5 + 1x1.5); 'how many births a year your income goal takes' (README, page header) returns a number that does not reconcile with the stated cash income. 2.",
+  "fitness": "Walked the job: a doula types her package and sees $26.64/h after on-call and a $1,557 price for $40/h, which is useful. But she cannot model the per-hour or flat overage fee the page itself recommends for births over a set length, the births-for-goal figure overstates her workload by ~45%, tax is a flat set-aside with no Schedule SE estimate, and a blanked field silently uses example numbers. Happy path works, gaps hit in the first hour: 2.",
+  "domain": "Compared with standard doula practice (DONA-style package: consult, ~2 prenatal visits, on call from 37 to 42 weeks, continuous labor support, 1-2 postpartum visits, backup arrangement) and IRS Schedule SE (2025 instructions: net SE earnings x 92.35% x 15.3% up to the SS wage base). Matches: package structure, labor default 14 h, round-trip mileage at the IRS rate, backup pay averaged over missed births, overhead lines. Departs: on-call default 28 days vs the 35 days of weeks 37-42; on-call 'value' is subtracted from cash in the income-goal count; annual overhead spread over the planned births then reused for any births count; hours not reduced on backup-attended births; SE tax not computed (for the default $22,596 net it is $3,192.71, 14.13% effective, before income tax) though it is disclosed as out of scope. 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "worked hours and net per birth for the page defaults",
+   "method": "hand arithmetic in independent Python; mileage at IRS 2026 standard business rate 72.5 c/mi (IRS 2026 mileage announcement)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/doula/indep.py; node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/doula/probe.mjs",
+   "expected": "hours 24.8333, net 941.50, hourly 37.9128, after on-call 26.6376",
+   "observed": "hours 24.8333, net 941.5, hourly 37.9128, hac 26.6376",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "package fee that reaches $40 per worked hour after on-call",
+   "method": "solve fee*(1-0.03-0.08*0.5) - (mileage+supplies+overhead+onCall) = 40*hours by hand, independent Python",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/doula/indep.py; node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/doula/probe.mjs",
+   "expected": "1556.81",
+   "observed": "1556.810035842294",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "births needed for a $60,000 pre-tax income goal",
+   "method": "cash income = births*(fee - variable costs) - 1500 annual overhead; independent Python",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/doula/indep.py; node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/doula/probe.mjs",
+   "expected": "62 (cash, fixed overhead); 64 naive cash",
+   "observed": "91 (divides by net after notional on-call value)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "self-employment tax on the default yearly net",
+   "method": "IRS Schedule SE (Form 1040) instructions: 92.35% x 15.3%",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/doula/indep.py; node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/doula/probe.mjs",
+   "expected": "$3,192.71 (14.13% of $22,596)",
+   "observed": "not computed; flat 30% set-aside gives $15,817 after tax",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "hourly when a backup attends 8% of births",
+   "method": "expected hours = full hours - 0.08*(labor + birth round trip), hand derivation",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/doula/indep.py; node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/doula/probe.mjs",
+   "expected": "39.8153",
+   "observed": "37.9128 (hours unchanged; even missedBirthPct=100 keeps 24.83 h)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/birth-doula-package-pricing-calculator && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "26 pass 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ 'six hours of visits' in the $1,200 example",
+   "method": "compare with DEFAULTS in calc.mjs:12-17",
+   "command": "grep -n 'six hours' ventures/birth-doula-package-pricing-calculator/index.html",
+   "expected": "6 h",
+   "observed": "4.5 h (2x1.5 + 1x1.5)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "mileage default stated as IRS 2026 rate",
+   "method": "IRS 2026 standard mileage rates (72.5 c/mi business)",
+   "command": "grep -n mileageRate ventures/birth-doula-package-pricing-calculator/calc.mjs",
+   "expected": "0.725",
+   "observed": "0.725",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served llms.txt and canonicals use the live origin",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs birth-doula-package-pricing-calculator",
+   "expected": "no placeholder origin",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "blank input handling in the page",
+   "method": "replicate index.html:136 opts() with num('')",
+   "command": "cd ventures/birth-doula-package-pricing-calculator && node -e 'import(\"./calc.mjs\").then(({num,DEFAULTS})=>console.log(Number.isFinite(num(\"\"))?num(\"\"):DEFAULTS.fee))'",
+   "expected": "a warning",
+   "observed": "1200 (silent example value)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "on-call window default",
+   "method": "common doula contract practice: on call 37 to 42 weeks (5 weeks)",
+   "command": "grep -n onCallDays ventures/birth-doula-package-pricing-calculator/calc.mjs",
+   "expected": "35 days",
+   "observed": "28 days",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:61",
+   "change": "const hourly = net / h.total; -> const hourly = net / (h.total - h.driving);",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:71",
+   "change": "Math.ceil(o.annualGoal / netAfterOnCall) -> Math.round(o.annualGoal / netAfterOnCall)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:64",
+   "change": "const fixed = h.trips * 2 * o.milesEachWay -> const fixed = h.trips * o.milesEachWay",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Births needed for the 'yearly pre-tax income goal' divides by net after the notional on-call value and treats annual overhead as a per-birth cost at the planned 24 births: defaults give 91 births where cash reconciliation gives 62, and the same paragraph's $22,596-for-24-clients figure implies 91 births earn ~$85,700.",
+   "where": "ventures/birth-doula-package-pricing-calculator/calc.mjs:71",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
+  },
+  {
+   "severity": "medium",
+   "what": "No test pins hourly or birthsForGoal values against a hand number; two of three seeded mutants (hourly denominator, ceil->round) survive, and the births test restates the implementation's formula.",
+   "where": "ventures/birth-doula-package-pricing-calculator/calc.test.mjs:46",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
+  },
+  {
+   "severity": "medium",
+   "what": "A blank or unparsable field silently takes the example default (blank fee becomes $1,200) instead of a warning, so analyze's 'must be a number' check never fires from the page.",
+   "where": "ventures/birth-doula-package-pricing-calculator/index.html:136",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Worked hours are not reduced on births a backup attends, so hourly is understated (37.91 vs 39.82 at defaults) and missedBirthPct=100 still counts full labor hours.",
+   "where": "ventures/birth-doula-package-pricing-calculator/calc.mjs:43",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Self-employment tax is a flat set-aside; no Schedule SE estimate (92.35% x 15.3%), though disclosed under Not decided.",
+   "where": "ventures/birth-doula-package-pricing-calculator/calc.mjs:68",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "FAQ (page and JSON-LD) says the $1,200 example has 'six hours of visits'; defaults give 4.5 h.",
+   "where": "ventures/birth-doula-package-pricing-calculator/index.html:106",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"
+  },
+  {
+   "severity": "low",
+   "what": "On-call default 28 days, short of the usual 37-42 week window (35 days); no overage fee for long births although the FAQ recommends one.",
+   "where": "ventures/birth-doula-package-pricing-calculator/calc.mjs:21",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17886"],
+ "verdict": "A tidy 103-line pure calculator whose per-birth arithmetic (hours, net, hourly, fee for target) recomputes exactly against independent Python, but its headline 'births for your income goal' is wrong by ~45% at the defaults (91 vs 62) because it subtracts a notional on-call value from a cash goal and fixes overhead per birth; tests restate formulas and let 2 of 3 seeded bugs through; blank fields silently become example values; a FAQ figure disagrees with the defaults. SE tax is not computed but is disclosed. Below the bar on correctness, verification and claims."
+}

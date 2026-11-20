@@ -97,3 +97,19 @@ test("annual saving is twelve months of the monthly saving, and the summary prin
   assert.ok(s.includes(`; Editions slot-hours $${r.totals.editions.toFixed(2)}/month;`));
   assert.ok(s.includes(`save up to about $${r.totals.saving.toFixed(2)}/month`));
 });
+
+test("slot-hours-missing hint asks for slot-hours per run, matching how the engine uses the column", () => {
+  const f = analyze(parseQueries("a,10,500")).findings.find((x) => x.rule === "slot-hours-missing");
+  assert.match(f.message, /AVG\(total_slot_ms\)/);
+  assert.doesNotMatch(f.message, /SUM\(/);
+});
+
+test("under 1 TiB a month bills $0, never a negative amount", () => {
+  assert.ok(Math.abs(analyze(parseQueries("a,1,100")).totals.onDemand) < 1e-9);
+});
+
+test("a run billing exactly the $5 guardrail is flagged; one just under is not", () => {
+  const gb = (5 / 6.25) * (2 ** 40 / 1e9); // 0.8 TiB in GB at $6.25/TiB
+  assert.ok(analyze(parseQueries(`a,1,${gb}`)).findings.some((f) => f.rule === "expensive-single-run"));
+  assert.ok(!analyze(parseQueries(`a,1,${gb * 0.99}`)).findings.some((f) => f.rule === "expensive-single-run"));
+});

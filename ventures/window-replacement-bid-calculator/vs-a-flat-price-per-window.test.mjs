@@ -135,3 +135,11 @@ test('the comparison page links back to the calculator and to the pricing guide'
   assert.match(html, /<a href="\.\/">/);
   assert.match(html, /href="how-much-to-charge\.html"/);
 });
+
+test('the page does not call its example inputs the shipped defaults when they differ from index.html', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const v = (id) => Number((index.match(new RegExp(`id="${id}"[^>]*value="([^"]*)"`)) || [])[1]);
+  const example = { hourlyWage: 32, burdenRate: 28, scaffoldingCost: 150, overheadRate: 12 };
+  if (Object.entries(example).some(([k, x]) => v(k) !== x)) assert.doesNotMatch(html, /shipped (cost inputs|defaults)/);
+});

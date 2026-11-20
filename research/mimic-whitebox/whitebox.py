@@ -52,9 +52,7 @@ def attack(det, text, k, mode, filler):
     for t in TOK.findall(text):
         if t.lower() in pick:
             if mode == "swap":
-                out.append(filler)
-            elif out and out[-1].isspace() is False and not out[-1].strip():
-                continue
+                out.append(filler)  # delete mode appends nothing; doubled spaces are collapsed below
         else:
             out.append(t)
     return "".join(out) if mode == "swap" else re.sub(r"[ \t]{2,}", " ", "".join(out))
