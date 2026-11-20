@@ -10,11 +10,12 @@
 // JSON, no required manifest field is missing, no sample-plugin template
 // placeholder is left in place, the manifest's version has a matching entry
 // in versions.json, and no source file assigns innerHTML/outerHTML or calls
-// insertAdjacentHTML; 1 otherwise. That makes it usable as a CI gate:
+// insertAdjacentHTML; 1 otherwise; 2 for a usage error (missing path, a
+// --manifest/--versions flag with no value or naming a missing file). That makes it usable as a CI gate:
 // `node check.mjs . || exit 1`.
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, extname } from 'node:path';
+import { join, extname, relative, isAbsolute } from 'node:path';
 import {
   parseManifest,
   parseVersions,
@@ -83,8 +84,19 @@ function readFilesAsRecords(paths, cwd) {
   });
 }
 
+// path.relative, not a string-prefix test: root "/x/a" must not strip
+// "/x/ab/manifest.json" down to "b/manifest.json" (red-team 2026-11-20).
 function relativeTo(root, full) {
-  return full.startsWith(root) ? full.slice(root.length).replace(/^[/\\]/, '') : full;
+  const rel = relative(root, full);
+  return rel === '' || rel.startsWith('..') || isAbsolute(rel) ? full : rel;
+}
+
+function tryStatFile(path) {
+  try {
+    return statSync(path).isFile();
+  } catch {
+    return false;
+  }
 }
 
 function tryRead(path) {
@@ -205,8 +217,15 @@ function parseArgs(argv) {
   const rest = [];
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--json') args.json = true;
-    else if (argv[i] === '--manifest') args.manifest = argv[++i];
-    else if (argv[i] === '--versions') args.versions = argv[++i];
+    else if (argv[i] === '--manifest' || argv[i] === '--versions') {
+      const flag = argv[i];
+      const value = argv[++i];
+      // A trailing flag used to leave the value undefined, and runCheck then
+      // fell back to whatever file it found: the CI gate checked a file the
+      // user did not name (red-team 2026-11-20).
+      if (value === undefined || value.startsWith('--')) args.error = `${flag} needs a file path`;
+      else args[flag.slice(2)] = value;
+    }
     else rest.push(argv[i]);
   }
   if (rest.length > 0) args.root = rest[0];
@@ -215,6 +234,16 @@ function parseArgs(argv) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (args.error) {
+    console.error(`${args.error}\nUsage: node check.mjs [path] [--manifest <file>] [--versions <file>] [--json]`);
+    process.exit(2);
+  }
+  for (const file of [args.manifest, args.versions]) {
+    if (file && !tryStatFile(file)) {
+      console.error(`File not found: ${file}`);
+      process.exit(2);
+    }
+  }
   let rootStat;
   try {
     rootStat = statSync(args.root);
