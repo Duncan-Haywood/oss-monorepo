@@ -1,0 +1,10 @@
+construction.ifc: 12 faceted elements with areas; checking 12
+architect.ifc: 45 faceted elements with areas; checking 45
+AC20-FZK-Haus.ifc: 0 faceted elements with areas; checking 0
+C20-Institute-Var-2.ifc: 21 faceted elements with areas; checking 21
+ISSUE_159_kleine_Wohnung_R22.ifc: 0 faceted elements with areas; checking 0
+ISSUE_021_Mini Project.ifc: 0 faceted elements with areas; checking 0
+schependomlaan.ifc: 1850 faceted elements with areas; checking 300
+  #875825 IfcWall side: section 863734 sampled 755223 (tol 7.71e+4) OUTSIDE
+ISSUE_068_ARK_NUS_skolebygg.ifc: 42 faceted elements with areas; checking 42
+checked 548 sections; 1 outside tolerance; median relative gap 0.002%; worst 100.00% (#728311 plan: section 2531.00, sampled 0.00000, tolerance 1.02e+4)

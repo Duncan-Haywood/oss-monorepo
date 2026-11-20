@@ -57,11 +57,13 @@ quantities inherits those errors; this tool says which they are
   checks each against the arithmetic, and the IPE 200 section against the steel
   tables (28.48 cm2; root radii included as (4 - pi) r^2).
 - **Real models.** On 13 public models (Revit, ArchiCAD, Tekla and others), the
-  computed volume agrees with the stored GrossVolume for 4,805 of 5,495
+  computed volume agrees with the stored GrossVolume for 4,863 of 5,495
   elements and with NetVolume for 6,133 of 6,366; where they agree, the median
   difference is 8e-16. Every disagreement is classified in
   [eval/stored-vs-computed-2026-11-19.md](eval/stored-vs-computed-2026-11-19.md),
-  with the raw output beside it.
+  with the raw output beside it (rerun 2026-11-20: 58 Revit members whose
+  faceted faces were written reversed now agree,
+  [eval/faceted-sections-2026-11-20.md](eval/faceted-sections-2026-11-20.md)).
 - **Areas on the same models.** 6,509 of 7,883 stored areas agree with the
   section cut from the geometry (82.6%), all 1,667 wall GrossFootprintAreas
   among them; where they agree the median difference is 1e-15 relative or less
@@ -76,6 +78,15 @@ quantities inherits those errors; this tool says which they are
   ([eval/areas-vs-stored-2026-11-19.md](eval/areas-vs-stored-2026-11-19.md)).
   The sample model's areas are checked by hand in `engine.test.mjs` (a door
   out of a wall's side and footprint, a trapezoidal gable, the IPE 200 section).
+- **Faceted bodies (2026-11-20).** Areas are now cut from faceted breps and
+  face sets too: elements storing an area with none computed fell from 2,051
+  to 6, pairs rose to 11,977 and agreements to 8,669, with 271 unexplained
+  (was 274). Four new causes, mostly ArchiCAD's: upright coverings storing
+  their plan as their area (742), walls storing centre-line length x width or
+  height (612), stored zeros (96) and walls measured across another width
+  (81). 548 faceted sections agree with an independent ray-parity sampler to a
+  median 0.002%
+  ([eval/faceted-sections-2026-11-20.md](eval/faceted-sections-2026-11-20.md)).
 - **Seeded faults.** Flipping the half-space side or switching off the unit-slip
   rule each fails a test.
 
@@ -101,14 +112,19 @@ and spheres.
 outline is fanned into signed triangles, voids enter with a minus sign, a half
 space clips every piece, and anything subtracted (an opening, a bounded cut) is
 intersected with every piece and enters with the opposite sign. Volumes come
-from the divergence theorem over each piece's faces. Faceted bodies give a
-volume but cannot have openings subtracted; such elements report "net not
-computed" rather than a guess.
+from the divergence theorem over each piece's faces. Faceted bodies keep their
+closed shells: faces reversed against their neighbours are turned back, and a
+plane cuts a shell face by face (each face's stretch inside the plane is a
+piece of the section's boundary, summed by Green's theorem). They cannot have
+openings subtracted; such elements report "net not computed" rather than a
+guess.
 
 **Not read:** advanced breps (NURBS), open shells, tapered extrusions, swept
 solids along curves other than disks, centre-line profiles, sloped flanges.
 Overlapping openings in one element are subtracted twice. Areas are not cut
-from faceted bodies (no polyhedral pieces to cut): those keep the stored area.
+from open shells, from faceted bodies a clip reaches, or from swept disks,
+revolved areas and CSG primitives: those keep the stored area. A faceted member
+has no extrusion direction, so no CrossSectionArea is cut from it.
 A curved wall's side area is the section of its thinnest flat direction, not
 its developed length.
 

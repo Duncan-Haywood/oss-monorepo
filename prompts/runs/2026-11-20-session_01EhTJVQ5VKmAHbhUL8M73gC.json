@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVQ5VKmAHbhUL8M73gC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T00:15:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff: plane sections of faceted bodies (flagship 14, next item 1)",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": 17823,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft of the eval write-up gave per-class pair counts and a C20 explanation from memory rather than from the output; both were wrong",
+      "fix": "recomputed from the two outputs by script and corrected before commit"
+    },
+    {
+      "what": "First section sampler used a 1e-9 absolute bounding-box tolerance, wrong on millimetre models, and flagged two correct sections",
+      "fix": "relative tolerance; remaining outlier traced by hand to sampler grid resolution"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here named ids-model-check (row 7), 31 records in 2 days and its next: items mostly need outside inputs; took flagship 14 ifc-quantity-takeoff (2 commits in 7 days), whose item (1) was buildable with public models",
+      "did": "landed faceted sections in ifc-quantity-takeoff",
+      "result": "2,051 uncut elements to 6; 4,094 new checked pairs; 58 volumes fixed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-cutting-ifc-mesh-bodies-for-areas.md",
+    "ventures/ifc-quantity-takeoff/eval/faceted-sections-2026-11-20.md"
+  ],
+  "goal": "Cut areas from faceted IFC bodies so their stored areas can be checked like extruded ones",
+  "notes": "Verification run here: node --test engine.test.mjs page.test.mjs usage.test.mjs (34 pass); run_venture_tests.py ifc-quantity-takeoff; eval/areas-vs-stored.mjs on 8 public models (pairs 7,883 -> 11,977, agree 6,509 -> 8,669, unexplained 274 -> 271); eval/stored-vs-computed.mjs on 13 models (GrossVolume agree 4,805 -> 4,863, nothing else moved); eval/faceted-section-check.mjs independent ray-parity sampler, 548 sections, median gap 0.002%, 1 outlier explained (1 mm leg under the 2 mm grid cell). Corpus: sparse clones of opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public.",
+  "corrections": [],
+  "redteam": null
+}

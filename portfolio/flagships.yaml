@@ -587,27 +587,29 @@ flagships:
       Bill of quantities from an IFC model in the browser, every element's volume
       recomputed from its body (signed convex pieces: extrusions, clips incl.
       Revit's boxed half spaces, booleans, mapped items, breps; openings
-      subtracted exactly) and checked against the stored quantities: 4,805 of
-      5,495 stored GrossVolumes agree on 8 public models, 472 of the 690 that do
-      not get a named cause (net-as-gross, unit slip, split by level, own
-      dimensions). Areas cut from the same geometry by plane sections: 6,509 of
-      7,883 stored areas agree, 1,100 of the rest named. Paid market: CostX,
+      subtracted exactly) and checked against the stored quantities: 4,863 of
+      5,495 stored GrossVolumes agree on 13 public models, the rest mostly with a
+      named cause (net-as-gross, unit slip, split by level, own dimensions).
+      Areas cut from the same geometry by plane sections, faceted shells
+      included: 8,669 of 11,977 stored areas agree, all but 271 of the rest named. Paid market: CostX,
       Cubit, Autodesk Takeoff, Solibri ITO.
     buildable: >-
-      The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
+      The 8 public models in eval/faceted-sections-2026-11-20.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
-      sections of faceted bodies (closed meshes cut by a plane; 2,051 elements
-      skipped, 1,544 in schependomlaan); C20's 54 ArchiCAD side areas 2-4% under;
-      skolebygg's 111 mullions and 66 walls; the 218 unexplained volumes; planar
-      IfcAdvancedBrep faces (kleine_Wohnung, 162 not read).
+      openings in faceted bodies (net areas and volumes; shells are kept now);
+      C20's 54 ArchiCAD side areas 2-4% under; skolebygg's 111 mullions;
+      schependomlaan's 90 unexplained areas; planar IfcAdvancedBrep faces
+      (kleine_Wohnung, 162 not read).
     hosts: [https://github.com]
     next: >-
       History and every measurement: ventures/ifc-quantity-takeoff/README.md and
       eval/. Areas from geometry shipped 2026-11-19 (plane sections: wall side
       and footprint, slab plan, member cross-section; eval/areas-vs-stored-2026-11-19.md).
-      Next, most valuable first: (1) sections of faceted bodies; (2) a method-of-measurement layer (NRM or CESMM style:
+      Faceted shells cut 2026-11-20 (oriented, then Green's theorem face by face;
+      2,051 uncut to 6; 58 Revit volumes fixed; eval/faceted-sections-2026-11-20.md).
+      Next, most valuable first: (1) openings in faceted bodies; (2) a method-of-measurement layer (NRM or CESMM style:
       deduct openings only above a size, MasterFormat/Uniformat mapping from the
       classification code); (3) the unexplained disagreements; (4) advanced breps
-      with planar faces, openings in faceted bodies; (5) a model-to-model change
+      with planar faces, a faceted member's cross-section; (5) a model-to-model change
       report (two revisions of one model, quantities by GlobalId); (6) a real
       estimator's reading of the BoQ CSV (needs a person).

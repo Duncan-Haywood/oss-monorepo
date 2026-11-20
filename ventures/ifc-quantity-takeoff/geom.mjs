@@ -167,8 +167,34 @@ function transformPoly(faces, m) {
 }
 
 // ---- solids: { terms: [{s, faces}], mesh: number, notes: [] } ------------
+//
+// A faceted part keeps its closed shells as well as its volume: `shells` is a
+// list of { s, faces } with each face a list of point loops (outer and inner
+// bounds, oriented so the face's own normal points out of the shell), and
+// `open` is set when some of the mesh volume has no shell to cut (a swept
+// disk, a revolved area, a CSG primitive) or a clip or opening was not taken
+// from a shell it reaches. A solid whose mesh is all in shells and not open
+// can still be cut by a plane (shellSection).
 
-const solid = (terms = [], mesh = 0, notes = []) => ({ terms, mesh, notes });
+const solid = (terms = [], mesh = 0, notes = [], shells = [], open = mesh !== 0 && !shells.length) => ({ terms, mesh, notes, shells, open });
+
+/** The mesh part of a, carried onto out (which has a's terms already handled). */
+const keepMesh = (out, a, open = false) => { out.shells = a.shells; out.open = a.open || open; return out; };
+
+/** Whether any shell vertex lies strictly on the material side of every plane (n.x <= k) of a cutter. */
+function meshMeets(shells, planes) {
+  if (!shells.length) return false;
+  let lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+  for (const sh of shells) for (const f of sh.faces) for (const l of f) for (const p of l) for (let i = 0; i < 3; i++) { if (p[i] < lo[i]) lo[i] = p[i]; if (p[i] > hi[i]) hi[i] = p[i]; }
+  // the cutter misses the shells' box when some plane has the whole box outside it
+  const size = Math.max(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2], 1);
+  for (const [n, k] of planes) {
+    let m = 0;
+    for (let i = 0; i < 3; i++) m += n[i] * (n[i] >= 0 ? lo[i] : hi[i]);
+    if (m >= k - 1e-9 * size) return false;
+  }
+  return true;
+}
 
 export function solidVolume(s) {
   let v = s.mesh;
@@ -177,7 +203,9 @@ export function solidVolume(s) {
 }
 
 function transformSolid(s, m) {
-  const out = solid(s.terms.map((t) => ({ s: t.s, faces: transformPoly(t.faces, m) })), s.mesh * Math.abs(det(m)), s.notes);
+  const flip = det(m) < 0;
+  const shells = (s.shells || []).map((sh) => ({ s: sh.s, faces: sh.faces.map((f) => f.map((l) => { const g = l.map((p) => apply(m, p)); return flip ? g.reverse() : g; })) }));
+  const out = solid(s.terms.map((t) => ({ s: t.s, faces: transformPoly(t.faces, m) })), s.mesh * Math.abs(det(m)), s.notes, shells, s.open);
   if (s.axis) { out.axis = unit(applyDir(m, s.axis)); out.axisWeight = (s.axisWeight ?? 0) * Math.abs(det(m)); }
   return out;
 }
@@ -190,7 +218,8 @@ function transformSolid(s, m) {
 // wall's side area is "as viewed by an elevation view of the middle plane of
 // the wall", a slab's area is the area of its extruded profile, a member's
 // cross-section is the profile (Qto_WallBaseQuantities, Qto_SlabBaseQuantities,
-// Qto_BeamBaseQuantities). Faceted parts ("mesh") have no terms and no section.
+// Qto_BeamBaseQuantities). Faceted parts are cut shell by shell (shellSection);
+// a solid with mesh volume no shell accounts for has no section.
 
 /** Area of the convex polygon the plane n.x = k cuts from a convex polyhedron. */
 export function polySection(faces, n, k) {
@@ -220,13 +249,61 @@ export function polySection(faces, n, k) {
   return Math.abs(signedArea(uv));
 }
 
-/** Smallest and largest n.x over a solid's polyhedral terms. */
+/**
+ * Signed area the plane n.x = k cuts from a closed shell of planar faces,
+ * positive when the faces point outward. Each face loop crosses the plane
+ * along a line; its crossings, sorted along that line, pair up into the
+ * stretches inside the loop (the loop is a simple polygon). Every stretch is a
+ * piece of the section's boundary, run in the direction n x f (f the loop's
+ * own normal), which is counter-clockwise seen from +n for an outward face,
+ * so Green's theorem sums the area from the pieces without joining them up.
+ * A hole loop runs the other way and so takes its stretches back out.
+ */
+export function shellSection(faces, n, k) {
+  const nn = unit(n);
+  const u = unit(Math.abs(nn[0]) < 0.9 ? cross(nn, [1, 0, 0]) : cross(nn, [0, 1, 0]));
+  const v = cross(nn, u);
+  let A = 0;
+  for (const f of faces) for (const l of f) {
+    const m = l.length;
+    if (m < 3) continue;
+    const xs = [];
+    let prev = dot(nn, l[m - 1]) - k;
+    for (let i = 0; i < m; i++) {
+      const a = l[(i + m - 1) % m], b = l[i];
+      const db = dot(nn, b) - k;
+      // a vertex on the plane counts as below it, so crossings come in pairs
+      if ((prev > 0) !== (db > 0)) xs.push(add(a, mulS(sub(b, a), prev / (prev - db))));
+      prev = db;
+    }
+    if (xs.length < 2) continue;
+    let fn = [0, 0, 0];
+    for (let i = 0; i < m; i++) {
+      const a = l[i], b = l[(i + 1) % m];
+      fn = add(fn, [(a[1] - b[1]) * (a[2] + b[2]), (a[2] - b[2]) * (a[0] + b[0]), (a[0] - b[0]) * (a[1] + b[1])]);
+    }
+    const d = cross(nn, fn);
+    if (!(norm(d) > 0)) continue;
+    xs.sort((p, q) => dot(d, p) - dot(d, q));
+    for (let i = 0; i + 1 < xs.length; i += 2) {
+      const p = xs[i], q = xs[i + 1];
+      A += (dot(p, u) * dot(q, v) - dot(p, v) * dot(q, u)) / 2;
+    }
+  }
+  return A;
+}
+
+/** Smallest and largest n.x over a solid's polyhedral terms and shells. */
 export function solidExtent(s, n) {
   const nn = unit(n);
   let lo = Infinity, hi = -Infinity;
   for (const t of s.terms) for (const f of t.faces) for (const p of f) { const d = dot(nn, p); if (d < lo) lo = d; if (d > hi) hi = d; }
+  for (const sh of s.shells || []) for (const f of sh.faces) for (const p of f[0]) { const d = dot(nn, p); if (d < lo) lo = d; if (d > hi) hi = d; }
   return [lo, hi];
 }
+
+/** Whether a plane section of the solid can be measured (no uncut mesh volume). */
+export const sectionable = (s) => !s.open && (s.terms.length > 0 || (s.shells || []).length > 0);
 
 /**
  * Area of the section of a solid by the plane normal to n through the middle
@@ -234,7 +311,7 @@ export function solidExtent(s, n) {
  * faceted part, which has no polyhedral terms to cut.
  */
 export function sectionArea(s, n, k = null) {
-  if (s.mesh || !s.terms.length) return null;
+  if (!sectionable(s)) return null;
   const nn = unit(n);
   if (!nn) return null;
   let at = k;
@@ -247,6 +324,7 @@ export function sectionArea(s, n, k = null) {
   }
   let A = 0;
   for (const t of s.terms) A += t.s * polySection(t.faces, nn, at);
+  for (const sh of s.shells || []) A += sh.s * shellSection(sh.faces, nn, at);
   return Math.abs(A);
 }
 
@@ -257,7 +335,10 @@ export function sectionArea(s, n, k = null) {
  */
 export function thinnestNormal(s, keep = () => true) {
   const seen = [];
-  for (const t of s.terms) for (const [n] of polyPlanes(t.faces)) {
+  const planes = [];
+  for (const t of s.terms) planes.push(...polyPlanes(t.faces));
+  for (const sh of s.shells || []) for (const f of sh.faces) planes.push(...polyPlanes([f[0]]));
+  for (const [n] of planes) {
     const m = n[2] < -1e-9 || (Math.abs(n[2]) <= 1e-9 && (n[1] < -1e-9 || (Math.abs(n[1]) <= 1e-9 && n[0] < 0))) ? mulS(n, -1) : n;
     if (!keep(m)) continue;
     if (!seen.some((q) => Math.abs(dot(q, m)) > 1 - 1e-9)) seen.push(m);
@@ -287,8 +368,9 @@ function subtractCutters(a, cutters, what) {
     }
   }
   const notes = a.notes.slice();
-  if (a.mesh) notes.push(`${what} not taken from a faceted part`);
-  const out = solid(guard(terms), a.mesh, notes);
+  const meets = a.mesh !== 0 && (a.open && !a.shells.length ? true : cutters.some((c) => c.s !== 0 && meshMeets(a.shells, c.planes)));
+  if (meets) notes.push(`${what} not taken from a faceted part`);
+  const out = keepMesh(solid(guard(terms), a.mesh, notes), a, meets);
   if (a.axis) { out.axis = a.axis; out.axisWeight = a.axisWeight; }
   return out;
 }
@@ -672,24 +754,27 @@ export class Geometry {
       }
       case "IFCFACETEDBREP":
       case "IFCFACETEDBREPWITHVOIDS": {
-        let v = Math.abs(this.shellVolume(a[0]));
-        if (e.type === "IFCFACETEDBREPWITHVOIDS") for (const s of a[1] || []) v -= Math.abs(this.shellVolume(s));
-        return solid([], v);
+        const outer = shellOf(this.shellFaces(a[0]), 1);
+        const parts = [outer];
+        if (e.type === "IFCFACETEDBREPWITHVOIDS") for (const s of a[1] || []) parts.push(shellOf(this.shellFaces(s), -1));
+        return meshSolid(parts);
       }
       case "IFCSHELLBASEDSURFACEMODEL":
       case "IFCFACEBASEDSURFACEMODEL": {
-        let v = 0;
+        const parts = [];
         for (const s of a[0]) {
           const sh = this.get(s);
           if (sh.type !== "IFCCLOSEDSHELL" && sh.type !== "IFCCONNECTEDFACESET") throw new Unresolved("open shell");
-          v += Math.abs(this.shellVolume(s));
+          parts.push(shellOf(this.shellFaces(s), 1));
         }
-        return solid([], v, ["surface model read as closed shells"]);
+        const out = meshSolid(parts);
+        out.notes.push("surface model read as closed shells");
+        return out;
       }
       case "IFCPOLYGONALFACESET":
       case "IFCTRIANGULATEDFACESET":
       case "IFCTRIANGULATEDIRREGULARNETWORK":
-        return solid([], Math.abs(this.faceSetVolume(e)));
+        return meshSolid([shellOf(this.faceSetFaces(e), 1)]);
       case "IFCSWEPTDISKSOLID":
       case "IFCSWEPTDISKSOLIDPOLYGONAL": {
         if (a[3] != null || a[4] != null) throw new Unresolved("swept disk with trimmed directrix");
@@ -768,8 +853,9 @@ export class Geometry {
           if (f.length) terms.push({ s: t.s, faces: f });
         }
         const notes = first.notes.slice();
-        if (first.mesh) notes.push("half-space clip not taken from a faceted part");
-        return solid(terms, first.mesh, notes);
+        const meets = first.mesh !== 0 && (!first.shells.length || meshMeets(first.shells, [[mulS(n, -1), -k]]));
+        if (meets) notes.push("half-space clip not taken from a faceted part");
+        return keepMesh(solid(terms, first.mesh, notes), first, meets);
       }
       // removed: the half space's material inside the boundary's prism
       const bm = this.placement(a[2]);
@@ -795,53 +881,64 @@ export class Geometry {
     return subtractCutters(first, cuttersOf(b), "boolean difference");
   }
 
-  shellVolume(ref) {
+  /** A shell's faces as point loops, the outer bound first. */
+  shellFaces(ref) {
     const sh = this.get(ref);
-    let v = 0;
+    const faces = [];
     for (const fref of sh.args[0]) {
       const f = this.get(fref);
+      const loops = [];
       for (const bref of f.args[0]) {
         const b = this.get(bref);
         const loop = this.get(b.args[0]);
         if (loop.type !== "IFCPOLYLOOP") throw new Unresolved(`face bound ${loop.type}`);
         let pts = loop.args[0].map((p) => this.point(p));
         if (b.args[1] === false) pts = pts.slice().reverse();
-        const o = pts[0];
-        for (let i = 1; i + 1 < pts.length; i++) v += dot(o, cross(pts[i], pts[i + 1]));
+        if (b.type === "IFCFACEOUTERBOUND") loops.unshift(pts); else loops.push(pts);
       }
+      if (loops.length) faces.push(loops);
     }
-    return v / 6;
+    return faces;
+  }
+
+  shellVolume(ref) {
+    return facesVolume(this.shellFaces(ref));
   }
 
   faceSetVolume(e) {
+    return facesVolume(this.faceSetFaces(e));
+  }
+
+  /** A tessellated face set's faces as point loops, the outer bound first. */
+  faceSetFaces(e) {
     const a = e.args;
     const P = this.get(a[0]).args[0].map((c) => [this.num(c[0]), this.num(c[1]), this.num(c[2])]);
-    const loops = [];
+    // faces as lists of index loops (1-based into P, after PnIndex)
+    let faces = [];
     if (e.type === "IFCPOLYGONALFACESET") {
       for (const fref of a[2]) {
         const f = this.get(fref);
-        loops.push(f.args[0].map((i) => this.num(i)));
+        const loops = [f.args[0].map((i) => this.num(i))];
         if (f.type === "IFCINDEXEDPOLYGONALFACEWITHVOIDS") for (const inner of f.args[1]) loops.push(inner.map((i) => this.num(i)).reverse());
+        faces.push(loops);
       }
       if (a[3]) {
         const pn = a[3].map((i) => this.num(i));
-        for (let i = 0; i < loops.length; i++) loops[i] = loops[i].map((j) => pn[j - 1]);
+        faces = faces.map((f) => f.map((l) => l.map((j) => pn[j - 1])));
       }
     } else {
-      const ci = e.type === "IFCTRIANGULATEDFACESET" ? a[3] : a[3];
-      for (const t of ci) loops.push(t.map((i) => this.num(i)));
+      for (const t of a[3]) faces.push([t.map((i) => this.num(i))]);
       const pnAt = e.type === "IFCTRIANGULATEDFACESET" ? a[4] : null;
       if (pnAt) {
         const pn = pnAt.map((i) => this.num(i));
-        for (let i = 0; i < loops.length; i++) loops[i] = loops[i].map((j) => pn[j - 1]);
+        faces = faces.map((f) => f.map((l) => l.map((j) => pn[j - 1])));
       }
     }
-    let v = 0;
-    for (const l of loops) {
-      const o = P[l[0] - 1];
-      for (let i = 1; i + 1 < l.length; i++) v += dot(o, cross(P[l[i] - 1], P[l[i + 1] - 1]));
-    }
-    return v / 6;
+    return faces.map((f) => f.map((l) => l.map((j) => {
+      const p = P[j - 1];
+      if (!p) throw new Unresolved(`face set index ${j} out of range`);
+      return p;
+    })));
   }
 
   curveLength3(ref) {
@@ -880,18 +977,114 @@ export class Geometry {
     const terms = [];
     let mesh = 0;
     const notes = [];
+    const shells = [];
+    let open = false;
     let axis = null, axisWeight = -1;
     for (const it of r.args[3]) {
       const s = this.item(it, depth + 1);
       terms.push(...s.terms);
       mesh += s.mesh;
       notes.push(...s.notes);
+      shells.push(...(s.shells || []));
+      open ||= s.open;
       if (s.axis && (s.axisWeight ?? 0) > axisWeight) { axis = s.axis; axisWeight = s.axisWeight ?? 0; }
     }
-    const out = solid(guard(terms), mesh, notes);
+    const out = solid(guard(terms), mesh, notes, shells, open);
     if (axis) { out.axis = axis; out.axisWeight = axisWeight; }
     return out;
   }
+}
+
+// ---- faceted shells ------------------------------------------------------------
+
+/** Signed volume enclosed by faces (point loops), by the divergence theorem. */
+function facesVolume(faces) {
+  let v = 0;
+  for (const f of faces) for (const l of f) {
+    const o = l[0];
+    for (let i = 1; i + 1 < l.length; i++) v += dot(o, cross(l[i], l[i + 1]));
+  }
+  return v / 6;
+}
+
+const pkey = (p) => `${p[0]},${p[1]},${p[2]}`;
+
+/**
+ * Turns faces so neighbours run their shared edge in opposite directions (a
+ * consistently oriented shell), starting from each connected piece's first
+ * face. Returns { faces, flipped, closed }: closed is false when an edge is
+ * used by one face only or by more than two, or when no consistent turn
+ * exists (a Moebius-like or self-touching shell); such a shell cannot be cut.
+ */
+export function orientShell(faces0) {
+  const faces = faces0.map((f) => f.map((l) => l.slice()));
+  const edges = new Map(); // undirected key -> [{face, forward}]
+  faces.forEach((f, fi) => {
+    for (const l of f) for (let i = 0; i < l.length; i++) {
+      const a = pkey(l[i]), b = pkey(l[(i + 1) % l.length]);
+      if (a === b) continue;
+      const fwd = a < b;
+      const key = fwd ? `${a}|${b}` : `${b}|${a}`;
+      let e = edges.get(key);
+      if (!e) edges.set(key, (e = []));
+      e.push({ fi, fwd });
+    }
+  });
+  let closed = true;
+  const adj = faces.map(() => []);
+  for (const e of edges.values()) {
+    if (e.length !== 2) { closed = false; continue; }
+    const [p, q] = e;
+    if (p.fi === q.fi) continue;
+    // same direction on both sides: one of the two must turn
+    const mustFlip = p.fwd === q.fwd;
+    adj[p.fi].push([q.fi, mustFlip]);
+    adj[q.fi].push([p.fi, mustFlip]);
+  }
+  const turn = new Array(faces.length).fill(null);
+  let flipped = 0;
+  for (let s = 0; s < faces.length; s++) {
+    if (turn[s] !== null) continue;
+    turn[s] = false;
+    const stack = [s];
+    while (stack.length) {
+      const i = stack.pop();
+      for (const [j, mustFlip] of adj[i]) {
+        const want = turn[i] !== mustFlip;
+        if (turn[j] === null) { turn[j] = want; stack.push(j); } else if (turn[j] !== want) closed = false;
+      }
+    }
+  }
+  for (let i = 0; i < faces.length; i++) if (turn[i]) { faces[i] = faces[i].map((l) => l.slice().reverse()); flipped++; }
+  return { faces, flipped, closed };
+}
+
+/**
+ * A shell with sign s (+1 material, -1 a void): oriented consistently, then
+ * turned outward if it encloses a negative volume. A shell that is not
+ * closed keeps its volume (as before) but has no section.
+ */
+function shellOf(faces, s) {
+  const o = orientShell(faces);
+  let use = o.closed ? o.faces : faces;
+  let v = facesVolume(use);
+  let flipped = o.closed ? o.flipped : 0;
+  // turned outward as a whole: the faces that end up reversed from the file
+  // are then the ones the walk did not turn
+  if (v < 0) { use = use.map((f) => f.map((l) => l.slice().reverse())); v = -v; if (o.closed) flipped = faces.length - flipped; }
+  // a shell written inside out as a whole is not worth a note
+  if (flipped === faces.length) flipped = 0;
+  return { s, faces: use, volume: v, closed: o.closed, flipped };
+}
+
+function meshSolid(parts) {
+  let v = 0;
+  const notes = [];
+  for (const p of parts) v += p.s * p.volume;
+  const open = parts.some((p) => !p.closed);
+  const flipped = parts.reduce((n, p) => n + p.flipped, 0);
+  if (flipped) notes.push(`${flipped} face${flipped === 1 ? "" : "s"} of a faceted body turned to match their neighbours`);
+  return solid([], v, notes, parts.map((p) => ({ s: p.s, faces: p.faces })), open);
 }
 
 // ---- 2D helpers ----------------------------------------------------------------
