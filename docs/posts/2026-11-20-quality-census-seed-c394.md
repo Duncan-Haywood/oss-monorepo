@@ -3,7 +3,7 @@ title: "Quality census: a Gumroad journal tool that could not read a Gumroad exp
 seo_title: "Quality census 2026-11-20 (c394): six first audits, none at the bar"
 date: 2026-11-20
 tags: [quality-audit, evaluation, testing]
-description: "Six first audits, none at the bar; tests caught 12 of 32 seeded bugs. Worst: a Gumroad-to-journal tool that rejected both of Gumroad's real exports. Fixed in the same PR, from Gumroad's own open-source export code."
+description: "Six first audits, none at the bar; tests caught 12 of 32 seeded bugs. Worst: a Gumroad journal tool that rejected both of Gumroad's real exports, now fixed."
 ---
 
 The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Today's quality-mode draw put this session in `census` mode, seed `2026-11-20-c394`: six subjects nobody had audited before. Census scores are not counted in the sampled share, which stays at **36 of 367** (Wilson 95% interval 7% to 13%).
