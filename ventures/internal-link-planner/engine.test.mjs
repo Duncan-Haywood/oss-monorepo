@@ -85,3 +85,24 @@ test("a 2,000-page synthetic site analyzes in a few seconds", () => {
   const t = Date.now(); const r = analyze(pages, { home: "https://big.test/p/0" });
   assert.equal(r.summary.pages, 2000); assert.ok(Date.now() - t < 20000, `took ${Date.now() - t}ms`);
 });
+
+test("quality audit 2026-11-20: relative links on folder pages, clean URLs to .html files, http and www links", () => {
+  const pg = (url, links) => ({ url, html: `<html><head><title>${url}</title></head><body><main><p>text</p>${links.map((h) => `<a href="${h}">go</a>`).join("")}</main></body></html>` });
+  // MkDocs-style: /guide/install/ links ../config/ (means /guide/config/, not /config)
+  const r1 = analyze([
+    pg("https://s.test/index.html", ["guide/install/"]),
+    pg("https://s.test/guide/install/index.html", ["../config/"]),
+    pg("https://s.test/guide/config/index.html", ["../../"]),
+  ]);
+  assert.equal(r1.summary.orphans, 0);
+  assert.equal(r1.summary.brokenInternal, 0);
+  // Flat .html build linked with clean URLs; plus http:// and www. links to the same site
+  const r2 = analyze([
+    pg("https://s.test/index.html", ["/about", "http://s.test/pricing.html"]),
+    pg("https://s.test/about.html", ["https://www.s.test/"]),
+    pg("https://s.test/pricing.html", ["/about"]),
+  ]);
+  assert.equal(r2.summary.orphans, 0);
+  assert.equal(r2.summary.brokenInternal, 0);
+  assert.equal(r2.pages.find((p) => p.url === "https://s.test/").inlinks, 1); // the www. link counts
+});
