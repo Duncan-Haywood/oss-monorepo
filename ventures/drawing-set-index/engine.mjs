@@ -28,8 +28,10 @@ export const DISCIPLINES = [
   ['E', 'Electrical'], ['W', 'Distributed energy'], ['T', 'Telecommunications'], ['R', 'Resource'],
   ['X', 'Other disciplines'], ['Z', 'Contractor / shop drawings'], ['O', 'Operations'],
 ];
+/** @type {Map<string, number>} */
 const DISC_ORDER = new Map(DISCIPLINES.map(([k], i) => [k, i]));
-const DISC_NAME = new Map(DISCIPLINES);
+/** @type {Map<string, string>} */
+const DISC_NAME = new Map(DISCIPLINES.map(([k, v]) => [k, v]));
 
 /** NCS sheet type, the first digit after the discipline. */
 export const SHEET_TYPES = ['General', 'Plans', 'Elevations', 'Sections', 'Large-scale views', 'Details', 'Schedules and diagrams', 'User defined', 'User defined', '3D representations'];
@@ -128,7 +130,7 @@ export function pagePhrases(page) {
         cur.w = Math.max(cur.w, it.X + it.w - cur.X);
       } else {
         if (cur) phrases.push(cur);
-        cur = { ...it };
+        cur = /** @type {any} */ ({ ...it });
       }
     }
     if (cur) phrases.push(cur);
@@ -195,7 +197,7 @@ const CELL = 0.03;
 
 /**
  * Index a set: one entry per page.
- * @param {{runs: any[], box: number[], rotate?: number}[]} pages
+ * @param {any[]} pages  each {runs, box, rotate?, rules?, file?, filePage?}
  * @param {{file?: string}} [opts]
  */
 export function indexSet(pages, opts = {}) {
