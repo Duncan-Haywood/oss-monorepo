@@ -370,7 +370,7 @@ export function timeImpactText(r, { limit = 15 } = {}) {
 
 const csvCell = (v) => {
   let s = v === null || v === undefined ? "" : String(v);
-  if (/^[=+\-@]/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
