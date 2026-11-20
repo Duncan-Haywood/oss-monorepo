@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { sectionHints, sectionMatches, parseFile, resolvePath, analyze, why, splitSources, reportCsv, coreOutput, legacyValue, nearKey, DEFAULTS } from "./editorconfig.mjs";
+import { csvCell, sectionHints, sectionMatches, parseFile, resolvePath, analyze, why, splitSources, reportCsv, coreOutput, legacyValue, nearKey, DEFAULTS } from "./editorconfig.mjs";
 
 const m = (name, path, dir = "") => sectionMatches(name, dir, path);
 
@@ -69,7 +69,7 @@ test("folder names with glob characters are literal", () => {
 });
 
 test("parser: trimming, comments only at line start, invalid lines, BOM and CRLF", () => {
-  const f = parseFile("﻿root = true\r\n[ test 7 ]\r\n  Key = Value  \r\n; c\r\nk2 = v # not a comment\r\n[*.js] # c\r\nindent_size: 4\r\n", "x/.editorconfig");
+  const f = parseFile("\uFEFFroot = true\r\n[ test 7 ]\r\n  Key = Value  \r\n; c\r\nk2 = v # not a comment\r\n[*.js] # c\r\nindent_size: 4\r\n", "x/.editorconfig");
   assert.equal(f.root, true);
   assert.equal(f.dir, "x");
   assert.equal(f.sections[0].name, " test 7 ");
@@ -157,4 +157,11 @@ test("keys named like Object.prototype members are ordinary unknown keys", () =>
   const r = analyze({ sources: "root = true\n[*]\nconstructor = x # y\ntoString = 1\n", paths: "a" });
   assert.equal(r.paths[0].core.constructor, "x # y");
   assert.ok(r.findings.every((f) => f.kind === "inline-comment"));
+});
+
+test("CSV cells cannot start a spreadsheet formula", () => {
+  assert.equal(csvCell("=HYPERLINK(1)"), "'=HYPERLINK(1)");
+  assert.equal(csvCell("-3"), "-3");
+  assert.equal(csvCell("@x"), "'@x");
+  assert.equal(csvCell("a,b"), '"a,b"');
 });

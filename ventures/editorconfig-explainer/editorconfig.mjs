@@ -250,7 +250,7 @@ const LOWER_VALUES = new Set(["indent_style", "indent_size", "end_of_line", "cha
 
 // One .editorconfig file's text -> its lines, sections and pairs.
 export function parseFile(text, file = ".editorconfig") {
-  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r\n|\n|\r/);
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r\n|\n|\r/);
   if (lines.length && lines[lines.length - 1] === "") lines.pop();
   const out = { file, dir: dirOf(file), root: false, rootLine: 0, preamble: [], sections: [], invalid: [] };
   let cur = null;
@@ -632,7 +632,13 @@ export function why(input = {}) {
   return { path, steps, core: r.core, derived: r.derived };
 }
 
-const csvCell = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+// A cell a spreadsheet would read as a formula (=, +, -, @, tab, CR first)
+// gets a leading apostrophe; plain numbers are left alone.
+export function csvCell(v) {
+  let s = String(v);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
 
 export function reportCsv(result) {
   const rows = [["path", "key", "value", "file", "line", "section", "overrides"]];

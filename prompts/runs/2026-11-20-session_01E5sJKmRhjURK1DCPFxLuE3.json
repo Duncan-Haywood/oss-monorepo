@@ -29,7 +29,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 31,
+  "tests_added": 32,
   "outcome": "success",
   "errors": [
     {
@@ -43,13 +43,17 @@
     {
       "what": "First real-project sample read git trees API (403, outside session scope) and treated airbnb's symlinked .editorconfig blobs as files; switched to blobless clones and mode-120000 skip, re-ran",
       "fixed": true
+    },
+    {
+      "what": "Final local CI: literal U+FEFF in the BOM regex and test (hidden-unicode check) and no CSV formula-injection guard (check_csv_formula_guard); both fixed with tests",
+      "fixed": true
     }
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "CLAUDE.md",
-      "issue": "Says launched.json/sibling links are needed implicitly via CI only; a new-venture checklist naming launched.mjs --write, a sibling footer link with page.test assertion, h3 finding headings and Object.hasOwn lookups would have saved one 20-minute local CI round (all four tripped here)."
+      "issue": "Says launched.json/sibling links are needed implicitly via CI only; a new-venture checklist naming launched.mjs --write, a sibling footer link with page.test assertion, h3 finding headings and Object.hasOwn lookups would have saved one 20-minute local CI round (all tripped here, plus the hidden-unicode and CSV formula-guard unwired checks, which no pull-request workflow runs but run_venture_tests reports)."
     },
     {
       "file": ".github/prompts/cloud-session.md",
