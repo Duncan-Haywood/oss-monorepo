@@ -26,8 +26,13 @@
   1.3-2.1 ms takes named 26 of 36 against 17, 0 of 36 instant misadvised, 1.72x the straddles for 2x the balls). The 36-shot
   triple closed by its pre-registered rule 2026-11-20 (eval/take-straddle-triple-2026-11-20.md: 0 of 36 instant
   misadvised, but 27 of 36 short takes named against the long drill's 26, needed 30; 1.3 ms still 4 of 12; the scaled
-  margin changed no verdict on its 2 builds at 7+ straddles). Still open: 1.3 ms takes, by a survey drill whose wheel
-  speeds put a 1.3 ms contact across a revolution's edge (a different shot mix, not more of the same shots).
+  margin changed no verdict on its 2 builds at 7+ straddles). That 1.3 ms item was answered 2026-11-20 (eval/feed-phase-2026-11-20.md): the
+  simulator had fixed where in a revolution each ball landed, so no shot mix could be tuned for it; with a random
+  release (`feed_jitter_ms`) the long drill names 21 of 36 short takes and misadvises 1 of 36 instant builds, and a
+  fast drill (34-40 m/s) 22 and 1; not shipped. Next: margin 3 with the fast drill against margin 2 with the long
+  drill, pre-registered on fresh seeds with `--feed-jitter 26` (exploratory on the 2026-11-20 builds: 18 against 21
+  short takes named, 0 against 1 instant misadvised). Every take-survey capture from here on should pass
+  `--feed-jitter 26`.
 - (2026-11-19) More tach pulses a revolution: tested host-side and closed by its pre-registered rule
   (eval/tach-pulses-2026-11-19.md: four magnets saw 46 of 128 short-take balls against 38, not twice; the step's drop
   error rose 0.11% to 0.55%). Reopen only with a survey-level test written first (the board sums ~22 wheels) and a plan
