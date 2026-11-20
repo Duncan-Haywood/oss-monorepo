@@ -104,6 +104,13 @@ work. Two consequences for a reader:
 - The law's own floor, not its inputs, is now the larger part of the forecast's error on fresh LG M50
   designs (section 4.2, 7a). Better inputs for the ten-cycle forecast will not by themselves close the gap
   to a 50-cycle fit; that is why the recipe extends runs rather than correcting forecasts.
+- Milestone 7t says why the forecast gets worse when plating is faster. On the two tuned cells, plating
+  per cycle over cycles 90 to 99 falls to 0.24 to 0.30 of its cycle 2 to 10 rate at plating multiplier 30
+  (0.51 to 0.56 at 10). Designs that throttle more drift more (Spearman 0.83 to 0.88). Across all eight
+  set-conditions the median throttle orders the median drift (&rho; = &minus;0.81, p = 0.024). The bend runs
+  through cycle 99, so no look up to 50 cycles brings the f = 30 error back to the f = 10 ten-cycle error.
+  On throttling cells a longer straight line only chases the bend. The remedy to test is a curved term
+  whose bend comes from an early sign of the throttle.
 
 ## 5.4 Limitations and next steps
 
