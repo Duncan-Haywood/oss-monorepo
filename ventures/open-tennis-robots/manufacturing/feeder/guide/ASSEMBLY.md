@@ -26,10 +26,11 @@ then the mast and turntable, the head (on the bench), the hopper, the net and tr
 | M4 heat-set insert, 5.7 mm long (feed) | 12 |
 | M4 heat-set insert, 5.7 mm long (servo) | 6 |
 | M4 heat-set insert, 5.7 mm long (agitator) | 3 |
+| M4 heat-set insert, 5.7 mm long (spring bracket) | 2 |
 
 Tools: soldering iron with an M4 insert tip.
 
-Print the bearing fit ring first, press a spare F626 into each bore and run `python -m otr_cad fit-ring` (cad/README.md, "Bearing fit test ring"): it sets the lift boot's bearing pockets before you print the boot. Then melt one M4 insert into each 5.6 mm pocket, flush and square: two in each cheek foot (the underside and the face toward the cheek), three in the top of the gear sector, two in the underside of each azimuth stop block, one in each side of the feed floor and the feed roof at each screw (eight), four in the sleeve socket's flange, one in each servo bracket leg and tab (five), one in the shuttle's +y side, and three in the top of the agitator's motor mount. The feed floor's inserts sit 1.2 mm under the face the shuttle slides on: if setting one lifts that face, sand it flat.
+Print the bearing fit ring first, press a spare F626 into each bore and run `python -m otr_cad fit-ring` (cad/README.md, "Bearing fit test ring"): it sets the lift boot's bearing pockets before you print the boot. Then melt one M4 insert into each 5.6 mm pocket, flush and square: two in each cheek foot (the underside and the face toward the cheek), three in the top of the gear sector, two in the underside of each azimuth stop block, one in each side of the feed floor and the feed roof at each screw (eight), four in the sleeve socket's flange, one in each servo bracket leg and tab (five), one in the shuttle's +y side, three in the top of the agitator's motor mount and two in the top of the take-up spring's bracket. The feed floor's inserts sit 1.2 mm under the face the shuttle slides on: if setting one lifts that face, sand it flat.
 
 ### 2. Base frame
 
@@ -306,16 +307,20 @@ Tap both core bores of each end of the four posts M5. Stand each on the deck and
 | hopper_shelf | 1 | laser/hopper_shelf__aluminium_5mm.dxf |
 | hopper_spigot | 1 | print/hopper_spigot.stl |
 | take_up_sleeve | 1 | Rigid round tube, 96 mm bore, about 102 mm OD, cut 300 mm; slot 10 mm wide in the rear wall from the top end down 262 mm |
-| take_up_spring | 1 | Constant-force spring, 5 N (assumed: holds the hose's top end against a 5 N hose pull), at least 256 mm of band, drum on a bracket behind the sleeve |
+| take_up_spring_bracket | 1 | print/take_up_spring_bracket.stl |
+| take_up_spool | 1 | print/take_up_spool.stl |
+| take_up_spring | 1 | Constant-force spring, 5 N (assumed: holds the hose's top end against a 5 N hose pull), 12.7 mm band, natural bore about 17 mm, coil under 30 mm across, at least 361 mm of band, a hole in its free end |
 
 | Fastener or part | Qty |
 | --- | --- |
 | M5 x 16 button head (hopper) | 8 |
 | M4 x 12 socket cap screw (spigot) | 4 |
+| M4 x 12 button head (spring bracket) | 2 |
+| M4 x 40 socket cap screw + nyloc nut (spring axle) | 1 |
 
-Tools: 3 mm hex key.
+Tools: 3 mm and 2.5 mm hex keys, 7 mm spanner.
 
-Screw the sleeve socket under the shelf's outlet hole (four M4 x 12 from above into its flange). Lift the shelf onto the posts and screw it down into their top bores (two M5 x 16 each); the posts' tops are level, so shim each post's rear edge to the shelf's slope. Now tighten the braces. Push the take-up sleeve up into the socket, slot to the rear. The constant-force spring's drum mounts behind the sleeve: its bracket is not in the CAD yet, so fix it to the rear posts' cross brace or the shelf where its band runs straight down the sleeve's slot.
+Screw the sleeve socket under the shelf's outlet hole (four M4 x 12 from above into its flange). Seat the constant-force spring's coil on the printed spool, band leaving the coil's front at the bottom, and hold the spool between the spring bracket's cheeks while the M4 axle goes through both cheeks and the spool; snug the nyloc so the spool still spins. Screw the bracket up under the shelf behind the socket (two M4 x 12 button heads from above into its inserts): the band should hang straight down past the socket's rear, clear of it. Lift the shelf onto the posts and screw it down into their top bores (two M5 x 16 each); the posts' tops are level, so shim each post's rear edge to the shelf's slope. Now tighten the braces. Push the take-up sleeve up into the socket, slot to the rear, and tape the band to the sleeve for now.
 
 ### 16. Agitator and tub
 
@@ -350,10 +355,11 @@ Screw the gearmotor's face to the mount (four M3 x 10 from the counterbores) and
 | --- | --- |
 | Flexible-PVC adhesive or epoxy | 1 |
 | Hose clamp, 80-90 mm | 1 |
+| M3 x 8 pan head screw (spring band) | 1 |
 
 Tools: screwdriver.
 
-Bond the hose's top end 25 mm into the collar and let it cure. Slide the collar up the sleeve, tab through the slot, and hook the spring's band to the tab. Push the hose's lower end over the roof column's socket and clamp it. Swing the head through its whole range: the hose must not kink or pull the collar out of the sleeve's bottom.
+Bond the hose's top end 25 mm into the collar and let it cure. Slide the collar up the sleeve, tab through the slot, pull the spring's band down to the tab and screw its end to the tab's rear face (one M3 x 8 pan head into a 2.5 mm pilot). Push the hose's lower end over the roof column's socket and clamp it. Swing the head through its whole range: the hose must not kink or pull the collar out of the sleeve's bottom.
 
 ### 18. Net poles and camera bar
 
@@ -584,6 +590,7 @@ Each length is measured from the head's face through the parts the model puts un
 | mast plate to mast post | M5 x 12 button head | mast_plate 5 | 5 | 12 | 7 | 5 to 15 mm into the part's tapped hole (its thread depth) | pass |
 | hopper post to deck | M5 x 16 button head (hopper) | base_deck 5 | 5 | 16 | 11 | 5 to 15 mm into the part's tapped hole (its thread depth) | pass |
 | sleeve socket under the shelf | M4 x 12 socket cap screw (spigot) | hopper_shelf 5 | 5 | 12 | 7 | 5.7 to 8 mm past the face, the insert's length to the pocket's depth | pass |
+| spring bracket under the shelf | M4 x 12 button head (spring bracket) | hopper_shelf 5 | 5 | 12 | 7 | 5.7 to 8 mm past the face, the insert's length to the pocket's depth | pass |
 | agitator motor mount under the shelf | M4 x 12 button head (agitator) | hopper_shelf 5 | 5 | 12 | 7 | 5.7 to 7 mm past the face, the insert's length to the pocket's depth | pass |
 | trough hanger to net beam | M5 x 12 button head + T-nut (trough) | trough_hanger_a 6 | 6 | 12 | 6 | 4 to 8 mm past the extrusion's face: catches the T-nut, short of the slot floor | pass |
 | sump tab to net beam | M5 x 40 button head + T-nut (sump) | trough_sump 34 | 34 | 40 | 6 | 4 to 8 mm past the extrusion's face: catches the T-nut, short of the slot floor | pass |

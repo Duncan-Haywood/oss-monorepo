@@ -72,7 +72,7 @@ from build123d import (
 )
 
 from .collector import ROT_XZ, ROT_Y_AXIS, Part, _holes
-from .params import Feeder
+from .params import SPIGOT_BOLT_R, SPIGOT_FLANGE, Feeder
 
 BATTERY_X = -450.0  # battery centre on the deck
 AZ_BOSS_D = 23.0       # NEMA 17 pilot boss is 22 mm across
@@ -84,7 +84,6 @@ CABLE_HOLE_D = 14.0    # a 14 mm hole with a snap-in grommet (10 mm bore) for th
 CLIP_W = 20.0          # standoff clip and its bundle channel, along y
 CLIP_CHANNEL_H = 20.0  # the channel the bundle is tied in, below the clip point
 CABLE_BAR_X = -190.0   # (= head_x - post_dx) the 2020 crossbar between the rear mast posts, for the axis clamp
-SPIGOT_BOLT_R = 64.0  # M4 ring of the sleeve socket under the shelf (48 until 2026-11-10; the sleeve's wall now sits there)
 # Heat-set insert pockets, and the depths the assembly guide checks each screw against (feeder_guide.joints). Until
 # 2026-11-20 the cheek feet, gear sector, feed floor and roof, sleeve socket and agitator mount had 4.0 mm pilots
 # where their M4 inserts go (an M4 insert wants about 5.6 mm), the collector's fault of the same day.
@@ -95,9 +94,9 @@ SERVO_LEG_POCKET = 10.0  # servo bracket legs
 CHEEK_FOOT_V = 25.0      # cheek foot, up from the turntable plate
 CHEEK_FOOT_W = 20.0      # cheek foot, across (pilot right through)
 STOP_POCKET = 7.5        # azimuth stop block (6.0 until 2026-11-20: an M4 x 10 then reached 5 of the insert's 5.7 mm)
-SPIGOT_FLANGE = 9.0      # sleeve socket's flange under the shelf (5.0 until 2026-11-20: shorter than the insert)
 SPIGOT_POCKET = 8.0
 AGIT_POCKET = 7.0        # agitator motor mount
+SPRING_POCKET = 8.0      # take-up spring bracket's pad
 TROUGH_WEB = 6.0         # trough hanger: plastic under the screw head, the counterbore open behind it
 POLE_FOOT_FLOOR = 6.0    # pole foot: plastic under each screw head at the bottom of its counterbore
 CABLE_CLAMP_WEB = 6.0    # cable clamp: plastic under its screw head, against the crossbar's face
@@ -550,6 +549,8 @@ def hopper_shelf(p: Feeder) -> Part:
         with Locations((a_o, 0)):
             Circle(80.0 / 2, mode=Mode.SUBTRACT)
         _holes([(a_o + x, y) for x, y in _ring(SPIGOT_BOLT_R, 4, 45)], 4.4)
+        if p.spring_bracket_design() is not None:
+            _holes([(a_o + x, 0.0) for x in spring_screws(p)], 4.4)                  # take-up spring bracket
         xs, ys = p.agit_xy
         _holes([(xs, ys)], p.agit_shelf_hole)                                         # agitator shaft
         _holes([(xs + x, ys + y) for x, y in _ring(p.agit_mount_bolt_r, 3, 90)], 4.4)  # its motor mount, M4 from above
@@ -561,7 +562,7 @@ def hopper_shelf(p: Feeder) -> Part:
                 [Location((ox, 0, oz), (0, p.shelf_slope_deg, 0))], flat=face, thickness=p.plate_t,
                 notes=f"Tub shelf, falls {p.shelf_slope_deg:g} deg toward the net so balls roll to the outlet. "
                       "Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole, the agitator's "
-                      "motor mount under the small hole beside it.")
+                      "motor mount under the small hole beside it, the take-up spring's bracket behind the socket.")
 
 
 # ---------------------------------------------------------------- hopper agitator (2026-11-13)
@@ -1017,9 +1018,9 @@ def take_up_parts(p: Feeder) -> list[Part]:
                   notes=f"Hangs from the outlet socket, open at the bottom. The hose's collar slides {t['stroke_mm']:.0f} mm in it "
                         f"(free hose {t['free_mm'][0]:.0f} to {t['free_mm'][1]:.0f} mm over the elevation and azimuth range). Deburr the bore.")
     cd = bore - 2.0
-    tab = 12.0
-    collar = Cylinder(cd / 2, p.collar_h_mm) + Box(tab + (od - cd) / 2 + 2.0, slot_w - 2.0, 12.0).moved(
-        Location((-(cd / 2 + (tab + (od - cd) / 2 + 2.0) / 2 - 1.0), 0, p.collar_h_mm / 2 - 6.0)))
+    tab = p.collar_tab_mm
+    collar = Cylinder(cd / 2, p.collar_h_mm) + Box(tab + (od - cd) / 2 + 2.0, slot_w - 2.0, tab).moved(
+        Location((-(cd / 2 + (tab + (od - cd) / 2 + 2.0) / 2 - 1.0), 0, p.collar_h_mm / 2 - tab / 2)))
     sock = 25.0
     collar = collar - Cylinder((p.hose_od + 0.5) / 2, sock).moved(Location((0, 0, -p.collar_h_mm / 2 + sock / 2)))
     funnel_h = p.collar_h_mm - sock
@@ -1030,11 +1031,81 @@ def take_up_parts(p: Feeder) -> list[Part]:
                notes=f"Bond the hose's top end {sock:g} mm into the socket. The funnel narrows {cd - 6:g} to {p.hose_id:g} mm so a ball "
                      f"dropping down the sleeve cannot catch the hose's rim. The tab through the sleeve's slot takes the spring's "
                      f"band and keeps the collar from turning. Print funnel up, 6 walls.")
-    spring = Part("take_up_spring", "cots", "", 1, Cylinder(25.0, 30.0).moved(Location((0, 0, 0), ROT_Y_AXIS)),
-                  [Location((ox - od / 2 - 45.0, 0, top - 35.0))],
-                  spec=f"Constant-force spring, {t['spring_n']:g} N (assumed: holds the hose's top end against a {t['spring_n']:g} N "
-                       f"hose pull), at least {t['stroke_mm'] + 20:.0f} mm of band, drum on a bracket behind the sleeve")
-    return [sleeve, col, spring]
+    return [sleeve, col, *spring_parts(p)]
+
+
+def _shelf_cut(p: Feeder, blk):
+    """Cut away everything above the shelf's underside (the plane through the outlet)."""
+    shelf = Location((p.hopper_out_x, 0, p.hopper_out_z), (0, p.shelf_slope_deg, 0))
+    return blk - Box(600.0, 600.0, 300.0).moved(Location((0, 0, 150.0))).moved(shelf)
+
+
+def spring_screws(p: Feeder) -> list[float]:
+    """Shelf-frame x (from the outlet, along the slope) of the spring bracket's two M4 screws, on y = 0."""
+    d = p.spring_bracket_design()
+    c = math.cos(math.radians(p.shelf_slope_deg))
+    return [(x - p.hopper_out_x) / c for x in d["screws_x"]]
+
+
+def spring_parts(p: Feeder) -> list[Part]:
+    """The take-up's constant-force spring, its printed spool and the bracket that hangs them from the shelf
+    (`Feeder.spring_bracket_design`, 2026-11-20; until then the spring was a loose envelope "on a bracket behind the
+    sleeve" and the assembly guide said to improvise one). The coil sits a coil radius behind the collar tab's rear
+    face, so its band hangs straight down that face to the tab; it fits between the tab's highest reach and the
+    sleeve socket's flange. Two cheeks carry an M4 axle through the spool; a pad joins them under the shelf, behind
+    the flange, with two M4 heat-set inserts for screws from above."""
+    d = p.spring_bracket_design()
+    if d is None:
+        return []
+    dx, dz = d["drum_x"], d["drum_z"]
+    r1 = d["coil_r"][0]
+    ci, ct = d["cheek_in"], p.spring_cheek_t
+    ow = d["outer_w"]
+    z_top = p.shelf_plane_z(dx - 20.0) + 5.0
+    blk = None
+    for sy in (-1, 1):
+        x0, x1 = dx - 11.0, dx + 9.0
+        z0 = dz - 10.0
+        cheek = Box(x1 - x0, ct, z_top - z0).moved(Location(((x0 + x1) / 2, sy * (ci + ct / 2), (z0 + z_top) / 2)))
+        blk = cheek if blk is None else blk + cheek
+    px0, px1 = dx - 16.0, d["flange_rear_x"] - 1.0
+    blk = blk + Box(px1 - px0, ow, z_top - d["pad_bottom"]).moved(
+        Location(((px0 + px1) / 2, 0, (z_top + d["pad_bottom"]) / 2)))
+    shelf = Location((p.hopper_out_x, 0, p.hopper_out_z), (0, p.shelf_slope_deg, 0))
+    blk = blk - Cylinder(SPIGOT_BOLT_R + 11.0, SPIGOT_FLANGE + 2.0).moved(
+        Location((0, 0, -(SPIGOT_FLANGE + 2.0) / 2 + 0.5))).moved(shelf)                  # the socket's flange, 1 mm clear
+    blk = _shelf_cut(p, blk)
+    blk = blk - Cylinder(2.2, ow + 2.0).moved(Location((dx, 0, dz), ROT_Y_AXIS))          # M4 axle
+    for lx in spring_screws(p):
+        blk = _insert_cut(blk, shelf * Location((lx, 0, 0)), SPRING_POCKET)
+    bracket = Part("take_up_spring_bracket", "print", "PETG", 1, blk, [Location((0, 0, 0))],
+                   notes=f"Hangs the take-up spring behind the sleeve socket: two M4 x 12 from above the shelf into its "
+                         f"heat-set inserts, an M4 x {p.spring_axle_len:g} axle through both cheeks and the spool. "
+                         f"Print pad down, 4 walls; drill the axle hole 4.4 mm if it prints tight.")
+    sw = d["spool_w"]
+    ft = p.cf_spool_flange_t
+    hub_w = sw - 2 * ft
+    spool = Cylinder(p.cf_spool_d / 2, hub_w)
+    for sy in (-1, 1):
+        spool = spool + Cylinder(r1 + 2.0, ft).moved(Location((0, 0, sy * (hub_w + ft) / 2)))
+    spool = spool - Cylinder(2.25, sw + 2.0)
+    spool_p = Part("take_up_spool", "print", "PETG", 1, spool.moved(Location((0, 0, 0), ROT_Y_AXIS)),
+                   [Location((dx, 0, dz))],
+                   notes=f"Spool the spring's coil turns on: {p.cf_spool_d:g} mm hub ({d['spool_ratio']:.2f}x the "
+                         f"coil's natural {p.cf_spring_id:g} mm bore, as makers ask), flanges either side of the "
+                         f"{p.cf_band_w:g} mm band, 4.5 mm bore running on the M4 axle. Print on a flange, 100% infill.")
+    coil = (Cylinder(r1, p.cf_band_w) - Cylinder(p.cf_spool_d / 2, p.cf_band_w + 2.0)).moved(
+        Location((0, 0, 0), ROT_Y_AXIS))
+    t = p.sleeve_take_up_design()
+    spring = Part("take_up_spring", "cots", "", 1, coil, [Location((dx, 0, dz))],
+                  spec=f"Constant-force spring, {t['spring_n']:g} N (assumed: holds the hose's top end against a "
+                       f"{t['spring_n']:g} N hose pull), {p.cf_band_w:g} mm band, natural bore about "
+                       f"{p.cf_spring_id:g} mm, coil under {p.cf_coil_od:g} mm across, at least "
+                       f"{d['band_len_mm']:.0f} mm of band, a hole in its free end",
+                  notes=f"On the spool in the bracket; the band hangs from the coil's front, {d['band_x'] - p.hopper_out_x:.0f} mm "
+                        f"behind the outlet's axis, to an M3 x 8 screw in the collar tab's rear face. It leans "
+                        f"{d['lean_deg']:.2f} deg at the lowest pose as the coil empties.")
+    return [bracket, spool_p, spring]
 
 
 def envelopes(p: Feeder) -> list[Part]:
@@ -2280,7 +2351,8 @@ def feed_stroke_solids(p: Feeder, elev_deg: float, theta_deg: float) -> tuple[li
 
 TURNTABLE_PARTS = HEAD_PARTS | {"turntable_plate", "trunnion_cheek", "trunnion_cheek_elev", "cheek_foot", "az_gear_sector",
                                  "elev_anchor_bolt", "cable_gland", *ELEV_ACT_PARTS, "elev_lead_fixed", "elev_lead"}
-HOSE_PARTS = {"feed_hose", "take_up_sleeve", "take_up_collar", "take_up_spring"}  # the hose bends; checked by the take-up model
+HOSE_PARTS = {"feed_hose", "take_up_sleeve", "take_up_collar"}  # the hose bends; checked by the take-up model (the spring's
+# parts stay put on their bracket since 2026-11-20, so the sweeps check them)
 COTS_MASS_KG = {"launcher_motor": 0.60, "launcher_wheel": 0.35, "head_standoff": 0.015,
                 "elev_actuator": 0.60, "shuttle_servo": 0.06}  # assumptions: weigh yours
 
@@ -2396,6 +2468,10 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M4 x 12 socket cap screw (feed)", 8, "feed floor and roof to the head plates (through the plates, into inserts)"),
         ("M4 heat-set insert, 5.7 mm long (feed)", 8 + 4, "feed floor, roof and sleeve socket"),
         ("M4 x 12 socket cap screw (spigot)", 4, "sleeve socket to the shelf"),
+        ("M4 x 12 button head (spring bracket)", 2, "take-up spring's bracket up under the shelf, from above (under the tub)"),
+        ("M4 heat-set insert, 5.7 mm long (spring bracket)", 2, "take-up spring's bracket"),
+        (f"M4 x {p.spring_axle_len:g} socket cap screw + nyloc nut (spring axle)", 1, "take-up spring's spool axle, through both cheeks"),
+        ("M3 x 8 pan head screw (spring band)", 1, "take-up spring's band end to the collar's tab"),
         ("M5 x 16 button head (hopper)", 8 + 8, "posts to the deck (from below) and to the shelf, two per end"),
         ("2020 corner bracket with M5 screws and T-nuts", 6, "hopper braces, two per brace"),
         ("2020 corner bracket with M5 screws and T-nuts (cable crossbar)", 2, "cable crossbar to the rear mast posts"),

@@ -51,7 +51,8 @@ def steps(p: Feeder) -> list[Step]:
         Step("Prepare the printed parts and the test print", ["lift_bearing_fit_ring"], [
             ("M4 heat-set insert, 5.7 mm long", 8), ("M4 heat-set insert, 5.7 mm long (azimuth)", 3),
             ("M4 heat-set insert, 5.7 mm long (stops)", 4), ("M4 heat-set insert, 5.7 mm long (feed)", 12),
-            ("M4 heat-set insert, 5.7 mm long (servo)", 6), ("M4 heat-set insert, 5.7 mm long (agitator)", 3)],
+            ("M4 heat-set insert, 5.7 mm long (servo)", 6), ("M4 heat-set insert, 5.7 mm long (agitator)", 3),
+            ("M4 heat-set insert, 5.7 mm long (spring bracket)", 2)],
             "soldering iron with an M4 insert tip",
             "Print the bearing fit ring first, press a spare F626 into each bore and run `python -m otr_cad fit-ring` "
             "(cad/README.md, \"Bearing fit test ring\"): it sets the lift boot's bearing pockets before you print the "
@@ -59,7 +60,8 @@ def steps(p: Feeder) -> list[Step]:
             "(the underside and the face toward the cheek), three in the top of the gear sector, two in the underside "
             "of each azimuth stop block, one in each side of the feed floor and the feed roof at each screw (eight), "
             "four in the sleeve socket's flange, one in each servo bracket leg and tab (five), one in the shuttle's "
-            "+y side, and three in the top of the agitator's motor mount. The feed floor's inserts sit 1.2 mm under "
+            "+y side, three in the top of the agitator's motor mount and two in the top of the take-up spring's "
+            "bracket. The feed floor's inserts sit 1.2 mm under "
             "the face the shuttle slides on: if setting one lifts that face, sand it flat.", image=False),
         Step("Base frame", ["net_beam", "rear_rail", "side_rail", "mast_rail"],
              [("M5 x 30 button head (frame)", 16), ("M5 x 50 button head (mast posts)", 8)],
@@ -175,15 +177,21 @@ def steps(p: Feeder) -> list[Step]:
              "outside each side pair and the y brace behind the rear pair with a corner bracket at each end; leave "
              "them finger-tight until the shelf is on."),
         Step("Hopper shelf, sleeve socket and take-up sleeve", ["hopper_shelf", "hopper_spigot", "take_up_sleeve",
+                                                                "take_up_spring_bracket", "take_up_spool",
                                                                 "take_up_spring"],
-             [("M5 x 16 button head (hopper)", 8), ("M4 x 12 socket cap screw (spigot)", 4)],
-             "3 mm hex key",
-             "Screw the sleeve socket under the shelf's outlet hole (four M4 x 12 from above into its flange). Lift "
-             "the shelf onto the posts and screw it down into their top bores (two M5 x 16 each); the posts' tops "
-             "are level, so shim each post's rear edge to the shelf's slope. Now tighten the braces. Push the "
-             "take-up sleeve up into the socket, slot to the rear. The constant-force spring's drum mounts behind "
-             "the sleeve: its bracket is not in the CAD yet, so fix it to the rear posts' cross brace or the shelf "
-             "where its band runs straight down the sleeve's slot.", loose=["take_up_spring"]),
+             [("M5 x 16 button head (hopper)", 8), ("M4 x 12 socket cap screw (spigot)", 4),
+              ("M4 x 12 button head (spring bracket)", 2),
+              (f"M4 x {p.spring_axle_len:g} socket cap screw + nyloc nut (spring axle)", 1)],
+             "3 mm and 2.5 mm hex keys, 7 mm spanner",
+             "Screw the sleeve socket under the shelf's outlet hole (four M4 x 12 from above into its flange). Seat "
+             "the constant-force spring's coil on the printed spool, band leaving the coil's front at the bottom, "
+             "and hold the spool between the spring bracket's cheeks while the M4 axle goes through both cheeks and "
+             "the spool; snug the nyloc so the spool still spins. Screw the bracket up under the shelf behind the "
+             "socket (two M4 x 12 button heads from above into its inserts): the band should hang straight down past "
+             "the socket's rear, clear of it. Lift the shelf onto the posts and screw it down into their top bores "
+             "(two M5 x 16 each); the posts' tops are level, so shim each post's rear edge to the shelf's slope. Now "
+             "tighten the braces. Push the take-up sleeve up into the socket, slot to the rear, and tape the band to "
+             "the sleeve for now.", loose=["take_up_spring"]),
         Step("Agitator and tub", ["hopper_agitator_mount", "agitator_motor", "hopper_agitator", "hopper_tub"],
              [("M3 x 10 socket cap screw (agitator)", 4), ("M4 x 12 button head (agitator)", 3),
               ("M3 x 6 set screw + M3 heat-set insert", 1), ("25 mm strap, 1 m", 2)],
@@ -194,9 +202,11 @@ def steps(p: Feeder) -> list[Step]:
              "through the tub's hole, a ball's radius over the floor, and tighten the set screw on the flat.",
              reach=1.5),
         Step("Feed hose and take-up collar", ["feed_hose", "take_up_collar"],
-             [("Flexible-PVC adhesive or epoxy", 1), ("Hose clamp, 80-90 mm", 1)], "screwdriver",
+             [("Flexible-PVC adhesive or epoxy", 1), ("Hose clamp, 80-90 mm", 1),
+              ("M3 x 8 pan head screw (spring band)", 1)], "screwdriver",
              "Bond the hose's top end 25 mm into the collar and let it cure. Slide the collar up the sleeve, tab "
-             "through the slot, and hook the spring's band to the tab. Push the hose's lower end over the roof "
+             "through the slot, pull the spring's band down to the tab and screw its end to the tab's rear face "
+             "(one M3 x 8 pan head into a 2.5 mm pilot). Push the hose's lower end over the roof "
              "column's socket and clamp it. Swing the head through its whole range: the hose must not kink or pull "
              "the collar out of the sleeve's bottom.", image=False, reach=1.5),
         Step("Net poles and camera bar", ["pole_foot", "net_pole_vertical", "pole_elbow", "net_pole_top",
@@ -331,6 +341,7 @@ def joints(p: Feeder) -> list[Joint]:
     bx, by = F._ring(p.agit_mount_bolt_r, 3, 90)[0]
     spig = Location((p.hopper_out_x, 0, p.hopper_out_z), (0, p.shelf_slope_deg, 0))
     kx, ky = F._ring(F.SPIGOT_BOLT_R, 4, 45)[0]
+    spring_x = F.spring_screws(p)[0]
     saddle_x, saddle_y = F.deck_cable_saddle_holes(p)[0]
     clamp = F.cable_clamp_screw(p)
     foot = F.pole_foot_screws(p)[0]
@@ -376,6 +387,8 @@ def joints(p: Feeder) -> list[Joint]:
               END_TAP_DEPTH),
         Joint("sleeve socket under the shelf", "M4 x 12 socket cap screw (spigot)", 12, 4, "insert", (0, 0, 0),
               spig * Location((kx, ky, 0)), p.plate_t, -1, 2.2, 3.5, "hopper_spigot", F.SPIGOT_POCKET),
+        Joint("spring bracket under the shelf", "M4 x 12 button head (spring bracket)", 12, 4, "insert", (0, 0, 0),
+              spig * Location((spring_x, 0, 0)), p.plate_t, -1, 2.2, 3.8, "take_up_spring_bracket", F.SPRING_POCKET),
         Joint("agitator motor mount under the shelf", "M4 x 12 button head (agitator)", 12, 4, "insert", (0, 0, 0),
               shelf * Location((ax + bx, ay + by, 0)), p.plate_t, -1, 2.2, 3.8, "hopper_agitator_mount",
               F.AGIT_POCKET),
