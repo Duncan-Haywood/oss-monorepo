@@ -14,6 +14,7 @@ const ALIASES = {
   interval: ["interval", "billing interval", "plan interval", "billing_interval", "period"],
   intervalCount: ["interval count", "interval_count"],
   quantity: ["quantity", "seats", "qty"],
+  trialEnd: ["trial end (utc)", "trial end", "trial_end", "trial ends at"],
   plan: ["plan", "plan name", "product", "price id", "plan_name"],
 };
 
@@ -91,6 +92,11 @@ export function normalizeRows(table) {
     if (!Number.isFinite(amount) || get("amount") === "") { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable amount" }); continue; }
     let end = parseDate(get("end"));
     const status = get("status").toLowerCase();
+    // Stripe sets Canceled At when a cancel-at-period-end is requested; the subscription keeps
+    // billing until it ends, so a row whose status is still live has not churned yet.
+    if (end && ["active", "past_due", "unpaid"].includes(status)) end = null;
+    // A trial is not revenue: MRR starts at the first payment (ChartMogul, Baremetrics).
+    if (status === "trialing") { skipped.push({ line: table[r].line ?? r + 1, reason: "in trial, not yet paying" }); continue; }
     if (end && end < start) { skipped.push({ line: table[r].line ?? r + 1, reason: "end date before start date" }); continue; }
     if (!end && ["canceled", "cancelled", "incomplete_expired"].includes(status)) {
       skipped.push({ line: table[r].line ?? r + 1, reason: `status ${status} but no end date` });
@@ -101,12 +107,19 @@ export function normalizeRows(table) {
     const per = INTERVAL_MONTHS[iv] ?? (get("interval") === "" ? 1 : null);
     if (per === null) { skipped.push({ line: table[r].line ?? r + 1, reason: `unknown interval “${get("interval")}”` }); continue; }
     const count = Number(get("intervalCount")) || 1;
-    const qty = cols.quantity === undefined ? 1 : Number(get("quantity")) || 1;
+    const rawQty = get("quantity");
+    const qty = rawQty === "" || !Number.isFinite(Number(rawQty)) ? 1 : Number(rawQty);
+    let paidFrom = start;
+    const trialEnd = parseDate(get("trialEnd"));
+    if (trialEnd && trialEnd > start) {
+      if (end && end <= trialEnd) { skipped.push({ line: table[r].line ?? r + 1, reason: "trial ended before the first payment" }); continue; }
+      paidFrom = trialEnd;
+    }
     subs.push({
       id: get("id") || `row-${r + 1}`,
       customer: get("customer") || get("id") || `row-${r + 1}`,
       plan: get("plan") || "(no plan column)",
-      start, end,
+      start: paidFrom, end,
       mrr: (amount * qty) / (per * count),
     });
   }
@@ -184,7 +197,7 @@ export function analyze(subs, { asOf = null } = {}) {
 
   const findings = [];
   if (ended.length >= 10 && early / ended.length >= 0.4) {
-    findings.push({ severity: "high", title: "Most churn happens in the first three months", detail: `${early} of ${ended.length} cancellations (${Math.round((100 * early) / ended.length)}%) came within 2 months of starting. That points at onboarding and fit, not at the long-run product; fixing the first weeks moves the number most.` });
+    findings.push({ severity: "high", title: "Most churn happens in the first three months", detail: `${early} of ${ended.length} cancellations (${Math.round((100 * early) / ended.length)}%) ended in the month they started or the two months after it. That points at onboarding and fit, not at the long-run product; fixing the first weeks moves the number most.` });
   }
   const trailing = months.slice(-7, -1);
   if (trailing.length === 6) {

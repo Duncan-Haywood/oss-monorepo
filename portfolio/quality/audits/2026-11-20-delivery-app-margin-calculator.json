@@ -1,0 +1,237 @@
+{
+ "date": "2026-11-20",
+ "subject": "ventures/delivery-app-margin-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-20-71e1",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an independent-restaurant operator / restaurant controller (or a restaurant-industry CPA) who reconciles DoorDash, Uber Eats and Grubhub payouts and sets delivery menu prices; first checks: is commission charged on the order subtotal, does the price-to-match solve include commission on the markup, are card fees on in-house orders and the fixed per-order fee handled, and do the default plan rates match the published US merchant plans (DoorDash Basic/Plus/Premier 15/25/30%, pickup 6%, no separate Marketplace processing fee; Grubhub bills processing separately).",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Independent Python /tmp/claude-0/audit-delivery-app-margin-calculator/indep.py (no subject import) recomputes the default $32 ticket ($9.60 food, $18/h, 400 orders) from the fee algebra; probe /tmp/claude-0/audit-delivery-app-margin-calculator/probe.mjs runs the shipped compareChannels on CHANNEL_PRESETS. All match to 4 dp: dine-in keeps 21.1720 (32 - 2.9%*32 - 0.30 - 9.60); pickup 19.8720; DoorDash 27% 10.1100, monthly gap 4424.80, price to match dine-in 47.1534 (= (21.172+13.25)/0.73), markup 47.35%; Uber Eats 30% 9.15 / 49.1743; Grubhub 25% 10.75 / 45.8960; own driver 13.0220 / 40.3934; pickup price-to-match 33.3388 (hand-checked: 33.3388*(1-0.029)-0.30-9.60-0.40-0.90 = 21.172, so the fixed-fee term in the solver is right); commission-to-match -7.5687% (rendered 'not reachable by rate alone'). DoorDash at a $40 marked-up menu keeps 15.95 (hand). Worked-example pages reproduce ($10.11, $21.17, $4,424, $47.15, $9.15, $49.17, $640, $384) except the Grubhub match price, printed $45.89 where the tool shows $45.90 (computed from a pre-rounded $21.17). Core arithmetic right; the defaults are a separate (domain) problem.",
+  "completeness": "README claims: six paths plus a blank 'Other channel' switched off (present, probe ranks six, other omitted); listed-price override (DoorDash@40 works); break-even and price-to-match-dine-in (round-trip pass); commission to match; monthly gap; decision-summary copy and shareable #fragment link (share.mjs, 13 share tests); localStorage save/reset; usage counter with DNT/GPC opt-out (usage.test.mjs). `node platform/pages/served-copy.mjs delivery-app-margin-calculator`: 'no placeholder or retired origin left'; served llms.txt rewritten to marisstella.app (source still lists github.io, source-only, not filed). No stubs or TODOs. Not modelled and stated as such: refunds, promotions, demand; not stated: app pickup (6% DoorDash pickup), marketing/ad spend, tablet or error charges.",
+  "verification": "`node --test` in the subject root: 69/69 pass in 0.25 s. quality_mutate.py, 7 mutants in calc.mjs, 5 survived: dropping paymentFixed from the price solver (calc.mjs:119; would mis-state dine-in/pickup/own-driver price-to-match), dropping fees.payment from commissionToMatch (:203), 100% rate guard >= -> > (:147), markupVsDineIn without the -1 (:234), monthlyGapVsBest without the order multiplier (:243). Caught: labor minutes /60 -> /50, +1 cent on commission. Every solver test uses DoorDash, whose preset has no payment fee, so payment terms are never exercised; calc.test.mjs:137 bounds a percent against percentRate*100 (2700). html.test.mjs:121 hard-codes the page's $45.89 rather than computing it, so it pinned the rounding slip it claims to guard. 2 of 7 caught: 2.",
+  "craft": "Read calc.mjs (266 lines), share.mjs, usage.mjs, index.html script, all tests. Pure ES module, clear documentation of fee shapes, inputs validated (negative, non-finite, non-integer orders, rates >= 100%), share link re-validates every field and drops unknown ids, storage failures caught. Nits: `- 0` dead operation (calc.mjs:203); markupVsDineIn, priceToMatchBest and monthlyGapVsBest are computed but never rendered; number() accepts true/[]/'0x20' (unreachable from type=number inputs and share.mjs's validation). A senior JS reviewer would accept it.",
+  "claims": "Pass: README '$32 ticket ... a few dollars' (packaging+labor 3.65), '400 tickets ... four thousand dollars' (4,424.80); disclaimer on index and all four content pages; 'nothing uploaded' (no fetch in index.html/calc/share/usage); vs-toast states no Toast price. Fail/partial: doordash-fees and doordash-vs-ubereats pages present an 'illustrative 27% marketplace plan' for DoorDash, a rate none of DoorDash's US plans has (15/25/30% per DoorDash merchant pricing), and rank Grubhub > DoorDash > Uber Eats with $640/$384 monthly costs derived from those invented rates; Grubhub match price $45.89 vs calculator $45.90; vs-a-spreadsheet.html:67 and its FAQ JSON-LD say 'nothing it computes is saved anywhere once you leave the page' while the next paragraph, README and index.html save entries to localStorage.",
+  "fitness": "Job walked: an operator with a DoorDash Plus statement sets DoorDash commission 25, packaging $1.10, 6 extra minutes, menu $32: the table gives keep, gap vs dine-in, the $ price that matches dine-in and the monthly gap; Copy shareable link hands it to a partner. Done in under two minutes, with own rates. Gaps an operator hits: no slot for marketing/promo spend per order or app-pickup orders (can be folded into 'Other channel'); one ticket, not an order mix (the sibling restaurant-delivery-commission-analyzer covers payout CSVs). Usable for the stated job: 3.",
+  "domain": "Compared against DoorDash's US merchant pricing (Basic 15%, Plus 25%, Premier 30% on delivery, 6% pickup, commission on subtotal, no separate processing fee on Marketplace orders, via a web search of merchants.doordash.com; direct fetch blocked by the session network) and third-party summaries of Grubhub (marketing + delivery commission, a separate processing fee of about 3.05% + $0.30) and Uber Eats (15-30% tiers, 2026 changes reported). Method matches practice: commission on the listed subtotal, the markup solve includes commission on the markup, card fees only on in-house paths, packaging and bagging labor as cash. Departures: DoorDash default 27% matches no plan; Grubhub default bundles processing at 0% though Grubhub bills it separately (adding 3.05%+$0.30 cuts Grubhub's keep from $10.75 to $9.47 and drops it from best app to between DoorDash and Uber Eats); app-pickup commission absent; card fee on tips not modelled. A senior operator would sign off on the formula and reject the defaults: 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Dine-in and DoorDash keep on the default $32 ticket",
+   "method": "hand fee algebra in independent Python (no subject import)",
+   "command": "python3 -I /tmp/claude-0/audit-delivery-app-margin-calculator/indep.py; node /tmp/claude-0/audit-delivery-app-margin-calculator/probe.mjs",
+   "expected": "21.1720 / 10.1100",
+   "observed": "21.1720 / 10.1100",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Price to match dine-in, DoorDash 27% / Uber 30% / Grubhub 25%",
+   "method": "P = (target + fixed + cash) / (1 - rate), derived by hand",
+   "command": "python3 -I /tmp/claude-0/audit-delivery-app-margin-calculator/indep.py; node /tmp/claude-0/audit-delivery-app-margin-calculator/probe.mjs",
+   "expected": "47.1534 / 49.1743 / 45.8960",
+   "observed": "47.1534 / 49.1743 / 45.8960",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Pickup price to match dine-in (exercises the fixed $0.30 and 2.9% terms)",
+   "method": "hand round trip: P(1-0.029) - 0.30 - 9.60 - 0.40 - 0.90 = 21.172",
+   "command": "node /tmp/claude-0/audit-delivery-app-margin-calculator/probe.mjs",
+   "expected": "33.3388",
+   "observed": "33.3388",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Monthly gap vs dine-in, DoorDash, 400 orders",
+   "method": "(21.172 - 10.11) * 400 by hand",
+   "command": "node /tmp/claude-0/audit-delivery-app-margin-calculator/probe.mjs",
+   "expected": "4424.80",
+   "observed": "4424.80",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Worked-example page figures equal the calculator",
+   "method": "recompute each table figure; compare doordash-vs-ubereats-fees.html:111-113",
+   "command": "grep -n '45.89' ventures/delivery-app-margin-calculator/doordash-vs-ubereats-fees.html; node /tmp/claude-0/audit-delivery-app-margin-calculator/probe.mjs",
+   "expected": "45.90 (tool rounds 45.896)",
+   "observed": "page $45.89, tool $45.90",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Default DoorDash commission vs published US plans",
+   "method": "DoorDash merchant pricing: Basic 15 / Plus 25 / Premier 30%, pickup 6%",
+   "command": "grep -n 'commissionRate: 27' ventures/delivery-app-margin-calculator/calc.mjs",
+   "expected": "a published tier (25 Plus) or a labelled blend",
+   "observed": "27%, presented on two pages as an 'illustrative 27% marketplace plan'",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Grubhub processing fee",
+   "method": "third-party summaries of Grubhub merchant terms: processing ~3.05% + $0.30 billed separately",
+   "command": "python3 -I /tmp/claude-0/audit-delivery-app-margin-calculator/indep.py",
+   "expected": "keep ~9.47 with processing",
+   "observed": "default keeps 10.75 (processing 0), ranked best app on the versus page",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Full test suite",
+   "method": "run",
+   "command": "cd ventures/delivery-app-margin-calculator && node --test",
+   "expected": "green",
+   "observed": "69/69 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Served copy has no stale origins",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs delivery-app-margin-calculator",
+   "expected": "clean",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "vs-a-spreadsheet says nothing is saved once you leave",
+   "method": "compare with index.html saveShare/localStorage and README 'Entries are saved in your own browser'",
+   "command": "grep -n 'saved anywhere' ventures/delivery-app-margin-calculator/vs-a-spreadsheet.html",
+   "expected": "consistent with localStorage save",
+   "observed": "'nothing it computes is saved anywhere once you leave the page' (body and FAQ JSON-LD) next to 'your entries are saved to this browser's local storage'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README monthly-gap and packaging claims",
+   "method": "recompute",
+   "command": "python3 -I /tmp/claude-0/audit-delivery-app-margin-calculator/indep.py",
+   "expected": "~$4,000/month; 'a few dollars'",
+   "observed": "$4,424.80; $3.65",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer on every user-facing page",
+   "method": "grep",
+   "command": "grep -c 'No warranty' ventures/delivery-app-margin-calculator/*.html",
+   "expected": ">=1 each",
+   "observed": "1+ on all five pages",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Input validation",
+   "method": "probe hostile inputs",
+   "command": "node /tmp/claude-0/audit-delivery-app-margin-calculator/probe.mjs",
+   "expected": "rejects bad numbers",
+   "observed": "'1,200' and 'abc' rejected; true/[]/'0x20' coerce (unreachable from the UI)",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:152",
+   "change": "laborCost extraLaborMinutes / 60 -> / 50",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs html.test.mjs share.test.mjs"
+  },
+  {
+   "where": "calc.mjs:119",
+   "change": "priceForTarget drops paymentFixed from the numerator",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs html.test.mjs share.test.mjs"
+  },
+  {
+   "where": "calc.mjs:147",
+   "change": "percentRate >= 1 -> > 1",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs html.test.mjs share.test.mjs"
+  },
+  {
+   "where": "calc.mjs:234",
+   "change": "markupVsDineIn ratio without the -1",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs html.test.mjs share.test.mjs"
+  },
+  {
+   "where": "calc.mjs:203",
+   "change": "commissionToMatch drops fees.payment",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs html.test.mjs share.test.mjs"
+  },
+  {
+   "where": "calc.mjs:243",
+   "change": "monthlyGapVsBest without * monthlyOrders",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs html.test.mjs share.test.mjs"
+  },
+  {
+   "where": "calc.mjs:154",
+   "change": "commission + 0.01",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs html.test.mjs share.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Default rates match no published plan: DoorDash 27% (US plans are 15/25/30%) and Grubhub 25% with processing bundled at 0% though Grubhub bills ~3.05% + $0.30 separately. Two SEO pages present these as an 'illustrative 27% marketplace plan' and rank Grubhub > DoorDash > Uber Eats with $640/$384 monthly costs that come from the invented rates; with Grubhub's processing fee Grubhub falls from best to middle.",
+   "where": "ventures/delivery-app-margin-calculator/calc.mjs:49",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "5 of 7 seeded mutants survive: the fixed payment fee in the price solver, the payment term in commission-to-match, the 100% rate guard, the markup ratio and the monthly gap vs best. Every solver test uses the DoorDash preset, which has no payment fee, so the payment terms are never exercised; calc.test.mjs:137 compares a percent against percentRate*100.",
+   "where": "ventures/delivery-app-margin-calculator/calc.test.mjs:68",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "doordash-vs-ubereats-fees.html prints Grubhub's price to match dine-in as $45.89 (from a pre-rounded $21.17) where the calculator shows $45.90; html.test.mjs hard-codes the page's figure instead of computing it, so the test that claims the page 'matches the calculator's math' pinned the slip.",
+   "where": "ventures/delivery-app-margin-calculator/doordash-vs-ubereats-fees.html:113",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "vs-a-spreadsheet.html says 'nothing it computes is saved anywhere once you leave the page' (body and FAQ JSON-LD) while the next paragraph, the README and index.html save entries to localStorage.",
+   "where": "ventures/delivery-app-margin-calculator/vs-a-spreadsheet.html:67",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Cases an operator needs are not modelled or stated: app pickup orders (DoorDash 6% pickup), per-order marketing/promotion spend, card fees on dine-in tips.",
+   "where": "ventures/delivery-app-margin-calculator/calc.mjs:22",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Dead and unrendered code: `- 0` in commissionToMatch; markupVsDineIn, priceToMatchBest and monthlyGapVsBest are computed but never shown.",
+   "where": "ventures/delivery-app-margin-calculator/calc.mjs:203",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, clean, private same-ticket calculator whose fee algebra is right: an independent recomputation of the default $32 ticket matches every output (dine-in $21.172, DoorDash $10.11, price to match dine-in $47.1534, pickup $33.3388 exercising the fixed-fee term, monthly gap $4,424.80), and 69/69 tests pass. It misses the bar on verification and claims: 5 of 7 seeded mutants survive because no solver test uses a path with a payment fee; the defaults (DoorDash 27%, Grubhub 25% with no processing) match no published plan yet drive a ranking on an SEO page; one page figure is off by a cent and a test pinned it; and a comparison page says nothing is saved while entries are saved to localStorage. An operator who types their own statement rates gets the right answer."
+}

@@ -148,3 +148,18 @@ test('empty offered price is no comparison, and empty string counts as none', ()
   assert.equal(compared.existingMonthlyProfit, null);
   assert.equal(compared.combinedProfitAtOffer, null);
 });
+
+test('every cleaner riding to the second site is paid for the drive', () => {
+  // 25 min each way, 3 trips a week, two cleaners: 2 x (50/60) x 3 x 52/12 paid hours.
+  const one = compareSecondSite({ candidate: secondOffice(), driveMinutesOneWay: 25, tripsPerWeek: 3, extraVehicleMonthly: 80 });
+  const two = compareSecondSite({ candidate: secondOffice(), driveMinutesOneWay: 25, tripsPerWeek: 3, peopleInVehicle: 2, extraVehicleMonthly: 80 });
+  assert.ok(Math.abs(one.monthlyDriveHours - (50 / 60) * 3 * 52 / 12) < 1e-9);
+  assert.ok(Math.abs(two.monthlyDriveHours - 2 * one.monthlyDriveHours) < 1e-9);
+  assert.ok(Math.abs(two.monthlyDriveLabor - 2 * one.monthlyDriveLabor) < 1e-9);
+  assert.equal(two.extraVehicleMonthly, one.extraVehicleMonthly, 'the van costs the same however many ride in it');
+  assert.ok(two.priceToHoldMargin > one.priceToHoldMargin);
+  // The form sends an empty string when the field is cleared: one driver.
+  const blank = compareSecondSite({ candidate: secondOffice(), driveMinutesOneWay: 25, tripsPerWeek: 3, peopleInVehicle: '', extraVehicleMonthly: 80 });
+  assert.equal(blank.monthlyDriveHours, one.monthlyDriveHours);
+  assert.throws(() => compareSecondSite({ candidate: secondOffice(), driveMinutesOneWay: 25, tripsPerWeek: 3, peopleInVehicle: 0 }), /greater than zero/);
+});

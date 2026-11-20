@@ -62,3 +62,10 @@ test("this generic-method page is registered as disclaimer-exempt and within the
     "vs-a-spreadsheet.html must be registered in COMPARISON_DISCLAIMER_EXEMPT so it counts as generic-method, not named-product",
   );
 });
+
+test("does not claim nothing is saved while the calculator saves entries locally", () => {
+  // The calculator saves entries to localStorage (index.html saveShare); a
+  // line saying nothing is saved contradicted it (audit 2026-11-20).
+  assert.doesNotMatch(html, /nothing it computes is saved/);
+  assert.match(indexHtml, /saveShare/);
+});

@@ -226,3 +226,56 @@ test("parseDate refuses an impossible day instead of rolling it into the next mo
   assert.equal(parseDate("2026-02-28 23:30").toISOString(), "2026-02-28T23:30:00.000Z");
   assert.ok(parseDate("1772409600") instanceof Date);
 });
+
+// Added by the 2026-11-20 quality audit (portfolio/quality/audits/2026-11-20-stripe-churn-cohort-analyzer.json).
+test("trialing rows are not MRR; Trial End moves the first paid month; unconverted trials are skipped", () => {
+  const r = normalizeRows(parseCsv(csv([
+    "id,Status,Start Date (UTC),Trial End (UTC),Ended At (UTC),Amount",
+    "t,trialing,2026-03-01,2026-03-15,,99",
+    "x,canceled,2026-01-01,2026-01-15,2026-01-14,50",
+    "c,active,2026-01-20,2026-02-03,,30",
+  ])));
+  assert.deepEqual(r.subs.map((s) => s.id), ["c"]);
+  assert.equal(r.subs[0].start.toISOString().slice(0, 10), "2026-02-03");
+  assert.deepEqual(r.skipped.map((s) => s.reason), ["in trial, not yet paying", "trial ended before the first payment"]);
+});
+
+test("an active row with Canceled At (cancel at period end) is still live", () => {
+  const r = normalizeRows(parseCsv(csv([
+    "id,Status,Start Date (UTC),Canceled At (UTC),Amount",
+    "p,active,2026-01-05,2026-03-10,10",
+    "g,canceled,2026-01-05,2026-03-10,10",
+  ])));
+  assert.equal(r.subs[0].end, null);
+  assert.equal(r.subs[1].end.toISOString().slice(0, 10), "2026-03-10");
+});
+
+test("an explicit quantity of 0 is honoured, a blank one means 1", () => {
+  const { subs } = normalizeRows(parseCsv(csv(["id,Start Date (UTC),Amount,Quantity", "a,2026-01-01,10,0", "b,2026-01-01,10,"])));
+  assert.deepEqual(subs.map((s) => s.mrr), [0, 10]);
+});
+
+// Ten subscriptions open from December; one ends in each of Jan, Feb, Mar; April is the partial month
+// with one more cancellation that must stay out of the three-complete-month window.
+const WINDOW = csv([
+  "id,Start Date (UTC),Canceled At (UTC),Amount,Plan",
+  ...Array.from({ length: 10 }, (_, i) => `s${i},2025-12-0${1 + (i % 9)},${["2026-01-10", "2026-02-10", "2026-03-10", "2026-04-02"][i] ?? ""},${i < 2 ? 100 : 50},P`),
+]);
+
+test("summary churn uses the last three complete months, and LTV is ARPA / logo churn", () => {
+  const { subs } = normalizeRows(parseCsv(WINDOW));
+  const s = analyze(subs).summary;
+  assert.equal(s.windowLabel, "2026-01 to 2026-03");
+  assert.ok(Math.abs(s.logoChurn - 3 / (10 + 9 + 8)) < 1e-12); // 3 ended over 27 opening subscription-months
+  assert.ok(Math.abs(s.revenueChurn - 250 / (600 + 500 + 400)) < 1e-12);
+  assert.ok(Math.abs(s.revenueLtv - s.arpa / s.logoChurn) < 1e-9);
+  assert.ok(Math.abs(s.arpa - 300 / 6) < 1e-9); // April end: 6 live x $50
+});
+
+test("plan-gap finding fires at a 25-point gap and not below it", () => {
+  const rows = (plan, n, ended) => Array.from({ length: n }, (_, i) => `${plan}${i},2026-01-05,${i < ended ? "2026-02-10" : ""},10,${plan}`);
+  const run = (endedB) => analyze(normalizeRows(parseCsv(csv(["id,Start Date (UTC),Canceled At (UTC),Amount,Plan", ...rows("A", 20, 5), ...rows("B", 20, endedB)]))).subs)
+    .findings.some((f) => /differ a lot between plans/.test(f.title));
+  assert.equal(run(10), true);  // 50% vs 25%
+  assert.equal(run(9), false);  // 45% vs 25%
+});

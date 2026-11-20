@@ -362,3 +362,28 @@ test('the building of spaces travels, not just the flat rates', () => {
   assert.match(spec, /kind: 'choice'/, 'the space type is not carried as a validated choice');
   assert.match(scriptSource, /AREA_TYPE_OPTIONS/, 'the space-type options are not derived from the presets');
 });
+
+test('every figure in the 5x vs 3x table is the calculator rounded to the dollar', async () => {
+  const { compareFrequencyReduction } = await import('./calc.mjs');
+  const areas = [[6000, 4000], [600, 1200], [400, 2000], [1000, 5000]]
+    .map(([squareFeet, productionRate]) => ({ squareFeet, productionRate, cleaningsPerWeek: 5 }));
+  const dollars = (v) => `$${Math.round(v).toLocaleString('en-US')}`;
+  for (const equipmentMonthly of [25, 800]) {
+    const c = compareFrequencyReduction(
+      { areas, hourlyWage: 17, burdenRate: 28, suppliesPerSqFtMonth: 0.005, equipmentMonthly, overheadRate: 15, targetMargin: 20 },
+      { currentWeekly: 5, proposedWeekly: 3 },
+    );
+    for (const value of [c.baseline.monthlyPrice, c.reduced.monthlyPrice, c.naiveLinearPrice]) {
+      assert.ok(seo.includes(dollars(value)), `5x vs 3x page is missing ${dollars(value)} (equipment ${equipmentMonthly})`);
+    }
+  }
+});
+
+test('the README lists every usage event the pages record', async () => {
+  const { readFileSync } = await import('node:fs');
+  const readme = readFileSync(new URL('./README.md', import.meta.url), 'utf8');
+  const pages = ['index.html', 'second-site.html'].map((f) => readFileSync(new URL(`./${f}`, import.meta.url), 'utf8')).join('\n');
+  const events = new Set([...pages.matchAll(/count\('([a-z_]+)'\)/g)].map((m) => m[1]));
+  assert.ok(events.size > 10);
+  for (const event of events) assert.ok(readme.includes(`\`${event}\``), `README does not list ${event}`);
+});

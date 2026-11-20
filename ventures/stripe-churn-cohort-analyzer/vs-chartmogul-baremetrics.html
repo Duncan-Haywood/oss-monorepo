@@ -47,7 +47,8 @@
         <tr><td>MRR, new and churned MRR, logo and revenue churn</td><td>Yes</td><td>Yes, from start and cancel dates and amounts</td></tr>
         <tr><td>Cohort retention by start month</td><td>Yes</td><td>Yes</td></tr>
         <tr><td>Expansion and contraction MRR (upgrades, downgrades)</td><td>Yes, from invoice and event history</td><td><strong>No.</strong> Each subscription's MRR is held constant</td></tr>
-        <tr><td>Discounts, refunds, trials, failed-payment recovery</td><td>Typically yes</td><td><strong>No.</strong> A subscription export does not carry them</td></tr>
+        <tr><td>Discounts, refunds, failed-payment recovery</td><td>Typically yes</td><td><strong>No.</strong> A subscription export does not carry them</td></tr>
+        <tr><td>Trials kept out of MRR</td><td>Typically yes</td><td><strong>Partly.</strong> Rows still in trial are skipped; MRR starts at Trial End when that column is exported</td></tr>
         <tr><td>Always-current dashboard, alerts, team access</td><td>Yes</td><td>No. You re-export when you want a fresh reading</td></tr>
         <tr><td>Price-rise what-if with break-even cancellation share</td><td>Varies by product</td><td>Yes, built in, labelled as assumptions rather than a forecast</td></tr>
         <tr><td>Scriptable alert when churn passes a limit</td><td>Varies by product</td><td>Yes: <code>--max-churn</code> exits 1 in a cron or CI job</td></tr>

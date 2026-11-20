@@ -134,7 +134,7 @@ test("compareChannels' solved commission rate round-trips when it is reachable",
   const comparison = compareChannels([preset("dine-in"), leanDash], shared);
   const dineIn = comparison.results.find((result) => result.id === "dine-in");
   const dash = comparison.results.find((result) => result.id === "doordash");
-  assert.ok(dash.commissionToMatchDineIn > 0 && dash.commissionToMatchDineIn < dash.percentRate * 100);
+  assert.ok(dash.commissionToMatchDineIn > 0 && dash.commissionToMatchDineIn < dash.percentRate);
   const matched = calculateChannel({ ...leanDash, commissionRate: dash.commissionToMatchDineIn }, shared);
   close(matched.profit, dineIn.profit, "solved commission reproduces the dine-in profit at DoorDash's own listed price");
 });
@@ -170,4 +170,40 @@ test("monthly orders must be a whole number", () => {
 test("missing channel or empty list is rejected", () => {
   assert.throws(() => calculateChannel(null, shared), /channel is required/);
   assert.throws(() => compareChannels([], shared), /at least one channel/i);
+});
+
+// Hand-computed figures from the fee algebra, not from calc.mjs: dine-in keeps
+// 32 - 2.9% x 32 - 0.30 - 9.60 = 21.172 on the default ticket. These pin the
+// payment-fee terms that every DoorDash-only test above leaves untouched
+// (audit portfolio/quality/audits/2026-11-20-delivery-app-margin-calculator.json).
+test("price to match dine-in on a path with a fixed card fee includes that fee", () => {
+  const comparison = compareChannels(CHANNEL_PRESETS, shared);
+  const pickup = comparison.results.find((result) => result.id === "pickup");
+  // (21.172 + 0.30 + 9.60 + 0.40 + 3/60 x 18) / (1 - 0.029) = 33.33882...
+  close(pickup.priceToMatchDineIn, 32.372 / 0.971, "pickup price to match dine-in");
+  const priced = calculateChannel({ ...preset("pickup"), listedPrice: pickup.priceToMatchDineIn }, shared);
+  close(priced.profit, 21.172, "pickup at that price keeps the dine-in profit");
+  close(pickup.markupVsDineIn, (32.372 / 0.971 / 32 - 1) * 100, "markup is a percent over dine-in, not a ratio");
+});
+
+test("commission to match counts the path's own card fee", () => {
+  // Pickup with a commission: 100 x (1 - (15 + 0.928 + 0.30 + 10.90) / 32) = 15.225%
+  const pickup = calculateChannel({ ...preset("pickup"), commissionRate: 10 }, shared);
+  const rate = pickup.commissionToMatch(15);
+  close(rate, 100 * (1 - (15 + 0.928 + 0.3 + 10.9) / 32), "solved commission");
+  const matched = calculateChannel({ ...preset("pickup"), commissionRate: rate }, shared);
+  close(matched.profit, 15, "solved commission leaves the target profit");
+});
+
+test("rates that add up to exactly 100% are rejected", () => {
+  assert.throws(
+    () => calculateChannel({ ...preset("doordash"), commissionRate: 97.1, paymentRate: 2.9 }, shared),
+    /100% or more/,
+  );
+});
+
+test("monthly gap versus the best path scales by monthly orders", () => {
+  const comparison = compareChannels(CHANNEL_PRESETS, shared);
+  const dash = comparison.results.find((result) => result.id === "doordash");
+  close(dash.monthlyGapVsBest, (21.172 - 10.11) * 400, "DoorDash monthly gap vs best (dine-in)");
 });

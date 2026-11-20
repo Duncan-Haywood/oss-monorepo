@@ -1,0 +1,270 @@
+{
+ "date": "2026-11-20",
+ "subject": "ventures/stripe-churn-cohort-analyzer",
+ "stratum": "venture",
+ "seed": "2026-11-20-71e1",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a SaaS revenue-operations / FP&A analyst who builds MRR, churn and cohort reports from Stripe data for founders and boards; first checks: does MRR exclude trials until the first payment, is logo churn counted per customer, are pending (cancel-at-period-end) cancellations kept live until they end, does the waterfall reconcile, and do LTV / quick ratio follow the usual definitions (ChartMogul and Baremetrics public metric definitions).",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Independent Python /tmp/claude-0/audit-stripe-churn-cohort-analyzer/recompute.py (csv module only, no subject import, its own month-index definition of 'active at month end') on the shipped synthetic export (sampleCsv written to /tmp/claude-0/audit-stripe-churn-cohort-analyzer/sample.csv, 307 rows) reproduces `node cli.mjs sample.csv --cohorts --what-if 1` exactly: logo churn 41/435 = 9.43% (CLI 9.4%), revenue churn 6.72% (6.7%), MRR now $6,847 over 155 subs, ARPA $44.17, revenue LTV $468.68 ($469), quick ratio 1.784 (1.8), cohort 2026-03 retention 90/55/45/35/35/35/35 (identical), 12-month what-if by closed form m0(1-c)^12 + n(1-(1-c)^12)/c: $7,845.02 vs $8,424.56, gain $579.54 (CLI $580). Price-rise break-even with no churn lift is p/(1+p) = 13.0435% for 15%; simulatePriceIncrease gives 13.0435%. So the arithmetic on clean rows is right. Wrong on real exports (probe /tmp/claude-0/audit-stripe-churn-cohort-analyzer/edge.mjs): a status=trialing row is counted as full MRR ($99 for a trial that has paid nothing); a status=active row with a Canceled At date (Stripe's cancel-at-period-end case) is churned on the cancel-request date when the file has no Ended At column (the page's own placeholder header has none); a customer with two subscriptions who cancels one is counted as a lost logo (Feb churned customers 1 though cus_1 is still paying); logo churn can exceed 100% (3 same-month start-and-cancel subs over 2 opening -> 150%). A trial-led SaaS hits the trial case on its first export: 2.",
+  "completeness": "README/page claims checked end to end: MRR waterfall reconciles every month (`reconciles` true in all 21 example months) - works; logo and revenue churn over last 3 complete months, lifetime, LTV, quick ratio - works; cohort retention table - works (CLI and page); findings (early-life churn, rising/falling, concentration, plan gap) - present and fire on the example; churn-reduction what-if in page and `--what-if` - works; price-rise simulator - works; CSV download - code present (page.test only checks markup); `--max-churn` exit 1 - works (cli.test); stdin `-` works; unreadable rows listed with line and reason - works. No stubs or TODOs. served-copy: `node platform/pages/served-copy.mjs stripe-churn-cohort-analyzer` -> no placeholder or retired origin. Everything claimed exists: 3.",
+  "verification": "`node --test` in the subject: 51/51 pass in 0.7 s. quality_mutate.py, 6 mutants in calc.mjs: caught 3 (activeAt end boundary, early-churn 0.4 threshold, weekly interval constant); survived 3: summary window slice(-4,-1)->slice(-3) (the partial current month counted in churn), plan-gap threshold 0.25->0.35, revenue LTV divided by revenue churn instead of logo churn. Summary-level numbers (logo churn, LTV, quick ratio) are not pinned by any test on a fixture with known answers: 2.",
+  "craft": "Read calc.mjs (319 lines), cli.mjs, index.html script, all four test files. Pure functions, no deps, line-numbered skip reasons, Number('') guarded in CLI args, Feb-30 rejection. Defects: 'now' month computed twice by duplicated logic (analyze() inline and nowIndex()); silent fallbacks (`Number(quantity) || 1` turns an explicit quantity 0 into 1; any unknown status is accepted as live); parseDate falls back to `new Date()` for non-ISO strings, so '03/05/2026' is parsed in the host's local time zone; some 300-character lines. A reviewer would accept with nits: 3.",
+  "claims": "Checked: 'nothing is uploaded' - backed (page.test asserts no fetch/XHR; script reads File locally); 'reconciled every month' - backed by `reconciles` and a test; model section 'logo churn is subscriptions ended / subscriptions active at start' - accurate; FAQ (and its JSON-LD) 'Logo churn is the share of customers who left' - not what the code does (subscriptions); README 'single-customer concentration' - code ranks single subscriptions, not customers; comparison page 'trials ... No. A subscription export does not carry them' - false: the export carries Status=trialing and Trial Start/End, and the tool silently counts trial rows as paying MRR rather than leaving them out; early-churn finding title 'first three months' vs detail 'within 2 months', computed as calendar-month difference <= 2. Disclaimer and no-warranty text present. Two of the checked claims misstate what the numbers mean: 2.",
+  "fitness": "Walked the job as a micro-SaaS founder: export, drop file, read MRR, churn, cohorts, findings, then the what-if. On a monthly-billed, no-trial business it answers the question in a minute. On the common trial-led setup the MRR and churn are inflated by trials that never paid (each counted as new and churned MRR), and pending cancellations churn early if only Canceled At is exported; the founder has no way to see that from the page. Usable with care, not to put in a board note unchecked: 2.",
+  "domain": "Compared with ChartMogul's and Baremetrics' published metric definitions (MRR counts from first payment, trials excluded; customer churn counts customers, not subscriptions; cancel-at-period-end remains MRR until the period ends; churn rate = churned customers / customers at period start). Departs on all three of trials, customer-level logo churn and pending cancellations; the denominator convention is documented but lets same-month signups push churn over 100%. Plan-gap finding compares lifetime ended/total shares, confounded by plan age. LTV = ARPA / logo churn and quick ratio without expansion are standard simplified forms and stated. 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "recent logo churn on shipped example",
+   "method": "independent Python csv recompute (recompute.py), own active-at-month-end definition",
+   "command": "python3 /tmp/claude-0/audit-stripe-churn-cohort-analyzer/recompute.py /tmp/claude-0/audit-stripe-churn-cohort-analyzer/sample.csv; node cli.mjs /tmp/claude-0/audit-stripe-churn-cohort-analyzer/sample.csv",
+   "expected": "9.43% (41/435)",
+   "observed": "9.4%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "revenue churn, MRR now, ARPA, revenue LTV, quick ratio",
+   "method": "independent Python recompute",
+   "command": "python3 /tmp/claude-0/audit-stripe-churn-cohort-analyzer/recompute.py /tmp/claude-0/audit-stripe-churn-cohort-analyzer/sample.csv",
+   "expected": "6.72%, $6,847/155, $44.17, $468.68, 1.78",
+   "observed": "6.7%, $6,847/155, $44, $469, 1.8",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "cohort 2026-03 logo retention",
+   "method": "independent Python recompute",
+   "command": "python3 /tmp/claude-0/audit-stripe-churn-cohort-analyzer/recompute.py /tmp/claude-0/audit-stripe-churn-cohort-analyzer/sample.csv; node cli.mjs /tmp/claude-0/audit-stripe-churn-cohort-analyzer/sample.csv --cohorts",
+   "expected": "90 55 45 35 35 35 35",
+   "observed": "90 55 45 35 35 35 35",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "12-month churn-reduction what-if (-1 pt)",
+   "method": "closed-form geometric series m0(1-c)^12 + n(1-(1-c)^12)/c",
+   "command": "python3 /tmp/claude-0/audit-stripe-churn-cohort-analyzer/recompute.py /tmp/claude-0/audit-stripe-churn-cohort-analyzer/sample.csv; node cli.mjs /tmp/claude-0/audit-stripe-churn-cohort-analyzer/sample.csv --what-if 1",
+   "expected": "$7,845 vs $8,425, +$580",
+   "observed": "$7,845 vs $8,425, +$580",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "price-rise break-even cancellation share at 15%, no lift",
+   "method": "algebra: break-even e = p/(1+p)",
+   "command": "node /tmp/claude-0/audit-stripe-churn-cohort-analyzer/edge.mjs",
+   "expected": "13.0435%",
+   "observed": "13.0435%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "status=trialing row excluded from MRR",
+   "method": "ChartMogul MRR definition (trials excluded until first payment)",
+   "command": "node /tmp/claude-0/audit-stripe-churn-cohort-analyzer/edge.mjs",
+   "expected": "0 MRR / row skipped",
+   "observed": "$99 MRR counted",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "active row with Canceled At only (cancel at period end) still live",
+   "method": "Stripe subscription object semantics: canceled_at is the request time, ended_at the end",
+   "command": "node /tmp/claude-0/audit-stripe-churn-cohort-analyzer/edge.mjs",
+   "expected": "end null (still active at export)",
+   "observed": "ended 2026-03-10",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "logo churn counts customers, not subscriptions",
+   "method": "Baremetrics/ChartMogul customer churn definition",
+   "command": "node /tmp/claude-0/audit-stripe-churn-cohort-analyzer/edge.mjs",
+   "expected": "0 customers churned in Feb (cus_1 keeps one sub)",
+   "observed": "1 churned",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "monthly logo churn bounded at 100%",
+   "method": "definition of a rate over a cohort",
+   "command": "node /tmp/claude-0/audit-stripe-churn-cohort-analyzer/edge.mjs",
+   "expected": "<= 100%",
+   "observed": "150%",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "claimed features run (waterfall, cohorts, findings, what-if, price sim, --max-churn, stdin)",
+   "method": "ran CLI and test suite",
+   "command": "node cli.mjs --example --cohorts --what-if 1; node --test",
+   "expected": "all present",
+   "observed": "all present, 51/51 tests",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ: logo churn is the share of customers who left",
+   "method": "read against calc.mjs analyze()",
+   "command": "grep -n 'share of customers' index.html",
+   "expected": "matches code",
+   "observed": "code counts subscriptions",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "comparison page: trials not carried by a subscription export",
+   "method": "Stripe subscription export carries Status (trialing) and Trial Start/End",
+   "command": "grep -n 'trials' vs-chartmogul-baremetrics.html",
+   "expected": "trials disclosed accurately",
+   "observed": "says not carried; tool counts trial rows as MRR",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "file never uploaded",
+   "method": "read page script; page.test asserts no network calls",
+   "command": "node --test page.test.mjs",
+   "expected": "no network",
+   "observed": "no fetch/XHR/beacon",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served llms.txt/sitemap origins",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs stripe-churn-cohort-analyzer",
+   "expected": "no placeholder origin",
+   "observed": "none left",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "seeded mutants caught",
+   "method": "quality_mutate.py",
+   "command": "python3 platform/ci/quality_mutate.py ... -- node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs",
+   "expected": "6/6",
+   "observed": "3/6",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:117",
+   "change": "sub.end >= instant -> sub.end > instant",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:160",
+   "change": "months.slice(-4, -1) -> months.slice(-3) (partial month enters churn window)",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:186",
+   "change": "early / ended.length >= 0.4 -> >= 0.6",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:5",
+   "change": "week: 12 / 52 -> week: 1 / 4",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:207",
+   "change": "plan gap >= 0.25 -> >= 0.35",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:174",
+   "change": "revenueLtv arpa / logoChurn -> arpa / revenueChurn",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Rows with Status=trialing are counted as paying MRR, and trials that end without paying count as new and churned MRR, inflating MRR and churn for any trial-led SaaS; the comparison page says trials are not in the export at all.",
+   "where": "ventures/stripe-churn-cohort-analyzer/calc.mjs:95",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "An active subscription with a Canceled At date (cancel at period end) is churned on the request date when the export has no Ended At column (the page's own placeholder header), though Stripe keeps it billing until period end.",
+   "where": "ventures/stripe-churn-cohort-analyzer/calc.mjs:93",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Logo churn and the concentration finding count subscriptions, not customers; a customer who drops one of two subscriptions is a lost logo. FAQ and JSON-LD say 'share of customers', README says 'single-customer concentration'.",
+   "where": "ventures/stripe-churn-cohort-analyzer/index.html:131",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Monthly logo churn divides all subscriptions ended in the month (including ones that started that month) by opening subscriptions only, so it can exceed 100% (150% on a 5-row file).",
+   "where": "ventures/stripe-churn-cohort-analyzer/calc.mjs:161",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Summary-level outputs are not pinned by tests: mutating the churn window to include the partial month, the LTV divisor, or the plan-gap threshold leaves all 51 tests green.",
+   "where": "ventures/stripe-churn-cohort-analyzer/calc.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "An explicit quantity of 0 silently becomes 1 (`Number(q) || 1`).",
+   "where": "ventures/stripe-churn-cohort-analyzer/calc.mjs:104",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Early-churn finding: title says 'first three months', detail says 'within 2 months of starting'; the test is calendar-month difference <= 2 (start month plus two).",
+   "where": "ventures/stripe-churn-cohort-analyzer/calc.mjs:187",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Non-ISO dates fall through to `new Date(s)`, parsed in the host's local time zone, so '03/05/2026' can land in a different month across machines.",
+   "where": "ventures/stripe-churn-cohort-analyzer/calc.mjs:51",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Plan-gap finding compares lifetime ended/total shares per plan, confounded by plan age (an older plan has had longer to accumulate cancellations).",
+   "where": "ventures/stripe-churn-cohort-analyzer/calc.mjs:206",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy, private, dependency-free analyzer whose arithmetic is right: an independent Python recompute of the shipped example reproduces logo churn 9.43%, revenue churn 6.72%, MRR $6,847, LTV $469, quick ratio 1.78, a cohort row and the 12-month what-if to the dollar. It falls short of what a SaaS RevOps analyst would sign off on because of what it counts, not how it adds: trialing subscriptions are treated as paying MRR, cancel-at-period-end rows churn early when only Canceled At is exported, logo churn counts subscriptions while the FAQ says customers, and churn can exceed 100%. Half of six seeded bugs in summary logic survive the 51 tests. Does not meet the bar; finished on its own feature list."
+}

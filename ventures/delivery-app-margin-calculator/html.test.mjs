@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { CHANNEL_PRESETS } from "./calc.mjs";
+import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
 import { buildSpec } from "./share.mjs";
 
 const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
@@ -121,7 +121,7 @@ test("DoorDash vs Uber Eats page names all three apps and matches the calculator
   assert.match(versus, /\$10\.75/); // Grubhub keeps, 25%
   assert.match(versus, /\$47\.15/); // DoorDash price to match dine-in
   assert.match(versus, /\$49\.17/); // Uber Eats price to match dine-in
-  assert.match(versus, /\$45\.89/); // Grubhub price to match dine-in
+  assert.match(versus, /\$45\.90/); // Grubhub price to match dine-in
   assert.match(versus, /No warranty/);
   assert.match(versus, /href="doordash-fees-for-restaurants\.html"/);
 });
@@ -140,4 +140,15 @@ test("index links one hop to the faire-wholesale-calculator sibling", () => {
     /href="\.\.\/faire-wholesale-calculator\/"/,
     "index must link ../faire-wholesale-calculator/ so crawlers reach the Faire wholesale calculator in one hop",
   );
+});
+
+test("the versus page's price-to-match figures are the calculator's, rounded to the cent", () => {
+  // Computed, not hard-coded: the page once printed $45.89 for Grubhub (from a
+  // pre-rounded $21.17) where the calculator shows $45.90.
+  const comparison = compareChannels(CHANNEL_PRESETS, { ticketPrice: 32, foodCost: 9.6, hourlyWage: 18, monthlyOrders: 400 });
+  for (const id of ["doordash", "ubereats", "grubhub"]) {
+    const result = comparison.results.find((row) => row.id === id);
+    const shown = `$${result.priceToMatchDineIn.toFixed(2)}`;
+    assert.ok(versus.includes(`<td>${shown}</td>`), `${id} price to match dine-in should read ${shown}`);
+  }
 });
