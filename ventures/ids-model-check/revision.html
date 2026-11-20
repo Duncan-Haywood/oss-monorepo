@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b4a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EI%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compare two IDS versions: what a revised IDS asks for</title>
+  <meta name="description" content="Drop the old and new version of a buildingSMART IDS file: see which specifications were added, removed, tightened or loosened, and which model elements newly fail. Free, in your browser.">
+  <link rel="canonical" href="https://marisstella.app/ids-model-check/revision.html">
+  <meta property="og:title" content="Compare two IDS versions in your browser">
+  <meta property="og:description" content="What changed between two versions of an IDS file, graded asks more or asks less, and which elements of your model newly fail. Nothing uploaded. MIT licensed.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IDS revision compare (IDS Model Check)", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the command line", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares two versions of a buildingSMART IDS 1.0 file: specifications added, removed and changed, each change graded as asking more or less of the model, and with an IFC model the elements that newly fail."}</script>
+  <style>
+    :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #1f5f8b; --pass: #1e7a46; --fail: #b3261e; --warn: #8a5a00; color-scheme: light dark; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #7fb6dc; --pass: #5cc48a; --fail: #ff8a80; --warn: #e3b35b; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.2; margin: 0.4em 0 0.3em; }
+    h2 { font-size: 1.25rem; margin-top: 2em; }
+    p.lede { font-size: 1.08rem; color: var(--muted); max-width: 46em; }
+    .drops { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 20px 0 12px; }
+    @media (max-width: 760px) { .drops { grid-template-columns: 1fr; } }
+    .drop { border: 2px dashed var(--line); border-radius: 10px; padding: 16px; background: var(--card); min-height: 110px; }
+    .drop.over { border-color: var(--accent); }
+    .drop label { font-weight: 600; display: block; margin-bottom: 6px; }
+    .drop input { max-width: 100%; }
+    .drop .file { color: var(--muted); font-size: 0.92rem; margin-top: 6px; word-break: break-all; }
+    button { font: inherit; border: 1px solid var(--accent); background: var(--accent); color: var(--bg); padding: 8px 16px; border-radius: 7px; cursor: pointer; }
+    button.ghost { background: transparent; color: var(--accent); }
+    button:disabled { opacity: 0.5; cursor: default; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    #status { color: var(--muted); min-height: 1.5em; }
+    .summary { font-size: 1.1rem; font-weight: 600; margin: 18px 0 6px; }
+    .spec { border: 1px solid var(--line); border-radius: 10px; background: var(--card); margin: 10px 0; }
+    .spec > summary { cursor: pointer; padding: 12px 14px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+    .spec .body { padding: 0 14px 12px; font-size: 0.94rem; overflow-wrap: anywhere; }
+    .tag { font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+    .tighter, .added { color: var(--fail); } .looser, .removed { color: var(--pass); } .changed, .mixed { color: var(--warn); } .metadata, .same { color: var(--muted); }
+    ul { padding-left: 1.2em; } li { margin: 4px 0; }
+    .muted { color: var(--muted); }
+    code { font-size: 0.9em; }
+    footer { margin-top: 3em; font-size: 0.9rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1em; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="muted"><a href="./">IDS Model Check</a> &middot; <a href="editor.html">IDS editor</a> &middot; Compare two IDS versions</p>
+  <h1>What changed in the new IDS?</h1>
+  <p class="lede">The client sent a revised IDS, or the next stage's. Drop the old and the new file to see which specifications were added, removed or changed, and whether each change asks more or less of your model. Add the model and it lists the elements that newly fail. Nothing is uploaded.</p>
+
+  <section aria-labelledby="run">
+    <h2 id="run">Compare</h2>
+    <div class="drops">
+      <div class="drop" id="drop-old"><label for="old">Old IDS (.ids, .xml)</label><input type="file" id="old" accept=".ids,.xml"><div class="file" id="old-name">or drop it here</div></div>
+      <div class="drop" id="drop-new"><label for="new">New IDS (.ids, .xml)</label><input type="file" id="new" accept=".ids,.xml"><div class="file" id="new-name">or drop it here</div></div>
+      <div class="drop" id="drop-ifc"><label for="ifc">Model, optional (.ifc, .ifcxml, .ifczip)</label><input type="file" id="ifc" accept=".ifc,.IFC,.ifcxml,.ifcXML,.ifczip,.zip,.xml"><div class="file" id="ifc-name">to see which elements newly fail</div></div>
+    </div>
+    <div class="row">
+      <button id="go" disabled>Compare</button>
+      <button id="example" class="ghost" type="button">Try an example</button>
+      <button id="dl-json" class="ghost" type="button" disabled>Download JSON</button>
+      <button id="dl-txt" class="ghost" type="button" disabled>Download text report</button>
+    </div>
+    <p id="status" role="status"></p>
+    <div id="out"></div>
+  </section>
+
+  <section aria-labelledby="how">
+    <h2 id="how">How changes are graded</h2>
+    <p>Specifications are paired by name, then by an identical applicability (a rename), then by a leading section number such as <code>3.3</code> or <code>(3.3)</code>. Inside a pair, facets are paired by what they ask about: a property by its set and name, an attribute by its name, a classification by its system.</p>
+    <ul>
+      <li><span class="tag tighter">asks more</span> a new required facet, optional to required, fewer allowed values, a narrower range, a data type added, or an applicability condition removed (more elements are checked).</li>
+      <li><span class="tag looser">asks less</span> the reverse.</li>
+      <li><span class="tag changed">different</span> neither contains the other: another value, another pattern (patterns are not compared as languages), another class, or a change to or from prohibited.</li>
+      <li><span class="tag metadata">metadata</span> names, descriptions, instructions, IFC versions and bSDD links only.</li>
+    </ul>
+    <p>Run on 69 committed revisions of 27 public IDS files in 13 GitHub repositories: no file it could read failed to compare, and 185 of the 233 changes were graded asks more or asks less exactly (<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/ids-model-check/eval/revision-diff-2026-11-20.md">how it was checked</a>). Command line: <code>node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]</code>, exit 1 when the revision asks more.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It reports how the two files differ as this software reads them; it is not a design review, a contract interpretation or professional advice, and the client's own requirements documents decide what is owed. Everything runs in your browser: the files are not uploaded, and the page fetches only its own schema tables. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p>IDS is a buildingSMART International standard; this tool is independent and not endorsed by buildingSMART.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+</main>
+<script type="module">
+  import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  import { parseIds } from "./ids.mjs";
+  import { diffIds, revisionImpact, revisionReport } from "./revision.mjs";
+  import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const state = { old: null, new: null, ifc: null, names: {}, result: null };
+  const ready = () => { $("go").disabled = !(state.old && state.new); };
+
+  async function readFile(file, kind) {
+    $(kind + "-name").textContent = `Reading ${file.name}...`;
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      if (kind === "ifc") {
+        if (isZip(bytes)) { const m = await unzipModel(bytes, inflateRawStream, { bytes: true }); state.ifc = m.bytes; } else state.ifc = bytes;
+      } else {
+        const text = new TextDecoder().decode(bytes);
+        parseIds(text); // fails here, with the reason, if it is not an IDS
+        state[kind] = text;
+      }
+      state.names[kind] = file.name;
+      $(kind + "-name").textContent = `${file.name} (${(file.size / 1e6).toFixed(file.size > 1e6 ? 1 : 3)} MB)`;
+    } catch (e) {
+      state[kind] = null;
+      $(kind + "-name").textContent = `Could not read ${file.name}: ${e.message}`;
+    }
+    ready();
+  }
+  for (const kind of ["old", "new", "ifc"]) {
+    $(kind).addEventListener("change", (e) => e.target.files[0] && readFile(e.target.files[0], kind));
+    const zone = $("drop-" + kind);
+    zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("over"); });
+    zone.addEventListener("dragleave", () => zone.classList.remove("over"));
+    zone.addEventListener("drop", (e) => { e.preventDefault(); zone.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) readFile(f, kind); });
+  }
+
+  // The example: the starter IDS against a revision of it that asks more and less.
+  $("example").addEventListener("click", async () => {
+    const [ids, ifc] = await Promise.all([fetch("samples/coordination-basics.ids.xml").then((r) => r.text()), fetch("samples/tiny-house.ifc").then((r) => r.arrayBuffer())]);
+    state.old = ids;
+    state.new = ids
+      .replace("<title>Coordination basics (starter IDS)</title>", "<title>Coordination basics (revision B)</title>")
+      .replace(/(<specification name="Spaces have a name and a long name"[^>]*>\s*<applicability) minOccurs="0"/, "$1 minOccurs=\"1\"")
+      .replace(/<specification name="No building element proxies"[\s\S]*?<\/specification>\s*/, "")
+      .replace("<baseName><simpleValue>LoadBearing</simpleValue></baseName>\n        </property>", "<baseName><simpleValue>LoadBearing</simpleValue></baseName>\n        </property>\n        <property dataType=\"IFCLABEL\"><propertySet><simpleValue>Pset_WallCommon</simpleValue></propertySet><baseName><simpleValue>FireRating</simpleValue></baseName></property>");
+    state.ifc = new Uint8Array(ifc);
+    state.names = { old: "coordination-basics.ids.xml", new: "coordination-basics (revision B).ids", ifc: "tiny-house.ifc" };
+    $("old-name").textContent = state.names.old + " (starter)";
+    $("new-name").textContent = state.names.new + " (an edited copy)";
+    $("ifc-name").textContent = state.names.ifc + " (sample)";
+    record("revision_example_loaded");
+    ready();
+    run();
+  });
+
+  let worker = null;
+  const checkIn = (ids, ifc) => new Promise((resolve, reject) => {
+    worker ||= new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
+    worker.onmessage = (ev) => (ev.data.error ? reject(new Error(ev.data.error)) : resolve(ev.data.report));
+    worker.postMessage({ ids, ifc });
+  });
+
+  async function run() {
+    $("go").disabled = true;
+    $("out").innerHTML = "";
+    $("status").textContent = "Comparing...";
+    try {
+      const diff = diffIds(state.old, state.new);
+      let impact = null;
+      if (state.ifc) {
+        $("status").textContent = "Checking the model against both versions...";
+        const a = await checkIn(state.old, state.ifc);
+        const b = await checkIn(state.new, state.ifc);
+        impact = revisionImpact(a, b, diff);
+        record("revision_model_checked");
+      }
+      state.result = { diff, impact };
+      record("revision_compared");
+      if (diff.summary.added || diff.summary.tighter || diff.summary.mixed) record("revision_asks_more");
+      $("status").textContent = "";
+      render(diff, impact);
+      $("dl-json").disabled = $("dl-txt").disabled = false;
+    } catch (e) {
+      $("status").textContent = "Could not compare: " + e.message;
+      record("revision_error");
+    }
+    ready();
+  }
+  $("go").addEventListener("click", run);
+
+  const WORD = { tighter: "asks more", looser: "asks less", changed: "different", mixed: "mixed", metadata: "metadata", same: "same", added: "added", removed: "removed" };
+  const elLine = (e) => `<li>${esc(e.type)} #${e.id}${e.globalId ? ` <code>${esc(e.globalId)}</code>` : ""}${e.name ? ` "${esc(e.name)}"` : ""}: ${esc(e.reasons.join("; "))}</li>`;
+
+  function render(d, impact) {
+    const s = d.summary;
+    let h = `<p class="summary">${s.oldSpecs} specification(s) before, ${s.newSpecs} after: ${s.added} added, ${s.removed} removed, ${s.changed} changed (${s.tighter} ask more, ${s.looser} ask less, ${s.mixed} mixed or different, ${s.metadata} metadata only), ${s.same} unchanged.</p>`;
+    if (impact) h += `<p><b>On the model:</b> ${impact.newlyFailing} element failure(s) new, ${impact.moreToFix} already-failing element(s) with more to fix, ${impact.fixed} no longer failing${impact.notCompared ? `, ${impact.notCompared} specification(s) not compared because one side is invalid IDS` : ""}. Overall ${impact.passBefore ? "pass" : "fail"} &rarr; ${impact.passAfter ? "pass" : "fail"}.</p>`;
+    for (const [w, n] of [["old", d.oldXsdFaults], ["new", d.newXsdFaults]]) if (n) h += `<p class="changed">The ${w} file breaks the IDS XML schema in ${n} place(s); it is compared as this checker reads it. <a href="./">Audit it</a> to see where, and download a repaired copy.</p>`;
+    if (d.info.length) h += `<p class="muted">${d.info.map((i) => `${esc(i.field)}: ${esc(i.before ?? "(none)")} &rarr; ${esc(i.after ?? "(none)")}`).join("<br>")}</p>`;
+    const imp = impact ? new Map(impact.specs.map((r) => [r.name + "\u0000" + r.status, r])) : null;
+    const order = { added: 0, changed: 1, removed: 2, same: 3 };
+    for (const sp of [...d.specs].sort((a, b) => order[a.status] - order[b.status])) {
+      if (sp.status === "same") continue;
+      const tag = sp.status === "changed" ? sp.effect : sp.status;
+      h += `<details class="spec"${sp.status !== "changed" || sp.effect !== "metadata" ? " open" : ""}><summary><span class="tag ${tag}">${WORD[tag] || tag}</span><b>${esc(sp.name)}</b>${sp.oldName && sp.oldName !== sp.name ? ` <span class="muted">(was "${esc(sp.oldName)}")</span>` : ""}</summary><div class="body">`;
+      if (sp.spec) {
+        h += `<p class="muted">${esc(sp.spec.optionality)}; applies to ${esc(sp.spec.applicability.join("; ") || "everything")}</p>`;
+        if (sp.status === "added") h += `<ul>${sp.spec.requirements.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>`;
+      }
+      if (sp.changes.length) h += `<ul>${sp.changes.filter((c) => c.kind !== "renamed").map((c) => `<li>${c.effect !== "same" ? `<span class="tag ${c.effect}">${WORD[c.effect]}</span> ` : ""}${c.section === "specification" ? "" : esc(c.section) + ": "}${esc(c.what)}${c.after && c.kind === "added" ? `<br><code>${esc(c.after)}</code>` : c.before && c.kind === "removed" ? `<br><code>${esc(c.before)}</code>` : ""}</li>`).join("")}</ul>`;
+      const r = imp && imp.get(sp.name + "\u0000" + sp.status);
+      if (r) {
+        const f = (x) => (!x ? "&ndash;" : x.status === "invalid" ? "invalid IDS, not checked" : `${x.status}, ${x.failed} of ${x.applicable} failing`);
+        h += `<p><b>On the model:</b> before ${f(r.before)}; after ${f(r.after)}.</p>`;
+        for (const x of [r.before, r.after]) if (x && x.invalid) h += `<p class="changed">One side is invalid IDS, so elements are not compared: ${esc(x.invalid.join("; "))}</p>`;
+        if (r.newlyFailing.length) h += `<p>Newly failing (${r.newlyFailing.length}):</p><ul>${r.newlyFailing.slice(0, 50).map(elLine).join("")}</ul>${r.newlyFailing.length > 50 ? `<p class="muted">${r.newlyFailing.length - 50} more in the JSON download.</p>` : ""}`;
+        if (r.moreToFix.length) h += `<p>Already failing, with more to fix (${r.moreToFix.length}):</p><ul>${r.moreToFix.slice(0, 20).map(elLine).join("")}</ul>${r.moreToFix.length > 20 ? `<p class="muted">${r.moreToFix.length - 20} more in the JSON download.</p>` : ""}`;
+        if (r.fixed.length) h += `<p class="looser">No longer failing: ${r.fixed.length}</p>`;
+      }
+      h += `</div></details>`;
+    }
+    if (s.same) h += `<p class="muted">${s.same} specification(s) unchanged.</p>`;
+    $("out").innerHTML = h;
+  }
+
+  const download = (name, text, type) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+  $("dl-json").onclick = () => { record("revision_json_downloaded"); download("ids-revision.json", JSON.stringify(state.result, null, 2), "application/json"); };
+  $("dl-txt").onclick = () => { record("revision_text_downloaded"); download("ids-revision.txt", revisionReport(state.result.diff, state.result.impact, { maxElements: 1000 }), "text/plain"); };
+
+  $("optout").checked = usageOptedOut();
+  $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  record("revision_page_view");
+</script>
+</body>
+</html>
