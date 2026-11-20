@@ -3,7 +3,7 @@ title: "A sheet index read from the title blocks, and the inline images that hid
 seo_title: "Free sheet index and revision compare for a drawing set PDF"
 date: 2026-11-20
 tags: [construction, drawings, pdf, evaluation, new-venture]
-description: "A new free tool reads a drawing set PDF in the browser, lists every sheet's number and title, checks the cover index and compares two issues. Scored on 123 public sheets."
+description: "A free tool reads a drawing set PDF in the browser, lists each sheet number and title, checks the cover index and compares two issues. Scored on 123 sheets."
 ---
 
 Every issue of a drawing set needs a sheet index on the cover, a transmittal saying what was sent, and, for whoever gets it, an answer to "which sheets changed?". Today that means typing sheet numbers off title blocks into a spreadsheet and flipping between two sets. Paid tools do parts of it: Bluebeam's batch features and overlay compare, and the construction platforms that detect sheet numbers when you upload a set.
