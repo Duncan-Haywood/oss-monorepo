@@ -95,3 +95,12 @@ open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actual
 #print axioms TheismFormal.AndersonK.sep_iff_trans
 #print axioms TheismFormal.AndersonK.KT.refl
 #print axioms TheismFormal.AndersonK.KT.sep_iff
+#print axioms TheismFormal.AndersonK.eucl_succ_refl
+#print axioms TheismFormal.AndersonK.eucl_reach
+#print axioms TheismFormal.AndersonK.eucl_sep_iff
+#print axioms TheismFormal.AndersonK.eucl_not_sep_refl
+#print axioms TheismFormal.AndersonK.eucl_not_sep_trans
+#print axioms TheismFormal.AndersonK.eucl_sep_iff_not_back
+#print axioms TheismFormal.AndersonK.eucl_none_sep_iff
+#print axioms TheismFormal.AndersonK.eucl_essential_iff
+#print axioms TheismFormal.AndersonK.back_symm

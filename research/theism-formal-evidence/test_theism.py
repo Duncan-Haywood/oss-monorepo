@@ -390,10 +390,6 @@ def test_e24_separability_block_algebra():
                     pairs.add((Rr, w))
     assert len(pairs) == 36
 
-if __name__ == "__main__":
-    for name, fn in list(globals().items()):
-        if name.startswith("test_"):
-            fn(); print("ok", name)
 
 
 def test_swinburne_reproduced_exactly():
@@ -478,3 +474,28 @@ def test_e28_frame_classes():
     assert e28.separable_bt(R, 0, 1) is None
     Rg = {0: [0], 1: [1, 5, 6], 2: [2, 4, 5], 3: [0, 1, 3], 4: [3, 4], 5: [3, 5], 6: [0, 3, 6]}
     assert e28.gac(Rg, 2, 4) and not e28.separable_brute(Rg, 7, 2, 4)
+
+
+def test_e29_euclidean():
+    """E29: on Euclidean frames v is separable iff some successor of v is not a successor of
+    w (H33 b), never when w R w (c), and exactly when v has no back witness (d)."""
+    e29 = _load("e29_euclidean")
+    R = {0: [1], 1: [1, 2], 2: [1, 2]}
+    assert e29.is_eucl(R, 3)
+    assert e29.separable_brute(R, 3, 0, 1) and e29.rule(R, 0, 1) and not e29.back(R, 0, 1)
+    R = e29.eucl_closure({0: [0, 1], 1: [2], 2: []}, 3)
+    assert e29.is_eucl(R, 3) and 0 in R[0]
+    assert not e29.separable_brute(R, 3, 0, 1) and not e29.rule(R, 0, 1) and e29.back(R, 0, 1)
+    import random
+    rng = random.Random(0)
+    viol = dict.fromkeys(["a_same_successors", "b_rule", "c_refl_or_trans", "d_back", "e_trans_at_w"], 0)
+    for _ in range(200):
+        R = e29.eucl_closure({t: [s for s in range(4) if rng.random() < 0.3] for t in range(4)}, 4)
+        e29.check(R, 4, viol)
+    assert sum(viol.values()) == 0
+
+
+if __name__ == "__main__":
+    for name, fn in list(globals().items()):
+        if name.startswith("test_"):
+            fn(); print("ok", name)
