@@ -1,0 +1,6 @@
+long-jitter margin 2 {'short': 21, 'long': 23, 'bad': 1, 't13': 5}
+long-jitter margin 3 {'short': 11, 'long': 23, 'bad': 0, 't13': 2}
+long-jitter margin 4 {'short': 6, 'long': 23, 'bad': 0, 't13': 0}
+fast-jitter margin 2 {'short': 22, 'long': 24, 'bad': 1, 't13': 4}
+fast-jitter margin 3 {'short': 18, 'long': 24, 'bad': 0, 't13': 1}
+fast-jitter margin 4 {'short': 15, 'long': 24, 'bad': 0, 't13': 1}

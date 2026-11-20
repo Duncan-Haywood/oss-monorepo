@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKjwMdYnwrHAZbf8UvJ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T11:12:05Z",
+  "ended": "2026-11-20T11:20:09Z",
+  "wall_minutes": 44.61,
+  "tokens_in": 8345979,
+  "tokens_out": 38955,
+  "cost_usd": 3.5388,
+  "tool_calls": 72,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17903",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Wrote 'about 6.1%' for the random-phase straddle rate in the pre-registration before computing it; the computed figure is 5.7%, corrected in the result with a note (descriptive context, not a prediction or rule)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/NEXT.md",
+      "issue": "The open item asked for a shot mix whose wheel speeds put a 1.3 ms contact across an edge; that premise only held because tests/feeder_sim.py fixed each ball's phase. Nothing recorded the sim's deterministic release, so several runs' straddle numbers were read as drill properties."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "pytest is absent from the bare python3 here; the venture's unittest-style tests run with python3 -m unittest from tests/ (no pyenv install needed)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-tennis-feeder-simulator-fixed-the-ball-phase.md",
+    "ventures/open-tennis-robots/eval/feed-phase-2026-11-20.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (Where the ball lands in a revolution)"
+  ],
+  "goal": null,
+  "notes": "Flagship row 5 open-tennis-robots, 1.3 ms take item. Found the simulator released balls at a fixed wheel phase (18 of 46 survey places straddled on 0 of 96 stored builds). Added opt-in SimFeeder(feed_jitter_ms) and take_survey_pick --feed-jitter; pre-registered (6f0ef4de6) a fast survey drill test; 192 builds captured, none aborted. Long drill with random release: 21/36 short named, 1/36 instant misadvised (stored: 26, 0); fast: 22, 1. Rule failed; nothing on the board changed. Exploratory margin 3: fast 18 / long 11 short named, 0 misadvised. Verification: tests/test_host.py FeedJitterTest passes (unittest); run_venture_tests.py open-tennis-robots: ok, 466 tests (59 skipped, build123d absent); venture-preflight.mjs open-tennis-robots: clean; check_posts.py ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0f521a59-ced1-5ab9-8a04-a19fdc66ebcd",
+    "transcripts": 1,
+    "first": "2026-11-20T11:12:05Z",
+    "last": "2026-11-20T11:56:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 131,
+        "output": 38955,
+        "thinking": 11352,
+        "cache_read": 8206109,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139739,
+        "api_equivalent_usd": 3.5388,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 131,
+      "output": 38955,
+      "thinking": 11352,
+      "cache_read": 8206109,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139739,
+      "api_equivalent_usd": 3.5388,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 69,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 44.61,
+      "active_minutes": 44.61,
+      "model_minutes": 7.92,
+      "tool_minutes": 36.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer finding a simulator phase artefact, adding the option, pre-registering and running 192 sim builds, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 169.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
