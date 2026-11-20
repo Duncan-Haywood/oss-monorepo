@@ -10,13 +10,14 @@
 - (2026-11-19) next: a real file with range UDFs, probabilistic branches
 - (2026-11-19) next: a public XER with P6's own float_path values to check path order against, the review section for an interim milestone
 
-- Calendar slack, the mirror (2026-11-20, eval/calendar-slack-2026-11-20.md):
-  a start milestone on a Friday-off calendar whose predecessor finishes
-  Thursday 16:00 sits at Saturday 08:00, so a successor on a 7-day calendar
-  loses the Friday; P6's float (and the engine's) is too long there
-  (HCMEB1000 on hotel). Count how often on the six files, and offer the
-  tighter reading beside the looser one. Then the "past late start" flag in
-  the constraints log read against the calendar-slack late dates.
+- Calendar slack, the mirror: shipped 2026-11-20 as the milestone-calendars
+  check (milestones.mjs, eval/milestone-calendars-2026-11-20.md: the hotel
+  file's 8 hand-over milestones on the Friday-off calendar hold 11 successors
+  1-9 h; 2,001 of 2,001 float gains sound and tight). Still open: the "past
+  late start" flag in the constraints log read against the calendar-slack
+  and 24 h milestone late dates; a milestones-on-24h switch for the written
+  review and the risk run; a real P6 file rescheduled with the milestones
+  moved, to check the dates against P6's own.
 - Constraints log: a real site's log.
 - (2026-11-20) next a real reviewer's reading
 - (2026-11-20) appendix 2026-11-19

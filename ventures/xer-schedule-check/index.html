@@ -158,6 +158,14 @@
     </div>
     <p class="note" id="cs-status"></p>
     <div id="cs-out"></div>
+    <h2 style="margin-top:22px">Time milestones hold back across calendars</h2>
+    <p class="note">A milestone has no duration, but P6 still puts it on its own calendar. A start milestone after a Thursday 16:00 finish, on a calendar with Friday off, sits at Saturday 08:00, so a successor crew working Monday to Friday cannot start until Monday: a day lost to a zero-length activity. This schedules the file again with every milestone on a 24-hour calendar and lists the milestones that hold work back, the hours each successor loses, and how much float comes back. The dates elsewhere on this page stay P6's.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end">
+      <button type="button" id="mc-run" class="secondary">Check milestone calendars</button>
+      <button type="button" id="mc-csv" class="secondary" hidden>Download (CSV)</button>
+    </div>
+    <p class="note" id="mc-status"></p>
+    <div id="mc-out"></div>
     <h2 style="margin-top:22px">Earned value and the S-curve</h2>
     <p class="note">From the cost (or, with no cost, the labour hours) loaded on the resource assignments and expenses: budget at completion, planned value to the data date from each assignment's planned dates, earned value from each activity's percent complete (physical, duration or units, as P6 earns it), actual cost, SPI and CPI, three estimates at completion, earned schedule (SPI(t), which does not drift back to 1.0 at the end of a late job), the curve by month and the checks a reviewer runs before paying on a cost-loaded schedule: unloaded work, cost booked on unstarted work, remaining left on finished work, progress with nothing spent, value earned far ahead of spending (front-loading), overruns, and <b>actuals that equal earned value</b> on almost every activity, which means they were computed from progress and the CPI proves nothing.</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end">
@@ -357,6 +365,7 @@
     import { schedule } from "./cpm.mjs";
     import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
     import { calendarSlack, calendarSlackCsv } from "./calslack.mjs";
+    import { milestoneCalendars, milestoneCalendarsCsv } from "./milestones.mjs";
     import { earnedValue, earnedValueCsv, sCurveCsv, sCurveSvg } from "./evm.mjs";
     import { earnedValueSeries, earnedValueSeriesCsv } from "./evmseries.mjs";
     import { lookahead, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
@@ -400,6 +409,7 @@
       $("#fp-codes").innerHTML = r.activities.slice(0, 5000).map((a) => `<option value="${esc(a.code)}">${esc(a.name)}</option>`).join("");
       $("#fp-out").innerHTML = ""; $("#fp-status").textContent = ""; $("#fp-csv").hidden = true; lastFp = null;
       $("#cs-out").innerHTML = ""; $("#cs-status").textContent = ""; $("#cs-csv").hidden = true; lastCs = null;
+      $("#mc-out").innerHTML = ""; $("#mc-status").textContent = ""; $("#mc-csv").hidden = true; lastMc = null;
       $("#ev-out").innerHTML = ""; $("#ev-status").textContent = ""; $("#ev-csv").hidden = true; $("#ev-curve").hidden = true; lastEv = null;
       report.hidden = false;
       $("#risk").hidden = false; $("#risk-out").hidden = true; $("#risk-status").textContent = ""; lastRisk = null;
@@ -500,6 +510,30 @@
         record("calendar_slack_run");
       } catch (e) { st.textContent = `Could not check calendar slack: ${e.message}`; }
     });
+    // ---- milestone calendars
+    let lastMc = null;
+    $("#mc-run").addEventListener("click", () => {
+      if (!xer || !last) return;
+      const st = $("#mc-status");
+      try {
+        const r = milestoneCalendars(xer, { projId: last.project.id });
+        lastMc = r;
+        const fin = r.finishes.map((f) => f.moved ? `the finish moves from ${f.finish} to ${f.finish24}` : "the finish does not move").join("; ");
+        if (!r.milestones.length && !r.gainFloat) {
+          $("#mc-out").innerHTML = "";
+          st.textContent = `None: no milestone among the ${r.open} open activities is held later than its logic by its own calendar in a way that holds work back.`;
+        } else {
+          st.textContent = `${r.milestones.length} milestone${r.milestones.length === 1 ? "" : "s"} hold work back. With milestones on a 24-hour calendar, ${r.activities.length} activities could start or finish earlier and ${r.gainFloat} of ${r.open} open activities gain total float (up to ${r.maxGain} h)${r.leavesCritical ? `; ${r.leavesCritical} that P6 marks critical are not` : ""}; ${fin}.`;
+          const rows = r.milestones.flatMap((m) => m.successors.map((x) => `<tr><td>${esc(m.code)} <span class="note">${esc(m.calendar)}</span></td><td>${esc(m.sits)}</td><td>${esc(m.logicGives)}</td><td>${esc(x.code)} <span class="note">${esc(x.calendar)}</span></td><td>${esc(x.start)}</td><td>${esc(x.couldStart)}</td><td class="n">${x.hours}</td></tr>`));
+          const ms = `<h3>Milestones that hold work back</h3><div class="tablewrap"><table><thead><tr><th>Milestone</th><th>Sits at</th><th>On 24 h</th><th>Successor</th><th>Starts</th><th>Could start</th><th class="n">Hours lost</th></tr></thead><tbody>${rows.slice(0, LIMIT).join("")}</tbody></table></div>`;
+          const acts = `<h3>Activities that could start earlier</h3><div class="tablewrap"><table><thead><tr><th>Activity</th><th>Name</th><th>Starts</th><th>Could start</th><th class="n">Hours</th><th class="n">Total float, P6 (h)</th><th class="n">On 24 h (h)</th></tr></thead><tbody>${r.activities.slice(0, LIMIT).map((a) => `<tr><td>${esc(a.code)}</td><td>${esc(a.name)}</td><td>${esc(a.start)}</td><td>${esc(a.couldStart)}</td><td class="n">${a.hours}</td><td class="n">${a.tf}</td><td class="n">${a.tf24}</td></tr>`).join("")}</tbody></table></div>`;
+          $("#mc-out").innerHTML = (rows.length ? ms : "") + (r.activities.length ? acts : "");
+          $("#mc-csv").hidden = !rows.length;
+        }
+        record("milestone_calendars_run");
+      } catch (e) { st.textContent = `Could not check milestone calendars: ${e.message}`; }
+    });
+    $("#mc-csv").addEventListener("click", () => { if (!lastMc) return; save(new Blob([milestoneCalendarsCsv(lastMc)], { type: "text/csv" }), `${fileName}-milestone-calendars.csv`); record("findings_downloaded"); });
     // ---- earned value
     let lastEv = null;
     $("#ev-run").addEventListener("click", () => {
