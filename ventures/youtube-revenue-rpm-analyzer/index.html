@@ -59,7 +59,7 @@
 
   <section class="card">
     <h2>1. Your Studio export</h2>
-    <p class="note">In Studio, open <strong>Analytics</strong>, then <strong>Revenue</strong> (or Advanced mode), pick a table (Videos, Geography, Traffic source or a by-day chart) and choose <strong>Export current view</strong>, comma-separated values. Needs <strong>Views</strong> and <strong>Estimated revenue</strong> columns. Watch time, Subscribers, Impressions, click-through rate, Duration and RPM are used when present. Comma, tab and semicolon files and UTF-16 exports are read. Rows that cannot be read are listed with a line number and reason.</p>
+    <p class="note">In Studio, open <strong>Analytics</strong>, then <strong>Revenue</strong> (or Advanced mode), pick a table (Videos, Geography, Traffic source or a by-day chart) and choose <strong>Export current view</strong>, comma-separated values. Needs <strong>Views</strong> and <strong>Estimated revenue</strong> columns. Watch time, Subscribers, Impressions, click-through rate and Duration are used when present; an RPM column is ignored, because RPM is always worked out from revenue and views. Comma, tab and semicolon files and UTF-16 exports are read. Rows that cannot be read are listed with a line number and reason.</p>
     <label for="file">Choose a CSV file</label>
     <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
     <label for="paste">…or paste the file text</label>
