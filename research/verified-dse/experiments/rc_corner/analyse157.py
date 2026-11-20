@@ -23,6 +23,9 @@ are rcmax - nom; design-bootstrap 95% intervals, 2,000 resamples, seed 157):
  (6) on P under rcmax SWC beats random on more designs than it loses, exact two-sided sign p < 0.05. Prior 45%.
  (7) control: the same nixpkgs Yosys 0.71 / OpenROAD 26Q3 build reproduces milestone 156's routed area and WNS exactly on every
      control point ok in both. Prior 60%.
+Stop rule (added at 12:10 UTC, after 100 of 3,505 resumed points and before any fresh design completed): the flow is resumed
+(`run.py --resume`) until all 27 designs finish or the session runs out; the analysed set is the paired complete prefix, as in
+milestone 156, a rule that depends on no result.
 Reported, not predicted: the per-design table for F; mean regrets per arm on F and P; failed points; the tool strings.
 """
 import importlib.util
