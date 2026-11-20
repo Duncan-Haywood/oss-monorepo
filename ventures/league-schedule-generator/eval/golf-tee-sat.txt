@@ -1,0 +1,12 @@
+4 teams, 10 weeks, 2 slots: search 2/4 at share; solver UNSAT
+4 teams, 14 weeks, 2 slots: search 2/4 at share; solver UNSAT
+4 teams, 16 weeks, 2 slots: search 2/4 at share; solver UNSAT
+4 teams, 20 weeks, 2 slots: search 2/4 at share; solver UNSAT
+4 teams, 22 weeks, 2 slots: search 2/4 at share; solver UNSAT
+12 teams, 18 weeks, 6 slots: search 10/12 at share; solver SAT
+14 teams, 14 weeks, 7 slots: search 12/14 at share; solver SAT
+16 teams, 16 weeks, 8 slots: search 14/16 at share; solver SAT
+18 teams, 10 weeks, 9 slots: search 17/18 at share; solver SAT
+18 teams, 18 weeks, 9 slots: search 16/18 at share; solver SAT
+20 teams, 10 weeks, 10 slots: search 11/20 at share; solver UNSAT
+20 teams, 20 weeks, 10 slots: search 14/20 at share; solver SAT

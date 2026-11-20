@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Golf League Schedule and Match Play Scoring: Tee Times, Handicaps, Free</title>
+  <meta name="description" content="Make a 9-hole golf league schedule with tee times rotated evenly and front/back nines alternating, then score match play nights with handicap strokes. Free.">
+  <meta property="og:title" content="Golf League Schedule Maker: Tee Times Rotated Evenly, Match Play Scored">
+  <meta property="og:description" content="A weekly two-person golf league schedule with every team on every tee time as evenly as the season allows, plus hole-by-hole match play points, league handicaps and standings. Free, in your browser.">
+  <link rel="canonical" href="./golf-league-schedule.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you make a golf league schedule?","acceptedAnswer":{"@type":"Answer","text":"List the teams, pick the first league night, the number of weeks and the first tee time. The page plays a round robin, repeats it until the weeks run out, alternates the front and back nine, and gives each group a tee time so every team goes off early and late about equally often. Download it as a CSV or copy the text for the clubhouse board."}},{"@type":"Question","name":"How are handicap strokes given in league match play?","acceptedAnswer":{"@type":"Answer","text":"The higher-handicap player gets the difference between the two handicaps in strokes, one on each of the nine's hardest holes by the stroke index on the card. A 12 playing a 9 gets 3 strokes, on the three lowest-index holes of the nine being played. Past 9 strokes, the hardest holes get a second one."}},{"@type":"Question","name":"How is a golf league handicap worked out here?","acceptedAnswer":{"@type":"Answer","text":"From each round's adjusted score over par for the nine, with each hole capped at net double bogey. By default the handicap is 90% of the average of the last 5 rounds, rounded, up to 18 for nine holes. You can use the best 3 of the last 5, change the percentage or the cap. It is a league handicap only, not a Handicap Index."}},{"@type":"Question","name":"How are points scored in a two-person golf league?","acceptedAnswer":{"@type":"Answer","text":"A common format, and the page's default: low handicap plays low handicap and high plays high. Each hole is worth 1 point to the lower net score (a halved hole splits it), each pairing's lower net total earns 1 more, and the team with the lower combined net earns 2. That is 22 points a match. Every number can be changed."}},{"@type":"Question","name":"What happens with an odd number of teams?","acceptedAnswer":{"@type":"Answer","text":"One team has the bye each week, but it still plays: it keeps a tee time and its players play the course, each against net par with their full handicap. So nobody sits out a night and every team plays the same number of matches."}},{"@type":"Question","name":"Is anything uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The schedule and the scoring run in your browser. Cards you type are kept in this browser only, so they are there on your next visit."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 860px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; vertical-align: top; }
+    label { display: block; font-weight: 600; margin-top: 12px; }
+    label small { font-weight: 400; color: #4a5148; }
+    textarea, input, select { font: inherit; padding: 6px 8px; border: 1px solid #b9c2b6; border-radius: 6px; background: #fff; color: inherit; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 9em; }
+    .row { display: flex; flex-wrap: wrap; gap: 14px; }
+    .row > div { flex: 1 1 150px; }
+    .row input, .row select { width: 100%; box-sizing: border-box; }
+    button { display: inline-block; margin: 12px 8px 0 0; padding: 10px 14px; border-radius: 8px; border: 0; background: #1d5a3f; color: #ffffff; font: inherit; font-weight: 650; cursor: pointer; }
+    button.secondary { background: #e3e8e1; color: #1d2330; }
+    .tool { background: #fff; border: 1px solid #d4dad2; border-radius: 12px; padding: 4px 18px 18px; }
+    .err { color: #9b1c1c; }
+    .off { background: #fdecc8; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+    @media print { .tool form, .noprint, footer, .guide, #recap-tool .row, #recap-tool label, #recap-tool textarea, #recap-tool > button { display: none; } body { max-width: none; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="noprint"><a href="./">&larr; League schedule generator</a></p>
+  <h1>Golf league schedule maker: tee times rotated evenly, match play scored with handicaps</h1>
+  <p>A twilight golf league plays nine holes the same evening every week. Two-person teams play each other in a foursome, the round robin repeats until the season ends, and the league alternates the front and back nine. A hand-made sheet usually gets the tee times wrong. Teams notice when one of them always goes off first, or always last and finishing in the dark. Each team should have each tee time about as often as the others, and not the same one two weeks running.</p>
+  <p>This page builds that schedule in your browser: the round robin, real dates (skipping holidays), the nine for each week, and a tee time (or a starting hole for a shotgun start) for every group, chosen so the counts come out even. Then, each week, type the hole-by-hole cards and it does the secretary's sums: handicap strokes on the right holes, match play points, league handicaps and the standings. Nothing is uploaded.</p>
+
+  <section class="tool">
+    <form id="form" onsubmit="return false">
+      <label for="teams">Teams <small>one per line; an odd number gives one team a week against the course</small></label>
+      <textarea id="teams">Birdie Brothers
+Fore Play
+Bogey Men
+Grip It and Sip It
+Sand Trappers
+Shank Redemption
+Putt Pirates
+Wedge Issues</textarea>
+      <div class="row">
+        <div><label for="start">First league night</label><input id="start" type="date" value="2027-04-28"></div>
+        <div><label for="weeks">Weeks in the season</label><input id="weeks" type="number" min="1" max="40" value="18"></div>
+        <div><label for="nines">Nine</label><select id="nines"><option value="alternate">Alternate, front first</option><option value="alternate-back">Alternate, back first</option><option value="front">Front every week</option><option value="back">Back every week</option></select></div>
+      </div>
+      <div class="row">
+        <div><label for="startType">Start</label><select id="startType"><option value="tee">Tee times</option><option value="shotgun">Shotgun</option></select></div>
+        <div><label for="firstTee">First tee time</label><input id="firstTee" value="16:30"></div>
+        <div><label for="interval">Minutes between groups</label><input id="interval" type="number" min="6" max="20" value="9"></div>
+      </div>
+      <label for="skip">No-golf dates <small>holidays or course events; the season moves back a week for each</small></label>
+      <input id="skip" style="width:100%;box-sizing:border-box" placeholder="2027-07-07">
+      <button type="button" id="build">Build the schedule</button>
+      <button type="button" class="secondary" id="again">Try another tee-time deal</button>
+    </form>
+    <p id="status" role="status"></p>
+    <div id="out" hidden>
+      <h2>Schedule</h2>
+      <p id="summary"></p>
+      <div class="scroll"><table id="sched"></table></div>
+      <h2>Weeks on each tee time, by team</h2>
+      <p>Highlighted counts are outside the team's fair share (more than one away from its other tee times).</p>
+      <div class="scroll"><table id="counts"></table></div>
+      <p class="noprint">
+        <button type="button" id="csv">Download CSV</button>
+        <button type="button" class="secondary" id="copy">Copy as text</button>
+        <button type="button" class="secondary" id="print">Print</button>
+      </p>
+      <section id="recap-tool">
+        <h2>League nights: cards, handicaps, match play points and standings</h2>
+        <p>Type the course's card, the teams' players and each night's hole-by-hole scores. The page uses the schedule above for who plays whom and on which nine, so build that first. The rules below are a common two-person league's; set them to your league's own.</p>
+        <div class="row">
+          <div><label for="r-size">Players a team</label><input id="r-size" type="number" min="1" max="4" value="2"></div>
+          <div><label for="r-pct">Handicap %</label><input id="r-pct" type="number" min="0" max="100" value="90"></div>
+          <div><label for="r-last">Rounds counted <small>the last N</small></label><input id="r-last" type="number" min="1" max="20" value="5"></div>
+          <div><label for="r-best">Best rounds used</label><input id="r-best" type="number" min="1" max="20" value="5"></div>
+          <div><label for="r-max">Highest handicap</label><input id="r-max" type="number" min="0" max="36" value="18"></div>
+        </div>
+        <div class="row">
+          <div><label for="r-hole">Points a hole</label><input id="r-hole" type="number" min="0" max="5" value="1"></div>
+          <div><label for="r-mnet">Low net in a pairing</label><input id="r-mnet" type="number" min="0" max="10" value="1"></div>
+          <div><label for="r-tnet">Team low net</label><input id="r-tnet" type="number" min="0" max="10" value="2"></div>
+          <div><label for="r-absent">Absent: strokes over par <small>team net only</small></label><input id="r-absent" type="number" min="0" max="20" value="3"></div>
+        </div>
+        <label for="r-course">Course card <small>par and stroke index (the handicap row) for holes 1 to 18</small></label>
+        <textarea id="r-course" style="min-height:3.5em">Par: 4 4 3 5 4 4 3 5 4  4 4 3 5 4 4 3 5 4
+Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
+        <label for="r-rosters">Players <small>one team per line: "Birdie Brothers: Ana, Ben"</small></label>
+        <textarea id="r-rosters" style="min-height:6em"></textarea>
+        <label for="r-entering">Entering handicaps <small>optional; 9-hole league handicaps for the first night: "Ana 12, Ben 7"</small></label>
+        <textarea id="r-entering" style="min-height:3em" placeholder="Ana 12, Ben 7"></textarea>
+        <label for="r-cards">Cards <small>a "Week 1" line, then one player per line with nine hole scores, or "Ben absent"</small></label>
+        <textarea id="r-cards" style="min-height:12em" placeholder="Week 1&#10;Ana: 5 4 6 3 5 4 5 6 4&#10;Ben: 4 5 4 4 6 5 3 5 5&#10;Ben absent"></textarea>
+        <button type="button" id="r-run">Work out the standings</button>
+        <button type="button" class="secondary" id="r-sample">Fill in sample nights</button>
+        <p id="r-status" role="status"></p>
+        <div id="r-out" hidden>
+          <h3>Standings</h3>
+          <div class="scroll"><table id="r-standings"></table></div>
+          <h3 id="r-night-h">Last night</h3>
+          <div class="scroll"><table id="r-night"></table></div>
+          <h3>Players: handicap for next week</h3>
+          <div class="scroll"><table id="r-players"></table></div>
+          <p class="noprint">
+            <button type="button" id="r-copy">Copy the recap as text</button>
+            <button type="button" class="secondary" id="r-csv-s">Standings CSV</button>
+            <button type="button" class="secondary" id="r-csv-p">Players CSV</button>
+          </p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <div class="guide">
+  <h2>How the tee times are chosen, and how even it gets</h2>
+  <p>Who plays whom each week is the circle-method round robin. Each week's groups are then put on tee times as an assignment problem: the price of a tee time for a group is how far it would push its two teams' counts from even, plus a little for having the same tee time as the week before. The Hungarian method solves each week exactly given every other week, and the page sweeps the season until no week improves. Then it re-deals a few weeks at random and sweeps again. Last, a tabu search swaps groups within a week to bring the teams still off their share back in.</p>
+  <p>We measured it on 77 seasons (4 to 20 teams, 10 to 22 weeks). Every team got its fair share of every tee time in 71 of them: no team has any tee time more than one week more than any other, and where the weeks divide evenly every team has every tee time exactly as often. For 6 of those 71 the page uses tee-time deals a SAT solver found ahead of time, checked again in your browser before they are used. A hand rotation (every group one tee time later each week) got every team its share in 4 of the 77. A SAT solver proved the other 6 seasons cannot be made even at all with this round robin: a 4-team league over 10, 14, 16, 20 or 22 weeks, and 20 teams over 10 weeks. The page says so when you build one of them. The numbers, and the scripts that reproduce them, are in the project's <code>eval/golf-tee-grid.txt</code> and <code>eval/golf-tee-sat.txt</code>.</p>
+  <p>"Try another tee-time deal" runs the search from a different start; the round robin itself stays the same. With a shotgun start the slots are starting holes (hole 1 to 9 on the front, 10 to 18 on the back, then 1B, 2B for a second group on a hole), balanced the same way.</p>
+
+  <h2>Match play with handicaps: the weekly sums</h2>
+  <p>Under the schedule, "League nights" does what a league secretary does with the cards each week:</p>
+  <ul>
+    <li><strong>Strokes:</strong> in each group, low handicap plays low handicap (A v A, B v B). The higher handicap gets the difference in strokes, one on each of the nine's hardest holes by the card's stroke index. On a front nine indexed 7, 3, 15, 1, 11, 5, 17, 9, 13, a 3-stroke difference falls on holes 4, 2 and 6. Past 9 strokes, the hardest holes get a second one.</li>
+    <li><strong>Points:</strong> each hole is worth 1 point to the lower net score, split on a halved hole. Each pairing's lower net total earns 1 more, and the team with the lower combined net earns 2. That is 22 points a match by default; set each to your league's own.</li>
+    <li><strong>League handicap:</strong> each round's adjusted score over par for the nine, with each hole capped at net double bogey (par plus 2 plus the strokes the player gets there). By default it is 90% of the average of the last 5 rounds, rounded, up to 18. Set it to the best 3 of the last 5, say, and it uses those. A new player uses the entering handicap you type. With none, their first card sets it for that night.</li>
+    <li><strong>Absent players and the bye:</strong> an absent player's opponent wins every hole of that pairing and its net point. For the team net, the absent player counts as par plus 3. The bye team plays the course: each player against net par with their full handicap, so they still earn points.</li>
+  </ul>
+  <p>A worked night: Ana (5) plays Cy (2), so Ana gets 3 strokes. Ana shoots 41 and Cy 39. On net they win 4 holes each and halve one, 4.5 points each, and Ana's net 36 beats Cy's 37 for the pairing's net point: 5.5 to 4.5. Ben (12) and Dee (14) each win 2 holes and halve 5, and both net 35: 5 points each. The Hawks' team net of 71 beats the Owls' 72 for 2 more. Hawks 12.5, Owls 9.5. A test recomputes this exact night, so the page cannot drift from it.</p>
+  <p>The cards stay in this browser (they come back on your next visit) and are never uploaded. Copy the recap as text for the group chat or download the standings and players as CSV files. This is a league handicap for league play only. It is not a Handicap Index under the World Handicap System and does not post scores to any association. Your league's rules decide handicaps, strokes, subs and points, so check the settings against them.</p>
+
+  <h2>Questions</h2>
+  <h3>How do you make a golf league schedule?</h3>
+  <p>List the teams, pick the first league night, the number of weeks and the first tee time. The page plays a round robin, repeats it until the weeks run out, alternates the front and back nine, and gives each group a tee time so every team goes off early and late about equally often. Download it as a CSV or copy the text for the clubhouse board.</p>
+  <h3>How are handicap strokes given in league match play?</h3>
+  <p>The higher-handicap player gets the difference between the two handicaps in strokes, one on each of the nine's hardest holes by the stroke index on the card. A 12 playing a 9 gets 3 strokes, on the three lowest-index holes of the nine being played. Past 9 strokes, the hardest holes get a second one.</p>
+  <h3>How is a golf league handicap worked out here?</h3>
+  <p>From each round's adjusted score over par for the nine, with each hole capped at net double bogey. By default the handicap is 90% of the average of the last 5 rounds, rounded, up to 18 for nine holes. You can use the best 3 of the last 5, change the percentage or the cap. It is a league handicap only, not a Handicap Index.</p>
+  <h3>How are points scored in a two-person golf league?</h3>
+  <p>A common format, and the page's default: low handicap plays low handicap and high plays high. Each hole is worth 1 point to the lower net score (a halved hole splits it), each pairing's lower net total earns 1 more, and the team with the lower combined net earns 2. That is 22 points a match. Every number can be changed.</p>
+  <h3>What happens with an odd number of teams?</h3>
+  <p>One team has the bye each week, but it still plays: it keeps a tee time and its players play the course, each against net par with their full handicap. So nobody sits out a night and every team plays the same number of matches.</p>
+  <h3>Is anything uploaded?</h3>
+  <p>No. The schedule and the scoring run in your browser. Cards you type are kept in this browser only, so they are there on your next visit.</p>
+  <p>Related: <a href="./">the round-robin league schedule generator</a> (courts and time slots, blackouts, rainouts, standings and play-offs), <a href="./bowling-league-schedule.html">bowling league schedules and handicaps</a>, <a href="./how-to-reschedule-a-rained-out-league-game.html">rained-out games</a>.</p>
+  </div>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing, tee time and date before you announce it; your league's own rules, your golf association's rules and your course's tee sheet apply. The example teams and players are invented.</p>
+    <p>Everything the tool does runs in your browser; names and scores are never uploaded. A count of how often the page builds a schedule is kept on your own device only (<button type="button" class="secondary" id="optout" style="margin:0;padding:2px 8px">turn it off</button>). Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+<script type="module">
+  import { golfSchedule, teeReport, validateGolf, golfCsv, golfText, slotNames, golfRecap, golfRecapText, golfStandingsCsv, golfPlayersCsv, BYE } from "./golf.mjs";
+  import { parseDate, parseDateList, dayLabel } from "./calc.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const NINE = { front: "Front 9", back: "Back 9" };
+  let last = null, seed = 1;
+  function readSpec() {
+    const skip = parseDateList($("#skip").value);
+    const nv = $("#nines").value;
+    return { errors: skip.errors, spec: {
+      teams: $("#teams").value, weeks: Number($("#weeks").value), start: parseDate($("#start").value), skipDays: skip.days,
+      nines: nv.startsWith("alternate") ? "alternate" : nv, firstNine: nv === "alternate-back" ? "back" : "front",
+      startType: $("#startType").value, firstTee: $("#firstTee").value, interval: Number($("#interval").value), seed,
+    } };
+  }
+  function showErrors(errors) {
+    $("#status").innerHTML = errors.map((e) => `<span class="err">${esc(e)}</span>`).join("<br>");
+    $("#out").hidden = true;
+    return false;
+  }
+  function build(event) {
+    const { errors, spec } = readSpec();
+    if (errors.length) return showErrors(errors);
+    $("#status").textContent = "Dealing the tee times...";
+    return new Promise((ok) => setTimeout(() => {
+      const s = golfSchedule(spec);
+      if (s.errors) return ok(showErrors(s.errors));
+      last = s;
+      const r = teeReport(s), problems = validateGolf(s);
+      const isTee = s.startType === "tee";
+      const head = isTee ? slotNames(s, "front") : Array.from({ length: s.nSlots }, (_, i) => `Start ${i + 1}`);
+      $("#sched").innerHTML = `<thead><tr><th>Week</th><th>Night</th><th>Nine</th>${head.map((l) => `<th>${esc(l)}</th>`).join("")}</tr></thead><tbody>` +
+        s.weeks.map((wk) => { const names = slotNames(s, wk.nine); return `<tr><td>${wk.week}</td><td>${esc(dayLabel(wk.day))}</td><td>${NINE[wk.nine]}</td>` +
+          head.map((_, k) => { const g = wk.groups.find((x) => x.slot === k); return `<td>${g ? `${isTee ? "" : `<small>${esc(names[k])}</small><br>`}${esc(s.teams[g.a])} v ${esc(g.b === null ? BYE : s.teams[g.b])}` : ""}</td>`; }).join("") + "</tr>"; }).join("") + "</tbody>";
+      $("#counts").innerHTML = `<thead><tr><th>Team</th>${head.map((l) => `<th>${esc(l)}</th>`).join("")}<th>Spread</th><th>Same slot two weeks running</th><th>Front / back</th></tr></thead><tbody>` +
+        r.rows.map((row) => { const lo = Math.floor(row.weeks / s.nSlots), hi = Math.ceil(row.weeks / s.nSlots); return `<tr><td>${esc(row.name)}</td>${row.counts.map((c) => `<td${c < lo || c > hi ? ' class="off"' : ""}>${c}</td>`).join("")}<td>${row.spread}</td><td>${row.repeats}</td><td>${row.front} / ${row.back}</td></tr>`; }).join("") + "</tbody>";
+      $("#summary").textContent = `${s.teams.length} teams in ${s.nSlots} groups a night${s.odd ? " (one team a week plays the course)" : ""}, ${s.weeks.length} weeks. ${r.atBound} of ${r.teams} teams have their fair share of every ${isTee ? "tee time" : "starting hole"}; the worst spread between a team's most- and least-used slot is ${r.worstSpread}.` +
+        (s.boundProvedOutOfReach && r.atBound < r.teams ? " For this many teams and weeks a SAT solver has proved no deal gives every team its share, so this is the season's limit, not a missed deal." : "") +
+        (s.skipped.length ? ` No golf on ${s.skipped.map(dayLabel).join(", ")}.` : "") +
+        (problems.length ? ` Check failed: ${problems.join(" ")}` : " Checked: every team plays once a week, every slot is used once a week and every pair of teams meets as evenly as the weeks allow.");
+      $("#status").textContent = "";
+      $("#out").hidden = false;
+      if (!$("#r-rosters").value.trim()) $("#r-rosters").value = sampleRosters();
+      if (event) record(event);
+      ok(true);
+    }, 20));
+  }
+  $("#build").addEventListener("click", () => { seed = 1; build("golf_built"); });
+  $("#again").addEventListener("click", () => { seed++; build("golf_reshuffled"); });
+  function download(text, name) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" })); a.download = name; a.click(); }
+  $("#csv").addEventListener("click", () => { if (last) { download(golfCsv(last), "golf-league-schedule.csv"); record("golf_csv"); } });
+  $("#copy").addEventListener("click", async () => { if (!last) return; try { await navigator.clipboard.writeText(golfText(last)); $("#status").textContent = "Copied."; record("golf_text"); } catch { $("#status").textContent = "Copy was blocked by the browser; use the CSV instead."; } });
+  $("#print").addEventListener("click", () => window.print());
+  $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "off"; $("#optout").disabled = true; });
+  if (usageOptedOut()) { $("#optout").textContent = "off"; $("#optout").disabled = true; }
+
+  // ---- league nights (golf.mjs golfRecap)
+  const RKEY = "league-schedule-generator-golf-recap";
+  const rFields = { teamSize: "#r-size", handicapPct: "#r-pct", last: "#r-last", best: "#r-best", maxHandicap: "#r-max", pointsPerHole: "#r-hole", pointsMatchNet: "#r-mnet", pointsTeamNet: "#r-tnet", absentPenalty: "#r-absent" };
+  const texts = { course: "#r-course", rosters: "#r-rosters", entering: "#r-entering", cards: "#r-cards" };
+  let lastRecap = null;
+  const pt = (x) => (Number.isInteger(x) ? String(x) : x.toFixed(1));
+  function recapInput() {
+    const rules = {};
+    for (const [k, sel] of Object.entries(rFields)) rules[k] = $(sel).value.trim();
+    const o = { rules };
+    for (const [k, sel] of Object.entries(texts)) o[k] = $(sel).value;
+    return o;
+  }
+  function saveRecap() { try { localStorage.setItem(RKEY, JSON.stringify(recapInput())); } catch { /* storage blocked: the form still works */ } }
+  function loadRecap() {
+    try {
+      const v = JSON.parse(localStorage.getItem(RKEY) || "null");
+      if (!v) return;
+      for (const [k, sel] of Object.entries(rFields)) if (v.rules?.[k] !== undefined) $(sel).value = v.rules[k];
+      for (const [k, sel] of Object.entries(texts)) if (typeof v[k] === "string") $(sel).value = v[k];
+    } catch { /* nothing stored, or storage blocked */ }
+  }
+  const FIRST = ["Ana", "Ben", "Cara", "Dev", "Eli", "Fay", "Gus", "Hana", "Ivo", "Jen", "Kai", "Lou", "Mo", "Nia", "Oz", "Pia", "Quin", "Rex", "Sol", "Tia", "Uma", "Vic", "Wes", "Xan"];
+  function sampleRosters() {
+    if (!last) return "";
+    const size = Number($("#r-size").value) || 2;
+    return last.teams.map((t, i) => `${t}: ${Array.from({ length: size }, (_, k) => { const j = i * size + k; return FIRST[j % FIRST.length] + (j >= FIRST.length ? String(Math.floor(j / FIRST.length) + 1) : ""); }).join(", ")}`).join("\n");
+  }
+  function sampleCards() {
+    if (!last) return "";
+    let x = 11; const rnd = () => ((x = (x * 1103515245 + 12345) % 2147483648) / 2147483648);
+    const pars = [4, 4, 3, 5, 4, 4, 3, 5, 4];
+    const players = $("#r-rosters").value.split("\n").flatMap((l) => (l.split(":")[1] || "").split(",").map((s) => s.trim()).filter(Boolean));
+    const lines = [];
+    for (let w = 1; w <= Math.min(3, last.weeks.length); w++) {
+      lines.push(`Week ${w}`);
+      players.forEach((p, i) => {
+        const skill = 0.2 + ((i * 37) % 13) / 10;
+        if (w === 2 && i % 7 === 3) { lines.push(`${p} absent`); return; }
+        lines.push(`${p}: ${pars.map((par) => Math.max(2, par + Math.round(skill * rnd() + (rnd() - 0.4)))).join(" ")}`);
+      });
+    }
+    return lines.join("\n");
+  }
+  function runRecap(event) {
+    if (!last) { $("#r-status").textContent = "Build the schedule first."; return; }
+    saveRecap();
+    const r = golfRecap(last, recapInput());
+    if (r.errors.length) { $("#r-status").innerHTML = r.errors.slice(0, 12).map((e) => `<span class="err">${esc(e)}</span>`).join("<br>"); $("#r-out").hidden = true; return; }
+    if (!r.nights.length) { $("#r-status").textContent = "No cards typed yet."; $("#r-out").hidden = true; return; }
+    lastRecap = r;
+    $("#r-standings").innerHTML = "<thead><tr><th>Place</th><th>Team</th><th>Points</th><th>Matches</th><th>Holes won</th><th>Team net total</th></tr></thead><tbody>" +
+      r.standings.map((x) => `<tr><td>${x.place}</td><td>${esc(x.team)}</td><td>${pt(x.points)}</td><td>${x.played}</td><td>${x.holesWon}</td><td>${x.net}</td></tr>`).join("") + "</tbody>";
+    const n = r.nights[r.nights.length - 1];
+    $("#r-night-h").textContent = `Week ${n.week}, ${dayLabel(n.day)} (${NINE[n.nine]}, par ${n.parTotal})`;
+    const who = (p) => (p.par ? "Par" : `${esc(p.name)} (${p.handicap})${p.absent ? " <small>absent</small>" : p.retro ? " <small>handicap set tonight</small>" : ""}`);
+    const gross = (p) => (p.par ? n.parTotal : p.absent ? "&ndash;" : p.holes.reduce((a, b) => a + b, 0));
+    $("#r-night").innerHTML = "<thead><tr><th>Pairing</th><th>Gross</th><th>Net</th><th>Holes won</th><th>Points</th></tr></thead><tbody>" +
+      n.matches.map((m) => `<tr><td colspan="5"><strong>${esc(m.a)} ${pt(m.points[0])} &ndash; ${pt(m.points[1])} ${esc(m.b ?? "the course")}</strong> <small>(team net ${m.teamNet[0]} v ${m.teamNet[1]})</small></td></tr>` +
+        m.pairings.map((p) => `<tr><td>${who(p.a)} v ${who(p.b)}</td><td>${gross(p.a)} v ${gross(p.b)}</td><td>${p.nets[0] ?? "&ndash;"} v ${p.nets[1] ?? "&ndash;"}</td><td>${p.holes[0]} v ${p.holes[1]}</td><td>${pt(p.pts[0])} v ${pt(p.pts[1])}</td></tr>`).join("")).join("") + "</tbody>";
+    $("#r-players").innerHTML = "<thead><tr><th>Player</th><th>Team</th><th>Rounds</th><th>Average gross</th><th>Handicap</th><th>Low gross</th><th>Low net</th><th>Absent</th></tr></thead><tbody>" +
+      r.players.map((p) => `<tr><td>${esc(p.name)}</td><td>${esc(p.team)}</td><td>${p.rounds}</td><td>${p.average ?? "&ndash;"}</td><td>${p.handicap ?? "&ndash;"}</td><td>${p.lowGross ?? "&ndash;"}</td><td>${p.lowNet ?? "&ndash;"}</td><td>${p.absences}</td></tr>`).join("") + "</tbody>";
+    $("#r-status").textContent = `${r.nights.length} night${r.nights.length === 1 ? "" : "s"} worked out.`;
+    $("#r-out").hidden = false;
+    if (event) record(event);
+  }
+  $("#r-run").addEventListener("click", () => runRecap("golf_recap"));
+  $("#r-sample").addEventListener("click", () => { if (!last) { $("#r-status").textContent = "Build the schedule first."; return; } if (!$("#r-rosters").value.trim()) $("#r-rosters").value = sampleRosters(); $("#r-cards").value = sampleCards(); runRecap("golf_recap_sample"); });
+  $("#r-copy").addEventListener("click", async () => { if (!lastRecap) return; try { await navigator.clipboard.writeText(golfRecapText(lastRecap)); $("#r-status").textContent = "Copied."; record("golf_recap_text"); } catch { $("#r-status").textContent = "Copy was blocked by the browser; use a CSV instead."; } });
+  $("#r-csv-s").addEventListener("click", () => { if (lastRecap) { download(golfStandingsCsv(lastRecap), "golf-standings.csv"); record("golf_recap_csv"); } });
+  $("#r-csv-p").addEventListener("click", () => { if (lastRecap) { download(golfPlayersCsv(lastRecap), "golf-handicaps.csv"); record("golf_recap_csv"); } });
+  loadRecap();
+  build().then((ok) => { if (ok && $("#r-cards").value.trim()) runRecap(); });
+</script>
+</body>
+</html>

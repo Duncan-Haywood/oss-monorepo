@@ -19,6 +19,44 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
+## Golf leagues: tee times rotated evenly, match play scored with handicaps (2026-11-20, newest)
+
+`golf-league-schedule.html`, `golf.mjs`, `golf-tee-table.mjs`; tested in `golf.test.mjs`.
+
+**Who it is for.** Twilight nine-hole leagues of two-person teams at public and club courses. Today the
+league secretary keeps a spreadsheet, or pays for golf league software whose two core jobs are the weekly
+tee sheet and the match play points with handicap strokes (prices not checked here). This page does both, free, in the browser.
+
+**Schedule.** The round robin repeats over the season; the nine alternates front/back (front first or back
+first) or stays fixed; every group gets a tee time (first tee and minutes between groups) or a shotgun
+starting hole (1-9 or 10-18, then 1B, 2B...). An odd league's bye team keeps a tee time and plays the course.
+Tee times are dealt so each team has each slot as evenly as its weeks allow (floor/ceil of weeks over
+slots): a Hungarian assignment per week priced on the counts so far and on last week's slot, swept to a
+fixed point, random re-deals kept only when better, then a tabu search over in-week swaps aimed at the
+teams still off their share. For 6 seasons the search missed, a SAT solver's deal is stored and re-checked
+in the browser before use (`golf-tee-table.mjs`).
+
+**Measured** (`node eval/golf-tee-grid.mjs`, `eval/golf-tee-grid.txt`): 77 seasons, 4-20 teams by 10-22
+weeks. Every team at its share in 71 (849 of 868 teams); a hand rotation (each group one slot later each
+week) in 4 (90 of 868). The other 6 a SAT solver proved out of reach for this round robin
+(`eval/golf-tee-sat.py`, `eval/golf-tee-sat.txt`): 4 teams over 10, 14, 16, 20 and 22 weeks, 20 teams over
+10; the page says so (`boundProvedOutOfReach`). Worst build 1.1 s in Node. Repeats (same slot two weeks
+running) are counted and shown but come second to the share: 841 over the 77 seasons.
+
+**Weekly scoring** (`golfRecap`). Course card (par and stroke index, 18 holes), rosters, optional entering
+handicaps and hole-by-hole cards ("Ana: 5 4 6 3 5 4 5 6 4", "Ben absent"). Low v low handicap pairings;
+the higher handicap gets the difference in strokes on the nine's hardest holes (ranked by stroke index
+within the nine), a second round past 9. Points per hole (split on a half), per pairing low net, team low
+net (defaults 1, 1, 2: 22 a match). League handicap: handicap % of the average of the best N of the last M
+rounds' adjusted score over par, net double bogey cap per hole, rounded, capped (defaults 90%, 5 of 5,
+18); entering handicap, else the first card sets it that night. Absent: the opponent takes the pairing's
+holes and net point; the absentee counts par + 3 in the team net. Bye: each player against net par with
+their full handicap. A night worked by hand is in the tests (Hawks 12.5, Owls 9.5) and on the page.
+
+**Limits.** A league handicap only, not a Handicap Index under the World Handicap System; no score
+posting; one stroke-index row per course (no separate men's/women's tees); subs play under the rostered
+name; no skins, flighted play-offs or two-course leagues yet. Not yet used by a real league.
+
 ## Americano and Mexicano scorer (2026-11-19, `americano-night.html`, `night.mjs`)
 
 The Americano card on the main page builds a rotation sheet; it stopped there, so an organiser at the courts

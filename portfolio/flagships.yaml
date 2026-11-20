@@ -375,14 +375,15 @@ flagships:
     next: >-
       Landed work and every measurement are in
       ventures/league-schedule-generator/README.md and eval/ (divisions, venues,
-      rainouts, standings (set scoring in race, odds, post, H2H 2026-11-20), officials, duty rota, team sheets; carry-over and break
-      floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
-      2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
-      schedule, eval/seed-balance.txt; 2026-11-18 limits kept exactly, impossible
-      ones named, eval/limit-conflicts.txt; promotion/relegation, play-off results
-      (tests); league page (availability, subs, sign-ups, free agents, waivers,
-      ratings: README; next: a real league's use); 2026-11-19 balanced teams, /join
-      free agents (eval/free-agent-fit.txt), crossover pool seeds
+      rainouts, standings (set scoring in race, odds, post, H2H 2026-11-20),
+      officials, duty rota, team sheets; carry-over and break floors, frontier
+      picker, blackout fit, WebAssembly step: README 2026-11-11 to 2026-11-15
+      sections; 2026-11-17 shorter seasons with even strength of schedule,
+      eval/seed-balance.txt; 2026-11-18 limits kept exactly, impossible ones named,
+      eval/limit-conflicts.txt; promotion/relegation, play-off results (tests);
+      league page (availability, subs, sign-ups, free agents, waivers, ratings:
+      README; next: a real league's use); 2026-11-19 balanced teams, /join free
+      agents (eval/free-agent-fit.txt), crossover pool seeds
       (eval/crossover-seeds.txt); bowling lanes 36 of 36 even
       (eval/bowling-repeat-sat.txt); bowling averages, handicaps, points, standings
       from score sheets (bowling-recap.test.mjs)). 3-game nights
@@ -394,12 +395,12 @@ flagships:
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
       (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
       eval/whist-vs-greedy.txt); Whist 48, 60 and near-whist 46, 54, 62 by tabu
-      search 2026-11-19 (eval/whist-anneal.c, .txt); 52, near-whist 58 by starter +
-      table matching (eval/whist-starter.c); also by a base round fixed by
-      multiplier 37 (eval/whist-involution.c, 11 s; 69 too); Americano/Mexicano
-      scorer page 2026-11-19 (americano-night.html, night.mjs: live table, sit-out
-      credit; eval/sit-out-credit.txt); next: a real club's night on it. More open
-      items: NEXT.md.
+      search 2026-11-19 (eval/whist-anneal.c, .txt); Americano/Mexicano scorer page
+      2026-11-19 (americano-night.html, night.mjs: live table, sit-out credit;
+      eval/sit-out-credit.txt); next: a real club's night on it. Golf 2026-11-20
+      (golf.mjs, golf-league-schedule.html): tee times at share in 71 of 77 seasons,
+      other 6 SAT-proved out (eval/golf-tee-grid.txt); match play recap; next:
+      men's/women's tee rows, skins. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
