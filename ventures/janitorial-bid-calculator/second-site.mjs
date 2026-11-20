@@ -33,6 +33,9 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
  * @param {number} input.tripsPerWeek       How many times the crew actually
  *   drives there. Usually the new site's cleanings per week; less if they
  *   stack two buildings on the same night.
+ * @param {number} [input.peopleInVehicle=1] Cleaners who ride to the site on
+ *   each trip. Every one of them is paid for the drive, so a two-person crew
+ *   doubles the drive labor (the vehicle cost does not change).
  * @param {number} input.extraVehicleMonthly Incremental fuel, tolls, and
  *   wear beyond the first site's vehicle line.
  * @param {number|string|null} [input.offeredMonthly] Optional price the
@@ -44,6 +47,11 @@ export function compareSecondSite(input) {
   const driveMinutesOneWay = number(input.driveMinutesOneWay ?? 0, 'Drive minutes one way');
   const tripsPerWeek = number(input.tripsPerWeek ?? 0, 'Trips per week');
   const extraVehicleMonthly = number(input.extraVehicleMonthly ?? 0, 'Extra vehicle cost');
+  const peopleInVehicle = number(
+    input.peopleInVehicle === '' ? 1 : (input.peopleInVehicle ?? 1),
+    'Cleaners in the vehicle',
+    { allowZero: false },
+  );
   const overheadRate = number(input.candidate?.overheadRate ?? 0, 'Overhead');
   const targetMargin = number(input.candidate?.targetMargin ?? 0, 'Target margin');
   if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
@@ -52,7 +60,9 @@ export function compareSecondSite(input) {
 
   // Round trip, then weeks-per-month — the same conversion the first-building
   // bid uses, so a 25-minute hop three nights a week is not "about an hour."
-  const monthlyDriveHours = (driveMinutesOneWay * 2 / 60) * tripsPerWeek * WEEKS_PER_MONTH;
+  // Paid hours, so each cleaner riding along counts: two people in the van
+  // for a 25-minute hop is 50 paid minutes each way, not 25.
+  const monthlyDriveHours = (driveMinutesOneWay * 2 / 60) * tripsPerWeek * WEEKS_PER_MONTH * peopleInVehicle;
   const monthlyDriveLabor = monthlyDriveHours * building.loadedWage;
   const addedDirect = monthlyDriveLabor + extraVehicleMonthly;
   const addedOverhead = addedDirect * overheadRate / 100;
@@ -82,6 +92,7 @@ export function compareSecondSite(input) {
     building,
     driveMinutesOneWay,
     tripsPerWeek,
+    peopleInVehicle,
     extraVehicleMonthly,
     monthlyDriveHours,
     monthlyDriveLabor,

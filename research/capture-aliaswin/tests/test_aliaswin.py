@@ -42,3 +42,13 @@ def test_track_series_follows_clean_delay():
     wins = [(x, fractional_delay(x, t, 16000)) for t in taus]
     est = track_series(wins, [0, 300, 600, 900], 0.25, 0.02)
     assert np.allclose(est, taus, atol=5e-4)
+
+
+def test_subsample_refinement_is_closer_than_the_integer_lag():
+    """Parabolic refinement must move the estimate towards a fractional delay, not away (audit 2026-11-20)."""
+    from capture_audiosync import fractional_delay
+    x = np.random.default_rng(4).standard_normal(32000)
+    for frac in (0.3, 0.7):
+        tau = (1600 + frac) / 16000
+        est = gcc_search(x, fractional_delay(x, tau, 16000), 0.25, 0.1, 0.01)
+        assert abs(est - tau) * 16000 < 0.2

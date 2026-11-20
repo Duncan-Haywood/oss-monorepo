@@ -122,7 +122,7 @@ restroom share alone.
 
 A second building is a different question. Open
 [`second-site.html`](second-site.html) to price the new site the same way,
-then add the drive as loaded labor and extra fuel. The first-building bid
+then add the drive as loaded labor (for every cleaner in the vehicle) and extra fuel. The first-building bid
 treats the van as already paid for; the hop to the next address is not free.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
@@ -156,7 +156,9 @@ Events counted: `bid_calculated`, `area_added`, `area_removed`,
 `initial_clean_compared`, `initial_clean_offer_compared`,
 `initial_clean_note_copied`,
 `second_site_compared`, `second_site_offer_compared`,
-`second_site_summary_copied`.
+`second_site_summary_copied`, `periodic_service_added`,
+`periodic_service_removed`, `link_copied`, `proposal_printed`,
+`company_forgotten`.
 
 ## Limitations
 
@@ -171,6 +173,20 @@ Events counted: `bid_calculated`, `area_added`, `area_removed`,
   against cleaners × available hours, not porter coverage.
 - Project-work rates and coat counts are starter figures. Real strip, extract,
   and initial-clean times depend on soil, finish buildup, furniture, and access.
+
+## Known gaps
+
+From the 2026-11-20 quality audit
+([`portfolio/quality/audits/2026-11-20-janitorial-bid-calculator.json`](../../portfolio/quality/audits/2026-11-20-janitorial-bid-calculator.json)),
+not yet modelled:
+
+- No supervision / inspection or other non-productive hours line (enter them
+  as a scheduled shift or in Other cost for now).
+- Restrooms are priced by square feet, not by fixture count.
+- Monthly hours assume 52 working weeks; holidays the building closes are
+  not subtracted, and multi-year wage escalation is not modelled.
+- The crew-capacity check adds every scheduled area into one visit, so on a
+  mixed schedule (restrooms 5x, offices 2x) it checks the heaviest night.
 
 ## Disclaimer
 

@@ -26,7 +26,7 @@ listed with a line number and reason, never dropped silently.
 - Logo and revenue churn over the last three complete months, implied lifetime,
   revenue LTV, quick ratio.
 - Cohort retention table (logo retention by start month × months since).
-- Findings: early-life churn share, rising or falling churn, single-customer
+- Findings: early-life churn share, rising or falling churn, single-subscription
   concentration over 20% of MRR, large gaps in cancellation rate between plans.
 - Churn-reduction value: 12-month MRR with churn lowered by N points against today's churn, in the page and with `--what-if`.
 - Download of the monthly table as CSV.
@@ -52,7 +52,27 @@ MRR per subscription is amount ÷ interval in months × quantity, held constant.
 A subscription export carries no upgrade, discount or refund history, so
 expansion and contraction are not modelled; a cancel-and-resubscribe shows as one
 churn and one new subscription. Lifetime is 1 ÷ logo churn; LTV is revenue, not
-profit.
+profit. Logo churn counts subscriptions, not customers. Rows with status
+`trialing` are skipped; with a `Trial End (UTC)` column MRR starts at the trial
+end. A row whose status is still `active`, `past_due` or `unpaid` stays live even
+with a `Canceled At` date (Stripe's cancel at period end).
+
+## Known gaps
+
+From the quality audit
+[`portfolio/quality/audits/2026-11-20-stripe-churn-cohort-analyzer.json`](../../portfolio/quality/audits/2026-11-20-stripe-churn-cohort-analyzer.json):
+
+- Logo churn and the concentration finding are per subscription; churn per
+  customer (grouping on Customer ID) is not computed yet.
+- Monthly logo churn divides every subscription ended in the month, including
+  ones that started that month, by the opening count only, so on a small file
+  with many same-month cancellations it can exceed 100%.
+- The plan-gap finding compares lifetime ended shares, so an older plan looks
+  worse partly because it has had longer to churn.
+- Dates that are not ISO (`YYYY-MM-DD`) or Unix seconds are parsed in the
+  machine's local time zone.
+- Without a Trial End column, a trial canceled before paying still counts as a
+  short subscription (new and churned MRR).
 
 ## Run / test
 

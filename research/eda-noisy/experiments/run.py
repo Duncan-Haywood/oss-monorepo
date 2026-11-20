@@ -1,4 +1,4 @@
-"""Run: PYTHONPATH=src python experiments/run.py   (a few minutes). Writes results.txt.
+"""Run: PYTHONPATH=src python experiments/run.py   (about 50 s). Writes results.txt.
 Proposers are shown objectives with N(0, sigma) error (scaled units, fixed per design per run); the found set is scored on the truth."""
 import os
 import numpy as np

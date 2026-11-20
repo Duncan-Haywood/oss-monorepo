@@ -1011,3 +1011,13 @@ test('a day porter belongs in the supply and initial-clean comparisons too', () 
   );
   assert.ok(initialWith.monthly.monthlyCost > initialWithout.monthly.monthlyCost);
 });
+
+test('a visit that exactly fills the crew is at capacity, not over it', () => {
+  // 4,000 sq ft at 1,000 sq ft/h = 4 h per visit; 1 cleaner x 4 h = 4 h capacity.
+  const base = { hourlyWage: 17, burdenRate: 28, overheadRate: 15, targetMargin: 20, crewSize: 1, shiftHours: 4 };
+  const full = calculateBid({ ...base, areas: [{ squareFeet: 4000, productionRate: 1000, cleaningsPerWeek: 5 }] });
+  assert.equal(full.visitUtilization, 100);
+  assert.equal(full.visitOverCapacity, false);
+  const over = calculateBid({ ...base, areas: [{ squareFeet: 4001, productionRate: 1000, cleaningsPerWeek: 5 }] });
+  assert.equal(over.visitOverCapacity, true);
+});

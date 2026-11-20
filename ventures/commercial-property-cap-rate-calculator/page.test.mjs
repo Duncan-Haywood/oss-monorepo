@@ -49,10 +49,9 @@ test("usage events named on the page are the ones the code records", () => {
 test("every map id exists (static or rendered from the question lists) and is read by the calculator", async () => {
   const html = page("index.html");
   const { SAMPLE } = await import("./calc.mjs");
-  const rendered = new Set();
   const map = html.match(/const map = \{([^}]*)\}/)[1];
   for (const [, id, key] of map.matchAll(/(\w+): "(\w+)"/g)) {
-    assert.ok(rendered.has(id) || html.includes(`id="${id}"`), id);
+    assert.ok(html.includes(`id="${id}"`), id);
     assert.ok(key in SAMPLE, key);
   }
 });

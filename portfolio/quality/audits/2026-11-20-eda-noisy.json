@@ -1,0 +1,229 @@
+{
+ "date": "2026-11-20",
+ "subject": "research/eda-noisy",
+ "stratum": "research",
+ "seed": "2026-11-20-71e1",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a researcher in multi-objective design-space exploration for hardware (noisy/multi-fidelity Bayesian optimisation and evolutionary multi-objective search), who would check first that the found set is scored on the truth, that the noise model matches what a cheap EDA rung actually gets wrong, and that the work is placed against the noisy-EMO literature",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Re-ran experiments/run.py in a private copy (/tmp/claude-0/audit-eda-noisy/research/eda-noisy, siblings symlinked): results.txt is byte-identical to the committed file (diff empty), 49 s. Independently recomputed with my own min-max scaling, Pareto filter and an exact grid-cell hypervolume (not eda_proposers.hv's recursive slicing): true front 12 points, HV 1.206597; random search mean ratio 0.8912 (b16) and 0.9427 (b30) vs reported 0.891 / 0.943; TPE minus random at budget 30 re-scored with my HV: +0.0370 (sigma 0), +0.0134 better 0.65 (sigma 0.4), +0.0061 with paired-t 95% [-0.0012, +0.0134] (sigma 0.8) vs reported +0.037, +0.013 / 0.65, +0.006 [-0.001, +0.013]. Sigma 0 equals eda-refpoint/experiments/results.txt line 57 (+0.037, better 0.92). The numbers are right; the design issues are scored under domain.",
+  "completeness": "README claims: 5 tests (ran, OK), run.py reproduces the tables (byte-identical, 49 s vs 'about 1 minute'), figure from results.txt (figure.py not re-run: matplotlib absent; PNG committed), live page (not loadable: proxy 403 on marisstella.app). Next steps are stated as not done. Everything claimed as done works except the unverified figure/page.",
+  "verification": "PYTHONPATH=src python3.13 -m unittest discover -s tests: 5 tests OK in 0.17 s. Four seeded mutants via quality_mutate.py: scaling sigma and collapsing per-seed noise were caught; scoring the found set on the noisy view instead of the truth (study.py:37, the core of the study) and dropping the last design from the budget (study.py:30) both SURVIVED. 2/4 caught before the fix.",
+  "craft": "Read study.py (37 lines), __init__.py, tests/test_study.py, experiments/run.py, figure.py and the imported eda_proposers table/bench/hv/proposers. Small, clear, deterministic seeding (noise rng 10_000+seed separate from proposer rng). Defects: eda_proposers reached by sys.path insertion in __init__.py and not declared in pyproject.toml; hv_ratio recomputes the true-front HV on every call; run.py docstring said 'a few minutes' (49 s). Acceptable research code.",
+  "claims": "Every number in the Result bullets matches results.txt (checked line by line) and four were recomputed. 'Stylised and preliminary', synthetic noise and no place-and-route are stated up front; Limitations names the iid-noise optimism. Mild overclaim: 'gone at sigma 0.8' when the mean is +0.006 and the CI is [-0.001, +0.013]. 'Lose their lead at about sigma 0.1' is read off where one of 48 uncorrected intervals first crosses zero. Prior work under-cited (only Peherstorfer et al., from memory).",
+  "fitness": "A researcher could reuse the harness (NoisySpace wrapper over eda-proposers, paired seeds, true-objective scoring) in an afternoon, and the reproduction is exact. But the result is not new in kind: degradation of model-guided and evolutionary multi-objective search under evaluation noise is established in the noisy-EMO literature (e.g. Goh and Tan 2007, IEEE TEC; Rakshit, Konar and Das 2017 survey) and handled by noisy-hypervolume BO (e.g. Daulton et al. 2021 qNEHVI), none cited or compared. On one 80-design table with a 12-point front and gains of a few hundredths of HV ratio, it is a sound small measurement, not a building block for a paper.",
+  "domain": "Compared with how the repository's own fidelity ladder (research/eda-fidelity README, 'Rungs') defines cheap rungs: cycles are exact from rung 1 and accuracy is not estimated by any rung; only cells come from a cheap model. eda-noisy adds iid N(0, sigma) to all three scaled objectives (study.py:21), so the experiment does not model the stated motivation. No multiplicity control over 48 intervals; a single reference point (1.1) although eda-refpoint showed gain magnitude depends strongly on it; no re-measurement baseline (acknowledged). A practitioner would accept the scoring protocol and the paired design, not the noise model."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "true Pareto front size and hypervolume on the 80-design table",
+   "method": "own min-max scaling, Pareto filter and exact grid-cell hypervolume, no subject import",
+   "command": "python3 -I /tmp/claude-0/audit-eda-noisy/scripts/indep.py",
+   "expected": "12-point front (README)",
+   "observed": "front size 12, true HV 1.206597",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "random search mean HV ratio, budgets 16 and 30, 100 seeds",
+   "method": "independent replay of uniform draws with numpy default_rng(seed), scored with own grid HV",
+   "command": "python3 -I /tmp/claude-0/audit-eda-noisy/scripts/indep.py",
+   "expected": "0.891 / 0.943 (results.txt)",
+   "observed": "0.8912 / 0.9427",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "TPE paired gain over random, budget 30, sigma 0 / 0.4 / 0.8",
+   "method": "shipped proposers for picks, scored with own grid HV; paired t interval instead of the author's bootstrap",
+   "command": "python3 -I /tmp/claude-0/audit-eda-noisy/scripts/tpe_check.py",
+   "expected": "+0.037; +0.013 better 0.65; +0.006 [-0.001, +0.013]",
+   "observed": "+0.0370; +0.0134 better 0.65; +0.0061 t95 [-0.0012, +0.0134]",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "sigma 0 reproduces eda-refpoint budget-30 figure",
+   "method": "compare with research/eda-refpoint/experiments/results.txt line 57 (another project's committed output)",
+   "command": "grep -n 'budget 30  HV ref 1.1' research/eda-refpoint/experiments/results.txt",
+   "expected": "+0.037, better 0.92",
+   "observed": "mean diff +0.037 better 0.92 worse 0.08",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py regenerates results.txt",
+   "method": "run in a private copy, diff against committed file",
+   "command": "cd /tmp/claude-0/audit-eda-noisy/research/eda-noisy && PYTHONPATH=src python3.13 experiments/run.py; diff experiments/results.txt <committed>",
+   "expected": "identical, about 1 minute",
+   "observed": "identical, 49 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure.py redraws gain_vs_noise.png",
+   "method": "attempted run",
+   "command": "python3.13 -c 'import matplotlib'",
+   "expected": "figure renders",
+   "observed": "ModuleNotFoundError: matplotlib; PNG committed, not re-rendered",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "run suite",
+   "command": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests",
+   "expected": "5 tests pass",
+   "observed": "Ran 5 tests OK (0.17 s)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'TPE lead ... is gone at sigma 0.8'",
+   "method": "compare with results.txt budget-30 row",
+   "command": "grep 'tpe        sigma 0.80' research/eda-noisy/experiments/results.txt",
+   "expected": "gain indistinguishable from 0",
+   "observed": "+0.006 [-0.001, +0.013], better 0.59: not significant, but not gone",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "NSGA-II and genetic lose their lead at about sigma 0.1",
+   "method": "read CIs at sigma 0.05 and 0.1, budget 30",
+   "command": "grep -E '^(nsga2|genetic)' research/eda-noisy/experiments/results.txt",
+   "expected": "CI above 0 at 0.05, crossing 0 at 0.1",
+   "observed": "nsga2 [+0.002,+0.014] then [-0.007,+0.006]; genetic [+0.003,+0.016] then [-0.002,+0.013]",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "runtime stated in run.py docstring",
+   "method": "timed run",
+   "command": "time PYTHONPATH=src python3.13 experiments/run.py",
+   "expected": "'a few minutes' (docstring) / 'about 1 minute' (README)",
+   "observed": "49 s: README right, docstring stale",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page https://marisstella.app/research/eda-noisy/",
+   "method": "curl",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/eda-noisy/",
+   "expected": "200",
+   "observed": "proxy 403 (connect_rejected); not checked",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "noise model matches the cheap rung it stands in for",
+   "method": "research/eda-fidelity README 'Rungs': rung 1 gives exact cycles, cells are the only cheap estimate, accuracy is not a rung quantity",
+   "command": "sed -n 1,25p research/eda-fidelity/README.md; sed -n 21p research/eda-noisy/src/eda_noisy/study.py",
+   "expected": "error on cells only (or measured rung error)",
+   "observed": "iid N(0, sigma) on cells, cycles and err",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited and novelty placed",
+   "method": "README Builds-on vs noisy-EMO and noisy-HV BO literature",
+   "command": "sed -n 7p research/eda-noisy/README.md",
+   "expected": "noisy multi-objective optimisation literature cited",
+   "observed": "only Peherstorfer et al. 2018 (multifidelity survey), from memory",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/eda_noisy/study.py:37",
+   "change": "return hv_ratio(true_space, order, budget) -> return hv_ratio(NoisySpace(rows, sigma, seed), order, budget)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/eda_noisy/study.py:30",
+   "change": "order[:budget] -> order[:budget - 1]",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/eda_noisy/study.py:21",
+   "change": "rng.normal(0.0, sigma, 3) -> rng.normal(0.0, sigma / 2, 3)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/eda_noisy/study.py:20",
+   "change": "default_rng(10_000 + seed) -> default_rng(10_000)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "No test checks that the found set is scored on the true objectives or that exactly `budget` designs are scored: mutants scoring on the noisy view (the central design choice) and dropping the last design both survive.",
+   "where": "research/eda-noisy/src/eda_noisy/study.py:37",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
+  },
+  {
+   "severity": "medium",
+   "what": "Noise is added to all three objectives, but in the repository's own fidelity ladder (eda-fidelity) cycles are exact from rung 1 and accuracy is not a rung estimate; only cells come from a cheap model. The experiment does not model its stated motivation, and the noise on cycles/err likely makes the tolerance thresholds pessimistic.",
+   "where": "research/eda-noisy/src/eda_noisy/study.py:21",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work (noise-robust evolutionary multi-objective optimisation, e.g. Goh and Tan 2007, Rakshit et al. 2017 survey; noisy-hypervolume BO such as qNEHVI) not cited or compared; novelty not placed.",
+   "where": "research/eda-noisy/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'Lose their lead at about sigma 0.1' is read off where one of 48 uncorrected 95% intervals first crosses zero; no multiplicity control or trend test.",
+   "where": "research/eda-noisy/README.md:14",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'TPE's lead ... is gone at sigma 0.8' overstates a mean of +0.006 with CI [-0.001, +0.013] (not significant, not gone).",
+   "where": "research/eda-noisy/README.md:13",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
+  },
+  {
+   "severity": "low",
+   "what": "run.py docstring says the run takes 'a few minutes'; it takes 49 s.",
+   "where": "research/eda-noisy/experiments/run.py:1",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
+  },
+  {
+   "severity": "low",
+   "what": "Dependency on eda_proposers is a sys.path insertion, not declared in pyproject.toml (which lists only numpy).",
+   "where": "research/eda-noisy/src/eda_noisy/__init__.py:4",
+   "category": "repo-hygiene",
+   "origin": "build"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"],
+ "verdict": "A small, honest, exactly reproducible measurement: run.py regenerates results.txt byte-for-byte in 49 s, and an independent hypervolume reproduces the front (12 points), random-search means (0.891/0.943) and TPE gains (+0.037, +0.013, +0.006). It misses the bar on verification: the five tests let the central mutant (scoring on the noisy view instead of the truth) survive. As research it sits below the senior bar: the noise is put on cycles and accuracy, which the repository's own ladder measures exactly, the noisy-EMO literature is not cited, and the thresholds come from uncorrected intervals on one 80-design table."
+}

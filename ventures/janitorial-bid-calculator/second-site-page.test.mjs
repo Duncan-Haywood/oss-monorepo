@@ -51,7 +51,7 @@ test('the module script survives parsing and would actually execute', () => {
 test('required inputs and outputs exist so the journey can run', () => {
   for (const id of [
     'officeSqFt', 'restroomSqFt', 'cleaningsPerWeek', 'hourlyWage',
-    'driveMinutesOneWay', 'tripsPerWeek', 'extraVehicleMonthly',
+    'driveMinutesOneWay', 'tripsPerWeek', 'peopleInVehicle', 'extraVehicleMonthly',
     'offeredMonthly', 'price', 'walkAway', 'copySummary', 'usageOptOut',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
@@ -67,4 +67,8 @@ test('the page states the no-warranty and no-SLA limits a hosted tool must show'
 test('the first-building calculator still links here after concurrent index edits', () => {
   const index = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(index, /second-site\.html/);
+});
+
+test('the crew-in-vehicle input is read into the comparison', () => {
+  assert.match(scriptSource, /peopleInVehicle: el\('peopleInVehicle'\)\.value/);
 });

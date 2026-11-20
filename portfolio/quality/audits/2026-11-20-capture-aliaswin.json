@@ -1,0 +1,224 @@
+{
+ "date": "2026-11-20",
+ "subject": "research/capture-aliaswin",
+ "stratum": "research",
+ "seed": "2026-11-20-71e1",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior audio signal-processing researcher in time-delay estimation and multi-device audio synchronisation (an ICASSP / IEEE TASLP reviewer); first checks: does the GCC estimator and its peak search match Knapp and Carter, is the failure rate reproducible, is the window design the one a practitioner would use (reference segment against a longer search region), and is the TDE threshold-effect and audio-sync literature cited",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Re-ran experiments/run.py in a private copy (python3.13, 2m49s on 4 cores): results.txt is byte-identical to the committed one (diff empty). Independent re-implementation /tmp/claude-0/audit-capture-aliaswin/scripts/indep.py (own WAV loader with linear resampling, integer delay by slicing the clip rather than an FFT circular shift, own GCC-beta, no subject import, different RNG) agrees within sampling noise: soft 1 s 0.960 vs 0.907, soft 2 s 0.213 vs 0.248, soft 3 s 0.000 vs 0.000, untie 2 s 0.363 vs 0.338, space2 2 s 0.683 vs 0.655, space2 PHAT 2 s 0.990 vs 0.998, wallewal 2 s 0.267 vs 0.262. space2's autocorrelation period by direct dot products: 12.12 ms, rho 0.998 (README 12.1 ms). Clip set from WAV headers: ten clips >= 3.9 s, 3.94 to 8.67 s, falling 3.94 s (README 3.9 to 8.7). Small wording errors in the README (shared-audio span, wallewal range, 'all ten' for 9-clip cells) are claims defects, not computation errors.",
+  "completeness": "Every claimed experiment exists and runs: tests (4, as stated), run.py (stated about 3 min; measured 2m49s), overlap.py and track.py outputs committed and consistent with the README tables (sections B and C of results.txt, track.txt A-C, overlap.txt). Next steps are listed as untested, honestly. capture-trackprior has since built on it.",
+  "verification": "`python -m pytest -q tests`: 4 passed in 0.32 s. Three seeded mutations via platform/ci/quality_mutate.py: flipping the sign of the parabolic peak refinement SURVIVED, halving the whitening exponent gamma SURVIVED, centring the second tracked window on 0 instead of the first estimate was CAUGHT. No test pins gamma weighting, sub-sample accuracy or any reported number; the reproducibility of results.txt rests on fixed seeds, not a test.",
+  "craft": "Read src/capture_aliaswin/aliaswin.py (85 lines), experiments/run.py, overlap.py, track.py, tests. Clear and short. Defects: pair_at's docstring and START_BINS call s0 the 'window start' but camera A's window starts PAD_S=0.5 s later, which leaks into the README section C wording; pyproject pythonpath lists four projects twice; each experiment hand-builds sys.path over eight sibling projects, and importing capture_residgate.alias drags in capture_edit through capture_residgate/__init__.py (a deep import chain for one 10-line function).",
+  "claims": "Checked: headline 0.97/0.38/0.16 and 0.62/0.15/0.07 (results.txt B: 0.972/0.376/0.163, 0.623/0.150/0.072; pass, but the 3 s 'all ten clips' is 9 clips); gamma range 0.38-0.76 (pass); +-50 ms 0.655 for space2 (pass); alias positions '12.1, 24.4 and 48.6 ms' (partial: my sample of space2 errors clusters at 12.0-12.2 and 24.0-24.3 ms); 'wallewal to 0.03 to 0.05 at 3 s' (fail: 1-ok = 0.016/0.030/0.051); section C 77/11/0 and 59/0/0 (pass); 'such a window shares clip audio from about 0.5 to 1.2 s' (fail: for a segment starting at s0 in [0,0.5) the shared span is clip[s0+0.5, s0+1.7], i.e. 0.5 to 2.2 s; 1.2 s is its length); overlap 2-5 dB (pass: 4.6 and 1.9 dB); track table and whole-series equality (pass vs track.txt); '13 ms the delay moves between windows' (partial: that is the maximum at 40 ppm x 327 s, uniform drift averages half); 'Nothing here is claimed as new' (honest). Oracle priors labelled as ceilings; AI-assistance line present. Live page not loadable (proxy 403).",
+  "fitness": "A researcher can build on the code and data (capture-trackprior did). Nearest prior work: GCC and the TDE threshold/ambiguity effect (Knapp and Carter 1976; Ianniello 1982, IEEE Trans. ASSP 30(6); Weiss and Weinstein 1983), PHAT-beta partial whitening (Donohue, Hannemann and Dietz 2007, Signal Processing 87), and audio-based multi-camera sync (Shrestha, Barbieri and Weda 2007, ACM MM; Kammerl et al. 2014). Only Knapp and Carter is cited. The result is not new (the README says so) and its main lever is partly an artefact of the window design: both cameras are cut at the same clock span, so the overlap is W - 0.8 s. In my independent re-implementation, extending camera B's window by the 0.8 s offset (the usual reference-against-search-region layout) takes 1 s windows from 0.96 to 0.000 wrong on soft, 1.00 to 0.000 on untie, 1.0 to 0.10 on wallewal, and 2 s soft/untie to 0.000, without lengthening the reference. The README's recommended next step (window = offset + 2 s) would spend audio the asymmetric layout does not need.",
+  "domain": "The GCC-beta estimator, band limit, parabolic refinement and 2 ms tolerance match practice, and the alias/gross classification and oracle ceilings are sound. A TDE reviewer would first ask why the search segment is not longer than the reference by the maximum offset (standard in audio fingerprint and GCC sync pipelines); the README frames W - tau overlap as inherent ('a real pair ... has the same overlap W - tau when windows are cut at the same clock time') without testing the alternative. space2 analysis (a tone's alias needs a prior tighter than its period) is correct and textbook."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "results.txt reproduces from run.py",
+   "method": "re-run in a private copy, byte diff",
+   "command": "cd /tmp/claude-0/audit-capture-aliaswin/rerun/capture-aliaswin/experiments && python3.13 run.py && diff results.txt /home/user/oss-monorepo/research/capture-aliaswin/experiments/results.txt",
+   "expected": "identical",
+   "observed": "identical, 2m49s",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "wrong share, soft, 1/2/3 s windows, gamma 0.25, 0 dB",
+   "method": "independent re-implementation (own loader, slice-delay, own GCC-beta, own RNG), 300 trials per cell",
+   "command": "cd /tmp/claude-0/audit-capture-aliaswin/scripts && python3.13 -I indep.py soft:1:0.25 soft:2:0.25 soft:3:0.25",
+   "expected": "0.907 / 0.248 / 0.000 (results.txt A, 1-ok)",
+   "observed": "0.960 / 0.213 / 0.000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "wrong share, untie 2 s, space2 2 s at gamma 0.25 and 1, wallewal 2 s",
+   "method": "same independent re-implementation",
+   "command": "cd /tmp/claude-0/audit-capture-aliaswin/scripts && python3.13 -I indep.py untie:2:0.25 space2:2:0.25 space2:2:1 wallewal:2:0.25",
+   "expected": "0.338 / 0.655 / 0.998 / 0.262",
+   "observed": "0.363 / 0.683 / 0.990 / 0.267",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "space2 dominant autocorrelation period",
+   "method": "direct dot-product autocorrelation of the resampled WAV, 2-60 ms",
+   "command": "cd /tmp/claude-0/audit-capture-aliaswin/scripts && python3.13 -I basic.py",
+   "expected": "12.1 ms (README)",
+   "observed": "12.12 ms, rho 0.998",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "clip set and durations",
+   "method": "Python wave headers of /usr/lib/libreoffice/share/gallery/sounds, clips >= 3.9 s",
+   "command": "cd /tmp/claude-0/audit-capture-aliaswin/scripts && python3.13 -I basic.py",
+   "expected": "10 clips, 3.9 to 8.7 s, falling 3.94 s",
+   "observed": "10 clips, 3.94 to 8.67 s, falling 3.94 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "shared clip span of an early-start (first half second) window",
+   "method": "by hand from pair_at: A = clip[s0+0.5, s0+0.5+W], B window = clip[s0+0.5-tau, s0+0.5+W-tau]",
+   "command": "sed -n 14,28p research/capture-aliaswin/src/capture_aliaswin/aliaswin.py",
+   "expected": "README: about 0.5 to 1.2 s into the clip",
+   "observed": "clip[s0+0.5, s0+1.7] for s0 in [0, 0.5): 0.5 to 2.2 s; 1.2 s is the length",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "wallewal wrong share at 3 s, gamma 0 to 0.5",
+   "method": "1 - ok from results.txt A",
+   "command": "grep '^wallewal 3' research/capture-aliaswin/experiments/results.txt",
+   "expected": "README: 0.03 to 0.05",
+   "observed": "0.016 / 0.030 / 0.051",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline shares 0.97/0.38/0.16 (4 failing) and 0.62/0.15/0.07 ('all ten clips')",
+   "method": "results.txt section B",
+   "command": "sed -n '/^B\\./,/^$/p' research/capture-aliaswin/experiments/results.txt",
+   "expected": "as README",
+   "observed": "0.972/0.376/0.163 and 0.623/0.150/0.072; the 3 s cell is 9 clips, not ten",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "space2 alias positions 12.1, 24.4, 48.6 ms",
+   "method": "error histogram with the subject's gcc_search, +-50 ms oracle prior, 4 seeds",
+   "command": "cd /tmp/claude-0/audit-capture-aliaswin/scripts && python3.13 aliases.py",
+   "expected": "12.1, 24.4, 48.6",
+   "observed": "12.0-12.2 (64) and 24.0-24.3 (17); none at 24.4 or 48.6 in this sample",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "tracked prior no better than free search; whole-series errors",
+   "method": "track.txt B and C",
+   "command": "cat research/capture-aliaswin/experiments/track.txt",
+   "expected": "0.376 / 0.378 / 0.387; soft 0.278, untie 0.361 equal across columns",
+   "observed": "as stated",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "is W - tau overlap inherent? asymmetric search window",
+   "method": "independent re-implementation with camera B's window extended by the 0.8 s offset (reference-against-search-region layout)",
+   "command": "cd /tmp/claude-0/audit-capture-aliaswin/scripts && python3.13 -I indep.py soft:1:0.25:0.8 untie:1:0.25:0.8 wallewal:1:0.25:0.8 space2:1:0.25:0.8 soft:2:0.25:0.8 untie:2:0.25:0.8",
+   "expected": "README implies the failures need a longer window (offset + 2 s)",
+   "observed": "1 s: soft 0.000, untie 0.000, wallewal 0.100, space2 0.433; 2 s: soft 0.000, untie 0.000",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd research/capture-aliaswin && python3.13 -m pytest -q tests",
+   "expected": "4 passed",
+   "observed": "4 passed in 0.32s",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "prior work cited",
+   "method": "README 'Builds on' vs TDE and audio-sync literature",
+   "command": "sed -n 7p research/capture-aliaswin/README.md",
+   "expected": "Knapp-Carter, threshold effect (Ianniello 1982), PHAT-beta (Donohue et al. 2007), audio multi-camera sync (Shrestha et al. 2007)",
+   "observed": "only Knapp and Carter (1976)",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/capture_aliaswin/aliaswin.py:51",
+   "change": "off = 0.5 * (y0 - y2) / den -> off = 0.5 * (y2 - y0) / den",
+   "caught": false,
+   "test_cmd": "python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_aliaswin/aliaswin.py:76",
+   "change": "c = est[0] -> c = 0.0 (second tracked window centred on 0)",
+   "caught": true,
+   "test_cmd": "python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_aliaswin/aliaswin.py:37",
+   "change": "** gamma -> ** (0.5 * gamma) (whitening exponent halved)",
+   "caught": false,
+   "test_cmd": "python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The headline lever (shared audio W - 0.8 s) is partly an artefact of cutting both cameras' windows at the same clock span. Extending camera B's window by the offset, the usual reference-against-search-region layout, takes 1 s windows from 0.96/1.00 to 0.000 wrong on soft/untie in an independent re-implementation, without a longer reference. The README calls the overlap inherent and recommends window = offset + 2 s without testing this alternative.",
+   "where": "research/capture-aliaswin/README.md:65",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Prior work thin: only Knapp and Carter (1976) cited; no TDE threshold/ambiguity literature (Ianniello 1982; Weiss and Weinstein 1983), no PHAT-beta (Donohue et al. 2007), no audio-based multi-camera sync (Shrestha et al. 2007; Kammerl et al. 2014).",
+   "where": "research/capture-aliaswin/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests do not pin the estimator's weighting or sub-sample refinement: flipping the parabolic-refinement sign and halving the gamma exponent both survive; no test checks any reported number.",
+   "where": "research/capture-aliaswin/tests/test_aliaswin.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "README says an early-start window shares clip audio 'from about 0.5 to 1.2 s into the clip'; from pair_at the span is clip[s0+0.5, s0+1.7] for s0 in [0, 0.5), i.e. 0.5 to 2.2 s (1.2 s is the length). The 'start' binned in section C is the segment start s0; camera A's window begins 0.5 s later, but pair_at and START_BINS call it the window start.",
+   "where": "research/capture-aliaswin/README.md:47",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
+  },
+  {
+   "severity": "low",
+   "what": "'wallewal to 0.03 to 0.05' at 3 s, gamma 0 to 0.5: results.txt gives 0.016, 0.030, 0.051.",
+   "where": "research/capture-aliaswin/README.md:44",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
+  },
+  {
+   "severity": "low",
+   "what": "Headline calls the 3 s mean 'all ten clips' though falling is excluded (9 clips); the 13 ms drift between windows is the maximum at 40 ppm, not the typical move; space2 alias positions stated as 24.4 and 48.6 ms where sampled errors sit at 24.0-24.3 ms.",
+   "where": "research/capture-aliaswin/README.md:3",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
+  },
+  {
+   "severity": "low",
+   "what": "pyproject pythonpath lists capture-syncgate, capture-realedit, capture-syncedit and capture-edit twice; experiments hand-build sys.path over eight sibling projects, and importing one 10-line function (classify) pulls capture_edit through capture_residgate/__init__.py.",
+   "where": "research/capture-aliaswin/pyproject.toml:13",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"],
+ "verdict": "A small, honest and reproducible follow-up: results.txt regenerates byte-identically, and an independent re-implementation matches the per-clip failure rates within sampling noise (e.g. untie 2 s 0.363 vs 0.338, space2 2 s 0.683 vs 0.655), and space2's 12.12 ms period checks out. It misses the bar on claims (a wrong shared-span statement, a stale wallewal range, '10 clips' for a 9-clip cell), verification (2 of 3 seeded estimator bugs survive) and research design: the main lever, shared audio W - 0.8 s, follows from cutting both cameras at the same clock span, and the standard asymmetric layout (search segment longer than the reference by the maximum offset) removes the soft/untie failures at 1 s windows in my re-implementation. Nothing is claimed as new, which is accurate, but the TDE and audio-sync literature beyond Knapp and Carter is not cited."
+}

@@ -78,10 +78,11 @@
       </section>
       <section>
         <h2>The drive</h2>
-        <p class="hint">One-way minutes from your current route — home or the first building — to this address. Trips per week is how often the crew actually goes, which can be less than cleans per week if they stack two sites in one night.</p>
+        <p class="hint">One-way minutes from your current route — home or the first building — to this address. Trips per week is how often the crew actually goes, which can be less than cleans per week if they stack two sites in one night. Every cleaner in the vehicle is paid for the drive.</p>
         <div class="fields">
           <label>Drive minutes, one way <input id="driveMinutesOneWay" type="number" min="0" step="1" value="25"></label>
           <label>Trips per week <input id="tripsPerWeek" type="number" min="0" max="21" step="1" value="3"></label>
+          <label>Cleaners in the vehicle <input id="peopleInVehicle" type="number" min="1" max="20" step="1" value="1"></label>
           <label>Extra fuel, tolls, wear / month <input id="extraVehicleMonthly" type="number" min="0" step="1" value="80"></label>
           <label>Price they offered (optional) <input id="offeredMonthly" type="number" min="0" step="10" placeholder="e.g. 450"></label>
           <label>Profit you already keep / month (optional) <input id="existingMonthlyProfit" type="number" step="10" placeholder="e.g. 340"></label>
@@ -129,7 +130,7 @@
     const FIELD_IDS = [
       'officeSqFt','officeRate','restroomSqFt','restroomRate','cleaningsPerWeek',
       'hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','overheadRate','targetMargin',
-      'driveMinutesOneWay','tripsPerWeek','extraVehicleMonthly','offeredMonthly','existingMonthlyProfit',
+      'driveMinutesOneWay','tripsPerWeek','peopleInVehicle','extraVehicleMonthly','offeredMonthly','existingMonthlyProfit',
     ];
     const money = (value) => {
       const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -160,6 +161,7 @@
         },
         driveMinutesOneWay: el('driveMinutesOneWay').value,
         tripsPerWeek: el('tripsPerWeek').value,
+        peopleInVehicle: el('peopleInVehicle').value,
         extraVehicleMonthly: el('extraVehicleMonthly').value,
         offeredMonthly: el('offeredMonthly').value,
         existingMonthlyProfit: el('existingMonthlyProfit').value,

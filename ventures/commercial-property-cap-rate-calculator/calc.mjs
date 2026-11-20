@@ -34,7 +34,8 @@ export function parse(input) {
   return { errors, gpr, otherIncome, vacancy, tax, insurance, utilities, maintenance, mgmt, reserves, otherOpex, capRate, price, ltv, rate, years };
 }
 
-const r1 = (v) => Math.round(v * 10) / 10;
+// Grid cap rates keep two decimals so a quarter-point input (7.25%) is its own centre column.
+const r2 = (v) => Math.round(v * 100) / 100;
 export const money = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(v)).toLocaleString("en-US"));
 export const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
 
@@ -95,7 +96,7 @@ export function compute(input) {
   if (p.reserves === 0) findings.push({ severity: "info", title: "No replacement reserves were entered. Lenders and appraisers deduct them, so leaving them out overstates NOI and value." });
 
   // Sensitivity: value across cap rates and vacancy.
-  const caps = [-1, -0.5, 0, 0.5, 1].map((d) => r1(p.capRate + d)).filter((c) => c >= 0.5);
+  const caps = [-1, -0.5, 0, 0.5, 1].map((d) => r2(p.capRate + d)).filter((c) => c >= 0.5);
   const vacs = [...new Set([p.vacancy, Math.min(100, p.vacancy + 5), Math.min(100, p.vacancy + 10)])];
   out.sensitivity = { caps, rows: vacs.map((v) => ({ vacancy: v, values: caps.map((c) => { const n = noiFor(p, v).noi; return n > 0 ? n / (c / 100) : 0; }) })) };
   if (noi > 0) findings.push({ severity: "info", title: `Each 0.5 point on the cap rate moves value by roughly ${money(Math.abs(value - noi / ((p.capRate + 0.5) / 100)))}. The cap rate is the one number a buyer and seller argue about, so look at the grid, not one value.` });
@@ -117,8 +118,8 @@ export function compute(input) {
     const f = out.financing;
     findings.push({ severity: "high", title: `At ${money(p.price)} the going-in cap rate is ${pct(f.impliedCap, 2)} against your ${p.capRate}% market assumption, ${f.priceVsValue > 0 ? `${money(f.priceVsValue)} above` : `${money(-f.priceVsValue)} below`} the income-approach value.` });
     if (f.dscr !== null) {
-      findings.push({ severity: f.dscr < LENDER_DSCR ? "high" : "info", title: `Debt service is ${money(ds)} a year on a ${money(loan)} loan, so the debt service coverage ratio is ${f.dscr.toFixed(2)}x${f.dscr < LENDER_DSCR ? `, under the ${LENDER_DSCR}x many lenders require. At that coverage the loan would be closer to ${money(f.maxLoan)}, so plan on ${money(p.price - f.maxLoan)} of equity` : ""}.` });
-      findings.push({ severity: "medium", title: `Cash flow after debt service is ${money(cashFlow)} a year${f.cashOnCash === null ? "" : `, a ${pct(f.cashOnCash)} cash-on-cash return on ${money(equity)} of equity`}. The property needs about ${pct(Math.min(f.breakevenOcc, 9.99), 0)} occupancy to cover its costs and debt.` });
+      findings.push({ severity: f.dscr < LENDER_DSCR ? "high" : "info", title: `Debt service is ${money(ds)} a year on a ${money(loan)} loan, so the debt service coverage ratio is ${f.dscr.toFixed(2)}x${f.dscr < LENDER_DSCR ? `, under the ${LENDER_DSCR}x many lenders require. At that coverage the loan would be closer to ${money(f.maxLoan)}, so plan on ${money(p.price - f.maxLoan)} of equity` : `. The ${LENDER_DSCR}x coverage test alone would allow a loan of up to ${money(f.maxLoan)}; lenders also cap the loan by loan-to-value and often by debt yield (NOI over the loan)`}.` });
+      findings.push({ severity: "medium", title: `Cash flow after debt service is ${money(cashFlow)} a year${f.cashOnCash === null ? "" : `, a ${pct(f.cashOnCash)} cash-on-cash return on ${money(equity)} of equity`}. ${f.breakevenOcc > 1 ? `Even fully leased the property does not cover its costs and debt: break-even occupancy is ${pct(f.breakevenOcc, 0)}, above 100%.` : `The property needs about ${pct(f.breakevenOcc, 0)} occupancy to cover its costs and debt.`}` });
     } else {
       findings.push({ severity: "info", title: `All-cash: ${money(cashFlow)} a year on ${money(equity)}, a ${pct(cashFlow / equity)} yield.` });
     }
