@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245a52'/%3E%3Ctext%20x='16'%20y='22'%20font-size='15'%20font-family='ui-monospace,monospace'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%5B*%5D%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EditorConfig Explainer — Why Isn't My .editorconfig Section Applied?</title>
+  <meta name="description" content="Free .editorconfig checker: paste your .editorconfig files and a file list to see which section and line set indent_size, indent_style and every other property for each file. Finds sections that match nothing, root = true that does nothing, and values editors read differently. Runs in your browser.">
+  <meta property="og:title" content="EditorConfig Explainer — free, private, in your browser">
+  <meta property="og:description" content="Which section sets this file's indent? Why does [*.{md}] match nothing? Every file's settings, line by line, checked against the official core-tests.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "EditorConfig Explainer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Resolves .editorconfig files the way an EditorConfig core does and names the section and line that set each property for every file, finds sections that match no file, root = true placed where it does nothing, misspelled keys, invalid values, and values that different EditorConfig cores read differently. Runs in your browser.", "featureList": "passes all 198 runnable EditorConfig core-tests, nested .editorconfig files, root = true, per-file property table with overridden values, unmatched sections with a suggested glob, inline comment detection, key typo detection, value checks, CSV download, command-line version"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does [*.{md}] in .editorconfig not match my Markdown files?", "acceptedAnswer": {"@type": "Answer", "text": "Because braces with a single item and no comma are not a list. EditorConfig reads {md} as the literal text {md}, braces included, so [*.{md}] only matches a file named like notes.{md}. Write [*.md], or list two or more alternatives such as [*.{md,mdx}]."}}, {"@type": "Question", "name": "Can I put a comment after a value in .editorconfig?", "acceptedAnswer": {"@type": "Answer", "text": "No. Since version 0.15 of the EditorConfig specification, a # or ; after a value is part of the value, so indent_size = 4 # four sets indent_size to the text 4 # four, which editors ignore. Some older cores still strip the comment, so the same file behaves differently in different editors. Put comments on their own line."}}, {"@type": "Question", "name": "Where does root = true go?", "acceptedAnswer": {"@type": "Answer", "text": "At the top of the file, before the first [section]. There it stops editors from reading .editorconfig files in parent folders. Inside a section it is an ordinary key: it is reported for matching files and does not stop the search."}}, {"@type": "Question", "name": "Why does [src/*.js] not match files in src/components?", "acceptedAnswer": {"@type": "Answer", "text": "Two reasons. A single * stops at a folder separator, so src/*.js only matches files directly inside src. And a section name containing a slash is anchored to the folder of its .editorconfig file. Use [src/**.js] or [src/**/*.js] for every .js file below src, and a name without a slash, like [*.js], to match at any depth."}}, {"@type": "Question", "name": "Which .editorconfig wins when there are several?", "acceptedAnswer": {"@type": "Answer", "text": "Editors read every .editorconfig from the file's own folder up to the nearest one with root = true, then apply them from the top down, so a nearer file overrides one further up. Within a file, a later section overrides an earlier one for the same key. The tool shows, for every file, which line won and which values it overrode."}}, {"@type": "Question", "name": "Is anything I paste uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The checker runs entirely in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17221f; background: #f2f6f4; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d5f55; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #173f39; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #173f39; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #e5eeea; padding: 1px 4px; border-radius: 4px; }
+    .note, footer { font-size: .86rem; color: #4a5a55; }
+    .card { background: #fff; border: 1px solid #d4e1dc; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #173f3910; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8a83; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    textarea { font: 13.5px ui-monospace, Menlo, Consolas, monospace; min-height: 13em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5f55; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e1ece8; color: #173f39; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e5eeea; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a55; }
+    td code { white-space: pre-wrap; word-break: break-all; }
+    .finding { border-bottom: 1px solid #e5eeea; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.low, .pill.info { background: #e1ece8; color: #173f39; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #edf4f1; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #173f39; }
+    pre.code { background: #15302b; color: #eefaf6; padding: 14px; border-radius: 10px; overflow-x: auto; font: 13.5px ui-monospace, Menlo, Consolas, monospace; }
+    .scroll { overflow-x: auto; }
+    .row { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+    .row > div { flex: 1 1 260px; }
+    .old { color: #4a5a55; text-decoration: line-through; }
+    ul.steps { padding-left: 20px; font-size: .94rem; }
+    footer { margin-top: 28px; border-top: 1px solid #d4e1dc; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EDITORCONFIG EXPLAINER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why isn't my <code>.editorconfig</code> section applied?</h1>
+    <p>Paste your <code>.editorconfig</code> files and a list of file paths. For every file you get <strong>each setting and the section and line that set it</strong>, with the values it overrode, resolved the way an EditorConfig core resolves them. The tool flags <strong>sections that match none of your files</strong> (with a glob that would), a <strong><code>root = true</code> that does nothing</strong>, misspelled keys, invalid values, and the <strong>values that different editors read differently</strong>, such as <code>indent_size = 4 # four</code>.</p>
+    <p class="note">Nothing you paste leaves this browser tab. The engine passes all 198 runnable tests of the official EditorConfig core-tests suite and was compared with two shipping cores on 23,000 random cases (see the README); your editor's own plugin is the final word.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Your .editorconfig files</h2>
+    <p class="note">Paste your top-level <code>.editorconfig</code>. For more files, start each with a line <code>==&gt; path/to/.editorconfig &lt;==</code> (what <code>head</code> prints for several files, so <code>head -n 1000 $(git ls-files '*.editorconfig')</code> gives you the whole lot).</p>
+    <label for="sources">.editorconfig files</label>
+    <textarea id="sources" spellcheck="false" placeholder="root = true&#10;&#10;[*]&#10;indent_style = space&#10;indent_size = 2"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. The files to check</h2>
+    <label for="paths">File paths, one per line, from the top of the project</label>
+    <textarea id="paths" spellcheck="false" placeholder="README.md&#10;src/index.js&#10;Makefile"></textarea>
+    <p class="note">From <code>git ls-files</code>, or typed by hand. Without paths you still get the checks that need none.</p>
+    <p>
+      <button type="button" id="run">Explain</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p id="form-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>Report</h2>
+    <div class="big" id="totals"></div>
+    <h3>Findings</h3>
+    <div id="findings"></div>
+    <h3>Every file's settings</h3>
+    <div class="row">
+      <div><label for="filter">Filter files</label><input id="filter" type="search" placeholder="part of a path"></div>
+      <div style="flex:0 0 auto"><button type="button" class="secondary" id="csv">Download CSV</button></div>
+    </div>
+    <div class="scroll"><table><thead><tr><th>File</th><th>Setting</th><th>Set by</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Why does one file get these settings?</h2>
+    <p class="note">The .editorconfig files read for this path, top down, and which sections match.</p>
+    <div class="row">
+      <div><label for="whyPath">Path</label><input id="whyPath" type="text" spellcheck="false" placeholder="packages/legacy/index.js"></div>
+      <div style="flex:0 0 auto"><button type="button" class="secondary" id="why">Show the steps</button></div>
+    </div>
+    <ul class="steps" id="whySteps"></ul>
+  </section>
+
+  <section class="card">
+    <h2>From a terminal</h2>
+    <p>The same engine runs over a whole repository, with no install and no network: it reads every <code>.editorconfig</code> and the file list from git itself.</p>
+    <pre class="code">node ventures/editorconfig-explainer/cli/check.mjs            # report
+node ventures/editorconfig-explainer/cli/check.mjs --why path # the steps for one file
+node ventures/editorconfig-explainer/cli/check.mjs --strict   # exit 1 on a high finding (CI)</pre>
+    <p class="note">Clone <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/editorconfig-explainer" rel="noopener">the source</a>, then run it from inside your own repository with the path to <code>cli/check.mjs</code>. Node 18 or later.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>Why does [*.{md}] in .editorconfig not match my Markdown files?</h3>
+    <p>Because braces with a single item and no comma are not a list. EditorConfig reads {md} as the literal text {md}, braces included, so [*.{md}] only matches a file named like notes.{md}. Write [*.md], or list two or more alternatives such as [*.{md,mdx}].</p>
+    <h3>Can I put a comment after a value in .editorconfig?</h3>
+    <p>No. Since version 0.15 of the EditorConfig specification, a # or ; after a value is part of the value, so indent_size = 4 # four sets indent_size to the text 4 # four, which editors ignore. Some older cores still strip the comment, so the same file behaves differently in different editors. Put comments on their own line.</p>
+    <h3>Where does root = true go?</h3>
+    <p>At the top of the file, before the first [section]. There it stops editors from reading .editorconfig files in parent folders. Inside a section it is an ordinary key: it is reported for matching files and does not stop the search.</p>
+    <h3>Why does [src/*.js] not match files in src/components?</h3>
+    <p>Two reasons. A single * stops at a folder separator, so src/*.js only matches files directly inside src. And a section name containing a slash is anchored to the folder of its .editorconfig file. Use [src/**.js] or [src/**/*.js] for every .js file below src, and a name without a slash, like [*.js], to match at any depth.</p>
+    <h3>Which .editorconfig wins when there are several?</h3>
+    <p>Editors read every .editorconfig from the file's own folder up to the nearest one with root = true, then apply them from the top down, so a nearer file overrides one further up. Within a file, a later section overrides an earlier one for the same key. The tool shows, for every file, which line won and which values it overrode.</p>
+    <h3>Is anything I paste uploaded?</h3>
+    <p>No. The checker runs entirely in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security or professional advice. Results come from the text you paste, resolved by this tool's own implementation of the EditorConfig specification; editors and their plugins can differ from it and from each other. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by the EditorConfig project, GitHub or any editor vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>editorconfig_checked</code>, <code>example_loaded</code>, <code>why_shown</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Ignore rules instead of editor settings? The <a href="../gitignore-explainer/">.gitignore explainer</a> names the rule that decides every path. Line endings in git? The <a href="../gitattributes-explainer/">.gitattributes explainer</a> names the line that sets each attribute. Guide: <a href="why-editorconfig-section-does-not-match.html">why an .editorconfig section does not match, and where editors disagree</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, why, reportCsv, DEFAULTS } from "./editorconfig.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const md = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+    const status = $("#form-status");
+    let last = null;
+
+    function renderRows() {
+      if (!last) return;
+      const q = $("#filter").value.trim().toLowerCase();
+      const rows = last.paths.filter((r) => !q || r.path.toLowerCase().includes(q)).slice(0, 1500);
+      $("#rows").innerHTML = rows.map((r) => {
+        if (!r.props.length) return `<tr><td><code>${esc(r.path)}</code></td><td colspan="2" class="note">no section matches: the editor's own defaults</td></tr>`;
+        return r.props.map((e, i) => `<tr>${i === 0 ? `<td rowspan="${r.props.length}"><code>${esc(r.path)}</code></td>` : ""}<td><code>${esc(e.key)} = ${esc(e.value)}</code>${e.overrides.length ? `<br>${e.overrides.map((o) => `<span class="old">${esc(o.value)}</span>`).join(" ")}` : ""}</td><td><code>[${esc(e.section)}]</code> <span class="note">${esc(e.file)}:${e.line}</span>${e.overrides.length ? `<br><span class="note">overrides ${e.overrides.map((o) => `${esc(o.file)}:${o.line}`).join(", ")}</span>` : ""}</td></tr>`).join("");
+      }).join("") + (last.paths.length > rows.length && !q ? `<tr><td colspan="3" class="note">Showing the first 1,500 of ${last.paths.length.toLocaleString("en-US")} files; filter or download the CSV for the rest.</td></tr>` : "");
+    }
+
+    function run() {
+      const input = { sources: $("#sources").value, paths: $("#paths").value };
+      if (!input.sources.trim()) { status.textContent = "Paste at least one .editorconfig."; return; }
+      const t0 = performance.now();
+      last = analyze(input);
+      const t = last.totals;
+      status.textContent = `Checked ${t.paths.toLocaleString("en-US")} files against ${t.sections} sections in ${Math.round(performance.now() - t0)} ms.`;
+      $("#totals").innerHTML = [["Files checked", t.paths], ["With settings", t.withSettings], ["High findings", t.high], ["Medium findings", t.medium]].map(([k, v]) => `<div><strong>${v.toLocaleString("en-US")}</strong>${k}</div>`).join("");
+      $("#findings").innerHTML = last.findings.length ? last.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${md(f.title)}</h4><p class="note">${esc(f.file)}:${f.line} ${f.text ? `<code>${esc(f.text)}</code>` : ""}</p><p>${md(f.detail)}</p></div>`).join("") : "<p>No findings: every section matches a listed file and every line reads the same in every core we know of.</p>";
+      renderRows();
+      $("#report").hidden = false;
+      record("editorconfig_checked");
+    }
+
+    function showWhy() {
+      const res = why({ sources: $("#sources").value, path: $("#whyPath").value });
+      if (!res.steps.length) { $("#whySteps").innerHTML = "<li>Type a path, and paste at least one .editorconfig above.</li>"; return; }
+      $("#whySteps").innerHTML = res.steps.map((s) => `<li><code>${esc(s.file)}</code>${s.note ? ` <span class="note">${esc(s.note)}</span>` : ""}<ul>${s.sections.map((x) => `<li>${x.matches ? "<strong>matches</strong>" : "no match"} <code>[${esc(x.name)}]</code> <span class="note">line ${x.line}</span>${x.matches && x.pairs.length ? `: <code>${esc(x.pairs.join(", "))}</code>` : ""}</li>`).join("")}</ul></li>`).join("") +
+        `<li>Result: ${Object.keys(res.core).length ? Object.entries(res.core).map(([k, v]) => `<code>${esc(k)}=${esc(v)}</code>${res.derived[k] ? ` <span class="note">(from ${esc(res.derived[k])})</span>` : ""}`).join(", ") : "no settings"}</li>`;
+      record("why_shown");
+    }
+
+    $("#run").addEventListener("click", run);
+    $("#example").addEventListener("click", () => {
+      $("#sources").value = DEFAULTS.sources; $("#paths").value = DEFAULTS.paths; $("#whyPath").value = "packages/legacy/index.js";
+      record("example_loaded");
+      run();
+    });
+    $("#clear").addEventListener("click", () => { for (const id of ["sources", "paths", "whyPath"]) $("#" + id).value = ""; $("#report").hidden = true; status.textContent = ""; $("#whySteps").innerHTML = ""; last = null; });
+    $("#filter").addEventListener("input", renderRows);
+    $("#why").addEventListener("click", showWhy);
+    $("#csv").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "editorconfig-report.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

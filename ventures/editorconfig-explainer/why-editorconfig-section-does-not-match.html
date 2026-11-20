@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245a52'/%3E%3Ctext%20x='16'%20y='22'%20font-size='15'%20font-family='ui-monospace,monospace'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%5B*%5D%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why an .editorconfig Section Does Not Match (and Where Editors Disagree)</title>
+  <meta name="description" content="[*.{md}] matches no Markdown file, [src/*.js] misses src/components, and indent_size = 4 # four is read two ways by two EditorConfig cores. The rules, worked examples, and what each core prints.">
+  <meta property="og:title" content="Why an .editorconfig section does not match">
+  <meta property="og:description" content="Four rules that explain most .editorconfig sections that do nothing, and three lines EditorConfig cores read differently.">
+  <link rel="canonical" href="./why-editorconfig-section-does-not-match.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does [*.{md}] match no Markdown files?", "acceptedAnswer": {"@type": "Answer", "text": "Braces need a comma to be a list. With one item, {md} is the literal text {md}, braces included, so the section only matches names like notes.{md}. Write [*.md], or [*.{md,mdx}] for two extensions."}}, {"@type": "Question", "name": "Why does [src/*.js] miss files in subfolders of src?", "acceptedAnswer": {"@type": "Answer", "text": "A single * never crosses a /, so src/*.js only matches files directly in src. Use [src/**.js] or [src/**/*.js]. A name with a slash is also anchored to the folder of its .editorconfig, so [src/*.js] in the top-level file never matches packages/app/src/a.js; [**/src/*.js] does."}}, {"@type": "Question", "name": "Is a # after a value a comment in .editorconfig?", "acceptedAnswer": {"@type": "Answer", "text": "Not since version 0.15 of the specification: it is part of the value. indent_size = 4 # four sets indent_size to 4 # four, which editors ignore. editorconfig-core-py 0.17.1 still strips the comment and reads 4, so the same line works in one editor and not another. Put comments on their own line."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17221f; background: #f2f6f4; }
+    body { max-width: 860px; margin: auto; padding: 28px; }
+    a { color: #1d5f55; }
+    h1 { font-size: clamp(1.7rem, 4.4vw, 2.4rem); line-height: 1.1; margin: 0 0 14px; color: #173f39; }
+    h2 { font-size: 1.2rem; margin: 28px 0 8px; color: #173f39; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #e5eeea; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #15302b; color: #eefaf6; padding: 14px; border-radius: 10px; overflow-x: auto; font: 13.5px ui-monospace, Menlo, Consolas, monospace; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4e1dc; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a55; }
+    .scroll { overflow-x: auto; }
+    .note, footer { font-size: .86rem; color: #4a5a55; }
+    .cta { background: #fff; border: 1px solid #d4e1dc; border-radius: 14px; padding: 18px 22px; margin: 24px 0; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    footer { margin-top: 28px; border-top: 1px solid #d4e1dc; padding-top: 16px; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="./">EditorConfig Explainer</a> · Guide</p>
+  <h1>Why an .editorconfig section does not match, and where editors disagree</h1>
+  <p>An <code>.editorconfig</code> section that does nothing fails silently: the editor opens the file with its own defaults and says nothing. Four rules explain most of these, and three kinds of line are read differently by different EditorConfig cores, so they work in one editor and not in the next.</p>
+
+  <h2>1. Braces need a comma</h2>
+  <p><code>[*.{md}]</code> looks like "every .md file". It is not: braces are a list only when they hold a comma. With one item, <code>{md}</code> is the literal text <code>{md}</code>, braces and all, so the section matches only a name like <code>notes.{md}</code>.</p>
+  <pre>[*.{md}]       # matches notes.{md} only
+[*.md]         # every .md file
+[*.{md,mdx}]   # .md and .mdx</pre>
+  <p>Numbers are the exception: <code>{1..10}</code> is a range. But only low to high; <code>{10..1}</code> is invalid under the specification and matches nothing, while the npm <code>editorconfig</code> core counts down and matches 1 to 10. Letters have no ranges, so <code>{a..z}</code> is literal text.</p>
+
+  <h2>2. <code>*</code> stops at a folder</h2>
+  <p><code>[src/*.js]</code> matches <code>src/index.js</code> and not <code>src/components/button.js</code>, because a single <code>*</code> never crosses a <code>/</code>. Two stars do: <code>[src/**.js]</code> or <code>[src/**/*.js]</code>.</p>
+
+  <h2>3. A slash anchors the name</h2>
+  <p>A name with no <code>/</code>, like <code>[*.js]</code> or <code>[Makefile]</code>, matches at any depth below the <code>.editorconfig</code>. A name with a <code>/</code> anywhere is anchored to that file's own folder, so <code>[src/*.js]</code> in the top-level file never matches <code>packages/app/src/a.js</code>. A leading <code>/</code> changes nothing once there is a slash in the middle. A name ending in <code>/</code> matches no file at all: write <code>[dir/**]</code> for everything inside a folder.</p>
+
+  <h2>4. <code>root = true</code> goes at the very top</h2>
+  <p>Above the first section, <code>root = true</code> tells the editor to stop looking for <code>.editorconfig</code> files in parent folders. Inside a section it is just another key: the core reports <code>root=true</code> for matching files and keeps reading upward. And in a nested file it works all too well: everything under that folder stops reading the files above it, <code>[*]</code> included.</p>
+
+  <h2>Three lines editors read differently</h2>
+  <p>EditorConfig is a format with several independent implementations (cores). We ran the same random <code>.editorconfig</code> trees through editorconfig-core-py 0.17.1 (the PyPI package) and the npm <code>editorconfig</code> package 4.0.1, and compared both with the specification and its official test suite.</p>
+  <h3>A comment after a value</h3>
+  <pre>[*.py]
+indent_size = 4 # PEP 8</pre>
+  <p>Since specification 0.15 there are no inline comments: everything after the <code>=</code> is the value. The npm core reports <code>indent_size=4 # pep 8</code>, which is not a number, so editors drop the setting. editorconfig-core-py 0.17.1 still strips the comment and reports <code>indent_size=4</code>. Same file, two answers.</p>
+  <h3>A comment after a section header</h3>
+  <pre>[*.out] # make editor neutral to .out files
+insert_final_newline = unset</pre>
+  <p>A section line has to end with <code>]</code>, so this line is invalid. editorconfig-core-py applies the section anyway. The npm core stops reading the file at that line, so the section and every section after it are lost. We found this in a well-known project's <code>.editorconfig</code> (see the sample below).</p>
+  <h3>A backslash before a wildcard</h3>
+  <p><code>[\*.c]</code> means a file literally named <code>*.c</code> under the specification and in the npm core; editorconfig-core-py 0.17.1 still treats the <code>*</code> as a wildcard and matches every <code>.c</code> file.</p>
+
+  <h2>How often does this happen?</h2>
+  <p>Across 23,149 random cases the npm core agreed with the specification-following engine behind <a href="./">the explainer</a> on 23,100; every difference was a reversed range. editorconfig-core-py agreed on 22,005; the differences were inline comments (637), escaped wildcards (452) and a negated bracket like <code>[!a]</code> matching a <code>/</code> (55), a point the specification does not settle. Details and the scripts are in the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/editorconfig-explainer" rel="noopener">README</a>.</p>
+
+  <h2>Questions</h2>
+  <h3>Why does [*.{md}] match no Markdown files?</h3>
+  <p>Braces need a comma to be a list. With one item, {md} is the literal text {md}, braces included, so the section only matches names like notes.{md}. Write [*.md], or [*.{md,mdx}] for two extensions.</p>
+  <h3>Why does [src/*.js] miss files in subfolders of src?</h3>
+  <p>A single * never crosses a /, so src/*.js only matches files directly in src. Use [src/**.js] or [src/**/*.js]. A name with a slash is also anchored to the folder of its .editorconfig, so [src/*.js] in the top-level file never matches packages/app/src/a.js; [**/src/*.js] does.</p>
+  <h3>Is a # after a value a comment in .editorconfig?</h3>
+  <p>Not since version 0.15 of the specification: it is part of the value. indent_size = 4 # four sets indent_size to 4 # four, which editors ignore. editorconfig-core-py 0.17.1 still strips the comment and reads 4, so the same line works in one editor and not another. Put comments on their own line.</p>
+
+  <div class="cta">
+    <p><strong>Check yours:</strong> paste your <code>.editorconfig</code> files and <code>git ls-files</code> into the <a href="./">EditorConfig Explainer</a>. Each file's settings come back with the line that set them, and each section that matches nothing comes back with a glob that would.</p>
+  </div>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind. They are not legal, security or professional advice. Core behaviour is as measured on the versions named above on 2026-11-20 and may change in later releases.</p>
+  <p><strong>Independent.</strong> Not affiliated with or endorsed by the EditorConfig project, GitHub or any editor vendor.</p>
+  <p class="support">Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>
