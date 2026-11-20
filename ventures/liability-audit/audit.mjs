@@ -334,7 +334,8 @@ export const RULES = [
         if (seen.has(l.file)) continue;
         seen.add(l.file);
         const f = files.find((x) => x.path === l.file);
-        if (!AFFILIATE_DISCLOSURE.test(f.text.slice(0, l.index))) out.push({ file: l.file, line: l.line, match: l.match });
+        // Only visible text before the link's own tag counts: rel="sponsored" on the link is markup, not a disclosure (quality audit 2026-11-20).
+        if (!AFFILIATE_DISCLOSURE.test(visibleText(f.text.slice(0, Math.max(0, f.text.lastIndexOf("<", l.index)))))) out.push({ file: l.file, line: l.line, match: l.match });
       }
       return out;
     },

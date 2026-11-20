@@ -180,3 +180,10 @@ test('codeView keeps line numbers while blanking samples', () => {
   assert.equal(v.split('\n').length, html.split('\n').length);
   assert.ok(!v.includes('x'));
 });
+
+test("quality audit 2026-11-20: rel=sponsored on an affiliate link is not a disclosure", () => {
+  const one = (rel) => auditFiles([{ path: "p.html", text: `<p>Best blender: <a${rel} href="https://amzn.to/3abc">buy</a></p>` }], { only: ["affiliate-links-no-disclosure"] }).findings.length;
+  assert.equal(one(""), 1);
+  assert.equal(one(' rel="sponsored"'), 1);
+  assert.equal(auditFiles([{ path: "p.html", text: `<p>As an Amazon Associate I earn from qualifying purchases.</p><a rel="sponsored" href="https://amzn.to/3abc">buy</a>` }], { only: ["affiliate-links-no-disclosure"] }).findings.length, 0);
+});

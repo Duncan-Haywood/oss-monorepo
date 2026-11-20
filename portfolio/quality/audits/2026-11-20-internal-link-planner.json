@@ -1,0 +1,274 @@
+{
+ "date": "2026-11-20",
+ "subject": "ventures/internal-link-planner",
+ "stratum": "venture",
+ "seed": "2026-11-20-c70f",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior technical SEO consultant who runs internal-link audits (Screaming Frog / Sitebulb inlink reports, orphan and click-depth analysis, internal PageRank) for content sites; first checks: does the link graph resolve every href exactly as a browser would (relative links, trailing slashes, .html vs clean URLs, http/www variants), are orphan and broken counts right on a real build folder, is the internal PageRank textbook-correct, and would the suggested anchors be insertable without breaking existing links",
+ "scores": {
+  "correctness": 2,
+  "completeness": 2,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The math is right; URL resolution is not. Independent exact PageRank (numpy linear solve of r=(I-dP^T)^-1 (1-d)/n with weighted rows and uniform dangling teleport, Langville & Meyer ch. 4) on a hand-written 5-page graph with nav 0.25, nofollow, duplicate link, dangling and noindex pages matches the engine to 6 decimals (/ 1.43955, /b 1.426337, /a 0.770993, /c 0.363121; `node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/pr.mjs` vs `python /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/pr.py`). The fixture graph derived by hand from fixture.mjs reproduces every before rank (dg 1.69884 ... ppp 0.15) and the plan's after ranks (ppp 0.67144, fsr 0.44707, icd 1.04849) (`python /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/fix.py`); orphan, menu-only and dead-end lists on the fixture match a hand count (2, 3, 4). But: (1) relative links on directory-index pages are resolved against the normalized id with its trailing slash stripped (engine.mjs:129), so a MkDocs-style page /guide/install/ linking '../config/' resolves to /config: the probe reports /guide/config as an orphan and two broken links on a fully linked 3-page site (`node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/probe.mjs`); (2) a build folder of about.html files with clean links (/about), the default Next.js export and Jekyll page layout, is read as all-orphans: running the CLI on its own test fixture written as files (the cli.test.mjs layout) gives 6 orphans, 22 broken links and 8 dead ends instead of 2, 1 and 4; (3) an absolute http:// link to an own https page is reported as broken and the target as an orphan, and www. links count as external, although the code comment says the identity is 'https-agnostic'.",
+  "completeness": "Claimed features checked: orphans (works on directory-style builds, wrong on flat .html builds), menu-only pages (works), deep pages (computed; shown as a count in the browser, listed only in the Markdown download), dead ends (count only; not listed in either output), broken internal links (works but floods on .html builds and on any link to a PDF/image), suggestions with sentence context (works on the fixture; zero recall for titles with interior stop words, see domain), PageRank before/after (exact), CLI folder and sitemap modes (folder mode run; sitemap mode only through the mocked test), JSON/Markdown download wiring present in index.html. `unreachable` and `canonical` are computed but never reported. The README's 'Any site that produces HTML: Astro, Next export, Hugo, Jekyll, Eleventy' works end to end only for directory-style output with root-relative links.",
+  "verification": "`node --test '*.test.mjs'` in the subject: 26 tests, 26 pass. Five seeded mutants via quality_mutate.py: CHROME_W 0.25->1 caught; bodyIn w>=BODY_W -> w>0 caught; dangling share -> 0 caught; deep threshold depth>3 -> >4 SURVIVED (no test asserts deep pages); TF-IDF similarity weight 0.6 -> 0 SURVIVED (no test pins suggestion order or score). Worse than the mutants: cli.test.mjs writes the fixture as pricing.html etc. and runs main() on it but asserts only pages=9 and that the output mentions the priority URL, so the 6-orphan/22-broken misreport of its own fixture passes green; no test uses a relative href.",
+  "craft": "Read engine.mjs (248 lines), cli.mjs, index.html inline module, fixture.mjs and all four test files. Zero-dependency, pure engine shared by page, CLI and tests (good). Defects: regex tokenizer as HTML parser (an unclosed <a> is silently replaced by the next; an out-of-range numeric entity like &#x110000; throws from String.fromCodePoint and aborts the whole analysis); dense one-line statements; dead values (external map, canonical, unreachable, meanRank constant, `dirs` in index.html readFiles); identity comment at engine.mjs:11 contradicts the code; links resolved against the normalized id rather than the document URL.",
+  "claims": "Backed: disclaimer, no-warranty and no-ranking-promise text (index.html footer, README, page.test.mjs); 'makes no network requests' (page.test.mjs greps for fetch/XHR/beacon; engine has none); PageRank parameters (engine.mjs pageRank, recomputed); weights body 1 / chrome 0.25 / nofollow 0 (engine.mjs:106, recomputed); Not-modelled list (README and page) is honest; usage events named on the page match record() calls. Not backed: 'Any site that produces HTML: ... Next export ... Jekyll' (flat .html output misread, check above); 'Suggestion score ... the source's rank divided by its outgoing links' (code divides by outlinks+1, engine.mjs:208); 'Each anchor text already appears in the source page' is true but the anchor can already sit inside a link to another page, which the README's kill criterion treats as a defect class; README 'Dead ends' reported but never listed. llms.txt source links duncan-haywood.github.io, but `node platform/pages/served-copy.mjs internal-link-planner` shows no placeholder or retired origin in the served copy, so not filed.",
+  "fitness": "Walked the consultant's job: export a site, read orphans, pick suggestions to add. On a directory-style Hugo/Astro build with root-relative links the orphan, menu-only and PageRank output is right and usable. On a MkDocs/Sphinx docs site (relative links), a Next export with default trailingSlash:false, or a Jekyll site of .html pages, the headline orphan and broken counts are wrong on the first run, and a consultant would lose trust before reaching the suggestions. Suggestions miss any title with interior stop words ('Cost of living in Paris' finds zero sources although two pages contain the exact phrase) and can propose wrapping words that are already an anchor to another page.",
+  "domain": "Compared against standard internal-link audit practice (Screaming Frog inlinks/orphans/crawl depth, textbook PageRank, Google's reasonable-surfer patent for position weights). PageRank and dangling handling are textbook; position weights are a stated, defensible simplification. Departures: href resolution against the wrong base (RFC 3986 section 5 resolves against the document URL, /guide/install/ not /guide/install); no folding of http/https and www variants that a crawler would treat as redirects to one canonical; no mapping of x.html to clean /x URLs that static hosts serve; nofollow links are given weight 0 and also removed from the out-degree, which is the pre-2009 'PageRank sculpting' model Google said it stopped honouring (nofollowed links still take their share); keyphrase matching drops stop words before building the phrase regex, so multiword titles with 'of', 'in', 'to', 'for' never match running text; suggestions do not exclude text already inside an <a>."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Weighted PageRank with nav 0.25, nofollow 0, duplicate link, dangling and noindex pages (4 indexable)",
+   "method": "independent exact linear solve with numpy (Langville & Meyer, Google's PageRank and Beyond, ch. 4; uniform dangling teleport), graph written by hand",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/pr.mjs; python /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/pr.py",
+   "expected": "/ 1.43955, /b 1.426337, /a 0.770993, /c 0.363121",
+   "observed": "/ 1.43955, /b 1.426337, /a 0.770993, /c 0.363121",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Fixture site ranks before the plan",
+   "method": "edge list derived by reading fixture.mjs by hand, solved exactly with numpy",
+   "command": "python /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/fix.py",
+   "expected": "dg 1.69884, /blog 1.29899, icd 1.27351, / 1.24784, /pricing 1.09041, /about 1.09041, ppp 0.15, fsr 0.15",
+   "observed": "identical to 5 decimals",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Effect table after applying the 4 suggested links",
+   "method": "same hand graph plus the 4 edges, exact solve",
+   "command": "python /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/fix.py",
+   "expected": "ppp 0.67144, fsr 0.44707, icd 1.04849",
+   "observed": "0.67144, 0.44707, 1.04849",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Orphans, menu-only and dead ends on the fixture (engine called with page URLs)",
+   "method": "hand count from fixture.mjs",
+   "command": "node -e (analyze(SITE,{home:HOME}).summary)",
+   "expected": "orphans 2 (ppp, fsr), menu-only 3 (/blog, /pricing, /about), dead ends 4, broken 1",
+   "observed": "2, 3, 4, 1",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Relative links from directory index pages (MkDocs layout: index.html, guide/install/index.html, guide/config/index.html linking '../config/' and '../install/')",
+   "method": "RFC 3986 section 5 reference resolution against the document URL /guide/install/",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/probe.mjs",
+   "expected": "0 orphans, 0 broken",
+   "observed": "orphan /guide/config; broken /guide/install -> /config and /guide/config -> /install",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "CLI folder mode on the test fixture written as files (pricing.html, blog/index.html ... as cli.test.mjs does)",
+   "method": "ground truth from the same fixture analysed by URL (check above) and by hand",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/mkdir.mjs /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/site && node ventures/internal-link-planner/cli.mjs /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/site --base https://example.test --json",
+   "expected": "orphans 2, broken 1, dead ends 4",
+   "observed": "orphans 6, broken 22, dead ends 8",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "http:// absolute link to an own https page; https://www. link",
+   "method": "a crawler follows the http->https and www redirects to the same page (and the code comment promises https-agnostic identity)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/probe.mjs",
+   "expected": "/a and /b linked, no broken links",
+   "observed": "/a and /b orphans, http://docs.test/a reported broken, www link counted external",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Suggestion recall for a title with interior stop words ('Cost of living in Paris'; two pages contain the exact phrase)",
+   "method": "hand: phrase literally present in source text, no existing link",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/probe2.mjs",
+   "expected": "at least 2 suggestions to /cost-of-living-in-paris",
+   "observed": "0 suggestions; keyphrases are 'cost living paris', 'cost living', 'living paris', none of which occur contiguously",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Suggested anchor already inside an existing link to another page",
+   "method": "HTML spec: <a> cannot nest; a planner must skip linked text",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/probe2.mjs",
+   "expected": "no suggestion using words inside <a href=/y>",
+   "observed": "suggests linking 'insurance claim denials' from /x, words already the anchor of a link to /y",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "26 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Any site that produces HTML: Astro, Next export, Hugo, Jekyll, Eleventy, plain files' (README.md:13)",
+   "method": "flat .html build (Next export default, Jekyll pages) through the CLI",
+   "command": "node ventures/internal-link-planner/cli.mjs /tmp/claude-0/-home-user-oss-monorepo/1af90b57-27ac-572c-ad2d-ca9749d55a57/scratchpad/ilp/site --base https://example.test --json",
+   "expected": "correct graph",
+   "observed": "every clean link /x reported broken against x.html",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Suggestion score uses 'the source's rank divided by its outgoing links'",
+   "method": "read engine.mjs:208",
+   "command": "grep -n 'pw = ' ventures/internal-link-planner/engine.mjs",
+   "expected": "rank / outlinks",
+   "observed": "rank / (outlinks + 1)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, no-ranking promise, local-only processing, usage events",
+   "method": "page.test.mjs plus reading index.html and engine.mjs",
+   "command": "node --test '*.test.mjs'",
+   "expected": "present and backed",
+   "observed": "present; engine and page contain no network calls",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt/sitemap/canonical origins",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs internal-link-planner",
+   "expected": "no placeholder or retired origin",
+   "observed": "none left",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Dead ends and deep pages reported as lists",
+   "method": "read renderMarkdown and index.html show()",
+   "command": "grep -n 'deadEnds\\|deepPages' ventures/internal-link-planner/engine.mjs ventures/internal-link-planner/index.html",
+   "expected": "lists in browser and Markdown",
+   "observed": "dead ends only as a count everywhere; deep pages listed only in Markdown",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "engine.mjs:106",
+   "change": "CHROME_W = 0.25 -> CHROME_W = 1",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:142",
+   "change": "if (w >= BODY_W) bodyIn -> if (w > 0) bodyIn",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:76",
+   "change": "share = d * dangling / n -> share = 0",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:155",
+   "change": "r.depth > 3 -> r.depth > 4",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:210",
+   "change": "sim * 0.6 -> sim * 0.0 in the suggestion score",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Relative hrefs are resolved against the normalized page id (trailing slash stripped) instead of the document URL, so every relative link on a directory-index page (/guide/install/ -> '../config/') points one level too high: false orphans and false broken links on MkDocs/Sphinx/hand-written sites. One-token fix: normalizeUrl(l.href, p.url); all 26 tests still pass with it.",
+   "where": "ventures/internal-link-planner/engine.mjs:129",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
+  },
+  {
+   "severity": "high",
+   "what": "A build folder of x.html files with clean links (/x), the default Next.js export and Jekyll page layout, is read as all orphans and broken links: the CLI on its own test fixture written as files reports 6 orphans, 22 broken, 8 dead ends instead of 2, 1, 4. No mapping of x.html to /x.",
+   "where": "ventures/internal-link-planner/cli.mjs:19",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
+  },
+  {
+   "severity": "medium",
+   "what": "cli.test.mjs runs main() on the .html-file fixture but asserts only the page count and that a URL is mentioned, so the 6-vs-2 orphan misreport passes green; no test uses a relative href.",
+   "where": "ventures/internal-link-planner/cli.test.mjs:15",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Page identity keeps the scheme and the www host although the comment says 'https-agnostic': an absolute http:// link to an own https page is reported broken and its target orphaned; www. links count as external.",
+   "where": "ventures/internal-link-planner/engine.mjs:11",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
+  },
+  {
+   "severity": "medium",
+   "what": "Keyphrases drop stop words before the phrase regex is built, so titles with interior stop words ('Cost of living in Paris', 'Guide to X for Y') never match running text: zero suggestions where the exact phrase exists.",
+   "where": "ventures/internal-link-planner/engine.mjs:90",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Suggestions can choose words that are already the anchor text of a link to another page (page text includes link text), which cannot be linked without removing the existing link; the README's own kill criterion names anchor problems as the first thing to fix.",
+   "where": "ventures/internal-link-planner/engine.mjs:31",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Deep-page threshold and the TF-IDF weight in the suggestion score are untested: mutants depth>3->4 and sim*0.6->0 both survive.",
+   "where": "ventures/internal-link-planner/engine.mjs:155",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "README says the score uses rank divided by outgoing links; code uses outlinks+1. README also lists dead ends as reported, but no output lists them (count only).",
+   "where": "ventures/internal-link-planner/engine.mjs:208",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "nofollow links get weight 0 and are dropped from the out-degree, i.e. the pre-2009 PageRank-sculpting model; Google has said nofollowed links still take their share. Not disclosed.",
+   "where": "ventures/internal-link-planner/engine.mjs:106",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Dead code and fragile parsing: external map, canonical and unreachable computed but never reported; an out-of-range numeric entity (&#x110000;) throws from String.fromCodePoint and aborts the whole analysis.",
+   "where": "ventures/internal-link-planner/engine.mjs:8",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"],
+ "verdict": "The graph mathematics is correct: weighted PageRank, dangling handling and the plan's before/after effect recompute exactly against an independent numpy solve, and orphan/menu-only/dead-end lists are right on directory-style builds with root-relative links. The input side is not: relative links on directory-index pages resolve against the wrong base (engine.mjs:129), flat .html builds with clean links (Next export default, Jekyll) are read as all orphans (the CLI misreports its own test fixture: 6 orphans and 22 broken links instead of 2 and 1, and the test does not notice), http/www variants break identity, and keyphrase matching misses any title with interior stop words. A technical SEO consultant would see wrong orphan counts on the first real site. Does not meet the bar (correctness, claims, verification all 2)."
+}

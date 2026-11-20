@@ -117,6 +117,18 @@ export function analyze(input, opts = {}) {
   for (const p of parsed) { const id = normalizeUrl(p.url, p.url); if (id && !byId.has(id)) byId.set(id, { ...p, id }); }
   const pages = [...byId.values()];
   const host = pages.length ? new URL(pages[0].id).host : "";
+  // http/https and www./bare links to this site are the same site; a clean URL (/x) and its
+  // flat build file (/x.html) are the same page when only one of them exists.
+  const bare = (h) => h.toLowerCase().replace(/^www\./, "");
+  const sameSite = (u) => bare(new URL(u).host) === bare(host);
+  const proto = pages.length ? new URL(pages[0].id).protocol : "https:";
+  const resolveId = (to) => {
+    if (byId.has(to)) return to;
+    const u = new URL(to); u.protocol = proto; u.host = host;
+    const c = u.href;
+    const alts = u.search ? [c] : [c, c.replace(/\.html?$/i, ""), c + ".html", c + ".htm"];
+    return alts.find((a) => byId.has(a)) || c;
+  };
   const homeId = opts.home ? normalizeUrl(opts.home, pages[0]?.id) : [...pages].sort((a, b) => a.id.length - b.id.length)[0]?.id;
   const indexable = pages.filter((p) => !p.noindex);
   const ids = indexable.map((p) => p.id), idSet = new Set(ids);
@@ -126,9 +138,12 @@ export function analyze(input, opts = {}) {
   for (const p of indexable) {
     const row = new Map();
     for (const l of p.links) {
-      const to = l.href == null ? null : normalizeUrl(l.href, p.id);
-      if (!to) continue;
-      if (new URL(to).host !== host) { external.set(p.id, (external.get(p.id) || 0) + 1); continue; }
+      // Resolve against the document's own address: the id drops the trailing slash, so
+      // "../x/" from /a/b/ would otherwise land one level too high (quality audit 2026-11-20).
+      const raw = l.href == null ? null : normalizeUrl(l.href, p.url);
+      if (!raw) continue;
+      if (!sameSite(raw)) { external.set(p.id, (external.get(p.id) || 0) + 1); continue; }
+      const to = resolveId(raw);
       if (to === p.id) continue;
       if (!byId.has(to)) { broken.push({ from: p.id, to, text: l.text }); continue; }
       if (!idSet.has(to)) continue;

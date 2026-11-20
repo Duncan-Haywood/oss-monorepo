@@ -41,6 +41,19 @@ class T(unittest.TestCase):
         for n in (3, 6, 10):
             self.assertLessEqual(abs(bisect_deadband(d, 0.0, 1.0, n) - d), bisection_error_bound(0.0, 1.0, n) + 1e-15)
 
+    def test_steps_to_full_gain(self):
+        # quality audit 2026-11-20: k=1 is in the documented range and raised ValueError (log 0)
+        self.assertEqual(steps_to(5.0, 1.0, 1e-3), 1)
+        self.assertEqual(run_servo(5.0, 1.0, 0.0, 1)[-1], 0.0)
+
+    def test_compensation_residual_high_gain(self):
+        for dh in (0.1, 0.3):
+            xs = run_servo(5.0, 0.9, 0.2, 600, dh=dh)
+            self.assertAlmostEqual(abs(xs[-1]), comp_error(0.2, dh, 0.9), places=9)
+
+    def test_bisection_bound_exact(self):
+        self.assertEqual(bisection_error_bound(0.0, 1.0, 3), 1 / 16)
+
     def test_k_needed(self):
         self.assertAlmostEqual(stall_error(0.2, k_needed(0.2, 0.05)), 0.05)
 

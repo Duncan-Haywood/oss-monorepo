@@ -1895,7 +1895,7 @@
     {
      "slug": "ambient-goldaudit",
      "title": "How many gold-labelled audits replace noisy ones when the auditor&rsquo;s accuracy is unknown?",
-     "summary": "Extending the stylised noisy-audit model, 200 or 1000 audits from a 0.8-accuracy auditor read as truth give mean utility 0.387&ndash;0.388 (label accuracy 0.7) and do not improve with n, while 25 gold audits already match them and 10 do not. Pooling noisy with gold audits as truth is worse than gold alone. Fitting the mix, the label matrix and the auditor&rsquo;s matrix jointly by EM, with 10 gold and 200 noisy audits, reaches 0.4054 against 0.4066 for the true parameters at label accuracy 0.9 (gold alone: 0.3955). The advantage vanishes by 200 gold audits. Stylised: uniform-error matrices, one auditor accuracy, EM started at the true value, round-number utilities."
+     "summary": "Extending the stylised noisy-audit model, 200 or 1000 audits from a 0.8-accuracy auditor read as truth give mean utility 0.387&ndash;0.388 (label accuracy 0.7) and do not improve with n, while 25 gold audits already match them and 10 do not. Pooling noisy with gold audits as truth is worse than gold alone from about 25 gold audits up (0.4008 vs 0.4063 at 200 gold, label accuracy 0.9), though slightly better at 10. Fitting the mix, the label matrix and the auditor&rsquo;s matrix jointly by EM, with 10 gold and 200 noisy audits, reaches 0.4054 against 0.4066 for the true parameters at label accuracy 0.9 (gold alone: 0.3955). The advantage vanishes by 200 gold audits. Stylised: uniform-error matrices, one auditor accuracy, EM started at the true value, round-number utilities."
     },
     {
      "slug": "ambient-auditbudget",

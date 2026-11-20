@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPjDg2e78HiecFGkH7",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "Scheduled run: continue work on the repo (develop, deploy, market, sell, support revenue-generating products); merge when done.",
+  "input_sha256": "208528dcdf02d62f64602b3fb4a11fd953056b766f248e1f537592fd75e818be",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T02:05:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality census, seed 2026-11-20-c70f",
+  "projects": [
+    "research/ambient-goldaudit",
+    "ventures/tiktok-shop-settlement-analyzer",
+    "ventures/internal-link-planner",
+    "research/osrobot-deadlineloss",
+    "research/deadband-twin",
+    "ventures/liability-audit"
+  ],
+  "pr": 17836,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Track prompt steps 1 and 5 describe a sample round, but `mode` chose census; the README's 'Five modes' section covers it, the prompt does not mention modes."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-quality-census-seed-c70f.md"
+  ],
+  "goal": null,
+  "notes": "Mode census (quality_audit.py mode). Seed 2026-11-20-c70f, six never-audited subjects audited by six parallel agents; each headline recomputation re-run by me (deadband quadrature gains 0.0455/0.3173/0.6171/0.8415; osrobot indep.py C1/C6; tiktok adjustment 16.20 vs 26.20; link planner fixture 6/22/8 vs 2/1/4; liability rel=sponsored 1 vs 0; goldaudit indep.py 0.3824/0.3917/0.4066). Share meeting bar: 0 of 6; finished 4 of 6; mutations caught 14 of 29; checks failed/partial 36 of 80. Fix PR: #17836 (fixes in-PR, each with a test that fails on old code: internal-link-planner relative/clean-URL/http-www resolution; tiktok Adjustment sign, slash dates, Fiverr label; liability-audit rel=sponsored; deadband-twin k=1 crash + mutant-killing tests + results pin; osrobot run.py literal \\n + results pin + pilot caveat on project.json; ambient-goldaudit pooling overclaim corrected + decision-step test). Verification: node --test '*.test.mjs' green in the three ventures (27, 34, 32 pass); python unittest/pytest green in the three research projects; quality_audit.py validate 552 files 0 problems.",
+  "corrections": [],
+  "redteam": null
+}

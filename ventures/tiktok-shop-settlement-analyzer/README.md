@@ -32,3 +32,13 @@ refund rate. See the page for what is not modelled.
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
+
+## Known gaps (quality audit 2026-11-20)
+
+From the census audit, [`2026-11-20-tiktok-shop-settlement-analyzer.json`](../../portfolio/quality/audits/2026-11-20-tiktok-shop-settlement-analyzer.json). Fixed in PR #17836: positive Adjustment rows read as refunds, year-first slash dates rejected, a Fiverr page label. Still open:
+
+- The engine is the Fiverr earnings analyzer with a TikTok skin. It has never been run on a real TikTok Shop settlement export, whose fee columns are negative and split by type (referral fee, affiliate commission, shipping).
+- The headline "TikTok Shop kept X%" counts affiliate commission paid to creators as TikTok's fee.
+- The refund administration fee (20% of the referral fee, capped at $5) is not modelled.
+- Fiverr and Upwork ideas remain on the page: tips, hours per order and withdrawal fees.
+- There is no reconciliation of settlements to payouts.

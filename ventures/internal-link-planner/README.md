@@ -61,3 +61,12 @@ There is nothing to host: the page is static (`index.html` plus three modules), 
 ## Disclaimer
 
 No warranty. Not legal, tax, accounting, compliance or financial advice, and no promise about search rankings or traffic. Not affiliated with any search engine or platform. MIT licence. Optional support: https://github.com/sponsors/Duncan-Haywood
+
+## Known gaps (quality audit 2026-11-20)
+
+From the census audit, [`2026-11-20-internal-link-planner.json`](../../portfolio/quality/audits/2026-11-20-internal-link-planner.json). Fixed in PR #17836: relative links on folder pages resolved one level too high; clean URLs to flat `.html` builds, `http://` and `www.` links to the same site were miscounted as broken or external. Still open:
+
+- Titles with stop words inside them ("Cost of living in Paris") get no suggestions.
+- A suggestion can pick words that are already the text of another link.
+- `nofollow` links are dropped from the out-degree, which is the pre-2009 PageRank-sculpting model.
+- The deep-page threshold and the similarity weight are untested.
