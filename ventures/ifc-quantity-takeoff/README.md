@@ -53,6 +53,11 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   export that renews GlobalIds), then by place and volume; Revit parts in one
   issue and their host in the other are paired, not counted as removed and
   added ([eval/revision-diff-2026-11-20.md](eval/revision-diff-2026-11-20.md)).
+- **Faulty units repaired, and said so.** A unit named INCH, FOOT, SQUARE
+  FOOT and so on whose declared factor is not that unit (a 2014 Revit export
+  declares its inch as 3.6576 m, 144 inches, which makes every volume 3
+  million times too big) is read at the exact value, and the page says which
+  unit it repaired ([eval/units-repair-2026-11-20.md](eval/units-repair-2026-11-20.md)).
 
 Nothing is uploaded: the model is read in the browser tab.
 
@@ -151,6 +156,14 @@ quantities inherits those errors; this tool says which they are
   parts in three of four steps; this report pairs them, and the stair the last
   commit rebuilt shows as its flights, landing and stringers resized
   ([eval/revision-diff-2026-11-20.md](eval/revision-diff-2026-11-20.md)).
+  A second house (OpeningDesign's Lake Kegonsa Home, five Revit exports
+  2014-09 to 2015-07, not committed): 138 GlobalId-only adds/removes are the
+  same element (windows and doors renewed every export, as on Aalseth; walls
+  and their parts). Its 2014-10-14 export declares 'INCH' as 3.6576 m; read
+  at its word, all 420 and 568 matched elements of the two steps around it
+  changed; with the inch repaired, 205 and 123 are unchanged and the median
+  volume ratio of same-GlobalId elements is 1.0000 (254 of 402 and 331 of 549
+  within 0.5%; eval/units-repair-2026-11-20.md).
 - **Seeded faults.** Flipping the half-space side, switching off the unit-slip
   rule, swapping the exit and entry points of a mesh cut, or adding a brep's
   void instead of subtracting it each fails a test.

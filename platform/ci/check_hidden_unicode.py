@@ -97,6 +97,24 @@ PATTERN = re.compile(
     "\U0001bca0-\U0001bca3\U0001d173-\U0001d17a\U000e0080-\U000e00ff\U000e01f0-\U000e0fff]"
 )
 
+# PATTERN's characters as their UTF-8 bytes, for `scan`'s prefilter (perf,
+# 2026-11-20). On valid UTF-8 a byte match is exactly a PATTERN match: every
+# byte of a multi-byte character is >= 0x80, so deleting the ASCII bytes first
+# leaves each character's bytes whole and in order, and the search runs over the
+# few non-ASCII bytes instead of the whole text (225 M characters in 13,152
+# files on 2026-11-20). test_check_hidden_unicode pins it against PATTERN on
+# every code point.
+UTF8_PATTERN = re.compile(
+    rb"\xc2\xad|\xcd\x8f|\xd8\x9c"
+    rb"|\xe1(?:\x85[\x9f\xa0]|\x9e[\xb4\xb5]|\xa0[\x8b-\x8f])"
+    rb"|\xe2(?:\x80[\x8b-\x8f\xaa-\xae]|\x81[\xa0-\xaf])"
+    rb"|\xe3\x85\xa4"
+    rb"|\xef(?:\xbb\xbf|\xbe\xa0|\xbf[\xb0-\xb8])"
+    rb"|\xf0(?:\x9b\xb2[\xa0-\xa3]|\x9d\x85[\xb3-\xba])"
+    rb"|\xf3\xa0(?:[\x80-\x83][\x80-\xbf]|\x87[\xb0-\xbf]|[\x88-\xbf][\x80-\xbf])"
+)
+_ASCII = bytes(range(128))
+
 # Files an agent loads as instructions, or that steer CI and the agents'
 # own tooling. Mirrors the spirit of .github/CODEOWNERS.
 PROTECTED = re.compile(
@@ -173,13 +191,20 @@ def findings_in_text(text: str) -> list[tuple[int, int, int, str]]:
     return out
 
 
-def read_text(path: Path) -> str | None:
-    """The file as text, or None for binary and non-UTF-8 files."""
+def read_text(path: Path, candidates_only: bool = False) -> str | None:
+    """The file as text, or None for binary and non-UTF-8 files.
+
+    With `candidates_only`, also None when the file has no PATTERN character at
+    all (so `findings_in_text` would return []), found on the bytes before any
+    decoding: ASCII files and the 99% of non-ASCII text that only has dashes,
+    quotes and accents never reach the str regex (4.7 s to 1.3 s per scan)."""
     try:
         data = path.read_bytes()
     except OSError:
         return None
     if b"\0" in data[:8192]:
+        return None
+    if candidates_only and (data.isascii() or not UTF8_PATTERN.search(data.translate(None, _ASCII))):
         return None
     try:
         return data.decode("utf-8")
@@ -194,7 +219,7 @@ def tracked_files(root: Path) -> list[str]:
 def scan(root: Path, names: list[str]) -> dict[str, list[tuple[int, int, int, str]]]:
     found = {}
     for name in names:
-        text = read_text(root / name)
+        text = read_text(root / name, candidates_only=True)
         if text is None:
             continue
         hits = findings_in_text(text)

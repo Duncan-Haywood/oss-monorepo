@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
-import { takeoff, boq, boqCsv, rowsCsv, readUnits, explainChecks, checkSummary } from "./qto.mjs";
+import { takeoff, boq, boqCsv, rowsCsv, readUnits, explainChecks, checkSummary, unitRepairNote } from "./qto.mjs";
 import { prism, clipPoly, polyVolume, convexPieces, filletAll, signedArea } from "./geom.mjs";
 
 const sample = () => takeoff(parseStep(readFileSync(new URL("./samples/sample-office.ifc", import.meta.url))));
@@ -117,6 +117,69 @@ test("units: conversion-based feet are read to metres", () => {
 #6=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);
 ENDSEC;END-ISO-10303-21;`;
   close(readUnits(parseStep(ifc)).LENGTHUNIT, 0.3048);
+});
+
+const unitFile = (name, factor, base = "IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.)") => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCCONVERSIONBASEDUNIT(#4,.LENGTHUNIT.,'${name}',#5);
+#4=IFCDIMENSIONALEXPONENTS(1,0,0,0,0,0,0);
+#5=IFCMEASUREWITHUNIT(IFCRATIOMEASURE(${factor}),#6);
+#6=${base};
+ENDSEC;END-ISO-10303-21;`;
+
+test("units: Revit's 'INCH' declared as 3.6576 m is read as a real inch, and the repair is reported", () => {
+  const u = readUnits(parseStep(unitFile("INCH", 3.6576)));
+  close(u.LENGTHUNIT, 0.0254);
+  assert.equal(u.repairs.length, 1);
+  assert.deepEqual({ ...u.repairs[0], declared: +u.repairs[0].declared.toFixed(4) }, { type: "LENGTHUNIT", name: "INCH", declared: 3.6576, used: 0.0254 });
+  assert.match(unitRepairNote(u), /'INCH' is declared as 3\.6576 m \(144 times the real inch\); the exact 0\.0254 m was used/);
+  // trustDeclared keeps the file's factor
+  const t = readUnits(parseStep(unitFile("INCH", 3.6576)), { trustDeclared: true });
+  close(t.LENGTHUNIT, 3.6576);
+  assert.equal(t.repairs.length, 0);
+});
+
+test("units: a named unit within 0.1% of its exact value, or with a name not in the table, is left alone", () => {
+  // rounded factors are common ('square inch' as 0.0006452 in a public file)
+  const a = readUnits(parseStep(unitFile("inch", 0.02540001)));
+  assert.equal(a.repairs.length, 0);
+  close(a.LENGTHUNIT, 0.02540001);
+  // a millimetre base: 25.4 mm is an inch
+  const b = readUnits(parseStep(unitFile("Inch", 25.4, "IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.)")));
+  assert.equal(b.repairs.length, 0);
+  close(b.LENGTHUNIT, 0.0254);
+  // a survey foot or any unknown name keeps its declared factor
+  const c = readUnits(parseStep(unitFile("US SURVEY FOOT", 0.3048006)));
+  assert.equal(c.repairs.length, 0);
+  close(c.LENGTHUNIT, 0.3048006);
+  assert.equal(unitRepairNote(c), null);
+});
+
+test("units: a takeoff in a faulty-inch file measures the element at its real size", () => {
+  // a 10 x 4 x 100 inch block (0.254 x 0.1016 x 2.54 m)
+  const ifc = `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCCONVERSIONBASEDUNIT(#4,.LENGTHUNIT.,'INCH',#5);
+#4=IFCDIMENSIONALEXPONENTS(1,0,0,0,0,0,0);
+#5=IFCMEASUREWITHUNIT(IFCRATIOMEASURE(3.6576),#6);
+#6=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#13=IFCAXIS2PLACEMENT2D(#14,$);
+#14=IFCCARTESIANPOINT((5.,2.));
+#15=IFCRECTANGLEPROFILEDEF(.AREA.,$,#13,10.,4.);
+#16=IFCDIRECTION((0.,0.,1.));
+#17=IFCEXTRUDEDAREASOLID(#15,#11,#16,100.);
+#18=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#17));
+#19=IFCPRODUCTDEFINITIONSHAPE($,$,(#18));
+#20=IFCCOLUMN('1YvctVUKr0kugbFTf53O9L',$,'c',$,$,#12,#19,$);
+ENDSEC;END-ISO-10303-21;`;
+  const vol = (o) => takeoff(parseStep(ifc), o).rows[0].computed.gross;
+  close(vol(), 0.254 * 0.1016 * 2.54, 1e-9);
+  close(vol({ trustDeclaredUnits: true }) / vol(), 144 ** 3, 1e-3);
 });
 
 test("explanations: a stored volume a power of ten off is a unit slip", () => {
