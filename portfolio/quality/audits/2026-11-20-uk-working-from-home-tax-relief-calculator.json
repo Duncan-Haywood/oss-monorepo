@@ -188,14 +188,16 @@
       "what": "Employer reimbursement is pro-rated by weeks/52, so a part-year home worker whose costs the employer fully covered is told they can still claim (GBP 156 for 26 weeks -> GBP 15.60 relief; GBP 276 for 46 weeks -> GBP 6.37). ITEPA s336 allows relief only on unreimbursed costs; the user would file a claim HMRC should refuse.",
       "where": "ventures/uk-working-from-home-tax-relief-calculator/calc.mjs:52",
       "category": "logic-error",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"
     },
     {
       "severity": "medium",
       "what": "Finding text says the employer's whole annual payment 'was taken off' while the code deducted only weeks/52 of it (GBP 100 entered, GBP 19.23 deducted); FAQ repeats the claim.",
       "where": "ventures/uk-working-from-home-tax-relief-calculator/calc.mjs:73",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"
     },
     {
       "severity": "medium",
@@ -209,7 +211,8 @@
       "what": "Reimbursement, actual-cost relief and the chosen-expenses relief amount are untested: three seeded mutants in that arithmetic survived.",
       "where": "ventures/uk-working-from-home-tax-relief-calculator/calc.test.mjs:52",
       "category": "untested-core",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"
     },
     {
       "severity": "low",
@@ -233,6 +236,6 @@
       "origin": "audit"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"],
   "verdict": "A small, honest tool whose main path is right: for an employee required to work from home with no employer payments, the GBP 6/week x marginal-rate refund, the four-year deadline per tax year and the expired 2021/22 window all recompute exactly against GOV.UK guidance and TMA 1970 s43 (5 of 5 such checks pass). It misses the bar on correctness, claims, verification and domain because employer reimbursement is pro-rated over 52 weeks (a fully reimbursed part-year worker is shown a refund), the finding text overstates what was deducted, Scottish 2022/23-2023/24 higher/top rates cannot be selected, and the tests miss the reimbursement and actual-cost arithmetic (4 of 6 mutants survived)."
 }

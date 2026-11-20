@@ -215,28 +215,32 @@
    "what": "Default claim window for lost/damaged FC inventory is 18 months; Amazon's policy has been 60 days from the adjustment date since late 2024, so the headline 'claimable now' total and the expiring list send sellers after claims Amazon will refuse (sample: 9 units/$165 claimable vs 0 under the current rule)",
    "where": "ventures/fba-reimbursement-claim-finder/calc.mjs:15",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"
   },
   {
    "severity": "high",
    "what": "Page FAQ and JSON-LD state 'Amazon has commonly allowed claims within 18 months of the event' and tell users to pull 18 months of history; stale since late 2024",
    "where": "ventures/fba-reimbursement-claim-finder/index.html:136",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"
   },
   {
    "severity": "medium",
    "what": "Claim window input is whole months (min 1), so the current 60-day rule cannot be entered exactly; the 45-day default wait then hides most of a 60-day window",
    "where": "ventures/fba-reimbursement-claim-finder/index.html:78",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"
   },
   {
    "severity": "medium",
    "what": "Math.abs on every ledger unit column: a negative Found (found reversal) is added as found units and wipes out real unclaimed losses (Found +2 then -2 against 4 lost gives 0 unclaimed, expected 4); a positive Damaged row in a damaged disposition would double-count",
    "where": "ventures/fba-reimbursement-claim-finder/calc.mjs:200",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"
   },
   {
    "severity": "medium",
@@ -257,7 +261,8 @@
    "what": "Tests pin the stale 18-month rule ('reach the 18-month limit'), and no test covers negative Found or a positive Damaged row; detectDmy boundary mutant (12->13) survives",
    "where": "ventures/fba-reimbursement-claim-finder/calc.test.mjs:75",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"
   },
   {
    "severity": "low",
@@ -267,6 +272,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"],
  "verdict": "A clean, well-tested reconciliation engine whose numbers recompute exactly (sample 9 units/$165, inbound and month arithmetic identical to an independent Python script; 35/35 tests; 7 of 8 non-equivalent mutants caught), but its central rule is two years stale: it ages lost and damaged FC units against an 18-month window while Amazon's policy, per its own help and supply-chain pages, has been 60 days since late 2024, with manufacturing-cost valuation since March 2025. With defaults the 'claim now' total is mostly claims Amazon will refuse, the page FAQ states the 18-month rule as fact, and the window input cannot even express 60 days. Math.abs on ledger columns also lets a found reversal erase real losses. Does not meet the bar (correctness 2, claims 2); finished against its own README."
 }

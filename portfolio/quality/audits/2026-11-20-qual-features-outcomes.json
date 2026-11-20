@@ -181,7 +181,8 @@
    "what": "'about 85 in the pool' for outcome D positives; the seeded pool holds 77 (117 in test)",
    "where": "research/qual-features-outcomes/README.md:34",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"
   },
   {
    "severity": "medium",
@@ -205,6 +206,6 @@
    "origin": "design"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17978"],
  "verdict": "Reproduces bit-for-bit (5m19s rerun, diff IDENTICAL) and its headline numbers are honest and independently recomputed (prevalences, AUC SE, codes-only 0.527). It does not meet the bar: the bag-of-words baseline is weak (default NB on counts gets 0.595, not 0.557), which undercuts finding 2's interpretation; rare-outcome cells silently average 7 of 30 draws; 3 of 4 seeded mutants survive; and the study cannot answer its title question (no LLM, outcomes not expected to load on emotion). Scores 3/3/2/2/2/2/2, median 2; finished (completeness 3) but not senior-grade research."
 }
