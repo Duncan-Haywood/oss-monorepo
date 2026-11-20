@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKmenmkuMss1w99fPj1",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T08:19:50Z",
+  "ended": "2026-11-20T08:45:04Z",
+  "wall_minutes": 25.42,
+  "tokens_in": 3833933,
+  "tokens_out": 44283,
+  "cost_usd": 2.4723,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17882",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First claim commit failed: the branch already existed, so `git checkout -b` aborted the && chain before the BIBLE edit; reran without the checkout."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The proposal said 'lift about a metre' and 'sixty centimetres more'; a fixed-length screw tilted from 22 to 35 degrees raises its outlet 0.56 m, so the field height had to become 0.5 m to stay consistent. Proposals that fix one geometric number should check it against the others."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-the-screw-that-lifted-less.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon (headline shelf). Piece: the-screw-that-lifted-less (\u1ea4p C\u00e2y Sung, \u0110\u1ed3ng Th\u00e1p, 2049), text only because audio is 577 MB, over the 400 MB cap. Bucket volumes computed numerically (Rorres 2000 method): 17.5 L at 22 deg, 10.3 L at 35; delivered 19.7 vs 9.8 L/s with a 5 mm gap leakage term. Adversarial re-read fixed: the noon Angelus (a solar motor can't run at the 6 pm one), outlet rise 0.56 m vs field height, and the second screw's tighter gap giving 9.6 s on the drum. All weekday claims checked in code (Easter 2049 = 18 April). Added a timeline row and a new Hearth & Horizon proposal (The box that keeps the boil, haybox cooling), because the shelf's Next up list was empty. Local checks: node --test in hearth-and-horizon 20/20; run_workflow_locally --for-changes 11/11 workflows passed; agent-cross-review and deploy jobs not run locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8e118967-9b56-5d15-8c4a-469e05dc6fc9",
+    "transcripts": 1,
+    "first": "2026-11-20T08:19:50Z",
+    "last": "2026-11-20T08:45:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 74,
+        "output": 44283,
+        "thinking": 19642,
+        "cache_read": 3728782,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105077,
+        "api_equivalent_usd": 2.4723,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 74,
+      "output": 44283,
+      "thinking": 19642,
+      "cache_read": 3728782,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105077,
+      "api_equivalent_usd": 2.4723,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 34,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.42,
+      "active_minutes": 11.66,
+      "model_minutes": 9.16,
+      "tool_minutes": 2.5,
+      "waiting_on_human_minutes": 13.76,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "researching and modelling screw geometry plus drafting and editing a 5,000-word short story",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 404.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

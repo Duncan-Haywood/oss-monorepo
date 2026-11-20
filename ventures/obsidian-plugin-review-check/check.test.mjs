@@ -122,3 +122,132 @@ test('runCheck: no manifest.json at all is reported and not ok', () => {
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+// ---- CLI (red-team 2026-11-20: 8 of 10 mutants in check.mjs's argument
+// parsing and text report escaped, because no test ran the CLI) ----
+
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const CLI = fileURLToPath(new URL('./check.mjs', import.meta.url));
+const CLEAN_MANIFEST = JSON.stringify({
+  id: 'word-goals', name: 'Word Goals', isDesktopOnly: false, version: '1.0.0', minAppVersion: '0.15.0',
+  description: 'Does a thing.', author: 'Jane Dev',
+});
+
+function cli(args, cwd) {
+  const r = spawnSync(process.execPath, [CLI, ...args], { cwd, encoding: 'utf8' });
+  return { code: r.status, out: r.stdout, err: r.stderr };
+}
+
+test('CLI: a positional path sets the root, and --json prints the runCheck result', () => {
+  const root = makeFixture({ 'manifest.json': CLEAN_MANIFEST, 'versions.json': JSON.stringify({ '1.0.0': '0.15.0' }), 'main.js': '1;' });
+  try {
+    const r = cli([root, '--json']);
+    assert.equal(r.code, 0, r.err);
+    const json = JSON.parse(r.out);
+    assert.equal(json.report.ok, true);
+    assert.equal(json.manifestPath, 'manifest.json');
+    assert.equal(json.scannedFileCount, 1);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('CLI: --manifest reads the named file instead of the one in the tree', () => {
+  const root = makeFixture({
+    'manifest.json': JSON.stringify({ id: 'sample-plugin' }),
+    'good/manifest.json': CLEAN_MANIFEST,
+    'versions.json': JSON.stringify({ '1.0.0': '0.15.0' }),
+  });
+  try {
+    const r = cli([root, '--manifest', join(root, 'good/manifest.json'), '--json']);
+    assert.equal(r.code, 0, r.out);
+    assert.equal(JSON.parse(r.out).manifestPath, 'good/manifest.json');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('CLI: --manifest or --versions with no value is a usage error, not silently ignored', () => {
+  const root = makeFixture({ 'manifest.json': CLEAN_MANIFEST, 'versions.json': JSON.stringify({ '1.0.0': '0.15.0' }) });
+  try {
+    for (const flag of ['--manifest', '--versions']) {
+      const r = cli([root, flag]);
+      assert.equal(r.code, 2, `${flag}: ${r.out}`);
+      assert.match(r.err, new RegExp(`${flag} needs a file path`));
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('CLI: a --manifest path that does not exist is exit 2, not a "no manifest" report', () => {
+  const root = makeFixture({ 'manifest.json': CLEAN_MANIFEST });
+  try {
+    const r = cli([root, '--manifest', join(root, 'nope.json')]);
+    assert.equal(r.code, 2);
+    assert.match(r.err, /File not found: .*nope\.json/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('CLI: a missing root is exit 2', () => {
+  const r = cli([join(tmpdir(), 'obsidian-plugin-review-check-does-not-exist')]);
+  assert.equal(r.code, 2);
+  assert.match(r.err, /Path not found/);
+});
+
+test('runCheck: a manifest outside the root is shown by its full path, not a mangled prefix-stripped one', () => {
+  const parent = mkdtempSync(join(tmpdir(), 'obsidian-plugin-review-check-'));
+  const root = join(parent, 'a');
+  const sibling = join(parent, 'ab');
+  mkdirSync(root);
+  mkdirSync(sibling);
+  writeFileSync(join(sibling, 'manifest.json'), CLEAN_MANIFEST);
+  try {
+    const { manifestPath } = runCheck({ root, manifestOverride: join(sibling, 'manifest.json'), versionsOverride: null });
+    assert.equal(manifestPath, join(sibling, 'manifest.json'));
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test('CLI text: additional manifests are named, and listener/console lists cut at 10 with a count', () => {
+  const listeners = Array.from({ length: 11 }, (_, i) => `window.addEventListener('k${i}', f);`).join('\n');
+  const logs = Array.from({ length: 11 }, (_, i) => `console.log(${i});`).join('\n');
+  const root = makeFixture({
+    'manifest.json': CLEAN_MANIFEST,
+    'versions.json': JSON.stringify({ '1.0.0': '0.15.0' }),
+    'other/manifest.json': '{}',
+    'listen.js': listeners,
+    'log.js': logs,
+  });
+  try {
+    const r = cli([root]);
+    assert.equal(r.code, 0, r.out);
+    assert.match(r.out, /Note: 1 additional manifest\.json file\(s\) found and not read: other\/manifest\.json/);
+    const listenLines = r.out.split('\n').filter((l) => /^ {4}listen\.js:\d+/.test(l));
+    assert.deepEqual(listenLines.map((l) => Number(l.match(/:(\d+)/)[1])), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    assert.match(r.out, /11 line\(s\) call document\/window\.addEventListener[\s\S]*\.\.\. and 1 more/);
+    assert.match(r.out, /11 console\.log\(\) call\(s\) found[\s\S]*\.\.\. and 1 more/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('CLI text: exactly 10 console.log calls print no "... and 0 more", and none prints no console section', () => {
+  const ten = Array.from({ length: 10 }, (_, i) => `console.log(${i});`).join('\n');
+  const root = makeFixture({ 'manifest.json': CLEAN_MANIFEST, 'versions.json': JSON.stringify({ '1.0.0': '0.15.0' }), 'log.js': ten });
+  const none = makeFixture({ 'manifest.json': CLEAN_MANIFEST, 'versions.json': JSON.stringify({ '1.0.0': '0.15.0' }), 'main.js': '1;' });
+  try {
+    const r = cli([root]);
+    assert.match(r.out, /10 console\.log\(\) call\(s\)/);
+    assert.doesNotMatch(r.out, /and 0 more/);
+    assert.doesNotMatch(cli([none]).out, /console\.log/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    rmSync(none, { recursive: true, force: true });
+  }
+});

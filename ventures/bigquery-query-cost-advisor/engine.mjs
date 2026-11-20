@@ -82,7 +82,7 @@ export function analyze(parsed, options = {}) {
 
   if (editionsTotal !== null && editionsTotal < onDemandTotal) add("editions-cheaper", "warn", "", `Slot-hours priced at ${usd(prices.slotHour)} come to ${usd(editionsTotal)}/month against ${usd(onDemandTotal)}/month on-demand: about ${usd(onDemandTotal - editionsTotal)}/month (${usd((onDemandTotal - editionsTotal) * 12)}/year) cheaper on paper. This is a floor: autoscaling bills in 50-slot steps with a one-minute minimum, and a baseline reservation bills while idle. Pilot with a small max-slots cap before moving a project: bq mk --reservation --project_id=<admin-project> --location=US --edition=ENTERPRISE --autoscale_max_slots=100 <name>`);
   else if (editionsTotal !== null) add("on-demand-cheaper", "info", "", `On-demand at ${usd(onDemandTotal)}/month beats ${usd(editionsTotal)}/month of slot-hours: staying on on-demand is right for this workload. Revisit if scanned bytes per slot-hour rises.`);
-  else add("slot-hours-missing", "info", "", "Slot hours were not supplied for every group, so Editions is not compared. Get them from INFORMATION_SCHEMA.JOBS: SUM(total_slot_ms)/3600000 per group.");
+  else add("slot-hours-missing", "info", "", "Slot hours were not supplied for every group, so Editions is not compared. Get them from INFORMATION_SCHEMA.JOBS_BY_PROJECT: AVG(total_slot_ms)/3600000 for each group, slot-hours per run (the tool multiplies by runs).");
 
   for (const g of groups) {
     const { row } = g;

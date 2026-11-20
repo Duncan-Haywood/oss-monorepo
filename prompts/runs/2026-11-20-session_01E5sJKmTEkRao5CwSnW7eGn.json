@@ -1,0 +1,602 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKmTEkRao5CwSnW7eGn",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T07:10:03Z",
+  "ended": "2026-11-20T07:12:07Z",
+  "wall_minutes": 20.38,
+  "tokens_in": 4540442,
+  "tokens_out": 25533,
+  "cost_usd": 2.1256,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17875",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists 12 open entries, 11 of them control-plane follow-ups already sitting in open owner-approval PRs (e.g. #15945, #14612, #15728, #14698). Each run re-reads the same list; `redteam.py open` could mark entries whose fix is in an open PR as 'waiting on owner' so the list shows only actionable work."
+    },
+    {
+      "file": "platform/ci/test_checks_refuse_empty_root.py",
+      "issue": "Worked as intended: it caught that my new check passed on an empty --root. The rule (a --root check must refuse an empty tree) is not mentioned in the redteam prompt's 4b guidance for writing a new lint; one line there would have saved a local-CI round."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix open entries first; all 12 need a control-plane PR the owner must approve (most already open) or the help-keeper stemmer redesign with a new eval set.",
+      "did": "Checked each against main and the open PR list, fixed none, went straight to campaigns.",
+      "result": "Run time went to 3 campaigns and 2 real fixes instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-redteam-a-trailing-flag-checked-the-wrong-file.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: classify.mjs 9/10, scan.mjs 10/10, check.mjs 2/10 -> 30/30 after fix (rerun; mutant 2/7 re-applied by hand). Hunt: 21-case JS vs Python parity probe of docker-base-image-pin-check (quotes, --platform, case-insensitive stage names, escape directive, BOM, CRLF): all agreed. Guard added (4b): platform/ci/check_trailing_flag_value.py, a ratchet over `x = argv[++i]` with no missing-value check; 95 files baselined, refuses an empty --root; run on every PR by unwired_checks.py. Local CI (run_workflow_locally --for-changes): 12/14 workflows passed before the fixes; prompts-ci failed only on the then-unfilled record, ventures-tests failed on test_checks_refuse_empty_root catching the new check, both fixed and rerun green (unittest). uses: steps and review/deploy jobs not run locally.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/docker-base-image-pin-check/classify.mjs",
+        "test": "node --test ventures/docker-base-image-pin-check/**/*.test.mjs  (in .)",
+        "seed": 60736067,
+        "commit": "66e9a782f",
+        "sites": 108,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 25,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "const DIGEST_RE = /^([a-z0-9]+(?:[+._-][a-z0-9]+)*):([0-9a-fA-F]{32,})$/;",
+            "after": "const DIGEST_RE = /^([a-z0-9]+(?:[+._-][a-z0-10]+)*):([0-9a-fA-F]{32,})$/;",
+            "line_text": "const DIGEST_RE = /^([a-z0-9]+(?:[+._-][a-z0-9]+)*):([0-9a-fA-F]{32,})$/;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 52,
+            "col": 21,
+            "operator": "ge-to-gt",
+            "before": "if (value.length >= 2 && value[0] === value[value.length - 1] && (value[0] === '\"' || value[0] === \"'\")) {",
+            "after": "if (value.length > 2 && value[0] === value[value.length - 1] && (value[0] === '\"' || value[0] === \"'\")) {",
+            "line_text": "    if (value.length >= 2 && value[0] === value[value.length - 1] && (value[0] === '\"' || value[0] === \"'\")) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 52,
+            "col": 76,
+            "operator": "const-plus-one",
+            "before": "if (value.length >= 2 && value[0] === value[value.length - 1] && (value[0] === '\"' || value[0] === \"'\")) {",
+            "after": "if (value.length >= 2 && value[0] === value[value.length - 1] && (value[1] === '\"' || value[0] === \"'\")) {",
+            "line_text": "    if (value.length >= 2 && value[0] === value[value.length - 1] && (value[0] === '\"' || value[0] === \"'\")) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a new test in the target suite (check.test.mjs CLI block / classify.test.mjs double-quote test)"
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 71,
+            "col": 11,
+            "operator": "eq-flip",
+            "before": "if (op === \"+\") return isSet ? word : \"\";",
+            "after": "if (op !== \"+\") return isSet ? word : \"\";",
+            "line_text": "    if (op === \"+\") return isSet ? word : \"\";",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 78,
+            "col": 24,
+            "operator": "and-to-or",
+            "before": "if (out.includes(\"$\") && !missing.length) missing.push(out);",
+            "after": "if (out.includes(\"$\") || !missing.length) missing.push(out);",
+            "line_text": "  if (out.includes(\"$\") && !missing.length) missing.push(out);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 103,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const prefix = ref.slice(0, lastSlash + 1);",
+            "after": "const prefix = ref.slice(1, lastSlash + 1);",
+            "line_text": "    const prefix = ref.slice(0, lastSlash + 1);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 160,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < lines.length; i++) {",
+            "after": "for (let i = 1; i < lines.length; i++) {",
+            "line_text": "  for (let i = 0; i < lines.length; i++) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 167,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "} else if (stripped === \"\" || stripped.startsWith(\"#\")) {",
+            "after": "} else if (stripped === \"\" && stripped.startsWith(\"#\")) {",
+            "line_text": "    } else if (stripped === \"\" || stripped.startsWith(\"#\")) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 220,
+            "col": 82,
+            "operator": "neq-flip",
+            "before": "if (classification !== PINNED && classification !== MUTABLE && classification !== UNRESOLVED) continue;",
+            "after": "if (classification !== PINNED && classification !== MUTABLE && classification === UNRESOLVED) continue;",
+            "line_text": "    if (classification !== PINNED && classification !== MUTABLE && classification !== UNRESOLVED) continue;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/docker-base-image-pin-check/classify.mjs",
+            "line": 226,
+            "col": 23,
+            "operator": "eq-flip",
+            "before": "if (classification === UNRESOLVED) {",
+            "after": "if (classification !== UNRESOLVED) {",
+            "line_text": "    if (classification === UNRESOLVED) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/obsidian-plugin-review-check/scan.mjs",
+        "test": "node --test ventures/obsidian-plugin-review-check/**/*.test.mjs  (in .)",
+        "seed": 752141694,
+        "commit": "66e9a782f",
+        "sites": 62,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/obsidian-plugin-review-check/scan.mjs",
+            "line": 56,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (!/^[a-z0-9-]+$/.test(id)) out.push({ field: 'id', value: id, rule: 'must contain only lowercase letters (and digits) and hyphens' });",
+            "after": "if (!/^[a-z0-10-]+$/.test(id)) out.push({ field: 'id', value: id, rule: 'must contain only lowercase letters (and digits) and hyphens' });",
+            "line_text": "    if (!/^[a-z0-9-]+$/.test(id)) out.push({ field: 'id', value: id, rule: 'must contain only lowercase letters (and digits) and hyphens' });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/scan.mjs",
+            "line": 70,
+            "col": 32,
+            "operator": "and-to-or",
+            "before": "if (data[key] !== undefined && typeof data[key] !== 'boolean') {",
+            "after": "if (data[key] !== undefined || typeof data[key] !== 'boolean') {",
+            "line_text": "    if (data[key] !== undefined && typeof data[key] !== 'boolean') {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/scan.mjs",
+            "line": 94,
+            "col": 13,
+            "operator": "false-to-true",
+            "before": "found: false,",
+            "after": "found: true,",
+            "line_text": "      found: false,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/scan.mjs",
+            "line": 108,
+            "col": 18,
+            "operator": "true-to-false",
+            "before": "parseError: true,",
+            "after": "parseError: false,",
+            "line_text": "      parseError: true,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/scan.mjs",
+            "line": 119,
+            "col": 18,
+            "operator": "true-to-false",
+            "before": "return { found: true, data, parseError: false, missingRequired, missingRecommended };",
+            "after": "return { found: false, data, parseError: false, missingRequired, missingRecommended };",
+            "line_text": "  return { found: true, data, parseError: false, missingRequired, missingRecommended };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/scan.mjs",
+            "line": 149,
+            "col": 52,
+            "operator": "eq-flip",
+            "before": ".filter(([field, value]) => manifestData[field] === value)",
+            "after": ".filter(([field, value]) => manifestData[field] !== value)",
+            "line_text": "    .filter(([field, value]) => manifestData[field] === value)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/scan.mjs",
+            "line": 165,
+            "col": 15,
+            "operator": "or-to-and",
+            "before": "if (!version || !versionsData) return { status: 'not-checked', version };",
+            "after": "if (!version && !versionsData) return { status: 'not-checked', version };",
+            "line_text": "  if (!version || !versionsData) return { status: 'not-checked', version };",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/scan.mjs",
+            "line": 194,
+            "col": 22,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < lines.length; i++) {",
+            "after": "for (let i = 0; i <= lines.length; i++) {",
+            "line_text": "    for (let i = 0; i < lines.length; i++) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/scan.mjs",
+            "line": 197,
+            "col": 85,
+            "operator": "const-plus-one",
+            "before": "findings.push({ path: file.path, line: i + 1, snippet: lines[i].trim().slice(0, 160) });",
+            "after": "findings.push({ path: file.path, line: i + 1, snippet: lines[i].trim().slice(1, 160) });",
+            "line_text": "        findings.push({ path: file.path, line: i + 1, snippet: lines[i].trim().slice(0, 160) });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/scan.mjs",
+            "line": 269,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "manifest.missingRequired.length === 0 &&",
+            "after": "manifest.missingRequired.length === 1 &&",
+            "line_text": "    manifest.missingRequired.length === 0 &&",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/obsidian-plugin-review-check/check.mjs",
+        "test": "node --test ventures/obsidian-plugin-review-check/**/*.test.mjs  (in .)",
+        "seed": 980300722,
+        "commit": "66e9a782f",
+        "sites": 60,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/obsidian-plugin-review-check/check.mjs",
+            "line": 36,
+            "col": 29,
+            "operator": "or-to-and",
+            "before": "return SKIP_DIRS.has(name) || (name.startsWith('.') && name !== '.');",
+            "after": "return SKIP_DIRS.has(name) && (name.startsWith('.') && name !== '.');",
+            "line_text": "  return SKIP_DIRS.has(name) || (name.startsWith('.') && name !== '.');",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/check.mjs",
+            "line": 52,
+            "col": 50,
+            "operator": "true-to-false",
+            "before": "entries = readdirSync(dir, { withFileTypes: true });",
+            "after": "entries = readdirSync(dir, { withFileTypes: false });",
+            "line_text": "      entries = readdirSync(dir, { withFileTypes: true });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/check.mjs",
+            "line": 126,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "additionalManifestPaths: manifestPaths.slice(1).map((p) => relativeTo(root, p)),",
+            "after": "additionalManifestPaths: manifestPaths.slice(2).map((p) => relativeTo(root, p)),",
+            "line_text": "    additionalManifestPaths: manifestPaths.slice(1).map((p) => relativeTo(root, p)),",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a new test in the target suite (check.test.mjs CLI block / classify.test.mjs double-quote test)"
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/check.mjs",
+            "line": 183,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "for (const f of report.globalListeners.slice(0, 10)) lines.push(`    ${f.path}:${f.line}  ${f.snippet}`);",
+            "after": "for (const f of report.globalListeners.slice(1, 10)) lines.push(`    ${f.path}:${f.line}  ${f.snippet}`);",
+            "line_text": "    for (const f of report.globalListeners.slice(0, 10)) lines.push(`    ${f.path}:${f.line}  ${f.snippet}`);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a new test in the target suite (check.test.mjs CLI block / classify.test.mjs double-quote test)"
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/check.mjs",
+            "line": 183,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "for (const f of report.globalListeners.slice(0, 10)) lines.push(`    ${f.path}:${f.line}  ${f.snippet}`);",
+            "after": "for (const f of report.globalListeners.slice(0, 11)) lines.push(`    ${f.path}:${f.line}  ${f.snippet}`);",
+            "line_text": "    for (const f of report.globalListeners.slice(0, 10)) lines.push(`    ${f.path}:${f.line}  ${f.snippet}`);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a new test in the target suite (check.test.mjs CLI block / classify.test.mjs double-quote test)"
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/check.mjs",
+            "line": 188,
+            "col": 31,
+            "operator": "gt-to-ge",
+            "before": "if (report.consoleLog.length > 0) {",
+            "after": "if (report.consoleLog.length >= 0) {",
+            "line_text": "  if (report.consoleLog.length > 0) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a new test in the target suite (check.test.mjs CLI block / classify.test.mjs double-quote test)"
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/check.mjs",
+            "line": 191,
+            "col": 33,
+            "operator": "gt-to-ge",
+            "before": "if (report.consoleLog.length > 10) lines.push(`    ... and ${report.consoleLog.length - 10} more`);",
+            "after": "if (report.consoleLog.length >= 10) lines.push(`    ... and ${report.consoleLog.length - 10} more`);",
+            "line_text": "    if (report.consoleLog.length > 10) lines.push(`    ... and ${report.consoleLog.length - 10} more`);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a new test in the target suite (check.test.mjs CLI block / classify.test.mjs double-quote test)"
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/check.mjs",
+            "line": 208,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "else if (argv[i] === '--manifest') args.manifest = argv[++i];",
+            "after": "else if (argv[i] !== '--manifest') args.manifest = argv[++i];",
+            "line_text": "    else if (argv[i] === '--manifest') args.manifest = argv[++i];",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "rerun: line changed (the fix folded --manifest/--versions into one branch); re-applied by hand as `argv[i] !== '--manifest' ||`: 7 of 14 check.test.mjs tests fail"
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/check.mjs",
+            "line": 212,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "if (rest.length > 0) args.root = rest[0];",
+            "after": "if (rest.length > 1) args.root = rest[0];",
+            "line_text": "  if (rest.length > 0) args.root = rest[0];",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a new test in the target suite (check.test.mjs CLI block / classify.test.mjs double-quote test)"
+          },
+          {
+            "file": "ventures/obsidian-plugin-review-check/check.mjs",
+            "line": 227,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "process.exit(2);",
+            "after": "process.exit(3);",
+            "line_text": "    process.exit(2);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a new test in the target suite (check.test.mjs CLI block / classify.test.mjs double-quote test)"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/obsidian-plugin-review-check/check.mjs",
+        "issue": "A trailing --manifest or --versions with no value left the override undefined, so runCheck silently fell back to the first file it found: a CI gate passed on a file the user did not name. A --manifest naming a missing file reported 'No manifest.json found' (exit 1) instead of a usage error. Repro: node check.mjs <dir> --manifest -> exit 1 report, no error. Fixed: exit 2 with a usage line; README and header comment document exit 2.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17875"
+      },
+      {
+        "file": "ventures/obsidian-plugin-review-check/check.mjs",
+        "issue": "relativeTo used a string-prefix test, so root /x/a with --manifest /x/ab/manifest.json printed 'manifest.json: b/manifest.json' (a path that does not exist). Fixed with path.relative, keeping the full path for anything outside the root.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17875"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "295c1368-54c8-5884-85ed-dcfd99497810",
+    "transcripts": 1,
+    "first": "2026-11-20T07:10:03Z",
+    "last": "2026-11-20T07:30:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 96,
+        "output": 25533,
+        "thinking": 4094,
+        "cache_read": 4449775,
+        "cache_write_5m": 0,
+        "cache_write_1h": 90571,
+        "api_equivalent_usd": 2.1256,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 96,
+      "output": 25533,
+      "thinking": 4094,
+      "cache_read": 4449775,
+      "cache_write_5m": 0,
+      "cache_write_1h": 90571,
+      "api_equivalent_usd": 2.1256,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 48,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.38,
+      "active_minutes": 20.38,
+      "model_minutes": 5.53,
+      "tool_minutes": 14.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: mutation triage of 3 files, 2 CLI fixes with tests, a repo-wide lint, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 235.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

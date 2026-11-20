@@ -1,0 +1,104 @@
+capture-sync step 4a: fingerprint and feature baselines against GCC on step 3h's 2 s twin windows
+(MS-SNSD speech and noise, statistical rooms, noise independent per device); failure = more than a
+30 fps frame from the speech truth; plain = GCC gamma 0.25, fn = envelope-normalised gamma 0.25
+windows: 62000
+
+== Replay: 62 of 62 cells (plain and fn failure shares, 3 decimals) equal step 3h's ==
+
+== Failure share by cell, all sessions: plain / fn / kflat / kenergy / kzcr / wang / hk ==
+  RT60 0.2
+    none                           0.000 0.000 0.000 0.000 0.000 0.144 0.000
+    white +10 dB                   0.000 0.000 0.000 0.000 0.000 0.388 0.000
+    white +0 dB                    0.001 0.001 0.001 0.000 0.000 0.599 0.013
+    white -10 dB                   0.002 0.001 0.091 0.014 0.055 0.798 0.385
+    AirConditioner +10 dB          0.001 0.000 0.002 0.000 0.009 0.308 0.000
+    AirConditioner +0 dB           0.001 0.001 0.080 0.000 0.109 0.627 0.016
+    AirConditioner -10 dB          0.119 0.205 0.674 0.514 0.674 0.934 0.416
+    AirportAnnouncements +10 dB    0.001 0.000 0.010 0.000 0.019 0.333 0.001
+    AirportAnnouncements +0 dB     0.002 0.001 0.351 0.145 0.209 0.647 0.047
+    AirportAnnouncements -10 dB    0.252 0.202 0.901 0.926 0.788 0.938 0.639
+    Babble +10 dB                  0.001 0.001 0.009 0.000 0.016 0.367 0.003
+    Babble +0 dB                   0.001 0.002 0.394 0.194 0.245 0.717 0.117
+    Babble -10 dB                  0.587 0.390 0.947 0.958 0.876 0.966 0.809
+    CopyMachine +10 dB             0.001 0.001 0.035 0.000 0.031 0.436 0.000
+    CopyMachine +0 dB              0.001 0.001 0.226 0.089 0.292 0.760 0.064
+    CopyMachine -10 dB             0.304 0.141 0.878 0.934 0.921 0.961 0.676
+    Munching +10 dB                0.000 0.000 0.034 0.003 0.096 0.359 0.000
+    Munching +0 dB                 0.001 0.001 0.235 0.109 0.388 0.588 0.007
+    Munching -10 dB                0.296 0.001 0.687 0.705 0.814 0.810 0.179
+    Neighbor +10 dB                0.000 0.001 0.057 0.009 0.147 0.307 0.000
+    Neighbor +0 dB                 0.000 0.000 0.551 0.513 0.601 0.610 0.065
+    Neighbor -10 dB                0.672 0.088 0.936 0.931 0.910 0.915 0.584
+    ShuttingDoor +10 dB            0.000 0.000 0.033 0.007 0.123 0.284 0.000
+    ShuttingDoor +0 dB             0.001 0.000 0.280 0.125 0.432 0.471 0.001
+    ShuttingDoor -10 dB            0.213 0.002 0.635 0.591 0.804 0.702 0.044
+    Typing +10 dB                  0.000 0.000 0.023 0.002 0.050 0.431 0.000
+    Typing +0 dB                   0.003 0.000 0.159 0.039 0.303 0.678 0.007
+    Typing -10 dB                  0.781 0.001 0.610 0.577 0.817 0.920 0.207
+    VacuumCleaner +10 dB           0.000 0.000 0.000 0.000 0.001 0.350 0.000
+    VacuumCleaner +0 dB            0.001 0.001 0.008 0.002 0.197 0.707 0.009
+    VacuumCleaner -10 dB           0.025 0.055 0.548 0.465 0.897 0.940 0.360
+    sum of 10 types +10 dB         0.004 0.003 0.203 0.021 0.492 3.563 0.004
+    sum of 10 types +0 dB          0.012 0.008 2.285 1.216 2.776 6.404 0.346
+    sum of 10 types -10 dB         3.251 1.086 6.907 6.615 7.556 8.884 4.299
+  RT60 0.8
+    none                           0.000 0.000 0.000 0.000 0.004 0.173 0.000
+    white +10 dB                   0.000 0.000 0.000 0.000 0.000 0.443 0.001
+    white +0 dB                    0.000 0.001 0.002 0.000 0.003 0.656 0.022
+    white -10 dB                   0.007 0.010 0.137 0.042 0.122 0.819 0.473
+    AirConditioner +10 dB          0.000 0.002 0.014 0.000 0.030 0.301 0.001
+    AirConditioner +0 dB           0.000 0.000 0.153 0.006 0.179 0.636 0.029
+    AirConditioner -10 dB          0.157 0.227 0.747 0.643 0.739 0.927 0.503
+    AirportAnnouncements +10 dB    0.000 0.000 0.027 0.000 0.030 0.347 0.000
+    AirportAnnouncements +0 dB     0.000 0.002 0.442 0.211 0.260 0.673 0.047
+    AirportAnnouncements -10 dB    0.286 0.252 0.922 0.942 0.827 0.962 0.683
+    Babble +10 dB                  0.000 0.000 0.035 0.001 0.042 0.389 0.002
+    Babble +0 dB                   0.002 0.001 0.481 0.280 0.328 0.749 0.159
+    Babble -10 dB                  0.635 0.435 0.959 0.965 0.876 0.970 0.846
+    CopyMachine +10 dB             0.000 0.000 0.066 0.002 0.067 0.454 0.003
+    CopyMachine +0 dB              0.002 0.002 0.363 0.173 0.463 0.743 0.096
+    CopyMachine -10 dB             0.357 0.179 0.908 0.939 0.943 0.961 0.795
+    Munching +10 dB                0.000 0.000 0.105 0.015 0.179 0.397 0.002
+    Munching +0 dB                 0.000 0.000 0.410 0.209 0.510 0.613 0.014
+    Munching -10 dB                0.293 0.003 0.772 0.737 0.871 0.826 0.221
+    Neighbor +10 dB                0.000 0.000 0.097 0.028 0.196 0.340 0.003
+    Neighbor +0 dB                 0.001 0.003 0.610 0.617 0.646 0.595 0.087
+    Neighbor -10 dB                0.738 0.084 0.968 0.954 0.926 0.915 0.651
+    ShuttingDoor +10 dB            0.000 0.000 0.080 0.020 0.194 0.298 0.000
+    ShuttingDoor +0 dB             0.000 0.000 0.316 0.204 0.523 0.476 0.001
+    ShuttingDoor -10 dB            0.231 0.001 0.680 0.671 0.822 0.679 0.055
+    Typing +10 dB                  0.000 0.000 0.063 0.010 0.110 0.461 0.001
+    Typing +0 dB                   0.000 0.001 0.272 0.103 0.420 0.711 0.015
+    Typing -10 dB                  0.804 0.000 0.693 0.651 0.846 0.916 0.264
+    VacuumCleaner +10 dB           0.000 0.000 0.002 0.000 0.025 0.353 0.001
+    VacuumCleaner +0 dB            0.000 0.001 0.029 0.001 0.368 0.712 0.023
+    VacuumCleaner -10 dB           0.034 0.078 0.653 0.566 0.938 0.956 0.427
+    sum of 10 types +10 dB         0.000 0.002 0.489 0.076 0.873 3.783 0.014
+    sum of 10 types +0 dB          0.005 0.011 3.078 1.804 3.700 6.564 0.493
+    sum of 10 types -10 dB         3.542 1.269 7.439 7.110 7.910 8.931 4.918
+
+== AUROC of each method's own confidence for its own failures (pooled over all conditions; -10 dB) ==
+  RT60 0.2 all     plain 0.856  fn 0.981  kflat 0.909  kenergy 0.917  kzcr 0.892  wang 0.839  hk 0.963
+  RT60 0.2 -10 dB  plain 0.580  fn 0.942  kflat 0.805  kenergy 0.822  kzcr 0.799  wang 0.744  hk 0.863
+  RT60 0.8 all     plain 0.865  fn 0.984  kflat 0.862  kenergy 0.855  kzcr 0.847  wang 0.823  hk 0.959
+  RT60 0.8 -10 dB  plain 0.594  fn 0.947  kflat 0.773  kenergy 0.784  kzcr 0.766  wang 0.736  hk 0.852
+
+== Precision: median and 95th percentile |error| (ms) among each method's successes, no noise ==
+  RT60 0.2 plain 0.01/0.05  fn 0.00/0.01  kflat 0.64/1.96  kenergy 0.39/1.43  kzcr 0.98/3.46  wang 2.63/12.58  hk 1.59/4.67
+  RT60 0.8 plain 0.01/0.02  fn 0.00/0.01  kflat 0.81/3.19  kenergy 0.64/2.53  kzcr 1.70/7.30  wang 2.00/10.50  hk 2.43/7.42
+
+== T4 gate (calibrate none + all types, all levels, sessions 0-4; test each type at -10 dB, sessions 5-9): kept, wrong among accepted ==
+  RT60 0.2 plain    6/10 types at <=2%, kept 0.230, pooled wrong 0.0165   white 0.69/0.000 AirCon 0.40/0.000 Airpor 0.29/0.021 Babble 0.05/0.208 CopyMa 0.16/0.049 Munchi 0.03/0.500 Neighb 0.00/  -   Shutti 0.00/0.000 Typing 0.02/0.000 Vacuum 0.67/0.000
+  RT60 0.2 fn       7/10 types at <=2%, kept 0.739, pooled wrong 0.0190   white 0.70/0.003 AirCon 0.47/0.004 Airpor 0.58/0.045 Babble 0.33/0.072 CopyMa 0.65/0.018 Munchi 1.00/0.002 Neighb 0.95/0.067 Shutti 1.00/0.004 Typing 1.00/0.002 Vacuum 0.69/0.003
+  RT60 0.2 kflat    6/10 types at <=2%, kept 0.026, pooled wrong 0.2595   white 0.00/  -   AirCon 0.00/  -   Airpor 0.00/  -   Babble 0.00/  -   CopyMa 0.00/  -   Munchi 0.06/0.344 Neighb 0.02/0.778 Shutti 0.09/0.200 Typing 0.09/0.156 Vacuum 0.00/  -  
+  RT60 0.2 kenergy  4/10 types at <=2%, kept 0.034, pooled wrong 0.2663   white 0.00/  -   AirCon 0.00/  -   Airpor 0.00/  -   Babble 0.00/1.000 CopyMa 0.00/1.000 Munchi 0.06/0.129 Neighb 0.02/0.800 Shutti 0.13/0.238 Typing 0.12/0.242 Vacuum 0.00/  -  
+  RT60 0.2 kzcr     10/10 types at <=2%, kept 0.000, pooled wrong nan   white 0.00/  -   AirCon 0.00/  -   Airpor 0.00/  -   Babble 0.00/  -   CopyMa 0.00/  -   Munchi 0.00/  -   Neighb 0.00/  -   Shutti 0.00/  -   Typing 0.00/  -   Vacuum 0.00/  -  
+  RT60 0.2 wang     9/10 types at <=2%, kept 0.004, pooled wrong 0.0526   white 0.00/  -   AirCon 0.00/  -   Airpor 0.00/  -   Babble 0.00/  -   CopyMa 0.00/  -   Munchi 0.01/0.000 Neighb 0.00/  -   Shutti 0.03/0.077 Typing 0.00/0.000 Vacuum 0.00/  -  
+  RT60 0.2 hk       5/10 types at <=2%, kept 0.268, pooled wrong 0.0568   white 0.04/0.000 AirCon 0.09/0.000 Airpor 0.03/0.143 Babble 0.00/0.500 CopyMa 0.04/0.095 Munchi 0.64/0.019 Neighb 0.27/0.365 Shutti 0.92/0.013 Typing 0.54/0.033 Vacuum 0.09/0.000
+  RT60 0.8 plain    7/10 types at <=2%, kept 0.194, pooled wrong 0.0103   white 0.65/0.000 AirCon 0.35/0.000 Airpor 0.18/0.011 Babble 0.01/0.143 CopyMa 0.07/0.028 Munchi 0.04/0.350 Neighb 0.00/  -   Shutti 0.00/  -   Typing 0.01/0.000 Vacuum 0.63/0.000
+  RT60 0.8 fn       6/10 types at <=2%, kept 0.735, pooled wrong 0.0185   white 0.67/0.006 AirCon 0.50/0.012 Airpor 0.55/0.029 Babble 0.31/0.072 CopyMa 0.67/0.024 Munchi 1.00/0.000 Neighb 0.96/0.075 Shutti 1.00/0.000 Typing 1.00/0.000 Vacuum 0.69/0.000
+  RT60 0.8 kflat    6/10 types at <=2%, kept 0.007, pooled wrong 0.3333   white 0.00/  -   AirCon 0.00/  -   Airpor 0.00/  -   Babble 0.00/  -   CopyMa 0.00/  -   Munchi 0.01/0.571 Neighb 0.00/1.000 Shutti 0.04/0.167 Typing 0.02/0.400 Vacuum 0.00/  -  
+  RT60 0.8 kenergy  8/10 types at <=2%, kept 0.002, pooled wrong 0.5556   white 0.00/  -   AirCon 0.00/  -   Airpor 0.00/1.000 Babble 0.00/  -   CopyMa 0.00/  -   Munchi 0.00/0.000 Neighb 0.00/  -   Shutti 0.00/  -   Typing 0.01/0.600 Vacuum 0.00/  -  
+  RT60 0.8 kzcr     10/10 types at <=2%, kept 0.000, pooled wrong nan   white 0.00/  -   AirCon 0.00/  -   Airpor 0.00/  -   Babble 0.00/  -   CopyMa 0.00/  -   Munchi 0.00/  -   Neighb 0.00/  -   Shutti 0.00/  -   Typing 0.00/  -   Vacuum 0.00/  -  
+  RT60 0.8 wang     10/10 types at <=2%, kept 0.002, pooled wrong 0.0000   white 0.00/  -   AirCon 0.00/  -   Airpor 0.00/  -   Babble 0.00/  -   CopyMa 0.00/  -   Munchi 0.00/0.000 Neighb 0.00/  -   Shutti 0.01/0.000 Typing 0.00/  -   Vacuum 0.00/  -  
+  RT60 0.8 hk       3/10 types at <=2%, kept 0.207, pooled wrong 0.0338   white 0.02/0.083 AirCon 0.10/0.042 Airpor 0.04/0.056 Babble 0.00/0.000 CopyMa 0.01/0.000 Munchi 0.48/0.029 Neighb 0.12/0.200 Shutti 0.87/0.014 Typing 0.35/0.028 Vacuum 0.08/0.025

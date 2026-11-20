@@ -62,8 +62,9 @@ every `.js`/`.ts`/`.jsx`/`.tsx` source file (excluding `.d.ts` declaration
 files). Exits `0` when both files were found and valid JSON, no required
 manifest field is missing, no sample-plugin placeholder is left in place, the
 manifest's version has a matching `versions.json` entry, and no source file
-assigns `innerHTML`/`outerHTML` or calls `insertAdjacentHTML`; `1` otherwise --
-usable directly as a CI gate:
+assigns `innerHTML`/`outerHTML` or calls `insertAdjacentHTML`; `1` otherwise;
+`2` for a usage error (a missing path, `--manifest`/`--versions` with no value
+or naming a file that does not exist) -- usable directly as a CI gate:
 
 ```yaml
 # in your own CI, not this portfolio's -- your compute, your data

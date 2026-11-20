@@ -35,9 +35,10 @@ owner: duncan
 # check (tax treatment, revenue recognition, currency conversion), and carries the no-warranty, independent-
 # of-Gumroad and financial-data clauses.
 #
-# Unverified: the column names of the Gumroad sales export, whether a refunded sale's fee is kept, how the
-# deposit is stated, and the Xero, QuickBooks Online and IIF import layouts are from memory of public help
-# documents; nothing ran against a real Gumroad export or a live import. The first export this misreads, or a
+# Sourced (2026-11-20): Gumroad's Sales export and payout CSV columns and amount definitions, from its
+# open-source code (github.com/antiwork/gumroad at c58af153). Unverified: whether the Sales export's refunded
+# sales kept part of the fee, and the Xero, QuickBooks Online and IIF import layouts (from memory of public
+# help documents); nothing ran against a real Gumroad export file or a live import. The first export this misreads, or a
 # journal an importer refuses, is the priority fix.
 
 hypotheses:

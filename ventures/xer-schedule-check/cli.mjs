@@ -25,6 +25,12 @@
 // driving path behind each. With --report review.html [--appendix] [--risk]:
 // the written review of the latest update, compared with the one before it,
 // with a "Delay by window" section and its corrections.
+// node cli.mjs --windows u1.xer u2.xer ... --earned-value [--csv ev-windows.csv] [--json] [--project CODE]
+// Earned value across the series instead (evmseries.mjs): per window, what was
+// earned against what the previous update's forecast promised, against the
+// first update's planned curve held as baseline, and against what was spent;
+// the activities that earned less (or more) than promised, budget changes,
+// earned value taken back and actuals reversed.
 // node cli.mjs schedule.xer --float-paths [CODE] [--paths N] [--csv paths.csv] [--json] [--project CODE]
 // Multiple float paths to one activity instead (floatpaths.mjs): path 1 is the
 // driving chain into it, each later path the next least float relative to it.
@@ -69,6 +75,7 @@ import { lookahead, lookaheadText, lookaheadCsv, lookaheadHtml } from "./lookahe
 import { constraintLogCsv } from "./constraints.mjs";
 import { calendarSlack, calendarSlackText, calendarSlackCsv } from "./calslack.mjs";
 import { earnedValue, earnedValueText, earnedValueCsv, sCurveCsv } from "./evm.mjs";
+import { earnedValueSeries, earnedValueSeriesText, earnedValueSeriesCsv } from "./evmseries.mjs";
 
 const args = process.argv.slice(2);
 const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve"];
@@ -87,6 +94,12 @@ if (args.includes("--windows")) {
   const files = args.filter((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
   if (files.length < 2) { console.error("usage: node cli.mjs --windows update1.xer update2.xer [update3.xer ...] [--json] [--csv windows.csv] [--project CODE]"); process.exit(2); }
   const ups = files.map((f) => ({ xer: parseSchedule(decodeXer(readFileSync(f))), label: f.split("/").pop() }));
+  if (args.includes("--earned-value")) {
+    const ev = earnedValueSeries(ups, { projectName: opt("--project") });
+    if (opt("--csv")) writeFileSync(opt("--csv"), earnedValueSeriesCsv(ev));
+    await emit(args.includes("--json") ? JSON.stringify(ev, null, 2) + "\n" : earnedValueSeriesText(ev));
+    process.exit(0);
+  }
   const rep = windows(ups, { projectName: opt("--project") });
   if (args.includes("--report")) {
     // the review is of the latest update, compared with the one before it,

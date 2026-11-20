@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPrv2h1TmyyEAQzNGs",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T08:25:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: slowest local test step; open-tennis-robots lift-jam plant coupled step",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 17884,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "photo-editing and open-tennis-robots need PYTHONPATH=src to run pytest by hand; the cloud-session notes cover pyenv but not this, so the first timing run of photo-editing failed on import (run_venture_tests.py does set it)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-20-lift-jam-plant-locals.md",
+    "docs/posts/2026-11-20-a-faster-simulation-with-the-same-floats.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of `PYTHONPATH=src python3.13 -m pytest -q -p no:cacheprovider tests/test_host.py -k LiftJam` in ventures/open-tennis-robots on this 4-core sandbox, quiet machine. Before: 36.6 s and 34.7 s (original lift_jam_sweep.py). After: 27.4 s (locals only), then 27.1 and 27.0 s (with abs/max replaced). Whole test_host.py went from 112.4 s to 105.4 s. Under cProfile, _step_coupled self time went from 43.9 s to 24.2 s. Verification: a scratch pytest plugin fed SHA-256 the repr of every numeric Plant attribute after each _step_coupled call, one digest per test. For old and new code across 2,915,000 calls in 7 tests, the JSON files were byte-identical (cmp). All 153 test_host tests pass. Survey: 341 node test files in einvoice-preflight, ids-model-check, sales-agent, xer-schedule-check and trade-bid-studio all ran in under 2 s each; photo-editing pytest took 118 s with no test over 8.5 s. Local checks: run_workflow_locally --for-changes ran pages.yml 6/6 run: steps ok and check_posts ok; the local ventures-tests run was stopped once PR CI (changed-ventures, open-tennis test and cad jobs, 16 of 16 non-skipped checks) went green.",
+  "corrections": [],
+  "redteam": null
+}

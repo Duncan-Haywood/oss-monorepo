@@ -523,12 +523,15 @@ flagships:
       strict-list cells out on 476 IDS, LibreOffice agrees 476 of 476); an RVB/ILS
       author on \s; IDS revision diff 2026-11-20 (revision.mjs, revision.html, cli
       --diff; eval/revision-diff-2026-11-20.md: 69 public revisions, 0 errors, 185
-      of 233 changes graded asks more/less, model impact by GlobalId), next: pattern
-      inclusion so a tightened xs:pattern grades as asks more, and a client's real
-      stage-to-stage IDS pair; a Revit/ARCHICAD IFC4X3 export to confirm. Readable
-      document 2026-11-20 (--to-doc, spec-doc.mjs, eval/spec-doc-2026-11-20.md: 4,458
-      of 4,458 facets agree with IfcTester's reading); next: a BIM manager's read of
-      its wording. More open items: NEXT.md.
+      of 233 changes graded asks more/less, model impact by GlobalId), pattern
+      inclusion 2026-11-20 (pattern-lang.mjs, eval/pattern-inclusion-2026-11-20.md:
+      3,540 of 3,540 public pairs, examples verified); date ranges graded 2026-11-20
+      (eval/date-range-revisions-2026-11-20.md: 132 of 236 public pairs, 94 of 94
+      examples; days the month lacks fail); next: a client's real stage-to-stage IDS
+      pair, dateTime ranges against patterns; a Revit/ARCHICAD IFC4X3 export to
+      confirm. Readable document 2026-11-20 (--to-doc, spec-doc.mjs,
+      eval/spec-doc-2026-11-20.md: 4,458 of 4,458 facets agree with IfcTester's
+      reading); next: a BIM manager's read of its wording. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
@@ -569,14 +572,13 @@ flagships:
       (floatpaths.mjs, --float-paths, page panel; eval/longest-path-2026-11-19.md:
       P6's flag 261/261 on five files). (9) look-ahead shipped 2026-11-19
       (lookahead.mjs, --lookahead, page panel; eval/lookahead-check-2026-11-19.md:
-      6,476 of 6,479 windowed activities = P6's); its hotel residual traced to
-      calendar slack, shipped 2026-11-20 (calslack.mjs, --calendar-slack, page
-      panel; eval/calendar-slack-2026-11-20.md: 188 activities gain 1-17 h, 188/188
-      hold and tight); next the mirror (start milestones, NEXT.md), a real site's
-      log. (10) earned value shipped 2026-11-20 (evm.mjs, --earned-value, page
-      panel; eval/earned-value-2026-11-20.md: % complete = P6's auto-computed
-      actuals 2,020/2,020); next EV per window over a series of updates, a real
-      baseline export. More open items: NEXT.md.
+      6,476 of 6,479 windowed activities = P6's); next the mirror (start milestones,
+      NEXT.md), a real site's log. (10) earned value shipped 2026-11-20 (evm.mjs; %
+      complete = P6's actuals 2,020/2,020); EV by window shipped 2026-11-20
+      (evmseries.mjs, --windows --earned-value, windows panel; earned vs the last
+      update's promise; eval/evm-series-check-2026-11-20.md: 435/435 planted slips,
+      250/250 overruns); next a real series and baseline export. More open items:
+      NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).

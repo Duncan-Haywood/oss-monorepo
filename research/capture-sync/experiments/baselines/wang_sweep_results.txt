@@ -1,0 +1,12 @@
+capture-sync step 4a post hoc: landmark settings, 2 s windows, chunks 0-1 of each room (15500 windows); failure share (more than a 30 fps frame from the truth; no match fails)
+
+RT60 0.2: step4a (30/s, 15x15, fan 5) | 100/s, 15x15 | 100/s, 7x7 | 200/s, 5x5, hop 4 ms
+  none                     0.112 0.100 0.012 0.020
+  sum of 10 types +10 dB   3.440 3.756 1.588 1.400
+  sum of 10 types +0 dB    6.436 6.788 4.888 4.804
+  sum of 10 types -10 dB   8.848 8.908 8.156 8.136
+RT60 0.8: step4a (30/s, 15x15, fan 5) | 100/s, 15x15 | 100/s, 7x7 | 200/s, 5x5, hop 4 ms
+  none                     0.180 0.152 0.092 0.072
+  sum of 10 types +10 dB   3.572 3.876 2.004 1.700
+  sum of 10 types +0 dB    6.376 6.712 4.780 4.924
+  sum of 10 types -10 dB   8.840 8.960 8.072 8.252

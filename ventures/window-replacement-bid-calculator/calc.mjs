@@ -6,7 +6,7 @@
 //
 // The method is the one the trade actually loses money on when they skip it:
 // a flat price-per-window cannot see United Inches, the second story, or rot.
-// A 3040 double-hung (70 UI) is not a 6048 picture window (108 UI), a second-
+// A 3040 double-hung (3'0" x 4'0", 84 UI) is not a 6048 picture window (128 UI), a second-
 // floor bedroom is not a first-floor insert, and a rotten sill is a carpentry
 // job hiding inside a "window" line. That is what separates a defensible quote
 // from a "$550 a window" postcard special.

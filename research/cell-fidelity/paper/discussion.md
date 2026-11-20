@@ -121,9 +121,24 @@ unused cells, `Mohtat2020`, `Ecker2015` and `Marquis2019` lose 0.08 to 0.61% of 
 from cycle 2 to 20 even at 3x to 4x current (the four committed sets lose 4.8 to 17%). On
 `Ramadass2004@1x`, the only one that fades, the ten-cycle lithium-loss forecast breaks upstream of
 triage (cycle-99 error q75 12.6), so every rule stops at cycle 10 and the pooled interval stays at
-&minus;7.53 to +0.33 cycles per design. Post hoc, its positive OCP fit is not monotone over the 0 to 1
-grid the forecast law inverts. So the paper states its breadth as four parameter sets, gives this
-measured reason, and leaves more sets to degradation parameters fitted to each cell, or to a forecast
-law whose OCP tables are clipped to each cell's window; (2) the continuation test
+&minus;7.53 to +0.33 cycles per design. Milestone 7q found why: PyBaMM's `lico2_ocp_Ramadass2004` is a rational fit
+evaluated at 1.13 y, and the stretch puts three narrow pole-zero pairs inside 0 < y < 1, the last at
+y = 0.889, in the cycling range. The DFN cells charge a median 9.8% of their cathode per cycle (28 to
+44% on the committed sets) and half of them step across that pole. No repair of the table the law
+reads fixes the forecast: a running-maximum envelope cuts the cycle-10 error q75 from 12.6 to 0.90,
+still eight times the committed sets', and bridging the spikes is worse. As a fifth set the repaired
+cell makes the rule dearer (+8.4 cycles per design) and widens the interval to &minus;7.53 to
++3.81. So the paper states its breadth as four parameter sets and excludes `Ramadass2004` for a
+measured defect of its fit, not a property of the rule. Milestone 7r then made `Mohtat2020` and
+`Ecker2015` fade by scaling only their plating exchange-current density, by the smallest step (10) of
+a pre-registered ladder that brought four probe designs into the committed sets' fade range. On both
+the forecast works (cycle-10 error q75 0.074 and 0.201) and all 112 designs finish 100 cycles. With
+them as a fifth and sixth set, the threshold rule's mean saving over the uniform run length is
+3.73 cycles per design, set bootstrap 95% &minus;6.94 to &minus;0.57, the first interval in this
+paper that excludes zero across chemistries. Two qualifications go with it: the new sets are tuned
+cells, so the result is breadth over electrode chemistry at matched fade, not over published
+parameterisations; and on `Mohtat2020` the rule meets its tail target on only 2 of 5 folds (the
+uniform rule on 3), so one of the thirty paired savings is bought with a miss (26 against 27 folds
+met overall); (2) the continuation test
 above, now done (7k, 7l: free if the runner keeps the `Simulation`; packaging that runner is the artefact step); (3) the measured-cell check of the rankings (`PROPOSAL.md`, milestone 6), an owner step that needs
 built pouch cells and certified test equipment.

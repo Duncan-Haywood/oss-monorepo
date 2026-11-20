@@ -43,7 +43,11 @@ test("yearly figures scale with births and tax set-aside", () => {
 
 test("births needed for the yearly goal rounds up", () => {
   const r = scenario(DEFAULTS);
-  assert.equal(r.birthsForGoal, Math.ceil(60000 / r.netAfterOnCall));
+  // defaults: net 941.50 + overhead share 62.50 = 1,004 cash per birth before fixed overhead; (60,000 + 1,500) / 1,004 = 61.25
+  assert.equal(r.birthsForGoal, 62);
+  assert.ok(r.birthsForGoal * (r.net + r.overhead) - DEFAULTS.overheadYear >= DEFAULTS.annualGoal);
+  assert.ok((r.birthsForGoal - 1) * (r.net + r.overhead) - DEFAULTS.overheadYear < DEFAULTS.annualGoal);
+  close(r.hourly, 941.5 / (4.5 + 14 + 3 + 200 / 60)); // visits + labor + admin + 4 round trips of 50 min
   assert.equal(scenario({ ...DEFAULTS, fee: 100 }).birthsForGoal, null);
 });
 

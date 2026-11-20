@@ -79,14 +79,30 @@ def _step(pred: int, sh: int, j: int) -> int:
 
 
 def _code(pred: int, sh: int, v: int) -> int | None:
-    """The 8-bit step that takes ``pred`` to ``v`` at shift ``sh``, or None."""
+    """The 8-bit step that takes ``pred`` to ``v`` at shift ``sh``, or None.
+
+    ``_step`` is ``_step(pred, sh, 0) + (j << sh)``, rising with ``j``, so the step is read off the
+    difference instead of tried for each ``j`` from 1 to 255 (the search was 7.5 of this file's
+    21 s, 2026-11-20); ``test_closed_forms_match_the_search`` pins it to that search."""
 
     if v == pred:
         return 0
-    for j in range(1, 256):
-        if _step(pred, sh, j) == v:
-            return j
-    return None
+    d = v - _step(pred, sh, 0)
+    j = d >> sh
+    return j if d >= 0 and j << sh == d and 1 <= j <= 255 else None
+
+
+def _steps(pred: int, sh: int) -> tuple[range, range]:
+    """``field``'s choices for a step from ``pred`` at shift ``sh``: every ``j`` in 1..255 whose value stays
+    within 12 bits, and those that move at most 60. Both are runs of ``j`` (``_step`` rises with ``j``), so
+    they are ranges with the same members in the same order as the lists they replace, and
+    ``random.choice`` draws the same member from either."""
+
+    base = _step(pred, sh, 0)
+    top = min(255, (4095 - base) >> sh)
+    lo = max(1, -((base - pred + 60) >> sh))  # ceil((pred - 60 - base) / 2**sh)
+    hi = min(top, (pred + 60 - base) >> sh)
+    return range(1, top + 1), range(lo, max(lo, hi + 1))
 
 
 SHIFT_CODE = {0: 0, 1: 1, 2: 2, 4: 3}  # sh = 4 >> (3 - code)
@@ -170,8 +186,7 @@ def field(seed=3, width=W, height=H):
                 if nonz[q] or i > 11:
                     pred[q] = v
             elif rng.random() >= 0.1:
-                ok = [j for j in range(1, 256) if _step(pred[q], sh, j) <= 4095]
-                near = [j for j in ok if abs(_step(pred[q], sh, j) - pred[q]) <= 60]
+                ok, near = _steps(pred[q], sh)
                 pred[q] = _step(pred[q], sh, rng.choice(near if near and rng.random() < 0.8 else ok))
             vals.append(pred[q])
     return vals
@@ -373,6 +388,21 @@ class LensTests(unittest.TestCase):
 
 def engines():
     return ["python", "native"] if ljpeg_native.available() else ["python"]
+
+
+class EncoderHelperTests(unittest.TestCase):
+    def test_closed_forms_match_the_search(self):
+        # _code and _steps read the step off _step's affine form; here against the search they replaced.
+        for sh in (0, 1, 2, 4):
+            for pred in [*range(0, 4096, 37), 4095]:
+                steps = {j: _step(pred, sh, j) for j in range(1, 256)}
+                ok, near = _steps(pred, sh)
+                want_ok = [j for j in range(1, 256) if steps[j] <= 4095]
+                self.assertEqual(list(ok), want_ok, (pred, sh))
+                self.assertEqual(list(near), [j for j in want_ok if abs(steps[j] - pred) <= 60], (pred, sh))
+                for v in [*range(0, 4096, 41), *steps.values(), pred]:
+                    want = 0 if v == pred else next((j for j in range(1, 256) if steps[j] == v), None)
+                    self.assertEqual(_code(pred, sh, v), want, (pred, sh, v))
 
 
 class ReadTests(unittest.TestCase):

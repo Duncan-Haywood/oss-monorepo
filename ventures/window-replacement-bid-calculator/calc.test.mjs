@@ -240,3 +240,11 @@ test('presets are usable positive numbers', () => {
     assert.ok(preset.materialMult > 0 && preset.hoursMult > 0);
   }
 });
+
+test('the size step boundaries: 90 and 120 UI are inclusive of the lower step', async () => {
+  const { sizeHoursAdd } = await import('./calc.mjs');
+  assert.equal(sizeHoursAdd(90), 0);
+  assert.equal(sizeHoursAdd(91), 0.45);
+  assert.equal(sizeHoursAdd(120), 0.45);
+  assert.equal(sizeHoursAdd(121), 1.1);
+});

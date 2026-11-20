@@ -26,6 +26,8 @@
 // differs is "changed". Eval: eval/revision-diff-2026-11-20.md.
 
 import { parseIds } from "./ids.mjs";
+import { compareLanguages } from "./pattern-lang.mjs";
+import { temporalKind, temporalKey } from "./temporal.mjs";
 
 const own = (o, k) => (Object.hasOwn(o, k) ? o[k] : undefined);
 const parse = (x) => (typeof x === "string" ? parseIds(x) : x);
@@ -86,6 +88,57 @@ function intervalWithin(a, b) {
 // How restriction b compares with restriction a: "same", "tighter" (b lets
 // through fewer values), "looser", or "changed".
 export function compareValues(a, b) {
+  return compareValuesDetail(a, b).effect;
+}
+
+// The same, with example values where the restrictions were compared as string
+// languages (patterns, or patterns against lists and lengths; pattern-lang.mjs):
+// { effect, nowFails, nowPasses }, nowFails a value a matched and b does not.
+export function compareValuesDetail(a, b) {
+  const effect = compareSets(a, b);
+  if (effect !== null) return { effect };
+  const numBase = (v) => !!(v && v.r && NUMERIC.test(v.r.base));
+  if (!numBase(a) && !numBase(b)) {
+    const l = compareLanguages(a, b);
+    if (l) return l;
+  }
+  const ta = temporalShape(a), tb = temporalShape(b);
+  if (ta && tb) {
+    // Values of one ISO form pass only bounds of that form (ids.mjs), so
+    // ranges on two forms share no value.
+    if (ta.kind !== tb.kind) return { effect: "changed" };
+    const bInA = intervalWithin(tb, ta), aInB = intervalWithin(ta, tb);
+    return { effect: bInA && aInB ? "same" : bInA ? "tighter" : aInB ? "looser" : "changed" };
+  }
+  return { effect: "changed" };
+}
+
+// A range whose bounds are all dates, dateTimes, times or durations of one
+// form, as an interval on the instants ids.mjs compares (temporal.mjs), or
+// null. Plain-date bounds are read exactly as languages first
+// (pattern-lang.mjs); this covers zoned dates, dateTimes, times and durations.
+function temporalShape(v) {
+  if (!v || !v.present || v.simple !== undefined) return null;
+  const r = v.r;
+  if (r.enumeration.length || r.pattern.length || ["length", "minLength", "maxLength"].some((k) => r[k] !== undefined)) return null;
+  const ks = ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"].filter((k) => r[k] !== undefined);
+  if (!ks.length) return null;
+  const kinds = new Set(ks.map((k) => temporalKind(String(r[k]))));
+  if (kinds.size !== 1 || kinds.has(null)) return null;
+  const key = (k) => temporalKey(String(r[k]));
+  if (ks.some((k) => Number.isNaN(key(k)))) return null;
+  const lo = Math.max(r.minInclusive !== undefined ? key("minInclusive") : -Infinity, r.minExclusive !== undefined ? key("minExclusive") : -Infinity);
+  const hi = Math.min(r.maxInclusive !== undefined ? key("maxInclusive") : Infinity, r.maxExclusive !== undefined ? key("maxExclusive") : Infinity);
+  const loIn = !(r.minExclusive !== undefined && key("minExclusive") === lo);
+  const hiIn = !(r.maxExclusive !== undefined && key("maxExclusive") === hi);
+  if (lo > hi || (lo === hi && !(loIn && hiIn))) return null;
+  return { kind: [...kinds][0], lo, loIn, hi, hiIn };
+}
+
+const NUMERIC = /^(double|float|decimal|integer|int|long|short|nonNegativeInteger|positiveInteger)$/;
+
+// The exact set comparisons, or null when neither side is a plain set or range.
+function compareSets(a, b) {
   const ta = a && a.present ? a.toString() : "";
   const tb = b && b.present ? b.toString() : "";
   // The same restriction on another base: only a move to or from a number
@@ -93,7 +146,7 @@ export function compareValues(a, b) {
   const numBase = (v) => !!(v && v.r && /^(double|float|decimal|integer|int|long|short|nonNegativeInteger|positiveInteger)$/.test(v.r.base));
   if (ta === tb) return numBase(a) === numBase(b) ? "same" : "changed";
   const sa = shape(a), sb = shape(b);
-  if (!sa || !sb) return "changed";
+  if (!sa || !sb) return null;
   if (sa.any && sb.any) return "same";
   if (sa.any) return "tighter";
   if (sb.any) return "looser";
@@ -162,14 +215,16 @@ function sectionChanges(section, as, bs) {
       add(key, "cardinality", effect, a.cardinality, b.cardinality, `${a.cardinality} to ${b.cardinality}`);
     }
     for (const field of own(VALUE_FIELDS, a.kind) || []) {
-      let c = compareValues(a[field], b[field]);
+      const d = compareValuesDetail(a[field], b[field]);
+      let c = d.effect;
       if (c === "same") continue;
       // A prohibited facet forbids the values it lists, so fewer listed is looser.
       if (section === "requirements" && b.cardinality === "prohibited" && a.cardinality === "prohibited") c = flip(c);
       if (section === "applicability") c = flip(c);
       const same = str(a[field]) === str(b[field]);
       const sa = same ? strBase(a[field]) : str(a[field]), sb = same ? strBase(b[field]) : str(b[field]);
-      add(key, field, c, sa, sb, `${field === "value" ? "value" : field === "name" ? "class" : "predefined type"} ${sa} to ${sb}`);
+      add(key, field, c, sa, sb, `${field === "value" ? "value" : field === "name" ? "class" : "predefined type"} ${sa} to ${sb}${examples(d)}`);
+      if (d.nowFails !== undefined || d.nowPasses !== undefined) Object.assign(changes[changes.length - 1], { nowFails: d.nowFails, nowPasses: d.nowPasses });
     }
     if ((a.dataType || null) !== (b.dataType || null)) add(key, "dataType", a.dataType && !b.dataType ? "looser" : !a.dataType && b.dataType ? "tighter" : "changed", a.dataType || "(none)", b.dataType || "(none)", `data type ${a.dataType || "(none)"} to ${b.dataType || "(none)"}`);
     if (a.kind === "partOf" && a.entity && b.entity) {
@@ -179,6 +234,14 @@ function sectionChanges(section, as, bs) {
     if ((a.uri || null) !== (b.uri || null)) add(key, "uri", "same", a.uri || "(none)", b.uri || "(none)", `bSDD link ${a.uri || "(none)"} to ${b.uri || "(none)"}`);
   }
   return changes;
+}
+// The example values of a language comparison, in words that hold in every
+// section ("matched" is "selected" in applicability, "allowed" in requirements).
+function examples(d) {
+  const bits = [];
+  if (d.nowFails !== undefined) bits.push(`${JSON.stringify(d.nowFails)} matched before, not now`);
+  if (d.nowPasses !== undefined) bits.push(`${JSON.stringify(d.nowPasses)} matches now, not before`);
+  return bits.length ? ` (e.g. ${bits.join("; ")})` : "";
 }
 const hasValue = (f) => (own(VALUE_FIELDS, f.kind) || []).some((k) => f[k] && f[k].present);
 

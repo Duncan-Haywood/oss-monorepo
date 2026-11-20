@@ -31,11 +31,18 @@ def open_defaults(text):
 
 def scan(text):
     """(line number, line) for each message that can print an infinite bound."""
+    # Both patterns hold a literal ("Infinity", "between ${"); testing it first
+    # skips the regex on nearly every file and line (same hits:
+    # docs/history/ci-perf-2026-11-20-paired-check-prefilters.md).
+    if "Infinity" not in text or "between ${" not in text:
+        return []
     names = open_defaults(text)
     if not names:
         return []
     hits = []
     for n, line in enumerate(text.splitlines(), 1):
+        if "between ${" not in line:
+            continue
         for lo, hi in MESSAGE.findall(line):
             if (lo in names or hi in names) and "Infinity" not in line:
                 hits.append((n, line.strip()))

@@ -378,7 +378,7 @@ person who must meet the IDS: *asks more* (a new required facet, optional to
 required, fewer enumerated values, a narrower numeric range, a data type
 added, an applicability condition removed or more classes selected), *asks
 less* (the reverse), *different* (neither contains the other: another
-pattern, class or value; to or from prohibited; a move to a number base) or
+pattern, class or value, patterns compared as languages, below; to or from prohibited; a move to a number base) or
 metadata (names, descriptions, IFC versions, bSDD links). With a model, both
 versions are checked and elements are matched by GlobalId: newly failing,
 already failing with a new reason, no longer failing; a side that is invalid
@@ -390,6 +390,47 @@ to Stage 5 COBie IDS adds six required properties, four with `(?:` patterns
 that are not XSD, so the Stage 5 specification is invalid as published; after
 `--fix`, all 340 Schultz Residence elements it applies to were already failing
 and gain the new requirements (eval/revision-diff-2026-11-20.md).
+
+Patterns compared as languages (2026-11-20, `pattern-lang.mjs`): a pattern
+edit is no longer "different" by default. Each restriction that is a set of
+strings (patterns, enumerations, simple values and length facets in any mix,
+on a non-numeric base) becomes automata over code-point intervals, parsed
+with the XSD 1.0 grammar the checker matches with, and the diff decides
+whether one side's strings all pass the other: `D-[0-9]+` to `D-[0-9]{2}` asks
+more, `[0-9]{2}` to `[0-9][0-9]` is the same, `EI[0-9]+` to `REI[0-9]+` is
+different. Each graded change names the shortest value that matched before
+and not now, and the reverse ("e.g. "D-" matched before, not now"), which is
+the value to look for in the model. Checked on the 60 XSD-valid patterns of
+the public files: all 3,540 ordered pairs decided (1.3 s together), all 3,369
+example values agree with the XSD matcher, and 13,389 strings sampled from
+the 171 "within" verdicts' automata break none; 400 random patterns agree with
+brute force over every string of up to 5 characters. No committed public
+revision edits a pattern yet, so the 69-revision tally above is unchanged.
+The audit uses the same automata for `value-never` when a restriction's
+list, pattern and length limits never agree (an enumeration of `EI 30` with
+the pattern `EI[0-9]+`; `[A-Z]{3}-[0-9]{3}` with maxLength 6): none of the 845
+exact restrictions in the public files does (eval/pattern-inclusion-2026-11-20.md).
+
+Date, time and duration ranges are graded too (2026-11-20). A range whose
+bounds are plain dates (`minInclusive="2024-01-01"`) is read as the exact set
+of strings the checker passes on it: an ISO day that exists, in any time zone
+Date.parse accepts, whose instant is inside the bounds. So a date range now
+compares with a pattern, a list of dates or another range like any string
+restriction, with example values: `>= 2024-01-01` to `>= 2024-06-01` asks
+more ("e.g. 2024-01-01 matched before, not now"), and `<= 2024-02-29` to
+`< 2024-03-01` asks less, because a day written west of UTC
+(`2024-02-29-00:01`) is after midnight on the 29th but before 1 March.
+dateTime, time and duration ranges, and dates with zoned bounds, compare as
+intervals on the instants the checker orders. The checker itself was fixed on
+the way: a day the month lacks (`2023-02-29`, `2024-04-31`) used to roll into
+the next month, so `2024-04-31` passed `>= 2024-05-01`; it now passes no
+range, as XSD says it is not a date, and only XML whitespace is trimmed
+around a value. Checked on the 31 distinct temporal ranges in the public and
+buildingSMART files: 574 of 574 strings near their bounds read the same by the
+language and by the checker, 132 of the 236 same-form pairs that read
+"different" now grade asks more or less (the other 104 really overlap only in
+part), and 94 of 94 example values hold on the checker; buildingSMART's test
+pairs stay 334 of 334 (eval/date-range-revisions-2026-11-20.md).
 
 Library: `import { check } from "./node.mjs"; check(idsText, ifcText)` in Node,
 or `checkIds(idsText, ifcText, { schemas, typeMap, measureUnits })` from

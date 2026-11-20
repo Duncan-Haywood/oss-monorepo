@@ -21,6 +21,7 @@ import {
   hasUnresolvedRisk,
   classificationCounts,
   summaryLine,
+  parseArg,
 } from "./classify.mjs";
 
 const DIGEST = "sha256:" + "a".repeat(64);
@@ -348,4 +349,15 @@ test("scanText and check.py agree on a Dockerfile that starts with a UTF-8 BOM",
   assert.equal(js.length, 1);
   assert.equal(py.length, 1);
   assert.equal(py[0].tag, js[0].tag);
+});
+
+test("parseArg strips double quotes as well as single (red-team 2026-11-20)", () => {
+  // Only the single-quoted form was tested, so a fault in the '"' test escaped.
+  for (const q of ['"', "'"]) {
+    const args = new Map();
+    parseArg(`BASE=${q}node@${DIGEST}${q}`, args);
+    assert.equal(args.get("BASE"), `node@${DIGEST}`);
+    const [f] = scanText(`ARG BASE=${q}node@${DIGEST}${q}\nFROM \${BASE}\n`, "Dockerfile");
+    assert.equal(f.classification, "pinned");
+  }
 });

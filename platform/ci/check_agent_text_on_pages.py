@@ -31,8 +31,25 @@ PHRASE = re.compile(
 )
 
 
+# Every PHRASE alternative holds "session" or "egress". Under re.I the only
+# non-ASCII characters that match an ASCII letter are these four (dotted and
+# dotless i, long s, Kelvin sign), so a page without them is checked with a
+# plain substring test first (same hits, about a third of the time:
+# docs/history/ci-perf-2026-11-20-paired-check-prefilters.md).
+_FOLDS = ("\u0130", "\u0131", "\u017f", "\u212a")
+
+
+def _may_match(text: str) -> bool:
+    if any(ch in text for ch in _FOLDS):
+        return True
+    low = text.lower()
+    return "session" in low or "egress" in low
+
+
 def agent_text(text: str):
     """Return each flagged phrase in one page, whitespace collapsed."""
+    if not _may_match(text):
+        return []
     return [re.sub(r"\s+", " ", m.group(0)) for m in PHRASE.finditer(text)]
 
 

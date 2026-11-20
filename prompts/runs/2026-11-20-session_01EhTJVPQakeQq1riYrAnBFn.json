@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPQakeQq1riYrAnBFn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T08:04:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17879",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Plain `route` drew the process track for the scheduled ventures brief again; re-routing with --task picked ventures (same cluster as several 2026-11-19/20 reports)."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Description came out at 167 of 160 characters; check_posts caught it at once."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row changepoint-detector's next: items are statistical rounds; took the 2026-11-19 quality audit's product item (llms.txt cut, options guide) from NEXT.md instead, since llms.txt and a user-facing guide are owner defaults and the file had grown to 50 KB.",
+      "did": "llms.txt 50,689 to about 9.7 KB, README options table",
+      "result": "venture suite and page tests pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Venture tests: run_venture_tests.py changepoint-detector exit 0; watch-loud/rolling/smd + page tests 40/40. venture-preflight changepoint-detector: preflight clean, exit 0. claim_check flagged overlap with #17848 (different item, same files: NEXT.md, README, llms.txt); whichever merges second resolves the llms.txt conflict.",
+  "corrections": [],
+  "redteam": null
+}

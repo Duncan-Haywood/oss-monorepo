@@ -146,6 +146,12 @@ test("date, time and duration ranges are valid; malformed ones are not", () => {
   // A pattern on a boolean is allowed (IDS DataTypes table); one that cannot match true or false warns.
   assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCBOOLEAN", pattern("true|false")))), []);
   assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCBOOLEAN", pattern("yes"))), "warning"), ["value-never"]);
+  // Facets that never agree: no listed value fits the pattern, a pattern longer than maxLength.
+  const r = (inner) => `<xs:restriction base="xs:string">${inner}</xs:restriction>`;
+  assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCLABEL", r(`<xs:enumeration value="EI 30"/><xs:enumeration value="EI 60"/><xs:pattern value="EI[0-9]+"/>`))), "warning"), ["value-never"]);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCLABEL", r(`<xs:pattern value="[A-Z]{3}-[0-9]{3}"/><xs:maxLength value="6"/>`))), "warning"), ["value-never"]);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCLABEL", r(`<xs:enumeration value="EI30"/><xs:enumeration value="EI 60"/><xs:pattern value="EI[0-9]+"/>`))), "warning"), []);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCLABEL", r(`<xs:pattern value="[A-Z]{3}-[0-9]{3}"/><xs:maxLength value="7"/>`))), "warning"), []);
 });
 
 test("a model check still runs a specification whose only fault is a non-standard property", () => {
