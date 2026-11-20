@@ -5,7 +5,9 @@ import hashlib
 import json
 import os
 import re
+import threading
 import uuid
+import weakref
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -79,7 +81,10 @@ class ProductionStatusInitializationResult:
 
 
 def production_plan_fingerprint(trusted_plan: ProductionPlan) -> str:
-    _validate_trusted_plan(trusted_plan)
+    return _plan_fingerprint(_validated_plan(trusted_plan), trusted_plan)
+
+
+def _compute_plan_fingerprint(trusted_plan: ProductionPlan) -> str:
     raw_fingerprint_input = {
         "shoot_slug": trusted_plan.shoot_slug,
         "production_jobs": [_trusted_job_fingerprint_input(job) for job in trusted_plan.jobs],
@@ -287,7 +292,7 @@ def _validate_manifest(manifest: ProductionStatusManifest, *, trusted_plan: Prod
     if not isinstance(manifest.job_statuses, tuple):
         raise ProductionStatusError("Production status job_statuses must be a tuple")
 
-    jobs_by_id = _trusted_jobs_by_id(trusted_plan)
+    jobs_by_id = _validated_plan(trusted_plan).jobs_by_id
     expected_job_ids = tuple(jobs_by_id)
     actual_job_ids: list[str] = []
     for status in manifest.job_statuses:
@@ -354,7 +359,70 @@ def _status_index_for_job(manifest: ProductionStatusManifest, job_id: str) -> in
     return None
 
 
+@dataclass
+class _ValidatedPlan:
+    plan_ref: object  # weakref.ref to the plan, or a callable returning None
+    shoot_slug: str
+    jobs: tuple[ProductionJob, ...]
+    jobs_by_id: dict[str, ProductionJob]
+    fingerprint: str | None = None  # computed on first use, as before
+
+
+def _plan_fingerprint(entry: _ValidatedPlan, plan: ProductionPlan) -> str:
+    if entry.fingerprint is None:
+        entry.fingerprint = _compute_plan_fingerprint(plan)
+    return entry.fingerprint
+
+
+# Validation and fingerprint of each trusted plan object, computed once.
+# A status write used to re-validate the whole plan about 14 times (every load,
+# replace and write calls _validate_trusted_plan and production_plan_fingerprint),
+# so status bookkeeping grew with jobs x writes: 0.9 s per write on a
+# 2,000-photo shoot (docs/history/ci-perf-2026-11-20-production-status-plan-memo.md).
+# A ProductionPlan is a frozen dataclass of tuples of frozen dataclasses, so the
+# same object validates the same way every time. An entry is keyed by id() and
+# only used while its weak reference still points at that very object and the
+# object still holds the same shoot_slug and jobs tuple; it is dropped when the
+# plan is garbage collected. A plan that fails validation is never cached, so it
+# raises the same error on every call. jobs_by_id is shared: callers only read it.
+_VALIDATED_PLANS: dict[int, _ValidatedPlan] = {}
+_VALIDATED_PLANS_LOCK = threading.Lock()
+
+
+def _validated_plan(plan: ProductionPlan) -> _ValidatedPlan:
+    entry = _VALIDATED_PLANS.get(id(plan))
+    if (
+        entry is not None
+        and entry.plan_ref() is plan
+        and plan.shoot_slug is entry.shoot_slug
+        and plan.jobs is entry.jobs
+    ):
+        return entry
+    jobs_by_id = _validate_trusted_plan_uncached(plan)
+    key = id(plan)
+
+    def _forget(ref: weakref.ref, key: int = key) -> None:
+        with _VALIDATED_PLANS_LOCK:
+            current = _VALIDATED_PLANS.get(key)
+            if current is not None and current.plan_ref is ref:
+                del _VALIDATED_PLANS[key]
+
+    try:
+        plan_ref = weakref.ref(plan, _forget)
+    except TypeError:
+        # Not weak-referenceable (a slotted subclass): validate without caching.
+        return _ValidatedPlan(lambda: None, plan.shoot_slug, plan.jobs, jobs_by_id)
+    entry = _ValidatedPlan(plan_ref, plan.shoot_slug, plan.jobs, jobs_by_id)
+    with _VALIDATED_PLANS_LOCK:
+        _VALIDATED_PLANS[key] = entry
+    return entry
+
+
 def _validate_trusted_plan(plan: ProductionPlan) -> None:
+    _validated_plan(plan)
+
+
+def _validate_trusted_plan_uncached(plan: ProductionPlan) -> dict[str, ProductionJob]:
     if not isinstance(plan, ProductionPlan):
         raise TypeError("trusted_plan must be a ProductionPlan")
     if not isinstance(plan.shoot_slug, str) or not plan.shoot_slug.strip():
@@ -368,6 +436,7 @@ def _validate_trusted_plan(plan: ProductionPlan) -> None:
                 raise ProductionStatusError(f"Unknown production job dependency: {dependency_id}")
             if dependency_id == job.job_id:
                 raise ProductionStatusError(f"Production job cannot depend on itself: {job.job_id}")
+    return jobs_by_id
 
 
 def _trusted_jobs_by_id(plan: ProductionPlan) -> dict[str, ProductionJob]:

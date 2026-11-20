@@ -358,6 +358,54 @@ class ProductionStatusManifestTests(unittest.TestCase):
             shoot_slug="production-status",
         )
 
+    def test_status_writes_validate_the_trusted_plan_once_per_plan_object(self) -> None:
+        # docs/history/ci-perf-2026-11-20-production-status-plan-memo.md: every
+        # load, replace and write used to re-validate the whole plan, so status
+        # bookkeeping grew with jobs x writes.
+        from unittest import mock
+
+        from shootflow import production_status
+
+        trusted_plan = self._trusted_plan()
+        real = production_status._validate_trusted_plan_uncached
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(
+            production_status, "_validate_trusted_plan_uncached", side_effect=real
+        ) as validate:
+            initialize_production_status_manifest(tmp, trusted_plan=trusted_plan)
+            for job in [job for job in trusted_plan.jobs if not job.depends_on][:3]:
+                compare_and_write_production_job_status(
+                    tmp,
+                    trusted_plan=trusted_plan,
+                    updated_status=ProductionJobStatus(
+                        job_id=job.job_id,
+                        state="running",
+                        worker_adapter="local",
+                        attempts=1,
+                        updated_at="2026-11-20T00:00:00Z",
+                    ),
+                    expected_state="pending",
+                    expected_attempts=0,
+                )
+            self.assertEqual(validate.call_count, 1)
+            # An equal but distinct plan object is validated on its own.
+            copy = replace(trusted_plan)
+            load_production_status_manifest(tmp, trusted_plan=copy)
+            self.assertEqual(validate.call_count, 2)
+        self.assertEqual(
+            production_plan_fingerprint(trusted_plan),
+            production_status._compute_plan_fingerprint(trusted_plan),
+        )
+
+    def test_an_invalid_trusted_plan_is_rejected_on_every_call(self) -> None:
+        trusted_plan = self._trusted_plan()
+        first = trusted_plan.jobs[0]
+        bad = replace(trusted_plan, jobs=(replace(first, inputs=("../outside.jpg",)),) + trusted_plan.jobs[1:])
+        for _ in range(3):
+            with self.assertRaisesRegex(ProductionStatusError, "Unsafe trusted production job input"):
+                production_plan_fingerprint(bad)
+            with self.assertRaisesRegex(ProductionStatusError, "Unsafe trusted production job input"):
+                build_initial_production_status_manifest(bad)
+
     @staticmethod
     def _statuses_with(trusted_plan, overrides):
         return tuple(
