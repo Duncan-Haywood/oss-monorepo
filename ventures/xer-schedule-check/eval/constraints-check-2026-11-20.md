@@ -43,9 +43,13 @@ the finish:
 - 2 on hotel (seed 3): the file has no negative float and no deadline, yet
   P6's late dates (the engine's late dates equal P6's stored ones on this
   file) are tighter than what moves the finish. Probing HMMOAZ040 (only an FF
-  successor, HMMOAZ000, tf 296 h): pushed one day past its late start, or
-  six weeks past it, the project finish does not move. Not traced further;
-  listed in NEXT.md.
+  successor, HMMOAZ000, tf 296 h): pushed one day past its late start, the
+  project finish does not move. Traced 2026-11-20
+  (eval/calendar-slack-2026-11-20.md): an FF 32 h lag on a 7-day curing
+  calendar ends on the next activity's Friday off, and P6's backward pass
+  does not credit that day; HMMOAZ040 has 304 h, not 296 h. (An earlier note
+  here said six weeks past its late start also held; rerun, it moves the
+  finish to 2014-09-03.)
 
 So the page reports both: "past late start" from the late dates, and "moves
 finish (d)" from the recomputed schedule.

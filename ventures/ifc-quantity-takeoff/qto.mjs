@@ -16,6 +16,7 @@
 // tool's reading of the same model. Where they disagree the row says so,
 // because one of them is wrong and an estimate built on it would be too.
 
+import { applyRule, ruleActive } from "./measure.mjs";
 import { Geometry, Unresolved, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
@@ -254,6 +255,7 @@ export function takeoff(model, opts = {}) {
       row.computed = computeVolume(e, idx, E, geo, bodyOf, worldOf, f);
       if (row.computed.status === "ok") {
         try { row.computed.areas = computeAreas(e.type, row.computed.solids, worldOf(refId(e.args[5])), f); } catch (err) { row.computed.areas = { error: err.message }; }
+        row.computed.solids.each = null;
         try { row.box = worldBox(row.computed.solids.body, worldOf(refId(e.args[5])), f); } catch { row.box = null; }
       }
     }
@@ -556,6 +558,7 @@ function computeVolume(e, idx, E, geo, bodyOf, worldOf, f) {
     const W = worldOf(refId(e.args[5]));
     const Winv = invert(W);
     let net = body;
+    const each = [];
     for (const oid of opens) {
       const o = E.get(oid);
       if (!o) continue;
@@ -569,10 +572,24 @@ function computeVolume(e, idx, E, geo, bodyOf, worldOf, f) {
       const inElem = transformSolid(obT, mul(Winv, worldOf(refId(o.args[5]))));
       if (net.mesh) net = asTerms(net) ?? net;
       if (net.mesh) throw new Unresolved("opening in a faceted body");
-      net = subtractCutters(net, cuttersOf(inElem), "opening");
+      const cutters = cuttersOf(inElem);
+      net = subtractCutters(net, cutters, "opening");
+      each.push({ id: oid, cutters });
     }
     out.net = Math.abs(solidVolume(net)) * f3;
     out.solids.net = net;
+    // each opening on its own: what it takes out of the body, so a method of
+    // measurement can leave small voids in (measure.mjs)
+    const base = body.mesh ? asTerms(body) : body;
+    if (base && !base.mesh) {
+      out.solids.each = [];
+      out.voids = [];
+      for (const o of each) {
+        const alone = subtractCutters(base, o.cutters, "opening");
+        out.solids.each.push(alone);
+        out.voids.push({ id: o.id, volume: Math.max(0, gross - Math.abs(solidVolume(alone)) * f3) });
+      }
+    }
   } catch (err) {
     out.solids.net = null;
     out.net = null;
@@ -636,18 +653,21 @@ function computeAreas(type, solids, W, f) {
   const len = Math.hypot(...up);
   const v = len > 0 ? up.map((x) => x / len) : [0, 0, 1];
   // at = where along n, as a fraction of the body's extent (0.5: the middle)
-  const cut = (n, at = 0.5) => {
+  const cut = (n, at = 0.5, each = false) => {
     const [lo, hi] = extentOf(body, n);
     if (!(hi > lo)) return { gross: null, net: null, n };
     const k = lo + (hi - lo) * at + (hi - lo) * 1e-7;
     const g = sectionArea(body, n, k);
     const nt = net && g != null ? sectionArea(net, n, k) : null;
-    return { gross: g == null ? null : g * f2, net: nt == null ? null : nt * f2, n };
+    const res = { gross: g == null ? null : g * f2, net: nt == null ? null : nt * f2, n };
+    // the area each opening takes out of this section on its own (measure.mjs)
+    if (each && g != null && solids.each) res.voids = solids.each.map((a) => { const x = sectionArea(a, n, k); return x == null ? null : Math.max(0, (g - x) * f2); });
+    return res;
   };
   if (AREA_KINDS.side.test(type)) {
     const t = thinnestNormal(body, (n) => Math.abs(n[0] * v[0] + n[1] * v[1] + n[2] * v[2]) < 1e-3);
     if (t) {
-      out.side = { ...cut(t.n), width: t.width * f };
+      out.side = { ...cut(t.n, 0.5, true), width: t.width * f };
       // the same plane moved to each face: some tools measure a side there
       const a = cut(t.n, 1e-4), b = cut(t.n, 1 - 2e-4);
       out.side.faces = { gross: [a.gross, b.gross], net: [a.net, b.net] };
@@ -670,7 +690,7 @@ function computeAreas(type, solids, W, f) {
     const meshUp = !body.terms.length && /^IFCCOVERING/.test(type);
     const n = body.axis ?? (meshUp ? v : thinnestNormal(body)?.n);
     if (n) {
-      out.plan = cut(n);
+      out.plan = cut(n, 0.5, true);
       // the same plane moved to each face: a tapered or sloped slab's stored
       // area is sometimes its top or bottom face
       const a = cut(n, 1e-4), b = cut(n, 1 - 2e-4);
@@ -769,15 +789,17 @@ export function primaryArea(r) {
  * Assemblies whose parts are elements themselves (a stair and its flights,
  * a curtain wall and its panels) are left out so nothing is counted twice.
  */
-export function boq(rows, by = ["class", "type"]) {
+export function boq(rows, by = ["class", "type"], rule = null) {
+  const measured = ruleActive(rule);
   const lines = new Map();
   for (const r of rows) {
     if (r.isAssembly) continue;
     const key = by.map((k) => GROUP_KEYS[k](r));
     const k = JSON.stringify(key);
     let L = lines.get(k);
-    if (!L) { L = { key, count: 0, volume: 0, volumeStored: 0, volumeComputed: 0, volumeMissing: 0, area: 0, areaComputed: 0, length: 0, weight: 0, disagree: 0 }; lines.set(k, L); }
-    const q = rowQuantities(r);
+    if (!L) { L = { key, count: 0, volume: 0, volumeStored: 0, volumeComputed: 0, volumeMissing: 0, area: 0, areaComputed: 0, length: 0, weight: 0, disagree: 0, voidsLeft: 0, areaChange: 0, volumeChange: 0, ruleSkipped: 0 }; lines.set(k, L); }
+    const q = measured ? applyRule(r, rowQuantities(r), rule) : rowQuantities(r);
+    if (measured) { L.voidsLeft += q.voidsLeft; L.areaChange += q.areaChange; L.volumeChange += q.volumeChange; if (q.ruleNotes.length) L.ruleSkipped++; }
     L.count++;
     if (q.volume != null) { L.volume += q.volume; if (q.volumeSource === "stored") L.volumeStored++; else L.volumeComputed++; } else L.volumeMissing++;
     if (q.area != null) { L.area += q.area; if (q.areaSource === "computed") L.areaComputed++; }
@@ -794,15 +816,19 @@ const csvCell = (v) => {
   return /[",\n\r]/.test(s) || /^[=+\-@\t\r]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) && typeof v !== "number" ? "'" : "") + s.replace(/"/g, '""')}"` : s;
 };
 
-export function boqCsv(lines, by, rates = {}) {
+export function boqCsv(lines, by, rates = {}, rule = null) {
+  const measured = ruleActive(rule);
   const head = [...by.map((k) => k[0].toUpperCase() + k.slice(1)), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount"];
+  if (measured) head.push(`Voids not deducted (area up to ${rule.areaMax} m2, volume up to ${rule.volumeMax} m3)`, "Area added back m2", "Volume added back m3", "Rows the rule could not adjust");
   const out = [head.map(csvCell).join(",")];
   for (const L of lines) {
     const k = JSON.stringify(L.key);
     const rate = rates[k];
     let amount = null;
     if (rate && Number.isFinite(rate.rate)) amount = rate.rate * ({ each: L.count, m3: L.volume, m2: L.area, m: L.length, kg: L.weight }[rate.unit] ?? 0);
-    out.push([...L.key, L.count, L.volume, L.area, L.length, L.weight, L.volumeStored, L.volumeComputed, L.volumeMissing, L.areaComputed, L.disagree, rate ? rate.rate : null, rate ? rate.unit : null, amount].map(csvCell).join(","));
+    const cells = [...L.key, L.count, L.volume, L.area, L.length, L.weight, L.volumeStored, L.volumeComputed, L.volumeMissing, L.areaComputed, L.disagree, rate ? rate.rate : null, rate ? rate.unit : null, amount];
+    if (measured) cells.push(L.voidsLeft, L.areaChange, L.volumeChange, L.ruleSkipped);
+    out.push(cells.map(csvCell).join(","));
   }
   return out.join("\r\n") + "\r\n";
 }

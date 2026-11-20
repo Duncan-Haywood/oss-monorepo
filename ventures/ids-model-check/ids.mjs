@@ -980,6 +980,8 @@ function readFacets(node) {
       card = c.attrs.maxOccurs === "0" ? "prohibited" : c.attrs.minOccurs === "0" ? "optional" : "required";
     }
     f.cardinality = card || "required";
+    // ids.xsd's instructions on a facet: for the reader (spec-doc.mjs), not checked.
+    if (c.attrs.instructions) f.instructions = c.attrs.instructions;
     out.push(f);
   }
   return out;

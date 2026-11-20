@@ -148,6 +148,14 @@
     </div>
     <p class="note" id="fp-status"></p>
     <div id="fp-out"></div>
+    <h2 style="margin-top:22px">Float P6 does not show across calendars</h2>
+    <p class="note">Where a finish-to-finish (or start-to-finish) link joins two calendars with different working days, P6 counts the predecessor's late finish back from the successor's late finish, say Thursday 16:00. But a successor on a Friday-off calendar may just as well finish at Saturday 08:00, so a predecessor on a 7-day calendar (curing, say) can finish a day later without delaying anything, and so can the work driving it. This lists those links and every activity with more total float than P6 shows. The dates elsewhere on this page stay P6's.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end">
+      <button type="button" id="cs-run" class="secondary">Find hidden float</button>
+      <button type="button" id="cs-csv" class="secondary" hidden>Download (CSV)</button>
+    </div>
+    <p class="note" id="cs-status"></p>
+    <div id="cs-out"></div>
     <h2 style="margin-top:22px">Look-ahead for the site meeting</h2>
     <p class="note">The next few weeks of work from the recomputed dates, grouped by WBS, a bar for each working day on the activity's own calendar, and a make-ready check from the logic: <b>ready</b> (every predecessor that gates the start has finished or started), <b>waits</b> on work in the look-ahead (named, with its date), waits on work outside it, or <b>no predecessor</b> (an open start). Crews, materials and permits are not in the file: they are the meeting's to check.</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end">
@@ -335,6 +343,7 @@
     import { exampleSeries } from "./example-series.mjs";
     import { schedule } from "./cpm.mjs";
     import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
+    import { calendarSlack, calendarSlackCsv } from "./calslack.mjs";
     import { lookahead, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
     import { constraintLogCsv, EXAMPLE_LOG } from "./constraints.mjs";
 
@@ -375,6 +384,7 @@
         : `Longest path: ${lp.count} open activities drive the finish (every driving branch). The file stores no longest-path flag to compare with.`;
       $("#fp-codes").innerHTML = r.activities.slice(0, 5000).map((a) => `<option value="${esc(a.code)}">${esc(a.name)}</option>`).join("");
       $("#fp-out").innerHTML = ""; $("#fp-status").textContent = ""; $("#fp-csv").hidden = true; lastFp = null;
+      $("#cs-out").innerHTML = ""; $("#cs-status").textContent = ""; $("#cs-csv").hidden = true; lastCs = null;
       report.hidden = false;
       $("#risk").hidden = false; $("#risk-out").hidden = true; $("#risk-status").textContent = ""; lastRisk = null;
       fillUdf();
@@ -453,6 +463,28 @@
         record("float_paths_run");
       } catch (e) { st.textContent = `Could not trace float paths: ${e.message}`; }
     });
+    // ---- calendar slack
+    let lastCs = null;
+    $("#cs-run").addEventListener("click", () => {
+      if (!xer || !last) return;
+      const st = $("#cs-status");
+      try {
+        const r = calendarSlack(xer, { projId: last.project.id });
+        lastCs = r;
+        if (!r.activities.length) {
+          $("#cs-out").innerHTML = "";
+          st.textContent = `None: no finish-to-finish or start-to-finish link among the ${r.open} open activities lets a predecessor use a successor's non-work time, so the float P6 shows is all there is by this measure.`;
+        } else {
+          st.textContent = `${r.activities.length} of ${r.open} open activities have more total float than P6 shows (up to ${r.maxGain} h)${r.leavesCritical ? `; ${r.leavesCritical} that P6 marks critical are not` : ""}. It enters at ${r.links.length} link${r.links.length === 1 ? "" : "s"}. Hours are on each activity's own calendar.`;
+          const links = `<h3>Where it enters</h3><div class="tablewrap"><table><thead><tr><th>Predecessor</th><th>Link</th><th>Successor</th><th>Successor may finish</th><th>not only</th><th class="n">More for the predecessor (h)</th></tr></thead><tbody>${r.links.slice(0, LIMIT).map((l) => `<tr><td>${esc(l.pred)} <span class="note">${esc(l.predCalendar)}</span></td><td>${esc(l.type)}${l.lag ? esc(` ${l.lag} h on ${l.lagCalendar}`) : ""}</td><td>${esc(l.succ)} <span class="note">${esc(l.succCalendar)}</span></td><td>${esc(l.succMayFinish)}</td><td>${esc(l.succLateFinish)}</td><td class="n">${l.gap}</td></tr>`).join("")}</tbody></table></div>`;
+          const acts = `<h3>Activities, least float first</h3><div class="tablewrap"><table><thead><tr><th>Activity</th><th>Name</th><th class="n">Total float, P6 (h)</th><th class="n">Total float (h)</th><th class="n">More (h)</th></tr></thead><tbody>${r.activities.slice(0, LIMIT).map((a) => `<tr><td>${esc(a.code)}</td><td>${esc(a.name)}</td><td class="n">${a.tfP6}</td><td class="n">${a.tf}</td><td class="n">${a.gain}</td></tr>`).join("")}</tbody></table></div>`;
+          $("#cs-out").innerHTML = links + acts;
+          $("#cs-csv").hidden = false;
+        }
+        record("calendar_slack_run");
+      } catch (e) { st.textContent = `Could not check calendar slack: ${e.message}`; }
+    });
+    $("#cs-csv").addEventListener("click", () => { if (!lastCs) return; save(new Blob([calendarSlackCsv(lastCs)], { type: "text/csv" }), `${fileName}-calendar-slack.csv`); record("findings_downloaded"); });
     $("#fp-csv").addEventListener("click", () => { if (!lastFp) return; save(new Blob([floatPathsCsv(lastFp)], { type: "text/csv" }), `${fileName}-float-paths-${lastFp.target.code}.csv`); record("findings_downloaded"); });
     // ---- look-ahead
     let lastLa = null;

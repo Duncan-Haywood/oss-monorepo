@@ -782,6 +782,19 @@ development seed did not recur). One seed; statics; the ladder's steps are chose
 
 ![Smallest raised preload that plans each unplanned press, and the residuals of those plans](experiments/m60_jointpreload/figure.png)
 
+**Milestone 61: what is left after the leg preload raise?** On seed 60 four presses stayed unplanned: one H1 press
+binding on an elbow and three G1 presses at one load with no force plan on any hold side. A development probe on those
+four found the elbow press planned by a squeeze of 12.5 N (milestone 38's 10 N bound is a choice, not a hardware
+limit), and the G1 presses at or past the planner's own hold limit, which can be much tighter than the balance test
+that decides whether a load is "in the envelope". On 48 more held-out loads (seed 61), **the rule plus the leg raise
+plans every in-envelope press on both robots, 4050 of 4050 on the G1 and 5436 of 5436 on the H1, all inside 0.03 mm
+with no flip (H240 held)**. Neither leftover mechanism recurred, so the squeeze and envelope-band hypotheses (H238,
+H239) could not be tested. The balance gate is looser than the planner's limit on its own hold sides in 314 of 720 G1
+and 115 of 912 H1 pose-direction pairs, by up to 31 N and 44 N; other hold sides recover those loads. One seed;
+statics; the squeeze ladder and the 0.5 N band are chosen, not derived.
+
+![Balance limit minus the planner's own limit for every pose and hose direction](experiments/m61_lastfour/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

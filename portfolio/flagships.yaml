@@ -525,8 +525,10 @@ flagships:
       --diff; eval/revision-diff-2026-11-20.md: 69 public revisions, 0 errors, 185
       of 233 changes graded asks more/less, model impact by GlobalId), next: pattern
       inclusion so a tightened xs:pattern grades as asks more, and a client's real
-      stage-to-stage IDS pair; a Revit/ARCHICAD IFC4X3 export to confirm. More open
-      items: NEXT.md.
+      stage-to-stage IDS pair; a Revit/ARCHICAD IFC4X3 export to confirm. Readable
+      document 2026-11-20 (--to-doc, spec-doc.mjs, eval/spec-doc-2026-11-20.md: 4,458
+      of 4,458 facets agree with IfcTester's reading); next: a BIM manager's read of
+      its wording. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
@@ -564,17 +566,17 @@ flagships:
       17.12) 113/113 once 8 durations edited after its last run are put back;
       edited-durations list shipped (eval/edited-durations-2026-11-19.md: 300/300
       planted); next progress override, start float and 24-hour lag paths on a real
-      P6 file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
-      eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
-      appendix 2026-11-19; next a real reviewer's reading; (7) longest path and
-      multiple float paths shipped 2026-11-19 (floatpaths.mjs, --float-paths, page
-      panel; eval/longest-path-2026-11-19.md: P6's flag 261/261 on five files). (9)
-      look-ahead shipped 2026-11-19 (lookahead.mjs, --lookahead, page panel;
+      P6 file; appendix 2026-11-19; next a real reviewer's reading; (7) longest path
+      and multiple float paths shipped 2026-11-19 (floatpaths.mjs, --float-paths,
+      page panel; eval/longest-path-2026-11-19.md: P6's flag 261/261 on five files).
+      (9) look-ahead shipped 2026-11-19 (lookahead.mjs, --lookahead, page panel;
       eval/lookahead-check-2026-11-19.md: 6,476 of 6,479 windowed activities =
-      P6's); constraints log merged into make-ready shipped 2026-11-20
-      (constraints.mjs, --constraints; finish what-if = CS_MSOA route,
-      eval/constraints-check-2026-11-20.md); next a real site's log and a
-      superintendent's reading. More open items: NEXT.md.
+      P6's); constraints log shipped 2026-11-20
+      (eval/constraints-check-2026-11-20.md); its hotel residual traced to calendar
+      slack, shipped 2026-11-20 (calslack.mjs, --calendar-slack, page panel;
+      eval/calendar-slack-2026-11-20.md: 188 activities gain 1-17 h, 188/188 hold
+      and tight); next the mirror (start milestones, NEXT.md), a real site's log.
+      More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
@@ -614,14 +616,16 @@ flagships:
       paired; 190 of 1,011 GlobalId-only adds/removes on five real Aalseth Residence
       exports were the same element; eval/revision-diff-2026-11-20.md). Next, most
       valuable first: (1) the covering up-cut rule tested on a second model, the
-      joins rule on an ArchiCAD export with partitions on both faces; (2) a
-      method-of-measurement layer (NRM or CESMM style: deduct openings only above a
-      size, MasterFormat/Uniformat mapping from the classification code); (3) the
-      unexplained disagreements; (4) advanced breps on revolved/NURBS surfaces (8 in
-      kleine_Wohnung; planes and cylinders read 2026-11-20, 703 of 767 =
-      IfcOpenShell to 0.1%; faceted openings as signed tetrahedra;
-      eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a union; (5)
-      the change report on more revision series (OpeningDesign's Lake_Kegonsa_Home
-      and Lake_Mills repos commit IFCs repeatedly; an ArchiCAD series), wall parts
-      that stay unpaired; (6) a real estimator's reading of the BoQ CSV (needs a
-      person).
+      joins rule on an ArchiCAD export with partitions on both faces; (2) method of
+      measurement: small voids left in shipped 2026-11-20 (measure.mjs, page and cli
+      --voids-up-to; 1,099 of 1,136 opening cuts = stored WxH;
+      eval/measure-rules-2026-11-20.md); next thresholds per class or work section,
+      Uniformat/MasterFormat mapping from the classification code, the 35 openings
+      barely meeting their host; (3) the unexplained disagreements; (4) advanced
+      breps on revolved/NURBS surfaces (8 in kleine_Wohnung; planes and cylinders
+      read 2026-11-20, 703 of 767 = IfcOpenShell to 0.1%; faceted openings as signed
+      tetrahedra; eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a
+      union; (5) the change report on more revision series (OpeningDesign's
+      Lake_Kegonsa_Home and Lake_Mills repos commit IFCs repeatedly; an ArchiCAD
+      series), wall parts that stay unpaired; (6) a real estimator's reading of the
+      BoQ CSV (needs a person).

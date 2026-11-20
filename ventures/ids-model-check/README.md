@@ -366,6 +366,7 @@ node cli.mjs --to-sheet spec.ids -o spec.xlsx   # the IDS as a spreadsheet, one 
 node cli.mjs --from-sheet spec.xlsx -o spec.ids # a spreadsheet back to IDS 1.0; exit 1 names bad rows
 node cli.mjs --diff old.ids new.ids [model.ifc]  # what a revision adds, removes, asks more or less of;
                                                  # with a model, elements newly failing; exit 1 if it asks more
+node cli.mjs --to-doc spec.ids -o spec.html     # the IDS in plain English, printable (or .md; Markdown on stdout)
 ```
 
 Comparing two versions of an IDS (2026-11-20, `revision.mjs`, page
@@ -405,6 +406,41 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 `.ifc` zipped by Python's `zipfile`.
 
 No API key, account or server is involved, so there is nothing to configure.
+
+### The IDS as a document people read (2026-11-20)
+
+An IDS is XML; the people who deliver what it asks for read requirements as a
+contract appendix, usually retyped by hand from the XML, and the retyped copy
+drifts from the file the models are checked against. Audit an IDS on the page
+and press *Download as a readable document* (`.html`, which prints to PDF, or
+`.md`), or run `node cli.mjs --to-doc spec.ids -o spec.html` (`spec-doc.mjs`).
+The document has the IDS's info fields, a summary table (what each
+specification applies to, how many requirements, which IFC versions) and then
+each specification: its description and instructions, "Applies to every
+`IfcBeam` that is part of an `IfcBridge`", whether such elements are required,
+optional or prohibited in the model, and one sentence per requirement:
+
+- It must have the property `Width` in the set `Qto_WallBaseQuantities`, of
+  data type `IFCLENGTHMEASURE`, holding a value that is at least `0.1` and less
+  than `0.5` (in metres, as IDS requires, whatever unit the model uses).
+- If its attribute `Name` is filled in, it must hold a value that is one of `A` or `B`.
+- It must be classified in the system `Uniclass 2015` with a code matching the pattern `Pr_.*`.
+- It must be contained in (IfcRelContainedInSpatialStructure) an `IfcBuildingStorey`.
+
+Every name and value is copied exactly as the IDS writes it (class names in
+their schema case, `IFCWALL` as `IfcWall`); a repairable ids.xsd fault is
+repaired first, so the words match what the checker reads.
+
+Checked (`eval/spec-doc-2026-11-20.md`): on the 144 public and buildingSMART
+test IDS files, the 113 IfcTester 0.9.0 opens hold 1,224 specifications and
+4,458 facets. Every facet got one sentence of the same kind, in the same
+order, with the same cardinality, and the specification's required / optional
+/ prohibited agreed in 1,224 of 1,224; each of the 10,892 names and values
+IfcTester holds for those facets (enumeration members, patterns, bounds,
+lengths, data types) appears in its sentence. A copy with one set name and one
+cardinality changed is caught (83 and 11 misses), so the comparison can fail.
+The wording was read by eye on the 128 sentence shapes the corpus produces,
+not by a BIM manager yet.
 
 ### Facet links checked against bSDD (2026-11-19)
 
@@ -1365,6 +1401,9 @@ faster than IfcTester; its point is needing no install.
 
 ## Limitations
 
+- The readable document (`--to-doc`) says what each facet asks in English
+  only, and has not yet been read by the people it is for; a sentence keeps
+  every value verbatim, but a long enumeration stays one long sentence.
 - `--from-bsdd` writes non-IFC Real properties as IFCREAL (bSDD's units
   are not mapped to measure types yet) and leaves complex properties out;
   like `--bsdd`, it runs from the command line only.
