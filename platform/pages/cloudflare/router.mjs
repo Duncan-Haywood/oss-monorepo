@@ -7,7 +7,9 @@
 
 /** Top-level directories served by the shard. wrangler.toml's
  *  run_worker_first must list the same ones (split.test.mjs checks). */
-export const SHARD_DIRS = ['research', 'writing', 'dev'];
+// changepoint-detector and hearth-and-horizon moved here on 2026-11-20: the
+// site Worker reached 20,071 files and every deploy failed for five hours.
+export const SHARD_DIRS = ['research', 'writing', 'dev', 'changepoint-detector', 'hearth-and-horizon'];
 
 /** The site's own domain, and the Worker's first address, which now sends
  *  every visitor there (owner, 2026-10-31: "this should also redirect").

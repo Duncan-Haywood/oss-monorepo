@@ -23,7 +23,7 @@ Until someone decides to pay, the site is split in two:
 | Worker | Serves | Config |
 |---|---|---|
 | `monorepo-projects-site` | everything except the directories below; has the public address | `wrangler.toml`, `router.mjs` |
-| `monorepo-projects-site-shard` | `router.mjs`'s `SHARD_DIRS`: `research/`, `writing/`, `dev/`; no public address | `shard/wrangler.toml` |
+| `monorepo-projects-site-shard` | `router.mjs`'s `SHARD_DIRS`: `research/`, `writing/`, `dev/`, `changepoint-detector/`, `hearth-and-horizon/`; no public address | `shard/wrangler.toml` |
 
 Requests for static files are free and unmetered. Only requests under
 `SHARD_DIRS` run `router.mjs`, which forwards them over a service binding.
@@ -35,6 +35,19 @@ any upload if either half is over 20,000 files or holds a file over 25 MiB.
 It warns at 90%. When that warning shows, add another top-level directory to
 `SHARD_DIRS` and to `run_worker_first` in `wrangler.toml`; `split.test.mjs`
 checks that the two lists agree.
+
+**2026-11-20: both halves are nearly full.** The site Worker reached 20,071
+files (the shard 17,399) and every deploy from commit e5b26c244 on failed at
+`split.mjs` for about five hours. `changepoint-detector/` (835 files) and
+`hearth-and-horizon/` (540) moved to the shard, which leaves roughly 18,700
+in each, about 94 % of the limit. Together they hold about 37,500 of the
+40,000 two free Workers allow, so moving directories only buys time. The
+lasting fixes are Workers Paid ($5 a month, 100,000 files: an owner
+decision) or a third Worker, which needs a deploy step in
+`.github/workflows/portfolio-pages.yml` and so the owner's approval
+(CODEOWNERS). Count a build with `find dist -type f | wc -l` per directory
+to choose what to move; prefer low-traffic directories, since every request
+under `SHARD_DIRS` counts toward the 100,000 a day.
 
 ## Deploy
 

@@ -8462,6 +8462,25 @@ function renderRequestStepper(status) {
 }
 
 /**
+ * The request form's two long pickers (about 1,400 tools and 1,100 research
+ * directions, some 300 kB of `<option>`s), written once to this file and
+ * fetched only when a visitor opens a kind that needs one. Inline, they were
+ * about 90% of every custom development page's bytes, and the form submits
+ * with `fetch` anyway, so nothing works without script either way
+ * (pages-build-perf-2026-11-20-request-form-options.md).
+ */
+export const REQUEST_OPTIONS_FILE = `${CUSTOM_DEV_PATH}form-options.json`;
+
+/** `{ tools, dir }`: the pickers' `<option>` markup, escaped exactly as the inline form escaped it. */
+export function renderRequestFormOptions({ surfaces = [], directions = { programmes: [], themes: [] } }) {
+  const tools = [...surfaces]
+    .sort((a, b) => String(a.title || a.slug).localeCompare(String(b.title || b.slug)))
+    .map((s) => `<option value="${escapeHtml(s.slug)}">${escapeHtml(s.title || s.slug)}</option>`)
+    .join('');
+  return { tools, dir: renderDirectionOptions(directions) };
+}
+
+/**
  * The no-account request form, shared by the custom development page and each
  * request's own page. `fixedRequest` (a request id) preselects "feedback on a
  * preview" for that request. Rendered only when the build knows the feedback
@@ -8475,14 +8494,10 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions
         <div data-cd-for="direction" hidden>
           <label for="cdf-dir">Which research direction does it build on? <span class="cd-opt">(optional)</span></label>
           <p class="cd-hint" id="cdf-dir-hint">All ${dirCount} directions already here: the open programmes first, then every project by theme. Leave it on a new direction if none fits, or browse them on <a href="${escapeHtml(`${toRoot}${RESEARCH_PATH}`)}">the research index</a>.</p>
-          <select id="cdf-dir" name="dir" aria-describedby="cdf-dir-hint"><option value="">A new direction</option>${renderDirectionOptions(directions)}</select>
+          <select id="cdf-dir" name="dir" aria-describedby="cdf-dir-hint"><option value="">A new direction</option></select>
         </div>` : '';
   const kinds = REQUEST_KINDS.map((k) => `
           <label><input type="radio" name="kind" value="${k.id}"${(fixedRequest ? k.id === 'preview' : k.id === 'new') ? ' checked' : ''}> ${escapeHtml(k.label)}</label>`).join('');
-  const tools = [...surfaces]
-    .sort((a, b) => String(a.title || a.slug).localeCompare(String(b.title || b.slug)))
-    .map((s) => `<option value="${escapeHtml(s.slug)}">${escapeHtml(s.title || s.slug)}</option>`)
-    .join('');
   const reqs = requests
     .filter((r) => r.status !== 'declined')
     .map((r) => `<option value="${escapeHtml(r.id)}"${r.id === fixedRequest ? ' selected' : ''}>${escapeHtml(`${r.id}: ${r.title}`)}</option>`)
@@ -8496,7 +8511,7 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions
         </fieldset>
         <div data-cd-for="tool" hidden>
           <label for="cdf-tool">Which tool?</label>
-          <select id="cdf-tool" name="tool"><option value="">Choose a tool</option>${tools}</select>
+          <select id="cdf-tool" name="tool"><option value="">Choose a tool</option></select>
         </div>
         <div data-cd-for="request" hidden>
           <label for="cdf-req">Which request?</label>
@@ -8527,17 +8542,30 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions
   function show(){
     var k=kind(),parts=f.querySelectorAll('[data-cd-for]');
     for(var i=0;i<parts.length;i++)parts[i].hidden=!k[parts[i].getAttribute('data-cd-for')];
+    if(k.tool||k.direction)load();
     document.getElementById('cdf-job-label').textContent=k.job;
     document.getElementById('cdf-job-hint').textContent=k.hint;
   }
   var qk=q.get('kind'),qt=q.get('tool')||'',qr=q.get('req')||'';
   if(qk){var r=f.querySelector('input[name=kind][value="'+qk.replace(/[^a-z]/g,'')+'"]');if(r)r.checked=true;}
-  if(qt&&f.tool.querySelector('option[value="'+qt.replace(/[^a-z0-9._\\/-]/g,'')+'"]'))f.tool.value=qt;
   if(/^R-\\d{4}$/.test(qr))f.req.value=qr;
   var qd=(q.get('dir')||'').replace(/[^a-z0-9-]/g,'');
-  if(qd&&f.dir&&f.dir.querySelector('option[value="'+qd+'"]')){f.dir.value=qd;if(!qk){var rr=f.querySelector('input[name=kind][value=research]');if(rr)rr.checked=true;}}
+  var opts=0;
+  function load(){
+    if(opts)return;opts=1;
+    var k0=kind();
+    fetch(${JSON.stringify(`${toRoot}${REQUEST_OPTIONS_FILE}`)}).then(function(r){if(!r.ok)throw r;return r.json();}).then(function(o){
+      f.tool.insertAdjacentHTML('beforeend',o.tools||'');
+      if(f.dir)f.dir.insertAdjacentHTML('beforeend',o.dir||'');
+      if(qt&&f.tool.querySelector('option[value="'+qt.replace(/[^a-z0-9._\\/-]/g,'')+'"]'))f.tool.value=qt;
+      if(qd&&f.dir&&f.dir.querySelector('option[value="'+qd+'"]')){f.dir.value=qd;if(!qk&&kind()===k0){var rr=f.querySelector('input[name=kind][value=research]');if(rr){rr.checked=true;show();}}}
+    }).catch(function(){
+      var o=document.createElement('option');o.value=qt.replace(/[^a-z0-9._\\/-]/g,'')||'unlisted';o.textContent=qt?o.value:'The list did not load: I name the tool in my message';f.tool.appendChild(o);if(qt)f.tool.value=o.value;
+    });
+  }
   f.addEventListener('change',function(e){if(e.target.name==='kind')show();});
   show();
+  if(qt||qd)load();
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null,live=null;
   if(SR){
     var rows=f.querySelectorAll('.cd-mic-row');for(var j=0;j<rows.length;j++)rows[j].hidden=false;
@@ -13482,6 +13510,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(path.join(dir, 'index.html'), renderCustomRequestPage({ request, surfaces, baseUrl: base, requests: customRequests, directions: researchDirs, showcase }));
   }
+  // The request form's tool and research-direction pickers, fetched on demand.
+  await fs.writeFile(path.join(outDir, REQUEST_OPTIONS_FILE), JSON.stringify(renderRequestFormOptions({ surfaces, directions: researchDirs })));
 
   // The assistant's own page, and the files every page lazy-loads it from.
   const askDir = path.join(outDir, ASK_PATH);

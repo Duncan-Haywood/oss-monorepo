@@ -140,6 +140,83 @@ class FfmpegCommandTests(unittest.TestCase):
         self.assertEqual(arguments[arguments.index("--grade-scope") + 1], "selected")
 
 
+class ReusedEncodeTests(unittest.TestCase):
+    """encode_new_output(reuse=True) copies an identical earlier encode instead of running it again.
+
+    ffmpeg is faked: each run writes its argv (output aside) to the output, as a
+    deterministic encoder would write the same bytes for the same command.
+    """
+
+    def setUp(self) -> None:
+        ffmpeg_media._REUSABLE_ENCODES.clear()
+        self.addCleanup(ffmpeg_media._REUSABLE_ENCODES.clear)
+        self.runs: list[list[str]] = []
+
+        def fake_run(command, *, cwd, timeout_seconds=None):
+            self.runs.append(list(command))
+            Path(command[-1]).write_bytes(" ".join(command[:-1]).encode())
+
+        patcher = patch.object(ffmpeg_media, "run_ffmpeg", side_effect=fake_run)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _encode(self, root: Path, output: str, source: Path, *, crf: str = "20", reuse: bool = True) -> Path:
+        encode_new_output(
+            root,
+            output,
+            build_command=lambda temp: ["ffmpeg", "-n", "-i", f"file:{source}", "-crf", crf, str(temp)],
+            reuse=reuse,
+        )
+        return root / output
+
+    def test_same_command_and_inputs_copy_the_first_encode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "graded" / "A001.MOV"
+            source.parent.mkdir()
+            source.write_bytes(b"clip")
+            reel = self._encode(root, "deliverables/instagram_reel.mp4", source)
+            hero = self._encode(root, "deliverables/instagram_reels/hero.mp4", source)
+            self.assertEqual(len(self.runs), 1)
+            self.assertEqual(hero.read_bytes(), reel.read_bytes())
+            self.assertNotEqual(hero.stat().st_ino, reel.stat().st_ino)  # a copy, not a link
+            self.assertEqual(_hidden_temp_files(root), [])
+
+    def test_anything_changed_encodes_again(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "A001.MOV"
+            source.write_bytes(b"clip")
+            first = self._encode(root, "deliverables/a.mp4", source)
+            self._encode(root, "deliverables/b.mp4", source, reuse=False)  # not asked to reuse
+            self.assertEqual(len(self.runs), 2)
+            self._encode(root, "deliverables/c.mp4", source, crf="23")  # other settings
+            self.assertEqual(len(self.runs), 3)
+            source.write_bytes(b"regraded clip")  # the source changed
+            self._encode(root, "deliverables/d.mp4", source)
+            self.assertEqual(len(self.runs), 4)
+            later = root / "deliverables" / "d.mp4"
+            os.utime(later, ns=(later.stat().st_atime_ns, later.stat().st_mtime_ns + 1_000_000))  # edited
+            self._encode(root, "deliverables/e.mp4", source)
+            self.assertEqual(len(self.runs), 5)
+            (root / "deliverables" / "e.mp4").unlink()  # removed
+            self._encode(root, "deliverables/f.mp4", source)
+            self.assertEqual(len(self.runs), 6)
+            self.assertTrue(first.is_file())
+
+    def test_non_file_inputs_are_never_reused(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for output in ("deliverables/a.mp4", "deliverables/b.mp4"):
+                encode_new_output(
+                    root,
+                    output,
+                    build_command=lambda temp: ["ffmpeg", "-f", "lavfi", "-i", "testsrc2", str(temp)],
+                    reuse=True,
+                )
+            self.assertEqual(len(self.runs), 2)
+
+
 @unittest.skipUnless(FFMPEG and FFPROBE, "ffmpeg and ffprobe are required for media tests")
 class FfmpegMediaTests(unittest.TestCase):
     def test_existing_output_is_never_overwritten(self) -> None:
@@ -267,6 +344,10 @@ class LocalPipelineTests(unittest.TestCase):
             self.assertEqual(_probe(full)["width"], 1280)
             self.assertEqual(_probe(review)["width"], 960)
             self.assertEqual(_probe(review)["codec_name"], "prores")
+            # the hero variant is the primary reel's cut, copied from its encode, not encoded twice
+            reel = workspace / "deliverables" / "instagram_reel.mp4"
+            hero = workspace / "deliverables" / "instagram_reels" / "hero.mp4"
+            self.assertEqual(hero.read_bytes(), reel.read_bytes())
             storyline = json.loads((workspace / "analysis" / "instagram_storylines.json").read_text())
             picked = {
                 path

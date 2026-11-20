@@ -292,10 +292,64 @@ def encode_new_output(
     *,
     build_command: CommandBuilder,
     timeout_seconds: float | None = None,
+    reuse: bool = False,
 ) -> None:
-    """Encode one declared output atomically without overwriting anything."""
+    """Encode one declared output atomically without overwriting anything.
 
-    encode_new_outputs(workspace_root, ((output, build_command),), timeout_seconds=timeout_seconds)
+    ``reuse=True`` lets an output whose ffmpeg command (output path aside) and
+    input files match an encode this process already committed be copied from
+    that earlier output instead of encoded again (see ``_reusable_encode``).
+    """
+
+    encode_new_outputs(
+        workspace_root, ((output, build_command),), timeout_seconds=timeout_seconds, reuse=reuse
+    )
+
+
+# Encodes this process committed, for ``reuse``: key -> (output path, its stat
+# when committed). The key is the ffmpeg argv with the temp output path blanked
+# plus the (device, inode, size, mtime_ns) of every ``file:`` input, so a
+# changed source, tool, codec or setting is a different key. The hero reel
+# variant renders the primary reel's clips with the same command, and the H.264
+# encode is deterministic (the two files were byte-identical), so the second
+# encode is a copy of the first. A hit is used only while the earlier output
+# still has the stat it was committed with; anything else encodes as before.
+_REUSABLE_ENCODES: dict[tuple[object, ...], tuple[Path, tuple[int, int, int, int]]] = {}
+_REUSABLE_ENCODES_MAX = 64
+
+
+def _file_stat_key(path: Path) -> tuple[int, int, int, int]:
+    info = path.stat()
+    return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns)
+
+
+def _reuse_key(command: Sequence[str], temp_path: Path) -> tuple[object, ...] | None:
+    temp = str(temp_path)
+    argv = tuple(arg.replace(temp, "<output>") for arg in command)
+    inputs: list[tuple[int, int, int, int]] = []
+    for flag, value in zip(command, command[1:]):
+        if flag != "-i":
+            continue
+        if not value.startswith("file:"):
+            return None  # a lavfi or other non-file input: never reused
+        try:
+            inputs.append(_file_stat_key(Path(value[len("file:"):])))
+        except OSError:
+            return None
+    return (argv, tuple(inputs))
+
+
+def _reusable_encode(key: tuple[object, ...] | None) -> Path | None:
+    if key is None or key not in _REUSABLE_ENCODES:
+        return None
+    path, committed = _REUSABLE_ENCODES[key]
+    try:
+        if not path.is_symlink() and path.is_file() and _file_stat_key(path) == committed:
+            return path
+    except OSError:
+        pass
+    _REUSABLE_ENCODES.pop(key, None)
+    return None
 
 
 def encode_new_outputs(
@@ -303,6 +357,7 @@ def encode_new_outputs(
     jobs: Sequence[tuple[str, CommandBuilder]],
     *,
     timeout_seconds: float | None = None,
+    reuse: bool = False,
 ) -> None:
     """Encode every declared output of one task, then commit them together.
 
@@ -317,6 +372,7 @@ def encode_new_outputs(
 
     root = Path(workspace_root)
     staged: list[tuple[str, Path, Path]] = []
+    keys: list[tuple[object, ...] | None] = []
     try:
         for output, build_command in jobs:
             output_path = root / output
@@ -334,7 +390,17 @@ def encode_new_outputs(
                 f".{output_path.stem}.{os.getpid()}.{uuid.uuid4().hex}.tmp{output_path.suffix}"
             )
             staged.append((output, output_path, temp_path))
-            run_ffmpeg(build_command(temp_path), cwd=root, timeout_seconds=timeout_seconds)
+            command = build_command(temp_path)
+            key = _reuse_key(command, temp_path) if reuse else None
+            keys.append(key)
+            earlier = _reusable_encode(key)
+            if earlier is not None:
+                try:
+                    shutil.copyfile(earlier, temp_path)
+                except OSError:
+                    earlier = None
+            if earlier is None:
+                run_ffmpeg(command, cwd=root, timeout_seconds=timeout_seconds)
             if not temp_path.is_file() or temp_path.is_symlink() or temp_path.stat().st_size == 0:
                 raise FfmpegMediaError(f"ffmpeg produced no output for: {output}")
         for output, output_path, temp_path in staged:
@@ -344,6 +410,15 @@ def encode_new_outputs(
                 raise FfmpegMediaError(f"Refusing to overwrite existing output: {output}") from exc
             except OSError as exc:
                 raise FfmpegMediaError(f"Unable to commit output: {output}") from exc
+        for (_output, output_path, _temp_path), key in zip(staged, keys):
+            if key is None:
+                continue
+            try:
+                _REUSABLE_ENCODES[key] = (output_path, _file_stat_key(output_path))
+            except OSError:
+                continue
+            while len(_REUSABLE_ENCODES) > _REUSABLE_ENCODES_MAX:
+                _REUSABLE_ENCODES.pop(next(iter(_REUSABLE_ENCODES)))
     finally:
         for _output, _output_path, temp_path in staged:
             try:
