@@ -183,14 +183,16 @@
    "what": "Tests would not catch regressions in the published numbers: loosening the bisection bound by 2x (model.py:74) and changing the over-compensation amplitude for k>=0.5 (model.py:82) both survive; no test pins any results.txt row, comp_error is tested only at k=0.4, and the bound is checked only as an upper bound.",
    "where": "research/deadband-twin/tests/test_model.py:39",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
   },
   {
    "severity": "low",
    "what": "steps_to raises ValueError (log(0)) at k=1, inside the documented domain 0<k<=1; the twin reaches 0 in one step there.",
    "where": "research/deadband-twin/src/deadband_twin/model.py:44",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
   },
   {
    "severity": "low",
@@ -214,6 +216,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"],
  "verdict": "A tidy, fully reproducible stylised study: run.py and figure.py regenerate results.txt and the SVG byte-for-byte, and an independent exact-arithmetic and quadrature script reproduces every number in all five tables (stall d/k, twin steps 5/7/10, equivalent gain 0.0455/0.3173/0.6171/0.8415, bisection and compensation residuals). Claims match files, with one low overclaim ('rests at exactly d/k' omits the |x0| > d/k condition). It misses the bar on verification: 2 of 4 seeded mutants survive (bisection bound loosened 2x, k-dependent change to the over-compensation amplitude) and no test pins a published number. As research it restates textbook results (deadband stall, Tao & Kokotovic's deadband inverse, Bussgang/random-input describing function gain) without citing Bussgang or the RIDF literature or saying the laws are known, and leaves the practitioner's real questions (integral action and hunting, noise, asymmetric stiction) to next steps. Correct and finished, not yet a contribution a control reviewer would accept."
 }

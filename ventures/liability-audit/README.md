@@ -109,3 +109,13 @@ node --test audit.test.mjs cli.test.mjs page.test.mjs
 
 MIT. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
 Roadmap: [`ROADMAP.md`](ROADMAP.md).
+
+## Known gaps (quality audit 2026-11-20)
+
+From the census audit, [`2026-11-20-liability-audit.json`](../../portfolio/quality/audits/2026-11-20-liability-audit.json). Fixed in PR #17836: `rel="sponsored"` on an affiliate link counted as a disclosure. Still open: several "this page is fine" checks match loose text, so they clear pages they should flag.
+
+- The privacy-notice check accepts marketing phrases such as "runs in your browser".
+- Any consent-like word anywhere clears every tracker.
+- "per day" in a string counts as an LLM spend limit.
+- A source line containing any regex escape is hidden from every rule.
+- The no-warranty check accepts "as is" in ordinary prose.

@@ -197,7 +197,8 @@
    "what": "An affiliate link marked up the recommended way, <a rel=\"sponsored\" href=\"https://amzn.to/...\">, with no disclosure text is reported clean: the disclosure regex runs on raw HTML before the match index, so the link's own rel=\"sponsored\" attribute counts as a disclosure. Fix: test visibleText() of the text before the link's opening tag.",
    "where": "ventures/liability-audit/audit.mjs:337",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
   },
   {
    "severity": "medium",
@@ -253,7 +254,8 @@
    "what": "llms.txt carries calculator boilerplate 'Results are estimates from the numbers typed in', which does not describe a file scanner.",
    "where": "ventures/liability-audit/llms.txt:5",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
   },
   {
    "severity": "low",
@@ -263,6 +265,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"],
  "verdict": "A well-built, honest, dependency-free scanner: on a realistic Next.js + Stripe + GA + Anthropic + Terraform fixture it raises all 11 expected findings at the right lines, its secret formats and law citations check out against vendor docs and statutes, its CLI/SARIF/sweep all work, and on 1,421 real ventures it raises no high false positives. It misses the bar on correctness: the signals that clear a rule are matched loosely against raw text, so common real pages get a clean report they should not (rel=\"sponsored\" affiliate links with no disclosure, a marketing line counted as a privacy notice, any consent-shaped word clearing every tracker, 'per day' in a prompt counted as a spend limit, regex-bearing lines blanked). A privacy counsel would use it as a first-pass checklist but not trust a clear result. Finished (completeness 3), not at the bar (correctness 2)."
 }

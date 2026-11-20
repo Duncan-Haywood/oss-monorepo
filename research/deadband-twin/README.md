@@ -13,3 +13,14 @@ PYTHONPATH=src python3 experiments/run.py                 # <2 s; output in expe
 **Builds on.** The digital-twin simulation-fidelity and sim-to-real direction of ARPG (<https://arpg.colorado.edu/>), HIRO Group (<https://hiro-group.ronc.one/>, manipulation workcells) and the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. The method is classical: Stein's lemma (Stein 1981) and actuator-nonlinearity analysis (Tao & Kokotović 1996). Companion to `control-twin` (wrong actuator gain) and `saturation-twin` (missing actuator limit) in this repository.
 
 Stylised: scalar integrator, symmetric deadband, noiseless observation, `k ≤ 1`, a simulated "real" system, no field data. MIT.
+
+## Known gaps (quality audit 2026-11-20)
+
+From the census audit, [`2026-11-20-deadband-twin.json`](../../portfolio/quality/audits/2026-11-20-deadband-twin.json):
+
+- **The results are known results, and the paper does not cite them.** The P-loop stall at d/k and the residual and chatter of deadband inversion are in Tao & Kokotović (1994, IEEE TAC). The fitted gain 2Q(d/s) is Bussgang's theorem (1952), also known as the random-input describing function (Gelb & Vander Velde 1968).
+- **Remedies are not modelled.** A practitioner would try integral action (and its hunting limit cycle), dither and asymmetric stiction first; none are covered.
+- **The gain argument stops at k ≤ 1.** The loop is stable up to k < 2.
+- **"Rests at exactly d/k" leaves out its condition.** It is the limit from a start outside the band. A start inside the band is already at rest.
+
+Fixed in PR #17836: `steps_to` raised at k=1, and the tests now pin `results.txt` and kill the two mutants that survived.

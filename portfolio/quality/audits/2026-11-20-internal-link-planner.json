@@ -200,14 +200,16 @@
    "what": "Relative hrefs are resolved against the normalized page id (trailing slash stripped) instead of the document URL, so every relative link on a directory-index page (/guide/install/ -> '../config/') points one level too high: false orphans and false broken links on MkDocs/Sphinx/hand-written sites. One-token fix: normalizeUrl(l.href, p.url); all 26 tests still pass with it.",
    "where": "ventures/internal-link-planner/engine.mjs:129",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
   },
   {
    "severity": "high",
    "what": "A build folder of x.html files with clean links (/x), the default Next.js export and Jekyll page layout, is read as all orphans and broken links: the CLI on its own test fixture written as files reports 6 orphans, 22 broken, 8 dead ends instead of 2, 1, 4. No mapping of x.html to /x.",
    "where": "ventures/internal-link-planner/cli.mjs:19",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
   },
   {
    "severity": "medium",
@@ -221,7 +223,8 @@
    "what": "Page identity keeps the scheme and the www host although the comment says 'https-agnostic': an absolute http:// link to an own https page is reported broken and its target orphaned; www. links count as external.",
    "where": "ventures/internal-link-planner/engine.mjs:11",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
   },
   {
    "severity": "medium",
@@ -266,6 +269,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"],
  "verdict": "The graph mathematics is correct: weighted PageRank, dangling handling and the plan's before/after effect recompute exactly against an independent numpy solve, and orphan/menu-only/dead-end lists are right on directory-style builds with root-relative links. The input side is not: relative links on directory-index pages resolve against the wrong base (engine.mjs:129), flat .html builds with clean links (Next export default, Jekyll) are read as all orphans (the CLI misreports its own test fixture: 6 orphans and 22 broken links instead of 2 and 1, and the test does not notice), http/www variants break identity, and keyphrase matching misses any title with interior stop words. A technical SEO consultant would see wrong orphan counts on the first real site. Does not meet the bar (correctness, claims, verification all 2)."
 }

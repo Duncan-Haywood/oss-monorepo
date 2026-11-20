@@ -173,14 +173,16 @@
    "what": "Any row typed 'Adjustment' is a refund and its sign is discarded (Math.abs), so a positive credit (reimbursement) reduces take-home: +$5 adjustment turns 26.20 into 16.20",
    "where": "ventures/tiktok-shop-settlement-analyzer/calc.mjs:144",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
   },
   {
    "severity": "high",
    "what": "Year-first slash dates (YYYY/MM/DD) are unreadable, so a file using them is rejected whole ('No usable rows'); the tool has never been run on a real TikTok Shop export",
    "where": "ventures/tiktok-shop-settlement-analyzer/calc.mjs:67",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
   },
   {
    "severity": "medium",
@@ -201,7 +203,8 @@
    "what": "Page header says 'FIVERR EARNINGS FEE ANALYZER' on the TikTok Shop tool",
    "where": "ventures/tiktok-shop-settlement-analyzer/index.html:62",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"
   },
   {
    "severity": "medium",
@@ -232,6 +235,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17836"],
  "verdict": "Does not meet the bar (correctness 2, claims 1, verification 2). The arithmetic is exact on the author's own Date/Type/Amount/Fee/Net format and matches TikTok's published 6% referral fee on a clean file, but it is a reskin of the Fiverr earnings analyzer: the page header still says FIVERR, positive adjustments are counted as refunds (a $10 swing on a $26 take-home), a year-first slash-dated settlement file is rejected whole, affiliate commission is reported as 'TikTok Shop kept', and the refund admin fee is not modelled. An accountant reconciling TikTok settlements could not use it on a real export; a seller with a tidy hand-made sheet gets correct per-product take-home and a break-even price."
 }
