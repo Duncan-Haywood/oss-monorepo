@@ -3,6 +3,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import friction_rank as fr  # noqa: E402
 
@@ -39,11 +41,21 @@ def test_window_none_entries_and_bad_records(tmp_path):
     assert len(fr.rank(fr.load(tmp_path), min_sessions=1)) == 1
 
 
-def test_main_json(tmp_path, capsys):
+def test_main_json(tmp_path, capsys, monkeypatch):
+    # The default path (git and the open-PR read on) with this checkout's git and
+    # GitHub swapped out. Unstubbed, it ran `git fetch --shallow-since` on the real
+    # clone and read api.github.com three times: 7 s alone, 78 s inside the
+    # ventures-tests pool (docs/history/ci-perf-2026-11-20-unwired-orphans-and-fetch.md).
+    monkeypatch.setattr(fr, "revs", lambda: ["HEAD"])
+    monkeypatch.setattr(fr, "basename_counts", lambda: {})
+    monkeypatch.setattr(fr, "changes", lambda since, rev: ([], None))
+    monkeypatch.setattr(fr, "deepen", lambda since: pytest.fail("no edge, so no fetch"))
+    monkeypatch.setattr(fr, "open_prs", lambda: [(1, "x.md: the flag")])
     write(tmp_path, "r1.json", "2026-11-01", [{"file": "x.md", "issue": "flag is easy to skip"}])
     write(tmp_path, "r2.json", "2026-11-01", [{"file": "x.md", "issue": "the flag is easy to skip again"}])
     assert fr.main(["--runs", str(tmp_path), "--days", "0", "--json"]) == 0
-    assert json.loads(capsys.readouterr().out)[0]["sessions"] == 2
+    row = json.loads(capsys.readouterr().out)[0]
+    assert row["sessions"] == 2 and row["prs"] == []  # read (not None), "x" too short to claim
 
 
 def test_named_keeps_code_only():
