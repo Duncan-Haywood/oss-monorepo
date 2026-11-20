@@ -100,9 +100,9 @@ PINNED = [(name, re.compile(kw, re.I), old, new, figure(old), figure(new)) for n
 YEAR = re.compile(r"(?<!\d)2026(?!\d)")
 
 
-def segments(text: str):
+def segments(text: str, need: str = ""):
     for lineno, line in enumerate(text.splitlines(), 1):
-        if OK in line:
+        if need not in line or OK in line:
             continue
         for seg in SPLIT.split(line):
             if seg and len(seg) <= 1200:
@@ -111,7 +111,12 @@ def segments(text: str):
 
 def scan_text(text: str):
     hits = []
-    for lineno, seg in segments(text):
+    # A segment can only name 2026 if its line holds "2026", so a file or line
+    # without it is skipped before the split (same hits, a fifth of the time:
+    # docs/history/ci-perf-2026-11-20-paired-check-prefilters.md).
+    if "2026" not in text:
+        return hits
+    for lineno, seg in segments(text, need="2026"):
         if not YEAR.search(seg):
             continue
         for name, kw, old, new, old_re, new_re in PINNED:

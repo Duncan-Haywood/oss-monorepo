@@ -36,11 +36,25 @@ SUFFIXES = {".js", ".mjs", ".html"}
 SKIP_PARTS = {"node_modules", "dist", "vendor", ".git"}
 ALLOW = "dst-day-step: ok"
 
-DAY_CONST = re.compile(
-    r"86_?400_?000|864e5|8\.64e7|24 ?\* ?60 ?\* ?60 ?\* ?1000|24 ?\* ?3600 ?\* ?1000|"
-    r"3_?600_?000 ?\* ?24|\b(?:MS_PER_DAY|DAY_MS|MS_DAY|ONE_DAY(?:_MS)?|DAY_IN_MS|MS_IN_DAY|"
-    r"msPerDay|MSDAY|dayMs|DAY)\b"
-)
+_DAY_NUMBERS = (r"86_?400_?000|864e5", r"8\.64e7", r"24 ?\* ?60 ?\* ?60 ?\* ?1000|24 ?\* ?3600 ?\* ?1000",
+                r"3_?600_?000 ?\* ?24")
+_DAY_NAMES = (r"\b(?:MS_PER_DAY|DAY_MS|MS_DAY|ONE_DAY(?:_MS)?|DAY_IN_MS|MS_IN_DAY|"
+              r"msPerDay|MSDAY|dayMs|DAY)\b")
+DAY_CONST = re.compile("|".join(_DAY_NUMBERS + (_DAY_NAMES,)))
+# The same alternatives one at a time: each numeric one starts with a literal,
+# which sre scans for quickly, and every name holds "DAY", "msPerDay" or
+# "dayMs". The joined pattern has no literal prefix and tries every position,
+# 2.9 s over the ventures tree against 0.4 s for these
+# (docs/history/ci-perf-2026-11-20-paired-check-prefilters.md).
+_DAY_PARTS = tuple(re.compile(p) for p in _DAY_NUMBERS)
+_DAY_NAME_RE = re.compile(_DAY_NAMES)
+
+
+def has_day_const(text):
+    """Same answer as bool(DAY_CONST.search(text)), faster on a whole file."""
+    if any(r.search(text) for r in _DAY_PARTS):
+        return True
+    return ("DAY" in text or "msPerDay" in text or "dayMs" in text) and bool(_DAY_NAME_RE.search(text))
 MS_SOURCE = re.compile(r"\.getTime\(\)|\.valueOf\(\)|Date\.now\(\)|\(\s*\+[A-Za-z_$]|new Date\(\s*\+")
 MAKES_DATE = re.compile(r"new Date\(|\.setTime\(")
 # A local wall-clock midnight: an ISO date with a T00:00 time and no zone,
@@ -71,7 +85,7 @@ def _is_local(text, m):
 
 def scan_text(text):
     """Line numbers (1-based) of 24-hour day steps in a file that holds local midnights."""
-    if not DAY_CONST.search(text) or not any(_is_local(text, m) for m in LOCAL_MIDNIGHT.finditer(text)):
+    if not has_day_const(text) or not any(_is_local(text, m) for m in LOCAL_MIDNIGHT.finditer(text)):
         return []
     lines = text.splitlines()
     hits = []
