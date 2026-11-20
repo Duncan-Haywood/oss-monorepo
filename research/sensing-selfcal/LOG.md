@@ -1,5 +1,21 @@
 # sensing-selfcal research log
 
+## 2026-11-20 · Milestone 3v planned: on TUM, can the floored pool tell a robot that the calibration it holds has gone stale, how small a staleness can it see, and does a floor from prior-steadied windows alone fix 3u's conservative K &ge; 5 bars?
+
+Written before `experiments/m3v_stale/analyse.py` was written or run. The programme's question is whether a self-calibration knows when to replace the calibration a robot holds. Milestone 3u made the pooled bar honest; this asks what that bar buys as a decision. The TUM host still refuses this session (`cvg.cit.tum.de`, `vision.in.tum.de`: proxy 403, probed), so this re-uses milestone 3s's saved solves; no window is re-solved. **Seen before this plan:** milestone 3u's logged figures, among them est_c's share of K = 3 blocks within 2 sd of the board (95% history floor, 81% DL), which is one minus the false-alarm rate at zero staleness for K = 3, so no hypothesis below scores K = 3 false alarms; no figure at any nonzero staleness, and no figure of a prior-steadied-only floor.
+
+- **Method** (`analyse.py`, analysis only). Same 43 scored windows, blocks of K &isin; {1, 3, 5, 8} as milestones 3t and 3u, the same pools (DL, **tf** history floor, q1). The robot holds f<sub>held</sub> = f<sub>board</sub>(1 + &delta;) for the camera, with &delta; &isin; &plusmn;{0, 0.5, 1, &hellip;, 10}% (only the held value is perturbed; the windows are the real solves, so no assumption about how the solver responds to a changed lens). The gate flags a block when |pool &minus; f<sub>held</sub>| &gt; 2 sd<sub>pool</sub> (held sd taken as 0). **Power**(&delta;) is the flagged share, averaged over +&delta; and &minus;&delta;; the **false-alarm rate** is power(0); the **minimum detectable staleness** (MDS) is the smallest |&delta;| on the grid with power &ge; 0.8. **Decision error**: the gate adopts the pool when it flags and keeps f<sub>held</sub> otherwise; its |e| against the board is compared with always adopting the pool and never adopting. **tf_p**: the history floor computed only from earlier windows that carry the model's own (prior-steadied) estimate, not `est`; at least 5 such windows, else plain DL.
+- **H239 (few false alarms at five).** est_c, K = 5, tf: false-alarm rate &le; 0.10.
+- **H240 (sees 5%).** est_c, K = 3, tf: power at |&delta;| = 5% &ge; 0.8.
+- **H241 (blind to 1%).** est_c, K = 3, tf: power at |&delta;| = 1% &le; 0.3.
+- **H242 (resolution grows with K).** est_c, tf: MDS is non-increasing over K = 1, 3, 5, 8, and &le; 5% at K = 5.
+- **H243 (the gate costs little).** est_c, K = 5, tf: the largest median decision |e| over the &delta; grid is &le; 3%.
+- **H244 (the gate does not adopt the outliers).** est_c, K = 5, tf, |&delta;| = 1%: the gate's 95th-percentile |e| is &le; always-adopt's.
+- **H245 (a prior-only floor).** est_c, tf_p: rms z in [0.8, 1.3] at K = 3, and at K = 5 closer to 1 than tf's 0.87.
+- **H246 (the recursive memory too).** est_cr, K = 5, tf: MDS &le; 5%.
+- **Reported, unscored.** Power curves for every model and pool; DL's and q1's false alarms and MDS; the same against TUM's and the target-free references; tf_p at K = 1, 8 and for est_cr; `stale.png`.
+- **Caveat set in advance.** Staleness is a shifted held value against real windows, not a real lens change (a refocus also moves k<sub>1</sub> and the principal point, which this does not test); the board reference is itself about 1.6% from the other two, so &delta; is staleness against the board, not the truth; blocks overlap, so power figures rest on far fewer independent tests than blocks.
+
 ## 2026-11-20 · Milestone 3u result: on TUM, flooring &tau; at the scatter of the camera's own earlier windows makes three-window random-effects pools honest (rms z 2.67 &rarr; 1.09, worst block 11.0 &rarr; 3.2 sd) at no accuracy cost, beats a fixed 1%-of-f floor, and gives a single window a usable bar; all eight predictions held
 
 - **Run.** `experiments/m3u_taufloor/analyse.py` on milestone 3s's 43 scored windows (53 counted for the history), blocks of K &isin; {1, 3, 5, 8} as planned below; under a second. `tests/test_m3u.py` (4 tests) passed before the run. Every block had at least five history windows, so every block got a floor. No window was re-solved.
