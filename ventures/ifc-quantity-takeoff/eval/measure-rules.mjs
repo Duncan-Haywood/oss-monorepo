@@ -10,7 +10,7 @@
 //   - how many openings there are and how many each threshold leaves in;
 //   - whether the openings' own deductions sum to what they take out together
 //     (the condition for adding one back exactly), and how often they do not;
-//   - the BoQ's total wall and slab area and volume, as modelled and under the
+//   - the BoQ's total wall, slab, covering and frame area and volume, as modelled and under the
 //     rule, and the change;
 //   - an outside check: openings whose own quantity set stores Width and
 //     Height (Qto_OpeningElementBaseQuantities, or a tool's own set) against
@@ -20,7 +20,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
 import { parseStep } from "../step.mjs";
 import { takeoff, rowQuantities, readUnits } from "../qto.mjs";
-import { applyRule } from "../measure.mjs";
+import { applyRule, ruleFor, PRESETS } from "../measure.mjs";
 
 const args = process.argv.slice(2);
 const jsonAt = args.indexOf("--json");
@@ -30,6 +30,8 @@ const files = args.filter((a, i) => !a.startsWith("--") && args[i - 1] !== "--js
 const RULES = [
   { name: "0.50 m2 / 0.05 m3", areaMax: 0.5, volumeMax: 0.05 },
   { name: "1.00 m2 / 0.10 m3", areaMax: 1.0, volumeMax: 0.1 },
+  // 2026-11-20: thresholds per work section (measure.mjs SECTIONS), the page's "By work section" preset
+  { name: "by work section", ...PRESETS.sections },
 ];
 const refId = (v) => (v && typeof v === "object" && v.ref !== undefined ? v.ref : null);
 const num = (v) => (typeof v === "number" ? v : v && typeof v === "object" && typeof v.value === "number" ? v.value : null);
@@ -75,7 +77,7 @@ for (const file of files) {
   for (const r of res.rows) {
     if (r.isAssembly) continue;
     const q = rowQuantities(r);
-    const measured = /^IFC(WALL|SLAB|ROOF|PLATE|COVERING)/.test(r.ifcType);
+    const measured = /^IFC(WALL|SLAB|ROOF|PLATE|COVERING|BEAM|COLUMN|MEMBER)/.test(r.ifcType);
     if (measured) { base.area += q.area ?? 0; base.volume += q.volume ?? 0; const B = (baseByClass[r.ifcClass] ??= { area: 0, volume: 0 }); B.area += q.area ?? 0; B.volume += q.volume ?? 0; }
     for (const R of RULES) {
       const a = applyRule(r, q, R);
@@ -97,13 +99,13 @@ for (const file of files) {
       m.volumeCut++;
       const sum = c.voids.reduce((s, v) => s + v.volume, 0), together = c.gross - c.net;
       if (Math.abs(sum - together) <= Math.max(1e-6, 0.005 * together)) m.additiveVolume++; else m.notAdditive++;
-      for (const R of RULES) per[R.name].openingsUnderVolume += c.voids.filter((v) => v.volume > 0 && v.volume <= R.volumeMax).length;
+      for (const R of RULES) { const T = ruleFor(R, r.ifcType); per[R.name].openingsUnderVolume += c.voids.filter((v) => v.volume > 0 && v.volume <= T.volumeMax).length; }
     }
     if (S?.voids && S.net != null && S.gross != null) {
       m.areaCut++;
       const sum = S.voids.reduce((s, v) => s + (v ?? 0), 0), together = S.gross - S.net;
       if (S.voids.every((v) => v != null) && Math.abs(sum - together) <= Math.max(1e-6, 0.005 * together)) m.additiveArea++;
-      for (const R of RULES) per[R.name].openingsUnderArea += S.voids.filter((v) => v != null && v > 0 && v <= R.areaMax).length;
+      for (const R of RULES) { const T = ruleFor(R, r.ifcType); per[R.name].openingsUnderArea += S.voids.filter((v) => v != null && v > 0 && v <= T.areaMax).length; }
       // outside check: the opening's stored Width x Height against its cut area in a wall
       if (c.areas.side && c.voids) c.voids.forEach((v, i) => {
         const z = sizes.get(v.id);
@@ -125,7 +127,7 @@ for (const file of files) {
   m.secs = (Date.now() - t0) / 1000;
   results.push(m);
   console.log(`${m.file}: ${m.openings} openings in ${m.elementsWithOpenings} elements; volumes cut ${m.volumeCut} (additive ${m.additiveVolume}, not ${m.notAdditive}), areas cut ${m.areaCut} (additive ${m.additiveArea})`);
-  for (const R of RULES) { const x = m.rules[R.name]; console.log(`  ${R.name}: openings under area ${x.openingsUnderArea}, under volume ${x.openingsUnderVolume}; wall/slab area ${m.base.area} -> ${x.area} (${x.areaChange >= 0 ? "+" : ""}${x.areaChange} m2, ${x.areaChangePct}%), volume ${m.base.volume} -> ${x.volume} (${x.volumeChange >= 0 ? "+" : ""}${x.volumeChange} m3, ${x.volumeChangePct}%); rows not adjusted ${x.rowsNotAdjusted}`); console.log(`    area +${x.areaAdded} left in, -${x.areaRemoved} taken from gross figures; volume +${x.volumeAdded} / -${x.volumeRemoved}; by class: ${Object.entries(x.byClass).map(([k, c]) => `${k} ${c.area >= 0 ? "+" : ""}${c.area} m2 (${c.areaPct}%) ${c.volume >= 0 ? "+" : ""}${c.volume} m3 (${c.volumePct}%)`).join("; ") || "none"}`); }
+  for (const R of RULES) { const x = m.rules[R.name]; console.log(`  ${R.name}: openings under area ${x.openingsUnderArea}, under volume ${x.openingsUnderVolume}; measured area ${m.base.area} -> ${x.area} (${x.areaChange >= 0 ? "+" : ""}${x.areaChange} m2, ${x.areaChangePct}%), volume ${m.base.volume} -> ${x.volume} (${x.volumeChange >= 0 ? "+" : ""}${x.volumeChange} m3, ${x.volumeChangePct}%); rows not adjusted ${x.rowsNotAdjusted}`); console.log(`    area +${x.areaAdded} left in, -${x.areaRemoved} taken from gross figures; volume +${x.volumeAdded} / -${x.volumeRemoved}; by class: ${Object.entries(x.byClass).map(([k, c]) => `${k} ${c.area >= 0 ? "+" : ""}${c.area} m2 (${c.areaPct}%) ${c.volume >= 0 ? "+" : ""}${c.volume} m3 (${c.volumePct}%)`).join("; ") || "none"}`); }
   if (m.sizeCheck.pairs) console.log(`  stored Width x Height vs cut area, wall openings: ${m.sizeCheck.agree} of ${m.sizeCheck.pairs} within 2%${m.sizeCheck.misses.length ? "; e.g. " + m.sizeCheck.misses.map((x) => `${x.opening} cut ${x.cut} vs ${x.widthTimesHeight}`).join(", ") : ""}`);
   console.log(`  ${m.secs.toFixed(1)} s`);
 }
