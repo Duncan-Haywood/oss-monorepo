@@ -47,5 +47,13 @@ the old default back as a middle step. It did not help. The old default is quiet
 noisier on bunched ones, so it isn't a step up in eagerness at all.
 
 So the fix ships, and `--suggest` now says plainly that for counts the plain default is a fine place to start. A state
-file that already stored the old pick keeps it. Delete its `choice` entry to pick again. Everything here is simulated.
-No real shop's orders, with changes the owner can vouch for, have been scored yet. That is the next test worth running.
+file that already stored the old pick keeps it. Delete its `choice` entry to pick again. Everything above is simulated.
+
+## One real shop disagrees a little
+
+We also ran it on the one real shop we have, a UK gift wholesaler whose daily orders are public (UCI Online Retail).
+The new quiet setting sent 2 alerts in 300 days where the old one sent 37, which is mostly good: 35 of the old ones were
+the shop's closed Saturdays read as a change, week after week. But the old setting, told about the weekly cycle, also
+caught the one alert that mattered, the start of the Christmas build-up on 1 September 2011. The new one misses it.
+That fits what we already knew. Allowing for bunched days makes the watch slower to call a gradual climb. So the next
+round needs a slow climb in bunched orders, and then a real shop owner's orders with changes they can vouch for.

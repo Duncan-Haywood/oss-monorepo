@@ -3873,6 +3873,16 @@ a quarter of the hint's false alerts (0.54 against 2.04 per 1,000) and heard 28 
 history leaves `pelt` under budget almost every time and `pelt` costs about one more false alert per 1,000 checks. The
 hint is a menu, and the count default is the safer place to start; `--suggest` now says so for counts.
 
+**On the one real shop, a cost the simulation did not show** (deciding nothing; `real-shop.test.mjs`). Replayed on
+UCI Online Retail's daily orders (next section), the new Quiet sends 2 alerts in 300 checks where the old one sent 37,
+with or without `--period 7`. Both sit at bank holidays (2011-05-03 and 2011-05-31 without a period; 2011-04-26 and
+2011-05-03 with one), and the weekly-cycle line no longer fires because there is no bunch of alerts to explain. But
+**2011-09-01, the start of the Christmas build-up and the one alert a shop owner would want, is no longer heard**: the
+old Quiet with `--period 7` sent it on 2011-09-05. The hint still picks Quiet there, since Eager sent 14 (no period) or
+4 (period 7) per 100 checks on the history. One shop is one shop, and its labels are our reading of it, not the
+merchant's. But it fits the simulations: the bunching cost makes the watch slower to call a gradual climb on very
+bunched orders (this shop's variance is 4 to 6 times its mean). The next item is a ramp cell in the count rounds.
+
 **What ships** (`watch-core.mjs`): `eagerSettings('poisson')` is (count default, `pelt`) when no clumping cost or
 threshold is named (naming either keeps the old ladder, as the count default does). `chooseDetector` stores the
 count default's cost and threshold with the detector, and `choiceOptions` turns a stored `choice` back into options
@@ -3882,12 +3892,14 @@ on later runs, in the one-column watch and per `--columns` column. A state file 
 On the page, the hint's table for counts has Quiet and Eager, and "Use Quiet" leaves the watch card on its default.
 `eagernessReplay` also takes a `ladder` option, the list of settings to replay, which the round used.
 
-**Checked** (`watch-eagerness-counts.test.mjs`, 4): the ladder and the named-option fallback; Quiet's replay equals
+**Checked** (`watch-eagerness-counts.test.mjs`, 4; `real-shop.test.mjs` pins the 2026-11-18 round to the old ladder
+through `ladder` and checks the new Quiet's two alerts): the ladder and the named-option fallback; Quiet's replay equals
 the count default's; `--detector auto` on a clumped shop stores the count default and the watch's alerts, run by run,
 equal the count default's replay; an old `bocpd` choice keeps `bocpd`; a `--columns` count column stores it too.
 
-**Next:** a deployer's real orders through `--suggest` (no deployer yet), and whether the hint's Eager step on
-unbunched counts should be the windowed pass at the plain threshold rather than `pelt`.
+**Next:** a slow climb in bunched counts (a ramp cell for the count rounds: the real shop's September build-up is
+missed by the new Quiet), a deployer's real orders through `--suggest` (no deployer yet), and whether the hint's
+Eager step on unbunched counts should be the windowed pass at the plain threshold rather than `pelt`.
 
 ## A real shop's daily series through `--suggest` (2026-11-18, pre-registered; all three bars fail; a weekly-cycle line ships)
 
