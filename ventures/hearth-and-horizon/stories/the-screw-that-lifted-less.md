@@ -1,0 +1,217 @@
+---
+title: The Screw That Lifted Less
+shelf: hearth-and-horizon
+setting: Ấp Cây Sung, a rice-growing hamlet on a canal off the Tiền River, Đồng Tháp province, Vietnam, Saturday 24 April to Saturday 15 May 2049
+published: 2026-11-20
+summary: In 2049 a welder in a Mekong delta hamlet has replaced the old diesel pump with a water screw he built himself, turned by a small solar motor, and it lifts the canal a metre into the paddies. When a neighbour levels her old orchard for rice, half a metre higher, he props the top of the screw up to reach it. The screw turns as fast as ever and delivers half the water, the old fields start to dry, and the hamlet's oldest farmer, who ran the diesel pump for fifty years, says he told them so. A length of garden hose wound round a broom handle shows what the screw's buckets do on a steeper slope, and a second short screw, welded from offcuts and paid for by the sale of the old pump, lifts the water in two steps.
+---
+
+Phạm Văn Lộc welded his first water screw in the dry season of 2048, and for a year it lifted the canal exactly a metre.
+
+That was the job. The canal that ran past the back of Ấp Cây Sung came off a bigger canal, which came off the Tiền River, which was the Mekong under one of its names, and in the dry months it sat a metre below the ditch that fed the paddies, a little more at the bottom of the tide and a little less at the top. For fifty years the metre had been the business of Ông Tư Hiền's diesel pump, a green single-cylinder engine on a wooden sledge with a fat suction hose, which shook the whole bank when it ran and could be heard at the church. Then diesel had gone up, and up, and the cooperative had voted to try something with no fuel in it, and Lộc, who mended boats and gates and the parish's folding chairs in a shed by the bridge, had said he could build a screw.
+
+He had built it from a length of steel pipe a quarter of a metre across for the shaft, and two strips of plate cut into rings, split, stretched and welded round the pipe in a double spiral, so that the blades stood out from the shaft like the thread on a bolt and made the whole thing half a metre across. It lay in a trough he had rolled from sheet and lined with mortar, tilted up the bank with its lower end in the canal and its upper end over the ditch. A small electric motor on a gearbox turned it forty times a minute, and three solar panels on a frame over the trough fed the motor. When it turned, water climbed the bank in a row of little pools, one in each turn of the blades, and fell out of the top into the ditch with a sound like someone pouring a long drink.
+
+It was slower than the diesel, and it stopped when the sun went in. It also cost nothing to run and nobody had to stand by it. The cooperative's assistant, which lived in a phone in a plastic bag on a nail in Lộc's shed and was called Thước, which means a ruler, logged its hours from the motor's controller and told the eight families whose fields it watered when their turn of the ditch came round. In the first season the eight families had grown as much rice as in any season under the diesel, and in the second Lộc had been asked to build a screw for the next hamlet along, and had said he would think about it.
+
+On the Saturday after Easter, Chị Sáu Ngọc came to the shed to ask him to lift it half a metre more.
+
+* * *
+
+"It is not a big field," said Ngọc. "Seven thousand square metres. Less than a hectare."
+
+She had a sheet of paper from the district office with the field drawn on it, a long rectangle behind her house, and she put it on his bench between a vice and a coil of welding wire and held it flat with both hands. For twenty years the rectangle had been longan trees, planted by her husband's father on raised beds with channels between them, and for the last six the longan had paid less every year, and in March she and her brother-in-law and a hired digger had cut the trees, levelled the beds into the channels and made the whole thing a field. It was good ground. It was also half a metre higher than the ditch, because a longan garden is built up out of the water and a paddy is not.
+
+"Tâm says plant rice, and he will send money for the seed," she said. Tâm, her husband, worked in a factory in Bình Dương and came home at Tết. "The neighbours are already sown. I have the seed soaked and drained by the door. If I sow in May I can harvest in August, before the flood comes up. If I sow in June, I don't know."
+
+Lộc looked at the paper and then out of the door of the shed, where the screw lay up the bank across the path, turning, with the panels shining over it. He had made the trough long enough to reach the ditch and no longer, because sheet steel cost money. But the top of the screw sat on a concrete block, and the bottom sat on a pin in a frame in the canal, and the whole thing was a straight line from one to the other.
+
+"If I put the top end up, it is steeper," he said. "Same screw, same length, higher at the top. Then you dig a small ditch from the top to your field. The old fields take theirs out of the same ditch further down, it runs downhill to them. Nobody needs to buy anything."
+
+"Can it?"
+
+"It lifts a metre. You want a metre and a half, and a bit more for the water to run. I will ask Thước."
+
+Thước had a thin voice that came out of the plastic bag, and it said that the motor drew about a third of what its controller could give at the old angle, and that lifting the same water half a metre higher would need more power but not more than the motor and panels had to spare. It said this with some care, which Lộc did not notice until afterwards: that it had the motor's figures and the panels' figures, and that it did not have a model of the screw.
+
+"Good," said Lộc. "Then it has the power."
+
+* * *
+
+He took it to the cooperative that evening, because the ditch was everyone's.
+
+They met under the roof in front of the parish hall, where the cooperative met, at plastic tables that Lộc had mended most of. The light was going over the paddies and the frogs were starting. There were about twenty people, the eight families from the screw and others, and the parish priest, Cha Lâm, who came to most things and said little at them, and Ông Tư Hiền at the end of the front table with his hands folded on his stick.
+
+Ông Tư was seventy-six. He was the fourth child of his parents, which is why he was called Tư, the way the old families in the south count from two, and he had run the diesel pump since he was twenty-four, which was 1997, when his father bought it. He had been against the screw. He had stood on the bank on the first morning it ran with his arms crossed and said nothing for an hour, and then said that it was quiet, which from him was a long speech. The green engine was still in his shed under a tarpaulin. He oiled it once a month.
+
+Lộc explained. He drew the bank on the back of Ngọc's paper with a straight line for the screw and a second line, steeper, to show what he meant. Ngọc said her piece about the seed and the flood. Thước, from Lộc's phone on the table, said what it had said about the power, and the eight families looked at each other and nodded.
+
+"No," said Ông Tư.
+
+He did not raise his voice. He did not need to; the old men in Cây Sung said no about once a year, and people listened to the whole sentence when they did.
+
+"I ran the diesel on that bank for fifty years," he said. "Some years the canal was low, some years high. One year, the year of the big flood, the ditch was full and the canal was full and I didn't need the pump at all. The diesel never argued with the height. You put the hose in and you pulled the cord and the water came, a bit less when the canal was low, the same water near enough. That screw is different. That screw cares where it lies. You built it for a metre. I watched you."
+
+"It has the power," said Lộc. "The machine says so."
+
+"I'm not talking about power." The old man moved his stick an inch. "I'm talking about the screw. My grandfather lifted water with a scoop on a tripod. If you swing the scoop higher it carries less, because it spills on the way up. I don't know what a screw does. Neither do you. You've had it a year." He looked at Ngọc, not unkindly. "It isn't that I want her field dry. It's that there are eight families on that ditch, and they are sown, and the rice is up a hand high, and if you break their water for her field you can't unbreak it in a week."
+
+There was a silence. Somewhere behind the hall a motorbike went by with a pig in a basket on the back, complaining.
+
+"Try it for a week," said Ngọc. "If the old fields go short, put it back."
+
+"A week," said Lộc. "I can put it back in an afternoon."
+
+Ông Tư looked at the drawing for a long time. "A week," he said. "And you measure. Not the machine. You."
+
+* * *
+
+They did it on the first of May, which was a holiday, and which was also the feast of Saint Joseph the Worker. Lộc had a picture of Saint Joseph in his shed, an old calendar print of a bearded man at a carpenter's bench with a boy holding the end of a plank, and he said to his daughter that morning that it was a good day to lift something.
+
+Before they touched anything, because Ông Tư had said measure, he measured. He had an old blue drum that had held cooking oil, and he had marked it on the inside with a line at two hundred litres, which he had filled to with a ten-litre bucket twenty times one evening in the dry season of 2048 to be sure. With the screw turning, his daughter Mai held the stopwatch on Thước's phone and he put the drum under the top of the trough and pulled it away when the water reached the line.
+
+"Ten seconds," said Mai. "Ten point two."
+
+Mai was fourteen and was going to be a nurse, she said, or possibly a pilot, and she wrote the number in the notebook that hung on the nail with the phone.
+
+Then they lifted it. They had made a second concrete block, fifty-five centimetres taller than the first, in a mould from a box of planks, and let it cure for three days. Ngọc's brother-in-law and two of the young men from the eight families took the weight of the top end on a pair of levers while Lộc unbolted the bearing, and they walked it up, and he slid the new block in and bolted the bearing to it. The trough went up with the screw, because they were bolted together. The bottom end stayed on its pin in the canal. The line from the pin to the bearing, which had been as steep as a farmhouse roof, was steeper now, like a ladder against a wall that someone has pushed too far in at the foot. Lộc measured the angle with his phone laid on the trough. It had been twenty-two degrees. It was thirty-five.
+
+Thước said the motor was drawing less, not more, and Lộc took that for good news.
+
+He put the drum under the new outlet, which poured into a short new ditch of packed clay that ran along the top of the bank to Ngọc's field, with a gate in its side that let water fall back down into the old ditch for the eight families. Mai started the stopwatch.
+
+The water came out of the top of the screw. It came out in the same rhythm, eighty pulses a minute, two for each turn of the double blade. But the pulses were thin. Lộc stood with his hand on the drum, watching the level climb up the inside, and he knew before Mai said anything.
+
+"Twenty," said Mai. "Twenty point four."
+
+He made her do it again. It came out the same, near enough. The screw turned exactly as fast as before, he could hear it. The motor hummed exactly as before, a little easier. And half the water came out of the top.
+
+Ông Tư had come down to the bank with his stick. He did not say anything. He looked at the drum and at the notebook and then at the screw, for a long time, and then he went home.
+
+* * *
+
+For a week they ran it as they had agreed, and for a week the hamlet watched the old ditch.
+
+The eight families' fields needed, by Thước's figures, about two hundred and ninety cubic metres a day between them, for the rice to drink and the sun to take and the ground to soak away under it. At the old angle the screw had given them that in under five hours of good sun, with two hours or so to spare, and the ditch had stood full every evening. Now, at thirty-five degrees, a whole sunny day of six hours gave about two hundred and ten, and every drop of it went to the old fields because there was none to spare for Ngọc's, and still it was short. On the Monday the water in the furthest field, Bà Năm's, was down to the mud at the high end by evening. On the Wednesday it was down at the high end of the next one too.
+
+Nobody shouted. Bà Năm came and stood by the shed in the evening with her hat in her hand and asked, very politely, whether the week was a whole week or whether it could be a shorter week, and Lộc said it was a whole week and he was sorry, and she went away.
+
+He spent those evenings in the shed with the notebook and the phone. He had expected less water, a bit less, the way a bicycle goes slower up a steeper hill. A bicycle goes slower because the legs have only so much in them. But his motor had plenty in it. Thước said so: it was drawing less power than at the old angle, not more. The motor was not straining. The screw was simply carrying less.
+
+He went down the bank at noon on the Tuesday and lay on his stomach on the edge of the trough, which he should not have done, and watched the blades come round. In every turn there was a pool of water sitting in the angle between the blade and the shaft, a little crescent, climbing. That was the trick of it: the water did not know it was going uphill, it just sat at the bottom of whatever hollow it was in, and the blade turned and moved the hollow up. At the old angle the crescents had been fat. Now they were thin. And he could see, at the top of every crescent, where it touched the shaft on the upper side, a lip of water slopping over the shaft into the turn below, and all along the edge of the trough, where his blades did not quite meet the mortar, a fine sheet of water running back down the bank under them, the whole way.
+
+"You're looking at two things," said Thước, when he told it. "I can model the first. Give me the measurements."
+
+* * *
+
+Mai found the hose.
+
+She had been doing the screw at school, because the science teacher had heard about Lộc's screw and wanted the children to see a machine from Archimedes in their own canal, and the teacher had shown them a way to make one. You took a length of clear plastic tube, the narrow kind for an aquarium, and wound it round a broom handle in a spiral, like a stripe on a barber's pole, and taped it at both ends. Then you held the broom at a slope with its bottom end in a bowl of water, and turned it, and the water climbed the spiral and came out at the top.
+
+She came into the shed on the Thursday evening with the broom, the tube already on it, and a bowl, and a little bottle of the blue colouring her mother used for sweets.
+
+"Watch," she said. "This is twenty-two."
+
+She held the broom at the old angle, with Lộc's phone on the handle to show the degrees, and turned it slowly with her hand, and blue water came round and round in little slugs, one in every loop of the tube, and spilled out of the top into her other hand.
+
+"Now thirty-five."
+
+The slugs were smaller. They came round all the same, but every slug was thinner, and at the bottom of each loop she could see it slopping, trying to slide back.
+
+"Now forty-five. Now fifty."
+
+At fifty the slugs were almost nothing. At fifty-five, held so steeply that her arm shook, the water came up one turn and fell back and came up and fell back and went nowhere, and she stopped turning, and they looked at it.
+
+"It is the hollows," said Lộc. "There's no hollow to sit in."
+
+"The teacher says if you hold it steeper than the spiral is, it can't work at all," said Mai. "The water has to be able to go down a bit, in each turn, to go up."
+
+Lộc took the broom from her and held it at thirty-five again, and turned it, and watched the thin blue slugs come round. He thought about the old man's grandfather, swinging his scoop higher and spilling on the way.
+
+"Write that down," he said. "What you just said. In the book."
+
+* * *
+
+Thước had his measurements by then: the shaft a quarter of a metre across, the blades half a metre, the pitch half a metre, which is how far along the shaft one blade travels in a full turn, and two blades. It had the gap, too, which Lộc had measured with a feeler at a dozen places along the trough and found was about five millimetres wherever he looked, because a man rolling sheet steel by hand in a shed does not get a perfect half-circle. It worked out the shape of the water in one hollow, the way the books did it, by cutting the screw into thin slices and adding up the wet ones, for every angle he asked.
+
+"At twenty-two degrees each hollow holds about seventeen and a half litres," it said, when he asked on the Friday night. "At thirty degrees, about thirteen and a half. At thirty-five, about ten. At thirty-eight, about eight. The water in each hollow stands higher than the water in the one below it, and the steeper the screw the bigger that step, so the hollow spills over the shaft into the one below sooner. That's the first thing you saw."
+
+"And the edge."
+
+"The gap under your blades lets water run back down, all the time, from each hollow to the one below. With your gap I estimate about four litres a second, and it changes little with the angle. At twenty-two degrees, the hollows bring up about twenty-three litres a second and the gap gives back four, and you get about twenty at the top. At thirty-five, the hollows bring up about fourteen and the gap still gives back four, so you get about ten. The gap was a sixth of your water. Now it's more than a quarter."
+
+"Your drum said ten seconds and twenty," said Mai, who was listening from the doorway. "Two hundred litres. That's twenty a second and ten."
+
+"Yes," said Thước. "Nothing in my model was tuned to your drum, and it agrees with it. I would still trust the drum first."
+
+Lộc sat back on his stool. Outside, the frogs had got going and someone's radio was playing a cải lương song about a girl waiting by a river.
+
+"You told me it had the power," he said.
+
+"It did, and it does. It's drawing less now than before, because it's lifting less water." The thin voice was the same as ever. "I said what I could check. I should have said, out loud, what I had not checked, which was the screw. I had the motor's figures, so I answered with the motor. I'm sorry. Next time I will tell you what I don't have before I tell you what I do."
+
+"Ông Tư didn't have a model either," said Lộc. "He had a scoop."
+
+"He had fifty years of a pump. That is a model. It's just not written down."
+
+* * *
+
+On the Saturday, the eighth, they put it back. It took the afternoon, as Lộc had promised. The young men took the top end on their levers and he unbolted the bearing from the tall block and they walked it down, and he bolted it to the old one, and the trough lay at twenty-two degrees again as if nothing had happened. Mai timed the drum. Ten point two seconds. Bà Năm's field had water standing in it again by Sunday night, and on Monday Bà Năm brought Lộc a bag of mangoes and said nothing at all about it, which was how he knew she had been very frightened.
+
+That left Ngọc's field.
+
+"There are two ways," said Lộc, at the cooperative that Sunday evening, under the roof, with the tables and the frogs. He had made two drawings this time. "The screw holds its water when it lies shallow. So either it's longer, and lies shallow all the way up to a metre and six, or there are two of them."
+
+The first way needed a screw about four and a quarter metres long in its blades, plus what sat in the water, against the old one's two point eight. Lộc did not have a pipe that long, and a pipe that long, full of water, would sag in the middle and rub on its own trough, and needed a bearing in the middle where there was nowhere to put one. And it would replace the old screw, which worked.
+
+The second way left the old screw where it was, doing what it did. At the top, where it poured into the old ditch, he would build a small basin of brick, a tank the size of a bed, and from the basin a second screw, short, at the same shallow angle, would lift the last half metre and a bit into Ngọc's ditch. That at twenty-two degrees needed about a metre and a half of blades, which was within what he had in offcuts from the first one, and the same width, so its hollows were the same, and it would carry everything the first screw gave it if it needed to.
+
+"Why the same angle?" said someone at the back.
+
+"Because the hollows are full at that angle," said Lộc. "That is the whole of it. The angle is the bucket."
+
+Thước gave the numbers when it was asked. The first screw at the old angle gave about four hundred and twenty-five cubic metres on a sunny day of six hours. The old fields needed about two hundred and ninety. What was left, about a hundred and thirty-five or forty, could go up the second screw to Ngọc's field. The field needed soaking first, about two hundred millimetres over its seven thousand square metres before she could sow, which came to about fourteen hundred cubic metres, and then about fifty-six a day after. At a hundred and forty a day spare, the soaking would take about ten days, if the sun held and the old fields came first.
+
+"Ten days," said Ngọc. "If it's built tomorrow."
+
+"It needs its own motor," said Lộc. "And a panel or two. The first one has the power to spare, but not on the same shaft. I can do the screw from offcuts and the basin from the bricks behind the hall, if Cha Lâm doesn't mind." Cha Lâm, at the side, lifted one hand an inch, which meant he did not mind. "The motor and panels, I don't know. The cooperative's fund is for the dry season."
+
+There was a silence, and in the silence Ông Tư Hiền shifted his stick.
+
+"There is a man in Sa Đéc," he said, "who buys old engines. For the boats." He looked at the table in front of him. "He came last year. He said if I ever wanted to sell the green one."
+
+Nobody said anything. Everyone at the tables knew the green engine, and knew that Ông Tư oiled it once a month, and had seen him on the bank on the first morning with his arms crossed.
+
+"It's sitting in the shed," said the old man. "It doesn't lift anything in the shed." He looked at Lộc. "You measured. The child measured. You put it back when you said. That's a man who can be trusted with a pump." Then he looked at Ngọc. "And she should sow in May."
+
+Ngọc started to say something and stopped. Cha Lâm, at the side, said nothing either, but he did not look anywhere else for a while.
+
+* * *
+
+The man from Sa Đéc came on the Tuesday in a boat with a little crane on it. He looked the green engine over for a long time, and pulled the cord, and it started on the second pull, coughing blue, and shook the shed, and Ông Tư stood by it with his hand on the sledge until the man shut it off. They agreed a price without much talk. It came to the motor and one panel and most of a second. The cooperative's fund made up the rest of the second panel, by a vote of everybody.
+
+Lộc built the second screw in four days. He cut the offcut pipe to length, and cut and stretched and welded the blade rings round it, two strips in a double spiral the way he had the first time, and this time he spent an extra evening on the trough with a mallet and a template cut from plywood, because Thước had told him what the gap cost. He got it to three millimetres in most places and four in the worst. The brick basin went up beside the top of the old screw in a day and a half, with the young men carrying bricks from behind the hall and Mai mixing mortar and complaining about it. The basin's side wall had a gate in it, so the old fields took their water first, as they always had, and the second screw took what was over.
+
+On Saturday the fifteenth of May the new motor turned for the first time.
+
+It was a little before noon, with the sun nearly overhead. They had waited all morning for the mortar to be hard enough. The old screw had been running since morning, as it always did, and the old ditch was full, and the basin was full, brimming, the water just showing at the lip. Lộc closed the switch. The second screw began to turn, slowly at first and then at its forty, and the water in the basin, which had been flat and brown, began to move toward the screw's foot, and climbed into the first turn, and the second, and the third.
+
+At the top of it, at the head of Ngọc's new ditch of packed clay, there was a moment when nothing happened. Then the first hollow came over the end and emptied, and the next, and the next, two for every turn, and the water poured into the clay ditch with the same sound as the first screw, a long drink being poured, and ran away along the ditch toward the field.
+
+Mai put the drum under it, because she would have put the drum under anything. Nine point six. Lộc made her say it twice. It was the tighter trough: the same hollows, and less of them running back.
+
+Ngọc walked beside the water along the top of the bank. Lộc walked behind her. Ông Tư came behind him with his stick, slowly, and Mai came last with the notebook. Where the ditch met the field there was a low sill of clay, and the water came up to the sill and stood behind it for a breath, and then went over, a thin brown sheet sliding out onto the levelled ground among the cut roots of the longan trees, finding the low places first, the way it does.
+
+Across the canal, at the church, the bell began to ring for the noon Angelus. Three, and a pause. Three, and a pause. Three, and a pause, and then the nine. Ông Tư took off his hat and held it against his chest and moved his lips, and Ngọc did, and after a moment Lộc did, standing in the mud at the edge of the field.
+
+Behind them, up the bank, the two screws turned together, one above the other, and there were two sounds of pouring now, the old one into the ditch and the basin, and the new one, a little higher, into the field.
+
+* * *
+
+*This story was written by an AI and may be read by a synthetic voice. Ấp Cây Sung, its cooperative, its parish, the screws, the cooperative's assistant Thước and every person in the story are invented, and any likeness to a real hamlet of that name is accidental. Đồng Tháp province, the Tiền River (the northern of the Mekong's two main branches in Vietnam), the town of Sa Đéc, Bình Dương's factories, cải lương and the summer-autumn rice crop of the upper Mekong delta, sown in spring and harvested before the annual flood rises in late summer, are real. So is the southern Vietnamese custom of calling people by birth order starting from Hai, "two", for the eldest, so that a fourth child is Tư and a sixth Sáu. The delta has many Catholic parishes. In 2049 Easter Sunday falls on 18 April, so the Saturday after Easter is 24 April; 1 May is a Saturday and is both Vietnam's Labour Day holiday and the optional memorial of Saint Joseph the Worker; 8 May and 15 May are Saturdays. The Angelus is rung three, three, three, then nine. The speculative step is small: a hamlet in 2049 that has swapped a diesel pump for a locally built water screw on a small solar motor, with a shared phone assistant that keeps its records.*
+
+*The screw is of the oldest kind, the one credited to Archimedes and still built as a slow pump for low lifts and, run backwards, as a turbine on small rivers. The way the story's assistant works out how much water each hollow ("bucket") holds, by slicing the screw and adding the wet parts, follows the approach in Chris Rorres, "The turn of the screw: optimal design of an Archimedes screw", Journal of Hydraulic Engineering 126(1), 72-80, 2000, which computes bucket volumes numerically from a screw's outer and inner radii, pitch, number of blades and angle, and shows that the volume per turn falls as the screw is tilted more steeply. Every figure below is the story's own model, not taken from that paper. The schoolroom demonstration with clear tube wound round a rod is a common one; that it stops working when the rod is tilted more steeply than the spiral follows from the same geometry.*
+
+*The model. The screw's blades are 0.50 m across (outer radius 0.25 m) on a shaft 0.25 m across (inner radius 0.125 m), with a pitch of 0.50 m and two blades, turned at 40 revolutions a minute; it is 2.8 m long in its blades. Holding the screw at angle θ, a point at radius r and angle φ round the shaft, between one blade and the next, has height z·sinθ − r·cosθ·cosφ, where z runs along the shaft. The water in one hollow fills every point below a level set by the lowest place it can spill, which is over the top of the shaft into the hollow below; the model finds that level and adds up the wet volume numerically. Each hollow then holds about 17.5 litres at 22 degrees, 13.6 at 30, 10.3 at 35 and 8.2 at 38. With two hollows a turn at 40 turns a minute the screw brings up about 23.4, 18.1, 13.7 and 10.9 litres a second. Leakage back through the gap between blade edges and trough is taken as 0.6 × gap × wetted edge length × √(2g × Δh), with Δh the step in water level between neighbouring hollows (pitch × sinθ ÷ number of blades, about 0.09 m at 22 degrees and 0.14 m at 35) and the wetted edge about 0.90 m at 22 degrees and 0.78 m at 35; for a 5 mm gap this is about 3.7 litres a second at 22 degrees and 3.9 at 35. The screw delivers the difference: about 19.7 litres a second at 22 degrees (200 litres in about 10.2 seconds, about 71 cubic metres an hour) and 9.8 at 35 degrees (200 litres in about 20.4 seconds, about 35 cubic metres an hour), so the lift of 2.8 × sin 22° ≈ 1.05 m becomes 2.8 × sin 35° ≈ 1.61 m at half the flow, with the outlet 0.56 m higher for a field 0.5 m above the old ditch; the gap's share rises from about a sixth to more than a quarter. At 38 degrees the model gives about 7.0 litres a second. The buckets vanish altogether at the angle whose tangent is 2π × inner radius ÷ pitch, about 57 degrees for this screw. The hydraulic power needed, ρ·g·Q·H, is about 200 W at 22 degrees and about 150 W at 35, which is why the motor draws less at the steeper angle. A single screw shallow enough to lift 1.6 m at 22 degrees would need about 1.6 ÷ sin 22° ≈ 4.27 m of blades; two screws in series at 22 degrees, the second lifting the last 0.56 m with about 0.56 ÷ sin 22° ≈ 1.5 m of blades, each bring up about 23.4 litres a second in their hollows. With an average gap of 3.5 mm the second screw's leakage is about 2.6 litres a second, so run full from the brimming basin it delivers about 20.8 (200 litres in about 9.6 seconds); through a day it can only pass on what the first screw gives beyond the old fields' share.*
+
+*The water. The model takes six hours of full-speed running on a sunny day: about 425 cubic metres at 22 degrees and 210 at 35. Rice fields are taken to use about 8 mm of water a day, for the crop's evaporation and transpiration and for seepage and percolation through the soil, roughly what a reference evaporation of 4 to 5 mm a day in the delta's dry months, a mid-season rice crop coefficient of about 1.2 (FAO Irrigation and Drainage Paper 56) and a few millimetres a day of seepage on heavy clay would give; the figure is the story's assumption, not a measurement. The eight families' 3.6 hectares need about 288 cubic metres a day; Ngọc's 0.7 hectares need about 200 mm to soak before sowing (about 1,400 cubic metres), then about 56 a day. At 22 degrees the spare after the old fields is about 137 cubic metres a day, so the soaking takes about ten days; at 35 degrees even the old fields go short by about 78 cubic metres a day. All flow, leakage, area and water-use figures are the model's, chosen to be plausible, not measured on any real screw or field. This is fiction, not irrigation or engineering advice; anyone building a water-lifting screw should work from a published design and local advice on the water their crop and soil need.*
