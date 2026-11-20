@@ -529,8 +529,10 @@ flagships:
       Excel2IDS workbook via --from-sheet; Excel itself typing into the download
       (dropdown lists in it 2026-11-19, eval/sheet-dropdowns-2026-11-19.md: 0
       strict-list cells out on 476 IDS, LibreOffice agrees 476 of 476); an RVB/ILS
-      author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. More open items:
-      NEXT.md.
+      author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. Readable document
+      2026-11-20 (--to-doc, spec-doc.mjs, eval/spec-doc-2026-11-20.md: 4,458 of
+      4,458 facets agree with IfcTester's reading); next: a BIM manager's read of
+      its wording. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
