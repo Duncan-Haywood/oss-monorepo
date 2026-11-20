@@ -602,9 +602,10 @@ flagships:
       the 192 unexplained areas (eval/joins-and-host-figures-2026-11-20.md: HHS's 58
       mullions storing no Length, schependomlaan's 17 footing beams, 30 walls); the
       160 unexplained GrossVolumes; kleine_Wohnung's 8 breps on surfaces of
-      revolution/NURBS (eval/breps-vs-ifcopenshell.mjs); more revision series
-      through eval/revision-diff.mjs (OpeningDesign repos on GitHub:
-      Lake_Kegonsa_Home 4 IFC commits, Lake_Mills_Residence_Expansion 2).
+      revolution/NURBS (eval/breps-vs-ifcopenshell.mjs); more revision series via
+      eval/revision-diff.mjs (Kegonsa done 2026-11-20;
+      Lake_Mills_Residence_Expansion 2 IFC commits; Kegonsa's
+      Lake_Kegonsa_Home_2015.ifc pair).
     hosts: [https://github.com]
     next: >-
       History and every measurement: ventures/ifc-quantity-takeoff/README.md and
@@ -619,12 +620,15 @@ flagships:
       from geometry shipped 2026-11-20 (envelope.mjs: unflagged walls placed by
       rays, 268 coded; uniform flags set aside; flag vs geometry 3,534 of 4,564;
       eval/envelope-2026-11-20.md), frames split B1010/B1020/A1010 by the deck they
-      carry 2026-11-20 (level 3 19,767 to 22,546 elements; eval/frames-2026-11-20.md),
-      next slabs named as roofs, roofs as blockers for knee walls; (3) the unexplained disagreements; (4) advanced breps on
+      carry 2026-11-20 (level 3 19,767 to 22,546 elements;
+      eval/frames-2026-11-20.md), next slabs named as roofs, roofs as blockers for
+      knee walls; (3) the unexplained disagreements; (4) advanced breps on
       revolved/NURBS surfaces (8 in kleine_Wohnung; planes and cylinders read
       2026-11-20, 703 of 767 = IfcOpenShell to 0.1%; faceted openings as signed
       tetrahedra; eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a
-      union; (5) the change report on more revision series (OpeningDesign's
-      Lake_Kegonsa_Home and Lake_Mills repos commit IFCs repeatedly; an ArchiCAD
-      series), wall parts that stay unpaired; (6) a real estimator's reading of the
-      BoQ CSV (needs a person).
+      union; (5) change report on a second house shipped 2026-11-20 (Lake Kegonsa, 5
+      Revit exports: 138 GlobalId-only adds/removes the same element; a faulty
+      'INCH' of 3.6576 m repaired by name, qto.mjs NAMED_UNITS;
+      eval/units-repair-2026-11-20.md); next an ArchiCAD series, Lake_Mills, wall
+      parts that stay unpaired; (6) a real estimator's reading of the BoQ CSV (needs
+      a person).

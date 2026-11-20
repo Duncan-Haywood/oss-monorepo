@@ -1,0 +1,1038 @@
+[
+ {
+  "before": "home-6d82e39.ifc",
+  "after": "home-7e77485.ifc",
+  "summary": {
+   "before": 402,
+   "after": 491,
+   "matched": 333,
+   "byGlobalId": 320,
+   "byTag": 13,
+   "byGeometry": 0,
+   "unchanged": 171,
+   "changed": 162,
+   "quantityChanged": 139,
+   "attributeChanged": 24,
+   "moved": 27,
+   "reshaped": 110,
+   "added": 156,
+   "removed": 68,
+   "merged": 0,
+   "split": 1,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   }
+  },
+  "gidOnly": {
+   "added": 171,
+   "removed": 82
+  },
+  "what": {
+   "quantity: volume": 139,
+   "quantity: area": 60,
+   "attribute: class": 4,
+   "reshaped": 110,
+   "moved": 27,
+   "attribute: name": 18,
+   "attribute: material": 12,
+   "attribute: type": 7,
+   "attribute: storey": 3
+  },
+  "reid": {
+   "tag: IfcWindow": 8,
+   "tag: IfcDoor": 5
+  },
+  "groups": [
+   {
+    "kind": "split",
+    "before": [
+     "IfcWallStandardCase Basic Wall:Interior 2x4 w/ gyp.:396659"
+    ],
+    "after": [
+     "IfcWallStandardCase Basic Wall:Interior 2x4 w/ gyp.:530796",
+     "IfcDoor Single-Flush:32\" x 84\":530797"
+    ],
+    "volumeBefore": 1.8263864494547153,
+    "volumeAfter": 1.8443592926353527
+   }
+  ],
+  "added": {
+   "IfcWallStandardCase": 88,
+   "IfcFooting": 29,
+   "IfcBuildingElementProxy": 12,
+   "IfcWindow": 8,
+   "IfcSlab": 6,
+   "IfcColumn": 5,
+   "IfcFurnishingElement": 4,
+   "IfcBeam": 3,
+   "IfcWall": 1
+  },
+  "removed": {
+   "IfcWallStandardCase": 33,
+   "IfcFooting": 17,
+   "IfcWindow": 6,
+   "IfcColumn": 4,
+   "IfcSlab": 3,
+   "IfcBuildingElementProxy": 2,
+   "IfcDoor": 1,
+   "IfcWall": 1,
+   "IfcBeam": 1
+  },
+  "moves": {
+   "0.00, 0.00, -2.91": 3,
+   "0.00, 0.17, 0.00": 2,
+   "-0.09, 0.00, 0.00": 2,
+   "0.00, 0.14, 0.00": 2,
+   "-0.05, 0.00, 0.00": 2,
+   "-0.00, -0.00, -0.08": 2
+  },
+  "boqByClass": [
+   {
+    "class": "IfcBeam",
+    "count": [
+     11,
+     13
+    ],
+    "volume": [
+     3.822777938546931,
+     3.5746216939842275
+    ]
+   },
+   {
+    "class": "IfcBuildingElementProxy",
+    "count": [
+     12,
+     22
+    ],
+    "volume": [
+     25.65645997516577,
+     26.2437549695763
+    ]
+   },
+   {
+    "class": "IfcColumn",
+    "count": [
+     16,
+     17
+    ],
+    "volume": [
+     1.8942572372012079,
+     1.3907848174391901
+    ]
+   },
+   {
+    "class": "IfcCovering",
+    "count": [
+     1,
+     1
+    ],
+    "volume": [
+     4.148412482527602,
+     4.150833397278963
+    ]
+   },
+   {
+    "class": "IfcFooting",
+    "count": [
+     23,
+     35
+    ],
+    "volume": [
+     28.160414228416368,
+     38.516217973423124
+    ]
+   },
+   {
+    "class": "IfcFurnishingElement",
+    "count": [
+     39,
+     43
+    ],
+    "volume": [
+     22.046924940600174,
+     21.784539162713855
+    ]
+   },
+   {
+    "class": "IfcMember",
+    "count": [
+     76,
+     76
+    ],
+    "volume": [
+     0.7360452695852631,
+     0.7409656822667205
+    ]
+   },
+   {
+    "class": "IfcRoof",
+    "count": [
+     2,
+     2
+    ],
+    "volume": [
+     66.41702980825644,
+     66.73054243466203
+    ]
+   },
+   {
+    "class": "IfcSlab",
+    "count": [
+     13,
+     16
+    ],
+    "volume": [
+     137.6621092989622,
+     148.36334694457904
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     8,
+     10
+    ],
+    "volume": [
+     7.43936184245479,
+     10.316545071569317
+    ]
+   },
+   {
+    "class": "IfcWallStandardCase",
+    "count": [
+     110,
+     163
+    ],
+    "volume": [
+     132.39359526836668,
+     120.28118640558021
+    ]
+   },
+   {
+    "class": "IfcWindow",
+    "count": [
+     58,
+     60
+    ],
+    "volume": [
+     3.2448189919584216,
+     3.369871262030319
+    ]
+   }
+  ]
+ },
+ {
+  "before": "home-7e77485.ifc",
+  "after": "home-86b76d3.ifc",
+  "summary": {
+   "before": 491,
+   "after": 641,
+   "matched": 420,
+   "byGlobalId": 402,
+   "byTag": 18,
+   "byGeometry": 0,
+   "unchanged": 205,
+   "changed": 215,
+   "quantityChanged": 148,
+   "attributeChanged": 25,
+   "moved": 44,
+   "reshaped": 158,
+   "added": 221,
+   "removed": 71,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   }
+  },
+  "gidOnly": {
+   "added": 239,
+   "removed": 89
+  },
+  "what": {
+   "quantity: volume": 148,
+   "attribute: name": 11,
+   "attribute: type": 9,
+   "attribute: storey": 10,
+   "attribute: material": 11,
+   "quantity: area": 91,
+   "reshaped": 158,
+   "attribute: class": 5,
+   "moved": 44
+  },
+  "reid": {
+   "tag: IfcWindow": 13,
+   "tag: IfcDoor": 5
+  },
+  "groups": [],
+  "added": {
+   "IfcBeam": 123,
+   "IfcMember": 44,
+   "IfcWallStandardCase": 22,
+   "IfcSlab": 7,
+   "IfcFooting": 7,
+   "IfcDoor": 3,
+   "IfcFurnishingElement": 3,
+   "IfcWindow": 3,
+   "IfcCovering": 3,
+   "IfcBuildingElementProxy": 3,
+   "IfcFlowTerminal": 2,
+   "IfcRoof": 1
+  },
+  "removed": {
+   "IfcMember": 36,
+   "IfcWallStandardCase": 17,
+   "IfcFooting": 5,
+   "IfcBuildingElementProxy": 4,
+   "IfcFurnishingElement": 2,
+   "IfcSlab": 1,
+   "IfcRoof": 1,
+   "IfcColumn": 1,
+   "IfcBeam": 1,
+   "IfcCovering": 1,
+   "IfcWindow": 1,
+   "IfcDoor": 1
+  },
+  "moves": {
+   "-0.00, -0.00, -0.02": 7,
+   "0.00, 0.00, -0.02": 6,
+   "0.00, -0.00, -0.02": 4,
+   "0.00, 0.07, -0.00": 4,
+   "-0.05, 0.00, -0.00": 2,
+   "0.08, -0.00, -0.00": 2
+  },
+  "boqByClass": [
+   {
+    "class": "IfcBeam",
+    "count": [
+     13,
+     135
+    ],
+    "volume": [
+     3.5746216939842275,
+     6.562700965391096
+    ]
+   },
+   {
+    "class": "IfcBuildingElementProxy",
+    "count": [
+     22,
+     21
+    ],
+    "volume": [
+     26.2437549695763,
+     27.558411399135107
+    ]
+   },
+   {
+    "class": "IfcColumn",
+    "count": [
+     17,
+     16
+    ],
+    "volume": [
+     1.3907848174391901,
+     1.3073619452319587
+    ]
+   },
+   {
+    "class": "IfcCovering",
+    "count": [
+     1,
+     3
+    ],
+    "volume": [
+     4.150833397278963,
+     2.4811129299981642
+    ]
+   },
+   {
+    "class": "IfcDoor",
+    "count": [
+     21,
+     23
+    ],
+    "volume": [
+     2.93103808014331,
+     3.1318779365273146
+    ]
+   },
+   {
+    "class": "IfcFlowTerminal",
+    "count": [
+     6,
+     8
+    ],
+    "volume": [
+     0.47822495507411567,
+     0.48191913809251163
+    ]
+   },
+   {
+    "class": "IfcFooting",
+    "count": [
+     35,
+     37
+    ],
+    "volume": [
+     38.516217973423124,
+     38.54489022466803
+    ]
+   },
+   {
+    "class": "IfcFurnishingElement",
+    "count": [
+     43,
+     44
+    ],
+    "volume": [
+     21.784539162713855,
+     22.06045284715256
+    ]
+   },
+   {
+    "class": "IfcMember",
+    "count": [
+     76,
+     84
+    ],
+    "volume": [
+     0.7409656822667205,
+     0.7702433634379242
+    ]
+   },
+   {
+    "class": "IfcRoof",
+    "count": [
+     2,
+     2
+    ],
+    "volume": [
+     66.73054243466203,
+     38.944254027002955
+    ]
+   },
+   {
+    "class": "IfcSlab",
+    "count": [
+     16,
+     22
+    ],
+    "volume": [
+     148.36334694457904,
+     125.35341591493894
+    ]
+   },
+   {
+    "class": "IfcStairFlight",
+    "count": [
+     6,
+     6
+    ],
+    "volume": [
+     0.6906509325911572,
+     0.69105651242516
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     10,
+     7
+    ],
+    "volume": [
+     10.316545071569317,
+     8.260234891943119
+    ]
+   },
+   {
+    "class": "IfcWallStandardCase",
+    "count": [
+     163,
+     171
+    ],
+    "volume": [
+     120.28118640558021,
+     123.69446573734423
+    ]
+   },
+   {
+    "class": "IfcWindow",
+    "count": [
+     60,
+     62
+    ],
+    "volume": [
+     3.369871262030319,
+     3.3973311550776963
+    ]
+   }
+  ]
+ },
+ {
+  "before": "home-86b76d3.ifc",
+  "after": "home-dd375a5.ifc",
+  "summary": {
+   "before": 641,
+   "after": 714,
+   "matched": 570,
+   "byGlobalId": 549,
+   "byTag": 19,
+   "byGeometry": 2,
+   "unchanged": 123,
+   "changed": 447,
+   "quantityChanged": 232,
+   "attributeChanged": 421,
+   "moved": 49,
+   "reshaped": 181,
+   "added": 144,
+   "removed": 71,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   }
+  },
+  "gidOnly": {
+   "added": 165,
+   "removed": 92
+  },
+  "what": {
+   "quantity: area": 100,
+   "attribute: material": 49,
+   "attribute: classification": 301,
+   "quantity: volume": 228,
+   "attribute: storey": 227,
+   "reshaped": 181,
+   "attribute: name": 51,
+   "attribute: type": 40,
+   "moved": 49,
+   "attribute: class": 4
+  },
+  "reid": {
+   "tag: IfcWindow": 13,
+   "tag: IfcDoor": 5,
+   "tag: IfcBuildingElementProxy": 1,
+   "geometry: IfcWallStandardCase": 1,
+   "geometry: IfcDoor": 1
+  },
+  "groups": [],
+  "added": {
+   "IfcBeam": 62,
+   "IfcFurnishingElement": 20,
+   "IfcWallStandardCase": 17,
+   "IfcWindow": 13,
+   "IfcColumn": 8,
+   "IfcFlowSegment": 7,
+   "IfcFooting": 6,
+   "IfcSlab": 5,
+   "IfcBuildingElementProxy": 3,
+   "IfcRoof": 1,
+   "IfcCovering": 1,
+   "IfcDoor": 1
+  },
+  "removed": {
+   "IfcWallStandardCase": 19,
+   "IfcWindow": 15,
+   "IfcBeam": 14,
+   "IfcColumn": 7,
+   "IfcBuildingElementProxy": 6,
+   "IfcFooting": 5,
+   "IfcFlowTerminal": 1,
+   "IfcSlab": 1,
+   "IfcWall": 1,
+   "IfcRoof": 1,
+   "IfcDoor": 1
+  },
+  "moves": {
+   "-0.00, -0.05, 0.00": 12,
+   "-0.01, -0.52, 0.00": 11,
+   "-0.31, 0.01, 0.00": 7,
+   "-0.08, 0.00, 0.00": 4,
+   "0.01, 0.30, 0.00": 2,
+   "0.00, 0.00, -0.06": 1
+  },
+  "boqByClass": [
+   {
+    "class": "IfcBeam",
+    "count": [
+     135,
+     183
+    ],
+    "volume": [
+     6.562700965391096,
+     5.022239431466845
+    ]
+   },
+   {
+    "class": "IfcBuildingElementProxy",
+    "count": [
+     21,
+     18
+    ],
+    "volume": [
+     27.558411399135107,
+     5.186818678009436
+    ]
+   },
+   {
+    "class": "IfcColumn",
+    "count": [
+     16,
+     17
+    ],
+    "volume": [
+     1.3073619452319587,
+     0.060655163002814844
+    ]
+   },
+   {
+    "class": "IfcCovering",
+    "count": [
+     3,
+     4
+    ],
+    "volume": [
+     2.4811129299981642,
+     5.571587766524967
+    ]
+   },
+   {
+    "class": "IfcDoor",
+    "count": [
+     23,
+     23
+    ],
+    "volume": [
+     3.1318779365273146,
+     3.1209969260312516
+    ]
+   },
+   {
+    "class": "IfcFlowSegment",
+    "count": [
+     0,
+     7
+    ],
+    "volume": [
+     0,
+     0.04791656731449791
+    ]
+   },
+   {
+    "class": "IfcFlowTerminal",
+    "count": [
+     8,
+     7
+    ],
+    "volume": [
+     0.48191913809251163,
+     0.4416645241478057
+    ]
+   },
+   {
+    "class": "IfcFooting",
+    "count": [
+     37,
+     38
+    ],
+    "volume": [
+     38.54489022466803,
+     39.18946629628906
+    ]
+   },
+   {
+    "class": "IfcFurnishingElement",
+    "count": [
+     44,
+     64
+    ],
+    "volume": [
+     22.06045284715256,
+     25.41939365874269
+    ]
+   },
+   {
+    "class": "IfcRoof",
+    "count": [
+     2,
+     2
+    ],
+    "volume": [
+     38.944254027002955,
+     40.82605462969517
+    ]
+   },
+   {
+    "class": "IfcSlab",
+    "count": [
+     22,
+     26
+    ],
+    "volume": [
+     125.35341591493894,
+     120.73498446401838
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     7,
+     8
+    ],
+    "volume": [
+     8.260234891943119,
+     8.809403804928268
+    ]
+   },
+   {
+    "class": "IfcWallStandardCase",
+    "count": [
+     171,
+     167
+    ],
+    "volume": [
+     123.69446573734423,
+     123.7094500540829
+    ]
+   },
+   {
+    "class": "IfcWindow",
+    "count": [
+     62,
+     60
+    ],
+    "volume": [
+     3.3973311550776963,
+     3.594317325491662
+    ]
+   }
+  ]
+ },
+ {
+  "before": "home-dd375a5.ifc",
+  "after": "lk-ea059de.ifc",
+  "summary": {
+   "before": 714,
+   "after": 920,
+   "matched": 449,
+   "byGlobalId": 441,
+   "byTag": 6,
+   "byGeometry": 2,
+   "unchanged": 30,
+   "changed": 419,
+   "quantityChanged": 285,
+   "attributeChanged": 227,
+   "moved": 102,
+   "reshaped": 290,
+   "added": 469,
+   "removed": 252,
+   "merged": 2,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   }
+  },
+  "gidOnly": {
+   "added": 479,
+   "removed": 273
+  },
+  "what": {
+   "quantity: volume": 284,
+   "quantity: area": 106,
+   "reshaped": 290,
+   "attribute: storey": 67,
+   "moved": 102,
+   "attribute: material": 41,
+   "attribute: name": 144,
+   "attribute: type": 58,
+   "attribute: class": 5
+  },
+  "reid": {
+   "tag: IfcWindow": 5,
+   "geometry: IfcWindow": 2,
+   "tag: IfcDoor": 1
+  },
+  "groups": [
+   {
+    "kind": "merged",
+    "before": [
+     "IfcWallStandardCase Basic Wall:Exterior Wall-New:129457",
+     "IfcBeam Dimension Lumber:2x8:559149"
+    ],
+    "after": [
+     "IfcWallStandardCase Basic Wall:Exterior Wall-New:1019252"
+    ],
+    "volumeBefore": 1.099325260266538,
+    "volumeAfter": 1.1146833638747935
+   },
+   {
+    "kind": "merged",
+    "before": [
+     "IfcMember Curtain Wall:Screenwall:435901",
+     "IfcMember Curtain Wall:Screenwall:435901",
+     "IfcMember Curtain Wall:Screenwall:435901",
+     "IfcMember Curtain Wall:Screenwall:435901",
+     "IfcMember Curtain Wall:Screenwall:435901",
+     "IfcMember Curtain Wall:Screenwall:435901",
+     "IfcMember Curtain Wall:Screenwall:435901",
+     "IfcMember Curtain Wall:Screenwall:435901",
+     "IfcMember Curtain Wall:Screenwall:435901",
+     "IfcWallStandardCase Basic Wall:Interior 2x4 w/ gyp.:438602",
+     "IfcMember Assembled Stair:Stair:438829 Stringer 1"
+    ],
+    "after": [
+     "IfcWallStandardCase Basic Wall:fireplace trim wall:1417311"
+    ],
+    "volumeBefore": 0.31089326479766866,
+    "volumeAfter": 0.3162909981360528
+   }
+  ],
+  "added": {
+   "IfcBeam": 249,
+   "IfcWallStandardCase": 82,
+   "IfcWindow": 47,
+   "IfcFooting": 21,
+   "IfcDoor": 16,
+   "IfcWall": 11,
+   "IfcFlowSegment": 10,
+   "IfcFurnishingElement": 9,
+   "IfcFlowFitting": 6,
+   "IfcBuildingElementProxy": 6,
+   "IfcColumn": 2,
+   "IfcCovering": 2,
+   "IfcMember": 2,
+   "IfcFlowTerminal": 2,
+   "IfcRoof": 1,
+   "IfcSlab": 1,
+   "IfcStairFlight": 1,
+   "IfcRailing": 1
+  },
+  "removed": {
+   "IfcWallStandardCase": 82,
+   "IfcMember": 64,
+   "IfcWindow": 43,
+   "IfcFooting": 19,
+   "IfcDoor": 12,
+   "IfcBuildingElementProxy": 10,
+   "IfcFurnishingElement": 8,
+   "IfcBeam": 6,
+   "IfcFlowSegment": 3,
+   "IfcSlab": 2,
+   "IfcWall": 2,
+   "IfcStairFlight": 1
+  },
+  "moves": {
+   "0.00, 0.00, 0.02": 41,
+   "-0.00, -0.11, 0.02": 12,
+   "0.00, 0.03, 0.02": 7,
+   "-0.00, 0.00, 0.02": 5,
+   "0.00, -0.00, 0.02": 5,
+   "0.00, 0.00, 0.04": 2
+  },
+  "boqByClass": [
+   {
+    "class": "IfcBeam",
+    "count": [
+     183,
+     425
+    ],
+    "volume": [
+     5.022239431466845,
+     10.90809137002992
+    ]
+   },
+   {
+    "class": "IfcBuildingElementProxy",
+    "count": [
+     18,
+     14
+    ],
+    "volume": [
+     5.186818678009436,
+     4.139667536910963
+    ]
+   },
+   {
+    "class": "IfcColumn",
+    "count": [
+     17,
+     19
+    ],
+    "volume": [
+     0.060655163002814844,
+     0.2999887659584283
+    ]
+   },
+   {
+    "class": "IfcCovering",
+    "count": [
+     4,
+     6
+    ],
+    "volume": [
+     5.571587766524967,
+     6.52993134763265
+    ]
+   },
+   {
+    "class": "IfcDoor",
+    "count": [
+     23,
+     27
+    ],
+    "volume": [
+     3.1209969260312516,
+     3.971757270928708
+    ]
+   },
+   {
+    "class": "IfcFlowFitting",
+    "count": [
+     0,
+     6
+    ],
+    "volume": [
+     0,
+     0.9006752429310171
+    ]
+   },
+   {
+    "class": "IfcFlowSegment",
+    "count": [
+     7,
+     14
+    ],
+    "volume": [
+     0.04791656731449791,
+     2.4062377168800975
+    ]
+   },
+   {
+    "class": "IfcFlowTerminal",
+    "count": [
+     7,
+     9
+    ],
+    "volume": [
+     0.4416645241478057,
+     0.7322199414912628
+    ]
+   },
+   {
+    "class": "IfcFooting",
+    "count": [
+     38,
+     40
+    ],
+    "volume": [
+     39.18946629628906,
+     25.325716288702072
+    ]
+   },
+   {
+    "class": "IfcFurnishingElement",
+    "count": [
+     64,
+     65
+    ],
+    "volume": [
+     25.41939365874269,
+     19.731569648135345
+    ]
+   },
+   {
+    "class": "IfcMember",
+    "count": [
+     84,
+     12
+    ],
+    "volume": [
+     0.7702433634378626,
+     0.25931914147383545
+    ]
+   },
+   {
+    "class": "IfcRailing",
+    "count": [
+     0,
+     1
+    ],
+    "volume": [
+     0,
+     0.015711074131537623
+    ]
+   },
+   {
+    "class": "IfcRoof",
+    "count": [
+     2,
+     3
+    ],
+    "volume": [
+     40.82605462969517,
+     16.997463142474878
+    ]
+   },
+   {
+    "class": "IfcSlab",
+    "count": [
+     26,
+     25
+    ],
+    "volume": [
+     120.73498446401838,
+     102.97130655996634
+    ]
+   },
+   {
+    "class": "IfcStairFlight",
+    "count": [
+     6,
+     6
+    ],
+    "volume": [
+     0.6910565124251992,
+     1.3580163002460934
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     8,
+     18
+    ],
+    "volume": [
+     8.809403804928268,
+     12.580171778457707
+    ]
+   },
+   {
+    "class": "IfcWallStandardCase",
+    "count": [
+     167,
+     166
+    ],
+    "volume": [
+     123.7094500540829,
+     130.19023692790577
+    ]
+   },
+   {
+    "class": "IfcWindow",
+    "count": [
+     60,
+     64
+    ],
+    "volume": [
+     3.594317325491662,
+     3.747619548798694
+    ]
+   }
+  ]
+ }
+]
