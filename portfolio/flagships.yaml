@@ -507,30 +507,28 @@ flagships:
       History and every measurement: README ("How it was checked") and HISTORY.md.
       Next, most valuable first: Editor repair on open, bare \w/\s, subclass boxes
       2026-11-18/19 (eval/editor-open-repair-*, eval/word-class-*,
-      eval/deprecated-subclasses-*). bSDD units to measure types 2026-11-19
-      (bsdd-units.mjs, eval/bsdd-units-2026-11-19.md: 867 of 1,625 non-IFC Reals get
-      a measure, values in SI; IfcTester agrees 9 of 9; dB as pressure/power level
-      2026-11-19, eval/bsdd-db-2026-11-19.md, 6 of 6; count on a bSDD cache). bSDD
-      links written offline 2026-11-19 (--link-bsdd, bsdd-suggest.mjs,
-      eval/bsdd-suggest-2026-11-19.md: 619 in 54 public files; 196 of 198 match
-      authors' links, 2 author slips; looked up live 2026-11-19,
-      eval/bsdd-suggest-live-2026-11-19.md: 617 of 617 resolve, 77 names bSDD lacks
-      skipped, eval/bsdd-template-sweep.mjs checks all 760 sets); next: a page route
-      for bSDD if its API ever allows CORS; a BIM manager's real table or filled
-      Excel2IDS workbook via --from-sheet; Excel itself typing into the download
-      (dropdown lists in it 2026-11-19, eval/sheet-dropdowns-2026-11-19.md: 0
-      strict-list cells out on 476 IDS, LibreOffice agrees 476 of 476); an RVB/ILS
+      eval/deprecated-subclasses-*). bSDD links written offline 2026-11-19
+      (--link-bsdd, bsdd-suggest.mjs, eval/bsdd-suggest-2026-11-19.md: 619 in 54
+      public files; 196 of 198 match authors' links, 2 author slips; looked up live
+      2026-11-19, eval/bsdd-suggest-live-2026-11-19.md: 617 of 617 resolve, 77 names
+      bSDD lacks skipped, eval/bsdd-template-sweep.mjs checks all 760 sets); next: a
+      page route for bSDD if its API ever allows CORS; a BIM manager's real table or
+      filled Excel2IDS workbook via --from-sheet; Excel itself typing into the
+      download (dropdown lists in it 2026-11-19, eval/sheet-dropdowns-2026-11-19.md:
+      0 strict-list cells out on 476 IDS, LibreOffice agrees 476 of 476); an RVB/ILS
       author on \s; IDS revision diff 2026-11-20 (revision.mjs, revision.html, cli
       --diff; eval/revision-diff-2026-11-20.md: 69 public revisions, 0 errors, 185
       of 233 changes graded asks more/less, model impact by GlobalId), pattern
       inclusion 2026-11-20 (pattern-lang.mjs, eval/pattern-inclusion-2026-11-20.md:
       3,540 of 3,540 public pairs, examples verified); date ranges graded 2026-11-20
       (eval/date-range-revisions-2026-11-20.md: 132 of 236 public pairs, 94 of 94
-      examples; days the month lacks fail); next: a client's real stage-to-stage IDS
-      pair, dateTime ranges against patterns; a Revit/ARCHICAD IFC4X3 export to
-      confirm. Readable document 2026-11-20 (--to-doc, spec-doc.mjs,
-      eval/spec-doc-2026-11-20.md: 4,458 of 4,458 facets agree with IfcTester's
-      reading); next: a BIM manager's read of its wording. More open items: NEXT.md.
+      examples; days the month lacks fail); editor's Write as a pattern exact
+      2026-11-20 (eval/date-pattern-exact-2026-11-20.md: 0 of 310 verdicts unlike
+      the range, old 50); next: a client's real stage-to-stage IDS pair, dateTime
+      ranges as patterns; a Revit/ARCHICAD IFC4X3 export to confirm. Readable
+      document 2026-11-20 (--to-doc, spec-doc.mjs, eval/spec-doc-2026-11-20.md:
+      4,458 of 4,458 facets agree with IfcTester's reading); next: a BIM manager's
+      read of its wording. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering

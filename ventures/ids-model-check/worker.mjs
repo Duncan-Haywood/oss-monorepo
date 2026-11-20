@@ -52,7 +52,9 @@ async function loadSchemas(ids) {
 }
 
 self.onmessage = async (ev) => {
-  const { ids, ifc, auditOnly, inventory } = ev.data;
+  const { ids, ifc, auditOnly, inventory, req } = ev.data;
+  // Echo the caller's request number (index.html drops stale replies).
+  const postMessage = (m) => self.postMessage({ ...m, req });
   try {
     const t0 = performance.now();
     // The IDS editor's "Open a model": what the model carries, so the editor
@@ -65,7 +67,7 @@ self.onmessage = async (ev) => {
       const inv = modelInventory(model, measureUnits);
       inv.parseErrors = model.parseErrors.length;
       inv.seconds = (performance.now() - t0) / 1000;
-      self.postMessage({ inventory: inv });
+      postMessage({ inventory: inv });
       return;
     }
     if (auditOnly) {
@@ -74,7 +76,7 @@ self.onmessage = async (ev) => {
       const which = named.size ? named : new Set(["IFC2X3", "IFC4", "IFC4X3"]);
       const [schemas, typeMap, psets] = await Promise.all([loadSchemas(which), json("ifc2x3-type-map.json"), loadPsets(ids, which)]);
       const audit = auditIds(parsed, { schemas, typeMap, psets });
-      self.postMessage({ audit: { title: parsed.title, specs: parsed.specs.map((s) => ({ name: s.name, ifcVersion: s.ifcVersion })), issues: audit, seconds: (performance.now() - t0) / 1000 } });
+      postMessage({ audit: { title: parsed.title, specs: parsed.specs.map((s) => ({ name: s.name, ifcVersion: s.ifcVersion })), issues: audit, seconds: (performance.now() - t0) / 1000 } });
       return;
     }
     const id = schemaOf(ifc);
@@ -84,8 +86,8 @@ self.onmessage = async (ev) => {
     const [schemas, typeMap, measureUnits, psets] = await Promise.all([loadSchemas(want), json("ifc2x3-type-map.json"), json("measure-units.json"), loadPsets(ids, want)]);
     const report = checkIds(ids, ifc, { schemas: { [id]: schemas[id] }, auditSchemas: schemas, typeMap, measureUnits, psets });
     report.seconds = (performance.now() - t0) / 1000;
-    self.postMessage({ report });
+    postMessage({ report });
   } catch (e) {
-    self.postMessage({ error: e.message });
+    postMessage({ error: e.message });
   }
 };

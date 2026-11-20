@@ -29,7 +29,7 @@
 // no U+FFFE/U+FFFF). Eval: eval/pattern-inclusion-2026-11-20.md.
 
 import { parseXsdRegex, SINGLE, CATEGORIES, MULTI_JS, blockJs } from "./xsdregex.mjs";
-import { lexRange, daysInMonth } from "./temporal.mjs";
+import { dateRangePattern } from "./temporal.mjs";
 
 const MAX_NFA_STATES = 20000;
 const MAX_PRODUCT_STATES = 20000;
@@ -264,63 +264,17 @@ const NUMERIC_BASE = /^(double|float|decimal|integer|int|long|short|byte|nonNega
 // becomes a test on the written day by the zone's sign: a day written east of
 // UTC (+01:00) starts before its UTC midnight, so it needs a day more to clear
 // a lower bound, and one written west (-05:00) starts after, so it needs a day
-// less to stay under an upper bound. Each sign is then a lexical range of
-// fixed-width days (lexRange), intersected with the calendar (leap years
-// included) and the zone forms Date.parse accepts (hours 00-23, minutes
+// less to stay under an upper bound. Each sign is then a set of days that
+// exist (temporal.mjs dayPattern: month lengths and leap years written into
+// the pattern) with the zone forms Date.parse accepts (hours 00-23, minutes
 // 00-59). The test file checks this against ids.mjs string by string.
-const D = "[0-9]";
-const LEAP = `(${D}${D}(0[48]|[2468][048]|[13579][26])|([02468][048]|[13579][26])00)`;
-const CALENDAR = `(${D}{4}-((0[13578]|1[02])-(0[1-9]|[12]${D}|3[01])|(0[469]|11)-(0[1-9]|[12]${D}|30)|02-(0[1-9]|1${D}|2[0-8]))|${LEAP}-02-29)`;
-const OFFSET = `(00:(0[1-9]|[1-5]${D})|(0[1-9]|1${D}|2[0-3]):[0-5]${D})`;
-const ZONE = { zero: "(Z|[+\\-]00:00)?", east: `\\+${OFFSET}`, west: `\\-${OFFSET}` };
-const WS = "[ \\t\\r\\n]*";
-const PLAIN = /^[ \t\r\n]*(\d{4})-(\d{2})-(\d{2})[ \t\r\n]*$/;
-// Day number <-> "YYYY-MM-DD" over years 0000-9999 (proleptic Gregorian).
-function toDay(s) {
-  const m = s.match(PLAIN);
-  if (!m) return null;
-  const y = +m[1], mo = +m[2], d = +m[3];
-  if (mo < 1 || mo > 12 || d < 1 || d > daysInMonth(y, mo)) return NaN;
-  const t = new Date(0);
-  t.setUTCFullYear(y, mo - 1, d);
-  t.setUTCHours(0, 0, 0, 0);
-  return Math.round(t.getTime() / 864e5);
-}
-function fromDay(n) {
-  const t = new Date(n * 864e5);
-  return String(t.getUTCFullYear()).padStart(4, "0") + "-" + String(t.getUTCMonth() + 1).padStart(2, "0") + "-" + String(t.getUTCDate()).padStart(2, "0");
-}
-const FIRST = toDay("0000-01-01"), LAST = toDay("9999-12-31");
 // The patterns (all must match) for a restriction whose bounds are all plain
-// dates; [null] when no string can pass; null when a bound is not a plain date.
+// dates; [null] when no string can pass; null when a bound is not a plain
+// date. One exact pattern since 2026-11-20 (temporal.mjs dateRangePattern,
+// the same one the editor's "Write as a pattern" writes).
 export function dateRangePatterns(r) {
-  const b = {};
-  for (const k of ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"]) {
-    if (r[k] === undefined) continue;
-    const n = toDay(String(r[k]));
-    if (n === null) return null;
-    if (Number.isNaN(n)) return [null]; // a bound no day can be compared with
-    b[k] = n;
-  }
-  // Lowest and highest written day per zone sign.
-  const span = (sign) => {
-    let lo = FIRST, hi = LAST;
-    if (b.minInclusive !== undefined) lo = Math.max(lo, b.minInclusive + (sign === "east" ? 1 : 0));
-    if (b.minExclusive !== undefined) lo = Math.max(lo, b.minExclusive + (sign === "west" ? 0 : 1));
-    if (b.maxInclusive !== undefined) hi = Math.min(hi, b.maxInclusive - (sign === "west" ? 1 : 0));
-    if (b.maxExclusive !== undefined) hi = Math.min(hi, b.maxExclusive - (sign === "east" ? 0 : 1));
-    return lo <= hi ? [lo, hi] : null;
-  };
-  const alts = [];
-  for (const sign of ["zero", "east", "west"]) {
-    const s = span(sign);
-    if (!s) continue;
-    const body = lexRange(fromDay(s[0]), fromDay(s[1]));
-    if (body === null) return null;
-    alts.push(`${body.replace(/\\d/g, D)}${ZONE[sign]}`);
-  }
-  if (!alts.length) return [null];
-  return [`${WS}${CALENDAR}[\\s\\S]*`, `${WS}(${alts.join("|")})${WS}`];
+  const p = dateRangePattern(r);
+  return p === null ? null : [p === false ? null : p];
 }
 
 // The strings an IdsValue lets through, as { nfas: [...] } (all must accept),

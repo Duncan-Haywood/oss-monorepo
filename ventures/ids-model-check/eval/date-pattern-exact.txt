@@ -1,0 +1,55 @@
+31 doors, one WarrantyStartDate each; 10 ranges
+>= 2024-01-01                    range fails 13; old pattern disagrees on  9 doors, new on 0
+> 2024-05-01                     range fails 21; old pattern disagrees on  5 doors, new on 0
+>= 2024-05-01 and <= 2024-05-01  range fails 28; old pattern disagrees on  5 doors, new on 0
+< 2024-05-01                     range fails 27; old pattern disagrees on  4 doors, new on 0
+>= 2023-12-31 and <= 2024-12-31  range fails 19; old pattern disagrees on  7 doors, new on 0
+>= 2026-01-01 and <= 2026-12-31  range fails 30; old pattern disagrees on  4 doors, new on 0
+>= 2026-05-01                    range fails 29; old pattern disagrees on  1 doors, new on 0
+> 2023-02-28 and < 2025-03-01    range fails 17; old pattern disagrees on  6 doors, new on 0
+<= 2024-12-31                    range fails 19; old pattern disagrees on  9 doors, new on 0
+>= 2027-06-15 and < 2028-01-31   range fails 32; old pattern disagrees on  0 doors, new on 0
+total door verdicts unlike the range: old pattern 50, new pattern 0 (of 310)
+new pattern length: 47 to 1404 characters
+
+== IfcTester (ifcopenshell 0.9.0.post1 + ifctester 0.9.0): python3 eval/crosscheck_ifctester.py OUT.ids OUT.ifc
+== dp.ifc: IfcTester 0.1 s, ids-model-check 0.2 s (wall clock, including start-up)
+  DIFF  >= 2024-01-01 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 13 failing)
+      failing only in IfcTester: [2000, 2004, 2008, 2012, 2016, 2024, 2028, 2032, 2036, 2072]
+  same  >= 2024-01-01 (old pattern): IfcTester fail (32 applicable, 6 failing) | ours fail (32 applicable, 6 failing)
+  same  >= 2024-01-01 (new pattern): IfcTester fail (32 applicable, 13 failing) | ours fail (32 applicable, 13 failing)
+  DIFF  > 2024-05-01 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 21 failing)
+      failing only in IfcTester: [2008, 2012, 2016, 2024, 2028, 2032, 2076, 2084, 2088, 2092]
+  same  > 2024-05-01 (old pattern): IfcTester fail (32 applicable, 18 failing) | ours fail (32 applicable, 18 failing)
+  same  > 2024-05-01 (new pattern): IfcTester fail (32 applicable, 21 failing) | ours fail (32 applicable, 21 failing)
+  DIFF  >= 2024-05-01 and <= 2024-05-01 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 28 failing)
+      failing only in IfcTester: [2000, 2108, 2112, 2120]
+  same  >= 2024-05-01 and <= 2024-05-01 (old pattern): IfcTester fail (32 applicable, 25 failing) | ours fail (32 applicable, 25 failing)
+  same  >= 2024-05-01 and <= 2024-05-01 (new pattern): IfcTester fail (32 applicable, 28 failing) | ours fail (32 applicable, 28 failing)
+  DIFF  < 2024-05-01 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 27 failing)
+      failing only in IfcTester: [2004, 2020, 2036, 2072, 2080]
+  same  < 2024-05-01 (old pattern): IfcTester fail (32 applicable, 25 failing) | ours fail (32 applicable, 25 failing)
+  same  < 2024-05-01 (new pattern): IfcTester fail (32 applicable, 27 failing) | ours fail (32 applicable, 27 failing)
+  DIFF  >= 2023-12-31 and <= 2024-12-31 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 19 failing)
+      failing only in IfcTester: [2000, 2004, 2008, 2012, 2020, 2036, 2072, 2076, 2080, 2084]
+  same  >= 2023-12-31 and <= 2024-12-31 (old pattern): IfcTester fail (32 applicable, 14 failing) | ours fail (32 applicable, 14 failing)
+  same  >= 2023-12-31 and <= 2024-12-31 (new pattern): IfcTester fail (32 applicable, 19 failing) | ours fail (32 applicable, 19 failing)
+  DIFF  >= 2026-01-01 and <= 2026-12-31 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 30 failing)
+      failing only in IfcTester: [2024, 2028]
+  same  >= 2026-01-01 and <= 2026-12-31 (old pattern): IfcTester fail (32 applicable, 26 failing) | ours fail (32 applicable, 26 failing)
+  same  >= 2026-01-01 and <= 2026-12-31 (new pattern): IfcTester fail (32 applicable, 30 failing) | ours fail (32 applicable, 30 failing)
+  DIFF  >= 2026-05-01 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 29 failing)
+      failing only in IfcTester: [2028, 2032, 2096]
+  same  >= 2026-05-01 (old pattern): IfcTester fail (32 applicable, 28 failing) | ours fail (32 applicable, 28 failing)
+  same  >= 2026-05-01 (new pattern): IfcTester fail (32 applicable, 29 failing) | ours fail (32 applicable, 29 failing)
+  DIFF  > 2023-02-28 and < 2025-03-01 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 17 failing)
+      failing only in IfcTester: [2000, 2004, 2008, 2012, 2016, 2020, 2036, 2072, 2076, 2080]
+  same  > 2023-02-28 and < 2025-03-01 (old pattern): IfcTester fail (32 applicable, 13 failing) | ours fail (32 applicable, 13 failing)
+  same  > 2023-02-28 and < 2025-03-01 (new pattern): IfcTester fail (32 applicable, 17 failing) | ours fail (32 applicable, 17 failing)
+  DIFF  <= 2024-12-31 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 19 failing)
+      failing only in IfcTester: [2000, 2004, 2008, 2012, 2020, 2036, 2072, 2076, 2080, 2084]
+  same  <= 2024-12-31 (old pattern): IfcTester fail (32 applicable, 12 failing) | ours fail (32 applicable, 12 failing)
+  same  <= 2024-12-31 (new pattern): IfcTester fail (32 applicable, 19 failing) | ours fail (32 applicable, 19 failing)
+  same  >= 2027-06-15 and < 2028-01-31 (range): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 32 failing)
+  same  >= 2027-06-15 and < 2028-01-31 (old pattern): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 32 failing)
+  same  >= 2027-06-15 and < 2028-01-31 (new pattern): IfcTester fail (32 applicable, 32 failing) | ours fail (32 applicable, 32 failing)

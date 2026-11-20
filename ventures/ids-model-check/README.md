@@ -209,7 +209,13 @@ open. MIT licensed, no dependencies, nothing uploaded.
   same as this checker on 61 doors); the row warns, and **Write as a
   pattern** rewrites a date range as the XSD pattern of the same dates
   (`datePattern`), which both checkers read the same way: 10 of 10, same
-  failing doors. Presence-only standard properties with no dataType now open
+  failing doors. Since 2026-11-20 the pattern is exact, not a shape: only
+  days that exist (no 2024-02-30), ASCII digits (XSD's `\d` takes any
+  Unicode digit), and a date written with a time zone placed by its instant
+  as the range places it; on 31 doors built on those differences the old
+  pattern differed from the range on 50 of 310 verdicts, the new one on 0,
+  and IfcTester 0.9.0 agrees with it on 10 of 10
+  (`eval/date-pattern-exact-2026-11-20.md`). Presence-only standard properties with no dataType now open
   as rows: 86.4% of public facets editable (was 85.2%), 17 of 64 files fully
   editable (was 14). `eval/date-ranges-2026-11-17.md`.
   **One of on dates and durations** (2026-11-17): a one-of row on those types
