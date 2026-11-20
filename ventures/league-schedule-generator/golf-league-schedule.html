@@ -130,6 +130,15 @@ Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
             <button type="button" class="secondary" id="r-csv-s">Standings CSV</button>
             <button type="button" class="secondary" id="r-csv-p">Players CSV</button>
           </p>
+          <div id="po-block" class="noprint">
+            <h3>Play-offs by flight</h3>
+            <p><label>Flights <select id="po-flights"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></label>
+            <label><input type="checkbox" id="po-third"> Third-place match</label>
+            <button type="button" id="po-run">Draw the flighted play-offs</button></p>
+            <p id="po-status" role="status"></p>
+            <pre id="po-text" hidden></pre>
+            <p><button type="button" class="secondary" id="po-copy" hidden>Copy the draw as text</button> <button type="button" class="secondary" id="po-csv" hidden>Play-off CSV</button></p>
+          </div>
         </div>
       </section>
     </div>
@@ -181,6 +190,7 @@ Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
 <script type="module">
   import { golfSchedule, teeReport, validateGolf, golfCsv, golfText, slotNames, golfRecap, golfRecapText, golfStandingsCsv, golfPlayersCsv, BYE } from "./golf.mjs";
   import { parseDate, parseDateList, dayLabel } from "./calc.mjs";
+  import { golfPlayoffs, golfPlayoffsText, golfPlayoffsCsv } from "./golf-playoffs.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -316,6 +326,19 @@ Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
   $("#r-copy").addEventListener("click", async () => { if (!lastRecap) return; try { await navigator.clipboard.writeText(golfRecapText(lastRecap)); $("#r-status").textContent = "Copied."; record("golf_recap_text"); } catch { $("#r-status").textContent = "Copy was blocked by the browser; use a CSV instead."; } });
   $("#r-csv-s").addEventListener("click", () => { if (lastRecap) { download(golfStandingsCsv(lastRecap), "golf-standings.csv"); record("golf_recap_csv"); } });
   $("#r-csv-p").addEventListener("click", () => { if (lastRecap) { download(golfPlayersCsv(lastRecap), "golf-handicaps.csv"); record("golf_recap_csv"); } });
+  let lastPlayoffs = null;
+  $("#po-run").addEventListener("click", () => {
+    if (!lastRecap) { $("#po-status").textContent = "Work out the recap first: the draw comes from the standings."; return; }
+    const p = golfPlayoffs(lastRecap, last, { flights: Number($("#po-flights").value), thirdPlace: $("#po-third").checked });
+    if (p.errors.length) { $("#po-status").innerHTML = p.errors.map((e) => `<span class="err">${esc(e)}</span>`).join("<br>"); return; }
+    lastPlayoffs = p;
+    $("#po-text").textContent = golfPlayoffsText(p);
+    for (const id of ["#po-text", "#po-copy", "#po-csv"]) $(id).hidden = false;
+    $("#po-status").textContent = `${p.flights.length} flight${p.flights.length === 1 ? "" : "s"} over ${p.nights.length} night${p.nights.length === 1 ? "" : "s"}; every final on the last night.`;
+    record("golf_playoffs");
+  });
+  $("#po-copy").addEventListener("click", async () => { if (!lastPlayoffs) return; try { await navigator.clipboard.writeText(golfPlayoffsText(lastPlayoffs)); $("#po-status").textContent = "Copied."; } catch { $("#po-status").textContent = "Copy was blocked by the browser; use the CSV instead."; } });
+  $("#po-csv").addEventListener("click", () => { if (lastPlayoffs) { download(golfPlayoffsCsv(lastPlayoffs), "golf-playoffs.csv"); record("golf_playoffs_csv"); } });
   loadRecap();
   build().then((ok) => { if (ok && $("#r-cards").value.trim()) runRecap(); });
 </script>
