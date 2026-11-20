@@ -89,3 +89,77 @@ test("two overlapping openings are taken out once: a 10 x 1 x 3 m wall less 1-3 
   for (const o of [box(1, -1, 0, 3, 2, 2), box(2, -1, 0, 4, 2, 2)]) net = G.subtractCutters(net, G.cuttersOf(o), "opening");
   close(G.solidVolume(net), 30 - 3 * 1 * 2);
 });
+
+// ---- thresholds per work section (2026-11-20) ----
+import { sectionKey, ruleFor, ruleLabel, parseRule, SECTIONS } from "./measure.mjs";
+
+test("each IFC class falls in one work section", () => {
+  assert.equal(sectionKey("IFCWALLSTANDARDCASE"), "walls");
+  assert.equal(sectionKey("IfcWallElementedCase"), "walls");
+  assert.equal(sectionKey("IFCSLAB"), "slabs");
+  assert.equal(sectionKey("IFCROOF"), "slabs");
+  assert.equal(sectionKey("IFCCOVERING"), "coverings");
+  assert.equal(sectionKey("IFCBEAM"), "frames");
+  assert.equal(sectionKey("IFCMEMBER"), "frames");
+  assert.equal(sectionKey("IFCDOOR"), "other");
+  assert.equal(sectionKey(undefined), "other");
+  assert.deepEqual(Object.keys(SECTIONS), ["walls", "slabs", "coverings", "frames", "other"]);
+});
+
+test("a section's own pair wins; a number it leaves out falls back to the rule's", () => {
+  const rule = { areaMax: 0.5, volumeMax: 0.05, sections: { slabs: { areaMax: 0, volumeMax: 0.1 }, coverings: { areaMax: 1 } } };
+  assert.deepEqual(ruleFor(rule, "IFCSLAB"), { areaMax: 0, volumeMax: 0.1 });
+  assert.deepEqual(ruleFor(rule, "IFCCOVERING"), { areaMax: 1, volumeMax: 0.05 });
+  assert.deepEqual(ruleFor(rule, "IFCWALL"), { areaMax: 0.5, volumeMax: 0.05 });
+  assert.deepEqual(ruleFor(null, "IFCWALL"), { areaMax: 0, volumeMax: 0 });
+  // a rule whose only non-zero numbers are in a section is still active
+  assert.equal(ruleActive({ areaMax: 0, volumeMax: 0, sections: { slabs: { volumeMax: 0.05 } } }), true);
+  assert.equal(ruleActive({ areaMax: 0, volumeMax: 0, sections: { slabs: { volumeMax: 0 } } }), false);
+  assert.equal(ruleActive(PRESETS.sections), true);
+});
+
+test("the command line's text reads into a rule, and a typo is refused", () => {
+  assert.deepEqual(parseRule("0.5,0.05").rule, { areaMax: 0.5, volumeMax: 0.05 });
+  assert.deepEqual(parseRule("0.5,0.05; slabs=0,0.05;coverings = 0.5,0").rule, { areaMax: 0.5, volumeMax: 0.05, sections: { slabs: { areaMax: 0, volumeMax: 0.05 }, coverings: { areaMax: 0.5, volumeMax: 0 } } });
+  assert.deepEqual(parseRule("frames=0,0.02").rule, { areaMax: 0, volumeMax: 0, sections: { frames: { areaMax: 0, volumeMax: 0.02 } } });
+  assert.match(parseRule("beams=0,0.02").error, /unknown work section 'beams'/);
+  assert.match(parseRule("0.5").error, /AREA_M2,VOLUME_M3/);
+  assert.match(parseRule("slabs=-1,0").error, /slabs=0,0.05/);
+});
+
+test("the rule in words names each section that has its own pair", () => {
+  assert.equal(ruleLabel(PRESETS.all), "every opening deducted");
+  assert.equal(ruleLabel({ areaMax: 0.5, volumeMax: 0.05 }), "area up to 0.5 m2, volume up to 0.05 m3");
+  assert.equal(ruleLabel(PRESETS.sections), "otherwise every opening deducted; Walls: area up to 0.5 m2, volume up to 0.05 m3; Slabs and roofs: area up to 0 m2, volume up to 0.05 m3; Coverings and finishes: area up to 0.5 m2, volume up to 0 m3; Beams, columns and members: area up to 0 m2, volume up to 0.05 m3");
+});
+
+test("a walls-only pair leaves the door in Wall A and nothing else moves", () => {
+  const rows = sample().rows;
+  const plain = boq(rows, ["class"]);
+  const rule = { areaMax: 0, volumeMax: 0, sections: { walls: { areaMax: 2.5, volumeMax: 0.5 } } };
+  const measured = boq(rows, ["class"], rule);
+  for (const L of measured) {
+    const P = plain.find((p) => p.key[0] === L.key[0]);
+    if (L.key[0] === "IfcWall") { close(L.area - P.area, 2.1); close(L.volume - P.volume, 0.42); assert.equal(L.voidsLeft, 1); }
+    else { close(L.area, P.area); close(L.volume, P.volume); assert.equal(L.voidsLeft, 0); }
+  }
+  // the same pair on slabs only leaves the walls as modelled
+  const slabsOnly = boq(rows, ["class"], { areaMax: 0, volumeMax: 0, sections: { slabs: { areaMax: 2.5, volumeMax: 0.5 } } }).find((l) => l.key[0] === "IfcWall");
+  close(slabsOnly.area, plain.find((p) => p.key[0] === "IfcWall").area);
+  const csv = boqCsv(measured, ["class"], {}, rule);
+  assert.match(csv.split("\r\n")[0], /Voids not deducted \(otherwise every opening deducted; Walls: area up to 2.5 m2, volume up to 0.5 m3\)/);
+});
+
+test("a hand-made slab takes the slabs' volume threshold, not the walls' area one", () => {
+  // a 0.03 m3 sleeve (0.3 m2 in plan) and a 0.4 m3 shaft (2 m2)
+  const slab = { ...handRow({ NetVolume: { kind: "volume", value: 5.57 } }, [0.3, 2], [0.03, 0.4]), ifcType: "IFCSLAB" };
+  const q = rowQuantities(slab);
+  const out = applyRule(slab, q, PRESETS.sections); // slabs: area 0, volume up to 0.05 m3
+  close(out.volume, 5.6); close(out.volumeChange, 0.03);
+  close(out.area, q.area); assert.equal(out.areaChange, 0);
+  assert.equal(out.voidsLeft, 1);
+  // the same element as a wall takes the walls' pair: the sleeve is left in both figures
+  const wall = { ...slab, ifcType: "IFCWALL" };
+  const w = applyRule(wall, rowQuantities(wall), PRESETS.sections);
+  close(w.volume, 5.6); close(w.areaChange, 0.3);
+});

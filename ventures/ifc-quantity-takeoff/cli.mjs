@@ -10,6 +10,8 @@
 //   node cli.mjs new.ifc --compare old.ifc     change in the BoQ since an earlier revision (CSV to stdout)
 //   --changes changes.csv                      with --compare: every added, removed, changed or re-identified element
 //   --voids-up-to 0.5,0.05                     leave in openings up to 0.5 m2 (areas) and 0.05 m3 (volumes)
+//   --voids-up-to "0.5,0.05;slabs=0,0.05"      the same, with a work section's own pair (walls, slabs,
+//                                              coverings, frames, other)
 //   --tolerance 0.02                           relative difference that still counts as agreeing (default 2%)
 //   --no-geometry                              stored quantities only (faster)
 //   --trust-declared-units                     keep a named unit's declared factor even when it is not that unit
@@ -18,22 +20,23 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
 import { takeoff, boq, boqCsv, rowsCsv, checkSummary, unitRepairNote } from "./qto.mjs";
 import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
+import { parseRule } from "./measure.mjs";
 
 const args = process.argv.slice(2);
 const VALUED = ["--rows", "--json", "--by", "--compare", "--changes", "--tolerance", "--voids-up-to"];
 const file = args.find((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
 const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
 if (!file || args.includes("--help")) {
-  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 16).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
+  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 18).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
   process.exit(file ? 0 : 2);
 }
 const by = (opt("--by") || "class,type").split(",").map((s) => s.trim()).filter(Boolean);
 for (const k of by) if (!["class", "type", "storey", "material", "classification", "uniformat", "uniformat2", "uniformat1"].includes(k)) { console.error(`unknown --by key: ${k}`); process.exit(2); }
 let rule = null;
 if (opt("--voids-up-to")) {
-  const [a, v] = opt("--voids-up-to").split(",").map(Number);
-  if (!(a >= 0) || !(v >= 0)) { console.error("--voids-up-to takes AREA_M2,VOLUME_M3, e.g. 0.5,0.05"); process.exit(2); }
-  rule = { areaMax: a, volumeMax: v };
+  const parsed = parseRule(opt("--voids-up-to"));
+  if (parsed.error) { console.error(`--voids-up-to: ${parsed.error}`); process.exit(2); }
+  rule = parsed.rule;
 }
 const t0 = Date.now();
 const model = parseStep(readFileSync(file));

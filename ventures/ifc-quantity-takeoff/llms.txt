@@ -28,7 +28,7 @@ Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-qu
 
 ## Method-of-measurement rule (eval/measure-rules-2026-11-20.md)
 
-- The BoQ can leave in small voids: openings whose area in the element's measured section (wall middle plane, slab plan) is at most a set m2, or whose volume is at most a set m3, are not deducted (page "Openings" control; CLI `--voids-up-to AREA,VOLUME`). Presets: every opening deducted; 0.50 m2 / 0.05 m3. The tool names no standard; the user checks the thresholds against their contract's method.
+- The BoQ can leave in small voids: openings whose area in the element's measured section (wall middle plane, slab plan) is at most a set m2, or whose volume is at most a set m3, are not deducted (page "Openings" control; CLI `--voids-up-to AREA,VOLUME`). Presets: every opening deducted; 0.50 m2 / 0.05 m3; by work section (walls 0.50 m2 / 0.05 m3, coverings by area 0.50 m2, slabs/roofs and beams/columns/members by volume 0.05 m3). Each work section (walls, slabs, coverings, frames, other) can have its own pair: CLI `--voids-up-to "0.5,0.05;slabs=0,0.05;coverings=0.5,0"`, page "Custom thresholds" with "per work section". The tool names no standard; the user checks the thresholds against their contract's method.
 - Each opening is cut from its element on its own. On 12 public models, 1,099 of 1,136 wall openings that store Width and Height measured within 2% of Width x Height (2 misses are round windows, pi/4 of their box). 216 of 2,252 openings were at or under 0.50 m2; wall and slab area moved under 0.25% per model at 0.50 m2 and up to 1.41% at 1.00 m2.
 - Elements whose openings overlap (separate deductions do not sum to the joint one) are left as modelled and counted.
 
@@ -54,6 +54,7 @@ Each solid becomes a signed sum of convex polyhedra: extruded profiles (rectangl
     node cli.mjs model.ifc --rows elements.csv  # every element with stored and computed volumes
     node cli.mjs model.ifc --check              # stored vs computed summary
     node cli.mjs model.ifc --voids-up-to 0.5,0.05   # leave in openings up to 0.5 m2 / 0.05 m3
+    node cli.mjs model.ifc --voids-up-to "0,0;walls=0.5,0.05;slabs=0,0.05"   # per work section
     node cli.mjs new.ifc --compare old.ifc --changes changes.csv   # BoQ change since old.ifc, and every changed element
 
 ## Limits and disclaimer

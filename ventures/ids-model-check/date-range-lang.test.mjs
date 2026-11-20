@@ -135,3 +135,40 @@ test("revision diff: dateTime, time and duration ranges compare as intervals", (
   // A date range to a dateTime range: no value passes both forms.
   assert.equal(compareValuesDetail(range({ minInclusive: "2024-01-01Z" }), dt({ minInclusive: "2024-01-01T00:00:00Z" })).effect, "changed");
 });
+
+test("dayPattern: exactly the days that exist between two days, over years 0000-9999", async () => {
+  const { dayPattern, daysInMonth } = await import("./temporal.mjs");
+  const p2 = (n) => String(n).padStart(2, "0"), p4 = (n) => String(n).padStart(4, "0");
+  let seed = 11;
+  const rnd = (n) => ((seed = (seed * 1103515245 + 12345) % 2147483648), seed % n);
+  const real = (y) => { const m = 1 + rnd(12); return `${p4(y)}-${p2(m)}-${p2(1 + rnd(daysInMonth(y, m)))}`; };
+  const ranges = [["0000-01-01", "9999-12-31"], ["0000-02-29", "0000-02-29"], ["1899-12-31", "1900-03-01"], ["1999-02-28", "2001-03-01"], ["2024-01-01", "2024-12-31"], ["0396-03-01", "0404-02-29"]];
+  for (let i = 0; i < 80; i++) { const span = [9999, 900, 40, 2][i % 4]; const y = rnd(10000 - span); ranges.push([real(y), real(y + rnd(span))].sort()); }
+  let checked = 0;
+  for (const [lo, hi] of ranges) {
+    const re = new RegExp(`^(?:${dayPattern(lo, hi)})$`);
+    const [ly, hy] = [+lo.slice(0, 4), +hi.slice(0, 4)];
+    const years = new Set([ly, hy, ly - 1, hy + 1, 0, 4, 100, 400, 1900, 2000, 9996, 9999]);
+    for (let k = 0; k < 30; k++) years.add(rnd(10000));
+    for (const y of years) {
+      if (y < 0 || y > 9999) continue;
+      for (let m = 0; m <= 13; m++) for (let d = 0; d <= 32; d++) {
+        const s = `${p4(y)}-${p2(m)}-${p2(d)}`;
+        const exists = m >= 1 && m <= 12 && d >= 1 && d <= daysInMonth(y, m);
+        assert.equal(re.test(s), exists && s >= lo && s <= hi, `${lo}..${hi} on ${s}`);
+        checked++;
+      }
+    }
+  }
+  assert.ok(checked > 200000, String(checked));
+});
+
+test("the editor's Write as a pattern grades as the same requirement as its range", async () => {
+  const { datePattern } = await import("./editor.mjs");
+  for (const c of [["2024-01-01", ""], ["2023-12-31", "2024-12-31"], ["", "2024-02-29", false, true], ["2024-05-01", "2024-05-01"], ["1999-12-31", "2000-03-01", true, false]]) {
+    const b = {};
+    if (c[0]) b[c[2] ? "minExclusive" : "minInclusive"] = c[0];
+    if (c[1]) b[c[3] ? "maxExclusive" : "maxInclusive"] = c[1];
+    assert.equal(compareLanguages(restrictionLanguage(range(b)), restrictionLanguage(pat(datePattern(...c)))).effect, "same", JSON.stringify(c));
+  }
+});
