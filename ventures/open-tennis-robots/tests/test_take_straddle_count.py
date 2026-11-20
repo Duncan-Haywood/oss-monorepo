@@ -24,3 +24,18 @@ def test_long_survey_drill_is_the_calibration_drill_twice():
     assert long["calibration"] is True
     assert long["shots"] == cal["shots"] * 2
     assert {k: v for k, v in long.items() if k != "shots"} == {k: v for k, v in cal.items() if k != "shots"}
+
+
+def test_summary_passes_the_group_margin_and_counts_by_take(monkeypatch):
+    import take_straddle_scaled as tss
+    seen = []
+
+    def fake(sv, rule, k):
+        seen.append((rule, k))
+        return sv["v"]
+    monkeypatch.setattr(tss, "verdict", fake)
+    rows = [(1.3, {"v": 1.5}), (1.3, {"v": None}), (2.0, {"v": 2.5}), (0.0, {"v": 1.5}), (0.0, {"v": 0.0})]
+    s = tsc.summary(rows, [46] * len(rows), margin=3)
+    assert set(seen) == {("margin", 3)}
+    assert s["1.3-2.1 ms"]["named"] == 2 and s["1.3-2.1 ms"]["by_take"] == {1.3: [1, 2], 2.0: [1, 1]}
+    assert s["instant"]["bad"] == 1 and s["instant"]["by_take"] == {}
