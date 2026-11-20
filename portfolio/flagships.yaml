@@ -393,8 +393,10 @@ flagships:
       every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on
       1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6;
       next: a real club's night on it. Tournaments 2026-11-20 (tournament.mjs;
-      results fill pools and bracket, tournament-results.mjs); next: tournament
-      referees, a real tournament. Golf 2026-11-20 (golf.mjs, golf-playoffs.mjs
+      results fill pools and bracket, tournament-results.mjs); referee crews
+      2026-11-20 (tournament-referees.mjs: clubs, hours, caps, ejection chain;
+      CP-SAT check, eval/referee-exact.txt); next: a real tournament, referees
+      picking slots on the league page. Golf 2026-11-20 (golf.mjs, golf-playoffs.mjs
       flighted play-offs, golf-league-schedule.html): tee times at share in 71 of 77
       seasons, other 6 SAT-proved out (eval/golf-tee-grid.txt); match play recap;
       next: a real league's season. More open items: NEXT.md.

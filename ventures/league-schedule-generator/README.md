@@ -20,7 +20,53 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## Weekend tournaments: results on the day fill the pools and the bracket (2026-11-20, newest)
+## Weekend tournaments: referee crews for every game (2026-11-20, newest)
+
+The weekend scheduler placed every game on a field; the referee assignor still worked out who
+officiates which game by hand. `tournament-referees.mjs` and the "Referees" box on
+`weekend-tournament-schedule.html` now give every game its crew.
+
+- **What you type.** One official per line, everything after the name optional:
+  `Ava Chen (Riverside Rapids): Sat, Sun 08:00-12:00; U10 Girls, U12 Boys assistant; max 4 a day;
+  max 2 in a row; plays U14 Boys/Summit Strikers`. The club in brackets is a team name and covers
+  that name in every division. "U12 Boys assistant" allows the assistant's place only in that
+  division; "assistant only" everywhere. A second box sets the crew size per division (`U14 Boys: 3`,
+  `all: 2`); the rest get one referee. Each faulty line is refused with the reason.
+- **Hard rules** (`validateReferees` re-checks them from the output alone): inside their hours and
+  divisions; the referee's place only where allowed; never their own club's pool game; never during
+  a game of the team they play for, with the turnover either side; one game at a time, with the
+  turnover kept for a walk to another field; daily and weekend caps; at most N games in a row (a gap
+  under the break, 30 min by default, keeps a run going; N is 3 unless set per person).
+- **The search.** Kick-off order, referee places before assistants; each place goes to the
+  eligible official with the fewest minutes so far, staying on the same field where possible. An
+  empty place then gets a depth-3 ejection chain: A takes it by handing one game to B, who may hand
+  one to C, up to three hand-overs, kept only if the whole chain fits. 80 shuffled passes, keeping
+  the fewest empty places, then the fewest risky knockout places, then the most even minutes, then
+  the fewest field changes. The sample takes about 0.3 s.
+- **Knockout games before the teams are known.** An official whose club has a team in the division
+  is kept off its knockout games where anyone else is free; when nobody is, the place is counted and
+  named. `refereesAfterResults` reads the results box once the bracket fills, lists every knockout
+  place where an official's own club now plays, and gives a fix that it re-checks against every
+  rule: a free official, or a swap with an official on a game at the same time.
+- **Exports.** Each official's sheet (`refereesText`), a load table (games, referee and assistant
+  counts, per day, hours, field changes, first and last), the schedule CSV with a column per crew
+  place and one official's CSV (`refereesCsv`), and for every empty place the count of officials
+  ruled out by each rule.
+- **Measured against an exact optimum** (`eval/referee-exact.mjs`, `eval/referee-exact.py`, CP-SAT;
+  `eval/referee-exact.txt`): on 60 random well-staffed weekends, the 36 where every place can be
+  filled were all filled, and the least number of empty places was matched in 57 of 59 proved cases
+  (2 extra empty places in 2,727). On 60 short-handed weekends: 51 of 58 (8 extra in 2,664); the
+  one-hand-over repair it replaced matched 47 (13 extra), a single pass 34. 0 rule breaks in any
+  output. The sample's one empty place (U14 assistant, Saturday 11:10) is proved unavoidable.
+- **Checked:** `tournament-referees.test.mjs` (7 tests): parsing and every error; the sample
+  assignment clean, deterministic, sheets and CSV in agreement; the validator catching each rule
+  broken by hand; caps a day, in all and in a row; an empty list; and 20 weekends played to the
+  champion where every flagged knockout clash got a fix that passes the validator. In Chromium: the
+  sample assigns on load, no console errors, no sideways scroll at 390 px.
+- **Not done:** made-up weekends and officials only, no real tournament yet; officials choosing
+  their own games on the league page; grades (a minimum referee level per division) and pay totals.
+
+## Weekend tournaments: results on the day fill the pools and the bracket (2026-11-20)
 
 The weekend scheduler below stopped at placeholders: every knockout game read "1st Pool A v 2nd
 Pool B" or "Winner SF1" until the director redrew the bracket by hand, usually on a whiteboard by
@@ -70,7 +116,7 @@ the score table. Now `tournament-results.mjs` and the "Results on the day" box o
   errors, no sideways scroll, and the results still there after a reload. Made-up weekends only; no
   real tournament has used it yet.
 - **Not done:** a pair that meets in its pool and again in the knockouts takes its first line as the
-  pool game (so type pool results before that knockout result); referees for a tournament; a public
+  pool game (so type pool results before that knockout result); a public
   read-only results page for parents (the league's `/league` page does this for a season).
 
 ## Weekend tournaments: every division on shared fields, pools then brackets (2026-11-20)
