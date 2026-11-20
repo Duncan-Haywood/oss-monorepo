@@ -56,7 +56,7 @@
     "ventures/league-schedule-generator/eval/referee-exact.txt"
   ],
   "goal": "Deepen flagship league-schedule-generator with a hard assignment problem (referee crews) measured against an exact optimum",
-  "notes": "Verification: run_venture_tests.py league-schedule-generator: 1 suite, 0 failed; tournament-referees/tournament/tournament-results tests 23 pass; check_posts ok; validate.py all VENTURE.yaml valid; Chromium page: no console errors, scrollWidth 390 at 390 px. CP-SAT (ortools 9.15 in a scratch venv) on 120 random weekends: well staffed 57/59 proved optimum matched, 36/36 fillable filled; short-handed 51/58 (47 before the ejection chain, 34 with one pass); 0 rule breaks; sample's 1 empty place proved unavoidable.",
+  "notes": "Verification: run_venture_tests.py league-schedule-generator: 1 suite, 0 failed; tournament-referees/tournament/tournament-results tests 23 pass; check_posts ok; validate.py all VENTURE.yaml valid; Chromium page: no console errors, scrollWidth 390 at 390 px. CP-SAT (ortools 9.15 in a scratch venv) on 120 random weekends: well staffed 57/59 proved optimum matched, 36/36 fillable filled; short-handed 51/58 (47 before the ejection chain, 34 with one pass); 0 rule breaks; sample's 1 empty place proved unavoidable. venture-preflight.mjs league-schedule-generator: clean (exit 0).",
   "corrections": [],
   "redteam": null,
   "usage": {
