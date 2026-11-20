@@ -553,7 +553,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-54
+56
   9
 $SURFTAB1
  70
@@ -1377,7 +1377,7 @@ AcDbSymbolTable
   0
 VPORT
   5
-50
+52
 330
 8
 100
@@ -1725,7 +1725,7 @@ ACAD
   0
 APPID
   5
-51
+53
 330
 3
 100
@@ -1739,7 +1739,7 @@ HATCHBACKGROUNDCOLOR
   0
 APPID
   5
-52
+54
 330
 3
 100
@@ -2699,6 +2699,46 @@ AcDbEntity
 100
 AcDbCircle
  10
+81.77999681653746
+ 20
+0.0
+ 30
+0.0
+ 40
+2.2
+  0
+CIRCLE
+  5
+4C
+330
+17
+100
+AcDbEntity
+  8
+0
+100
+AcDbCircle
+ 10
+96.09276514464787
+ 20
+0.0
+ 30
+0.0
+ 40
+2.2
+  0
+CIRCLE
+  5
+4D
+330
+17
+100
+AcDbEntity
+  8
+0
+100
+AcDbCircle
+ 10
 129.74516600406096
  20
 45.254833995939045
@@ -2709,7 +2749,7 @@ AcDbCircle
   0
 CIRCLE
   5
-4C
+4E
 330
 17
 100
@@ -2729,7 +2769,7 @@ AcDbCircle
   0
 CIRCLE
   5
-4D
+4F
 330
 17
 100
@@ -2749,7 +2789,7 @@ AcDbCircle
   0
 CIRCLE
   5
-4E
+50
 330
 17
 100
@@ -2769,7 +2809,7 @@ AcDbCircle
   0
 CIRCLE
   5
-4F
+51
 330
 17
 100
@@ -3777,7 +3817,7 @@ CREATED_BY_EZDXF
   3
 WRITTEN_BY_EZDXF
 350
-53
+55
   0
 DICTIONARYVAR
   5
@@ -3793,7 +3833,7 @@ DictionaryVariables
   0
 DICTIONARYVAR
   5
-53
+55
 330
 2D
 100

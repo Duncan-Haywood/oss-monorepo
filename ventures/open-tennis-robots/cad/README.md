@@ -107,7 +107,7 @@ collector's, shared in `guide.py`, with three more:
   shelf) must sit on one of its two core bores, 10 mm either side of the end's
   centre; the centre is the web between the cells.
 
-24 joints are measured. Writing the guide found the package as committed on
+25 joints are measured (24 until the spring bracket joined them later the same day). Writing the guide found the package as committed on
 2026-11-20 could not be built as drawn; all fixed in the same change:
 
 | Found | Was | Now |

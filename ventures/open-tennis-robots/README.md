@@ -47,7 +47,7 @@ committed package goes stale.
 **The feeder has a first package too** ([`manufacturing/feeder-package.zip`](manufacturing/feeder-package.zip),
 [browse](manufacturing/feeder/)), with its own 25-step
 [assembly guide](manufacturing/feeder/guide/ASSEMBLY.md) since 2026-11-20:
-24 bolted joints measured against the CAD, every BOM line handed out, every
+25 bolted joints measured against the CAD, every BOM line handed out, every
 screw into an extrusion's end checked against its core bores. Writing it found
 the feeder could not be built as committed (holes over the posts' webs, a pivot
 bolt 9 mm short, servo screws that bottom out, a pole foot and a cable clamp no

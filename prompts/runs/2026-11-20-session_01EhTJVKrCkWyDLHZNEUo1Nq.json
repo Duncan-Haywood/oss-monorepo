@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVKrCkWyDLHZNEUo1Nq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T21:06:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots: take-up spring bracket in the feeder CAD (flagship 10 buildable item)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 17970,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-a-spring-bracket-with-thirty-millimetres-to-fit-in.md"
+  ],
+  "goal": "Land a buildable flagship item: the take-up spring's bracket modelled, checked and in the assembly guide and package.",
+  "notes": "Bracket, spool and coil now CAD parts (feeder.spring_parts) placed by Feeder.spring_bracket_design; check_spring_bracket with six checks, each made to fire in tests. Findings: the band (12.7 mm, assumed) is wider than the sleeve's 10 mm slot so it hangs on the tab's rear face outside the sleeve; the coil has ~30 mm of height between the tab's highest reach (z 2000.7) and the socket flange (z 2031.2), so the old 50 mm envelope could not fit. Shelf gets two M4 holes; guide step 13 rewritten, new checked joint (7.0 mm past the shelf, 5.7-8 window), BOM lines. Spring parts left HOSE_PARTS so sweeps check them; no collisions. Verification: cad pytest full suite run locally (first run: 1 expected failure, joint count 24->25, fixed and rerun); feeder package regenerated with python -m otr_cad feeder; check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}
