@@ -599,10 +599,10 @@ flagships:
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
       the 358 unexplained areas (eval/areas-vs-stored-2026-11-20-causes.txt: C20's
       54 ArchiCAD side areas 2-4% under, skolebygg's 111 mullions, schependomlaan's
-      small pieces); the 160 unexplained GrossVolumes; planar IfcAdvancedBrep faces
-      (kleine_Wohnung, 162 not read); more revision series through
-      eval/revision-diff.mjs (OpeningDesign repos on GitHub: Lake_Kegonsa_Home 4 IFC
-      commits, Lake_Mills_Residence_Expansion 2, Vacation_Rental 2).
+      small pieces); the 160 unexplained GrossVolumes; kleine_Wohnung's 8 breps on
+      surfaces of revolution/NURBS (eval/breps-vs-ifcopenshell.mjs); more revision
+      series through eval/revision-diff.mjs (OpeningDesign repos on GitHub:
+      Lake_Kegonsa_Home 4 IFC commits, Lake_Mills_Residence_Expansion 2).
     hosts: [https://github.com]
     next: >-
       History and every measurement: ventures/ifc-quantity-takeoff/README.md and
@@ -620,7 +620,10 @@ flagships:
       mullions, C20's 54 side areas; (2) a method-of-measurement layer (NRM or CESMM
       style: deduct openings only above a size, MasterFormat/Uniformat mapping from
       the classification code); (3) the unexplained disagreements; (4) advanced
-      breps with planar faces, openings in faceted bodies; (5) the change report on
+      breps on revolved/NURBS surfaces (8 in kleine_Wohnung; planes and cylinders read
+      2026-11-20, 703 of 767 = IfcOpenShell to 0.1%; faceted openings as signed
+      tetrahedra; eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a
+      union; (5) the change report on
       more revision series (OpeningDesign's Lake_Kegonsa_Home and Lake_Mills repos
       commit IFCs repeatedly; an ArchiCAD series), wall parts that stay unpaired;
       (6) a real estimator's reading of the BoQ CSV (needs a person).
