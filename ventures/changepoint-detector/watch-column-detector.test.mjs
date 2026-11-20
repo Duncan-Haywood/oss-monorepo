@@ -52,12 +52,12 @@ async function daily(rows, columns, extra = []) {
 }
 const orderAlerts = (outs) => outs.flatMap((o) => o.columns.find((c) => c.column === 'orders').alerts);
 
-test('CLI: orders:poisson:bocpd-window hears a 30% drop the default misses; revenue beside it is unchanged', async () => {
+test('CLI: orders:poisson:bocpd-window hears a 30% drop plain bocpd (the count default before 2026-11-20) misses; revenue beside it is unchanged', async () => {
   // A shop where the two detectors disagree, found by scanning seeds with the replay (the CLI below is the check).
   let seed = 1, rows;
   for (; seed < 200; seed++) { rows = shop(seed); if (!heard('bocpd', rows) && heard('bocpd-window', rows)) break; }
   assert.ok(seed < 200, 'no seed where only the windowed pass hears the drop');
-  const plain = await daily(rows, 'orders:poisson,revenue');
+  const plain = await daily(rows, 'orders:poisson:bocpd,revenue');
   const named = await daily(rows, 'orders:poisson:bocpd-window,revenue');
   assert.equal(orderAlerts(plain.outs).filter((a) => Math.abs(a.index - 108) <= 3).length, 0);
   const hit = orderAlerts(named.outs).filter((a) => Math.abs(a.index - 108) <= 3);
