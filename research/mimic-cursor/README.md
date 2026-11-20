@@ -44,7 +44,7 @@ Prompt or component search over a fixed library will not make a cursor twin that
 ```bash
 cd research/mimic-cursor
 pip install numpy scipy scikit-learn
-python3 -m unittest discover -s tests -v    # 9 tests
+python3 -m unittest discover -s tests -v    # 10 tests
 python3 data.py        # optional: rebuilds strokes.json.gz from Zenodo (319 MB download)
 python3 run.py 30 8 4  # 4 conditions x 8 seeds x 30 rounds, about 40 minutes on 4 CPUs
 python3 baselines.py   # fixed generators for scale
