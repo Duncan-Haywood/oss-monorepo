@@ -249,6 +249,23 @@ milestone, not the project finish, which a finish-only what-if would hide.
 No public job publishes its constraints log, so the statuses are checked
 against their own rules, not against a site team's.
 
+**"Past late start" says whether the row moves anything** (2026-11-20,
+`constraints.mjs` `pastLabel`, eval/constraints-slack-2026-11-20.md). P6's
+late start is not always the date after which something slips: its backward
+pass leaves out the slack across calendars (a finish that may fall in its
+calendar's non-work time, a milestone snapped to its calendar), and on
+negative float the late start comes from a deadline that a longer path
+already misses by more. A row past P6's late start is now read against both
+and labelled in words: **moves the finish or a deadline**, **within the slack
+its calendars leave: moves nothing**, or **a deadline is already missed by
+more on another path** (with the date after which the row adds to it). On the
+six public files with planted logs (three seeds, 65 rows past P6's late
+start): the 38 read as moving something all move the finish or a kept date,
+the 27 read as moving nothing move none, and each of those probed one working
+hour past its bound does move one (21 of 21). On CCA, 25 of 26 such rows were
+the "already behind" kind and had read the same as the one that pushes the
+deadline out.
+
 **Float P6 does not show across calendars** (2026-11-20, `calslack.mjs`, the
 page's "Float P6 does not show across calendars" panel, `node cli.mjs
 schedule.xer --calendar-slack [--csv slack.csv] [--json]`): where a

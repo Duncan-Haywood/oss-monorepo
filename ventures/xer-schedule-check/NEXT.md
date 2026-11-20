@@ -13,9 +13,9 @@
 - Calendar slack, the mirror: shipped 2026-11-20 as the milestone-calendars
   check (milestones.mjs, eval/milestone-calendars-2026-11-20.md: the hotel
   file's 8 hand-over milestones on the Friday-off calendar hold 11 successors
-  1-9 h; 2,001 of 2,001 float gains sound and tight). Still open: the "past
-  late start" flag in the constraints log read against the calendar-slack
-  and 24 h milestone late dates; a milestones-on-24h switch for the written
+  1-9 h; 2,001 of 2,001 float gains sound and tight). The "past late start"
+  flag read against them shipped 2026-11-20 (eval/constraints-slack-2026-11-20.md).
+  Still open: a milestones-on-24h switch for the written
   review and the risk run; a real P6 file rescheduled with the milestones
   moved, to check the dates against P6's own.
 - Constraints log: a real site's log.

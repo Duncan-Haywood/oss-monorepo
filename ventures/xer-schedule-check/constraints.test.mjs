@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseXer } from "./xer.mjs";
 import { lookahead, lookaheadText, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
-import { parseConstraintLog, parseLogDate, constraintLogCsv } from "./constraints.mjs";
+import { parseConstraintLog, parseLogDate, constraintLogCsv, pastLabel } from "./constraints.mjs";
 import { EXAMPLE_XER } from "./example.mjs";
 
 // Mon-Fri 08:00-12:00, 13:00-17:00 (8 h/day); 2025-12-01 is a Monday
@@ -107,6 +107,8 @@ test("make-ready with the log: constrained, late, overdue, the finish what-if", 
   const insp = cl.items.find((i) => i.what === "Inspection");
   assert.equal(insp.finishSlipDays, 3);
   assert.equal(insp.links[0].past, true);
+  assert.equal(insp.links[0].moves, true); // on the critical path: past late start moves the finish
+  assert.equal(insp.links[0].slackOnly, false);
   assert.equal(insp.links[0].slackDays, -3);
   assert.equal(cl.items[0].status, "overdue"); // worst first
   assert.equal(a.B.startWithLog, "2025-12-08 08:00");
@@ -146,4 +148,27 @@ test("the example log is the sample file and runs on the example schedule", asyn
   assert.equal(cl.items[0].finishSlipDays, 2);
   assert.equal(cl.finish.slipDays, 2);
   assert.equal(la.warnings.length, 0);
+});
+
+test("past late start on negative float: already behind unless it passes the longer path's miss", () => {
+  // A (40 h) -> FS END; B (8 h) -> FS END; END must finish on or before Tue
+  // 12-02 17:00, but A alone takes it to Fri 12-05 17:00 (-3 d). B's late
+  // start is Tue 08:00 (from the deadline) but B can start as late as Fri
+  // 12-05 08:00 before END moves.
+  const x = project([
+    task("1", "A", 40), task("2", "B", 8),
+    task("3", "END", 0, { task_type: "TT_FinMile", cstr_type: "CS_MEOB", cstr_date: "2025-12-02 17:00" }),
+  ], [link("1", "3", "1"), link("2", "3", "2")]);
+  const log = ["activity,constraint,expected", "B,Crane,2025-12-03", "B,Permit,2025-12-08"].join("\n");
+  const la = lookahead(x, { weeks: 2, constraints: log });
+  const cl = la.constraintLog;
+  const crane = cl.items.find((i) => i.what === "Crane"), permit = cl.items.find((i) => i.what === "Permit");
+  assert.equal(crane.links[0].past, true);
+  assert.equal(crane.links[0].alreadyBehind, true);
+  assert.equal(crane.links[0].moves, false);
+  assert.equal(crane.pastAlreadyBehind, true);
+  assert.equal(crane.links[0].latestRelaxed, "2025-12-05 08:00");
+  assert.match(pastLabel(crane.links[0]), /already missed by more/);
+  assert.equal(permit.links[0].moves, true);
+  assert.equal(cl.summary.pastAlreadyBehind, 1);
 });
