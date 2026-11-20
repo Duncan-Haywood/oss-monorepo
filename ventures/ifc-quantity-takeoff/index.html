@@ -188,7 +188,7 @@
 <script type="module">
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { parseStep } from "./step.mjs";
-  import { takeoff, boq, boqCsv, rowsCsv, checkSummary, keyLabel, REASON_TEXT, AREA_REASON_TEXT } from "./qto.mjs";
+  import { takeoff, boq, boqCsv, rowsCsv, checkSummary, keyLabel, REASON_TEXT, AREA_REASON_TEXT, unitRepairNote } from "./qto.mjs";
   import { PRESETS } from "./measure.mjs";
   import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
 
@@ -224,8 +224,10 @@
       return;
     }
     const secs = ((performance.now() - t0) / 1000).toFixed(1);
-    $("status").textContent = `${name}: ${current.schema}, ${current.rows.length} elements, read in ${secs} s.`;
+    const unitNote = unitRepairNote(current.units);
+    $("status").textContent = `${name}: ${current.schema}, ${current.rows.length} elements, read in ${secs} s.${unitNote ? " " + unitNote : ""}`;
     record("model_taken_off");
+    if (unitNote) record("units_repaired");
     render();
   }
 
@@ -327,7 +329,8 @@
       record("read_failed");
       return;
     }
-    $("status").textContent = `Compared ${name} (earlier) with ${fileName}.ifc.`;
+    const earlierNote = unitRepairNote(earlier.units);
+    $("status").textContent = `Compared ${name} (earlier) with ${fileName}.ifc.${earlierNote ? " Earlier revision: " + earlierNote : ""}`;
     record("revisions_compared");
     renderDiff();
     $("compare").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });

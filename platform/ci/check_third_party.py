@@ -101,6 +101,13 @@ BANNERS = [
     ("SSPL", re.compile(r"Server Side Public License")),
     ("CC non-commercial", re.compile(r"Attribution-NonCommercial|CC[ -]BY-NC")),
 ]
+# Necessary conditions for COPYRIGHT and the non-commercial banner, much
+# cheaper to search a whole file for (perf, 2026-11-20): COPYRIGHT's
+# case-insensitive alternation gets no literal prefix, so `re` tries it at
+# every character (2.6 s over the 190 MB of tracked code); this word alone is
+# 1.1 s, and the two literals of the CC banner are found by `in`.
+COPYRIGHT_WORD = re.compile(r"copyright", re.IGNORECASE)
+PREFILTERS = {"CC non-commercial": lambda text: "Attribution-NonCommercial" in text or "BY-NC" in text}
 MIT_TEXT = re.compile(r"Permission is hereby granted, free of charge", re.IGNORECASE)
 
 STRONG = re.compile(r"\b(?:A?GPL|SSPL|BUSL)|-NC\b|NonCommercial", re.IGNORECASE)
@@ -170,12 +177,24 @@ def scan_file(rel: str, text: str, owners: list[str]) -> list[Signal]:
     if ext not in CODE_EXT:
         return signals
 
+    # One search of the whole text per pattern says which can match a line at
+    # all (perf, 2026-11-20: nine searches on each of 3.6 M lines were 11 s of
+    # this check's 11.6). None of them can match across a line break (no \s,
+    # no anchors), so a line's match is a match in the text: a pattern the text
+    # lacks finds nothing on any line, and the signals are the same.
+    copyright = ("©" in text or COPYRIGHT_WORD.search(text) is not None) and COPYRIGHT.search(text) is not None
+    spdx = SPDX.search(text) is not None
+    banners = [(name, pat) for name, pat in BANNERS
+               if PREFILTERS.get(name, bool)(text) and pat.search(text)]
+    if not (copyright or spdx or banners or ext in BUNDLE_EXT):
+        return signals
+
     for lineno, line in enumerate(text.splitlines(), 1):
         if len(line) > BUNDLE_LINE:
             if ext in BUNDLE_EXT and not is_data_literal(line):
                 signals.append(Signal(rel, "bundle", f"line of {len(line):,} characters", lineno))
             continue
-        for m in COPYRIGHT.finditer(line):
+        for m in (COPYRIGHT.finditer(line) if copyright else ()):
             # A copyright string inside a quoted literal is data the program
             # prints or checks ("© 2026 Name", an ICC profile tag), not a notice.
             if m.start() > 0 and line[m.start() - 1] in "\"'`":
@@ -188,12 +207,12 @@ def scan_file(rel: str, text: str, owners: list[str]) -> list[Signal]:
             if re.search(r"\$\{|\{\w*\}|%s|\+\s*$", holder):
                 continue
             signals.append(Signal(rel, "copyright", holder, lineno))
-        m = SPDX.search(line)
+        m = SPDX.search(line) if spdx else None
         if m:
             ident = m.group(1).strip()
             if ident and ident != "MIT":
                 signals.append(Signal(rel, "spdx", ident, lineno))
-        for name, pat in BANNERS:
+        for name, pat in banners:
             if pat.search(line):
                 signals.append(Signal(rel, "banner", name, lineno))
     return signals
@@ -252,7 +271,10 @@ def check(root: str, files: list[str], inventory: dict) -> tuple[list[str], list
         for e in inventory.get(group, []):
             name = e.get("name", "?")
             for g in e.get("paths", []):
-                if not any(fnmatch.fnmatchcase(f, g) for f in files):
+                # fnmatchcase(f, g) is this compiled match; calling it directly
+                # skips a cache lookup per file (1.7 M calls, 1.3 s).
+                match = re.compile(fnmatch.translate(g)).match
+                if not any(match(f) for f in files):
                     problems.append(f"{group} '{name}': glob {g!r} matches no tracked file (stale?)")
             if group == "not_third_party":
                 if not e.get("why"):

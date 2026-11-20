@@ -37,10 +37,32 @@ const str = (v) => (typeof v === "string" ? v : v && typeof v === "object" && "t
 const refId = (v) => (v && typeof v === "object" && v.ref !== undefined ? v.ref : null);
 const numOf = (v) => (typeof v === "number" ? v : v && typeof v === "object" && "typed" in v ? numOf(v.value) : null);
 
-/** Factor to SI of each unit type in an IfcUnitAssignment (the project's units). */
-export function readUnits(model) {
+// The exact SI value of the conversion-based units IFC exporters name
+// (IFC2X3 8.11.3.2 lists the names). A unit carrying one of these names but
+// a factor more than 0.1% away from it is an exporter fault, not a different
+// unit: Revit's 2014-era exporter wrote 'INCH' as 3.6576 m (144 inches, its
+// foot factor times 12 twice) while the coordinates were in real inches
+// (Lake Kegonsa Home, 2014-10-14 export: the same window's OverallHeight is
+// 4.677 in the foot-unit export before it and 56.125 here; eval/units-repair-2026-11-20.md).
+// Trusting the factor makes every size 144 times too big. Names that differ
+// between countries (gallon, ton) are left alone.
+export const NAMED_UNITS = {
+  LENGTHUNIT: { INCH: 0.0254, FOOT: 0.3048, YARD: 0.9144, MILE: 1609.344 },
+  AREAUNIT: { "SQUARE INCH": 0.00064516, "SQUARE FOOT": 0.09290304, "SQUARE YARD": 0.83612736, ACRE: 4046.8564224, "SQUARE MILE": 2589988.110336 },
+  VOLUMEUNIT: { "CUBIC INCH": 1.6387064e-5, "CUBIC FOOT": 0.028316846592, "CUBIC YARD": 0.764554857984, LITRE: 0.001 },
+  MASSUNIT: { POUND: 0.45359237, OUNCE: 0.028349523125 },
+  PLANEANGLEUNIT: { DEGREE: Math.PI / 180 },
+};
+
+/**
+ * Factor to SI of each unit type in an IfcUnitAssignment (the project's
+ * units). `repairs` lists each named unit whose declared factor was replaced
+ * by the name's exact value (see NAMED_UNITS); `opts.trustDeclared` keeps
+ * the declared factors instead.
+ */
+export function readUnits(model, opts = {}) {
   const E = model.entities;
-  const out = { LENGTHUNIT: 1, AREAUNIT: 1, VOLUMEUNIT: 1, MASSUNIT: 1, PLANEANGLEUNIT: 1, names: {} };
+  const out = { LENGTHUNIT: 1, AREAUNIT: 1, VOLUMEUNIT: 1, MASSUNIT: 1, PLANEANGLEUNIT: 1, names: {}, repairs: [] };
   let project = null;
   for (const e of E.values()) if (e.type === "IFCPROJECT") { project = e; break; }
   const ua = project && E.get(refId(project.args[8]));
@@ -60,13 +82,21 @@ export function readUnits(model) {
       const mwu = E.get(refId(u.args[3]));
       const v = numOf(mwu && mwu.args[0]);
       const base = factorOf(E.get(refId(mwu && mwu.args[1])), depth + 1);
-      return { type: u.args[1] && u.args[1].enum, f: (v ?? 1) * (base ? base.f : 1), name: str(u.args[2]) };
+      const type = u.args[1] && u.args[1].enum, name = str(u.args[2]);
+      const f = (v ?? 1) * (base ? base.f : 1);
+      const key = name && name.trim().toUpperCase().replace(/\s+/g, " ");
+      const exact = key && NAMED_UNITS[type] && Object.hasOwn(NAMED_UNITS[type], key) ? NAMED_UNITS[type][key] : null;
+      if (exact != null && !opts.trustDeclared && Math.abs(f - exact) > 1e-3 * exact) return { type, f: exact, name, repaired: { declared: f, used: exact } };
+      return { type, f, name };
     }
     return null;
   };
   for (const r of ua.args[0] || []) {
     const u = factorOf(E.get(refId(r)));
-    if (u && u.type && Object.hasOwn(out, u.type) && u.type !== "names") { out[u.type] = u.f; out.names[u.type] = u.name; }
+    if (u && u.type && Object.hasOwn(out, u.type) && u.type !== "names" && u.type !== "repairs") {
+      out[u.type] = u.f; out.names[u.type] = u.name;
+      if (u.repaired) out.repairs.push({ type: u.type, name: u.name, ...u.repaired });
+    }
   }
   return out;
 }
@@ -227,11 +257,11 @@ export function prettyClass(t) {
 
 /**
  * @param {{entities: any, schema: string|null}} model parsed STEP (step.mjs)
- * @param {{geometry?: boolean, tolerance?: number}} opts
+ * @param {{geometry?: boolean, tolerance?: number, trustDeclaredUnits?: boolean}} opts
  */
 export function takeoff(model, opts = {}) {
   const E = model.entities;
-  const units = readUnits(model);
+  const units = readUnits(model, { trustDeclared: opts.trustDeclaredUnits });
   const f = units.LENGTHUNIT;
   const geo = new Geometry(model, { angle: units.PLANEANGLEUNIT });
   const idx = indexModel(E);
@@ -915,6 +945,18 @@ export function rowsCsv(rows) {
 }
 
 /** Totals of the check across rows, for the page's summary and the eval. */
+/**
+ * One sentence for the reader when readUnits replaced a declared factor, or
+ * null: the unit's name, what the file declared and what was used.
+ */
+export function unitRepairNote(units) {
+  const r = units && units.repairs;
+  if (!r || !r.length) return null;
+  const fmt = (v) => (v >= 0.01 && v < 1e4 ? String(+v.toPrecision(6)) : v.toExponential(4));
+  const si = { LENGTHUNIT: "m", AREAUNIT: "m2", VOLUMEUNIT: "m3", MASSUNIT: "kg", PLANEANGLEUNIT: "rad" };
+  return "The file's units are faulty and were repaired: " + r.map((x) => `'${x.name}' is declared as ${fmt(x.declared)} ${si[x.type]} (${+(x.declared / x.used).toPrecision(4)} times the real ${x.name.toLowerCase()}); the exact ${fmt(x.used)} ${si[x.type]} was used`).join("; ") + ".";
+}
+
 export function checkSummary(rows) {
   const s = { elements: rows.length, computed: 0, notRead: 0, noBody: 0, grossPairs: 0, grossAgree: 0, netPairs: 0, netAgree: 0, netNotComputed: 0, areaPairs: 0, areaAgree: 0, reasons: {} };
   for (const r of rows) {

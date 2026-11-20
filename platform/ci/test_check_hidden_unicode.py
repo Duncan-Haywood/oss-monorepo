@@ -86,6 +86,37 @@ class Findings(unittest.TestCase):
             if guard.PATTERN.fullmatch(chr(cp)):
                 self.assertIn(cp, guard.CLASSES, hex(cp))
 
+    def test_utf8_pattern_matches_the_same_characters(self):
+        """The bytes prefilter finds exactly PATTERN's characters, on every code point."""
+        every = "".join(chr(cp) for cp in range(0x110000) if not 0xD800 <= cp <= 0xDFFF)
+        as_str = [m.group() for m in guard.PATTERN.finditer(every)]
+        as_bytes = [m.group().decode() for m in guard.UTF8_PATTERN.finditer(every.encode())]
+        self.assertEqual(as_bytes, as_str)
+        # With the ASCII bytes deleted, as scan() searches: still the same characters.
+        stripped = every.encode().translate(None, bytes(range(128)))
+        self.assertEqual([m.group().decode() for m in guard.UTF8_PATTERN.finditer(stripped)], as_str)
+
+    def test_prefilter_skips_only_files_without_a_hit(self):
+        dash, e_acute, emoji = chr(0x2014), chr(0xE9), chr(0x1F600)
+        cases = {
+            "ascii.md": ("plain text\n", None),
+            "dashes.md": (f"a {dash} caf{e_acute} {emoji}\n", None),
+            "zwsp.md": (f"a {dash} b{ZWSP}c\n", [(1, 6, 0x200B, "zero-width")]),
+            "tag.md": (f"x{emoji}" + tags("hi") + "\n", [(1, 3, 0xE0068, "tag"), (1, 4, 0xE0069, "tag")]),
+            "bom.md": (BOM + "lead\n", []),
+        }
+        with TemporaryDirectory() as d:
+            for name, (text, _) in cases.items():
+                (Path(d) / name).write_text(text, encoding="utf-8")
+            (Path(d) / "latin1.md").write_bytes(b"caf\xe9 \xe2\x80\x8b broken")
+            for name, (text, want) in cases.items():
+                got = guard.read_text(Path(d) / name, candidates_only=True)
+                self.assertEqual(got is None, want is None, name)
+                self.assertEqual(guard.read_text(Path(d) / name), text)
+                self.assertEqual(guard.findings_in_text(text), want or [], name)
+            found = guard.scan(Path(d), sorted(cases) + ["latin1.md"])
+            self.assertEqual(found, {n: w for n, (_, w) in cases.items() if w})
+
 
 class Ratchet(unittest.TestCase):
     def hit(self, n=1):

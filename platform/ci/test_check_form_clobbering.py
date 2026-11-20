@@ -63,6 +63,13 @@ class ClobberedCalls(unittest.TestCase):
 
 
 class Tree(unittest.TestCase):
+    def test_modules_are_read_only_when_a_control_hides_a_method(self):
+        def boom():
+            raise AssertionError("modules read for a page with nothing hidden")
+        self.assertEqual(clobbered_calls('<form><input id="x"><button type="submit">Go</button></form>', boom), [])
+        page = '<form><button id="reset">Reset</button></form>'
+        self.assertEqual(clobbered_calls(page, lambda: "form.reset();"), [("reset", 1)])
+
     def test_tree_and_exit_code(self):
         with tempfile.TemporaryDirectory() as d:
             (Path(d) / "a").mkdir()

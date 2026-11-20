@@ -1,0 +1,44 @@
+home-6d82e39.ifc: IFC2X3, 402 elements (84 without a box), 2.5 s
+home-7e77485.ifc: IFC2X3, 491 elements (87 without a box), 2.5 s
+home-86b76d3.ifc: IFC2X3, 641 elements (78 without a box), 1.4 s
+home-dd375a5.ifc: IFC2X3, 714 elements (2 without a box), 1.5 s
+lk-ea059de.ifc: IFC2X3, 920 elements (2 without a box), 3.7 s
+
+home-6d82e39.ifc -> home-7e77485.ifc
+  elements 402 -> 491; matched 333 (GlobalId 320, Tag 13, geometry 0); unchanged 171, changed 162; added 156, removed 68; merged 0, split 1
+  a GlobalId-only comparison: 171 added, 82 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":139,"quantity: area":60,"attribute: class":4,"reshaped":110,"moved":27,"attribute: name":18,"attribute: material":12,"attribute: type":7,"attribute: storey":3}
+  new GlobalId: {"tag: IfcWindow":8,"tag: IfcDoor":5}
+  split: 1 -> 2  IfcWallStandardCase Basic Wall:Interior 2x4 w/ gyp.:396659  volume 1.8264 -> 1.8444 m3
+  added: {"IfcWallStandardCase":88,"IfcFooting":29,"IfcBuildingElementProxy":12,"IfcWindow":8,"IfcSlab":6,"IfcColumn":5,"IfcFurnishingElement":4,"IfcBeam":3,"IfcWall":1}
+  removed: {"IfcWallStandardCase":33,"IfcFooting":17,"IfcWindow":6,"IfcColumn":4,"IfcSlab":3,"IfcBuildingElementProxy":2,"IfcDoor":1,"IfcWall":1,"IfcBeam":1}
+  commonest moves (dx, dy, dz m): {"0.00, 0.00, -2.91":3,"0.00, 0.17, 0.00":2,"-0.09, 0.00, 0.00":2,"0.00, 0.14, 0.00":2,"-0.05, 0.00, 0.00":2,"-0.00, -0.00, -0.08":2}
+
+home-7e77485.ifc -> home-86b76d3.ifc
+  elements 491 -> 641; matched 420 (GlobalId 402, Tag 18, geometry 0); unchanged 205, changed 215; added 221, removed 71; merged 0, split 0
+  a GlobalId-only comparison: 239 added, 89 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":148,"attribute: name":11,"attribute: type":9,"attribute: storey":10,"attribute: material":11,"quantity: area":91,"reshaped":158,"attribute: class":5,"moved":44}
+  new GlobalId: {"tag: IfcWindow":13,"tag: IfcDoor":5}
+  added: {"IfcBeam":123,"IfcMember":44,"IfcWallStandardCase":22,"IfcSlab":7,"IfcFooting":7,"IfcDoor":3,"IfcFurnishingElement":3,"IfcWindow":3,"IfcCovering":3,"IfcBuildingElementProxy":3,"IfcFlowTerminal":2,"IfcRoof":1}
+  removed: {"IfcMember":36,"IfcWallStandardCase":17,"IfcFooting":5,"IfcBuildingElementProxy":4,"IfcFurnishingElement":2,"IfcSlab":1,"IfcRoof":1,"IfcColumn":1,"IfcBeam":1,"IfcCovering":1,"IfcWindow":1,"IfcDoor":1}
+  commonest moves (dx, dy, dz m): {"-0.00, -0.00, -0.02":7,"0.00, 0.00, -0.02":6,"0.00, -0.00, -0.02":4,"0.00, 0.07, -0.00":4,"-0.05, 0.00, -0.00":2,"0.08, -0.00, -0.00":2}
+
+home-86b76d3.ifc -> home-dd375a5.ifc
+  elements 641 -> 714; matched 570 (GlobalId 549, Tag 19, geometry 2); unchanged 123, changed 447; added 144, removed 71; merged 0, split 0
+  a GlobalId-only comparison: 165 added, 92 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: area":100,"attribute: material":49,"attribute: classification":301,"quantity: volume":228,"attribute: storey":227,"reshaped":181,"attribute: name":51,"attribute: type":40,"moved":49,"attribute: class":4}
+  new GlobalId: {"tag: IfcWindow":13,"tag: IfcDoor":5,"tag: IfcBuildingElementProxy":1,"geometry: IfcWallStandardCase":1,"geometry: IfcDoor":1}
+  added: {"IfcBeam":62,"IfcFurnishingElement":20,"IfcWallStandardCase":17,"IfcWindow":13,"IfcColumn":8,"IfcFlowSegment":7,"IfcFooting":6,"IfcSlab":5,"IfcBuildingElementProxy":3,"IfcRoof":1,"IfcCovering":1,"IfcDoor":1}
+  removed: {"IfcWallStandardCase":19,"IfcWindow":15,"IfcBeam":14,"IfcColumn":7,"IfcBuildingElementProxy":6,"IfcFooting":5,"IfcFlowTerminal":1,"IfcSlab":1,"IfcWall":1,"IfcRoof":1,"IfcDoor":1}
+  commonest moves (dx, dy, dz m): {"-0.00, -0.05, 0.00":12,"-0.01, -0.52, 0.00":11,"-0.31, 0.01, 0.00":7,"-0.08, 0.00, 0.00":4,"0.01, 0.30, 0.00":2,"0.00, 0.00, -0.06":1}
+
+home-dd375a5.ifc -> lk-ea059de.ifc
+  elements 714 -> 920; matched 449 (GlobalId 441, Tag 6, geometry 2); unchanged 30, changed 419; added 469, removed 252; merged 2, split 0
+  a GlobalId-only comparison: 479 added, 273 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":284,"quantity: area":106,"reshaped":290,"attribute: storey":67,"moved":102,"attribute: material":41,"attribute: name":144,"attribute: type":58,"attribute: class":5}
+  new GlobalId: {"tag: IfcWindow":5,"geometry: IfcWindow":2,"tag: IfcDoor":1}
+  merged: 2 -> 1  IfcWallStandardCase Basic Wall:Exterior Wall-New:1019252  volume 1.0993 -> 1.1147 m3
+  merged: 11 -> 1  IfcWallStandardCase Basic Wall:fireplace trim wall:1417311  volume 0.3109 -> 0.3163 m3
+  added: {"IfcBeam":249,"IfcWallStandardCase":82,"IfcWindow":47,"IfcFooting":21,"IfcDoor":16,"IfcWall":11,"IfcFlowSegment":10,"IfcFurnishingElement":9,"IfcFlowFitting":6,"IfcBuildingElementProxy":6,"IfcColumn":2,"IfcCovering":2,"IfcMember":2,"IfcFlowTerminal":2,"IfcRoof":1,"IfcSlab":1,"IfcStairFlight":1,"IfcRailing":1}
+  removed: {"IfcWallStandardCase":82,"IfcMember":64,"IfcWindow":43,"IfcFooting":19,"IfcDoor":12,"IfcBuildingElementProxy":10,"IfcFurnishingElement":8,"IfcBeam":6,"IfcFlowSegment":3,"IfcSlab":2,"IfcWall":2,"IfcStairFlight":1}
+  commonest moves (dx, dy, dz m): {"0.00, 0.00, 0.02":41,"-0.00, -0.11, 0.02":12,"0.00, 0.03, 0.02":7,"-0.00, 0.00, 0.02":5,"0.00, -0.00, 0.02":5,"0.00, 0.00, 0.04":2}
