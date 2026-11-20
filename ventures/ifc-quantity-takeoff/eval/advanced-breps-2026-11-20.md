@@ -142,7 +142,17 @@ gives one window 41 m3).
 **duplex against IfcOpenShell**: the 8 furnishings whose net volume is newly
 computed agree net 8 of 8.
 
-SOFFICE_RESULT
+**S_Office against IfcOpenShell** (default tessellation, 1%; [elements-vs-ifcopenshell-2026-11-20-soffice.txt](elements-vs-ifcopenshell-2026-11-20-soffice.txt)): the 2,896
+elements read before agree gross 2,896 of 2,896. Of the 209 elements newly read
+through a boolean with a faceted operand, 182 agree gross. The other 27 are
+unexplained here: 7 identical SC-056 columns 2.1% under, SB-168/174 beams 2-22%
+apart (IfcOpenShell itself gives two identical SB-174 beams 0.0116 and
+0.0158 m3, we give both 0.0123), and 13 wall parts (tiles, plasterboard, steel
+framing) 3-64% apart. Net differs on 85 of the 209. These are
+IfcBuildingElementParts with no openings of their own, and IfcOpenShell takes
+the parent wall's openings out of them. This tool does not: the gross figures
+of the same parts agree to 1e-11. Whether a part's quantity should lose its
+wall's openings is a question for the method of measurement.
 
 ## Speed
 
@@ -159,5 +169,6 @@ signed tetrahedra.
   surface (12 elements).
 - Overlapping pieces are summed, not unioned. A union needs a polyhedral
   boolean, which would cost 4,000 terms or more per window.
+- S_Office's 27 unexplained gross differences against IfcOpenShell (above).
 - S_Office's 5 bodies over 20,000 pieces, and 6 differences whose faceted
   operand is not closed.
