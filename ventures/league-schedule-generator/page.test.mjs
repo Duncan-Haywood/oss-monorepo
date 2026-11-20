@@ -1010,6 +1010,9 @@ test("weekend tournament page: canonical, FAQ schema, disclaimer, usage counter,
   assert.match(html, /No warranty/);
   assert.match(html, /from "\.\/usage\.mjs"/);
   assert.match(html, /from "\.\/tournament\.mjs"/);
+  // Results on the day: the box, the options and the module that plays the weekend forward.
+  assert.match(html, /from "\.\/tournament-results\.mjs"/);
+  for (const id of ["results", "pts", "gdcap", "h2h", "applyResults", "resultsCsv", "resultsOut"]) assert.match(html, new RegExp(`id="${id}"`), id);
   assert.match(page("index.html"), /href="\.\/weekend-tournament-schedule\.html"/);
   assert.match(page("sitemap.xml"), /weekend-tournament-schedule\.html/);
   assert.match(page("llms.txt"), /weekend-tournament-schedule\.html/);

@@ -20,7 +20,60 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## Weekend tournaments: every division on shared fields, pools then brackets (2026-11-20, newest)
+## Weekend tournaments: results on the day fill the pools and the bracket (2026-11-20, newest)
+
+The weekend scheduler below stopped at placeholders: every knockout game read "1st Pool A v 2nd
+Pool B" or "Winner SF1" until the director redrew the bracket by hand, usually on a whiteboard by
+the score table. Now `tournament-results.mjs` and the "Results on the day" box on
+`weekend-tournament-schedule.html` take the scores as they come in and play the weekend forward.
+
+- **What you type.** One game per line, any order, in the league formats (`Hawks 2 - 1 Owls`, `Owls
+  lost to Hawks 1-2`, `Hawks w/o Owls`); a level knockout score names its winner (`Hawks 1 - 1 Owls
+  (Hawks on penalties)`). A club often enters the same name in two age groups (the sample has North
+  Hills Hawks in U10 and U12), so a line whose two teams are both in more than one division is refused
+  with the fix: start it with the division (`U12 Boys: ...`) or put the division's name on a line
+  above a block of its results.
+- **Pool tables.** `standings` from `calc.mjs` per pool: points (3-1-0 or any win-draw-loss), then
+  head to head among teams level on points (or straight to goal difference), then goal difference,
+  then goals for. An optional **goal-difference cap** (the usual youth rule, often 3 to 5) counts a
+  9-0 as 4-0 for goal difference and goals for; the table still shows the real score in the grid.
+- **Knockout places.** A pool's places fill only when every game in it has a result, so a bracket
+  never shows a team that could still drop out. "Best 2nd-placed" places (when the number going
+  through is not a multiple of the pools) fill once every pool is done, compared **per game** (points,
+  then goal difference, then goals for per game played), so a runner-up from a pool of three is not
+  ranked below one from a pool of four for playing one game fewer. Teams level on everything are
+  listed in pool order with a note to settle it by the tournament's own rule.
+- **Bracket.** The division's bracket (the same crossover seeds and labels the schedule was built
+  with) gets the real names in its seed slots, then `playBracket` carries winners into "Winner SF1"
+  slots and losers into the third-place game. The grid shows names, scores and the winner in bold;
+  times and fields never move, so the results survive "Try another order".
+- **Wrong lines are named.** Each refused line gives its line number and the reason: a name not in
+  the division, two teams from different pools while the pools are unfinished ("this would be a
+  knockout game, but Valley United is not in the knockouts yet: Pool A still has games to play"), a
+  second line for a pool pair when neither went through, a level knockout score with no winner.
+- **A fix in the league table on the way.** `tieBreakNotes` said two teams were separated "on head to
+  head" whenever the head-to-head option was on, even when they were level on every tie-break, so the
+  "Still level: decide it by a play-off or a draw" note never showed on head-to-head tables. It now
+  says so only when the deeper head-to-head levels really differ (league page included).
+- **Exports.** `tournamentResultsText` (every pool table, the knockout places, each knockout game
+  with its result, the champion, runner-up and third, and the next twelve games) and
+  `tournamentResultsCsv` (the schedule with the teams filled in and a Result column; one team's games
+  with `team`).
+- **Checked:** `tournament-results.test.mjs` (7 tests): the sample weekend played to the end on 30
+  random score sets (every game has a result; every seed is the team at that place of its pool's final
+  table; every knockout slot holds a real team; times and fields unchanged; each final's teams are its
+  semifinal winners; champion, runner-up and third distinct); pool lines shuffled ten ways give the
+  same tables and seeds; division headings and prefixes; each error; the cap moving a tie; a 10-team
+  division in pools of 4, 3 and 3 whose best runner-up is the 4-pool's on points per game, played to
+  a champion; both exports. In Chromium at 390 px: 35 of the sample's 36 games typed in, champions
+  shown for U10 and U14, the U12 final waiting with its two semifinal winners named, no console
+  errors, no sideways scroll, and the results still there after a reload. Made-up weekends only; no
+  real tournament has used it yet.
+- **Not done:** a pair that meets in its pool and again in the knockouts takes its first line as the
+  pool game (so type pool results before that knockout result); referees for a tournament; a public
+  read-only results page for parents (the league's `/league` page does this for a season).
+
+## Weekend tournaments: every division on shared fields, pools then brackets (2026-11-20)
 
 A club tournament puts several age groups on a few fields over a weekend. Until now the generator
 made league seasons and one-pool days; a director with U10s on 7v7 pitches, U12s on 9v9 and U14s on
@@ -61,7 +114,7 @@ full-size fields still built the weekend grid by hand. `tournament.mjs` and
   best-runner-up seeds; a one-a-day cap spreading a pool; short field time; the validator catching a
   moved game; exports; 40 random weekends clean; `capFits` cases) and `page.test.mjs` (page wiring).
   The page was loaded in Chromium at phone width: 36 games, no errors, no sideways scroll.
-- **Not done:** results typed into the bracket, referees for a tournament, a real tournament's
+- **Not done:** (results typed into the bracket: above, 2026-11-20) referees for a tournament, a real tournament's
   fields and divisions, an exact model for the 4 to 7% of warned-free weekends the search leaves
   short (some may be infeasible: the checks are necessary, not sufficient).
 
