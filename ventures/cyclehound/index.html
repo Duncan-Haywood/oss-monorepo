@@ -119,8 +119,10 @@ cyclehound --json src/ &gt; cycles.json              # components, loops, edges 
 cyclehound --graph --json src/ &gt; graph.json       # the whole graph, in madge's --json shape
 cyclehound --unresolved src/                     # relative or alias imports that point at no file
 cyclehound --orphans src/                        # files nothing imports
-cyclehound --unused-exports src/                 # exports no file imports (ts-unused-exports' job)</pre>
+cyclehound --unused-exports src/                 # exports no file imports (ts-unused-exports' job)
+cyclehound --deps .                              # unused and undeclared package.json dependencies (depcheck's job)</pre>
     <p class="note">Needs a Rust toolchain (<code>rustup</code>). Respects <code>.gitignore</code>. <code>cyclehound --help</code> lists every option.</p>
+    <p class="note"><code>--deps</code> checks every <code>package.json</code> under the folder. With <code>--depcheck</code> it applies depcheck 1.4.7's rules and gave depcheck's answer on all 474 packages we compared (apart from 9 names used only in files depcheck could not parse), in 1.9 s where depcheck took about 6 minutes on 442 of them; without it, it also reads scripts, config files and stylesheets on a checkout with nothing installed. It never runs your config files. <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/cyclehound/BENCHMARK.md#dependencies-against-depcheck-147-2026-11-20">The comparison</a>.</p>
   </section>
 
   <section class="card">
