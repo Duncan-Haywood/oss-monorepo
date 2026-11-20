@@ -23,6 +23,7 @@ Plan in ../../LOG.md (7q plan).
 """
 import importlib.util
 import json
+import os
 import statistics
 import sys
 from multiprocessing import Pool
@@ -37,7 +38,8 @@ SET, COND = "Ramadass2004", "Ramadass2004@1x"
 STRETCH = 1.13
 NUM = (-4.656, 88.669, -401.119, 342.909, -462.471, 433.434)      # coefficients of t^0, t^2, ..., t^10
 DEN = (-1.0, 18.933, -79.532, 37.311, -73.083, 95.96)
-POLE_BAND = 0.03          # H313: end-of-charge y within (pole, pole + POLE_BAND]
+POLE_BAND = 0.03
+REPAIR = os.environ.get("REPAIR", "envelope")     # "bridge": the post hoc variant -> rows_bridge.json          # H313: end-of-charge y within (pole, pole + POLE_BAND]
 
 
 def _mod(name, path):
@@ -98,6 +100,20 @@ def envelope_from_top(up):
     return out
 
 
+def bridge(g, up, pairs, pad=0.01):
+    """Post hoc repair (not in the plan): Up linear across [min(pair) - pad, max(pair) + pad] for each near-cancelling
+    pole-zero pair, i.e. the smooth curve the fit approximates on either side with the spike removed."""
+    out = list(up)
+    for a, b in pairs:
+        lo, hi = min(a, b) - pad, max(a, b) + pad
+        i0 = max(i for i, y in enumerate(g) if y < lo)
+        i1 = min(i for i, y in enumerate(g) if y > hi)
+        for i in range(i0 + 1, i1):
+            w = (g[i] - g[i0]) / (g[i1] - g[i0])
+            out[i] = up[i0] + w * (up[i1] - up[i0])
+    return out
+
+
 def turns(v, tol=1e-3):
     d = [b - a for a, b in zip(v, v[1:]) if abs(b - a) >= tol]
     return sum(1 for a, b in zip(d, d[1:]) if (a > 0) != (b > 0))
@@ -153,9 +169,15 @@ def _deps():
         def bal(_d):
             b, o = orig(SRC)
             o = dict(grid=o["grid"], sets={s: dict(v) for s, v in o["sets"].items()})
-            o["sets"][SET]["Up"] = envelope_from_top(o["sets"][SET]["Up"])
+            up = o["sets"][SET]["Up"]
+            if REPAIR == "bridge":
+                sc = json.loads((HERE / "scan.json").read_text())
+                o["sets"][SET]["Up"] = bridge(o["grid"], up, list(zip(sc["poles_y"], sc["numerator_zeros_y"])))
+            else:
+                o["sets"][SET]["Up"] = envelope_from_top(up)
             return b, o
         SF._bal = bal
+        SF._orig_bal = orig
         SF._poles7q = True
     return DC
 
@@ -175,8 +197,8 @@ def rows():
         out.append(dict(cond=dr["cond"], set=dr["set"], j=dr["j"], O1=dr["O1"], O2=dr["O2"], O3=dr["O3"], m=c["m"],
                         E={k: v for k, v in lf["cells"][S7.CELL]["eL"].items()}))
     out.sort(key=lambda o: o["j"])
-    (HERE / "rows.json").write_text(json.dumps(out) + "\n")
-    print(len(out), "designs")
+    (HERE / ("rows_bridge.json" if REPAIR == "bridge" else "rows.json")).write_text(json.dumps(out) + "\n")
+    print(len(out), "designs", REPAIR)
 
 
 # ---------- report ----------
@@ -190,7 +212,7 @@ def charge_band():
     out[SET] = [_band(bal7p[(r["cond"], r["j"])], r) for r in fin]
     DC = _deps()
     WL = DC.LF.WL
-    bals = {d: {k: v for k, v in WL.SF._bal(EXP / d)[0].items()} for d in ("crossset", "calmap")}
+    bals = {d: WL.SF._orig_bal(EXP / d)[0] for d in ("crossset", "calmap")}   # the unpatched loader
     for r in _load(EXP / "fresh7h" / "bench.jsonl"):
         b = bals[WL.SRC.get(r["cond"], "crossset")].get((r["cond"], r["j"]))
         if r.get("ok") and r.get("ok_cycles", 0) >= 100 and b:
