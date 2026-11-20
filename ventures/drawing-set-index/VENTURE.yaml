@@ -1,0 +1,22 @@
+name: drawing-set-index
+description: Drop a construction drawing set PDF and get the sheet index (number, title, discipline), checked against the cover sheet's drawing index; compare two issues sheet by sheet. Browser or CLI, nothing uploaded.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Project engineers, document controllers and permit expediters who retype a sheet index or hunt for changed sheets between issues will search "sheet index from PDF" or "compare drawing set revisions" and use a free in-browser reader, measured as the share of set_read events followed by csv_downloaded or compare_run.
+    status: untested
+    checked: null
+    evidence: customer-contact  # usage counters set_read, index_built, csv_downloaded, compare_run, compare_csv_downloaded (local only)
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: false
+kill_criteria:
+  - Fewer than ten csv_downloaded or compare_run events reported within 120 days of the page being indexed.
+links:
+  production: https://marisstella.app/drawing-set-index/
+  analytics: null

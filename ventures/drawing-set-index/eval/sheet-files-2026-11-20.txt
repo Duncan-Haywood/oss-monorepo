@@ -1,0 +1,13 @@
+123 single-sheet PDFs scored (0 skipped: no truth in the name or no text; 0 with more than one page left out)
+sheet number right: 121 of 123 (98.4%)
+number and title right: 115 of 123 (93.5%)
+
+misses:
+  Vacation_Rental-50.pdf: want M-002 | HVAC 1st & 2nd Floor plan -- got M.002 | HVAC 1st & 2nd Floor ceiling Plan
+  New_2nd_Story-1.pdf: want A000 | SITE PLAN -- got A000 | 2ND FLOOR ADDITION SITE PLAN
+  New_2nd_Story-2.pdf: want A101 | FLOOR PLAN - 1ST FLOOR -- got A101 | 2ND FLOOR ADDITION FLOOR PLAN - 1ST FLOOR
+  New_2nd_Story-3.pdf: want A102 | FLOOR PLAN - 2ND FLOOR -- got A102 | 2ND FLOOR ADDITION FLOOR PLAN - 2ND FLOOR
+  New_2nd_Story-4.pdf: want A104 | ROOF PLAN -- got A104 | 2ND FLOOR ADDITION ROOF PLAN
+  New_2nd_Story-5.pdf: want A200 | ELEVATION EAST -- got A201 | ELEVATION EAST
+  New_2nd_Story-6.pdf: want A200 | ELEVATION NORTH -- got A203 | ELEVATION NORTH
+  New_2nd_Story-11.pdf: want A600 | SCHEDULES -- got A600 | 2ND FLOOR ADDITION SCHEDULES

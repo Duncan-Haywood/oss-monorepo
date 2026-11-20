@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drawing Set Index and Revision Compare — free sheet index from a PDF</title>
+<meta name="description" content="Drop a construction drawing set PDF and get the sheet index: every sheet number, title and discipline, checked against the cover sheet's drawing index. Compare two issues to see added, removed and changed sheets. Free, in your browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231f5a8a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ED%3C/text%3E%3C/svg%3E">
+<link rel="canonical" href="https://marisstella.app/drawing-set-index/">
+<style>
+:root{--bg:#f8f9fa;--fg:#1b1f24;--mut:#59616b;--line:#d6dbe0;--card:#fff;--acc:#1f5a8a;--chip:#e9eef3;--add:#2f6b3a;--del:#a33a2a;--chg:#8a5a00}
+@media (prefers-color-scheme:dark){:root{--bg:#121417;--fg:#e9ebee;--mut:#a3aab3;--line:#30353b;--card:#1a1d21;--acc:#79b1e0;--chip:#24292f;--add:#7cc48a;--del:#f08b7a;--chg:#e2b45a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:72rem;margin:0 auto;padding:1.25rem 16px 3rem}
+h1{font-size:1.9rem;line-height:1.2;margin:.4rem 0 .5rem}
+h2{font-size:1.25rem;margin:2rem 0 .5rem}
+h3{font-size:1.02rem;margin:1.2rem 0 .3rem}
+p{margin:.4rem 0 .8rem}
+a{color:var(--acc)}
+.lede{color:var(--mut);max-width:50rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:1.1rem;background:var(--card)}
+.drop.over{border-color:var(--acc)}
+.drop h2{margin:.1rem 0 .4rem;font-size:1.08rem}
+button{font:inherit;border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:8px;padding:.45rem .85rem;cursor:pointer}
+button.secondary{background:transparent;color:var(--acc)}
+button:disabled{opacity:.5;cursor:default}
+input[type=file]{max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}
+.chip{background:var(--chip);border-radius:999px;padding:.15rem .65rem;font-size:.88rem}
+.note{color:var(--mut);font-size:.92rem}
+#status{min-height:1.5rem;color:var(--mut)}
+.warn{border-left:3px solid var(--chg);padding:.3rem .7rem;background:var(--card);margin:.35rem 0;font-size:.93rem}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card);margin-top:.6rem}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:.42rem .55rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--card);font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:var(--mut)}
+.num{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
+.st{white-space:nowrap;font-weight:600}
+.st-added{color:var(--add)}.st-removed{color:var(--del)}.st-retitled,.st-text{color:var(--chg)}.st-same{color:var(--mut)}
+.diff{font-size:.84rem;color:var(--mut)}
+.diff ins{color:var(--add);text-decoration:none}.diff del{color:var(--del)}
+small{color:var(--mut)}
+@media print{.noprint{display:none!important}body{background:#fff;color:#000}.tablewrap{border:0}}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Drawing Set Index","url":"https://marisstella.app/drawing-set-index/","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in the browser)","description":"Reads a construction drawing set PDF in the browser and lists every sheet's number, title, discipline and sheet type, checks the set (missing or duplicate numbers, the cover sheet's drawing index against the sheets) and compares two issues sheet by sheet. Nothing is uploaded.","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I make a sheet index from a drawing set PDF?","acceptedAnswer":{"@type":"Answer","text":"Choose the set's PDF, or every sheet's PDF at once. The tool finds each sheet's number and title in its title block and lists them in binding order, with the discipline and sheet type from the US National CAD Standard. Download the CSV for the cover sheet, a transmittal or a document log."}},{"@type":"Question","name":"How does it find the sheet number?","acceptedAnswer":{"@type":"Answer","text":"On a drawing sheet the number is the largest ID-shaped text in the title block, at the same spot on every sheet, while callouts citing other sheets are small and scattered. Each page's candidates are scored by size and position and then the set votes for the title block's number cell. The title is the largest text near the number that is not repeated on most sheets (firm, project, address) and is not a date, scale or field label."}},{"@type":"Question","name":"What does the comparison of two issues show?","acceptedAnswer":{"@type":"Answer","text":"Sheets added, removed and retitled, and for each sheet in both issues the notes, labels and callouts whose text was added or removed. Plot stamps and issue dates are ignored. It compares text, not linework: a moved wall with no changed note shows as the same text, so use it to find where to look, then overlay the sheets."}},{"@type":"Question","name":"Is my drawing set uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The PDF is read by code running in this tab; nothing is sent anywhere."}},{"@type":"Question","name":"How accurate is it?","acceptedAnswer":{"@type":"Answer","text":"On 123 single-sheet PDFs whose file names carry the sheet number and title, from public architecture projects on GitHub, it read 121 numbers right (98.4%) and 115 number-and-title pairs (93.5%); three of the misses are file names that disagree with the sheet itself. On 14 whole sets (180 pages) it found a number on all 172 pages with a text layer, and matched all 25 sheets with file-name truth. Scanned sets need OCR first."}}]}</script>
+</head>
+<body>
+<main>
+<p class="note noprint"><a href="../">All tools</a></p>
+<h1>Drawing set index and revision compare</h1>
+<p class="lede">Drop a construction drawing set PDF and get the sheet index: every sheet number, title, discipline and sheet type, with the cover sheet's drawing index checked against the sheets actually in the set. Drop two issues to see which sheets were added, removed, retitled or had their notes changed. Free, and the files never leave your browser.</p>
+
+<div class="grid noprint">
+  <div class="drop" id="dropA">
+    <h2>Index a set</h2>
+    <p><label>Drawing set PDF (one file, or one per sheet)<br><input id="fileA" type="file" accept=".pdf,application/pdf" multiple></label></p>
+    <p class="note">Reads sets with a text layer (exported from Revit, AutoCAD, ArchiCAD, Bluebeam and the like). A scan needs OCR first.</p>
+  </div>
+  <div class="drop" id="dropB">
+    <h2>Compare two issues</h2>
+    <p><label>Older issue<br><input id="fileOld" type="file" accept=".pdf,application/pdf" multiple></label></p>
+    <p><label>Newer issue<br><input id="fileNew" type="file" accept=".pdf,application/pdf" multiple></label></p>
+    <p class="row"><button type="button" id="compare" disabled>Compare</button></p>
+  </div>
+</div>
+<p class="row noprint"><button type="button" class="secondary" id="sample">Try a sample set (two issues)</button></p>
+<p id="status" aria-live="polite"></p>
+<div id="warnings"></div>
+
+<section id="indexOut" hidden>
+  <h2>Sheet index</h2>
+  <div class="chips" id="summary"></div>
+  <div id="findings"></div>
+  <div class="row noprint"><button type="button" id="csvA">Download CSV</button><button type="button" class="secondary" id="print">Print</button></div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Sheet</th><th>Title</th><th>Discipline</th><th>Sheet type</th><th>Page</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+</section>
+
+<section id="compareOut" hidden>
+  <h2>What changed between the issues</h2>
+  <div class="chips" id="csummary"></div>
+  <div class="row noprint"><button type="button" id="csvB">Download CSV</button></div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Sheet</th><th>Change</th><th>Title</th><th>Text added and removed</th></tr></thead>
+    <tbody id="crows"></tbody>
+  </table></div>
+</section>
+
+<h2>What you get</h2>
+<p>The <b>sheet index</b> lists one row per page: sheet number, title, discipline and sheet type (the US National CAD Standard's designators, so <code>S-201</code> is Structural, Elevations), the page and the file it came from, sorted the way the NCS binds a set. The <b>set check</b> flags pages with no number, numbers used twice, numbers out of order within a discipline, a discipline split across the set, and, when the cover sheet has a drawing index, sheets it lists that are not in the set, sheets in the set it leaves out and titles that disagree. The <b>comparison</b> matches the two issues by sheet number and shows sheets added, removed and retitled, and the notes, labels and callouts whose text changed on each sheet.</p>
+
+<h2>Questions</h2>
+<h3>How do I make a sheet index from a drawing set PDF?</h3>
+<p>Choose the set's PDF, or every sheet's PDF at once. The tool finds each sheet's number and title in its title block and lists them in binding order. Download the CSV for the cover sheet, a transmittal or a document log.</p>
+<h3>How does it find the sheet number?</h3>
+<p>On a drawing sheet the number is the largest ID-shaped text in the title block, at the same spot on every sheet, while callouts citing other sheets are small and scattered. Each page's candidates are scored by size and position, then the set votes for the title block's number cell. The title is the largest text near the number that is not repeated on most sheets (firm, project, address) and is not a date, scale or field label; the title block's ruled cells keep a project name stacked above the title out of it.</p>
+<h3>What does the comparison show, and what does it miss?</h3>
+<p>Sheets added, removed and retitled, and the text added or removed on every sheet in both issues. Plot stamps and issue dates are ignored. It compares text, not linework: a moved wall with no changed note shows as the same text. Use it to find where to look, then overlay the two sheets in your PDF viewer.</p>
+<h3>Is my drawing set uploaded?</h3>
+<p>No. The PDF is read by code running in this tab; nothing is sent anywhere.</p>
+<h3>How accurate is it?</h3>
+<p>On 123 single-sheet PDFs whose file names carry the sheet number and title, from public architecture projects on GitHub, it read 121 numbers right (98.4%) and 115 number-and-title pairs (93.5%); three of the misses are file names that disagree with the sheet itself. On 14 whole sets (180 pages) it found a number on all 172 pages with a text layer, and matched all 25 sheets with file-name truth. These are mostly one office's Revit sets, so check the list against your set. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/drawing-set-index#how-it-was-checked">How it was checked</a>.</p>
+<h3>Can I run it on my own machine?</h3>
+<p>Yes. It is MIT-licensed, has no dependencies and runs from a folder: <code>node cli.mjs set.pdf --csv index.csv</code> or <code>node cli.mjs --compare old.pdf new.pdf</code>. Source on <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/drawing-set-index">GitHub</a>.</p>
+
+<p class="noprint">Related: the <a href="../submittal-register/">submittal register</a> from the project manual, the <a href="../ifc-quantity-takeoff/">IFC quantity takeoff</a>, and the <a href="../xer-schedule-check/">XER schedule check</a>.</p>
+<p class="noprint"><small id="usage"></small> <button type="button" class="secondary" id="optout" style="font-size:.8rem;padding:.2rem .5rem">Turn usage counting off</button></p>
+<p><small><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, construction, engineering or professional advice, and it does not replace a qualified professional or the design team. It reads the text layer of the PDF you give it and can miss or misread sheet numbers, titles and changes; it does not compare linework. The issued drawings govern. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</small></p>
+</main>
+<script type="module">
+import { checkSet, compareSets, indexCsv, compareCsv, compareIds } from "./engine.mjs";
+import { samplePdf } from "./sample.mjs";
+import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+let lastIndex = null, lastCompare = null, baseName = "drawing-set";
+
+function readIssue(files, tag) {
+  return new Promise((resolve, reject) => {
+    let w;
+    try { w = new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" }); } catch (e) { reject(e); return; }
+    w.onmessage = (e) => {
+      if (e.data.progress) $("#status").textContent = e.data.progress;
+      if (e.data.index) { resolve(e.data); w.terminate(); }
+      if (e.data.error) { reject(new Error(e.data.error)); w.terminate(); }
+    };
+    w.onerror = (e) => { reject(e); w.terminate(); };
+    w.postMessage({ files, tag }, files.map((f) => f.buffer));
+  });
+}
+const payload = (files) => Promise.all([...files].map(async (f) => ({ name: f.name, buffer: await f.arrayBuffer() })));
+const warn = (notes) => { $("#warnings").innerHTML = notes.map((n) => `<div class="warn">${esc(n)}</div>`).join(""); };
+
+function showIndex(index) {
+  lastIndex = index;
+  const findings = checkSet(index);
+  $("#indexOut").hidden = false;
+  const found = index.sheets.filter((s) => s.number).length;
+  const discs = new Set(index.sheets.map((s) => s.discipline).filter(Boolean));
+  $("#summary").innerHTML = [`<span class="chip"><b>${found}</b> of ${index.pageCount} pages numbered</span>`, `<span class="chip">${discs.size} discipline${discs.size === 1 ? "" : "s"}</span>`, index.drawingIndex ? `<span class="chip">Drawing index on page ${index.drawingIndex.page}: ${index.drawingIndex.rows.length} sheets</span>` : `<span class="chip">No drawing index found on a cover sheet</span>`, `<span class="chip">${findings.length} finding${findings.length === 1 ? "" : "s"}</span>`].join("");
+  $("#findings").innerHTML = findings.map((f) => `<div class="warn">${esc(f.message)}</div>`).join("");
+  const rows = [...index.sheets].sort((a, b) => (a.number && b.number ? compareIds(a.number, b.number) || a.page - b.page : a.number ? -1 : b.number ? 1 : a.page - b.page));
+  const multi = new Set(index.sheets.map((s) => s.file)).size > 1;
+  $("#rows").innerHTML = rows.map((s) => `<tr><td class="num">${esc(s.number || "?")}</td><td>${esc(s.title)}</td><td>${esc(s.discipline)}</td><td>${esc(s.sheetType)}</td><td class="num">${multi ? esc(s.file) + " " : ""}p. ${s.filePage || s.page}</td></tr>`).join("");
+}
+
+function showCompare(rows) {
+  lastCompare = rows;
+  $("#compareOut").hidden = false;
+  const n = (st) => rows.filter((r) => r.status === st).length;
+  $("#csummary").innerHTML = [["added", "added"], ["removed", "removed"], ["retitled", "retitled"], ["text changed", "with text changes"], ["same text", "with the same text"]].map(([k, label]) => `<span class="chip"><b>${n(k)}</b> ${label}</span>`).join("");
+  const cls = { added: "added", removed: "removed", retitled: "retitled", "text changed": "text", "same text": "same" };
+  const list = (xs, tag) => xs.slice(0, 12).map((t) => `<${tag}>${esc(t)}</${tag}>`).join("; ") + (xs.length > 12 ? `; and ${xs.length - 12} more` : "");
+  $("#crows").innerHTML = rows.map((r) => `<tr><td class="num">${esc(r.number)}</td><td class="st st-${cls[r.status]}">${esc(r.status)}</td><td>${r.status === "retitled" ? `${esc(r.oldTitle)} &rarr; ${esc(r.newTitle)}` : esc(r.newTitle || r.oldTitle)}</td><td class="diff">${r.added.length ? `<b>+${r.added.length}</b> ${list(r.added, "ins")}` : ""}${r.added.length && r.removed.length ? "<br>" : ""}${r.removed.length ? `<b>&minus;${r.removed.length}</b> ${list(r.removed, "del")}` : ""}</td></tr>`).join("");
+}
+
+async function indexFiles(files) {
+  $("#status").textContent = "Reading…"; warn([]);
+  baseName = files[0].name.replace(/\.[^.]+$/, "") || "drawing-set";
+  const t0 = performance.now();
+  const { index, notes } = await readIssue(await payload(files), "A");
+  warn(notes);
+  $("#status").textContent = `Read ${files.length > 1 ? files.length + " files" : files[0].name} in ${((performance.now() - t0) / 1000).toFixed(1)} s.`;
+  record("set_read");
+  if (index.sheets.some((s) => s.number)) record("index_built");
+  showIndex(index);
+}
+
+async function compareFiles(older, newer) {
+  $("#status").textContent = "Reading both issues…"; warn([]);
+  baseName = newer[0].name.replace(/\.[^.]+$/, "") || "drawing-set";
+  const a = await readIssue(await payload(older), "old");
+  const b = await readIssue(await payload(newer), "new");
+  warn(a.notes.concat(b.notes));
+  $("#status").textContent = `Compared ${a.index.pageCount} pages with ${b.index.pageCount}.`;
+  record("compare_run");
+  showIndex(b.index);
+  showCompare(compareSets(a.index, b.index));
+}
+
+const fail = (err) => { $("#status").textContent = "Could not read the file: " + (err && err.message || err); };
+$("#fileA").addEventListener("change", (e) => { if (e.target.files.length) indexFiles(e.target.files).catch(fail); });
+const ready = () => { $("#compare").disabled = !($("#fileOld").files.length && $("#fileNew").files.length); };
+$("#fileOld").addEventListener("change", ready);
+$("#fileNew").addEventListener("change", ready);
+$("#compare").addEventListener("click", () => compareFiles($("#fileOld").files, $("#fileNew").files).catch(fail));
+for (const id of ["#dropA", "#dropB"]) {
+  const d = $(id);
+  d.addEventListener("dragover", (e) => { e.preventDefault(); d.classList.add("over"); });
+  d.addEventListener("dragleave", () => d.classList.remove("over"));
+}
+$("#dropA").addEventListener("drop", (e) => { e.preventDefault(); $("#dropA").classList.remove("over"); if (e.dataTransfer.files.length) indexFiles(e.dataTransfer.files).catch(fail); });
+$("#dropB").addEventListener("drop", (e) => { e.preventDefault(); $("#dropB").classList.remove("over"); const f = [...e.dataTransfer.files]; if (f.length === 2) compareFiles([f[0]], [f[1]]).catch(fail); else $("#status").textContent = "Drop two PDFs here (older first), or use the two file boxes."; });
+$("#sample").addEventListener("click", async () => {
+  record("sample_loaded");
+  const f = (issue) => ({ name: `sample-issue-${issue}.pdf`, buffer: samplePdf(issue).buffer });
+  baseName = "sample-set";
+  const a = await readIssue([f(1)], "old"), b = await readIssue([f(2)], "new");
+  $("#status").textContent = "Sample: a made-up five-sheet house set, permit issue then construction issue.";
+  showIndex(b.index);
+  showCompare(compareSets(a.index, b.index));
+});
+const download = (text, name, ev) => {
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([text], { type: "text/csv;charset=utf-8" })), download: name });
+  document.body.append(a); a.click(); a.remove();
+  record(ev);
+};
+$("#csvA").addEventListener("click", () => { if (lastIndex) download(indexCsv(lastIndex), `${baseName}-sheet-index.csv`, "csv_downloaded"); });
+$("#csvB").addEventListener("click", () => { if (lastCompare) download(compareCsv(lastCompare), `${baseName}-changes.csv`, "compare_csv_downloaded"); });
+$("#print").addEventListener("click", () => { record("index_printed"); window.print(); });
+$("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; });
+if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+$("#usage").textContent = "Anonymous counts of features used stay in this browser; nothing is sent.";
+record("page_viewed");
+</script>
+</body>
+</html>

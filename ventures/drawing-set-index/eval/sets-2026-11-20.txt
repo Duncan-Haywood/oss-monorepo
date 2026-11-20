@@ -1,0 +1,18 @@
+aa-20180706.pdf: 15 pages, 7 numbers; findings: no-number, no-number, no-number, no-number, no-number, no-number, no-number, no-number
+aa-20180824.pdf: 3 pages, 3 numbers; findings: none
+ap-20180420.pdf: 15 pages, 15 numbers; findings: none
+fb-20180925.pdf: 6 pages, 6 numbers; findings: none
+k-20140901.pdf: 12 pages, 12 numbers; findings: none
+k-20141110.pdf: 15 pages, 15 numbers; findings: none
+k-20150129.pdf: 12 pages, 12 numbers; findings: none
+k-20160415.pdf: 19 pages, 19 numbers; findings: none
+of-20190525.pdf: 6 pages, 6 numbers; findings: none
+of-20190627.pdf: 8 pages, 8 numbers; findings: none
+og-20190308.pdf: 25 pages, 25 numbers; findings: duplicate, order
+og-20190309.pdf: 24 pages, 24 numbers; findings: none
+vr-20170224.pdf: 7 pages, 7 numbers; findings: none
+vr-20170410.pdf: 13 pages, 13 numbers, drawing index on page 1; findings: none
+
+180 pages in 14 sets; 8 have no text layer; 172 of the other 172 got a sheet number.
+number printed on its page (pdftotext): 172 of 172; title printed on its page: 167 of 172 titled.
+against file-name truth: number 25 of 25, number and title 25 of 25.
