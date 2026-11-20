@@ -536,6 +536,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    inside milestone 62's band). The aimed bias beats random on the H1 (0.0203 against 0.0182 mm) but not on the G1
    (0.0180 against 0.0238; H246 refuted): the rule protects the weakest joint, and residuals come from admitted flips
    elsewhere. Next: dynamics, a residual-maximizing bias search, a bias above the bound.
+64. **A bias above the bound** (done 2026-11-20, `experiments/m64_overbias/`): the planner sized to 0.2 N, the true
+   bias 0.3 to 1.0 N along milestone 63's worst direction, 48 new loads (seed 64). At 0.3 N 22.6% of planned G1 and
+   12.0% of planned H1 presses leave 0.03 mm (worst 0.29 and 0.47 mm; H247 refuted); at 1.0 N 82% and 75% (H248
+   held); coverage stays at least 99.85%, so the planner gives no warning. At 0.3 N every failure is a flip at the
+   press pose; from 0.4 N calibration flips and the bias's direct effect add more (H249 refuted). The bound is a sensor
+   specification to enforce. Next: the planner re-sized to a larger bias and its coverage cost; dynamics.
 
 ## Target venue
 

@@ -844,6 +844,13 @@ H1, against 0.0238 and 0.0182 mm under six random directions on the same loads. 
 1812 of 1812 H1 cases under the aimed bias; the one refusal is a load 0.06 N under its balance limit. The aimed bias is
 worse than random on the H1 only, because the rule keeps the targeted joint from flipping and the residual comes from
 admitted flips elsewhere.
+The guarantee has no slack past its bound (milestone 64, an eighth held-out set). With the planner still sized to
+0.2 N and the true bias 0.3, 0.4, 0.6 or 1.0 N along the same worst direction, the chain plans at least 99.85% of
+balance-envelope cases at every bias, but at 0.3 N 22.6% of planned G1 presses and 12.0% of planned H1 presses leave
+0.03 mm, the worst by 0.2875 mm on the G1 and 0.4689 mm on the H1; at 1.0 N the shares are 82.3% and 75.1%. At 0.3 N
+every failure is a flip at the press pose; at larger biases a flip in the reference calibration, and the bias's
+direct effect, add failures with no flip at the press. The bias bound is therefore a specification the sensor must
+meet, checked before work, not a nominal value with margin behind it.
 
 ### 5.12 What the remedies cost (milestone 13)
 

@@ -821,6 +821,18 @@ search for the largest residual.
 
 ![Worst residual under the aimed 0.2 N bias against the worst of 6 random biases, per pose and load](experiments/m63_worstbias/figure.png)
 
+**Milestone 64: how much bigger can the sensor bias get before the 0.03 mm guarantee fails?** None. The planner's
+margins are sized to a 0.2 N wrist-sensor bias; here the true bias is 0.3, 0.4, 0.6 or 1.0 N along milestone 63's
+worst direction, on 48 new held-out loads (seed 64). **At 0.3 N, 22.6% of planned G1 presses and 12.0% of planned H1
+presses leave 0.03 mm (worst 0.29 and 0.47 mm)**, against a worst of 0.02 mm at 0.2 N (H247 refuted); at 1.0 N, 82%
+and 75% (H248 held). The planner still plans at least 99.85% of balance-envelope cases at every bias, so coverage
+gives no warning. At 0.3 N every failure is a backlash flip at the press pose; from 0.4 N on, a flip in the
+reference calibration and the bias's direct effect add failures with no flip at the press (H249 refuted). The bias
+bound is a sensor specification that must hold (a known-load check before each wall), not a figure with slack behind
+it. One seed; statics; the worst direction, not random ones; the planner re-sized to a larger bias not yet run.
+
+![Worst residual and share of planned presses over 0.03 mm against the true sensor bias, planner sized to 0.2 N](experiments/m64_overbias/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
