@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVNVjHqSrBKsvAZGMDQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (owner's standing ventures brief)",
+  "input_sha256": "dc863d996529215194f3f7e08c0ff10d37c02074faf430854d83d999c5ff8542",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T19:24:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 10) open-tennis-robots: BUILDABLE HERE item 'the same guide for the feeder' (assembly guide generated from the CAD with fastener-stack checks)",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17957",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First CAD suite run failed FeederGeometryTest.test_mast_plate_holes_meet_posts_and_bearing: it asserted the mast plate's holes sat at the post centres, the fault this run fixed; updated to expect the core bores (12 holes).",
+    "A python edit script with five replacements aborted on its last assertion and wrote nothing; reran with the last pattern fixed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "open-tennis-robots `buildable:` named the feeder guide as 'F.fasteners, its steps and joints', which undersold it: F.fasteners itself was wrong (duplicate standoff and tub lines, missing frame screws), so the item was a BOM audit plus a guide."
+    },
+    {
+      "file": "ventures/open-tennis-robots/cad/tests/test_cad.py",
+      "issue": "setUpModule starts both full package builds (feeder ~10 min) for any test in the module, so running one test class needs a wrapper that blanks setUpModule; a note at the top or an env var to skip the builds would save the next run the detour."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The brief favours new ventures and revenue; the router's Start here named a flagship item (the feeder assembly guide) and CLAUDE.md defaults to deepening flagships, so this run took the flagship.",
+      "did": "Built the feeder's guide and fixed what it found.",
+      "result": "Twelve fit faults and the BOM fixed in a package that a builder (or a kit seller) would otherwise have ordered parts for."
+    },
+    {
+      "file": "ventures/open-tennis-robots/cad/otr_cad/feeder.py",
+      "why": "Several fixes (levelling feet M6, frame end-tap screws, lazy-susan nuts, 4-8 mm T-nut window) rest on stated assumptions about bought parts rather than measurements.",
+      "did": "Stated each assumption in the guide, cad/README.md and the BOM notes.",
+      "result": "Checks pass under those assumptions; a builder checks them against what they buy."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-tennis-feeder-assembly-guide-found-it-could-not-be-built.md",
+    "ventures/open-tennis-robots/cad/README.md (Feeder assembly guide)"
+  ],
+  "goal": "Make the feeder's manufacturing package buildable by a stranger: a generated, checked assembly guide.",
+  "notes": "Feeder package rebuilt with every sweep: exit 0, guide all pass. Collector package byte-identical. Guide tests pass. Full CAD suite, venture tests and preflight: results added in a later commit.",
+  "corrections": [],
+  "redteam": null
+}
