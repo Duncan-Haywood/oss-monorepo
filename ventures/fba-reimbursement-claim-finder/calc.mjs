@@ -8,10 +8,16 @@
 // when this was written. Pure functions, no DOM, no network.
 
 export const DEFAULT_UNIT_VALUE = 20;
-// Amazon usually reimburses lost inventory on its own after a wait, so a very
-// recent loss is not yet a claim. The window to file is commonly 18 months from
-// the event; both are editable defaults because Amazon changes them.
-export const WAIT_DAYS = 45;
+// Amazon's FBA inventory reimbursement policy (Seller Central help G200213130,
+// supplychain.amazon.com/support/reimbursements) has allowed 60 days to file a
+// claim for units lost or damaged in its fulfilment centres since late 2024; it
+// was 18 months before. Amazon also reimburses most warehouse losses on its own.
+// With a 60-day window there is no room to wait, so the default wait is 0 and the
+// "expiring" band is the last 14 days. All are editable because Amazon changes them.
+export const WAIT_DAYS = 0;
+export const WINDOW_DAYS = 60;
+export const EXPIRING_DAYS = 14;
+// Used only when a caller passes windowMonths (the pre-2024 18-month rule, or a marketplace that differs).
 export const WINDOW_MONTHS = 18;
 export const EXPIRING_MONTHS = 3;
 // Inbound shipments that arrive short have a much shorter claim window than lost inventory
@@ -197,7 +203,8 @@ export function normalizeLedger(table, { decimalComma = false } = {}) {
     const raw = get(line, f);
     if (isBlank(raw)) return 0;
     const n = parseNumber(raw, decimalComma);
-    return Number.isFinite(n) ? Math.abs(n) : null;
+    // Lost and Damaged are negative in the ledger; Found keeps its sign so a found-then-reversed pair nets to 0.
+    return Number.isFinite(n) ? (f === "found" ? n : Math.abs(n)) : null;
   };
   for (let i = h + 1; i < table.length; i++) {
     const line = table[i], lineNo = table[i].line ?? i + 1;
@@ -348,10 +355,15 @@ export function inboundClaimText(r) {
 
 // ledgerItems: normalizeLedger(...).items. reimbItems: normalizeReimbursements(...).items or null when no
 // reimbursement file was given. asOf is "today" in ms so the aging is testable.
-export function analyze(ledgerItems, reimbItems, { asOf = Date.now(), defaultUnitValue = DEFAULT_UNIT_VALUE, waitDays = WAIT_DAYS, windowMonths = WINDOW_MONTHS } = {}) {
+export function analyze(ledgerItems, reimbItems, { asOf = Date.now(), defaultUnitValue = DEFAULT_UNIT_VALUE, waitDays = WAIT_DAYS, windowDays = WINDOW_DAYS, windowMonths } = {}) {
   const haveReimb = Array.isArray(reimbItems);
   const unitDefault = Number.isFinite(defaultUnitValue) && defaultUnitValue >= 0 ? defaultUnitValue : DEFAULT_UNIT_VALUE;
-  const expiringBefore = addMonths(asOf, EXPIRING_MONTHS);
+  const byMonths = Number.isFinite(windowMonths) && windowMonths > 0;
+  if (!byMonths) windowDays = Number.isFinite(windowDays) && windowDays > 0 ? windowDays : WINDOW_DAYS;
+  const windowEnd = (t) => (byMonths ? addMonths(t, windowMonths) : t + windowDays * DAY);
+  const windowLabel = byMonths ? `${windowMonths}-month` : `${windowDays}-day`;
+  const expiringLabel = byMonths ? `${EXPIRING_MONTHS} months` : `${EXPIRING_DAYS} days`;
+  const expiringBefore = byMonths ? addMonths(asOf, EXPIRING_MONTHS) : asOf + EXPIRING_DAYS * DAY;
   const bySku = new Map();
   const slot = (sku) => { const k = norm(sku); if (!bySku.has(k)) bySku.set(k, { sku, title: "", fnsku: "", events: [], found: 0, unknown: 0, reimbUnits: 0, reimbCash: 0, reimbPaidUnits: 0 }); return bySku.get(k); };
   for (const x of ledgerItems) {
@@ -378,7 +390,7 @@ export function analyze(ledgerItems, reimbItems, { asOf = Date.now(), defaultUni
     const damaged = s.events.reduce((n, e) => n + e.damaged, 0);
     const missing = lost + damaged;
     if (!missing && !s.unknown && !s.reimbUnits) continue;
-    const offset = s.found + Math.max(0, s.reimbUnits);
+    const offset = Math.max(0, s.found) + Math.max(0, s.reimbUnits);
     let left = offset;
     const open = [];
     for (const e of s.events) {
@@ -392,7 +404,7 @@ export function analyze(ledgerItems, reimbItems, { asOf = Date.now(), defaultUni
     const bucket = { wait: 0, claim: 0, expiring: 0, expired: 0 };
     let claimBy = null;
     for (const o of open) {
-      const end = addMonths(o.t, windowMonths);
+      const end = windowEnd(o.t);
       const state = asOf - o.t < waitDays * DAY ? "wait" : end < asOf ? "expired" : end < expiringBefore ? "expiring" : "claim";
       bucket[state] += o.units;
       o.state = state; o.end = end;
@@ -416,19 +428,19 @@ export function analyze(ledgerItems, reimbItems, { asOf = Date.now(), defaultUni
     skus: rows.length, lost: sum((r) => r.lost), damaged: sum((r) => r.damaged), found: sum((r) => r.found), reimbursed: sum((r) => r.reimbursed),
     unclaimed: sum((r) => r.unclaimed), claimNowUnits: sum((r) => r.claim + r.expiring), expiringUnits: sum((r) => r.expiring), waitUnits: sum((r) => r.wait), expiredUnits: sum((r) => r.expired),
     claimNowValue: r2(sum((r) => r.claimNowValue)), expiringValue: r2(sum((r) => r.expiring * r.unitValue)), waitValue: r2(sum((r) => r.waitValue)), expiredValue: r2(sum((r) => r.expiredValue)),
-    from: Math.min(...ledgerDates), to: Math.max(...ledgerDates), haveReimb, asOf, windowMonths, waitDays, defaultUnitValue: unitDefault,
+    from: Math.min(...ledgerDates), to: Math.max(...ledgerDates), haveReimb, asOf, windowMonths: byMonths ? windowMonths : null, windowDays: byMonths ? null : windowDays, windowLabel, waitDays, defaultUnitValue: unitDefault,
     unknown: sum((r) => r.unknown),
   };
   const withClaim = rows.filter((r) => r.claim + r.expiring > 0);
   const findings = [];
   if (!haveReimb) findings.push({ severity: "high", title: "No reimbursements file was given, so every lost and damaged unit shows as unclaimed", detail: "Amazon pays for a lot of lost and damaged inventory on its own. Add the Reimbursements report (Seller Central → Reports → Fulfillment → Reimbursements) to see what is really left; until then treat the figures below as an upper bound." });
-  if (summary.claimNowUnits > 0) findings.push({ severity: "high", title: `About ${summary.claimNowUnits} unit${summary.claimNowUnits === 1 ? "" : "s"} worth ${usd(summary.claimNowValue)} look unclaimed and are still inside the ${windowMonths}-month window`, detail: withClaim.slice(0, 5).map((r) => `${r.sku}: ${r.claim + r.expiring} unit(s) at ${usd(r.unitValue)} (${r.valueSource})`).join("; ") + `. Units are counted as missing when the ledger shows them lost or damaged and neither found later nor reimbursed. Check each against Seller Central before opening a case; Amazon decides every claim.` });
+  if (summary.claimNowUnits > 0) findings.push({ severity: "high", title: `About ${summary.claimNowUnits} unit${summary.claimNowUnits === 1 ? "" : "s"} worth ${usd(summary.claimNowValue)} look unclaimed and are still inside the ${windowLabel} window`, detail: withClaim.slice(0, 5).map((r) => `${r.sku}: ${r.claim + r.expiring} unit(s) at ${usd(r.unitValue)} (${r.valueSource})`).join("; ") + `. Units are counted as missing when the ledger shows them lost or damaged and neither found later nor reimbursed. Check each against Seller Central before opening a case; Amazon decides every claim.` });
   if (summary.expiringUnits > 0) {
     const soon = withClaim.filter((r) => r.expiring > 0);
-    findings.push({ severity: "high", title: `${summary.expiringUnits} unit${summary.expiringUnits === 1 ? "" : "s"} (${usd(summary.expiringValue)}) reach the ${windowMonths}-month limit within ${EXPIRING_MONTHS} months`, detail: "File these first: " + soon.slice(0, 5).map((r) => `${r.sku} by ${ymd(r.claimBy)}`).join("; ") + `. The ${windowMonths}-month limit is a common Amazon rule and is editable above because Amazon changes it.` });
+    findings.push({ severity: "high", title: `${summary.expiringUnits} unit${summary.expiringUnits === 1 ? "" : "s"} (${usd(summary.expiringValue)}) reach the ${windowLabel} limit within ${expiringLabel}`, detail: "File these first: " + soon.slice(0, 5).map((r) => `${r.sku} by ${ymd(r.claimBy)}`).join("; ") + `. The ${windowLabel} limit is ${byMonths ? "a value you set" : "Amazon's current rule for warehouse losses"} and is editable above because Amazon changes it.` });
   }
   if (summary.waitUnits > 0) findings.push({ severity: "info", title: `${summary.waitUnits} unit${summary.waitUnits === 1 ? "" : "s"} (${usd(summary.waitValue)}) went missing in the last ${waitDays} days`, detail: "Amazon often reimburses these automatically after an investigation. Check again once they are older." });
-  if (summary.expiredUnits > 0) findings.push({ severity: "info", title: `${summary.expiredUnits} unit${summary.expiredUnits === 1 ? "" : "s"} (${usd(summary.expiredValue)}) are older than ${windowMonths} months`, detail: "Probably past the claim window. Some sellers still ask and are refused; the tool does not count them in the claim total." });
+  if (summary.expiredUnits > 0) findings.push({ severity: "info", title: `${summary.expiredUnits} unit${summary.expiredUnits === 1 ? "" : "s"} (${usd(summary.expiredValue)}) are past the ${windowLabel} window`, detail: "Probably past the claim window. Some sellers still ask and are refused; the tool does not count them in the claim total." });
   const over = rows.filter((r) => r.overpaid > 0 && r.unclaimed === 0 && r.reimbursed > 0);
   if (over.length) findings.push({ severity: "info", title: `${over.length} SKU${over.length === 1 ? " was" : "s were"} reimbursed for more units than the ledger shows missing`, detail: over.slice(0, 5).map((r) => `${r.sku}: ${r.reimbursed} reimbursed vs ${r.lost + r.damaged} missing`).join("; ") + ". Nothing to claim there. The extra payments may relate to inbound shipments or periods outside this ledger." });
   if (summary.unknown > 0) findings.push({ severity: "medium", title: `${summary.unknown} unit${summary.unknown === 1 ? "" : "s"} appear as “Unknown Events” in the ledger`, detail: "The ledger does not balance for these units. That is a question for Seller Support rather than a lost or damaged claim, and they are not counted above." });
@@ -460,7 +472,7 @@ export function summaryText(r) {
   const s = r.summary;
   const lines = [
     `FBA inventory ledger ${ymd(s.from)} to ${ymd(s.to)}: ${s.skus} SKU(s), ${s.lost} lost and ${s.damaged} damaged unit(s), ${s.found} found, ${s.reimbursed} reimbursed`,
-    s.haveReimb ? `Possibly unclaimed and still inside the ${s.windowMonths}-month window: ${s.claimNowUnits} unit(s), about ${usd(s.claimNowValue)}` : `No reimbursements file: upper bound of ${s.unclaimed} unit(s) unmatched`,
+    s.haveReimb ? `Possibly unclaimed and still inside the ${s.windowLabel || `${s.windowMonths}-month`} window: ${s.claimNowUnits} unit(s), about ${usd(s.claimNowValue)}` : `No reimbursements file: upper bound of ${s.unclaimed} unit(s) unmatched`,
   ];
   for (const x of r.rows.filter((q) => q.claim + q.expiring > 0).slice(0, 8)) lines.push(`  ${x.sku}: ${x.claim + x.expiring} unit(s) at ${usd(x.unitValue)}${x.claimBy ? `, file by ${ymd(x.claimBy)}` : ""}`);
   lines.push("Made with the FBA Reimbursement Claim Finder (nothing uploaded). Estimates from the files supplied; Amazon decides every claim.");
@@ -477,7 +489,7 @@ export function sampleCsv(asOf = Date.now()) {
   row(d(200), "MUG-BLU-001", "Blue enamel camp mug 4-pack", 3, 2, 1);
   row(d(30), "MUG-BLU-001", "Blue enamel camp mug 4-pack", 2, 0, 0);
   row(d(120), "YOGA-STR-002", "Cork yoga strap", 4, 0, 0);
-  row(d(80), "LAMP-DSK-003", "Bamboo desk lamp", 0, 3, 0, 2);
+  row(d(50), "LAMP-DSK-003", "Bamboo desk lamp", 0, 3, 0, 2);
   row(d(20), "LAMP-DSK-003", "Bamboo desk lamp", 1, 0, 0);
   row(d(300), "TEA-SMP-004", "Loose tea sampler", 5, 0, 0);
   const reimb = ["approval-date,reimbursement-id,reason,sku,fnsku,asin,product-name,quantity-reimbursed-cash,quantity-reimbursed-inventory,quantity-reimbursed-total,amount-per-unit,amount-total"];

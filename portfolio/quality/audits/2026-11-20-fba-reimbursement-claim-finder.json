@@ -1,0 +1,272 @@
+{
+ "date": "2026-11-20",
+ "subject": "ventures/fba-reimbursement-claim-finder",
+ "stratum": "venture",
+ "seed": "2026-11-20-67e4",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an Amazon FBA reimbursement / inventory-reconciliation specialist (the person a recovery service employs to file lost-and-damaged cases); first checks: is the claim window the current Amazon rule, does the netting of found and reimbursed units against lost/damaged events follow the ledger's sign conventions, and is the unit value on Amazon's current valuation basis",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The arithmetic is right; the default rule it ages claims against is not current Amazon policy. (1) Independent FIFO netting and calendar ageing written from scratch in Python with no subject import (`python3 -I /tmp/claude-0/audit-fba-reimbursement-claim-finder/indep.py`) against the subject (`node /tmp/claude-0/audit-fba-reimbursement-claim-finder/subj.mjs ventures/fba-reimbursement-claim-finder`) on the built-in sample at as-of 2026-11-20: MUG 6 units $105.00, LAMP 3 units $60.00, YOGA 0, TEA 0, total 9 units $165.00 in both; inbound MUG 12 short claim to 2027-04-23 $210, LAMP 9 claim 2027-06-21 $180, TEA 10 wait, TEA 6 expiring 2026-12-25 $56.40, identical. (2) Month-end clamping vs Python calendar.monthrange: 2024-08-31+18 mo = 2026-02-28, 2023-08-31+6 = 2024-02-29, 2025-01-31+1 = 2025-02-28, identical. (3) parseNumber '1.234,56' (decimal comma) = 1234.56, '(1,234.50)' = -1234.5. (4) But against Amazon policy as reported by WebSearch 2026-11-20 (supplychain.amazon.com/support/reimbursements snippet: 60 days from the date the item was reported lost or damaged in the Inventory Adjustment report; Seller Central help G200213130 and seller-forum notices: FC window shortened from 18 months to 60 days in late 2024, manufacturing-cost valuation from 31 Mar 2025, proactive lost-in-FC reimbursement from 1 Nov 2024); the hosts themselves were unreachable from this session (DNS-blocked), so the snippets are the source: the default 18-month window (calc.mjs:15, index.html:78) marks the sample's 200- and 520-day-old losses as claimable ($165); at the 60-day rule (closest the months input allows is 2) the same data has 0 claimable units. (5) Sign handling: calc.mjs:200 takes Math.abs of every unit column, so a Found -2 reversal after Found +2 nets 4 lost units to 0 unclaimed (expected 4), and a summary-view pair Damaged -3 (SELLABLE) / +3 (damaged disposition) counts 6 damaged, not 3 (subj.mjs output). Whether Amazon's summary view writes the second row that way is not confirmed (no real export), so this is a risk, not a measured miss.",
+  "completeness": "Every feature in README/VENTURE.yaml/page was exercised through the shipped functions: ledger and reimbursement alias parsing (sample parsed, 0 skipped), found + reimbursement FIFO netting, reversals adding back, other/inbound reasons excluded, wait/claim/expiring/expired ageing with editable window/wait/value, per-SKU value from own reimbursements else default, unknown-events, overpaid and reimbursements-start-later findings, draft case text and summary text, optional inbound shipments file with its own window, CSV export, decimal-comma and day-first detection, usage opt-out. `node --test` 35/35 pass in 0.13 s. The 'Reconciles' claim (index.html:123) holds on the sample (MUG 13-1-4=8 unclaimed). No stubs or TODOs. Not built and stated as such: SP-API filing, case tracking.",
+  "verification": "`cd ventures/fba-reimbursement-claim-finder && node --test`: 35 tests, 35 pass. Eight mutants via platform/ci/quality_mutate.py: 6 caught (found dropped from the offset calc.mjs:381; wait threshold zeroed :396; inbound reason no longer separated :226; shortage off by one :317; unit value divisor :390; reimbursements-start-later threshold 60->600 days :438; reversal regex :222 counted as a 7th catch), 2 survived: detectDmy second-part boundary 12->13 (:141) and comma>dot -> comma>=dot (:514), the latter an equivalent mutant (ties are handled first). Tests check the author's belief of the rule (18 months asserted at calc.test.mjs:75), so no test could catch the policy defect, and none covers a negative Found or a positive Damaged row.",
+  "craft": "Read calc.mjs (515 lines, pure, no DOM, no network), index.html script block, calc.test.mjs, page.test.mjs, usage.mjs. Clean, deterministic, injectable asOf, good skipped-row reporting with source line numbers, careful CSV/locale handling. Defects: Math.abs on every ledger unit column (calc.mjs:200) silently discards sign information the ledger carries; the claim window is in whole months (index.html:78, min 1), so the 60-day rule cannot be entered exactly; analyze and analyzeInbound duplicate the ageing state machine (calc.mjs:323 and :396).",
+  "claims": "Disclaimer, no-warranty, not-affiliated and 'Amazon decides every claim' are present (index.html:56, :147-148; page.test.mjs asserts them). 'Files never uploaded' backed: no fetch/XHR/beacon in calc.mjs, index.html or usage.mjs (grep; usage counts stay in localStorage). Served copy (`node platform/pages/served-copy.mjs fba-reimbursement-claim-finder`; marisstella.app returned proxy 403) rewrites llms.txt to https://marisstella.app/fba-reimbursement-claim-finder/, no placeholder origins. But the FAQ (index.html:12 JSON-LD and :136) says 'Amazon has commonly allowed claims within 18 months of the event', and the page tells users to pull 18 months of history (:62, :134); per Amazon policy as reported by WebSearch 2026-11-20 (supplychain.amazon.com/support/reimbursements snippet: 60 days from the date the item was reported lost or damaged in the Inventory Adjustment report; Seller Central help G200213130 and seller-forum notices: FC window shortened from 18 months to 60 days in late 2024, manufacturing-cost valuation from 31 Mar 2025, proactive lost-in-FC reimbursement from 1 Nov 2024); the hosts themselves were unreachable from this session (DNS-blocked), so the snippets are the source that has not been the FC rule since late 2024. The value FAQ (:138) and README Model do not mention that Amazon now pays manufacturing cost, so averaging older sale-price-based reimbursements overstates value. VENTURE.yaml does flag the window as 'from memory' and unverified, which is honest but not on the page.",
+  "fitness": "Walked the job of a seller in November 2026: load ledger + reimbursements, read 'claim now' total, file cases in deadline order. With defaults, the headline total and the 'expiring' list are dominated by losses months past Amazon's current 60-day window, and the tool would send the seller to file cases Amazon will refuse; with Amazon reimbursing lost-in-FC units proactively since Nov 2024 the actionable residue is mostly damaged units and recent events, which the 45-day 'too new' wait (calc.mjs:14) then hides for most of a 60-day window. A seller who knows the rule can set window=2 months and wait=0 and get a usable list, so the reconciliation itself is useful; the inbound section (9 months, consistent with the forum-reported shipment-to-Amazon window, though measured from created date rather than delivery date) is closer to usable.",
+  "domain": "Compared against Amazon's FBA inventory reimbursement policy (Amazon policy as reported by WebSearch 2026-11-20 (supplychain.amazon.com/support/reimbursements snippet: 60 days from the date the item was reported lost or damaged in the Inventory Adjustment report; Seller Central help G200213130 and seller-forum notices: FC window shortened from 18 months to 60 days in late 2024, manufacturing-cost valuation from 31 Mar 2025, proactive lost-in-FC reimbursement from 1 Nov 2024); the hosts themselves were unreachable from this session (DNS-blocked), so the snippets are the source) and standard reconciliation practice (recovery services reconcile adjustment events by date against reimbursement IDs). FIFO netting of found and reimbursed units, separating inbound reimbursements, excluding customer-return reasons and treating reversals as clawbacks are all sound practice. Departures: claim window 18 months vs 60 days (the core rule of the product); value basis is historical average payout vs manufacturing cost since 2025; window measured from event date is right for FC, but the inbound window is measured from shipment creation not verified delivery (conservative); the summary view is used, while specialists work from the detailed Inventory Ledger / adjustments with reason codes (warehouse vs carrier/customer damage), which the summary view cannot distinguish, so non-reimbursable damage types are counted as claimable."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Warehouse claim-now units and value on the built-in sample, as-of 2026-11-20, 18-month window",
+   "method": "independent Python FIFO netting + calendar ageing, no subject import (/tmp/claude-0/audit-fba-reimbursement-claim-finder/indep.py)",
+   "command": "python3 -I /tmp/claude-0/audit-fba-reimbursement-claim-finder/indep.py; node /tmp/claude-0/audit-fba-reimbursement-claim-finder/subj.mjs ventures/fba-reimbursement-claim-finder",
+   "expected": "9 units, $165.00 (MUG 6/$105, LAMP 3/$60)",
+   "observed": "9 units, $165 (MUG 6/105, LAMP 3/60)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Inbound shortages: short units, state, window end, value on the sample",
+   "method": "independent Python recomputation (indep.py), 9-month window, 30-day wait",
+   "command": "same as above",
+   "expected": "MUG 12 claim 2027-04-23 210; LAMP 9 claim 2027-06-21 180; TEA 10 wait; TEA 6 expiring 2026-12-25 56.4",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Calendar month addition with month-end clamping",
+   "method": "Python calendar.monthrange (standard library), independent of the subject",
+   "command": "same as above",
+   "expected": "2026-02-28, 2024-02-29, 2025-02-28",
+   "observed": "2026-02-28, 2024-02-29, 2025-02-28",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Default claim window for lost/damaged units in fulfillment centres",
+   "method": "Amazon policy as reported by WebSearch 2026-11-20 (supplychain.amazon.com/support/reimbursements snippet: 60 days from the date the item was reported lost or damaged in the Inventory Adjustment report; Seller Central help G200213130 and seller-forum notices: FC window shortened from 18 months to 60 days in late 2024, manufacturing-cost valuation from 31 Mar 2025, proactive lost-in-FC reimbursement from 1 Nov 2024); the hosts themselves were unreachable from this session (DNS-blocked), so the snippets are the source",
+   "command": "grep -n WINDOW_MONTHS calc.mjs; node subj.mjs (window 18 vs 2)",
+   "expected": "60 days from the adjustment date; sample claimable = 0 units",
+   "observed": "18 months; sample claimable = 9 units / $165",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Negative Found (a found reversal) after a positive Found",
+   "method": "hand reasoning on ledger semantics: +2 then -2 found nets to 0 found, so 4 lost stay unclaimed",
+   "command": "node /tmp/claude-0/audit-fba-reimbursement-claim-finder/subj.mjs ventures/fba-reimbursement-claim-finder",
+   "expected": "4 unclaimed",
+   "observed": "0 unclaimed",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Decimal-comma and parenthesised-negative amounts",
+   "method": "hand",
+   "command": "node subj.mjs (parseNumber line)",
+   "expected": "1234.56, -1234.5, -3",
+   "observed": "1234.56, -1234.5, -3",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/fba-reimbursement-claim-finder && node --test",
+   "expected": "all pass",
+   "observed": "35/35 pass, 0.13 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ: 'Amazon has commonly allowed claims within 18 months of the event'",
+   "method": "Amazon policy as reported by WebSearch 2026-11-20 (supplychain.amazon.com/support/reimbursements snippet: 60 days from the date the item was reported lost or damaged in the Inventory Adjustment report; Seller Central help G200213130 and seller-forum notices: FC window shortened from 18 months to 60 days in late 2024, manufacturing-cost valuation from 31 Mar 2025, proactive lost-in-FC reimbursement from 1 Nov 2024); the hosts themselves were unreachable from this session (DNS-blocked), so the snippets are the source",
+   "command": "grep -n '18 months' ventures/fba-reimbursement-claim-finder/index.html",
+   "expected": "current rule stated (60 days) or the claim removed",
+   "observed": "18 months stated at index.html:12 and :136; 'going back 18 months' at :62 and :134",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Files never uploaded / no analytics vendor",
+   "method": "grep for network APIs in all shipped scripts",
+   "command": "grep -n 'fetch\\|Beacon\\|XMLHttp\\|http' calc.mjs usage.mjs index.html",
+   "expected": "no network calls",
+   "observed": "none; usage counts in localStorage only",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt / sitemap carry the live origin",
+   "method": "deploy rewrite copy (marisstella.app proxy 403)",
+   "command": "node platform/pages/served-copy.mjs fba-reimbursement-claim-finder",
+   "expected": "https://marisstella.app/fba-reimbursement-claim-finder/",
+   "observed": "rewritten correctly, no placeholder origin",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, not-affiliated clause, Amazon decides every claim",
+   "method": "read page + page.test.mjs",
+   "command": "grep -n 'No warranty\\|Not affiliated\\|Amazon decides' index.html",
+   "expected": "present",
+   "observed": "present at :56, :147, :148",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Value basis for missing units",
+   "method": "Amazon policy as reported by WebSearch 2026-11-20 (supplychain.amazon.com/support/reimbursements snippet: 60 days from the date the item was reported lost or damaged in the Inventory Adjustment report; Seller Central help G200213130 and seller-forum notices: FC window shortened from 18 months to 60 days in late 2024, manufacturing-cost valuation from 31 Mar 2025, proactive lost-in-FC reimbursement from 1 Nov 2024); the hosts themselves were unreachable from this session (DNS-blocked), so the snippets are the source",
+   "command": "sed -n 390p calc.mjs",
+   "expected": "manufacturing cost (seller-entered in IDR) for pre-order losses since 2025",
+   "observed": "average of the SKU's past reimbursements (which may be on the old sale-price basis), else a typed default",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "Damaged units in a summary view that records -3 SELLABLE and +3 in the damaged disposition",
+   "method": "hand: should count 3",
+   "command": "node subj.mjs (damaged both dispositions line)",
+   "expected": "3",
+   "observed": "6 (abs of both rows); real export layout unconfirmed",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Reconciles claim: lost + damaged - found - reimbursed = unclaimed per SKU",
+   "method": "hand on sample MUG",
+   "command": "node subj.mjs",
+   "expected": "13 - 1 - 4 = 8",
+   "observed": "unclaimed 8",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:381",
+   "change": "const offset = s.found + Math.max(0, s.reimbUnits); -> const offset = Math.max(0, s.reimbUnits);",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:396",
+   "change": "const state = asOf - o.t < waitDays * DAY -> const state = asOf - o.t < waitDays * DAY * 0",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:226",
+   "change": "if (/inbound/.test(s)) return \"inbound\"; -> if (/inboundX/.test(s)) return \"inbound\";",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:317",
+   "change": "const short = Math.max(0, x.shipped - x.received); -> const short = Math.max(0, x.shipped - x.received - 1);",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:390",
+   "change": "s.reimbCash / s.reimbPaidUnits -> s.reimbCash / (s.reimbPaidUnits + 1)",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:438",
+   "change": "Math.min(...rd) > summary.from + 60 * DAY -> Math.min(...rd) > summary.from + 600 * DAY",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:222",
+   "change": "/revers|clawback|claw back/ -> /clawback|claw back/",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:141",
+   "change": "if (+m[3] > 12) second = true; -> if (+m[3] > 13) second = true;",
+   "caught": false,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "calc.mjs:514",
+   "change": "comma > dot -> comma >= dot (equivalent mutant: ties handled first)",
+   "caught": false,
+   "test_cmd": "node --test"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Default claim window for lost/damaged FC inventory is 18 months; Amazon's policy has been 60 days from the adjustment date since late 2024, so the headline 'claimable now' total and the expiring list send sellers after claims Amazon will refuse (sample: 9 units/$165 claimable vs 0 under the current rule)",
+   "where": "ventures/fba-reimbursement-claim-finder/calc.mjs:15",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "Page FAQ and JSON-LD state 'Amazon has commonly allowed claims within 18 months of the event' and tell users to pull 18 months of history; stale since late 2024",
+   "where": "ventures/fba-reimbursement-claim-finder/index.html:136",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Claim window input is whole months (min 1), so the current 60-day rule cannot be entered exactly; the 45-day default wait then hides most of a 60-day window",
+   "where": "ventures/fba-reimbursement-claim-finder/index.html:78",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Math.abs on every ledger unit column: a negative Found (found reversal) is added as found units and wipes out real unclaimed losses (Found +2 then -2 against 4 lost gives 0 unclaimed, expected 4); a positive Damaged row in a damaged disposition would double-count",
+   "where": "ventures/fba-reimbursement-claim-finder/calc.mjs:200",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Unit value is the SKU's average past reimbursement; since 31 Mar 2025 Amazon reimburses pre-order losses at manufacturing cost, so older sale-price payouts overstate claim value and the page does not say so",
+   "where": "ventures/fba-reimbursement-claim-finder/calc.mjs:390",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Summary-view Damaged cannot distinguish warehouse damage (reimbursable) from carrier/customer/distributor damage (not), so all damaged units are counted as claimable; specialists reconcile from the detailed ledger with reason codes",
+   "where": "ventures/fba-reimbursement-claim-finder/calc.mjs:363",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Tests pin the stale 18-month rule ('reach the 18-month limit'), and no test covers negative Found or a positive Damaged row; detectDmy boundary mutant (12->13) survives",
+   "where": "ventures/fba-reimbursement-claim-finder/calc.test.mjs:75",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Inbound window is aged from shipment creation date; the reported rule runs from verified delivery, so deadlines are early (conservative) and the page does not say which date it uses",
+   "where": "ventures/fba-reimbursement-claim-finder/calc.mjs:322",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A clean, well-tested reconciliation engine whose numbers recompute exactly (sample 9 units/$165, inbound and month arithmetic identical to an independent Python script; 35/35 tests; 7 of 8 non-equivalent mutants caught), but its central rule is two years stale: it ages lost and damaged FC units against an 18-month window while Amazon's policy, per its own help and supply-chain pages, has been 60 days since late 2024, with manufacturing-cost valuation since March 2025. With defaults the 'claim now' total is mostly claims Amazon will refuse, the page FAQ states the 18-month rule as fact, and the window input cannot even express 60 days. Math.abs on ledger columns also lets a found reversal erase real losses. Does not meet the bar (correctness 2, claims 2); finished against its own README."
+}
