@@ -6,7 +6,7 @@ import { assess } from "./dcma.mjs";
 import { longestPath, floatPaths, floatPathsCsv, finishActivity, drivingInto, targetBound, floatAgainst } from "./floatpaths.mjs";
 
 // Mon-Fri 08:00-12:00, 13:00-17:00 (8 h/day)
-const WEEK = "(0||CalendarData()((0||DaysOfWeek()((0||1()())(0||2()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||3()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||4()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||5()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||6()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||7()())))(0||Exceptions()()))";
+const WEEK = "(0||CalendarData()((0||DaysOfWeek()((0||1()())(0||2()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||3()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||4()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||5()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||6()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||7()())))(0||Exceptions()())))";
 function xerText(tables) {
   const lines = ["ERMHDR\t20.12\t2025-12-01\tProject\tadmin\tAdmin\tdb\tProject Management\tUSD"];
   for (const [name, rows] of Object.entries(tables)) {
@@ -42,6 +42,9 @@ const NET = () => project([
 
 test("longest path: every driving branch into the finish, nothing else", () => {
   const res = schedule(NET());
+  // the fixture's calendar must parse: a malformed WEEK falls back to 24 hours
+  // with only a warning, and every test here would pass without exercising it
+  assert.deepEqual(res.warnings, []);
   assert.deepEqual(codes(res, longestPath(res, "1")), ["A", "C", "END"]);
   // two parallel chains that both drive the finish are both on it
   const two = project([task("1", "A", 16), task("2", "B", 16), task("3", "END", 0, { task_type: "TT_FinMile" })], [link("1", "3", "1"), link("2", "3", "2")]);

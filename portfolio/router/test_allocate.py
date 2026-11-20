@@ -1706,6 +1706,19 @@ class FoldedRowsTests(unittest.TestCase):
         self.assertEqual(len(full.getvalue().splitlines()) - len(text.splitlines()),
                          folded - sum(1 for l in text.splitlines() if l.startswith("... and ")))
 
+    def test_brief_keeps_start_here_and_drops_the_table(self):
+        import contextlib
+        import io
+        from allocate import main
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(main(["--no-deepen", "--no-claims", "--no-probe", "--brief"]), 0)
+        text = out.getvalue()
+        self.assertIn("Start here:", text)
+        self.assertIn("post front matter:", text)
+        self.assertNotIn("7d-commits", text)
+        self.assertLess(len(text), 10_000)
+
 
 class YieldRedirectTest(unittest.TestCase):
     """claim_check.py: a YIELD on a flagship names the free rows to go to instead."""

@@ -1619,7 +1619,8 @@ def print_table(ventures: list[Venture], queue: list[dict],
                 recent: Optional[dict[str, int]] = None,
                 claims: Optional[dict[str, list]] = None,
                 show_all: bool = False,
-                refused: Optional[dict[str, list[str]]] = None) -> None:
+                refused: Optional[dict[str, list[str]]] = None,
+                brief: bool = False) -> None:
     later_cap = sum(v.monthly_cap for v in ventures if v.later_stage)
     early_cap = sum(v.monthly_cap for v in ventures if not v.later_stage)
     total_cap = later_cap + early_cap
@@ -1711,6 +1712,11 @@ def print_table(ventures: list[Venture], queue: list[dict],
                 f"`python3 portfolio/router/claim_check.py {name} --item \"<item>\"`."
             )
             print(claim_recipe(name))
+    if brief:
+        # Why: runs read only the summary and Start here lines; the table is
+        # ~20 KB of long rows they scroll past (doc_friction 2026-11-18..20).
+        print("(table left out by --brief; drop it to see every row)")
+        return
     print()
     print(
         f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}{'merit':>7}"
@@ -1800,6 +1806,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser.add_argument("--all", action="store_true",
                         help="print every table row (by default Maintain-only, awaiting-visitors "
                              "and no-hypothesis rows fold into a count after their first few)")
+    parser.add_argument("--brief", action="store_true",
+                        help="print the summary and Start here lines only, not the ranked table")
     parser.add_argument("--venture", metavar="SLUG",
                         help="print one venture's row in full (untruncated flagship `next:`, open PRs, last landing)")
     args = parser.parse_args(argv)
@@ -1852,7 +1860,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         if claims is None and not args.no_claims:
             print("(open PRs not read: `gh api` search failed; search PR titles before taking a row)")
         print_table(ventures, queue, recent=recent, claims=claims, show_all=args.all,
-                    refused=None if args.no_probe else refused_rows(ventures))
+                    refused=None if args.no_probe else refused_rows(ventures), brief=args.brief)
         print(post_limits_line())
     return 0
 
