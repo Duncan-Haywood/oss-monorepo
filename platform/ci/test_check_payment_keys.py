@@ -141,6 +141,35 @@ class FindingsIn(unittest.TestCase):
         self.write("b.html", '<input value="" name="hosted_button_id">\n')
         self.assertEqual(self.kinds(), [])
 
+    def test_merchant_of_record_checkout_links_fail(self):
+        # goals.md, "Payments: the owner's merchant of record, never a key":
+        # a checkout link is set from owner-only config, never committed.
+        # Red-team 2026-11-20: all four passed before.
+        cases = {
+            "ls.html": '<a href="https://mystore.lemonsqueezy.com/buy/6f1c2a9e-1b2c-4d5e-8f90-123456789abc">Buy</a>\n',
+            "ls2.js": 'const url = "https://mystore.LemonSqueezy.com/checkout/buy/6f1c2a9e-1b2c-4d5e";\n',
+            "polar.html": '<a href="https://buy.polar.sh/polar_cl_' + "AbCdEf123456789" + '">Buy</a>\n',
+            "paddle.html": '<a href="https://pay.paddle.io/hsc_' + "01hv8x2y3z4abcdefg" + '">Buy</a>\n',
+            "gumroad.html": '<a href="https://someone.gumroad.com/l/fault-pro">Buy</a>\n',
+        }
+        for name, text in cases.items():
+            self.write(name, text)
+        self.assertEqual(self.kinds(), ["merchant-of-record checkout link"] * 5)
+
+    def test_merchant_of_record_api_keys_fail(self):
+        self.write("polar.env", "POLAR_TOKEN=polar_" + "oat_" + "a1B2c3D4e5F6g7H8i9J0k1\n")
+        self.write("paddle.env", "PADDLE_KEY=pdl_" + "live_" + "apikey_01abcdefghijklmnop\n")
+        self.assertEqual(self.kinds(), ["merchant-of-record API key"] * 2)
+
+    def test_merchant_of_record_env_lookups_and_storefronts_pass(self):
+        # A link read from config, the provider's own home page, a sandbox key
+        # and a bare storefront (no product) are not a wired checkout.
+        self.write("a.js", "const url = env.CHECKOUT_URL; // e.g. a lemonsqueezy.com/buy/... link\n")
+        self.write("b.html", '<a href="https://www.lemonsqueezy.com/">LS</a> <a href="https://polar.sh/">Polar</a> '
+                             '<a href="https://gumroad.com/">Gumroad</a> <a href="https://paddle.com/">Paddle</a>\n')
+        self.write("c.env", "PADDLE_KEY=pdl_" + "sdbx_" + "apikey_01abcdefghijklmnop\n")
+        self.assertEqual(self.kinds(), [])
+
     def test_lockfiles_and_node_modules_skipped(self):
         self.write("package-lock.json", '"funding": "https://buy.stripe.com/aBcDeF123456"\n')
         self.write("node_modules/x/index.js", f'"{LIVE}"\n')
@@ -165,6 +194,23 @@ class Check(unittest.TestCase):
         self.assertEqual(len(out), 2)
         self.assertEqual(out, sorted(out))
         self.assertTrue(out[0].endswith("a.py: live Stripe key"))
+
+    def test_served_trees_beyond_ventures_are_scanned(self):
+        # platform/pages is the catalogue and docs/ the blog: both are public pages.
+        names = {p.relative_to(guard.REPO_ROOT).as_posix() for p in guard.SCANNED}
+        self.assertTrue({"ventures", "platform", "docs"} <= names)
+        self.assertEqual(guard.check_all(), [])
+        with TemporaryDirectory() as tmp:
+            a, b = Path(tmp) / "ventures", Path(tmp) / "platform"
+            a.mkdir()
+            (b / "pages").mkdir(parents=True)
+            (b / "pages" / "home.html").write_text('<a href="https://buy.stripe.com/aBcDeF123456">', encoding="utf-8")
+            out = guard.check_all((a, b))
+        self.assertEqual(len(out), 1)
+        self.assertTrue(out[0].endswith("home.html: Stripe payment link"))
+
+    def test_own_tests_are_not_a_finding(self):
+        self.assertEqual(guard.check(Path(guard.__file__).resolve().parent), [])
 
     def test_missing_root_is_clean(self):
         self.assertEqual(guard.check(Path("/nonexistent/ventures")), [])
