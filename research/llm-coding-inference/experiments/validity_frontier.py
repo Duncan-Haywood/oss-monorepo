@@ -1,6 +1,6 @@
-"""Reach against cost for every repair of the shipped rule's conditional undercoverage (milestones 7at to 7bd).
+"""Reach against cost for every repair of the shipped rule's conditional undercoverage (milestones 7at to 7be).
 
-No new draws. This reads the seven committed summary files those milestones wrote and puts their
+No new draws. This reads the eight committed summary files those milestones wrote and puts their
 candidates on one scale, so Section 6.1 of the paper can state the negative result from a single
 table instead of seven paragraphs:
 
@@ -29,9 +29,10 @@ SOURCES = [
     ("7bb", "h7bb_second_phase.txt", "second-phase check", ["v2", "tp10", "tp25", "tp1"]),
     ("7bc", "h7bc_reserved_check.txt", "reserved second phase", ["rs10", "rs10v2", "rs20v2", "rs10tp"]),
     ("7bd", "h7bd_tested_check.txt", "tested check on the reserve", ["rs10q10", "rs10q25", "rs10q10tp", "rs10q25tp"]),
+    ("7be", "h7be_gated_design.txt", "design change at low J_hat", ["jp40", "jp50", "jt40", "jt50", "jf40"]),
 ]
 FAMILIES = ["admission test on J_hat", "uniform variance floor", "pilot-triggered floor",
-            "second-phase check", "reserved second phase", "tested check on the reserve"]
+            "second-phase check", "reserved second phase", "tested check on the reserve", "design change at low J_hat"]
 SHIPPED = ("7az", "p5j40")  # the one candidate that passed its decision rule; now the library default
 GAIN_BAR = 0.90  # every decision rule from 7at on required 90%+ of the reference gain
 
@@ -70,7 +71,7 @@ def svg(rs, path):
     y0, y1 = -0.2, 1.0  # share of t10's failing cells repaired (1 = all)
     sx = lambda v: L + (min(max(v, x0), x1) - x0) / (x1 - x0) * (W - L - R)
     sy = lambda v: H - B - (min(max(v, y0), y1) - y0) / (y1 - y0) * (H - T - B)
-    cols = ["#c0392b", "#1f6fb2", "#2e8b57", "#8e44ad", "#d68910", "#17a2b8"]
+    cols = ["#c0392b", "#1f6fb2", "#2e8b57", "#8e44ad", "#d68910", "#17a2b8", "#555555"]
     shapes = []
     a = shapes.append
     a(f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
@@ -91,8 +92,8 @@ def svg(rs, path):
       'width gain kept (all cells of the milestone)</text>')
     a(f'<text transform="translate(16 {(T + H - B) / 2:.0f}) rotate(-90)" text-anchor="middle">'
       'share of failing cells repaired</text>')
-    a(f'<text x="{L}" y="{T - 10}" font-weight="bold">Six repair families for conditional undercoverage '
-      '(7at to 7bd): none reaches the top right</text>')
+    a(f'<text x="{L}" y="{T - 10}" font-weight="bold">Seven repair families for conditional undercoverage '
+      '(7at to 7be): none reaches the top right</text>')
     labels = {}  # points within a few px share one label, so coincident candidates stay readable
     for r in rs:
         k = FAMILIES.index(r["family"])
@@ -122,7 +123,7 @@ def svg(rs, path):
 
 def main():
     rs = rows()
-    lines = ["# Reach against cost, milestones 7at to 7bd (no new draws; parsed from the committed summaries)",
+    lines = ["# Reach against cost, milestones 7at to 7be (no new draws; parsed from the committed summaries)",
              "# kept = candidate gain / t10 gain in the same milestone; fail = cells with 30+ admitted draws under 88%",
              "# reach = 1 - fail / t10 fail; qualifies-on-cost = kept >= 0.90 (the bar every decision rule used)",
              "milestone family rule cells gain t10_gain kept fail t10_fail reach"]

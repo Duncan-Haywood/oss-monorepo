@@ -1,4 +1,4 @@
-# Reach against cost, milestones 7at to 7bd (no new draws; parsed from the committed summaries)
+# Reach against cost, milestones 7at to 7be (no new draws; parsed from the committed summaries)
 # kept = candidate gain / t10 gain in the same milestone; fail = cells with 30+ admitted draws under 88%
 # reach = 1 - fail / t10 fail; qualifies-on-cost = kept >= 0.90 (the bar every decision rule used)
 milestone family rule cells gain t10_gain kept fail t10_fail reach
@@ -29,6 +29,11 @@ milestone family rule cells gain t10_gain kept fail t10_fail reach
 7bd tested_check_on_the_reserve rs10q25 157 4.759 9.524 0.500 7 11 0.364
 7bd tested_check_on_the_reserve rs10q10tp 157 -5.845 9.524 -0.614 7 11 0.364
 7bd tested_check_on_the_reserve rs10q25tp 157 -23.959 9.524 -2.516 7 11 0.364
+7be design_change_at_low_J_hat jp40 157 7.883 9.524 0.828 4 11 0.636
+7be design_change_at_low_J_hat jp50 157 6.269 9.524 0.658 3 11 0.727
+7be design_change_at_low_J_hat jt40 157 7.883 9.524 0.828 4 11 0.636
+7be design_change_at_low_J_hat jt50 157 6.269 9.524 0.658 3 11 0.727
+7be design_change_at_low_J_hat jf40 157 -23.405 9.524 -2.457 2 11 0.818
 
 # best reach among candidates keeping 90%+ of the gain, per family
 admission_test_on_J_hat: cheap best 7at l16 reach 0.429 kept 0.934; widest reach 7at l16 reach 0.429 kept 0.934
@@ -37,7 +42,8 @@ pilot-triggered_floor: cheap best 7az p5j40 reach 0.400 kept 0.946; widest reach
 second-phase_check: cheap best none keeps 90%; widest reach 7bb tp1 reach 0.909 kept -46.624
 reserved_second_phase: cheap best 7bc rs10 reach 0.273 kept 0.922; widest reach 7bc rs10tp reach 1.000 kept -16.879
 tested_check_on_the_reserve: cheap best none keeps 90%; widest reach 7bd rs10q10 reach 0.364 kept 0.696
-candidates keeping 90%+ of the gain AND repairing half or more of the failing cells: 0 of 27
+design_change_at_low_J_hat: cheap best none keeps 90%; widest reach 7be jf40 reach 0.818 kept -2.457
+candidates keeping 90%+ of the gain AND repairing half or more of the failing cells: 0 of 32
 cells failing under the shipped default in 7bd's 157: 7: 1.5B disapproval n 1000 (35 admitted, 74.3%); lr approval n 1000 (43 admitted, 69.8%); lr annoyance n 2000 (78 admitted, 87.2%); lr disapproval n 1000 (258 admitted, 87.6%); lr annoyance n 750 (56 admitted, 62.5%); lr approval n 750 (81 admitted, 72.8%); q3 p0.05 n 500 (39 admitted, 84.6%)
   1.5B disapproval n 1000: out of the failing list under 4 of 12 second-phase candidates: tp1 (-46.62), rs10v2 (0.28), rs20v2 (0.22), rs10tp (-16.88)
   lr approval n 1000: out of the failing list under 3 of 12 second-phase candidates: tp1 (-46.62), rs20v2 (0.22), rs10tp (-16.88)
