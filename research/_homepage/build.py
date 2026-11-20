@@ -135,6 +135,8 @@ _PARA_START = re.compile(
 _ABBREV = re.compile(r"(?:\b(?:e\.g|i\.e|cf|vs|al|approx|Fig|Figs|Eq|Eqs|No|Nos|Ref|Refs|St|Dr|Mr|Ms|Jr|Inc|Ltd|Co|ca|resp|incl|etc)"
                      r"|\b[A-Z])\.$")
 _ENDS = (".", "!", "?", ".)", ".&rdquo;", '."')
+_STOPS = "<() "
+_STOP = re.compile(r"[<() ]")
 _INLINE = {"em", "strong", "code", "sup", "sub", "a", "b", "i", "span", "abbr", "small", "mark", "var", "kbd", "q"}
 
 
@@ -153,6 +155,16 @@ def summary_paragraphs(summary, limit=PARA_WORDS):
     depth, parens, i, n = 0, 0, 0, len(s)
     prev_end = False  # the text before this point ends a sentence
     while i < n:
+        if s[i] not in _STOPS:
+            # Jump to the next character the loop acts on. A skipped run only matters through
+            # prev_end, which any non-space character clears (the per-character walk was 0.5 s
+            # of a 2.8 s build on 2026-11-20).
+            m = _STOP.search(s, i)
+            k = m.start() if m else n
+            if not s[i:k].isspace():
+                prev_end = False
+            i = k
+            continue
         if s[i] == "<" and s.startswith("<br", i):
             j = s.index(">", i) + 1
             while True:  # a run of <br>s and spaces is one break
@@ -239,7 +251,17 @@ LEDE_WORDS = 90  # the project page's header line
 LEDE_CARD_WORDS = 60  # a lede on a card that links to the page
 
 
+_LEDES = {}  # (lede, limit) -> its cut: a lede is shown on its page and on up to ~8 cards
+
+
 def short_lede(lede, limit=LEDE_WORDS):
+    key = (lede, limit)
+    if key not in _LEDES:
+        _LEDES[key] = _short_lede(lede, limit)
+    return _LEDES[key]
+
+
+def _short_lede(lede, limit):
     """A lede cut to at most `limit` words at a clause boundary (a "; " or a sentence end outside
     tags and parentheses), marked with an ellipsis; a lede already that short is returned as is.
     A programme's README bullet grows a clause per milestone (research/buildbot-sheathing's had
@@ -525,7 +547,11 @@ def md_spans(text, links=False, slug=None):
     `slug`, a relative link ("paper/draft.md") goes to that file in research/<slug>/ on GitHub;
     without it a relative link shows its text only (it used to show as raw "[...](...)": three
     sensing-selfcal log lines did until 2026-11-14)."""
-    t = ENTITY.sub(r"&\1;", html.escape(text, quote=False))
+    # Each pass runs only when its marker character is in the text: a pattern cannot match
+    # without it, so the output is unchanged (2026-11-20: 290,000 sub calls were 1 s of a build).
+    t = html.escape(text, quote=False)
+    if "&amp;" in t:
+        t = ENTITY.sub(r"&\1;", t)
     codes = []
 
     def keep(m):
@@ -535,10 +561,13 @@ def md_spans(text, links=False, slug=None):
         codes.append(f"<code>{code}</code>")
         return f"\x00{len(codes) - 1}\x00"
 
-    t = CODE.sub(keep, t)
-    t = STRONG.sub(r"<strong>\1</strong>", t)
-    t = EM.sub(r"<em>\1</em>", t)
-    if links:
+    if "`" in t:
+        t = CODE.sub(keep, t)
+    if "*" in t:
+        if "**" in t:
+            t = STRONG.sub(r"<strong>\1</strong>", t)
+        t = EM.sub(r"<em>\1</em>", t)
+    if links and "](" in t:
         def link(m):
             label, href = m.group(1), html.unescape(m.group(2))
             if re.match(r"https?://", href):
@@ -547,6 +576,8 @@ def md_spans(text, links=False, slug=None):
                 return f'<a href="{REPO_URL}/blob/main/research/{slug}/{html.escape(href.lstrip("./"))}">{label}</a>'
             return label
         t = LINK.sub(link, t)
+    if not codes:
+        return t
     return re.sub(r"\x00(\d+)\x00", lambda m: codes[int(m.group(1))], t)
 
 
@@ -590,7 +621,15 @@ def log_html(slug):
         return ""
     out = ['  <h2 id="log">Research log</h2>',
            f'  <p class="log-intro">Ongoing: each run adds a batch and an entry, newest first. Source: <a href="{REPO_URL}/blob/main/research/{slug}/LOG.md">LOG.md</a>.</p>']
-    words = [sum(_words(inline_md(t)) for _, t in body) for _, body in entries]
+    # Each body line is rendered once with the slug, for the page. The word count reads the
+    # slug-less rendering, which differs only for a line with a [text](target) link, so only
+    # those lines are rendered twice (2026-11-20: every line was, 0.75 s of a build).
+    shown_md = {}
+    for _, body in entries:
+        for _, t in body:
+            if t not in shown_md:
+                shown_md[t] = inline_md(t, slug)
+    words = [sum(_words(inline_md(t) if "](" in t else shown_md[t]) for _, t in body) for _, body in entries]
     shown = 1  # the newest entry is always open; more while the open part stays short
     while shown < len(entries) and sum(words[:shown + 1]) <= LOG_OPEN_WORDS:
         shown += 1
@@ -607,12 +646,12 @@ def log_html(slug):
         items, paras = [], []
         for kind, text in body:
             if kind == "li":
-                items.append(f"<li>{inline_md(text, slug)}</li>")
+                items.append(f"<li>{shown_md[text]}</li>")
             else:
                 if items:
                     paras.append("<ul>" + "".join(items) + "</ul>")
                     items = []
-                paras.append(f"<p>{inline_md(text, slug)}</p>")
+                paras.append(f"<p>{shown_md[text]}</p>")
         if items:
             paras.append("<ul>" + "".join(items) + "</ul>")
         out.append("    " + "\n    ".join(paras) + ("\n  </article>" if i < shown else "\n  </details>"))
