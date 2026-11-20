@@ -338,75 +338,135 @@ class Plant:
     def _step_coupled(self, t_m):
         """One DT of the three-inertia drive: rotor (j_m) - coupling - shaft (j_s) - slip hub - belt side (j_b).
         Semi-implicit Euler at DT / MECH_SUB: speeds from the torques, then the twist and the belt from the new speeds.
-        The ball's force is recomputed every sub-step from the belt's travel."""
+        The ball's force is recomputed every sub-step from the belt's travel.
+
+        The state lives in locals for the sub-steps and is written back once (perf note 2026-11-20,
+        docs/history/ci-perf-2026-11-20-lift-jam-plant-locals.md): `coupler_torque` and `belt_force` are inlined with
+        every float operation in the same order, and `max(0.0, x)` / `max(a, b)` are the comparisons they stand for
+        (max keeps its first argument on a tie), and `abs(x) <= c` is `-c <= x <= c`, so each step is bit-for-bit the old one. The chain's step reads `s`
+        and `wb` from the plant, so they are written back before it."""
         h = DT / MECH_SUB
+        hms = h * 1000
         el = self.elastic
+        chained = self.chained
+        s_jam = self.s_jam
+        hood = (el or chained) and s_jam is not None and self.where == "hood"
+        chain_hood = hood and chained
+        k, c_damp, rp = self.k, self.c_damp, self.rp
+        t_load = self.t_load
+        g, kc, cc = self.half_gap, self.kc, self.cc
+        t_f, j_m, j_s, j_b = self.t_f, self.j_m, self.j_s, self.j_b
+        jsb = j_s + j_b
+        t_stick, t_slide = self.t_stick, self.t_slide
+        if el:
+            t0, ks, cb, j_v = self.t0, self.ks, self.cb, self.j_v
+            sv, wv, e = self.sv, self.wv, self.e
+        if chained:
+            top, cu, cv = self.top, self.cu, self.cv
+        w, ws, wb, phi, s = self.w, self.ws, self.wb, self.phi, self.s
+        locked, face_was = self.locked, self._face
+        slide_dir = getattr(self, "_slide_dir", None)   # set at the first slip
+        force, coupler_nm = self.force, self.coupler_nm
+        slid_ms, slide_j, free_ms, reversals = self.slid_ms, self.slide_j, self.free_ms, self.reversals
         for _ in range(MECH_SUB):
             f = 0.0
-            hood = (el or self.chained) and self.s_jam is not None and self.where == "hood"
-            if hood and self.chained:
-                s_at, w_at = self.cu[self.top], self.cv[self.top] / self.rp
+            if chain_hood:
+                s_at, w_at = cu[top], cv[top] / rp
+            elif hood:
+                s_at, w_at = sv, wv
             else:
-                s_at, w_at = (self.sv, self.wv) if hood else (self.s, self.wb)
-            if self.s_jam is not None and s_at > self.s_jam:
-                f = max(0.0, self.k * (s_at - self.s_jam) + self.c_damp * w_at * self.rp)
-            self.force = max(self.force, f)
+                s_at, w_at = s, wb
+            if s_jam is not None and s_at > s_jam:
+                f = k * (s_at - s_jam) + c_damp * w_at * rp
+                if not f > 0.0:
+                    f = 0.0
+            if f > force:
+                force = f
             if el:
-                fb, slack = self.belt_force()
-                self.belt_n = max(self.belt_n, fb)
-                if slack:
-                    self.slack_ms += h * 1000
-                t_v = fb * self.rp - self.t_load - (f * self.rp if hood else 0.0)   # on the belt's mass
-                t_b = -fb * self.rp - (0.0 if hood else f * self.rp)                # on the pulley
-                self.wv += t_v / self.j_v * h
-            elif self.chained:
-                t_b = self._chain_step(h, f if hood else 0.0) - (0.0 if hood else f * self.rp)
+                tight = t0 + ks * e
+                if not tight > 0.0:
+                    tight = 0.0
+                slack = t0 - ks * e
+                if not slack > 0.0:
+                    slack = 0.0
+                fb = tight - slack + cb * (wb - wv) * rp
+                if fb > self.belt_n:
+                    self.belt_n = fb
+                if slack == 0.0:
+                    self.slack_ms += hms
+                t_v = fb * rp - t_load - (f * rp if hood else 0.0)   # on the belt's mass
+                t_b = -fb * rp - (0.0 if hood else f * rp)           # on the pulley
+                wv += t_v / j_v * h
+            elif chained:
+                self.s, self.wb = s, wb
+                t_b = self._chain_step(h, f if hood else 0.0) - (0.0 if hood else f * rp)
             else:
-                t_b = -self.t_load - f * self.rp
-            tc = self.coupler_torque()
-            self.coupler_nm = max(self.coupler_nm, abs(tc))
-            dm = t_m - tc
-            if abs(self.w) < 1e-3 and abs(dm) <= self.t_f:
-                self.w = 0.0
-            else:
-                sign = 1.0 if (self.w > 0 or (self.w == 0 and dm > 0)) else -1.0
-                self.w += (dm - self.t_f * sign) / self.j_m * h
-            if self.locked:
-                a = (tc + t_b) / (self.j_s + self.j_b)
-                t_hub = self.j_b * a - t_b
-                if abs(t_hub) <= self.t_stick:
-                    self.ws = self.wb = self.ws + a * h
+                t_b = -t_load - f * rp
+            # coupler_torque(): the spider's spring past the gap, its damping only while the jaws touch
+            if phi > g:
+                tc = kc * (phi - g) + cc * (w - ws)
+                if tc > 0.0:
+                    if tc > coupler_nm:
+                        coupler_nm = tc
                 else:
-                    self.locked = False
-                    self._slide_dir = 1.0 if t_hub > 0 else -1.0
-            if not self.locked:
-                rel = self.ws - self.wb
-                d = (1.0 if rel > 0 else -1.0) if abs(rel) > 1e-9 else self._slide_dir
-                t_hub = self.t_slide * d
-                self.ws += (tc - t_hub) / self.j_s * h
-                self.wb += (t_hub + t_b) / self.j_b * h
-                self.slid_ms += h * 1000
-                self.slide_j += abs(t_hub * (self.ws - self.wb)) * h
-                if (self.ws - self.wb) * d <= 0:
-                    self.ws = self.wb = (self.j_s * self.ws + self.j_b * self.wb) / (self.j_s + self.j_b)
-                    self.locked = True
-            self.phi += (self.w - self.ws) * h
-            self.s += self.wb * self.rp * h
-            if self.chained:
-                cu, cv = self.cu, self.cv
+                    tc = 0.0
+            elif phi < -g:
+                tc = kc * (phi + g) + cc * (w - ws)
+                if tc < 0.0:
+                    if -tc > coupler_nm:
+                        coupler_nm = -tc
+                else:
+                    tc = 0.0
+            else:
+                tc = 0.0
+            dm = t_m - tc
+            if -1e-3 < w < 1e-3 and -t_f <= dm <= t_f:
+                w = 0.0
+            else:
+                sign = 1.0 if (w > 0 or (w == 0 and dm > 0)) else -1.0
+                w += (dm - t_f * sign) / j_m * h
+            if locked:
+                a = (tc + t_b) / jsb
+                t_hub = j_b * a - t_b
+                if -t_stick <= t_hub <= t_stick:
+                    ws = wb = ws + a * h
+                else:
+                    locked = False
+                    slide_dir = 1.0 if t_hub > 0 else -1.0
+            if not locked:
+                rel = ws - wb
+                d = (1.0 if rel > 0 else -1.0) if (rel > 1e-9 or rel < -1e-9) else slide_dir
+                t_hub = t_slide * d
+                ws += (tc - t_hub) / j_s * h
+                wb += (t_hub + t_b) / j_b * h
+                slid_ms += hms
+                slide_j += abs(t_hub * (ws - wb)) * h
+                if (ws - wb) * d <= 0:
+                    ws = wb = (j_s * ws + j_b * wb) / jsb
+                    locked = True
+            phi += (w - ws) * h
+            s += wb * rp * h
+            if chained:
                 for i in range(len(cu)):
                     cu[i] += cv[i] * h
             if el:
-                self.e += (self.wb - self.wv) * self.rp * h
-                self.sv += self.wv * self.rp * h
-            face = 1 if self.phi > self.half_gap else (-1 if self.phi < -self.half_gap else 0)
+                e += (wb - wv) * rp * h
+                sv += wv * rp * h
+            face = 1 if phi > g else (-1 if phi < -g else 0)
             if face == 0:
-                self.free_ms += h * 1000
+                free_ms += hms
             else:
-                if self._face not in (0, face):
-                    self.reversals += 1
-                self._face = face
-
+                if face_was not in (0, face):
+                    reversals += 1
+                face_was = face
+        self.w, self.ws, self.wb, self.phi, self.s = w, ws, wb, phi, s
+        if el:
+            self.sv, self.wv, self.e = sv, wv, e
+        self.locked, self._face = locked, face_was
+        if slide_dir is not None:
+            self._slide_dir = slide_dir
+        self.force, self.coupler_nm = force, coupler_nm
+        self.slid_ms, self.slide_j, self.free_ms, self.reversals = slid_ms, slide_j, free_ms, reversals
 
 def _sim(volts=None):
     sim = SimFeeder()
