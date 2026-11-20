@@ -713,10 +713,27 @@ STILL_OPEN = re.compile(
     r"|left|remaining|miss(?:es|ing)?|a real|tail|refresh)\b|\?", re.I)
 
 
+# A landed entry's usual shape: a label, the day it landed, then its evidence in
+# brackets, and nothing after ("two courses 2026-11-20 (golf-courses.test.mjs)",
+# "facet-result cache 2026-11-18 (eval/applies-cache-2026-11-18.md: ...)"). No
+# verb, so RESULTISH missed it and an implicit park filed it in NEXT.md as open
+# work (league-schedule-generator, PR #17951's record). Text after the bracket
+# ("... (eval/pair-exact.txt): a ... search on it") or an imperative sentence
+# keeps an item open, as does any STILL_OPEN cue.
+DATED_EVIDENCE = re.compile(r"\b20\d\d-\d\d-\d\d \(((?:[^()]|\([^()]*\))*)\)\.?$")
+EVIDENCE = re.compile(r"\beval/|\b[\w*.-]+\.(?:mjs|js|ts|py|txt|md|json|csv|html|c|rs|go|ipynb)\b")
+
+
 def is_result(item: str) -> bool:
-    """True when a parked item reads as a finished result (RESULTISH, no STILL_OPEN)."""
-    body = ROW_NOTE.sub("", " ".join(item.split()))
-    return bool(RESULTISH.search(body)) and not STILL_OPEN.search(body)
+    """True when a parked item reads as a finished result: RESULTISH or a
+    DATED_EVIDENCE entry, and no STILL_OPEN cue."""
+    body = ROW_NOTE.sub("", " ".join(item.split())).strip(" ;")
+    if STILL_OPEN.search(body):
+        return False
+    if RESULTISH.search(body):
+        return True
+    m = DATED_EVIDENCE.search(body)
+    return bool(m and EVIDENCE.search(m.group(1)))
 
 
 def history_text(existing: str | None, venture: str, pieces: list[str], day: str) -> str:
