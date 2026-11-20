@@ -7,33 +7,124 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T14:21:02Z",
   "ended": "2026-11-20T15:29:34Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "wall_minutes": 80.62,
+  "tokens_in": 5639746,
+  "tokens_out": 29161,
+  "cost_usd": 2.6631,
+  "tool_calls": 52,
+  "task": "capture-sync milestone 4, step 4b: literature baselines at 2, 4 and 8 s windows",
+  "projects": [
+    "capture-sync"
+  ],
+  "pr": 17925,
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "Run took 70 min against a 50 min estimate from a 2-trial timing; the collector prints nothing until the end, so progress was invisible"
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "HOSTS RECHECK reported zenodo.org refused while the programme's listed next step (baselines on the real phones) needs it; the run had to choose a twin-only sub-step itself (longer windows), which worked"
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-20-capture-sync-longer-windows-help-gcc-more.md",
+    "research/capture-sync/LOG.md (step 4b plan and outcome)",
+    "research/capture-sync/README.md (step 4b section)"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Pre-registered plan pushed before the run (commit on PR #17925). 74,400 MS-SNSD twin windows at 2/4/8 s; scored once; all 7 predictions held. Headline: GCC (envelope-normalised) improves 5-25x per doubling vs ~2x for Haitsma-Kalker; ratio grows 4.5x -> 70-200x. Checks run locally: capture-sync pytest 62 passed; research/_homepage/build.py ok; check_md_links ok; check_posts ok; cite_check ok (ok* from cache, arxiv unreachable).",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c075927e-026d-5e92-85d3-73ccf035e91b",
+    "transcripts": 1,
+    "first": "2026-11-20T14:21:02Z",
+    "last": "2026-11-20T15:41:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 111,
+        "output": 29161,
+        "thinking": 5713,
+        "cache_read": 5517647,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121988,
+        "api_equivalent_usd": 2.6631,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 111,
+      "output": 29161,
+      "thinking": 5713,
+      "cache_read": 5517647,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121988,
+      "api_equivalent_usd": 2.6631,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 46,
+      "Write": 2,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 80.62,
+      "active_minutes": 11.67,
+      "model_minutes": 5.97,
+      "tool_minutes": 5.69,
+      "waiting_on_human_minutes": 68.96,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a researcher reimplementing a 3-length baseline sweep, pre-registering, running and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 600.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
