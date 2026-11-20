@@ -25,6 +25,7 @@ const STYLE = `
   article.doc td, article.doc th { min-width:7em; }
   table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; border:1px solid var(--line); border-radius:8px; }
   th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th.num, td.num { text-align:right; font-variant-numeric:tabular-nums; }
   th { font-weight:600; font-size:.82rem; color:var(--muted); }
   td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
   .badge { display:inline-block; font-size:.75rem; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
