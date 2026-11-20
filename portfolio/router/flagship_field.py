@@ -119,6 +119,15 @@ not only a `; ` item), and it moves to HISTORY.md in the same call as the
 --replace, before the cap is checked. The refusal now names the longest
 landed clauses as ready `--history` flags. Judgment about what is finished
 stays with the run; the tool does the move.
+
+Two misfires were left on 2026-11-20 (friction_rank.py's top live cluster,
+five sessions). The guard on the run's own NEW text matched whole strings,
+so a NEW spanning a `; ` break matched neither half and its first half moved
+to HISTORY.md as a result (PRs #17798, #17912); `holds_new` now matches any
+fragment. And an edit a few characters over the cap parked whatever tail
+item freed enough, however big (#17900): an implicit park that would move
+more than IMPLICIT_PARK_FREE characters or five times the overrun refuses and
+names the NEW budget; `--make-room` still parks on request.
 """
 from __future__ import annotations
 
@@ -155,6 +164,11 @@ POINTER = re.compile(r"(?:Landed work|History)\b", re.I)
 LANDED_SHOWN = 5
 REPO_ROOT = HERE.parents[1]
 PARK_HEADING = "## Parked from flagships.yaml `next:`"
+# An implicit park (an edit over the cap, no --make-room) may move this many
+# characters, or five times the overrun, before it refuses instead (see the
+# refusal in _main): a few characters over should cost a shorter NEW, not a
+# whole open item.
+IMPLICIT_PARK_FREE = 300
 PARK_POINTER = "More open items: NEXT.md."
 # The row's own instruction sentence ("A run that lands a slice replaces its
 # item here", "When a slice lands, replace its item here ...", "keep this under
@@ -299,6 +313,34 @@ def split_items(value: str) -> list[str]:
     return out
 
 
+def holds_new(piece: str, keep: tuple[str, ...]) -> bool:
+    """True when `piece` (an item, sentence or result a park or move would
+    take) overlaps any of `keep`, the NEW texts of the run's own --replace.
+
+    Why: the check was whole-string only (`k in piece or piece in k`), so a
+    NEW spanning an item or sentence break ("count default ships (README
+    ...); next the How eager ladder ...") matched neither half. Its first
+    half then read as a finished result and moved to HISTORY.md, taking the
+    run's just-written next step out of `next:` (run records 2026-11-19T21:18,
+    PR #17798, and 2026-11-20T12:20, PR #17912). Now any `; ` or `. `
+    fragment of NEW of 12 or more characters found in `piece` counts too."""
+    body = " ".join(piece.split())
+    if not body:
+        return False
+    for k in keep:
+        k = " ".join(k.split())
+        if not k:
+            continue
+        if k in body or body in k:
+            return True
+        for item in split_items(k):
+            for frag in re.split(r"(?<=[.])\s+", item):
+                frag = frag.strip(" ;").rstrip(".")
+                if len(frag) >= 12 and frag in body:
+                    return True
+    return False
+
+
 def _balanced(text: str) -> bool:
     depth = 0
     for ch in text:
@@ -364,8 +406,7 @@ def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[t
         return ROW_NOTE.sub("", item.replace(PARK_POINTER, "")).strip().rstrip(". ")
 
     def _mine(item: str) -> bool:
-        body = _body(item)
-        return any(k and (k in item or (body and body in k)) for k in keep)
+        return holds_new(item, keep) or holds_new(_body(item), keep)
 
     held = {j - 1 for j, item in enumerate(items) if j and _mine(item)}
     out: list[tuple[str, int]] = []
@@ -598,7 +639,7 @@ def history_pieces(value: str, keep: tuple[str, ...] = ()) -> list[tuple[int, in
         if any(ms == a for ms, _ in marks) and v[start:a].rstrip()[-1:] != ".":
             continue
         if (PARK_POINTER in piece or ROW_NOTE.search(piece) or not _balanced(piece)
-                or any(k and (k in piece or piece in k) for k in keep)):
+                or holds_new(piece, keep)):
             continue
         out.append((start, start + len(piece)))
     return out
@@ -747,7 +788,7 @@ def history_candidates(value: str, keep: tuple[str, ...] = ()) -> list[str]:
         c for c in map(bare, split_items(v)) if is_result(c)]
     for c in pool:
         if (not c or c in seen or c in first or PARK_POINTER in c
-                or not _balanced(c) or any(k and (k in c or c in k) for k in keep)):
+                or not _balanced(c) or holds_new(c, keep)):
             continue
         seen.add(c)
         out.append(c)
@@ -946,6 +987,21 @@ def _main(argv: list[str]) -> int:
                 new, auto = make_room(new, mine,
                                       FLAGSHIP_NEXT_TARGET if args.trim else FLAGSHIP_NEXT_MAX,
                                       FLAGSHIP_NEXT_TARGET if explicit else FLAGSHIP_NEXT_MAX)
+                moved = sum(len(i) + 2 for i in auto)
+                over = before - FLAGSHIP_NEXT_MAX
+                if auto and not explicit and moved > max(IMPLICIT_PARK_FREE, 5 * over):
+                    # Why: an edit a few characters over the cap parked the
+                    # row's biggest open item whole (2026-11-20, PR #17900
+                    # "auto-parked an unrelated open item"; on #17912's row a
+                    # 28-over edit would park 777 characters, the deployer
+                    # item). Shortening NEW is the cheaper fix; say by how much.
+                    raise ValueError(
+                        f"`next:` would be {before} of {FLAGSHIP_NEXT_MAX} ({over} over), and "
+                        f"fitting it by itself would park {moved} characters of other open "
+                        f"items: {auto[0][:90]}{'...' if len(auto[0]) > 90 else ''}\n"
+                        f"Shorten your NEW text by {over}{new_budget(mine, over) if mine else ''}"
+                        ", move a finished result with --history, or add --make-room to park "
+                        "it anyway" + history_hint(new, over, mine))
                 if auto:
                     how = ("--make-room" if explicit else
                            "the edit passes the cap, so it parks by itself (--no-make-room refuses instead)")
