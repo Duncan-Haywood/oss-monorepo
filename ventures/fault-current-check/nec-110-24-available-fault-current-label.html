@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23a5361d'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NEC 110.24 Available Fault Current Label: a Worked Calculation</title>
+  <meta name="description" content="How to work out the available fault current for a NEC 110.24 label, step by step: a 1500 kVA, 3.5 % transformer at 480 V, the impedance tolerance, motor contribution, a feeder to a 10 kA panel, and why adding impedances as magnitudes reads low.">
+  <meta property="og:title" content="The NEC 110.24 fault current label, worked">
+  <meta property="og:description" content="1500 kVA at 480 V: 51,549 A on the nameplate, 64,493 A with the tolerance and motors, 13,008 A at a panel rated 10 kA. The arithmetic, step by step.">
+  <link rel="canonical" href="./nec-110-24-available-fault-current-label.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What number goes on a NEC 110.24 label?", "acceptedAnswer": {"@type": "Answer", "text": "The maximum available fault current at the service equipment and the date the calculation was performed. Maximum means the worst credible case: the lowest transformer impedance, the strongest utility source and the motors that can be running."}}, {"@type": "Question", "name": "Do I use the transformer's nameplate impedance?", "acceptedAnswer": {"@type": "Answer", "text": "The actual impedance can be lower than the nameplate figure, so many designers reduce it by 10 percent for the label. On a 1500 kVA, 3.5 percent transformer at 480 V that moves the infinite-bus figure from 51,549 A to 57,277 A."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1d18; background: #f7f3f1; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    a { color: #8a2c14; }
+    h1 { font-size: clamp(1.7rem, 4.4vw, 2.5rem); line-height: 1.1; color: #5c1d0d; }
+    h2 { font-size: 1.2rem; margin-top: 28px; color: #5c1d0d; }
+    p, li { line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6d8d2; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .note, footer { font-size: .86rem; color: #5a4c46; }
+    footer { margin-top: 28px; border-top: 1px solid #e6d8d2; padding-top: 16px; }
+    code { background: #f3e4de; padding: 1px 4px; border-radius: 4px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="./">Available fault current calculator</a> · guide</p>
+  <h1>The NEC 110.24 fault current label, worked from the transformer down</h1>
+  <p>Service equipment in other than dwelling units has to be marked with the maximum available fault current and the date it was calculated. Here is that calculation for an ordinary commercial service, a 1500 kVA, 3.5 % transformer at 480Y/277 V, carried on to two downstream panels. Every number below is what the <a href="./">free calculator</a> gives for its built-in example.</p>
+
+  <h2>1. The transformer on an infinite bus</h2>
+  <p>Full-load current is 1,500,000 / (1.732 x 480) = 1,804 A. A bolted fault at the secondary terminals, with nothing limiting the utility side, draws full-load current divided by the per-unit impedance: 1,804 / 0.035 = <strong>51,549 A</strong>.</p>
+
+  <h2>2. Allow for the nameplate tolerance</h2>
+  <p>A transformer's real impedance can come in below its nameplate figure, and a lower impedance lets more current through. Reducing 3.5 % by 10 % to 3.15 % gives 1,804 / 0.0315 = <strong>57,277 A</strong>. The calculator does this by default; set the allowance to 0 for the nameplate value.</p>
+
+  <h2>3. Add the motors</h2>
+  <p>Running induction motors keep spinning into a fault and feed it for a few cycles. With 1,804 A of motors running (the transformer's full load, a deliberately heavy case) and the common allowance of four times their full-load current, they add 7,216 A: <strong>64,493 A</strong> at the service. Rounded up, the label reads <strong>64,500 A</strong>.</p>
+
+  <h2>4. Down the feeders</h2>
+  <p>Each feeder adds its impedance per phase: resistance and reactance per foot, times the length, divided by the parallel sets. The MDP is 25 ft away on six sets of 400 kcmil copper in steel conduit; LP-1 is 150 ft beyond it on one set of 1/0 copper; LP-2 is 40 ft from the MDP on 1 AWG feeding a 75 kVA, 4.5 % transformer to 208 V.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Panel</th><th class="n">Nameplate %Z, no motors</th><th class="n">With tolerance and motors</th><th class="n">Magnitude sum</th><th class="n">Rating</th></tr></thead>
+    <tbody>
+      <tr><td>Service</td><td class="n">51,549 A</td><td class="n">64,493 A</td><td class="n">64,493 A</td><td class="n">65 kA</td></tr>
+      <tr><td>MDP</td><td class="n">49,031 A</td><td class="n">60,598 A</td><td class="n">60,491 A</td><td class="n">65 kA</td></tr>
+      <tr><td>LP-1</td><td class="n">12,515 A</td><td class="n">13,008 A</td><td class="n">12,281 A</td><td class="n">10 kA</td></tr>
+      <tr><td>LP-2 (208 V)</td><td class="n">4,315 A</td><td class="n">4,795 A</td><td class="n">4,747 A</td><td class="n">10 kA</td></tr>
+    </tbody>
+  </table></div>
+  <p>LP-1 is the finding: at 13,008 A it is above a 10 kA panelboard rating whichever way you count. The long 1/0 feeder cuts the current to a fifth of the service figure, but not far enough.</p>
+  <p>Note how the tolerance matters downstream: it applies to the 75 kVA transformer as well, and that transformer's impedance dominates at LP-2, so its figure moves 11 % (4,315 A to 4,795 A).</p>
+
+  <h2>5. Why the magnitude sum reads low</h2>
+  <p>The point-to-point method multiplies the upstream current by 1 / (1 + f), with f = 1.732 x L x I / (C x n x E). That is the same as adding each impedance's magnitude, as if every impedance had the same angle. They do not: the service source here is X/R 6 (mostly reactance) and 150 ft of 1/0 copper is about 0.102 ohm resistance against 0.063 ohm reactance per 1000 ft. Added as complex numbers the total is smaller, so the true fault current at LP-1 is 13,008 A against 12,281 A by magnitudes, <strong>5.6 % higher</strong>. Near the transformer, where one impedance dominates, the two agree (0.2 % at the MDP).</p>
+
+  <h2>6. Write the label</h2>
+  <p>Mark the service with the maximum available fault current and the date the calculation was performed, and redo it when the installation changes in a way that changes the figure (a new transformer, a new utility service, motors added). The calculator writes the label text for any panel with the date you pick.</p>
+
+  <h2>What this leaves out</h2>
+  <p>Line-to-ground faults and the line-to-neutral fault on a center-tapped single-phase secondary, arcing current and incident energy, generator and inverter contribution, and the let-through of current-limiting fuses. A stamped short-circuit study by an engineer is the document of record; the arithmetic here is a check.</p>
+
+  <h3>What number goes on a NEC 110.24 label?</h3>
+  <p>The maximum available fault current at the service equipment and the date the calculation was performed. Maximum means the worst credible case: the lowest transformer impedance, the strongest utility source and the motors that can be running.</p>
+  <h3>Do I use the transformer's nameplate impedance?</h3>
+  <p>The actual impedance can be lower than the nameplate figure, so many designers reduce it by 10 percent for the label. On a 1500 kVA, 3.5 percent transformer at 480 V that moves the infinite-bus figure from 51,549 A to 57,277 A.</p>
+
+  <p><a href="./">Open the calculator</a> to run your own service.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, electrical, legal or code-compliance advice, and they do not replace a qualified engineer's short-circuit study, the utility's data, the code that applies to you or a plan review. You are responsible for reviewing and verifying any result before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Independent.</strong> Not affiliated with any equipment or fuse manufacturer, utility, code body or standards organisation, and no product is named or ranked here.</p>
+  <p class="support">Free and open source (<a href="LICENSE" rel="noopener">MIT licence</a>) — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

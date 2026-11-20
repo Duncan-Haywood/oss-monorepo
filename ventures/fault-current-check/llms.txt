@@ -1,0 +1,18 @@
+# Available Fault Current Calculator
+
+> Free available fault current (short-circuit current) calculator. From the service transformer's kVA, %Z and X/R (with an impedance tolerance allowance and an optional utility fault MVA) or a fault figure from the utility, plus motor contribution at the service, it solves a radial system of feeders (size, copper or aluminium, parallel sets, length, steel or non-steel conduit, optional reactance) and step-down transformers, branching from any panel. For every panel it gives the bolted three-phase (or single-phase line-to-line) symmetrical fault current, the same figure with impedances added as magnitudes (what point-to-point multipliers do) and how far that reads low, X/R, peak current (IEC 60909 kappa), a check against the panel's kA rating, and NEC 110.24 label text with a date. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Conductor resistance is computed from geometry and material constants with the IEC 60287 skin-effect factor, not copied from a code table; reactance defaults to 0.050 ohm per 1000 ft (x 1.25 in steel conduit) and can be entered per feeder. Not modelled: ground and line-to-neutral faults, arc flash, generators, inverters, series ratings and fuse let-through. Results are arithmetic on the numbers typed in, not engineering or code-compliance advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/fault-current-check/)
+- [The NEC 110.24 available fault current label, worked from a 1500 kVA transformer](https://marisstella.app/fault-current-check/nec-110-24-available-fault-current-label.html)
+
+## For agents
+
+- Engine: `calc.mjs`, `analyze(input)`; `sampleInput()` returns the page's example; omitted fields are blank (no transformer or motors assumed) (1500 kVA, 3.5 %, 480 V, motors, three feeders). `labelText(node, date)` and `reportCsv(result)` format the output. Callable through `node platform/agents/tools.mjs call fault-current-check analyze --input '{"kva":750,"pctZ":5.75,"volts":208,"segments":[]}'` or the repository's MCP server (`call_tool`).
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fault-current-check): MIT licensed.

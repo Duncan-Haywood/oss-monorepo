@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23a5361d'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Available Fault Current Calculator — NEC 110.24 Label, Every Panel</title>
+  <meta name="description" content="Free available fault current calculator: transformer kVA and %Z or the utility's figure, feeders, parallel sets, downstream transformers and motor contribution give the short-circuit current at every panel, the equipment rating check and a NEC 110.24 label.">
+  <meta property="og:title" content="Available Fault Current Calculator — free, private, in your browser">
+  <meta property="og:description" content="Short-circuit current at every panel from the service transformer down, with the equipment rating check and a 110.24 label. Shows where the point-to-point method reads low.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Available Fault Current Calculator", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Available fault current (short-circuit current) at every panel of a radial system from the service transformer or the utility's figure, through feeders, parallel sets and step-down transformers, with motor contribution, X/R, peak current, an equipment rating check and NEC 110.24 label text. Runs in your browser.", "featureList": "available fault current, short-circuit current, NEC 110.24 label, transformer kVA and %Z, utility fault MVA, motor contribution, parallel sets, steel conduit, downstream transformer, X/R, peak current, interrupting rating check, point-to-point comparison, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I calculate available fault current at a transformer?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the transformer's full-load current by its per-unit impedance. A 1500 kVA, 480 V three-phase transformer carries 1500000 / (1.732 x 480) = 1804 A at full load; at 3.5 % impedance the fault current on an infinite bus is 1804 / 0.035 = 51,549 A. Many designers reduce the impedance by 10 % to cover the nameplate tolerance, which gives 57,277 A."}}, {"@type": "Question", "name": "What does NEC 110.24 require?", "acceptedAnswer": {"@type": "Answer", "text": "Service equipment in other than dwelling units must be field marked with the maximum available fault current and the date the calculation was done, and the marking must be updated when changes to the electrical installation change the available fault current. Check the edition your jurisdiction has adopted."}}, {"@type": "Question", "name": "Is the point-to-point method accurate?", "acceptedAnswer": {"@type": "Answer", "text": "Its multipliers add the impedances of the transformer and the cables as plain magnitudes, as if they had the same angle. A transformer is mostly reactance and a long small feeder mostly resistance, so the true complex sum is smaller and the real fault current higher. In this page's example the magnitude sum reads 5.6 percent low at a panel 150 ft down a 1/0 feeder. This tool shows both."}}, {"@type": "Question", "name": "Should I include motor contribution?", "acceptedAnswer": {"@type": "Answer", "text": "Running induction motors feed a fault for the first few cycles. A common allowance is four times the full-load current of the motors running at the service, added there. Enter the motors' full-load amps and the multiplier your method uses, or leave it blank."}}, {"@type": "Question", "name": "Where do the conductor impedances come from?", "acceptedAnswer": {"@type": "Answer", "text": "Resistance is computed from the conductor's area and the resistivity of copper or aluminium at the temperature you choose, with 2 percent for stranding and the IEC 60287 skin-effect formula. Reactance defaults to 0.050 ohm per 1000 ft, a quarter higher in steel conduit, and you can type your own figure for each feeder."}}, {"@type": "Question", "name": "Is anything I enter uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1d18; background: #f7f3f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #8a2c14; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #5c1d0d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5c1d0d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a4c46; }
+    .card { background: #fff; border: 1px solid #e6d8d2; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5c1d0d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8f746a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #8a2c14; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f3e4de; color: #5c1d0d; }
+    button.small { padding: 6px 10px; margin: 0; font-size: .85rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #f0e6e2; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #5a4c46; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    #feeders input, #feeders select { padding: 6px; font-size: 14px; min-width: 70px; }
+    .finding { border-bottom: 1px solid #f0e6e2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #efe7e3; color: #5c1d0d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #faf1ee; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #5c1d0d; }
+    footer { margin-top: 28px; border-top: 1px solid #e6d8d2; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    td.bad { background: #f8dcd6; font-weight: 700; }
+    pre.label { background: #fff8e1; border: 2px solid #1f1d18; padding: 14px; font: 600 14px ui-monospace, monospace; white-space: pre-wrap; max-width: 460px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AVAILABLE FAULT CURRENT · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much fault current can reach each panel?</h1>
+    <p>Enter the service transformer (kVA and %Z) or the figure your utility gave you, then each feeder: size, sets, length, steel or PVC conduit, and any step-down transformer. You get the <strong>bolted fault current at every panel</strong>, its <strong>X/R and peak</strong>, a <strong>check against each panel's kA rating</strong> and the <strong>text for a NEC 110.24 label</strong>. The page also solves the same system the point-to-point way and shows <strong>where that method reads low</strong>.</p>
+    <p class="note">Nothing you type leaves this browser tab. Arithmetic on your numbers, not engineering advice: a short-circuit study stamped by an engineer, the utility's data and the AHJ decide.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>The service</h2>
+    <div class="grid">
+      <div><label for="phase">System</label><select id="phase"><option value="3">Three-phase</option><option value="1">Single-phase 120/240 (line-to-line fault)</option></select></div>
+      <div><label for="volts">Service voltage, line to line</label><input type="text" id="volts" inputmode="decimal" placeholder="480" autocomplete="off"></div>
+      <div><label for="sourceMode">Source</label><select id="sourceMode"><option value="transformer">Service transformer kVA and %Z</option><option value="known">Fault current from the utility</option></select></div>
+      <div><label for="serviceRatingKa">Service equipment rating, kA (optional)</label><input type="text" id="serviceRatingKa" inputmode="decimal" placeholder="65" autocomplete="off"></div>
+    </div>
+    <div class="grid" id="tx-fields">
+      <div><label for="kva">Transformer size, kVA</label><input type="text" id="kva" inputmode="decimal" placeholder="1500" autocomplete="off"></div>
+      <div><label for="pctZ">Impedance %Z (nameplate)</label><input type="text" id="pctZ" inputmode="decimal" placeholder="3.5" autocomplete="off"></div>
+      <div><label for="tolerancePct">Reduce %Z by, % (nameplate tolerance)</label><input type="text" id="tolerancePct" inputmode="decimal" placeholder="10" autocomplete="off"></div>
+      <div><label for="txXR">Transformer X/R</label><input type="text" id="txXR" inputmode="decimal" placeholder="6" autocomplete="off"></div>
+      <div><label for="utilityMva">Utility fault level at the primary, MVA (blank = infinite)</label><input type="text" id="utilityMva" inputmode="decimal" placeholder="" autocomplete="off"></div>
+      <div><label for="utilityXR">Utility X/R</label><input type="text" id="utilityXR" inputmode="decimal" placeholder="10" autocomplete="off"></div>
+    </div>
+    <div class="grid" id="known-fields" hidden>
+      <div><label for="knownA">Available fault current from the utility, amps</label><input type="text" id="knownA" inputmode="decimal" placeholder="42000" autocomplete="off"></div>
+      <div><label for="knownXR">Its X/R (blank = 6)</label><input type="text" id="knownXR" inputmode="decimal" placeholder="" autocomplete="off"></div>
+    </div>
+    <div class="grid">
+      <div><label for="motorFla">Running motors at the service, total full-load amps (optional)</label><input type="text" id="motorFla" inputmode="decimal" placeholder="" autocomplete="off"></div>
+      <div><label for="motorMult">Motor contribution, x full-load amps</label><input type="text" id="motorMult" inputmode="decimal" placeholder="4" autocomplete="off"></div>
+      <div><label for="tempC">Conductor temperature, C (cool gives the most current)</label><input type="text" id="tempC" inputmode="decimal" placeholder="25" autocomplete="off"></div>
+      <div><label for="lengthUnit">Length unit</label><select id="lengthUnit"><option value="ft">feet (reactance per 1000 ft)</option><option value="m">metres (reactance per km)</option></select></div>
+      <div><label for="freq">Frequency</label><select id="freq"><option value="60">60 Hz</option><option value="50">50 Hz</option></select></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Feeders and panels</h2>
+    <p class="note">One row per feeder. "Fed from" is the service or an earlier panel, so branches work. Leave the length 0 for a transformer right at a panel. Reactance blank uses 0.050 ohm per 1000 ft (a quarter more in steel conduit).</p>
+    <div class="scroll"><table id="feeders"><thead><tr><th>Panel name</th><th>Fed from</th><th>Size</th><th>Metal</th><th>Sets</th><th>Length</th><th>Conduit</th><th>X (opt.)</th><th>Rating kA</th><th>Transformer kVA</th><th>%Z</th><th>X/R</th><th>Sec. V</th><th></th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="add-feeder">Add a feeder</button>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Calculate fault current</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in the service and feeders, then click Calculate fault current.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Every panel</h3>
+    <div class="scroll"><table id="node-table"><thead><tr><th>Panel</th><th>Fed from</th><th class="n">Volts</th><th class="n">Fault current, A</th><th class="n">Magnitude sum, A</th><th class="n">Reads low</th><th class="n">X/R</th><th class="n">Peak, A</th><th class="n">Rating</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">Fault current: bolted three-phase (or single-phase line-to-line) symmetrical rms, impedances added as complex numbers. Magnitude sum: the same system with every impedance added as a plain number, which is what point-to-point multipliers do. Peak: IEC 60909 kappa x 1.414 x the symmetrical current.</p>
+    <h3>Label text</h3>
+    <div class="grid">
+      <div><label for="labelNode">Panel</label><select id="labelNode"></select></div>
+      <div><label for="labelDate">Date of calculation</label><input type="date" id="labelDate"></div>
+    </div>
+    <pre class="label" id="label-text"></pre>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>The service transformer's impedance in ohms is %Z/100 x V² / VA, on the secondary, split into R and X by its X/R; the %Z can be reduced first to cover the nameplate tolerance. A utility fault level adds V² / VA ahead of it; blank means an infinite bus. A utility figure instead sets the source impedance to V / (1.732 x I). Running motors are a second source at the service, in parallel, sized so they add the multiplier x their full-load amps there.</p>
+    <p>Each feeder adds (R + jX) x length / sets per phase (twice the length on single-phase, out and back). R is computed: conductor area from the AWG series, kcmil or metric size; copper 1.7241 x 10⁻⁸ and aluminium 2.8264 x 10⁻⁸ ohm m at 20 C, corrected to your temperature; 2 % for stranding; and the IEC 60287 skin-effect factor at 50 or 60 Hz. A step-down transformer refers everything upstream through the square of its turns ratio and adds its own impedance. Fault current = V / (1.732 x |Z|) on three-phase, V / |Z| single-phase.</p>
+    <p><strong>Not modelled:</strong> line-to-ground and line-to-neutral faults (on a center-tapped secondary they can exceed the line-to-line figure), arcing current and arc-flash energy, motors away from the service, generators and inverters, series ratings, current-limiting fuses letting less through, and the cable reactance of your actual installation unless you type it. <strong>Unverified:</strong> checked by hand arithmetic and against the point-to-point formulas in unit tests, not against a commercial study package.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I calculate available fault current at a transformer?</h3>
+    <p>Divide the transformer's full-load current by its per-unit impedance. A 1500 kVA, 480 V three-phase transformer carries 1500000 / (1.732 x 480) = 1804 A at full load; at 3.5 % impedance the fault current on an infinite bus is 1804 / 0.035 = 51,549 A. Many designers reduce the impedance by 10 % to cover the nameplate tolerance, which gives 57,277 A.</p>
+    <h3>What does NEC 110.24 require?</h3>
+    <p>Service equipment in other than dwelling units must be field marked with the maximum available fault current and the date the calculation was done, and the marking must be updated when changes to the electrical installation change the available fault current. Check the edition your jurisdiction has adopted.</p>
+    <h3>Is the point-to-point method accurate?</h3>
+    <p>Its multipliers add the impedances of the transformer and the cables as plain magnitudes, as if they had the same angle. A transformer is mostly reactance and a long small feeder mostly resistance, so the true complex sum is smaller and the real fault current higher. In this page's example the magnitude sum reads 5.6 percent low at a panel 150 ft down a 1/0 feeder. This tool shows both.</p>
+    <h3>Should I include motor contribution?</h3>
+    <p>Running induction motors feed a fault for the first few cycles. A common allowance is four times the full-load current of the motors running at the service, added there. Enter the motors' full-load amps and the multiplier your method uses, or leave it blank.</p>
+    <h3>Where do the conductor impedances come from?</h3>
+    <p>Resistance is computed from the conductor's area and the resistivity of copper or aluminium at the temperature you choose, with 2 percent for stranding and the IEC 60287 skin-effect formula. Reactance defaults to 0.050 ohm per 1000 ft, a quarter higher in steel conduit, and you can type your own figure for each feeder.</p>
+    <h3>Is anything I enter uploaded?</h3>
+    <p>No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, electrical, legal or code-compliance advice, and it does not replace a qualified engineer's short-circuit study, the utility's data, the code that applies to you or a plan review. Results are arithmetic on the numbers you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any equipment or fuse manufacturer, utility, code body or standards organisation, and no product is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>fault_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Sizing the service first? The <a href="../service-load-check/">service load check</a>. Feeder voltage drop? The <a href="../voltage-drop-calculator/">voltage drop calculator</a>. Guide: <a href="nec-110-24-available-fault-current-label.html">the NEC 110.24 fault current label, worked</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, labelText, SIZES } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = ["phase", "volts", "sourceMode", "serviceRatingKa", "kva", "pctZ", "tolerancePct", "txXR", "utilityMva", "utilityXR", "knownA", "knownXR", "motorFla", "motorMult", "tempC", "lengthUnit", "freq"];
+    const SELECTS = { phase: "3", sourceMode: "transformer", lengthUnit: "ft", freq: "60" };
+    const COLS = ["name", "from", "size", "material", "sets", "length", "conduit", "x", "ratingKa", "txKva", "txPctZ", "txXR", "txVolts"];
+    let last = null;
+    const sizeOpts = SIZES.map((s) => `<option value="${esc(s.id)}">${esc(s.label)}</option>`).join("");
+
+    function fromOptions(i, keep) {
+      let h = `<option value="0">Service</option>`;
+      const rows = [...document.querySelectorAll("#feeders tbody tr")];
+      for (let j = 0; j < i; j++) { const nm = rows[j]?.querySelector('[data-k="name"]').value || `Panel ${j + 1}`; h += `<option value="${j + 1}">${esc(nm)}</option>`; }
+      return { h, keep: Math.min(Number(keep ?? i), i) };
+    }
+    function refreshFrom() {
+      [...document.querySelectorAll("#feeders tbody tr")].forEach((tr, i) => {
+        const sel = tr.querySelector('[data-k="from"]'), { h, keep } = fromOptions(i, sel.value === "" ? i : sel.value);
+        sel.innerHTML = h; sel.value = String(keep);
+      });
+    }
+    function addRow(s = {}) {
+      const tb = $("#feeders tbody"), i = tb.children.length, tr = document.createElement("tr");
+      const inp = (k, ph, w) => `<input type="text" data-k="${k}" aria-label="${k} for feeder ${i + 1}" inputmode="${k === "name" ? "text" : "decimal"}" placeholder="${ph}" autocomplete="off" style="width:${w}px">`;
+      tr.innerHTML = `<td>${inp("name", "Panel " + (i + 1), 130)}</td><td><select data-k="from" aria-label="fed from for feeder ${i + 1}"></select></td><td><select data-k="size" aria-label="size for feeder ${i + 1}">${sizeOpts}</select></td><td><select data-k="material" aria-label="metal for feeder ${i + 1}"><option value="cu">Cu</option><option value="al">Al</option></select></td><td>${inp("sets", "1", 50)}</td><td>${inp("length", "0", 70)}</td><td><select data-k="conduit" aria-label="conduit for feeder ${i + 1}"><option value="nonmagnetic">PVC / non-steel</option><option value="magnetic">Steel</option></select></td><td>${inp("x", "0.050", 60)}</td><td>${inp("ratingKa", "", 55)}</td><td>${inp("txKva", "", 60)}</td><td>${inp("txPctZ", "", 50)}</td><td>${inp("txXR", "", 45)}</td><td>${inp("txVolts", "", 55)}</td><td><button type="button" class="secondary small" aria-label="remove feeder ${i + 1}">Remove</button></td>`;
+      tb.appendChild(tr);
+      refreshFrom();
+      for (const k of COLS) { const el = tr.querySelector(`[data-k="${k}"]`); if (s[k] !== undefined && s[k] !== null) el.value = String(s[k]); }
+      if (!s.size) tr.querySelector('[data-k="size"]').value = "4/0";
+      tr.querySelector('[data-k="name"]').addEventListener("change", refreshFrom);
+      tr.querySelector("button").addEventListener("click", () => { tr.remove(); refreshFrom(); });
+    }
+    function readRows() {
+      return [...document.querySelectorAll("#feeders tbody tr")].map((tr) => Object.fromEntries(COLS.map((k) => [k, tr.querySelector(`[data-k="${k}"]`).value])));
+    }
+    function read() { return { ...Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])), segments: readRows().map((r) => ({ ...r, from: Number(r.from) })) }; }
+    function fill(x) {
+      KEYS.forEach((k) => { $("#" + k).value = x[k] ?? SELECTS[k] ?? ""; });
+      $("#feeders tbody").innerHTML = "";
+      (x.segments || []).forEach((s) => addRow(s));
+      modeFields();
+    }
+    function modeFields() { const known = $("#sourceMode").value === "known"; $("#known-fields").hidden = !known; $("#tx-fields").hidden = known; }
+    const fa = (n) => Math.round(n).toLocaleString("en-US");
+
+    function showLabel() {
+      if (!last) return;
+      const n = last.nodes[Number($("#labelNode").value) || 0];
+      $("#label-text").textContent = labelText(n, $("#labelDate").value);
+    }
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const svc = a.nodes[0], worst = a.nodes.slice(1).reduce((m, n) => (!m || n.p2pLowPct > m.p2pLowPct ? n : m), null);
+      const tiles = [[`${fa(svc.amps)} A`, "at the service"], [`${a.over}`, a.over === 1 ? "panel over its rating" : "panels over their rating"]];
+      if (worst) tiles.push([`${worst.p2pLowPct.toFixed(1)} %`, `magnitude sum low at ${worst.name}`]);
+      $("#big").innerHTML = tiles.map(([x, l]) => `<div><strong>${esc(x)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
+      $("#node-table tbody").innerHTML = a.nodes.map((n) => `<tr><td>${esc(n.name)}</td><td>${n.from === null ? "" : esc(a.nodes[n.from].name)}</td><td class="n">${n.volts}</td><td class="n">${fa(n.amps)}</td><td class="n">${fa(n.ampsP2P)}</td><td class="n">${n.p2pLowPct.toFixed(1)} %</td><td class="n">${Number.isFinite(n.xr) ? n.xr.toFixed(2) : "∞"}</td><td class="n">${fa(n.peakA)}</td><td class="n${n.ok === false ? " bad" : ""}">${n.ratingKa === null ? "" : `${n.ratingKa} kA ${n.ok ? "ok" : "OVER"}`}</td></tr>`).join("");
+      const keep = $("#labelNode").value;
+      $("#labelNode").innerHTML = a.nodes.map((n, i) => `<option value="${i}">${esc(n.name)}</option>`).join("");
+      if (keep && Number(keep) < a.nodes.length) $("#labelNode").value = keep;
+      showLabel();
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      return true;
+    }
+
+    try { $("#labelDate").value = new Date().toISOString().slice(0, 10); } catch { /* optional */ }
+    $("#sourceMode").addEventListener("change", modeFields);
+    $("#add-feeder").addEventListener("click", () => addRow({}));
+    $("#labelNode").addEventListener("change", showLabel);
+    $("#labelDate").addEventListener("input", showLabel);
+    $("#analyze").addEventListener("click", () => { if (run()) record("fault_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Example: a 1500 kVA, 3.5 % transformer at 480 V with motors, an MDP, a lighting panel on a long 1/0 feeder and a 208 V panel behind a 75 kVA transformer."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({ segments: [{}] }); report.hidden = true; last = null; status.textContent = "Fill in the service and feeders, then click Calculate fault current."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "fault-current.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    fill(sampleInput());
+  </script>
+</body>
+</html>
