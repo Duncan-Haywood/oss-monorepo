@@ -41,3 +41,10 @@ test("page states it is independent of the apps it reads", () => {
   assert.match(html, /Not affiliated with any platform/);
   assert.match(html, /not sponsored, endorsed or connected to any of them/);
 });
+
+test("the page does not claim to use a Studio RPM column it ignores", () => {
+  const html = page("index.html");
+  // calc.mjs reads rpmGiven but analyze() never uses it; the model section says so.
+  assert.doesNotMatch(html, /RPM are used when present/);
+  assert.match(html, /RPM column in Studio, if present, is not used/);
+});

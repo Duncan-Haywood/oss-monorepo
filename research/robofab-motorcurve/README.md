@@ -14,7 +14,7 @@ A follow-up to `research/robofab-torquebound` (track `robofab`; its "speed-depen
 
 ```bash
 cd research/robofab-motorcurve
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 58 tests, about 10 s
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 59 tests, about 10 s
 PYTHONPATH=src python3 experiments/run.py > experiments/results.txt   # about 15 min; also writes results.json
 python3 experiments/figure.py                             # writes experiments/edge.svg
 ```
@@ -33,6 +33,9 @@ The workcell-twin direction of the HIRO Group (Alessandro Roncone, <https://hiro
 Unchanged from `robofab-torquebound` except the joint limit: |tau_i| <= 5 N m x (1 - |qd_i| / w0), with qd_i = dq_i sqrt(u) along the joint-space line. In the solver this is one more bound on the feasible path acceleration at each node (the limit shrinks as u grows); the velocity-limit curve is found by a geometric scan rather than bisection, because feasibility need not be monotone in u. A joint at or beyond w0 has no torque, so such nodes are infeasible. In the trapezoid check each sample's torque is divided by (1 - |qd_i| / w0) and compared with 5 N m. Totals are over the parts feasible for both methods at every w0 for that row; `experiments/results.txt` lists dropped parts. Time-optimal: n = 1600. Trapezoid: best of 14 ramp fractions 0.002 to 0.5, 40 extra samples per ramp. Edge = 1 - T_opt / T_trap. Eight new tests check the constant-limit reduction, monotone slowing as w0 falls, speed below w0, the torque line along the solved profile (interior nodes, 5% slack), and the trapezoid limits.
 
 ## Results
+
+**Known defect (quality audit 2026-11-20, high):** the trapezoid baseline is checked against the torque-speed line only at sampled points and misses the start of the deceleration ramp. Checked densely with independent dynamics, the best trapezoids in the L = 0.12 m, w0 = 10 row exceed the motor limit by 7 to 14% (cover part 1.1427x), so every trapezoid time is optimistic and every edge below is understated by an amount not yet quantified. Treat the edges as provisional until the baseline is re-checked densely ([audit](../../portfolio/quality/audits/2026-11-20-robofab-motorcurve.json)).
+
 
 Edge (%) of the time-optimal carry over the tuned trapezoid, six-part totals (the 0.08 m, no-cap row has five parts, see Limitations).
 

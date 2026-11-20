@@ -520,8 +520,10 @@ export function analyze(input = {}) {
   for (const g of used) {
     const i = idx.get(g.a), j = idx.get(g.b);
     pairs.push([i, j]);
-    if (g.outcome === "i" || g.outcome === "tie" || ties === "half") edges.push([i, j]);
-    if (g.outcome === "j" || g.outcome === "tie" || ties === "half") edges.push([j, i]);
+    // A tie (Davidson, or half a win each) links both ways; a decisive game
+    // links only winner -> loser, whatever the tie mode.
+    if (g.outcome === "i" || g.outcome === "tie") edges.push([i, j]);
+    if (g.outcome === "j" || g.outcome === "tie") edges.push([j, i]);
   }
   const weak = weakComponents(sorted.length, pairs);
   const strong = strongComponents(sorted.length, edges);

@@ -73,3 +73,17 @@ test("validation", () => {
   assert.equal(money(-1234.4), "-$1,234");
   assert.match(toCsv(check({ rows, prices: { oak: 1 }, offer: { kind: "lump", amount: 5 } })), /oak,10,/);
 });
+
+test("check: a like-for-like Doyle offer at Doyle prices reads 100%, not low (audit 2026-11-20)", () => {
+  const { rows } = parseLogs("red oak,12,16,200");
+  // Doyle: (12-4)^2 x 16/16 = 64 BF/log x 200 = 12,800 BF; at $420/MBF = $5,376
+  const r = check({ rows, prices: { "red oak": 420 }, offer: { kind: "lump", amount: 5376 }, offerRule: "doyle" });
+  assert.equal(r.fairValue, 5376);
+  assert.equal(r.ratio, 1);
+  assert.equal(r.belowThreshold, false);
+  // prices quoted under International: the same offer is now low against International volume
+  const intl = check({ rows, prices: { "red oak": 420 }, offer: { kind: "lump", amount: 5376 }, offerRule: "doyle", priceRule: "international" });
+  assert.equal(intl.priceRule, "international");
+  assert.ok(intl.ratio < 0.75);
+  assert.match(check({ rows, prices: {}, offer: { kind: "lump", amount: 1 }, priceRule: "bogus" }).error, /prices are quoted/);
+});

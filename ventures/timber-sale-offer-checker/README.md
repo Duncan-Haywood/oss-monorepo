@@ -7,7 +7,7 @@ same logs scale to very different volumes depending on the rule. Nothing is uplo
 
 **Live tool:** https://marisstella.app/timber-sale-offer-checker/
 
-After using this, you can now **tell whether a timber offer is in the right range and what a
+After using this, you can now **see how an offer compares with your logs at your own prices (scaled under the rule your prices use) and what a
 consulting forester has to add to pay for themselves**, which used to mean trusting the buyer's scale.
 
 ## Use
@@ -21,7 +21,7 @@ consulting forester has to add to pay for themselves**, which used to mean trust
 
 - Doyle = (D-4)^2 x L/16. International 1/4 = 4-ft sections, 1/2" taper each, 0.199D^2 - 0.642D. Scribner = common formula fit (approximate).
 - Value = board feet / 1000 x your price. The tool holds no market data.
-- Ratio = offer / International value at your prices; under 75% is flagged as a question to ask.
+- Ratio = offer / value at your prices, with volume under the rule your prices are quoted in (`--price-rule`, default the offer's rule); under 75% is flagged as a question to ask. Before 2026-11-20 it always used International volume, which flagged fair Doyle-priced offers as low ([audit](../../portfolio/quality/audits/2026-11-20-timber-sale-offer-checker.json)).
 - Forester break-even uplift = fee / (1 - fee).
 
 Not modelled: cull and defect deductions, roads and skidding, tops and pulpwood, taxes, contract terms.

@@ -159,6 +159,15 @@ test("Ford's condition: an unbeaten group triggers the prior; separate groups ar
   assert.equal(tie.settings.priorOnAll, true);
   const tie2 = analyze({ csv: "a,b,result\nA,B,1\nB,A,0.5\nB,A,1\n", draws: 0 });
   assert.equal(tie2.existence.exists, true);
+  // With ties counted as half a win, a decisive game is still one-way in
+  // Ford's graph: an unbeaten player is named, not hidden behind the
+  // generic runaway warning.
+  const half = analyze({ csv: "winner,loser\nA,B\nA,C\nB,C\nC,B\n", ties: "half", draws: 0 });
+  assert.equal(half.existence.components, 2);
+  assert.equal(half.settings.priorOnAll, false);
+  assert.match(half.warnings.join(" "), /A never lost to anyone outside their group/);
+  const halfTie = analyze({ csv: "a,b,result\nA,B,0.5\nB,C,1\nC,B,1\n", ties: "half", draws: 0 });
+  assert.equal(halfTie.existence.exists, true);
   // Tarjan on a known graph: 0<->1, 1->2, 2<->3.
   const comps = strongComponents(4, [[0, 1], [1, 0], [1, 2], [2, 3], [3, 2]]).map((c) => c.sort().join("")).sort();
   assert.deepEqual(comps, ["01", "23"]);
