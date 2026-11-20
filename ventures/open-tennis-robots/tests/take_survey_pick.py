@@ -70,6 +70,9 @@ TACHS = (("capture 1/8 us", {"tach_jitter_us": 0.5, "tach_capture": True, "tach_
          ("jittery 0.5 us", {"tach_jitter_us": 0.5}))
 TACH_PLANT = 1                 # min_fit_heldout.PLANTS[1]: "tach 3 us 10k" (wheel_max_rpm 10000), jitter replaced
 DENSE_US = tuple(range(0, 8001, 250))
+# --feed-jitter MS (2026-11-20, eval/feed-phase-2026-11-20.md): hold each ball a uniform 0..MS ms before it leaves
+# (feeder_sim's feed_jitter_ms), so its contact lands at a random point of the wheels' revolution; 0 is the old sim.
+FEED_JITTER_MS = 0.0
 
 
 def capture(args):
@@ -80,7 +83,8 @@ def capture(args):
     tss.SEED = seed
     tss.TAKES = tuple(tss.TAKES) + tuple((f"halfsine {ms:g} ms", ms, "halfsine") for ms in takes)
     plants = list(h.PLANTS)
-    plants[TACH_PLANT] = (TACHS[ki][0], dict(h.PLANTS[TACH_PLANT][1], **TACHS[ki][1]))
+    extra = {"feed_jitter_ms": FEED_JITTER_MS} if FEED_JITTER_MS else {}
+    plants[TACH_PLANT] = (TACHS[ki][0], dict(h.PLANTS[TACH_PLANT][1], **TACHS[ki][1], **extra))
     h.PLANTS = tuple(plants)
     if drill:
         tm.SURVEY_DRILL = drill
@@ -90,6 +94,8 @@ def capture(args):
         r["take_ms"] = takes[ti]
         if drill:
             r["drill"] = drill
+        if FEED_JITTER_MS:
+            r["feed_jitter_ms"] = FEED_JITTER_MS
         r["board_scores"] = [w["board"] for w in r["wheels"]]
     return (ti, ki, li, lag, seed), r
 
@@ -282,6 +288,9 @@ def main():
             print(f"  {ms:g} ms | " + " | ".join(cells))
         return
     out = sys.argv[sys.argv.index("--capture") + 1]
+    global FEED_JITTER_MS
+    if "--feed-jitter" in sys.argv:
+        FEED_JITTER_MS = float(sys.argv[sys.argv.index("--feed-jitter") + 1])
     lag = float(sys.argv[sys.argv.index("--lag") + 1]) if "--lag" in sys.argv else 0.45
     seed = int(sys.argv[sys.argv.index("--seed") + 1]) if "--seed" in sys.argv else 29
     only = int(sys.argv[sys.argv.index("--only") + 1]) if "--only" in sys.argv else None
