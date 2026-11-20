@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, phone]
+topics: [design, accessibility]
 date: 2026-11-20
 ---
 # Polish: venture eyebrows cut to two items, with a test over every venture
