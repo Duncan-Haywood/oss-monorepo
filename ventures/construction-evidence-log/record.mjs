@@ -83,7 +83,13 @@ export function entriesToCsv(entries) {
     'changeType', 'requestedBy', 'impact', 'changeDetails',
     'findings', 'savedAt',
   ];
-  const quote = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+  // A cell starting with = + - @ (or tab/CR) is read as a formula by Excel and
+  // Sheets (OWASP "CSV injection"); a leading apostrophe keeps it as text.
+  const quote = (value) => {
+    let text = String(value ?? '');
+    if (/^[=+\-@\t\r]/.test(text) && !/^-?\d+(\.\d+)?$/.test(text)) text = `'${text}`;
+    return `"${text.replaceAll('"', '""')}"`;
+  };
   const rows = entries.map((e) => {
     const log = e.record?.log || {};
     const change = e.record?.change || {};
@@ -107,10 +113,16 @@ export function entriesToCsv(entries) {
 export function packSummary(pack) {
   const range = pack.dateRange ? `${pack.dateRange.from} to ${pack.dateRange.to}` : 'no dated entries';
   const projectLine = pack.projects.length ? pack.projects.join(', ') : '(no project named)';
+  // A correction is saved as a second entry for the same date, so entries
+  // and days differ; count each separately rather than calling entries days.
+  const dated = (pack.entries || []).map((r) => r?.log?.date).filter(Boolean);
+  const days = new Set(dated).size;
+  const changeDays = new Set((pack.entries || []).filter((r) => r?.change).map((r) => r?.log?.date || '(no date)')).size;
+  const entries = `${pack.entryCount} ${pack.entryCount === 1 ? 'entry' : 'entries'}`;
   return [
-    `${pack.entryCount} ${pack.entryCount === 1 ? 'day' : 'days'} logged (${range})`,
+    `${days} ${days === 1 ? 'day' : 'days'} logged, ${entries} (${range})`,
     `Project(s): ${projectLine}`,
-    `${pack.changeOrDelayEntryCount} of ${pack.entryCount} days include a change or delay`,
+    `${pack.changeOrDelayEntryCount} of ${entries} include a change or delay (${changeDays} of ${days} ${days === 1 ? 'day' : 'days'})`,
     pack.reviewNotes.length
       ? `${pack.reviewNotes.length} review notes across the pack`
       : 'No missing-field observations across the pack.',

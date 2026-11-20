@@ -56,7 +56,7 @@
     </form>
     <section class="panel" aria-live="polite"><h2>Your review</h2><div class="results">
       <div class="metric"><strong id="unused">6</strong><span id="unusedLabel">unused seats</span></div><div class="metric"><strong id="utilization">70%</strong><span>seat utilization</span></div>
-      <div class="metric"><strong id="monthly">$108.00</strong><span id="monthlyLabel">avoidable per month</span></div><div class="metric"><strong id="remaining">$432.00</strong><span id="remainingLabel">avoidable through renewal</span></div>
+      <div class="metric"><strong id="monthly">$108.00</strong><span id="monthlyLabel">avoidable per month</span></div><div class="metric"><strong id="remaining">$432.00</strong><span id="remainingLabel">committed through renewal</span></div>
     </div><div class="callout" id="message">A seat review could release $1,296.00 over a full year if the unused seats are not renewed.</div><div class="callout" id="notice" hidden></div></section>
   </section>
 
@@ -153,7 +153,7 @@
       document.querySelector('#monthly').textContent = formatMoney(over ? result.monthlyOverage : result.monthlyAvoidable);
       document.querySelector('#monthlyLabel').textContent = over ? 'extra per month' : 'avoidable per month';
       document.querySelector('#remaining').textContent = formatMoney(over ? result.remainingOverage : result.remainingAvoidable);
-      document.querySelector('#remainingLabel').textContent = over ? 'extra through remaining term' : 'avoidable through renewal';
+      document.querySelector('#remainingLabel').textContent = over ? 'extra through remaining term' : 'committed through renewal';
       document.querySelector('#message').textContent = reviewMessage(result);
       const noticeEl = document.querySelector('#notice');
       const renewalDate = read('renewalDate');

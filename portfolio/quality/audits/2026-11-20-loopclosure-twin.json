@@ -1,0 +1,202 @@
+{
+ "date": "2026-11-20",
+ "subject": "research/loopclosure-twin",
+ "stratum": "research",
+ "seed": "2026-11-20-be43",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a SLAM / robot state-estimation reviewer for IEEE T-RO or RA-L (data association, robust pose-graph back ends, covariance consistency); first checks: is the chi-square gate and its closed-form optimum right, is the residual model (isotropic 2-D, false closure = s2+tau2) a fair stand-in for an SE(2)/SE(3) loop-closure residual, is the nearest prior work cited (Bayes / likelihood-ratio threshold for two zero-mean Gaussians of unequal variance, Van Trees 1968; loop-closure verification RRR Latif et al. 2013 IJRR, DCS Agarwal et al. 2013, PCM Mangelson et al. 2018; filter covariance consistency / NEES, Bar-Shalom et al. 2001), and is anything new beyond those.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py` (3.1 s): byte-identical to experiments/results.txt. Independent scripts /tmp/claude-0/audit-loopclosure-twin/indep.py and indep2.py (no subject import) use closed-form chi-square CDFs (F2 = 1-e^{-x/2}; F3 = erf(sqrt(x/2)) - sqrt(2x/pi) e^{-x/2}), find the optimal gate by bisection on L'(g) (not the author's closed form or golden section), and integrate the fitted-variance expectation by Simpson on Gamma(n) with a u^2 substitution plus a 200k-draw Monte Carlo. Reproduced: g_t=0.0771, radius 0.278, reject 0.0212, accept 0.0374, cost 0.0940; k=2/3 rho=1/2 exact rates 0.0212/0.3815/0.0524/0.5876 and 0.0374/0.0364/0.0055/0.0053; alpha^(1/rho^2) row 0.0000/0.0100/0.1292/0.3162/0.5995; table 3 real costs, real-opt radii 1.61/2.23/2.78/3.73/4.52/5.77/6.625, regrets 145.5/27.6/0/37.0/61.8/54.4/34.8%; ratios 2.51/4.43/6.98; c_false sweep 395.5-395.8/203.7/61.8/3.0/0; fixed-inflation rows 0.15899/0.04418/0.00772/0/0.01435/0.05257/0.12711 and 0/0.03020/0.06692/0.09876/0.15082/0.20974/0.29667; fitted regret n=2/3/5/10/30/100/1000 = 0.05371/0.03490/0.02019/0.00970/0.00313/0.00093/0.00009 and n=59 the first below 1% (58: 1.01%, 59: 0.99%). Also derived the k=2 stationarity by hand: (A/s2)e^{-g/2s2} = (B/v)e^{-g/2v} gives g = 2 s2 v/tau2 ln(Av/(Bs2)), unique interior minimum iff Av/(Bs2) > 1, otherwise g=0. Not 4: n=1 fitted regret is 0.10734 in results.txt vs 0.10788 independently (0.5% low; README/paper '67.5%' is 67.8%) because _gamma_weights truncates the Gamma density at x=1e-3 and renormalises (model.py:113; for kappa=0.5 the weights' mean is 1.033, not 1); and regret() can go negative when the true optimum is the boundary g=0: `regret(0.0, 0.04, 1.0, 0.9, 100.0)` = -0.00365 because opt_gate's grid starts at s2*e^-6 and never evaluates g=0 (model.py:73). Neither affects another published row.",
+  "completeness": "Everything the README and paper list runs: 11 tests (README says 11, ran 11 in 0.59 s), run.py reproduces results.txt exactly (~3 s, README says ~5 s), figure.py on a copy regenerates cost_vs_rho.svg byte-identically, all seven paper results are in results.txt, companion projects occupancy-twin, radar-clutter-twin, latency-twin, twin-audit exist. No stubs or TODOs; future work labelled 'Next steps'. Listed in research/README.md:173. Live page https://marisstella.app/research/loopclosure-twin/ returned 000 from this container (proxy), not verified.",
+  "verification": "`env PYTHONPATH=src python3 -m unittest discover -s tests`: 11 pass. quality_mutate.py, 4 seeded mutants in model.py, 3 survived: (a) fitted_regret's degrees of freedom n*k/2 -> n*k/2+1 (model.py:125) survives although it halves the n=1 regret (0.107 -> 0.054) and shifts n=8 by 0.0014, just inside test_fit_regret_matches_simulation's delta=0.0015 (about 12% of the value, tests/test_model.py:65); (b) gate_inflation_regret c -> c*c (model.py:137) survives because the only test is c=1; (c) the Gamma quadrature's lower cut 1e-3 -> 5e-2 (model.py:113) survives. Changing accept_false's variance s2+tau2 -> tau2 was caught (4 failures). The chi-square, closed-form-optimum and MC tests are good; no test pins any results.txt row, so the repair and inflation tables (results 6 and 7) are effectively unguarded.",
+  "craft": "Read model.py (138 lines), __init__.py, tests/test_model.py, experiments/run.py, figure.py. Compact, docstrings state the model, the incomplete-gamma series / Lentz continued fraction is a correct Numerical Recipes port, figure.py parses results.txt instead of retyping numbers. Defects: opt_gate's log grid (model.py:73) never considers the g=0 boundary that opt_gate_k2 returns, so regret can be negative; _gamma_weights is an ad hoc midpoint rule with a hard 1e-3 floor that is biased for kappa<=1 (mean 1.033 at kappa=0.5, i.e. k=1, n=1), with no warning; star imports in __init__.py, tests and run.py; run.py also inserts src on sys.path by hand.",
+  "claims": "Checked: twin gate 0.278 m / cost 0.094 / 2.1% (results.txt:2, pass); rho=2 38.2% exact vs MC 38.0% (results.txt:6, pass); 4.4x (results.txt:29, pass); regret 61.8% / 54% (results.txt:23-24, pass); alpha^(1/rho^2) 31.6% (pass); pessimistic twin 145% (pass); c_false 396%/3%/reject-all at 1000 (pass); repair 6% at n=10, <1% at n=59 (pass); '11 tests, ~1 s' and '~5 s' (pass); limits stated (README:15, paper Limitations); ARPG non-affiliation stated (README:13). Weak points: the paper calls the repair rows 'exact expectations' (whitepaper.md:3) but they are a truncated quadrature, off by 0.5% at n=1 (67.5% printed, 67.8% true); the closed-form gate is presented without saying it is the classical likelihood-ratio threshold for unequal-variance Gaussians, so a reader may take it as a contribution. Live page not verifiable.",
+  "fitness": "A researcher could reuse the code as a correct, dependency-free oracle for chi-square gate costs and as a teaching example of variance mismatch. As research it is thin: the optimal gate is the Bayes / likelihood-ratio threshold between N(0,s2 I) and N(0,(s2+tau2) I) (Van Trees 1968, Part I; any detection-theory text), alpha^(1/rho^2) is one line for k=2, and the 'repair' is plug-in variance estimation whose O(1/n) regret is standard. The SLAM-side prior work a reviewer would expect is missing: loop-closure verification and robust back ends beyond Sunderhauf & Protzel (RRR, Latif, Cadena & Neira 2013; DCS, Agarwal et al. 2013; max-mixtures, Olson & Agarwal 2013; PCM, Mangelson et al. 2018) and covariance-consistency / NEES calibration of odometry (Bar-Shalom, Li & Kirubarajan 2001), which is exactly the practitioner's version of the repair. No real or simulated odometry data, so rho is a knob. Not publishable at a robotics venue as is.",
+  "domain": "The chi-square gate itself is standard practice and is modelled correctly. Departures a SLAM practitioner would flag first: real loop-closure residuals live in SE(2)/SE(3) (3 or 6 dof with rotation-translation coupling), not isotropic 2-D translation; the gate in practice is a Mahalanobis test against the propagated covariance, whose scale grows with loop length, so 'twin noise too small' is a covariance-overconfidence problem usually handled by covariance inflation/calibration against NEES, not a single s; false closures from aliasing are not zero-mean Gaussian with a known tau; and modern systems use robust kernels or consistency-set selection (PCM) rather than a single hard gate. All of these are acknowledged in Limitations, not addressed."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Twin-optimal gate and its claimed rates (s_t=0.1, tau=1, A=0.9, B=2, k=2)",
+   "method": "independent: bisection on dL/dg with closed-form F2, no use of the author's closed form; plus hand derivation of the stationarity condition",
+   "command": "python3 -I /tmp/claude-0/audit-loopclosure-twin/indep2.py",
+   "expected": "g_t 0.0771, radius 0.278 m, reject 0.0212, accept 0.0374, cost 0.0940",
+   "observed": "results.txt:2 g_t=0.0771, 0.278 m, 0.0212, 0.0374, 0.0940",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Exact gate rates for k=2 and k=3 at rho=1,2",
+   "method": "closed-form chi-square CDFs (k=3: erf(sqrt(x/2)) - sqrt(2x/pi) e^{-x/2}), independent of the author's incomplete-gamma code",
+   "command": "python3 -I /tmp/claude-0/audit-loopclosure-twin/indep2.py",
+   "expected": "reject 0.0212/0.3815/0.0524/0.5876, accept 0.0374/0.0364/0.0055/0.0053",
+   "observed": "results.txt:5-8 identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Table 3 (rho 0.5..4): real cost at twin gate, real-optimal radius, regret %, and table 4 ratios",
+   "method": "independent bisection optimum per rho, closed-form costs",
+   "command": "python3 -I /tmp/claude-0/audit-loopclosure-twin/indep2.py",
+   "expected": "regret 145.5/27.6/0.0/37.0/61.8/54.4/34.8 %, radii 1.61/2.23/2.78/3.73/4.52/5.77/6.625, ratios 2.51/4.43/6.98",
+   "observed": "results.txt:19-25, 28-30 match (6.63 for 6.625 is rounding)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "c_false sweep and fixed-inflation table (results 5 and 7)",
+   "method": "independent bisection optimum, closed-form costs",
+   "command": "python3 -I /tmp/claude-0/audit-loopclosure-twin/indep.py",
+   "expected": "c_false regret 395.5-395.8/203.7/61.8/3.0/0.0 %; inflation 0.15899/0.04418/0.00772/0/0.01435/0.05257/0.12711 and 0/0.03020/0.06692/0.09876/0.15082/0.20974/0.29667",
+   "observed": "results.txt:33-37, 52-58 match",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Repair: expected regret after re-fitting variance from n closures, and the n=59 threshold",
+   "method": "Simpson quadrature on the Gamma(n) density with u^2 substitution (no endpoint truncation) and 200k-draw Monte Carlo, independent of _gamma_weights",
+   "command": "python3 -I /tmp/claude-0/audit-loopclosure-twin/indep2.py",
+   "expected": "n=1 0.10788 (67.8%), n=2..1000 0.05371/0.03490/0.02019/0.00970/0.00313/0.00093/0.00009, n=58 1.01%, n=59 0.99%",
+   "observed": "results.txt:41-49 n=1 0.10734 (67.5%), all other rows identical, 59",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "regret() when the real optimum is the boundary g=0 (c_false=1000, s2=0.04)",
+   "method": "call the shipped function; regret must be >= 0 by definition",
+   "command": "cd research/loopclosure-twin && PYTHONPATH=src python3 -c \"from loopclosure_twin import *; print(regret(0.0,0.04,1.0,0.9,100.0))\"",
+   "expected": ">= 0 (g=0 is optimal, opt_gate_k2 returns 0.0)",
+   "observed": "-0.0036519699563011265 (opt_gate returns 9.9e-05, never evaluates g=0)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py reproduces results.txt; figure.py regenerates cost_vs_rho.svg",
+   "method": "rerun and diff (figure on a copy)",
+   "command": "cd research/loopclosure-twin && PYTHONPATH=src python3 experiments/run.py | diff - experiments/results.txt",
+   "expected": "no diff",
+   "observed": "no diff (3.1 s); SVG byte-identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite and README test count",
+   "method": "run",
+   "command": "cd research/loopclosure-twin && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "11 tests pass, ~1 s",
+   "observed": "Ran 11 tests in 0.585s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'the repair rows are exact expectations over the fitted variance'",
+   "method": "compare against untruncated quadrature",
+   "command": "python3 -I /tmp/claude-0/audit-loopclosure-twin/indep2.py",
+   "expected": "exact to printed precision",
+   "observed": "n=1 0.10734 vs 0.10788; truncated midpoint rule (model.py:113)",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Prior work on loop-closure verification and on the threshold itself",
+   "method": "literature: Latif et al. 2013 IJRR (RRR), Agarwal et al. 2013 (DCS), Mangelson et al. 2018 ICRA (PCM), Van Trees 1968 (LRT threshold, unequal variances), Bar-Shalom et al. 2001 (NEES consistency)",
+   "command": "grep -rn -i 'latif\\|PCM\\|mangelson\\|agarwal\\|van trees\\|likelihood ratio\\|NEES\\|consisten' research/loopclosure-twin",
+   "expected": "cited, with the closed form attributed as classical",
+   "observed": "no match",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page https://marisstella.app/research/loopclosure-twin/",
+   "method": "curl",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/loopclosure-twin/",
+   "expected": "200",
+   "observed": "000 (host unreachable through this container's proxy); not verified",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/loopclosure_twin/model.py:56",
+   "change": "return chi2_cdf(k, g / (s2 + tau2)) -> return chi2_cdf(k, g / tau2)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/loopclosure_twin/model.py:137",
+   "change": "g = opt_gate(c * s2_twin, tau2, A, B, k) -> g = opt_gate(c * c * s2_twin, tau2, A, B, k)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/loopclosure_twin/model.py:125",
+   "change": "xs, ws = _gamma_weights(n * k / 2.0) -> xs, ws = _gamma_weights(n * k / 2.0 + 1)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/loopclosure_twin/model.py:113",
+   "change": "lo = max(1e-3, 1 - 9 * sd) if kappa > 20 else 1e-3 -> lo = max(1e-3, 1 - 9 * sd) if kappa > 20 else 5e-2",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Tests do not guard the repair and inflation results: a wrong degrees-of-freedom in fitted_regret (n*k/2 -> n*k/2+1, halves the n=1 regret) survives because test_fit_regret_matches_simulation's delta=0.0015 is ~12% of the n=8 value; c -> c*c in gate_inflation_regret survives (only c=1 tested); the quadrature cut-off change survives; no test pins any results.txt row.",
+   "where": "research/loopclosure-twin/tests/test_model.py:65",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17841"
+  },
+  {
+   "severity": "medium",
+   "what": "Novelty and prior work: the closed-form gate is the classical likelihood-ratio / Bayes threshold for two zero-mean Gaussians of unequal variance and the repair is plug-in variance estimation, neither attributed; SLAM loop-closure verification (RRR, DCS, max-mixtures, PCM) and odometry covariance-consistency (NEES) literature is not cited, so a reader cannot tell what, if anything, is new.",
+   "where": "research/loopclosure-twin/paper/whitepaper.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "regret() can be negative: opt_gate's log grid starts at s2*e^-6 and never evaluates the g=0 boundary, so when rejecting everything is optimal (Av/(Bs2) <= 1) regret(0.0, 0.04, 1.0, 0.9, 100.0) = -0.00365. No published row uses this path, but section-5-style calls through regret() would print negative regret.",
+   "where": "research/loopclosure-twin/src/loopclosure_twin/model.py:73",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "_gamma_weights truncates the Gamma density at x=1e-3 and renormalises with a midpoint rule: the n=1 repair row is 0.10734 (67.5%) vs 0.10788 (67.8%) exactly, and for kappa=0.5 (k=1, n=1) the weights' mean is 1.033; the paper calls these rows 'exact expectations'.",
+   "where": "research/loopclosure-twin/src/loopclosure_twin/model.py:113",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Domain scope: isotropic 2-D translation residual with a fixed s stands in for an SE(2)/SE(3) Mahalanobis residual whose covariance grows with loop length; false closures assumed zero-mean Gaussian with known tau; hard gate only. Acknowledged in Limitations, not modelled.",
+   "where": "research/loopclosure-twin/paper/whitepaper.md:21",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Star imports in __init__.py, tests and run.py; run.py edits sys.path by hand.",
+   "where": "research/loopclosure-twin/experiments/run.py:4",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17841"],
+ "verdict": "A small, clean and fully reproducible stylised study: run.py and figure.py regenerate results.txt and the SVG byte-for-byte, and independent scripts (closed-form chi-square CDFs, bisection optimum, untruncated quadrature and Monte Carlo) reproduce every number in all seven result blocks except the n=1 repair row (0.10734 printed vs 0.10788, a 0.5% quadrature truncation the paper calls 'exact'). A latent bug lets regret() go negative when the optimum is the g=0 boundary. It misses the bar on verification: 3 of 4 seeded mutants survive, including a wrong degrees-of-freedom in the repair that halves its n=1 result, because the simulation test's tolerance is ~12% and no test pins a published number. As research it restates the classical unequal-variance likelihood-ratio threshold and plug-in variance estimation without saying so, omits the loop-closure verification (RRR, DCS, PCM) and covariance-consistency literature, and uses no odometry data. Correct and finished; not yet a contribution a SLAM reviewer would accept."
+}

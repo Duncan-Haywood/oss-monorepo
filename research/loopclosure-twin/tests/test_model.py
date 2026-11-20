@@ -68,6 +68,16 @@ class T(unittest.TestCase):
         self.assertAlmostEqual(gate_inflation_regret(1.0, S2, 4 * S2, TAU2, A, B),
                                regret(opt_gate_k2(S2, TAU2, A, B), 4 * S2, TAU2, A, B), 6)
 
+    def test_published_repair_rows(self):
+        # Quality census 2026-11-20 (portfolio/quality/audits/2026-11-20-loopclosure-twin.json):
+        # a wrong degrees of freedom in fitted_regret and c -> c*c in
+        # gate_inflation_regret both passed every earlier test. Pin results.txt.
+        s2 = 0.04
+        self.assertAlmostEqual(fitted_regret(10, s2, TAU2, A, B), 0.00970, 4)
+        self.assertAlmostEqual(fitted_regret(2, s2, TAU2, A, B), 0.05371, 4)
+        self.assertAlmostEqual(gate_inflation_regret(2, 0.01, s2, TAU2, A, B), 0.04418, 4)
+        self.assertAlmostEqual(gate_inflation_regret(3, 0.01, 0.01, TAU2, A, B), 0.06692, 4)
+
 
 if __name__ == "__main__":
     unittest.main()
