@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, typography]
+topics: [design, accessibility]
 date: 2026-11-20
 ---
 # Polish 2026-11-20: figure columns in Markdown tables right-aligned, tabular digits
