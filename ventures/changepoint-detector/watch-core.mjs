@@ -469,20 +469,21 @@ export function eagerSettings(model = 'mean') {
  * Returns { n, from, model, budget, suggest, settings: [{ key, detector, alerts, checks, step, per100, medianDelay }] }.
  */
 export function eagernessReplay(values, labels = null, opts = {}) {
-  const { detector: _d, budget: b0, keepAlerts = false, ...rest } = opts;
+  const { detector: _d, budget: b0, keepAlerts = false, ladder = null, ...rest } = opts;
   const budget = b0 ?? HINT_BUDGET;
   const model = rest.model ?? 'mean';
   let n = 0, from = 0;
   const v = values.map(Number);
-  const settings = eagerSettings(model).map(({ key, detector }) => {
-    const r = replayWatch(values, labels, { ...rest, detector });
+  // ladder: [{ key, detector, ...options }] to replay instead of eagerSettings(model) (the eval scripts compare ladders).
+  const settings = (ladder ?? eagerSettings(model, rest)).map(({ key, detector, ...extra }) => {
+    const r = replayWatch(values, labels, { ...rest, ...extra, detector });
     n = r.n; from = r.from;
     const d = r.alerts.map((a) => a.pointsAfter).sort((x, y) => x - y), m = d.length >> 1;
     // Per daily check after the baseline (n - from), as a watch run after every row would count them, not the
     // replay's own coarse and bisection checks.
     const daily = r.n - r.from;
     const weekly = rest.period > 1 ? null : weekdayBunching(r.alerts.map((a) => a.label), labels, { values: v });
-    return { key, detector, alerts: r.alerts.length, checks: daily, step: r.step, per100: daily ? (100 * r.alerts.length) / daily : 0, medianDelay: d.length ? (d.length % 2 ? d[m] : (d[m - 1] + d[m]) / 2) : null, ...(weekly ? { weekly } : {}), ...(keepAlerts ? { alertLabels: r.alerts.map((a) => a.label) } : {}) };
+    return { key, detector, ...extra, alerts: r.alerts.length, checks: daily, step: r.step, per100: daily ? (100 * r.alerts.length) / daily : 0, medianDelay: d.length ? (d.length % 2 ? d[m] : (d[m - 1] + d[m]) / 2) : null, ...(weekly ? { weekly } : {}), ...(keepAlerts ? { alertLabels: r.alerts.map((a) => a.label) } : {}) };
   });
   return { n, from, model, budget, suggest: suggestFor(settings, budget, n), settings };
 }
