@@ -1,0 +1,202 @@
+{
+  "date": "2026-11-20",
+  "subject": "ventures/pergola-bid-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-20-d447",
+  "drawn_by": "census",
+  "auditor": "agent session (Claude), census sub-auditor",
+  "status": "audited",
+  "professional": "a senior estimator at a deck and outdoor-living contractor who prices pergolas and patio covers; first checks: post count and bay spacing vs. the beam span, whether overhangs/tails are in the beam and rafter takeoff, and that margin is on price not cost",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Independent Python re-implementation from the README method (python3 /tmp/claude-0/audit-pergola-bid-calculator/recompute.py) reproduces all four preset rows on vs-a-flat-45-per-square-foot-special.html to the cent: 10x10 cost $2,813.18 / price $3,750.90 / 37.5% at $45/sf; 12x16 slats $4,840.90 / $6,454.54 / 44.0%; 12x16 louvered $8,210.93 / $10,947.91 / 5.0%; 16x20 poly $11,792.29 / $15,723.06 / 18.1%. 10x10 also hand-worked: 13.9 h x $41.60 + $1,518 materials + $350 soft = $2,446.24 x 1.15 = $2,813.18. Margin is cost/(1-m) (share of price), correct. Capped at 3 because the post-count rule lets a bay exceed the entered spacing by up to 2x (postsAlong(15,8) = 2, a 15-ft clear beam span at '8 ft spacing').",
+    "completeness": "README features checked end to end in code: footprint, posts (floor+1, min 2), attached ledger dropping house row, rafters, beams, shade kits, height kits, loaded wage/overhead/margin, walk-away price, proposed-price check, copy summary (formatBidSummary), share link (share.mjs), proposal with deposit/signature (proposal.mjs), usage tally with DNT/GPC skip (usage.mjs:21). All present and wired in index.html. No TODOs or stubs found.",
+    "verification": "node --test *.test.mjs: 131 pass, 0 fail (also plain `node --test` as README says: 131 pass). 5 mutants via quality_mutate.py: 4 caught (height extra hours, ledger gate, demo gate, proposed margin on cost), 1 survived (postsAlong minimum 2 -> 1; no test covers a side shorter than the spacing).",
+    "craft": "Read calc.mjs (471 lines), index.html wiring (lines 320-630), usage.mjs, test files. Pure engine, every input validated, flag() rejects unknown words instead of Boolean('no') = true. Minor: money formatter duplicated in calc.mjs:441 and index.html:356; footing count silently follows post count; attachment validation repeated in four helpers.",
+    "claims": "Comparison-page table backed by presets and recomputed. 'Nothing uploaded' backed by usage.mjs storing only event counts. Disclaimer present on index.html:311 and every page. Buildxact page invents no prices and carries a non-affiliation note. served-copy.mjs: no placeholder origins. README event list omits proposal_printed (index.html:794) - stale, low.",
+    "fitness": "Walked the 12x16 attached louvered job: preset, edit costs, proposed price, copy summary, print proposal all work in code. A crew could send a price. But the takeoff has no overhang/tails on beams (beamLf = width x rows exactly) and no beam or rafter size, so the stick list a crew would order from is not produced; footings default to one per post with no size/depth.",
+    "domain": "Compared with common practice (e.g. AWC DCA 6 / IRC R507 tables for beam spans by member size, standard pergola framing with 12-24 in tails): post spacing here is a nominal divisor, not a maximum span, so bays reach up to 2x the entered spacing; beam length omits overhangs; no wind uplift / footing sizing (stated as a limit). Margin-on-price and loaded-wage method is sound."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "10x10 freestanding open preset cost and price",
+      "method": "hand arithmetic + independent Python re-implementation from README method",
+      "command": "python3 /tmp/claude-0/audit-pergola-bid-calculator/recompute.py",
+      "expected": "2813.18 / 3750.90",
+      "observed": "page table $2,813.18 / $3,750.90",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "12x16 attached slats preset cost, price, margin at $45/sf",
+      "method": "independent Python re-implementation",
+      "command": "python3 /tmp/claude-0/audit-pergola-bid-calculator/recompute.py",
+      "expected": "4840.90 / 6454.54 / 44.0%",
+      "observed": "page $4,840.90 / $6,454.54 / 44.0%",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "12x16 attached louvered 10 ft fan preset",
+      "method": "independent Python re-implementation",
+      "command": "python3 /tmp/claude-0/audit-pergola-bid-calculator/recompute.py",
+      "expected": "8210.93 / 10947.91 / 5.0%",
+      "observed": "page $8,210.93 / $10,947.91 / 5.0%",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "16x20 freestanding poly 12 ft preset",
+      "method": "independent Python re-implementation",
+      "command": "python3 /tmp/claude-0/audit-pergola-bid-calculator/recompute.py",
+      "expected": "11792.29 / 15723.06 / 18.1%",
+      "observed": "page $11,792.29 / $15,723.06 / 18.1%",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "bay never exceeds the entered post spacing",
+      "method": "max-span rule ceil(L/s)+1 as in span-table practice",
+      "command": "node -e \"import('./calc.mjs').then(m=>console.log(m.postsAlong(15,8)))\"",
+      "expected": "3 posts (7.5 ft bays)",
+      "observed": "2 posts (15 ft bay)",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "node --test *.test.mjs",
+      "expected": "all pass",
+      "observed": "131 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README 'node --test' command works",
+      "method": "run",
+      "command": "cd ventures/pergola-bid-calculator && node --test",
+      "expected": "runs suite",
+      "observed": "131 pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "usage skips under DNT / GPC as README says",
+      "method": "read usage.mjs",
+      "command": "grep -n doNotTrack usage.mjs",
+      "expected": "DNT and GPC checked",
+      "observed": "usage.mjs:21 checks both",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README lists all usage events",
+      "method": "grep count() calls in index.html",
+      "command": "grep -n \"count('\" index.html",
+      "expected": "4 events listed match",
+      "observed": "proposal_printed (index.html:794) not listed",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "served llms.txt/sitemap carry production origin",
+      "method": "served-copy",
+      "command": "node platform/pages/served-copy.mjs pergola-bid-calculator",
+      "expected": "no placeholder origins",
+      "observed": "none left",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "beam takeoff includes overhang tails",
+      "method": "read suggestedBeamLf vs standard pergola framing",
+      "command": "node -e \"import('./calc.mjs').then(m=>console.log(m.suggestedBeamLf(10,10,8,'freestanding')))\"",
+      "expected": "> 20 lf with tails",
+      "observed": "20 lf (width x rows, no tails)",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:301",
+      "change": "postCount * (hoursPerPost + extraHoursPerPost) -> postCount * hoursPerPost",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs proposal.test.mjs vs-a-flat-45-per-square-foot-special.test.mjs"
+    },
+    {
+      "where": "calc.mjs:305",
+      "change": "ledgerHours gated on attached -> always hoursLedger",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs proposal.test.mjs vs-a-flat-45-per-square-foot-special.test.mjs"
+    },
+    {
+      "where": "calc.mjs:130",
+      "change": "Math.max(2, ...) -> Math.max(1, ...)",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs proposal.test.mjs vs-a-flat-45-per-square-foot-special.test.mjs"
+    },
+    {
+      "where": "calc.mjs:322",
+      "change": "demoMaterial gated on demoExisting -> always demoFee",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs proposal.test.mjs vs-a-flat-45-per-square-foot-special.test.mjs"
+    },
+    {
+      "where": "calc.mjs:422",
+      "change": "proposed margin / proposedPrice -> / totalCost",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs proposal.test.mjs vs-a-flat-45-per-square-foot-special.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "postsAlong uses floor(L/spacing)+1, so the entered 'post spacing' is not a maximum: a 15-ft side at 8-ft spacing gets 2 posts (a 15-ft clear beam span), a 20-ft side 3 posts at 10-ft bays. Post, footing, knee-brace and labor counts are under-suggested on any side that is not a multiple of the spacing, with no warning that the bay exceeds the spacing typed.",
+      "where": "ventures/pergola-bid-calculator/calc.mjs:130",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "No test covers a side shorter than the post spacing; mutating the minimum-two-posts guard to one survives the whole suite.",
+      "where": "ventures/pergola-bid-calculator/calc.test.mjs:69",
+      "category": "untested-core",
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+    },
+    {
+      "severity": "medium",
+      "what": "Beam lineal feet is width x rows with no overhang tails, and no beam/rafter member size is suggested; a pergola beam normally runs 1-2 ft past each post, so beam material and the stick list are short.",
+      "where": "ventures/pergola-bid-calculator/calc.mjs:165",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "README 'Events counted' omits proposal_printed, which index.html records.",
+      "where": "ventures/pergola-bid-calculator/README.md:86",
+      "category": "stale-docs",
+      "origin": "maintenance",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"
+    },
+    {
+      "severity": "low",
+      "what": "Money formatter duplicated between calc.mjs and index.html.",
+      "where": "ventures/pergola-bid-calculator/index.html:356",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"],
+  "verdict": "Arithmetic is right: an independent re-implementation reproduces all four published preset rows to the cent, margin is taken on price, inputs are validated, 131 tests pass and 4 of 5 seeded mutants are caught. It meets the bar on correctness, claims and verification, but a pergola estimator would flag the takeoff: 'post spacing' is a divisor not a maximum (a 15-ft side gets one 15-ft bay at 8-ft spacing) and beams carry no overhang, so fitness and domain sit at 2."
+}
