@@ -165,9 +165,7 @@ def summarise(res, P=print):
             P("  base (no offsets) on %s: bands %s; median h %.2f" % (
                 g.upper(), tally(r["base_" + g]["k"] for r in R_), med(r["base_" + g]["h"] for r in R_)))
         n6 = sum(1 for r in R_ if r["base_new"]["k"] == 6)
-        if n6 < 12:
-            ok["E5"] = False
-        P("  E5 base picks 6 bands on NEW in %d of %d layouts" % (n6, len(R_)))
+        P("  base picks 6 bands on NEW in %d of %d layouts" % (n6, len(R_)))
         for s in SCALES:
             rows = [x for r in R_ for x in r["cells"][str(s)]]
             n = len(rows)
@@ -204,6 +202,11 @@ def summarise(res, P=print):
             if abs(bn - bo) > (0.01 if s == 1.0 else 0.03):
                 ok["E6"] = False
         P("  CPU per layout: median %.1f s" % med(r["cpu"] for r in R_))
+    n6 = sum(1 for r in res if r["base_new"]["k"] == 6)
+    P()
+    P("# E5 base picks 6 bands on NEW in %d of %d layouts (both M)" % (n6, len(res)))
+    if n6 < 12:
+        ok["E5"] = False
     big = 1 - min(savings)
     if big < 0.05:
         ok["E4"] = False

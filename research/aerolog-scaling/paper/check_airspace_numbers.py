@@ -194,6 +194,22 @@ CHECKS = [
     ("fast_tables_posthoc_results.txt", "median 1.0670, min 0.9614; below the aware F in 16 of 96", "(16 and 26 at twice it)"),
     ("fast_tables_posthoc_results.txt", "median 1.0467, min 0.9403; below the aware F in 26 of 96", "1.0670 and 1.0467 at twice it"),
     ("fast_tables_posthoc_results.txt", "2 spacings x 200 starts): 72 s", "took 72 CPU s"),
+    # 11av exact grid
+    ("exact_grid_results.txt", "same band count in 96 of 96", "96 of 96 draws per cell"),
+    ("exact_grid_results.txt", "E2 6 bands on NEW in 17, 11 bands in 0", "**6 bands in 17 and 31 of 96 draws**"),
+    ("exact_grid_results.txt", "E2 6 bands on NEW in 31, 11 bands in 0", "**6 bands in 17 and 31 of 96 draws**"),
+    ("exact_grid_results.txt", "E2 6 bands on NEW in 14, 11 bands in 0", "14 and 26 at twice it"),
+    ("exact_grid_results.txt", "E2 6 bands on NEW in 26, 11 bands in 0", "14 and 26 at twice it"),
+    ("exact_grid_results.txt", "largest aware saving NEW vs OLD over all draws: 8.60%", "by up to **8.60%**"),
+    ("exact_grid_results.txt", "E5 base picks 6 bands on NEW in 26 of 48", "26 of 48 layouts"),
+    ("exact_grid_results.txt", "6: 16; median h 10.91", "**10.91 m**"),
+    ("exact_grid_results.txt", "NEW median 1.0438", "**1.0438 and 1.0651**"),
+    ("exact_grid_results.txt", "NEW median 1.0651", "**1.0438 and 1.0651**"),
+    ("exact_grid_results.txt", "NEW median 1.2048", "**1.2048 and 1.2184**"),
+    ("exact_grid_results.txt", "NEW median 1.2184", "**1.2048 and 1.2184**"),
+    ("exact_grid_results.txt", "OLD median 1.0342 (11ao: 1.0342)", "1.0342 and 1.0183"),
+    ("exact_grid_results.txt", "# E6 -> refuted", "Of six predictions, five held"),
+
 ]
 
 
