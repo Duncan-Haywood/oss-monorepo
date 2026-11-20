@@ -127,22 +127,54 @@ const labelOf = (cellHtml) =>
   String(cellHtml).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().replace(/"/g, '&quot;');
 
 /**
+ * A cell that reads as one figure: a count, amount, percentage, ratio or measured time, with an
+ * optional sign, currency, approximation mark and short unit (`$2,853.20`, `-0.12`, `~40%`,
+ * `3.1x`, `250 ms`). Ranges, intervals and words are not figures.
+ */
+export const NUMERIC_CELL = /^[~≈<>≤≥±]?\s*[+\-−]?\s*[$€£]?\s*\d[\d,]*(\.\d+)?\s*(%|x|×|k|K|M|B|ms|s|px|h|pp|GB|MB|kB)?$/;
+const BLANK_CELL = /^(|—|–|-|n\/a|N\/A)$/;
+
+/** GFM column alignment from the separator row: 'left', 'right', 'center' or ''. */
+export const columnAlign = (sepLine) =>
+  cells(sepLine).map((c) => (c.endsWith(':') ? (c.startsWith(':') ? 'center' : 'right') : c.startsWith(':') ? 'left' : ''));
+
+/**
+ * Which columns set as figures (`class="num"`: right-aligned, tabular digits, so place values
+ * line up and a figure sits under its header). Polish, 2026-11-20: 1,197 of the blog's 1,983
+ * tables had a column of figures, all left-aligned, and 130 posts' `---:` markers were ignored.
+ * An author's marker wins; otherwise a column after the first (the row names) counts when every
+ * non-blank body cell is one figure.
+ */
+export function numericColumns(rowsHtml, cols, align = []) {
+  const out = [];
+  for (let j = 0; j < cols; j++) {
+    if (align[j] === 'right') { out.push(true); continue; }
+    if (align[j] || j === 0) { out.push(false); continue; }
+    const vals = rowsHtml.map((r) => String(r[j] ?? '').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()).filter((v) => !BLANK_CELL.test(v));
+    out.push(vals.length > 0 && vals.every((v) => NUMERIC_CELL.test(v)));
+  }
+  return out;
+}
+
+/**
  * One GFM table. A `.stack` table carries ARIA table roles (Safari drops table semantics
  * from `display:block` rows) and labels every body cell with its column's header.
  */
-export function renderTable(headHtml, rowsHtml) {
+export function renderTable(headHtml, rowsHtml, align = []) {
+  const num = numericColumns(rowsHtml, headHtml.length, align);
+  const nc = (j) => (num[j] ? ' class="num"' : '');
   if (!stackTable(headHtml.length, rowsHtml)) {
     return (
-      `<div class="scroll"><table><thead><tr>${headHtml.map((c) => `<th>${c}</th>`).join('')}</tr></thead><tbody>` +
-      rowsHtml.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('') +
+      `<div class="scroll"><table><thead><tr>${headHtml.map((c, j) => `<th${nc(j)}>${c}</th>`).join('')}</tr></thead><tbody>` +
+      rowsHtml.map((r) => `<tr>${r.map((c, j) => `<td${nc(j)}>${c}</td>`).join('')}</tr>`).join('') +
       '</tbody></table></div>'
     );
   }
   const labels = headHtml.map(labelOf);
   return (
-    `<div class="scroll"><table class="stack${meanCellChars(rowsHtml) < STACK_COMPACT_CELL ? ' compact' : ''}" role="table"><thead role="rowgroup"><tr role="row">${headHtml.map((c) => `<th role="columnheader">${c}</th>`).join('')}</tr></thead><tbody role="rowgroup">` +
+    `<div class="scroll"><table class="stack${meanCellChars(rowsHtml) < STACK_COMPACT_CELL ? ' compact' : ''}" role="table"><thead role="rowgroup"><tr role="row">${headHtml.map((c, j) => `<th role="columnheader"${nc(j)}>${c}</th>`).join('')}</tr></thead><tbody role="rowgroup">` +
     rowsHtml
-      .map((r) => `<tr role="row">${r.map((c, j) => `<td role="cell"${labels[j] ? ` data-label="${labels[j]}"` : ''}>${c}</td>`).join('')}</tr>`)
+      .map((r) => `<tr role="row">${r.map((c, j) => `<td role="cell"${nc(j)}${labels[j] ? ` data-label="${labels[j]}"` : ''}>${c}</td>`).join('')}</tr>`)
       .join('') +
     '</tbody></table></div>'
   );
@@ -194,10 +226,11 @@ export function renderMarkdown(src, { fromPath = '', dropTitle = false, shift = 
     if (line.includes('|') && i + 1 < lines.length && isTableSep(lines[i + 1])) {
       flush();
       const head = cells(line);
+      const align = columnAlign(lines[i + 1]);
       i += 2;
       const rows = [];
       while (i < lines.length && lines[i].includes('|') && lines[i].trim()) rows.push(cells(lines[i++]));
-      html.push(renderTable(head.map((c) => inline(c, fromPath)), rows.map((r) => r.map((c) => inline(c, fromPath)))));
+      html.push(renderTable(head.map((c) => inline(c, fromPath)), rows.map((r) => r.map((c) => inline(c, fromPath))), align));
       continue;
     }
     if (/^\s*>/.test(line)) {

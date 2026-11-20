@@ -698,6 +698,17 @@ export const STACK_TABLE_CSS = `
 `;
 
 /**
+ * Columns of figures in Markdown tables (`th.num`, `td.num`, marked by `numericColumns` in
+ * `platform/devlog/markdown.mjs`): right-aligned so place values line up under the header,
+ * with tabular digits so 1,111 and 8,888 are the same width. Polish, 2026-11-20: 1,197 of
+ * the blog's 1,983 tables carry such a column. A stacked phone card (`table.stack td`, more
+ * specific) keeps its own left-aligned label / value grid.
+ */
+export const NUM_TABLE_CSS = `
+th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
+`;
+
+/**
  * Contents of `pf-site.css`, the stylesheet every site-owned page links.
  *
  * `REFLOW_CSS` rides at the end, as it does in `pf-chrome.css`. Until
@@ -710,7 +721,7 @@ export const STACK_TABLE_CSS = `
  * break. Every rule in it has zero specificity, so a page's own CSS still wins.
  */
 export function renderSiteStyle() {
-  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}${STACK_TABLE_CSS}${REFLOW_CSS}`;
+  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}${STACK_TABLE_CSS}${NUM_TABLE_CSS}${REFLOW_CSS}`;
 }
 
 /** The `<link>` a site-owned page puts in its head. */
