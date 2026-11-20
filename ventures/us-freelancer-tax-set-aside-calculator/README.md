@@ -12,9 +12,7 @@ Open `index.html`. Tests: `node --test 'ventures/us-freelancer-tax-set-aside-cal
 
 ## Known gaps (quality audit 2026-11-20)
 
-From the [first audit](../../portfolio/quality/audits/2026-11-20-us-freelancer-tax-set-aside-calculator.json); fixed so far: the head-of-household 24% bracket edge (201,750) and the 1040-ES 90% test now use federal tax only. Since 2026-11-20 the set-aside is the tax the freelance profit adds: with $100k of W-2 wages a $10k gig sets aside $3,048.62, not $16,218.62; the tax on the wages alone is shown separately and assumed covered by withholding, and the estimated-payment line subtracts it.
+From the [first audit](../../portfolio/quality/audits/2026-11-20-us-freelancer-tax-set-aside-calculator.json); fixed so far: the head-of-household 24% bracket edge (201,750) and the 1040-ES 90% test now use federal tax only. Red team 2026-11-20: the 110% safe harbor uses last year's AGI when entered (this year's stands in otherwise, and the finding says so); $0 tax last year reports no underpayment penalty instead of demanding payments; the "above the QBI line" message no longer appears at zero taxable income. Since 2026-11-20 the set-aside is the tax the freelance profit adds: with $100k of W-2 wages a $10k gig sets aside $3,048.62, not $16,218.62; the tax on the wages alone is shown separately and assumed covered by withholding, and the estimated-payment line subtracts it.
 
-- The 110% safe harbor keys on this year's AGI; the rule uses last year's AGI over $150,000.
 - QBI drops to zero above the threshold instead of following the 2026 $75k phase-in, so federal tax runs high there (about $10k at $250k net).
-- The "above the QBI line" message can appear when taxable income is 0.
 - The FAQ's "most freelancers land between 25% and 35%" has no source.

@@ -9,7 +9,7 @@
   <meta property="og:description" content="Self-employment tax, federal tax, QBI and state: how much of each 1099 invoice to set aside.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "US Freelancer Tax Set-Aside Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much of my 1099 income should I set aside for taxes?", "acceptedAnswer": {"@type": "Answer", "text": "Most freelancers land between 25% and 35% of profit once self-employment tax, federal income tax and state tax are added. Enter your revenue and expenses here for a figure built from the 2026 tables, including what to set aside from your next $1,000 invoice."}}, {"@type": "Question", "name": "How much is self-employment tax?", "acceptedAnswer": {"@type": "Answer", "text": "15.3% of 92.35% of your net profit: 12.4% Social Security up to $184,500 of earnings (less any W-2 wages) plus 2.9% Medicare, with 0.9% more over $200,000 single or $250,000 joint. Half of it is deductible."}}, {"@type": "Question", "name": "What is the QBI deduction?", "acceptedAnswer": {"@type": "Answer", "text": "Most sole proprietors can deduct 20% of qualified business income from taxable income, which lowers federal income tax but not self-employment tax. Above roughly $201,750 single or $403,500 joint of taxable income it is limited by business type and this tool takes none."}}, {"@type": "Question", "name": "When are quarterly estimated taxes due?", "acceptedAnswer": {"@type": "Answer", "text": "April 15, June 15, September 15 and January 15 for the tax year. You generally avoid the underpayment penalty by paying 90% of this year's tax or 100% of last year's (110% if your income was over $150,000)."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much of my 1099 income should I set aside for taxes?", "acceptedAnswer": {"@type": "Answer", "text": "Most freelancers land between 25% and 35% of profit once self-employment tax, federal income tax and state tax are added. Enter your revenue and expenses here for a figure built from the 2026 tables, including what to set aside from your next $1,000 invoice."}}, {"@type": "Question", "name": "How much is self-employment tax?", "acceptedAnswer": {"@type": "Answer", "text": "15.3% of 92.35% of your net profit: 12.4% Social Security up to $184,500 of earnings (less any W-2 wages) plus 2.9% Medicare, with 0.9% more over $200,000 single or $250,000 joint. Half of it is deductible."}}, {"@type": "Question", "name": "What is the QBI deduction?", "acceptedAnswer": {"@type": "Answer", "text": "Most sole proprietors can deduct 20% of qualified business income from taxable income, which lowers federal income tax but not self-employment tax. Above roughly $201,750 single or $403,500 joint of taxable income it is limited by business type and this tool takes none."}}, {"@type": "Question", "name": "When are quarterly estimated taxes due?", "acceptedAnswer": {"@type": "Answer", "text": "April 15, June 15, September 15 and January 15 for the tax year. You generally avoid the underpayment penalty by paying 90% of this year's tax or 100% of last year's (110% if last year's AGI was over $150,000). If last year's return showed no tax at all, there is no penalty this year."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
     body { max-width: 1040px; margin: auto; padding: 28px; }
@@ -64,6 +64,7 @@
       <div><label for="stateRate">State tax, share of profit (%)</label><input id="stateRate" type="text" inputmode="decimal" placeholder="5"></div>
       <div><label for="qbi">20% QBI deduction</label><select id="qbi"><option value="yes">Apply it</option><option value="no">Leave it out</option></select></div>
       <div><label for="priorYearTax">Last year's total tax ($, optional)</label><input id="priorYearTax" type="text" inputmode="decimal" placeholder="for the safe harbor"></div>
+      <div><label for="priorYearAgi">Last year's AGI ($, optional)</label><input id="priorYearAgi" type="text" inputmode="decimal" placeholder="110% rule if over 150000"></div>
     </div>
     <p>
       <button type="button" id="calc">Calculate</button>
@@ -99,7 +100,7 @@
     <h3>What is the QBI deduction?</h3>
     <p>Most sole proprietors can deduct 20% of qualified business income from taxable income, which lowers federal income tax but not self-employment tax. Above roughly $201,750 single or $403,500 joint of taxable income it is limited by business type and this tool takes none.</p>
     <h3>When are quarterly estimated taxes due?</h3>
-    <p>April 15, June 15, September 15 and January 15 for the tax year. You generally avoid the underpayment penalty by paying 90% of this year's tax or 100% of last year's (110% if your income was over $150,000).</p>
+    <p>April 15, June 15, September 15 and January 15 for the tax year. You generally avoid the underpayment penalty by paying 90% of this year's tax or 100% of last year's (110% if last year's AGI was over $150,000). If last year's return showed no tax at all, there is no penalty this year.</p>
     <h3>Is my data uploaded anywhere?</h3>
     <p>No. Everything is calculated in your browser and nothing is sent.</p>
   </section>
@@ -128,7 +129,7 @@
       return /[1-9]/.test(text) ? `-${text}` : text;
     };
     let last = null;
-    const map = { filingStatus: "filingStatus", revenue: "revenue", expenses: "expenses", w2Wages: "w2Wages", otherIncome: "otherIncome", stateRate: "stateRate", qbi: "qbi", priorYearTax: "priorYearTax" };
+    const map = { filingStatus: "filingStatus", revenue: "revenue", expenses: "expenses", w2Wages: "w2Wages", otherIncome: "otherIncome", stateRate: "stateRate", qbi: "qbi", priorYearTax: "priorYearTax", priorYearAgi: "priorYearAgi" };
     const IDLE = "Enter your revenue, then click Calculate.";
 
     function download(name, body, type) {

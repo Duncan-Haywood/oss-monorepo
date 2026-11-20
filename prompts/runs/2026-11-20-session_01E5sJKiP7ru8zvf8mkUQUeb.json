@@ -1,0 +1,516 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKiP7ru8zvf8mkUQUeb",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T21:19:27Z",
+  "ended": "2026-11-20T21:24:32Z",
+  "wall_minutes": 12.21,
+  "tokens_in": 4173527,
+  "tokens_out": 25016,
+  "cost_usd": 2.0424,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17976",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list (12 entries) is now all control-plane follow-ups already sitting in owner-gated PRs (#15945, #15728, #14612, #14698 ...) plus one deferred redesign; nothing a run can fix, yet every run re-reads it. 'redteam.py open' could mark entries whose fix PR is open and awaiting approval."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated guard; the escapes here are file-specific thresholds (IRS $1,000 and $150,000 edges, bracket tops) with no cheap lint that would catch the class.",
+      "did": "Added boundary tests and fixed the defects; no new CI check.",
+      "result": "File catch rate 13/24 -> 24/24 after the fix; no new repo-wide guard this run."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Sibling tools (rsu-withholding-gap-calculator, freelancer-tax-pack) treat $0 prior-year tax as 'not entered', the same as defect 1, but that errs toward overpaying, not toward a penalty, and fixing it needs a blank-vs-zero distinction in their UIs.",
+      "did": "Noted here, not patched.",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-redteam-the-110-percent-rule-reads-last-year.md"
+  ],
+  "goal": null,
+  "notes": "Target picked from files changed on main in the last 2 days (calc.mjs touched 3x). Two campaigns (12 mutants each, seeds random and 7): 6/12 and 7/12 caught; all 11 escapes triaged gap, guarded, rerun caught_after_fix true. Verification: run_venture_tests.py us-freelancer-tax-set-aside-calculator (45 tests + site page checks, 0 failed; the FAQ-visible check caught the JSON-LD/page FAQ mismatch mid-run), unwired_checks.py 271/271 pass, check_llms_txt_links 0 dead.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+        "test": "node --test ventures/us-freelancer-tax-set-aside-calculator/**/*.test.mjs  (in .)",
+        "seed": 251037977,
+        "commit": "7c9561aec",
+        "sites": 190,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 52,
+            "col": 34,
+            "operator": "minus-to-plus",
+            "before": "tax += (Math.min(taxable, hi) - lo) * rate;",
+            "after": "tax += (Math.min(taxable, hi) + lo) * rate;",
+            "line_text": "    tax += (Math.min(taxable, hi) - lo) * rate;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 66,
+            "col": 13,
+            "operator": "min-to-max",
+            "before": "const ss = Math.min(earnings, Math.max(0, SS_WAGE_BASE - w2)) * SS_RATE;",
+            "after": "const ss = Math.max(earnings, Math.max(0, SS_WAGE_BASE - w2)) * SS_RATE;",
+            "line_text": "  const ss = Math.min(earnings, Math.max(0, SS_WAGE_BASE - w2)) * SS_RATE;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 69,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const additional = Math.max(0, earnings - Math.max(0, t - w2)) * ADDITIONAL_MEDICARE_RATE;",
+            "after": "const additional = Math.max(1, earnings - Math.max(0, t - w2)) * ADDITIONAL_MEDICARE_RATE;",
+            "line_text": "  const additional = Math.max(0, earnings - Math.max(0, t - w2)) * ADDITIONAL_MEDICARE_RATE;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 78,
+            "col": 28,
+            "operator": "plus-to-minus",
+            "before": "const agi = net - se.half + p.w2 + p.other;",
+            "after": "const agi = net - se.half - p.w2 + p.other;",
+            "line_text": "  const agi = net - se.half + p.w2 + p.other;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 80,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const beforeQbi = Math.max(0, agi - std);",
+            "after": "const beforeQbi = Math.max(1, agi - std);",
+            "line_text": "  const beforeQbi = Math.max(0, agi - std);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 99,
+            "col": 42,
+            "operator": "const-plus-one",
+            "before": "const other = num(input.otherIncome) ?? 0;",
+            "after": "const other = num(input.otherIncome) ?? 1;",
+            "line_text": "  const other = num(input.otherIncome) ?? 0;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 106,
+            "col": 30,
+            "operator": "or-to-and",
+            "before": "if (Number.isNaN(stateRate) || stateRate < 0 || stateRate > 20) errors.push(\"State tax rate must be between 0 and 20 percent.\");",
+            "after": "if (Number.isNaN(stateRate) && stateRate < 0 || stateRate > 20) errors.push(\"State tax rate must be between 0 and 20 percent.\");",
+            "line_text": "  if (Number.isNaN(stateRate) || stateRate < 0 || stateRate > 20) errors.push(\"State tax rate must be between 0 and 20 percent.\");",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "stateRate 'abc' passed validation and gave NaN state tax; new test rejects it"
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 123,
+            "col": 53,
+            "operator": "const-plus-one",
+            "before": "const setAsideOfNet = net > 0 ? r2((total / net) * 100) : 0;",
+            "after": "const setAsideOfNet = net > 0 ? r2((total / net) * 101) : 0;",
+            "line_text": "  const setAsideOfNet = net > 0 ? r2((total / net) * 100) : 0;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "setAsideOfNet was never pinned; worked-example test pins 27.01"
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 124,
+            "col": 27,
+            "operator": "div-to-times",
+            "before": "const quarter = r2(total / 4);",
+            "after": "const quarter = r2(total * 4);",
+            "line_text": "  const quarter = r2(total / 4);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "quarter was never pinned; worked-example test pins 6752.83"
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 139,
+            "col": 19,
+            "operator": "ge-to-gt",
+            "before": "if (federalTotal >= PENALTY_FLOOR) {",
+            "after": "if (federalTotal > PENALTY_FLOOR) {",
+            "line_text": "  if (federalTotal >= PENALTY_FLOOR) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "IRS 'at least $1,000': revenue 7077.34 gives exactly $1,000.00 federal; test requires the finding"
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 140,
+            "col": 62,
+            "operator": "gt-to-ge",
+            "before": "const safe = prior !== null && prior > 0 ? prior * (L.agi > 150000 ? 1.1 : 1) : null;",
+            "after": "const safe = prior !== null && prior > 0 ? prior * (L.agi >= 150000 ? 1.1 : 1) : null;",
+            "line_text": "    const safe = prior !== null && prior > 0 ? prior * (L.agi > 150000 ? 1.1 : 1) : null;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "IRS '110% if AGI more than $150,000': revenue 161402.74 gives AGI 150000.00 exactly; test requires 100%"
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 145,
+            "col": 739,
+            "operator": "const-plus-one",
+            "before": "findings.push({ severity: \"medium\", title: `You probably owe $${PENALTY_FLOOR.toLocaleString(\"en-US\")} or more after withholding, so the IRS expects estimated payments (Form 1040-ES) on ${DUE_DATES.join(\", \")}. Paying at least $${needed.toFixed(2)} in total (${safe !== null && safe < ninety ? \"100%/110% of last year's tax\" : \"90% of this year's federal tax\"}) avoids the federal underpayment penalty (your state has its own estimated-tax rules). ${withheld > 0 ? `Withholding on your wages counts toward it: if it equals the tax on the wages alone (about $${withheld.toFixed(2)}), about $${estimates.toFixed(2)} is left for estimates, $${r2(estimates / 4).toFixed(2)} a quarter.` : `The even split is about $${r2(needed / 4).toFixed(2)} per quarter.`}` });",
+            "after": "findings.push({ severity: \"medium\", title: `You probably owe $${PENALTY_FLOOR.toLocaleString(\"en-US\")} or more after withholding, so the IRS expects estimated payments (Form 1040-ES) on ${DUE_DATES.join(\", \")}. Paying at least $${needed.toFixed(2)} in total (${safe !== null && safe < ninety ? \"100%/110% of last year's tax\" : \"90% of this year's federal tax\"}) avoids the federal underpayment penalty (your state has its own estimated-tax rules). ${withheld > 0 ? `Withholding on your wages counts toward it: if it equals the tax on the wages alone (about $${withheld.toFixed(2)}), about $${estimates.toFixed(2)} is left for estimates, $${r2(estimates / 4).toFixed(2)} a quarter.` : `The even split is about $${r2(needed / 4).toFixed(3)} per quarter.`}` });",
+            "line_text": "    findings.push({ severity: \"medium\", title: `You probably owe $${PENALTY_FLOOR.toLocaleString(\"en-US\")} or more after withholding, so the IRS expects estimated payments (Form 1040-ES) on ${DUE_DATES.join(\", \")}. Paying at least $${needed.toFixed(2)} in total (${safe !== null && safe < ninety ? \"100%/110% of last year's tax\" : \"90% of this year's federal tax\"}) avoids the federal underpayment penalty (your state has its own estimated-tax rules). ${withheld > 0 ? `Withholding on your wages counts toward it: if it equals the tax on the wages alone (about $${withheld.toFixed(2)}), about $${estimates.toFixed(2)} is left for estimates, $${r2(estimates / 4).toFixed(2)} a quarter.` : `The even split is about $${r2(needed / 4).toFixed(2)} per quarter.`}` });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "per-quarter text was never matched; test matches $5032.02"
+          }
+        ]
+      },
+      {
+        "target": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+        "test": "node --test ventures/us-freelancer-tax-set-aside-calculator/**/*.test.mjs  (in .)",
+        "seed": 7,
+        "commit": "7c9561aec",
+        "sites": 190,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 10,
+            "col": 88,
+            "operator": "const-plus-one",
+            "before": "mfj: [[24800, 0.10], [100800, 0.12], [211400, 0.22], [403550, 0.24], [512450, 0.32], [768700, 0.35], [Infinity, 0.37]],",
+            "after": "mfj: [[24800, 0.10], [100800, 0.12], [211400, 0.22], [403550, 0.24], [512450, 0.32], [768701, 0.35], [Infinity, 0.37]],",
+            "line_text": "  mfj: [[24800, 0.10], [100800, 0.12], [211400, 0.22], [403550, 0.24], [512450, 0.32], [768700, 0.35], [Infinity, 0.37]],",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "top MFJ edge never tested above it; test checks 37% just past $768,700"
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 11,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201750, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],",
+            "after": "hoh: [[17700, 0.10], [67451, 0.12], [105700, 0.22], [201750, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],",
+            "line_text": "  hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201750, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 11,
+            "col": 87,
+            "operator": "const-plus-one",
+            "before": "hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201750, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],",
+            "after": "hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201750, 0.24], [256200, 0.32], [640601, 0.35], [Infinity, 0.37]],",
+            "line_text": "  hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201750, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "HoH edge table stopped at 640,600 (identical under the mutant); test checks $100 past it"
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 17,
+            "col": 61,
+            "operator": "const-plus-one",
+            "before": "export const QBI_LIMIT = { single: 201750, mfj: 403500, hoh: 201750 };",
+            "after": "export const QBI_LIMIT = { single: 201750, mfj: 403500, hoh: 201751 };",
+            "line_text": "export const QBI_LIMIT = { single: 201750, mfj: 403500, hoh: 201750 };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "HoH QBI limit never hit exactly; w2 216033.92 puts taxable at 201,750.01"
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 49,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "let tax = 0, lo = 0;",
+            "after": "let tax = 0, lo = 1;",
+            "line_text": "  let tax = 0, lo = 0;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 86,
+            "col": 31,
+            "operator": "minus-to-plus",
+            "before": "const taxable = r2(beforeQbi - qbi);",
+            "after": "const taxable = r2(beforeQbi + qbi);",
+            "line_text": "  const taxable = r2(beforeQbi - qbi);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 98,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "const w2 = num(input.w2Wages) ?? 0;",
+            "after": "const w2 = num(input.w2Wages) ?? 1;",
+            "line_text": "  const w2 = num(input.w2Wages) ?? 0;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 103,
+            "col": 41,
+            "operator": "lt-to-le",
+            "before": "if (Number.isNaN(expenses) || expenses < 0) errors.push(\"Expenses must be 0 or more.\");",
+            "after": "if (Number.isNaN(expenses) || expenses <= 0) errors.push(\"Expenses must be 0 or more.\");",
+            "line_text": "  if (Number.isNaN(expenses) || expenses < 0) errors.push(\"Expenses must be 0 or more.\");",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 119,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const next = liability(net + 1000, p);",
+            "after": "const next = liability(net + 1001, p);",
+            "line_text": "  const next = liability(net + 1000, p);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "marginalPer1000 only bounded (<600, > average); now pinned at 351.34 from a hand calculation"
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 123,
+            "col": 28,
+            "operator": "gt-to-ge",
+            "before": "const setAsideOfNet = net > 0 ? r2((total / net) * 100) : 0;",
+            "after": "const setAsideOfNet = net >= 0 ? r2((total / net) * 100) : 0;",
+            "line_text": "  const setAsideOfNet = net > 0 ? r2((total / net) * 100) : 0;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "net 0 gave 0/0 = NaN under the mutant; test pins 0"
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 128,
+            "col": 81,
+            "operator": "max-to-min",
+            "before": "afterTax: r2(net - total), monthly: r2(total / 12), perThousand: r2((total / Math.max(revenue, 1)) * 1000),",
+            "after": "afterTax: r2(net - total), monthly: r2(total / 12), perThousand: r2((total / Math.min(revenue, 1)) * 1000),",
+            "line_text": "    afterTax: r2(net - total), monthly: r2(total / 12), perThousand: r2((total / Math.max(revenue, 1)) * 1000),",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+            "line": 142,
+            "col": 35,
+            "operator": "min-to-max",
+            "before": "const needed = safe !== null ? Math.min(ninety, r2(safe)) : ninety;",
+            "after": "const needed = safe !== null ? Math.max(ninety, r2(safe)) : ninety;",
+            "line_text": "    const needed = safe !== null ? Math.min(ninety, r2(safe)) : ninety;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+        "issue": "110% safe harbor keyed on this year's AGI; IRC 6654(d)(1)(C) uses last year's. Income falling from 200k to 93k was told 100% of last year's tax suffices (10% short, penalty). Fixed: optional priorYearAgi input; blank falls back to this year's AGI and the finding says so. Test: '110% safe harbor keys on last year's AGI'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17976"
+      },
+      {
+        "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+        "issue": "priorYearTax 0 still told the user the IRS expects 1040-ES payments; Pub. 505: no penalty when last year's 12-month return showed no tax (citizen/resident all year). Fixed: info finding instead. Test: 'zero tax last year means no underpayment penalty'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17976"
+      },
+      {
+        "file": "ventures/us-freelancer-tax-set-aside-calculator/calc.mjs",
+        "issue": "'Taxable income is above the $201,750 line' finding fired whenever qbi was 0 and net>0, including taxable income 0 (revenue 5000). Fixed: also require taxable > QBI_LIMIT.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17976"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7bd28e07-7691-500f-b96d-2338a5671708",
+    "transcripts": 1,
+    "first": "2026-11-20T21:19:27Z",
+    "last": "2026-11-20T21:31:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 90,
+        "output": 25016,
+        "thinking": 6505,
+        "cache_read": 4082789,
+        "cache_write_5m": 0,
+        "cache_write_1h": 90648,
+        "api_equivalent_usd": 2.0424,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 90,
+      "output": 25016,
+      "thinking": 6505,
+      "cache_read": 4082789,
+      "cache_write_5m": 0,
+      "cache_write_1h": 90648,
+      "api_equivalent_usd": 2.0424,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.21,
+      "active_minutes": 12.21,
+      "model_minutes": 4.83,
+      "tool_minutes": 7.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: boundary-input search, 3 tax-rule fixes with tests, page/FAQ edits, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 195.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
