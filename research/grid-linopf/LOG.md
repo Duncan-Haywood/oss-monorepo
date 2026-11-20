@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-20 · Confirmation split: partial outcome. On the 11 of 23 cases scored so far rule P (and rule C, identical there) loses 2 frozen finishers (case2848_rte TYP, case2868_rte TYP), gains none; Q3 refuted, final; frozen repair stays unless 12 pending cases reverse it
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-20); numbers in `research/infra-dcopf/experiments/results_confirm.txt`. Frozen arm complete: 23 of 33 reach the repair, 9 finish. Both losses come from a round-1 widening, before any halving, so rule P's guard does not apply.
+- The C and P job hit the 2-hour background limit after 16 of 40 runs; parts are cached and `run_confirm.py CP` resumes the 12 pending cases.
+
 ## 2026-11-20 · Confirmation split: frozen, rule C and rule P on 33 unused PGLib cases of 2,001 to 2,999 buses (plan)
 - Plan, split, adoption rule and predictions Q0 to Q6: `research/infra-dcopf/LOG.md` (2026-11-20); script `research/infra-dcopf/experiments/run_confirm.py`.
 

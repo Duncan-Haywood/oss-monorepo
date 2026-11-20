@@ -4,47 +4,38 @@ Split: every PGLib-OPF v23.07 case of 2,001 to 2,999 buses, TYP, API, SAD (33 ca
 Protocol: run_heldout_slack.phase_j's; 20 rounds; cost against PGLib's published AC objective.
 C and P are rerun only where the frozen run has a failed hard QP; elsewhere they equal F by construction.
 
-runs: F 33, C 0, P 0; errors 0
+runs: F 33, C 8, P 8; errors 0
 reach the repair: 23 of 33; no DC start: 10
 frozen run has a failed hard QP: 20 of 23
+PENDING (C or P not run yet; excluded from every tally below): 12: case2312_goc sad, case2312_goc typ, case2383wp_k api, case2736sp_k sad, case2736sp_k typ, case2737sop_k api, case2737sop_k sad, case2737sop_k typ, case2746wop_k sad, case2746wp_k api, case2746wp_k sad, case2746wp_k typ
+scored so far: 11 cases that reach the repair (8 with a failed hard QP)
 
   case               kind  bus   F@   C@   P@    cost % over AC optimum F / C / P
-  case2312_goc       typ   2312   16    ?    ?   +0.122 / - / -  <-
-  case2736sp_k       typ   2736 None    ?    ?   - / - / -  <-
-  case2737sop_k      typ   2737 None    ?    ?   - / - / -  <-
   case2742_goc       typ   2742   18   18   18   +0.041 / +0.041 / +0.041
-  case2746wop_k      typ   2746 None    ?    ?   - / - / -  <-
-  case2746wp_k       typ   2746 None    ?    ?   - / - / -  <-
-  case2848_rte       typ   2848   11    ?    ?   +6.776 / - / -  <-
-  case2868_rte       typ   2868   13    ?    ?   +0.953 / - / -  <-
-  case2869_pegase    typ   2869 None    ?    ?   - / - / -  <-
-  case2383wp_k       api   2383    2    ?    ?   +0.285 / - / -  <-
-  case2737sop_k      api   2737   18    ?    ?   +0.580 / - / -  <-
-  case2746wp_k       api   2746 None    ?    ?   - / - / -  <-
+  case2746wop_k      typ   2746 None None None   - / - / -
+  case2848_rte       typ   2848   11 None None   +6.776 / - / -  <-
+  case2868_rte       typ   2868   13 None None   +0.953 / - / -  <-
+  case2869_pegase    typ   2869 None None None   - / - / -
   case2848_rte       api   2848 None None None   - / - / -
-  case2869_pegase    api   2869 None    ?    ?   - / - / -  <-
-  case2312_goc       sad   2312   16    ?    ?   +2.326 / - / -  <-
-  case2736sp_k       sad   2736 None    ?    ?   - / - / -  <-
-  case2737sop_k      sad   2737 None    ?    ?   - / - / -  <-
+  case2869_pegase    api   2869 None None None   - / - / -
   case2742_goc       sad   2742   18   18   18   +0.041 / +0.041 / +0.041
-  case2746wop_k      sad   2746 None    ?    ?   - / - / -  <-
-  case2746wp_k       sad   2746 None    ?    ?   - / - / -  <-
-  case2848_rte       sad   2848   14    ?    ?   +0.699 / - / -  <-
-  case2868_rte       sad   2868 None    ?    ?   - / - / -  <-
-  case2869_pegase    sad   2869 None    ?    ?   - / - / -  <-
+  case2848_rte       sad   2848   14   13   13   +0.699 / +0.231 / +0.231  <-
+  case2868_rte       sad   2868 None None None   - / - / -
+  case2869_pegase    sad   2869 None None None   - / - / -
 
 gate Q0 (C reruns with no enlarged step equal F): 0 of 0
 gate Q0 (P reruns with no enlarged step equal F): 0 of 0
-  C: failed hard QPs 0, post-halving 0, fired 0, enlarged QP solved 0
-  P: failed hard QPs 0, post-halving 0, fired 0, enlarged QP solved 0
-C against F: finishers 2 vs 9 of 23; gained 0, lost 7 (sign test P = 0.016); both finish 2: rounds median +0.0 (faster 0, slower 0, sign test P = 1.000), cost points mean +0.000
-P against F: finishers 2 vs 9 of 23; gained 0, lost 7 (sign test P = 0.016); both finish 2: rounds median +0.0 (faster 0, slower 0, sign test P = 1.000), cost points mean +0.000
+  C: failed hard QPs 46, post-halving 0, fired 12, enlarged QP solved 12
+  P: failed hard QPs 45, post-halving 37, fired 8, enlarged QP solved 8
+C against F: finishers 3 vs 5 of 11; gained 0, lost 2 (sign test P = 0.500); both finish 3: rounds median +0.0 (faster 1, slower 0, sign test P = 1.000), cost points mean -0.156
+P against F: finishers 3 vs 5 of 11; gained 0, lost 2 (sign test P = 0.500); both finish 3: rounds median +0.0 (faster 1, slower 0, sign test P = 1.000), cost points mean -0.156
 P against C: gained 0, lost 0
 
 Q1 (at least 17 of 33 reach the repair): held (23)
-Q2 (rule P finishers at least F's): refuted (2 vs 9)
-Q3 (rule P loses no F finisher): refuted (7)
+Q2 to Q6 and the adoption rule below are on the 11 scored cases only; final once the 12 pending cases have run.
+Q2 (rule P finishers at least F's): refuted (3 vs 5)
+Q3 (rule P loses no F finisher): refuted (2)
 Q4 (rule P gains at least one case over F): refuted (0)
-Q5 (rule P finishers at least rule C's): held (2 vs 2)
-Q6 (common finishers: P's mean cost change against F within 0.5 points): held (+0.000)
+Q5 (rule P finishers at least rule C's): held (3 vs 3)
+Q6 (common finishers: P's mean cost change against F within 0.5 points): held (-0.156)
 Adoption rule (fixed before the run): the frozen repair stays

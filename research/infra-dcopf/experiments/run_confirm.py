@@ -126,6 +126,13 @@ def summary():
     P(f"reach the repair: {len(reach)} of {len(F)}; " + "; ".join(f"{s}: {len(v)}" for s, v in stops.items()))
     touched = [k for k in reach if held_touched(F[k])]
     P(f"frozen run has a failed hard QP: {len(touched)} of {len(reach)}")
+    pending = [k for k in touched if k not in C or k not in Pr]
+    if pending:
+        P(f"PENDING (C or P not run yet; excluded from every tally below): {len(pending)}: "
+          + ", ".join(f"{n} {k}" for n, k in sorted(pending)))
+        reach = [k for k in reach if k not in pending]
+        touched = [k for k in touched if k not in pending]
+        P(f"scored so far: {len(reach)} cases that reach the repair ({len(touched)} with a failed hard QP)")
     P("")
     P("  case               kind  bus   F@   C@   P@    cost % over AC optimum F / C / P")
     get = lambda d, k: d.get(k) if k in touched else F[k]  # noqa: E731
@@ -148,7 +155,8 @@ def summary():
         e = ev[a]
         P(f"  {a}: failed hard QPs {len(e)}, post-halving {sum(1 for x in e if x.get('post_halving'))}, "
           f"fired {sum(1 for x in e if x.get('fired'))}, enlarged QP solved {sum(1 for x in e if x.get('ok'))}")
-    res = {"n": len(reach), "touched": len(touched), "stops": {s: len(v) for s, v in stops.items()}}
+    res = {"n": len(reach), "touched": len(touched), "pending": [list(k) for k in pending],
+           "stops": {s: len(v) for s, v in stops.items()}}
     fin = lambda d, k: (get(d, k) or {}).get("clean_at") is not None  # noqa: E731
     for a, d in (("F", F), ("C", C), ("P", Pr)):
         res[a] = sum(fin(d, k) for k in reach)
@@ -172,7 +180,11 @@ def summary():
     P(f"P against C: gained {gpc}, lost {lpc}")
     P("")
     pf, cf = res["P_vs_F"], res["C_vs_F"]
-    P(f"Q1 (at least 17 of 33 reach the repair): {'held' if len(reach) >= 17 else 'refuted'} ({len(reach)})")
+    nreach = sum(1 for r in F.values() if "status" in r)
+    P(f"Q1 (at least 17 of 33 reach the repair): {'held' if nreach >= 17 else 'refuted'} ({nreach})")
+    if pending:
+        P(f"Q2 to Q6 and the adoption rule below are on the {len(reach)} scored cases only; final once the "
+          f"{len(pending)} pending cases have run.")
     P(f"Q2 (rule P finishers at least F's): {'held' if res['P'] >= res['F'] else 'refuted'} ({res['P']} vs {res['F']})")
     P(f"Q3 (rule P loses no F finisher): {'held' if pf['lost'] == 0 else 'refuted'} ({pf['lost']})")
     P(f"Q4 (rule P gains at least one case over F): {'held' if pf['gained'] >= 1 else 'refuted'} ({pf['gained']})")
