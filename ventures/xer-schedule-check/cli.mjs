@@ -33,6 +33,10 @@
 // A look-ahead instead (lookahead.mjs): the next WEEKS weeks (3) of work by
 // WBS with a bar per day and a make-ready check of what each activity still
 // waits on; --html writes a page to print for the site meeting.
+// --constraints log.csv merges the site team's constraints log (materials,
+// permits, RFIs: constraints.mjs) into make-ready and says how far the
+// finish moves if every open row clears on its expected date;
+// --constraints-csv OUT writes the log back with the schedule's need-by dates.
 // Any --report also takes --appendix: every activity behind every correction
 // printed in an appendix, not only the first 40 of each.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -52,9 +56,10 @@ import { level, levelCsv } from "./level.mjs";
 import { schedule } from "./cpm.mjs";
 import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
 import { lookahead, lookaheadText, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
+import { constraintLogCsv } from "./constraints.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -165,8 +170,9 @@ if (args.includes("--lookahead")) {
   const result = schedule(xer);
   const pid = assess(xer, { projId, result }).project.id;
   const w = opt("--lookahead");
-  const la = lookahead(xer, { weeks: w && /^\d+$/.test(w) ? Number(w) : 3, from: opt("--from"), projId: pid, result });
+  const la = lookahead(xer, { weeks: w && /^\d+$/.test(w) ? Number(w) : 3, from: opt("--from"), projId: pid, result, constraints: opt("--constraints") ? readFileSync(opt("--constraints"), "utf8") : null });
   if (opt("--csv")) writeFileSync(opt("--csv"), lookaheadCsv(la));
+  if (opt("--constraints-csv") && la.constraintLog) writeFileSync(opt("--constraints-csv"), constraintLogCsv(la.constraintLog));
   if (opt("--html")) { writeFileSync(opt("--html"), lookaheadHtml(la, { by: opt("--by") })); console.error(`look-ahead written to ${opt("--html")}`); }
   await emit(args.includes("--json") ? JSON.stringify(la, null, 2) + "\n" : lookaheadText(la));
   process.exit(0);

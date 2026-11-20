@@ -50,6 +50,7 @@
 import { schedule, lagCalendar } from "./cpm.mjs";
 import { relationshipFloat } from "./floatpaths.mjs";
 import { formatDate, parseDate } from "./xer.mjs";
+import { evaluateConstraints, constraintLogText, constraintLogHtml } from "./constraints.mjs";
 
 const DAY = 1440;
 const WEEKDAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -213,9 +214,16 @@ export function lookahead(xer, opts = {}) {
       start: formatDate(t.status === "TK_Active" ? (t.actStart ?? s) : s), finish: formatDate(r.ef), startMin: s, finishMin: r.ef,
       remainingHours: r2(t.cal.workBetween(s, r.ef) / 60), tf: r2(r.tf), ff: r2(r.ff), critical: r.tf !== undefined && r.tf <= 0.005,
       resources: rsrc.get(t.id) || [], constraints: cs, bars, ready, waitsOn, drivenBy,
-      finishesInWindow: r.ef <= to,
+      finishesInWindow: r.ef <= to, openConstraints: [],
       note: outOfSeq.length ? `out of sequence: started before ${outOfSeq.join(", ")}` : "",
     });
+  }
+  // the site team's constraints log (constraints.mjs): materials, permits,
+  // RFIs; a logic-ready activity with an open row becomes "constrained"
+  let constraintLog = null;
+  if (opts.constraints) {
+    constraintLog = evaluateConstraints(opts.constraints, { result, project: p, activities });
+    for (const w of constraintLog.warnings) warnings.push(`constraints log: ${w}`);
   }
   activities.sort((a, b) => (a.wbsKey < b.wbsKey ? -1 : a.wbsKey > b.wbsKey ? 1 : a.startMin - b.startMin || a.finishMin - b.finishMin || (a.code < b.code ? -1 : 1)));
   const n = (f) => activities.filter(f).length;
@@ -226,6 +234,7 @@ export function lookahead(xer, opts = {}) {
     finishing: n((a) => a.finishesInWindow),
     critical: n((a) => a.critical),
     ready: n((a) => a.ready === "ready"),
+    constrained: n((a) => a.ready === "constrained"),
     waiting: n((a) => a.ready === "waits"),
     waitingOutside: n((a) => a.ready === "waits outside"),
     noPredecessor: n((a) => a.ready === "no predecessor"),
@@ -241,24 +250,26 @@ export function lookahead(xer, opts = {}) {
     }
     warnings.push(`no open activity has work between ${formatDate(from)} and ${formatDate(to)}${next !== null ? `; the next work starts ${formatDate(next)} (a later window start shows it)` : ""}`);
   }
-  return { project: { id: p.id, code: p.code, name: (xer.tables.PROJECT || []).find((r) => r.proj_id === p.id)?.proj_name || "", dataDate: formatDate(dd) }, weeks, from: formatDate(from), through: days.length ? days[days.length - 1].date : null, days, activities, summary, warnings };
+  return { project: { id: p.id, code: p.code, name: (xer.tables.PROJECT || []).find((r) => r.proj_id === p.id)?.proj_name || "", dataDate: formatDate(dd) }, weeks, from: formatDate(from), through: days.length ? days[days.length - 1].date : null, days, activities, summary, constraintLog, warnings };
 }
 
-const READY_TEXT = { "in progress": "in progress", ready: "ready", waits: "waits on look-ahead work", "waits outside": "waits on work outside the look-ahead", "no predecessor": "no predecessor (open start)" };
+const READY_TEXT = { "in progress": "in progress", ready: "ready", constrained: "ready by logic, constraint open", waits: "waits on look-ahead work", "waits outside": "waits on work outside the look-ahead", "no predecessor": "no predecessor (open start)" };
 const waitText = (a) => a.waitsOn.filter((w) => w.state !== "met").map((w) => `${w.code} ${w.type}${w.lag ? ` ${w.lag} h` : ""} (${w.state}${w.date ? ` ${w.date}` : ""})`).join("; ");
+const logText = (a) => (a.openConstraints || []).map((c) => `${c.what}${c.owner ? ` (${c.owner})` : ""}: ${c.status}${c.expected ? ` ${c.expected}` : ""}`).join("; ");
 
 export function lookaheadText(la) {
   if (!la.project) return "No project in the file.\n";
   const s = la.summary;
   const out = [`${la.weeks}-week look-ahead: ${la.project.code || la.project.id}, ${la.from} through ${la.through}`,
     `${s.activities} activities with work in the window: ${s.inProgress} in progress, ${s.starting} to start, ${s.finishing} to finish; ${s.critical} critical.`,
-    `Make-ready (logic only): ${s.ready} ready, ${s.waiting} wait on look-ahead work, ${s.waitingOutside} wait on work outside it, ${s.noPredecessor} with no predecessor, ${s.constraint} held by a constraint, ${s.outOfSequence} out of sequence.`, ""];
+    `Make-ready (${la.constraintLog ? "logic and constraints log" : "logic only"}): ${s.ready} ready, ${la.constraintLog ? `${s.constrained} ready by logic but constrained, ` : ""}${s.waiting} wait on look-ahead work, ${s.waitingOutside} wait on work outside it, ${s.noPredecessor} with no predecessor, ${s.constraint} held by a date constraint, ${s.outOfSequence} out of sequence.`, ""];
   const header = "            " + la.days.map((d) => d.weekday[0]).join("");
   let wbs = null;
   for (const a of la.activities) {
     if (a.wbsKey !== wbs) { wbs = a.wbsKey; out.push("", `== ${a.wbs || "(no WBS)"}`, header); }
-    out.push(`${a.code.padEnd(11).slice(0, 11)} ${a.bars}  ${a.name}  [${a.start} to ${a.finish}, TF ${a.tf ?? "-"} h${a.critical ? ", critical" : ""}] ${own(READY_TEXT, a.ready, a.ready)}${a.ready !== "in progress" ? `, driven by ${a.drivenBy}` : ""}${waitText(a) ? `: ${waitText(a)}` : ""}${a.note ? `; ${a.note}` : ""}`);
+    out.push(`${a.code.padEnd(11).slice(0, 11)} ${a.bars}  ${a.name}  [${a.start} to ${a.finish}, TF ${a.tf ?? "-"} h${a.critical ? ", critical" : ""}] ${own(READY_TEXT, a.ready, a.ready)}${a.ready !== "in progress" ? `, driven by ${a.drivenBy}` : ""}${waitText(a) ? `: ${waitText(a)}` : ""}${logText(a) ? `; log: ${logText(a)}` : ""}${a.startWithLog ? `; starts ${a.startWithLog} if the log holds` : ""}${a.note ? `; ${a.note}` : ""}`);
   }
+  if (la.constraintLog) out.push(constraintLogText(la.constraintLog));
   for (const w of la.warnings) out.push(`warning: ${w}`);
   out.push("", "# = working on that day, . = a working day it is not on, M = milestone, blank = non-working day.");
   return out.join("\n") + "\n";
@@ -271,9 +282,9 @@ export function lookaheadCsv(la) {
     if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-  const head = ["wbs", "activity", "name", "status", "start", "finish", "remaining (h)", "total float (h)", "free float (h)", "critical", "make-ready", "driven by", "waits on", "resources", "constraints", "note", ...la.days.map((d) => d.date)];
+  const head = ["wbs", "activity", "name", "status", "start", "finish", "remaining (h)", "total float (h)", "free float (h)", "critical", "make-ready", "driven by", "waits on", "resources", "constraints", "open log constraints", "start if the log holds", "note", ...la.days.map((d) => d.date)];
   const lines = [head.map(q).join(",")];
-  for (const a of la.activities) lines.push([a.wbs, a.code, a.name, a.status, a.start, a.finish, a.remainingHours, a.tf, a.ff, a.critical ? "Y" : "N", own(READY_TEXT, a.ready, a.ready), a.ready === "in progress" ? "" : a.drivenBy, waitText(a), a.resources.join("; "), a.constraints.join("; "), a.note, ...[...a.bars].map((c) => (c === "#" ? "x" : c === "M" ? "M" : ""))].map(q).join(","));
+  for (const a of la.activities) lines.push([a.wbs, a.code, a.name, a.status, a.start, a.finish, a.remainingHours, a.tf, a.ff, a.critical ? "Y" : "N", own(READY_TEXT, a.ready, a.ready), a.ready === "in progress" ? "" : a.drivenBy, waitText(a), a.resources.join("; "), a.constraints.join("; "), logText(a), a.startWithLog || "", a.note, ...[...a.bars].map((c) => (c === "#" ? "x" : c === "M" ? "M" : ""))].map(q).join(","));
   return lines.join("\n") + "\n";
 }
 
@@ -292,7 +303,7 @@ export function lookaheadHtml(la, meta = {}) {
     if (a.wbsKey !== wbs) { wbs = a.wbsKey; body += `<tr class="g"><td colspan="${cols}">${esc(a.wbs || "(no WBS)")}</td></tr>`; }
     const cells = [...a.bars].map((c) => `<td class="c ${c === "#" ? (a.critical ? "on crit" : "on") : c === "M" ? "ms" : c === "." ? "" : "off"}">${c === "M" ? "&#9670;" : ""}</td>`).join("");
     const wait = waitText(a);
-    body += `<tr><td class="code">${esc(a.code)}</td><td>${esc(a.name)}${a.resources.length ? `<div class="sub">${esc(a.resources.join(", "))}</div>` : ""}</td><td class="dt">${esc(a.start)}</td><td class="dt">${esc(a.finish)}</td><td class="n">${a.tf ?? ""}</td><td class="mr ${a.ready.replace(/ /g, "-")}">${esc(own(READY_TEXT, a.ready, a.ready))}${a.ready !== "in progress" ? `<div class="sub">driven by ${esc(a.drivenBy)}</div>` : ""}${wait ? `<div class="sub">${esc(wait)}</div>` : ""}${a.note ? `<div class="sub warn">${esc(a.note)}</div>` : ""}${a.constraints.length ? `<div class="sub">${esc(a.constraints.join("; "))}</div>` : ""}</td>${cells}</tr>`;
+    body += `<tr><td class="code">${esc(a.code)}</td><td>${esc(a.name)}${a.resources.length ? `<div class="sub">${esc(a.resources.join(", "))}</div>` : ""}</td><td class="dt">${esc(a.start)}</td><td class="dt">${esc(a.finish)}</td><td class="n">${a.tf ?? ""}</td><td class="mr ${a.ready.replace(/ /g, "-")}">${esc(own(READY_TEXT, a.ready, a.ready))}${a.ready !== "in progress" ? `<div class="sub">driven by ${esc(a.drivenBy)}</div>` : ""}${wait ? `<div class="sub">${esc(wait)}</div>` : ""}${a.note ? `<div class="sub warn">${esc(a.note)}</div>` : ""}${a.constraints.length ? `<div class="sub">${esc(a.constraints.join("; "))}</div>` : ""}${logText(a) ? `<div class="sub warn">log: ${esc(logText(a))}</div>` : ""}${a.startWithLog ? `<div class="sub warn">starts ${esc(a.startWithLog)} if the log holds</div>` : ""}</td>${cells}</tr>`;
   }
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
 <style>
@@ -302,16 +313,17 @@ table{border-collapse:collapse;width:100%;margin-top:10px}th,td{border:1px solid
 th{background:#eef1f5;font-weight:600}th.d,td.c{width:18px;min-width:18px;padding:0;text-align:center;vertical-align:middle}th.we,td.off{background:#f1f1f1}
 td.on{background:#4a78c2}td.crit{background:#c0392b}td.ms{color:#c0392b;font-size:13px}tr.g td{background:#dde4ee;font-weight:600}
 td.code{white-space:nowrap;font-weight:600}td.dt{white-space:nowrap}td.n{text-align:right}.sub{color:#555;font-size:11px}.warn{color:#a3530b}
-td.mr.ready{background:#e6f4ea}td.mr.waits-outside,td.mr.no-predecessor{background:#fdf0e1}th.wk{text-align:center}
+td.mr.ready,td.mr.on-track{background:#e6f4ea}td.mr.waits-outside,td.mr.no-predecessor,td.mr.constrained,td.mr.no-date,td.mr.late{background:#fdf0e1}td.mr.overdue{background:#f8d7d3}th.wk{text-align:center}
 @media print{@page{size:landscape;margin:10mm}body{margin:0}thead{display:table-header-group}tr{break-inside:avoid}}
 </style></head><body>
 <h1>${esc(title)}</h1>
 <p>${[la.project.name, `data date ${la.project.dataDate}`, `window ${la.from} through ${la.through}`, meta.by ? `prepared by ${meta.by}` : ""].filter(Boolean).map(esc).join(" &middot; ")}</p>
 <p><b>${s.activities}</b> activities with work in the window: ${s.inProgress} in progress, ${s.starting} to start, ${s.finishing} to finish, ${s.critical} critical (red bars).
-Make-ready from the logic: <b>${s.ready}</b> ready, ${s.waiting} waiting on work in this look-ahead, ${s.waitingOutside} waiting on work outside it, ${s.noPredecessor} with no predecessor, ${s.outOfSequence} out of sequence.</p>
-<p class="note">Dates are recomputed from the file's logic, durations and calendars (early dates). "Ready" means every predecessor that gates the start has finished (FS) or started (SS) at the data date; crews, materials, information and permits are not in the file and are the meeting's to check.</p>
+Make-ready from the logic${la.constraintLog ? " and the constraints log" : ""}: <b>${s.ready}</b> ready, ${la.constraintLog ? `${s.constrained} ready by logic but held by an open constraint, ` : ""}${s.waiting} waiting on work in this look-ahead, ${s.waitingOutside} waiting on work outside it, ${s.noPredecessor} with no predecessor, ${s.outOfSequence} out of sequence.</p>
+<p class="note">Dates are recomputed from the file's logic, durations and calendars (early dates). "Ready" means every predecessor that gates the start has finished (FS) or started (SS) at the data date; ${la.constraintLog ? "with a constraints log, \"ready\" also needs every row on it cleared." : "crews, materials, information and permits are not in the file and are the meeting's to check (add a constraints log to merge them)."}</p>
 <table><thead><tr><th rowspan="2">Activity</th><th rowspan="2">Name</th><th rowspan="2">Start</th><th rowspan="2">Finish</th><th rowspan="2">TF (h)</th><th rowspan="2">Make-ready</th>${weekHead.join("")}</tr><tr>${dayHead}</tr></thead><tbody>${body}</tbody></table>
 ${la.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("")}
+${constraintLogHtml(la.constraintLog)}
 <p class="note">Made with XER Schedule Check (MIT). Not professional advice: check dates against the scheduling software of record before acting on them.</p>
 </body></html>`;
 }
