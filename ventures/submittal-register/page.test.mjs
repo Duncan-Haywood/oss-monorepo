@@ -29,3 +29,7 @@ test("accuracy numbers on the page match the README", () => {
 test("links its sibling ids-model-check (crawlable pair, platform/pages/siblings.mjs)", () => {
   assert.match(page("index.html"), /href="\.\.\/ids-model-check\/"/);
 });
+
+test("links its sibling drawing-set-index (crawlable pair, platform/pages/siblings.mjs)", () => {
+  assert.match(page("index.html"), /href="\.\.\/drawing-set-index\/"/);
+});
