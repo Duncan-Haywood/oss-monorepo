@@ -19,7 +19,37 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## Golf leagues: tee times rotated evenly, match play scored with handicaps (2026-11-20, newest)
+## Golf leagues on two courses, or a 27-hole course's three nines (2026-11-20, newest)
+
+`golf.mjs` (`parseRotation`, `parseCourses`, `playingHandicap`, `ratedDiff`), `golf-playoffs.mjs`,
+`golf-league-schedule.html`; tested in `golf-courses.test.mjs` (8 tests, every number worked by hand in its comments).
+
+**Who it is for.** Leagues that do not play one 18-hole course front/back: two clubs that take turns
+hosting, a home course and a sister course, or a 27-hole facility whose Red, White and Blue nines rotate.
+Until now the page assumed one card, so such a league had to score each course's nights by hand.
+
+- **Schedule.** An optional rotation, repeating over the season: "Oak front, Pine front, Oak back, Pine
+  back", or "Red, White, Blue" (a name alone is a 9-hole course). The whole league plays the same course a
+  night, as a course books a league; the CSV gains a Course column, the text and table name the course,
+  and the counts table shows each team's nights at each course. Play-off nights carry on the rotation.
+- **Cards.** One card per course under a "Course: Oak" line. A 9-hole card takes 9 pars and 9 index
+  numbers (odd or even ones, as 27-hole cards print them). Each night is scored on its own course's card,
+  tees included; a player's tees missing from a course they play, a rotation course with no card, an 18-hole
+  course with no nine named, or several cards for a one-course schedule are each named, not guessed.
+- **Rating and slope (optional, all courses or none).** Over par, a nine at a hard course counts like one
+  at an easy course, so a league that moves between them drifts. With "Rating:" and "Slope:" (per nine, or
+  the 18-hole numbers, halved for rating) the handicaps follow the World Handicap System's arithmetic: each
+  round's differential is (adjusted gross - rating) x 113 / slope; the league index is the average of the
+  rounds counted (one decimal, capped); tonight's strokes are handicap% x (index x slope / 113 + rating -
+  par), rounded, 0 to the cap. Entering handicaps are read as an index. Worked: index 10 at 90% is 8 strokes
+  on a par-36 nine rated 35.0/113 and 12 on one rated 37.5/135. Match play across tees keeps the par
+  adjustment above (it compares gross strokes, so it is still needed with rating - par in the handicap).
+
+**Limits.** One course a night (a league split over two courses on the same night is not modelled);
+a rated league index is still a league handicap, not a Handicap Index; the 18-hole rating halved per nine
+is an approximation when a card gives no 9-hole ratings. Not yet used by a real league.
+
+## Golf leagues: tee times rotated evenly, match play scored with handicaps (2026-11-20)
 
 `golf-league-schedule.html`, `golf.mjs`, `golf-tee-table.mjs`; tested in `golf.test.mjs`.
 
@@ -54,8 +84,8 @@ holes and net point; the absentee counts par + 3 in the team net. Bye: each play
 their full handicap. A night worked by hand is in the tests (Hawks 12.5, Owls 9.5) and on the page.
 
 **Limits.** A league handicap only, not a Handicap Index under the World Handicap System; no score
-posting; subs play under the rostered name; no flighted play-offs or two-course leagues yet. Not yet used by
-a real league.
+posting; subs play under the rostered name. Flighted play-offs and two-course leagues have landed since
+(sections below). Not yet used by a real league.
 
 **Tee rows and skins (2026-11-20, later).** The course card takes more sets of tees ("Par (forward):",
 "Index (forward):"; a tee giving one row keeps the main tees' other) and a roster marks a player's tees

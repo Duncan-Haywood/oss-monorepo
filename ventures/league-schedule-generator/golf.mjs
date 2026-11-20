@@ -30,7 +30,44 @@ const outOfReach = new Set(TEE_OUT_OF_REACH);
 export function teeBoundOutOfReach(nTeams, weeks) { return outOfReach.has(`${nTeams},${weeks}`); }
 
 export const BYE = "Bye (v the course)";
-const nineName = (n) => (n === "back" ? "Back 9" : "Front 9");
+const nineName = (n) => (n === "back" ? "Back 9" : n === "nine" ? "Nine" : "Front 9");
+
+/** Where a week is played: "Back 9", or with a course rotation "Pine Hills, Back 9" / "Red" (a 9-hole course). */
+export function whereName(wk) {
+  if (!wk.course) return nineName(wk.nine);
+  return wk.nine === "nine" ? wk.course : `${wk.course}, ${nineName(wk.nine)}`;
+}
+
+// ===================================================================== two courses
+//
+// Some leagues play more than one course: two clubs that take turns hosting, a home course and a
+// sister course across town, or a 27-hole facility whose three nines (Red, White, Blue) rotate.
+// The whole league plays the same course on a night (that is how a course books a league), so the
+// schedule is a weekly rotation through named course-nines, repeating: "Oak front, Pine front, Oak
+// back, Pine back" or "Red, White, Blue". An entry is a course name, optionally followed by
+// "front" or "back" (an 18-hole course); a name alone is a 9-hole course (one nine of a 27-hole
+// facility), and "front"/"back" alone is the league's one course. The scorer (golfRecap) then
+// reads each night on that course's own card.
+
+/** "Oak front, Pine back, Red" (commas or lines) -> [{ course, nine: "front"|"back"|"nine" }]. */
+export function parseRotation(input) {
+  const errors = [], rotation = [];
+  const parts = Array.isArray(input) ? input : String(input ?? "").split(/[\n,;]+/);
+  for (const raw of parts) {
+    const e = String(raw).trim().replace(/\s+/g, " ");
+    if (!e) continue;
+    const m = e.match(/^(?:(.*?\S)\s+)?(front|back)(?:\s*9|\s+nine)?$/i);
+    const course = m ? (m[1] ?? "") : e, nine = m ? m[2].toLowerCase() : "nine";
+    if (course.length > 40) { errors.push(`Course "${course.slice(0, 20)}...": keep a course name under 40 characters.`); continue; }
+    if (!course && nine === "nine") continue;
+    rotation.push({ course, nine });
+  }
+  if (rotation.length > 12) errors.push("A course rotation takes up to 12 entries (it repeats over the season).");
+  if (rotation.some((r) => r.nine === "nine" && !r.course)) errors.push("Name the course for each 9-hole entry.");
+  if (rotation.length && rotation.every((r) => !r.course)) return { rotation: [], errors }; // "front, back" alone: the nines setting already covers it
+  if (rotation.some((r) => !r.course)) errors.push('Name the course on every entry of a rotation that uses more than one ("Oak front", not "front").');
+  return { rotation, errors };
+}
 
 function hhmm(min) {
   const h = Math.floor(min / 60) % 24, m = min % 60;
@@ -73,6 +110,9 @@ export function golfSchedule(spec) {
   const weeks = Number(spec.weeks);
   if (!Number.isInteger(weeks) || weeks < 1 || weeks > 40) errors.push("Weeks must be a whole number from 1 to 40.");
   if (!Number.isInteger(spec.start)) errors.push("Pick the first league night.");
+  const rot = parseRotation(spec.rotation ?? "");
+  errors.push(...rot.errors);
+  const rotation = rot.rotation;
   const nines = spec.nines ?? "alternate";
   if (!["alternate", "front", "back"].includes(nines)) errors.push('Nines must be "alternate", "front" or "back".');
   const firstNine = spec.firstNine === "back" ? "back" : "front";
@@ -95,19 +135,20 @@ export function golfSchedule(spec) {
   for (let w = 0; w < weeks; w++) {
     while (skip.has(day)) { skipped.push(day); day += 7; }
     const r = rounds[w % cycleLength];
-    const nine = nines === "alternate" ? (w % 2 === 0 ? firstNine : firstNine === "front" ? "back" : "front") : nines;
+    const at = rotation.length ? rotation[w % rotation.length] : null;
+    const nine = at ? at.nine : nines === "alternate" ? (w % 2 === 0 ? firstNine : firstNine === "front" ? "back" : "front") : nines;
     const pairs = r.matches.map(([h, a]) => [h, a]);
     if (r.bye !== null && r.bye !== undefined) pairs.push([r.bye, null]);
-    plan.push({ week: w + 1, day, nine, cycle: Math.floor(w / cycleLength) + 1, round: (w % cycleLength) + 1, pairs });
+    plan.push({ week: w + 1, day, nine, course: at ? at.course : "", cycle: Math.floor(w / cycleLength) + 1, round: (w % cycleLength) + 1, pairs });
     day += 7;
   }
   const seed = Number(spec.seed ?? 1);
   const stored = seed === 1 ? storedDeal(plan, teams.length, nSlots) : null;
   const slotOf = stored ?? assignTeeSlots(plan, teams.length, nSlots, seed);
   const season = {
-    teams, odd, nSlots, startType, fromTable: Boolean(stored), boundProvedOutOfReach: teeBoundOutOfReach(teams.length, weeks), firstTee, interval, skipped, cycleLength,
+    teams, odd, nSlots, startType, rotation, fromTable: Boolean(stored), boundProvedOutOfReach: teeBoundOutOfReach(teams.length, weeks), firstTee, interval, skipped, cycleLength,
     weeks: plan.map((p, w) => ({
-      week: p.week, day: p.day, nine: p.nine, cycle: p.cycle, round: p.round,
+      week: p.week, day: p.day, nine: p.nine, ...(rotation.length ? { course: p.course } : {}), cycle: p.cycle, round: p.round,
       groups: p.pairs.map(([a, b], g) => ({ slot: slotOf[w][g], a, b })).sort((x, y) => x.slot - y.slot),
     })),
   };
@@ -274,13 +315,14 @@ export function tabuTee(plan, nTeams, nSlots, start, loOf, hiOf, seed = 1, maxIt
 
 /** Per team: weeks on each tee slot, the spread, the floor/ceil bound, repeats, and the nines played. */
 export function teeReport(season) {
-  const rows = season.teams.map((name) => ({ name, counts: new Array(season.nSlots).fill(0), repeats: 0, front: 0, back: 0, weeks: 0, spread: 0, bound: 0 }));
+  const rows = season.teams.map((name) => ({ name, counts: new Array(season.nSlots).fill(0), repeats: 0, front: 0, back: 0, nine: 0, courses: /** @type {Record<string, number>} */ ({}), weeks: 0, spread: 0, bound: 0 }));
   const prev = new Array(season.teams.length).fill(-1);
   for (const wk of season.weeks) {
     const seen = new Set();
     for (const g of wk.groups) for (const t of g.b === null ? [g.a] : [g.a, g.b]) {
       const r = rows[t];
       r.counts[g.slot]++; r.weeks++; r[wk.nine]++;
+      if (wk.course) r.courses[wk.course] = (r.courses[wk.course] ?? 0) + 1;
       if (prev[t] === g.slot) r.repeats++;
       prev[t] = g.slot; seen.add(t);
     }
@@ -329,10 +371,11 @@ function groupCells(season, g) {
 }
 
 export function golfCsv(season) {
-  const lines = [["Week", "Date", "Nine", season.startType === "shotgun" ? "Starting hole" : "Tee time", "Team", "Opponent"].join(",")];
+  const multi = Boolean(season.rotation?.length);
+  const lines = [["Week", "Date", ...(multi ? ["Course"] : []), "Nine", season.startType === "shotgun" ? "Starting hole" : "Tee time", "Team", "Opponent"].join(",")];
   for (const wk of season.weeks) {
     const names = slotNames(season, wk.nine);
-    for (const g of wk.groups) lines.push([wk.week, dayIso(wk.day), nineName(wk.nine), names[g.slot], ...groupCells(season, g)].map(csvCell).join(","));
+    for (const g of wk.groups) lines.push([wk.week, dayIso(wk.day), ...(multi ? [wk.course] : []), nineName(wk.nine), names[g.slot], ...groupCells(season, g)].map(csvCell).join(","));
   }
   return lines.join("\n") + "\n";
 }
@@ -340,7 +383,7 @@ export function golfCsv(season) {
 export function golfText(season) {
   const out = [];
   for (const wk of season.weeks) {
-    out.push(`Week ${wk.week}, ${dayLabel(wk.day)}: ${nineName(wk.nine)}`);
+    out.push(`Week ${wk.week}, ${dayLabel(wk.day)}: ${whereName(wk)}`);
     const names = slotNames(season, wk.nine);
     for (const g of wk.groups) { const [a, b] = groupCells(season, g); out.push(`  ${names[g.slot]}  ${a} v ${b}`); }
   }
@@ -419,61 +462,126 @@ function smallInts(text) {
 }
 
 /**
- * "Par: 4 4 3 5 ..." and "Index: 7 15 3 ..." (18 numbers each; commas or spaces): the main tees.
+ * "Par: 4 4 3 5 ..." and "Index: 7 15 3 ..." (18 numbers each, or 9 for a 9-hole course such as one
+ * nine of a 27-hole facility; commas or spaces): the main tees.
  * More tees, for players who play other tees (forward, women's, senior): "Par (forward): ..." and
  * "Index (forward): ...". A named tee may give only the row that differs; the other is the main
- * tees'. Returns course = { par, index, tees } where tees maps a tee's key ("" for the main tees)
- * to { name, par, index }.
+ * tees'. Optional "Rating: 35.2 35.6" and "Slope: 124 120" (per nine; one number on an 18-hole card
+ * is the 18-hole rating, halved for each nine, and its slope for both): with them, handicaps are
+ * worked as the World Handicap System works them (see golfRecap), so a hard course and an easy one
+ * count alike. Every set of tees then needs its own rating and slope.
+ * Returns course = { holes, par, index, rated, tees } where tees maps a tee's key ("" for the main
+ * tees) to { name, par, index, rating, slope } (rating and slope: one number per nine, or null).
  */
 export function parseCourse(text) {
   const errors = [];
-  const rows = new Map(); // tee key -> { name, par, index }
+  const rows = new Map(); // tee key -> { name, par, index, rating, slope }
   const rowOf = (name) => {
     const k = keyOf(name);
-    if (!rows.has(k)) rows.set(k, { name: name.trim().replace(/\s+/g, " "), par: null, index: null });
+    if (!rows.has(k)) rows.set(k, { name: name.trim().replace(/\s+/g, " "), par: null, index: null, rating: null, slope: null });
     return rows.get(k);
   };
+  const lines = [];
   for (const raw of String(text ?? "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    const m = line.match(/^(par|index|hdcp|handicap|si|stroke index)(?:\s*\(([^)]*)\))?\s*:?\s*(.*)$/i);
-    if (!m) { errors.push(`Course line "${line.slice(0, 30)}": start it with "Par:" or "Index:" (or "Par (forward):" for another set of tees).`); continue; }
-    const isPar = /^par/i.test(m[1]);
-    const tee = (m[2] ?? "").trim();
-    const where = tee ? ` (${tee})` : "";
-    const nums = smallInts(m[3]);
-    if (nums.length !== 18 || nums.some((x) => !Number.isInteger(x))) { errors.push(`${isPar ? "Par" : "Index"}${where} needs 18 whole numbers, hole 1 to 18 (got ${nums.length}).`); continue; }
-    const row = rowOf(tee);
-    if (row[isPar ? "par" : "index"]) { errors.push(`${isPar ? "Par" : "Index"}${where} is typed twice.`); continue; }
-    row[isPar ? "par" : "index"] = nums;
+    const m = line.match(/^(par|index|hdcp|handicap|si|stroke index|rating|course rating|cr|slope|slope rating)(?:\s*\(([^)]*)\))?\s*:?\s*(.*)$/i);
+    if (!m) { errors.push(`Course line "${line.slice(0, 30)}": start it with "Par:" or "Index:" (or "Par (forward):" for another set of tees; "Rating:" and "Slope:" are optional).`); continue; }
+    const kind = /^par/i.test(m[1]) ? "par" : /^(rating|course rating|cr)$/i.test(m[1]) ? "rating" : /^slope/i.test(m[1]) ? "slope" : "index";
+    lines.push({ kind, tee: (m[2] ?? "").trim(), rest: m[3] });
   }
-  const main = rows.get("") ?? { name: "", par: null, index: null };
+  const mainPar = lines.find((l) => l.kind === "par" && !l.tee);
+  const nHoles = mainPar && smallInts(mainPar.rest).length === 9 ? 9 : 18;
+  const nNines = nHoles / 9;
+  const label = { par: "Par", index: "Index", rating: "Rating", slope: "Slope" };
+  for (const { kind, tee, rest } of lines) {
+    const where = tee ? ` (${tee})` : "";
+    const row = rowOf(tee);
+    if (row[kind]) { errors.push(`${label[kind]}${where} is typed twice.`); continue; }
+    if (kind === "par" || kind === "index") {
+      const nums = smallInts(rest);
+      if (nums.length !== nHoles || nums.some((x) => !Number.isInteger(x))) { errors.push(`${label[kind]}${where} needs ${nHoles} whole numbers, hole 1 to ${nHoles} (got ${nums.length}).`); continue; }
+      row[kind] = nums;
+      continue;
+    }
+    const nums = rest.split(/[\s;/]+|,(?=\s)/).filter(Boolean).map((t) => Number(t.replace(",", ".")));
+    if (!nums.length || nums.length > nNines || nums.some((x) => !Number.isFinite(x))) { errors.push(`${label[kind]}${where} takes ${nNines === 2 ? "one number a nine (front back), or one 18-hole number" : "one number"} (got "${rest.slice(0, 20)}").`); continue; }
+    if (kind === "rating") {
+      const perNine = nNines === 2 && nums.length === 1 ? [nums[0] / 2, nums[0] / 2] : nums;
+      if (perNine.some((x) => x < 25 || x > 45)) { errors.push(`Rating${where}: a nine's course rating is about 30 to 40 strokes (an 18-hole one about 60 to 80).`); continue; }
+      row.rating = perNine;
+    } else {
+      const perNine = nNines === 2 && nums.length === 1 ? [nums[0], nums[0]] : nums;
+      if (perNine.some((x) => !Number.isInteger(x) || x < 55 || x > 155)) { errors.push(`Slope${where} must be a whole number from 55 to 155.`); continue; }
+      row.slope = perNine;
+    }
+  }
+  const main = rows.get("") ?? { name: "", par: null, index: null, rating: null, slope: null };
   for (const row of rows.values()) {
     const where = row.name ? ` (${row.name})` : "";
     if (row.par && row.par.some((p) => p < 3 || p > 6)) errors.push(`Each hole's par${where} must be 3 to 6.`);
-    if (row.index && [...row.index].sort((a, b) => a - b).some((v, i) => v !== i + 1)) errors.push(`The stroke index${where} must use each number 1 to 18 once.`);
+    if (row.index && nHoles === 18 && [...row.index].sort((a, b) => a - b).some((v, i) => v !== i + 1)) errors.push(`The stroke index${where} must use each number 1 to 18 once.`);
+    if (row.index && nHoles === 9 && (new Set(row.index).size !== 9 || row.index.some((v) => v < 1 || v > 18))) errors.push(`The stroke index${where} needs nine different numbers from 1 to 18 (a 27-hole card often prints odd or even ones).`);
   }
-  if (!main.par) errors.push('Type the course\'s par for all 18 holes on a "Par:" line.');
-  if (!main.index) errors.push('Type the stroke index (handicap row on the card) for all 18 holes on an "Index:" line.');
+  if (!main.par) errors.push('Type the course\'s par for all its holes (18, or 9 for a 9-hole course) on a "Par:" line.');
+  if (!main.index) errors.push('Type the stroke index (handicap row on the card) for every hole on an "Index:" line.');
+  const anyRated = [...rows.values()].some((r) => r.rating || r.slope);
+  if (anyRated) for (const row of rows.values()) {
+    if (!row.rating || !row.slope) errors.push(`Rating and slope: give both for every set of tees, or leave both out (missing for the ${row.name ? `${row.name} tees` : "main tees"}).`);
+  }
   if (errors.length) return { course: null, errors };
   const tees = new Map();
-  for (const [k, row] of rows) tees.set(k, { name: row.name, par: row.par ?? main.par, index: row.index ?? main.index });
-  if (!tees.has("")) tees.set("", { name: "", par: main.par, index: main.index });
-  return { course: { par: main.par, index: main.index, tees }, errors };
+  for (const [k, row] of rows) tees.set(k, { name: row.name, par: row.par ?? main.par, index: row.index ?? main.index, rating: row.rating, slope: row.slope });
+  if (!tees.has("")) tees.set("", { name: "", par: main.par, index: main.index, rating: null, slope: null });
+  return { course: { holes: nHoles, par: main.par, index: main.index, rated: anyRated, tees }, errors };
+}
+
+/**
+ * Several course cards: each starts with a "Course: Oak Hills" line, then its Par/Index (and
+ * optional tees, Rating, Slope) lines. Lines with no "Course:" header are the league's one course.
+ * Rated (rating and slope) must be all or none across the courses, so handicaps stay on one basis.
+ * Returns { courses: Map key -> course & { name }, rated, errors }.
+ */
+export function parseCourses(text) {
+  const errors = [], blocks = [];
+  let cur = null;
+  for (const raw of String(text ?? "").split(/\r?\n/)) {
+    const line = raw.trim();
+    const h = line.match(/^course\s*(?:name)?\s*:\s*(.*\S)\s*$/i);
+    if (h) { cur = { name: h[1].replace(/\s+/g, " "), lines: [] }; blocks.push(cur); continue; }
+    if (!line) continue;
+    if (!cur) { cur = { name: "", lines: [] }; blocks.push(cur); }
+    cur.lines.push(line);
+  }
+  if (blocks.length > 1 && blocks[0].name === "") errors.push('Several courses: start each card with a "Course: Name" line (the first lines have none).');
+  const courses = new Map();
+  for (const b of blocks) {
+    const k = keyOf(b.name);
+    if (courses.has(k)) { errors.push(`Course "${b.name}" is typed twice.`); continue; }
+    const { course, errors: ce } = parseCourse(b.lines.join("\n"));
+    errors.push(...ce.map((e) => (b.name ? `${b.name}: ${e}` : e)));
+    if (course) courses.set(k, { ...course, name: b.name });
+  }
+  if (!blocks.length) errors.push(...parseCourse("").errors);
+  const rated = [...courses.values()].map((c) => c.rated);
+  if (rated.includes(true) && rated.includes(false)) errors.push(`Rating and slope are on ${[...courses.values()].filter((c) => c.rated).map((c) => c.name || "one card").join(", ")} but not ${[...courses.values()].filter((c) => !c.rated).map((c) => c.name || "the other").join(", ")}: give them for every course, or for none, so handicaps stay on one basis.`);
+  return { courses: errors.length ? new Map() : courses, rated: rated.length > 0 && rated.every(Boolean), errors };
 }
 
 /** The par and index rows a player's tee uses: the named tee, else the main tees. */
 export function teeRows(course, tee = "") {
-  return course.tees?.get(keyOf(tee ?? "")) ?? { name: "", par: course.par, index: course.index };
+  return course.tees?.get(keyOf(tee ?? "")) ?? { name: "", par: course.par, index: course.index, rating: null, slope: null };
 }
 
-/** Holes of a nine (0-based hole numbers) and the stroke order within it: order[k] = rank 0 (hardest)..8. */
+/** Holes of a nine (0-based hole numbers) and the stroke order within it: order[k] = rank 0 (hardest)..8.
+ * A 9-hole course has one nine, whatever `nine` says. rating/slope: that nine's, or null. */
 export function nineHoles(course, nine, tee = "") {
   const t = teeRows(course, tee);
-  const holes = Array.from({ length: 9 }, (_, i) => (nine === "back" ? 9 + i : i));
+  const n = course.holes === 9 ? 0 : nine === "back" ? 1 : 0;
+  const holes = Array.from({ length: 9 }, (_, i) => n * 9 + i);
   const byIndex = [...holes].sort((a, b) => t.index[a] - t.index[b]);
   const rank = holes.map((h) => byIndex.indexOf(h));
-  return { holes, rank, par: holes.map((h) => t.par[h]), parTotal: holes.reduce((s, h) => s + t.par[h], 0) };
+  return { holes, rank, par: holes.map((h) => t.par[h]), parTotal: holes.reduce((s, h) => s + t.par[h], 0), rating: t.rating ? t.rating[n] : null, slope: t.slope ? t.slope[n] : null };
 }
 
 /** Strokes received on each of the nine's holes for a handicap difference d (>= 0). */
@@ -481,16 +589,31 @@ export function strokesOn(rank, d) {
   return rank.map((r) => (d <= 0 ? 0 : Math.floor(d / 9) + (r < d % 9 ? 1 : 0)));
 }
 
-/** League handicap from the score differentials (adjusted gross - par), most recent last. */
-export function golfHandicap(diffs, rules) {
+/** League handicap from the score differentials (adjusted gross - par), most recent last.
+ * rated: the differentials are (adjusted gross - rating) x 113 / slope, and the result is a league
+ * index to one decimal, before the handicap percentage (playingHandicap turns it into strokes). */
+export function golfHandicap(diffs, rules, rated = false) {
   if (!diffs.length) return null;
   const recent = diffs.slice(-rules.last);
   const used = [...recent].sort((a, b) => a - b).slice(0, Math.min(rules.best, recent.length));
   const avg = used.reduce((a, b) => a + b, 0) / used.length;
+  if (rated) return Math.min(rules.maxHandicap, Math.max(0, Math.round(avg * 10 + 1e-9) / 10));
   let h = Math.round((rules.handicapPct * avg) / 100 + 1e-9);
   if (h < 0) h = 0;
   if (h > rules.maxHandicap) h = rules.maxHandicap;
   return h;
+}
+
+/** Strokes tonight from a league index on a rated nine: handicapPct% of index x slope / 113 +
+ * (rating - par), the World Handicap System's course handicap with a league allowance; whole, 0 to max. */
+export function playingHandicap(index, nine, rules) {
+  const ch = (index * nine.slope) / 113 + (nine.rating - nine.parTotal);
+  return Math.min(rules.maxHandicap, Math.max(0, Math.round((rules.handicapPct * ch) / 100 + 1e-9)));
+}
+
+/** A rated differential: (adjusted gross - rating) x 113 / slope, to one decimal. */
+export function ratedDiff(adjusted, nine) {
+  return Math.round(((adjusted - nine.rating) * 113 * 10) / nine.slope) / 10;
 }
 
 const keyOf = (name) => String(name).trim().replace(/\s+/g, " ").toLowerCase();
@@ -679,14 +802,24 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
   const { rules, errors } = readGolfRules(ruleInput);
   const empty = (errs) => ({ errors: errs, nights: [], standings: [], players: [], rules });
   if (errors.length) return empty(errors);
-  const { course, errors: ce } = parseCourse(courseText);
+  const { courses, rated, errors: ce } = parseCourses(courseText);
   const ros = parseRosters(rosters, season.teams, rules);
   const ent = parseEnteringHandicaps(entering);
   errors.push(...ce, ...ros.errors, ...ent.errors);
   if (errors.length) return empty(errors);
-  for (const [k, tee] of ros.playerTee) if (!course.tees.has(keyOf(tee))) {
-    const named = [...course.tees.values()].map((t) => t.name).filter(Boolean);
-    errors.push(`${[...ros.roster.values()].flat().find((n) => keyOf(n) === k)} plays from "${tee}" tees, which the course card does not name (${named.length ? `it names: ${named.join(", ")}` : 'add "Par (' + tee + '):" and "Index (' + tee + '):" lines'}).`);
+  // The card each week is scored on: the rotation's course, or the league's one card.
+  const multi = Boolean(season.rotation?.length);
+  if (!multi && courses.size > 1) return empty([`The course card names ${courses.size} courses but the schedule plays one; set the course rotation on the schedule (e.g. "${[...courses.values()].map((c) => c.name).slice(0, 2).join(" front, ")} front").`]);
+  const courseFor = (wk) => (multi ? courses.get(keyOf(wk.course)) : [...courses.values()][0]);
+  if (multi) for (const r of season.rotation) {
+    const c = courses.get(keyOf(r.course));
+    if (!c) { errors.push(`The rotation plays ${r.course}, which has no card; add "Course: ${r.course}" and its Par and Index lines${courses.size ? ` (cards typed: ${[...courses.values()].map((x) => x.name || "one with no Course: line").join(", ")})` : ""}.`); continue; }
+    if (c.holes === 18 && r.nine === "nine") errors.push(`The rotation plays "${r.course}" with no nine, but its card has 18 holes: write "${r.course} front" or "${r.course} back".`);
+  }
+  for (const [k, tee] of ros.playerTee) for (const c of courses.values()) if (!c.tees.has(keyOf(tee))) {
+    if (multi && !season.rotation.some((r) => keyOf(r.course) === keyOf(c.name))) continue;
+    const named = [...c.tees.values()].map((t) => t.name).filter(Boolean);
+    errors.push(`${[...ros.roster.values()].flat().find((n) => keyOf(n) === k)} plays from "${tee}" tees, which the ${c.name ? `${c.name} card` : "course card"} does not name (${named.length ? `it names: ${named.join(", ")}` : 'add "Par (' + tee + '):" and "Index (' + tee + '):" lines'}).`);
   }
   const skinsIn = parseSkinsPlayers(skinsPlayers, ros.playerTeam);
   errors.push(...skinsIn.errors);
@@ -699,15 +832,18 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
 
   const players = new Map();
   for (const [team, names] of ros.roster) for (const name of names) {
-    players.set(keyOf(name), { name, team, tee: teeRows(course, teeOf(keyOf(name))).name, diffs: [], rounds: 0, absences: 0, grossTotal: 0, lowGross: null, lowNet: null, skins: 0, skinsMoney: 0, entering: ent.map.has(keyOf(name)) ? ent.map.get(keyOf(name)) : null });
+    players.set(keyOf(name), { name, team, tee: teeOf(keyOf(name)), diffs: [], rounds: 0, absences: 0, grossTotal: 0, lowGross: null, lowNet: null, skins: 0, skinsMoney: 0, entering: ent.map.has(keyOf(name)) ? ent.map.get(keyOf(name)) : null });
   }
-  const handicapNow = (pl) => golfHandicap(pl.diffs, rules) ?? pl.entering;
+  // Not rated: a whole-stroke league handicap over par. Rated: a league index (entering handicaps
+  // are read as one), turned into tonight's strokes on tonight's nine by playingHandicap.
+  const handicapNow = (pl) => golfHandicap(pl.diffs, rules, rated) ?? pl.entering;
   const stats = new Map(season.teams.map((t) => [t, { team: t, points: 0, played: 0, net: 0, holesWon: 0 }]));
   const nights = [];
   const weekNums = [...parsed.weeks.keys()].sort((a, b) => a - b);
   for (const wn of weekNums) {
     const wk = season.weeks[wn - 1];
     const sheet = parsed.weeks.get(wn);
+    const course = courseFor(wk);
     const nine = nineHoles(course, wk.nine);
     const nineCache = new Map();
     const nineOf = (k) => { const t = keyOf(teeOf(k)); if (!nineCache.has(t)) nineCache.set(t, nineHoles(course, wk.nine, teeOf(k))); return nineCache.get(t); };
@@ -722,8 +858,10 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
     for (const [k, card] of sheet) {
       const pl = players.get(k);
       let h = handicapNow(pl), retro = false;
-      if (h === null && !card.absent) { h = golfHandicap([sum(card.holes) - nineOf(k).parTotal], rules); retro = true; }
-      tonight.set(k, { ...card, key: k, handicap: h ?? 0, name: pl.name, team: pl.team, tee: pl.tee, nine: nineOf(k), retro, noHandicap: h === null });
+      if (h === null && !card.absent) { h = golfHandicap([rated ? ratedDiff(sum(card.holes), nineOf(k)) : sum(card.holes) - nineOf(k).parTotal], rules, rated); retro = true; }
+      const index = rated ? h : null;
+      if (rated && h !== null) h = playingHandicap(h, nineOf(k), rules);
+      tonight.set(k, { ...card, key: k, handicap: h ?? 0, index, name: pl.name, team: pl.team, tee: pl.tee, nine: nineOf(k), retro, noHandicap: h === null });
     }
     const side = (t) => ros.roster.get(season.teams[t]).map((n) => tonight.get(keyOf(n))).sort((a, b) => a.handicap - b.handicap || a.name.localeCompare(b.name));
     const matches = [];
@@ -767,7 +905,7 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
       const own9 = card.nine;
       const own = strokesOn(own9.rank, card.handicap);
       const adjusted = card.retro ? sum(card.holes) : sum(card.holes.map((s, h) => Math.min(s, own9.par[h] + 2 + own[h])));
-      pl.diffs.push(adjusted - own9.parTotal);
+      pl.diffs.push(rated ? ratedDiff(adjusted, own9) : adjusted - own9.parTotal);
       pl.rounds++;
       const gross = sum(card.holes), net = gross - card.handicap;
       pl.grossTotal += gross;
@@ -775,7 +913,7 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
       pl.lowNet = pl.lowNet === null ? net : Math.min(pl.lowNet, net);
       card.adjusted = adjusted;
     }
-    nights.push({ week: wn, day: wk.day, nine: wk.nine, parTotal: nine.parTotal, matches, skins });
+    nights.push({ week: wn, day: wk.day, nine: wk.nine, course: course.name, where: whereName(wk), parTotal: nine.parTotal, rating: nine.rating, slope: nine.slope, matches, skins });
   }
   if (errors.length) return empty(errors);
   const standings = [...stats.values()].sort((a, b) => b.points - a.points || b.holesWon - a.holesWon || a.team.localeCompare(b.team));
@@ -786,7 +924,7 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
     average: pl.rounds ? Math.round((pl.grossTotal / pl.rounds) * 10) / 10 : null,
     handicap: handicapNow(pl), lowGross: pl.lowGross, lowNet: pl.lowNet,
   })).sort((a, b) => a.team.localeCompare(b.team) || a.name.localeCompare(b.name));
-  return { errors: [], nights, standings, players: playerRows, rules };
+  return { errors: [], nights, standings, players: playerRows, rules, rated };
 }
 
 const fmt = (x) => (Number.isInteger(x) ? String(x) : x.toFixed(1));
@@ -795,7 +933,7 @@ export function golfRecapText(recap) {
   const out = [];
   const n = recap.nights[recap.nights.length - 1];
   if (n) {
-    out.push(`Week ${n.week}, ${dayLabel(n.day)} (${nineName(n.nine)}, par ${n.parTotal})`);
+    out.push(`Week ${n.week}, ${dayLabel(n.day)} (${n.where ?? nineName(n.nine)}, par ${n.parTotal}${n.rating !== null && n.rating !== undefined ? `, rating ${fmt(n.rating)}, slope ${n.slope}` : ""})`);
     for (const m of n.matches) {
       out.push(`  ${m.a} ${fmt(m.points[0])} - ${fmt(m.points[1])} ${m.b ?? "the course"}`);
       for (const p of m.pairings) {
@@ -808,7 +946,7 @@ export function golfRecapText(recap) {
   }
   out.push("Standings");
   for (const s of recap.standings) out.push(`  ${s.place}. ${s.team}  ${fmt(s.points)} pts  (${s.holesWon} holes won)`);
-  out.push("", "Handicaps for next week");
+  out.push("", recap.rated ? "League index for next week (strokes are worked from it on each night's course)" : "Handicaps for next week");
   for (const p of recap.players) out.push(`  ${p.name} (${p.team}): ${p.handicap ?? "-"}`);
   return out.join("\n") + "\n";
 }
@@ -828,5 +966,5 @@ export function golfStandingsCsv(recap) {
 }
 
 export function golfPlayersCsv(recap) {
-  return [["Player", "Team", "Rounds", "Absent", "Average gross", "Handicap next week", "Low gross", "Low net", "Tees", "Skins", "Skins winnings"].join(","), ...recap.players.map((p) => [p.name, p.team, p.rounds, p.absences, p.average ?? "", p.handicap ?? "", p.lowGross ?? "", p.lowNet ?? "", p.tee || "main", p.skins, money(p.skinsMoney)].map(csvCell).join(","))].join("\n") + "\n";
+  return [["Player", "Team", "Rounds", "Absent", "Average gross", recap.rated ? "League index next week" : "Handicap next week", "Low gross", "Low net", "Tees", "Skins", "Skins winnings"].join(","), ...recap.players.map((p) => [p.name, p.team, p.rounds, p.absences, p.average ?? "", p.handicap ?? "", p.lowGross ?? "", p.lowNet ?? "", p.tee || "main", p.skins, money(p.skinsMoney)].map(csvCell).join(","))].join("\n") + "\n";
 }
