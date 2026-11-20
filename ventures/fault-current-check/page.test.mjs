@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "nec-110-24-available-fault-current-label.html"];
+const PAGES = ["index.html", "nec-110-24-available-fault-current-label.html", "arc-flash-calculator.html"];
 const fa = (n) => Math.round(n).toLocaleString("en-US");
 
 test("every page carries the no-warranty clause, independence line and sponsor link", () => {
@@ -55,8 +55,9 @@ test("every static input has a label and nothing is sent anywhere", () => {
     assert.ok(id && html.includes(`<label for="${id}">`), `unlabelled: ${tag}`);
   }
   for (const t of html.matchAll(/<(input|select) [^>]*data-k[^>]*>/g)) assert.match(t[0], /aria-label=/);
-  for (const f of [...PAGES, "calc.mjs", "usage.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/, f);
-  assert.doesNotMatch(page("calc.mjs"), /^\s*import\s|import\(|Date\.now|Math\.random|new Date/m);
+  for (const f of [...PAGES, "calc.mjs", "arcflash.mjs", "usage.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/, f);
+  assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import .* from "([^"]+)";$/gm)].map((m) => m[1]), ["./arcflash.mjs"]);
+  for (const f of ["calc.mjs", "arcflash.mjs"]) assert.doesNotMatch(page(f).replace(/^\s*import .* from "\.\/arcflash\.mjs";$/m, ""), /^\s*import\s|import\(|Date\.now|Math\.random|new Date/m, f);
 });
 
 test("the inline script imports only exported names, and its fields are the engine's", async () => {
@@ -114,4 +115,26 @@ test("robots, sitemap, README, llms.txt, LICENSE and VENTURE.yaml exist", () => 
   assert.match(page("llms.txt"), /^# Available Fault Current Calculator/);
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: fault-current-check$/m);
+});
+
+test("the arc flash page imports exported names, labels its fields and its FAQ numbers are the engine's", async () => {
+  const html = page("arc-flash-calculator.html");
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./arcflash.mjs", "./usage.mjs"]);
+  const af = await import("./arcflash.mjs");
+  for (const n of html.match(/import \{([^}]+)\} from "\.\/arcflash\.mjs"/)[1].split(",").map((s) => s.trim())) assert.ok(af[n] !== undefined, n);
+  const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("#([\w-]+)"/g)) assert.ok(ids.has(m[1]), m[1]);
+  for (const tag of [...html.matchAll(/<(input|select)\b[^>]*>/g)].map((m) => m[0])) {
+    const id = tag.match(/\sid="([^"]+)"/)?.[1];
+    assert.ok(id && html.includes(`<label for="${id}">`), `unlabelled: ${tag}`);
+  }
+  assert.match(html, /record\("arcflash_calculated"\)/);
+  assert.match(html, /<code>arcflash_calculated<\/code>/);
+  const base = { volts: 480, config: "VCB", ibfKa: 45, gapMm: 32, distMm: 609.6, heightMm: 610, widthMm: 610, depthMm: 254, clearMs: 61.3 };
+  const two = af.arcFlash({ ...base, clearMinMs: 319 }), one = af.arcFlash({ ...base, clearMinMs: 61.3 });
+  const under = Math.round((1 - one.eCal / two.eCal) * 100);
+  assert.ok(html.includes(`rises from ${one.eCal.toFixed(2)} to ${two.eCal.toFixed(2)} cal/cm²`));
+  assert.ok(html.includes(`understate it by ${under} percent`));
 });
