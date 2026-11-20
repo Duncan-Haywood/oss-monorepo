@@ -13,38 +13,65 @@ coders"). Section 9 says what that does to each claim, and Section 8 what a code
 ## Abstract
 
 Researchers increasingly let a language model code text (is this tweet
-positive, does this comment express grief) and then report prevalences and
-group gaps from those codes. Prediction-powered inference (PPI) gives a valid
-interval for such a quantity from a random hand-coded audit plus the model's
-codes on the rest. Two conditions common in qualitative work are not covered by
-its guarantees at the sample sizes that matter: the model's error rate differs
-between groups and the audit's group mix differs from the corpus's, and the
-category is rare. On 44,485 NaijaSenti tweets in four languages, a 400-tweet
-audit whose language mix is 70% Hausa makes the pooled PPI 95% interval cover
-67 to 69% (stand-in coders), against 93.8 to 95.9% for a language-stratified
-estimator using corpus-known group sizes. On 38,234 GoEmotions comments, nine
-emotions at 0.10 to 1.96% prevalence, normal-approximation intervals from a
-200-item audit cover as little as 16% (uniform) or 10% (coder-label-stratified); a Wilson interval on a uniform
-audit covers 91 to 99%, and an audit sampled by the coder's uncertainty with a
+positive, does this comment express grief) and then report prevalences, group
+gaps and regression coefficients from those codes. Prediction-powered inference
+(PPI) gives a valid interval for such a quantity from a random hand-coded audit
+plus the model's codes on the rest. We ask how small that audit can be, and how
+it should be drawn, under three conditions common in qualitative work and not
+covered by PPI's guarantees at the sample sizes that matter: the coder's error
+differs between groups and the audit's group mix differs from the corpus's; the
+category is rare; and the coder is weak. On 44,485 NaijaSenti tweets in four
+languages, a 400-tweet audit whose language mix is 70% Hausa makes the pooled
+PPI 95% interval cover 67 to 69% (stand-in coders), against 93.8 to 95.9% for a
+language-stratified estimator using corpus-known group sizes. On 38,234
+GoEmotions comments, nine emotions at 0.10 to 1.96% prevalence,
+normal-approximation intervals from a 200-item audit cover as little as 16%
+(uniform) or 10% (coder-label-stratified); a Wilson interval on a uniform audit
+covers 91 to 99%, and an audit sampled by the coder's uncertainty with a
 label-free inclusion floor covers 92.4 to 96.0% while being 0.48 to 0.80 of the
-Wilson width for the six categories under 1%. We give a closed-form audit-size
-rule (Neyman allocation with a finite-population term) and a sequential audit
-that stops when the estimated half-width reaches the target: on NaijaSenti it
-meets a 3-point target in 100% of 1,000 audits per cell at 1% above the
-oracle size, with coverage 94.2 to 95.2%. For regression coefficients at small audits (60 to 400
-hand-coded tweets), an HC3-type leverage correction with a t quantile brings
-tuned PPI++ to 93.2 to 94.9% coverage at n >= 100, and a zero-shot 1.5B LLM
-coder (agreement 66.1% with the human label) makes it 2.2% narrower than
-hand-coding alone at n = 400. The programme's H3 (a 20% gain) is not reached by
-any coder tried. Agreement is the wrong axis: on this corpus a constant code
-agrees 0.673, so the real coders at 0.66 to 0.69 have Youden J of only 0.01 to
-0.21, and a synthetic coder with each one's sensitivity and specificity and
-independent errors reproduces its width ratio to within 0.006 (0.98 to 0.996 at
-n = 400). A 20% gain needs J of about 0.5. We also ship the audit rule as library code (coder-cell strata with a guard of three pilot positives in the coder-negative cell); across two corpora, two model sizes and a held-out category it covered 93.6 to 96.6% in every cell, with a width gain of 6 to 29% at a third of the corpus and a cost of up to 3.4% at n = 500 (Section 6).
+Wilson width for the six categories under 1%. A closed-form audit-size rule
+(Neyman allocation with a finite-population term) and a sequential audit that
+stops at the target half-width meet a 3-point target on NaijaSenti in 100% of
+1,000 audits per cell at 1% above the oracle size, with coverage 94.2 to 95.2%.
+For regression coefficients at 60 to 400 hand-coded tweets, an HC3-type
+leverage correction with a t quantile brings tuned PPI++ to 93.2 to 94.9%
+coverage at n >= 100.
+
+We ship the resulting audit rule as library code (`llmci.audit_design`): a
+pilot of 0.7n labels, coder-cell strata only when the pilot's informedness
+(Youden J), a guard of three pilot coder misses and a plug-in forecast of the
+width ratio all say the split pays, the plan capped at the budget n, and a
+Wilson interval on the labels alone when the audit holds fewer than three human
+positives. Each part was adopted by a decision rule committed before its draws
+(1,000 per cell). On 12 held-out GoEmotions cells coded zero-shot by a local
+1.5B model the rule was never more than 0.1% wider than a pooled audit, kept a
+5 to 39% narrower interval where the split pays, and covered 93.5% or more; on
+18 fresh cells it covered 93.2% or more; the rare-count fallback covered 93.1%
+or more in 83 rare or small-audit cells on both corpora.
+
+That coverage is an average over the design choice, and the paper's main
+negative result is that it does not hold given the choice. On the draws whose
+pilot chose strata, 7 of 157 cells cover 62.5 to 87.6% (590 of 78,966 such
+draws), and none of 32 pre-registered repairs from seven families (stricter
+admission, variance floors, triggered floors, second-phase checks, a reserved
+second phase, a tested check, a design change at low J) keeps 90% of the width
+gain while repairing half the failing cells. The plain pooled interval scored
+on the same draws covers 95.1% over the 90 weak-coder cells, so the defect sits
+in the stratified estimator that reuses the pilot; pooling whenever the pilot's
+J is under 0.40 repairs 7 of the 11 failing cells at 17% of the gain.
+
+Finally, agreement is the wrong axis for choosing a coder. On NaijaSenti a
+constant code agrees 0.673, so zero-shot Qwen2.5 coders (0.5B to 3B) at 0.66 to
+0.69 agreement have J of only 0.01 to 0.21, and a synthetic coder with each
+one's sensitivity and specificity and independent errors reproduces its width
+ratio to within 0.006. A 20% gain needs J of about 0.5; no coder tried reaches
+it, so the programme's hypothesis that a real LLM coder cuts the audit threefold
+(H3) is untested at the model size it needs, not refuted.
 
 ## 1 Introduction
 
-*(Status: drafted from `PROPOSAL.md`, "Question" and "Why it matters".)* A
+*(Status: drafted from `PROPOSAL.md`, "Question" and "Why it matters"; the
+contributions list updated 2026-11-20 to the library as of milestone 7be.)* A
 quantity of interest in text-as-data work is a share (the fraction of tweets
 that are positive), a gap between groups or a regression coefficient on a coded
 variable. A model's codes are cheap and biased in ways that differ by group; a
@@ -55,7 +82,14 @@ coverage under audit-mix shift (Section 4); (ii) a finding that for rare
 categories the validity of the interval, not its width, is the binding issue,
 with a label-free sampling rule that keeps coverage (Section 5); (iii) a
 planning formula and a sequential rule for the audit size with coverage checked
-by simulation on real corpora (Section 6).
+by simulation on real corpora (Section 6); (iv) an audit rule shipped as
+library code, each of whose defaults was set by a pre-registered decision rule
+and checked on cells not used to choose it (Section 6); (v) a negative result
+on validity given the design choice: a pilot that both chooses the design and
+enters the estimate undercovers at weak coders, and seven families of repair
+fail to fix it at an acceptable price (Section 6.1); and (vi) small-audit
+intervals for regression coefficients and the finding that a coder's
+informedness, not its agreement, sets what it saves (Sections 7 and 8).
 
 ## 2 Related work
 
@@ -242,7 +276,7 @@ A sequential audit does not escape the problem (milestone 6t, same corpus). The 
 
 **No candidate keeps 90% of the gain and repairs half the failing cells: 0 of 32.** The ones that keep the gain repair at most 43% (l16, which a stricter screen reaches by excluding draws, and which fails the no-new-harm clause at 1.5B anger n = 2,000). The ones that repair half or more keep at most 83% (7be's jp40, 0.828 and 0.64; before it 7ay's p5n2, 0.788 and exactly half). The repairs that reach every cell (tp1, rs10tp: close the coder-negative cell from fresh labels on every draw) make the audit wider in total than a plain random sample. The empirical frontier runs from top left to bottom right with nothing near the top right (figure).
 
-![Reach against cost for the 27 candidates of 7at to 7bd](../experiments/validity_frontier.svg)
+![Reach against cost for the 32 candidates of 7at to 7be](../experiments/validity_frontier.svg)
 
 *One shipped partial repair.* Only one candidate passed its decision rule. 7az's p5j40 fires a plus-two floor on the coder-negative cell when the pilot shows fewer than 5 coder misses and J_hat under 0.40 (`NEG_FLOOR`, now the library default). It fires in 2,224 of 65,289 admitted draws (690 in good-coder cells, against 8,431 for 7ay's count-only trigger) and keeps 94.6% of the gain. It lifts the four failing cells whose missed draws had thin pilots to 90.8 to 92.8% given cells. The J_hat ceiling separates what the miss count alone could not: a good coder (J 0.40 to 0.78) shows only 3 or 4 misses because it rarely misses, but its J_hat seldom falls under 0.40. On a second corpus with LLM coders (7ba, `h7ba_floor_naija.py`, 27 cells, pre-registered) the default covered 93.5% or more everywhere, fired in 280 of 13,677 admitted draws and kept 94.4% of the gain. It had almost nothing to repair there, so its repair is evidenced on GoEmotions only.
 
@@ -386,13 +420,14 @@ prompt. Whether a 7B or fine-tuned coder reaches J above 0.5 is untested.
 Each table is written by one script in `experiments/` (about 30 s to 3 min
 each); data come from the public NaijaSenti and GoEmotions releases through the
 loaders of `qual-dialect` and `qual-real`; seeds are fixed in the scripts. Tests:
-`python3 -m pytest research/llm-coding-inference/test_llmci.py`. The design rule and its closing interval are library code (`llmci.audit_design`: `plan_audit`, `audit_interval`); `experiments/h7c_end_to_end.py` runs a whole audit through them and matches the guarded-screen experiment of Section 8 within Monte Carlo noise (half-width within 2% in 14 cells; coverage 92.0 to 96.6%, two cells 2.6 and 2.8 points from the experiment's). The one cell that read lowest (admiration, n = 1000, 92.0% in 500 draws) was re-run with 2,000 draws (`h7d_admiration_2000.py`): coverage 94.1% (se 0.5), half-width 1.165 points, so the 92.0% was Monte Carlo noise. Still no coverage theorem for the data-dependent screen.
+`python3 -m pytest research/llm-coding-inference/test_llmci.py`. The design rule and its closing interval are library code (`llmci.audit_design`: `plan_audit`, `audit_interval`); `experiments/h7c_end_to_end.py` runs a whole audit through them and matches the guarded-screen experiment of Section 6 within Monte Carlo noise (half-width within 2% in 14 cells; coverage 92.0 to 96.6%, two cells 2.6 and 2.8 points from the experiment's). The one cell that read lowest (admiration, n = 1000, 92.0% in 500 draws) was re-run with 2,000 draws (`h7d_admiration_2000.py`): coverage 94.1% (se 0.5), half-width 1.165 points, so the 92.0% was Monte Carlo noise. Still no coverage theorem for the data-dependent screen.
 
 ## Status of each section
 
 | Section | State |
 |---|---|
-| 1 Introduction | drafted, needs the real-LLM result to state the headline |
+| Abstract | rewritten 2026-11-20 to the library as of milestone 7be (it described the pre-7ak rule); its numbers for Sections 4 to 6.1 are checked against the result files by `test_abstract_numbers_are_in_the_result_files` |
+| 1 Introduction | drafted; contributions (iv) to (vi) added 2026-11-20 |
 | 2 Related work | drafted; Gligorić et al. and Fisch et al. still to be read in full |
 | 3 to 6 | numbers current as of milestone 6f; Section 6 gained 6z and 6aa (checked against `h6z_strat_cs.txt`, `h6aa_pilot_lambda.txt`) the 7w to 7z paragraph, extended through 7ag (7ae checked against `h7ae_*.txt`, 7af against `h7af_guard_forecast.txt`, 7ag against `h7ag_fresh_forecast.txt`, 7ah against `h7ah_tau.txt` and its two part files) (checked line by line against `h7w_gratitude.txt`, `h7x_*.txt`, `h7y_*.txt`) and the 7g to 7v paragraph (numbers copied from the LOG.md outcome lines and spot-checked against the result files; 7a to 7f summarised in a paragraph checked against `h7d_admiration_2000.txt` and the log); the 7aj and 7ak paragraph added 2026-11-12, checked against `h7aj_neg_guard.txt` and `h7ak_width_forecast.txt`; the 7al held-out sentences added 2026-11-12, checked against `h7al_heldout.txt`; the 7am floor sentences added 2026-11-13, checked against `h7am_pseudo_guard.txt`; 7an guard-first sentences added 2026-11-13, checked against `h7an_guard_first.txt` and `h7an_conditional.txt`; 7ao two-phase sentences added 2026-11-13, checked against `h7ao_two_phase.txt`; 7ap and 7aq sentences added 2026-11-13, checked against `h7ap_priced_floor.txt` and `h7aq_pilot_share.txt`; 7ar sentence added 2026-11-14, checked against `h7ar_pilot_default.txt` and `h7ar_posthoc.txt`; 7as identity and 7at admission sentences added 2026-11-14, checked against `h7as_fresh_share.txt`, `h7at_weak_admit.txt` and `h7at_posthoc.txt`; 7au floor sentences added 2026-11-15, checked against `h7au_neg_floor.txt` and `h7au_neg_floor_draws.txt`; Section 5's 7av paragraph and limitation 6 added 2026-11-15, checked against `h7av_rare_fallback.txt`; 7aw sentences added 2026-11-15, checked against `h7aw_rare_fallback_fresh.txt`; 7ax sentences added 2026-11-16, checked against `h7ax_rare_fallback_naija.txt`; 7ay conditional-floor sentences added 2026-11-16, checked against `h7ay_cond_floor.txt`; 7az joint-trigger sentences added 2026-11-16, checked against `h7az_joint_trigger.txt`; 7ba NaijaSenti floor sentences added 2026-11-17, checked against `h7ba_floor_naija.txt`; 7bb second-phase sentence added 2026-11-17, checked against `h7bb_second_phase.txt`; 7bc reserved-share sentence added 2026-11-17, checked against `h7bc_reserved_check.txt`; 7bd tested-trigger sentence added 2026-11-19, checked against `h7bd_tested_check.txt`; the 7at to 7ba sentences and limitation 6's repair history moved on 2026-11-19 into a new Section 6.1, whose table is written by `validity_frontier.py` from the seven summaries and whose other figures were re-checked against `h7at_posthoc.txt`, `h7az_joint_trigger.txt`, `h7ba_floor_naija.txt` and `h7bb_second_phase.txt` to `h7bd_tested_check.txt`; the 7be paragraph of 6.1 and its table row added 2026-11-20, checked against `h7be_gated_design.txt` and `validity_frontier.txt` |
 | 7 | added in draft 1 from LOG.md 6g to 6n and milestone 5; numbers copied from the log, not yet re-derived from the result files line by line |

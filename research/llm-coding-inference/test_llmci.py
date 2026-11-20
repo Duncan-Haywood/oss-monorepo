@@ -803,6 +803,37 @@ def test_validity_frontier_reads_the_committed_summaries():
     assert not [r for r in rs.values() if r["kept"] >= 0.90 and r["reach"] >= 0.5]
 
 
+def test_abstract_numbers_are_in_the_result_files():
+    """The paper's abstract quotes the library-era results (7al to 7be); each quoted figure must sit in the file that wrote it."""
+    here = Path(__file__).resolve().parent
+    text = (here / "paper" / "paper.md").read_text()
+    abstract = text[text.index("## Abstract"):text.index("## 1 Introduction")]
+    flat = " ".join(abstract.split())
+    ex = here / "experiments"
+    checks = [  # (phrase in the abstract, file, text that file must hold)
+        ("never more than 0.1% wider", "h7al_heldout.txt", "P2 m=0 ratio <= 1.010 in every cell: yes (worst 1.001)"),
+        ("covered 93.5% or more", "h7al_heldout.txt", "m=0 0.999 (17% cells, cov 93.5)"),
+        ("on 18 fresh cells it covered 93.2% or more", "h7as_fresh_share.txt", "s70 0.977 (30% cells, cov 93.2)"),
+        ("none of 32 pre-registered repairs", "validity_frontier.txt", "repairing half or more of the failing cells: 0 of 32"),
+        ("covers 95.1% over the 90 weak-coder cells", "h7be_gated_design.txt", "pooledA admitted coverage, weak cells 95.1%"),
+        ("90 weak-coder cells", "h7be_gated_design.txt", "90 weak J < 0.3"),
+        ("590 of 78,966", "h7be_gated_design.txt", "of 78966 admitted draws"),
+        ("repairs 7 of the 11 failing cells at 17% of the gain", "validity_frontier.txt",
+         "7be design_change_at_low_J_hat jp40 157 7.883 9.524 0.828 4 11 0.636"),
+    ]
+    for phrase, name, held in checks:
+        assert phrase in flat, phrase
+        assert held in (ex / name).read_text(), (name, held)
+    # 7 failing cells, 62.5 to 87.6% given the split, 590 admitted draws: from the frontier's list
+    line = next(s for s in (ex / "validity_frontier.txt").read_text().splitlines() if s.startswith("cells failing under"))
+    import re
+    cells = re.findall(r"\((\d+) admitted, ([\d.]+)%\)", line)
+    assert len(cells) == 7 and sum(int(a) for a, _ in cells) == 590
+    covs = sorted(float(c) for _, c in cells)
+    assert (covs[0], covs[-1]) == (62.5, 87.6) and "cover 62.5 to 87.6%" in flat
+    assert math.isclose(1 - 0.828, 0.17, abs_tol=0.005)
+
+
 def test_gated_design_two_phase_plan_stays_in_budget_and_reads_no_pilot_twice():
     """7be: the priced two-phase replan from a pilot labels at most n items and its interval counts the pilot exactly."""
     sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
