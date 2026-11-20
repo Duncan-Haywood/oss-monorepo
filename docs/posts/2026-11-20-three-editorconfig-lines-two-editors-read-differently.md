@@ -1,9 +1,9 @@
 ---
 title: "Three .editorconfig lines two EditorConfig cores read differently"
-seo_title: "EditorConfig inline comments, escaped wildcards and reversed ranges: core-py vs npm, tested"
+seo_title: "EditorConfig cores disagree: core-py vs npm, tested on 23,149 cases"
 date: 2026-11-20
 tags: [ventures, editorconfig, developer-tools, differential-testing]
-description: "A new EditorConfig explainer passes all 198 runnable core-tests. Run against editorconfig-core-py and the npm core on 23,149 random cases, it found four places where they disagree, one of them in deno's own .editorconfig."
+description: "An EditorConfig explainer passes all 198 runnable core-tests, finds where two shipping cores disagree, and a Linux .editorconfig section that never matches."
 ---
 
 [EditorConfig Explainer](../../ventures/editorconfig-explainer/) is a new
