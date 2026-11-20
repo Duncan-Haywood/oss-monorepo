@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVKiZctKwhuCh8wGrCL",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (routed to creative)",
+  "input_sha256": "00341c962e3a2456c7e2db3309a2a6c7b6d2015e9dd3cb2fe90f3be71cc0a0a0",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T19:17:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Hearth & Horizon story: The Sack That Read Dry (BIBLE proposal 'The sack that read dry')",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 17956,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The scheduled prompt asks for revenue software work while the router sent this run to the creative track; I followed the router (the owner's weighting) and say so here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio folders hold 577 MB, over the 400 MB cap, so the story lands text only, as the prompt directs.",
+      "did": "text only, no MP3",
+      "result": "pages, feeds and tests regenerated and green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-the-sack-that-read-dry.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, slug the-sack-that-read-dry (Makueni County, Kenya, 2049; grain moisture meters on hot top-of-sack grain, aflatoxin). Facts checked by web search: EAS 2 maize 13.5% moisture, 10 ug/kg total aflatoxin, 5 B1; MMWR 53(34) 2004 Kenya outbreak 317 cases 125 deaths; extension advice (Purdue, NDSU) that capacitance meters read hot/freshly dried grain 1-2 points low. purdue.edu fetch was blocked, so the note cites the institutions without a fact-sheet title. Model numbers re-derived (124/320 fail a cool middle reading; sample 15 of 40). Dates checked with code (Easter 2049 = 18 Apr). Added a cavitation proposal to the emptied Next up shelf. Local verification: run_workflow_locally --for-changes 11/11 workflows passed (agent-cross-review and deploy jobs not runnable locally; one portfolio-validate step reported needing pytest); node --test in hearth-and-horizon 20/20.",
+  "corrections": [],
+  "redteam": null
+}
