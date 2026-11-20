@@ -192,6 +192,11 @@ def rescore(rows):
 SURVEY_LEVELS = (3, 4, 5)
 
 
+# the survey drill capture_survey runs (2026-11-20: tests/take_survey_pick.py --drill swaps in a longer survey,
+# eval/take-straddle-count-2026-11-20.md)
+SURVEY_DRILL = "drill.calibration.json"
+
+
 def capture_survey(args):
     """One build of take_survey_sweep's survey drill (calibration drill, SURVEY_TAKE on); its take-survey wheels."""
     ti, pi, li, lag = args
@@ -221,7 +226,7 @@ def capture_survey(args):
                       None if res is None else res[4]))
     controller.drop_from_commands_steps = kept
     try:
-        res, _, cut = tss.drill(true, plant, tss.rf_load("drill.calibration.json"), survey=True)
+        res, _, cut = tss.drill(true, plant, tss.rf_load(SURVEY_DRILL), survey=True)
     finally:
         controller.drop_from_commands_steps = steps
     if not res.ok:

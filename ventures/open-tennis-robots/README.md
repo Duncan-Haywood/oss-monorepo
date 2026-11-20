@@ -331,6 +331,15 @@ MCPWM capture unit instead of the pin interrupt: if that reads lower, set
 naming 36 of 54 spread contacts at 1.5-3 us of handler jitter (the pin interrupt:
 0 of 54); it is off by default because it has not run on a board yet
 (firmware/esp32/README.md, "A tach timed in hardware").
+If the survey says `TAKE_US = 0` but you suspect a short contact (a soft or
+worn ball, a wheel gap set wide), run the survey twice as long:
+`tennisbots run drill.survey-long.json` is the calibration drill's twelve shots
+fed twice (24 balls). Short contacts show only on the few balls whose contact
+falls across a revolution's edge, and the longer drill gives about 1.7 times as
+many of them. On 36 matched simulated builds with a 1.3-2.0 ms contact it named
+26 against the standard drill's 17, lost none the standard drill named, and told
+none of 36 instant-contact builds to set a take (firmware/esp32/README.md,
+"Straddling wheels per drill against the survey's length").
 [`firmware/esp32/README.md`](firmware/esp32/README.md), "Shot log", "The
 drop from the pulse times" and "A recovery shaped by the loop's own commands".
 

@@ -3760,3 +3760,32 @@ common on instant builds as on 1.3-2.1 ms ones, 1.5% and 1.7%: margin 1's failur
 **Not known.** No fresh capture: a held-out set from the same drill cannot hold a split the rule treats differently.
 The vote's limit is the straddle count a drill produces, so the next lever is the drill (more balls or more tach
 pulses a revolution), not the vote's threshold. Simulated only.
+
+## Straddling wheels per drill against the survey's length (2026-11-20, after "A straddle margin scaled to the count"; `drill.survey-long.json` recommended by its pre-registered rule)
+
+**The item.** Every straddle rule since "Straddling wheels vote on the short takes" stalled on the count: the twelve-shot
+calibration drill gives a short-take build one or two straddling kept wheels, often none, so the 1.5 ms vote has
+nothing to count. NEXT.md asked for a longer survey, counting straddles per drill before any threshold.
+
+**What changed.** No firmware or `host.py` change. `drill.survey-long.json` is the calibration drill's twelve shots
+twice (24 balls). `tests/take_misfit_trace.py` `SURVEY_DRILL` and `tests/take_survey_pick.py --drill FILE` capture any
+survey drill; `tests/take_straddle_count.py LABEL=FILES ...` prints survey wheels, kept wheels and straddling kept
+wheels per build, by take band, with what the shipped advice names.
+
+**Pre-registered, then captured** (prediction and rule committed in 58748945c before any capture; jittery tach, lag
+0.5 s, three launchers, fresh seeds 9101-9109 for 1.3-2.8 ms takes and 9201-9223 for instant builds, the same builds on
+each drill):
+
+| drill | survey wheels | kept | straddling at 1.5 ms, 1.3-2.1 ms takes | 1.3-2.1 ms named | 2.4-2.8 ms named | instant misadvised |
+| --- | --- | --- | --- | --- | --- | --- |
+| calibration (12 shots) | 22 | 7.7 | 1.58 (max 3) | 17 of 36 | 24 of 24 | 0 of 36 |
+| survey-long (24 shots) | 46 | 14.3 | 2.72 (max 5) | 26 of 36 | 24 of 24 | 0 of 36 |
+
+Paired, the long drill named 9 short-take builds the standard drill missed and lost none. The straddle count grew 1.72x
+for 2.09x the wheels (prediction (a): within 30% of 2x, held); (b) and (c) held; the rule (at least 1.5x as many
+1.3-2.1 ms takes named, no fewer 2.4-2.8 ms, 0 instant misadvised) held at 1.53x, so the README now recommends the long
+drill when the standard survey reads TAKE_US = 0 and a short take is suspected. Everything is in
+`eval/take-straddle-count-2026-11-20.md`.
+
+**Not known.** The 1.5x clause held by one build (26 against 25.5). 1.3 ms takes are still mostly missed. Twice the
+balls and drill time; a real ball wears, so a long survey's late balls may not match its early ones. Simulated only.

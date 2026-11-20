@@ -21,9 +21,11 @@
   eval/take-bound-vote-2026-11-19.md: held out 85 of 204 instant builds bounded 1.5 ms against 83, none uncovered; 119
   still at 2.5 ms or more, 109 of 204 with no wheel straddling at 1.5 ms, so the bound now waits on more straddling
   balls, not on the frame's reading). A margin scaled to the straddle count closed on design (eval/take-straddle-scaled-2026-11-19.md:
-  no build of 1302 had more than 5 straddling wheels, and below 7 a binomial rule at alpha 0.05 is margin 2). Next lever: a
-  survey drill with more straddling balls (a longer drill.calibration.json survey; count straddles per drill before any
-  threshold), then rescore with tests/take_straddle_scaled.py.
+  no build of 1302 had more than 5 straddling wheels, and below 7 a binomial rule at alpha 0.05 is margin 2). The longer survey
+  shipped 2026-11-20 as a recommended drill (drill.survey-long.json, 24 shots; eval/take-straddle-count-2026-11-20.md:
+  1.3-2.1 ms takes named 26 of 36 against 17, 0 of 36 instant misadvised, 1.72x the straddles for 2x the balls). Still
+  open: 1.3 ms takes (4 of 12); the long drill's straddle maximum is 5, so the scaled margin still cannot act; an instant
+  set for the 36-shot drill (eval/take-straddle-count-drill-triple-2026-11-20.json, 30 spread builds only).
 - (2026-11-19) More tach pulses a revolution: tested host-side and closed by its pre-registered rule
   (eval/tach-pulses-2026-11-19.md: four magnets saw 46 of 128 short-take balls against 38, not twice; the step's drop
   error rose 0.11% to 0.55%). Reopen only with a survey-level test written first (the board sums ~22 wheels) and a plan
