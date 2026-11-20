@@ -30,9 +30,9 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
-  "tests_added": 5,
+  "tests_added": 6,
   "outcome": "success",
   "errors": [
     "First run_workflow_locally sweep stopped on post front matter (description >160, seo_title >70, tag spelled red-team); fixed and re-ran."
@@ -62,7 +62,7 @@
     "docs/posts/2026-11-20-redteam-29-99-read-as-2999.md"
   ],
   "goal": null,
-  "notes": "Campaigns: metrics.mjs 8 seeded/5 caught/3 equivalent; rrule.mjs 10/8/1 equivalent + 1 gap (line 866, test added, rerun caught_after_fix true). Catch rate 13/14 non-equivalent before, 14/14 after. Real defects: mrr-pulse csv.mjs decimal comma (29,99 -> 2999/mo; 1.234,56 -> 1.23) and interval count '3 months'/0/-3 -> 1 (3x MRR); etsy-ads-roi-analyzer parseNumber decimal comma. Guard added: platform/ci/check_money_comma.py ratchet (355 parsers in 340 CSV-mentioning venture files baselined; starts green; picked up by unwired_checks.py so venture PRs run it). Verification: node --test mrr-pulse 119/119, etsy-ads 24/24, rrule.test 41/41; python3 -m unittest test_check_money_comma 7 OK; run_workflow_locally --for-changes: 9/10 workflows passed (ventures-tests 5/5, portfolio-validate 100/100, portfolio-pages 12/12, pages 6/6), prompts-ci red only on this unfilled record; agent-cross-review and deploy jobs not runnable locally.",
+  "notes": "Campaigns: metrics.mjs 8 seeded/5 caught/3 equivalent; rrule.mjs 10/8/1 equivalent + 1 gap (line 866, test added, rerun caught_after_fix true). Catch rate 13/14 non-equivalent before, 14/14 after. Real defects: mrr-pulse csv.mjs decimal comma (29,99 -> 2999/mo; 1.234,56 -> 1.23) and interval count '3 months'/0/-3 -> 1 (3x MRR); etsy-ads-roi-analyzer parseNumber decimal comma. Guard added: platform/ci/check_money_comma.py ratchet (355 parsers in 340 CSV-mentioning venture files baselined; starts green; picked up by unwired_checks.py so venture PRs run it). Verification: node --test mrr-pulse 119/119, etsy-ads 24/24, rrule.test 41/41; python3 -m unittest test_check_money_comma 7 OK; run_workflow_locally --for-changes: 9/10 workflows passed (ventures-tests 5/5, portfolio-validate 100/100, portfolio-pages 12/12, pages 6/6), prompts-ci red only on this unfilled record; agent-cross-review and deploy jobs not runnable locally. First CI run: changed-ventures red because check_money_comma.py caught a new comma-stripping parser in timber-sale-offer-checker/cli.mjs that landed on main mid-run (the guard's first catch); fixed in this PR rather than baselined.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -349,6 +349,12 @@
       {
         "file": "ventures/etsy-ads-roi-analyzer/calc.mjs",
         "issue": "parseNumber stripped every comma (and \u20ac), so '\u20ac29,99' read as 2999 and '1.234,56' as 1.23456. Fixed the same way; test in calc.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17941"
+      },
+      {
+        "file": "ventures/timber-sale-offer-checker/cli.mjs",
+        "issue": "--price stripped every comma, so 'oak=420,50' read as $42,050/MBF, and 'oak=' read as $0. Landed on main (PR #17935) while this run was open; check_money_comma.py failed this PR's CI on it on its first run. Fixed: thousands commas only, empty refused (exit 2); tests in cli.test.mjs.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17941"
       }
