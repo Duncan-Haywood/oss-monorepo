@@ -8,7 +8,7 @@
   <meta property="og:title" content="Golf League Schedule Maker: Tee Times Rotated Evenly, Match Play Scored">
   <meta property="og:description" content="A weekly two-person golf league schedule with every team on every tee time as evenly as the season allows, plus hole-by-hole match play points, league handicaps and standings. Free, in your browser.">
   <link rel="canonical" href="./golf-league-schedule.html">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you make a golf league schedule?","acceptedAnswer":{"@type":"Answer","text":"List the teams, pick the first league night, the number of weeks and the first tee time. The page plays a round robin, repeats it until the weeks run out, alternates the front and back nine, and gives each group a tee time so every team goes off early and late about equally often. Download it as a CSV or copy the text for the clubhouse board."}},{"@type":"Question","name":"How are handicap strokes given in league match play?","acceptedAnswer":{"@type":"Answer","text":"The higher-handicap player gets the difference between the two handicaps in strokes, one on each of the nine's hardest holes by the stroke index on the card. A 12 playing a 9 gets 3 strokes, on the three lowest-index holes of the nine being played. Past 9 strokes, the hardest holes get a second one."}},{"@type":"Question","name":"How is a golf league handicap worked out here?","acceptedAnswer":{"@type":"Answer","text":"From each round's adjusted score over par for the nine, with each hole capped at net double bogey. By default the handicap is 90% of the average of the last 5 rounds, rounded, up to 18 for nine holes. You can use the best 3 of the last 5, change the percentage or the cap. It is a league handicap only, not a Handicap Index."}},{"@type":"Question","name":"How are points scored in a two-person golf league?","acceptedAnswer":{"@type":"Answer","text":"A common format, and the page's default: low handicap plays low handicap and high plays high. Each hole is worth 1 point to the lower net score (a halved hole splits it), each pairing's lower net total earns 1 more, and the team with the lower combined net earns 2. That is 22 points a match. Every number can be changed."}},{"@type":"Question","name":"What happens with an odd number of teams?","acceptedAnswer":{"@type":"Answer","text":"One team has the bye each week, but it still plays: it keeps a tee time and its players play the course, each against net par with their full handicap. So nobody sits out a night and every team plays the same number of matches."}},{"@type":"Question","name":"Is anything uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The schedule and the scoring run in your browser. Cards you type are kept in this browser only, so they are there on your next visit."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you make a golf league schedule?","acceptedAnswer":{"@type":"Answer","text":"List the teams, pick the first league night, the number of weeks and the first tee time. The page plays a round robin, repeats it until the weeks run out, alternates the front and back nine, and gives each group a tee time so every team goes off early and late about equally often. Download it as a CSV or copy the text for the clubhouse board."}},{"@type":"Question","name":"How are handicap strokes given in league match play?","acceptedAnswer":{"@type":"Answer","text":"The higher-handicap player gets the difference between the two handicaps in strokes, one on each of the nine's hardest holes by the stroke index on the card. A 12 playing a 9 gets 3 strokes, on the three lowest-index holes of the nine being played. Past 9 strokes, the hardest holes get a second one."}},{"@type":"Question","name":"How is a golf league handicap worked out here?","acceptedAnswer":{"@type":"Answer","text":"From each round's adjusted score over par for the nine, with each hole capped at net double bogey. By default the handicap is 90% of the average of the last 5 rounds, rounded, up to 18 for nine holes. You can use the best 3 of the last 5, change the percentage or the cap. It is a league handicap only, not a Handicap Index."}},{"@type":"Question","name":"How are points scored in a two-person golf league?","acceptedAnswer":{"@type":"Answer","text":"A common format, and the page's default: low handicap plays low handicap and high plays high. Each hole is worth 1 point to the lower net score (a halved hole splits it), each pairing's lower net total earns 1 more, and the team with the lower combined net earns 2. That is 22 points a match. Every number can be changed."}},{"@type":"Question","name":"How do mixed tees work in a golf league?","acceptedAnswer":{"@type":"Answer","text":"Type the forward tees' par and stroke index on the course card and mark the players who play them. Each player's handicap is worked over their own tees' par. When two players on different tees meet, the one whose tees have the higher par for the nine gets the difference as extra strokes, on their own stroke index."}},{"@type":"Question","name":"How are skins scored?","acceptedAnswer":{"@type":"Answer","text":"Every hole is a skin, won by the one player with the lowest score on it, gross or net. A tie for low wins nothing, or with carry-over the skin adds to the next hole. With an entry, the pot is shared by the skins won that night."}},{"@type":"Question","name":"What happens with an odd number of teams?","acceptedAnswer":{"@type":"Answer","text":"One team has the bye each week, but it still plays: it keeps a tee time and its players play the course, each against net par with their full handicap. So nobody sits out a night and every team plays the same number of matches."}},{"@type":"Question","name":"Is anything uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The schedule and the scoring run in your browser. Cards you type are kept in this browser only, so they are there on your next visit."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
     body { max-width: 860px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
@@ -97,13 +97,21 @@ Wedge Issues</textarea>
           <div><label for="r-tnet">Team low net</label><input id="r-tnet" type="number" min="0" max="10" value="2"></div>
           <div><label for="r-absent">Absent: strokes over par <small>team net only</small></label><input id="r-absent" type="number" min="0" max="20" value="3"></div>
         </div>
-        <label for="r-course">Course card <small>par and stroke index (the handicap row) for holes 1 to 18</small></label>
+        <div class="row">
+          <div><label for="r-skins">Skins <small>a side game, every hole</small></label><select id="r-skins"><option value="off">None</option><option value="gross">Gross</option><option value="net">Net</option><option value="both">Gross and net</option></select></div>
+          <div><label for="r-sentry">Skins entry a player <small>0 = count only</small></label><input id="r-sentry" type="number" min="0" max="100" value="0"></div>
+          <div><label for="r-scarry">Tied holes <small>in the skins</small></label><select id="r-scarry"><option value="0">Win nothing</option><option value="1">Carry over</option></select></div>
+          <div><label for="r-spct">Net skins handicap %</label><input id="r-spct" type="number" min="0" max="100" value="100"></div>
+        </div>
+        <label for="r-course">Course card <small>par and stroke index (the handicap row) for holes 1 to 18; other tees as "Par (forward):" and "Index (forward):" lines</small></label>
         <textarea id="r-course" style="min-height:3.5em">Par: 4 4 3 5 4 4 3 5 4  4 4 3 5 4 4 3 5 4
 Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
-        <label for="r-rosters">Players <small>one team per line: "Birdie Brothers: Ana, Ben"</small></label>
+        <label for="r-rosters">Players <small>one team per line: "Birdie Brothers: Ana, Ben"; a player on other tees: "Ben (forward)"</small></label>
         <textarea id="r-rosters" style="min-height:6em"></textarea>
         <label for="r-entering">Entering handicaps <small>optional; 9-hole league handicaps for the first night: "Ana 12, Ben 7"</small></label>
         <textarea id="r-entering" style="min-height:3em" placeholder="Ana 12, Ben 7"></textarea>
+        <label for="r-skinsp">In the skins <small>optional; names, comma between; empty = everyone who plays</small></label>
+        <input id="r-skinsp" type="text" placeholder="Ana, Ben, Cara">
         <label for="r-cards">Cards <small>a "Week 1" line, then one player per line with nine hole scores, or "Ben absent"</small></label>
         <textarea id="r-cards" style="min-height:12em" placeholder="Week 1&#10;Ana: 5 4 6 3 5 4 5 6 4&#10;Ben: 4 5 4 4 6 5 3 5 5&#10;Ben absent"></textarea>
         <button type="button" id="r-run">Work out the standings</button>
@@ -114,6 +122,7 @@ Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
           <div class="scroll"><table id="r-standings"></table></div>
           <h3 id="r-night-h">Last night</h3>
           <div class="scroll"><table id="r-night"></table></div>
+          <div id="r-skins-out" hidden><h3>Skins</h3><div class="scroll"><table id="r-skins-t"></table></div></div>
           <h3>Players: handicap for next week</h3>
           <div class="scroll"><table id="r-players"></table></div>
           <p class="noprint">
@@ -138,6 +147,8 @@ Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
     <li><strong>Strokes:</strong> in each group, low handicap plays low handicap (A v A, B v B). The higher handicap gets the difference in strokes, one on each of the nine's hardest holes by the card's stroke index. On a front nine indexed 7, 3, 15, 1, 11, 5, 17, 9, 13, a 3-stroke difference falls on holes 4, 2 and 6. Past 9 strokes, the hardest holes get a second one.</li>
     <li><strong>Points:</strong> each hole is worth 1 point to the lower net score, split on a halved hole. Each pairing's lower net total earns 1 more, and the team with the lower combined net earns 2. That is 22 points a match by default; set each to your league's own.</li>
     <li><strong>League handicap:</strong> each round's adjusted score over par for the nine, with each hole capped at net double bogey (par plus 2 plus the strokes the player gets there). By default it is 90% of the average of the last 5 rounds, rounded, up to 18. Set it to the best 3 of the last 5, say, and it uses those. A new player uses the entering handicap you type. With none, their first card sets it for that night.</li>
+    <li><strong>Players on other tees:</strong> add the forward (or women's, or senior) tees to the course card as "Par (forward):" and "Index (forward):" lines; a tee that differs only in its stroke index needs only that line. Mark a player "Ben (forward)" in the roster. Their handicap is worked over their own tees' par. In a pairing across tees, the player whose tees have the higher par for the nine gets the difference as extra strokes, and strokes fall on the receiving player's own stroke index. Team net is each player's net over their own par, put on the main tees' par.</li>
+    <li><strong>Skins:</strong> an optional side game. Each hole is a skin, won by the one player with the lowest score on it (gross, or net with a share of their handicap); a tie for low wins nothing, or with carry-over the skin rides on to the next hole. Players on different tees are compared by score against their own par on the hole. With an entry, the pot (entry times players) is shared by the skins won; a night with none won returns the entries.</li>
     <li><strong>Absent players and the bye:</strong> an absent player's opponent wins every hole of that pairing and its net point. For the team net, the absent player counts as par plus 3. The bye team plays the course: each player against net par with their full handicap, so they still earn points.</li>
   </ul>
   <p>A worked night: Ana (5) plays Cy (2), so Ana gets 3 strokes. Ana shoots 41 and Cy 39. On net they win 4 holes each and halve one, 4.5 points each, and Ana's net 36 beats Cy's 37 for the pairing's net point: 5.5 to 4.5. Ben (12) and Dee (14) each win 2 holes and halve 5, and both net 35: 5 points each. The Hawks' team net of 71 beats the Owls' 72 for 2 more. Hawks 12.5, Owls 9.5. A test recomputes this exact night, so the page cannot drift from it.</p>
@@ -152,6 +163,10 @@ Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
   <p>From each round's adjusted score over par for the nine, with each hole capped at net double bogey. By default the handicap is 90% of the average of the last 5 rounds, rounded, up to 18 for nine holes. You can use the best 3 of the last 5, change the percentage or the cap. It is a league handicap only, not a Handicap Index.</p>
   <h3>How are points scored in a two-person golf league?</h3>
   <p>A common format, and the page's default: low handicap plays low handicap and high plays high. Each hole is worth 1 point to the lower net score (a halved hole splits it), each pairing's lower net total earns 1 more, and the team with the lower combined net earns 2. That is 22 points a match. Every number can be changed.</p>
+  <h3>How do mixed tees work in a golf league?</h3>
+  <p>Type the forward tees' par and stroke index on the course card and mark the players who play them. Each player's handicap is worked over their own tees' par. When two players on different tees meet, the one whose tees have the higher par for the nine gets the difference as extra strokes, on their own stroke index.</p>
+  <h3>How are skins scored?</h3>
+  <p>Every hole is a skin, won by the one player with the lowest score on it, gross or net. A tie for low wins nothing, or with carry-over the skin adds to the next hole. With an entry, the pot is shared by the skins won that night.</p>
   <h3>What happens with an odd number of teams?</h3>
   <p>One team has the bye each week, but it still plays: it keeps a tee time and its players play the course, each against net par with their full handicap. So nobody sits out a night and every team plays the same number of matches.</p>
   <h3>Is anything uploaded?</h3>
@@ -223,8 +238,8 @@ Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
 
   // ---- league nights (golf.mjs golfRecap)
   const RKEY = "league-schedule-generator-golf-recap";
-  const rFields = { teamSize: "#r-size", handicapPct: "#r-pct", last: "#r-last", best: "#r-best", maxHandicap: "#r-max", pointsPerHole: "#r-hole", pointsMatchNet: "#r-mnet", pointsTeamNet: "#r-tnet", absentPenalty: "#r-absent" };
-  const texts = { course: "#r-course", rosters: "#r-rosters", entering: "#r-entering", cards: "#r-cards" };
+  const rFields = { teamSize: "#r-size", handicapPct: "#r-pct", last: "#r-last", best: "#r-best", maxHandicap: "#r-max", pointsPerHole: "#r-hole", pointsMatchNet: "#r-mnet", pointsTeamNet: "#r-tnet", absentPenalty: "#r-absent", skins: "#r-skins", skinsEntry: "#r-sentry", skinsCarry: "#r-scarry", skinsHandicapPct: "#r-spct" };
+  const texts = { course: "#r-course", rosters: "#r-rosters", entering: "#r-entering", skinsPlayers: "#r-skinsp", cards: "#r-cards" };
   let lastRecap = null;
   const pt = (x) => (Number.isInteger(x) ? String(x) : x.toFixed(1));
   function recapInput() {
@@ -253,7 +268,7 @@ Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
     if (!last) return "";
     let x = 11; const rnd = () => ((x = (x * 1103515245 + 12345) % 2147483648) / 2147483648);
     const pars = [4, 4, 3, 5, 4, 4, 3, 5, 4];
-    const players = $("#r-rosters").value.split("\n").flatMap((l) => (l.split(":")[1] || "").split(",").map((s) => s.trim()).filter(Boolean));
+    const players = $("#r-rosters").value.split("\n").flatMap((l) => (l.split(":")[1] || "").split(",").map((s) => s.trim().replace(/\s*\([^)]*\)$/, "")).filter(Boolean));
     const lines = [];
     for (let w = 1; w <= Math.min(3, last.weeks.length); w++) {
       lines.push(`Week ${w}`);
@@ -281,8 +296,17 @@ Index: 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14</textarea>
     $("#r-night").innerHTML = "<thead><tr><th>Pairing</th><th>Gross</th><th>Net</th><th>Holes won</th><th>Points</th></tr></thead><tbody>" +
       n.matches.map((m) => `<tr><td colspan="5"><strong>${esc(m.a)} ${pt(m.points[0])} &ndash; ${pt(m.points[1])} ${esc(m.b ?? "the course")}</strong> <small>(team net ${m.teamNet[0]} v ${m.teamNet[1]})</small></td></tr>` +
         m.pairings.map((p) => `<tr><td>${who(p.a)} v ${who(p.b)}</td><td>${gross(p.a)} v ${gross(p.b)}</td><td>${p.nets[0] ?? "&ndash;"} v ${p.nets[1] ?? "&ndash;"}</td><td>${p.holes[0]} v ${p.holes[1]}</td><td>${pt(p.pts[0])} v ${pt(p.pts[1])}</td></tr>`).join("")).join("") + "</tbody>";
-    $("#r-players").innerHTML = "<thead><tr><th>Player</th><th>Team</th><th>Rounds</th><th>Average gross</th><th>Handicap</th><th>Low gross</th><th>Low net</th><th>Absent</th></tr></thead><tbody>" +
-      r.players.map((p) => `<tr><td>${esc(p.name)}</td><td>${esc(p.team)}</td><td>${p.rounds}</td><td>${p.average ?? "&ndash;"}</td><td>${p.handicap ?? "&ndash;"}</td><td>${p.lowGross ?? "&ndash;"}</td><td>${p.lowNet ?? "&ndash;"}</td><td>${p.absences}</td></tr>`).join("") + "</tbody>";
+    const skinsOn = r.rules.skins !== "off", paid = r.rules.skinsEntry > 0;
+    $("#r-players").innerHTML = `<thead><tr><th>Player</th><th>Team</th><th>Tees</th><th>Rounds</th><th>Average gross</th><th>Handicap</th><th>Low gross</th><th>Low net</th><th>Absent</th>${skinsOn ? `<th>Skins</th>${paid ? "<th>Skins won</th>" : ""}` : ""}</tr></thead><tbody>` +
+      r.players.map((p) => `<tr><td>${esc(p.name)}</td><td>${esc(p.team)}</td><td>${esc(p.tee || "main")}</td><td>${p.rounds}</td><td>${p.average ?? "&ndash;"}</td><td>${p.handicap ?? "&ndash;"}</td><td>${p.lowGross ?? "&ndash;"}</td><td>${p.lowNet ?? "&ndash;"}</td><td>${p.absences}</td>${skinsOn ? `<td>${p.skins}</td>${paid ? `<td>${p.skinsMoney.toFixed(2)}</td>` : ""}` : ""}</tr>`).join("") + "</tbody>";
+    const sk = n.skins ? Object.entries(n.skins) : [];
+    $("#r-skins-out").hidden = !sk.length;
+    $("#r-skins-t").innerHTML = "<thead><tr><th>Game</th><th>Hole</th><th>Won by</th><th>Skins</th>" + (paid ? "<th>Worth</th>" : "") + "</tr></thead><tbody>" +
+      sk.map(([kind, g]) => {
+        const name = kind === "net" ? "Net" : "Gross";
+        const head = `<tr><td colspan="${paid ? 5 : 4}"><strong>${name} skins</strong> <small>${g.entrants} in${g.pot ? `, pot ${g.pot.toFixed(2)}` : ""}${g.carriedOff ? `; ${g.carriedOff} still tied after the last hole, not won` : ""}${g.refunded ? "; none won, entries returned" : ""}</small></td></tr>`;
+        return head + (g.won.length ? g.won.map((w) => `<tr><td>${name}</td><td>${w.holeNumber}</td><td>${esc(w.name)} <small>(${esc(w.team)})</small></td><td>${w.units}</td>${paid ? `<td>${w.value.toFixed(2)}</td>` : ""}</tr>`).join("") : `<tr><td colspan="${paid ? 5 : 4}">No skin won: every hole tied for low.</td></tr>`);
+      }).join("") + "</tbody>";
     $("#r-status").textContent = `${r.nights.length} night${r.nights.length === 1 ? "" : "s"} worked out.`;
     $("#r-out").hidden = false;
     if (event) record(event);

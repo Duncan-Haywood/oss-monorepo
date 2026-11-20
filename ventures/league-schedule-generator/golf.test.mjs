@@ -5,6 +5,7 @@ import {
   golfSchedule, teeReport, validateGolf, golfCsv, golfText, slotLabels, BYE,
   parseCourse, nineHoles, strokesOn, golfHandicap, readGolfRules, playPairing,
   golfRecap, golfRecapText, golfStandingsCsv, golfPlayersCsv, teeBoundOutOfReach,
+  skinsGame, teeRows,
 } from "./golf.mjs";
 
 const START = toDay(2027, 4, 28);
@@ -162,4 +163,104 @@ test("typing slips are named", () => {
   assert.match(golfRecap(s, { ...base, cards: "Week 1\nAna: 4 4 4 4 4 4 4 4 4" }).errors[0], /no card for Ben/);
   assert.match(golfRecap(s, { ...base, rosters: "Hawks: Ana\nOwls: Cy, Dee" }).errors[0], /Hawks has 1 player/);
   assert.match(golfRecap(s, { ...base, cards: "Week 9\nAna: 4 4 4 4 4 4 4 4 4" }).errors[0], /not in the schedule/);
+});
+
+// Forward tees: hole 9 a par 5 (front par 37) and hole 1 the hardest on the front.
+const TEES = `${COURSE}
+Par (forward): 4 4 3 5 4 4 3 5 5  4 4 3 5 4 4 3 5 4
+Index (forward): 1 3 15 7 11 5 17 9 13  8 4 16 2 12 6 18 10 14`;
+
+test("tee rows: a named tee keeps the main row it does not give, and bad rows are named", () => {
+  const { course, errors } = parseCourse(TEES);
+  assert.deepEqual(errors, []);
+  assert.equal(nineHoles(course, "front", "forward").parTotal, 37);
+  assert.equal(nineHoles(course, "front").parTotal, 36);
+  assert.deepEqual(teeRows(course, "Forward").index.slice(9), teeRows(course, "").index.slice(9));
+  const half = parseCourse(`${COURSE}\nIndex (senior): 7 3 15 1 11 5 17 9 13  8 4 16 2 12 6 18 10 14`).course;
+  assert.deepEqual(teeRows(half, "senior").par, half.par); // index only: the main par
+  assert.match(parseCourse(`${COURSE}\nIndex (red): 1 1 15 7 11 5 17 9 13  8 4 16 2 12 6 18 10 14`).errors[0], /stroke index \(red\)/);
+  assert.match(parseCourse(`${COURSE}\nPar (red): 4 4`).errors[0], /Par \(red\) needs 18/);
+});
+
+test("mixed tees worked by hand: the higher par gets the difference, strokes on the receiver's own index", () => {
+  const { course } = parseCourse(TEES);
+  const fwd = nineHoles(course, "front", "forward"), main = nineHoles(course, "front");
+  const ana = { absent: false, handicap: 5, holes: [5, 4, 4, 5, 5, 5, 3, 6, 5] }; // 42 on par 37
+  const cy = { absent: false, handicap: 2, holes: [4, 5, 3, 5, 4, 4, 4, 5, 5] }; // 39 on par 36
+  const r = playPairing(ana, cy, fwd, readGolfRules().rules, main);
+  // 5 + 1 (par 37 v 36) = 6 v 2: Ana gets 4, on her forward index 1, 3, 5, 7 = holes 1, 2, 6, 4.
+  assert.deepEqual(r.parAdjust, [1, 0]);
+  assert.deepEqual(r.strokes[0], [1, 1, 0, 1, 0, 1, 0, 0, 0]);
+  // Net 4 3 4 4 5 4 3 6 5 v 4 5 3 5 4 4 4 5 5: Ana wins 2, 4, 7; Cy 3, 5, 8; three halved: 4.5 each.
+  // Match net 42 - 6 = 36 v 39 - 2 = 37: Ana's point. 5.5 - 4.5.
+  assert.deepEqual(r.holes, [3, 3]);
+  assert.deepEqual(r.pts, [5.5, 4.5]);
+  assert.deepEqual(r.nets, [36, 37]);
+});
+
+test("mixed tees through the recap: handicap over own par, unknown tees named", () => {
+  const s = golfSchedule({ teams: ["Hawks", "Owls"], weeks: 1, start: START });
+  const base = { course: TEES, entering: "Ana 5, Ben 12, Cy 2, Dee 14", cards: `Week 1
+Ana: 5 4 4 5 5 5 3 6 5
+Ben: 6 5 4 6 5 5 4 7 5
+Cy: 4 5 3 5 4 4 4 5 5
+Dee: 6 6 4 6 6 5 4 6 6` };
+  const r = golfRecap(s, { ...base, rosters: "Hawks: Ana (forward), Ben\nOwls: Cy, Dee" });
+  assert.deepEqual(r.errors, []);
+  const pl = Object.fromEntries(r.players.map((p) => [p.name, p]));
+  assert.equal(pl.Ana.tee, "forward");
+  assert.equal(pl.Ana.handicap, 5); // 42 - 37 = 5 -> 4.5 -> 5 (on the main tees 42 - 36 would give 5.4 -> 5 too; see the pairing)
+  const m = r.nights[0].matches[0];
+  const anaPair = m.pairings.find((p) => p.a.name === "Ana" || p.b.name === "Ana");
+  assert.deepEqual((anaPair.a.name === "Ana" ? anaPair.pts : [...anaPair.pts].reverse()), [5.5, 4.5]);
+  // Team net on the main par: Ana 42 - 5 - 37 + 36 = 36, Ben 47 - 12 = 35: 71.
+  assert.equal(m.a === "Hawks" ? m.teamNet[0] : m.teamNet[1], 71);
+  assert.match(golfPlayersCsv(r), /Ana,Hawks,1,0,42,5,42,37,forward,0,0\.00/);
+  const bad = golfRecap(s, { ...base, rosters: "Hawks: Ana (red), Ben\nOwls: Cy, Dee" });
+  assert.match(bad.errors[0], /Ana plays from "red" tees.*names: forward/);
+});
+
+test("skins worked by hand: ties win nothing, carry-over rides on, the pot is shared", () => {
+  const E = [
+    { key: "a", name: "A", team: "X", toPar: [0, 0, 1, -1, 0, 0, 0, 0, 0] },
+    { key: "b", name: "B", team: "X", toPar: [0, 1, 0, 0, 0, 0, 0, 0, -1] },
+    { key: "c", name: "C", team: "Y", toPar: [1, 0, 0, 0, 0, 0, 0, 1, 0] },
+  ];
+  const plain = skinsGame(E, { entry: 5 });
+  assert.deepEqual(plain.won.map((w) => [w.hole, w.name, w.units, w.value]), [[3, "A", 1, 7.5], [8, "B", 1, 7.5]]);
+  const carried = skinsGame(E, { entry: 5, carry: true });
+  // Holes 1-3 tie (A takes 4 on hole 4); 5-8 tie (B takes 5 on hole 9): 9 skins share 15.
+  assert.deepEqual(carried.won.map((w) => [w.name, w.units, w.value]), [["A", 4, 6.67], ["B", 5, 8.33]]);
+  assert.equal(carried.carriedOff, 0);
+  const allTied = skinsGame(E.map((e) => ({ ...e, toPar: new Array(9).fill(0) })), { entry: 5, carry: true });
+  assert.equal(allTied.won.length, 0);
+  assert.equal(allTied.carriedOff, 9);
+  assert.equal(allTied.refunded, true);
+});
+
+test("gross and net skins on the worked night", () => {
+  const s = golfSchedule({ teams: ["Hawks", "Owls"], weeks: 1, start: START });
+  const r = golfRecap(s, {
+    course: COURSE, rosters: "Hawks: Ana, Ben\nOwls: Cy, Dee", entering: "Ana 5, Ben 12, Cy 2, Dee 14",
+    rules: { skins: "both", skinsEntry: 1 },
+    cards: `Week 1
+Ana: 5 4 4 5 5 5 3 6 4
+Ben: 6 5 4 6 5 5 4 7 5
+Cy: 4 5 3 5 4 4 4 5 5
+Dee: 6 6 4 6 6 5 4 6 6`,
+  });
+  assert.deepEqual(r.errors, []);
+  const { gross, net } = r.nights[0].skins;
+  // Gross: Cy takes 1, 3, 5, 6, 8; Ana 2, 7, 9; hole 4 ties at 5. Pot 4 over 8 skins.
+  assert.deepEqual(gross.won.map((w) => [w.holeNumber, w.name]), [[1, "Cy"], [2, "Ana"], [3, "Cy"], [5, "Cy"], [6, "Cy"], [7, "Ana"], [8, "Cy"], [9, "Ana"]]);
+  assert.equal(gross.payout.get("cy").money, 2.5);
+  // Net with full handicaps: every hole ties but the 8th, Dee's net 4 (6 less 2 strokes).
+  assert.deepEqual(net.won.map((w) => [w.holeNumber, w.name, w.value]), [[8, "Dee", 4]]);
+  const pl = Object.fromEntries(r.players.map((p) => [p.name, p]));
+  assert.equal(pl.Dee.skins, 1);
+  assert.equal(pl.Cy.skinsMoney, 2.5);
+  assert.match(golfRecapText(r), /Net skins \(4 in, pot 4\.00\):\n {4}Hole 8: Dee 4\.00/);
+  const only = golfRecap(s, { course: COURSE, rosters: "Hawks: Ana, Ben\nOwls: Cy, Dee", skinsPlayers: "Ana, Zed", rules: { skins: "gross" }, cards: "" });
+  assert.match(only.errors[0], /Skins player "Zed"/);
+  assert.match(golfRecap(s, { course: COURSE, rosters: "Hawks: Ana, Ben\nOwls: Cy, Dee", rules: { skins: "lots" } }).errors[0], /Skins must be one of/);
 });

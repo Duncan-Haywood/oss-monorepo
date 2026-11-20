@@ -375,7 +375,10 @@ export function golfText(season) {
 export const GOLF_DEFAULTS = Object.freeze({
   teamSize: 2, handicapPct: 90, last: 5, best: 5, maxHandicap: 18,
   pointsPerHole: 1, pointsMatchNet: 1, pointsTeamNet: 2, absentPenalty: 3,
+  skins: "off", skinsEntry: 0, skinsCarry: 0, skinsHandicapPct: 100,
 });
+
+const SKINS_KINDS = ["off", "gross", "net", "both"];
 
 function intIn(v, lo, hi) { const n = Number(v); return Number.isInteger(n) && n >= lo && n <= hi ? n : null; }
 
@@ -397,6 +400,14 @@ export function readGolfRules(input = {}) {
   set("pointsMatchNet", 0, 10, "Points for the low net in a pairing");
   set("pointsTeamNet", 0, 10, "Points for the team's low net");
   set("absentPenalty", 0, 20, "Absent: strokes over par");
+  set("skinsEntry", 0, 100, "Skins: entry a player");
+  set("skinsCarry", 0, 1, "Skins: carry tied holes over (0 or 1)");
+  set("skinsHandicapPct", 0, 100, "Skins: handicap % for net skins");
+  if (input.skins !== undefined && input.skins !== "" && input.skins !== null) {
+    const k = String(input.skins).trim().toLowerCase();
+    if (!SKINS_KINDS.includes(k)) errors.push(`Skins must be one of ${SKINS_KINDS.join(", ")}.`);
+    else r.skins = k;
+  }
   if (r.best > r.last) errors.push("Best rounds used cannot be more than the rounds counted.");
   return { rules: r, errors };
 }
@@ -407,32 +418,62 @@ function smallInts(text) {
   return String(text).split(/[\s;]+|,(?!\d{3}(?!\d))/).filter(Boolean).map((t) => Number(t.replace(/,/g, "") === t ? t : NaN));
 }
 
-/** "Par: 4 4 3 5 ..." and "Index: 7 15 3 ..." (18 numbers each; commas or spaces). */
+/**
+ * "Par: 4 4 3 5 ..." and "Index: 7 15 3 ..." (18 numbers each; commas or spaces): the main tees.
+ * More tees, for players who play other tees (forward, women's, senior): "Par (forward): ..." and
+ * "Index (forward): ...". A named tee may give only the row that differs; the other is the main
+ * tees'. Returns course = { par, index, tees } where tees maps a tee's key ("" for the main tees)
+ * to { name, par, index }.
+ */
 export function parseCourse(text) {
   const errors = [];
-  let par = null, index = null;
+  const rows = new Map(); // tee key -> { name, par, index }
+  const rowOf = (name) => {
+    const k = keyOf(name);
+    if (!rows.has(k)) rows.set(k, { name: name.trim().replace(/\s+/g, " "), par: null, index: null });
+    return rows.get(k);
+  };
   for (const raw of String(text ?? "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    const m = line.match(/^(par|index|hdcp|handicap|si|stroke index)\s*:?\s*(.*)$/i);
-    if (!m) { errors.push(`Course line "${line.slice(0, 30)}": start it with "Par:" or "Index:".`); continue; }
-    const nums = smallInts(m[2]);
-    if (nums.length !== 18 || nums.some((x) => !Number.isInteger(x))) { errors.push(`${/^par/i.test(m[1]) ? "Par" : "Index"} needs 18 whole numbers, hole 1 to 18 (got ${nums.length}).`); continue; }
-    if (/^par/i.test(m[1])) par = nums; else index = nums;
+    const m = line.match(/^(par|index|hdcp|handicap|si|stroke index)(?:\s*\(([^)]*)\))?\s*:?\s*(.*)$/i);
+    if (!m) { errors.push(`Course line "${line.slice(0, 30)}": start it with "Par:" or "Index:" (or "Par (forward):" for another set of tees).`); continue; }
+    const isPar = /^par/i.test(m[1]);
+    const tee = (m[2] ?? "").trim();
+    const where = tee ? ` (${tee})` : "";
+    const nums = smallInts(m[3]);
+    if (nums.length !== 18 || nums.some((x) => !Number.isInteger(x))) { errors.push(`${isPar ? "Par" : "Index"}${where} needs 18 whole numbers, hole 1 to 18 (got ${nums.length}).`); continue; }
+    const row = rowOf(tee);
+    if (row[isPar ? "par" : "index"]) { errors.push(`${isPar ? "Par" : "Index"}${where} is typed twice.`); continue; }
+    row[isPar ? "par" : "index"] = nums;
   }
-  if (par && par.some((p) => p < 3 || p > 6)) errors.push("Each hole's par must be 3 to 6.");
-  if (index && [...index].sort((a, b) => a - b).some((v, i) => v !== i + 1)) errors.push("The stroke index must use each number 1 to 18 once.");
-  if (!par) errors.push('Type the course\'s par for all 18 holes on a "Par:" line.');
-  if (!index) errors.push('Type the stroke index (handicap row on the card) for all 18 holes on an "Index:" line.');
-  return { course: errors.length ? null : { par, index }, errors };
+  const main = rows.get("") ?? { name: "", par: null, index: null };
+  for (const row of rows.values()) {
+    const where = row.name ? ` (${row.name})` : "";
+    if (row.par && row.par.some((p) => p < 3 || p > 6)) errors.push(`Each hole's par${where} must be 3 to 6.`);
+    if (row.index && [...row.index].sort((a, b) => a - b).some((v, i) => v !== i + 1)) errors.push(`The stroke index${where} must use each number 1 to 18 once.`);
+  }
+  if (!main.par) errors.push('Type the course\'s par for all 18 holes on a "Par:" line.');
+  if (!main.index) errors.push('Type the stroke index (handicap row on the card) for all 18 holes on an "Index:" line.');
+  if (errors.length) return { course: null, errors };
+  const tees = new Map();
+  for (const [k, row] of rows) tees.set(k, { name: row.name, par: row.par ?? main.par, index: row.index ?? main.index });
+  if (!tees.has("")) tees.set("", { name: "", par: main.par, index: main.index });
+  return { course: { par: main.par, index: main.index, tees }, errors };
+}
+
+/** The par and index rows a player's tee uses: the named tee, else the main tees. */
+export function teeRows(course, tee = "") {
+  return course.tees?.get(keyOf(tee ?? "")) ?? { name: "", par: course.par, index: course.index };
 }
 
 /** Holes of a nine (0-based hole numbers) and the stroke order within it: order[k] = rank 0 (hardest)..8. */
-export function nineHoles(course, nine) {
+export function nineHoles(course, nine, tee = "") {
+  const t = teeRows(course, tee);
   const holes = Array.from({ length: 9 }, (_, i) => (nine === "back" ? 9 + i : i));
-  const byIndex = [...holes].sort((a, b) => course.index[a] - course.index[b]);
+  const byIndex = [...holes].sort((a, b) => t.index[a] - t.index[b]);
   const rank = holes.map((h) => byIndex.indexOf(h));
-  return { holes, rank, par: holes.map((h) => course.par[h]), parTotal: holes.reduce((s, h) => s + course.par[h], 0) };
+  return { holes, rank, par: holes.map((h) => t.par[h]), parTotal: holes.reduce((s, h) => s + t.par[h], 0) };
 }
 
 /** Strokes received on each of the nine's holes for a handicap difference d (>= 0). */
@@ -467,16 +508,23 @@ export function parseEnteringHandicaps(text) {
   return { map, errors };
 }
 
-/** "Birdie Brothers: Ana, Ben" one team per line: who plays for which team. */
+/** "Birdie Brothers: Ana, Ben (forward)" one team per line: who plays for which team, and from
+ * which tees when not the main ones (the name in brackets is a tee named on the course card). */
 export function parseRosters(text, teams, rules) {
-  const errors = [], roster = new Map(), playerTeam = new Map();
+  const errors = [], roster = new Map(), playerTeam = new Map(), playerTee = new Map();
   const byLength = [...teams].sort((a, b) => b.length - a.length);
   for (const raw of String(text ?? "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
     const team = byLength.find((t) => line.toLowerCase().startsWith(t.toLowerCase()) && /^\s*:/.test(line.slice(t.length)));
     if (!team) { errors.push(`Roster line "${line.slice(0, 40)}" does not start with a team name and a colon (teams: ${teams.join(", ")}).`); continue; }
-    const names = line.slice(line.indexOf(":", team.length) + 1).split(/[,;]+/).map((s) => s.trim().replace(/\s+/g, " ")).filter(Boolean);
+    const names = [];
+    for (const cell of line.slice(line.indexOf(":", team.length) + 1).split(/[,;]+/).map((s) => s.trim().replace(/\s+/g, " ")).filter(Boolean)) {
+      const tm = cell.match(/^(.*\S)\s*\(([^)]*)\)$/);
+      const name = tm ? tm[1] : cell;
+      if (tm && tm[2].trim()) playerTee.set(keyOf(name), tm[2].trim());
+      names.push(name);
+    }
     if (names.length !== rules.teamSize) { errors.push(`${team} has ${names.length} player${names.length === 1 ? "" : "s"}; a team is ${rules.teamSize} (change "Players a team" or the roster).`); continue; }
     for (const n of names) {
       if (playerTeam.has(keyOf(n))) { errors.push(`${n} is on two teams (${playerTeam.get(keyOf(n))} and ${team}); give one a surname or initial.`); continue; }
@@ -485,7 +533,7 @@ export function parseRosters(text, teams, rules) {
     roster.set(team, names);
   }
   for (const t of teams) if (!roster.has(t)) errors.push(`${t} has no roster line ("${t}: Name, Name").`);
-  return { roster, playerTeam, errors };
+  return { roster, playerTeam, playerTee, errors };
 }
 
 /**
@@ -531,25 +579,35 @@ export function parseCards(text, playerTeam) {
 
 const sum = (a) => a.reduce((x, y) => x + y, 0);
 
-/** One pairing's match play: per-hole and match-net points for two players (either may be absent or "par"). */
-export function playPairing(p, q, nine, rules) {
+/**
+ * One pairing's match play: per-hole and match-net points for two players (either may be absent or
+ * "par"). Players on different tees: `nineQ` is q's nine (par and stroke order from q's tees; p's
+ * is `nine`). A league handicap is strokes over the player's own par, so the player on the tees
+ * with the higher par for the nine gets the difference in par as extra strokes (the same
+ * adjustment the World Handicap System makes for mixed tees, applied here to a league handicap),
+ * and the strokes fall on the receiving player's own stroke index. "Par" plays the opponent's tees.
+ */
+export function playPairing(p, q, nine, rules, nineQ = nine) {
   // p, q: { absent, holes, handicap } or { par: true } for the course.
   const pts = [0, 0];
   const holes = [0, 0];
   const holeNets = [null, null];
-  if (p.absent && q.absent) return { pts, holes, strokes: [new Array(9).fill(0), new Array(9).fill(0)], nets: [null, null] };
-  const hp = p.par ? 0 : p.handicap, hq = q.par ? 0 : q.handicap;
+  if (p.par) nine = nineQ;
+  if (q.par) nineQ = nine;
+  if (p.absent && q.absent) return { pts, holes, strokes: [new Array(9).fill(0), new Array(9).fill(0)], nets: [null, null], parAdjust: [0, 0] };
+  const low = Math.min(nine.parTotal, nineQ.parTotal);
+  const parAdjust = [nine.parTotal - low, nineQ.parTotal - low];
+  const hp = (p.par ? 0 : p.handicap) + parAdjust[0], hq = (q.par ? 0 : q.handicap) + parAdjust[1];
   const d = Math.abs(hp - hq);
-  const give = strokesOn(nine.rank, d);
   const zero = new Array(9).fill(0);
-  const strokes = hp > hq ? [give, zero] : [zero, give];
+  const strokes = hp > hq ? [strokesOn(nine.rank, d), zero] : [zero, strokesOn(nineQ.rank, d)];
   if (p.absent || q.absent) {
     const w = p.absent ? 1 : 0;
     pts[w] += rules.pointsPerHole * 9 + rules.pointsMatchNet;
     holes[w] = 9;
-    return { pts, holes, strokes, nets: [null, null] };
+    return { pts, holes, strokes, nets: [null, null], parAdjust };
   }
-  const gross = [p.par ? nine.par : p.holes, q.par ? nine.par : q.holes];
+  const gross = [p.par ? nine.par : p.holes, q.par ? nineQ.par : q.holes];
   for (let s = 0; s < 2; s++) holeNets[s] = gross[s].map((g, h) => g - strokes[s][h]);
   for (let h = 0; h < 9; h++) {
     const a = holeNets[0][h], b = holeNets[1][h];
@@ -557,17 +615,66 @@ export function playPairing(p, q, nine, rules) {
     else if (b < a) { pts[1] += rules.pointsPerHole; holes[1]++; }
     else { pts[0] += rules.pointsPerHole / 2; pts[1] += rules.pointsPerHole / 2; }
   }
-  const na = sum(gross[0]) - (p.par ? 0 : hp), nb = sum(gross[1]) - (q.par ? 0 : hq);
+  const na = sum(gross[0]) - hp, nb = sum(gross[1]) - hq;
   if (na < nb) pts[0] += rules.pointsMatchNet;
   else if (nb < na) pts[1] += rules.pointsMatchNet;
   else { pts[0] += rules.pointsMatchNet / 2; pts[1] += rules.pointsMatchNet / 2; }
-  return { pts, holes, strokes, nets: [na, nb] };
+  return { pts, holes, strokes, nets: [na, nb], parAdjust };
+}
+
+// ===================================================================== skins
+//
+// A skins game on the side of the match: every hole is a skin, won by the one player with the
+// lowest score on it; a tie for low wins nothing (or, with carry-over on, the skin rides on to the
+// next hole, and skins still tied after the ninth are not won). Gross skins compare scores, net
+// skins scores less the player's strokes on that hole (skinsHandicapPct% of their league handicap,
+// on their own tees' stroke index). Players from different tees are compared by score against
+// their own par on the hole, which is the same comparison when everyone plays the same tees. An
+// entry (0 by default: skins counted, no money) makes a pot of entry x players, shared by the
+// skins won; a night where nobody wins a skin returns the entries.
+
+/** One night's skins among `entrants`: [{ key, name, team, toPar: 9 numbers }]. */
+export function skinsGame(entrants, { entry = 0, carry = false } = {}) {
+  const won = [];
+  let riding = 0, carriedOff = 0;
+  for (let h = 0; h < 9; h++) {
+    const units = 1 + riding;
+    if (!entrants.length) break;
+    const low = Math.min(...entrants.map((e) => e.toPar[h]));
+    const at = entrants.filter((e) => e.toPar[h] === low);
+    if (at.length === 1) { won.push({ hole: h, units, key: at[0].key, name: at[0].name, team: at[0].team, toPar: low }); riding = 0; }
+    else if (carry) riding = units;
+  }
+  carriedOff = riding;
+  const pot = entry * entrants.length;
+  const unitsWon = won.reduce((a, w) => a + w.units, 0);
+  const perSkin = unitsWon ? pot / unitsWon : 0;
+  const payout = new Map();
+  for (const w of won) {
+    w.value = Math.round(w.units * perSkin * 100) / 100;
+    const prev = payout.get(w.key) ?? { name: w.name, team: w.team, skins: 0, money: 0 };
+    prev.skins += w.units; prev.money = Math.round((prev.money + w.value) * 100) / 100;
+    payout.set(w.key, prev);
+  }
+  return { entrants: entrants.length, won, pot, unitsWon, perSkin: Math.round(perSkin * 100) / 100, carriedOff, refunded: pot > 0 && unitsWon === 0, payout };
+}
+
+/** "Ana, Ben, Cy": the players in the skins (empty: everyone with a card that night). */
+export function parseSkinsPlayers(text, playerTeam) {
+  const keys = new Set(), errors = [];
+  for (const part of String(text ?? "").split(/[\n,;]+/)) {
+    const n = part.trim();
+    if (!n) continue;
+    if (!playerTeam.has(keyOf(n))) { errors.push(`Skins player "${n}" is not on any roster.`); continue; }
+    keys.add(keyOf(n));
+  }
+  return { keys, errors };
 }
 
 /**
  * The whole recap. season: from golfSchedule. Returns { errors, nights, standings, players, rules }.
  */
-export function golfRecap(season, { course: courseText = "", rosters = "", cards = "", entering = "", rules: ruleInput = {} } = {}) {
+export function golfRecap(season, { course: courseText = "", rosters = "", cards = "", entering = "", skinsPlayers = "", rules: ruleInput = {} } = {}) {
   const { rules, errors } = readGolfRules(ruleInput);
   const empty = (errs) => ({ errors: errs, nights: [], standings: [], players: [], rules });
   if (errors.length) return empty(errors);
@@ -576,6 +683,14 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
   const ent = parseEnteringHandicaps(entering);
   errors.push(...ce, ...ros.errors, ...ent.errors);
   if (errors.length) return empty(errors);
+  for (const [k, tee] of ros.playerTee) if (!course.tees.has(keyOf(tee))) {
+    const named = [...course.tees.values()].map((t) => t.name).filter(Boolean);
+    errors.push(`${[...ros.roster.values()].flat().find((n) => keyOf(n) === k)} plays from "${tee}" tees, which the course card does not name (${named.length ? `it names: ${named.join(", ")}` : 'add "Par (' + tee + '):" and "Index (' + tee + '):" lines'}).`);
+  }
+  const skinsIn = parseSkinsPlayers(skinsPlayers, ros.playerTeam);
+  errors.push(...skinsIn.errors);
+  if (errors.length) return empty(errors);
+  const teeOf = (k) => ros.playerTee.get(k) ?? "";
   const parsed = parseCards(cards, ros.playerTeam);
   if (parsed.errors.length) return empty(parsed.errors);
   for (const w of parsed.weeks.keys()) if (w < 1 || w > season.weeks.length) errors.push(`Week ${w} is not in the schedule (it has ${season.weeks.length} weeks).`);
@@ -583,7 +698,7 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
 
   const players = new Map();
   for (const [team, names] of ros.roster) for (const name of names) {
-    players.set(keyOf(name), { name, team, diffs: [], rounds: 0, absences: 0, grossTotal: 0, lowGross: null, lowNet: null, entering: ent.map.has(keyOf(name)) ? ent.map.get(keyOf(name)) : null });
+    players.set(keyOf(name), { name, team, tee: teeRows(course, teeOf(keyOf(name))).name, diffs: [], rounds: 0, absences: 0, grossTotal: 0, lowGross: null, lowNet: null, skins: 0, skinsMoney: 0, entering: ent.map.has(keyOf(name)) ? ent.map.get(keyOf(name)) : null });
   }
   const handicapNow = (pl) => golfHandicap(pl.diffs, rules) ?? pl.entering;
   const stats = new Map(season.teams.map((t) => [t, { team: t, points: 0, played: 0, net: 0, holesWon: 0 }]));
@@ -593,6 +708,8 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
     const wk = season.weeks[wn - 1];
     const sheet = parsed.weeks.get(wn);
     const nine = nineHoles(course, wk.nine);
+    const nineCache = new Map();
+    const nineOf = (k) => { const t = keyOf(teeOf(k)); if (!nineCache.has(t)) nineCache.set(t, nineHoles(course, wk.nine, teeOf(k))); return nineCache.get(t); };
     // Who is missing a card this week is a typing gap, not an absence: say so.
     for (const g of wk.groups) for (const t of g.b === null ? [g.a] : [g.a, g.b]) for (const name of ros.roster.get(season.teams[t])) {
       if (!sheet.has(keyOf(name))) errors.push(`Week ${wn}: no card for ${name} (${season.teams[t]}); type their nine scores or "${name} absent".`);
@@ -604,16 +721,17 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
     for (const [k, card] of sheet) {
       const pl = players.get(k);
       let h = handicapNow(pl), retro = false;
-      if (h === null && !card.absent) { h = golfHandicap([sum(card.holes) - nine.parTotal], rules); retro = true; }
-      tonight.set(k, { ...card, handicap: h ?? 0, name: pl.name, retro, noHandicap: h === null });
+      if (h === null && !card.absent) { h = golfHandicap([sum(card.holes) - nineOf(k).parTotal], rules); retro = true; }
+      tonight.set(k, { ...card, key: k, handicap: h ?? 0, name: pl.name, team: pl.team, tee: pl.tee, nine: nineOf(k), retro, noHandicap: h === null });
     }
     const side = (t) => ros.roster.get(season.teams[t]).map((n) => tonight.get(keyOf(n))).sort((a, b) => a.handicap - b.handicap || a.name.localeCompare(b.name));
     const matches = [];
     for (const g of wk.groups) {
       const A = side(g.a);
       const B = g.b === null ? A.map(() => ({ par: true, name: "Par", handicap: 0, absent: false })) : side(g.b);
-      const pairings = A.map((p, i) => ({ a: p, b: B[i], ...playPairing(p, B[i], nine, rules) }));
-      const teamNet = (S) => sum(S.map((p) => (p.par ? nine.parTotal : p.absent ? nine.parTotal + rules.absentPenalty : sum(p.holes) - p.handicap)));
+      const pairings = A.map((p, i) => ({ a: p, b: B[i], ...playPairing(p, B[i], p.nine ?? nine, rules, B[i].nine ?? nine) }));
+      // Team net on the main tees' par: each player's net over their own par, plus the main par.
+      const teamNet = (S) => sum(S.map((p) => (p.par ? nine.parTotal : p.absent ? nine.parTotal + rules.absentPenalty : sum(p.holes) - p.handicap - p.nine.parTotal + nine.parTotal)));
       const na = teamNet(A), nb = teamNet(B);
       const pts = [sum(pairings.map((x) => x.pts[0])), sum(pairings.map((x) => x.pts[1]))];
       if (na < nb) pts[0] += rules.pointsTeamNet; else if (nb < na) pts[1] += rules.pointsTeamNet; else { pts[0] += rules.pointsTeamNet / 2; pts[1] += rules.pointsTeamNet / 2; }
@@ -622,13 +740,30 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
       if (g.b !== null) { const sb = stats.get(season.teams[g.b]); sb.points += pts[1]; sb.played++; sb.net += nb; sb.holesWon += sum(pairings.map((x) => x.holes[1])); }
       matches.push({ slot: g.slot, a: season.teams[g.a], b: g.b === null ? null : season.teams[g.b], pairings, teamNet: [na, nb], points: pts });
     }
-    // Then tonight's rounds go into each player's record, capped at net double bogey.
+    // Skins, on tonight's handicaps (before tonight's rounds count).
+    let skins = null;
+    if (rules.skins !== "off") {
+      const field = [...tonight.values()].filter((c) => !c.absent && (!skinsIn.keys.size || skinsIn.keys.has(c.key)));
+      const game = (net) => skinsGame(field.map((c) => {
+        const st = net ? strokesOn(c.nine.rank, Math.round((c.handicap * rules.skinsHandicapPct) / 100 + 1e-9)) : new Array(9).fill(0);
+        return { key: c.key, name: c.name, team: c.team, toPar: c.holes.map((g, h) => g - st[h] - c.nine.par[h]) };
+      }), { entry: rules.skinsEntry, carry: rules.skinsCarry === 1 });
+      skins = {};
+      if (rules.skins === "gross" || rules.skins === "both") skins.gross = game(false);
+      if (rules.skins === "net" || rules.skins === "both") skins.net = game(true);
+      for (const g of Object.values(skins)) {
+        for (const w of g.won) w.holeNumber = nine.holes[w.hole] + 1;
+        for (const [k, pay] of g.payout) { const pl = players.get(k); pl.skins += pay.skins; pl.skinsMoney = Math.round((pl.skinsMoney + pay.money) * 100) / 100; }
+      }
+    }
+    // Then tonight's rounds go into each player's record, capped at net double bogey on their own tees.
     for (const [k, card] of tonight) {
       const pl = players.get(k);
       if (card.absent) { pl.absences++; continue; }
-      const own = strokesOn(nine.rank, card.handicap);
-      const adjusted = card.retro ? sum(card.holes) : sum(card.holes.map((s, h) => Math.min(s, nine.par[h] + 2 + own[h])));
-      pl.diffs.push(adjusted - nine.parTotal);
+      const own9 = card.nine;
+      const own = strokesOn(own9.rank, card.handicap);
+      const adjusted = card.retro ? sum(card.holes) : sum(card.holes.map((s, h) => Math.min(s, own9.par[h] + 2 + own[h])));
+      pl.diffs.push(adjusted - own9.parTotal);
       pl.rounds++;
       const gross = sum(card.holes), net = gross - card.handicap;
       pl.grossTotal += gross;
@@ -636,14 +771,14 @@ export function golfRecap(season, { course: courseText = "", rosters = "", cards
       pl.lowNet = pl.lowNet === null ? net : Math.min(pl.lowNet, net);
       card.adjusted = adjusted;
     }
-    nights.push({ week: wn, day: wk.day, nine: wk.nine, parTotal: nine.parTotal, matches });
+    nights.push({ week: wn, day: wk.day, nine: wk.nine, parTotal: nine.parTotal, matches, skins });
   }
   if (errors.length) return empty(errors);
   const standings = [...stats.values()].sort((a, b) => b.points - a.points || b.holesWon - a.holesWon || a.team.localeCompare(b.team));
   let place = 0;
   standings.forEach((s, i) => { if (i === 0 || s.points !== standings[i - 1].points || s.holesWon !== standings[i - 1].holesWon) place = i + 1; s.place = place; });
   const playerRows = [...players.values()].map((pl) => ({
-    name: pl.name, team: pl.team, rounds: pl.rounds, absences: pl.absences,
+    name: pl.name, team: pl.team, tee: pl.tee, rounds: pl.rounds, absences: pl.absences, skins: pl.skins, skinsMoney: pl.skinsMoney,
     average: pl.rounds ? Math.round((pl.grossTotal / pl.rounds) * 10) / 10 : null,
     handicap: handicapNow(pl), lowGross: pl.lowGross, lowNet: pl.lowNet,
   })).sort((a, b) => a.team.localeCompare(b.team) || a.name.localeCompare(b.name));
@@ -664,6 +799,7 @@ export function golfRecapText(recap) {
         out.push(`    ${label(p.a)} ${fmt(p.pts[0])} - ${fmt(p.pts[1])} ${label(p.b)}`);
       }
     }
+    for (const [kind, g] of Object.entries(n.skins ?? {})) out.push(...skinsLines(kind, g));
     out.push("");
   }
   out.push("Standings");
@@ -673,10 +809,20 @@ export function golfRecapText(recap) {
   return out.join("\n") + "\n";
 }
 
+const money = (x) => x.toFixed(2);
+
+/** A night's skins as text lines: who won which hole, and the pot. */
+export function skinsLines(kind, g) {
+  const head = `  ${kind === "net" ? "Net" : "Gross"} skins (${g.entrants} in${g.pot ? `, pot ${money(g.pot)}` : ""})`;
+  if (!g.won.length) return [head + ": none won" + (g.refunded ? ", entries returned" : "")];
+  return [head + ":", ...g.won.map((w) => `    Hole ${w.holeNumber}: ${w.name}${w.units > 1 ? ` (${w.units} skins)` : ""}${g.pot ? ` ${money(w.value)}` : ""}`),
+    ...(g.carriedOff ? [`    ${g.carriedOff} skin${g.carriedOff === 1 ? "" : "s"} still tied after the last hole: not won`] : [])];
+}
+
 export function golfStandingsCsv(recap) {
   return [["Place", "Team", "Points", "Matches", "Holes won", "Team net total"].join(","), ...recap.standings.map((s) => [s.place, s.team, fmt(s.points), s.played, s.holesWon, s.net].map(csvCell).join(","))].join("\n") + "\n";
 }
 
 export function golfPlayersCsv(recap) {
-  return [["Player", "Team", "Rounds", "Absent", "Average gross", "Handicap next week", "Low gross", "Low net"].join(","), ...recap.players.map((p) => [p.name, p.team, p.rounds, p.absences, p.average ?? "", p.handicap ?? "", p.lowGross ?? "", p.lowNet ?? ""].map(csvCell).join(","))].join("\n") + "\n";
+  return [["Player", "Team", "Rounds", "Absent", "Average gross", "Handicap next week", "Low gross", "Low net", "Tees", "Skins", "Skins winnings"].join(","), ...recap.players.map((p) => [p.name, p.team, p.rounds, p.absences, p.average ?? "", p.handicap ?? "", p.lowGross ?? "", p.lowNet ?? "", p.tee || "main", p.skins, money(p.skinsMoney)].map(csvCell).join(","))].join("\n") + "\n";
 }
