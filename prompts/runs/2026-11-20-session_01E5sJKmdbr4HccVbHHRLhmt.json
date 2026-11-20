@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "My first commit chain ran `git checkout -b` on the branch the session already sat on; it failed, so the && chain pushed an unchanged branch before I committed. Re-ran the commit."
+    "My first commit chain ran `git checkout -b` on the branch the session already sat on; it failed, so the && chain pushed an unchanged branch before I committed. Re-ran the commit.",
+    "check_cli_entry (run by ventures-tests) flagged my `file://${argv[1]}` entry guard in parity/compare.mjs; switched to pathToFileURL."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,7 +46,7 @@
     "ventures/sshd-config-check/parity/README.md"
   ],
   "goal": null,
-  "notes": "Explore idea: differential-test sshd-config-check against the real OpenSSH 9.6p1 binary (sshd -t, sshd -T -C), extracted from Ubuntu's .deb. Seeded generator of config trees; dev seeds 1-600 used for fixing, held-out seeds 20001-22000 recorded after the last fix and replayed by parity.test.mjs. Before: 550 disagreements in 319/2000 configs; after: 0 of 82,598 checks. Main finding: Match all overrides earlier globals for every connection (the engine and its guide called it a return to global scope and reported the overriding line as ignored). Also fixed: nested-Include Match blocks, PermitTunnel case, extra args (per-keyword arity probed against the binary), strtonum/convtime, Match Address host bits. Verification: run_venture_tests.py sshd-config-check ok (59 tests) + site page checks; check_post_links 0 broken; check_llms_txt_links 0 dead. Next: Match Group with real users, IPv6, other OpenSSH versions; same harness for nginx -t / visudo -c checkers.",
+  "notes": "Explore idea: differential-test sshd-config-check against the real OpenSSH 9.6p1 binary (sshd -t, sshd -T -C), extracted from Ubuntu's .deb. Seeded generator of config trees; dev seeds 1-600 used for fixing, held-out seeds 20001-22000 recorded after the last fix and replayed by parity.test.mjs. Before: 550 disagreements in 319/2000 configs; after: 0 of 82,598 checks. Main finding: Match all overrides earlier globals for every connection (the engine and its guide called it a return to global scope and reported the overriding line as ignored). Also fixed: nested-Include Match blocks, PermitTunnel case, extra args (per-keyword arity probed against the binary), strtonum/convtime, Match Address host bits. Verification: run_venture_tests.py sshd-config-check ok (59 tests) + site page checks; check_post_links 0 broken; check_llms_txt_links 0 dead. Next: Match Group with real users, IPv6, other OpenSSH versions; same harness for nginx -t / visudo -c checkers. Local CI (run_workflow_locally --for-changes): all 15 workflows' run steps pass after the guard fix (ventures-tests 5/5 and portfolio-pages 12/12 re-run on the final tree); uses: steps not run.",
   "corrections": [],
   "redteam": null,
   "usage": {

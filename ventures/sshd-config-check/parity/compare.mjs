@@ -5,7 +5,7 @@
 // parity.test.mjs asserts there is none.
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { genCase, COMPARED } from "./gen.mjs";
 import { scanFiles, readConfig, resolve, DEFAULTS, convtime, intValue } from "../scan.mjs";
 
@@ -89,7 +89,7 @@ export function compareAll(record = loadRecord()) {
   return { diffs, checks, cases: record.cases.length };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { diffs, checks, cases } = compareAll();
   const by = {};
   for (const d of diffs) {
