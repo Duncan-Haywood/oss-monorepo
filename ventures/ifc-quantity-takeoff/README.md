@@ -92,6 +92,17 @@ quantities inherits those errors; this tool says which they are
   ([eval/faceted-causes-2026-11-20.md](eval/faceted-causes-2026-11-20.md)).
   The sample model's areas are checked by hand in `engine.test.mjs` (a door
   out of a wall's side and footprint, a trapezoidal gable, the IPE 200 section).
+- **Advanced breps (2026-11-20).** On kleine_Wohnung, 767 of its 775
+  `IfcAdvancedBrep` are now read (faces on planes and cylinders): elements not
+  read fell from 162 to 12, and net volume is computed for all 37 walls whose
+  openings are advanced breps. All 39 new NetVolume pairs agree with the stored
+  figure. Against IfcOpenShell, an independent kernel, 703 of the 767 breps agree
+  within 0.1%. Each of the other 64 is a brep whose IfcOpenShell volume exceeds
+  its own bounding box (35), a shell in overlapping pieces (27, noted on the
+  element) or a shell that is not closed (2). Openings and booleans now subtract
+  faceted shapes too, which unblocked 209 S_Office elements and every net
+  volume on skolebygg and duplex
+  ([eval/advanced-breps-2026-11-20.md](eval/advanced-breps-2026-11-20.md)).
 - **Seeded faults.** Flipping the half-space side, switching off the unit-slip
   rule, swapping the exit and entry points of a mesh cut, or adding a brep's
   void instead of subtracting it each fails a test.
@@ -111,27 +122,36 @@ derived/mirrored and composite profiles); half-space, boxed half-space and
 polygonal-bounded half-space clips; boolean difference, union and intersection;
 mapped items with uniform and non-uniform scale; faceted breps (with voids),
 closed shell and face-based surface models, polygonal and triangulated face
-sets; swept disks (Pappus); revolved areas (Pappus); blocks, cylinders, cones
-and spheres.
+sets; advanced breps whose faces lie on planes and cylinders (edges on lines,
+circles, ellipses and B-spline curves); swept disks (Pappus); revolved areas
+(Pappus); blocks, cylinders, cones and spheres.
 
 **How:** every solid becomes a signed sum of convex polyhedra. A concave
 outline is fanned into signed triangles, voids enter with a minus sign, a half
 space clips every piece, and anything subtracted (an opening, a bounded cut) is
 intersected with every piece and enters with the opposite sign. Volumes come
-from the divergence theorem over each piece's faces. Faceted bodies give a
-volume but cannot have openings subtracted; such elements report "net not
-computed" rather than a guess. A faceted body keeps its faces, turned first
-so neighbours run each shared edge in opposite directions (a shell that is
-not closed gets no section), and a plane
+from the divergence theorem over each piece's faces. A faceted body keeps its
+faces, turned first so neighbours run each shared edge in opposite directions
+(the loops of a face with a hole turn together; each separate piece of a shell
+is turned outward by itself; a shell that is not closed gets no section).
+When an opening or a boolean needs it, a closed faceted shell is taken as
+polyhedra: one if it is convex, otherwise signed tetrahedra (each face fanned
+and coned to the shell's centre), which add up to the shell exactly. An
+advanced brep's edges are sampled once (arcs at 360 segments to the turn) and
+its cylindrical faces cut into triangles that join points of nearly the same
+angle, so it becomes a faceted shell. A plane
 cuts it by summing, over its faces fanned into triangles, the edge each
 triangle leaves in the plane (`shellSection`): concave faces, holes and voids
 need no special case.
 
-**Not read:** advanced breps (NURBS), open shells, tapered extrusions, swept
+**Not read:** advanced brep faces on other surfaces (surfaces of revolution,
+B-spline surfaces), open shells, tapered extrusions, swept
 solids along curves other than disks, centre-line profiles, sloped flanges.
-Overlapping openings in one element are subtracted twice. A faceted body
+Overlapping openings in one element are subtracted twice, and so are the
+overlapping pieces of one shell (the element carries a note). A faceted body
 clipped by a half-space, or mixed with a swept disk, revolved area or CSG
-primitive, is not cut: it keeps the stored area. A faceted covering is cut
+primitive, is not cut: it keeps the stored area. A faceted shell of more than
+4,000 tetrahedra has no openings taken out ("net not computed"). A faceted covering is cut
 normal to its up direction, a rule fitted on one model.
 A curved wall's side area is the section of its thinnest flat direction, not
 its developed length.

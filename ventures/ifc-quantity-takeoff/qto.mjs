@@ -16,7 +16,7 @@
 // tool's reading of the same model. Where they disagree the row says so,
 // because one of them is wrong and an estimate built on it would be too.
 
-import { Geometry, Unresolved, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, solidExtent } from "./geom.mjs";
+import { Geometry, Unresolved, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -484,8 +484,11 @@ function computeVolume(e, idx, E, geo, bodyOf, worldOf, f) {
       if (!orep) throw new Unresolved("opening with no body");
       const ob = bodyOf(orep);
       if (ob.error) throw new Unresolved(`opening: ${ob.error}`);
-      if (ob.mesh) throw new Unresolved("faceted opening");
-      const inElem = transformSolid(ob, mul(Winv, worldOf(refId(o.args[5]))));
+      // a faceted opening or body is taken as polyhedra when all its faces are known
+      const obT = asTerms(ob);
+      if (!obT) throw new Unresolved("faceted opening");
+      const inElem = transformSolid(obT, mul(Winv, worldOf(refId(o.args[5]))));
+      if (net.mesh) net = asTerms(net) ?? net;
       if (net.mesh) throw new Unresolved("opening in a faceted body");
       net = subtractCutters(net, cuttersOf(inElem), "opening");
     }
