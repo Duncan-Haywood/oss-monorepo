@@ -245,3 +245,77 @@ test("Object.prototype names are unknown keywords and not algorithms", () => {
   assert.match(r.findings[0].detail, /Bad configuration option: constructor/);
   assert.ok(!types(r).includes("weak-algorithm"));
 });
+
+// ---- Rules found by the parity run against sshd 9.6p1 (parity/README.md).
+
+test("Match all overrides an earlier global value for every connection", () => {
+  const r = one("PasswordAuthentication no\nMatch all\nPasswordAuthentication yes\n");
+  assert.equal(r.login.passwords, true, "sshd -T -C prints passwordauthentication yes");
+  const f = find(r, "setting-ignored");
+  assert.equal(f.line, 1, "the earlier global line is the one that loses");
+  assert.match(f.detail, /Match all block is not a return to global settings/);
+  assert.ok(types(r).includes("password-auth-on"));
+  // A connection gets it too.
+  const c = scanFiles([{ name: "sshd_config", text: "MaxAuthTries 20\nMatch all\nMaxAuthTries 6\n" }], { connection: { user: "a" } });
+  assert.ok(c.connection.settings.some((s) => /maxauthtries/i.test(s.keyword) && s.value === "6"));
+});
+
+test("a Match block before Match all wins for its connections; one after it loses", () => {
+  const read = readConfig([{ name: "sshd_config", text: "Match User zz\n  MaxAuthTries 4\nMatch all\nMaxAuthTries 5\n" }]);
+  assert.equal(resolve(read, { user: "zz" }).effective.get("maxauthtries").value, "4");
+  const read2 = readConfig([{ name: "sshd_config", text: "Match all\nMaxAuthTries 6\nMatch User a\nMaxAuthTries 9\n" }]);
+  assert.equal(resolve(read2, { user: "a" }).effective.get("maxauthtries").value, "6");
+});
+
+test("global-only keywords after Match all stay first-value-wins", () => {
+  const read = readConfig([{ name: "sshd_config", text: "UsePAM no\nMatch all\nUsePAM yes\n" }]);
+  assert.equal(resolve(read, { user: "a" }).effective.get("usepam").value, "no");
+});
+
+test("a Match inside a file included under a matching Match applies", () => {
+  const files = [
+    { name: "sshd_config", text: "Match User deploy\n  Include /etc/ssh/sshd_config.d/*.conf\n" },
+    { name: "sshd_config.d/a.conf", text: "X11Forwarding no\nMatch all\n  AllowAgentForwarding no\n" },
+  ];
+  const read = readConfig(files);
+  assert.equal(resolve(read, { user: "deploy" }).effective.get("allowagentforwarding").value, "no");
+  assert.equal(resolve(read, { user: "bob" }).effective.get("allowagentforwarding"), undefined);
+});
+
+test("PermitTunnel values are case-sensitive", () => {
+  assert.ok(types(one("PermitTunnel NO\n")).includes("sshd-will-not-start"));
+  assert.ok(!types(one("PermitTunnel no\nGatewayPorts NO\n")).includes("sshd-will-not-start"));
+});
+
+test("extra words after a one-value keyword stop sshd; list keywords take many", () => {
+  for (const t of ["Port 22 2222\n", "PasswordAuthentication no yes\n", "MaxAuthTries 4 5\n", "IPQoS lowdelay throughput af11\n"]) {
+    assert.ok(types(one(t)).includes("sshd-will-not-start"), t);
+  }
+  for (const t of ["AllowUsers a b c\n", "ForceCommand /bin/echo hi there\n", "IPQoS lowdelay throughput\n", "MaxAuthTries 4 # four\n"]) {
+    assert.ok(!types(one(t)).includes("sshd-will-not-start"), t);
+  }
+});
+
+test("integers are decimal and times follow convtime", async () => {
+  const { convtime, intValue } = await import("./scan.mjs");
+  assert.equal(intValue("011").value, 11);
+  assert.equal(intValue("+5").value, 5);
+  assert.ok(intValue("0x10").error && intValue("-1").error && intValue("2147483648").error);
+  assert.deepEqual(["0s", "00", "1m", "2m30s", "1M5", "1W2D", "+5", "2147483647"].map(convtime), [0, 0, 60, 150, 65, 777600, 5, 2147483647]);
+  assert.deepEqual(["s", "1.5", "-1", "1ms", "2147483648", "2x"].map(convtime), [-1, -1, -1, -1, -1, -1]);
+  assert.ok(types(one("MaxAuthTries 0x10\n")).includes("sshd-will-not-start"));
+  assert.ok(types(one("LoginGraceTime 2x\n")).includes("sshd-will-not-start"));
+  assert.ok(types(one("LoginGraceTime 0s\n")).includes("login-grace-unlimited"), "0s is unlimited too");
+  assert.ok(types(one("MaxAuthTries 011\n")).includes("max-auth-tries-high"));
+});
+
+test("a Match Address network with host bits set stops sshd; a non-network is a wildcard", () => {
+  for (const p of ["10.1.2.3/24", "10.0.0.0/33", "10.0.0.0/0"]) {
+    const f = one(`Match Address ${p}\n  PasswordAuthentication no\n`).findings.find((x) => x.severity === "error");
+    assert.match(f?.detail || "", /Invalid Match address argument/, p);
+  }
+  assert.match(one("Match Address 10.1.2.3/24\n  X11Forwarding no\n").findings[0].detail, /10\.1\.2\.0\/24/);
+  for (const p of ["10.1.2.3/32", "0.0.0.0/0", "10.0/8", "10.0.0.0/8x", "fe80::/64"]) {
+    assert.ok(!one(`Match Address ${p}\n  PasswordAuthentication no\n`).findings.some((x) => x.severity === "error"), p);
+  }
+});

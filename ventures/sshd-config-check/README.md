@@ -72,14 +72,37 @@ of that release. In detail:
   puts the file's lines in that block, and a `Match` inside an included file
   ends at that file's end (the "Don't let included files clobber the
   containing file's Match state" comment in `servconf.c`).
-- A `Match` block runs to the next `Match` or the end of the file; `Match all`
-  returns to global settings. `Match` values replace global ones, and when
-  several blocks apply, the first value among them wins
-  (`copy_set_server_options`). `User`, `Group`, `Host`, `Address`,
-  `LocalAddress`, `LocalPort` and `RDomain` are evaluated for a given
-  connection with OpenSSH's pattern rules: comma lists, `*` and `?`, `!`
+- A `Match` block runs to the next `Match` or the end of the file. `Match`
+  values replace global ones, and when several blocks apply, the first value
+  among them wins (`copy_set_server_options`). `User`, `Group`, `Host`,
+  `Address`, `LocalAddress`, `LocalPort` and `RDomain` are evaluated for a
+  given connection with OpenSSH's pattern rules: comma lists, `*` and `?`, `!`
   negation that overrides a positive hit, case-sensitive users, lowercased
   hosts and IPv4 CIDR addresses.
+- `Match all` is **not** a return to global settings. Its lines are read with
+  the global ones at startup (so `Port` or `UsePAM` may follow it, first value
+  winning as usual), and they also form a block that applies to every
+  connection: for keywords allowed in `Match`, a value after `Match all`
+  overrides one set earlier in the file, and a `Match` block written before
+  it still wins for its own connections. `PasswordAuthentication no` at the
+  top, then `Match all` and `PasswordAuthentication yes`, turns passwords on
+  for everyone; the earlier line is reported as overridden, not the later one
+  as ignored.
+- A `Match` inside a file that an `Include` under another `Match` pulled in
+  applies to the connections the enclosing block selects (sshd parses that
+  file with `SSHCFG_NEVERMATCH` only when the enclosing block is inactive).
+- Lines that stop sshd starting, beyond unknown keywords: a value outside the
+  keyword's set (`PermitTunnel`'s values are case-sensitive, `PermitTunnel
+  NO` fails; the others ignore case), more words than the keyword takes
+  (`Port 22 2222` on one line, `PasswordAuthentication no yes`; checked
+  keyword by keyword), integers that are not decimal whole numbers
+  (`MaxAuthTries 0x10`; `011` is 11), time values `convtime()` rejects
+  (`LoginGraceTime 2x`), and a `Match Address`/`LocalAddress` IPv4 network
+  with host bits set or a mask over 32 (`10.1.2.3/24`, `10.0.0.0/0`). An entry
+  that does not parse as a network, such as `10.0/8`, is a wildcard pattern and
+  is fine. IPv6 networks are not checked.
+- Times are read like `convtime()`: `LoginGraceTime 0s`, `00` and `0m` are all
+  0, unlimited.
 - With no file named `sshd_config`, the files are read as if the stock
   Ubuntu/Debian `Include /etc/ssh/sshd_config.d/*.conf` had included them.
 - Defaults are 9.6's compiled-in ones (`fill_default_server_options`), for
@@ -87,13 +110,22 @@ of that release. In detail:
   `PermitRootLogin prohibit-password`, `UsePAM no` (Debian and Ubuntu set it
   to yes in their stock file).
 
-**How it was checked, and what was not.** The 30 cases in
+**How it was checked, and what was not.** The cases in
 [`scan.test.mjs`](scan.test.mjs) pin each rule above against the line of
 `servconf.c` or `match.c` it comes from, and run on the unmodified stock
 `sshd_config` from Ubuntu 24.04's `openssh-server 1:9.6p1-3ubuntu13.20`
-([`fixtures/`](fixtures/README.md)). It was **not** compared with `sshd -T`'s
-own output: the session that built it could not run `sshd`. A parity run
-against `sshd -T -f FILE -C user=...` on real configs is the next step.
+([`fixtures/`](fixtures/README.md)). On 2026-11-20 the engine was compared with
+that package's real `sshd -t` and `sshd -T -C` ([`parity/`](parity/README.md)):
+2,000 generated configurations with drop-ins, nested `Include`s, `Match`
+blocks and broken lines, three connections each. Whether sshd starts, and 17
+settings plus `AllowUsers`/`DenyUsers` per connection, agree on all 82,598
+checks; before the fixes that run made, the same set had 550 disagreements in
+319 configurations (the `Match all`, nested-`Include`, `PermitTunnel` case,
+extra-argument, integer, time and CIDR rules above).
+[`parity.test.mjs`](parity.test.mjs) replays the recorded `sshd` output in CI.
+Not compared: `Match Group` against real group membership (the generated users
+do not exist, so group blocks never match on either side), `Match Host` with
+DNS, IPv6 addresses, algorithm lists, and keywords other than the 19.
 
 ## Use it
 
@@ -113,7 +145,7 @@ node check.mjs /etc/ssh --format json
 node check.mjs ./ssh --fail-on-risk            # exit 2 on an error, high or medium finding
 ```
 
-Tests: `node --test scan.test.mjs page.test.mjs usage.test.mjs`.
+Tests: `node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs`.
 
 ## Not a security audit
 
