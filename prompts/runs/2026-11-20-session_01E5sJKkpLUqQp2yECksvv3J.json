@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKkpLUqQp2yECksvv3J",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T13:22:14Z",
+  "ended": "2026-11-20T14:29:10Z",
+  "wall_minutes": 70.17,
+  "tokens_in": 5723960,
+  "tokens_out": 30798,
+  "cost_usd": 2.6801,
+  "tool_calls": 59,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17917",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A first smoke run in the foreground hit the 110 s timeout (mujoco setup plus 2 jobs took 76 s of compute after ~60 s of imports); reran in the background."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py pytest numpy scipy matplotlib returned /usr/bin/python3.13 without mujoco, which buildbot-sheathing's sim experiments need; a separate pip install mujoco==4.0.1 (pinned to the version in m63's results) was needed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing (milestone 64)",
+      "why": "Added a post-hoc diagnostic (diag.py, calibration flips) after seeing H249 refuted, to explain the no-press-flip failures.",
+      "did": "Labelled it post hoc and not registered in LOG, README and the post; the registered verdicts are unchanged.",
+      "result": "It attributes most no-press-flip failures at 0.4 N (322 of 370 on the G1) to a flip in the reference calibration."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-sheathing-robot-bias-past-the-bound.md",
+    "research/buildbot-sheathing/LOG.md (milestone 64 planned and result)"
+  ],
+  "goal": null,
+  "notes": "Milestone 64 of buildbot-sheathing: planner sized to 0.2 N, true bias 0.3-1.0 N along m63's worst direction, seed 64, 2468 s on 4 processes. H247 refuted (0.3 N: 22.6% G1, 12.0% H1 planned presses over 0.03 mm), H248 held, H249 refuted. Local checks: homepage build ok, live links ok, md links ok, cite_check ok, check_posts ok, check_numbers 434/434, run_workflow_locally --for-changes DONE exit 0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9dbeb9ce-ab5c-51e3-8286-d769a1204c0f",
+    "transcripts": 1,
+    "first": "2026-11-20T13:22:14Z",
+    "last": "2026-11-20T14:32:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 107,
+        "output": 30798,
+        "thinking": 5384,
+        "cache_read": 5606038,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117815,
+        "api_equivalent_usd": 2.6801,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 107,
+      "output": 30798,
+      "thinking": 5384,
+      "cache_read": 5606038,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117815,
+      "api_equivalent_usd": 2.6801,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 50,
+      "Write": 3,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 70.17,
+      "active_minutes": 28.24,
+      "model_minutes": 5.66,
+      "tool_minutes": 22.58,
+      "waiting_on_human_minutes": 41.93,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer adapting the m63 script, running a 40-min sweep, a diagnostic, and writing log/paper/README/post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 223.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
