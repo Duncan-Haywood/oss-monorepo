@@ -12,3 +12,8 @@ The 500 to 2,000-bus cases (case500_goc, case588_sdet, case793_goc, case1354_peg
 case1888_rte, case1951_rte, case2000_goc; TYP, `api/` and `sad/`) were fetched 2026-11-13 from the same
 location for milestone 6 of `research/grid-linopf` (the second held-out set); none of them was used
 by any earlier step.
+
+The 2,001 to 2,999-bus cases (case2312_goc, case2383wp_k, case2736sp_k, case2737sop_k, case2742_goc,
+case2746wop_k, case2746wp_k, case2848_rte, case2853_sdet, case2868_rte, case2869_pegase; TYP, `api/` and `sad/`)
+were fetched 2026-11-20 from the same location for the confirmation split of `research/grid-linopf`
+(`experiments/run_confirm.py`); none of them was used by any earlier step.

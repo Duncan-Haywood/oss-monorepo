@@ -477,14 +477,31 @@ def run_one(argv, cwd, timeout, env=None):
     return p.returncode == 0 or (p.returncode == 5 and "unittest" in argv), out
 
 
+# A session's named run prints a line as each step starts. Without them a
+# one-venture run redirected to a file stayed empty until the venture ended,
+# so a background run gave nothing to read for minutes (doc friction
+# 2026-11-20T12:38). CI's full and --since runs keep their one line a venture.
+PROGRESS = False
+
+
+def step_label(argv, cwd, slug, wf):
+    if wf:
+        return f"{argv[-1]} (from .github/workflows/{wf})"
+    name = "node --test" if argv[0] == "node" else "python3 -m unittest"
+    return f"{name} in {Path(cwd).relative_to(VENTURES / slug)}"
+
+
 def run(slug, elsewhere=False):
     start = time.monotonic()
     cmds = [(argv, cwd, None, None) for argv, cwd in commands(slug)]
     if elsewhere:
         cmds += elsewhere_commands(slug)
     ok, outs = True, []
-    for argv, cwd, env, wf in cmds:
+    for i, (argv, cwd, env, wf) in enumerate(cmds, 1):
         left = max(1, SUITE_TIMEOUT - (time.monotonic() - start))
+        if PROGRESS:
+            print(f"...  {slug}: step {i}/{len(cmds)} started at {time.monotonic() - start:.0f}s: "
+                  f"{step_label(argv, cwd, slug, wf)}", flush=True)
         if wf:
             one_ok, out = run_elsewhere_step(argv, cwd, env, left)
             out = f"$ {argv[-1]} (in {Path(cwd).relative_to(ROOT)}, from .github/workflows/{wf})\n{out}"
@@ -750,6 +767,8 @@ def main(argv):
     lint_slugs = [s for s in slugs if (VENTURES / s).is_dir()]
     slugs = sorted(runs_here, key=lambda s: (-suite_weight(s), s))
 
+    global PROGRESS
+    PROGRESS = bool(args.slugs or args.changed) and not ON_ACTIONS
     failed, partial, times = [], [], {}
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         # Printed as each finishes, so one slow suite does not hide the rest.

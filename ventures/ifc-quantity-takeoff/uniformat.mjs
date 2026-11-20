@@ -94,6 +94,29 @@ function nameRule(r, cls) {
   return null;
 }
 
+// Slab type names that say what the slab is when PredefinedType says FLOOR
+// (or nothing). Words from the 17 public models' own type names, English,
+// German, Dutch and Norwegian: a floor finish modelled as its own thin floor
+// ("FB 15.0 - Teppich", Fussbodenbelag; "Finish Floor - Ceramic Tile";
+// "IFC_dekvloer 90", screed; "Flis - trapp", stair tiles) is C3020 or, on a
+// stair, C2020; a flat roof typed FLOOR ("IFC_plat_dak_geisoleerd",
+// "Flachdach") is B1020.
+const SLAB_TEXT = (r) => ` ${`${r.type ?? ""} ${r.name ?? ""}`.replace(/[_:]/g, " ").toLowerCase()} `;
+const FINISH_WORDS = /\b(fb \d+([.,]\d+)?|finish(es)? floor|floor finish|fliesen|teppich|parkett|(holz)?dielen|parquet|carpet|rugs?|(floor )?tiles?|(vloer)?tegels|dekvloer|screed|estrich|linoleum|vinyl|flis)\b/;
+// a structural slab that names its topping ("Betongdekke 300 + avretting og
+// flis", concrete deck with screed and tiles) is still the floor
+const STRUCTURE_WORDS = /\b(betong\w*|beton\w*|concrete|stb|structural|joists?|hollow ?core|kanaalplaat)\b/;
+const STAIR_WORDS = /\b(trapp|trap|treppe|stair|stairs)\b/;
+const SHADE_WORDS = /\b(sonnenschutz|sun ?shades?|brise ?soleil|zonwering)\b/;
+const ROOF_WORDS = /\b(roof|roofs|flat roof|roof deck|plat dak|dak|dakvloer|dakplaat|dach|flachdach|dachdecke|tak|toit|techo|cubierta|tetto)\b/;
+export function slabRole(r) {
+  const t = SLAB_TEXT(r);
+  if (FINISH_WORDS.test(t) && !STRUCTURE_WORDS.test(t)) return STAIR_WORDS.test(t) ? { code: "C2020", why: "slab named as a stair finish" } : { code: "C3020", why: "slab named as a floor finish" };
+  if (SHADE_WORDS.test(t)) return { code: "B2010", why: "slab named as a sun shade (exterior sun control, as a shading device)" };
+  if (ROOF_WORDS.test(t)) return { code: "B1020", why: "slab named as a roof" };
+  return null;
+}
+
 /**
  * The rule's code for one row, without the model's code: { code, why }.
  * `ctx(id)` returns another row by entity id (for hosts and parents).
@@ -123,12 +146,18 @@ export function ruleCode(r, ctx) {
   switch (true) {
     case cls === "IFCFOOTING": return { code: "A1010", why: "footing" };
     case /^IFC(PILE|DEEPFOUNDATION|CAISSONFOUNDATION)$/.test(cls): return { code: "A1020", why: "pile or deep foundation" };
-    case cls === "IFCSLAB" || cls === "IFCSLABSTANDARDCASE" || cls === "IFCSLABELEMENTEDCASE":
+    case cls === "IFCSLAB" || cls === "IFCSLABSTANDARDCASE" || cls === "IFCSLABELEMENTEDCASE": {
       if (pdt === "BASESLAB") return { code: "A1030", why: "slab, BASESLAB" };
       if (pdt === "ROOF") return { code: "B1020", why: "slab, ROOF" };
       if (pdt === "LANDING") return { code: "C2010", why: "slab, LANDING" };
+      // Revit and ArchiCAD users model finishes and flat roofs as floor
+      // slabs; the type name says which (slabRole, eval/slab-roles-2026-11-20.md)
+      const role = slabRole(r);
+      if (role) return role;
+      if (r.roofDeck) return { code: "B1020", why: `slab${pdt ? ", " + pdt : ""}, read as the roof by geometry: nothing over it, ${r.roofDeck.under} wall(s) or column(s) under it, no storey's walls on it` };
       if (below) return { code: "A1030", why: `slab on a storey below grade (${r.storey})` };
       return { code: "B1010", why: pdt ? `slab, ${pdt}` : "slab" };
+    }
     case cls === "IFCROOF": return { code: "B1020", why: "roof" };
     case WALLISH.test(cls):
       // a flag the geometry disagrees with is kept, and the row says so for
@@ -250,6 +279,7 @@ export function ruleCode(r, ctx) {
 export function assignUniformat(rows) {
   const byId = new Map(rows.map((r) => [r.id, r]));
   const ctx = (id) => byId.get(id) || null;
+  findRoofDecks(rows);
   findCarried(rows, ctx);
   for (const r of rows) {
     const rule = ruleCode(r, ctx);
@@ -298,6 +328,59 @@ export function findCarried(rows, ctx) {
       if (!best || e[2] < best.d.box[2]) best = { d, code };
     }
     r.carries = best ? { id: best.d.id, ifcClass: best.d.ifcClass, code: best.code, gap: Math.max(0, best.d.box[2] - top) } : null;
+  }
+}
+
+const OVER = 0.3; // m: a deck this much higher than a slab's top is over it
+const STOREY_WALL = 1.5; // m: a wall rising this far above a slab's top stands on a storey, not a parapet
+
+/**
+ * Sets row.roofDeck = { under } on each slab the rules would put in B1010
+ * whose box was read and which is the roof by its geometry:
+ *
+ *   - no slab or roof covers the middle of its plan above it (a deck whose
+ *     top and bottom are both more than OVER above its own);
+ *   - at least one wall or column stops at its bottom (within 0.4 m below to
+ *     0.6 m below) under its plan: it is carried, not a sun shade or a slab
+ *     on the ground;
+ *   - no wall stands on it rising more than STOREY_WALL above its top (no
+ *     storey's walls: a parapet is lower);
+ *   - it is more than 2 m above the lowest slab or wall bottom in the model
+ *     and covers at least 2 m2 of plan.
+ *
+ * Nothing is set when a roof in the model has no box (its geometry was not
+ * read), since that roof may be the one over the slab, nor for a slab whose
+ * type name already says what it is (slabRole).
+ */
+export function findRoofDecks(rows) {
+  const decks = [], bearers = [];
+  let low = Infinity;
+  for (const r of rows) {
+    if (r.isAssembly) continue;
+    const cls = r.effectiveClass || r.ifcType || "";
+    if (DECK.test(cls)) {
+      if (!r.box && (cls === "IFCROOF" || r.predefinedType === "ROOF")) return;
+      if (r.box) decks.push(r);
+    }
+    if (/^IFC(WALL|COLUMN)/.test(cls) && r.box) bearers.push(r);
+    if (r.box && (/^IFCSLAB|^IFCWALL/.test(cls))) low = Math.min(low, r.box[2]);
+  }
+  for (const s of decks) {
+    const cls = s.effectiveClass || s.ifcType || "";
+    if (!/^IFCSLAB/.test(cls) || /^(BASESLAB|ROOF|LANDING)$/.test(s.predefinedType || "") || slabRole(s)) continue;
+    if (s.parent != null || (s.storeyElevation != null && s.storeyElevation < BELOW_GRADE)) continue;
+    const b = s.box, x = (b[0] + b[3]) / 2, y = (b[1] + b[4]) / 2;
+    if ((b[3] - b[0]) * (b[4] - b[1]) < 2 || b[2] < low + 2) continue;
+    const overlaps = (e) => e[0] < b[3] && e[3] > b[0] && e[1] < b[4] && e[4] > b[1];
+    if (decks.some((d) => d !== s && x >= d.box[0] - 0.01 && x <= d.box[3] + 0.01 && y >= d.box[1] - 0.01 && y <= d.box[4] + 0.01 && d.box[5] > b[5] + OVER && d.box[2] > b[2] + OVER)) continue;
+    let under = 0, on = 0;
+    for (const w of bearers) {
+      const e = w.box;
+      if (!overlaps(e)) continue;
+      if (e[5] <= b[2] + 0.4 && e[5] >= b[2] - 0.6) under++;
+      if (/^IFCWALL/.test(w.effectiveClass || w.ifcType) && e[2] >= b[5] - 0.4 && e[2] <= b[5] + 0.5 && e[5] > b[5] + STOREY_WALL) on++;
+    }
+    if (under && !on) s.roofDeck = { under };
   }
 }
 

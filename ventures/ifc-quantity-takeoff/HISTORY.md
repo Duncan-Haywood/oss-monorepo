@@ -5,3 +5,12 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 ## Moved from flagships.yaml `next:`
 
 - (moved 2026-11-20) Areas from geometry shipped 2026-11-19 (plane sections: wall side and footprint, slab plan, member cross-section; eval/areas-vs-stored-2026-11-19.md); faceted bodies cut through their faces 2026-11-20 (2,915 of 4,251 new pairs agree; eval/areas-vs-stored-2026-11-20.md); their misses named 2026-11-20 (unexplained 1,499 to 358; eval/faceted-causes-2026-11-20.md); joined walls (ArchiCAD finishes areas) and copied curtain-wall figures named 2026-11-20 (unexplained 358 to 192; eval/joins-and-host-figures-2026-11-20.md); revision change report shipped 2026-11-20 (diff.mjs, page and cli --compare: BoQ change per line, elements matched by GlobalId, Tag, geometry, Revit parts/host paired; 190 of 1,011 GlobalId-only adds/removes on five real Aalseth Residence exports were the same element; eval/revision-diff-2026-11-20.md)
+
+## 2026-11-20: slabs that are roofs, finishes or sun shades
+
+Slabs typed FLOOR are read by type name (finish floors to C3020, stair tiles
+to C2020, Sonnenschutz fins to B2010, "plat dak"/"dakvloer" to B1020) and
+then as the roof by geometry (nothing over it, walls or columns under it, no
+storey's walls on it). 17 models: 474 codes changed, authors' codes unchanged
+(482 of 588 at level 3); 18 more roof slabs and 142 more frame members in
+B1020. eval/slab-roles-2026-11-20.md.

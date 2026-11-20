@@ -16,15 +16,15 @@ test("index page carries the disclaimer, privacy line and sponsor link", () => {
 
 test("every input has a label and nothing can send data anywhere", () => {
   const html = page("index.html");
-  for (const id of [...Object.keys(DEFAULTS), "data", "file"]) assert.match(html, new RegExp(`<label (class="sr" )?for="${id}">`), id);
+  for (const id of [...Object.keys(DEFAULTS), "data", "file", "urdb", "urdbFile", "holidays"]) assert.match(html, new RegExp(`<label (class="sr" )?for="${id}">`), id);
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
-  for (const f of ["calc.mjs", "battery.mjs", "tou.mjs", "greenbutton.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  for (const f of ["calc.mjs", "battery.mjs", "tou.mjs", "greenbutton.mjs", "tariff.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
 });
 
 test("the module scripts import only local files", () => {
   const html = page("index.html");
   const imports = [...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(imports.sort(), ["./battery.mjs", "./calc.mjs", "./greenbutton.mjs", "./tou.mjs", "./usage.mjs"]);
+  assert.deepEqual(imports.sort(), ["./battery.mjs", "./calc.mjs", "./greenbutton.mjs", "./tariff.mjs", "./tou.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
 });
 

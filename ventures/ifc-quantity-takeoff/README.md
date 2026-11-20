@@ -212,6 +212,22 @@ A fallback reading a storey named "Roof" was tried and dropped: it misplaced
 the only frame members an author coded. Details:
 [eval/frames-2026-11-20.md](eval/frames-2026-11-20.md).
 
+**Slabs that are not floors** (`slabRole`, `findRoofDecks`). Modellers use
+the floor tool for flat roofs, finishes and fins, so a slab typed FLOOR is
+read by its type name first: finish floors ("FB 15.0 - Teppich", "Finish
+Floor - Ceramic Tile", screeds, tiles) go to C3020 Floor Finishes (C2020 on a
+stair), sun-shade fins to B2010, and names saying roof ("plat dak", "dakvloer",
+"Flachdach") to B1020; a name that also names the structure ("Betongdekke 300
++ avretting og flis") stays a floor. Otherwise a slab is the roof when nothing
+lies over it, walls or columns stop under it and no storey's walls stand on it
+(not decided in a model whose roof geometry was not read). The frame under a
+roof slab follows it to B1020. On the 17 models, 600 B1010 slabs became 270
+floors, 251 finishes, 25 stair finishes, 36 sun shades and 18 more roofs
+(HHS Office's 3,537 m² roof deck, FM_ARC's 1,255 m², schependomlaan's flat
+roofs); 114 columns and 28 beams moved from B1010 to B1020, and the authors'
+codes match as before. Details:
+[eval/slab-roles-2026-11-20.md](eval/slab-roles-2026-11-20.md).
+
 **Exterior wall or partition, from the geometry** (`envelope.mjs`). A wall
 with no `IsExternal` flag is placed by its geometry: every wall, curtain wall
 and upright facade piece is read in plan as a rectangle, and rays cast from
