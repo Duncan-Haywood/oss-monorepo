@@ -851,6 +851,13 @@ balance-envelope cases at every bias, but at 0.3 N 22.6% of planned G1 presses a
 every failure is a flip at the press pose; at larger biases a flip in the reference calibration, and the bias's
 direct effect, add failures with no flip at the press. The bias bound is therefore a specification the sensor must
 meet, checked before work, not a nominal value with margin behind it.
+Sizing the planner to the larger bias restores the guarantee only up to about 0.3 N (milestone 65, a ninth held-out
+set of 12 loads). With every margin sized to B and the true bias B along the worst direction, no planned press leaves
+0.03 mm at 0.3 N (worst 0.0270 mm on the G1, 0.0290 mm on the H1) and the chain plans 338 of 338 G1 and 448 of 452 H1
+cases. At 0.4 N 11 of 445 planned H1 presses leave the spec, and at 1.0 N 156 of 331 G1 and 186 of 387 H1 presses do,
+the worst by 0.0730 and 0.0936 mm; coverage stays at 97.93% and 85.62%. Of the 485 presses over spec, 465 have no flip:
+the residual left is the bias's direct effect, close to linear in B (0.073 to 0.097 mm per N), which a budget built
+from flip costs alone does not price. Below 0.2 N it was smaller than the spec, which is why milestones 55 to 63 held.
 
 ### 5.12 What the remedies cost (milestone 13)
 

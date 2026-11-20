@@ -833,6 +833,18 @@ it. One seed; statics; the worst direction, not random ones; the planner re-size
 
 ![Worst residual and share of planned presses over 0.03 mm against the true sensor bias, planner sized to 0.2 N](experiments/m64_overbias/figure.png)
 
+**Milestone 65: does sizing the planner to a larger sensor bias restore the 0.03 mm guarantee, and what coverage does
+it cost?** Up to 0.3 N, yes, and almost nothing. Every margin is sized to the bias bound B and the true bias is B along
+the worst direction, on 12 new held-out loads (seed 65; 48 were registered, cut for run time). **Sized to 0.3 N, no
+planned press leaves 0.03 mm (worst 0.027 G1, 0.029 mm H1) and coverage is 100% G1, 99.1% H1** (H251 held), where the
+0.2 N planner left 12 to 23% of presses over spec. From 0.4 N on presses fail again (H1 2.5% at 0.4 N, both robots
+about 48% at 1.0 N; H250 refuted), but not by flips: 465 of the 485 failures have none. The worst residual grows about
+0.075 to 0.097 mm per newton of bias, the bias's direct effect through the robot's compliance, and the four-row
+budget prices only flips. Coverage stays at least 85.6% at 1.0 N (H252 refuted), so coverage is not the cost. The
+next step is to budget that direct term. 12 loads, one seed; statics.
+
+![Coverage and worst residual against the bias bound the planner is sized to, against keeping the 0.2 N planner](experiments/m65_resized/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
