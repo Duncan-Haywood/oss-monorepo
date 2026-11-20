@@ -109,8 +109,14 @@ work. Two consequences for a reader:
   (0.51 to 0.56 at 10). Designs that throttle more drift more (Spearman 0.83 to 0.88). Across all eight
   set-conditions the median throttle orders the median drift (&rho; = &minus;0.81, p = 0.024). The bend runs
   through cycle 99, so no look up to 50 cycles brings the f = 30 error back to the f = 10 ten-cycle error.
-  On throttling cells a longer straight line only chases the bend. The remedy to test is a curved term
-  whose bend comes from an early sign of the throttle.
+  On throttling cells a longer straight line only chases the bend.
+- Milestone 7u finds the remedy already in the recipe. The early sign of the throttle, the bend of
+  lithium plated over cycles 2 to 10, equals 7c's O3 (the bend of all lithium lost) to within 3e-4 on
+  these plating-dominated cells, and 7c's correction picks O3 on every f = 30 fold. Leave-one-pool-out, it
+  cuts the f = 30 median cycle-99 error from 0.105 to 0.038 and from 0.249 to 0.072, below the f = 10
+  straight-line error and below a straight 50-cycle look. On these cells, correct the ten-cycle forecast
+  rather than lengthen it. Whether that turns the threshold rule's cost on the f = 30 cells
+  into a saving is not yet tested.
 
 ## 5.4 Limitations and next steps
 
