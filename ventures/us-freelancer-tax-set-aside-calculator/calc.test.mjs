@@ -97,3 +97,22 @@ test("1040-ES 90% safe harbor uses federal tax only, not state (audit 2026-11-20
   // independent recomputation of the worked example (audit file, check C4): federal 14,129.55 + 8,235 = 22,364.55; 90% = 20,128.095
   assert.ok(Math.abs(Number(fed90) - 20128.095) <= 0.01, fed90);
 });
+
+test("with a salary, the set-aside is only the tax the freelance work adds (audit 2026-11-20, defect 0)", () => {
+  // $10k gig, $100k W-2, single, no state. By hand: SE 10,000 x 0.9235 x 15.3% = 1,412.96;
+  // extra taxable = 10,000 - 706.48 half-SE - 1,858.70 QBI = 7,434.82 at 22% = 1,635.66; total 3,048.62.
+  const r = compute({ filingStatus: "single", revenue: "10000", expenses: "0", w2Wages: "100000", otherIncome: "0", stateRate: "0" });
+  assert.equal(r.se.total, 1412.96);
+  assert.equal(r.federal, 1635.66);
+  assert.equal(r.total, 3048.62);
+  assert.equal(r.setAsidePct, 30.49);
+  assert.ok(r.totalAll > 16000);
+  assert.ok(r.findings.some((f) => /tax on your W-2 wages and other income alone/.test(f.title)));
+  const es = r.findings.find((f) => /underpayment penalty/.test(f.title));
+  assert.match(es.title, /left for estimates/);
+});
+
+test("with no other income the set-aside equals the tax on everything", () => {
+  const r = compute(SAMPLE);
+  assert.equal(r.total, r.totalAll);
+});

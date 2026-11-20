@@ -46,7 +46,41 @@ export const DEFAULT_OPTIONS = {
   excessive: 0.015, // a typical "excessive" line
   fee: 15, // per-dispute fee, edit to your own
   winRate: 0,
+  includeFraud: false, // count early fraud warnings in the headline ratio, as Visa VAMP does
 };
+
+// Published network programmes the tool reads per brand, besides your own
+// lines. Values as Visa and Mastercard published them; acquirers can apply
+// stricter lines, and the networks change these, so check what you are quoted.
+// Visa Acquirer Monitoring Program (VAMP), effective 1 June 2025: ratio =
+// (TC40 fraud reports + TC15 disputes) / settled card-not-present Visa
+// transactions in the month; merchant "excessive" line 2.2% until
+// 31 March 2026, 1.5% from 1 April 2026 (US, Canada, Europe, Asia Pacific),
+// with at least 1,500 fraud reports plus disputes in the month.
+// Mastercard Excessive Chargeback Program (ECP): chargebacks received in a
+// month / Mastercard transactions in the PREVIOUS month; Excessive
+// Chargeback Merchant (ECM) at 1.5% and 100 chargebacks, High Excessive
+// (HECM) at 3.0% and 300 chargebacks.
+export const PROGRAMMES = {
+  vamp: { name: "Visa VAMP (merchant)", line: 0.015, lineBefore20260401: 0.022, minCount: 1500 },
+  ecm: { name: "Mastercard ECP", ecm: 0.015, ecmMin: 100, hecm: 0.03, hecmMin: 300 },
+};
+
+// Card brand as a network key: visa, mastercard, amex, discover, other or "".
+export function networkOf(brand) {
+  const b = String(brand ?? "").trim().toLowerCase().replace(/[^a-z]/g, "");
+  if (!b) return "";
+  if (b.startsWith("visa")) return "visa";
+  if (b === "mc" || b.startsWith("mastercard") || b.startsWith("master")) return "mastercard";
+  if (b === "amex" || b.startsWith("americanexpress")) return "amex";
+  if (b.startsWith("discover")) return "discover";
+  return b;
+}
+
+export function prevMonth(key) {
+  const [y, m] = key.split("-").map(Number);
+  return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
+}
 
 export function parseCsv(text) {
   const rows = [];
@@ -203,11 +237,24 @@ export function analyze(events, opts = {}) {
     return months.get(key);
   };
   const brands = new Map(), reasons = new Map(), customers = new Map();
+  // Per network and month: charges in the charge month, disputes in the
+  // dispute month, early fraud warnings in the charge month (no EFW date in
+  // the export).
+  const netMonths = new Map();
+  const nm = (net, key) => {
+    const k = `${net}|${key}`;
+    if (!netMonths.has(k)) netMonths.set(k, { network: net, key, txns: 0, disputes: 0, earlyFraud: 0 });
+    return netMonths.get(k);
+  };
   let txns = 0, disputes = 0, volume = 0, disputedAmount = 0;
   for (const e of events) {
     const row = m(e.month);
     row.txns++; row.volume += e.amount; txns++; volume += e.amount;
     if (e.earlyFraud) row.earlyFraud++;
+    const net = networkOf(e.brand);
+    nm(net, e.month).txns++;
+    if (e.earlyFraud) nm(net, e.month).earlyFraud++;
+    if (e.disputed) nm(net, e.disputeMonth).disputes++;
     bucket(brands, e.brand || "(not in file)", (b) => { b.txns++; });
     if (e.disputed) {
       const dm = m(e.disputeMonth);
@@ -219,8 +266,9 @@ export function analyze(events, opts = {}) {
     }
   }
   const byMonth = [...months.values()].sort((a, b) => (a.key < b.key ? -1 : 1)).map((r) => {
-    const ratio = pctOf(r.disputes, r.txns);
-    return { ...r, ratio, status: statusFor(ratio, o) };
+    const counted = r.disputes + (o.includeFraud ? r.earlyFraud : 0);
+    const ratio = pctOf(counted, r.txns);
+    return { ...r, counted, ratio, status: statusFor(ratio, o) };
   });
   // Disputes can land in a month with no sales in the file; the latest month that has charges is the one to judge.
   const last = [...byMonth].reverse().find((r) => r.txns > 0);
@@ -233,9 +281,52 @@ export function analyze(events, opts = {}) {
   // Headroom and dilution for the most recent month.
   const lines = [["watch", o.warn], ["elevated", o.elevated], ["excessive", o.excessive]];
   const room = lines.map(([name, t]) => {
-    const h = headroom(last.txns, last.disputes, t);
-    return { name, threshold: t, headroom: h, txnsNeeded: h < 0 ? txnsToDilute(last.disputes, t) : null, extraTxns: h < 0 ? txnsToDilute(last.disputes, t) - last.txns : 0 };
+    const h = headroom(last.txns, last.counted, t);
+    return { name, threshold: t, headroom: h, txnsNeeded: h < 0 ? txnsToDilute(last.counted, t) : null, extraTxns: h < 0 ? txnsToDilute(last.counted, t) - last.txns : 0 };
   });
+
+  // Each brand's own ratio in the judged month, against your lines, and the
+  // two network programmes as they count.
+  const get = (net, key) => netMonths.get(`${net}|${key}`) || { network: net, key, txns: 0, disputes: 0, earlyFraud: 0 };
+  const brandLatest = [...new Set([...netMonths.values()].map((r) => r.network))].filter((n) => n)
+    .map((net) => {
+      const r = get(net, last.key);
+      const counted = r.disputes + (o.includeFraud ? r.earlyFraud : 0);
+      const ratio = pctOf(counted, r.txns);
+      return { ...r, counted, ratio, status: statusFor(ratio, o) };
+    })
+    .filter((r) => r.txns > 0 || r.disputes > 0)
+    .sort((a, b) => (b.ratio ?? -1) - (a.ratio ?? -1));
+  const programmes = [];
+  const visa = get("visa", last.key);
+  if (visa.txns > 0 || visa.disputes > 0) {
+    const P = PROGRAMMES.vamp;
+    const line = last.key < "2026-04" ? P.lineBefore20260401 : P.line;
+    const count = visa.disputes + visa.earlyFraud;
+    const ratio = pctOf(count, visa.txns);
+    const overRatio = ratio !== null && ratio >= line;
+    programmes.push({
+      id: "vamp", name: P.name, month: last.key, numerator: count,
+      numeratorText: `${visa.disputes} disputes + ${visa.earlyFraud} fraud warnings`,
+      denominator: visa.txns, denominatorText: `${visa.txns} Visa charges in ${last.key}`,
+      ratio, line, minCount: P.minCount, overRatio, countMet: count >= P.minCount,
+      reading: ratio === null ? "no Visa charges this month" : !overRatio ? "under the line" : count >= P.minCount ? "over the line and the minimum count" : `over the ratio line; below the ${P.minCount.toLocaleString("en-US")} count minimum`,
+    });
+  }
+  const mcNow = get("mastercard", last.key), pm = prevMonth(last.key), mcPrev = get("mastercard", pm);
+  if (mcNow.txns > 0 || mcNow.disputes > 0 || mcPrev.txns > 0) {
+    const P = PROGRAMMES.ecm;
+    const ratio = pctOf(mcNow.disputes, mcPrev.txns);
+    const level = ratio === null ? null : ratio >= P.hecm && mcNow.disputes >= P.hecmMin ? "HECM" : ratio >= P.ecm && mcNow.disputes >= P.ecmMin ? "ECM" : null;
+    const overRatio = ratio !== null && ratio >= P.ecm;
+    programmes.push({
+      id: "ecm", name: P.name, month: last.key, numerator: mcNow.disputes,
+      numeratorText: `${mcNow.disputes} chargebacks in ${last.key}`,
+      denominator: mcPrev.txns, denominatorText: `${mcPrev.txns} Mastercard charges in ${pm} (the previous month)`,
+      ratio, line: P.ecm, minCount: P.ecmMin, overRatio, countMet: mcNow.disputes >= P.ecmMin, level,
+      reading: ratio === null ? `no Mastercard charges in ${pm} in the file, so the ratio cannot be computed` : level ? `${level} (excessive chargeback merchant)` : overRatio ? `over the 1.50% ratio line; below the ${P.ecmMin} chargeback minimum` : "under the line",
+    });
+  }
 
   // Trend: average month-over-month change in ratio across the last up-to-four
   // months that have sales, projected forward. Arithmetic, not a forecast.
@@ -258,8 +349,9 @@ export function analyze(events, opts = {}) {
 
   const findings = [];
   const pc = (x) => `${(x * 100).toFixed(2)}%`;
+  const countCaveat = (n) => `Networks measure each brand on its own and also need a minimum count before they identify a merchant (Visa VAMP ${PROGRAMMES.vamp.minCount.toLocaleString("en-US")} fraud reports plus disputes, Mastercard ECM ${PROGRAMMES.ecm.ecmMin} chargebacks); this month has ${n} dispute${n === 1 ? "" : "s"} in total${n < PROGRAMMES.ecm.ecmMin ? ", under both minimums" : ""}.`;
   if (last.status === "excessive" || last.status === "elevated") {
-    findings.push({ severity: "high", title: `${last.key}: ${pc(last.ratio)} of settled charges were disputed (${last.status})`, detail: `${last.disputes} disputes on ${last.txns} charges is above your ${last.status} line of ${pc(last.status === "excessive" ? o.excessive : o.elevated)}. Card networks run their own programs with their own thresholds, which change; compare this with the figures your payment provider or acquirer quotes you.` });
+    findings.push({ severity: "high", title: `${last.key}: ${pc(last.ratio)} of settled charges were disputed (${last.status})`, detail: `${last.disputes} disputes on ${last.txns} charges is above your ${last.status} line of ${pc(last.status === "excessive" ? o.excessive : o.elevated)}. ${countCaveat(last.disputes)} Compare this with the figures your payment provider or acquirer quotes you.` });
   } else if (last.status === "watch") {
     findings.push({ severity: "medium", title: `${last.key}: ${pc(last.ratio)} is above your early-warning line`, detail: `${last.disputes} disputes on ${last.txns} charges. Under your elevated line of ${pc(o.elevated)}, with room for ${Math.max(0, room[1].headroom)} more disputes this month before it is reached.` });
   } else {
@@ -279,16 +371,30 @@ export function analyze(events, opts = {}) {
   if (repeat.length) {
     findings.push({ severity: "medium", title: `${repeat.length} customer(s) disputed more than once`, detail: `Together ${repeat.reduce((s, c) => s + c.disputes, 0)} disputes. Repeat disputers are the cheapest to prevent: stop selling to them and look for what they have in common.` });
   }
+  for (const p of programmes) {
+    if (!p.overRatio) continue;
+    const identified = p.id === "ecm" ? Boolean(p.level) : p.countMet;
+    findings.push({
+      severity: identified ? "high" : "medium",
+      title: `${p.name} ${p.month}: ${pc(p.ratio)} (${p.reading})`,
+      detail: `${p.numeratorText} ÷ ${p.denominatorText}, against the published ${pc(p.line)} line${identified ? "." : ` and minimum count of ${p.minCount.toLocaleString("en-US")}. Below the count minimum the network does not identify you on this programme by itself, but acquirers watch the ratio and can apply their own lines.`}`,
+    });
+  }
+  const rank = { none: 0, ok: 0, watch: 1, elevated: 2, excessive: 3 };
+  const hotBrand = brandLatest.find((b) => b.txns > 0 && rank[b.status] >= 2 && rank[b.status] > rank[last.status]);
+  if (hotBrand) {
+    findings.push({ severity: "high", title: `${hotBrand.network} alone is at ${pc(hotBrand.ratio)} in ${last.key} (${hotBrand.status})`, detail: `${hotBrand.counted} of ${hotBrand.txns} ${hotBrand.network} charges, while the blended figure for all brands is ${pc(last.ratio)}. Networks measure each brand separately, so this brand's line is the one that binds.` });
+  }
   const worstBrand = byBrand.find((b) => b.txns >= 50 && b.key !== "(not in file)" && b.ratio !== null && b.ratio >= 2 * (disputes / txns) && b.disputes >= 3);
   if (worstBrand) {
     findings.push({ severity: "info", title: `${worstBrand.key} disputes run at ${pc(worstBrand.ratio)}`, detail: `More than twice the overall ${pc(disputes / txns)}. Networks measure each brand separately, so a bad month on one brand can matter even when the blended figure looks fine.` });
   }
   const efw = byMonth.reduce((s, r) => s + r.earlyFraud, 0);
-  if (efw > 0) findings.push({ severity: "info", title: `${efw} early fraud warning(s) not yet disputed`, detail: "Some network programs count fraud reports as well as disputes. These charges are not in the dispute ratio above; refunding them early may stop a dispute from being filed." });
+  if (efw > 0) findings.push({ severity: "info", title: `${efw} early fraud warning(s) not yet disputed`, detail: o.includeFraud ? "They are counted in the monthly ratio above, as Visa VAMP counts TC40 fraud reports alongside disputes. Refunding them early may stop a dispute from being filed." : "Visa VAMP counts fraud reports alongside disputes; the monthly ratio above does not (tick “Count early fraud warnings” to include them), but the Visa VAMP row does. Refunding them early may stop a dispute from being filed." });
 
   return {
     summary: { txns, disputes, volume, disputedAmount, ratio: pctOf(disputes, txns), from: byMonth[0].key, to: byMonth[byMonth.length - 1].key, months: byMonth.length },
-    options: o, byMonth, byBrand, byReason, repeat, room, projection, cost, findings,
+    options: o, byMonth, byBrand, brandLatest, programmes, byReason, repeat, room, projection, cost, findings,
   };
 }
 
