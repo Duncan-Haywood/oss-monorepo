@@ -1,0 +1,215 @@
+{
+ "date": "2026-11-20",
+ "subject": "ventures/bandcamp-sales-report-analyzer",
+ "stratum": "venture",
+ "seed": "2026-11-20-c394",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an independent label manager / music accountant who reconciles Bandcamp payouts; first checks: does 'fees' separate Bandcamp's revenue share (15% digital, 10% physical and merch including shipping, digital dropping to 10% after $5,000 of sales in the trailing 12 months) from payment-processor fees (percentage plus fixed part, charged per transaction), does net reconcile to the report's net amount, are the Bandcamp sales report columns read, are other currencies and European number formats handled, are refunds netted, and are band/label splits possible. Bandcamp's public pages were not fetched (the container's proxy blocks most hosts and the live site returned 000); the rate card and column names above are cited from memory of Bandcamp's pricing page and sales report export, and are flagged as such.",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Probe /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/probe.mjs imports the shipped calc.mjs; an independent Python script indep.py in the same folder (csv module, no subject import) recomputes from the CSV. Pass: on the 320-row built-in example the totals match exactly (gross 3486.30, shipping 335.00, fee 677.10, net 3144.20, fee rate 17.7191%), 174 buyers / 91 repeat, 61 small sales at 48.6577% fee rate, physical profit 804.60 at unit cost 9 and postage 4. Fail: the break-even price is wrong. The tool's own physical fee rate is fee/(gross+shipping), i.e. fees fall on shipping too (as both Bandcamp's physical share and processor fees do), but calc.mjs:254 divides the shipping credit by (1-f) as if it were fee-free. The test fixture (6 LPs, $5 shipping, 10% fees, cost 10, postage 6) gives 12.2222 where the price that zeroes profit is 12.7778 (at the tool's price each unit loses $0.50); on the example 9.4531 vs 10.1452 (7% low). Fail: European files: parseNumber's decimalComma flag is never passed (calc.mjs:169), so a semicolon file with '8,50' reads as 850 (probe: gross 850, net 700, shown as '$700.00' for a EUR file) - a silent 100x error on exactly the files detectDelimiter's ';' branch exists for. Fail: money() hard-codes '$' (calc.mjs:298), so EUR/GBP reports show dollar signs. Partial: if the report's transaction fee column holds only the processor fee (memory says Bandcamp shows its share apart from the processor fee; unverified), a $10 album with 0.59 processor fee and 7.91 net is reported as 'Fees took 5.9% of what buyers paid' while 21% was taken, and the $1.50 gap is not surfaced. Sums right, derived numbers wrong in ways a user acts on: 2.",
+  "completeness": "Claimed (README, page, VENTURE.yaml): fees and fee rate, net by item type, release, month and country, small-sale fee drag, physical profit and break-even from typed costs, refunds apart, discount-code share, repeat buyers, month CSV download, local-only parsing. Each is implemented and produces output on the example and on hand files (probe); dates in Bandcamp's 'm/d/yy h:mmpm' form parse (1/15/26 10:23pm -> 2026-01-15). The break-even exists but is wrong (scored under correctness). `node platform/pages/served-copy.mjs bandcamp-sales-report-analyzer` builds the served tree with no placeholder origins; the github.io link in llms.txt is rewritten at deploy (source-only, not filed). No stubs or TODOs. 3.",
+  "verification": "`cd ventures/bandcamp-sales-report-analyzer && node --test '*.test.mjs'`: 29/29 pass, 0.11 s. Six mutants via quality_mutate.py, five survived: net fallback dropping shipping (calc.mjs:178; the only fallback test has shipping 0), small-sale threshold < -> <= (245), refund detection ignoring negative net (185), per-group fee rate ignoring shipping (217), postage per unit instead of per order (252). Only the break-even sign flip was caught, and the break-even test re-states the author's (wrong) formula rather than checking that profit is zero at that price (tests-check-a-copy). No test uses a semicolon/decimal-comma file, a non-USD currency label, or a real Bandcamp header. 1 of 6 caught: 1.",
+  "craft": "Read calc.mjs (330 lines), index.html script block, all three test files. Good: pure functions, buyer text dropped at parse and asserted absent, line numbers kept through quoted newlines, skipped rows named with reasons. Defects: parseNumber's decimalComma parameter is dead (never passed); `reconciles` (calc.mjs:268) only checks that the item-type groups sum to their own total, which is true by construction, and is never displayed, while the page states a reconciliation that is not computed; money() is currency-blind; the main currency is chosen by row count not value; dense one-line expressions (normalizeRows 170-186) make the net/gross precedence rules hard to review (sub total 0 falls back to price*qty, net 0 falls back to derived). 2.",
+  "claims": "Pass: disclaimer, no-warranty and not-affiliated text on the page (page.test.mjs asserts them; served copy has them); 'file is never uploaded' backed by local-only imports and a no-network test; the 'column names matched by alias from memory, no real export' limit is stated honestly on page, README and VENTURE.yaml; 'not modelled: currency conversion, label or band splits' stated. Fail: the page says 'Reconciles. The item-type rows add up to total net, and net equals sales plus shipping minus fees' - the second half is never checked (a file whose net is 1.50 below gross-fee still gives reconciles=true) and is false for any report where the fee column does not include Bandcamp's share or fan contributions sit outside sub total. Partial: the hero 'the fees actually taken' and FAQ 'what Bandcamp fees actually cost me' are only the transaction fee column; the break-even claim ('applies the fee rate seen on your physical sales and the shipping buyers paid') is implemented inconsistently. Live host 000 through proxy; served copy used. 2.",
+  "fitness": "Job walked as the label manager: export the year's sales report, drop it in, read fees by format, decide a vinyl price, pay the band its split. Fees/net by format and release: done for a USD file with '.' decimals. Vinyl price: the break-even is understated by about fee rate x shipping per unit. Band/label split: not modelled (stated). Multi-currency label (USD, EUR, GBP sales): only the commonest currency by row count is analysed, with $ symbols. Revenue-share tier check (did digital drop to 10% after $5k?): impossible because Bandcamp's share and processor fees are not separated. A solo artist gets a useful first look; an accountant cannot sign off a payout reconciliation with it. 2.",
+  "domain": "Compared against Bandcamp's published pricing as recalled (15% digital, 10% physical/merch including shipping, digital 10% after $5k trailing-12-month sales; processor fees separate, roughly 2.9%-plus-fixed on cards or PayPal micropayment rates, per transaction) and normal royalty-accounting practice. The design choice to read fees from the file rather than hard-code a changing rate card is sound and stated. Departures: no decomposition into Bandcamp share vs processor fee and no residual (gross + shipping + contribution - fee - net) to expose an unexplained take; no tier check; refunds excluded rather than netted, so a sale refunded in the same period still counts in net (probe: sale 8.50 plus refund -8.50 reports net 8.50); fan contributions are left out of the fee-rate denominator while their fee is in the numerator (probe: $5 item + $5 contribution, fee 1.50 -> 30% 'fee rate', true 15%); 'bundle' is classified physical though Bandcamp uses bundles for digital discographies (memory). 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Totals and fee rate on the 320-row built-in example",
+   "method": "independent Python csv-module sum of sub total, shipping, transaction fee, net amount (no subject import)",
+   "command": "S=/tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad; node $S/probe.mjs $S && python3 -I $S/indep.py $S/sample.csv",
+   "expected": "gross 3486.30, ship 335.00, fee 677.10, net 3144.20, fee rate 0.177191",
+   "observed": "gross 3486.3, ship 335, fee 677.1, net 3144.2, feeRate 0.177191",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Repeat buyers and small-sale fee drag on the example",
+   "method": "independent Python Counter over buyer email; sales with sub total/qty < 3",
+   "command": "python3 -I $S/indep.py $S/sample.csv",
+   "expected": "174 buyers, 91 repeat; 61 small sales at 48.6577%",
+   "observed": "174 / 91; 61 at 0.486577",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Physical break-even price (6 LPs at $20 + $5 shipping, fees 10% of item+shipping, cost 10, postage 6)",
+   "method": "algebra by hand: solve (P*u + ship)(1-f) = cost*u + postage*orders, fee applying to shipping as the tool's own fee rate assumes; independent Python",
+   "command": "python3 -I $S/indep.py $S/sample.csv; node $S/probe.mjs $S | grep BREAKEVEN",
+   "expected": "12.7778 (example file: 10.1452)",
+   "observed": "12.2222, profit at that price -0.50/unit (example file: 9.4531)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Semicolon-delimited European file with decimal commas",
+   "method": "by hand: '8,50' EUR is 8.50",
+   "command": "node $S/probe.mjs $S | grep DECIMAL_COMMA",
+   "expected": "gross 8.50, net 7.00, shown in EUR",
+   "observed": "gross 850, net 700, fee 150, shown '$700.00'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Fee rate when the transaction fee column holds only the processor fee ($10 album: Bandcamp 15% = 1.50, processor 0.59, net 7.91)",
+   "method": "Bandcamp pricing page as recalled (15% digital share) - not fetched; arithmetic by hand",
+   "command": "node $S/probe.mjs $S | grep REVSHARE",
+   "expected": "total take 2.09 (20.9%), or at least the 1.50 unexplained gap surfaced",
+   "observed": "'Fees took 5.9% of what buyers paid', reconciles true, gap not shown",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sale and its refund in the same file",
+   "method": "royalty-accounting practice: net revenue is net of refunds",
+   "command": "node $S/probe.mjs $S | grep REFUND",
+   "expected": "net 0.00 for the period (or totals shown both ways)",
+   "observed": "net 8.50, refund -8.50 shown apart (disclosed on page)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Bandcamp-style date '1/15/26 10:23pm' and item types album/track/package/bundle",
+   "method": "Bandcamp sales report format as recalled (m/d/yy with time; item types album, track, package, bundle)",
+   "command": "node $S/probe.mjs $S | grep -E 'DATE|CLASSIFY'",
+   "expected": "2026-01-15; album/track digital, package physical, bundle digital",
+   "observed": "2026-01-15; bundle=physical",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run the suite",
+   "command": "cd ventures/bandcamp-sales-report-analyzer && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "29/29 pass, 0.11 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Served tree builds, no stale origins",
+   "method": "deploy rewrite into a scratch copy",
+   "command": "node platform/pages/served-copy.mjs bandcamp-sales-report-analyzer",
+   "expected": "no placeholder or retired origin",
+   "observed": "no placeholder or retired origin left in llms.txt, sitemap.xml, robots.txt or canonicals",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Page claim 'net equals sales plus shipping minus fees' (Reconciles)",
+   "method": "feed a row whose net is 1.50 below sub total - fee; read r.reconciles and calc.mjs:268",
+   "command": "node $S/probe.mjs $S | grep REVSHARE",
+   "expected": "flagged as not reconciling",
+   "observed": "reconciles true; the check only sums groups to their own total and is never displayed",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, privacy and not-affiliated text; alias-from-memory limit",
+   "method": "read index.html, README.md, VENTURE.yaml; page.test.mjs",
+   "command": "grep -c 'No warranty\\|Not affiliated\\|matched by alias from memory' ventures/bandcamp-sales-report-analyzer/index.html",
+   "expected": "present",
+   "observed": "present on page, README and VENTURE.yaml",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Currency labelling of money shown for a non-USD report",
+   "method": "render money() for an EUR file",
+   "command": "node $S/probe.mjs $S | grep DECIMAL_COMMA",
+   "expected": "EUR or euro sign",
+   "observed": "'$700.00' with 'in EUR' only in the stats line",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page",
+   "method": "curl",
+   "command": "curl -s -o /dev/null -m 15 -w '%{http_code}' https://marisstella.app/bandcamp-sales-report-analyzer/",
+   "expected": "200",
+   "observed": "000 through this container's proxy; served-copy used",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {"where": "calc.mjs:178", "change": ": gross + shipping - fee; -> : gross - fee; (net fallback drops shipping)", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:245", "change": "s.gross / Math.max(1, s.qty) < MICRO_SALE -> <= MICRO_SALE", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:185", "change": "|| gross < 0 || net < 0 -> || gross < 0 (refund on negative net ignored)", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:217", "change": "group feeRate fee / (gross + shipping) -> fee / gross", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:254", "change": "(1 - pFeeRate) -> (1 + pFeeRate) in breakEven", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:252", "change": "a.postage * physical.length -> a.postage * pUnits (postage per unit, not per order)", "caught": false, "test_cmd": "node --test '*.test.mjs'"}
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Break-even price understated: the physical fee rate is measured on item+shipping, but the formula treats collected shipping as fee-free, dividing the shipping credit by (1-f). Fixture: 12.22 instead of 12.78 (each unit loses $0.50 at the shown price); built-in example 9.45 instead of 10.15. The test restates the same formula instead of checking profit is zero at the break-even price.",
+   "where": "ventures/bandcamp-sales-report-analyzer/calc.mjs:254",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "Decimal-comma numbers are read 100x too large: parseNumber has a decimalComma flag but normalizeRows never passes it, so a semicolon-delimited European export ('8,50') reads as 850 with no warning.",
+   "where": "ventures/bandcamp-sales-report-analyzer/calc.mjs:169",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Bandcamp's revenue share is never separated from processor fees and no residual (gross + shipping + contribution - fee - net) is computed, so if the fee column holds only the processor fee the headline 'Fees took 5.9%' hides a 15% share; the page's 'net equals sales plus shipping minus fees' reconciliation is asserted but never checked (reconciles only tests that groups sum to their own total).",
+   "where": "ventures/bandcamp-sales-report-analyzer/calc.mjs:268",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "5 of 6 seeded mutants survive (net fallback shipping, small-sale threshold, refund-by-negative-net, per-group fee rate, postage per order); no test with a decimal-comma file, a non-USD currency, or a header copied from a real Bandcamp export.",
+   "where": "ventures/bandcamp-sales-report-analyzer/calc.test.mjs:52",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "money() hard-codes '$', so EUR, GBP, CAD, AUD and JPY reports show dollar signs on every figure.",
+   "where": "ventures/bandcamp-sales-report-analyzer/calc.mjs:298",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Additional fan contributions sit outside the fee-rate denominator while their fees are inside it ($5 item + $5 contribution, fee 1.50 reports a 30% fee rate); refunds are excluded rather than netted, so a sale refunded in the same period still counts in net (disclosed).",
+   "where": "ventures/bandcamp-sales-report-analyzer/calc.mjs:232",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Item type 'bundle' is classified physical; Bandcamp bundles are usually digital discographies (from memory, unverified).",
+   "where": "ventures/bandcamp-sales-report-analyzer/calc.mjs:136",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Column names and item-type wording were never checked against a real Bandcamp export (stated); label/band splits and multi-currency labels are out of scope, so the label-accounting job cannot be finished.",
+   "where": "ventures/bandcamp-sales-report-analyzer/calc.mjs:95",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy, privacy-respecting single-module CSV analyzer whose plain sums are right: an independent Python pass over the 320-row example reproduces gross 3486.30, fees 677.10, net 3144.20, the 17.72% fee rate, 174/91 buyers and the 48.66% small-sale fee rate exactly. It misses the bar on correctness, verification and claims. The physical break-even price, the number a label would set a vinyl price from, is understated (12.22 vs 12.78 on the test fixture, 9.45 vs 10.15 on the example) because shipping is treated as fee-free in the formula but not in the fee rate; a semicolon/decimal-comma export reads 100x high because the decimal-comma flag is never wired; every figure carries a '$' whatever the currency; and the page claims net reconciles to sales plus shipping minus fees while no such check exists and Bandcamp's revenue share is never separated from processor fees. Five of six seeded mutants survive and the break-even test restates the buggy formula. It is honest about its biggest limit (column names from memory, no real export) and about not modelling splits or conversion."
+}
