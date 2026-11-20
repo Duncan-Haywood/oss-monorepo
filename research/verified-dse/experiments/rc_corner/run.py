@@ -7,7 +7,7 @@ re-measured).
 
 Two arms, same tools: "nom" (the ORFS platform as it is, milestone 143's setting) and "rcmax". The control (--control: the first
 design, its first 12 sequences, nominal RC) found that today's tools (Yosys 0.71, OpenROAD 26Q3 as built by nixpkgs today) do not
-reproduce milestone 143's rows: the mapped netlist differs on 6 of 11 ok points and the routed numbers on all 11 (control.jsonl). So
+reproduce milestone 143's rows: the mapped netlist differs on 7 of 11 ok points and the routed numbers on all 11 (control.jsonl). So
 milestone 143's table cannot be the nominal arm; this flow reruns it with the same tools as the rcmax arm, and the pair differs in
 wire RC only. The nominal arm doubles as a tool-version replication of milestone 143 (reported, not predicted).
 
