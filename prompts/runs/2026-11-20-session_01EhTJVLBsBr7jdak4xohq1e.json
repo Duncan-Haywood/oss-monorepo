@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 6,
   "outcome": "success",
@@ -43,7 +43,7 @@
     "docs/posts/2026-11-20-league-page-offline-at-the-field.md"
   ],
   "goal": null,
-  "notes": "pwa.test.mjs 6/6; eval/offline-browser.mjs in Chromium 11/11 (caught the Show-only restore running before the filter existed; fixed). First full venture run failed 1 test: deploy.test.mjs said the Dockerfile did not copy pwa.mjs; fixed. Final suite and venture-preflight results are added before merge.",
+  "notes": "pwa.test.mjs 6/6; eval/offline-browser.mjs in Chromium 11/11 (caught the Show-only restore running before the filter existed; fixed). First full venture run failed 1 test: deploy.test.mjs said the Dockerfile did not copy pwa.mjs; fixed. After the fix: run_venture_tests.py league-schedule-generator ok (824 tests, 287 s); venture-preflight.mjs league-schedule-generator: preflight clean.",
   "corrections": [],
   "redteam": null
 }
