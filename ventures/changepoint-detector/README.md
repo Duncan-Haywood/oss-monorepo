@@ -114,7 +114,7 @@ the CSV reader; `stats-core.mjs` the numerical helpers every module shares (medi
 log-gamma family, the NB1 cost terms, the seeded RNG, lag-1, Prais-Winsten and least squares), which
 `hinge-test.mjs`, `two-hinge.mjs`, `known-date.mjs`, `slope-breaks.mjs` and `drift-level.mjs` used to copy. A new
 module the watch needs goes in `deploy/make-watch-repo.sh` too (then `node deploy/build-watch-repo-files.mjs`), or a
-deployer's repository is missing it.
+deployer's repository is missing it (`watch-modules-closed.test.mjs` fails when one is left out).
 
 ## Verification
 
