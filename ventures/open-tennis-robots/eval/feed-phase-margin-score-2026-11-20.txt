@@ -1,0 +1,24 @@
+long@2: 288 builds, margin 2 at 1.5 ms
+  instant: 108 builds; per build: survey wheels 46.0, kept 12.5, straddling at 1.5 ms 2.51 (max 7, none on 8); misadvised 2 of 108
+  1.3-2.1 ms: 108 builds; per build: survey wheels 46.0, kept 13.2, straddling at 1.5 ms 2.45 (max 8, none on 6); named 66 of 108
+    by take: 1.3 ms 18 of 36, 1.6 ms 23 of 36, 2 ms 25 of 36
+  2.4-2.8 ms: 72 builds; per build: survey wheels 46.0, kept 13.7, straddling at 1.5 ms 2.14 (max 7, none on 10); named 61 of 72
+    by take: 2.4 ms 29 of 36, 2.8 ms 32 of 36
+fast@3: 288 builds, margin 3 at 1.5 ms
+  instant: 108 builds; per build: survey wheels 46.0, kept 17.7, straddling at 1.5 ms 3.63 (max 9, none on 4); misadvised 2 of 108
+  1.3-2.1 ms: 108 builds; per build: survey wheels 46.0, kept 18.3, straddling at 1.5 ms 3.24 (max 7, none on 2); named 48 of 108
+    by take: 1.3 ms 7 of 36, 1.6 ms 15 of 36, 2 ms 26 of 36
+  2.4-2.8 ms: 72 builds; per build: survey wheels 46.0, kept 18.0, straddling at 1.5 ms 2.99 (max 6, none on 4); named 65 of 72
+    by take: 2.4 ms 31 of 36, 2.8 ms 34 of 36
+long@3: 288 builds, margin 3 at 1.5 ms
+  instant: 108 builds; per build: survey wheels 46.0, kept 12.5, straddling at 1.5 ms 2.51 (max 7, none on 8); misadvised 0 of 108
+  1.3-2.1 ms: 108 builds; per build: survey wheels 46.0, kept 13.2, straddling at 1.5 ms 2.45 (max 8, none on 6); named 37 of 108
+    by take: 1.3 ms 6 of 36, 1.6 ms 13 of 36, 2 ms 18 of 36
+  2.4-2.8 ms: 72 builds; per build: survey wheels 46.0, kept 13.7, straddling at 1.5 ms 2.14 (max 7, none on 10); named 61 of 72
+    by take: 2.4 ms 29 of 36, 2.8 ms 32 of 36
+fast@2: 288 builds, margin 2 at 1.5 ms
+  instant: 108 builds; per build: survey wheels 46.0, kept 17.7, straddling at 1.5 ms 3.63 (max 9, none on 4); misadvised 2 of 108
+  1.3-2.1 ms: 108 builds; per build: survey wheels 46.0, kept 18.3, straddling at 1.5 ms 3.24 (max 7, none on 2); named 75 of 108
+    by take: 1.3 ms 19 of 36, 1.6 ms 26 of 36, 2 ms 30 of 36
+  2.4-2.8 ms: 72 builds; per build: survey wheels 46.0, kept 18.0, straddling at 1.5 ms 2.99 (max 6, none on 4); named 67 of 72
+    by take: 2.4 ms 33 of 36, 2.8 ms 34 of 36

@@ -404,11 +404,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "Where the ball lands in a revolution"
-      (2026-11-20: the sim fixed each ball's phase; with a random release,
-      --feed-jitter 26, the long drill names 21 of 36 short takes, 1 of 36 instant
-      misadvised; eval/feed-phase-2026-11-20.md). Next: margin 3 with the fast drill
-      on fresh seeds (NEXT.md).
+      see firmware/esp32/README.md, latest "Margin 3 with the fast drill, on fresh
+      seeds" (2026-11-20: rule failed, 48 vs 66 of 108 short takes, 2 vs 2 of 108
+      instant misadvised; eval/feed-phase-margin-2026-11-20.md). Next: the fast
+      drill vs the long drill at the shipped margins on fresh seeds (exploratory 75
+      vs 66 short; NEXT.md).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
