@@ -72,6 +72,7 @@ M58 = E + "m58_tworow/results.txt"
 M59 = E + "m59_depth/results.txt"
 M60 = E + "m60_jointpreload/results.txt"
 M61 = E + "m61_lastfour/results.txt"
+M62 = E + "m62_exactgate/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -297,6 +298,10 @@ CHECKS = [
     (M61, "| 4050 | 4050 | 0 | 0 | 0 | 100.00% |", "4050 of 4050 on\nthe G1"),
     (M61, "| 5436 | 5423 | 13 | 0 | 0 | 100.00% |", "5436 of 5436 on the H1"),
     (M61, "h1 | 912 | 0 | 0.000, 44.369 | 115", "up to\n44.4 N tighter"),
+    (M62, "g1 | 720 | 0 | 0 | 0.000, 31.475, 312 | 0.000, 6.624, 8, 7", "0.01 N in 712 of 720 G1"),
+    (M62, "h1 | 912 | 0 | 0 | 0.000, 45.214, 110 | 0.000, 0.124, 8, 0", "904 of 912 H1"),
+    (M62, "g1 | 3996 | 3996 |", "3996 of 3996 on the G1"),
+    (M62, "h1 | 5400 | 5400 |", "5400 of 5400 on the H1"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

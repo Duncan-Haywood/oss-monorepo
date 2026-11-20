@@ -833,6 +833,10 @@ the G1 and 5436 of 5436 on the H1, inside 0.03 mm at both points with no flip. N
 mechanisms recurs. A development probe on them found the elbow case planned by a squeeze of 12.5 N, above the 10 N
 chosen in milestone 38, and the G1 cases at or past the planner's own limit on the pose's hold sides, which is up to
 44.4 N tighter than the balance test used as the envelope gate; other hold sides recover most of that gap.
+Over every hold-side combination (milestone 62, a sixth held-out set) the planner's limit equals the balance limit
+to 0.01 N in 712 of 720 G1 and 904 of 912 H1 pose-direction pairs; the only pairs more than 0.5 N short are 7 on the
+G1 at 46 to 60 N, above any working hose load. With hold sides chosen per load, the balance test is the planner's
+envelope, and the chain plans every case inside it: 3996 of 3996 on the G1 and 5400 of 5400 on the H1.
 
 ### 5.12 What the remedies cost (milestone 13)
 

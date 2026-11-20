@@ -117,6 +117,8 @@ EXPERIMENTS = {
                          35, []),
     "m61_lastfour": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m60_jointpreload/core.py (and so m59's to m38's), reads m50 and m52 results.json",
                      40, []),
+    "m62_exactgate": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m61_lastfour/run.py (and so m60's to m38's), reads m50 and m52 results.json",
+                      30, [("probe.py", "probe.out")]),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]
