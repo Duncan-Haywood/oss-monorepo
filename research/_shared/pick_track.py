@@ -38,6 +38,7 @@ import re
 import random
 import json
 import subprocess
+import shutil
 import sys
 import time
 import urllib.error
@@ -837,6 +838,25 @@ def chain_line(slug, minimum=CHAIN_MIN, text=None):
             "the programme more (research/PROGRAMMES.md, 'A programme is done when ...'); your call")
 
 
+def tex_line(slug, which=shutil.which):
+    """A cue to start the TeX install early when the drawn programme has a LaTeX paper and
+    this box has no pdflatex, else None. Why: about ten run records (2026-11-12..20) met a
+    missing class (IEEEtran, elsarticle) or rsvg-convert only at the first compile, after
+    installing what research/CLAUDE.md lists; texenv.py installs a set that covers every
+    paper here and checks each class and package the sources name."""
+    paper = RESEARCH / slug / "paper"
+    if which("pdflatex") or not paper.is_dir():
+        return None
+    try:
+        sources = [f for f in paper.iterdir() if f.suffix in (".tex", ".py", ".sh")]
+        if not any("documentclass" in f.read_text(errors="replace") for f in sources):
+            return None
+    except OSError:
+        return None
+    return (f"TeX: research/{slug}/paper is LaTeX and this box has no pdflatex; if the step compiles it, "
+            f"start `python3 research/_shared/texenv.py research/{slug}/paper` with run_in_background now")
+
+
 def post_limits_line():
     """The blog post front-matter caps, printed at the end of the draw: nine research
     sessions in three days (friction_rank.py --live, 2026-11-12..15) met the 160-character
@@ -891,6 +911,9 @@ if __name__ == "__main__":
             cue = chain_line(slug)
             if cue:
                 print(cue)
+            tex = tex_line(slug)
+            if tex:
+                print(tex)
             for line in newest_log_entries(slug):
                 print(f"  LOG.md {line}")
         else:
