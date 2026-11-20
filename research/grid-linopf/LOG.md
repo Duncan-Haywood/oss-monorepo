@@ -1,5 +1,8 @@
 # Research log
 
+## 2026-11-20 · Why does every widening variant lose held-out case1888 API? (plan)
+- Plan, a per-round trace of the repair on case1888_rte API under the frozen repair and rule C, three single-firing ablations of rule C, and predictions K0 to K5: `research/infra-dcopf/LOG.md` (2026-11-20); script `research/infra-dcopf/experiments/diag_case1888.py`.
+
 ## 2026-11-20 · Rule C: outcome. All seven predictions held: development finishers 32 of 34 (none lost, case73 API clean at +3.26 %), held-out 10 of 19 as frozen (case500 SAD in, case1888 API out), 0 repeats. The leading candidate, not yet adopted
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-20); numbers in `research/infra-dcopf/experiments/results_enlarge_rel.txt`. C1 to C7 held.
 - With the cap at twice the current stored box the rule fired on 25 and declined on 50 of 75 failed development QPs; case30 API and case200 API finish again (later and dearer than frozen) and case73 API keeps rule E's finish.

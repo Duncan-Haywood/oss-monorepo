@@ -430,6 +430,7 @@ def check(ppc, pg, vg, warm=None):
     sf = end_flows(r)
     nbr = br.shape[0]
     load = np.maximum(sf[:nbr], sf[nbr:])[on] / rate[on]
+    wb = int(np.flatnonzero(on)[int(np.argmax(load))]) if on.any() else None
     live = ppc["gen"][:, GEN_STATUS] > 0
     s = slack_gen(ppc)
     ps = g[s, PG]
@@ -448,6 +449,7 @@ def check(ppc, pg, vg, warm=None):
         "qviol": int((qexc > TOL["q"]).sum()), "q_exc_mvar": float(np.maximum(qexc, 0.0).sum()),
         "cost": float(totcost(ppc["gencost"][live], g[live, PG]).sum()),
         "losses": float(g[live, PG].sum() - bus[:, 2].sum()),
+        "worst_br": wb, "worst_end": None if wb is None else int(wb if sf[wb] >= sf[nbr + wb] else nbr + wb),
     }
     out["p_clean"] = out["n_over"] == 0 and out["slack_out_mw"] < TOL["slack"] and out["n_ang"] == 0
     out["clean"] = out["p_clean"] and out["vviol"] == 0 and out["qviol"] == 0
@@ -475,7 +477,7 @@ VBOX = 0.03
 
 def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, screen=False, solver="pips",
         record=False, warm=None, warm_check=False, merit_fn=None, enlarge=None, info=None,
-        enlarge_once=False, enlarge_rel=False):
+        enlarge_once=False, enlarge_rel=False, trace=None, enlarge_skip=()):
     """Successive linearisation in (P, V): C's step rules (no P box in round 1, then 20 % of range,
     halved on a rejected step), a V box of VBOX pu from round 1 halved with P's, elastic fallback.
     Each history entry keeps its point under "pg" and "vg".
@@ -489,8 +491,14 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
     enlarge_once: rule O (LOG.md 2026-11-19, E-once): rule E at most once per base point; after an enlarged
     step from the current base point, a failed hard QP goes to the elastic chain (recorded as blocked).
     enlarge_rel: rule C (LOG.md 2026-11-20): rule E with its cap taken as `enlarge` times the current stored
-    boxes instead of the first boxes, so every halving also halves what the widening can reach."""
+    boxes instead of the first boxes, so every halving also halves what the widening can reach.
+    trace (diagnostic, LOG.md 2026-11-20, case1888 API): a list that collects one dict per round (halvings so
+    far, base and trial merits, accepted, the trial's worst rated branch, and the linearised prediction of
+    that branch's loading); it does not change the repair.
+    enlarge_skip (an ablation, same entry): rounds on which the enlarged step is not tried (the round then
+    goes straight to the elastic chain); default none."""
     mf = merit_fn or merit
+    halvings = 0
     lay = Layout(ppc)
     g = ppc["gen"]
     ptrust = np.maximum(0.2 * (g[:, PMAX] - g[:, PMIN]), 0.1)
@@ -516,6 +524,9 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
             if not kw and enlarge is not None and enlarge_once and used_here:
                 if info is not None:
                     info.append({"it": it, "blocked": True})
+            elif not kw and enlarge is not None and it in enlarge_skip:
+                if info is not None:
+                    info.append({"it": it, "skipped": True})
             elif not kw and enlarge is not None:
                 xp, xv, ok, inf = enlarged_step(ppc, lin, pt, vtrust, margin,
                                                 enlarge * (ptrust if enlarge_rel else p_first),
@@ -528,24 +539,58 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
                     break
         if not ok:
             hist.append({"it": it, "status": "QP infeasible"})
+            if trace is not None:
+                trace.append({"it": it, "halvings": halvings, "status": "QP infeasible"})
             ptrust, vtrust = ptrust / 2, vtrust / 2
+            halvings += 1
             continue
         vg = lay.vg_of(xv)
         c = check(ppc, xp, vg, warm if warm_check else None)
         if c is None:
             hist.append({"it": it, "status": "PF failed"})
+            if trace is not None:
+                trace.append({"it": it, "halvings": halvings, "status": "PF failed"})
             ptrust, vtrust = ptrust / 2, vtrust / 2
+            halvings += 1
             continue
         hist.append({"it": it, "status": "clean" if c["clean"] else "not clean", "qp": "+".join(kw) or "hard",
                      **c, "pg": xp.copy(), "vg": vg.copy()})
+        acc = bool(c["clean"] or cur is None or mf(c, ppc["baseMVA"]) < mf(cur, ppc["baseMVA"]))
+        if trace is not None:
+            trace.append(_trace_round(ppc, lin, xp, xv, c, cur, mf, it, halvings, hist[-1]["qp"], acc))
         if c["clean"]:
             break
-        if cur is None or mf(c, ppc["baseMVA"]) < mf(cur, ppc["baseMVA"]):
+        if acc:
             pg, v, cur = xp.copy(), xv.copy(), c
             used_here = False
         else:
             ptrust, vtrust = ptrust / 2, vtrust / 2
+            halvings += 1
     return hist
+
+
+def _trace_round(ppc, lin, xp, xv, c, cur, mf, it, halvings, qp, acc):
+    """slp's diagnostic record of one solved round (LOG.md 2026-11-20, case1888 API). The linearised
+    loading of a branch end is m0 + J dx over the end-flow rows, divided by the rating, as in `rows`."""
+    base_mva = ppc["baseMVA"]
+    br = ppc["branch"]
+    nbr = br.shape[0]
+    x0 = np.concatenate([lin["pg0"], lin["v0"]])
+    dx = np.concatenate([xp, xv]) - x0
+    pred = lin["m0"][1:1 + 2 * nbr] + lin["J"][1:1 + 2 * nbr] @ dx
+    base_flow = lin["m0"][1:1 + 2 * nbr]
+    rate = np.concatenate([br[:, RATE_A], br[:, RATE_A]])
+    on = (np.concatenate([br[:, BR_STATUS], br[:, BR_STATUS]]) > 0) & (rate > 0)
+    lp = np.where(on, pred / np.where(on, rate, 1.0), -np.inf)
+    lb = np.where(on, base_flow / np.where(on, rate, 1.0), -np.inf)
+    w = c.get("worst_end")
+    return {"it": it, "halvings": halvings, "qp": qp, "accepted": acc,
+            "phi_base": None if cur is None else float(mf(cur, base_mva)), "phi_trial": float(mf(c, base_mva)),
+            "max_load": c["max_load"], "n_over": c["n_over"], "worst_br": c.get("worst_br"),
+            "worst_base": None if w is None else float(lb[w]), "worst_pred": None if w is None else float(lp[w]),
+            "pred_max": float(lp.max()), "dp_max_mw": float(np.abs(dx[:len(xp)]).max()),
+            "dv_max_pu": float(np.abs(dx[len(xp):]).max()) if len(xv) else 0.0,
+            "vviol": c["vviol"], "qviol": c["qviol"], "slack_out_mw": c["slack_out_mw"], "cost": c["cost"]}
 
 
 ENLARGE_SLACK = 1.10  # rule E: the hard QP is re-solved at 1.1 times the smallest non-empty box scale
