@@ -1,0 +1,16 @@
+Milestone 7ah post hoc (not predicted). 36 ms law, A = 3.5 unless said.
+63% time: median 182.0 ms, range 145-300; area tau median 170.7, range 43-292; Spearman(area, 63%) 0.68
+Spearman(area tau, kd) 0.27
+geometry above: area tau median 150 ms, 63% 175 ms
+geometry below: area tau median 190 ms, 63% 184 ms
+set aware lag39c125: area tau median 158 ms
+set aware lag39c125 cint25: area tau median 194 ms
+set aware lag39c125 cint25 step: area tau median 173 ms
+best single pooled tau per condition (grid 100-250 ms by 10 ms):
+  A_P 2 S 1: 160 ms (median |error| 0.0010 s)
+  A_P 2.5 S 1: 210 ms (median |error| 0.0020 s)
+  A_P 3.5 S 1: 190 ms (median |error| 0.0040 s)
+  A_P 5 S 1: 190 ms (median |error| 0.0060 s)
+  A_P 8 S 1: 190 ms (median |error| 0.0210 s)
+  A_P 3.5 S 0.5: 190 ms (median |error| 0.0120 s)
+  A_P 3.5 S 2: 100 ms (median |error| 0.0040 s)

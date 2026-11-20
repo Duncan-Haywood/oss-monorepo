@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKmdbr4HccVbHHRLhmt",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T01:18:39Z",
+  "ended": "2026-11-20T01:35:05Z",
+  "wall_minutes": 16.6,
+  "tokens_in": 8561536,
+  "tokens_out": 68192,
+  "cost_usd": 4.3304,
+  "tool_calls": 70,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17835",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "My first commit chain ran `git checkout -b` on the branch the session already sat on; it failed, so the && chain pushed an unchanged branch before I committed. Re-ran the commit.",
+    "check_cli_entry (run by ventures-tests) flagged my `file://${argv[1]}` entry guard in parity/compare.mjs; switched to pathToFileURL."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/sshd-config-check/README.md",
+      "issue": "Said no session could run sshd; in fact `apt-get download openssh-server libwrap0` plus `dpkg -x` gives a working 9.6p1 sshd -T in the cloud container (needs a `sshd` user and /run/sshd). Now documented in parity/README.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-match-all-is-not-the-end-of-a-match-block.md",
+    "ventures/sshd-config-check/parity/README.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: differential-test sshd-config-check against the real OpenSSH 9.6p1 binary (sshd -t, sshd -T -C), extracted from Ubuntu's .deb. Seeded generator of config trees; dev seeds 1-600 used for fixing, held-out seeds 20001-22000 recorded after the last fix and replayed by parity.test.mjs. Before: 550 disagreements in 319/2000 configs; after: 0 of 82,598 checks. Main finding: Match all overrides earlier globals for every connection (the engine and its guide called it a return to global scope and reported the overriding line as ignored). Also fixed: nested-Include Match blocks, PermitTunnel case, extra args (per-keyword arity probed against the binary), strtonum/convtime, Match Address host bits. Verification: run_venture_tests.py sshd-config-check ok (59 tests) + site page checks; check_post_links 0 broken; check_llms_txt_links 0 dead. Next: Match Group with real users, IPv6, other OpenSSH versions; same harness for nginx -t / visudo -c checkers. Local CI (run_workflow_locally --for-changes): all 15 workflows' run steps pass after the guard fix (ventures-tests 5/5 and portfolio-pages 12/12 re-run on the final tree); uses: steps not run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d36e0ece-727f-5388-a13a-317a2fbcd651",
+    "transcripts": 1,
+    "first": "2026-11-20T01:18:39Z",
+    "last": "2026-11-20T01:35:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 134,
+        "output": 68192,
+        "thinking": 23422,
+        "cache_read": 8400667,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160735,
+        "api_equivalent_usd": 4.3304,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 134,
+      "output": 68192,
+      "thinking": 23422,
+      "cache_read": 8400667,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160735,
+      "api_equivalent_usd": 4.3304,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 63,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.6,
+      "active_minutes": 16.6,
+      "model_minutes": 12.76,
+      "tool_minutes": 3.84,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "senior engineer: set up sshd harness, generator, diagnose 7 parser semantics, fixes, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 277.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

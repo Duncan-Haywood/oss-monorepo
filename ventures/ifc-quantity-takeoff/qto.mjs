@@ -16,7 +16,7 @@
 // tool's reading of the same model. Where they disagree the row says so,
 // because one of them is wrong and an estimate built on it would be too.
 
-import { Geometry, Unresolved, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, solidExtent } from "./geom.mjs";
+import { Geometry, Unresolved, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -206,7 +206,7 @@ export function takeoff(model, opts = {}) {
     const row = {
       id, globalId: e.args[0], ifcClass: prettyClass(e.type), ifcType: e.type, name: str(e.args[2]), tag: str(e.args[7]) ?? null,
       type: null, storey: null, material: null, classification: null, parent: null, isAssembly: false,
-      stored: {}, storedSet: null, computed: null, check: null,
+      stored: {}, storedSet: null, computed: null, check: null, box: null,
     };
     const tId = idx.typeOf.get(id);
     if (tId) { const t = E.get(tId); row.type = t ? str(t.args[2]) : null; }
@@ -247,6 +247,7 @@ export function takeoff(model, opts = {}) {
       row.computed = computeVolume(e, idx, E, geo, bodyOf, worldOf, f);
       if (row.computed.status === "ok") {
         try { row.computed.areas = computeAreas(e.type, row.computed.solids, worldOf(refId(e.args[5])), f); } catch (err) { row.computed.areas = { error: err.message }; }
+        try { row.box = worldBox(row.computed.solids.body, worldOf(refId(e.args[5])), f); } catch { row.box = null; }
       }
     }
     row.check = checkVolume(row, tol);
@@ -484,8 +485,11 @@ function computeVolume(e, idx, E, geo, bodyOf, worldOf, f) {
       if (!orep) throw new Unresolved("opening with no body");
       const ob = bodyOf(orep);
       if (ob.error) throw new Unresolved(`opening: ${ob.error}`);
-      if (ob.mesh) throw new Unresolved("faceted opening");
-      const inElem = transformSolid(ob, mul(Winv, worldOf(refId(o.args[5]))));
+      // a faceted opening or body is taken as polyhedra when all its faces are known
+      const obT = asTerms(ob);
+      if (!obT) throw new Unresolved("faceted opening");
+      const inElem = transformSolid(obT, mul(Winv, worldOf(refId(o.args[5]))));
+      if (net.mesh) net = asTerms(net) ?? net;
       if (net.mesh) throw new Unresolved("opening in a faceted body");
       net = subtractCutters(net, cuttersOf(inElem), "opening");
     }
@@ -497,6 +501,24 @@ function computeVolume(e, idx, E, geo, bodyOf, worldOf, f) {
     out.netReason = err instanceof Unresolved ? err.message : `error: ${err.message}`;
   }
   return out;
+}
+
+/**
+ * The element's axis-aligned box in world coordinates, in metres:
+ * [xmin, ymin, zmin, xmax, ymax, zmax]. The change report (diff.mjs) matches
+ * elements that lost their GlobalId by it, and reports moves.
+ */
+function worldBox(body, W, f) {
+  const lo = [], hi = [];
+  for (let i = 0; i < 3; i++) {
+    const d = [W[4 * i], W[4 * i + 1], W[4 * i + 2]];
+    const len = Math.hypot(...d);
+    const [a, b] = solidExtent(body, d);
+    if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+    lo.push((a * len + W[4 * i + 3]) * f);
+    hi.push((b * len + W[4 * i + 3]) * f);
+  }
+  return [...lo, ...hi];
 }
 
 // ---- areas from geometry ---------------------------------------------------

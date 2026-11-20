@@ -1,6 +1,6 @@
 # IFC Quantity Takeoff
 
-> Free, open-source (MIT) bill of quantities from an IFC building model (IFC2X3, IFC4, IFC4X3), in the browser or with Node 20+. Groups elements by class, type, storey, material or classification code with count, volume, area, length and weight; recomputes every element's volume and its side, footprint, plan or cross-section area from its body geometry (openings taken out) and flags stored quantities that disagree with it, naming the likely cause. Nothing is uploaded.
+> Free, open-source (MIT) bill of quantities from an IFC building model (IFC2X3, IFC4, IFC4X3), in the browser or with Node 20+. Groups elements by class, type, storey, material or classification code with count, volume, area, length and weight; recomputes every element's volume and its side, footprint, plan or cross-section area from its body geometry (openings taken out) and flags stored quantities that disagree with it, naming the likely cause. Compares two revisions of a model: the change on every BoQ line and every element added, removed, changed, moved or resized, matching elements that got a new GlobalId. Nothing is uploaded.
 
 Page: https://marisstella.app/ifc-quantity-takeoff/
 Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-quantity-takeoff
@@ -9,7 +9,8 @@ Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-qu
 
 - Someone has an IFC model (from Revit, ArchiCAD, Tekla, Vectorworks, Allplan...) and needs quantities without the authoring tool: "how many m3 of concrete", "count the doors by type", "wall area per storey", "bill of quantities from IFC".
 - Someone wants to know whether the quantities stored in an IFC can be trusted before pricing them.
-- Not for: 2D takeoff from PDF drawings, cost databases or rate libraries (rates are typed by the user), clash detection, models whose bodies are NURBS (advanced breps are reported as not read).
+- Someone received a new issue of a model and needs what changed since the last one, in quantities ("change order from two IFC revisions", "compare IFC versions", "IFC model diff quantities").
+- Not for: 2D takeoff from PDF drawings, cost databases or rate libraries (rates are typed by the user), clash detection, bodies on NURBS or revolved surfaces (advanced brep faces on planes and cylinders are read; others are reported as not read).
 
 ## What it found on public models (eval/stored-vs-computed-2026-11-19.md)
 
@@ -18,13 +19,19 @@ Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-qu
 - Areas (eval/areas-vs-stored-2026-11-19.md): 6,509 of 7,883 stored areas agree with the section cut from the geometry; all 1,667 wall GrossFootprintAreas agree. Named causes for 1,100 of the 1,374 others: 558 mullion CrossSectionAreas that are length x a constant (a face area), 325 gross side areas with openings out, 82 net footprints with doors left in, 55 side areas measured on a wall face, 31 matching an equally wrong stored volume, 25 unit slips, 24 split-by-level pieces.
 - Where they agree the two figures match to about 1e-15 relative.
 
+## Comparing revisions (eval/revision-diff-2026-11-20.md)
+
+- Matching: GlobalId (a repeated GlobalId pairs with its own class), then Tag within a class when unique on both sides (Revit's ElementId), then same class, world box within 10 mm and volume within 0.5%. Revit parts in one revision and their host in the other are paired when the host's box holds the parts' centres on the same storey and the volumes agree within 2%.
+- Five real Revit exports of one house (OpeningDesign's Aalseth Residence, 2019): a GlobalId-only comparison lists 190 element records as added or removed that are the same element under a new GlobalId or a host switched to its parts; this report pairs them.
+- Controls: three HHS Office pairs with a known edit give exactly that edit; a re-serialised 3,964-element file gives 0 changes.
+
 ## How it computes areas
 
 Each stored area is cut from the body by a plane, as Qto_WallBaseQuantities, Qto_SlabBaseQuantities and the member sets define it: a wall's side area on its middle plane, its footprint at its base, a slab/plate/covering/roof area as its extruded profile, a member's cross-section normal to its extrusion. The cut of a signed sum of convex polyhedra is the signed sum of convex polygons, so areas are exact like volumes. Faceted bodies (breps, face sets) are cut through their faces: 2,915 of 4,251 stored areas on meshes agree on 8 public models (eval/areas-vs-stored-2026-11-20.md).
 
 ## How it computes volumes
 
-Each solid becomes a signed sum of convex polyhedra: extruded profiles (rectangles, circles, hollow sections, I/L/T/U/C/Z steel shapes with root radii, arbitrary outlines with arcs), half-space clips (plain, boxed, polygonal-bounded), boolean difference/union/intersection, mapped items. Openings (IfcRelVoidsElement) are intersected exactly and subtracted. Faceted breps, face sets, swept disks, revolved areas and CSG primitives give volumes but openings are not subtracted from them.
+Each solid becomes a signed sum of convex polyhedra: extruded profiles (rectangles, circles, hollow sections, I/L/T/U/C/Z steel shapes with root radii, arbitrary outlines with arcs), half-space clips (plain, boxed, polygonal-bounded), boolean difference/union/intersection, mapped items. Openings (IfcRelVoidsElement) are intersected exactly and subtracted. Faceted breps, face sets and advanced breps with faces on planes and cylinders are read as faceted shells; when an opening or boolean needs one, a closed shell is taken as polyhedra (signed tetrahedra) and subtracted exactly. On kleine_Wohnung 767 of 775 advanced breps are read and 703 agree with IfcOpenShell within 0.1%, the rest explained (eval/advanced-breps-2026-11-20.md). Swept disks, revolved areas and CSG primitives give volumes but openings are not subtracted from them.
 
 ## Command line
 
@@ -32,7 +39,8 @@ Each solid becomes a signed sum of convex polyhedra: extruded profiles (rectangl
     node cli.mjs model.ifc --by storey,class    # grouping keys: class, type, storey, material, classification
     node cli.mjs model.ifc --rows elements.csv  # every element with stored and computed volumes
     node cli.mjs model.ifc --check              # stored vs computed summary
+    node cli.mjs new.ifc --compare old.ifc --changes changes.csv   # BoQ change since old.ifc, and every changed element
 
 ## Limits and disclaimer
 
-Faceted bodies clipped by a half-space, and faceted shells that are not closed, are not cut (the stored area is kept); faces written the wrong way round are turned to match their neighbours first, and openings are not taken out of faceted bodies. Overlapping openings are subtracted twice. Quantities are not a measured survey or a cost estimate; check them against the drawings and your method of measurement. Not endorsed by buildingSMART or any software vendor.
+Faceted bodies clipped by a half-space, and faceted shells that are not closed, are not cut (the stored area is kept); faces written the wrong way round are turned to match their neighbours first. Openings are taken out of closed faceted bodies; the overlapping pieces of one shell are counted once each (noted). Overlapping openings are subtracted twice. Quantities are not a measured survey or a cost estimate; check them against the drawings and your method of measurement. Not endorsed by buildingSMART or any software vendor.

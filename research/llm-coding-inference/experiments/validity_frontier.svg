@@ -29,7 +29,7 @@
 <rect x="70" y="42" width="450" height="348" fill="none" stroke="#444"/>
 <text x="295" y="432" text-anchor="middle">share of the unrepaired rule's width gain kept (all cells of the milestone)</text>
 <text transform="translate(16 216) rotate(-90)" text-anchor="middle">share of failing cells repaired</text>
-<text x="70" y="32" font-weight="bold">Six repair families for conditional undercoverage (7at to 7bd): none reaches the top right</text>
+<text x="70" y="32" font-weight="bold">Seven repair families for conditional undercoverage (7at to 7be): none reaches the top right</text>
 <circle cx="503.2" cy="290.6" r="4.5" fill="#c0392b" fill-opacity="0.85"/>
 <circle cx="491.8" cy="373.4" r="4.5" fill="#c0392b" fill-opacity="0.85"/>
 <circle cx="502.1" cy="290.6" r="4.5" fill="#c0392b" fill-opacity="0.85"/>
@@ -57,6 +57,11 @@
 <circle cx="369.9" cy="226.5" r="4.5" fill="#17a2b8" fill-opacity="0.85"/>
 <circle cx="70.0" cy="226.5" r="4.5" fill="#17a2b8" fill-opacity="0.85"/>
 <circle cx="70.0" cy="226.5" r="4.5" fill="#17a2b8" fill-opacity="0.85"/>
+<circle cx="459.4" cy="147.5" r="4.5" fill="#555555" fill-opacity="0.85"/>
+<circle cx="413.2" cy="121.1" r="4.5" fill="#555555" fill-opacity="0.85"/>
+<circle cx="459.4" cy="147.5" r="4.5" fill="#555555" fill-opacity="0.85"/>
+<circle cx="413.2" cy="121.1" r="4.5" fill="#555555" fill-opacity="0.85"/>
+<circle cx="70.0" cy="94.7" r="4.5" fill="#555555" fill-opacity="0.85"/>
 <text x="509.2" y="285.6" font-size="9" fill="#333">t20, l10</text>
 <text x="497.8" y="368.4" font-size="9" fill="#333">t30</text>
 <text x="494.4" y="202.7" font-size="9" fill="#333">l16</text>
@@ -78,6 +83,9 @@
 <text x="76.0" y="37.0" font-size="9" fill="#333">rs10tp (-16.9)</text>
 <text x="429.3" y="221.5" font-size="9" fill="#333">rs10q10</text>
 <text x="375.9" y="221.5" font-size="9" fill="#333">rs10q25</text>
+<text x="465.4" y="142.5" font-size="9" fill="#333">jp40, jt40</text>
+<text x="419.2" y="116.1" font-size="9" fill="#333">jp50, jt50</text>
+<text x="76.0" y="89.7" font-size="9" fill="#333">jf40 (-2.5)</text>
 <circle cx="536" cy="52" r="4.5" fill="#c0392b"/>
 <text x="546" y="56">admission test on J_hat</text>
 <circle cx="536" cy="70" r="4.5" fill="#1f6fb2"/>
@@ -90,8 +98,10 @@
 <text x="546" y="128">reserved second phase</text>
 <circle cx="536" cy="142" r="4.5" fill="#17a2b8"/>
 <text x="546" y="146">tested check on the reserve</text>
-<rect x="531" y="155" width="10" height="10" fill="#fff" stroke="#000"/>
-<text x="546" y="164">shipped default (7az)</text>
-<text x="531" y="182" font-size="9">points left of -0.6 are drawn</text>
-<text x="531" y="194" font-size="9">at the edge, value in brackets</text>
+<circle cx="536" cy="160" r="4.5" fill="#555555"/>
+<text x="546" y="164">design change at low J_hat</text>
+<rect x="531" y="173" width="10" height="10" fill="#fff" stroke="#000"/>
+<text x="546" y="182">shipped default (7az)</text>
+<text x="531" y="200" font-size="9">points left of -0.6 are drawn</text>
+<text x="531" y="212" font-size="9">at the edge, value in brackets</text>
 </svg>

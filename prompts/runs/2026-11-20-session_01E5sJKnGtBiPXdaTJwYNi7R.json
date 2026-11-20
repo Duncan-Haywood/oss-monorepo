@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKnGtBiPXdaTJwYNi7R",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T01:18:31Z",
+  "ended": "2026-11-20T01:45:29Z",
+  "wall_minutes": 27.14,
+  "tokens_in": 7764559,
+  "tokens_out": 44410,
+  "cost_usd": 3.6791,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17834",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First full 7be launch died on the script's own budget assertion (priced two-phase plan labelled 604 of 600): a library bug, fixed and disclosed, then relaunched."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "CHAIN warning (57 sub-steps) suggests a paper step, but the newest LOG entry already was one, and its named next step was the experiment run here; the warning could read the newest heading before nudging."
+    },
+    {
+      "file": "research/llm-coding-inference/paper/paper.md",
+      "issue": "The abstract still describes the pre-7ak library (3-miss guard, cost up to 3.4% at n = 500); it needs its own rewrite pass, not attempted here."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-the-pooled-audit-was-fine-on-the-same-draws.md",
+    "research/llm-coding-inference/LOG.md (7be entry)",
+    "research/llm-coding-inference/paper/paper.md Section 6.1"
+  ],
+  "goal": null,
+  "notes": "Programme drawn by pick_track: llm-coding-inference. Milestone 7be pre-registered (commit 94e8ac88f) then run on 157 cells x 1,000 draws (~10 min, 4 cores). None qualifies; pooled interval on split draws nearly valid (95.1% weak cells), gated two-phase equals pooling everywhere, jp40 best frontier point (kept 0.828, reach 0.636). Library fix: BUDGET_CAP on the priced two-phase path, with test. Local checks: test_llmci.py 46 passed; research/_homepage/build.py ok; check_posts ok; check_md_links ok; research_live_links no change.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "24212d4e-5db7-5283-87a0-06ec635b01c7",
+    "transcripts": 1,
+    "first": "2026-11-20T01:18:31Z",
+    "last": "2026-11-20T01:45:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 111,
+        "output": 44410,
+        "thinking": 11393,
+        "cache_read": 7605782,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158666,
+        "api_equivalent_usd": 3.6791,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 111,
+      "output": 44410,
+      "thinking": 11393,
+      "cache_read": 7605782,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158666,
+      "api_equivalent_usd": 3.6791,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 56,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "ReadNotifications": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.14,
+      "active_minutes": 27.14,
+      "model_minutes": 8.86,
+      "tool_minutes": 18.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, code and run one pre-registered simulation study, fix a library bug, update paper section and write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 163.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

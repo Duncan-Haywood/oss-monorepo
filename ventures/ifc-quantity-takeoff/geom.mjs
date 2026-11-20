@@ -736,8 +736,16 @@ export class Geometry {
       }
       case "IFCFACETEDBREP":
       case "IFCFACETEDBREPWITHVOIDS": {
-        const parts = [{ s: 1, loops: this.shellLoops(a[0]) }];
-        if (e.type === "IFCFACETEDBREPWITHVOIDS") for (const s of a[1] || []) parts.push({ s: -1, loops: this.shellLoops(s) });
+        const parts = [{ s: 1, faces: this.shellLoops(a[0]) }];
+        if (e.type === "IFCFACETEDBREPWITHVOIDS") for (const s of a[1] || []) parts.push({ s: -1, faces: this.shellLoops(s) });
+        return faceted(parts);
+      }
+      case "IFCADVANCEDBREP":
+      case "IFCADVANCEDBREPWITHVOIDS": {
+        // faces on planes and cylinders, edges on lines, circles and
+        // B-splines; each edge sampled once so neighbours share its points
+        const parts = [{ s: 1, faces: this.advancedShellLoops(a[0]) }];
+        if (e.type === "IFCADVANCEDBREPWITHVOIDS") for (const s of a[1] || []) parts.push({ s: -1, faces: this.advancedShellLoops(s) });
         return faceted(parts);
       }
       case "IFCSHELLBASEDSURFACEMODEL":
@@ -746,7 +754,7 @@ export class Geometry {
         for (const s of a[0]) {
           const sh = this.get(s);
           if (sh.type !== "IFCCLOSEDSHELL" && sh.type !== "IFCCONNECTEDFACESET") throw new Unresolved("open shell");
-          parts.push({ s: 1, loops: this.shellLoops(s) });
+          parts.push({ s: 1, faces: this.shellLoops(s) });
         }
         return faceted(parts, ["surface model read as closed shells"]);
       }
@@ -754,7 +762,7 @@ export class Geometry {
       case "IFCTRIANGULATEDFACESET":
       case "IFCTRIANGULATEDIRREGULARNETWORK":
       {
-        return faceted([{ s: 1, loops: this.faceSetLoops(e) }]);
+        return faceted([{ s: 1, faces: this.faceSetLoops(e) }]);
       }
       case "IFCSWEPTDISKSOLID":
       case "IFCSWEPTDISKSOLIDPOLYGONAL": {
@@ -856,38 +864,175 @@ export class Geometry {
       }
       return subtractCutters(first, cutters, "bounded half-space clip");
     }
-    const b = this.item(second.id, depth + 1);
-    if (b.mesh) throw new Unresolved("difference with a faceted solid");
+    const b0 = this.item(second.id, depth + 1);
+    const b = asTerms(b0);
+    if (!b) throw new Unresolved("difference with a faceted solid");
     return subtractCutters(first, cuttersOf(b), "boolean difference");
   }
 
-  /** A shell's face boundaries as point loops, inner bounds reversed as the file asks. */
+  /** A shell's faces, each a list of point loops (outer and inner bounds), inner bounds reversed as the file asks. */
   shellLoops(ref) {
     const sh = this.get(ref);
-    const loops = [];
+    const faces = [];
     for (const fref of sh.args[0]) {
       const f = this.get(fref);
+      const face = [];
       for (const bref of f.args[0]) {
         const b = this.get(bref);
         const loop = this.get(b.args[0]);
         if (loop.type !== "IFCPOLYLOOP") throw new Unresolved(`face bound ${loop.type}`);
         let pts = loop.args[0].map((p) => this.point(p));
         if (b.args[1] === false) pts = pts.slice().reverse();
-        loops.push(pts);
+        face.push(pts);
       }
+      faces.push(face);
     }
-    return loops;
+    return faces;
+  }
+
+  /**
+   * An advanced brep's shell as faces of point loops: a face on a plane gives
+   * its edge loops (outer and inner bounds, as in shellLoops); a face on a
+   * cylinder is cut into triangles in the surface's (angle, height) space,
+   * with no points but its boundary's, so the triangles meet their
+   * neighbours edge to edge. Other surfaces are not read.
+   */
+  advancedShellLoops(ref) {
+    const sh = this.get(ref);
+    // a shell is read once (mapped items repeat it); the loops are never changed in place
+    this.shellCache ??= new Map();
+    if (this.shellCache.has(sh.id)) return this.shellCache.get(sh.id);
+    const out = [];
+    this.edgeCache ??= new Map();
+    for (const fref of sh.args[0]) {
+      const f = this.get(fref);
+      const surf = this.get(f.args[1]);
+      const bounds = f.args[0].map((bref) => {
+        const b = this.get(bref);
+        const loop = this.get(b.args[0]);
+        let pts;
+        if (loop.type === "IFCPOLYLOOP") pts = loop.args[0].map((p) => this.point(p));
+        else if (loop.type === "IFCEDGELOOP") pts = this.edgeLoopPoints(loop);
+        else throw new Unresolved(`face bound ${loop.type}`);
+        return b.args[1] === false ? pts.slice().reverse() : pts;
+      });
+      if (surf.type === "IFCPLANE") { out.push(bounds); continue; }
+      if (surf.type === "IFCCYLINDRICALSURFACE") { for (const t of this.cylinderTriangles(surf, bounds)) out.push([t]); continue; }
+      throw new Unresolved(`advanced face on ${surf.type}`);
+    }
+    this.shellCache.set(sh.id, out); // only once read whole
+    return out;
+  }
+
+  edgeLoopPoints(loop) {
+    const pts = [];
+    for (const oref of loop.args[0]) {
+      const oe = this.get(oref);
+      const ec = this.get(oe.args[2]);
+      if (ec.type !== "IFCEDGECURVE") throw new Unresolved(`edge ${ec.type}`);
+      let e = this.edgeCache.get(ec.id);
+      if (!e) { e = this.edgePoints(ec); this.edgeCache.set(ec.id, e); }
+      const run = oe.args[3] === false ? e.slice().reverse() : e;
+      for (let i = 0; i + 1 < run.length; i++) pts.push(run[i]);
+    }
+    return pts;
+  }
+
+  /** An edge's points from its start vertex to its end vertex, both included. */
+  edgePoints(ec) {
+    const p0 = this.point(this.get(ec.args[0]).args[0]);
+    const p1 = this.point(this.get(ec.args[1]).args[0]);
+    let c = this.get(ec.args[2]);
+    let sense = ec.args[3] !== false;
+    if (c.type === "IFCTRIMMEDCURVE") { if (c.args[3] === false) sense = !sense; c = this.get(c.args[0]); }
+    if (c.type === "IFCLINE") return [p0, p1];
+    if (c.type === "IFCPOLYLINE") {
+      const q = c.args[0].map((r) => this.point(r));
+      if (!sense) q.reverse();
+      q[0] = p0; q[q.length - 1] = p1;
+      return q;
+    }
+    if (c.type === "IFCCIRCLE" || c.type === "IFCELLIPSE") {
+      const m = this.placement(c.args[0]);
+      const r1 = this.num(c.args[1]), r2 = c.type === "IFCELLIPSE" ? this.num(c.args[2]) : r1;
+      const o = [m[3], m[7], m[11]], x = [m[0], m[4], m[8]], y = [m[1], m[5], m[9]];
+      const ang = (p) => { const d = sub(p, o); return Math.atan2(dot(d, y) / r2, dot(d, x) / r1); };
+      const a0 = ang(p0);
+      let d = ang(p1) - a0;
+      if (!sense) d = -d;
+      d = ((d % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      if (d < 1e-9) d = 2 * Math.PI; // a closed edge: start and end vertex the same
+      const n = Math.max(1, Math.ceil((d / (2 * Math.PI)) * ARC_SEGS));
+      const out = [p0];
+      for (let i = 1; i < n; i++) {
+        const t = a0 + (sense ? 1 : -1) * (d * i) / n;
+        out.push(add(o, add(mulS(x, r1 * Math.cos(t)), mulS(y, r2 * Math.sin(t)))));
+      }
+      out.push(p1);
+      return out;
+    }
+    if (c.type === "IFCBSPLINECURVEWITHKNOTS" || c.type === "IFCRATIONALBSPLINECURVEWITHKNOTS") {
+      const q = bsplinePoints(c.args[1].map((r) => this.point(r)), this.num(c.args[0]),
+        c.args[5].map((v) => this.num(v)), c.args[6].map((v) => this.num(v)),
+        c.type === "IFCRATIONALBSPLINECURVEWITHKNOTS" ? c.args[8].map((v) => this.num(v)) : null);
+      if (!sense) q.reverse();
+      // the edge must run the whole curve: its ends are the vertices
+      const tol = 1e-6 * (scaleOf([q]) + 1);
+      if (norm(sub(q[0], p0)) > tol * 1e3 || norm(sub(q[q.length - 1], p1)) > tol * 1e3) throw new Unresolved("edge on part of a B-spline");
+      q[0] = p0; q[q.length - 1] = p1;
+      return q;
+    }
+    throw new Unresolved(`edge curve ${c.type}`);
+  }
+
+  /** A cylindrical face's bounds cut into triangles (3D point loops). */
+  cylinderTriangles(surf, bounds) {
+    const m = this.placement(surf.args[0]);
+    const r = this.num(surf.args[1]);
+    const inv = invert(m);
+    const param = (pts) => {
+      const uv = [];
+      let prev = null, t = 0;
+      for (const p of pts) {
+        const q = apply(inv, p);
+        const a = Math.atan2(q[1], q[0]);
+        if (prev == null) t = a;
+        else { let d = a - prev; d -= 2 * Math.PI * Math.round(d / (2 * Math.PI)); t += d; }
+        prev = a;
+        uv.push([t, q[2]]);
+      }
+      // the turn back to the first point closes the loop
+      let d = Math.atan2(apply(inv, pts[0])[1], apply(inv, pts[0])[0]) - prev;
+      d -= 2 * Math.PI * Math.round(d / (2 * Math.PI));
+      const winding = Math.round((t + d - uv[0][0]) / (2 * Math.PI));
+      return { uv, winding };
+    };
+    const P = bounds.map((pts) => ({ pts, ...param(pts) }));
+    if (P.length === 1 && P[0].winding === 0) {
+      const { pts, uv } = P[0];
+      // Triangles must join points of nearly the same angle: lifted back on
+      // the cylinder a triangle is a chord, and a long one cuts through the
+      // solid (ear clipping a half cylinder fanned it from one corner: 2.4
+      // times its area, the keyhole rosettes of kleine_Wohnung 35% light).
+      const z = zipMonotone(uv, pts);
+      if (z) return z;
+      return earClip(uv.map(([t, h]) => [r * t, h])).map(([i, j, k]) => [pts[i], pts[j], pts[k]]);
+    }
+    if (P.length === 2 && Math.abs(P[0].winding) === 1 && Math.abs(P[1].winding) === 1) return zipBand(P);
+    throw new Unresolved("cylindrical face bounds not read");
   }
 
   faceSetLoops(e) {
     const a = e.args;
     const P = this.get(a[0]).args[0].map((c) => [this.num(c[0]), this.num(c[1]), this.num(c[2])]);
     const loops = [];
+    const group = []; // the loop index of each loop's outer bound
     if (e.type === "IFCPOLYGONALFACESET") {
       for (const fref of a[2]) {
         const f = this.get(fref);
         loops.push(f.args[0].map((i) => this.num(i)));
-        if (f.type === "IFCINDEXEDPOLYGONALFACEWITHVOIDS") for (const inner of f.args[1]) loops.push(inner.map((i) => this.num(i)).reverse());
+        group.push(loops.length - 1);
+        if (f.type === "IFCINDEXEDPOLYGONALFACEWITHVOIDS") for (const inner of f.args[1]) { loops.push(inner.map((i) => this.num(i)).reverse()); group.push(group[group.length - 1]); }
       }
       if (a[3]) {
         const pn = a[3].map((i) => this.num(i));
@@ -902,7 +1047,12 @@ export class Geometry {
         for (let i = 0; i < loops.length; i++) loops[i] = loops[i].map((j) => pn[j - 1]);
       }
     }
-    return loops.map((l) => l.map((i) => P[i - 1]));
+    const pts = loops.map((l) => l.map((i) => P[i - 1]));
+    if (!group.length) return pts;
+    // a face with voids keeps its loops together (orientLoops)
+    const faces = [];
+    pts.forEach((l, i) => { if (group[i] === i) faces.push([l]); else faces[faces.length - 1].push(l); });
+    return faces;
   }
 
   curveLength3(ref) {
@@ -971,12 +1121,24 @@ const pkey = (p) => `${p[0]},${p[1]},${p[2]}`;
 export function orientShell(faces0) {
   const faces = faces0.map((f) => f.map((l) => l.slice()));
   const edges = new Map(); // undirected key -> [{face, forward}]
+  // each point object keyed once: equal coordinates, one integer id
+  const ids = new Map(), seen = new Map();
+  const idOf = (p) => {
+    let id = seen.get(p);
+    if (id === undefined) {
+      const k = pkey(p);
+      id = ids.get(k);
+      if (id === undefined) ids.set(k, (id = ids.size));
+      seen.set(p, id);
+    }
+    return id;
+  };
   faces.forEach((f, fi) => {
     for (const l of f) for (let i = 0; i < l.length; i++) {
-      const a = pkey(l[i]), b = pkey(l[(i + 1) % l.length]);
+      const a = idOf(l[i]), b = idOf(l[(i + 1) % l.length]);
       if (a === b) continue;
       const fwd = a < b;
-      const key = fwd ? `${a}|${b}` : `${b}|${a}`;
+      const key = fwd ? a * 67108864 + b : b * 67108864 + a;
       let e = edges.get(key);
       if (!e) edges.set(key, (e = []));
       e.push({ fi, fwd });
@@ -994,39 +1156,94 @@ export function orientShell(faces0) {
     adj[q.fi].push([p.fi, mustFlip]);
   }
   const turn = new Array(faces.length).fill(null);
+  const piece = new Array(faces.length).fill(-1);
+  let pieces = 0;
   let flipped = 0;
   for (let s = 0; s < faces.length; s++) {
     if (turn[s] !== null) continue;
     turn[s] = false;
+    piece[s] = pieces;
     const stack = [s];
     while (stack.length) {
       const i = stack.pop();
       for (const [j, mustFlip] of adj[i]) {
         const want = turn[i] !== mustFlip;
-        if (turn[j] === null) { turn[j] = want; stack.push(j); } else if (turn[j] !== want) closed = false;
+        if (turn[j] === null) { turn[j] = want; piece[j] = pieces; stack.push(j); } else if (turn[j] !== want) closed = false;
       }
     }
+    pieces++;
   }
   for (let i = 0; i < faces.length; i++) if (turn[i]) { faces[i] = faces[i].map((l) => l.slice().reverse()); flipped++; }
-  return { faces, flipped, closed };
+  return { faces, flipped, closed, piece, pieces, turned: turn };
 }
 
 /**
- * A shell's face loops turned to agree with their neighbours (each loop is
- * its own face here: an inner bound shares its edges with the hole's walls,
- * not with its outer bound). Returns { loops, flipped, closed }; flipped
- * counts the loops that end up reversed from the file once the shell is also
- * turned outward, 0 when the whole shell was simply written inside out. A
- * shell that is not closed keeps its loops as given.
+ * A shell's faces turned to agree with their neighbours. Each face is a list
+ * of loops: its outer bound and any inner bounds. The loops of one face turn
+ * together, an inner bound kept running against its outer bound (by their
+ * Newell normals, whatever the file's orientation flags say): an inner bound
+ * shares its edges with the hole's walls, not with its outer bound, so a
+ * shell with a hole through a face (a stepped opening, a box with a hole)
+ * falls into pieces that meet only through such faces, and turned one loop
+ * at a time the pieces could come out turned against each other. Faces may
+ * also be given as bare loops (one loop each). Returns { loops, flipped,
+ * closed }: loops flattened; flipped counts the faces that end up reversed
+ * from the file once the shell is also turned outward, 0 when the whole
+ * shell was simply written inside out. A shell that is not closed keeps its
+ * loops as given.
  */
-export function orientLoops(loops) {
-  const o = orientShell(loops.map((l) => [l]));
-  if (!o.closed) return { loops, flipped: 0, closed: false };
-  let out = o.faces.map((f) => f[0]);
+export function orientLoops(faces0) {
+  const faces = faces0.map((f) => (Array.isArray(f[0]?.[0]) ? matchInnerBounds(f) : [f]));
+  const flat = (fs) => fs.flat();
+  const o = orientShell(faces);
+  if (!o.closed) return { loops: flat(faces), flipped: 0, closed: false };
+  let out = o.faces;
   let flipped = o.flipped;
-  if (shellVolume(out) < 0) { out = out.map((l) => l.slice().reverse()); flipped = loops.length - flipped; }
-  if (flipped === loops.length) flipped = 0;
-  return { loops: out, flipped, closed: true };
+  let overlaps = 0;
+  if (o.pieces > 1) {
+    // A shell in several pieces (lumps one exporter wrote as one shell):
+    // each piece was turned from its own first face, so each is turned
+    // outward by itself; a void comes as its own shell, never as a piece.
+    const box = Array.from({ length: o.pieces }, () => [[Infinity, Infinity, Infinity], [-Infinity, -Infinity, -Infinity]]);
+    const vol = new Array(o.pieces).fill(0);
+    out.forEach((f, i) => {
+      const b = box[o.piece[i]];
+      vol[o.piece[i]] += shellVolume(f);
+      for (const l of f) for (const p of l) for (let k = 0; k < 3; k++) { if (p[k] < b[0][k]) b[0][k] = p[k]; if (p[k] > b[1][k]) b[1][k] = p[k]; }
+    });
+    out = out.map((f, i) => (vol[o.piece[i]] >= 0 ? f : f.map((l) => l.slice().reverse())));
+    // pieces whose boxes share a volume may overlap: the overlap then counts once for each
+    const size = (b) => Math.max(b[1][0] - b[0][0], b[1][1] - b[0][1], b[1][2] - b[0][2]);
+    for (let a = 0; a < o.pieces; a++) for (let b = a + 1; b < o.pieces; b++) {
+      const A = box[a], B = box[b];
+      const tol = 1e-6 * Math.max(size(A), size(B));
+      let inter = 1;
+      for (let k = 0; k < 3; k++) inter *= Math.max(0, Math.min(A[1][k], B[1][k]) - Math.max(A[0][k], B[0][k]) - tol);
+      if (inter > 0) overlaps++;
+    }
+    flipped = 0;
+    for (let i = 0; i < faces.length; i++) if (o.turned[i] !== (vol[o.piece[i]] < 0)) flipped++;
+  } else if (shellVolume(flat(out)) < 0) { out = out.map((f) => f.map((l) => l.slice().reverse())); flipped = faces.length - flipped; }
+  if (flipped === faces.length) flipped = 0;
+  return { loops: flat(out), flipped, closed: true, pieces: o.pieces, overlaps };
+}
+
+function newell(l) {
+  let n = [0, 0, 0];
+  for (let i = 0; i < l.length; i++) {
+    const a = l[i], b = l[(i + 1) % l.length];
+    n = add(n, [(a[1] - b[1]) * (a[2] + b[2]), (a[2] - b[2]) * (a[0] + b[0]), (a[0] - b[0]) * (a[1] + b[1])]);
+  }
+  return n;
+}
+
+/** A face's loops with every inner bound running against the outer (the largest). */
+function matchInnerBounds(face) {
+  if (face.length < 2) return face;
+  const ns = face.map(newell);
+  let o = 0;
+  ns.forEach((n, i) => { if (norm(n) > norm(ns[o])) o = i; });
+  return face.map((l, i) => (i !== o && dot(ns[i], ns[o]) > 0 ? l.slice().reverse() : l));
 }
 
 /**
@@ -1037,8 +1254,10 @@ export function orientLoops(loops) {
 function faceted(parts, notes = []) {
   let v = 0, flipped = 0, open = false;
   const shells = [];
-  for (const { s, loops } of parts) {
-    const o = orientLoops(loops);
+  let overlaps = 0;
+  for (const { s, faces } of parts) {
+    const o = orientLoops(faces);
+    overlaps += o.overlaps ?? 0;
     const vs = shellVolume(o.loops);
     v += s * Math.abs(vs);
     flipped += o.flipped;
@@ -1047,7 +1266,213 @@ function faceted(parts, notes = []) {
   }
   const n = notes.slice();
   if (flipped) n.push(`${flipped} face${flipped === 1 ? "" : "s"} of a faceted body turned to match their neighbours`);
+  if (overlaps) n.push(`a shell in pieces that may overlap: any overlap is counted once for each piece`);
   return solid([], v, n, open ? null : shells);
+}
+
+/**
+ * The same solid with its faceted part as polyhedral terms, so an opening, a
+ * clip or a boolean can be taken from it exactly; null when its faces are not
+ * all known (no shells) or it would take more than `limit` terms. A closed
+ * convex shell is one term. Any other closed shell is a signed sum of
+ * tetrahedra: every face fanned into triangles, each coned to the shell's
+ * centre of vertices; the cones' signed indicator functions add up to the
+ * shell's (as the fanned triangles of a concave profile do), so volumes,
+ * sections and intersections stay exact. Volume and notes are unchanged.
+ */
+export function asTerms(s, limit = 4000) {
+  if (!s.mesh) return s;
+  if (!s.shells) return null;
+  const terms = s.terms.slice();
+  for (const sh of s.shells) {
+    if (isConvexShell(sh.loops)) { terms.push({ s: sh.s, faces: sh.loops }); continue; }
+    let c = [0, 0, 0], k = 0;
+    for (const f of sh.loops) for (const p of f) { c = add(c, p); k++; }
+    c = mulS(c, 1 / k);
+    for (const f of sh.loops) {
+      for (let i = 1; i + 1 < f.length; i++) {
+        const a = f[0], b = f[i], d = f[i + 1];
+        const v = dot(sub(a, c), cross(sub(b, c), sub(d, c)));
+        if (Math.abs(v) <= 1e-12 * (norm(sub(a, c)) * norm(sub(b, c)) * norm(sub(d, c)) + 1e-300)) continue;
+        const [p, q, r] = v > 0 ? [a, b, d] : [a, d, b];
+        terms.push({ s: sh.s * Math.sign(v), faces: [[p, q, r], [c, q, p], [c, r, q], [c, p, r]] });
+        if (terms.length > limit) return null;
+      }
+    }
+  }
+  const out = solid(terms, 0, s.notes);
+  if (s.axis) { out.axis = s.axis; out.axisWeight = s.axisWeight; }
+  return out;
+}
+
+/** True when every vertex of an outward-oriented closed shell lies on the inner side of every face's plane. */
+export function isConvexShell(loops) {
+  const planes = polyPlanes(loops);
+  if (planes.length < 4) return false;
+  const eps = 1e-7 * (scaleOf(loops) + 1);
+  for (const [nn, k] of planes) for (const f of loops) for (const p of f) if (dot(nn, p) - k > eps) return false;
+  return true;
+}
+
+/**
+ * Points along a B-spline (de Boor), from its first parameter to its last:
+ * 16 to a knot span. knots and mults as the file gives them; weights for a
+ * rational curve.
+ */
+export function bsplinePoints(cp, p, mults, knots, weights = null) {
+  const U = [];
+  knots.forEach((k, i) => { for (let j = 0; j < mults[i]; j++) U.push(k); });
+  const n = cp.length;
+  const H = cp.map((c, i) => { const w = weights ? weights[i] : 1; return [c[0] * w, c[1] * w, c[2] * w, w]; });
+  const at = (u) => {
+    let k = p;
+    while (k < n - 1 && u >= U[k + 1]) k++;
+    const d = [];
+    for (let j = 0; j <= p; j++) d.push(H[k - p + j].slice());
+    for (let rr = 1; rr <= p; rr++) {
+      for (let j = p; j >= rr; j--) {
+        const i = k - p + j;
+        const den = U[i + p - rr + 1] - U[i];
+        const al = den ? (u - U[i]) / den : 0;
+        for (let c = 0; c < 4; c++) d[j][c] = (1 - al) * d[j - 1][c] + al * d[j][c];
+      }
+    }
+    const h = d[p];
+    return [h[0] / h[3], h[1] / h[3], h[2] / h[3]];
+  };
+  const out = [];
+  for (let k = p; k < n; k++) {
+    const u0 = U[k], u1 = U[k + 1];
+    if (u1 <= u0) continue;
+    for (let s = 0; s < 16; s++) out.push(at(u0 + ((u1 - u0) * s) / 16));
+  }
+  out.push(at(U[n]));
+  return out;
+}
+
+/**
+ * Triangles (index triples) of a simple polygon by ear clipping. Points on a
+ * straight run are kept (they are a neighbour face's vertices): when only
+ * such points are left to clip, each goes as a triangle of no area, which
+ * keeps every edge matched.
+ */
+export function earClip(P) {
+  let idx = P.map((_, i) => i);
+  if (signedArea(P) < 0) idx.reverse();
+  let sc = 0;
+  for (const p of P) sc = Math.max(sc, Math.abs(p[0]), Math.abs(p[1]));
+  const eps = 1e-12 * (sc + 1) ** 2;
+  const cr = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+  const tris = [];
+  let from = 0; // resume where the last ear was cut: a fan is then found at once
+  while (idx.length > 3) {
+    let cut = -1;
+    for (const flat of [false, true]) {
+      for (let s = 0; s < idx.length && cut < 0; s++) {
+        const i = (from + s) % idx.length;
+        const a = P[idx[(i + idx.length - 1) % idx.length]], b = P[idx[i]], c = P[idx[(i + 1) % idx.length]];
+        const area = cr(a, b, c);
+        if (flat ? area < -eps || area > eps : area <= eps) continue;
+        const x0 = Math.min(a[0], b[0], c[0]) - 1e-9 * (sc + 1), x1 = Math.max(a[0], b[0], c[0]) + 1e-9 * (sc + 1);
+        const y0 = Math.min(a[1], b[1], c[1]) - 1e-9 * (sc + 1), y1 = Math.max(a[1], b[1], c[1]) + 1e-9 * (sc + 1);
+        let ok = true;
+        for (const j of idx) {
+          const q = P[j];
+          if (q[0] < x0 || q[0] > x1 || q[1] < y0 || q[1] > y1) continue;
+          if (q === a || q === b || q === c) continue;
+          if ((q[0] === a[0] && q[1] === a[1]) || (q[0] === b[0] && q[1] === b[1]) || (q[0] === c[0] && q[1] === c[1])) continue;
+          if (flat) { // a flat ear: no point on the span from a to c
+            const t = ((q[0] - a[0]) * (c[0] - a[0]) + (q[1] - a[1]) * (c[1] - a[1])) / ((c[0] - a[0]) ** 2 + (c[1] - a[1]) ** 2 || 1);
+            if (Math.abs(cr(a, c, q)) <= eps && t > 0 && t < 1) { ok = false; break; }
+            continue;
+          }
+          if (cr(a, b, q) >= -eps && cr(b, c, q) >= -eps && cr(c, a, q) >= -eps) { ok = false; break; }
+        }
+        if (ok) cut = i;
+      }
+      if (cut >= 0) break;
+    }
+    if (cut < 0) throw new Unresolved("face could not be cut into triangles");
+    const n = idx.length;
+    tris.push([idx[(cut + n - 1) % n], idx[cut], idx[(cut + 1) % n]]);
+    idx.splice(cut, 1);
+    from = Math.max(0, cut - 1);
+  }
+  tris.push([idx[0], idx[1], idx[2]]);
+  return tris;
+}
+
+/**
+ * Triangles of a loop that is monotone in angle (t = uv[i][0]): split at its
+ * least and greatest angle into two chains along which t never falls, then
+ * walked together by angle, so every triangle spans the angle between two
+ * neighbouring points. null when the loop is not monotone.
+ */
+export function zipMonotone(uv, pts) {
+  const n = uv.length;
+  let lo = 0, hi = 0;
+  for (let i = 1; i < n; i++) { if (uv[i][0] < uv[lo][0]) lo = i; if (uv[i][0] > uv[hi][0]) hi = i; }
+  if (lo === hi) return null;
+  const span = uv[hi][0] - uv[lo][0];
+  const tol = 1e-9 * (Math.abs(span) + 1);
+  const chain = (step) => {
+    const c = [lo];
+    for (let i = lo; i !== hi;) { i = (i + step + n) % n; c.push(i); }
+    return c;
+  };
+  // a run of points at the least or greatest angle (a straight edge along the
+  // axis) belongs to the chain it leads into; the walk handles it as steps
+  // of no angle
+  const A = chain(1), B = chain(-1);
+  for (const c of [A, B]) for (let k = 1; k < c.length; k++) if (uv[c[k]][0] < uv[c[k - 1]][0] - tol) return null;
+  const tris = [];
+  let i = 0, j = 0;
+  const push = (a, b, c) => { if (a !== b && b !== c && a !== c) tris.push([pts[a], pts[b], pts[c]]); };
+  while (i < A.length - 1 || j < B.length - 1) {
+    const ta = i < A.length - 1 ? uv[A[i + 1]][0] : Infinity;
+    const tb = j < B.length - 1 ? uv[B[j + 1]][0] : Infinity;
+    if (ta <= tb) { push(A[i], A[i + 1], B[j]); i++; } else { push(A[i], B[j + 1], B[j]); j++; }
+  }
+  return tris;
+}
+
+/**
+ * Triangles between two closed loops that each go once round a cylinder (a
+ * band, such as the side of a round hole): the two are walked together by
+ * angle.
+ */
+function zipBand(P) {
+  const TAU = 2 * Math.PI;
+  const wrap = (d) => d - TAU * Math.round(d / TAU);
+  // each ring as points with angles rising once round (a ring walked the
+  // other way is reversed), starting where `start` says
+  const ring = ({ pts, uv, winding }, start = 0, near = null) => {
+    let p = pts, t = uv.map((x) => x[0]);
+    if (winding < 0) { p = p.slice().reverse(); t = t.slice().reverse(); }
+    const n = p.length;
+    const q = [], a = [];
+    for (let i = 0; i < n; i++) {
+      const j = (start + i) % n;
+      q.push(p[j]);
+      a.push(i === 0 ? (near == null ? t[j] : near + wrap(t[j] - near)) : a[i - 1] + wrap(t[j] - t[(j + n - 1) % n]));
+    }
+    return { p: q, t: a, n };
+  };
+  const A = ring(P[0]);
+  // B starts at its point nearest A's first angle
+  const b0 = ring(P[1]);
+  let best = 0;
+  b0.t.forEach((x, i) => { if (Math.abs(wrap(x - A.t[0])) < Math.abs(wrap(b0.t[best] - A.t[0]))) best = i; });
+  const B = ring(P[1], best, A.t[0]);
+  const angA = (i) => (i < A.n ? A.t[i] : A.t[i - A.n] + TAU);
+  const angB = (j) => (j < B.n ? B.t[j] : B.t[j - B.n] + TAU);
+  const tris = [];
+  let i = 0, j = 0;
+  while (i < A.n || j < B.n) {
+    if (i < A.n && (j >= B.n || angA(i + 1) <= angB(j + 1))) { tris.push([A.p[i % A.n], A.p[(i + 1) % A.n], B.p[j % B.n]]); i++; }
+    else { tris.push([A.p[i % A.n], B.p[(j + 1) % B.n], B.p[j % B.n]]); j++; }
+  }
+  return tris;
 }
 
 // ---- 2D helpers ----------------------------------------------------------------

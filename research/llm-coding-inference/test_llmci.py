@@ -793,10 +793,57 @@ def test_validity_frontier_reads_the_committed_summaries():
     vf = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(vf)
     rs = {(r["milestone"], r["rule"]): r for r in vf.rows()}
-    assert len(rs) == 27
+    assert len(rs) == 32
+    assert math.isclose(rs[("7be", "jp40")]["kept"], 7.883 / 9.524) and rs[("7be", "jp40")]["fail"] == 4  # LOG 7be
     assert math.isclose(rs[("7az", "p5j40")]["kept"], 8.510 / 8.993)  # LOG 7az: 94.6% kept
     assert math.isclose(rs[("7au", "n2")]["kept"], 0.374, abs_tol=5e-4)  # LOG 7au: 37.4%
     assert rs[("7at", "l16")]["fail"] == 4 and rs[("7at", "l16")]["fail_ref"] == 7  # LOG 7at
     assert rs[("7bc", "rs10tp")]["fail"] == 0  # LOG 7bc: rs10tp lifts all 7
     # the headline: no candidate keeps 90% of the gain and repairs half the failing cells
     assert not [r for r in rs.values() if r["kept"] >= 0.90 and r["reach"] >= 0.5]
+
+
+def test_gated_design_two_phase_plan_stays_in_budget_and_reads_no_pilot_twice():
+    """7be: the priced two-phase replan from a pilot labels at most n items and its interval counts the pilot exactly."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
+    from llmci import audit_design as AD
+    saved = AD.RARE_FALLBACK, AD.NEG_FLOOR
+    import h7be_gated_design as G  # its imports pin the library defaults off; restored below
+    AD.RARE_FALLBACK, AD.NEG_FLOOR = saved
+    rng = random.Random(11)
+    f = [0] * 3000 + [1] * 1000
+    h = [int(rng.random() < 0.06) for _ in range(3000)] + [int(rng.random() < 0.5) for _ in range(1000)]
+    n = 600
+    pilot = rng.sample(range(4000), 420)
+    pilot_y = {i: h[i] for i in pilot}
+    for margin in (0.0, None):
+        p2 = G.two_phase_plan(f, pilot_y, n, margin)
+        if p2["design"] == "pooled":
+            assert margin is not None
+            continue
+        assert p2["two_phase"] and p2["phase2"] == [True, False]
+        assert len(pilot) + sum(p2["to_label"]) <= n
+        lab = dict(pilot_y)
+        for cell, t in zip(p2["cells"], p2["to_label"]):
+            for i in rng.sample([i for i in cell if i not in lab], t):
+                lab[i] = h[i]
+        est, lo, hi = AD.audit_interval(p2, f, lab)
+        assert lo <= est <= hi and 0.0 <= lo and hi <= 1.0
+    assert set(G.NEW) == {"jp40", "jp50", "jt40", "jt50", "jf40"} and G.GATE["jf40"][2] is None
+
+
+def test_priced_two_phase_plan_is_capped_at_the_budget():
+    """7be: a neg-only priced two-phase plan whose coder-positive pilot exceeds its allocation used to label more than
+    n items; with budget_cap (the default) it labels at most n, and plan_audit_pre7ar keeps the old plan."""
+    from llmci import audit_design as AD
+    f = [0] * 3000 + [1] * 300
+    h = [int(i % 25 == 0) for i in range(3000)] + [int(i % 2 == 0) for i in range(300)]
+    pilot = list(range(0, 3000, 8)) + list(range(3000, 3300))  # 375 coder-negative, all 300 coder-positive items
+    pilot_y = {i: h[i] for i in pilot}
+    n = 960
+    kw = dict(tau=0.10, neg_guard=3, width_margin=None, pseudo=2, two_phase="neg", price_floor=True, neg_floor=None)
+    old = AD.plan_audit_pre7ar(f, pilot_y, n, **kw)
+    new = AD.plan_audit(f, pilot_y, n, **kw)
+    assert old["design"] == new["design"] == "cells"
+    assert len(pilot) + sum(old["to_label"]) > n
+    assert len(pilot) + sum(new["to_label"]) <= n

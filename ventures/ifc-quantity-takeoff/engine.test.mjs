@@ -345,3 +345,133 @@ test("faceted: a shell turned inside out as a whole still cuts a positive area",
   close(solidVolume(s), 4);
   close(sectionArea(s, [0, 0, 1]), 4);
 });
+
+test("faceted: a stepped shell (a box on a face with a hole) is one solid, whichever way its faces are written", async () => {
+  const { Geometry, solidVolume, sectionArea } = await import("./geom.mjs");
+  // a 4 x 4 x 1 box, and on its top a 2 x 2 x 1 box: the big top is a face
+  // with a hole whose edges belong to the small box's sides, so the faces
+  // fall into two pieces joined only through that face (kleine_Wohnung's
+  // stepped window openings: read loop by loop they came out 0.049 m3, not 3.45)
+  const outer = [[0, 0], [4, 0], [4, 4], [0, 4]];
+  const hole = [[1, 1], [1, 3], [3, 3], [3, 1]]; // clockwise
+  const big = prismFacesT(outer, 1);
+  big[0] = [big[0][0], hole.map(([x, y]) => [x, y, 1])]; // top: outer bound and the hole
+  const small = prismFacesT(hole.slice().reverse(), 1).map((f) => f.map((l) => l.map(([x, y, z]) => [x, y, z + 1])));
+  const faces = [...big, small[0], ...small.slice(2)]; // the small box has no bottom
+  for (const flip of [[], faces.map((_, i) => i).filter((i) => i >= big.length), [0], [0, 1, 7]]) {
+    const { model, id } = brepModelT(faces, { flip });
+    const s = new Geometry(model).item(id);
+    close(solidVolume(s), 16 + 4);
+    close(sectionArea(s, [0, 0, 1], 1.5), 4);
+  }
+});
+
+/** A STEP model of one IfcAdvancedBrep built from a small description (see the tests below). */
+function advancedModelT(build) {
+  const lines = [];
+  let id = 100;
+  const put = (s) => { const i = id++; lines.push(`#${i}=${s};`); return `#${i}`; };
+  const pt = (p) => put(`IFCCARTESIANPOINT((${p.map((x) => x.toFixed(9)).join(",")}))`);
+  const dir = (d) => put(`IFCDIRECTION((${d.map((x) => x.toFixed(9)).join(",")}))`);
+  const place = (o, z = [0, 0, 1], x = [1, 0, 0]) => put(`IFCAXIS2PLACEMENT3D(${pt(o)},${dir(z)},${dir(x)})`);
+  const vertex = (p) => put(`IFCVERTEXPOINT(${pt(p)})`);
+  const line = (a, b) => put(`IFCLINE(${pt(a)},${put(`IFCVECTOR(${dir(b.map((x, i) => x - a[i]))},1.)`)})`);
+  const circle = (o, r, z = [0, 0, 1]) => put(`IFCCIRCLE(${place(o, z)},${r})`);
+  const edge = (v0, v1, curve) => put(`IFCEDGECURVE(${v0},${v1},${curve},.T.)`);
+  const loop = (oes) => put(`IFCEDGELOOP((${oes.map(([e, fwd]) => put(`IFCORIENTEDEDGE(*,*,${e},${fwd ? ".T." : ".F."})`)).join(",")}))`);
+  const face = (loops, surface) => put(`IFCADVANCEDFACE((${loops.map((l, i) => put(`${i ? "IFCFACEBOUND" : "IFCFACEOUTERBOUND"}(${l},.T.)`)).join(",")}),${surface},.T.)`);
+  const plane = (o, z) => put(`IFCPLANE(${place(o, z, Math.abs(z[0]) > 0.9 ? [0, 1, 0] : [1, 0, 0])})`);
+  const cylinder = (o, r) => put(`IFCCYLINDRICALSURFACE(${place(o)},${r})`);
+  const faces = build({ vertex, line, circle, edge, loop, face, plane, cylinder });
+  const shell = put(`IFCCLOSEDSHELL((${faces.join(",")}))`);
+  const brep = put(`IFCADVANCEDBREP(${shell})`);
+  const text = `ISO-10303-21;\nHEADER;\nFILE_SCHEMA(('IFC4'));\nENDSEC;\nDATA;\n${lines.join("\n")}\nENDSEC;\nEND-ISO-10303-21;\n`;
+  return { model: parseStep(text), id: Number(brep.slice(1)) };
+}
+
+test("advanced brep: planar faces on edge loops give the box's volume and section", async () => {
+  const { Geometry, solidVolume, sectionArea } = await import("./geom.mjs");
+  const { model, id } = advancedModelT(({ vertex, line, edge, loop, face, plane }) => {
+    const P = [[0, 0, 0], [2, 0, 0], [2, 3, 0], [0, 3, 0], [0, 0, 1], [2, 0, 1], [2, 3, 1], [0, 3, 1]];
+    const V = P.map(vertex);
+    const E = new Map();
+    // each edge written once, used forwards by one face and backwards by the other
+    const e = (a, b) => {
+      const k = a < b ? `${a}-${b}` : `${b}-${a}`;
+      if (!E.has(k)) E.set(k, { id: edge(V[Math.min(a, b)], V[Math.max(a, b)], line(P[Math.min(a, b)], P[Math.max(a, b)])), lo: Math.min(a, b) });
+      const x = E.get(k);
+      return [x.id, x.lo === a];
+    };
+    const quad = (q) => q.map((a, i) => e(a, q[(i + 1) % 4]));
+    const quads = [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]];
+    return quads.map((q) => {
+      const a = P[q[0]], b = P[q[1]], c = P[q[2]];
+      const u = b.map((x, i) => x - a[i]), v = c.map((x, i) => x - a[i]);
+      const n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+      return face([loop(quad(q))], plane(a, n));
+    });
+  });
+  const s = new Geometry(model).item(id);
+  close(solidVolume(s), 6);
+  close(sectionArea(s, [0, 0, 1]), 6);
+  close(sectionArea(s, [1, 0, 0]), 3);
+});
+
+test("advanced brep: a cylinder (a band face) and a half cylinder (a face cut at its seam) to 1e-4", async () => {
+  const { Geometry, solidVolume, sectionArea } = await import("./geom.mjs");
+  // r 0.5, h 2: the side face bounded by the two full circles
+  const full = advancedModelT(({ vertex, circle, edge, loop, face, plane, cylinder }) => {
+    const v0 = vertex([0.5, 0, 0]), v1 = vertex([0.5, 0, 2]);
+    const c0 = edge(v0, v0, circle([0, 0, 0], 0.5)), c1 = edge(v1, v1, circle([0, 0, 2], 0.5));
+    return [
+      face([loop([[c0, false]])], plane([0, 0, 0], [0, 0, -1])),
+      face([loop([[c1, true]])], plane([0, 0, 2], [0, 0, 1])),
+      face([loop([[c1, false]]), loop([[c0, true]])], cylinder([0, 0, 0], 0.5)),
+    ];
+  });
+  const s = new Geometry(full.model).item(full.id);
+  close(solidVolume(s), Math.PI * 0.25 * 2, 1e-4);
+  close(sectionArea(s, [0, 0, 1]), Math.PI * 0.25, 1e-4);
+  close(sectionArea(s, [1, 0, 0]), 2 * 1 * 0.5 * 2, 1e-4); // through the axis: 2r x h
+  // the x >= 0 half: the curved face is one loop (arc, seam line, arc, line)
+  const half = advancedModelT(({ vertex, line, circle, edge, loop, face, plane, cylinder }) => {
+    const A = [0, -0.5, 0], B = [0, 0.5, 0], C = [0, 0.5, 2], D = [0, -0.5, 2];
+    const [a, b, c, d] = [A, B, C, D].map(vertex);
+    const arc0 = edge(a, b, circle([0, 0, 0], 0.5)); // counter-clockwise from -y through +x to +y
+    const arc1 = edge(d, c, circle([0, 0, 2], 0.5));
+    const ab = edge(a, b, line(A, B)), dc = edge(d, c, line(D, C));
+    const ad = edge(a, d, line(A, D)), bc = edge(b, c, line(B, C));
+    return [
+      face([loop([[arc0, false], [ab, true]])], plane([0, 0, 0], [0, 0, -1])),
+      face([loop([[arc1, true], [dc, false]])], plane([0, 0, 2], [0, 0, 1])),
+      face([loop([[ab, false], [ad, true], [dc, true], [bc, false]])], plane([0, 0, 0], [-1, 0, 0])),
+      face([loop([[arc0, true], [bc, true], [arc1, false], [ad, false]])], cylinder([0, 0, 0], 0.5)),
+    ];
+  });
+  const h = new Geometry(half.model).item(half.id);
+  close(solidVolume(h), (Math.PI * 0.25 * 2) / 2, 1e-4);
+  close(sectionArea(h, [0, 0, 1]), (Math.PI * 0.25) / 2, 1e-4);
+});
+
+test("faceted: a stepped (concave) opening is taken out of a wall as signed tetrahedra", async () => {
+  const { Geometry, solidVolume, asTerms, subtractCutters, cuttersOf, sectionArea } = await import("./geom.mjs");
+  // the stepped shell of the test above, as an opening
+  const outer = [[0, 0], [4, 0], [4, 4], [0, 4]];
+  const hole = [[1, 1], [1, 3], [3, 3], [3, 1]];
+  const big = prismFacesT(outer, 1);
+  big[0] = [big[0][0], hole.map(([x, y]) => [x, y, 1])];
+  const small = prismFacesT(hole.slice().reverse(), 1).map((f) => f.map((l) => l.map(([x, y, z]) => [x, y, z + 1])));
+  const { model, id } = brepModelT([...big, small[0], ...small.slice(2)]);
+  const op = new Geometry(model).item(id);
+  assert.ok(op.mesh && op.shells);
+  const t = asTerms(op);
+  assert.ok(t.terms.length > 1 && !t.mesh);
+  close(solidVolume(t), 20);
+  close(sectionArea(t, [0, 0, 1], 1.5), 4);
+  // a 6 x 6 x 3 block around it, at (-1, -1, -0.5)
+  const { model: wm, id: wid } = brepModelT(prismFacesT([[-1, -1], [5, -1], [5, 5], [-1, 5]], 3).map((f) => f.map((l) => l.map(([x, y, z]) => [x, y, z - 0.5]))));
+  const wall = asTerms(new Geometry(wm).item(wid));
+  assert.equal(wall.terms.length, 1); // convex: one term
+  close(solidVolume(subtractCutters(wall, cuttersOf(t), "opening")), 108 - 20);
+  assert.equal(asTerms(op, 3), null); // over the term limit: not taken
+});
