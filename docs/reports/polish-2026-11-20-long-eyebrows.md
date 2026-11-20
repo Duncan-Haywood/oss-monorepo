@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design, accessibility]
+date: 2026-11-20
+---
 # Polish 2026-11-20: long single-item eyebrows fit one line at 390 px
 
 Follows item 1 of `polish-2026-11-20-two-item-eyebrows.md` ("Long single-item eyebrows").

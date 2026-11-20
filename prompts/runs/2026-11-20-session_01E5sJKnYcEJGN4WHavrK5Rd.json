@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKnYcEJGN4WHavrK5Rd",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T09:25:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Shorten long single-item hero eyebrows on venture pages so they fit one line at 390 px; cap them in a test",
+  "projects": [
+    "platform/pages",
+    "ventures"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17892",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First measurement script reported 0 wrapping eyebrows: a 'w' key for viewport width was overwritten by the element's clientWidth; fixed and re-measured."
+  ],
+  "integrity_issues": [
+    "The first draft of the post claimed the dropped audience words (students, plant managers) were still on each page; a grep showed that was false for most pages, so the post and report now state the trade-off instead."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says the build takes 3 to 20 minutes; this run's build finished in about 5. Fine as stated, but the measurement here did not need the dist at all: venture index.html pages carry inline CSS and render the same from source, which is faster for eyebrow/hero checks."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not screenshot the hub, a research page, Stories and a blog post before choosing; took the previous polish report's top-ranked next item, which already rested on that survey.",
+      "did": "Measured all 184 venture eyebrows at 390 and 320 px and fixed the 47 that wrapped at 390.",
+      "result": "47 -> 0 wrapping at 390; test guards it."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-forty-seven-labels-that-took-two-lines.md",
+    "docs/reports/polish-2026-11-20-long-eyebrows.md"
+  ],
+  "goal": null,
+  "notes": "Measured in Chromium over ventures/<slug>/index.html: eyebrows on 2+ lines at 390 px 47 -> 0 of 184; at 320 px 100 -> 93, three-line 7 -> 0; total eyebrow lines 231 -> 184 (390), 291 -> 277 (320). flagship-hero-order.test.mjs: 8/8 pass; fails on main for 47 pages. Full platform/pages test suite run locally in background; see PR CI for the authoritative result.",
+  "corrections": [],
+  "redteam": null
+}
