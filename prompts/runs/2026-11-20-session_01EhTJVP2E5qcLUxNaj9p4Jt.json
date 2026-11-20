@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVP2E5qcLUxNaj9p4Jt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompt.md)",
+  "input_sha256": "e7710cfbf7593885a44c98515fb38155574d91e862caf0f63f8c83124ca0298e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T07:16:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Start here row 7 ids-model-check: xs:pattern inclusion in the IDS revision diff",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": 17873,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/eval/revision-history.mjs",
+      "issue": "its --json rows hold per-pair summaries but not the changes, so finding which 6 changes were 'different' needs a rerun with --show; the tally was enough here"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-does-the-new-pattern-ask-more.md",
+    "ventures/ids-model-check/eval/pattern-inclusion-2026-11-20.md"
+  ],
+  "goal": "Grade pattern edits in an IDS revision exactly (asks more / less / same / different) with an example value",
+  "notes": "Built pattern-lang.mjs (XSD regex -> Thompson NFAs over code-point intervals, product search with shortest counterexample) and wired it into revision.mjs compareValuesDetail and audit.mjs value-never. Verification: node --test for ids-model-check via platform/ci/run_venture_tests.py: ok, 385 tests, 0 failed. eval/pattern-inclusion.mjs on 139 corpus files: 3,540 of 3,540 ordered pairs decided in 1.3 s, 3,369 of 3,369 examples verified by compileXsdRegex, 0 of 13,389 sampled probes violate a within verdict; 0 of 845 exact restrictions empty. revision-history over 13 repos: tally unchanged (no public revision edits a pattern), stated in README, eval and post. check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}

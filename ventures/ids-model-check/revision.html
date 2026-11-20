@@ -72,7 +72,8 @@
     <ul>
       <li><span class="tag tighter">asks more</span> a new required facet, optional to required, fewer allowed values, a narrower range, a data type added, or an applicability condition removed (more elements are checked).</li>
       <li><span class="tag looser">asks less</span> the reverse.</li>
-      <li><span class="tag changed">different</span> neither contains the other: another value, another pattern (patterns are not compared as languages), another class, or a change to or from prohibited.</li>
+      <li><span class="tag changed">different</span> neither contains the other: another value, a pattern that lets through some new values and refuses some old ones, another class, or a change to or from prohibited.</li>
+      <li>Patterns are compared by the values they let through, read as XML Schema regular expressions (the reading IfcTester uses): <code>D-[0-9]+</code> to <code>D-[0-9]{2}</code> asks more, <code>[0-9]{2}</code> to <code>[0-9][0-9]</code> is the same. A graded pattern change names the shortest value that matched before and not now, and the reverse, so you know what to search the model for.</li>
       <li><span class="tag metadata">metadata</span> names, descriptions, instructions, IFC versions and bSDD links only.</li>
     </ul>
     <p>Run on 69 committed revisions of 27 public IDS files in 13 GitHub repositories: no file it could read failed to compare, and 185 of the 233 changes were graded asks more or asks less exactly (<a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/ids-model-check/eval/revision-diff-2026-11-20.md">how it was checked</a>). Command line: <code>node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]</code>, exit 1 when the revision asks more.</p>
