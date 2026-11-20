@@ -160,6 +160,7 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
 <label>Play-off spots (0 for none)<input name="playoff" value="${esc(f.playoff ?? 0)}"></label>
 <label>Players a team needs on the night (0 = do not flag short teams)<input name="minPlayers" inputmode="numeric" value="${esc(f.minPlayers ?? 0)}"></label>
 <label><input type="checkbox" name="double" value="1" style="width:auto" ${f.double ? "checked" : ""}> Double round robin</label>
+<label><input type="checkbox" name="reverseLeg" value="1" style="width:auto" ${f.reverseLeg ? "checked" : ""}> Return leg in reverse order (fewer back-to-back home or away games)</label>
 ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}${area("times", "Time slots, e.g. 18:00, 19:00")}${area("skip", "Skip dates")}${area("blackouts", "Blackouts, e.g. Team: 2026-10-20")}${area("rainouts", "Rainouts")}${area("withdrawals", "Withdrawals")}${area("lateTeams", "Late teams")}${area("results", "Results, e.g. Hawks 3 - 2 Owls")}${area("playoffResults", "Play-off results, e.g. Hawks 2 - 1 Owls or Hawks 1 - 1 Owls (Hawks on penalties). They fill the bracket and never touch the table")}${area("rosters", "Rosters (optional), e.g. Hawks: Ana, Ben, Cara. Players pick their name from the list, and you see who has not answered")}${area("contacts", "Team contacts for reminder emails (optional), e.g. Hawks: captain@example.org")}
 <fieldset><legend>Team sign-ups</legend>
 <label><input type="checkbox" name="regOpen" value="1" style="width:auto" ${rs.open ? "checked" : ""}> Open sign-ups at <code>/register</code> (a public page: share it anywhere)</label>
@@ -456,6 +457,7 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
       for (const k of TEXT_FIELDS) f[k] = String(form.get(k) ?? "");
       f.weekdays = String(form.get("weekdays") || "").split(/[\s,]+/).filter((d) => WEEKDAYS.includes(d));
       f.double = form.get("double") === "1";
+      f.reverseLeg = form.get("reverseLeg") === "1";
       f.playoff = Math.trunc(Number(form.get("playoff")) || 0);
       f.minPlayers = Math.min(99, Math.max(0, Math.trunc(Number(form.get("minPlayers")) || 0)));
       f.regOpen = form.get("regOpen") === "1";

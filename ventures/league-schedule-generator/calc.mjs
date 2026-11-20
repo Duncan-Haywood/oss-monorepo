@@ -346,7 +346,7 @@ export function readSpec(f) {
   return {
     errors,
     spec: {
-      ...(gamesPerNight > 1 ? { gamesPerNight } : {}), rounds, ...(rounds && f.balanceSeeds ? { balanceSeeds: true } : {}), teams: t.teams, double: Boolean(f.double), carryOver: Boolean(f.carryOver), carryOverPick: Object.hasOwn(CARRY_OVER_PICK, f.carryOverPick) ? CARRY_OVER_PICK[f.carryOverPick] : CARRY_OVER_PICK.balanced, ...(f.carryOverKeep ? { carryOverKeep: String(f.carryOverKeep) } : {}), start, weekdays: w.weekdays, skipDays: skip.days,
+      ...(gamesPerNight > 1 ? { gamesPerNight } : {}), rounds, ...(rounds && f.balanceSeeds ? { balanceSeeds: true } : {}), teams: t.teams, double: Boolean(f.double), ...(f.double && f.reverseLeg ? { reverseLeg: true } : {}), carryOver: Boolean(f.carryOver), carryOverPick: Object.hasOwn(CARRY_OVER_PICK, f.carryOverPick) ? CARRY_OVER_PICK[f.carryOverPick] : CARRY_OVER_PICK.balanced, ...(f.carryOverKeep ? { carryOverKeep: String(f.carryOverKeep) } : {}), start, weekdays: w.weekdays, skipDays: skip.days,
       blackouts: b.blackouts, timeLimits: tl.limits, courtLimits: cl.limits, courtClosures: cc.closures, courts: courtNames, times: times.times, seed, minutes,
     },
   };
@@ -361,9 +361,12 @@ export function readSpec(f) {
  * "ahead" side at home for odd k. That gives every even-n league the minimum n-2 home/away
  * breaks (a break is two consecutive home games or two consecutive away games) and every
  * team a home/away split within one game. A double round robin plays the same rounds again
- * with every venue reversed.
+ * with every venue reversed. With `reverseLeg` the return leg plays leg one's rounds in reverse
+ * order (still venues reversed): every team flips home/away across the halfway line, so an even
+ * league has 2(n-2) breaks in place of 3(n-2) and an odd one none in place of n, at the price of
+ * the pairs in leg one's last round meeting again the very next round.
  */
-export function roundRobin(n, { double = false } = {}) {
+export function roundRobin(n, { double = false, reverseLeg = false } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   const first = [];
@@ -384,7 +387,7 @@ export function roundRobin(n, { double = false } = {}) {
     first.push({ leg: 0, matches, bye });
   }
   if (!double) return first;
-  const second = first.map((r) => ({ leg: 1, matches: r.matches.map(([h, a]) => [a, h]), bye: r.bye }));
+  const second = (reverseLeg ? [...first].reverse() : first).map((r) => ({ leg: 1, matches: r.matches.map(([h, a]) => [a, h]), bye: r.bye }));
   return [...first, ...second];
 }
 
@@ -1068,7 +1071,9 @@ export function buildSchedule(spec) {
   const closedCourtsOn = (d) => new Set(courts.map((c, i) => ((closures[c] || []).includes(d) ? i : -1)).filter((i) => i >= 0));
   const capacityOn = (d) => (courts.length - closedCourtsOn(d).size) * times.length;
 
-  let plan = roundRobin(n, { double: Boolean(spec.double) });
+  const reverseLeg = Boolean(spec.double && spec.reverseLeg);
+  let plan = roundRobin(n, { double: Boolean(spec.double), reverseLeg });
+  if (reverseLeg && spec.carryOver && n >= 4) notices.push("Return leg in reverse order was not applied: the carry-over search chooses its own second leg.");
   // Optional: rounds searched for an even carry-over (who you meet right after whom), with some
   // weight on home/away breaks, in place of the circle method. A double round robin searches its
   // second leg as well (mirroring the first would double every carry-over count): each pair still
@@ -1129,7 +1134,7 @@ export function buildSchedule(spec) {
       starts: [() => lowCarryOverRounds(n, { seed: spec.seed ?? 1, effort: 0.25, breakWeight: 10 }).rounds],
     });
     if (wf.after === 0 && wf.before > 0) {
-      plan = spec.double ? [...wf.rounds, ...wf.rounds.map((r) => ({ leg: 1, matches: r.matches.map(([h, a]) => [a, h]), bye: r.bye }))] : wf.rounds;
+      plan = spec.double ? [...wf.rounds, ...(reverseLeg ? [...wf.rounds].reverse() : wf.rounds).map((r) => ({ leg: 1, matches: r.matches.map(([h, a]) => [a, h]), bye: r.bye }))] : wf.rounds;
       waitFree = { before: wf.before, after: wf.after, ...(wf.designed ? { designed: true } : {}) };
     }
   }
@@ -1210,7 +1215,7 @@ export function buildSchedule(spec) {
     teams,
     config: {
       timeLimits, courtLimits, courtClosures: closures,
-      double: Boolean(spec.double), partial, carryOver: Boolean(spec.carryOver && n >= 4), start: spec.start, weekdays: [...weekdaySet].sort(), skipDays: [...skipSet].sort((a, b) => a - b),
+      double: Boolean(spec.double), ...(reverseLeg && !(spec.carryOver && n >= 4) ? { reverseLeg: true } : {}), partial, carryOver: Boolean(spec.carryOver && n >= 4), start: spec.start, weekdays: [...weekdaySet].sort(), skipDays: [...skipSet].sort((a, b) => a - b),
       blackouts: Object.fromEntries(blackSet.map((s, i) => [i, [...s].sort((a, b) => a - b)]).filter(([, d]) => d.length)),
       courts, times, seed: spec.seed ?? 1, minutes: spec.minutes ?? 60, ...(games > 1 ? { gamesPerNight: games } : {}),
     },
@@ -3577,7 +3582,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "balanceSeeds", "gamesPerNight", "results", "playoff", "playoffDouble", "playoffThird", "playoffResults", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact", "platformLocation", "teamSnapDivision", "teamSnapArrival", "sportsEngineIds"];
+const SHARE_KEYS = ["teams", "double", "reverseLeg", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "balanceSeeds", "gamesPerNight", "results", "playoff", "playoffDouble", "playoffThird", "playoffResults", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact", "platformLocation", "teamSnapDivision", "teamSnapArrival", "sportsEngineIds"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -3600,7 +3605,7 @@ export function decodeFields(text) {
     const str = (v) => (typeof v === "string" ? v : "");
     const wd = Array.isArray(o.weekdays) ? o.weekdays.filter((d) => WEEKDAYS.includes(d)) : [];
     return {
-      teams: str(o.teams), double: o.double === true, carryOver: o.carryOver === true, carryOverPick: ["fair", "balanced", "breaks", "fewest"].includes(o.carryOverPick) ? o.carryOverPick : "balanced", carryOverKeep: /^\d{1,3}@\d{1,3}[ds]-?\d{1,12}$/.test(str(o.carryOverKeep)) ? o.carryOverKeep : "", start: str(o.start), weekdays: wd,
+      teams: str(o.teams), double: o.double === true, reverseLeg: o.reverseLeg === true, carryOver: o.carryOver === true, carryOverPick: ["fair", "balanced", "breaks", "fewest"].includes(o.carryOverPick) ? o.carryOverPick : "balanced", carryOverKeep: /^\d{1,3}@\d{1,3}[ds]-?\d{1,12}$/.test(str(o.carryOverKeep)) ? o.carryOverKeep : "", start: str(o.start), weekdays: wd,
       skip: str(o.skip), blackouts: str(o.blackouts), timeLimits: str(o.timeLimits), courtLimits: str(o.courtLimits), courtClosures: str(o.courtClosures), courts: str(o.courts), times: str(o.times),
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,

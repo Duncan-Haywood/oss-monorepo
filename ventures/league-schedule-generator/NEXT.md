@@ -23,5 +23,4 @@
 
 ## From quality audit round 87 (2026-11-19, `portfolio/quality/audits/2026-11-19-league-schedule-generator-r87.json`)
 
-- Double round robin: reverse leg one's round order when mirroring (trade-off to weigh: the last pair of leg one would then meet in back-to-back rounds, so offer it as an option, not a new default), so breaks drop from 3(n−2) to 2(n−2) (8 instead of 12 at 6 teams) with each pair still once home, once away.
 - `calc.mjs` is 4,149 lines; split by feature.

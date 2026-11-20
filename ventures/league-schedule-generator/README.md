@@ -48,6 +48,21 @@ still kept score on paper or in a separate app. `americano-night.html` is the ni
   round trip and damaged links, every size 4-64 valid) and a Playwright pass at iPhone 13 width (example night,
   auto-fill, resume after reload, read-only link, Mexicano draw; no console errors, no horizontal scroll).
 
+## Return leg in reverse order: a third fewer back-to-back home or away games (2026-11-20)
+
+A double round robin used to play its return leg as a straight mirror: round 1 again with venues swapped, then round 2, and so on. Across the halfway line that gives most teams a second home or away game in a row. A new option, "Play the return leg in reverse order" (page checkbox under Double round robin; `reverseLeg: true` in `readSpec`/`buildSchedule`/`roundRobin`; the self-hosted admin has the same box; it travels in share links), plays leg one's rounds backwards with venues swapped, so every team flips home/away at the halfway line.
+
+Measured over 4 to 20 teams (`node eval/reverse-leg.mjs`, `eval/reverse-leg.txt`):
+
+| | mirrored | reversed |
+|---|---|---|
+| breaks, even n | 3(n-2): 12 at 6 teams, 30 at 12, 54 at 20 | 2(n-2): 8, 20, 36 |
+| breaks, odd n | n-2: 3 at 5 teams, 17 at 19 | 0 |
+| worst team | 3 | 2 (even), 0 (odd) |
+| shortest rematch, weekly league | (n-1) weeks or more | 1 week |
+
+The cost is the last column: the pairs that close leg one open leg two, so they meet on consecutive weeks (the rematch report under the schedule shows it). That is why it is an option and not the default (quality audit round 87 named both sides). Each pair still plays once at each ground, and `validateSchedule` passes every size tested. With carry-over spreading on, the search picks its own second leg, so the option is not applied and a notice says so; with several games a night the reversed leg is kept (`reverse-leg.test.mjs`).
+
 ## Run your own league page (self-hosted)
 
 The browser tool builds the season; `server.mjs` gets it to your players. You keep the setup and post results in
