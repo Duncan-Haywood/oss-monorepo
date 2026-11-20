@@ -91,6 +91,7 @@
     <label for="teams">One team per line</label>
     <textarea id="teams" rows="8" placeholder="Net Ninjas&#10;Dink Dynasty&#10;Kitchen Kings&#10;Lob Squad&#10;Spin Doctors"></textarea>
     <div class="check"><input type="checkbox" id="double"><label for="double" style="display:inline;margin:0;font-weight:400">Double round robin (everyone plays everyone twice, once at each home)</label></div>
+    <div class="check"><input type="checkbox" id="reverseLeg"><label for="reverseLeg" style="display:inline;margin:0;font-weight:400">Play the return leg in reverse order (fewer back-to-back home or away games: 8 instead of 12 at 6 teams; the last pairs of the first half meet again the next week)</label></div>
     <div class="check"><input type="checkbox" id="carryOver"><label for="carryOver" style="display:inline;margin:0;font-weight:400">Spread who you meet next (carry-over): stop the same teams always playing right after the strongest side. Runs twelve searches in the background, side by side on your device's cores: a few seconds, up to about 35 on one core for 20 teams (a home-and-away season searches both halves, not a mirror of the first; either kind then squeezes four more seasons into the gaps between them and tries fewer back-to-back games on each season's own fixtures, about 3 to 9 more seconds); may add some back-to-back home or away games. <a href="./how-to-balance-carry-over-in-a-round-robin.html">Why</a></label></div>
     <input type="hidden" id="carryOverKeep" value="" aria-label="Season picked from the frontier list">
     <div><label for="carryOverPick">When spreading, run the searches and keep the one with</label><select id="carryOverPick"><option value="balanced" selected>a balance of even carry-over and few back-to-back home or away games</option><option value="fair">the most even carry-over</option><option value="breaks">fewer back-to-back home or away games</option><option value="fewest">the fewest back-to-back home or away games possible, then the most even carry-over</option></select></div>
@@ -437,6 +438,7 @@
     function setFields(f) {
       $("#teams").value = f.teams;
       $("#double").checked = Boolean(f.double);
+      $("#reverseLeg").checked = Boolean(f.reverseLeg);
       $("#carryOver").checked = Boolean(f.carryOver);
       $("#carryOverPick").value = f.carryOverPick || "balanced";
       $("#carryOverKeep").value = f.carryOverKeep || "";
@@ -477,7 +479,7 @@
       const weekdays = [];
       for (let i = 0; i < 7; i++) if ($("#wd" + i).checked) weekdays.push(WEEKDAYS[i]);
       return {
-        teams: $("#teams").value, double: $("#double").checked, carryOver: $("#carryOver").checked, carryOverPick: $("#carryOverPick").value, carryOverKeep: $("#carryOverKeep").value, start: $("#start").value, weekdays,
+        teams: $("#teams").value, double: $("#double").checked, reverseLeg: $("#reverseLeg").checked, carryOver: $("#carryOver").checked, carryOverPick: $("#carryOverPick").value, carryOverKeep: $("#carryOverKeep").value, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courtClosures: $("#courtClosures").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value, balanceSeeds: $("#balanceSeeds").checked, gamesPerNight: $("#gamesPerNight").value === "1" ? "" : $("#gamesPerNight").value,
         results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, playoffResults: $("#playoffResults").value, pins: $("#pins").value, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, finishBy: $("#finishBy").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,

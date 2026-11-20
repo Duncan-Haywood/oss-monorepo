@@ -395,7 +395,7 @@ test("share links round-trip every field, including non-ASCII names, and reject 
   const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", pins: "A v B -> 2026-12-01", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", lateTeams: "2026-11-03 B", finishBy: "2026-12-15", timeLimits: "A: 18:00", courtLimits: "A: Court 1", courtClosures: "Court 2: 2026-10-13", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B", duties: "Snack stand: 2", sheetTitle: "Spring", sheetContact: "Sam", platformLocation: "Rec Center", teamSnapDivision: "Coed", teamSnapArrival: "30", sportsEngineIds: "A = 1" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
-  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, playoffResults: "", scoring: "", rounds: "", balanceSeeds: false, gamesPerNight: "", carryOver: false, carryOverPick: "balanced", carryOverKeep: "" });
+  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, playoffResults: "", scoring: "", rounds: "", balanceSeeds: false, gamesPerNight: "", carryOver: false, carryOverPick: "balanced", carryOverKeep: "", reverseLeg: false });
   assert.deepEqual(decodeFields("#s=" + code), decodeFields(code));
   assert.equal(decodeFields(encodeFields({ finishBy: "<b>" })).finishBy, "", "finishBy must be a date");
   const again = decodeFields(code);
