@@ -15,7 +15,8 @@ Two observations, both checkable without running the planner:
     at most (1e-3)^2 / 8 * max|Kbar''|, about 2e-7 for the smallest s here (0.38 m), the size of the erf's own error.
   * F has no other dependence on the spacing h than through the tables, and the band count k = k_cap(H, h, m) is a
     step function of h. Inside one k, a wider spacing moves every non-zero gap n h outward. So a planner that tries,
-    for each k, only the widest spacing on the grid ("k-widest": 12 of the 30) should lose nothing whenever the leak
+    for each k, only the widest spacing on the grid ("k-widest": 12 of the 30; correction after the run: 10, since
+    rounding leaves no 6- or 11-band spacing on the grid, see fast_tables_posthoc.py) should lose nothing whenever the leak
     probability falls with the gap. That holds for a symmetric unimodal kernel but is not guaranteed for the
     mixture over the supports, so it is tested, not assumed. (11aq's chosen spacings, known before this was written:
     384 of 384 draws at 13.0, 13.33, 17.14 or 24.0 m, of which 382 are widest-for-their-k.)
