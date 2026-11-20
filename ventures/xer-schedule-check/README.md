@@ -14,6 +14,23 @@ After using this, an owner's rep can **send a contractor a list of the exact
 activities to fix** in a schedule update (not just "fails DCMA point 6"), and a
 scheduler can catch the same list before submitting.
 
+**Time impact analysis** (2026-11-20, `tia.mjs`): write a delay event as a
+fragnet (the new activities it added, their working days, what each follows
+and what each holds up, the date the event happened; or "+10" days on an
+existing activity) and the tool inserts it into the update in force, schedules
+the copy with the file's own calendars, logic and options, and reports how far
+the finish and every open milestone move, the float every other activity gives
+up, and, with two or more named events, each event alone, so concurrent delay
+shows (AACE RP 52R-06; RP 29R-03 MIP 3.6). The impacted schedule downloads as
+an XER to import into P6 and confirm, and as a printable exhibit for the
+extension of time request. Checked on the six public P6 files with planted
+fragnets against answers reached another way (a null fragnet moves nothing
+120 of 120; a new activity after A equals A made longer 115 of 115; the
+impacted XER reads back to the same finish 115 of 115; the finish moves by
+the days past relative float 112 of 120, the 8 others crossing another
+calendar or absorbed by an expected finish the tool names;
+`eval/tia-check-2026-11-20.md`).
+
 **Microsoft Project files too** (2026-11-19, `mspdi.mjs`): open a schedule
 saved from Microsoft Project as XML (File, Save As, XML Format; also written
 by Project Online, ProjectLibre, GanttProject and most converters) anywhere
@@ -363,6 +380,7 @@ generated series carry actuals.
 | A constraints log in Excel, or a Last Planner board (sticky notes, or paid tools such as Touchplan or vPlanner) | Tracks what each task waits on, kept apart from the schedule; the paid boards need their own plan entered | The same spreadsheet merged with the P6 schedule: the date each row is needed by from the recomputed dates, late and overdue rows named, and how far the finish moves if the log holds, row by row, free and in the browser |
 | P6's own Level Resources | Levels in P6 for people who hold a P6 seat; changes the schedule in the database | The levelled finish, who moved and why, and a crew-size what-if from the XER, without P6 and without touching the contractor's file |
 | Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free, with ranges read from the file's own UDFs; no resource model, no probabilistic branches yet |
+| A time impact analysis done by hand in P6 (copy the update, type the fragnet in, reschedule, compare the finish), or bought from a claims consultant | Needs a P6 seat and an afternoon per event; consultants charge by the hour | The fragnet as a table, the finish and every milestone's move, float used, each event alone and their overlap, a printable exhibit and the impacted XER for P6, in a browser tab, free |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
 | Open-source XER libraries and checkers (Python packages, local web apps) | A parser or a few checks; you install and run them | All 14 points plus a critical path test on a recomputed schedule, measured against P6's own numbers, in a page |
@@ -424,6 +442,20 @@ project's updates for delay claims; and the review itself as a service.
   and the drivers on it; totals on the last update's calendar. `status.mjs`
   statuses a file as planned to a new data date (optionally with planted
   slips), for the check below and the page's example series.
+- `tia.mjs`: time impact analysis. `parseFragnet` reads the fragnet table
+  (columns found by name; links as `A1030`, `A1030 SS`, `F1 FS+2`, lags in
+  working days; an ID that itself ends in `-1` is taken whole when the file or
+  fragnet holds it). `insertFragnet` adds TASK and TASKPRED rows to a copy of
+  the tables as a scheduler would in P6: a new activity on the calendar of its
+  first existing predecessor (else successor, else the project's), a start-on-
+  or-after constraint for the event date, lags on the project's lag calendar.
+  Days added to a milestone (no duration in P6) or to a finished, level of
+  effort or WBS summary activity are refused with a warning; added days on an
+  activity with an FF or SF predecessor are warned about (they move its start
+  earlier, not its finish). `timeImpact` schedules both and compares: finish
+  and milestones in working days of the project calendar, float given up,
+  the driving path after the event, and each event alone (forward pass). A
+  fragnet that closes a loop is refused.
 - `report.mjs`: the written review. `reviewItems` turns each failing DCMA
   point, extra check, stale-date list, comparison flag, risk finding and
   windows finding (`windowItems`) into one ranked correction with its
@@ -453,6 +485,7 @@ node cli.mjs schedule.xer --risk 1000 --ranges-udf auto   # ranges from the file
 node cli.mjs schedule.xer --float-paths [CODE] [--paths 10] [--csv paths.csv] [--json]   # float paths to CODE (default: the finish)
 node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json]   # resource levelling
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
+node cli.mjs update.xer --tia fragnet.csv [--csv impact.csv] [--html tia.html] [--xer impacted.xer] [--event NAME] [--by NAME] [--json]   # time impact analysis
 node cli.mjs --windows jan.xer feb.xer mar.xer apr.xer [--json] [--csv windows.csv] [--project CODE]
 ```
 
@@ -465,6 +498,17 @@ run as a formula in Excel or Sheets.
 
 ## How it was checked
 
+- **Time impact analysis** (`eval/tia-check-2026-11-20.md`): planted
+  fragnets on the six public files. A zero-day fragnet between linked
+  activities moves nothing (120 of 120); a new activity inserted between A
+  and its only successor moves the finish, every milestone and the
+  successor's start exactly as making A longer does (115 of 115); the
+  impacted XER, written and read back, schedules to the same finish (115 of
+  115); an activity made d days longer moves the finish by d minus its float
+  relative to the finish (112 of 120: 7 of the others cross a calendar with
+  different working days, 1 is absorbed by an expected finish date, which the
+  tool names). The run found days on a milestone silently dropped (now
+  refused) and an ID ending in "-1" read as a lag (now taken whole).
 - **Longest path against P6's own flag** (`eval/longest-path-2026-11-19.md`):
   on five of the six public files the longest path is exactly the set P6
   flagged (261 of 261 open activities, none extra); the old single chain held 19
@@ -602,7 +646,7 @@ run as a formula in Excel or Sheets.
 Screening metrics, not a verdict: a schedule can pass all fourteen and still be
 unrealistic, and some failures are justified. Expected finish dates are
 checked on one public file only (23 activities; the rule is read from the
-durations P6 stored, not from a second P6 run). Not modelled: "make open-ended activities critical"; multiple float
+durations P6 stored, not from a second P6 run). Not modelled: "make open-ended activities critical"; time impact analysis models the delay but not its cause, entitlement or apportionment, and is checked against planted fragnets, not a real TIA exhibit; multiple float
 paths follow P6's "free float" style but are not compared with P6's own (no
 public file stores them), and P6's "total float" option is not offered (resource levelling is the separate `level.mjs` step; the checks always
 use the unlevelled dates; it is a serial pass like P6's, not P6's code, so its

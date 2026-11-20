@@ -572,9 +572,7 @@ flagships:
       files); windows analysis across many updates shipped 2026-11-19 (windows.mjs,
       --windows; a not-started re-estimate is now a revision in the half-step;
       eval/windows-check-2026-11-19.md); next a real series of updates to check the
-      split and drivers against (windows in the review shipped 2026-11-19); (3)
-      GitHub ERMHDR search, size-split 2026-11-19: a seventh P6 file (Harbour Pointe
-      17.12) 113/113 once 8 durations edited after its last run are put back; (7)
+      split and drivers against (windows in the review shipped 2026-11-19); (7)
       longest path and multiple float paths shipped 2026-11-19 (floatpaths.mjs,
       --float-paths, page panel; eval/longest-path-2026-11-19.md: P6's flag 261/261
       on five files). (9) look-ahead shipped 2026-11-19 (lookahead.mjs, --lookahead,
@@ -582,7 +580,9 @@ flagships:
       activities = P6's); next a real site's log; milestone calendars shipped
       2026-11-20 (milestones.mjs; eval/milestone-calendars-2026-11-20.md). (10)
       earned value shipped 2026-11-20 (evm.mjs; % complete = P6's actuals
-      2,020/2,020); next a real series and baseline export. More open items:
+      2,020/2,020); next a real series and baseline export. (11) time impact
+      analysis shipped 2026-11-20 (tia.mjs, --tia, page;
+      eval/tia-check-2026-11-20.md); next a real TIA exhibit. More open items:
       NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
