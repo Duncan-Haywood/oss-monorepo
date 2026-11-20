@@ -793,7 +793,8 @@ def test_validity_frontier_reads_the_committed_summaries():
     vf = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(vf)
     rs = {(r["milestone"], r["rule"]): r for r in vf.rows()}
-    assert len(rs) == 27
+    assert len(rs) == 32
+    assert math.isclose(rs[("7be", "jp40")]["kept"], 7.883 / 9.524) and rs[("7be", "jp40")]["fail"] == 4  # LOG 7be
     assert math.isclose(rs[("7az", "p5j40")]["kept"], 8.510 / 8.993)  # LOG 7az: 94.6% kept
     assert math.isclose(rs[("7au", "n2")]["kept"], 0.374, abs_tol=5e-4)  # LOG 7au: 37.4%
     assert rs[("7at", "l16")]["fail"] == 4 and rs[("7at", "l16")]["fail_ref"] == 7  # LOG 7at
