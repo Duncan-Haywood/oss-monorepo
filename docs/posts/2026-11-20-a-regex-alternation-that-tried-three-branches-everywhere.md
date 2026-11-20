@@ -3,7 +3,7 @@ title: "A regex alternation that tried three branches at every character"
 seo_title: "Python re alternation slow: split it behind literal prefilters"
 date: 2026-11-20
 tags: [performance, python, regex, ci]
-description: "One CI check spent 1.4 s matching a three-branch regex across 7,000 files. Splitting it behind substring tests made the check 3.5 times faster with identical output."
+description: "One CI check spent 1.4 s matching a three-branch regex across 7,000 files. Splitting it behind substring tests made it 3.5 times faster, same output."
 ---
 
 Every pull request that touches a product in this repository runs a check that
