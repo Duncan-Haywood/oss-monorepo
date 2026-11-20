@@ -383,9 +383,10 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (64 stories)
+### For Other Minds (65 stories)
 
 - [The Colony That Needs More Than One](stories/the-colony-that-needs-more-than-one.md) (2026-11-20; 22 min read, text only)
+- [The Ones Who Live Past the Bridge](stories/the-ones-who-live-past-the-bridge.md) (2026-11-20; 17 min read, text only)
 - [The Two Who Were Born a Day Apart](stories/the-two-who-were-born-a-day-apart.md) (2026-11-20; 17 min read, text only)
 - [The Cheese That Keeps Growing in the Cold](stories/the-cheese-that-keeps-growing-in-the-cold.md) (2026-11-19; 17 min read, text only)
 - [The Coffee and the New Estate](stories/the-coffee-and-the-new-estate.md) (2026-11-19; 15 min read, text only)
