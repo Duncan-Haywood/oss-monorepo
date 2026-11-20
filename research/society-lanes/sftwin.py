@@ -60,6 +60,18 @@ AVM_RADIUS = 0.2     # m: JuPedSim 1.4.2 default for the anticipation velocity m
 CFSM_RADIUS = 0.2    # m: JuPedSim 1.4.2 default for the collision-free speed model
 CFSM_TIME_GAP = 1.0  # s: JuPedSim 1.4.2 default
 MODELS = ("sf", "avm", "cfsm")
+ENTRIES = ("edge", "lobby")
+LOBBY = (0.3, 1.2)   # m behind the corridor end: milestone 6i's lobby entry
+
+
+def entry_x(rng, d, length, entry="edge"):
+    """x of a re-entering walker heading d. "edge": 0.35 m inside its end; "lobby": LOBBY m behind it."""
+    if entry == "edge":
+        return 0.35 if d > 0 else length - 0.35
+    if entry != "lobby":
+        raise ValueError(f"entry must be one of {ENTRIES}")
+    back = rng.uniform(*LOBBY)
+    return -back if d > 0 else length + back
 RULES = ("always", "yield", "scaled")
 
 
@@ -120,8 +132,13 @@ def right_offset(y, d, width):
 def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
              warmup=40.0, duration=160.0, dt=0.01, steer_every=0.1, record_every=0.1,
              model="sf", exit_frac=0.25, rule="always", robots=0, policy="crowd",
-             robot_speed=None, passes=False, agent_scale=None, time_gap=None):
+             robot_speed=None, passes=False, agent_scale=None, time_gap=None, entry="edge"):
     """Run one closed-loop corridor. Returns per-run statistics (dict).
+
+    entry (milestone 6i): "edge" (default) places a re-entering walker 0.35 m inside its own end, where it
+    shares room with the walkers leaving that end; "lobby" places it 0.3 to 1.2 m behind the end, in the
+    run-out where leavers have already been removed. Both need CLEARANCE of free space and use the
+    `entrance` width.
 
     agent_scale (social force, Helbing's A in N; JuPedSim default 2000) and time_gap (collision-free
     speed, s; default CFSM_TIME_GAP): milestone 6h's spacing parameters; None keeps the defaults.
@@ -138,6 +155,8 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
         raise ValueError(f"model must be one of {MODELS}")
     if rule not in RULES:
         raise ValueError(f"rule must be one of {RULES}")
+    if entry not in ENTRIES:
+        raise ValueError(f"entry must be one of {ENTRIES}")
     radius = {"sf": RADIUS, "avm": AVM_RADIUS, "cfsm": CFSM_RADIUS}[model]
     rng = np.random.default_rng(seed)
     # walkable area runs 1.5 m past each end so leaving walkers are not held by an end wall
@@ -243,7 +262,7 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                     sim.agent(a).target = (float(xx), float(yy))
             for dd in (1, -1):
                 for _ in range(queue[dd]):
-                    x0 = 0.35 if dd > 0 else length - 0.35
+                    x0 = entry_x(rng, dd, length, entry)
                     y0 = rng.uniform(e_lo, e_hi) if e_hi > e_lo else width / 2
                     if len(pos) and np.min((pos[:, 0] - x0) ** 2 + (pos[:, 1] - y0) ** 2) < CLEARANCE ** 2:
                         break
@@ -256,7 +275,7 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                     queue[dd] -= 1
                     pos = np.vstack([pos, [x0, y0]]) if len(pos) else np.array([[x0, y0]])
                 for _ in range(rqueue[dd]):
-                    x0 = 0.35 if dd > 0 else length - 0.35
+                    x0 = entry_x(rng, dd, length, entry)
                     y0 = rng.uniform(e_lo, e_hi) if e_hi > e_lo else width / 2
                     if len(pos) and np.min((pos[:, 0] - x0) ** 2 + (pos[:, 1] - y0) ** 2) < CLEARANCE ** 2:
                         break
