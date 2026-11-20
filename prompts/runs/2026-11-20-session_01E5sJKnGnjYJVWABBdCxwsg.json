@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKnGnjYJVWABBdCxwsg",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T00:19:34Z",
+  "ended": "2026-11-20T00:33:51Z",
+  "wall_minutes": 14.56,
+  "tokens_in": 6654770,
+  "tokens_out": 35303,
+  "cost_usd": 3.1397,
+  "tool_calls": 59,
+  "task": "research/marine-hull milestone 7zk: L/B 10 tank check (Journee 1992 Wigley I and III) of the wave model",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17825",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "full project suite: 1 failure after adding ModifiedWigleyStrip.alpha (a test hull built without __init__ lacked the attribute)",
+      "fix": "class-level default alpha = 1.0; suite rerun on the affected files, 11 passed; the other 488 had passed"
+    },
+    {
+      "what": "a grouped apt-get install command was refused by the Bash safety check as unparseable",
+      "fix": "re-sent in plain sequential syntax"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "data hosts (repository.tudelft.nl, crossref, semantic scholar, mdpi, springer, j-stage, archive.org) all refused; only GitHub and PyPI answered. The tank data needed came second-hand from another repo's docs found by gh code search; a line suggesting gh search/code for quoted experimental data would have saved the probe round"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "says pytest often missing and to use pyenv.py; correct, but my first background suite run used bare python3 and failed silently with 'No module named pytest' (cost one round)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "the L/B 10 data could not be opened at source; used measured peaks quoted second-hand by an independent code's documentation, labelled second-hand and peak-only in results, LOG, README, paper and post",
+      "did": "pre-registered six expectations, ran the test, added a clearly labelled post-hoc monohull sensitivity",
+      "result": "3 of 6 held; finding that the transferred damping and motion term under-predict at L/B 10, moving the post-hoc 30 W loss to 4.2-4.8%; paper bracket kept pending the report's tables"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-marine-hull-lb10-wigley-check.md",
+    "research/marine-hull/LOG.md (7zk entry)"
+  ],
+  "goal": null,
+  "notes": "Checks run here: project suite 488 passed + 1 fixed (11 passed after fix on affected files); research/_homepage/build.py ok; check_md_links ok; check_posts ok; paper/check_numbers.py ok; paper compiled with texlive-publishers: 6 pages, no errors, undefined references or overfull boxes. Experiment 235 s stdlib deterministic; post-hoc rows reproduce 7zh's 3.39% exactly at scale 1.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "42977ca5-a180-584a-a441-e540d8b43502",
+    "transcripts": 1,
+    "first": "2026-11-20T00:19:34Z",
+    "last": "2026-11-20T00:34:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 99,
+        "output": 35303,
+        "thinking": 7414,
+        "cache_read": 6513345,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141326,
+        "api_equivalent_usd": 3.1397,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 99,
+      "output": 35303,
+      "thinking": 7414,
+      "cache_read": 6513345,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141326,
+      "api_equivalent_usd": 3.1397,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 53,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.56,
+      "active_minutes": 14.56,
+      "model_minutes": 6.8,
+      "tool_minutes": 7.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer reading the second-hand data, extending the hull form, writing and running the check, updating paper and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 318.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
