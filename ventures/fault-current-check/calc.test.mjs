@@ -118,3 +118,42 @@ test("CSV has a row per node and guards formula cells", () => {
   assert.equal(csv.trim().split("\n").length, 1 + a.nodes.length);
   assert.match(csv, /\n0,'=cmd\(\)/);
 });
+
+test("input limits sit exactly where the messages say (red-team guards, 2026-11-20)", () => {
+  const seg = (o) => ({ size: "4/0", material: "cu", sets: "1", length: "100", conduit: "nonmagnetic", ...o });
+  // one-way length: 100000 is the last accepted value
+  assert.equal(analyze({ ...base, segments: [seg({ length: "100000" })] }).error, undefined);
+  assert.match(analyze({ ...base, segments: [seg({ length: "100001" })] }).error, /one-way length/);
+  // parallel sets: 1 to 20
+  assert.equal(analyze({ ...base, segments: [seg({ sets: "20" })] }).error, undefined);
+  assert.match(analyze({ ...base, segments: [seg({ sets: "21" })] }).error, /parallel sets/);
+  assert.match(analyze({ ...base, segments: [seg({ sets: "0" })] }).error, /parallel sets/);
+  // negative motor amps are refused, not silently read as no motors
+  assert.match(analyze({ ...base, motorFla: "-100" }).error, /Motor full-load amps/);
+  assert.equal(analyze({ ...base, motorFla: "0" }).error, undefined);
+});
+
+test("panel and service names are capped at 80 characters", () => {
+  const long = "P".repeat(200);
+  const a = analyze({ ...base, serviceName: long, segments: [{ name: long, size: "4/0", length: "10" }] });
+  assert.equal(a.nodes[0].name.length, 80);
+  assert.equal(a.nodes[1].name.length, 80);
+});
+
+test("the source reports the reduced %Z in percent", () => {
+  const a = analyze({ ...base, tolerancePct: "10" });
+  close(a.source.zEffPct, 3.15, 1e-9);
+  close(a.nodes[0].amps, 1500000 / (Math.sqrt(3) * 480) / 0.0315, 0.01);
+});
+
+test("every metric size's area is its nominal mm² (resistance follows from it)", () => {
+  const metric = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400, 500, 630];
+  for (const a of metric) {
+    const s = SIZES.find((z) => z.id === `${a}mm2`);
+    assert.ok(s, `${a} mm² is offered`);
+    assert.equal(s.areaMm2, a);
+    assert.equal(s.label, `${a} mm²`);
+  }
+  // 4 mm² copper at 20 C: 1.7241e-8 / 4e-6 x 1.02 = 4.3965 milliohm per metre
+  close(rdcPerMetre(4, "cu", 20), 4.396455e-3, 1e-8);
+});

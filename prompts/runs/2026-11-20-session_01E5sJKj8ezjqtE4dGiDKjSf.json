@@ -1,0 +1,414 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKj8ezjqtE4dGiDKjSf",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T23:09:40Z",
+  "ended": "2026-11-20T23:12:01Z",
+  "wall_minutes": 8.33,
+  "tokens_in": 3963122,
+  "tokens_out": 22531,
+  "cost_usd": 1.9344,
+  "tool_calls": 46,
+  "task": "redteam: fault-current-check calc.mjs and check_payment_keys.py",
+  "projects": [
+    "fault-current-check",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17988",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "CI changed-ventures red only on check_site_fresh.py (live site 5.0 h stale: every main deploy since e5b26c244 failed on the 20,000-file Worker limit, fixed by PR #17987); unrelated to this diff, fault-current-check passed 36 tests in that job, all other checks green."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "campaign --mutants 10 on check_payment_keys.py seeded only 6 with no message saying the file had too few mutation sites; read as a silent shortfall."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 open list (12 entries) is all control-plane workflow/prompts edits awaiting owner approval, plus help-keeper stem() which its own entry says needs a help-center eval set first.",
+      "did": "Checked the list, fixed none of it, spent the run on new targets.",
+      "result": "Two campaigns and one real guard defect fixed; open list unchanged."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-the-payment-guard-only-knew-two-providers.md"
+  ],
+  "goal": null,
+  "notes": "Guard tightened (4b): check_payment_keys.py now catches merchant-of-record checkout links and Polar/Paddle keys, and scans ventures/, platform/ and docs/ (4.5 s, first run clean). Fault-current engine figures cross-checked against README, index.html and the NEC 110.24 guide: all match. Verified: unittest test_check_payment_keys 33 OK; fault-current-check node --test 29 pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/fault-current-check/calc.mjs",
+        "test": "node --test ventures/fault-current-check/**/*.test.mjs  (in .)",
+        "seed": 470456191,
+        "commit": "707f3d122",
+        "sites": 428,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/fault-current-check/calc.mjs",
+            "line": 40,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "const METRIC = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400, 500, 630].map((a) => ({ id: `${a}mm2`, label: `${a} mm\u00b2`, areaMm2: a }));",
+            "after": "const METRIC = [1.5, 2.5, 5, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400, 500, 630].map((a) => ({ id: `${a}mm2`, label: `${a} mm\u00b2`, areaMm2: a }));",
+            "line_text": "const METRIC = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400, 500, 630].map((a) => ({ id: `${a}mm2`, label: `${a} mm\u00b2`, areaMm2: a }));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/fault-current-check/calc.mjs",
+            "line": 134,
+            "col": 14,
+            "operator": "plus-to-minus",
+            "before": "return 1.02 + 0.98 * Math.exp(-3 / xr);",
+            "after": "return 1.02 - 0.98 * Math.exp(-3 / xr);",
+            "line_text": "  return 1.02 + 0.98 * Math.exp(-3 / xr);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fault-current-check/calc.mjs",
+            "line": 163,
+            "col": 25,
+            "operator": "eq-flip",
+            "before": "const toM = lengthUnit === \"m\" ? 1 : M_PER_FT;",
+            "after": "const toM = lengthUnit !== \"m\" ? 1 : M_PER_FT;",
+            "line_text": "  const toM = lengthUnit === \"m\" ? 1 : M_PER_FT;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fault-current-check/calc.mjs",
+            "line": 187,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "const zt = polar((zEff * V * V) / (kva * 1000), xr);",
+            "after": "const zt = polar((zEff * V * V) / (kva * 1001), xr);",
+            "line_text": "    const zt = polar((zEff * V * V) / (kva * 1000), xr);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fault-current-check/calc.mjs",
+            "line": 201,
+            "col": 61,
+            "operator": "times-to-div",
+            "before": "source = { mode: \"transformer\", kva, pctZ, zEffPct: zEff * 100, xr, tolerancePct: tol, utilityMva: mva, fla, infiniteBusA: fla / zEff };",
+            "after": "source = { mode: \"transformer\", kva, pctZ, zEffPct: zEff / 100, xr, tolerancePct: tol, utilityMva: mva, fla, infiniteBusA: fla / zEff };",
+            "line_text": "    source = { mode: \"transformer\", kva, pctZ, zEffPct: zEff * 100, xr, tolerancePct: tol, utilityMva: mva, fla, infiniteBusA: fla / zEff };",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/fault-current-check/calc.mjs",
+            "line": 207,
+            "col": 32,
+            "operator": "neq-flip",
+            "before": "if (Number.isNaN(fla) || (fla !== null && fla < 0)) return { error: \"Motor full-load amps must be blank, 0 or more.\" };",
+            "after": "if (Number.isNaN(fla) || (fla === null && fla < 0)) return { error: \"Motor full-load amps must be blank, 0 or more.\" };",
+            "line_text": "  if (Number.isNaN(fla) || (fla !== null && fla < 0)) return { error: \"Motor full-load amps must be blank, 0 or more.\" };",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/fault-current-check/calc.mjs",
+            "line": 214,
+            "col": 16,
+            "operator": "div-to-times",
+            "before": "zSvcMag = 1 / (1 / abs(zs) + 1 / abs(zm));",
+            "after": "zSvcMag = 1 * (1 / abs(zs) + 1 / abs(zm));",
+            "line_text": "    zSvcMag = 1 / (1 / abs(zs) + 1 / abs(zm));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fault-current-check/calc.mjs",
+            "line": 236,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < segs.length; i++) {",
+            "after": "for (let i = 0; i <= segs.length; i++) {",
+            "line_text": "  for (let i = 0; i < segs.length; i++) {",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fault-current-check/calc.mjs",
+            "line": 243,
+            "col": 44,
+            "operator": "gt-to-ge",
+            "before": "if (Number.isNaN(len) || len < 0 || len > 100000) return { error: `${label}: enter the one-way length, 0 or more.` };",
+            "after": "if (Number.isNaN(len) || len < 0 || len >= 100000) return { error: `${label}: enter the one-way length, 0 or more.` };",
+            "line_text": "    if (Number.isNaN(len) || len < 0 || len > 100000) return { error: `${label}: enter the one-way length, 0 or more.` };",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/fault-current-check/calc.mjs",
+            "line": 245,
+            "col": 44,
+            "operator": "or-to-and",
+            "before": "if (!Number.isInteger(sets) || sets < 1 || sets > 20) return { error: `${label}: parallel sets must be a whole number from 1 to 20.` };",
+            "after": "if (!Number.isInteger(sets) || sets < 1 && sets > 20) return { error: `${label}: parallel sets must be a whole number from 1 to 20.` };",
+            "line_text": "    if (!Number.isInteger(sets) || sets < 1 || sets > 20) return { error: `${label}: parallel sets must be a whole number from 1 to 20.` };",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/fault-current-check/calc.mjs",
+            "line": 267,
+            "col": 14,
+            "operator": "neq-flip",
+            "before": "if (txKva !== null) {",
+            "after": "if (txKva === null) {",
+            "line_text": "    if (txKva !== null) {",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/fault-current-check/calc.mjs",
+            "line": 286,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "nodes.push(mkNode(s.name ? String(s.name).slice(0, 80) : `Panel ${i + 1}`, volts, z, zMag, rk, {",
+            "after": "nodes.push(mkNode(s.name ? String(s.name).slice(0, 81) : `Panel ${i + 1}`, volts, z, zMag, rk, {",
+            "line_text": "    nodes.push(mkNode(s.name ? String(s.name).slice(0, 80) : `Panel ${i + 1}`, volts, z, zMag, rk, {",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_payment_keys.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_payment_keys  (in platform/ci)",
+        "seed": 76800680,
+        "commit": "707f3d122",
+        "sites": 6,
+        "baseline_seconds": 2.0,
+        "mutants": [
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 38,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "REPO_ROOT = Path(__file__).resolve().parents[2]",
+            "after": "REPO_ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "REPO_ROOT = Path(__file__).resolve().parents[2]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 39,
+            "col": 21,
+            "operator": "div-to-times",
+            "before": "VENTURES = REPO_ROOT / \"ventures\"",
+            "after": "VENTURES = REPO_ROOT * \"ventures\"",
+            "line_text": "VENTURES = REPO_ROOT / \"ventures\"",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 70,
+            "col": 30,
+            "operator": "or-to-and",
+            "before": "if not path.is_file() or path.name in SKIP_NAMES:",
+            "after": "if not path.is_file() and path.name in SKIP_NAMES:",
+            "line_text": "        if not path.is_file() or path.name in SKIP_NAMES:",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 80,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "if b\"\\0\" in data[:8192]:",
+            "after": "if b\"\\0\" in data[:8193]:",
+            "line_text": "        if b\"\\0\" in data[:8192]:",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 109,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "        return 0",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 120,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1",
+            "after": "return 2",
+            "line_text": "    return 1",
+            "caught": true,
+            "seconds": 2.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/ci/check_payment_keys.py",
+        "issue": "Passed hardcoded merchant-of-record checkout links (Lemon Squeezy, Polar, Paddle, Gumroad) and Polar/Paddle live API keys, the rail goals.md chose 2026-10-31; and scanned ventures/ only, not platform/ or docs/ which the site serves. Reproduced with 5 failing tests.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17988"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5a77c651-bcd8-524b-b01c-8423628f633e",
+    "transcripts": 1,
+    "first": "2026-11-20T23:09:40Z",
+    "last": "2026-11-20T23:18:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 85,
+        "output": 22531,
+        "thinking": 8929,
+        "cache_read": 3874471,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88566,
+        "api_equivalent_usd": 1.9344,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 85,
+      "output": 22531,
+      "thinking": 8929,
+      "cache_read": 3874471,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88566,
+      "api_equivalent_usd": 1.9344,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 42,
+      "Edit": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.33,
+      "active_minutes": 8.33,
+      "model_minutes": 4.45,
+      "tool_minutes": 3.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
