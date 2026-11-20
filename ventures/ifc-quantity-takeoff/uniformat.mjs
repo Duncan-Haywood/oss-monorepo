@@ -63,7 +63,7 @@ export const levelOf = (code) => (!code ? 0 : code.length >= 5 ? 3 : code.length
  */
 export function parseUniformat(text) {
   if (typeof text !== "string") return null;
-  const m = /^\s*([A-G])\s?(\d{2})(\d{2})?(?:[\s.\-]?\d*)?(?:\s|$)/.exec(text.toUpperCase());
+  const m = /^\s*([A-G])\s?(\d{2})(?:(\d{2})|(?!\d))(?:[\s.\-]?\d*)?(?:\s|$)/.exec(text.toUpperCase());
   if (!m) return null;
   const l3 = m[3] ? m[1] + m[2] + m[3] : null;
   if (l3 && titleOf(l3)) return l3;
@@ -110,8 +110,11 @@ export function ruleCode(r, ctx) {
   const pcls = parent ? parent.effectiveClass || parent.ifcType : null;
   const extWhy = ext == null ? "" : ext ? ", IsExternal" : ", not IsExternal";
 
-  // parts of a curtain wall, stair, ramp or roof are measured with it
-  if (parent && (/^IFC(CURTAINWALL|STAIR|RAMP|ROOF)$/.test(pcls) || cls === "IFCBUILDINGELEMENTPART")) {
+  // parts of a curtain wall, stair, ramp or roof are measured with it; a
+  // door and a covering keep their own element (a door in a curtain wall is
+  // B2030, not B2010; ROOFING on a roof is B3010, not B1020)
+  const own = /^IFC(DOOR|DOORSTANDARDCASE|COVERING)$/.test(cls);
+  if (parent && !own && (/^IFC(CURTAINWALL|STAIR|RAMP|ROOF)$/.test(pcls) || cls === "IFCBUILDINGELEMENTPART")) {
     const p = ruleCode(parent, ctx);
     if (p.code) return { code: p.code, why: `part of ${parent.ifcClass} (${p.why})` };
   }
@@ -160,10 +163,13 @@ export function ruleCode(r, ctx) {
       const hx = h ? (h.envelope?.flagSaysNothing ? null : h.isExternal) : null;
       if (hx === true) return { code: "B2030", why: "door in an exterior wall" };
       if (hx === false) return { code: "C1020", why: "door in an interior wall" };
+      if (pcls === "IFCCURTAINWALL") return parent.isExternal === false ? { code: "C1020", why: "door in a curtain wall, not IsExternal" } : { code: "B2030", why: `door in a curtain wall${parent.isExternal ? ", IsExternal" : ", assumed exterior"}` };
       if (h && hx == null && h.envelope) return h.envelope.exterior ? { code: "B2030", why: "door in a wall the geometry puts on the outside" } : { code: "C1020", why: "door in a wall the geometry puts inside" };
       return { code: "C10", why: "door with no IsExternal and no host wall that says" };
     }
     case cls === "IFCCOVERING":
+      if (pcls === "IFCROOF" && pdt !== "CEILING") return { code: "B3010", why: `covering${pdt ? ", " + pdt : ""}, part of ${parent.ifcClass}` };
+      if (/^IFC(STAIR|RAMP)$/.test(pcls) && pdt !== "ROOFING") return { code: "C2020", why: `covering${pdt ? ", " + pdt : ""}, part of ${parent.ifcClass} (stair finish)` };
       if (pdt === "CEILING") return { code: "C3030", why: "covering, CEILING" };
       if (pdt === "FLOORING") return { code: "C3020", why: "covering, FLOORING" };
       if (pdt === "ROOFING") return { code: "B3010", why: "covering, ROOFING" };

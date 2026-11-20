@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
-import { takeoff, boq, boqCsv, rowsCsv, readUnits, explainChecks } from "./qto.mjs";
+import { takeoff, boq, boqCsv, rowsCsv, readUnits, explainChecks, checkSummary } from "./qto.mjs";
 import { prism, clipPoly, polyVolume, convexPieces, filletAll, signedArea } from "./geom.mjs";
 
 const sample = () => takeoff(parseStep(readFileSync(new URL("./samples/sample-office.ifc", import.meta.url))));
@@ -526,4 +526,62 @@ test("explanations: one Length and CrossSectionArea copied onto members of diffe
   const alike = [member(1, 0, true), member(2, 0, true), member(3, 0, true)];
   explainAreas(alike);
   assert.equal(alike[0].areaCheck.CrossSectionArea.reason, "unexplained");
+});
+
+// ---- red team 2026-11-20: escaped mutants in qto.mjs ------------------------
+
+test("units: millimetre volumes, and money or time units in the assignment are skipped", () => {
+  const ifc = `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3,#4,#5,#6));
+#3=IFCSIUNIT(*,.VOLUMEUNIT.,.MILLI.,.CUBIC_METRE.);
+#4=IFCMONETARYUNIT(.EUR.);
+#5=IFCSIUNIT(*,.TIMEUNIT.,$,.SECOND.);
+#6=IFCSIUNIT(*,.AREAUNIT.,.MILLI.,.SQUARE_METRE.);
+ENDSEC;END-ISO-10303-21;`;
+  const u = readUnits(parseStep(ifc));
+  close(u.VOLUMEUNIT, 1e-9);
+  close(u.AREAUNIT, 1e-6);
+  assert.equal(u.LENGTHUNIT, 1);
+  assert.equal("TIMEUNIT" in u, false);
+});
+
+const sampleText = () => readFileSync(new URL("./samples/sample-office.ifc", import.meta.url), "latin1");
+
+test("stored quantities: the first set to name a quantity wins over a later one", () => {
+  const extra = `#9001=IFCELEMENTQUANTITY('2g_f3pu0p7D2Ve$5QiOxje',$,'Qto_Other',$,$,(#9002,#9003));
+#9002=IFCQUANTITYVOLUME('GrossVolume',$,$,99.,$);
+#9003=IFCQUANTITYVOLUME($,$,$,7.,$);
+#9004=IFCRELDEFINESBYPROPERTIES('25wyMybzobAMnUK9qkDe16',$,$,$,(#100),#9001);
+ENDSEC;`;
+  const res = takeoff(parseStep(sampleText().replace(/ENDSEC;\s*END-ISO/, `${extra}\nEND-ISO`)));
+  const a = res.rows.find((r) => r.id === 100);
+  assert.equal(a.stored.GrossVolume.value, 3);
+  assert.equal(a.stored.GrossVolume.set, "Qto_WallBaseQuantities");
+  assert.deepEqual(Object.keys(a.stored).filter((k) => !/^[A-Z]/.test(k)), []); // the nameless one is dropped
+});
+
+test("explanations: own dimensions are named only when the stored value is not their product", () => {
+  const len = (value) => ({ kind: "length", value });
+  const row = (stored, computed) => ({ tag: null, ifcClass: "IfcBeam", stored: { Length: len(4), Height: len(0.5), Width: len(0.25) }, computed: { gross: computed, net: computed, openings: 0 }, check: { gross: { computed, stored, rel: (computed - stored) / stored, agree: false } } });
+  const rows = [row(0.7, 0.5), row(0.7, 0.3)];
+  explainChecks(rows);
+  assert.equal(rows[0].check.gross.reason, "own-dimensions"); // 4 x 0.5 x 0.25 = 0.5, the computed figure
+  assert.equal(rows[1].check.gross.reason, "unexplained");
+  assert.equal(rows[1].trustStored, true);
+});
+
+test("areas: a wall whose opening cannot be read keeps its gross areas", () => {
+  const res = takeoff(parseStep(sampleText().replace("#112=IFCPRODUCTDEFINITIONSHAPE($,$,(#115));", "#112=IFCPRODUCTDEFINITIONSHAPE($,$,());")));
+  const a = res.rows.find((r) => r.id === 100);
+  assert.equal(a.computed.net, null);
+  assert.equal(a.computed.areas.error, undefined);
+  assert.ok(a.computed.areas.side.gross > 0);
+  assert.equal(a.computed.areas.side.net, null);
+});
+
+test("summary: area pairs are counted", () => {
+  const s = checkSummary(sample().rows);
+  assert.ok(s.areaPairs > 0);
+  assert.ok(s.areaAgree > 0 && s.areaAgree <= s.areaPairs);
 });

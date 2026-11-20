@@ -169,7 +169,9 @@ Group by `uniformat` (level 3, e.g. `B2010 Exterior Walls`), `uniformat2`
 `uniformat.mjs`. An element takes the model's own Uniformat code when it has
 one (a classification reference, or Revit's `Assembly Code`); otherwise a rule
 reads its class with PredefinedType, IsExternal, the wall a door fills, the
-assembly it belongs to, its storey's elevation and, for proxies and generic
+assembly it belongs to (a part of a curtain wall, stair, ramp or roof takes
+that element's code, except a door, which stays a door, and a covering, which
+is a roof covering in a roof and a stair finish on a stair), its storey's elevation and, for proxies and generic
 terminals, its family name. A rule that cannot tell level 3 stops at the level
 it can (`B10 Superstructure (not told further)` for a beam), or the element
 goes to `(no Uniformat element)`; the element CSV says which code, source and

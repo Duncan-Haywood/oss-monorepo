@@ -1,5 +1,14 @@
 # Lags edited after the last schedule run, 2026-11-19
 
+> **Correction, 2026-11-20** (`eval/relationship-dates-2026-11-20.md`): the
+> 608 h lag below was *not* edited after P6's run. The relationship date P6
+> stores on that link (`arls`, 2012-04-01 10:00) is exactly the 608 h less the
+> 408 h spent before the data date back from the successor's late start, so P6's
+> backward pass used 608 h at that run. The 440 h room is P6's own forward pass,
+> by a rule not yet found. The broken-link check stays; the assessment now says
+> this on the item, and lists lags changed after the run (longer or shorter)
+> from the relationship dates with the lag P6 used.
+
 **Question.** After five CPM passes the engine matched P6's stored dates on
 19,820 of 19,822 open activities (`eval/cpm-vs-p6-2026-11-19.md`). The two
 left, in CCA (P6 6.0), are a finish milestone BAFT2305509C1 and its successor
