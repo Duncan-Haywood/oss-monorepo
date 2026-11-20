@@ -133,3 +133,17 @@ test("a log with nothing late moves nothing; formula text is defused", () => {
   assert.ok(constraintLogCsv(la.constraintLog).includes(`"'=HYPERLINK(""x"")"`));
   assert.ok(!lookaheadHtml(la).includes('<td>=HYPERLINK("x")'));
 });
+
+test("the example log is the sample file and runs on the example schedule", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { EXAMPLE_LOG } = await import("./constraints.mjs");
+  assert.equal(EXAMPLE_LOG, readFileSync(new URL("./samples/constraints-log.csv", import.meta.url), "utf8"));
+  const la = lookahead(parseXer(EXAMPLE_XER), { constraints: EXAMPLE_LOG });
+  const cl = la.constraintLog;
+  assert.equal(cl.summary.rows, 6);
+  assert.equal(cl.summary.cleared, 1);
+  assert.equal(cl.items[0].what, "Mechanical crew of 4"); // late, and the only row that moves the finish
+  assert.equal(cl.items[0].finishSlipDays, 2);
+  assert.equal(cl.finish.slipDays, 2);
+  assert.equal(la.warnings.length, 0);
+});

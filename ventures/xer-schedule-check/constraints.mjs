@@ -57,7 +57,7 @@ const YES = /^(y|yes|x|done|closed|cleared|complete|completed|removed|true|ok|âœ
 const NO = /^(n|no|open|pending|outstanding|false|-|tbd|tbc)?$/i;
 
 function splitRows(text) {
-  const s = String(text ?? "").replace(/^ï»¿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   const first = s.split(/\r?\n/, 1)[0] || "";
   const delim = first.includes("\t") ? "\t" : !first.includes(",") && first.includes(";") ? ";" : ",";
   const rows = [];
