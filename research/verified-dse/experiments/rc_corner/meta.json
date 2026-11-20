@@ -1,0 +1,131 @@
+{
+ "corner": "ss_100C_1v60+rcmax",
+ "util": 40,
+ "liberty_sha256": "9b24f0db3967ac67b4cae1f74bb480fd47922d18d0ed577e3c121739b412c361",
+ "setrc_sha256": "c9f6548718f57bc899c4818cfc5b258bb95190f2ccf1fdcb72425ec907053e49",
+ "open_pdks_commit": "0c1f82326278a0871f0a1fc4bdacf94c88e78e4d",
+ "rcx_sha256": {
+  "min": "b11177d33b33878c080a0c1db6c6dd022e89c64ebf21cc87e0ac4d9c68378a63",
+  "nom": "0b0678968a3d8665ee1ac882df2b0eb31e3896ac05130b9de6bd67ef2027c757",
+  "max": "008ce6e4867fa9a68b16dbc50df596967d503f6c29b317354689f61f4c249220"
+ },
+ "rc_ratios_max_over_nom": {
+  "li1": [
+   1.3292,
+   1.091
+  ],
+  "met1": [
+   1.3451,
+   1.0653
+  ],
+  "met2": [
+   1.3451,
+   1.0782
+  ],
+  "met3": [
+   1.3589,
+   1.0381
+  ],
+  "met4": [
+   1.3589,
+   1.0717
+  ],
+  "met5": [
+   1.2802,
+   1.1388
+  ]
+ },
+ "base_period_ns": {
+  "rng8l": 68.22,
+  "csum8": 35.49,
+  "clamp6r": 56.53,
+  "dot6r": 38.43,
+  "div10l": 205.33,
+  "csum3": 31.04,
+  "clamp3l": 77.4,
+  "dot4r": 35.17,
+  "csum6": 29.95,
+  "gtc8l": 66.29,
+  "gtc12r": 28.95,
+  "clamp2r": 27.51,
+  "div12l": 213.51,
+  "clamp2l": 66.21,
+  "clamp4l": 83.8,
+  "dot4l": 51.35,
+  "rng6l": 63.04,
+  "gtc24r": 31.3,
+  "div8l": 168.09,
+  "rng8r": 36.78,
+  "rng12r": 53.79,
+  "clamp6l": 98.03,
+  "gtc8r": 35.68,
+  "isq14": 84.13,
+  "div14r": 95.6,
+  "clamp4r": 42.7,
+  "div14l": 213.86
+ },
+ "order": [
+  "rng8l",
+  "csum8",
+  "clamp6r",
+  "dot6r",
+  "div10l",
+  "csum3",
+  "clamp3l",
+  "dot4r",
+  "csum6",
+  "gtc8l",
+  "gtc12r",
+  "clamp2r",
+  "div12l",
+  "clamp2l",
+  "clamp4l",
+  "dot4l",
+  "rng6l",
+  "gtc24r",
+  "div8l",
+  "rng8r",
+  "rng12r",
+  "clamp6l",
+  "gtc8r",
+  "isq14",
+  "div14r",
+  "clamp4r",
+  "div14l"
+ ],
+ "clock": {
+  "rng8l": "tight",
+  "csum8": "tight",
+  "clamp6r": "relaxed",
+  "dot6r": "relaxed",
+  "div10l": "relaxed",
+  "csum3": "relaxed",
+  "clamp3l": "relaxed",
+  "dot4r": "tight",
+  "csum6": "relaxed",
+  "gtc8l": "tight",
+  "gtc12r": "relaxed",
+  "clamp2r": "tight",
+  "div12l": "tight",
+  "clamp2l": "tight",
+  "clamp4l": "tight",
+  "dot4l": "tight",
+  "rng6l": "relaxed",
+  "gtc24r": "relaxed",
+  "div8l": "tight",
+  "rng8r": "tight",
+  "rng12r": "relaxed",
+  "clamp6l": "relaxed",
+  "gtc8r": "tight",
+  "isq14": "tight",
+  "div14r": "relaxed",
+  "clamp4r": "tight",
+  "div14l": "relaxed"
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "tools": {
+  "yosys": "Yosys 0.71+post (git sha1 v0.71, Release, GNU /nix/store/ii6p6kc1brz3vycqg88q4zb4xd2dmqwp-gcc-wrapper-16.2.0/bin/g++ 16.2.0)",
+  "openroad": "26Q3"
+ }
+}
