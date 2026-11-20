@@ -54,6 +54,9 @@ class TrailingFlagTest(unittest.TestCase):
         self.write("ventures/o/check.mjs", "else if (argv[i] === '--manifest') args.manifest = argv[++i];\n")
         self.assertEqual(c.unguarded(self.root), ["ventures/o/check.mjs"])
 
+    def test_an_empty_root_is_refused(self):
+        self.assertEqual(self.run_check(), 2)
+
     def test_repository_is_green(self):
         self.assertEqual(c.main([]), 0)
 

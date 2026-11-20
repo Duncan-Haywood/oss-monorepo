@@ -1,6 +1,6 @@
 ---
 title: "A trailing --manifest flag made a CI gate check the wrong file"
-seo_title: "Obsidian plugin review check red team: a trailing flag checked the wrong manifest"
+seo_title: "Obsidian plugin check red team: a trailing flag read the wrong file"
 date: 2026-11-20
 tags: [redteam, testing, cli, obsidian, docker]
 description: "30 faults seeded in two developer checkers, 21 caught; a CLI flag with no value silently fell back to another file, and the same idiom sits in 95 more files."

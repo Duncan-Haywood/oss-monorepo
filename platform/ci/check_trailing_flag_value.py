@@ -77,6 +77,9 @@ def main(argv=None):
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--write-baseline", action="store_true")
     a = ap.parse_args(argv)
+    if next(candidates(a.root), None) is None:
+        print(f"trailing-flag check: no .mjs/.js/.cjs/.ts file under {a.root}/ventures, platform or research; wrong --root?")
+        return 2
     found = unguarded(a.root)
     if a.list:
         print("\n".join(found))
