@@ -1,5 +1,14 @@
 # buildbot-sheathing research log
 
+## 2026-11-20 · Milestone 65 planned: what coverage does it cost to size the planner to a larger sensor bias, and does re-sizing restore the guarantee?
+
+- **Why.** Milestone 64 found the 0.2 N bound is a cliff: a 0.3 N bias along the worst direction sends 22.6% of planned G1 and 12.0% of planned H1 presses past 0.03 mm while coverage stays at 99.85% or more. A practitioner whose sensor drifts more than 0.2 N has two choices: a better sensor (or a re-tare before each wall), or a planner sized to the drift the sensor really has. The second costs coverage, the presses the planner refuses, and nothing so far says how much.
+- **Model.** Every margin of milestone 61's chain is sized to B_plan (m55's robust margins B ||G_j||, the four-row flip budget's radii, the leg raise, the squeeze, the reference calibration and milestone 63's adversary all read the bound at call time), for B_plan = 0.3, 0.4, 0.6 and 1.0 N, with 0.2 N as the paired baseline on the same loads. The true bias is B_plan along milestone 63's adversarial direction computed at that B_plan, both signs: the worst case at the design size, as milestone 63 tested at 0.2 N. The settle gradient's finite-difference step is B_plan, as in milestones 55 to 64. Gate: the balance envelope. Section L, held out: 48 Latin-hypercube loads (seed 65) (`experiments/m65_resized/run.py`). Reported per robot and B_plan: coverage, calibration failures, presses over spec, worst four-row residual, where the unplanned cases sit.
+- **Hypotheses, registered before the run.**
+  - **H250 (re-sizing restores the guarantee).** At every B_plan from 0.3 to 1.0 N every planned press is inside 0.03 mm at both points both ways, on both robots. Refuted if any is over.
+  - **H251 (0.3 N is cheap).** Coverage at B_plan = 0.3 N is at least 95% on both robots. Refuted if either is under.
+  - **H252 (1.0 N is not).** Coverage at B_plan = 1.0 N is under 80% on at least one robot. Refuted if both are at 80% or more.
+
 ## 2026-11-20 · Milestone 64 result: the 0.2 N bound is a cliff, not a margin; at 0.3 N along the worst direction 22.6% of planned G1 and 12.0% of planned H1 presses leave 0.03 mm (worst 0.29 and 0.47 mm; H247 refuted), at 1.0 N 82% and 75% (H248 held), and the planner keeps planning them
 
 `experiments/m64_overbias/` (run, results, figure, diag.py and diag.out), `reproduce.py` (m64 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL. No new library code (run.py reuses milestone 63's adversary and milestone 61's chain), so no new tests. Run time 2468 s on 4 processes. One 1-load smoke run (`M64_N=1`) ran after the hypotheses were committed and before the full run; it is not reported.
