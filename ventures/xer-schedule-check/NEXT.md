@@ -18,3 +18,6 @@
   tighter reading beside the looser one. Then the "past late start" flag in
   the constraints log read against the calendar-slack late dates.
 - Constraints log: a real site's log.
+- (2026-11-20) next a real reviewer's reading
+- (2026-11-20) appendix 2026-11-19
+- (2026-11-20) next progress override, start float and 24-hour lag paths on a real P6 file

@@ -269,6 +269,31 @@ new float the finish holds (188 of 188), one working hour more and it moves or
 another activity runs late (188 of 188). The other five public files join no
 calendars this way and show nothing (eval/calendar-slack-2026-11-20.md).
 
+**Earned value and the S-curve** (2026-11-20, `evm.mjs`, the page's "Earned
+value and the S-curve", CLI `--earned-value [--csv activities.csv] [--curve
+s-curve.csv]`): from the cost loaded on the resource assignments and project
+expenses (labour hours when no cost is loaded): budget at completion, planned
+value to the data date (each assignment's budget spread over the working time
+of its planned dates on the activity's calendar), earned value from each
+activity's percent complete as P6 earns it (physical, duration or units;
+0/100, 50/50 or a fixed percent when the project's earned value setting is
+exported), actual cost, SV, CV, SPI, CPI, TCPI, three estimates at completion
+(the file's AC + ETC, at CPI, at CPI x SPI), earned schedule (SPI(t) and an
+independent finish estimate), a monthly S-curve (planned, actual, and the
+forecast over the recomputed remaining dates), a breakdown by top-level WBS,
+and the cost-loading checks an owner's reviewer runs before paying on the
+schedule: open work with no budget, cost on unstarted work, remaining left on
+finished work, progress with nothing spent, earned more than 1.5 times spent
+(front-loading), overruns, remaining far below the budget not yet earned, and
+**actuals equal to earned value** on 90% or more of the activities with
+actuals, which means P6 computed them from progress and the CPI proves
+nothing. On the public 16,000-activity hospital file, all 2,020 cost-loaded
+activities with actuals have actual = budget x the units percent complete this
+reads (so the reading agrees with P6's on all 2,020, and that file's CPI of
+1.000 is no cost evidence); on a public expressway file, 21 unstarted
+activities budgeted at 111,528 carry 669 to complete
+(eval/earned-value-2026-11-20.md).
+
 ## Why someone would use it
 
 | Today's option | What it does | What this does better |
