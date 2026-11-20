@@ -548,6 +548,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    presses fail again (H1 2.5% at 0.4 N; 47 to 48% at 1.0 N; H250 refuted), but 465 of the 485 failures have no flip:
    the bias's direct effect grows about 0.075 to 0.097 mm per N and the flip budget does not price it. Coverage stays
    at least 85.6% at 1.0 N (H252 refuted). Next: budget the direct term beside the flips; dynamics.
+66. **The direct term priced** (done 2026-11-20, `experiments/m66_directterm/`): milestone 65's chain plus a gate
+   Y_k + D_k <= 0.03 mm per row, D_k the first-order worst-direction no-flip residual from the measured load, 12 new
+   loads (seed 66). The bound holds on all 2,238 planned presses (H254 held) but passes none at 0.4 to 1.0 N (H255
+   refuted): D is linear in B at 0.16 to 0.18 mm/N per press (median), against 0.02 to 0.03 mm/N realised by the
+   margin-aimed adversary, so the gate certifies a median 0.17 N. The 0.2 N guarantee is tested, not certified over the
+   bias ball. Next: a bias aimed at the direct term, calibration re-made under it; a direct term through the calibration.
 
 ## Target venue
 

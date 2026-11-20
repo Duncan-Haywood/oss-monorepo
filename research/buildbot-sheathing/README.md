@@ -845,6 +845,19 @@ next step is to budget that direct term. 12 loads, one seed; statics.
 
 ![Coverage and worst residual against the bias bound the planner is sized to, against keeping the 0.2 N planner](experiments/m65_resized/figure.png)
 
+**Milestone 66: if the planner prices the sensor bias's direct effect beside the backlash flips, does the 0.03 mm
+guarantee come back at 0.4 to 1.0 N?** No: the price is too high to plan anything. For the plan milestone 65's chain
+picks, the planner computes D, the largest first-order no-flip residual any bias within B could cause in each row, from
+the measured load alone, and accepts a press only if the flip budget plus D stays inside 0.03 mm. **D is a true bound
+(no row of 2,238 planned presses exceeds it; H254 held) but the gate passes none of them at 0.4, 0.6 or 1.0 N**
+(H255 refuted), on 12 new held-out loads (seed 66). D is linear in the bias at **0.16 to 0.18 mm per newton per press**,
+six to eight times what the margin-aimed bias of milestones 63 to 65 actually produced, so the gate certifies a press only
+up to a median 0.17 N (0.15 N at the 10th percentile). The earlier 0.2 N guarantee held against every bias tested but is
+not a certificate over every bias direction: whether a bias aimed at the direct term breaks it, once the same bias also
+enters the reference calibration, is the next test. One seed; statics.
+
+![Coverage with and without the direct-term gate, and the largest bias the gate certifies per press](experiments/m66_directterm/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
