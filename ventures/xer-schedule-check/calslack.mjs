@@ -75,7 +75,14 @@ export function calendarSlackText(r) {
 }
 
 export function calendarSlackCsv(r) {
-  const q = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  // a cell a spreadsheet would run as a formula (an activity name from the
+  // contractor's file starting with =, +, - or @) is written as text
+  const q = (v) => {
+    if (v === null || v === undefined) return "";
+    let s = String(v);
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
   const rows = [["Activity ID", "Activity name", "Calendar", "Total float P6 (h)", "Total float with calendar slack (h)", "Gain (h)", "Late finish P6", "Late finish"]];
   for (const a of r.activities) rows.push([a.code, a.name, a.calendar, a.tfP6, a.tf, a.gain, a.lateFinishP6, a.lateFinish]);
   return rows.map((x) => x.map(q).join(",")).join("\n") + "\n";

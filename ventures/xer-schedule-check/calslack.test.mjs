@@ -84,3 +84,8 @@ test("report: the link where it enters and the activity", () => {
   assert.match(calendarSlackText(r), /A \("Curing 7-day"\) -FF 8 h on "Curing 7-day"-> B \("Mon-Fri"\)/);
   assert.match(calendarSlackCsv(r), /^Activity ID,.*\nA,Activity A,Curing 7-day,24,40,16,/);
 });
+
+test("CSV: a name a spreadsheet would run as a formula is written as text", () => {
+  const csv = calendarSlackCsv({ activities: [{ code: "A", name: "=HYPERLINK(1)", calendar: "C", tfP6: -8, tf: 0, gain: 8, lateFinishP6: "", lateFinish: "" }] });
+  assert.match(csv, /\nA,'=HYPERLINK\(1\),C,-8,0,8,,\n$/);
+});
