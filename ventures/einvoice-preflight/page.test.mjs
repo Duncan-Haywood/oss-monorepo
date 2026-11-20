@@ -5,6 +5,7 @@ import { readFileSync, readdirSync } from "node:fs";
 const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
 const robots = readFileSync(new URL("./robots.txt", import.meta.url), "utf8");
+const engineSrc = readFileSync(new URL("./page-engine.mjs", import.meta.url), "utf8");
 
 test("browser page is discoverable and names the user job", () => {
   assert.match(page, /<title>E-invoice Preflight/);
@@ -91,10 +92,26 @@ test("links to the EU VAT OSS calculator", () => {
 
 test("browser page offers the arithmetic repair", () => {
   assert.match(page, /id="repair"/);
-  assert.match(page, /from "\.\/repair\.mjs"/);
+  // The repair modules reach the page through page-engine.mjs, loaded on demand.
+  assert.match(page, /import\("\.\/page-engine\.mjs"\)/);
   assert.match(page, /repairInvoice\(JSON\.parse\(text\)\)/);
-  assert.match(page, /from "\.\/repair-cii\.mjs"/);
-  assert.match(page, /from "\.\/repair-ubl\.mjs"/);
-  assert.match(page, /from "\.\/repair-facturx\.mjs"/);
+  assert.match(engineSrc, /from "\.\/repair\.mjs"/);
+  assert.match(engineSrc, /from "\.\/repair-cii\.mjs"/);
+  assert.match(engineSrc, /from "\.\/repair-ubl\.mjs"/);
+  assert.match(engineSrc, /from "\.\/repair-facturx\.mjs"/);
   assert.match(page, /id="repairedPdf"/);
+});
+
+test("the page's static imports stay light; the engine loads on demand", async () => {
+  // Before 2026-11-20 the inline script statically imported 114 modules
+  // (about 3.3 MB), so no handler was attached until all of them arrived.
+  const script = page.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  const statics = [...script.matchAll(/^\s*import\b[^;]*?from\s*"([^"]+)"/gm)].map((m) => m[1]);
+  assert.deepEqual(statics.sort(), ["./checkout.mjs", "./licence.mjs", "./usage.mjs"]);
+  // Every name the page calls through `engine.` or destructures from loadEngine() is exported.
+  const engine = await import("./page-engine.mjs");
+  const used = new Set([...script.matchAll(/(?<![\w-])engine\.(\w+)\(/g)].map((m) => m[1]));
+  for (const m of script.matchAll(/const \{([^}]+)\} = await loadEngine\(\)/g)) for (const n of m[1].split(",")) used.add(n.trim());
+  assert.ok(used.size >= 14, `only ${used.size} engine names found`);
+  for (const name of used) assert.equal(typeof engine[name], "function", name);
 });
