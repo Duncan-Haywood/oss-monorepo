@@ -10,6 +10,31 @@
 // The coefficient tables below are the library's transcription of IEEE
 // 1584-2018 Tables 1 to 5 and 7; Table 8/10 is its condensed typical-equipment
 // table. Units follow the standard: kV, kA, mm, ms, J/cm².
+//
+// Licence of the ported code (the port keeps it; the rest of this venture is
+// MIT under the repository's own notice):
+//
+// MIT License
+//
+// Copyright (c) 2022 Li-aung Yip - https://www.penwatch.net
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 const T1 = `VCB 0.6 -0.04287 1.035 -0.083 0 0 -4.783E-09 1.962E-06 -0.000229 0.003141 1.092
 VCB 2.7 0.0065 1.001 -0.024 -1.557E-12 4.556E-10 -4.186E-08 8.346E-07 5.482E-05 -0.003191 0.9729
