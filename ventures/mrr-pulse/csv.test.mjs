@@ -198,3 +198,29 @@ test("no row vanishes: every data row is imported or skipped with a reason (fuzz
     for (const s of subs) assert.ok(["active", "past_due", "unpaid", "canceled", "incomplete", "incomplete_expired", "trialing", "paused"].includes(s.status), `status ${s.status}`);
   }
 });
+
+test("a decimal comma is read as a decimal, never as a thousands separator (red team 2026-11-20)", () => {
+  // An EU-locale sheet writes 29,99 and 1.234,56: stripping every comma read
+  // the first as 2,999 a month and the second as 1.23.
+  const one = (amount) => subsFromCsv(`id,status,amount,interval,created\ns1,active,"${amount}",month,2026-01-05`);
+  assert.deepEqual(one("29,99").subs.map((s) => s.mrr), [2999]);
+  assert.deepEqual(one("29,9").subs.map((s) => s.mrr), [2990]);
+  assert.deepEqual(one("1.234,56").subs.map((s) => s.mrr), [123456]);
+  assert.deepEqual(one("1 234,56").subs.map((s) => s.mrr), [123456]);
+  // Thousands commas in groups of three still read as before.
+  assert.deepEqual(one("1,200.50").subs.map((s) => s.mrr), [120050]);
+  assert.deepEqual(one("1,200").subs.map((s) => s.mrr), [120000]);
+  assert.deepEqual(one("$1,234,567").subs.map((s) => s.mrr), [123456700]);
+  // Anything else with a comma is ambiguous: skipped with a reason, not guessed.
+  for (const bad of ["1,2,3", "12,3456", "1.234.5,6"]) {
+    const r = one(bad);
+    assert.equal(r.subs.length, 0, bad);
+    assert.equal(r.skipped[0].why, "amount is not a number", bad);
+  }
+});
+
+test("an interval count that is not a whole number of at least 1 is skipped, not read as 1 (red team 2026-11-20)", () => {
+  const r = subsFromCsv("id,status,amount,interval,interval count,created\ns1,active,90,month,3 months,2026-01-05\ns2,active,90,month,0,2026-01-05\ns3,active,90,month,-3,2026-01-05\ns4,active,90,month,3,2026-01-05\ns5,active,90,month,,2026-01-05");
+  assert.deepEqual(r.subs.map((s) => [s.id, s.mrr]), [["s4", 3000], ["s5", 9000]]);
+  assert.deepEqual(r.skipped.map((s) => [s.line, s.why]), [[2, "interval count is not a whole number"], [3, "interval count is not a whole number"], [4, "interval count is not a whole number"]]);
+});

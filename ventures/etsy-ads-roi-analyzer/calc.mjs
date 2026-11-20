@@ -47,8 +47,17 @@ export function parseNumber(value) {
   if (!s || /^(--+|n\/a|na|-)$/i.test(s)) return null;
   let neg = false;
   if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
-  s = s.replace(/[$€£,%\s]/g, "");
+  s = s.replace(/[$€£%\s]/g, "");
   if (s.startsWith("-")) { neg = !neg; s = s.slice(1); }
+  // Commas in groups of three are thousands (1,234.50); a comma with one or
+  // two digits after it is a decimal comma (29,99 or 1.234,56, as an EU-locale
+  // export writes them); any other comma is ambiguous. Stripping every comma
+  // read €29,99 as 2999 (red team 2026-11-20).
+  if (s.includes(",")) {
+    if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, "");
+    else if (/^(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$/.test(s)) s = s.replace(/\./g, "").replace(",", ".");
+    else return null;
+  }
   if (!/^\d*\.?\d+$|^\d+\.$/.test(s)) return null;
   const n = Number(s);
   return neg ? -n : n;
