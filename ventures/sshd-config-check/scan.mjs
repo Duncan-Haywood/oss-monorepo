@@ -112,6 +112,52 @@ const STATES = Object.assign(Object.create(null), {
 });
 for (const n of "usepam hostbasedauthentication hostbasedusesnamefrompacketonly pubkeyauthentication kerberosauthentication kerberosorlocalpasswd kerberosticketcleanup kerberosgetafstoken gssapiauthentication gssapicleanupcredentials gssapistrictacceptorcheck passwordauthentication kbdinteractiveauthentication printmotd printlastlog ignoreuserknownhosts x11forwarding x11uselocalhost strictmodes permitemptypasswords tcpkeepalive allowagentforwarding usedns permittty permituserrc streamlocalbindunlink disableforwarding exposeauthinfo".split(" ")) STATES[n] = FLAG;
 
+const CASE_SENSITIVE = new Set(["permittunnel"]);
+
+// How many words each keyword takes; any more stop sshd ("keyword X extra
+// arguments at end of line"). Checked keyword by keyword against sshd 9.6p1
+// (parity/README.md). Unlisted keywords take one.
+const MAX_ARGS = Object.assign(Object.create(null), { ipqos: 2, rekeylimit: 2, listenaddress: 3 });
+for (const n of "acceptenv allowgroups allowusers authorizedkeysfile denygroups denyusers forcecommand include logverbose subsystem versionaddendum authenticationmethods authorizedkeyscommand authorizedprincipalscommand channeltimeout permitopen permitlisten setenv pubkeyauthoptions".split(" ")) MAX_ARGS[n] = Infinity;
+
+// Integer keywords (strtonum 0..INT_MAX, decimal: "011" is 11, "0x10" is
+// invalid) and time keywords (convtime).
+const INT_KW = new Set(["maxauthtries", "maxsessions", "clientalivecountmax", "x11displayoffset", "requiredrsasize"]);
+const TIME_KW = new Set(["logingracetime", "clientaliveinterval"]);
+const INT_MAX = 2147483647;
+
+// misc.c convtime(): digits with an optional s, m, h, d or w (either case),
+// concatenated ("1h30m"); a bare number is seconds. -1 when invalid.
+export function convtime(value) {
+  const v = String(value);
+  if (!v.length) return -1;
+  let total = 0;
+  const re = /\s*([+-]?\d+)([sSmMhHdDwW]?)/y;
+  let i = 0;
+  while (i < v.length) {
+    re.lastIndex = i;
+    const m = re.exec(v);
+    if (!m) return -1;
+    const secs = Number(m[1]);
+    if (secs < 0 || secs > INT_MAX) return -1;
+    const mult = { "": 1, s: 1, m: 60, h: 3600, d: 86400, w: 604800 }[m[2].toLowerCase()];
+    if (secs * mult > INT_MAX || total + secs * mult > INT_MAX) return -1;
+    total += secs * mult;
+    i = re.lastIndex;
+  }
+  return total;
+}
+
+// strtonum(value, 0, INT_MAX): the integer, or an error word.
+export function intValue(value) {
+  const v = String(value);
+  if (!/^\s*[+-]?\d+$/.test(v)) return { error: "invalid" };
+  const n = Number(v);
+  if (n < 0) return { error: "too small" };
+  if (n > INT_MAX) return { error: "too large" };
+  return { value: n };
+}
+
 const MATCH_CRITERIA = ["all", "user", "group", "host", "address", "localaddress", "localport", "rdomain"];
 
 // ---------------------------------------------------------------- tokenising
@@ -215,7 +261,13 @@ export function readConfig(files, { mainName } = {}) {
   const reached = new Set();
   const state = { match: null };
 
-  function parse(path, text, depth, neverMatch) {
+  // parent: the Match block the Include that pulled this file in sits under
+  // (null at top level). sshd parses an included file with SSHCFG_NEVERMATCH
+  // when that block is inactive, so the file's own Match blocks apply only to
+  // connections the enclosing block selects; at startup, when no Match but
+  // `Match all` is active, they never do.
+  function parse(path, text, depth, parent) {
+    const neverMatch = parent !== null && !isAll(parent);
     if (depth > 16) {
       errors.push({ file: byPath.get(path)?.name ?? path, line: 0, message: "Include nested deeper than 16 levels: sshd refuses to start." });
       return;
@@ -248,9 +300,13 @@ export function readConfig(files, { mainName } = {}) {
       if (def.kind === "match") {
         const m = parseMatch(args, name, lineNo);
         if (m.error) { errors.push({ file: name, line: lineNo, message: m.error }); return; }
-        const block = { id: matches.length, file: name, line: lineNo, criteria: m.criteria, all: m.all, text: args.join(" "), neverMatch, indentBody: null };
+        const block = { id: matches.length, file: name, line: lineNo, criteria: m.criteria, all: m.all, text: args.join(" "), parent, neverMatch, indentBody: null };
         matches.push(block);
-        state.match = m.all && !neverMatch ? null : block;
+        // `Match all` does not return to global scope: its lines are read
+        // with the global ones at startup (so Port or UsePAM may follow it)
+        // and also form a block that applies to every connection, overriding
+        // earlier global values (match_cfg_line returns 1 for "all").
+        state.match = block;
         return;
       }
       if (def.kind === "include") {
@@ -262,7 +318,7 @@ export function readConfig(files, { mainName } = {}) {
           directives.push(d);
           if (!hits.length) notes.push(`${name}:${lineNo}: Include ${a} matched none of the files given${/[*?[]/.test(a) ? "" : " (paste that file too)"}.`);
           for (const h of hits) {
-            parse(h, byPath.get(h).text, depth + 1, neverMatch || (state.match !== null));
+            parse(h, byPath.get(h).text, depth + 1, state.match);
             state.match = saved;
           }
         }
@@ -285,13 +341,17 @@ export function readConfig(files, { mainName } = {}) {
       if (!MATCH_CRITERIA.includes(a)) return { error: `Unsupported Match attribute ${args[i]}: sshd refuses to start.` };
       const v = args[++i];
       if (v === undefined || v === "") return { error: `Match ${args[i - 1]} has no value: sshd refuses to start.` };
+      if (a === "address" || a === "localaddress") {
+        const bad = addrListError(v);
+        if (bad) return { error: `Invalid Match ${a === "address" ? "address" : "localaddress"} argument '${v}': ${bad} is not a network (a /${bad.split("/")[1]} mask with host bits set, or a mask over 32). sshd refuses to start; write the network address, for example ${suggestNet(bad)}.` };
+      }
       criteria.push({ attr: a, value: v });
     }
     return { criteria, all: false };
   }
 
-  if (synthetic) parse(`${SSHDIR}/(stock include)`, synthetic, 0, false);
-  else parse(main, byPath.get(main).text, 0, false);
+  if (synthetic) parse(`${SSHDIR}/(stock include)`, synthetic, 0, null);
+  else parse(main, byPath.get(main).text, 0, null);
   const unread = [...byPath.keys()].filter((p) => !reached.has(p));
   const dropins = unread.filter((p) => p.startsWith(`${SSHDIR}/sshd_config.d/`));
   const others = unread.filter((p) => !dropins.includes(p));
@@ -321,6 +381,15 @@ function wild(s, p) {
   return re.test(s);
 }
 
+function suggestNet(sub) {
+  const [a, b] = sub.split("/");
+  const bits = Math.min(32, Number(b));
+  const n = ipv4(a);
+  const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
+  const net = (n & mask) >>> 0;
+  return `${[24, 16, 8, 0].map((s) => (net >>> s) & 255).join(".")}/${bits}`;
+}
+
 function ipv4(a) {
   const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(a || "");
   if (!m) return null;
@@ -344,15 +413,36 @@ export function addrList(addr, pattern) {
       if (net !== null && ip !== null && bits <= 32) {
         const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
         hit = ((ip & mask) >>> 0) === ((net & mask) >>> 0);
-      } else hit = addr.toLowerCase() === sub.toLowerCase();
+      } else hit = wild(addr.toLowerCase(), sub.toLowerCase());
     } else hit = wild(addr.toLowerCase(), sub.toLowerCase());
     if (hit) { if (neg) return -1; positive = 1; }
   }
   return positive;
 }
 
+// The entry of a Match Address / LocalAddress list that makes sshd refuse to
+// start, or null. addr_match_list(NULL, list) at startup rejects an IPv4
+// network whose mask is over 32 or whose host bits are set (10.1.2.3/24,
+// 10.0.0.0/0); an entry that does not parse as a network falls back to a
+// wildcard and is fine (checked against sshd 9.6p1, parity/README.md).
+// IPv6 networks are not checked here.
+export function addrListError(pattern) {
+  for (let sub of pattern.split(",")) {
+    if (sub.startsWith("!")) sub = sub.slice(1);
+    const cidr = /^([^/]+)\/(\d+)$/.exec(sub);
+    if (!cidr) continue;
+    const net = ipv4(cidr[1]);
+    if (net === null) continue;
+    const bits = Number(cidr[2]);
+    if (bits > 32) return sub;
+    const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
+    if (((net & ~mask) >>> 0) !== 0) return sub;
+  }
+  return null;
+}
+
 export function matchApplies(block, conn) {
-  if (block.neverMatch) return false;
+  if (block.parent && !matchApplies(block.parent, conn)) return false;
   if (block.all) return true;
   for (const { attr, value } of block.criteria) {
     let ok;
@@ -384,13 +474,12 @@ function valueOf(d) {
   return d.args.join(" ");
 }
 
-// Resolve the global settings, and the settings for a connection if one is
-// given (match_cfg_line + copy_set_server_options: Match values replace the
-// global ones; within the matching blocks the first value read wins).
-export function resolve(read, conn = null) {
-  const global = new Map(); // keyword -> { value, at: directive, shadowed: [] , list: [] }
-  const shadowed = [];
-  const put = (map, d, track) => {
+// A `Match all` block that can apply (not inside an included file that sits
+// under another Match).
+export function isAll(m) { return !!(m && m.all && !m.neverMatch); }
+
+function putter(shadowed) {
+  return (map, d, track, reason) => {
     const k = d.keyword;
     const kind = d.def.kind;
     if (kind === "deprecated" || kind === "unsupported" || kind === "ignore") return;
@@ -399,48 +488,74 @@ export function resolve(read, conn = null) {
       e.value.push(...d.args); e.at.push(d); map.set(k, e);
       return;
     }
-    if (kind === "byname") {
-      const sub = `${k}:${d.args[0]}`;
-      if (!map.has(sub)) map.set(sub, { value: valueOf(d), at: d });
-      else if (track) shadowed.push({ d, winner: map.get(sub).at, key: sub });
-      return;
-    }
-    if (!map.has(k)) map.set(k, { value: valueOf(d), at: d });
-    else if (track) shadowed.push({ d, winner: map.get(k).at, key: k });
+    const key = kind === "byname" ? `${k}:${d.args[0]}` : k;
+    if (!map.has(key)) map.set(key, { value: valueOf(d), at: d });
+    else if (track) shadowed.push({ d, winner: map.get(key).at, key, reason });
   };
-  for (const d of read.directives) {
-    if (d.keyword === "include" || !d.def) continue;
-    if (d.match) continue;
-    put(global, d, true);
-  }
-  const effective = new Map(global);
-  let applied = [];
-  if (conn) {
-    applied = read.matches.filter((m) => !m.all && matchApplies(m, conn));
-    const mo = new Map();
-    for (const d of read.directives) {
-      if (!d.def || d.keyword === "include" || !d.match || !applied.includes(d.match)) continue;
-      put(mo, d, false);
-    }
-    for (const [k, v] of mo) effective.set(k, v);
-  }
-  return { global, effective, shadowed, applied };
 }
 
-// Settings one Match block applies on top of the global ones.
-function blockOverlay(read, block, global) {
+// The values the given Match blocks set, in the order sshd reads them: the
+// first value among all matching blocks wins (the re-parse in
+// parse_server_match_config), list keywords add up, and only keywords
+// allowed inside Match are copied over the global ones
+// (copy_set_server_options).
+function overlay(read, blocks, shadowed = null) {
+  const put = putter(shadowed || []);
   const mo = new Map();
   for (const d of read.directives) {
-    if (d.match !== block || !d.def || d.keyword === "include") continue;
-    const kind = d.def.kind;
-    if (kind === "list") {
-      const e = mo.get(d.keyword) || { value: [], at: [], list: true };
-      e.value.push(...d.args); e.at.push(d); mo.set(d.keyword, e);
-    } else if (kind === "first" && !mo.has(d.keyword)) mo.set(d.keyword, { value: valueOf(d), at: d });
+    if (!d.def || d.keyword === "include" || !d.match || !blocks.includes(d.match)) continue;
+    if (d.def.scope !== "all") continue;
+    put(mo, d, !!shadowed, "first");
   }
-  const eff = new Map(global);
-  for (const [k, v] of mo) eff.set(k, v);
-  return { own: mo, eff };
+  return mo;
+}
+
+// Resolve the global settings, and the settings for a connection if one is
+// given (match_cfg_line + copy_set_server_options: Match values replace the
+// global ones; within the matching blocks the first value read wins).
+// `global` is what a connection that no other Match block selects gets:
+// the global lines, then any `Match all` block over them.
+export function resolve(read, conn = null) {
+  const base = new Map();
+  const shadowed = [];
+  const put = putter(shadowed);
+  const allBlocks = read.matches.filter(isAll);
+  for (const d of read.directives) {
+    if (d.keyword === "include" || !d.def) continue;
+    if (d.match && !isAll(d.match)) continue;
+    // A Match all line of a Match keyword is not ignored when an earlier
+    // global line set it: it overrides that line for every connection.
+    put(base, d, !(d.match && d.def.scope === "all"), "first");
+  }
+  const allOver = overlay(read, allBlocks, shadowed);
+  for (const [k, v] of allOver) {
+    for (const d of read.directives) {
+      if (!d.def || d.match || d.keyword === "include") continue;
+      const key = d.def.kind === "byname" ? `${d.keyword}:${d.args[0]}` : d.keyword;
+      if (key === k && d.def.kind !== "list") shadowed.push({ d, winner: v.at, key, reason: "match-all" });
+    }
+  }
+  const global = new Map(base);
+  for (const [k, v] of allOver) global.set(k, v);
+  let effective = global;
+  let applied = [];
+  if (conn) {
+    applied = read.matches.filter((m) => matchApplies(m, conn));
+    effective = new Map(base);
+    for (const [k, v] of overlay(read, applied)) effective.set(k, v);
+  }
+  return { base, global, effective, shadowed, applied };
+}
+
+// Settings one Match block applies on top of the global ones, with any
+// Match all blocks taking part in file order.
+function blockOverlay(read, block, base) {
+  const own = overlay(read, [block]);
+  const chain = [];
+  for (let b = block; b; b = b.parent) chain.push(b);
+  const eff = new Map(base);
+  for (const [k, v] of overlay(read, [...read.matches.filter(isAll), ...chain])) eff.set(k, v);
+  return { own, eff };
 }
 
 // ---------------------------------------------------------------- checks
@@ -572,13 +687,13 @@ function settingChecks(map, scope, out) {
       `PermitTunnel ${pt} lets users create tun/tap network devices, a full VPN into the server's network.`,
       "Set PermitTunnel no unless this host is meant to be a VPN endpoint.");
   }
-  const mat = Number(val(map, "maxauthtries"));
+  const mat = intValue(val(map, "maxauthtries")).value;
   if (Number.isFinite(mat) && mat > 10) {
     add("low", "max-auth-tries-high", "maxauthtries",
       `MaxAuthTries ${mat} gives each connection ${mat} guesses before sshd drops it (default 6).`,
       "Leave MaxAuthTries at 6 or lower.");
   }
-  if (String(val(map, "logingracetime")).trim() === "0") {
+  if (convtime(val(map, "logingracetime")) === 0) {
     add("low", "login-grace-unlimited", "logingracetime",
       "LoginGraceTime 0 lets an unauthenticated connection hang on forever, so a handful of idle connections fill MaxStartups and lock real users out.",
       "Use a limit such as 30s or the default 120.");
@@ -614,7 +729,7 @@ export function scanFiles(files, options = {}) {
   // Value checks, and keyword placement.
   for (const d of read.directives) {
     if (!d.def) continue;
-    if (d.match && d.def.scope === "global") {
+    if (d.match && !isAll(d.match) && d.def.scope === "global") {
       findings.push({ severity: "error", type: "global-only-in-match", keyword: d.keyword, file: d.file, line: d.line, scope: `Match ${d.match.text}`, detail: `${d.raw} is not allowed inside a Match block (it sits under Match ${d.match.text} at ${d.match.file}:${d.match.line}); sshd refuses to start.`, remediation: `Move ${d.raw} above the first Match line, or end the block with Match all before it.` });
       continue;
     }
@@ -622,11 +737,28 @@ export function scanFiles(files, options = {}) {
       findings.push({ severity: "low", type: "ignored-option", keyword: d.keyword, file: d.file, line: d.line, scope: d.match ? `Match ${d.match.text}` : "global", detail: `${d.raw} is ${d.def.kind} in OpenSSH 9.6 and is ignored${d.def.kind === "unsupported" ? " (this build does not support it)" : ""}: the line does nothing.`, remediation: "Delete the line, and check that whatever it was meant to do is set another way." });
       continue;
     }
-    const states = STATES[d.keyword];
-    if (states && d.def.kind === "first" && !states.includes(lc(d.args[0]))) {
-      findings.push({ severity: "error", type: "sshd-will-not-start", keyword: d.keyword, file: d.file, line: d.line, scope: d.match ? `Match ${d.match.text}` : "global", detail: `${d.raw} ${d.args[0]}: unsupported option; sshd accepts ${states.join(", ")}.`, remediation: `Use one of ${states.join(", ")}.` });
+    const scopeOf = d.match ? `Match ${d.match.text}` : "global";
+    const max = MAX_ARGS[d.keyword] ?? 1;
+    if (d.def.kind !== "match" && d.def.kind !== "include" && d.args.length > max) {
+      findings.push({ severity: "error", type: "sshd-will-not-start", keyword: d.keyword, file: d.file, line: d.line, scope: scopeOf, detail: `${d.raw} ${d.args.join(" ")}: sshd stops with "keyword ${d.raw} extra arguments at end of line"; ${d.raw} takes ${max === 1 ? "one value" : `at most ${max} values`}${d.def.kind === "list" ? " per line (repeat the line for more)" : ""}.`, remediation: d.def.kind === "list" ? `Put each value on its own ${d.raw} line.` : `Keep one value, or comment out the rest with #.` });
+      continue;
     }
-    if (d.match && d.match.indentBody === true && !d.indent && d.def.kind !== "match") {
+    if (INT_KW.has(d.keyword) && intValue(d.args[0]).error) {
+      findings.push({ severity: "error", type: "sshd-will-not-start", keyword: d.keyword, file: d.file, line: d.line, scope: scopeOf, detail: `${d.raw} ${d.args[0]}: integer value ${intValue(d.args[0]).error}; sshd refuses to start.`, remediation: `Use a whole number from 0 to ${INT_MAX}, in decimal.` });
+      continue;
+    }
+    if (TIME_KW.has(d.keyword) && convtime(d.args[0]) < 0) {
+      findings.push({ severity: "error", type: "sshd-will-not-start", keyword: d.keyword, file: d.file, line: d.line, scope: scopeOf, detail: `${d.raw} ${d.args[0]}: invalid time value; sshd refuses to start.`, remediation: "Use seconds (120) or units such as 30s, 2m or 1h30m." });
+      continue;
+    }
+    const states = STATES[d.keyword];
+    // PermitTunnel's values are compared with strcmp in servconf.c, so
+    // "PermitTunnel NO" stops sshd; the other multi-state options ignore case.
+    const given = CASE_SENSITIVE.has(d.keyword) ? d.args[0] : lc(d.args[0]);
+    if (states && d.def.kind === "first" && !states.includes(given)) {
+      findings.push({ severity: "error", type: "sshd-will-not-start", keyword: d.keyword, file: d.file, line: d.line, scope: d.match ? `Match ${d.match.text}` : "global", detail: `${d.raw} ${d.args[0]}: unsupported option; sshd accepts ${states.join(", ")}${CASE_SENSITIVE.has(d.keyword) ? ", in lowercase only" : ""}.`, remediation: `Use one of ${states.join(", ")}.` });
+    }
+    if (d.match && !d.match.all && d.match.indentBody === true && !d.indent && d.def.kind !== "match") {
       const looksGlobal = d.def.scope === "all";
       if (looksGlobal) findings.push({ severity: SECURITY.has(d.keyword) ? "medium" : "low", type: "looks-global-but-in-match", keyword: d.keyword, file: d.file, line: d.line, scope: `Match ${d.match.text}`, detail: `${d.raw} ${d.args.join(" ")} is written flush left like a global setting, but sshd ignores indentation: it belongs to Match ${d.match.text} (${d.match.file}:${d.match.line}) and applies only to those connections.`, remediation: "Move the line above the first Match block, or put Match all on the line before it." });
     }
@@ -639,7 +771,9 @@ export function scanFiles(files, options = {}) {
     if (lc(winnerVal) === lc(mine)) continue;
     const security = SECURITY.has(s.d.keyword);
     findings.push({ severity: security ? "medium" : "low", type: "setting-ignored", keyword: s.d.keyword, file: s.d.file, line: s.d.line, scope: "global",
-      detail: `${s.d.raw} ${mine} is ignored: sshd keeps the first value it reads, and ${s.winner.file}:${s.winner.line} already set ${s.winner.raw} ${winnerVal}${s.winner.file !== s.d.file ? " (an Include earlier in the order pulled that file in first)" : ""}.`,
+      detail: s.reason === "match-all"
+        ? `${s.d.raw} ${mine} does not reach any connection: ${s.winner.raw} ${winnerVal} at ${s.winner.file}:${s.winner.line} sits under Match ${s.winner.match.text} (${s.winner.match.file}:${s.winner.match.line}), and a Match all block is not a return to global settings: it applies to every connection and overrides the global value.`
+        : `${s.d.raw} ${mine} is ignored: sshd keeps the first value it reads, and ${s.winner.file}:${s.winner.line} already set ${s.winner.raw} ${winnerVal}${s.winner.file !== s.d.file ? " (an Include earlier in the order pulled that file in first)" : ""}.`,
       remediation: `Set it once, in the file read first (drop-ins in sshd_config.d are read at the Include line, usually the top of sshd_config, in name order: 00-x.conf before 50-cloud-init.conf). Or remove ${s.winner.file}:${s.winner.line}.` });
   }
   settingChecks(res.global, "global", findings);
@@ -647,8 +781,8 @@ export function scanFiles(files, options = {}) {
   // Each Match block, overlaid on the global settings.
   const perMatch = [];
   for (const m of read.matches) {
-    if (m.all || m.neverMatch) continue;
-    const { own, eff } = blockOverlay(read, m, res.global);
+    if (isAll(m)) continue;
+    const { own, eff } = blockOverlay(read, m, res.base);
     const before = [];
     settingChecks(res.global, "x", before);
     const keyOf = (f) => `${f.type}|${f.severity}`;
