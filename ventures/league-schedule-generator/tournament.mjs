@@ -227,7 +227,7 @@ export function divisionGames(d, di) {
     const label = {};
     bracket.rounds.forEach((r) => {
       const real = r.matches.filter((m) => !m.bye && m.id !== "3P");
-      real.forEach((m, i) => { label[m.id] = STAGE_SHORT[r.name] ? `${STAGE_SHORT[r.name]}${real.length > 1 ? i + 1 : ""}` : `${r.name} ${i + 1}`; });
+      real.forEach((m, i) => { label[m.id] = Object.hasOwn(STAGE_SHORT, r.name) ? `${STAGE_SHORT[r.name]}${real.length > 1 ? i + 1 : ""}` : `${r.name} ${i + 1}`; });
       r.matches.filter((m) => m.id === "3P").forEach((m) => { label[m.id] = "3rd place"; });
     });
     const slot = (s) => (s.name ? s.name : s.from ? `Winner ${label[s.from]}` : `Loser ${label[s.loserOf]}`);
@@ -541,6 +541,8 @@ export function validateTournament(t) {
   return bad;
 }
 
+// Every cell goes through csvCell (calc.mjs), the formula-injection guard: a cell starting =, +, -, @,
+// tab or CR gets an apostrophe, so a team name never runs as a spreadsheet formula.
 const COLS = ["Date", "Day", "Start", "End", "Field", "Division", "Stage", "Home", "Away"];
 export function tournamentCsv(t, team = null) {
   const rows = t.games.filter((g) => !team || g.teams.includes(team)).map((g) => [g.date, g.dayLabel.slice(0, 3), g.start, g.end, g.field, g.division, g.stage, g.home, g.away]);
