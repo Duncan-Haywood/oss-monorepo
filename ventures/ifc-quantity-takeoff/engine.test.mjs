@@ -475,3 +475,55 @@ test("faceted: a stepped (concave) opening is taken out of a wall as signed tetr
   close(solidVolume(subtractCutters(wall, cuttersOf(t), "opening")), 108 - 20);
   assert.equal(asTerms(op, 3), null); // over the term limit: not taken
 });
+
+// Synthetic rows shaped like takeoff()'s, for the area explanations.
+const wallRow = (id, { stored = {}, check = {}, pathJoins = [], box = [0, 0, 0, 18, 0.3, 2.7], side } = {}) => ({
+  id, tag: `w${id}`, ifcClass: "IfcWall", type: null, stored, pathJoins, box, areaCheck: check,
+  computed: { openings: 12, areas: { side: side ?? { gross: 48.6, net: 30.6, faces: { gross: [48.6, 48.6], net: [30.6, 30.6] }, width: 0.3 } } },
+});
+const sideCheck = (which, stored, computed) => ({ kind: "side", which, stored, computed, agree: false });
+
+test("explanations: a side area with the T-joined walls' strips taken off (C20 #31190's shape)", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  // 18 x 2.7 m wall, two 0.5 m walls start on its path: one face loses 1.0 x 2.7
+  const rows = [
+    wallRow(1, { pathJoins: [2, 3], check: { NetSideArea: sideCheck("net", 30.6 - (1.0 * 2.7) / 2, 30.6), GrossSideArea: sideCheck("gross", 48.6 - 1.35, 48.6) } }),
+    wallRow(2, { side: { width: 0.5 } }), wallRow(3, { side: { width: 0.5 } }),
+    wallRow(4, { pathJoins: [2], check: { NetSideArea: sideCheck("net", 30.6 - 1.35, 30.6) } }), // one join covers half of that
+  ];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.NetSideArea.reason, "joins-off");
+  assert.equal(rows[0].areaCheck.GrossSideArea.reason, "joins-off");
+  assert.equal(rows[0].areaCheck.NetSideArea.trust, true);
+  assert.equal(rows[3].areaCheck.NetSideArea.reason, "unexplained");
+});
+
+test("explanations: ArchiCAD's mean of its own outside and inside face areas (C20 #31190's figures)", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const a = (value) => ({ kind: "area", value, set: "ArchiCADQuantities" });
+  const stored = {
+    "Netto-Oberflächenbereich an der Außenseite": a(30.6), "Netto-Oberflächenbereich an der Innenseite": a(27.09),
+    "Oberflächenbereich der Fenster in der Wand": a(18), "Oberflächenbereich der Türen in der Wand": a(0),
+  };
+  const rows = [wallRow(1, { stored, check: { NetSideArea: sideCheck("net", 28.845, 30.6), GrossSideArea: sideCheck("gross", 46.845, 48.6) } })];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.NetSideArea.reason, "faces-averaged");
+  assert.equal(rows[0].areaCheck.GrossSideArea.reason, "faces-averaged");
+});
+
+test("explanations: one Length and CrossSectionArea copied onto members of different lengths is a host figure", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const member = (id, len, sameLength = false) => ({
+    id, tag: `m${id}`, ifcClass: "IfcMember", type: null, pathJoins: [],
+    stored: { Length: { kind: "length", value: 20.858 }, CrossSectionArea: { kind: "area", value: 138.4225 } },
+    box: [0, 0, 0, 0.05, 0.18, sameLength ? 1.5 : len],
+    areaCheck: { CrossSectionArea: { kind: "cross", which: "gross", stored: 138.4225, computed: 0.01335, agree: false } },
+    computed: { openings: 0, areas: { cross: { gross: 0.01335 } } },
+  });
+  const varied = [member(1, 1.554), member(2, 2.9), member(3, 3.3)];
+  explainAreas(varied);
+  for (const r of varied) { assert.equal(r.areaCheck.CrossSectionArea.reason, "host-figure"); assert.equal(r.areaCheck.CrossSectionArea.trust, false); }
+  const alike = [member(1, 0, true), member(2, 0, true), member(3, 0, true)];
+  explainAreas(alike);
+  assert.equal(alike[0].areaCheck.CrossSectionArea.reason, "unexplained");
+});

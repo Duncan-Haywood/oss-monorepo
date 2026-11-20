@@ -101,6 +101,16 @@ quantities inherits those errors; this tool says which they are
   ([eval/faceted-causes-2026-11-20.md](eval/faceted-causes-2026-11-20.md)).
   The sample model's areas are checked by hand in `engine.test.mjs` (a door
   out of a wall's side and footprint, a trapezoidal gable, the IPE 200 section).
+- **Joined walls and copied host figures (2026-11-20).** Unexplained stored
+  areas fell from 358 to 192 of 12,167 pairs. ArchiCAD's wall side area is a
+  finishes figure: the mean of the two faces with the strips covered by
+  T-joined walls taken off (37 pairs follow exactly from the
+  `IfcRelConnectsPathElements` joins and the joined walls' widths; 18 more
+  equal the mean of ArchiCAD's own two net face areas). skolebygg's 111
+  mullions store their curtain wall's Revit Area and Length (138.4225 m2 and
+  20,858 mm, digit for digit) on every piece; the bill of quantities uses their
+  section instead
+  ([eval/joins-and-host-figures-2026-11-20.md](eval/joins-and-host-figures-2026-11-20.md)).
 - **Advanced breps (2026-11-20).** On kleine_Wohnung, 767 of its 775
   `IfcAdvancedBrep` are now read (faces on planes and cylinders): elements not
   read fell from 162 to 12, and net volume is computed for all 37 walls whose
