@@ -494,6 +494,8 @@ class ModifiedWigleyStrip(WigleyStrip):
     tank tests (Kashiwagi et al. 2000; added resistance in Kashiwagi 2013). Volume, waterplane and section
     shapes come from the form itself; the Smith depth is volume / waterplane area."""
 
+    alpha = 1.0               # class default, so instances built without __init__ keep Kashiwagi's form
+
     def __init__(self, length, beam, draft, n_stations=30, kyy=0.248, rho=1000.0, table=None, n_panels=16, zeta_v=0.0,
                  no_added_mass_coupling=False, alpha=1.0):
         self.l, self.bm, self.t, self.rho, self.kyy = length, beam, draft, rho, kyy
