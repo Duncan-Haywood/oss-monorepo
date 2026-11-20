@@ -43,6 +43,7 @@ about a cell (a CSV checker's finding) writes nothing and is left alone.
     python3 platform/ci/check_csv_formula_guard.py [--root DIR] [--write-baseline]
 """
 import argparse
+import os
 import re
 import sys
 from pathlib import Path
@@ -62,8 +63,24 @@ SKIP_PARTS = {"node_modules", ".next", "dist", "build", ".git", "vendor"}
 FORMULA_TEST = "/^[="
 
 
+# EXPORTER's branches one at a time, each behind a literal it must contain.
+# An alternation that starts with `function`, `\b` and `export` gives the
+# regex engine no literal prefix to jump to, so it tried every branch at every
+# character of every .mjs file (1.4 s of the check); a branch that starts with
+# a literal is searched with a fast prefix scan. Same answers: an alternation
+# matches somewhere exactly when one of its branches does
+# (test_split_exporter_matches_the_alternation).
+_EXPORTER_TOCSV = re.compile(r"function\s+toCsv\b|\btoCsv\s*=\s*(\(|function|async)")
+_EXPORTER_EXPORT = re.compile(
+    r"export\s+(async\s+)?function\s+(?!parse|split|read|load|import|sample|example)[a-z]\w*Csv\s*\(")
+
+
 def is_exporter(text):
-    return EXPORTER.search(text) is not None
+    if "Csv" not in text:
+        return False
+    if "toCsv" in text and _EXPORTER_TOCSV.search(text):
+        return True
+    return "export" in text and _EXPORTER_EXPORT.search(text) is not None
 
 
 def is_guarded(text):
@@ -97,65 +114,93 @@ def guard_shape(line):
     return out
 
 
+def _sources(root, exts):
+    """Yield (repo-relative posix path, file name, text) for files under root/ventures ending in one of exts.
+
+    One os.walk that prunes SKIP_PARTS directories, in place of one sorted
+    rglob per pattern per scan: rglob builds a Path for all ~270 k entries
+    under ventures/ and the three scans read the same files again
+    (docs/history/ci-perf-2026-11-20-csv-guard-one-walk.md). Like rglob, it
+    does not descend into symlinked directories.
+    """
+    base = root / "ventures"
+    prefix = base.relative_to(root).as_posix()
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_PARTS]
+        reldir = os.path.relpath(dirpath, base)
+        reldir = prefix if reldir == "." else f"{prefix}/{reldir.replace(os.sep, '/')}"
+        for name in filenames:
+            if not name.endswith(exts):
+                continue
+            try:
+                with open(os.path.join(dirpath, name), encoding="utf-8", errors="replace") as fh:
+                    text = fh.read()
+            except OSError:
+                continue
+            yield f"{reldir}/{name}", name, text
+
+
+def _shape_entries(rel, text):
+    # guard_shape reports only through GUARD_TEST, which needs "/^[=".
+    if FORMULA_TEST not in text:
+        return []
+    out = []
+    for n, line in enumerate(text.splitlines(), 1):
+        if FORMULA_TEST not in line:
+            continue
+        for reason in guard_shape(line):
+            out.append(f"{rel}:{n}: {reason}")
+    return out
+
+
+def _weak_entries(rel, text):
+    # EXEMPTION starts with the literal "/^[=".
+    if FORMULA_TEST not in text:
+        return []
+    return [f"{rel}:{n}" for n, line in enumerate(text.splitlines(), 1)
+            if FORMULA_TEST in line and weak_exemptions(line)]
+
+
+SHAPE_EXTS = (".mjs", ".js", ".html", ".ts", ".tsx")
+WEAK_EXTS = (".mjs", ".js", ".html")
+
+
+def scan_all(root):
+    """One walk and one read per file: (scan(root), scan_weak(root), scan_shape(root))."""
+    found, weak, shape = [], [], []
+    for rel, name, text in _sources(root, SHAPE_EXTS):
+        if ".test." not in name:
+            shape += _shape_entries(rel, text)
+            if name.endswith(WEAK_EXTS):
+                weak += _weak_entries(rel, text)
+        if (name.endswith(".mjs") and not name.endswith(".test.mjs")
+                and is_exporter(text) and not is_guarded(text)):
+            found.append(rel)
+    return sorted(found), sorted(weak), sorted(shape)
+
+
 def scan_shape(root):
     """Return sorted 'path:line: reason' entries for guards of the wrong shape under root/ventures."""
     out = []
-    for pat in ("*.mjs", "*.js", "*.html", "*.ts", "*.tsx"):
-        for p in (root / "ventures").rglob(pat):
-            rel = p.relative_to(root)
-            if SKIP_PARTS & set(rel.parts) or ".test." in p.name:
-                continue
-            try:
-                text = p.read_text(encoding="utf-8", errors="replace")
-            except OSError:
-                continue
-            # guard_shape reports only through GUARD_TEST, which needs "/^[=".
-            if FORMULA_TEST not in text:
-                continue
-            for n, line in enumerate(text.splitlines(), 1):
-                if FORMULA_TEST not in line:
-                    continue
-                for reason in guard_shape(line):
-                    out.append(f"{rel.as_posix()}:{n}: {reason}")
+    for rel, name, text in _sources(root, SHAPE_EXTS):
+        if ".test." not in name:
+            out += _shape_entries(rel, text)
     return sorted(out)
 
 
 def scan_weak(root):
     """Return sorted 'path:line' entries for unanchored number exemptions under root/ventures."""
     out = []
-    for pat in ("*.mjs", "*.js", "*.html"):
-        for p in (root / "ventures").rglob(pat):
-            rel = p.relative_to(root)
-            if SKIP_PARTS & set(rel.parts) or ".test." in p.name:
-                continue
-            try:
-                text = p.read_text(encoding="utf-8", errors="replace")
-            except OSError:
-                continue
-            # EXEMPTION starts with the literal "/^[=".
-            if FORMULA_TEST not in text:
-                continue
-            for n, line in enumerate(text.splitlines(), 1):
-                if FORMULA_TEST in line and weak_exemptions(line):
-                    out.append(f"{rel.as_posix()}:{n}")
+    for rel, name, text in _sources(root, WEAK_EXTS):
+        if ".test." not in name:
+            out += _weak_entries(rel, text)
     return sorted(out)
 
 
 def scan(root):
     """Return sorted repo-relative paths of unguarded exporters under root/ventures."""
-    base = root / "ventures"
-    out = []
-    for p in base.rglob("*.mjs"):
-        rel = p.relative_to(root)
-        if SKIP_PARTS & set(rel.parts) or p.name.endswith(".test.mjs"):
-            continue
-        try:
-            text = p.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            continue
-        if is_exporter(text) and not is_guarded(text):
-            out.append(rel.as_posix())
-    return sorted(out)
+    return sorted(rel for rel, name, text in _sources(root, (".mjs",))
+                  if not name.endswith(".test.mjs") and is_exporter(text) and not is_guarded(text))
 
 
 def read_baseline(path):
@@ -175,7 +220,7 @@ def main(argv=None):
     ap.add_argument("--baseline", type=Path, default=BASELINE)
     ap.add_argument("--write-baseline", action="store_true")
     a = ap.parse_args(argv)
-    found = scan(a.root)
+    found, weak, shape = scan_all(a.root)
     if a.write_baseline:
         a.baseline.write_text(
             "# Venture CSV exporters with no formula-injection guard (check_csv_formula_guard.py).\n"
@@ -188,11 +233,9 @@ def main(argv=None):
               "=, +, -, @, tab or CR with an apostrophe (see ventures/ucr-fee-calculator/calc.mjs csvCell).")
     for f in stale:
         print(f"{f}: listed in {a.baseline.name} but now guarded or gone; delete its line.")
-    weak = scan_weak(a.root)
     for f in weak:
         print(f"{f}: the number exemption beside the formula guard is not anchored with $, so a cell such as "
               "-1+CMD|... passes as a number; use !/^-?\\d+(\\.\\d+)?$/.")
-    shape = scan_shape(a.root)
     for f in shape:
         print(f"{f}; test all of = + - @ \\t \\r and let a plain number through: "
               "if (/^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d+(\\.\\d+)?$/.test(s)) s = \"'\" + s;")
