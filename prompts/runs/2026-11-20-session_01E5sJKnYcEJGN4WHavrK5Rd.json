@@ -31,7 +31,8 @@
   "tests_added": 2,
   "outcome": "success",
   "errors": [
-    "First measurement script reported 0 wrapping eyebrows: a 'w' key for viewport width was overwritten by the element's clientWidth; fixed and re-measured."
+    "First measurement script reported 0 wrapping eyebrows: a 'w' key for viewport width was overwritten by the element's clientWidth; fixed and re-measured.",
+    "Wrote the post and report while the pages suite was running; two build.test.mjs tests failed with the suite's own 'files changed while the suite ran' note and passed on re-run."
   ],
   "integrity_issues": [
     "The first draft of the post claimed the dropped audience words (students, plant managers) were still on each page; a grep showed that was false for most pages, so the post and report now state the trade-off instead."
@@ -55,7 +56,7 @@
     "docs/reports/polish-2026-11-20-long-eyebrows.md"
   ],
   "goal": null,
-  "notes": "Measured in Chromium over ventures/<slug>/index.html: eyebrows on 2+ lines at 390 px 47 -> 0 of 184; at 320 px 100 -> 93, three-line 7 -> 0; total eyebrow lines 231 -> 184 (390), 291 -> 277 (320). flagship-hero-order.test.mjs: 8/8 pass; fails on main for 47 pages. Full platform/pages test suite run locally in background; see PR CI for the authoritative result.",
+  "notes": "Measured in Chromium over ventures/<slug>/index.html: eyebrows on 2+ lines at 390 px 47 -> 0 of 184; at 320 px 100 -> 93, three-line 7 -> 0; total eyebrow lines 231 -> 184 (390), 291 -> 277 (320). flagship-hero-order.test.mjs: 8/8 pass; fails on main for 47 pages. Local `node --test 'platform/pages/*.test.mjs'`: 1884/1886 pass; the 2 failures (build.test.mjs search-results and cache-name) flagged themselves as caused by files I edited mid-run, and both pass on a re-run against the stable tree.",
   "corrections": [],
   "redteam": null
 }
