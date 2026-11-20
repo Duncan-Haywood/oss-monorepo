@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPHSPH6CrUqrZBWB9c",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": "2026-11-20T11:55:00Z",
+  "ended": "2026-11-20T14:37:04Z",
+  "wall_minutes": 170,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/verified-dse milestone 157: resume milestone 156's max-RC ss flow on the 15 designs it did not reach, as a pre-registered blind replication",
+  "projects": [
+    "verified-dse"
+  ],
+  "pr": 17908,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "the first resumed flow hit the 2-hour background-job limit at 2,400 of 3,505 points",
+      "fix": "run.py --resume finished the remaining 1,071 points in 31 minutes; table checked intact"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A long background flow keeps appending to a tracked results table, so the Stop hook ('uncommitted changes') fires every time the turn ends while it runs; committing partial rows repeatedly works but is noise. Writing in-progress tables outside the tree and copying at the end would avoid it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-verified-dse-max-rc-blind-replication.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registration commit 839b2bc77 (seven predictions) before the resumed flow; stop rule committed at 12:10 UTC after 100 points and before any fresh design completed. Same-tool control: 11 of 11 points identical to milestone 156's rows. All 27 designs completed; all seven predictions held. Primary: fresh edge change +0.23 points (-0.51 to +0.93); pooled +0.17 (-0.61 to +1.01); SWC beats random 22 to 5 under max RC (p = 0.0015). analyse.py pinned to milestone 156's 12 designs so its results.txt reproduces unchanged (diff empty). Checks: verified-dse tests (pytest), research/_homepage/build.py ok, check_posts ok, check_md_links ok, research_live_links ok.",
+  "corrections": [],
+  "redteam": null
+}
