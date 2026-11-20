@@ -29,10 +29,13 @@
   margin changed no verdict on its 2 builds at 7+ straddles). That 1.3 ms item was answered 2026-11-20 (eval/feed-phase-2026-11-20.md): the
   simulator had fixed where in a revolution each ball landed, so no shot mix could be tuned for it; with a random
   release (`feed_jitter_ms`) the long drill names 21 of 36 short takes and misadvises 1 of 36 instant builds, and a
-  fast drill (34-40 m/s) 22 and 1; not shipped. Next: margin 3 with the fast drill against margin 2 with the long
-  drill, pre-registered on fresh seeds with `--feed-jitter 26` (exploratory on the 2026-11-20 builds: 18 against 21
-  short takes named, 0 against 1 instant misadvised). Every take-survey capture from here on should pass
-  `--feed-jitter 26`.
+  fast drill (34-40 m/s) 22 and 1; not shipped. Margin 3 with the fast drill against margin 2 with the long drill
+  closed by its pre-registered rule the same day (eval/feed-phase-margin-2026-11-20.md, 288 fresh builds each: 48
+  against 66 of 108 short takes named, 2 against 2 of 108 instant misadvised). Next: the fast drill against the long
+  drill, both at the shipped margins, pre-registered on fresh seeds (exploratory on those 576 builds: 75 against 66
+  short, 67 against 61 of 72 long, 2 against 2 instant misadvised); consider a 2.5 ms vote margin of 3 in the same
+  test (one of the fast drill's two false alarms was a 4-1 at 2.5 ms). Every take-survey capture from here on should
+  pass `--feed-jitter 26`.
 - (2026-11-19) More tach pulses a revolution: tested host-side and closed by its pre-registered rule
   (eval/tach-pulses-2026-11-19.md: four magnets saw 46 of 128 short-take balls against 38, not twice; the step's drop
   error rose 0.11% to 0.55%). Reopen only with a survey-level test written first (the board sums ~22 wheels) and a plan

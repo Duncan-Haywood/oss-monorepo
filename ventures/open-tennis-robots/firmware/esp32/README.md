@@ -3842,3 +3842,29 @@ to set 1.5 ms (a 2-0 straddle vote). The vote still separates (instant builds' s
 two or three balls are just too few for margin 2. Exploratory on the same builds: at margin 3 neither drill misadvises,
 the long drill names 11 short takes and the fast drill 18. That is the next pre-registered test, on fresh seeds.
 Everything is in `eval/feed-phase-2026-11-20.md`. Simulated only.
+
+## Margin 3 with the fast drill, on fresh seeds (2026-11-20, after "Where the ball lands in a revolution"; not shipped by its pre-registered rule)
+
+The previous section's exploratory reading (margin 3 on the 1.5 ms vote stopped the random-release false alarms, and
+the fast drill kept more short takes at margin 3 than the long drill) was tested on fresh seeds, rule committed first
+(2c35c8f6f): 288 builds per drill (spread seeds 9301-9323 odd, takes 1.3-2.8 ms; 108 instant builds, seeds 9401-9471
+odd), jittery tach, lag 0.5 s, `--feed-jitter 26`. The candidate needed at most 1 of 108 instant builds misadvised
+and fewer than the shipped pair, and at most 11 fewer short takes named.
+
+| arm | short named (of 108) | 1.3 ms (of 36) | 2.4-2.8 ms (of 72) | instant misadvised (of 108) |
+| --- | --- | --- | --- | --- |
+| long drill, margin 2 (shipped) | 66 | 18 | 61 | 2 |
+| fast drill, margin 3 (candidate) | 48 | 7 | 65 | 2 |
+| long drill, margin 3 (exploratory) | 37 | 6 | 61 | 0 |
+| fast drill, margin 2 (exploratory) | 75 | 19 | 67 | 2 |
+
+The rule failed (2 false alarms against 2; 48 short takes against the 55 needed), so the long drill and
+`TAKE_STRADDLE_MARGIN = 2` stay. The fast drill's extra straddling balls also make bigger chance runs on instant
+builds: its two false alarms were a 3-0 vote at 1.5 ms, which margin 3 lets through, and a 4-1 vote in the 2.5 ms vote,
+which this margin does not touch. **Numbers to quote for the shipped survey on a random release:** 61% of 1.3-2.1 ms
+takes named, 85% of 2.4-2.8 ms takes (not all, as the fixed-phase sets showed) and about 2% of instant builds told to
+set a take. Exploratory on the same builds: the fast drill at the shipped margins names 9 more short takes and 6 more
+long ones with the same false alarms. That swap, the drill alone, is the next pre-registered test on fresh seeds.
+`tests/take_straddle_count.py` now takes `label@N` for the margin and prints takes named per take;
+`tests/take_misadvised_instant.py` prints a set's misadvised instant builds with their votes. Everything is in
+`eval/feed-phase-margin-2026-11-20.md`. Simulated only.
