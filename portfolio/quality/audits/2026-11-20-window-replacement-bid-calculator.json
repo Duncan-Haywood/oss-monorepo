@@ -1,0 +1,186 @@
+{
+ "date": "2026-11-20",
+ "subject": "ventures/window-replacement-bid-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-20-c394",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an estimator or owner at a small residential window replacement company who bids insert and full-frame jobs weekly; first checks: are United Inches computed and the call sizes named correctly (a 3040 is 3'0\" x 4'0\"), is the price built as cost / (1 - margin) and not as a markup, is payroll burden loaded onto the wage, are story access, tear-out, rot and lead-safe (EPA RRP) work priced per opening, and does the printed proposal match the price on screen.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Independent Python (/tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/wrbc/indep.py, run with python3 -I, no subject import) rebuilds the bid from the per-opening rates the page itself publishes in its FAQ (hours, $ base, $/UI, frame and install multipliers, 0.75 h / 2.1 h story adders, 90/120 UI size steps) plus textbook margin arithmetic (price = cost / (1 - m), overhead on direct cost). Matches calc.mjs to the cent: index.html default 7-opening job at shipped inputs ($38, 32% burden, 12 mi at 28 mph, 1 h setup, 6 h minimum, $95 trip, $375 scaffold, $85 permit, 15% OH, 25% margin) -> 21.0571 h, cost $4,445.24, price $5,926.99, $846.71/opening (node probe.mjs agrees, second-story labour share 79.69%); vs-page easy job 15.5857 h, $3,071.48, $4,095.30, $511.91; vs-page hard job (with the per-row Trim flag the test sets) 71.5857 h, $14,107.24, $18,809.65, $2,351.21, gaps $10,011.94 / $14,714.35; FAQ markup-vs-margin $8,000 -> $9,600 = 16.67% margin vs $10,000 at 20% margin; README '$38 costs more like $50' = 38 x 1.32 = $50.16. Arithmetic is right. Edge findings: story 2.5 silently gets the third-storey 2.1 h adder; fractional quantities (0.5 window) accepted; an unknown unit type silently prices as double-hung. Not 4: the size constants are mislabelled against trade call sizes (see domain) and the edges above.",
+  "completeness": "README claims: per-opening takeoff (UI, qty, story, frame, install, condition), loaded labour, disposal/scaffold/trip/permit/casing/capping, overhead, margin, average per opening, effective hourly rate, labour split, second-story share, walk-away price, proposed-price check, copy summary, print quote, share link, usage tally with DNT/GPC opt-out. All present in calc.mjs / index.html: all seven usage events are wired in index.html (grep counts 3,1,1,1,1,1,1), add-on checkboxes at index.html:216-217, DNT/GPC at usage.mjs:21, proposal panel with deposit split and signature line (proposal.mjs). `node --test '*.test.mjs'` 129/129 pass in 0.24 s. Served copy (`node platform/pages/served-copy.mjs window-replacement-bid-calculator`) builds with no placeholder origin; the live host returned 000 through the proxy. Limits (no tax, no tempered/egress/impact glass, no crew size) are disclosed in README Limitations.",
+  "verification": "129 tests green. quality_mutate.py, 9 mutants in core logic: caught 5 (LARGE_UI > -> >=, 2nd-storey 0.75 -> 0.7 h, needsAccess story >= 2 -> > 2, Trim hours scaled by frame multiplier, second-story share filter >= 2 -> > 2); survived 4 (OVERSIZE_UI boundary > -> >= at calc.mjs:81, proposed-price hourly rate divided by on-site instead of total hours at calc.mjs:276, minimum-hours flag < -> <= at calc.mjs:214, proposal deposit Math.round -> Math.floor at proposal.mjs:330). The 120 UI boundary and the proposed-price block (a displayed number the contractor decides on) are unpinned. The vs-page test pins the worked example to calc.mjs but uses hand-picked inputs while the page calls them 'shipped', and no test compares them with index.html's defaults, which is how that overclaim survived. 5 of 9: 2.",
+  "craft": "Read calc.mjs (300 lines), index.html script block (lines 378-700), share.mjs, usage.mjs, proposal.mjs header, the four test files. calc.mjs is pure, documented, validates every number with a named error, keeps margin and overhead definitions explicit, and returns intermediate lines for display. Defects: presetById silently falls back to double-hung/vinyl/insert/clean for an unknown id (calc.mjs:69) instead of erroring, so a stale share link with a renamed preset re-prices quietly; story is not forced to an integer (2.5 -> third-storey adder) and quantity not to a whole number; a per-row 'Trim' checkbox (0.35 h, $42, calc.mjs:20-21) sits beside a job-wide 'Interior casing / returns' add-on (0.4 h, $38) with no text saying how they differ, and the vs-page worked example turns both on; proposal.mjs is a byte-identical copy in 121 ventures (md5 088181e3...), guarded by a sync check but still a copied engine. A senior reviewer would accept it with those notes.",
+  "claims": "Pass: disclaimer ('No warranty', index.html:370) on the tool and the comparison pages; 'nothing uploaded' (no fetch in index.html, share link is the hash only); usage events list matches index.html; worked example numbers reproduce from calc.mjs; vs-marketsharp carries a not-affiliated clause; served llms.txt lists all four pages on marisstella.app. Fail: (1) the 3040/6048 call sizes are given as 70 UI and 108 UI on index.html:12 and :318-321, how-much-to-charge.html:11, :30, :50, and calc.mjs:9 - by the US trade call-size convention a 3040 is 3'0\" x 4'0\" = 36 + 48 = 84 UI and a 6048 is 6'0\" x 4'8\" = 72 + 56 = 128 UI (oversize by the tool's own 120 UI step), so the page teaches the reader a wrong UI for the two sizes it names; (2) vs-a-flat-price-per-window.html:11, :81 and :116 call its inputs 'this calculator's own shipped cost inputs/defaults' ($32 wage, 28% burden, $150 scaffold, 12% OH, and undisclosed 35 mph, 0.5 h setup, 0 h minimum, $0 trip, $0 permit), but index.html ships $38, 32%, $375, 15%, 28 mph, 1 h, 6 h, $95, $85 (index.html:209-232); at the true shipped inputs the easy job is $4,752.50 / $594.06 per window, not $4,095.30 / $511.91. Unit prices and hours are uncited 'ballpark' figures, disclosed as such.",
+  "fitness": "Job walked: an estimator enters the default house (picture, four 2nd-floor bedrooms, slider, 2nd-floor casement with rot), sets wage and burden, and gets $5,926.99, $846.71 per opening, 79.7% of labour on the second storey, a walk-away of $4,445.24, a proposed-price check, and a printable proposal with a 30% deposit split and a signature line - a real bid can go out in minutes on the contractor's own rates. Gaps a working estimator hits: no sales tax line (disclosed), no crew-size input (hours are labour-hours at one wage), linear $/UI material rather than the UI brackets distributors actually quote, no tempered/egress/obscure glass options (disclosed), and the default material rates are uncited. Usable with stated limits: 3.",
+  "domain": "Compared against trade practice: United Inches = width + height (correct); call sizes in feet-and-inches (3040 = 36 x 48 in) - departs, the tool and its pages treat the four digits as inches; margin as a share of price and overhead on direct cost (correct, the FAQ example is right); payroll burden ~32% on wage (in the usual 25-40% range for construction trades); EPA RRP (40 CFR 745 Subpart E) lead-safe work for pre-1978 homes priced as an adder and explicitly not a compliance finding (sound); scaffold as a job-level cost triggered by any opening at storey 2+ (sound). Departures: the call-size error above, which also means the '6048 picture at 108 UI' example is classed 'large' when a real 6048 is oversize; distributor UI pricing is usually bracketed, not linear past a 70 UI base; IRC R308 safety glazing and R310 egress are not modelled (disclosed); the Trim vs interior-casing overlap invites double counting. A senior estimator would correct the call-size teaching before signing off: 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "index.html default 7-opening job at the shipped inputs: hours, cost, price, per opening",
+   "method": "independent Python from the page's published FAQ rates and price = cost/(1-m), overhead on direct cost; no subject import",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/wrbc/indep.py; node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/wrbc/probe.mjs",
+   "expected": "21.0571 h, cost $4,445.24, price $5,926.99, $846.71/opening",
+   "observed": "calc.mjs: 21.057142857 h, 4445.24, 5926.99, 846.71",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "vs-page easy job: 8 x 30x40 vinyl DH inserts, 1st floor",
+   "method": "independent Python, same method",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/wrbc/indep.py",
+   "expected": "15.5857 h, $3,071.48 cost, $4,095.30, $511.91/window",
+   "observed": "page and calc.mjs: 15.6 h, $3,071.48, $4,095.30, $511.91",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "vs-page hard job: 8 x 48x64 wood casements, 2nd floor, full-frame, rot, trim + casing + capping",
+   "method": "independent Python, same method, with Trim (+0.35 h, +$42 outside the frame multiplier)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/wrbc/indep.py",
+   "expected": "71.5857 h, $14,107.24, $18,809.65, $2,351.21; gaps $10,011.94 / $14,714.35",
+   "observed": "page: 71.6 h, $14,107.24, $18,809.65, $2,351.21, $10,011.94, $14,714.35",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "FAQ margin-vs-markup example and README loaded-wage example",
+   "method": "by hand: 8000 x 1.2; 1600/9600; 8000/0.8; 38 x 1.32",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/wrbc/indep.py",
+   "expected": "$9,600 = 16.67% margin; $10,000 at 20%; $50.16",
+   "observed": "page: $9,600, 16.7%, $10,000; README 'more like $50'",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "United Inches of the named call sizes 3040 and 6048",
+   "method": "US window call-size convention: first two digits width in feet+inches, last two height (3040 = 3'0\" x 4'0\"); UI = W + H in inches, by hand",
+   "command": "grep -n '3040\\|6048' ventures/window-replacement-bid-calculator/index.html ventures/window-replacement-bid-calculator/how-much-to-charge.html ventures/window-replacement-bid-calculator/calc.mjs",
+   "expected": "3040 = 84 UI; 6048 = 128 UI (oversize past 120)",
+   "observed": "3040 = 70 UI, 6048 = 108 UI (digits read as inches) on index.html, how-much-to-charge.html, calc.mjs:9",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Input edges: story 2.5, quantity 0.5, unknown unit type",
+   "method": "by hand expectation: reject or round non-integer storey/quantity, reject unknown type",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f091d3e5-eb30-514d-8285-e6f58aa0a1bf/scratchpad/wrbc/probe.mjs",
+   "expected": "error or explicit handling",
+   "observed": "story 2.5 -> 2.1 h third-storey adder; qty 0.5 -> openingCount 0.5; 'tripel-hung' silently priced as double-hung",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Full test suite",
+   "method": "run",
+   "command": "cd ventures/window-replacement-bid-calculator && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "129 pass, 0 fail, 241 ms",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "vs-page worked example uses 'this calculator's own shipped cost inputs'",
+   "method": "compare vs-a-flat-price-per-window.html:81 and its test's inputs with index.html:209-232 input values",
+   "command": "grep -n 'value=' ventures/window-replacement-bid-calculator/index.html | sed -n 1,20p; grep -n shipped ventures/window-replacement-bid-calculator/vs-a-flat-price-per-window.html",
+   "expected": "same inputs as the tool ships",
+   "observed": "page $32/28%/$150/12%/35 mph/0.5 h/0 h min/$0 trip/$0 permit vs tool $38/32%/$375/15%/28 mph/1 h/6 h/$95/$85; at shipped inputs easy job is $4,752.50 ($594.06/window)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Every usage event in the README is wired in the page",
+   "method": "grep index.html for each event name",
+   "command": "for e in bid_calculated opening_added opening_removed proposed_price_compared summary_copied share_copied quote_printed; do grep -c $e ventures/window-replacement-bid-calculator/index.html; done",
+   "expected": ">=1 each",
+   "observed": "3,1,1,1,1,1,1",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer and DNT/GPC opt-out",
+   "method": "grep",
+   "command": "grep -n 'No warranty' ventures/window-replacement-bid-calculator/index.html; grep -n globalPrivacyControl ventures/window-replacement-bid-calculator/usage.mjs",
+   "expected": "present",
+   "observed": "index.html:370 'No warranty'; usage.mjs:21 doNotTrack / globalPrivacyControl",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Served copy and live page",
+   "method": "deploy rewrite into scratch; curl live host",
+   "command": "node platform/pages/served-copy.mjs window-replacement-bid-calculator; curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/window-replacement-bid-calculator/",
+   "expected": "no placeholder origins; 200",
+   "observed": "no placeholder or retired origin; llms.txt lists 4 pages on marisstella.app; live curl 000 through this container's proxy",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {"where": "calc.mjs:82", "change": "if (inches > LARGE_UI) -> if (inches >= LARGE_UI)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:90", "change": "if (level === 2) return 0.75; -> return 0.7;", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:190", "change": "row.story >= 2 -> row.story > 2 (needsAccess)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:158", "change": "(trim ? TRIM_HOURS : 0) -> (trim ? TRIM_HOURS * frame.hoursMult : 0)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:270", "change": ".filter(row => row.story >= 2) -> > 2 (second-story share)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:81", "change": "if (inches > OVERSIZE_UI) -> if (inches >= OVERSIZE_UI)", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:276", "change": "proposed hourlyRate proposedPrice / totalHours -> / onSiteHours", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "calc.mjs:214", "change": "rawOnSite < minOnSiteHours -> rawOnSite <= minOnSiteHours", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+  {"where": "proposal.mjs:330", "change": "Math.round(priceCents * depositPercent / 100) -> Math.floor(...)", "caught": false, "test_cmd": "node --test '*.test.mjs'"}
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Call sizes are read as inches: the tool page, the 'how much to charge' guide and calc.mjs say a 3040 is 70 UI and a 6048 picture is 108 UI. By the trade convention a 3040 is 3'0\" x 4'0\" = 84 UI and a 6048 is 6'0\" x 4'8\" = 128 UI (oversize by the tool's own 120 UI step). The FAQ teaches the reader a wrong UI and calls the 70 UI base 'a stock 3040'.",
+   "where": "ventures/window-replacement-bid-calculator/how-much-to-charge.html:50",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "The comparison page calls its worked-example inputs 'this calculator's own shipped cost inputs/defaults', but they differ from every shipped default (wage, burden, scaffold, overhead, speed, setup, minimum hours, trip fee, permit); at the real shipped inputs the easy job is $4,752.50 ($594.06/window), not $4,095.30 ($511.91). Five of the differing inputs are not disclosed on the page.",
+   "where": "ventures/window-replacement-bid-calculator/vs-a-flat-price-per-window.html:81",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "4 of 9 seeded mutants survive: the 120 UI oversize boundary, the proposed-price hourly rate, the minimum-hours flag boundary and the proposal deposit rounding are not pinned by any test.",
+   "where": "ventures/window-replacement-bid-calculator/calc.test.mjs:45",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Silent fallbacks and loose input: an unknown unit/frame/install/condition id silently prices as the default preset (a stale share link re-prices quietly); story 2.5 gets the third-storey adder; fractional quantities are accepted.",
+   "where": "ventures/window-replacement-bid-calculator/calc.mjs:69",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Per-row 'Trim' (0.35 h, $42) and the job-wide 'Interior casing / returns' add-on (0.4 h, $38) overlap with no text separating them; the vs-page example turns both on, which double counts casing labour if they are the same scope.",
+   "where": "ventures/window-replacement-bid-calculator/calc.mjs:20",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Starting unit prices, hours and adders are uncited ballparks and material is linear per UI past 70, whereas distributors usually quote UI brackets; disclosed as ballpark but no source or date for any rate.",
+   "where": "ventures/window-replacement-bid-calculator/calc.mjs:24",
+   "category": "source-data",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A clean, pure bid engine whose arithmetic is right: an independent Python rebuild from the page's own published rates matches calc.mjs to the cent on the default seven-opening house ($5,926.99, walk-away $4,445.24), both comparison-page jobs ($4,095.30 and $18,809.65) and the margin-vs-markup FAQ, and the product does what its README lists, including a printable proposal; 129 tests pass. It misses the bar on claims and verification, and domain sits at 2: the pages teach that a 3040 is 70 UI and a 6048 is 108 UI when the trade call-size convention gives 84 and 128; the comparison page presents hand-picked inputs as 'this calculator's own shipped defaults' when every one differs from index.html; 4 of 9 seeded mutants survive, including the 120 UI boundary and the proposed-price block; unknown presets fall back silently; and the default rates are uncited."
+}
