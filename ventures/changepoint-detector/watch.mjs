@@ -19,7 +19,7 @@ import { existsSync } from 'node:fs';
 import process from 'node:process';
 import { parseSeries } from './engine.mjs';
 import { parseColumns } from './multivariate.mjs';
-import { WATCH_DEFAULTS, DETECTORS, HINT_BUDGET, fillClosed, emptyState, detectChanges, advance, alertText, statusText, webhookBody, eagernessReplay, eagernessText, budgetFromPlain, plainBudgetText, chooseDetector } from './watch-core.mjs';
+import { WATCH_DEFAULTS, DETECTORS, HINT_BUDGET, fillClosed, emptyState, detectChanges, advance, alertText, statusText, webhookBody, eagernessReplay, eagernessText, budgetFromPlain, plainBudgetText, chooseDetector, withCountDefaults } from './watch-core.mjs';
 import { pathToFileURL } from 'node:url';
 
 // The logic lives in watch-core.mjs (no file or network access, so the page and the agent tool import it too).
@@ -79,7 +79,8 @@ Options:
                             "A closure in the week before a step".
   --detector <name>         which detector's changes to alert on: bocpd-ar1-window (default for --model mean: the Bayesian
                             detections allowing for sticky, autocorrelated noise, probability summed over 5 neighbouring
-                            points), bocpd-ar1, bocpd (default for poisson and meanvar), bocpd-window, or pelt (finds
+                            points), bocpd-ar1, bocpd (default for meanvar), bocpd-window (default for poisson, with the nb cost at
+                            threshold 0.3), or pelt (finds
                             smaller steps, e.g. 1 noise sd, at several times the false alerts). README, "Watching a growing series".
                             drift: jumps on a level that wanders all the time (a price, a stock level, a slowly growing
                             count), where the others alert on the wander itself (--model mean only). README, "Round 8".
@@ -115,9 +116,10 @@ Options:
                             proportion to the level (nb1), or a dispersion-tempered Poisson cost (phi), read from the
                             watched window at each check. In --columns, a count column takes it per column after its
                             model (orders:poisson:bocpd-window:nb); a global one applies to the count columns only.
-                            Measured on simulated shops (README "Clumped counts in the watch"): with bocpd-window, nb
-                            sent 0.42 false alerts per 1,000 checks against the default's 3.10 and heard 920 of 1,200
-                            steps against 715, but 103 of 200 against 126 on 40% drops in very clumped counts.
+                            With --model poisson and no --detector or --overdispersion, the watch already runs
+                            bocpd-window with nb at alert threshold 0.3 (README "A count default for clumped orders":
+                            on 2,200 fresh simulated shops 1.03 false alerts per 1,000 checks against old bocpd's 3.26,
+                            1,056 of 1,200 drops and rises heard against 701). Naming either keeps threshold 0.5.
   --webhook-env <NAME>      POST each new alert to the URL in environment variable NAME (Slack, Discord, Teams, Mattermost)
   --fail-on-alert           exit 1 when there is a new alert (a CI run then fails and its owner is emailed)
   --alert-history           on the first check, alert on the changes already in the history too (default: record them as the baseline)
@@ -215,6 +217,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   if (floorSpec?.all) detOpts.minShift = floorSpec.all;
   if (spreadSpec?.all) detOpts.minSpreadRatio = spreadSpec.all;
   const changes = detectChanges(values, labels, detOpts);
+  const countDefault = withCountDefaults(detOpts) !== detOpts;
   const res = advance(state, changes, values.length, labels, o);
   const textOpts = { column, model: o.model || 'mean', confirm: o.confirm };
   if (hookEnv && res.alerts.length) {
@@ -228,7 +231,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   const pickLine = picked
     ? `How eager: ${NAME[picked.key]} (${picked.detector}), picked from ${picked.n} points of history: ${picked.reason}${picked.per100 != null ? ` (${picked.per100} per 100 checks there)` : ''}; budget ${plainBudgetText(picked.budget, every)}. Later runs keep it.`
     : null;
-  out((json ? JSON.stringify({ column, n: values.length, ...(picked ? { picked } : {}), ...fill.json, ...res }, null, 2) : fill.line + (pickLine ? pickLine + '\n' : '') + statusText(res, textOpts)) + '\n');
+  out((json ? JSON.stringify({ column, n: values.length, ...(picked ? { picked } : {}), ...fill.json, ...res }, null, 2) : fill.line + (pickLine ? pickLine + '\n' : '') + (countDefault ? COUNT_DEFAULT_LINE + '\n' : '') + statusText(res, textOpts)) + '\n');
   return failOnAlert && res.alerts.length ? 1 : 0;
 }
 
@@ -255,6 +258,8 @@ export function closedFill(values, labels, closed, opts = {}) {
 
 /** Clumping costs for counts, by the name the CLI takes, as the engine's `overdispersion` option. */
 export const CLUMPING = { nb: 'nb', nb1: 'nb1', phi: true };
+// Printed on a count column that runs the count default (watch-core.mjs COUNT_DEFAULTS, README "A count default for clumped orders").
+export const COUNT_DEFAULT_LINE = 'Detector: bocpd-window, negative-binomial cost, alert threshold 0.3 (the count default; --detector bocpd for the old one).';
 const clumpingName = (v) => (v === 'nb' ? 'negative-binomial cost' : v === 'nb1' ? 'negative-binomial cost in proportion to the level' : 'dispersion-tempered Poisson cost');
 
 /** `--overdispersion nb|nb1|phi` as the engine's option. */
@@ -407,7 +412,7 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
     }
     const res = advance(st, detectChanges(c.values, c.labels, det), c.values.length, c.labels, { ...o, ...det });
     state.columns[c.column] = res.state;
-    results.push({ column: c.column, model: det.model || 'mean', detector: c.detector ?? null, clumping: c.overdispersion ?? null, n: c.values.length, picked, res, fill: c.fill });
+    results.push({ column: c.column, model: det.model || 'mean', detector: c.detector ?? null, clumping: c.overdispersion ?? null, countDefault: withCountDefaults(det) !== det, n: c.values.length, picked, res, fill: c.fill });
   }
   const alerting = results.filter((r) => r.res.alerts.length);
   const message = alerting.map((r) => alertText(r.res, { column: r.column, model: r.model })).join('\n');
@@ -428,7 +433,8 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
     const blocks = results.map((r) => {
       const pick = r.picked ? `How eager: ${NAME[r.picked.key]} (${r.picked.detector}), picked from ${r.picked.n} points: ${r.picked.reason}; budget ${plainBudgetText(whole, every)}. Later runs keep it.\n` : '';
       const named = r.detector || r.clumping != null ? `${r.detector ? `Detector: ${r.detector}` : 'Detector: default'}${r.clumping != null ? `, ${clumpingName(r.clumping)}` : ''} (named for this column).\n` : '';
-      return `== ${r.column} ==\n${named}${pick}${statusText(r.res, { column: r.column, model: r.model, confirm: o.confirm })}`;
+      const dflt = r.countDefault ? `${COUNT_DEFAULT_LINE}\n` : '';
+      return `== ${r.column} ==\n${named}${dflt}${pick}${statusText(r.res, { column: r.column, model: r.model, confirm: o.confirm })}`;
     });
     out([head + (results[0].fill.line ? '\n' + results[0].fill.line.trimEnd() : ''), ...blocks].join('\n\n') + '\n');
   }

@@ -88,7 +88,8 @@ where it departs from the paper.
 - **Watch several metrics in one run** (2026-11-13): `node watch.mjs kpi.csv --state s.json --columns all` (or
   `--columns orders:poisson,revenue,signups:poisson`, a model per column, and a detector per column since
   2026-11-19: `orders:poisson:bocpd-window`, README "A detector per column"; a cost for clumped counts per column,
-  `orders:poisson:bocpd-window:nb`, README "Clumped counts in the watch") watches every column of one CSV, keeps a
+  `orders:poisson:bocpd-window:nb`, README "Clumped counts in the watch"; since 2026-11-20 a count column with nothing
+  named runs that cost on the windowed pass at alert threshold 0.3, README "A count default for clumped orders") watches every column of one CSV, keeps a
   record per column in one state file and sends the day's new changes as one webhook message. README "Several metrics in
   one watch".
 - **Watch your Stripe account** (2026-11-16): `STRIPE_API_KEY=rk_live_... node stripe-metrics.mjs --out data/stripe.csv`
@@ -3762,6 +3763,73 @@ above, where the plain window is loudest and the clumping cost matters most.
 
 **Next:** a rule for the 40% drop in very clumped counts that C1 hears less often, so the cost could become the
 default; and a deployer's real orders, with the changes the merchant knows about, to score these arms on.
+
+## A count default for clumped orders (2026-11-20, pre-registered, tuned then tested on fresh seeds; ships)
+
+"Clumped counts in the watch" above ended on one failed bar: `bocpd-window` with the negative-binomial cost (C1) sent
+far fewer false alerts than the `bocpd` default and heard far more steps, but heard the 40% drop in very clumped counts
+(S6, variance 3x the mean, 30 to 18 a day) 103 times in 200 against 126. That 126 was bought with 10.8 false alerts per
+1,000 checks on the matching null; C1 paid 0.16 there. The NB cost made the posterior honest, and the 0.5 alert
+threshold, chosen for the plain Poisson cost, was never revisited. So this round spends part of the headroom on power
+by lowering the threshold (`eval/poisson-window-threshold.prereg.md`, committed before any seed ran; `.mjs`;
+`-A.out.txt`, `-B.out.txt`). Same eleven cells, generator and four bars as before (F1 pooled extra false alerts' 95%
+upper end at most 1.0 per 1,000 checks, F2 no null cell worse by 2.0, D1 more steps heard, D2 no step cell 4 worse).
+
+**Stage A, tuning** (seeds 601-800), thresholds 0.5 to 0.2; the highest that passes all four bars is chosen:
+
+| threshold | pooled false per 1,000 | worst null vs `bocpd` | steps of 1,200 | S6 (bocpd 135) | bars |
+|---|---|---|---|---|---|
+| 0.5 | 0.23 | +0.16 | 919 | 112 | D2 fails (-23) |
+| 0.4 | 0.42 | +0.48 | 970 | 126 | D2 fails (-9) |
+| **0.3** | 1.00 | +1.13 | 1,039 | 146 | **all pass** |
+| 0.25 | 1.39 | +2.58 (Poisson 5) | 1,065 | 151 | F2 fails |
+| 0.2 | 1.90 | +3.23 (Poisson 5) | 1,083 | 157 | F2 fails |
+
+(`bocpd`: 3.39 pooled false per 1,000, 701 steps.) Below 0.3 the cost lands on small Poisson counts (5 a day), where
+no clumping is detected and the plain cost runs at a lower bar.
+
+**Stage B, the test** (fresh seeds 801-1000, threshold 0.3 only, run once):
+
+| cell | `bocpd` (old default) | `bocpd-window` + nb, 0.3 |
+|---|---|---|
+| N1 Poisson 30 | 0.00 | 1.13 |
+| N2 NB 30, variance 60 | 2.58 | 0.97 |
+| N3 Poisson 30, weekends 0.6x | 1.45 | 1.13 |
+| N4 Poisson 5 | 0.00 | 1.29 |
+| N5 NB 30, variance 90 | 12.26 | 0.65 |
+| S1 30 to 15 | 183 | 195 |
+| S2 30 to 21 | 70 | 173 |
+| S3 30 to 45 | 145 | 193 |
+| S4 5 to 2 | 44 | 178 |
+| S5 NB (2x) 30 to 18 | 130 | 172 |
+| S6 NB (3x) 30 to 18 | 129 | **145** |
+| pooled false per 1,000 | 3.26 | **1.03** |
+| steps found of 1,200 | 701 | **1,056** |
+
+Against `bocpd`: **2.23 fewer false alerts per 1,000 checks (95% interval 1.55 to 2.90 fewer), 355 more steps heard
+(326 to 385)**, worst null cell +1.29 (Poisson 5), worst step cell +12. All four bars pass. Median delay 4 or 5 checks.
+
+**What ships.** With `--model poisson` and no `--detector`, `--overdispersion` or threshold named, the watch (one
+column, and each count column in `--columns`) runs `bocpd-window` with the NB cost at alert threshold 0.3
+(`COUNT_DEFAULTS`, `withCountDefaults` in `watch-core.mjs`), and the text output says so on the column
+(`Detector: bocpd-window, negative-binomial cost, alert threshold 0.3 (the count default; --detector bocpd for the old
+one).`). Naming any of the three keeps today's behaviour for the rest: `--detector bocpd` is the old default exactly,
+and `orders:poisson:bocpd-window:nb` keeps threshold 0.5.
+
+**The trade, plainly.** On unclumped counts the new default sends about one false alert per 1,000 daily checks where
+`bocpd` sent almost none (about one in two to three years of a daily check, against 0 to 0.16 per 1,000 for the old
+default across the three rounds on Poisson 30); on bunched counts, where real shops sit ("A real shop, exploratory" above: variance 4 to 6
+times the mean), it sends a twentieth as many and hears more of every step. **Not re-measured:** the "How eager"
+ladder and `--detector auto` still name `bocpd` as Quiet for counts, so `--suggest` and `auto` describe and pick from
+the old ladder; real labelled count series (no deployer's orders yet). On the page's "Keep watching a series" card the counts model's Quiet is the new default and
+Middle is plain `bocpd`, so for counts Middle is no longer the more eager of the two.
+
+**Checked** (`watch-count-default.test.mjs`): the defaults apply only when none of the three is named; a clumped null
+shop that the old default alerts on stays quiet under the new one through the CLI, with the column line printed; an
+explicit `--detector bocpd` reproduces the old run.
+
+**Next:** the ladder with the new default as Quiet (a pre-registered round 6 rerun for counts), and a deployer's real
+orders with the changes the merchant knows about.
 
 ## A real shop's daily series through `--suggest` (2026-11-18, pre-registered; all three bars fail; a weekly-cycle line ships)
 

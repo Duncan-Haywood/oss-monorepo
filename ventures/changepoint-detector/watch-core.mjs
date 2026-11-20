@@ -29,6 +29,19 @@ import { driftLevel } from './drift-level.mjs';
 export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd-ar1-window', model: 'mean', rhoCap: 0.8, holdHistory: true, persist: 2 };
 /** The default detector for a model: the AR(1) pass for the level model, the plain Bayesian pass otherwise. */
 export const defaultDetector = (model = 'mean') => (model === 'mean' ? WATCH_DEFAULTS.detector : 'bocpd');
+/**
+ * The count watch's default (2026-11-20, eval/poisson-window-threshold.prereg.md, tuned on seeds 601-800, passed on fresh
+ * seeds 801-1000): with `--model poisson` and no detector, clumping cost or threshold named, the watch uses the
+ * windowed Bayesian pass with the negative-binomial cost at threshold 0.3. Against `bocpd`: 2.23 fewer false alerts per
+ * 1,000 checks (1.55 to 2.90), 355 more of 1,200 steps (326 to 385), the 40% drop in very clumped counts 145 of 200
+ * against 129. Naming any of the three keeps the rest as before (an explicit `--detector bocpd` is the old default).
+ * The "How eager" ladder and `--detector auto` still use `bocpd` as Quiet (not re-measured).
+ */
+export const COUNT_DEFAULTS = { detector: 'bocpd-window', overdispersion: 'nb', threshold: 0.3 };
+export function withCountDefaults(opts = {}) {
+  if ((opts.model ?? 'mean') !== 'poisson' || opts.detector != null || opts.overdispersion != null || opts.threshold != null) return opts;
+  return { ...opts, ...COUNT_DEFAULTS };
+}
 
 const STATE_VERSION = 1;
 // 'drift': jumps on a wandering level (drift-level.mjs, `--model drift`: a local-level model whose random-walk wander and
@@ -45,7 +58,7 @@ export function emptyState() {
  * (0-based in the full series). opts: detector 'pelt' | 'bocpd', model, penalty, period, log, ...
  */
 export function detectChanges(values, labels, opts0 = {}) {
-  const { minShift, minSpreadRatio, minMoveRatio, ...opts } = opts0;
+  const { minShift, minSpreadRatio, minMoveRatio, ...opts } = withCountDefaults(opts0);
   const d = opts.detector ?? defaultDetector(opts.model ?? 'mean');
   if ((d.startsWith('bocpd-ar1') || d === 'drift') && (opts.model ?? 'mean') !== 'mean') throw new Error(`--detector ${d} is for the level model (--model mean) only.`);
   const floors = (cs) => aboveMoveFloor(aboveSpreadFloor(aboveFloor(cs, minShift), values, minSpreadRatio), values, minMoveRatio);
@@ -372,7 +385,7 @@ export function replayWatch(values, labels = null, opts = {}) {
   const n = v.length;
   if (n < 10) throw new Error(`A replay needs at least 10 points; got ${n}.`);
   const l = (labels && labels.length === n ? labels : v.map((_, i) => i + 1)).map(String);
-  const { from: from0, step: step0, budget: budget0, alertHistory: _h, ...rest } = opts;
+  const { from: from0, step: step0, budget: budget0, alertHistory: _h, ...rest } = withCountDefaults(opts);
   const model = rest.model ?? 'mean';
   const settings = { ...WATCH_DEFAULTS, ...rest, model, detector: rest.detector ?? defaultDetector(model) };
   if (!DETECTORS.includes(settings.detector)) throw new Error(`detector takes ${DETECTORS.join(', ')}.`);
