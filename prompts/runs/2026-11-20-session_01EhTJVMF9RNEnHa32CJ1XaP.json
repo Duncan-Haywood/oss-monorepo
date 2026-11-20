@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVMF9RNEnHa32CJ1XaP",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures prompt (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "da27c92b4ef483171fcaf10a74dd032f53aff3a33c5e6ad259a37ece9199514f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T04:56:11Z",
+  "ended": "2026-11-20T05:08:36Z",
+  "wall_minutes": 12.89,
+  "tokens_in": 10812599,
+  "tokens_out": 58883,
+  "cost_usd": 4.7315,
+  "tool_calls": 78,
+  "task": "ids-model-check (flagship 12): an IDS as a readable plain-English document",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17859",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First splice of spec-doc.mjs by line number missed (off by one); redone by text markers.",
+    "eval note first claimed ~70 sentence shapes; counted 132 (then 128 after a wording fix) and corrected before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ids-model-check's buildable: list names only re-runs of existing evals; a user-facing gap (no readable rendering of an IDS for the people who deliver it) was found by reading the README's alternatives table, not from the row."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took an item not in ids-model-check's next:/buildable: (a readable-document export) because the listed buildable items were re-runs with little new user value.",
+      "did": "Built spec-doc.mjs with page button and CLI flag, cross-checked against IfcTester on 113 files.",
+      "result": "Landed; 4,458 of 4,458 facets agree; added to next: as landed with a follow-up."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-an-ids-file-your-contractor-can-read.md",
+    "ventures/ids-model-check/eval/spec-doc-2026-11-20.md"
+  ],
+  "goal": "Give BIM managers a contract-appendix rendering of an IDS that cannot drift from the checked file.",
+  "notes": "Verification: node --test spec-doc.test.mjs page.test.mjs (10 pass); eval/spec_doc_ifctester.py on 144 files (113 opened by IfcTester 0.9.0): 0 shape/cardinality/optionality/token misses over 4,458 facets and 10,892 values; mutation caught (83 token, 11 cardinality misses); Playwright run of index.html: audit, both downloads, no console errors; inherited_keys.py 0 new; check_posts ok. run_venture_tests and venture-preflight results below.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a4eede77-7071-5fe3-a7e3-e28604bfaf97",
+    "transcripts": 1,
+    "first": "2026-11-20T04:56:11Z",
+    "last": "2026-11-20T05:09:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 146,
+        "output": 58883,
+        "thinking": 10280,
+        "cache_read": 10634149,
+        "cache_write_5m": 0,
+        "cache_write_1h": 178304,
+        "api_equivalent_usd": 4.7315,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 146,
+      "output": 58883,
+      "thinking": 10280,
+      "cache_read": 10634149,
+      "cache_write_5m": 0,
+      "cache_write_1h": 178304,
+      "api_equivalent_usd": 4.7315,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 73,
+      "Write": 1,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.89,
+      "active_minutes": 12.89,
+      "model_minutes": 9.97,
+      "tool_minutes": 2.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a developer writing a facet-to-English renderer, page/CLI wiring, an IfcTester cross-check over 144 files and the write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 211.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
