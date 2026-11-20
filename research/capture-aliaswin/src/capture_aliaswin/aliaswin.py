@@ -9,11 +9,12 @@ from capture_realaudio.real import FS, noise
 from capture_residgate.alias import classify
 
 PAD_S = 0.5
-START_BINS = (0.5, 1.0)       # window start (s) edges: first half second, then to 1 s, then later
+START_BINS = (0.5, 1.0)       # segment start (s) edges: first half second, then to 1 s, then later
 
 
 def pair_at(clip, rng, tau_s, win_s, snr_db, fs=FS):
-    """Like capture_realaudio.pair_from_clip (white noise) but also returns the window start in s."""
+    """Like capture_realaudio.pair_from_clip (white noise) but also returns the segment start s0 in s.
+    Camera A's window is clip[s0 + PAD_S, s0 + PAD_S + win_s]; it starts PAD_S after the returned value."""
     pad = int(PAD_S * fs)
     n = int(win_s * fs) + 2 * pad
     if len(clip) < n:
