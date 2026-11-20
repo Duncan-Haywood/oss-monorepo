@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVNPYUU9KBuv6ee2EJg",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T15:27:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore idea: real utility rates (OpenEI URDB) in demand-charge-interval-analyzer, with every demand period in the battery LP",
+  "projects": [
+    "ventures/demand-charge-interval-analyzer"
+  ],
+  "pr": 17930,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "check_third_party.py failed on the copied Apache-2.0 URDB fixtures' NOTICE.md",
+      "fix": "added a third_party.json entry, the upstream LICENSE text, and regenerated THIRD_PARTY.md"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_post_frontmatter (via run_workflow_locally.py)",
+      "issue": "title/description limits (110/160) are only learned by failing the check; three edit rounds. Stating them where posts are described in CLAUDE.md would save a round."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-one-window-tariffs-misprice-batteries.md"
+  ],
+  "goal": null,
+  "notes": "Idea: the analyzer only took one on-peak window all year; real commercial rates have seasons, several demand periods, seasonal flat demand and riders, and OpenEI's URDB holds them as data. Built tariff.mjs (URDB reader, holidays none/NERC/federal, demand-window averaging, per-period bills) and generalised the banded LP (jointLPPeriods; yearLP per-month rates). Fixtures: two real URDB rates from NREL REopt.jl tests (SCE GS-2 TOU-B 2015, Entergy AR LPS-TOU 2018; api.openei.org refused through the proxy). check/tariff_gap.py on 12 ComStock buildings (CA, AR) x 2 batteries = 288 months: shipped plan within $0.29 of HiGHS every month (median $0.004). One-window approximation: battery saving +56% vs real under SCE (all 12 over, 40-60%), -18% under Entergy (10 of 12 under). Page driven in Chromium with SCE pasted: renders, no console errors, bad JSON refused. Local checks: run_workflow_locally --for-changes all run: steps passed after the third-party fix (ventures-tests 5/5, portfolio-pages 12/12, portfolio-validate 100/100, pages 6/6); uses: steps not run. Next if it pays off: tiered prices, two-rate comparison on the same load (tariff-switch audit), a real metered building under a current rate.",
+  "corrections": [],
+  "redteam": null
+}
