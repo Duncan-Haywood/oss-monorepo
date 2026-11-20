@@ -291,10 +291,17 @@ class CRDisc(CRMesh):
         self.Xv0 = np.column_stack([P, np.zeros(len(P))])
 
     def start(self, seed, amp=0.002, slope=0.05):
+        """4a's start, drawn on the vertices exactly as `FabricDisc.start` draws it (same lattice, same
+        random numbers), and carried to the midpoints by averaging each edge's two ends: a conforming
+        field with 4a's shape. (Noise drawn on the midpoints themselves, 1.9 mm apart on the 3.75 mm
+        lattice, folds midpoint triangles over and Newton stalls at the cap; see LOG.md, 4d.)"""
+        rv = self.view.rho0
         rng = np.random.default_rng(seed)
-        X = self.X0.copy()
-        t = np.clip((self.rho0 - cusick.R_DISC) / (cusick.R_SPEC - cusick.R_DISC), 0, 1)
-        X[:, 2] = -slope * (self.rho0 - cusick.R_DISC).clip(0) + amp * t * rng.standard_normal(self.n)
+        Xv = self.Xv0.copy()
+        t = np.clip((rv - cusick.R_DISC) / (cusick.R_SPEC - cusick.R_DISC), 0, 1)
+        Xv[:, 2] = -slope * (rv - cusick.R_DISC).clip(0) + amp * t * rng.standard_normal(self.nv)
+        Xv[rv <= cusick.R_DISC + 1e-12, 2] = 0.0
+        X = 0.5 * (Xv[self.edges[:, 0]] + Xv[self.edges[:, 1]])
         X[self.fixed, 2] = 0.0
         return X
 

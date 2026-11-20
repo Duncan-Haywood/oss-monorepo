@@ -13,7 +13,7 @@ again.
 Element (`cr.py`): Crouzeix-Raviart unknowns at the edge midpoints of 3a's lattice (English and
 Bridson 2008), 3a's Saint Venant-Kirchhoff membrane on each triangle, a discrete-shell hinge per
 interior edge between the two midpoint triangles that share its midpoint (weight calibrated on a
-cylinder, isotropic to 0.6% over 0 to 90 degrees), and a penalty ks |P J|^2 on the in-plane jump J
+cylinder, within 1.8% of it over axis angles 0 to 90 degrees), and a penalty ks |P J|^2 on the in-plane jump J
 of the field across each interior edge, ks = gamma G. Why the penalty: without it the
 midpoint field has in-plane zero-energy modes at the free rim (30 on the 15 mm lattice, 39 on 12 mm,
 none with gamma = 1e-3) and Newton does not converge (pilot below). It is the in-plane part of
