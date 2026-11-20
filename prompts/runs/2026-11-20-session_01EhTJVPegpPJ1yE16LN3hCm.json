@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPegpPJ1yE16LN3hCm",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "5767b84735b6c9043e02e53c77b00c9fbd663fcfa739a0cbaac4f733585d0f6f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T17:56:29Z",
+  "ended": "2026-11-20T18:14:03Z",
+  "wall_minutes": 17.84,
+  "tokens_in": 8443105,
+  "tokens_out": 70440,
+  "cost_usd": 4.421,
+  "tool_calls": 64,
+  "task": "Deepen (flagship 9): league-schedule-generator -- weekend tournament scheduler (multi-division pools and brackets on shared fields)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17950",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--history TEXT removed the named result from flagships.yaml `next:` but wrote nothing to the venture's HISTORY.md (checked with git diff); I appended the line by hand. Its --make-room also parked a landed clause ('two courses 2026-11-20') into NEXT.md's open items."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator's `next:` is almost all landed-history and long-tail combinatorics (49 teams on 8x9 bowling etc.); the row pointed at no user-facing gap, so finding a worthwhile item meant reading README headings and guessing which workflow users lack."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's listed open items are combinatorial edge cases (bowling 47/49 on 8x9, carry-over bounds) or need real inputs; marginal value to users is low after 110 commits in 7 days.",
+      "did": "Built a new workflow inside the flagship instead: a multi-division weekend tournament scheduler (pools, crossover brackets, field sizes, rest, daily cap, coaches), a page, an eval and a post.",
+      "result": "Landed with tests and a 400-weekend measurement; flagship next: rewritten to name it."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-five-teams-three-games-a-day-cannot-fit-a-weekend.md",
+    "ventures/league-schedule-generator/README.md (Weekend tournaments section)"
+  ],
+  "goal": "Give tournament directors a free scheduler for multi-division weekends, a workflow paid tournament platforms sell.",
+  "notes": "Checks run here: node --test tournament.test.mjs (9 pass), node --test page.test.mjs (61 pass), python3 platform/ci/check_posts.py ok, portfolio/router/validate.py ok, page loaded in Chromium at 390 px (36 games, no console errors, scrollWidth 390). eval/tournament-search.mjs seeds 1 and 2 (output in eval/tournament-search.txt): on 160 no-warning weekends all games placed 92.9%/96.1% at 120 tries vs 83.3%/88.2% one pass; 194 warned weekends never fully placed; 0 invalid. Full venture suite and venture-preflight: see PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5b6fe4be-015b-58b1-a17a-e41cacbdacf4",
+    "transcripts": 1,
+    "first": "2026-11-20T17:56:29Z",
+    "last": "2026-11-20T18:14:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 115,
+        "output": 70440,
+        "thinking": 17961,
+        "cache_read": 8273360,
+        "cache_write_5m": 0,
+        "cache_write_1h": 169630,
+        "api_equivalent_usd": 4.421,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 115,
+      "output": 70440,
+      "thinking": 17961,
+      "cache_read": 8273360,
+      "cache_write_5m": 0,
+      "cache_write_1h": 169630,
+      "api_equivalent_usd": 4.421,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 58,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.84,
+      "active_minutes": 17.84,
+      "model_minutes": 11.46,
+      "tool_minutes": 6.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a senior engineer building a multi-division tournament scheduler with constraint checks, eval, page and docs: about three days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 542.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
