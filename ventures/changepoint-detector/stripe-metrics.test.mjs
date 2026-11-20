@@ -8,7 +8,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { csvCell, main, dailyRows, dayOf, dayStart, minorUnits, mainCurrency, listAll, readExisting, apiBase } from './stripe-metrics.mjs';
+import { csvCell, main, dailyRows, dayOf, dayStart, checkZone, minorUnits, mainCurrency, listAll, readExisting, apiBase } from './stripe-metrics.mjs';
 import { main as watchMain } from './watch.mjs';
 
 const lcg = (seed) => { let s = seed >>> 0; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 4294967296; }; };
@@ -61,6 +61,38 @@ test('days and offsets: a payment at 02:00 UTC is the previous day in New York',
   assert.equal(dayOf(t, -5), '2026-03-09');
   assert.equal(dayStart('2026-03-10', -5), Date.parse('2026-03-10T05:00:00Z') / 1000);
   assert.equal(dayOf(dayStart('2026-03-10', 5.5), 5.5), '2026-03-10');
+});
+
+test('time zone names follow daylight saving; a fixed offset does not', () => {
+  const at = (iso) => Date.parse(iso) / 1000;
+  const start = (d, z) => new Date(dayStart(d, z) * 1000).toISOString();
+  // New York: 05:00 UTC in winter, 04:00 UTC in summer; 2026-03-08 and 2026-11-01 are the switch days
+  assert.equal(start('2026-03-08', 'America/New_York'), '2026-03-08T05:00:00.000Z');
+  assert.equal(start('2026-03-09', 'America/New_York'), '2026-03-09T04:00:00.000Z');
+  assert.equal(start('2026-11-01', 'America/New_York'), '2026-11-01T04:00:00.000Z');
+  assert.equal(start('2026-11-02', 'America/New_York'), '2026-11-02T05:00:00.000Z');
+  // a summer order at 23:30 New York time: the name says the 30th, the winter offset -5 says the 1st
+  assert.equal(dayOf(at('2026-07-01T03:30:00Z'), 'America/New_York'), '2026-06-30');
+  assert.equal(dayOf(at('2026-07-01T03:30:00Z'), -5), '2026-06-30');
+  assert.equal(dayOf(at('2026-07-01T04:30:00Z'), 'America/New_York'), '2026-07-01');
+  assert.equal(dayOf(at('2026-07-01T04:30:00Z'), -5), '2026-06-30');
+  // Santiago skips midnight when its clocks go forward: the day starts at 01:00 local
+  assert.equal(start('2026-09-06', 'America/Santiago'), '2026-09-06T04:00:00.000Z');
+  assert.equal(dayOf(dayStart('2026-09-06', 'America/Santiago') - 1, 'America/Santiago'), '2026-09-05');
+  // half-hour and +14 zones, and every day's start maps back to that day over a year
+  assert.equal(start('2026-05-01', 'Asia/Kolkata'), '2026-04-30T18:30:00.000Z');
+  assert.equal(start('2026-05-01', 'Pacific/Kiritimati'), '2026-04-30T10:00:00.000Z');
+  for (let k = 0; k < 366; k++) {
+    const d = new Date(Date.parse('2026-01-01T00:00:00Z') + k * 864e5).toISOString().slice(0, 10);
+    for (const z of ['America/New_York', 'Europe/London', 'Australia/Sydney']) {
+      const t = dayStart(d, z);
+      assert.equal(dayOf(t, z), d);
+      assert.notEqual(dayOf(t - 1, z), d);
+    }
+  }
+  assert.equal(checkZone('Europe/Paris'), 'Europe/Paris');
+  assert.throws(() => checkZone('Mars/Olympus'), /time zone name/);
+  assert.throws(() => checkZone(''), /time zone name/);
 });
 
 test('minor units: cents, yen and dinars', () => {
@@ -165,6 +197,7 @@ test('main refuses unsafe or wrong input before calling Stripe', async () => {
   await assert.rejects(run(['--out', out], { STRIPE_API_KEY: 'pk_live_x' }), /publishable key/);
   await assert.rejects(run(['--out', out], { STRIPE_API_KEY: 'rk_test_ok', STRIPE_API_BASE: 'https://evil.example' }), /loopback/);
   await assert.rejects(run(['--out', out, '--utc-offset', '5.3'], { STRIPE_API_KEY: 'rk_test_ok' }), /quarter hours/);
+  await assert.rejects(run(['--out', out, '--time-zone', 'EST5'], { STRIPE_API_KEY: 'rk_test_ok' }), /time zone name/);
   assert.equal(s.calls.length, 0);
   assert.equal(apiBase({}), 'https://api.stripe.com/v1');
   assert.equal(apiBase({ STRIPE_API_BASE: 'http://127.0.0.1:8123/v1/' }), 'http://127.0.0.1:8123/v1');

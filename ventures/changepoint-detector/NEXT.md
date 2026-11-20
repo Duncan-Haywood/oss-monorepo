@@ -50,5 +50,4 @@
 - (2026-11-19) quoted-tick gate unscorable on 12 Binance pairs (all one-tick)
 - (2026-11-19) AAPL/AMZN/GOOG 28/33, prints 0/34
 - (2026-11-19) quality round 89 (`portfolio/quality/audits/2026-11-19-changepoint-detector-r2.json`, craft 2): `engine.mjs` is 3,004 lines (2,243 at the 11-09 audit); mulberry, lag1 and median are copied across 3 modules and `known-date.mjs` has its own least squares. Split the engine and share the helpers.
-- (2026-11-19) same audit: `llms.txt` line 53 is 5,000+ characters of round history and the README (8,396 lines) has no "which option do I need" guide to ~45 flags. Cut llms.txt to one line per feature; add the guide near the top.
-- (2026-11-19) same audit, low: `shopify-metrics.mjs:185` buckets days at a fixed UTC offset, so DST-zone stores get days an hour off for half the year.
+- (2026-11-19) same audit: the README (8,400 lines) has no "which option do I need" guide to ~45 flags; add one near the top. (llms.txt's two 10,000-character lines, drift and synthetic control, were cut to summaries 2026-11-20; it is 32 KB, other lines still run 1,500-2,700 characters.)
