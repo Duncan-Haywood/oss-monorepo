@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVMTUpcEmWJFqbDZone",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T23:04:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: what visitors wait on (built-site page weight)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 17986,
+  "repo": null,
+  "commits": [
+    "c157ef279"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first full test run failed 177 tests because my new post's description was 167 chars (limit 160)",
+      "fix": "shortened it; rerun green"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/history/pages-build-perf-2026-11-20-request-form-options.md",
+    "docs/posts/2026-11-20-the-sales-page-was-87-percent-hidden-dropdown.md"
+  ],
+  "goal": null,
+  "notes": "Metric: eager gzip bytes of the custom development pages. Before (main 67f98fb2f, node platform/pages/build.mjs then gzip -6 of each built file): custom-development/ 104,484 B gzip (375,850 raw), R-0001 94,434 B gzip (343,444 raw). After, same method: 23,027 and 13,067 B gzip (76,102 / 43,699 raw); the pickers moved to custom-development/form-options.json (81,596 B gzip, fetched on demand). Site-wide reading first: 12,311 pages, mean eager weight 20.8 kB gzip, median 16.8, p95 32.9. Verification: diff -rq of full builds (only 6 pages, new JSON, sw.js/version.json differ); Playwright on both builds for 4 URL cases + loaded select innerHTML identical; platform/pages node --test 1891/1891 pass; check.mjs publishable. Backlog perf items P063/P064 are CODEOWNERS-only, so skipped per prompt.",
+  "corrections": [],
+  "redteam": null
+}
