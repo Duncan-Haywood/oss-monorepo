@@ -302,7 +302,7 @@
     $("status").textContent = `Compared ${name} (earlier) with ${fileName}.ifc.`;
     record("revisions_compared");
     renderDiff();
-    $("compare").scrollIntoView({ behavior: "smooth" });
+    $("compare").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   }
 
   function renderDiff() {
