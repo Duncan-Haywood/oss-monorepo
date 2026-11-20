@@ -9,6 +9,7 @@
   - **H251 (0.3 N is cheap).** Coverage at B_plan = 0.3 N is at least 95% on both robots. Refuted if either is under.
   - **H252 (1.0 N is not).** Coverage at B_plan = 1.0 N is under 80% on at least one robot. Refuted if both are at 80% or more.
 - **Amendment before the full run (same day).** A 1-load smoke run (`M65_N=1`, after the hypotheses above were committed) took 1061 s on two processes, so 48 loads would take about 7 h here. The full run uses 16 Latin-hypercube loads (seed 65; a 16-point design, not the first 16 of 48). The hypotheses are unchanged. The smoke run's outcome was seen before this amendment (it is not reported).
+- **Second amendment.** The 16-load run was stopped by the session's 2 h limit on a background job before it wrote any result (the pool returned only at the end). The rerun uses 12 Latin-hypercube loads (seed 65) and appends each finished task to a file so a stopped run resumes. Hypotheses unchanged; nothing from the stopped run was seen.
 
 ## 2026-11-20 · Milestone 64 result: the 0.2 N bound is a cliff, not a margin; at 0.3 N along the worst direction 22.6% of planned G1 and 12.0% of planned H1 presses leave 0.03 mm (worst 0.29 and 0.47 mm; H247 refuted), at 1.0 N 82% and 75% (H248 held), and the planner keeps planning them
 

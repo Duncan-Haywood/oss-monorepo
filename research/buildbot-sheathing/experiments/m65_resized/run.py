@@ -11,7 +11,9 @@ tested at 0.2 N. B_PLAN = 0.2 is the paired baseline on the same loads.
 The finite-difference step of the settle gradient G_j is B itself (as in milestones 55 to 64), so at each B_PLAN the
 margin is the gradient's chord over the whole ball, not a smaller-step tangent.
 
-Section L is held out: 16 Latin-hypercube loads (seed 65; 48 were planned, cut to 16 for run time, LOG.md). Hypotheses H250-H252 (LOG.md, registered before the run).
+Section L is held out: 12 Latin-hypercube loads (seed 65; 48 were planned, cut to 12 for run time, LOG.md).
+Each finished task is appended to ``partial.jsonl`` (keyed by robot, load index and N), and a rerun skips the
+tasks already there, so a run stopped by a time limit resumes; the file is deleted once results.json is written. Hypotheses H250-H252 (LOG.md, registered before the run).
 M65_PROCS sets the pool (default 4); M65_N the loads.
 """
 import os as _os
@@ -25,7 +27,7 @@ import platform
 import sys
 import time
 
-N = int(os.environ.get("M65_N", "16"))
+N = int(os.environ.get("M65_N", "12"))
 os.environ["M63_N"] = str(N)
 HERE = os.path.dirname(os.path.abspath(__file__))
 import numpy as np  # noqa: E402
@@ -122,7 +124,22 @@ if __name__ == "__main__":
         L = pool.map(tl, [(k, phis) for k in allkeys], chunksize=1)
         lims = {str(list(k)): v for k, v in L}
         jobs = [(n, j, {kk: v[j] for kk, v in lims.items()}) for n in ("g1", "h1") for j in range(N)]
-        res = pool.map(task, jobs, chunksize=1)
+        part = os.path.join(HERE, "partial.jsonl")
+        done = {}
+        if os.path.exists(part):
+            for line in open(part):
+                x = json.loads(line)
+                if x.get("N") == N:
+                    done[(x["robot"], x["j"])] = x
+        todo = [jb for jb in jobs if (jb[0], jb[1]) not in done]
+        print(f"resuming: {len(done)} tasks from partial.jsonl, {len(todo)} to run", file=sys.stderr)
+        with open(part, "a") as fp:
+            for x in pool.imap_unordered(task, todo, chunksize=1):
+                x["N"] = N
+                fp.write(json.dumps(x, separators=(",", ":"), default=float) + "\n")
+                fp.flush()
+                done[(x["robot"], x["j"])] = x
+        res = [done[(jb[0], jb[1])] for jb in jobs]
     out["limits"], out["runs"] = lims, res
     print(f"# Milestone 65: the planner re-sized to the bias, held-out section L ({N} loads, seed {SEED}; milestone "
           f"61's chain with every margin sized to B_plan, true bias B_plan along milestone 63's adversary at that "
@@ -205,5 +222,6 @@ if __name__ == "__main__":
           f"{S['h1 1']['cov']:.2f}% -> {'held' if D['H252'] else 'refuted'}")
     out["S"], out["OV"], out["D"] = S, OV, D
     json.dump(out, open(os.path.join(HERE, "results.json"), "w"), separators=(",", ":"), default=float)
+    os.remove(os.path.join(HERE, "partial.jsonl"))
     print(f"\n(run time {time.time() - T0:.0f} s; python {platform.python_version()}, numpy {np.__version__}, "
           f"mujoco {M1.mujoco.__version__})")
