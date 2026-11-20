@@ -11230,7 +11230,28 @@ function relatedToolIndex(surfaces) {
     const n = df.get(word) ?? 0;
     return n > 1 && n <= cap ? Math.log(surfaces.length / n) : 0;
   };
-  const index = { n: surfaces.length, weights, idf };
+  // Each tool's words with a non-zero idf, as [word, idf * weight] in the
+  // map's own order: a zero-idf word adds nothing to a score, and
+  // `(idf * weight) * other` is the product `relatedToolScore` always took,
+  // so every score is the same float as before. Scoring runs once per pair
+  // of tools (about 1.9 million on 2026-11-20).
+  // `postings` lists, per such word, every tool using it with its weight, so
+  // `relatedToolScores` scores one tool against all the others in a single
+  // pass, adding each pair's terms in the same order as above.
+  const terms = new Map();
+  const postings = new Map();
+  for (const [slug, w] of weights) {
+    const list = [];
+    for (const [word, weight] of w) {
+      const f = idf(word);
+      if (f === 0) continue;
+      list.push([word, f * weight]);
+      if (!postings.has(word)) postings.set(word, []);
+      postings.get(word).push([slug, weight]);
+    }
+    terms.set(slug, list);
+  }
+  const index = { n: surfaces.length, weights, idf, terms, postings };
   RELATED_TOOL_INDEX.set(surfaces, index);
   return index;
 }
@@ -11242,16 +11263,33 @@ function relatedToolIndex(surfaces) {
  * descriptions). 0 when they share nothing distinctive.
  */
 export function relatedToolScore(surfaces, a, b) {
-  const { weights, idf } = relatedToolIndex(surfaces);
-  const wa = weights.get(a);
+  const { weights, terms } = relatedToolIndex(surfaces);
+  const ta = terms.get(a);
   const wb = weights.get(b);
-  if (!wa || !wb) return 0;
+  if (!ta || !wb) return 0;
   let score = 0;
-  for (const [word, weight] of wa) {
+  for (const [word, weighted] of ta) {
     const other = wb.get(word);
-    if (other) score += idf(word) * weight * other;
+    if (other) score += weighted * other;
   }
   return score;
+}
+
+/**
+ * `relatedToolScore(surfaces, a, b)` for every `b` at once, as a Map holding
+ * only the non-zero scores: for each of `a`'s words, in order, every tool
+ * that shares it gets that word's term, so each sum is built in the order the
+ * pairwise loop builds it and is the same float.
+ */
+export function relatedToolScores(surfaces, a) {
+  const { terms, postings } = relatedToolIndex(surfaces);
+  const scores = new Map();
+  for (const [word, weighted] of terms.get(a) ?? []) {
+    for (const [b, other] of postings.get(word)) {
+      if (other) scores.set(b, (scores.get(b) ?? 0) + weighted * other);
+    }
+  }
+  return scores;
 }
 
 /**
@@ -11298,17 +11336,33 @@ export function relatedTools(surfaces, slug, limit = 4) {
   // bonus per tier, so a tie (above all a tie at no overlap) keeps the tier
   // order, while a tool outside the category that shares a lot beats one
   // inside it that shares little.
-  const rotate = (list, bonus) => {
-    if (list.length === 0) return [];
+  // The first `limit` of the whole list sorted by score, then position: kept
+  // as a short sorted list instead of sorting every candidate, since only
+  // `limit` survive and the order is total (positions are unique), so the
+  // result is the one the full sort gave.
+  const best = [];
+  if (limit < 1) return best;
+  const scores = relatedToolScores(surfaces, slug);
+  const consider = (list, bonus) => {
+    if (list.length === 0) return;
     const at = offset % list.length;
-    return [...list.slice(at), ...list.slice(0, at)].map((surface) => ({ surface, bonus }));
+    for (let k = 0; k < list.length; k++) {
+      const surface = list[(at + k) % list.length];
+      const s = bonus + (scores.get(surface.slug) ?? 0);
+      if (best.length === limit && s <= best[limit - 1].s) continue;
+      let j = best.length < limit ? best.length : limit - 1;
+      while (j > 0 && best[j - 1].s < s) {
+        best[j] = best[j - 1];
+        j--;
+      }
+      best[j] = { surface, s };
+    }
   };
   const BONUS = RELATED_TOOL_TIER_BONUS;
-  return [...rotate(sameSubcategory, 2 * BONUS), ...rotate(sameCategory, BONUS), ...rotate(rest, 0)]
-    .map((x, i) => ({ ...x, i, s: x.bonus + relatedToolScore(surfaces, slug, x.surface.slug) }))
-    .sort((a, b) => b.s - a.s || a.i - b.i)
-    .slice(0, limit)
-    .map((x) => x.surface);
+  consider(sameSubcategory, 2 * BONUS);
+  consider(sameCategory, BONUS);
+  consider(rest, 0);
+  return best.map((x) => x.surface);
 }
 
 // How far down an orphan's own ranking `relatedToolsTable` looks for a tool
