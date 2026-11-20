@@ -128,3 +128,31 @@ test("the summary counts every source from zero", () => {
   const s = uniformatSummary(rows);
   assert.deepEqual([s.rows, s.model, s.rule, s.none, s.level3, s.compared, s.ruleSilent], [3, 1, 1, 1, 2, 1, 1]);
 });
+
+test("frame members are split by what they carry: floor, roof or slab on grade", () => {
+  const fr = (o) => ({ ...row(o), box: o.box });
+  const rows = [
+    fr({ id: 1, cls: "IfcSlab", pdt: "FLOOR", box: [0, 0, 3.0, 10, 10, 3.25] }),
+    fr({ id: 2, cls: "IfcSlab", pdt: "ROOF", box: [0, 0, 6.2, 10, 10, 6.5] }),
+    fr({ id: 3, cls: "IfcSlab", pdt: "BASESLAB", box: [20, 0, -0.2, 30, 10, 0] }),
+    fr({ id: 10, cls: "IfcBeam", box: [1, 1, 2.6, 5, 1.3, 3.25] }), // top flush with the floor's top
+    fr({ id: 11, cls: "IfcColumn", box: [2, 2, 3.25, 2.3, 2.3, 6.2] }), // stops under the roof
+    fr({ id: 12, cls: "IfcColumn", box: [2, 2, 0, 2.3, 2.3, 3.0] }), // stops under the floor
+    fr({ id: 13, cls: "IfcBeam", box: [21, 1, -0.6, 25, 1.3, -0.2] }), // under the slab on grade
+    fr({ id: 14, cls: "IfcBeam", box: [40, 1, 2.6, 45, 1.3, 3.0] }), // nothing over it
+    fr({ id: 15, cls: "IfcBeam", box: [1, 1, 1.0, 5, 1.3, 1.4] }), // the floor is 1.6 m higher: too far to bear
+    fr({ id: 16, cls: "IfcBeam", elev: -1, box: [1, 1, -1.0, 5, 1.3, 2.9] }), // footing beam on a foundation storey
+    fr({ id: 17, cls: "IfcBeam", elev: -3, box: [1, 1, 2.5, 5, 1.3, 2.9] }), // basement ceiling beam
+    fr({ id: 18, cls: "IfcBeam" }), // geometry not read
+  ];
+  assignUniformat(rows);
+  const code = (id) => rows.find((r) => r.id === id).uniformat.code;
+  assert.deepEqual([10, 11, 12, 13, 14, 15, 16, 17, 18].map(code), ["B1010", "B1020", "B1010", "A1010", "B10", "B10", "A1010", "B1010", "B10"]);
+  assert.match(rows.find((r) => r.id === 11).uniformat.why, /under the roof/);
+  assert.match(rows.find((r) => r.id === 18).uniformat.why, /geometry not read/);
+});
+
+test("curtain panels go with the curtain wall, stringers with the stair", () => {
+  assert.equal(ruleCode(row({ cls: "IfcPlate", pdt: "CURTAIN_PANEL" }), none).code, "B2010");
+  assert.equal(ruleCode(row({ cls: "IfcMember", pdt: "STRINGER" }), none).code, "C2010");
+});
