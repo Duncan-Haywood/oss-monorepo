@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKjnsPhgvsUi4pghjjZ",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T09:18:37Z",
+  "ended": "2026-11-20T09:43:59Z",
+  "wall_minutes": 25.6,
+  "tokens_in": 4181027,
+  "tokens_out": 42996,
+  "cost_usd": 2.568,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17891",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/stories.mjs",
+      "issue": "overlap.mjs crashes with a stack trace when a draft story lacks `published`; a one-line 'add published: to front matter' message would save a read of the trace."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "WHO sources are often unreachable from the cloud proxy (www.who.int did not resolve); a note that regional mirrors (PAHO, AFRO PDFs) carry the same Five Keys text would save a probe."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-the-box-that-keeps-the-boil.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, Hearth & Horizon shelf: new story the-box-that-keeps-the-boil (haybox / retained-heat cooking, Newton cooling by pot size; invented parish near Mirpurkhas, Sindh, Dec 2048), text only because audio is 577 MB (> 400 MB cap). Claimed via BIBLE.md Drafting mark first. Model: big 36 L pot tau ~40 h; four 8 L pots in single-quilt crates tau ~6 h (96 to 40 C in 7 h); four full pots in one box tau ~32 h (81 C at 6.5 h) + reboil. Re-read fixed: surface ratio of four small pots (1.6x, not >2x), the time the chana stopped softening, sunset wording on 7 and 10 Dec, a 'four times faster' summary claim (model gives ~7x), and a holy-day-of-obligation claim I could not check. Added a replacement H&H proposal (The net that stopped killing, pyrethroid resistance). Local checks: node --test 20/20 in the venture; run_workflow_locally --for-changes 11/11 workflows passed (uses: steps, agent-cross-review and deploy jobs not run). No agent doc in docs/reports: nothing new the next run needs beyond the BIBLE timeline row and DONE entry.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3b222837-e192-5c4d-91e3-a30c484e99a4",
+    "transcripts": 1,
+    "first": "2026-11-20T09:18:37Z",
+    "last": "2026-11-20T09:44:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 80,
+        "output": 42996,
+        "thinking": 17370,
+        "cache_read": 4069213,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111734,
+        "api_equivalent_usd": 2.568,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 80,
+      "output": 42996,
+      "thinking": 17370,
+      "cache_read": 4069213,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111734,
+      "api_equivalent_usd": 2.568,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebFetch": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.6,
+      "active_minutes": 25.6,
+      "model_minutes": 8.53,
+      "tool_minutes": 17.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a researched 5,500-word short story with a worked thermal model, a blog post and page regeneration",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 389.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
