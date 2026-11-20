@@ -71,6 +71,7 @@ M57 = E + "m57_beta/results.txt"
 M58 = E + "m58_tworow/results.txt"
 M59 = E + "m59_depth/results.txt"
 M60 = E + "m60_jointpreload/results.txt"
+M61 = E + "m61_lastfour/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -293,6 +294,9 @@ CHECKS = [
     (M60, "| 5424 | 5406 | 18 | 17 | 17 | 99.67% -> 99.98% |", "from 99.67% to 99.98%"),
     (M60, "| 0.0089, 0.0167, 0.0095, 0.0181 | 0 | 1.001 [1.001, 1.135]", "(worst 0.0181 mm at the depth point)"),
     (M60, "targeted 17, uniform 17 -> refuted", "alone plans the same 17"),
+    (M61, "| 4050 | 4050 | 0 | 0 | 0 | 100.00% |", "4050 of 4050 on\nthe G1"),
+    (M61, "| 5436 | 5423 | 13 | 0 | 0 | 100.00% |", "5436 of 5436 on the H1"),
+    (M61, "h1 | 912 | 0 | 0.000, 44.369 | 115", "up to\n44.4 N tighter"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
