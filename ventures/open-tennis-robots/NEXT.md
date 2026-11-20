@@ -31,10 +31,13 @@
   release (`feed_jitter_ms`) the long drill names 21 of 36 short takes and misadvises 1 of 36 instant builds, and a
   fast drill (34-40 m/s) 22 and 1; not shipped. Margin 3 with the fast drill against margin 2 with the long drill
   closed by its pre-registered rule the same day (eval/feed-phase-margin-2026-11-20.md, 288 fresh builds each: 48
-  against 66 of 108 short takes named, 2 against 2 of 108 instant misadvised). Next: the fast drill against the long
-  drill, both at the shipped margins, pre-registered on fresh seeds (exploratory on those 576 builds: 75 against 66
-  short, 67 against 61 of 72 long, 2 against 2 instant misadvised); consider a 2.5 ms vote margin of 3 in the same
-  test (one of the fast drill's two false alarms was a 4-1 at 2.5 ms). Every take-survey capture from here on should
+  against 66 of 108 short takes named, 2 against 2 of 108 instant misadvised). The fast drill against the long
+  drill, both at the shipped margins, closed by its pre-registered rule the same day (eval/feed-phase-drill-2026-11-20.md,
+  fresh seeds 9501-9671: 72 against 65 of 108 short, 68 against 62 of 72 long, but 2 against 0 of 108 instant
+  misadvised; one extra allowed). Pooled over both fresh sets: about 7 more short takes named per 100 for about one more
+  false alarm per 100; a 2.5 ms margin of 3 stopped neither false alarm. The take-survey vote is now settled on
+  simulated data: every drill and margin trades named takes for false alarms at roughly that rate, so the next real
+  information is a real wheel's tach log (`tests/take_survey_kept.py --drills`), not another simulated sweep. Every take-survey capture from here on should
   pass `--feed-jitter 26`.
 - (2026-11-19) More tach pulses a revolution: tested host-side and closed by its pre-registered rule
   (eval/tach-pulses-2026-11-19.md: four magnets saw 46 of 128 short-take balls against 38, not twice; the step's drop
