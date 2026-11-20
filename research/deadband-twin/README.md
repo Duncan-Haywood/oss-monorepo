@@ -6,7 +6,7 @@ Pure Python, no dependencies. Real actuator `dz(u) = u − d·sgn(u)` for `|u| >
 
 ```bash
 cd research/deadband-twin
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests, <1 s
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 12 tests, about 1 s
 PYTHONPATH=src python3 experiments/run.py                 # <2 s; output in experiments/results.txt
 ```
 
