@@ -189,3 +189,84 @@ test("explanations: an area off by the square-foot factor is a unit slip; a near
   assert.equal(unitSlip(0.06031, 0.59611), null); // 10x but 1.2% off: chance, not a slip
   assert.equal(unitSlip(2, 2), null);
 });
+
+// An L-shaped prism as a closed mesh: two concave L faces and six side quads,
+// counter-clockwise from outside. L = 3 x 2 less a 2 x 1 notch: area 4.
+const L = [[0, 0], [3, 0], [3, 1], [1, 1], [1, 2], [0, 2]];
+const lPrism = (h, at = [0, 0, 0]) => {
+  const p = (x, y, z) => [x + at[0], y + at[1], z + at[2]];
+  const loops = [L.map(([x, y]) => p(x, y, 0)).reverse(), L.map(([x, y]) => p(x, y, h))];
+  for (let i = 0; i < L.length; i++) {
+    const [a, b] = [L[i], L[(i + 1) % L.length]];
+    loops.push([p(a[0], a[1], 0), p(b[0], b[1], 0), p(b[0], b[1], h), p(a[0], a[1], h)]);
+  }
+  return loops;
+};
+
+test("geometry: a faceted body is cut through its faces (concave faces, holes, voids, mirrors)", async () => {
+  const { sectionArea, solid, shellSection, shellVolume, transformSolid, thinnestNormal } = await import("./geom.mjs");
+  const loops = lPrism(2);
+  close(shellVolume(loops), 8);
+  close(shellSection(loops, [0, 0, 1], 0.7), 4); // the L itself
+  close(shellSection(loops, [1, 0, 0], 0.5), 4); // x = 0.5 cuts the 2 x 2 leg
+  close(shellSection(loops, [1, 0, 0], 2), 2); // x = 2 cuts the 1 x 2 arm
+  close(shellSection(loops, [0, 1, 0], 1.5), 2); // y = 1.5: 1 wide, 2 high
+  close(shellSection(loops.map((f) => f.slice().reverse()), [0, 0, 1], 0.7), -4); // inward faces: sign flips
+  close(shellSection(loops, [0, 0, 1], 5), 0); // misses
+  const mesh = solid([], 8, [], [{ s: 1, loops }]);
+  close(sectionArea(mesh, [0, 0, 1]), 4);
+  close(sectionArea(mesh, [1, 1, 0], 2 / Math.SQRT2), 2 * 2 * Math.SQRT2); // x + y = 2: 2*sqrt2 long, 2 high
+  // a void: a 0.5 x 0.5 x 1 box inside the leg, subtracted
+  const box = [[0.25, 0.25], [0.75, 0.25], [0.75, 0.75], [0.25, 0.75]];
+  const v = [box.map(([x, y]) => [x, y, 0.5]).reverse(), box.map(([x, y]) => [x, y, 1.5])];
+  for (let i = 0; i < 4; i++) { const [a, b] = [box[i], box[(i + 1) % 4]]; v.push([[a[0], a[1], 0.5], [b[0], b[1], 0.5], [b[0], b[1], 1.5], [a[0], a[1], 1.5]]); }
+  const voided = solid([], 8 - 0.25, [], [{ s: 1, loops }, { s: -1, loops: v }]);
+  close(sectionArea(voided, [0, 0, 1], 1), 4 - 0.25);
+  close(sectionArea(voided, [0, 0, 1], 0.2), 4);
+  // two disjoint shells add; a mirror keeps the area
+  const two = solid([], 16, [], [{ s: 1, loops }, { s: 1, loops: lPrism(2, [10, 0, 0]) }]);
+  close(sectionArea(two, [0, 0, 1], 1), 8);
+  const mirrored = transformSolid(mesh, [-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0]);
+  close(sectionArea(mirrored, [0, 0, 1], 1), 4);
+  close(thinnestNormal(mesh, () => true, true).width, 3); // longest along x
+  // a faceted part whose faces are unknown (or that an opening skipped) still has no section
+  assert.equal(sectionArea(solid([], 8), [0, 0, 1]), null);
+});
+
+test("sample: a slab written as a faceted brep or a triangulated face set gets its plan area", () => {
+  const text = readFileSync(new URL("./samples/sample-office.ifc", import.meta.url), "latin1");
+  // the floor slab (5 x 4 x 0.25 m, in mm) as a box of faces instead of an extrusion
+  const P = [[0, 0, 0], [5000, 0, 0], [5000, 4000, 0], [0, 4000, 0], [0, 0, 250], [5000, 0, 250], [5000, 4000, 250], [0, 4000, 250]];
+  const quads = [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]];
+  const pts = P.map((p, i) => `#${9000 + i}=IFCCARTESIANPOINT((${p.map((c) => c.toFixed(1)).join(",")}));`);
+  const brep = [...pts, ...quads.flatMap((q, i) => [
+    `#${9100 + i}=IFCPOLYLOOP((${q.map((j) => `#${9000 + j}`).join(",")}));`,
+    `#${9200 + i}=IFCFACEOUTERBOUND(#${9100 + i},.T.);`,
+    `#${9300 + i}=IFCFACE((#${9200 + i}));`,
+  ]), `#9400=IFCCLOSEDSHELL((${quads.map((_, i) => `#${9300 + i}`).join(",")}));`, "#9401=IFCFACETEDBREP(#9400);"];
+  const tris = quads.flatMap((q) => [[q[0], q[1], q[2]], [q[0], q[2], q[3]]]);
+  const tfs = [`#9500=IFCCARTESIANPOINTLIST3D((${P.map((p) => `(${p.map((c) => c.toFixed(1)).join(",")})`).join(",")}));`,
+    `#9501=IFCTRIANGULATEDFACESET(#9500,$,.T.,(${tris.map((t) => `(${t.map((j) => j + 1).join(",")})`).join(",")}),$);`];
+  for (const [item, extra] of [["#9401", brep], ["#9501", tfs]]) {
+    const t = text.replace("#405=IFCSHAPEREPRESENTATION(#20,'Body','SweptSolid',(#406));", `#405=IFCSHAPEREPRESENTATION(#20,'Body','Brep',(${item}));\n${extra.join("\n")}`);
+    assert.notEqual(t, text);
+    const [slab] = byName(takeoff(parseStep(Buffer.from(t, "latin1"))), "Floor slab");
+    close(slab.computed.gross, 5);
+    assert.ok(slab.computed.faceted);
+    close(slab.computed.areas.plan.gross, 20);
+    assert.ok(slab.areaCheck.GrossArea.agree);
+  }
+  // a void: a 1 x 1 m box from 50 to 200 mm up, inside the slab, written with
+  // the same face order (so the reader must flip its sign, not trust it)
+  const V = [[1000, 1000, 50], [2000, 1000, 50], [2000, 2000, 50], [1000, 2000, 50], [1000, 1000, 200], [2000, 1000, 200], [2000, 2000, 200], [1000, 2000, 200]];
+  const vpts = V.map((p, i) => `#${9600 + i}=IFCCARTESIANPOINT((${p.map((c) => c.toFixed(1)).join(",")}));`);
+  const vbrep = [...vpts, ...quads.flatMap((q, i) => [
+    `#${9700 + i}=IFCPOLYLOOP((${q.map((j) => `#${9600 + j}`).join(",")}));`,
+    `#${9710 + i}=IFCFACEOUTERBOUND(#${9700 + i},.T.);`,
+    `#${9720 + i}=IFCFACE((#${9710 + i}));`,
+  ]), `#9730=IFCCLOSEDSHELL((${quads.map((_, i) => `#${9720 + i}`).join(",")}));`, "#9731=IFCFACETEDBREPWITHVOIDS(#9400,(#9730));"];
+  const t = text.replace("#405=IFCSHAPEREPRESENTATION(#20,'Body','SweptSolid',(#406));", `#405=IFCSHAPEREPRESENTATION(#20,'Body','Brep',(#9731));\n${[...brep, ...vbrep].join("\n")}`);
+  const [slab] = byName(takeoff(parseStep(Buffer.from(t, "latin1"))), "Floor slab");
+  close(slab.computed.gross, 5 - 0.15);
+  close(slab.computed.areas.plan.gross, 19); // the mid-thickness plane (125 mm) crosses the void
+});

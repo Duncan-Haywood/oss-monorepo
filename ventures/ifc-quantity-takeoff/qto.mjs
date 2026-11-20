@@ -16,7 +16,7 @@
 // tool's reading of the same model. Where they disagree the row says so,
 // because one of them is wrong and an estimate built on it would be too.
 
-import { Geometry, Unresolved, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal } from "./geom.mjs";
+import { Geometry, Unresolved, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, thinnestNormal, solidExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -519,7 +519,8 @@ export const AREA_KINDS = { side: /^IFCWALL/, footprint: /^IFCWALL/, plan: /^IFC
 function computeAreas(type, solids, W, f) {
   const out = {};
   const { body, net } = solids;
-  if (body.mesh) return { faceted: true };
+  // a faceted part is cut through its faces; null when some of them are unknown
+  if (body.mesh && !body.shells) return { faceted: true };
   const f2 = f * f;
   const up = [W[8], W[9], W[10]];
   const len = Math.hypot(...up);
@@ -549,19 +550,27 @@ function computeAreas(type, solids, W, f) {
     // (its profile), even for a sill or coping extruded along its length; on
     // the 8 corpus models choosing the thinnest direction instead dropped 226
     // agreeing pairs. With no extrusion, the thinnest direction.
-    const n = body.axis ?? thinnestNormal(body)?.n;
+    // A faceted body has lost its extrusion. A slab, plate or roof is still
+    // cut across its thinnest direction (a sloped roof slab too); a covering
+    // normal to the element's own up, as ArchiCAD extrudes cladding and
+    // insulation upward: on schependomlaan's 728 faceted coverings, 533 agree
+    // this way against 196 across the thinnest direction, while its slabs
+    // agree 213 of 275 across the thinnest and 200 normal to up
+    // (eval/areas-vs-stored-2026-11-20.md). A choice fitted on one model.
+    const meshUp = !body.terms.length && /^IFCCOVERING/.test(type);
+    const n = body.axis ?? (meshUp ? v : thinnestNormal(body)?.n);
     if (n) out.plan = cut(n);
   }
-  if (AREA_KINDS.cross.test(type) && body.axis) out.cross = cut(body.axis);
+  if (AREA_KINDS.cross.test(type)) {
+    // a faceted member has no extrusion: its length runs along the face
+    // normal (an end face's) in whose direction the body is longest
+    const n = body.axis ?? (body.terms.length ? null : thinnestNormal(body, () => true, true)?.n);
+    if (n) out.cross = cut(n);
+  }
   return out;
 }
 
-function extentOf(s, n) {
-  const l = Math.hypot(...n);
-  let lo = Infinity, hi = -Infinity;
-  for (const t of s.terms) for (const fc of t.faces) for (const p of fc) { const d = (p[0] * n[0] + p[1] * n[1] + p[2] * n[2]) / l; if (d < lo) lo = d; if (d > hi) hi = d; }
-  return [lo, hi];
-}
+const extentOf = solidExtent;
 
 /** Compares areas computed from geometry with the stored ones the rules name. */
 function checkAreas(row, tol) {

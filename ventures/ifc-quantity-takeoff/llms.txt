@@ -20,7 +20,7 @@ Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ifc-qu
 
 ## How it computes areas
 
-Each stored area is cut from the body by a plane, as Qto_WallBaseQuantities, Qto_SlabBaseQuantities and the member sets define it: a wall's side area on its middle plane, its footprint at its base, a slab/plate/covering/roof area as its extruded profile, a member's cross-section normal to its extrusion. The cut of a signed sum of convex polyhedra is the signed sum of convex polygons, so areas are exact like volumes. Faceted bodies are not cut.
+Each stored area is cut from the body by a plane, as Qto_WallBaseQuantities, Qto_SlabBaseQuantities and the member sets define it: a wall's side area on its middle plane, its footprint at its base, a slab/plate/covering/roof area as its extruded profile, a member's cross-section normal to its extrusion. The cut of a signed sum of convex polyhedra is the signed sum of convex polygons, so areas are exact like volumes. Faceted bodies (breps, face sets) are cut through their faces: 2,915 of 4,251 stored areas on meshes agree on 8 public models (eval/areas-vs-stored-2026-11-20.md).
 
 ## How it computes volumes
 
@@ -35,4 +35,4 @@ Each solid becomes a signed sum of convex polyhedra: extruded profiles (rectangl
 
 ## Limits and disclaimer
 
-Areas are not cut from faceted bodies (the stored area is kept). Overlapping openings are subtracted twice. Quantities are not a measured survey or a cost estimate; check them against the drawings and your method of measurement. Not endorsed by buildingSMART or any software vendor.
+Faceted bodies clipped by a half-space are not cut (the stored area is kept), and openings are not taken out of faceted bodies. Overlapping openings are subtracted twice. Quantities are not a measured survey or a cost estimate; check them against the drawings and your method of measurement. Not endorsed by buildingSMART or any software vendor.

@@ -166,9 +166,17 @@ function transformPoly(faces, m) {
   return faces.map((f) => { const g = f.map((p) => apply(m, p)); return flip ? g.reverse() : g; });
 }
 
-// ---- solids: { terms: [{s, faces}], mesh: number, notes: [] } ------------
+// ---- solids: { terms: [{s, faces}], mesh: number, shells, notes: [] } -----
+//
+// `shells` keeps the faces of the faceted part ("mesh"): a list of closed
+// shells { s, loops }, each loop a face boundary as given in the file and
+// s = +1 or -1 so that s x the shell's signed volume is what it adds (a void
+// subtracts). It is null when part of the mesh volume has no faces here (a
+// swept disk, a revolved area, a CSG primitive) or when an operation the
+// faces did not take part in (a clip, an opening) was applied: such a solid
+// has no section.
 
-const solid = (terms = [], mesh = 0, notes = []) => ({ terms, mesh, notes });
+const solid = (terms = [], mesh = 0, notes = [], shells = mesh ? null : []) => ({ terms, mesh, notes, shells });
 
 export function solidVolume(s) {
   let v = s.mesh;
@@ -177,7 +185,8 @@ export function solidVolume(s) {
 }
 
 function transformSolid(s, m) {
-  const out = solid(s.terms.map((t) => ({ s: t.s, faces: transformPoly(t.faces, m) })), s.mesh * Math.abs(det(m)), s.notes);
+  const shells = s.shells ? s.shells.map((sh) => ({ s: sh.s, loops: transformPoly(sh.loops, m) })) : null;
+  const out = solid(s.terms.map((t) => ({ s: t.s, faces: transformPoly(t.faces, m) })), s.mesh * Math.abs(det(m)), s.notes, shells);
   if (s.axis) { out.axis = unit(applyDir(m, s.axis)); out.axisWeight = (s.axisWeight ?? 0) * Math.abs(det(m)); }
   return out;
 }
@@ -220,21 +229,75 @@ export function polySection(faces, n, k) {
   return Math.abs(signedArea(uv));
 }
 
-/** Smallest and largest n.x over a solid's polyhedral terms. */
+/**
+ * Signed area of the section of a closed shell by the plane n.x = k (n a unit
+ * vector): positive when the shell's faces turn counter-clockwise seen from
+ * outside. Each face is fanned into signed triangles; the part of a triangle
+ * on the n.x <= k side has one edge in the plane (exit point X to entry point
+ * Y), and the section is the polygon these edges bound, traversed Y to X with
+ * normal +n, so its area is the sum of n.(Y x X) / 2. Faces need not be
+ * convex and the section may have several pieces and holes: the edges of a
+ * closed shell close up, and each piece's turn gives its sign.
+ */
+export function shellSection(loops, n, k) {
+  const o = mulS(n, k);
+  let A = 0;
+  for (const f of loops) {
+    if (f.length < 3) continue;
+    const d = f.map((p) => dot(n, p) - k);
+    const a = f[0], da = d[0];
+    for (let i = 1; i + 1 < f.length; i++) {
+      const tri = [a, f[i], f[i + 1]], dt = [da, d[i], d[i + 1]];
+      let X = null, Y = null;
+      for (let j = 0; j < 3; j++) {
+        const p = tri[j], q = tri[(j + 1) % 3], dp = dt[j], dq = dt[(j + 1) % 3];
+        if ((dp <= 0) === (dq <= 0)) continue;
+        const pt = add(p, mulS(sub(q, p), dp / (dp - dq)));
+        if (dp <= 0) X = pt; else Y = pt;
+      }
+      if (X && Y) A += dot(n, cross(sub(Y, o), sub(X, o)));
+    }
+  }
+  return A / 2;
+}
+
+/** Signed volume of a closed shell given as face loops (divergence theorem). */
+export function shellVolume(loops) {
+  let v = 0;
+  for (const f of loops) {
+    const o = f[0];
+    for (let i = 1; i + 1 < f.length; i++) v += dot(o, cross(f[i], f[i + 1]));
+  }
+  return v / 6;
+}
+
+function* solidPoints(s) {
+  for (const t of s.terms) for (const f of t.faces) yield* f;
+  if (s.shells) for (const sh of s.shells) for (const f of sh.loops) yield* f;
+}
+
+/** Smallest and largest n.x over a solid's polyhedral terms and faceted shells. */
 export function solidExtent(s, n) {
   const nn = unit(n);
   let lo = Infinity, hi = -Infinity;
-  for (const t of s.terms) for (const f of t.faces) for (const p of f) { const d = dot(nn, p); if (d < lo) lo = d; if (d > hi) hi = d; }
+  for (const p of solidPoints(s)) { const d = dot(nn, p); if (d < lo) lo = d; if (d > hi) hi = d; }
   return [lo, hi];
+}
+
+/** The outward normals of a solid's faces, terms and shells alike. */
+function* faceNormals(s) {
+  for (const t of s.terms) for (const [n] of polyPlanes(t.faces)) yield n;
+  if (s.shells) for (const sh of s.shells) for (const [n] of polyPlanes(sh.loops)) yield n;
 }
 
 /**
  * Area of the section of a solid by the plane normal to n through the middle
  * of its extent along n (or at offset k when given). null when the solid has a
- * faceted part, which has no polyhedral terms to cut.
+ * faceted part whose faces are not all known (see `shells`).
  */
 export function sectionArea(s, n, k = null) {
-  if (s.mesh || !s.terms.length) return null;
+  if (s.mesh && !s.shells) return null;
+  if (!s.terms.length && !s.shells?.length) return null;
   const nn = unit(n);
   if (!nn) return null;
   let at = k;
@@ -247,6 +310,7 @@ export function sectionArea(s, n, k = null) {
   }
   let A = 0;
   for (const t of s.terms) A += t.s * polySection(t.faces, nn, at);
+  if (s.shells) for (const sh of s.shells) A += sh.s * shellSection(sh.loops, nn, at);
   return Math.abs(A);
 }
 
@@ -255,9 +319,9 @@ export function sectionArea(s, n, k = null) {
  * which the solid is thinnest: a wall's width direction when only horizontal
  * normals are kept, a slab's thickness direction otherwise.
  */
-export function thinnestNormal(s, keep = () => true) {
+export function thinnestNormal(s, keep = () => true, widest = false) {
   const seen = [];
-  for (const t of s.terms) for (const [n] of polyPlanes(t.faces)) {
+  for (const n of faceNormals(s)) {
     const m = n[2] < -1e-9 || (Math.abs(n[2]) <= 1e-9 && (n[1] < -1e-9 || (Math.abs(n[1]) <= 1e-9 && n[0] < 0))) ? mulS(n, -1) : n;
     if (!keep(m)) continue;
     if (!seen.some((q) => Math.abs(dot(q, m)) > 1 - 1e-9)) seen.push(m);
@@ -266,10 +330,10 @@ export function thinnestNormal(s, keep = () => true) {
   let best = null, bestW = Infinity;
   for (const n of seen) {
     const [lo, hi] = solidExtent(s, n);
-    const w = hi - lo;
+    const w = widest ? lo - hi : hi - lo;
     if (w < bestW - 1e-12 * Math.max(1, Math.abs(bestW === Infinity ? w : bestW))) { bestW = w; best = n; }
   }
-  return best ? { n: best, width: bestW } : null;
+  return best ? { n: best, width: Math.abs(bestW) } : null;
 }
 
 function guard(terms) {
@@ -288,7 +352,7 @@ function subtractCutters(a, cutters, what) {
   }
   const notes = a.notes.slice();
   if (a.mesh) notes.push(`${what} not taken from a faceted part`);
-  const out = solid(guard(terms), a.mesh, notes);
+  const out = solid(guard(terms), a.mesh, notes, a.mesh ? null : []);
   if (a.axis) { out.axis = a.axis; out.axisWeight = a.axisWeight; }
   return out;
 }
@@ -672,24 +736,40 @@ export class Geometry {
       }
       case "IFCFACETEDBREP":
       case "IFCFACETEDBREPWITHVOIDS": {
-        let v = Math.abs(this.shellVolume(a[0]));
-        if (e.type === "IFCFACETEDBREPWITHVOIDS") for (const s of a[1] || []) v -= Math.abs(this.shellVolume(s));
-        return solid([], v);
+        const outer = this.shellLoops(a[0]);
+        const vo = shellVolume(outer);
+        let v = Math.abs(vo);
+        const shells = [{ s: Math.sign(vo) || 1, loops: outer }];
+        if (e.type === "IFCFACETEDBREPWITHVOIDS") for (const s of a[1] || []) {
+          const inner = this.shellLoops(s);
+          const vi = shellVolume(inner);
+          v -= Math.abs(vi);
+          shells.push({ s: -(Math.sign(vi) || 1), loops: inner });
+        }
+        return solid([], v, [], shells);
       }
       case "IFCSHELLBASEDSURFACEMODEL":
       case "IFCFACEBASEDSURFACEMODEL": {
         let v = 0;
+        const shells = [];
         for (const s of a[0]) {
           const sh = this.get(s);
           if (sh.type !== "IFCCLOSEDSHELL" && sh.type !== "IFCCONNECTEDFACESET") throw new Unresolved("open shell");
-          v += Math.abs(this.shellVolume(s));
+          const loops = this.shellLoops(s);
+          const vs = shellVolume(loops);
+          v += Math.abs(vs);
+          shells.push({ s: Math.sign(vs) || 1, loops });
         }
-        return solid([], v, ["surface model read as closed shells"]);
+        return solid([], v, ["surface model read as closed shells"], shells);
       }
       case "IFCPOLYGONALFACESET":
       case "IFCTRIANGULATEDFACESET":
       case "IFCTRIANGULATEDIRREGULARNETWORK":
-        return solid([], Math.abs(this.faceSetVolume(e)));
+      {
+        const loops = this.faceSetLoops(e);
+        const vs = shellVolume(loops);
+        return solid([], Math.abs(vs), [], [{ s: Math.sign(vs) || 1, loops }]);
+      }
       case "IFCSWEPTDISKSOLID":
       case "IFCSWEPTDISKSOLIDPOLYGONAL": {
         if (a[3] != null || a[4] != null) throw new Unresolved("swept disk with trimmed directrix");
@@ -769,7 +849,7 @@ export class Geometry {
         }
         const notes = first.notes.slice();
         if (first.mesh) notes.push("half-space clip not taken from a faceted part");
-        return solid(terms, first.mesh, notes);
+        return solid(terms, first.mesh, notes, first.mesh ? null : []);
       }
       // removed: the half space's material inside the boundary's prism
       const bm = this.placement(a[2]);
@@ -795,9 +875,10 @@ export class Geometry {
     return subtractCutters(first, cuttersOf(b), "boolean difference");
   }
 
-  shellVolume(ref) {
+  /** A shell's face boundaries as point loops, inner bounds reversed as the file asks. */
+  shellLoops(ref) {
     const sh = this.get(ref);
-    let v = 0;
+    const loops = [];
     for (const fref of sh.args[0]) {
       const f = this.get(fref);
       for (const bref of f.args[0]) {
@@ -806,14 +887,13 @@ export class Geometry {
         if (loop.type !== "IFCPOLYLOOP") throw new Unresolved(`face bound ${loop.type}`);
         let pts = loop.args[0].map((p) => this.point(p));
         if (b.args[1] === false) pts = pts.slice().reverse();
-        const o = pts[0];
-        for (let i = 1; i + 1 < pts.length; i++) v += dot(o, cross(pts[i], pts[i + 1]));
+        loops.push(pts);
       }
     }
-    return v / 6;
+    return loops;
   }
 
-  faceSetVolume(e) {
+  faceSetLoops(e) {
     const a = e.args;
     const P = this.get(a[0]).args[0].map((c) => [this.num(c[0]), this.num(c[1]), this.num(c[2])]);
     const loops = [];
@@ -836,12 +916,7 @@ export class Geometry {
         for (let i = 0; i < loops.length; i++) loops[i] = loops[i].map((j) => pn[j - 1]);
       }
     }
-    let v = 0;
-    for (const l of loops) {
-      const o = P[l[0] - 1];
-      for (let i = 1; i + 1 < l.length; i++) v += dot(o, cross(P[l[i] - 1], P[l[i + 1] - 1]));
-    }
-    return v / 6;
+    return loops.map((l) => l.map((i) => P[i - 1]));
   }
 
   curveLength3(ref) {
@@ -879,16 +954,18 @@ export class Geometry {
     const r = this.get(ref);
     const terms = [];
     let mesh = 0;
+    let shells = [];
     const notes = [];
     let axis = null, axisWeight = -1;
     for (const it of r.args[3]) {
       const s = this.item(it, depth + 1);
       terms.push(...s.terms);
       mesh += s.mesh;
+      shells = shells && s.shells ? shells.concat(s.shells) : null;
       notes.push(...s.notes);
       if (s.axis && (s.axisWeight ?? 0) > axisWeight) { axis = s.axis; axisWeight = s.axisWeight ?? 0; }
     }
-    const out = solid(guard(terms), mesh, notes);
+    const out = solid(guard(terms), mesh, notes, shells);
     if (axis) { out.axis = axis; out.axisWeight = axisWeight; }
     return out;
   }
