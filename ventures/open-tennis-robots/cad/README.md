@@ -84,6 +84,63 @@ Caveats: the bought-in parts are envelopes drawn from `params.py`, so the stack
 check is only as good as those numbers (nut heights are DIN 985; a rivet nut's
 flange is taken as 1 mm). The guide has not been followed by anyone building one.
 
+## Feeder assembly guide (2026-11-20)
+
+`python -m otr_cad feeder` now writes `guide/ASSEMBLY.md` too: 25 steps (base
+frame, feet, wheels, mast, turntable, cheeks, the head on the bench, the hopper,
+the net and trough, the lift and the wiring), one drawing for each step that adds
+parts. The steps and joints are in `otr_cad/feeder_guide.py`; the checks are the
+collector's, shared in `guide.py`, with three more:
+
+- **Placements.** A step can fit one placement of a part (`"lift_pulley[0]"`), so
+  the lift's bottom pulley goes on with the boot and its top one with the head;
+  the tally counts every placement of every placed part once.
+- **T-nuts, tapped holes, through-bolts.** A screw into a T-nut must stand
+  4-8 mm past the extrusion's face (catch the nut, stop short of the slot floor:
+  an assumption, check your profile); a screw into a tapped hole must reach at
+  least its diameter and not pass the thread (`room`); a through-bolt across
+  the open head measures from cheek to cheek through the gap.
+- **Head access.** For the joints marked `access`, a cylinder the head's size
+  running 60 mm back from its seat must miss the parts it clamps: a
+  counterbore closed at the far end fails.
+- **Extrusion end bores.** Every hole over a 2040's end (mast plate, deck,
+  shelf) must sit on one of its two core bores, 10 mm either side of the end's
+  centre; the centre is the web between the cells.
+
+24 joints are measured. Writing the guide found the package as committed on
+2026-11-20 could not be built as drawn; all fixed in the same change:
+
+| Found | Was | Now |
+| --- | --- | --- |
+| Holes over the 2040 posts' ends | the mast plate, deck and shelf had one hole at each post's end centre, which is the web between the profile's two core bores: nothing to screw into | two holes per end, over the core bores (`_cores`); 8 M5 x 12 into the mast posts, 16 M5 x 16 into the hopper posts |
+| Mast posts to the mast rails | "M5 x 16, posts to rails": a head inside the rail's slot cannot be reached by a key | M5 x 50 up through the rail (drilled 5.5 mm) into the post's core bores, 10 mm of thread |
+| Head pivot | M8 x 110 over a 105 mm cheek-to-cheek stack plus 3.2 mm of washers: 1.8 mm left for a nyloc that needs 10.5 | M8 x 120 |
+| Servo bracket legs | M4 x 30 into a 10 mm insert pocket: bottoms out 15 mm before it clamps | M4 x 12 (legs), M4 x 10 (tabs) |
+| Trough hangers | M5 x 35 through a 6 mm web: 29 mm past the beam's face into a slot about 6 mm deep; and the counterbore stopped 30 mm in, closed behind on the hangers whose saddle sits high | M5 x 12; the counterbore runs out through the hanger |
+| Pole feet | the M5 hole ran across the foot 10 mm above the beam's top, reaching nothing; the pole stands at the beam's end | a tongue inboard of the pole with two counterbored M5 x 12 down into T-nuts in the beam's top slot |
+| Cable clamp | its M5 hole ran blind from the crossbar's face: no screw could be put in | a 6 mm web against the bar and a pocket open on top for the head (M5 x 12 and a T-nut) |
+| Levelling feet | an M10 stud and "M10 T-nut" in a slot-6 profile: an M10 cannot pass a 6.2 mm slot opening | M6 foot, M6 slot-6 T-nut and a jam nut |
+| Heat-set insert pockets | 4.0 mm in the cheek feet, gear sector, feed floor and roof, sleeve socket and agitator mount (the collector's fault of the same day) | 5.6 x 6.5 mm pockets with 4 mm pilots past them (`_insert_cut`) |
+| Azimuth stop blocks | M4 x 10 through the 5 mm plate reached 5 of the insert's 5.7 mm (pocket 6 mm) | pocket and pilot 7.5 mm, M4 x 12 |
+| Sleeve socket | a 5 mm flange cannot hold a 5.7 mm insert; M4 x 10 | 9 mm flange, 8 mm pocket, M4 x 12 |
+| Agitator mount, home switch, azimuth stepper, deck saddles | M4 x 10 (5 mm into a 5.7 mm insert); M3 x 8 with washer and nut over a 7.5 mm stack; M3 x 10 into a NEMA 17's ~4.5 mm threads; M5 x 12 with a nyloc over 6.5 mm | M4 x 12; M3 x 12; M3 x 8; M5 x 16 |
+
+The BOM had its own faults, found by the tally: the 80 mm standoffs were
+listed twice (as the placed `head_standoff` and as a fastener line), so were the
+tub; the standoffs had 4 screws for 8 ends; nothing joined the frame's rails
+(16 M5 x 30 through end-tapped joints now), the cable crossbar's two corner
+brackets, the battery's strap, the camera clamps' pinch screws and nuts for an
+untapped lazy-susan were missing; 8 T-nuts and the "T-nut or tapped end" line
+had no use. All are corrected in `feeder.fasteners` and `COTS_EXTRA`.
+
+Caveats: as for the collector, bought-in parts are envelopes, so the stacks are
+only as good as `params.py`; the T-nut window (4-8 mm), the standoffs' 8 mm of
+thread, a NEMA 17's 4.5 mm and an extrusion's 15 mm end tap are assumptions the
+guide states. Not checked: the elevation actuator's and shuttle drive's shoulder
+bolts, the launcher motors' screws (check them against your motor), the lift's
+small screws. The take-up spring's bracket is not in the CAD yet; the guide says
+so. Nobody has built a feeder.
+
 ## Changing the design
 
 Edit `otr_cad/params.py`, or override from the command line:

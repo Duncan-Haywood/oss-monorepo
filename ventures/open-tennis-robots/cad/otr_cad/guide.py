@@ -1,6 +1,6 @@
-"""The collector's assembly guide, generated from the same model as the parts.
+"""The assembly guides, generated from the same model as the parts.
 
-`python -m otr_cad collector` writes `guide/ASSEMBLY.md` and one drawing per step (`guide/step_NN.svg`): the parts a
+`python -m otr_cad collector` (and `feeder`) writes `guide/ASSEMBLY.md` and one drawing per step (`guide/step_NN.svg`): the parts a
 step adds in black over the machine built so far in grey. The guide is checked as it is made, so it cannot drift from
 the package:
 
@@ -15,7 +15,10 @@ the package:
   in the way (`hatch_check`).
 
 The first build of these checks (2026-11-20) found the package as committed could not be put together as drawn:
-see cad/README.md, "Assembly guide".
+see cad/README.md, "Assembly guide". The feeder's steps and joints are in `feeder_guide.py` (2026-11-20, second
+build); `steps(p)` and `joints(p)` hand out the robot's own, and the checks below are shared. Two more rules came
+with the feeder: a screw into a T-nut must catch the nut and stop short of the slot's floor, and a screw's head must
+go in along its axis (`access_problems`: a counterbore closed at the far end cannot take a screw).
 """
 
 from __future__ import annotations
@@ -25,18 +28,20 @@ from dataclasses import dataclass, field
 from build123d import Compound, Cylinder, ExportSVG, Location
 
 from . import collector as C
-from .params import Collector
+from .params import Collector, Feeder
 
-NYLOC_H = {4: 5.0, 6: 6.0, 8: 8.0}       # DIN 985 nut heights, mm
+NYLOC_H = {3: 4.0, 4: 5.0, 5: 5.0, 6: 6.0, 8: 8.0}  # DIN 985 nut heights, mm
 PITCH = {3: 0.5, 4: 0.7, 5: 0.8, 6: 1.0, 8: 1.25}
 INSERT_LEN = 5.7                          # the BOM's short M4 insert
 RIVET_FLANGE = 1.0                        # a standard M5 rivet nut's flange, which sits under the cover
+TNUT = (4.0, 8.0)   # mm past an extrusion's face: catches an M5 slot-6 T-nut under its lip, short of the slot floor (assumed)
+WASHER = {3: 0.5, 5: 1.0, 6: 1.6, 8: 1.6}  # ISO 7089 thickness, mm
 
 
 @dataclass
 class Step:
     title: str
-    parts: list[str] = field(default_factory=list)            # every placement of each named part
+    parts: list[str] = field(default_factory=list)            # every placement of each named part, or "name[i]" for one
     fasteners: list[tuple[str, int]] = field(default_factory=list)
     tools: str = ""
     text: str = ""
@@ -44,9 +49,18 @@ class Step:
     image: bool = True
     on_sub: bool = False                                      # drawn on the sub-assembly alone
     reach: float = 0.5                                        # mm a part may sit from what holds it (fits, shafts)
+    loose: list[str] = field(default_factory=list)            # parts the step names as not yet mounted in the CAD
 
 
-def steps(p: Collector) -> list[Step]:
+def steps(p) -> list[Step]:
+    """The robot's steps: the collector's below, the feeder's in `feeder_guide`."""
+    if isinstance(p, Feeder):
+        from . import feeder_guide
+        return feeder_guide.steps(p)
+    return collector_steps(p)
+
+
+def collector_steps(p: Collector) -> list[Step]:
     from .package import fasteners
     F = {name: qty for name, qty, _ in fasteners(p)}
     shoulder = next(n for n in F if "shoulder bolt" in n)
@@ -129,17 +143,44 @@ def steps(p: Collector) -> list[Step]:
 
 # ------------------------------------------------------------------------ checks
 
-def tally(p: Collector, parts, bom_rows) -> list[str]:
-    """Every placed part in exactly one step; every bought line the steps use up exactly."""
+def _entries(names) -> list[tuple[str, int | None]]:
+    """A step's part entries as (name, placement index or None for every placement)."""
+    out = []
+    for n in names:
+        if n.endswith("]") and "[" in n:
+            base, i = n[:-1].split("[")
+            out.append((base, int(i)))
+        else:
+            out.append((n, None))
+    return out
+
+
+def tally(p, parts, bom_rows) -> list[str]:
+    """Every placement of every placed part in exactly one step; every bought line the steps use up exactly."""
     bad = []
-    seen: dict[str, int] = {}
+    by = {pt.name: pt for pt in parts}
+    seen: dict[tuple[str, int], int] = {}
+    named: dict[str, int] = {}
     for st in steps(p):
-        for name in st.parts:
-            seen[name] = seen.get(name, 0) + 1
+        for name, i in _entries(st.parts):
+            named[name] = named.get(name, 0) + 1
+            pt = by.get(name)
+            idx = range(len(pt.placements)) if pt is not None and i is None else [i] if i is not None else []
+            for k in idx:
+                seen[(name, k)] = seen.get((name, k), 0) + 1
     placed = {pt.name for pt in parts if pt.placements}
-    for name in sorted(placed | set(seen)):
-        if seen.get(name, 0) != 1:
-            bad.append(f"assembly guide: part {name} is fitted in {seen.get(name, 0)} steps, not 1")
+    for name in sorted(placed | set(named)):
+        pt = by.get(name)
+        if pt is None or not pt.placements:
+            if named.get(name, 0) != 1:
+                bad.append(f"assembly guide: part {name} is fitted in {named.get(name, 0)} steps, not 1")
+            continue
+        counts = [seen.get((name, k), 0) for k in range(len(pt.placements))]
+        if len(counts) == 1 or len(set(counts)) == 1:
+            if counts[0] != 1:
+                bad.append(f"assembly guide: part {name} is fitted in {counts[0]} steps, not 1")
+        else:
+            bad += [f"assembly guide: part {name}[{k}] is fitted in {c} steps, not 1" for k, c in enumerate(counts) if c != 1]
     used: dict[str, int] = {}
     for st in steps(p):
         for item, qty in st.fasteners:
@@ -153,10 +194,15 @@ def tally(p: Collector, parts, bom_rows) -> list[str]:
 
 def _placed(parts, names):
     by = {pt.name: pt for pt in parts}
-    return [(name, s) for name in names if name in by for s in by[name].placed()]
+    out = []
+    for name, i in _entries(names):
+        if name in by:
+            shapes = by[name].placed()
+            out += [(name, s) for k, s in enumerate(shapes) if i is None or k == i]
+    return out
 
 
-def order_problems(p: Collector, parts) -> list[str]:
+def order_problems(p, parts) -> list[str]:
     """Each step's parts, with what is built, form one connected whole: nothing is left floating."""
     bad, built = [], []
     for k, st in enumerate(steps(p), 1):
@@ -173,7 +219,8 @@ def order_problems(p: Collector, parts) -> list[str]:
                     held.append(s)
                     pending.remove(item)
                     grew = True
-        bad += [f"assembly guide step {k}: {name} touches nothing fitted before it" for name, _ in pending]
+        bad += [f"assembly guide step {k}: {name} touches nothing fitted before it" for name, _ in pending
+                if name not in st.loose]
         built += [s for _, s in _placed(parts, st.parts)]
     return bad
 
@@ -184,26 +231,52 @@ def _near(a, b, pad: float = 1.0) -> bool:
             and B.min.Y - pad <= A.max.Y and A.min.Z - pad <= B.max.Z and B.min.Z - pad <= A.max.Z)
 
 
-def _stack(parts, point, axis: str, start: float, sign: int, r_in: float, r_out: float):
-    """Parts a fastener's shank meets along `axis` from `start` (its head face) going `sign`, as contiguous
-    (name, near face, far face) intervals measured from the head face; stops at the first gap over 0.05 mm."""
-    rot = {"z": (0, 0, 0), "y": (90, 0, 0)}[axis]
+AXIS_ROT = {"z": (0, 0, 0), "y": (-90, 0, 0), "x": (0, 90, 0)}   # each turns local z onto the world axis (+)
+
+
+def frame_of(point, axis) -> Location:
+    """The joint's frame: local z along the fastener's axis. `axis` is "x", "y" or "z" (the frame's origin is `point`
+    with that coordinate zeroed, so local z reads the world coordinate) or a Location whose z is the axis."""
+    if isinstance(axis, Location):
+        return axis
     i = "xyz".index(axis)
-    ring = Cylinder(r_out, 1400).moved(Location(point, rot)) - Cylinder(r_in, 1402).moved(Location(point, rot))
+    o = list(point)
+    o[i] = 0.0
+    return Location(tuple(o), AXIS_ROT[axis])
+
+
+def _stack(parts, point, axis, start: float, sign: int, r_in: float, r_out: float, gaps: bool = False,
+           gap: float = 0.05):
+    """Parts a fastener's shank meets along `axis` from `start` (its head face) going `sign`, as contiguous
+    (name, near face, far face) intervals measured from the head face; stops at the first gap over 0.05 mm (or, with
+    `gaps`, runs on through gaps: a through-bolt across an open frame)."""
+    if not isinstance(axis, Location) and axis in ("y", "z") and not gaps:
+        rot = {"z": (0, 0, 0), "y": (90, 0, 0)}[axis]      # the collector's joints, measured as first built
+        i = "xyz".index(axis)
+        ring = Cylinder(r_out, 1400).moved(Location(point, rot)) - Cylinder(r_in, 1402).moved(Location(point, rot))
+        back = None
+    else:
+        fr = frame_of(point, axis)
+        ring = (Cylinder(r_out, 1400) - Cylinder(r_in, 1402)).moved(fr)
+        back, i = fr.inverse(), 2
     hits = []
     for pt in parts:
         for s in pt.placed():
+            if not _near(ring, s, 0.0):
+                continue
             x = ring & s
             if x and x.volume > 1e-3:
-                bb = x.bounding_box()
+                bb = (x.moved(back) if back is not None else x).bounding_box()
                 lo, hi = (bb.min.X, bb.min.Y, bb.min.Z)[i], (bb.max.X, bb.max.Y, bb.max.Z)[i]
                 a, b = sorted(((lo - start) * sign, (hi - start) * sign))
                 if b > 0.01:
                     hits.append((pt.name, round(max(a, 0.0), 3), round(b, 3)))
     hits.sort(key=lambda h: h[1])
+    if gaps:
+        return hits
     chain, reach = [], 0.0
     for h in hits:
-        if h[1] > reach + 0.05:
+        if h[1] > reach + gap:
             break
         chain.append(h)
         reach = max(reach, h[2])
@@ -216,18 +289,31 @@ class Joint:
     fastener: str
     length: float            # under-head length (shoulder length for a shoulder bolt)
     d: int                   # thread diameter
-    kind: str                # nut | insert | shoulder | rivet | standoff
+    kind: str                # nut | insert | shoulder | rivet | standoff | tnut | tapped
     point: tuple
-    axis: str
+    axis: object             # "x" | "y" | "z" or a Location whose z is the axis (see frame_of)
     start: float
     sign: int
     hole_r: float
     head_r: float
-    into: str = ""           # insert / standoff / rivet joints: the part the thread is in
-    room: float = 0.0        # insert joints: depth of pocket and pilot from the part's face
+    into: str = ""           # insert / standoff / rivet / tnut / tapped joints: the part the thread is in
+    room: float = 0.0        # insert joints: depth of pocket and pilot from the part's face; tapped: thread depth
+    nut_h: float = 0.0       # nut joints: the nut's height (0: a nyloc, NYLOC_H)
+    extra: float = 0.0       # washers under the head and nut, mm
+    far: str = ""            # nut joints that cross open frame: the last part clamped (the stack runs through gaps)
+    access: bool = False     # check the head goes in along the axis, clear of the parts it clamps (access_problems)
+    gap: float = 0.05        # largest gap the stack may cross (a printed part's clearance to the plate it bolts to)
 
 
-def joints(p: Collector) -> list[Joint]:
+def joints(p) -> list[Joint]:
+    """The robot's bolted joints: the collector's below, the feeder's in `feeder_guide`."""
+    if isinstance(p, Feeder):
+        from . import feeder_guide
+        return feeder_guide.joints(p)
+    return collector_joints(p)
+
+
+def collector_joints(p: Collector) -> list[Joint]:
     from .package import fasteners
     shoulder = next(n for n, _, _ in fasteners(p) if "shoulder bolt" in n)
     ymid = p.motor_face_y - p.clamp_len / 2
@@ -266,11 +352,17 @@ def joints(p: Collector) -> list[Joint]:
     ]
 
 
-def joint_checks(p: Collector, parts) -> tuple[list[dict], list[str]]:
+def joint_checks(p, parts) -> tuple[list[dict], list[str]]:
     rows, bad = [], []
     for j in joints(p):
-        chain = _stack(parts, j.point, j.axis, j.start, j.sign, j.hole_r, j.head_r)
+        chain = _stack(parts, j.point, j.axis, j.start, j.sign, j.hole_r, j.head_r, gaps=bool(j.far), gap=j.gap)
         names = [c[0] for c in chain]
+        if j.far:
+            if j.far not in names:
+                bad.append(f"joint {j.name}: the bolt never reaches {j.far} (stack {names})")
+                continue
+            chain = chain[:names.index(j.far) + 1]
+            names = names[:len(chain)]
         if j.into:
             if j.into not in names:
                 bad.append(f"joint {j.name}: the screw never reaches {j.into} (stack {names})")
@@ -280,10 +372,13 @@ def joint_checks(p: Collector, parts) -> tuple[list[dict], list[str]]:
                 grip += RIVET_FLANGE
         else:
             grip = chain[-1][2] if chain else 0.0
+        grip += j.extra
         spare = j.length - grip
         if j.kind == "nut":
-            need = NYLOC_H[j.d] + 2 * PITCH[j.d]
-            ok, rule = spare >= need, f"needs {need:g} mm past the stack for the nyloc and two threads"
+            nut = j.nut_h or NYLOC_H[j.d]
+            need = nut + 2 * PITCH[j.d]
+            what = "nyloc" if not j.nut_h else "nut"
+            ok, rule = spare >= need, f"needs {need:g} mm past the stack for the {what} and two threads"
         elif j.kind == "insert":
             ok = INSERT_LEN <= spare <= j.room
             rule = f"{INSERT_LEN:g} to {j.room:g} mm past the face, the insert's length to the pocket's depth"
@@ -291,16 +386,55 @@ def joint_checks(p: Collector, parts) -> tuple[list[dict], list[str]]:
             ok, rule = 0 <= spare <= 1.0, "shoulder 0-1 mm longer than the stack, so the arm swings"
         elif j.kind == "rivet":
             ok, rule = 1.0 * j.d <= spare <= p.plate_t + 6, f"{j.d:g}-{p.plate_t + 6:g} mm into the rivet nut"
+        elif j.kind == "tnut":
+            ok = TNUT[0] <= spare <= TNUT[1]
+            rule = f"{TNUT[0]:g} to {TNUT[1]:g} mm past the extrusion's face: catches the T-nut, short of the slot floor"
+        elif j.kind == "tapped":
+            ok = j.d <= spare <= j.room
+            rule = f"{j.d:g} to {j.room:g} mm into the part's tapped hole (its thread depth)"
+        elif j.room:   # a standoff whose thread depth is given: as much of it as 1.5 d asks, never past it
+            need = min(1.5 * j.d, j.room - 1.0)
+            ok = need <= spare <= j.room
+            rule = f"{need:g} to {j.room:g} mm into the standoff (1.5 d, or its thread less 1 mm; never past it)"
         else:
             ok, rule = spare >= 1.5 * j.d, f"at least {1.5 * j.d:g} mm into the standoff"
         under = chain[:names.index(j.into)] if j.into else chain
-        rows.append({"joint": j.name, "fastener": j.fastener, "stack": " + ".join(
-            f"{c[0]} {c[2] - c[1]:g}" for c in under) + (f" + {RIVET_FLANGE:g} flange" if j.kind == "rivet" else ""),
-            "grip_mm": round(grip, 2), "length_mm": j.length, "spare_mm": round(spare, 2), "rule": rule,
-            "ok": ok})
+        stack = " + ".join(f"{c[0]} {c[2] - c[1]:g}" for c in under)
+        stack += f" + {RIVET_FLANGE:g} flange" if j.kind == "rivet" else ""
+        stack += f" + {j.extra:g} washers" if j.extra else ""
+        if j.far and len(under) > 1:
+            span = under[-1][2] - under[0][1] - sum(c[2] - c[1] for c in under)
+            stack += f" (+ {span:g} open)" if span > 0.05 else ""
+        rows.append({"joint": j.name, "fastener": j.fastener, "stack": stack,
+                     "grip_mm": round(grip, 2), "length_mm": j.length, "spare_mm": round(spare, 2), "rule": rule,
+                     "ok": ok})
         if not ok:
             bad.append(f"joint {j.name}: {j.fastener} leaves {spare:.1f} mm past a {grip:.1f} mm stack; {rule}")
     return rows, bad
+
+
+def access_problems(p, parts, reach: float = 60.0, tol_mm3: float = 1.0) -> list[str]:
+    """Each joint marked `access`: a cylinder the head's size, from the head's seat back along the axis for `reach`
+    mm (a hex key's), must stay clear of the part(s) the joint clamps. A counterbore closed at its far end fails: the
+    screw cannot go in, and no key reaches it (the feeder's trough hangers, until 2026-11-20)."""
+    bad = []
+    by = {pt.name: pt for pt in parts}
+    for j in joints(p):
+        if not j.access:
+            continue
+        fr = frame_of(j.point, j.axis)
+        z0, z1 = sorted((j.start - j.sign * 0.1, j.start - j.sign * reach))    # behind the seat, away from the stack
+        path = Cylinder(j.head_r, z1 - z0).moved(fr * Location((0, 0, (z0 + z1) / 2)))
+        chain = _stack(parts, j.point, j.axis, j.start, j.sign, j.hole_r, j.head_r)
+        for name in dict.fromkeys(c[0] for c in chain):
+            for s in by[name].placed():
+                if _near(path, s, 0.0):
+                    x = path & s
+                    if x and x.volume > tol_mm3:
+                        bad.append(f"joint {j.name}: the {j.fastener}'s head cannot go in: {name} closes its path "
+                                   f"({x.volume:.0f} mm^3 within {reach:g} mm of the seat)")
+                        break
+    return bad
 
 
 def hatch_check(p: Collector, parts, tol_mm3: float = 1.0) -> list[str]:
@@ -326,14 +460,14 @@ def hatch_check(p: Collector, parts, tol_mm3: float = 1.0) -> list[str]:
 VIEW = ((2600.0, -2200.0, 1700.0), (0, 0, 1), (60.0, 0.0, 150.0))  # origin, up, look-at: one camera
 
 
-def _svg(new, built, path) -> None:
+def _svg(new, built, path, view=VIEW) -> None:
     everything = Compound(children=[*built, *new])
     size = max(*(abs(v) for v in everything.bounding_box().size))
     svg = ExportSVG(scale=520 / size)
     svg.add_layer("built", line_color=(170, 170, 170), line_weight=0.25)
     svg.add_layer("new", line_color=(0, 0, 0), line_weight=0.5)
-    vis_all, _ = everything.project_to_viewport(*VIEW)
-    vis_new, _ = Compound(children=new).project_to_viewport(*VIEW)
+    vis_all, _ = everything.project_to_viewport(*view)
+    vis_new, _ = Compound(children=new).project_to_viewport(*view)
     svg.add_shape(vis_all, layer="built")
     svg.add_shape(vis_new, layer="new")
     svg.write(str(path))
@@ -350,25 +484,32 @@ def _files(parts, name):
     return pt.spec
 
 
-def write(out, p: Collector, parts, bom_rows, joint_rows, problems, drawings: bool = True) -> None:
+def write(out, p, parts, bom_rows, joint_rows, problems, drawings: bool = True) -> None:
     folder = out / "guide"
     folder.mkdir(parents=True, exist_ok=True)
     st = steps(p)
-    lines = ["# Collector assembly guide", "",
-             "Generated from the CAD (`python -m otr_cad collector`), with the parts list, the drawings and the",
+    feeder = isinstance(p, Feeder)
+    robot = "feeder" if feeder else "collector"
+    if feeder:
+        from . import feeder_guide as FG
+    lines = [f"# {robot.capitalize()} assembly guide", "",
+             f"Generated from the CAD (`python -m otr_cad {robot}`), with the parts list, the drawings and the",
              "checks below, so it changes when the design does. Design v0.2: **nobody has built one yet.** Read",
              "`hardware/safety.md` first. Report what you find: https://github.com/duncan-haywood/oss-monorepo/issues",
-             "", "Each drawing shows the parts that step adds in black over what is already built in grey.", "",
-             "## Steps", ""]
+             "", "Each drawing shows the parts that step adds in black over what is already built in grey.", ""]
+    if feeder:
+        lines += FG.INTRO + [""]
+    lines += ["## Steps", ""]
     for k, s in enumerate(st, 1):
         lines += [f"### {k}. {s.title}", ""]
         if s.image and drawings:
             lines += [f"![Step {k}: {s.title}](step_{k:02d}.svg)", ""]
         if s.parts:
             lines += ["| Part | Qty | File or what to buy |", "| --- | --- | --- |"]
-            for name in s.parts:
+            for name, i in _entries(s.parts):
                 pt = next(x for x in parts if x.name == name)
-                lines.append(f"| {name} | {pt.qty} | {_files(parts, name)} |")
+                qty = 1 if i is not None else pt.qty
+                lines.append(f"| {name}{'' if i is None else f' ({i + 1} of {pt.qty})'} | {qty} | {_files(parts, name)} |")
             lines.append("")
         if s.fasteners:
             lines += ["| Fastener or part | Qty |", "| --- | --- |"]
@@ -384,12 +525,16 @@ def write(out, p: Collector, parts, bom_rows, joint_rows, problems, drawings: bo
     for r in joint_rows:
         lines.append(f"| {r['joint']} | {r['fastener']} | {r['stack']} | {r['grip_mm']:g} | {r['length_mm']:g} | "
                      f"{r['spare_mm']:g} | {r['rule']} | {'pass' if r['ok'] else 'FAIL'} |")
-    lines += ["", "## Other checks", "",
-              "- Every placed part is fitted in exactly one step, and the steps use every bought line of the BOM",
-              "  to the unit.",
-              "- Every part a step adds touches something fitted before it (two steps start sub-assemblies).",
-              "- The hatch comes off a hung drum: turn the drum until the hatch's slot points down, undo the six",
-              "  thumb screws, pull the hatch 3 mm out of its seat and lift it up off the axle spacer.",
+    lines += ["", "## Other checks", ""]
+    if feeder:
+        lines += FG.other_checks(p)
+    else:
+        lines += ["- Every placed part is fitted in exactly one step, and the steps use every bought line of the BOM",
+                  "  to the unit.",
+                  "- Every part a step adds touches something fitted before it (two steps start sub-assemblies).",
+                  "- The hatch comes off a hung drum: turn the drum until the hatch's slot points down, undo the six",
+                  "  thumb screws, pull the hatch 3 mm out of its seat and lift it up off the axle spacer."]
+    lines += [
               "", "Result when this package was built: " + ("all pass." if not problems else "; ".join(problems)), ""]
     (folder / "ASSEMBLY.md").write_text("\n".join(lines))
     if not drawings:
@@ -400,6 +545,7 @@ def write(out, p: Collector, parts, bom_rows, joint_rows, problems, drawings: bo
         if s.new_subassembly:
             sub = []
         if s.image and new:
-            _svg(new, sub if (s.on_sub or s.new_subassembly) else built, folder / f"step_{k:02d}.svg")
+            _svg(new, sub if (s.on_sub or s.new_subassembly) else built, folder / f"step_{k:02d}.svg",
+                 FG.VIEW if feeder else VIEW)
         built += new
         sub += new

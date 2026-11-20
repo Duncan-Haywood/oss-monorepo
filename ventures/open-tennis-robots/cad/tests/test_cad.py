@@ -826,9 +826,10 @@ class FeederGeometryTest(unittest.TestCase):
         plate = next(x for x in self.parts if x.name == "mast_plate")
         centres = [(e.arc_center.X, e.arc_center.Y) for e in plate.flat.edges()
                    if e.geom_type == GeomType.CIRCLE and abs(e.radius - 2.75) < 1e-6]
-        for px, py in [(x, y) for x, y in self.F._post_xy(self.p)]:
+        # two holes per post, over its end's core bores (one at each end's centre, on the web, until 2026-11-20)
+        for px, py in self.F._cores(self.F._post_xy(self.p)):
             self.assertTrue(any(math.hypot(px - cx, py - cy) < 0.01 for cx, cy in centres), (px, py))
-        self.assertEqual(len(centres), 8)
+        self.assertEqual(len(centres), 12)
 
     def test_laser_parts_fit_a_standard_sheet(self):
         for part in self.parts:
@@ -1163,6 +1164,72 @@ class CableGeometryTest(unittest.TestCase):
         from otr_cad.feeder import CABLE_HOLE_D, CABLE_HOLE_Z
         self.assertGreater(CABLE_HOLE_Z - CABLE_HOLE_D / 2 - p.head_z0, 8.0)
         self.assertLess(CABLE_HOLE_Z, p.cable_clip_z - 20.0)
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class FeederAssemblyGuideTest(unittest.TestCase):
+    """The feeder's guide passes on the design, and its checks fail on the faults found writing it (2026-11-20)."""
+
+    @classmethod
+    def setUpClass(cls):
+        from otr_cad import feeder as F, feeder_guide as FG, guide as G
+        cls.F, cls.FG, cls.G = F, FG, G
+        cls.p = Feeder()
+        cls.parts = F.all_parts(cls.p)
+        cls.rows = ([{"item": pt.name, "kind": pt.kind, "qty": pt.qty} for pt in cls.parts]
+                    + [{"item": n, "kind": "cots", "qty": q} for n, q, _ in F.fasteners(cls.p) + F.COTS_EXTRA])
+
+    def test_design_passes_every_guide_check(self):
+        rows, bad = self.G.joint_checks(self.p, self.parts)
+        self.assertEqual(bad, [])
+        self.assertEqual(len(rows), 24)
+        self.assertEqual(self.G.tally(self.p, self.parts, self.rows), [])
+        self.assertEqual(self.G.order_problems(self.p, self.parts), [])
+        self.assertEqual(self.G.access_problems(self.p, self.parts), [])
+        self.assertEqual(self.FG.end_bore_problems(self.p, self.parts), [])
+
+    def test_stacks_are_measured_from_the_cad(self):
+        rows = {r["joint"]: r for r in self.G.joint_checks(self.p, self.parts)[0]}
+        self.assertEqual(rows["head pivot"]["grip_mm"], 108.2)       # 2 cheeks + 2 plates + 2 outer washers
+        self.assertEqual(rows["feed floor through the head plate"]["grip_mm"], 5.0 + self.p.feed_clear)
+        self.assertEqual(rows["mast post to mast rail"]["grip_mm"], 40.0)
+        self.assertEqual(rows["sump tab to net beam"]["spare_mm"], 6.0)
+
+    def test_the_old_fastener_lengths_fail(self):
+        """The BOM's lengths before 2026-11-20: each was too short or too long for the stack the CAD puts under it."""
+        import dataclasses
+        old = {"head pivot": 110, "servo bracket leg": 30, "azimuth stop block": 10, "sleeve socket under the shelf": 10,
+               "agitator motor mount under the shelf": 10, "home switch bracket": 8, "azimuth stepper flange": 10,
+               "trough hanger to net beam": 35, "deck cable saddle": 12}
+        js = [dataclasses.replace(j, length=old[j.name]) for j in self.FG.joints(self.p) if j.name in old]
+        with unittest.mock.patch.object(self.FG, "joints", lambda p: js):
+            bad = self.G.joint_checks(self.p, self.parts)[1]
+        self.assertEqual(sorted(b.split(":")[0] for b in bad), sorted(f"joint {n}" for n in old))
+
+    def test_end_bores_and_a_lost_step_are_caught(self):
+        with unittest.mock.patch.object(self.F, "_cores", lambda pts: list(pts)):
+            p = Feeder(plate_t=5.0001)          # fresh parts, with holes at the ends' centres as before 2026-11-20
+            bad = self.FG.end_bore_problems(p, self.F.all_parts(p))
+        self.assertTrue(any("web between" in b for b in bad))
+        self.assertEqual({b.split(":")[0] for b in bad}, {"mast_plate", "base_deck", "hopper_shelf"})
+        real = self.G.steps
+        with unittest.mock.patch.object(self.G, "steps", lambda p: [s for s in real(p) if "Base frame" not in s.title]):
+            self.assertTrue(any("net_beam" in b for b in self.G.tally(self.p, self.parts, self.rows)))
+            self.assertTrue(any("touches nothing" in b for b in self.G.order_problems(self.p, self.parts)))
+
+    def test_a_closed_counterbore_fails_access(self):
+        import dataclasses
+        j = next(x for x in self.FG.joints(self.p) if x.name == "cable clamp to crossbar")
+        with unittest.mock.patch.object(self.FG, "joints", lambda p: [dataclasses.replace(j, access=True)]):
+            self.assertTrue(self.G.access_problems(self.p, self.parts))    # its pocket opens upward, not along x
+
+    def test_guide_is_in_the_package(self):
+        out = fresh_build("feeder")
+        text = (out / "guide" / "ASSEMBLY.md").read_text()
+        self.assertIn("all pass.", text)
+        n = sum(1 for s in self.FG.steps(self.p) if s.image and s.parts)
+        self.assertEqual(text.count("![Step"), n)
+        self.assertEqual(len(list((out / "guide").glob("step_*.svg"))), n)
+
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class FeederPackageTest(unittest.TestCase):
