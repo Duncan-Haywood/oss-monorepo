@@ -613,7 +613,8 @@ class FeederParamsTest(unittest.TestCase):
         p = Feeder()
         t = p.sleeve_take_up_design()
         parts = {x.name: x for x in take_up_parts(p)}
-        self.assertEqual(set(parts), {"take_up_sleeve", "take_up_collar", "take_up_spring"})
+        self.assertEqual(set(parts), {"take_up_sleeve", "take_up_collar", "take_up_spring", "take_up_spool",
+                                      "take_up_spring_bracket"})
         sb = parts["take_up_sleeve"].placed()[0].bounding_box()
         self.assertAlmostEqual(sb.max.Z - sb.min.Z, t["tube_mm"], places=3)
         self.assertAlmostEqual(sb.min.Z, t["start_z"], places=3)
@@ -625,6 +626,40 @@ class FeederParamsTest(unittest.TestCase):
         # a ball dropping down the sleeve meets a funnel, not the hose's rim: the funnel's top is wider than the ball
         self.assertGreater(bore - 2.0 - 6.0, p.ball_d)
         self.assertEqual(take_up_parts(Feeder(hopper_out_x=-330.0, hopper_out_z=1700.0)), [])
+
+    def test_spring_bracket_puts_the_band_on_the_tab_under_the_flange(self):
+        p = Feeder()
+        d = p.spring_bracket_design()
+        self.assertEqual(p.check_spring_bracket(), [])
+        # the band hangs on the tab's rear face, and its tangent point stays above the tab at the highest pose
+        self.assertAlmostEqual(d["band_x"], d["tab_rear_x"] - p.cf_band_t / 2)
+        self.assertGreater(d["drum_z"], d["tab_top"][0])
+        self.assertLess(d["coil_top"], d["flange_bottom"])
+        self.assertLess(d["lean_deg"], 0.5)
+        self.assertGreater(d["band_len_mm"], d["stroke_mm"])
+        self.assertLess(max(d["screws_x"]), d["flange_rear_x"])     # screws behind the socket's flange
+        self.assertIsNone(Feeder(hopper_out_x=-330.0, hopper_out_z=1700.0).spring_bracket_design())
+
+    def test_spring_bracket_checks_fire(self):
+        self.assertTrue(any("flange" in b for b in Feeder(cf_coil_od=60.0).check_spring_bracket()))
+        self.assertTrue(any("makers ask" in b for b in Feeder(cf_spool_d=17.0).check_spring_bracket()))
+        self.assertTrue(any("axle" in b for b in Feeder(spring_axle_len=30.0).check_spring_bracket()))
+        self.assertTrue(any("cup" in b for b in Feeder(collar_tab_mm=3.0).check_spring_bracket()))
+        self.assertTrue(any("leans" in b for b in Feeder(cf_band_t=4.0).check_spring_bracket()))
+
+    @unittest.skipUnless(HAVE_CAD, "build123d not installed")
+    def test_spring_parts_sit_where_the_design_puts_them(self):
+        from otr_cad.feeder import spring_parts
+        p = Feeder()
+        d = p.spring_bracket_design()
+        parts = {x.name: x.placed()[0] for x in spring_parts(p)}
+        coil = parts["take_up_spring"].bounding_box()
+        self.assertAlmostEqual(coil.max.X, d["band_x"], places=3)      # the coil's front is the band's line
+        self.assertAlmostEqual(coil.max.Z, d["coil_top"], places=3)
+        br = parts["take_up_spring_bracket"]
+        for other in ("take_up_spool", "take_up_spring"):
+            self.assertLess((br & parts[other]).volume, 1.0)
+        self.assertLess((parts["take_up_spool"] & parts["take_up_spring"]).volume, 1.0)
 
     def test_bow_radius_is_the_circular_arc_bound(self):
         import math

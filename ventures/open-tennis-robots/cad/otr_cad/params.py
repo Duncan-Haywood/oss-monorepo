@@ -48,6 +48,9 @@ def _bezier_stats(pts: tuple, n: int = 24) -> tuple[float, float, float]:
 
 
 COLLAR_SOCKET_MM = 25.0  # depth of the hose socket in the sleeve take-up's printed collar
+SPIGOT_BOLT_R = 64.0  # M4 ring of the sleeve socket under the shelf (48 until 2026-11-10; the sleeve's wall now sits there)
+SPIGOT_FLANGE = 9.0   # sleeve socket's flange under the shelf (5.0 until 2026-11-20: shorter than the insert)
+SPIGOT_FLANGE_R = SPIGOT_BOLT_R + 10.0
 
 
 _SETTLE_BLOCK = 64
@@ -770,6 +773,19 @@ class Feeder:
     sleeve_wall_mm: float = 3.0       # rigid tube wall (assumption: a drain or ducting tube; measure yours)
     sleeve_top_mm: float = 20.0       # outlet to the sleeve's top end (the printed socket under the sloped shelf)
     collar_h_mm: float = 40.0         # printed collar bonded on the hose's top end, slides in the sleeve
+    collar_tab_mm: float = 12.0       # the collar's tab: as tall as this, and reaching this far past the sleeve's slot
+    # Take-up spring and its bracket (2026-11-20; a loose part "on a bracket behind the sleeve" until then). All the
+    # spring's figures are assumptions for a small constant-force spring: check them against the one you buy.
+    cf_band_w: float = 12.7           # band width (1/2 in., a common width for 2-10 N springs)
+    cf_band_t: float = 0.10           # band thickness
+    cf_coil_od: float = 30.0          # the coil's outside diameter with the band wound up
+    cf_spring_id: float = 17.0        # the coil's natural inside diameter (relaxed, off its drum)
+    cf_spool_d: float = 20.0          # printed spool the coil turns on: makers ask 10-20% over the natural ID
+    cf_spool_flange_t: float = 1.5    # the spool's two flanges
+    cf_wraps_left: float = 1.5        # turns kept on the spool at full extension (makers' minimum)
+    cf_band_margin: float = 5.0       # the band's tangent point above the tab's top at the highest pose
+    spring_cheek_t: float = 6.0       # the bracket's two cheeks
+    spring_axle_len: float = 40.0     # M4 axle screw through both cheeks and the spool, nyloc on the far side
     hose_id: float = 72.0
     hose_od: float = 82.0
     hose_min_bend: float = 150.0  # smallest bend radius the hose tolerates
@@ -1897,6 +1913,7 @@ class Feeder:
         bad += self.check_lift_shaft()
         bad += self.check_bearing_fit_ring()
         bad += self.check_agitator()
+        bad += self.check_spring_bracket()
         return bad
 
     # ---- azimuth drive (2026-11-10) -------------------------------------------
@@ -5435,6 +5452,78 @@ class Feeder:
         if d["root_stress_mpa"] > self.petg_bend_allow_mpa:
             bad.append(f"agitator arm root at the motor's stall: {d['root_stress_mpa']:.1f} MPa, over "
                        f"{self.petg_bend_allow_mpa:g} MPa for printed PETG")
+        return bad
+
+    # ---- take-up spring bracket (2026-11-20) ----------------------------------------
+
+    def shelf_plane_z(self, x: float) -> float:
+        """Underside of the shelf at world x on y = 0 (the plane through the outlet)."""
+        return self.hopper_out_z - (x - self.hopper_out_x) * math.tan(math.radians(self.shelf_slope_deg))
+
+    def spring_bracket_design(self) -> dict | None:
+        """Where the take-up's constant-force spring sits, and what its bracket must clear (None without a sleeve).
+
+        The band hangs straight down from the coil's front tangent to a screw in the rear face of the collar's tab,
+        outside the sleeve (the band is wider than the slot, so it cannot run in it). So the band's line is the tab's
+        rear face, and the coil's centre is a coil radius behind that. The tangent point has to stay above the tab
+        at the collar's highest pose (0 deg elevation) or the band would wrap the tab; the coil then has to fit
+        under the sleeve socket's flange, which sits under the shelf. The coil shrinks as band pays out, so the band
+        leans a little at the lowest pose: reported, not a fault unless it is large. The bracket hangs from the
+        shelf behind the flange on two M4 screws; the axle is an M4 screw through both cheeks and the spool."""
+        t = self.sleeve_take_up_design()
+        if t is None:
+            return None
+        s = math.radians(self.shelf_slope_deg)
+        ox, oz = self.hopper_out_x, self.hopper_out_z
+        bore = self.hose_od + self.sleeve_clear_mm
+        od = bore + 2 * self.sleeve_wall_mm
+        tab_rear_x = ox - (od / 2 + self.collar_tab_mm + 1.0)       # as feeder.take_up_parts draws the tab
+        tab_top = (oz - t["collar_travel"][0] + self.collar_h_mm, oz - t["collar_travel"][1] + self.collar_h_mm)
+        anchor = (tab_top[0] - self.collar_tab_mm / 2, tab_top[1] - self.collar_tab_mm / 2)
+        band_x = tab_rear_x - self.cf_band_t / 2
+        r1 = self.cf_coil_od / 2
+        drum_x, drum_z = band_x - r1, tab_top[0] + self.cf_band_margin
+        r0 = math.sqrt(max(r1 ** 2 - self.cf_band_t * t["stroke_mm"] / math.pi, 0.0))  # coil radius fully out
+        lean = math.degrees(math.atan2(r1 - r0, drum_z - anchor[1]))
+        flange_rear_x = ox - SPIGOT_FLANGE_R * math.cos(s)
+        flange_bottom = self.shelf_plane_z(flange_rear_x) - SPIGOT_FLANGE / math.cos(s)
+        cup_r = od / 2 + 6.0                                          # the socket's cup, as feeder.hopper_spigot
+        spool_w = self.cf_band_w + 2 * self.cf_spool_flange_t + 1.0
+        cheek_in = spool_w / 2 + 0.5
+        outer_w = 2 * (cheek_in + self.spring_cheek_t)
+        band_len = (drum_z - anchor[1]) + self.cf_wraps_left * math.pi * self.cf_spool_d + 20.0
+        # two M4 up through the shelf, behind the flange (insert pocket's edge 2 mm clear), along the coil
+        x_screw_front = flange_rear_x - 2.0 - 2.8
+        screws_x = (x_screw_front, x_screw_front - 14.0)
+        return {"band_x": band_x, "tab_rear_x": tab_rear_x, "tab_top": tab_top, "anchor_z": anchor,
+                "drum_x": drum_x, "drum_z": drum_z, "coil_r": (r1, r0), "lean_deg": lean,
+                "coil_top": drum_z + r1, "flange_rear_x": flange_rear_x, "flange_bottom": flange_bottom,
+                "cup_clear_mm": (ox - cup_r) - band_x, "spool_w": spool_w, "cheek_in": cheek_in,
+                "outer_w": outer_w, "band_len_mm": band_len, "screws_x": screws_x,
+                "pad_bottom": drum_z + r1 + 3.0, "shelf_at_drum": self.shelf_plane_z(drum_x),
+                "axle_spare_mm": self.spring_axle_len - outer_w, "spool_ratio": self.cf_spool_d / self.cf_spring_id,
+                "stroke_mm": t["stroke_mm"]}
+
+    def check_spring_bracket(self) -> list[str]:
+        d = self.spring_bracket_design()
+        if d is None:
+            return []
+        bad = []
+        if d["cup_clear_mm"] < 3.0:
+            bad.append(f"take-up spring's band passes {d['cup_clear_mm']:.1f} mm behind the sleeve socket's cup; 3 wanted")
+        if d["coil_top"] > d["flange_bottom"] - 3.0:
+            bad.append(f"take-up spring's coil reaches {d['coil_top']:.0f} mm, within 3 mm of the socket flange's "
+                       f"underside ({d['flange_bottom']:.0f} mm): lower the outlet's collar travel or use a smaller coil")
+        if d["shelf_at_drum"] - d["pad_bottom"] < 10.0:
+            bad.append("take-up spring bracket's pad over the coil is under 10 mm thick (room for an M4 insert)")
+        if not 1.1 <= d["spool_ratio"] <= 1.2:
+            bad.append(f"take-up spring's spool is {d['spool_ratio']:.2f}x its natural ID; makers ask 1.1-1.2x")
+        if d["lean_deg"] > 2.0:
+            bad.append(f"take-up spring's band leans {d['lean_deg']:.1f} deg at the lowest pose; 2 allowed")
+        need = 5.0 + 2 * 0.7   # M4 nyloc plus two threads (guide.NYLOC_H, PITCH)
+        if d["axle_spare_mm"] < need:
+            bad.append(f"take-up spring's M4 x {self.spring_axle_len:g} axle leaves {d['axle_spare_mm']:.1f} mm past "
+                       f"the {d['outer_w']:.1f} mm cheeks; {need:g} needed for the nyloc and two threads")
         return bad
 
     def check_feed(self) -> list[str]:

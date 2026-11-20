@@ -138,8 +138,52 @@ only as good as `params.py`; the T-nut window (4-8 mm), the standoffs' 8 mm of
 thread, a NEMA 17's 4.5 mm and an extrusion's 15 mm end tap are assumptions the
 guide states. Not checked: the elevation actuator's and shuttle drive's shoulder
 bolts, the launcher motors' screws (check them against your motor), the lift's
-small screws. The take-up spring's bracket is not in the CAD yet; the guide says
-so. Nobody has built a feeder.
+small screws. The take-up spring's bracket is in the CAD since 2026-11-20 (below),
+and its two shelf screws are a checked joint. Nobody has built a feeder.
+
+### Take-up spring bracket (2026-11-20, `Feeder.spring_bracket_design`, `check_spring_bracket`, `feeder.spring_parts`)
+
+Until today the take-up's constant-force spring was a loose 50 mm envelope "on a
+bracket behind the sleeve", and step 13 of the guide told the builder to improvise
+one off the rear cross brace or the shelf. Placing it properly turned up three
+constraints the envelope hid:
+
+- **The band cannot run in the sleeve's slot.** The slot is 10 mm wide and a
+  constant-force spring of a few newtons comes with a band about 12.7 mm (1/2 in.)
+  wide. The band hangs outside the sleeve instead, straight down the rear face of
+  the collar's tab, which already reaches 13 mm past the sleeve wall (7 mm past
+  the socket's cup). An M3 x 8 pan head holds its end there.
+- **There are 30 mm of height for the coil.** The band's tangent point must stay
+  above the tab when the collar is at its highest (0 deg elevation: tab top at
+  z 2000.7) or the band would wrap the tab, and the coil must stay under the
+  sleeve socket's 9 mm flange (its underside is at z 2031.2 at the flange's rear
+  edge). The coil's centre goes 5 mm over the tab (z 2005.7) and its top lands at
+  2020.7, 10.5 mm under the flange. That rules out the old 50 mm envelope: at
+  `cf_coil_od=60` the check fires.
+- **The coil's centre is fixed by the band's line.** A coil radius behind the
+  tab's rear face: x -479.1, 79 mm behind the outlet's axis. The coil empties
+  over the 236 mm stroke (0.1 mm band), from 15.0 to 14.75 mm radius, so the band
+  leans 0.06 deg at the lowest pose.
+
+Parts: a printed bracket (two 6 mm cheeks either side of the band, joined by a pad
+under the shelf behind the socket's flange, 1 mm clear of it), two M4 x 12 button
+heads down through two new 4.4 mm shelf holes into heat-set inserts in the pad
+(8 mm pocket; the guide's joint check gives 7.0 mm past the shelf, inside the
+5.7-8 mm window), a printed spool (20 mm hub, 1.18 times an assumed 17 mm natural
+bore, inside the 1.1-1.2 times that spring makers ask for; flanges either side of
+the band) on an M4 x 40 axle through both cheeks with a nyloc (10.3 mm past the
+29.7 mm cheeks, 6.4 needed). The spring's spec now asks for at least 361 mm of
+band: the drop to the lowest anchor plus 1.5 turns left on the spool. The
+bracket, spool and coil left the hose parts' exemption, so the elevation and
+azimuth sweeps check them against the moving head now. The build finds no clash,
+and the bracket clears the agitator's motor mount by about 3 mm in y.
+
+Checks (`check_spring_bracket`, each made to fire by a test): band clear of the
+socket's cup, coil under the flange, the pad thick enough for an insert, the
+spool's size against the coil's bore, the band's lean, the axle's length past
+the nyloc. Assumed and not measured: every spring figure (5 N, 12.7 x 0.1 mm band,
+17 mm bore, 30 mm coil). Check them against the spring you buy and rebuild with
+`--set cf_coil_od=...` and the others. Nobody has hung a spring on one.
 
 ## Changing the design
 

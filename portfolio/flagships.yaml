@@ -402,14 +402,13 @@ flagships:
       next: a real league's season. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
-      CAD and firmware with no outside input (build123d: pypi venv, 2 min). Latest:
-      both assembly guides from the CAD (2026-11-20; the feeder's fixed twelve fit
-      faults, cad/README.md "Feeder assembly guide"). Next buildable: the take-up
-      spring's bracket and the collector's yoke-lift switch mounts in the CAD; a
-      wedge squaring the hopper posts' tops to the shelf; joints the feeder guide
-      leaves unchecked (shoulder bolts, lift screws). Firmware survey tuning is
-      settled on simulated data (firmware/esp32/README.md, NEXT.md): next
-      information there is a real wheel's tach log.
+      CAD and firmware with no outside input (build123d: pypi venv, 2 min). Take-up
+      spring bracket in the CAD 2026-11-20 (cad/README.md). Next buildable: the
+      collector's yoke-lift switch mounts in the CAD; a wedge squaring the hopper
+      posts' tops to the shelf; joints the feeder guide leaves unchecked (shoulder
+      bolts, lift screws). Firmware survey tuning is settled on simulated data
+      (firmware/esp32/README.md, NEXT.md): next information there is a real wheel's
+      tach log.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
