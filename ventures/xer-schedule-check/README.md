@@ -417,15 +417,17 @@ run as a formula in Excel or Sheets.
   written review asks for a reschedule (medium). Planted-edit counts are in
   the eval file. A shortened lag breaks no link and is not found by this
   check; it shows up only as stored dates that differ.
-- **Free float against P6** (`eval/free-float-2026-11-19.md`): the same files,
-  **19,810 of 19,822 (99.94%)** equal P6's stored free float (19,809 before the
-  fourth CPM pass), up from 18,537
-  (93.5%), after four rules (an open end runs to the project's early finish; SS
+- **Free float against P6** (`eval/free-float-2026-11-19.md`,
+  `eval/free-float-expected-2026-11-20.md`): the same files,
+  **19,820 of 19,822 (99.99%)** equal P6's stored free float (19,810 before
+  the expected-finish rule, 19,809 before the fourth CPM pass), up from 18,537
+  (93.5%), after five rules (an open end runs to the project's early finish; SS
   lag already spent on either side of a started link is not free float; a
   finished successor still counts; free float is never negative and not capped
-  at total float), each with its measured count. The 12 left: 2 on CCA
-  activities whose dates already differ (another 1 since then), 9 in the 24.12 file where P6 stores 0
-  against a positive gap in its own dates.
+  at total float; an activity with an expected finish, when the project uses
+  them, has none: all 23 such activities in the 24.12 file store 0, 9 of them
+  against a positive gap in P6's own dates), each with its measured count. The
+  2 left are CCA activities whose early dates already differ.
 - **Files with no data date, no PROJECT table or no calendar pattern**: two
   hand-made fixtures from the same public repositories crashed the engine
   before 2026-11-19; both now give a full report with a warning for each guess.

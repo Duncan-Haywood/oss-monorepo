@@ -1,0 +1,8 @@
+[
+{"file":"CCA_R03_dt_24Oct11SC.xer","counts":{"expN":0,"expGap":0,"expStored0":0,"otherGap":5728,"otherGapMatch":5726,"offMatch":14268,"onMatch":14268,"n":14270}},
+{"file":"Expressway_Project.xer","counts":{"expN":0,"expGap":0,"expStored0":0,"otherGap":236,"otherGapMatch":236,"offMatch":823,"onMatch":823,"n":823}},
+{"file":"example_xer_file.xer","counts":{"expN":23,"expGap":9,"expStored0":23,"otherGap":72,"otherGapMatch":72,"offMatch":395,"onMatch":404,"n":404}},
+{"file":"hotel-project.xer","counts":{"expN":0,"expGap":0,"expStored0":0,"otherGap":1108,"otherGapMatch":1108,"offMatch":4217,"onMatch":4217,"n":4217}},
+{"file":"sample.xer","counts":{"expN":0,"expGap":0,"expStored0":0,"otherGap":0,"otherGapMatch":0,"offMatch":42,"onMatch":42,"n":42}},
+{"file":"terminal-building-airport.xer","counts":{"expN":0,"expGap":0,"expStored0":0,"otherGap":10,"otherGapMatch":10,"offMatch":66,"onMatch":66,"n":66}}
+]
