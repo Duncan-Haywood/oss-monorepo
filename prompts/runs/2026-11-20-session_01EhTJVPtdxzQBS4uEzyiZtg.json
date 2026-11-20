@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPtdxzQBS4uEzyiZtg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "81e5291c5a6f5ce849df079cc13c27fdbb43204449c00ae7b9c6f7742db70807",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T03:00:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator: return leg in reverse order (audit r87 item)",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17844",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First suite run failed calc.test.mjs share-link round-trip: it lists every decoded field and reverseLeg is new",
+      "fix": "added reverseLeg: false to the expected object"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Plain `route` drew the process track on a scheduled run whose stored prompt is the ventures brief; I started process Critique before re-reading step 1 and routing with --task (same cluster as 2026-11-18/19 reports; cost ~5 min)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took a NEXT.md item (quality audit r87) of the allocated flagship instead of its next: field, because it is directly user-facing and one-PR-sized, where next: items are deep research tails (whist designs, SAT seasons).",
+      "did": "Shipped reverseLeg option; flagships.yaml next: left unchanged since the item came from NEXT.md",
+      "result": "landed with tests and measurements"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-double-round-robin-return-leg-in-reverse-order.md"
+  ],
+  "goal": null,
+  "notes": "Measured 4-20 teams (eval/reverse-leg.txt): even n 3(n-2)->2(n-2) breaks, odd n (n-2)->0; shortest rematch drops to 1 week, so opt-in. Verification: node --test reverse-leg.test.mjs 5/5; run_venture_tests.py league-schedule-generator ok (788 tests, 324.5 s); venture-preflight.mjs league-schedule-generator clean; main_health.py 299/299 at start; check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}
