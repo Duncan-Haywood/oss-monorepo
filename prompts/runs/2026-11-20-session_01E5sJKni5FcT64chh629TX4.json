@@ -1,0 +1,114 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKni5FcT64chh629TX4",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T03:19:03Z",
+  "ended": "2026-11-20T03:23:00Z",
+  "wall_minutes": 4.07,
+  "tokens_in": 2303098,
+  "tokens_out": 15313,
+  "cost_usd": 1.2985,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17849",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-hidden-unicode-check-against-the-ucd.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: conformance-test hidden-unicode-check's hand-written invisible-character table against the UCD (Default_Ignorable_Code_Point + Bidi_Control) through Node 22's ICU regex property escapes (Unicode 17.0, offline; unicode.org 403s through the proxy). Exhaustive over all 1,112,064 scalar values: 0 over-flagged, 3,794 missed (30 assigned: U+034F, 17B4-5, 180B-D, 180F, 206A-F, 1BCA0-3, 1D173-A; 3,764 reserved unassigned). Fixed; new test fails 3 of 30 on the old table and passes on the new one; run_venture_tests hidden-unicode-check ok (67 tests); CLI scan of prompts/ docs/ .github/ shows no new findings. No agent doc: nothing the next run needs beyond the post and README.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "abe23b75-b572-55c3-a3bf-cdf028d9809b",
+    "transcripts": 1,
+    "first": "2026-11-20T03:19:03Z",
+    "last": "2026-11-20T03:23:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 60,
+        "output": 15313,
+        "thinking": 3482,
+        "cache_read": 2234913,
+        "cache_write_5m": 0,
+        "cache_write_1h": 68125,
+        "api_equivalent_usd": 1.2985,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 60,
+      "output": 15313,
+      "thinking": 3482,
+      "cache_read": 2234913,
+      "cache_write_5m": 0,
+      "cache_write_1h": 68125,
+      "api_equivalent_usd": 1.2985,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 27,
+      "Edit": 3,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.07,
+      "active_minutes": 4.07,
+      "model_minutes": 2.89,
+      "tool_minutes": 1.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
