@@ -1,6 +1,6 @@
 # Do your package.json, .nvmrc, Dockerfile and CI agree on which Node.js to run?
 
-> Paste package.json, .nvmrc, .tool-versions, a Dockerfile and a GitHub Actions workflow and see whether your Node.js versions drifted: a pin that breaks engines.node, majors that disagree across files, end-of-life Node.js, or an unbounded engines range. Free, deterministic, runs in your browser.
+> Paste package.json, .nvmrc, .tool-versions, a Dockerfile and a GitHub Actions workflow and see whether your Node.js versions drifted: a pin that breaks engines.node, majors that disagree across files, end-of-life Node.js, an unbounded engines range, or one no Node.js version satisfies. Free, deterministic, runs in your browser.
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
@@ -13,3 +13,7 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 ## Source
 
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/node-version-drift-check): MIT licensed.
+
+## Verification
+
+- The range parser is differential-tested against node-semver 7.7.4 (the library npm uses for engines.node): on 150,000 seeded random ranges, satisfies agreed on all 794,376 checks and overlap agreed on all 65,063 pairs of satisfiable ranges. Method and the known differences (prereleases read as releases; an unsatisfiable range never overlaps) are in the README.

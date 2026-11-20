@@ -79,6 +79,7 @@ const HELP = [
   "  major-disagreement     pins in different files name different Node.js majors",
   "  eol-node               a pinned major is past end-of-life (table dated " + TABLE_DATE + ")",
   "  engines-unbounded      engines.node has no upper bound and nothing is pinned",
+  "  engines-unsatisfiable  engines.node is satisfied by no Node.js version",
   "",
   "Aliases such as lts/* or latest are reported as notices, never guessed.",
   "--today overrides the date end-of-life is judged against (for tests).",
