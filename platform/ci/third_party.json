@@ -12,7 +12,7 @@
         "ventures/demand-charge-interval-analyzer/fixtures/urdb/sce-gs2-tou-b-2015.json",
         "ventures/demand-charge-interval-analyzer/fixtures/urdb/entergy-arkansas-lps-tou-2018.json",
         "ventures/demand-charge-interval-analyzer/fixtures/urdb/NOTICE.md",
-        "ventures/demand-charge-interval-analyzer/fixtures/urdb/LICENSE-REopt.jl"
+        "ventures/demand-charge-interval-analyzer/fixtures/urdb/LICENSE-REopt.txt"
       ],
       "license": "Apache-2.0",
       "source": "https://github.com/NREL/REopt.jl (test/scenarios/incentives.json and re_emissions_elec_only.json, the urdb_response fields, unchanged; test data only)",

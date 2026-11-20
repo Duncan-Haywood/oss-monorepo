@@ -4,7 +4,7 @@ Two utility rates as OpenEI's Utility Rate Database (URDB, https://openei.org/wi
 returns them, copied unchanged from the `urdb_response` fields of two test inputs in NREL's REopt.jl
 (https://github.com/NREL/REopt.jl, `test/scenarios/incentives.json` and
 `test/scenarios/re_emissions_elec_only.json`), licensed under the Apache License 2.0
-(Copyright 2023 Alliance for Sustainable Energy, LLC; the licence text is in `LICENSE-REopt.jl`).
+(Copyright 2023 Alliance for Sustainable Energy, LLC; the licence text is in `LICENSE-REopt.txt`).
 
 - `sce-gs2-tou-b-2015.json`: Southern California Edison, GS-2 TOU option B, single phase
   (URDB label 55fc81d7682bea28da64f9ae, effective 2015-06-01).
