@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKnpdeBZjiwBdAgfji7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T11:19:13Z",
+  "ended": "2026-11-20T11:40:02Z",
+  "wall_minutes": 21.08,
+  "tokens_in": 12280141,
+  "tokens_out": 63862,
+  "cost_usd": 5.2077,
+  "tool_calls": 99,
+  "task": "Deepen flagship 14 ifc-quantity-takeoff: Uniformat envelope test from geometry for walls with no IsExternal",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17904",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The hook that refuses pkill -f also refuses a bracketed pattern when the same word appears elsewhere in the command line (e.g. a later script path); cost one retry. CLAUDE.md mentions bracketing but not that the whole command line is scanned."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-20-exterior-wall-or-partition-from-ifc-geometry.md",
+    "ventures/ifc-quantity-takeoff/eval/envelope-2026-11-20.md"
+  ],
+  "goal": "Place walls with no IsExternal flag into Uniformat exterior walls or partitions from geometry, and measure how far authors' flags can be trusted",
+  "notes": "Took the allocate.py 'Start here' row (ifc-quantity-takeoff), item from its next: (envelope test from geometry). New envelope.mjs (plan rectangles + ray fan), wired into qto.mjs takeoff and uniformat.mjs wall/door rules. 17 public models (sparse clones of ThatOpen/engine_web-ifc and opensourceBIM/IFC-files, not committed): 268 unflagged walls coded, uncoded 5,219 -> 4,951, authors' Uniformat agreement unchanged (482/588 at L3); flag vs geometry agree 3,534 of 4,564; type names side with geometry 228, flag 213 where they disagree. Plans rendered to PNG via Playwright and inspected by eye (FZK-Haus, C20, HouseZ, dental_clinic, HHS architect, advanced_model, FM_ARC, ARK_NUS, kleine_Wohnung, S_Office); this caught sloped rafters counted as facade pieces (fixed with a fill test). Verification: run_venture_tests.py ifc-quantity-takeoff ok (73 tests); check_posts.py ok; portfolio/router/validate.py ok; node platform/pages/venture-preflight.mjs ifc-quantity-takeoff: preflight clean (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a10e2b30-9a99-5e0a-8f19-c02762f3869b",
+    "transcripts": 1,
+    "first": "2026-11-20T11:19:13Z",
+    "last": "2026-11-20T11:40:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 85,
+        "input": 161,
+        "output": 63862,
+        "thinking": 15832,
+        "cache_read": 12091029,
+        "cache_write_5m": 0,
+        "cache_write_1h": 188951,
+        "api_equivalent_usd": 5.2077,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 85,
+      "input": 161,
+      "output": 63862,
+      "thinking": 15832,
+      "cache_read": 12091029,
+      "cache_write_5m": 0,
+      "cache_write_1h": 188951,
+      "api_equivalent_usd": 5.2077,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 99,
+    "tools": {
+      "Bash": 76,
+      "Read": 18,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.08,
+      "active_minutes": 21.08,
+      "model_minutes": 10.47,
+      "tool_minutes": 10.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a BIM developer writing a plan-view envelope test, the Uniformat wiring, an eval over 17 models with plan drawings, and reviewing the plans",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 307.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

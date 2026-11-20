@@ -15,7 +15,9 @@
 //   rule    the IFC class read with the element's PredefinedType (its own or
 //           its type's), IsExternal (Pset_*Common, its own or its type's),
 //           the wall a door or window fills, the assembly it is part of and
-//           the storey's elevation. Each rule's reason is on the row.
+//           the storey's elevation. A wall with no IsExternal is placed by
+//           the envelope test from its geometry (envelope.mjs) when the
+//           geometry was read. Each rule's reason is on the row.
 //
 // The codes and titles are those of NISTIR 6389 (Charette and Marshall,
 // "UNIFORMAT II Elemental Classification for Building Specifications, Cost
@@ -99,7 +101,10 @@ function nameRule(r, cls) {
 export function ruleCode(r, ctx) {
   const cls = r.effectiveClass || r.ifcType || "";
   const pdt = r.predefinedType || null;
-  const ext = r.isExternal; // true, false or null (not set)
+  // true, false or null (not set); a wall flag the model gives every wall
+  // alike while the geometry disagrees is not read (envelope.mjs)
+  const flagNotRead = WALLISH.test(cls) && r.isExternal != null && r.envelope?.flagSaysNothing === true;
+  const ext = flagNotRead ? null : r.isExternal;
   const below = r.storeyElevation != null && r.storeyElevation < BELOW_GRADE;
   const parent = r.parent != null ? ctx(r.parent) : null;
   const pcls = parent ? parent.effectiveClass || parent.ifcType : null;
@@ -126,8 +131,18 @@ export function ruleCode(r, ctx) {
       return { code: "B1010", why: pdt ? `slab, ${pdt}` : "slab" };
     case cls === "IFCROOF": return { code: "B1020", why: "roof" };
     case WALLISH.test(cls):
-      if (ext === true) return below ? { code: "A2020", why: `wall, IsExternal, storey below grade (${r.storey})` } : { code: "B2010", why: "wall, IsExternal" };
-      if (ext === false) return { code: "C1010", why: "wall, not IsExternal" };
+      // a flag the geometry disagrees with is kept, and the row says so for
+      // the estimator to check (on 17 public models the flag was the wrong one
+      // in most such walls looked at: eval/envelope-2026-11-20.md)
+      const doubt = ext != null && r.envelope && r.envelope.exterior !== ext ? `; the geometry reads it ${r.envelope.exterior ? (r.envelope.leaf ? "as an inner leaf or lining of an exterior wall" : "on the outside") : "inside the building"}, check it` : "";
+      if (ext === true) return below ? { code: "A2020", why: `wall, IsExternal, storey below grade (${r.storey})${doubt}` } : { code: "B2010", why: `wall, IsExternal${doubt}` };
+      if (ext === false) return { code: "C1010", why: `wall, not IsExternal${doubt}` };
+      if (r.envelope) {
+        // no flag: the envelope test from the geometry (envelope.mjs)
+        const e = r.envelope, by = `${flagNotRead ? `IsExternal ${r.isExternal} on every wall of the model, not read` : "no IsExternal"}; by geometry, open to the outside at ${e.open} of ${e.points} points${e.leaf ? " through its outer leaf (an inner leaf or lining of an exterior wall)" : ""}`;
+        if (e.exterior) return below ? { code: "A2020", why: `wall, ${by}, storey below grade (${r.storey})` } : { code: "B2010", why: `wall, ${by}` };
+        return { code: "C1010", why: `wall, ${by}` };
+      }
       return { code: null, why: "wall with no IsExternal: exterior or partition cannot be told" };
     case cls === "IFCCURTAINWALL":
       return ext === false ? { code: "C1010", why: "curtain wall, not IsExternal (glazed partition)" } : { code: "B2010", why: `curtain wall${extWhy || ", assumed exterior"}` };
@@ -145,9 +160,11 @@ export function ruleCode(r, ctx) {
       if (ext === true) return { code: "B2030", why: "door, IsExternal" };
       if (ext === false) return { code: "C1020", why: "door, not IsExternal" };
       const h = r.host != null ? ctx(r.host) : null;
-      if (h && h.isExternal === true) return { code: "B2030", why: "door in an exterior wall" };
-      if (h && h.isExternal === false) return { code: "C1020", why: "door in an interior wall" };
+      const hx = h ? (h.envelope?.flagSaysNothing ? null : h.isExternal) : null;
+      if (hx === true) return { code: "B2030", why: "door in an exterior wall" };
+      if (hx === false) return { code: "C1020", why: "door in an interior wall" };
       if (pcls === "IFCCURTAINWALL") return parent.isExternal === false ? { code: "C1020", why: "door in a curtain wall, not IsExternal" } : { code: "B2030", why: `door in a curtain wall${parent.isExternal ? ", IsExternal" : ", assumed exterior"}` };
+      if (h && hx == null && h.envelope) return h.envelope.exterior ? { code: "B2030", why: "door in a wall the geometry puts on the outside" } : { code: "C1020", why: "door in a wall the geometry puts inside" };
       return { code: "C10", why: "door with no IsExternal and no host wall that says" };
     }
     case cls === "IFCCOVERING":
