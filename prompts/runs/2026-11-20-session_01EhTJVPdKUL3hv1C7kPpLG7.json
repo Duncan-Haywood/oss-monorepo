@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVPdKUL3hv1C7kPpLG7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled ventures brief: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (full text in prompts/ventures/prompt-1.md)",
+  "input_sha256": "95b6d8c1be04e5a13dce5e5d2544ee4c40c3d33a46316138a8b50603c5ff2bb6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T23:56:03Z",
+  "ended": "2026-11-20T00:06:49Z",
+  "wall_minutes": 11.04,
+  "tokens_in": 7786397,
+  "tokens_out": 44497,
+  "cost_usd": 3.6088,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17824",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'Start here' named open-tennis-robots (a CAD survey-drill item); ifc-quantity-takeoff (2 commits in 7 days, a clear buildable item) was row 9. The draw ignores how much buildable work a row has left."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Its open-PR column showed no claim on ifc-quantity-takeoff at 23:56; #17823 opened a minute later. This session only saw the claim when allocate.py --venture ran an hour in, after the work was built. Claiming first (as the output says) would have caught it; I skipped that step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Took flagship row 9 (ifc-quantity-takeoff, faceted-body sections) instead of the 'Start here' row (open-tennis-robots). The last session sent there left it too, and its buildable item is a marginal survey drill.",
+      "did": "Built plane sections of meshes and measured them on 8 public models",
+      "result": "4,251 more stored areas checked, 2,915 agree; merged"
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "why": "Draft PR #17823 (empty claim commit) claimed the same item 7 minutes after this session started. By the time I saw it, the implementation, tests and eval here were finished, so yielding would have thrown away finished work while the other session had pushed nothing.",
+      "did": "Landed this PR; its body names #17823 so the other session's claim_check sees LANDED",
+      "result": "merged"
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "Did not open a draft PR before building (skipped the claim step), which is what caused the overlap above."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-cutting-a-triangle-mesh-with-a-plane-ifc-areas.md",
+    "ventures/ifc-quantity-takeoff/eval/areas-vs-stored-2026-11-20.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test in the venture (32 pass); run_venture_tests.py ifc-quantity-takeoff ok; seeded faults (exit/entry swap in shellSection, brep void sign) each fail a test; stored-vs-computed volume output identical to the 2026-11-19 file on all 13 models (apart from timings); check_posts ok; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "76df455a-556b-5a41-96dd-2d304406f1b6",
+    "transcripts": 1,
+    "first": "2026-11-19T23:56:03Z",
+    "last": "2026-11-20T00:07:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 114,
+        "output": 44497,
+        "thinking": 11701,
+        "cache_read": 7637419,
+        "cache_write_5m": 0,
+        "cache_write_1h": 148864,
+        "api_equivalent_usd": 3.6088,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 114,
+      "output": 44497,
+      "thinking": 11701,
+      "cache_read": 7637419,
+      "cache_write_5m": 0,
+      "cache_write_1h": 148864,
+      "api_equivalent_usd": 3.6088,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 59,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.04,
+      "active_minutes": 11.04,
+      "model_minutes": 7.03,
+      "tool_minutes": 4.0,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a geometry engineer implementing mesh plane sections, tests, and a corpus eval of 8 models",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 277.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

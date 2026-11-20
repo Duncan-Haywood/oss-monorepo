@@ -1,0 +1,5498 @@
+{
+ "results": [
+  {
+   "file": "construction.ifc",
+   "schema": "IFC2X3",
+   "seconds": 0.592,
+   "byQty": {
+    "IfcColumn.CrossSectionArea": {
+     "pairs": 257,
+     "agree": 257,
+     "reasons": {}
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 36,
+     "agree": 11,
+     "reasons": {
+      "matches-stored-volume": 6,
+      "split": 17,
+      "repeated": 2
+     }
+    }
+   },
+   "medianAgreeRel": 0.00013372091330845804,
+   "notCut": 0,
+   "others": []
+  },
+  {
+   "file": "architect.ifc",
+   "schema": "IFC2X3",
+   "seconds": 5.995,
+   "byQty": {
+    "IfcWall.GrossSideArea": {
+     "pairs": 112,
+     "agree": 70,
+     "reasons": {
+      "split": 5,
+      "matches-stored-volume": 4,
+      "net-as-gross": 33
+     }
+    },
+    "IfcMember.CrossSectionArea": {
+     "pairs": 1450,
+     "agree": 1392,
+     "reasons": {
+      "unexplained": 58
+     }
+    }
+   },
+   "medianAgreeRel": 9.128201831071402e-16,
+   "notCut": 0,
+   "others": [
+    {
+     "id": 17161,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574056",
+     "qty": "CrossSectionArea",
+     "computed": 0.015214000000000054,
+     "stored": 0.6607201794140483,
+     "rel": -0.9769736108052695,
+     "openings": 0
+    },
+    {
+     "id": 17325,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574058",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999868,
+     "stored": 0.5088879159994754,
+     "rel": -0.9701034362937878,
+     "openings": 0
+    },
+    {
+     "id": 17663,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574075",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999868,
+     "stored": 0.5088879159994754,
+     "rel": -0.9701034362937878,
+     "openings": 0
+    },
+    {
+     "id": 18151,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574098",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999868,
+     "stored": 0.5088879159994754,
+     "rel": -0.9701034362937878,
+     "openings": 0
+    },
+    {
+     "id": 18609,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574121",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999868,
+     "stored": 0.5088879159994754,
+     "rel": -0.9701034362937878,
+     "openings": 0
+    },
+    {
+     "id": 18937,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574136",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999868,
+     "stored": 0.5088879159994754,
+     "rel": -0.9701034362937878,
+     "openings": 0
+    },
+    {
+     "id": 19265,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574151",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999868,
+     "stored": 0.5088879159994754,
+     "rel": -0.9701034362937878,
+     "openings": 0
+    },
+    {
+     "id": 19703,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574173",
+     "qty": "CrossSectionArea",
+     "computed": 0.015214000000000054,
+     "stored": 0.6607201794140483,
+     "rel": -0.9769736108052695,
+     "openings": 0
+    },
+    {
+     "id": 37263,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575258",
+     "qty": "CrossSectionArea",
+     "computed": 0.01521400000000005,
+     "stored": 1.0087266066704559,
+     "rel": -0.9849176180152346,
+     "openings": 0
+    },
+    {
+     "id": 37538,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575267",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999435,
+     "stored": 1.037231106670481,
+     "rel": -0.9853321020723758,
+     "openings": 0
+    },
+    {
+     "id": 37676,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575274",
+     "qty": "CrossSectionArea",
+     "computed": 0.01521400000000005,
+     "stored": 1.0087266066704559,
+     "rel": -0.9849176180152346,
+     "openings": 0
+    },
+    {
+     "id": 37834,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575282",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999435,
+     "stored": 1.037231106670481,
+     "rel": -0.9853321020723758,
+     "openings": 0
+    },
+    {
+     "id": 38022,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575290",
+     "qty": "CrossSectionArea",
+     "computed": 0.01521400000000005,
+     "stored": 1.0087266066704559,
+     "rel": -0.9849176180152346,
+     "openings": 0
+    },
+    {
+     "id": 38370,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575306",
+     "qty": "CrossSectionArea",
+     "computed": 0.01521400000000005,
+     "stored": 1.0087266066704559,
+     "rel": -0.9849176180152346,
+     "openings": 0
+    },
+    {
+     "id": 38688,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575322",
+     "qty": "CrossSectionArea",
+     "computed": 0.01521400000000005,
+     "stored": 1.0087266066704559,
+     "rel": -0.9849176180152346,
+     "openings": 0
+    },
+    {
+     "id": 39006,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575338",
+     "qty": "CrossSectionArea",
+     "computed": 0.01521400000000005,
+     "stored": 1.0087266066704559,
+     "rel": -0.9849176180152346,
+     "openings": 0
+    },
+    {
+     "id": 100989,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574254",
+     "qty": "CrossSectionArea",
+     "computed": 0.015214000000000054,
+     "stored": 0.6607201794140483,
+     "rel": -0.9769736108052695,
+     "openings": 0
+    },
+    {
+     "id": 102641,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574425",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.6097380807995246,
+     "rel": -0.9664757694431737,
+     "openings": 0
+    },
+    {
+     "id": 103759,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574478",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.6097380807995246,
+     "rel": -0.9664757694431737,
+     "openings": 0
+    },
+    {
+     "id": 104833,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574513",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.6097380807995246,
+     "rel": -0.9664757694431737,
+     "openings": 0
+    },
+    {
+     "id": 106630,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574606",
+     "qty": "CrossSectionArea",
+     "computed": 0.020440999999999945,
+     "stored": 0.508887915999478,
+     "rel": -0.9598320192770683,
+     "openings": 0
+    },
+    {
+     "id": 106718,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574609",
+     "qty": "CrossSectionArea",
+     "computed": 0.020440999999999945,
+     "stored": 0.508887915999478,
+     "rel": -0.9598320192770683,
+     "openings": 0
+    },
+    {
+     "id": 106816,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574614",
+     "qty": "CrossSectionArea",
+     "computed": 0.020440999999999945,
+     "stored": 0.508887915999478,
+     "rel": -0.9598320192770683,
+     "openings": 0
+    },
+    {
+     "id": 106914,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574619",
+     "qty": "CrossSectionArea",
+     "computed": 0.020440999999999945,
+     "stored": 0.508887915999478,
+     "rel": -0.9598320192770683,
+     "openings": 0
+    },
+    {
+     "id": 107012,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574624",
+     "qty": "CrossSectionArea",
+     "computed": 0.020440999999999945,
+     "stored": 0.508887915999478,
+     "rel": -0.9598320192770683,
+     "openings": 0
+    },
+    {
+     "id": 107110,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:574629",
+     "qty": "CrossSectionArea",
+     "computed": 0.020440999999999945,
+     "stored": 0.508887915999478,
+     "rel": -0.9598320192770683,
+     "openings": 0
+    },
+    {
+     "id": 128635,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575408",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.793087678661976,
+     "rel": -0.974226052743013,
+     "openings": 0
+    },
+    {
+     "id": 128653,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575409",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.793087678661976,
+     "rel": -0.974226052743013,
+     "openings": 0
+    },
+    {
+     "id": 128671,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575410",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.793087678661976,
+     "rel": -0.974226052743013,
+     "openings": 0
+    },
+    {
+     "id": 128689,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575411",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.793087678661976,
+     "rel": -0.974226052743013,
+     "openings": 0
+    },
+    {
+     "id": 128707,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575412",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.793087678661976,
+     "rel": -0.974226052743013,
+     "openings": 0
+    },
+    {
+     "id": 128725,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575413",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.793087678661976,
+     "rel": -0.974226052743013,
+     "openings": 0
+    },
+    {
+     "id": 132863,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575507",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.5305620100960523,
+     "rel": -0.9614729294389182,
+     "openings": 0
+    },
+    {
+     "id": 133017,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575510",
+     "qty": "CrossSectionArea",
+     "computed": 0.020441000000000056,
+     "stored": 1.037231106670483,
+     "rel": -0.9802927237058905,
+     "openings": 0
+    },
+    {
+     "id": 133115,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575515",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.5305620100960523,
+     "rel": -0.9614729294389182,
+     "openings": 0
+    },
+    {
+     "id": 133249,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575517",
+     "qty": "CrossSectionArea",
+     "computed": 0.020441000000000056,
+     "stored": 1.037231106670483,
+     "rel": -0.9802927237058905,
+     "openings": 0
+    },
+    {
+     "id": 133267,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575518",
+     "qty": "CrossSectionArea",
+     "computed": 0.020441000000000056,
+     "stored": 1.037231106670483,
+     "rel": -0.9802927237058905,
+     "openings": 0
+    },
+    {
+     "id": 133305,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575520",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.5305620100960523,
+     "rel": -0.9614729294389182,
+     "openings": 0
+    },
+    {
+     "id": 133403,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575525",
+     "qty": "CrossSectionArea",
+     "computed": 0.020441000000000056,
+     "stored": 1.037231106670483,
+     "rel": -0.9802927237058905,
+     "openings": 0
+    },
+    {
+     "id": 133441,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575527",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.5305620100960523,
+     "rel": -0.9614729294389182,
+     "openings": 0
+    },
+    {
+     "id": 133539,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575532",
+     "qty": "CrossSectionArea",
+     "computed": 0.020441000000000056,
+     "stored": 1.037231106670483,
+     "rel": -0.9802927237058905,
+     "openings": 0
+    },
+    {
+     "id": 133577,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575534",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.5305620100960523,
+     "rel": -0.9614729294389182,
+     "openings": 0
+    },
+    {
+     "id": 133675,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575539",
+     "qty": "CrossSectionArea",
+     "computed": 0.020441000000000056,
+     "stored": 1.037231106670483,
+     "rel": -0.9802927237058905,
+     "openings": 0
+    },
+    {
+     "id": 133713,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575541",
+     "qty": "CrossSectionArea",
+     "computed": 0.02044099999999999,
+     "stored": 0.5305620100960523,
+     "rel": -0.9614729294389182,
+     "openings": 0
+    },
+    {
+     "id": 134573,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575578",
+     "qty": "CrossSectionArea",
+     "computed": 0.01521400000000005,
+     "stored": 0.5791351776811946,
+     "rel": -0.9737297947244103,
+     "openings": 0
+    },
+    {
+     "id": 134591,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575579",
+     "qty": "CrossSectionArea",
+     "computed": 0.01521400000000005,
+     "stored": 0.5791351776811946,
+     "rel": -0.9737297947244103,
+     "openings": 0
+    },
+    {
+     "id": 134609,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575580",
+     "qty": "CrossSectionArea",
+     "computed": 0.01521400000000005,
+     "stored": 0.5791351776811946,
+     "rel": -0.9737297947244103,
+     "openings": 0
+    },
+    {
+     "id": 134627,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575581",
+     "qty": "CrossSectionArea",
+     "computed": 0.01521400000000005,
+     "stored": 0.5791351776811946,
+     "rel": -0.9737297947244103,
+     "openings": 0
+    },
+    {
+     "id": 134645,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575582",
+     "qty": "CrossSectionArea",
+     "computed": 0.01521400000000005,
+     "stored": 0.5791351776811946,
+     "rel": -0.9737297947244103,
+     "openings": 0
+    },
+    {
+     "id": 134663,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575583",
+     "qty": "CrossSectionArea",
+     "computed": 0.01521400000000005,
+     "stored": 0.5791351776811946,
+     "rel": -0.9737297947244103,
+     "openings": 0
+    },
+    {
+     "id": 135214,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575603",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999686,
+     "stored": 0.675765913034252,
+     "rel": -0.9774862867354652,
+     "openings": 0
+    },
+    {
+     "id": 135529,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575608",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999808,
+     "stored": 0.6957459130342523,
+     "rel": -0.9781328216019993,
+     "openings": 0
+    },
+    {
+     "id": 135547,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575609",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999686,
+     "stored": 0.675765913034252,
+     "rel": -0.9774862867354652,
+     "openings": 0
+    },
+    {
+     "id": 135565,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575610",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999686,
+     "stored": 0.675765913034252,
+     "rel": -0.9774862867354652,
+     "openings": 0
+    },
+    {
+     "id": 135583,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575611",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999686,
+     "stored": 0.675765913034252,
+     "rel": -0.9774862867354652,
+     "openings": 0
+    },
+    {
+     "id": 135601,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575612",
+     "qty": "CrossSectionArea",
+     "computed": 0.015213999999999686,
+     "stored": 0.675765913034252,
+     "rel": -0.9774862867354652,
+     "openings": 0
+    },
+    {
+     "id": 140223,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575840",
+     "qty": "CrossSectionArea",
+     "computed": 0.015214000000000054,
+     "stored": 0.4926348779605014,
+     "rel": -0.9691170871559365,
+     "openings": 0
+    },
+    {
+     "id": 140241,
+     "ifcClass": "IfcMember",
+     "name": "Rechteckiger Pfosten:6 x 15 mit Deckprofil:6 x 15 mit Deckprofil:575841",
+     "qty": "CrossSectionArea",
+     "computed": 0.015214000000000054,
+     "stored": 0.4926348779605014,
+     "rel": -0.9691170871559365,
+     "openings": 0
+    }
+   ]
+  },
+  {
+   "file": "AC20-FZK-Haus.ifc",
+   "schema": "IFC4",
+   "seconds": 0.172,
+   "byQty": {
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 13,
+     "agree": 13,
+     "reasons": {}
+    },
+    "IfcWall.NetFootprintArea": {
+     "pairs": 13,
+     "agree": 9,
+     "reasons": {
+      "gross-as-net": 4
+     }
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 13,
+     "agree": 11,
+     "reasons": {
+      "on-a-face": 2
+     }
+    },
+    "IfcWall.NetSideArea": {
+     "pairs": 13,
+     "agree": 9,
+     "reasons": {
+      "on-a-face": 3,
+      "unexplained": 1
+     }
+    },
+    "IfcBeam.CrossSectionArea": {
+     "pairs": 1,
+     "agree": 1,
+     "reasons": {}
+    },
+    "IfcSlab.GrossArea": {
+     "pairs": 4,
+     "agree": 4,
+     "reasons": {}
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 4,
+     "agree": 4,
+     "reasons": {}
+    }
+   },
+   "medianAgreeRel": 1.3216940769347102e-16,
+   "notCut": 0,
+   "others": [
+    {
+     "id": 18698,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-Int-ERDG-3",
+     "qty": "NetSideArea",
+     "computed": 14.217300000000002,
+     "stored": 13.9173,
+     "rel": 0.021555905240240744,
+     "openings": 2
+    }
+   ]
+  },
+  {
+   "file": "C20-Institute-Var-2.ifc",
+   "schema": "IFC4",
+   "seconds": 0.537,
+   "byQty": {
+    "IfcSlab.GrossArea": {
+     "pairs": 26,
+     "agree": 20,
+     "reasons": {
+      "unexplained": 6
+     }
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 26,
+     "agree": 20,
+     "reasons": {
+      "unexplained": 6
+     }
+    },
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 121,
+     "agree": 121,
+     "reasons": {}
+    },
+    "IfcWall.NetFootprintArea": {
+     "pairs": 121,
+     "agree": 97,
+     "reasons": {
+      "gross-as-net": 24
+     }
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 121,
+     "agree": 86,
+     "reasons": {
+      "unexplained": 25,
+      "on-a-face": 4,
+      "net-as-gross": 6
+     }
+    },
+    "IfcWall.NetSideArea": {
+     "pairs": 121,
+     "agree": 79,
+     "reasons": {
+      "unexplained": 29,
+      "on-a-face": 13
+     }
+    },
+    "IfcColumn.CrossSectionArea": {
+     "pairs": 2,
+     "agree": 0,
+     "reasons": {
+      "unexplained": 2
+     }
+    }
+   },
+   "medianAgreeRel": 1.261617073437678e-16,
+   "notCut": 0,
+   "others": [
+    {
+     "id": 31190,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-002",
+     "qty": "GrossSideArea",
+     "computed": 48.60000000000001,
+     "stored": 46.845,
+     "rel": 0.03746397694524516,
+     "openings": 12
+    },
+    {
+     "id": 31190,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-002",
+     "qty": "NetSideArea",
+     "computed": 30.60000000000001,
+     "stored": 28.845,
+     "rel": 0.06084243369734823,
+     "openings": 12
+    },
+    {
+     "id": 35819,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-006",
+     "qty": "NetSideArea",
+     "computed": 30.60000000000001,
+     "stored": 29.655,
+     "rel": 0.0318664643399092,
+     "openings": 12
+    },
+    {
+     "id": 47404,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-015",
+     "qty": "GrossSideArea",
+     "computed": 47.79,
+     "stored": 46.44,
+     "rel": 0.029069767441860496,
+     "openings": 6
+    },
+    {
+     "id": 47404,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-015",
+     "qty": "NetSideArea",
+     "computed": 35.18999999999999,
+     "stored": 33.84,
+     "rel": 0.039893617021276216,
+     "openings": 6
+    },
+    {
+     "id": 50078,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-014",
+     "qty": "GrossSideArea",
+     "computed": 79.92,
+     "stored": 78.03,
+     "rel": 0.02422145328719724,
+     "openings": 5
+    },
+    {
+     "id": 50078,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-014",
+     "qty": "NetSideArea",
+     "computed": 69.42000000000002,
+     "stored": 67.53,
+     "rel": 0.0279875610839629,
+     "openings": 5
+    },
+    {
+     "id": 52075,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-016",
+     "qty": "NetSideArea",
+     "computed": 11.73,
+     "stored": 11.46,
+     "rel": 0.023560209424083732,
+     "openings": 2
+    },
+    {
+     "id": 55353,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-024",
+     "qty": "GrossSideArea",
+     "computed": 30.78,
+     "stored": 29.97,
+     "rel": 0.027027027027027105,
+     "openings": 1
+    },
+    {
+     "id": 55353,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-024",
+     "qty": "NetSideArea",
+     "computed": 27,
+     "stored": 26.19,
+     "rel": 0.03092783505154634,
+     "openings": 1
+    },
+    {
+     "id": 56404,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-003",
+     "qty": "GrossSideArea",
+     "computed": 18.090000000000003,
+     "stored": 17.685,
+     "rel": 0.022900763358778893,
+     "openings": 1
+    },
+    {
+     "id": 56404,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-003",
+     "qty": "NetSideArea",
+     "computed": 14.310000000000004,
+     "stored": 13.905,
+     "rel": 0.029126213592233347,
+     "openings": 1
+    },
+    {
+     "id": 57708,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-005",
+     "qty": "GrossSideArea",
+     "computed": 18.090000000000003,
+     "stored": 17.685,
+     "rel": 0.022900763358778893,
+     "openings": 1
+    },
+    {
+     "id": 57708,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-005",
+     "qty": "NetSideArea",
+     "computed": 14.310000000000002,
+     "stored": 13.905,
+     "rel": 0.029126213592233222,
+     "openings": 1
+    },
+    {
+     "id": 81382,
+     "ifcClass": "IfcColumn",
+     "name": "Stütze-001",
+     "qty": "CrossSectionArea",
+     "computed": 0.031415926535897865,
+     "stored": 1.25663706144,
+     "rel": -0.9750000000000811,
+     "openings": 0
+    },
+    {
+     "id": 81565,
+     "ifcClass": "IfcColumn",
+     "name": "Stütze-001",
+     "qty": "CrossSectionArea",
+     "computed": 0.031415926535897865,
+     "stored": 1.25663706144,
+     "rel": -0.9750000000000811,
+     "openings": 0
+    },
+    {
+     "id": 90339,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-002",
+     "qty": "NetSideArea",
+     "computed": 30.60000000000001,
+     "stored": 29.655,
+     "rel": 0.0318664643399092,
+     "openings": 12
+    },
+    {
+     "id": 94567,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-006",
+     "qty": "GrossSideArea",
+     "computed": 48.60000000000001,
+     "stored": 46.845,
+     "rel": 0.03746397694524516,
+     "openings": 12
+    },
+    {
+     "id": 94567,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-006",
+     "qty": "NetSideArea",
+     "computed": 30.60000000000001,
+     "stored": 28.845,
+     "rel": 0.06084243369734823,
+     "openings": 12
+    },
+    {
+     "id": 99022,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-014",
+     "qty": "NetSideArea",
+     "computed": 39.39,
+     "stored": 38.58,
+     "rel": 0.020995334370140027,
+     "openings": 4
+    },
+    {
+     "id": 101958,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-016",
+     "qty": "GrossSideArea",
+     "computed": 47.790000000000006,
+     "stored": 46.44,
+     "rel": 0.02906976744186065,
+     "openings": 6
+    },
+    {
+     "id": 101958,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-016",
+     "qty": "NetSideArea",
+     "computed": 35.19,
+     "stored": 33.84,
+     "rel": 0.039893617021276424,
+     "openings": 6
+    },
+    {
+     "id": 135395,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-002",
+     "qty": "GrossSideArea",
+     "computed": 48.60000000000001,
+     "stored": 46.845,
+     "rel": 0.03746397694524516,
+     "openings": 12
+    },
+    {
+     "id": 135395,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-002",
+     "qty": "NetSideArea",
+     "computed": 30.60000000000001,
+     "stored": 28.845,
+     "rel": 0.06084243369734823,
+     "openings": 12
+    },
+    {
+     "id": 139845,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-006",
+     "qty": "GrossSideArea",
+     "computed": 48.60000000000001,
+     "stored": 46.845,
+     "rel": 0.03746397694524516,
+     "openings": 12
+    },
+    {
+     "id": 139845,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-006",
+     "qty": "NetSideArea",
+     "computed": 30.60000000000001,
+     "stored": 28.845,
+     "rel": 0.06084243369734823,
+     "openings": 12
+    },
+    {
+     "id": 154762,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-015",
+     "qty": "GrossSideArea",
+     "computed": 47.79,
+     "stored": 46.44,
+     "rel": 0.029069767441860496,
+     "openings": 6
+    },
+    {
+     "id": 154762,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-015",
+     "qty": "NetSideArea",
+     "computed": 35.18999999999999,
+     "stored": 33.84,
+     "rel": 0.039893617021276216,
+     "openings": 6
+    },
+    {
+     "id": 157112,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-016",
+     "qty": "GrossSideArea",
+     "computed": 47.790000000000006,
+     "stored": 46.44,
+     "rel": 0.02906976744186065,
+     "openings": 6
+    },
+    {
+     "id": 157112,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-016",
+     "qty": "NetSideArea",
+     "computed": 35.19,
+     "stored": 33.84,
+     "rel": 0.039893617021276424,
+     "openings": 6
+    },
+    {
+     "id": 159462,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-014",
+     "qty": "GrossSideArea",
+     "computed": 111.78000000000002,
+     "stored": 109.35,
+     "rel": 0.022222222222222417,
+     "openings": 7
+    },
+    {
+     "id": 159462,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-014",
+     "qty": "NetSideArea",
+     "computed": 97.08000000000004,
+     "stored": 94.65,
+     "rel": 0.02567353407290053,
+     "openings": 7
+    },
+    {
+     "id": 166266,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-003",
+     "qty": "GrossSideArea",
+     "computed": 18.090000000000003,
+     "stored": 17.685,
+     "rel": 0.022900763358778893,
+     "openings": 1
+    },
+    {
+     "id": 166266,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-003",
+     "qty": "NetSideArea",
+     "computed": 14.310000000000004,
+     "stored": 13.905,
+     "rel": 0.029126213592233347,
+     "openings": 1
+    },
+    {
+     "id": 167338,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-005",
+     "qty": "GrossSideArea",
+     "computed": 18.090000000000003,
+     "stored": 17.685,
+     "rel": 0.022900763358778893,
+     "openings": 1
+    },
+    {
+     "id": 167338,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-005",
+     "qty": "NetSideArea",
+     "computed": 14.310000000000002,
+     "stored": 13.905,
+     "rel": 0.029126213592233222,
+     "openings": 1
+    },
+    {
+     "id": 188155,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-002",
+     "qty": "GrossSideArea",
+     "computed": 48.60000000000001,
+     "stored": 46.845,
+     "rel": 0.03746397694524516,
+     "openings": 12
+    },
+    {
+     "id": 188155,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-002",
+     "qty": "NetSideArea",
+     "computed": 30.60000000000001,
+     "stored": 28.845,
+     "rel": 0.06084243369734823,
+     "openings": 12
+    },
+    {
+     "id": 192605,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-006",
+     "qty": "GrossSideArea",
+     "computed": 48.60000000000001,
+     "stored": 46.845,
+     "rel": 0.03746397694524516,
+     "openings": 12
+    },
+    {
+     "id": 192605,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-006",
+     "qty": "NetSideArea",
+     "computed": 30.60000000000001,
+     "stored": 28.845,
+     "rel": 0.06084243369734823,
+     "openings": 12
+    },
+    {
+     "id": 207522,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-015",
+     "qty": "GrossSideArea",
+     "computed": 47.79,
+     "stored": 46.44,
+     "rel": 0.029069767441860496,
+     "openings": 6
+    },
+    {
+     "id": 207522,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-015",
+     "qty": "NetSideArea",
+     "computed": 35.18999999999999,
+     "stored": 33.84,
+     "rel": 0.039893617021276216,
+     "openings": 6
+    },
+    {
+     "id": 209872,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-016",
+     "qty": "GrossSideArea",
+     "computed": 47.790000000000006,
+     "stored": 46.44,
+     "rel": 0.02906976744186065,
+     "openings": 6
+    },
+    {
+     "id": 209872,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-016",
+     "qty": "NetSideArea",
+     "computed": 35.19,
+     "stored": 33.84,
+     "rel": 0.039893617021276424,
+     "openings": 6
+    },
+    {
+     "id": 212222,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-014",
+     "qty": "GrossSideArea",
+     "computed": 111.78000000000002,
+     "stored": 109.35,
+     "rel": 0.022222222222222417,
+     "openings": 7
+    },
+    {
+     "id": 212222,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-014",
+     "qty": "NetSideArea",
+     "computed": 97.08000000000004,
+     "stored": 94.65,
+     "rel": 0.02567353407290053,
+     "openings": 7
+    },
+    {
+     "id": 218661,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-003",
+     "qty": "GrossSideArea",
+     "computed": 18.090000000000003,
+     "stored": 17.685,
+     "rel": 0.022900763358778893,
+     "openings": 1
+    },
+    {
+     "id": 218661,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-003",
+     "qty": "NetSideArea",
+     "computed": 14.310000000000004,
+     "stored": 13.905,
+     "rel": 0.029126213592233347,
+     "openings": 1
+    },
+    {
+     "id": 219733,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-005",
+     "qty": "GrossSideArea",
+     "computed": 18.090000000000003,
+     "stored": 17.685,
+     "rel": 0.022900763358778893,
+     "openings": 1
+    },
+    {
+     "id": 219733,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-005",
+     "qty": "NetSideArea",
+     "computed": 14.310000000000002,
+     "stored": 13.905,
+     "rel": 0.029126213592233222,
+     "openings": 1
+    },
+    {
+     "id": 222221,
+     "ifcClass": "IfcSlab",
+     "name": "Dach-001",
+     "qty": "GrossArea",
+     "computed": 41.179030574136995,
+     "stored": 39.7257125966,
+     "rel": 0.03658381140433922,
+     "openings": 0
+    },
+    {
+     "id": 222221,
+     "ifcClass": "IfcSlab",
+     "name": "Dach-001",
+     "qty": "NetArea",
+     "computed": 41.179030574136995,
+     "stored": 39.7257125966,
+     "rel": 0.03658381140433922,
+     "openings": 0
+    },
+    {
+     "id": 222433,
+     "ifcClass": "IfcSlab",
+     "name": "Dach-001",
+     "qty": "GrossArea",
+     "computed": 19.48099978700589,
+     "stored": 18.9438113061,
+     "rel": 0.028356937905779946,
+     "openings": 0
+    },
+    {
+     "id": 222433,
+     "ifcClass": "IfcSlab",
+     "name": "Dach-001",
+     "qty": "NetArea",
+     "computed": 19.48099978700589,
+     "stored": 18.9438113061,
+     "rel": 0.028356937905779946,
+     "openings": 0
+    },
+    {
+     "id": 223705,
+     "ifcClass": "IfcSlab",
+     "name": "Dach-001",
+     "qty": "GrossArea",
+     "computed": 19.480999787013143,
+     "stored": 18.9438113061,
+     "rel": 0.028356937906162904,
+     "openings": 0
+    },
+    {
+     "id": 223705,
+     "ifcClass": "IfcSlab",
+     "name": "Dach-001",
+     "qty": "NetArea",
+     "computed": 19.480999787013143,
+     "stored": 18.9438113061,
+     "rel": 0.028356937906162904,
+     "openings": 0
+    },
+    {
+     "id": 223917,
+     "ifcClass": "IfcSlab",
+     "name": "Dach-001",
+     "qty": "GrossArea",
+     "computed": 41.17903057414379,
+     "stored": 39.7257125966,
+     "rel": 0.03658381140451022,
+     "openings": 0
+    },
+    {
+     "id": 223917,
+     "ifcClass": "IfcSlab",
+     "name": "Dach-001",
+     "qty": "NetArea",
+     "computed": 41.17903057414379,
+     "stored": 39.7257125966,
+     "rel": 0.03658381140451022,
+     "openings": 0
+    },
+    {
+     "id": 225189,
+     "ifcClass": "IfcSlab",
+     "name": "Dach-001",
+     "qty": "GrossArea",
+     "computed": 41.179030574136995,
+     "stored": 39.7257125966,
+     "rel": 0.03658381140433922,
+     "openings": 0
+    },
+    {
+     "id": 225189,
+     "ifcClass": "IfcSlab",
+     "name": "Dach-001",
+     "qty": "NetArea",
+     "computed": 41.179030574136995,
+     "stored": 39.7257125966,
+     "rel": 0.03658381140433922,
+     "openings": 0
+    },
+    {
+     "id": 225401,
+     "ifcClass": "IfcSlab",
+     "name": "Dach-001",
+     "qty": "GrossArea",
+     "computed": 41.1790316534616,
+     "stored": 39.7257125966,
+     "rel": 0.03658383857376009,
+     "openings": 0
+    },
+    {
+     "id": 225401,
+     "ifcClass": "IfcSlab",
+     "name": "Dach-001",
+     "qty": "NetArea",
+     "computed": 41.1790316534616,
+     "stored": 39.7257125966,
+     "rel": 0.03658383857376009,
+     "openings": 0
+    },
+    {
+     "id": 228278,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-010",
+     "qty": "GrossSideArea",
+     "computed": 19.312314093123746,
+     "stored": 18.4808549905,
+     "rel": 0.044990294174763794,
+     "openings": 0
+    },
+    {
+     "id": 228278,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-010",
+     "qty": "NetSideArea",
+     "computed": 19.312314093123746,
+     "stored": 18.4808549905,
+     "rel": 0.044990294174763794,
+     "openings": 0
+    },
+    {
+     "id": 228563,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-002",
+     "qty": "GrossSideArea",
+     "computed": 6.142135871013141,
+     "stored": 5.73251103679,
+     "rel": 0.07145644057102704,
+     "openings": 0
+    },
+    {
+     "id": 228563,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-002",
+     "qty": "NetSideArea",
+     "computed": 6.142135871013141,
+     "stored": 5.73251103679,
+     "rel": 0.07145644057102704,
+     "openings": 0
+    },
+    {
+     "id": 230935,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-006",
+     "qty": "GrossSideArea",
+     "computed": 6.142135871013994,
+     "stored": 5.73251103679,
+     "rel": 0.07145644057117577,
+     "openings": 0
+    },
+    {
+     "id": 230935,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Wand-006",
+     "qty": "NetSideArea",
+     "computed": 6.142135871013994,
+     "stored": 5.73251103679,
+     "rel": 0.07145644057117577,
+     "openings": 0
+    }
+   ]
+  },
+  {
+   "file": "ISSUE_159_kleine_Wohnung_R22.ifc",
+   "schema": "IFC4",
+   "seconds": 0.431,
+   "byQty": {
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 210,
+     "agree": 210,
+     "reasons": {}
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 210,
+     "agree": 162,
+     "reasons": {
+      "matches-stored-volume": 11,
+      "net-as-gross": 32,
+      "on-a-face": 5
+     }
+    },
+    "IfcWall.NetSideArea": {
+     "pairs": 173,
+     "agree": 173,
+     "reasons": {}
+    },
+    "IfcSlab.GrossArea": {
+     "pairs": 53,
+     "agree": 50,
+     "reasons": {
+      "unit-slip": 3
+     }
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 53,
+     "agree": 53,
+     "reasons": {}
+    }
+   },
+   "medianAgreeRel": 1.3998116610327298e-15,
+   "notCut": 0,
+   "others": []
+  },
+  {
+   "file": "ISSUE_021_Mini Project.ifc",
+   "schema": "IFC2X3",
+   "seconds": 3.163,
+   "byQty": {
+    "IfcMember.CrossSectionArea": {
+     "pairs": 228,
+     "agree": 228,
+     "reasons": {}
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 24,
+     "agree": 20,
+     "reasons": {
+      "unexplained": 4
+     }
+    }
+   },
+   "medianAgreeRel": 0,
+   "notCut": 5,
+   "others": [
+    {
+     "id": 3639,
+     "ifcClass": "IfcSlab",
+     "name": "KONZOLE",
+     "qty": "NetArea",
+     "computed": 0.05312500000000009,
+     "stored": 0.0925,
+     "rel": -0.4256756756756747,
+     "openings": 0
+    },
+    {
+     "id": 13969,
+     "ifcClass": "IfcSlab",
+     "name": "KONZOLE",
+     "qty": "NetArea",
+     "computed": 0.05312500000000009,
+     "stored": 0.0925,
+     "rel": -0.4256756756756747,
+     "openings": 0
+    },
+    {
+     "id": 23436,
+     "ifcClass": "IfcSlab",
+     "name": "KONZOLE",
+     "qty": "NetArea",
+     "computed": 0.05312500000000009,
+     "stored": 0.0925,
+     "rel": -0.4256756756756747,
+     "openings": 0
+    },
+    {
+     "id": 23469,
+     "ifcClass": "IfcSlab",
+     "name": "KONZOLE",
+     "qty": "NetArea",
+     "computed": 0.05312500000000009,
+     "stored": 0.0925,
+     "rel": -0.4256756756756747,
+     "openings": 0
+    }
+   ]
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "schema": "IFC2X3",
+   "seconds": 2.019,
+   "byQty": {
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 928,
+     "agree": 672,
+     "reasons": {
+      "unexplained": 256
+     }
+    },
+    "IfcWall.NetFootprintArea": {
+     "pairs": 928,
+     "agree": 618,
+     "reasons": {
+      "unexplained": 256,
+      "gross-as-net": 54
+     }
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 928,
+     "agree": 750,
+     "reasons": {
+      "unexplained": 79,
+      "matches-stored-volume": 98,
+      "on-a-face": 1
+     }
+    },
+    "IfcWall.NetSideArea": {
+     "pairs": 928,
+     "agree": 838,
+     "reasons": {
+      "unexplained": 79,
+      "matches-stored-volume": 10,
+      "on-a-face": 1
+     }
+    },
+    "IfcBeam.CrossSectionArea": {
+     "pairs": 127,
+     "agree": 109,
+     "reasons": {
+      "unexplained": 17,
+      "scales-with-length": 1
+     }
+    },
+    "IfcSlab.GrossArea": {
+     "pairs": 275,
+     "agree": 213,
+     "reasons": {
+      "unexplained": 62
+     }
+    },
+    "IfcSlab.NetArea": {
+     "pairs": 275,
+     "agree": 221,
+     "reasons": {
+      "unexplained": 54
+     }
+    },
+    "IfcCovering.GrossArea": {
+     "pairs": 728,
+     "agree": 533,
+     "reasons": {
+      "unexplained": 194,
+      "unit-slip": 1
+     }
+    },
+    "IfcCovering.NetArea": {
+     "pairs": 728,
+     "agree": 533,
+     "reasons": {
+      "unexplained": 194,
+      "unit-slip": 1
+     }
+    }
+   },
+   "medianAgreeRel": 4.408667967912682e-13,
+   "notCut": 0,
+   "others": [
+    {
+     "id": 3776,
+     "ifcClass": "IfcBeam",
+     "name": "fund_strook",
+     "qty": "CrossSectionArea",
+     "computed": 0.13392200335621215,
+     "stored": 0.125,
+     "rel": 0.07137602684969724,
+     "openings": 0
+    },
+    {
+     "id": 3946,
+     "ifcClass": "IfcBeam",
+     "name": "fund_opstort",
+     "qty": "CrossSectionArea",
+     "computed": 0.05062251726864822,
+     "stored": 0.04725,
+     "rel": 0.07137602684969778,
+     "openings": 0
+    },
+    {
+     "id": 7939,
+     "ifcClass": "IfcBeam",
+     "name": "fund_strook",
+     "qty": "CrossSectionArea",
+     "computed": 0.07027219447645275,
+     "stored": 0.125,
+     "rel": -0.437822444188378,
+     "openings": 0
+    },
+    {
+     "id": 8123,
+     "ifcClass": "IfcBeam",
+     "name": "fund_opstort",
+     "qty": "CrossSectionArea",
+     "computed": 0.12250000000000003,
+     "stored": 0.231,
+     "rel": -0.4696969696969696,
+     "openings": 0
+    },
+    {
+     "id": 8439,
+     "ifcClass": "IfcBeam",
+     "name": "fund_opstort",
+     "qty": "CrossSectionArea",
+     "computed": 0.05062251726864821,
+     "stored": 0.04725,
+     "rel": 0.07137602684969749,
+     "openings": 0
+    },
+    {
+     "id": 8605,
+     "ifcClass": "IfcBeam",
+     "name": "fund_opstort",
+     "qty": "CrossSectionArea",
+     "computed": 0.05062251726864821,
+     "stored": 0.04725,
+     "rel": 0.07137602684969749,
+     "openings": 0
+    },
+    {
+     "id": 8771,
+     "ifcClass": "IfcBeam",
+     "name": "fund_opstort",
+     "qty": "CrossSectionArea",
+     "computed": 0.05062251726864818,
+     "stored": 0.04725,
+     "rel": 0.0713760268496969,
+     "openings": 0
+    },
+    {
+     "id": 8937,
+     "ifcClass": "IfcBeam",
+     "name": "fund_strook",
+     "qty": "CrossSectionArea",
+     "computed": 0.07027218336254723,
+     "stored": 0.125,
+     "rel": -0.43782253309962216,
+     "openings": 0
+    },
+    {
+     "id": 9103,
+     "ifcClass": "IfcBeam",
+     "name": "fund_strook",
+     "qty": "CrossSectionArea",
+     "computed": 0.13392200335621218,
+     "stored": 0.125,
+     "rel": 0.07137602684969746,
+     "openings": 0
+    },
+    {
+     "id": 9269,
+     "ifcClass": "IfcBeam",
+     "name": "fund_opstort",
+     "qty": "CrossSectionArea",
+     "computed": 0.0506225172686482,
+     "stored": 0.04725,
+     "rel": 0.07137602684969734,
+     "openings": 0
+    },
+    {
+     "id": 9767,
+     "ifcClass": "IfcBeam",
+     "name": "fund_opstort",
+     "qty": "CrossSectionArea",
+     "computed": 0.05062251726864822,
+     "stored": 0.04725,
+     "rel": 0.07137602684969778,
+     "openings": 0
+    },
+    {
+     "id": 10099,
+     "ifcClass": "IfcBeam",
+     "name": "fund_strook",
+     "qty": "CrossSectionArea",
+     "computed": 0.13392200335621218,
+     "stored": 0.125,
+     "rel": 0.07137602684969746,
+     "openings": 0
+    },
+    {
+     "id": 10265,
+     "ifcClass": "IfcBeam",
+     "name": "fund_strook",
+     "qty": "CrossSectionArea",
+     "computed": 0.07027219447645275,
+     "stored": 0.125,
+     "rel": -0.437822444188378,
+     "openings": 0
+    },
+    {
+     "id": 11927,
+     "ifcClass": "IfcBeam",
+     "name": "fund_strook",
+     "qty": "CrossSectionArea",
+     "computed": 0.13392200335621218,
+     "stored": 0.125,
+     "rel": 0.07137602684969746,
+     "openings": 0
+    },
+    {
+     "id": 12347,
+     "ifcClass": "IfcBeam",
+     "name": "fund_strook",
+     "qty": "CrossSectionArea",
+     "computed": 0.13392200335621218,
+     "stored": 0.125,
+     "rel": 0.07137602684969746,
+     "openings": 0
+    },
+    {
+     "id": 12513,
+     "ifcClass": "IfcBeam",
+     "name": "fund_strook",
+     "qty": "CrossSectionArea",
+     "computed": 0.07027218336254723,
+     "stored": 0.125,
+     "rel": -0.43782253309962216,
+     "openings": 0
+    },
+    {
+     "id": 13187,
+     "ifcClass": "IfcBeam",
+     "name": "fund_strook",
+     "qty": "CrossSectionArea",
+     "computed": 0.13392200335621218,
+     "stored": 0.125,
+     "rel": 0.07137602684969746,
+     "openings": 0
+    },
+    {
+     "id": 13529,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.06451220870761001,
+     "stored": 0.0577772326722,
+     "rel": 0.11656799268357139,
+     "openings": 0
+    },
+    {
+     "id": 13529,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.06451220870761001,
+     "stored": 0.0577772326722,
+     "rel": 0.11656799268357139,
+     "openings": 0
+    },
+    {
+     "id": 13956,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.007114362946574996,
+     "stored": 0.0145774501239,
+     "rel": -0.5119610846816848,
+     "openings": 0
+    },
+    {
+     "id": 13956,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.007114362946574996,
+     "stored": 0.0145774501239,
+     "rel": -0.5119610846816848,
+     "openings": 0
+    },
+    {
+     "id": 13956,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossSideArea",
+     "computed": 0.043467549893858946,
+     "stored": 0.0362832510274,
+     "rel": 0.1980059300924711,
+     "openings": 0
+    },
+    {
+     "id": 13956,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetSideArea",
+     "computed": 0.043467549893858946,
+     "stored": 0.0362832510274,
+     "rel": 0.1980059300924711,
+     "openings": 0
+    },
+    {
+     "id": 14172,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.0645123250298,
+     "stored": 0.0577773489944,
+     "rel": 0.11656775799894843,
+     "openings": 0
+    },
+    {
+     "id": 14172,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.0645123250298,
+     "stored": 0.0577773489944,
+     "rel": 0.11656775799894843,
+     "openings": 0
+    },
+    {
+     "id": 14599,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.007114362946574996,
+     "stored": 0.0145774501239,
+     "rel": -0.5119610846816848,
+     "openings": 0
+    },
+    {
+     "id": 14599,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.007114362946574996,
+     "stored": 0.0145774501239,
+     "rel": -0.5119610846816848,
+     "openings": 0
+    },
+    {
+     "id": 14599,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossSideArea",
+     "computed": 0.04346753250684243,
+     "stored": 0.0362832510274,
+     "rel": 0.19800545089019397,
+     "openings": 0
+    },
+    {
+     "id": 14599,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetSideArea",
+     "computed": 0.04346753250684243,
+     "stored": 0.0362832510274,
+     "rel": 0.19800545089019397,
+     "openings": 0
+    },
+    {
+     "id": 15677,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.09099997922940002,
+     "stored": 0.0959999792294,
+     "rel": -0.05208334460210723,
+     "openings": 0
+    },
+    {
+     "id": 15677,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.09099997922940002,
+     "stored": 0.0959999792294,
+     "rel": -0.05208334460210723,
+     "openings": 0
+    },
+    {
+     "id": 15893,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.14800001171100002,
+     "stored": 0.143000011711,
+     "rel": 0.03496503210157022,
+     "openings": 0
+    },
+    {
+     "id": 15893,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.14800001171100002,
+     "stored": 0.143000011711,
+     "rel": 0.03496503210157022,
+     "openings": 0
+    },
+    {
+     "id": 16720,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.031,
+     "stored": 0.036,
+     "rel": -0.13888888888888884,
+     "openings": 0
+    },
+    {
+     "id": 16720,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.031,
+     "stored": 0.036,
+     "rel": -0.13888888888888884,
+     "openings": 0
+    },
+    {
+     "id": 16936,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.030600000164699995,
+     "stored": 0.0356000001647,
+     "rel": -0.1404494375524715,
+     "openings": 0
+    },
+    {
+     "id": 16936,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.030600000164699995,
+     "stored": 0.0356000001647,
+     "rel": -0.1404494375524715,
+     "openings": 0
+    },
+    {
+     "id": 17915,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.0645123250298,
+     "stored": 0.0577773489944,
+     "rel": 0.11656775799894843,
+     "openings": 0
+    },
+    {
+     "id": 17915,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.0645123250298,
+     "stored": 0.0577773489944,
+     "rel": 0.11656775799894843,
+     "openings": 0
+    },
+    {
+     "id": 18131,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.06451220870761,
+     "stored": 0.0577772326722,
+     "rel": 0.11656799268357115,
+     "openings": 0
+    },
+    {
+     "id": 18131,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.06451220870761,
+     "stored": 0.0577772326722,
+     "rel": 0.11656799268357115,
+     "openings": 0
+    },
+    {
+     "id": 18953,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.007114362946574996,
+     "stored": 0.0145774501239,
+     "rel": -0.5119610846816848,
+     "openings": 0
+    },
+    {
+     "id": 18953,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.007114362946574996,
+     "stored": 0.0145774501239,
+     "rel": -0.5119610846816848,
+     "openings": 0
+    },
+    {
+     "id": 18953,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossSideArea",
+     "computed": 0.043467549893858946,
+     "stored": 0.0362832510274,
+     "rel": 0.1980059300924711,
+     "openings": 0
+    },
+    {
+     "id": 18953,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetSideArea",
+     "computed": 0.043467549893858946,
+     "stored": 0.0362832510274,
+     "rel": 0.1980059300924711,
+     "openings": 0
+    },
+    {
+     "id": 19379,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.007114362946574996,
+     "stored": 0.0145774501239,
+     "rel": -0.5119610846816848,
+     "openings": 0
+    },
+    {
+     "id": 19379,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.007114362946574996,
+     "stored": 0.0145774501239,
+     "rel": -0.5119610846816848,
+     "openings": 0
+    },
+    {
+     "id": 19379,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossSideArea",
+     "computed": 0.04346753250684243,
+     "stored": 0.0362832510274,
+     "rel": 0.19800545089019397,
+     "openings": 0
+    },
+    {
+     "id": 19379,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetSideArea",
+     "computed": 0.04346753250684243,
+     "stored": 0.0362832510274,
+     "rel": 0.19800545089019397,
+     "openings": 0
+    },
+    {
+     "id": 22059,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.06499999999999999,
+     "stored": 0.06,
+     "rel": 0.08333333333333318,
+     "openings": 0
+    },
+    {
+     "id": 22059,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.06499999999999999,
+     "stored": 0.06,
+     "rel": 0.08333333333333318,
+     "openings": 0
+    },
+    {
+     "id": 22491,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.031,
+     "stored": 0.036,
+     "rel": -0.13888888888888884,
+     "openings": 0
+    },
+    {
+     "id": 22491,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.031,
+     "stored": 0.036,
+     "rel": -0.13888888888888884,
+     "openings": 0
+    },
+    {
+     "id": 22706,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "GrossFootprintArea",
+     "computed": 0.030600000164699995,
+     "stored": 0.0356000001647,
+     "rel": -0.1404494375524715,
+     "openings": 0
+    },
+    {
+     "id": 22706,
+     "ifcClass": "IfcWall",
+     "name": "opgaand werk",
+     "qty": "NetFootprintArea",
+     "computed": 0.030600000164699995,
+     "stored": 0.0356000001647,
+     "rel": -0.1404494375524715,
+     "openings": 0
+    },
+    {
+     "id": 28080,
+     "ifcClass": "IfcWall",
+     "name": "binnenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.045795999999999996,
+     "stored": 0.092876,
+     "rel": -0.5069124423963134,
+     "openings": 0
+    },
+    {
+     "id": 28080,
+     "ifcClass": "IfcWall",
+     "name": "binnenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.045795999999999996,
+     "stored": 0.092876,
+     "rel": -0.5069124423963134,
+     "openings": 0
+    },
+    {
+     "id": 31043,
+     "ifcClass": "IfcWall",
+     "name": "binnenwand",
+     "qty": "GrossFootprintArea",
+     "computed": 0.14400001825768016,
+     "stored": 0.157006258297,
+     "rel": -0.08283899113573324,
+     "openings": 0
+    },
+    {
+     "id": 31043,
+     "ifcClass": "IfcWall",
+     "name": "binnenwand",
+     "qty": "NetFootprintArea",
+     "computed": 0.14400001825768016,
+     "stored": 0.157006258297,
+     "rel": -0.08283899113573324,
+     "openings": 0
+    },
+    {
+     "id": 31703,
+     "ifcClass": "IfcWall",
+     "name": "binnenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.06890794397715395,
+     "stored": 0.250807945051,
+     "rel": -0.7252561358726415,
+     "openings": 0
+    },
+    {
+     "id": 31703,
+     "ifcClass": "IfcWall",
+     "name": "binnenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.06890794397715395,
+     "stored": 0.250807945051,
+     "rel": -0.7252561358726415,
+     "openings": 0
+    },
+    {
+     "id": 43828,
+     "ifcClass": "IfcSlab",
+     "name": "vloerstort V0",
+     "qty": "GrossArea",
+     "computed": 27.317804844707634,
+     "stored": 123.46209182,
+     "rel": -0.7787352826928019,
+     "openings": 0
+    },
+    {
+     "id": 44220,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "GrossArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.0611000000897,
+     "rel": -0.8339939871711853,
+     "openings": 0
+    },
+    {
+     "id": 44220,
+     "ifcClass": "IfcCovering",
+     "name": "afdekker",
+     "qty": "NetArea",
+     "computed": 0.010142967398731311,
+     "stored": 0.0611000000897,
+     "rel": -0.8339939871711853,
+     "openings": 0
+    },
+    {
+     "id": 46142,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "buitenblad",
+     "qty": "GrossSideArea",
+     "computed": 0.006,
+     "stored": 0.00239939828156,
+     "rel": 1.500626947227378,
+     "openings": 0
+    },
+    {
+     "id": 46142,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "buitenblad",
+     "qty": "NetSideArea",
+     "computed": 0.006,
+     "stored": 0.00239939828156,
+     "rel": 1.500626947227378,
+     "openings": 0
+    },
+    {
+     "id": 46349,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "buitenblad",
+     "qty": "GrossSideArea",
+     "computed": 0.006,
+     "stored": 0.0024,
+     "rel": 1.5000000000000002,
+     "openings": 0
+    },
+    {
+     "id": 46349,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "buitenblad",
+     "qty": "NetSideArea",
+     "computed": 0.006,
+     "stored": 0.0024,
+     "rel": 1.5000000000000002,
+     "openings": 0
+    },
+    {
+     "id": 55074,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossFootprintArea",
+     "computed": 0.012208468083360983,
+     "stored": 0.0126002465306,
+     "rel": -0.031092919197062845,
+     "openings": 0
+    },
+    {
+     "id": 55074,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetFootprintArea",
+     "computed": 0.012208468083360983,
+     "stored": 0.0126002465306,
+     "rel": -0.031092919197062845,
+     "openings": 0
+    },
+    {
+     "id": 55074,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 0.39577365220038613,
+     "stored": 0.21250233872,
+     "rel": 0.862443748075029,
+     "openings": 0
+    },
+    {
+     "id": 55074,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 0.39577365220038613,
+     "stored": 0.21250233872,
+     "rel": 0.862443748075029,
+     "openings": 0
+    },
+    {
+     "id": 56879,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.0645122087076,
+     "stored": 0.0577772326722,
+     "rel": 0.11656799268339797,
+     "openings": 0
+    },
+    {
+     "id": 56879,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.0645122087076,
+     "stored": 0.0577772326722,
+     "rel": 0.11656799268339797,
+     "openings": 0
+    },
+    {
+     "id": 57162,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.021869158009722618,
+     "stored": 0.0144060707481,
+     "rel": 0.5180515486922008,
+     "openings": 0
+    },
+    {
+     "id": 57162,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.021869158009722618,
+     "stored": 0.0144060707481,
+     "rel": 0.5180515486922008,
+     "openings": 0
+    },
+    {
+     "id": 57417,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.006914362881174891,
+     "stored": 0.0143774501239,
+     "rel": -0.519082812210145,
+     "openings": 0
+    },
+    {
+     "id": 57417,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.006914362881174891,
+     "stored": 0.0143774501239,
+     "rel": -0.519082812210145,
+     "openings": 0
+    },
+    {
+     "id": 57417,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossSideArea",
+     "computed": 0.22117557350586065,
+     "stored": 0.182377184611,
+     "rel": 0.21273707551531387,
+     "openings": 0
+    },
+    {
+     "id": 57417,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetSideArea",
+     "computed": 0.22117557350586065,
+     "stored": 0.182377184611,
+     "rel": 0.21273707551531387,
+     "openings": 0
+    },
+    {
+     "id": 57677,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.007367244707269563,
+     "stored": 0.0141022207372,
+     "rel": -0.4775826556284403,
+     "openings": 0
+    },
+    {
+     "id": 57677,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.007367244707269563,
+     "stored": 0.0141022207372,
+     "rel": -0.4775826556284403,
+     "openings": 0
+    },
+    {
+     "id": 57677,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossSideArea",
+     "computed": 0.2337623366543269,
+     "stored": 0.194332792763,
+     "rel": 0.20289701666261498,
+     "openings": 0
+    },
+    {
+     "id": 57677,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetSideArea",
+     "computed": 0.2337623366543269,
+     "stored": 0.194332792763,
+     "rel": 0.20289701666261498,
+     "openings": 0
+    },
+    {
+     "id": 58585,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.06451220870761,
+     "stored": 0.0577772326722,
+     "rel": 0.11656799268357115,
+     "openings": 0
+    },
+    {
+     "id": 58585,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.06451220870761,
+     "stored": 0.0577772326722,
+     "rel": 0.11656799268357115,
+     "openings": 0
+    },
+    {
+     "id": 58868,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.02186915800970706,
+     "stored": 0.0144060707481,
+     "rel": 0.518051548691121,
+     "openings": 0
+    },
+    {
+     "id": 58868,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.02186915800970706,
+     "stored": 0.0144060707481,
+     "rel": 0.518051548691121,
+     "openings": 0
+    },
+    {
+     "id": 59123,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.007013670592795286,
+     "stored": 0.0144767578384,
+     "rel": -0.5155220063023137,
+     "openings": 0
+    },
+    {
+     "id": 59123,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.007013670592795286,
+     "stored": 0.0144767578384,
+     "rel": -0.5155220063023137,
+     "openings": 0
+    },
+    {
+     "id": 59123,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossSideArea",
+     "computed": 0.22293894691236793,
+     "stored": 0.184997975836,
+     "rel": 0.20508857410419698,
+     "openings": 0
+    },
+    {
+     "id": 59123,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetSideArea",
+     "computed": 0.22293894691236793,
+     "stored": 0.184997975836,
+     "rel": 0.20508857410419698,
+     "openings": 0
+    },
+    {
+     "id": 59391,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.007367244707263091,
+     "stored": 0.0141022207372,
+     "rel": -0.4775826556288992,
+     "openings": 0
+    },
+    {
+     "id": 59391,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.007367244707263091,
+     "stored": 0.0141022207372,
+     "rel": -0.4775826556288992,
+     "openings": 0
+    },
+    {
+     "id": 59391,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossSideArea",
+     "computed": 0.23376260403051413,
+     "stored": 0.194332792763,
+     "rel": 0.2028983925301843,
+     "openings": 0
+    },
+    {
+     "id": 59391,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetSideArea",
+     "computed": 0.23376260403051413,
+     "stored": 0.194332792763,
+     "rel": 0.2028983925301843,
+     "openings": 0
+    },
+    {
+     "id": 60708,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.0645122087076,
+     "stored": 0.0577772326722,
+     "rel": 0.11656799268339797,
+     "openings": 0
+    },
+    {
+     "id": 60708,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.0645122087076,
+     "stored": 0.0577772326722,
+     "rel": 0.11656799268339797,
+     "openings": 0
+    },
+    {
+     "id": 60920,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.006914362874989997,
+     "stored": 0.0143774501239,
+     "rel": -0.5190828126403251,
+     "openings": 0
+    },
+    {
+     "id": 60920,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.006914362874989997,
+     "stored": 0.0143774501239,
+     "rel": -0.5190828126403251,
+     "openings": 0
+    },
+    {
+     "id": 60920,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossSideArea",
+     "computed": 0.05033009686778854,
+     "stored": 0.04148617725,
+     "rel": 0.21317750161684376,
+     "openings": 0
+    },
+    {
+     "id": 60920,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetSideArea",
+     "computed": 0.05033009686778854,
+     "stored": 0.04148617725,
+     "rel": 0.21317750161684376,
+     "openings": 0
+    },
+    {
+     "id": 61706,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.0645123250298,
+     "stored": 0.0577773489944,
+     "rel": 0.11656775799894843,
+     "openings": 0
+    },
+    {
+     "id": 61706,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.0645123250298,
+     "stored": 0.0577773489944,
+     "rel": 0.11656775799894843,
+     "openings": 0
+    },
+    {
+     "id": 62135,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.006914364575710001,
+     "stored": 0.0143774516815,
+     "rel": -0.5190827464503345,
+     "openings": 0
+    },
+    {
+     "id": 62135,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.006914364575710001,
+     "stored": 0.0143774516815,
+     "rel": -0.5190827464503345,
+     "openings": 0
+    },
+    {
+     "id": 62135,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossSideArea",
+     "computed": 0.05033008361534437,
+     "stored": 0.0414861874546,
+     "rel": 0.2131768837621583,
+     "openings": 0
+    },
+    {
+     "id": 62135,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetSideArea",
+     "computed": 0.05033008361534437,
+     "stored": 0.0414861874546,
+     "rel": 0.2131768837621583,
+     "openings": 0
+    },
+    {
+     "id": 62352,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.0966885507291089,
+     "stored": 0.0885149840591,
+     "rel": 0.09234105114396843,
+     "openings": 0
+    },
+    {
+     "id": 62352,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.0966885507291089,
+     "stored": 0.0885149840591,
+     "rel": 0.09234105114396843,
+     "openings": 0
+    },
+    {
+     "id": 62775,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.052201422057304,
+     "stored": 0.0558894955679,
+     "rel": -0.06598867055644422,
+     "openings": 0
+    },
+    {
+     "id": 62775,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.052201422057304,
+     "stored": 0.0558894955679,
+     "rel": -0.06598867055644422,
+     "openings": 0
+    },
+    {
+     "id": 63166,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.052204840489117006,
+     "stored": 0.0558929139985,
+     "rel": -0.06598463464406187,
+     "openings": 0
+    },
+    {
+     "id": 63166,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.052204840489117006,
+     "stored": 0.0558929139985,
+     "rel": -0.06598463464406187,
+     "openings": 0
+    },
+    {
+     "id": 67072,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.08900000462149998,
+     "stored": 0.0840000046215,
+     "rel": 0.05952380624893715,
+     "openings": 0
+    },
+    {
+     "id": 67072,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.08900000462149998,
+     "stored": 0.0840000046215,
+     "rel": 0.05952380624893715,
+     "openings": 0
+    },
+    {
+     "id": 68378,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.0889999953882,
+     "stored": 0.0839999953882,
+     "rel": 0.05952381279180863,
+     "openings": 0
+    },
+    {
+     "id": 68378,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.0889999953882,
+     "stored": 0.0839999953882,
+     "rel": 0.05952381279180863,
+     "openings": 0
+    },
+    {
+     "id": 68846,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.10399999845099998,
+     "stored": 0.0989999984514,
+     "rel": 0.050505051291031305,
+     "openings": 0
+    },
+    {
+     "id": 68846,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.10399999845099998,
+     "stored": 0.0989999984514,
+     "rel": 0.050505051291031305,
+     "openings": 0
+    },
+    {
+     "id": 69311,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.07899998604729998,
+     "stored": 0.0839999860473,
+     "rel": -0.059523819410928734,
+     "openings": 0
+    },
+    {
+     "id": 69311,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.07899998604729998,
+     "stored": 0.0839999860473,
+     "rel": -0.059523819410928734,
+     "openings": 0
+    },
+    {
+     "id": 70825,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.09099997922940002,
+     "stored": 0.0959999792294,
+     "rel": -0.05208334460210723,
+     "openings": 0
+    },
+    {
+     "id": 70825,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.09099997922940002,
+     "stored": 0.0959999792294,
+     "rel": -0.05208334460210723,
+     "openings": 0
+    },
+    {
+     "id": 71078,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.09099997922940001,
+     "stored": 0.0959999792294,
+     "rel": -0.052083344602107375,
+     "openings": 0
+    },
+    {
+     "id": 71078,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.09099997922940001,
+     "stored": 0.0959999792294,
+     "rel": -0.052083344602107375,
+     "openings": 0
+    },
+    {
+     "id": 71612,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.14800001171100002,
+     "stored": 0.143000011711,
+     "rel": 0.03496503210157022,
+     "openings": 0
+    },
+    {
+     "id": 71612,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.14800001171100002,
+     "stored": 0.143000011711,
+     "rel": 0.03496503210157022,
+     "openings": 0
+    },
+    {
+     "id": 71824,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.14800001171100002,
+     "stored": 0.143000011711,
+     "rel": 0.03496503210157022,
+     "openings": 0
+    },
+    {
+     "id": 71824,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.14800001171100002,
+     "stored": 0.143000011711,
+     "rel": 0.03496503210157022,
+     "openings": 0
+    },
+    {
+     "id": 79982,
+     "ifcClass": "IfcWall",
+     "name": "metalstudwand",
+     "qty": "GrossFootprintArea",
+     "computed": 0.024500000000139997,
+     "stored": 0.120147146526,
+     "rel": -0.7960833801838302,
+     "openings": 0
+    },
+    {
+     "id": 79982,
+     "ifcClass": "IfcWall",
+     "name": "metalstudwand",
+     "qty": "NetFootprintArea",
+     "computed": 0.024500000000139997,
+     "stored": 0.120147146526,
+     "rel": -0.7960833801838302,
+     "openings": 0
+    },
+    {
+     "id": 84224,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.031000000015178233,
+     "stored": 0.036,
+     "rel": -0.13888888846727124,
+     "openings": 0
+    },
+    {
+     "id": 84224,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.031000000015178233,
+     "stored": 0.036,
+     "rel": -0.13888888846727124,
+     "openings": 0
+    },
+    {
+     "id": 84448,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.030999999999999996,
+     "stored": 0.036,
+     "rel": -0.13888888888888892,
+     "openings": 0
+    },
+    {
+     "id": 84448,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.030999999999999996,
+     "stored": 0.036,
+     "rel": -0.13888888888888892,
+     "openings": 0
+    },
+    {
+     "id": 84701,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.030999992787777784,
+     "stored": 0.0359999927726,
+     "rel": -0.1388889163507769,
+     "openings": 0
+    },
+    {
+     "id": 84701,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.030999992787777784,
+     "stored": 0.0359999927726,
+     "rel": -0.1388889163507769,
+     "openings": 0
+    },
+    {
+     "id": 84921,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.030999992772600002,
+     "stored": 0.0359999927726,
+     "rel": -0.13888891677238208,
+     "openings": 0
+    },
+    {
+     "id": 84921,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.030999992772600002,
+     "stored": 0.0359999927726,
+     "rel": -0.13888891677238208,
+     "openings": 0
+    },
+    {
+     "id": 85739,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.030999992787777784,
+     "stored": 0.0359999927726,
+     "rel": -0.1388889163507769,
+     "openings": 0
+    },
+    {
+     "id": 85739,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.030999992787777784,
+     "stored": 0.0359999927726,
+     "rel": -0.1388889163507769,
+     "openings": 0
+    },
+    {
+     "id": 88364,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossFootprintArea",
+     "computed": 0.01226025485842346,
+     "stored": 0.0126446104977,
+     "rel": -0.03039679548424617,
+     "openings": 0
+    },
+    {
+     "id": 88364,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetFootprintArea",
+     "computed": 0.01226025485842346,
+     "stored": 0.0126446104977,
+     "rel": -0.03039679548424617,
+     "openings": 0
+    },
+    {
+     "id": 88364,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 0.4158518400667471,
+     "stored": 0.211409499387,
+     "rel": 0.9670442495372499,
+     "openings": 0
+    },
+    {
+     "id": 88364,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 0.4158518400667471,
+     "stored": 0.211409499387,
+     "rel": 0.9670442495372499,
+     "openings": 0
+    },
+    {
+     "id": 88681,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 0.3405383647665246,
+     "stored": 0.184335281033,
+     "rel": 0.8473857139999198,
+     "openings": 0
+    },
+    {
+     "id": 88681,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 0.3405383647665246,
+     "stored": 0.184335281033,
+     "rel": 0.8473857139999198,
+     "openings": 0
+    },
+    {
+     "id": 89119,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossFootprintArea",
+     "computed": 0.012208462801766566,
+     "stored": 0.0126002408442,
+     "rel": -0.031092901102265275,
+     "openings": 0
+    },
+    {
+     "id": 89119,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetFootprintArea",
+     "computed": 0.012208462801766566,
+     "stored": 0.0126002408442,
+     "rel": -0.031092901102265275,
+     "openings": 0
+    },
+    {
+     "id": 89119,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 0.3957739010913219,
+     "stored": 0.21250224314,
+     "rel": 0.8624457570105718,
+     "openings": 0
+    },
+    {
+     "id": 89119,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 0.3957739010913219,
+     "stored": 0.21250224314,
+     "rel": 0.8624457570105718,
+     "openings": 0
+    },
+    {
+     "id": 89436,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 0.3405388292461255,
+     "stored": 0.184335547728,
+     "rel": 0.8473855609695768,
+     "openings": 0
+    },
+    {
+     "id": 89436,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 0.3405388292461255,
+     "stored": 0.184335547728,
+     "rel": 0.8473855609695768,
+     "openings": 0
+    },
+    {
+     "id": 89870,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossFootprintArea",
+     "computed": 0.01226027124251191,
+     "stored": 0.0126446278337,
+     "rel": -0.03039682909161765,
+     "openings": 0
+    },
+    {
+     "id": 89870,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetFootprintArea",
+     "computed": 0.01226027124251191,
+     "stored": 0.0126446278337,
+     "rel": -0.03039682909161765,
+     "openings": 0
+    },
+    {
+     "id": 89870,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 0.41585231435658127,
+     "stored": 0.211409793758,
+     "rel": 0.967043754049568,
+     "openings": 0
+    },
+    {
+     "id": 89870,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 0.41585231435658127,
+     "stored": 0.211409793758,
+     "rel": 0.967043754049568,
+     "openings": 0
+    },
+    {
+     "id": 91043,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.006914377142619888,
+     "stored": 0.0143774645522,
+     "rel": -0.5190823028972887,
+     "openings": 0
+    },
+    {
+     "id": 91043,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.006914377142619888,
+     "stored": 0.0143774645522,
+     "rel": -0.5190823028972887,
+     "openings": 0
+    },
+    {
+     "id": 91043,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossSideArea",
+     "computed": 0.2211757710320939,
+     "stored": 0.182378266507,
+     "rel": 0.2127309644299354,
+     "openings": 0
+    },
+    {
+     "id": 91043,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetSideArea",
+     "computed": 0.2211757710320939,
+     "stored": 0.182378266507,
+     "rel": 0.2127309644299354,
+     "openings": 0
+    },
+    {
+     "id": 91538,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.021869158051057058,
+     "stored": 0.0144060706255,
+     "rel": 0.5180515644805143,
+     "openings": 0
+    },
+    {
+     "id": 91538,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.021869158051057058,
+     "stored": 0.0144060706255,
+     "rel": 0.5180515644805143,
+     "openings": 0
+    },
+    {
+     "id": 91795,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.239999979229,
+     "stored": 0.244999979229,
+     "rel": -0.02040816499550204,
+     "openings": 0
+    },
+    {
+     "id": 91795,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.239999979229,
+     "stored": 0.244999979229,
+     "rel": -0.02040816499550204,
+     "openings": 0
+    },
+    {
+     "id": 92043,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.08899999538820001,
+     "stored": 0.0839999953882,
+     "rel": 0.059523812791808794,
+     "openings": 0
+    },
+    {
+     "id": 92043,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.08899999538820001,
+     "stored": 0.0839999953882,
+     "rel": 0.059523812791808794,
+     "openings": 0
+    },
+    {
+     "id": 92933,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.0645123250298,
+     "stored": 0.0577773489944,
+     "rel": 0.11656775799894843,
+     "openings": 0
+    },
+    {
+     "id": 92933,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.0645123250298,
+     "stored": 0.0577773489944,
+     "rel": 0.11656775799894843,
+     "openings": 0
+    },
+    {
+     "id": 93145,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.006914363003390002,
+     "stored": 0.0143774502523,
+     "rel": -0.5190828080045771,
+     "openings": 0
+    },
+    {
+     "id": 93145,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.006914363003390002,
+     "stored": 0.0143774502523,
+     "rel": -0.5190828080045771,
+     "openings": 0
+    },
+    {
+     "id": 93145,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossSideArea",
+     "computed": 0.05033007725461596,
+     "stored": 0.0414861780202,
+     "rel": 0.2131770063299103,
+     "openings": 0
+    },
+    {
+     "id": 93145,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetSideArea",
+     "computed": 0.05033007725461596,
+     "stored": 0.0414861780202,
+     "rel": 0.2131770063299103,
+     "openings": 0
+    },
+    {
+     "id": 93584,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.0966749075089489,
+     "stored": 0.088501340839,
+     "rel": 0.09235528628677045,
+     "openings": 0
+    },
+    {
+     "id": 93584,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.0966749075089489,
+     "stored": 0.088501340839,
+     "rel": 0.09235528628677045,
+     "openings": 0
+    },
+    {
+     "id": 94290,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossFootprintArea",
+     "computed": 0.012260254928526861,
+     "stored": 0.0126446104977,
+     "rel": -0.030396789940113318,
+     "openings": 0
+    },
+    {
+     "id": 94290,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetFootprintArea",
+     "computed": 0.012260254928526861,
+     "stored": 0.0126446104977,
+     "rel": -0.030396789940113318,
+     "openings": 0
+    },
+    {
+     "id": 94290,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 0.4158519445113687,
+     "stored": 0.211409499387,
+     "rel": 0.9670447435766469,
+     "openings": 0
+    },
+    {
+     "id": 94290,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 0.4158519445113687,
+     "stored": 0.211409499387,
+     "rel": 0.9670447435766469,
+     "openings": 0
+    },
+    {
+     "id": 94801,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossSideArea",
+     "computed": 0.34053850098418303,
+     "stored": 0.184335281033,
+     "rel": 0.8473864529667506,
+     "openings": 0
+    },
+    {
+     "id": 94801,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetSideArea",
+     "computed": 0.34053850098418303,
+     "stored": 0.184335281033,
+     "rel": 0.8473864529667506,
+     "openings": 0
+    },
+    {
+     "id": 95685,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.239000040234,
+     "stored": 0.234000040234,
+     "rel": 0.021367517693586743,
+     "openings": 0
+    },
+    {
+     "id": 95685,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.239000040234,
+     "stored": 0.234000040234,
+     "rel": 0.021367517693586743,
+     "openings": 0
+    },
+    {
+     "id": 96093,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.05220483307735045,
+     "stored": 0.0558929118065,
+     "rel": -0.06598473062054086,
+     "openings": 0
+    },
+    {
+     "id": 96093,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.05220483307735045,
+     "stored": 0.0558929118065,
+     "rel": -0.06598473062054086,
+     "openings": 0
+    },
+    {
+     "id": 98885,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.007367244707269836,
+     "stored": 0.0141022207372,
+     "rel": -0.47758265562842095,
+     "openings": 0
+    },
+    {
+     "id": 98885,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.007367244707269836,
+     "stored": 0.0141022207372,
+     "rel": -0.47758265562842095,
+     "openings": 0
+    },
+    {
+     "id": 98885,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossSideArea",
+     "computed": 0.23376260402949323,
+     "stored": 0.194332792763,
+     "rel": 0.20289839252493092,
+     "openings": 0
+    },
+    {
+     "id": 98885,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetSideArea",
+     "computed": 0.23376260402949323,
+     "stored": 0.194332792763,
+     "rel": 0.20289839252493092,
+     "openings": 0
+    },
+    {
+     "id": 100834,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.02186915800972235,
+     "stored": 0.0144060707481,
+     "rel": 0.5180515486921823,
+     "openings": 0
+    },
+    {
+     "id": 100834,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.02186915800972235,
+     "stored": 0.0144060707481,
+     "rel": 0.5180515486921823,
+     "openings": 0
+    },
+    {
+     "id": 101093,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossFootprintArea",
+     "computed": 0.006914363009574883,
+     "stored": 0.0143774502523,
+     "rel": -0.5190828075743977,
+     "openings": 0
+    },
+    {
+     "id": 101093,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetFootprintArea",
+     "computed": 0.006914363009574883,
+     "stored": 0.0143774502523,
+     "rel": -0.5190828075743977,
+     "openings": 0
+    },
+    {
+     "id": 101093,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "GrossSideArea",
+     "computed": 0.22117548731602385,
+     "stored": 0.182377187998,
+     "rel": 0.21273658040198157,
+     "openings": 0
+    },
+    {
+     "id": 101093,
+     "ifcClass": "IfcWall",
+     "name": "buitenblad",
+     "qty": "NetSideArea",
+     "computed": 0.22117548731602385,
+     "stored": 0.182377187998,
+     "rel": 0.21273658040198157,
+     "openings": 0
+    },
+    {
+     "id": 103557,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "GrossArea",
+     "computed": 0.05218911207264801,
+     "stored": 0.0558771855832,
+     "rel": -0.06600320814405591,
+     "openings": 0
+    },
+    {
+     "id": 103557,
+     "ifcClass": "IfcCovering",
+     "name": "gevelisolatie",
+     "qty": "NetArea",
+     "computed": 0.05218911207264801,
+     "stored": 0.0558771855832,
+     "rel": -0.06600320814405591,
+     "openings": 0
+    },
+    {
+     "id": 104198,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "GrossFootprintArea",
+     "computed": 0.01220846126026252,
+     "stored": 0.0126002408442,
+     "rel": -0.031093023441517754,
+     "openings": 0
+    },
+    {
+     "id": 104198,
+     "ifcClass": "IfcWall",
+     "name": "HSB-element",
+     "qty": "NetFootprintArea",
+     "computed": 0.01220846126026252,
+     "stored": 0.0126002408442,
+     "rel": -0.031093023441517754,
+     "openings": 0
+    }
+   ]
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "schema": "IFC2X3",
+   "seconds": 7.419,
+   "byQty": {
+    "IfcWall.GrossFootprintArea": {
+     "pairs": 1041,
+     "agree": 1041,
+     "reasons": {}
+    },
+    "IfcWall.GrossSideArea": {
+     "pairs": 1041,
+     "agree": 683,
+     "reasons": {
+      "net-as-gross": 254,
+      "on-a-face": 28,
+      "matches-stored-volume": 10,
+      "unexplained": 66
+     }
+    },
+    "IfcSlab.GrossArea": {
+     "pairs": 115,
+     "agree": 95,
+     "reasons": {
+      "unit-slip": 20
+     }
+    },
+    "IfcMember.CrossSectionArea": {
+     "pairs": 687,
+     "agree": 18,
+     "reasons": {
+      "unexplained": 111,
+      "scales-with-length": 558
+     }
+    }
+   },
+   "medianAgreeRel": 1.996966823359457e-15,
+   "notCut": 0,
+   "others": [
+    {
+     "id": 47061,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1905989",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47171,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1905992",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47243,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906027",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47315,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906028",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47367,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906029",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47412,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906030",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47457,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906032",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47502,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906033",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47567,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906035",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47613,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906037",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47684,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906055",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47730,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906056",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47781,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906057",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47832,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906058",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47883,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906060",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 47934,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:1906061",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48005,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2913457",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48051,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2936902",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48122,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938056",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48188,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938057",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48254,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938058",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48320,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938059",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48372,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938060",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48423,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938061",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48468,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938062",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48513,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938064",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48584,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938065",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48636,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938070",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48701,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938074",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48753,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938075",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48798,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938076",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48843,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938077",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48894,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938079",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48939,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938080",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 48984,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938084",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49029,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:2938085",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49094,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:3035256",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49146,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:3035259",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49211,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:3073040",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49277,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:3073283",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49349,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:3581412",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49395,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:3581413",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49440,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:3581414",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49485,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:3581415",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49530,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:3581416",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49575,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:3581418",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49646,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:3581419",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49698,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:5041436",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49769,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:5041441",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49841,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:5196564",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49907,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:5196567",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 49979,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:5197882",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 50045,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:5197883",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 50117,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:6169933",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 50183,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:6442187",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 50249,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:6442510",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 50315,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:6444510",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 50381,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:6724295",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 50453,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x180 Glassfasade 6-7:6724296",
+     "qty": "CrossSectionArea",
+     "computed": 0.013349999999999999,
+     "stored": 138.422511233018,
+     "rel": -0.9999035561493497,
+     "openings": 0
+    },
+    {
+     "id": 556796,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:IVA 3.2 145mm 37dB EI60 (HN-95-NR):2235683",
+     "qty": "GrossSideArea",
+     "computed": 3.6592499999998576,
+     "stored": 3.74742908124755,
+     "rel": -0.02353055370385737,
+     "openings": 1
+    },
+    {
+     "id": 627292,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2495136",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.717200000000967,
+     "rel": 0.2561349693234659,
+     "openings": 1
+    },
+    {
+     "id": 627923,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.2 410mm grønn platekledning:2496208",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.728200000000025,
+     "rel": 0.2371601208458849,
+     "openings": 1
+    },
+    {
+     "id": 628418,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.2 410mm grønn platekledning:2496416",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999908,
+     "rel": 0.2187500000001575,
+     "openings": 2
+    },
+    {
+     "id": 628727,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2496445",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999984,
+     "rel": 0.2187500000000323,
+     "openings": 2
+    },
+    {
+     "id": 628996,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.2 410mm grønn platekledning:2496458",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999984,
+     "rel": 0.2187500000000323,
+     "openings": 2
+    },
+    {
+     "id": 629443,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.4 410mm gul platekledning:2498274",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.73920000000006,
+     "rel": 0.21874999999990694,
+     "openings": 2
+    },
+    {
+     "id": 632492,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.2 410mm grønn platekledning:2502283",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999984,
+     "rel": 0.2187500000000323,
+     "openings": 2
+    },
+    {
+     "id": 637986,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.4 410mm gul platekledning:2512709",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739349734507614,
+     "rel": 0.21850317644325426,
+     "openings": 2
+    },
+    {
+     "id": 638255,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2512710",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739200000000137,
+     "rel": 0.21874999999978006,
+     "openings": 2
+    },
+    {
+     "id": 638793,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2512712",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739032555944033,
+     "rel": 0.21902613457833855,
+     "openings": 1
+    },
+    {
+     "id": 638978,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2512713",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999984,
+     "rel": 0.2187500000000323,
+     "openings": 0
+    },
+    {
+     "id": 639075,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.4 410mm gul platekledning:2512714",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999985,
+     "rel": 0.21875000000003067,
+     "openings": 2
+    },
+    {
+     "id": 639344,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2512715",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.738844158328114,
+     "rel": 0.2193369736299963,
+     "openings": 1
+    },
+    {
+     "id": 639525,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2512716",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739200000000047,
+     "rel": 0.21874999999992834,
+     "openings": 2
+    },
+    {
+     "id": 639794,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.2 410mm grønn platekledning:2512717",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.738846101466646,
+     "rel": 0.21933376681784394,
+     "openings": 1
+    },
+    {
+     "id": 639976,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2512718",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.738850457718572,
+     "rel": 0.21932657764307287,
+     "openings": 1
+    },
+    {
+     "id": 641056,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.2 410mm grønn platekledning:2514860",
+     "qty": "GrossSideArea",
+     "computed": 0.9049950000000044,
+     "stored": 0.742569999998759,
+     "rel": 0.21873358740794396,
+     "openings": 1
+    },
+    {
+     "id": 641424,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2515025",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999986,
+     "rel": 0.21875000000002903,
+     "openings": 2
+    },
+    {
+     "id": 642224,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2516398",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999985,
+     "rel": 0.21875000000003067,
+     "openings": 2
+    },
+    {
+     "id": 642493,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.4 410mm gul platekledning:2518317",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999985,
+     "rel": 0.21875000000003067,
+     "openings": 2
+    },
+    {
+     "id": 642763,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2518497",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999909,
+     "rel": 0.21875000000015588,
+     "openings": 2
+    },
+    {
+     "id": 643300,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.4 410mm gul platekledning:2518686",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.73479999999625,
+     "rel": 0.22604790419787973,
+     "openings": 1
+    },
+    {
+     "id": 649824,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2533885",
+     "qty": "GrossSideArea",
+     "computed": 0.6552000000000031,
+     "stored": 0.537599999999989,
+     "rel": 0.21875000000003078,
+     "openings": 1
+    },
+    {
+     "id": 650267,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.2 410mm grønn platekledning:2534068",
+     "qty": "GrossSideArea",
+     "computed": 0.6552000000000031,
+     "stored": 0.537339372223649,
+     "rel": 0.21934113498628693,
+     "openings": 1
+    },
+    {
+     "id": 650449,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2534167",
+     "qty": "GrossSideArea",
+     "computed": 0.6552000000000031,
+     "stored": 0.61142035241863,
+     "rel": 0.07160318986470023,
+     "openings": 2
+    },
+    {
+     "id": 652136,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.4 410mm gul platekledning:2537045",
+     "qty": "GrossSideArea",
+     "computed": 0.6552000000000031,
+     "stored": 0.447999999999954,
+     "rel": 0.4625000000001572,
+     "openings": 2
+    },
+    {
+     "id": 885733,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.4 410mm gul platekledning:2836528",
+     "qty": "GrossSideArea",
+     "computed": 0.909090000001024,
+     "stored": 0.745564553615018,
+     "rel": 0.21933103658579303,
+     "openings": 1
+    },
+    {
+     "id": 886311,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2837553",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999984,
+     "rel": 0.2187500000000323,
+     "openings": 2
+    },
+    {
+     "id": 886572,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.4 410mm gul platekledning:2841928",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999984,
+     "rel": 0.2187500000000323,
+     "openings": 2
+    },
+    {
+     "id": 886833,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:2841974",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999909,
+     "rel": 0.21875000000015588,
+     "openings": 2
+    },
+    {
+     "id": 893590,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2928053",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 893689,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2928054",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 893755,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2928055",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 893827,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2928056",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 894129,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2928181",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 894180,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2928182",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 894231,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2928183",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 894282,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2928184",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 894534,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2929987",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 894579,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2929988",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 894630,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2929989",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 894681,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2929990",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 894933,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2932305",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999979,
+     "rel": -0.9849454545454541,
+     "openings": 0
+    },
+    {
+     "id": 894978,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2932306",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999979,
+     "rel": -0.9849454545454541,
+     "openings": 0
+    },
+    {
+     "id": 895023,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2932307",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999979,
+     "rel": -0.9849454545454541,
+     "openings": 0
+    },
+    {
+     "id": 895074,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2932308",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999979,
+     "rel": -0.9849454545454541,
+     "openings": 0
+    },
+    {
+     "id": 895332,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2932794",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999968,
+     "rel": -0.9849454545454539,
+     "openings": 0
+    },
+    {
+     "id": 895377,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2932795",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999968,
+     "rel": -0.9849454545454539,
+     "openings": 0
+    },
+    {
+     "id": 895428,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2932796",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999968,
+     "rel": -0.9849454545454539,
+     "openings": 0
+    },
+    {
+     "id": 895479,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2932797",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999968,
+     "rel": -0.9849454545454539,
+     "openings": 0
+    },
+    {
+     "id": 895743,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2933683",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999979,
+     "rel": -0.9849454545454541,
+     "openings": 0
+    },
+    {
+     "id": 895794,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2933684",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999979,
+     "rel": -0.9849454545454541,
+     "openings": 0
+    },
+    {
+     "id": 895839,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2933685",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999979,
+     "rel": -0.9849454545454541,
+     "openings": 0
+    },
+    {
+     "id": 895890,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2933686",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999979,
+     "rel": -0.9849454545454541,
+     "openings": 0
+    },
+    {
+     "id": 896183,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2935663",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 896249,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2935664",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 896321,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2935665",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 896393,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:2935666",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 922836,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3003257",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 922887,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3003258",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 922932,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3003259",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 922983,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3003260",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 923241,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3008388",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 923286,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3008389",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 923337,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3008390",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 923382,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3008391",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 923628,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3010923",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687500000000018,
+     "rel": -0.984945454545455,
+     "openings": 0
+    },
+    {
+     "id": 923673,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3010924",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687500000000018,
+     "rel": -0.984945454545455,
+     "openings": 0
+    },
+    {
+     "id": 923724,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3010925",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687500000000018,
+     "rel": -0.984945454545455,
+     "openings": 0
+    },
+    {
+     "id": 923775,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3010926",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687500000000018,
+     "rel": -0.984945454545455,
+     "openings": 0
+    },
+    {
+     "id": 923985,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.2 410mm grønn platekledning:3013398",
+     "qty": "GrossSideArea",
+     "computed": 0.6552000000000031,
+     "stored": 0.537599999999988,
+     "rel": 0.21875000000003306,
+     "openings": 2
+    },
+    {
+     "id": 992161,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:3468015",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.148499999999947,
+     "rel": 5.066666666668861,
+     "openings": 0
+    },
+    {
+     "id": 992804,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3549704",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999979,
+     "rel": -0.9849454545454541,
+     "openings": 0
+    },
+    {
+     "id": 992849,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3549705",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999979,
+     "rel": -0.9849454545454541,
+     "openings": 0
+    },
+    {
+     "id": 992900,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3549706",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999979,
+     "rel": -0.9849454545454541,
+     "openings": 0
+    },
+    {
+     "id": 992945,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:3549707",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999979,
+     "rel": -0.9849454545454541,
+     "openings": 0
+    },
+    {
+     "id": 1246598,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 1.1 517mm:4188944",
+     "qty": "GrossSideArea",
+     "computed": 1.5494999999988555,
+     "stored": 0.532499999999534,
+     "rel": 1.9098591549299744,
+     "openings": 0
+    },
+    {
+     "id": 1246694,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:4194085",
+     "qty": "GrossSideArea",
+     "computed": 0.6552000000000031,
+     "stored": 0.448000000000065,
+     "rel": 0.4624999999997947,
+     "openings": 2
+    },
+    {
+     "id": 1247003,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.2 410mm grønn platekledning:4194103",
+     "qty": "GrossSideArea",
+     "computed": 0.6552000000000031,
+     "stored": 0.448000000000065,
+     "rel": 0.4624999999997947,
+     "openings": 2
+    },
+    {
+     "id": 1247270,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.2 410mm grønn platekledning:4194124",
+     "qty": "GrossSideArea",
+     "computed": 0.6552000000000031,
+     "stored": 0.537831567148836,
+     "rel": 0.21822525864995834,
+     "openings": 2
+    },
+    {
+     "id": 1247537,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:4194149",
+     "qty": "GrossSideArea",
+     "computed": 0.6552000000000031,
+     "stored": 0.439999999999928,
+     "rel": 0.4890909090911598,
+     "openings": 1
+    },
+    {
+     "id": 1247720,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.4 410mm gul platekledning:4194167",
+     "qty": "GrossSideArea",
+     "computed": 0.6552000000000031,
+     "stored": 0.511999999999939,
+     "rel": 0.2796875000001587,
+     "openings": 2
+    },
+    {
+     "id": 1280178,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:IVA 4.3 172mm 48dB (RN-120-NR):4410967",
+     "qty": "GrossSideArea",
+     "computed": 16.052135065608397,
+     "stored": 15.0873031704494,
+     "rel": 0.06394992426802655,
+     "openings": 1
+    },
+    {
+     "id": 1388779,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 7.3 410mm rød platekledning:5449993",
+     "qty": "GrossSideArea",
+     "computed": 0.9009000000000044,
+     "stored": 0.739199999999985,
+     "rel": 0.21875000000003067,
+     "openings": 2
+    },
+    {
+     "id": 1397341,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 16.2 437mm grå platekledning:5668964",
+     "qty": "GrossSideArea",
+     "computed": 1.3109999999981168,
+     "stored": 0.672261099733976,
+     "rel": 0.9501351491509766,
+     "openings": 0
+    },
+    {
+     "id": 1399725,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5761711",
+     "qty": "GrossSideArea",
+     "computed": 0.26399999999994056,
+     "stored": 0.211200000002239,
+     "rel": 0.24999999998646683,
+     "openings": 2
+    },
+    {
+     "id": 1400031,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5761836",
+     "qty": "GrossSideArea",
+     "computed": 0.26399999999994056,
+     "stored": 0.255200000002153,
+     "rel": 0.03448275861172938,
+     "openings": 0
+    },
+    {
+     "id": 1400126,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5761874",
+     "qty": "GrossSideArea",
+     "computed": 0.26399999999994056,
+     "stored": 0.211200000000028,
+     "rel": 0.2499999999995528,
+     "openings": 2
+    },
+    {
+     "id": 1400391,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5762019",
+     "qty": "GrossSideArea",
+     "computed": 0.26399999999994056,
+     "stored": 0.193600000000086,
+     "rel": 0.3636363636354508,
+     "openings": 1
+    },
+    {
+     "id": 1400573,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5762144",
+     "qty": "GrossSideArea",
+     "computed": 0.26399999999994056,
+     "stored": 0.211199999999952,
+     "rel": 0.2500000000000026,
+     "openings": 2
+    },
+    {
+     "id": 1400840,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5762284",
+     "qty": "GrossSideArea",
+     "computed": 0.26399999999994056,
+     "stored": 0.18920000000101,
+     "rel": 0.3953488372015394,
+     "openings": 1
+    },
+    {
+     "id": 1401021,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5762394",
+     "qty": "GrossSideArea",
+     "computed": 0.26639999999994,
+     "stored": 0.224320000000529,
+     "rel": 0.18758915834215303,
+     "openings": 1
+    },
+    {
+     "id": 1401204,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5762484",
+     "qty": "GrossSideArea",
+     "computed": 0.2640000000000154,
+     "stored": 0.211199999999952,
+     "rel": 0.2500000000003569,
+     "openings": 2
+    },
+    {
+     "id": 1401471,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5762607",
+     "qty": "GrossSideArea",
+     "computed": 0.2640000000000154,
+     "stored": 0.250799999999943,
+     "rel": 0.05263157894766896,
+     "openings": 1
+    },
+    {
+     "id": 1401653,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5762759",
+     "qty": "GrossSideArea",
+     "computed": 0.26639999999994,
+     "stored": 0.213419999999974,
+     "rel": 0.24824290132120927,
+     "openings": 2
+    },
+    {
+     "id": 1401920,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5763051",
+     "qty": "GrossSideArea",
+     "computed": 0.2640000000000154,
+     "stored": 0.192569624949253,
+     "rel": 0.3709327214485987,
+     "openings": 1
+    },
+    {
+     "id": 1402102,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5763182",
+     "qty": "GrossSideArea",
+     "computed": 0.2640000000000154,
+     "stored": 0.211200000000028,
+     "rel": 0.24999999999990713,
+     "openings": 2
+    },
+    {
+     "id": 1402361,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV stolpe:5763348",
+     "qty": "GrossSideArea",
+     "computed": 0.26399999999994056,
+     "stored": 0.255200000000095,
+     "rel": 0.03448275862007157,
+     "openings": 0
+    },
+    {
+     "id": 1417539,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:6024774",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 1417590,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:6024775",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 1417635,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:6024776",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 1417686,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:6024777",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 1417944,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:6024846",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 1417995,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:6024847",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 1418040,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:6024848",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 1418091,
+     "ifcClass": "IfcMember",
+     "name": "Rectangular Mullion:50x120 Glassfasade 1-5:6024849",
+     "qty": "CrossSectionArea",
+     "computed": 0.01035,
+     "stored": 0.687499999999973,
+     "rel": -0.984945454545454,
+     "openings": 0
+    },
+    {
+     "id": 1453862,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YVL 1.1 250mm leca isoblokk:6268030",
+     "qty": "GrossSideArea",
+     "computed": 0.7572999655326591,
+     "stored": 2.59181393921159,
+     "rel": -0.7078108292900748,
+     "openings": 0
+    },
+    {
+     "id": 1453999,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YVL 1.1 250mm leca isoblokk:6268056",
+     "qty": "GrossSideArea",
+     "computed": 0.7574673650910193,
+     "stored": 2.59181393921159,
+     "rel": -0.7077462414908398,
+     "openings": 0
+    },
+    {
+     "id": 1454129,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YVL 1.1 250mm leca isoblokk:6268146",
+     "qty": "GrossSideArea",
+     "computed": 0.7574675862805623,
+     "stored": 2.59181393921159,
+     "rel": -0.7077461561492419,
+     "openings": 0
+    },
+    {
+     "id": 1454265,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YVL 1.1 250mm leca isoblokk:6268165",
+     "qty": "GrossSideArea",
+     "computed": 0.757467365091019,
+     "stored": 2.59181393921157,
+     "rel": -0.7077462414908376,
+     "openings": 0
+    },
+    {
+     "id": 1454401,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 12.1 411 Ventilasjonsrom:6268286",
+     "qty": "GrossSideArea",
+     "computed": 7.39166473517617,
+     "stored": 14.3429412599652,
+     "rel": -0.4846479113870327,
+     "openings": 0
+    },
+    {
+     "id": 1455870,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 12.1 411 Ventilasjonsrom EI 60:6268552",
+     "qty": "GrossSideArea",
+     "computed": 7.391277091545578,
+     "stored": 14.3429412599653,
+     "rel": -0.4846749381748873,
+     "openings": 0
+    },
+    {
+     "id": 1457319,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 13.1 313 Gesims Ventilasjonsrom:6282575",
+     "qty": "GrossSideArea",
+     "computed": 1.0569054065563435,
+     "stored": 2.96252187233517,
+     "rel": -0.6432413153043656,
+     "openings": 0
+    },
+    {
+     "id": 1457449,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 13.1 313 Gesims Ventilasjonsrom:6282647",
+     "qty": "GrossSideArea",
+     "computed": 1.0570908424924386,
+     "stored": 2.96252187233519,
+     "rel": -0.6431787213576948,
+     "openings": 0
+    },
+    {
+     "id": 1457579,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 13.1 313 Gesims Ventilasjonsrom:6282652",
+     "qty": "GrossSideArea",
+     "computed": 1.0570908424924388,
+     "stored": 2.9625218723351,
+     "rel": -0.6431787213576838,
+     "openings": 0
+    },
+    {
+     "id": 1457715,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:YV 13.1 313 Gesims Ventilasjonsrom:6282657",
+     "qty": "GrossSideArea",
+     "computed": 1.0570911910060987,
+     "stored": 2.96252187233517,
+     "rel": -0.6431786037168191,
+     "openings": 0
+    },
+    {
+     "id": 1483180,
+     "ifcClass": "IfcWallStandardCase",
+     "name": "Basic Wall:IVA 2.3T 134mm 34dB (R-95-NR):6783271",
+     "qty": "GrossSideArea",
+     "computed": 14.407372330742295,
+     "stored": 9.62722661266609,
+     "rel": 0.4965236521790388,
+     "openings": 3
+    }
+   ]
+  }
+ ],
+ "total": {
+  "CrossSectionArea": {
+   "pairs": 2752,
+   "agree": 2005,
+   "reasons": {
+    "unexplained": 188,
+    "scales-with-length": 559
+   }
+  },
+  "GrossSideArea": {
+   "pairs": 2461,
+   "agree": 1773,
+   "reasons": {
+    "matches-stored-volume": 129,
+    "split": 22,
+    "repeated": 2,
+    "net-as-gross": 325,
+    "on-a-face": 40,
+    "unexplained": 170
+   }
+  },
+  "GrossFootprintArea": {
+   "pairs": 2313,
+   "agree": 2057,
+   "reasons": {
+    "unexplained": 256
+   }
+  },
+  "NetFootprintArea": {
+   "pairs": 1062,
+   "agree": 724,
+   "reasons": {
+    "gross-as-net": 82,
+    "unexplained": 256
+   }
+  },
+  "NetSideArea": {
+   "pairs": 1235,
+   "agree": 1099,
+   "reasons": {
+    "on-a-face": 17,
+    "unexplained": 109,
+    "matches-stored-volume": 10
+   }
+  },
+  "GrossArea": {
+   "pairs": 1201,
+   "agree": 915,
+   "reasons": {
+    "unexplained": 262,
+    "unit-slip": 24
+   }
+  },
+  "NetArea": {
+   "pairs": 1110,
+   "agree": 851,
+   "reasons": {
+    "unexplained": 258,
+    "unit-slip": 1
+   }
+  }
+ }
+}
