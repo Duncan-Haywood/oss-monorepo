@@ -13,7 +13,7 @@ Peak element stress, laser cutting (floor 0.2 mm, stock gauges 1–12 mm) and th
 ```bash
 pip install numpy scipy scikit-fem matplotlib shapely pytest
 cd research/simdesign-gaugebudget
-python -m pytest -q tests            # 8 tests
+python -m pytest -q tests            # 13 tests
 python experiments/run.py            # writes experiments/results.txt and results.json (about 15 minutes on 4 cores)
 python experiments/figure.py         # redraws experiments/mass_vs_gauge.svg from results.txt (stdlib only)
 ```
@@ -24,14 +24,15 @@ python experiments/figure.py         # redraws experiments/mass_vs_gauge.svg fro
 | base | 1.145 1.054 0.990 0.994 1.054 | 1.047 | 0.063 | 0.155 |
 | about 4× | 1.039 1.018 1.079 1.020 1.026 | 1.037 | 0.025 | 0.061 |
 
+- **Holds only for the search mesh (read first).** The lightest gauge-2 designs here are not feasible brackets. The 33.29 g design (w 14.38, r 11.02, b 2) carries 6F(L − w/2)/(b w²) + F/(w b) = 109.0 MPa by the one-line beam formula against the 100 MPa limit, and its FE peak rises from 100.0 MPa at h = 2.5 to 117.8 at 1.25 and 129.8 at 0.6 mm (`tests/test_gaugebudget.py`, `test_headline_gauge2_design_fails_off_the_search_mesh`); all five 33.3–33.5 g designs read 107.8–109.7 MPa by that formula, while the 35.3–35.6 g ones (w ≈ 15.3) read 92–96 MPa. Because every design is remeshed, the h = 2.5 objective also jumps (98.7 to 113.1 MPa for a 0.02 mm change in w), so "several nearby optima" below cannot be told apart from remeshing noise, and "more budget helps" partly means the search finds more of the coarse-mesh under-read. This agrees with `research/simdesign-gaugemesh` (none of 39 gauge-2 designs stays feasible at h ≤ 1.5 mm). The bullets below describe the search on the 2.5 mm mesh, not the bracket (quality audit `portfolio/quality/audits/2026-11-20-simdesign-gaugebudget.json`).
 - **Consistency check.** The base-budget prices equal those in `simdesign-filletfloor` (peak, floor 0.2 mm).
 - **The scatter lives in one gauge.** At the base budget the 2 mm gauge wins in four seeds (33.3–35.6 g); in seed 0 its sub-search found no feasible design, so the 3 mm gauge won at 41.0 g, which is the 1.145 outlier. Every other gauge from 3 mm up varies by at most 2.2 g across seeds (0.17–2.21 g) and is never the winner except in that seed. Gauges 1 and 1.5 mm were never feasible.
-- **More budget helps, but not monotonically.** Seed 0 recovers (33.4 g, gauge 2) and the rules-mass range at base budget, 33.3–41.0 g, narrows to 33.3–35.3 g. Seed 2 gets worse (33.3 → 35.3 g). With the larger budget the gauges of 3 mm and above agree across seeds to within 0.05 g, while the 2 mm sub-search still spreads over 1.99 g (33.3–35.3 g); its designs differ in fillet radius (10.8–13.7 mm) and width (14.3–15.4 mm). Seeds 1 and 3 land on the identical design (33.29 g, w 14.38, r 11.02), so 33.3 g is a repeatable optimum that other seeds miss.
+- **More budget helps, but not monotonically.** Seed 0 recovers (33.4 g, gauge 2) and the rules-mass range at base budget, 33.3–41.0 g, narrows to 33.3–35.3 g. Seed 2 gets worse (33.3 → 35.3 g). With the larger budget the gauges of 3 mm and above agree across seeds to within 0.05 g, while the 2 mm sub-search still spreads over 1.99 g (33.3–35.3 g); its designs differ in fillet radius (10.8–13.7 mm) and width (14.3–15.4 mm). Seeds 1 and 3 land on the identical design (33.29 g, w 14.38, r 11.02), so 33.3 g is a repeatable optimum of the search-mesh problem that other seeds miss (it is over the stress limit on finer meshes; see the first bullet).
 - **The twin also moves.** The no-rules twin falls by 0.9–3.7 g with the larger budget (to 32.2–32.7 g), so the base-budget twin was not converged either; the price sd falls from 0.063 to 0.025 partly because both numerator and denominator change.
 - **Reading.** The data are consistent with the explanation "ten sub-searches finding different local optima", localised to the 2 mm gauge, where the peak-stress landscape in (w, r) appears to have several nearby optima. We did not map that landscape, did not test the patch measure here, and cannot say the larger budget has converged (the spread in gauge 2 persists).
 
 ## Limitations
-- Five seeds, no confidence intervals; one process, one load case, one search mesh (2.5 mm) and no fine-mesh check of the designs.
+- Five seeds, no confidence intervals; one process, one load case, one search mesh (2.5 mm). The only fine-mesh check is the one design in the first results bullet, and it fails the stress limit.
 - Two budgets only; a larger or different optimiser (CMA-ES, multi-start local search) was not tried, so the persistent gauge-2 spread is not attributed to the optimiser or the landscape.
 - Stylised 2D plane stress, assumed rule values and materials, polygonal fillet. Nothing was made or tested. Simulated results only.
 

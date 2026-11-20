@@ -59,6 +59,16 @@ def _densify(poly: np.ndarray, h: float) -> np.ndarray:
     return np.array(pts)
 
 
+def _min_dist(grid: np.ndarray, bnd: np.ndarray, max_pairs: int = 20_000_000) -> np.ndarray:
+    """Distance from each grid point to the nearest boundary point, in blocks of rows."""
+    step = max(1, max_pairs // max(1, len(bnd)))
+    out = np.empty(len(grid))
+    for i in range(0, len(grid), step):
+        g = grid[i:i + step]
+        out[i:i + step] = np.min(np.linalg.norm(g[:, None, :] - bnd[None, :, :], axis=2), axis=1)
+    return out
+
+
 def make_mesh(p: Params, h: float = 1.5) -> MeshTri:
     poly = build_polygon(p)
     bnd = _densify(poly, h)
@@ -68,7 +78,11 @@ def make_mesh(p: Params, h: float = 1.5) -> MeshTri:
     grid = np.c_[gx.ravel(), gy.ravel()]
     path = Path(poly)
     # keep interior grid points at least 0.6 h from the boundary
-    d = np.min(np.linalg.norm(grid[:, None, :] - bnd[None, ::1, :], axis=2), axis=1) if len(grid) * len(bnd) < 4e7 else None
+    # Computed in row blocks so fine meshes (h <= 0.3 mm) fit in memory; each row's arithmetic is the
+    # same as the one-shot version, so meshes at the published h values are unchanged. (Before the
+    # 2026-11-20 quality fix this was skipped above 4e7 pairs, leaving d = None and a TypeError below;
+    # the same fix as simdesign-filletfloor, 2026-11-18.)
+    d = _min_dist(grid, bnd)
     inside = path.contains_points(grid)
     keep = inside & (d > 0.6 * h)
     pts = np.vstack([bnd, grid[keep]])
@@ -102,9 +116,7 @@ def solve(p: Params, mat: Material = Material(), h: float = 1.5, return_field: b
     lam = 2 * lam * mu / (lam + 2 * mu)  # plane-stress effective lambda
     K = asm(linear_elasticity(lam, mu), basis) * p.b
     # traction on the end face x = L, total force F downward (per unit depth: F / (w*b))
-    fb = basis.boundary(lambda x: np.isclose(x[0], p.L) & (x[1] < p.w + 1e-9)) if False else None
     facets = mesh.facets_satisfying(lambda x: np.isclose(x[0], p.L, atol=1e-6))
-    fb = basis.boundary(facets=facets) if hasattr(basis, "boundary") else None
     from skfem import FacetBasis
     fbasis = FacetBasis(mesh, basis.elem, facets=facets)
 
