@@ -20,7 +20,7 @@ def test_designs_are_unseen():
         # later milestones rerun these same blind designs at other operating points (141 to 144, and amin4/amin6 at ff in 146);
         # they are not prior exposure
         if f.parent.name in ("ladder_confirm", "util65_blind", "util65_rest", "corner_ss_blind", "corner_ff_blind", "delay_split_ff",
-                             "addchain_delay", "addshort_ff"):  # milestone 152 reran csum4 at ff
+                             "addchain_delay", "addshort_ff", "rc_corner"):  # milestone 152 reran csum4 at ff; 156 reran 12 at ss with max RC
             continue
         for line in f.read_text().splitlines():
             try:

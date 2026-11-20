@@ -70,3 +70,4 @@ $PY experiments/addchain_ff/analyse.py; $PY experiments/delay_split_ff/analyse.p
 $PY experiments/addchain_delay/analyse.py   # milestone 147 (no flow; run.py re-runs its flow, then run.py --batch2 the top-ups, about 50 and 22 min on 4 cores)
 $PY experiments/addshort_ff/analyse.py   # milestone 152 (no flow, under a minute; run.py re-runs the 1,800-point ff flow, about 50 min on 4 cores)
 $PY experiments/addshort_tt/analyse.py   # milestone 153 (no flow, about 90 s; run.py re-runs the 1,560-point tt flow, about 25 min on 4 cores)
+$PY experiments/rc_corner/analyse.py   # milestone 156 (no flow; experiments/rc_corner/run.py --resume re-runs or extends the 6,480-point flow, about 4 h on 4 cores)

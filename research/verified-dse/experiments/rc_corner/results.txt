@@ -1,0 +1,34 @@
+# Milestone 156: ss_100C_1v60 at nominal RC against the PDK's max-RC corner, same tools (flow run)
+
+theta = 3; complete designs (paired prefix of milestone 143's order): 12 of 27
+
+design | clock | ratio nom | ratio rcmax | wire nom | wire rcmax | tauD nom | tauD rcmax | tauR | same best | random nom | SWC nom | random rcmax | SWC rcmax | d nom | d rcmax
+div10l | relaxed | 8.81 | 8.92 | 0.225 | 0.230 | -0.002 | -0.010 | 0.850 | True | 25.90 | 0.00 | 21.52 | 0.00 | -25.90 | -21.52
+gtc8l | tight | 6.25 | 6.28 | 0.239 | 0.242 | 0.005 | -0.027 | 0.834 | False | 10.01 | 0.00 | 10.93 | 0.00 | -10.01 | -10.93
+clamp3l | relaxed | 11.36 | 11.50 | 0.525 | 0.540 | 0.040 | -0.033 | 0.835 | True | 8.22 | 0.00 | 10.12 | 0.00 | -8.22 | -10.12
+clamp6r | relaxed | 5.73 | 5.89 | 0.959 | 0.976 | 0.058 | 0.101 | 0.921 | True | 6.99 | 0.00 | 8.00 | 0.00 | -6.99 | -8.00
+csum8 | tight | 5.13 | 5.26 | 0.735 | 0.746 | 0.130 | 0.153 | 0.895 | False | 3.75 | 0.00 | 3.81 | 0.00 | -3.75 | -3.81
+dot4r | tight | 3.99 | 4.02 | 0.391 | 0.397 | 0.185 | 0.219 | 0.852 | True | 1.31 | 0.00 | 3.73 | 0.00 | -1.31 | -3.73
+rng8l | tight | 12.41 | 12.70 | 0.531 | 0.548 | -0.033 | -0.038 | 0.778 | False | 7.57 | 0.00 | 3.82 | 2.28 | -7.57 | -1.53
+csum3 | relaxed | 4.90 | 4.94 | 0.468 | 0.474 | 0.005 | -0.005 | 0.811 | True | 4.05 | 4.10 | 4.92 | 5.38 | +0.04 | +0.46
+gtc12r | relaxed | 3.84 | 3.88 | 0.475 | 0.484 | 0.231 | 0.228 | 0.871 | True | 2.86 | 2.83 | 2.85 | 3.55 | -0.03 | +0.70
+clamp2r | tight | 4.67 | 4.78 | 0.618 | 0.643 | -0.222 | -0.246 | 0.879 | True | 5.11 | 6.23 | 4.57 | 5.43 | +1.12 | +0.86
+dot6r | relaxed | 4.31 | 4.35 | 0.479 | 0.489 | -0.206 | -0.210 | 0.853 | True | 4.42 | 4.35 | 6.37 | 7.57 | -0.07 | +1.20
+csum6 | relaxed | 4.62 | 4.62 | 0.662 | 0.667 | 0.030 | 0.027 | 0.883 | True | 3.94 | 13.61 | 3.91 | 8.53 | +9.67 | +4.62
+
+## Predictions
+
+(1) wire higher under rcmax on 12 of 12 (median 0.502 nom, 0.514 rcmax): held
+(2) PRIMARY mean tauD change -0.005 (0.018 to 0.013), interval -0.022 to +0.011; lower on 9 of 12: refuted
+(3) rcmax: SWC better on 7, worse on 5, tied on 0; sign p = 0.774414: refuted
+(4) mean d change +0.10 points, interval -1.44 to +1.84: held
+(5) median tauR 0.852 (range 0.778 to 0.921); same routed-best on 9 of 12: held
+(6) Spearman of tauD against d over 24 units -0.054: refuted
+(7) ladder branch under rcmax: 12 of 12 (lowest ratio 3.88): held
+
+## Reported, not predicted
+
+nom: mean regret SWC 2.59%, random 7.01%; SWC better on 9, worse on 3, tied on 0; sign p = 0.145996
+rcmax: mean regret SWC 2.73%, random 7.05%
+failed points: nom 204, rcmax 204
+tool replication (nom arm against milestone 143, 1236 points ok in both): mapped rung identical on 212, routed identical on 0; median tau-b of routed score 0.664; milestone 143's d on the same designs: mean -2.92 against -4.42 here
