@@ -21,7 +21,7 @@
   "completeness": "Everything the README and paper list runs: 11 tests (README says 11, ran 11 in 0.59 s), run.py reproduces results.txt exactly (~3 s, README says ~5 s), figure.py on a copy regenerates cost_vs_rho.svg byte-identically, all seven paper results are in results.txt, companion projects occupancy-twin, radar-clutter-twin, latency-twin, twin-audit exist. No stubs or TODOs; future work labelled 'Next steps'. Listed in research/README.md:173. Live page https://marisstella.app/research/loopclosure-twin/ returned 000 from this container (proxy), not verified.",
   "verification": "`env PYTHONPATH=src python3 -m unittest discover -s tests`: 11 pass. quality_mutate.py, 4 seeded mutants in model.py, 3 survived: (a) fitted_regret's degrees of freedom n*k/2 -> n*k/2+1 (model.py:125) survives although it halves the n=1 regret (0.107 -> 0.054) and shifts n=8 by 0.0014, just inside test_fit_regret_matches_simulation's delta=0.0015 (about 12% of the value, tests/test_model.py:65); (b) gate_inflation_regret c -> c*c (model.py:137) survives because the only test is c=1; (c) the Gamma quadrature's lower cut 1e-3 -> 5e-2 (model.py:113) survives. Changing accept_false's variance s2+tau2 -> tau2 was caught (4 failures). The chi-square, closed-form-optimum and MC tests are good; no test pins any results.txt row, so the repair and inflation tables (results 6 and 7) are effectively unguarded.",
   "craft": "Read model.py (138 lines), __init__.py, tests/test_model.py, experiments/run.py, figure.py. Compact, docstrings state the model, the incomplete-gamma series / Lentz continued fraction is a correct Numerical Recipes port, figure.py parses results.txt instead of retyping numbers. Defects: opt_gate's log grid (model.py:73) never considers the g=0 boundary that opt_gate_k2 returns, so regret can be negative; _gamma_weights is an ad hoc midpoint rule with a hard 1e-3 floor that is biased for kappa<=1 (mean 1.033 at kappa=0.5, i.e. k=1, n=1), with no warning; star imports in __init__.py, tests and run.py; run.py also inserts src on sys.path by hand.",
-  "claims": "Checked: twin gate 0.278 m / cost 0.094 / 2.1% (results.txt:2, pass); rho=2 38.2% exact vs MC 38.0% (results.txt:6, pass); 4.4x (results.txt:30, pass); regret 61.8% / 54% (results.txt:24-25, pass); alpha^(1/rho^2) 31.6% (pass); pessimistic twin 145% (pass); c_false 396%/3%/reject-all at 1000 (pass); repair 6% at n=10, <1% at n=59 (pass); '11 tests, ~1 s' and '~5 s' (pass); limits stated (README:15, paper Limitations); ARPG non-affiliation stated (README:13). Weak points: the paper calls the repair rows 'exact expectations' (whitepaper.md:3) but they are a truncated quadrature, off by 0.5% at n=1 (67.5% printed, 67.8% true); the closed-form gate is presented without saying it is the classical likelihood-ratio threshold for unequal-variance Gaussians, so a reader may take it as a contribution. Live page not verifiable.",
+  "claims": "Checked: twin gate 0.278 m / cost 0.094 / 2.1% (results.txt:2, pass); rho=2 38.2% exact vs MC 38.0% (results.txt:6, pass); 4.4x (results.txt:29, pass); regret 61.8% / 54% (results.txt:23-24, pass); alpha^(1/rho^2) 31.6% (pass); pessimistic twin 145% (pass); c_false 396%/3%/reject-all at 1000 (pass); repair 6% at n=10, <1% at n=59 (pass); '11 tests, ~1 s' and '~5 s' (pass); limits stated (README:15, paper Limitations); ARPG non-affiliation stated (README:13). Weak points: the paper calls the repair rows 'exact expectations' (whitepaper.md:3) but they are a truncated quadrature, off by 0.5% at n=1 (67.5% printed, 67.8% true); the closed-form gate is presented without saying it is the classical likelihood-ratio threshold for unequal-variance Gaussians, so a reader may take it as a contribution. Live page not verifiable.",
   "fitness": "A researcher could reuse the code as a correct, dependency-free oracle for chi-square gate costs and as a teaching example of variance mismatch. As research it is thin: the optimal gate is the Bayes / likelihood-ratio threshold between N(0,s2 I) and N(0,(s2+tau2) I) (Van Trees 1968, Part I; any detection-theory text), alpha^(1/rho^2) is one line for k=2, and the 'repair' is plug-in variance estimation whose O(1/n) regret is standard. The SLAM-side prior work a reviewer would expect is missing: loop-closure verification and robust back ends beyond Sunderhauf & Protzel (RRR, Latif, Cadena & Neira 2013; DCS, Agarwal et al. 2013; max-mixtures, Olson & Agarwal 2013; PCM, Mangelson et al. 2018) and covariance-consistency / NEES calibration of odometry (Bar-Shalom, Li & Kirubarajan 2001), which is exactly the practitioner's version of the repair. No real or simulated odometry data, so rho is a knob. Not publishable at a robotics venue as is.",
   "domain": "The chi-square gate itself is standard practice and is modelled correctly. Departures a SLAM practitioner would flag first: real loop-closure residuals live in SE(2)/SE(3) (3 or 6 dof with rotation-translation coupling), not isotropic 2-D translation; the gate in practice is a Mahalanobis test against the propagated covariance, whose scale grows with loop length, so 'twin noise too small' is a covariance-overconfidence problem usually handled by covariance inflation/calibration against NEES, not a single s; false closures from aliasing are not zero-mean Gaussian with a known tau; and modern systems use robust kernels or consistency-set selection (PCM) rather than a single hard gate. All of these are acknowledged in Limitations, not addressed."
  },
@@ -50,7 +50,7 @@
    "method": "independent bisection optimum per rho, closed-form costs",
    "command": "python3 -I /tmp/claude-0/audit-loopclosure-twin/indep2.py",
    "expected": "regret 145.5/27.6/0.0/37.0/61.8/54.4/34.8 %, radii 1.61/2.23/2.78/3.73/4.52/5.77/6.625, ratios 2.51/4.43/6.98",
-   "observed": "results.txt:16-27, 30-32 match (6.63 for 6.625 is rounding)",
+   "observed": "results.txt:19-25, 28-30 match (6.63 for 6.625 is rounding)",
    "result": "pass"
   },
   {
@@ -59,7 +59,7 @@
    "method": "independent bisection optimum, closed-form costs",
    "command": "python3 -I /tmp/claude-0/audit-loopclosure-twin/indep.py",
    "expected": "c_false regret 395.5-395.8/203.7/61.8/3.0/0.0 %; inflation 0.15899/0.04418/0.00772/0/0.01435/0.05257/0.12711 and 0/0.03020/0.06692/0.09876/0.15082/0.20974/0.29667",
-   "observed": "results.txt:35-39, 54-60 match",
+   "observed": "results.txt:33-37, 52-58 match",
    "result": "pass"
   },
   {
@@ -68,7 +68,7 @@
    "method": "Simpson quadrature on the Gamma(n) density with u^2 substitution (no endpoint truncation) and 200k-draw Monte Carlo, independent of _gamma_weights",
    "command": "python3 -I /tmp/claude-0/audit-loopclosure-twin/indep2.py",
    "expected": "n=1 0.10788 (67.8%), n=2..1000 0.05371/0.03490/0.02019/0.00970/0.00313/0.00093/0.00009, n=58 1.01%, n=59 0.99%",
-   "observed": "results.txt:43-51 n=1 0.10734 (67.5%), all other rows identical, 59",
+   "observed": "results.txt:41-49 n=1 0.10734 (67.5%), all other rows identical, 59",
    "result": "partial"
   },
   {
