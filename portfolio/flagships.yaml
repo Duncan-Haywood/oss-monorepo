@@ -600,8 +600,9 @@ flagships:
       the 358 unexplained areas (eval/areas-vs-stored-2026-11-20-causes.txt: C20's
       54 ArchiCAD side areas 2-4% under, skolebygg's 111 mullions, schependomlaan's
       small pieces); the 160 unexplained GrossVolumes; kleine_Wohnung's 8 breps on
-      surfaces of revolution/NURBS (eval/breps-vs-ifcopenshell.mjs with IfcOpenShell
-      from pip as the reference).
+      surfaces of revolution/NURBS (eval/breps-vs-ifcopenshell.mjs); more revision
+      series through eval/revision-diff.mjs (OpeningDesign repos on GitHub:
+      Lake_Kegonsa_Home 4 IFC commits, Lake_Mills_Residence_Expansion 2).
     hosts: [https://github.com]
     next: >-
       History and every measurement: ventures/ifc-quantity-takeoff/README.md and
@@ -610,16 +611,19 @@ flagships:
       eval/areas-vs-stored-2026-11-19.md); faceted bodies cut through their faces
       2026-11-20 (2,915 of 4,251 new pairs agree;
       eval/areas-vs-stored-2026-11-20.md); their misses named 2026-11-20
-      (unexplained 1,499 to 358: centre-line, slab faces, zeros; reversed faces
-      turned, 58 Revit volumes fixed; eval/faceted-causes-2026-11-20.md). Next, most
-      valuable first: (1) the covering up-cut rule tested on a second model,
-      skolebygg's 111 mullions, C20's 54 side areas; (2) a method-of-measurement
-      layer (NRM or CESMM style: deduct openings only above a size,
-      MasterFormat/Uniformat mapping from the classification code); (3) the
-      unexplained disagreements; (4) advanced breps on revolved/NURBS surfaces (8 in
-      kleine_Wohnung; planes and cylinders read 2026-11-20, 703 of 767 =
-      IfcOpenShell to 0.1%, rest explained; openings out of faceted bodies as signed
+      (unexplained 1,499 to 358; eval/faceted-causes-2026-11-20.md); revision change
+      report shipped 2026-11-20 (diff.mjs, page and cli --compare: BoQ change per
+      line, elements matched by GlobalId, Tag, geometry, Revit parts/host paired;
+      190 of 1,011 GlobalId-only adds/removes on five real Aalseth Residence exports
+      were the same element; eval/revision-diff-2026-11-20.md). Next, most valuable
+      first: (1) the covering up-cut rule tested on a second model, skolebygg's 111
+      mullions, C20's 54 side areas; (2) a method-of-measurement layer (NRM or CESMM
+      style: deduct openings only above a size, MasterFormat/Uniformat mapping from
+      the classification code); (3) the unexplained disagreements; (4) advanced
+      breps on revolved/NURBS surfaces (8 in kleine_Wohnung; planes and cylinders read
+      2026-11-20, 703 of 767 = IfcOpenShell to 0.1%; faceted openings as signed
       tetrahedra; eval/advanced-breps-2026-11-20.md), overlapping shell pieces as a
-      union; (5) a model-to-model change report (two revisions of one model,
-      quantities by GlobalId); (6) a real estimator's reading of the BoQ CSV (needs
-      a person).
+      union; (5) the change report on
+      more revision series (OpeningDesign's Lake_Kegonsa_Home and Lake_Mills repos
+      commit IFCs repeatedly; an ArchiCAD series), wall parts that stay unpaired;
+      (6) a real estimator's reading of the BoQ CSV (needs a person).

@@ -19,19 +19,41 @@ BASE = "https://example.test/site/"
 LD = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.S)
 
 
-_BARE = []
+CHROME = {
+    "header": '<header class="pfs-test">site</header>',
+    "topic_header": '<header class="pfs-test">site › {{TOPIC}}</header>',
+    "project_header": '<header class="pfs-test">site › {{TOPIC}} › {{TITLE}}</header>',
+    "footer": "<p>links</p>", "style_file": "pf-site.css"}
+_BUILDS = {}
+
+
+def builds():
+    """The module's three builds (bare, with a base URL, with a base URL and site chrome), started
+    together on first use and shared by the classes that only read them. They ran one after
+    another in setUpClass until 2026-11-20, 3 x 3.5 s on a 4-core box; 2026-11-16 had already
+    merged two identical bare builds into one."""
+    if not _BUILDS:
+        tmp = tempfile.TemporaryDirectory()
+        unittest.addModuleCleanup(tmp.cleanup)
+        root = Path(tmp.name)
+        chrome = root / "chrome.json"
+        chrome.write_text(json.dumps(CHROME))
+        args = {"bare": [], "base": ["--base-url", BASE], "chrome": ["--base-url", BASE, "--site-chrome", str(chrome)]}
+        procs = {}
+        for name, extra in args.items():
+            out = root / name / "research"
+            procs[name] = (out, subprocess.Popen([sys.executable, str(BUILD), "--out", str(out), *extra],
+                                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True))
+        for name, (out, proc) in procs.items():
+            stdout, stderr = proc.communicate()
+            if proc.returncode:
+                raise subprocess.CalledProcessError(proc.returncode, proc.args, stdout, stderr)
+            _BUILDS[name] = out
+    return _BUILDS
 
 
 def bare_build():
-    """One build with no base URL or site chrome, shared by the classes that only read it
-    (2026-11-16: two classes each built the same site, a fifth of this module's time)."""
-    if not _BARE:
-        tmp = tempfile.TemporaryDirectory()
-        unittest.addModuleCleanup(tmp.cleanup)
-        out = Path(tmp.name) / "research"
-        subprocess.run([sys.executable, str(BUILD), "--out", str(out)], check=True, capture_output=True, text=True)
-        _BARE.append(out)
-    return _BARE[0]
+    return builds()["bare"]
 
 
 def graph(html):
@@ -45,15 +67,8 @@ def graph(html):
 class ResearchPublishTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.tmp = tempfile.TemporaryDirectory()
-        cls.out = Path(cls.tmp.name)
-        subprocess.run([sys.executable, str(BUILD), "--out", str(cls.out), "--base-url", BASE],
-                       check=True, capture_output=True, text=True)
+        cls.out = builds()["base"]
         cls.projects = [p for p in cls.out.iterdir() if (p / "index.html").is_file() and p.name not in ("topics", "fonts")]
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.tmp.cleanup()
 
     def test_every_project_page_is_a_scholarly_article_at_its_own_url(self):
         self.assertGreater(len(self.projects), 100)
@@ -128,22 +143,8 @@ class ResearchSiteChromeTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.tmp = tempfile.TemporaryDirectory()
-        tmp = Path(cls.tmp.name)
-        chrome = tmp / "chrome.json"
-        chrome.write_text(json.dumps({
-            "header": '<header class="pfs-test">site</header>',
-            "topic_header": '<header class="pfs-test">site › {{TOPIC}}</header>',
-            "project_header": '<header class="pfs-test">site › {{TOPIC}} › {{TITLE}}</header>',
-            "footer": "<p>links</p>", "style_file": "pf-site.css"}))
-        cls.out = tmp / "research"
-        subprocess.run([sys.executable, str(BUILD), "--out", str(cls.out), "--base-url", BASE,
-                        "--site-chrome", str(chrome)], check=True, capture_output=True, text=True)
+        cls.out = builds()["chrome"]
         cls.bare = bare_build()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.tmp.cleanup()
 
     def pages(self, root):
         topics = [t / "index.html" for t in (root / "topics").iterdir()]

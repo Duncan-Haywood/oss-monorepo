@@ -206,7 +206,7 @@ export function takeoff(model, opts = {}) {
     const row = {
       id, globalId: e.args[0], ifcClass: prettyClass(e.type), ifcType: e.type, name: str(e.args[2]), tag: str(e.args[7]) ?? null,
       type: null, storey: null, material: null, classification: null, parent: null, isAssembly: false,
-      stored: {}, storedSet: null, computed: null, check: null,
+      stored: {}, storedSet: null, computed: null, check: null, box: null,
     };
     const tId = idx.typeOf.get(id);
     if (tId) { const t = E.get(tId); row.type = t ? str(t.args[2]) : null; }
@@ -247,6 +247,7 @@ export function takeoff(model, opts = {}) {
       row.computed = computeVolume(e, idx, E, geo, bodyOf, worldOf, f);
       if (row.computed.status === "ok") {
         try { row.computed.areas = computeAreas(e.type, row.computed.solids, worldOf(refId(e.args[5])), f); } catch (err) { row.computed.areas = { error: err.message }; }
+        try { row.box = worldBox(row.computed.solids.body, worldOf(refId(e.args[5])), f); } catch { row.box = null; }
       }
     }
     row.check = checkVolume(row, tol);
@@ -500,6 +501,24 @@ function computeVolume(e, idx, E, geo, bodyOf, worldOf, f) {
     out.netReason = err instanceof Unresolved ? err.message : `error: ${err.message}`;
   }
   return out;
+}
+
+/**
+ * The element's axis-aligned box in world coordinates, in metres:
+ * [xmin, ymin, zmin, xmax, ymax, zmax]. The change report (diff.mjs) matches
+ * elements that lost their GlobalId by it, and reports moves.
+ */
+function worldBox(body, W, f) {
+  const lo = [], hi = [];
+  for (let i = 0; i < 3; i++) {
+    const d = [W[4 * i], W[4 * i + 1], W[4 * i + 2]];
+    const len = Math.hypot(...d);
+    const [a, b] = solidExtent(body, d);
+    if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+    lo.push((a * len + W[4 * i + 3]) * f);
+    hi.push((b * len + W[4 * i + 3]) * f);
+  }
+  return [...lo, ...hi];
 }
 
 // ---- areas from geometry ---------------------------------------------------

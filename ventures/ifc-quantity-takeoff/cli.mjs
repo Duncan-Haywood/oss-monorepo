@@ -6,18 +6,22 @@
 //   node cli.mjs model.ifc --rows rows.csv     every element with stored and computed volumes
 //   node cli.mjs model.ifc --check             summary of computed vs stored volumes
 //   node cli.mjs model.ifc --json out.json     everything as JSON
+//   node cli.mjs new.ifc --compare old.ifc     change in the BoQ since an earlier revision (CSV to stdout)
+//   --changes changes.csv                      with --compare: every added, removed, changed or re-identified element
 //   --tolerance 0.02                           relative difference that still counts as agreeing (default 2%)
 //   --no-geometry                              stored quantities only (faster)
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
 import { takeoff, boq, boqCsv, rowsCsv, checkSummary } from "./qto.mjs";
+import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
 
 const args = process.argv.slice(2);
-const file = args.find((a) => !a.startsWith("--") && !/^\d/.test(a) && args[args.indexOf(a) - 1] !== "--rows" && args[args.indexOf(a) - 1] !== "--json" && args[args.indexOf(a) - 1] !== "--by");
+const VALUED = ["--rows", "--json", "--by", "--compare", "--changes", "--tolerance"];
+const file = args.find((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
 const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
 if (!file || args.includes("--help")) {
-  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 11).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
+  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 13).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
   process.exit(file ? 0 : 2);
 }
 const by = (opt("--by") || "class,type").split(",").map((s) => s.trim()).filter(Boolean);
@@ -26,6 +30,15 @@ const t0 = Date.now();
 const model = parseStep(readFileSync(file));
 const res = takeoff(model, { geometry: !args.includes("--no-geometry"), tolerance: opt("--tolerance") ? Number(opt("--tolerance")) : undefined });
 const secs = (Date.now() - t0) / 1000;
+if (opt("--compare")) {
+  const before = takeoff(parseStep(readFileSync(opt("--compare"))), { geometry: !args.includes("--no-geometry") });
+  const d = diffTakeoffs(before.rows, res.rows);
+  const s = d.summary;
+  console.error(`${opt("--compare")} -> ${file}: ${s.before} -> ${s.after} elements; ${s.unchanged} unchanged, ${s.changed} changed (${s.quantityChanged} quantity, ${s.attributeChanged} attribute, ${s.moved} moved, ${s.reshaped} reshaped), ${s.added} added, ${s.removed} removed, ${s.merged} merged, ${s.split} split; ${s.byTag + s.byGeometry} matched under a new GlobalId (${s.byTag} by Tag, ${s.byGeometry} by geometry)`);
+  if (opt("--changes")) writeFileSync(opt("--changes"), changesCsv(d));
+  process.stdout.write(boqDeltaCsv(boqDelta(before.rows, res.rows, by), by));
+  process.exit(0);
+}
 if (opt("--rows")) writeFileSync(opt("--rows"), rowsCsv(res.rows));
 if (opt("--json")) writeFileSync(opt("--json"), JSON.stringify({ schema: res.schema, units: res.units, summary: checkSummary(res.rows), boq: boq(res.rows, by), rows: res.rows }, null, 1));
 if (args.includes("--check")) {
