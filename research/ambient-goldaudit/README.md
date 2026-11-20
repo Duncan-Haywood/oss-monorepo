@@ -32,7 +32,7 @@ Each rule is scored exactly under the true mix and matrix (mean over contexts). 
 ```bash
 cd research/ambient-goldaudit
 pip install numpy pytest matplotlib
-PYTHONPATH=src python3 -m pytest -q tests        # 7 tests
+PYTHONPATH=src python3 -m pytest -q tests        # 8 tests
 PYTHONPATH=src python3 experiments/run.py > experiments/results.txt   # about a minute; also writes experiments/gold.png
 ```
 
@@ -41,8 +41,8 @@ PYTHONPATH=src python3 experiments/run.py > experiments/results.txt   # about a 
 Reference: blind 0.3824; true-parameter Bayes 0.3917 (label 0.7) and 0.4066 (label 0.9).
 
 1. **A few gold audits beat many noisy ones read as truth.** 200 or 1000 noisy audits read as truth give 0.3873 and 0.3877 at label 0.7, and 0.3988 and 0.3995 at label 0.9: more noisy audits do not help, because the bias stays. 25 gold audits already match them (0.3881 and 0.4009); 10 do not (0.3854 and 0.3955). The grid is coarse and the gold_only std at G = 25 is 0.003, so "25" means "between 10 and 25 or so", not an exact exchange rate.
-2. **Pooling the noisy audits as truth hurts.** At G = 200, N = 1000, label 0.9: pooled_naive 0.4008 against gold_only 0.4063. The noisy rows pull the estimate away from the truth.
-3. **Using the noisy audits properly helps a lot at small G.** joint_em with G = 10, N = 200 gets 0.3903 (label 0.7) and 0.4054 (label 0.9), against gold_only 0.3854 and 0.3955 at G = 10, and 0.3917 and 0.4066 for the true parameters. At label 0.9 that is 0.0012 below the truth, versus 0.0111 for gold alone. joint_em at G = 10 beats gold_only at G = 50 in label 0.7 (0.3903 vs 0.3897) and almost matches it at label 0.9 (0.4054 vs 0.4046, ahead).
+2. **Pooling the noisy audits as truth hurts once there is enough gold.** At G = 200, N = 1000, label 0.9: pooled_naive 0.4008 against gold_only 0.4063; the noisy rows pull the estimate away from the truth. At G = 10 pooling helps slightly in all four cells (for example 0.3990 vs 0.3949 at label 0.9, N = 200), and at G = 25, N = 200, label 0.7 the two tie (corrected after the quality audit of 2026-11-20).
+3. **Using the noisy audits properly helps a lot at small G.** joint_em with G = 10, N = 200 gets 0.3903 (label 0.7) and 0.4054 (label 0.9), against gold_only 0.3854 and 0.3955 at G = 10, and 0.3917 and 0.4066 for the true parameters. At label 0.9 that is 0.0012 below the truth, versus 0.0111 for gold alone. joint_em at G = 10 beats gold_only at G = 50 in label 0.7 (0.3903 vs 0.3897) and beats it at label 0.9 too (0.4054 vs 0.4046).
 4. **The gain shrinks as G grows.** At G = 200 joint_em and gold_only agree within 0.0003 at N = 200 and N = 1000 (for example 0.4064 and 0.4063 at label 0.9).
 5. **More noisy audits add little here once the structure is fitted**: joint_em at G = 10 moves only from 0.3903 (N = 200) to 0.3904 (N = 1000) at label 0.7. Most of the benefit arrives with the first 200.
 
@@ -65,3 +65,13 @@ Reference: blind 0.3824; true-parameter Bayes 0.3917 (label 0.7) and 0.4066 (lab
 ## Outside dependencies
 
 None beyond numpy (plus pytest and matplotlib for the tests and the figure). No model, dataset, service or hardware is used.
+
+## Known gaps (quality audit 2026-11-20)
+
+From the census audit, [`2026-11-20-ambient-goldaudit.json`](../../portfolio/quality/audits/2026-11-20-ambient-goldaudit.json):
+
+- **Unequal smoothing.** `gold_only` smooths with alpha 1.0 and `joint_em` with 0.5. At label 0.9 and G = 10, `gold_only` at alpha 0.5 scores 0.3979 instead of 0.3948, about 30% of the gain that result 3 credits to the noisy audits. The comparison should be rerun at equal alpha.
+- **Uncited prior work.** This is Tenenbein's (1970, JASA) double-sampling design. Gold questions in Dawid-Skene crowdsourcing (Raykar et al. 2010; Oleson et al. 2011) and prediction-powered inference (Angelopoulos et al. 2023) are also missing. Against that literature the ordering found here is expected, not new.
+- **No paired comparisons.** Cells report standard deviations only, with no paired differences or standard errors.
+
+Fixed in PR #17836: the pooling claim now carries its condition (it helps at G = 10), the wording on G = 10 against G = 50 is corrected, and a test pins the decision step.

@@ -44,3 +44,12 @@ def test_true_parameters_beat_blind_value():
     P = Params(); u = u_table(P, contexts()[0]); C = confusion(0.9)
     m = modes_from_estimate(u, PRIOR, C)
     assert value(u, m, C, PRIOR) >= float(PRIOR @ u[:, int(np.argmax(PRIOR @ u))]) - 1e-12
+
+
+def test_true_parameter_bayes_value_matches_published():
+    # quality audit 2026-11-20: pins the decision step (Bayes label-to-mode rule and value()) to the
+    # README's true-parameter references, 0.4066 at label 0.9 and 0.3917 at 0.7.
+    P = Params(); U = [u_table(P, c) for c in contexts()]
+    for acc, ref in ((0.9, 0.4066), (0.7, 0.3917)):
+        C = confusion(acc)
+        assert round(float(np.mean([value(u, modes_from_estimate(u, PRIOR, C), C, PRIOR) for u in U])), 4) == ref
