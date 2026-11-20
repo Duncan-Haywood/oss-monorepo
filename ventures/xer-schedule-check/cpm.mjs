@@ -188,7 +188,7 @@ export function buildModel(xer) {
   for (const r of T.TASKPRED || []) {
     const succ = tasks.get(r.task_id);
     const pred = tasks.get(r.pred_task_id);
-    const rel = { id: r.task_pred_id, succId: r.task_id, predId: r.pred_task_id, type: r.pred_type, lag: Math.round(readHours(r, "lag_hr_cnt", "lag") * 60), external: !succ || !pred };
+    const rel = { id: r.task_pred_id, succId: r.task_id, predId: r.pred_task_id, type: r.pred_type, lag: Math.round(readHours(r, "lag_hr_cnt", "lag") * 60), external: !succ || !pred, row: r };
     // a per-link lag calendar (not in P6; mspdi.mjs sets it for Project's elapsed lags)
     if (r.lag_calendar === "24h") rel.lagCal = "rcal_24Hour";
     rels.push(rel);

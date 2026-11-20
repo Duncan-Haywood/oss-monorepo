@@ -24,6 +24,7 @@
 
 import { schedule, drivingPath, hardConstraint, lagCalendar } from "./cpm.mjs";
 import { longestPath } from "./floatpaths.mjs";
+import { relationshipLags } from "./reldates.mjs";
 import { parseDate, formatDate, num } from "./xer.mjs";
 
 const DAYS_44 = 44;
@@ -393,14 +394,32 @@ export function assess(xer, opts = {}) {
   // after that run. CCA (P6 6.0): one 608 h lag where the stored dates leave
   // exactly 440 h (55 days of 8 h) explains both of its open activities that
   // differ; none of the other links on six P6 files breaks its dates
-  // (eval/edited-lags-2026-11-19.md).
+  // (eval/edited-lags-2026-11-19.md). That link's own relationship date shows
+  // P6 used 608 h at that run, so the gap is P6's forward pass, and the item
+  // says so (eval/relationship-dates-2026-11-20.md).
   const editedLags = stale.length && xer.format !== "mspdi" ? brokenLinks(model, open, new Set(edited.map((e) => e.t.id))) : [];
+  // P6's own relationship dates (TASKPRED aref/arls) carry the lag it used
+  // at that run, so a lag changed since (longer or shorter) is listed with
+  // its old value, and a link with no relationship dates was added since
+  // (reldates.mjs; eval/relationship-dates-2026-11-20.md: 40,476 of 40,476
+  // links on six P6 files decode exactly, 360 of 360 planted edits recovered).
+  const relDates = xer.format !== "mspdi" ? relationshipLags(model) : { links: [], added: [] };
+  const inOpen = new Set(open.map((t) => t.id));
+  const wasLag = new Map([...relDates.links, ...(relDates.finished?.was || [])].map((l) => [l.rel.id, l.was]));
+  const sameLag = relDates.finished?.agree || new Set();
+  const addedRel = new Set(relDates.added.map((l) => l.rel.id));
+  for (const l of [...relDates.links, ...(relDates.finished?.was || []), ...relDates.added]) {
+    if (!inOpen.has(l.succ.id) || editedLags.some((e) => e.rel.id === l.rel.id)) continue;
+    editedLags.push({ t: l.succ, pr: l.pred, rel: l.rel, room: null, side: "rel" });
+  }
   let lagsExplained = null, lagsNear = 0;
   // two dates with no working time between them on the activity's calendar
   const near = (t, a, b) => a === b || (a !== null && b !== null && t.cal.workBetween(Math.min(a, b), Math.max(a, b)) === 0);
-  if (editedLags.length && !opts.result) {
-    const implied = new Map(editedLags.map((e) => [e.rel.id, e.room / 60]));
-    const TASKPRED = (xer.tables.TASKPRED || []).map((r) => (implied.has(r.task_pred_id) ? { ...r, lag_hr_cnt: String(implied.get(r.task_pred_id)) } : r));
+  if (editedLags.length && stale.length && !opts.result) {
+    // the lag P6's relationship dates name where there is one, else the
+    // room the stored dates leave; a link added since the run comes out
+    const implied = new Map(editedLags.filter((e) => !addedRel.has(e.rel.id)).map((e) => [e.rel.id, (wasLag.has(e.rel.id) ? wasLag.get(e.rel.id) : e.room) / 60]));
+    const TASKPRED = (xer.tables.TASKPRED || []).filter((r) => !addedRel.has(r.task_pred_id)).map((r) => (implied.has(r.task_pred_id) ? { ...r, lag_hr_cnt: String(implied.get(r.task_pred_id)) } : r));
     const again = schedule({ ...xer, tables: { ...xer.tables, TASKPRED } }).tasks;
     lagsExplained = 0;
     for (const s of stale) {
@@ -424,12 +443,17 @@ export function assess(xer, opts = {}) {
       const between = side === "late"
         ? `between ${pr.code}'s stored late ${fromS} ${fromS === "finish" ? pr.row.late_end_date : pr.row.late_start_date} and this activity's stored late ${toS}`
         : `after ${pr.code} ${fromLabel(pr, rel)}`;
-      return { code: t.code, name: t.name, pred: pr.code, why: room < 0
+      const was = wasLag.has(rel.id) ? wasLag.get(rel.id) / 60 : null;
+      const p6 = was !== null ? `; P6's own relationship dates for this link were written with a lag of ${round1(was)} h (${round1(days(t, was))} d) at the last schedule run`
+        : sameLag.has(rel.id) ? `; but P6's own relationship date for this link (arls) was written with this same lag, so the lag was not changed: P6's forward pass at its last run left this gap itself` : "";
+      if (addedRel.has(rel.id)) return { code: t.code, name: t.name, pred: pr.code, why: `${lagTxt}: added after the last schedule run (P6 wrote relationship dates for every other link, none for this one)` };
+      if (room === null) return { code: t.code, name: t.name, pred: pr.code, lagWas: was, why: `${lagTxt}${p6}, so the lag was changed after that run` };
+      return { code: t.code, name: t.name, pred: pr.code, lagWas: was, why: (room < 0
         ? `${lagTxt}: the stored dates break it even with no lag (${round1(-room / 60)} h short ${between}), so the link was added or changed after the last schedule run`
-        : `${lagTxt}; the stored dates leave ${round1(room / 60)} h (${round1(days(t, room / 60))} d) ${between}` };
+        : `${lagTxt}; the stored dates leave ${round1(room / 60)} h (${round1(days(t, room / 60))} d) ${between}`) + p6 };
     });
     extra.push({ id: "edited-lags", name: "Lags edited after the last schedule run", count: items.length, pass: false, items, explained: lagsExplained, near: lagsNear, differ: stale.length,
-      note: `Each link listed is broken by the dates the file stores: the successor's stored date is closer to its predecessor than the lag allows. P6 meets every link when it schedules, so after the last schedule run the lag was lengthened, the link added, or the predecessor's actual date moved later, and the file was exported without rescheduling.${lagsExplained === null ? "" : ` Rescheduled with the lags the stored dates leave room for, ${lagsExplained} of the ${stale.length} activities whose stored dates disagree with the logic agree${lagsNear ? `, and ${lagsNear} more but for a gap with no working time in it` : ""}.`}` });
+      note: `Each link listed is either broken by the dates the file stores (the successor's stored date is closer to its predecessor than the lag allows; P6 meets every link when it schedules) or has relationship dates that P6 wrote with another lag (TASKPRED aref and arls, which P6 writes for every link at each schedule run). Either way the lag was changed, the link added, or the predecessor's actual date moved after the last schedule run, and the file was exported without rescheduling${editedLags.some((e) => sameLag.has(e.rel.id)) ? " (except where an item says P6's relationship date carries the current lag: there P6's own forward pass left the gap, and putting back means giving the link the lag the stored dates leave room for)" : ""}.${lagsExplained === null ? "" : ` Rescheduled with the lags the stored dates leave room for, ${lagsExplained} of the ${stale.length} activities whose stored dates disagree with the logic agree${lagsNear ? `, and ${lagsNear} more but for a gap with no working time in it` : ""}.`}` });
   }
 
   for (const s of stale) delete s.id;

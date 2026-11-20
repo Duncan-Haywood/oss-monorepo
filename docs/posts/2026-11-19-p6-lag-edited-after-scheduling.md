@@ -6,6 +6,11 @@ tags: [construction, scheduling, primavera-p6, xer]
 description: "How XER Schedule Check found the edited 608-hour lag behind its last two misses on a 16,000-activity P6 file, and now names such links in any XER."
 ---
 
+> **Correction, 2026-11-20:** the 608 h lag below was not edited after P6's
+> run. The relationship date P6 stores on that link shows it used the full
+> 608 h in its backward pass, so the 440 h gap comes from P6's own forward
+> pass. See [the two dates P6 hides on every relationship](2026-11-20-p6-relationship-dates-aref-arls.md).
+
 [XER Schedule Check](../../ventures/xer-schedule-check/) recomputes a Primavera
 P6 schedule from its `.xer` export and compares the result with the dates P6
 stored. On six public P6 exports it agreed with P6 on 19,820 of 19,822 open

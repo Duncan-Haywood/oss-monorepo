@@ -1,0 +1,275 @@
+{
+ "seeds": 10,
+ "k": 20,
+ "total": {
+  "decodeA": 40476,
+  "decodeAok": 40383,
+  "decodeL": 40476,
+  "decodeLok": 40476,
+  "checked": 40476,
+  "found": 0,
+  "planted": 1200,
+  "recovered": 1200,
+  "missed": 0,
+  "wrong": 0,
+  "extra": 0,
+  "addPlanted": 1200,
+  "addFound": 1200,
+  "doneNodes": 1549,
+  "doneEq": 1545
+ },
+ "files": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "version": "6.0",
+   "checked": 31491,
+   "found": 0,
+   "added": 0,
+   "decode": {
+    "PR_FS": {
+     "aref": 27425,
+     "arefOk": 27425,
+     "arls": 27425,
+     "arlsOk": 27425
+    },
+    "PR_SS": {
+     "aref": 2366,
+     "arefOk": 2366,
+     "arls": 2366,
+     "arlsOk": 2366
+    },
+    "PR_FF": {
+     "aref": 1700,
+     "arefOk": 1700,
+     "arls": 1700,
+     "arlsOk": 1700
+    }
+   },
+   "planted": 200,
+   "recovered": 200,
+   "missed": 0,
+   "wrong": 0,
+   "extra": 0,
+   "addPlanted": 200,
+   "addFound": 200,
+   "doneNodes": 1533,
+   "doneEq": 1529,
+   "doneOdd": [
+    {
+     "code": "CFNS131203C0",
+     "late": "2011-10-28 01:36",
+     "minArls": "2011-10-26 17:36"
+    },
+    {
+     "code": "CFNS103317C0",
+     "late": "2011-10-26 17:36",
+     "minArls": "2011-10-10 09:36"
+    },
+    {
+     "code": "T20CO05305C0",
+     "late": "2011-10-29 09:54",
+     "minArls": "2011-10-30 13:48"
+    },
+    {
+     "code": "PGLS103391C120",
+     "late": "2011-10-30 08:00",
+     "minArls": "2011-11-03 08:00"
+    }
+   ]
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "version": "7.0",
+   "checked": 1094,
+   "found": 0,
+   "added": 0,
+   "decode": {
+    "PR_FS": {
+     "aref": 995,
+     "arefOk": 995,
+     "arls": 995,
+     "arlsOk": 995
+    },
+    "PR_SS": {
+     "aref": 88,
+     "arefOk": 88,
+     "arls": 88,
+     "arlsOk": 88
+    },
+    "PR_FF": {
+     "aref": 11,
+     "arefOk": 11,
+     "arls": 11,
+     "arlsOk": 11
+    }
+   },
+   "planted": 200,
+   "recovered": 200,
+   "missed": 0,
+   "wrong": 0,
+   "extra": 0,
+   "addPlanted": 200,
+   "addFound": 200,
+   "doneNodes": 0,
+   "doneEq": 0,
+   "doneOdd": []
+  },
+  {
+   "file": "Harbour Pointe Assisted Living Center.xer",
+   "version": "17.12",
+   "checked": 181,
+   "found": 0,
+   "added": 0,
+   "decode": {
+    "PR_FS": {
+     "aref": 153,
+     "arefOk": 78,
+     "arls": 153,
+     "arlsOk": 153
+    },
+    "PR_SS": {
+     "aref": 21,
+     "arefOk": 16,
+     "arls": 21,
+     "arlsOk": 21
+    },
+    "PR_FF": {
+     "aref": 7,
+     "arefOk": 1,
+     "arls": 7,
+     "arlsOk": 7
+    }
+   },
+   "planted": 200,
+   "recovered": 200,
+   "missed": 0,
+   "wrong": 0,
+   "extra": 0,
+   "addPlanted": 200,
+   "addFound": 200,
+   "doneNodes": 16,
+   "doneEq": 16,
+   "doneOdd": []
+  },
+  {
+   "file": "example_xer_file.xer",
+   "version": "24.12",
+   "checked": 0,
+   "found": 0,
+   "added": 0,
+   "decode": {},
+   "planted": 0,
+   "recovered": 0,
+   "missed": 0,
+   "wrong": 0,
+   "extra": 0,
+   "addPlanted": 0,
+   "addFound": 0
+  },
+  {
+   "file": "hotel-project.xer",
+   "version": "6.0",
+   "checked": 7585,
+   "found": 0,
+   "added": 0,
+   "decode": {
+    "PR_SS": {
+     "aref": 1083,
+     "arefOk": 1083,
+     "arls": 1083,
+     "arlsOk": 1083
+    },
+    "PR_FF": {
+     "aref": 577,
+     "arefOk": 570,
+     "arls": 577,
+     "arlsOk": 577
+    },
+    "PR_FS": {
+     "aref": 5925,
+     "arefOk": 5925,
+     "arls": 5925,
+     "arlsOk": 5925
+    }
+   },
+   "planted": 200,
+   "recovered": 200,
+   "missed": 0,
+   "wrong": 0,
+   "extra": 0,
+   "addPlanted": 200,
+   "addFound": 200,
+   "doneNodes": 0,
+   "doneEq": 0,
+   "doneOdd": []
+  },
+  {
+   "file": "sample.xer",
+   "version": "20.12",
+   "checked": 41,
+   "found": 0,
+   "added": 0,
+   "decode": {
+    "PR_FS": {
+     "aref": 29,
+     "arefOk": 29,
+     "arls": 29,
+     "arlsOk": 29
+    },
+    "PR_FF": {
+     "aref": 6,
+     "arefOk": 6,
+     "arls": 6,
+     "arlsOk": 6
+    },
+    "PR_SS": {
+     "aref": 6,
+     "arefOk": 6,
+     "arls": 6,
+     "arlsOk": 6
+    }
+   },
+   "planted": 200,
+   "recovered": 200,
+   "missed": 0,
+   "wrong": 0,
+   "extra": 0,
+   "addPlanted": 200,
+   "addFound": 200,
+   "doneNodes": 0,
+   "doneEq": 0,
+   "doneOdd": []
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "version": "5.0",
+   "checked": 84,
+   "found": 0,
+   "added": 0,
+   "decode": {
+    "PR_FS": {
+     "aref": 66,
+     "arefOk": 66,
+     "arls": 66,
+     "arlsOk": 66
+    },
+    "PR_SS": {
+     "aref": 18,
+     "arefOk": 18,
+     "arls": 18,
+     "arlsOk": 18
+    }
+   },
+   "planted": 200,
+   "recovered": 200,
+   "missed": 0,
+   "wrong": 0,
+   "extra": 0,
+   "addPlanted": 200,
+   "addFound": 200,
+   "doneNodes": 0,
+   "doneEq": 0,
+   "doneOdd": []
+  }
+ ]
+}
