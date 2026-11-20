@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01EhTJVLkxmQRef9MBNyR7ZT",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures prompt (continue work on the repo ...)",
+  "input_sha256": "80aa98475ab589b77b3017213e40db2e9199b1291c7eb6a453aebf9debc367c8",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-20T16:50:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 10) open-tennis-robots: fast survey drill vs long drill at the shipped margins, pre-registered on fresh seeds",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 17937,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The run is a negative simulated result, not a user-facing feature; the router's Start here row named this item and it was the venture's only listed buildable item.",
+      "did": "Ran the pre-registered test and recorded the failure, and pointed buildable at the one lever left (more tach magnets) instead of another threshold sweep",
+      "result": "rule failed; long drill stays; the next item is named"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-tennis-feeder-harder-survey-drill-false-alarms.md",
+    "ventures/open-tennis-robots/eval/feed-phase-drill-2026-11-20.md"
+  ],
+  "goal": "Settle whether the fast survey drill should replace the long one, on fresh simulated builds with the rule committed first",
+  "notes": "Rule committed (b23266baf) before 576 fresh builds were captured (seeds 9501-9523 spread, 9601-9671 instant, jittery tach, --feed-jitter 26). Result: fast 72 vs long 65 of 108 short takes, 68 vs 62 of 72 long, but 2 vs 0 of 108 instant misadvised; clause 3 failed, nothing shipped. Pooled over both fresh sets: ~7 more short takes per 100 for ~1 more false alarm per 100. Added the @N/L label to tests/take_straddle_count.py with a unit test. Verification: tests/test_take_straddle_count.py 4 passed; run_venture_tests.py open-tennis-robots and check_posts.py run before merge (see PR). Captures committed as .jsonl.gz like the previous test's (~28 MB), following that precedent.",
+  "corrections": [],
+  "redteam": null
+}

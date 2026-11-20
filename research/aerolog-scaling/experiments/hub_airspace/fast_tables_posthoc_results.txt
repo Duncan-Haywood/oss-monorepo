@@ -1,0 +1,18 @@
+# Milestone 11au post hoc: T6's 5 misses (fast_tables_posthoc.py's docstring)
+# M idx s draw | h* k | h_w | F(lab*,h*) | F(lab*,h_w)/F(lab*,h*) | R20 at h_w / F(lab*,h*) | R200 at h_w / F(lab*,h*)
+  12 1201 1 3 | 13.0000 5 | 13.3333 | 3.6759 | 0.994706 | 1.003856 | 0.993968
+  12 1220 2 0 | 13.0000 5 | 13.3333 | 2.1019 | 0.997759 | 1.000299 | 0.997759
+  16 1611 1 1 | 13.0000 5 | 13.3333 | 1.2145 | 0.995773 | 1.004555 | 0.995280
+  16 1612 2 2 | 13.0000 5 | 13.3333 | 3.5230 | 0.997873 | 1.052508 | 1.002443
+  16 1616 1 1 | 13.0000 5 | 13.3333 | 2.9469 | 0.994603 | 1.008493 | 0.987125
+
+# missing band counts: R200 at H/11 (k = 6) and H/21 (k = 11) against 11aq's aware F (best of the 30-grid)
+  M = 12, s = 1, k =  6 (h = 10.9091 m): median 1.0285, min 0.9434; below the aware F in 18 of 96
+  M = 12, s = 1, k = 11 (h = 5.7143 m): median 7.7107, min 4.5540; below the aware F in 0 of 96
+  M = 12, s = 2, k =  6 (h = 10.9091 m): median 1.0670, min 0.9614; below the aware F in 16 of 96
+  M = 12, s = 2, k = 11 (h = 5.7143 m): median 8.2917, min 4.5265; below the aware F in 0 of 96
+  M = 16, s = 1, k =  6 (h = 10.9091 m): median 1.0200, min 0.9140; below the aware F in 30 of 96
+  M = 16, s = 1, k = 11 (h = 5.7143 m): median 6.2435, min 3.4807; below the aware F in 0 of 96
+  M = 16, s = 2, k =  6 (h = 10.9091 m): median 1.0467, min 0.9403; below the aware F in 26 of 96
+  M = 16, s = 2, k = 11 (h = 5.7143 m): median 6.2437, min 3.3056; below the aware F in 0 of 96
+# CPU for the missing-band check (48 layouts x 8 draws x 2 spacings x 200 starts): 72 s

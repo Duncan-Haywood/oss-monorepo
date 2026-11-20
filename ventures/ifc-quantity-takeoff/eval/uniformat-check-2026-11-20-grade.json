@@ -1,0 +1,434 @@
+{
+ "total": {
+  "rows": 33893,
+  "model": 588,
+  "rule": 28431,
+  "none": 4874,
+  "level3": 22685,
+  "level2": 4370,
+  "level1": 1964,
+  "compared": 588,
+  "agree3": 482,
+  "agree2": 523,
+  "agree1": 525,
+  "ruleSilent": 31
+ },
+ "models": [
+  {
+   "file": "AC20-FZK-Haus.ifc",
+   "schema": "IFC4",
+   "rows": 82,
+   "model": 0,
+   "rule": 80,
+   "none": {
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 2
+   },
+   "level3": 80,
+   "level2": 0,
+   "level1": 0,
+   "compared": 0,
+   "agree3": 0,
+   "agree2": 0,
+   "agree1": 0,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 0,
+    "unset": 29
+   },
+   "mismatches": {}
+  },
+  {
+   "file": "C20-Institute-Var-2.ifc",
+   "schema": "IFC4",
+   "rows": 701,
+   "model": 0,
+   "rule": 689,
+   "none": {
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 12
+   },
+   "level3": 689,
+   "level2": 0,
+   "level1": 0,
+   "compared": 0,
+   "agree3": 0,
+   "agree2": 0,
+   "agree1": 0,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 0,
+    "unset": 404
+   },
+   "mismatches": {}
+  },
+  {
+   "file": "FM_ARC_DigitalHub.ifc",
+   "schema": "IFC4",
+   "rows": 705,
+   "model": 0,
+   "rule": 542,
+   "none": {
+    "no rule for IfcBuildingElementProxy": 150,
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 13
+   },
+   "level3": 542,
+   "level2": 0,
+   "level1": 0,
+   "compared": 0,
+   "agree3": 0,
+   "agree2": 0,
+   "agree1": 0,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 289,
+    "unset": 0
+   },
+   "mismatches": {}
+  },
+  {
+   "file": "ISSUE_021_Mini Project.ifc",
+   "schema": "IFC2X3",
+   "rows": 2636,
+   "model": 0,
+   "rule": 2227,
+   "none": {
+    "no rule for IfcDiscreteAccessory": 409
+   },
+   "level3": 36,
+   "level2": 2191,
+   "level1": 0,
+   "compared": 0,
+   "agree3": 0,
+   "agree2": 0,
+   "agree1": 0,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 0,
+    "unset": 0
+   },
+   "mismatches": {}
+  },
+  {
+   "file": "ISSUE_034_HouseZ.ifc",
+   "schema": "IFC2X3",
+   "rows": 228,
+   "model": 0,
+   "rule": 222,
+   "none": {
+    "wall with no IsExternal: exterior or partition cannot be told": 6
+   },
+   "level3": 193,
+   "level2": 29,
+   "level1": 0,
+   "compared": 0,
+   "agree3": 0,
+   "agree2": 0,
+   "agree1": 0,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 0,
+    "unset": 177
+   },
+   "mismatches": {}
+  },
+  {
+   "file": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "schema": "IFC2X3",
+   "rows": 4459,
+   "model": 154,
+   "rule": 3978,
+   "none": {
+    "no rule for IfcBuildingElementProxy": 214,
+    "no rule for IfcFlowTerminal": 67,
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 46
+   },
+   "level3": 3280,
+   "level2": 764,
+   "level1": 88,
+   "compared": 154,
+   "agree3": 95,
+   "agree2": 95,
+   "agree1": 95,
+   "ruleSilent": 31,
+   "wallsDoorsWindows": {
+    "set": 1633,
+    "unset": 0
+   },
+   "mismatches": {
+    "IfcBuildingElementProxy: model E1090, rule C1030 (model's classification (Uniformat): E1090900; rule: IfcBuildingElementProxy named as fittings (toilet accessories, partitions, boards, lockers))": 26,
+    "IfcBuildingElementProxy: model C1030, rule E1090 (model's classification (Uniformat): C1030400; rule: IfcBuildingElementProxy named as appliance)": 2
+   }
+  },
+  {
+   "file": "ISSUE_159_kleine_Wohnung_R22.ifc",
+   "schema": "IFC4",
+   "rows": 425,
+   "model": 2,
+   "rule": 370,
+   "none": {
+    "no rule for IfcBuildingElementProxy": 45,
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 8
+   },
+   "level3": 372,
+   "level2": 0,
+   "level1": 0,
+   "compared": 2,
+   "agree3": 0,
+   "agree2": 0,
+   "agree1": 2,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 310,
+    "unset": 0
+   },
+   "mismatches": {
+    "IfcWindow: model B3020, rule B2020 (model's classification (Uniformat): B3020110; rule: window, IsExternal)": 1,
+    "IfcWindow: model B3020, rule B2020 (model's classification (Uniformat): B3020110; rule: window flagged not IsExternal, taken as exterior (exporters flag exterior windows so))": 1
+   }
+  },
+  {
+   "file": "MEP.ifc",
+   "schema": "IFC2X3",
+   "rows": 3964,
+   "model": 131,
+   "rule": 3271,
+   "none": {
+    "no rule for IfcBuildingElementProxy": 562
+   },
+   "level3": 2498,
+   "level2": 6,
+   "level1": 898,
+   "compared": 131,
+   "agree3": 131,
+   "agree2": 131,
+   "agree1": 131,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 0,
+    "unset": 0
+   },
+   "mismatches": {}
+  },
+  {
+   "file": "Office_A_20110811.ifc",
+   "schema": "IFC2X3",
+   "rows": 803,
+   "model": 30,
+   "rule": 763,
+   "none": {
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 10
+   },
+   "level3": 785,
+   "level2": 8,
+   "level1": 0,
+   "compared": 30,
+   "agree3": 30,
+   "agree2": 30,
+   "agree1": 30,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 658,
+    "unset": 0
+   },
+   "mismatches": {}
+  },
+  {
+   "file": "S_Office_Integrated Design Archi.ifc",
+   "schema": "IFC2X3",
+   "rows": 3407,
+   "model": 0,
+   "rule": 1237,
+   "none": {
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 11,
+    "no rule for IfcBuildingElementProxy": 1711,
+    "no rule for IfcBuildingElementPart": 448
+   },
+   "level3": 1154,
+   "level2": 83,
+   "level1": 0,
+   "compared": 0,
+   "agree3": 0,
+   "agree2": 0,
+   "agree1": 0,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 251,
+    "unset": 0
+   },
+   "mismatches": {}
+  },
+  {
+   "file": "Schultz_Residence.ifc",
+   "schema": "IFC2X3",
+   "rows": 846,
+   "model": 67,
+   "rule": 388,
+   "none": {
+    "no rule for IfcBuildingElementProxy": 136,
+    "no rule for IfcFlowTerminal": 2,
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 253
+   },
+   "level3": 417,
+   "level2": 37,
+   "level1": 1,
+   "compared": 67,
+   "agree3": 29,
+   "agree2": 66,
+   "agree1": 66,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 147,
+    "unset": 0
+   },
+   "mismatches": {
+    "IfcFurnishingElement: model C1030, rule E2010 (model's classification (Uniformat): C1030400; rule: furniture named as casework)": 1,
+    "IfcFurnishingElement: model E2010, rule E2020 (model's classification (Uniformat): E2010200; rule: furniture)": 12
+   }
+  },
+  {
+   "file": "advanced_model.ifc",
+   "schema": "IFC2X3",
+   "rows": 6401,
+   "model": 135,
+   "rule": 6018,
+   "none": {
+    "no rule for IfcBuildingElementProxy": 223,
+    "no rule for IfcFlowTerminal": 11,
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 14
+   },
+   "level3": 5106,
+   "level2": 70,
+   "level1": 977,
+   "compared": 135,
+   "agree3": 131,
+   "agree2": 135,
+   "agree1": 135,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 257,
+    "unset": 0
+   },
+   "mismatches": {}
+  },
+  {
+   "file": "architect.ifc",
+   "schema": "IFC2X3",
+   "rows": 2527,
+   "model": 0,
+   "rule": 2442,
+   "none": {
+    "no rule for IfcBuildingElementProxy": 85
+   },
+   "level3": 2442,
+   "level2": 0,
+   "level1": 0,
+   "compared": 0,
+   "agree3": 0,
+   "agree2": 0,
+   "agree1": 0,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 245,
+    "unset": 0
+   },
+   "mismatches": {}
+  },
+  {
+   "file": "construction.ifc",
+   "schema": "IFC2X3",
+   "rows": 339,
+   "model": 0,
+   "rule": 325,
+   "none": {
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 14
+   },
+   "level3": 325,
+   "level2": 0,
+   "level1": 0,
+   "compared": 0,
+   "agree3": 0,
+   "agree2": 0,
+   "agree1": 0,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 48,
+    "unset": 0
+   },
+   "mismatches": {}
+  },
+  {
+   "file": "dental_clinic.ifc",
+   "schema": "IFC2X3",
+   "rows": 2586,
+   "model": 69,
+   "rule": 2508,
+   "none": {
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 9
+   },
+   "level3": 2565,
+   "level2": 12,
+   "level1": 0,
+   "compared": 69,
+   "agree3": 66,
+   "agree2": 66,
+   "agree1": 66,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 1392,
+    "unset": 0
+   },
+   "mismatches": {
+    "IfcFlowTerminal: model E1020, rule D2010 (model's Assembly Code: E1020810; rule: sanitary terminal)": 3
+   }
+  },
+  {
+   "file": "duplex.ifc",
+   "schema": "IFC2X3",
+   "rows": 215,
+   "model": 0,
+   "rule": 211,
+   "none": {
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 4
+   },
+   "level3": 203,
+   "level2": 8,
+   "level1": 0,
+   "compared": 0,
+   "agree3": 0,
+   "agree2": 0,
+   "agree1": 0,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 95,
+    "unset": 0
+   },
+   "mismatches": {}
+  },
+  {
+   "file": "schependomlaan.ifc",
+   "schema": "IFC2X3",
+   "rows": 3569,
+   "model": 0,
+   "rule": 3160,
+   "none": {
+    "no rule for IfcBuildingElementProxy": 27,
+    "no rule for IfcDistributionElement": 13,
+    "railing not part of a stair or ramp (balcony, guard or stair cannot be told)": 13,
+    "no rule for IfcBuildingElementPart": 257,
+    "covering, INSULATION: which element it belongs to is not read": 99
+   },
+   "level3": 1998,
+   "level2": 1162,
+   "level1": 0,
+   "compared": 0,
+   "agree3": 0,
+   "agree2": 0,
+   "agree1": 0,
+   "ruleSilent": 0,
+   "wallsDoorsWindows": {
+    "set": 1394,
+    "unset": 0
+   },
+   "mismatches": {}
+  }
+ ]
+}
