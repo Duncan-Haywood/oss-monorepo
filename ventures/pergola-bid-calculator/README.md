@@ -88,6 +88,11 @@ Events counted: `bid_calculated`, `preset_applied`, `proposed_price_compared`,
 
 ## Limitations
 
+- Post spacing is a divisor, not a maximum bay: posts per side are
+  floor(length / spacing) + 1, so a 15-ft side at 8-ft spacing gets two posts
+  and a 15-ft clear beam span, with no warning. Beam lineal feet carry no
+  overhang tails. Both open from the 2026-11-20 quality census
+  ([audit](../../portfolio/quality/audits/2026-11-20-pergola-bid-calculator.json)).
 - Single currency and no tax handling; the contractor enters their own numbers.
 - One residential-pergola model. Commercial shade structures, retractable
   awnings, and screened porches are not priced separately yet.

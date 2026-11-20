@@ -31,6 +31,10 @@ Package URLs are read wherever present, which is what lets a CycloneDX SBOM and 
 
 Until 2026-09-03 only the plain component list was accepted, which nothing in the world emits — every real user had to hand-convert their SBOM first, in front of a tool whose entire value is not transcribing things by hand.
 
+## Known gaps
+
+From the 2026-11-20 quality census ([audit](../../portfolio/quality/audits/2026-11-20-cra-evidence-desk.json)), still open: Go module versions with a `v` prefix never match, PyPI names differing only by `_`/`-` miss each other (no PEP 503 normalisation), Alpine/Debian packages are not mapped, a mixed OSV record with a range-only package is not listed as not evaluated, `advisory_count` counts version entries rather than advisories, and the Article 14 draft lacks the content Art 14(2) and (4) ask for.
+
 ## Coverage boundary
 
 The matcher requires exact component name, ecosystem, and version equality. It does not resolve aliases, ranges, reachability, exploitability, or whether a legal reporting obligation applies. Advisory source and coverage are printed so a reviewer can verify them against the authoritative source.
