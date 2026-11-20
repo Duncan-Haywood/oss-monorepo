@@ -546,8 +546,8 @@ flagships:
       finding and a 600-day critical path test.
     buildable: >-
       The six public XER files in eval/cpm-vs-p6-2026-11-19.md (git clone the four
-      repos): CCA residual: the 608 h lag's 168 h forward gap
-      (eval/relationship-dates-2026-11-20.md) with node eval/cpm-vs-p6.mjs;
+      repos): constraints log on more planted seeds or files: node
+      eval/constraints-check.mjs (section 4, eval/constraints-slack-2026-11-20.md);
       relationship dates: node eval/relationship-dates.mjs; windows check
       (eval/windows-check.mjs, series made by status.mjs); converter/hand-made XERs:
       node eval/converter-corpus.mjs (245 files 2026-11-19: 0 crashes, 0 NaN;
@@ -562,26 +562,27 @@ flagships:
       relationship dates (TASKPRED aref/arls) decoded 2026-11-20 (reldates.mjs,
       eval/relationship-dates-2026-11-20.md: arls 40,476/40,476; lags changed after
       the run read back, 1,200/1,200 planted): the 5-node SS chain is P6
-      contradicting its own arls (closed), the 608 h lag was not edited; next P6's
-      forward rule for that lag (finished milestone with no stored dates); (2)
-      update comparison shipped 2026-11-19 (compare.mjs, half-step split;
-      eval/compare-check-2026-11-19.md: 720 of 720 planted edits on six real files);
-      windows analysis across many updates shipped 2026-11-19 (windows.mjs,
+      contradicting its own arls (closed), the 608 h lag was not edited; its forward
+      gap searched 2026-11-20, no rule (one link;
+      eval/relationship-dates-2026-11-20.md); constraints log's "past late start"
+      now says whether a row moves anything (eval/constraints-slack-2026-11-20.md:
+      65/65); (2) update comparison shipped 2026-11-19 (compare.mjs, half-step
+      split; eval/compare-check-2026-11-19.md: 720 of 720 planted edits on six real
+      files); windows analysis across many updates shipped 2026-11-19 (windows.mjs,
       --windows; a not-started re-estimate is now a revision in the half-step;
       eval/windows-check-2026-11-19.md); next a real series of updates to check the
       split and drivers against (windows in the review shipped 2026-11-19); (3)
       GitHub ERMHDR search, size-split 2026-11-19: a seventh P6 file (Harbour Pointe
-      17.12) 113/113 once 8 durations edited after its last run are put back;
-      edited-durations list shipped (eval/edited-durations-2026-11-19.md: 300/300
-      planted); (7) longest path and multiple float paths shipped 2026-11-19
-      (floatpaths.mjs, --float-paths, page panel; eval/longest-path-2026-11-19.md:
-      P6's flag 261/261 on five files). (9) look-ahead shipped 2026-11-19
-      (lookahead.mjs, --lookahead, page panel; eval/lookahead-check-2026-11-19.md:
-      6,476 of 6,479 windowed activities = P6's); next a real site's log; milestone
-      calendars shipped 2026-11-20 (milestones.mjs;
-      eval/milestone-calendars-2026-11-20.md). (10) earned value shipped 2026-11-20
-      (evm.mjs; % complete = P6's actuals 2,020/2,020); next a real series and
-      baseline export. More open items: NEXT.md.
+      17.12) 113/113 once 8 durations edited after its last run are put back; (7)
+      longest path and multiple float paths shipped 2026-11-19 (floatpaths.mjs,
+      --float-paths, page panel; eval/longest-path-2026-11-19.md: P6's flag 261/261
+      on five files). (9) look-ahead shipped 2026-11-19 (lookahead.mjs, --lookahead,
+      page panel; eval/lookahead-check-2026-11-19.md: 6,476 of 6,479 windowed
+      activities = P6's); next a real site's log; milestone calendars shipped
+      2026-11-20 (milestones.mjs; eval/milestone-calendars-2026-11-20.md). (10)
+      earned value shipped 2026-11-20 (evm.mjs; % complete = P6's actuals
+      2,020/2,020); next a real series and baseline export. More open items:
+      NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
