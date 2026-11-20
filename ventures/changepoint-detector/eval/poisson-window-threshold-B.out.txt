@@ -1,0 +1,24 @@
+replayWatch, model poisson, 120 points, checks from 90, seeds 801-1000 (200 per cell), paired; steps at 108
+Nulls: false alerts per 1,000 checks. Steps: found of 200 (median delay in checks).
+
+| cell | bocpd | C1 T=0.3 |
+|---|---|---|
+| N1 Poisson 30 | 0.00 | 1.13 |
+| N2 NB 30, var 60 | 2.58 | 0.97 |
+| N3 Poisson 30, weekends 0.6x | 1.45 | 1.13 |
+| N4 Poisson 5 | 0.00 | 1.29 |
+| N5 NB 30, var 90 | 12.26 | 0.65 |
+| S1 30 -> 15 | 183 (4) | 195 (4) |
+| S2 30 -> 21 | 70 (5) | 173 (4) |
+| S3 30 -> 45 | 145 (4) | 193 (4) |
+| S4 5 -> 2 | 44 (5) | 178 (5) |
+| S5 NB(2x) 30 -> 18 | 130 (4) | 172 (4) |
+| S6 NB(3x) 30 -> 18 | 129 (4) | 145 (5) |
+| pooled false (nulls equal) | 3.26 | 1.03 |
+| steps found of 1200 | 701 | 1056 |
+
+Against bocpd (10000 stratified paired resamples, 95% percentile intervals):
+C1 T=0.3: false -2.23 (-2.90 to -1.55); steps +355 (326 to 385); worst null 1.29; worst step cell 12
+  F1 pass, F2 pass, D1 pass, D2 pass -> passes
+
+stage B: passes; switch the --model poisson watch default to bocpd-window + nb at threshold 0.3
