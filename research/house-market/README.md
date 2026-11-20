@@ -179,7 +179,7 @@ My reading of the sources, not a finding of a model:
 ```bash
 pip install pytest
 cd research/house-market
-python -m pytest -q tests                                              # 9 tests
+python -m pytest -q tests                                              # 10 tests
 PYTHONPATH=src python experiments/run.py > experiments/results.txt     # instant, deterministic
 python experiments/figure.py                                           # experiments/price_breakdown.svg from results.txt
 ```

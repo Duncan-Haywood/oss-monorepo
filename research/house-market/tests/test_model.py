@@ -66,3 +66,13 @@ def test_technique_ranges_are_ordered():
         assert (lo is None) == (hi is None), name
         if lo is not None:
             assert 0 < lo <= hi, name
+
+
+def test_headline_numbers_match_results_txt():
+    # Quality census 2026-11-20 (portfolio/quality/audits/2026-11-20-house-market.json):
+    # inverting Denver's cost index, the soft-cost mark-up and one structural
+    # stage each left every earlier test green. Pin the published headlines.
+    d = denver_house(F)
+    assert d["price_ex_lot"] == pytest.approx(462450, abs=1)
+    assert d["hard"] == pytest.approx(289740, abs=1)
+    assert reach(F, 0.2) == pytest.approx(0.0521, abs=5e-4)

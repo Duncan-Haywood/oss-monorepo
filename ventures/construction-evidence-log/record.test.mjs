@@ -76,7 +76,7 @@ test('packSummary reads as a short combined-pack review line', () => {
   const day1 = { ...makeRecord({ ...complete, date: '2026-08-25' }), savedAt: '2026-08-25T09:00:00.000Z' };
   const pack = buildEvidencePack([day1]);
   const text = packSummary(pack);
-  assert.match(text, /^1 day logged \(2026-08-25 to 2026-08-25\)/);
+  assert.match(text, /^1 day logged, 1 entry \(2026-08-25 to 2026-08-25\)/);
   assert.match(text, /Oak Street renovation/);
   assert.match(text, /No missing-field observations across the pack\./);
 });
@@ -117,4 +117,25 @@ test('entriesToCsv quotes commas and doubles embedded quotes so the file stays o
   };
   const rows = entriesToCsv([withComma]).split('\n');
   assert.match(rows[1], /"Set cabinets, then trim the ""west"" wall\."/);
+});
+
+// Quality census 2026-11-20 (portfolio/quality/audits/2026-11-20-construction-evidence-log.json):
+// a correction is a second entry for the same date, and the summary called
+// entries "days" ("3 days logged" for two dates).
+test('packSummary counts distinct days apart from entries', () => {
+  const a = { ...makeRecord({ ...complete, date: '2026-08-25' }), savedAt: '2026-08-25T09:00:00.000Z' };
+  const b = { ...makeRecord({ ...complete, date: '2026-08-25', work: 'Correction' }), savedAt: '2026-08-25T17:00:00.000Z' };
+  const c = { ...makeRecord({ ...complete, date: '2026-08-26', changeType: 'delay', requestedBy: 'Owner', impact: '1 day', changeDetails: 'Late tile' }), savedAt: '2026-08-26T09:00:00.000Z' };
+  const text = packSummary(buildEvidencePack([a, b, c]));
+  assert.match(text, /^2 days logged, 3 entries \(2026-08-25 to 2026-08-26\)/);
+  assert.match(text, /1 of 3 entries include a change or delay \(1 of 2 days\)/);
+});
+
+test('entriesToCsv neutralises formula-leading cells', () => {
+  const e = makeRecord({ ...complete, work: '=HYPERLINK("http://x","y")', crew: '+1', conditions: '@sum' });
+  const csv = entriesToCsv([e]);
+  assert.match(csv, /"'=HYPERLINK\(""http:\/\/x"",""y""\)"/);
+  assert.match(csv, /"'\+1"/);
+  assert.match(csv, /"'@sum"/);
+  assert.doesNotMatch(csv, /,"=/);
 });
