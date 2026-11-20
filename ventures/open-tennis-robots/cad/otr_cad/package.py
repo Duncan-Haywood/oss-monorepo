@@ -103,7 +103,7 @@ def collisions(parts: list[C.Part], tol_mm3: float = 1.0) -> list[str]:
 
 
 def clashes(named: list[tuple[str, object]], tol_mm3: float = 1.0) -> list[str]:
-    placed = [(n, s, s.bounding_box()) for n, s in named]
+    placed = [(n, s, F.bbox(s)) for n, s in named]
     out = []
     for (na, a, ba), (nb, b, bb) in combinations(placed, 2):
         if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
@@ -112,6 +112,24 @@ def clashes(named: list[tuple[str, object]], tol_mm3: float = 1.0) -> list[str]:
         v = (a & b).volume
         if v > tol_mm3:
             out.append(f"{na} x {nb}: {v:.0f} mm^3")
+    return out
+
+
+def cross_clashes(first: list[tuple[str, object]], second: list[tuple[str, object]], tol_mm3: float = 1.0) -> list[str]:
+    """The entries `clashes(first + second)` makes for pairs with one solid from each list (`clashes` lists the same
+    entries, interleaved with the pairs inside each list). The pose tests use it when `second` never moves, so its own
+    pairs are intersected once rather than at every pose (2026-11-20)."""
+    pa = [(n, s, F.bbox(s)) for n, s in first]
+    pb = [(n, s, F.bbox(s)) for n, s in second]
+    out = []
+    for na, a, ba in pa:
+        for nb, b, bb in pb:
+            if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
+                    or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
+                continue
+            v = (a & b).volume
+            if v > tol_mm3:
+                out.append(f"{na} x {nb}: {v:.0f} mm^3")
     return out
 
 
@@ -140,9 +158,9 @@ def azimuth_sweep(p: Feeder) -> list[str]:
     for e, az in poses:
         reach = abs(az) > p.az_max
         moving, fixed = F.turned_solids(p, e, az)
-        fb = [(n, s, s.bounding_box()) for n, s in fixed]
+        fb = [(n, s, F.bbox(s)) for n, s in fixed]
         for na, a in moving:
-            ba = a.bounding_box()
+            ba = F.bbox(a)
             for nb, b, bb in fb:
                 if reach and (na.split("[")[0], nb.split("[")[0]) in REACH_CONTACTS:
                     continue
@@ -169,10 +187,10 @@ def cable_sweep(p: Feeder, poses=None, azimuths=None) -> list[str]:
         loop = F.cable_loop_solids(p, e)
         for az in ((0.0, -p.az_reach_deg, p.az_reach_deg) if azimuths is None else azimuths):
             moving, fixed = F.turned_solids(p, e, az)
-            others = [(n, s, s.bounding_box()) for n, s in moving + fixed if n.split("[")[0] not in skip]
+            others = [(n, s, F.bbox(s)) for n, s in moving + fixed if n.split("[")[0] not in skip]
             for k, seg in enumerate(loop):
                 a = seg.rotate(axis, az)
-                ba = a.bounding_box()
+                ba = F.bbox(a)
                 for nb, b, bb in others:
                     if k == 0 and nb.split("[")[0] == "elev_lead_fixed":
                         continue   # both leave the gland's one bore side by side; the lead turns -y 12 mm up
@@ -200,11 +218,11 @@ def elev_lead_sweep(p: Feeder, poses=None, azimuths=None) -> list[str]:
         for az in ((0.0, -p.az_reach_deg, p.az_reach_deg) if azimuths is None else azimuths):
             moving, fixed = F.turned_solids(p, e, az)
             a = lead.rotate(axis, az)
-            ba = a.bounding_box()
+            ba = F.bbox(a)
             for nb, b in moving + fixed:
                 if nb.split("[")[0] == "elev_lead":
                     continue
-                bb = b.bounding_box()
+                bb = F.bbox(b)
                 if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
                         or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
                     continue
@@ -221,9 +239,9 @@ def feed_stroke_sweep(p: Feeder, thetas=(45.0, 90.0, 135.0, 180.0)) -> list[str]
     for e in (p.elev_min, p.elev_max):
         for th in thetas:
             moving, other = F.feed_stroke_solids(p, e, th)
-            ob = [(n, s, s.bounding_box()) for n, s in other]
+            ob = [(n, s, F.bbox(s)) for n, s in other]
             for na, a in moving:
-                ba = a.bounding_box()
+                ba = F.bbox(a)
                 for nb, b, bb in ob:
                     if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
                             or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):

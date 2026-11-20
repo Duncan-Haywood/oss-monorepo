@@ -2065,13 +2065,51 @@ def all_parts(p: Feeder) -> list[Part]:
     ask for them about 60 times per package build, so the last few results are kept (keyed by equal params; Feeder
     holds a list, so it is not hashable). Callers get a fresh list; nothing here mutates a Part or its shape, since
     `placed()` and `rotate()` return copies (2026-11-13, P066)."""
-    for q, parts in _ALL_PARTS_CACHE:
-        if q == p:
-            return list(parts)
-    parts = _build_all_parts(p)
-    _ALL_PARTS_CACHE.insert(0, (p, parts))
+    return list(_cached(p)[1])
+
+
+def _cached(p: Feeder) -> tuple:
+    """The `_ALL_PARTS_CACHE` entry for `p`: (params, parts, placed), where `placed` is filled on first use by
+    `_placed_named`."""
+    for entry in _ALL_PARTS_CACHE:
+        if entry[0] == p:
+            return entry
+    entry = (p, _build_all_parts(p), [])
+    _ALL_PARTS_CACHE.insert(0, entry)
+    for _, _, gone in _ALL_PARTS_CACHE[4:]:
+        for _, _, s in gone:
+            _BBOX.pop(id(s), None)
     del _ALL_PARTS_CACHE[4:]
-    return list(parts)
+    return entry
+
+
+# id -> [solid, its bounding box or None] for the shared solids `_placed_named` hands out (2026-11-20).
+_BBOX: dict[int, list] = {}
+
+
+def _placed_named(p: Feeder) -> list[tuple[str, str, object]]:
+    """(part name, "name[i]", solid) for every placed solid of `p`, as `part.placed()` makes them, built once per
+    cached parts list. The sweeps pose about 70 copies of the machine and each one used to `moved()` (a deep copy)
+    every solid again: ~13 s of a feeder build (2026-11-20). The solids are shared, so callers only read them,
+    intersect them or `rotate()` them (which returns a copy); none may change one in place."""
+    entry = _cached(p)
+    if not entry[2]:
+        for part in entry[1]:
+            for i, s in enumerate(part.placed()):
+                entry[2].append((part.name, f"{part.name}[{i}]", s))
+                _BBOX[id(s)] = [s, None]
+    return entry[2]
+
+
+def bbox(s):
+    """`s.bounding_box()` (the exact, "optimal" box), remembered for the shared solids of `_placed_named`: the fixed
+    parts are the same objects at every pose, and the sweeps asked for their boxes ~12,000 times per build."""
+    hit = _BBOX.get(id(s))
+    if hit is None or hit[0] is not s:
+        return s.bounding_box()
+    if hit[1] is None:
+        hit[1] = s.bounding_box()
+    return hit[1]
 
 
 def _build_all_parts(p: Feeder) -> list[Part]:
@@ -2152,13 +2190,12 @@ def swept_solids(p: Feeder, elev_deg: float) -> list[tuple[str, object]]:
     lead = elev_lead_solid(p, elev_deg)
     if lead is not None:
         posed["elev_lead"] = lead
-    for part in all_parts(p):
-        for i, s in enumerate(part.placed()):
-            if part.name in HEAD_PARTS:
-                s = s.rotate(axis, -elev_deg)
-            elif part.name in posed:
-                s = posed[part.name]
-            out.append((f"{part.name}[{i}]", s))
+    for name, label, s in _placed_named(p):
+        if name in HEAD_PARTS:
+            s = s.rotate(axis, -elev_deg)
+        elif name in posed:
+            s = posed[name]
+        out.append((label, s))
     return out
 
 
