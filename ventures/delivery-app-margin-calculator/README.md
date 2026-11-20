@@ -69,6 +69,17 @@ those vary by plan, market, and contract, and they change. Replace the
 defaults with the numbers on your own payout statements; that is what makes
 the comparison yours rather than a generic estimate.
 
+**Known gaps** ([quality audit 2026-11-20](../../portfolio/quality/audits/2026-11-20-delivery-app-margin-calculator.json)):
+the DoorDash default of 27% matches none of DoorDash's US plans (Basic 15%,
+Plus 25%, Premier 30%), and the Grubhub default bundles processing at 0%
+although Grubhub bills a processing fee separately (about 3.05% + $0.30 in
+third-party summaries). The worked-example pages and the ranking on
+`doordash-vs-ubereats-fees.html` inherit those defaults, so the order
+Grubhub > DoorDash > Uber Eats reflects the illustrative rates, not any plan.
+App pickup orders (DoorDash charges 6% on pickup), per-order marketing or
+promotion spend, and card fees on dine-in tips are not modelled; use the
+"Other channel" row or fold them into packaging cost.
+
 ## What it deliberately does not model
 
 Fees are the part that is easy to calculate, not the whole decision. This

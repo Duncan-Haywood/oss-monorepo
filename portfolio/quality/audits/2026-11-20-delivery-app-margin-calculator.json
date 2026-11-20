@@ -201,21 +201,24 @@
    "what": "5 of 7 seeded mutants survive: the fixed payment fee in the price solver, the payment term in commission-to-match, the 100% rate guard, the markup ratio and the monthly gap vs best. Every solver test uses the DoorDash preset, which has no payment fee, so the payment terms are never exercised; calc.test.mjs:137 compares a percent against percentRate*100.",
    "where": "ventures/delivery-app-margin-calculator/calc.test.mjs:68",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
   },
   {
    "severity": "low",
    "what": "doordash-vs-ubereats-fees.html prints Grubhub's price to match dine-in as $45.89 (from a pre-rounded $21.17) where the calculator shows $45.90; html.test.mjs hard-codes the page's figure instead of computing it, so the test that claims the page 'matches the calculator's math' pinned the slip.",
    "where": "ventures/delivery-app-margin-calculator/doordash-vs-ubereats-fees.html:113",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
   },
   {
    "severity": "low",
    "what": "vs-a-spreadsheet.html says 'nothing it computes is saved anywhere once you leave the page' (body and FAQ JSON-LD) while the next paragraph, the README and index.html save entries to localStorage.",
    "where": "ventures/delivery-app-margin-calculator/vs-a-spreadsheet.html:67",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"
   },
   {
    "severity": "low",
@@ -232,6 +235,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17867"],
  "verdict": "A small, clean, private same-ticket calculator whose fee algebra is right: an independent recomputation of the default $32 ticket matches every output (dine-in $21.172, DoorDash $10.11, price to match dine-in $47.1534, pickup $33.3388 exercising the fixed-fee term, monthly gap $4,424.80), and 69/69 tests pass. It misses the bar on verification and claims: 5 of 7 seeded mutants survive because no solver test uses a path with a payment fee; the defaults (DoorDash 27%, Grubhub 25% with no processing) match no published plan yet drive a ranking on an SEO page; one page figure is off by a cent and a test pinned it; and a comparison page says nothing is saved while entries are saved to localStorage. An operator who types their own statement rates gets the right answer."
 }
