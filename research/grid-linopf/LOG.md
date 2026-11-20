@@ -1,5 +1,10 @@
 # Research log
 
+## 2026-11-20 · Rule C: outcome. All seven predictions held: development finishers 32 of 34 (none lost, case73 API clean at +3.26 %), held-out 10 of 19 as frozen (case500 SAD in, case1888 API out), 0 repeats. The leading candidate, not yet adopted
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-20); numbers in `research/infra-dcopf/experiments/results_enlarge_rel.txt`. C1 to C7 held.
+- With the cap at twice the current stored box the rule fired on 25 and declined on 50 of 75 failed development QPs; case30 API and case200 API finish again (later and dearer than frozen) and case73 API keeps rule E's finish.
+- Next: diagnose case1888 API (lost by every widening variant) and confirm rule C on an unused split before it replaces the frozen repair.
+
 ## 2026-11-20 · Rule C: cap the widened box at twice the current stored box (plan)
 - Plan, rule C (rule E with its cap at 2 times the current stored boxes, so every halving also halves what widening can reach) and predictions C1 to C7: `research/infra-dcopf/LOG.md` (2026-11-20); script `research/infra-dcopf/experiments/run_enlarge_rel.py`. Frozen on the 34 development cases, scored on the 19 held-out cases that reach the repair.
 
