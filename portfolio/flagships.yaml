@@ -381,27 +381,26 @@ flagships:
       sections; 2026-11-17 shorter seasons with even strength of schedule,
       eval/seed-balance.txt; 2026-11-18 limits kept exactly, impossible ones named,
       eval/limit-conflicts.txt; promotion/relegation, play-off results (tests);
-      league page (availability, subs, sign-ups, free agents, waivers, ratings:
-      README; next: a real league's use); 2026-11-19 balanced teams, /join free
-      agents (eval/free-agent-fit.txt), crossover pool seeds
-      (eval/crossover-seeds.txt); bowling lanes 36 of 36 even
-      (eval/bowling-repeat-sat.txt); bowling averages, handicaps, points, standings
-      from score sheets (bowling-recap.test.mjs)). 3-game nights
-      (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
-      every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on
-      1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6;
-      even 40, 46 on 3 sessions 0 waits (eval/session-orbit.py). 29 on 5x9, 35 on
-      6x9: 0 waits (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
-      eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
-      (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
-      eval/whist-vs-greedy.txt); Whist 48, 60 and near-whist 46, 54, 62 by tabu
-      search 2026-11-19 (eval/whist-anneal.c, .txt); next: a real club's night on
-      it. Golf 2026-11-20 (golf.mjs, golf-playoffs.mjs flighted play-offs,
-      golf-league-schedule.html): tee times at share in 71 of 77 seasons, other 6
-      SAT-proved out (eval/golf-tee-grid.txt); match play recap; tee rows and skins
-      2026-11-20 (golf.test.mjs, worked by hand); two courses 2026-11-20
-      (golf-courses.test.mjs); next: a real league's season. More open items:
-      NEXT.md.
+      league page (availability, subs, sign-ups, free agents, waivers, ratings;
+      installs to a phone, opens offline, pwa.mjs 2026-11-20: README; next: a real
+      league's use); 2026-11-19 balanced teams, /join free agents
+      (eval/free-agent-fit.txt), crossover pool seeds (eval/crossover-seeds.txt);
+      bowling lanes 36 of 36 even (eval/bowling-repeat-sat.txt); bowling averages,
+      handicaps, points, standings from score sheets (bowling-recap.test.mjs)).
+      3-game nights (eval/three-game-nights.txt): SAT session designs
+      (session-designs.mjs) take every even 10-48 teams on 6 slots, 16 of 19 sizes
+      on 9, to 0 waits; 5, 7 on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py):
+      21, 23 on 4x9, 27 on 7x6; even 40, 46 on 3 sessions 0 waits
+      (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9
+      0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with the
+      short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Americano whist
+      designs 2026-11-19 (whist.mjs; eval/whist-vs-greedy.txt); Whist 48, 60 and
+      near-whist 46, 54, 62 by tabu search 2026-11-19 (eval/whist-anneal.c, .txt);
+      next: a real club's night on it. Golf 2026-11-20 (golf.mjs, golf-playoffs.mjs
+      flighted play-offs, golf-league-schedule.html): tee times at share in 71 of 77
+      seasons, other 6 SAT-proved out (eval/golf-tee-grid.txt); match play recap;
+      two courses 2026-11-20 (golf-courses.test.mjs); next: a real league's season.
+      More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:

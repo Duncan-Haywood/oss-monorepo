@@ -1,0 +1,11 @@
+ok   worker controls the page
+ok   online: no offline note
+ok   Chromium parses the manifest with no errors: http://127.0.0.1:40077/league/manifest.webmanifest?t=tok
+ok   manifest start_url is this link: /league?t=tok
+ok   /icon-192.png served as PNG
+ok   /icon-512.png served as PNG
+ok   installability errors (informational): none
+ok   offline: saved copy shown with the no-signal note: No signal: this is the copy this phone saved 11/20/2026, 2:01:06 PM. Scores and moves since then are not shown.
+ok   offline: fixtures still there
+ok   offline: remembered Show only team
+ok   offline: a link never opened shows the 'not saved yet' page: 503
