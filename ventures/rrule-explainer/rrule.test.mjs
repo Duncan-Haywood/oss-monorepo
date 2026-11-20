@@ -129,6 +129,10 @@ test("parse errors and RFC restrictions become findings", () => {
   assert.ok(codes("DTSTART:20260105T090000\nRRULE:FREQ=WEEKLY;BYMONTHDAY=5").includes("forbidden-part"));
   assert.ok(codes("DTSTART:20260105T090000\nRRULE:FREQ=WEEKLY;BYDAY=2MO").includes("forbidden-part"));
   assert.ok(codes("DTSTART:20260105T090000\nRRULE:FREQ=MONTHLY;BYWEEKNO=3").includes("forbidden-part"));
+  // YEARLY may take BYWEEKNO, but not with an ordinal BYDAY (RFC 5545 3.3.10);
+  // a plain BYDAY there is fine.
+  assert.ok(codes("DTSTART:20260105T090000\nRRULE:FREQ=YEARLY;BYWEEKNO=20;BYDAY=1MO").includes("forbidden-part"));
+  assert.ok(!codes("DTSTART:20260105T090000\nRRULE:FREQ=YEARLY;BYWEEKNO=20;BYDAY=MO").includes("forbidden-part"));
   assert.ok(codes("DTSTART:20260105T090000\nRRULE:FREQ=MONTHLY;BYSETPOS=1").includes("setpos-alone"));
   assert.ok(codes("DTSTART:20260105T090000\nRRULE:FREQ=DAILY;COUNT=3;UNTIL=20260201T000000").includes("count-and-until"));
   assert.ok(codes("DTSTART:20260105T090000\nRRULE:FREQ=DAILY;UNTIL=20260201").includes("until-type"));

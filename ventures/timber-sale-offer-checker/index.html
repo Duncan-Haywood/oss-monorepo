@@ -68,6 +68,7 @@
       <div><label for="offer">Offer ($)</label><input type="number" id="offer" min="1" step="1" value="12000"></div>
       <div><label for="kind">The offer is a</label><select id="kind"><option value="lump">lump sum</option><option value="perMbf">price per MBF</option></select></div>
       <div><label for="rule">Log rule the offer uses</label><select id="rule"><option value="doyle">Doyle</option><option value="scribner">Scribner</option><option value="international">International 1/4-inch</option></select></div>
+      <div><label for="price-rule">Log rule your prices use</label><select id="price-rule"><option value="">Same as the offer</option><option value="doyle">Doyle</option><option value="scribner">Scribner</option><option value="international">International 1/4-inch</option></select></div>
       <div><label for="fee">Consulting forester fee (% of sale)</label><input type="number" id="fee" min="0" max="49" step="1" value="8"></div>
     </div>
     <p>
@@ -94,7 +95,7 @@
     <ul>
       <li><strong>Doyle</strong> = (D − 4)² × length ÷ 16. <strong>International 1/4-inch</strong> sums 4-foot sections with 1/2 inch of taper each. <strong>Scribner</strong> uses a common formula fit to the printed table, so it can differ from a scale ticket by a few board feet per log.</li>
       <li><strong>Value</strong> = board feet ÷ 1,000 × your price for that species. Species without a price count as $0 and are listed.</li>
-      <li><strong>Ratio</strong> compares the offer with the International value at your prices, the closest to true volume. Under 75% is flagged as a question to ask, not a verdict.</li>
+      <li><strong>Ratio</strong> compares the offer with the value of your logs at your prices, scaled under the rule your prices are quoted in (state stumpage reports say which; Doyle is common for hardwoods). Under 75% is flagged as a question to ask, not a verdict.</li>
       <li><strong>Forester break-even</strong> = fee ÷ (1 − fee): the price rise competitive bids must deliver.</li>
       <li><strong>Not modelled:</strong> defect and cull deductions, the cost of roads and skidding, who pays for them, the tops and pulpwood, regeneration, taxes, contract terms and local rules.</li>
     </ul>
@@ -147,7 +148,7 @@
     function run() {
       const p = parseLogs($("#logs").value);
       if (p.error) { status.textContent = p.error; report.hidden = true; return false; }
-      const r = check({ rows: p.rows, prices: parsePrices($("#prices").value), offer: { kind: $("#kind").value, amount: Number($("#offer").value) }, offerRule: $("#rule").value, foresterFeePct: Number($("#fee").value) });
+      const r = check({ rows: p.rows, prices: parsePrices($("#prices").value), offer: { kind: $("#kind").value, amount: Number($("#offer").value) }, offerRule: $("#rule").value, priceRule: $("#price-rule").value || undefined, foresterFeePct: Number($("#fee").value) });
       if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
       last = r;
       $("#advice").innerHTML = r.advice.map((a) => `<div class="finding"><span class="pill ${r.belowThreshold ? "high" : "info"}">${r.belowThreshold ? "offer looks low" : "result"}</span>${esc(a)}</div>`).join("");

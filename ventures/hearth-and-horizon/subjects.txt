@@ -75,3 +75,6 @@ hearth-and-horizon | metal fatigue, fatigue crack | a bell's clapper staple or a
 hearth-and-horizon | rebound effect | a village that buys efficient stoves or lamps and burns as much fuel as before, because cheaper light and heat get used for more hours; the saving is real per hour and not per month
 hearth-and-horizon | eutrophication, algal bloom | a lake or reservoir that greens every September after the fields are fertilised; phosphorus washing in, the bloom, and the fish kill at dawn when the water's oxygen runs out
 hearth-and-horizon | brownout, voltage drop | the end of a long rural line where the clinic's fridge compressor stalls every evening when the village switches its lights on; volts lost along a thin cable grow with the current
+for-other-minds | difference-in-differences | a parish's new Sunday minibus judged by comparing its villages' Mass counts before and after with villages it does not serve; the trends must have been parallel before
+for-other-minds | attrition, missing not at random | a follow-up survey of a debt advice service where the people who were not helped are the ones who stopped answering
+for-other-minds | dose-response | an agent shown that more visits go with better outcomes asks whether the people who got more visits were chosen for them

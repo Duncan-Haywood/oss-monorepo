@@ -8,7 +8,7 @@ export const TAX_YEAR = 2026;
 export const BRACKETS = {
   single: [[12400, 0.10], [50400, 0.12], [105700, 0.22], [201775, 0.24], [256225, 0.32], [640600, 0.35], [Infinity, 0.37]],
   mfj: [[24800, 0.10], [100800, 0.12], [211400, 0.22], [403550, 0.24], [512450, 0.32], [768700, 0.35], [Infinity, 0.37]],
-  hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201775, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],
+  hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201750, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],
 };
 export const STANDARD_DEDUCTION = { single: 16100, mfj: 32200, hoh: 24150 };
 // Above this taxable income (before QBI) the 20% deduction is limited by wages
@@ -124,11 +124,13 @@ export function compute(input) {
   };
 
   findings.push({ severity: "high", title: `Set aside about $${total.toFixed(2)} (${setAsidePct}% of revenue, ${setAsideOfNet}% of profit): $${r2(L.se.total + L.se.additional).toFixed(2)} self-employment tax, $${L.federal.toFixed(2)} federal income tax and $${L.state.toFixed(2)} state. That is roughly $${out.perThousand.toFixed(0)} from every $1,000 you invoice, and $${marginalPer1000.toFixed(0)} from your next $1,000 of profit.` });
-  if (total >= PENALTY_FLOOR) {
+  // Form 1040-ES and the underpayment penalty are federal: state tax is not part of the 90% / $1,000 tests.
+  const federalTotal = r2(total - L.state);
+  if (federalTotal >= PENALTY_FLOOR) {
     const safe = prior !== null && prior > 0 ? prior * (L.agi > 150000 ? 1.1 : 1) : null;
-    const ninety = r2(total * 0.9);
+    const ninety = r2(federalTotal * 0.9);
     const needed = safe !== null ? Math.min(ninety, r2(safe)) : ninety;
-    findings.push({ severity: "medium", title: `You probably owe $${PENALTY_FLOOR.toLocaleString("en-US")} or more after withholding, so the IRS expects estimated payments (Form 1040-ES) on ${DUE_DATES.join(", ")}. Paying at least $${needed.toFixed(2)} in total (${safe !== null && safe < ninety ? "100%/110% of last year's tax" : "90% of this year's tax"}) avoids the underpayment penalty; the even split is about $${r2(needed / 4).toFixed(2)} per quarter. If you have W-2 withholding, it counts toward this.` });
+    findings.push({ severity: "medium", title: `You probably owe $${PENALTY_FLOOR.toLocaleString("en-US")} or more after withholding, so the IRS expects estimated payments (Form 1040-ES) on ${DUE_DATES.join(", ")}. Paying at least $${needed.toFixed(2)} in total (${safe !== null && safe < ninety ? "100%/110% of last year's tax" : "90% of this year's federal tax"}) avoids the federal underpayment penalty (your state has its own estimated-tax rules); the even split is about $${r2(needed / 4).toFixed(2)} per quarter. If you have W-2 withholding, it counts toward this.` });
   }
   if (!p.qbi) findings.push({ severity: "info", title: "The 20% qualified business income deduction is switched off, so the federal figure is higher than most sole proprietors will see." });
   else if (L.qbi === 0 && net > 0) findings.push({ severity: "info", title: `Taxable income is above the $${QBI_LIMIT[status].toLocaleString("en-US")} line where the QBI deduction is limited by business type, wages and property. This tool takes no QBI deduction there, which errs toward saving more. A tax professional can tell you what you qualify for.` });

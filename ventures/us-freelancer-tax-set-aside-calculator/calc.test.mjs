@@ -79,3 +79,21 @@ test("validation", () => {
 test("summary tells the reader to verify", () => {
   assert.match(summaryText(run({})), /Verify figures on irs\.gov/);
 });
+test("head of household brackets match Rev. Proc. 2025-32 Table 2 (tax at each edge)", () => {
+  // Tax owed at each 2026 HoH bracket edge as printed in Rev. Proc. 2025-32 sec. 4.01, Table 2.
+  const edges = [[17700, 1770], [67450, 7740], [105700, 16155], [201750, 39207], [256200, 56631], [640600, 191171]];
+  for (const [ti, tax] of edges) assert.equal(incomeTax(ti, "hoh"), tax, `HoH tax at ${ti}`);
+  assert.equal(incomeTax(201775, "hoh"), 39215); // $25 past the 24% edge is taxed at 32%
+});
+
+test("1040-ES 90% safe harbor uses federal tax only, not state (audit 2026-11-20)", () => {
+  const r = compute({ ...SAMPLE, priorYearTax: "" });
+  assert.ok(r.state > 0);
+  const f = r.findings.find((x) => /underpayment penalty/.test(x.title));
+  const fed90 = (Math.round((r.total - r.state) * 0.9 * 100) / 100).toFixed(2);
+  const all90 = (Math.round(r.total * 0.9 * 100) / 100).toFixed(2);
+  assert.ok(f.title.includes("$" + fed90), f.title);
+  assert.ok(!f.title.includes("$" + all90), f.title);
+  // independent recomputation of the worked example (audit file, check C4): federal 14,129.55 + 8,235 = 22,364.55; 90% = 20,128.095
+  assert.ok(Math.abs(Number(fed90) - 20128.095) <= 0.01, fed90);
+});
