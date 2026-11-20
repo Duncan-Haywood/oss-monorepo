@@ -2,6 +2,23 @@
 
 Newest first.
 
+## 2026-11-20 · Milestone 6i: is the twins' density ceiling the entrance rule? Edge entry against a lobby entry (predictions written before any number was read)
+- Why this step: 6h recalibrated each twin's spacing parameter and two of them (collision-free speed at T = 0.3 s, ORCA at &tau; = 2 s) now match the real HERMES transit-density curve's level within about half a second, but no twin reached the dense run's density (bo-360-160-160, 1.72/m&sup2;): cell density plateaus near 0.9 to 1.3/m&sup2; from N 75 to 90. 6h read that as walkers queueing at the entrance. That reading is untested: the ceiling could equally be the twins' own capacity. If the entrance rule is the cause, the fix is in the corridor, not the walker model.
+- The change, and only it: a re-entering walker is placed either 0.35 m inside its own end (`entry="edge"`, the rule since milestone 3), where the walkers leaving that end still are, or 0.3 to 1.2 m behind it (`entry="lobby"`, `sftwin.LOBBY`), in the run-out where leavers have already been removed. Same entrance width, same 0.55 m clearance, same everything else. `sftwin.simulate` and `orca.simulate` gain `entry`; the default is unchanged, random draws included (tested).
+- Tool: `experiments/m6i_lobby.py`. Real side: 6g's committed per-walker crossings (`m6g_density_cost_real.csv`; the data host refuses this session), refitted the same way.
+- Settings: the three twins that chose a value in 6h, at that value (not refitted): social force 0.75&times; bias, A = 1000 N; collision-free speed 0.5&times;, T = 0.3 s; ORCA 1.0&times;, &tau; = 2 s. Street-like ORCA is left out.
+- Part A (SEED0 20350000, 6 seeds): entry edge and lobby, entrances 0.9 and 1.6 m, N in {20, 40, 60, 75, 90, 105, 120, 140, 160}; 120 s runs, first 40 s warm-up; 648 runs. Per cell: mean transit density and transit; per (setting, entry): 6h's calibration score and the operating N for each run's mean crossing density (0.830/m&sup2; at 0.9 m, 1.721/m&sup2; at 1.6 m).
+- Part B (SEED0 20351000, 16 fresh seeds, lobby only): the N grid plus N<sub>op</sub> and N<sub>op</sub> &minus; 20% at both entrances; curve gaps against the free-choice and assigned-exit curves; density cost at each operating point against the real curve at the twin's own densities; own-right share and lane order.
+- Disclosure: a 1-seed, 45 s smoke run checks the script end to end; only its exit status is read.
+- **Predictions:**
+  - E1: with edge entry the ceiling replicates: no setting reaches 1.72/m&sup2; at the 1.6 m entrance even with N up to 160. Prior 85%.
+  - E2: with lobby entry every setting reaches 1.72/m&sup2; at the 1.6 m entrance within N 160. Prior 45%.
+  - E3: lobby entry raises the 1.6 m maximum cell density by at least 0.25/m&sup2; in every setting. Prior 60%.
+  - E4: the level fit survives: with lobby entry, collision-free speed and ORCA keep a Part A calibration score below 1.0 s. Prior 55%.
+  - E5: at the dense operating point at least one setting's twin density cost lies inside the real cost's interval. Prior 35%.
+  - E6: at the dense operating point every setting that reaches it keeps people's own-right share above 0.6. Prior 60%.
+  - E7: at the 0.9 m operating point, with lobby entry, collision-free speed and ORCA still under-price the marginal walker (twin cost below the real interval). Prior 55%.
+
 ## 2026-11-18 · Milestone 6h: recalibrate each twin on the measured transit-density curve, then test it on fresh seeds and held-out runs (predictions written before any number was read)
 - Why this step: 6g measured what an extra walker costs on the HERMES 3.6 m runs and found every twin mis-prices it, because milestone 3 calibrated walker count on median speed: the twins reach the runs' speeds at about half the real density, and at a given density they are 1.5 to 3.7 s too slow per 8 m. Before 6f's robot factorial can be rerun in twins that price density right, each twin needs its density behaviour fitted to the real curve.
 - The parameter: each family has one free parameter that sets how much room a walker keeps, and none was fitted so far: social force's interaction strength A (Helbing, Farkas and Vicsek 2000; JuPedSim 1.4.2 default 2000 N), collision-free speed's time gap T (Tordeux, Chraibi and Seyfried 2016; JuPedSim default 1.0 s) and ORCA's time horizon &tau; (van den Berg et al. 2011; RVO2's example value 5 s). `sftwin.simulate` gains `agent_scale` and `time_gap`, `orca.simulate` gains `tau`; defaults unchanged (tested).

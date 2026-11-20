@@ -259,15 +259,17 @@ def _clamp(v, m):
 def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
              warmup=40.0, duration=160.0, dt=0.1, steer_every=0.1, record_every=0.1,
              exit_frac=0.25, rule="always", max_neighbors=MAX_NEIGHBORS, robots=0, policy="crowd",
-             robot_speed=None, passes=False, tau=TAU):
+             robot_speed=None, passes=False, tau=TAU, entry="edge"):
     """One closed-loop corridor under ORCA; same loop and statistics as plaw.simulate.
 
     robots, policy, robot_speed, passes: milestone 5b, as sftwin.simulate (robots.py). Robots are
     ORCA agents too, so robot and crowd share one planner; with robots = 0 and passes off the run
     is unchanged, random draws included. tau: the agent-agent time horizon (s), milestone 6h's
-    spacing parameter (RVO2's example value TAU by default)."""
+    spacing parameter (RVO2's example value TAU by default). entry: milestone 6i, as sftwin.simulate."""
     if rule not in S.RULES:
         raise ValueError(f"rule must be one of {S.RULES}")
+    if entry not in S.ENTRIES:
+        raise ValueError(f"entry must be one of {S.ENTRIES}")
     import robots as R
     rng = np.random.default_rng(seed)
     people_speed = robot_speed == R.PEOPLE_SPEED   # milestone 6f, as sftwin.simulate
@@ -340,14 +342,14 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
             RB, RG = RB[keep], RG[keep]
             for dd in (1, -1):
                 for _ in range(queue[dd]):
-                    x0 = 0.35 if dd > 0 else length - 0.35
+                    x0 = S.entry_x(rng, dd, length, entry)
                     y0 = rng.uniform(e_lo, e_hi) if e_hi > e_lo else width / 2
                     if len(P) and np.min((P[:, 0] - x0) ** 2 + (P[:, 1] - y0) ** 2) < S.CLEARANCE ** 2:
                         break
                     add(x0, y0, dd, S.desired_speeds(rng, 1)[0], True)
                     queue[dd] -= 1
                 for _ in range(rqueue[dd]):
-                    x0 = 0.35 if dd > 0 else length - 0.35
+                    x0 = S.entry_x(rng, dd, length, entry)
                     y0 = rng.uniform(e_lo, e_hi) if e_hi > e_lo else width / 2
                     if len(P) and np.min((P[:, 0] - x0) ** 2 + (P[:, 1] - y0) ** 2) < S.CLEARANCE ** 2:
                         break
