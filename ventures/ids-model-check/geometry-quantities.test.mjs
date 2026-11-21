@@ -65,3 +65,69 @@ test("a property (not a quantity) is never taken from geometry; the table's reas
   assert.equal(q.fromGeometry, 0);
   assert.ok(q.unfilled.length && q.unfilled.every((u) => /geometry gives none/.test(u.why)));
 });
+
+// ---- wall Length and Height from the axis direction and the body ----------
+
+import { wallLines, straightAxis } from "./geometry-quantities.mjs";
+const TAKEOFF = new URL("../ifc-quantity-takeoff/geom.mjs", import.meta.url);
+const haveGeom = existsSync(TAKEOFF);
+
+test("a mitred wall's length is its middle line's, not a face's or the axis's", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const { prism, polyPlanes } = await import(TAKEOFF.href);
+  // FZK-Haus's Wand-Int-ERDG-4 in plan: faces 4.29 and 4.05 m, 0.24 thick, 2.5 high
+  const plan = [[0, 0], [4.29, 0], [4.17, 0.24], [0.12, 0.24]];
+  const body = { terms: [{ s: 1, faces: prism(plan, [0, 0, 2.5]) }], mesh: 0, shells: [] };
+  const w = wallLines(body, [1, 0], polyPlanes);
+  assert.ok(Math.abs(w.length - 4.17) < 1e-9, w.length);
+  assert.ok(Math.abs(w.height - 2.5) < 1e-9 && Math.abs(w.tallest - 2.5) < 1e-9);
+  // The same wall with its axis given the other way round, and scaled: same length.
+  assert.ok(Math.abs(wallLines(body, [-3, 0], polyPlanes).length - 4.17) < 1e-9);
+});
+
+test("a wall clipped under a sloped roof keeps its extrusion depth apart from its tallest point", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const { prism, polyPlanes } = await import(TAKEOFF.href);
+  // 10 m long, 0.3 thick, 3.5 high, and a negative wedge taking the top off
+  // above a line falling from 3.4 m at x = 0 to 0.5 m at x = 10
+  const box = prism([[0, 0], [10, 0], [10, 0.3], [0, 0.3]], [0, 0, 3.5]);
+  const wedgeElev = [[0, 3.4], [10, 0.5], [10, 4], [0, 4]]; // in x-z
+  const wedge = prism(wedgeElev, [0, 0, 0.3]).map((f) => f.map(([x, z, y]) => [x, y, z]).reverse());
+  const body = { terms: [{ s: 1, faces: box }, { s: -1, faces: wedge }], mesh: 0, shells: [] };
+  const w = wallLines(body, [1, 0], polyPlanes);
+  assert.ok(Math.abs(w.length - 10) < 1e-6, w.length); // the base is the longest level
+  assert.ok(Math.abs(w.height - 3.5) < 1e-9); // extrusion depth
+  assert.ok(Math.abs(w.tallest - 3.4) < 1e-3, w.tallest); // clipped
+  // A faceted body gives nothing.
+  assert.equal(wallLines({ terms: [], mesh: 1, shells: null }, [1, 0], polyPlanes), null);
+});
+
+test("only a straight Axis gives a direction", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const { Geometry } = await import(TAKEOFF.href);
+  const { parseStep } = await import(new URL("../ifc-quantity-takeoff/step.mjs", import.meta.url).href);
+  const m = parseStep(`ISO-10303-21;HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;DATA;
+#1=IFCCARTESIANPOINT((0.,0.));#2=IFCCARTESIANPOINT((0.,5.));#3=IFCCARTESIANPOINT((0.,10.));
+#4=IFCPOLYLINE((#1,#2,#3));#5=IFCSHAPEREPRESENTATION($,'Axis','Curve2D',(#4));#6=IFCPRODUCTDEFINITIONSHAPE($,$,(#5));
+#7=IFCWALL('a',$,$,$,$,$,#6,$,$);
+#11=IFCCARTESIANPOINT((4.,5.));#12=IFCPOLYLINE((#1,#11,#3));#13=IFCSHAPEREPRESENTATION($,'Axis','Curve2D',(#12));#14=IFCPRODUCTDEFINITIONSHAPE($,$,(#13));
+#15=IFCWALL('b',$,$,$,$,$,#14,$,$);
+ENDSEC;END-ISO-10303-21;`);
+  const geo = new Geometry(m);
+  assert.deepEqual(straightAxis(m, geo, m.entities.get(7)), [0, 1]);
+  assert.equal(straightAxis(m, geo, m.entities.get(15)), null); // bent
+});
+
+test("the fill writes a wall's Length and Height from its axis and body", { skip: !have && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  // Wall B (4 m, clipped by a sloped plane) given an Axis, its stored Length taken out
+  const text = readFileSync(SAMPLE, "utf8")
+    .replace("#202=IFCPRODUCTDEFINITIONSHAPE($,$,(#205));", "#202=IFCPRODUCTDEFINITIONSHAPE($,$,(#9004,#205));\n#9001=IFCCARTESIANPOINT((0.,0.));\n#9002=IFCCARTESIANPOINT((4000.,0.));\n#9003=IFCPOLYLINE((#9001,#9002));\n#9004=IFCSHAPEREPRESENTATION(#20,'Axis','Curve2D',(#9003));")
+    .replace("(#231,#232,#233)", "(#232,#233)");
+  const geometry = geometryLookup(await measureModel(text));
+  const L = fillModel(ids(spec("IFCWALL", prop("Qto_WallBaseQuantities", "Length", "IFCLENGTHMEASURE"))), text, { ...resources(), random, geometry });
+  assert.deepEqual(L.writtenList.filter((w) => w.source === "geometry").map((w) => [w.id, w.value]), [[200, "4000."]]);
+  assert.equal(L.verified.pass, L.written);
+  const H = fillModel(ids(spec("IFCWALL", prop("Qto_WallBaseQuantities", "Height", "IFCLENGTHMEASURE"))), text, { ...resources(), random, geometry });
+  // The sloped clip leaves the wall's high end at the full 3 m, so the
+  // extrusion depth and the tallest point agree and the height is offered
+  // (Wall C's pieces store theirs already).
+  assert.deepEqual(H.writtenList.filter((w) => w.source === "geometry").map((w) => [w.id, w.value]), [[200, "3000."]]);
+  assert.equal(H.verified.pass, H.written);
+});

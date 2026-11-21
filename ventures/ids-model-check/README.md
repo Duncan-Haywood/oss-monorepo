@@ -422,7 +422,7 @@ node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --html report.html  # the check as one HTML file to send back
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --to-fill todo.csv  # write what the IDS fixes; list the rest
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --values todo.csv   # ...and the values typed into the table
-node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes and areas measured from the bodies
+node cli.mjs --fill model.ifc spec.ids -o filled.ifc --from-geometry   # ...and Qto_ volumes, areas and wall lengths and heights measured from the bodies
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
@@ -604,9 +604,21 @@ quantities no set holds are measured from the element's own body by
 | `Width` | walls | the thickness |
 | `GrossArea`, `NetArea` | slabs, plates, coverings, roofs | the extruded profile |
 | `CrossSectionArea` | columns, beams, members, piles | the section at mid-length |
+| `Length` | walls with a straight `Axis` | along the axis direction, on the plane halfway through the thickness, at the longest level |
+| `Height` | walls with a straight `Axis` | the extrusion depth; none when a roof or slab clips the wall |
 
-Lengths and heights are not measured: a `Qto_` Length is a centre-line or
-nominal figure that the body alone does not define. A value from the model's
+**Wall Length and Height (2026-11-21).** The `Axis` curve's own length is not
+the wall's length: ARCHICAD draws it on the reference line, often a face, so
+FZK-Haus's 4.17 m wall has a 4.59 m axis. The axis gives the direction and
+the length is measured on the body's middle plane. On five models that store
+both (three Revit, two ARCHICAD), 465 of 492 lengths are within 2% (the axis
+curve's own length: 370), and 19 of the other 27 are stored lengths that
+disagree with the same exporter's side area and height. Heights are offered
+only where the extrusion depth and the clipped wall's tallest point agree
+(Revit stores one, ARCHICAD the other): 476 of 476 offered heights match.
+Filling walls' `Length` and `Height` on five models wrote 758 values, every
+one passing here and in IfcTester (`eval/wall-axis-lengths-2026-11-21.md`).
+Other lengths and heights (beams, members, curved walls) are not measured. A value from the model's
 own quantity sets always wins over a measured one, and a measured value still
 has to pass every facet that names it. Values are written to six significant
 figures in the model's units. How close they come: on the two HHS Office
