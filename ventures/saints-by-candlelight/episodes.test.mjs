@@ -134,3 +134,14 @@ test('the audio-status line follows the manifest, so a new render or episode nee
   assert.match(withAudioStatus(doc, eps, {}), /-->\nAudio: 0 of 3 episodes, numbers none\. Text only: episodes 1 to 3\.\n<!-- \/audio-status -->\nb$/);
   assert.throws(() => withAudioStatus('no markers', eps, {}), /markers missing/);
 });
+
+test('llms.txt lists every episode, the licence and the AI disclosure', async () => {
+  const { renderLlmsTxt } = await import('./episodes.mjs');
+  const { loadEpisodes, loadAudio } = await import('./generate.mjs');
+  const episodes = loadEpisodes();
+  const text = renderLlmsTxt(episodes, loadAudio());
+  for (const ep of episodes) assert.ok(text.includes(`${ep.slug}.html`), ep.slug);
+  assert.match(text, /CC BY-SA 4\.0/);
+  assert.match(text, /written by an AI/);
+  assert.doesNotMatch(text, /MIT|financial or professional advice|github\.io/);
+});
