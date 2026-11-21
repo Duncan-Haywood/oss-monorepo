@@ -349,3 +349,25 @@ test("a P6 schedule's resource UDFs come back as resource UDFs through Project X
   bad.UDFVALUE.find((x) => x.proj_id === "").fk_id = "999";
   assert.ok(p6Problems(bad).some((p) => /fk_id 999 is not in RSRC/.test(p)));
 });
+
+// Red-team guards (2026-11-21): each test below fails with one seeded fault
+// that the rest of this suite let through.
+test("the export date in ERMHDR is a plain YYYY-MM-DD", () => {
+  assert.match(p6XerText(XML()).text, /^ERMHDR\t20\.12\t\d{4}-\d\d-\d\d\tProject\t/);
+});
+
+test("a summary task with no WBS code gets its place among its siblings as its P6 code", () => {
+  const T = p6XerText(XML().replace("<WBS>1</WBS>", "")).xer.tables;
+  assert.equal(T.PROJWBS.find((w) => w.wbs_name === "Level 1").wbs_short_name, "1");
+});
+
+test("dotted codes with no leaf shared between parents stay flat", () => {
+  const T = p6XerText(XML({ code2: "N.01", code3: "S.02" })).xer.tables;
+  assert.deepEqual(T.ACTVCODE.map((c) => [c.short_name, c.parent_actv_code_id]), [["N.01", ""], ["S.02", ""]]);
+});
+
+test("an Activity ID alias only counts on Text1-Text30", () => {
+  // 188744017 is the field id after Text30 (188744016), so not a text field
+  const xml = XML({ idAlias: "Activity ID", code2: "DEM-100", code3: "FRM-200", code4: "DRY-300" }).replace(/188743731/g, "188744017");
+  assert.deepEqual(p6XerText(xml).xer.tables.TASK.map((t) => t.task_code), ["A20", "A30", "A40", "A50", "A60"]);
+});

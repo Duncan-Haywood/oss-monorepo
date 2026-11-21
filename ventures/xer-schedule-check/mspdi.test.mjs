@@ -247,3 +247,36 @@ test("Project text fields read as activity codes; per-task notes and Activity ID
   assert.equal(r.tables.TASKACTV.length, 30);
   assert.ok(r.warnings.some((w) => /different value on every task.*Text3/.test(w)));
 });
+
+// Red-team guards (2026-11-21): each test below fails with one seeded fault
+// that the rest of this suite let through.
+test("adjacent CDATA sections join (how a writer escapes ]]> inside one)", () => {
+  const x = parseXml(`<a><b><![CDATA[x]]]]><![CDATA[>y]]></b></a>`);
+  assert.equal(x.children[0].children[0].text, "x]]>y");
+});
+
+test("a task on two resource calendars works the union of their hours", () => {
+  const long = (t, w = true) => `<WeekDay><DayType>${t}</DayType><DayWorking>${w ? 1 : 0}</DayWorking>${w ? "<WorkingTimes><WorkingTime><FromTime>07:00:00</FromTime><ToTime>18:00:00</ToTime></WorkingTime></WorkingTimes>" : ""}</WeekDay>`;
+  const extraCal = `<Calendar><UID>3</UID><Name>Long days</Name><IsBaseCalendar>0</IsBaseCalendar><BaseCalendarUID>-1</BaseCalendarUID><WeekDays>${long(1, false)}${long(2)}${long(3)}${long(4)}${long(5)}${long(6)}${long(7, false)}</WeekDays></Calendar>
+    <Calendar><UID>4</UID><Name>Day crew</Name><IsBaseCalendar>0</IsBaseCalendar><BaseCalendarUID>1</BaseCalendarUID><WeekDays></WeekDays></Calendar>`;
+  let xml = project({ status: "2024-03-04T08:00:00", tasks: [{ uid: 2, name: "Both crews", h: 21 }], extraCal });
+  const res = (uid, cal) => `<Resource><UID>${uid}</UID><Name>R${uid}</Name><Type>1</Type><CalendarUID>${cal}</CalendarUID></Resource>`;
+  const asg = (t, r) => `<Assignment><TaskUID>${t}</TaskUID><ResourceUID>${r}</ResourceUID><Units>1</Units></Assignment>`;
+  xml = xml.replace("</Project>", `<Resources>${res(1, 4)}${res(2, 3)}</Resources><Assignments>${asg(2, 1)}${asg(2, 2)}</Assignments></Project>`);
+  // 08:00-12:00 + 13:00-17:00 inside 07:00-18:00 is 07:00-18:00: 10 h on Monday, 11 h on Tuesday
+  assert.equal(formatDate(schedule(parseMspdi(xml)).tasks.get("2").ef), "2024-03-05 18:00");
+});
+
+test("with no status date, a task started before the project start sets the data date", () => {
+  const x = parseMspdi(project({ tasks: [{ uid: 2, name: "Early", h: 16, rem: 8, pct: 50, actStart: "2024-03-01T08:00:00", start: "2024-03-01T08:00:00" }] }));
+  assert.equal(x.tables.PROJECT[0].last_recalc_date, "2024-03-01 08:00");
+  assert.ok(x.warnings.some((w) => /earliest task start/.test(w)), x.warnings.join("\n"));
+});
+
+test("a blank text-field value is no activity code", () => {
+  const t = (uid, v) => `<Task><UID>${uid}</UID><ID>${uid}</ID><Name>T${uid}</Name><OutlineLevel>1</OutlineLevel><Duration>PT8H0M0S</Duration><ExtendedAttribute><FieldID>188743734</FieldID><Value>${v}</Value></ExtendedAttribute></Task>`;
+  const xml = `<?xml version="1.0"?><Project xmlns="http://schemas.microsoft.com/project"><StartDate>2026-01-05T08:00:00</StartDate><ExtendedAttributes><ExtendedAttribute><FieldID>188743734</FieldID><FieldName>Text2</FieldName><Alias>Zone</Alias></ExtendedAttribute></ExtendedAttributes><Tasks>${t(1, "North")}${t(2, " ")}${t(3, "South")}${t(4, "North")}</Tasks></Project>`;
+  const r = parseMspdi(xml);
+  assert.deepEqual(r.tables.ACTVCODE.map((c) => c.short_name).sort(), ["North", "South"]);
+  assert.equal(r.tables.TASKACTV.length, 3);
+});
