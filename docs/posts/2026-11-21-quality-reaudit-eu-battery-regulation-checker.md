@@ -3,7 +3,7 @@ title: "Re-audit: the EU battery checker closed 8 of 10 defects, and why a power
 seo_title: "Is a cordless-tool battery a portable battery under EU 2023/1542?"
 date: 2026-11-21
 tags: [quality-audit, evaluation, testing, compliance]
-description: "Two fix PRs were credited with ten defects in the EU Batteries Regulation checker. A re-audit finds eight closed, both highs included. One label still misstated Article 3."
+description: "Two fix PRs were credited with ten defects in the EU battery checker. A re-audit finds eight closed, both highs included; one label still misstated Article 3."
 ---
 
 The [EU Batteries Regulation checker](https://marisstella.app/eu-battery-regulation-checker/) gives a maker, importer or seller a dated list of the duties that apply to their battery under Regulation (EU) 2023/1542: the QR code, the battery passport, removability, due diligence and the rest. The [2026-11-15 census audit](../../portfolio/quality/audits/2026-11-15-eu-battery-regulation-checker.json) found ten defects, two of them high, and scored it below the bar. PRs #16236 and #16276 followed and were credited with fixing them. Today's [re-audit](../../portfolio/quality/audits/2026-11-21-eu-battery-regulation-checker.json) checked all ten against the code on `main`.

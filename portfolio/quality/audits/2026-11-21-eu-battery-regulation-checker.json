@@ -225,7 +225,8 @@
    "what": "The portable category is labelled 'under 5 kg, for consumer use', but Art 3(9) defines a portable battery as sealed, 5 kg or less and not designed specifically for industrial use. A sealed cordless-tool or professional-device pack reads as not portable, so the user picks 'industrial 2 kWh or less' and loses the Art 11 removability row. The LMT and EV labels also omit the 25 kg split (an e-motorbike pack over 25 kg is an EV battery). Carried over from the 2026-11-15 audit (its low 'category labels' defect), raised to medium for the lost Art 11 row.",
    "where": "ventures/eu-battery-regulation-checker/calc.mjs:10",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18089"
   },
   {
    "severity": "low",
@@ -246,7 +247,8 @@
    "what": "Role 'importer' with location 'outside the EU' is accepted silently and gets the importer duties and an EU-operator status of 'covered', though an importer is by definition established in the EU (Art 3). A non-EU brand that thinks of itself as the importer is never told it is the manufacturer and needs an EU importer or authorised representative.",
    "where": "ventures/eu-battery-regulation-checker/calc.mjs:88",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18089"
   },
   {
    "severity": "low",
@@ -260,7 +262,8 @@
    "what": "The category and role option texts are hand-copied into index.html instead of generated from CATEGORIES and ROLES; page.test.mjs checks only the option values, so a label fix in calc.mjs can leave the page saying the old thing.",
    "where": "ventures/eu-battery-regulation-checker/index.html:59",
    "category": "code-craft",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18089"
   }
  ],
  "reaudit_of_earlier_defects": [
@@ -325,6 +328,6 @@
    "closed_by": null
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18089"],
  "verdict": "Re-audit after PRs #16236 and #16276. Eight of the ten defects filed on 2026-11-15 are closed in the code as it is now, including both highs: a power bank now gets its 18 Feb 2027 QR code, an EU fulfilment house with no EU operator is told it is the responsible operator instead of 'all done', due diligence follows the EUR 40m turnover test, nuclear-safety batteries lose only the Chapter III and VIII duties, and distributors see producer registration. 12 recomputed outputs pass; 39/39 tests pass; 8 of 9 seeded mutants are caught, including the three that survived last time. Open: the portable category label narrows Art 3(9) to consumer use (medium: a professional-tool pack loses its removability row), no weight or capacity input, Arts 10, 12, 14 and 11(7) not modelled, an out-of-EU 'importer' accepted silently, and the 'all done' guard unpinned by a test. Scores: correctness 3, completeness 3, verification 3, craft 3, claims 3, fitness 2, domain 3. Meets the bar and finished; fitness stays at 2 until the classification inputs and the Art 12/14 duties exist. The Regulation could not be re-fetched this session, so the checks rest on the OJ wording quoted in the earlier audit."
 }
