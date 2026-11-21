@@ -20,7 +20,48 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## Cards and suspensions served against the fixture list (2026-11-21, newest)
+## Practice slots on shared fields (2026-11-21, newest)
+
+`practice-schedule.html`, `practice.mjs` (search in `practice-worker.mjs`), guide
+`how-to-make-a-practice-schedule-for-shared-fields.html`. Youth soccer, baseball, flag football and rec
+basketball leagues hand every team one or two weekly practice slots on a few fields split into halves or
+quarters. Until now the generator scheduled games only; the practice grid was left to a spreadsheet.
+
+- **Why someone would use it:** the alternatives are a hand-made spreadsheet (first-come teams take the
+  good slots, coach clashes and over-full fields slip through) or the field-allocation modules in paid
+  league platforms (LeagueApps, SportsEngine, Demosphere and similar, with accounts and a per-season
+  fee). This takes plain lines, needs no account, keeps every hard rule, shares the misses fairly, says
+  when the grid is proved best, and gives each team a weekly calendar.
+- **Input:** field lines `name | days | hours | units at once` (a field in quarters is 4); team lines with
+  any of `coach Lee`, `2 units`, `2 a week`, `not Fri`, `games Sat`, `prefer Tue Thu`, `prefer 5-7pm`,
+  `by 7pm`, `after 5:30pm`. Pipes, tabs (a spreadsheet paste) or commas; mistakes named by line.
+- **Hard rules:** units per practice-length block, one practice a team a day, no-days and game days,
+  earliest start and latest finish, and a coach's teams never at overlapping times (back to back is fine).
+- **Fairness:** a practice off a preferred day misses 2, outside preferred times 2, two practices on
+  consecutive days 1. The search minimises the sum of each team's misses squared (two teams missing once
+  beats one team missing twice), with an unplaced practice costing more than every miss together.
+- **Proof on the page:** each team's best week with the fields to itself (every subset of its days,
+  `soloBest`) is a lower bound; when every team meets it the page says "proved". Unplaced practices come
+  with a reason: no window takes its units, none fits its days and hours, too few allowed days, or full
+  slots and who holds them.
+- **Search:** greedy start (most constrained teams first), then annealing with relocations and eviction
+  chains (evict holders of a block until it fits, rehouse each, depth up to 2), four reheats from the best,
+  three seeded restarts up to 80 practices. Same lists, same grid; "Try another timetable" changes the seed.
+- **Outputs:** grid by day and field with units used, each team's week and misses, text for the group
+  chat, CSV (formula-looking names defused), weekly repeating `.ics` per team or for all with skipped dates
+  as EXDATEs, a share link carrying the lists (rebuilt the same on the other device), print.
+
+Checked: `eval/practice-exact.txt`: against CP-SAT on 100 random leagues (60 at 75-105% of field capacity,
+40 at 40-70%), the search equals all 95 proved optima and beats CP-SAT's 20 s answer on one unproved case;
+median 0.5 s, max 1.9 s on the tight set. The first version matched 25 of 35; multi-holder eviction and
+restarts closed the gap. `practice.test.mjs` (15 tests: parsing, every hard rule rechecked from scratch on
+25 random leagues, capacity mixes, coach clashes, the squared-miss trade, back-to-back days, the solo bound,
+outputs and calendar dates, the guide's grid recomputed from the module). Clicked through in Chromium at 390
+and 1200 px (example, reshuffle, calendar download, share link, reload; no console errors, no sideways
+scroll). Invented teams only; no league has run a season's practices on it yet, which is the next
+information.
+
+## Cards and suspensions served against the fixture list (2026-11-21)
 
 The self-hosted league page (`server.mjs`) keeps a **cards log** and works out who is suspended for which game
 (`discipline.mjs`). The organiser types one line per event under **Cards, suspensions and scorers** in `/admin`:

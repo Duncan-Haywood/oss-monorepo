@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='white'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Practice Schedule Maker for Shared Fields: Free Weekly Slots</title>
+  <meta name="description" content="Share weekly practice slots on split fields: half and quarter fields, coaches with two teams, early finishes for young players, game days and requested times. Free, no sign-up.">
+  <meta property="og:title" content="Practice schedule maker for youth leagues that share fields">
+  <meta property="og:description" content="Weekly practice slots shared fairly across half and quarter fields, with coach clashes, game days and early finishes kept. Calendar, CSV and a share link. Free and private.">
+  <link rel="canonical" href="./practice-schedule.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I share practice fields between teams?", "acceptedAnswer": {"@type": "Answer", "text": "List each field with the days and hours you have it and how many teams it holds at once (a field split into quarters holds 4). List each team with how much of a field it needs and how many practices a week. The page cuts the hours into practice-length blocks and gives every team its slots without overfilling a field, double-booking a coach, using a team's game day, or keeping the youngest out past their finish time. A team with two practices gets them on different days, and on days apart where it can."}}, {"@type": "Question", "name": "How does it decide who gets the good slots?", "acceptedAnswer": {"@type": "Answer", "text": "Each team counts a miss for a practice off its preferred days, one outside its preferred times, and a pair of practices on consecutive days. The search keeps the sum of the squared misses as low as it can, so two teams missing once is better than one team missing twice. Nobody gets the good slots for asking first, and the same lists always give the same timetable (\"Try another timetable\" draws a different one of equal or near-equal quality)."}}, {"@type": "Question", "name": "What does \"proved\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "For each team the page also works out the best week it could have with the fields to itself. When every team gets that, no other timetable could be better, and the page says so. Otherwise it lists which teams missed what, and for a team it could not place, why: no window that fits its hours, too few days, or full slots and who holds them."}}, {"@type": "Question", "name": "Is anything uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is worked out in your browser. A share link carries your lists inside the link itself and rebuilds the same timetable on the other device; nothing is stored on a server."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Practice schedule maker", "applicationCategory": "SportsApplication", "operatingSystem": "Any (browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "url": "./practice-schedule.html"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; line-height: 1.5; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.035em; line-height: 1.08; margin-bottom: .3em; }
+    h2 { font-size: 1.2rem; margin-top: 1.6em; }
+    h3 { font-size: 1rem; margin: .2em 0 .4em; }
+    a { color: #1d5a3f; }
+    .card { background: #fff; border: 1px solid #d4dad2; border-radius: 12px; padding: 16px; margin: 16px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 130px; font: 14px/1.4 ui-monospace, monospace; padding: 8px; border: 1px solid #b9c2b6; border-radius: 8px; }
+    input, select { font: inherit; padding: 7px 8px; border: 1px solid #b9c2b6; border-radius: 8px; background: #fff; }
+    input[type=number] { width: 4.5em; }
+    .row { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+    button { font: inherit; font-weight: 650; padding: 10px 14px; border-radius: 8px; border: 0; background: #1d5a3f; color: #fff; cursor: pointer; margin: 8px 8px 0 0; }
+    button.secondary { background: #e4e9e2; color: #1d2330; }
+    .note { color: #4a5148; font-size: .92rem; }
+    .err { color: #9b2c1f; white-space: pre-line; }
+    .ok { color: #1d5a3f; font-weight: 650; }
+    .warn { color: #7a4b00; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; margin-top: 8px; }
+    th, td { padding: 5px 6px; border: 1px solid #e4e9e2; text-align: left; vertical-align: top; }
+    th { font-size: .8rem; color: #4a5148; font-weight: 650; background: #f7f8f6; }
+    td.full { background: #eef4ee; }
+    td.closed { background: #f3f3f3; }
+    .cap { font-size: .75rem; color: #6b7368; display: block; }
+    ul.tight { margin: .3em 0; padding-left: 1.2em; }
+    code { background: #f1f3ef; padding: 0 3px; border-radius: 3px; }
+    pre { white-space: pre-wrap; background: #f7f8f6; padding: 8px; border-radius: 8px; font-size: .88rem; }
+    .readonly { background: #fff6e0; border-radius: 8px; padding: 8px 10px; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+    @media print { #setup, .actions, footer, .guide, #topnav, #cal { display: none !important; } .card { border: 0; } }
+  </style>
+</head>
+<body>
+<main>
+  <p id="topnav"><a href="./">&larr; League schedule generator</a></p>
+  <h1>Practice schedule maker for shared fields</h1>
+  <p>For youth soccer, baseball, softball, flag football and rec basketball leagues that hand out weekly practice slots. List your fields with the hours you have them and how many teams each holds at once, list your teams with what they need, and get a <strong>weekly practice grid that overfills no field, double-books no coach and shares the good slots fairly</strong>. Then a calendar for every team. No accounts, nothing uploaded.</p>
+
+  <section class="card" id="setup">
+    <div id="ro-banner" class="readonly" hidden><strong>Opened from a share link.</strong> This is the same timetable the sender built; change anything and build again to make your own.</div>
+    <label for="lname">League name (optional)</label>
+    <input id="lname" maxlength="80" placeholder="Spring rec soccer" style="width:100%;box-sizing:border-box">
+    <label for="fields">Fields: one line each, <code>name | days | hours | teams at once</code></label>
+    <textarea id="fields" spellcheck="false" autocomplete="off" placeholder="North Park 1 | Mon-Thu | 5-8pm | 4&#10;North Park 2 | Mon Wed | 5:30-8:30pm | 2&#10;School gym | Fri | 6-8pm | 1"></textarea>
+    <p class="note">"Teams at once" is the field's capacity in units: a field split into quarters is 4, into halves 2, a gym or a diamond 1. Separate the parts with <code>|</code>, tabs (paste from a spreadsheet) or commas.</p>
+    <label for="teams">Teams: one line each, the name then any of these</label>
+    <textarea id="teams" spellcheck="false" autocomplete="off" placeholder="U8 Hawks | coach Patel | 1 unit | by 7pm | prefer Tue Thu&#10;U10 Foxes | 2 units | 2 a week | not Wed | prefer 5-7pm"></textarea>
+    <p class="note"><code>coach Lee</code> (teams with one coach never overlap), <code>2 units</code> (how much of a field), <code>2 a week</code>, <code>not Fri</code>, <code>games Sat</code>, <code>prefer Tue Thu</code>, <code>prefer 5-7pm</code>, <code>by 7pm</code> (latest finish), <code>after 5:30pm</code> (earliest start).</p>
+    <div class="row">
+      <div><label for="minutes">Practice length (minutes)</label><input id="minutes" type="number" min="15" max="240" step="15" value="60" inputmode="numeric"></div>
+      <div><label for="dunits">Units a team needs, unless its line says</label><input id="dunits" type="number" min="1" max="8" value="1" inputmode="numeric"></div>
+      <div><label for="dtimes">Practices a week, unless its line says</label><input id="dtimes" type="number" min="1" max="5" value="1" inputmode="numeric"></div>
+    </div>
+    <div>
+      <button type="button" id="build">Make the practice schedule</button>
+      <button type="button" class="secondary" id="example">Load an example league</button>
+    </div>
+    <p id="setup-status" role="status" class="err"></p>
+  </section>
+
+  <section class="card" id="out" hidden>
+    <h2 id="out-title" style="margin-top:0">Weekly practices</h2>
+    <p id="verdict" role="status"></p>
+    <div id="unplaced"></div>
+    <div class="scroll" id="grid"></div>
+    <h3 style="margin-top:1.2em">Each team's week</h3>
+    <div class="scroll" id="perteam"></div>
+    <div class="actions">
+      <button type="button" class="secondary" id="reshuffle">Try another timetable</button>
+      <button type="button" class="secondary" id="copy">Copy as text</button>
+      <button type="button" class="secondary" id="csv">Download CSV</button>
+      <button type="button" class="secondary" id="share">Copy share link</button>
+      <button type="button" class="secondary" id="print">Print</button>
+    </div>
+    <p id="share-status" role="status" class="note"></p>
+    <details id="cal">
+      <summary><strong>Calendar files</strong> (weekly repeating, for phones and Google Calendar)</summary>
+      <div class="row">
+        <div><label for="from">First practice week</label><input id="from" type="date"></div>
+        <div><label for="until">Last practice day</label><input id="until" type="date"></div>
+        <div><label for="calteam">For</label><select id="calteam"><option value="">Every team</option></select></div>
+      </div>
+      <label for="skip">No practice on (holidays, closures): dates, one per line or comma-separated</label>
+      <textarea id="skip" style="min-height:60px" placeholder="2027-04-05, 2027-04-07"></textarea>
+      <button type="button" id="ics">Download calendar</button>
+      <p id="cal-status" role="status" class="err"></p>
+    </details>
+  </section>
+
+  <section class="guide">
+    <h2>How it works</h2>
+    <h3>How do I share practice fields between teams?</h3>
+    <p>List each field with the days and hours you have it and how many teams it holds at once (a field split into quarters holds 4). List each team with how much of a field it needs and how many practices a week. The page cuts the hours into practice-length blocks and gives every team its slots without overfilling a field, double-booking a coach, using a team's game day, or keeping the youngest out past their finish time. A team with two practices gets them on different days, and on days apart where it can.</p>
+    <h3>How does it decide who gets the good slots?</h3>
+    <p>Each team counts a miss for a practice off its preferred days, one outside its preferred times, and a pair of practices on consecutive days. The search keeps the sum of the squared misses as low as it can, so two teams missing once is better than one team missing twice. Nobody gets the good slots for asking first, and the same lists always give the same timetable ("Try another timetable" draws a different one of equal or near-equal quality).</p>
+    <h3>What does "proved" mean?</h3>
+    <p>For each team the page also works out the best week it could have with the fields to itself. When every team gets that, no other timetable could be better, and the page says so. Otherwise it lists which teams missed what, and for a team it could not place, why: no window that fits its hours, too few days, or full slots and who holds them.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. Everything is worked out in your browser. A share link carries your lists inside the link itself and rebuilds the same timetable on the other device; nothing is stored on a server.</p>
+    <p>More: <a href="./how-to-make-a-practice-schedule-for-shared-fields.html">how to make a practice schedule for shared fields</a> (a worked example), <a href="./multi-division-league-schedule.html">game schedules for several divisions on shared fields</a>, <a href="./youth-soccer-league-schedule.html">youth soccer season schedules</a>, <a href="./how-to-assign-referees-to-a-league-schedule.html">referees for the games</a>.</p>
+  </section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Check the timetable against your field permits, lighting and your league's rules before sending it out. The example league is invented.</p>
+  <p><strong>Independent.</strong> Not affiliated with any league, park district, school or league-management platform.</p>
+  <p>Everything runs in your browser; your lists are saved only on this device. Anonymous feature events (<code>practice_built</code>, <code>practice_example</code>, <code>practice_reshuffled</code>, <code>practice_copied</code>, <code>practice_csv</code>, <code>practice_ics</code>, <code>practice_shared</code>, <code>practice_link_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free and open source under an <a href="LICENSE">MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+<script type="module">
+  import { parseFields, parseTeamList, buildPractices, practiceText, practiceCsv, practiceIcs, fieldUse, encodeInputs, decodeInputs, DAYS, clock } from "./practice.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+  const $ = (s) => document.querySelector(s);
+  const KEY = "league-schedule-generator-practice";
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const EXAMPLE = {
+    name: "Example spring rec soccer",
+    fields: "North Park 1 | Mon Tue Wed Thu | 5-8pm | 4\nNorth Park 2 | Mon-Thu | 5:30pm-8:30pm | 2\nSchool gym | Fri | 6-8pm | 1",
+    teams: "U6 Ladybugs | coach Ruiz | 1 unit | by 6:30pm | prefer Tue\nU6 Bumblebees | coach Ruiz | 1 unit | by 6:30pm | prefer Tue\nU8 Hawks | coach Patel | 1 unit | by 7pm | prefer Tue Thu\nU8 Owls | coach Patel | 1 unit | by 7pm\nU8 Robins | 1 unit | by 7pm | not Mon\nU10 Foxes | 2 units | 2 a week | not Wed | prefer 5-7pm\nU10 Badgers | 2 units | 2 a week | prefer Mon Wed\nU12 Bears | coach Kim | 2 units | 2 a week | games Sat | prefer Mon Wed\nU12 Wolves | coach Kim | 2 units | 2 a week\nU14 Lions | 4 units | 2 a week | after 6pm\nU14 Tigers | 4 units | 2 a week | after 6pm | not Thu\nHigh school futsal | 1 unit | prefer Fri",
+    minutes: 60, units: 1, times: 1,
+  };
+
+  let result = null, seed = 1, inputs = null;
+
+  const read = () => ({ name: $("#lname").value.trim(), fields: $("#fields").value, teams: $("#teams").value, minutes: Number($("#minutes").value) || 60, units: Number($("#dunits").value) || 1, times: Number($("#dtimes").value) || 1, seed });
+  const fill = (v) => { $("#lname").value = v.name || ""; $("#fields").value = v.fields; $("#teams").value = v.teams; $("#minutes").value = v.minutes || 60; $("#dunits").value = v.units || 1; $("#dtimes").value = v.times || 1; seed = v.seed || 1; };
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(read())); } catch { /* storage blocked */ } };
+
+  // The search runs in a worker so a big league does not freeze the page; without workers it runs here.
+  let worker = null, job = 0;
+  const run = (windows, teams, opts) => new Promise((resolve, reject) => {
+    try {
+      if (!worker) worker = new Worker("./practice-worker.mjs", { type: "module" });
+      const my = ++job;
+      worker.onmessage = (e) => { if (my !== job) return; e.data.error ? reject(new Error(e.data.error)) : resolve(e.data.result); };
+      worker.onerror = () => { worker = null; resolve(buildPractices(windows, teams, opts)); };
+      worker.postMessage({ windows, teams, opts });
+    } catch { resolve(buildPractices(windows, teams, opts)); }
+  });
+
+  async function build() {
+    const v = read();
+    const f = parseFields(v.fields), t = parseTeamList(v.teams, { units: v.units, times: v.times });
+    const errs = [...f.errors, ...t.errors];
+    if (!f.windows.length && !f.errors.length) errs.push("List at least one field.");
+    if (!t.teams.length && !t.errors.length) errs.push("List at least one team.");
+    if (errs.length) { $("#setup-status").textContent = errs.join("\n"); $("#out").hidden = true; return false; }
+    $("#setup-status").textContent = "Working it out…";
+    $("#build").disabled = true;
+    try { result = await run(f.windows, t.teams, { minutes: v.minutes, seed }); }
+    catch (e) { $("#setup-status").textContent = e.message; return false; }
+    finally { $("#build").disabled = false; }
+    inputs = v;
+    $("#setup-status").textContent = "";
+    render(t.teams);
+    save();
+    return true;
+  }
+
+  function render(teams) {
+    const r = result;
+    $("#out").hidden = false;
+    $("#out-title").textContent = inputs.name ? `${inputs.name}: weekly practices` : "Weekly practices";
+    const missing = r.unplaced.reduce((a, u) => a + u.missing, 0);
+    const missed = r.teams.filter((t) => t.miss > 0).length;
+    const shared = r.teams.filter((t) => t.miss > t.soloMiss || t.placed < t.times).length;
+    $("#verdict").className = r.proved ? "ok" : "warn";
+    $("#verdict").textContent = r.proved
+      ? `Proved: every team has the best week it could have with the fields to itself${missed ? " (the misses listed below are forced by its own limits)" : ""}. ${r.placements.length} practices placed.`
+      : `${r.placements.length} practices placed${missing ? `, ${missing} not placed` : ""}. ${missed} team${missed === 1 ? " misses" : "s miss"} a preference; ${shared} of them could do better with the fields to ${shared === 1 ? "itself" : "themselves"}, so sharing costs ${shared === 1 ? "it" : "them"} (see each team's week). Not proved best, but the search usually finds the best there is (checked against an exact solver).`;
+    $("#unplaced").innerHTML = r.unplaced.length ? `<p class="err"><strong>Not placed:</strong></p><ul class="tight">${r.unplaced.map((u) => `<li>${esc(u.team)}: ${u.missing} practice${u.missing > 1 ? "s" : ""}. ${esc(u.reason)}.</li>`).join("")}</ul>` : "";
+    // Grid: one table per day, rows are blocks, columns are fields.
+    const use = fieldUse(r);
+    const days = [...new Set(use.map((u) => u.day))].sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7));
+    let html = "";
+    for (const d of days) {
+      const cells = use.filter((u) => u.day === d);
+      const fields = [...new Set(cells.map((u) => u.field))];
+      const starts = [...new Set(cells.map((u) => u.start))].sort((a, b) => a - b);
+      html += `<h3 style="margin-top:1em">${DAYS[d]}</h3><table><thead><tr><th>Time</th>${fields.map((f) => `<th>${esc(f)}</th>`).join("")}</tr></thead><tbody>`;
+      for (const s of starts) {
+        html += `<tr><td>${clock(s)}-${clock(s + r.minutes)}</td>`;
+        for (const f of fields) {
+          const c = cells.find((u) => u.field === f && u.start === s);
+          if (!c) { html += `<td class="closed"></td>`; continue; }
+          html += `<td class="${c.used >= c.cap ? "full" : ""}">${c.teams.map(esc).join("<br>")}<span class="cap">${c.used} of ${c.cap} used</span></td>`;
+        }
+        html += "</tr>";
+      }
+      html += "</tbody></table>";
+    }
+    $("#grid").innerHTML = html;
+    $("#perteam").innerHTML = `<table><thead><tr><th>Team</th><th>Practices</th><th>Misses</th></tr></thead><tbody>${r.teams.map((t) => {
+      const mine = r.placements.filter((p) => p.team === t.team).map((p) => `${DAYS[p.day]} ${clock(p.start)}, ${esc(p.field)}`);
+      const notes = t.misses.map(esc);
+      if (t.miss > t.soloMiss) notes.push(`<em>could miss ${t.soloMiss ? `only ${t.soloMiss}` : "nothing"} with the fields to itself</em>`);
+      return `<tr><td>${esc(t.team)}</td><td>${mine.join("<br>") || "<span class=\"err\">none</span>"}${t.placed < t.times ? `<br><span class="err">${t.times - t.placed} not placed</span>` : ""}</td><td>${notes.join("<br>") || "none"}</td></tr>`;
+    }).join("")}</tbody></table>`;
+    const sel = $("#calteam");
+    sel.innerHTML = `<option value="">Every team</option>` + teams.map((t) => `<option>${esc(t.name)}</option>`).join("");
+  }
+
+  async function copy(text, label) {
+    try { await navigator.clipboard.writeText(text); $("#share-status").textContent = `${label} copied.`; }
+    catch { $("#share-status").textContent = text; }
+  }
+  const download = (text, name, type) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); };
+
+  $("#build").addEventListener("click", async () => { seed = 1; if (await build()) { record("practice_built"); $("#out").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); } });
+  $("#reshuffle").addEventListener("click", async () => { seed++; if (await build()) record("practice_reshuffled"); });
+  $("#example").addEventListener("click", () => { fill(EXAMPLE); seed = 1; record("practice_example"); build(); });
+  $("#copy").addEventListener("click", () => { copy(practiceText(result, inputs.name), "Timetable"); record("practice_copied"); });
+  $("#csv").addEventListener("click", () => { download(practiceCsv(result), "practice-schedule.csv", "text/csv"); record("practice_csv"); });
+  $("#share").addEventListener("click", () => { copy(`${location.origin}${location.pathname}#p=${encodeInputs(inputs)}`, "Share link"); record("practice_shared"); });
+  $("#print").addEventListener("click", () => window.print());
+  $("#ics").addEventListener("click", () => {
+    const skip = $("#skip").value.split(/[\s,;]+/).filter(Boolean);
+    const bad = skip.filter((d) => !/^\d{4}-\d{2}-\d{2}$/.test(d));
+    if (bad.length) { $("#cal-status").textContent = `Not a date (YYYY-MM-DD): ${bad.join(", ")}`; return; }
+    try {
+      const team = $("#calteam").value || null;
+      const ics = practiceIcs(result, { team, from: $("#from").value, until: $("#until").value, skip, title: inputs.name ? `${inputs.name} practice` : "Practice" });
+      $("#cal-status").textContent = "";
+      download(ics, `${(team || "all-teams").replace(/[^\w-]+/g, "-").toLowerCase()}-practices.ics`, "text/calendar");
+      record("practice_ics");
+    } catch (e) { $("#cal-status").textContent = e.message; }
+  });
+
+  $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; });
+  if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+
+  const m = location.hash.match(/^#p=([\w-]+)$/);
+  if (m) {
+    const d = decodeInputs(m[1]);
+    if (d.inputs) { fill(d.inputs); $("#ro-banner").hidden = false; record("practice_link_opened"); build(); }
+    else $("#setup-status").textContent = d.error;
+  } else {
+    try { const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved && typeof saved.fields === "string") fill(saved); } catch { /* nothing saved */ }
+  }
+</script>
+</body>
+</html>
