@@ -23,8 +23,8 @@ wall and out, so the test called it exterior.
 
 ## What changed
 
-Sloped roofs now stop rays, with three conditions, each one learned from a
-wall it got wrong:
+Sloped roofs now stop rays, with three conditions, worked out against real
+walls in the corpus:
 
 - **The roof has to come down across the ray.** At the height a wall's rays
   are cast, each roof piece is cut into lines in plan, and each line keeps

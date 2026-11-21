@@ -46,8 +46,12 @@ foundation wall as the "lower wall beyond" and turned interior, which the
 synthetic attic test caught. The top re-read (4) came from six schependomlaan
 `HSB-element` walls; it did not rescue them (below) but did keep three HouseZ
 walls on its "Roof" storey exterior. The face-direction rule in (3) came from
-four 0.2 m `buitenblad` pieces on schependomlaan's roof storey whose rays met
-the top face of a roof rising toward its ridge.
+looking at four 0.2 m `buitenblad` pieces on schependomlaan's roof storey,
+whose rays met a roof rising toward its ridge. On the real file it moved
+nothing: the four still read interior, since their ray height lies inside the
+roof's build-up (below). It is kept because without it a wall standing on a
+roof, between two roofs rising on either side, would read interior (the
+valley test in envelope.test.mjs fails without the rule).
 
 **Run.** `node eval/roof-blockers.mjs <17 files> --json eval/roof-blockers-2026-11-21.json --list 200`
 (output `roof-blockers-2026-11-21.txt`; each model is taken off twice, with

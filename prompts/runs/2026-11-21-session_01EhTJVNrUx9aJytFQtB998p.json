@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVNrUx9aJytFQtB998p",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T04:14:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff (flagship row 9, assigned by allocate.py): sloped roofs as blockers in the envelope test so attic knee walls read as partitions",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": 18021,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "a `ps | grep | xargs kill` meant for a stale eval run also killed the freshly started run (its command line matched)",
+      "fix": "restarted the run alone; kill by PID next time"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-knee-walls-under-a-roof-are-not-exterior-walls.md",
+    "ventures/ifc-quantity-takeoff/eval/roof-blockers-2026-11-21.md"
+  ],
+  "goal": "Deepen a flagship: close the envelope test's named knee-wall blind spot with a measured result on the 17-model corpus",
+  "notes": "envelope.mjs: roof pieces (IfcRoof, ROOF slabs, ROOFING coverings, IfcRoof parts, roof-named slabs/plates/coverings) rising 0.5 m+ are cut at each wall's ray height; a ray is closed when the first roof face it meets comes down across it and a lower wall lies beyond the cut (>0.1 m away); walls closed by a roof are re-read 0.5 m below their top (dormers). Three rules each came from a wrong reading on real models (eaves walls reading their own foundation wall; dormer HSB panels; 0.2 m roof upstands meeting a rising roof). 17 models: 67 of 4,832 walls move (66 schependomlaan: 22 knieschot + 30 more interior-flagged now agree, 14 exterior-flagged now disagree; HouseZ 1 unflagged B2010->C1010). schependomlaan flag agreement 815 -> 853 of 922; corpus 3,534 -> 3,572 of 4,564. Verification: node --test in the venture, 123 pass (run_venture_tests.py ifc-quantity-takeoff ok, site page checks ok); check_posts ok; validate.py ok; venture-preflight run (output in PR body).",
+  "corrections": [],
+  "redteam": null
+}
