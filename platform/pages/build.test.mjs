@@ -1628,7 +1628,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 18, 'the seventeen named sections (personal-tax and household joined 2026-11-17) plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 19, 'the eighteen named sections (personal-tax and household joined 2026-11-17, bookkeeping 2026-11-21) plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);

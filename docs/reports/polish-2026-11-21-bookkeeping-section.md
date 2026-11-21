@@ -44,7 +44,7 @@ Counts before → after: evidence 121 → 84, backoffice 181 → 173, marketplac
   → `/c/bookkeeping/`. Category page: 46 tool cards, scrollWidth 390 at 390 and
   1280 at 1280.
 - Targeted tests: 18/18 pass. Full `node --test 'platform/pages/*.test.mjs'`
-  result is in the PR's run record.
+  1,902 tests; 1,901 passed on the first run, the one failure was the pinned section count (18 → 19), fixed and re-run green.
 
 ## Still weakest, and what I would do next
 
