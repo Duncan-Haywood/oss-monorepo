@@ -143,7 +143,9 @@ class NearField:
         """dict: motions, GB R_aw and the near-field terms (N/m2 per unit wave amplitude squared).
 
         nf = wl + vel + rot (PDSTRIP's force sum in 166); nf_boese uses Boese's substitution in 166; nf0 drops the
-        U d/dx convection from the pressure and velocity (all three terms)."""
+        U d/dx convection from the pressure and velocity (all three terms). 7zu: rot_newton is the rotation term with
+        the total first-order force M a (Pinkster 1980), nf_p / nf0_p use it in place of rot; grad / grad0 is the
+        mean of the first-order displacement times the dynamic-pressure gradient, and nf_pg / nf0_pg add it."""
         h = self.h
         z3, th, raw_gb, we = h.response(omega, u, gb=gb)
         k = omega * omega / G
@@ -170,22 +172,44 @@ class NearField:
             for i in range(len(xs)):
                 phx[i][j], yx[i][j] = dp[i], dy[i]
         hbx = d_dx(h.hb, xs, 0.5 * h.l)
+        # disturbance derivatives on the hull, per section and panel (independent of the convection switch)
+        dns, dsvs, vyds, pxts, phzs = [], [], [], [], []
+        for i in range(len(xs)):
+            g = geos[i]
+            if g is None:
+                for lst in (dns, dsvs, vyds, pxts, phzs):
+                    lst.append([0j] * npan)
+                continue
+            dn = [-vz[i] * g[j][3] for j in range(npan)]              # body condition, outward normal derivative
+            dsv = d_ds(phs[i], [(t * q[0], t * q[1]) for q in g])
+            vyd = [g[j][2] * dn[j] + g[j][5] * dsv[j] for j in range(npan)]   # disturbance d phi / dy
+            # d phi / dx at fixed (y, z): the derivative along the hull at fixed z minus phi_y dY/dx
+            pxt = [phx[i][j] - vyd[j] * yx[i][j] for j in range(npan)]
+            phz = [g[j][3] * dn[j] + g[j][6] * dsv[j] for j in range(npan)]   # disturbance d phi / dz
+            dns.append(dn), dsvs.append(dsv), vyds.append(vyd), pxts.append(pxt), phzs.append(phz)
+        # second derivatives for the X . grad p term (7zu): station differences at fixed panel index
+        pxx = [[0j] * npan for _ in xs]
+        pxz = [[0j] * npan for _ in xs]
+        for j in range(npan):
+            d1 = d_dx([q[j] for q in pxts], xs, 0.5 * h.l)
+            d2 = d_dx([q[j] for q in phzs], xs, 0.5 * h.l)
+            for i in range(len(xs)):
+                pxx[i][j], pxz[i][j] = d1[i], d2[i]
         out = {"z": z3, "theta": th, "we": we, "gb": raw_gb}
+        # Pinkster's (1980) rotation term with the total first-order force M a (7zu): no viscous-force part
+        r_rot_n = 0.5 * ((-we * we * h.mass * z3) * th.conjugate()).real
+        out["rot_newton"] = r_rot_n
         for conv in (True, False):
             uc = u if conv else 0.0
             f3 = 0j
-            r_wl = r_vel = 0.0
+            r_wl = r_vel = r_grad = 0.0
             for i, x in enumerate(xs):
                 g = geos[i]
                 if g is None:
                     continue
                 eikx = cmath.exp(1j * k * x)
                 disp = z3 + x * th
-                dn = [-vz[i] * g[j][3] for j in range(npan)]              # body condition, outward normal derivative
-                dsv = d_ds(phs[i], [(t * q[0], t * q[1]) for q in g])
-                vyd = [g[j][2] * dn[j] + g[j][5] * dsv[j] for j in range(npan)]   # disturbance d phi / dy
-                # d phi / dx at fixed (y, z): the derivative along the hull at fixed z minus phi_y dY/dx
-                pxt = [phx[i][j] - vyd[j] * yx[i][j] for j in range(npan)]
+                dn, dsv, vyd, pxt, phz = dns[i], dsvs[i], vyds[i], pxts[i], phzs[i]
                 for j in range(npan):
                     zz = t * g[j][1]
                     ds, tz, dz = t * g[j][4], g[j][6], t * g[j][7]
@@ -198,6 +222,13 @@ class NearField:
                     v2 = abs(vx) ** 2 + abs(vyd[j]) ** 2 + abs(vzz) ** 2
                     a0x = yx[i][j] * dz * dx                                 # inward x area, one side
                     r_vel -= -0.25 * rho * v2 * a0x * 2.0                    # R = -f_x
+                    # X . grad p (Pinkster 1980; not in PDSTRIP's list): first-order displacement of the panel
+                    # (-z theta, 0, z3 + x theta) times the gradient of the first-order dynamic pressure
+                    pi_ = rho * G * ek
+                    dpx = 1j * k * pi_ - rho * (1j * we * pxt[j] - uc * pxx[i][j])
+                    dpz = k * pi_ - rho * (1j * we * phz[j] - uc * pxz[i][j])
+                    xg = 0.5 * ((-zz * th) * dpx.conjugate() + disp * dpz.conjugate()).real
+                    r_grad -= xg * a0x * 2.0
                 # waterline: the disturbance potential extrapolated to z = 0 from the two top panels
                 z1, z2 = g[-1][1], g[-2][1]
                 f = -z1 / (z2 - z1) if z2 != z1 else 0.0
@@ -210,7 +241,9 @@ class NearField:
             r_rot_b = 0.5 * (fb * th.conjugate()).real
             tag = "" if conv else "0"
             out.update({"wl" + tag: r_wl, "vel" + tag: r_vel, "rot" + tag: r_rot, "rot_boese": r_rot_b,
-                        "nf" + tag: r_wl + r_vel + r_rot})
+                        "nf" + tag: r_wl + r_vel + r_rot, "grad" + tag: r_grad,
+                        "nf" + tag + "_p": r_wl + r_vel + r_rot_n,
+                        "nf" + tag + "_pg": r_wl + r_vel + r_rot_n + r_grad})
             out["f3" + tag] = f3
             if conv:
                 out["nf_boese"] = r_wl + r_vel + r_rot_b

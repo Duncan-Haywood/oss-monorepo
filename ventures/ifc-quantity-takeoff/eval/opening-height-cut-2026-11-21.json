@@ -1,0 +1,633 @@
+{
+ "total": {
+  "rooms": 989,
+  "gross": 65368.41859002646,
+  "off": 6866.501534295023,
+  "cut": 47.172590883765174,
+  "cutN": 151,
+  "net": 58149.42042226072
+ },
+ "models": [
+  {
+   "model": "AC20-FZK-Haus.ifc",
+   "rooms": 7,
+   "gross": 398.18885599151986,
+   "off": 41.07695,
+   "cut": 0,
+   "cutN": 0,
+   "net": 357.11190599151985,
+   "pairs": 19,
+   "ambiguous": 0,
+   "above": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "below": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "wholly": 0,
+   "top": []
+  },
+  {
+   "model": "ISSUE_005_haus.ifc",
+   "rooms": 7,
+   "gross": 398.18885599151986,
+   "off": 41.07695,
+   "cut": 0,
+   "cutN": 0,
+   "net": 357.11190599151985,
+   "pairs": 19,
+   "ambiguous": 0,
+   "above": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "below": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "wholly": 0,
+   "top": []
+  },
+  {
+   "model": "duplex.ifc",
+   "rooms": 21,
+   "gross": 968.9136896000282,
+   "off": 113.20465784229422,
+   "cut": 0,
+   "cutN": 0,
+   "net": 855.709031757734,
+   "pairs": 51,
+   "ambiguous": 0,
+   "above": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "below": {
+    "1-5cm": 25,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "wholly": 0,
+   "top": []
+  },
+  {
+   "model": "Office_A_20110811.ifc",
+   "rooms": 99,
+   "gross": 5962.591375300115,
+   "off": 486.15560499999924,
+   "cut": 0.4150000000000054,
+   "cutN": 1,
+   "net": 5476.435770300113,
+   "pairs": 248,
+   "ambiguous": 0,
+   "above": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 1
+   },
+   "below": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "wholly": 0,
+   "top": [
+    {
+     "id": 921,
+     "cls": "IfcWindow",
+     "name": "M_Fixed:1000 x 2000:1000 x 2000:194401",
+     "room": "146 EXTERIOR VESTIBULE TO TSVA",
+     "roomHeight": 2.5,
+     "openingHeight": 2,
+     "aboveCeiling": 0.42,
+     "belowFloor": -0.92
+    }
+   ]
+  },
+  {
+   "model": "dental_clinic.ifc",
+   "rooms": 269,
+   "gross": 15499.353653832297,
+   "off": 1059.5932408499673,
+   "cut": 0,
+   "cutN": 0,
+   "net": 14087.54315499754,
+   "pairs": 541,
+   "ambiguous": 0,
+   "above": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "below": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "wholly": 0,
+   "top": []
+  },
+  {
+   "model": "C20-Institute-Var-2.ifc",
+   "rooms": 82,
+   "gross": 4553.501905272507,
+   "off": 663.1400000000007,
+   "cut": 0,
+   "cutN": 0,
+   "net": 3890.361905272507,
+   "pairs": 359,
+   "ambiguous": 0,
+   "above": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "below": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "wholly": 0,
+   "top": []
+  },
+  {
+   "model": "FM_ARC_DigitalHub.ifc",
+   "rooms": 64,
+   "gross": 6131.849160000011,
+   "off": 862.8822500000012,
+   "cut": 0.5854999999999891,
+   "cutN": 7,
+   "net": 5268.687534514058,
+   "pairs": 170,
+   "ambiguous": 0,
+   "above": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "below": {
+    "1-5cm": 0,
+    "5-30cm": 13,
+    ">30cm": 0
+   },
+   "wholly": 0,
+   "top": [
+    {
+     "id": 57325,
+     "cls": "IfcDoor",
+     "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421088",
+     "room": "1-1 Eingangsbereich / Flur",
+     "roomHeight": 3,
+     "openingHeight": 2.4,
+     "aboveCeiling": -0.75,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 57325,
+     "cls": "IfcDoor",
+     "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421088",
+     "room": "1-19 Treppenhaus West - EG",
+     "roomHeight": 3,
+     "openingHeight": 2.4,
+     "aboveCeiling": -0.75,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 61366,
+     "cls": "IfcDoor",
+     "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421089",
+     "room": "1-19 Treppenhaus West - EG",
+     "roomHeight": 3,
+     "openingHeight": 2.4,
+     "aboveCeiling": -0.75,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 61366,
+     "cls": "IfcDoor",
+     "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421089",
+     "room": "1-20 Fluchtflur West",
+     "roomHeight": 3,
+     "openingHeight": 2.4,
+     "aboveCeiling": -0.75,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 66265,
+     "cls": "IfcDoor",
+     "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421363",
+     "room": "1-20 Fluchtflur West",
+     "roomHeight": 3,
+     "openingHeight": 2.4,
+     "aboveCeiling": -0.75,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 90017,
+     "cls": "IfcDoor",
+     "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2423930",
+     "room": "1-1 Eingangsbereich / Flur",
+     "roomHeight": 3,
+     "openingHeight": 2.4,
+     "aboveCeiling": -0.75,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 90064,
+     "cls": "IfcDoor",
+     "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2423931",
+     "room": "1-18 Fluchtflur Ost",
+     "roomHeight": 3,
+     "openingHeight": 2.4,
+     "aboveCeiling": -0.75,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 94959,
+     "cls": "IfcDoor",
+     "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2423939",
+     "room": "1-18 Fluchtflur Ost",
+     "roomHeight": 3,
+     "openingHeight": 2.4,
+     "aboveCeiling": -0.75,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 96267,
+     "cls": "IfcDoor",
+     "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2426178",
+     "room": "2-1 Flur - OG",
+     "roomHeight": 3,
+     "openingHeight": 2.4,
+     "aboveCeiling": -0.75,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 96267,
+     "cls": "IfcDoor",
+     "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2426178",
+     "room": "2-25 Treppenhaus West - OG",
+     "roomHeight": 3,
+     "openingHeight": 2.4,
+     "aboveCeiling": -0.75,
+     "belowFloor": 0.15
+    }
+   ]
+  },
+  {
+   "model": "schependomlaan.ifc",
+   "rooms": 100,
+   "gross": 3125.309522951994,
+   "off": 658.1044531964598,
+   "cut": 5.92667929767714,
+   "cutN": 80,
+   "net": 2467.2050697555346,
+   "pairs": 499,
+   "ambiguous": 2,
+   "above": {
+    "1-5cm": 67,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "below": {
+    "1-5cm": 39,
+    "5-30cm": 138,
+    ">30cm": 0
+   },
+   "wholly": 0,
+   "top": [
+    {
+     "id": 348126,
+     "cls": "IfcDoor",
+     "name": "stelkozijn",
+     "room": "4.03 woonkamer",
+     "roomHeight": 2.62,
+     "openingHeight": 2.78,
+     "aboveCeiling": 0.01,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 348321,
+     "cls": "IfcDoor",
+     "name": "stelkozijn",
+     "room": "4.03 woonkamer",
+     "roomHeight": 2.62,
+     "openingHeight": 2.82,
+     "aboveCeiling": 0.05,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 396603,
+     "cls": "IfcDoor",
+     "name": "stelkozijn",
+     "room": "5.03 woonkamer",
+     "roomHeight": 2.62,
+     "openingHeight": 2.78,
+     "aboveCeiling": 0.01,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 397116,
+     "cls": "IfcDoor",
+     "name": "stelkozijn",
+     "room": "5.03 woonkamer",
+     "roomHeight": 2.62,
+     "openingHeight": 2.82,
+     "aboveCeiling": 0.05,
+     "belowFloor": 0.15
+    },
+    {
+     "id": 642347,
+     "cls": "IfcDoor",
+     "name": "stelkozijn",
+     "room": "7.03 woonkamer",
+     "roomHeight": 2.62,
+     "openingHeight": 2.8,
+     "aboveCeiling": 0.05,
+     "belowFloor": 0.13
+    },
+    {
+     "id": 645932,
+     "cls": "IfcDoor",
+     "name": "stelkozijn",
+     "room": "7.03 woonkamer",
+     "roomHeight": 2.62,
+     "openingHeight": 2.8,
+     "aboveCeiling": 0.05,
+     "belowFloor": 0.13
+    },
+    {
+     "id": 725758,
+     "cls": "IfcDoor",
+     "name": "stelkozijn",
+     "room": "8.03 woonkamer",
+     "roomHeight": 2.62,
+     "openingHeight": 2.8,
+     "aboveCeiling": 0.05,
+     "belowFloor": 0.13
+    },
+    {
+     "id": 726432,
+     "cls": "IfcDoor",
+     "name": "stelkozijn",
+     "room": "8.03 woonkamer",
+     "roomHeight": 2.62,
+     "openingHeight": 2.8,
+     "aboveCeiling": 0.05,
+     "belowFloor": 0.13
+    },
+    {
+     "id": 79144,
+     "cls": "IfcDoor",
+     "name": "stelkozijn",
+     "room": "1.03 woonkamer",
+     "roomHeight": 2.62,
+     "openingHeight": 2.76,
+     "aboveCeiling": 0.02,
+     "belowFloor": 0.11
+    },
+    {
+     "id": 85464,
+     "cls": "IfcDoor",
+     "name": "stelkozijn",
+     "room": "2.03 woonkamer",
+     "roomHeight": 2.62,
+     "openingHeight": 2.76,
+     "aboveCeiling": 0.02,
+     "belowFloor": 0.11
+    }
+   ]
+  },
+  {
+   "model": "ISSUE_159_kleine_Wohnung_R22.ifc",
+   "rooms": 28,
+   "gross": 978.314666582168,
+   "off": 135.66265000000053,
+   "cut": 0,
+   "cutN": 0,
+   "net": 842.6520165821677,
+   "pairs": 49,
+   "ambiguous": 0,
+   "above": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "below": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "wholly": 0,
+   "top": []
+  },
+  {
+   "model": "ISSUE_034_HouseZ.ifc",
+   "rooms": 5,
+   "gross": 331.1374834095102,
+   "off": 38.261089030811846,
+   "cut": 2.0981825465182085,
+   "cutN": 3,
+   "net": 292.87639437869836,
+   "pairs": 19,
+   "ambiguous": 0,
+   "above": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "below": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 3
+   },
+   "wholly": 0,
+   "top": [
+    {
+     "id": 27910,
+     "cls": "IfcWindow",
+     "name": "",
+     "room": "Parametricos Office",
+     "roomHeight": 3.15,
+     "openingHeight": 2.05,
+     "aboveCeiling": -1.61,
+     "belowFloor": 0.51
+    },
+    {
+     "id": 56303,
+     "cls": "IfcDoor",
+     "name": "",
+     "room": "Washing Room",
+     "roomHeight": 3.15,
+     "openingHeight": 2,
+     "aboveCeiling": -1.66,
+     "belowFloor": 0.51
+    },
+    {
+     "id": 68982,
+     "cls": "IfcDoor",
+     "name": "",
+     "room": "GF Hallway",
+     "roomHeight": 3.15,
+     "openingHeight": 2,
+     "aboveCeiling": -1.66,
+     "belowFloor": 0.51
+    }
+   ]
+  },
+  {
+   "model": "example.ifc",
+   "rooms": 1,
+   "gross": 1.192826241441751,
+   "off": 0,
+   "cut": 0,
+   "cutN": 0,
+   "net": 1.192826241441751,
+   "pairs": 0,
+   "ambiguous": 0,
+   "above": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "below": {
+    "1-5cm": 0,
+    "5-30cm": 0,
+    ">30cm": 0
+   },
+   "wholly": 0,
+   "top": []
+  },
+  {
+   "model": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "rooms": 306,
+   "gross": 27019.876594853344,
+   "off": 2767.3436883754875,
+   "cut": 38.14722903956983,
+   "cutN": 60,
+   "net": 24252.53290647788,
+   "pairs": 943,
+   "ambiguous": 60,
+   "above": {
+    "1-5cm": 0,
+    "5-30cm": 20,
+    ">30cm": 36
+   },
+   "below": {
+    "1-5cm": 0,
+    "5-30cm": 3,
+    ">30cm": 0
+   },
+   "wholly": 0,
+   "top": [
+    {
+     "id": 919681,
+     "cls": "IfcWindow",
+     "name": "Vindu-Fast:GF 16.1 5x31 38dB:2997461",
+     "room": "02105 fellesområde",
+     "roomHeight": 2.44,
+     "openingHeight": 3.09,
+     "aboveCeiling": 0.66,
+     "belowFloor": -0.01
+    },
+    {
+     "id": 919681,
+     "cls": "IfcWindow",
+     "name": "Vindu-Fast:GF 16.1 5x31 38dB:2997461",
+     "room": "02108 gruppe",
+     "roomHeight": 2.44,
+     "openingHeight": 3.09,
+     "aboveCeiling": 0.66,
+     "belowFloor": -0.01
+    },
+    {
+     "id": 922442,
+     "cls": "IfcWindow",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:2998710",
+     "room": "02105 fellesområde",
+     "roomHeight": 2.44,
+     "openingHeight": 3.09,
+     "aboveCeiling": 0.66,
+     "belowFloor": -0.01
+    },
+    {
+     "id": 922442,
+     "cls": "IfcWindow",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:2998710",
+     "room": "02107 klasse",
+     "roomHeight": 2.44,
+     "openingHeight": 3.09,
+     "aboveCeiling": 0.66,
+     "belowFloor": -0.01
+    },
+    {
+     "id": 954837,
+     "cls": "IfcWindow",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3212641",
+     "room": "02128 klasse",
+     "roomHeight": 2.44,
+     "openingHeight": 3.09,
+     "aboveCeiling": 0.66,
+     "belowFloor": -0.01
+    },
+    {
+     "id": 955161,
+     "cls": "IfcWindow",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3217776",
+     "room": "02129 klasse",
+     "roomHeight": 2.44,
+     "openingHeight": 3.09,
+     "aboveCeiling": 0.66,
+     "belowFloor": -0.01
+    },
+    {
+     "id": 980526,
+     "cls": "IfcWindow",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3380385",
+     "room": "03127 klasse",
+     "roomHeight": 2.44,
+     "openingHeight": 3.09,
+     "aboveCeiling": 0.66,
+     "belowFloor": -0.01
+    },
+    {
+     "id": 980622,
+     "cls": "IfcWindow",
+     "name": "Vindu-Fast:GF 12.1 6x31 38dB:3380386",
+     "room": "03128 klasse",
+     "roomHeight": 2.44,
+     "openingHeight": 3.09,
+     "aboveCeiling": 0.66,
+     "belowFloor": -0.01
+    },
+    {
+     "id": 980929,
+     "cls": "IfcWindow",
+     "name": "Vindu-Fast:GF 16.1 5x31 38dB:3381397",
+     "room": "03105 fellesområde",
+     "roomHeight": 2.44,
+     "openingHeight": 3.09,
+     "aboveCeiling": 0.66,
+     "belowFloor": -0.01
+    },
+    {
+     "id": 980929,
+     "cls": "IfcWindow",
+     "name": "Vindu-Fast:GF 16.1 5x31 38dB:3381397",
+     "room": "03108 gruppe",
+     "roomHeight": 2.44,
+     "openingHeight": 3.09,
+     "aboveCeiling": 0.66,
+     "belowFloor": -0.01
+    }
+   ]
+  }
+ ]
+}

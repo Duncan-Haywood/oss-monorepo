@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKnCCeLjawxhWtsePsU",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T21:18:24Z",
+  "ended": "2026-11-21T21:44:05Z",
+  "wall_minutes": 25.96,
+  "tokens_in": 6935214,
+  "tokens_out": 50668,
+  "cost_usd": 3.5907,
+  "tool_calls": 55,
+  "task": "marine-hull milestone 7zu: trace the near field's long-wave residual (7zt Next) and rerun the monohull loss unspliced",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18145",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "A first foreground probe hit the 120 s tool timeout (a0.Mono() plus the near-field table take ~2 min); reran it in the background."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "issue": "7zt's Next named the rotated-mean-pressure hydrostatic term as the first candidate; a two-line Gauss argument shows it is identically zero for heave and pitch, so a run following the Next literally would have implemented a zero term."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No pdflatex/ghostscript in the image: reading the PDSTRIP manual meant pulling text out of the dvips PostScript by hand (a 15-line regex over the show strings worked well enough); worth a one-line tip."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/marine-hull/LOG.md (7zt Next)",
+      "why": "The named candidate term is analytically zero, so implementing it first would have spent the run on a null term.",
+      "did": "Derived its zero in the plan, found and tested the real cause (tilted absolute-velocity viscous damping) plus Pinkster's X . grad p term instead.",
+      "result": "Cause confirmed to 1.4%; monohull loss back inside the bracket."
+    },
+    {
+      "file": "prompts/research/prompt-0.md (plan before code)",
+      "why": "One cheap probe (zeta 0 vs 7zg rotation term) ran before the plan to choose between candidates.",
+      "did": "Disclosed the probe and its numbers in the plan entry; expectations written after it.",
+      "result": "Expectations still mostly refuted, so the probe did not make them trivially true."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-marine-hull-nearfield-viscous-tilt.md",
+    "research/marine-hull/LOG.md (7zu)"
+  ],
+  "goal": null,
+  "notes": "Verification: run_nearfield_longwave.py 677 s deterministic; GB row reproduces 3.39% and NF/NF0 reproduce 7zt's 8.69%/6.68%; paper/check_numbers.py ok; research/_homepage/build.py ok; check_md_links ok; check_posts ok; new tests 5/6 pass before results existed, 6/6 after. No agent doc in docs/reports: the LOG.md Next carries everything the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "14feb1ab-cd75-5d6f-a84e-cba4ee439dea",
+    "transcripts": 1,
+    "first": "2026-11-21T21:18:24Z",
+    "last": "2026-11-21T21:44:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 104,
+        "output": 50668,
+        "thinking": 19784,
+        "cache_read": 6782554,
+        "cache_write_5m": 0,
+        "cache_write_1h": 152556,
+        "api_equivalent_usd": 3.5907,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 104,
+      "output": 50668,
+      "thinking": 19784,
+      "cache_read": 6782554,
+      "cache_write_5m": 0,
+      "cache_write_1h": 152556,
+      "api_equivalent_usd": 3.5907,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 50,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.96,
+      "active_minutes": 25.96,
+      "model_minutes": 9.27,
+      "tool_minutes": 16.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a naval-architecture PhD student deriving the residual's cause, implementing two near-field terms and rerunning three checks: about two working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 445.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -8,6 +8,7 @@
 // not copied into this repository. Fetch it with eval/swiss-vs-published-fetch.sh, then:
 //
 //   node eval/swiss-vs-published.mjs <fixtures-dir> [--json rows.jsonl] [--order legacy|lex|lex2]
+//                                    [--pairing matching|bracket] [--exchange dutch|boundary]
 //
 // Two conditions per round:
 //   open   - the pre-round state as the file gives it; everyone not withdrawn is paired.
@@ -24,11 +25,16 @@ import { parseTrf } from "../trf.mjs";
 import { pairRound } from "./swiss-replay.mjs";
 
 const args = process.argv.slice(2);
-const dir = args.find((a, i) => !a.startsWith("--") && !["--json", "--order"].includes(args[i - 1]));
+const dir = args.find((a, i) => !a.startsWith("--") && !["--json", "--order", "--pairing", "--exchange"].includes(args[i - 1]));
 const jsonAt = args.indexOf("--json");
 const jsonOut = jsonAt >= 0 ? args[jsonAt + 1] : null;
 const orderAt = args.indexOf("--order");
 const dutchOrder = orderAt >= 0 ? args[orderAt + 1] : undefined;
+const pairingAt = args.indexOf("--pairing");
+const pairing = pairingAt >= 0 ? args[pairingAt + 1] : undefined;
+const exchangeAt = args.indexOf("--exchange");
+const exchange = exchangeAt >= 0 ? args[exchangeAt + 1] : undefined;
+const pairOpts = { ...(dutchOrder ? { dutchOrder } : {}), ...(pairing ? { pairing } : {}), ...(exchange ? { exchange } : {}) };
 if (!dir || !existsSync(dir)) {
   console.error("usage: node eval/swiss-vs-published.mjs <swisspairing>/benchmarks/fixtures [--json out.jsonl]");
   process.exit(2);
@@ -55,7 +61,7 @@ function run(event, source, k, trf, actualBoards, noBoard, actualBye) {
     const row = { event, source, round: k, condition, players: trf.players.length };
     try {
       const t0 = performance.now();
-      const ours = pairRound(trf, k, condition === "played" ? noBoard : [], dutchOrder ? { dutchOrder } : {});
+      const ours = pairRound(trf, k, condition === "played" ? noBoard : [], pairOpts);
       row.ms = Math.round(performance.now() - t0);
       Object.assign(row, compare(ours, actualBoards, condition === "open" ? actualBye : undefined));
       row.absentGiven = condition === "played" ? noBoard.length : 0;

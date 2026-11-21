@@ -18,7 +18,7 @@
 
 import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
-import { roomGeometry, checkRoom, roomLabel, assignRooms, footprintSolid } from "./rooms.mjs";
+import { roomGeometry, checkRoom, roomLabel, assignRooms, footprintSolid, deductOpenings, connectionArea, OPENING_CLASS } from "./rooms.mjs";
 import { planRect, roofFaces, assignEnvelope, assignRailingSides } from "./envelope.mjs";
 import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, prismAxis, thinnestNormal, solidExtent } from "./geom.mjs";
 
@@ -455,7 +455,31 @@ export function takeoff(model, opts = {}) {
   assignUniformat(rows);
   const rooms = opts.rooms === false ? [] : takeoffRooms(E, idx, geo, bodyOf, worldOf, units, opts, tol);
   assignRooms(rows, rooms);
+  if (rooms.length) { const { bounds, overall } = spaceBoundaries(E, geo, f); deductOpenings(rows, rooms, bounds, overall); }
   return { schema: model.schema, units, rows, rooms };
+}
+
+/**
+ * The file's space boundaries (IfcRelSpaceBoundary and its 1st/2nd-level
+ * subtypes) as {space, element, type, area}, area in m2 from the connection surface
+ * (null when it is a kind rooms.mjs does not read), and each door's and
+ * window's OverallWidth and OverallHeight in m.
+ */
+function spaceBoundaries(E, geo, f) {
+  const bounds = [], overall = new Map();
+  for (const e of E.values()) {
+    if (e.type.startsWith("IFCRELSPACEBOUNDARY")) {
+      const space = refId(e.args[4]), element = refId(e.args[5]);
+      if (space == null || element == null) continue;
+      let area = null;
+      try { const a = connectionArea(geo, e.args[6]); area = a == null ? null : a * f * f; } catch { area = null; }
+      bounds.push({ space, element, type: E.get(element)?.type ?? null, area });
+    } else if (OPENING_CLASS.test(e.type) && !e.type.endsWith("TYPE") && !e.type.endsWith("STYLE")) {
+      const height = numOf(e.args[8]), width = numOf(e.args[9]);
+      if (height > 0 && width > 0) overall.set(e.id, { width: width * f, height: height * f });
+    }
+  }
+  return { bounds, overall };
 }
 
 /**

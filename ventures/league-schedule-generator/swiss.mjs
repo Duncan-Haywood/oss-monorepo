@@ -210,7 +210,7 @@ export function floatHistory(players, games, byes = [], byeRounds = null, { game
 export function swissPairings(players, games, byes = [], withdrawn = [], {
   lookahead = true, repeatFloats = true, byeRounds = null,
   extra = null, extraRounds = [], gameRounds = null, byeBlocked = [], unplayed = null, absent = [], groupOrder = "buchholz",
-  dutchOrder = "lex",
+  dutchOrder = "lex", pairing = "bracket", exchange = "dutch",
 } = {}) {
   const gone = new Set([...withdrawn, ...absent]);
   const n = players.length - gone.size;
@@ -314,12 +314,20 @@ export function swissPairings(players, games, byes = [], withdrawn = [], {
   const size = odd ? v + 1 : v;
   let mate = null;
   let edges = null;
-  for (const allowAbsolute of [false, true]) {
+  // Bracket by bracket first when asked; when it finds no round, or (with lookahead) its round
+  // would leave no rematch-free round after it, the whole-round matching below pairs instead.
+  let method = "matching";
+  if (pairing === "bracket") {
+    mate = bracketMate({ v, size, odd, byeVertex, order, vertexOf, groups, half, claim, met, info, noBye, floatAgo, repeatFloats, unplayed, dutchOrder, exchange });
+    if (mate && lookahead && !nextRoundPossible(mate)) mate = null;
+    if (mate) method = "bracket";
+  }
+  if (!mate) for (const allowAbsolute of [false, true]) {
     edges = build(allowAbsolute);
     const m = maxWeightMatching(size, edges, { maxCardinality: true });
     if (m.every((x) => x >= 0)) { mate = m; break; }
   }
-  if (mate && lookahead && !nextRoundPossible(mate)) {
+  if (mate && method !== "bracket" && lookahead && !nextRoundPossible(mate)) {
     // Forbid each chosen board in turn; keep the heaviest round that leaves a next round.
     const weightOf = (m) => edges.reduce((s, [a, b, w]) => s + (m[a] === b ? w : 0), 0);
     let best = null;
@@ -386,7 +394,333 @@ export function swissPairings(players, games, byes = [], withdrawn = [], {
     const white = whiteGoesTo(info.get(hi), ch, info.get(lo), cl) === "hi" ? hi : lo;
     return { white, black: white === hi ? lo : hi };
   });
-  return { pairs, bye, floaters, clashes, repeats, method: "matching" };
+  return { pairs, bye, floaters, clashes, repeats, method };
+}
+
+/**
+ * Bracket-by-bracket pairing (`pairing: "bracket"`), closer to how FIDE's Dutch rules (C.04.3)
+ * work than one matching for the whole round. Score brackets are paired from the top down; the
+ * players a bracket cannot or should not pair (its downfloaters) join the next bracket as
+ * moved-down players (MDPs). Each bracket takes two stages:
+ *
+ *   A. One matching over every player still unpaired, so the rest of the round stays pairable
+ *      (C4). Weights, tier above tier on each board: a board inside the bracket (C5, most pairs),
+ *      score differences (C6), boards in the next bracket for the players who float into it (C7),
+ *      colours, repeat floats, a coarse Dutch order. Its boards inside the bracket fix who is
+ *      paired there and who floats down.
+ *   B. On the players paired in the bracket only, the best colour-and-float value is found and
+ *      held, and partners are fixed one S1 player at a time from the top: each takes the earliest
+ *      S2 player (then the S1 player nearest the S1/S2 boundary, an exchange) that still allows
+ *      that value. MDPs are S1 against the residents first; the residents left are the remainder
+ *      and split into their own S1 and S2, as in the rules. When the remainder (or a homogeneous
+ *      bracket) needs an exchange between S1 and S2, `exchangeFor` picks it in the order of article
+ *      4.3 and the S1 players then take their partners only from the new S2 (`exchange: "dutch"`,
+ *      the default; `"boundary"` keeps the earlier rule, S1 partners offered from the boundary up).
+ *
+ * Returns a `mate` array over vertices (the pairer's order, plus the bye vertex in an odd field),
+ * or null when no round without a rematch exists. eval/swiss-bracket-dutch.md has the measurements.
+ */
+function bracketMate(ctx) {
+  const { v, size, odd, byeVertex, order, vertexOf, groups, half, claim, met, info, noBye, floatAgo, repeatFloats, unplayed } = ctx;
+  const dutchExchange = ctx.exchange !== "boundary";
+  const out = new Array(size).fill(-1);
+  const left = new Set(order);
+  const met2 = (x, y) => met.has(`${x}|${y}`);
+  const BASE = 2 ** 46, PAIR = 2 ** 40, ABS_A = 2 ** 39, PSD = 2 ** 24, UNP = 2 ** 20, NEXT = 2 ** 22, STR = 2 ** 18, MLD = 2 ** 14, FLT = 2 ** 10;
+  // Colour clash between two players: 3 absolute, 2 strong, 1 mild, 0 none.
+  const clash = (x, y) => {
+    const cx = claim.get(x), cy = claim.get(y);
+    return cx.colour && cx.colour === cy.colour ? Math.min(cx.strength, cy.strength) : 0;
+  };
+  const fa = (i, k) => (repeatFloats ? floatAgo(i, k) : null);
+  const fresh = order.filter((i) => info.get(i).byes === 0 && !noBye.has(i));
+  const byePool = new Set(fresh.length ? fresh : order);
+  if (byePool.size) {
+    const fewest = Math.min(...[...byePool].map((i) => info.get(i).byes));
+    for (const i of [...byePool]) if (info.get(i).byes !== fewest) byePool.delete(i);
+  }
+  // FIDE 2025 C5, above every bracket: the pairing bye goes to the lowest score that still lets the
+  // rest of the round pair (the 2025 C5 example: 6 on 0 takes it, so 1 and 3 on 2 points cannot
+  // meet, because 2 and 5 already have). Scores are tried from the bottom up.
+  if (odd && byePool.size) {
+    const scores = [...new Set([...byePool].map(half))].sort((a, b) => a - b);
+    for (const sc of scores) {
+      const pool = [...byePool].filter((i) => half(i) === sc);
+      const e = [];
+      for (let a = 0; a < v; a++) {
+        for (let b = a + 1; b < v; b++) if (!met2(order[a], order[b])) e.push([a, b, 1]);
+        if (pool.includes(order[a])) e.push([a, v, 1]);
+      }
+      if (maxWeightMatching(v + 1, e, { maxCardinality: true }).every((z) => z >= 0)) {
+        for (const i of [...byePool]) if (half(i) !== sc) byePool.delete(i);
+        break;
+      }
+    }
+  }
+  let byeTaken = !odd;
+  let mdps = [];
+  for (let gi = 0; gi < groups.length; gi++) {
+    const residents = groups[gi].filter((i) => left.has(i));
+    const M = mdps.slice().sort((x, y) => half(y) - half(x) || vertexOf.get(x) - vertexOf.get(y));
+    const bracket = [...M, ...residents];
+    if (!bracket.length) continue;
+    const inB = new Set(bracket);
+    const next = new Set(groups[gi + 1] ?? []);
+    const last = gi === groups.length - 1;
+    const posM = new Map(M.map((x, k) => [x, k]));
+    const posR = new Map(residents.map((x, k) => [x, k]));
+    const posB = new Map(bracket.map((x, k) => [x, k]));
+    const m1 = Math.min(M.length, residents.length);
+    const nNext = (groups[gi + 1] ?? []).length;
+    // Coarse Dutch order for stage A, 0..1000.
+    const orderA = (x, y) => {
+      const mx = posM.has(x), my = posM.has(y);
+      if (mx && my) return 1000;
+      if (mx || my) {
+        const [m, r] = mx ? [x, y] : [y, x];
+        const i = posM.get(m), j = posR.get(r);
+        return Math.min(900, Math.floor((900 * (Math.max(1, m1 - i) * j)) / Math.max(1, m1 * residents.length)));
+      }
+      const n = residents.length - m1;
+      const a = Math.max(0, Math.min(posR.get(x), posR.get(y)) - m1);
+      const b = Math.max(0, Math.max(posR.get(x), posR.get(y)) - m1);
+      const h = Math.floor(n / 2);
+      if (a < h && b >= h) return Math.floor((600 * (h - a) * (b - h)) / Math.max(1, h * h));
+      return 700;
+    };
+    const floatCost = (down, up) => {
+      let c = 0;
+      if (down !== undefined) { if (fa(down, 1) === "down") c += 8; if (fa(down, 2) === "down") c += 2; }
+      if (up !== undefined) { if (fa(up, 1) === "up") c += 4; if (fa(up, 2) === "up") c += 1; }
+      return c;
+    };
+    const verts = order.filter((i) => left.has(i));
+    const idx = new Map(verts.map((x, k) => [x, k]));
+    const bv = verts.length;
+    const useBye = !byeTaken;
+    const stageA = (allowAbsolute) => {
+      const edges = [];
+      for (let a = 0; a < verts.length; a++) {
+        for (let b = a + 1; b < verts.length; b++) {
+          const x = verts[a], y = verts[b];
+          if (met2(x, y)) continue;
+          const c = clash(x, y);
+          if (c === 3 && !allowAbsolute) continue;
+          let w = BASE - (c === 3 ? ABS_A : 0);
+          const ix = inB.has(x), iy = inB.has(y);
+          if (ix && iy) {
+            const d = Math.min(30, Math.abs(half(x) - half(y)));
+            w += PAIR - PSD * d * d - (c === 2 ? STR : c === 1 ? MLD : 0) - orderA(x, y);
+            if (d) { const [hi, lo] = half(x) > half(y) ? [x, y] : [y, x]; w -= FLT * floatCost(hi, lo); }
+          } else if (ix || iy) {
+            const [p, o] = ix ? [x, y] : [y, x];
+            const d = Math.min(30, Math.abs(half(p) - half(o)));
+            w -= PSD * d * d;
+            if (next.has(o)) {
+              w += NEXT - (c === 2 ? STR : c === 1 ? MLD : 0) - FLT * floatCost(p, o);
+              w -= Math.floor((500 * (bracket.length - 1 - posB.get(p))) / Math.max(1, bracket.length));
+              w -= Math.floor((500 * groups[gi + 1].indexOf(o)) / Math.max(1, nNext));
+            }
+          } else if (next.has(x) && next.has(y)) w += NEXT;
+          edges.push([a, b, w]);
+        }
+        const x = verts[a];
+        if (useBye && byePool.has(x)) {
+          let w = BASE - (fresh.length ? 0 : ABS_A);
+          if (inB.has(x)) {
+            w -= PSD * Math.min(30, half(x)) ** 2 + UNP * Math.min(3, unplayed?.[x] ?? 0) + FLT * floatCost(x, undefined);
+            w -= Math.floor((1000 * (v - 1 - vertexOf.get(x))) / Math.max(1, v));
+          }
+          edges.push([a, bv, w]);
+        }
+      }
+      const n = bv + (useBye ? 1 : 0);
+      const m = maxWeightMatching(n, edges, { maxCardinality: true });
+      return m.length === n && m.every((z) => z >= 0) ? m : null;
+    };
+    let allowAbs = false;
+    let mA = stageA(false);
+    if (!mA) { allowAbs = true; mA = stageA(true); }
+    if (!mA) return null;
+    const paired = [];
+    const floaters = [];
+    for (const x of bracket) {
+      const z = mA[idx.get(x)];
+      if (z === bv) {
+        if (last) { out[vertexOf.get(x)] = byeVertex; out[byeVertex] = vertexOf.get(x); byeTaken = true; left.delete(x); }
+        else floaters.push(x);
+      } else if (inB.has(verts[z])) paired.push(x);
+      else floaters.push(x);
+    }
+    // Stage B: hold the best colour-and-float value, fix partners in Dutch order.
+    const P = new Set(paired);
+    const R = paired.length / 2 + 1;
+    const B = paired.length + 1;
+    const crit = (x, y) => {
+      const c = clash(x, y);
+      const k = [c === 3 ? 1 : 0, c === 2 ? 1 : 0, c === 1 ? 1 : 0, 0, 0, 0, 0];
+      if (half(x) !== half(y)) {
+        const [hi, lo] = half(x) > half(y) ? [x, y] : [y, x];
+        if (fa(hi, 1) === "down") k[3] = 1;
+        if (fa(lo, 1) === "up") k[4] = 1;
+        if (fa(hi, 2) === "down") k[5] = 1;
+        if (fa(lo, 2) === "up") k[6] = 1;
+      }
+      return k;
+    };
+    // Every board also carries a small Dutch-order bonus (DO, at most 8), so the optimal matching
+    // tends to already be in Dutch order and the shortcut in fixFrom fires; s's own preference
+    // (unit U) outweighs all those bonuses together, and colours and floats (unit B x U) outweigh both.
+    const DO = 8;
+    const U = (paired.length / 2) * DO + 1;
+    let nCrit = 7;
+    while (nCrit > 1 && R ** nCrit * B * U > 2 ** 50) nCrit--;
+    const qMax = R ** nCrit;
+    const qOf = (x, y) => crit(x, y).slice(0, nCrit).reduce((s, b, k) => s + b * R ** (nCrit - 1 - k), 0);
+    const fixPair = (x, y) => {
+      out[vertexOf.get(x)] = vertexOf.get(y); out[vertexOf.get(y)] = vertexOf.get(x);
+      P.delete(x); P.delete(y); left.delete(x); left.delete(y);
+    };
+    // The last optimal matching found (player -> partner). Fixing one board of it keeps the rest
+    // optimal for the players left, so when it already gives s their best-ranked allowed partner,
+    // that board is taken without a new matching (round 1 of a big field needs only one).
+    let cur = null;
+    const allowed = (x, y) => !met2(x, y) && (allowAbs || clash(x, y) !== 3);
+    // bip: when set, only boards between bip.a (S1 after an exchange) and bip.b (S2) are allowed.
+    let bip = null;
+    const crossOk = (x, y) => !bip || (bip.a.has(x) && bip.b.has(y)) || (bip.a.has(y) && bip.b.has(x));
+    const fixFrom = (S1, S2) => {
+      for (const s of S1) {
+        if (!P.has(s)) continue;
+        const rest = order.filter((i) => P.has(i));
+        const li = new Map(rest.map((x, k) => [x, k]));
+        const hRest = Math.floor(rest.length / 2);
+        const rank = new Map();
+        let r = 0;
+        for (const t of S2) if (P.has(t) && t !== s) rank.set(t, r++);
+        for (const t of [...S1].reverse()) if (P.has(t) && t !== s && !rank.has(t)) rank.set(t, r++);
+        for (const t of rest) if (t !== s && !rank.has(t)) rank.set(t, r++);
+        if (cur) {
+          let bestT = null;
+          for (const [t, k] of rank) if (allowed(s, t) && crossOk(s, t) && (bestT === null || k < rank.get(bestT))) bestT = t;
+          if (bestT !== null && cur.get(s) === bestT) { fixPair(s, bestT); continue; }
+        }
+        const edges = [];
+        for (let a = 0; a < rest.length; a++) {
+          for (let b = a + 1; b < rest.length; b++) {
+            const x = rest[a], y = rest[b];
+            if (met2(x, y)) continue;
+            if (clash(x, y) === 3 && !allowAbs) continue;
+            if (!crossOk(x, y)) continue;
+            let w = (qMax - qOf(x, y)) * B * U;
+            if (x === s) w += (B - 1 - rank.get(y)) * U;
+            else if (y === s) w += (B - 1 - rank.get(x)) * U;
+            w += DO - Math.min(DO, Math.abs(b - a - hRest));
+            edges.push([a, b, w + 1]);
+          }
+        }
+        const m = maxWeightMatching(rest.length, edges, { maxCardinality: true });
+        const z = m[li.get(s)];
+        if (z < 0) return false;
+        cur = new Map(rest.map((x, k) => [x, m[k] >= 0 ? rest[m[k]] : null]));
+        fixPair(s, rest[z]);
+      }
+      return true;
+    };
+    const pm = M.filter((x) => P.has(x));
+    const pr = residents.filter((x) => P.has(x));
+    if (!fixFrom(pm, pr)) return null;
+    const rem = residents.filter((x) => P.has(x));
+    const h = Math.floor(rem.length / 2);
+    const ex = dutchExchange ? exchangeFor(rem, { allowed, qOf, qMax }) : null;
+    if (ex) {
+      cur = null;
+      bip = { a: new Set(ex.s1), b: new Set(ex.s2) };
+      const ok = fixFrom(ex.s1, ex.s2);
+      bip = null;
+      if (!ok) return null;
+    } else if (!fixFrom(rem.slice(0, h), rem.slice(h))) return null;
+    // Players of S2 left to pair with each other (when an exchange used up S1): same rule.
+    const tail = order.filter((x) => P.has(x));
+    if (tail.length && !fixFrom(tail, tail)) return null;
+    if (P.size) return null;
+    mdps = floaters;
+  }
+  if (mdps.length) return null;
+  return out;
+}
+
+/**
+ * FIDE C.04.3 article 4.3, exchanges in a homogeneous bracket or remainder. `rem` is in BSN order
+ * (BSN = index + 1), S1 its top half. Every candidate pairs S1 with S2 after some exchange, so the
+ * best colour-and-float value over all candidates is the best over all perfect matchings of `rem`.
+ * The rules take the first candidate, in exchange order, that reaches that value:
+ *   (a) fewest players exchanged, (b) smallest (sum of BSNs moved S2 -> S1) - (sum moved S1 -> S2),
+ *   (c) the highest different BSN moved out of S1, (d) the lowest different BSN moved out of S2.
+ * The fewest exchanges any optimal pairing needs equals its fewest S1-S1 boards, found with one
+ * matching; exchange sets of that size are then tried in order until one admits an optimal S1-S2
+ * pairing. Returns { s1, s2 } (each in BSN order) for the caller to take the first transposition
+ * of, or null to leave the bracket to the older boundary-first rule (no exchange needed, or more
+ * than `budget` sets to try).
+ */
+export function exchangeFor(rem, { allowed, qOf, qMax }, budget = 4000) {
+  const n = rem.length, h = n / 2;
+  if (n < 4 || n % 2) return null;
+  const W = h + 1;
+  const edges = [];
+  for (let a = 0; a < n; a++) {
+    for (let b = a + 1; b < n; b++) {
+      if (!allowed(rem[a], rem[b])) continue;
+      const cross = a < h && b >= h ? 1 : 0;
+      edges.push([a, b, (qMax - qOf(rem[a], rem[b])) * W + cross + 1]);
+    }
+  }
+  const m = maxWeightMatching(n, edges, { maxCardinality: true });
+  if (m.some((z) => z < 0)) return null;
+  let best = 0, j = 0;
+  for (let a = 0; a < n; a++) {
+    const b = m[a];
+    if (b > a) { best += qOf(rem[a], rem[b]); if (b < h) j++; }
+  }
+  if (j === 0) return null;
+  const choose = (k, r) => { let c = 1; for (let i = 0; i < r; i++) c = (c * (k - i)) / (i + 1); return c; };
+  if (choose(h, j) ** 2 > budget) return null;
+  const subsets = (lo, hi, r) => {
+    const outS = [];
+    const rec = (start, acc) => {
+      if (acc.length === r) { outS.push(acc.slice()); return; }
+      for (let i = start; i < hi; i++) { acc.push(i); rec(i + 1, acc); acc.pop(); }
+    };
+    rec(lo, []);
+    return outS;
+  };
+  const A = subsets(0, h, j); // indices moved out of S1
+  const Bs = subsets(h, n, j); // indices moved out of S2
+  const sum = (xs) => xs.reduce((s, x) => s + x, 0);
+  const cands = [];
+  for (const a of A) for (const b of Bs) cands.push({ a, b, d: sum(b) - sum(a) });
+  const desc = (x) => x.slice().sort((p, q) => q - p);
+  const cmpHigh = (x, y) => { const X = desc(x), Y = desc(y); for (let i = 0; i < X.length; i++) if (X[i] !== Y[i]) return Y[i] - X[i]; return 0; };
+  const cmpLow = (x, y) => { for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] - y[i]; return 0; };
+  cands.sort((p, q) => p.d - q.d || cmpHigh(p.a, q.a) || cmpLow(p.b, q.b));
+  for (const c of cands) {
+    const outA = new Set(c.a), outB = new Set(c.b);
+    const s1 = [], s2 = [];
+    for (let i = 0; i < n; i++) ((i < h ? !outA.has(i) : outB.has(i)) ? s1 : s2).push(i);
+    const e = [];
+    for (let a = 0; a < h; a++) {
+      for (let b = 0; b < h; b++) {
+        const x = rem[s1[a]], y = rem[s2[b]];
+        if (allowed(x, y)) e.push([a, h + b, qMax - qOf(x, y) + 1]);
+      }
+    }
+    const mm = maxWeightMatching(n, e, { maxCardinality: true });
+    if (mm.some((z) => z < 0)) continue;
+    let q = 0;
+    for (let a = 0; a < h; a++) q += qOf(rem[s1[a]], rem[s2[mm[a] - h]]);
+    if (q === best) return { s1: s1.map((i) => rem[i]), s2: s2.map((i) => rem[i]) };
+  }
+  return null;
 }
 
 /**

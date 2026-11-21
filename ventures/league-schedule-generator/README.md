@@ -754,7 +754,7 @@ MIT licence, see `LICENSE`.
 
 **Play-off race.** With results typed and a play-off size set, the page lists who has clinched a place, who is out, and how many more points clinch it for everyone still alive. With 12 or fewer games left it works through every win/draw/loss outcome (`playoffRace` in `calc.mjs`, cross-checked against brute force in the tests); with more it uses safe bounds that never call a team clinched or out wrongly. Ranked on points only, with ties on points counted against the team, so goal difference can only help a team shown as alive.
 
-**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Since 2026-11-21 it also avoids repeat floats (see "Repeat floats" below). Since 2026-11-21 it also opens and writes FIDE TRF files and reads missed rounds (`Cy half bye`, `Cy absent`, `Ben forfeits to Ana`): see "FIDE TRF files, missed rounds and the 2025 bye rule" below. Not FIDE-endorsed pairing: it weighs FIDE's quality criteria rather than following the Dutch system's exact procedure; replayed against six real events it reproduces 59.5% of the published later-round boards (see "Checked against real published pairings" below), so use an arbiter-approved program for rated events.
+**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Since 2026-11-21 it also avoids repeat floats (see "Repeat floats" below). Since 2026-11-21 it also opens and writes FIDE TRF files and reads missed rounds (`Cy half bye`, `Cy absent`, `Ben forfeits to Ana`): see "FIDE TRF files, missed rounds and the 2025 bye rule" below. Since 2026-11-21 (later) score brackets are paired one at a time from the top, as the Dutch system does: see "Bracket-by-bracket Dutch pairing" below. Not FIDE-endorsed pairing: it follows the Dutch system's procedure closely but not exactly; replayed against six real events it reproduces 89.3% of the published later-round boards (59.5% for the whole-round matching it replaced; 89.1% before the FIDE exchange order, eval/swiss-exchange-order.md), so use an arbiter-approved program for rated events.
 
 **Calendar for multi-division leagues (2026-10-29).** `multi-division-league-schedule.html` gains "Download calendar (.ics)", and `divisionsIcs(schedule, { division, team, stamp, minutes })` in `divisions.mjs` writes one event per match for the whole league, one division or one team (summary, court and venue, division and round, official if assigned; floating local times, 60-minute games unless `minutes` is set). Test: every match appears once, per-division and per-team counts match, UIDs are unique, no line is over 75 bytes, and a 90-minute game ends where it should (`divisions.test.mjs`).
 
@@ -5607,3 +5607,61 @@ post-hoc retest. On the 440 simulated events: floats +1.1%, strong clashes -0.6%
 flat, up-floats two rounds back +8.5%, a 151-player round 33 to 59 ms. The Swiss guide's round 2
 now shows the Dutch pairing (Ben-Ana, Fay-Eli, Dee-Cy). Still not the Dutch system: 59.5% is closer,
 not equal; a bracket-by-bracket pass is next.
+
+## Bracket-by-bracket Dutch pairing (2026-11-21)
+
+`swissPairings` now pairs a round the way FIDE's Dutch system (C.04.3) does: one score bracket at
+a time, from the top (`pairing: "bracket"`, the default; `pairing: "matching"` keeps the whole-round
+matching above). For each bracket, the moved-down players (MDPs) from the bracket above come first,
+then its residents:
+
+1. **Stage A** is one maximum-weight matching over every player still unpaired, so the rest of
+   the round always stays pairable (criterion C4). Tiers on each board: a board inside the bracket
+   (C5, most pairs), score differences (C6), boards in the next bracket for the players floating
+   into it (C7), colours, repeat floats, a coarse Dutch order. Its boards inside the bracket decide
+   who is paired there and who floats down.
+2. **Stage B** works on the players paired in the bracket only. It holds the best colour and float
+   value fixed and chooses partners one S1 player at a time from the top, each taking the earliest
+   S2 player (then the S1 player nearest the boundary, an exchange) that still allows that value.
+   The MDPs are S1 against the residents first, then the residents left over split into their own
+   S1 and S2, as in the rules. The last optimal matching is reused while it already gives the next
+   S1 player their best partner, so a 357-player round 1 takes 1.1 s.
+3. **The pairing bye** (2025 C5) goes to the lowest score that still lets the rest of the round
+   pair, decided before any bracket, then by fewest unplayed games (C9) and from the bottom.
+
+If a bracket cannot be completed, or (with lookahead on) its round would leave no rematch-free round
+after it, the whole-round matching pairs instead; `method` says which one did.
+
+**Checked against real events** (`node eval/swiss-vs-published.mjs <fixtures>`, the same
+gbtami/swisspairing data as above; decision rule written first, `eval/swiss-bracket-dutch.md`):
+
+| condition `played`, rounds 2+ | whole-round matching | bracket by bracket |
+|---|---|---|
+| held-out chess-results events, board recall | 0.578 | 0.809 |
+| all six chess-results events, board recall | 0.595 | 0.891 |
+| exact rounds (chess-results, all rounds) | 5 | 15 |
+| lichess events, board recall | 0.521 | 0.590 |
+
+Aeroflot rounds 1-5 and Prague D rounds 1, 3 and 4 now come out board for board as the arbiters
+published them. The first full run had seen the held-out events before a completeness bug was fixed;
+the doc lists every change and when it was made. `swiss.test.mjs` adds three tests (a textbook
+round 2 where colours outrank the order, an odd group's lowest player floating to the top of the
+next, whole simulated events valid). The two tests that check the whole-round matching's own
+optimality now name `pairing: "matching"`. Still not the Dutch system to the letter (ChessHouse
+reads 0.527; the exact exchange order and the C.8 look-ahead are approximated), so it is still
+not a substitute for an endorsed program in a rated event.
+
+## FIDE exchange order between S1 and S2 (2026-11-21, later)
+
+When a score bracket cannot be paired top half against bottom half at its best colour and float
+value, the Dutch rules swap players between the halves in a fixed order (article 4.3: fewest
+swapped, then the smallest pairing-number difference, then the highest top-half number moved, then
+the lowest bottom-half number). The pairer now tries swaps in exactly that order (`exchangeFor` in
+`swiss.mjs`) and pairs the new top half only against the new bottom half; before, it offered a
+top-half player other top-half players from the middle up, which could pair two bottom-half
+players together. On the six real chess-results events: 4,290 to 4,297 published boards matched,
+later-round recall 89.1% to 89.3%, no round worse (Budapest B round 7 74% to 84%); lichess 636 to
+640 boards; 440 simulated events still all pair. Only 25 of 975 brackets needed a swap, so most
+of the remaining gap is elsewhere (NEXT.md). FIDE's colour-criteria order (C.12 before C.13) was
+also tried and changed no board. Measurements: `eval/swiss-exchange-order.md`.
+

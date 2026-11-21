@@ -1,0 +1,66 @@
+
+AC20-FZK-Haus.ifc (0.3 s): 7 rooms, gross wall 398.2 m2, openings off 41.1 m2 (10.3%), curtain walls off 0.0 m2; deductions by boundary 19, by geometry 0; pieces inside a larger one not taken twice 0
+  doors and windows 16: facing no room 0, one 13, two 3
+  geometry vs the file's boundaries, 16 openings: same rooms 16, some of them and none wrong 0, none found 0, a room the file does not name 0
+  boundary surface vs stored width x height: 17 of 19 within 2%; others' ratios (first 12) 0.784 0.784
+
+ISSUE_005_haus.ifc (0.2 s): 7 rooms, gross wall 398.2 m2, openings off 41.1 m2 (10.3%), curtain walls off 0.0 m2; deductions by boundary 19, by geometry 0; pieces inside a larger one not taken twice 0
+  doors and windows 16: facing no room 0, one 13, two 3
+  geometry vs the file's boundaries, 16 openings: same rooms 16, some of them and none wrong 0, none found 0, a room the file does not name 0
+  boundary surface vs stored width x height: 17 of 19 within 2%; others' ratios (first 12) 0.784 0.784
+
+duplex.ifc (0.4 s): 21 rooms, gross wall 968.9 m2, openings off 113.2 m2 (11.7%), curtain walls off 0.0 m2; deductions by boundary 41, by geometry 10; pieces inside a larger one not taken twice 0
+  doors and windows 38: facing no room 0, one 26, two 12
+  geometry vs the file's boundaries, 28 openings: same rooms 25, some of them and none wrong 3, none found 0, a room the file does not name 0
+  boundary surface vs stored width x height: 0 of 41 within 2%; others' ratios (first 12) 0.939 0.939 1.451 1.451 0.007 1.026 0.007 1.026 0.943 2.993 0.943 2.993
+
+Office_A_20110811.ifc (0.5 s): 99 rooms, gross wall 5962.6 m2, openings off 486.6 m2 (8.2%), curtain walls off 0.0 m2; deductions by boundary 180, by geometry 68; pieces inside a larger one not taken twice 0
+  doors and windows 171: facing no room 10, one 74, two 87
+  geometry vs the file's boundaries, 93 openings: same rooms 92, some of them and none wrong 1, none found 0, a room the file does not name 0
+  boundary surface vs stored width x height: 0 of 180 within 2%; others' ratios (first 12) 1.366 1.366 1.366 1.366 1.366 1.366 1.366 1.366 1.366 1.366 1.366 1.366
+
+dental_clinic.ifc (1.4 s): 269 rooms, gross wall 15499.4 m2, openings off 1059.6 m2 (6.8%), curtain walls off 352.2 m2; deductions by boundary 484, by geometry 52; pieces inside a larger one not taken twice 5
+  doors and windows 312: facing no room 1, one 85, two 226
+  geometry vs the file's boundaries, 254 openings: same rooms 203, some of them and none wrong 32, none found 2, a room the file does not name 17
+    #1961 IfcWindow M_Fixed:1735 x 1000mm:1735 x 1000mm:259285: file ["2R01 ROOF"], geometry ["2C09 GEN. DENT. DTR #9","2R01 ROOF"]
+    #1962 IfcWindow M_Fixed:1735 x 1000mm:1735 x 1000mm:259348: file ["2R01 ROOF"], geometry ["2C06 GEN. DENT. DTR #8","2R01 ROOF"]
+    #1963 IfcWindow M_Fixed:1735 x 1000mm:1735 x 1000mm:259543: file ["2R01 ROOF"], geometry ["2C04 GEN. DENT. DTR #7","2R01 ROOF"]
+    #1964 IfcWindow M_Fixed:1735 x 1000mm:1735 x 1000mm:261427: file ["2R02 ROOF"], geometry ["2D20 CONF. ROOM","2R02 ROOF"]
+    #1965 IfcWindow M_Fixed:1735 x 1000mm:1735 x 1000mm:261484: file ["2R02 ROOF"], geometry ["2D20 CONF. ROOM","2R02 ROOF"]
+    #1966 IfcWindow M_Fixed:1735 x 1000mm:1735 x 1000mm:261527: file ["2R02 ROOF"], geometry ["2D19 READINESS NCOIC OFFICE","2R02 ROOF"]
+    #1967 IfcWindow M_Fixed:1735 x 1000mm:1735 x 1000mm:261584: file ["2R02 ROOF"], geometry ["2D17 CREDENTIALS MGR","2R02 ROOF"]
+    #1968 IfcWindow M_Fixed:1735 x 1000mm:1735 x 1000mm:261637: file ["2R02 ROOF"], geometry ["2D15 1ST SGT","2R02 ROOF"]
+  boundary surface vs stored width x height: 0 of 484 within 2%; others' ratios (first 12) 1.353 1.353 0.777 0.777 0.753 0.956 0.956 0.574 1.527 0.003 1.527 1.312
+
+C20-Institute-Var-2.ifc (0.5 s): 82 rooms, gross wall 4553.5 m2, openings off 663.1 m2 (14.6%), curtain walls off 0.0 m2; deductions by boundary 359, by geometry 0; pieces inside a larger one not taken twice 0
+  doors and windows 283: facing no room 0, one 207, two 76
+  geometry vs the file's boundaries, 283 openings: same rooms 282, some of them and none wrong 0, none found 1, a room the file does not name 0
+  boundary surface vs stored width x height: 358 of 359 within 2%; others' ratios (first 12) 0.735
+
+FM_ARC_DigitalHub.ifc (13.8 s): 64 rooms, gross wall 6131.8 m2, openings off 863.5 m2 (14.1%), curtain walls off 0.3 m2; deductions by boundary 170, by geometry 0; pieces inside a larger one not taken twice 0
+  doors and windows 111: facing no room 2, one 49, two 60
+  geometry vs the file's boundaries, 109 openings: same rooms 108, some of them and none wrong 1, none found 0, a room the file does not name 0
+  boundary surface vs stored width x height: 79 of 170 within 2%; others' ratios (first 12) 1.054 1.054 1.054 1.054 1.054 1.054 1.054 1.054 1.054 1.054 1.054 1.054
+
+schependomlaan.ifc (4.5 s): 100 rooms, gross wall 3125.3 m2, openings off 664.0 m2 (21.2%), curtain walls off 0.0 m2; deductions by boundary 58, by geometry 218; pieces inside a larger one not taken twice 229
+  doors and windows 464: facing no room 41, one 341, two 82
+  geometry vs the file's boundaries, 58 openings: same rooms 49, some of them and none wrong 0, none found 7, a room the file does not name 2
+    #244556 IfcDoor D1R: file ["3.05 gang"], geometry ["3.05 gang","3.07 slaapkamer 2"]
+    #272494 IfcDoor merk A5: file ["A0.02 berging"], geometry ["A0.00 entree","A0.02 berging"]
+  boundary surface vs stored width x height: 5 of 44 within 2%; others' ratios (first 12) 1.173 1.173 1.048 1.048 1.048 1.048 1.048 1.048 1.048 1.048 1.048 1.048
+
+ISSUE_159_kleine_Wohnung_R22.ifc (5.1 s): 28 rooms, gross wall 978.3 m2, openings off 135.7 m2 (13.9%), curtain walls off 0.0 m2; deductions by boundary 0, by geometry 49; pieces inside a larger one not taken twice 0
+  doors and windows 99: facing no room 67, one 15, two 17
+
+ISSUE_034_HouseZ.ifc (0.6 s): 5 rooms, gross wall 331.1 m2, openings off 40.4 m2 (12.2%), curtain walls off 0.0 m2; deductions by boundary 0, by geometry 19; pieces inside a larger one not taken twice 0
+  doors and windows 37: facing no room 19, one 17, two 1
+
+example.ifc (0.3 s): 1 rooms, gross wall 1.2 m2, openings off 0.0 m2 (0.0%), curtain walls off 0.0 m2; deductions by boundary 0, by geometry 0; pieces inside a larger one not taken twice 0
+  doors and windows 0: facing no room 0, one 0, two 0
+
+ISSUE_068_ARK_NUS_skolebygg.ifc (21.0 s): 306 rooms, gross wall 27019.9 m2, openings off 2805.5 m2 (10.4%), curtain walls off 0.0 m2; deductions by boundary 0, by geometry 1003; pieces inside a larger one not taken twice 0
+  doors and windows 576: facing no room 0, one 149, two 427
+
+All: 989 rooms, gross wall 65368 m2, 6914 m2 of doors and windows and 352 m2 of curtain wall off (1330 by boundary, 1419 by geometry; 234 nested pieces not taken twice)
+  geometry held out against boundaries: 857 openings, same 791, subset 37, none 10, wrong room 19
+  boundary surface vs width x height: 476 of 1316 within 2%

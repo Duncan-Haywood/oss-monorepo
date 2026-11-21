@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVNyz9vaaL3KMVH4GHD",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (revenue products; merge when done)",
+  "input_sha256": "6af4d1aca99e022e3a3c4b82de5fb57eea44ae74f7d701cf0e8279c139ae3ee5",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T21:02:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18141,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says a test checks podcast episode length at 4500-9500 words; committed writing-podcast episodes are 410-1249 words and podcast.test.mjs has no length check (that range looks like Saints by Candlelight's)."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "400 MB audio cap still cites GitHub Pages; audio is on jsDelivr since 2026-10-24 (docs/reports/2026-11-13-audio-cap-is-stale.md). du now 577 MB."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Voiced one 4.4 MB podcast episode despite the 400 MB cap: the cap's Pages reason is stale and an episode without audio is not an episode.",
+      "did": "Rendered with Kokoro af_heart via podcast_tts.py",
+      "result": "12 m 20 s, 4.4 MB, -16.6 LUFS; tests pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project: writing podcast. Piece: three-paradoxes-where-more-makes-it-worse (episode + post), from hearth-and-horizon stories the-road-that-made-it-later, the-ones-their-friends-name, the-seat-that-came-back. Figures re-run in Python. node --test podcast.test.mjs writing.test.mjs: 67 pass. Render 2m45s on 4 cores.",
+  "corrections": [],
+  "redteam": null
+}

@@ -8,7 +8,7 @@
   <meta property="og:title" content="Patio Door Bid Calculator">
   <meta property="og:description" content="A 6-foot vinyl 2-panel retrofit on the ground is not the same job as a 16-foot 4-panel impact-rated new-construction unit with a transom and a balcony. Bid the panels and the extras.">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Patio Door Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "2-panel versus 3-panel versus 4-panel, vinyl versus aluminum versus fiberglass versus wood-clad, dual-pane versus triple versus impact glass, retrofit versus new-construction, ground patio versus balcony, rolling screen, transom, interior trim, sill pan, threshold rebuild, tear-out, walk-away price, proposed-price margin check, copyable customer-facing bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is a balcony unit priced so much higher than the same door on a ground patio?","acceptedAnswer":{"@type":"Answer","text":"Second-story access changes the labor, not the door: staging, hoisting the panels, and working a lift or scaffold add hours a ground-floor swap never sees. The calculator prices access as its own line so a 12-foot 4-panel unit on a balcony is not quoted off the same number as the identical door at grade."}},{"@type":"Question","name":"Does new-construction framing cost more than a retrofit, and why?","acceptedAnswer":{"@type":"Answer","text":"Yes — a retrofit reuses the existing frame and trims to it, while new-construction tears back to the rough opening, sets a new sill pan and frame, and wraps and flashes it. Pick “New-construction (full frame + wrap)” only if the opening is actually being framed out; picking it for a pocket replacement will overstate the bid."}},{"@type":"Question","name":"What if I don't know exactly which extras (transom, sill pan, screen) apply?","acceptedAnswer":{"@type":"Answer","text":"Leave them unchecked and price the base door first, then toggle each one to see its dollar impact before you walk the job. The starting hours per extra are common ballpark figures, not a manufacturer spec, so true them up against your own invoices once you have a few jobs logged."}},{"@type":"Question","name":"Is this an engineering or code determination for impact glazing?","acceptedAnswer":{"@type":"Answer","text":"No. Impact/hurricane glazing requirements are set by local code and wind-zone maps, not by this calculator — it only prices the glazing option you select. Confirm the required rating with your local building department before ordering material."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is a balcony unit priced so much higher than the same door on a ground patio?","acceptedAnswer":{"@type":"Answer","text":"Second-story access changes the labor, not the door: staging, hoisting the panels, and working a lift or scaffold add hours a ground-floor swap never sees. The calculator prices access as its own line so a 12-foot 4-panel unit on a balcony is not quoted off the same number as the identical door at grade."}},{"@type":"Question","name":"Does new-construction framing cost more than a retrofit, and why?","acceptedAnswer":{"@type":"Answer","text":"Yes — a retrofit reuses the existing frame and trims to it, while new-construction tears back to the rough opening, sets the new frame, and wraps and flashes it. The wrap hours cover the tear-back, flashing tape and house-wrap tie-in; the sill pan is its own extra, so check it when the opening gets one and it is counted once. Pick “New-construction (full frame + wrap)” only if the opening is actually being framed out; picking it for a pocket replacement will overstate the bid."}},{"@type":"Question","name":"What if I don't know exactly which extras (transom, sill pan, screen) apply?","acceptedAnswer":{"@type":"Answer","text":"Leave them unchecked and price the base door first, then toggle each one to see its dollar impact before you walk the job. The starting hours per extra are common ballpark figures, not a manufacturer spec, so true them up against your own invoices once you have a few jobs logged."}},{"@type":"Question","name":"Is this an engineering or code determination for impact glazing?","acceptedAnswer":{"@type":"Answer","text":"No. Impact/hurricane glazing requirements are set by local code and wind-zone maps, not by this calculator — it only prices the glazing option you select. Confirm the required rating with your local building department before ordering material."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2834; background: #e4eaf0; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -206,6 +206,7 @@
 
       <section>
         <h2>Your crew rates</h2>
+        <p class="hint">Hours are crew-hours, priced at the one wage below: a two-person crew setting for 4 hours is 8 hours. Leave no box blank; enter 0 for anything that does not apply.</p>
         <div class="fields">
           <label>Hours for the trip / setup <input id="hoursTrip" type="number" min="0" step="0.25" value="1"></label>
           <label>Hours to set the unit <input id="hoursSet" type="number" min="0" step="0.1" value="4.5"></label>
@@ -256,7 +257,7 @@
         <dt>Overhead</dt><dd id="overhead"></dd>
         <dt>Total cost</dt><dd id="cost"></dd>
         <dt>Profit at this price</dt><dd id="profit"></dd>
-        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Price per crew-hour (door and materials included)</dt><dd id="hourlyRate"></dd>
         <dt>Walk-away price</dt><dd id="breakEven"></dd>
       </dl>
       <div id="verdict" class="verdict" hidden></div>
@@ -278,7 +279,7 @@
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard or a door design &mdash; replace them with your own takeoff.</p>
     </section>
 
-    <section><h2>Common questions</h2><h3>Why is a balcony unit priced so much higher than the same door on a ground patio?</h3><p>Second-story access changes the labor, not the door: staging, hoisting the panels, and working a lift or scaffold add hours a ground-floor swap never sees. The calculator prices access as its own line so a 12-foot 4-panel unit on a balcony is not quoted off the same number as the identical door at grade.</p><h3>Does new-construction framing cost more than a retrofit, and why?</h3><p>Yes &mdash; a retrofit reuses the existing frame and trims to it, while new-construction tears back to the rough opening, sets a new sill pan and frame, and wraps and flashes it. Pick &ldquo;New-construction (full frame + wrap)&rdquo; only if the opening is actually being framed out; picking it for a pocket replacement will overstate the bid.</p><h3>What if I don't know exactly which extras (transom, sill pan, screen) apply?</h3><p>Leave them unchecked and price the base door first, then toggle each one to see its dollar impact before you walk the job. The starting hours per extra are common ballpark figures, not a manufacturer spec, so true them up against your own invoices once you have a few jobs logged.</p><h3>Is this an engineering or code determination for impact glazing?</h3><p>No. Impact/hurricane glazing requirements are set by local code and wind-zone maps, not by this calculator &mdash; it only prices the glazing option you select. Confirm the required rating with your local building department before ordering material.</p></section>
+    <section><h2>Common questions</h2><h3>Why is a balcony unit priced so much higher than the same door on a ground patio?</h3><p>Second-story access changes the labor, not the door: staging, hoisting the panels, and working a lift or scaffold add hours a ground-floor swap never sees. The calculator prices access as its own line so a 12-foot 4-panel unit on a balcony is not quoted off the same number as the identical door at grade.</p><h3>Does new-construction framing cost more than a retrofit, and why?</h3><p>Yes &mdash; a retrofit reuses the existing frame and trims to it, while new-construction tears back to the rough opening, sets the new frame, and wraps and flashes it. The wrap hours cover the tear-back, flashing tape and house-wrap tie-in; the sill pan is its own extra, so check it when the opening gets one and it is counted once. Pick &ldquo;New-construction (full frame + wrap)&rdquo; only if the opening is actually being framed out; picking it for a pocket replacement will overstate the bid.</p><h3>What if I don't know exactly which extras (transom, sill pan, screen) apply?</h3><p>Leave them unchecked and price the base door first, then toggle each one to see its dollar impact before you walk the job. The starting hours per extra are common ballpark figures, not a manufacturer spec, so true them up against your own invoices once you have a few jobs logged.</p><h3>Is this an engineering or code determination for impact glazing?</h3><p>No. Impact/hurricane glazing requirements are set by local code and wind-zone maps, not by this calculator &mdash; it only prices the glazing option you select. Confirm the required rating with your local building department before ordering material.</p></section>
   <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
       <section id="proposalSection">
         <h2>Hand the customer a proposal</h2>
@@ -387,29 +388,26 @@
       recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
-    function applyKit(force, rates, ids) {
+    function applyKit(force, rates) {
       for (const [key, value] of Object.entries(rates)) {
         if (force || !el(key).dataset.edited) el(key).value = value;
-      }
-      if (ids) {
-        /* keep ids referenced so a future kit field is not silently dropped */
       }
     }
 
     function applyConfigKit(force) {
-      applyKit(force, suggestedConfigKit(el('config').value), SUGGESTED_CONFIG_IDS);
+      applyKit(force, suggestedConfigKit(el('config').value));
     }
     function applyFrameKit(force) {
-      applyKit(force, suggestedFrameKit(el('frame').value), SUGGESTED_FRAME_IDS);
+      applyKit(force, suggestedFrameKit(el('frame').value));
     }
     function applyGlazingKit(force) {
-      applyKit(force, suggestedGlazingKit(el('glazing').value), SUGGESTED_GLAZING_IDS);
+      applyKit(force, suggestedGlazingKit(el('glazing').value));
     }
     function applyInstallKit(force) {
-      applyKit(force, suggestedInstallKit(el('install').value), SUGGESTED_INSTALL_IDS);
+      applyKit(force, suggestedInstallKit(el('install').value));
     }
     function applyAccessKit(force) {
-      applyKit(force, suggestedAccessKit(el('access').value), SUGGESTED_ACCESS_IDS);
+      applyKit(force, suggestedAccessKit(el('access').value));
     }
 
     function applyJob(job) {
@@ -516,7 +514,7 @@
         const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
         verdict.innerHTML = result.proposed.belowBreakEven
           ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
-          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, or ${rate} per crew-hour with the door and materials included.`;
       }
     }
 
