@@ -56,6 +56,8 @@ function play(opts, n, rounds, seed) {
 
 const SIZES = [[8, 5], [9, 5], [12, 7], [16, 7], [17, 7], [24, 9], [33, 9], [50, 9], [64, 11], [101, 9], [151, 11]];
 const SEEDS = Number(process.argv[2] ?? 40);
+// Optional third argument: the Dutch-order cost to use in both arms (swissPairings `dutchOrder`).
+const ORDER = process.argv[3] ? { dutchOrder: process.argv[3] } : {};
 const KEYS = ["rd1", "ru1", "rd2", "ru2", "floaters", "scoreGap", "absClash", "strongClash", "mildClash", "ms", "rounds", "failed"];
 const fmt = (x, d = 2) => x.toFixed(d).padStart(7);
 console.log(`Repeat floats per event, ${SEEDS} seeds per size, the same events with the rule off and on.`);
@@ -64,7 +66,7 @@ console.log("floats/rd and gap/rd as in eval/swiss-matching.txt; strong/mild = b
 console.log("players rounds  rule  failed  down1/ev  up1/ev down2/ev  up2/ev floats/rd  gap/rd strong/ev mild/ev  ms/rd");
 const totals = { off: {}, on: {} };
 for (const [n, rounds] of SIZES) {
-  for (const [name, opts] of [["off", { repeatFloats: false }], ["on", { repeatFloats: true }]]) {
+  for (const [name, opts] of [["off", { repeatFloats: false, ...ORDER }], ["on", { repeatFloats: true, ...ORDER }]]) {
     const acc = Object.fromEntries(KEYS.map((k) => [k, 0]));
     for (let s = 0; s < SEEDS; s++) {
       const m = play(opts, n, rounds, 1000 * n + s);

@@ -754,7 +754,7 @@ MIT licence, see `LICENSE`.
 
 **Play-off race.** With results typed and a play-off size set, the page lists who has clinched a place, who is out, and how many more points clinch it for everyone still alive. With 12 or fewer games left it works through every win/draw/loss outcome (`playoffRace` in `calc.mjs`, cross-checked against brute force in the tests); with more it uses safe bounds that never call a team clinched or out wrongly. Ranked on points only, with ties on points counted against the team, so goal difference can only help a team shown as alive.
 
-**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Since 2026-11-21 it also avoids repeat floats (see "Repeat floats" below). Since 2026-11-21 it also opens and writes FIDE TRF files and reads missed rounds (`Cy half bye`, `Cy absent`, `Ben forfeits to Ana`): see "FIDE TRF files, missed rounds and the 2025 bye rule" below. Not FIDE-endorsed pairing: it weighs FIDE's quality criteria rather than following the Dutch system's exact procedure and has not been checked against an endorsed engine, so use an arbiter-approved program for rated events.
+**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Since 2026-11-21 it also avoids repeat floats (see "Repeat floats" below). Since 2026-11-21 it also opens and writes FIDE TRF files and reads missed rounds (`Cy half bye`, `Cy absent`, `Ben forfeits to Ana`): see "FIDE TRF files, missed rounds and the 2025 bye rule" below. Not FIDE-endorsed pairing: it weighs FIDE's quality criteria rather than following the Dutch system's exact procedure; replayed against six real events it reproduces 59.5% of the published later-round boards (see "Checked against real published pairings" below), so use an arbiter-approved program for rated events.
 
 **Calendar for multi-division leagues (2026-10-29).** `multi-division-league-schedule.html` gains "Download calendar (.ics)", and `divisionsIcs(schedule, { division, team, stamp, minutes })` in `divisions.mjs` writes one event per match for the whole league, one division or one team (summary, court and venue, division and round, official if assigned; floating local times, 60-minute games unless `minutes` is set). Test: every match appears once, per-division and per-team counts match, UIDs are unique, no line is over 75 bytes, and a 90-minute game ends where it should (`divisions.test.mjs`).
 
@@ -5572,3 +5572,38 @@ this session's proxy. A run that may build bbpPairings can now feed it `swissToT
 directly (`bbpPairings --dutch event.trf -p`) and diff against `pairingsList`. The Dutch rules'
 last-round exception for absolute colours of players above half the maximum score, and its
 transposition order inside a score group, are not modelled.
+
+## Checked against real published pairings (2026-11-21)
+
+`eval/swiss-vs-published.mjs` replays real Swiss events round by round: it opens each pre-round TRF
+the way the page does (`eval/swiss-replay.mjs`), pairs it, and counts how many of the boards the
+event actually used it reproduces. The events are gbtami/swisspairing's fixtures (MIT, fetched by
+`eval/swiss-vs-published-fetch.sh`, not copied here): six over-the-board events rebuilt from
+chess-results.com (Aeroflot Open 2026, Budapest Spring Festival A and B, Graz A, Prague D, Spring
+2026 ChessHouse; 83 to 357 players, 9 rounds) and three lichess events (paired there by bbpPairings).
+
+**Fixed:** a TRF name ending in a full stop (`Volodin Alexandr E.`, as chess-results writes them)
+could not be read back, because the results reader drops a trailing full stop; 38 of the 54
+chess-results rounds failed to open. `teamIndex` now also matches a name without its trailing full
+stop when only one name does.
+
+**Changed: the Dutch-order tier.** Measured first, the pairer reproduced 44.7% of later-round boards.
+Same-half pairs in a score group cost nearly nothing in the order tier, and colour-forced
+transpositions were tie-broken arbitrarily. Edge weights are now built at 1/2048 of the tiers
+(`FINE`; `ABS` 1e13 to 1e12, still above a board's lower tiers), an S1-S2 board costs `(h - i) x j`
+(the lexicographic transposition order, approximately) and a same-half board more than any
+transposition (`dutchOrderFine`). `dutchOrder: "legacy"` keeps the old order.
+
+| chess-results, players who played, board recall | before | now |
+|---|---|---|
+| rounds 2+, six events | 0.447 | 0.595 |
+| rounds 2+, the three held-out events | 0.428 | 0.578 |
+| round 1 (exact rounds) | 0.732 (4 of 6) | 0.732 (4 of 6) |
+| lichess, rounds 2+ | 0.475 | 0.521 |
+
+The decision rule was written down before scoring (`eval/swiss-vs-published.md`); the first variant
+failed it (tied weights swapped adjacent round-1 boards), and the corrected one shipped is a disclosed
+post-hoc retest. On the 440 simulated events: floats +1.1%, strong clashes -0.6%, repeat floats
+flat, up-floats two rounds back +8.5%, a 151-player round 33 to 59 ms. The Swiss guide's round 2
+now shows the Dutch pairing (Ben-Ana, Fay-Eli, Dee-Cy). Still not the Dutch system: 59.5% is closer,
+not equal; a bracket-by-bracket pass is next.

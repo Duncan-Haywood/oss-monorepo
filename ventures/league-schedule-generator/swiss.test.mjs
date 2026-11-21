@@ -225,3 +225,27 @@ test("repeat floats: every round is within the Dutch-order slack of the fewest w
     }
   }
 });
+
+test("Dutch order: round 1 of a 104-player field pairs seed i with seed i + 52 on every board", () => {
+  // Real events (eval/swiss-vs-published.md): weights that tie for neighbouring rows of S1 swapped
+  // partners on adjacent boards; w_i = h - i keeps the pairing exactly in order.
+  const P = Array.from({ length: 104 }, (_, i) => `P${i + 1}`);
+  const r = swissPairings(P, [], []);
+  assert.equal(r.pairs.length, 52);
+  for (const p of r.pairs) assert.equal(Math.abs(p.white - p.black), 52);
+});
+
+test("Dutch order: an S1 player meets S2, not another S1 player, when a transposition gives the colours", () => {
+  // 8 players on 1 point after round 1 (the winners), 8 on 0. In the 1-point group the top half is
+  // seeds 1, 3, 5, 7 and the bottom half 9, 11, 13, 15. The old order cost let S1 meet S1 nearly free.
+  const P = Array.from({ length: 16 }, (_, i) => `P${i + 1}`);
+  const games = [];
+  for (let i = 0; i < 8; i++) games.push(i % 2 === 0 ? { a: 2 * i, b: 2 * i + 1, ga: 1, gb: 0 } : { a: 2 * i + 1, b: 2 * i, ga: 0, gb: 1 });
+  const r = swissPairings(P, games, [], [], { groupOrder: "seed" });
+  const top = new Set([0, 2, 4, 6]);
+  const winners = new Set([0, 2, 4, 6, 8, 10, 12, 14]);
+  for (const p of r.pairs) {
+    if (!winners.has(p.white) || !winners.has(p.black)) continue;
+    assert.ok(top.has(p.white) !== top.has(p.black), `${P[p.white]} v ${P[p.black]} pairs two of the same half`);
+  }
+});
