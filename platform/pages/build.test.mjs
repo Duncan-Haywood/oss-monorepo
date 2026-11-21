@@ -1735,6 +1735,38 @@ test('household bill and borrowing tools file under household, landlord and inve
   assert.equal(categoryFor('charity-bunching-planner').id, 'personal-tax');
 });
 
+// Bookkeeping has its own section (2026-11-21): the AI Bookkeeper flagship and the payout-to-journal
+// set had "Compliance checks & evidence records" as their breadcrumb, and five seller journals sat in
+// the marketplace section away from the other twenty.
+test('journal, bank-file and accounting-import tools file under bookkeeping', async () => {
+  for (const slug of ['ai-bookkeeper', 'ko-fi-payout-to-journal', 'amazon-settlement-to-journal', 'shopify-payout-to-journal',
+    'bank-statement-pdf-to-csv', 'camt053-to-ofx-converter', 'ofx-file-check', 'quickbooks-import-csv-check', '1099-vendor-tracker']) {
+    assert.equal(categoryFor(slug).id, 'bookkeeping', slug);
+  }
+  for (const slug of ['shopify-payout-profit-analyzer', 'amazon-fba-calculator', 'einvoice-preflight', 'chargeback-evidence-packet']) {
+    assert.notEqual(categoryFor(slug).id, 'bookkeeping', slug);
+  }
+  const dirs = await fs.readdir(VENTURES, { withFileTypes: true });
+  const strays = dirs.filter((d) => d.isDirectory() && /-to-journal$/.test(d.name)).map((d) => d.name)
+    .filter((slug) => categoryFor(slug).id !== 'bookkeeping');
+  assert.deepEqual(strays, []);
+});
+
+// The `evidence` rule matches by suffix (`tracker`, `desk`, `record`, ...) and sits above the business
+// sections, so a slug a later section lists by name silently stayed in evidence (six did until
+// 2026-11-21, among them `time-tracker` and `expense-tracker` from solo-earner's own list). A new
+// overlap means either take the line out of the later section or add the slug to NOT_EVIDENCE_SLUGS.
+test('no tool in evidence is also claimed by a later section', async () => {
+  const dirs = await fs.readdir(VENTURES, { withFileTypes: true });
+  const later = ALL_CATEGORIES.slice(ALL_CATEGORIES.findIndex((c) => c.id === 'evidence') + 1).filter((c) => c.test);
+  const overlaps = dirs.filter((d) => d.isDirectory()).map((d) => d.name)
+    .filter((slug) => categoryFor(slug).id === 'evidence')
+    .flatMap((slug) => later.filter((c) => c.test(slug)).map((c) => `${slug} -> ${c.id}`));
+  assert.deepEqual(overlaps, []);
+  assert.equal(categoryFor('time-tracker').id, 'solo-earner');
+  assert.equal(categoryFor('s-corp-basis-tracker').id, 'backoffice');
+});
+
 // A new Roth, IRA, RMD, IRMAA or Social Security tool needs one line in PERSONAL_TAX_SLUGS, or it falls to
 // whichever business rule its slug happens to match. This catches the missing line on the tool's first PR.
 // SEP-IRA tools are a self-employed owner's plan (backoffice/solo-earner); `uk-` tools have their own section.

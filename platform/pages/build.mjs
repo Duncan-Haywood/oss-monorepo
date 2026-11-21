@@ -614,6 +614,47 @@ const HOUSEHOLD_SLUGS = new Set([
       'wedding-budget-allocator',
 ]);
 
+// The `bookkeeping` section's members (CATEGORY_RULES, below), besides every `*-to-journal` tool, which
+// the rule takes by suffix: the bank-file converters and checks, accounting-import checks, 1099 vendor
+// work and the ledger they feed. A Set so the rule is one lookup.
+const BOOKKEEPING_SLUGS = new Set([
+      '1099-vendor-csv-checker',
+      '1099-vendor-tracker',
+      'ai-bookkeeper',
+      'bai2-statement-reader',
+      'bai2-to-ofx-converter',
+      'bank-csv-to-qbo-converter',
+      'bank-statement-pdf-to-csv',
+      'camt053-statement-check',
+      'camt053-to-ofx-converter',
+      'eu-bank-statement-reader',
+      'irs-iris-1099-csv-check',
+      'mt940-statement-check',
+      'ofx-file-check',
+      'payment-reconciliation-workbench',
+      'qif-file-check',
+      'quickbooks-chart-of-accounts-csv-check',
+      'quickbooks-iif-file-check',
+      'quickbooks-import-csv-check',
+      'xero-bank-statement-csv-check',
+      'xero-contacts-csv-check',
+      'xero-invoice-csv-check',
+]);
+
+// Slugs the `evidence` rule's suffixes (`tracker`, `desk`) or `grant` prefix would take, which a later
+// section names on purpose: a freelancer's time, expense and lead trackers and call-notes desk
+// (`solo-earner`), a shareholder's basis roll-forward and a grant writer's price (`backoffice`). Until
+// 2026-11-21 the suffix won, so those sections' own lists for them were dead lines and each page's
+// breadcrumb said "Compliance checks & evidence records". `build.test.mjs` fails on a new overlap.
+const NOT_EVIDENCE_SLUGS = new Set([
+      'expense-tracker',
+      'freelance-lead-tracker',
+      'grant-writer-proposal-price-calculator',
+      's-corp-basis-tracker',
+      'sales-call-notes-desk',
+      'time-tracker',
+]);
+
 const CATEGORY_RULES = [
   {
     // Added 2026-10-16 (P019): the self-hosted SaaS-operations apps had been
@@ -784,7 +825,7 @@ const CATEGORY_RULES = [
     // `clothing-design-studio` joined 2026-11-03: a brand designing and costing its own
     // garments and sunglasses to sell, the same cost-of-goods-to-shelf-price job as
     // `print-on-demand` and `wholesale-line-sheet` here, rather than a shop quoting a customer.
-    test: (slug) => /^(demand-forecast-backtester|grailed-fee-calculator|tcgplayer-fee-calculator|reseller-books|1099k-reconciliation-worksheet|wholesale-vs-retail-pricing-calculator|chargeback-ratio-monitor|app-review-insights|midterm-rental|amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-customer-csv|bigcommerce-product-csv|squarespace-product-csv|wix-product-csv|teachers-pay-teachers|course-platform|music-distribution|shopify-to-woocommerce|woocommerce-product-csv|square-catalog-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|rv-rental-host|glamping-unit-payback|turo-host|kdp|whatnot|poshmark|storage-auction|tax-deed-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|discogs|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven|wholesale-line-sheet|clothing-design-studio)/.test(slug),
+    test: (slug) => !/-to-journal$/.test(slug) && /^(demand-forecast-backtester|grailed-fee-calculator|tcgplayer-fee-calculator|reseller-books|1099k-reconciliation-worksheet|wholesale-vs-retail-pricing-calculator|chargeback-ratio-monitor|app-review-insights|midterm-rental|amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-customer-csv|bigcommerce-product-csv|squarespace-product-csv|wix-product-csv|teachers-pay-teachers|course-platform|music-distribution|shopify-to-woocommerce|woocommerce-product-csv|square-catalog-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|rv-rental-host|glamping-unit-payback|turo-host|kdp|whatnot|poshmark|storage-auction|tax-deed-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|discogs|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven|wholesale-line-sheet|clothing-design-studio)/.test(slug),
   },
   {
     id: 'trades',
@@ -1688,6 +1729,20 @@ const CATEGORY_RULES = [
     ),
   },
   {
+    // Bookkeeping, split out 2026-11-21. The payout-to-journal set, the bank-file converters and
+    // checks and the AI Bookkeeper ledger they feed had been filed in `evidence` (40), `backoffice`
+    // (8) and `marketplace` (5), so a flagship bookkeeping app's breadcrumb and `BreadcrumbList`
+    // JSON-LD said "Compliance checks & evidence records" and a bookkeeper browsing for a bank
+    // converter found it among EU regulation checkers. Every `*-to-journal` slug plus an exact list;
+    // the marketplace rule above skips `-to-journal` so the five seller journals land here too.
+    // Placed before `evidence`, whose `tracker` suffix would otherwise take `1099-vendor-tracker`.
+    id: 'bookkeeping',
+    title: 'Bookkeeping, bank files & journals',
+    accent: '#1f5c4a',
+    blurb: 'Bank statements, payouts and accounting imports turned into balanced journals and clean files: OFX, QIF, BAI2, camt.053 and MT940, Stripe, PayPal, Shopify and Etsy payouts, QuickBooks and Xero imports, 1099 vendors, and a ledger that learns your accounts.',
+    test: (slug) => /-to-journal$/.test(slug) || BOOKKEEPING_SLUGS.has(slug),
+  },
+  {
     id: 'evidence',
     title: 'Compliance checks & evidence records',
     accent: '#5c2a1f',
@@ -1830,7 +1885,7 @@ const CATEGORY_RULES = [
     // by exact slug match, the same way `1099-k-threshold-checker` was,
     // rather than widening the suffix list to a word this is the only
     // user of.
-    test: (slug) =>
+    test: (slug) => !NOT_EVIDENCE_SLUGS.has(slug) && (
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
       || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check|salary-range-posting-check|eu-pay-gap-report-calculator|pay-transparency-directive-checker|eu-einvoicing-mandate-checker|dac7-seller-reporting-checker|eu-platform-work-directive-checker|eu-product-liability-directive-checker|eu-whistleblower-channel-checker|eu-dora-readiness-checker|eu-espr-readiness-checker|nis2-scope-checker|eu-ai-act-risk-checker|eudr-scope-checker|cbam-cost-estimator|eaa-accessibility-act-checker|eu-data-act-checker|gpsr-product-safety-checker|eu-battery-regulation-checker|eu-packaging-regulation-checker|eu-green-claims-checker|eu-green-claims-copy-scanner|eu-csrd-scope-checker|eu-dsa-obligations-checker|eu-price-reduction-claim-checker)/.test(slug)
       // `parish-office` joined 2026-11-03 on its first commit: the canon 958 Mass intentions book, a dated register whose
@@ -1962,7 +2017,7 @@ const CATEGORY_RULES = [
       // `youtube-chapters-check` joined 2026-10-05: a chapter-list pre-flight, same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them.
       || slug === 'youtube-chapters-check'
       // `google-contacts-csv-check` joined 2026-10-05: the CSV half of the contacts-file pre-flights above, same line-numbered findings and explicit not-checked list.
-      || slug === 'google-contacts-csv-check',
+      || slug === 'google-contacts-csv-check'),
   },
   {
     // US personal tax, pay and retirement, split out 2026-11-17. These are one household's own
@@ -4880,6 +4935,14 @@ export function groupGuidesByCategory(groups) {
  * that carries it twice is what search engines truncate.
  */
 const CATEGORY_PAGE_COPY = {
+  bookkeeping: {
+    title: 'Free bookkeeping tools: bank statements to journals and OFX',
+    description:
+      'Convert bank statements to OFX or QBO, turn Stripe, PayPal and Shopify payouts into journal entries, and check QuickBooks and Xero imports, free in your browser.',
+    intro:
+      'Each tool reads a file you already have (a bank statement, a payout report, an accounting export), checks it against its own totals, and writes the journal or import file your books need, with every problem named by line. Nothing you upload leaves your browser.',
+    audience: 'Bookkeepers, small-business owners and sellers keeping their own books',
+  },
   'personal-tax': {
     title: 'Free US personal tax, paycheck and retirement calculators',
     description:
