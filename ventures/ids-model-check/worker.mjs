@@ -4,6 +4,7 @@
 import { checkIds, parseIds, Schema, Model } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { ifcXmlSchemaId, looksLikeXml } from "./ifcxml.mjs";
+import { ifcJsonSchemaId, looksLikeJson } from "./ifcjson.mjs";
 import { modelInventory } from "./inventory.mjs";
 
 const cache = {};
@@ -19,6 +20,9 @@ async function json(name) {
 // on the heap: eval/step-bytes-2026-11-18.md) or its text.
 function schemaOf(ifc) {
   const ifcText = ifc instanceof Uint8Array ? new TextDecoder().decode(ifc.subarray(0, 20000)) : ifc;
+  // An ifcJSON file with no schemaIdentifier header is read in whichever
+  // schema knows its class names (ifcjson.mjs), so all three are loaded.
+  if (looksLikeJson(ifcText)) return ifcJsonSchemaId(ifcText) || ANY;
   if (looksLikeXml(ifcText)) return ifcXmlSchemaId(ifcText);
   const m = ifcText.slice(0, 20000).match(/FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i);
   const raw = m ? m[1].toUpperCase() : "";
@@ -46,7 +50,12 @@ async function loadPsets(idsText, ids) {
   return Object.fromEntries(entries);
 }
 
+const ANY = "ANY";
+const ALL = ["IFC2X3", "IFC4", "IFC4X3"];
+const modelSchemas = (id, schemas) => (id === ANY ? Object.fromEntries(ALL.map((k) => [k, schemas[k]])) : { [id]: schemas[id] });
+
 async function loadSchemas(ids) {
+  if ([...ids].includes(ANY)) ids = ALL;
   const entries = await Promise.all([...ids].map(async (id) => [id, new Schema(await json(id.toLowerCase() + ".json"))]));
   return Object.fromEntries(entries);
 }
@@ -63,7 +72,7 @@ self.onmessage = async (ev) => {
       const id = schemaOf(ifc);
       if (!id) throw new Error("the model's schema (FILE_SCHEMA, or the ifcXML namespace) is not IFC2X3, IFC4 or IFC4X3");
       const [schemas, measureUnits] = await Promise.all([loadSchemas([id]), json("measure-units.json")]);
-      const model = new Model(ifc, schemas);
+      const model = new Model(ifc, modelSchemas(id, schemas));
       const inv = modelInventory(model, measureUnits);
       inv.parseErrors = model.parseErrors.length;
       inv.seconds = (performance.now() - t0) / 1000;
@@ -82,9 +91,9 @@ self.onmessage = async (ev) => {
     const id = schemaOf(ifc);
     if (!id) throw new Error("the model's schema (FILE_SCHEMA, or the ifcXML namespace) is not IFC2X3, IFC4 or IFC4X3");
     const want = idsSchemas(ids);
-    want.add(id);
+    for (const k of id === ANY ? ALL : [id]) want.add(k);
     const [schemas, typeMap, measureUnits, psets] = await Promise.all([loadSchemas(want), json("ifc2x3-type-map.json"), json("measure-units.json"), loadPsets(ids, want)]);
-    const report = checkIds(ids, ifc, { schemas: { [id]: schemas[id] }, auditSchemas: schemas, typeMap, measureUnits, psets });
+    const report = checkIds(ids, ifc, { schemas: modelSchemas(id, schemas), auditSchemas: schemas, typeMap, measureUnits, psets });
     report.seconds = (performance.now() - t0) / 1000;
     postMessage({ report });
   } catch (e) {

@@ -187,7 +187,7 @@ test("zip reader: deflate and stored entries, zip64 fields, the model picked ove
     assert.equal(m.text, ifcx, JSON.stringify(opts));
   }
   assert.equal(pickModel(zipEntries(zip([["a.ifcxml", "<x/>"], ["b.ifc", "ISO"]]))).name, "b.ifc", ".ifc wins over .ifcxml");
-  await assert.rejects(unzipModel(zip([["notes.txt", "x"]]), inflate), /no \.ifc or \.ifcxml file/);
+  await assert.rejects(unzipModel(zip([["notes.txt", "x"]]), inflate), /no \.ifc, \.ifcxml or ifcJSON file/);
   assert.throws(() => zipEntries(new Uint8Array([1, 2, 3, 4])), /not a zip/);
 });
 

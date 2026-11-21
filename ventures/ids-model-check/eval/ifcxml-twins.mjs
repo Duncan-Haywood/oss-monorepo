@@ -16,17 +16,34 @@
 // - each sample IDS is checked on both files and the verdicts compared.
 //
 //   node eval/ifcxml-twins.mjs <dir> [<dir> ...]   (exit 1 when any IDS verdict differs)
+//   node eval/ifcxml-twins.mjs --ext .json <dir> ...  the same for ifcJSON twins
+//     (X.json next to X.ifc; eval/ifcjson-twins-2026-11-21.md)
+//   --deep  also reads every directory below each one named
+//   --ids-dir DIR  also checks every .ids file in DIR (eval/fetch-audit-corpus.sh
+//     puts 65 public ones in eval/corpus/real) on both forms
 //   (pairs: every X.ifcxml with an X.ifc next to it; see eval/fetch-ifcxml-twins.sh)
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join, basename } from "node:path";
 import { createHash } from "node:crypto";
 import { resources, check, parseModel } from "../node.mjs";
 
-const dirs = process.argv.slice(2);
+const argv = process.argv.slice(2);
+const extAt = argv.indexOf("--ext");
+const EXT = extAt >= 0 ? argv.splice(extAt, 2)[1] : ".ifcxml";
+const extRe = new RegExp(EXT.replace(/\./g, "\\.") + "$", "i");
+const idsAt = argv.indexOf("--ids-dir");
+const IDS_DIR = idsAt >= 0 ? argv.splice(idsAt, 2)[1] : null;
+const deepAt = argv.indexOf("--deep");
+if (deepAt >= 0) argv.splice(deepAt, 1);
+const dirs = [];
+const addDir = (d) => { dirs.push(d); if (deepAt >= 0) for (const e of readdirSync(d, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) if (e.isDirectory() && !e.name.startsWith(".")) addDir(join(d, e.name)); };
+for (const d of argv) { if (!existsSync(d)) { console.error(`no files at ${d}; run the fetch script first`); process.exit(2); } addDir(d); }
 if (!dirs.length) { console.error("usage: node eval/ifcxml-twins.mjs <dir> [<dir> ...]"); process.exit(2); }
 const { schemas } = resources();
 const idsFiles = ["coordination-basics.ids.xml", "quantities-and-naming.ids.xml", "infrastructure-and-mep.ids.xml"]
   .map((f) => [f, readFileSync(new URL("../samples/" + f, import.meta.url), "utf8")]);
+if (IDS_DIR) for (const f of readdirSync(IDS_DIR).filter((f) => /\.ids$/i.test(f)).sort()) idsFiles.push([f, readFileSync(join(IDS_DIR, f), "utf8")]);
+const idsDiffs = [];
 
 // A number is compared at 12 significant digits: STEP writes 0.0001 as
 // "0.0001" and "1.E-4"; both parse to the same double, but a writer that
@@ -67,8 +84,8 @@ const isGuid = (s) => typeof s === "string" && /^[0-9A-Za-z_$]{22}$/.test(s);
 const pairs = [];
 for (const dir of dirs) {
   if (!existsSync(dir)) { console.error(`no files at ${dir}; run eval/fetch-ifcxml-twins.sh first`); process.exit(2); }
-  for (const f of readdirSync(dir).filter((f) => /\.ifcxml$/i.test(f)).sort()) {
-    const step = join(dir, f.replace(/\.ifcxml$/i, ".ifc"));
+  for (const f of readdirSync(dir).filter((f) => extRe.test(f)).sort()) {
+    const step = join(dir, f.replace(extRe, ".ifc"));
     if (existsSync(step)) pairs.push([step, join(dir, f)]);
   }
 }
@@ -80,7 +97,7 @@ const diffKinds = new Map(), rootKinds = new Map(), rootSample = new Map();
 const totals = { orphans: 0, pairs: 0, clean: 0, attrsSame: 0, attrsDiff: 0, idsSame: 0, idsRuns: 0 };
 for (const [stepPath, xmlPath] of pairs) {
   totals.pairs++;
-  const name = basename(xmlPath).replace(/\.ifcxml$/i, "");
+  const name = basename(xmlPath).replace(extRe, "");
   let S, X;
   try {
     S = parseModel(readFileSync(stepPath, "utf8"));
@@ -137,9 +154,23 @@ for (const [stepPath, xmlPath] of pairs) {
   // The checker's verdicts on both.
   const v = (r) => JSON.stringify(r.specs.map((s) => [s.status, s.applicable, s.failed.map((f) => f.globalId).sort()]));
   let idsSame = 0;
-  for (const [, ids] of idsFiles) {
+  for (const [f, ids] of idsFiles) {
     totals.idsRuns++;
-    if (v(check(ids, S)) === v(check(ids, X))) { idsSame++; totals.idsSame++; }
+    let a, b;
+    try { a = v(check(ids, S, { maxFailed: Infinity })); } catch (e) { a = "error " + e.message; }
+    try { b = v(check(ids, X, { maxFailed: Infinity })); } catch (e) { b = "error " + e.message; }
+    if (a === b) { idsSame++; totals.idsSame++; }
+    else {
+      // What a BIM user sees: each specification's status and the
+      // GlobalIds that fail it (the BCF issues). Counts of entities with no
+      // GlobalId can differ when a STEP file holds duplicate or unreferenced
+      // geometry that a tree-shaped file has no place for.
+      const rooted = (r) => JSON.stringify(r.specs.map((s) => [s.status, s.failed.map((x) => x.globalId).filter(Boolean).sort()]));
+      let ra, rb;
+      try { ra = rooted(check(ids, S, { maxFailed: Infinity })); rb = rooted(check(ids, X, { maxFailed: Infinity })); } catch { ra = "a"; rb = "b"; }
+      if (ra === rb) totals.rootedSame = (totals.rootedSame || 0) + 1;
+      idsDiffs.push(`${ra === rb ? "(counts only) " : ""}${name} x ${f}: STEP ${a.slice(0, 200)} / other ${b.slice(0, 200)}`);
+    }
   }
   const onlyReach = onlyS.filter((e) => reach.has(e.id));
   const cleanGraph = !onlyReach.length && !onlyXd;
@@ -158,6 +189,13 @@ for (const [stepPath, xmlPath] of pairs) {
   }
 }
 console.log(`\n${totals.pairs} pairs; ${totals.clean} identical as graphs with identical verdicts; ${totals.cleanGraph || 0} identical once ${totals.orphans} STEP entities nothing rooted points at are set aside; GlobalId-paired attribute values ${totals.attrsSame} identical, ${totals.attrsDiff} different; IDS verdicts ${totals.idsSame} of ${totals.idsRuns} identical`);
+if (idsDiffs.length) {
+  console.log(`\nIDS verdicts that differ: ${idsDiffs.length}, of which ${totals.rootedSame || 0} only in counts (same status and failing GlobalIds)`);
+  const byIds = new Map();
+  for (const d of idsDiffs) { const k = (d.startsWith("(counts only)") ? "counts only: " : "status or GlobalIds: ") + d.split(" x ")[1].split(":")[0]; byIds.set(k, (byIds.get(k) || 0) + 1); }
+  for (const [k, n] of byIds) console.log(`- ${k} ${n}`);
+  for (const d of idsDiffs.filter((d) => !d.startsWith("(counts only)"))) console.log("  " + d.slice(0, 600));
+}
 if (diffKinds.size) console.log("differences by attribute: " + [...diffKinds].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join(", "));
 if (rootKinds.size) {
   console.log("\nroot differences (STEP-only entities reachable from a rooted object whose references all match), by class:");
