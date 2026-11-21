@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmQTKVJtD5gx9QgX2w",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T05:24:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Saints by Candlelight episode 158, Moses and Aaron at the Mountain of God (text only)",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18034",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First post draft had a 77-character seo_title; run_workflow_locally's post check caught it before the sweep and it was shortened to 70 or under."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to branch first, but the harness had already created claude/confident-ptolemy-1eyk5m pointing at main, so `git checkout -b` failed; a harmless retry. A line like 'the session branch may already exist and be checked out' would save it."
+    },
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "The 5,500-word target is easy to miss on a first draft of a short scriptural passage (this one came in at 5,157 and needed a new scene). The --check-script output says 'ok' at 5,157 because only 4,500 is enforced, so a run relying on the checker alone would ship under target."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-saints-by-candlelight-moses-and-aaron-at-the-mountain-of-god.md"
+  ],
+  "goal": null,
+  "notes": "Project: saints-by-candlelight; piece: moses-and-aaron-at-the-mountain-of-god (episode 158, text only; audio folders at 577 MB, over the 400 MB cap). Chosen because Saints had gone longest without a new piece (last PR 2026-11-20 21:24 vs Hearth & Horizon 2026-11-21 03:10); no open saints or hearth PRs. Security queue empty; ideas inbox and website requests empty. Adversarial re-read fixed: Exodus 5:21 complainers are the foremen, not the elders; Aaron's age 123 is Numbers 33:39; softened the claim that God told Moses before Aaron (participle ambiguous). Aaron's feast given as Orthodox holy forefathers with no date, following earlier episodes' rule. Checks: node generate.mjs --check-script ok (5606 words); node --test in ventures/saints-by-candlelight 18/18; check_posts ok; run_workflow_locally --for-changes result in the PR's verification comment below.",
+  "corrections": [],
+  "redteam": null
+}

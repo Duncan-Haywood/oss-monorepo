@@ -1,6 +1,6 @@
 ---
 title: "Saints by Candlelight: Moses and Aaron at the mountain of God"
-seo_title: "Aaron meets Moses at the mountain of God, Exodus 4, a bedtime podcast episode"
+seo_title: "Aaron meets Moses at the mountain of God, Exodus 4, a bedtime story"
 date: 2026-11-21
 tags: [fiction, saints-by-candlelight, saints, writing, scripture]
 description: "Episode 158 tells Exodus 4:14-31 from Aaron's side: an old man told to go and meet a brother gone forty years, and a kiss."
