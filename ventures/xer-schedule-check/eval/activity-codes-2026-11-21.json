@@ -1,0 +1,470 @@
+[
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "project": "CCA R03 dt 24Oct11SC",
+  "activities": 16146,
+  "types": 37,
+  "charts": 74,
+  "once": [
+   74,
+   74
+  ],
+  "place": [
+   1194804,
+   1194804
+  ],
+  "count": [
+   80188,
+   80188
+  ],
+  "tally": [
+   899,
+   899
+  ],
+  "rollup": [
+   80188,
+   80188
+  ],
+  "order": [
+   54844,
+   54844
+  ],
+  "ms": 10969,
+  "perType": [
+   {
+    "type": "CCAD DIVISION(SET)",
+    "values": 17,
+    "hierarchical": false,
+    "groups": 18,
+    "noValue": 14407
+   },
+   {
+    "type": "CCAD WORK(SET)",
+    "values": 34,
+    "hierarchical": false,
+    "groups": 35,
+    "noValue": 43
+   },
+   {
+    "type": "CCAD Carpark code(SET)",
+    "values": 58,
+    "hierarchical": true,
+    "groups": 59,
+    "noValue": 13535
+   },
+   {
+    "type": "CCAD ZONE(SET)",
+    "values": 150,
+    "hierarchical": false,
+    "groups": 151,
+    "noValue": 222
+   },
+   {
+    "type": "CCAD Carpark district code(set)",
+    "values": 2,
+    "hierarchical": false,
+    "groups": 3,
+    "noValue": 13455
+   },
+   {
+    "type": "CCAD CBS(SET)",
+    "values": 11,
+    "hierarchical": false,
+    "groups": 12,
+    "noValue": 1039
+   },
+   {
+    "type": "CCAD CUP CODE(SET)",
+    "values": 16,
+    "hierarchical": true,
+    "groups": 17,
+    "noValue": 16043
+   },
+   {
+    "type": "CCAD PHASE(SET)",
+    "values": 3,
+    "hierarchical": false,
+    "groups": 4,
+    "noValue": 54
+   },
+   {
+    "type": "CCAD RESPONSIBILITY(SET)",
+    "values": 3,
+    "hierarchical": false,
+    "groups": 4,
+    "noValue": 13979
+   },
+   {
+    "type": "CCAD HANDOVER(SET)",
+    "values": 3,
+    "hierarchical": false,
+    "groups": 4,
+    "noValue": 1479
+   },
+   {
+    "type": "CCAD SECTION(SET)",
+    "values": 43,
+    "hierarchical": false,
+    "groups": 44,
+    "noValue": 31
+   },
+   {
+    "type": "CCA VO (SET)",
+    "values": 12,
+    "hierarchical": false,
+    "groups": 13,
+    "noValue": 15834
+   },
+   {
+    "type": "CCAD (VO)",
+    "values": 1,
+    "hierarchical": false,
+    "groups": 2,
+    "noValue": 15952
+   },
+   {
+    "type": "CCAD FLOOR(SET)",
+    "values": 35,
+    "hierarchical": false,
+    "groups": 36,
+    "noValue": 42
+   },
+   {
+    "type": "CCAD SUB ZONE MEP(SET)",
+    "values": 4,
+    "hierarchical": false,
+    "groups": 5,
+    "noValue": 8443
+   },
+   {
+    "type": "CCAD BUILDING(SET)",
+    "values": 14,
+    "hierarchical": false,
+    "groups": 15,
+    "noValue": 18
+   },
+   {
+    "type": "CCAD SERIAL No.(SET)",
+    "values": 99,
+    "hierarchical": false,
+    "groups": 100,
+    "noValue": 576
+   },
+   {
+    "type": "CCAD BILL(SET)",
+    "values": 13,
+    "hierarchical": false,
+    "groups": 13,
+    "noValue": 0
+   },
+   {
+    "type": "CCADACF (SET)",
+    "values": 13,
+    "hierarchical": false,
+    "groups": 14,
+    "noValue": 157
+   },
+   {
+    "type": "CCAD MEQ",
+    "values": 4,
+    "hierarchical": false,
+    "groups": 5,
+    "noValue": 15601
+   },
+   {
+    "type": "FSP CODE",
+    "values": 12,
+    "hierarchical": false,
+    "groups": 13,
+    "noValue": 13909
+   },
+   {
+    "type": "Phase",
+    "values": 1,
+    "hierarchical": false,
+    "groups": 2,
+    "noValue": 15719
+   },
+   {
+    "type": "Area/ Department",
+    "values": 5,
+    "hierarchical": false,
+    "groups": 6,
+    "noValue": 15721
+   },
+   {
+    "type": "Grids",
+    "values": 7,
+    "hierarchical": false,
+    "groups": 8,
+    "noValue": 15721
+   },
+   {
+    "type": "Are",
+    "values": 7,
+    "hierarchical": false,
+    "groups": 8,
+    "noValue": 15721
+   },
+   {
+    "type": "Weight & Nos",
+    "values": 7,
+    "hierarchical": false,
+    "groups": 8,
+    "noValue": 15721
+   },
+   {
+    "type": "Process",
+    "values": 3,
+    "hierarchical": false,
+    "groups": 4,
+    "noValue": 15721
+   },
+   {
+    "type": "Levels",
+    "values": 7,
+    "hierarchical": false,
+    "groups": 8,
+    "noValue": 15721
+   },
+   {
+    "type": "CCAD TAG(SET)",
+    "values": 230,
+    "hierarchical": true,
+    "groups": 231,
+    "noValue": 380
+   },
+   {
+    "type": "CCAD REV(SET)",
+    "values": 2,
+    "hierarchical": false,
+    "groups": 2,
+    "noValue": 0
+   },
+   {
+    "type": "CCAD CSA",
+    "values": 9,
+    "hierarchical": false,
+    "groups": 10,
+    "noValue": 5649
+   },
+   {
+    "type": "CCAD SSCF",
+    "values": 66,
+    "hierarchical": true,
+    "groups": 66,
+    "noValue": 0
+   },
+   {
+    "type": "FILTER",
+    "values": 1,
+    "hierarchical": false,
+    "groups": 2,
+    "noValue": 16045
+   },
+   {
+    "type": "TO BE DELETED",
+    "values": 1,
+    "hierarchical": false,
+    "groups": 2,
+    "noValue": 16137
+   },
+   {
+    "type": "Act Selector %",
+    "values": 6,
+    "hierarchical": false,
+    "groups": 5,
+    "noValue": 13356
+   },
+   {
+    "type": "R3 Partitions",
+    "values": 1,
+    "hierarchical": false,
+    "groups": 2,
+    "noValue": 16066
+   },
+   {
+    "type": "R3 Finish",
+    "values": 1,
+    "hierarchical": false,
+    "groups": 2,
+    "noValue": 15954
+   }
+  ]
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "types": 0,
+  "note": "no activity codes"
+ },
+ {
+  "file": "hotel-project.xer",
+  "project": "HBTF-2",
+  "activities": 4217,
+  "types": 5,
+  "charts": 10,
+  "once": [
+   10,
+   10
+  ],
+  "place": [
+   42170,
+   42170
+  ],
+  "count": [
+   7089,
+   7089
+  ],
+  "tally": [
+   31,
+   31
+  ],
+  "rollup": [
+   7089,
+   7089
+  ],
+  "order": [
+   4550,
+   4550
+  ],
+  "ms": 298,
+  "perType": [
+   {
+    "type": "Bill No.",
+    "values": 6,
+    "hierarchical": false,
+    "groups": 7,
+    "noValue": 456
+   },
+   {
+    "type": "Division No.",
+    "values": 31,
+    "hierarchical": false,
+    "groups": 17,
+    "noValue": 637
+   },
+   {
+    "type": "Responsibility",
+    "values": 4,
+    "hierarchical": false,
+    "groups": 5,
+    "noValue": 351
+   },
+   {
+    "type": "Phase Code",
+    "values": 3,
+    "hierarchical": false,
+    "groups": 4,
+    "noValue": 352
+   },
+   {
+    "type": "Trade",
+    "values": 2,
+    "hierarchical": false,
+    "groups": 3,
+    "noValue": 1269
+   }
+  ]
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "project": "TERMINAL-2",
+  "activities": 66,
+  "types": 1,
+  "charts": 2,
+  "once": [
+   2,
+   2
+  ],
+  "place": [
+   132,
+   132
+  ],
+  "count": [
+   128,
+   128
+  ],
+  "tally": [
+   10,
+   10
+  ],
+  "rollup": [
+   128,
+   128
+  ],
+  "order": [
+   67,
+   67
+  ],
+  "ms": 1,
+  "perType": [
+   {
+    "type": "Classification",
+    "values": 12,
+    "hierarchical": false,
+    "groups": 11,
+    "noValue": 15
+   }
+  ]
+ },
+ {
+  "file": "example_xer_file.xer",
+  "project": "DEMO-001",
+  "activities": 435,
+  "types": 3,
+  "charts": 6,
+  "once": [
+   6,
+   6
+  ],
+  "place": [
+   2610,
+   2610
+  ],
+  "count": [
+   92,
+   92
+  ],
+  "tally": [
+   3,
+   3
+  ],
+  "rollup": [
+   92,
+   92
+  ],
+  "order": [
+   66,
+   66
+  ],
+  "ms": 26,
+  "perType": [
+   {
+    "type": "Project Charge Code",
+    "values": 1,
+    "hierarchical": false,
+    "groups": 2,
+    "noValue": 425
+   },
+   {
+    "type": "Activity Hide",
+    "values": 1,
+    "hierarchical": false,
+    "groups": 2,
+    "noValue": 434
+   },
+   {
+    "type": "Dashboard Planned",
+    "values": 1,
+    "hierarchical": false,
+    "groups": 2,
+    "noValue": 10
+   }
+  ]
+ },
+ {
+  "file": "sample.xer",
+  "types": 0,
+  "note": "no activity codes"
+ }
+]
