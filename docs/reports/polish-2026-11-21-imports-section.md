@@ -42,7 +42,18 @@ Catch-all unchanged.
 position 2 is "Import & upload file checks" → `/c/imports/`. Category page at 390×844: filter field
 and first card on the first screen; scrollWidth 390 at 390 and 1280 at 1280 (hub the same).
 
+**The site `llms.txt` index is at its 50,000-byte cap.** With the first blurb (365 chars) the new
+section took it to 50,106 bytes and `build.test.mjs` "llms.txt is a short index" failed; the blurb was
+cut to 227 chars (about 49,968 bytes). Each new section adds roughly 1 KB to the index (heading, blurb,
+four bullets, a "more tools" line), so **the next section split will fail that test** unless something
+gives first.
+
 ## Still weakest, and what I would do next
+
+0. **Make room in `llms.txt` before the next section split.** Options, cheapest first: shorter section
+   blurbs in the index only (the hub keeps the long one), 3 bullets per category instead of 4
+   (`LLMS_INDEX_TOOLS_PER_CATEGORY`), or `LLMS_INDEX_DESC_MAX` 140 → 120. Measure which keeps the index
+   most useful to an assistant.
 
 1. **shopify-customer-csv-check** is a contact import, not a product feed, but sits with the Shopify
    product checks in marketplace. Moving it splits the Shopify family; a "see also" link from

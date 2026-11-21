@@ -747,7 +747,7 @@ const CATEGORY_RULES = [
     id: 'imports',
     title: 'Import & upload file checks',
     accent: '#3d4f8a',
-    blurb: 'Check a file before you upload it: CRM and email-platform contact imports (HubSpot, Salesforce, Mailchimp, Klaviyo and more), Google Ads Editor and Meta catalog feeds, contacts and calendar files, barcode and IBAN lists, payroll hours, redirect maps and GPX or GTFS feeds. Every problem named by row, before the platform rejects it.',
+    blurb: 'Check a file before you upload it: CRM and email contact imports, ad and catalog feeds, vCard and calendar files, barcode and IBAN lists, payroll hours and map feeds. Every problem named by row.',
     test: (slug) => IMPORT_CHECK_SLUGS.has(slug),
   },
   {
