@@ -3763,8 +3763,57 @@ Middle to it for counts; `watch.mjs` with the workflow's Search Console line ale
 check and the default does not. `watch-eagerness-counts.test.mjs`, `watch-eagerness.test.mjs` and `real-shop.test.mjs`
 pin the three-rung ladder and the real shop's picks above.
 
-**Next:** the middle as the count default (stage C's best arm), a round that weighs its slower alerts (8 days against
-5 on a 20% fall) against the steps it adds; then a live Search Console property.
+**Next:** the middle as the count default was tried next and fails on growing sites (next section); then a live
+Search Console property.
+
+## Middle as the count default? No (2026-11-21, pre-registered; fails, the default stays)
+
+The section above found Middle (`pelt` + NB cost) alone beat the hint and the count default on the eleven cells of the
+count hint round, and left open whether it should be what `--model poisson` runs when nothing is named. A default meets
+every series a deployer brings, so this round (`eval/count-default-middle.prereg.md`, committed before the runs;
+`eval/count-default-middle.mjs`, output `eval/count-default-middle.out.txt`, 30 min on 4 cores) weighed Middle's
+slower alerts with one number, **days unaware** (days from a fall to the alert that hears it, 60 when none does), and
+added growing and wandering sites no earlier round had. D is today's count default, M is Middle, all seeds fresh.
+
+| set | measure | D (default) | M (Middle) | bar |
+|---|---|---|---|---|
+| 1 Search Console sites, cv 15% (seeds 501-540) | mean days unaware, 10/20/40% falls | 35.6 | **18.2** (M - D -17.4, -19.2 to -15.7) | G2 pass |
+| | 40% falls, mean days unaware | 4.5 | 4.1 | G3 pass |
+| | false alerts per 1,000 days | 0.14 | 0.58 | G1 pass (<= 2.0) |
+| 1 same, cv 30% | mean days unaware | 44.6 | **30.7** (-13.9, -15.9 to -11.9) | G2 pass |
+| | 40% falls | 20.3 | 7.2 | G3 pass |
+| | false alerts per 1,000 days | 0.64 | 1.69 | G1 pass |
+| 2 eleven cells (seeds 3001-3200) | false alerts per 1,000 checks | 0.69 | 1.72 (+1.02, 0.81 to **1.26**) | **G4 FAIL** (upper <= 1.0) |
+| | steps found of 1,200 | 1,062 | 1,139 (+77, 59 to 95) | G5 pass |
+| 3 site growing 30% over 240 days (seeds 701-740) | alerts per 1,000 days | 0.21 (1 of 40 sites) | **5.00 (20 of 40)** | **G6 FAIL** (<= D + 3.0) |
+| | growing 100% | 1.04 (5/40) | 17.08 (40/40) | reported |
+| | falling 30% | 1.04 (5/40) | 10.63 (35/40) | reported |
+| | log-mean walk, sd 1% a day | 0.21 (1/40) | 6.04 (24/40) | reported |
+| | log-mean walk, sd 2% a day | 0.83 (4/40) | 12.71 (31/40) | reported |
+
+**What it means.** Waiting for the new level to be clear does not cost Middle much: on the falls themselves it is
+the better watch by a wide margin, about 17 fewer days unaware per fall at cv 15%, because the misses it avoids cost
+far more than the three extra days on the 20% falls it hears (median 8 against 4-6). Middle even hears 40% falls
+sooner on average at cv 30%, where Quiet misses one in four. What sinks it as a default is the **trend**: PELT, with a
+flat level between changes, can only fit a steady climb as a staircase of steps, so half of the gently growing sites, and all of the doubling ones, got at least
+one alert with no step in them. On a flat series a site owner would welcome that trade. On a growing one, the
+commonest kind of site there is, a default that alerts on growth teaches people to ignore it. G4's miss is narrow (an
+upper end of 1.26 against 1.0, mostly the clumped null cells N2 and N5) and on its own would have been a judgement
+call; G6's is not.
+
+**On the real shop** (reported, deciding nothing; `eval/count-default-middle-shop.mjs`, UCI Online Retail's daily
+orders, replayed over the whole year): without a period D sends 2 alerts (2011-05-03, 2011-05-31), M 7, including
+Easter, 2011-09-19 inside the autumn climb, and 2011-11-06 on the pre-Christmas ramp; with `--period 7`, D 2 and M 3
+(Easter twice and 2011-09-19). The shop grows through the autumn, which is set 3's case.
+
+**What ships.** Nothing moves: `COUNT_DEFAULTS` stays the windowed pass, and Middle stays a named setting and the count
+hint's middle rung. The hint's note for counts and the page's "How eager" option now say Middle also alerts on steady
+growth, since a hint that recommends Middle "as a good place to start" was wrong advice for a growing site.
+
+**Next:** a Middle that allows for a trend, for example PELT + NB on the series divided by a slow fitted level (a
+local-level or 8-week rolling median), pre-registered against set 3 and the same falls; or the hint's own history
+check tested on set 3 (it replays the history and counts Middle's alerts there, so a site that also grew during its
+history should be steered back to Quiet; that has not been measured).
 
 ## Shopify as a source (2026-11-19)
 

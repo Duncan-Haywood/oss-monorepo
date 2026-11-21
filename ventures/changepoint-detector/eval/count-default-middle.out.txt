@@ -1,0 +1,72 @@
+Set 1: simulated Search Console sites (eval/gsc-sites.mjs), seeds 501-540, watched daily from day 120 to 239, falls on day 180.
+Days unaware: days from the fall to the alert that hears it, 60 if none does.
+
+cv 0.15
+| base | fall | D heard | M heard | D median days (heard) | M median days (heard) | D mean days unaware | M mean days unaware | D false/1,000 | M false/1,000 |
+|---|---|---|---|---|---|---|---|---|---|
+| 50 | 0% | - | - | - | - | - | - | 0.21 | 0.63 |
+| 50 | 10% | 1/40 | 15/40 | 3 | 21 | 58.6 | 47.1 | 0.42 | 1.25 |
+| 50 | 20% | 11/40 | 35/40 | 6 | 9 | 45.4 | 17.9 | 0.83 | 0.83 |
+| 50 | 40% | 39/40 | 40/40 | 4 | 4 | 5.5 | 4.3 | 0.00 | 0.83 |
+| 400 | 0% | - | - | - | - | - | - | 0.00 | 0.42 |
+| 400 | 10% | 2/40 | 28/40 | 10 | 22 | 57.5 | 32.8 | 0.00 | 0.83 |
+| 400 | 20% | 13/40 | 40/40 | 4 | 8 | 42.9 | 9.1 | 0.00 | 0.83 |
+| 400 | 40% | 40/40 | 40/40 | 4 | 4 | 4.0 | 4.0 | 0.00 | 0.00 |
+| 3000 | 0% | - | - | - | - | - | - | 0.21 | 0.63 |
+| 3000 | 10% | 0/40 | 31/40 | - | 29 | 60.0 | 36.1 | 0.00 | 0.00 |
+| 3000 | 20% | 13/40 | 40/40 | 5 | 8 | 42.3 | 8.2 | 0.00 | 0.00 |
+| 3000 | 40% | 40/40 | 40/40 | 4 | 4 | 4.1 | 4.0 | 0.00 | 0.83 |
+pooled false alerts per 1,000 days: D 0.14, M 0.58  G1 (M <= 2.0) pass
+mean days unaware over the nine fall cells: D 35.59, M 18.15; M - D -17.44 (-19.24 to -15.65)  G2 (upper < 0) pass
+mean days unaware on 40% falls: D 4.54, M 4.08  G3 (M <= D + 1.0) pass
+
+cv 0.3
+| base | fall | D heard | M heard | D median days (heard) | M median days (heard) | D mean days unaware | M mean days unaware | D false/1,000 | M false/1,000 |
+|---|---|---|---|---|---|---|---|---|---|
+| 50 | 0% | - | - | - | - | - | - | 0.21 | 1.46 |
+| 50 | 10% | 1/40 | 9/40 | 10 | 23 | 58.8 | 52.2 | 0.83 | 1.67 |
+| 50 | 20% | 3/40 | 28/40 | 4 | 23 | 55.8 | 36.1 | 0.83 | 1.25 |
+| 50 | 40% | 29/40 | 39/40 | 4 | 5 | 20.3 | 8.5 | 0.83 | 1.67 |
+| 400 | 0% | - | - | - | - | - | - | 0.63 | 1.67 |
+| 400 | 10% | 1/40 | 7/40 | 11 | 34 | 58.8 | 54.7 | 0.42 | 2.50 |
+| 400 | 20% | 3/40 | 27/40 | 10 | 20 | 56.2 | 34.4 | 1.67 | 2.50 |
+| 400 | 40% | 32/40 | 40/40 | 4 | 5 | 17.0 | 6.0 | 0.83 | 1.25 |
+| 3000 | 0% | - | - | - | - | - | - | 0.63 | 1.46 |
+| 3000 | 10% | 3/40 | 15/40 | 11 | 23 | 56.7 | 48.5 | 0.42 | 1.67 |
+| 3000 | 20% | 5/40 | 30/40 | 8 | 16 | 54.5 | 29.0 | 0.83 | 2.92 |
+| 3000 | 40% | 28/40 | 40/40 | 5 | 6 | 23.6 | 7.3 | 0.00 | 0.83 |
+pooled false alerts per 1,000 days: D 0.64, M 1.69  G1 (M <= 2.0) pass
+mean days unaware over the nine fall cells: D 44.63, M 30.74; M - D -13.89 (-15.92 to -11.91)  G2 (upper < 0) pass
+mean days unaware on 40% falls: D 20.32, M 7.23  G3 (M <= D + 1.0) pass
+
+Set 2: the eleven cells of the count hint round, seeds 3001-3200, fixed arms. Nulls: false alerts per 1,000 checks; steps: found of 200 (median delay).
+| cell | D | M |
+|---|---|---|
+| N1 Poisson 30 | 0.75 | 1.58 |
+| N2 NB 30, var 60 | 0.50 | 2.25 |
+| N3 Poisson 30, weekends 0.6x | 0.04 | 0.71 |
+| N4 Poisson 5 | 1.08 | 1.75 |
+| N5 NB 30, var 90 | 1.08 | 2.29 |
+| S1 30 -> 15 | 197 (4) | 197 (4) |
+| S2 30 -> 21 | 181 (4) | 188 (4) |
+| S3 30 -> 45 | 198 (4) | 198 (4) |
+| S4 5 -> 2 | 163 (4) | 182 (5) |
+| S5 NB(2x) 30 -> 18 | 177 (4) | 194 (4) |
+| S6 NB(3x) 30 -> 18 | 146 (5) | 180 (5) |
+| pooled false (nulls equal) | 0.69 | 1.72 |
+| steps found of 1200 | 1062 | 1139 |
+false M - D 1.02 (0.81 to 1.26), worst null cell +1.75  G4 FAIL
+steps M - D +77 (59 to 95), worst step cell 0  G5 pass
+
+Set 3: growing, shrinking and wandering sites (base 400, weekends 70%, cv 0.15), seeds 701-740, alerts per 1,000 days watched (days 120-239; no step).
+| cell | D alerts/1,000 | M alerts/1,000 | D series with any alert | M series with any alert |
+|---|---|---|---|---|
+| T1 grows 30% over 240 days | 0.21 | 5.00 | 1/40 | 20/40 |
+  G6 (T1: M <= D + 3.0) FAIL
+| T2 grows 100% over 240 days | 1.04 | 17.08 | 5/40 | 40/40 |
+| T3 falls 30% over 240 days | 1.04 | 10.63 | 5/40 | 35/40 |
+| T4 log-mean walk, sd 0.01 a day | 0.21 | 6.04 | 1/40 | 24/40 |
+| T5 log-mean walk, sd 0.02 a day | 0.83 | 12.71 | 4/40 | 31/40 |
+
+Bars: G1 cv 0.15 pass, G2 cv 0.15 pass, G3 cv 0.15 pass, G1 cv 0.3 pass, G2 cv 0.3 pass, G3 cv 0.3 pass, G4 FAIL, G5 pass, G6 FAIL
+fails (G4, G6): the count default stays; Middle stays a named setting and a hint rung
