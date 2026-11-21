@@ -28,6 +28,7 @@ flipped both shape checks in one copy and its suite stayed green.
     python3 platform/ci/check_storage_guard.py [ventures-dir]
 """
 import functools
+import os
 import re
 import shutil
 import subprocess
@@ -37,11 +38,19 @@ from pathlib import Path
 READ = re.compile(r"\blocalStorage\b")
 
 
+_BLOCK = re.compile(r"/\*.*?\*/", re.S)
+
+
+def _blank_keep_newlines(m):
+    """Blank a match to spaces but keep its newlines (the same as re.sub("[^\\n]", " "))."""
+    return "\n".join(" " * len(part) for part in m.group().split("\n"))
+
+
 @functools.lru_cache(maxsize=16)
 def _strip(src):
     """Blank out comments and string literals, keeping offsets and newlines."""
     out = re.sub(r"//[^\n]*", lambda m: " " * len(m.group()), src)
-    out = re.sub(r"/\*.*?\*/", lambda m: re.sub(r"[^\n]", " ", m.group()), out, flags=re.S)
+    out = _BLOCK.sub(_blank_keep_newlines, out)
     return re.sub(r'"(?:\\.|[^"\\\n])*"|\'(?:\\.|[^\'\\\n])*\'',
                   lambda m: " " * len(m.group()), out)
 
@@ -165,6 +174,8 @@ def unguarded_typeof(src):
     share link, draft restore) stopped before it started. Wrap the probe:
     `try { if (typeof localStorage === 'undefined') return; } catch { return; }`.
     """
+    if "localStorage" not in src:  # no read, so no line; skip the strip (2026-11-21)
+        return []
     code = _strip(src).split("\n")
     return [n for n in unguarded_reads(src) if _TYPEOF.search(code[n - 1])]
 
@@ -202,6 +213,8 @@ def inline_reads(src):
     A read inside `safe(() => ...)` passes when the script defines `safe` as a
     function that calls its argument inside try.
     """
+    if "localStorage" not in src:  # no read, so no line; skip the strip (2026-11-21)
+        return []
     code = _strip(src)
     lines = code.split("\n")
     has_safe = bool(_SAFE_DEF.search(code))
@@ -216,12 +229,23 @@ def inline_reads(src):
 
 
 def _pages(root):
-    for path in sorted(Path(root).rglob("*")):
-        if path.suffix not in (".html", ".mjs", ".js") or path.name == "usage.mjs" or ".test." in path.name:
-            continue
-        if _SKIP_DIRS.intersection(path.relative_to(root).parts) or not path.is_file():
-            continue
-        yield path
+    """Yield page files under root in sorted Path order, skipping _SKIP_DIRS.
+
+    os.walk prunes the skipped directories and filters names before building a
+    Path; sorting all 34k entries of rglob("*") as Paths cost 0.3 s
+    (2026-11-21). Sorting the kept Paths gives the same order as before.
+    """
+    root = Path(root)
+    found = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in _SKIP_DIRS]
+        for name in filenames:
+            if os.path.splitext(name)[1] in (".html", ".mjs", ".js") and name != "usage.mjs" \
+                    and ".test." not in name:
+                found.append(Path(dirpath, name))
+    for path in sorted(found):
+        if path.is_file():
+            yield path
 
 
 def check_tree(root):
