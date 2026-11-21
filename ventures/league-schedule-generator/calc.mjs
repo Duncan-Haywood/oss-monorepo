@@ -8,8 +8,8 @@
 
 import { whistRotation } from "./whist.mjs";
 import { lowCarryOverRounds, lowCarryOverDoubleRounds, bestCarryOverRounds, carryOverSummary, carryOverKeepIndex, CARRY_OVER_PICK, carryOver } from "./carryover.mjs";
-import { swissStandings, swissPairings, swissPairingsGreedy, colourClaim } from "./swiss.mjs";
-export { swissStandings, swissPairings, swissPairingsGreedy, colourClaim };
+import { swissStandings, swissPairings, swissPairingsGreedy, colourClaim, floatHistory } from "./swiss.mjs";
+export { swissStandings, swissPairings, swissPairingsGreedy, colourClaim, floatHistory };
 import { waitFreeNights, seasonLayout, waitFreePossible, waitFreeProvedImpossible } from "./nights.mjs";
 
 export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -3637,6 +3637,7 @@ export function swissRounds(n) {
 export function parseSwissResults(text, players) {
   const games = [];
   const byes = [];
+  const byeRounds = [];
   const withdrawn = [];
   const errors = [];
   const rest = [];
@@ -3654,7 +3655,12 @@ export function parseSwissResults(text, players) {
     if (m) {
       const idx = teamIndex(players, m[1]);
       if (idx < 0) errors.push(`Result line ${i + 1}: "${m[1]}" is not one of the players.`);
-      else byes.push(idx);
+      else {
+        // The bye's round: how many games and byes this player has above this line (lines in round order).
+        const before = parseResults(rest.join("\n"), players).results.filter((g) => g.a === idx || g.b === idx).length;
+        byeRounds.push(before + byes.filter((b) => b === idx).length);
+        byes.push(idx);
+      }
       continue;
     }
     rest.push(line);
@@ -3662,7 +3668,7 @@ export function parseSwissResults(text, players) {
   const parsed = parseResults(rest.join("\n"), players);
   games.push(...parsed.results);
   errors.push(...parsed.errors);
-  return { games, byes, withdrawn, errors };
+  return { games, byes, byeRounds, withdrawn, errors };
 }
 
 /** Check a pairing: everyone placed once, no rematches, bye unused. Returns a list of problems. */

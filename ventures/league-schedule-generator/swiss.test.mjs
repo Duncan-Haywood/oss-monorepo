@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { swissPairings, swissPairingsGreedy, swissStandings, colourClaim } from "./swiss.mjs";
+import { swissPairings, swissPairingsGreedy, swissStandings, colourClaim, floatHistory } from "./swiss.mjs";
 import { validateSwiss } from "./calc.mjs";
 
 function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 2 ** 32; }; }
@@ -144,4 +144,84 @@ test("withdrawn players are left out and a 150-player round pairs in under a sec
   assert.deepEqual(validateSwiss(players, games, byes, r, [0, 1, 2]), []);
   assert.equal(r.pairs.length, 73);
   assert.notEqual(r.bye, null);
+});
+
+test("floatHistory: downfloats, upfloats and byes per round, byes placed by round", () => {
+  // Round 1: A beats B (level), C bye. Round 2: C v A (level), B bye. Round 3: B (1) v C (2), A bye.
+  const games = [{ a: 0, b: 1, ga: 1, gb: 0 }, { a: 2, b: 0, ga: 1, gb: 0 }, { a: 1, b: 2, ga: 0, gb: 1 }];
+  const { history, rounds } = floatHistory(["A", "B", "C"], games, [2, 1, 0]);
+  assert.equal(rounds, 3);
+  assert.deepEqual(history.get(0), [null, null, "down"]);
+  assert.deepEqual(history.get(1), [null, "down", "up"]);
+  assert.deepEqual(history.get(2), ["down", null, "down"]);
+});
+
+test("repeat floats: a downfloat is not repeated when a round without one exists (FIDE C.14 before C.15)", () => {
+  // After two rounds A and F have 2, E and D 1, B and C 0. A floated down to B in round 2 (B up).
+  const players = ["A", "B", "C", "D", "E", "F"];
+  const games = [{ a: 0, b: 3, ga: 1, gb: 0 }, { a: 4, b: 1, ga: 1, gb: 0 }, { a: 2, b: 5, ga: 0, gb: 1 },
+    { a: 1, b: 0, ga: 0, gb: 1 }, { a: 5, b: 4, ga: 1, gb: 0 }, { a: 3, b: 2, ga: 1, gb: 0 }];
+  const key = (r) => r.pairs.map((p) => [p.white, p.black].sort().join("-")).sort();
+  const off = swissPairings(players, games, [], [], { repeatFloats: false });
+  const on = swissPairings(players, games);
+  assert.deepEqual(off.repeats, { down: 1, up: 0 });
+  assert.deepEqual(key(off), ["0-4", "1-2", "3-5"]);
+  // With the rule A meets F (level); B floats up again instead, which FIDE ranks below a repeat downfloat.
+  assert.deepEqual(on.repeats, { down: 0, up: 1 });
+  assert.deepEqual(key(on), ["0-5", "1-3", "2-4"]);
+  assert.equal(on.floaters, off.floaters);
+});
+
+test("repeat floats: every round is within the Dutch-order slack of the fewest weighted repeat floats among rounds equal on the higher tiers", () => {
+  const W = { rd1: 488, ru1: 244, rd2: 122, ru2: 61 };
+  for (let s = 0; s < 24; s++) {
+    const n = 6 + (s % 5);
+    const { players, states } = simulate(swissPairings, n, 5, 300 + s);
+    for (const { games, byes } of states) {
+      const table = new Map(swissStandings(players, games, byes).map((r) => [r.index, r]));
+      const { history, rounds } = floatHistory(players, games, byes);
+      const ago = (i, k) => history.get(i)?.[rounds - k] ?? null;
+      const met = new Set(games.flatMap((g) => [`${g.a}|${g.b}`, `${g.b}|${g.a}`]));
+      const half = (i) => Math.round(table.get(i).score * 2);
+      const claim = (i) => colourClaim(table.get(i));
+      // Higher tiers (absolute, squared score gap, strong, mild) and weighted repeat floats of a round.
+      const cost = (pairs, bye) => {
+        let tiers = [0, 0, 0, 0];
+        let f = 0;
+        for (const [x, y] of pairs) {
+          const cx = claim(x), cy = claim(y);
+          if (cx.colour && cx.colour === cy.colour) tiers[[0, 3, 2, 1][Math.min(cx.strength, cy.strength)]]++;
+          const d = Math.abs(half(x) - half(y));
+          tiers[1] += d * d * 1000;
+          if (d) {
+            const [dn, up] = half(x) > half(y) ? [x, y] : [y, x];
+            if (ago(dn, 1) === "down") f += W.rd1; if (ago(dn, 2) === "down") f += W.rd2;
+            if (ago(up, 1) === "up") f += W.ru1; if (ago(up, 2) === "up") f += W.ru2;
+          }
+        }
+        if (bye !== null) {
+          tiers[1] += half(bye) ** 2 * 1000;
+          if (ago(bye, 1) === "down") f += W.rd1; if (ago(bye, 2) === "down") f += W.rd2;
+        }
+        return { tiers: tiers.join(","), f };
+      };
+      const all = [];
+      const fewestByes = Math.min(...players.map((_, i) => table.get(i).byes));
+      const rec = (left, acc, bye) => {
+        if (!left.length) { all.push(cost(acc, bye)); return; }
+        if (left.length % 2 === 1 && bye === null) {
+          for (const b of left) if (table.get(b).byes === fewestByes) rec(left.filter((q) => q !== b), acc, b);
+          return;
+        }
+        const [x, ...rest] = left;
+        for (const y of rest) if (!met.has(`${x}|${y}`)) rec(rest.filter((q) => q !== y), [...acc, [x, y]], bye);
+      };
+      rec(players.map((_, i) => i), [], null);
+      const round = swissPairings(players, games, byes, [], { lookahead: false });
+      const chosen = cost(round.pairs.map((p) => [p.white, p.black]), round.bye);
+      const same = all.filter((c) => c.tiers === chosen.tiers);
+      const best = Math.min(...same.map((c) => c.f));
+      assert.ok(chosen.f <= best + 60 * Math.ceil(n / 2), `n=${n} seed=${s}: chosen ${chosen.f}, best ${best}`);
+    }
+  }
 });

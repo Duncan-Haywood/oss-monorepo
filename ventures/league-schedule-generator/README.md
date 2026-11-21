@@ -754,7 +754,7 @@ MIT licence, see `LICENSE`.
 
 **Play-off race.** With results typed and a play-off size set, the page lists who has clinched a place, who is out, and how many more points clinch it for everyone still alive. With 12 or fewer games left it works through every win/draw/loss outcome (`playoffRace` in `calc.mjs`, cross-checked against brute force in the tests); with more it uses safe bounds that never call a team clinched or out wrongly. Ranked on points only, with ties on points counted against the team, so goal difference can only help a team shown as alive.
 
-**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Not FIDE-endorsed pairing: it does not implement every FIDE floater rule (repeat floats are not tracked), so use an arbiter-approved program for rated events.
+**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Since 2026-11-21 it also avoids repeat floats (see "Repeat floats" below). Not FIDE-endorsed pairing: it weighs FIDE's quality criteria rather than following the Dutch system's exact procedure and has not been checked against an endorsed engine, so use an arbiter-approved program for rated events.
 
 **Calendar for multi-division leagues (2026-10-29).** `multi-division-league-schedule.html` gains "Download calendar (.ics)", and `divisionsIcs(schedule, { division, team, stamp, minutes })` in `divisions.mjs` writes one event per match for the whole league, one division or one team (summary, court and venue, division and round, official if assigned; floating local times, 60-minute games unless `minutes` is set). Test: every match appears once, per-division and per-team counts match, UIDs are unique, no line is over 75 bytes, and a 90-minute game ends where it should (`divisions.test.mjs`).
 
@@ -5449,7 +5449,64 @@ how many boards could not give both players their colour. The Swiss guide's work
 redone on the new pairer: its round 2 now gives all six players their due colour where the old one
 gave two boards a clash, with the same single float.
 
-**Not done:** repeat-float rules (FIDE avoids floating the same player in consecutive rounds),
+**Not done:** repeat-float rules (landed the same day, next section),
 accelerated pairings for big opens, the top-scorer colour exception in the last round, and a
 check against bbpPairings or JaVaFo on the same positions. No real event has been paired on it.
 
+## Repeat floats (2026-11-21)
+
+FIDE's Dutch rules (C.04.3, criteria C.14 to C.17) try not to float the same player the same way
+two rounds running: a player who was paired down last round (or took the bye, which counts as a
+downfloat) should not be paired down again, nor one paired up be paired up again, and the same
+two rounds back, in that order of priority. The pairer did not track floats before.
+
+`floatHistory(players, games, byes, byeRounds)` in `swiss.mjs` rebuilds who floated in every
+round from the games in the order they were played: a player's k-th game or bye is their round
+k, scores are taken before each round, and a bye is placed in its own round (`byeRounds`, which
+`parseSwissResults` now reads from where the `Cy bye` line sits among the results; without it,
+bye k is round k, as in an odd field). `swissPairings` adds a repeat-float tier to each board's
+penalty, between the colour tiers and the Dutch top-half order, as the Dutch criteria rank them:
+488 for a repeat downfloat, 244 for a repeat upfloat, 122 and 61 for the same two rounds back.
+Each step outweighs what the Dutch-order tier adds on one board (at most 60), and the whole tier
+on every board stays under one strong colour clash, so score gaps and strong claims rank strictly
+above it. Against mild colour claims it is weighed, not ranked: a round can trade one mild clash
+for several repeat floats. The pairing returns `repeats: {down, up}` and the page's status line
+says how many players float the same way as last round. `{ repeatFloats: false }` turns it off.
+
+**Checked** (`swiss.test.mjs`, 3 new tests): the float history on a hand-worked 3-player event
+with a bye each round; a 6-player position after two rounds where the rule pairs the two leaders
+(level) instead of floating the leader down a second time, taking a repeat upfloat instead
+(C.14 before C.15); and in 24 events of 6-10 players, every round's weighted repeat floats are
+within the Dutch-order slack (60 per board) of the fewest among all rematch-free rounds equal to
+it on absolute, score-gap, strong and mild colour tiers, enumerated exhaustively.
+
+**Measured** (`node eval/swiss-repeat-floats.mjs 40`, `eval/swiss-repeat-floats.txt`, 49 s): the
+same 440 simulated events as `eval/swiss-matching.txt` (8 to 151 players, 3,560 rounds), the
+rule off and on:
+
+| | off | on |
+|---|---:|---:|
+| players floated down again right after a downfloat or bye | 3,082 | **2,046** (-34%) |
+| players floated up again right after an upfloat | 2,593 | **1,711** (-34%) |
+| downfloats repeating two rounds back | 2,084 | 1,583 |
+| upfloats repeating two rounds back | 1,682 | 1,268 |
+| floating boards | 12,372 | 12,373 |
+| summed score gap | 8,105 | 8,077.5 |
+| boards both owed one colour absolutely | 0 | 0 |
+| strong / mild colour clashes | 6,264 / 8,221 | 6,368 / 8,355 |
+| events that stopped early | 0 | 0 |
+
+The largest fields gain most (151 players: repeat downfloats 8.2 to 3.8 per event, upfloats 6.0
+to 1.1), because a big score group has many ways to choose who floats. Strong colour clashes rose
+1.7%: a round never takes a strong clash to save a float (that tier ranks above), so the rise
+comes from the events running differently afterwards (other scores, other colour histories), not
+from a trade inside a round. The remaining repeats are mostly forced by an odd score group, where
+someone must float and the score tier comes first.
+Played as deep as they go (`node eval/swiss-matching.mjs 40`, rerun with the rule on; the file
+keeps the run before it), the pairer still reached the last round in every event at 6, 7, 8 and
+12 players and stopped before the old one-at-a-time pairer in 4 of 320 events (2 before; the old one stopped first in 62).
+
+**Not done:** the score-difference criteria among repeat floaters (C.18-C.21), and a side-by-side
+with bbpPairings or JaVaFo: a session's tool policy refused building bbpPairings' C++ source from a
+fresh clone, so that check needs a run that may build it, or a published set of positions with
+FIDE-endorsed pairings to compare against. No real event has been paired on it.

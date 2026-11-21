@@ -401,9 +401,9 @@ flagships:
       match play recap; next: a real league's season. Box leagues 2026-11-21
       (boxleague.mjs); next: a real club's month. Practice slots on shared fields
       2026-11-21 (practice.mjs: 95 of 95 CP-SAT optima, eval/practice-exact.txt);
-      next: a real league's fields and teams. Swiss: one weighted matching
-      2026-11-21 (swiss.mjs, eval/swiss-matching.txt); next: repeat floats,
-      bbpPairings side-by-side. More open items: NEXT.md.
+      next: a real league's fields and teams. Swiss 2026-11-21 (swiss.mjs; repeat
+      floats, eval/swiss-repeat-floats.txt); next: bbpPairings side-by-side. More
+      open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
