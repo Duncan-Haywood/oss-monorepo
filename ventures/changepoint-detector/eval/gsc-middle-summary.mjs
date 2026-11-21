@@ -26,7 +26,7 @@ for (const cv of cvs) {
     if (!r[cv]) continue;
     const s = stat(r[cv].cells);
     console.log(`${k} ${r[cv].opts} | ${s.false1000.toFixed(2)} | ${s.heard[0.1]}/${s.of[0.1]} (${s.delay[0.1] ?? '-'}) | ${s.heard[0.2]}/${s.of[0.2]} (${s.delay[0.2] ?? '-'}) | ${s.heard[0.4]}/${s.of[0.4]} (${s.delay[0.4] ?? '-'})`);
-    for (const c of r[cv].cells) console.log(`    base ${c.base} fall ${c.fall * 100}%: ${c.fall ? `${c.heard}/${c.seeds} heard, median ${med(c.delays) ?? '-'} d, ` : ''}false ${(1000 * c.falseA / c.watched).toFixed(2)}/1,000${c.fall ? '' : `, null alerts in the fall window ${c.chance}/${c.seeds}`}`);
+    for (const c of r[cv].cells) console.log(`    base ${c.base} fall ${Math.round(c.fall * 100)}%: ${c.fall ? `${c.heard}/${c.seeds} heard, median ${med(c.delays) ?? '-'} d, ` : ''}false ${(1000 * c.falseA / c.watched).toFixed(2)}/1,000${c.fall ? '' : `, null alerts in the fall window ${c.chance}/${c.seeds}`}`);
   }
 }
 if (stage === 'A') {
