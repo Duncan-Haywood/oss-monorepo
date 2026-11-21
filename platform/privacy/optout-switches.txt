@@ -1166,6 +1166,7 @@ ventures/subscription-audit-from-statement/usage.mjs
 ventures/subscription-price-impact/usage.mjs
 ventures/subscription-proration-calculator/usage.mjs
 ventures/substack-subscriber-export-analyzer/usage.mjs
+ventures/subtitle-resync/usage.mjs
 ventures/sudoers-check/usage.mjs
 ventures/sump-pump-bid-calculator/usage.mjs
 ventures/sunroom-bid-calculator/usage.mjs

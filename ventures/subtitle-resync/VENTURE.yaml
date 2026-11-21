@@ -1,0 +1,53 @@
+name: subtitle-resync
+description: >-
+  A free, zero-dependency browser tool and Node CLI that fixes out-of-sync
+  SRT and WebVTT subtitle files: a constant shift, a frame-rate conversion
+  between 23.976, 24, 25, 29.97 and 30 fps (the common 25 to 23.976 PAL
+  drift), a two-point shift-and-stretch from lines whose spoken times the
+  user reads off the video, or automatic alignment to a correctly timed
+  reference subtitle in any language by timing pattern alone (offset voting
+  at each frame-rate ratio, then a least-squares fit, with a confidence
+  rating). Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Explore-track pick (2026-11-21). Sibling of caption-quality-check, which
+# grades a caption track's readability but cannot move it; nothing in
+# ventures/ shifts, stretches or aligns subtitle timing (searched slugs and
+# READMEs for subtitle, srt, vtt, resync, sync, frame rate). Searchers ask
+# this constantly ("subtitles out of sync", "srt delay", "subtitles drift
+# 25 23.976") and the usual answers are desktop installs or upload sites.
+hypotheses:
+  - claim: >-
+      People searching "subtitles out of sync", "fix srt timing" or
+      "subtitles 25 fps 23.976" will use a no-upload browser tool to fix the
+      file and come back for the next film.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Reference alignment (sync to another language's subtitle) is the
+      feature that sets this apart from plain offset tools; it is the mode
+      most worked-example loads will end in.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Static files; all work runs on the visitor's device.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (portfolio/usage/README.md).
+
+links:
+  production: https://marisstella.app/subtitle-resync/
+  analytics: null
