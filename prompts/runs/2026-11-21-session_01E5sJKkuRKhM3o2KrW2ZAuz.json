@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKkuRKhM3o2KrW2ZAuz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T11:09:30Z",
+  "ended": "2026-11-21T11:24:23Z",
+  "wall_minutes": 15.2,
+  "tokens_in": 12345058,
+  "tokens_out": 56876,
+  "cost_usd": 5.1843,
+  "tool_calls": 81,
+  "task": "Deepen (flagship 13) xer-schedule-check: WBS UDFs in the XER <-> Project XML converters",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18073",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Ran the MPXJ cross-check first keyed by WBS code: CCA has 91 childless WBS nodes MPXJ reads as plain tasks and the XER side uses project-prefixed WBS codes, so 461 cells and then every XER cell looked missing; re-keyed (XML by UID, XER by stripped WBS path) and both read 6,383/6,383.",
+    "First full suite run failed one p6xer.test.mjs counts assertion (new wbsUdfFields/wbsUdfValues keys); updated the expected object."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here picked photo-editing although its probe in the same run printed raw.pixls.us REFUSED, the host every BUILDABLE HERE item needs (metadata-extractor-images has no MRW and the noise sweeps use the raw.pixls.us sets); a few minutes lost confirming before moving on."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "Replacing one item pushed the row over the cap and it moved an unrelated finished result (p6xer UDFs) to HISTORY.md by itself; fine, but worth knowing that a --replace can touch HISTORY.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here row (photo-editing) had every buildable item behind raw.pixls.us, which refused this session; league-schedule-generator's open items mostly need a real league",
+      "did": "Took the xer-schedule-check row (flagship 13) item 'next WBS UDFs'; did not add inputs_only to photo-editing since raw.pixls.us answers from other sessions",
+      "result": "Item landed with a round-trip check and MPXJ cross-read"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-p6-wbs-udfs-in-microsoft-project.md",
+    "ventures/xer-schedule-check/eval/wbs-udfs-2026-11-21.md"
+  ],
+  "goal": "Deepen a flagship",
+  "notes": "WBS UDFs (PROJWBS) now go onto Project summary tasks in the task Number/Cost/Date/free Text fields, sharing a same-titled activity UDF's column, and come back from summary tasks as P6 WBS UDFs. No public XER has a WBS UDF, so they were planted on three of the six public files: 6,383/6,383 values back, MPXJ 16.10 6,383/6,383 cells in XML and XER and 20/20 aliases, 13,997/13,997 activity UDF values still back, p6Problems 0; unplanted files byte-identical XML and XER vs main. Local: node --test *.test.mjs in the venture 262 pass 0 fail; run_venture_tests.py xer-schedule-check (before the counts fix: 1 fail, fixed); check_posts ok; validate.py ok. venture-preflight run in background, result in PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0461e1da-5ccf-5071-b55f-88d3e5a0968e",
+    "transcripts": 1,
+    "first": "2026-11-21T11:09:30Z",
+    "last": "2026-11-21T11:24:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 152,
+        "output": 56876,
+        "thinking": 12918,
+        "cache_read": 12142703,
+        "cache_write_5m": 0,
+        "cache_write_1h": 202203,
+        "api_equivalent_usd": 5.1843,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 152,
+      "output": 56876,
+      "thinking": 12918,
+      "cache_read": 12142703,
+      "cache_write_5m": 0,
+      "cache_write_1h": 202203,
+      "api_equivalent_usd": 5.1843,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 75,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.2,
+      "active_minutes": 15.2,
+      "model_minutes": 9.97,
+      "tool_minutes": 5.23,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a scheduling-tools developer adding WBS custom fields to both converters with a planted round-trip and MPXJ check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 115.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
