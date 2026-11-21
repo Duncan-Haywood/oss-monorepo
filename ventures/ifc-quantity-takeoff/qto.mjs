@@ -377,6 +377,10 @@ export function takeoff(model, opts = {}) {
  *   own-dimensions the stored volume disagrees with the element's own stored
  *                Length x Height x Width, and the computed volume agrees with
  *                that product: the stored volume is the odd one out;
+ *   body-is-net  the geometry has the openings cut already and equals the
+ *                stored NetVolume (bodyIsNet below);
+ *   unit-slip    again, after the rest: a power of ten times the square-foot
+ *                factor, shared by several elements (compoundSlips below);
  *   unexplained  none of these.
  * Sets row.check.gross.reason / row.check.net.reason, and row.trustStored =
  * false when the stored volume should not be summed.
@@ -422,11 +426,66 @@ export function explainChecks(rows, tol = 0.02) {
       const slip = unitSlip(c.computed, c.stored, tol / 4);
       if (slip) { c.reason = "unit-slip"; c.factor = slip; r.trustStored = false; continue; }
       if (w === "gross" && r.computed.openings > 0 && r.computed.net != null && near(r.computed.net, c.stored)) c.reason = "net-as-gross";
+      else if (w === "gross" && bodyIsNet(r, c, near, tol)) c.reason = "body-is-net";
       else if (dims != null && !near(c.stored, dims) && (near(c.computed, dims) || (r.computed.net != null && near(r.computed.net, dims)))) { c.reason = "own-dimensions"; r.trustStored = false; }
       else c.reason = "unexplained";
     }
   }
+  compoundSlips(rows, tol);
   return rows;
+}
+
+/**
+ * body-is-net: the body geometry already has the openings cut out (an
+ * ArchiCAD faceted export writes the wall or slab with its holes and no
+ * IfcOpeningElement), so the computed volume equals the element's own stored
+ * NetVolume, and the stored GrossVolume is larger by the openings. The stored
+ * gross is then the right gross, and the BoQ sums the stored net as before.
+ * Needs: no openings in the file for the element, a stored NetVolume that the
+ * computed volume matches, and a stored gross more than the tolerance above it.
+ */
+function bodyIsNet(r, c, near, tol) {
+  if (r.computed.openings > 0) return false;
+  let sn = null;
+  for (const [k, q] of Object.entries(r.stored)) if (q.kind === "volume" && k.toLowerCase() === "netvolume") sn = q.value;
+  return sn != null && sn > 0 && near(c.computed, sn) && c.stored > sn * (1 + tol);
+}
+
+/**
+ * A second unit-slip pass over what is still unexplained: the stored volume is
+ * the computed one times 10^k (k from -9 to 9, not 0) times the square-foot
+ * factor or its inverse (skolebygg's roof slabs store litres divided by
+ * 10.7639, 92.903 times the geometry). One such ratio alone could be chance
+ * (unitSlip's comment), so the factor counts only when at least
+ * COMPOUND_SLIP_MIN elements of the model share it to a quarter of the
+ * tolerance: a systematic exporter habit, not a coincidence.
+ */
+export const COMPOUND_SLIP_MIN = 3;
+export function compoundFactor(computed, stored, tol = 0.005) {
+  if (!(computed > 0) || !(stored > 0)) return null;
+  for (const f of [SQFT, 1 / SQFT]) {
+    const k = Math.round(Math.log10(stored / (computed * f)));
+    if (k === 0 || Math.abs(k) > 9) continue;
+    const factor = f * 10 ** k;
+    if (Math.abs(computed * factor - stored) <= tol * stored) return factor;
+  }
+  return null;
+}
+function compoundSlips(rows, tol) {
+  const byFactor = new Map();
+  for (const r of rows) for (const w of ["gross", "net"]) {
+    const c = r.check?.[w];
+    if (!c || c.agree || c.reason !== "unexplained") continue;
+    const f = compoundFactor(c.computed, c.stored, tol / 4);
+    if (f == null) continue;
+    const key = f.toPrecision(6);
+    if (!byFactor.has(key)) byFactor.set(key, []);
+    byFactor.get(key).push([r, c, f]);
+  }
+  for (const list of byFactor.values()) {
+    if (list.length < COMPOUND_SLIP_MIN) continue;
+    for (const [r, c, f] of list) { c.reason = "unit-slip"; c.factor = f; r.trustStored = false; }
+  }
 }
 
 // 1 m2 = 10.7639 ft2: a factor some exporters apply to the wrong quantity
@@ -643,9 +702,10 @@ export const AREA_REASON_TEXT = {
 export const REASON_TEXT = {
   split: "the same stored volume is written on every piece of an element split by level; the pieces' geometry sums to it",
   repeated: "the same stored volume is written on several pieces of one element, and the pieces in this file do not sum to it",
-  "unit-slip": "the stored volume is the geometry's times a power of ten (or the square-foot factor 10.7639): written in the wrong unit",
+  "unit-slip": "the stored volume is the geometry's times a power of ten, the square-foot factor 10.7639, or both: written in the wrong unit",
   "net-as-gross": "the exporter's GrossVolume equals the volume with openings taken out (net)",
   "own-dimensions": "the stored volume disagrees with the element's own stored length x height x width; the geometry agrees with them",
+  "body-is-net": "the body geometry already has the openings cut out (no opening elements in the file): it equals the stored NetVolume, and the stored GrossVolume is larger by the openings",
   unexplained: "no known cause; check the element in a viewer",
 };
 

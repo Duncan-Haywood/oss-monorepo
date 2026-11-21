@@ -77,11 +77,13 @@ Nothing is uploaded: the model is read in the browser tab.
 | Free IFC viewers (BIMcollab Zoom, BIMvision, xeokit) | free | show stored properties one element at a time; no grouped, priced BoQ, no check of the stored figures |
 | IfcOpenShell scripts | free | needs Python and a programmer |
 
-The one thing none of them advertises: on 8 public models, 690 of 5,495 stored
-GrossVolumes (12.6%) disagreed with the element's own geometry, and 147 of
-those were provably the stored figure's fault. An estimate that sums stored
-quantities inherits those errors; this tool says which they are
-([eval/stored-vs-computed-2026-11-19.md](eval/stored-vs-computed-2026-11-19.md)).
+The one thing none of them advertises: on 8 public models, 632 of 5,495 stored
+GrossVolumes (11.5%) disagree with the element's own geometry, the tool names
+a cause for 598 of them, and in 166 the stored figure is provably the wrong
+one (on one school model, 20 roof slabs store 125,036 m3 where their geometry
+holds 1,346). An estimate that sums stored quantities inherits those errors;
+this tool says which they are
+([eval/stored-vs-computed-2026-11-21.md](eval/stored-vs-computed-2026-11-21.md)).
 
 ## How it was checked
 
@@ -94,9 +96,11 @@ quantities inherits those errors; this tool says which they are
   tables (28.48 cm2; root radii included as (4 - pi) r^2).
 - **Real models.** On 13 public models (Revit, ArchiCAD, Tekla and others), the
   computed volume agrees with the stored GrossVolume for 4,863 of 5,495
-  elements and with NetVolume for 6,133 of 6,366; where they agree, the median
+  elements and with NetVolume for 6,172 of 6,405; where they agree, the median
   difference is 8e-16. Every disagreement is classified in
-  [eval/stored-vs-computed-2026-11-19.md](eval/stored-vs-computed-2026-11-19.md),
+  [eval/stored-vs-computed-2026-11-19.md](eval/stored-vs-computed-2026-11-19.md)
+  and, after two causes named 2026-11-21 (unexplained GrossVolumes 159 to 34),
+  [eval/stored-vs-computed-2026-11-21.md](eval/stored-vs-computed-2026-11-21.md),
   with the raw output beside it (rerun 2026-11-20: 58 Revit members whose
   faceted faces were written reversed now agree,
   [eval/faceted-causes-2026-11-20.md](eval/faceted-causes-2026-11-20.md)).

@@ -40,7 +40,7 @@ test("the in-page FAQ matches the structured data", () => {
 
 test("the page's corpus numbers match the committed eval", () => {
   const html = page("index.html");
-  const j = JSON.parse(page("eval/stored-vs-computed-2026-11-19.json"));
+  const j = JSON.parse(page("eval/stored-vs-computed-2026-11-21.json"));
   const t = { gross: {}, net: {} };
   for (const f of j) for (const w of ["gross", "net"]) for (const [k, v] of Object.entries(f.classes[w])) t[w][k] = (t[w][k] || 0) + v;
   const sum = (o) => Object.values(o).reduce((a, b) => a + b, 0);
@@ -51,6 +51,9 @@ test("the page's corpus numbers match the committed eval", () => {
   assert.ok(html.includes(`${t.gross["unit-slip"]} slab volumes written in the wrong unit`));
   assert.ok(html.includes(`${t.gross.split + t.gross.repeated} split-by-level pieces`));
   assert.ok(html.includes(`${t.gross["own-dimensions"]} stored volumes that contradict`));
+  assert.ok(html.includes(`${t.gross["body-is-net"]} walls and slabs whose geometry already has the openings cut out`));
+  const named = Object.entries(t.gross).filter(([k]) => k !== "agree" && k !== "unexplained").reduce((a, [, v]) => a + v, 0);
+  assert.ok(html.includes(`Of the ${n(sum(t.gross) - t.gross.agree)} GrossVolume disagreements, the page names a cause for ${n(named)}`));
 });
 
 test("the page's area numbers match the committed area eval", () => {
