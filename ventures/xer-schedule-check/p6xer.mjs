@@ -76,6 +76,7 @@
 
 import { parseMspdi, parseXml, durationHours } from "./mspdi.mjs";
 import { xerText, xerBytes } from "./xer.mjs";
+import { memoHtml } from "./notebook.mjs";
 import { RSRC_TEXT_IDS, RSRC_NUMBER_IDS, RSRC_COST_IDS, RSRC_DATE_IDS } from "./msproject.mjs";
 
 // Project's resource custom fields, by PjField id -> [kind, field name]
@@ -286,7 +287,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
   // resources and assignments, read here (mspdi.mjs reads only their calendars)
   const RSRC = [], TASKRSRC = [];
   const rsrcType = new Map();
-  let costRes = 0, costAssign = 0, dupRsrc = 0, summaryAssign = 0, summaryCost = 0;
+  let costRes = 0, costAssign = 0, dupRsrc = 0, summaryAssign = 0, summaryCost = 0, rsrcNotes = 0, costNotes = 0;
   const costRsrc = new Map(); // cost resource uid -> { name, group, accrue }
   const rsrcShort = new Set();
   const rsrcFieldVals = new Map(); // resource field id -> Map(rsrc uid -> value)
@@ -294,7 +295,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
     const uid = val(r, "UID");
     if (!uid || uid === "0" || val(r, "IsNull") === "1" || !val(r, "Name")) continue;
     const type = val(r, "Type") === "" ? "1" : val(r, "Type");
-    if (type === "2") { costRes++; costRsrc.set(uid, { name: val(r, "Name"), group: val(r, "Group"), accrue: val(r, "AccrueAt") }); continue; }
+    if (type === "2") { costRes++; if ((val(r, "Notes") || "").trim()) costNotes++; costRsrc.set(uid, { name: val(r, "Name"), group: val(r, "Group"), accrue: val(r, "AccrueAt") }); continue; }
     const rt = type === "0" ? "RT_Mat" : "RT_Labor";
     rsrcType.set(uid, rt);
     const name = val(r, "Name");
@@ -310,9 +311,13 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
       if (!rsrcFieldVals.has(fid)) rsrcFieldVals.set(fid, new Map());
       rsrcFieldVals.get(fid).set(uid, v);
     }
+    // the resource's notes (plain text in Project's XML) as P6's resource
+    // notes, written as P6 Web writes rich text (notebook.mjs's memoHtml)
+    const rnote = (val(r, "Notes") || "").trim();
+    if (rnote) rsrcNotes++;
     RSRC.push(full("RSRC", {
       rsrc_id: idOf("RSRC", uid), clndr_id: projCal, rsrc_seq_num: String(RSRC.length + 1),
-      rsrc_name: clip("rsrc_name", name), rsrc_short_name: short,
+      rsrc_name: clip("rsrc_name", name), rsrc_short_name: short, rsrc_notes: rnote ? memoHtml(rnote) : "",
       email_addr: "", def_qty_per_hr: n2((Number(val(r, "MaxUnits")) || 1)), rsrc_type: rt,
     }, { cost_qty_type: "QT_Hour", active_flag: "Y", auto_compute_act_flag: "N", def_cost_qty_link_flag: "Y", ot_flag: "N", curr_id: "1", load_tasks_flag: "", level_flag: "Y" }));
   }
@@ -645,6 +650,8 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
   }
   if (costAssign || fixedCosts) warnings.push(`${costAssign + fixedCosts} expense(s) written (PROJCOST)${costAssign ? `: ${costAssign} assignment(s) of ${costRes} cost resource(s), named after the resource${COSTTYPE.length ? `, in ${COSTTYPE.length} cost categor${COSTTYPE.length === 1 ? "y" : "ies"} from the resources' Group` : ""}` : ""}${fixedCosts ? `${costAssign ? ";" : ":"} ${fixedCosts} task fixed cost(s) as "Fixed cost"` : ""}; budgeted cost is the baseline cost where the assignment has one`);
   else if (costRes) warnings.push(`${costRes} cost resource(s) with no assignment on an activity`);
+  if (rsrcNotes) warnings.push(`${rsrcNotes} resource note(s) written as the resource's notes (RSRC.rsrc_notes)`);
+  if (costNotes) warnings.push(`${costNotes} cost resource note(s) not carried: cost resources become expenses in P6, which hold no notes`);
   if (summaryCost) warnings.push(`${summaryCost} cost resource assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no expenses`);
 
   const xer = { version: "20.12", exportDate: new Date().toISOString().slice(0, 10), tables, format: "xer" };

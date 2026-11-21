@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 394" role="img" aria-label="Line plot of each tier's shape error minus its own error at the +1 cm width offset, against the arm-width offset from -1 to +3 cm, for three woven fabrics on a 3 cm half-depth wood-shaped arm, comparing the 3D spring sheet with the triangle finite-element tier, both with calibrated bending">
+<rect width="640" height="394" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Hanger arm width: shape error relative to the +1 cm arm, two 3D tiers</text>
+<line x1="64" x2="624" y1="321.6" y2="321.6" stroke="#ddd"/><text x="58" y="325.6" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="254.7" y2="254.7" stroke="#ddd"/><text x="58" y="258.7" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="187.7" y2="187.7" stroke="#ddd"/><text x="58" y="191.7" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="120.7" y2="120.7" stroke="#ddd"/><text x="58" y="124.7" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<text x="64.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">-1</text>
+<text x="204.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="344.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="484.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="624.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="344.0" y="382" text-anchor="middle" font-family="sans-serif" font-size="12">arm half-width offset from the half shoulder (cm)</text>
+<text x="14" y="204.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 204.0)">shape error minus error at +1 cm (cm RMS)</text>
+<line x1="64" x2="624" y1="321.6" y2="321.6" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,194.0 204.0,338.0 344.0,321.6 484.0,249.6 624.0,123.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="194.0" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="338.0" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="321.6" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="249.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="123.5" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">F2 spring sheet</text>
+<polyline points="64.0,135.2 204.0,304.8 344.0,321.6 484.0,275.7 624.0,187.9" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="135.2" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="304.8" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="321.6" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="275.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="187.9" r="3" fill="#1f6fb2"/>
+<rect x="191" y="32" width="14" height="10" fill="#1f6fb2"/><text x="211" y="41" font-family="sans-serif" font-size="11">F2 triangle tier</text>
+<polyline points="64.0,158.2 204.0,275.0 344.0,321.6 484.0,252.5 624.0,136.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="158.2" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="275.0" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="321.6" r="3" fill="#2e8b57"/>
+<circle cx="484.0" cy="252.5" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="136.2" r="3" fill="#2e8b57"/>
+<rect x="324.2" y="32" width="14" height="10" fill="#2e8b57"/><text x="344.2" y="41" font-family="sans-serif" font-size="11">F5 spring sheet</text>
+<polyline points="64.0,85.2 204.0,250.1 344.0,321.6 484.0,282.5 624.0,165.6" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="85.2" r="3" fill="#8e44ad"/>
+<circle cx="204.0" cy="250.1" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="321.6" r="3" fill="#8e44ad"/>
+<circle cx="484.0" cy="282.5" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="165.6" r="3" fill="#8e44ad"/>
+<rect x="451.2" y="32" width="14" height="10" fill="#8e44ad"/><text x="471.2" y="41" font-family="sans-serif" font-size="11">F5 triangle tier</text>
+<polyline points="64.0,167.5 204.0,292.0 344.0,321.6 484.0,247.6 624.0,105.9" fill="none" stroke="#222222" stroke-width="2"/>
+<circle cx="64.0" cy="167.5" r="3" fill="#222222"/>
+<circle cx="204.0" cy="292.0" r="3" fill="#222222"/>
+<circle cx="344.0" cy="321.6" r="3" fill="#222222"/>
+<circle cx="484.0" cy="247.6" r="3" fill="#222222"/>
+<circle cx="624.0" cy="105.9" r="3" fill="#222222"/>
+<rect x="64" y="46" width="14" height="10" fill="#222222"/><text x="84" y="55" font-family="sans-serif" font-size="11">F9 spring sheet</text>
+<polyline points="64.0,107.5 204.0,234.6 344.0,321.6 484.0,208.5 624.0,104.5" fill="none" stroke="#d68910" stroke-width="2"/>
+<circle cx="64.0" cy="107.5" r="3" fill="#d68910"/>
+<circle cx="204.0" cy="234.6" r="3" fill="#d68910"/>
+<circle cx="344.0" cy="321.6" r="3" fill="#d68910"/>
+<circle cx="484.0" cy="208.5" r="3" fill="#d68910"/>
+<circle cx="624.0" cy="104.5" r="3" fill="#d68910"/>
+<rect x="191" y="46" width="14" height="10" fill="#d68910"/><text x="211" y="55" font-family="sans-serif" font-size="11">F9 triangle tier</text>
+</svg>

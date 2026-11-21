@@ -74,7 +74,7 @@
 
 import { Calendar } from "./calendar.mjs";
 import { parseDate, num } from "./xer.mjs";
-import { notebookSections, notesText, CONVERSION_TOPIC } from "./notebook.mjs";
+import { notebookSections, notesText, memoText, CONVERSION_TOPIC } from "./notebook.mjs";
 
 const DAY = 1440;
 const SERIAL_EPOCH_DAY = Date.UTC(1899, 11, 30) / 86400000;
@@ -181,7 +181,7 @@ function calendarXml(uid, name, cal, out) {
   out.push("</Calendar>");
 }
 
-export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes = false } = {}) {
+export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes = false, allResources = false } = {}) {
   const T = xer.tables || {};
   const warnings = [];
   const proj = pickProject(T, projId);
@@ -355,7 +355,7 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   const outlineXml = (taskId) => ocf.fields.map((f) => (f.task.has(taskId) ? `<OutlineCode><FieldID>${f.fieldId}</FieldID><ValueID>${f.task.get(taskId).vid}</ValueID></OutlineCode>` : "")).join("");
 
   // tasks
-  const counts = { activities: tasks.length, wbs: outline.filter((o) => o.kind === "wbs").length, links: 0, calendars: 0, resources: 0, assignments: 0, manual: 0, mandatory: 0, deadlines: 0, external: 0, crossProject, notebookTasks: 0, notebookEntries: 0, notebookWbs: 0, notebookWbsEntries: 0 };
+  const counts = { activities: tasks.length, wbs: outline.filter((o) => o.kind === "wbs").length, links: 0, calendars: 0, resources: 0, assignments: 0, manual: 0, mandatory: 0, deadlines: 0, external: 0, crossProject, notebookTasks: 0, notebookEntries: 0, notebookWbs: 0, notebookWbsEntries: 0, rsrcNotes: 0 };
   let rsrcDependent = 0, expected = 0, secondaryDropped = 0, startMilestones = 0;
   const span = new Map(); // uid -> [start, finish] for summary roll-up
   const taskXml = new Map();
@@ -490,13 +490,28 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   const usedRsrc = new Set(assigns.map((a) => a.rsrc_id));
   const rsrcUid = new Map();
   const res = [];
+  // By default only the resources this project's activities use are written,
+  // as P6 shows them in the project's Resource Assignments. With
+  // { allResources: true } every RSRC row goes in (the file's whole resource
+  // dictionary), so resources with no assignment keep their notes, calendar
+  // and fields on a Project -> XER -> Project trip (p6xer.mjs writes every
+  // Project resource to RSRC, assigned or not).
+  let unassigned = 0;
   for (const r of T.RSRC || []) {
-    if (!usedRsrc.has(r.rsrc_id)) continue;
+    if (!usedRsrc.has(r.rsrc_id)) {
+      if (!allResources || !r.rsrc_id) continue;
+      unassigned++;
+    }
     const uid = rsrcUid.size + 1;
     rsrcUid.set(r.rsrc_id, uid);
     const material = r.rsrc_type === "RT_Mat";
     const cal = !material && calRows.has(r.clndr_id) ? useCal(r.clndr_id).uid : null;
-    res.push({ id: r.rsrc_id, head: `<Resource><UID>${uid}</UID><ID>${uid}</ID><Name>${esc(nm(r.rsrc_name || r.rsrc_short_name || r.rsrc_id))}</Name><Type>${material ? 0 : 1}</Type><IsNull>0</IsNull><Initials>${esc(r.rsrc_short_name || "")}</Initials>${material ? `<MaterialLabel>${esc(r.unit_of_measure || "")}</MaterialLabel>` : ""}${cal ? `<CalendarUID>${cal}</CalendarUID>` : ""}` });
+    // the resource's notes (RSRC.rsrc_notes, P6's rich text) as Project's
+    // resource Notes, plain text (notebook.mjs's memoText); Notes follows
+    // CalendarUID and comes before ExtendedAttribute in Project's schema
+    const rnote = memoText(r.rsrc_notes);
+    if (rnote) counts.rsrcNotes++;
+    res.push({ id: r.rsrc_id, head: `<Resource><UID>${uid}</UID><ID>${uid}</ID><Name>${esc(nm(r.rsrc_name || r.rsrc_short_name || r.rsrc_id))}</Name><Type>${material ? 0 : 1}</Type><IsNull>0</IsNull><Initials>${esc(r.rsrc_short_name || "")}</Initials>${material ? `<MaterialLabel>${esc(r.unit_of_measure || "")}</MaterialLabel>` : ""}${cal ? `<CalendarUID>${cal}</CalendarUID>` : ""}${rnote ? `<Notes>${esc(rnote)}</Notes>` : ""}` });
   }
   // resource user-defined fields -> Project's resource custom fields, on the
   // resources written (each resource's ExtendedAttribute after its calendar)
@@ -581,6 +596,11 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   }
   counts.expenses = expenses.length;
   counts.costResources = costRes.size;
+  counts.unassignedResources = unassigned;
+  const skipped = allResources ? 0 : (T.RSRC || []).filter((r) => r.rsrc_id && !usedRsrc.has(r.rsrc_id)).length;
+  counts.resourcesLeftOut = skipped;
+  if (unassigned) warnings.push(`${unassigned} resource(s) with no assignment in this project written too (the whole resource dictionary)`);
+  else if (skipped) warnings.push(`${skipped} resource(s) with no assignment in this project left out (only the resources its activities use are written; the "every resource" option or --all-resources writes the whole dictionary)`);
   if (expenses.length) warnings.push(`${expenses.length} expense(s) written as assignments of ${costRes.size} cost resource(s), one per expense name${costCat.size && [...costRes.values()].some((r) => r.group) ? ", the cost category as the resource's Group" : ""}; vendor, PO number, quantity and description in the assignment's notes`);
   if (expMerged) warnings.push(`${expMerged} expense(s) added to another of the same name on the same activity (Project allows one assignment of a resource per task)`);
   if (expVariants) warnings.push(`${expVariants} expense name(s) used with a second category or accrual written as cost resources of their own, named with them (Project keeps both on the resource); their assignments' notes keep the expense name`);
@@ -660,6 +680,7 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   if (nWbsUdf) notCarried.push(`${nWbsUdf} WBS user-defined field value(s)${wbsUdf.offOutline ? ` (${wbsUdf.offOutline} on the project node or a WBS the file does not write)` : ""} with no room or no Project equivalent`);
   if (nRsrcUdf) notCarried.push(`${nRsrcUdf} resource user-defined field value(s) of ${rsrcUdf.droppedTypes} field(s) with no room or no Project equivalent`);
   if (counts.notebookEntries || counts.notebookWbsEntries) warnings.push(`${counts.notebookEntries + counts.notebookWbsEntries} notebook entr${counts.notebookEntries + counts.notebookWbsEntries === 1 ? "y" : "ies"} written into the notes of ${counts.notebookTasks} task(s)${counts.notebookWbs ? ` and ${counts.notebookWbs} summary task(s)` : ""}, each under its topic in brackets (plain text: P6's formatting is not kept)`);
+  if (counts.rsrcNotes) warnings.push(`${counts.rsrcNotes} resource note(s) written as the resource's notes (plain text: P6's formatting is not kept)`);
   if (nProc) notCarried.push(`${nProc} step(s)`);
   if (notCarried.length) warnings.push(`not carried: ${notCarried.join(", ")}`);
 

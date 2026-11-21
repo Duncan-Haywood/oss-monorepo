@@ -74,7 +74,7 @@
 // inserted into the update and the schedule recomputed: the finish and every
 // milestone moved, float used, each event alone; --xer writes the impacted
 // schedule for import into P6.
-// node cli.mjs schedule.xer --to-project schedule.xml [--project CODE] [--code-names] [--outline-codes] [--json]
+// node cli.mjs schedule.xer --to-project schedule.xml [--project CODE] [--code-names] [--outline-codes] [--all-resources] [--json]
 // Converts the XER to Microsoft Project XML instead (msproject.mjs): open the
 // .xml in Microsoft Project, ProjectLibre or GanttProject. WBS as summary
 // tasks, activity IDs in Text1, calendars with every exception, relationships
@@ -82,8 +82,9 @@
 // activity codes in Text2..Text30 named after their code types (--code-names
 // writes "code - description"; --outline-codes writes the 10 most assigned
 // code types as Outline Code1..10 instead, each with a lookup table holding
-// the P6 code tree and descriptions); the lines it prints name what Project
-// will schedule differently.
+// the P6 code tree and descriptions; --all-resources writes every resource in
+// the file, not only those the project's activities use); the lines it prints
+// name what Project will schedule differently.
 // node cli.mjs schedule.xml --to-p6 schedule.xer [--project-id CODE] [--row-ids] [--deadlines] [--json]
 // Converts Microsoft Project XML to a Primavera P6 XER instead (p6xer.mjs),
 // for P6's import: summary tasks as the WBS, activity IDs from a text field
@@ -224,7 +225,7 @@ if (args.includes("--to-p6")) {
 }
 if (args.includes("--to-project")) {
   if (xer.format === "mspdi") { console.error("--to-project: this file is already Microsoft Project XML"); process.exit(2); }
-  const r = mspdiText(xer, { projId, codeNames: args.includes("--code-names"), outlineCodes: args.includes("--outline-codes") });
+  const r = mspdiText(xer, { projId, codeNames: args.includes("--code-names"), outlineCodes: args.includes("--outline-codes"), allResources: args.includes("--all-resources") });
   writeFileSync(opt("--to-project"), r.xml);
   if (args.includes("--json")) { const { xml, taskUid, codeFields, outlineFields, ...rest } = r; await emit(JSON.stringify(rest, null, 2) + "\n"); process.exit(0); }
   await emit(`${r.project.name}: ${msprojectSummary(r)} to ${opt("--to-project")}\n${r.warnings.map((w) => `- ${w}\n`).join("")}`);

@@ -462,6 +462,8 @@ OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin --analytic --screen --
 OMP_NUM_THREADS=1 python experiments/run_converge.py  # milestone 7, traced repair with a 30-round budget, about 3 min on 4 processes; results_converge.txt/.json
 python experiments/check_theory.py  # milestone 7 theory half: Theorems 1-3 and Proposition 2 on those traces, under a second; results_theory.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_backoff.py dev held  # rule B: the margin-backoff check on 34 development cases (~4 min) and the 19 held-out cases that reach the repair (~1.5 h on 4 processes, needs cyipopt); results_backoff.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_confirm_reactive.py run 4  # confirmation split: rerun the 22 unfinished frozen runs and apply the IPOPT reactive stage (J+R) at each best point, 45-min wall limit each; ~2.5 h on 4 processes, resumable, needs cyipopt; results_confirm_reactive.txt/.json
+OMP_NUM_THREADS=1 python experiments/diag_dc_highs.py [--start]  # HiGHS feasibility LP and elastic LP on case2853_sdet; --start: DC OPF QP on HiGHS as the start, then the frozen repair and J+R (~70 min); results_dc_highs.txt, results_dc_highs_start.json
 OMP_NUM_THREADS=1 python experiments/run_summerit.py dev held  # rule S: the summed-excess merit on 34 development cases (~5 min on 4 processes) and the 19 held-out cases (~10 min); results_summerit.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_elastic.py --T --P --diag  # elastic penalty on the two stalls (~5 min) and acceptance on it on 36 cases (~6 min, 4 processes); results_elastic.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_perturb.py --noref  # the arms on copies with no AC optimum, about 5 min; results_perturb_noref.txt/.json
