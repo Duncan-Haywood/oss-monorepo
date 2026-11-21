@@ -1,0 +1,1256 @@
+[
+ {
+  "before": "task-costs-project2003-mspdi.xml",
+  "after": "task-costs-project2003-mspdi.xer",
+  "values": 10,
+  "kept": 10,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Cost1": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost2": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost3": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost4": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost5": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost6": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost7": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost8": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost9": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost10": [
+    "CURRENCY",
+    "CURRENCY"
+   ]
+  }
+ },
+ {
+  "before": "task-costs-project2007-mspdi.xml",
+  "after": "task-costs-project2007-mspdi.xer",
+  "values": 10,
+  "kept": 10,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Cost1": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost2": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost3": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost4": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost5": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost6": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost7": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost8": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost9": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost10": [
+    "CURRENCY",
+    "CURRENCY"
+   ]
+  }
+ },
+ {
+  "before": "task-costs-project2010-mspdi.xml",
+  "after": "task-costs-project2010-mspdi.xer",
+  "values": 10,
+  "kept": 10,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Cost1": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost2": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost3": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost4": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost5": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost6": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost7": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost8": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost9": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost10": [
+    "CURRENCY",
+    "CURRENCY"
+   ]
+  }
+ },
+ {
+  "before": "task-costs-project2013-mspdi.xml",
+  "after": "task-costs-project2013-mspdi.xer",
+  "values": 10,
+  "kept": 10,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Cost1": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost2": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost3": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost4": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost5": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost6": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost7": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost8": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost9": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost10": [
+    "CURRENCY",
+    "CURRENCY"
+   ]
+  }
+ },
+ {
+  "before": "task-costs-project2016-mspdi.xml",
+  "after": "task-costs-project2016-mspdi.xer",
+  "values": 10,
+  "kept": 10,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Cost1": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost2": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost3": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost4": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost5": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost6": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost7": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost8": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost9": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost10": [
+    "CURRENCY",
+    "CURRENCY"
+   ]
+  }
+ },
+ {
+  "before": "task-costs-project2019-mspdi.xml",
+  "after": "task-costs-project2019-mspdi.xer",
+  "values": 10,
+  "kept": 10,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Cost1": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost2": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost3": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost4": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost5": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost6": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost7": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost8": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost9": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Cost10": [
+    "CURRENCY",
+    "CURRENCY"
+   ]
+  }
+ },
+ {
+  "before": "task-dates-project2003-mspdi.xml",
+  "after": "task-dates-project2003-mspdi.xer",
+  "values": 10,
+  "kept": 10,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Date1": [
+    "DATE",
+    "DATE"
+   ],
+   "Date2": [
+    "DATE",
+    "DATE"
+   ],
+   "Date3": [
+    "DATE",
+    "DATE"
+   ],
+   "Date4": [
+    "DATE",
+    "DATE"
+   ],
+   "Date5": [
+    "DATE",
+    "DATE"
+   ],
+   "Date6": [
+    "DATE",
+    "DATE"
+   ],
+   "Date7": [
+    "DATE",
+    "DATE"
+   ],
+   "Date8": [
+    "DATE",
+    "DATE"
+   ],
+   "Date9": [
+    "DATE",
+    "DATE"
+   ],
+   "Date10": [
+    "DATE",
+    "DATE"
+   ]
+  }
+ },
+ {
+  "before": "task-dates-project2007-mspdi.xml",
+  "after": "task-dates-project2007-mspdi.xer",
+  "values": 10,
+  "kept": 10,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Date1": [
+    "DATE",
+    "DATE"
+   ],
+   "Date2": [
+    "DATE",
+    "DATE"
+   ],
+   "Date3": [
+    "DATE",
+    "DATE"
+   ],
+   "Date4": [
+    "DATE",
+    "DATE"
+   ],
+   "Date5": [
+    "DATE",
+    "DATE"
+   ],
+   "Date6": [
+    "DATE",
+    "DATE"
+   ],
+   "Date7": [
+    "DATE",
+    "DATE"
+   ],
+   "Date8": [
+    "DATE",
+    "DATE"
+   ],
+   "Date9": [
+    "DATE",
+    "DATE"
+   ],
+   "Date10": [
+    "DATE",
+    "DATE"
+   ]
+  }
+ },
+ {
+  "before": "task-dates-project2010-mspdi.xml",
+  "after": "task-dates-project2010-mspdi.xer",
+  "values": 10,
+  "kept": 10,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Date1": [
+    "DATE",
+    "DATE"
+   ],
+   "Date2": [
+    "DATE",
+    "DATE"
+   ],
+   "Date3": [
+    "DATE",
+    "DATE"
+   ],
+   "Date4": [
+    "DATE",
+    "DATE"
+   ],
+   "Date5": [
+    "DATE",
+    "DATE"
+   ],
+   "Date6": [
+    "DATE",
+    "DATE"
+   ],
+   "Date7": [
+    "DATE",
+    "DATE"
+   ],
+   "Date8": [
+    "DATE",
+    "DATE"
+   ],
+   "Date9": [
+    "DATE",
+    "DATE"
+   ],
+   "Date10": [
+    "DATE",
+    "DATE"
+   ]
+  }
+ },
+ {
+  "before": "task-dates-project2013-mspdi.xml",
+  "after": "task-dates-project2013-mspdi.xer",
+  "values": 10,
+  "kept": 10,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Date1": [
+    "DATE",
+    "DATE"
+   ],
+   "Date2": [
+    "DATE",
+    "DATE"
+   ],
+   "Date3": [
+    "DATE",
+    "DATE"
+   ],
+   "Date4": [
+    "DATE",
+    "DATE"
+   ],
+   "Date5": [
+    "DATE",
+    "DATE"
+   ],
+   "Date6": [
+    "DATE",
+    "DATE"
+   ],
+   "Date7": [
+    "DATE",
+    "DATE"
+   ],
+   "Date8": [
+    "DATE",
+    "DATE"
+   ],
+   "Date9": [
+    "DATE",
+    "DATE"
+   ],
+   "Date10": [
+    "DATE",
+    "DATE"
+   ]
+  }
+ },
+ {
+  "before": "task-dates-project2016-mspdi.xml",
+  "after": "task-dates-project2016-mspdi.xer",
+  "values": 10,
+  "kept": 10,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Date1": [
+    "DATE",
+    "DATE"
+   ],
+   "Date2": [
+    "DATE",
+    "DATE"
+   ],
+   "Date3": [
+    "DATE",
+    "DATE"
+   ],
+   "Date4": [
+    "DATE",
+    "DATE"
+   ],
+   "Date5": [
+    "DATE",
+    "DATE"
+   ],
+   "Date6": [
+    "DATE",
+    "DATE"
+   ],
+   "Date7": [
+    "DATE",
+    "DATE"
+   ],
+   "Date8": [
+    "DATE",
+    "DATE"
+   ],
+   "Date9": [
+    "DATE",
+    "DATE"
+   ],
+   "Date10": [
+    "DATE",
+    "DATE"
+   ]
+  }
+ },
+ {
+  "before": "task-dates-project2019-mspdi.xml",
+  "after": "task-dates-project2019-mspdi.xer",
+  "values": 10,
+  "kept": 10,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Date1": [
+    "DATE",
+    "DATE"
+   ],
+   "Date2": [
+    "DATE",
+    "DATE"
+   ],
+   "Date3": [
+    "DATE",
+    "DATE"
+   ],
+   "Date4": [
+    "DATE",
+    "DATE"
+   ],
+   "Date5": [
+    "DATE",
+    "DATE"
+   ],
+   "Date6": [
+    "DATE",
+    "DATE"
+   ],
+   "Date7": [
+    "DATE",
+    "DATE"
+   ],
+   "Date8": [
+    "DATE",
+    "DATE"
+   ],
+   "Date9": [
+    "DATE",
+    "DATE"
+   ],
+   "Date10": [
+    "DATE",
+    "DATE"
+   ]
+  }
+ },
+ {
+  "before": "task-numbers-project2003-mspdi.xml",
+  "after": "task-numbers-project2003-mspdi.xer",
+  "values": 20,
+  "kept": 20,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Number1": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number2": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number3": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number4": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number5": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number6": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number7": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number8": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number9": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number10": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number11": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number12": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number13": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number14": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number15": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number16": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number17": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number18": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number19": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number20": [
+    "NUMERIC",
+    "INTEGER"
+   ]
+  }
+ },
+ {
+  "before": "task-numbers-project2007-mspdi.xml",
+  "after": "task-numbers-project2007-mspdi.xer",
+  "values": 20,
+  "kept": 20,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Number1": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number2": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number3": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number4": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number5": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number6": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number7": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number8": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number9": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number10": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number11": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number12": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number13": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number14": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number15": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number16": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number17": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number18": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number19": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number20": [
+    "NUMERIC",
+    "INTEGER"
+   ]
+  }
+ },
+ {
+  "before": "task-numbers-project2010-mspdi.xml",
+  "after": "task-numbers-project2010-mspdi.xer",
+  "values": 20,
+  "kept": 20,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Number1": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number2": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number3": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number4": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number5": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number6": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number7": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number8": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number9": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number10": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number11": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number12": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number13": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number14": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number15": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number16": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number17": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number18": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number19": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number20": [
+    "NUMERIC",
+    "INTEGER"
+   ]
+  }
+ },
+ {
+  "before": "task-numbers-project2013-mspdi.xml",
+  "after": "task-numbers-project2013-mspdi.xer",
+  "values": 20,
+  "kept": 20,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Number1": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number2": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number3": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number4": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number5": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number6": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number7": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number8": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number9": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number10": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number11": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number12": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number13": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number14": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number15": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number16": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number17": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number18": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number19": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number20": [
+    "NUMERIC",
+    "INTEGER"
+   ]
+  }
+ },
+ {
+  "before": "task-numbers-project2016-mspdi.xml",
+  "after": "task-numbers-project2016-mspdi.xer",
+  "values": 20,
+  "kept": 20,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Number1": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number2": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number3": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number4": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number5": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number6": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number7": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number8": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number9": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number10": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number11": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number12": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number13": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number14": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number15": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number16": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number17": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number18": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number19": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number20": [
+    "NUMERIC",
+    "INTEGER"
+   ]
+  }
+ },
+ {
+  "before": "task-numbers-project2019-mspdi.xml",
+  "after": "task-numbers-project2019-mspdi.xer",
+  "values": 20,
+  "kept": 20,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Number1": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number2": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number3": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number4": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number5": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number6": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number7": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number8": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number9": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number10": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number11": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number12": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number13": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number14": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number15": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number16": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number17": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number18": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number19": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Number20": [
+    "NUMERIC",
+    "INTEGER"
+   ]
+  }
+ },
+ {
+  "before": "mspextattr.xml",
+  "after": "mspextattr.xer",
+  "values": 3,
+  "kept": 3,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "Number1": [
+    "NUMERIC",
+    "NUMERIC"
+   ],
+   "Cost1": [
+    "CURRENCY",
+    "CURRENCY"
+   ],
+   "Date1": [
+    "DATE",
+    "DATE"
+   ]
+  }
+ },
+ {
+  "before": "CCA_R03_dt_24Oct11SC.xer",
+  "after": "CCA_R03_dt_24Oct11SC-via-project.xer",
+  "values": 13174,
+  "kept": 13174,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "user_number8": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "user_integer1": [
+    "INTEGER",
+    "INTEGER"
+   ],
+   "user_integer2": [
+    "INTEGER",
+    "INTEGER"
+   ],
+   "Actual Cost": [
+    "NUMERIC",
+    "NUMERIC"
+   ],
+   "user_number7": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "No.of Wor Days": [
+    "INTEGER",
+    "INTEGER"
+   ],
+   "Duration|Differe": [
+    "INTEGER",
+    "INTEGER"
+   ],
+   "RENZ % COMPLETE": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "PERCENT COMPLETE": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "July2011 Target% Complete": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "Claimed This Month": [
+    "NUMERIC",
+    "NUMERIC"
+   ],
+   "N_%": [
+    "INTEGER",
+    "INTEGER"
+   ],
+   "P_811": [
+    "NUMERIC",
+    "NUMERIC"
+   ],
+   "P_711": [
+    "NUMERIC",
+    "NUMERIC"
+   ],
+   "U%": [
+    "NUMERIC",
+    "INTEGER"
+   ],
+   "user_end_date3": [
+    "DATE",
+    "DATE"
+   ],
+   "user_end_date4": [
+    "DATE",
+    "DATE"
+   ]
+  }
+ },
+ {
+  "before": "Expressway_Project.xer",
+  "after": "Expressway_Project-via-project.xer",
+  "values": 823,
+  "kept": 823,
+  "extra": 0,
+  "miss": [],
+  "types": {
+   "DIFF": [
+    "INTEGER",
+    "INTEGER"
+   ]
+  }
+ }
+]

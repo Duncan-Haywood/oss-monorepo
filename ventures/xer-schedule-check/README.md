@@ -18,9 +18,10 @@ And the other way: **Microsoft Project XML to a P6 XER** for P6's import, for
 a planner in Project who must submit a P6 file (WBS under a project node,
 activity IDs, calendars, logic, progress with Project's Resume as P6's
 suspend and resume, baseline, resources and assignments with cost, text
-columns as activity codes, Project's scheduling options), checked on 143
+columns as activity codes, Number, Cost and Date columns as named
+user-defined fields, Project's scheduling options), checked on 143
 Project files and the six P6 files sent through Project and back
-(`eval/p6xer-check-2026-11-21.md`).
+(`eval/p6xer-check-2026-11-21.md`, `eval/p6xer-udfs-2026-11-21.md`).
 
 **Live tool:** https://marisstella.app/xer-schedule-check/
 
@@ -431,7 +432,7 @@ generated series carry actuals.
 | Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free, with ranges read from the file's own UDFs; no resource model, no probabilistic branches yet |
 | A time impact analysis done by hand in P6 (copy the update, type the fragnet in, reschedule, compare the finish), or bought from a claims consultant | Needs a P6 seat and an afternoon per event; consultants charge by the hour | The fragnet as a table, the finish and every milestone's move, float used, each event alone and their overlap, a printable exhibit and the impacted XER for P6, in a browser tab, free |
 | Paid XER-to-Project converters, or MPXJ-based tools you install with Java | Convert the file on your machine or a server, often per seat | The Microsoft Project XML straight from the XER in a browser tab, free, nothing uploaded, with a list of what Project will schedule differently for this file (lag calendars, level of effort, milestones, external dates), checked activity by activity against MPXJ's own reading |
-| Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Project's scheduling options so P6's first run gives Project's dates, and a list of what is not carried (notes, deadlines, elapsed lags, cost resources) |
+| Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Number, Cost and Date columns as named P6 user-defined fields, Project's scheduling options so P6's first run gives Project's dates, and a list of what is not carried (notes, deadlines, elapsed lags, cost resources) |
 | Paid XER viewers (desktop readers sold per seat or per year) or asking the contractor for a PDF of their layout | Show the activities and bars from an XER without P6; a PDF is whatever layout the contractor chose | The WBS tree and bars in a browser tab, free, with level of effort and WBS summary dates as P6 gives them (305 of 305 on the public files), the baseline bar and finish variance per activity, critical or longest-path colouring, printable and as CSV |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
@@ -590,6 +591,14 @@ run as a formula in Excel or Sheets.
   276,042 of 276,042 code assignments (hierarchies rebuilt), the schedule
   under Project's rules the same on 19,818 of 19,822. Not imported into P6
   itself: no P6 seat here.
+- **Project custom fields to P6 UDFs** (`eval/p6xer-udfs-2026-11-21.md`):
+  every Number1..20, Cost1..10 and Date1..10 field in MPXJ's Project 2003 to
+  2019 test files (19 files, 243 values) is written as a P6 activity UDF
+  titled after the field and read back the same, 243 of 243; P6 files sent
+  through Project XML and back return their numeric, cost and date UDFs,
+  13,174 of 13,174 on CCA and 823 of 823 on Expressway. MPXJ reads the same
+  14,240 of 14,240 values from both sides. The UDF type is guessed on the way
+  back (whole numbers as integer UDFs): 7,104 of CCA's 13,174 keep P6's own.
 - **XER to Microsoft Project XML** (`eval/msproject-check-2026-11-21.md`): six
   public P6 files written as MSPDI and read back with `mspdi.mjs`: 21,422 of
   21,422 activities intact (name, status, remaining duration, actual dates,

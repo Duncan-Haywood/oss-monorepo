@@ -83,6 +83,19 @@ const codeSet = (T, keyOf) => {
   const code = new Map((T.ACTVCODE || []).map((c) => [c.actv_code_id, c.short_name]));
   return new Set((T.TASKACTV || []).filter((r) => keyOf(r.task_id) !== undefined).map((r) => `${keyOf(r.task_id)}|${type.get(r.actv_code_type_id)}|${code.get(r.actv_code_id)}`));
 };
+// activity UDF values: activity|title|value (dates as written, numbers as numbers), and the same with the type
+const udfSet = (T, keyOf, keep = () => true, withType = false) => {
+  const types = new Map((T.UDFTYPE || []).filter((u) => u.table_name === "TASK" && keep(u)).map((u) => [u.udf_type_id, u]));
+  const out = new Set();
+  for (const v of T.UDFVALUE || []) {
+    const u = types.get(v.udf_type_id), k = keyOf(v.fk_id);
+    if (!u || k === undefined) continue;
+    const x = /DATE/.test(u.logical_data_type) ? v.udf_date : /INT|FLOAT|MONEY/.test(u.logical_data_type) ? String(num(v.udf_number)) : v.udf_text;
+    out.add(`${k}|${u.udf_type_label.replace(/\[/g, "(").replace(/\]/g, ")").trim()}|${x}${withType ? `|${u.logical_data_type}` : ""}`);
+  }
+  return out;
+};
+const kept = (A, B) => [...A].filter((k) => B.has(k)).length;
 const schedCmp = (pairs, rA, rB) => {
   let n = 0, m = 0;
   const miss = [];
@@ -115,20 +128,23 @@ for (const f of list(opt("--mspdi"), /\.xml$/i)) {
   const got = new Set(B.tables.TASKPRED.map((l) => linkKey(idMap.get(l.task_id), idMap.get(l.pred_task_id), l.pred_type, num(l.lag_hr_cnt) || 0)));
   const codesA = codeSet(A.tables, (id) => id), codesB = codeSet(B.tables, (id) => idMap.get(id));
   const sc = schedCmp(pairs, schedule(A), schedule(B));
+  const udfA = udfSet(A.tables, (id) => id), udfB = udfSet(B.tables, (id) => idMap.get(id));
+  const udfTA = udfSet(A.tables, (id) => id, undefined, true), udfTB = udfSet(B.tables, (id) => idMap.get(id), undefined, true);
   const s = {
     file: f.split("/junit/data/").pop() || basename(f), activities: cmp.n, allFields: cmp.all, fields: cmp.fields, problems,
+    udfFields: r.counts.udfFields, udfs: udfA.size, udfsKept: kept(udfA, udfB), udfsTyped: kept(udfTA, udfTB), udfsExtra: [...udfB].filter((k) => !udfA.has(k)).length,
     links: want.size, linksKept: [...want].filter((k) => got.has(k)).length, linksExtra: [...got].filter((k) => !want.has(k)).length,
     codes: codesA.size, codesKept: [...codesA].filter((k) => codesB.has(k)).length,
     resources: r.counts.resources, assignments: r.counts.assignments, schedule: sc, bad: cmp.bad,
   };
   out.mspdi.push(s);
-  if (problems.length || s.allFields < s.activities || s.linksKept < s.links || s.codesKept < s.codes || sc.same < sc.open) console.log(`${s.file}: ${s.allFields}/${s.activities} intact ${JSON.stringify(cmp.fields)}; links ${s.linksKept}/${s.links}; codes ${s.codesKept}/${s.codes}; schedule ${sc.same}/${sc.open} ${JSON.stringify(sc.miss)}; problems ${problems.length} ${problems.slice(0, 2).join("; ")} ${JSON.stringify(cmp.bad)}`);
+  if (problems.length || s.allFields < s.activities || s.linksKept < s.links || s.codesKept < s.codes || s.udfsKept < s.udfs || sc.same < sc.open) console.log(`${s.file}: ${s.allFields}/${s.activities} intact ${JSON.stringify(cmp.fields)}; links ${s.linksKept}/${s.links}; codes ${s.codesKept}/${s.codes}; UDFs ${s.udfsKept}/${s.udfs}; schedule ${sc.same}/${sc.open} ${JSON.stringify(sc.miss)}; problems ${problems.length} ${problems.slice(0, 2).join("; ")} ${JSON.stringify(cmp.bad)}`);
   if (writeDir) writeFileSync(join(writeDir, basename(f).replace(/\.xml$/i, ".xer")), r.text);
 }
 if (out.mspdi.length) {
   const ok = out.mspdi.filter((s) => !s.error);
   const sum = (k) => ok.reduce((a, s) => a + (typeof k === "function" ? k(s) : s[k]), 0);
-  console.log(`MSPDI: ${ok.length} files (${out.mspdi.length - ok.length} not read); P6 import problems in ${ok.filter((s) => s.problems.length).length}; activities intact ${sum("allFields")}/${sum("activities")}; links ${sum("linksKept")}/${sum("links")} (${sum("linksExtra")} extra); code assignments ${sum("codesKept")}/${sum("codes")}; schedule equal ${sum((s) => s.schedule.same)}/${sum((s) => s.schedule.open)} open activities; ${sum("resources")} resources, ${sum("assignments")} assignments written`);
+  console.log(`MSPDI: ${ok.length} files (${out.mspdi.length - ok.length} not read); P6 import problems in ${ok.filter((s) => s.problems.length).length}; activities intact ${sum("allFields")}/${sum("activities")}; links ${sum("linksKept")}/${sum("links")} (${sum("linksExtra")} extra); code assignments ${sum("codesKept")}/${sum("codes")}; custom field values as UDFs ${sum("udfsKept")}/${sum("udfs")} (${sum("udfsTyped")} with the type, ${sum("udfsExtra")} extra) in ${sum("udfFields")} fields of ${ok.filter((s) => s.udfFields).length} files; schedule equal ${sum((s) => s.schedule.same)}/${sum((s) => s.schedule.open)} open activities; ${sum("resources")} resources, ${sum("assignments")} assignments written`);
 }
 
 const projectRules = { sched_float_type: "FT_SmallestFloat", sched_calendar_on_relationship_lag: "rcal_Successor", sched_retained_logic: "Y", sched_progress_override: "N", sched_use_project_end_date_for_float: "Y", sched_use_expect_end_flag: "N" };
@@ -172,6 +188,14 @@ for (const f of list(opt("--xer"), /\.xer$/i)) {
   const codesA = new Set([...codeSet(X.tables, (id) => P6code.get(id))].filter((k) => typesWritten.has(k.split("|")[1])));
   // WBS path by names
   const wbsPath = (T, id) => { const w = new Map((T.PROJWBS || []).map((x) => [x.wbs_id, x])); const p = []; let x = w.get(id), h = 0; while (x && x.proj_node_flag !== "Y" && h++ < 100) { p.unshift(x.wbs_name); x = w.get(x.parent_wbs_id); } return p.join(" / "); };
+  // activity UDFs msproject.mjs wrote to Number, Cost and Date fields (text ones go to Text fields, read back as codes)
+  const numericIds = new Set((conv.udfFields?.fields || []).filter((f) => f.kind !== "text").map((f) => f.typeId));
+  const udfA = udfSet(X.tables, (id) => P6code.get(id), (u) => numericIds.has(u.udf_type_id));
+  const udfB = udfSet(B.tables, (id) => codeOfB.get(id));
+  const backType = (t) => (t === "FT_END_DATE" ? "FT_START_DATE" : t);
+  const udfTA = new Set([...udfSet(X.tables, (id) => P6code.get(id), (u) => numericIds.has(u.udf_type_id), true)].map((k) => k.replace(/\|([A-Z_0-9]+)$/, (m, t) => `|${backType(t)}`)));
+  const udfTB = udfSet(B.tables, (id) => codeOfB.get(id), undefined, true);
+  const allA = udfSet(X.tables, (id) => P6code.get(id));
   const wbsSame = pairs.filter(([a, b]) => wbsPath(X.tables, a.wbs_id) === wbsPath(B.tables, b.wbs_id)).length;
   // schedule: the original under Project's rules (as msproject-check.mjs builds it) vs the returned XER as written
   const hasPred = new Set((X.tables.TASKPRED || []).filter((l) => P6code.has(l.pred_task_id) && !spanIds.has(l.pred_task_id)).map((l) => l.task_id));
@@ -194,10 +218,12 @@ for (const f of list(opt("--xer"), /\.xer$/i)) {
     activities: orig.length, idsBack: found, spans: orig.filter(span).length, compared: cmp.n, allFields: cmp.all, fields: cmp.fields,
     links: want.size, linksKept: [...want].filter((k) => got.has(k)).length, linksExtra: [...got].filter((k) => !want.has(k)).length,
     codes: codesA.size, codesKept: [...codesA].filter((k) => codesB.has(k)).length, wbsSame, problems,
+    udfsAll: allA.size, udfs: udfA.size, udfsKept: kept(udfA, udfB), udfsTyped: kept(udfTA, udfTB), udfsExtra: [...udfB].filter((k) => !udfA.has(k)).length,
+    udfMiss: [...udfA].filter((k) => !udfB.has(k)).slice(0, 3), udfTypeMiss: [...udfTA].filter((k) => !udfTB.has(k)).slice(0, 3),
     resources: r.counts.resources, assignments: r.counts.assignments, schedule: sc, warnings: r.warnings, bad: cmp.bad,
   };
   out.xer.push(s);
-  console.log(`${s.file} (${s.project}, P6 ${s.version}): IDs back ${found}/${orig.length}; ${cmp.all}/${cmp.n} intact ${JSON.stringify(cmp.fields)}; WBS path ${wbsSame}/${cmp.n}; links ${s.linksKept}/${s.links} (${s.linksExtra} extra); codes ${s.codesKept}/${s.codes}; schedule ${sc.same}/${sc.open} ${JSON.stringify(sc.miss)}; ${s.resources} resources, ${s.assignments} assignments; problems ${problems.length} ${problems.slice(0, 3).join("; ")}; ${ms} ms`);
+  console.log(`${s.file} (${s.project}, P6 ${s.version}): IDs back ${found}/${orig.length}; ${cmp.all}/${cmp.n} intact ${JSON.stringify(cmp.fields)}; WBS path ${wbsSame}/${cmp.n}; links ${s.linksKept}/${s.links} (${s.linksExtra} extra); codes ${s.codesKept}/${s.codes}; UDFs ${s.udfsKept}/${s.udfs} of ${s.udfsAll} activity UDF values (${s.udfsTyped} with the type, ${s.udfsExtra} extra) ${s.udfMiss.length ? JSON.stringify(s.udfMiss) : ""}${s.udfTypeMiss.length ? ` type: ${JSON.stringify(s.udfTypeMiss)}` : ""}; schedule ${sc.same}/${sc.open} ${JSON.stringify(sc.miss)}; ${s.resources} resources, ${s.assignments} assignments; problems ${problems.length} ${problems.slice(0, 3).join("; ")}; ${ms} ms`);
   for (const b of cmp.bad) console.log("   ", JSON.stringify(b));
   if (writeDir) writeFileSync(join(writeDir, basename(f).replace(/\.xer$/i, "-via-project.xer")), r.text);
 }
