@@ -1,0 +1,337 @@
+{
+ "date": "2026-11-21",
+ "subject": "ventures/tiktok-shop-settlement-analyzer",
+ "stratum": "venture",
+ "seed": "2026-11-21-944c",
+ "drawn_by": "reaudit",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an e-commerce accountant / marketplace bookkeeper who reconciles TikTok Shop settlement statements for US sellers; first checks: does a settlement-shaped export load, are adjustments signed and classed correctly, is TikTok's referral fee separated from affiliate commission and shipping, is the refund administration fee applied, and do statuses map to settled vs unsettled",
+ "scores": {
+  "correctness": 2,
+  "completeness": 2,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Ran calc.mjs through an independent harness (`node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/tts/run.mjs`). Hand split-and-sum of sampleCsv() gives gross 1279.00, fee 112.52, net 1166.48, refunds 114.10, 34 orders, 6 tips, 2 cancelled, pending 126.68, take-home 982.38 at $2/order: identical to analyze(); break-even 52/(1-fee/gross)=57.016 and with refund share 63.198: identical. A settlement-shaped file (Order/adjustment ID, Type, Order settled time, Total settlement amount, Total revenue, Total fees, fees negative, dates 2026/06/09) now loads: gross 65, fee 3.90, net 61.10, rate 6.0% = TikTok's published 6% referral fee (pass); with a '2026/06/09 14:03:22' timestamp also loads. A refunded order netted to a -0.30 settlement row gives take-home 23.20 (pass). Failures remaining: (1) a +$5 Adjustment is no longer a refund (take-home 26.20 at zero cost, pass) but is classed as an order: with a $2 cost per order take-home is 22.20 not 24.20, orders 2 not 1, average order value 15 not 25; in an amount-only file the 6% fee is charged on the reimbursement (28.20 vs 28.50). (2) Amount-only refund of a $25 order: take-home 36.10 vs 37.30 by TikTok's rule (refund returns the referral fee less a 20% admin fee, $0.30). (3) 'TikTok Shop kept 15.2%' on a row whose $3.80 deductions are $1.50 referral + $2.30 affiliate commission, even when the file has separate Referral fee and Affiliate commission columns. (4) Status 'Inactive' counts as still clearing; 'Unsettled' and 'Awaiting settlement' do not (pendingCount 0, expected 2). Happy path exact; several cases an accountant meets first still wrong.",
+  "completeness": "README/page features checked: observed fee rate (works), take-home per order (works, but positive adjustments inflate the order count), per-product/per-buyer net (works), repeat buyers (works), refunds and cancellations (works on own format; no admin fee), withdrawal costs (works, but not a TikTok Shop US concept), funds still clearing (status regex misses TikTok's 'unsettled' wording), break-even (works, one blended rate), per-hour ranking (works; freelancer concept). Year-first slash dates now read (closed). The README now lists five known gaps honestly. Still never run on a real TikTok Shop export (VENTURE.yaml line 31 'Unverified'; hypotheses status untested); no fee-type breakdown, no payout reconciliation.",
+  "verification": "`node --test '*.test.mjs'` in the subject root: 34 tests, 34 pass (one new regression test, calc.test.mjs:172, for slash dates and adjustment sign). Six mutants via quality_mutate.py: re-adding 'adjustment' to RE_REFUND CAUGHT; dropping '/' from the year-first date regex CAUGHT; the three survivors from 2026-11-20 still SURVIVE (inclusive end date, refund severity 0.1->0.5, difference-mode gross>=net guard); counting tips as orders per product SURVIVED. 4 of 6 survived. The new test asserts take-home with zero cost only, so it does not see the adjustment-as-order miscount.",
+  "craft": "Read calc.mjs (497 lines), index.html, calc.test.mjs, page.test.mjs, README, VENTURE.yaml, llms.txt. Pure functions, no deps, escaped output, careful CSV parser with line numbers. Defects: no 'adjustment' kind, so a positive adjustment falls through to 'order' (calc.mjs:208); RE_PENDING matches bare 'active' (calc.mjs:147); duplicate aliases 'product name' and 'your earnings' (calc.mjs:114,118); Fiverr/Upwork leftovers (hours UI index.html:85-94 with 'Logo design, 4 / Blog post, 1.5' placeholder, tips, withdrawals).",
+  "claims": "Checked: header now reads 'TIKTOK SHOP SETTLEMENT ANALYZER' (index.html:62; grep finds no FIVERR in index.html) - fixed; 'nothing is uploaded' (page.test.mjs, passes); 'column names were not checked against a real export' (index.html:65, README, VENTURE.yaml) - honest; README 'Known gaps' lists the open audit defects accurately; disclaimer and non-affiliation footer present; served copy has no placeholder origin (served-copy.mjs). Not backed: finding title 'TikTok Shop kept X% of order value' (calc.mjs:400) attributes affiliate commission to TikTok; page 'Not modelled' (index.html:127) names Fiverr concepts ('buyer's own service fee', 'TikTok Shop Connect') and omits affiliate commission and the refund admin fee, which are only in the README; meta description and llms.txt sell a 'TikTok Shop fee calculator' that reads 'your sales CSV' though no TikTok export has been read.",
+  "fitness": "Walked the accountant's job: take a month's settlement export, split deductions into referral fee, affiliate commission, shipping and refund admin, tie settlements to payouts. A settlement-shaped file now loads and its total take-home is right, which is a real improvement; but deductions collapse into one 'fee' labelled as TikTok's, adjustments count as orders (skewing per-order figures), unsettled rows are not flagged, and there is no payout reconciliation. A seller with a tidy own-format sheet gets correct per-product take-home and a break-even price.",
+  "domain": "Compared against TikTok Shop US seller fee schedule as reported from Seller University by crosslist.com/blog/tiktok-shop-fees and fitsmallbusiness.com/how-much-does-tiktok-shop-take (6% standard referral fee; refund administration fee 20% of the referral fee, capped at $5); hand arithmetic. The 6% default matches the published standard referral rate. Departures unchanged from 2026-11-20: no refund administration fee; no separation of affiliate (creator) commission, shipping or co-funded promotions from TikTok's own fee; break-even uses one blended rate though referral rates vary by category; adjustments (reimbursements, deductions) are not a distinct line type; model remains Fiverr's (tips, hours, withdrawals)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Sample file totals and take-home at $2/order",
+   "method": "independent split-and-sum of sampleCsv() rows in the harness, not via calc.mjs parsing",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/tts/run.mjs",
+   "expected": "gross 1279, fee 112.52, net 1166.48, refunds 114.10, take-home 982.38",
+   "observed": "1279, 112.52, 1166.48, 114.1, 982.38",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Break-even price for $50 target, $2 cost on sample",
+   "method": "hand algebra (50+2)/(1-r) and /((1-r)(1-q)) from the hand totals",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/tts/run.mjs",
+   "expected": "57.016, 63.198",
+   "observed": "57.016, 63.198",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Settlement-shaped file, slash dates, negative fee column: $25 and $40 orders at 6%",
+   "method": "TikTok Shop US seller fee schedule as reported from Seller University by crosslist.com/blog/tiktok-shop-fees and fitsmallbusiness.com/how-much-does-tiktok-shop-take (6% standard referral fee; refund administration fee 20% of the referral fee, capped at $5); hand arithmetic",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/tts/run.mjs",
+   "expected": "gross 65, fee 3.90, net 61.10, rate 6.0%",
+   "observed": "65, 3.9, 61.1, 0.06",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "+$5 Adjustment with a $21.20 order and $2 cost per order",
+   "method": "hand arithmetic: 21.20 + 5.00 - 2.00 (one order); adjustment is a credit, not an order",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/tts/run.mjs",
+   "expected": "take-home 24.20, 1 order",
+   "observed": "22.20, 2 orders, avg order 15",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Amount-only file: $25 order + $5 Adjustment at default 6%",
+   "method": "TikTok Shop US seller fee schedule as reported from Seller University by crosslist.com/blog/tiktok-shop-fees and fitsmallbusiness.com/how-much-does-tiktok-shop-take (6% standard referral fee; refund administration fee 20% of the referral fee, capped at $5); hand arithmetic; a reimbursement carries no referral fee",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/tts/run.mjs",
+   "expected": "take-home 28.50, fee 1.50",
+   "observed": "28.20, fee 1.80",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Amount-only file with one refunded $25 order out of $25 + $40",
+   "method": "TikTok Shop US seller fee schedule as reported from Seller University by crosslist.com/blog/tiktok-shop-fees and fitsmallbusiness.com/how-much-does-tiktok-shop-take (6% standard referral fee; refund administration fee 20% of the referral fee, capped at $5); hand arithmetic; seller loses 23.50 + 0.30 admin fee",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/tts/run.mjs",
+   "expected": "take-home 37.30",
+   "observed": "36.10",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Fee headline with separate Referral fee (-1.50) and Affiliate commission (-2.30) columns on $25",
+   "method": "TikTok Shop US seller fee schedule as reported from Seller University by crosslist.com/blog/tiktok-shop-fees and fitsmallbusiness.com/how-much-does-tiktok-shop-take (6% standard referral fee; refund administration fee 20% of the referral fee, capped at $5); hand arithmetic; affiliate commission goes to the creator",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/tts/run.mjs",
+   "expected": "TikTok referral 6.0%, affiliate shown separately",
+   "observed": "'TikTok Shop kept 15.2% of order value'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Refund netted into an order row (settlement -0.30, revenue 0) next to a $23.50 order",
+   "method": "hand arithmetic 23.50 - 0.30",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/tts/run.mjs",
+   "expected": "take-home 23.20",
+   "observed": "23.20",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Status mapping: 'Inactive' not pending; 'Unsettled' and 'Awaiting settlement' pending",
+   "method": "plain meaning of the status words",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/tts/run.mjs",
+   "expected": "Inactive 0, unsettled 2",
+   "observed": "Inactive 1, unsettled 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Year-first slash date with time loads",
+   "method": "header Order settled time, value 2026/06/09 14:03:22",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/tts/run.mjs",
+   "expected": "row read, net 23.50",
+   "observed": "23.5, no skipped rows",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Inclusive end date in the range filter",
+   "method": "rows 2026-06-01 and 2026-06-30, range 06-01..06-30",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/tts/run.mjs",
+   "expected": "2 orders",
+   "observed": "2",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "node test runner in subject root",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "34/34 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Seeded mutants caught",
+   "method": "quality_mutate.py, 6 mutants",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all caught",
+   "observed": "2 of 6 caught",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Page header names the product (prior defect)",
+   "method": "read index.html:62",
+   "command": "grep -n -i fiverr ventures/tiktok-shop-settlement-analyzer/index.html",
+   "expected": "no FIVERR label",
+   "observed": "no match; header 'TIKTOK SHOP SETTLEMENT ANALYZER'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Page 'Not modelled' list names the real TikTok gaps",
+   "method": "read index.html:127 against README Known gaps",
+   "command": "grep -n -i 'affiliat\\|admin' ventures/tiktok-shop-settlement-analyzer/index.html",
+   "expected": "affiliate commission and refund admin fee listed",
+   "observed": "no match; lists Fiverr concepts instead",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt/canonicals point at the live host",
+   "method": "platform/pages/served-copy.mjs",
+   "command": "node platform/pages/served-copy.mjs tiktok-shop-settlement-analyzer",
+   "expected": "no placeholder origin",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:284",
+   "change": "x.t < opts.to + dayMs -> x.t <= opts.to",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:404",
+   "change": "severity: share >= 0.1 ? -> severity: share >= 0.5 ?",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:228",
+   "change": "remove 'if (gross < net) gross = net;'",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:144",
+   "change": "RE_REFUND /refund|... -> /adjustment|refund|...",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:67",
+   "change": "year-first date regex [-/.] -> [-.]",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:311",
+   "change": "if (isOrder) g.orders += 1 -> g.orders += 1 (tips counted as product orders)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Positive Adjustment rows fall through to kind 'order': each adds an order to the count, takes the user's cost per order and (amount-only files) the assumed fee; +$5 with $2 cost gives take-home 22.20 not 24.20 and 2 orders not 1",
+   "where": "ventures/tiktok-shop-settlement-analyzer/calc.mjs:208",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18064"
+  },
+  {
+   "severity": "medium",
+   "what": "Fee headline 'TikTok Shop kept X%' lumps affiliate commission and other deductions into TikTok's fee, even when the file has separate referral and affiliate columns; no fee-type breakdown",
+   "where": "ventures/tiktok-shop-settlement-analyzer/calc.mjs:400",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Refund administration fee (20% of referral fee, $5 cap) not modelled; amount-only refunds subtract full gross (36.10 vs 37.30)",
+   "where": "ventures/tiktok-shop-settlement-analyzer/calc.mjs:236",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Reskinned Fiverr/Upwork model on the page: hours per order UI with 'Logo design, 4 / Blog post, 1.5' placeholder, tips, withdrawal fees; 'Not modelled' names 'buyer's own service fee' and 'TikTok Shop Connect' and omits affiliate commission and admin fee; no payout reconciliation",
+   "where": "ventures/tiktok-shop-settlement-analyzer/index.html:127",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "4 of 6 seeded mutants survive (the same three as 2026-11-20 plus tips counted as product orders); the regression test checks take-home only at zero cost so misses the adjustment-as-order count",
+   "where": "ventures/tiktok-shop-settlement-analyzer/calc.test.mjs:172",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "RE_PENDING matches bare 'active' so 'Inactive' is clearing, and misses 'Unsettled'/'Awaiting settlement' so unsettled TikTok rows show as cleared",
+   "where": "ventures/tiktok-shop-settlement-analyzer/calc.mjs:147",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18064"
+  },
+  {
+   "severity": "low",
+   "what": "Break-even uses one blended fee rate for every product though TikTok referral rates vary by category",
+   "where": "ventures/tiktok-shop-settlement-analyzer/calc.mjs:367",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Duplicate aliases 'product name' and 'your earnings' in ALIASES",
+   "where": "ventures/tiktok-shop-settlement-analyzer/calc.mjs:114",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Meta description and llms.txt call it a 'TikTok Shop fee calculator' that reads 'your sales CSV', though it has never read a TikTok export (VENTURE.yaml line 31)",
+   "where": "ventures/tiktok-shop-settlement-analyzer/llms.txt:3",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "prior_defects": [
+  {
+   "index": 0,
+   "what": "positive Adjustment read as refund, sign dropped",
+   "status": "partial",
+   "evidence": "No longer a refund: +$5 with zero cost gives take-home 26.20 (pass) and calc.test.mjs:172 covers it; re-adding 'adjustment' to RE_REFUND is caught. But it is now classed as an order: with $2 cost take-home 22.20 vs 24.20, order count 2 vs 1; amount-only file charges 6% on it (28.20 vs 28.50). Refiled as current defect 0."
+  },
+  {
+   "index": 1,
+   "what": "YYYY/MM/DD dates rejected",
+   "status": "closed",
+   "evidence": "parseWhen accepts [-/.] (calc.mjs:67); settlement-shaped file with 2026/06/09 and 2026/06/09 14:03:22 loads with no skipped rows; mutant removing '/' caught. The 'never run on a real export' half remains, tracked in README Known gaps and current defect 8."
+  },
+  {
+   "index": 2,
+   "what": "'TikTok Shop kept X%' includes affiliate commission",
+   "status": "open",
+   "evidence": "Referral -1.50 + affiliate -2.30 on $25 still titled 'TikTok Shop kept 15.2%' (calc.mjs:400), even with separate columns."
+  },
+  {
+   "index": 3,
+   "what": "refund administration fee not modelled",
+   "status": "open",
+   "evidence": "Amount-only refund case: take-home 36.10 vs 37.30 expected; calc.mjs:236-237 unchanged."
+  },
+  {
+   "index": 4,
+   "what": "'FIVERR EARNINGS FEE ANALYZER' page header",
+   "status": "closed",
+   "evidence": "index.html:62 reads 'TIKTOK SHOP SETTLEMENT ANALYZER'; grep -i fiverr index.html: no match."
+  },
+  {
+   "index": 5,
+   "what": "reskinned Fiverr/Upwork model (tips, hours, withdrawals, placeholders)",
+   "status": "open",
+   "evidence": "index.html:94 placeholder 'Logo design, 4 / Blog post, 1.5', index.html:127 'buyer's own service fee, TikTok Shop Connect', hours and withdrawal panels unchanged; README Known gaps admits it."
+  },
+  {
+   "index": 6,
+   "what": "3 of 5 seeded mutants survive",
+   "status": "open",
+   "evidence": "Re-ran the same three mutants (calc.mjs:284, :404, :228): all SURVIVED again with 34 tests."
+  },
+  {
+   "index": 7,
+   "what": "break-even uses a blended fee rate",
+   "status": "open",
+   "evidence": "calc.mjs:367 feeUsed is the file-wide rate; unchanged."
+  },
+  {
+   "index": 8,
+   "what": "RE_PENDING matches 'active'; duplicate aliases",
+   "status": "open",
+   "evidence": "Status 'Inactive' gives pendingCount 1; calc.mjs:147 and duplicate aliases at calc.mjs:114,118 unchanged."
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18064"],
+ "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2). PR #17836 closed two of the nine prior defects (slash dates, Fiverr header) and half-closed a third: a positive adjustment is no longer a refund, but it is now counted as an order, so it takes the user's per-order cost and inflates the order count ($2 understatement per adjustment at $2 cost). A settlement-shaped file now loads and its total take-home matches hand arithmetic and TikTok's 6% referral fee, but affiliate commission is still reported as 'TikTok Shop kept', the refund administration fee is not modelled, TikTok 'unsettled' statuses are not flagged, the page keeps Fiverr concepts, and the same three seeded mutants still survive."
+}

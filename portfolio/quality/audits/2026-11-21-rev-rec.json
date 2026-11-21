@@ -1,0 +1,313 @@
+{
+ "date": "2026-11-21",
+ "subject": "ventures/rev-rec",
+ "stratum": "venture",
+ "seed": "2026-11-21-944c",
+ "drawn_by": "reaudit",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a CPA / revenue accountant at a small SaaS company closing the month under ASC 606; first checks: does a refund reduce the contract liability, are late-paid invoices captured, are day counts right for real Stripe timestamps, do exported months stay closed, are currencies scaled right",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every failing recomputation from the 2026-11-17 audit now passes against the shipped code (/tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/rr/re.mjs, re2.mjs). Prorated refund of 320/365 of a $1,200 annual plan via a Stripe credit note naming the invoice line (normalizeCreditNote -> schedule): Jan 101.92, Feb 46.03 (=1200x14/365), Feb closing deferred 0.00, Mar-Dec revenue 0.00, total recognised 147.95 = net billed. Period Jan 15 14:00 to Feb 15 14:00 for $100: Jan 54.84 / Feb 45.16 (17/31 day convention); annual from Jan 15 14:00 ends with Jan 2027 at 46.02 (14/365x1200 = 46.03 before largest-remainder rounding; the parts sum exactly). JPY 120000 formats as ¥120,000 and journals 120000. Basil-shape inclusive tax (taxes[].tax_behavior) nets 12000-2000 = 10000. Headline $2,900 from Oct 15: Oct 135.07, closing 2,764.93, Nov 238.36 (hand 2900x17/365, x30/365). Period lock: a $300 November line paid Dec 5 with CLOSED_THROUGH=2026-11 leaves November at billed 100 / recognised 100 / closing 0 and books 300 billed and recognised in December; unlocked it rewrote November to recognised 400, closing -300. Journal debits = credits (800.00). Still behaving as documented but not as ASC 606: an unlinked credit note (no invoice_line_item) is one day of negative revenue (Feb -960.00, Mar 101.92 on the refund case); a refund made on the payment without a credit note is not read at all (code: listCreditNotes and listLines are the only sources, stripe.mjs:47-70).",
+  "completeness": "Claimed features rechecked: browser demo served over HTTP (`python3 -m http.server` + Playwright): Load sample data, Build schedule -> 33 schedule rows, tiles (Deferred revenue now $1,318), zero console errors. Server: sync with a daily full re-read (fake Stripe, 6-hourly syncs over 30 days: 30 full passes, the late-paid line picked up), period lock via CLOSED_THROUGH and ?closed_through, journal ?through validation, both tax shapes, zero- and three-decimal currencies, CSV import that skips blank amounts and impossible dates. No stubs. Known gaps listed in the README (SSP, voids on closed months, no Stripe-Version pin) are honest. One gap found: a credit note with more than the embedded lines (lines.has_more) was read only partly; fixed in the same PR.",
+  "verification": "`cd ventures/rev-rec && node --test '*.test.mjs'`: 81 tests, 81 pass, 0.27 s (40 at the last audit). Seven mutants via platform/ci/quality_mutate.py, six caught, including all three that survived on 2026-11-17 (remainder sort reversed, sync overlap 3 d -> 12 h) and the new logic (daily full sync disabled, credit link removed, period lock removed, zero-decimal exponent). Survivor: day count Math.round -> Math.ceil, which differs only for part-day periods (whole-day Stripe periods give the same count), so nearly equivalent; low.",
+  "craft": "Read revrec.mjs (136 lines), stripe.mjs, server.mjs, csv.mjs and the tests. Pure functions over integer minor units, zero dependencies, timing-safe auth, CSP, atomic state writes, inputs validated with clear 400s, comments that say why and cite the audit or red-team run behind each rule. Defects: 200-300 character one-liners remain (revrec.mjs:92 journal push, server.mjs:65 dashboard render, stripe.mjs normalizeCreditNote), hard to review; credit-note lines beyond the embedded first page were not fetched while invoice lines were (an asymmetry a reviewer should have caught; fixed).",
+  "claims": "Backed: GET-only key (stripe.test.mjs asserts every call), tested to the cent (spread sums exact; refund case recomputed), refunds reverse the unearned remainder when linked (recomputed), late-paid invoices counted (sync simulation), period lock (recomputed), disclaimers on the page footer, FAQ, dashboard and llms.txt. Page, README and llms.txt state the unlinked-credit-note behaviour, SSP limit and the no-pin limit. Gap: none of them said that a refund or lost dispute made without a credit note is not read, while the comparison table pitches against spreadsheets where 'refunds drift'. Disclosed in PR #18064; scored before the fix.",
+  "fitness": "Job walked: a revenue accountant closes November for a small Stripe SaaS with monthly and annual plans, prorated refunds issued as credit notes and a few net-30 customers. They get a correct schedule, a balanced journal they can import, closed months that stay closed, and correct handling of refunds Stripe links to a line. Still by hand: setup fees and bundles (SSP), refunds not issued as credit notes, voids of invoices in closed months, and revenue on unpaid invoices at month end. Usable for the close with those stated adjustments.",
+  "domain": "Compared with ASC 606-10-25-13 (modifications), 606-10-32-28 to 41 (relative SSP), 606-10-55-50 to 53 (upfront fees), 606-10-45-1 to 4 (contract asset / liability). Now matches: ratable recognition, prospective treatment of linked refunds and prorations, a period close. Still departs: only paid invoices are read (stripe.mjs:49 status=paid), so service delivered on an open net-30 invoice earns nothing until it is paid and then lands in the payment month as a catch-up when the period is locked, understating the month a CPA closes (606 recognises the revenue with a receivable or contract asset); setup fees are recognised on their date and bundles skip SSP allocation (disclosed); refunds and disputes outside credit notes are invisible. These are disclosed or now disclosed, but the paid-only trigger is a real departure for B2B SaaS with invoiced customers."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Prorated refund of 320/365 of a $1,200 annual plan, credit note Feb 15 linked to the line",
+   "method": "ASC 606: refund reduces the contract liability; Feb revenue 1200x14/365",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/rr/re.mjs",
+   "expected": "Feb 46.03, Feb closing 0.00, Mar-Dec 0.00",
+   "observed": "Feb 46.03, closing 0.00, Mar+ 0.00, total 147.95",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Monthly $100 period Jan 15 14:00 - Feb 15 14:00 UTC",
+   "method": "hand: [start,end) 31 days, Jan 17/31",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/rr/re.mjs",
+   "expected": "Jan 54.84 / Feb 45.16",
+   "observed": "5484 / 4516",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Annual $1,200 from Jan 15 14:00 2026",
+   "method": "hand: 365 days, last day Jan 14 2027, Jan 2027 = 14/365x1200",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/rr/re.mjs",
+   "expected": "Jan 2027 46.03 (+/- 1 cent remainder), 13 months, sum 1,200.00",
+   "observed": "Jan 2027 46.02, sum exact",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "JPY 120000 (zero-decimal currency)",
+   "method": "Stripe currency docs: whole yen",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/rr/re.mjs",
+   "expected": "¥120,000; journal 120000",
+   "observed": "¥120,000; debit 120000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Inclusive tax in the 2025-03-31 taxes[].tax_behavior shape",
+   "method": "hand: 12000 - 2000 inclusive",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/rr/re.mjs",
+   "expected": "10000",
+   "observed": "10000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "$2,900 annual from Oct 15 (page headline)",
+   "method": "hand 2900x17/365, x30/365",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/rr/re2.mjs",
+   "expected": "Oct 135.07, closing 2,764.93, Nov 238.36",
+   "observed": "135.07, 2,764.93, 238.36",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Net-30 line for November paid Dec 5, CLOSED_THROUGH=2026-11",
+   "method": "accountant's practice: late items post to the open period",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/rr/re2.mjs",
+   "expected": "Nov unchanged (b100 r100 c0); Dec b300 r300",
+   "observed": "Nov b100 r100 c0; Dec b300 r300 c0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Invoice created Oct 1, paid Oct 25, server syncing every 6 h for 30 days",
+   "method": "fake Stripe honouring created[gte] and status=paid, shipped sync()",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/rr/re.mjs",
+   "expected": "line present after payment",
+   "observed": "full pass daily (30 of 120), line present",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Refund not linked to a line (credit note without invoice_line_item)",
+   "method": "ASC 606 expects the same as the linked case",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/rr/re.mjs",
+   "expected": "Feb 46.03, nothing after",
+   "observed": "Feb -960.00, Mar 101.92 (documented behaviour)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Journal balances in the locked case",
+   "method": "sum debits vs credits",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/rr/re2.mjs",
+   "expected": "equal",
+   "observed": "800.00 = 800.00",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Refunds made on the payment without a credit note",
+   "method": "README, index.html, llms.txt read for a disclosure; stripe.mjs for any refunds or disputes read",
+   "command": "grep -n -i refund ventures/rev-rec/stripe.mjs ventures/rev-rec/server.mjs ventures/rev-rec/README.md",
+   "expected": "disclosed as not read",
+   "observed": "not read and not disclosed (fixed in PR #18064)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Browser demo, sample data",
+   "method": "Playwright over http.server",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/acb3a1b9-c78a-5cf2-a8d7-16fec2b95c06/scratchpad/rr/pw.cjs",
+   "expected": "schedule rows, tiles, no errors",
+   "observed": "33 rows, tiles, no console errors",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Credit note with more lines than Stripe embeds (lines.has_more)",
+   "method": "Stripe API: list objects embed the first page",
+   "command": "read stripe.mjs listCreditNotes (before fix)",
+   "expected": "remaining lines fetched like invoice lines",
+   "observed": "only embedded lines read (fixed in PR #18064, test added)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/rev-rec && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "81/81 pass, 0.27 s",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "revrec.mjs:18",
+   "change": "Math.round((line.end - line.start) / DAY) -> Math.ceil((line.end - line.start) / DAY)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "revrec.mjs:24",
+   "change": "sort((a, b) => b.r - a.r) -> sort((a, b) => a.r - b.r)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "server.mjs:31",
+   "change": "st.lastSyncAt - 3 * 86400000 -> st.lastSyncAt - 0.5 * 86400000",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "server.mjs:30",
+   "change": "now - st.lastFullSyncAt >= (cfg.fullSyncMs ?? FULL_SYNC_MS) -> false",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "revrec.mjs:40",
+   "change": "start: Math.max(l.start, orig.start), end: orig.end -> start: l.start, end: l.end",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "revrec.mjs:58",
+   "change": "const into = (l, m) => (late(l) && m < open ? open : m); -> const into = (l, m) => m;",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "revrec.mjs:127",
+   "change": "ZERO.has(c) ? 0 : THREE.has(c) ? 3 : 2 -> ZERO.has(c) ? 2 : THREE.has(c) ? 3 : 2",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Only paid invoices are read, so service delivered on an open (net-30) invoice earns no revenue until it is paid; with the period lock the catch-up lands in the payment month, understating the month being closed. ASC 606 recognises it with a receivable or contract asset. Disclosed only as 'billed when paid'.",
+   "where": "ventures/rev-rec/stripe.mjs:49",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Refunds and lost disputes made on the payment without a Stripe credit note leave the invoice paid and are never read, so billings, revenue and deferred revenue stay at the full amount; page, README and llms.txt did not say so.",
+   "where": "ventures/rev-rec/stripe.mjs:47",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No standalone-selling-price allocation: setup fees are recognised on their date and bundles take Stripe's list-price split (carried over from 2026-11-17, disclosed).",
+   "where": "ventures/rev-rec/revrec.mjs:18",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "A void of an invoice paid in a closed month rewrites that month on the next full re-read; the period lock covers late payments only (disclosed).",
+   "where": "ventures/rev-rec/server.mjs:33",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Credit notes embed only their first lines; listCreditNotes did not fetch the rest (invoice lines were), so a refund of a many-line invoice was only partly reversed.",
+   "where": "ventures/rev-rec/stripe.mjs:62",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18064"
+  },
+  {
+   "severity": "low",
+   "what": "Day-count mutant round -> ceil survives: no test uses a part-day period.",
+   "where": "ventures/rev-rec/revrec.mjs:18",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "200-300 character one-liners (journal push, dashboard render, normalizeCreditNote) are hard to review.",
+   "where": "ventures/rev-rec/revrec.mjs:92",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "prior_audit": "portfolio/quality/audits/2026-11-17-rev-rec.json",
+ "prior_defects": [
+  {
+   "index": 0,
+   "what": "credit note booked as one day of negative revenue",
+   "status": "closed",
+   "evidence": "linked refund case recomputes to Feb 46.03, nothing after; an unlinked credit note keeps the old behaviour and is disclosed on the page and README"
+  },
+  {
+   "index": 1,
+   "what": "incremental sync misses late-paid invoices",
+   "status": "closed",
+   "evidence": "daily full re-read; 30-day simulation picks up the Oct 25 payment; mutant disabling the full pass is caught"
+  },
+  {
+   "index": 2,
+   "what": "one extra day for periods with a time of day",
+   "status": "closed",
+   "evidence": "Jan 15 14:00 - Feb 15 14:00 spreads 17/14 over 31 days"
+  },
+  {
+   "index": 3,
+   "what": "no SSP allocation, setup fees on their date",
+   "status": "open",
+   "evidence": "unchanged; now disclosed in README Known gaps and llms.txt"
+  },
+  {
+   "index": 4,
+   "what": "no period lock; AR never clears",
+   "status": "partial",
+   "evidence": "CLOSED_THROUGH lock recomputed correct; billing debits Stripe balance; voids of closed-month invoices still rewrite them (disclosed)"
+  },
+  {
+   "index": 5,
+   "what": "newer tax shape not read",
+   "status": "closed",
+   "evidence": "taxes[].tax_behavior inclusive nets correctly; no Stripe-Version pin remains, disclosed"
+  },
+  {
+   "index": 6,
+   "what": "zero-decimal currencies off by 100x",
+   "status": "closed",
+   "evidence": "JPY 120000 -> ¥120,000, journal 120000; mutant caught"
+  },
+  {
+   "index": 7,
+   "what": "tests miss day count, remainder sort, sync window",
+   "status": "closed",
+   "evidence": "remainder-sort and sync-window mutants now caught; the day-count line changed to round and its ceil mutant survives only for part-day periods (new low defect)"
+  },
+  {
+   "index": 8,
+   "what": "blank amount becomes a 0 line",
+   "status": "closed",
+   "evidence": "csv.mjs:74 skips with 'amount is blank'"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/18064"
+ ],
+ "verdict": "Re-audit after four fix PRs: the fixes are real. Seven of nine earlier defects are closed and one is partly closed. Every failing recomputation from 2026-11-17 now matches by hand: the refund case gives Feb 46.03 and nothing after, the day count is right for real Stripe timestamps, JPY is right, late-paid invoices are caught, and the period lock holds November. The test suite doubled (81 tests), and six of seven seeded mutants are caught, including the three that survived last time. It now meets the bar for a small Stripe SaaS whose refunds go through credit notes. Domain still scores 2 because only paid invoices are read, so revenue on open net-30 invoices is late. Refunds without a credit note are invisible (now disclosed), and SSP allocation is out of scope (disclosed)."
+}
