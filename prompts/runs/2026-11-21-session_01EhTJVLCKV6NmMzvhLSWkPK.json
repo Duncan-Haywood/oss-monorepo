@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVLCKV6NmMzvhLSWkPK",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T19:43:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "grid-linopf: IPOPT reactive stage (J+R) on the 22 unfinished confirmation cases; HiGHS DC check on case2853_sdet API",
+  "projects": [
+    "infra-dcopf",
+    "grid-linopf"
+  ],
+  "pr": 18112,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First J+R background job stopped at the 2-hour limit after 18 of 22 cases; resumed from cached parts."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "cyipopt install recipe (apt-get install coinor-libipopt-dev liblapack-dev libblas-dev, then pip install cyipopt) is still only in run records, not next to the yosys/pdflatex notes; took ~2 min in the background and worked into /usr/bin/python3.13."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/infra-dcopf/LOG.md",
+      "why": "The previous Next named the reactive stage for 2 cases; the plan widened it to all 22 unfinished confirmation cases (declared in the plan before running) so the split has the held-out protocol's J+R arm.",
+      "did": "ran J+R on 22",
+      "result": "J or J+R 15 of 23 under the protocol (J 9)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-reactive-stage-finishes-grid-repair-near-misses.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registered G0-G5 and H1 in LOG.md before running. G0-G5 held: best points reproduced on 22/22; J+R clean on 8 of 10 Q-only cases at +0.008 to +0.212 % over PGLib AC optimum; none of the overload cases. H1 refuted: HiGHS finds case2853_sdet API's DC OPF feasible and its QP within 0.03 % of PGLib's DC objective; from that start the frozen repair stalls at 76 overloads, J+R no solution. Checks: tests/test_confirm.py 5 passed; build.py ok; check_posts ok; check_md_links ok; research_live_links no change.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,83 @@
+[
+ {
+  "case": "case2853_sdet",
+  "kind": "api",
+  "agg": {
+   "load_mw": 93537.70999999999,
+   "gs_mw": 0.0,
+   "pmin_mw": 24395.589999999997,
+   "pmax_mw": 163876.0,
+   "n_live": 819,
+   "n_neg_pmin": 2,
+   "n_components": 1,
+   "n_active_components": 1,
+   "n_load_only_components": 0,
+   "n_rated": 3921,
+   "n_tap": 1046,
+   "n_shift": 8,
+   "n_zero_x": 0,
+   "zero_x": []
+  },
+  "feas": {
+   "MP-x0+ang": "Feasible",
+   "MP-x0": "Feasible",
+   "PM+ang": "Feasible",
+   "PM": "Feasible"
+  },
+  "elastic": {}
+ },
+ {
+  "case": "case2853_sdet",
+  "kind": "typ",
+  "agg": {
+   "load_mw": 76683.48,
+   "gs_mw": 0.0,
+   "pmin_mw": 49063.36,
+   "pmax_mw": 181149.84,
+   "n_live": 819,
+   "n_neg_pmin": 2,
+   "n_components": 1,
+   "n_active_components": 1,
+   "n_load_only_components": 0,
+   "n_rated": 3921,
+   "n_tap": 1046,
+   "n_shift": 8,
+   "n_zero_x": 0,
+   "zero_x": []
+  },
+  "feas": {
+   "MP-x0+ang": "Feasible",
+   "MP-x0": "Feasible",
+   "PM+ang": "Feasible",
+   "PM": "Feasible"
+  },
+  "elastic": {}
+ },
+ {
+  "case": "case2853_sdet",
+  "kind": "sad",
+  "agg": {
+   "load_mw": 76683.48,
+   "gs_mw": 0.0,
+   "pmin_mw": 49063.36,
+   "pmax_mw": 181149.84,
+   "n_live": 819,
+   "n_neg_pmin": 2,
+   "n_components": 1,
+   "n_active_components": 1,
+   "n_load_only_components": 0,
+   "n_rated": 3921,
+   "n_tap": 1046,
+   "n_shift": 8,
+   "n_zero_x": 0,
+   "zero_x": []
+  },
+  "feas": {
+   "MP-x0+ang": "HiGHS 4: (HiGHS Status 0: Not Set)",
+   "MP-x0": "Feasible",
+   "PM+ang": "HiGHS 4: The HiGHS status code was not recognized. (HiGHS Status 15: model_status is Unknown; primal_status is Infeasible)",
+   "PM": "Feasible"
+  },
+  "elastic": {}
+ }
+]

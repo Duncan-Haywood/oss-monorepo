@@ -1,5 +1,12 @@
 # Research log
 
+## 2026-11-21 · Confirmation split, J+R and a third DC solver: outcome. The IPOPT reactive stage finishes 8 of 22 unfinished cases at +0.008 to +0.212 %; J or J+R 15 of 23 under the protocol (J 9), 18 of 33 over the split; HiGHS solves case2853_sdet API's DC OPF (H1 refuted), so all 33 reach the repair
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-21); numbers in `research/infra-dcopf/experiments/results_confirm_reactive.txt` and `results_dc_highs.txt`. G0 to G5 held.
+- 10 of the 22 unfinished cases failed only on reactive limits under 0.1 MVAr in total; 8 of those finish after the reactive stage. No case with real overloads finishes.
+
+## 2026-11-21 · Confirmation split: J+R on all 22 unfinished cases, HiGHS on case2853_sdet API (plan)
+- Plan, gate G0, predictions G1 to G5 and H1: `research/infra-dcopf/LOG.md` (2026-11-21); scripts `run_confirm_reactive.py`, `diag_dc_highs.py`.
+
 ## 2026-11-21 · Confirmation split, second-solver DC start: outcome. Clarabel starts 9 of the 10 no-start cases, all 9 reach full load, the frozen repair finishes 1 (case2742_goc API, +1.394 %); split tally 10 of 33 (32 reach the repair); R0 to R5 held
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-21); numbers in `research/infra-dcopf/experiments/results_confirm_rescue.txt`.
 - case2383wp_k TYP and SAD miss only on reactive limits (64 and 55 units, 0.09 MVAr in total); case2853_sdet API has no DC start on Clarabel either (InsufficientProgress / MaxIterations, not a certificate).
