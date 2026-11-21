@@ -241,7 +241,7 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
     return { g, phi, cost: peltFit(expo(phi, g), poisson).cost - 2 * linAt(g), passes: done };
   };
   const plain = fit([u], [g0]);
-  const out = (f, extra = {}) => ({ g: f.g[0], exposure: expo(f.phi, f.g), passes: f.passes, ...extra });
+  const out = (f, extra = {}) => ({ g: f.g[0], exposure: expo(f.phi, f.g), passes: f.passes, cost: f.cost, ...extra });
   const maxBends = bend === true ? 1 : bend ? Math.min(3, Math.floor(Number(bend)) || 0) : 0;
   if (!maxBends) return out(plain);
   // Bends: the log rate follows g u until the first knot and gains h_j (t - knot_j) after each knot. Scan a grid of knots, keep the best by
@@ -1020,16 +1020,30 @@ export function preSteps(o, values, labels) {
     }
   }
   let slope = null, slopeAfter, knot, knots, slopes, knotRanges, curvature, curved;
+  let trendRobustKept = null;
   let growth = null, countKnot, growthAfter, countKnots, countRates, countRanges;
   const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); else if (o.overdispersion === 'nb1') nb1Delta = nb1Dispersion(original, exposure) - 1; };
   if (o.trend && model === 'poisson') {
-    if (o.trend !== true && o.trend !== 'bend' && o.trend !== 'bends') throw new Error('For counts, --trend takes one common growth rate under the steps, "bend" for one change of growth rate or "bends" for up to two.');
-    const fit = poissonTrend(original, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 2 : false, knotMargin: o.knotMargin, scale: phi ?? 1, diag: o.diagBends || null,
+    if (o.trend !== true && o.trend !== 'bend' && o.trend !== 'bends' && o.trend !== 'robust') throw new Error('For counts, --trend takes one common growth rate under the steps, "bend" for one change of growth rate, "bends" for up to two, or "robust" for one growth rate read once from a robust slope of the log counts.');
+    // robust: the growth rate is the starting estimate only (the median of log-count slopes over a quarter of the
+    // series), not refitted under the steps; about 40 times cheaper per check, for the count watch (README "A Middle
+    // that allows for growth").
+    const fit = poissonTrend(original, { base: exposure, penalty, ...(o.trend === 'robust' ? { passes: 0 } : {}), minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 2 : false, knotMargin: o.knotMargin, scale: phi ?? 1, diag: o.diagBends || null,
       nbSize: o.overdispersion === 'nb' ? negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : original) : 0,
       nb1Delta: o.overdispersion === 'nb1' ? nb1Dispersion(original, exposure) - 1 : 0 });
-    exposure = fit.exposure;
-    growth = fit.g;
-    if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; countRanges = fit.knotRanges; }
+    // robust: keep the growth term only when it earns its place, its fit beating the flat one (same cost, same
+    // exposure otherwise) by log n, one parameter by BIC; a flat series is then left as Middle sees it.
+    let keep = true;
+    if (o.trend === 'robust') {
+      const n0 = original.length, size = o.overdispersion === 'nb' ? negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : original) : 0;
+      const d1 = o.overdispersion === 'nb1' ? nb1Dispersion(original, exposure) - 1 : 0;
+      const ms = Math.max(1, Math.floor(Number(o.minSegment) || 2));
+      const flat = pelt(original, size > 0 && Number.isFinite(size) ? { model: 'negbin', penalty, minSegment: ms, size, exposure } : d1 > 0 && Number.isFinite(d1) ? { model: 'negbin1', penalty, minSegment: ms, size: d1, exposure } : { model: 'poisson', penalty, minSegment: ms, exposure });
+      keep = fit.cost + Math.log(n0) * (phi ?? 1) < flat.cost;
+      trendRobustKept = keep;
+    }
+    if (keep) { exposure = fit.exposure; growth = fit.g; }
+    if (keep && fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; countRanges = fit.knotRanges; }
   } else if (o.trend) {
     ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges, curvature, curved } = trendAdjust(values, { quad: o.trend === 'quad', penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
@@ -1067,5 +1081,5 @@ export function preSteps(o, values, labels) {
     if (!joint && o.ar1RhoCap != null && Number.isFinite(Number(o.ar1RhoCap))) rho = Math.min(rho, Math.max(0, Number(o.ar1RhoCap)));
     if (!joint) sigma = longRunSd(sigma, rho);
   }
-  return { model, values, original0, period, burstInfo, rawCounts, phi, penalty, nbSize, nb1Delta, profile, exposure, seasonMultiplicative, original, holidayFit, slope, slopeAfter, knot, knots, slopes, knotRanges, curvature, curved, growth, countKnot, growthAfter, countKnots, countRates, countRanges, sigma, noiseFloorK, noiseFloorHit, rho, joint };
+  return { model, values, original0, period, burstInfo, rawCounts, phi, penalty, nbSize, nb1Delta, profile, exposure, seasonMultiplicative, original, holidayFit, slope, slopeAfter, knot, knots, slopes, knotRanges, curvature, curved, growth, countKnot, growthAfter, countKnots, countRates, countRanges, sigma, noiseFloorK, noiseFloorHit, rho, joint, trendRobustKept };
 }

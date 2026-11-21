@@ -183,34 +183,33 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History and every measurement: README and git (TCPD consensus F1 0.702
-      shipped / 0.711 held out, binseg 0.714/0.727). Next, most valuable first:
-      (w) watch (README "Watching a growing series", "Round 5" to "Round 10"):
-      hint, budget box and "Wandering level" (drift) shipped; a real deployer's
-      repository on GitHub Actions (no-terminal set-up from the watch page
-      2026-11-19, README "Self-deploy with no terminal"; next: its four links
-      tried on a live empty repository) (real shop, README "A real shop's daily
-      series": weekly line ships; revenue deaf at Quiet: shut-Saturday drop
-      heard it both years, failed sim power (README "A shop shut one weekday");
-      a ramp sim failed (README "round 3"); rounds 4-5 2026-11-21: Christmas
-      closure no effect, calm noise quietest; round 6 2026-11-21: no slow-climb
-      check passes, weekly drift beside daily lifts x1.9 57 to 82 but late
-      (README "round 6"); next it on fresh shops, bars by 8 weeks; --closed
-      ships; a recent-days fill failed 2 rounds (README "A closure in the first
-      week after a step": cost ~4/100, pooled); a closure 1-7 days before a step
-      costs ~1/100 and the 2011-09-01 alert was the holiday's zero (README "A
-      closure in the week before a step")); next a provider that documents its
-      own changes. Search Console source, --events and count Middle (pelt + NB)
-      shipped 2026-11-21 (README "A middle setting for over-dispersed counts":
-      20% falls 115/120 vs Quiet 38, 0.83 false/1,000 days): Middle as count
-      default failed 2026-11-21 (README "Middle as the count default? No": 17
-      fewer days unaware per fall, but alerts on 20/40 sites growing 30% vs 1):
-      next a trend-aware Middle, then a live property. joint drift (measured,
-      not offered). Open: (0) drift model: t-walk increments, biweight on fresh
-      data, why it absorbs seat belts and quality control 4, its AR(1) term;
-      notes quote it. Curvature word ships under --shape-word panel (README "A
-      curvature word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37.
-      More open items: NEXT.md.
+      History and every measurement: README and git (TCPD consensus F1 0.702 shipped
+      / 0.711 held out, binseg 0.714/0.727). Next, most valuable first: (w) watch
+      (README "Watching a growing series", "Round 5" to "Round 10"): hint, budget
+      box and "Wandering level" (drift) shipped; a real deployer's repository on
+      GitHub Actions (no-terminal set-up from the watch page 2026-11-19, README
+      "Self-deploy with no terminal"; next: its four links tried on a live empty
+      repository) (real shop, README "A real shop's daily series": weekly line
+      ships; revenue deaf at Quiet: shut-Saturday drop heard it both years, failed
+      sim power (README "A shop shut one weekday"); a ramp sim failed (README "round
+      3"); rounds 4-5 2026-11-21: Christmas closure no effect, calm noise quietest;
+      round 6 2026-11-21: no slow-climb check passes, weekly drift beside daily
+      lifts x1.9 57 to 82 but late (README "round 6"); next it on fresh shops, bars
+      by 8 weeks; --closed ships; a recent-days fill failed 2 rounds (README "A
+      closure in the first week after a step": cost ~4/100, pooled); a closure 1-7
+      days before a step costs ~1/100 and the 2011-09-01 alert was the holiday's
+      zero (README "A closure in the week before a step")); next a provider that
+      documents its own changes. Search Console source, --events and count Middle
+      (pelt + NB) shipped 2026-11-21 (README "A middle setting for over-dispersed
+      counts": 20% falls 115/120 vs Quiet 38, 0.83 false/1,000 days): Middle as
+      count default failed (alerts on growth); --trend robust cuts it a third,
+      failed its bar, ships as option (README "A Middle that allows for growth");
+      next the joint --trend fit, then a live property. joint drift (measured, not
+      offered). Open: (0) drift model: t-walk increments, biweight on fresh data,
+      why it absorbs seat belts and quality control 4, its AR(1) term; notes quote
+      it. Curvature word ships under --shape-word panel (README "A curvature word"):
+      slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items:
+      NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,

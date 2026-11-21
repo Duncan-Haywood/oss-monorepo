@@ -3811,9 +3811,66 @@ hint's middle rung. The hint's note for counts and the page's "How eager" option
 growth, since a hint that recommends Middle "as a good place to start" was wrong advice for a growing site.
 
 **Next:** a Middle that allows for a trend, for example PELT + NB on the series divided by a slow fitted level (a
-local-level or 8-week rolling median), pre-registered against set 3 and the same falls; or the hint's own history
+local-level or 8-week rolling median), pre-registered against set 3 and the same falls (tried next with a gated
+robust growth rate: it fails the growth bar by less, next section); or the hint's own history
 check tested on set 3 (it replays the history and counts Middle's alerts there, so a site that also grew during its
 history should be steered back to Quiet; that has not been measured).
+
+## A Middle that allows for growth (2026-11-21, pre-registered; fails its growth bar, ships as an option)
+
+The section above left Middle (`pelt` + NB) off the default because PELT, with a flat level between changes, fits a
+steady climb as a staircase. This round (`eval/middle-trend.prereg.md`, committed before the runs;
+`eval/middle-trend.mjs`, output `eval/middle-trend.out.txt`, 67 min on 4 cores) tried a Middle with a growth term,
+**MR**: `--trend robust`, new for counts. On each check one log-linear growth rate across the window is read from
+the median of the log-count slopes over a quarter of the series and held as the exposure under PELT + NB, and it is
+**kept only when it earns its place** (its penalised cost beats the flat one by log n). An ungated version made steps
+on flat sites to patch a slightly wrong slope (3, 1 and 1 alerts on three probe sites where Middle sent 2, 0, 0), so
+the gate went in before the round. The full joint fit (`--trend`, which re-fits the growth under the steps) was
+timed at about 0.2 s a check against Middle's 0.04 s (MR itself is two to three times Middle, the NB cost with
+exposures being O(segment length)), and left for a smaller round. D is the count default, M Middle; all
+seeds fresh (set 1 1501-1540, set 2 4001-4200, set 3 1701-1740).
+
+| set | measure | D | M | MR | bar |
+|---|---|---|---|---|---|
+| 1 Search Console sites, cv 15% | mean days unaware, 10/20/40% falls | 35.2 | 19.3 | 19.7 (MR - M +0.38, 0.06 to 0.82) | H2 pass (<= +2.0) |
+| | false alerts per 1,000 days | 0.17 | 0.81 | 0.72 | H3 pass |
+| 1 same, cv 30% | mean days unaware | 41.5 | 28.2 | 28.6 (+0.38, 0.11 to 0.74) | H2 pass |
+| | false alerts per 1,000 days | 0.67 | 1.64 | 1.64 | H3 pass |
+| 2 eleven flat cells | false alerts per 1,000 checks | 0.72 | 1.52 | 1.53 (MR - M +0.01, -0.02 to 0.04) | H4 pass |
+| | steps found of 1,200 | 1,029 | 1,139 | 1,137 (-2, -5 to 0) | H4 pass |
+| 3 T1 grows 30% over 240 days | alerts per 1,000 days | 0.83 (4/40 sites) | 9.79 (31/40) | **6.25 (23/40)** | **H1 FAIL** (<= D + 3.0 = 3.83) |
+| T2 grows 100% | | 0.00 (0/40) | 15.42 (40/40) | 5.83 (21/40) | reported |
+| T3 falls 30% | | 0.42 (2/40) | 9.17 (33/40) | 4.38 (20/40) | reported |
+| T4 log-mean walk, sd 1% a day | | 1.46 (6/40) | 7.29 (23/40) | 6.67 (21/40) | reported |
+| T5 log-mean walk, sd 2% a day | | 1.25 (6/40) | 12.50 (35/40) | 11.88 (32/40) | reported |
+| T6 grows 30%, falls 20% on day 180 | falls heard; mean days unaware; false before the fall | 6/40; 53.3; 0.42 | 36/40; 18.8; 9.58 | **38/40; 13.5; 5.42** | reported |
+
+**What it means.** On flat sites MR is Middle: the gate leaves the growth term out, and it costs under half a day per
+fall. Where a site grows or shrinks steadily it removes a third to two thirds of Middle's alerts (T2's doubling sites
+from 40 of 40 alerted to 21), and on a growing site that then falls (T6) it hears more falls sooner with fewer false
+alerts before them. It is still far noisier than the count default on a 30% climb (6.25 alerts per 1,000 days against
+0.83), so it fails the bar Middle failed, by less. Why, not measured here: early in the watch the window holds 120
+days, over which a 30% climb is about 15%, so the gate may prefer a flat level with one step (how often it kept the
+growth term was not logged); and a wandering level (T4, T5) is not a straight line, so one growth rate cannot remove
+it, as their near-unchanged rows show. The G bars (MR as the count default) fail
+too: G6 as above and G4 narrowly (false alerts MR - D upper 1.01 against 1.0).
+
+**What ships.** `COUNT_MIDDLE` and `COUNT_DEFAULTS` do not move. `--trend robust` ships as an option for counts on
+the analysis CLI (`--model poisson --trend robust`) and the watch (`watch.mjs ... --model poisson --detector pelt
+--overdispersion nb --trend robust`; with `--columns` it applies to the count columns only); when the gate leaves the
+growth out, the analysis says so in `trendNote`. For a site that is known to be growing and where Middle's extra
+alerts are the problem, it is the better Middle by these numbers; it is not offered as a default because a 30% climb
+still alerts on more than half the sites.
+
+**Checked** (`middle-trend.test.mjs`, 3): on a count series growing 0.4% a day with no step, plain NB PELT cuts at
+least two steps and `--trend robust` none, with the growth read within 0.1 of the truth (0.80); a 40% fall late in a
+growing series biases the robust slope, the gate leaves it out (`trendNote`), and the fall is still found; the watch
+takes `--trend robust` for counts with no alert on a growing series and refuses it for the level model or any other
+value.
+
+**Next:** the full joint fit (`--trend`) on set 3 and set 1 with fewer seeds, or a gate that keeps the growth term on
+the evidence of the history before the watch started (so the 120-day early window does not decide it); and the
+hint's own history check on set 3.
 
 ## Shopify as a source (2026-11-19)
 

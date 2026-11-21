@@ -1,0 +1,81 @@
+Set 1: simulated Search Console sites (eval/gsc-sites.mjs), seeds 1501-1540, watched daily from day 120 to 239, falls on day 180.
+Days unaware: days from the fall to the alert that hears it, 60 if none does. Heard (median days) | mean days unaware | false per 1,000 days.
+
+cv 0.15
+| base | fall | D heard (median) | M heard (median) | MR heard (median) | D mean unaware | M mean unaware | MR mean unaware | D false/1,000 | M false/1,000 | MR false/1,000 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 50 | 0% | - | - | - | - | - | - | 0.00 | 0.42 | 0.42 |
+| 50 | 10% | 1/40 (11) | 12/40 (30) | 11/40 (35) | 58.8 | 51.5 | 52.6 | 0.00 | 0.42 | 0.00 |
+| 50 | 20% | 7/40 (10) | 36/40 (10) | 36/40 (10) | 51.0 | 16.9 | 17.1 | 0.00 | 0.42 | 0.00 |
+| 50 | 40% | 39/40 (4) | 40/40 (4) | 40/40 (4) | 5.5 | 4.1 | 4.1 | 0.42 | 0.83 | 0.42 |
+| 400 | 0% | - | - | - | - | - | - | 0.00 | 1.04 | 1.04 |
+| 400 | 10% | 0/40 (-) | 27/40 (26) | 24/40 (22) | 60.0 | 38.6 | 40.7 | 0.00 | 0.83 | 0.83 |
+| 400 | 20% | 16/40 (4) | 39/40 (8) | 39/40 (8) | 38.5 | 10.4 | 10.4 | 1.25 | 3.75 | 3.75 |
+| 400 | 40% | 40/40 (4) | 40/40 (4) | 40/40 (4) | 4.0 | 4.0 | 4.0 | 0.00 | 0.42 | 0.42 |
+| 3000 | 0% | - | - | - | - | - | - | 0.00 | 0.42 | 0.42 |
+| 3000 | 10% | 1/40 (4) | 26/40 (22) | 26/40 (23) | 58.6 | 36.5 | 36.5 | 0.00 | 0.00 | 0.00 |
+| 3000 | 20% | 18/40 (5) | 40/40 (8) | 40/40 (8) | 36.8 | 8.0 | 8.0 | 0.83 | 1.25 | 1.25 |
+| 3000 | 40% | 40/40 (4) | 40/40 (4) | 40/40 (4) | 4.0 | 3.9 | 3.9 | 0.00 | 0.42 | 0.42 |
+pooled false alerts per 1,000 days: D 0.17, M 0.81, MR 0.72
+mean days unaware over the nine fall cells: D 35.23, M 19.32, MR 19.70
+  MR - D -15.53 (-17.29 to -13.74); MR - M 0.38 (0.06 to 0.82)
+mean days unaware on 40% falls: D 4.52, M 4.00, MR 4.00
+  G1 pass, G2 pass, G3 pass; H2 (MR - M upper <= 2.0) pass, H3 (MR false <= 2.0) pass
+
+cv 0.3
+| base | fall | D heard (median) | M heard (median) | MR heard (median) | D mean unaware | M mean unaware | MR mean unaware | D false/1,000 | M false/1,000 | MR false/1,000 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 50 | 0% | - | - | - | - | - | - | 0.42 | 1.67 | 1.67 |
+| 50 | 10% | 1/40 (19) | 12/40 (17) | 10/40 (17) | 59.0 | 49.1 | 51.0 | 1.25 | 1.25 | 1.25 |
+| 50 | 20% | 10/40 (9) | 31/40 (14) | 31/40 (14) | 47.0 | 27.6 | 27.8 | 0.83 | 2.50 | 2.50 |
+| 50 | 40% | 26/40 (4) | 40/40 (5) | 40/40 (5) | 24.6 | 6.5 | 6.5 | 0.00 | 0.83 | 0.83 |
+| 400 | 0% | - | - | - | - | - | - | 0.83 | 1.88 | 1.88 |
+| 400 | 10% | 3/40 (8) | 9/40 (16) | 9/40 (16) | 56.1 | 50.4 | 50.5 | 0.83 | 2.50 | 2.50 |
+| 400 | 20% | 4/40 (3) | 34/40 (21) | 32/40 (20) | 54.5 | 29.1 | 30.3 | 1.25 | 1.67 | 1.67 |
+| 400 | 40% | 38/40 (4) | 40/40 (4) | 40/40 (4) | 7.6 | 5.1 | 5.1 | 0.00 | 1.25 | 1.25 |
+| 3000 | 0% | - | - | - | - | - | - | 1.04 | 1.67 | 1.67 |
+| 3000 | 10% | 2/40 (6) | 7/40 (9) | 7/40 (9) | 57.3 | 52.9 | 52.9 | 0.42 | 1.25 | 1.25 |
+| 3000 | 20% | 4/40 (3) | 35/40 (18) | 35/40 (18) | 54.5 | 26.6 | 26.6 | 0.00 | 0.83 | 0.83 |
+| 3000 | 40% | 35/40 (4) | 39/40 (4) | 39/40 (5) | 12.7 | 6.8 | 6.9 | 0.83 | 2.08 | 2.08 |
+pooled false alerts per 1,000 days: D 0.67, M 1.64, MR 1.64
+mean days unaware over the nine fall cells: D 41.48, M 28.24, MR 28.63
+  MR - D -12.85 (-14.72 to -11.03); MR - M 0.38 (0.11 to 0.74)
+mean days unaware on 40% falls: D 14.97, M 6.15, MR 6.17
+  G1 pass, G2 pass, G3 pass; H2 (MR - M upper <= 2.0) pass, H3 (MR false <= 2.0) pass
+
+Set 2: the eleven cells of the count hint round, seeds 4001-4200, fixed arms. Nulls: false alerts per 1,000 checks; steps: found of 200 (median delay).
+| cell | D | M | MR |
+|---|---|---|---|
+| N1 Poisson 30 | 0.88 | 1.54 | 1.58 |
+| N2 NB 30, var 60 | 0.63 | 1.96 | 1.96 |
+| N3 Poisson 30, weekends 0.6x | 0.33 | 0.71 | 0.71 |
+| N4 Poisson 5 | 1.21 | 1.79 | 1.79 |
+| N5 NB 30, var 90 | 0.54 | 1.63 | 1.63 |
+| S1 30 -> 15 | 194 (4) | 197 (4) | 197 (4) |
+| S2 30 -> 21 | 176 (4) | 192 (4) | 191 (4) |
+| S3 30 -> 45 | 195 (4) | 198 (4) | 197 (4) |
+| S4 5 -> 2 | 145 (5) | 180 (5) | 180 (5) |
+| S5 NB(2x) 30 -> 18 | 179 (4) | 192 (4) | 192 (4) |
+| S6 NB(3x) 30 -> 18 | 140 (4) | 180 (5) | 180 (5) |
+| pooled false (nulls equal) | 0.72 | 1.52 | 1.53 |
+| steps found of 1200 | 1029 | 1139 | 1137 |
+false MR - D 0.82 (0.63 to 1.01), worst null cell 1.33; steps MR - D 108 (88 to 129), worst step cell 2
+  G4 FAIL, G5 pass
+false MR - M 0.01 (-0.02 to 0.04), worst null cell 0.04; steps MR - M -2 (-5 to 0), worst step cell -1
+  H4 (false upper <= 0.5, steps lower >= -24) pass
+
+Set 3: growing, shrinking and wandering sites (base 400, weekends 70%, cv 0.15), seeds 1701-1740, alerts per 1,000 days watched (days 120-239; no step).
+| cell | D alerts/1,000 | M alerts/1,000 | MR alerts/1,000 | D series alerted | M series alerted | MR series alerted |
+|---|---|---|---|---|---|---|
+| T1 grows 30% over 240 days | 0.83 | 9.79 | 6.25 | 4/40 | 31/40 | 23/40 |
+  G6 = H1 (T1: MR <= D + 3.0) FAIL
+| T2 grows 100% over 240 days | 0.00 | 15.42 | 5.83 | 0/40 | 40/40 | 21/40 |
+| T3 falls 30% over 240 days | 0.42 | 9.17 | 4.38 | 2/40 | 33/40 | 20/40 |
+| T4 log-mean walk, sd 0.01 a day | 1.46 | 7.29 | 6.67 | 6/40 | 23/40 | 21/40 |
+| T5 log-mean walk, sd 0.02 a day | 1.25 | 12.50 | 11.88 | 6/40 | 35/40 | 32/40 |
+T6 grows 30% over 240 days, falls 20% on day 180 (reported): D heard 6/40, mean days unaware 53.3, false before the fall 0.42/1,000 days; M heard 36/40, mean days unaware 18.8, false before the fall 9.58/1,000 days; MR heard 38/40, mean days unaware 13.5, false before the fall 5.42/1,000 days
+
+Against the default (G): G1 cv 0.15 pass, G2 cv 0.15 pass, G3 cv 0.15 pass, G1 cv 0.3 pass, G2 cv 0.3 pass, G3 cv 0.3 pass, G4 FAIL, G5 pass, G6 FAIL
+Against Middle (H): H2 cv 0.15 pass, H3 cv 0.15 pass, H2 cv 0.3 pass, H3 cv 0.3 pass, H4 pass, H1 FAIL
+H fails: COUNT_MIDDLE stays pelt + NB; --trend robust ships only as an option for counts.
+The count default stays.
