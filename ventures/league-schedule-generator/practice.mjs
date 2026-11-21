@@ -470,7 +470,7 @@ export function teamWeekText(result, team) {
   return [team, ...mine.map((p) => `  ${DAYS[p.day]} ${clock(p.start)}-${clock(p.end)}, ${p.field}`)].join("\n");
 }
 
-/** Every placement as CSV (Day, Start, End, Field, Team, Coach, Units). */
+/** Every placement as CSV (Day, Start, End, Field, Team, Coach, Units). Cells go through calc.mjs csvCell, which defuses CSV formula injection. */
 export function practiceCsv(result) {
   const lines = [["Day", "Start", "End", "Field", "Team", "Coach", "Units"].join(",")];
   for (const p of result.placements) lines.push([DAYS[p.day], clock(p.start), clock(p.end), p.field, p.team, p.coach, p.units].map(csvCell).join(","));

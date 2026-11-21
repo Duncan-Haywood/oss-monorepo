@@ -221,7 +221,7 @@
   }
   const download = (text, name, type) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); };
 
-  $("#build").addEventListener("click", async () => { seed = 1; if (await build()) { record("practice_built"); $("#out").scrollIntoView({ behavior: "smooth" }); } });
+  $("#build").addEventListener("click", async () => { seed = 1; if (await build()) { record("practice_built"); $("#out").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); } });
   $("#reshuffle").addEventListener("click", async () => { seed++; if (await build()) record("practice_reshuffled"); });
   $("#example").addEventListener("click", () => { fill(EXAMPLE); seed = 1; record("practice_example"); build(); });
   $("#copy").addEventListener("click", () => { copy(practiceText(result, inputs.name), "Timetable"); record("practice_copied"); });
