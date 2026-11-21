@@ -17,14 +17,14 @@
 #                               data/stripe.csv (date,payments,revenue,failed per complete day; stripe-metrics.mjs) and,
 #                               with METRIC_CSV unset, watches it: payments and failed payments as counts, revenue as a
 #                               level. Use a PRIVATE repository: watch-state.json records your revenue around each change.
-#   variable STRIPE_OPTIONS     optional, e.g. "--utc-offset -5 --currency usd --customers"
+#   variable STRIPE_OPTIONS     optional, e.g. "--time-zone America/New_York --currency usd --customers"
 #   secret   SHOPIFY_ACCESS_TOKEN  optional: the Admin API access token of a custom app in your Shopify store (scope
 #                               read_orders; read_all_orders for more than 60 days of history). With the variable
 #                               SHOPIFY_SHOP (my-store or my-store.myshopify.com) each run writes data/shopify.csv
 #                               (date,orders,revenue,cancelled per complete day; shopify-metrics.mjs) and, with
 #                               METRIC_CSV unset and no Stripe key, watches it: orders and cancellations as counts,
 #                               revenue as a level. Use a PRIVATE repository.
-#   variable SHOPIFY_OPTIONS    optional, e.g. "--utc-offset -5 --customers"
+#   variable SHOPIFY_OPTIONS    optional, e.g. "--customers" (days follow the store's own time zone)
 # With no webhook, a new change fails the run and GitHub emails you (--fail-on-alert).
 name: watch-metric
 on:

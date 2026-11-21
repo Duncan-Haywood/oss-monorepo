@@ -60,12 +60,14 @@
     @media (min-width: 740px) { div.grid:has(#split) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 342px), 1fr)); } }
   </style>
   <!-- select-track:end -->
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">GUMROAD SALES TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Turn a Gumroad sales export into a Xero or QuickBooks journal</h1>
-    <p>Paste or drop your <strong>sales CSV</strong> from Gumroad (Analytics &gt; Sales &gt; Export, or Payouts &gt; download CSV). Every sale is <strong>split into product sales, shipping, tax you collected, the Gumroad fee and refunds</strong>, the rows are <strong>added up and checked against your payout</strong>, and the result is written as a <strong>balanced journal to a Gumroad clearing account</strong> — <strong>split at month end</strong> when a payout straddles two months — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV.</p>
+    <p class="lede">Paste or drop your <strong>sales CSV</strong> from Gumroad (Analytics &gt; Sales &gt; Export, or Payouts &gt; download CSV).</p>
+    <details class="hero-more"><summary>What it books and checks</summary><p>Every sale is <strong>split into product sales, shipping, tax you collected, the Gumroad fee and refunds</strong>, the rows are <strong>added up and checked against your payout</strong>, and the result is written as a <strong>balanced journal to a Gumroad clearing account</strong> — <strong>split at month end</strong> when a payout straddles two months — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Only dates, prices, fees, net totals, refund flags and payout IDs are used. Independent of Gumroad, Xero and Intuit. Gumroad's two export layouts (the Sales export and the payout CSV) and how their amounts relate are taken from Gumroad's open-source code (github.com/antiwork/gumroad); the Xero and QuickBooks importer layouts are from memory of their help documents. No real export file and no live Xero or QuickBooks import was tested.</p>
   </header>
 <main>

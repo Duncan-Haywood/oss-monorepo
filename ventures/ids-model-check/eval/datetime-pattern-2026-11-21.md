@@ -15,7 +15,9 @@ Measured in Node 22 (V8), which the checker uses via `Date.parse`:
 
 - no zone is UTC; `Z`, `+00:00` and `-00:00` are the same instant;
 - milliseconds are kept and further digits dropped (`12:00:00.9999` is
-  `.999`); `12:00:00.` is not a value;
+  `.999`); `12:00:00.` is not a value. **Changed later the same day** (see
+  "Past the millisecond" below): the checker now orders the whole fraction,
+  as XSD does, and the pattern follows;
 - `24:00:00` (with `.0`, `.000`, ... only) is the next midnight;
   `24:00:01`, `23:59:60`, `23:60:00` are not values;
 - an offset is `+hh:mm` with hh up to 23 and mm up to 59 (`+24:00`,
@@ -78,6 +80,43 @@ Page (Chromium, 390 px): an opened IDS with a dateTime range on a beam shows
 the IfcTester warning and the button; the downloaded file has a 9,320
 character pattern and no range, and passes a beam inside and fails one a
 millisecond late, as the range does. No horizontal scroll, no page errors.
+
+## Past the millisecond (2026-11-21, second pass)
+
+A parallel session (PR #17992) found the millisecond cut is a checker bug,
+not only a property of `Date.parse`. XSD orders a dateTime by its whole
+fraction, so `07:00:00.0001` is after `07:00:00` and passes
+`minExclusive="...T07:00:00"`. The old key made them equal and failed it.
+.NET-based exporters write seven fraction digits (`DateTime` "o" format),
+so such values do turn up. Changed:
+
+- `temporal.mjs` `temporalCompare(a, b)`: whole milliseconds by
+  `Date.parse`, then the remaining fraction digits as written. `ids.mjs`
+  compares range bounds with it for every temporal kind. `24:00:00.5`
+  stays refused.
+- `dateTimeRangePattern` carries each bound's digits past the third
+  (`exactKey`). The time range on the bound's own millisecond ends in an
+  exact decimal comparison of the fraction (`fracPat` through `fracSet`,
+  any length), not "any digits after three". An exclusive bound is no
+  longer moved one millisecond inward.
+- Rerun, same inputs (`eval/datetime-pattern.txt`,
+  `eval/datetime-pattern-ifctester.txt`): the pattern still differs from
+  the range on 0 of 290 beam verdicts on zones in use (3 of 20 at
+  `+10:17`, as before). IfcTester agrees with the pattern on 10 of 10.
+  Four range verdicts moved, each by one beam, and each now follows XSD's
+  order: `07:00:00.0001` passes `> 07:00:00` (fails 19 to 18, and 21 to
+  20 on the two-sided range), and `17:00:00.0009` fails `<= 17:00:00`
+  (8 to 9, and 15 to 16 twice). Pattern length is now 3,202 to 12,666
+  characters.
+- `datetime-range-pattern.test.mjs`: 23 ranges (11 written, 12 seeded)
+  with bounds of up to 7 fraction digits and values of 3, 4, 7 and 10
+  digits at 0 ms, 1 ms, 1 s, 1 min, 1 h, 23:59, 24:00, 24:01 and 2 days
+  from each bound, in 17 zones. The pattern matches the range except an
+  unused offset (`+00:37`, `-01:01`, `+00:01`, ...) within two local
+  days of a bound. With the old millisecond comparison put back in
+  `ids.mjs`, 3 of its 4 tests fail. `datetime-pattern.test.mjs` passes
+  unchanged except one refusal: `> 00:00:00` and `< 00:00:00.001` was
+  empty under the millisecond key and now holds `.0005`.
 
 ## Not done
 

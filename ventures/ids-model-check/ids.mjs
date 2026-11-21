@@ -16,7 +16,7 @@ import { parseXml, kids, kid } from "./xml.mjs";
 import { compileXsdRegex } from "./xsdregex.mjs";
 import { auditIds } from "./audit.mjs";
 import { structureIssues } from "./structure.mjs";
-import { temporalKind, temporalKey } from "./temporal.mjs";
+import { temporalKind, temporalKey, temporalCompare } from "./temporal.mjs";
 export { temporalKind, temporalKey };
 
 // ---------------------------------------------------------------- schema ----
@@ -385,14 +385,16 @@ export class IdsValue {
     if (bounds.some((b) => b !== undefined)) {
       // Dates, times and durations: both sides in the same ISO form.
       if (typeof v === "string" && !isNum) {
+        // temporalCompare orders past the millisecond (00:00:00.0004 is
+        // after 00:00:00, as XSD has it); NaN for a bound of another kind.
         const kind = temporalKind(v);
         const key = temporalKey(v);
         if (!kind || key === null || Number.isNaN(key)) return false;
-        const bk = (b) => (temporalKind(b) === kind ? temporalKey(b) : NaN);
-        if (r.minInclusive !== undefined && !(key >= bk(r.minInclusive))) return false;
-        if (r.maxInclusive !== undefined && !(key <= bk(r.maxInclusive))) return false;
-        if (r.minExclusive !== undefined && !(key > bk(r.minExclusive))) return false;
-        if (r.maxExclusive !== undefined && !(key < bk(r.maxExclusive))) return false;
+        const c = (b) => temporalCompare(v, b);
+        if (r.minInclusive !== undefined && !(c(r.minInclusive) >= 0)) return false;
+        if (r.maxInclusive !== undefined && !(c(r.maxInclusive) <= 0)) return false;
+        if (r.minExclusive !== undefined && !(c(r.minExclusive) > 0)) return false;
+        if (r.maxExclusive !== undefined && !(c(r.maxExclusive) < 0)) return false;
         return lensOk(r, sv);
       }
       if (typeof v !== "number") return false;

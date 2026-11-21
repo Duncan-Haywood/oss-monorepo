@@ -60,12 +60,14 @@
     @media (min-width: 740px) { div.grid:has(#split) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 342px), 1fr)); } }
   </style>
   <!-- select-track:end -->
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">STRIPE PAYOUT TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Turn a Stripe payout report into a Xero or QuickBooks journal</h1>
-    <p>Paste or drop the <strong>itemised payout reconciliation report</strong> from the Stripe Dashboard. Every row is <strong>added up and checked against the payout</strong>, grouped into gross sales, Stripe fees, refunds, disputes and adjustments, and written as a <strong>balanced journal to a Stripe clearing account</strong> — <strong>split at month end</strong> when a payout straddles two months — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV.</p>
+    <p class="lede">Paste or drop the <strong>itemised payout reconciliation report</strong> from the Stripe Dashboard.</p>
+    <details class="hero-more"><summary>What it books and checks</summary><p>Every row is <strong>added up and checked against the payout</strong>, grouped into gross sales, Stripe fees, refunds, disputes and adjustments, and written as a <strong>balanced journal to a Stripe clearing account</strong> — <strong>split at month end</strong> when a payout straddles two months — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV.</p></details>
     <p class="note">The report is read in this browser tab and never leaves your device. Only amounts, categories, dates and payout IDs are used. Independent of Stripe, Xero and Intuit. The report layout and the importer layouts are read from memory of public help documents; no real Stripe export and no live Xero or QuickBooks import was available when this was written.</p>
   </header>
 <main>

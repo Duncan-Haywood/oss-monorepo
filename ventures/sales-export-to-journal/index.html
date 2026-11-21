@@ -60,12 +60,14 @@
     @media (min-width: 740px) { div.grid:has(#platform) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 443px), 1fr)); } }
   </style>
   <!-- select-track:end -->
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">SALES EXPORT TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Turn any marketplace or payment export into a Xero or QuickBooks journal</h1>
-    <p>Drop the <strong>CSV your platform gave you</strong>: Airbnb, Amazon, eBay, Etsy, Gumroad, DistroKid, YouTube AdSense, Amazon KDP, PayPal, Shopify, Square or Stripe. The page <strong>works out which one it is</strong>, splits every row into sales, shipping, tax, fees and refunds, <strong>checks the rows add up to the payout</strong>, and writes a balanced journal per month, so the deposit is not booked as income.</p>
+    <p class="lede">Drop the <strong>CSV your platform gave you</strong>: Airbnb, Amazon, eBay, Etsy, Gumroad, DistroKid, YouTube AdSense, Amazon KDP, PayPal, Shopify, Square or Stripe.</p>
+    <details class="hero-more"><summary>What it books and checks</summary><p>The page <strong>works out which one it is</strong>, splits every row into sales, shipping, tax, fees and refunds, <strong>checks the rows add up to the payout</strong>, and writes a balanced journal per month, so the deposit is not booked as income.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of every platform and accounting vendor named here. The export layouts and the importer layouts are read from memory of public help documents; no real export and no live Xero or QuickBooks import was available when this was written.</p>
   </header>
 <main>

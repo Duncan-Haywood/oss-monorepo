@@ -60,12 +60,14 @@
     @media (min-width: 740px) { div.grid:has(#date-order) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 233px), 1fr)); } }
   </style>
   <!-- select-track:end -->
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">UPWORK EARNINGS TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Turn an Upwork transaction history into a Xero or QuickBooks journal</h1>
-    <p>Paste or drop your <strong>transaction history CSV</strong> from Upwork (Reports &gt; Transaction history &gt; Download CSV). Every row is <strong>booked to its own account — hourly, fixed price, bonuses, fees, Connects, refunds, withdrawals</strong>, the running <strong>Balance column is walked row by row to prove nothing is missing</strong>, and the result is written as a <strong>balanced journal against an Upwork balance account, one per month</strong>. You also see <strong>what Upwork took, as a share of what you billed</strong>.</p>
+    <p class="lede">Paste or drop your <strong>transaction history CSV</strong> from Upwork (Reports &gt; Transaction history &gt; Download CSV).</p>
+    <details class="hero-more"><summary>What it books and checks</summary><p>Every row is <strong>booked to its own account — hourly, fixed price, bonuses, fees, Connects, refunds, withdrawals</strong>, the running <strong>Balance column is walked row by row to prove nothing is missing</strong>, and the result is written as a <strong>balanced journal against an Upwork balance account, one per month</strong>. You also see <strong>what Upwork took, as a share of what you billed</strong>.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Only dates, types, amounts and balances are used. Independent of Upwork, Xero and Intuit. The export layout and the importer layouts are read from memory of public help documents; no real Upwork export and no live Xero or QuickBooks import was available when this was written. If your file is refused, the findings say which column was missing.</p>
   </header>
 <main>

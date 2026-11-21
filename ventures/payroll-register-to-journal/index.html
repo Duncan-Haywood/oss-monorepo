@@ -60,12 +60,14 @@
     @media (min-width: 740px) { div.grid:has(#date-order) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 232px), 1fr)); } }
   </style>
   <!-- select-track:end -->
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">PAYROLL REGISTER TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Turn a payroll register into a Xero or QuickBooks journal</h1>
-    <p>Paste or drop the <strong>payroll register CSV</strong> from Gusto, ADP, Paychex, QuickBooks Payroll or a spreadsheet. Every employee row is <strong>checked (gross pay less every withholding equals net pay)</strong>, then written as a <strong>balanced journal per pay date or month</strong>: wages and employer taxes as expenses, <strong>every withholding as a liability</strong>, net pay to a payroll clearing account — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV. The <strong>941 deposit</strong> each run creates is totalled for you.</p>
+    <p class="lede">Paste or drop the <strong>payroll register CSV</strong> from Gusto, ADP, Paychex, QuickBooks Payroll or a spreadsheet.</p>
+    <details class="hero-more"><summary>What it books and checks</summary><p>Every employee row is <strong>checked (gross pay less every withholding equals net pay)</strong>, then written as a <strong>balanced journal per pay date or month</strong>: wages and employer taxes as expenses, <strong>every withholding as a liability</strong>, net pay to a payroll clearing account — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV. The <strong>941 deposit</strong> each run creates is totalled for you.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Only dates and amounts are used; names are never written into a journal. Independent of every payroll and accounting vendor. The register layout and the importer layouts are read from memory of public help documents; no real payroll export and no live Xero or QuickBooks import was available when this was written.</p>
   </header>
 <main>

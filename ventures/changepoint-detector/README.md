@@ -105,16 +105,22 @@ where it departs from the paper.
   or the `call_tool` tool of the repository's MCP server
   ([`platform/agents/`](../../platform/agents/README.md)).
 
-### Code layout (2026-11-20)
+### Code layout (2026-11-20, 2026-11-21)
 
 `engine.mjs` is the entry point and re-exports everything below, so `import { ... } from './engine.mjs'` keeps working:
-PELT, the pre-steps (season, trend, AR(1), holidays) and `analyze()` live there (2,546 lines, down from 3,004).
-`bocpd.mjs` holds Bayesian online changepoint detection, its priors and marginals and `peaks`; `parse-series.mjs`
+PELT, the pre-steps (season, trend, AR(1), holidays) and `analyze()` live there (2,354 lines, down from 3,004).
+`garch.mjs` holds the GARCH(1,1) noise model behind `--garch` (the conditional-sd filter, the segment likelihoods,
+the forward cut search and its model choice; moved 2026-11-21). `bocpd.mjs` holds Bayesian online changepoint detection, its priors and marginals and `peaks`; `parse-series.mjs`
 the CSV reader; `stats-core.mjs` the numerical helpers every module shares (median by selection, robust sd, the
-log-gamma family, the NB1 cost terms, the seeded RNG, lag-1, Prais-Winsten and least squares), which
+log-gamma family, the NB1 cost terms, the seeded RNG, lag-1, Prais-Winsten, least squares, `solveSym` and one in-place `gaussJordan` that the engine's two copies of the same
+elimination now share), which
 `hinge-test.mjs`, `two-hinge.mjs`, `known-date.mjs`, `slope-breaks.mjs` and `drift-level.mjs` used to copy. A new
 module the watch needs goes in `deploy/make-watch-repo.sh` too (then `node deploy/build-watch-repo-files.mjs`), or a
 deployer's repository is missing it (`watch-modules-closed.test.mjs` fails when one is left out).
+
+Checked 2026-11-21: on 40 seeded series per call, `lsKnots`, `lineRss`, `trendAdjust` (bends, joint), `poissonTrend`,
+`garchCuts` and `analyze` (meanvar with `garch`, trend, poisson with a bend) return byte-identical JSON before and after
+the move (360 of 360 calls), and the full suite passes.
 
 ## Verification
 
@@ -3596,7 +3602,9 @@ into the daily CSV the watch reads, with the Admin API access token of a **custo
 own admin (Settings > Apps and sales channels > Develop apps; scope `read_orders`, `read_all_orders` for more than 60
 days of history, `read_customers` for `--customers`), from an environment variable:
 
-- one row per **complete** day in `--utc-offset`, zeros on quiet days, today left out, as for Stripe;
+- one row per **complete** day in the store's own time zone (`Shop.ianaTimezone`, read first; any token may read
+  it), zeros on quiet days, today left out, as for Stripe. Since 2026-11-20 (below) the days follow daylight saving;
+  `--time-zone <name>` or `--utc-offset <hours>` overrides;
 - `orders`: orders placed that day, not cancelled, not test orders (`--include-test` counts them); `revenue`: their
   `totalPriceSet.shopMoney` (the total after discounts, with tax and shipping, always in the store's own currency, so
   one column never mixes two unless the store changed currency, which is printed), summed exactly in thousandths of
@@ -3620,7 +3628,7 @@ variable `SHOPIFY_SHOP`, options in `SHOPIFY_OPTIONS`), caches `data/shopify.csv
 `make-watch-repo.sh` and the no-terminal zip on the watch page copy the script and ignore the CSV. As for Stripe, the
 repository should be private.
 
-**Checked** (`shopify-metrics.test.mjs`, 9 tests): against a stand-in for the Admin GraphQL API with its documented
+**Checked** (`shopify-metrics.test.mjs`, 9 tests at the time; 10 since the time-zone test below): against a stand-in for the Admin GraphQL API with its documented
 shape (POST with `X-Shopify-Access-Token`, connections with `pageInfo` and `nodes`, the `created_at` search syntax,
 `THROTTLED` with HTTP 200, string errors on 401): every order read once across 10+ pages with a throttle and a 502 in
 between; exact sums (0.1 + 0.2 writes 0.30; yen whole); day boundaries at an offset; cancelled and test orders kept out
@@ -3629,6 +3637,35 @@ under `deploy/run-workflow.mjs` against the stand-in over HTTP (fetch step write
 columns, the CSV is not committed, the token never printed). **Not checked against a live store**: no session holds
 a token. A deployer's first run is that check; the fields used (`id`, `createdAt`, `cancelledAt`, `test`,
 `totalPriceSet.shopMoney`) are core Order fields of the 2025-01 schema.
+
+### Days in the store's own time zone (2026-11-20)
+
+The quality audit of 2026-11-19 found the source bucketed days at a fixed `--utc-offset`, and the watch page told
+deployers to set `-5` for New York. That is right in winter only: from March to November every order placed between
+23:00 and midnight New York time landed on the next day's row, and the day the clocks change shifted the boundary by
+an hour. Whatever share of a shop's orders arrives in that last hour moved to the wrong day (not measured here: no
+session holds a store's order timestamps), and the series then disagreed with the merchant's own Shopify reports.
+
+Now `shopify-metrics.mjs` asks the store for its own zone (`query Zone { shop { ianaTimezone } }`) and buckets days
+in it, the zone Shopify's own Analytics uses, so the CSV's days match the merchant's dashboard. `--time-zone
+America/New_York` (any IANA name, checked by `Intl`) or `--utc-offset` overrides; an answer without a zone falls back
+to UTC and says so. `stripe-metrics.mjs` takes the same `--time-zone` (Stripe's account zone is not read: a restricted
+key may lack the permission). The day maths lives in `stripe-metrics.mjs` (`dayOf`, `dayStart`, `checkZone`): a
+day's start is the first second whose local date is that day, found by bisection inside UTC-15h..UTC+13h, so a zone
+that skips midnight (Santiago's spring change) starts the day at 01:00.
+
+**Checked** (`stripe-metrics.test.mjs`, `shopify-metrics.test.mjs`): New York's day starts at 05:00 UTC on
+2026-03-08 and 04:00 UTC on 03-09, 04:00 on 11-01 and 05:00 on 11-02; a 00:30 EDT order on 1 July is the 1st by
+name and the 30th under the old `-5`; Santiago's 2026-09-06 starts at 04:00 UTC; Kolkata and Kiritimati; every day
+of 2026 in New York, London and Sydney maps its start back to itself and the second before to the day before. The
+stand-in answers the zone query; with `America/New_York` the orders search runs from 04:00 UTC, a given
+`--utc-offset` sends no zone query, and a missing zone writes UTC days with a warning. **Not checked against a live
+store**, as above.
+
+**Changing zone on an existing CSV.** Rows already written keep their old days; the first run after the change
+fetches from the day after the last kept row at the new zone's midnight, so for a store west of UTC the hours
+between UTC midnight and local midnight of that one day are not counted (a single low day at the junction), and
+for one east of UTC they are counted twice (a single high one). Delete the CSV (the workflow cache) to refetch everything in the new zone.
 
 ## Counts and the windowed detector (2026-11-19, pre-registered; the rule fails, the default stays)
 

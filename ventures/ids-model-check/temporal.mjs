@@ -249,36 +249,47 @@ function numPat(a, b, w) {
 }
 const HMS = [{ w: 2, max: 23, sep: "" }, { w: 2, max: 59, sep: ":" }, { w: 2, max: 59, sep: ":" }];
 const hms = (sec) => [Math.floor(sec / 3600), Math.floor(sec / 60) % 60, sec % 60];
-// An optional fractional second whose first three digits (Date.parse keeps
-// milliseconds and drops the rest; a missing fraction is .000) fall in p..q.
-function fracPat(p, q) {
-  if (p === 0 && q === 999) return "(\\.[0-9]+)?";
-  const alts = [];
-  const l1 = Math.ceil(p / 100), h1 = Math.floor(q / 100);
-  if (l1 <= h1) alts.push(numPat(l1, h1, 1));
-  const l2 = Math.ceil(p / 10), h2 = Math.floor(q / 10);
-  if (l2 <= h2) alts.push(numPat(l2, h2, 2));
-  alts.push(numPat(p, q, 3) + "[0-9]*");
-  return `(\\.${alt(alts)})${p === 0 ? "?" : ""}`;
+// An optional fractional second whose milliseconds fall in p..q; at p the
+// digits past the third must clear loT ([digits, inclusive], or null: any),
+// at q they must stay under hiT (null: any). The checker orders the whole
+// fraction since 2026-11-21 (temporalCompare), not only its milliseconds.
+// null when no fraction qualifies.
+const P3 = (n) => P0(n, 3);
+const cutZeros = (d) => d.replace(/0+$/, "");
+function fracPat(p, q, loT = null, hiT = null) {
+  if (p === 0 && q === 999 && !loT && !hiT) return "(\\.[0-9]+)?";
+  let lo = loT ? [cutZeros(P3(p) + loT[0]), loT[1]] : [cutZeros(P3(p)), true];
+  if (lo[0] === "" && lo[1]) lo = null;
+  const hi = hiT ? [cutZeros(P3(q) + hiT[0]), hiT[1]] : q === 999 ? null : [cutZeros(P3(q + 1)), false];
+  return fracPart(lo, hi);
 }
 const T24 = "24:00:00(\\.0+)?";
 // Times of day "hh:mm:ss(.f)" whose milliseconds since midnight lie in
-// ta..tb (0 <= ta <= tb <= DAY; DAY is "24:00:00", the next midnight).
-function timePat(ta, tb) {
+// ta..tb (0 <= ta <= tb <= DAY; DAY is "24:00:00", the next midnight), with
+// the sub-millisecond tails loT at ta and hiT at tb (fracPat).
+const zeroOkLo = (t) => !t || (t[0] === "" && t[1]);
+const zeroOkHi = (t) => !t || t[1] || t[0] !== "";
+function timePat(ta, tb, loT = null, hiT = null) {
   const alts = [];
-  if (tb === DAY) { alts.push(T24); tb = DAY - 1; }
+  if (tb === DAY) {
+    if ((ta < DAY || zeroOkLo(loT)) && zeroOkHi(hiT)) alts.push(T24);
+    if (ta === DAY) return alts.length ? alt(alts) : null;
+    tb = DAY - 1; hiT = null;
+  }
   if (ta <= tb) {
     const sa = Math.floor(ta / 1000), sb = Math.floor(tb / 1000), ma = ta % 1000, mb = tb % 1000;
-    if (sa === sb) alts.push(tupleRange(hms(sa), hms(sa), HMS) + fracPat(ma, mb));
+    const at = (sec, f) => (f === null ? null : tupleRange(hms(sec), hms(sec), HMS) + f);
+    if (sa === sb) alts.push(at(sa, fracPat(ma, mb, loT, hiT)));
     else {
       let a = sa, b = sb;
-      if (ma > 0) { alts.push(tupleRange(hms(sa), hms(sa), HMS) + fracPat(ma, 999)); a++; }
-      if (mb < 999) b--;
+      if (ma > 0 || loT) { alts.push(at(sa, fracPat(ma, 999, loT, null))); a++; }
+      if (mb < 999 || hiT) b--;
       if (a <= b) alts.push(tupleRange(hms(a), hms(b), HMS) + "(\\.[0-9]+)?");
-      if (mb < 999) alts.push(tupleRange(hms(sb), hms(sb), HMS) + fracPat(0, mb));
+      if (mb < 999 || hiT) alts.push(at(sb, fracPat(0, mb, null, hiT)));
     }
   }
-  return alt(alts.reverse());
+  const ys = alts.filter((x) => x !== null);
+  return ys.length ? alt(ys.reverse()) : null;
 }
 const zonePat = (o) => (o === 0 ? ZONE.zero : `${o > 0 ? "\\+" : "\\-"}${P0(Math.floor(Math.abs(o) / 60), 2)}:${P0(Math.abs(o) % 60, 2)}`);
 const ANY_ZONE = "(Z|[+\\-]([01][0-9]|2[0-3]):[0-5][0-9])?";
@@ -292,20 +303,31 @@ const ANY_ZONE = "(Z|[+\\-]([01][0-9]|2[0-3]):[0-5][0-9])?";
 // Returns the pattern, false when no string can pass, or null when a bound is
 // not a dateTime.
 export function dateTimeRangePattern(r) {
-  let A = -Infinity, B = Infinity;
+  // Each bound as its millisecond and the fraction digits past the third
+  // (exactKey); the tighter one per side. aT / bT: the tail a value on the
+  // bound's own millisecond must clear (null: any tail).
+  let lo = null, hi = null;
+  const tc = (x, y) => (x.k !== y.k ? (x.k < y.k ? -1 : 1) : (() => { const w = Math.max(x.f.length, y.f.length), p = x.f.padEnd(w, "0"), q = y.f.padEnd(w, "0"); return p === q ? 0 : p < q ? -1 : 1; })());
   for (const k of ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"]) {
     if (r[k] === undefined || r[k] === null) continue;
     if (temporalKind(String(r[k])) !== "dateTime") return null;
-    const n = temporalKey(String(r[k]));
-    if (Number.isNaN(n)) return false;
-    if (k === "minInclusive") A = Math.max(A, n);
-    if (k === "minExclusive") A = Math.max(A, n + 1);
-    if (k === "maxInclusive") B = Math.min(B, n);
-    if (k === "maxExclusive") B = Math.min(B, n - 1);
+    const x = exactKey(String(r[k]));
+    if (Number.isNaN(x.k)) return false;
+    const inc = k.endsWith("Inclusive");
+    if (k.startsWith("min")) { if (!lo || tc(x, lo) > 0 || (tc(x, lo) === 0 && !inc)) lo = { ...x, inc }; }
+    else if (!hi || tc(x, hi) < 0 || (tc(x, hi) === 0 && !inc)) hi = { ...x, inc };
   }
+  let A = -Infinity, B = Infinity, aT = null, bT = null;
+  if (lo) { A = lo.k; aT = lo.f === "" && lo.inc ? null : [lo.f, lo.inc]; }
+  if (hi) {
+    B = hi.k; bT = [hi.f, hi.inc];
+    if (hi.f === "" && !hi.inc) { B--; bT = null; }
+  }
+  if (A > B || (A === B && fracPat(0, 0, aT, bT) === null)) return false;
   const L0 = dayNo("0000-01-01") * DAY, L1 = (dayNo("9999-12-31") + 1) * DAY;
   // Local days (0 = 1970-01-01) whole for every offset up to +-23:59.
-  const mA = Math.max(L0, A + MAX_OFF * 6e4), mB = Math.min(L1, B - MAX_OFF * 6e4);
+  // A bound with a tail is cleared by a whole millisecond more.
+  const mA = Math.max(L0, A + (aT ? 1 : 0) + MAX_OFF * 6e4), mB = Math.min(L1, B - (bT ? 1 : 0) - MAX_OFF * 6e4);
   const midLo = Math.ceil(mA / DAY), midHi = Math.floor(mB / DAY) - 1;
   const parts = [];
   if (midLo <= midHi) parts.push(`${dayPattern(dayStr(midLo), dayStr(midHi))}T${alt([T24, "([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?"])}${ANY_ZONE}`);
@@ -324,10 +346,12 @@ export function dateTimeRangePattern(r) {
     for (const d of days) {
       const ta = Math.max(x1, d * DAY) - d * DAY, tb = Math.min(x2, (d + 1) * DAY) - d * DAY;
       if (ta > tb) continue;
+      // The bound's own tail applies where the bound itself cuts this day.
+      const loT = x1 === A + o * 6e4 && x1 >= d * DAY ? aT : null, hiT = x2 === B + o * 6e4 && x2 <= (d + 1) * DAY ? bT : null;
       if (!edge.has(d)) edge.set(d, { whole: [], part: [] });
       const e = edge.get(d);
-      if (ta === 0 && tb === DAY) e.whole.push(o);
-      else e.part.push([o, ta, tb]);
+      if (ta === 0 && tb === DAY && !loT && !hiT) e.whole.push(o);
+      else e.part.push([o, ta, tb, loT, hiT]);
     }
   }
   for (const d of [...edge.keys()].sort((a, b) => a - b)) {
@@ -336,9 +360,93 @@ export function dateTimeRangePattern(r) {
     if (whole.length) alts.push(`${alt([T24, "([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?"])}${alt(whole.map(zonePat))}`);
     // Offsets sharing a time range share one alternative.
     const byTime = new Map();
-    for (const [o, ta, tb] of part) { const k = ta + "," + tb; if (!byTime.has(k)) byTime.set(k, []); byTime.get(k).push(o); }
-    for (const [k, os] of byTime) { const [ta, tb] = k.split(",").map(Number); alts.push(timePat(ta, tb) + alt(os.map(zonePat))); }
-    parts.push(`${dayStr(d)}T${alt(alts)}`);
+    for (const [o, ta, tb, loT, hiT] of part) { const k = JSON.stringify([ta, tb, loT, hiT]); if (!byTime.has(k)) byTime.set(k, []); byTime.get(k).push(o); }
+    for (const [k, os] of byTime) { const [ta, tb, loT, hiT] = JSON.parse(k); const t = timePat(ta, tb, loT, hiT); if (t !== null) alts.push(t + alt(os.map(zonePat))); }
+    if (alts.length) parts.push(`${dayStr(d)}T${alt(alts)}`);
   }
   return parts.length ? `${XWS}${alt(parts)}${XWS}` : false;
+}
+
+// ---- exact order of dateTimes and times, past the millisecond ----
+// Date.parse keeps three fraction digits, so 00:00:00.0004 and 00:00:00 key
+// alike and "after midnight, exclusive" refused a value XSD's order puts
+// after it. temporalCompare(a, b) orders two values of one kind exactly:
+// whole milliseconds by Date.parse (with the fraction cut off), then the
+// fraction's remaining digits as written. -1, 0 or 1; NaN when either is
+// not a value of that kind (or a day the month lacks, or 24:00:00 with a
+// fraction that is not zero, which XSD refuses and Date.parse does too).
+const FRAC_RE = /(\d{2}:\d{2}:\d{2})\.(\d+)/;
+function exactKey(s) {
+  const kind = temporalKind(s);
+  if (!kind) return null;
+  if (kind !== "dateTime" && kind !== "time") return { kind, k: temporalKey(s), f: "" };
+  const t = xmlTrim(s);
+  const m = t.match(FRAC_RE);
+  const frac = m ? m[2] : "";
+  if (/(^|T)24:/.test(t) && /[1-9]/.test(frac)) return { kind, k: NaN, f: "" };
+  const k = temporalKey(m ? t.replace(FRAC_RE, (_, hms, f) => `${hms}.${f.slice(0, 3)}`) : t);
+  return { kind, k, f: frac.slice(3).replace(/0+$/, "") };
+}
+export function temporalCompare(a, b) {
+  const x = exactKey(a), y = exactKey(b);
+  if (!x || !y || x.kind !== y.kind || Number.isNaN(x.k) || Number.isNaN(y.k) || x.k === null || y.k === null) return NaN;
+  if (x.k !== y.k) return x.k < y.k ? -1 : 1;
+  const w = Math.max(x.f.length, y.f.length);
+  const p = x.f.padEnd(w, "0"), q = y.f.padEnd(w, "0");
+  return p === q ? 0 : p < q ? -1 : 1;
+}
+
+// Digit strings (the fraction after the point; empty is 0) whose value lies
+// between lo and hi: { re } for the non-empty ones (null if none) and ok0
+// when the empty string (value 0) qualifies. lo / hi: [digits, inclusive]
+// or null for no bound; digits have no trailing zeros.
+function fracSet(lo, hi) {
+  if (lo && lo[0] === "" && lo[1]) lo = null;
+  const zeroOk = !lo && (!hi || hi[0] !== "" || hi[1]);
+  if (!lo && !hi) return { re: "[0-9]+", ok0: true };
+  // Above 0, no upper bound: some digit not zero.
+  if (lo && lo[0] === "" && !hi) return { re: "0*[1-9][0-9]*", ok0: false };
+  if (hi && hi[0] === "") {
+    // Value at most 0 (all zeros) when inclusive, else nothing.
+    return hi[1] && !lo ? { re: "0+", ok0: true } : { re: null, ok0: false };
+  }
+  const groups = [];
+  for (let d = 0; d <= 9; d++) {
+    const c = String(d);
+    let nlo = null, nhi = null;
+    if (lo) {
+      const l0 = lo[0] === "" ? "0" : lo[0][0];
+      if (c < l0) continue;
+      if (c === l0) nlo = [lo[0].slice(1), lo[1]];
+    }
+    if (hi) {
+      const h0 = hi[0][0];
+      if (c > h0) continue;
+      if (c === h0) nhi = [hi[0].slice(1), hi[1]];
+    }
+    const sub = fracSet(nlo, nhi);
+    if (!sub.re && !sub.ok0) continue;
+    const tail = sub.re && sub.ok0 ? (sub.re === "[0-9]+" ? "[0-9]*" : `(${sub.re})?`) : sub.re ? `(${sub.re})` : "";
+    const key = tail;
+    const g = groups.find((x) => x.tail === key);
+    if (g) g.ds.push(d);
+    else groups.push({ tail: key, ds: [d] });
+  }
+  if (!groups.length) return { re: null, ok0: zeroOk };
+  const digitCls = (ds) => {
+    if (ds.length === 1) return String(ds[0]);
+    if (ds.length === 10) return "[0-9]";
+    const runs = [];
+    for (const d of ds) { const r = runs[runs.length - 1]; if (r && r[1] === d - 1) r[1] = d; else runs.push([d, d]); }
+    return "[" + runs.map(([a, b]) => (a === b ? a : b === a + 1 ? `${a}${b}` : `${a}-${b}`)).join("") + "]";
+  };
+  const alts = groups.map((g) => digitCls(g.ds) + g.tail);
+  return { re: alts.length === 1 ? alts[0] : `(${alts.join("|")})`, ok0: zeroOk };
+}
+// The fraction part ("" or "." and digits) as a pattern, or null if none.
+function fracPart(lo, hi) {
+  const { re, ok0 } = fracSet(lo, hi);
+  if (!re && !ok0) return null;
+  if (!re) return "";
+  return ok0 ? `(\\.${re})?` : `\\.${re}`;
 }

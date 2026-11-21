@@ -115,8 +115,15 @@ work. Two consequences for a reader:
   these plating-dominated cells, and 7c's correction picks O3 on every f = 30 fold. Leave-one-pool-out, it
   cuts the f = 30 median cycle-99 error from 0.105 to 0.038 and from 0.249 to 0.072, below the f = 10
   straight-line error and below a straight 50-cycle look. On these cells, correct the ten-cycle forecast
-  rather than lengthen it. Whether that turns the threshold rule's cost on the f = 30 cells
-  into a saving is not yet tested.
+  rather than lengthen it.
+- Milestone 7v puts that correction inside the rule, in place of the straight-line ten-cycle forecast,
+  with nothing else changed. On both f = 30 cells every held-out fold then stops every design at ten
+  cycles and meets its target (10 of 10), 30 DFN cycles per design below a uniform run length (40) and
+  35.5 below the uncorrected rule. A uniform run length on the corrected forecast also stops at ten, so
+  on these cells the recipe reduces to "run ten cycles and correct"; the flag has nothing left to catch.
+  At f = 10 the saving is uneven (&minus;36 cycles on `Ecker2015`, &minus;2.4 on `Mohtat2020`, where the
+  corrected rule meets 2 of 5 folds). Whether the four committed sets, where the correction is weaker,
+  behave the same is the open question for the recipe.
 
 ## 5.4 Limitations and next steps
 

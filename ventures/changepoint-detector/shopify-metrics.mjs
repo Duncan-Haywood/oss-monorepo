@@ -16,7 +16,7 @@ import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 // csvCell is the shared spreadsheet formula-injection guard (cells starting =, +, -, @, tab or CR get an apostrophe).
-import { dayOf, dayStart, minorUnits, csvCell } from './stripe-metrics.mjs';
+import { dayOf, dayStart, minorUnits, csvCell, checkZone } from './stripe-metrics.mjs';
 
 export const API_VERSION = '2025-01';
 
@@ -46,13 +46,16 @@ Options:
   --days <n>            how many complete days to fetch when there is no CSV yet (default: 400; without the
                         read_all_orders scope Shopify returns only the last 60 days of orders)
   --refetch <n>         days at the end of an existing CSV to fetch again (default: 3)
-  --utc-offset <hours>  where your day starts, e.g. -5 for New York in winter, 1 for Paris (default: 0, UTC)
+  --time-zone <name>    where your day starts, e.g. America/New_York (default: the store's own time zone, as set in
+                        Shopify admin > Settings > General, so days match Shopify's own reports and follow daylight
+                        saving)
+  --utc-offset <hours>  or a fixed offset from UTC instead, e.g. 0 for UTC days
   --customers           also count new customers per day (needs the read_customers scope)
   --include-test        count test orders too (left out by default)
   --token-env <NAME>    the environment variable holding the token (default: SHOPIFY_ACCESS_TOKEN)
   -h, --help            this help
 
-Only complete days are written: today (in your --utc-offset) is left out, so a half day never reads as a fall.
+Only complete days are written: today (in the store's time zone) is left out, so a half day never reads as a fall.
 Days with no orders are written as 0. orders and revenue count orders placed that day and not cancelled since;
 revenue is their total price (after discounts, with tax and shipping) in the store's own currency; refunds are not
 subtracted. cancelled counts orders placed that day that have been cancelled.
@@ -118,6 +121,19 @@ export async function listAll(kind, { token, url, gte, lt, fetchImpl = globalThi
   throw new Error(`Stopped after ${maxPages} pages of ${kind}; narrow --days.`);
 }
 
+/**
+ * The store's own time zone (Shop.ianaTimezone, e.g. "America/New_York"), the one Shopify's reports bucket days in.
+ * Any access token may read it. Returns null, with the reason, when the answer has none.
+ */
+export async function storeZone({ token, url, fetchImpl = globalThis.fetch }) {
+  const r = await fetchImpl(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-shopify-access-token': token }, body: JSON.stringify({ query: 'query Zone { shop { ianaTimezone } }' }) });
+  let body = null;
+  try { body = await r.json(); } catch { /* reported below */ }
+  const z = body?.data?.shop?.ianaTimezone;
+  if (!r.ok || typeof z !== 'string') return { zone: null, why: r.ok ? 'no time zone in the answer' : `HTTP ${r.status}` };
+  try { return { zone: checkZone(z), why: null }; } catch { return { zone: null, why: `unknown time zone "${z}"` }; }
+}
+
 /** A decimal money string ("12.5", "1999.00") as an integer number of thousandths, exactly. */
 export function thousandths(amount) {
   const m = /^(-?)(\d+)(?:\.(\d+))?$/.exec(String(amount).trim());
@@ -174,7 +190,7 @@ export function readExisting(text, customers) {
 }
 
 export async function main(argv, { env = process.env, out = (s) => process.stdout.write(s), err = (s) => process.stderr.write(s), fetchImpl = globalThis.fetch, now = () => Date.now(), sleep } = {}) {
-  let outPath = null, days = 400, refetch = 3, offset = 0, customers = false, includeTest = false, tokenEnv = 'SHOPIFY_ACCESS_TOKEN';
+  let outPath = null, days = 400, refetch = 3, offset = null, customers = false, includeTest = false, tokenEnv = 'SHOPIFY_ACCESS_TOKEN';
   const whole = (s, name, min) => { const v = Number(s); if (!Number.isInteger(v) || v < min) throw new Error(`${name} takes a whole number of ${min} or more.`); return v; };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -183,6 +199,7 @@ export async function main(argv, { env = process.env, out = (s) => process.stdou
     else if (a === '--days') days = whole(argv[++i], '--days', 1);
     else if (a === '--refetch') refetch = whole(argv[++i], '--refetch', 0);
     else if (a === '--utc-offset') { offset = Number(argv[++i]); if (!Number.isFinite(offset) || offset < -12 || offset > 14 || (offset * 4) % 1) throw new Error('--utc-offset takes hours from -12 to 14 (quarter hours allowed, e.g. 5.5).'); }
+    else if (a === '--time-zone') offset = checkZone(argv[++i]);
     else if (a === '--customers') customers = true;
     else if (a === '--include-test') includeTest = true;
     else if (a === '--token-env') tokenEnv = argv[++i];
@@ -193,6 +210,11 @@ export async function main(argv, { env = process.env, out = (s) => process.stdou
   if (!token) throw new Error(`Set ${tokenEnv} to the Admin API access token of a custom app in your store (scope read_orders).`);
   if (/^shpss_/.test(token)) throw new Error(`${tokenEnv} holds an app's shared secret (shpss_...); the API needs the Admin API access token (shpat_...).`);
   const url = endpoint(env);
+  if (offset === null) {
+    const { zone, why } = await storeZone({ token, url, fetchImpl });
+    offset = zone ?? 0;
+    if (!zone) err(`Could not read the store's time zone (${why}); days run in UTC. --time-zone sets it.\n`);
+  }
 
   const today = dayOf(Math.floor(now() / 1000), offset);
   const to = addDays(today, -1); // the last complete day
@@ -214,7 +236,8 @@ export async function main(argv, { env = process.env, out = (s) => process.stdou
   const all = [...kept, ...rows];
   if (outPath.includes('/')) await mkdir(dirname(outPath), { recursive: true });
   await writeFile(outPath, toCsv(all, customers));
-  out(`${outPath}: ${all.length} days to ${to} (${rows.length} fetched: ${orders.length} orders${custs ? `, ${custs.length} customers` : ''})${currency ? `, revenue in ${currency}` : ''}.\n`);
+  const zoneWord = typeof offset === 'string' ? offset : offset ? `UTC${offset > 0 ? '+' : ''}${offset}` : 'UTC';
+  out(`${outPath}: ${all.length} days to ${to} (${rows.length} fetched: ${orders.length} orders${custs ? `, ${custs.length} customers` : ''})${currency ? `, revenue in ${currency}` : ''}, days in ${zoneWord}.\n`);
   if (tests) out(`${tests} test order${tests === 1 ? '' : 's'} left out (--include-test counts them).\n`);
   if (currencies > 1) out('The store\'s currency changed inside this window: revenue before and after the change is in different units.\n');
   // Without read_all_orders Shopify silently returns only the last 60 days. Say so when a long first fetch came
