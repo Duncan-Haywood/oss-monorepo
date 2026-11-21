@@ -630,9 +630,12 @@ flagships:
       B3010, IsExternal railings B2010 2026-11-20
       (eval/slab-on-grade-2026-11-20.md), railings by what they stand on 2026-11-20
       (stair C2010, outside B2010, inside C1010 by the envelope rays: coded 77 to
-      461 of 486; eval/railings-2026-11-20.md), next roofs as blockers for knee
-      walls; (3) the unexplained disagreements (NetVolumes 233 to 83 2026-11-21:
-      Tekla simplified sections, stair totals, eval/netvolume-causes-2026-11-21.md;
-      cross-sections 77 to 2 2026-11-20: half-surface mullions, prism axis for
-      faceted members; eval/cross-sections-2026-11-20.md); overlapping shell pieces
-      as a union. More open items: NEXT.md.
+      461 of 486; eval/railings-2026-11-20.md), roofs as ray blockers 2026-11-21
+      (knee walls interior, dormers re-read at the top; schependomlaan flag
+      agreement 815 to 853 of 922; eval/roof-blockers-2026-11-21.md), next an
+      estimator's call on insulated walls against a cold roof space; (3) the
+      unexplained disagreements (NetVolumes 233 to 83 2026-11-21: Tekla simplified
+      sections, stair totals, eval/netvolume-causes-2026-11-21.md; cross-sections 77
+      to 2 2026-11-20: half-surface mullions, prism axis for faceted members;
+      eval/cross-sections-2026-11-20.md); overlapping shell pieces as a union. More
+      open items: NEXT.md.
