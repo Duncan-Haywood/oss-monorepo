@@ -1,0 +1,3751 @@
+{
+ "total": {
+  "models": 13,
+  "rooms": 991,
+  "measured": 989,
+  "pairs": {
+   "floorArea": {
+    "n": 535,
+    "agree": 528,
+    "reasons": {
+     "unexplained": 2,
+     "unit-slip": 5
+    }
+   },
+   "perimeter": {
+    "n": 475,
+    "agree": 472,
+    "reasons": {
+     "unexplained": 3
+    }
+   },
+   "height": {
+    "n": 535,
+    "agree": 501,
+    "reasons": {
+     "nominal": 34
+    }
+   },
+   "volume": {
+    "n": 535,
+    "agree": 213,
+    "reasons": {
+     "unit-slip": 246,
+     "floor-x-height-unit": 57,
+     "unexplained": 8,
+     "outline-prism": 11
+    }
+   }
+  }
+ },
+ "models": [
+  {
+   "model": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+   "rooms": 307,
+   "secs": 12.144,
+   "from": {
+    "body": 306
+   },
+   "status": {
+    "ok": 306,
+    "no extent": 1
+   },
+   "pairs": {
+    "floorArea": {
+     "n": 306,
+     "agree": 304,
+     "reasons": {
+      "unexplained": 2
+     }
+    },
+    "perimeter": {
+     "n": 246,
+     "agree": 243,
+     "reasons": {
+      "unexplained": 3
+     }
+    },
+    "height": {
+     "n": 306,
+     "agree": 276,
+     "reasons": {
+      "nominal": 30
+     }
+    },
+    "volume": {
+     "n": 306,
+     "agree": 0,
+     "reasons": {
+      "unit-slip": 241,
+      "floor-x-height-unit": 57,
+      "unexplained": 8
+     }
+    }
+   },
+   "disagreements": [
+    {
+     "room": "0U017 heis",
+     "id": 30955,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 9557.30880000023,
+     "computed": 9.557308800000166,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "0U140 trapp",
+     "id": 24742,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 88639.9999999832,
+     "computed": 81.20616319997676,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "0U141 korridor",
+     "id": 31075,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 48145.6374398281,
+     "computed": 48.145637439828306,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "0U142 rengj. sentral",
+     "id": 21815,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 41926.7639999994,
+     "computed": 41.92676399999995,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "0U143 ventilasjon/varme",
+     "id": 21497,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 90099.9454912811,
+     "computed": 90.09994549127502,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "0U144 krypkjeller",
+     "id": 31188,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.4384,
+     "computed": 1.67,
+     "reason": "nominal"
+    },
+    {
+     "room": "0U144 krypkjeller",
+     "id": 31188,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 385356.078054395,
+     "computed": 263.9208703866677,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "0U145 sjakt",
+     "id": 31526,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 155847.577842505,
+     "computed": 149.03367558249624,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "0U146 tekn basseng/ventilasjon",
+     "id": 21615,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 183963.314673587,
+     "computed": 183.96331467358598,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "0U147 el-tavle",
+     "id": 21715,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 47530.6339200002,
+     "computed": 47.53063392000068,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "0U148 varmesentral",
+     "id": 41352,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 90190.9459963342,
+     "computed": 90.19094599633414,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "0U149 sluse",
+     "id": 41967,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 7456.02308640001,
+     "computed": 7.456023086400117,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "0U150 Klorrom",
+     "id": 43485,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 10507.9245264023,
+     "computed": 10.507924526402297,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "0U151 Syrerom",
+     "id": 43388,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 6344.16267360252,
+     "computed": 6.344162673602382,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "1 Area",
+     "id": 41465,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 1955544.11221527,
+     "computed": 1955.5441122148402,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "19 Area",
+     "id": 636,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 2048556.4027995,
+     "computed": 2048.55640279937,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "2 Area",
+     "id": 41570,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 12092307.053125,
+     "computed": 12092.307053124929,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "3 Area",
+     "id": 5397,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 13122306.4564607,
+     "computed": 13122.306456460754,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "4 Area",
+     "id": 29232,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 12265835.7649886,
+     "computed": 12265.835764988551,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "4 Area",
+     "id": 42426,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 10676.3037564126,
+     "computed": 10.676303756412777,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "6 Area",
+     "id": 42485,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 385740.381127937,
+     "computed": 385.7403811279346,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "6 Area",
+     "id": 42599,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 373501.799999784,
+     "computed": 373.50179999978593,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "7 Area",
+     "id": 42541,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 29864.3797136011,
+     "computed": 29.864379713601014,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "7 Area",
+     "id": 42657,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 240656.079999854,
+     "computed": 240.6560799998527,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "8 Area",
+     "id": 42714,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 87645.2873508057,
+     "computed": 87.64528735080599,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "9 Area",
+     "id": 42779,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 153727.38033619,
+     "computed": 153.72738033622898,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "10 Area",
+     "id": 42836,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 34716.9239999791,
+     "computed": 34.71692399997863,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "11 Area",
+     "id": 42895,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 9688.69221601005,
+     "computed": 9.688692216009219,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "14 Area",
+     "id": 251,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 12349741.2950339,
+     "computed": 12349.741295033826,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "14 Area",
+     "id": 43677,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 271100.7488817,
+     "computed": 271.10074888165406,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "20 Area",
+     "id": 42369,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 409653.207579609,
+     "computed": 409.6532075795737,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "21 Area",
+     "id": 43735,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 301019.943999822,
+     "computed": 301.01994399982175,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01001 vf",
+     "id": 31622,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.64,
+     "reason": "nominal"
+    },
+    {
+     "room": "01001 vf",
+     "id": 31622,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 20900.8536664877,
+     "computed": 19.02698402742314,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01002 kantine",
+     "id": 16180,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 647109.929274669,
+     "computed": 639.4005060945668,
+     "reason": "unexplained"
+    },
+    {
+     "room": "01003 aula - nedre del",
+     "id": 25626,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 190253.465844797,
+     "computed": 189.85903203264056,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01004 bakscene",
+     "id": 22680,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 72346.5212081161,
+     "computed": 72.30510349693144,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01005 lager",
+     "id": 18290,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 14045.1711526023,
+     "computed": 14.045171152602371,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01006 lager",
+     "id": 6972,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 22837.4324124703,
+     "computed": 22.837432412470335,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01007 lager",
+     "id": 26060,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 32650.0406999326,
+     "computed": 32.6500406999231,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01008 lager",
+     "id": 25943,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 15428.2045127027,
+     "computed": 15.428204512703001,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01009 lager",
+     "id": 26254,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 18853.9059165027,
+     "computed": 18.55700939566919,
+     "reason": "unexplained"
+    },
+    {
+     "room": "01010 kjøkken",
+     "id": 25842,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 51266.0928533566,
+     "computed": 46.430108692762005,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01011 garderobe",
+     "id": 9207,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 34528.3548066626,
+     "computed": 34.5283548066532,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01012 wc",
+     "id": 31820,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4796.51080320012,
+     "computed": 4.796510803200135,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01013 wc",
+     "id": 28449,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4721.88871239322,
+     "computed": 4.72188871239312,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01014 wc",
+     "id": 31721,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "01014 wc",
+     "id": 31721,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5704.51170000027,
+     "computed": 5.212743450000263,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01015 hcwc",
+     "id": 19130,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 12880.2989197821,
+     "computed": 12.880298919781877,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01017 heis",
+     "id": 31919,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 11366.5500000004,
+     "computed": 11.366550000000002,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01020 trapp",
+     "id": 24918,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 88319.9999999985,
+     "computed": 82.57267199998508,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01021 EL",
+     "id": 30552,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3089.94047999993,
+     "computed": 3.0899404799998877,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01022 korridor",
+     "id": 32264,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 155879.473347486,
+     "computed": 142.4423821599325,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01023 forrom",
+     "id": 32557,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 69584.9633069381,
+     "computed": 66.23772184370985,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01024 forkontor",
+     "id": 5579,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 22107.972648423,
+     "computed": 22.107972648423722,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01025 møte",
+     "id": 7070,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 35678.8446139136,
+     "computed": 35.67884461391361,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01026 forrom",
+     "id": 19328,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5939.77751979064,
+     "computed": 5.939777519790673,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01027 wc",
+     "id": 32656,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65000000000129,
+     "reason": "nominal"
+    },
+    {
+     "room": "01027 wc",
+     "id": 32656,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5278.28907516351,
+     "computed": 4.82326415489319,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01028 kopi",
+     "id": 6465,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 25304.299091532,
+     "computed": 25.3042990915322,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01029 rektor",
+     "id": 6765,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 41378.2365718811,
+     "computed": 41.37823657188224,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01030 korridor",
+     "id": 32755,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "01030 korridor",
+     "id": 32755,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 75467.4935173632,
+     "computed": 68.96167511070404,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01031 kontor",
+     "id": 5780,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 24021.2697119994,
+     "computed": 24.021269711999683,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01032 spes.ped",
+     "id": 25307,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 24021.2697119996,
+     "computed": 24.021269711999683,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01033 avd.led",
+     "id": 22999,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 24021.2697119998,
+     "computed": 24.021269711999846,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01034 avd.led",
+     "id": 23098,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 23777.4954506805,
+     "computed": 23.777495450680135,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01035 avd.led",
+     "id": 5681,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 24265.043973317,
+     "computed": 24.26504397331674,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01036 avd.led",
+     "id": 22899,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 24021.2697119996,
+     "computed": 24.021269711999683,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01037 rådg",
+     "id": 23197,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 24021.2697119998,
+     "computed": 24.021269711999846,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01038 rådg",
+     "id": 21081,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 39898.328253855,
+     "computed": 39.89832825385427,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01039 vente",
+     "id": 8331,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 42538.3946239391,
+     "computed": 42.53839462393912,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01040 møte",
+     "id": 6665,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 74916.8461479473,
+     "computed": 74.91684614794734,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01041 helse hvil",
+     "id": 22557,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 31592.3909749083,
+     "computed": 31.592390974908085,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01042 helse",
+     "id": 8232,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 44149.8849791991,
+     "computed": 44.14988497919863,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01043 drift",
+     "id": 8134,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 25541.8205951988,
+     "computed": 25.54182059519855,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01044 hcwc",
+     "id": 8432,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 12806.8603220763,
+     "computed": 12.806860322076242,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01045 møte",
+     "id": 6566,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 36009.8171984576,
+     "computed": 36.00981719845771,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01046 disp",
+     "id": 32854,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "01046 disp",
+     "id": 32854,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 9417.13809999914,
+     "computed": 8.605315849999343,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01047 korridor",
+     "id": 32954,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "01047 korridor",
+     "id": 32954,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 166928.441349954,
+     "computed": 152.538058475,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01048 musikk",
+     "id": 5895,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 226781.607800211,
+     "computed": 226.78160780021096,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01049 øve",
+     "id": 6872,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 36435.4057603113,
+     "computed": 36.435405760311376,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01050 øve",
+     "id": 6127,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 20267.6058163602,
+     "computed": 20.267605816359993,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01051 lager",
+     "id": 6235,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 19146.2735026562,
+     "computed": 19.146273502656204,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01052 lager",
+     "id": 29868,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 36659.6921927376,
+     "computed": 36.65969219272801,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01053 sluse",
+     "id": 33122,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 14991.4473541064,
+     "computed": 13.704639896020245,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01054 IKT-server",
+     "id": 19229,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 39672.9556983961,
+     "computed": 39.67295569839663,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01055 bk",
+     "id": 29627,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 11172.8994383642,
+     "computed": 11.172899438364226,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01056 M&H",
+     "id": 7306,
+     "quantity": "perimeter",
+     "name": "GrossPerimeter",
+     "stored": 35.4189999999992,
+     "computed": 42.2789999999991,
+     "reason": "unexplained"
+    },
+    {
+     "room": "01056 M&H",
+     "id": 7306,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 172838.708967342,
+     "computed": 172.83870896734257,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01057 lager",
+     "id": 7915,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 23114.1051141303,
+     "computed": 23.11410511413055,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01058 M&H",
+     "id": 6367,
+     "quantity": "perimeter",
+     "name": "GrossPerimeter",
+     "stored": 35.3939999999993,
+     "computed": 42.253999999999245,
+     "reason": "unexplained"
+    },
+    {
+     "room": "01058 M&H",
+     "id": 6367,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 172996.859324143,
+     "computed": 172.99685932414292,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01059 tekstil",
+     "id": 8033,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 150104.260282294,
+     "computed": 150.10426028229443,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01060 lager",
+     "id": 28887,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 22198.6059456014,
+     "computed": 22.198605945601518,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01061 design tekno",
+     "id": 7683,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 105154.599182168,
+     "computed": 105.1545991821675,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01062 tegne-keramikk",
+     "id": 7801,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 117155.043660757,
+     "computed": 117.15504366075756,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01063 ovn",
+     "id": 18932,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 23939.8524869558,
+     "computed": 23.939852486955967,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01064 Tre og metall",
+     "id": 7440,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 184573.537380025,
+     "computed": 184.5735373800073,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01065 lager",
+     "id": 28986,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 14078.8010016002,
+     "computed": 14.078801001600093,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01066 maskinrom",
+     "id": 18831,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 55699.9999536024,
+     "computed": 55.69999995360321,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01067 naturfag",
+     "id": 7561,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 134411.946974412,
+     "computed": 134.41194697440312,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01068 forb",
+     "id": 7170,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 24885.9665855993,
+     "computed": 24.88596658559867,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01069 naturfag-kjemi",
+     "id": 6021,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 136122.251707201,
+     "computed": 136.1222517072004,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01070 lager",
+     "id": 22151,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 19792.2697015962,
+     "computed": 19.792269701596037,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01090 trapp",
+     "id": 33357,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 90248.0000000005,
+     "computed": 84.35667200000104,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01091 EL",
+     "id": 23784,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3127.06697394349,
+     "computed": 3.1270669739432626,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01092 korridor/sluse",
+     "id": 34122,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 111100.766199721,
+     "computed": 105.88968986753498,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01093 wc",
+     "id": 33456,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.6500000000005497,
+     "reason": "nominal"
+    },
+    {
+     "room": "01093 wc",
+     "id": 33456,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5258.29369120531,
+     "computed": 4.804992510929951,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01094 wc",
+     "id": 33555,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.6500000000005497,
+     "reason": "nominal"
+    },
+    {
+     "room": "01094 wc",
+     "id": 33555,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5659.97524373293,
+     "computed": 5.172046343412206,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01095 wc",
+     "id": 33656,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.6499999999983004,
+     "reason": "nominal"
+    },
+    {
+     "room": "01095 wc",
+     "id": 33656,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5639.94958000017,
+     "computed": 5.153747029996671,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01096 sluse",
+     "id": 40366,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.64999999999999,
+     "reason": "nominal"
+    },
+    {
+     "room": "01096 sluse",
+     "id": 40366,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 66064.566916192,
+     "computed": 60.36934563031407,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01100 trapp",
+     "id": 17373,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 90248.0000000003,
+     "computed": 84.48719359999073,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01101 EL",
+     "id": 23687,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3711.24479999962,
+     "computed": 3.7112447999997165,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01102 IKT",
+     "id": 30457,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3710.02970177904,
+     "computed": 3.710029701779014,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01103 gard/toal",
+     "id": 17965,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 39129.2954131604,
+     "computed": 39.12929541316026,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01104 kopi",
+     "id": 18175,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 7437.47237288267,
+     "computed": 7.437472372882653,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01105 wc",
+     "id": 34650,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "01105 wc",
+     "id": 34650,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5932.73009999979,
+     "computed": 5.421287849999864,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01106 wc",
+     "id": 34750,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "01106 wc",
+     "id": 34750,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5737.65000000028,
+     "computed": 5.24302500000036,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01107 fellesområde",
+     "id": 34221,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "01107 fellesområde",
+     "id": 34221,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 77359.7383465762,
+     "computed": 70.69079538568084,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01108 gruppe",
+     "id": 17114,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 96275.7160079984,
+     "computed": 96.27571600799811,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01109 lærerarbeid",
+     "id": 16527,
+     "quantity": "floorArea",
+     "name": "GrossFloorArea",
+     "stored": 50.0322268021343,
+     "computed": 30.201163234064275,
+     "reason": "unexplained"
+    },
+    {
+     "room": "01109 lærerarbeid",
+     "id": 16527,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 121998.581834324,
+     "computed": 73.64251642994233,
+     "reason": "unexplained"
+    },
+    {
+     "room": "01110 aktivitetsrom",
+     "id": 16645,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 73874.3529749769,
+     "computed": 73.8743529749769,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01111 hjemmeområde",
+     "id": 16776,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 147378.75342841,
+     "computed": 147.37875342841062,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01113 gruppe",
+     "id": 17014,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 100470.337641599,
+     "computed": 100.47033764159788,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01114 gruppe",
+     "id": 16894,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 97879.1737103919,
+     "computed": 97.87917371039896,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01115 garderobe",
+     "id": 17621,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 71207.1747372362,
+     "computed": 71.2071747372366,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01116 lager",
+     "id": 18075,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 27165.3293095609,
+     "computed": 27.1653293095611,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01117 stelle",
+     "id": 17851,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 45561.4120685285,
+     "computed": 45.561412068528064,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01118 lager",
+     "id": 17472,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 27558.3520920748,
+     "computed": 27.55835209207464,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01119 sanserom",
+     "id": 17737,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 36577.1016959079,
+     "computed": 36.57710169590061,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01120 korridor",
+     "id": 34552,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 130548.027038735,
+     "computed": 119.43116897322315,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01121 korridor",
+     "id": 35231,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 107009.760469455,
+     "computed": 97.7848606144178,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01122 sluse",
+     "id": 28351,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 30170.7859345298,
+     "computed": 30.170785934529682,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01123 garderobe",
+     "id": 8813,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 76007.3635083398,
+     "computed": 76.00736350832041,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01124 dusj",
+     "id": 9075,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 67489.7035775947,
+     "computed": 67.48970357760126,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01125 hcwc",
+     "id": 19031,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 12338.3039999997,
+     "computed": 12.33830399999984,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01126 gang",
+     "id": 28667,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 20404.4092800001,
+     "computed": 20.40440927999976,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01127 hcgard",
+     "id": 9342,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 46571.1232339365,
+     "computed": 46.57112323399194,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01128 dusj",
+     "id": 8946,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 69772.0266449112,
+     "computed": 69.77202664491813,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01129 hcwc",
+     "id": 18715,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 12437.5468800027,
+     "computed": 12.4375468800025,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01130 garderobe",
+     "id": 28569,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 73518.4616190069,
+     "computed": 73.51846161900725,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01131 bk",
+     "id": 40080,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 6818.4151491069,
+     "computed": 6.818415149113909,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01140 trapp",
+     "id": 25209,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 90250.0000000016,
+     "computed": 76.28662239997999,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01141 korridor",
+     "id": 34958,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 43034.1150000028,
+     "computed": 39.41427749998951,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01142 basseng",
+     "id": 8574,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 686033.756225567,
+     "computed": 686.0337562255764,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01143 vakt/forrom",
+     "id": 18387,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.4384,
+     "computed": 2.17,
+     "reason": "nominal"
+    },
+    {
+     "room": "01143 vakt/forrom",
+     "id": 18387,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 20471.057041261,
+     "computed": 18.217763196994355,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01144 lærer",
+     "id": 18617,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 23074.1524800001,
+     "computed": 23.074152480000024,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01145 lærer",
+     "id": 18502,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 25212.7039089117,
+     "computed": 25.212703908911855,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01146 rengj",
+     "id": 8688,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 21976.539153813,
+     "computed": 21.63045192304443,
+     "reason": "unexplained"
+    },
+    {
+     "room": "01147 forrom",
+     "id": 40757,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "01147 forrom",
+     "id": 40757,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 31202.8816607357,
+     "computed": 28.51297806929284,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01148 hcwc",
+     "id": 9441,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.4384,
+     "computed": 2.17,
+     "reason": "nominal"
+    },
+    {
+     "room": "01148 hcwc",
+     "id": 9441,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 16555.4345743043,
+     "computed": 14.733141825065486,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01149 lager",
+     "id": 9635,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 53934.08202239,
+     "computed": 53.0859193152084,
+     "reason": "unexplained"
+    },
+    {
+     "room": "01150 sjakt",
+     "id": 40664,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8693.27199999861,
+     "computed": 8.6799399999897,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01152 sjakt",
+     "id": 35330,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8409.82895373388,
+     "computed": 8.409828953733925,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01153 sjakt",
+     "id": 41874,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 2475.53195519876,
+     "computed": 2.475531955198798,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01160 sykkelparkering",
+     "id": 42064,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 112654.080000001,
+     "computed": 112.65408000000001,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01161 temperert sykkelbod",
+     "id": 41105,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 46559.3840000012,
+     "computed": 45.28507560764856,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01162 vaktm",
+     "id": 41247,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 55106.0161320738,
+     "computed": 53.597790447082524,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "01163 Vaskerom sykkel",
+     "id": 43583,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 18951.1367098706,
+     "computed": 18.951136709870482,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "01170 Utebod-Nat-M&H",
+     "id": 43208,
+     "quantity": "floorArea",
+     "name": "GrossFloorArea",
+     "stored": 18.6999999999993,
+     "computed": 4.4,
+     "reason": "unexplained"
+    },
+    {
+     "room": "01170 Utebod-Nat-M&H",
+     "id": 43208,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 48619.9999999981,
+     "computed": 48.19457499998151,
+     "reason": "unexplained"
+    },
+    {
+     "room": "01171 sykkelparkering",
+     "id": 43299,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 113340.245759995,
+     "computed": 113.3402457599953,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "3 Area",
+     "id": 41687,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 11277520.5233753,
+     "computed": 11277.520523375391,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "12 Area",
+     "id": 42981,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 853589.899146386,
+     "computed": 853.5898991463621,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "15 Area",
+     "id": 374,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 12082653.3646724,
+     "computed": 12082.65336467237,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02002 kantine -øvre del",
+     "id": 35607,
+     "quantity": "perimeter",
+     "name": "GrossPerimeter",
+     "stored": 128.357936325719,
+     "computed": 135.8976635235703,
+     "reason": "unexplained"
+    },
+    {
+     "room": "02002 kantine -øvre del",
+     "id": 35607,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 516519.511506637,
+     "computed": 516.5196219036117,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02003 aula-øvre del",
+     "id": 16322,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 220872.541423541,
+     "computed": 220.87254142354195,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02017 heis",
+     "id": 35805,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 11366.5499999996,
+     "computed": 11.366549999999465,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02020 trapp",
+     "id": 24529,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 59588.7832551533,
+     "computed": 59.58878325513418,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02021 EL",
+     "id": 30161,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3065.48210880003,
+     "computed": 3.065482108800112,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02022 sjakt",
+     "id": 36313,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3684.98794999994,
+     "computed": 3.6849879499999405,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02023 sluse/korr",
+     "id": 36213,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.7,
+     "reason": "nominal"
+    },
+    {
+     "room": "02023 sluse/korr",
+     "id": 36213,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 42534.4051250199,
+     "computed": 39.6009978749968,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02024 wc",
+     "id": 1068,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4781.79201120975,
+     "computed": 4.781792011199887,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02025 wc",
+     "id": 36407,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "02025 wc",
+     "id": 36407,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5689.32874999992,
+     "computed": 5.1988693749996875,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02026 wc",
+     "id": 36508,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "02026 wc",
+     "id": 36508,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5687.00657499981,
+     "computed": 5.196747387499783,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02027 wc",
+     "id": 36608,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "02027 wc",
+     "id": 36608,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5752.02747500028,
+     "computed": 5.256163037500274,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02028 sjakt",
+     "id": 36708,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5805.44619999971,
+     "computed": 5.805446199999744,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02029 garderobe",
+     "id": 27561,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 86013.7989672707,
+     "computed": 86.01379896728984,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02030 fellesområde",
+     "id": 723,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 252184.543521948,
+     "computed": 252.18454352193763,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02031 gruppe",
+     "id": 20676,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 48020.4255744019,
+     "computed": 48.02042557440192,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02032 klasse",
+     "id": 839,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 203291.700799999,
+     "computed": 203.2917007999979,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02033 gruppe",
+     "id": 42255,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 38730.1581504019,
+     "computed": 38.7301581504017,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02034 gruppe",
+     "id": 42155,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 36717.1467839988,
+     "computed": 36.71714678399878,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02035 klasse",
+     "id": 20020,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 204704.75519998,
+     "computed": 204.70475519999107,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02036 klasse",
+     "id": 20790,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 160649.950886407,
+     "computed": 160.64995088639785,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02037 korridor",
+     "id": 36969,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 140878.361254773,
+     "computed": 128.7547790051944,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02038 personal/møte",
+     "id": 37069,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 107142.548849992,
+     "computed": 107.14254884999013,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02039 personal",
+     "id": 1277,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 221377.724621846,
+     "computed": 205.93894291543734,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02040 lærergard",
+     "id": 21942,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 42312.7495592662,
+     "computed": 42.43783422993731,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02041 dusj",
+     "id": 29313,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8480.42277573937,
+     "computed": 8.4804227757394,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02042 wc",
+     "id": 29413,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4135.33132799933,
+     "computed": 4.135331327999209,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02043 wc",
+     "id": 30258,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4141.93376481767,
+     "computed": 4.1419337648177645,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02044 dusj",
+     "id": 22799,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8480.42277573942,
+     "computed": 8.480422775739514,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02045 wc",
+     "id": 22040,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4135.33132799933,
+     "computed": 4.135331327999209,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02046 wc",
+     "id": 30357,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4141.93376481772,
+     "computed": 4.1419337648177645,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02047 lærergard",
+     "id": 966,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 31267.9010216382,
+     "computed": 31.26790102163818,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02048 sjakt",
+     "id": 20890,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4116.88243189461,
+     "computed": 4.116882431894502,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02049 bk",
+     "id": 29525,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8294.8034510473,
+     "computed": 8.294803451047237,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02050 hcwc",
+     "id": 28788,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 15721.5826887815,
+     "computed": 15.721582688781435,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02052 lærerarbeid",
+     "id": 27335,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 190167.667163994,
+     "computed": 190.16766716399326,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02053 kopi",
+     "id": 20983,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8052.08862385528,
+     "computed": 8.05208862385527,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02054 stille",
+     "id": 27433,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8097.72615599186,
+     "computed": 8.097726155991824,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02055 sjakt",
+     "id": 35993,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4556.39472927385,
+     "computed": 4.556394729273774,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02055 sjakt",
+     "id": 40952,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3590.0591383967,
+     "computed": 3.5900591383965823,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02056 wc",
+     "id": 30648,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4863.24539669873,
+     "computed": 4.8632453966988125,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02057 wc",
+     "id": 36088,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.64999999999998,
+     "reason": "nominal"
+    },
+    {
+     "room": "02057 wc",
+     "id": 36088,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5783.87944981382,
+     "computed": 5.285269152416237,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02058 lærerarbeid",
+     "id": 19693,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 115104.765412752,
+     "computed": 115.10476541275293,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02059 hcwc",
+     "id": 21280,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 12405.9916869427,
+     "computed": 12.40599168694266,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02060 garderobe",
+     "id": 27690,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 91996.3292247489,
+     "computed": 91.99632922474915,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02061 fellesområde",
+     "id": 20455,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 217882.454759999,
+     "computed": 217.88245476000773,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02062 klasse",
+     "id": 19920,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 159304.222310403,
+     "computed": 159.3042223104032,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02063 gruppe",
+     "id": 20556,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 25381.706091034,
+     "computed": 25.381706091034207,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02064 gruppe",
+     "id": 20123,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 25405.6207313609,
+     "computed": 25.405620731361488,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02065 klasse",
+     "id": 20325,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 164951.108044784,
+     "computed": 164.95110804478455,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02066 klasse",
+     "id": 19804,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 160192.285152002,
+     "computed": 160.19228515200172,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02067 gruppe",
+     "id": 19592,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 59327.2144416006,
+     "computed": 59.32721444160075,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02068 mottak",
+     "id": 20224,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 159266.030260799,
+     "computed": 159.2660302607977,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02069 dusj",
+     "id": 40487,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "02069 dusj",
+     "id": 40487,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 6443.95398336953,
+     "computed": 5.88844070894104,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02090 trapp",
+     "id": 24409,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 60048.0000000011,
+     "computed": 60.04800000000092,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02091 EL",
+     "id": 23591,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3031.3051223245,
+     "computed": 3.031305122324623,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02092 sjakt",
+     "id": 35899,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3917.61901567594,
+     "computed": 3.917619015675986,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02093 sluse/korr",
+     "id": 37664,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 18760.2119776058,
+     "computed": 17.46665985308521,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02100 trapp",
+     "id": 24309,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 88959.9999999987,
+     "computed": 74.91919359998674,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02101 EL",
+     "id": 29966,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3729.53279999986,
+     "computed": 3.7295327999998586,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02102 IKT",
+     "id": 23493,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3973.37279999957,
+     "computed": 3.973372799999787,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02103 sluse/korr",
+     "id": 37837,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 28466.8931326636,
+     "computed": 26.553786586365806,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02104 garderobe",
+     "id": 27013,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 114052.384046304,
+     "computed": 114.05238404631964,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02105 fellesområde",
+     "id": 4084,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 211988.805233893,
+     "computed": 211.98880523389315,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02106 gruppe",
+     "id": 3643,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 58555.2444336292,
+     "computed": 58.55524443362915,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02107 klasse",
+     "id": 3745,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 160819.416028768,
+     "computed": 160.81941602876697,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02108 gruppe",
+     "id": 4185,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 27021.226355734,
+     "computed": 27.021226355733866,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02109 gruppe",
+     "id": 16414,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 25402.2769587695,
+     "computed": 25.402276958769477,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02110 klasse",
+     "id": 3961,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 158314.548902577,
+     "computed": 158.31454890257106,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02111 klasse",
+     "id": 3191,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 161740.501930498,
+     "computed": 161.74050193049806,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02112 møterom",
+     "id": 9934,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 28558.404043915,
+     "computed": 28.55840404391506,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02113 hcwc",
+     "id": 21378,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 26934.2652575693,
+     "computed": 26.93426525756946,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02114 korridor",
+     "id": 38229,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65000000000083,
+     "reason": "nominal"
+    },
+    {
+     "room": "02114 korridor",
+     "id": 38229,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 59412.1813297718,
+     "computed": 54.29044155998085,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02115 wc",
+     "id": 27112,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5347.86961920019,
+     "computed": 5.3478696192002015,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02116 wc",
+     "id": 37935,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "02116 wc",
+     "id": 37935,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 6195.21780000006,
+     "computed": 5.6611473000000965,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02117 wc",
+     "id": 38035,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "02117 wc",
+     "id": 38035,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 6142.43876666771,
+     "computed": 5.612918183334443,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02118 sjakt",
+     "id": 38135,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 12131.5335567524,
+     "computed": 12.131533556752242,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02119 lærerarbeid",
+     "id": 4302,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 107007.877261847,
+     "computed": 107.00787726184758,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02120 kopi",
+     "id": 27210,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8541.44982161175,
+     "computed": 8.54144982161193,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02121 stille",
+     "id": 26464,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8503.07568807613,
+     "computed": 8.503075688076112,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02122 lærerarbeid",
+     "id": 26365,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 117473.572376897,
+     "computed": 117.4735723768966,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02123 garderobe",
+     "id": 26789,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 101006.06107257,
+     "computed": 99.84292165666659,
+     "reason": "unexplained"
+    },
+    {
+     "room": "02124 fellesområde",
+     "id": 3437,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 228606.721475717,
+     "computed": 228.6067214757068,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02125 klasse",
+     "id": 3861,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 159235.646794635,
+     "computed": 159.2356467946351,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02126 gruppe",
+     "id": 22251,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 32206.4625804259,
+     "computed": 32.206462580426496,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02127 gruppe",
+     "id": 3540,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 33561.5561505241,
+     "computed": 33.561556150523614,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02128 klasse",
+     "id": 3291,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 163149.608371129,
+     "computed": 163.149608371129,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02129 klasse",
+     "id": 5256,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 157504.703836797,
+     "computed": 157.50470383679496,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02130 gruppe",
+     "id": 3074,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 64954.8649749991,
+     "computed": 64.95486497499843,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02140 trapp",
+     "id": 24054,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 88959.9999999978,
+     "computed": 75.10462239998809,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02141 EL",
+     "id": 38328,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3950.71226812429,
+     "computed": 3.9507122681242635,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02142 disp",
+     "id": 30065,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3076.47404915748,
+     "computed": 3.076474049157412,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02143 sluse/korr",
+     "id": 35704,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.6499999999974997,
+     "reason": "nominal"
+    },
+    {
+     "room": "02143 sluse/korr",
+     "id": 35704,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 27566.167500004,
+     "computed": 25.189773749972105,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02144 wc",
+     "id": 26885,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4640.37273599989,
+     "computed": 4.64037273599995,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02145 wc",
+     "id": 38429,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "02145 wc",
+     "id": 38429,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5577.81650000002,
+     "computed": 5.096970249999932,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02146 wc",
+     "id": 38542,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.65,
+     "reason": "nominal"
+    },
+    {
+     "room": "02146 wc",
+     "id": 38542,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 6363.5832862838,
+     "computed": 5.814998520224876,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "02148 gruppe",
+     "id": 21180,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 18589.1789224111,
+     "computed": 18.58917892241109,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02149 bibliotek",
+     "id": 5159,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 283288.100908466,
+     "computed": 281.4294217308395,
+     "reason": "unexplained"
+    },
+    {
+     "room": "02150 elevtjenester/møte",
+     "id": 5479,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 58328.8483229991,
+     "computed": 58.32884832299841,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02151 bk",
+     "id": 39982,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8373.16323840034,
+     "computed": 8.373163238400299,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "02152 sjakt",
+     "id": 40178,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8066.20499999999,
+     "computed": 8.06620500000023,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "4 Area",
+     "id": 41758,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 892922.739414394,
+     "computed": 892.9227394143916,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "5 Area",
+     "id": 41814,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4664666.70558257,
+     "computed": 4664.6667055825865,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "17 Area",
+     "id": 440,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 4977888.91479906,
+     "computed": 4977.888914799138,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "18 Area",
+     "id": 566,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 1002650.98261498,
+     "computed": 1002.6476696212065,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03017 heis",
+     "id": 39383,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 11366.5499999997,
+     "computed": 11.366550000000002,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03030 ventilasjon",
+     "id": 19494,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 561016.46802253,
+     "computed": 561.0149972641922,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03100 trapp",
+     "id": 23297,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 60048.0000000034,
+     "computed": 60.048000000003476,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03101 EL",
+     "id": 23396,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3916.07039999989,
+     "computed": 3.916070399999929,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03102 IKT",
+     "id": 30759,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3767.42015781115,
+     "computed": 3.7674201578112356,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03103 korridor",
+     "id": 38642,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 27948.6515880151,
+     "computed": 27.948651588014982,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03104 garderobe",
+     "id": 28239,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 108932.175096383,
+     "computed": 108.93217509639065,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03105 fellesområde",
+     "id": 2638,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 211962.254196272,
+     "computed": 211.96225419627214,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03106 gruppe",
+     "id": 2959,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 58640.8139856291,
+     "computed": 58.64081398562866,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03107 klasse",
+     "id": 1973,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 160733.846476769,
+     "computed": 160.73384647676744,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03108 gruppe",
+     "id": 9733,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 27198.9987884615,
+     "computed": 27.198998788461463,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03109 gruppe",
+     "id": 2859,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 25489.2403948198,
+     "computed": 25.48924039481975,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03110 klasse",
+     "id": 2190,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 157320.618048112,
+     "computed": 157.32061804809928,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03111 klasse",
+     "id": 2757,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 162286.430482999,
+     "computed": 162.28643048299904,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03112 gruppe",
+     "id": 9834,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 16454.6840832018,
+     "computed": 16.454684083201602,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03113 hcwc",
+     "id": 22355,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 12706.9632575597,
+     "computed": 12.706963257559718,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03114 wc",
+     "id": 27787,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5347.86961919978,
+     "computed": 5.34786961919969,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03115 wc",
+     "id": 38800,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 6195.21779999987,
+     "computed": 5.6698285499981695,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "03116 wc",
+     "id": 38958,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 6120.13776666769,
+     "computed": 5.6011157250073245,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "03117 korridor",
+     "id": 39056,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.9,
+     "computed": 2.7,
+     "reason": "nominal"
+    },
+    {
+     "room": "03117 korridor",
+     "id": 39056,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 66005.2762274266,
+     "computed": 61.4531882138206,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "03118 lærerarbeid",
+     "id": 28095,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 117267.533545733,
+     "computed": 117.26753354573178,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03119 kopi",
+     "id": 27983,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8707.70044560414,
+     "computed": 8.707700445604072,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03120 stille",
+     "id": 27884,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8194.87691073395,
+     "computed": 8.194876910734086,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03121 lærerarbeid",
+     "id": 2309,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 114610.078475584,
+     "computed": 114.61007847558409,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03122 garderobe",
+     "id": 29753,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 98978.7246997261,
+     "computed": 98.97872469972583,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03123 fellesområde",
+     "id": 1629,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 229957.369377719,
+     "computed": 229.9573693777085,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03124 klasse",
+     "id": 2090,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 159031.891383233,
+     "computed": 159.03189138321852,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03125 gruppe",
+     "id": 22453,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 32536.3499409849,
+     "computed": 32.53634994098485,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03126 gruppe",
+     "id": 1733,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 33905.3235899944,
+     "computed": 33.90532358999466,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03127 klasse",
+     "id": 1496,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 162880.418764794,
+     "computed": 162.8804187648006,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03128 klasse",
+     "id": 2408,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 157381.987089592,
+     "computed": 157.3819870895896,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03129 gruppe",
+     "id": 1392,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 64928.3390499966,
+     "computed": 64.92833904999662,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03140 trapp",
+     "id": 2509,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 60047.9999999968,
+     "computed": 60.04799999999673,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03141 EL",
+     "id": 39155,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3627.19670078704,
+     "computed": 3.627196700787056,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03142 disp",
+     "id": 30857,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 3037.25126788328,
+     "computed": 3.037251267883322,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03143 korridor",
+     "id": 39282,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 28541.7015880114,
+     "computed": 28.54170158801179,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03144 bk",
+     "id": 29101,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8262.55267812596,
+     "computed": 8.26255267812608,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03145 wc",
+     "id": 39537,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5568.18559999734,
+     "computed": 5.090905600000417,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "03146 wc",
+     "id": 39869,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 5627.71389999785,
+     "computed": 5.145331399997089,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "03147 wc",
+     "id": 39712,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 6450.71744278022,
+     "computed": 5.897374388198847,
+     "reason": "floor-x-height-unit"
+    },
+    {
+     "room": "03148 ventilasjon",
+     "id": 1875,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 362347.222608168,
+     "computed": 362.3472226081673,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03149 sjakt",
+     "id": 40858,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 2590.16105948511,
+     "computed": 2.5901610594849362,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03152 sjakt",
+     "id": 40272,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 8053.15500000003,
+     "computed": 8.053155000000043,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "03153 møte",
+     "id": 43042,
+     "quantity": "volume",
+     "name": "GrossVolume",
+     "stored": 15898.8117888005,
+     "computed": 15.89881178880041,
+     "reason": "unit-slip"
+    }
+   ],
+   "contained": {
+    "IfcFlowTerminal": 188,
+    "IfcBuildingElementProxy": 280,
+    "IfcFurnishingElement": 627,
+    "IfcCovering": 85,
+    "IfcFlowController": 88
+   },
+   "placed": {
+    "IfcCovering": 174,
+    "IfcBuildingElementProxy": 19,
+    "IfcFlowSegment": 2
+   }
+  },
+  {
+   "model": "dental_clinic.ifc",
+   "rooms": 269,
+   "secs": 1.551,
+   "from": {
+    "body": 269
+   },
+   "status": {
+    "ok": 269
+   },
+   "pairs": {},
+   "disagreements": [],
+   "contained": {
+    "IfcFlowTerminal": 102,
+    "IfcFurnishingElement": 117
+   },
+   "placed": {
+    "IfcFurnishingElement": 1,
+    "IfcCovering": 240
+   }
+  },
+  {
+   "model": "schependomlaan.ifc",
+   "rooms": 100,
+   "secs": 2.964,
+   "from": {
+    "footprint": 94,
+    "body": 6
+   },
+   "status": {
+    "ok": 100
+   },
+   "pairs": {
+    "floorArea": {
+     "n": 100,
+     "agree": 100,
+     "reasons": {}
+    },
+    "perimeter": {
+     "n": 100,
+     "agree": 100,
+     "reasons": {}
+    },
+    "height": {
+     "n": 100,
+     "agree": 100,
+     "reasons": {}
+    },
+    "volume": {
+     "n": 100,
+     "agree": 89,
+     "reasons": {
+      "outline-prism": 11
+     }
+    }
+   },
+   "disagreements": [
+    {
+     "room": "6.03 woonkamer",
+     "id": 567340,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 123.391314487,
+     "computed": 127.22253963101029,
+     "reason": "outline-prism"
+    },
+    {
+     "room": "6.05 slaapkamer 1",
+     "id": 566273,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 28.9201083742,
+     "computed": 30.222838676589568,
+     "reason": "outline-prism"
+    },
+    {
+     "room": "6.06 slaapkamer 2",
+     "id": 565536,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 23.7568980822,
+     "computed": 24.690521531586032,
+     "reason": "outline-prism"
+    },
+    {
+     "room": "9.03 woonkamer",
+     "id": 949750,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 79.2833691339,
+     "computed": 86.43962572292236,
+     "reason": "outline-prism"
+    },
+    {
+     "room": "9.05 slaapkamer 1",
+     "id": 948278,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 29.9713292508,
+     "computed": 32.38437490268996,
+     "reason": "outline-prism"
+    },
+    {
+     "room": "9.06 slaapkamer 2",
+     "id": 906198,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 13.4207377162,
+     "computed": 14.38949273248429,
+     "reason": "outline-prism"
+    },
+    {
+     "room": "10.01 mk",
+     "id": 945727,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 0.958670155097,
+     "computed": 1.2100245940014327,
+     "reason": "outline-prism"
+    },
+    {
+     "room": "10.03 woonkamer",
+     "id": 927046,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 90.545933314,
+     "computed": 97.31533771717471,
+     "reason": "outline-prism"
+    },
+    {
+     "room": "10.05 slaapkamer",
+     "id": 907618,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 33.3981843556,
+     "computed": 37.54341225575162,
+     "reason": "outline-prism"
+    },
+    {
+     "room": "10.06 onben. ruimte",
+     "id": 908482,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 19.4045987842,
+     "computed": 22.060516097037517,
+     "reason": "outline-prism"
+    },
+    {
+     "room": "10.07 badkamer",
+     "id": 906598,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 15.5815139346,
+     "computed": 17.054465602785648,
+     "reason": "outline-prism"
+    }
+   ],
+   "contained": {
+    "IfcBuildingElementProxy": 1,
+    "IfcMember": 7,
+    "IfcWindow": 4
+   },
+   "placed": {
+    "IfcCovering": 198
+   }
+  },
+  {
+   "model": "Office_A_20110811.ifc",
+   "rooms": 99,
+   "secs": 0.415,
+   "from": {
+    "body": 99
+   },
+   "status": {
+    "ok": 99
+   },
+   "pairs": {},
+   "disagreements": [],
+   "contained": {
+    "IfcFlowTerminal": 31,
+    "IfcFurnishingElement": 7
+   },
+   "placed": {
+    "IfcCovering": 83
+   }
+  },
+  {
+   "model": "C20-Institute-Var-2.ifc",
+   "rooms": 82,
+   "secs": 0.46,
+   "from": {
+    "body": 82
+   },
+   "status": {
+    "ok": 82
+   },
+   "pairs": {
+    "floorArea": {
+     "n": 82,
+     "agree": 82,
+     "reasons": {}
+    },
+    "perimeter": {
+     "n": 82,
+     "agree": 82,
+     "reasons": {}
+    },
+    "height": {
+     "n": 82,
+     "agree": 80,
+     "reasons": {
+      "nominal": 2
+     }
+    },
+    "volume": {
+     "n": 82,
+     "agree": 82,
+     "reasons": {}
+    }
+   },
+   "disagreements": [
+    {
+     "room": "402 Dachboden-1",
+     "id": 226865,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.7,
+     "computed": 1.64016768058,
+     "reason": "nominal"
+    },
+    {
+     "room": "403 Dachboden-2",
+     "id": 226387,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 2.7,
+     "computed": 1.64016768058,
+     "reason": "nominal"
+    }
+   ],
+   "contained": {},
+   "placed": {
+    "IfcFurnishingElement": 253
+   }
+  },
+  {
+   "model": "FM_ARC_DigitalHub.ifc",
+   "rooms": 64,
+   "secs": 9.515,
+   "from": {
+    "body": 64
+   },
+   "status": {
+    "ok": 64
+   },
+   "pairs": {},
+   "disagreements": [],
+   "contained": {},
+   "placed": {
+    "IfcBuildingElementProxy": 1,
+    "IfcCovering": 38
+   }
+  },
+  {
+   "model": "ISSUE_159_kleine_Wohnung_R22.ifc",
+   "rooms": 28,
+   "secs": 4.352,
+   "from": {
+    "body": 28
+   },
+   "status": {
+    "ok": 28
+   },
+   "pairs": {
+    "floorArea": {
+     "n": 28,
+     "agree": 28,
+     "reasons": {}
+    },
+    "perimeter": {
+     "n": 28,
+     "agree": 28,
+     "reasons": {}
+    },
+    "height": {
+     "n": 28,
+     "agree": 28,
+     "reasons": {}
+    },
+    "volume": {
+     "n": 28,
+     "agree": 28,
+     "reasons": {}
+    }
+   },
+   "disagreements": [],
+   "contained": {
+    "IfcBuildingElementProxy": 31,
+    "IfcLightFixture": 6
+   },
+   "placed": {
+    "IfcBuildingElementProxy": 2
+   }
+  },
+  {
+   "model": "duplex.ifc",
+   "rooms": 21,
+   "secs": 0.299,
+   "from": {
+    "body": 21
+   },
+   "status": {
+    "ok": 21
+   },
+   "pairs": {},
+   "disagreements": [],
+   "contained": {
+    "IfcFurnishingElement": 61
+   },
+   "placed": {
+    "IfcCovering": 13
+   }
+  },
+  {
+   "model": "ISSUE_005_haus.ifc",
+   "rooms": 7,
+   "secs": 0.109,
+   "from": {
+    "body": 7
+   },
+   "status": {
+    "ok": 7
+   },
+   "pairs": {
+    "floorArea": {
+     "n": 7,
+     "agree": 7,
+     "reasons": {}
+    },
+    "perimeter": {
+     "n": 7,
+     "agree": 7,
+     "reasons": {}
+    },
+    "height": {
+     "n": 7,
+     "agree": 6,
+     "reasons": {
+      "nominal": 1
+     }
+    },
+    "volume": {
+     "n": 7,
+     "agree": 7,
+     "reasons": {}
+    }
+   },
+   "disagreements": [
+    {
+     "room": "7 Galerie",
+     "id": 76214,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 4,
+     "computed": 3.38675134595,
+     "reason": "nominal"
+    }
+   ],
+   "contained": {},
+   "placed": {}
+  },
+  {
+   "model": "AC20-FZK-Haus.ifc",
+   "rooms": 7,
+   "secs": 0.118,
+   "from": {
+    "body": 7
+   },
+   "status": {
+    "ok": 7
+   },
+   "pairs": {
+    "floorArea": {
+     "n": 7,
+     "agree": 7,
+     "reasons": {}
+    },
+    "perimeter": {
+     "n": 7,
+     "agree": 7,
+     "reasons": {}
+    },
+    "height": {
+     "n": 7,
+     "agree": 6,
+     "reasons": {
+      "nominal": 1
+     }
+    },
+    "volume": {
+     "n": 7,
+     "agree": 7,
+     "reasons": {}
+    }
+   },
+   "disagreements": [
+    {
+     "room": "7 Galerie",
+     "id": 76214,
+     "quantity": "height",
+     "name": "Height",
+     "stored": 4,
+     "computed": 3.38675134595,
+     "reason": "nominal"
+    }
+   ],
+   "contained": {},
+   "placed": {}
+  },
+  {
+   "model": "ISSUE_034_HouseZ.ifc",
+   "rooms": 5,
+   "secs": 0.408,
+   "from": {
+    "body": 5
+   },
+   "status": {
+    "ok": 5
+   },
+   "pairs": {
+    "floorArea": {
+     "n": 5,
+     "agree": 0,
+     "reasons": {
+      "unit-slip": 5
+     }
+    },
+    "perimeter": {
+     "n": 5,
+     "agree": 5,
+     "reasons": {}
+    },
+    "height": {
+     "n": 5,
+     "agree": 5,
+     "reasons": {}
+    },
+    "volume": {
+     "n": 5,
+     "agree": 0,
+     "reasons": {
+      "unit-slip": 5
+     }
+    }
+   },
+   "disagreements": [
+    {
+     "room": "GF Hallway",
+     "id": 133,
+     "quantity": "floorArea",
+     "name": "NetFloorArea",
+     "stored": 25346075.9448732,
+     "computed": 25.34607594487301,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "GF Hallway",
+     "id": 133,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 79840139226.3507,
+     "computed": 79.84013922635,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "Living Room",
+     "id": 98,
+     "quantity": "floorArea",
+     "name": "NetFloorArea",
+     "stored": 28477469.8265697,
+     "computed": 28.47746982656961,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "Living Room",
+     "id": 98,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 89704029953.6947,
+     "computed": 89.70402995369425,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "Parametricos Office",
+     "id": 48,
+     "quantity": "floorArea",
+     "name": "NetFloorArea",
+     "stored": 38673056.8238015,
+     "computed": 38.67305682380209,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "Parametricos Office",
+     "id": 48,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 121820128994.975,
+     "computed": 121.8201289949766,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "Washing Room",
+     "id": 175,
+     "quantity": "floorArea",
+     "name": "NetFloorArea",
+     "stored": 5388351.53971335,
+     "computed": 5.388351539713555,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "Washing Room",
+     "id": 175,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 16973307350.0971,
+     "computed": 16.973307350097695,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "Bedroom 01",
+     "id": 205,
+     "quantity": "floorArea",
+     "name": "NetFloorArea",
+     "stored": 15147929.6709993,
+     "computed": 15.147929670999343,
+     "reason": "unit-slip"
+    },
+    {
+     "room": "Bedroom 01",
+     "id": 205,
+     "quantity": "volume",
+     "name": "NetVolume",
+     "stored": 43928996045.8981,
+     "computed": 43.928996045898096,
+     "reason": "unit-slip"
+    }
+   ],
+   "contained": {},
+   "placed": {}
+  },
+  {
+   "model": "example.ifc",
+   "rooms": 1,
+   "secs": 0.219,
+   "from": {
+    "body": 1
+   },
+   "status": {
+    "ok": 1
+   },
+   "pairs": {},
+   "disagreements": [],
+   "contained": {},
+   "placed": {}
+  },
+  {
+   "model": "ISSUE_171_IfcSurfaceCurveSweptAreaSolid.ifc",
+   "rooms": 1,
+   "secs": 0.019,
+   "from": {},
+   "status": {
+    "not read: INTERSECTION with a faceted operand": 1
+   },
+   "pairs": {},
+   "disagreements": [],
+   "contained": {
+    "IfcWindow": 16,
+    "IfcCovering": 1
+   },
+   "placed": {}
+  }
+ ]
+}

@@ -184,32 +184,31 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and every measurement: README and git (TCPD consensus F1 0.702 shipped
-      / 0.711 held out, binseg 0.714/0.727). Next, most valuable first: (w) watch
-      (README "Watching a growing series", "Round 5" to "Round 10"): hint, budget
-      box and "Wandering level" (drift) shipped; a real deployer's repository on
-      GitHub Actions (no-terminal set-up from the watch page 2026-11-19, README
-      "Self-deploy with no terminal"; next: its four links tried on a live empty
-      repository) (real shop, README "A real shop's daily series": weekly line
-      ships; revenue deaf at Quiet: shut-Saturday drop heard it both years, failed
-      sim power (README "A shop shut one weekday"); a ramp sim failed (README "round
-      3"); rounds 4-5 2026-11-21: Christmas closure no effect, calm noise quietest;
-      round 6 2026-11-21: no slow-climb check passes, weekly drift beside daily
-      lifts x1.9 57 to 82 but late (README "round 6"); next it on fresh shops, bars
-      by 8 weeks; --closed ships; a recent-days fill failed 2 rounds (README "A
-      closure in the first week after a step": cost ~4/100, pooled); a closure 1-7
-      days before a step costs ~1/100 and the 2011-09-01 alert was the holiday's
-      zero (README "A closure in the week before a step")); next a provider that
-      documents its own changes. Search Console source, --events and count Middle
-      (pelt + NB) shipped 2026-11-21 (README "A middle setting for over-dispersed
-      counts": 20% falls 115/120 vs Quiet 38, 0.83 false/1,000 days): Middle as
-      count default failed (alerts on growth); gated joint growth fit is the count
-      Middle 2026-11-21 (README "The joint growth fit, gated": growing sites alerted
-      27/40 to 6/40); next a wandering level, then a live property. joint drift
-      (measured, not offered). Open: (0) drift model: t-walk increments, biweight on
-      fresh data, why it absorbs seat belts and quality control 4, its AR(1) term;
-      notes quote it. Curvature word ships under --shape-word panel (README "A
-      curvature word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37.
-      More open items: NEXT.md.
+      / 0.711 held out, binseg 0.714/0.727). Next, most valuable first: a real
+      deployer's repository on GitHub Actions (no-terminal set-up from the watch
+      page 2026-11-19, README "Self-deploy with no terminal"; next: its four links
+      tried on a live empty repository) (real shop, README "A real shop's daily
+      series": weekly line ships; revenue deaf at Quiet: shut-Saturday drop heard it
+      both years, failed sim power (README "A shop shut one weekday"); a ramp sim
+      failed (README "round 3"); rounds 4-5 2026-11-21: Christmas closure no effect,
+      calm noise quietest; round 6 2026-11-21: no slow-climb check passes, weekly
+      drift beside daily lifts x1.9 57 to 82 but late (README "round 6"); next it on
+      fresh shops, bars by 8 weeks; --closed ships; a recent-days fill failed 2
+      rounds (README "A closure in the first week after a step": cost ~4/100,
+      pooled); a closure 1-7 days before a step costs ~1/100 and the 2011-09-01
+      alert was the holiday's zero (README "A closure in the week before a step"));
+      next a provider that documents its own changes. Search Console source,
+      --events and count Middle (pelt + NB) shipped 2026-11-21 (README "A middle
+      setting for over-dispersed counts": 20% falls 115/120 vs Quiet 38, 0.83
+      false/1,000 days): Middle as count default failed (alerts on growth); gated
+      joint growth fit is the count Middle 2026-11-21 (README "The joint growth fit,
+      gated": growing sites alerted 27/40 to 6/40); --wander gated opt-in 2026-11-21
+      (README "A wandering level under Middle"); next a gate calmer on slow falls, a
+      live property. joint drift (measured, not offered). Open: (0) drift model:
+      t-walk increments, biweight on fresh data, why it absorbs seat belts and
+      quality control 4, its AR(1) term; notes quote it. Curvature word ships under
+      --shape-word panel (README "A curvature word"): slope donors straight 73% vs
+      clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -334,8 +333,11 @@ flagships:
       (eval/near-clean-truth-noise-2026-11-19.md); a min-eigenvalue read failed its
       pre-registered pick 2026-11-19: foliage fills the quietest direction too, and
       the shipped read under-reads white-balanced noise (0.53x at SNR 12;
-      eval/noise-pca-min-eigen-2026-11-19.md); next per-colour ratios with a
-      texture-safe level, pre-registered. More open items: NEXT.md.
+      eval/noise-pca-min-eigen-2026-11-19.md); per-colour ratios + Chen's level
+      (mpcw) default on Bayer 2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0
+      new losers (eval/noise-pca-whitened-level-*); next mpcws (selects with that
+      read: held +0.31 dB, failed the pick on one noisy-truth K-1 II file),
+      pre-registered with a stated noisy-truth test. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -400,9 +402,9 @@ flagships:
       match play recap; next: a real league's season. Box leagues 2026-11-21
       (boxleague.mjs); next: a real club's month. Practice slots on shared fields
       2026-11-21 (practice.mjs: 95 of 95 CP-SAT optima, eval/practice-exact.txt);
-      next: a real league's fields and teams. Swiss 2026-11-21 (swiss.mjs; repeat
-      floats; TRF files, trf.mjs; FIDE C5/C9 = bbpPairings); next: bbpPairings on
-      swissToTrf. More open items: NEXT.md.
+      next: a real league's fields and teams. Swiss vs real events
+      (eval/swiss-vs-published.md): 45% to 60% of boards; next bracket-by-bracket
+      Dutch. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
@@ -570,18 +572,19 @@ flagships:
       page panel; eval/lookahead-check-2026-11-19.md: 6,476 of 6,479 windowed
       activities = P6's); milestone calendars shipped 2026-11-20 (milestones.mjs;
       eval/milestone-calendars-2026-11-20.md). (10) earned value shipped 2026-11-20
-      (evm.mjs; % complete = P6's actuals 2,020/2,020); next a real series and
-      baseline export. (11) time impact analysis shipped 2026-11-20 (tia.mjs, --tia,
-      page; eval/tia-check-2026-11-20.md); next a real TIA exhibit. (8) MSPDI:
-      resource calendars, Resume, splits read 2026-11-21 (2,446 of 2,491 =
-      Project's, eval/split-tasks-2026-11-21.md); next contoured work, timephased
-      late dates. (12) Gantt chart shipped 2026-11-20 (LOE and WBS summary dates =
-      P6's on 305 of 305, eval/gantt-check-2026-11-20.md). (13) XER to Project XML
-      shipped 2026-11-21 (eval/msproject-check-2026-11-21.md); outline codes
-      2026-11-21 (eval/msproject-outline-2026-11-21.md); next a Project check. MSPDI
-      to XER shipped 2026-11-21 (eval/p6xer-check-2026-11-21.md); deadlines in float
-      and XER (eval/deadlines-2026-11-21.md). Expenses <-> cost resources and fixed
-      costs 2026-11-21 (1,526/1,526 to the cent, MPXJ agrees;
+      (evm.mjs; % complete = P6's actuals 2,020/2,020); P6 resource curves
+      2026-11-21 (curves.mjs, eval/resource-curves-2026-11-21.md); next a real
+      series, baseline export, P6's curved spread. (11) time impact analysis shipped
+      2026-11-20 (tia.mjs, --tia, page; eval/tia-check-2026-11-20.md); next a real
+      TIA exhibit. (8) MSPDI: resource calendars, Resume, splits read 2026-11-21
+      (2,446 of 2,491 = Project's, eval/split-tasks-2026-11-21.md); next contoured
+      work, timephased late dates. (12) Gantt chart shipped 2026-11-20 (LOE and WBS
+      summary dates = P6's on 305 of 305, eval/gantt-check-2026-11-20.md). (13) XER
+      to Project XML shipped 2026-11-21 (eval/msproject-check-2026-11-21.md); next a
+      Project check. MSPDI to XER shipped 2026-11-21
+      (eval/p6xer-check-2026-11-21.md); deadlines in float and XER
+      (eval/deadlines-2026-11-21.md). Expenses <-> cost resources and fixed costs
+      2026-11-21 (1,526/1,526 to the cent, MPXJ agrees;
       eval/expenses-2026-11-21.md); next a P6-written XER with expenses, a P6 import
       (category by name?). Notebooks <-> task notes 2026-11-21 (88/88 real,
       2,006/2,006 planted; eval/notebooks-2026-11-21.md); resource notes both ways
@@ -616,24 +619,22 @@ flagships:
       History and every measurement: ventures/ifc-quantity-takeoff/README.md and
       eval/. its misses traced 2026-11-21: overlapping body items joined (a cabinet
       had counted 1.8x its box), 9,310 of 9,312 now enclose the computed volume
-      (eval/item-union-2026-11-21.md; next in NEXT.md). Storeys, sections, room
-      contents on their storey, takeoff+mesh worker 2026-11-21 (eval/storeys-and-*,
-      eval/*-worker-*). Next, most valuable first: (1) the covering up-cut rule
-      tested on a second model, the joins rule on an ArchiCAD export with partitions
-      on both faces; (2) method of measurement: small voids left in shipped
-      2026-11-20 (measure.mjs, page and cli --voids-up-to; 1,099 of 1,136 opening
-      cuts = stored WxH; eval/measure-rules-2026-11-20.md); Uniformat II grouping
-      shipped 2026-11-20 (uniformat.mjs, --by uniformat; rules vs authors' codes 482
-      of 588 at level 3, held-out 66 of 69; eval/uniformat-2026-11-20.md), envelope
-      from geometry shipped 2026-11-20 (envelope.mjs: unflagged walls placed by
-      rays, 268 coded; uniform flags set aside; flag vs geometry 3,534 of 4,564;
-      eval/envelope-2026-11-20.md), frames split B1010/B1020/A1010 by the deck they
-      carry 2026-11-20 (level 3 19,767 to 22,546 elements;
-      eval/frames-2026-11-20.md), slabs typed FLOOR read as finishes, sun shades or
-      roofs by name and roof by geometry 2026-11-20 (slabRole, findRoofDecks: 600
-      B1010 slabs to 270 floors, 251 finishes, 18 more roofs; 142 frame members to
-      B1020; eval/slab-roles-2026-11-20.md), slab on grade A1030/G2030, gutters
-      B3010, IsExternal railings B2010 2026-11-20
+      (eval/item-union-2026-11-21.md; next in NEXT.md). Storeys, sections,
+      takeoff+mesh worker 2026-11-21 (eval/storeys-and-*, eval/*-worker-*). Room
+      schedule 2026-11-21 (rooms.mjs: area, perimeter, height, wall area, volume per
+      IfcSpace; 528/535 floor areas agree, 314 of 322 volume misses named; 1,024
+      elements placed by where they stand; eval/rooms-2026-11-21.md); next net wall
+      finish per room (NEXT.md). Next, most valuable first: (1) the covering up-cut
+      rule tested on a second model, the joins rule on an ArchiCAD export with
+      partitions on both faces; (2) method of measurement: small voids left in
+      shipped 2026-11-20 (measure.mjs, page and cli --voids-up-to; 1,099 of 1,136
+      opening cuts = stored WxH; eval/measure-rules-2026-11-20.md) frames split
+      B1010/B1020/A1010 by the deck they carry 2026-11-20 (level 3 19,767 to 22,546
+      elements; eval/frames-2026-11-20.md), slabs typed FLOOR read as finishes, sun
+      shades or roofs by name and roof by geometry 2026-11-20 (slabRole,
+      findRoofDecks: 600 B1010 slabs to 270 floors, 251 finishes, 18 more roofs; 142
+      frame members to B1020; eval/slab-roles-2026-11-20.md), slab on grade
+      A1030/G2030, gutters B3010, IsExternal railings B2010 2026-11-20
       (eval/slab-on-grade-2026-11-20.md), railings by what they stand on 2026-11-20
       (stair C2010, outside B2010, inside C1010 by the envelope rays: coded 77 to
       461 of 486; eval/railings-2026-11-20.md), roofs as ray blockers 2026-11-21

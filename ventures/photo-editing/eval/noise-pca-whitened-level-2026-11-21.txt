@@ -1,0 +1,71 @@
+162 rows (tune, clean truths)
+arm            luma   colour losers  worst
+ship+12     +0.5664  +0.3609      6  -0.75
+mpcw+12     +0.6399  +0.3921      6  -0.81
+mpcws+12    +0.8555  +0.4344     10  -1.08
+   read / true sigma at 18% grey (median), by SNR and scenario:
+   SNR   200 equal ship 1.40  mpcw 1.65  mpcws 1.51
+   SNR    60 equal ship 0.80  mpcw 0.86  mpcws 0.91
+   SNR    25 equal ship 0.79  mpcw 0.81  mpcws 0.83
+   SNR    12 equal ship 0.77  mpcw 0.78  mpcws 0.79
+   SNR   200 wb    ship 1.23  mpcw 1.29  mpcws 1.16
+   SNR    60 wb    ship 0.63  mpcw 0.67  mpcws 0.89
+   SNR    25 wb    ship 0.53  mpcw 0.60  mpcws 0.82
+   SNR    12 wb    ship 0.54  mpcw 0.59  mpcws 0.78
+ship+12 mean luma + colour over D +0.9273; mpcw +1.0320, mpcws +1.2899
+pick: mpcw
+
+208 rows (held, clean truths)
+arm            luma   colour losers  worst
+ship+12     +0.9248  +0.6267      0  -0.01
+mpcw+12     +1.0197  +0.6650      0  -0.01
+   read / true sigma at 18% grey (median), by SNR and scenario:
+   SNR   200 equal ship 1.10  mpcw 1.12
+   SNR    60 equal ship 0.79  mpcw 0.82
+   SNR    25 equal ship 0.77  mpcw 0.79
+   SNR    12 equal ship 0.76  mpcw 0.77
+   SNR   200 wb    ship 0.80  mpcw 0.84
+   SNR    60 wb    ship 0.62  mpcw 0.73
+   SNR    25 wb    ship 0.56  mpcw 0.61
+   SNR    12 wb    ship 0.52  mpcw 0.62
+   SNR    12 equal n=  36  mpcw+12 - ship+12: luma +0.0175  colour +0.0056
+   SNR    12 wb    n=  36  mpcw+12 - ship+12: luma +0.2675  colour +0.1125
+   SNR    25 equal n=  32  mpcw+12 - ship+12: luma +0.0159  colour +0.0034
+   SNR    25 wb    n=  32  mpcw+12 - ship+12: luma +0.1534  colour +0.0619
+   SNR    60 equal n=  30  mpcw+12 - ship+12: luma +0.0290  colour +0.0090
+   SNR    60 wb    n=  30  mpcw+12 - ship+12: luma +0.0940  colour +0.0383
+   SNR   200 equal n=   6  mpcw+12 - ship+12: luma +0.0117  colour +0.0083
+   SNR   200 wb    n=   6  mpcw+12 - ship+12: luma +0.0500  colour +0.0250
+means: luma +0.0949, colour +0.0383; worst cell +0.0034; losers 0 -> 0, new 0
+PASS h1 means within 0.005 dB of ship, every cell within 0.02 dB
+PASS h2 no row newly loses > 0.1 dB to D, and no more losers
+PASS h3 white-balanced SNR 25 and 12 rows' luma gains at least +0.02 dB over ship (+0.2138, n=68)
+verdict: ship mpcw on Bayer
+
+# reading only (mpcws was not picked):
+208 rows (held, clean truths)
+arm            luma   colour losers  worst
+ship+12     +0.9248  +0.6267      0  -0.01
+mpcws+12    +1.2307  +0.7053      0  -0.01
+   read / true sigma at 18% grey (median), by SNR and scenario:
+   SNR   200 equal ship 1.10  mpcws 1.34
+   SNR    60 equal ship 0.79  mpcws 0.89
+   SNR    25 equal ship 0.77  mpcws 0.80
+   SNR    12 equal ship 0.76  mpcws 0.77
+   SNR   200 wb    ship 0.80  mpcws 1.22
+   SNR    60 wb    ship 0.62  mpcws 0.84
+   SNR    25 wb    ship 0.56  mpcws 0.78
+   SNR    12 wb    ship 0.52  mpcws 0.78
+   SNR    12 equal n=  36  mpcws+12 - ship+12: luma +0.0231  colour +0.0039
+   SNR    12 wb    n=  36  mpcws+12 - ship+12: luma +0.8294  colour +0.2058
+   SNR    25 equal n=  32  mpcws+12 - ship+12: luma +0.0153  colour -0.0012
+   SNR    25 wb    n=  32  mpcws+12 - ship+12: luma +0.4859  colour +0.1125
+   SNR    60 equal n=  30  mpcws+12 - ship+12: luma +0.0840  colour +0.0313
+   SNR    60 wb    n=  30  mpcws+12 - ship+12: luma +0.3690  colour +0.0957
+   SNR   200 equal n=   6  mpcws+12 - ship+12: luma +0.1200  colour +0.0650
+   SNR   200 wb    n=   6  mpcws+12 - ship+12: luma +0.4333  colour +0.1717
+means: luma +0.3060, colour +0.0786; worst cell -0.0012; losers 0 -> 0, new 0
+PASS h1 means within 0.005 dB of ship, every cell within 0.02 dB
+PASS h2 no row newly loses > 0.1 dB to D, and no more losers
+PASS h3 white-balanced SNR 25 and 12 rows' luma gains at least +0.02 dB over ship (+0.6678, n=68)
+verdict: ship mpcws on Bayer

@@ -3,7 +3,8 @@
 // watch.mjs adds the state file, the CSV URL, the webhook and the exit code around it.
 
 import { analyze, parseSeries, peaks } from './engine.mjs';
-import { driftLevel } from './drift-level.mjs';
+import { driftLevel, driftNoiseML } from './drift-level.mjs';
+import { median } from './stats-core.mjs';
 
 // Defaults chosen on synthetic streams only (eval/watch-replay.mjs, eval/watch-replay.out.txt), then
 // scored once on the TCPD series without changing them (same file, "TCPD replay").
@@ -78,9 +79,57 @@ export function detectChanges(values, labels, opts0 = {}) {
   if ((d.startsWith('bocpd-ar1') || d === 'drift') && (opts.model ?? 'mean') !== 'mean') throw new Error(`--detector ${d} is for the level model (--model mean) only.`);
   const floors = (cs) => aboveMoveFloor(aboveSpreadFloor(aboveFloor(cs, minShift), values, minSpreadRatio), values, minMoveRatio);
   if (d === 'drift') return floors(detectDrift(values, labels, opts));
-  const all = detectBoth(values, labels, { ...opts, detector: d });
+  const { wander, ...rest } = opts;
+  if (wander != null && wander !== 'gated') throw new Error('wander takes gated.');
+  if (wander && (opts.model ?? 'mean') !== 'poisson') throw new Error('--wander gated is for counts: add --model poisson.');
+  const all = detectBoth(values, labels, { ...rest, detector: d });
   if (!all[d]) throw new Error(`Unknown detector ${d}.`);
-  return floors(all[d]);
+  const found = floors(all[d]);
+  if (!wander || !found.length) return found;
+  return wanderFilter(found, values, { window: opts.window ?? WATCH_DEFAULTS.window, tolerance: opts.tolerance ?? WATCH_DEFAULTS.tolerance });
+}
+
+/**
+ * The wander gate for counts (`wander: 'gated'`, README "A wandering level under Middle"). On the window's
+ * log counts, less a day-of-week effect, the drift model (drift-level.mjs: a random-walk level with jumps) is fitted
+ * twice with the same noise scale, on the series less its robust slope: with its wander profiled, and with no wander
+ * (a flat level with jumps). When the
+ * wander beats the flat fit by more than log n, the level is wandering, and a count change is kept only when the
+ * drift model also places a jump within `tolerance` points of it; otherwise every change is kept as it was.
+ */
+export function wanderGate(values) {
+  const n = values.length;
+  if (n < 20) return { open: false, margin: null, jumps: [] };
+  const y = Array.from(values, (v) => Math.log(Math.max(0, Number(v)) + 0.5));
+  const r = [[], [], [], [], [], [], []];
+  for (let i = 3; i < n - 3; i++) { let t = 0; for (let j = -3; j <= 3; j++) t += y[i + j]; r[i % 7].push(y[i] - t / 7); }
+  const med = r.map((a) => { const s = [...a].sort((p, q) => p - q); return s.length ? s[s.length >> 1] : 0; });
+  const m0 = med.reduce((t, v) => t + v, 0) / 7;
+  const z0 = y.map((v, i) => v - (med[i % 7] - m0));
+  // Steady growth is the growth term's job (trend 'gated'), not wander: both fits see the series less its robust slope,
+  // the median of lag-n/4 differences over the lag, from pairs that do not straddle a jump of a first flat fit (a
+  // one-step median is as noisy as the counts themselves, and a pair across a fall reads the fall as growth).
+  const beta = 2 * Math.log(n);
+  const first = driftNoiseML(z0, { penalty: beta, grid: [0] });
+  const seg = new Int32Array(n);
+  for (const c of first.changepoints) for (let t = c; t < n; t++) seg[t]++;
+  const L = Math.floor(n / 4), d = [];
+  for (let t = 0; t + L < n; t++) if (seg[t] === seg[t + L]) d.push((z0[t + L] - z0[t]) / L);
+  const g = d.length ? median(d) : 0;
+  const z = z0.map((v, t) => v - g * t);
+  const best = driftNoiseML(z, { penalty: beta });
+  if (!(best.q > 0) || !(best.sigma > 0)) return { open: false, margin: null, jumps: best.changepoints ?? [] };
+  const flat = driftNoiseML(z, { penalty: beta, grid: [0], sigma: best.sigma });
+  const margin = flat.objective - best.objective - Math.log(n);
+  return { open: margin > 0, margin, q: best.q, jumps: best.changepoints };
+}
+
+function wanderFilter(found, values, { window, tolerance }) {
+  const off = Math.max(0, values.length - window);
+  const g = wanderGate(values.slice(off));
+  if (!g.open) return found;
+  const jumps = g.jumps.map((j) => j + off);
+  return found.filter((c) => jumps.some((j) => Math.abs(j - c.index) <= tolerance));
 }
 
 /** Points before a change that its spread is read from (README "Round 15"), and the fewest that make a reading. */
@@ -693,14 +742,15 @@ export function plainBudgetText(budget, every = 'day') {
  */
 export function choiceOptions(c) {
   if (!c || !DETECTORS.includes(c.detector)) return null;
-  return { detector: c.detector, ...(c.overdispersion != null ? { overdispersion: c.overdispersion } : {}), ...(c.threshold != null ? { threshold: c.threshold } : {}), ...(c.trend != null ? { trend: c.trend } : {}) };
+  return { detector: c.detector, ...(c.overdispersion != null ? { overdispersion: c.overdispersion } : {}), ...(c.threshold != null ? { threshold: c.threshold } : {}), ...(c.trend != null ? { trend: c.trend } : {}), ...(c.wander != null ? { wander: c.wander } : {}) };
 }
 
 /** Plain words for a setting: its detector, and the count default's cost and threshold when it has them. */
 export function settingWords(s) {
   const nb = s.overdispersion === 'nb' ? ', negative-binomial cost' : s.overdispersion ? ', clumping-corrected cost' : '';
   const tr = s.trend === 'gated' ? ', growth term when it earns its place' : s.trend === 'robust' ? ', robust growth term' : '';
-  return `${s.detector}${nb}${tr}${s.threshold != null ? `, alert threshold ${s.threshold}` : ''}`;
+  const wa = s.wander === 'gated' ? ', wandering level allowed for' : '';
+  return `${s.detector}${nb}${tr}${wa}${s.threshold != null ? `, alert threshold ${s.threshold}` : ''}`;
 }
 
 /** Below this many points the history is too short to choose from (round 6 skipped series with fewer than 30). */

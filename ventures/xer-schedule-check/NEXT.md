@@ -81,3 +81,13 @@
   assignment) do not come back to Project XML after the trip to XER; an
   option to write the whole resource dictionary, or those a Project file
   brought in, would keep them.
+- (2026-11-21) Resource curves: spread by P6's curves in earned value shipped
+  2026-11-21 (curves.mjs, eval/resource-curves-2026-11-21.md). Still open: a
+  P6 export with a curved, cost-loaded assignment and P6's Resource Usage
+  numbers to check the slice reading against; how P6 re-fits a curve to the
+  remaining units of a started assignment (spread evenly here); curves in the
+  levelling and risk runs; Project XML out as an assignment WorkContour (MPXJ
+  maps Back Loaded, Front Loaded and Bell by name, but Project's built-in
+  contours are not P6's 3.5/6.5 steps, so a faithful route is timephased work
+  rows) and Project's contours back to RSRCCURVDATA; what curve id 9, named
+  in three files and exported in none, is.

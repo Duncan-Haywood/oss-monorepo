@@ -157,7 +157,14 @@ export function parseTeams(text) {
 
 function teamIndex(teams, name) {
   const key = name.replace(/\s+/g, " ").trim().toLowerCase();
-  return teams.findIndex((t) => t.toLowerCase() === key);
+  const exact = teams.findIndex((t) => t.toLowerCase() === key);
+  if (exact >= 0) return exact;
+  // Result lines drop a trailing full stop ("... 1 - 0 Volodin Alexandr E."), so a name that ends in
+  // one ("Volodin Alexandr E.", "Bay Area F.C.") also matches without it, when only one name does.
+  const bare = (s) => s.replace(/\s+/g, " ").trim().toLowerCase().replace(/[.\s]+$/, "");
+  const k = bare(key);
+  const hits = teams.reduce((a, t, i) => (bare(t) === k ? [...a, i] : a), []);
+  return hits.length === 1 ? hits[0] : -1;
 }
 
 /** Lines like "Hawks: 2026-11-05, 2026-11-12 to 2026-11-19" or "Hawks cannot play 2026-11-05". */

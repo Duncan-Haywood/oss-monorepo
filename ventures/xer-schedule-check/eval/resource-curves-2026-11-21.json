@@ -1,0 +1,1264 @@
+[
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "curves": [
+   {
+    "id": "10",
+    "name": "Back Loaded",
+    "sum": 100,
+    "used": 7
+   },
+   {
+    "id": "11",
+    "name": "Bell Shaped",
+    "sum": 100,
+    "used": 1
+   },
+   {
+    "id": "12",
+    "name": "Front Loaded",
+    "sum": 100,
+    "used": 1
+   },
+   {
+    "id": "13",
+    "name": "Linear",
+    "sum": 100,
+    "used": 1
+   },
+   {
+    "id": "19",
+    "name": "Triangular Increase",
+    "sum": 100,
+    "used": 1
+   },
+   {
+    "id": "5061",
+    "name": "PCO119",
+    "sum": 100,
+    "used": 25
+   }
+  ],
+  "assignments": 36808,
+  "curved": 37,
+  "missing": [
+   {
+    "taskrsrc_id": "165557",
+    "curv_id": "9"
+   }
+  ],
+  "gap": {
+   "h": -109048,
+   "date": "2012-03-31",
+   "even": 270726,
+   "curve": 161678
+  },
+  "months": [
+   {
+    "date": "2011-10-31",
+    "even": 45918,
+    "curve": 3557
+   },
+   {
+    "date": "2011-11-30",
+    "even": 89756,
+    "curve": 45612
+   },
+   {
+    "date": "2011-12-31",
+    "even": 149079,
+    "curve": 91565
+   },
+   {
+    "date": "2012-01-31",
+    "even": 190655,
+    "curve": 106400
+   },
+   {
+    "date": "2012-02-29",
+    "even": 229082,
+    "curve": 127019
+   },
+   {
+    "date": "2012-03-31",
+    "even": 270726,
+    "curve": 161678
+   },
+   {
+    "date": "2012-04-30",
+    "even": 312962,
+    "curve": 207634
+   },
+   {
+    "date": "2012-05-31",
+    "even": 357001,
+    "curve": 266821
+   },
+   {
+    "date": "2012-06-30",
+    "even": 395919,
+    "curve": 321006
+   },
+   {
+    "date": "2012-07-31",
+    "even": 452351,
+    "curve": 386824
+   },
+   {
+    "date": "2012-08-31",
+    "even": 514333,
+    "curve": 450693
+   },
+   {
+    "date": "2012-09-30",
+    "even": 582594,
+    "curve": 523174
+   },
+   {
+    "date": "2012-10-31",
+    "even": 644829,
+    "curve": 596796
+   },
+   {
+    "date": "2012-11-30",
+    "even": 699316,
+    "curve": 667305
+   },
+   {
+    "date": "2012-12-31",
+    "even": 746807,
+    "curve": 729931
+   },
+   {
+    "date": "2013-01-31",
+    "even": 780129,
+    "curve": 770118
+   },
+   {
+    "date": "2013-02-28",
+    "even": 801515,
+    "curve": 796863
+   },
+   {
+    "date": "2013-03-31",
+    "even": 821462,
+    "curve": 820130
+   },
+   {
+    "date": "2013-04-30",
+    "even": 834397,
+    "curve": 834387
+   },
+   {
+    "date": "2013-05-01",
+    "even": 834430,
+    "curve": 834430
+   }
+  ],
+  "dataDate": "2011-09-30 00:00",
+  "measure": "cost",
+  "checked": 36,
+  "sumOk": 36,
+  "linN": 1,
+  "linOk": 1,
+  "budgetH": 834430,
+  "evenH": 0,
+  "curveH": 0,
+  "budgetCost": 0,
+  "evenCost": 0,
+  "curveCost": 0,
+  "pvTotal": 330091169.72,
+  "notes": [
+   "35 assignments follow a P6 resource curve (PCO119 25, Back Loaded 7, Triangular Increase 1, Front Loaded 1, Bell Shaped 1): their planned value is spread by the curve's twenty slices of working time, not evenly.",
+   "1 assignment names a resource curve the file does not carry (no RSRCCURVDATA row for its curv_id), so it is spread evenly.",
+   "Planned value follows the planned dates stored in the file (P6's planned start and finish), spread evenly over working time unless a resource curve says otherwise. If the scheduler re-baselined, planned dates may have moved too; a baseline export gives a firmer curve."
+  ],
+  "largest": [
+   {
+    "task": "UZ9GZ11050R2",
+    "curve": "Linear",
+    "budgetH": -35,
+    "evenH": 0,
+    "curveH": 0
+   },
+   {
+    "task": "UZ9GZ27053R2",
+    "curve": "PCO119",
+    "budgetH": 79129,
+    "evenH": 0,
+    "curveH": 0
+   },
+   {
+    "task": "CZ9GZ08154R2",
+    "curve": "PCO119",
+    "budgetH": 5949,
+    "evenH": 0,
+    "curveH": 0
+   },
+   {
+    "task": "CZ9GZ09055R2",
+    "curve": "Triangular Increase",
+    "budgetH": 97305,
+    "evenH": 0,
+    "curveH": 0
+   },
+   {
+    "task": "CZ9GZ22059R2",
+    "curve": "PCO119",
+    "budgetH": 9428,
+    "evenH": 0,
+    "curveH": 0
+   },
+   {
+    "task": "DZ9GZ08154R2",
+    "curve": "PCO119",
+    "budgetH": 6073,
+    "evenH": 0,
+    "curveH": 0
+   },
+   {
+    "task": "DZ9GZ09055R2",
+    "curve": "Back Loaded",
+    "budgetH": 74947,
+    "evenH": 0,
+    "curveH": 0
+   },
+   {
+    "task": "DZ9GZ22059R2",
+    "curve": "PCO119",
+    "budgetH": 12092,
+    "evenH": 0,
+    "curveH": 0
+   }
+  ]
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "curves": [],
+  "assignments": 3519,
+  "curved": 2,
+  "missing": [
+   {
+    "taskrsrc_id": "56524",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "57394",
+    "curv_id": "9"
+   }
+  ],
+  "gap": {
+   "h": 0,
+   "date": null,
+   "even": 0,
+   "curve": 0
+  },
+  "months": [],
+  "dataDate": "2013-07-02 07:00",
+  "measure": "cost",
+  "checked": 0,
+  "sumOk": 0,
+  "linN": 0,
+  "linOk": 0,
+  "budgetH": 0,
+  "evenH": 0,
+  "curveH": 0,
+  "budgetCost": 0,
+  "evenCost": 0,
+  "curveCost": 0,
+  "pvTotal": 0,
+  "notes": [
+   "2 assignments name a resource curve the file does not carry (no RSRCCURVDATA row for its curv_id), so they are spread evenly."
+  ],
+  "largest": []
+ },
+ {
+  "file": "example_xer_file.xer",
+  "curves": [],
+  "assignments": 1677,
+  "curved": 234,
+  "missing": [
+   {
+    "taskrsrc_id": "488847",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488851",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488855",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488856",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488857",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488858",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488859",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488865",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488868",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488869",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488870",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488875",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488878",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488904",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488905",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488930",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488932",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488954",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488958",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488959",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488962",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488963",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488964",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488982",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488983",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488985",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "488988",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489011",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489026",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489031",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489032",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489033",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489035",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489043",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489115",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489124",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489157",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489179",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489199",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489200",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489206",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489207",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489208",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489209",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489210",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489212",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489220",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489226",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489227",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489230",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489231",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489233",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489240",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489242",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489243",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489244",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489245",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489246",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489247",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489248",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489249",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489253",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489256",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489264",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489265",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489267",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489269",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489280",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489281",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489282",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489283",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489286",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489287",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489289",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489291",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489297",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489298",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489299",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489301",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489302",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489303",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489306",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489307",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489312",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489319",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489336",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489337",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489342",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489346",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489349",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489350",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489355",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489370",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489371",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489372",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489374",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489376",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489377",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489379",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489380",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489381",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489382",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489390",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489391",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489392",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489397",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489401",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489406",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489421",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489432",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489438",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489439",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489440",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489441",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489446",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489461",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489462",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489467",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489469",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489470",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489471",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489472",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489482",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489483",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489484",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489485",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489486",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489487",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489494",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489497",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489498",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489499",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489500",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489501",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489502",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489503",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489509",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489559",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489566",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489573",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489580",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489587",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489594",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489600",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489603",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489629",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489630",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489655",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489657",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489679",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489683",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489684",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489687",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489688",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489689",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489707",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489708",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489710",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489713",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489736",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489750",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489751",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489756",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489757",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489758",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489760",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489817",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489820",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489846",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489847",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489872",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489874",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489896",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489900",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489901",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489904",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489905",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489906",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489924",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489925",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489927",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489930",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489953",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489967",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489968",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489973",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489974",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489975",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "489977",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490034",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490037",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490063",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490064",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490089",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490091",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490113",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490117",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490118",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490121",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490122",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490123",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490141",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490142",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490144",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490147",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490170",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490185",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490190",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490191",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490192",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490194",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490203",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490251",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490254",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490280",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490281",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490306",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490308",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490330",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490334",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490335",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490338",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490339",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490340",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490358",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490359",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490361",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490364",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490387",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490402",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490407",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490408",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490409",
+    "curv_id": "9"
+   },
+   {
+    "taskrsrc_id": "490411",
+    "curv_id": "9"
+   }
+  ],
+  "gap": {
+   "h": 0,
+   "date": null,
+   "even": 0,
+   "curve": 0
+  },
+  "months": [],
+  "dataDate": "2026-07-03 00:00",
+  "measure": "cost",
+  "checked": 0,
+  "sumOk": 0,
+  "linN": 0,
+  "linOk": 0,
+  "budgetH": 0,
+  "evenH": 0,
+  "curveH": 0,
+  "budgetCost": 0,
+  "evenCost": 0,
+  "curveCost": 0,
+  "pvTotal": 250430.66,
+  "notes": [
+   "234 assignments name a resource curve the file does not carry (no RSRCCURVDATA row for its curv_id), so they are spread evenly."
+  ],
+  "largest": []
+ },
+ {
+  "file": "hotel-project.xer",
+  "curves": [],
+  "assignments": 2278,
+  "curved": 0,
+  "missing": []
+ },
+ {
+  "file": "sample.xer",
+  "curves": [],
+  "assignments": 0,
+  "curved": 0,
+  "missing": []
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "curves": [],
+  "assignments": 62,
+  "curved": 0,
+  "missing": []
+ }
+]

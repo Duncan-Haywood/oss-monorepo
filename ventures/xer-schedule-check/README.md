@@ -416,6 +416,26 @@ reads (so the reading agrees with P6's on all 2,020, and that file's CPI of
 activities budgeted at 111,528 carry 669 to complete
 (eval/earned-value-2026-11-20.md).
 
+**P6 resource curves** (2026-11-21, `curves.mjs`): an assignment that names a
+P6 resource curve (`TASKRSRC.curv_id`, the curve's 21 points in
+`RSRCCURVDATA`) has its planned value, the planned value a series of updates
+holds as its baseline, and, while nothing is spent on it, its forecast spread
+by the curve's twenty slices of working time instead of evenly (Back Loaded:
+35% in the first half, 65% in the second; Bell Shaped; or the file's own,
+such as a contract's PCO curve). Each slice is a twentieth of the
+assignment's working time on its calendar, so a weekend takes nothing. On
+the public hospital file, 36 assignments use 6 curves (25 of them a custom
+"PCO119" bell): every spread sums to its budget, Linear gives the even
+spread exactly, and the curved work's planned S-curve runs up to 109,048 h
+(40%) behind the even one, at 2012-03-31 (161,678 h against 270,726 h).
+Those 36 carry hours but no cost, so that file's cost figures do not move.
+Three files name curve id 9 with no row for it in RSRCCURVDATA (234
+assignments on the P6 24.12 Web file, 2 on Expressway, 1 on the hospital
+file); they are spread evenly and the notes say so. No public XER carries
+P6's own timephased spread of a curved assignment, so the slice reading
+(MPXJ's, and the one P6's shipped curves fit) is not checked against P6's
+numbers (eval/resource-curves-2026-11-21.md).
+
 **Earned value by window across updates** (2026-11-20, `evmseries.mjs`, the
 page's windows panel on cost- or hours-loaded updates, CLI `--windows u1.xer
 u2.xer ... --earned-value [--csv ev-windows.csv]`): for each window between

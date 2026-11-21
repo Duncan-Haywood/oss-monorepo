@@ -68,7 +68,9 @@ export function parseTimestamp(raw) {
  * @returns {number|null} milliseconds
  */
 export function parseUserTime(raw) {
-  const s = String(raw).trim();
+  // A typographic minus (U+2212, as this tool's own page prints it) or an en
+  // dash (what phones and word processors turn "-" into) is a minus sign.
+  const s = String(raw).trim().replace(/^[\u2212\u2013]/, '-');
   if (/^[+-]?\d+(\.\d+)?$/.test(s)) return Math.round(Number(s) * 1000);
   const neg = s.startsWith('-');
   const ms = parseTimestamp(neg || s.startsWith('+') ? s.slice(1) : s);

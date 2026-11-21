@@ -121,7 +121,9 @@ def _cov(p: np.ndarray, idx: np.ndarray) -> np.ndarray:
     return _cov_ref(p, idx) if out is None else out
 
 
-EIG_READS = ("chen", "mp", "mpc")
+EIG_READS = ("chen", "mp", "mpc", "mpcw", "mpcws")
+# reads that also choose the weak-texture patch set (the others read only the set Chen's iteration keeps)
+SELECT_WITH = ("mpcws",)
 
 
 def _mp_floor(n: int, dim: int) -> float:
@@ -140,8 +142,9 @@ def _eig_sigma2_idx(p: np.ndarray, idx: np.ndarray, eig: str = "chen", cols=None
     that fills most directions but not the quietest one drops out. ``"mpc"``: ``"mp"`` on each colour's own
     columns (``cols``: one index array per colour present), the colours' readings averaged by their share of
     the patch, so noise whose variance differs by colour (white balance) is read as the mixed mean, as
-    ``"chen"`` reads it, instead of as its quietest colour. Below 4 x dim patches the floor is too loose to
-    trust and ``"chen"`` is used."""
+    ``"chen"`` reads it, instead of as its quietest colour. ``"mpcw"`` (2026-11-21): the colours' *ratios* from
+    those reads and the *level* from ``"chen"`` on the colour-whitened covariance (``_colour_whitening``). Below
+    4 x dim patches the floor is too loose to trust and ``"chen"`` is used."""
 
     if idx.size < p.shape[1] + 2:
         return float("nan")
@@ -149,18 +152,42 @@ def _eig_sigma2_idx(p: np.ndarray, idx: np.ndarray, eig: str = "chen", cols=None
     n, dim = int(idx.size), p.shape[1]
     if eig == "mp" and n >= 4 * dim:
         return float(max(np.linalg.eigvalsh(cov)[0], 0.0) / _mp_floor(n, dim))
-    if eig == "mpc" and cols is not None and n >= 4 * dim:
-        tot = 0.0
-        for ik in cols:
-            lam0 = max(float(np.linalg.eigvalsh(cov[np.ix_(ik, ik)])[0]), 0.0)
-            tot += ik.size / dim * lam0 / _mp_floor(n, ik.size)
-        return tot
-    lam = np.clip(np.linalg.eigvalsh(cov), 0.0, None)
+    if eig in ("mpc", "mpcw", "mpcws") and cols is not None and n >= 4 * dim:
+        v = [max(float(np.linalg.eigvalsh(cov[np.ix_(ik, ik)])[0]), 0.0) / _mp_floor(n, ik.size) for ik in cols]
+        if eig == "mpc":
+            return float(sum(ik.size / dim * vk for ik, vk in zip(cols, v)))
+        w = _colour_whitening(v, cols, dim)
+        if w is not None:  # Chen's level on the colour-whitened covariance (each colour's noise scaled to 1 ratio)
+            return _chen(np.linalg.eigvalsh(cov * np.outer(w, w)))
+    return _chen(np.linalg.eigvalsh(cov))
+
+
+def _chen(lam: np.ndarray) -> float:
+    """Chen et al. 2015: the mean of the longest ascending prefix of ``lam`` whose mean is no larger than its median."""
+
+    lam = np.clip(lam, 0.0, None)
     for m in range(lam.size, 0, -1):
         head = lam[:m]
         if head.mean() <= np.median(head):
             return float(head.mean())
     return float(lam[0])
+
+
+def _colour_whitening(v, cols, dim: int) -> np.ndarray | None:
+    """``"mpcw"``'s column scales (eval/noise-pca-whitened-level-2026-11-21.md): each colour's noise *ratio*
+    r_k = v_k / mean(v) from the per-colour Marchenko-Pastur reads ``v`` (the mean over colours, equal weight,
+    as ``carries`` puts white-balanced noise into one model), and 1 / sqrt(r_k) on that colour's columns. Chen's
+    read of the scaled covariance is then the colours' mean variance, while the *level* keeps Chen's prefix (so
+    texture that fills the quietest direction is not amplified by the Marchenko-Pastur division). None when a
+    colour reads 0 (``"chen"`` is used)."""
+
+    m = sum(v) / len(v)
+    if m <= 0 or min(v) <= 0:
+        return None
+    w = np.empty(dim)
+    for ik, vk in zip(cols, v):
+        w[ik] = math.sqrt(m / vk)
+    return w
 
 
 def eig_sigma2(p: np.ndarray) -> float:
@@ -254,7 +281,8 @@ def _weak_texture_idx(p: np.ndarray, idx: np.ndarray, g: np.ndarray, tr: float, 
     chosen with ``"chen"``'s reading whatever ``eig`` is; ``eig`` reads sigma^2 from the final set."""
 
     gi = g[idx]
-    s2 = _eig_sigma2_idx(p, idx)
+    sel = eig if eig in SELECT_WITH else "chen"
+    s2 = _eig_sigma2_idx(p, idx, sel, cols)
     keep = idx
     for _ in range(iters):
         if not s2 == s2:
@@ -265,7 +293,7 @@ def _weak_texture_idx(p: np.ndarray, idx: np.ndarray, g: np.ndarray, tr: float, 
         if np.array_equal(new, keep):
             break
         keep = new
-        s2 = _eig_sigma2_idx(p, keep)
+        s2 = _eig_sigma2_idx(p, keep, sel, cols)
     if eig != "chen" and s2 == s2:
         s2 = _eig_sigma2_idx(p, keep, eig, cols)
     return s2, int(keep.size)
@@ -314,7 +342,7 @@ def pca_bins(c: np.ndarray, period: int, d: int = 4, stride: int = 2, bins: int 
     cols = None
     if eig not in EIG_READS:
         raise ValueError(f"unknown eig {eig!r} ({', '.join(EIG_READS)})")
-    if eig == "mpc" and mosaic and pat is not None:  # every mosaic patch starts on the CFA's origin
+    if eig in ("mpc", "mpcw", "mpcws") and mosaic and pat is not None:  # every mosaic patch starts on the CFA's origin
         col = np.array([pat[(y % period) * period + (x % period)] for y in range(d) for x in range(d)])
         cols = [np.flatnonzero(col == k) for k in np.unique(col)]
     res: list = [None] * bins

@@ -976,6 +976,7 @@ test("an element contained in a room takes the storey above the room, and keeps 
   assert.equal(before.storey, "Level 2");
   assert.equal(r.storey, "Level 2");
   close(r.storeyElevation, before.storeyElevation);
-  assert.equal(r.space, "Meeting room");
+  assert.equal(r.space, "01056 Meeting room"); // number and name, so two rooms both called "Office" stay apart
+  assert.equal(r.spaceFrom, "contained");
   assert.equal(before.space, null);
 });

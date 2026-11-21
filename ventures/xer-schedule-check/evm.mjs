@@ -36,7 +36,11 @@
 //                  P6 sets planned dates to the scheduled dates until work
 //                  starts; many schedulers keep them as the baseline. A file
 //                  carries no timephased baseline, so this is the curve the
-//                  planned dates imply, said aloud in `notes`.
+//                  planned dates imply, said aloud in `notes`. An
+//                  assignment on a P6 resource curve (TASKRSRC.curv_id,
+//                  RSRCCURVDATA) is spread by that curve's twenty slices of
+//                  working time instead of evenly (curves.mjs); so is the
+//                  remaining of an assignment with nothing spent yet.
 // Actual cost is drawn evenly from actual start to actual finish (the data
 // date while the work runs); the remaining cost evenly over the remaining
 // dates the CPM engine recomputes (cpm.mjs), so the forecast curve follows
@@ -50,6 +54,7 @@
 
 import { schedule } from "./cpm.mjs";
 import { parseDate, formatDate, num } from "./xer.mjs";
+import { readCurves, isEven, spreadCurve, curvePartBefore } from "./curves.mjs";
 
 const DAY = 1440;
 const r2 = (x) => (Number.isFinite(x) ? Math.round(x * 100) / 100 : null);
@@ -165,12 +170,24 @@ export function earnedValue(xer, { projId = null, result = null, pvCuts = null }
   const currency = measure === "cost" ? (xer.currency || (T.CURRTYPE || []).length === 1 && T.CURRTYPE[0].curr_short_name || (T.CURRTYPE || []).find((c) => c.base_exch_rate === "1")?.curr_short_name || null) : "h";
   if (measure === "hours") notes.push("No cost is loaded, so earned value is in labour hours (RT_Labor assignments: budgeted, actual and remaining units).");
   const items = [];
+  // P6 resource curves: an assignment naming one is spread by it
+  const curves = readCurves(xer);
+  const curveUse = new Map();
+  let curveMissing = 0;
+  const curveOf = (a) => {
+    if (!a.curv_id) return null;
+    const c = curves.get(a.curv_id);
+    if (!c) { curveMissing++; return null; }
+    if (isEven(c.slices)) return null;
+    curveUse.set(c.name, (curveUse.get(c.name) || 0) + 1);
+    return c.slices;
+  };
   // per assignment: budget, actual, remaining, planned span, actual span
   if (measure === "cost") {
-    for (const a of assigns) items.push({ task: a.task_id, bac: num(a.target_cost) ?? 0, ac: (num(a.act_reg_cost) ?? 0) + (num(a.act_ot_cost) ?? 0), etc: num(a.remain_cost) ?? 0, ps: parseDate(a.target_start_date), pf: parseDate(a.target_end_date), as: parseDate(a.act_start_date), af: parseDate(a.act_end_date) });
+    for (const a of assigns) items.push({ task: a.task_id, bac: num(a.target_cost) ?? 0, ac: (num(a.act_reg_cost) ?? 0) + (num(a.act_ot_cost) ?? 0), etc: num(a.remain_cost) ?? 0, ps: parseDate(a.target_start_date), pf: parseDate(a.target_end_date), as: parseDate(a.act_start_date), af: parseDate(a.act_end_date), curve: curveOf(a) });
     for (const c of expenses) items.push({ task: c.task_id, bac: num(c.target_cost) ?? 0, ac: num(c.act_cost) ?? 0, etc: num(c.remain_cost) ?? 0, ps: null, pf: null, as: null, af: null, expense: true });
   } else {
-    for (const a of labour) items.push({ task: a.task_id, bac: num(a.target_qty) ?? 0, ac: (num(a.act_reg_qty) ?? 0) + (num(a.act_ot_qty) ?? 0), etc: num(a.remain_qty) ?? 0, ps: parseDate(a.target_start_date), pf: parseDate(a.target_end_date), as: parseDate(a.act_start_date), af: parseDate(a.act_end_date) });
+    for (const a of labour) items.push({ task: a.task_id, bac: num(a.target_qty) ?? 0, ac: (num(a.act_reg_qty) ?? 0) + (num(a.act_ot_qty) ?? 0), etc: num(a.remain_qty) ?? 0, ps: parseDate(a.target_start_date), pf: parseDate(a.target_end_date), as: parseDate(a.act_start_date), af: parseDate(a.act_end_date), curve: curveOf(a) });
   }
   // the day range of the curve
   let lo = Infinity, hi = -Infinity;
@@ -205,8 +222,8 @@ export function earnedValue(xer, { projId = null, result = null, pvCuts = null }
       if (pf !== null && ps !== null && pf < ps) pf = ps;
     }
     see(ps); see(pf);
-    A.pv += spread(cal, ps, pf, it.bac, adder(daily.pv), dd ?? Infinity);
-    if (pvCuts) for (let k = 0; k < pvCuts.length; k++) pvAt[k] += partBefore(cal, ps, pf, it.bac, pvCuts[k]);
+    A.pv += it.curve ? spreadCurve(cal, ps, pf, it.bac, it.curve, adder(daily.pv), dd ?? Infinity) : spread(cal, ps, pf, it.bac, adder(daily.pv), dd ?? Infinity);
+    if (pvCuts) for (let k = 0; k < pvCuts.length; k++) pvAt[k] += it.curve ? curvePartBefore(cal, ps, pf, it.bac, it.curve, pvCuts[k]) : partBefore(cal, ps, pf, it.bac, pvCuts[k]);
     // actual: actual start to actual finish, or to the data date
     if (it.ac) {
       const as = it.as ?? parseDate(r.act_start_date) ?? dd ?? ps;
@@ -222,7 +239,10 @@ export function earnedValue(xer, { projId = null, result = null, pvCuts = null }
       else { rs = parseDate(r.restart_date) ?? parseDate(r.early_start_date) ?? dd; rf = parseDate(r.reend_date) ?? parseDate(r.early_end_date) ?? rs; }
       if (dd !== null) { rs = Math.max(rs ?? dd, dd); rf = Math.max(rf ?? rs, rs); }
       see(rs); see(rf);
-      spread(cal, rs, rf, it.etc, adder(daily.fc), Infinity);
+      // a curved assignment with nothing spent keeps its curve over the
+      // remaining dates; once work is booked the rest is spread evenly
+      if (it.curve && !it.ac) spreadCurve(cal, rs, rf, it.etc, it.curve, adder(daily.fc), Infinity);
+      else spread(cal, rs, rf, it.etc, adder(daily.fc), Infinity);
     }
   }
   if (missingPlan) notes.push(`${missingPlan} budgeted assignment${missingPlan === 1 ? " has" : "s have"} no planned dates of ${missingPlan === 1 ? "its" : "their"} own; the activity's planned dates were used, else its actual dates, else the early dates (stored, then recomputed): planned value then follows the forecast for that work.`);
@@ -327,7 +347,10 @@ export function earnedValue(xer, { projId = null, result = null, pvCuts = null }
   // plain-language notes
   if (dd === null) notes.push("The file has no data date, so planned value is not cut at a date.");
   if (actualsFromProgress) notes.push(`Actual ${measure} equals earned value on ${mirrored.length} of ${withAc.length} activities with actuals: they were computed from percent complete, not booked, so CPI and the CPI-based estimates are not cost evidence.`);
-  notes.push("Planned value follows the planned dates stored in the file (P6's planned start and finish), spread evenly over working time. If the scheduler re-baselined, planned dates may have moved too; a baseline export gives a firmer curve.");
+  const nCurved = [...curveUse.values()].reduce((a, b) => a + b, 0);
+  if (nCurved) notes.push(`${nCurved} assignment${nCurved === 1 ? " follows" : "s follow"} a P6 resource curve (${[...curveUse].sort((x, y) => y[1] - x[1]).map(([k, v]) => `${k} ${v}`).join(", ")}): ${nCurved === 1 ? "its" : "their"} planned value is spread by the curve's twenty slices of working time, not evenly.`);
+  if (curveMissing) notes.push(`${curveMissing} assignment${curveMissing === 1 ? " names" : "s name"} a resource curve the file does not carry (no RSRCCURVDATA row for its curv_id), so ${curveMissing === 1 ? "it is" : "they are"} spread evenly.`);
+  notes.push(`Planned value follows the planned dates stored in the file (P6's planned start and finish), spread ${nCurved ? "evenly over working time unless a resource curve says otherwise" : "evenly over working time"}. If the scheduler re-baselined, planned dates may have moved too; a baseline export gives a firmer curve.`);
   return { ...empty, currency, totals, earnedSchedule, ...(pvCuts ? { pvAt: pvAt.map(r2) } : {}), curve, wbs, activities: acts, findings, plannedStart: n ? formatDate(d0 * DAY) : null, forecastFinish: formatDate(proj ? result.projects.get(proj.id)?.finish ?? null : null) };
 }
 
