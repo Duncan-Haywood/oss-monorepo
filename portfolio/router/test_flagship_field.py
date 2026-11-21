@@ -611,6 +611,20 @@ def test_history_pieces_ignore_regex_brackets():
     assert any(g.startswith("Types") for g in got)
 
 
+def test_history_pieces_keep_dated_pieces_with_their_own_next_step():
+    # changepoint-detector 2026-11-21: a shipped result whose sentence also
+    # names the next step (lower-case "next", or "next:" inside brackets) is
+    # open work, not history (PRs #17997, #18002, #18031)
+    v = ("History: README. Counts: count default ships 2026-11-20 (README); real shop "
+         "misses the 2011-09-01 build-up; next a bunched-count ramp cell. "
+         "Middle shipped 2026-11-21 (README: next Middle as count default). "
+         "Watch shipped 2026-11-19 (set-up page; next: its four links tried). "
+         "Types 2026-11-19 (eval/t.md). Next: a Revit export.")
+    got = [v[a:b] for a, b in ff.history_pieces(v)]
+    assert any(g.startswith("Types") for g in got)
+    assert not any("Counts" in g or "Middle" in g or "Watch" in g for g in got)
+
+
 def test_archive_history_removes_cleanly_oldest_first():
     v = " ".join(ROW.split())
     out, moved = ff.archive_history(v, 0)
