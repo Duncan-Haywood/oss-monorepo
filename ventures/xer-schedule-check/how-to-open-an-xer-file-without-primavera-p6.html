@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Open An XER File Without Primavera P6</title>
+  <meta name="description" content="Ways to read a Primavera P6 .xer schedule when you have no P6 licence: what an XER holds, the options people use, and a free in-browser viewer and checker.">
+  <meta property="og:title" content="How To Open An XER File Without Primavera P6">
+  <meta property="og:description" content="Read a P6 .xer schedule with no P6 seat: what is in the file and the free ways to open it.">
+  <link rel="canonical" href="./how-to-open-an-xer-file-without-primavera-p6.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I open an XER file in Excel?","acceptedAnswer":{"@type":"Answer","text":"You can import it as tab-separated text, but every table lands in one sheet, durations are in hours and calendars are packed codes. Excel will not compute the critical path or float. A viewer that reads the tables is quicker for anything beyond a lookup."}},{"@type":"Question","name":"Can Microsoft Project open an XER file?","acceptedAnswer":{"@type":"Answer","text":"Not directly in current versions. Convert the XER to Microsoft Project XML first (the free tool here does this in the browser), then use File, Open in Project and choose the .xml file."}},{"@type":"Question","name":"Is it safe to open a confidential schedule in an online tool?","acceptedAnswer":{"@type":"Answer","text":"Check whether the tool uploads the file. This one reads the file in your browser tab with JavaScript; there is no server that receives it, no account and no analytics vendor."}},{"@type":"Question","name":"What P6 versions does it read?","acceptedAnswer":{"@type":"Answer","text":"XER exports from P6 version 5.0 to 24.12 were in the test set."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to open an XER file without Primavera P6</h1>
+  <p>An .xer file is a plain-text export from Oracle Primavera P6: tab-separated tables for the project, calendars, activities, relationships and resources. Without a P6 seat you can open it in a viewer that reads those tables, convert it to a Microsoft Project XML file, or read the raw text. The free tool linked here reads it in your browser and shows the Gantt chart, the critical path and a DCMA check, with nothing uploaded.</p>
+  <p><a class="cta" href="./">Open the free schedule check</a> (drop the .xer on the page)</p>
+<h2>What is inside an XER</h2>
+  <p>Open one in a text editor and you will see a header line starting <code>ERMHDR</code> with the P6 version and export date, then blocks that each start <code>%T</code> (table name), <code>%F</code> (field names) and rows starting <code>%R</code>. The tables a reviewer needs are:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Table</th><th>Holds</th></tr></thead>
+    <tbody>
+      <tr><td><code>PROJECT</code></td><td>Project ID, data date (<code>last_recalc_date</code>), planned start and must-finish date</td></tr>
+      <tr><td><code>CALENDAR</code></td><td>Working week, hours and holidays, packed in P6's own bracket format</td></tr>
+      <tr><td><code>PROJWBS</code></td><td>The WBS tree</td></tr>
+      <tr><td><code>TASK</code></td><td>Activities: ID, name, status, durations in hours, actual, early, late and planned dates, constraints, total float</td></tr>
+      <tr><td><code>TASKPRED</code></td><td>Relationships: predecessor, successor, type (FS, SS, FF, SF) and lag in hours</td></tr>
+      <tr><td><code>RSRC</code>, <code>TASKRSRC</code></td><td>Resources and their assignments with hours and cost</td></tr>
+      <tr><td><code>ACTVTYPE</code>, <code>ACTVCODE</code>, <code>TASKACTV</code></td><td>Activity codes (phase, area, responsibility)</td></tr>
+      <tr><td><code>UDFTYPE</code>, <code>UDFVALUE</code></td><td>User-defined fields</td></tr>
+    </tbody>
+  </table></div>
+  <p>Durations and float are stored in hours, so a "10-day" activity on an 8-hour calendar shows as 80. Dates have no time zone. The file can hold several projects; each row carries its <code>proj_id</code>.</p>
+
+  <h2>Your options</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Option</th><th>Good for</th><th>Limits</th></tr></thead>
+    <tbody>
+      <tr><td>A P6 licence, or asking the scheduler for a PDF</td><td>The view the author intended</td><td>Cost, or a static picture you cannot filter or check</td></tr>
+      <tr><td>Commercial XER viewers and schedule-analysis suites</td><td>Teams that review schedules every week</td><td>Usually a per-seat licence and an install</td></tr>
+      <tr><td>Convert to Microsoft Project XML, then open in Project, ProjectLibre or GanttProject</td><td>People who already know those tools</td><td>Project reschedules with its own rules, so some dates can move</td></tr>
+      <tr><td>A spreadsheet</td><td>Quick lookups of one table</td><td>Calendars and logic are not interpreted; no critical path</td></tr>
+      <tr><td><a href="./">XER Schedule Check</a> (free, in the browser)</td><td>Reading, checking and comparing updates without installing anything</td><td>Reads and analyses; it does not edit the schedule in place</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>What the free tool shows</h2>
+  <ul>
+    <li>A Gantt chart with the WBS tree, baseline bars, and grouping by activity code.</li>
+    <li>The critical and driving path, recomputed from the logic on each activity's own calendar, and every activity where the file's stored dates disagree with the recomputed ones.</li>
+    <li>The <a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">DCMA 14-point assessment</a> with every activity behind each finding, downloadable as CSV.</li>
+    <li>A comparison of two updates, a three-week look-ahead, earned value, a Monte Carlo finish-date risk run and a time impact analysis.</li>
+    <li>Conversion to Microsoft Project XML, and from it back to XER (<a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">how the conversion works</a>).</li>
+  </ul>
+  <p>It was checked on 245 public XER files written by P6, converters, other tools and by hand: 241 read with no crash, and the 4 that are not P6 exports are refused with a reason.</p>
+  <h2>Questions</h2>
+  <h3>Can I open an XER file in Excel?</h3>
+  <p>You can import it as tab-separated text, but every table lands in one sheet, durations are in hours and calendars are packed codes. Excel will not compute the critical path or float. A viewer that reads the tables is quicker for anything beyond a lookup.</p>
+  <h3>Can Microsoft Project open an XER file?</h3>
+  <p>Not directly in current versions. Convert the XER to Microsoft Project XML first (the free tool here does this in the browser), then use File, Open in Project and choose the .xml file.</p>
+  <h3>Is it safe to open a confidential schedule in an online tool?</h3>
+  <p>Check whether the tool uploads the file. This one reads the file in your browser tab with JavaScript; there is no server that receives it, no account and no analytics vendor.</p>
+  <h3>What P6 versions does it read?</h3>
+  <p>XER exports from P6 version 5.0 to 24.12 were in the test set.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

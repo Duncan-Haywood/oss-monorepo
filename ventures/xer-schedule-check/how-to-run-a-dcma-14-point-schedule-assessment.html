@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run A DCMA 14-Point Schedule Assessment, Check By Check</title>
+  <meta name="description" content="The fourteen DCMA schedule checks, their thresholds and what each failure usually means, with a worked P6 example. Run the check free on your own XER.">
+  <meta property="og:title" content="How To Run A DCMA 14-Point Schedule Assessment, Check By Check">
+  <meta property="og:description" content="All fourteen DCMA checks with thresholds and a worked example. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-run-a-dcma-14-point-schedule-assessment.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What are the DCMA 14 points?","acceptedAnswer":{"@type":"Answer","text":"Logic, leads, lags, relationship types, hard constraints, high float, negative float, high duration, invalid dates, resources, missed tasks, the critical path test, the critical path length index (CPLI) and the baseline execution index (BEI). They come from the US Defense Contract Management Agency and are widely used to screen construction and engineering schedules."}},{"@type":"Question","name":"Does passing all fourteen mean the schedule is good?","acceptedAnswer":{"@type":"Answer","text":"No. They are screening metrics for common faults. A schedule can pass all fourteen and still have unrealistic durations or the wrong sequence, and some failures are justified, such as a contract milestone held by a constraint. Use the lists to decide what to fix or explain."}},{"@type":"Question","name":"Why does missed tasks need a baseline?","acceptedAnswer":{"@type":"Answer","text":"It compares what finished with what the baseline said would finish by the data date. A single P6 export usually carries only the current project, so the tool uses the planned dates in the file, which stand in for the baseline only on work that has started. It says so next to the result."}},{"@type":"Question","name":"Which activities are counted?","acceptedAnswer":{"@type":"Answer","text":"Open (unfinished) activities. Duration and resource checks leave out milestones and level of effort activities, and relationship checks count links between open activities, as the guidance describes."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to run a DCMA 14-point schedule assessment, check by check</h1>
+  <p>The DCMA 14-point assessment is a set of fourteen screening checks on a CPM schedule, from missing logic to the baseline execution index, each with a published threshold. Eleven are counts you can take from the file; three (the critical path test, CPLI and BEI) need the schedule recomputed or compared with a baseline. This page lists every check, its usual threshold, what a failure usually means, and the result on a small invented office fit-out schedule.</p>
+  <p><a class="cta" href="./">Open the free schedule check</a> (open a P6 .xer or a Microsoft Project .xml; nothing is uploaded)</p>
+<h2>The fourteen checks</h2>
+  <p>"Open" means not finished. Percentages are of open activities, or of relationships between them, as the guidance counts them. 44 working days is the usual cut-off for high float and high duration.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>Check</th><th>Threshold</th><th>A failure usually means</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Logic</td><td>&le; 5% with no predecessor or no successor</td><td>Open ends: delay on that activity reaches nothing, so the finish date cannot react to it.</td></tr>
+      <tr><td>2</td><td>Leads</td><td>0 negative lags</td><td>A successor is allowed to start before its predecessor finishes; usually hides overlap that should be split into smaller activities.</td></tr>
+      <tr><td>3</td><td>Lags</td><td>&le; 5% of relationships</td><td>Waiting time held in links, where nobody sees it as work (curing, review periods, delivery).</td></tr>
+      <tr><td>4</td><td>Relationship types</td><td>&ge; 90% finish-to-start</td><td>Heavy start-to-start and finish-to-finish use, which makes the critical path hard to follow.</td></tr>
+      <tr><td>5</td><td>Hard constraints</td><td>&le; 5%</td><td>Dates typed in rather than driven by logic (must start on, mandatory finish and the like).</td></tr>
+      <tr><td>6</td><td>High float</td><td>&le; 5% with over 44 days</td><td>Missing successors more often than real slack.</td></tr>
+      <tr><td>7</td><td>Negative float</td><td>0%</td><td>A constraint or must-finish date the logic cannot meet: the schedule says the job is already late.</td></tr>
+      <tr><td>8</td><td>High duration</td><td>&le; 5% over 44 days</td><td>Activities too coarse to status or manage month to month.</td></tr>
+      <tr><td>9</td><td>Invalid dates</td><td>0</td><td>Actual dates after the data date, or forecast dates before it.</td></tr>
+      <tr><td>10</td><td>Resources</td><td>0% without resources or cost</td><td>The schedule cannot support resource or cost reports (only fails where the contract requires loading).</td></tr>
+      <tr><td>11</td><td>Missed tasks</td><td>&le; 5%</td><td>Work planned to be done by now that finished late or not at all.</td></tr>
+      <tr><td>12</td><td>Critical path test</td><td>Finish moves by the added delay</td><td>Something on the path (a constraint, lag or broken link) is absorbing delay, so the reported critical path cannot be trusted.</td></tr>
+      <tr><td>13</td><td>Critical path length index (CPLI)</td><td>&ge; 0.95</td><td>The remaining path is longer than the time left to the required finish.</td></tr>
+      <tr><td>14</td><td>Baseline execution index (BEI)</td><td>&ge; 0.95</td><td>Fewer activities finished than the baseline said should have by now.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>A worked example</h2>
+  <p>The tool's built-in example is an invented 22-activity office fit-out, data date 6 April 2026, must finish by 31 July. Press <b>Load an example schedule</b> on the <a href="./">tool page</a> to get the same result. It passes 6 of 14:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>Result</th><th>What the tool lists</th></tr></thead>
+    <tbody>
+      <tr><td>1 Logic</td><td>Fail, 10.5% (2 of 19)</td><td>Furniture install and Signage have no successor: they could slip without moving completion.</td></tr>
+      <tr><td>2 Leads</td><td>Fail, 1</td><td>Layout and track, level 1 &rarr; MEP rough-in, level 1, FS lag of -2 days.</td></tr>
+      <tr><td>3 Lags</td><td>Fail, 17.4% (4 of 23)</td><td>A 15-day lag from notice to proceed to demolition, a 10-day lag before furniture, and two start-to-start lags.</td></tr>
+      <tr><td>5 Hard constraints</td><td>Fail, 5.3% (1 of 19)</td><td>The rough-in inspection is fixed to start on 18 May.</td></tr>
+      <tr><td>8 High duration</td><td>Fail, 1 of 18</td><td>Procure doors and hardware, 50 days.</td></tr>
+      <tr><td>10 Resources</td><td>Fail, 2 of 18</td><td>The procurement and the owner's furniture install carry no resource or cost.</td></tr>
+      <tr><td>11 Missed tasks / 14 BEI</td><td>Fail, 3 of 4 due; BEI 0.5</td><td>Shop drawings finished a day late; submittal review and level 1 demolition are not finished.</td></tr>
+      <tr><td>12 Critical path test</td><td>Pass, 600 of 600 days</td><td>Delay added on the longest path moved the finish by the same amount.</td></tr>
+      <tr><td>13 CPLI</td><td>Pass, 1.051</td><td>Forecast finish 27 July, four working days inside the 31 July requirement.</td></tr>
+    </tbody>
+  </table></div>
+  <p>High float, negative float, relationship types and invalid dates pass. Read the failures together: the 18 May constraint and the 10-day furniture lag are the kind of thing an owner's reviewer asks to be justified, and the two open ends are a one-line fix each.</p>
+
+  <h2>Doing it by hand, and what it takes</h2>
+  <p>Checks 1 to 11 are filters you can build in P6 or a spreadsheet export: count open activities with no predecessor, relationships with negative lag, and so on. The traps are in the denominators (open activities only, relationships between open activities, level of effort and milestones left out of duration checks) and in working days, which have to be counted on each activity's own calendar. Checks 12 and 13 need the schedule recalculated after a change, which means a copy of the project in P6 or a tool with its own scheduling engine. The tool here recomputes the network itself; on six public P6 files (19,822 open activities) its early finish, late finish and total float equal the values P6 stored on 19,820.</p>
+  <p class="note">The thresholds are the commonly published ones; a contract's own specification wins where it sets different numbers.</p>
+  <h2>Questions</h2>
+  <h3>What are the DCMA 14 points?</h3>
+  <p>Logic, leads, lags, relationship types, hard constraints, high float, negative float, high duration, invalid dates, resources, missed tasks, the critical path test, the critical path length index (CPLI) and the baseline execution index (BEI). They come from the US Defense Contract Management Agency and are widely used to screen construction and engineering schedules.</p>
+  <h3>Does passing all fourteen mean the schedule is good?</h3>
+  <p>No. They are screening metrics for common faults. A schedule can pass all fourteen and still have unrealistic durations or the wrong sequence, and some failures are justified, such as a contract milestone held by a constraint. Use the lists to decide what to fix or explain.</p>
+  <h3>Why does missed tasks need a baseline?</h3>
+  <p>It compares what finished with what the baseline said would finish by the data date. A single P6 export usually carries only the current project, so the tool uses the planned dates in the file, which stand in for the baseline only on work that has started. It says so next to the result.</p>
+  <h3>Which activities are counted?</h3>
+  <p>Open (unfinished) activities. Duration and resource checks leave out milestones and level of effort activities, and relationship checks count links between open activities, as the guidance describes.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

@@ -426,6 +426,15 @@ other activity named either way (eval/evm-series-check-2026-11-20.md).
 planned rate; `overruns` plants a cost factor), so the example series and
 generated series carry actuals.
 
+## Guides (2026-11-21)
+
+Four search-landing guides, linked from the tool page, `sitemap.xml` and `llms.txt`:
+`how-to-run-a-dcma-14-point-schedule-assessment.html`, `how-to-open-an-xer-file-without-primavera-p6.html`,
+`how-to-convert-a-p6-xer-file-to-microsoft-project.html` and `how-to-review-a-contractors-p6-schedule-update.html`.
+The two worked examples use the built-in invented fit-out; `guides.test.mjs` runs the CLI on it and fails if a
+quoted number (6 of 14 pass, logic 10.5%, CPLI 1.051; +15 working days = progress +8, revisions +7) or a named
+button drifts. Search impressions not measured yet.
+
 ## Why someone would use it
 
 | Today's option | What it does | What this does better |

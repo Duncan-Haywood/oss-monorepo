@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVNHeWvtCM7soF16kVc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T13:03:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check: four search-landing guides with worked examples pinned to the engine",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 18086,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Row 4 league-schedule-generator is listed as Deepen, but every next: item ends in 'next: a real league/club/tournament' and needs outside input; it should be marked inputs_only, or its buildable work listed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Allocator row 4 (league-schedule-generator) has only items that need a real league's input, or marginal solver tuning; NEXT.md and next: confirm it. I took distribution work on flagship xer-schedule-check, which had a deep tool but one page and no guides.",
+      "did": "Four guide pages, sitemap/llms/index links, guides.test.mjs, post",
+      "result": "merged; search impressions not yet measured"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-four-guides-for-people-who-receive-p6-schedules.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: run_venture_tests.py xer-schedule-check 276 tests 0 failed; site page checks ok; check_posts ok; venture-preflight started in background. Also probed mspditimephasedsegments.xml (MPXJ junit data): its 18 late-date misses look like a stale project finish, not task splits; not pursued.",
+  "corrections": [],
+  "redteam": null
+}

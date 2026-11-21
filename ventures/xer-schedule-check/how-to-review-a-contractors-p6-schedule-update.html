@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Review A Contractor's Monthly P6 Schedule Update</title>
+  <meta name="description" content="What an owner's rep checks in a monthly P6 update: edited actuals, deleted logic, shortened durations, and how much of the slip is progress or revisions.">
+  <meta property="og:title" content="How To Review A Contractor's Monthly P6 Schedule Update">
+  <meta property="og:description" content="Compare this month's XER with last month's: what changed, what to ask, and how much of the slip is progress.">
+  <link rel="canonical" href="./how-to-review-a-contractors-p6-schedule-update.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a half-step schedule analysis?","acceptedAnswer":{"@type":"Answer","text":"Last month's schedule recomputed with this month's progress applied but none of this month's logic, duration or constraint changes. The finish movement up to the half-step is due to progress; from the half-step to the new update it is due to revisions."}},{"@type":"Question","name":"How are activities matched between two updates?","acceptedAnswer":{"@type":"Answer","text":"By activity ID, and relationships by predecessor, successor and type. Microsoft Project files are matched by Unique ID, so inserted rows do not break the comparison."}},{"@type":"Question","name":"Can I review a Microsoft Project update the same way?","acceptedAnswer":{"@type":"Answer","text":"Yes. Save both updates as XML in Project and open them where the XER files go."}},{"@type":"Question","name":"Does the tool decide whether a delay is excusable?","acceptedAnswer":{"@type":"Answer","text":"No. It measures what changed and how far it moved the finish. Entitlement depends on the contract and the facts."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to review a contractor's monthly P6 schedule update</h1>
+  <p>Reviewing a schedule update means comparing it with the previous accepted update, not only checking it alone. Look for actual dates edited after they were reported, logic deleted on the critical path, durations shortened, new constraints, and then split the change in the forecast finish into the part progress caused and the part the contractor's revisions caused. The free tool does that comparison from the two XER files.</p>
+  <p><a class="cta" href="./">Open the free schedule check</a> (open this month's XER and last month's together)</p>
+<h2>The questions to ask, in order</h2>
+  <ol>
+    <li><b>Did the finish move, and why?</b> A half-step run recomputes last month's schedule with only this month's progress applied. The difference between that and last month's finish is progress; the rest is revisions.</li>
+    <li><b>Were reported actuals changed?</b> An actual start or finish should never move once reported.</li>
+    <li><b>Was logic deleted or changed on the critical path?</b> Deleted links and changed relationship types are the usual way a slip disappears on paper.</li>
+    <li><b>Were durations shortened on critical work?</b> Ask for the crew or method change that makes the shorter duration real.</li>
+    <li><b>Were constraints added?</b> A new hard date holds an activity in place instead of letting logic drive it.</li>
+    <li><b>What was forecast to start or finish this period and did not?</b> These are the activities to discuss at the meeting.</li>
+  </ol>
+
+  <h2>A worked example</h2>
+  <p>The tool's built-in example compares two updates of an invented office fit-out, 9 March and 6 April 2026 (press <b>Load an example pair of updates</b> on the <a href="./">tool page</a>):</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Finding</th><th>Detail</th><th>Priority</th></tr></thead>
+    <tbody>
+      <tr><td>Forecast finish</td><td>6 July &rarr; 27 July 2026, +15 working days: progress +8, revisions +7</td><td></td></tr>
+      <tr><td>Actual date edited after reporting</td><td>Site survey actual finish moved from 4 to 5 March</td><td>High</td></tr>
+      <tr><td>Relationship deleted on the critical path</td><td>Flooring &rarr; Signage</td><td>High</td></tr>
+      <tr><td>Duration shortened on critical work</td><td>Paint, 10 &rarr; 8 days</td><td>High</td></tr>
+      <tr><td>Constraint added</td><td>Rough-in inspection fixed to start on 18 May</td><td>Medium</td></tr>
+      <tr><td>Relationship type changed</td><td>Demolition level 1 &rarr; level 2, FS &rarr; SS +3 days</td><td>Medium</td></tr>
+      <tr><td>Duration lengthened, not started</td><td>Procure doors and hardware, 40 &rarr; 50 days</td><td>Medium</td></tr>
+      <tr><td>Activity deleted</td><td>Final clean, with both its links</td><td>Low</td></tr>
+      <tr><td>Due this period, not finished</td><td>Submittal review, demolition levels 1 and 2</td><td>Low</td></tr>
+    </tbody>
+  </table></div>
+  <p>The useful reading: the job lost 8 days to slow progress, and the revisions made it 7 days worse rather than recovering any of it, while also shortening paint and deleting a critical link. Those revisions are what to ask the contractor to justify.</p>
+
+  <h2>Across many updates</h2>
+  <p>Open every update of the job at once and the tool runs a windows analysis: each consecutive pair compared the same way, the windows adding up to the whole movement, with the driving-path activities behind each window. The printable written review collects the findings and the corrections to request. On 36 update series built from six real P6 files with planted slips, lag changes and re-estimates, every split matched and every planted change was named in its window.</p>
+  <p class="note">The comparison says what changed and how much it moved the dates. Whether a change is justified, and who carries the delay, is for the contract.</p>
+  <h2>Questions</h2>
+  <h3>What is a half-step schedule analysis?</h3>
+  <p>Last month's schedule recomputed with this month's progress applied but none of this month's logic, duration or constraint changes. The finish movement up to the half-step is due to progress; from the half-step to the new update it is due to revisions.</p>
+  <h3>How are activities matched between two updates?</h3>
+  <p>By activity ID, and relationships by predecessor, successor and type. Microsoft Project files are matched by Unique ID, so inserted rows do not break the comparison.</p>
+  <h3>Can I review a Microsoft Project update the same way?</h3>
+  <p>Yes. Save both updates as XML in Project and open them where the XER files go.</p>
+  <h3>Does the tool decide whether a delay is excusable?</h3>
+  <p>No. It measures what changed and how far it moved the finish. Entitlement depends on the contract and the facts.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
