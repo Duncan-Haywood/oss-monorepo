@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmtNqvWwPpBqxHdQCH",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T18:18:26Z",
+  "ended": "2026-11-21T18:33:35Z",
+  "wall_minutes": 53.81,
+  "tokens_in": 30281098,
+  "tokens_out": 111929,
+  "cost_usd": 10.4101,
+  "tool_calls": 152,
+  "task": "Deepen (flagship 12): ids-model-check -- write the property values an IDS asks for into the model (new item; the row's buildable list was reruns)",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18123",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 20,
+  "outcome": "success",
+  "errors": [
+    "First full sweep: findRecords searched for the next /* from every record, quadratic on files with no comments (2 values on a 13 MB export took 60 s); fixed, 1.2 s.",
+    "Read-back on the architect export flagged 2,212 of 7,073 values: the verifier tested facets of specifications not applying to the element; fixed, and the real case it pointed at (a write breaking another specification on the same element) is now refused before writing.",
+    "IfcTester showed 4 spaces newly failing: the fill wrote an IfcPropertySet named BaseQuantities beside IFC2X3's IfcElementQuantity of that name; IfcTester reads one set per name. Fill now refuses a name the element holds as a non-property set.",
+    "MEP sweep ran out of an 8 GB heap on a pair with 5.3M failing results (reasons kept twice); planning now uses counts (maxFailed 0) and walks only writable specifications: 98.8 s to 13.0 s, 324,432 values in 27.5 s.",
+    "Preflight: check_csv_formula_guard did not see the guard inside rowsToCsv (comment added), a literal U+FEFF in the test (escaped), post description 162 chars (cut)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here named ids-model-check with a BUILDABLE HERE list of reruns of finished sweeps (as its own 'Left recently' line warned); the useful slice was a new item not on the row. This run added a model-fill item to the row's buildable list."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Hook refuses pkill -f patterns when the bracketed word also appears elsewhere in the command line (an until-loop in the same call); cost one retry. The cloud-session doc mentions bracketing but not this case."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took a new item (model fill) rather than the row's BUILDABLE HERE items, which are reruns of finished sweeps.",
+      "did": "Built model-fill.mjs (CLI --fill, page panel, worker), measured on 4 real exports x 68 IDS with IfcTester, and wrote it into next:.",
+      "result": "Landed; 562,594 values written and read back passing, IfcTester 45,374 of 45,374, 0 existing elements newly failing."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-ids-check-that-writes-the-fix.md",
+    "ventures/ids-model-check/eval/model-fill-2026-11-21.md"
+  ],
+  "goal": "Flagship deepening: from checking an IFC model against an IDS to writing the missing property values into it.",
+  "notes": "Local verification (CI on the draft had no runs at record time): run_venture_tests.py ids-model-check ok (446 tests, 2 skipped); model-fill.test.mjs 20/20; check_posts ok; check_csv_formula_guard ok; check_hidden_unicode ok; venture-preflight rerun after fixes (see PR). Page checked in Playwright at 390 px: sample -> to-fill CSV -> filled table -> filled .ifc, no console errors. Sweep: eval/model-fill-sweep.mjs + eval/model_fill_ifctester.py + eval/model_fill_summary.py, numbers in eval/model-fill-2026-11-21.md. No agent doc in docs/reports: the eval note and README section carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "87031a97-763b-5715-a781-6b7c783b2ece",
+    "transcripts": 1,
+    "first": "2026-11-21T18:18:26Z",
+    "last": "2026-11-21T19:12:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 147,
+        "input": 275,
+        "output": 111929,
+        "thinking": 32039,
+        "cache_read": 30009770,
+        "cache_write_5m": 0,
+        "cache_write_1h": 271053,
+        "api_equivalent_usd": 10.4101,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 147,
+      "input": 275,
+      "output": 111929,
+      "thinking": 32039,
+      "cache_read": 30009770,
+      "cache_write_5m": 0,
+      "cache_write_1h": 271053,
+      "api_equivalent_usd": 10.4101,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.991,
+    "tool_calls": 152,
+    "tools": {
+      "Bash": 139,
+      "Write": 7,
+      "ReadNotifications": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 53.81,
+      "active_minutes": 53.81,
+      "model_minutes": 19.04,
+      "tool_minutes": 34.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior BIM software engineer: IFC STEP writer with shared-set copy rules, unit conversion, CLI and page panel, plus a 272-pair sweep cross-checked with IfcTester",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 230.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

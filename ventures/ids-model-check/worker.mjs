@@ -7,6 +7,7 @@ import { ifcXmlSchemaId, looksLikeXml } from "./ifcxml.mjs";
 import { ifcJsonSchemaId, looksLikeJson } from "./ifcjson.mjs";
 import { looksLikeIfcx } from "./ifcx.mjs";
 import { modelInventory } from "./inventory.mjs";
+import { fillModel, fillReport, toFillCsv, readValues } from "./model-fill.mjs";
 
 const cache = {};
 async function json(name) {
@@ -64,7 +65,7 @@ async function loadSchemas(ids) {
 }
 
 self.onmessage = async (ev) => {
-  const { ids, ifc, auditOnly, inventory, req } = ev.data;
+  const { ids, ifc, auditOnly, inventory, fill, values, req } = ev.data;
   // Echo the caller's request number (index.html drops stale replies).
   const postMessage = (m) => self.postMessage({ ...m, req });
   try {
@@ -101,6 +102,17 @@ self.onmessage = async (ev) => {
     // templates (ifcx.mjs), so they are loaded whatever the IDS names.
     const ifc5 = looksLikeIfcx(ifc instanceof Uint8Array ? new TextDecoder().decode(ifc.subarray(0, 16000)) : ifc);
     const psets = ifc5 && !(loaded && loaded.IFC4X3) ? { ...(loaded || {}), IFC4X3: await json("psets-ifc4x3.json") } : loaded;
+    if (fill) {
+      // "Write the missing values into the model" (model-fill.mjs): STEP
+      // only; the standard templates give a value's type where the IDS
+      // names none.
+      const tpl = loaded && loaded[id] ? loaded : { ...(loaded || {}), [id]: await json("psets-" + id.toLowerCase() + ".json") };
+      const r = fillModel(ids, ifc, { schemas: modelSchemas(id, schemas), auditSchemas: schemas, typeMap, measureUnits, psets: tpl, values: values ? readValues(values) : [] });
+      const { text, unfilled, writtenList, ...rest } = r;
+      void writtenList;
+      postMessage({ fill: { ...rest, text: r.written ? text : null, summary: fillReport(r), toFill: unfilled.length ? toFillCsv(unfilled) : null, unfilledCount: unfilled.length, seconds: (performance.now() - t0) / 1000 } });
+      return;
+    }
     const report = checkIds(ids, ifc, { schemas: modelSchemas(id, schemas), auditSchemas: schemas, typeMap, measureUnits, psets });
     report.seconds = (performance.now() - t0) / 1000;
     postMessage({ report });

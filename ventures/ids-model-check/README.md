@@ -395,6 +395,13 @@ consultant's model checked against it before it is shared. Today the options are
 | Excel2IDS (buildingSMART community) | free, GPL-3.0 | Windows .exe to turn its Excel template into IDS; no checking, cannot read an IDS back |
 | **IDS Model Check** | free, MIT | a browser tab; or Node for CI |
 
+Once a check fails, the missing values have to get into the model. Today that
+means going back to the authoring tool (map a Revit shared parameter or an
+Archicad property, re-export, check again), Simplebim (a paid desktop tool
+built for editing IFC data), or IfcOpenShell's IfcPatch, Bonsai or a Python
+script. This page writes them into a copy of the `.ifc` in the browser tab
+("Writing what the IDS asks into the model", below).
+
 What this does better: nothing to install, nothing uploaded (the model is read
 by JavaScript in the tab), a BCF export so failures go straight back into Revit,
 Archicad, Navisworks or BIMcollab as issues, and a dependency-free engine that
@@ -413,6 +420,8 @@ node cli.mjs model.ifc spec.ids                 # text report, exit 1 on a fail
 node cli.mjs model.ifcxml spec.ids              # ifcXML, or an .ifczip, the same way
 node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --html report.html  # the check as one HTML file to send back
+node cli.mjs --fill model.ifc spec.ids -o filled.ifc --to-fill todo.csv  # write what the IDS fixes; list the rest
+node cli.mjs --fill model.ifc spec.ids -o filled.ifc --values todo.csv   # ...and the values typed into the table
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
@@ -506,6 +515,72 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 `.ifc` zipped by Python's `zipfile`.
 
 No API key, account or server is involved, so there is nothing to configure.
+
+### Writing what the IDS asks into the model (2026-11-21)
+
+A check tells you what is missing; the fix usually means going back to the
+authoring tool, mapping a parameter and exporting again. For property values
+the page can now do it in place. After a failing check on a STEP model, the
+*Write the missing values into the model* panel (or `node cli.mjs --fill
+model.ifc spec.ids -o filled.ifc`, `model-fill.mjs`) writes into a copy of the
+`.ifc`:
+
+- **values the IDS fixes:** a `simpleValue`, or a list with one allowed value
+  (`Pset_WallCommon.IsExternal = true`, a reference code a client set);
+- **values a person types:** *Download the to-fill table* lists every value it
+  could not decide (GlobalId, class, name, set, property, data type, what the IDS
+  allows, and why it is listed). Type each value in the *Value* column, in Excel,
+  LibreOffice or a text editor (`*` in the GlobalId column gives every listed
+  element that value), and choose the table again. A value the IDS would reject
+  (`EI90` where it allows `EI30 | EI60`, `maybe` for a true/false) is refused
+  with the reason and left in the table.
+
+How it writes, so nothing else changes:
+
+- A value goes into the element's own property set of that name when it has
+  one, and into a new set (one set and one relationship shared by every element
+  getting the same values) when it does not. A value inherited from the type is
+  overridden on the occurrence; the type is left as it was.
+- Property entities are never edited (exports share them). A set several
+  elements share is edited in place only when every one of them gets the same
+  new values; otherwise the elements that change get a copy of the set, with
+  the other properties carried over, and are moved off the original
+  relationship. A type object's set is edited, or a new one added to its
+  `HasPropertySets`.
+- Numbers are written in the model's own units: the IDS says `0.2` metres,
+  a millimetre model gets `IFCLENGTHMEASURE(200.)`. A facet with no data type
+  takes the standard template's (`Pset_WallCommon.LoadBearing` is
+  `IFCBOOLEAN`), else `IFCLABEL`. Text outside ASCII is written as `\X2\`
+  escapes, so the file stays ASCII.
+- Every record it does not touch stays byte for byte as it was; new records go
+  at the end of the DATA section with numbers after the file's highest, and
+  new sets and relationships carry the file's own owner history (IFC2X3
+  requires one) and fresh GlobalIds.
+- A value is written only if every specification applying to that element
+  that names the property accepts it, so filling one check cannot break
+  another the element passes today (two specifications asking `EI30` and `EI60`
+  of the same wall: neither is written, and the table says why).
+- A set name the element already holds as something other than a property set
+  is not written: IFC2X3 exports call their quantity set `BaseQuantities`, and
+  a property set of that name beside it would hide the quantities from
+  IfcTester, which reads one set per name.
+- The filled file is read again and every written value is tested by every
+  facet on that element that names it, before the download is offered.
+- An IDS with a specification that applies to every entity ("everything is
+  classified", no class named) also checks the new property sets and
+  relationships, and they fail it as the model's own sets do; the summary
+  counts them apart so the before and after numbers can be compared.
+
+Not written: quantities (`Qto_` sets), attributes, classifications, materials
+and relationships (counted in the summary), a set or property the IDS names by a
+pattern, and two specifications asking different values for one property (the
+table says which). ifcXML, ifcJSON and IFC5 files are checked but not written.
+
+How it was checked: on 4 real exports against 65 public IDS files and the 3
+starter files, every written value read back passes its facet, the lines that
+change are exactly the records the fill says it edited and added, and
+IfcOpenShell opens every filled file and IfcTester passes every written value
+(`eval/model-fill-2026-11-21.md`; `model-fill.test.mjs`).
 
 ### The check as a report you send back (2026-11-21)
 
@@ -1523,6 +1598,12 @@ faster than IfcTester; its point is needing no install.
 
 ## Limitations
 
+- The model fill (`--fill`, 2026-11-21) writes property values only, into STEP
+  files only, and decodes the file as one string (models up to about 500 MB).
+  It writes `IfcPropertySingleValue`s; a property the model holds as a list,
+  bounded or enumerated value is replaced by a single value in the element's
+  set. It has been run on four real exports, not yet on a BIM manager's own
+  filled table.
 - The readable document (`--to-doc`) says what each facet asks in English
   only, and has not yet been read by the people it is for; a sentence keeps
   every value verbatim, but a long enumeration stays one long sentence.

@@ -502,8 +502,8 @@ flagships:
     buildable: >-
       Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
-      rerun it after excel2ids.mjs changes. bSDD answers here (2026-11-19): rerun
-      eval/bsdd-template-sweep.mjs. IFC4X3 ifcXML: none public (searched
+      rerun it after excel2ids.mjs changes. Model fill: write attributes and Qto_
+      quantities (eval/model-fill-sweep.mjs). IFC4X3 ifcXML: none public (searched
       2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
       (eval/ifcxml-twins-2026-11-18.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs; STEP exports as
@@ -528,16 +528,16 @@ flagships:
       of 233 changes graded asks more/less, model impact by GlobalId), pattern
       inclusion 2026-11-20 (pattern-lang.mjs, eval/pattern-inclusion-2026-11-20.md:
       3,540 of 3,540 public pairs, examples verified); next: a client's real
-      stage-to-stage IDS pair; a Revit/ARCHICAD IFC4X3 export to confirm. HTML check
-      report 2026-11-21 (html-report.mjs, --html; eval/html-report-2026-11-21.md:
-      99,303 of 99,303 rows on 320 pairs); next: a consultant's read. ifcJSON read
-      2026-11-21 (ifcjson.mjs, eval/ifcjson-twins-2026-11-21.md: 97 twins, starter
-      verdicts 291 of 291; with 65 public IDS 6,552 of 6,596, the rest converter
-      omissions); next: an authoring tool's own ifcJSON. IFC5 .ifcx read 2026-11-21
-      (ifcx.mjs, cli --layer; eval/ifcx-twins-2026-11-21.md: 8 twins, class 12,115
-      of 12,116, partOf 1,646 of 1,648, 47 of 47 files); systems 2026-11-21
-      (eval/ifcx-systems-*: 9/9 members, 15/15 port pairs); next: a real tool's
-      .ifcx. More open items: NEXT.md.
+      stage-to-stage IDS pair; a Revit/ARCHICAD IFC4X3 export to confirm. Model fill
+      2026-11-21 (model-fill.mjs, cli --fill, page panel: IDS-fixed and table-typed
+      property values into a copy of the .ifc; eval/model-fill-2026-11-21.md); next:
+      attributes and Qto_ quantities, an ifcXML writer, a BIM manager's filled
+      table. HTML report (eval/html-report-2026-11-21.md): next, a consultant's
+      read. ifcJSON read 2026-11-21 (ifcjson.mjs, eval/ifcjson-twins-2026-11-21.md:
+      97 twins, starter verdicts 291 of 291; with 65 public IDS 6,552 of 6,596, the
+      rest converter omissions); systems 2026-11-21 (eval/ifcx-systems-*: 9/9
+      members, 15/15 port pairs); next: a real tool's .ifcx. More open items:
+      NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
