@@ -13,6 +13,10 @@
 // - a team needs `times` practices a week on different days, each taking `units` of one block;
 // - hard rules: capacity, one practice a day per team, its no-days and game days, its earliest
 //   start and latest end, and no two teams of one coach at overlapping times;
+// - a team marked "every other week" takes its slots on A weeks or B weeks only (all its practices
+//   in the same weeks; the search picks which unless its line says "A weeks" or "B weeks"), so two
+//   such teams can share one slot by turns. A block's capacity holds in each week on its own;
+//   a weekly team uses it in both, and coach clashes only count when the weeks meet;
 // - each team's misses: 2 for a practice off its preferred days, 2 for one outside its preferred
 //   times, 1 for each pair of practices on consecutive days. The search minimises the sum of the
 //   squares of the teams' misses (so two teams missing once beats one team missing twice), with
@@ -127,7 +131,8 @@ export function parseFields(text) {
 /**
  * Teams, one per line: the name, then any of (in any order, separated by | or tabs or commas):
  * "coach Lee", "2 units", "2 a week", "not Fri", "games Sat", "prefer Tue Thu", "prefer 5-7pm",
- * "by 7pm" (latest end), "after 5:30pm" (earliest start). A bare day list or time range is a preference.
+ * "by 7pm" (latest end), "after 5:30pm" (earliest start), "every other week" (A or B weeks, the
+ * search picks), "A weeks" / "B weeks" (fixed). A bare day list or time range is a preference.
  */
 export function parseTeamList(text, { units = 1, times = 1 } = {}) {
   const teams = [], errors = [];
@@ -137,7 +142,7 @@ export function parseTeamList(text, { units = 1, times = 1 } = {}) {
     if (!line || line.startsWith("#")) return;
     const parts = splitParts(line);
     const name = parts.shift().slice(0, 60);
-    const t = { name, coach: "", units: Number(units) || 1, times: Number(times) || 1, not: [], games: [], preferDays: [], preferTime: null, earliest: 0, latest: 24 * 60 };
+    const t = { name, coach: "", units: Number(units) || 1, times: Number(times) || 1, not: [], games: [], preferDays: [], preferTime: null, earliest: 0, latest: 24 * 60, weeks: null };
     const at = `Team line ${i + 1} (${name})`;
     let bad = null;
     for (const p0 of parts) {
@@ -145,6 +150,8 @@ export function parseTeamList(text, { units = 1, times = 1 } = {}) {
       let m;
       if ((m = low.match(/^coach(?:es)?\s*:?\s*(.+)$/))) t.coach = p.slice(p.length - m[1].length).trim().slice(0, 60);
       else if ((m = low.match(/^(\d+)\s*units?$/) || low.match(/^units?\s*:?\s*(\d+)$/))) t.units = Number(m[1]);
+      else if (/^(?:every other week|every second week|every 2 weeks|alternate weeks|alternating(?: weeks)?|biweekly|bi-weekly|fortnightly)$/.test(low)) t.weeks = t.weeks || "AB";
+      else if ((m = low.match(/^(?:weeks?\s*([ab])|([ab])\s*weeks?)$/))) t.weeks = (m[1] || m[2]).toUpperCase();
       else if (/^(half|half field|half a field)$/.test(low)) t.units = 2;
       else if (/^(quarter|quarter field)$/.test(low)) t.units = 1;
       else if ((m = low.match(/^(\d+)\s*(?:x|times|practices?|sessions?)?\s*(?:a|per|\/)?\s*(?:week|wk)$/) || low.match(/^(\d+)\s*x$/) || low.match(/^(?:times|practices)\s*:?\s*(\d+)$/))) t.times = Number(m[1]);
@@ -163,7 +170,7 @@ export function parseTeamList(text, { units = 1, times = 1 } = {}) {
         else { if (range) t.preferTime = range; if (d.length) t.preferDays.push(...d); }
       }
     }
-    if (bad) errors.push(`${at}: "${bad}" is not understood (try coach Lee, 2 units, 2 a week, not Fri, games Sat, prefer Tue Thu, prefer 5-7pm, by 7pm, after 5pm).`);
+    if (bad) errors.push(`${at}: "${bad}" is not understood (try coach Lee, 2 units, 2 a week, not Fri, games Sat, prefer Tue Thu, prefer 5-7pm, by 7pm, after 5pm, every other week, A weeks).`);
     else if (seen.has(name.toLowerCase())) errors.push(`${at}: listed twice; add an age group or colour to tell them apart.`);
     else if (!(t.units >= 1 && t.units <= MAX_UNITS)) errors.push(`${at}: units must be 1 to ${MAX_UNITS}.`);
     else if (!(t.times >= 1 && t.times <= MAX_TIMES)) errors.push(`${at}: 1 to ${MAX_TIMES} practices a week.`);
@@ -195,7 +202,17 @@ function mulberry32(seed) {
 
 const adjacentDays = (a, b) => (a - b + 7) % 7 === 1 || (b - a + 7) % 7 === 1;
 
-/** The blocks of every window, and each team's allowed options with their own miss cost. */
+// Week masks: a weekly practice uses a block in both weeks (3), an every-other-week one in A weeks (1)
+// or B weeks (2). Two practices clash only when their masks meet.
+export const WEEK_MASK = { A: 1, B: 2 };
+const maskOf = (weeks) => (weeks === "A" ? [1] : weeks === "B" ? [2] : weeks === "AB" ? [1, 2] : [3]);
+export const weeksLabel = (mask) => (mask === 1 ? "A" : mask === 2 ? "B" : null);
+
+/**
+ * The blocks of every window, and each team's allowed options with their own miss cost and week
+ * mask. An every-other-week team that may take either week gets each block twice, A then B, and
+ * `twin` points from one to the other.
+ */
 export function practiceOptions(windows, teams, minutes = 60) {
   const blocks = [];
   windows.forEach((w, wi) => {
@@ -209,7 +226,9 @@ export function practiceOptions(windows, teams, minutes = 60) {
       let miss = 0;
       if (t.preferDays.length && !t.preferDays.includes(b.day)) miss += MISS_DAY;
       if (t.preferTime && !(b.start >= t.preferTime.start && b.end <= t.preferTime.end)) miss += MISS_TIME;
-      out.push({ b: bi, day: b.day, start: b.start, end: b.end, miss });
+      const masks = maskOf(t.weeks);
+      const at = out.length;
+      masks.forEach((mask, i) => out.push({ b: bi, day: b.day, start: b.start, end: b.end, miss, mask, twin: masks.length > 1 ? at + 1 - i : -1 }));
     });
     return out;
   });
@@ -276,7 +295,8 @@ function searchOnce(windows, teams, { minutes, seed, iterations, coachGap }) {
   const { blocks, options } = practiceOptions(windows, teams, minutes);
   const T = teams.length;
   const rand = mulberry32(seed);
-  const used = new Int32Array(blocks.length);
+  // Units used in each block in A weeks and in B weeks.
+  const usedA = new Int32Array(blocks.length), usedB = new Int32Array(blocks.length);
   const chosen = teams.map((t) => new Array(t.times).fill(-1));
   // Coaches: teams that share one cannot overlap (a coachGap of minutes between them, default 0).
   const coachOf = teams.map((t) => t.coach.trim().toLowerCase());
@@ -285,18 +305,25 @@ function searchOnce(windows, teams, { minutes, seed, iterations, coachGap }) {
   const fits = (ti, oi, skipTeam = -1, skipK = -1) => {
     const o = options[ti][oi];
     const b = blocks[o.b];
-    if (used[o.b] + teams[ti].units > b.cap) return false;
+    const u = teams[ti].units;
+    if (((o.mask & 1) && usedA[o.b] + u > b.cap) || ((o.mask & 2) && usedB[o.b] + u > b.cap)) return false;
     const mine = chosen[ti];
-    for (let k = 0; k < mine.length; k++) if (mine[k] !== -1 && !(ti === skipTeam && k === skipK) && options[ti][mine[k]].day === o.day) return false;
+    for (let k = 0; k < mine.length; k++) {
+      if (mine[k] === -1 || (ti === skipTeam && k === skipK)) continue;
+      const q = options[ti][mine[k]];
+      // One practice a day, and an every-other-week team keeps all its practices in the same weeks.
+      if (q.day === o.day || q.mask !== o.mask) return false;
+    }
     for (const j of coachMates[ti]) for (const oj of chosen[j]) {
       if (oj === -1) continue;
       const p = options[j][oj];
-      if (p.day === o.day && p.start < o.end + coachGap && o.start < p.end + coachGap) return false;
+      if ((p.mask & o.mask) && p.day === o.day && p.start < o.end + coachGap && o.start < p.end + coachGap) return false;
     }
     return true;
   };
-  const place = (ti, k, oi) => { chosen[ti][k] = oi; if (oi !== -1) used[options[ti][oi].b] += teams[ti].units; };
-  const lift = (ti, k) => { const oi = chosen[ti][k]; if (oi !== -1) used[options[ti][oi].b] -= teams[ti].units; chosen[ti][k] = -1; return oi; };
+  const addUse = (ti, oi, sign) => { const o = options[ti][oi], u = sign * teams[ti].units; if (o.mask & 1) usedA[o.b] += u; if (o.mask & 2) usedB[o.b] += u; };
+  const place = (ti, k, oi) => { chosen[ti][k] = oi; if (oi !== -1) addUse(ti, oi, 1); };
+  const lift = (ti, k) => { const oi = chosen[ti][k]; if (oi !== -1) addUse(ti, oi, -1); chosen[ti][k] = -1; return oi; };
 
   // Greedy start: most constrained teams first, each practice to its cheapest open option.
   const order = teams.map((_, i) => i).sort((a, b) => options[a].length / teams[a].times - options[b].length / teams[b].times || a - b);
@@ -349,7 +376,8 @@ function searchOnce(windows, teams, { minutes, seed, iterations, coachGap }) {
     // Evict holders of the block, in random order, until it fits (a half-field team may need two
     // quarter-field teams out), then rehouse each evicted practice.
     if (depth < 0) return;
-    const holders = occ[options[ti][oi].b].filter((x) => (x >> 3) !== ti);
+    const myMask = options[ti][oi].mask;
+    const holders = occ[options[ti][oi].b].filter((x) => (x >> 3) !== ti && (options[x >> 3][chosen[x >> 3][x & 7]].mask & myMask));
     const out = [];
     while (holders.length && !fits(ti, oi)) {
       const h = holders.splice(Math.floor(rand() * holders.length), 1)[0];
@@ -367,6 +395,7 @@ function searchOnce(windows, teams, { minutes, seed, iterations, coachGap }) {
     }
   };
 
+  const flippable = teams.map((t) => t.weeks === "AB" && t.times > 1);
   const iters = iterations ?? Math.min(800000, 60000 + 8000 * slots.length);
   const CYCLES = 4, per = Math.ceil(iters / CYCLES);
   const T0 = 3, T1 = 0.05;
@@ -386,7 +415,14 @@ function searchOnce(windows, teams, { minutes, seed, iterations, coachGap }) {
     const mark = log.length;
     const touched = new Set();
     const r = rand();
-    if (r < 0.5) { touched.add(ti); set(ti, k, -1); if (fits(ti, oi)) set(ti, k, oi); else { undo(mark); continue; } }
+    if (r < 0.1 && flippable[ti]) {
+      // Move a whole every-other-week team to its other weeks (same blocks), which single moves cannot
+      // do once it has two practices placed.
+      touched.add(ti);
+      const was = chosen[ti].slice();
+      for (let q = 0; q < was.length; q++) set(ti, q, -1);
+      for (let q = 0; q < was.length; q++) if (was[q] !== -1) { const tw = options[ti][was[q]].twin; if (fits(ti, tw)) set(ti, q, tw); }
+    } else if (r < 0.5) { touched.add(ti); set(ti, k, -1); if (fits(ti, oi)) set(ti, k, oi); else { undo(mark); continue; } }
     else chain(ti, k, oi, r < 0.85 ? 0 : 2, touched);
     let d = 0;
     const fresh = [];
@@ -404,15 +440,13 @@ function searchOnce(windows, teams, { minutes, seed, iterations, coachGap }) {
 
 function describe(windows, teams, blocks, options, chosen, total, bound, minutes) {
   const placements = [], unplaced = [], perTeam = [];
-  const used = new Int32Array(blocks.length);
-  teams.forEach((t, ti) => chosen[ti].forEach((oi) => { if (oi !== -1) used[options[ti][oi].b] += t.units; }));
   teams.forEach((t, ti) => {
     const misses = [];
     const days = [];
     for (const oi of chosen[ti]) {
       if (oi === -1) continue;
       const o = options[ti][oi], b = blocks[o.b];
-      placements.push({ team: t.name, coach: t.coach, field: b.field, day: b.day, start: b.start, end: b.end, units: t.units });
+      placements.push({ team: t.name, coach: t.coach, field: b.field, day: b.day, start: b.start, end: b.end, units: t.units, weeks: weeksLabel(o.mask) });
       days.push(b.day);
       if (t.preferDays.length && !t.preferDays.includes(b.day)) misses.push(`${DAYS[b.day]} is not one of its preferred days`);
       if (t.preferTime && !(b.start >= t.preferTime.start && b.end <= t.preferTime.end)) misses.push(`${DAYS[b.day]} ${clock(b.start)} is outside ${clock(t.preferTime.start)}-${clock(t.preferTime.end)}`);
@@ -421,7 +455,7 @@ function describe(windows, teams, blocks, options, chosen, total, bound, minutes
     for (let i = 0; i < days.length; i++) for (let j = i + 1; j < days.length; j++) if (adjacentDays(days[i], days[j])) misses.push(`${DAYS[days[i]]} and ${DAYS[days[j]]} are back to back`);
     const missing = chosen[ti].filter((o) => o === -1).length;
     const solo = soloBest(options[ti], t.times);
-    if (missing) unplaced.push({ team: t.name, missing, reason: unplacedReason(t, ti, options, blocks, used, solo, teams, chosen) });
+    if (missing) unplaced.push({ team: t.name, missing, reason: unplacedReason(t, ti, options, blocks, solo, teams, chosen) });
     perTeam.push({ team: t.name, placed: t.times - missing, times: t.times, miss: teamMiss(options[ti], chosen[ti]), soloMiss: solo.miss, misses });
   });
   const dayOrder = (d) => (d + 6) % 7; // Monday first
@@ -429,7 +463,7 @@ function describe(windows, teams, blocks, options, chosen, total, bound, minutes
   return { placements, unplaced, teams: perTeam, score: total, bound, proved: total === bound, minutes, windows };
 }
 
-function unplacedReason(t, ti, options, blocks, used, solo, teams, chosen) {
+function unplacedReason(t, ti, options, blocks, solo, teams, chosen) {
   const fitDays = new Set(options[ti].map((o) => o.day));
   if (!options[ti].length) {
     const big = blocks.some((b) => b.cap >= t.units);
@@ -455,8 +489,9 @@ export function practiceText(result, title = "") {
   let lastDay = -1;
   for (const p of result.placements) {
     if (p.day !== lastDay) { if (lastDay !== -1) out.push(""); out.push(DAYS[p.day]); lastDay = p.day; }
-    out.push(`  ${clock(p.start)}-${clock(p.end)}  ${p.field}  ${p.team}${p.coach ? ` (coach ${p.coach})` : ""}`);
+    out.push(`  ${clock(p.start)}-${clock(p.end)}  ${p.field}  ${p.team}${p.coach ? ` (coach ${p.coach})` : ""}${p.weeks ? `, ${p.weeks} weeks` : ""}`);
   }
+  if (result.placements.some((p) => p.weeks)) out.push("", "A weeks and B weeks take turns: the first week of the season is an A week.");
   if (result.unplaced.length) {
     out.push("", "Not placed:");
     for (const u of result.unplaced) out.push(`  ${u.team}: ${u.missing} practice${u.missing > 1 ? "s" : ""}, ${u.reason}`);
@@ -467,22 +502,33 @@ export function practiceText(result, title = "") {
 /** One team's week as text. */
 export function teamWeekText(result, team) {
   const mine = result.placements.filter((p) => p.team === team);
-  return [team, ...mine.map((p) => `  ${DAYS[p.day]} ${clock(p.start)}-${clock(p.end)}, ${p.field}`)].join("\n");
+  return [team, ...mine.map((p) => `  ${DAYS[p.day]} ${clock(p.start)}-${clock(p.end)}, ${p.field}${p.weeks ? `, ${p.weeks} weeks` : ""}`)].join("\n");
 }
 
-/** Every placement as CSV (Day, Start, End, Field, Team, Coach, Units). Cells go through calc.mjs csvCell, which defuses CSV formula injection. */
+/** Every placement as CSV (Day, Start, End, Field, Team, Coach, Units, Weeks: every, A or B). Cells go through calc.mjs csvCell, which defuses CSV formula injection. */
 export function practiceCsv(result) {
-  const lines = [["Day", "Start", "End", "Field", "Team", "Coach", "Units"].join(",")];
-  for (const p of result.placements) lines.push([DAYS[p.day], clock(p.start), clock(p.end), p.field, p.team, p.coach, p.units].map(csvCell).join(","));
-  for (const u of result.unplaced) lines.push(["", "", "", "NOT PLACED", u.team, "", u.missing].map(csvCell).join(","));
+  const lines = [["Day", "Start", "End", "Field", "Team", "Coach", "Units", "Weeks"].join(",")];
+  for (const p of result.placements) lines.push([DAYS[p.day], clock(p.start), clock(p.end), p.field, p.team, p.coach, p.units, p.weeks || "every"].map(csvCell).join(","));
+  for (const u of result.unplaced) lines.push(["", "", "", "NOT PLACED", u.team, "", u.missing, ""].map(csvCell).join(","));
   return lines.join("\r\n") + "\r\n";
 }
 
-/** Field use: for each field window block, units used of its capacity. */
+/**
+ * Field use: for each field window block, units used of its capacity. `used` is the busier week's
+ * use (A or B); `usedA` and `usedB` are each week's, and an every-other-week team is listed with
+ * "(A weeks)" or "(B weeks)".
+ */
 export function fieldUse(result) {
   const use = new Map();
-  for (const w of result.windows) for (let s = w.start; s + result.minutes <= w.end; s += result.minutes) use.set(`${w.field}|${w.day}|${s}`, { field: w.field, day: w.day, start: s, cap: w.units, used: 0, teams: [] });
-  for (const p of result.placements) { const u = use.get(`${p.field}|${p.day}|${p.start}`); if (u) { u.used += p.units; u.teams.push(p.team); } }
+  for (const w of result.windows) for (let s = w.start; s + result.minutes <= w.end; s += result.minutes) use.set(`${w.field}|${w.day}|${s}`, { field: w.field, day: w.day, start: s, cap: w.units, used: 0, usedA: 0, usedB: 0, teams: [] });
+  for (const p of result.placements) {
+    const u = use.get(`${p.field}|${p.day}|${p.start}`);
+    if (!u) continue;
+    if (p.weeks !== "B") u.usedA += p.units;
+    if (p.weeks !== "A") u.usedB += p.units;
+    u.used = Math.max(u.usedA, u.usedB);
+    u.teams.push(p.weeks ? `${p.team} (${p.weeks} weeks)` : p.team);
+  }
   return [...use.values()];
 }
 
@@ -493,7 +539,8 @@ const isoOf = (n) => new Date(n * 86400000).toISOString().slice(0, 10);
 /**
  * A calendar of weekly practices from `from` to `until` (ISO dates), one repeating event per
  * practice, for one team (or every team when `team` is null). `skip` dates (holidays, closures)
- * become EXDATEs. Times are floating local times.
+ * become EXDATEs. Times are floating local times. Every-other-week practices repeat every two
+ * weeks: the seven days from `from` are an A week, the next seven a B week, and so on.
  */
 export function practiceIcs(result, { team = null, from, until, skip = [], stamp = null, title = "Practice" } = {}) {
   if (!isoRe.test(from || "") || !isoRe.test(until || "") || dayNum(until) < dayNum(from)) throw new Error("Give the first and last dates of the practice season.");
@@ -508,15 +555,17 @@ export function practiceIcs(result, { team = null, from, until, skip = [], stamp
     // 1970-01-01 was a Thursday (4).
     let first = f;
     while ((first + 4) % 7 !== p.day) first++;
+    if (p.weeks === "B") first += 7;
     if (first > u) continue;
+    const step = p.weeks ? 14 : 7;
     const ex = [];
-    for (let d = first; d <= u; d += 7) if (skipSet.has(d)) ex.push(`${compact(d)}T${hm(p.start)}`);
+    for (let d = first; d <= u; d += step) if (skipSet.has(d)) ex.push(`${compact(d)}T${hm(p.start)}`);
     lines.push("BEGIN:VEVENT",
-      `UID:practice-${[p.team, p.field, p.day, p.start].join("-").replace(/[^\w-]/g, "")}-${compact(first)}@league-schedule-generator`,
+      `UID:practice-${[p.team, p.field, p.day, p.start, ...(p.weeks ? [p.weeks] : [])].join("-").replace(/[^\w-]/g, "")}-${compact(first)}@league-schedule-generator`,
       `DTSTAMP:${dtstamp}`,
       `DTSTART:${compact(first)}T${hm(p.start)}`,
       `DTEND:${compact(first)}T${hm(p.end)}`,
-      `RRULE:FREQ=WEEKLY;UNTIL=${compact(u)}T235959`);
+      `RRULE:FREQ=WEEKLY;${p.weeks ? "INTERVAL=2;" : ""}UNTIL=${compact(u)}T235959`);
     if (ex.length) lines.push(`EXDATE:${ex.join(",")}`);
     lines.push(icsFold(`SUMMARY:${icsEscape(`${title}: ${p.team}`)}`), icsFold(`LOCATION:${icsEscape(p.field)}`));
     if (p.coach) lines.push(icsFold(`DESCRIPTION:${icsEscape(`Coach ${p.coach}`)}`));

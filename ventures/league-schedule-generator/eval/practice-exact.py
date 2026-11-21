@@ -2,6 +2,8 @@
 # python3 eval/practice-exact.py cases.json [seconds]      # pip install ortools
 # Same rules as practice.mjs: capacity, one practice a team a day, coach overlap, and the score
 # sum over teams of 10000 * unplaced + miss^2 (miss: option misses + 1 per back-to-back day pair).
+# Every-other-week options carry a week mask (1 = A weeks, 2 = B weeks, 3 = weekly): capacity holds
+# in each week, a team keeps all its practices in one set of weeks, coach clashes need the weeks to meet.
 import json, sys
 from ortools.sat.python import cp_model
 
@@ -23,6 +25,12 @@ for c in cases:
                 h = m.NewBoolVar("")
                 m.Add(sum(vs) == h)
                 has[d] = h
+        masks = {o.get("mask", 3) for o in opts[t]}
+        if 1 in masks and 2 in masks:
+            isA = m.NewBoolVar("")
+            for i, o in enumerate(opts[t]):
+                if o.get("mask", 3) == 1: m.AddImplication(x[t][i], isA)
+                if o.get("mask", 3) == 2: m.AddImplication(x[t][i], isA.Not())
         placed = sum(x[t]) if x[t] else 0
         m.Add(placed <= team["times"])
         pairs = []
@@ -40,15 +48,16 @@ for c in cases:
         m.AddMultiplicationEquality(sq, [miss, miss])
         obj.append(UNPLACED * (team["times"] - placed) + sq)
     for b, blk in enumerate(blocks):
-        terms = [teams[t]["units"] * x[t][i] for t in range(len(teams)) for i, o in enumerate(opts[t]) if o["b"] == b]
-        if terms:
-            m.Add(sum(terms) <= blk["cap"])
+        for wk in (1, 2):
+            terms = [teams[t]["units"] * x[t][i] for t in range(len(teams)) for i, o in enumerate(opts[t]) if o["b"] == b and (o.get("mask", 3) & wk)]
+            if terms:
+                m.Add(sum(terms) <= blk["cap"])
     for t in range(len(teams)):
         for u in range(t + 1, len(teams)):
             if teams[t]["coach"] and teams[t]["coach"].lower() == teams[u]["coach"].lower():
                 for i, o in enumerate(opts[t]):
                     for k, p in enumerate(opts[u]):
-                        if o["day"] == p["day"] and o["start"] < p["end"] and p["start"] < o["end"]:
+                        if (o.get("mask", 3) & p.get("mask", 3)) and o["day"] == p["day"] and o["start"] < p["end"] and p["start"] < o["end"]:
                             m.AddBoolOr([x[t][i].Not(), x[u][k].Not()])
     m.Minimize(sum(obj))
     sv = cp_model.CpSolver()
