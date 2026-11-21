@@ -15,7 +15,7 @@ import { N as GN, AT as GAT, FROM as GFROM, labels as GLABELS, series as gscSeri
 const SHIFT = Number(process.env.SEED_SHIFT ?? 0);
 const LIMIT = process.env.NSEEDS ? Number(process.env.NSEEDS) : Infinity;
 const range = (a, b) => Array.from({ length: Math.min(b - a + 1, LIMIT) }, (_, i) => a + SHIFT + i);
-const ARMS = { D: { ...COUNT_DEFAULTS }, M: { ...COUNT_MIDDLE }, W: { ...COUNT_MIDDLE, wander: 'gated' } };
+const ARMS = { D: { ...COUNT_DEFAULTS }, M: { ...COUNT_MIDDLE }, W: { ...COUNT_MIDDLE, wander: 'gated', wanderBefore: false } };
 const C = 'W';
 
 // Set 2 generators, as eval/gsc-middle-hint.mjs.

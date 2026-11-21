@@ -86,7 +86,7 @@ export function detectChanges(values, labels, opts0 = {}) {
   if (!all[d]) throw new Error(`Unknown detector ${d}.`);
   const found = floors(all[d]);
   if (!wander || !found.length) return found;
-  return wanderFilter(found, values, { window: opts.window ?? WATCH_DEFAULTS.window, tolerance: opts.tolerance ?? WATCH_DEFAULTS.tolerance, margin: wanderMargin, jump: wanderJump, test: wanderTest, before: wanderBefore, split: wanderSplit });
+  return wanderFilter(found, values, { window: opts.window ?? WATCH_DEFAULTS.window, tolerance: opts.tolerance ?? WATCH_DEFAULTS.tolerance, margin: wanderMargin, jump: wanderJump, test: wanderTest, before: wanderBefore === undefined ? WANDER_BEFORE : wanderBefore || null, split: wanderSplit });
 }
 
 /**
@@ -97,6 +97,14 @@ export function detectChanges(values, labels, opts0 = {}) {
  * wander beats the flat fit by more than log n, the level is wandering, and a count change is kept only when the
  * drift model also places a jump within `tolerance` points of it; otherwise every change is kept as it was.
  */
+/**
+ * Since 2026-11-21 (README "A calmer wander gate", eval/middle-wander-calm.prereg.md) `wander: 'gated'` decides whether
+ * the level wanders on the window before the newest count change when at least this many points precede it, so a real
+ * fall on a calm site cannot open the gate. `wanderBefore: false` gives the first gate (README "A wandering level under
+ * Middle").
+ */
+export const WANDER_BEFORE = 60;
+
 // Engine-only knobs for the gate (README "A calmer wander gate"): `margin` multiplies the log n the wander must win by
 // (1 as shipped 2026-11-21); `jump` multiplies the log n penalty of the drift fit's jumps (2); with `test` set, a count
 // change the drift fit has no jump near is still kept when forcing a drift jump at it lowers the drift cost by more

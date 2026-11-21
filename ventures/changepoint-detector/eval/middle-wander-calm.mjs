@@ -16,7 +16,7 @@ const SHIFT = Number(process.env.SEED_SHIFT ?? 0);
 const LIMIT = process.env.NSEEDS ? Number(process.env.NSEEDS) : Infinity;
 const range = (a, b) => Array.from({ length: Math.min(b - a + 1, LIMIT) }, (_, i) => a + SHIFT + i);
 import { CANDIDATE } from './middle-wander-calm-candidate.mjs';
-const ARMS = { M: { ...COUNT_MIDDLE }, W: { ...COUNT_MIDDLE, wander: 'gated' }, V: { ...COUNT_MIDDLE, wander: 'gated', ...CANDIDATE } };
+const ARMS = { M: { ...COUNT_MIDDLE }, W: { ...COUNT_MIDDLE, wander: 'gated', wanderBefore: false }, V: { ...COUNT_MIDDLE, wander: 'gated', wanderBefore: false, ...CANDIDATE } };
 const C = 'V';
 
 // Set 2 generators, as eval/gsc-middle-hint.mjs.

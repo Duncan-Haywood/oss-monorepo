@@ -3,7 +3,7 @@
 import { replayWatch, COUNT_MIDDLE } from '../watch-core.mjs';
 import { CELLS3, series3 } from './middle-trend-sets.mjs';
 import { FROM, labels, AT, series as gsc } from './gsc-sites.mjs';
-const ARMS = { M: { ...COUNT_MIDDLE }, W: { ...COUNT_MIDDLE, wander: 'gated' } };
+const ARMS = { M: { ...COUNT_MIDDLE }, W: { ...COUNT_MIDDLE, wander: 'gated', wanderBefore: false } };
 const t0 = Date.now();
 const keys = (process.env.KEYS ?? 'T4,T5,T6').split(',');
 for (const c of CELLS3.filter((x) => keys.includes(x.key))) {

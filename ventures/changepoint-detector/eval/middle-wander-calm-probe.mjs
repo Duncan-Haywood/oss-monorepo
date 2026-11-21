@@ -12,14 +12,14 @@ import { FROM, labels, AT, series as gsc } from './gsc-sites.mjs';
 
 export const VARIANTS = {
   M: { ...COUNT_MIDDLE },
-  W: { ...COUNT_MIDDLE, wander: 'gated' },
-  A2: { ...COUNT_MIDDLE, wander: 'gated', wanderMargin: 2 },
-  A3: { ...COUNT_MIDDLE, wander: 'gated', wanderMargin: 3 },
-  J1: { ...COUNT_MIDDLE, wander: 'gated', wanderJump: 1 },
-  T1: { ...COUNT_MIDDLE, wander: 'gated', wanderTest: 1 },
-  T05: { ...COUNT_MIDDLE, wander: 'gated', wanderTest: 0.5 },
+  W: { ...COUNT_MIDDLE, wander: 'gated', wanderBefore: false },
+  A2: { ...COUNT_MIDDLE, wander: 'gated', wanderBefore: false, wanderMargin: 2 },
+  A3: { ...COUNT_MIDDLE, wander: 'gated', wanderBefore: false, wanderMargin: 3 },
+  J1: { ...COUNT_MIDDLE, wander: 'gated', wanderBefore: false, wanderJump: 1 },
+  T1: { ...COUNT_MIDDLE, wander: 'gated', wanderBefore: false, wanderTest: 1 },
+  T05: { ...COUNT_MIDDLE, wander: 'gated', wanderBefore: false, wanderTest: 0.5 },
   H60: { ...COUNT_MIDDLE, wander: 'gated', wanderBefore: 60 },
-  S: { ...COUNT_MIDDLE, wander: 'gated', wanderSplit: true },
+  S: { ...COUNT_MIDDLE, wander: 'gated', wanderBefore: false, wanderSplit: true },
 };
 // PROBE=2 runs the second probe (M, W and the gate decided before the newest change), PROBE=3 the third (M, W and the
 // gate decided with a given jump at the newest change), on the same seeds.
