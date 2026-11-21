@@ -556,8 +556,16 @@ How it writes, so nothing else changes:
   at the end of the DATA section with numbers after the file's highest, and
   new sets and relationships carry the file's own owner history (IFC2X3
   requires one) and fresh GlobalIds.
-- The filled file is read again and every written value is tested by the facet
-  that failed before the download is offered.
+- A value is written only if every specification applying to that element
+  that names the property accepts it, so filling one check cannot break
+  another the element passes today (two specifications asking `EI30` and `EI60`
+  of the same wall: neither is written, and the table says why).
+- A set name the element already holds as something other than a property set
+  is not written: IFC2X3 exports call their quantity set `BaseQuantities`, and
+  a property set of that name beside it would hide the quantities from
+  IfcTester, which reads one set per name.
+- The filled file is read again and every written value is tested by every
+  facet on that element that names it, before the download is offered.
 
 Not written: quantities (`Qto_` sets), attributes, classifications, materials
 and relationships (counted in the summary), a set or property the IDS names by a

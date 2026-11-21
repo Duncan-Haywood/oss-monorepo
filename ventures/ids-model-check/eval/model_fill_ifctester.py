@@ -12,6 +12,10 @@ For each filled file saved in OUT_DIR (and its .written.json list of the
     written elements must fail it before (else the fill wrote what was not
     asked) and pass it after;
   - no element IfcTester passed before fails after (the fill took nothing away).
+    Records the fill added (numbers above the original's highest) are counted
+    apart: a specification that applies to every rooted entity ("everything is
+    classified") applies to the new property sets and relationships too, and
+    they fail it as the model's own sets do.
 One JSON line per file on stdout; exit 1 if any check fails.
 """
 import json
@@ -60,6 +64,7 @@ def main():
                 cache.clear()
                 cache[stem] = ifcopenshell.open(str(orig))
             before_model = cache[stem]
+            top = max(e.id() for e in before_model)
             after_model = ifcopenshell.open(str(filled))
             row["opened"] = True
             before = failing(meta["ids"], before_model)
@@ -74,9 +79,12 @@ def main():
             written.setdefault((w["pset"], w["prop"]), set()).add(w["id"])
         checked = now_pass = was_failing = 0
         regress = 0
+        added_failing = 0
         stuck = []
         for (si, ri, r, fb, app), (_, _, _, fa, _) in zip(before, after):
-            regress += len(fa - fb)
+            new = fa - fb
+            added_failing += sum(1 for x in new if x > top)
+            regress += sum(1 for x in new if x <= top)
             if not isinstance(r, Property) or not isinstance(r.propertySet, str) or not isinstance(r.baseName, str):
                 continue
             if getattr(r, "cardinality", "required") != "required":
@@ -86,7 +94,7 @@ def main():
             was_failing += len(ids & fb)
             now_pass += len(ids - fa)
             stuck += sorted(ids & fa)[:5]
-        row.update({"values_checked": checked, "failed_before": was_failing, "pass_after": now_pass, "newly_failing": regress, "still_failing_sample": stuck[:10]})
+        row.update({"values_checked": checked, "failed_before": was_failing, "pass_after": now_pass, "newly_failing": regress, "added_records_failing": added_failing, "still_failing_sample": stuck[:10]})
         ok = checked == now_pass and regress == 0
         row["ok"] = ok
         bad += 0 if ok else 1

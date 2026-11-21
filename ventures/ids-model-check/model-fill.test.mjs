@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { resources, check } from "./node.mjs";
-import { fillModel, planFill, toFillCsv, readValues, newGlobalId, stepString, stepReal, splitArgs } from "./model-fill.mjs";
+import { fillModel, planFill, toFillCsv, readValues, newGlobalId, stepString, stepReal, splitArgs, fillReport } from "./model-fill.mjs";
 import { Model } from "./ids.mjs";
 import { decodeStepString } from "./step.mjs";
 
@@ -247,4 +247,13 @@ END-ISO`);
   assert.equal(r.written, 2);
   assert.ok(!r.writtenList.some((w) => w.id === 10));
   assert.deepEqual(r.unfilled.map((u) => [u.name, u.why]), [["W-01", "the model holds BaseQuantities as an IFCELEMENTQUANTITY, which this fill does not write"]]);
+});
+
+test("a specification applying to every entity checks the new sets and relationships too; the report counts them apart", () => {
+  const every = `<specification name="all classified" ifcVersion="IFC4"><applicability minOccurs="0" maxOccurs="unbounded"><attribute><name><simpleValue>GlobalId</simpleValue></name></attribute></applicability><requirements><attribute><name><simpleValue>Description</simpleValue></name></attribute></requirements></specification>`;
+  const r = fill(ids(spec("IFCSLAB", prop("Pset_SlabCommon", "Reference", "IFCIDENTIFIER", simple("S-A"))) + every), MODEL);
+  assert.equal(r.written, 1, JSON.stringify(r.unfilled));
+  assert.equal(r.after.addedRecords, 2);
+  assert.equal(r.after.failing, r.before.failing - 1 + 2);
+  assert.match(fillReport(r), /2 of them the new property sets and relationships themselves/);
 });

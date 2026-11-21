@@ -42,14 +42,14 @@ def main():
     print("Sets:", {f"{m} {k}": v for (m, k), v in sorted(sets.items())})
     print("Read errors (the IDS could not be read):", sorted({(i, e) for _, i, e in errors}))
     print()
-    print("| Model | Filled files | IfcTester refused the IDS | Opened by ifcopenshell | Values checked | Failed before | Pass after | Elements newly failing |")
-    print("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    print("| Model | Filled files | IfcTester refused the IDS | Opened by ifcopenshell | Values checked | Failed before | Pass after | Existing elements newly failing | Fill's own records failing |")
+    print("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
     for f in sorted(root.glob("*.ifctester.jsonl")):
         rows = [json.loads(l) for l in f.open()]
         ran = [r for r in rows if "ids_refused" not in r]
         print(f"| {f.name.split('.')[0]} | {len(rows)} | {len(rows) - len(ran)} | {sum(1 for r in ran if r.get('opened'))} | "
               f"{sum(r.get('values_checked', 0) for r in ran):,} | {sum(r.get('failed_before', 0) for r in ran):,} | "
-              f"{sum(r.get('pass_after', 0) for r in ran):,} | {sum(r.get('newly_failing', 0) for r in ran)} |")
+              f"{sum(r.get('pass_after', 0) for r in ran):,} | {sum(r.get('newly_failing', 0) for r in ran)} | {sum(r.get('added_records_failing', 0) for r in ran)} |")
         for r in ran:
             if not r.get("ok"):
                 print("   not ok:", r)

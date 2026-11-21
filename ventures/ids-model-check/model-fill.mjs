@@ -188,11 +188,17 @@ function facetsOn(ids, model, ctx, e, ps, pn, cache) {
   return out;
 }
 
-// Whether a property facet holds on e, by its cardinality.
-function facetHolds(r, e, model) {
-  const t = r.test(e, model);
-  return r.cardinality === "prohibited" ? !t.ok : r.cardinality === "optional" ? t.ok || !!t.absent : t.ok;
+// Whether a requirement facet holds on e, by its cardinality.
+function facetHolds(r, e, model, ctx = null) {
+  const t = r.test(e, model, ctx);
+  return r.kind === "entity" ? t.ok : r.cardinality === "prohibited" ? !t.ok : r.cardinality === "optional" ? t.ok || !!t.absent : t.ok;
 }
+
+// A specification's failing count from a report checked with maxFailed (the
+// failing elements' reasons are not kept: a specification with no class on
+// a 40 MB MEP export fails 5.3 million times, eval/model-fill-2026-11-21.md).
+const failCount = (s) => s.failedCount ?? s.failed.length;
+const reportFailing = (r) => r.specs.reduce((n, s) => n + failCount(s), 0);
 
 const KIND_WORDS = { entity: "class", attribute: "attribute", classification: "classification", material: "material", partOf: "part of", property: "property" };
 
@@ -202,7 +208,9 @@ const KIND_WORDS = { entity: "class", attribute: "attribute", classification: "c
 // (readValues).
 export function planFill(idsText, model, opts = {}) {
   const ids = typeof idsText === "string" ? parseIds(idsText) : idsText;
-  const report = checkIds(ids, model, { ...opts, maxFailed: Infinity });
+  // Verdicts and counts only; the failing elements are found below, for the
+  // specifications the fill can write to, without a reason string each.
+  const report = checkIds(ids, model, { ...opts, maxFailed: 0 });
   const S = model.schema;
   const templates = opts.psets && opts.psets[model.schemaId];
   const values = opts.values || [];
@@ -219,13 +227,18 @@ export function planFill(idsText, model, opts = {}) {
   for (const [si, spec] of ids.specs.entries()) {
     const s = report.specs[si];
     if (s.status !== "fail" || spec.optionality === "prohibited") continue;
-    for (const f of s.failed) {
-      const e = model.entities.get(f.id);
-      if (!e) continue;
-      for (const r of spec.requirements) {
-        const t = r.test(e, model, ctx);
-        const pass = r.kind === "entity" ? t.ok : r.cardinality === "prohibited" ? !t.ok : r.cardinality === "optional" ? t.ok || !!t.absent : t.ok;
-        if (pass) continue;
+    if (!spec.requirements.some((r) => r.kind === "property" && r.cardinality === "required")) {
+      const k = "elements failing a specification with no required property";
+      notWritten[k] = (notWritten[k] || 0) + failCount(s);
+      continue;
+    }
+    for (const e of applies(spec, model, ctx)) {
+      const verdicts = spec.requirements.map((r) => facetHolds(r, e, model, ctx));
+      if (verdicts.every(Boolean)) continue;
+      const gidAttr = model.attr(e, "GlobalId"), nameAttr = model.attr(e, "Name");
+      const f = { globalId: typeof gidAttr === "string" ? gidAttr : "", name: typeof nameAttr === "string" ? nameAttr : "" };
+      for (const [ri, r] of spec.requirements.entries()) {
+        if (verdicts[ri]) continue;
         if (r.kind !== "property" || r.cardinality !== "required") {
           const k = (Object.hasOwn(KIND_WORDS, r.kind) ? KIND_WORDS[r.kind] : r.kind) + (r.kind === "entity" || r.cardinality === "required" ? "" : " (" + r.cardinality + ")");
           notWritten[k] = (notWritten[k] || 0) + 1;
@@ -349,6 +362,7 @@ export function fillModel(idsText, ifc, opts = {}) {
 
   let nextId = 0;
   for (const id of model.entities.keys()) if (id > nextId) nextId = id;
+  const topId = nextId;
   const added = [];
   const add = (body) => { const id = ++nextId; added.push(`#${id}=${body};`); return "#" + id; };
   const oh = (model.byType.get("IFCOWNERHISTORY") || [])[0];
@@ -458,8 +472,7 @@ export function fillModel(idsText, ifc, opts = {}) {
   if (opts.verify !== false) {
     const m2 = new Model(out, opts.schemas, { psets: opts.psets });
     m2.measureUnits = model.measureUnits;
-    after = checkIds(ids, m2, { ...opts, maxFailed: Infinity });
-    const failedAfter = new Set(after.specs.flatMap((s) => s.failed.map((f) => f.id)));
+    after = checkIds(ids, m2, { ...opts, maxFailed: 0 });
     let ok = 0;
     const bad = [];
     // Every property facet on the element naming the written property, in
@@ -473,9 +486,21 @@ export function fillModel(idsText, ifc, opts = {}) {
       if (e && fs.length && fs.every(({ facet }) => facetHolds(facet, e, m2))) ok++;
       else bad.push(w);
     }
-    verified = { values: writtenRows.length, pass: ok, fail: bad, parseErrors: m2.parseErrors.length, elementsStillFailing: failedAfter.size };
+    verified = { values: writtenRows.length, pass: ok, fail: bad, parseErrors: m2.parseErrors.length };
+    // Failing results on the records the fill added: a specification with no
+    // class (applying to every entity) checks the new sets and relationships
+    // too, as it checks the model's own.
+    let addedFailing = 0;
+    const added2 = [];
+    for (let id = topId + 1; id <= nextId; id++) { const e = m2.entities.get(id); if (e) added2.push(e); }
+    for (const [si, spec] of ids.specs.entries()) {
+      if (after.specs[si].status !== "fail" || !added2.length) continue;
+      let set = cache2.get(si);
+      if (!set) cache2.set(si, (set = new Set(applies(spec, m2, ctx2).map((x) => x.id))));
+      for (const e of added2) if (set.has(e.id) && (spec.optionality === "prohibited" || !spec.requirements.every((r) => facetHolds(r, e, m2, ctx2)))) addedFailing++;
+    }
+    after.addedFailing = addedFailing;
   }
-  const count = (r) => r.specs.reduce((n, s) => n + s.failed.length, 0);
   return {
     text: out,
     written: writtenRows.length,
@@ -489,8 +514,8 @@ export function fillModel(idsText, ifc, opts = {}) {
     unfilled: [...plan.unfilled, ...skippedRows],
     notWritten: plan.notWritten,
     verified,
-    before: { failing: count(plan.report), pass: plan.report.pass },
-    after: after ? { failing: count(after), pass: after.pass } : null,
+    before: { failing: reportFailing(plan.report), pass: plan.report.pass },
+    after: after ? { failing: reportFailing(after), pass: after.pass, addedRecords: after.addedFailing } : null,
   };
 }
 
@@ -534,7 +559,7 @@ export function fillReport(r) {
   out.push(`wrote ${n(r.written)} value(s) on ${n(r.elements)} element(s): ${n(r.fromIds)} the IDS fixes, ${n(r.fromTable)} from the table`);
   out.push(`property sets: ${r.sets.edited} edited, ${r.sets.copied} copied for the elements that differ, ${r.sets.added} added; ${r.editedRecords} record(s) changed, ${r.added} added, every other line as it was`);
   if (r.verified) out.push(`read back: ${n(r.verified.pass)} of ${n(r.verified.values)} written value(s) now pass the facet that failed${r.verified.parseErrors ? `; ${r.verified.parseErrors} read error(s)` : ""}`);
-  if (r.after) out.push(`failing elements: ${n(r.before.failing)} before, ${n(r.after.failing)} after`);
+  if (r.after) out.push(`failing elements: ${n(r.before.failing)} before, ${n(r.after.failing)} after${r.after.addedRecords ? ` (${n(r.after.addedRecords)} of them the new property sets and relationships themselves, checked by a specification that applies to every entity, as the model's own are)` : ""}`);
   const kinds = Object.entries(r.notWritten);
   if (kinds.length) out.push(`not written (not property values): ${kinds.map(([k, v]) => `${n(v)} ${k}`).join(", ")}`);
   if (r.unfilled.length) {
