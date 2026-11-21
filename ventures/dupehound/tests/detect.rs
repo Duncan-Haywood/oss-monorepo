@@ -647,3 +647,105 @@ fn line_numbers_survive_backslash_newline_in_strings() {
     let js = tokenize(b"const t = `a\\\nb`;\nlet y = 2;\n", CommentStyle::CLike);
     assert_eq!(js.last().unwrap().line, 3);
 }
+
+// --suggest-guards: whole-file, token-identical copies as candidate guards.
+
+#[test]
+fn suggests_one_glob_for_identical_whole_file_copies_and_skips_strays() {
+    let files = guarded_tree();
+    let clones = detect(&files, opts());
+    let sugs = suggest_guards(&files, families(&files, &clones), &Guards::default());
+    assert_eq!(sugs.len(), 1, "{sugs:?}");
+    let s = &sugs[0];
+    assert_eq!(s.pattern, "*/*/shared.mjs");
+    assert_eq!(s.copies, 5);
+    assert_eq!(s.identical_copies, 5);
+    assert_eq!(
+        s.family_copies, 6,
+        "the pasted stray in calc.mjs is in the family"
+    );
+    assert!(s.also_matches.is_empty());
+    assert!(!s.paths.iter().any(|p| p.ends_with("calc.mjs")));
+    let txt = guards_file(&sugs);
+    assert!(txt.contains("\n*/*/shared.mjs\n"), "{txt}");
+    assert!(txt.contains("1 other file(s), not covered"), "{txt}");
+    // The suggestion, used as a guard file, folds every copy but the stray.
+    let g = Guards::parse(&txt);
+    assert_eq!(g.patterns, vec!["*/*/shared.mjs".to_string()]);
+    let folded = apply_guards(&files, families(&files, &clones), &g);
+    assert_eq!(folded.families.len(), 1);
+    assert_eq!(folded.families[0].guarded_copies, 5);
+}
+
+#[test]
+fn guards_in_force_leave_nothing_to_suggest() {
+    let files = guarded_tree();
+    let clones = detect(&files, opts());
+    let g = Guards::parse("shared.mjs\n");
+    assert!(suggest_guards(&files, families(&files, &clones), &g).is_empty());
+}
+
+#[test]
+fn a_glob_that_would_fold_a_drifted_copy_becomes_exact_paths() {
+    let block = body("shared");
+    let mut files: Vec<SourceFile> = ["a", "b", "c"]
+        .iter()
+        .map(|p| file(&format!("ventures/{p}/shared.mjs"), &block))
+        .collect();
+    // Same name, edited after pasting: not whole-file identical, and a glob
+    // over the name would fold it as if a test kept it in sync.
+    files.push(file(
+        "ventures/d/shared.mjs",
+        &format!("{block}export const drift = 1;\n"),
+    ));
+    files.sort_by(|a, b| a.path.cmp(&b.path));
+    let clones = detect(&files, opts());
+    let sugs = suggest_guards(&files, families(&files, &clones), &Guards::default());
+    assert_eq!(sugs.len(), 1, "{sugs:?}");
+    assert_eq!(sugs[0].pattern, "ventures/*/shared.mjs");
+    assert_eq!(
+        sugs[0].also_matches,
+        vec!["ventures/d/shared.mjs".to_string()]
+    );
+    let txt = guards_file(&sugs);
+    let g = Guards::parse(&txt);
+    assert_eq!(
+        g.patterns,
+        vec![
+            "ventures/a/shared.mjs".to_string(),
+            "ventures/b/shared.mjs".to_string(),
+            "ventures/c/shared.mjs".to_string()
+        ],
+        "{txt}"
+    );
+    assert!(g.matches("ventures/d/shared.mjs").is_none());
+    let j = json_guard_suggestions(&sugs);
+    assert!(
+        j.starts_with("{\"suggested_guards\":[{\"pattern\":\"ventures/*/shared.mjs\",\"paths\":["),
+        "{j}"
+    );
+    assert!(
+        j.contains("\"also_matches\":[\"ventures/d/shared.mjs\"]"),
+        "{j}"
+    );
+}
+
+#[test]
+fn different_file_names_get_separate_patterns() {
+    let block = body("shared");
+    let mut files = vec![
+        file("ventures/a/one.mjs", &block),
+        file("ventures/b/one.mjs", &block),
+        file("ventures/c/two.mjs", &block),
+        file("ventures/d/two.mjs", &block),
+    ];
+    files.sort_by(|a, b| a.path.cmp(&b.path));
+    let clones = detect(&files, opts());
+    let mut pats: Vec<String> =
+        suggest_guards(&files, families(&files, &clones), &Guards::default())
+            .into_iter()
+            .map(|s| s.pattern)
+            .collect();
+    pats.sort();
+    assert_eq!(pats, vec!["ventures/*/one.mjs", "ventures/*/two.mjs"]);
+}

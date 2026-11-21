@@ -29,6 +29,10 @@ OPTIONS:
                        copy guarded are only totalled, so the top of the
                        table is what nobody watches (repeatable; implies
                        --families)
+    --suggest-guards   print a --guarded file of patterns for families whose
+                       copies are whole files, token-identical (vendored on
+                       purpose, or pasted and never edited: confirm each
+                       line); patterns from --guarded are applied first
     --json             print a JSON report instead of text
     --top N            clones (or families) to list         [default: 20]
     --threshold PCT    exit 1 if duplicated lines exceed PCT percent
@@ -45,6 +49,7 @@ struct Args {
     json: bool,
     families: bool,
     guards: Guards,
+    suggest_guards: bool,
     top: usize,
     threshold: Option<f64>,
 }
@@ -70,6 +75,7 @@ fn parse_args() -> Result<Option<Args>, String> {
         json: false,
         families: false,
         guards: Guards::default(),
+        suggest_guards: false,
         top: 20,
         threshold: None,
     };
@@ -119,6 +125,7 @@ fn parse_args() -> Result<Option<Args>, String> {
                 a.guards.patterns.extend(g.patterns);
                 a.families = true
             }
+            "--suggest-guards" => a.suggest_guards = true,
             "--top" => a.top = num(val(&arg)?, &arg)? as usize,
             "--threshold" => {
                 let v = val(&arg)?;
@@ -230,7 +237,20 @@ fn main() -> ExitCode {
     let st = stats(&files, &clones);
     let secs = t0.elapsed().as_secs_f64();
 
-    if args.json && args.families {
+    if args.suggest_guards {
+        let sugs = suggest_guards(&files, families(&files, &clones), &args.guards);
+        if args.json {
+            println!("{}", json_guard_suggestions(&sugs));
+        } else {
+            print!("{}", guards_file(&sugs));
+            eprintln!(
+                "dupehound: {} suggested pattern(s) over {} files. {:.2}s",
+                sugs.len(),
+                st.files,
+                t0.elapsed().as_secs_f64()
+            );
+        }
+    } else if args.json && args.families {
         println!(
             "{}",
             json_report_with_guarded_families(&files, &clones, &st, args.opts, secs, &args.guards)
