@@ -60,12 +60,14 @@
     @media (min-width: 740px) { div.grid:has(#split) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 342px), 1fr)); } }
   </style>
   <!-- select-track:end -->
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
-    <p class="note">PATREON PAYOUT TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <p class="note">TEACHABLE PAYOUT TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Turn a Teachable transactions export into a Xero or QuickBooks journal</h1>
-    <p>Paste or drop your <strong>transactions CSV</strong> from Teachable (Settings &gt; Reports &gt; Transactions &gt; Download CSV). Every transaction is <strong>booked to its own income account — courses, memberships, bundles orders or coaching — with the fee (Given minus Received) booked separately</strong>, the rows are <strong>added up and checked against the deposit you type in from PayPal, Stripe or your bank</strong>, and the result is written as a <strong>balanced journal to a Teachable clearing account</strong> — <strong>split at month end</strong> when a payout straddles two months — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV.</p>
+    <p class="lede">Paste or drop your <strong>transactions CSV</strong> from Teachable (Settings &gt; Reports &gt; Transactions &gt; Download CSV).</p>
+    <details class="hero-more"><summary>What it books and checks</summary><p>Every transaction is <strong>booked to its own income account — courses, memberships, bundles orders or coaching — with the fee (Given minus Received) booked separately</strong>, the rows are <strong>added up and checked against the deposit you type in from PayPal, Stripe or your bank</strong>, and the result is written as a <strong>balanced journal to a Teachable clearing account</strong> — <strong>split at month end</strong> when a payout straddles two months — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV.</p></details>
     <p class="note">The file is read in this browser tab and never leaves your device. Only dates, types, and the Given and Received amounts are used. Independent of Teachable, Xero and Intuit. The export layout and the importer layouts are read from memory of public help documents; no real Teachable export and no live Xero or QuickBooks import was available when this was written. If your file is refused, the findings say which column was missing.</p>
   </header>
 <main>
