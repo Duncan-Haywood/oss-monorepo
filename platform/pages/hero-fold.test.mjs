@@ -8,6 +8,12 @@
 // books and checks"); this test keeps a later edit from growing the lede back
 // while the fold stays. flagship-hero-order.test.mjs holds flagships to the
 // same 50 words. Report: docs/reports/polish-2026-11-21-eyebrow-names.md.
+//
+// A page with an answer-first lead (`p[data-answer-lead]`, the AEO pilot in
+// answer-lead.test.mjs) may fold right after that lead instead: the lead is
+// the sourced fact assistants quote and stays whole and visible, and the plain
+// intro that followed it goes into the fold. 37 finance and fee calculators
+// did this on 2026-11-21 (docs/reports/polish-2026-11-21-answer-lead-fold.md).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -24,6 +30,9 @@ export function heroFold(html) {
   if (body < 0) return null;
   const hm = /<header\b[^>]*>([\s\S]*?)<\/header>/.exec(html.slice(body));
   if (!hm || !/<details class="hero-more"/.test(hm[1])) return null;
+  if (/<p\b[^>]*data-answer-lead[^>]*>(?:(?!<\/p>)[\s\S])*<\/p>\s*<details class="hero-more"/.test(hm[1])) {
+    return { words: 0, adjacent: true, answerLead: true };
+  }
   const lm = /<p class="lede"[^>]*>([\s\S]*?)<\/p>(\s*)(<details class="hero-more")?/.exec(hm[1]);
   if (!lm) return { words: null, adjacent: false };
   const words = lm[1].replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
@@ -35,6 +44,8 @@ test('heroFold reads the lede before the fold', () => {
   assert.deepEqual(heroFold(h('<p class="lede">Paste <strong>it</strong> here.</p>\n<details class="hero-more"><summary>s</summary></details>')), { words: 3, adjacent: true });
   assert.equal(heroFold(h('<p>no fold</p>')), null);
   assert.deepEqual(heroFold(h('<details class="hero-more"></details>')), { words: null, adjacent: false });
+  assert.deepEqual(heroFold(h('<p class="answer-source" data-answer-lead>Fact. Source: X. As of 2026-11-21.</p>\n<details class="hero-more"><summary>s</summary></details>')), { words: 0, adjacent: true, answerLead: true });
+  assert.deepEqual(heroFold(h('<p class="answer-source" data-answer-lead>Fact.</p><p>gap</p><details class="hero-more"></details>')), { words: null, adjacent: false });
 });
 
 test(`every venture hero with a fold has a lede of at most ${MAX_LEDE_WORDS} words right before it`, () => {
