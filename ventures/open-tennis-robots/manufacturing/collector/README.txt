@@ -23,7 +23,7 @@ CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 - drum capacity (loose packing): ~118 balls
 - overall: 802 mm long x 592 mm wide, track 552 mm
 - made-part mass (estimate, excludes bought-in parts): 7.1 kg
-- assembly guide (guide/ASSEMBLY.md): 16 fastener stacks, part and BOM tally, step order, hatch removal: pass
+- assembly guide (guide/ASSEMBLY.md): 16 fastener stacks, part and BOM tally, step order, hatch removal, spanners on 3 nut joints: pass
 - yoke-lift switches: the arm's lobe first touches the roller at 4.2 mm of drum rise and clicks it at 10.4 mm (measured on the CAD; designed 10, switch tolerance -1.5/+1.4 mm, set it with the tower's slots: -7/+7 mm); held closed to the yoke's stop (lobe on the base plate) at 38.7 deg, 131 mm up
 
 STATUS
