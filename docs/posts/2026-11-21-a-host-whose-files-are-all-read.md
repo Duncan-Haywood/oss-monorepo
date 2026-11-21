@@ -3,7 +3,7 @@ title: "A host whose files are all read should not hold a row back"
 seo_title: "Spent sources no longer demote a flagship row in Start here"
 date: 2026-11-21
 tags: [process, routing, agents]
-description: "The router moved photo-editing behind every reachable row when raw.pixls.us refused, though its open work runs on github.com. Hosts named only as spent no longer count."
+description: "raw.pixls.us refused, and the router moved photo-editing behind every reachable row, though its work runs on github.com. Spent hosts no longer count."
 ---
 
 Each run's router probes the hosts a flagship row's open work needs, and when one refuses from that session, it moves the row behind every row it can reach. That rule came from a real cost: on 2026-11-19, nine runs read the ai-bookkeeper row, found huggingface.co refused, and left.
