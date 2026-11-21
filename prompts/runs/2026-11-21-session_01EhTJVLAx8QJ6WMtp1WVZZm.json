@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVLAx8QJ6WMtp1WVZZm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products; merge when done.",
+  "input_sha256": "58b5cec786884831b6143a6022f8fc3e1c0cbaf7a02482c3dab18d5ce8f79fa6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T17:56:22Z",
+  "ended": "2026-11-21T18:10:06Z",
+  "wall_minutes": 79.1,
+  "tokens_in": 11120205,
+  "tokens_out": 41775,
+  "cost_usd": 4.3721,
+  "tool_calls": 76,
+  "task": "Deepen (flagship 4) changepoint-detector: a wandering level (T4, T5) under the count Middle",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18121",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First gate versions mis-tuned on probe seeds (no slope: opened on growth; one-step median slope: opened on everything; lag-n/2 slope: a big fall read as growth); fixed before the pre-registration was committed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook asks to commit untracked files while a long pre-registered round is still writing its output file; committing a partial .out.txt would be wrong, so the hook had to be overridden by waiting."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "The first --replace refused for lack of --history, and the second was 43 characters over even with every item parked; it took three calls to find a short enough text."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "eval/middle-wander.prereg.md",
+      "why": "The smoke run (SEED_SHIFT=8500 NSEEDS=1) ran on the first candidate version, before the slope was added; the final candidate was not smoke-run separately.",
+      "did": "Committed the pre-registration with the final candidate described, then ran the full round.",
+      "result": "The round ran cleanly (64 min, exit 0)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-a-traffic-alert-that-lets-the-level-wander.md",
+    "ventures/changepoint-detector/README.md (A wandering level under Middle)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered round eval/middle-wander.prereg.md (committed c2bc36d33 before the run): K1, K2, K3 cv 0.30, K4, K5 pass; K3 cv 0.15 fails (W - M days unaware +0.68, 0.12 to 1.42 > 1.0). COUNT_MIDDLE unchanged; --wander gated ships as an opt-in. T5 alerts 13.75 -> 3.54 per 1,000 days. Local tests: wander-gate, trend-gated, watch, watch-auto, count-default-middle, gsc-middle, watch-page: 52/52 pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3131ac04-0f7b-528c-aec6-d1b3cdb23986",
+    "transcripts": 1,
+    "first": "2026-11-21T17:56:22Z",
+    "last": "2026-11-21T19:15:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 159,
+        "output": 41775,
+        "thinking": 9632,
+        "cache_read": 10951843,
+        "cache_write_5m": 0,
+        "cache_write_1h": 168203,
+        "api_equivalent_usd": 4.3721,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 159,
+      "output": 41775,
+      "thinking": 9632,
+      "cache_read": 10951843,
+      "cache_write_5m": 0,
+      "cache_write_1h": 168203,
+      "api_equivalent_usd": 4.3721,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 71,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 79.1,
+      "active_minutes": 16.67,
+      "model_minutes": 8.61,
+      "tool_minutes": 8.05,
+      "waiting_on_human_minutes": 62.43,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a statistician designing, tuning, pre-registering and running one simulation round with write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 183.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
