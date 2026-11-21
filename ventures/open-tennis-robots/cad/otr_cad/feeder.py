@@ -1795,10 +1795,43 @@ def lift_belt_envelope(p: Feeder):
     return _stadium(p, p.lift_r_sweep, zb, zt, hw) - _stadium(p, p.lift_r_in, zb, zt, hw + 1)
 
 
+def lift_cleat_solid(p: Feeder):
+    """The drawn flight's welded cleat in the flight's frame (see `lift_flight_cap_solid`), with its two M3 holes."""
+    f = p.lift_flight_design()
+    zc0, zc1 = f["cleat_z"]
+    cleat = Box(p.lift_cleat_h, p.lift_belt_w, zc1 - zc0).moved(Location((p.lift_cleat_h / 2, 0, (zc0 + zc1) / 2)))
+    for s in (1, -1):
+        cleat = cleat - Cylinder(p.M3_HOLE / 2, 2 * (zc1 - zc0)).moved(
+            Location((p.lift_cap_pin_x, s * p.lift_cap_pin_y, (zc0 + zc1) / 2)))
+    return cleat
+
+
+def lift_cap_fastener_solid(p: Feeder):
+    """The drawn cap's two screws, washers and nylocs in the flight's frame, from the plate's leading face (a flush
+    countersunk head) to the screw's tip behind the cleat: what rides on the cap round the pulleys."""
+    h = p.lift_finger_t / 2
+    zc0 = p.lift_flight_design()["cleat_z"][0]
+    out = None
+    for s in (1, -1):
+        y = s * p.lift_cap_pin_y
+        shank = Cylinder(1.5, p.lift_cap_screw).moved(Location((p.lift_cap_pin_x, y, h - p.lift_cap_screw / 2)))
+        washer = Cylinder(p.M3_WASHER_OD / 2, 0.5).moved(Location((p.lift_cap_pin_x, y, zc0 - 0.25)))
+        nut = Cylinder(p.M3_NUT_AC / 2, 4.0).moved(Location((p.lift_cap_pin_x, y, zc0 - 0.5 - 2.0)))
+        one = shank + washer + nut
+        out = one if out is None else out + one
+    return out
+
+
 def lift_belt(p: Feeder) -> Part:
-    """The belt and its flights as the envelope they sweep, less the one flight cap drawn on its own."""
-    d = p.lift_design()
-    shell = lift_belt_envelope(p) - lift_flight_cap_solid(p).moved(lift_flight_cap_location(p))
+    """The belt and its flights as the envelope they sweep, less the one flight cap drawn on its own. Round the drawn
+    cap the envelope is cut back to the belt's back and its cleat is drawn, so the cap's M3 joint reads plate and
+    cleat from the CAD (until 2026-11-21 the swept envelope filled the space the nuts sit in)."""
+    d, f = p.lift_design(), p.lift_flight_design()
+    h = p.lift_finger_t / 2
+    loc = lift_flight_cap_location(p)
+    z_lo = min(f["pad_z"][0], h - p.lift_cap_screw) - 2.0
+    clear = Box(p.lift_r_sweep, p.lift_finger_w + 2, h - z_lo).moved(Location((p.lift_r_sweep / 2, 0, (h + z_lo) / 2)))
+    shell = (lift_belt_envelope(p) - clear.moved(loc)) + lift_cleat_solid(p).moved(loc)
     return Part("lift_belt", "cots", "", 1, shell, [Location((0, 0, 0))],
                 spec=f"AT5 polyurethane timing belt, steel cords, {p.lift_belt_w:g} mm wide, {d['belt_teeth']} teeth "
                      f"({d['belt_mm']:.0f} mm), welded endless; {d['flights']} straight PU cleats welded to its back every "
@@ -1832,7 +1865,8 @@ def lift_flight_cap_solid(p: Feeder):
     for s in (1, -1):
         y = s * p.lift_cap_pin_y
         cap = cap - Cylinder(p.M3_HOLE / 2, 2 * h + 2).moved(Location((p.lift_cap_pin_x, y, 0)))
-        cap = cap - Cone(p.M3_HOLE / 2, 3.2, 1.75).moved(Location((p.lift_cap_pin_x, y, h - 1.75 / 2 + 1e-3)))
+        k = f["csk_depth_mm"]                                  # 90 deg, over an ISO 10642 head (3.2 mm, 81 deg, until 2026-11-21)
+        cap = cap - Cone(p.M3_HOLE / 2, p.lift_cap_csk_d / 2, k).moved(Location((p.lift_cap_pin_x, y, h - k / 2 + 1e-3)))
     return cap
 
 
@@ -1847,8 +1881,8 @@ def lift_flight_cap(p: Feeder) -> Part:
     d, f = p.lift_design(), p.lift_flight_design()
     return Part("lift_flight_cap", "print", "PETG", d["flights"], lift_flight_cap_solid(p), [lift_flight_cap_location(p)],
                 notes=f"One per welded cleat ({d['flights']}; one drawn). The {p.lift_finger_w:g} mm plate is the flight a "
-                      f"ball sits on; two M3 x 12 countersunk screws go through it and the cleat (nuts on the cleat's "
-                      f"trailing face) and its cheeks wrap the cleat's ends. The {f['pad_mm']:.1f} mm pad behind lies loose "
+                      f"ball sits on; two M3 x {p.lift_cap_screw:g} countersunk screws go through it and the cleat, heads "
+                      f"in {p.lift_cap_csk_d:g} mm 90 deg countersinks (washer and nyloc on the cleat's trailing face) and its cheeks wrap the cleat's ends. The {f['pad_mm']:.1f} mm pad behind lies loose "
                       f"on the belt's back: on the straight it takes the ball's moment {f['arm_mm']:.1f} mm from the cleat "
                       f"(the belt presses the spine's strip with {f['pad_push_n']:.2f} N a ball, against "
                       f"{f['cleat_push_n']:.2f} N with the cleat alone), and round a pulley the belt wraps away under it. "
@@ -2653,7 +2687,7 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         (f"M3 x {LIFT_EAR_SCREW} socket cap screw + M3 heat-set insert, 4 mm long (lift)", 2, "lift motor spacer's ears to the boot"),
         ("8 mm axle, 60 mm, + two 608 bearings + e-clips", 1, "lift's top pulley in the head"),
         ("PU cleat welding by the belt supplier (flights)", p.lift_design()["flights"], "cleats on the belt's back at the flight pitch (lift_belt spec)"),
-        ("M3 x 12 countersunk screw + nut (flight caps)", 2 * p.lift_design()["flights"], "each flight cap through its cleat"),
+        (f"M3 x {p.lift_cap_screw:g} countersunk screw (ISO 10642) + washer + nyloc nut (flight caps)", 2 * p.lift_design()["flights"], "each flight cap through its cleat; the nyloc holds when the PU cleat creeps"),
         ("UHMW-PE tape, 25 mm wide, self-adhesive", 1, f"both 20 mm faces of the lift spine ({2 * (p.lift_z_top - p.lift_z_bottom) / 1000:.1f} m)"),
         ("Logic-level N-MOSFET module, 24 V 5 A, + flyback diode", 1, "lift gearmotor from GPIO 12 (module with a gate pull-down)"),
         ("M3 x 10 socket cap screw (agitator)", 4, "agitator gearmotor's face to its mount, from the mount's counterbores"),

@@ -273,12 +273,12 @@ def steps(p: Feeder) -> list[Step]:
               ("2020 corner bracket with M5 screws and T-nuts (lift)", 2),
               ("8 mm axle, 60 mm, + two 608 bearings + e-clips", 1),
               ("PU cleat welding by the belt supplier (flights)", flights),
-              ("M3 x 12 countersunk screw + nut (flight caps)", 2 * flights),
+              (f"M3 x {p.lift_cap_screw:g} countersunk screw (ISO 10642) + washer + nyloc nut (flight caps)", 2 * flights),
               ("UHMW-PE tape, 25 mm wide, self-adhesive", 1)],
-             "3 mm hex key, 8 mm spanner, a second person",
+             "3 mm and 2 mm hex keys, 8 mm and 5.5 mm spanners, a second person",
              "Stick the UHMW tape on both 20 mm faces of the spine. Stand the spine in the boot's slot through the "
              "base plate and square it with the two 2040 corner brackets. Screw a flight cap to each welded cleat "
-             f"(two M3 x 12 countersunk, {2 * flights} in all). Loop the belt over the bottom pulley and up the spine, "
+             f"(two M3 x {p.lift_cap_screw:g} countersunk, a washer and a nyloc on the cleat's back, {2 * flights} in all). Loop the belt over the bottom pulley and up the spine, "
              f"fit the {clips} rod clips up the spine with the three rods through them, then the head on the spine's "
              "top with the top pulley on its axle inside the belt loop. Tension with the jack screws to the figure "
              "in their notes, then tighten the head's four side M5s. Brace the spine to the front hopper post with "
@@ -456,6 +456,10 @@ def joints(p: Feeder) -> list[Joint]:
               F.LIFT_EAR_SCREW, 3, "insert", (p.lift_x_pulley, 0.0, p.lift_z_bottom + F.SPACER_EAR_Z), "y",
               p.lift_y + p.lift_depth / 2 + p.lift_wall + 3.0, -1, 1.7, 2.75, "lift_boot", 6.0,
               insert_len=M3_INSERT_LEN),
+        Joint("lift flight cap through its cleat",
+              f"M3 x {p.lift_cap_screw:g} countersunk screw + washer + nyloc nut (flight caps)", p.lift_cap_screw, 3,
+              "nut", (0, 0, 0), F.lift_flight_cap_location(p) * Location((p.lift_cap_pin_x, p.lift_cap_pin_y, 0)),
+              p.lift_finger_t / 2, -1, 1.7, 2.75, extra=WASHER[3], gap=1.0),   # gap: the countersink's mouth
         Joint("deck cable saddle", "M5 x 16 button head + nyloc nut (deck cables)", 16, 5, "nut",
               (saddle_x, saddle_y, 0.0), "z", p.rail_top + p.plate_t + p.deck_saddle_base / 2, -1, 2.75, 4.75),
     ]
