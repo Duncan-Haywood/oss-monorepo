@@ -529,14 +529,13 @@ flagships:
       inclusion 2026-11-20 (pattern-lang.mjs, eval/pattern-inclusion-2026-11-20.md:
       3,540 of 3,540 public pairs, examples verified); editor's Write as a pattern
       exact 2026-11-20 (eval/date-pattern-exact-2026-11-20.md: 0 of 310 verdicts
-      unlike the range, old 50); dateTime ranges as patterns 2026-11-21
-      (dateTimePattern, eval/datetime-pattern-2026-11-21.md: 0 of 290 beam verdicts
-      unlike the range, IfcTester 10 of 10; full fraction 2026-11-21); next: a
-      client's real stage-to-stage IDS pair; a Revit/ARCHICAD IFC4X3 export to
-      confirm. Readable document 2026-11-20 (eval/spec-doc-2026-11-20.md). HTML
-      check report 2026-11-21 (html-report.mjs, --html;
-      eval/html-report-2026-11-21.md: 99,303 of 99,303 rows on 320 pairs); next: a
-      consultant's read. More open items: NEXT.md.
+      unlike the range, old 50); next: a client's real stage-to-stage IDS pair; a
+      Revit/ARCHICAD IFC4X3 export to confirm. HTML check report 2026-11-21
+      (html-report.mjs, --html; eval/html-report-2026-11-21.md: 99,303 of 99,303
+      rows on 320 pairs); next: a consultant's read. ifcJSON read 2026-11-21
+      (ifcjson.mjs, eval/ifcjson-twins-2026-11-21.md: 97 twins, starter verdicts 291
+      of 291; with 65 public IDS 6,552 of 6,596, the rest converter omissions);
+      next: an authoring tool's own ifcJSON, IFC5 .ifcx. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering

@@ -23,3 +23,5 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-20) bSDD units to measure types 2026-11-19 (bsdd-units.mjs, eval/bsdd-units-2026-11-19.md: 867 of 1,625 non-IFC Reals get a measure, values in SI; IfcTester agrees 9 of 9; dB as pressure/power level 2026-11-19, eval/bsdd-db-2026-11-19.md, 6 of 6; count on a bSDD cache)
 - (moved 2026-11-21) date ranges graded 2026-11-20 (eval/date-range-revisions-2026-11-20.md: 132 of 236 public pairs, 94 of 94 examples; days the month lacks fail)
 - (moved 2026-11-21) time ranges as patterns 2026-11-21 (timePattern, 24:00:00 = 00:00:00, eval/time-pattern-2026-11-21.md: 0 of 300 verdicts unlike the range, IfcTester 10 of 10)
+- (moved 2026-11-21) Readable document 2026-11-20 (eval/spec-doc-2026-11-20.md)
+- (moved 2026-11-21) dateTime ranges as patterns 2026-11-21 (dateTimePattern, eval/datetime-pattern-2026-11-21.md: 0 of 290 beam verdicts unlike the range, IfcTester 10 of 10; full fraction 2026-11-21)

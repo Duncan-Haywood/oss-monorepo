@@ -12,6 +12,7 @@
 
 import { parseStep } from "./step.mjs";
 import { parseIfcXml, ifcXmlSchemaId, looksLikeXml } from "./ifcxml.mjs";
+import { parseIfcJson, looksLikeJson } from "./ifcjson.mjs";
 import { parseXml, kids, kid } from "./xml.mjs";
 import { compileXsdRegex } from "./xsdregex.mjs";
 import { auditIds } from "./audit.mjs";
@@ -91,11 +92,18 @@ export class Model {
     // alike, so the file is never one string on the heap
     // (eval/step-bytes-2026-11-18.md, eval/ifcxml-bytes-2026-11-18.md).
     // An ifcXML model is read by its schema's attribute order (ifcxml.mjs).
-    const xmlId = looksLikeXml(text) ? ifcXmlSchemaId(text) || "(not found in the ifcXML header)" : null;
+    // An ifcJSON model (ifcjson.mjs) names its schema in a header, or is
+    // read in the one that knows its class names.
+    const json = looksLikeJson(text);
+    const xmlId = !json && looksLikeXml(text) ? ifcXmlSchemaId(text) || "(not found in the ifcXML header)" : null;
     const xs = xmlId && schemas[xmlId];
-    const p = xmlId ? (xs ? parseIfcXml(text, xs instanceof Schema ? xs : new Schema(xs)) : { entities: new Map(), errors: [] }) : parseStep(text);
+    const asSchema = (s) => (s instanceof Schema ? s : new Schema(s));
+    const p = json
+      ? parseIfcJson(text, Object.fromEntries(Object.entries(schemas).map(([k, s]) => [k, asSchema(s)])))
+      : xmlId ? (xs ? parseIfcXml(text, asSchema(xs)) : { entities: new Map(), errors: [] }) : parseStep(text);
     if (xmlId) p.schema = xmlId;
-    this.format = xmlId ? "ifcXML" : "STEP";
+    if (json && !p.schema) throw new Error(`ifcJSON model not read: ${p.errors.join("; ")}`);
+    this.format = json ? "ifcJSON" : xmlId ? "ifcXML" : "STEP";
     this.parseErrors = p.errors;
     this.entities = p.entities;
     const raw = (p.schema || "").toUpperCase();

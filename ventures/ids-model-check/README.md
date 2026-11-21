@@ -15,8 +15,17 @@ open. MIT licensed, no dependencies, nothing uploaded.
   buildingSMART's twelve IFC 4.3 and HVAC Simple-Scene models (bridge, road,
   rail, earthworks, plumbing, ducts) with three IDS files, 348 of 348
   specification results identical (`eval/infra-mep-crosscheck-2026-11-17.md`).
+- **ifcJSON** (2026-11-21, `ifcjson.mjs`): buildingSMART's draft JSON form of
+  IFC, as IfcOpenShell's ifc2json and the IFC.JAVA converter write it (header
+  or none, `{"ref"}` links or bare ids, relationships nested under inverse
+  attributes, UUID GlobalIds turned back into IFC's 22 characters). On the 97
+  STEP/ifcJSON twins in buildingSMART's ifcJSON repository the starter IDS
+  verdicts agree 291 of 291, and with 65 public IDS files 6,552 of 6,596
+  agree on status and failing GlobalIds; every difference left traces to what
+  a converter left out (empty strings, empty properties, objects reached only
+  through inverses), read by hand (`eval/ifcjson-twins-2026-11-21.md`).
 - STEP `.ifc`, ifcXML (`.ifcxml`, both the IFC2X3 and IFC4 layouts) and `.ifczip`
-  (either one zipped), read into the same entities: xBIM's ifcXML export of a
+  (any of them zipped), read into the same entities: xBIM's ifcXML export of a
   Revit model agrees with its STEP file on 2,205 of 2,205 attribute values, and
   on 43 STEP/ifcXML twins (buildingSMART's IFC4 Annex E examples and two
   GeometryGymIFC examples) the checker gives the same verdicts on both forms, 129 of
@@ -1501,7 +1510,10 @@ faster than IfcTester; its point is needing no install.
   allows no browser calls) and not against the property set, which bSDD gives
   only on a class's property list (`eval/bsdd-links-2026-11-19.md`, Limits).
 
-- ifcJSON is not read. ifcXML is checked on 9 real documents from about
+- ifcJSON is read as the two public converters write it (checked on their
+  97 twins, not on any authoring tool's own export, as none was found); the
+  file is parsed whole, so it must fit in one JavaScript string (about 537
+  MB). ifcXML is checked on 9 real documents from about
   seven exporters and 43 IFC4 STEP/ifcXML twins, not on every tool's output,
   and on no real IFC4X3 file (none was found); an IfcBSplineSurface's control
   points written flat are cut into rows from its knot counts, and left flat

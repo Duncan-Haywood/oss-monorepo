@@ -68,14 +68,14 @@ export function zipEntries(bytes) {
 
 export function pickModel(entries) {
   const files = entries.filter((e) => !e.name.endsWith("/") && !/(^|\/)__MACOSX\//.test(e.name) && !/(^|\/)\._/.test(e.name));
-  return files.find((e) => /\.ifc$/i.test(e.name)) || files.find((e) => /\.(ifcxml|xml)$/i.test(e.name)) || null;
+  return files.find((e) => /\.ifc$/i.test(e.name)) || files.find((e) => /\.(ifcxml|xml)$/i.test(e.name)) || files.find((e) => /\.(ifcjson|json)$/i.test(e.name)) || null;
 }
 
 // { name, text }, or { name, bytes } (the unpacked file) with opts.bytes.
 export async function unzipModel(bytes, inflateRaw, opts = {}) {
   const entries = zipEntries(bytes);
   const e = pickModel(entries);
-  if (!e) throw new Error(`no .ifc or .ifcxml file in the archive (found: ${entries.map((x) => x.name).join(", ") || "nothing"})`);
+  if (!e) throw new Error(`no .ifc, .ifcxml or ifcJSON file in the archive (found: ${entries.map((x) => x.name).join(", ") || "nothing"})`);
   const data = await readEntry(bytes, e, inflateRaw);
   return opts.bytes ? { name: e.name, bytes: data } : { name: e.name, text: new TextDecoder().decode(data) };
 }
