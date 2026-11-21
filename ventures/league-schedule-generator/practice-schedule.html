@@ -59,7 +59,7 @@
     <p class="note">"Teams at once" is the field's capacity in units: a field split into quarters is 4, into halves 2, a gym or a diamond 1. Separate the parts with <code>|</code>, tabs (paste from a spreadsheet) or commas.</p>
     <label for="teams">Teams: one line each, the name then any of these</label>
     <textarea id="teams" spellcheck="false" autocomplete="off" placeholder="U8 Hawks | coach Patel | 1 unit | by 7pm | prefer Tue Thu&#10;U10 Foxes | 2 units | 2 a week | not Wed | prefer 5-7pm"></textarea>
-    <p class="note"><code>coach Lee</code> (teams with one coach never overlap), <code>2 units</code> (how much of a field), <code>2 a week</code>, <code>not Fri</code>, <code>games Sat</code>, <code>prefer Tue Thu</code>, <code>prefer 5-7pm</code>, <code>by 7pm</code> (latest finish), <code>after 5:30pm</code> (earliest start).</p>
+    <p class="note"><code>coach Lee</code> (teams with one coach never overlap), <code>2 units</code> (how much of a field), <code>2 a week</code>, <code>not Fri</code>, <code>games Sat</code>, <code>prefer Tue Thu</code>, <code>prefer 5-7pm</code>, <code>by 7pm</code> (latest finish), <code>after 5:30pm</code> (earliest start), <code>every other week</code> (the team takes its slot on A weeks or B weeks, so two such teams share it by turns; <code>A weeks</code> or <code>B weeks</code> fixes which).</p>
     <div class="row">
       <div><label for="minutes">Practice length (minutes)</label><input id="minutes" type="number" min="15" max="240" step="15" value="60" inputmode="numeric"></div>
       <div><label for="dunits">Units a team needs, unless its line says</label><input id="dunits" type="number" min="1" max="8" value="1" inputmode="numeric"></div>
@@ -88,7 +88,7 @@
     </div>
     <p id="share-status" role="status" class="note"></p>
     <details id="cal">
-      <summary><strong>Calendar files</strong> (weekly repeating, for phones and Google Calendar)</summary>
+      <summary><strong>Calendar files</strong> (weekly repeating, for phones and Google Calendar; every-other-week teams repeat every two weeks, and the first practice week is an A week)</summary>
       <div class="row">
         <div><label for="from">First practice week</label><input id="from" type="date"></div>
         <div><label for="until">Last practice day</label><input id="until" type="date"></div>
@@ -131,7 +131,7 @@
   const EXAMPLE = {
     name: "Example spring rec soccer",
     fields: "North Park 1 | Mon Tue Wed Thu | 5-8pm | 4\nNorth Park 2 | Mon-Thu | 5:30pm-8:30pm | 2\nSchool gym | Fri | 6-8pm | 1",
-    teams: "U6 Ladybugs | coach Ruiz | 1 unit | by 6:30pm | prefer Tue\nU6 Bumblebees | coach Ruiz | 1 unit | by 6:30pm | prefer Tue\nU8 Hawks | coach Patel | 1 unit | by 7pm | prefer Tue Thu\nU8 Owls | coach Patel | 1 unit | by 7pm\nU8 Robins | 1 unit | by 7pm | not Mon\nU10 Foxes | 2 units | 2 a week | not Wed | prefer 5-7pm\nU10 Badgers | 2 units | 2 a week | prefer Mon Wed\nU12 Bears | coach Kim | 2 units | 2 a week | games Sat | prefer Mon Wed\nU12 Wolves | coach Kim | 2 units | 2 a week\nU14 Lions | 4 units | 2 a week | after 6pm\nU14 Tigers | 4 units | 2 a week | after 6pm | not Thu\nHigh school futsal | 1 unit | prefer Fri",
+    teams: "U6 Ladybugs | coach Ruiz | 1 unit | by 6:30pm | prefer Tue | every other week\nU6 Bumblebees | coach Ruiz | 1 unit | by 6:30pm | prefer Tue | every other week\nU8 Hawks | coach Patel | 1 unit | by 7pm | prefer Tue Thu\nU8 Owls | coach Patel | 1 unit | by 7pm\nU8 Robins | 1 unit | by 7pm | not Mon\nU10 Foxes | 2 units | 2 a week | not Wed | prefer 5-7pm\nU10 Badgers | 2 units | 2 a week | prefer Mon Wed\nU12 Bears | coach Kim | 2 units | 2 a week | games Sat | prefer Mon Wed\nU12 Wolves | coach Kim | 2 units | 2 a week\nU14 Lions | 4 units | 2 a week | after 6pm\nU14 Tigers | 4 units | 2 a week | after 6pm | not Thu\nHigh school futsal | 1 unit | prefer Fri",
     minutes: 60, units: 1, times: 1,
   };
 
@@ -198,7 +198,7 @@
         for (const f of fields) {
           const c = cells.find((u) => u.field === f && u.start === s);
           if (!c) { html += `<td class="closed"></td>`; continue; }
-          html += `<td class="${c.used >= c.cap ? "full" : ""}">${c.teams.map(esc).join("<br>")}<span class="cap">${c.used} of ${c.cap} used</span></td>`;
+          html += `<td class="${Math.min(c.usedA, c.usedB) >= c.cap ? "full" : ""}">${c.teams.map(esc).join("<br>")}<span class="cap">${c.usedA === c.usedB ? `${c.used} of ${c.cap} used` : `A weeks ${c.usedA}, B weeks ${c.usedB} of ${c.cap} used`}</span></td>`;
         }
         html += "</tr>";
       }
@@ -206,7 +206,7 @@
     }
     $("#grid").innerHTML = html;
     $("#perteam").innerHTML = `<table><thead><tr><th>Team</th><th>Practices</th><th>Misses</th></tr></thead><tbody>${r.teams.map((t) => {
-      const mine = r.placements.filter((p) => p.team === t.team).map((p) => `${DAYS[p.day]} ${clock(p.start)}, ${esc(p.field)}`);
+      const mine = r.placements.filter((p) => p.team === t.team).map((p) => `${DAYS[p.day]} ${clock(p.start)}, ${esc(p.field)}${p.weeks ? `, ${p.weeks} weeks` : ""}`);
       const notes = t.misses.map(esc);
       if (t.miss > t.soloMiss) notes.push(`<em>could miss ${t.soloMiss ? `only ${t.soloMiss}` : "nothing"} with the fields to itself</em>`);
       return `<tr><td>${esc(t.team)}</td><td>${mine.join("<br>") || "<span class=\"err\">none</span>"}${t.placed < t.times ? `<br><span class="err">${t.times - t.placed} not placed</span>` : ""}</td><td>${notes.join("<br>") || "none"}</td></tr>`;

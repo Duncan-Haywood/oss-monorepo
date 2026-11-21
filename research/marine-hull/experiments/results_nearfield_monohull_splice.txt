@@ -1,0 +1,12 @@
+Milestone 7zt post hoc: monohull 30 W loss, near field on lambda/L <= cut, GB beyond, Faltinsen reflection added
+# table: formula cut pooled_1ms_motion_N loss30W_share025 loss30W_share1 scope200W
+row NF 1.5 4.603 -5.36 -17.71 True
+row NF 2.0 4.977 -5.77 -18.74 True
+row NF 3.0 5.399 -6.23 -19.94 True
+row NF0 1.5 3.374 -4.00 -14.27 True
+row NF0 2.0 3.482 -4.12 -14.66 True
+row NF0 3.0 3.696 -4.36 -15.41 True
+row NF-B 1.5 4.324 -5.06 -16.98 True
+row NF-B 2.0 4.610 -5.37 -17.85 True
+row NF-B 3.0 4.947 -5.74 -18.90 True
+(elapsed 352 s)

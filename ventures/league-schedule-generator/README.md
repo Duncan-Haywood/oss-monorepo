@@ -51,10 +51,20 @@ quarters. Until now the generator scheduled games only; the practice grid was le
   chat, CSV (formula-looking names defused), weekly repeating `.ics` per team or for all with skipped dates
   as EXDATEs, a share link carrying the lists (rebuilt the same on the other device), print.
 
+- **Every other week (2026-11-21):** `every other week` (or `alternate weeks`, `biweekly`, `fortnightly`)
+  on a team line lets it take its slot on A weeks or B weeks, so two such teams share one slot by turns;
+  `A weeks` / `B weeks` fixes which. Capacity holds in each week on its own (a weekly team uses both), a
+  team keeps all its practices in one set of weeks (a whole-team flip move switches it), and a coach's
+  A-week and B-week teams may share a time. Grid cells show each week's use, text and CSV carry the
+  weeks, and its calendar repeats every two weeks (`INTERVAL=2`) with the first practice week an A week.
+  Checked against the extended CP-SAT model (`eval/practice-exact.txt`, "Every other week"): 83 of 84
+  proved optima matched on 100 leagues where a third of teams alternate; the one miss is a gap of 5 that
+  three of eight seeds find.
+
 Checked: `eval/practice-exact.txt`: against CP-SAT on 100 random leagues (60 at 75-105% of field capacity,
 40 at 40-70%), the search equals all 95 proved optima and beats CP-SAT's 20 s answer on one unproved case;
 median 0.5 s, max 1.9 s on the tight set. The first version matched 25 of 35; multi-holder eviction and
-restarts closed the gap. `practice.test.mjs` (15 tests: parsing, every hard rule rechecked from scratch on
+restarts closed the gap. `practice.test.mjs` (20 tests, five for alternating weeks: parsing, every hard rule rechecked from scratch on
 25 random leagues, capacity mixes, coach clashes, the squared-miss trade, back-to-back days, the solo bound,
 outputs and calendar dates, the guide's grid recomputed from the module). Clicked through in Chromium at 390
 and 1200 px (example, reshuffle, calendar download, share link, reload; no console errors, no sideways

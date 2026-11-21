@@ -17,28 +17,41 @@ U12 Bears | coach Kim | 2 units | 2 a week | games Sat | prefer Mon Wed
 U12 Wolves | coach Kim | 2 units | 2 a week
 U14 Lions | 4 units | 2 a week | after 6pm`;
 
-// Every hard rule, checked on a result from scratch.
+// Every hard rule, checked on a result from scratch. Capacity holds in A weeks and in B weeks on
+// their own; a weekly practice (weeks null) counts in both.
+const inWeek = (p, w) => !p.weeks || p.weeks === w;
 function assertLegal(windows, teams, r) {
   const byName = new Map(teams.map((t) => [t.name, t]));
   const use = new Map();
   const seenDay = new Set();
+  const teamWeeks = new Map();
   for (const p of r.placements) {
     const t = byName.get(p.team);
     const w = windows.find((x) => x.field === p.field && x.day === p.day && p.start >= x.start && p.end <= x.end);
     assert.ok(w, `${p.team} placed outside any window`);
     assert.equal((p.start - w.start) % r.minutes, 0, "blocks start on the window's grid");
-    const k = `${p.field}|${p.day}|${p.start}`;
-    use.set(k, (use.get(k) || 0) + t.units);
-    assert.ok(use.get(k) <= w.units, `over capacity at ${k}`);
+    for (const wk of ["A", "B"]) {
+      if (!inWeek(p, wk)) continue;
+      const k = `${p.field}|${p.day}|${p.start}|${wk}`;
+      use.set(k, (use.get(k) || 0) + t.units);
+      assert.ok(use.get(k) <= w.units, `over capacity at ${k}`);
+    }
     assert.ok(!t.not.includes(p.day) && !t.games.includes(p.day), `${p.team} on a blocked day`);
     assert.ok(p.start >= t.earliest && p.end <= t.latest, `${p.team} outside its hours`);
     assert.ok(!seenDay.has(`${p.team}|${p.day}`), `${p.team} twice on one day`);
     seenDay.add(`${p.team}|${p.day}`);
+    // Weekly teams practise every week; every-other-week teams keep to one set of weeks.
+    if (!t.weeks) assert.equal(p.weeks, null, `${p.team} is weekly`);
+    else if (t.weeks === "AB") assert.ok(p.weeks === "A" || p.weeks === "B", `${p.team} alternates`);
+    else assert.equal(p.weeks, t.weeks, `${p.team} keeps its fixed weeks`);
+    if (teamWeeks.has(p.team)) assert.equal(p.weeks, teamWeeks.get(p.team), `${p.team} mixes A and B weeks`);
+    teamWeeks.set(p.team, p.weeks);
   }
   for (const a of r.placements) for (const b of r.placements) {
     if (a === b || a.team === b.team) continue;
     const ca = byName.get(a.team).coach.toLowerCase(), cb = byName.get(b.team).coach.toLowerCase();
-    if (ca && ca === cb && a.day === b.day) assert.ok(a.end <= b.start || b.end <= a.start, `coach ${ca} double-booked`);
+    const meet = !a.weeks || !b.weeks || a.weeks === b.weeks;
+    if (ca && ca === cb && a.day === b.day && meet) assert.ok(a.end <= b.start || b.end <= a.start, `coach ${ca} double-booked`);
   }
   const placed = new Map();
   for (const p of r.placements) placed.set(p.team, (placed.get(p.team) || 0) + 1);
@@ -205,6 +218,92 @@ test("random leagues: every rule holds and the score is never below the solo bou
   }
 });
 
+test("every other week: read from a team's line, A or B fixed or left to the search", () => {
+  const { teams, errors } = parseTeamList("U6 Ants | every other week\nU6 Bees | alternate weeks | 2 a week\nU6 Cats | A weeks\nU6 Dogs | week b\nU6 Eels | fortnightly\nU8 Owls");
+  assert.deepEqual(errors, []);
+  assert.deepEqual(teams.map((t) => t.weeks), ["AB", "AB", "A", "B", "AB", null]);
+  assert.match(parseTeamList("X | weeks C").errors[0], /every other week, A weeks/);
+});
+
+test("every other week: two teams share one slot by turns, a third does not fit, a weekly team takes both weeks", () => {
+  const one = parseFields("Small field | Tue | 5-6pm | 1").windows;
+  const two = buildPractices(one, parseTeamList("U6 Ants | every other week\nU6 Bees | every other week").teams);
+  assertLegal(one, parseTeamList("U6 Ants | every other week\nU6 Bees | every other week").teams, two);
+  assert.equal(two.placements.length, 2);
+  assert.deepEqual(two.placements.map((p) => p.weeks).sort(), ["A", "B"]);
+  assert.ok(two.proved);
+  const three = buildPractices(one, parseTeamList("U6 Ants | every other week\nU6 Bees | every other week\nU6 Cats | every other week").teams);
+  assert.equal(three.placements.length, 2);
+  assert.equal(three.unplaced.length, 1);
+  assert.match(three.unplaced[0].reason, /every slot it can use is full/);
+  const mixed = buildPractices(one, parseTeamList("U8 Owls\nU6 Ants | every other week").teams);
+  assert.equal(mixed.placements.length, 1, "a weekly team fills the slot in both weeks");
+  // Fixed weeks are kept: two B-week teams cannot share, an A and a B can.
+  const fixed = buildPractices(one, parseTeamList("P | B weeks\nQ | week B").teams);
+  assert.equal(fixed.placements.length, 1);
+  assert.equal(fixed.placements[0].weeks, "B");
+});
+
+test("every other week: a team with two practices keeps both in the same weeks, and a coach can run A and B teams at one time", () => {
+  const { windows } = parseFields("Field | Mon Wed | 5-6pm | 1");
+  // Ants are fixed to A weeks on both days; Bees must then take B weeks on both days.
+  const tl = "Ants | 2 a week | A weeks | coach Ruiz\nBees | 2 a week | every other week | coach Ruiz";
+  const { teams } = parseTeamList(tl);
+  for (let seed = 1; seed <= 5; seed++) {
+    const r = buildPractices(windows, teams, { seed });
+    assertLegal(windows, teams, r);
+    assert.equal(r.placements.length, 4, `seed ${seed}`);
+    assert.deepEqual(r.placements.filter((p) => p.team === "Bees").map((p) => p.weeks), ["B", "B"]);
+  }
+  // Flipping a whole team: Bees start where Ants want to be (search must move both of its practices).
+  const flip = parseTeamList("Bees | 2 a week | every other week | prefer Mon Wed\nAnts | 2 a week | A weeks").teams;
+  const r2 = buildPractices(windows, flip, { seed: 3 });
+  assertLegal(windows, flip, r2);
+  assert.equal(r2.unplaced.length, 0);
+  assert.ok(r2.proved);
+});
+
+test("every other week: outputs say which weeks, the calendar repeats every two weeks from the right week", () => {
+  const { windows } = parseFields("Small field | Tue | 5-6pm | 1");
+  const { teams } = parseTeamList("Ants | A weeks\nBees | B weeks");
+  const r = buildPractices(windows, teams);
+  assert.match(practiceText(r), /Ants, A weeks/);
+  assert.match(practiceText(r), /the first week of the season is an A week/);
+  assert.match(teamWeekText(r, "Bees"), /Tue 17:00-18:00, Small field, B weeks/);
+  assert.match(practiceCsv(r), /Tue,17:00,18:00,Small field,Ants,,1,A/);
+  const [u] = fieldUse(r);
+  assert.deepEqual([u.usedA, u.usedB, u.used, u.cap], [1, 1, 1, 1]);
+  assert.deepEqual(u.teams.sort(), ["Ants (A weeks)", "Bees (B weeks)"]);
+  // 2027-03-01 is a Monday: A-week Tuesdays are 03-02, 03-16, ...; B-week Tuesdays 03-09, 03-23, ...
+  const a = practiceIcs(r, { team: "Ants", from: "2027-03-01", until: "2027-04-30", skip: ["2027-03-16", "2027-03-23"], stamp: "20270101T000000Z" });
+  assert.match(a, /DTSTART:20270302T170000/);
+  assert.match(a, /RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=20270430T235959/);
+  assert.match(a, /EXDATE:20270316T170000\r\n/, "only the A-week holiday is skipped");
+  const b = practiceIcs(r, { team: "Bees", from: "2027-03-01", until: "2027-04-30", skip: ["2027-03-16", "2027-03-23"], stamp: "20270101T000000Z" });
+  assert.match(b, /DTSTART:20270309T170000/);
+  assert.match(b, /EXDATE:20270323T170000\r\n/);
+});
+
+test("every other week, random leagues: every rule holds per week and the score is never below the solo bound", () => {
+  let s = 11;
+  const rnd = () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; };
+  for (let c = 0; c < 25; c++) {
+    const fl = [];
+    for (let f = 0; f < 3; f++) fl.push(`F${f} | ${["Mon Wed", "Tue Thu", "Mon-Thu", "Mon Tue Fri"][Math.floor(rnd() * 4)]} | 5-8pm | ${[1, 2, 4][Math.floor(rnd() * 3)]}`);
+    const tl = [];
+    const n = 8 + Math.floor(rnd() * 20);
+    for (let i = 0; i < n; i++) {
+      const wk = rnd();
+      tl.push([`T${i}`, `${[1, 2, 4][Math.floor(rnd() * 3)]} units`, `${1 + Math.floor(rnd() * 2)} a week`, wk < 0.4 ? "every other week" : wk < 0.5 ? "A weeks" : wk < 0.55 ? "B weeks" : "", rnd() < 0.3 ? `coach C${i % 3}` : "", rnd() < 0.4 ? "prefer Tue Thu" : "", rnd() < 0.3 ? "by 7pm" : ""].filter(Boolean).join(" | "));
+    }
+    const { windows } = parseFields(fl.join("\n")), { teams } = parseTeamList(tl.join("\n"));
+    const r = buildPractices(windows, teams, { seed: c + 1, iterations: 20000 });
+    assertLegal(windows, teams, r);
+    assert.ok(r.score >= r.bound, `case ${c}`);
+    assert.equal(r.proved, r.score === r.bound);
+  }
+});
+
 test("outputs: text, team week, CSV, field use, a weekly calendar with skipped dates, link round trip", () => {
   const { windows } = parseFields(EXAMPLE_FIELDS), { teams } = parseTeamList(EXAMPLE_TEAMS);
   const r = buildPractices(windows, teams);
@@ -212,7 +311,7 @@ test("outputs: text, team week, CSV, field use, a weekly calendar with skipped d
   assert.match(txt, /^Spring practices\n\nMon\n/);
   assert.match(teamWeekText(r, "U10 Foxes"), /^U10 Foxes\n {2}\w{3} \d\d:\d\d-\d\d:\d\d, North/);
   const csv = practiceCsv(r).split("\r\n");
-  assert.equal(csv[0], "Day,Start,End,Field,Team,Coach,Units");
+  assert.equal(csv[0], "Day,Start,End,Field,Team,Coach,Units,Weeks");
   assert.equal(csv.length, r.placements.length + 2);
   const use = fieldUse(r);
   assert.equal(use.reduce((a, u) => a + u.used, 0), r.placements.reduce((a, p) => a + p.units, 0));
