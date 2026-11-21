@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKjHyLQv5JztkMfN9hg",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T20:18:27Z",
+  "ended": "2026-11-21T20:23:11Z",
+  "wall_minutes": 4.91,
+  "tokens_in": 3327568,
+  "tokens_out": 24609,
+  "cost_usd": 1.8766,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18138",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "reaudit mode has no post-name convention (census and fix do); followed the existing 2026-11-21-quality-reaudit-<slug>.md files"
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "reaudit lists git-log hints, but in the shallow clone every subject's only commit is the graft commit, so 'commits since the audit' cannot be read without deepening"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "the track prompt's steps describe a sample round; mode drew reaudit, so I re-audited one subject and fixed its open defects in the same PR rather than drawing five subjects",
+      "did": "one reaudit file + fix commit + reaudit post",
+      "result": "all 9 prior defects re-checked; 6 closed by this PR, 3 partly; scores recorded pre-fix"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-quality-reaudit-patio-door-bid-calculator.md",
+    "portfolio/quality/audits/2026-11-21-patio-door-bid-calculator.json"
+  ],
+  "goal": null,
+  "notes": "mode reaudit; seed 2026-11-21-3d16; subject ventures/patio-door-bid-calculator (top of reaudit queue); share meeting the bar 0 of 1 (scored pre-fix); fix PR #18138 (blank fields error, sill pan counted once, crew-hour/rate labels, comparison wording, README events, page test catching the surviving restore mutant). Tests: node --test '*.test.mjs' 147/147; run_venture_tests.py patio-door-bid-calculator interior-door-bid-calculator ok; quality_audit.py validate 597 files 0 problems.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "35ae281b-0555-51e4-8bf6-13f9347d72ee",
+    "transcripts": 1,
+    "first": "2026-11-21T20:18:27Z",
+    "last": "2026-11-21T20:23:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 72,
+        "output": 24609,
+        "thinking": 4652,
+        "cache_read": 3235367,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92129,
+        "api_equivalent_usd": 1.8766,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 72,
+      "output": 24609,
+      "thinking": 4652,
+      "cache_read": 3235367,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92129,
+      "api_equivalent_usd": 1.8766,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.91,
+      "active_minutes": 4.91,
+      "model_minutes": 4.29,
+      "tool_minutes": 0.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior estimator re-checking 9 defects, 3 hand bids, plus fixes and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 213.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

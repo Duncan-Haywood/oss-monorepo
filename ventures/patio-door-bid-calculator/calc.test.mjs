@@ -344,3 +344,17 @@ test('restored fields equal to their kit suggestion are not frozen as hand-enter
   // Defaults come from the page's current selects when the saved values lack them.
   assert.deepEqual(restoredOverrides({ hoursAccess: 1.8 }, { config: 'two-6', frame: 'vinyl', glazing: 'dual', install: 'retrofit', access: 'balcony' }), []);
 });
+
+// Quality re-audit 2026-11-21 (portfolio/quality/audits/2026-11-21-patio-door-bid-calculator.json):
+// Number('') is 0, so a blank wage priced labor at $0 and a blank unit cost
+// dropped the door, with no error.
+test('a blank field is an error, not a silent zero', () => {
+  for (const field of ['hourlyWage', 'unitCost', 'targetMargin', 'hoursSet', 'burdenRate']) {
+    assert.throws(() => calculateBid({ ...brochure(), [field]: '' }), /blank/, field);
+    assert.throws(() => calculateBid({ ...brochure(), [field]: '   ' }), /blank/, field);
+  }
+  // an omitted field still takes its default, and an explicit 0 is still 0
+  const { permitFee, ...withoutPermit } = brochure();
+  assert.equal(calculateBid(withoutPermit).price, calculateBid({ ...brochure(), permitFee: 0 }).price);
+  assert.equal(calculateBid({ ...brochure(), permitFee: '0' }).price, calculateBid(brochure()).price);
+});

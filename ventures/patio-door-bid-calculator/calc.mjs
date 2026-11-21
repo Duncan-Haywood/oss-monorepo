@@ -115,6 +115,13 @@ export const JOB_PRESETS = Object.freeze([
 ]);
 
 function number(value, name, { min = 0, allowZero = true } = {}) {
+  // Number('') is 0, and a browser number box turns '1,200' into ''. A blank
+  // field priced as zero (no labor, no door, no margin) is a wrong bid with no
+  // warning, so a blank is an error. An omitted field still takes its default
+  // at the call site (`input.x ?? default`).
+  if (typeof value === 'string' && value.trim() === '') {
+    throw new Error(`${name} is blank: enter a number (0 if it does not apply)`);
+  }
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
   if (result < min) throw new Error(`${name} must be at least ${min}`);
@@ -191,8 +198,11 @@ export function suggestedGlazingKit(glazing) {
 
 /**
  * Retrofit pockets the new unit in the existing frame. New-
- * construction is a full-frame wrap: flashing, sill pan, and
- * exterior wrap hours sit on top of the set.
+ * construction is a full-frame wrap: tearing back to the rough opening,
+ * flashing tape and the house-wrap tie-in sit on top of the set. The sill
+ * pan is not in these hours; it is its own extra (addSillPan), so a
+ * new-construction job that needs one checks that box and is not charged
+ * for the pan twice.
  */
 export function suggestedInstallKit(install) {
   const id = String(install);

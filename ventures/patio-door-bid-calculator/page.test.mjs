@@ -212,3 +212,18 @@ test('index links one hop to the interior-door-bid-calculator sibling', () => {
   );
   assert.match(html, /interior door bid calculator/i);
 });
+
+// Quality re-audit 2026-11-21: restoring a saved bid used to mark every field
+// hand-edited, so the selects stopped moving the price on every later visit
+// (audit 2026-11-17, high). A seeded `field.dataset.edited = '1'` survived
+// every test; this pins the restore to restoredOverrides' answer.
+test('restore marks only fields that differ from their kit as hand-edited', () => {
+  assert.match(scriptSource, /restoredOverrides\(values,/);
+  assert.match(scriptSource, /field\.dataset\.edited = keep\.has\(id\) \? '1' : '';/);
+});
+
+test('the page says hours are crew-hours and the rate line includes the door', () => {
+  assert.match(markup, /Hours are crew-hours/);
+  assert.match(markup, /Price per crew-hour \(door and materials included\)/);
+  assert.doesNotMatch(markup, /sets a new sill pan and frame/);
+});
