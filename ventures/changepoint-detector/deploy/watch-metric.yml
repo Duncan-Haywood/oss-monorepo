@@ -25,6 +25,12 @@
 #                               METRIC_CSV unset and no Stripe key, watches it: orders and cancellations as counts,
 #                               revenue as a level. Use a PRIVATE repository.
 #   variable SHOPIFY_OPTIONS    optional, e.g. "--customers" (days follow the store's own time zone)
+#   secret   GSC_SERVICE_ACCOUNT_JSON  optional: a Google service account's JSON key, added in Search Console as a
+#                               Restricted user of your property. With the variable GSC_SITE (sc-domain:example.com or
+#                               https://www.example.com/) each run writes data/gsc.csv (date,clicks,impressions,ctr,position
+#                               per finished day; search-console-metrics.mjs) and, with METRIC_CSV unset and no Stripe or
+#                               Shopify credentials, watches clicks and impressions as counts.
+#   variable GSC_OPTIONS        optional, e.g. "--type discover"
 # With no webhook, a new change fails the run and GitHub emails you (--fail-on-alert).
 name: watch-metric
 on:
@@ -42,12 +48,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      # Keeps data/stripe.csv and data/shopify.csv between runs, so a run fetches a few days, not all 400.
+      # Keeps data/stripe.csv, data/shopify.csv and data/gsc.csv between runs, so a run fetches a few days, not all 400.
       - uses: actions/cache@v4
         with:
           path: |
             data/stripe.csv*
             data/shopify.csv
+            data/gsc.csv
           key: metrics-${{ github.run_id }}
           restore-keys: metrics-
       - name: Fetch Stripe metrics
@@ -69,6 +76,17 @@ jobs:
           if [ -z "$SHOPIFY_ACCESS_TOKEN" ]; then exit 0; fi
           # word-splitting of SHOPIFY_OPTIONS is intended
           node shopify-metrics.mjs --out data/shopify.csv $SHOPIFY_OPTIONS
+      - name: Fetch Search Console metrics
+        env:
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+          GSC_SITE: ${{ vars.GSC_SITE }}
+          GSC_OPTIONS: ${{ vars.GSC_OPTIONS }}
+        run: |
+          set -u
+          if [ -z "$GSC_SERVICE_ACCOUNT_JSON" ]; then exit 0; fi
+          if [ -z "$GSC_SITE" ]; then echo "Set the GSC_SITE variable (sc-domain:example.com or https://www.example.com/)."; exit 2; fi
+          # word-splitting of GSC_OPTIONS is intended
+          node search-console-metrics.mjs --site "$GSC_SITE" --out data/gsc.csv $GSC_OPTIONS
       - name: Check for a new change
         env:
           METRIC_CSV: ${{ vars.METRIC_CSV }}
@@ -82,8 +100,11 @@ jobs:
           elif [ -z "$METRIC_CSV" ] && [ -f data/shopify.csv ]; then
             METRIC_CSV=data/shopify.csv
             [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns orders:poisson,revenue,cancelled:poisson"
+          elif [ -z "$METRIC_CSV" ] && [ -f data/gsc.csv ]; then
+            METRIC_CSV=data/gsc.csv
+            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns clicks:poisson,impressions:poisson"
           fi
-          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, the STRIPE_API_KEY secret or the SHOPIFY_ACCESS_TOKEN secret (see the top of this file)."; exit 2; fi
+          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN or GSC_SERVICE_ACCOUNT_JSON secret (see the top of this file)."; exit 2; fi
           HOOK=""; [ -n "$WATCH_WEBHOOK_URL" ] && HOOK="--webhook-env WATCH_WEBHOOK_URL"
           FAIL="--fail-on-alert"; [ -n "$HOOK" ] && FAIL=""
           # word-splitting of WATCH_OPTIONS is intended

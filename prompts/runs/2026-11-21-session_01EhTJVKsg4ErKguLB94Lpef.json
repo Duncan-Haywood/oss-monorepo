@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVKsg4ErKguLB94Lpef",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T03:10:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship changepoint-detector (Start-here row): Google Search Console source for the watch and --events overlay on the CLI",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": 18015,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "status.search.google.com and developers.google.com refused by the proxy / DNS",
+      "effect": "Google's update dates could not be sourced, so none ship; the user supplies the events file"
+    },
+    {
+      "what": "two hand counts in the new tests were wrong (13 overlapping starts, not 12; 27 days, not 26)",
+      "effect": "fixed in the tests; the code was right"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The changepoint-detector next: items are statistical rounds or need a live repository; took a product item instead (a third data source with a large audience: sites that live on Google search traffic) that the next: list did not name.",
+      "did": "search-console-metrics.mjs, --events, workflow wiring, watch-page copy, simulation of watch delay",
+      "result": "shipped with stand-in tests and a 240-site simulation; next: rewritten to the middle count setting it showed is missing"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-search-console-traffic-drop-watch-and-update-dates.md"
+  ],
+  "goal": "Give the changepoint watch a source for search-traffic sites and a way to test a drop against dated events with a chance figure",
+  "notes": "Checks run here: python3 platform/ci/run_venture_tests.py changepoint-detector (exit 0, full suite after the workflow change); node --test search-console-metrics.test.mjs (9 pass) events.test.mjs (3 pass) watch-page.test.mjs page.test.mjs (28 pass with events); check_posts ok; validate.py ok. Simulation eval/gsc-watch-sim.mjs: default heard 40% falls 59/60 in a median 4 days, 20% falls 13/60, 10% 1/60, 2 false alerts in 18,000 site-days watched (7,200 on no-fall sites, 10,800 before a fall); Eager (pelt) 39-148 false alerts per 1,000 days. Not run against a live Search Console property (no key).",
+  "corrections": [],
+  "redteam": null
+}

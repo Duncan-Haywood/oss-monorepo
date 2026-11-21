@@ -1,0 +1,14 @@
+seeds per cell 20; days 240; fall on day 180; watched from day 120; detector count default (Quiet)
+base  fall  heard  median delay (days)  false alerts / 1,000 days watched
+  50    0%      -                     -        0.42
+  50   10%   1/20                     4        0.00
+  50   20%   5/20                     9        0.00
+  50   40%  19/20                     4        0.00
+ 400    0%      -                     -        0.00
+ 400   10%   0/20                     -        0.00
+ 400   20%   3/20                     8        0.83
+ 400   40%  20/20                     4        0.00
+3000    0%      -                     -        0.00
+3000   10%   0/20                     -        0.00
+3000   20%   5/20                     4        0.00
+3000   40%  20/20                     4        0.00
