@@ -1,0 +1,130 @@
+[
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "types": 39,
+  "fieldsWritten": 29,
+  "assignments": 257535,
+  "codeSame": 257535,
+  "descSame": null,
+  "leftOutPastRoom": 1416,
+  "valuesMerged": 0,
+  "valuesSplit": 0,
+  "ms": 3829,
+  "bad": [],
+  "mpxj": {
+   "aliases": "29/29",
+   "cells": "257535/257535",
+   "cellsMpxjRead": 257535
+  }
+ },
+ {
+  "file": "example_xer_file.xer",
+  "types": 3,
+  "fieldsWritten": 3,
+  "assignments": 436,
+  "codeSame": 436,
+  "descSame": null,
+  "leftOutPastRoom": 0,
+  "valuesMerged": 0,
+  "valuesSplit": 0,
+  "ms": 69,
+  "bad": [],
+  "mpxj": {
+   "aliases": "3/3",
+   "cells": "436/436",
+   "cellsMpxjRead": 436
+  }
+ },
+ {
+  "file": "hotel-project.xer",
+  "types": 5,
+  "fieldsWritten": 5,
+  "assignments": 18020,
+  "codeSame": 18020,
+  "descSame": null,
+  "leftOutPastRoom": 0,
+  "valuesMerged": 0,
+  "valuesSplit": 0,
+  "ms": 432,
+  "bad": [],
+  "mpxj": {
+   "aliases": "5/5",
+   "cells": "18020/18020",
+   "cellsMpxjRead": 18020
+  }
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "types": 1,
+  "fieldsWritten": 1,
+  "assignments": 51,
+  "codeSame": 51,
+  "descSame": null,
+  "leftOutPastRoom": 0,
+  "valuesMerged": 0,
+  "valuesSplit": 0,
+  "ms": 6,
+  "bad": [],
+  "mpxj": {
+   "aliases": "1/1",
+   "cells": "51/51",
+   "cellsMpxjRead": 51
+  }
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "types": 39,
+  "fieldsWritten": 29,
+  "assignments": 257535,
+  "codeSame": 257535,
+  "descSame": 257535,
+  "leftOutPastRoom": 1416,
+  "valuesMerged": 0,
+  "valuesSplit": 0,
+  "ms": 4017,
+  "bad": [],
+  "mode": "code-names"
+ },
+ {
+  "file": "example_xer_file.xer",
+  "types": 3,
+  "fieldsWritten": 3,
+  "assignments": 436,
+  "codeSame": 436,
+  "descSame": 436,
+  "leftOutPastRoom": 0,
+  "valuesMerged": 0,
+  "valuesSplit": 0,
+  "ms": 81,
+  "bad": [],
+  "mode": "code-names"
+ },
+ {
+  "file": "hotel-project.xer",
+  "types": 5,
+  "fieldsWritten": 5,
+  "assignments": 18020,
+  "codeSame": 18020,
+  "descSame": 18020,
+  "leftOutPastRoom": 0,
+  "valuesMerged": 0,
+  "valuesSplit": 0,
+  "ms": 567,
+  "bad": [],
+  "mode": "code-names"
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "types": 1,
+  "fieldsWritten": 1,
+  "assignments": 51,
+  "codeSame": 51,
+  "descSame": 51,
+  "leftOutPastRoom": 0,
+  "valuesMerged": 0,
+  "valuesSplit": 0,
+  "ms": 7,
+  "bad": [],
+  "mode": "code-names"
+ }
+]

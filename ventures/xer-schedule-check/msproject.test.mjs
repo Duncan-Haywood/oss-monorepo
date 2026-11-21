@@ -107,3 +107,80 @@ test("a multi-project file converts the project asked for, and says so", () => {
   assert.equal(o.counts.activities, 1);
   assert.throws(() => mspdiText(x, { projId: "nope" }), /not in the file/);
 });
+
+// activity codes -> Text2..Text30 and back
+function withCodes(types) {
+  const x = parseXer(EXAMPLE_XER);
+  const T = x.tables;
+  T.ACTVTYPE = []; T.ACTVCODE = []; T.TASKACTV = [];
+  types.forEach((ty, k) => {
+    const tid = `T${k + 1}`;
+    T.ACTVTYPE.push({ actv_code_type_id: tid, actv_code_type: ty.name, actv_code_type_scope: ty.scope || "AS_Global", seq_num: String(k), proj_id: "" });
+    for (const c of ty.codes) T.ACTVCODE.push({ actv_code_id: `${tid}-${c.id}`, actv_code_type_id: tid, short_name: c.code, actv_code_name: c.name || "", parent_actv_code_id: c.parent ? `${tid}-${c.parent}` : "" });
+    T.TASK.forEach((t, i) => { const c = ty.pick(i); if (c) T.TASKACTV.push({ task_id: t.task_id, actv_code_type_id: tid, actv_code_id: `${tid}-${c}`, proj_id: t.proj_id }); });
+  });
+  return x;
+}
+const extAttr = (xml, uid, fid) => { const m = xml.match(new RegExp(`<Task><UID>${uid}</UID>[\\s\\S]*?</Task>`)); const v = m && m[0].match(new RegExp(`<FieldID>${fid}</FieldID><Value>([^<]*)</Value>`)); return v ? v[1] : null; };
+
+test("activity codes become named text fields and read back as codes", () => {
+  const x = withCodes([
+    { name: "Phase", codes: [{ id: "d", code: "DES", name: "Design" }, { id: "c", code: "CON", name: "Construction" }], pick: (i) => (i % 2 ? "c" : "d") },
+    { name: "Area [A]", codes: [{ id: "n", code: "N", name: "" }], pick: (i) => (i < 3 ? "n" : null) },
+  ]);
+  const r = mspdiText(x);
+  assert.equal(r.counts.codeTypes, 2);
+  assert.equal(r.counts.codeAssignments, x.tables.TASK.length + 3);
+  assert.match(r.xml, /<FieldID>188743734<\/FieldID><FieldName>Text2<\/FieldName><Alias>Phase<\/Alias>/);
+  // brackets are kept out of Project field names
+  assert.match(r.xml, /<FieldName>Text3<\/FieldName><Alias>Area \(A\)<\/Alias>/);
+  const t0 = x.tables.TASK[0];
+  assert.equal(extAttr(r.xml, r.taskUid.get(t0.task_id), "188743734"), "DES");
+  const back = parseMspdi(r.xml);
+  const types = back.tables.ACTVTYPE.map((t) => t.actv_code_type);
+  assert.deepEqual(types, ["Phase", "Area (A)"]);
+  const phase = back.tables.ACTVTYPE[0].actv_code_type_id;
+  const codeOf = (taskId) => { const a = back.tables.TASKACTV.find((z) => z.task_id === String(r.taskUid.get(taskId)) && z.actv_code_type_id === phase); return back.tables.ACTVCODE.find((c) => c.actv_code_id === a.actv_code_id).short_name; };
+  x.tables.TASK.forEach((t, i) => assert.equal(codeOf(t.task_id), i % 2 ? "CON" : "DES"));
+  assert.ok(!r.warnings.some((w) => /activity code assignment/.test(w)));
+});
+
+test("with codeNames the description travels too and splits back", () => {
+  const x = withCodes([{ name: "Phase", codes: [{ id: "d", code: "DES", name: "Design" }, { id: "x", code: "X", name: "" }], pick: (i) => (i % 3 ? "d" : "x") }]);
+  const r = mspdiText(x, { codeNames: true });
+  assert.equal(extAttr(r.xml, r.taskUid.get(x.tables.TASK[1].task_id), "188743734"), "DES - Design");
+  assert.equal(extAttr(r.xml, r.taskUid.get(x.tables.TASK[0].task_id), "188743734"), "X");
+  const back = parseMspdi(r.xml);
+  const codes = back.tables.ACTVCODE.map((c) => [c.short_name, c.actv_code_name]).sort();
+  assert.deepEqual(codes, [["DES", "Design"], ["X", "X"]]);
+});
+
+test("a leaf code repeated under two parents is written as its path", () => {
+  const x = withCodes([{ name: "Area", codes: [{ id: "a", code: "A" }, { id: "b", code: "B" }, { id: "a1", code: "001", parent: "a" }, { id: "b1", code: "001", parent: "b" }], pick: (i) => (i % 2 ? "a1" : "b1") }]);
+  const r = mspdiText(x);
+  assert.equal(extAttr(r.xml, r.taskUid.get(x.tables.TASK[0].task_id), "188743734"), "B.001");
+  assert.equal(extAttr(r.xml, r.taskUid.get(x.tables.TASK[1].task_id), "188743734"), "A.001");
+  assert.ok(r.warnings.some((w) => /whole path/.test(w)));
+  assert.equal(parseMspdi(r.xml).tables.ACTVCODE.length, 2);
+});
+
+test("past 29 code types the most assigned are kept and the rest counted", () => {
+  const types = Array.from({ length: 31 }, (_, k) => ({ name: `Code ${k + 1}`, codes: [{ id: "v", code: "V" }], pick: (i) => (k < 2 ? (i === 0 ? "v" : null) : "v") }));
+  const x = withCodes(types);
+  const r = mspdiText(x);
+  assert.equal(r.counts.codeTypes, 29);
+  assert.ok(!/Alias>Code 1</.test(r.xml) && !/Alias>Code 2</.test(r.xml));
+  assert.match(r.xml, /<FieldID>188744016<\/FieldID><FieldName>Text30<\/FieldName>/);
+  assert.ok(r.warnings.some((w) => /left out: Code 1 \(1\), Code 2 \(1\)/.test(w)));
+  assert.ok(r.warnings.some((w) => /2 activity code assignment\(s\) of the 2 code type/.test(w)));
+});
+
+test("duplicate code type names stay apart in Project", () => {
+  const x = withCodes([
+    { name: "Phase", codes: [{ id: "v", code: "1" }], pick: () => "v" },
+    { name: "phase", scope: "AS_Project", codes: [{ id: "v", code: "2" }], pick: () => "v" },
+  ]);
+  const r = mspdiText(x);
+  assert.match(r.xml, /<Alias>Phase \(T1\)<\/Alias>/);
+  assert.match(r.xml, /<Alias>phase \(T2\)<\/Alias>/);
+});

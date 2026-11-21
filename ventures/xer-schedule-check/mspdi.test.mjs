@@ -235,3 +235,15 @@ test("an in-progress task's remaining work restarts at Project's Resume date", (
   const late = resumed.replace("<CalendarUID>1</CalendarUID><MinutesPerDay>", "<StatusDate>2024-03-07T08:00:00</StatusDate><CalendarUID>1</CalendarUID><MinutesPerDay>");
   assert.deepEqual(ef(late), ["2024-03-08 12:00", "2024-03-12 12:00"]);
 });
+
+test("Project text fields read as activity codes; per-task notes and Activity ID are not", () => {
+  const task = (uid, extra) => `<Task><UID>${uid}</UID><ID>${uid}</ID><Name>T${uid}</Name><OutlineLevel>1</OutlineLevel><Duration>PT8H0M0S</Duration>${extra}</Task>`;
+  const ea = (fid, v) => `<ExtendedAttribute><FieldID>${fid}</FieldID><Value>${v}</Value></ExtendedAttribute>`;
+  const tasks = Array.from({ length: 25 }, (_, i) => task(i + 1, ea("188743731", `A${i}`) + ea("188743734", i % 2 ? "North" : "South") + ea("188743737", `note ${i}`) + (i < 5 ? ea("188743997", "Civil") : "")));
+  const xml = `<?xml version="1.0"?><Project xmlns="http://schemas.microsoft.com/project"><StartDate>2026-01-05T08:00:00</StartDate><ExtendedAttributes><ExtendedAttribute><FieldID>188743731</FieldID><FieldName>Text1</FieldName><Alias>Activity ID</Alias></ExtendedAttribute><ExtendedAttribute><FieldID>188743734</FieldID><FieldName>Text2</FieldName><Alias>Zone</Alias></ExtendedAttribute></ExtendedAttributes><Tasks>${tasks.join("")}</Tasks></Project>`;
+  const r = parseMspdi(xml);
+  assert.deepEqual(r.tables.ACTVTYPE.map((t) => t.actv_code_type), ["Zone", "Text11"]);
+  assert.deepEqual(r.tables.ACTVCODE.filter((c) => c.actv_code_type_id === r.tables.ACTVTYPE[0].actv_code_type_id).map((c) => c.short_name), ["North", "South"]);
+  assert.equal(r.tables.TASKACTV.length, 30);
+  assert.ok(r.warnings.some((w) => /different value on every task.*Text3/.test(w)));
+});
