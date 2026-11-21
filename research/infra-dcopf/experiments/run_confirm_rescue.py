@@ -67,7 +67,8 @@ def summary():
         note = r.get("stop", "")
         if not note and r.get("final") and not r.get("clean_at"):
             f = r["final"]
-            note = "best: " + ", ".join(f"{a}={f[a]}" for a in ("n_over", "max_load", "n_v", "n_q") if a in f)
+            note = (f"best (round {f['it']}): {f['n_over']} over (max {100 * f['max_load']:.2f} %), "
+                    f"{f['vviol']} V out ({f['v_exc_pu']:.4f} pu), {f['qviol']} Q out ({f['q_exc_mvar']:.3f} MVAr)")
         P(f"{k[0]:18s} {k[1]:4s} {r['nbus']:5d} {str(r.get('start_rule')):>24s} {r.get('mu_star', 0.0):6.3f} "
           f"{str(r.get('clean_at') or '-'):>6s} {('-' if c is None else f'{pct(c, r['ac']):+.3f}'):>8s} "
           f"{r['secs']:6.0f}  {note}")

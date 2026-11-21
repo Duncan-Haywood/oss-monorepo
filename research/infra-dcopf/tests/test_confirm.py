@@ -28,3 +28,13 @@ def test_every_case_has_a_file_and_a_published_objective():
         for k in ("typ", "api", "sad"):
             assert case_path(n, k).exists()
             assert (n, k) in b and b[(n, k)][1] > 0
+
+
+def test_rescue_arm_covers_exactly_the_no_start_cases_and_scores_them():
+    import run_confirm_rescue as rr
+    cases = rr.no_start_cases()
+    assert len(cases) == 10
+    txt, res = rr.summary()
+    assert "PENDING" not in txt and "ERROR" not in txt
+    assert res["pips"] == 0 and res["clarabel"] + res["pips"] <= len(cases)
+    assert res["finishers"] <= res["full"] <= res["clarabel"]
