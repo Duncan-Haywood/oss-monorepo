@@ -88,6 +88,7 @@
       <h3 id="to-p6">Send this Microsoft Project schedule as a P6 XER</h3>
       <p class="note">Writes a Primavera P6 XER in this tab, for P6's import (File, Import, Primavera PM (XER)): summary tasks as the WBS under a project node, each task as an activity (ID A + its row number x 10, or your "Activity ID" text column if the file has one), every calendar with its exceptions, relationships and lags, constraints, progress (actual dates, remaining duration, Project's Resume as P6's suspend and resume), the baseline as planned dates, resources and assignments with hours and cost, text columns as project activity codes, and Number, Cost and Date columns as activity user-defined fields named after the column (every one of 243 values on Project 2003-2019 test files read back the same), resource sheet Text, Number, Cost and Date columns as resource user-defined fields, and the same task columns on summary tasks as WBS user-defined fields. Scheduling options are set to Project's (lags on the successor's calendar, float the smaller of start and finish float), so P6's first schedule run gives Project's dates. On 143 Project files every field, link and code assignment read back unchanged and the recomputed dates matched on 2,509 of 2,509 open tasks; MPXJ, an independent reader, read the same dates, durations, progress, logic and resource hours from 2,518 of 2,520 tasks. Task notes become P6 notebook entries: a note written as <code>[Topic]</code> sections (as the P6-to-Project download writes notebooks) gives one entry per topic, any other note one entry under a topic named Notes; a summary task's notes go on its WBS node, the project's own notes on the project node. The file is saved in Windows-1252, the code page P6 reads an XER in, so accented names and notes arrive intact. Cost resources become P6 expenses: each assignment an expense named after the resource, in a cost category from its Group, accrued as the resource accrues, budgeted at its baseline cost; a task's fixed cost becomes a "Fixed cost" expense. Not carried: deadlines, task splits.</p>
       <p><label for="p6-id">Project ID in P6 (optional, up to 40 characters)</label> <input id="p6-id" maxlength="40" placeholder="the project's title"></p>
+      <p><input type="checkbox" id="p6-deadlines"> <label for="p6-deadlines">deadlines as finish-on-or-before constraints, so P6's float counts down to them as Project's slack does (a DCMA review counts them as hard constraints)</label></p>
       <button type="button" id="p6-xer">Download for Primavera P6 (.xer)</button>
       <div id="p6-out"></div>
     </div>
@@ -545,7 +546,7 @@
     $("#p6-xer").addEventListener("click", () => {
       if (!xer || xer.format !== "mspdi" || !loadedText) return;
       try {
-        const r = p6XerText(loadedText, { projectId: $("#p6-id").value.trim() });
+        const r = p6XerText(loadedText, { projectId: $("#p6-id").value.trim(), deadlines: $("#p6-deadlines").checked });
         save(new Blob([r.bytes], { type: "text/plain" }), `${fileName}.xer`);
         $("#p6-out").innerHTML = `<p class="note">${esc(r.project.id)}: ${esc(p6xerSummary(r))}.</p>${r.warnings.length ? `<div class="warnbox"><strong>What to know before importing</strong><ul>${r.warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : ""}`;
         record("converted_to_p6");

@@ -46,8 +46,11 @@
 - (2026-11-21) Project XML to XER: next, an import into a real P6 (any
   version) to confirm what the field lists stand in for (notes as TASKMEMO
   under MEMOTYPE shipped 2026-11-21, eval/notebooks-2026-11-21.md: check
-  whether P6's import matches a topic by name or adds one); deadlines as a secondary finish-on-or-before constraint
-  (opt-in, since it changes float). Cost resources and fixed costs as
+  whether P6's import matches a topic by name or adds one); deadlines as finish-on-or-before constraints shipped
+  2026-11-21 (opt-in `--deadlines`, primary or secondary by P6's rules; the
+  MSPDI reading now caps late finish at a deadline as Project's slack does;
+  eval/deadlines-2026-11-21.md; next: a real Project file with open tasks
+  and deadlines, a P6 import of a secondary from an XER). Cost resources and fixed costs as
   PROJCOST expenses shipped 2026-11-21 (eval/expenses-2026-11-21.md, both
   directions); still open there: a P6-written XER with expenses, whether
   P6's import matches a cost category by name, expense accounts (acct_id).
