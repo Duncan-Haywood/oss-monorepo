@@ -380,6 +380,7 @@ Command line (Node 20+):
 node cli.mjs model.ifc spec.ids                 # text report, exit 1 on a fail
 node cli.mjs model.ifcxml spec.ids              # ifcXML, or an .ifczip, the same way
 node cli.mjs model.ifc spec.ids --json          # full report
+node cli.mjs model.ifc spec.ids --html report.html  # the check as one HTML file to send back
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
@@ -473,6 +474,28 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 `.ifc` zipped by Python's `zipfile`.
 
 No API key, account or server is involved, so there is nothing to configure.
+
+### The check as a report you send back (2026-11-21)
+
+After a check, press *Download report (HTML)* on the page, or run
+`node cli.mjs model.ifc spec.ids --html report.html` (`html-report.mjs`). It is
+one file with nothing loaded from outside, so it opens offline, survives an
+email attachment and prints (every section opens before printing). It holds
+the verdict, the model and IDS it came from, a table of every specification
+(applicable, pass, fail, pass rate), each specification's failing elements with
+GlobalId and the reason, and three tallies the CSV makes a reader build by hand:
+
+- **Where to start:** the requirements that fail most often. On real exports a
+  single unmapped parameter usually explains a whole row (112 walls missing
+  `Pset_WallCommon.ThermalTransmittance` in the HHS Office architect model).
+- **Failures by IFC class:** whose discipline the failures belong to.
+- **Elements failing the most specifications:** the worst-modelled elements.
+
+A filter box narrows the element rows by GlobalId, name, class or `#id` (the
+report reads fully without it, since mail clients drop scripts). Each
+specification writes its first 1,000 failing elements and says how many it left
+out; the counts are always exact, and the CSV and JSON hold every row. Checked
+on 4 real exports against 65 public IDS files (`eval/html-report-2026-11-21.md`).
 
 ### The IDS as a document people read (2026-11-20)
 
