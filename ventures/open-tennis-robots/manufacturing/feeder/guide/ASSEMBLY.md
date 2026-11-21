@@ -77,19 +77,19 @@ Slide an M6 T-nut into the net beam's bottom slot 1450 mm either side of the mid
 | drive_bracket | 2 | laser/drive_bracket__aluminium_5mm.dxf |
 | idler_bracket | 2 | laser/idler_bracket__aluminium_5mm.dxf |
 | gearmotor | 2 | 37 mm gearmotor, 24 V, ~200 rpm, 6 mm D shaft, quadrature encoder |
-| wheel | 4 | 150 x 40 mm non-marking wheel, 6 mm D hub (drive) or 8 mm bore (idler) |
+| wheel | 4 | 150 x 40 mm non-marking wheel, 40 mm hub: 6 mm D hub (drive) or two 608 bearings and a spacer tube in the hub, 8 mm bore (idler, as a scooter wheel's) |
+| idler_axle_spacer | 4 | Steel bearing spacer, 8.2 x 12 x 2 mm (a 608's inner-race spacer): one between the idler bracket and the hub's inner race, one under the nyloc |
 
 | Fastener or part | Qty |
 | --- | --- |
 | M5 x 12 button head | 8 |
 | M5 T-nut (slot 6) | 8 |
 | M3 x 8 screw | 12 |
-| 608 bearing, 8 x 22 x 7 | 2 |
-| M8 x 60 bolt + nyloc nut | 2 |
+| M8 x 65 hex bolt + nyloc nut (idler axle) | 2 |
 
 Tools: 3 mm and 2.5 mm hex keys, two 13 mm spanners.
 
-Screw each gearmotor's face to the inside of a drive bracket (six M3 x 8), shaft out through the 14 mm hole. Bolt the drive brackets near the net beam and the idler brackets near the rear rail to the side rails' outer slots (two M5 x 12 into T-nuts each). Press a 608 into each idler bracket's bore; the idler wheels turn on an M8 x 60 through the bearing. Push the drive wheels' hubs onto the 6 mm D shafts, flat to the grub screw, 2 mm off the bracket.
+Screw each gearmotor's face to the inside of a drive bracket (six M3 x 8), shaft out through the 14 mm hole. Bolt the drive brackets near the net beam and the idler brackets near the rear rail to the side rails' outer slots (two M5 x 12 into T-nuts each). The idler axles are fixed: push an M8 x 65 out through each idler bracket's 8.4 mm hole from the inside, then a spacer, the wheel (its own two 608s turn) and a second spacer, and tighten the nyloc outside with the head held: it clamps the hub's inner races, so the bolt does not turn. Spin the wheel: it should run free with no end play. Push the drive wheels' hubs onto the 6 mm D shafts, flat to the grub screw, 2 mm off the bracket.
 
 ### 5. Mast posts and cable crossbar
 
@@ -615,6 +615,8 @@ Each length is measured from the head's face through the parts the model puts un
 | lift spacer ear to the boot | M3 x 8 socket cap screw + M3 heat-set insert, 4 mm long (lift) | lift_motor_spacer 3 | 3 | 8 | 5 | 4 to 6 mm past the face, the insert's length to the pocket's depth | pass |
 | lift flight cap through its cleat | M3 x 14 countersunk screw + washer + nyloc nut (flight caps) | lift_flight_cap 4.301 + lift_belt 3 + 0.5 washers | 8.5 | 14 | 5.5 | needs 5 mm past the stack for the nyloc and two threads | pass |
 | deck cable saddle | M5 x 16 button head + nyloc nut (deck cables) | deck_cable_saddle 1.5 + base_deck 5 | 6.5 | 16 | 9.5 | needs 6.6 mm past the stack for the nyloc and two threads | pass |
+| idler axle | M8 x 65 hex bolt + nyloc nut (idler axle) | idler_bracket 5 + idler_axle_spacer 2 + wheel 40 + idler_axle_spacer 2 | 49 | 65 | 16 | needs 10.5 mm past the stack for the nyloc and two threads | pass |
+| take-up spool axle | M4 x 40 socket cap screw + nyloc nut (spring axle) | take_up_spring_bracket 6 + take_up_spool 16.7 + take_up_spring_bracket 6 (+ 1 open) | 29.7 | 40 | 10.3 | needs 6.4 mm past the stack for the nyloc and two threads | pass |
 | driver carrier to deck | M3 x 20 screw + nut (stepper driver carrier) | stepper_driver_carrier 10 + base_deck 5 | 15 | 20 | 5 | needs 3.4 mm past the stack for the nut and two threads | pass |
 
 ## Other checks
@@ -644,6 +646,8 @@ and 30 degrees (a 12-point ring's step) to be turned. A hex head turned with a s
 | elevation anchor (anchor eye) through the cheek's tab | Shoulder bolt 6 x 30, M5, + thin nut | 12 | 8 mm, 110 long | 1 | 85 | - | head (key) or nut | pass |
 | lift flight cap through its cleat | M3 x 14 countersunk screw + washer + nyloc nut (flight caps) | 22 | 5.5 mm, 85 long | 1 | 15 | - | head (key) | pass |
 | deck cable saddle | M5 x 16 button head + nyloc nut (deck cables) | 23 | 8 mm, 110 long | 1 | 225 | - | head (key) or nut | pass |
+| idler axle | M8 x 65 hex bolt + nyloc nut (idler axle) | 4 | 13 mm, 165 long | 2 | 360 | 225 | head or nut | pass |
+| take-up spool axle | M4 x 40 socket cap screw + nyloc nut (spring axle) | 15 | 7 mm, 100 long | 1 | 110 | - | head (key) or nut | pass |
 | driver carrier to deck | M3 x 20 screw + nut (stepper driver carrier) | 13 | 5.5 mm, 85 long | 4 | 205 | - | head (key) or nut | pass |
 
 Result when this package was built: all pass.

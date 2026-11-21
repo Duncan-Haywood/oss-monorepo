@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKk612zbZX51W9Yk4js",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T12:18:59Z",
+  "ended": "2026-11-21T12:37:21Z",
+  "wall_minutes": 32.97,
+  "tokens_in": 9567652,
+  "tokens_out": 39273,
+  "cost_usd": 3.9073,
+  "tool_calls": 77,
+  "task": "open-tennis-robots flagship (allocate.py Start here, row 5): idler 608s, turntable rings, spring axle as checked joints",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18081",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "base.py baseline first run failed with ModuleNotFoundError (needed PYTHONPATH=. from cad/); pytest '-n 0' failed silently behind a pipe to tail (no xdist), rerun without it"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/cad/README.md",
+      "issue": "The 'Not checked' note framed the idler as 'the 608s are not drawn'; drawing them showed the axle design itself (one cantilevered 608) was the problem, not just a missing joint. Notes that say 'not drawn' can hide a design fault, worth saying so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The buildable item named three joints; I landed two (idler axles, spool axle) and left the turntable bearing's rings for the next run, because the idler turned into a redesign (fixed axle) that needed the time, and the lazy-susan's real ring geometry is unknown enough that drawing it well is its own run.",
+      "did": "Rewrote buildable: to name the turntable rings and levelling-feet jam nuts as next, trimmed landed items to a README pointer.",
+      "result": "Two joints landed with tests; turntable is the named next item."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-tennis-feeder-idler-axles-fixed.md",
+    "ventures/open-tennis-robots/cad/README.md (Idler axles fixed, and the spool axle)"
+  ],
+  "goal": null,
+  "notes": "Idler wheels turned on an M8 x 60 inside one 608 pressed into a 5 mm bracket, wheel centre 25.5 mm outboard: a moment (~2.8 N m from 45.6 kg of made parts over four wheels) on a single deep-groove bearing. Redesigned as a fixed M8 x 65 axle clamped through the bracket, two 8 x 12 x 2 spacers and the wheel's own hub 608s; bracket bore 22 -> 8.4 mm; BOM drops 2 x 608, adds 4 spacers (drawn). New Joint.far_last so a through-bolt stack runs to the last piece of a one-piece part (the spool bracket's two cheeks); every other joint row compared before/after and identical. 37 joints, 9 feeder spanner rows. Feeder package rebuilt: collisions [] and design_rules [] in the manifest. Verification: pytest -k 'SpannerTest or FeederAssemblyGuideTest' 21 passed (417 s); full cad suite with build123d 0.13.0: 196 passed (867 s); run_venture_tests.py open-tennis-robots: ok, 522 tests; venture-preflight.mjs open-tennis-robots: clean; check_posts ok; promptctl validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1135f99d-7d48-5769-9f71-278b4867510a",
+    "transcripts": 1,
+    "first": "2026-11-21T12:18:59Z",
+    "last": "2026-11-21T12:51:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 135,
+        "output": 39273,
+        "thinking": 13252,
+        "cache_read": 9412665,
+        "cache_write_5m": 0,
+        "cache_write_1h": 154852,
+        "api_equivalent_usd": 3.9073,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 135,
+      "output": 39273,
+      "thinking": 13252,
+      "cache_read": 9412665,
+      "cache_write_5m": 0,
+      "cache_write_1h": 154852,
+      "api_equivalent_usd": 3.9073,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 73,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 32.97,
+      "active_minutes": 32.97,
+      "model_minutes": 7.61,
+      "tool_minutes": 25.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a mechanical engineer reviewing the idler axle design, redesigning it, updating the CAD/BOM/guide and checker, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 153.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

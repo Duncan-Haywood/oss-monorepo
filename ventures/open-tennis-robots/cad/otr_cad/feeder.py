@@ -535,6 +535,22 @@ def base_deck(p: Feeder) -> Part:
                 notes="Sits on the rails (M5 and T-nuts); holds the battery and electronics.")
 
 
+# Idler axles (2026-11-21). Until then each idler wheel turned on an M8 x 60 through one 608 pressed into a 22 mm
+# bore in the 5 mm bracket: a 7 mm bearing seated over 5 mm of its width, carrying the wheel's load 25.5 mm off its
+# own centre, a moment a single deep-groove bearing takes only by tilting through its clearance. Now the axle is
+# fixed: the bolt's head on the bracket's inside face, through the bracket, a spacer on the hub bearing's inner race,
+# the wheel (two 608s and a spacer tube in its hub, as a scooter wheel's) and a second spacer, nyloc outside. The
+# nyloc clamps the inner races and the tube to the bracket, so the axle does not turn and the wheel's two bearings,
+# 40 mm apart, carry it. `feeder_guide.joints` checks the length ("idler axle").
+IDLER_AXLE_HOLE = 8.4          # M8 clearance (ISO 273 fine)
+IDLER_SPACER = (8.2, 12.0)     # bore, OD: touches only a 608's inner race (its land is about 12 mm; the shield starts past it)
+IDLER_AXLE_LEN = 65            # M8 x 65: 10.5 mm needed past the 49 mm stack, 16 there (an M8 x 60 leaves 11, 0.5 to spare)
+
+
+def idler_axle_spec() -> str:
+    return f"M8 x {IDLER_AXLE_LEN} hex bolt + nyloc nut (idler axle)"
+
+
 def wheel_bracket(p: Feeder, drive: bool) -> Part:
     wx = p.wheel_x[0] if drive else p.wheel_x[1]
     z0, z1 = 30.0, p.rail_top
@@ -547,13 +563,13 @@ def wheel_bracket(p: Feeder, drive: bool) -> Part:
             _holes([(wx + x, p.wheel_d / 2 + y) for x, y in _ring(15.5, 6)], 3.4)
         else:
             with Locations((wx, p.wheel_d / 2)):
-                Circle(22 / 2, mode=Mode.SUBTRACT)  # 608 bearing
+                Circle(IDLER_AXLE_HOLE / 2, mode=Mode.SUBTRACT)  # fixed M8 axle (a 22 mm 608 bore until 2026-11-21)
         _holes([(wx + dx, p.rail_z + p.rail_h / 2) for dx in (-15, 15)], 5.5)
     face = s.sketch
     x = p.base_half_w
     name = "drive_bracket" if drive else "idler_bracket"
     note = ("Gearmotor (37 mm class, M3 on a 31 mm circle) bolts to the inside face." if drive
-            else "608 bearing in the bore, 8 mm axle bolt.")
+            else f"Fixed M8 axle: {idler_axle_spec()} from the inside face, clamped through the wheel's hub bearings.")
     return Part(name, "laser", "aluminium 5052", 2, extrude(face, p.bracket_t),
                 [Location((0, x + p.bracket_t, 0), ROT_XZ), Location((0, -x, 0), ROT_XZ)],
                 flat=face, thickness=p.bracket_t, notes=note + " M5 into the side rail's T-slot.")
@@ -1238,7 +1254,15 @@ def envelopes(p: Feeder) -> list[Part]:
     wheel_b = Cylinder(p.wheel_d / 2, p.wheel_w).moved(Location((0, 0, 0), ROT_Y_AXIS))
     wl = [Location((x, s * p.wheel_y, p.wheel_d / 2)) for x in p.wheel_x for s in (1, -1)]
     out.append(Part("wheel", "cots", "", 4, wheel_b, wl,
-                    spec=f"{p.wheel_d:g} x {p.wheel_w:g} mm non-marking wheel, 6 mm D hub (drive) or 8 mm bore (idler)"))
+                    spec=f"{p.wheel_d:g} x {p.wheel_w:g} mm non-marking wheel, {p.wheel_w:g} mm hub: 6 mm D hub (drive) "
+                         f"or two 608 bearings and a spacer tube in the hub, 8 mm bore (idler, as a scooter wheel's)"))
+    gap = p.wheel_y - p.wheel_w / 2 - p.base_half_w - p.bracket_t
+    sp = (Cylinder(IDLER_SPACER[1] / 2, gap) - Cylinder(IDLER_SPACER[0] / 2, gap + 1)).moved(Location((0, 0, 0), ROT_Y_AXIS))
+    yo = (p.base_half_w + p.bracket_t + gap / 2, p.wheel_y + p.wheel_w / 2 + gap / 2)
+    out.append(Part("idler_axle_spacer", "cots", "", 4, sp,
+                    [Location((p.wheel_x[1], s * y, p.wheel_d / 2)) for y in yo for s in (1, -1)],
+                    spec=f"Steel bearing spacer, {IDLER_SPACER[0]:g} x {IDLER_SPACER[1]:g} x {gap:g} mm (a 608's "
+                         f"inner-race spacer): one between the idler bracket and the hub's inner race, one under the nyloc"))
     gm = Cylinder(p.gearmotor_d / 2, p.gearmotor_len).moved(Location((0, 0, 0), ROT_Y_AXIS))
     ygm = p.base_half_w - p.gearmotor_len / 2
     out.append(Part("gearmotor", "cots", "", 2, gm, [Location((p.wheel_x[0], s * ygm, p.wheel_d / 2)) for s in (1, -1)],
@@ -2664,8 +2688,7 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M4 x 12 socket cap screw (stops)", 4, "mast plate up into the two azimuth stop blocks"),
         ("M4 heat-set insert, 5.7 mm long (stops)", 4, "azimuth stop blocks"),
         ("Contact adhesive (polyurethane to PETG)", 1, "stop pads to their blocks"),
-        ("608 bearing, 8 x 22 x 7", 2, "idler wheels"),
-        ("M8 x 60 bolt + nyloc nut", 2, "idler axles"),
+        (idler_axle_spec(), 2, "idler axles, fixed to the brackets (the wheels' hub bearings turn)"),
         ("M6 T-nut (slot 6) + M6 jam nut (levelling foot)", 2, "beam ends"),
         ("M4 x 12 socket cap screw (feed)", 8, "feed floor and roof to the head plates (through the plates, into inserts)"),
         ("M4 heat-set insert, 5.7 mm long (feed)", 8 + 4, "feed floor, roof and sleeve socket"),
