@@ -141,9 +141,8 @@ a hidden screw, so a change to the arm's width or the cover's bolt circle can't
 quietly put a thumb screw behind the arm at the emptying angle. A test turns
 the hatch angle to 60 degrees and checks the build fails.
 
-Not checked: the nut side of the through-bolts (the rod clamp rings' nylocs
-inside the drum and the yoke pivot's and drum axle's nylocs are held with a
-spanner, whose path is not a cylinder on the axis); a hex key's L and the
+Not checked here: the nut side of the through-bolts, which has its own check
+since 2026-11-21 ("Spanners on the nuts", below); a hex key's L and the
 swing it needs to turn; and the M2 self-tappers' screwdriver, which is longer
 than 60 mm.
 
@@ -399,6 +398,53 @@ about 27 mm from a pulley's axis, inside the fingers' 30.2 mm sweep. Assumed, no
 and the head's catalogue figures (read your screws: a cheap head can be as small
 as 5.54 mm and sits deeper), and how fast the PU creeps under a washer. Check the
 nylocs after the first hour of running. Nobody has built one.
+
+### Spanners on the nuts (2026-11-21, `guide.spanner_checks`, `nut_seat`, `spanner_solid`)
+
+The head-access checks look along a screw's axis from its head. The other end of
+a through-bolt was not checked: the nyloc inside the drum, the one inside the
+yoke's pivot block, the nuts under the mast plate and the deck. A spanner does
+not go in along the axis; it lies flat on the nut, its shank runs out sideways
+and a hand holds the end. So the check is a ring spanner and a hand, laid on each
+nut and turned about the bolt 5 degrees at a time, against everything on the
+work when the nut's step comes (a bench step: against that step's own parts):
+
+- the spanner: a ring end 1.65 x across-flats + 1 mm across, a shank
+  0.75 x AF + 3 mm wide and 0.4 x AF + 2 mm thick, and a length by size (5.5 mm
+  85, 7 mm 100, 8 mm 110, 10 mm 130, 13 mm 165), all typical of combination
+  spanners, not a standard's figures;
+- the hand: fingers over the shank's last 35 mm and 20 mm wider than it, then
+  150 mm more of hand and wrist along the shank (the hand comes from outside),
+  standing 25 mm off the spanner's face, away from the work.
+
+A nut passes if some angle takes the spanner and hand: it can be held while a key
+turns the head. A hex head that is itself turned with a spanner (the drum axle's
+M8 and the feeder's head pivot, `Joint.hex_head`) also needs 30 degrees of swing,
+a 12-point ring's step, at its head or at its nut. The guide prints the table
+("Spanners on the nuts"): 3 collector joints (16 nuts) and 7 feeder joints (10 nuts).
+
+What it found:
+
+| Found | Was | Now |
+| --- | --- | --- |
+| Drum axle nut | the guide said "nyloc on the inner race (reach it between the rods)" and listed two 13 mm spanners. The nut is on the drum's axis inside the cage, and a typical 165 mm spanner ends 7 mm past the 158 mm rod circle: the fingers are between the rods. It fits straight down the middle of a gap, a 7-degree window (1-degree steps), and a hand 53 mm across instead of 33 does not fit at all. It cannot be swung | the step asks for a 13 mm spanner 200 mm or longer on the nut, put in straight between two rods, fingers outside the rods, and says to turn the head outside the arm, which swings 330 degrees. With 200 mm the windows triple (248 degrees clear in all at 1-degree steps, 15 contiguous at the worst hole). `DRUM_AXLE_SPANNER`, `Joint.spanner_len` |
+| Stepper driver carrier | four "M3 x 16 screw + nut" down through the 4 mm block and its 6 mm standoffs and the 5 mm deck: 1 mm of thread under the deck for a 2.4 mm nut and two threads. It was not a checked joint | a joint ("driver carrier to deck", 35 feeder joints now) with its four holes: M3 x 20, 5.0 mm past the 15 mm stack, 3.4 needed. The nut under the deck takes a 5.5 mm spanner over 205 degrees, so it can be turned or held. The step lists the spanner |
+
+The other nuts are easy: the rod clamp rings' nylocs (outside the rod circle,
+between it and the disc's rim) 205 degrees, the yoke pivot's M6 90, the home
+switch bracket's M3 145, the head pivot's nyloc 165 (its head 115), the deck
+cable saddles' 225, the elevation pin's and anchor's thin nuts 55 and 85, and
+the flight caps' M3 nyloc on the cleat's back 15: held only, which is what the
+step does (the countersunk head turns with a key).
+
+Not checked: the feeder's nuts that are not joints yet, because the parts they
+clamp are not drawn as they are: the idler wheels' M8 x 60 (the 608s are not
+drawn), the turntable bearing's eight M5 nuts (the bearing is a solid puck, its
+rings and access hole are not drawn), the spring axle's M4 nyloc (its own design
+rule, `spring_bracket_design`) and the levelling feet's jam nuts. A deep socket
+on an extension, which goes in along the axis, is not tried; the bolt's tail past
+the nut is not drawn, so a ring end is assumed to slide over it. The hand is a
+box. Nobody has built one.
 
 ## Changing the design
 

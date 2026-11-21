@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmwvfk2xueNwnVAx9n",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T10:19:03Z",
+  "ended": "2026-11-21T10:48:50Z",
+  "wall_minutes": 42.61,
+  "tokens_in": 15045397,
+  "tokens_out": 62513,
+  "cost_usd": 5.7188,
+  "tool_calls": 99,
+  "task": "open-tennis-robots (flagship 10): buildable item 'spanner paths for nuts'",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18069",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first venture-preflight run started while the collector package was being regenerated (it empties its folder first), so check_conflict_markers saw missing files",
+      "fix": "reran after the build: clean"
+    },
+    {
+      "what": "test asserted 8 feeder nut joints; there are 7",
+      "fix": "corrected the test, README and post before commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace on buildable refused a 177-char replacement (40 over the 600 cap) and printed ~32 KB of output; a one-line refusal with the char budget would do"
+    },
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "venture-preflight must not run while `python -m otr_cad` rebuilds manufacturing/ (the package writer empties the folder); nothing says so"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-tennis-robots-spanners-on-the-nuts.md",
+    "ventures/open-tennis-robots/cad/README.md (Spanners on the nuts)",
+    "ventures/open-tennis-robots/NEXT.md (unchecked nuts)"
+  ],
+  "goal": "deepen flagship 10 with a checked assembly rule that finds real faults",
+  "notes": "New guide.spanner_checks (ring spanner + hand model, 5-degree sweep about each nut at its step). Found: drum axle nyloc inside the rod cage fits a 165 mm 13 mm spanner only in a 7-degree window per gap (fingers between rods), so the step now asks for a 200 mm+ spanner and to turn the head (330 deg swing); feeder stepper driver carrier M3 x 16 left 1 mm for a nut needing 3.4 (was not a joint) -> new joint, M3 x 20. Both packages regenerated. Verification: tests/test_cad.py -k 'Spanner or AssemblyGuide' 30 passed before a count fix; full cad/tests (after regenerating both packages): 193 passed in 775 s; node platform/pages/venture-preflight.mjs open-tennis-robots: preflight clean, exit 0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a0062c71-ae6f-55b2-b0d1-a96d3502eab2",
+    "transcripts": 1,
+    "first": "2026-11-21T10:19:03Z",
+    "last": "2026-11-21T11:01:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 96,
+        "input": 182,
+        "output": 62513,
+        "thinking": 24830,
+        "cache_read": 14858193,
+        "cache_write_5m": 0,
+        "cache_write_1h": 187022,
+        "api_equivalent_usd": 5.7188,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 96,
+      "input": 182,
+      "output": 62513,
+      "thinking": 24830,
+      "cache_read": 14858193,
+      "cache_write_5m": 0,
+      "cache_write_1h": 187022,
+      "api_equivalent_usd": 5.7188,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 99,
+    "tools": {
+      "Bash": 94,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 42.61,
+      "active_minutes": 42.61,
+      "model_minutes": 12.7,
+      "tool_minutes": 29.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a mechanical engineer writing a tool-clearance sweep in a code-CAD guide, finding and fixing two faults, regenerating packages and documenting: about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 174.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -19,13 +19,18 @@ see cad/README.md, "Assembly guide". The feeder's steps and joints are in `feede
 build); `steps(p)` and `joints(p)` hand out the robot's own, and the checks below are shared. Two more rules came
 with the feeder: a screw into a T-nut must catch the nut and stop short of the slot's floor, and a screw's head must
 go in along its axis (`access_problems`: a counterbore closed at the far end cannot take a screw).
+
+The nut side of every through-bolt (2026-11-21, `spanner_checks`): a ring spanner and the hand holding it, laid on
+the nut and turned about the bolt's axis 5 degrees at a time against what is on the work when the step comes. Each
+nut must take a spanner at some angle (to hold it while the head turns), and a hex head that is itself turned with a
+spanner must swing 30 degrees (a 12-point ring's step) at its head or at its nut.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from build123d import Compound, Cylinder, ExportSVG, Location
+from build123d import Box, Compound, Cylinder, ExportSVG, Location
 
 from . import collector as C
 from .params import Collector, Feeder
@@ -38,6 +43,16 @@ TNUT = (4.0, 8.0)   # mm past an extrusion's face: catches an M5 slot-6 T-nut un
 WASHER = {3: 0.5, 5: 1.0, 6: 1.6, 8: 1.6}  # ISO 7089 thickness, mm
 HATCH_TURN = 90       # degrees about +y the drum turns for the hatch's slot to point down (hatch_check)
 THUMB_GRIP_R = 10.0   # mm: a finger and thumb round a 12 mm knurled thumb-screw head (assumed)
+NUT_AF = {3: 5.5, 4: 7.0, 5: 8.0, 6: 10.0, 8: 13.0}      # ISO 4032 / DIN 985 across flats: the spanner's size, mm
+SPANNER_LEN = {3: 85.0, 4: 100.0, 5: 110.0, 6: 130.0, 8: 165.0}  # a combination spanner's length, mm (assumed, typical)
+GRIP = 35.0          # mm of the shank's end the fingers cover (assumed)
+HAND_W = 20.0        # mm the fingers add to the shank's width (assumed)
+HAND_D = 25.0        # mm the fingers stand off the spanner's face, away from the work (assumed)
+REACH_IN = 150.0     # mm of hand and wrist behind the grip, along the shank: the hand comes from outside (assumed)
+SWING_DEG = 30       # degrees a 12-point ring spanner needs between grips (an open end flipped over: the same)
+SPANNER_STEP = 5     # degrees between the spanner angles tried
+DRUM_AXLE_SPANNER = 200.0   # mm: the 13 mm spanner on the drum axle's nut, inside the drum; a 165 mm one leaves the
+#                             fingers between the rods, in a 7-degree window per gap (cad/README.md, 2026-11-21)
 
 
 @dataclass
@@ -121,11 +136,14 @@ def collector_steps(p: Collector) -> list[Step]:
              "Bolt the plain cover to one end with six M5 button heads into the rivet nuts. The slotted cover is "
              "the emptying hatch: fit it to the other end with the six thumb screws.", on_sub=True),
         Step("Hang the drum on the yoke", ["yoke_arm", "axle_spacer"],
-             [(shoulder, 2), ("M8 x 30 hex bolt + M8 nyloc nut", 2)], "4 mm hex key, two 10 mm and two 13 mm spanners",
+             [(shoulder, 2), ("M8 x 30 hex bolt + M8 nyloc nut", 2)],
+             f"4 mm hex key, two 10 mm and two 13 mm spanners (the one on the nut {DRUM_AXLE_SPANNER:g} mm or longer)",
              "Fit each arm to its pivot block with a shoulder bolt from outside and an M6 nyloc inside the block. "
              "Tighten it onto the shoulder: the arm must still swing freely. Stand the drum between the arms, put "
              "an axle spacer through each cover's centre hole onto the bearing's inner race, and bolt each arm "
-             "end to it with an M8 x 30 from outside, nyloc on the inner race (reach it between the rods). The "
+             "end to it with an M8 x 30 from outside, nyloc on the inner race: hold it with "
+             "the long spanner put in straight between two rods, so your fingers are outside the rods, and turn the "
+             "head outside the arm. The "
              "drum should roll freely and the arms lift and drop on their own weight."),
         Step("Yoke-lift switches (the front bumper)", ["bump_switch_tower", "bump_switch", "bump_switch_lever"],
              [("M4 x 12 socket cap screw", 4), ("M4 washer (ISO 7089)", 4), ("M2 x 10 self-tapping screw (for plastic)", 4)],
@@ -339,6 +357,8 @@ class Joint:
     bench: bool = False      # access: driven on the bench before its step's parts go on the machine (the step's
     #                          parts alone must leave the head's path clear)
     tool_r: float = 0.0      # access: radius of the tool's (or fingers') path behind the head, 0 for the head's
+    hex_head: bool = False   # a hex head turned with a spanner (not a key): spanner_checks swings one at the head
+    spanner_len: float = 0.0  # the spanner the step asks for on the nut, mm (0: SPANNER_LEN for its size)
 
 
 def joints(p) -> list[Joint]:
@@ -395,7 +415,7 @@ def collector_joints(p: Collector) -> list[Joint]:
         Joint("yoke pivot", shoulder, p.pivot_shoulder, 6, "shoulder", (p.pivot_x, 0, p.pivot_z), "y", arm_out, -1,
               4.3, 6.0, access=True, mirror_y=True),
         Joint("drum axle", "M8 x 30 hex bolt + M8 nyloc nut", 30, 8, "nut", (p.drum_x, 0, p.drum_z), "y", arm_out,
-              -1, 4.3, 5.9, access=True, mirror_y=True),
+              -1, 4.3, 5.9, access=True, mirror_y=True, hex_head=True, spanner_len=DRUM_AXLE_SPANNER),
         Joint("switch tower to base", "M4 x 12 socket cap screw", 12, 4, "insert", (*tower[0], 0),
               "z", p.base_z, 1, 2.3, 3.5, "bump_switch_tower", 12, extra=0.8, access=True,
               holes=tuple((*t, 0) for t in tower[1:]), step="Yoke-lift"),
@@ -615,6 +635,101 @@ def service_access(p, parts, reach: float = 60.0, tol_mm3: float = 1.0) -> list[
     return rows
 
 
+def nut_seat(p, parts, j: Joint) -> float | None:
+    """mm from the head's seat to the nut's seat along the bolt, or None for a joint with no nut: a nut joint's grip,
+    a shoulder bolt's shoulder (its nut bears on the shoulder's end), a clamped shoulder bolt's far face of `into`."""
+    if j.kind == "shoulder" and "nut" in j.fastener:
+        return j.length
+    if j.kind not in ("nut", "clamp") or (j.kind == "clamp" and not j.nut_h):
+        return None
+    shapes = [pt for pt in parts if pt.name != j.bolt] if j.bolt else parts
+    chain = _stack(shapes, j.point, j.axis, j.start, j.sign, j.hole_r, j.head_r, gaps=bool(j.far), gap=j.gap)
+    names = [c[0] for c in chain]
+    end = j.far or j.into
+    if end:
+        return chain[names.index(end)][2] if end in names else None
+    return (chain[-1][2] if chain else 0.0) + j.extra
+
+
+def spanner_solid(d: int, hand: bool = True, length: float = 0.0):
+    """A ring spanner for an M`d` nut in its own frame (its face on z = 0, its shank along +x), `length` long
+    (SPANNER_LEN's for the size by default), and the hand on its end: the fingers over the last GRIP mm and the hand
+    and wrist REACH_IN mm on along the shank."""
+    s, length = NUT_AF[d], length or SPANNER_LEN[d]
+    t, w = 0.4 * s + 2, 0.75 * s + 3                 # a typical ring end's thickness and shank width, mm (assumed)
+    sp = Cylinder((1.65 * s + 1) / 2, t).moved(Location((0, 0, t / 2))) + Box(length, w, t).moved(
+        Location((length / 2, 0, t / 2)))
+    if hand:
+        run = GRIP + REACH_IN
+        sp += Box(run, w + HAND_W, HAND_D).moved(Location((length - GRIP + run / 2, 0, HAND_D / 2)))
+    return sp
+
+
+def spanner_free(j: Joint, d: int, point, seat: float, away: int, shapes, step: int = SPANNER_STEP,
+                 tol_mm3: float = 1.0, length: float = 0.0) -> list[bool]:
+    """At each angle about the bolt's axis (0, step, ...), whether the spanner and hand, face 0.2 mm off `seat` and
+    standing `away` along the axis, miss `shapes`."""
+    length = length or SPANNER_LEN[d]
+    sp = spanner_solid(d, length=length)
+    base = frame_of(point, j.axis) * Location((0, 0, seat + away * 0.2))
+    if away < 0:
+        base = base * Location((0, 0, 0), (180, 0, 0))
+    reach = length + REACH_IN + 1
+    env = Cylinder(reach, HAND_D + 1).moved(base * Location((0, 0, HAND_D / 2)))
+    near = [(n, s) for n, s in shapes if _near(env, s, 0.0)]
+    return [not _blockers(sp.moved(base * Location((0, 0, 0), (0, 0, a))), near, tol_mm3) for a in range(0, 360, step)]
+
+
+def longest_run(free: list[bool], step: int = SPANNER_STEP) -> int:
+    """Degrees in the longest run of free angles, round the circle."""
+    if all(free):
+        return 360
+    best = cur = 0
+    for f in free + free:
+        cur = cur + 1 if f else 0
+        best = max(best, cur)
+    return best * step
+
+
+def spanner_checks(p, parts) -> tuple[list[dict], list[str]]:
+    """Every nut, at each of its holes, when its step comes (a bench joint: against its own step's parts): a spanner
+    and the hand holding it must fit on at some angle, to hold the nut while the head turns. A hex head turned with a
+    spanner (`hex_head`) needs SWING_DEG of swing at the head, or at the nut with the head held (2026-11-21)."""
+    rows, bad = [], []
+    for j in joints(p):
+        seat = nut_seat(p, parts, j)
+        if seat is None:
+            continue
+        k = joint_step(p, j)
+        if k is None:
+            bad.append(f"joint {j.name}: no single step names its {j.fastener} (set Joint.step)")
+            continue
+        shapes = _placed(parts, steps(p)[k - 1].parts) if j.bench else built_at(p, parts, k)
+        if j.bolt:
+            shapes = [(n, s) for n, s in shapes if n != j.bolt]
+        holds, swings, heads, fails = [], [], [], []
+        for h, (point, start, sign) in enumerate(_instances(j)):
+            nut = longest_run(spanner_free(j, j.d, point, start + sign * seat, sign, shapes, length=j.spanner_len))
+            head = longest_run(spanner_free(j, j.d, point, start, -sign, shapes)) if j.hex_head else None
+            holds.append(nut)
+            heads.append(head)
+            where = f" (hole {h + 1})" if h else ""
+            if nut == 0:
+                fails.append(f"joint {j.name}{where}: at step {k} no angle takes a {NUT_AF[j.d]:g} mm spanner and "
+                             f"the hand holding it on the nut")
+            elif j.hex_head and head < SWING_DEG and nut < SWING_DEG:
+                fails.append(f"joint {j.name}{where}: at step {k} neither the head ({head} deg) nor the nut ({nut} "
+                             f"deg) swings a {NUT_AF[j.d]:g} mm spanner {SWING_DEG} deg")
+        turned = [] if j.hex_head and min(heads) < SWING_DEG else ["head" if j.hex_head else "head (key)"]
+        turned += ["nut"] if min(holds) >= SWING_DEG else []
+        rows.append({"joint": j.name, "fastener": j.fastener, "step": k, "spanner_mm": NUT_AF[j.d],
+                     "spanner_len": j.spanner_len or SPANNER_LEN[j.d],
+                     "holes": len(holds), "nut_deg": min(holds), "head_deg": min(heads) if j.hex_head else None,
+                     "turn": " or ".join(turned), "ok": not fails})
+        bad += fails
+    return rows, bad
+
+
 def hatch_check(p: Collector, parts, tol_mm3: float = 1.0) -> list[str]:
     """The hatch, turned with the drum so its slot points down, lifts out of its seat and rises off the spacer."""
     hatch = next(pt for pt in parts if pt.name == "drum_hatch")
@@ -702,7 +817,7 @@ def _files(parts, name):
     return pt.spec
 
 
-def write(out, p, parts, bom_rows, joint_rows, problems, drawings: bool = True) -> None:
+def write(out, p, parts, bom_rows, joint_rows, problems, drawings: bool = True, spanner_rows=None) -> None:
     folder = out / "guide"
     folder.mkdir(parents=True, exist_ok=True)
     st = steps(p)
@@ -768,6 +883,24 @@ def write(out, p, parts, bom_rows, joint_rows, problems, drawings: bool = True) 
             lines += [f"| {r['joint']} | {r['fastener']} | {r['hidden']} of {r['of']} | {', '.join(r['behind'])} |"
                       for r in service]
             lines += ["", "The drum's covers turn with the drum: turn it until the arm is clear of the screw."]
+    if spanner_rows:
+        lines += ["", "## Spanners on the nuts", "",
+                  f"Each nut, at every one of its holes, when its step comes: a ring spanner of the nut's size (its "
+                  f"length assumed: {', '.join(f'{NUT_AF[d]:g} mm, {SPANNER_LEN[d]:g} long' for d in sorted(NUT_AF))}, "
+                  "unless the step asks for another) and",
+                  f"the hand on its end ({GRIP:g} mm of fingers, then {REACH_IN:g} mm of hand and wrist along the "
+                  f"shank, {HAND_D:g} mm deep) are laid on the nut and",
+                  f"turned about the bolt {SPANNER_STEP} degrees at a time. \"Nut\" is the widest arc that is clear at "
+                  f"the worst hole; a nut needs one clear angle to be held,",
+                  f"and {SWING_DEG} degrees (a 12-point ring's step) to be turned. A hex head turned with a spanner "
+                  "is swung the same way (\"Head\").", "",
+                  "| Joint | Fastener | Step | Spanner on the nut | Holes | Nut (deg) | Head (deg) | Turn | |",
+                  "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+        for r in spanner_rows:
+            head = "-" if r["head_deg"] is None else f"{r['head_deg']}"
+            lines.append(f"| {r['joint']} | {r['fastener']} | {r['step']} | {r['spanner_mm']:g} mm, "
+                         f"{r['spanner_len']:g} long | {r['holes']} | "
+                         f"{r['nut_deg']} | {head} | {r['turn']} | {'pass' if r['ok'] else 'FAIL'} |")
     lines += [
               "", "Result when this package was built: " + ("all pass." if not problems else "; ".join(problems)), ""]
     (folder / "ASSEMBLY.md").write_text("\n".join(lines))
