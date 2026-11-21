@@ -482,14 +482,15 @@ flagships:
       border in the clef search, 3524's stemless cephalicus, 3408's strokes. More
       open items: NEXT.md.
     buildable: >-
-      Coda reader, no outside input: f's sung -un on E4 quarters (murmur in the note
-      missed by the near search) and /u/ on C4 quarters (level rule past levelFade's
-      tail); README "Held out where the release lands". Level-matched murmur
-      (murmurSource 'match', opt-in, eval/murmur-match-check.md): 2,220 nasals vs
-      default 2,141, but R, Z, A lose 1-2; next: fresh cells for the voiced-labial
-      misreads. OMR (scan.mjs): 652 staff 2's clef read off a border (findClef),
-      3524's stemless cephalicus, 3741's place, 3408's strokes
-      (eval/staff-gap-check.md, What is left).
+      Coda reader, no outside input: E4-quarter murmurs vs a reference in the
+      transition dip (f crun, g flun; hiHold 8 failed on g): reference before
+      TRANSITION; /u/ on C4 quarters (level rule); README "The murmur inside an E4
+      quarter". Level-matched murmur (murmurSource 'match', opt-in,
+      eval/murmur-match-check.md): 2,220 nasals vs default 2,141, but R, Z, A lose
+      1-2; next: fresh cells for the voiced-labial misreads. OMR (scan.mjs,
+      archive.org scans): 652 staff 2's clef read off a border (findClef), 3524's
+      stemless cephalicus, 3741's place, 3408's strokes (eval/staff-gap-check.md,
+      What is left).
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
   # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.

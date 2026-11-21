@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKncvwQPFra5Wr6Gw36",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T10:48:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "chant-forge flagship (allocate.py row 6): coda reader, f's sung -un on E4 quarters",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18068",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "archive.org refused by the session proxy (403), so the claimed OMR item (652:2's clef border) could not be read",
+      "fix": "switched to the coda-reader item, which runs on synthesised audio; flagships.yaml buildable now says the OMR items need archive.org scans"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "probed archive.org as REFUSED but still printed the OMR items under BUILDABLE HERE without saying they need that host; I claimed one before finding out"
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "buildable's 600-character cap took two tries to fit a replacement; the error message says exactly how many characters fit, which helped"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "the PR title claims the OMR clef item, but the work landed on the coda reader once archive.org proved unreachable",
+      "did": "kept the claim PR and retitled it to the item that landed",
+      "result": "one PR, honest title"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-chant-forge-a-rule-that-did-no-harm-and-no-good.md",
+    "ventures/chant-forge/README.md (The murmur inside an E4 quarter)",
+    "ventures/chant-forge/eval/hihold-sweep.md"
+  ],
+  "goal": null,
+  "notes": "Diagnosed f's E4-quarter crun/frun with new eval/e4-quarter-diag.mjs: the n inside the note fails the level rule (as loud as the reference), NEAR's hi:0 (1 dB over the transition dip) and lipShut's hiHold 6 (8 dB wobble). Dev sweep (A-f, full coda-check, 18 min each, default byte-identical to the committed report): hiHold 8 +7 cells none lost, hiHold 10 +9 none lost. Pre-registered part g (b65b403b3), ran it: failed prediction (1), 301 vs 301 dark-vowel nasals; (2)-(4) held. LIP_SHUT unchanged. g's misses: flun turned away by lipShut's hi:0 against the transition dip (same cause as crun under NEAR); sprun/strun not dark in themselves (synthesis beat phase). Next: a level reference taken before codaPlan's TRANSITION. Reader code unchanged, so no new test; chant-forge venture tests run locally (see PR).",
+  "corrections": [],
+  "redteam": null
+}

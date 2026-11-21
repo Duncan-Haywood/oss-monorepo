@@ -634,18 +634,56 @@
 //    n-clusters 102 and 102, so 2 fewer together where at most 1 was allowed; (3) held: stops and others 290 and 290 of
 //    312, 1 and 1 read as a nasal. `nearRelease` stays opt-in. The other 11 vowel-only nasals on f, every /u/ on C4
 //    quarters, are the level rule's, starting outside levelFade's 6 frames.
+// Thirty-first round (2026-11-21): the lip closure's upper band through the beating (onsets.mjs LIP_SHUT `hiHold`, README
+//    "The murmur inside an E4 quarter"). f's sung *crun* and *frun* on E4 quarters, read frame by frame with
+//    eval/e4-quarter-diag.mjs: the n sung inside the note (codaPlan, the note's last 70 ms) drops the band above 1 kHz
+//    25-30 dB in 15 ms and keeps it 18 dB or more under the vowel to the window's end, while the vowel-only take of the
+//    same cell never takes that band 20 dB under. Every nasal rule missed it: it is as loud as the reference (level rule),
+//    1 dB louder than the transition dip 25-45 ms before it (near rule's `hi: 0`), and lipShut's upper band, though far
+//    under, wobbles 8 dB over its first 30 ms against `hiHold: 6`. The change: `hiHold: 8`, the smallest value that
+//    admits that cell, read off it before any part was run with it. Development (A-f, `--shut hiHold=8` against the
+//    default, every part): +7 cells, none lost: O's and Y's nasals +1 each, b's dark-vowel nasals 133 to 135 of 144, d's
+//    136 to 137, f's 300 to 302 of 312 (*crun* and *frun*); every vowel-only control and every "read as a nasal" count
+//    identical. (`hiHold=10`, run beside it: +9, none lost; not registered.) With it, f's `nearRelease` column reads 302
+//    nasals after /u/ or /o/, where the guard's registration failed on 298. Pre-registered here and committed before part
+//    g was run with anything. Part g is new: 12 nasals after /u/ or /o/ (*trum grum scrum flun drom stom slum gron fron
+//    spon sprun strun*), 5 voiced stops (*grub drob stod plug frog*), 4 nasals after a bright vowel (*tren slen dran
+//    fren*), 4 n-clusters (*tranc plent stunt grunc*), 3 voiceless stops (*stuc grot trup*) and 4 others (*flor tru grur
+//    sto*), none sung in any other part, at 82 BPM (in no other part), on the thirteen pitches of part f, quarters and
+//    eighths (26 cells), sung and vowel-only. Columns: the default, `lipShut: { hiHold: 8 }`, and that with
+//    `nearRelease`. Against the default:
+//    (0) the test condition: the default misses at least 4 of the 312 dark-vowel nasals; if fewer, hiHold 8 is untested
+//        and LIP_SHUT stays as it is;
+//    (1) nasals after /u/ or /o/ read exactly: at least 1 more with hiHold 8;
+//    (2) nasals after a bright vowel (of 104) and n-clusters as their nasal (of 104): no fewer;
+//    (3) voiced stops (of 130), voiceless stops (of 78) and others (of 104) read exactly: no fewer in total; stops, others
+//        and vowel-only cells read as a nasal: no more;
+//    (4) the vowel-only control (of 832) read as none: no fewer.
+//    If (0) to (4) hold, LIP_SHUT's hiHold becomes 8, with every report rebuilt on it; otherwise it stays 6. The third
+//    column re-tests f's failed prediction: with hiHold 8 and `nearRelease`, nasal rows together (of 520) at most 1 fewer
+//    than the default, and the vowel-only control read as none no fewer; if both hold, nearRelease is a candidate for a
+//    later registration of its own (one held-out part is not enough to make it the default).
+//    Outcome (run 2026-11-21, after the registration above was committed as b65b403b3): failed on (1). (0) held: the
+//    default missed 11 of 312; (1) failed: 301 and 301 of 312, no cell gained; (2) held: bright 104 and 104 of 104,
+//    n-clusters 102 to 103 of 104; (3) held: stops and others 295 and 295 of 312, 0 and 0 read as a nasal; (4) held: 832
+//    and 832 of 832. LIP_SHUT's hiHold stays 6. g's E4-quarter misses (eval/e4-quarter-diag.mjs, PART=g) are other
+//    shapes: *flun*'s step is clean and flat (upper band -14 to -17, held), but its level sits 2-5 dB over the vowel 25-45
+//    ms before, which lands in the transition into the n, so lipShut's `hi: 0` turns it away as NEAR's did *crun*;
+//    *sprun* and *strun* are not dark in themselves (tilt -18 to -21 against murmurTilt's 28). Third column: nasal rows
+//    together 507 to 508 of 520, control 832 and 832: both hold, so nearRelease with hiHold 8 met on g what it missed on
+//    f; with hiHold itself not adopted, that is noted, not acted on.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
 import { renderMidi, parseMidi, tickToSeconds } from '../render.mjs';
 import { latinOnset, latinCoda, onsetLength } from '../sing.mjs';
-import { readCoda, expectedRead } from '../onsets.mjs';
+import { readCoda, expectedRead, LIP_SHUT } from '../onsets.mjs';
 
 const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUVWXYZabcdefC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUVWXYZabcdefgC';
 // --voice-bar off: the choir sung with the fixed voice-bar gain (sing.mjs `voiceBarLevel: false`, before 2026-11-16's thirteenth round)
 const VOICEBAR = !(args.includes('--voice-bar') && args[args.indexOf('--voice-bar') + 1] === 'off');
 // --wall on: the voice bar low-passed through the walls (sing.mjs `voiceBarWall: true`; tried in 2026-11-16's fourteenth round, off by default)
@@ -1835,6 +1873,46 @@ lines.push('## f. Held out: a near-rule murmur after the note\'s end (thirtieth 
   'Vowel-only near-rule nasals by cell:', '', ...MODES.map(([m]) => `- ${m}: ${cells(m)}`), '',
   'Misses, default (count over the 26 cells):', '', list(miss.def), '',
   'Misses with `nearRelease`:', '', list(miss.rel), '');
+}
+
+// The thirty-first round's held-out set (lipShut hiHold 8, pre-registered in the header): none of its syllables sung
+// before, at 82 BPM on part f's thirteen pitches, quarters and eighths
+if (PARTS.includes('g')) {
+const DK = ['trum', 'grum', 'scrum', 'flun', 'drom', 'stom', 'slum', 'gron', 'fron', 'spon', 'sprun', 'strun'];
+const VD = ['grub', 'drob', 'stod', 'plug', 'frog'], BR = ['tren', 'slen', 'dran', 'fren'], CL = ['tranc', 'plent', 'stunt', 'grunc'], VLS = ['stuc', 'grot', 'trup'], NEG = ['flor', 'tru', 'grur', 'sto'];
+const SY = [...DK, ...VD, ...BR, ...CL, ...VLS, ...NEG], tally = {}, asNas = {};
+const SH8 = { ...LIP_SHUT, ...(typeof RC.lipShut === 'object' ? RC.lipShut : {}), hiHold: 8 };
+const MODES = [['def', RC], ['h8', { ...RC, lipShut: SH8 }], ['h8rel', { ...RC, lipShut: SH8, nearRelease: true }]], miss = Object.fromEntries(MODES.map(([m]) => [m, new Map()]));
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+const NAMES = ['E2', 'G2', 'A2', 'B2', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4'], PITCHES = [40, 43, 45, 47, 50, 52, 53, 55, 57, 59, 60, 62, 64];
+for (const pulses of [4, 2]) for (const midi of PITCHES) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 82, title: 'held-out lip closure hold' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (DK.includes(s) ? 'dark' : VD.includes(s) ? 'voiced' : BR.includes(s) ? 'bright' : CL.includes(s) ? 'cluster' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
+      for (const [mode, o] of MODES) {
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if ((grp === 'voiced' || grp === 'voiceless' || grp === 'other' || grp === 'control') && got.cls === 'nasal') asNas[mode] = (asNas[mode] || 0) + 1;
+        if (!ok && !HIDE.includes('g')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)} (${pulses === 4 ? 'quarter' : 'eighth'} ${NAMES[PITCHES.indexOf(midi)]})`; miss[mode].set(key, (miss[mode].get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+const row = (t, g) => `| ${t} | ${MODES.map(([m]) => cell(`${g} ${m}`)).join(' | ')} |`;
+const list = (m) => HIDE.includes('g') ? '- hidden' : [...m].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).map(([k, n]) => `${k}${n > 1 ? ` ${n}` : ''}`).join('; ') || 'none';
+lines.push('## g. Held out: the lip closure\'s upper band through the beating (thirty-first round)', '', `Nasals after /u/ or /o/: ${DK.map((s) => `*${s}*`).join(', ')}; voiced stops: ${VD.map((s) => `*${s}*`).join(', ')}; nasals after a bright vowel: ${BR.map((s) => `*${s}*`).join(', ')}; n-clusters: ${CL.map((s) => `*${s}*`).join(', ')}; voiceless stops: ${VLS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Quarters and eighths at 82 BPM, each followed by a rest, on ${NAMES.join(', ')}.`, '',
+  '| | default | `lipShut: { hiHold: 8 }` | and `nearRelease` |', '|---|---|---|---|',
+  row('nasals after /u/ or /o/ read exactly', 'dark'),
+  row('nasals after a bright vowel read exactly', 'bright'), row('n-clusters read as their nasal', 'cluster'),
+  row('voiced stop codas read exactly', 'voiced'), row('voiceless stop codas read exactly', 'voiceless'), row('other syllables read exactly', 'other'),
+  row('vowel-only control read as none', 'control'), `| stops, others and vowel-only control read as a nasal | ${MODES.map(([m]) => asNas[m] || 0).join(' | ')} |`, '',
+  ...MODES.flatMap(([m], i) => [`Misses, ${['default', 'hiHold 8', 'hiHold 8 and nearRelease'][i]}:`, '', list(miss[m]), '']));
 }
 
 // ---- C ----

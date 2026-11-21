@@ -808,6 +808,33 @@ Misses with `nearRelease`:
 
 stur as none 9; dor as none 6; glun as none 4; snor as none 3; plud as voiceless alv stop 2; slun as none 2; smum as none 2; crun as none 2; frun as none 2; len as voiced lab stop 1; cron as voiced lab stop 1; banc as voiceless vel stop 1; glun (vowel only) as nasal 1; smum (vowel only) as nasal 1; crun (vowel only) as nasal 1; frun (vowel only) as nasal 1; slun (vowel only) as nasal 1; snug (vowel only) as nasal 1; frub (vowel only) as nasal 1; plud (vowel only) as nasal 1; gluc (vowel only) as nasal 1; pu (vowel only) as nasal 1; stur (vowel only) as nasal 1; pren as voiced lab stop 1; spant as voiceless alv stop 1; pu as nasal 1; stur as voiced lab stop 1; con as tap 1
 
+## g. Held out: the lip closure's upper band through the beating (thirty-first round)
+
+Nasals after /u/ or /o/: *trum*, *grum*, *scrum*, *flun*, *drom*, *stom*, *slum*, *gron*, *fron*, *spon*, *sprun*, *strun*; voiced stops: *grub*, *drob*, *stod*, *plug*, *frog*; nasals after a bright vowel: *tren*, *slen*, *dran*, *fren*; n-clusters: *tranc*, *plent*, *stunt*, *grunc*; voiceless stops: *stuc*, *grot*, *trup*; others: *flor*, *tru*, *grur*, *sto*. Quarters and eighths at 82 BPM, each followed by a rest, on E2, G2, A2, B2, D3, E3, F3, G3, A3, B3, C4, D4, E4.
+
+| | default | `lipShut: { hiHold: 8 }` | and `nearRelease` |
+|---|---|---|---|
+| nasals after /u/ or /o/ read exactly | 301 of 312 (96.5%) | 301 of 312 (96.5%) | 301 of 312 (96.5%) |
+| nasals after a bright vowel read exactly | 104 of 104 (100.0%) | 104 of 104 (100.0%) | 104 of 104 (100.0%) |
+| n-clusters read as their nasal | 102 of 104 (98.1%) | 103 of 104 (99.0%) | 103 of 104 (99.0%) |
+| voiced stop codas read exactly | 122 of 130 (93.8%) | 122 of 130 (93.8%) | 122 of 130 (93.8%) |
+| voiceless stop codas read exactly | 78 of 78 (100.0%) | 78 of 78 (100.0%) | 78 of 78 (100.0%) |
+| other syllables read exactly | 95 of 104 (91.3%) | 95 of 104 (91.3%) | 95 of 104 (91.3%) |
+| vowel-only control read as none | 832 of 832 (100.0%) | 832 of 832 (100.0%) | 832 of 832 (100.0%) |
+| stops, others and vowel-only control read as a nasal | 0 | 0 | 0 |
+
+Misses, default:
+
+drob as voiced vel stop (quarter B2); drob as voiced vel stop (quarter E2); flor as none (eighth D3); flor as none (quarter A2); flor as none (quarter A3); flor as none (quarter D3); flun as none (quarter E4); frog as voiceless vel stop (eighth A3); grub as voiced vel stop (eighth B2); grub as voiced vel stop (quarter A2); grub as voiced vel stop (quarter E2); grub as voiceless lab stop (eighth E4); grub as voiceless lab stop (quarter E3); grum as none (eighth D4); grunc as voiceless vel stop (eighth B3); grur as none (eighth A2); grur as none (eighth A3); grur as none (quarter A2); grur as none (quarter A3); grur as voiced lab stop (eighth D4); scrum as none (quarter D4); slum as none (eighth C4); slum as none (eighth E4); slum as none (quarter B3); slum as none (quarter D4); sprun as none (eighth A3); sprun as none (quarter E4); strun as none (eighth A3); strun as none (quarter E4); stunt as voiceless alv stop (eighth B3)
+
+Misses, hiHold 8:
+
+drob as voiced vel stop (quarter B2); drob as voiced vel stop (quarter E2); flor as none (eighth D3); flor as none (quarter A2); flor as none (quarter A3); flor as none (quarter D3); flun as none (quarter E4); frog as voiceless vel stop (eighth A3); grub as voiced vel stop (eighth B2); grub as voiced vel stop (quarter A2); grub as voiced vel stop (quarter E2); grub as voiceless lab stop (eighth E4); grub as voiceless lab stop (quarter E3); grum as none (eighth D4); grunc as voiceless vel stop (eighth B3); grur as none (eighth A2); grur as none (eighth A3); grur as none (quarter A2); grur as none (quarter A3); grur as voiced lab stop (eighth D4); scrum as none (quarter D4); slum as none (eighth C4); slum as none (eighth E4); slum as none (quarter B3); slum as none (quarter D4); sprun as none (eighth A3); sprun as none (quarter E4); strun as none (eighth A3); strun as none (quarter E4)
+
+Misses, hiHold 8 and nearRelease:
+
+drob as voiced vel stop (quarter B2); drob as voiced vel stop (quarter E2); flor as none (eighth D3); flor as none (quarter A2); flor as none (quarter A3); flor as none (quarter D3); flun as none (quarter E4); frog as voiceless vel stop (eighth A3); grub as voiced vel stop (eighth B2); grub as voiced vel stop (quarter A2); grub as voiced vel stop (quarter E2); grub as voiceless lab stop (eighth E4); grub as voiceless lab stop (quarter E3); grum as none (eighth D4); grunc as voiceless vel stop (eighth B3); grur as none (eighth A2); grur as none (eighth A3); grur as none (quarter A2); grur as none (quarter A3); grur as voiced lab stop (eighth D4); scrum as none (quarter D4); slum as none (eighth C4); slum as none (eighth E4); slum as none (quarter B3); slum as none (quarter D4); sprun as none (eighth A3); sprun as none (quarter E4); strun as none (eighth A3); strun as none (quarter E4)
+
 ## C. Closing consonants in the corpus
 
 147 GABC files, 9999 sung syllables; 3665 of 9999 (36.7%) close on a consonant, 268 on a cluster. First phone: s 944, n 724, m 652, t 452, r 426, l 173, k 147, d 76, b 28, p 25, f 15, g 3.
