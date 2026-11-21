@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVLH3yng7WJt5wnExqx",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (owner's standing ventures brief).",
+  "input_sha256": "96b8dcee141c192cf0d3c5dca049bcda7e21033d35a006d95939179bf11dedc7",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T23:56:28Z",
+  "ended": "2026-11-21T00:07:12Z",
+  "wall_minutes": 11.03,
+  "tokens_in": 5871770,
+  "tokens_out": 38136,
+  "cost_usd": 3.0183,
+  "tool_calls": 53,
+  "task": "Deepen (flagship 13) xer-schedule-check: Gantt grouped by activity code",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17993",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A command group like `cd X && (long cmd > log) & next` runs the cd inside the backgrounded group only, so the next command ran in the old cwd; minor, my own shell slip, not a doc error."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here row changepoint-detector had 31 run records in 2 days; the pick by session id among the first 6 rows keeps sending runs to the most-worked flagship. A rows-worked-recently penalty would spread runs better."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here named changepoint-detector (row 2), whose next: items are mostly statistical rounds already worked by 31 runs in two days; took row 8 xer-schedule-check, whose next: named a buildable user-facing item (Gantt grouping by activity code) with no open PR.",
+      "did": "Claimed xer-schedule-check with draft PR #17993 and claim_check (HOLD), shipped the grouping.",
+      "result": "Landed in one run: feature, page, CLI, tests and eval."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-p6-xer-gantt-by-activity-code.md",
+    "ventures/xer-schedule-check/eval/activity-codes-2026-11-21.md"
+  ],
+  "goal": "Let subcontractors, owners and lenders without a P6 seat group an XER's Gantt by activity code, as P6's Group and Sort does.",
+  "notes": "Verification: node --test via run_venture_tests.py xer-schedule-check: 211 tests ok + site page checks ok. eval/activity-codes-check.mjs on 4 public P6 files with codes (92 charts): once 92/92, place 1,239,716/1,239,716, count, tally 943/943, rollup, order all pass; three mutants (order reversed, nested parents dropped, counts off by one) each fail. Browser check with Playwright on the hotel file: Group by selects filled from the file's 5 code types, Responsibility then WBS chart drawn, no console errors. venture-preflight run before merge (see PR). No agent doc in docs/reports: the eval write-up and README carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ac20143e-428e-537c-b6a1-d83f4e7d29ca",
+    "transcripts": 1,
+    "first": "2026-11-20T23:56:28Z",
+    "last": "2026-11-21T00:07:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 99,
+        "output": 38136,
+        "thinking": 5647,
+        "cache_read": 5733098,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138573,
+        "api_equivalent_usd": 3.0183,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 99,
+      "output": 38136,
+      "thinking": 5647,
+      "cache_read": 5733098,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138573,
+      "api_equivalent_usd": 3.0183,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 47,
+      "Write": 2,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.03,
+      "active_minutes": 11.03,
+      "model_minutes": 6.62,
+      "tool_minutes": 4.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior JS developer with P6 knowledge: code-table reader, grouping tree, page/CLI wiring, tests, an independent eval and write-ups, about 10 h",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 331.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
