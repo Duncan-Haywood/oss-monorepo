@@ -1396,6 +1396,13 @@ class Feeder:
     lift_cap_sweep_clear: float = 1.0  # pad's far corner turns this far inside the finger tips' sweep round a pulley
     lift_cap_pin_x: float = 7.5       # the two M3 through the plate and the cleat, this far off the belt's back
     lift_cap_pin_y: float = 7.0       # and this far either side of the ball line
+    # The caps' M3 joint (2026-11-21, `lift_flight_design`, guide joint "lift flight cap through its cleat"): an ISO
+    # 10642 countersunk screw through the plate (5 mm) and the cleat (3 mm), a washer on the cleat's PU trailing face
+    # and a nyloc. A plain nut on a cleat that creeps under it and flexes round both pulleys every lap is held only by
+    # its preload, and PU gives that up; the nyloc stays put when the preload goes. 8 mm of stack, 0.5 of washer and a
+    # 4 mm nyloc with two threads proud ask for 13.5 mm, so the screw is 14 (12 until 2026-11-21: a nyloc never fit).
+    lift_cap_screw: float = 14.0      # M3 countersunk screw's length, head included (a countersunk is measured overall)
+    lift_cap_csk_d: float = 6.9       # the plate's 90 deg countersink at the face: over the head's 6.72 mm maximum
     lift_stall_factor: float = 2.5    # gearmotor's stall torque over its rated (assumption: read yours); a jam meets it
     lift_cap_allow_mpa: float = 20.0  # bending stress allowed in a printed PETG plate printed flat (assumption)
     # Lift jam cutoff (2026-11-15, `lift_jam_cutoff`, `check_lift_jam`; firmware `controller.LiftRun`, config LIFT_JAM_*;
@@ -4406,6 +4413,9 @@ class Feeder:
 
     M3_NUT_AC = 6.4                    # M3 nut across corners
     M3_HOLE = 3.4
+    M3_WASHER_OD = 7.0                 # ISO 7089 M3 washer
+    M3_CSK_HEAD_D = 6.72               # ISO 10642 M3 head diameter, maximum (5.54 minimum, a worn or cheap head)
+    M3_CSK_HEAD_K = 1.86               # its head height, maximum
 
     def lift_flight_design(self) -> dict:
         """A flight's printed cap on its welded cleat, in the flight's own frame: x off the belt's back, z along the
@@ -4443,7 +4453,8 @@ class Feeder:
         z_plate = self.lift_finger_w * self.lift_finger_t ** 2 / 6
         jam_mpa = jam_n * self.lift_finger_l / z_plate
         jam_peel_n = jam_n * self.lift_finger_l / arm
-        nut_low = self.lift_cap_pin_x - self.M3_NUT_AC / 2
+        nut_low = self.lift_cap_pin_x - max(self.M3_NUT_AC, self.M3_WASHER_OD) / 2
+        csk_depth = (self.lift_cap_csk_d - self.M3_HOLE) / 2               # a 90 deg cone: depth = radial step
         return {
             "pad_mm": pad_l, "pad_z": (z_pad1, z_pad0), "cleat_z": (z_cleat0, z_cleat1), "arm_mm": arm,
             "arm_cleat_mm": arm_cleat, "pad_push_n": n_pad, "cleat_push_n": n_cleat,
@@ -4452,6 +4463,9 @@ class Feeder:
             "pin_edge_mm": self.lift_cleat_h - self.lift_cap_pin_x - self.M3_HOLE / 2,
             "pad_gap_mm": self.lift_gap - self.lift_cap_pad_t,
             "cap_len_mm": h - z_pad1,
+            # a 90 deg head in a 90 deg seat sits this far proud of the plate's leading face (negative: under it)
+            "csk_depth_mm": csk_depth, "head_proud_mm": (self.M3_CSK_HEAD_D - self.lift_cap_csk_d) / 2,
+            "screw_past_mm": self.lift_cap_screw - self.lift_finger_t - self.lift_cleat_t,
         }
 
     def check_lift(self) -> list[str]:
@@ -4511,7 +4525,12 @@ class Feeder:
         if f["jam_peel_n"] > self.lift_cleat_weld_n:
             bad.append(f"lift cleat's weld peels at a stalled jam ({f['jam_peel_n']:.0f} N over "
                        f"{self.lift_cleat_weld_n:g} N)")
-        if self.lift_cap_pin_y + self.M3_NUT_AC / 2 > self.lift_belt_w / 2 or self.lift_cap_cheek < 1.5:
+        if f["head_proud_mm"] > 0.0:
+            bad.append(f"lift flight caps' countersinks ({self.lift_cap_csk_d:g} mm) are narrower than an M3 countersunk "
+                       f"head ({self.M3_CSK_HEAD_D:g} mm): it stands {f['head_proud_mm']:.2f} mm proud on the seat's rim")
+        if f["csk_depth_mm"] > self.M3_CSK_HEAD_K or f["csk_depth_mm"] > self.lift_finger_t / 2:
+            bad.append("lift flight caps' countersinks are deeper than the head or half the plate")
+        if self.lift_cap_pin_y + max(self.M3_NUT_AC, self.M3_WASHER_OD) / 2 > self.lift_belt_w / 2 or self.lift_cap_cheek < 1.5:
             bad.append("lift flight caps' screws or cheeks do not fit the cleat's width")
         if self.lift_belt_w / 2 + self.lift_cap_cheek > self.lift_finger_w / 2 + 1e-9:
             bad.append("lift flight caps' cheeks stand outside the plate")

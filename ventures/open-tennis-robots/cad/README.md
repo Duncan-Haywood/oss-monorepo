@@ -193,7 +193,8 @@ only as good as `params.py`; the T-nut window (4-8 mm), the standoffs' 8 mm of
 thread, a NEMA 17's 4.5 mm and an extrusion's 15 mm end tap are assumptions the
 guide states. The shoulder bolts, the launcher motors' screws and the lift's
 small screws were not checked until 2026-11-21 ("Shoulder bolts, motor and lift
-screws", below); the flight caps' M3s still are not. The take-up spring's bracket is in the CAD since 2026-11-20 (below),
+screws", below), the flight caps' M3s until later that day ("Flight caps' M3
+joint", below). The take-up spring's bracket is in the CAD since 2026-11-20 (below),
 and its two shelf screws are a checked joint. Nobody has built a feeder.
 
 ### Take-up spring bracket (2026-11-20, `Feeder.spring_bracket_design`, `check_spring_bracket`, `feeder.spring_parts`)
@@ -305,6 +306,36 @@ thickness (shorten the inner sleeves if yours are thicker), the outrunners' 8 mm
 and the gearmotor's 5 mm thread depths, and the catalogue shoulder-bolt figures
 (`SHOULDER`: read the bolt you buy). The relief takes about 13 x 45 mm out of the
 guard plate's edge, about 38 mm from the bottom wheel's rim. Nobody has built one.
+
+### Flight caps' M3 joint (2026-11-21, `lift_cleat_solid`, `lift_cap_fastener_solid`, `Feeder.lift_flight_design`)
+
+The last fastener the feeder guide did not measure: the two M3 countersunk screws
+that hold each of the 32 printed flight caps to its welded PU cleat (64 in all).
+It could not be measured because the cleat was not drawn: the belt was one swept
+envelope, solid from the belt's back to the finger tips all round the loop, so a
+screw's stack ran from the cap's plate into "belt" for the next 150 mm. Now the
+envelope is cut back to the belt's back round the drawn cap and its cleat is
+drawn there with its two holes, and the guide's stack reader takes each separate
+piece of a part as its own interval (before, one bounding box spanned the
+envelope above and below the drawn flight). Every one of the other 33 joints
+reads exactly as before. 34 joints are measured. What it found, all fixed in the
+same change:
+
+| Found | Was | Now |
+| --- | --- | --- |
+| Countersink | a cone 6.4 mm across at the face and 1.75 mm deep: 81 deg, against a screw head's 90, and narrower than an ISO 10642 M3 head (6.72 mm at most). The head stood 0.16 mm proud under the ball and bore on the seat's rim, a line in PETG that the screw's preload crushes | a 90 deg countersink 6.9 mm across (`lift_cap_csk_d`), 1.75 mm deep: a largest head sits 0.09 mm under the face and bears on the whole cone. Two rules: a countersink narrower than the head, and one deeper than the head or half the plate |
+| Nut | "M3 x 12 countersunk + nut": a plain nut on a PU cleat. The cleat creeps under the nut and flexes round both pulleys every lap (about 3 laps a minute while the lift runs: flights pass at 1.6-1.8 Hz, 32 to a lap), so the preload that holds a plain nut goes. An M3 x 12 leaves 4 mm past the 8 mm of plate and cleat: a plain nut (2.4 mm and two threads) fits, a nyloc (4 mm and two threads) does not | M3 x 14 countersunk, a washer on the cleat's trailing face (spreads the load on the PU) and a nyloc: 5.5 mm past the stack, 5 needed. The washer's 7 mm sits 2.0 mm above the pad (the pad rule now takes the washer, the wider of washer and nut) |
+| Tools | the lift step listed a 3 mm key and an 8 mm spanner | adds the 2 mm key and 5.5 mm spanner the caps take |
+
+The screws, washers and nylocs are also turned round both pulleys with the cap
+in the clearance test (`test_flight_caps_turn_round_both_pulleys_clear`): they
+stay inside the belt's envelope and clear of the boot, the head, the pulleys,
+the spine, the clips, the rods and the base plate at every 15 deg step. The tips
+stand 6 mm behind the cleat, over the loose pad; nothing of them comes more than
+about 27 mm from a pulley's axis, inside the fingers' 30.2 mm sweep. Assumed, not measured: the cleat's 3 mm
+and the head's catalogue figures (read your screws: a cheap head can be as small
+as 5.54 mm and sits deeper), and how fast the PU creeps under a washer. Check the
+nylocs after the first hour of running. Nobody has built one.
 
 ## Changing the design
 

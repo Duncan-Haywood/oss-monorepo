@@ -1330,7 +1330,8 @@ class FeederAssemblyGuideTest(unittest.TestCase):
     def test_design_passes_every_guide_check(self):
         rows, bad = self.G.joint_checks(self.p, self.parts)
         self.assertEqual(bad, [])
-        self.assertEqual(len(rows), 33)   # 26 until the shoulder bolts, motor and lift screws joined, 2026-11-21
+        self.assertEqual(len(rows), 34)   # 26 until the shoulder bolts, motor and lift screws joined, 33 until the
+        # flight caps' M3, 2026-11-21
         self.assertEqual(self.G.tally(self.p, self.parts, self.rows), [])
         self.assertEqual(self.G.order_problems(self.p, self.parts), [])
         self.assertEqual(self.G.access_problems(self.p, self.parts), [])
@@ -1380,6 +1381,22 @@ class FeederAssemblyGuideTest(unittest.TestCase):
         self.assertEqual(rows["crank pin through the crank"]["grip_mm"], 6.0)
         # the crank pin's thread ends in the rod: nothing reaches the 1 mm gap to the motor plate
         self.assertLessEqual(self.F.SHOULDER[4][1], self.p.shuttle_rod_t)
+
+    def test_flight_cap_joint_reads_plate_and_cleat(self):
+        """The caps' M3 (2026-11-21): the stack is the cap's plate and the drawn cleat, nothing of the belt's swept
+        envelope; M3 x 12, the length the BOM had, cannot take the nyloc."""
+        import dataclasses
+        p = self.p
+        name = "lift flight cap through its cleat"
+        row = {r["joint"]: r for r in self.G.joint_checks(p, self.parts)[0]}[name]
+        self.assertTrue(row["ok"])
+        self.assertEqual(row["grip_mm"], p.lift_finger_t + p.lift_cleat_t + 0.5)
+        self.assertIn("lift_flight_cap", row["stack"])
+        self.assertIn("lift_belt 3", row["stack"])                          # the cleat, 3 mm
+        js = [dataclasses.replace(j, length=12.0) for j in self.FG.joints(p) if j.name == name]
+        with unittest.mock.patch.object(self.FG, "joints", lambda p: js):
+            bad = self.G.joint_checks(p, self.parts)[1]
+        self.assertEqual([b.split(":")[0] for b in bad], [f"joint {name}"])
 
     def test_lift_spacer_keeps_both_ear_seats(self):
         """The set-screw window ran through the flange until 2026-11-21 and took the top ear's seat with it."""
@@ -2048,6 +2065,19 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(any("MPa" in r for r in Feeder(lift_stall_factor=6.0).check_lift()))
         self.assertTrue(any("peels" in r for r in Feeder(lift_cleat_weld_n=100.0).check_lift()))
         self.assertTrue(any("width" in r for r in Feeder(lift_cap_pin_y=10.0).check_lift()))
+        # the countersink as drawn until 2026-11-21 was 6.4 mm at the face: an ISO 10642 head (6.72) rides its rim
+        self.assertTrue(any("countersinks" in r and "proud" in r for r in Feeder(lift_cap_csk_d=6.4).check_lift()))
+        self.assertTrue(any("deeper" in r for r in Feeder(lift_cap_csk_d=7.6).check_lift()))
+
+    def test_lift_flight_cap_screw_numbers(self):
+        p = Feeder()
+        f = p.lift_flight_design()
+        self.assertLessEqual(f["head_proud_mm"], 0.0)                         # a maximum head sits at or under the face
+        self.assertAlmostEqual(f["csk_depth_mm"], (p.lift_cap_csk_d - p.M3_HOLE) / 2)
+        self.assertLess(f["csk_depth_mm"], p.M3_CSK_HEAD_K)
+        # past the cleat: washer, a 4 mm nyloc and two 0.5 mm threads
+        self.assertGreaterEqual(f["screw_past_mm"], 0.5 + 4.0 + 2 * 0.5)
+        self.assertGreaterEqual(f["nut_clear_mm"], 0.5)                       # the washer, the wider, clears the pad
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class BearingFitParamsTest(unittest.TestCase):
@@ -2245,6 +2275,7 @@ class LiftCadTest(unittest.TestCase):
         from build123d import Location
         p = self.p
         cap = self.F.lift_flight_cap_solid(p)
+        nuts = self.F.lift_cap_fastener_solid(p)                    # screws, washers and nylocs ride with it
         env = self.F.lift_belt_envelope(p)
         others = [(n, s) for n in ("lift_boot", "lift_head", "lift_pulley", "lift_spine", "lift_base_plate", "lift_clip",
                                    "lift_rod") for s in self._solids(n)]
@@ -2265,6 +2296,10 @@ class LiftCadTest(unittest.TestCase):
                 self.assertLess(c.volume - (c & env).volume, 1.1 * sliver + 0.5, (zc, deg))
                 for n, s in others:
                     self.assertLess((c & s).volume, 1.0, (zc, deg, n))
+                f = nuts.moved(loc)
+                self.assertLess(f.volume - (f & env).volume, 0.5, (zc, deg, "fasteners"))
+                for n, s in others:
+                    self.assertLess((f & s).volume, 0.5, (zc, deg, n, "fasteners"))
 
     def test_head_travels_its_whole_take_up_on_the_spine(self):
         """Head (with the top pulley) moved to each end of its travel: clear of the spine, the top clip and the rods,
