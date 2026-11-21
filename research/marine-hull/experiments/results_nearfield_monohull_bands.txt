@@ -1,0 +1,34 @@
+Milestone 7zt post hoc: pooled 1 m/s motion term (N) by lambda/L band, 4 m monohull, 7zg damping, no reflection
+climate-weighted wave energy by band (share of m0): 0-1 0.002, 1-2 0.005, 2-4 0.019, 4-8 0.068, 8-1e+09 0.907
+# table: formula total b0-1 b1-2 b2-4 b4-8 b8-1e+09
+row GB 2.844 1.583 1.112 0.131 0.016 0.002
+row NF 7.750 2.452 2.367 0.866 0.777 1.288
+row NF0 5.826 1.888 1.441 0.564 0.679 1.254
+row NF-B 7.177 2.339 2.115 0.735 0.721 1.266
+# table: ratio_to_GB total b0-1 b1-2 b2-4 b4-8 b8-1e+09
+ratio NF 2.725 1.549 2.129 6.603 48.041 626.571
+ratio NF0 2.048 1.193 1.296 4.304 41.963 610.074
+ratio NF-B 2.523 1.478 1.902 5.606 44.599 615.814
+# table: share_of_formula_total b0-1 b1-2 b2-4 b4-8 b8-1e+09
+share GB 0.557 0.391 0.046 0.006 0.001
+share NF 0.316 0.305 0.112 0.100 0.166
+share NF0 0.324 0.247 0.097 0.116 0.215
+share NF-B 0.326 0.295 0.102 0.101 0.176
+# table: extra_over_GB_by_band (share of each formula's excess over GB)
+excess NF 0.177 0.256 0.150 0.155 0.262
+excess NF0 0.102 0.110 0.145 0.222 0.420
+excess NF-B 0.175 0.232 0.139 0.163 0.292
+# lambda/L of the R_aw peak at 1 m/s per formula (pointwise, sigma-free N/m2)
+peak GB 6695.75 at lambda/L 0.87
+peak NF 11195.17 at lambda/L 0.87
+peak NF0 8685.31 at lambda/L 0.87
+peak NF-B 10685.54 at lambda/L 0.87
+# R_aw ratio to GB at selected lambda/L (1 m/s)
+at 0.50 GB 398.243 NF 0.38 NF0 0.13 NF-B 0.38
+at 1.00 GB 3723.410 NF 1.82 NF0 1.27 NF-B 1.70
+at 1.50 GB 402.918 NF 2.39 NF0 1.32 NF-B 2.07
+at 1.99 GB 98.558 NF 3.53 NF0 1.93 NF-B 2.94
+at 3.02 GB 12.690 NF 8.96 NF0 6.10 NF-B 7.64
+at 4.01 GB 3.150 NF 20.04 NF0 15.77 NF-B 17.81
+at 6.02 GB 0.451 NF 67.77 NF0 60.35 NF-B 63.42
+at 10.02 GB 0.043 NF 311.13 NF0 296.86 NF-B 301.96
