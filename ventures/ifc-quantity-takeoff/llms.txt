@@ -64,4 +64,5 @@ Faceted bodies clipped by a half-space, and faceted shells that are not closed, 
 
 ## Model view (eval/model-view-2026-11-21.md)
 
+- Storeys shown or hidden one at a time (listed lowest first by elevation, with element counts); a section plane: plan cut, starting 1.2 m above the floor of what is shown, or vertical across x or y. The cut runs in the shader (no re-meshing) and inside faces of cut solids draw grey; picking ignores what was cut away.
 - Each element is drawn as the boundary of the signed convex pieces its volume came from (fans cancelled, openings cut); faceted bodies as the file gives them. On 11 public models (14,994 elements) the drawn triangles enclose the computed volume within 0.5% for 9,184 of 9,314 checked elements; 437 very intricate elements are drawn as their boxes. Meshing takes 0.1-8 s on most models, 35 s on a 56 MB school model.

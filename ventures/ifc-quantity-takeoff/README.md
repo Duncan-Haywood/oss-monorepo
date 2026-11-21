@@ -78,6 +78,16 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   on 128: a body's overlapping items were summed, so a kitchen cabinet
   counted 1.8 times its own box. They are now joined
   ([eval/item-union-2026-11-21.md](eval/item-union-2026-11-21.md)).
+  Storeys can be shown or hidden one at a time, and a section plane cuts
+  the model: a plan cut (starting 1.2 m above the floor of what is shown,
+  where a floor plan is drawn) or a vertical cut across x or y. Cut solids
+  show their inside faces in grey, as a cut is drawn on a section, and
+  clicking picks only what is left standing. Building the storey list found
+  elements placed in rooms (`IfcSpace`) listed under the room's number as
+  their storey, in the view and in the bill of quantities grouped by
+  storey: ARK_NUS's 5 floors showed as 198. They now count on the storey
+  above their room (1,268 ARK_NUS elements, 37 in kleine_Wohnung)
+  ([eval/storeys-and-sections-2026-11-21.md](eval/storeys-and-sections-2026-11-21.md)).
 
 Nothing is uploaded: the model is read in the browser tab.
 

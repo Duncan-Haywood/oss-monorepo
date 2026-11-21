@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { termBoundary, prismFamily, solidMesh, boxMesh, meshVolume, rowMesh, modelOrigin } from "./view-mesh.mjs";
+import { termBoundary, prismFamily, solidMesh, boxMesh, meshVolume, rowMesh, modelOrigin, storeyList } from "./view-mesh.mjs";
 import { convexPieces, prism, clipPoly, polyVolume, solidVolume, IDENTITY } from "./geom.mjs";
-import { idColor, colorId } from "./viewer.mjs";
+import { idColor, colorId, visibleRuns, sectionPlane } from "./viewer.mjs";
 import { parseStep } from "./step.mjs";
 import { takeoff } from "./qto.mjs";
 
@@ -138,4 +138,36 @@ test("a cut whose end lies a few micrometres off the face it trims still cuts it
   for (const f of b.faces) if (f.every((p) => Math.abs(p[0]) < 1e-3)) end += Math.hypot(...f.slice(2).reduce((n, p, i) => { const a = f[0], q = f[i + 1]; const u = [q[0] - a[0], q[1] - a[1], q[2] - a[2]], v = [p[0] - a[0], p[1] - a[1], p[2] - a[2]]; return [n[0] + (u[1] * v[2] - u[2] * v[1]) / 2, n[1] + (u[2] * v[0] - u[0] * v[2]) / 2, n[2] + (u[0] * v[1] - u[1] * v[0]) / 2]; }, [0, 0, 0]));
   assert.ok(Math.abs(end - 140 * 500) < 1, `end face ${end} mm2`);
   assert.ok(Math.abs(polyVolume(b.faces) - want) <= 1e-6 * want, `${polyVolume(b.faces)} vs ${want}`);
+});
+
+test("hidden elements leave the draw as few merged ranges", () => {
+  const items = [0, 1, 2, 3, 4].map((i) => ({ id: `e${i}`, start: i * 6, count: 6 }));
+  assert.deepEqual(visibleRuns(items, null), [[0, 30]]);
+  assert.deepEqual(visibleRuns(items, (id) => id !== "e2"), [[0, 12], [18, 12]]);
+  assert.deepEqual(visibleRuns(items, (id) => id === "e4"), [[24, 6]]);
+  assert.deepEqual(visibleRuns(items, () => false), []);
+});
+
+test("the section plane cuts at its fraction of the shown box", () => {
+  const box = [-10, -5, 0, 10, 5, 9];
+  // plan cut a third of the way up: discard z > 3
+  assert.deepEqual(sectionPlane("z", 1 / 3, box), { n: [0, 0, 1], d: 3 });
+  // flipped: keep above, discard z < 3 (-z > -3)
+  assert.deepEqual(sectionPlane("z", 1 / 3, box, true), { n: [0, 0, -1], d: -3 });
+  assert.deepEqual(sectionPlane("x", 0.25, box), { n: [1, 0, 0], d: -5 });
+  assert.deepEqual(sectionPlane("y", 2, box), { n: [0, 1, 0], d: 5 }, "clamped to the box");
+  assert.equal(sectionPlane("", 0.5, box), null);
+  assert.equal(sectionPlane("z", 0.5, null), null);
+});
+
+test("storeys list lowest first, with no-storey elements last", () => {
+  const rows = [
+    { storey: "Level 10", storeyElevation: 30 }, { storey: "Level 2", storeyElevation: 3 },
+    { storey: "Level 2", storeyElevation: 3 }, { storey: null }, { storey: "Ground", storeyElevation: 0 },
+    { storey: "Roof" }, { storey: "Level 2", isAssembly: true },
+  ];
+  assert.deepEqual(storeyList(rows).map((s) => [s.name, s.count]), [["Ground", 1], ["Level 2", 2], ["Level 10", 1], ["Roof", 1], [null, 1]]);
+  const r = takeoff(parseStep(readFileSync(new URL("./samples/sample-office.ifc", import.meta.url))));
+  const list = storeyList(r.rows);
+  assert.equal(list.reduce((a, s) => a + s.count, 0), r.rows.filter((x) => !x.isAssembly).length);
 });

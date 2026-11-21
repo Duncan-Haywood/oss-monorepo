@@ -1,0 +1,36 @@
+
+IfcOpenHouse_IFC4.ifc: 34 elements, 1 storeys (0.1 s)
+  #38                             34  elev       -  boxes    -2.00 to     5.78  cut    -0.80
+
+AC20-FZK-Haus.ifc: 82 elements, 2 storeys (0.3 s)
+  Erdgeschoss                     26  elev    0.00  boxes    -0.20 to     2.70  cut     1.00
+  Dachgeschoss                    56  elev    2.70  boxes     2.50 to     6.32  cut     3.70
+
+C20-Institute-Var-2.ifc: 701 elements, 5 storeys (0.7 s)
+  Keller                         162  elev   -3.00  boxes    -3.30 to    -0.30  cut    -2.10
+  Erdgeschoss                    184  elev    0.00  boxes    -0.30 to     2.70  cut     0.90
+  1. Obergeschoss                160  elev    3.00  boxes     2.70 to     5.70  cut     3.90
+  2. Obergeschoss                160  elev    6.00  boxes     5.70 to     8.70  cut     6.90
+  Dachgeschoss                    35  elev    9.00  boxes     8.70 to    12.05  cut     9.90
+
+ISSUE_021_Mini Project.ifc: 2636 elements, 1 storeys (4.3 s)
+  Undefined                     2636  elev    0.00  boxes    -9.00 to     8.00  cut    -7.79
+
+ISSUE_159_kleine_Wohnung_R22.ifc: 425 elements, 4 storeys (6.8 s)
+  BT-A_0990_UG01_RDOK_0,000      117  elev    0.00  boxes   498.30 to   503.17  cut   499.50
+  BT-A_1010_OG01_RDOK_3,000      186  elev    3.00  boxes   502.80 to   506.17  cut   504.00
+  BT-A_1020_OG02_RDOK_6,000      118  elev    6.00  boxes   505.80 to   510.62  cut   507.00
+  BT-A_1030_DG03_RDOK_9,000        4  elev    9.00  boxes   506.37 to   510.80  cut   507.57
+
+ISSUE_034_HouseZ.ifc: 228 elements, 4 storeys (0.9 s)
+  Ground Floor                    61  elev    0.00  boxes    -0.00 to     3.45  cut     1.20
+  First Floor                     80  elev    3.40  boxes     3.45 to     7.45  cut     4.65
+  Roof                            18  elev    6.30  boxes     6.35 to     8.53  cut     7.55
+  Site                            69  elev       -  boxes    -1.10 to     3.25  cut     0.10
+
+ISSUE_068_ARK_NUS_skolebygg.ifc: 4459 elements, 5 storeys (25.5 s)
+  Plan 00U                        60  elev   -4.00  boxes   125.75 to   134.16  cut   126.95
+  Plan 01                       2659  elev   -0.00  boxes   129.17 to   139.96  cut   130.37
+  Plan 02                       1145  elev    4.00  boxes   132.95 to   140.23  cut   134.15
+  Plan 03                        517  elev    8.06  boxes   138.47 to   143.31  cut   139.67
+  Plan 04                         78  elev   12.03  boxes   142.83 to   144.33  cut   144.03

@@ -373,7 +373,7 @@ export function takeoff(model, opts = {}) {
     const id = e.id;
     const row = {
       id, globalId: e.args[0], ifcClass: prettyClass(e.type), ifcType: e.type, name: str(e.args[2]), tag: str(e.args[7]) ?? null,
-      type: null, storey: null, storeyElevation: null, material: null, classification: null, parent: null, isAssembly: false,
+      type: null, storey: null, storeyElevation: null, space: null, material: null, classification: null, parent: null, isAssembly: false,
       stored: {}, storedSet: null, computed: null, check: null, box: null,
       pathJoins: idx.pathJoins.get(id) || [],
     };
@@ -382,6 +382,17 @@ export function takeoff(model, opts = {}) {
     // storey: own containment, else the aggregate parent's
     let sid = idx.storeyOf.get(id), p = idx.parentOf.get(id), hop = 0;
     while (!sid && p && hop++ < 10) { sid = idx.storeyOf.get(p); p = idx.parentOf.get(p); }
+    // contained in a room (IfcSpace, or a zone of spaces) is not a storey of its
+    // own: climb the spatial tree to the IfcBuildingStorey that aggregates it
+    // (ARK_NUS places furniture and fittings in 193 rooms, which otherwise
+    // listed as 193 "storeys"), and keep the room's name as the row's space
+    if (sid && E.get(sid)?.type === "IFCSPACE") {
+      const sp = E.get(sid);
+      row.space = str(sp.args[7]) ?? str(sp.args[2]) ?? `#${sid}`;
+      let up = idx.parentOf.get(sid), h = 0;
+      while (up && h++ < 10 && E.get(up)?.type === "IFCSPACE") up = idx.parentOf.get(up);
+      if (up && E.get(up)?.type === "IFCBUILDINGSTOREY") sid = up;
+    }
     if (sid) { const s = E.get(sid); row.storey = s ? (str(s.args[2]) ?? `#${sid}`) : null; if (s && s.type === "IFCBUILDINGSTOREY" && numOf(s.args[9]) != null) row.storeyElevation = numOf(s.args[9]) * f; }
     const parent = idx.parentOf.get(id);
     if (parent) { const pe = E.get(parent); if (pe && isElement(pe)) row.parent = parent; }

@@ -502,3 +502,26 @@ export function rowMesh(row, origin = [0, 0, 0], maxTriangles = MAX_ELEMENT_TRIA
   if (row.box) return { ...boxMesh(row.box, origin), net: false, boxOnly: true, reason };
   return null;
 }
+
+/**
+ * The storeys the rows sit on, lowest first (by the storey's elevation, then
+ * name), with how many drawable elements each holds; rows with no storey
+ * come last as name null.
+ */
+export function storeyList(rows) {
+  const m = new Map();
+  for (const r of rows) {
+    if (r.isAssembly) continue;
+    const k = r.storey ?? null;
+    const s = m.get(k) || { name: k, elevation: null, count: 0 };
+    s.count++;
+    if (r.storeyElevation != null && s.elevation == null) s.elevation = r.storeyElevation;
+    m.set(k, s);
+  }
+  return [...m.values()].sort((a, b) => {
+    if ((a.name == null) !== (b.name == null)) return a.name == null ? 1 : -1;
+    if ((a.elevation == null) !== (b.elevation == null)) return a.elevation == null ? 1 : -1;
+    if (a.elevation !== b.elevation) return a.elevation - b.elevation;
+    return String(a.name).localeCompare(String(b.name), undefined, { numeric: true });
+  });
+}

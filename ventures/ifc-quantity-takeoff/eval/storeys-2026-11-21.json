@@ -1,0 +1,227 @@
+[
+ {
+  "model": "IfcOpenHouse_IFC4.ifc",
+  "elements": 34,
+  "secs": 0.068,
+  "storeys": [
+   {
+    "name": "#38",
+    "elevation": null,
+    "count": 34,
+    "bottom": -2,
+    "top": 5.780000473137893,
+    "cut": -0.8018799271367645
+   }
+  ]
+ },
+ {
+  "model": "AC20-FZK-Haus.ifc",
+  "elements": 82,
+  "secs": 0.33,
+  "storeys": [
+   {
+    "name": "Erdgeschoss",
+    "elevation": 0,
+    "count": 26,
+    "bottom": -0.2,
+    "top": 2.7,
+    "cut": 1.0006000000000002
+   },
+   {
+    "name": "Dachgeschoss",
+    "elevation": 2.7,
+    "count": 56,
+    "bottom": 2.5,
+    "top": 6.317691453627097,
+    "cut": 3.6987551164389085
+   }
+  ]
+ },
+ {
+  "model": "C20-Institute-Var-2.ifc",
+  "elements": 701,
+  "secs": 0.682,
+  "storeys": [
+   {
+    "name": "Keller",
+    "elevation": -3,
+    "count": 162,
+    "bottom": -3.3,
+    "top": -0.2999999999999998,
+    "cut": -2.0999999999999996
+   },
+   {
+    "name": "Erdgeschoss",
+    "elevation": 0,
+    "count": 184,
+    "bottom": -0.3,
+    "top": 2.7,
+    "cut": 0.9000000000000001
+   },
+   {
+    "name": "1. Obergeschoss",
+    "elevation": 3,
+    "count": 160,
+    "bottom": 2.7,
+    "top": 5.7,
+    "cut": 3.9000000000000004
+   },
+   {
+    "name": "2. Obergeschoss",
+    "elevation": 6,
+    "count": 160,
+    "bottom": 5.7,
+    "top": 8.7,
+    "cut": 6.9
+   },
+   {
+    "name": "Dachgeschoss",
+    "elevation": 9,
+    "count": 35,
+    "bottom": 8.7,
+    "top": 12.049318528357,
+    "cut": 9.899056033151805
+   }
+  ]
+ },
+ {
+  "model": "ISSUE_021_Mini Project.ifc",
+  "elements": 2636,
+  "secs": 4.294,
+  "storeys": [
+   {
+    "name": "Undefined",
+    "elevation": 0,
+    "count": 2636,
+    "bottom": -9.00000001594795,
+    "top": 8.000499999999997,
+    "cut": -7.792964514815646
+   }
+  ]
+ },
+ {
+  "model": "ISSUE_159_kleine_Wohnung_R22.ifc",
+  "elements": 425,
+  "secs": 6.832,
+  "storeys": [
+   {
+    "name": "BT-A_0990_UG01_RDOK_0,000",
+    "elevation": 0,
+    "count": 117,
+    "bottom": 498.3,
+    "top": 503.17,
+    "cut": 499.49802
+   },
+   {
+    "name": "BT-A_1010_OG01_RDOK_3,000",
+    "elevation": 3,
+    "count": 186,
+    "bottom": 502.8,
+    "top": 506.17,
+    "cut": 503.99972
+   },
+   {
+    "name": "BT-A_1020_OG02_RDOK_6,000",
+    "elevation": 5.99999999999999,
+    "count": 118,
+    "bottom": 505.8,
+    "top": 510.62184755112423,
+    "cut": 507.00064004022994
+   },
+   {
+    "name": "BT-A_1030_DG03_RDOK_9,000",
+    "elevation": 9,
+    "count": 4,
+    "bottom": 506.3740837150325,
+    "top": 510.80409127376606,
+    "cut": 507.5746157634493
+   }
+  ]
+ },
+ {
+  "model": "ISSUE_034_HouseZ.ifc",
+  "elements": 228,
+  "secs": 0.917,
+  "storeys": [
+   {
+    "name": "Ground Floor",
+    "elevation": 0,
+    "count": 61,
+    "bottom": -1.28e-16,
+    "top": 3.45141749561362,
+    "cut": 1.2010932884735395
+   },
+   {
+    "name": "First Floor",
+    "elevation": 3.4,
+    "count": 80,
+    "bottom": 3.44585837527974,
+    "top": 7.45,
+    "cut": 4.647100862695818
+   },
+   {
+    "name": "Roof",
+    "elevation": 6.3,
+    "count": 18,
+    "bottom": 6.349999999999996,
+    "top": 8.52564434701786,
+    "cut": 7.550955679553857
+   },
+   {
+    "name": "Site",
+    "elevation": null,
+    "count": 69,
+    "bottom": -1.1,
+    "top": 3.25,
+    "cut": 0.10060000000000002
+   }
+  ]
+ },
+ {
+  "model": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+  "elements": 4459,
+  "secs": 25.498,
+  "storeys": [
+   {
+    "name": "Plan 00U",
+    "elevation": -4.00000000000053,
+    "count": 60,
+    "bottom": 125.75,
+    "top": 134.1599865699483,
+    "cut": 126.9526280795026
+   },
+   {
+    "name": "Plan 01",
+    "elevation": -5.28439159097616e-13,
+    "count": 2659,
+    "bottom": 129.168,
+    "top": 139.96,
+    "cut": 130.365912
+   },
+   {
+    "name": "Plan 02",
+    "elevation": 3.9999999999970903,
+    "count": 1145,
+    "bottom": 132.94854204743743,
+    "top": 140.23189879913926,
+    "cut": 134.15029591146822
+   },
+   {
+    "name": "Plan 03",
+    "elevation": 8.05999999999973,
+    "count": 517,
+    "bottom": 138.467,
+    "top": 143.30998657226607,
+    "cut": 139.668060669922
+   },
+   {
+    "name": "Plan 04",
+    "elevation": 12.030000000000001,
+    "count": 78,
+    "bottom": 142.83,
+    "top": 144.33,
+    "cut": 144.03
+   }
+  ]
+ }
+]

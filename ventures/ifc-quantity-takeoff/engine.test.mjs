@@ -965,3 +965,17 @@ test("a body's overlapping items are joined: the shared part counts once", () =>
   const [nest] = takeoff(parseStep(itemsFile([[0, 0, 300, 300, 300], [0, 0, 100, 100, 100]]))).rows;
   close(nest.computed.gross, 0.027);
 });
+
+test("an element contained in a room takes the storey above the room, and keeps the room as its space", () => {
+  const text = sampleText()
+    .replace("(#320),#52);", "(#320),#990);")
+    .replace("ENDSEC;\nEND-ISO", "#990=IFCSPACE('2kLm0itmV8LpeBgYN1hOY9',$,'01056',$,$,$,$,'Meeting room',.ELEMENT.,.INTERNAL.,$);\n#991=IFCRELAGGREGATES('3kLm0itmV8LpeBgYN1hOY9',$,$,$,#52,(#990));\nENDSEC;\nEND-ISO");
+  assert.ok(text.includes("#990=IFCSPACE"), "fixture edit applied");
+  const before = sample().rows.find((r) => r.id === 320);
+  const r = takeoff(parseStep(Buffer.from(text, "latin1"))).rows.find((x) => x.id === 320);
+  assert.equal(before.storey, "Level 2");
+  assert.equal(r.storey, "Level 2");
+  close(r.storeyElevation, before.storeyElevation);
+  assert.equal(r.space, "Meeting room");
+  assert.equal(before.space, null);
+});
