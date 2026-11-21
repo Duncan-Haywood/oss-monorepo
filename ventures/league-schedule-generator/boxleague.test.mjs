@@ -249,7 +249,7 @@ test("text, CSV and links", () => {
   assert.match(standingsText(l, 0), /1\. Ana  6 pts  W2 L0  games 3-1/);
   const csv = leagueCsv(l);
   assert.match(csv, /^round,box,player_a/);
-  assert.match(csv, /"'=Cy"/, "a formula-looking name is defused in the CSV");
+  assert.match(csv, /,'=Cy,/, "a formula-looking name is defused in the CSV");
   assert.deepEqual(roundProgress(l, 0), { done: 2, total: 6 });
   const back = decodeLeague(encodeLeague(l));
   assert.deepEqual(back.league, l);

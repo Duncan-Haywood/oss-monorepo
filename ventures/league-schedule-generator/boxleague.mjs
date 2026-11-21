@@ -11,7 +11,7 @@
 //
 // Nothing here touches the DOM, storage or the network.
 
-import { parseTeams } from "./calc.mjs";
+import { parseTeams, csvCell } from "./calc.mjs";
 
 export const MAX_PLAYERS = 200;
 export const MIN_BOX = 3;
@@ -396,9 +396,8 @@ export function standingsText(league, r) {
   return lines.join("\n");
 }
 
-const csvCell = (v) => { const s = String(v ?? ""); return /[",\n]/.test(s) || /^[=+\-@]/.test(s) ? `"${(/^[=+\-@]/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s; };
 
-/** CSV of every result in every round. */
+/** CSV of every result in every round. Cells go through calc.mjs csvCell, which defuses CSV formula injection. */
 export function leagueCsv(league) {
   const rows = [["round", "box", "player_a", "player_b", "score_a", "score_b", "walkover_winner"]];
   for (const [r, round] of league.rounds.entries()) for (const [b, box] of round.boxes.entries()) for (const [pa, pb] of boxFixtures(box)) {
