@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-21 · Confirmation split: outcome, complete. Rules C and P each finish 7 of 23 against the frozen repair's 9 (lost 2, gained 0); Q2 to Q4 refuted, final. The frozen repair stays; the widening line closes as a finisher rule
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-21); numbers in `research/infra-dcopf/experiments/results_confirm.txt`. All 12 pending cases ran; none reversed the partial result.
+- Where all three finish (7 cases), the widened runs are 0.3 points cheaper on average; 11 of the 20 cases meet only a round-1 failed hard QP, where C and P take the same single widening.
+
 ## 2026-11-20 · Confirmation split: partial outcome. On the 11 of 23 cases scored so far rule P (and rule C, identical there) loses 2 frozen finishers (case2848_rte TYP, case2868_rte TYP), gains none; Q3 refuted, final; frozen repair stays unless 12 pending cases reverse it
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-20); numbers in `research/infra-dcopf/experiments/results_confirm.txt`. Frozen arm complete: 23 of 33 reach the repair, 9 finish. Both losses come from a round-1 widening, before any halving, so rule P's guard does not apply.
 - The C and P job hit the 2-hour background limit after 16 of 40 runs; parts are cached and `run_confirm.py CP` resumes the 12 pending cases.
