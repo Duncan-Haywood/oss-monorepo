@@ -75,12 +75,12 @@
 - (2026-11-21) Resource notes (RSRC.rsrc_notes <-> resource Notes) shipped
   2026-11-21 (eval/resource-notes-2026-11-21.md: 241/241 planted, 17/17
   Project notes, MPXJ agrees). Still open: a public P6 file with resource
-  notes that hold text (the six have only empty editor shells); unassigned
-  resources: msproject.mjs writes only the resources the project's
-  activities use, so 11 of the 17 Project resource notes (resources with no
-  assignment) do not come back to Project XML after the trip to XER; an
-  option to write the whole resource dictionary, or those a Project file
-  brought in, would keep them.
+  notes that hold text (the six have only empty editor shells). Unassigned
+  resources shipped 2026-11-21 (opt-in `--all-resources`,
+  eval/all-resources-2026-11-21.md: 890/890 Project resources and 17/17 notes
+  back). Still open there: P6's resource hierarchy (parent_rsrc_id) as
+  Project's resource Group or an outline, and whether a Project file that
+  came from an XER (p6xer.mjs) should turn the option on by itself.
 - (2026-11-21) Resource curves: spread by P6's curves in earned value shipped
   2026-11-21 (curves.mjs, eval/resource-curves-2026-11-21.md). Still open: a
   P6 export with a curved, cost-loaded assignment and P6's Resource Usage

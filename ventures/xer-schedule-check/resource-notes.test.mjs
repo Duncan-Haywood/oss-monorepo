@@ -55,3 +55,38 @@ test("a resource with no note writes no Notes element and no warning", () => {
   assert.ok(!out.warnings.some((w) => /resource note/.test(w)));
   assert.equal(mspdiText(parseXer(EXAMPLE_XER)).counts.rsrcNotes, 0);
 });
+
+test("--all-resources keeps an unassigned resource and its note on Project -> XER -> Project", () => {
+  // resource 3 has no assignment: by default it is left out of the Project XML
+  // (and counted); with allResources it comes back with its note and calendar
+  const xml = projectXml(`<Resource><UID>1</UID><ID>1</ID><Name>Excavator</Name><Type>1</Type></Resource><Resource><UID>2</UID><ID>2</ID><Name>Skip hire</Name><Type>2</Type></Resource><Resource><UID>3</UID><ID>3</ID><Name>Tower crane</Name><Type>1</Type><Notes>Book 6 weeks ahead</Notes></Resource>`);
+  const xer = parseXer(p6XerText(xml).text);
+  assert.ok(xer.tables.RSRC.some((q) => q.rsrc_name === "Tower crane"));
+  const used = mspdiText(xer);
+  assert.ok(!used.xml.includes("Tower crane"));
+  assert.equal(used.counts.resourcesLeftOut, 1);
+  assert.ok(used.warnings.some((w) => /1 resource\(s\) with no assignment in this project left out/.test(w)));
+  const all = mspdiText(xer, { allResources: true });
+  assert.equal(all.counts.unassignedResources, 1);
+  assert.equal(all.counts.resourcesLeftOut, 0);
+  assert.equal(all.counts.resources, used.counts.resources + 1);
+  assert.ok(all.xml.includes("<Name>Tower crane</Name>"));
+  assert.ok(all.xml.includes("<Notes>Book 6 weeks ahead</Notes>"));
+  assert.ok(all.warnings.some((w) => /1 resource\(s\) with no assignment in this project written too/.test(w)));
+  // assignments are unchanged, and UIDs stay unique
+  assert.equal(all.counts.assignments, used.counts.assignments);
+  const uids = [...all.xml.matchAll(/<Resource><UID>(\d+)<\/UID>/g)].map((m) => m[1]);
+  assert.equal(new Set(uids).size, uids.length);
+  // and back to XER again: still three resources' worth, the note intact
+  const again = p6XerText(all.xml);
+  assert.deepEqual(p6Problems(again.xer.tables), []);
+  assert.equal(memoText(again.xer.tables.RSRC.find((q) => q.rsrc_name === "Tower crane").rsrc_notes), "Book 6 weeks ahead");
+});
+
+test("a file whose resources are all assigned warns of nothing left out, and allResources changes nothing", () => {
+  const x = parseXer(EXAMPLE_XER);
+  const r = mspdiText(x);
+  assert.equal(r.counts.resourcesLeftOut, 0);
+  assert.ok(!r.warnings.some((w) => /no assignment in this project/.test(w)));
+  assert.equal(mspdiText(x, { allResources: true }).xml, r.xml);
+});

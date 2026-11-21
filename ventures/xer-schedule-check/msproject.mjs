@@ -181,7 +181,7 @@ function calendarXml(uid, name, cal, out) {
   out.push("</Calendar>");
 }
 
-export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes = false } = {}) {
+export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes = false, allResources = false } = {}) {
   const T = xer.tables || {};
   const warnings = [];
   const proj = pickProject(T, projId);
@@ -490,8 +490,18 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   const usedRsrc = new Set(assigns.map((a) => a.rsrc_id));
   const rsrcUid = new Map();
   const res = [];
+  // By default only the resources this project's activities use are written,
+  // as P6 shows them in the project's Resource Assignments. With
+  // { allResources: true } every RSRC row goes in (the file's whole resource
+  // dictionary), so resources with no assignment keep their notes, calendar
+  // and fields on a Project -> XER -> Project trip (p6xer.mjs writes every
+  // Project resource to RSRC, assigned or not).
+  let unassigned = 0;
   for (const r of T.RSRC || []) {
-    if (!usedRsrc.has(r.rsrc_id)) continue;
+    if (!usedRsrc.has(r.rsrc_id)) {
+      if (!allResources || !r.rsrc_id) continue;
+      unassigned++;
+    }
     const uid = rsrcUid.size + 1;
     rsrcUid.set(r.rsrc_id, uid);
     const material = r.rsrc_type === "RT_Mat";
@@ -586,6 +596,11 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   }
   counts.expenses = expenses.length;
   counts.costResources = costRes.size;
+  counts.unassignedResources = unassigned;
+  const skipped = allResources ? 0 : (T.RSRC || []).filter((r) => r.rsrc_id && !usedRsrc.has(r.rsrc_id)).length;
+  counts.resourcesLeftOut = skipped;
+  if (unassigned) warnings.push(`${unassigned} resource(s) with no assignment in this project written too (the whole resource dictionary)`);
+  else if (skipped) warnings.push(`${skipped} resource(s) with no assignment in this project left out (only the resources its activities use are written; the "every resource" option or --all-resources writes the whole dictionary)`);
   if (expenses.length) warnings.push(`${expenses.length} expense(s) written as assignments of ${costRes.size} cost resource(s), one per expense name${costCat.size && [...costRes.values()].some((r) => r.group) ? ", the cost category as the resource's Group" : ""}; vendor, PO number, quantity and description in the assignment's notes`);
   if (expMerged) warnings.push(`${expMerged} expense(s) added to another of the same name on the same activity (Project allows one assignment of a resource per task)`);
   if (expVariants) warnings.push(`${expVariants} expense name(s) used with a second category or accrual written as cost resources of their own, named with them (Project keeps both on the resource); their assignments' notes keep the expense name`);
