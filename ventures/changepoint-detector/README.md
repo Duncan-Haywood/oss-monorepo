@@ -8741,3 +8741,58 @@ Next (most useful first): a pre-registered round on Gaussian-noise shops (sd 0.2
 drift model (`--model drift`) and a slope detector (`slope-breaks.mjs`) on x1.3-x1.9 climbs, to see whether a
 "slow climb" check should run beside the level watch on daily revenue; why the AR(1) pass absorbs a calm climb (its
 rho estimate across the ramp); a deployer's real Stripe series.
+
+## A shop shut one weekday, round 6: no slow-climb check passes on its own; weekly totals beside the daily watch hear more climbs, late (2026-11-21, pre-registered; G1 and G2 fail for every arm, G3 passes for two; nothing ships)
+
+Round 5 left a hypothesis: on calm noise the daily watch hears a slow climb only through single big days on the new
+level, so a check built for climbs, run beside it, might hear what it misses.
+
+**Pre-registered** (`eval/slow-climb.prereg.md`, committed before any shop ran; `eval/slow-climb-sim.mjs`, output
+`eval/slow-climb-sim.out.txt`, seed 20261123). Round 5's shop with Gaussian day noise at **sd 0.2** and **sd 0.36**,
+100 unchanged shops (N), 100 climbs to x1.3 (R30) and 100 to x1.9 (R90) per level, each climb linear in the log over
+28 to 56 days. Four arms: **Q**, the shipped daily default (Quiet, `--period 7`); and three on **weekly totals**:
+**QW** (Quiet), **DW** (the drift watch, which refuses a daily period) and **S**, a weekly slope check (`slopeBreaks`
+on log weekly totals at every week end from week 30, a new climbing knot is an alert). Caught: an alert dated from 7
+days before the climb to its end and sent by 14 days after its end. False alerts per 100 days watched.
+
+| | Q | QW | DW | S | Q or QW | Q or DW |
+|---|---|---|---|---|---|---|
+| sd 0.2, N: false alerts per 100 days | 0.64 | 0.02 | 0.08 | 0.00 | 0.65 | 0.72 |
+| sd 0.2, R30 caught | 44 | 24 | 35 | 0 | 58 | 66 |
+| sd 0.2, R90 caught | 51 | 76 | 79 | 0 | 89 | 90 |
+| sd 0.36, N: false alerts per 100 days | 0.25 | 0.01 | 0.07 | 0.00 | 0.25 | 0.31 |
+| sd 0.36, R30 caught | 22 | 6 | 13 | 0 | 27 | 30 |
+| sd 0.36, R90 caught | 57 | 53 | 56 | 0 | 77 | 82 |
+| median delay, sd 0.36 R90 (days from the climb's first day) | 21 | 49 | 49 | - | | |
+
+| bar | QW | DW | S |
+|---|---|---|---|
+| G1, sd 0.36 R30: arm >= Q + 15 (37), false <= 1.0 | 6: **fails** | 13: **fails** | 0: **fails** |
+| G2, sd 0.2 R30: arm >= min(Q + 15, 90) (59), false <= 1.0 | 24: **fails** | 35: **fails** | 0: **fails** |
+| G3, sd 0.36 R90: Q or arm >= Q + 10 (67), false <= Q + 1.0 | 77: passes | 82: passes | 57: **fails** |
+
+What it shows:
+
+- **The slope check is deaf to these climbs.** A climb to a plateau is a *pulse* in weekly growth (about +0.13 a week
+  for five weeks, then 0), and `slopeBreaks` tests for growth that changes and stays changed. Differencing also roughly
+  doubles the weekly noise. On a clean x1.9 five-week climb at sd 0.2 its largest W over the season is about 5 against
+  a bar of 8.5 (`slow-climb.test.mjs`). It sent no alert in 600 shops, true or false.
+- **Weekly totals hear big climbs the daily watch misses, but late.** Beside Q, the weekly drift watch lifts x1.9
+  catches from 57 to 82 (sd 0.36) and from 51 to 90 (sd 0.2) for 0.06 to 0.08 more false alerts per 100 days, about
+  one more a year. Its median alert comes 48 to 49 days after the climb starts, which on a 28-to-56-day climb is near
+  its end. On the smaller x1.3 climb neither weekly watch beats Q alone.
+- **Calmer noise is worse again for Q.** At sd 0.2 Q catches 51 of 100 x1.9 climbs, fewer than at sd 0.36 (57), while
+  sending more false alerts (0.64 against 0.25 per 100 days). Round 5's pattern that catches follow the false-alert
+  rate does not hold across noise levels: the shop's slow level wobble (sd 0.05) is a larger share of calm noise, so
+  more alerts are spent on it.
+
+**Nothing ships.** No arm passed all three bars. The drift watch on weekly totals already works today: a shop owner
+can export weekly revenue and run `watch.mjs --detector drift` beside the daily watch, and on these shops that hears
+most big climbs within about seven weeks.
+
+**Checked:** `slow-climb.test.mjs` (2 tests): weekly totals are whole Monday-to-Sunday weeks; the slope check sends
+nothing on a flat series or a clean five-week x1.9 climb, and fires within a week of a lasting slope change.
+
+Next (most useful first): a pre-registered round on fresh shops with the weekly drift watch beside the daily watch as
+the arm and bars on x1.9 catches by 8 weeks; a test for a pulse in growth (an epidemic-change statistic on weekly
+growth) in place of `slopeBreaks` for S; why Q's false alerts rise on calmer noise (the level wobble's share).
