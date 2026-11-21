@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKjcouoGoAGZpMZ7TfC",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T12:09:40Z",
+  "ended": "2026-11-21T12:41:17Z",
+  "wall_minutes": 49.08,
+  "tokens_in": 14737334,
+  "tokens_out": 75142,
+  "cost_usd": 5.8561,
+  "tool_calls": 100,
+  "task": "explore: exact ReDoS ambiguity oracle vs regex-redos-check",
+  "projects": [
+    "regex-redos-check",
+    "docker-cache-order-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18082",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first oracle kept zero-multiplicity edges, so (b|cb)* read as exponential (72 unconfirmed of 500)",
+      "fix": "drop count-0 edges; caught because V8 timing disagreed"
+    },
+    {
+      "what": "engine exact check gave prefix 'null0000' for a pattern with a literal outside the sample alphabet",
+      "fix": "alphabet now includes the pattern's own characters"
+    },
+    {
+      "what": "nested + doubled automaton copies, so two patterns hit the position cap (the last 2 misses)",
+      "fix": "one shared copy for the last required iteration and the loop"
+    },
+    {
+      "what": "CI distribution-versions check: devsec-toolkit shipped files changed",
+      "fix": "node platform/distribution/versions.mjs --write (0.1.12)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_redos.mjs",
+      "issue": "main was already red on repo-sweep.test.mjs: a docker-cache-order-check setupRe added recently was flagged but not fixed or allowlisted; nothing stopped it merging"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "a background run_workflow_locally hand-off forbids edits until it finishes (~15 min here), which blocks fixing a CI failure already seen on GitHub"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-a-redos-checker-that-missed-a-third.md",
+    "ventures/regex-redos-check/eval/README.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: build an exact exponential-backtracking oracle (counted Glushkov automaton, EDA test on the squared automaton; Weideman et al. CIAA 2016, Allauzen/Mohri/Rastogi IJFCS 2011, citations checked) and differential-test regex-redos-check's shape rules, with every 'exponential' label confirmed by timing V8. Main's engine: 873/1,314 and 1,065/1,615 caught (66%), 19 and 10 false alarms, on two 3,000-pattern sweeps. Shipped the same test inside engine.mjs (exactAmbiguity: rule ambiguous-repeat with attack string; proof of no EDA demotes shape-rule errors to warn): 1,314/1,314 and 1,615/1,615, 0 false alarms. --probe pumps the witness first: 100/100 confirmed vs 58/100 before. Repo: covers 13,313 of 14,714 distinct patterns; found a real exponential pattern in docker-cache-order-check setupRe (18 pumps 23 ms, x4 per 2) and fixed it (20,000 pumps <1 ms); proof removed the sales-agent allowlist entry. Cost 0.4 s -> 2.1 s over 11,696 ventures patterns. Verification: node --test regex-redos-check 45 pass; run_venture_tests regex-redos-check + docker-cache-order-check ok; check_redos 0 new, 0 stale; check_posts ok; run_workflow_locally --for-changes 13/14 (distribution-versions failed on stale versions.json, fixed: --check current, platform/distribution tests 254 pass). No agent doc: eval/README.md carries method, numbers and limits. Next: IDA (polynomial) on state triples to give quadratic patterns attack strings.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b4dd0572-4b3c-51d7-aa80-d393c06f66fd",
+    "transcripts": 1,
+    "first": "2026-11-21T12:09:40Z",
+    "last": "2026-11-21T12:58:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 99,
+        "input": 194,
+        "output": 75142,
+        "thinking": 28161,
+        "cache_read": 14557008,
+        "cache_write_5m": 0,
+        "cache_write_1h": 180132,
+        "api_equivalent_usd": 5.8561,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 99,
+      "input": 194,
+      "output": 75142,
+      "thinking": 28161,
+      "cache_read": 14557008,
+      "cache_write_5m": 0,
+      "cache_write_1h": 180132,
+      "api_equivalent_usd": 5.8561,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 100,
+    "tools": {
+      "Bash": 90,
+      "ToolSearch": 3,
+      "WebSearch": 2,
+      "Write": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 49.08,
+      "active_minutes": 49.08,
+      "model_minutes": 14.58,
+      "tool_minutes": 34.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "oracle + engine exact check + eval + repo fix + post, estimated for a senior engineer familiar with automata",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 409.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
