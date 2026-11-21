@@ -51,15 +51,16 @@
     @media (min-width: 740px) { div.grid:has(#tax-year) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 277px), 1fr)); } }
   </style>
   <!-- select-track:end -->
+<style>/* hero-fold */ header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note">ESTIMATED TAX PENALTY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Will you owe an underpayment penalty on your estimated taxes?</h1>
     <p class="answer-source" data-answer-lead>You owe no estimated tax penalty if you pay at least the smaller of 90% of this year's tax or 100% of last year's tax through withholding and estimated payments, or 110% of last year's tax if last year's adjusted gross income was over $150,000, and also none if you owe under $1,000 after withholding and refundable credits. Source: IRS Topic no. 306, "Penalty for underpayment of estimated tax" (irs.gov/taxtopics/tc306), read 2026-11-09. As of 2026-11-09.</p>
-    <p>Pay the smaller of <strong>90% of this year's tax</strong> or <strong>100% of last year's</strong>
+    <details class="hero-more"><summary>What it calculates</summary><p>Pay the smaller of <strong>90% of this year's tax</strong> or <strong>100% of last year's</strong>
     (110% for higher earners) across four installments, or the IRS charges interest on each shortfall.
-    Enter your numbers to see the Form 2210 penalty by installment and what to pay to stop it.</p>
+    Enter your numbers to see the Form 2210 penalty by installment and what to pay to stop it.</p></details>
     <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
   </header>
 <main>
