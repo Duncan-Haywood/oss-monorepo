@@ -34,9 +34,19 @@
 //   and are counted. Assignments keep budgeted, actual and remaining units
 //   and cost; P6 recomputes units per hour and the rate from them.
 //
-// Not carried (counted in the warnings): notes, custom number and date
-// fields, task splits and contoured work, deadlines (no P6 field), elapsed
-// lags on links (P6 has one lag calendar per project), cost resources.
+// - custom fields: the task Number, Cost and Date fields a file uses become
+//   activity user-defined fields (UDFTYPE, UDFVALUE), titled by the field's
+//   Alias (else Number3, Cost1, Date2): whole numbers as integer UDFs, other
+//   numbers as decimal ones, costs as cost UDFs, dates as start-date UDFs. So
+//   the UDFs msproject.mjs writes from an XER come back as UDFs, and a
+//   Project planner's own custom fields reach the P6 file. (Text fields
+//   become activity codes, above.)
+//
+// Not carried (counted in the warnings): notes, task splits and contoured
+// work, deadlines (no P6 field), elapsed lags on links (P6 has one lag
+// calendar per project), cost resources, P6's finish-date subtype of a date
+// UDF (Project has one kind of date field, so a date comes back as a start
+// date UDF).
 
 import { parseMspdi, parseXml, durationHours } from "./mspdi.mjs";
 import { xerText } from "./xer.mjs";
@@ -63,13 +73,17 @@ export const FIELDS = {
   TASK: "task_id proj_id wbs_id clndr_id phys_complete_pct rev_fdbk_flag est_wt lock_plan_flag auto_compute_act_flag complete_pct_type task_type duration_type status_code task_code task_name rsrc_id total_float_hr_cnt free_float_hr_cnt remain_drtn_hr_cnt act_work_qty remain_work_qty target_work_qty target_drtn_hr_cnt target_equip_qty act_equip_qty remain_equip_qty cstr_date act_start_date act_end_date late_start_date late_end_date expect_end_date early_start_date early_end_date restart_date reend_date target_start_date target_end_date rem_late_start_date rem_late_end_date cstr_type priority_type suspend_date resume_date float_path float_path_order guid tmpl_guid cstr_date2 cstr_type2 driving_path_flag act_this_per_work_qty act_this_per_equip_qty external_early_start_date external_late_end_date create_date update_date create_user update_user location_id",
   TASKPRED: "task_pred_id task_id pred_task_id proj_id pred_proj_id pred_type lag_hr_cnt comments float_path aref arls",
   TASKACTV: "task_id actv_code_type_id actv_code_id proj_id",
+  // P6 6.0 to 24.12 write these (24.12 adds export_flag, left out so older
+  // versions import it)
+  UDFTYPE: "udf_type_id table_name udf_type_name udf_type_label logical_data_type super_flag indicator_expression summary_indicator_expression",
+  UDFVALUE: "udf_type_id fk_id proj_id udf_date udf_number udf_text udf_code_id",
   TASKRSRC: "taskrsrc_id task_id proj_id cost_qty_link_flag role_id acct_id rsrc_id pobs_id skill_level remain_qty target_qty remain_qty_per_hr target_lag_drtn_hr_cnt target_qty_per_hr act_ot_qty act_reg_qty relag_drtn_hr_cnt ot_factor cost_per_qty target_cost act_reg_cost act_ot_cost remain_cost act_start_date act_end_date restart_date reend_date target_start_date target_end_date rem_late_start_date rem_late_end_date rollup_dates_flag target_crv remain_crv actual_crv ts_pend_act_end_flag guid rate_type act_this_per_cost act_this_per_qty curv_id rsrc_type cost_per_qty_source_type create_user create_date has_rsrchours taskrsrc_sum_id",
 };
 for (const k of Object.keys(FIELDS)) FIELDS[k] = FIELDS[k].split(" ");
 
 // P6's field lengths: longer values are cut (and counted), as P6's import
 // would refuse them
-const MAX = { proj_short_name: 40, wbs_short_name: 40, wbs_name: 100, task_code: 40, task_name: 120, clndr_name: 60, rsrc_short_name: 40, rsrc_name: 100, actv_code_type: 60, short_name: 60, actv_code_name: 100 };
+const MAX = { proj_short_name: 40, wbs_short_name: 40, wbs_name: 100, task_code: 40, task_name: 120, clndr_name: 60, rsrc_short_name: 40, rsrc_name: 100, actv_code_type: 60, short_name: 60, actv_code_name: 100, udf_type_label: 40, udf_text: 255 };
 
 // a row with every field of its table, in P6's order; missing ones empty
 function full(table, row, defaults = {}) {
@@ -372,17 +386,36 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   }
   const TASKACTV = (T.TASKACTV || []).map((r) => full("TASKACTV", { task_id: idOf("TASK", r.task_id), actv_code_type_id: idOf("ATYPE", r.actv_code_type_id), actv_code_id: leafOf.get(r.actv_code_id), proj_id: P }));
 
+  // activity user-defined fields (mspdi.mjs reads them from Number, Cost and
+  // Date fields). P6 needs a UDF's title unique within its subject area.
+  const UDFTYPE = [], UDFVALUE = [];
+  const udfLabels = new Set();
+  let udfDupLabels = 0;
+  for (const u of (T.UDFTYPE || []).filter((x) => x.table_name === "TASK")) {
+    const rows = (T.UDFVALUE || []).filter((v) => v.udf_type_id === u.udf_type_id && taskIds.has(v.fk_id));
+    if (!rows.length) continue;
+    const id = idOf("UDF", u.udf_type_id);
+    let label = clip("udf_type_label", u.udf_type_label || u.udf_type_name);
+    if (udfLabels.has(label.toLowerCase())) { udfDupLabels++; let k = 2; const cut = (x) => `${label.slice(0, MAX.udf_type_label - String(x).length - 3)} (${x})`; while (udfLabels.has(cut(k).toLowerCase())) k++; label = cut(k); }
+    udfLabels.add(label.toLowerCase());
+    UDFTYPE.push(full("UDFTYPE", { udf_type_id: id, table_name: "TASK", udf_type_name: `user_field_${id}`, udf_type_label: label, logical_data_type: u.logical_data_type, super_flag: "N" }));
+    for (const v of rows) UDFVALUE.push(full("UDFVALUE", { udf_type_id: id, fk_id: idOf("TASK", v.fk_id), proj_id: P, udf_date: v.udf_date, udf_number: v.udf_number, udf_text: clip("udf_text", v.udf_text), udf_code_id: "" }));
+  }
+
   const tables = {
     CURRTYPE: [full("CURRTYPE", { curr_id: "1", decimal_digit_cnt: "2", curr_symbol: "$", decimal_symbol: ".", digit_group_symbol: ",", pos_curr_fmt_type: "#1.1", neg_curr_fmt_type: "(#1.1)", curr_type: "US Dollar", curr_short_name: "USD", group_digit_cnt: "3", base_exch_rate: "1" })],
     // the financial period template the project names, as P6 20.12 writes it
     FINTMPL: [full("FINTMPL", { fintmpl_id: "1", fintmpl_name: "Calendar", default_flag: "Y" })],
     OBS: [full("OBS", { obs_id: "1", seq_num: "0", obs_name: "Enterprise" })],
+    // P6 writes the UDF titles with the global tables, before PROJECT, and the values last
+    ...(UDFTYPE.length ? { UDFTYPE } : {}),
     PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS,
     ...(RSRC.length ? { RSRC } : {}),
     ...(ACTVTYPE.length ? { ACTVTYPE, ACTVCODE } : {}),
     TASK, TASKPRED,
     ...(TASKACTV.length ? { TASKACTV } : {}),
     ...(TASKRSRC.length ? { TASKRSRC } : {}),
+    ...(UDFVALUE.length ? { UDFVALUE } : {}),
   };
 
   if (idField) warnings.push(`activity IDs from the "Activity ID" text field on ${fromField} of ${TASK.length} activities${fromField < TASK.length ? `; the rest are A + row ID x 10` : ""}`);
@@ -391,6 +424,8 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   if (trees) warnings.push(`${trees} activity code type(s) written as parent.child paths rebuilt as P6 code hierarchies`);
   if (dupRsrc) warnings.push(`${dupRsrc} repeated resource ID(s) given a -2, -3 suffix (P6 needs them unique; Project fills Initials with the name's first letter)`);
   if (summaryAssign) warnings.push(`${summaryAssign} assignment(s) on summary tasks not carried: summary tasks become WBS nodes in P6, which hold no resources`);
+  if (UDFTYPE.length) warnings.push(`${UDFVALUE.length} custom field value(s) in ${UDFTYPE.length} field(s) written as activity user-defined fields${UDFTYPE.some((u) => u.logical_data_type === "FT_START_DATE") ? " (dates as start-date UDFs)" : ""}`);
+  if (udfDupLabels) warnings.push(`${udfDupLabels} repeated custom field title(s) given a (2), (3) suffix (P6 needs UDF titles unique)`);
   if (cut) warnings.push(`${cut} name(s) or code(s) cut to P6's field length`);
   if (elapsedLags) warnings.push(`${elapsedLags} elapsed lag(s) written in hours: P6 counts every lag on one calendar per project (successor's), so set the lag calendar to 24 hour in P6 if those links matter`);
   if (deadlines) warnings.push(`${deadlines} deadline(s) not carried: P6 has no deadline (add a finish-on-or-before secondary constraint in P6 if needed)`);
@@ -398,14 +433,15 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   if (costRes) warnings.push(`${costRes} cost resource(s) and ${costAssign} assignment(s) of them not carried: P6 keeps such costs as expenses`);
 
   const xer = { version: "20.12", exportDate: new Date().toISOString().slice(0, 10), tables, format: "xer" };
-  const counts = { activities: TASK.length, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length };
+  const counts = { activities: TASK.length, relationships: TASKPRED.length, wbs: PROJWBS.length - 1, calendars: CALENDAR.length, resources: RSRC.length, assignments: TASKRSRC.length, codeTypes: ACTVTYPE.length, udfFields: UDFTYPE.length, udfValues: UDFVALUE.length };
   return { xer, text: xerText(xer), counts, warnings, project: { name: title, id: shortName } };
 }
 
 export const p6xerSummary = (r) =>
   `${r.counts.activities} activities, ${r.counts.relationships} relationships, ${r.counts.wbs} WBS nodes, ${r.counts.calendars} calendar(s)` +
   (r.counts.resources ? `, ${r.counts.resources} resources (${r.counts.assignments} assignments)` : "") +
-  (r.counts.codeTypes ? `, ${r.counts.codeTypes} activity code type(s)` : "");
+  (r.counts.codeTypes ? `, ${r.counts.codeTypes} activity code type(s)` : "") +
+  (r.counts.udfFields ? `, ${r.counts.udfValues} custom field value(s) as ${r.counts.udfFields} UDF(s)` : "");
 
 // What P6's import would refuse or misread, checked on the tables written:
 // every table carries P6's fields; ids are whole numbers, unique per table;
@@ -418,7 +454,7 @@ export const p6xerSummary = (r) =>
 export function p6Problems(tables) {
   const out = [];
   const say = (s) => { if (out.length < 50) out.push(s); };
-  const KEY = { CURRTYPE: "curr_id", FINTMPL: "fintmpl_id", OBS: "obs_id", PROJECT: "proj_id", CALENDAR: "clndr_id", SCHEDOPTIONS: "schedoptions_id", PROJWBS: "wbs_id", RSRC: "rsrc_id", ACTVTYPE: "actv_code_type_id", ACTVCODE: "actv_code_id", TASK: "task_id", TASKPRED: "task_pred_id", TASKRSRC: "taskrsrc_id" };
+  const KEY = { CURRTYPE: "curr_id", FINTMPL: "fintmpl_id", OBS: "obs_id", PROJECT: "proj_id", CALENDAR: "clndr_id", SCHEDOPTIONS: "schedoptions_id", PROJWBS: "wbs_id", RSRC: "rsrc_id", ACTVTYPE: "actv_code_type_id", ACTVCODE: "actv_code_id", TASK: "task_id", TASKPRED: "task_pred_id", TASKRSRC: "taskrsrc_id", UDFTYPE: "udf_type_id" };
   const keys = {};
   for (const [t, rows] of Object.entries(tables)) {
     if (!FIELDS[t]) { say(`${t}: not a table this writer knows`); continue; }
@@ -451,6 +487,25 @@ export function p6Problems(tables) {
   ref("TASKPRED", "task_id", "TASK"); ref("TASKPRED", "pred_task_id", "TASK");
   ref("TASKACTV", "task_id", "TASK"); ref("TASKACTV", "actv_code_id", "ACTVCODE"); ref("TASKACTV", "actv_code_type_id", "ACTVTYPE");
   ref("TASKRSRC", "task_id", "TASK"); ref("TASKRSRC", "rsrc_id", "RSRC");
+  ref("UDFVALUE", "udf_type_id", "UDFTYPE"); ref("UDFVALUE", "fk_id", "TASK"); ref("UDFVALUE", "proj_id", "PROJECT");
+  // a UDF's title is unique within its subject area; a value fits its type
+  const udfType = new Map();
+  const titles = new Set();
+  for (const u of tables.UDFTYPE || []) {
+    udfType.set(u.udf_type_id, u.logical_data_type);
+    const k = `${u.table_name}|${u.udf_type_label.toLowerCase()}`;
+    if (titles.has(k)) say(`UDFTYPE ${u.udf_type_id}: title ${u.udf_type_label} repeated`);
+    titles.add(k);
+  }
+  const udfSeen = new Set();
+  for (const v of tables.UDFVALUE || []) {
+    const t = udfType.get(v.udf_type_id) || "";
+    if (udfSeen.has(`${v.udf_type_id}|${v.fk_id}`)) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: two values for one activity`);
+    udfSeen.add(`${v.udf_type_id}|${v.fk_id}`);
+    if (/DATE/.test(t) && !v.udf_date) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: date UDF with no date`);
+    if (/INT|FLOAT|MONEY/.test(t) && !Number.isFinite(Number(v.udf_number === "" ? NaN : v.udf_number))) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: ${t} value ${v.udf_number} is not a number`);
+    if (t === "FT_INT" && !Number.isInteger(Number(v.udf_number))) say(`UDFVALUE ${v.udf_type_id}/${v.fk_id}: integer UDF value ${v.udf_number}`);
+  }
   const nodes = (tables.PROJWBS || []).filter((w) => w.proj_node_flag === "Y");
   if (nodes.length !== 1) say(`PROJWBS: ${nodes.length} project nodes (P6 needs one)`);
   // every WBS node reaches the project node

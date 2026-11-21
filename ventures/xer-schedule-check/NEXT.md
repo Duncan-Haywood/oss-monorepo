@@ -44,7 +44,13 @@
 - (2026-11-21) Project XML to XER: next, an import into a real P6 (any
   version) to confirm what the field lists stand in for; notes as TASKMEMO
   (needs MEMOTYPE); deadlines as a secondary finish-on-or-before constraint
-  (opt-in, since it changes float); cost resources as PROJCOST expenses;
-  number/date fields as UDFs (UDFTYPE, UDFVALUE).
+  (opt-in, since it changes float); cost resources as PROJCOST expenses.
+  Number/Cost/Date fields as UDFs shipped 2026-11-21
+  (eval/p6xer-udfs-2026-11-21.md). Still open there: the UDF type on a round
+  trip (whole numbers come back as integer UDFs, so 6 of CCA's decimal UDFs
+  change type, 7,104 of 13,174 values keep P6's; a hint that survives a save
+  in Project is needed), finish-date UDFs (Project has one date kind),
+  resource custom fields as RSRC UDFs.
 - (2026-11-21) constraints log's "past late start" now says whether a row moves anything (eval/constraints-slack-2026-11-20.md: 65/65)
 - (2026-11-21) its forward gap searched 2026-11-20, no rule (one link; eval/relationship-dates-2026-11-20.md)
+- (2026-11-21) relationship dates (TASKPRED aref/arls) decoded 2026-11-20 (reldates.mjs, eval/relationship-dates-2026-11-20.md: arls 40,476/40,476; lags changed after the run read back, 1,200/1,200 planted): the 5-node SS chain is P6 contradicting its own arls (closed), the 608 h lag was not edited

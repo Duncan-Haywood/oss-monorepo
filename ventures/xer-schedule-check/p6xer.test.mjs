@@ -38,7 +38,7 @@ test("every table carries P6's fields, whole-number ids that resolve, and passes
   assert.deepEqual(Object.keys(r.xer.tables), ["CURRTYPE", "FINTMPL", "OBS", "PROJECT", "CALENDAR", "SCHEDOPTIONS", "PROJWBS", "RSRC", "ACTVTYPE", "ACTVCODE", "TASK", "TASKPRED", "TASKACTV", "TASKRSRC"]);
   assert.match(r.text, /^ERMHDR\t20\.12\t/);
   assert.match(r.text, /%E\r\n$/);
-  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, codeTypes: 1 });
+  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, codeTypes: 1, udfFields: 0, udfValues: 0 });
 });
 
 test("the WBS hangs under one project node; activity IDs are A + row x 10", () => {
@@ -234,4 +234,79 @@ test("a code tree's leaf keeps its description; the parents made for it carry th
   assert.deepEqual(name("N.01"), ["N", "N.01"]);
   assert.deepEqual(name("S.01"), ["S", "S.01"]);
   assert.deepEqual(name("N.02"), ["N", "N.02"]);
+});
+
+// Project's Number, Cost and Date fields -> activity UDFs
+const CUSTOM = (defs, vals) => XML()
+  .replace("</ExtendedAttributes>", `${defs}</ExtendedAttributes>`)
+  .replace(/(<UID>(\d)<\/UID><ID>\d<\/ID><Name>[^<]*<\/Name>)/g, (m, head, uid) => `${head}${vals[uid] || ""}`);
+const ea = (id, v) => `<ExtendedAttribute><FieldID>${id}</FieldID><Value>${v}</Value></ExtendedAttribute>`;
+const def = (id, name, alias) => `<ExtendedAttribute><FieldID>${id}</FieldID><FieldName>${name}</FieldName>${alias ? `<Alias>${alias}</Alias>` : ""}</ExtendedAttribute>`;
+
+test("Project's Number, Cost and Date fields become activity UDFs P6 can import", () => {
+  // Number1 "Crew size" (whole), Number2 (no alias, decimals), Cost1 "Allowance", Date1 "Access date"
+  const xml = CUSTOM(def("188743767", "Number1", "Crew size") + def("188743768", "Number2") + def("188743786", "Cost1", "Allowance") + def("188743945", "Date1", "Access date"), {
+    2: ea("188743767", "4") + ea("188743768", "2.5") + ea("188743786", "1250000"),
+    3: ea("188743767", "6") + ea("188743945", "2026-03-20T08:00:00"),
+    4: ea("188743768", "0.75"),
+  });
+  const r = p6XerText(xml);
+  const T = r.xer.tables;
+  assert.deepEqual(p6Problems(T), []);
+  for (const t of ["UDFTYPE", "UDFVALUE"]) for (const row of T[t]) assert.deepEqual(Object.keys(row), FIELDS[t], t);
+  // P6's own order: titles with the global tables, values last
+  const order = Object.keys(T);
+  assert.ok(order.indexOf("UDFTYPE") < order.indexOf("PROJECT"));
+  assert.equal(order.at(-1), "UDFVALUE");
+  const types = new Map(T.UDFTYPE.map((u) => [u.udf_type_label, u]));
+  assert.deepEqual([...types.keys()].sort(), ["Access date", "Allowance", "Crew size", "Number2"]);
+  assert.equal(types.get("Crew size").logical_data_type, "FT_INT");
+  assert.equal(types.get("Number2").logical_data_type, "FT_FLOAT_2_DECIMALS");
+  assert.equal(types.get("Allowance").logical_data_type, "FT_MONEY");
+  assert.equal(types.get("Access date").logical_data_type, "FT_START_DATE");
+  const code = new Map(T.TASK.map((t) => [t.task_id, t.task_code]));
+  const vals = T.UDFVALUE.map((v) => `${code.get(v.fk_id)} ${T.UDFTYPE.find((u) => u.udf_type_id === v.udf_type_id).udf_type_label}=${v.udf_number || v.udf_date}`).sort();
+  assert.deepEqual(vals, ["A20 Allowance=12500", "A20 Crew size=4", "A20 Number2=2.5", "A30 Access date=2026-03-20 08:00", "A30 Crew size=6", "A40 Number2=0.75"]);
+  assert.deepEqual([r.counts.udfFields, r.counts.udfValues], [4, 6]);
+  assert.ok(r.warnings.some((w) => /6 custom field value\(s\) in 4 field\(s\) written as activity user-defined fields/.test(w)));
+  // and this tool's XER reader takes them back
+  const B = parseXer(r.text).tables;
+  assert.equal(B.UDFVALUE.length, 6);
+  assert.equal(B.UDFTYPE.length, 4);
+});
+
+test("two custom fields with one title get unique UDF titles; p6Problems names UDF faults", () => {
+  const r = p6XerText(CUSTOM(def("188743767", "Number1", "Qty") + def("188743768", "Number2", "QTY"), { 2: ea("188743767", "1") + ea("188743768", "2") }));
+  assert.deepEqual(r.xer.tables.UDFTYPE.map((u) => u.udf_type_label), ["Qty", "QTY (2)"]);
+  assert.deepEqual(p6Problems(r.xer.tables), []);
+  const T = r.xer.tables;
+  const bad = { ...T, UDFTYPE: T.UDFTYPE.map((u) => ({ ...u, udf_type_label: "Qty" })), UDFVALUE: [...T.UDFVALUE, { ...T.UDFVALUE[0], fk_id: "999" }, { ...T.UDFVALUE[0], udf_number: "1.5" }] };
+  const p = p6Problems(bad).join("\n");
+  assert.match(p, /title Qty repeated/);
+  assert.match(p, /fk_id 999 is not in TASK/);
+  assert.match(p, /two values for one activity/);
+  assert.match(p, /integer UDF value 1\.5/);
+});
+
+test("a P6 schedule's activity UDFs come back as UDFs through Project XML", () => {
+  const X = parseXer(EXAMPLE_XER);
+  const T = X.tables;
+  T.UDFTYPE = [
+    { udf_type_id: "50", table_name: "TASK", udf_type_name: "user_field_50", udf_type_label: "Crew", logical_data_type: "FT_INT" },
+    { udf_type_id: "51", table_name: "TASK", udf_type_name: "user_field_51", udf_type_label: "Budget", logical_data_type: "FT_MONEY" },
+    { udf_type_id: "52", table_name: "TASK", udf_type_name: "user_field_52", udf_type_label: "Access", logical_data_type: "FT_START_DATE" },
+  ];
+  T.UDFVALUE = T.TASK.slice(0, 4).flatMap((t, i) => [
+    { udf_type_id: "50", fk_id: t.task_id, proj_id: t.proj_id, udf_date: "", udf_number: String(i + 2), udf_text: "", udf_code_id: "" },
+    { udf_type_id: "51", fk_id: t.task_id, proj_id: t.proj_id, udf_date: "", udf_number: String(1000.25 * (i + 1)), udf_text: "", udf_code_id: "" },
+    { udf_type_id: "52", fk_id: t.task_id, proj_id: t.proj_id, udf_date: `2026-05-0${i + 1} 08:00`, udf_number: "", udf_text: "", udf_code_id: "" },
+  ]);
+  const r = p6XerText(mspdiText(X).xml);
+  assert.deepEqual(p6Problems(r.xer.tables), []);
+  const read = (T, codeOf) => {
+    const label = new Map(T.UDFTYPE.map((u) => [u.udf_type_id, `${u.udf_type_label}:${u.logical_data_type}`]));
+    return T.UDFVALUE.map((v) => `${codeOf.get(v.fk_id)} ${label.get(v.udf_type_id)} ${v.udf_date || Number(v.udf_number)}`).sort();
+  };
+  const B = parseXer(r.text).tables;
+  assert.deepEqual(read(B, new Map(B.TASK.map((t) => [t.task_id, t.task_code]))), read(T, new Map(T.TASK.map((t) => [t.task_id, t.task_code]))));
 });
