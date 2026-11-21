@@ -754,7 +754,7 @@ MIT licence, see `LICENSE`.
 
 **Play-off race.** With results typed and a play-off size set, the page lists who has clinched a place, who is out, and how many more points clinch it for everyone still alive. With 12 or fewer games left it works through every win/draw/loss outcome (`playoffRace` in `calc.mjs`, cross-checked against brute force in the tests); with more it uses safe bounds that never call a team clinched or out wrongly. Ranked on points only, with ties on points counted against the team, so goal difference can only help a team shown as alive.
 
-**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Since 2026-11-21 it also avoids repeat floats (see "Repeat floats" below). Not FIDE-endorsed pairing: it weighs FIDE's quality criteria rather than following the Dutch system's exact procedure and has not been checked against an endorsed engine, so use an arbiter-approved program for rated events.
+**Swiss system.** Standings rank by score, then Buchholz, then Sonneborn-Berger (`sonnebornBerger` in `swissStandings`). For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and a line `Dee out` withdraws a player (their games stay in the table, they are not paired again and the bye is re-chosen among those left), the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings` in `swiss.mjs`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Since 2026-11-21 each round is one weighted matching with colour rules and a round of lookahead: see "Swiss rounds as one weighted matching" below. Since 2026-11-21 it also avoids repeat floats (see "Repeat floats" below). Since 2026-11-21 it also opens and writes FIDE TRF files and reads missed rounds (`Cy half bye`, `Cy absent`, `Ben forfeits to Ana`): see "FIDE TRF files, missed rounds and the 2025 bye rule" below. Not FIDE-endorsed pairing: it weighs FIDE's quality criteria rather than following the Dutch system's exact procedure and has not been checked against an endorsed engine, so use an arbiter-approved program for rated events.
 
 **Calendar for multi-division leagues (2026-10-29).** `multi-division-league-schedule.html` gains "Download calendar (.ics)", and `divisionsIcs(schedule, { division, team, stamp, minutes })` in `divisions.mjs` writes one event per match for the whole league, one division or one team (summary, court and venue, division and round, official if assigned; floating local times, 60-minute games unless `minutes` is set). Test: every match appears once, per-division and per-team counts match, UIDs are unique, no line is over 75 bytes, and a 90-minute game ends where it should (`divisions.test.mjs`).
 
@@ -5506,7 +5506,69 @@ Played as deep as they go (`node eval/swiss-matching.mjs 40`, rerun with the rul
 keeps the run before it), the pairer still reached the last round in every event at 6, 7, 8 and
 12 players and stopped before the old one-at-a-time pairer in 4 of 320 events (2 before; the old one stopped first in 62).
 
-**Not done:** the score-difference criteria among repeat floaters (C.18-C.21), and a side-by-side
-with bbpPairings or JaVaFo: a session's tool policy refused building bbpPairings' C++ source from a
-fresh clone, so that check needs a run that may build it, or a published set of positions with
-FIDE-endorsed pairings to compare against. No real event has been paired on it.
+**Not done:** the score-difference criteria among repeat floaters (C.18-C.21). The side-by-side
+with bbpPairings started on 2026-11-21 with its two published FIDE 2025 positions (next section).
+No real event has been paired on it.
+
+## FIDE TRF files, missed rounds and the 2025 bye rule (2026-11-21)
+
+A club that started an event in Swiss-Manager or Vega can now carry it on here, and an event run
+here can go to a rating officer or an endorsed pairing program. `trf.mjs` reads and writes the FIDE
+Tournament Report File (TRF-16, with the TRF(x) extensions JaVaFo and bbpPairings read, `XXR` for
+the number of rounds): `parseTrf` reads the fixed columns (start rank, name, rating, title,
+federation, FIDE id, points, and one 10-column block per round), `trfToResults` turns it into the
+page's two boxes, `swissToTrf` writes the page's event back out, and `pairingsList` prints a round
+in bbpPairings's output format (`boards`, then `white black` start ranks, `n 0` for the bye) so the
+two can be compared line for line. On the page: "Carry on an event ... open its FIDE TRF file"
+(read in the browser, nothing uploaded) and "Download TRF". Usage events `swiss_trf_opened` and
+`swiss_trf_downloaded`.
+
+A TRF carries rounds the results box could not say, so `parseSwissResults` learned them, read in
+order with each line placed in its round:
+
+- `Cy half bye`, `Cy full bye` (requested byes), `Cy absent` or `Cy zero bye` (no points);
+- `Ben forfeits to Ana` (and the existing `Ana w/o Ben`): Ana scores without playing. Before this
+  change a Swiss walkover was stored as a played game, so it gave both players a colour and banned
+  them from meeting again; now it is unplayed, as FIDE treats it and as bbpPairings's reader does
+  (only played games forbid a rematch, `forbiddenPairs` in its `dutch.cpp`);
+- a forfeit win or a full-point bye counts as having had the pairing bye (the 2025 Dutch rules;
+  bbpPairings's `eligibleForBye`), a half-point or zero bye does not;
+- a requested bye written after the last round's results is for the round about to be paired:
+  that player sits it out (`absent` in the result), which is how a TRF pre-enters an absence;
+- `# Round 2` lines are notes, skipped (the TRF import writes them).
+
+`swissPairings` takes the new fields (`extra` points, `byeBlocked`, `unplayed`, `absent`,
+`gameRounds` and `extraRounds` so float history keeps unplayed rounds in place) and two rules:
+
+- **C.9 of the 2025 Dutch rules**: the pairing bye goes to the player with the fewest unplayed
+  games, after score differences and before colours (`UNPLAYED` = 2.5e7 a game, three at most);
+- the bye's distance from the bottom of the table now counts twice inside the Dutch-order tier,
+  so it outweighs the in-group order of the boards it frees. Without it the C9 example tied (bye to
+  seed 3 or seed 4, both on 0 points) and took seed 3.
+- `groupOrder: "seed"` orders each score group by start rank, as the Dutch rules do; the page's
+  default stays Buchholz then Sonneborn-Berger, and a checkbox (ticked when a TRF is opened) picks
+  seed order.
+
+**Checked** (`trf.test.mjs`, 9 tests): bbpPairings's test suite encodes the two FIDE 2025 rule
+examples it must pair (`test/tests/dutch_2025_C5`, `dutch_2025_C9`, Apache-2.0; read as data, not
+run). Both now pair exactly as bbpPairings's expected output: C5 (an absence pre-entered for round
+3) `1 5 / 3 2 / 6 0`, and C9 `2 1 / 3 5 / 4 0`. Before this change C9 could not even be entered
+(no way to say "absent in round 1"), and with the absence but without the C9 rule the bye goes to
+seed 5, who had already missed round 1. A page event with a half bye, a forfeit and an absence
+goes page -> TRF -> page with every score, Buchholz, unplayed count and the next pairing
+unchanged; the TRF's points column matches the table for every player.
+
+**Measured** (the two simulations rerun on the same seeds, `eval/swiss-repeat-floats.txt` and
+`eval/swiss-matching.txt` now hold this code's runs): the doubled bye weight is close to neutral.
+With the repeat-float rule on, over 3,560 rounds: repeat down-floats 2,046 to 2,045, repeat
+up-floats 1,711 to 1,714, floats 12,373 to 12,391 (+0.15%), strong colour clashes 6,368 to 6,350;
+played to the end, the pairer stopped before the old one-at-a-time pairer in 4 of 320 events
+(the committed run before it said 2), with the same mean rounds.
+
+**Not done:** two positions are a start, not a side-by-side. bbpPairings still was not built (this
+session's tool policy refused running a fresh clone's Makefile, as an earlier one did) and
+lichess.org, whose Swiss events are paired by bbpPairings and export as TRF, did not answer through
+this session's proxy. A run that may build bbpPairings can now feed it `swissToTrf` output
+directly (`bbpPairings --dutch event.trf -p`) and diff against `pairingsList`. The Dutch rules'
+last-round exception for absolute colours of players above half the maximum score, and its
+transposition order inside a score group, are not modelled.

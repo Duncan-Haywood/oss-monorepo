@@ -288,9 +288,12 @@
     <p class="note">For chess, darts, board-game and esports events where a full round robin takes too long. List the players best seed first (the Teams box above), type finished games below as <code>Ana 1 - 0 Ben</code> (equal numbers are a draw) or <code>Cy bye</code>, and get the next round's boards: players with the same score meet, nobody meets twice, the bye goes to someone who has not had one, and nobody gets one colour three times running or two more of one colour than the other. Each round is paired all at once as a weighted matching, so it floats as few players as it can and keeps the next round possible. The table ranks by score, then Buchholz (the sum of your opponents' scores).</p>
     <label for="swiss-results">Finished games so far (all rounds)</label>
     <textarea id="swiss-results" rows="4" placeholder="Ana 1 - 0 Ben&#10;Cy 1 - 1 Dee&#10;Eve out"></textarea>
-    <p class="note">A line like <code>Eve out</code> removes a player who has left: their games stay in the table and nobody is paired with them again.</p>
+    <p class="note">A line like <code>Eve out</code> removes a player who has left: their games stay in the table and nobody is paired with them again. Missed rounds: <code>Cy half bye</code> or <code>Cy full bye</code> (requested byes), <code>Cy absent</code> (no points), <code>Ben forfeits to Ana</code> (Ana scores without playing; the two may still meet later). Write a requested bye after the last round's results and that player sits out the round being paired. As in FIDE's 2025 rules, a forfeit win or full-point bye counts as having had the bye, and the bye goes first to a player with no missed rounds.</p>
+    <p class="note"><label for="swiss-trf">Carry on an event from Swiss-Manager, Vega or another pairing program: open its FIDE TRF file (read in your browser, nothing is uploaded).</label> <input type="file" id="swiss-trf" accept=".trf,.txt,text/plain"> <span id="swiss-trf-msg" role="status"></span></p>
+    <p class="note"><label><input type="checkbox" id="swiss-seed"> Order each score group by seed, as FIDE's Dutch rules do (otherwise by Buchholz, then Sonneborn-Berger)</label></p>
     <button type="button" id="build-swiss">Pair next round</button>
     <button type="button" class="secondary" id="dl-swiss">Download pairings (text)</button>
+    <button type="button" class="secondary" id="dl-swiss-trf">Download TRF (for a rating officer or an endorsed pairing program)</button>
     <p id="swiss-status" role="status" class="note"></p>
     <pre id="swiss-out"></pre>
   </section>
@@ -426,6 +429,7 @@
   <script type="module">
     import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, teamSnapCsv, sportsEngineCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, playBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolPlayoffSeeds, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
+    import { parseTrf, trfToResults, swissToTrf } from "./trf.mjs";
     import { singleAsDivisions, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsTeamSheetsHtml, divisionsDutiesText } from "./divisions.mjs";
     import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze, CARRY_OVER_POLISH, carryOverPolish, CARRY_OVER_FLOOR_PRICED, carryOverFloorPriced, carryOverPure } from "./carryover.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
@@ -1086,11 +1090,11 @@
       const parsed = parseSwissResults($("#swiss-results").value, players);
       if (parsed.errors.length) { out.textContent = parsed.errors.join(" "); return; }
       let round;
-      try { round = swissPairings(players, parsed.games, parsed.byes, parsed.withdrawn, { byeRounds: parsed.byeRounds }); } catch (e) { out.textContent = e.message; return; }
-      const problems = validateSwiss(players, parsed.games, parsed.byes, round, parsed.withdrawn);
+      try { round = swissPairings(players, parsed.games, parsed.byes, parsed.withdrawn, { ...parsed, groupOrder: $("#swiss-seed").checked ? "seed" : "buchholz" }); } catch (e) { out.textContent = e.message; return; }
+      const problems = validateSwiss(players, parsed.games, parsed.byes.concat(parsed.byeBlocked), round, parsed.withdrawn.concat(parsed.absent));
       if (problems.length) { out.textContent = problems.join(" "); return; }
-      const played = Math.max(0, ...swissStandings(players, parsed.games, parsed.byes).map((r) => r.played + r.byes));
-      const table = swissStandings(players, parsed.games, parsed.byes);
+      const played = parsed.rounds;
+      const table = swissStandings(players, parsed.games, parsed.byes, { extra: parsed.extra });
       swissOut = swissText(players, round, played + 1) + "\n\nStandings\n" +
         table.map((r) => `  ${r.rank}. ${r.name}  ${r.score} pts  Buchholz ${r.buchholz}  SB ${r.sonnebornBerger}`).join("\n");
       $("#swiss-out").textContent = swissOut;
@@ -1098,10 +1102,35 @@
       const rep = round.repeats ? round.repeats.down + round.repeats.up : 0;
       const repeatNote = rep ? ` ${rep === 1 ? "1 player floats" : rep + " players float"} the same way as last round (repeat floats are avoided after score gaps and colours, the order FIDE's Dutch rules use).` : "";
       const colourNote = round.clashes && round.clashes.absolute ? ` ${round.clashes.absolute} board${round.clashes.absolute === 1 ? "" : "s"} could not give both players their due colour: every possible round needs it.` : "";
-      out.textContent = `Round ${played + 1} of about ${swissRounds(players.length)} for ${players.length - parsed.withdrawn.length} players${parsed.withdrawn.length ? ` (${parsed.withdrawn.length} left the event)` : ""}.${floatNote}${repeatNote}${colourNote} The pairing passed the check.`;
+      out.textContent = `Round ${played + 1} of ${swissTotal || `about ${swissRounds(players.length)}`} for ${players.length - parsed.withdrawn.length - parsed.absent.length} players${parsed.withdrawn.length ? ` (${parsed.withdrawn.length} left the event)` : ""}${parsed.absent.length ? ` (${parsed.absent.length} sitting this round out)` : ""}.${floatNote}${repeatNote}${colourNote} The pairing passed the check.`;
       record("swiss_paired");
     }));
     $("#dl-swiss").addEventListener("click", () => { if (swissOut) download("swiss-pairings.txt", swissOut, "text/plain"); });
+    let swissName = "Swiss event";
+    let swissTotal = null;
+    $("#swiss-trf").addEventListener("change", async (ev) => {
+      const file = ev.target.files && ev.target.files[0];
+      const msg = $("#swiss-trf-msg");
+      if (!file) return;
+      const trf = parseTrf(await file.text());
+      if (!trf.players.length) { msg.textContent = "No player lines (001) found: is this a TRF file?"; return; }
+      const box = trfToResults(trf);
+      $("#teams").value = box.players.join("\n");
+      $("#swiss-results").value = box.results;
+      $("#swiss-seed").checked = true;
+      swissName = trf.name || file.name.replace(/\.[^.]+$/, "");
+      swissTotal = box.totalRounds;
+      const problems = trf.errors.concat(box.errors);
+      msg.textContent = `Read ${trf.players.length} players and ${box.rounds} round${box.rounds === 1 ? "" : "s"}${box.totalRounds ? ` of ${box.totalRounds}` : ""} from ${file.name}.${problems.length ? " " + problems.join(" ") : " Press Pair next round."}`;
+      record("swiss_trf_opened");
+    });
+    $("#dl-swiss-trf").addEventListener("click", () => {
+      const players = parseTeams($("#teams").value).teams;
+      const parsed = parseSwissResults($("#swiss-results").value, players);
+      if (parsed.errors.length) { $("#swiss-status").textContent = parsed.errors.join(" "); return; }
+      download("swiss-event.trf", swissToTrf(players, parsed, { name: swissName, totalRounds: swissTotal || swissRounds(players.length), standings: swissStandings(players, parsed.games, parsed.byes, { extra: parsed.extra }) }), "text/plain");
+      record("swiss_trf_downloaded");
+    });
 
     let odOut = "";
     $("#build-oneday").addEventListener("click", () => later(() => {
