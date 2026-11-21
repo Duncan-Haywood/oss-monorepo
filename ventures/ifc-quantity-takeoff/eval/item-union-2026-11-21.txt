@@ -1,0 +1,18 @@
+sample-office.ifc: 0 of 7 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+IfcOpenHouse_IFC4.ifc: 1 of 34 volumes changed, 0.088 -> 0.087 m3; too detailed to join: 0
+   IfcDoor: 1, 0.088 -> 0.087 m3 (-1.4%)
+AC20-FZK-Haus.ifc: 0 of 82 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+duplex.ifc: 0 of 215 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+C20-Institute-Var-2.ifc: 0 of 697 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+ISSUE_021_Mini Project.ifc: 0 of 2636 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+ISSUE_159_kleine_Wohnung_R22.ifc: 0 of 419 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+schependomlaan.ifc: 0 of 3551 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+ISSUE_068_ARK_NUS_skolebygg.ifc: 196 of 4459 volumes changed, 43.187 -> 35.373 m3; too detailed to join: 2
+   IfcWindow: 56, 11.708 -> 11.223 m3 (-4.1%)
+   IfcFurnishingElement: 55, 16.125 -> 9.209 m3 (-42.9%)
+   IfcBuildingElementProxy: 34, 12.086 -> 11.713 m3 (-3.1%)
+   IfcFlowTerminal: 25, 0.047 -> 0.046 m3 (-3.7%)
+   IfcDoor: 22, 2.212 -> 2.194 m3 (-0.8%)
+   IfcRailing: 4, 1.009 -> 0.989 m3 (-2.0%)
+architect.ifc: 0 of 2527 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+construction.ifc: 0 of 339 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0

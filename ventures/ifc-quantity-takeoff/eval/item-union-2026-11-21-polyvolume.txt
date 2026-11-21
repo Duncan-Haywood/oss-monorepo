@@ -1,0 +1,12 @@
+sample-office.ifc: 0 of 7 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+IfcOpenHouse_IFC4.ifc: 0 of 34 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+AC20-FZK-Haus.ifc: 0 of 82 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+duplex.ifc: 0 of 215 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+C20-Institute-Var-2.ifc: 0 of 697 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+ISSUE_021_Mini Project.ifc: 6 of 2636 volumes changed, 0.142 -> 0.141 m3; too detailed to join: 0
+   IfcColumn: 6, 0.142 -> 0.141 m3 (-0.2%)
+ISSUE_159_kleine_Wohnung_R22.ifc: 0 of 419 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+schependomlaan.ifc: 0 of 3551 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+ISSUE_068_ARK_NUS_skolebygg.ifc: 0 of 4459 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+architect.ifc: 0 of 2527 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0
+construction.ifc: 0 of 339 volumes changed, 0.000 -> 0.000 m3; too detailed to join: 0

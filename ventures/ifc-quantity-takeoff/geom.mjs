@@ -87,10 +87,16 @@ export function invert(m) {
 // ---- convex polyhedra: faces are point loops, counter-clockwise seen from outside
 
 export function polyVolume(faces) {
+  // taken about the polyhedron's own first vertex, not the model's origin:
+  // the same for a closed polyhedron, but a piece left a hair open by a clip
+  // (faces 1e-4 short of closing) far from the origin (a site 230 m off it)
+  // would otherwise gain its gap times that distance, millions of mm3
+  if (!faces.length || !faces[0].length) return 0;
+  const o = faces[0][0];
   let v = 0;
   for (const f of faces) {
-    const a = f[0];
-    for (let i = 1; i + 1 < f.length; i++) v += dot(a, cross(f[i], f[i + 1]));
+    const a = sub(f[0], o);
+    for (let i = 1; i + 1 < f.length; i++) v += dot(a, cross(sub(f[i], o), sub(f[i + 1], o)));
   }
   return v / 6;
 }
@@ -1397,18 +1403,67 @@ export class Geometry {
     let shells = [];
     const notes = [];
     let axis = null, axisWeight = -1;
+    let joined = 0, unjoined = 0;
     for (const it of r.args[3]) {
       const s = this.item(it, depth + 1);
+      // the body is the union of its items: where two overlap (a cabinet's
+      // carcass and doors drawn as solids that run into each other, a door
+      // leaf set into its frame) the shared part counts once, A + B - (A n B)
+      const u = !s.mesh && terms.length && s.terms.length ? unionTerms(terms, s.terms) : null;
+      if (u === false) unjoined++;
+      else if (u && u.length) { joined++; terms.push(...u); }
       terms.push(...s.terms);
       mesh += s.mesh;
       shells = shells && s.shells ? shells.concat(s.shells) : null;
       notes.push(...s.notes);
       if (s.axis && (s.axisWeight ?? 0) > axisWeight) { axis = s.axis; axisWeight = s.axisWeight ?? 0; }
     }
+    if (joined) notes.push(`${joined} overlapping body item${joined > 1 ? "s" : ""} joined: the shared part counted once`);
+    if (unjoined) notes.push(`${unjoined} body item${unjoined > 1 ? "s" : ""} too detailed to join: any overlap with the others is counted twice`);
     const out = solid(guard(terms), mesh, notes, shells);
     if (axis) { out.axis = axis; out.axisWeight = axisWeight; }
     return out;
   }
+}
+
+// terms a union adds for the part two term lists share
+export const MAX_UNION_TERMS = 4000;
+const termBox = (t) => {
+  const b = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
+  for (const f of t.faces) for (const p of f) for (let i = 0; i < 3; i++) { if (p[i] < b[i]) b[i] = p[i]; if (p[i] > b[i + 3]) b[i + 3] = p[i]; }
+  return b;
+};
+
+/**
+ * The terms to add to A's for A u B to be A + B - (A n B): each pair of
+ * terms whose boxes share a volume, intersected, with the product's sign
+ * negated. Exact while A and B are each a solid (their terms sum to 0 or 1
+ * at every point). [] when nothing is shared; false when the shared part
+ * would take more than MAX_UNION_TERMS terms (the caller keeps the plain sum).
+ */
+export function unionTerms(A, B) {
+  const bb = B.map(termBox);
+  const all = termBox({ faces: B.flatMap((t) => t.faces) });
+  const out = [];
+  for (const a of A) {
+    const ab = termBox(a);
+    const e = 1e-9 * Math.max(ab[3] - ab[0], ab[4] - ab[1], ab[5] - ab[2], 1e-300);
+    const apart = (b) => ab[0] >= b[3] - e || b[0] >= ab[3] - e || ab[1] >= b[4] - e || b[1] >= ab[4] - e || ab[2] >= b[5] - e || b[2] >= ab[5] - e;
+    if (apart(all)) continue;
+    const va = Math.abs(polyVolume(a.faces));
+    let planes = null;
+    for (let j = 0; j < B.length; j++) {
+      if (apart(bb[j])) continue;
+      planes ??= polyPlanes(a.faces);
+      const f = clipByPlanes(B[j].faces, planes);
+      if (f.length < 4) continue;
+      // a shared face or edge (items that only touch) is no volume
+      if (Math.abs(polyVolume(f)) <= 1e-9 * Math.min(va, Math.abs(polyVolume(B[j].faces)))) continue;
+      out.push({ s: -a.s * B[j].s, faces: f });
+      if (out.length > MAX_UNION_TERMS) return false;
+    }
+  }
+  return out;
 }
 
 // ---- orienting faceted shells -----------------------------------------------

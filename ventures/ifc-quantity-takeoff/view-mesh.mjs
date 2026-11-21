@@ -325,7 +325,7 @@ export function termBoundary(terms) {
       const fb = boxOf(f);
       let pieces = [f];
       for (let j = 0; j < info.length && pieces.length <= MAX_PIECES_PER_FACE; j++) {
-        if (j === i || !overlaps(fb, info[j].box, eps)) continue;
+        if (j === i || !overlaps(fb, info[j].box, off)) continue;
         // cut each piece into the part inside term j and the parts outside it:
         // a part found outside one of j's planes is outside j and is not cut further
         const next = [];
@@ -338,7 +338,7 @@ export function termBoundary(terms) {
             let lo = Infinity;
             for (const p of q0) { const d = dot(m, p) - k; if (d < lo) lo = d; }
             // a face lying in j's own plane still needs cutting by j's edges
-            if (lo >= (Math.abs(Math.abs(dot(m, n)) - 1) < 1e-9 ? eps : -eps)) { apart = true; break; }
+            if (lo >= (Math.abs(Math.abs(dot(m, n)) - 1) < 1e-9 ? off : -eps)) { apart = true; break; }
           }
           if (apart) { next.push(q0); continue; }
           let probe = q0;
