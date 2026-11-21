@@ -107,20 +107,37 @@ where it departs from the paper.
 
 ### Code layout (2026-11-20, 2026-11-21)
 
-`engine.mjs` is the entry point and re-exports everything below, so `import { ... } from './engine.mjs'` keeps working:
-PELT, the pre-steps (season, trend, AR(1), holidays) and `analyze()` live there (2,354 lines, down from 3,004).
-`garch.mjs` holds the GARCH(1,1) noise model behind `--garch` (the conditional-sd filter, the segment likelihoods,
-the forward cut search and its model choice; moved 2026-11-21). `bocpd.mjs` holds Bayesian online changepoint detection, its priors and marginals and `peaks`; `parse-series.mjs`
-the CSV reader; `stats-core.mjs` the numerical helpers every module shares (median by selection, robust sd, the
-log-gamma family, the NB1 cost terms, the seeded RNG, lag-1, Prais-Winsten, least squares, `solveSym` and one in-place `gaussJordan` that the engine's two copies of the same
-elimination now share), which
-`hinge-test.mjs`, `two-hinge.mjs`, `known-date.mjs`, `slope-breaks.mjs` and `drift-level.mjs` used to copy. A new
-module the watch needs goes in `deploy/make-watch-repo.sh` too (then `node deploy/build-watch-repo-files.mjs`), or a
-deployer's repository is missing it (`watch-modules-closed.test.mjs` fails when one is left out).
+`engine.mjs` is the entry point and re-exports everything below, so `import { ... } from './engine.mjs'` keeps working
+(the same 68 names before and after each move, plus `preSteps`). It now holds only `analyze()` and what reads its result:
+the change ranges, episodes, spikes, bursts-or-steps, the slope, hinge and known-date reports and the summary (609
+lines, from 3,004). `analyze()` itself is 181 lines, from about 350: it parses the series, calls `preSteps()`, runs PELT
+and the refits, the Bayesian pass and `stepWarnings()` (the range, drift, cycle and over-cut warnings), then assembles
+the result.
 
-Checked 2026-11-21: on 40 seeded series per call, `lsKnots`, `lineRss`, `trendAdjust` (bends, joint), `poissonTrend`,
-`garchCuts` and `analyze` (meanvar with `garch`, trend, poisson with a bend) return byte-identical JSON before and after
-the move (360 of 360 calls), and the full suite passes.
+- `presteps.mjs` (2026-11-21): everything done to a series before PELT looks for steps. The seasonal profile (medians,
+  drifting, multiplicative; Poisson and holiday factors for counts), the trend under the steps (line, bends, quadratic,
+  Poisson growth), the AR(1)/AR(2) fits, the noise floor (`localFitScale`), burst cut-back (`findBursts`), and
+  `preSteps()`, which runs them in `analyze()`'s order and returns the adjusted series and every fitted term.
+- `segmentation.mjs` (2026-11-21): the segment costs (Gaussian, Laplace, AR(1), Poisson, both negative-binomial forms),
+  the penalties, PELT and exact optimal partitioning, and the penalty checks (squared-residual dispersion, block
+  bootstrap, `meanvarNoiseCheck`).
+- `garch.mjs` holds the GARCH(1,1) noise model behind `--garch` (moved 2026-11-21). `bocpd.mjs` holds Bayesian online
+  changepoint detection, its priors and marginals and `peaks`; `parse-series.mjs` the CSV reader; `stats-core.mjs` the
+  numerical helpers every module shares (median by selection, robust sd, the log-gamma family, the NB1 cost terms, the
+  seeded RNG, lag-1, Prais-Winsten, least squares, `solveSym` and `gaussJordan`), which `hinge-test.mjs`,
+  `two-hinge.mjs`, `known-date.mjs`, `slope-breaks.mjs` and `drift-level.mjs` used to copy.
+
+The imports run one way: `stats-core` and `bocpd` <- `segmentation` <- `presteps` <- `engine`, so no module imports one
+that imports it back. A new module the watch needs goes in `deploy/make-watch-repo.sh` too (then `node
+deploy/build-watch-repo-files.mjs`), or a deployer's repository is missing it (`watch-modules-closed.test.mjs` fails
+when one is left out); both new modules are in it.
+
+Checked 2026-11-21: `node eval/split-identity-check.mjs` runs `analyze()` on 216 seeded series across 36 option sets
+(every model, season, trend, AR(1), noise floor, log, spikes, spells, slope tests, dispersion, holidays, bursts,
+bootstrap, GARCH) and hashes the JSON: the hash on main before the split and on this tree after it is the same
+(eval/split-identity-check.out.txt), and the full suite passes. The earlier GARCH move was checked the same way on 360
+calls of `lsKnots`, `lineRss`, `trendAdjust`, `poissonTrend`, `garchCuts` and `analyze`. Run the check on an old
+checkout and the new one (`node eval/split-identity-check.mjs <dir>`) before the next refactor.
 
 ## Verification
 
