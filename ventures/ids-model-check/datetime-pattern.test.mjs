@@ -102,7 +102,16 @@ test("dateTimeRangePattern: refusals", () => {
   assert.equal(dateTimeRangePattern({ minInclusive: "2024-01-01" }), null);
   assert.equal(dateTimeRangePattern({ minInclusive: "2024-02-30T00:00:00" }), false);
   assert.equal(dateTimeRangePattern({ minInclusive: "2024-01-02T00:00:00", maxInclusive: "2024-01-01T00:00:00" }), false);
-  assert.equal(dateTimeRangePattern({ minExclusive: "2024-01-01T00:00:00", maxExclusive: "2024-01-01T00:00:00.001" }), false);
+  assert.equal(dateTimeRangePattern({ minExclusive: "2024-01-01T00:00:00", maxExclusive: "2024-01-01T00:00:00" }), false);
+  assert.equal(dateTimeRangePattern({ minExclusive: "2024-01-01T00:00:00.0001", maxInclusive: "2024-01-01T00:00:00.0001" }), false);
+  // Not empty since 2026-11-21: XSD orders the whole fraction, so .0005 lies
+  // between (the checker compared milliseconds and found nothing there).
+  const r = { minExclusive: "2024-01-01T00:00:00", maxExclusive: "2024-01-01T00:00:00.001" };
+  const p = dateTimeRangePattern(r);
+  for (const [s, want] of [["2024-01-01T00:00:00.0005", true], ["2024-01-01T00:00:00.000", false], ["2024-01-01T00:00:00.001", false], ["2024-01-01T00:00:00.0009999Z", true]]) {
+    assert.equal(rangeOf(r).match(s, "string"), want, s);
+    assert.equal(patternOf(p).match(s, "string"), want, s);
+  }
 });
 
 test("dateTimePattern: the editor's bounds, inclusive or exclusive", () => {
