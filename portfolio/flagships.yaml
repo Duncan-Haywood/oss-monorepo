@@ -603,8 +603,8 @@ flagships:
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public):
       the 117 unexplained areas (eval/cross-sections-2026-11-20.md: 72 slab and
-      covering areas, 43 wall sides, C20's 2 columns); 83 unexplained NetVolumes
-      (eval/netvolume-causes-2026-11-21.md); curved breps left
+      covering areas, 43 wall sides, C20's 2 columns); 6 unexplained NetVolumes
+      (eval/glazing-left-out-2026-11-21.md); curved breps left
       (eval/curved-breps-2026-11-20.md: #162827 band, 4 unexplained); more revision
       series via eval/revision-diff.mjs (Kegonsa done 2026-11-20;
       Lake_Mills_Residence_Expansion 2 IFC commits; Kegonsa's
@@ -634,8 +634,8 @@ flagships:
       (knee walls interior, dormers re-read at the top; schependomlaan flag
       agreement 815 to 853 of 922; eval/roof-blockers-2026-11-21.md), next an
       estimator's call on insulated walls against a cold roof space; (3) the
-      unexplained disagreements (NetVolumes 233 to 83 2026-11-21: Tekla simplified
-      sections, stair totals, eval/netvolume-causes-2026-11-21.md; cross-sections 77
-      to 2 2026-11-20: half-surface mullions, prism axis for faceted members;
-      eval/cross-sections-2026-11-20.md); overlapping shell pieces as a union. More
-      open items: NEXT.md.
+      unexplained disagreements (NetVolumes 233 to 6 2026-11-21: Tekla sections,
+      stair totals, ArchiCAD frames stored without glass,
+      eval/glazing-left-out-2026-11-21.md; cross-sections 77 to 2 2026-11-20:
+      half-surface mullions, prism axis for faceted members;
+      eval/cross-sections-2026-11-20.md). More open items: NEXT.md.
