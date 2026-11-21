@@ -32,7 +32,8 @@
   "tests_added": 7,
   "outcome": "success",
   "errors": [
-    "First full test_cad run: test_committed_package_is_current failed because its fresh build started before a guide-text edit I made mid-run; rebuilt the package and PackageTest + AssemblyGuideTest pass (9 tests)."
+    "First full test_cad run: test_committed_package_is_current failed because its fresh build started before a guide-text edit I made mid-run; rebuilt the package and PackageTest + AssemblyGuideTest pass (9 tests).",
+    "A string splice I made in collector.py (s[:i] + new + s[j:] with j < i) duplicated 170 lines (base-plate helpers to yoke_arm and the old bump_cam_points). Python kept the last copies, so the build and tests were right; the duplicate-symbols CI guard caught it when run locally. Removed the duplicate copy, and the rebuilt package was byte-identical."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -51,7 +52,7 @@
     "ventures/open-tennis-robots/cad/README.md (Yoke-lift switches section)"
   ],
   "goal": "Deepen a flagship: close the gap between the firmware's bumper rule and a CAD that had no switch mount.",
-  "notes": "Cam lobe on each laser-cut yoke arm + printed slotted tower holding a D2F-class roller switch. Click 10.0 mm drum rise by formula, 10.4 mm measured by bisection on CAD solids; first touch 4.2 mm; part tolerance -1.5/+1.4 mm; slots +-7 mm; yoke stop 38.7 deg (lobe lands on base plate, 131 mm rise), lobe to 45 deg. First radius (30 mm) failed the at-rest rule (contact 0.4 mm up), 50 mm passes. Verification: full tests/test_cad.py 172 tests ran locally (171 pass; the 1 failure was the stale-package check from a build started before a mid-run guide edit), then PackageTest + AssemblyGuideTest rerun on the final tree: 9/9 OK. page.test.mjs 10/10. check_posts ok. portfolio/router/validate.py ok.",
+  "notes": "Cam lobe on each laser-cut yoke arm + printed slotted tower holding a D2F-class roller switch. Click 10.0 mm drum rise by formula, 10.4 mm measured by bisection on CAD solids; first touch 4.2 mm; part tolerance -1.5/+1.4 mm; slots +-7 mm; yoke stop 38.7 deg (lobe lands on base plate, 131 mm rise), lobe to 45 deg. First radius (30 mm) failed the at-rest rule (contact 0.4 mm up), 50 mm passes. Verification: full tests/test_cad.py 172 tests ran locally (171 pass; the 1 failure was the stale-package check from a build started before a mid-run guide edit), then PackageTest + AssemblyGuideTest rerun on the final tree: 9/9 OK. page.test.mjs 10/10. check_posts ok. portfolio/router/validate.py ok. After the dedupe: 24 collector tests (bump, params, geometry, guide, package) OK; check_duplicate_symbols clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
