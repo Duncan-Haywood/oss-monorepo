@@ -66,6 +66,21 @@ Counts are of (room, opening) pairs; on ARK_NUS 60 and schependomlaan 2 pairs
 were not counted in the bins because their room label (number and name) is
 not unique in the model; the cut itself works on the room, not the label.
 
+## A caution on ARK_NUS's ceiling heights (added by a second session, 2026-11-21)
+
+A parallel run built the same cut, ceiling-only with 5 cm slack (PR #18153,
+not merged: this one landed first), and listed the rooms behind each cut
+ARK_NUS deduction. In every one, the room solid's height equals its stored
+Height: 2.4384 m in 40 of the 55 openings it cut, 2.65 m in 11 and 2.9 m in
+4. 2.4384 m is 8 ft, Revit's default room height. A room left at the default
+was probably never drawn to its real ceiling. Then the gross wall area is
+short as well, and the cut only makes the net figure agree with the file's
+room, not the building. An estimator should check those classrooms' ceiling
+heights on the drawings before trusting either figure. The same run found
+that, with 5 cm slack at the ceiling, schependomlaan's sub-frames (1-5 cm
+past it) are not cut; whether a frame's last few centimetres above a
+ceiling line should come off is an estimator's call.
+
 ## Not done
 
 - The stored height read down from the head is a convention, not read from
