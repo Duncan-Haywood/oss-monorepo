@@ -14,10 +14,10 @@
 ## Buildable here (added 2026-11-18)
 
 - (2026-11-21) Nuts the spanner check (cad/README.md, "Spanners on the nuts") cannot see yet, because what they clamp
-  is not drawn as built: draw the idler wheels' 608s in their brackets and make the M8 x 60 a joint; draw the turntable
-  bearing as two rings with the access hole and make its eight M5 nuts a joint (a ring end through an access hole may
-  not swing: a socket on an extension, along the axis, would then be the tool to model); make the spring axle's M4
-  nyloc and the levelling feet's jam nuts joints. Then a person: hold a 13 mm spanner on the drum axle's nut between two
+  is not drawn as built: draw the turntable bearing as two rings with the access hole and make its eight M5 nuts a
+  joint (a ring end through an access hole may not swing: a socket on an extension, along the axis, would then be the
+  tool to model); make the levelling feet's jam nuts joints. (Idler axles, fixed through the hub bearings, and the spool
+  axle landed 2026-11-21: cad/README.md, "Idler axles fixed, and the spool axle".) Then a person: hold a 13 mm spanner on the drum axle's nut between two
   rods of a built cage and say whether 200 mm is enough.
 - (2026-11-19) Straddle vote shipped at margin 2 (eval/take-straddle-vote-2026-11-19.md); margin 1 closed by its own
   pre-registered test (eval/take-straddle-margin-one-2026-11-19.md: 85 of 120 named against 72, but 3 of 48 instant

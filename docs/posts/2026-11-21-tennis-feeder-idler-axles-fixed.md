@@ -3,7 +3,7 @@ title: "Tennis robots: checking one bolt's length showed the idler wheels had th
 seo_title: "Tennis robots: a fixed idler axle instead of one cantilevered 608"
 date: 2026-11-21
 tags: [open-tennis-robots, cad, hardware]
-description: "Making the feeder's idler wheel bolts checked joints showed each wheel hung off one bearing in a 5 mm plate. The axle is fixed now, and the wheel's own two bearings carry it."
+description: "The feeder's idler wheels hung off one bearing in a 5 mm plate. The axle is fixed now, and the wheel's own two hub bearings carry it."
 ---
 
 The open tennis robots' feeder sits on four 150 mm wheels. The CAD checks every
