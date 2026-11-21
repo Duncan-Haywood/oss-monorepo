@@ -1,0 +1,14 @@
+model zones placed exactly with the model open: -300, 60, 330, 570 (minutes)
+40 doors, one ACME_Handover.InspectedAt (IFCDATETIME) each; 10 ranges
+>= 2024-05-01T08:00:00                                                 range fails 19; pattern differs on 3 ("2024-05-01T09:00:00+01:00", "2024-05-01T03:00:00-05:00", "2024-05-01T13:30:00+05:30"); with the model open on 0
+> 2024-05-01T08:00:00                                                  range fails 27; pattern differs on 0; with the model open on 0
+<= 2024-12-31T23:59:59                                                 range fails 17; pattern differs on 2 ("2024-12-31T18:00:00-05:00", "2025-01-01T00:59:59+01:00"); with the model open on 0
+< 2025-01-01T00:00:00                                                  range fails 16; pattern differs on 2 ("2024-12-31T18:00:00-05:00", "2025-01-01T00:59:59+01:00"); with the model open on 0
+>= 2024-05-01T08:00:00 and <= 2024-12-31T23:59:59                      range fails 26; pattern differs on 5 ("2024-05-01T09:00:00+01:00", "2024-05-01T03:00:00-05:00", "2024-05-01T13:30:00+05:30", "2024-12-31T18:00:00-05:00", "2025-01-01T00:59:59+01:00"); with the model open on 0
+>= 2024-05-01T00:00:00 and < 2024-05-02T00:00:00                       range fails 25; pattern differs on 6 ("2024-05-01T09:00:00+01:00", "2024-05-01T08:59:59+01:00", "2024-05-01T03:00:00-05:00", "2024-05-01T02:59:59-05:00", "2024-05-01T13:30:00+05:30", "2024-05-01T13:29:59+05:30"); with the model open on 0
+>= 2024-05-01T08:00:00+05:30 and <= 2025-01-01T00:00:00Z               range fails 17; pattern differs on 9 ("2024-05-01T09:00:00+01:00", "2024-05-01T08:59:59+01:00", "2024-05-01T03:00:00-05:00", "2024-05-01T02:59:59-05:00", "2024-05-01T13:30:00+05:30", "2024-05-01T13:29:59+05:30", "2024-12-31T18:00:00-05:00", "2025-01-01T00:59:59+01:00", "2025-01-01T01:00:00+01:00"); with the model open on 0
+> 2024-05-01T07:59:59.9999 and < 2024-05-01T08:00:00.0001              range fails 33; pattern differs on 3 ("2024-05-01T09:00:00+01:00", "2024-05-01T03:00:00-05:00", "2024-05-01T13:30:00+05:30"); with the model open on 0
+>= 2020-01-01T00:00:00 and <= 2029-12-31T23:59:59.999                  range fails 12; pattern differs on 0; with the model open on 0
+>= 2024-02-29T00:00:00 and < 2024-03-01T00:00:00                       range fails 40; pattern differs on 0; with the model open on 0
+door verdicts unlike the range: pattern 30, with the model open 0 (of 400 each)
+pattern length: 118 to 2229 characters; with the model open 476 to 4065

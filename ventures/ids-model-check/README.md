@@ -215,7 +215,20 @@ open. MIT licensed, no dependencies, nothing uploaded.
   as the range places it; on 31 doors built on those differences the old
   pattern differed from the range on 50 of 310 verdicts, the new one on 0,
   and IfcTester 0.9.0 agrees with it on 10 of 10
-  (`eval/date-pattern-exact-2026-11-20.md`). Presence-only standard properties with no dataType now open
+  (`eval/date-pattern-exact-2026-11-20.md`). **Date-and-time ranges as
+  patterns** (2026-11-21): "Write as a pattern" now works on IFCDATETIME rows
+  too (`temporal.mjs dateTimeRangePattern`): exact for every value written
+  with no time zone, `Z` or `+00:00` (fractions of any length, `24:00:00`,
+  days that exist, years 0000-9999), for any zone more than a day inside
+  the bounds, and, with a model open, for the zones that model writes
+  (`zonesOf`). On 40 doors and 10 ranges the pattern differed from the range
+  on 30 of 400 verdicts with no model open (all zoned values within a day of
+  a bound) and on 0 with the model open; IfcTester 0.9.0 gives the same
+  verdict and failing doors as this checker on all 20 pattern specifications
+  and fails every door on all 10 ranges. The checker now orders dateTimes
+  and times past the millisecond (`temporalCompare`): `00:00:00.0004` was
+  keyed equal to `00:00:00` and failed "more than midnight"
+  (`eval/datetime-pattern-2026-11-21.md`). Presence-only standard properties with no dataType now open
   as rows: 86.4% of public facets editable (was 85.2%), 17 of 64 files fully
   editable (was 14). `eval/date-ranges-2026-11-17.md`.
   **One of on dates and durations** (2026-11-17): a one-of row on those types
