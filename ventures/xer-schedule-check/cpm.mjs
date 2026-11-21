@@ -175,6 +175,9 @@ export function buildModel(xer) {
       orig: Math.round(readHours(r, "target_drtn_hr_cnt", "original duration") * 60),
       actStart: parseDate(r.act_start_date),
       actEnd: parseDate(r.act_end_date),
+      // Microsoft Project's Resume (mspdi.mjs): where an in-progress task's
+      // remaining work restarts; P6 files have no such column
+      resume: parseDate(r.resume_date),
       expEnd: parseDate(r.expect_end_date),
       cstr,
       extES: parseDate(r.external_early_start_date),
@@ -352,6 +355,7 @@ export function schedule(xer, options = {}) {
     const dd = p.dataDate ?? -Infinity;
     const starts = [dd];
     if (!active(t) && p.plannedStart !== null && p.plannedStart !== undefined) starts.push(p.plannedStart);
+    if (active(t) && t.resume !== null && t.resume !== undefined) starts.push(t.resume);
     const fins = [];
     const ignorePreds = active(t) && p.progressOverride;
     if (!ignorePreds) for (const r of t.preds) {

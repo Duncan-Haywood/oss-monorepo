@@ -73,9 +73,14 @@ between updates by Unique ID, so inserted rows do not break the comparison.
 Manually scheduled tasks, links to summary tasks and deadlines are named in
 the warnings. On 102 files saved by Microsoft Project 2002 to 2019 (MPXJ's
 test corpus, 2,491 open tasks), early finish, late finish and total float
-equal what Project stored on 2,406 (96.6%); the 85 others are resource-driven,
-split or timephased tasks the engine does not model, and four small edge
-cases (eval/cpm-vs-project-2026-11-19.md). `node cli.mjs schedule.xml`.
+equal what Project stored on 2,406 (96.6%) at first (eval/cpm-vs-project-2026-11-19.md),
+and on **2,442 (98.0%)** since 2026-11-21: a task now runs on its resources'
+calendars as Project schedules it (a night-shift crew works nights; a day and a
+night resource together work both), and an in-progress task's remaining work
+restarts at Project's Resume date (eval/resource-calendars-2026-11-21.md). The
+49 left are contoured and timephased work, split tasks, manual tasks on start
+links, and one file whose stored dates contradict each other.
+`node cli.mjs schedule.xml`.
 
 **Update-to-update comparison** (2026-11-19): open last month's XER next to
 this month's and get the monthly pay-application review: progress claimed
@@ -680,8 +685,11 @@ run as a formula in Excel or Sheets.
 - **Microsoft Project XML** (`eval/cpm-vs-project-2026-11-19.md`): 102 MSPDI
   files saved by Project 2002 to 2019 (MPXJ's test corpus), 2,491 open tasks:
   early finish, late finish and total float equal Project's stored values on
-  2,406 (96.6%), 86 files on every task; the misses are resource-driven,
-  split and timephased tasks (61) and three small cases the eval names.
+  2,406 (96.6%), 86 files on every task; since 2026-11-21 2,442 (98.0%), with
+  resource calendars and Resume dates read (`eval/resource-calendars-2026-11-21.md`:
+  legacy/sample.xml 0 to 16 of 16, the assignments file 1 to 3 of 3 in seven
+  Project versions); the 49 left are contoured or timephased work (38), split
+  tasks, manual tasks on start links and one self-contradicting file.
   `mspdi.test.mjs` covers holidays, derived calendars, work weeks, elapsed and
   percent lags, SS and FF links, manual tasks, constraints, progress with a
   status date, and a comparison across renumbered rows. These files are small

@@ -234,6 +234,32 @@ function clndrData(cal) {
 
 const ALL_DAY = { week: Array.from({ length: 7 }, () => [["00:00", "24:00"]]), exceptions: new Map() };
 
+// Working periods as minute intervals, and back.
+const toMin = (t) => +t.slice(0, 2) * 60 + +t.slice(3);
+const toHhmm = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+function mergePeriods(lists) {
+  const iv = lists.flat().map(([a, b]) => [toMin(a), toMin(b)]).filter(([a, b]) => b > a).sort((x, y) => x[0] - y[0]);
+  const out = [];
+  for (const [a, b] of iv) { const l = out[out.length - 1]; if (l && a <= l[1]) l[1] = Math.max(l[1], b); else out.push([a, b]); }
+  return out.map(([a, b]) => [toHhmm(a), toHhmm(b)]);
+}
+function crossPeriods(x, y) {
+  const out = [];
+  for (const [a, b] of x) for (const [c, d] of y) { const lo = Math.max(toMin(a), toMin(c)), hi = Math.min(toMin(b), toMin(d)); if (hi > lo) out.push([toHhmm(lo), toHhmm(hi)]); }
+  return mergePeriods([out]);
+}
+const dayPeriods = (cal, d) => (cal.exceptions.has(d) ? cal.exceptions.get(d) : cal.week[dayFromSerial(d).getUTCDay()] || []);
+// Day by day: the time any of the calendars works (union) or all of them do
+// (cross), weekdays and every day any of them has an exception on.
+function combineCalendars(cals, op) {
+  const week = Array.from({ length: 7 }, (_, k) => cals.map((c) => c.week[k] || []).reduce((a, b) => op(a, b)));
+  const exceptions = new Map();
+  for (const d of new Set(cals.flatMap((c) => [...c.exceptions.keys()]))) exceptions.set(d, cals.map((c) => dayPeriods(c, d)).reduce((a, b) => op(a, b)));
+  return { week, exceptions };
+}
+const unionCalendars = (cals) => combineCalendars(cals, (a, b) => mergePeriods([a, b]));
+const crossCalendars = (cals) => combineCalendars(cals, crossPeriods);
+
 // ---------- the project ----------
 
 export function parseMspdi(text) {
@@ -249,8 +275,10 @@ export function parseMspdi(text) {
   const raw = readCalendars(proj, warnings);
   const CALENDAR = [];
   const projCal = val(proj, "CalendarUID");
+  const resolved = new Map();
   for (const uid of raw.keys()) {
     const c = resolveCalendar(raw, uid);
+    resolved.set(uid, c);
     if (c.week.every((d) => d === null) && !c.exceptions.size) continue;
     const week = c.week.map((d) => d || []);
     const weekHours = week.reduce((a, d) => a + hoursOf(d), 0);
@@ -274,6 +302,57 @@ export function parseMspdi(text) {
       CALENDAR.push({ clndr_id: "mspdi-24h", clndr_name: "24 hour (elapsed)", default_flag: "N", day_hr_cnt: "24", clndr_data: clndrData(ALL_DAY) });
     }
     return "mspdi-24h";
+  };
+
+  // Resource calendars. Project counts a task's duration as the working time
+  // in which any of its work resources works, each on its own calendar (and
+  // within the task's calendar, when the task has one), unless the task
+  // ignores resource calendars. So a task whose resources work a night shift
+  // or a 24-hour week runs on that time, not the project calendar's; with a
+  // day-shift and a night-shift resource it runs on both
+  // (eval/resource-calendars-2026-11-21.md).
+  const resCal = new Map();
+  for (const r of kids(kid(proj, "Resources"), "Resource")) {
+    const uid = val(r, "UID"), cal = val(r, "CalendarUID");
+    // Type 1 is a work resource (0 material, 2 cost); older files omit it
+    if (uid && cal && resolved.has(cal) && (val(r, "Type") === "" || val(r, "Type") === "1") && val(r, "IsNull") !== "1") resCal.set(uid, cal);
+  }
+  const taskRes = new Map();
+  for (const a of kids(kid(proj, "Assignments"), "Assignment")) {
+    const cal = resCal.get(val(a, "ResourceUID"));
+    if (!cal) continue;
+    const tu = val(a, "TaskUID");
+    if (!taskRes.has(tu)) taskRes.set(tu, new Set());
+    taskRes.get(tu).add(cal);
+  }
+  const plain = (c) => ({ week: c.week.map((d) => d || []), exceptions: c.exceptions });
+  const combined = new Map();
+  let onResources = 0, noCommon = 0;
+  const resourceCalendar = (t, uid, clndr) => {
+    const cals = taskRes.get(uid);
+    if (!cals || val(t, "IgnoreResourceCalendar") === "1") return clndr;
+    const own = val(t, "CalendarUID");
+    const hasOwn = own && own !== "-1" && resolved.has(own);
+    const key = `${hasOwn ? own : ""}|${[...cals].sort().join("+")}`;
+    if (!combined.has(key)) {
+      const list = [...cals].sort().map((c) => plain(resolved.get(c)));
+      const cal = unionCalendars(hasOwn ? list.map((c) => crossCalendars([plain(resolved.get(own)), c])) : list);
+      const data = clndrData(cal);
+      const same = CALENDAR.find((c) => c.clndr_data === data);
+      let id = same?.clndr_id;
+      // no time the task's calendar and any resource's share: Project warns
+      // and the task stays on its own calendar
+      if (!cal.week.some((d) => d.length)) { id = clndr; noCommon++; }
+      else if (!id) {
+        id = `mspdi-res-${combined.size + 1}`;
+        CALENDAR.push({ clndr_id: id, clndr_name: `resources ${[...cals].sort().map((c) => resolved.get(c).name || c).join(" + ")}${hasOwn ? ` within ${resolved.get(own).name || own}` : ""}`, default_flag: "N", day_hr_cnt: String(minutesPerDay / 60), clndr_data: data });
+        calIds.add(id);
+      }
+      combined.set(key, id);
+    }
+    const id = combined.get(key);
+    if (id !== clndr) onResources++;
+    return id;
   };
 
   // project
@@ -344,6 +423,7 @@ export function parseMspdi(text) {
     if (!clndr || clndr === "-1" || !calIds.has(clndr)) clndr = projCalId;
     const fmt = Number(val(t, "DurationFormat"));
     if (ELAPSED_FORMATS.has(fmt)) { clndr = ensure24(); elapsed++; }
+    else clndr = resourceCalendar(t, uid, clndr);
     const bl = kids(t, "Baseline").find((b) => val(b, "Number") === "0" || val(b, "Number") === "");
     let cstr = CSTR[Number(val(t, "ConstraintType"))] || "";
     let cstrDate = cstr && cstr !== "CS_ALAP" ? date(val(t, "ConstraintDate")) : "";
@@ -379,6 +459,9 @@ export function parseMspdi(text) {
       late_end_date: date(val(t, "LateFinish")),
       // P6's "remaining" dates: Project's Start/Finish (actual dates once progressed)
       restart_date: status === "TK_NotStart" ? date(val(t, "Start")) : "",
+      // where Project restarts the remaining work of a task in progress
+      // (eval/resource-calendars-2026-11-21.md, "Resume")
+      resume_date: status === "TK_Active" ? date(val(t, "Resume")) : "",
       reend_date: status === "TK_Complete" ? "" : date(val(t, "Finish")),
       target_start_date: bl ? date(val(bl, "Start")) : "",
       target_end_date: bl ? date(val(bl, "Finish")) : "",
@@ -435,6 +518,8 @@ export function parseMspdi(text) {
   if (external) warnings.push(`${external} external (inserted-project) task(s) left out`);
   if (crossProject) warnings.push(`${crossProject} cross-project link(s) left out`);
   if (elapsed) warnings.push(`${elapsed} task(s) with an elapsed duration are scheduled on a 24-hour calendar`);
+  if (noCommon) warnings.push(`${noCommon} task calendar(s) share no working time with their resources' calendars; those tasks stay on their own calendar (Project warns about the same)`);
+  if (onResources) warnings.push(`${onResources} task(s) scheduled on their resources' calendars, as Project does, not the task or project calendar`);
   if (elapsedLags) warnings.push(`${elapsedLags} elapsed lag(s) counted on a 24-hour clock`);
   if (pctLags) warnings.push(`${pctLags} percent lag(s) turned into hours of the predecessor's duration`);
   if (nulls) warnings.push(`${nulls} blank row(s) skipped`);

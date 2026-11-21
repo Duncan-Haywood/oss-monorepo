@@ -177,3 +177,61 @@ test("recurring and work-week calendars", () => {
   // 4th, 5th, (6th snow), 7th, 8th = 32 h, then Monday 11th is a 10 h day: 8 h more ends at 15:00
   assert.equal(formatDate(r.tasks.get("1").ef), "2024-03-11 15:00");
 });
+
+// Resource calendars (eval/resource-calendars-2026-11-21.md): Project counts a
+// task's duration in the time any of its work resources works, within the
+// task's own calendar when it has one, unless the task ignores them.
+test("tasks run on their resources' calendars, as Project schedules them", () => {
+  const nightDay = (t, w = true) => `<WeekDay><DayType>${t}</DayType><DayWorking>${w ? 1 : 0}</DayWorking>${w ? "<WorkingTimes><WorkingTime><FromTime>18:00:00</FromTime><ToTime>00:00:00</ToTime></WorkingTime></WorkingTimes>" : ""}</WeekDay>`;
+  const extraCal = `<Calendar><UID>3</UID><Name>Night</Name><IsBaseCalendar>0</IsBaseCalendar><BaseCalendarUID>-1</BaseCalendarUID><WeekDays>${nightDay(1, false)}${nightDay(2)}${nightDay(3)}${nightDay(4)}${nightDay(5)}${nightDay(6)}${nightDay(7, false)}</WeekDays></Calendar>
+    <Calendar><UID>4</UID><Name>Day crew</Name><IsBaseCalendar>0</IsBaseCalendar><BaseCalendarUID>1</BaseCalendarUID><WeekDays></WeekDays></Calendar>`;
+  const tasks = [
+    { uid: 2, name: "Day crew", h: 16 },
+    { uid: 3, name: "Night crew", h: 12 },
+    { uid: 4, name: "Both crews", h: 24 },
+    { uid: 5, name: "Night crew, resource calendars ignored", h: 8 },
+    { uid: 6, name: "Material only", h: 8 },
+    { uid: 7, name: "Night crew on a Saturday calendar", h: 6, cal: 2 },
+  ];
+  let xml = project({ status: "2024-03-04T08:00:00", tasks, extraCal });
+  xml = xml.replace("<IgnoreResourceCalendar>", "").replace(/(<UID>5<\/UID>)/, "$1<IgnoreResourceCalendar>1</IgnoreResourceCalendar>");
+  const res = (uid, cal, type = 1) => `<Resource><UID>${uid}</UID><Name>R${uid}</Name><Type>${type}</Type><CalendarUID>${cal}</CalendarUID></Resource>`;
+  const asg = (t, r) => `<Assignment><TaskUID>${t}</TaskUID><ResourceUID>${r}</ResourceUID><Units>1</Units></Assignment>`;
+  xml = xml.replace("</Project>", `<Resources>${res(1, 4)}${res(2, 3)}${res(3, 3, 0)}</Resources><Assignments>${asg(2, 1)}${asg(3, 2)}${asg(4, 1)}${asg(4, 2)}${asg(5, 2)}${asg(6, 3)}${asg(7, 2)}</Assignments></Project>`);
+  const x = parseMspdi(xml);
+  const cal = (uid) => x.tables.TASK.find((t) => t.task_id === String(uid)).clndr_id;
+  // a resource calendar with nothing of its own is its base calendar
+  assert.equal(cal(2), "1");
+  assert.equal(cal(5), "1");
+  assert.equal(cal(6), "1");
+  assert.equal(cal(3), "3");
+  assert.notEqual(cal(4), "1");
+  assert.notEqual(cal(4), "3");
+  assert.ok(x.warnings.some((w) => /2 task\(s\) scheduled on their resources' calendars/.test(w)), x.warnings.join("\n"));
+  const out = schedule(x).tasks;
+  const ef = (uid) => formatDate(out.get(String(uid)).ef);
+  assert.equal(ef(2), "2024-03-05 17:00");
+  // 6 h a night: Monday and Tuesday nights
+  assert.equal(ef(3), "2024-03-06 00:00");
+  // day and night: 14 h on Monday, then 8 h of Tuesday's day and 2 h of its night
+  assert.equal(ef(4), "2024-03-05 20:00");
+  assert.equal(ef(5), "2024-03-04 17:00");
+  // a day calendar and a night crew share no time: the task's own calendar
+  assert.equal(cal(7), "2");
+  assert.equal(ef(7), "2024-03-04 15:00");
+  assert.ok(x.warnings.some((w) => /share no working time/.test(w)));
+});
+
+test("an in-progress task's remaining work restarts at Project's Resume date", () => {
+  const tasks = [{ uid: 2, name: "Pour, stopped for rain", h: 16, rem: 12, pct: 25, actStart: "2024-03-04T08:00:00" }, { uid: 3, name: "Strip", h: 8, links: [link(2)] }];
+  const ef = (xml) => { const out = schedule(parseMspdi(xml)).tasks; return [formatDate(out.get("2").ef), formatDate(out.get("3").ef)]; };
+  const xml = project({ tasks });
+  // no Resume: the remaining 12 h run from the data date (the first start)
+  assert.deepEqual(ef(xml), ["2024-03-05 12:00", "2024-03-06 12:00"]);
+  const resumed = xml.replace("<ActualStart>2024-03-04T08:00:00</ActualStart>", "<ActualStart>2024-03-04T08:00:00</ActualStart><Resume>2024-03-06T08:00:00</Resume>");
+  assert.equal(parseMspdi(resumed).tables.TASK.find((t) => t.task_id === "2").resume_date, "2024-03-06 08:00");
+  assert.deepEqual(ef(resumed), ["2024-03-07 12:00", "2024-03-08 12:00"]);
+  // a status date after the Resume date still holds the work back to it
+  const late = resumed.replace("<CalendarUID>1</CalendarUID><MinutesPerDay>", "<StatusDate>2024-03-07T08:00:00</StatusDate><CalendarUID>1</CalendarUID><MinutesPerDay>");
+  assert.deepEqual(ef(late), ["2024-03-08 12:00", "2024-03-12 12:00"]);
+});
