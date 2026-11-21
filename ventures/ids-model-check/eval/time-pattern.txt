@@ -1,0 +1,13 @@
+32 work schedules, one WorkStartTime each (2 with +10:17, an offset no zone uses); 10 ranges
+>= 07:00:00                                  applicable 32; range fails 13; pattern disagrees on 0 (+1 at +10:17)
+> 07:00:00                                   applicable 32; range fails 19; pattern disagrees on 0
+<= 17:00:00                                  applicable 32; range fails 10; pattern disagrees on 0 (+2 at +10:17)
+< 17:00:00                                   applicable 32; range fails 14; pattern disagrees on 0 (+2 at +10:17)
+>= 07:00:00 and <= 17:00:00                  applicable 32; range fails 19; pattern disagrees on 0 (+1 at +10:17)
+> 07:00:00Z and < 17:00:00.5Z                applicable 32; range fails 22; pattern disagrees on 0
+>= 12:45:00+05:45 and <= 12:00:00-05:00      applicable 32; range fails 19; pattern disagrees on 0 (+1 at +10:17)
+>= 00:00:00 and <= 23:59:59.999              applicable 32; range fails  8; pattern disagrees on 0 (+2 at +10:17)
+>= 00:00:00 and <= 01:00:00                  applicable 32; range fails 30; pattern disagrees on 0
+>= 16:59:59.999 and <= 17:00:00.001          applicable 32; range fails 24; pattern disagrees on 0
+schedule verdicts unlike the range: 0 of 300 on zones in use; 9 of 20 at +10:17
+pattern length: 2048 to 6676 characters
