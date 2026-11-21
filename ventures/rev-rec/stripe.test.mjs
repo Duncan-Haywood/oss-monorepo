@@ -70,3 +70,19 @@ test("normalizeLine and normalizeCreditNote net inclusive tax in the basil `taxe
   const cn = normalizeCreditNote({ id: "cn_9", invoice: "in_1", created: 1700100000, currency: "usd", lines: { data: [{ id: "cnl_9", amount: 3000, taxes: [{ amount: 200, tax_behavior: "inclusive" }, { amount: 50, tax_behavior: "exclusive" }] }] } });
   assert.equal(cn[0].amount, -2800);
 });
+
+// A credit note embeds its first lines only; the rest come from
+// /v1/credit_notes/{id}/lines (quality re-audit 2026-11-21).
+test("listCreditNotes fetches the remaining lines of a truncated credit note", async () => {
+  const pages = {
+    "/v1/credit_notes?limit=100": { data: [{ id: "cn_big", created: 1700100000, currency: "usd", lines: { data: [{ id: "c1", amount: 100 }], has_more: true } }], has_more: false },
+    "/v1/credit_notes/cn_big/lines?limit=100": { data: [{ id: "c1", amount: 100 }, { id: "c2", amount: 200, invoice_line_item: "il_2" }], has_more: false },
+  };
+  const fetchImpl = async (url, opts) => {
+    assert.equal(opts.method || "GET", "GET");
+    const path = url.replace("https://api.stripe.com", "");
+    return { ok: path in pages, status: path in pages ? 200 : 404, json: async () => pages[path] };
+  };
+  const out = await createStripe({ key: "rk_x", fetchImpl }).listCreditNotes();
+  assert.deepEqual(out.map((l) => [l.id, l.amount, l.credits]), [["cn_big:c1", -100, undefined], ["cn_big:c2", -200, "il_2"]]);
+});

@@ -56,8 +56,16 @@ export function createStripe({ key, fetchImpl = fetch, base = "https://api.strip
       return lines;
     },
     async listCreditNotes(sinceSec = 0) {
-      const cns = await all(`/v1/credit_notes${sinceSec ? `?created[gte]=${sinceSec}` : ""}`);
-      return cns.filter((c) => c.status !== "void").flatMap(normalizeCreditNote);
+      const cns = (await all(`/v1/credit_notes${sinceSec ? `?created[gte]=${sinceSec}` : ""}`)).filter((c) => c.status !== "void");
+      // A credit note embeds only its first lines (`lines.has_more`), like an
+      // invoice: fetch the rest, or a refund of a many-line invoice is only
+      // partly reversed (quality re-audit 2026-11-21).
+      const out = [];
+      for (const cn of cns) {
+        const full = cn.lines?.has_more ? { ...cn, lines: { data: await all(`/v1/credit_notes/${encodeURIComponent(cn.id)}/lines`) } } : cn;
+        out.push(...normalizeCreditNote(full));
+      }
+      return out;
     },
   };
 }
