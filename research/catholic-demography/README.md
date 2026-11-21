@@ -34,6 +34,21 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Do American Catholic mothers leave the Church after their children grow up? Some do, mostly those born after 1950 (milestone 5b, 2026-11-21)
+
+The previous step found that, compared within 10-year birth-cohort windows, US-born mothers' current Catholic share is
+3.7 points higher when they are interviewed at 25-44 than at 45+, and the step after it showed that the parallel gap in
+"raised Catholic" was mostly which cohorts sat in each window. Comparing each single birth year with itself keeps most
+of the current-Catholic gap: **+3.1 points [+1.1, +5.1]** with the children-based weights (only +0.6 [-0.4, +1.6] was cohort
+mix) and +2.9 [+1.6, +4.2] with each birth year weighted by its own size. Net of any fall in reported upbringing, the
+own-weighted gap is **+1.9 points [+0.9, +2.8]** over about 18 years of age (in-person surveys 1977-2018), roughly 0.1
+points a year of net switching out after the mid-thirties. It is concentrated in mothers born 1950-71 (+2.8 to +3.5,
+intervals above zero); for those born 1937-49, who carry most of the children-based weight, the current and
+raised-Catholic shares fall together, so their fall is reporting or who is left to interview, not leaving. With the
+25-44 share, about two thirds of the gap between what children say about their mothers and what the mothers'
+generation reports at 45+ closes (point estimate; interval wide). 4 of 4 predictions are supported, the fourth on its
+point estimate. Code `experiments/m5q_cohort_std_switching/run.py`, tables `t47`, `t48`, details in `LOG.md`.
+
 ## Do people forget a Catholic upbringing as they age? A little, and no faster than the same people's own re-reports (milestone 5b, 2026-11-19)
 
 Within US-born birth cohorts surveyed in person (GSS 1977-2018, ages 25-64), the share who say they were raised Catholic
