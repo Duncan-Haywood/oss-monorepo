@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVMw13WpdcgeNh3zrhD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo (ventures brief)",
+  "input_sha256": "052b2b4268be1155bdcc864ad19ec85513e8a14ace00093d86abf21127155a97",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T12:10:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check: read ifcJSON models (flagship 12)",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": 18078,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first draft of the eval note carried a placeholder paired-GlobalId count (6,120 of 6,126)",
+      "fix": "computed from the run table (5,743 of 5,749) before commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-checking-an-ifcjson-model-against-an-ids.md",
+    "ventures/ids-model-check/eval/ifcjson-twins-2026-11-21.md"
+  ],
+  "goal": null,
+  "notes": "Allocated ids-model-check (Start here row 7). Picked the README's 'ifcJSON is not read' limitation: new ifcjson.mjs reads IfcOpenShell's ifc2json and IFC.JAVA flavours (UUID->IFC GUID, inverse-nested relationships with back pointers restored, bare-id refs, schema inferred without a header, hash-consed id-less objects). Wired into Model, the page worker (all three schemas loaded when no header), .ifczip pick, page/editor/revision file inputs, CLI usage. Eval: eval/ifcxml-twins.mjs gained --ext/--deep/--ids-dir; on buildingSMART/ifcJSON's 97 STEP/JSON twins (commit 6d9b961) starter IDS verdicts 291/291 identical, with 65 public IDS 6,485/6,596 fully identical and 6,552/6,596 same status+failing GlobalIds; all 44 residues read by hand and traced to converter omissions. Regression: ifcXML twins 129/129; run_venture_tests.py ids-model-check exit 0; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}
