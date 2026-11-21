@@ -50,3 +50,4 @@
 - (2026-11-19) quoted-tick gate unscorable on 12 Binance pairs (all one-tick)
 - (2026-11-19) AAPL/AMZN/GOOG 28/33, prints 0/34
 - (2026-11-21) quality round 89 defect 0, what is left (README "Code layout"): GARCH moved to `garch.mjs`, the solvers to `stats-core.mjs` (engine 2,354 lines, from 3,004). Still in `engine.mjs`: the ~300-line `analyze()` and the pre-steps (season, trend, AR(1), holidays) that could be a `presteps.mjs`. Mark the audit defect fixed once `analyze()` is split.
+- (2026-11-21) counts (moved to HISTORY.md with its shipped result): next a bunched-count ramp cell, real orders (the real shop's new Quiet misses the 2011-09-01 build-up)
