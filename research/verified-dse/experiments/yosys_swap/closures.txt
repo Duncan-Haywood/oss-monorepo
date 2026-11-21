@@ -1,0 +1,18 @@
+OpenROAD 26Q3 runtime closures from cache.nixos.org narinfo References (walked by this session, 2026-11-21).
+Build A = k3d2rlwj (every Yosys-0.70 nixpkgs-unstable release 2026-11-12 09:23 to 11-17 10:21 UTC);
+build B = p9p47153 (releases 11-20 onward) or h5lmxcar (release 11-18).
+sha256 of bin/.openroad-wrapped: 0cc2cf88678d08bea29bb91bf2096b43ddccb133972a8075904b32d7eeb3fd03 in k3d2rlwj, h5lmxcar and p9p47153
+(b1645914... in rmrnbsc2, the 11-12 00:42 release, which also rebuilt or-tools and scipopt).
+
+k3d2rlwjmidx9ir9s4d5mx6fnbr54029-openroad-26Q3 -> p9p471531siamk4ccnl5h2xp41kgzjq6-openroad-26Q3 | identical store paths: 204 of 206 / 206
+  ~ openroad-26Q3                                             181087 ->   181087 KiB  
+  - yosys-0.70                                                204277 ->        0 KiB  
+  + yosys-0.71                                                     0 ->   222244 KiB  
+k3d2rlwjmidx9ir9s4d5mx6fnbr54029-openroad-26Q3 -> h5lmxcar353q54yvk5hsjyqky9xpmijc-openroad-26Q3 | identical store paths: 204 of 206 / 206
+  ~ openroad-26Q3                                             181087 ->   181087 KiB  
+  - yosys-0.70                                                204277 ->        0 KiB  
+  + yosys-0.71                                                     0 ->   222244 KiB  
+
+bin/openroad (makeCWrapper) in p9p47153: --prefix PATH : /nix/store/mlbhr6nzwzfaqigj8vh5bwmbcrajsd11-yosys-0.71/bin plus Qt and XDG paths.
+
+nixpkgs-unstable releases (releases.nixos.org store-paths.xz; S3 LastModified of git-revision):
