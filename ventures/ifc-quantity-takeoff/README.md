@@ -78,6 +78,12 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   on 128: a body's overlapping items were summed, so a kitchen cabinet
   counted 1.8 times its own box. They are now joined
   ([eval/item-union-2026-11-21.md](eval/item-union-2026-11-21.md)).
+  Show one storey or a few (an element contained in a room counts on the
+  room's building storey) and slide a plan cut or a vertical section
+  through them. Meshing runs in a Web Worker (`view-worker.mjs`) that reads
+  the same file alongside the page's own takeoff, and the GPU buffers grow
+  by appending, so the page keeps answering while a big model draws
+  ([eval/view-worker-2026-11-21.md](eval/view-worker-2026-11-21.md)).
 
 Nothing is uploaded: the model is read in the browser tab.
 

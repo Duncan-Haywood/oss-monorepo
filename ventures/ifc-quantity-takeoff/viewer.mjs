@@ -3,17 +3,31 @@
 //   const v = new ModelView(canvas, { onPick(id) {} });
 //   v.add(id, { positions, normals });   // Float32Array triangles, any number of calls
 //   v.setColors((id) => [r, g, b]);       // 0..1, recoloured without re-uploading geometry
-//   v.fit(ids?);                          // frame everything, or some elements
+//   v.fit(ids?);                          // frame what is shown, or some elements
+//   v.setVisible((id) => bool);           // hide elements (storeys), null shows all
+//   v.setSection([nx, ny, nz, w]);        // cut away n.p > w; null for no cut
 //
 // Drag to orbit, shift-drag or right-drag to pan, wheel or pinch to zoom,
 // click or tap to pick (an id buffer read back at the pointer).
 
+// The section plane is a per-fragment discard on the position the vertex
+// shader passes through (in metres about the model's origin, so highp keeps
+// it to well under a millimetre where the device has it). Cut faces are left
+// open: the view has no caps, and an element's inside reads as its colour.
 const VS = `attribute vec3 p; attribute vec3 n; attribute vec3 c;
-uniform mat4 m; varying vec3 vc; varying vec3 vn;
-void main() { gl_Position = m * vec4(p, 1.0); vc = c; vn = n; }`;
-const FS = `precision mediump float; varying vec3 vc; varying vec3 vn; uniform vec3 l;
-void main() { float d = abs(dot(normalize(vn), l)); gl_FragColor = vec4(vc * (0.45 + 0.55 * d), 1.0); }`;
-const PICK_FS = `precision mediump float; varying vec3 vc; varying vec3 vn; void main() { gl_FragColor = vec4(vc, 1.0); }`;
+uniform mat4 m; varying vec3 vc; varying vec3 vn; varying vec3 vp;
+void main() { gl_Position = m * vec4(p, 1.0); vc = c; vn = n; vp = p; }`;
+const PREC = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+varying vec3 vc; varying vec3 vn; varying vec3 vp; uniform vec4 cut; uniform float cutOn;
+`;
+const CUT = `if (cutOn > 0.5 && dot(cut.xyz, vp) > cut.w) discard;`;
+const FS = `${PREC}uniform vec3 l;
+void main() { ${CUT} float d = abs(dot(normalize(vn), l)); gl_FragColor = vec4(vc * (0.45 + 0.55 * d), 1.0); }`;
+const PICK_FS = `${PREC}void main() { ${CUT} gl_FragColor = vec4(vc, 1.0); }`;
 
 function program(gl, vs, fs) {
   const p = gl.createProgram();
@@ -53,6 +67,30 @@ function mul4(a, b) {
   return o;
 }
 
+/**
+ * The vertex ranges [start, count] that draw the items the predicate keeps,
+ * neighbours merged, so showing one storey of a model costs a handful of
+ * draw calls rather than one per element.
+ */
+export function visibleRuns(items, shown) {
+  const runs = [];
+  for (const it of items) {
+    if (it.start == null || (shown && !shown(it.id))) continue; // not uploaded yet, or hidden
+    const last = runs[runs.length - 1];
+    if (last && last[0] + last[1] === it.start) last[1] += it.count;
+    else runs.push([it.start, it.count]);
+  }
+  return runs;
+}
+
+/** The box round some items: [x0, y0, z0, x1, y1, z1], or null for none. */
+export function boxOfItems(list) {
+  if (!list.length) return null;
+  const b = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
+  for (const it of list) for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], it.box[k]); b[k + 3] = Math.max(b[k + 3], it.box[k + 3]); }
+  return b;
+}
+
 /** The colour that encodes element slot i in the pick buffer, and back. */
 export const idColor = (i) => [((i + 1) & 255) / 255, (((i + 1) >> 8) & 255) / 255, (((i + 1) >> 16) & 255) / 255];
 export const colorId = (r, g, b) => (r | (g << 8) | (b << 16)) - 1;
@@ -68,17 +106,20 @@ export class ModelView {
     this.items = []; // { id, positions, normals, start, count, box }
     this.slot = new Map();
     this.colorOf = () => [0.75, 0.75, 0.75];
+    this.shown = null; // null: every element
+    this.runs = [];
+    this.section = null;
     this.onPick = onPick || (() => {});
     this.cam = { az: -0.8, el: 0.55, dist: 30, target: [0, 0, 0] };
     this.dirty = true;
     this.buffers = { p: gl.createBuffer(), n: gl.createBuffer(), c: gl.createBuffer(), id: gl.createBuffer() };
-    this.vertexCount = 0;
+    this.vertexCount = 0; this.uploaded = 0; this.cap = 0;
     this._wire();
     this._loop = () => { if (this.dirty) this.draw(); this.raf = requestAnimationFrame(this._loop); };
     this.raf = requestAnimationFrame(this._loop);
   }
 
-  clear() { this.items = []; this.slot.clear(); this.vertexCount = 0; this._upload(); }
+  clear() { this.items = []; this.slot.clear(); this.vertexCount = 0; this.uploaded = 0; this.cap = 0; this.runs = []; this.dirty = true; }
 
   add(id, mesh) {
     if (!mesh || !mesh.positions.length) return;
@@ -87,55 +128,96 @@ export class ModelView {
     for (let i = 0; i < P.length; i += 3) for (let k = 0; k < 3; k++) { const v = P[i + k]; if (v < b[k]) b[k] = v; if (v > b[k + 3]) b[k + 3] = v; }
     this.slot.set(id, this.items.length);
     this.items.push({ id, positions: P, normals: mesh.normals, box: b });
-    this.pending = true;
   }
 
-  /** Uploads what add() collected since the last call. */
-  commit() { if (this.pending) { this.pending = false; this._upload(); } }
-
-  _upload() {
+  /**
+   * Uploads what add() collected since the last call. The GPU buffers grow
+   * by doubling and only the new elements are written into them, so a
+   * model drawn as it streams in costs its size once, not once a commit
+   * (re-uploading a 1.8M-triangle model each second held the page up to
+   * 0.9 s at a time).
+   */
+  commit() {
+    if (this.uploaded === this.items.length) return;
     const gl = this.gl;
-    let n = 0;
-    for (const it of this.items) n += it.positions.length;
-    // positions as floats; normals, colours and pick ids as bytes (a 2M-triangle
-    // steel model is 72 MB of positions, and would be four times that all in floats)
-    const P = new Float32Array(n), N = new Int8Array(n), I = new Uint8Array(n);
-    let o = 0;
-    this.items.forEach((it, i) => {
-      it.start = o / 3; it.count = it.positions.length / 3;
+    const fresh = this.items.slice(this.uploaded);
+    let v = this.vertexCount;
+    for (const it of fresh) { it.start = v; it.count = it.positions.length / 3; v += it.count; }
+    if (v > this.cap) {
+      this.cap = Math.max(v, this.cap * 2, 1 << 16);
+      for (const [buf, bytes, usage] of [[this.buffers.p, 12, gl.STATIC_DRAW], [this.buffers.n, 3, gl.STATIC_DRAW], [this.buffers.id, 3, gl.STATIC_DRAW], [this.buffers.c, 3, gl.DYNAMIC_DRAW]]) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, this.cap * bytes, usage);
+      }
+      this._write(this.items, 0, this.items.length); // a new buffer starts empty
+    } else this._write(this.items, this.uploaded, this.items.length);
+    this.uploaded = this.items.length;
+    this.vertexCount = v;
+    this.runs = visibleRuns(this.items, this.shown);
+    this.dirty = true;
+  }
+
+  // writes items [from, to) into the GPU buffers at their own offsets:
+  // positions as floats; normals, colours and pick ids as bytes (a 2M-triangle
+  // steel model is 72 MB of positions, and would be four times that all in floats)
+  _write(items, from, to) {
+    if (from >= to) return;
+    const gl = this.gl;
+    const v0 = items[from].start, v1 = items[to - 1].start + items[to - 1].count, n = (v1 - v0) * 3;
+    const P = new Float32Array(n), N = new Int8Array(n), I = new Uint8Array(n), C = new Uint8Array(n);
+    for (let i = from; i < to; i++) {
+      const it = items[i], o = (it.start - v0) * 3;
       P.set(it.positions, o);
       const nm = it.normals;
       for (let k = 0; k < nm.length; k++) N[o + k] = Math.round(nm[k] * 127);
-      const c = idColor(i).map((v) => Math.round(v * 255));
-      for (let k = 0; k < it.positions.length; k += 3) { I[o + k] = c[0]; I[o + k + 1] = c[1]; I[o + k + 2] = c[2]; }
-      o += it.positions.length;
-    });
-    this.vertexCount = n / 3;
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.p); gl.bufferData(gl.ARRAY_BUFFER, P, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.n); gl.bufferData(gl.ARRAY_BUFFER, N, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.id); gl.bufferData(gl.ARRAY_BUFFER, I, gl.STATIC_DRAW);
-    this._recolor();
+      const id = idColor(i).map((x) => Math.round(x * 255));
+      const c = this._rgb(it.id);
+      for (let k = 0; k < it.positions.length; k += 3) {
+        I[o + k] = id[0]; I[o + k + 1] = id[1]; I[o + k + 2] = id[2];
+        C[o + k] = c[0]; C[o + k + 1] = c[1]; C[o + k + 2] = c[2];
+      }
+    }
+    for (const [buf, data, bytes] of [[this.buffers.p, P, 12], [this.buffers.n, N, 3], [this.buffers.id, I, 3], [this.buffers.c, C, 3]]) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferSubData(gl.ARRAY_BUFFER, v0 * bytes, data);
+    }
   }
+
+  _rgb(id) { return (this.colorOf(id) || [0.75, 0.75, 0.75]).map((v) => Math.round(v * 255)); }
 
   setColors(fn) { this.colorOf = fn; this._recolor(); }
 
   _recolor() {
     const gl = this.gl;
+    if (!this.vertexCount) { this.dirty = true; return; }
     const C = new Uint8Array(this.vertexCount * 3);
-    for (const it of this.items) {
-      const c = (this.colorOf(it.id) || [0.75, 0.75, 0.75]).map((v) => Math.round(v * 255));
+    for (let i = 0; i < this.uploaded; i++) {
+      const it = this.items[i], c = this._rgb(it.id);
       for (let k = 0, o = it.start * 3; k < it.count; k++, o += 3) { C[o] = c[0]; C[o + 1] = c[1]; C[o + 2] = c[2]; }
     }
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.c); gl.bufferData(gl.ARRAY_BUFFER, C, gl.DYNAMIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.c); gl.bufferSubData(gl.ARRAY_BUFFER, 0, C);
     this.dirty = true;
   }
 
-  /** Frames all elements, or the ones in ids. */
+  /** Shows only the elements shown(id) keeps; null shows them all. */
+  setVisible(shown) {
+    this.shown = shown || null;
+    this.runs = visibleRuns(this.items, this.shown);
+    this.dirty = true;
+  }
+
+  isShown(id) { return this.slot.has(id) && (!this.shown || this.shown(id)); }
+
+  /** Cuts away every fragment with n.p > w ([nx, ny, nz, w], view coordinates); null removes the cut. */
+  setSection(plane) { this.section = plane || null; this.dirty = true; }
+
+  /** The box round the shown elements (or all of them, with all = true). */
+  bounds(all = false) { return boxOfItems(all ? this.items : this.items.filter((it) => this.isShown(it.id))); }
+
+  /** Frames the shown elements, or the ones in ids. */
   fit(ids) {
-    const list = ids ? [...ids].map((id) => this.items[this.slot.get(id)]).filter(Boolean) : this.items;
-    if (!list.length) return;
-    const b = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
-    for (const it of list) for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], it.box[k]); b[k + 3] = Math.max(b[k + 3], it.box[k + 3]); }
+    let list = ids ? [...ids].map((id) => this.items[this.slot.get(id)]).filter(Boolean) : this.items.filter((it) => this.isShown(it.id));
+    if (!list.length) list = this.items;
+    const b = boxOfItems(list);
+    if (!b) return;
     this.cam.target = [(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2];
     const r = Math.max(Math.hypot(b[3] - b[0], b[4] - b[1], b[5] - b[2]) / 2, 0.5);
     this.cam.dist = r / Math.tan(Math.PI / 8) * 0.95;
@@ -167,7 +249,11 @@ export class ModelView {
       gl.vertexAttribPointer(loc, 3, type, type !== gl.FLOAT, 0, 0);
     }
     gl.uniformMatrix4fv(gl.getUniformLocation(prog, "m"), false, new Float32Array(this._matrix()));
+    gl.uniform1f(gl.getUniformLocation(prog, "cutOn"), this.section ? 1 : 0);
+    gl.uniform4fv(gl.getUniformLocation(prog, "cut"), new Float32Array(this.section || [0, 0, 1, 0]));
   }
+
+  _drawRuns() { for (const [start, count] of this.runs) this.gl.drawArrays(this.gl.TRIANGLES, start, count); }
 
   draw() {
     this.dirty = false;
@@ -183,7 +269,7 @@ export class ModelView {
     // light from over the viewer's shoulder
     const l = [Math.cos(el + 0.4) * Math.cos(az + 0.5), Math.cos(el + 0.4) * Math.sin(az + 0.5), Math.sin(el + 0.4)];
     gl.uniform3fv(gl.getUniformLocation(this.prog, "l"), new Float32Array(l));
-    gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
+    this._drawRuns();
   }
 
   /** The element id drawn at canvas pixel (x, y) in CSS pixels, or null. */
@@ -197,7 +283,7 @@ export class ModelView {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     this._bind(this.pickProg, this.buffers.id);
-    gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
+    this._drawRuns();
     const px = new Uint8Array(4);
     gl.readPixels(Math.round(x * dpr), Math.round(this.canvas.height - y * dpr), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
     gl.enable(gl.DITHER);

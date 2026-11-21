@@ -614,19 +614,19 @@ flagships:
     hosts: [https://github.com]
     next: >-
       History and every measurement: ventures/ifc-quantity-takeoff/README.md and
-      eval/. 3D model view 2026-11-21 (viewer.mjs, view-mesh.mjs;
-      eval/model-view-2026-11-21.md); its misses traced 2026-11-21: overlapping body
-      items joined (a cabinet had counted 1.8x its box), 9,310 of 9,312 now enclose
-      the computed volume (eval/item-union-2026-11-21.md; next in NEXT.md). Next,
-      most valuable first: (1) the covering up-cut rule tested on a second model,
-      the joins rule on an ArchiCAD export with partitions on both faces; (2) method
-      of measurement: small voids left in shipped 2026-11-20 (measure.mjs, page and
-      cli --voids-up-to; 1,099 of 1,136 opening cuts = stored WxH;
-      eval/measure-rules-2026-11-20.md); Uniformat II grouping shipped 2026-11-20
-      (uniformat.mjs, --by uniformat; rules vs authors' codes 482 of 588 at level 3,
-      held-out 66 of 69; eval/uniformat-2026-11-20.md), envelope from geometry
-      shipped 2026-11-20 (envelope.mjs: unflagged walls placed by rays, 268 coded;
-      uniform flags set aside; flag vs geometry 3,534 of 4,564;
+      eval/. 3D view 2026-11-21 (viewer.mjs; eval/model-view-*; storeys, section,
+      worker: eval/view-worker-2026-11-21.md); its misses traced 2026-11-21:
+      overlapping body items joined (a cabinet had counted 1.8x its box), 9,310 of
+      9,312 now enclose the computed volume (eval/item-union-2026-11-21.md; next in
+      NEXT.md). Next, most valuable first: (1) the covering up-cut rule tested on a
+      second model, the joins rule on an ArchiCAD export with partitions on both
+      faces; (2) method of measurement: small voids left in shipped 2026-11-20
+      (measure.mjs, page and cli --voids-up-to; 1,099 of 1,136 opening cuts = stored
+      WxH; eval/measure-rules-2026-11-20.md); Uniformat II grouping shipped
+      2026-11-20 (uniformat.mjs, --by uniformat; rules vs authors' codes 482 of 588
+      at level 3, held-out 66 of 69; eval/uniformat-2026-11-20.md), envelope from
+      geometry shipped 2026-11-20 (envelope.mjs: unflagged walls placed by rays, 268
+      coded; uniform flags set aside; flag vs geometry 3,534 of 4,564;
       eval/envelope-2026-11-20.md), frames split B1010/B1020/A1010 by the deck they
       carry 2026-11-20 (level 3 19,767 to 22,546 elements;
       eval/frames-2026-11-20.md), slabs typed FLOOR read as finishes, sun shades or

@@ -13,6 +13,6 @@
 ## Model view (landed 2026-11-21, eval/model-view-2026-11-21.md)
 
 - (2026-11-21) Traced (eval/item-union-2026-11-21.md): overlapping body items now joined, the mesher's 5 um cut fixed, polyVolume about the piece. Left: Mini Project beams #32178/#32308 at 0.51-0.53%; `shellVolume` still sums about the model origin (check far-off faceted models); the 2 ARK_NUS items too detailed to join.
-- Meshing in a Web Worker, so a 56 MB model (35 s of meshing) does not slow the page between slices; storey visibility and a section plane.
+- (2026-11-21) Landed: meshing in a Web Worker, storey visibility, a section plane (eval/view-worker-2026-11-21.md). Next: the takeoff itself in a worker (the page still stops for the takeoff, 20 s on ARK_NUS, before the view starts); capped section faces, so a cut wall reads as solid; a second, earlier revision drawn in the same view, coloured by change.
 - Cap the round tubes' 360-segment arcs for display only (Mini Project: 1.8M triangles, most from CHS members).
 - (2026-11-21) (3) the unexplained disagreements (NetVolumes 233 to 6 2026-11-21: Tekla sections, stair totals, ArchiCAD frames stored without glass, eval/glazing-left-out-2026-11-21.md; cross-sections 77 to 2 2026-11-20: half-surface mullions, prism axis for faceted members; eval/cross-sections-2026-11-20.md)

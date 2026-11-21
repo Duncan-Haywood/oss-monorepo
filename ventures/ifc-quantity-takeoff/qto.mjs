@@ -383,6 +383,14 @@ export function takeoff(model, opts = {}) {
     let sid = idx.storeyOf.get(id), p = idx.parentOf.get(id), hop = 0;
     while (!sid && p && hop++ < 10) { sid = idx.storeyOf.get(p); p = idx.parentOf.get(p); }
     if (sid) { const s = E.get(sid); row.storey = s ? (str(s.args[2]) ?? `#${sid}`) : null; if (s && s.type === "IFCBUILDINGSTOREY" && numOf(s.args[9]) != null) row.storeyElevation = numOf(s.args[9]) * f; }
+    // the building storey above the container: an element placed in a space
+    // (duplex's A102, ARK_NUS's 01001) is on the storey the space belongs to.
+    // The model view filters by it; `storey` stays the container, as grouped
+    row.level = null; row.levelElevation = null;
+    for (let c = sid, hop2 = 0; c && hop2 < 10; c = idx.parentOf.get(c), hop2++) {
+      const s = E.get(c);
+      if (s && s.type === "IFCBUILDINGSTOREY") { row.level = str(s.args[2]) ?? `#${c}`; row.levelElevation = numOf(s.args[9]) != null ? numOf(s.args[9]) * f : null; break; }
+    }
     const parent = idx.parentOf.get(id);
     if (parent) { const pe = E.get(parent); if (pe && isElement(pe)) row.parent = parent; }
     // the aggregate it belongs to, element or not (an IfcStair is not one here):

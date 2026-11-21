@@ -139,3 +139,41 @@ test("a cut whose end lies a few micrometres off the face it trims still cuts it
   assert.ok(Math.abs(end - 140 * 500) < 1, `end face ${end} mm2`);
   assert.ok(Math.abs(polyVolume(b.faces) - want) <= 1e-6 * want, `${polyVolume(b.faces)} vs ${want}`);
 });
+
+test("meshRows draws what rowMesh draws, assemblies as their parts", async () => {
+  const { meshRows } = await import("./view-mesh.mjs");
+  const t = takeoff(parseStep(readFileSync(new URL("./samples/sample-office.ifc", import.meta.url))));
+  const { rows, origin } = meshRows.prepare(t.rows);
+  assert.deepEqual(origin, modelOrigin(t.rows));
+  assert.ok(rows.every((r) => !r.isAssembly));
+  const got = [...meshRows(rows, origin)];
+  assert.equal(got.length, rows.length);
+  for (let i = 0; i < rows.length; i++) {
+    const want = rowMesh(rows[i], origin);
+    assert.equal(got[i].id, rows[i].id);
+    assert.deepEqual(got[i].mesh?.positions, want?.positions);
+  }
+});
+
+test("visible runs merge neighbours and skip hidden or unuploaded items", async () => {
+  const { visibleRuns, boxOfItems } = await import("./viewer.mjs");
+  const items = [{ id: 1, start: 0, count: 6 }, { id: 2, start: 6, count: 3 }, { id: 3, start: 9, count: 3 }, { id: 4, start: 12, count: 9 }, { id: 5 }];
+  assert.deepEqual(visibleRuns(items, null), [[0, 21]]);
+  assert.deepEqual(visibleRuns(items, (id) => id !== 3), [[0, 9], [12, 9]]);
+  assert.deepEqual(visibleRuns(items, (id) => id === 5), []);
+  assert.deepEqual(boxOfItems([{ box: [0, 0, 0, 1, 1, 1] }, { box: [-1, 2, 0, 0, 3, 5] }]), [-1, 0, 0, 1, 3, 5]);
+  assert.equal(boxOfItems([]), null);
+});
+
+test("an element contained in a space is on the space's building storey", () => {
+  const src = readFileSync(new URL("./samples/sample-office.ifc", import.meta.url), "utf8")
+    .replace("#901=IFCRELCONTAINEDINSPATIALSTRUCTURE('1EwqJrYp2$$HhqZESV9AJD',$,$,$,(#320),#52);",
+      "#901=IFCRELCONTAINEDINSPATIALSTRUCTURE('1EwqJrYp2$$HhqZESV9AJD',$,$,$,(#320),#950);\n#950=IFCSPACE('0Zx5gq8l5Dv8bN0SPACE0001',$,'A201',$,$,#53,$,$,.ELEMENT.,.INTERNAL.,$);\n#951=IFCRELAGGREGATES('0Zx5gq8l5Dv8bN0SPACE0002',$,$,$,#52,(#950));");
+  assert.ok(src.includes("#950=IFCSPACE"));
+  const t = takeoff(parseStep(src));
+  const r = t.rows.find((x) => x.id === 320);
+  assert.equal(r.storey, "A201"); // grouping keeps the container
+  assert.equal(r.level, "Level 2");
+  assert.equal(r.levelElevation, 3);
+  for (const x of t.rows) if (x.id !== 320 && x.storey) assert.equal(x.level, x.storey);
+});
