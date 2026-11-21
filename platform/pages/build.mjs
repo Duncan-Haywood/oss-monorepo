@@ -4949,9 +4949,9 @@ const CATEGORY_PAGE_COPY = {
   sales: {
     title: 'Free sales and invoicing tools: leads, proposals, invoices',
     description:
-      'Track leads, plan follow-ups, turn call notes into next steps, write proposals, contracts and estimates, log time, send invoices and chase late payers, free in your browser.',
+      'Track leads, plan follow-ups, write proposals, contracts and estimates, log time, send invoices and chase late payers, free in your browser.',
     intro:
-      'Each tool is one step of the same pipeline, from the first lead to the paid invoice: a lead list with follow-up dates, a prospecting cadence, call notes turned into CRM fields, an AI inbox agent that drafts replies you approve, proposals, contracts and estimates, tracked time, the invoice itself, then payment terms, an aging report and late-payment letters. Your records stay in your browser unless you choose to connect an AI model of your own to the inbox agent.',
+      'One pipeline, from the first lead to the paid invoice: follow-ups and call notes, an inbox agent that drafts replies you approve, proposals, contracts and estimates, tracked time, invoices, and the letters that chase a late payer.',
     audience: 'Freelancers, consultants, agencies and small sales teams',
   },
   bookkeeping: {

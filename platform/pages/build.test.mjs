@@ -1780,7 +1780,8 @@ test('no tool in evidence is also claimed by a later section', async () => {
     .filter((slug) => categoryFor(slug).id === 'evidence')
     .flatMap((slug) => later.filter((c) => c.test(slug)).map((c) => `${slug} -> ${c.id}`));
   assert.deepEqual(overlaps, []);
-  assert.equal(categoryFor('time-tracker').id, 'solo-earner');
+  assert.equal(categoryFor('expense-tracker').id, 'solo-earner');
+  assert.equal(categoryFor('time-tracker').id, 'sales');
   assert.equal(categoryFor('s-corp-basis-tracker').id, 'backoffice');
 });
 
