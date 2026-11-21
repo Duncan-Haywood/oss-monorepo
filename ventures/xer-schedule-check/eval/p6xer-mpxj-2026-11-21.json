@@ -1,0 +1,2462 @@
+{
+ "files": [
+  {
+   "file": "baselines.xml",
+   "tasks": 1,
+   "allSame": 1,
+   "fields": {
+    "name": 1,
+    "start": 1,
+    "finish": 1,
+    "actualStart": 1,
+    "actualFinish": 1,
+    "remaining": 1,
+    "constraint": 1,
+    "preds": 1,
+    "assignments": 1
+   },
+   "bad": []
+  },
+  {
+   "file": "enterprise.xml",
+   "tasks": 1,
+   "allSame": 1,
+   "fields": {
+    "name": 1,
+    "start": 1,
+    "finish": 1,
+    "actualStart": 1,
+    "actualFinish": 1,
+    "remaining": 1,
+    "constraint": 1,
+    "preds": 1,
+    "assignments": 1
+   },
+   "bad": []
+  },
+  {
+   "file": "mspdiassignmentcustom.xml",
+   "tasks": 1,
+   "allSame": 1,
+   "fields": {
+    "name": 1,
+    "start": 1,
+    "finish": 1,
+    "actualStart": 1,
+    "actualFinish": 1,
+    "remaining": 1,
+    "constraint": 1,
+    "preds": 1,
+    "assignments": 1
+   },
+   "bad": []
+  },
+  {
+   "file": "mspdiassignmentfields.xml",
+   "tasks": 1,
+   "allSame": 1,
+   "fields": {
+    "name": 1,
+    "start": 1,
+    "finish": 1,
+    "actualStart": 1,
+    "actualFinish": 1,
+    "remaining": 1,
+    "constraint": 1,
+    "preds": 1,
+    "assignments": 1
+   },
+   "bad": []
+  },
+  {
+   "file": "mspdiavailability.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "mspdicostratetable.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "mspdiduration.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "mspdinulltasks.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "mspdirelations.xml",
+   "tasks": 5,
+   "allSame": 5,
+   "fields": {
+    "name": 5,
+    "start": 5,
+    "finish": 5,
+    "actualStart": 5,
+    "actualFinish": 5,
+    "remaining": 5,
+    "constraint": 5,
+    "preds": 5,
+    "assignments": 5
+   },
+   "bad": []
+  },
+  {
+   "file": "mspdiresource.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "mspdisplittask.xml",
+   "tasks": 2,
+   "allSame": 2,
+   "fields": {
+    "name": 2,
+    "start": 2,
+    "finish": 2,
+    "actualStart": 2,
+    "actualFinish": 2,
+    "remaining": 2,
+    "constraint": 2,
+    "preds": 2,
+    "assignments": 2
+   },
+   "bad": []
+  },
+  {
+   "file": "mspditimephased.xml",
+   "tasks": 40,
+   "allSame": 40,
+   "fields": {
+    "name": 40,
+    "start": 40,
+    "finish": 40,
+    "actualStart": 40,
+    "actualFinish": 40,
+    "remaining": 40,
+    "constraint": 40,
+    "preds": 40,
+    "assignments": 40
+   },
+   "bad": []
+  },
+  {
+   "file": "mspditimephasedsegments.xml",
+   "tasks": 20,
+   "allSame": 19,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 19,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": [
+    {
+     "id": "A150",
+     "field": "remaining",
+     "xml": 114.28,
+     "xer": 114.29
+    }
+   ]
+  },
+  {
+   "file": "assignment-text-project2002-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-text-project2003-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-text-project2007-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-text-project2010-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-text-project2013-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-text-project2016-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-text-project2019-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "task-text-project2003-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "task-text-project2007-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "task-text-project2010-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "task-text-project2013-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "task-text-project2016-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "task-text-project2019-mspdi.xml",
+   "tasks": 30,
+   "allSame": 30,
+   "fields": {
+    "name": 30,
+    "start": 30,
+    "finish": 30,
+    "actualStart": 30,
+    "actualFinish": 30,
+    "remaining": 30,
+    "constraint": 30,
+    "preds": 30,
+    "assignments": 30
+   },
+   "bad": []
+  },
+  {
+   "file": "task-links-project2003-mspdi.xml",
+   "tasks": 16,
+   "allSame": 16,
+   "fields": {
+    "name": 16,
+    "start": 16,
+    "finish": 16,
+    "actualStart": 16,
+    "actualFinish": 16,
+    "remaining": 16,
+    "constraint": 16,
+    "preds": 16,
+    "assignments": 16
+   },
+   "bad": []
+  },
+  {
+   "file": "task-links-project2007-mspdi.xml",
+   "tasks": 16,
+   "allSame": 16,
+   "fields": {
+    "name": 16,
+    "start": 16,
+    "finish": 16,
+    "actualStart": 16,
+    "actualFinish": 16,
+    "remaining": 16,
+    "constraint": 16,
+    "preds": 16,
+    "assignments": 16
+   },
+   "bad": []
+  },
+  {
+   "file": "task-links-project2010-mspdi.xml",
+   "tasks": 16,
+   "allSame": 16,
+   "fields": {
+    "name": 16,
+    "start": 16,
+    "finish": 16,
+    "actualStart": 16,
+    "actualFinish": 16,
+    "remaining": 16,
+    "constraint": 16,
+    "preds": 16,
+    "assignments": 16
+   },
+   "bad": []
+  },
+  {
+   "file": "task-links-project2013-mspdi.xml",
+   "tasks": 16,
+   "allSame": 16,
+   "fields": {
+    "name": 16,
+    "start": 16,
+    "finish": 16,
+    "actualStart": 16,
+    "actualFinish": 16,
+    "remaining": 16,
+    "constraint": 16,
+    "preds": 16,
+    "assignments": 16
+   },
+   "bad": []
+  },
+  {
+   "file": "task-links-project2016-mspdi.xml",
+   "tasks": 16,
+   "allSame": 16,
+   "fields": {
+    "name": 16,
+    "start": 16,
+    "finish": 16,
+    "actualStart": 16,
+    "actualFinish": 16,
+    "remaining": 16,
+    "constraint": 16,
+    "preds": 16,
+    "assignments": 16
+   },
+   "bad": []
+  },
+  {
+   "file": "task-links-project2019-mspdi.xml",
+   "tasks": 16,
+   "allSame": 16,
+   "fields": {
+    "name": 16,
+    "start": 16,
+    "finish": 16,
+    "actualStart": 16,
+    "actualFinish": 16,
+    "remaining": 16,
+    "constraint": 16,
+    "preds": 16,
+    "assignments": 16
+   },
+   "bad": []
+  },
+  {
+   "file": "task-costs-project2003-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-costs-project2007-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-costs-project2010-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-costs-project2013-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-costs-project2016-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-costs-project2019-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-assignments-project2002-mspdi.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-assignments-project2003-mspdi.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-assignments-project2007-mspdi.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-assignments-project2010-mspdi.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-assignments-project2013-mspdi.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-assignments-project2016-mspdi.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-assignments-project2019-mspdi.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "calendar-calendars-project2002-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "calendar-calendars-project2003-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "calendar-calendars-project2007-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "calendar-calendars-project2010-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "calendar-calendars-project2013-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "calendar-calendars-project2016-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "calendar-calendars-project2019-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-flags-project2003-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-flags-project2007-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-flags-project2010-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-flags-project2013-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-flags-project2016-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "assignment-flags-project2019-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "task-textvalues-project2010-mspdi.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "task-textvalues-project2013-mspdi.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "task-textvalues-project2016-mspdi.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "task-textvalues-project2019-mspdi.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "task-dates-project2003-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-dates-project2007-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-dates-project2010-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-dates-project2013-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-dates-project2016-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-dates-project2019-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-numbers-project2003-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "task-numbers-project2007-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "task-numbers-project2010-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "task-numbers-project2013-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "task-numbers-project2016-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "task-numbers-project2019-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-text-project2002-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-text-project2003-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-text-project2007-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-text-project2010-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-text-project2019-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "task-starts-project2003-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-starts-project2007-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-starts-project2010-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-starts-project2013-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-starts-project2016-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-starts-project2019-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-misc-project2002-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-misc-project2003-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-misc-project2007-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-misc-project2010-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-misc-project2019-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-type-project2002-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-type-project2003-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-type-project2007-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-type-project2010-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-type-project2013-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-type-project2016-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "task-baselines-project2002-mspdi.xml",
+   "tasks": 55,
+   "allSame": 55,
+   "fields": {
+    "name": 55,
+    "start": 55,
+    "finish": 55,
+    "actualStart": 55,
+    "actualFinish": 55,
+    "remaining": 55,
+    "constraint": 55,
+    "preds": 55,
+    "assignments": 55
+   },
+   "bad": []
+  },
+  {
+   "file": "task-baselines-project2003-mspdi.xml",
+   "tasks": 55,
+   "allSame": 55,
+   "fields": {
+    "name": 55,
+    "start": 55,
+    "finish": 55,
+    "actualStart": 55,
+    "actualFinish": 55,
+    "remaining": 55,
+    "constraint": 55,
+    "preds": 55,
+    "assignments": 55
+   },
+   "bad": []
+  },
+  {
+   "file": "task-baselines-project2007-mspdi.xml",
+   "tasks": 55,
+   "allSame": 55,
+   "fields": {
+    "name": 55,
+    "start": 55,
+    "finish": 55,
+    "actualStart": 55,
+    "actualFinish": 55,
+    "remaining": 55,
+    "constraint": 55,
+    "preds": 55,
+    "assignments": 55
+   },
+   "bad": []
+  },
+  {
+   "file": "task-baselines-project2010-mspdi.xml",
+   "tasks": 110,
+   "allSame": 110,
+   "fields": {
+    "name": 110,
+    "start": 110,
+    "finish": 110,
+    "actualStart": 110,
+    "actualFinish": 110,
+    "remaining": 110,
+    "constraint": 110,
+    "preds": 110,
+    "assignments": 110
+   },
+   "bad": []
+  },
+  {
+   "file": "task-baselines-project2013-mspdi.xml",
+   "tasks": 110,
+   "allSame": 110,
+   "fields": {
+    "name": 110,
+    "start": 110,
+    "finish": 110,
+    "actualStart": 110,
+    "actualFinish": 110,
+    "remaining": 110,
+    "constraint": 110,
+    "preds": 110,
+    "assignments": 110
+   },
+   "bad": []
+  },
+  {
+   "file": "task-baselines-project2016-mspdi.xml",
+   "tasks": 110,
+   "allSame": 110,
+   "fields": {
+    "name": 110,
+    "start": 110,
+    "finish": 110,
+    "actualStart": 110,
+    "actualFinish": 110,
+    "remaining": 110,
+    "constraint": 110,
+    "preds": 110,
+    "assignments": 110
+   },
+   "bad": []
+  },
+  {
+   "file": "task-baselines-project2019-mspdi.xml",
+   "tasks": 110,
+   "allSame": 110,
+   "fields": {
+    "name": 110,
+    "start": 110,
+    "finish": 110,
+    "actualStart": 110,
+    "actualFinish": 110,
+    "remaining": 110,
+    "constraint": 110,
+    "preds": 110,
+    "assignments": 110
+   },
+   "bad": []
+  },
+  {
+   "file": "calendar-recurring-exceptions-project2007-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "calendar-recurring-exceptions-project2010-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "calendar-recurring-exceptions-project2013-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "calendar-recurring-exceptions-project2016-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-numbers-project2002-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-numbers-project2003-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-numbers-project2007-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-numbers-project2010-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-numbers-project2019-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "task-finishes-project2003-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-finishes-project2007-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-finishes-project2010-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-finishes-project2013-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-finishes-project2016-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-finishes-project2019-mspdi.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "task-durations-project2003-mspdi.xml",
+   "tasks": 110,
+   "allSame": 110,
+   "fields": {
+    "name": 110,
+    "start": 110,
+    "finish": 110,
+    "actualStart": 110,
+    "actualFinish": 110,
+    "remaining": 110,
+    "constraint": 110,
+    "preds": 110,
+    "assignments": 110
+   },
+   "bad": []
+  },
+  {
+   "file": "task-durations-project2007-mspdi.xml",
+   "tasks": 110,
+   "allSame": 110,
+   "fields": {
+    "name": 110,
+    "start": 110,
+    "finish": 110,
+    "actualStart": 110,
+    "actualFinish": 110,
+    "remaining": 110,
+    "constraint": 110,
+    "preds": 110,
+    "assignments": 110
+   },
+   "bad": []
+  },
+  {
+   "file": "task-durations-project2010-mspdi.xml",
+   "tasks": 110,
+   "allSame": 110,
+   "fields": {
+    "name": 110,
+    "start": 110,
+    "finish": 110,
+    "actualStart": 110,
+    "actualFinish": 110,
+    "remaining": 110,
+    "constraint": 110,
+    "preds": 110,
+    "assignments": 110
+   },
+   "bad": []
+  },
+  {
+   "file": "task-durations-project2013-mspdi.xml",
+   "tasks": 110,
+   "allSame": 110,
+   "fields": {
+    "name": 110,
+    "start": 110,
+    "finish": 110,
+    "actualStart": 110,
+    "actualFinish": 110,
+    "remaining": 110,
+    "constraint": 110,
+    "preds": 110,
+    "assignments": 110
+   },
+   "bad": []
+  },
+  {
+   "file": "task-durations-project2016-mspdi.xml",
+   "tasks": 110,
+   "allSame": 110,
+   "fields": {
+    "name": 110,
+    "start": 110,
+    "finish": 110,
+    "actualStart": 110,
+    "actualFinish": 110,
+    "remaining": 110,
+    "constraint": 110,
+    "preds": 110,
+    "assignments": 110
+   },
+   "bad": []
+  },
+  {
+   "file": "task-durations-project2019-mspdi.xml",
+   "tasks": 110,
+   "allSame": 110,
+   "fields": {
+    "name": 110,
+    "start": 110,
+    "finish": 110,
+    "actualStart": 110,
+    "actualFinish": 110,
+    "remaining": 110,
+    "constraint": 110,
+    "preds": 110,
+    "assignments": 110
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-flags-project2002-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-flags-project2003-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-flags-project2007-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-flags-project2010-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "resource-flags-project2019-mspdi.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "task-flags-project2003-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "task-flags-project2007-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "task-flags-project2010-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "task-flags-project2013-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "task-flags-project2016-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "task-flags-project2019-mspdi.xml",
+   "tasks": 20,
+   "allSame": 20,
+   "fields": {
+    "name": 20,
+    "start": 20,
+    "finish": 20,
+    "actualStart": 20,
+    "actualFinish": 20,
+    "remaining": 20,
+    "constraint": 20,
+    "preds": 20,
+    "assignments": 20
+   },
+   "bad": []
+  },
+  {
+   "file": "DefaultDurationFormat.xml",
+   "tasks": 1,
+   "allSame": 1,
+   "fields": {
+    "name": 1,
+    "start": 1,
+    "finish": 1,
+    "actualStart": 1,
+    "actualFinish": 1,
+    "remaining": 1,
+    "constraint": 1,
+    "preds": 1,
+    "assignments": 1
+   },
+   "bad": []
+  },
+  {
+   "file": "alias.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "caltest.xml",
+   "tasks": 3,
+   "allSame": 3,
+   "fields": {
+    "name": 3,
+    "start": 3,
+    "finish": 3,
+    "actualStart": 3,
+    "actualFinish": 3,
+    "remaining": 3,
+    "constraint": 3,
+    "preds": 3,
+    "assignments": 3
+   },
+   "bad": []
+  },
+  {
+   "file": "headertest9.xml",
+   "tasks": 0,
+   "allSame": 0,
+   "fields": {
+    "name": 0,
+    "start": 0,
+    "finish": 0,
+    "actualStart": 0,
+    "actualFinish": 0,
+    "remaining": 0,
+    "constraint": 0,
+    "preds": 0,
+    "assignments": 0
+   },
+   "bad": []
+  },
+  {
+   "file": "mspdipriority.xml",
+   "tasks": 10,
+   "allSame": 10,
+   "fields": {
+    "name": 10,
+    "start": 10,
+    "finish": 10,
+    "actualStart": 10,
+    "actualFinish": 10,
+    "remaining": 10,
+    "constraint": 10,
+    "preds": 10,
+    "assignments": 10
+   },
+   "bad": []
+  },
+  {
+   "file": "mspextattr.xml",
+   "tasks": 1,
+   "allSame": 1,
+   "fields": {
+    "name": 1,
+    "start": 1,
+    "finish": 1,
+    "actualStart": 1,
+    "actualFinish": 1,
+    "remaining": 1,
+    "constraint": 1,
+    "preds": 1,
+    "assignments": 1
+   },
+   "bad": []
+  },
+  {
+   "file": "sample.xml",
+   "tasks": 16,
+   "allSame": 16,
+   "fields": {
+    "name": 16,
+    "start": 16,
+    "finish": 16,
+    "actualStart": 16,
+    "actualFinish": 16,
+    "remaining": 16,
+    "constraint": 16,
+    "preds": 16,
+    "assignments": 16
+   },
+   "bad": []
+  },
+  {
+   "file": "sample1.xml",
+   "tasks": 18,
+   "allSame": 17,
+   "fields": {
+    "name": 18,
+    "start": 18,
+    "finish": 18,
+    "actualStart": 18,
+    "actualFinish": 18,
+    "remaining": 17,
+    "constraint": 18,
+    "preds": 18,
+    "assignments": 18
+   },
+   "bad": [
+    {
+     "id": "A30",
+     "field": "remaining",
+     "xml": null,
+     "xer": 0.0
+    }
+   ]
+  }
+ ],
+ "tasks": 2520,
+ "allSame": 2518,
+ "fields": {
+  "name": 2520,
+  "start": 2520,
+  "finish": 2520,
+  "actualStart": 2520,
+  "actualFinish": 2520,
+  "remaining": 2518,
+  "constraint": 2520,
+  "preds": 2520,
+  "assignments": 2520
+ }
+}

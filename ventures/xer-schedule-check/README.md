@@ -14,6 +14,13 @@ baseline, resources, activity codes as named text columns, user-defined fields
 as named Number, Cost, Date and Text columns), checked on six public P6 files against this tool's own
 MSPDI reader and against MPXJ (`eval/msproject-check-2026-11-21.md`,
 `eval/msproject-udfs-2026-11-21.md`).
+And the other way: **Microsoft Project XML to a P6 XER** for P6's import, for
+a planner in Project who must submit a P6 file (WBS under a project node,
+activity IDs, calendars, logic, progress with Project's Resume as P6's
+suspend and resume, baseline, resources and assignments with cost, text
+columns as activity codes, Project's scheduling options), checked on 143
+Project files and the six P6 files sent through Project and back
+(`eval/p6xer-check-2026-11-21.md`).
 
 **Live tool:** https://marisstella.app/xer-schedule-check/
 
@@ -424,6 +431,7 @@ generated series carry actuals.
 | Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free, with ranges read from the file's own UDFs; no resource model, no probabilistic branches yet |
 | A time impact analysis done by hand in P6 (copy the update, type the fragnet in, reschedule, compare the finish), or bought from a claims consultant | Needs a P6 seat and an afternoon per event; consultants charge by the hour | The fragnet as a table, the finish and every milestone's move, float used, each event alone and their overlap, a printable exhibit and the impacted XER for P6, in a browser tab, free |
 | Paid XER-to-Project converters, or MPXJ-based tools you install with Java | Convert the file on your machine or a server, often per seat | The Microsoft Project XML straight from the XER in a browser tab, free, nothing uploaded, with a list of what Project will schedule differently for this file (lag calendars, level of effort, milestones, external dates), checked activity by activity against MPXJ's own reading |
+| Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Project's scheduling options so P6's first run gives Project's dates, and a list of what is not carried (notes, deadlines, elapsed lags, cost resources) |
 | Paid XER viewers (desktop readers sold per seat or per year) or asking the contractor for a PDF of their layout | Show the activities and bars from an XER without P6; a PDF is whatever layout the contractor chose | The WBS tree and bars in a browser tab, free, with level of effort and WBS summary dates as P6 gives them (305 of 305 on the public files), the baseline bar and finish variance per activity, critical or longest-path colouring, printable and as CSV |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
@@ -440,6 +448,16 @@ project's updates for delay claims; and the review itself as a service.
 
 - `xer.mjs`: reads the tab-separated XER tables (`%T`, `%F`, `%R`), UTF-8 or
   Windows-1252, CRLF, P6 Web's quoted multi-line values, names with stray quotes.
+- `p6xer.mjs`: `p6XerText(text, { projectId, activityIds })` writes a P6 XER
+  from Microsoft Project XML: every field P6 20.12 writes in CURRTYPE,
+  FINTMPL, OBS, PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS, RSRC, ACTVTYPE,
+  ACTVCODE, TASK, TASKPRED, TASKACTV and TASKRSRC, whole-number ids, one
+  project WBS node, activity IDs from a text field named "Activity ID" (else A
+  + row x 10), calendars in P6's form, Project's Resume as suspend/resume,
+  resources (work as labour, material as material) and assignments with cost,
+  text fields as project codes (a `parent.child` path type rebuilt as P6's
+  code tree), Project's scheduling options; `p6Problems(tables)` lists what
+  P6's import would refuse (missing fields, ids, references, lengths, dates).
 - `calendar.mjs`: P6 work calendars from `clndr_data` (weekly periods, holidays,
   changed days), and working-time arithmetic to the minute.
 - `msproject.mjs`: `mspdiText(xer, { projId })` writes Microsoft Project XML
@@ -558,6 +576,20 @@ run as a formula in Excel or Sheets.
 
 ## How it was checked
 
+- **Microsoft Project XML to P6 XER** (`eval/p6xer-check-2026-11-21.md`): 143
+  Project files (MPXJ's MSPDI test corpus, Project 2002 to 2019) written as
+  XER: none breaks P6's import rules (`p6Problems`); read back by this tool's
+  XER reader, 2,520 of 2,520 activities intact, 65 of 65 links, 181 of 181 code
+  assignments, and the recomputed schedule equal on 2,509 of 2,509 open
+  activities. MPXJ 16.10 reads the same name, start, finish, actual dates,
+  constraint, predecessors and resource assignments from the XML and the XER
+  on 2,520 of 2,520 tasks, and the same remaining duration on 2,518 (a
+  0.01 h rounding and a blank read as 0). The six public P6 files sent through
+  Project XML and back: every activity ID returns (21,739 of 21,739), 21,422 of
+  21,422 activities intact with the same WBS path, 54,843 of 54,843 links,
+  276,042 of 276,042 code assignments (hierarchies rebuilt), the schedule
+  under Project's rules the same on 19,818 of 19,822. Not imported into P6
+  itself: no P6 seat here.
 - **XER to Microsoft Project XML** (`eval/msproject-check-2026-11-21.md`): six
   public P6 files written as MSPDI and read back with `mspdi.mjs`: 21,422 of
   21,422 activities intact (name, status, remaining duration, actual dates,
@@ -778,7 +810,10 @@ and `parseSchedule`, which picks the reader from the text);
 `msproject.mjs` writes an XER as Microsoft Project XML (`mspdiText`;
 `node cli.mjs file.xer --to-project out.xml`); `eval/msproject-check.mjs` reads
 the result back and recomputes it, `eval/msproject-mpxj.py` compares MPXJ's
-reading of both files.
+reading of both files. `p6xer.mjs` writes Microsoft Project XML as a P6 XER
+(`p6XerText`; `node cli.mjs file.xml --to-p6 out.xer [--project-id CODE]`);
+`eval/p6xer-check.mjs` checks it on MSPDI files and on XERs sent through
+Project XML, `eval/p6xer-mpxj.py` compares MPXJ's reading of the XML and the XER.
 `samples/constraints-log.csv` is a constraints log for the example schedule
 (the page's "Example log" button); `eval/constraints-check.mjs` plants logs on
 real files and checks the what-if against P6 start-on-or-after constraints.
