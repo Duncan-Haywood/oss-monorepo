@@ -38,7 +38,15 @@ test("every table carries P6's fields, whole-number ids that resolve, and passes
   assert.deepEqual(Object.keys(r.xer.tables), ["CURRTYPE", "FINTMPL", "OBS", "PROJECT", "CALENDAR", "SCHEDOPTIONS", "PROJWBS", "RSRC", "ACTVTYPE", "ACTVCODE", "TASK", "TASKPRED", "TASKACTV", "TASKRSRC"]);
   assert.match(r.text, /^ERMHDR\t20\.12\t/);
   assert.match(r.text, /%E\r\n$/);
-  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, codeTypes: 1, udfFields: 0, udfValues: 0, wbsUdfFields: 0, wbsUdfValues: 0, rsrcUdfFields: 0, rsrcUdfValues: 0 });
+  assert.deepEqual(r.counts, { activities: 5, relationships: 4, wbs: 1, calendars: 1, resources: 2, assignments: 2, codeTypes: 1, udfFields: 0, udfValues: 0, wbsUdfFields: 0, wbsUdfValues: 0, rsrcUdfFields: 0, rsrcUdfValues: 0, notebookTopics: 0, taskNotebooks: 0, wbsNotebooks: 0 });
+  assert.equal(r.encoding, "windows-1252");
+  assert.equal(r.bytes.length, r.text.length);
+});
+
+test("a name that does not fit Windows-1252 saves the file as UTF-8, with a warning", () => {
+  const r = p6XerText(XML().replace("<Name>Level 1</Name>", "<Name>Уровень 1</Name>"));
+  assert.equal(r.encoding, "utf-8");
+  assert.ok(r.warnings.some((w) => /do not fit Windows-1252/.test(w)));
 });
 
 test("the WBS hangs under one project node; activity IDs are A + row x 10", () => {

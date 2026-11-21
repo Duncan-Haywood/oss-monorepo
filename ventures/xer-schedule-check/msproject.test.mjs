@@ -85,7 +85,7 @@ test("level of effort becomes a manual task with its links in the notes; quotes 
   const r = mspdiText(x);
   const loe = r.xml.split("</Task>").find((c) => c.includes("supervision"));
   assert.match(loe, /<Manual>1<\/Manual>/);
-  assert.match(loe, /<Notes>P6 level of effort activity LOE1; its P6 relationships: SS from A1030<\/Notes>/);
+  assert.match(loe, /<Notes>\[Converted from P6\]\nP6 level of effort activity LOE1; its P6 relationships: SS from A1030<\/Notes>/);
   assert.doesNotMatch(loe, /<PredecessorLink>/);
   assert.match(r.xml, /<Name>Procure &quot;doors&quot;<\/Name>/);
   const ext = r.xml.split("</Task>").find((c) => c.includes(`<Value>${T[6].task_code}</Value>`));

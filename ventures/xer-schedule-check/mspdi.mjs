@@ -51,8 +51,12 @@
 //   So the UDFs msproject.mjs writes from an XER come back, and a Project
 //   file's own Number fields (optimistic and pessimistic durations, say) feed
 //   the risk run's ranges as a P6 file's numeric UDFs do.
+// - task notes become notebook entries (MEMOTYPE, TASKMEMO; a summary task's
+//   WBSMEMO on its WBS node), one per "[Topic]" section as msproject.mjs
+//   writes them, else one entry under the topic "Notes" (notebook.mjs).
 
 import { parseXer } from "./xer.mjs";
+import { parseNotes, memoHtml } from "./notebook.mjs";
 
 // Number1..20, Date1..10, Cost1..10 (the same tables are in msproject.mjs)
 const UDF_FIELD_IDS = [
@@ -424,12 +428,30 @@ export function parseMspdi(text) {
   const manual = [];
   let summaries = 0, deadlines = 0, inactive = 0, nulls = 0, elapsed = 0, external = 0;
   const durHours = new Map();
+  // task notes -> P6 notebook entries, one per bracketed topic (notebook.mjs);
+  // a summary task's notes go on its WBS node, the project summary task's on
+  // the project's own node (wbs_id "")
+  const MEMOTYPE = [], TASKMEMO = [], WBSMEMO = [];
+  const topicId = new Map();
+  const after = new Map(); // topic -> topics a note put after it
+  const addNotes = (t, table, owner) => {
+    let prev = null;
+    for (const x of parseNotes(kid(t, "Notes")?.text ?? "")) {
+      const key = x.topic.toLowerCase();
+      if (!topicId.has(key)) { topicId.set(key, String(MEMOTYPE.length + 1)); MEMOTYPE.push({ memo_type_id: topicId.get(key), seq_num: "", memo_type: x.topic }); }
+      if (prev !== null && prev !== key) { if (!after.has(prev)) after.set(prev, new Set()); after.get(prev).add(key); }
+      prev = key;
+      const id = topicId.get(key);
+      if (table === "TASKMEMO") TASKMEMO.push({ memo_id: String(TASKMEMO.length + 1), task_id: owner, memo_type_id: id, proj_id: "1", task_memo: memoHtml(x.text) });
+      else WBSMEMO.push({ wbs_memo_id: String(WBSMEMO.length + 1), proj_id: "1", memo_type_id: id, wbs_id: owner, wbs_memo: memoHtml(x.text) });
+    }
+  };
   for (const t of taskNodes) {
     const uid = val(t, "UID");
     if (!uid) continue;
     if (val(t, "IsNull") === "1") { nulls++; continue; }
     const level = Number(val(t, "OutlineLevel") || 1);
-    if (level === 0) continue; // the project summary task
+    if (level === 0) { addNotes(t, "WBSMEMO", ""); continue; } // the project summary task: its notes are the project's
     if (val(t, "Active") === "0") { inactive++; continue; }
     if (val(t, "ExternalTask") === "1") { external++; continue; }
     outline.length = Math.max(0, level - 1);
@@ -440,6 +462,7 @@ export function parseMspdi(text) {
       summaries++;
       outline[level - 1] = uid;
       PROJWBS.push({ wbs_id: uid, proj_id: "1", parent_wbs_id: parent, wbs_short_name: val(t, "WBS") || val(t, "OutlineNumber"), wbs_name: val(t, "Name") });
+      addNotes(t, "WBSMEMO", uid);
       continue;
     }
     const dur = durationHours(val(t, "Duration")) ?? 0;
@@ -466,6 +489,7 @@ export function parseMspdi(text) {
       cstrDate = date(val(t, "Start"));
     }
     if (val(t, "Deadline")) deadlines++;
+    addNotes(t, "TASKMEMO", uid);
     const isMile = val(t, "Milestone") === "1";
     const slack = (k) => { const v = val(t, k); return v === "" ? "" : String(Number(v) / 600); };
     TASK.push({
@@ -552,6 +576,23 @@ export function parseMspdi(text) {
     }
   }
   if (summaries && summaryLinks) warnings.push(`${summaryLinks} link(s) to or from a summary task were left out: Project lets them drive every task under the summary, which hides the real logic (move them to the tasks themselves)`);
+  // topic order (P6 shows a notebook's topics in MEMOTYPE seq_num order): one
+  // that agrees with the order of the topics in every note, first seen first
+  // where the notes do not say (where they disagree, a cycle is broken at the
+  // first-seen topic)
+  {
+    const keys = MEMOTYPE.map((m) => m.memo_type.toLowerCase());
+    const before = new Map(keys.map((k) => [k, 0]));
+    for (const [, s] of after) for (const k of s) before.set(k, before.get(k) + 1);
+    const done = new Set();
+    let seq = 0;
+    while (done.size < keys.length) {
+      const k = keys.find((x) => !done.has(x) && before.get(x) === 0) ?? keys.find((x) => !done.has(x));
+      done.add(k);
+      MEMOTYPE[keys.indexOf(k)].seq_num = String(++seq * 10);
+      for (const n of after.get(k) || []) if (!done.has(n)) before.set(n, before.get(n) - 1);
+    }
+  }
   if (manual.length) warnings.push(`${manual.length} manually scheduled task(s) do not move with their logic (switch them to auto scheduled before relying on the dates); each is read as start on or after its typed start: ${manual.slice(0, 12).join("; ")}${manual.length > 12 ? "; ..." : ""}`);
   if (deadlines) warnings.push(`${deadlines} task(s) carry a deadline; deadlines are not modelled, so their recomputed float can be larger than Project's`);
   if (inactive) warnings.push(`${inactive} inactive task(s) left out, as Project leaves them out of the schedule`);
@@ -567,7 +608,7 @@ export function parseMspdi(text) {
   return {
     version: `MSPDI ${val(proj, "SaveVersion") || ""}`.trim(),
     exportDate: date(val(proj, "LastSaved")),
-    tables: { PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS, TASK, TASKPRED, ...codes, ...udfs },
+    tables: { PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS, TASK, TASKPRED, ...codes, ...udfs, ...(MEMOTYPE.length ? { MEMOTYPE } : {}), ...(TASKMEMO.length ? { TASKMEMO } : {}), ...(WBSMEMO.length ? { WBSMEMO } : {}) },
     warnings,
     format: "mspdi",
   };

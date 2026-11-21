@@ -13,16 +13,17 @@ and no P6 seat (WBS, activity IDs, calendars, logic, constraints, progress,
 baseline, resources, activity codes as named text columns, user-defined fields
 as named Number, Cost, Date and Text columns, resource user-defined fields as
 named resource columns, WBS user-defined fields as named columns on the summary
-tasks), checked on six public P6 files against this tool's own
+tasks, activity and WBS notebooks as task notes under their topics), checked on six public P6 files against this tool's own
 MSPDI reader and against MPXJ (`eval/msproject-check-2026-11-21.md`,
 `eval/msproject-udfs-2026-11-21.md`, `eval/rsrc-udfs-2026-11-21.md`,
-`eval/wbs-udfs-2026-11-21.md`).
+`eval/wbs-udfs-2026-11-21.md`, `eval/notebooks-2026-11-21.md`).
 And the other way: **Microsoft Project XML to a P6 XER** for P6's import, for
 a planner in Project who must submit a P6 file (WBS under a project node,
 activity IDs, calendars, logic, progress with Project's Resume as P6's
 suspend and resume, baseline, resources and assignments with cost, text
 columns as activity codes, Number, Cost and Date columns as named
-user-defined fields, Project's scheduling options), checked on 143
+user-defined fields, task notes as notebook entries, Project's scheduling
+options, saved in Windows-1252 as P6 reads an XER), checked on 143
 Project files and the six P6 files sent through Project and back
 (`eval/p6xer-check-2026-11-21.md`, `eval/p6xer-udfs-2026-11-21.md`).
 
@@ -445,7 +446,7 @@ button drifts. Search impressions not measured yet.
 | Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free, with ranges read from the file's own UDFs; no resource model, no probabilistic branches yet |
 | A time impact analysis done by hand in P6 (copy the update, type the fragnet in, reschedule, compare the finish), or bought from a claims consultant | Needs a P6 seat and an afternoon per event; consultants charge by the hour | The fragnet as a table, the finish and every milestone's move, float used, each event alone and their overlap, a printable exhibit and the impacted XER for P6, in a browser tab, free |
 | Paid XER-to-Project converters, or MPXJ-based tools you install with Java | Convert the file on your machine or a server, often per seat | The Microsoft Project XML straight from the XER in a browser tab, free, nothing uploaded, with a list of what Project will schedule differently for this file (lag calendars, level of effort, milestones, external dates), checked activity by activity against MPXJ's own reading |
-| Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Number, Cost and Date columns as named P6 user-defined fields, Project's scheduling options so P6's first run gives Project's dates, and a list of what is not carried (notes, deadlines, elapsed lags, cost resources) |
+| Paid Project-to-P6 converters, or importing the .mpp into P6 (needs a P6 seat and Project installed on the same machine), or retyping the schedule | Get a Project plan into P6 for an owner or GC who asks for an XER | An XER P6's import takes, straight from the Project XML in a browser tab, free, nothing uploaded: every id renumbered, every field P6 20.12 writes, one project node, Number, Cost and Date columns as named P6 user-defined fields, Project's scheduling options so P6's first run gives Project's dates, task notes as P6 notebook entries under their topics, and a list of what is not carried (deadlines, elapsed lags, cost resources) |
 | Paid XER viewers (desktop readers sold per seat or per year) or asking the contractor for a PDF of their layout | Show the activities and bars from an XER without P6; a PDF is whatever layout the contractor chose | The WBS tree and bars in a browser tab, free, with level of effort and WBS summary dates as P6 gives them (305 of 305 on the public files), the baseline bar and finish variance per activity, critical or longest-path colouring, printable and as CSV |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
@@ -472,8 +473,23 @@ project's updates for delay claims; and the review itself as a service.
   + row x 10), calendars in P6's form, Project's Resume as suspend/resume,
   resources (work as labour, material as material) and assignments with cost,
   text fields as project codes (a `parent.child` path type rebuilt as P6's
-  code tree), Project's scheduling options; `p6Problems(tables)` lists what
+  code tree), task notes as notebook entries (MEMOTYPE, TASKMEMO, WBSMEMO),
+  Project's scheduling options; the result's `bytes` are Windows-1252 (P6's
+  XER code page; UTF-8 with a warning when a character does not fit, via
+  `xerBytes` in `xer.mjs`); `p6Problems(tables)` lists what
   P6's import would refuse (missing fields, ids, references, lengths, dates).
+- `notebook.mjs`: P6 notebooks and Project notes. `memoText(html)` reads a
+  notebook entry (P6 desktop's DHTML with 0x7F line breaks, P6 Web's HTML,
+  or plain text) as text with its paragraphs, breaks and list items on
+  lines; `memoHtml(text)` writes one as P6 Web does (one `<P>` per line, no
+  tab or line break in the value); `notesText` / `parseNotes` write and read
+  a task's notes as `[Topic]` sections in MEMOTYPE order (a body line that
+  looks like a heading is indented a space so it stays put; a note with no
+  heading is one entry under "Notes"); `notebookSections(T)` groups an XER's
+  TASKMEMO and WBSMEMO by activity and WBS node. `msproject.mjs` writes them
+  into task, summary task and project summary notes, `mspdi.mjs` reads task
+  notes back as MEMOTYPE, TASKMEMO and WBSMEMO (topic order merged from every
+  note), and `p6xer.mjs` writes those tables.
 - `calendar.mjs`: P6 work calendars from `clndr_data` (weekly periods, holidays,
   changed days), and working-time arithmetic to the minute.
 - `msproject.mjs`: `mspdiText(xer, { projId })` writes Microsoft Project XML
@@ -657,6 +673,23 @@ run as a formula in Excel or Sheets.
   UDFs compete with 37 code types for 29 Text fields; 746 values of the 10
   least-filled text UDFs are named, not written. Before, all 41,729 activity
   UDF values on CCA were dropped. Not opened in Microsoft Project itself.
+- **Notebooks and notes** (`eval/notebooks-2026-11-21.md`, 2026-11-21): the
+  88 real notebook entries in the public files (86 activity and 1 WBS entry
+  under "Description" on Expressway, 1 under "Anticipated Problems" on the
+  24.12 file) sit in the Project XML notes under their topic and come back
+  from XML to XER on the same activity or WBS node, same topic, same text:
+  88 of 88. With 2,006 planted entries (P6 desktop DHTML, P6 Web HTML and
+  plain text; lists, breaks, entities, quotes, accents, heading-like lines)
+  on six files: 2,006 of 2,006 read as the generator meant and back the
+  same, topic order kept on 700 of 700 activities and nodes with two or more
+  topics, 0 P6 import problems. 5 of 5 Project task notes in MPXJ's corpus go
+  to XER and back unchanged. MPXJ 16.10 reads 1,702 of 1,713 topic entries
+  (activities and WBS nodes with a unique name; not the four-project hotel
+  file, where MPXJ opens another project) with the same words from the original XER
+  and the one written back; the 11 others are 2 project-node entries MPXJ
+  puts on no task and 9 planted plain-text entries starting with a quote
+  mark, which MPXJ reads as a quoted value in the original. Before, every
+  notebook entry was dropped both ways (and counted). Not imported into P6 itself.
 - **Resource user-defined fields** (`eval/rsrc-udfs-2026-11-21.md`, 2026-11-21):
   resource UDFs go into Project's resource Text, Number, Cost and Date fields,
   renamed to each UDF's title, and come back from a Project file as P6

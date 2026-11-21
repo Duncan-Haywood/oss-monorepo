@@ -214,8 +214,8 @@ const projId = args.includes("--project") ? projectFor(xer) : null;
 if (args.includes("--to-p6")) {
   if (xer.format !== "mspdi") { console.error("--to-p6: this file is already an XER (it takes Microsoft Project XML)"); process.exit(2); }
   const r = p6XerText(decodeXer(readFileSync(file)), { projectId: opt("--project-id") || "", activityIds: args.includes("--row-ids") ? "row" : "auto" });
-  writeFileSync(opt("--to-p6"), r.text);
-  if (args.includes("--json")) { const { xer: _x, text: _t, ...rest } = r; await emit(JSON.stringify(rest, null, 2) + "\n"); process.exit(0); }
+  writeFileSync(opt("--to-p6"), r.bytes);
+  if (args.includes("--json")) { const { xer: _x, text: _t, bytes: _b, ...rest } = r; await emit(JSON.stringify(rest, null, 2) + "\n"); process.exit(0); }
   await emit(`${r.project.id}: ${p6xerSummary(r)} to ${opt("--to-p6")}\n${r.warnings.map((w) => `- ${w}\n`).join("")}`);
   process.exit(0);
 }

@@ -1,0 +1,129 @@
+[
+ {
+  "file": "Expressway_Project",
+  "owners": 87,
+  "entries": 87,
+  "sameBack": 86,
+  "sameWordsBack": 86,
+  "ownersWithNotesInProjectXml": 86,
+  "miss": [
+   {
+    "owner": "WBS|EXPRESS WAY - PACKAGE - A",
+    "topic": "Description",
+    "original": "Submitted as clause 14",
+    "back": null
+   }
+  ]
+ },
+ {
+  "file": "example_xer_file",
+  "owners": 1,
+  "entries": 1,
+  "sameBack": 1,
+  "sameWordsBack": 1,
+  "ownersWithNotesInProjectXml": 1,
+  "miss": []
+ },
+ {
+  "file": "planted-CCA_R03_dt_24Oct11SC",
+  "owners": 217,
+  "entries": 467,
+  "sameBack": 414,
+  "sameWordsBack": 464,
+  "ownersWithNotesInProjectXml": 214,
+  "miss": [
+   {
+    "owner": "GP2FT09601C0",
+    "topic": "Notes to Owner",
+    "original": "hold\" \u00dcnit \u2013 RFI client's \u00b0C slab [see RFI 30] 50% pour fa\u00e7ade after slab \u2013 results \"hold\" after",
+    "back": "\"hold\" \u00dcnit\n\u2013 RFI client's \u00b0C slab\n[see RFI 30]\n50% pour\nfa\u00e7ade after slab \u2013 results \"hold\" after"
+   },
+   {
+    "owner": "GP1RG09201C0",
+    "topic": "Notes to Owner",
+    "original": "hold\" 50% 50% level after <16mm> 12 pour client's level lift <16mm> RFI fa\u00e7ade - RFI results pour level rebar crane \u00dcnit \"hold\" - inspection 12 3 slab \u2013 ok slab fa\u00e7ade - lift crane \u2013 \u2013 \u00dcnit \u00dcnit crane client's",
+    "back": "\"hold\" 50% 50% level after <16mm> 12\npour client's\nlevel lift\n<16mm> RFI fa\u00e7ade\n- RFI results pour level rebar crane \u00dcnit \"hold\"\n- inspection 12 3 slab \u2013 ok slab fa\u00e7ade\n- lift crane \u2013 \u2013 \u00dcnit \u00dcnit crane client's"
+   },
+   {
+    "owner": "PP2S103351C20",
+    "topic": "Risk",
+    "original": "hold\" \u00dcnit \u00b0C RFI",
+    "back": "\"hold\" \u00dcnit \u00b0C RFI"
+   }
+  ]
+ },
+ {
+  "file": "planted-Expressway_Project",
+  "owners": 307,
+  "entries": 557,
+  "sameBack": 505,
+  "sameWordsBack": 553,
+  "ownersWithNotesInProjectXml": 306,
+  "miss": [
+   {
+    "owner": "WBS|EXPRESS WAY - PACKAGE - A",
+    "topic": "Description",
+    "original": "Submitted as clause 14",
+    "back": null
+   },
+   {
+    "owner": "BEW/RD1/BI/1140",
+    "topic": "Notes to Owner",
+    "original": "hold\" 50% 50% level after <16mm> 12 pour client's level lift <16mm> RFI fa\u00e7ade - RFI results pour level rebar crane \u00dcnit \"hold\" - inspection 12 3 slab \u2013 ok slab fa\u00e7ade - lift crane \u2013 \u2013 \u00dcnit \u00dcnit crane client's",
+    "back": "\"hold\" 50% 50% level after <16mm> 12\npour client's\nlevel lift\n<16mm> RFI fa\u00e7ade\n- RFI results pour level rebar crane \u00dcnit \"hold\"\n- inspection 12 3 slab \u2013 ok slab fa\u00e7ade\n- lift crane \u2013 \u2013 \u00dcnit \u00dcnit crane client's"
+   },
+   {
+    "owner": "BEW/ST/OP14/4280",
+    "topic": "Risk",
+    "original": "hold\" \u00dcnit \u00b0C RFI",
+    "back": "\"hold\" \u00dcnit \u00b0C RFI"
+   }
+  ]
+ },
+ {
+  "file": "planted-example_xer_file",
+  "owners": 210,
+  "entries": 448,
+  "sameBack": 396,
+  "sameWordsBack": 445,
+  "ownersWithNotesInProjectXml": 210,
+  "miss": [
+   {
+    "owner": "A10320.3",
+    "topic": "Risk",
+    "original": "hold\" \u00dcnit \u00b0C RFI",
+    "back": "\"hold\" \u00dcnit \u00b0C RFI"
+   },
+   {
+    "owner": "E10397",
+    "topic": "Description",
+    "original": "hold\" <16mm> a&b level \u00b0C 3 ok RFI crane inspection inspection inspection caf\u00e9 ok \u00dcnit ok caf\u00e9 \u00b0C ok 50% 12 lift rebar 3 client's 50% lift 3 lift client's a&b 3 client's",
+    "back": "\"hold\" <16mm> a&b level\n\u00b0C 3 ok RFI crane inspection inspection inspection\ncaf\u00e9 ok \u00dcnit ok caf\u00e9 \u00b0C ok 50%\n12 lift rebar 3 client's\n50% lift 3 lift client's a&b 3 client's"
+   },
+   {
+    "owner": "A15553",
+    "topic": "Notes to Owner",
+    "original": "hold\" \u00dcnit \u2013 RFI client's \u00b0C slab [see RFI 30] 50% pour fa\u00e7ade after slab \u2013 results \"hold\" after",
+    "back": "\"hold\" \u00dcnit\n\u2013 RFI client's \u00b0C slab\n[see RFI 30]\n50% pour\nfa\u00e7ade after slab \u2013 results \"hold\" after"
+   }
+  ]
+ },
+ {
+  "file": "planted-sample",
+  "owners": 29,
+  "entries": 66,
+  "sameBack": 61,
+  "sameWordsBack": 66,
+  "ownersWithNotesInProjectXml": 29,
+  "miss": []
+ },
+ {
+  "file": "planted-terminal-building-airport",
+  "owners": 43,
+  "entries": 87,
+  "sameBack": 75,
+  "sameWordsBack": 87,
+  "ownersWithNotesInProjectXml": 43,
+  "miss": []
+ }
+]

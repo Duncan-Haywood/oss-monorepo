@@ -1,0 +1,182 @@
+{
+ "date": "2026-11-21",
+ "xer": [
+  {
+   "file": "Expressway_Project.xer",
+   "project": "BEW3",
+   "entries": 87,
+   "taskEntries": 86,
+   "wbsEntries": 1,
+   "inProjectXml": 87,
+   "backInXer": 87,
+   "extraEntries": 0,
+   "multiTopicOwners": 0,
+   "topicOrderKept": 0,
+   "p6Problems": 0
+  },
+  {
+   "file": "example_xer_file.xer",
+   "project": "DEMO-001",
+   "entries": 1,
+   "taskEntries": 1,
+   "wbsEntries": 0,
+   "inProjectXml": 1,
+   "backInXer": 1,
+   "extraEntries": 0,
+   "multiTopicOwners": 0,
+   "topicOrderKept": 0,
+   "p6Problems": 0
+  }
+ ],
+ "planted": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "project": "CCA R03 dt 24Oct11SC",
+   "entries": 472,
+   "taskEntries": 428,
+   "wbsEntries": 44,
+   "inProjectXml": 472,
+   "backInXer": 472,
+   "extraEntries": 0,
+   "multiTopicOwners": 166,
+   "topicOrderKept": 166,
+   "p6Problems": 0,
+   "planted": 472,
+   "plantedForms": {
+    "plain": 65,
+    "web": 227,
+    "desktop": 180
+   },
+   "plantedReadAsMeant": 472,
+   "plantedBack": 472
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "project": "BEW3",
+   "entries": 557,
+   "taskEntries": 512,
+   "wbsEntries": 45,
+   "inProjectXml": 557,
+   "backInXer": 557,
+   "extraEntries": 0,
+   "multiTopicOwners": 168,
+   "topicOrderKept": 168,
+   "p6Problems": 0,
+   "planted": 470,
+   "plantedForms": {
+    "web": 225,
+    "desktop": 183,
+    "plain": 62
+   },
+   "plantedReadAsMeant": 470,
+   "plantedBack": 470
+  },
+  {
+   "file": "example_xer_file.xer",
+   "project": "DEMO-001",
+   "entries": 448,
+   "taskEntries": 428,
+   "wbsEntries": 20,
+   "inProjectXml": 448,
+   "backInXer": 448,
+   "extraEntries": 0,
+   "multiTopicOwners": 155,
+   "topicOrderKept": 155,
+   "p6Problems": 0,
+   "planted": 447,
+   "plantedForms": {
+    "web": 219,
+    "desktop": 166,
+    "plain": 62
+   },
+   "plantedReadAsMeant": 447,
+   "plantedBack": 447
+  },
+  {
+   "file": "hotel-project.xer",
+   "project": "HBTF-2",
+   "entries": 460,
+   "taskEntries": 416,
+   "wbsEntries": 44,
+   "inProjectXml": 460,
+   "backInXer": 460,
+   "extraEntries": 0,
+   "multiTopicOwners": 158,
+   "topicOrderKept": 158,
+   "p6Problems": 0,
+   "planted": 460,
+   "plantedForms": {
+    "plain": 60,
+    "web": 224,
+    "desktop": 176
+   },
+   "plantedReadAsMeant": 460,
+   "plantedBack": 460
+  },
+  {
+   "file": "sample.xer",
+   "project": "Task SE",
+   "entries": 66,
+   "taskEntries": 60,
+   "wbsEntries": 6,
+   "inProjectXml": 66,
+   "backInXer": 66,
+   "extraEntries": 0,
+   "multiTopicOwners": 23,
+   "topicOrderKept": 23,
+   "p6Problems": 0,
+   "planted": 66,
+   "plantedForms": {
+    "web": 28,
+    "desktop": 31,
+    "plain": 7
+   },
+   "plantedReadAsMeant": 66,
+   "plantedBack": 66
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "project": "TERMINAL-2",
+   "entries": 91,
+   "taskEntries": 64,
+   "wbsEntries": 27,
+   "inProjectXml": 91,
+   "backInXer": 91,
+   "extraEntries": 0,
+   "multiTopicOwners": 30,
+   "topicOrderKept": 30,
+   "p6Problems": 0,
+   "planted": 91,
+   "plantedForms": {
+    "desktop": 35,
+    "web": 43,
+    "plain": 13
+   },
+   "plantedReadAsMeant": 91,
+   "plantedBack": 91
+  }
+ ],
+ "mspdi": [
+  {
+   "file": "legacy/headertest9.xml",
+   "notes": 1,
+   "inXer": 1,
+   "backInProjectXml": 1,
+   "p6Problems": 0
+  },
+  {
+   "file": "legacy/sample.xml",
+   "notes": 1,
+   "inXer": 1,
+   "backInProjectXml": 1,
+   "p6Problems": 0
+  },
+  {
+   "file": "legacy/sample1.xml",
+   "notes": 3,
+   "inXer": 3,
+   "backInProjectXml": 3,
+   "p6Problems": 0
+  }
+ ]
+}

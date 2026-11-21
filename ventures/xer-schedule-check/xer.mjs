@@ -17,6 +17,30 @@ export function decodeXer(bytes) {
   }
 }
 
+// Windows-1252's 0x80-0x9F block (the rest of 0x00-0xFF is Latin-1)
+const CP1252_HIGH = "\u20ac\u0081\u201a\u0192\u201e\u2026\u2020\u2021\u02c6\u2030\u0160\u2039\u0152\u008d\u017d\u008f\u0090\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u02dc\u2122\u0161\u203a\u0153\u009d\u017e\u0178";
+const TO_1252 = new Map([...CP1252_HIGH].map((c, i) => [c, 0x80 + i]));
+
+// xerBytes(text) -> { bytes, encoding, unmapped }: the bytes to save an XER
+// as. P6 writes and reads XER in the Windows code page (Windows-1252 on
+// English and Western European machines), and so do other readers (MPXJ), so
+// a UTF-8 file turns "façade" into "faÃ§ade" there. Text that fits
+// Windows-1252 is written in it; text that does not (Cyrillic, Greek, CJK
+// names) is written as UTF-8 and `unmapped` counts the characters that would
+// not fit, so the caller can say so.
+export function xerBytes(text) {
+  const out = new Uint8Array(text.length);
+  let unmapped = 0;
+  for (let i = 0; i < text.length; i++) {
+    const c = text.charCodeAt(i);
+    if (c < 0x80 || (c >= 0xa0 && c <= 0xff)) out[i] = c;
+    else if (TO_1252.has(text[i])) out[i] = TO_1252.get(text[i]);
+    else unmapped++;
+  }
+  if (unmapped) return { bytes: new TextEncoder().encode(text), encoding: "utf-8", unmapped };
+  return { bytes: out, encoding: "windows-1252", unmapped: 0 };
+}
+
 export function parseXer(text) {
   if (typeof text !== "string") throw new TypeError("parseXer expects text; use decodeXer(bytes) first");
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
