@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVND6v1DgRcNLJzJBoJ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production. [scheduled ventures brief]",
+  "input_sha256": "e3bdbff34eb8f0839ffb182e182f944421cad5c371b34da648bcdcbfe66643d1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T06:16:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check (flagship 13): Microsoft Project XML to P6 XER for P6 import",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18037",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "I ran a bare `route` first and drew process for the scheduled ventures brief; prompt.md does say to pass --task, re-routing with it picked ventures. The routine's stored prompt could carry the --track itself so a first bare route cannot happen."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Said YIELD to PR #18036 (UDFs as Project XML fields, XER->XML direction) for my item 'Project XML to P6 XER' although the two are different items; the item-name match seems to key on the shared words 'Project XML'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "why": "claim_check said YIELD to #18036, but that PR is a different item (UDFs in msproject.mjs, the other direction); I kept my item in a new module (p6xer.mjs) to avoid overlapping files",
+      "did": "shipped MSPDI to XER alongside #18036",
+      "result": "merge with main clean; touched cli.mjs and index.html only in separate places"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-microsoft-project-to-p6-xer.md",
+    "ventures/xer-schedule-check/eval/p6xer-check-2026-11-21.md"
+  ],
+  "goal": "A planner in Microsoft Project can submit a P6-importable XER without a P6 seat or a paid converter",
+  "notes": "New p6xer.mjs: MSPDI -> P6 XER with every field P6 20.12 writes in 14 tables, integer ids, project WBS node, activity IDs, suspend/resume from Project's Resume, resources/assignments, code trees rebuilt from path codes, Project's scheduling options; p6Problems lists import-rule faults. Page section + CLI --to-p6 + 12 tests. Verification: node eval/p6xer-check.mjs on MPXJ's 143 MSPDI files: 0 import problems, 2520/2520 tasks intact, 65/65 links, 181/181 codes, schedule 2509/2509; six public P6 XERs through Project XML and back: 21739/21739 IDs, 21422/21422 intact, 54843/54843 links, 276042/276042 code assignments, schedule 19818/19822 (4 pre-existing). MPXJ 16.10 (eval/p6xer-mpxj.py): 2518/2520 tasks same on every field. Fixes found by the eval: Resume (17 tasks), data date move (reverted to keep status date), path codes, dotted names. Not imported into a real P6 (no seat). run_venture_tests xer-schedule-check: 238 tests ok; check_posts ok; validate.py ok; page clicked through in Chromium (download works, no console errors).",
+  "corrections": [],
+  "redteam": null
+}
