@@ -262,7 +262,12 @@ traces most of the remaining per-window error to the cameras' rolling shutter, a
 [karpenko2011gyro], Hedborg et al. [hedborg2012rsba] and Oth et al. [oth2013rscalib]: with motion-capture
 rates and a free readout in the window solve, the median focal error falls by a third to a half on both
 cameras, and a soft prior on k<sub>1</sub> from the camera's own earlier windows, followed by five-window
-random-effects pooling, reaches 1.17% from 6 s of video.
+random-effects pooling, reaches 1.17% from 6 s of video. With the pool's between-window spread floored at the camera's own past
+scatter, the bar is honest (three-window rms z 1.09) but too wide for a symmetric 2-sd change test to catch a
+stale focal length below 8.5% at five windows. Scored by worst regret over a simulated staleness of up to 10%,
+the rule that serves a robot is asymmetric: adopt the five-window pool unless it lies within half its sd of the
+held value (worst regret 0.42 points, always adopting 1.17, the 2-sd gate 3.33), and it is the rule chosen in
+every fold that leaves one sequence out.
 
 ## IX. Recommendations
 
@@ -286,6 +291,8 @@ random-effects pooling, reaches 1.17% from 6 s of video.
    1.2–1.9×.
 7. **On natural features, take the error bar from the scatter of many short solves** (a keyframe jackknife, then
    random-effects pooling), not from one solve's covariance.
+8. **Update a held focal length asymmetrically.** From five pooled windows, replace it unless the pool lies
+   within half its sd; never gate the update on a symmetric 2-sd change test.
 
 ## X. Limitations
 

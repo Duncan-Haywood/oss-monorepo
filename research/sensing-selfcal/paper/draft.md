@@ -4,7 +4,9 @@
 with milestones 4e–4g (set size, every disjoint split, a robust jackknife) and on 2026-11-14 with
 milestone 4h (a reference for the robust jackknife derived from a model) and milestone 4i (a reference
 from the unit's own linearised bundle adjustment), and on 2026-11-19 with milestones 3g–3t (what a short
-natural-feature window's focal length compensates, a causal prior and pooling; Section 4). Target venue: IEEE
+natural-feature window's focal length compensates, a causal prior and pooling; Section 4), and on 2026-11-21
+with milestones 3u–3x (a history floor on the pool's &tau;, a stale held value, and the rule for updating it;
+Section 4 and Recommendation 8). Target venue: IEEE
 Robotics and Automation Letters (an aim, not a claim of acceptance). Every number below comes from a
 file under `../experiments/`; `python3 paper/check_numbers.py` checks each one against that file.
 Citations are listed in `references.bib`; their DOIs could not be looked up from the session that
@@ -44,7 +46,10 @@ jackknife makes in-field self-calibration safe to gate, and the corner localiser
 decides whether the gate can see a 1–2% change. On hand-held natural-feature video of the TUM cameras, a
 rolling-shutter term cuts a 1.2 s window's focal error by a third to a half, a prior on k<sub>1</sub> from the
 camera's own earlier windows cuts what is left (2.88% to 2.32%), and five such windows pooled by random effects
-reach 1.17% with a nearly honest bar.
+reach 1.17% with a nearly honest bar. Flooring the pool's between-window spread at the camera's own past
+scatter makes that bar honest, but too wide for a 2-sd change test to see a stale focal length below about
+8.5%; the rule that serves a robot is asymmetric, "adopt the pool unless it lies within half its sd of the held
+value", and it is chosen the same way when one sequence is left out.
 
 ## 1. Introduction
 
@@ -213,6 +218,32 @@ The Hartung&ndash;Knapp&ndash;Sidik&ndash;Jonkman variance (IntHout et al. 2014)
 windows (rms z 1.51) but blows up at three (20.2), and its modified form (Röver et al. 2015) does no better than
 DerSimonian&ndash;Laird there; adding 1% of f in quadrature to each pooled sd, about half the references' own
 disagreement, brings the five-window rms z to 0.93.
+
+**From an honest bar to an update rule (milestones 3u–3x, pre-registered).** The short-pool failure is a
+small-sample &tau; problem, and the robot already holds the fix: how much its own earlier windows scattered.
+Flooring &tau;<sup>2</sup> at the robust variance of the camera's past focal estimates minus the median solver
+variance makes three-window pools honest (rms z 2.67 &rarr; 1.09, worst block 11.0 &rarr; 3.2 sd), costs nothing in
+accuracy (the five-window median error is 1.17% either way), beats the fixed 1%-of-f floor (rms z 1.33), is
+slightly conservative at five windows (0.87), and gives a single 1.2 s window a bar honest to within a factor of two
+(rms z 10.1 &rarr; 1.84) (milestone 3u). An honest bar is a wide one. Milestone 3v shifted the held focal length by
+&delta; from the board's and tested it against the five-window floored pool with a symmetric 2-sd change test: false
+alarms are rare (0.03), but 80% power needs a staleness of 8.5% (10% at three windows, 7% at eight), and keeping a
+stale value leaves a worst median error of 4.5% where always adopting the pool leaves 1.17%. The test's one virtue is
+on the other side: with a right held value it refuses the outlier pools that always-adopt takes (95th-percentile
+error 1.69% against 2.93% at &delta; = 1%). Milestone 3w therefore scored eight update rules by their worst regret over
+&delta; &isin; &plusmn;{0, 0.5, &hellip;, 10}%, regret being a rule's median error minus the better of never and always
+adopting at that &delta;. At five windows the minimax rule is to adopt the pool unless it lies within half its own sd
+of the held value: worst regret 0.42 points, against always-adopt's 1.17 and the 2-sd gate's 3.33, and the same rule
+is minimax against all three references. With one to three windows a positive-part empirical-Bayes blend is safer
+(three windows: 0.82 against always-adopt's 2.10). Both winners were picked on the blocks they were scored on, so
+milestone 3x chose the rule with one sequence left out at a time. Every five-window fold picks the half-sd gate,
+including the fold that picks it on the Kinect alone and scores it on the Xtion (worst regret 0.55 against
+always-adopt's 1.38); the pooled out-of-sample worst regret is again 0.42, by construction once every fold agrees.
+Per sequence the margin is thin: the gate ties always-adopt on fr1/desk (1.32), loses slightly on fr1/xyz (0.80
+against 0.73), and on fr1/desk the 2-sd gate does better (1.09). Against TUM's and the target-free references the
+five-window folds do not agree on a rule, so the positive recommendation carries its reference with it. The firm
+result is the negative one: out of sample, the symmetric 2-sd change test is beaten in 36 of 36 model &times; window
+count &times; reference cells.
 
 ## 5. An accept/reject test on disjoint view sets
 
@@ -513,7 +544,14 @@ solves.
    the principal point from the camera's raw window estimates and use them as a soft prior once five exist (not
    from the prior-steadied estimates, which collapse to a pin), and pool at least five windows by random effects,
    never by inverse variance on the solver's sd, with the pooled sd floored at about 1% of f. On TUM that gets f
-   to about 1.2% of the board from 6 s of hand-held video, with an error bar that is close to honest.
+   to about 1.2% of the board from 6 s of hand-held video, with an error bar that is close to honest. Floor the
+   random-effects &tau;<sup>2</sup> at the camera's own past window scatter rather than at a fixed fraction of f.
+8. **Updating a held focal length from natural features: adopt unless the pool agrees.** With the floored pool,
+   do not test the held value with a symmetric 2-sd change test (on TUM, at three windows, it catches a 5% staleness
+   only 46% of the time, and it is beaten in 36 of 36 cells out of sample). From five pooled windows, replace the held value unless the pool lies
+   within half its sd of it; below five, move to the pool by the positive-part empirical-Bayes weight. State the
+   reference the rule was tuned against: against the board it survives leaving a sequence or a camera out, against
+   the other two references the choice is not stable.
 
 ## 9. Limitations
 
@@ -523,7 +561,7 @@ and the intervals are too narrow, and a 99th percentile from 180 statistics rest
 them (Section 7 shows how far that moved one result). Scoring every split removes the sampling of
 splits, not the reuse of views; a second pool of 13 views per TUM unit (milestone 4p) shows the in-sample false alarms understate the fresh-view rate (1.40% against 0.35%), but both pools come from one session. The focal and principal-point changes are exact model transforms; the swaps (here and between the
 two TUM units) are the only real changes. The corners are checkerboard corners without mismatches; natural features (SIFT) are tested only on
-short windows of three TUM RGB-D sequences (Section 4). Those windows come from one recording order per camera and one session on the Xtion, the rotation rates come from motion capture rather than an onboard gyro, the Xtion's +2.8% focal bias is unexplained, and milestones 3s–3t re-used saved solves (43 windows; overlapping blocks are not independent tests). The renders leave out the bend, the clipboard and background clutter, vignetting and the
+short windows of three TUM RGB-D sequences (Section 4). Those windows come from one recording order per camera and one session on the Xtion, the rotation rates come from motion capture rather than an onboard gyro, the Xtion's +2.8% focal bias is unexplained, and milestones 3s–3x re-used saved solves (43 windows; overlapping blocks are not independent tests). Staleness in milestones 3v–3x is a shifted held value, not a real lens change (a refocus would also move k<sub>1</sub> and the principal point), and the leave-one-out check of the update rule has three folds, two of them on one camera. The renders leave out the bend, the clipboard and background clutter, vignetting and the
 sensor's own noise. Several findings (the half-width cause, the f-alone power figures in Section 5)
 were found after a pre-registered prediction failed and are labelled so in the log.
 
@@ -540,6 +578,10 @@ were found after a pre-registered prediction failed and are labelled so in the l
   causal k<sub>1</sub> prior with five-window random-effects pooling reaches about 1.2%. Still needed: the same
   pipeline on an onboard gyro instead of motion capture, other recording orders (a bad start for the prior), a
   cause for the Xtion's +2.8%, and longer windows with loop closures.
+- Done on TUM with a simulated staleness (milestones 3u–3x, Section 4): a history floor makes the pooled bar honest,
+  and an asymmetric update rule chosen out of sample beats both always adopting and a 2-sd change test. Still needed:
+  a real lens change (a refocus or zoom, the owner-captured set of milestone 6) to score the rule on, more sequences
+  per camera so that leaving one out is a real test, and the rule's choice against a reference that is not the board.
 - Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
   views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).
   Choosing view sets by the twin's predicted power works as a ranking (milestone 4l), and with the old set
