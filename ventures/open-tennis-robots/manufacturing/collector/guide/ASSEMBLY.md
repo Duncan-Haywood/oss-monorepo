@@ -181,9 +181,9 @@ Bolt the plain cover to one end with six M5 button heads into the rivet nuts. Th
 | 8 mm x 40 mm shoulder bolt (ISO 7379, M6 thread) + M6 nyloc nut | 2 |
 | M8 x 30 hex bolt + M8 nyloc nut | 2 |
 
-Tools: 4 mm hex key, two 10 mm and two 13 mm spanners.
+Tools: 4 mm hex key, two 10 mm and two 13 mm spanners (the one on the nut 200 mm or longer).
 
-Fit each arm to its pivot block with a shoulder bolt from outside and an M6 nyloc inside the block. Tighten it onto the shoulder: the arm must still swing freely. Stand the drum between the arms, put an axle spacer through each cover's centre hole onto the bearing's inner race, and bolt each arm end to it with an M8 x 30 from outside, nyloc on the inner race (reach it between the rods). The drum should roll freely and the arms lift and drop on their own weight.
+Fit each arm to its pivot block with a shoulder bolt from outside and an M6 nyloc inside the block. Tighten it onto the shoulder: the arm must still swing freely. Stand the drum between the arms, put an axle spacer through each cover's centre hole onto the bearing's inner race, and bolt each arm end to it with an M8 x 30 from outside, nyloc on the inner race: hold it with the long spanner put in straight between two rods, so your fingers are outside the rods, and turn the head outside the arm. The drum should roll freely and the arms lift and drop on their own weight.
 
 ### 12. Yoke-lift switches (the front bumper)
 
@@ -294,5 +294,18 @@ On the finished robot these screws are hidden behind other parts; take those off
 | Pi standoff to tray | M2.5 x 5 screw | 4 of 4 | base_plate |
 
 The drum's covers turn with the drum: turn it until the arm is clear of the screw.
+
+## Spanners on the nuts
+
+Each nut, at every one of its holes, when its step comes: a ring spanner of the nut's size (its length assumed: 5.5 mm, 85 long, 7 mm, 100 long, 8 mm, 110 long, 10 mm, 130 long, 13 mm, 165 long, unless the step asks for another) and
+the hand on its end (35 mm of fingers, then 150 mm of hand and wrist along the shank, 25 mm deep) are laid on the nut and
+turned about the bolt 5 degrees at a time. "Nut" is the widest arc that is clear at the worst hole; a nut needs one clear angle to be held,
+and 30 degrees (a 12-point ring's step) to be turned. A hex head turned with a spanner is swung the same way ("Head").
+
+| Joint | Fastener | Step | Spanner on the nut | Holes | Nut (deg) | Head (deg) | Turn | |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| rod clamp ring | M4 x 16 button head + nyloc nut | 9 | 7 mm, 100 long | 12 | 205 | - | head (key) or nut | pass |
+| yoke pivot | 8 mm x 40 mm shoulder bolt (ISO 7379, M6 thread) + M6 nyloc nut | 11 | 10 mm, 130 long | 2 | 90 | - | head (key) or nut | pass |
+| drum axle | M8 x 30 hex bolt + M8 nyloc nut | 11 | 13 mm, 200 long | 2 | 15 | 330 | head | pass |
 
 Result when this package was built: all pass.

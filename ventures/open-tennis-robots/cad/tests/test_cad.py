@@ -1399,8 +1399,8 @@ class FeederAssemblyGuideTest(unittest.TestCase):
     def test_design_passes_every_guide_check(self):
         rows, bad = self.G.joint_checks(self.p, self.parts)
         self.assertEqual(bad, [])
-        self.assertEqual(len(rows), 34)   # 26 until the shoulder bolts, motor and lift screws joined, 33 until the
-        # flight caps' M3, 2026-11-21
+        self.assertEqual(len(rows), 35)   # 26 until the shoulder bolts, motor and lift screws joined, 33 until the
+        # flight caps' M3, 34 until the driver carrier's M3s, 2026-11-21
         self.assertEqual(self.G.tally(self.p, self.parts, self.rows), [])
         self.assertEqual(self.G.order_problems(self.p, self.parts), [])
         self.assertEqual(self.G.access_problems(self.p, self.parts), [])
@@ -1511,6 +1511,75 @@ class FeederAssemblyGuideTest(unittest.TestCase):
         n = sum(1 for s in self.FG.steps(self.p) if s.image and s.parts)
         self.assertEqual(text.count("![Step"), n)
         self.assertEqual(len(list((out / "guide").glob("step_*.svg"))), n)
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class SpannerTest(unittest.TestCase):
+    """2026-11-21: the nut side of every through-bolt. A ring spanner and the hand holding it fit on each nut when its
+    step comes, and a hex head turned with a spanner swings 30 degrees."""
+
+    @classmethod
+    def setUpClass(cls):
+        from otr_cad import collector as C, feeder as F, guide as G
+        cls.C, cls.F, cls.G = C, F, G
+        cls.cp, cls.fp = Collector(), Feeder()
+        cls.cparts, cls.fparts = C.all_parts(cls.cp), F.all_parts(cls.fp)
+        cls.crows, cls.cbad = G.spanner_checks(cls.cp, cls.cparts)
+        cls.frows, cls.fbad = G.spanner_checks(cls.fp, cls.fparts)
+
+    def test_every_nut_takes_a_spanner(self):
+        self.assertEqual(self.cbad, [])
+        self.assertEqual(self.fbad, [])
+        self.assertEqual({r["joint"] for r in self.crows}, {"rod clamp ring", "yoke pivot", "drum axle"})
+        self.assertEqual(len(self.frows), 7)
+        self.assertEqual(sum(r["holes"] for r in self.crows), 16)
+
+    def test_drum_axle_nut_is_held_between_the_rods(self):
+        """Inside the drum the nut can only be held, not swung: the head outside the arm is the side that turns."""
+        r = next(r for r in self.crows if r["joint"] == "drum axle")
+        self.assertLess(r["nut_deg"], self.G.SWING_DEG)
+        self.assertGreaterEqual(r["head_deg"], self.G.SWING_DEG)
+        self.assertEqual(r["turn"], "head")
+
+    def _drum_axle(self, **kw):
+        import dataclasses
+        j = next(x for x in self.G.joints(self.cp) if x.name == "drum axle")
+        j = dataclasses.replace(j, **kw)
+        with unittest.mock.patch.object(self.G, "joints", lambda p, j=j: [j]):
+            return self.G.spanner_checks(self.cp, self.cparts)
+
+    def test_a_shorter_spanner_leaves_the_fingers_between_the_rods(self):
+        """A 165 mm 13 mm spanner fits in one 5-degree sample per gap; the guide's 200 mm one triples that."""
+        rows, bad = self._drum_axle(spanner_len=165.0)
+        self.assertEqual(bad, [])
+        self.assertEqual(rows[0]["nut_deg"], 5)
+        long_ = next(r for r in self.crows if r["joint"] == "drum axle")
+        self.assertGreater(long_["nut_deg"], rows[0]["nut_deg"])
+
+    def test_a_wide_hand_cannot_hold_the_drum_axle_nut(self):
+        with unittest.mock.patch.object(self.G, "HAND_W", 40.0):
+            rows, bad = self._drum_axle(spanner_len=165.0)
+        self.assertTrue(bad and "no angle takes a 13 mm spanner" in bad[0], bad)
+
+    def test_a_turned_head_needs_its_swing(self):
+        with unittest.mock.patch.object(self.G, "SWING_DEG", 361):
+            rows, bad = self._drum_axle()
+        self.assertTrue(bad and "neither the head" in bad[0], bad)
+
+    def test_driver_carrier_screws_reach_their_nuts(self):
+        """The carrier's M3 x 16 left 1 mm under the deck for a 2.4 mm nut and two threads (found 2026-11-21)."""
+        rows = {r["joint"]: r for r in self.G.joint_checks(self.fp, self.fparts)[0]}
+        r = rows["driver carrier to deck"]
+        self.assertEqual(r["grip_mm"], 15.0)
+        self.assertTrue(r["ok"])
+        with unittest.mock.patch.object(self.F, "CARRIER_SCREW_LEN", 16):
+            bad = self.G.joint_checks(self.fp, self.fparts)[1]
+        self.assertTrue(any("driver carrier to deck" in b for b in bad), bad)
+
+    def test_longest_run_wraps_round(self):
+        self.assertEqual(self.G.longest_run([True, False, False, True, True]), 15)
+        self.assertEqual(self.G.longest_run([True] * 4), 360)
+        self.assertEqual(self.G.longest_run([False] * 4), 0)
 
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
