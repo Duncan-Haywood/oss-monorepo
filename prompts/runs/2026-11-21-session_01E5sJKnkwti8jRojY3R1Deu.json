@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKnkwti8jRojY3R1Deu",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T04:18:18Z",
+  "ended": "2026-11-21T04:29:30Z",
+  "wall_minutes": 47.69,
+  "tokens_in": 6863781,
+  "tokens_out": 49047,
+  "cost_usd": 3.4948,
+  "tool_calls": 65,
+  "task": "capture-sync milestone 4, step 4c: Kammerl-style multi-recording consistency step over four devices for GCC and five literature baselines",
+  "projects": [
+    "research/capture-sync"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18025",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "A 115 s foreground run of the noise-split check timed out (it takes ~10 min); rerun in the background."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "wait_for.py's default timeout is short and each foreground wait is capped near 10 min, so a 31-min collect needed four wait calls; a background wait_for with a long --timeout (as its own message suggests) is the better default and could be stated in the doc."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 5 asks for cite_check on every citation; this step added no new citation and doi.org/arxiv.org are refused from this session, so it was not rerun.",
+      "did": "Reused the existing cite_check.json; no new references.",
+      "result": "No unchecked citation added."
+    },
+    {
+      "file": "research/capture-sync/LOG.md",
+      "why": "Post hoc diagnostics (failure correlation, node-shift test) were added after the single score to explain the result.",
+      "did": "Wrote them in a separate script (consistency_why.py) and labelled them post hoc in LOG, README and post; one post hoc guess (whole-device shifts) was refuted and reported as such.",
+      "result": "Mechanism (correlated pair failures) documented; the flag-failure mechanism left open."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-capture-sync-more-devices-do-not-rescue-weak-sync.md",
+    "research/capture-sync/LOG.md (step 4c plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered 7 predictions, pushed before the run; 4 held (a, b barely, d, e), 3 failed (c, f, g). 75,600 pair windows in 31 min on 4 cores. Checks run locally: research/_homepage/build.py ok, check_md_links ok, check_posts ok, research_live_links ok, capture-sync pytest 67 passed. zenodo.org still refused (LibriWASN). No separate agent doc: the LOG.md entries carry what the next run needs (open items: real phones, paderwasn, unequal-SNR rigs).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9e3c19a8-cd98-5c32-9ac8-e8a20cb2701c",
+    "transcripts": 1,
+    "first": "2026-11-21T04:18:18Z",
+    "last": "2026-11-21T05:06:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 107,
+        "output": 49047,
+        "thinking": 14163,
+        "cache_read": 6717425,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146249,
+        "api_equivalent_usd": 3.4948,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 107,
+      "output": 49047,
+      "thinking": 14163,
+      "cache_read": 6717425,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146249,
+      "api_equivalent_usd": 3.4948,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 57,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 47.69,
+      "active_minutes": 47.69,
+      "model_minutes": 8.13,
+      "tool_minutes": 39.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a PhD student implementing a 4-device harness, two consistency solvers with tests, a 31-min experiment, diagnostics and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 343.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
