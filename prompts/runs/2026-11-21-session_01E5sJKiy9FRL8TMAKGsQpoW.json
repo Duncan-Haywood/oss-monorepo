@@ -1,0 +1,163 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKiy9FRL8TMAKGsQpoW",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T07:18:49Z",
+  "ended": "2026-11-21T07:48:08Z",
+  "wall_minutes": 29.66,
+  "tokens_in": 9694042,
+  "tokens_out": 66355,
+  "cost_usd": 4.79,
+  "tool_calls": 70,
+  "task": "marine-hull milestone 7zs: near-field (Boese 1970, PDSTRIP manual ch. 17) added resistance against GB on Journee's L/B 10 hulls, Maruo at zero speed and Kashiwagi's tank hull",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18046",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "compiling and running the downloaded PDSTRIP Fortran (MIT, github.com/eriove/pdstrip) was refused by the session's auto-mode permission classifier",
+      "handled": "did not retry or work around; implemented the documented formula from the manual on the programme's own sections instead, and recorded the limit in LOG, README, paper and post"
+    },
+    {
+      "what": "first near-field version took d/dx at fixed panel index (along the hull) instead of at fixed (y, z); the pressure force mismatched m a by ~10%",
+      "handled": "found by a pressure-vs-Newton consistency check (N0d, disclosed as added after a smoke run) before the full run; fixed to subtract phi_y dY/dx"
+    },
+    {
+      "what": "pytest absent from the system python3; ran the tests with unittest",
+      "handled": "21 tests OK"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "pick_track's HOSTS RECHECK lists refused hosts but not that GitHub repository search (gh api search/repositories) reaches public repos; that search found an MIT-licensed open source for the formula three runs had called unreachable"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "no guidance that compiling/running third-party code cloned from GitHub may be refused by the permission layer even when licensed; the plan had to change mid-run"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "`PY=$(python3 platform/ci/pyenv.py pytest ...)` advice is for numpy projects; for a stdlib project `python3 -m unittest` works at once and is quicker than installing pytest"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Output standards prefer running an industrial-grade open tool; running PDSTRIP was refused here",
+      "did": "implemented PDSTRIP's documented near-field formula on this code's sections with the same motions, labelled as such everywhere",
+      "result": "isolates the formula from the motions cleanly; the independent PDSTRIP run stays as a next step"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "why": "paper not recompiled (pdlatex install is ~10 min) for a one-sentence edit and two bib entries",
+      "did": "check_numbers.py ok on the 6 new claims; cite keys checked by hand",
+      "result": "compile left to the next paper step"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-marine-hull-nearfield-pdstrip.md",
+    "research/marine-hull/LOG.md (7zs entry)",
+    "research/marine-hull/README.md (7zs paragraph, Next steps)"
+  ],
+  "goal": null,
+  "notes": "Plan and expectations committed before the code (f7712094e). Run: experiments/results_nearfield_pdstrip.txt, 517 s, stdlib. Held: N0a (6e-16), N0b (2.2%), N0c, N1 (NF/Maruo 1.566 T, 1.413 M vs GB 2.30/2.80), N5, N6 (-33%/-29%). Refuted: N2 (NF Fn 0.2 peak 1.178/1.328 of Journee, above GB's 0.753/0.807), N3, N4 (tank area 1.522). NF0 (no convection) has the lowest rms log ratio over Journee's five clean peaks of any row tried (0.165-0.171 vs GB 0.219-0.240). Local checks: unittest test_strip + test_nearfield_pdstrip + test_gb_speed_terms 21 OK; homepage build ok; research_live_links 0 updates; check_md_links ok; check_posts ok; cite_check ok; paper/check_numbers ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "81940e82-41e9-5fbe-bf7b-46284d9d5533",
+    "transcripts": 1,
+    "first": "2026-11-21T07:18:49Z",
+    "last": "2026-11-21T07:48:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 128,
+        "output": 66355,
+        "thinking": 27745,
+        "cache_read": 9498584,
+        "cache_write_5m": 0,
+        "cache_write_1h": 195330,
+        "api_equivalent_usd": 4.79,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 128,
+      "output": 66355,
+      "thinking": 27745,
+      "cache_read": 9498584,
+      "cache_write_5m": 0,
+      "cache_write_1h": 195330,
+      "api_equivalent_usd": 4.79,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 61,
+      "Write": 4,
+      "mcp__claude-code-remote__add_repo": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.66,
+      "active_minutes": 29.66,
+      "model_minutes": 11.62,
+      "tool_minutes": 18.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "implementing and checking a near-field drift-force formula on an existing strip code, plus writing up: ~2 working days for a postdoc",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 334.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
