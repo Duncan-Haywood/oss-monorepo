@@ -95,12 +95,11 @@ Events counted: `bid_calculated`, `preset_applied`,
 
 ## Known gaps
 
-From the quality audit `portfolio/quality/audits/2026-11-17-patio-door-bid-calculator.json` (fixed items are listed there):
+From the quality audits `portfolio/quality/audits/2026-11-17-patio-door-bid-calculator.json` and `2026-11-21-patio-door-bid-calculator.json` (fixed items are listed there):
 
-- A blank field, or `1,200` typed into a number box (which the browser turns into an empty value), is priced as 0 rather than flagged.
-- The new-construction presets add the sill-pan line on top of wrap hours that already describe a sill pan.
-- Crew-hours are priced at one wage; a two- or three-person set must be entered as multiplied hours.
-- The page's kit, restore and blank handling has no behavioural test of its own beyond `restoredOverrides`.
+- Crew-hours are priced at one wage; a lead and a helper at different wages need a blended wage.
+- The page's kit application is tested structurally, not driven in a DOM.
+- The money formatter is duplicated between `calc.mjs` and the page.
 
 ## Disclaimer
 
