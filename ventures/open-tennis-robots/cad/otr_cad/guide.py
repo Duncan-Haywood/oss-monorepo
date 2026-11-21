@@ -36,6 +36,8 @@ INSERT_LEN = 5.7                          # the BOM's short M4 insert
 RIVET_FLANGE = 1.0                        # a standard M5 rivet nut's flange, which sits under the cover
 TNUT = (4.0, 8.0)   # mm past an extrusion's face: catches an M5 slot-6 T-nut under its lip, short of the slot floor (assumed)
 WASHER = {3: 0.5, 5: 1.0, 6: 1.6, 8: 1.6}  # ISO 7089 thickness, mm
+HATCH_TURN = 90       # degrees about +y the drum turns for the hatch's slot to point down (hatch_check)
+THUMB_GRIP_R = 10.0   # mm: a finger and thumb round a 12 mm knurled thumb-screw head (assumed)
 
 
 @dataclass
@@ -330,6 +332,13 @@ class Joint:
     free: float = 0.0        # clamped shoulder bolts: width on the shoulder the CAD does not draw (a clevis eye)
     play: float = 1.0        # clamped shoulder bolts: most open length the shoulder may leave (designed gaps + float)
     bolt: str = ""           # a fastener drawn as a part (the feeder's shoulder bolts): left out of its own stack
+    holes: tuple = ()        # access: the joint's other holes (points; same axis, seat and direction)
+    mirror_y: bool = False   # access: the joint is also made mirrored through y = 0 (the robot's other side)
+    step: str = ""           # access: the start of the title of the step it goes in (default: the one step whose
+    #                          fasteners name it)
+    bench: bool = False      # access: driven on the bench before its step's parts go on the machine (the step's
+    #                          parts alone must leave the head's path clear)
+    tool_r: float = 0.0      # access: radius of the tool's (or fingers') path behind the head, 0 for the head's
 
 
 def joints(p) -> list[Joint]:
@@ -353,43 +362,62 @@ def collector_joints(p: Collector) -> list[Joint]:
     arm_out = p.arm_inner_y + p.arm_t
     pilot_cradle = p.axle_z - p.base_top - 6
     bh = p.bump_switch_design()
+    cbs = C._clamp_bolts(p)
+    cvs = C._cover_bolts(p)
+    tower = C._bump_tower_bolts(p)
+    casters = C._caster_bolts(p)
+    flange = C._caster_flange_holes(p)
+    pis = C._pi_holes(p)
+    corners = C._tray_corners(p)
+    cbx = p.clamp_bolt_x
+    sw_z = p.pivot_z + p.bump_sw_hole_pitch / 2
     return [
-        Joint("motor clamp cap", "M4 x 50 socket cap screw", 50, 4, "insert", (p.clamp_bolt_x, ymid + 12, 0), "z",
-              top, -1, 2.3, 3.5, "motor_clamp_cradle", pilot_cradle),
+        Joint("motor clamp cap", "M4 x 50 socket cap screw", 50, 4, "insert", (cbx, ymid + 12, 0), "z",
+              top, -1, 2.3, 3.5, "motor_clamp_cradle", pilot_cradle, access=True, mirror_y=True,
+              holes=((-cbx, ymid + 12, 0), (cbx, ymid - 12, 0), (-cbx, ymid - 12, 0))),
         Joint("cradle to base", "M4 x 12 socket cap screw", 12, 4, "insert", (22, ymid, 0), "z", p.base_z, 1, 2.3,
-              3.5, "motor_clamp_cradle", 12),
+              3.5, "motor_clamp_cradle", 12, access=True, mirror_y=True, holes=((-22, ymid, 0),), step="Drive motors"),
         Joint("pivot block to base", "M4 x 12 socket cap screw", 12, 4, "insert", (p.pivot_x + 12, yb, 0), "z",
-              p.base_z, 1, 2.3, 3.5, "pivot_block", 12),
+              p.base_z, 1, 2.3, 3.5, "pivot_block", 12, access=True, mirror_y=True, holes=((p.pivot_x - 12, yb, 0),),
+              step="Pivot blocks"),
         Joint("caster adapter + plate to mast socket", "M4 x 20 socket cap screw", 20, 4, "insert",
-              (p.caster_x + 20, 20, 0), "z", p.caster_height + C.CASTER_CBORE, 1, 2.3, 3.5, "mast_socket",
-              C.MAST_FLANGE_H - 1.5),
+              (*casters[3], 0), "z", p.caster_height + C.CASTER_CBORE, 1, 2.3, 3.5, "mast_socket",
+              C.MAST_FLANGE_H - 1.5, access=True, holes=tuple((*c, 0) for c in casters[:3])),
         Joint("rod clamp ring", "M4 x 16 button head + nyloc nut", 16, 4, "nut",
-              (p.drum_x + cb[0], 0, p.drum_z + cb[1]), "y", ring_out, -1, 2.3, 3.5),
+              (p.drum_x + cb[0], 0, p.drum_z + cb[1]), "y", ring_out, -1, 2.3, 3.5, access=True, mirror_y=True,
+              holes=tuple((p.drum_x + c[0], 0, p.drum_z + c[1]) for c in cbs[1:])),
         Joint("fixed cover", "M5 x 12 button head", 12, 5, "rivet", (p.drum_x + cv[0], 0, p.drum_z + cv[1]), "y",
-              -(yo + p.cover_t), 1, 3.6, 4.5, "drum_disc"),
+              -(yo + p.cover_t), 1, 3.6, 4.5, "drum_disc", access=True,
+              holes=tuple((p.drum_x + c[0], 0, p.drum_z + c[1]) for c in cvs[1:])),
         Joint("hatch", "M5 thumb screw, 12 mm", 12, 5, "rivet", (p.drum_x + cv[0], 0, p.drum_z + cv[1]), "y",
-              yo + p.cover_t, -1, 3.6, 4.5, "drum_disc"),
+              yo + p.cover_t, -1, 3.6, 4.5, "drum_disc", access=True, tool_r=THUMB_GRIP_R,
+              holes=tuple((p.drum_x + c[0], 0, p.drum_z + c[1]) for c in cvs[1:])),
         Joint("yoke pivot", shoulder, p.pivot_shoulder, 6, "shoulder", (p.pivot_x, 0, p.pivot_z), "y", arm_out, -1,
-              4.3, 6.0),
+              4.3, 6.0, access=True, mirror_y=True),
         Joint("drum axle", "M8 x 30 hex bolt + M8 nyloc nut", 30, 8, "nut", (p.drum_x, 0, p.drum_z), "y", arm_out,
-              -1, 4.3, 5.9),
-        Joint("switch tower to base", "M4 x 12 socket cap screw", 12, 4, "insert", (*C._bump_tower_bolts(p)[0], 0),
-              "z", p.base_z, 1, 2.3, 3.5, "bump_switch_tower", 12, extra=0.8),
+              -1, 4.3, 5.9, access=True, mirror_y=True),
+        Joint("switch tower to base", "M4 x 12 socket cap screw", 12, 4, "insert", (*tower[0], 0),
+              "z", p.base_z, 1, 2.3, 3.5, "bump_switch_tower", 12, extra=0.8, access=True,
+              holes=tuple((*t, 0) for t in tower[1:]), step="Yoke-lift"),
         Joint("switch to tower", "M2 x 10 self-tapping screw (for plastic)", 10, 2, "tapped",
-              (bh["x_body"], 0, p.pivot_z + p.bump_sw_hole_pitch / 2), "y", bh["y_mid"] + p.bump_sw_body[2] / 2, -1,
-              1.0, 1.9, "bump_switch_tower", C.BUMP_PILOT_DEPTH),
+              (bh["x_body"], 0, sw_z), "y", bh["y_mid"] + p.bump_sw_body[2] / 2, -1,
+              1.0, 1.9, "bump_switch_tower", C.BUMP_PILOT_DEPTH, access=True, mirror_y=True, bench=True,
+              holes=((bh["x_body"], 0, sw_z - p.bump_sw_hole_pitch),)),
         Joint("caster flange to adapter", "M4 x 10 socket cap screw", 10, 4, "insert",
-              (p.caster_x + C._caster_flange_holes(p)[1][0], C._caster_flange_holes(p)[1][1], 0), "z",
-              p.caster_height - p.caster_flange[2], 1, 2.3, 3.5, "caster_adapter", C.caster_pilot(p)),
-        Joint("Pi standoff to tray", "M2.5 x 5 screw", 5, 2.5, "standoff", (*C._pi_holes(p)[0], 0), "z",
-              p.base_top + p.standoff_h, 1, 1.4, 2.2, "pi_standoff", p.pi_standoff_h / 2),
-        Joint("Pi to standoff", "M2.5 x 4 screw", 4, 2.5, "standoff", (*C._pi_holes(p)[0], 0), "z",
+              (p.caster_x + flange[1][0], flange[1][1], 0), "z",
+              p.caster_height - p.caster_flange[2], 1, 2.3, 3.5, "caster_adapter", C.caster_pilot(p), access=True,
+              holes=((p.caster_x + flange[0][0], flange[0][1], 0),)),
+        Joint("Pi standoff to tray", "M2.5 x 5 screw", 5, 2.5, "standoff", (*pis[0], 0), "z",
+              p.base_top + p.standoff_h, 1, 1.4, 2.2, "pi_standoff", p.pi_standoff_h / 2, access=True, bench=True,
+              holes=tuple((*h, 0) for h in pis[1:])),
+        Joint("Pi to standoff", "M2.5 x 4 screw", 4, 2.5, "standoff", (*pis[0], 0), "z",
               p.base_top + p.standoff_h + p.tray_t + p.pi_standoff_h + p.pi_pcb_t, -1, 1.4, 2.2, "pi_standoff",
-              p.pi_standoff_h / 2),
-        Joint("standoff to base", "M3 x 10 screw", 10, 3, "standoff", (*C._tray_corners(p)[0], 0), "z", p.base_z,
-              1, 1.8, 2.6, "standoff"),
-        Joint("tray to standoff", "M3 x 8 screw", 8, 3, "standoff", (*C._tray_corners(p)[0], 0), "z",
-              p.base_top + p.standoff_h + p.tray_t, -1, 1.8, 2.6, "standoff"),
+              p.pi_standoff_h / 2, access=True, holes=tuple((*h, 0) for h in pis[1:])),
+        Joint("standoff to base", "M3 x 10 screw", 10, 3, "standoff", (*corners[0], 0), "z", p.base_z,
+              1, 1.8, 2.6, "standoff", access=True, holes=tuple((*c, 0) for c in corners[1:])),
+        Joint("tray to standoff", "M3 x 8 screw", 8, 3, "standoff", (*corners[0], 0), "z",
+              p.base_top + p.standoff_h + p.tray_t, -1, 1.8, 2.6, "standoff", access=True,
+              holes=tuple((*c, 0) for c in corners[1:])),
     ]
 
 
@@ -469,35 +497,129 @@ def joint_checks(p, parts) -> tuple[list[dict], list[str]]:
     return rows, bad
 
 
+def _instances(j: Joint) -> list[tuple]:
+    """Every hole the joint is made at, as (point, seat, direction): its first point, `holes`, and with `mirror_y`
+    each of those mirrored through y = 0 (for a y-axis joint the seat and direction flip; otherwise the point's y)."""
+    pts = [(j.point, j.start, j.sign)] + [(h, j.start, j.sign) for h in j.holes]
+    if j.mirror_y:
+        if j.axis == "y":
+            pts += [((x, -y, z), -st, -sg) for (x, y, z), st, sg in pts]
+        else:
+            pts += [((x, -y, z), st, sg) for (x, y, z), st, sg in pts]
+    return pts
+
+
+def _head_path(j: Joint, point, start, sign, reach: float):
+    """The cylinder a head (or the tool turning it) sweeps behind its seat, away from the stack, for `reach` mm."""
+    fr = frame_of(point, j.axis)
+    z0, z1 = sorted((start - sign * 0.1, start - sign * reach))
+    return Cylinder(j.tool_r or j.head_r, z1 - z0).moved(fr * Location((0, 0, (z0 + z1) / 2)))
+
+
+def _blockers(path, shapes, tol_mm3: float) -> list[tuple[str, float]]:
+    out = []
+    for name, s in shapes:
+        if _near(path, s, 0.0):
+            x = path & s
+            if x and x.volume > tol_mm3:
+                out.append((name, x.volume))
+    return out
+
+
 def access_problems(p, parts, reach: float = 60.0, tol_mm3: float = 1.0) -> list[str]:
-    """Each joint marked `access`: a cylinder the head's size, from the head's seat back along the axis for `reach`
-    mm (a hex key's), must stay clear of the part(s) the joint clamps. A counterbore closed at its far end fails: the
-    screw cannot go in, and no key reaches it (the feeder's trough hangers, until 2026-11-20)."""
+    """Each joint marked `access`, at each of its holes: a cylinder the head's size, from the head's seat back along
+    the axis for `reach` mm (a hex key's), must stay clear of the part(s) the joint clamps. A counterbore closed at its
+    far end fails: the screw cannot go in, and no key reaches it (the feeder's trough hangers, until 2026-11-20)."""
     bad = []
     by = {pt.name: pt for pt in parts}
     for j in joints(p):
         if not j.access:
             continue
-        fr = frame_of(j.point, j.axis)
-        z0, z1 = sorted((j.start - j.sign * 0.1, j.start - j.sign * reach))    # behind the seat, away from the stack
-        path = Cylinder(j.head_r, z1 - z0).moved(fr * Location((0, 0, (z0 + z1) / 2)))
-        chain = _stack(parts, j.point, j.axis, j.start, j.sign, j.hole_r, j.head_r)
-        for name in dict.fromkeys(c[0] for c in chain):
-            for s in by[name].placed():
-                if _near(path, s, 0.0):
-                    x = path & s
-                    if x and x.volume > tol_mm3:
-                        bad.append(f"joint {j.name}: the {j.fastener}'s head cannot go in: {name} closes its path "
-                                   f"({x.volume:.0f} mm^3 within {reach:g} mm of the seat)")
-                        break
+        for k, (point, start, sign) in enumerate(_instances(j)):
+            path = _head_path(j, point, start, sign, reach)
+            chain = _stack(parts, point, j.axis, start, sign, j.hole_r, j.head_r)
+            shapes = [(name, s) for name in dict.fromkeys(c[0] for c in chain) for s in by[name].placed()]
+            hit = _blockers(path, shapes, tol_mm3)
+            if hit:
+                name, v = hit[0]
+                where = f" (hole {k + 1})" if k else ""
+                bad.append(f"joint {j.name}{where}: the {j.fastener}'s head cannot go in: {name} closes its path "
+                           f"({v:.0f} mm^3 within {reach:g} mm of the seat)")
     return bad
+
+
+def joint_step(p, j: Joint) -> int | None:
+    """The 1-based step a joint goes in: the one its `step` names, else the one step whose fasteners list it."""
+    st = steps(p)
+    if j.step:
+        hits = [k for k, s in enumerate(st, 1) if s.title.startswith(j.step)]
+    else:
+        hits = [k for k, s in enumerate(st, 1) if any(f == j.fastener for f, _ in s.fasteners)]
+    return hits[0] if len(hits) == 1 else None
+
+
+def built_at(p, parts, k: int) -> list[tuple[str, object]]:
+    """(name, shape) of everything on the work when step k's screws go in: step k's parts, plus what came before on
+    the same work (back to the sub-assembly the step belongs to, or the whole machine once it is joined)."""
+    st = steps(p)
+    first = 1
+    if st[k - 1].on_sub or st[k - 1].new_subassembly:      # on a sub-assembly: back to the step that starts it
+        first = k
+        while first > 1 and not st[first - 1].new_subassembly:
+            first -= 1
+    return _placed(parts, [n for s in st[first - 1:k] for n in s.parts])
+
+
+def step_access_problems(p, parts, reach: float = 60.0, tol_mm3: float = 1.0) -> list[str]:
+    """Each `access` joint, at each hole, when its step comes: nothing on the work by then lies in the head's path
+    (a bench joint: nothing among its own step's parts). Catches a screw the steps ask for after the part that hides
+    it is on (2026-11-21)."""
+    bad = []
+    for j in joints(p):
+        if not j.access:
+            continue
+        k = joint_step(p, j)
+        if k is None:
+            bad.append(f"joint {j.name}: no single step names its {j.fastener} (set Joint.step)")
+            continue
+        shapes = _placed(parts, steps(p)[k - 1].parts) if j.bench else built_at(p, parts, k)
+        for h, (point, start, sign) in enumerate(_instances(j)):
+            hit = _blockers(_head_path(j, point, start, sign, reach), shapes, tol_mm3)
+            if hit:
+                where = f" (hole {h + 1})" if h else ""
+                names = ", ".join(sorted({n for n, _ in hit}))
+                bad.append(f"joint {j.name}{where}: at step {k} the {j.fastener}'s head cannot be reached: {names} "
+                           f"already in its path within {reach:g} mm")
+                break
+    return bad
+
+
+def service_access(p, parts, reach: float = 60.0, tol_mm3: float = 1.0) -> list[dict]:
+    """On the finished machine, the `access` joints whose head is hidden, and by what: the parts to take off first to
+    reach them (a report for the guide, not a failure)."""
+    allsh = [(pt.name, s) for pt in parts for s in pt.placed()]
+    rows = []
+    for j in joints(p):
+        if not j.access:
+            continue
+        inst = _instances(j)
+        hidden, by = 0, set()
+        for point, start, sign in inst:
+            hit = _blockers(_head_path(j, point, start, sign, reach), allsh, tol_mm3)
+            if hit:
+                hidden += 1
+                by |= {n for n, _ in hit}
+        if hidden:
+            rows.append({"joint": j.name, "fastener": j.fastener, "hidden": hidden, "of": len(inst),
+                         "behind": sorted(by)})
+    return rows
 
 
 def hatch_check(p: Collector, parts, tol_mm3: float = 1.0) -> list[str]:
     """The hatch, turned with the drum so its slot points down, lifts out of its seat and rises off the spacer."""
     hatch = next(pt for pt in parts if pt.name == "drum_hatch")
     others = [s for pt in parts if pt.name != "drum_hatch" for s in pt.placed()]
-    turn = (Location((p.drum_x, 0, p.drum_z)) * Location((0, 0, 0), (0, 90, 0))
+    turn = (Location((p.drum_x, 0, p.drum_z)) * Location((0, 0, 0), (0, HATCH_TURN, 0))
             * Location((-p.drum_x, 0, -p.drum_z)))
     bad = []
     for dx, dy, dz in C.hatch_off_path(p):
@@ -509,6 +631,46 @@ def hatch_check(p: Collector, parts, tol_mm3: float = 1.0) -> list[str]:
                     bad.append(f"hatch removal: hits a part at offset ({dx:g}, {dy:g}, {dz:g}) mm")
                     return bad
     return bad
+
+
+DRUM_TURNS = ("drum_hatch", "drum_cover", "drum_disc", "drum_rod", "rod_clamp_ring", "drum_bearing", "axle_spacer")
+
+
+def hatch_screw_window(p: Collector, parts, span: int = 60, tol_mm3: float = 1.0) -> list[int]:
+    """Drum turns (whole degrees about +y from as drawn, 0 to span-1) at which a finger reaches every hatch thumb
+    screw: each screw's grip path clear of every part that does not turn with the drum (the yoke arms)."""
+    j = next(x for x in joints(p) if x.name == "hatch")
+    still = [(pt.name, s) for pt in parts if pt.name not in DRUM_TURNS for s in pt.placed()]
+    ok = []
+    for a in range(span):
+        turn = (Location((p.drum_x, 0, p.drum_z)) * Location((0, 0, 0), (0, a, 0))
+                * Location((-p.drum_x, 0, -p.drum_z)))
+        if not any(_blockers(_head_path(j, tuple((turn * Location(pt)).position), st, sg, 60.0), still, tol_mm3)
+                   for pt, st, sg in _instances(j)):
+            ok.append(a)
+    return ok
+
+
+def hatch_screw_problems(p: Collector, parts, need_deg: int = 3) -> list[str]:
+    """With the drum turned for the hatch to come off (slot down, 90 degrees), every thumb screw can be reached, and
+    stays reachable `need_deg` degrees either way (a drum stopped by hand is not exact). Found 2026-11-21: as drawn,
+    one screw of six is behind the yoke arm; the arm hides a screw over 24 degrees of every 60."""
+    ok = set(hatch_screw_window(p, parts))
+    rem = HATCH_TURN % 60
+    miss = [d for d in range(-need_deg, need_deg + 1) if (rem + d) % 60 not in ok]
+    if miss:
+        return [f"hatch removal: with the slot down a thumb screw is behind the yoke arm "
+                f"(drum turned {HATCH_TURN + miss[0]:g} degrees)"]
+    return []
+
+
+def hatch_margin(p: Collector, parts) -> tuple[int, int]:
+    """Degrees the drum may sit short of / past the slot-down turn with every thumb screw still reachable."""
+    ok = set(hatch_screw_window(p, parts))
+    rem = HATCH_TURN % 60
+    lo = next(d for d in range(61) if (rem - d - 1) % 60 not in ok)
+    hi = next(d for d in range(61) if (rem + d + 1) % 60 not in ok)
+    return lo, hi
 
 
 # ------------------------------------------------------------------------ output
@@ -589,7 +751,23 @@ def write(out, p, parts, bom_rows, joint_rows, problems, drawings: bool = True) 
                   "  to the unit.",
                   "- Every part a step adds touches something fitted before it (two steps start sub-assemblies).",
                   "- The hatch comes off a hung drum: turn the drum until the hatch's slot points down, undo the six",
-                  "  thumb screws, pull the hatch 3 mm out of its seat and lift it up off the axle spacer."]
+                  "  thumb screws, pull the hatch 3 mm out of its seat and lift it up off the axle spacer.",
+                  "- Every screw goes in along its axis at every one of its holes, both sides of the robot: a",
+                  "  cylinder the head's size (a finger and thumb's, 20 mm across, for the hatch's thumb screws),",
+                  "  60 mm back from the seat, misses the parts the screw clamps, and misses everything already on",
+                  "  the work when its step comes (the bench steps: everything that step adds).",
+                  "- With the hatch's slot down, a finger reaches all six thumb screws: the yoke arm hides one",
+                  "  screw over %d degrees of every 60 of drum turn, and the slot-down turn is %d degrees from that"
+                  % (60 - len(hatch_screw_window(p, parts)), min(hatch_margin(p, parts))),
+                  "  (stop the drum by hand within that and the arm is clear)."]
+        service = service_access(p, parts)
+        if service:
+            lines += ["", "## Service access", "",
+                      "On the finished robot these screws are hidden behind other parts; take those off first.", "",
+                      "| Joint | Fastener | Hidden holes | Behind |", "| --- | --- | --- | --- |"]
+            lines += [f"| {r['joint']} | {r['fastener']} | {r['hidden']} of {r['of']} | {', '.join(r['behind'])} |"
+                      for r in service]
+            lines += ["", "The drum's covers turn with the drum: turn it until the arm is clear of the screw."]
     lines += [
               "", "Result when this package was built: " + ("all pass." if not problems else "; ".join(problems)), ""]
     (folder / "ASSEMBLY.md").write_text("\n".join(lines))

@@ -274,5 +274,25 @@ Each length is measured from the head's face through the parts the model puts un
 - Every part a step adds touches something fitted before it (two steps start sub-assemblies).
 - The hatch comes off a hung drum: turn the drum until the hatch's slot points down, undo the six
   thumb screws, pull the hatch 3 mm out of its seat and lift it up off the axle spacer.
+- Every screw goes in along its axis at every one of its holes, both sides of the robot: a
+  cylinder the head's size (a finger and thumb's, 20 mm across, for the hatch's thumb screws),
+  60 mm back from the seat, misses the parts the screw clamps, and misses everything already on
+  the work when its step comes (the bench steps: everything that step adds).
+- With the hatch's slot down, a finger reaches all six thumb screws: the yoke arm hides one
+  screw over 24 degrees of every 60 of drum turn, and the slot-down turn is 11 degrees from that
+  (stop the drum by hand within that and the arm is clear).
+
+## Service access
+
+On the finished robot these screws are hidden behind other parts; take those off first.
+
+| Joint | Fastener | Hidden holes | Behind |
+| --- | --- | --- | --- |
+| fixed cover | M5 x 12 button head | 1 of 6 | yoke_arm |
+| hatch | M5 thumb screw, 12 mm | 1 of 6 | yoke_arm |
+| switch to tower | M2 x 10 self-tapping screw (for plastic) | 4 of 4 | wheel |
+| Pi standoff to tray | M2.5 x 5 screw | 4 of 4 | base_plate |
+
+The drum's covers turn with the drum: turn it until the arm is clear of the screw.
 
 Result when this package was built: all pass.

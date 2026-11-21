@@ -101,6 +101,52 @@ Caveats: the bought-in parts are envelopes drawn from `params.py`, so the stack
 check is only as good as those numbers (nut heights are DIN 985; a rivet nut's
 flange is taken as 1 mm). The guide has not been followed by anyone building one.
 
+### Head access on every collector joint (2026-11-21, `guide.access_problems`, `step_access_problems`, `hatch_screw_problems`, `service_access`)
+
+The feeder's joints had a head-access check since 2026-11-20; the collector's
+had none, and each joint was measured at one hole only. Now all 16 collector
+joints are `access` joints, each with every one of its holes (`Joint.holes`)
+and, where it is made on both sides, its mirror through y = 0
+(`Joint.mirror_y`): 76 holes, the same count as the screws the steps hand out
+(a test holds the two equal). For each hole, a cylinder the head's size, 60 mm
+back from its seat (a hex key's reach), is checked three ways:
+
+- **Against the parts it clamps** (`access_problems`, as on the feeder). All
+  pass.
+- **Against what is on the work when its step comes** (`step_access_problems`,
+  new). The work is everything fitted in earlier steps, or only back to the
+  step that starts it for a sub-assembly (the drum cage). A joint marked
+  `bench` is checked against its own step's parts alone, because the guide says
+  to drive it on the bench. Two joints need that: the yoke-lift switch screws
+  (the wheel covers all four heads once it is on) and the Pi standoffs' screws
+  up through the tray (the base plate covers all four). A test drops `bench`
+  from each and checks the build names the wheel and the base plate, so the
+  guide's "on the bench" is a checked instruction, not a hint.
+- **On the finished robot** (`service_access`, a report, not a failure). It
+  writes a "Service access" table into `ASSEMBLY.md` that says what to take off
+  to reach each hidden screw: the switch screws are behind the wheel, the
+  standoff screws behind the base plate, and one of each drum cover's six
+  screws behind the yoke arm.
+
+The last one matters for the hatch, the part a user takes off every time they
+empty the drum. One of its six thumb screws sits behind the yoke arm at the
+drum's drawn angle. The drum turns, so `hatch_screw_window` turns it a degree
+at a time and checks a finger-and-thumb path (`THUMB_GRIP_R`, 20 mm across,
+assumed) for all six screws against everything that does not turn with the
+drum. The arm hides one screw over 24 degrees of every 60. The slot-down turn
+that `hatch_check` lifts the hatch off at is clear by 11 degrees one way and 24
+the other, about 27 mm of rim travel on the 141.5 mm bolt circle.
+`hatch_screw_problems` fails the build if slot-down comes within 3 degrees of
+a hidden screw, so a change to the arm's width or the cover's bolt circle can't
+quietly put a thumb screw behind the arm at the emptying angle. A test turns
+the hatch angle to 60 degrees and checks the build fails.
+
+Not checked: the nut side of the through-bolts (the rod clamp rings' nylocs
+inside the drum and the yoke pivot's and drum axle's nylocs are held with a
+spanner, whose path is not a cylinder on the axis); a hex key's L and the
+swing it needs to turn; and the M2 self-tappers' screwdriver, which is longer
+than 60 mm.
+
 ## Yoke-lift switches, the front bumper (2026-11-21)
 
 The drum hangs on two arms; when it meets something it cannot roll over (a
