@@ -1,0 +1,40 @@
+cell-fidelity milestone 7v: 7c's corrected ten-cycle forecast in place of the straight line inside 7h's
+threshold rule. No new simulation: plating7r (f = 10) and plating7s (f = 30) rows; cell 000; 7p's pools, lopo5
+(five folds per set-condition), 7c's correction fitted per fold on the four training pools; only E[10] changes.
+Cycles are DFN cycles per design; negative differences mean the first rule is cheaper.
+
+control f30: max |E10(m_hat = 1) - rows.json E10| = 1.38e-15; replay of theta/theta50/U vs the source's lopo5 (cycles + met mismatches) = 0.00e+00
+control f10: max |E10(m_hat = 1) - rows.json E10| = 2.43e-15; replay of theta/theta50/U vs the source's lopo5 (cycles + met mismatches) = 0.00e+00
+
+---- f30 ----
+set                    theta         theta50               U          thetaC        theta50C              UC   C picks (5 folds)
+Mohtat2020    5/5   47.5 cyc  5/5   47.5 cyc  5/5   40.0 cyc  5/5   10.0 cyc  5/5   10.0 cyc  5/5   10.0 cyc   O3/O3/O3/O3/O3
+Ecker2015     4/5   43.5 cyc  4/5   45.5 cyc  5/5   40.0 cyc  5/5   10.0 cyc  5/5   10.0 cyc  5/5   10.0 cyc   O3/O3/O3/O3/O3
+pair                  mean        set boot 95%  cheaper  dearer  sign p   per set
+thetaC - U          -30.00    -30.00 to -30.00       10       0   0.002   Mohtat2020 -30.00, Ecker2015 -30.00
+thetaC - theta      -35.50    -37.50 to -33.50       10       0   0.002   Mohtat2020 -37.50, Ecker2015 -33.50
+thetaC - UC          +0.00      +0.00 to +0.00        0       0   1.000   Mohtat2020 +0.00, Ecker2015 +0.00
+theta50C - U        -30.00    -30.00 to -30.00       10       0   0.002   Mohtat2020 -30.00, Ecker2015 -30.00
+UC - U              -30.00    -30.00 to -30.00       10       0   0.002   Mohtat2020 -30.00, Ecker2015 -30.00
+theta - U            +5.50      +3.50 to +7.50        1       7   0.070   Mohtat2020 +7.50, Ecker2015 +3.50
+sensitivity (E10c from the flag's own mC): thetaC - U mean -30.00; Mohtat2020 thetaC 5/5 10.0 theta50C 5/5 10.0 UC 5/5 10.0; Ecker2015 thetaC 4/5 10.0 theta50C 4/5 10.0 UC 4/5 10.0
+thetaC policies per fold: Mohtat p1 TH K1=15 th=inf q75 0.072/0.097; Mohtat p2 TH K1=15 th=inf q75 0.066/0.103; Mohtat p3 TH K1=15 th=inf q75 0.098/0.115; Mohtat p4 TH K1=15 th=inf q75 0.096/0.105; Mohtat p5 TH K1=15 th=inf q75 0.043/0.099; Ecker2 p1 TH K1=15 th=inf q75 0.168/0.202; Ecker2 p2 TH K1=15 th=inf q75 0.069/0.210; Ecker2 p3 TH K1=15 th=inf q75 0.142/0.255; Ecker2 p4 TH K1=15 th=inf q75 0.227/0.239; Ecker2 p5 TH K1=15 th=inf q75 0.149/0.196
+
+---- f10 ----
+set                    theta         theta50               U          thetaC        theta50C              UC   C picks (5 folds)
+Mohtat2020    2/5   23.0 cyc  3/5   34.5 cyc  3/5   24.0 cyc  2/5   21.6 cyc  3/5   38.0 cyc  4/5   23.0 cyc   O1/O1/O1/O1/O1
+Ecker2015     5/5   42.6 cyc  5/5   42.6 cyc  5/5   46.0 cyc  4/5   10.0 cyc  4/5   10.0 cyc  4/5   10.0 cyc   O1/O1/O1/O1/O1
+pair                  mean        set boot 95%  cheaper  dearer  sign p   per set
+thetaC - U          -19.19     -36.00 to -2.38        7       1   0.070   Mohtat2020 -2.38, Ecker2015 -36.00
+thetaC - theta      -16.99     -32.60 to -1.38        6       1   0.125   Mohtat2020 -1.38, Ecker2015 -32.60
+thetaC - UC          -0.69      -1.38 to +0.00        2       0   0.500   Mohtat2020 -1.38, Ecker2015 +0.00
+theta50C - U        -11.00    -36.00 to +14.00        7       3   0.344   Mohtat2020 +14.00, Ecker2015 -36.00
+UC - U              -18.50     -36.00 to -1.00        6       1   0.125   Mohtat2020 -1.00, Ecker2015 -36.00
+theta - U            -2.20      -3.40 to -1.00        3       2   1.000   Mohtat2020 -1.00, Ecker2015 -3.40
+sensitivity (E10c from the flag's own mC): thetaC - U mean -23.00; Mohtat2020 thetaC 2/5 14.0 theta50C 3/5 26.0 UC 3/5 24.0; Ecker2015 thetaC 4/5 10.0 theta50C 4/5 10.0 UC 4/5 18.0
+thetaC policies per fold: Mohtat p1 TH K1=20 th=0.000592 q75 0.079/0.106; Mohtat p2 TH K1=15 th=0.00582 q75 0.112/0.081; Mohtat p3 TH K1=20 th=0.000922 q75 0.088/0.080; Mohtat p4 TH K1=50 th=0.0016 q75 0.109/0.093; Mohtat p5 TH K1=15 th=inf q75 0.067/0.090; Ecker2 p1 TH K1=15 th=inf q75 0.155/0.196; Ecker2 p2 TH K1=15 th=inf q75 0.108/0.190; Ecker2 p3 TH K1=15 th=inf q75 0.154/0.136; Ecker2 p4 TH K1=15 th=inf q75 0.207/0.265; Ecker2 p5 TH K1=15 th=inf q75 0.136/0.206
+
+H336 (f = 30, 10-fold mean of thetaC - U < 0): supported
+H337 (f = 30, 10-fold mean of thetaC - theta <= -5): supported
+H338 (thetaC meets >= 4 of 5 folds on each f = 30 cell): supported
+H339 (f = 30, 10-fold mean of thetaC - UC < 0): inconclusive
