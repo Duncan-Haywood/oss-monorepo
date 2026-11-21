@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-20",
+  "session": "https://claude.ai/code/session_01E5sJKjRwosADK3ugWhsUih",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-20T03:18:19Z",
+  "ended": "2026-11-20T03:24:05Z",
+  "wall_minutes": 11.76,
+  "tokens_in": 6279568,
+  "tokens_out": 26789,
+  "cost_usd": 2.8027,
+  "tool_calls": 52,
+  "task": "changepoint-detector: Shopify days in the store's own time zone (quality-audit item from NEXT.md)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17848",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The changepoint-detector row's next: lists only research-style items; the sellable surface's open faults (the Shopify DST bug, llms.txt size) sat in NEXT.md, so a revenue-minded run has to read NEXT.md to find them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The flagship default asks for an item from the row's next:. I took a quality-audit fault from NEXT.md instead: the Shopify source cut days at a fixed UTC offset, so stores in daylight-saving zones got wrong days half the year. That fault is on the venture's sellable surface, which fits the brief's revenue focus better than another research round.",
+      "did": "Fixed it (Shop.ianaTimezone default, --time-zone for Shopify and Stripe), cut the two 10,000-character llms.txt lines to summaries, wrote a post. The flagship next: is unchanged, because the item came from NEXT.md.",
+      "result": "1030 venture tests pass, preflight clean"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-shopify-days-in-the-stores-own-time-zone.md",
+    "ventures/changepoint-detector/README.md (Days in the store's own time zone)"
+  ],
+  "goal": null,
+  "notes": "node --test shopify-metrics.test.mjs stripe-metrics.test.mjs: 21 pass, 0 fail. run_venture_tests.py changepoint-detector: ok (287.1 s, 1030 tests), site page checks ok. venture-preflight.mjs changepoint-detector: 'preflight clean'. check_posts ok; check_llms_txt_links 0 dead.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f134d5e5-b868-5dea-baa5-4cf670b286dd",
+    "transcripts": 1,
+    "first": "2026-11-20T03:18:19Z",
+    "last": "2026-11-20T03:30:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 108,
+        "output": 26789,
+        "thinking": 4881,
+        "cache_read": 6149892,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129568,
+        "api_equivalent_usd": 2.8027,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 108,
+      "output": 26789,
+      "thinking": 4881,
+      "cache_read": 6149892,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129568,
+      "api_equivalent_usd": 2.8027,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.76,
+      "active_minutes": 6.78,
+      "model_minutes": 5.05,
+      "tool_minutes": 1.73,
+      "waiting_on_human_minutes": 4.98,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "IANA zone day maths with DST edge tests, Shopify zone query, docs and post: half a day for a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 142.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

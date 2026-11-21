@@ -159,6 +159,36 @@ export function invert(A) {
   return M.map((row) => row.slice(p));
 }
 
+// Gauss-Jordan elimination with partial pivoting on an augmented p x (p + 1) matrix, in place (rows may be typed arrays).
+// Afterwards A is diagonal on its first p columns, so the solution is A[i][p] / A[i][i]. With `tol`, returns false as soon
+// as a pivot is not above it (singular); without, it never checks. Shared by engine.mjs's two-knot search and lineRss.
+export function gaussJordan(A, p, tol = null) {
+  for (let i = 0; i < p; i++) {
+    let m = i;
+    for (let r = i + 1; r < p; r++) if (Math.abs(A[r][i]) > Math.abs(A[m][i])) m = r;
+    if (tol !== null && !(Math.abs(A[m][i]) > tol)) return false;
+    if (m !== i) { const tmp = A[i]; A[i] = A[m]; A[m] = tmp; }
+    for (let r = 0; r < p; r++) if (r !== i) { const q = A[r][i] / A[i][i]; for (let c = i; c <= p; c++) A[r][c] -= q * A[i][c]; }
+  }
+  return true;
+}
+
+/** Solve H z = b for a small symmetric positive-definite H by Gaussian elimination; null when it is (near) singular. */
+export function solveSym(H, b) {
+  const m = b.length, A = H.map((row, i) => [...row, b[i]]);
+  const scale = Math.max(...H.map((row, i) => row[i]));
+  for (let c = 0; c < m; c++) {
+    let p = c;
+    for (let r = c + 1; r < m; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r;
+    if (!(Math.abs(A[p][c]) > 1e-12 * scale)) return null;
+    [A[c], A[p]] = [A[p], A[c]];
+    for (let r = c + 1; r < m; r++) { const f = A[r][c] / A[c][c]; for (let k = c; k <= m; k++) A[r][k] -= f * A[c][k]; }
+  }
+  const z = new Array(m).fill(0);
+  for (let r = m - 1; r >= 0; r--) { let a = A[r][m]; for (let k = r + 1; k < m; k++) a -= A[r][k] * z[k]; z[r] = a / A[r][r]; }
+  return z;
+}
+
 // Least squares of y on the columns of X (arrays of length n). Returns coefficients, (X'X)^-1, residuals, rss.
 export function ols(y, X) {
   const p = X.length, n = y.length, A = Array.from({ length: p }, () => new Array(p).fill(0)), b = new Array(p).fill(0);
