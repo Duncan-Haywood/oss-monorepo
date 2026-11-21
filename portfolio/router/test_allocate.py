@@ -1104,6 +1104,30 @@ class DateGateTests(unittest.TestCase):
         self.assertEqual(need_hosts(row("x", ["https://archive.org/"], "scans")),
                          ["https://archive.org/"])
 
+    def test_spent_host_is_not_needed(self):
+        # photo-editing, 2026-11-21 (P070): raw.pixls.us named only as "all
+        # read" demoted the row although its open work runs on github.com.
+        from types import SimpleNamespace
+        from allocate import need_hosts, refused_rows
+        pe = SimpleNamespace(
+            name="pe", flagship=True, flagship_next="",
+            flagship_hosts=["https://raw.pixls.us/", "https://github.com/"],
+            flagship_buildable="Public samples, no key: github.com/x/images "
+                               "(sparse checkout; ARW read, eval/a.md); raw.pixls.us "
+                               "(CC0, `curl -L`; its CIFF CRWs all read). Noise blend next.")
+        self.assertEqual(need_hosts(pe), ["https://github.com/"])
+        self.assertEqual(refused_rows([pe], probe=lambda u: "pixls" not in u), {})
+        # Named again in a clause that is not spent, it is needed.
+        pe.flagship_buildable += " Sweep raw.pixls.us Fuji files."
+        self.assertIn("https://raw.pixls.us/", need_hosts(pe))
+
+    def test_host_re_knows_co_ai_ru_but_not_file_names(self):
+        from allocate import _HOST_RE
+        found = [m.group(1) for m in _HOST_RE.finditer(
+            "receipts from huggingface.co and x.ai, yandex.ru; see README.md, calc.mjs, "
+            "eval/cord_images.py, flagships.yaml, a/b.co/c")]
+        self.assertEqual(found, ["huggingface.co", "x.ai", "yandex.ru"])
+
     def test_declined_rows_needs_more_leaves_than_works(self):
         from allocate import declined_rows
         hits = lambda n: [("2026-11-18", "x", "why")] * n

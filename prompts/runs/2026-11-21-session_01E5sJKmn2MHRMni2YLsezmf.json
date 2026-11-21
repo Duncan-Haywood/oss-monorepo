@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmn2MHRMni2YLsezmf",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T10:09:23Z",
+  "ended": "2026-11-21T10:12:42Z",
+  "wall_minutes": 3.88,
+  "tokens_in": 1491534,
+  "tokens_out": 9018,
+  "cost_usd": 0.8631,
+  "tool_calls": 23,
+  "task": "process P070: spent hosts no longer demote a Start here row; _HOST_RE co/ai/ru",
+  "projects": [
+    "portfolio/router"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18066",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "first post description was 168 chars; promptctl validate caught it, shortened"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/CODEOWNERS",
+      "issue": "/prompts/ is owner-gated, so a process run's backlog status edit (prompts/process/backlog/) shares a PR with router code, against CLAUDE.md's 'keep control-plane edits in their own small PR'; the backlog is agent bookkeeping like prompts/runs/"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "'take the next row in the same run (up to three)': the only other agent-owned open row, P056, is blocked on Search Console data",
+      "did": "shipped P070 alone",
+      "result": "one fix, with a real-data before/after check over all 9 buildable rows"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-a-host-whose-files-are-all-read.md"
+  ],
+  "goal": null,
+  "notes": "Backlog P070 done. Verification: portfolio/router python3 -m unittest test_allocate, 148 OK. need_hosts before/after on the live flagships.yaml: only photo-editing changed ([raw.pixls.us, github.com] -> [github.com]). check_posts ok. promptctl validate run before merge.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "720ca056-3162-586a-8558-86df254fad18",
+    "transcripts": 1,
+    "first": "2026-11-21T10:09:23Z",
+    "last": "2026-11-21T10:13:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 22,
+        "input": 44,
+        "output": 9018,
+        "thinking": 1449,
+        "cache_read": 1442230,
+        "cache_write_5m": 0,
+        "cache_write_1h": 49260,
+        "api_equivalent_usd": 0.8631,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 22,
+      "input": 44,
+      "output": 9018,
+      "thinking": 1449,
+      "cache_read": 1442230,
+      "cache_write_5m": 0,
+      "cache_write_1h": 49260,
+      "api_equivalent_usd": 0.8631,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 23,
+    "tools": {
+      "Bash": 21,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.88,
+      "active_minutes": 3.88,
+      "model_minutes": 2.22,
+      "tool_minutes": 1.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "read router code, write clause splitter + 2 tests, check live rows, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 173.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
