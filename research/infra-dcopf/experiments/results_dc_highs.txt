@@ -20,3 +20,7 @@ case2853_sdet sad: load_mw 76683.5, gs_mw 0.0, pmin_mw 49063.4, pmax_mw 181149.8
   HiGHS feasibility PM    no   angle limits: Feasible
 
 H1 (HiGHS reports infeasible under all four conventions on case2853_sdet API): refuted ({'MP-x0+ang': 'Feasible', 'MP-x0': 'Feasible', 'PM+ang': 'Feasible', 'PM': 'Feasible'})
+
+--start: case2853_sdet api, start HiGHS QP MP-x0+ang, mu* 1.000, frozen repair not clean in 20 rounds
+  J best (round 20): 76 over (max 152.69 %), 0 V out, 3 Q out (0.314 MVAr), cost +3.053 % against PGLib's AC optimum; 2296 s
+  J+R: no solution
