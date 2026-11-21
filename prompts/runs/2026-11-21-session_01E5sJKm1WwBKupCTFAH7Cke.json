@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKm1WwBKupCTFAH7Cke",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T15:18:32Z",
+  "ended": "2026-11-21T15:29:24Z",
+  "wall_minutes": 11.19,
+  "tokens_in": 7100193,
+  "tokens_out": 36135,
+  "cost_usd": 3.222,
+  "tool_calls": 68,
+  "task": "Deepen flagship 14 ifc-quantity-takeoff: model view storey visibility and section plane (NEXT.md item)",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18104",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First cut-height label used Math.abs(plane.d), printing 7.85 m for a 0.9 m plan cut below the view origin",
+      "fixed": "caught in the Playwright check, fixed before commit"
+    },
+    {
+      "what": "A Bash heredoc writing a Playwright script was refused by the rm-safety check although it removed nothing",
+      "fixed": "wrote the script with the Write tool"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Output for one run is ~30 long rows; the 'Start here' line was what mattered, the table cost context without being needed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-a-room-is-not-a-storey.md",
+    "ventures/ifc-quantity-takeoff/eval/storeys-and-sections-2026-11-21.md"
+  ],
+  "goal": "deepen a flagship",
+  "notes": "Landed storey tick boxes and a shader section plane (plan/x/y, flip, grey inside faces, pick respects the cut) in the IFC takeoff's 3D view. Building the storey list exposed a takeoff fault: elements contained in an IfcSpace took the room as their storey (ARK_NUS 198 'storeys' for 5 floors; kleine_Wohnung 15 for 4), also affecting BoQ grouping by storey. Fixed in qto.mjs (climb to IfcBuildingStorey, keep row.space); 1,268 + 37 elements moved, 0 Uniformat codes changed on 4 models compared. Verification: node --test *.test.mjs 140 pass 0 fail; Playwright (SwiftShader) on AC20-FZK-Haus and C20-Institute-Var-2: storeys listed, one storey + plan cut, x cut, pick on kept side, no console errors; iPhone 13 emulation no horizontal scroll; check_posts ok; validate.py ok. No agent doc in docs/reports: NEXT.md and the eval note carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "749cd73b-a926-52f4-952b-28a011fec8e7",
+    "transcripts": 1,
+    "first": "2026-11-21T15:18:32Z",
+    "last": "2026-11-21T15:29:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 114,
+        "output": 36135,
+        "thinking": 6431,
+        "cache_read": 6961774,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138305,
+        "api_equivalent_usd": 3.222,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 114,
+      "output": 36135,
+      "thinking": 6431,
+      "cache_read": 6961774,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138305,
+      "api_equivalent_usd": 3.222,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 55,
+      "Write": 5,
+      "Read": 5,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.19,
+      "active_minutes": 11.19,
+      "model_minutes": 6.32,
+      "tool_minutes": 4.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior web/BIM dev: storey filter + shader section plane + IfcSpace storey fix with tests, browser checks and eval note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 310.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

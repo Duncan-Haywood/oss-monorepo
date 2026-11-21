@@ -3,17 +3,58 @@
 //   const v = new ModelView(canvas, { onPick(id) {} });
 //   v.add(id, { positions, normals });   // Float32Array triangles, any number of calls
 //   v.setColors((id) => [r, g, b]);       // 0..1, recoloured without re-uploading geometry
-//   v.fit(ids?);                          // frame everything, or some elements
+//   v.fit(ids?);                          // frame everything shown, or some elements
+//   v.setVisible((id) => bool);           // hide elements (a storey, a class) without re-uploading
+//   v.setSection({ n: [nx, ny, nz], d });  // cut away the side where n.p > d; null for none
 //
 // Drag to orbit, shift-drag or right-drag to pan, wheel or pinch to zoom,
 // click or tap to pick (an id buffer read back at the pointer).
 
+// The section plane discards what lies past it. A face seen from behind
+// (its normal points away from the eye) is the inside of a cut solid, and is
+// drawn flat grey as a cut face would be on a drawing. The mesher writes
+// outward normals (view-mesh.mjs: every closed element encloses a positive volume).
 const VS = `attribute vec3 p; attribute vec3 n; attribute vec3 c;
-uniform mat4 m; varying vec3 vc; varying vec3 vn;
-void main() { gl_Position = m * vec4(p, 1.0); vc = c; vn = n; }`;
-const FS = `precision mediump float; varying vec3 vc; varying vec3 vn; uniform vec3 l;
-void main() { float d = abs(dot(normalize(vn), l)); gl_FragColor = vec4(vc * (0.45 + 0.55 * d), 1.0); }`;
-const PICK_FS = `precision mediump float; varying vec3 vc; varying vec3 vn; void main() { gl_FragColor = vec4(vc, 1.0); }`;
+uniform mat4 m; varying vec3 vc; varying vec3 vn; varying vec3 vp;
+void main() { gl_Position = m * vec4(p, 1.0); vc = c; vn = n; vp = p; }`;
+const FS = `precision highp float; varying vec3 vc; varying vec3 vn; varying vec3 vp; uniform vec3 l; uniform vec4 cut; uniform vec3 eye;
+void main() {
+  if (dot(cut.xyz, vp) > cut.w) discard;
+  if (cut.xyz != vec3(0.0) && dot(vn, eye - vp) < 0.0) { gl_FragColor = vec4(0.32, 0.33, 0.36, 1.0); return; }
+  float d = abs(dot(normalize(vn), l)); gl_FragColor = vec4(vc * (0.45 + 0.55 * d), 1.0);
+}`;
+const PICK_FS = `precision highp float; varying vec3 vc; varying vec3 vn; varying vec3 vp; uniform vec4 cut;
+void main() { if (dot(cut.xyz, vp) > cut.w) discard; gl_FragColor = vec4(vc, 1.0); }`;
+
+/**
+ * The [start, count] vertex ranges to draw: consecutive visible items merged,
+ * so a whole model shown is one draw call and a storey hidden is a few.
+ */
+export function visibleRuns(items, visible) {
+  const runs = [];
+  for (const it of items) {
+    if (visible && !visible(it.id)) continue;
+    const last = runs[runs.length - 1];
+    if (last && last[0] + last[1] === it.start) last[1] += it.count;
+    else runs.push([it.start, it.count]);
+  }
+  return runs;
+}
+
+/**
+ * A section plane from the page's controls. axis "z" cuts away everything
+ * above height t of the box (a plan cut); "x"/"y" cut away the far side of a
+ * vertical plane at fraction t across (flip keeps the other side instead).
+ * box is [x0, y0, z0, x1, y1, z1] in view coordinates; t runs 0..1.
+ */
+export function sectionPlane(axis, t, box, flip = false) {
+  const k = { x: 0, y: 1, z: 2 }[axis];
+  if (k == null || !box) return null;
+  const at = box[k] + (box[k + 3] - box[k]) * Math.max(0, Math.min(1, t));
+  const n = [0, 0, 0];
+  n[k] = flip ? -1 : 1;
+  return { n, d: flip ? -at : at };
+}
 
 function program(gl, vs, fs) {
   const p = gl.createProgram();
@@ -68,6 +109,9 @@ export class ModelView {
     this.items = []; // { id, positions, normals, start, count, box }
     this.slot = new Map();
     this.colorOf = () => [0.75, 0.75, 0.75];
+    this.visible = null; // (id) => bool, or null for all
+    this.section = null; // { n, d }
+    this.runs = [];
     this.onPick = onPick || (() => {});
     this.cam = { az: -0.8, el: 0.55, dist: 30, target: [0, 0, 0] };
     this.dirty = true;
@@ -111,6 +155,7 @@ export class ModelView {
       o += it.positions.length;
     });
     this.vertexCount = n / 3;
+    this.runs = visibleRuns(this.items, this.visible);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.p); gl.bufferData(gl.ARRAY_BUFFER, P, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.n); gl.bufferData(gl.ARRAY_BUFFER, N, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.id); gl.bufferData(gl.ARRAY_BUFFER, I, gl.STATIC_DRAW);
@@ -118,6 +163,22 @@ export class ModelView {
   }
 
   setColors(fn) { this.colorOf = fn; this._recolor(); }
+
+  /** Shows only the elements fn(id) is true for (null shows all); no re-upload. */
+  setVisible(fn) { this.visible = fn; this.runs = visibleRuns(this.items, fn); this.dirty = true; }
+
+  /** Cuts away the side of the plane n.p > d (view coordinates); null removes the cut. */
+  setSection(plane) { this.section = plane; this.dirty = true; }
+
+  /** The box round the elements shown (or all, when none are), view coordinates. */
+  bounds(all = false) {
+    const b = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
+    for (const it of this.items) {
+      if (!all && this.visible && !this.visible(it.id)) continue;
+      for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], it.box[k]); b[k + 3] = Math.max(b[k + 3], it.box[k + 3]); }
+    }
+    return Number.isFinite(b[0]) ? b : null;
+  }
 
   _recolor() {
     const gl = this.gl;
@@ -130,9 +191,10 @@ export class ModelView {
     this.dirty = true;
   }
 
-  /** Frames all elements, or the ones in ids. */
+  /** Frames the elements shown, or the ones in ids. */
   fit(ids) {
-    const list = ids ? [...ids].map((id) => this.items[this.slot.get(id)]).filter(Boolean) : this.items;
+    let list = ids ? [...ids].map((id) => this.items[this.slot.get(id)]).filter(Boolean) : this.items;
+    if (!ids && this.visible) list = list.filter((it) => this.visible(it.id));
     if (!list.length) return;
     const b = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
     for (const it of list) for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], it.box[k]); b[k + 3] = Math.max(b[k + 3], it.box[k + 3]); }
@@ -167,7 +229,13 @@ export class ModelView {
       gl.vertexAttribPointer(loc, 3, type, type !== gl.FLOAT, 0, 0);
     }
     gl.uniformMatrix4fv(gl.getUniformLocation(prog, "m"), false, new Float32Array(this._matrix()));
+    const c = this.section;
+    gl.uniform4fv(gl.getUniformLocation(prog, "cut"), new Float32Array(c ? [...c.n, c.d] : [0, 0, 0, 1]));
+    const e = gl.getUniformLocation(prog, "eye");
+    if (e) gl.uniform3fv(e, new Float32Array(this.eye));
   }
+
+  _drawRuns() { for (const [s, n] of this.runs) this.gl.drawArrays(this.gl.TRIANGLES, s, n); }
 
   draw() {
     this.dirty = false;
@@ -183,7 +251,7 @@ export class ModelView {
     // light from over the viewer's shoulder
     const l = [Math.cos(el + 0.4) * Math.cos(az + 0.5), Math.cos(el + 0.4) * Math.sin(az + 0.5), Math.sin(el + 0.4)];
     gl.uniform3fv(gl.getUniformLocation(this.prog, "l"), new Float32Array(l));
-    gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
+    this._drawRuns();
   }
 
   /** The element id drawn at canvas pixel (x, y) in CSS pixels, or null. */
@@ -197,7 +265,7 @@ export class ModelView {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     this._bind(this.pickProg, this.buffers.id);
-    gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
+    this._drawRuns();
     const px = new Uint8Array(4);
     gl.readPixels(Math.round(x * dpr), Math.round(this.canvas.height - y * dpr), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
     gl.enable(gl.DITHER);

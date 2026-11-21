@@ -57,6 +57,11 @@
     #view-legend { position: absolute; left: 8px; bottom: 6px; font-size: 0.82rem; color: var(--muted); pointer-events: none; }
     #view-legend i { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 2px; margin: 0 4px 0 10px; vertical-align: -1px; }
     tr[data-k], tr[data-el] { cursor: pointer; }
+    #view-storeys { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: .3rem 0; }
+    #view-storeys label { white-space: nowrap; font-size: 0.92rem; }
+    #view-cut-at { width: min(16em, 60vw); vertical-align: middle; }
+    #view-cut-ctl label { white-space: nowrap; }
+    #view-cut-where { display: block; }
     tr.picked td { background: color-mix(in srgb, var(--accent) 14%, transparent); }
 </style>
 </head>
@@ -89,8 +94,19 @@
       <button type="button" id="view-all" class="ghost">Show everything</button>
       <span class="muted" id="view-status" role="status" aria-live="polite"></span>
     </div>
+    <fieldset id="view-storeys-box" hidden style="border:0;padding:0;margin:0"><legend class="muted">Storeys shown</legend><div id="view-storeys"></div></fieldset>
+    <div class="row">
+      <label for="view-cut">Section</label>
+      <select id="view-cut">
+        <option value="">None</option>
+        <option value="z">Plan cut (look down into a storey)</option>
+        <option value="x">Vertical cut across x</option>
+        <option value="y">Vertical cut across y</option>
+      </select>
+      <span id="view-cut-ctl" hidden><input type="range" id="view-cut-at" min="0" max="1000" value="500" aria-label="Where the section plane cuts"> <label><input type="checkbox" id="view-cut-flip"> keep the other side</label> <span class="muted" id="view-cut-where"></span></span>
+    </div>
     <div class="viewwrap"><canvas id="view" aria-label="3D view of the model; drag to turn, shift-drag to pan, scroll to zoom, click an element to see its quantities"></canvas><div id="view-legend"></div></div>
-    <p id="view-pick" class="muted">Drag to turn, shift-drag (or right-drag) to pan, scroll or pinch to zoom. Click an element to see what was measured; click a bill-of-quantities line or a check below to show its elements. Each element is drawn from the same solid its volume was computed from, openings cut.</p>
+    <p id="view-pick" class="muted">Drag to turn, shift-drag (or right-drag) to pan, scroll or pinch to zoom. Click an element to see what was measured; tick storeys off or cut a section to look inside; click a bill-of-quantities line or a check below to show its elements. Each element is drawn from the same solid its volume was computed from, openings cut.</p>
     <h2>Bill of quantities</h2>
     <div class="row">
       <label for="by">Group by</label>
@@ -224,7 +240,8 @@
   import { PRESETS, SECTIONS, ruleLabel } from "./measure.mjs";
   import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
   import { ModelView } from "./viewer.mjs";
-  import { rowMesh, modelOrigin } from "./view-mesh.mjs";
+  import { rowMesh, modelOrigin, storeyList } from "./view-mesh.mjs";
+  import { sectionPlane } from "./viewer.mjs";
 
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -286,7 +303,8 @@
   }
 
   // ---- the model view (viewer.mjs, view-mesh.mjs) ----
-  let view = null, viewGen = 0, selected = null, picked = null;
+  let view = null, viewGen = 0, selected = null, picked = null, viewOrigin = [0, 0, 0];
+  const hiddenStoreys = new Set(); // storey names (null for "no storey") the view leaves out
   const byId = new Map(), boxed = new Map();
   const PALETTE = [[0.36, 0.55, 0.78], [0.86, 0.6, 0.3], [0.45, 0.68, 0.45], [0.75, 0.45, 0.6], [0.6, 0.55, 0.85], [0.8, 0.75, 0.4], [0.4, 0.7, 0.72], [0.7, 0.5, 0.4], [0.55, 0.6, 0.65], [0.85, 0.5, 0.5]];
   const hashColor = (s) => { let h = 0; for (const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return PALETTE[h % PALETTE.length]; };
@@ -313,9 +331,57 @@
     else $("view-legend").innerHTML = "";
   }
   function recolor() { if (view) { view.setColors(colorFn()); legend(); } }
+  // ---- storeys shown and the section plane ----
+  const storeyKey = (s) => (s == null ? "" : "s:" + s);
+  function applyVisible() {
+    if (!view) return;
+    view.setVisible(hiddenStoreys.size ? (id) => { const r = byId.get(id); return !r || !hiddenStoreys.has(r.storey ?? null); } : null);
+    applySection();
+  }
+  function applySection() {
+    if (!view) return;
+    const axis = $("view-cut").value;
+    $("view-cut-ctl").hidden = !axis;
+    const box = view.bounds();
+    const t = Number($("view-cut-at").value) / 1000, flip = $("view-cut-flip").checked;
+    const plane = axis ? sectionPlane(axis, t, box, flip) : null;
+    view.setSection(plane);
+    if (plane) {
+      const k = { x: 0, y: 1, z: 2 }[axis], at = (flip ? -plane.d : plane.d) + viewOrigin[k];
+      $("view-cut-where").textContent = axis === "z" ? `cut at ${at.toFixed(2)} m, everything ${flip ? "below" : "above"} removed` : `cut at ${axis} = ${at.toFixed(2)} m`;
+    } else $("view-cut-where").textContent = "";
+  }
+  function storeyControls() {
+    const list = storeyList(current.rows);
+    hiddenStoreys.clear();
+    $("view-storeys-box").hidden = list.length < 2;
+    $("view-storeys").innerHTML = list.map((s, i) => `<label><input type="checkbox" data-storey="${esc(storeyKey(s.name))}" checked> ${esc(s.name ?? "(no storey)")}${s.elevation != null ? ` <span class="muted">${fmt(s.elevation, 2) || "0"} m</span>` : ""} <span class="muted">(${s.count})</span></label>`).join("") +
+      (list.length > 2 ? `<button type="button" class="ghost" id="view-storeys-all">All</button>` : "");
+    const names = new Map(list.map((s) => [storeyKey(s.name), s.name]));
+    for (const cb of document.querySelectorAll("[data-storey]")) cb.addEventListener("change", () => {
+      const n = names.get(cb.dataset.storey);
+      if (cb.checked) hiddenStoreys.delete(n); else hiddenStoreys.add(n);
+      applyVisible();
+      record("storey_toggled");
+    });
+    $("view-storeys-all")?.addEventListener("click", () => { hiddenStoreys.clear(); syncStoreyBoxes(); applyVisible(); });
+  }
+  function syncStoreyBoxes() {
+    const off = new Set([...hiddenStoreys].map(storeyKey));
+    for (const cb of document.querySelectorAll("[data-storey]")) cb.checked = !off.has(cb.dataset.storey);
+  }
+  function showStoreysOf(ids) {
+    let changed = false;
+    for (const id of ids) { const r = byId.get(id); if (r && hiddenStoreys.delete(r.storey ?? null)) changed = true; }
+    if (!changed) return;
+    syncStoreyBoxes();
+    applyVisible();
+  }
+
   function select(ids, why) {
     selected = ids && ids.size ? ids : null;
     picked = null;
+    if (selected) showStoreysOf(selected);
     recolor();
     if (view && selected) { view.fit(selected); $("model").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); }
     if (selected && why) $("view-pick").textContent = why;
@@ -351,7 +417,10 @@
     view.clear();
     view.setColors(colorFn());
     legend();
+    storeyControls();
+    view.setVisible(null);
     const origin = modelOrigin(current.rows);
+    viewOrigin = origin;
     const rows = current.rows.filter((r) => !r.isAssembly);
     let i = 0, boxes = 0, fitted = false, lastCommit = 0;
     const t0 = performance.now();
@@ -371,11 +440,27 @@
       if (gen !== viewGen) return;
     }
     view.fit();
+    applyVisible();
     $("view-status").textContent = `${view.items.length} elements drawn in ${((performance.now() - t0) / 1000).toFixed(1)} s${boxes ? `; ${boxes} drawn as their boxes (geometry not read, or too intricate to outline quickly; their quantities are measured all the same)` : ""}.`;
     record("model_viewed");
   }
   $("view-color").addEventListener("change", () => { selected = null; recolor(); });
-  $("view-all").addEventListener("click", () => { selected = null; picked = null; recolor(); if (view) view.fit(); });
+  $("view-all").addEventListener("click", () => {
+    selected = null; picked = null;
+    hiddenStoreys.clear(); syncStoreyBoxes();
+    $("view-cut").value = "";
+    applyVisible(); recolor(); if (view) view.fit();
+  });
+  $("view-cut").addEventListener("change", () => {
+    // a plan cut starts where drawings cut a floor plan: 1.2 m above the bottom of what is shown
+    const box = view && view.bounds();
+    if ($("view-cut").value === "z" && box && box[5] > box[2]) $("view-cut-at").value = Math.round(Math.min(1, 1.2 / (box[5] - box[2])) * 1000);
+    else $("view-cut-at").value = 500;
+    applySection();
+    if ($("view-cut").value) record("section_cut");
+  });
+  $("view-cut-at").addEventListener("input", applySection);
+  $("view-cut-flip").addEventListener("change", applySection);
 
   const byKeys = () => $("by").value.split(",");
   // the method-of-measurement rule the BoQ is measured under (measure.mjs)

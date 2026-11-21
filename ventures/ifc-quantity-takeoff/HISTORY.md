@@ -24,3 +24,4 @@ stored NetVolume) and a compound unit slip, litres over the square-foot factor
 (20 skolebygg slabs, 92.903 times their geometry, counted only when three or
 more share the factor). skolebygg's slab volume in the BoQ: 134,776 m3 to
 11,086 m3. eval/stored-vs-computed-2026-11-21.md.
+- (moved 2026-11-21) 3D model view 2026-11-21 (viewer.mjs, view-mesh.mjs; eval/model-view-2026-11-21.md)
