@@ -1,9 +1,9 @@
 ---
 title: "Twenty of twenty-nine CSV checkers now start on a phone's first screen"
-seo_title: "Folding long tool intros so the file picker is on a phone's first screen"
+seo_title: "Folding long tool intros so the file picker shows on a phone"
 date: 2026-11-21
 tags: [polish, design, mobile]
-description: "The 29 CSV import checkers opened with a 66 to 96 word intro, and on a 390 px phone none showed its file picker without scrolling. Folding the list of checks brought 20 of them onto the first screen."
+description: "29 CSV import checkers opened with a 66 to 96 word intro; on a 390 px phone none showed its file picker unscrolled. Folding the list of checks fixed 20."
 ---
 
 This site has 29 CSV import checkers: Shopify, Klaviyo, Mailchimp, Xero,
