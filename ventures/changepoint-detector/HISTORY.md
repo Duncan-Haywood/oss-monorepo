@@ -18,3 +18,5 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-21) Counts: count default ships, and is Quiet in --suggest/auto 2026-11-20 (README "The How eager hint for counts"); real shop: new Quiet 2 alerts vs 37 but misses the 2011-09-01 build-up; next a bunched-count ramp cell, real orders
 - (moved 2026-11-21) Stale feeds (closed line): real carry-forward 84/85 caught but prints 56/56 false; side-adjusted prints fail worse (21/39, README "The trade side"): no price-only fix, the line ends.
 - (moved 2026-11-21) (w) watch (README "Watching a growing series", "Round 5" to "Round 10"): hint, budget box and "Wandering level" (drift) shipped
+- (moved 2026-11-21) gated joint growth fit is the count Middle 2026-11-21 (README "The joint growth fit, gated": growing sites alerted 27/40 to 6/40)
+- (2026-11-21) Wander gate decided on the days before the newest change (README "A calmer wander gate", pre-registered: K1 fails 40 vs 37.5, K1' and K2-K5 pass): calm-site falls exactly as Middle, 2% walk 12.50 to 5.42 alerts per 1,000 days; --wander gated takes it.

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { wanderGate, detectChanges, COUNT_MIDDLE } from './watch-core.mjs';
+import { wanderGate, detectChanges, COUNT_MIDDLE, WANDER_BEFORE } from './watch-core.mjs';
 import { main } from './watch.mjs';
 
 // README "A wandering level under Middle" (eval/middle-wander.prereg.md): --wander gated for counts keeps a change on a
@@ -53,4 +53,24 @@ test('the gate is for counts, and the watch takes --wander gated for counts only
   assert.equal(JSON.parse(text).alerts.length, 0);
   await assert.rejects(main([csv, '--wander', 'gated', '--dry-run'], { out: () => {} }), /gated is for counts/);
   await assert.rejects(main([csv, '--model', 'poisson', '--wander', 'on', '--dry-run'], { out: () => {} }), /--wander takes gated/);
+});
+
+// README "A calmer wander gate" (eval/middle-wander-calm.prereg.md): since 2026-11-21 --wander gated decides whether the
+// level wanders on the window before the newest change (WANDER_BEFORE points), so a real fall on a calm site cannot open
+// the gate; wanderBefore: false is the first, whole-window gate.
+test('the gate decided before the newest change keeps a real fall the whole-window gate drops, and still cuts a wander', async () => {
+  const { series, labels } = await import('./eval/gsc-sites.mjs');
+  const v = series(9901, 50, 0.2, 0.15).slice(0, 210), l = labels.slice(0, 210), o = { model: 'poisson', ...COUNT_MIDDLE };
+  const at = (cs) => cs.filter((c) => Math.abs(c.index - 180) <= 7).length;
+  assert.equal(at(detectChanges(v, l, o)), 1);
+  assert.equal(at(detectChanges(v, l, { ...o, wander: 'gated', wanderBefore: false })), 0);
+  assert.equal(at(detectChanges(v, l, { ...o, wander: 'gated' })), 1);
+  assert.equal(WANDER_BEFORE, 60);
+  let plain = 0, before = 0;
+  for (const seed of [21, 22, 23]) {
+    const w = walk(seed, 200, 0.03);
+    plain += detectChanges(w, days(w.length), o).length;
+    before += detectChanges(w, days(w.length), { ...o, wander: 'gated' }).length;
+  }
+  assert.ok(before < plain, `Middle ${plain}, before ${before}`);
 });
