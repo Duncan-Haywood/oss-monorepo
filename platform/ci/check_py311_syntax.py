@@ -26,10 +26,12 @@ by hand and still reported. Exit 1 when a file is flagged.
 """
 import io
 import re
-import subprocess
 import sys
 import tokenize
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import repo_files  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 FSTRING = sys.version_info >= (3, 12)
@@ -136,9 +138,7 @@ def apply_fixes(src: str, probs) -> str:
 
 
 def tracked() -> list[Path]:
-    names = subprocess.run(["git", "ls-files", "-z", "*.py"], cwd=ROOT, capture_output=True,
-                           text=True, check=True).stdout.split("\0")
-    return [ROOT / n for n in names if n]
+    return [ROOT / n for n in repo_files.ls_files(ROOT, "*.py")]
 
 
 def main(argv: list[str]) -> int:
