@@ -565,8 +565,15 @@ def park_text(existing: str | None, venture: str, items: list[str], day: str) ->
 
 
 DATE = re.compile(r"\b20\d\d-\d\d-\d\d\b")
-# Words that mark a piece as still open work, whatever its date.
-OPENISH = re.compile(r"\b(?:open|wanted|needs?|not (?:yet|done)|to do|todo)\b", re.I)
+# Words that mark a piece as still open work, whatever its date. "next" and
+# "misses" too: on 2026-11-21 three runs (PRs #17997, #18002, #18031) saw
+# dated pieces carrying their own open step ("...; next a bunched-count ramp
+# cell, real orders", "(w) watch ... next: its four links tried", inside
+# brackets so not an open marker) moved to HISTORY.md as finished work. A
+# result kept in the row costs a few characters; open work filed as history
+# is lost from the open list.
+OPENISH = re.compile(r"\b(?:open|next|wanted|needs?|miss(?:es|ing)?|not (?:yet|done)|to do|todo)\b",
+                     re.I)
 # Abbreviations whose ". " does not end a sentence.
 _ABBREV = re.compile(r"(?:\b(?:e\.g|i\.e|vs|etc|cf|approx|no|v\d+)|\.\.)$", re.I)
 

@@ -1,0 +1,27 @@
+{
+  "id": "P071",
+  "title": "flagship_field.py moved dated pieces that name their own next step to HISTORY.md",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "history_pieces offers a dated sentence for HISTORY.md unless OPENISH matches, and OPENISH knew no 'next' or 'misses'. A shipped result whose sentence also names its next step in lower case ('...; next a bunched-count ramp cell, real orders') or inside brackets (where 'next:' is not an open marker) was filed as finished work.",
+  "evidence": [
+    "prompts/runs/2026-11-21-session_01E5sJKjV16w8FfwpNTYqMwq.json (PR #18002): make-room moved changepoint-detector's counts item with 'next a bunched-count ramp cell' to HISTORY.md; re-parked by hand (ventures/changepoint-detector/HISTORY.md line 18, NEXT.md line 52)",
+    "prompts/runs/2026-11-21-session_01E5sJKkbrPgLM8KyKxuxzSK.json (PR #17997): --dry-run proposed the same move",
+    "prompts/runs/2026-11-21-session_01E5sJKkcfkfGQGubZ4ZtKKN.json (PR #18031): a --replace proposed moving the row's main open item (w) to HISTORY.md",
+    "history_pieces over every flagships.yaml row on main 2026-11-21: 3 offered pieces contain 'next' (changepoint-detector (w) watch, changepoint-detector 'next Middle as count default', ifc-quantity-takeoff 'next in NEXT.md')"
+  ],
+  "change": "Add next and miss(es|ing) to OPENISH, with a test.",
+  "touches": [
+    "portfolio/router/flagship_field.py",
+    "portfolio/router/test_flagship_field.py"
+  ],
+  "metric": "history_pieces offered on main rows that contain an open cue (next/misses), and run records reporting open work filed in HISTORY.md",
+  "baseline": "3 pieces on 2026-11-21; 3 run records that day",
+  "opened": "2026-11-21",
+  "source": "process critique, 2026-11-21 (doc friction on flagship_field.py)",
+  "pr": "this",
+  "result": null,
+  "change_shipped": "OPENISH now includes next and miss(es|ing); test_history_pieces_keep_dated_pieces_with_their_own_next_step. Offered pieces with those cues on main: 3 -> 0."
+}
