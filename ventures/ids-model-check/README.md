@@ -560,10 +560,9 @@ How it writes, so nothing else changes:
   that names the property accepts it, so filling one check cannot break
   another the element passes today (two specifications asking `EI30` and `EI60`
   of the same wall: neither is written, and the table says why).
-- A set name the element already holds as something other than a property set
-  is not written: IFC2X3 exports call their quantity set `BaseQuantities`, and
-  a property set of that name beside it would hide the quantities from
-  IfcTester, which reads one set per name.
+- A set name the element already holds as the other kind (a quantity set where
+  a property is asked, or the other way round) is not written beside it:
+  IfcTester reads one set per name, so the new set would hide the old one.
 - The filled file is read again and every written value is tested by every
   facet on that element that names it, before the download is offered.
 - An IDS with a specification that applies to every entity ("everything is
@@ -571,10 +570,39 @@ How it writes, so nothing else changes:
   relationships, and they fail it as the model's own sets do; the summary
   counts them apart so the before and after numbers can be compared.
 
-Not written: quantities (`Qto_` sets), attributes, classifications, materials
-and relationships (counted in the summary), a set or property the IDS names by a
-pattern, and two specifications asking different values for one property (the
-table says which). ifcXML, ifcJSON and IFC5 files are checked but not written.
+**Quantities (2026-11-21).** A failing `Qto_` requirement (or one naming a set
+the element already holds as an `IfcElementQuantity`) is written as a quantity,
+not a property: an `IfcQuantityLength`, `Area`, `Volume`, `Count`, `Weight` or
+`Time`, picked by the facet's data type (`IFCAREAMEASURE` is an area) or, with
+none, by the standard `Qto_` template's. It goes into the element's own
+quantity set of that name, edited or copied as property sets are, or a new
+`IfcElementQuantity` and relationship. Its value is the one the IDS fixes, one
+typed into the table, or, when the element already holds a quantity of the
+same name and kind in another quantity set, that one: IFC2X3 exports from
+Revit and ArchiCAD keep `NetSideArea`, `Width` or `OuterSurfaceArea` in a set
+called `BaseQuantities`, and an IDS written for IFC4 asks for the same number
+under `Qto_WallBaseQuantities`. The value is copied (converted through SI, so
+the units stay right), never computed; when two such sets disagree, nothing
+is copied. A data type that is not a quantity measure
+(`IFCPOSITIVELENGTHMEASURE`, which an `IfcQuantityLength` never holds) is
+refused with that reason.
+
+**Attributes (2026-11-21).** A failing attribute requirement (`Description`,
+`ObjectType`, `Tag`, `LongName`, a `PredefinedType` left `$`) is written into the
+element's own record when the attribute is unset (`$` or `''`): the value the
+IDS fixes, or one typed into the table, whose *PropertySet* column reads
+`(attribute)` for these rows. Enumerations take one of the type's own values
+(`partitioning` is written `.PARTITIONING.`, `BANANA` is refused with the list).
+An attribute that already holds a value is never overwritten, even a wrong one:
+that is a modelling decision. Numbers are written as given, because attribute
+values are compared in the model's own units, by this checker and IfcTester.
+A GlobalId, derived, list or object attribute, or one the IDS names by a
+pattern, is counted in the summary, not listed in the table.
+
+Not written: classifications, materials and relationships (counted in the
+summary), a set or property the IDS names by a pattern, and two specifications
+asking different values for one property (the table says which). ifcXML,
+ifcJSON and IFC5 files are checked but not written.
 
 How it was checked: on 4 real exports against 65 public IDS files and the 3
 starter files, every written value read back passes its facet, the lines that
@@ -1598,8 +1626,9 @@ faster than IfcTester; its point is needing no install.
 
 ## Limitations
 
-- The model fill (`--fill`, 2026-11-21) writes property values only, into STEP
-  files only, and decodes the file as one string (models up to about 500 MB).
+- The model fill (`--fill`, 2026-11-21) writes property values, quantities and
+  unset attributes only, into STEP files only, never computes a quantity from
+  geometry (`ifc-quantity-takeoff` does that; it is not wired in), and decodes the file as one string (models up to about 500 MB).
   It writes `IfcPropertySingleValue`s; a property the model holds as a list,
   bounded or enumerated value is replaced by a single value in the element's
   set. It has been run on four real exports, not yet on a BIM manager's own

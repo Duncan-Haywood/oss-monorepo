@@ -169,14 +169,14 @@ test("a value that would break a specification the element passes today is not w
   assert.equal(check(I, new Model(r.text, resources().schemas)).specs[1].status, "pass");
 });
 
-test("what is not a property, or names its set by a pattern, is counted, not written", () => {
+test("a set named by a pattern is not written; an attribute with no value given goes to the table", () => {
   const pat = `<property dataType="IFCLABEL"><propertySet><xs:restriction base="xs:string"><xs:pattern value="Pset_.*"/></xs:restriction></propertySet><baseName><simpleValue>X</simpleValue></baseName></property>`;
   const I = ids(spec("IFCWALL", `<attribute><name><simpleValue>Description</simpleValue></name></attribute>` + pat + prop("Qto_WallBaseQuantities", "Length", "IFCLENGTHMEASURE", simple("1"))));
   const p = planFill(I, new Model(MODEL, resources().schemas), resources());
-  assert.equal(p.writes.length, 0);
-  assert.equal(p.notWritten.attribute, 3);
+  assert.deepEqual(p.writes.map((w) => [w.kind, w.pset, w.prop, w.valueText]), [0, 1, 2].map(() => ["quantity", "Qto_WallBaseQuantities", "Length", "1000."]));
+  assert.equal(p.notWritten.attribute, undefined);
   assert.equal(p.unfilled.filter((u) => /pattern/.test(u.why)).length, 3);
-  assert.equal(p.unfilled.filter((u) => /Qto_/.test(u.why)).length, 3);
+  assert.deepEqual(p.unfilled.filter((u) => u.pset === "(attribute)").map((u) => [u.prop, u.dataType, u.why]), [0, 1, 2].map(() => ["Description", "IFCTEXT", "no value given: type one in the Value column"]));
 });
 
 test("no data type in the IDS: the standard template's, else IFCLABEL", () => {
@@ -246,7 +246,83 @@ END-ISO`);
   const r = fill(ids(spec("IFCWALL", prop("BaseQuantities", "NetVolume", null, ""))), m, { values: [{ globalId: "*", pset: "BaseQuantities", prop: "NetVolume", value: "X" }] });
   assert.equal(r.written, 2);
   assert.ok(!r.writtenList.some((w) => w.id === 10));
-  assert.deepEqual(r.unfilled.map((u) => [u.name, u.why]), [["W-01", "the model holds BaseQuantities as an IFCELEMENTQUANTITY, which this fill does not write"]]);
+  // W-01 holds BaseQuantities as quantities: NetVolume would be a quantity,
+  // and with no data type its kind is unknown.
+  assert.deepEqual(r.unfilled.map((u) => [u.name, u.why]), [["W-01", "the IDS gives no data type and no standard Qto_ template names this quantity, so its kind (length, area, volume ...) is unknown"]]);
+});
+
+const QMODEL = MODEL.replace("ENDSEC;\nEND-ISO", `#40=IFCELEMENTQUANTITY('0Qa1Wb2Ec3Rd4Tf5Yg6Uh7',#2,'BaseQuantities',$,$,(#41,#43));
+#41=IFCQUANTITYLENGTH('Height',$,$,3000.,$);
+#43=IFCQUANTITYAREA('NetSideArea',$,$,12.5,$);
+#42=IFCRELDEFINESBYPROPERTIES('1Zx2Cv3Bn4Mq5Wr6Ty7Ui8',#2,$,$,(#10),#40);
+#44=IFCELEMENTQUANTITY('2Qa1Wb2Ec3Rd4Tf5Yg6Uh7',#2,'Qto_SlabBaseQuantities',$,$,(#45));
+#45=IFCQUANTITYLENGTH('Depth',$,$,200.,$);
+#46=IFCRELDEFINESBYPROPERTIES('3Zx2Cv3Bn4Mq5Wr6Ty7Ui8',#2,$,$,(#15),#44);
+ENDSEC;
+END-ISO`);
+
+test("a Qto_ quantity goes into a new IfcElementQuantity as the quantity class its data type names, in project units", () => {
+  const I = ids(spec("IFCWALL", prop("Qto_WallBaseQuantities", "Width", "IFCLENGTHMEASURE", simple("0.2"))));
+  const r = fill(I, MODEL);
+  assert.equal(r.written, 3);
+  assert.deepEqual(r.kinds, { quantity: 3 });
+  assert.deepEqual(r.sets, { edited: 0, copied: 0, added: 1 });
+  assert.match(r.text, /#34=IFCQUANTITYLENGTH\('Width',\$,\$,200\.,\$\);\n#35=IFCELEMENTQUANTITY\('[0-9A-Za-z_$]{22}',#2,'Qto_WallBaseQuantities',\$,\$,\(#34\)\);\n#36=IFCRELDEFINESBYPROPERTIES\('[0-9A-Za-z_$]{22}',#2,\$,\$,\(#10,#11,#12\),#35\);\nENDSEC;/);
+  assert.equal(r.verified.pass, 3);
+  assert.equal(check(I, new Model(r.text, resources().schemas)).specs[0].status, "pass");
+});
+
+test("a quantity the element holds under the same name in another quantity set is copied from it", () => {
+  const I = ids(spec("IFCWALL", prop("Qto_WallBaseQuantities", "NetSideArea", "IFCAREAMEASURE")));
+  const r = fill(I, QMODEL);
+  assert.equal(r.written, 1);
+  assert.equal(r.fromModel, 1);
+  assert.deepEqual(r.writtenList.map((w) => [w.id, w.kind, w.value, w.source]), [[10, "quantity", "12.5", "model"]]);
+  assert.match(r.text, /IFCQUANTITYAREA\('NetSideArea',\$,\$,12\.5,\$\)/);
+  // The walls with no BaseQuantities are left for the table.
+  assert.deepEqual(r.unfilled.map((u) => u.name), ["W-02", "W-03"]);
+  // A quantity of another kind under the name is not taken: Height is a length.
+  const r2 = fill(ids(spec("IFCWALL", prop("Qto_WallBaseQuantities", "Height", "IFCAREAMEASURE"))), QMODEL);
+  assert.equal(r2.written, 0);
+});
+
+test("a quantity set the element already has is edited in place, and its other quantities kept", () => {
+  const I = ids(spec("IFCSLAB", prop("Qto_SlabBaseQuantities", "Width", "IFCLENGTHMEASURE", simple("3"))));
+  const r = fill(I, QMODEL);
+  assert.deepEqual(r.sets, { edited: 1, copied: 0, added: 0 });
+  assert.match(r.text, /#44=IFCELEMENTQUANTITY\('2Qa1Wb2Ec3Rd4Tf5Yg6Uh7',#2,'Qto_SlabBaseQuantities',\$,\$,\(#45,#47\)\);/);
+  assert.match(r.text, /#47=IFCQUANTITYLENGTH\('Width',\$,\$,3000\.,\$\);/);
+  assert.equal(r.after.pass, true);
+  // A Qto_ name the model holds as a property set stays one: the value goes
+  // in as a property, where readers of that set look.
+  const r2 = fill(ids(spec("IFCWALL", prop("Qto_Odd", "Width", "IFCLENGTHMEASURE", simple("3")))), MODEL.replace("'Pset_WallCommon'", "'Qto_Odd'"));
+  assert.equal(r2.written, 3);
+  assert.deepEqual(r2.kinds, { property: 3 });
+  assert.match(r2.text, /IFCPROPERTYSINGLEVALUE\('Width',\$,IFCLENGTHMEASURE\(3000\.\),\$\)/);
+});
+
+test("an attribute left unset is written into the element's own record; one that holds a value is not overwritten", () => {
+  const m = MODEL.replace("#12=IFCWALL('0Dqu2kwjbCmOwB7c2iZvUo',$,'W-03',$,$,$,$,$,.SOLIDWALL.);", "#12=IFCWALL('0Dqu2kwjbCmOwB7c2iZvUo',$,'W-03','Kept',$,$,$,'',$);");
+  const attr = (n, v = "") => `<attribute><name><simpleValue>${n}</simpleValue></name>${v}</attribute>`;
+  const I = ids(spec("IFCWALL", attr("Description") + attr("Tag", simple("T-1")) + attr("PredefinedType")));
+  const r = fill(I, m, { values: [{ globalId: "*", pset: "(attribute)", prop: "Description", value: "Outer leaf" }, { globalId: "0Dqu2kwjbCmOwB7c2iZvUo", pset: "(attribute)", prop: "PredefinedType", value: "partitioning" }] });
+  assert.ok(r.text.includes("#10=IFCWALL('3vB2YO$MX4xv5uCqZZG05x',$,'W-01','Outer leaf',$,$,$,'T-1',.SOLIDWALL.);"));
+  assert.ok(r.text.includes("#12=IFCWALL('0Dqu2kwjbCmOwB7c2iZvUo',$,'W-03','Kept',$,$,$,'T-1',.PARTITIONING.);"));
+  assert.deepEqual(r.kinds, { attribute: 6 });
+  assert.equal(r.verified.pass, 6);
+  assert.equal(r.added, 0);
+  assert.equal(check(I, new Model(r.text, resources().schemas)).specs[0].status, "pass");
+  // Every other line as it was.
+  const a = lines(m), b = lines(r.text);
+  assert.equal(b.filter((l) => !a.includes(l)).length, 3);
+  // A value the model holds is not overwritten, even when it is wrong.
+  const r2 = fill(ids(spec("IFCWALL", attr("Name", simple("W-09")))), MODEL);
+  assert.equal(r2.written, 0);
+  assert.deepEqual(r2.notWritten, { "attribute already set (not overwritten)": 3 });
+  // An enumeration value the type does not have is refused.
+  const r3 = fill(ids(spec("IFCWALL", attr("PredefinedType"))), m, { values: [{ globalId: "*", pset: "(attribute)", prop: "PredefinedType", value: "BANANA" }] });
+  assert.equal(r3.written, 0);
+  assert.match(r3.unfilled[0].why, /"BANANA" is not one of MOVABLE, PARAPET, PARTITIONING/);
 });
 
 test("a specification applying to every entity checks the new sets and relationships too; the report counts them apart", () => {
@@ -256,4 +332,17 @@ test("a specification applying to every entity checks the new sets and relations
   assert.equal(r.after.addedRecords, 2);
   assert.equal(r.after.failing, r.before.failing - 1 + 2);
   assert.match(fillReport(r), /2 of them the new property sets and relationships themselves/);
+});
+
+test("attribute rows go round the to-fill table: listed, typed, read back, written", () => {
+  const I = ids(spec("IFCSLAB", `<attribute><name><simpleValue>Description</simpleValue></name></attribute>`));
+  const r = fill(I, MODEL);
+  assert.equal(r.written, 0);
+  const csv = toFillCsv(r.unfilled);
+  assert.match(csv, /0jvCJ6a3P7fAhZcqKfbbN8,IFCSLAB,S-01,\(attribute\),Description,IFCTEXT/);
+  const typed = csv.replace(/(\(attribute\),Description,IFCTEXT,\(any value\),)/, "$1Ground floor slab");
+  const r2 = fill(I, MODEL, { values: readValues(typed) });
+  assert.equal(r2.written, 1);
+  assert.ok(r2.text.includes("#15=IFCSLAB('0jvCJ6a3P7fAhZcqKfbbN8',$,'S-01','Ground floor slab',$,$,$,$,.FLOOR.);"));
+  assert.match(fillReport(r2), /0 properties, 0 quantities, 1 attribute/);
 });
