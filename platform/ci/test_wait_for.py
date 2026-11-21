@@ -150,18 +150,46 @@ class WaitFor(unittest.TestCase):
 
     def test_until_with_a_log_waits_for_its_marker_too(self):
         # friction 2026-11-16: a log given with --until was ignored; "condition met" came before the job's last line
+        # while the job still has the log open
+        import wait_for
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "o.log")
             open(p, "w").write("working\n")
             err = io.StringIO()
-            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
-                self.assertEqual(main([p, "--until", "true", "--timeout", "1", "--ignore-restart"]), 1)
-            self.assertIn("no 'DONE' or 'EXIT' line", err.getvalue())
-            open(p, "a").write("timing 3.2 s\nDONE\n")
+            old, wait_for.holders = wait_for.holders, lambda path: [(4242, "bash -c job")]
+            try:
+                with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(main([p, "--until", "true", "--timeout", "1", "--ignore-restart"]), 1)
+                self.assertIn("no 'DONE' or 'EXIT' line", err.getvalue())
+                open(p, "a").write("timing 3.2 s\nDONE\n")
+                out = io.StringIO()
+                with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(out):
+                    self.assertEqual(main([p, "--until", "true", "--timeout", "1", "--ignore-restart"]), 0)
+                self.assertIn("timing 3.2 s", out.getvalue())
+            finally:
+                wait_for.holders = old
+
+    def test_until_with_a_closed_log_and_no_marker_returns_its_tail(self):
+        # friction 2026-11-21 (two records): the job had finished, but its log ended in a custom
+        # PDKDONE (or was the task's own output file) and the wait timed out on the default marker
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("step 1\nresult 0.93\nPDKDONE\n")
             out = io.StringIO()
             with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(out):
                 self.assertEqual(main([p, "--until", "true", "--timeout", "1", "--ignore-restart"]), 0)
-            self.assertIn("timing 3.2 s", out.getvalue())
+            self.assertIn("result 0.93", out.getvalue())
+            # without --until a closed log still needs its marker
+            with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main([p, "--timeout", "0", "--ignore-restart"]), 1)
+
+    def test_closed_ends_needs_a_known_empty_holder_list(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("x\n")
+            self.assertTrue(wait(p, timeout=0, held=lambda: [], closed_ends=True)[0])
+            self.assertFalse(wait(p, timeout=0, held=lambda: None, closed_ends=True)[0])
+            self.assertFalse(wait(p, timeout=0, held=lambda: [(1, "j")], closed_ends=True)[0])
 
     def test_until_with_a_missing_log_returns_once_the_condition_holds(self):
         # friction 2026-11-18: a log path that never existed waited 9 minutes after the condition was met

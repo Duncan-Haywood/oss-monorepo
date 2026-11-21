@@ -15,8 +15,8 @@ its marker), so a live job is told apart from a quiet, stuck or dead one.
 
 A job that prints no marker (a `pip install`, a writer of a jsonl) can be waited on by
 a condition instead: `--until "python3 -c 'import torch'"` returns 0 once that command exits 0.
-Given a log too, it waits for both (the condition, then the log's marker) and prints the log's tail;
-a log path that still does not exist 10 s after the condition holds ends the wait (exit 0, with a note).
+Given a log too, it waits for the condition, then for the log's marker or for no process to
+have the log open any more (whichever comes first), and prints the log's tail; a log path that still does not exist 10 s after the condition holds ends the wait (exit 0, with a note).
 
 A job with a known pid: `--pid 12345` returns once that process has exited. Do not
 use `--until "pgrep -f name"`: the shell running it matches its own command line, so it
@@ -119,13 +119,15 @@ def stale_marker(lines, markers, held, quiet=False):
 
 
 def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sleep,
-         boot=None, grace=20.0, held=None):
+         boot=None, grace=20.0, held=None, closed_ends=False):
     """(True, lines) once a marker line appears; (False, []) on timeout; (None, lines)
     when the log was last written before `boot` (the machine's boot time) and stays
     so for `grace` seconds: the job died in a restart. The grace covers a job
     started after the boot that appends (`>>`) and has not written yet.
     `held()` says whether a process still has the log open (default: /proc);
-    a marker with output after it in a held log is stale (`stale_marker`)."""
+    a marker with output after it in a held log is stale (`stale_marker`).
+    With `closed_ends` (an `--until` condition already holds), a log no process
+    has open also ends the wait, marker or not: the writer is done."""
     if held is None:
         held = lambda: holders(path)
     start = clock()
@@ -138,6 +140,8 @@ def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.m
             quiet = markers == DEFAULT_MARKERS
             if (any(is_marker(l, m) for l in lines for m in markers) or (quiet and any(map(is_quiet_marker, lines)))) \
                     and not stale_marker(lines, markers, held, quiet):
+                return True, lines
+            if closed_ends and held() == []:
                 return True, lines
             if boot is not None and os.stat(path).st_mtime < boot and clock() - start >= min(grace, timeout):
                 return None, lines
@@ -413,11 +417,17 @@ def main(argv=None):
             print(f"wait_for: condition met; {a.log} does not exist (wrong path, or the job writes "
                   "elsewhere?), so there is no output to show")
             return 0
-        print("wait_for: condition met; now waiting for the log's marker", file=sys.stderr)
+        print("wait_for: condition met; now waiting for the log's marker, or for its writer to close it",
+              file=sys.stderr)
     if not a.log:
         ap.error("give a log file, --until, --pid or --gone")
     boot = None if a.ignore_restart else boot_time()
-    ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, timeout, boot=boot)
+    # Once the condition holds, a log nobody still writes is finished too: waiting
+    # for a marker it will never get timed out on a done job twice (a task output
+    # file with no DONE, a log ending in a custom PDKDONE; friction 2026-11-21).
+    # A log the job still holds open waits for its marker, as before (2026-11-16).
+    ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, timeout, boot=boot,
+                     held=lambda: holders(a.log), closed_ends=bool(a.until))
     if ok is None:
         last = next((l for l in reversed(lines) if l.strip()), "(empty)")[:120]
         when = time.strftime("%H:%M:%S UTC", time.gmtime(boot))
