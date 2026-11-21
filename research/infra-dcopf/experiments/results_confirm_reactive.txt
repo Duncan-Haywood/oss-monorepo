@@ -15,21 +15,21 @@ F   case2746wop_k    typ   ok    0   95.13    0   22 (0.031)         0   95.09  
 F   case2746wp_k     api   ok   22  182.81    0    0 (0.000)       no solution                               -   1886
 F   case2746wp_k     sad   ok    0   98.78    0   51 (0.068)         0   98.78    0    0 (0.000)  clean   +0.059    481
 F   case2746wp_k     typ   ok    0   98.80    0   64 (0.076)         0   98.77    0    0 (0.000)  clean   +0.107    627
-F   case2848_rte     api    -    0   99.91    4    2 (4.361)       PENDING                                   -      0
+F   case2848_rte     api   ok    0   99.91    4    2 (4.361)       no solution                               -    299
 F   case2868_rte     sad   ok    0   99.90    1    0 (0.000)       over the 45-minute wall limit             -   2700
 F   case2869_pegase  api   ok    4  101.46    0    0 (0.000)       no solution                               -   1373
-F   case2869_pegase  sad   ok    2  109.12    0    3 (0.862)       PENDING                                   -      0
+F   case2869_pegase  sad   ok    2  109.12    0    3 (0.862)       no solution                               -   1053
 F   case2869_pegase  typ   ok    3  110.02    0    4 (0.434)       no solution                               -   1012
 X   case2312_goc     api   ok    5  106.38    0    0 (0.000)       no solution                               -   1282
 X   case2383wp_k     sad   ok    0   99.90    0   55 (0.087)         0  100.00    0    0 (0.000)  clean   +0.212    102
 X   case2383wp_k     typ   ok    0   99.90    0   64 (0.093)         0  100.00    0    0 (0.000)  clean   +0.063    117
 X   case2736sp_k     api   ok    2  105.27    0    1 (0.114)       no solution                               -   1056
 X   case2746wop_k    api   ok    5  183.15    0    0 (0.000)       over the 45-minute wall limit             -   2700
-X   case2853_sdet    sad    -   26  153.18    0    0 (0.000)       PENDING                                   -      0
-X   case2853_sdet    typ    -   17  131.77    0    0 (0.000)       PENDING                                   -      0
+X   case2853_sdet    sad   ok   26  153.18    0    0 (0.000)       no solution                               -    410
+X   case2853_sdet    typ   ok   17  131.77    0    0 (0.000)       no solution                               -    503
 X   case2868_rte     api   ok    1  100.01    5    3 (2.315)       no solution                               -    292
 
-22 cases; best point rerun on 19, reproduced on 19; J+R run on 18; J+R fully clean on 8 of the 18 scored.
+22 cases; best point rerun on 22, reproduced on 22; J+R run on 22; J+R fully clean on 8 of the 22 scored.
 Protocol start: J 9 of 23 that reach the repair; J or J+R 15 of 23 (of 33 cases).
 Second-solver start, the 10 no-start cases: J 1 of 9; J or J+R 3 of 9.
 Both together: J 10 of 33, J or J+R 18 of 33 (32 reach the repair).
@@ -37,6 +37,6 @@ Both together: J 10 of 33, J or J+R 18 of 33 (32 reach the repair).
 G0 (best point reproduced on every case): held
 G1 (J+R clean on both case2383wp_k): held (2 of 2)
 G2 (J+R clean on at least 7 of the 10 Q-only cases): held (8 of 10)
-G3 (J+R clean on none of the heavy-overload cases): held (0 of 5)
+G3 (J+R clean on none of the heavy-overload cases): held (0 of 7)
 G4 (protocol start, J or J+R at least 14 of 23): held (15)
 G5 (every J+R clean point within +7 %): held (range +0.008 to +0.212 %)

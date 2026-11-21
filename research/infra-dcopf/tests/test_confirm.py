@@ -38,3 +38,32 @@ def test_rescue_arm_covers_exactly_the_no_start_cases_and_scores_them():
     assert "PENDING" not in txt and "ERROR" not in txt
     assert res["pips"] == 0 and res["clarabel"] + res["pips"] <= len(cases)
     assert res["finishers"] <= res["full"] <= res["clarabel"]
+
+
+def test_reactive_arm_is_complete_and_reproduced():
+    import run_confirm_reactive as rr
+    txt, res = rr.summary()
+    assert "PENDING" not in txt
+    assert len(res["rows"]) == 22 and all(r["reproduced"] for r in res["rows"])
+    assert res["fin_F"] + res["gain_F"] <= res["reach_F"] == 23
+    for r in res["rows"]:
+        if r["clean"]:
+            assert r["JR"]["n_over"] == 0 and r["JR"]["vviol"] == 0 and r["JR"]["qviol"] == 0
+
+
+def test_highs_qp_matches_clarabel_on_a_small_case():
+    import pytest
+    pytest.importorskip("highspy")
+    pytest.importorskip("clarabel")
+    sys.path.insert(0, str(HERE.parent / "src"))
+    from diag_dc_infeasible import big_slack, convention, dc_ref
+    from infra_dcopf.pglib import case_path, fix_ref, load_m
+    ppc, _ = fix_ref(load_m(case_path("case118_ieee", "typ")))
+    p, _, _ = big_slack(ppc)
+    q = convention(p, "MP-x0")
+    fc, sc = dc_ref(q, True)
+    fh, sh = dc_ref(q, True, solver="highs-qp")
+    assert sc == "Solved" and sh == "Optimal"
+    assert abs(fh - fc) <= 1e-4 * abs(fc)
+    _, st = dc_ref(q, True, solver="highs-feas")
+    assert st == "Feasible"
