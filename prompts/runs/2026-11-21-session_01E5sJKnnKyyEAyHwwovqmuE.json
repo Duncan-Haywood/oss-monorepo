@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKnnKyyEAyHwwovqmuE",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T19:18:35Z",
+  "ended": "2026-11-21T19:27:45Z",
+  "wall_minutes": 9.5,
+  "tokens_in": 7289328,
+  "tokens_out": 41934,
+  "cost_usd": 3.5246,
+  "tool_calls": 61,
+  "task": "Flagship 13 xer-schedule-check: P6 resource curves (RSRCCURVDATA) in earned value's planned and remaining spread",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18131",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "Two sessions claimed the same item (resource notes) within 7 seconds; this one yielded to PR 18130 per claim_check and took another item."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions opened within 7 s on the same row both got the same 'start here' row and picked the same open item from NEXT.md; claim_check caught it only after the draft PR was opened. Picking by session id among the items, not just among rows, would avoid the duplicate."
+    },
+    {
+      "file": "ventures/xer-schedule-check/README.md",
+      "issue": "The long summary paragraph lives in llms.txt line 3, not README.md; an edit aimed at README by that sentence failed and cost a retry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "The item I first claimed was taken by an older PR seconds earlier; instead of moving to chant-forge as claim_check suggested, I stayed on xer-schedule-check with a different item (claim_check's SHARE rule allows it), since the context was already loaded.",
+      "did": "Took P6 resource curves in earned value",
+      "result": "claim_check HOLD for the new item; no file overlap with the notes PR expected beyond README/llms/flagships text"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-p6-resource-curves-in-earned-value.md",
+    "ventures/xer-schedule-check/eval/resource-curves-2026-11-21.md"
+  ],
+  "goal": null,
+  "notes": "Venture tests: node --test '*.test.mjs' 304 pass 0 fail. check_posts.py ok. Eval on six public XER files: 24/24 planted curve runs close on budget and EAC; Back/Front Loaded gaps equal and opposite. Found and fixed: actuals on actual starts after the data date dropped off the forecast curve (97.32 h on CCA). Not checked against P6's own timephased spread (no file carries it). No agent doc in docs/reports: the eval file and flagships next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e0be5c85-85a6-5970-b7e7-624569e12682",
+    "transcripts": 1,
+    "first": "2026-11-21T19:18:35Z",
+    "last": "2026-11-21T19:28:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 110,
+        "output": 41934,
+        "thinking": 10742,
+        "cache_read": 7131835,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157383,
+        "api_equivalent_usd": 3.5246,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 110,
+      "output": 41934,
+      "thinking": 10742,
+      "cache_read": 7131835,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157383,
+      "api_equivalent_usd": 3.5246,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.5,
+      "active_minutes": 9.5,
+      "model_minutes": 7.37,
+      "tool_minutes": 2.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior dev: read P6 curve format, implement spread, tests, eval on six files, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 283.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
