@@ -1,0 +1,22 @@
+{
+  "id": "P070",
+  "title": "Start here still demotes rows for hosts their buildable names only as spent or alternative sources",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "refused_rows demotes a flagship row when any host in its hosts: list or its buildable prose is refused. photo-editing's buildable names raw.pixls.us only as a source whose files are 'all read', while its open work runs on github.com, yet the row is moved behind every reachable one whenever raw.pixls.us refuses. Separately, allocate.py's _HOST_RE knows no .co, .ai or .ru TLD, so prose naming huggingface.co is never probed unless hosts: lists it.",
+  "evidence": [
+    "allocate.py on 2026-11-21 (this session): 'Moved behind ... photo-editing (raw.pixls.us REFUSED)' while github.com answered",
+    "git log origin/main --since=2026-11-19T12:00 subjects: photo-editing 9 commits vs xer-schedule-check 37",
+    "test_allocate.py test_no_outside_input_buildable_skips_stale_hosts had to use zenodo.org because huggingface.co in prose does not match _HOST_RE"
+  ],
+  "change": "Let a buildable mark a host as spent or optional (e.g. ignore hosts in a clause containing 'all read' or 'spent'), or demote only when every host of the row is refused and say which are refused in the Start here line; add co/ai/ru to _HOST_RE's TLD list with a test that file names still do not match.",
+  "touches": ["portfolio/router/allocate.py", "portfolio/router/test_allocate.py"],
+  "metric": "Deepen rows moved behind for a refused host whose open item does not use it",
+  "baseline": "1 (photo-editing) on 2026-11-21 after PR for chant-forge/einvoice",
+  "opened": "2026-11-21",
+  "source": "process critique, 2026-11-21 (Start here pool)",
+  "pr": null,
+  "result": null
+}

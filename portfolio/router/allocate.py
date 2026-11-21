@@ -434,12 +434,26 @@ def need_hosts(v: "Venture") -> list[str]:
     reference and legacy hosts (www.buildingsmart-tech.org, refused on
     2026-11-19) whose refusal says nothing about the buildable item."""
     seen: dict[str, str] = {}
+    buildable = v.flagship_buildable or ""
+    named = {m.group(1).lower() for m in _HOST_RE.finditer(buildable)}
+    # A buildable that says it needs "no outside input" outranks a `hosts:`
+    # list left over from an earlier item: only hosts its own prose names are
+    # probed. On 2026-11-21 chant-forge ("Coda reader, no outside input") was
+    # moved behind every reachable row because its old hosts: archive.org was
+    # refused, and had 0 merged commits in two days while the 4 rows left in
+    # the Start here pool took 22-37 each (process critique, run record notes).
+    own_word = bool(_NO_INPUT_RE.search(buildable))
     for url in v.flagship_hosts:
         name = re.sub(r"^[a-z]+://", "", url, flags=re.I).split("/", 1)[0].lower()
+        if own_word and name not in named:
+            continue
         seen.setdefault(name, url if "://" in url else "https://" + url)
-    for m in _HOST_RE.finditer(v.flagship_buildable or ""):
-        seen.setdefault(m.group(1).lower(), "https://" + m.group(1).lower() + "/")
+    for name in sorted(named, key=buildable.lower().find):
+        seen.setdefault(name, "https://" + name + "/")
     return list(seen.values())
+
+
+_NO_INPUT_RE = re.compile(r"\bno outside input\b", re.I)
 
 
 def table_probe(url: str) -> bool:
