@@ -80,3 +80,4 @@ for-other-minds | attrition, missing not at random | a follow-up survey of a deb
 for-other-minds | dose-response | an agent shown that more visits go with better outcomes asks whether the people who got more visits were chosen for them
 hearth-and-horizon | Braess paradox, Braess | a new link road that makes every driver's trip slower once each driver takes the route that is quickest for them; selfish routing, and closing the shortcut to speed everyone up
 hearth-and-horizon | heat index, wet-bulb | a heatwave day judged by the thermometer when the humidity decides whether sweat can cool a body; the same 34 C is a warm afternoon in dry air and a danger in wet
+hearth-and-horizon | friendship paradox, acquaintance immunization | a parish with too few doses finds that a friend named by a random person has more contacts than a random person, so dosing the named friend covers more of the network; the frail still come first by rule
