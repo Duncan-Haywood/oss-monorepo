@@ -210,3 +210,14 @@ test("the to-fill table reads back through Excel's separators and the formula gu
 test("ifcXML is refused: only STEP is written", () => {
   assert.throws(() => fill(ids(spec("IFCWALL", prop("P", "N", "IFCLABEL", simple("x")))), `<?xml version="1.0"?><ifcXML xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/final"></ifcXML>`), /only STEP/);
 });
+
+test("records are found past comments and strings that look like records", () => {
+  const m = MODEL.replace("#20=IFCPROPERTYSET(", "/* #20=IFCPROPERTYSET('x',$,'Pset_WallCommon',$,(#21)); */\n#20=IFCPROPERTYSET(")
+    .replace("'W-01'", "'W-01 #20=IFCPROPERTYSET(;'");
+  const r = fill(ids(spec("IFCWALL", prop("Pset_WallCommon", "LoadBearing", "IFCBOOLEAN", simple("true")))), m);
+  assert.equal(r.sets.edited, 1);
+  assert.equal(r.verified.pass, 3);
+  assert.ok(r.text.includes("/* #20=IFCPROPERTYSET('x',$,'Pset_WallCommon',$,(#21)); */"));
+  assert.ok(r.text.includes("'W-01 #20=IFCPROPERTYSET(;'"));
+  assert.match(r.text, /\n#20=IFCPROPERTYSET\('2XtwYdQJvA_eZmLqT9e9cw',#2,'Pset_WallCommon',\$,\(#21,#34\)\);/);
+});

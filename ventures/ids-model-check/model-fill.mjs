@@ -124,11 +124,15 @@ function findRecords(text, want) {
   if (!want.size) return out;
   let i = text.search(/\bDATA\s*;/);
   const n = text.length;
+  let q = 0, c = 0;
   while (i >= 0 && i < n && out.size < want.size) {
     const h = text.indexOf("#", i);
     if (h < 0) break;
-    // Skip strings and comments between records.
-    const q = text.indexOf("'", i), c = text.indexOf("/*", i);
+    // Skip strings and comments between records. The next quote and comment
+    // are found once and kept until the scan passes them: searching again from
+    // every record ran to the end of a file with none (quadratic).
+    if (q >= 0 && q < i) q = text.indexOf("'", i);
+    if (c >= 0 && c < i) c = text.indexOf("/*", i);
     if (q >= 0 && q < h) { i = recordEnd(text, q) + 1 || n; continue; }
     if (c >= 0 && c < h) { i = text.indexOf("*/", c + 2) + 2 || n; continue; }
     const m = /^#(\d+)\s*=\s*([A-Za-z0-9_]*)\s*\(/.exec(text.slice(h, h + 120));
