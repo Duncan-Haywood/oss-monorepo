@@ -21,6 +21,7 @@ from KNOWN.
 
     cd platform/ci && python3 -m unittest test_csv_thousands_split
 """
+import functools
 import pathlib
 import re
 import unittest
@@ -63,7 +64,12 @@ KNOWN = {
 }
 
 
+@functools.cache
 def flagged():
+    """The flagged files, as a frozenset. Scanned once per process: the
+    shrink test once called this for every KNOWN entry, 31 scans of about
+    4,900 files and 7.4 s of the unwired pool
+    (docs/history/ci-perf-2026-11-21-csv-split-ratchet-once.md)."""
     out = set()
     for p in sorted((ROOT / "ventures").glob("*/*.mjs")):
         if p.name.endswith(".test.mjs"):
@@ -73,7 +79,7 @@ def flagged():
             continue
         if SPLIT.search(s) and STRIP.search(s):
             out.add(p.relative_to(ROOT).as_posix())
-    return out
+    return frozenset(out)
 
 
 class CsvThousandsSplit(unittest.TestCase):
