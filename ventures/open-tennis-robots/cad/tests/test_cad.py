@@ -137,7 +137,7 @@ class GeometryTest(unittest.TestCase):
             if part.kind == "print":
                 n += sum(1 for f in part.shape.faces() if f.geom_type == GeomType.CYLINDER
                          and abs(f.radius - self.p.insert_hole_d / 2) < 1e-6)
-        self.assertEqual(n, 4 + 2 + 2 + 4 + 2)   # one cradle's top and bottom, one pivot block, the mast socket, a tower
+        self.assertEqual(n, 4 + 2 + 2 + 4 + 2 + 2)   # one cradle's top and bottom, one pivot block, the mast socket, a tower, the caster adapter
 
     def test_laser_parts_fit_a_standard_sheet(self):
         for part in self.parts:
@@ -240,7 +240,7 @@ class AssemblyGuideTest(unittest.TestCase):
     def test_design_passes_every_guide_check(self):
         rows, bad = self.G.joint_checks(self.p, self.parts)
         self.assertEqual(bad, [])
-        self.assertEqual(len(rows), 13)
+        self.assertEqual(len(rows), 16)
         self.assertEqual(self.G.tally(self.p, self.parts, self.rows), [])
         self.assertEqual(self.G.order_problems(self.p, self.parts), [])
         self.assertEqual(self.G.hatch_check(self.p, self.parts), [])
@@ -268,6 +268,29 @@ class AssemblyGuideTest(unittest.TestCase):
         tight = Collector(arm_gap=3.0)
         self.assertTrue(any("hatch" in r for r in tight.check()))
         self.assertTrue(self.G.hatch_check(tight, self.C.all_parts(tight)))
+
+    def test_pi_screws_share_the_standoff_without_meeting(self):
+        """2026-11-21: the BOM's "M2.5 x 6 screw + 6 mm standoff" x 4 held one end of each standoff, and an M2.5 x 6
+        through the 1.6 mm board would run 4.4 mm into a standoff whose lower 3 mm the tray screw fills."""
+        import dataclasses
+        rows = {r["joint"]: r for r in self.G.joint_checks(self.p, self.parts)[0]}
+        self.assertEqual(rows["Pi standoff to tray"]["grip_mm"], self.p.tray_t)
+        self.assertEqual(rows["Pi to standoff"]["grip_mm"], self.p.pi_pcb_t)
+        self.assertLessEqual(rows["Pi standoff to tray"]["spare_mm"] + rows["Pi to standoff"]["spare_mm"],
+                             self.p.pi_standoff_h)
+        j = next(x for x in self.G.joints(self.p) if x.name == "Pi to standoff")
+        with unittest.mock.patch.object(self.G, "joints", lambda p: [dataclasses.replace(j, length=6)]):
+            self.assertTrue(any("Pi to standoff" in b for b in self.G.joint_checks(self.p, self.parts)[1]))
+
+    def test_caster_flange_is_a_checked_joint(self):
+        """2026-11-21: "Ball caster mounting screws, 1" and a pattern drilled by eye; now two M4 x 10 into inserts."""
+        rows = {r["joint"]: r for r in self.G.joint_checks(self.p, self.parts)[0]}
+        self.assertEqual(rows["caster flange to adapter"]["grip_mm"], self.p.caster_flange[2])
+        self.assertTrue(rows["caster flange to adapter"]["ok"])
+        thick = Collector(caster_flange=(50.0, 22.0, 6.0))      # a thicker flange: the M4 x 10 no longer fills the insert
+        self.assertTrue(any("caster flange" in b for b in self.G.joint_checks(thick, self.C.all_parts(thick))[1]))
+        self.assertTrue(any("caster flange holes" in r for r in Collector(caster_hole_pitch=48.0).check()))
+        self.assertTrue(any("caster flange too short" in r for r in Collector(caster_flange=(40.0, 22.0, 3.0)).check()))
 
     def test_old_mast_position_is_a_rule(self):
         self.assertTrue(any("mast_x" in r for r in Collector(mast_x=-235.0).check()))

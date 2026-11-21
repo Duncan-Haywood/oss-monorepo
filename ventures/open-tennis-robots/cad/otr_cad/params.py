@@ -545,6 +545,10 @@ class Collector:
     # Caster at the rear.
     caster_x: float = -225.0
     caster_height: float = 25.0   # bought-in ball caster, mounting face to ground
+    # Its flange (2026-11-21): two M4 holes on this pitch along x, screwed up into heat-set inserts in the caster
+    # adapter's underside. Assumed figures for a two-hole flange caster; set them from the one you buy and rebuild.
+    caster_hole_pitch: float = 38.0
+    caster_flange: tuple[float, float, float] = (50.0, 22.0, 3.0)   # x, y, thickness
 
     # Electronics tray on standoffs.
     tray_t: float = 3.0
@@ -552,6 +556,12 @@ class Collector:
     tray_x1: float = -85.0
     tray_half_w: float = 115.0
     standoff_h: float = 30.0
+    # Raspberry Pi on four M2.5 x 6 mm female-female standoffs (2026-11-21): an M2.5 x 5 up through the tray into
+    # each, an M2.5 x 4 down through the board. The standoff is taken as threaded right through, so each screw may
+    # use half its length; the two tips must not meet.
+    pi_standoff_h: float = 6.0
+    pi_pcb_t: float = 1.6
+    pi_board: tuple[float, float] = (56.0, 85.0)  # x, y: Pi 4/5 board, holes 3.5 mm in from the corner on 49 x 58
 
     # Battery envelope (24 V LiFePO4, 10 Ah class), strapped through base slots.
     battery: tuple[float, float, float] = (80.0, 180.0, 100.0)  # x, y, z
@@ -670,6 +680,13 @@ class Collector:
             bad.append("electronics tray does not fit between the rear edge and the motors")
         if abs(self.mast_x - self.caster_x) > 1e-9:
             bad.append("mast socket and caster adapter share their four bolts: mast_x must equal caster_x")
+        # the caster's inserts: inside the 56 mm adapter by 2 mm, and 2 mm clear of the four M4 x 20 counterbores
+        ins = self.insert_hole_d / 2
+        cx = self.caster_hole_pitch / 2
+        if cx + ins > 28 - 2 or math.hypot(20 - cx, 20) - 4.0 - ins < 2:
+            bad.append("caster flange holes: an insert would break out of the adapter or into an M4 x 20 counterbore")
+        if self.caster_flange[0] < self.caster_hole_pitch + 8:
+            bad.append("caster flange too short for its hole pitch")
         bore = self.motor_d / 2 + 0.2
         if self.clamp_bolt_x - self.insert_hole_d / 2 - bore < 3 or self.clamp_w / 2 - self.clamp_bolt_x - self.insert_hole_d / 2 < 2:
             bad.append("motor clamp cap bolts: under 3 mm of plastic to the motor bore or 2 mm to the clamp's side")
