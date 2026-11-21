@@ -78,6 +78,26 @@ class NoisePcaTests(unittest.TestCase):
 
             estimate_noise_pca(p[:100, :1].reshape(10, 10), BAYER, eig="nope")
 
+    def test_mpcw_reads_the_colours_mean_where_chen_reads_low(self):
+        # eval/noise-pca-whitened-level-2026-11-21.md: white-balanced noise (gains 2, 1, 1.6 on R, G, B of a
+        # 6 x 6 Bayer patch) is read as the colours' mean variance, as ``carries`` builds the true model; Chen's
+        # prefix sits nearer the quiet green.
+        from shootflow.noise_pca import _eig_sigma2_idx
+
+        np = self.np
+        col = np.array([BAYER[(y % 2) * 2 + (x % 2)] for y in range(6) for x in range(6)])
+        cols = [np.flatnonzero(col == k) for k in (0, 1, 2)]
+        sd = np.array([0.02, 0.01, 0.016])[col]
+        p = self.rng.normal(size=(8000, 36)) * sd
+        want = float(np.mean(np.array([0.02, 0.01, 0.016]) ** 2))
+        idx = np.arange(8000)
+        self.assertAlmostEqual(_eig_sigma2_idx(p, idx, "mpcw", cols) / want, 1.0, delta=0.05)
+        self.assertLess(_eig_sigma2_idx(p, idx, "chen") / want, 0.8)
+        # one silent colour: no ratio to take, so Chen's read
+        q = p.copy()
+        q[:, cols[0]] = 0.0
+        self.assertEqual(_eig_sigma2_idx(q, idx, "mpcw", cols), _eig_sigma2_idx(q, idx, "chen"))
+
     def test_smooth_field_reads_the_true_sigma(self):
         from shootflow.noise_pca import estimate_noise_pca
 
