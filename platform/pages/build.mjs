@@ -131,6 +131,7 @@ import {
 } from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 import { REFLOW_CSS, TABLE_SCROLL_CLASS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
+import { FIGURE_COLUMNS_CSS, FIGURE_COLUMNS_JS } from './figure-columns.mjs';
 import { PAPER_INK_JS } from './paper.mjs';
 import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
 import { JUMP_ROW_CSS } from './jump-row.mjs';
@@ -10911,8 +10912,9 @@ export function renderChromeStyle() {
   // a tool page adopts with markup alone (jump-row.mjs, JUMP_ROW_CSS), and the
   // "quick answer" look of an answer-first lead (answer-lead-style.mjs), and the
   // floor that keeps a select in a table cell readable (select-fit.mjs; it must
-  // follow REFLOW_CSS, whose narrow-screen min-width:0 it overrides).
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}${STICKY_FIT_CSS}${JUMP_ROW_CSS}${ANSWER_LEAD_CSS}${SELECT_FIT_CSS}`;
+  // follow REFLOW_CSS, whose narrow-screen min-width:0 it overrides), and the
+  // right-aligned figure columns pf-site.js marks (figure-columns.mjs).
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}${STICKY_FIT_CSS}${JUMP_ROW_CSS}${ANSWER_LEAD_CSS}${SELECT_FIT_CSS}${FIGURE_COLUMNS_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
@@ -11126,7 +11128,21 @@ const SCROLL_A11Y_SCRIPT = `
     }
     if(!el.hasAttribute('data-pf-pin'))el.setAttribute('data-pf-pin','');
   };
+  // Figure columns right-aligned with tabular digits (figure-columns.mjs):
+  // checked with the widths, because a calculator rewrites its result table
+  // on input and a resize can turn a venture's table into cards.
+  // A table some calculators fill after load with no event to hear (a
+  // comparison tbody written from saved rates) is watched for its own
+  // changes; our attributes are not observed, so marking does not re-trigger.
+  ${FIGURE_COLUMNS_JS}
+  var watch=function(t){
+    if(t._pfObs||typeof MutationObserver!=='function')return;
+    t._pfObs=new MutationObserver(function(){later(1);});
+    t._pfObs.observe(t,{childList:true,subtree:true,characterData:true});
+  };
   var measure=function(){
+    var tl=document.getElementsByTagName('table');
+    for(var k=0;k<tl.length;k++){try{figs(tl[k]);watch(tl[k]);}catch(e){}}
     for(var i=0;i<candidates.length;i++){
       var el=candidates[i];
       if(el.scrollWidth>el.clientWidth+1){

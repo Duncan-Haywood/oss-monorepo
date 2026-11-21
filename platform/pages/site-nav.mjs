@@ -24,6 +24,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
 import { REFLOW_CSS } from './reflow.mjs';
+import { FIGURE_COLUMNS_CSS } from './figure-columns.mjs';
 import { markSvg } from './sharecard.mjs';
 
 export const SITE_NAME = 'Maris Stella Labs';
@@ -719,9 +720,11 @@ th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
  * `<code>experiments/hub_throughput/cargo_hub_trace_taper.py</code>`, an
  * unbreakable token that `:where(code){overflow-wrap:break-word}` exists to
  * break. Every rule in it has zero specificity, so a page's own CSS still wins.
+ * `FIGURE_COLUMNS_CSS` styles the figure columns pf-site.js marks in tables
+ * written at runtime (/ask/'s scores, for one; figure-columns.mjs).
  */
 export function renderSiteStyle() {
-  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}${STACK_TABLE_CSS}${NUM_TABLE_CSS}${REFLOW_CSS}`;
+  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}${STACK_TABLE_CSS}${NUM_TABLE_CSS}${FIGURE_COLUMNS_CSS}${REFLOW_CSS}`;
 }
 
 /** The `<link>` a site-owned page puts in its head. */
