@@ -86,7 +86,7 @@ test("the page has a model view drawn from the takeoff's own solids", () => {
   const html = page("index.html");
   assert.match(html, /<canvas id="view"/);
   assert.match(html, /import \{ ModelView \} from "\.\/viewer\.mjs"/);
-  assert.match(html, /meshRows\(prep\.rows/);
+  assert.match(html, /meshRows\(left, prep\.origin\)/);
   assert.match(page("view-worker.mjs"), /meshRows\(rows, origin\)/);
   // a bill-of-quantities line and a check row both select elements in the view
   assert.match(html, /record\("boq_line_shown"\)/);
