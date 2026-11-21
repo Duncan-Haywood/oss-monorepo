@@ -52,3 +52,14 @@ test('compareBaseline flags new and deeper pages, lists fixed ones, ignores unme
 test('BASELINE_PATH sits beside the script', () => {
   assert.match(BASELINE_PATH, /platform[\\/]pages[\\/]venture-fold-baseline\.json$/);
 });
+
+test('the committed baseline is for the 390x844 screen and lists only past-the-fold tops', async () => {
+  const fs = await import('node:fs');
+  const doc = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
+  assert.equal(doc.width, 390);
+  assert.equal(doc.height, 844);
+  for (const [slug, top] of Object.entries(doc.below)) {
+    assert.ok(Number.isFinite(top) && top > 844 - 16, `${slug}: ${top}`);
+    assert.ok(fs.existsSync(new URL(`../../ventures/${slug}/index.html`, import.meta.url)), `${slug} is a venture`);
+  }
+});
