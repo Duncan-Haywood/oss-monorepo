@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVLh38HTujKnjNKtcNq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market revenue products); merge when done",
+  "input_sha256": "d4a428fd47e04854a11898c206679e033917de676209d7fbbaa7771e457f0e2c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T17:17:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector: joint growth fit, gated, as the count Middle",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 18107,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "changepoint-detector next: sits at the 2000-character cap; replacing one item with a same-length result needed three tries of flagship_field.py to fit."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-changepoint-a-growth-term-that-stops-flipping.md"
+  ],
+  "goal": null,
+  "notes": "Flagship row 2 (changepoint-detector), item 'next the joint --trend fit'. Diagnostic (eval/middle-trend-why.mjs, probe seeds) found the robust growth gate flipping 11-25 times per 121 checks. Pre-registered round eval/middle-trend-joint.prereg.md (committed first, 58 min on 4 cores): JG (joint fit + log n gate) passed H1-H4 (T1 growing 30%: 1.46 alerts/1,000 days, 6/40 sites, vs Middle 7.71, 27/40); G4 failed (+0.64, upper 1.03 > 1.0) so the default stays. COUNT_MIDDLE now {pelt, nb, trend:'gated'}; --trend gated on CLI and watch; page, hint note, watch page, llms.txt updated. Real shop: no-period Middle 7->5 alerts, hint now picks Middle, drops the 2011-09-19 alert inside the autumn build-up (reported). Venture suite: 3 pinned tests updated (gsc-middle, count-default-middle, real-shop), then rerun green; venture-preflight run before merge.",
+  "corrections": [],
+  "redteam": null
+}

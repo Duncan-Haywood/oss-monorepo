@@ -13,9 +13,9 @@ import { labels, series, FROM, AT } from './eval/gsc-sites.mjs';
 const here = fileURLToPath(new URL('.', import.meta.url));
 const at = (r) => r.alerts.map((a) => [labels.indexOf(String(a.label)), a.reportedAt]);
 
-test('the middle for counts is PELT with the negative-binomial cost, and says so', () => {
-  assert.deepEqual(COUNT_MIDDLE, { detector: 'pelt', overdispersion: 'nb' });
-  assert.equal(settingWords(COUNT_MIDDLE), 'pelt, negative-binomial cost');
+test('the middle for counts is PELT with the negative-binomial cost (and, since 2026-11-21, the gated growth term), and says so', () => {
+  assert.deepEqual(COUNT_MIDDLE, { detector: 'pelt', overdispersion: 'nb', trend: 'gated' });
+  assert.equal(settingWords(COUNT_MIDDLE), 'pelt, negative-binomial cost, growth term when it earns its place');
 });
 
 test('on a fresh simulated site it hears the 20% fall Quiet misses, and stays quiet with no fall', () => {

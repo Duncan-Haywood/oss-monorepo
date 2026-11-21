@@ -46,3 +46,9 @@ test('the watch takes --trend gated for counts only', async () => {
   assert.equal(JSON.parse(text).alerts.length, 0);
   await assert.rejects(main([csv, '--trend', 'gated', '--dry-run'], { out: () => {} }), /gated is for counts/);
 });
+
+test('a stored --detector auto choice carries its growth term; one stored before keeps the flat Middle', async () => {
+  const { choiceOptions, COUNT_MIDDLE } = await import('./watch-core.mjs');
+  assert.deepEqual(choiceOptions({ key: 'middle', ...COUNT_MIDDLE }), { detector: 'pelt', overdispersion: 'nb', trend: 'gated' });
+  assert.deepEqual(choiceOptions({ key: 'middle', detector: 'pelt', overdispersion: 'nb' }), { detector: 'pelt', overdispersion: 'nb' });
+});
