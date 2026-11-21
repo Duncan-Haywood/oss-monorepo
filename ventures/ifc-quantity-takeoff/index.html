@@ -63,7 +63,7 @@
 <body>
 <main>
   <h1>IFC Quantity Takeoff</h1>
-  <p class="lede">Drop an IFC model and get a bill of quantities: counts, lengths, areas, volumes and weights by class, type, storey, material, classification code or Uniformat II element. Every volume and area is also recomputed from the model's own geometry, openings taken out, and compared with what the authoring tool stored, so you know which numbers to trust before you price them. Got a new issue of the model? Drop the old one too and see what changed, line by line and element by element. And see it: every line and every disagreement can be shown in a 3D view of the model.</p>
+  <p class="lede">Drop an IFC model and get a bill of quantities: counts, lengths, areas, volumes and weights by class, type, storey, material, classification code or Uniformat II element. Every volume and area is also recomputed from the model's own geometry, openings taken out, and compared with what the authoring tool stored, so you know which numbers to trust before you price them. Got a new issue of the model? Drop the old one too and see what changed. Every line and disagreement can be shown in 3D.</p>
   <p class="cta-row"><a class="cta" href="#drop">Take off a model</a> <a class="cta ghost" href="samples/sample-office.ifc">Get the sample IFC</a></p>
 
   <div class="drop" id="drop">
@@ -317,7 +317,7 @@
     selected = ids && ids.size ? ids : null;
     picked = null;
     recolor();
-    if (view && selected) { view.fit(selected); $("model").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    if (view && selected) { view.fit(selected); $("model").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); }
     if (selected && why) $("view-pick").textContent = why;
   }
   function describe(r) {

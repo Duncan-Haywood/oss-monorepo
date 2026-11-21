@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": 10,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "venture-preflight failed twice before clean: unguarded smooth scroll, lede over 100 words"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -50,7 +52,7 @@
     "ventures/ifc-quantity-takeoff/eval/model-view-2026-11-21.md"
   ],
   "goal": "A free IFC takeoff that shows the estimator, in 3D, which elements a BoQ line holds and which stored quantities to distrust",
-  "notes": "view-mesh.mjs draws the boundary of the takeoff's signed convex-piece solids (extrusion shortcut: fan diagonals cancel, caps ear-clipped with holes bridged; general: face cut by overlapping pieces, kept where the signed count changes, coplanar parts owned by the earliest piece). Check: enclosed triangle volume vs computed volume; 11 public models, 14,994 elements, 9,184/9,314 within 0.5%, 437 drawn as boxes (work, piece and triangle budgets). 130 disagreements left as found (126 on ARK_NUS furnishing, NEXT.md). Speed: sample beam 33 s -> 40 ms; Mini Project 114 s -> 8 s. Verified: run_venture_tests.py ifc-quantity-takeoff ok (venture + site page checks), check_posts ok, validate.py ok, Playwright screenshots of the page on the sample, duplex, kleine_Wohnung and FZK-Haus (picks and BoQ selection work, no console errors); venture-preflight result in the PR.",
+  "notes": "view-mesh.mjs draws the boundary of the takeoff's signed convex-piece solids (extrusion shortcut: fan diagonals cancel, caps ear-clipped with holes bridged; general: face cut by overlapping pieces, kept where the signed count changes, coplanar parts owned by the earliest piece). Check: enclosed triangle volume vs computed volume; 11 public models, 14,994 elements, 9,184/9,314 within 0.5%, 437 drawn as boxes (work, piece and triangle budgets). 130 disagreements left as found (126 on ARK_NUS furnishing, NEXT.md). Speed: sample beam 33 s -> 40 ms; Mini Project 114 s -> 8 s. Verified: run_venture_tests.py ifc-quantity-takeoff ok (venture + site page checks), check_posts ok, validate.py ok, Playwright screenshots of the page on the sample, duplex, kleine_Wohnung and FZK-Haus (picks and BoQ selection work, no console errors); venture-preflight clean after two fixes it caught (an unguarded smooth scroll; the lede past 100 words).",
   "corrections": [],
   "redteam": null
 }
