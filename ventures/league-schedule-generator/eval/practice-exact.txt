@@ -1,0 +1,48 @@
+Practice slots: practice.mjs's search against the least possible score (CP-SAT, OR-Tools 9.15,
+20 s and 4 workers a case). 2026-11-21.
+
+  node eval/practice-exact.mjs 60 1 tight > tight.json    # demand 75-105% of field capacity
+  node eval/practice-exact.mjs 40 2 loose > loose.json    # demand 40-70%
+  python3 eval/practice-exact.py tight.json 20            # pip install ortools
+
+Random leagues: 2-4 fields (1, 2 or 4 units), Mon-Thu windows with some Fri and Sat mornings,
+8-40 teams (1, 2 or 4 units up to the biggest field; 1 or 2 practices a week), half with preferred
+days, 40% a preferred time range, 30% a no-day, 30% Saturday games, early finishes for half the
+small teams, a quarter of teams sharing a coach with the team before. Both sides use the options
+practiceOptions builds, so the rules are identical; the score is sum over teams of
+10000 x unplaced + misses^2.
+
+== Shipped search (greedy start, annealing with relocate and multi-eviction chains of depth 0-2,
+   four reheats from the best, three restarts up to 80 practices)
+
+-- tight (seed 1)
+60 cases, 55 proved optimal by CP-SAT in 20 s
+search equals the proved optimum: 55 of 55
+search worse than CP-SAT's best: 0; better than CP-SAT's best (CP-SAT unproved): 1
+search met the solo bound (proved on the page): 21 of 60
+search time: median 479 ms, max 1892 ms
+
+-- loose (seed 2)
+40 cases, 40 proved optimal by CP-SAT in 20 s
+search equals the proved optimum: 40 of 40
+search worse than CP-SAT's best: 0; better than CP-SAT's best (CP-SAT unproved): 0
+search met the solo bound (proved on the page): 33 of 40
+search time: median 1 ms, max 1168 ms
+
+95 of 95 proved optima matched; on one case CP-SAT did not prove in 20 s, the search's answer is
+below CP-SAT's best. "Proved on the page" counts cases where every team meets its solo bound (its
+best week with the fields to itself), the only proof the page itself can give; in the other cases
+the page says "not proved" even when the grid is optimal, as in the guide's worked example (score
+4, solo bound 0, optimal by the hand argument in the guide, and CP-SAT proves 4 for it in under a second).
+
+== How the search got there (same rules, earlier generators)
+
+- First version (single eviction, one cycle, ~60x fewer iterations), first generator's 40 tight
+  cases: 25 of 35 proved optima matched, 14 cases worse (gaps 1 to 10,000: a practice left out
+  that could be placed). Search time median 19 ms.
+- Occupancy lists, eviction chains, four reheats, 60 tight cases of the shipped generator: 54 of
+  55. The miss (case 14) left a half-field team out because one eviction freed one quarter.
+- Evicting holders until the block fits fixed it in one of four seeds; three restarts: 55 of 55.
+- Large overloaded leagues (eval-style 200 teams on 13 parks): 10.5 s with three restarts at the
+  old iteration cap, 1.8 s with one restart above 80 practices and an 800,000 cap. The page runs
+  the search in a worker (practice-worker.mjs) so the tab stays responsive.
