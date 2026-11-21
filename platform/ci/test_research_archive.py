@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -12,8 +13,19 @@ from unittest import mock
 
 import research_archive as archive
 
+# gc.auto and maintenance.auto off: each fetch, push and commit otherwise starts
+# a `git gc --auto` and a `git maintenance run --auto` child (87 extra processes
+# per run) that never has anything to pack in a repository this small.
+# commit.gpgsign off: a session with signing configured globally would sign
+# every fixture commit. None of the three changes what research_archive sees.
 ENV = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t",
-       "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t"}
+       "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t",
+       "GIT_CONFIG_COUNT": "3",
+       "GIT_CONFIG_KEY_0": "gc.auto", "GIT_CONFIG_VALUE_0": "0",
+       "GIT_CONFIG_KEY_1": "maintenance.auto", "GIT_CONFIG_VALUE_1": "false",
+       "GIT_CONFIG_KEY_2": "commit.gpgsign", "GIT_CONFIG_VALUE_2": "false"}
+NAMES = ("up.git", "origin.git", "w", "here")
+_TEMPLATE: list[Path] = []
 
 
 def sh(cwd: Path, *args: str) -> str:
@@ -24,18 +36,40 @@ def sh(cwd: Path, *args: str) -> str:
 class Branches(unittest.TestCase):
     """An upstream with branches and pull refs, an origin, and a clone of origin."""
 
+    @staticmethod
+    def template() -> Path:
+        """The four repositories after the first commit, built once per process.
+
+        Every test used to rebuild them with nine git commands; it now copies
+        this directory and repoints the clone's origin at its own copy
+        (docs/history/ci-perf-2026-11-21-research-archive-fixture-template.md).
+        """
+        if not _TEMPLATE:
+            tmp = tempfile.TemporaryDirectory()
+            unittest.addModuleCleanup(tmp.cleanup)
+            base = Path(tmp.name)
+            up, origin, work, here = (base / n for n in NAMES)
+            sh(base, "init", "-q", "--bare", str(up))
+            sh(base, "init", "-q", "--bare", str(origin))
+            sh(base, "init", "-q", "-b", "main", str(work))
+            (work / "a").write_text("a")
+            sh(work, "add", "a")
+            sh(work, "commit", "-qm", "a")
+            sh(work, "push", "-q", str(up), "main")
+            sh(work, "push", "-q", str(origin), "main")
+            sh(base, "clone", "-q", "-b", "main", str(origin), str(here))
+            _TEMPLATE.append(base)
+        return _TEMPLATE[0]
+
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         base = Path(tmp.name)
-        self.upstream, self.origin, self.work, self.here = (base / n for n in ("up.git", "origin.git", "w", "here"))
-        sh(base, "init", "-q", "--bare", str(self.upstream))
-        sh(base, "init", "-q", "--bare", str(self.origin))
-        sh(base, "init", "-q", "-b", "main", str(self.work))
-        self.commit("a")
-        sh(self.work, "push", "-q", str(self.upstream), "main")
-        sh(self.work, "push", "-q", str(self.origin), "main")
-        sh(base, "clone", "-q", "-b", "main", str(self.origin), str(self.here))
+        self.upstream, self.origin, self.work, self.here = (base / n for n in NAMES)
+        template = self.template()
+        for name in NAMES:
+            shutil.copytree(template / name, base / name, symlinks=True)
+        sh(self.here, "remote", "set-url", "origin", str(self.origin))
 
     def commit(self, name: str) -> str:
         (self.work / name).write_text(name)
