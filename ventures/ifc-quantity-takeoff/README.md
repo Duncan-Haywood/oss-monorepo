@@ -88,6 +88,18 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   storey: ARK_NUS's 5 floors showed as 198. They now count on the storey
   above their room (1,268 ARK_NUS elements, 37 in kleine_Wohnung)
   ([eval/storeys-and-sections-2026-11-21.md](eval/storeys-and-sections-2026-11-21.md)).
+  The takeoff and the meshing both run in a Web Worker
+  (`view-worker.mjs`), and the GPU buffers grow by appending, so the page
+  keeps answering while a big model reads and draws. The worker posts the
+  takeoff's rows back without their solids (they are non-enumerable, so
+  structured cloning leaves them out: 6 MB and 27 ms on the 56 MB school
+  model) and keeps the solids to mesh. On that model the longest freeze
+  while reading went from 11.7 s to 0.7 s, and the view is drawn 35 s after
+  the drop instead of 47 s, since the model is no longer taken off twice
+  ([eval/takeoff-worker-2026-11-21.md](eval/takeoff-worker-2026-11-21.md));
+  stalls over 100 ms while drawing went from 59 to 4
+  ([eval/view-worker-2026-11-21.md](eval/view-worker-2026-11-21.md)).
+  Without workers the page does both itself, as before.
 
 Nothing is uploaded: the model is read in the browser tab.
 

@@ -26,3 +26,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (2026-11-21) XER reader: P6's doubled quotes (`""` inside an unquoted value; every inner quote in P6 6.0, 7.0 and 20.12 exports) read as one in every value, and `xerText` writes them back doubled; `msproject.mjs`'s own unescape dropped. 22,260 of 22,260 names = MPXJ's (11 wrong before), 448,834 of 448,835 rows written back byte for byte, CPM 19,820 of 19,822 unchanged (eval/quotes-2026-11-21.md).
 - (moved 2026-11-21) WBS UDFs on summary tasks 2026-11-21 (6,383/6,383 planted back, MPXJ agrees; eval/wbs-udfs-2026-11-21.md)
 - (moved 2026-11-21) resource UDFs as resource fields 2026-11-21 (330/330 through XML and back, MPXJ agrees; eval/rsrc-udfs-2026-11-21.md)
+- (moved 2026-11-21) UDFs as Number/Cost/Date/Text fields 2026-11-21 (42,971/42,971 back, MPXJ agrees; eval/msproject-udfs-2026-11-21.md)

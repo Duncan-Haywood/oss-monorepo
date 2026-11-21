@@ -401,8 +401,8 @@ flagships:
       (boxleague.mjs); next: a real club's month. Practice slots on shared fields
       2026-11-21 (practice.mjs: 95 of 95 CP-SAT optima, eval/practice-exact.txt);
       next: a real league's fields and teams. Swiss 2026-11-21 (swiss.mjs; repeat
-      floats, eval/swiss-repeat-floats.txt); next: bbpPairings side-by-side. More
-      open items: NEXT.md.
+      floats; TRF files, trf.mjs; FIDE C5/C9 = bbpPairings); next: bbpPairings on
+      swissToTrf. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
@@ -535,8 +535,9 @@ flagships:
       verdicts 291 of 291; with 65 public IDS 6,552 of 6,596, the rest converter
       omissions); next: an authoring tool's own ifcJSON. IFC5 .ifcx read 2026-11-21
       (ifcx.mjs, cli --layer; eval/ifcx-twins-2026-11-21.md: 8 twins, class 12,115
-      of 12,116, partOf 1,646 of 1,648, 47 of 47 files); next: IFC5 system links, a
-      real authoring tool's .ifcx. More open items: NEXT.md.
+      of 12,116, partOf 1,646 of 1,648, 47 of 47 files); systems 2026-11-21
+      (eval/ifcx-systems-*: 9/9 members, 15/15 port pairs); next: a real tool's
+      .ifcx. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
@@ -578,14 +579,14 @@ flagships:
       P6's on 305 of 305, eval/gantt-check-2026-11-20.md). (13) XER to Project XML
       shipped 2026-11-21 (eval/msproject-check-2026-11-21.md); activity codes as
       Text2-30 2026-11-21 (276,042/276,042 back, MPXJ agrees;
-      eval/msproject-codes-2026-11-21.md); UDFs as Number/Cost/Date/Text fields
-      2026-11-21 (42,971/42,971 back, MPXJ agrees;
-      eval/msproject-udfs-2026-11-21.md); outline codes 2026-11-21
+      eval/msproject-codes-2026-11-21.md); outline codes 2026-11-21
       (eval/msproject-outline-2026-11-21.md); next a Project check. MSPDI to XER
-      shipped 2026-11-21 (eval/p6xer-check-2026-11-21.md). Notebooks <-> task notes
-      2026-11-21 (88/88 real, 2,006/2,006 planted back; XER saved in Windows-1252;
-      eval/notebooks-2026-11-21.md); next a real P6 import, P6 Web plain multi-line
-      memos. More open items: NEXT.md.
+      shipped 2026-11-21 (eval/p6xer-check-2026-11-21.md). Expenses <-> cost
+      resources and fixed costs 2026-11-21 (1,526/1,526 to the cent, MPXJ agrees;
+      eval/expenses-2026-11-21.md); next a P6-written XER with expenses, a P6 import
+      (category by name?). Notebooks <-> task notes 2026-11-21 (88/88 real,
+      2,006/2,006 planted back; XER saved in Windows-1252;
+      eval/notebooks-2026-11-21.md). More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
@@ -615,17 +616,17 @@ flagships:
       History and every measurement: ventures/ifc-quantity-takeoff/README.md and
       eval/. its misses traced 2026-11-21: overlapping body items joined (a cabinet
       had counted 1.8x its box), 9,310 of 9,312 now enclose the computed volume
-      (eval/item-union-2026-11-21.md; next in NEXT.md). Storeys, section plane, room
-      contents on their storey 2026-11-21 (eval/storeys-and-sections-2026-11-21.md).
-      Next, most valuable first: (1) the covering up-cut rule tested on a second
-      model, the joins rule on an ArchiCAD export with partitions on both faces; (2)
-      method of measurement: small voids left in shipped 2026-11-20 (measure.mjs,
-      page and cli --voids-up-to; 1,099 of 1,136 opening cuts = stored WxH;
-      eval/measure-rules-2026-11-20.md); Uniformat II grouping shipped 2026-11-20
-      (uniformat.mjs, --by uniformat; rules vs authors' codes 482 of 588 at level 3,
-      held-out 66 of 69; eval/uniformat-2026-11-20.md), envelope from geometry
-      shipped 2026-11-20 (envelope.mjs: unflagged walls placed by rays, 268 coded;
-      uniform flags set aside; flag vs geometry 3,534 of 4,564;
+      (eval/item-union-2026-11-21.md; next in NEXT.md). Storeys, sections, room
+      contents on their storey, takeoff+mesh worker 2026-11-21 (eval/storeys-and-*,
+      eval/*-worker-*). Next, most valuable first: (1) the covering up-cut rule
+      tested on a second model, the joins rule on an ArchiCAD export with partitions
+      on both faces; (2) method of measurement: small voids left in shipped
+      2026-11-20 (measure.mjs, page and cli --voids-up-to; 1,099 of 1,136 opening
+      cuts = stored WxH; eval/measure-rules-2026-11-20.md); Uniformat II grouping
+      shipped 2026-11-20 (uniformat.mjs, --by uniformat; rules vs authors' codes 482
+      of 588 at level 3, held-out 66 of 69; eval/uniformat-2026-11-20.md), envelope
+      from geometry shipped 2026-11-20 (envelope.mjs: unflagged walls placed by
+      rays, 268 coded; uniform flags set aside; flag vs geometry 3,534 of 4,564;
       eval/envelope-2026-11-20.md), frames split B1010/B1020/A1010 by the deck they
       carry 2026-11-20 (level 3 19,767 to 22,546 elements;
       eval/frames-2026-11-20.md), slabs typed FLOOR read as finishes, sun shades or

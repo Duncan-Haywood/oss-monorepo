@@ -117,3 +117,50 @@ test("not JSON, or no data list, is said", () => {
   assert.throws(() => new Model('{"ifcxVersion": "x", ', R.schemas), /IFC5 model not read/);
   assert.throws(() => new Model('{"ifcxVersion": "x", "data": 3}', R.schemas), /no IFC5 "data" list/);
 });
+
+test("systems: members assigned to the system, port connections and flow direction", () => {
+  // Shaped like buildingSMART's domestic-hot-water.ifcx: a system node under
+  // an unclassed root, bsi::ifc::system::partofsystem on its members,
+  // connectsto written on both ports of a connection.
+  const SYS = "6832774b-b948-43cc-9b7e-4bb2024e162a", PIPE = "5b477df7-581a-4bab-b94c-7ab539a932d1", TANK = "1fff93af-f514-40dd-8e1c-deaf0d149369";
+  const PA = "2c9b0c05-d5cd-4b01-a769-41be68f6ac88", PB = "d72c35b8-97cf-4d55-8dd4-3d8bddb3c810", LONE = "b0a153c6-32ba-4f40-a8d8-db7ce06ff4a1";
+  const doc = {
+    data: [
+      { path: "2a22c4a4-48a6-54a1-bdc7-ccc1af978446", children: { water_supply: SYS } },
+      { path: P, children: { My_Storey: ST }, attributes: cls("IfcProject") },
+      { path: ST, children: { Pipe: PIPE, Tank: TANK, Lone: LONE }, attributes: cls("IfcBuildingStorey") },
+      { path: SYS, attributes: cls("IfcDistributionSystem") },
+      { path: SYS, attributes: { "bsi::ifc::system::servicesfacility": [{ ref: "e84dc79e-fe9d-4781-9f4b-54dd435cca91" }] } },
+      { path: PIPE, children: { pipe_out: PA }, attributes: { ...cls("IfcPipeSegment"), "bsi::ifc::system::partofsystem": [{ ref: SYS }] } },
+      { path: TANK, children: { tank_in: PB }, attributes: { ...cls("IfcTank"), "bsi::ifc::system::partofsystem": [{ ref: SYS }] } },
+      { path: LONE, attributes: { ...cls("IfcValve"), "bsi::ifc::system::partofsystem": [{ ref: PIPE }] } },
+      { path: PA, attributes: { ...cls("IfcDistributionPort"), "bsi::ifc::system::connectsto": [{ ref: PB }], "bsi::ifc::system::flowdirection": "SOURCE" } },
+      { path: PB, attributes: { ...cls("IfcDistributionPort"), "bsi::ifc::system::connectsto": [{ ref: PA }], "bsi::ifc::system::flowdirection": "SINK" } },
+    ],
+  };
+  const text = JSON.stringify(doc);
+  const m = new Model(text, R.schemas, { psets: R.psets });
+  const p = parseIfcx(text, R.schemas.IFC4X3, R.psets);
+  const groups = byType(m, "IFCRELASSIGNSTOGROUP");
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].args[groups[0].args.length - 1].ref, byType(m, "IFCDISTRIBUTIONSYSTEM")[0].id);
+  // One IfcRelConnectsPorts for the pair, though both ports name it.
+  assert.equal(byType(m, "IFCRELCONNECTSPORTS").length, 1);
+  // The system is assigned, not placed in the spatial tree.
+  const sysId = byType(m, "IFCDISTRIBUTIONSYSTEM")[0].id;
+  for (const r of [...byType(m, "IFCRELAGGREGATES"), ...byType(m, "IFCRELCONTAINEDINSPATIALSTRUCTURE")]) assert.ok(!JSON.stringify(r.args).includes(`{"ref":${sysId}}`));
+  // A facility no node has, and membership of something that is no system, are said.
+  assert.ok(p.errors.some((e) => /servicesfacility .* names no classed object/.test(e)));
+  assert.ok(p.errors.some((e) => /partofsystem names .* a IFCPIPESEGMENT, not a system/.test(e)));
+  const spec = (name, app, req) => `<specification name="${name}" ifcVersion="IFC4X3_ADD2"><applicability minOccurs="1" maxOccurs="unbounded">${app}</applicability><requirements>${req}</requirements></specification>`;
+  const ent = (n) => `<entity><name><simpleValue>${n}</simpleValue></name></entity>`;
+  const ids = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications>
+  ${spec("pipes in a system", ent("IFCPIPESEGMENT"), `<partOf relation="IFCRELASSIGNSTOGROUP">${ent("IFCDISTRIBUTIONSYSTEM")}</partOf>`)}
+  ${spec("valves in a system", ent("IFCVALVE"), `<partOf relation="IFCRELASSIGNSTOGROUP">${ent("IFCDISTRIBUTIONSYSTEM")}</partOf>`)}
+  ${spec("ports say their direction", ent("IFCDISTRIBUTIONPORT"), `<attribute><name><simpleValue>FlowDirection</simpleValue></name></attribute>`)}
+  ${spec("sources", `${ent("IFCDISTRIBUTIONPORT")}<attribute><name><simpleValue>FlowDirection</simpleValue></name><value><simpleValue>SOURCE</simpleValue></value></attribute>`, `<partOf relation="IFCRELNESTS">${ent("IFCPIPESEGMENT")}</partOf>`)}
+  </specifications></ids>`;
+  const r = check(ids, m, { audit: false });
+  assert.deepEqual(r.specs.map((s) => s.status), ["pass", "fail", "pass", "pass"]);
+  assert.equal(r.specs[3].applicable, 1);
+});

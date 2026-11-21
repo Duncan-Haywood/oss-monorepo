@@ -1,0 +1,6 @@
+{"model":"sample-office.ifc","meshedBy":"page (before 2026-11-21)","drawS":0.1,"ticks":1,"p99Ms":5,"maxMs":5,"gapsOver100ms":0}
+{"model":"duplex.ifc","meshedBy":"page (before 2026-11-21)","drawS":1.4,"ticks":13,"p99Ms":374,"maxMs":374,"gapsOver100ms":1}
+{"model":"ISSUE_021_Mini Project.ifc","meshedBy":"page (before 2026-11-21)","drawS":8,"ticks":117,"p99Ms":317,"maxMs":429,"gapsOver100ms":18}
+{"model":"schependomlaan.ifc","meshedBy":"page (before 2026-11-21)","drawS":1,"ticks":8,"p99Ms":62,"maxMs":62,"gapsOver100ms":0}
+{"model":"ISSUE_159_kleine_Wohnung_R22.ifc","meshedBy":"page (before 2026-11-21)","drawS":3,"ticks":47,"p99Ms":293,"maxMs":293,"gapsOver100ms":3}
+{"model":"ISSUE_068_ARK_NUS_skolebygg.ifc","meshedBy":"page (before 2026-11-21)","drawS":38.8,"ticks":441,"p99Ms":605,"maxMs":763,"gapsOver100ms":59}

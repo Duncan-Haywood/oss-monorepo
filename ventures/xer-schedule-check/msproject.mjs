@@ -38,8 +38,9 @@
 //
 // Scheduling differences that remain are named in the warnings (the lag
 // calendar, progress override, expected finish dates, resource-dependent
-// activities, the must-finish-by date); steps and expenses are not carried
-// and are counted. Activity and WBS notebook entries become the task's and
+// activities, the must-finish-by date); steps are not carried and are
+// counted. Expenses (PROJCOST) become cost resources and their assignments
+// (one cost resource per expense name, the category as its Group). Activity and WBS notebook entries become the task's and
 // the summary task's notes, each under its topic's name in brackets, as
 // plain text (notebook.mjs; mspdi.mjs and p6xer.mjs read them back). Activity user-defined fields are carried as
 // Project's Number, Cost, Date and spare Text fields (udfFields, below), and
@@ -522,7 +523,68 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
     const s = span.get(taskUid.get(a.task_id));
     asg.push(`<Assignment><UID>${asg.length + 1}</UID><TaskUID>${taskUid.get(a.task_id)}</TaskUID><ResourceUID>${ru}</ResourceUID><PercentWorkComplete>${pctW}</PercentWorkComplete><ActualCost>${Math.round(actC * 100)}</ActualCost><ActualWork>${ptHours(actQ)}</ActualWork><Cost>${Math.round(cost * 100)}</Cost>${s ? `<Finish>${isoDate(s[1])}</Finish>` : ""}<RemainingCost>${Math.round(remC * 100)}</RemainingCost><RemainingWork>${ptHours(remQ)}</RemainingWork>${s ? `<Start>${isoDate(s[0])}</Start>` : ""}<Units>${r4(units)}</Units><Work>${ptHours(atComplete)}</Work><Baseline><Number>0</Number><Work>${ptHours(tgtQ)}</Work><Cost>${Math.round((num(a.target_cost) || 0) * 100)}</Cost></Baseline></Assignment>`);
   }
-  counts.resources = res.length;
+  // expenses (PROJCOST) -> cost resources. Project has no expense item; a
+  // cost on a task with no work is a cost resource's assignment. So each
+  // expense name becomes a cost resource (Type 2), its Group the expense's
+  // cost category (COSTTYPE) and its accrual the expense's (CL_Start 1,
+  // CL_End 2, CL_Uniform 3 prorated), and each expense an assignment of it:
+  // cost actual plus remaining (the budget when the file stores neither),
+  // the budget as baseline cost, and the vendor, PO number, quantity and
+  // description in the assignment's notes, as lines p6xer.mjs reads back.
+  // Category and accrual belong to the resource in Project, so a name used
+  // with a second category or accrual gets a resource of its own, named with
+  // them ("Rebar (Subcontract, at start)"), and its assignments carry the
+  // expense's own name in an "Expense: " line. Project allows one assignment
+  // of a resource per task, so two expenses of one name, category and
+  // accrual on one activity are added together (counted).
+  const expenses = (T.PROJCOST || []).filter((c) => taskUid.has(c.task_id));
+  const costCat = new Map((T.COSTTYPE || []).map((c) => [c.cost_type_id, c.cost_type || ""]));
+  const ACCRUE = { CL_Start: 1, CL_End: 2, CL_Uniform: 3 };
+  const takenNames = new Set(res.map((r) => (/<Name>(.*?)<\/Name>/.exec(r.head)?.[1] || "").toLowerCase()));
+  const costRes = new Map(); // expense name|category|accrual -> { uid, name, group, accrue, renamed }
+  const firstOf = new Map(); // expense name -> its first cost resource
+  const expAsg = new Map(); // task uid|resource uid -> summed expense
+  const ACCRUE_WORD = { 1: "at start", 2: "at end", 3: "prorated" };
+  let expMerged = 0, expVariants = 0;
+  for (const c of expenses) {
+    const ename = (c.cost_name || "").trim() || "Expense";
+    const group = costCat.get(c.cost_type_id) || "";
+    const accrue = ACCRUE[c.cost_load_type] || 3;
+    const key = `${ename}\u0000${group}\u0000${accrue}`;
+    let r = costRes.get(key);
+    if (!r) {
+      const first = firstOf.get(ename);
+      let base = ename;
+      if (first) {
+        expVariants++;
+        base = `${ename} (${[group !== first.group ? group || "no category" : "", accrue !== first.accrue ? ACCRUE_WORD[accrue] : ""].filter(Boolean).join(", ")})`;
+      }
+      let name = nm(base);
+      for (let k = 2; takenNames.has(esc(name).toLowerCase()); k++) name = nm(`${base} (expense${k > 2 ? ` ${k - 1}` : ""})`);
+      takenNames.add(esc(name).toLowerCase());
+      r = { uid: res.length + costRes.size + 1, name, group, accrue, renamed: name !== ename ? ename : "" };
+      costRes.set(key, r);
+      if (!first) firstOf.set(ename, r);
+    }
+    const act = num(c.act_cost) || 0, rem = num(c.remain_cost);
+    const atc = (rem === null || rem === undefined) && !act ? num(c.target_cost) || 0 : act + (rem || 0);
+    const notes = [r.renamed ? `Expense: ${r.renamed}` : "", c.vendor_name ? `Vendor: ${c.vendor_name}` : "", c.po_number ? `PO: ${c.po_number}` : "", num(c.target_qty) && (num(c.target_qty) !== 1 || c.qty_name) ? `Quantity: ${c.target_qty}${c.qty_name ? ` ${c.qty_name}` : ""}` : "", c.cost_descr || ""].filter(Boolean);
+    const k = `${taskUid.get(c.task_id)}|${r.uid}`;
+    const e = expAsg.get(k);
+    if (e) { expMerged++; e.act += act; e.rem += rem || 0; e.atc += atc; e.budget += num(c.target_cost) || 0; e.notes.push(...notes.filter((x) => !e.notes.includes(x))); continue; }
+    expAsg.set(k, { task: taskUid.get(c.task_id), ru: r.uid, act, rem: rem || 0, atc, budget: num(c.target_cost) || 0, notes });
+  }
+  for (const r of costRes.values()) resXml.push(`<Resource><UID>${r.uid}</UID><ID>${r.uid}</ID><Name>${esc(r.name)}</Name><Type>2</Type><IsNull>0</IsNull>${r.group ? `<Group>${esc(r.group)}</Group>` : ""}<AccrueAt>${r.accrue}</AccrueAt></Resource>`);
+  for (const e of expAsg.values()) {
+    const s = span.get(e.task);
+    asg.push(`<Assignment><UID>${asg.length + 1}</UID><TaskUID>${e.task}</TaskUID><ResourceUID>${e.ru}</ResourceUID><ActualCost>${Math.round(e.act * 100)}</ActualCost><Cost>${Math.round(e.atc * 100)}</Cost>${s ? `<Finish>${isoDate(s[1])}</Finish>` : ""}<RemainingCost>${Math.round(e.rem * 100)}</RemainingCost>${s ? `<Start>${isoDate(s[0])}</Start>` : ""}<Units>1</Units><Work>PT0H0M0S</Work>${e.notes.length ? `<Notes>${esc(e.notes.join("\n"))}</Notes>` : ""}<Baseline><Number>0</Number><Cost>${Math.round(e.budget * 100)}</Cost></Baseline></Assignment>`);
+  }
+  counts.expenses = expenses.length;
+  counts.costResources = costRes.size;
+  if (expenses.length) warnings.push(`${expenses.length} expense(s) written as assignments of ${costRes.size} cost resource(s), one per expense name${costCat.size && [...costRes.values()].some((r) => r.group) ? ", the cost category as the resource's Group" : ""}; vendor, PO number, quantity and description in the assignment's notes`);
+  if (expMerged) warnings.push(`${expMerged} expense(s) added to another of the same name on the same activity (Project allows one assignment of a resource per task)`);
+  if (expVariants) warnings.push(`${expVariants} expense name(s) used with a second category or accrual written as cost resources of their own, named with them (Project keeps both on the resource); their assignments' notes keep the expense name`);
+  counts.resources = res.length + costRes.size;
   counts.assignments = asg.length;
 
   // calendars last, once every user is known
@@ -593,14 +655,12 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
   warnings.push(...rsrcUdf.warnings);
   const nUdf = udf.dropped, nRsrcUdf = rsrcUdf.dropped, nWbsUdf = wbsUdf.dropped + wbsUdf.offOutline;
   const nProc = (T.TASKPROC || []).filter((r) => taskUid.has(r.task_id)).length;
-  const nCost = (T.PROJCOST || []).filter((r) => taskUid.has(r.task_id)).length;
   if (nCodes) notCarried.push(`${nCodes} activity code assignment(s) of the ${codeFields.droppedTypes} code type(s) past Project's 29 spare text fields`);
   if (nUdf) notCarried.push(`${nUdf} user-defined field value(s) of ${udf.droppedTypes} field(s) with no room or no Project equivalent`);
   if (nWbsUdf) notCarried.push(`${nWbsUdf} WBS user-defined field value(s)${wbsUdf.offOutline ? ` (${wbsUdf.offOutline} on the project node or a WBS the file does not write)` : ""} with no room or no Project equivalent`);
   if (nRsrcUdf) notCarried.push(`${nRsrcUdf} resource user-defined field value(s) of ${rsrcUdf.droppedTypes} field(s) with no room or no Project equivalent`);
   if (counts.notebookEntries || counts.notebookWbsEntries) warnings.push(`${counts.notebookEntries + counts.notebookWbsEntries} notebook entr${counts.notebookEntries + counts.notebookWbsEntries === 1 ? "y" : "ies"} written into the notes of ${counts.notebookTasks} task(s)${counts.notebookWbs ? ` and ${counts.notebookWbs} summary task(s)` : ""}, each under its topic in brackets (plain text: P6's formatting is not kept)`);
   if (nProc) notCarried.push(`${nProc} step(s)`);
-  if (nCost) notCarried.push(`${nCost} expense(s)`);
   if (notCarried.length) warnings.push(`not carried: ${notCarried.join(", ")}`);
 
   return { xml, project: { id: pid, name: proj.proj_short_name || pid, dataDate: proj.last_recalc_date || "" }, counts, warnings, taskUid, codeFields, outlineFields: ocf, udfFields: udf, wbsUdfFields: wbsUdf, wbsUid: wbsRow, rsrcUdfFields: rsrcUdf };

@@ -240,7 +240,7 @@
   import { PRESETS, SECTIONS, ruleLabel } from "./measure.mjs";
   import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
   import { ModelView } from "./viewer.mjs";
-  import { rowMesh, modelOrigin, storeyList } from "./view-mesh.mjs";
+  import { modelOrigin, storeyList, meshRows } from "./view-mesh.mjs";
   import { sectionPlane } from "./viewer.mjs";
 
   const $ = (id) => document.getElementById(id);
@@ -260,20 +260,71 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
+  // The takeoff runs in view-worker.mjs, which posts the rows back and goes
+  // on to mesh the model view, so the page answers clicks while a big model
+  // reads (14 s on ARK_NUS used to freeze it). With no worker, or one that
+  // stops before it answers (memory, an old browser), the page takes off
+  // the model itself, as it always did.
+  let readGen = 0;
+  const tick = (el, text, t0) => { const iv = setInterval(() => { el.textContent = `${text} ${Math.round((performance.now() - t0) / 1000)} s`; }, 1000); return () => clearInterval(iv); };
+  function takeoffOnPage(bytes) {
+    const model = parseStep(bytes);
+    if (!model.schema) throw new Error("no FILE_SCHEMA in the header: is this an IFC file?");
+    return takeoff(model);
+  }
+  // resolves { t } from the worker, { error } when the file cannot be read,
+  // or null when the worker is missing or stopped (take off on the page)
+  function takeoffInWorker(bytes, mesh) {
+    if (typeof Worker === "undefined") return Promise.resolve(null);
+    let w;
+    try { w = new Worker(new URL("./view-worker.mjs", import.meta.url), { type: "module" }); } catch { return Promise.resolve(null); }
+    if (mesh) { meshWorker = w; meshBytes = bytes; }
+    return new Promise((resolve) => {
+      let answered = false;
+      const first = (d) => {
+        answered = true;
+        if (d.takeoff) { resolve({ t: d.takeoff, ms: d.ms }); return; }
+        if (mesh && w === meshWorker) stopMeshing(); else w.terminate();
+        resolve(d.read ? { error: d.failed } : null);
+      };
+      const deliver = (d) => { if (w !== meshWorker) return; if (meshSink) meshSink(d); else meshQueue.push(d); };
+      w.onmessage = ({ data }) => (answered ? deliver(data) : first(data));
+      w.onerror = (e) => { e.preventDefault(); if (!answered) first({ failed: e.message }); else deliver({ failed: e.message || "the drawing worker stopped" }); };
+      w.onmessageerror = () => (answered ? deliver({ failed: "the drawing worker's reply could not be read" }) : first({ failed: "unreadable reply" }));
+      w.cancel = () => { if (!answered) { answered = true; w.terminate(); resolve({ cancelled: true }); } };
+      const copy = bytes.slice();
+      w.postMessage({ bytes: copy, mesh }, [copy.buffer]);
+      if (!mesh) earlierWorker = w;
+    });
+  }
+
   async function run(bytes, name) {
+    const gen = ++readGen;
+    stopMeshing();
+    if (earlierWorker) earlierWorker.cancel?.();
     fileName = name.replace(/\.ifc$/i, "");
-    $("status").textContent = `Reading ${name}...`;
-    await new Promise((r) => setTimeout(r, 30));
+    const label = `Reading ${name}...`;
+    $("status").textContent = label;
     const t0 = performance.now();
-    try {
-      const model = parseStep(bytes);
-      if (!model.schema) throw new Error("no FILE_SCHEMA in the header: is this an IFC file?");
-      current = takeoff(model);
-    } catch (err) {
-      $("status").textContent = `Could not read ${name}: ${err.message}`;
+    const stopTick = tick($("status"), label, t0);
+    let res = await takeoffInWorker(bytes, true);
+    stopTick();
+    if (gen !== readGen || res?.cancelled) return;
+    let by = "worker";
+    if (!res) {
+      by = "page";
+      await new Promise((r) => setTimeout(r, 30));
+      try { res = { t: takeoffOnPage(bytes) }; } catch (err) { res = { error: err.message }; }
+      if (gen !== readGen) return;
+    }
+    if (res.error) {
+      $("status").textContent = `Could not read ${name}: ${res.error}`;
       record("read_failed");
+      stopMeshing();
       return;
     }
+    current = res.t;
+    $("status").dataset.readBy = by;
     const secs = ((performance.now() - t0) / 1000).toFixed(1);
     const unitNote = unitRepairNote(current.units);
     $("status").textContent = `${name}: ${current.schema}, ${current.rows.length} elements, read in ${secs} s.${unitNote ? " " + unitNote : ""}`;
@@ -397,6 +448,14 @@
     else if (boxed.has(r.id)) parts.push(`drawn as its box: ${boxed.get(r.id) ? `its solid is ${boxed.get(r.id)}, more than the view draws for one element` : "its solid is too intricate to outline quickly"} (its quantities are measured all the same)`);
     return parts.filter(Boolean).join("; ") + ".";
   }
+  // Meshing goes on in the worker that took off the model (view-worker.mjs),
+  // so a big model's 30 s of meshing never holds up the page. Its replies are
+  // queued until buildView takes them. Where workers are missing or the
+  // worker fails (memory, an old browser), the page meshes what is left
+  // itself, in 30 ms slices.
+  let meshWorker = null, meshQueue = [], meshSink = null, meshBytes = null, earlierWorker = null;
+  function stopMeshing() { if (meshWorker) { meshWorker.cancel?.(); meshWorker.terminate(); } meshWorker = null; meshQueue = []; meshSink = null; }
+
   async function buildView() {
     const gen = ++viewGen;
     selected = null; picked = null;
@@ -411,6 +470,7 @@
         } });
       } catch (err) {
         $("view-status").textContent = `No 3D view: ${err.message}.`;
+        stopMeshing();
         return;
       }
     }
@@ -421,27 +481,76 @@
     view.setVisible(null);
     const origin = modelOrigin(current.rows);
     viewOrigin = origin;
-    const rows = current.rows.filter((r) => !r.isAssembly);
-    let i = 0, boxes = 0, fitted = false, lastCommit = 0;
+    const prep = meshRows.prepare(current.rows);
+    const total = prep.rows.length, added = new Set();
+    let boxes = 0, fitted = false, lastCommit = 0, how = "";
     const t0 = performance.now();
-    while (i < rows.length) {
-      const slice = performance.now();
-      while (i < rows.length && performance.now() - slice < 30) {
-        const m = rowMesh(rows[i], origin);
-        if (m) { view.add(rows[i].id, m); if (m.boxOnly) { boxes++; boxed.set(rows[i].id, m.reason); } }
-        i++;
+    const take = (id, m) => {
+      if (!m || !byId.has(id) || added.has(id)) return;
+      added.add(id);
+      view.add(id, m);
+      if (m.boxOnly) { boxes++; boxed.set(id, m.reason); }
+    };
+    const progress = (last) => {
+      // a commit writes only the new elements to the GPU (viewer.mjs), so
+      // a few a second keep the model filling in at little cost
+      if (!fitted || performance.now() - lastCommit > 250 || last) { view.commit(); lastCommit = performance.now(); applyVisible(); }
+      if (!fitted && view.items.length) { view.fit(); fitted = true; }
+      $("view-status").textContent = last ? "" : `Drawing ${added.size} of ${total} elements...`;
+    };
+    // one worker reply per task: replies that queued up while the page was
+    // busy with its own takeoff would otherwise land as one long task
+    const fromWorker = meshWorker ? await new Promise((resolve) => {
+      const q = meshQueue;
+      let pumping = false;
+      const one = (d) => {
+        if (gen !== viewGen) { resolve(false); return false; }
+        if (d.failed) { how = ` (${d.failed}; drawn on the page instead)`; stopMeshing(); resolve(false); return false; }
+        if (d.ready) return true;
+        for (const it of d.items) take(it.id, it);
+        progress(d.done);
+        if (d.done) { stopMeshing(); resolve(true); return false; }
+        return true;
+      };
+      const pump = () => {
+        if (!q.length) { pumping = false; return; }
+        if (one(q.shift())) setTimeout(pump, 0); else q.length = 0;
+      };
+      meshSink = (d) => { q.push(d); if (!pumping) { pumping = true; setTimeout(pump, 0); } };
+      meshQueue = [];
+      if (q.length) { pumping = true; setTimeout(pump, 0); }
+    }) : false;
+    if (gen !== viewGen) return;
+    if (!fromWorker) {
+      // on the page: what the worker did not send, in 30 ms slices. Rows the
+      // worker took off carry no solids (they stay in the worker), so the
+      // page reads the file again for them first.
+      let left = prep.rows.filter((r) => !added.has(r.id));
+      if (left.length && left.some((r) => r.box && !r.world && r.computed?.status === "ok") && meshBytes) {
+        $("view-status").textContent = "Reading the geometry on the page...";
+        await new Promise((r) => setTimeout(r, 30));
+        if (gen !== viewGen) return;
+        try {
+          const full = new Map(takeoffOnPage(meshBytes).rows.map((r) => [r.id, r]));
+          left = left.map((r) => full.get(r.id) || r);
+        } catch { /* drawn as their boxes */ }
+        if (gen !== viewGen) return;
       }
-      if (gen !== viewGen) return;
-      // the GPU copy is rebuilt on each commit: often at first, then once a second
-      if (!fitted || performance.now() - lastCommit > 1000 || i >= rows.length) { view.commit(); lastCommit = performance.now(); }
-      if (!fitted) { view.fit(); fitted = true; }
-      $("view-status").textContent = i < rows.length ? `Drawing ${i} of ${rows.length} elements...` : "";
-      await new Promise((r) => setTimeout(r, 0));
-      if (gen !== viewGen) return;
+      const it = meshRows(left, prep.origin);
+      for (let step = it.next(); !step.done;) {
+        const slice = performance.now();
+        while (!step.done && performance.now() - slice < 30) { take(step.value.id, step.value.mesh); step = it.next(); }
+        progress(step.done);
+        await new Promise((r) => setTimeout(r, 0));
+        if (gen !== viewGen) return;
+      }
     }
+    view.commit();
+    $("view").dataset.meshedBy = fromWorker ? "worker" : "page";
+    meshBytes = null;
     view.fit();
     applyVisible();
-    $("view-status").textContent = `${view.items.length} elements drawn in ${((performance.now() - t0) / 1000).toFixed(1)} s${boxes ? `; ${boxes} drawn as their boxes (geometry not read, or too intricate to outline quickly; their quantities are measured all the same)` : ""}.`;
+    $("view-status").textContent = `${view.items.length} elements drawn in ${((performance.now() - t0) / 1000).toFixed(1)} s${how}${boxes ? `; ${boxes} drawn as their boxes (geometry not read, or too intricate to outline quickly; their quantities are measured all the same)` : ""}.`;
     record("model_viewed");
   }
   $("view-color").addEventListener("change", () => { selected = null; recolor(); });
@@ -567,17 +676,25 @@
   async function runEarlier(bytes, name) {
     if (!current) return;
     earlierName = name.replace(/\.ifc$/i, "");
-    $("status").textContent = `Reading the earlier revision ${name}...`;
-    await new Promise((r) => setTimeout(r, 30));
-    try {
-      const model = parseStep(bytes);
-      if (!model.schema) throw new Error("no FILE_SCHEMA in the header: is this an IFC file?");
-      earlier = takeoff(model);
-    } catch (err) {
-      $("status").textContent = `Could not read ${name}: ${err.message}`;
+    const gen = readGen, label = `Reading the earlier revision ${name}...`;
+    $("status").textContent = label;
+    if (earlierWorker) earlierWorker.cancel?.();
+    const stopTick = tick($("status"), label, performance.now());
+    let res = await takeoffInWorker(bytes, false);
+    stopTick();
+    if (gen !== readGen || res?.cancelled) return;
+    earlierWorker = null;
+    if (!res) {
+      await new Promise((r) => setTimeout(r, 30));
+      try { res = { t: takeoffOnPage(bytes) }; } catch (err) { res = { error: err.message }; }
+      if (gen !== readGen) return;
+    }
+    if (res.error) {
+      $("status").textContent = `Could not read ${name}: ${res.error}`;
       record("read_failed");
       return;
     }
+    earlier = res.t;
     const earlierNote = unitRepairNote(earlier.units);
     $("status").textContent = `Compared ${name} (earlier) with ${fileName}.ifc.${earlierNote ? " Earlier revision: " + earlierNote : ""}`;
     record("revisions_compared");

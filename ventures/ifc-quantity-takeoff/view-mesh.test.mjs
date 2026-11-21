@@ -171,3 +171,22 @@ test("storeys list lowest first, with no-storey elements last", () => {
   const list = storeyList(r.rows);
   assert.equal(list.reduce((a, s) => a + s.count, 0), r.rows.filter((x) => !x.isAssembly).length);
 });
+
+test("meshRows draws what rowMesh draws, assemblies as their parts", async () => {
+  const { meshRows } = await import("./view-mesh.mjs");
+  const t = takeoff(parseStep(readFileSync(new URL("./samples/sample-office.ifc", import.meta.url))));
+  const { rows, origin } = meshRows.prepare(t.rows);
+  assert.deepEqual(origin, modelOrigin(t.rows));
+  assert.ok(rows.every((r) => !r.isAssembly));
+  const got = [...meshRows(rows, origin)];
+  assert.equal(got.length, rows.length);
+  for (let i = 0; i < rows.length; i++) {
+    assert.equal(got[i].id, rows[i].id);
+    assert.deepEqual(got[i].mesh?.positions, rowMesh(rows[i], origin)?.positions);
+  }
+});
+
+test("visible runs skip items not uploaded yet", () => {
+  const items = [{ id: 1, start: 0, count: 6 }, { id: 2, start: 6, count: 3 }, { id: 3 }];
+  assert.deepEqual(visibleRuns(items, null), [[0, 9]]);
+});

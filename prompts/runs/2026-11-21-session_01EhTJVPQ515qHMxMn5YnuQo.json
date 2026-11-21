@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVPQ515qHMxMn5YnuQo",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T16:04:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check: read IFC5 bsi::ifc::system::* (partofsystem, connectsto, flowdirection, servicesfacility) so IDS partOf IFCRELASSIGNSTOGROUP checks .ifcx models",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": 18106,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "The suggested --history text for the row began mid-item (\"a consultant's read. ifcJSON read ...\"), mixing an open item into a finished result, so I shortened my own text instead of using it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-ifc5-systems-in-an-ids-check.md",
+    "ventures/ids-model-check/eval/ifcx-systems-2026-11-21.md"
+  ],
+  "goal": "Deepen flagship 12 (ids-model-check): the 'IFC5 system links' open item in its next:",
+  "notes": "Domestic Hot Water twin: 9/9 system members, 35/35 port flow directions, 15/15 distinct connected port pairs match STEP (STEP has 21 IfcRelConnectsPorts, 6 written both ways). 8 twins partOf 1,648->1,657 stated, 1,655 hold on STEP; nothing else moved. ifcx-sweep 47/47 read, 0 errors. run_venture_tests ids-model-check: 426 tests ok (2 skipped). check_posts ok. venture-preflight: see PR body.",
+  "corrections": [],
+  "redteam": null
+}

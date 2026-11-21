@@ -111,21 +111,33 @@ function scaleOf(faces) {
 export function clipPoly(faces, n, k) {
   if (!faces.length) return faces;
   const eps = EPS_REL * (scaleOf(faces) * norm(n) + Math.abs(k) + 1);
+  // Most planes miss the polyhedron (every point inside: the faces come back
+  // as they are) or leave nothing of it (every point beyond: none). Telling
+  // so from the points alone saves building a copy that would be thrown
+  // away; the loop below gives the same answers (perf, 2026-11-21).
+  let lo = Infinity, hi = -Infinity;
+  for (const f of faces) for (const p of f) { const d = dot(n, p) - k; if (d < lo) lo = d; if (d > hi) hi = d; }
+  if (hi <= eps) return faces;
+  if (lo > eps) return [];
   const out = [];
   const cap = [];
   let anyOut = false;
+  const ds = [];
   for (const f of faces) {
     const res = [];
     const m = f.length;
+    for (let i = 0; i < m; i++) ds[i] = dot(n, f[i]) - k;
     for (let i = 0; i < m; i++) {
-      const a = f[i], b = f[(i + 1) % m];
-      const da = dot(n, a) - k, db = dot(n, b) - k;
+      const j = (i + 1) % m;
+      const a = f[i], da = ds[i], db = ds[j];
       if (da <= eps) res.push(a);
       if (da > eps) anyOut = true;
       if (Math.abs(da) <= eps) cap.push(a);
       if ((da < -eps && db > eps) || (da > eps && db < -eps)) {
         const t = da / (da - db);
-        const p = add(a, mulS(sub(b, a), t));
+        const b = f[j];
+        // add(a, mulS(sub(b, a), t)), one array instead of three
+        const p = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
         res.push(p);
         cap.push(p);
       }
@@ -143,7 +155,11 @@ export function clipPoly(faces, n, k) {
     const tol = eps * 10;
     for (const p of cap) if (!pts.some((q) => Math.abs(q[0] - p[0]) <= tol && Math.abs(q[1] - p[1]) <= tol && Math.abs(q[2] - p[2]) <= tol)) pts.push(p);
     if (pts.length >= 3) {
-      pts.sort((p, q) => Math.atan2(dot(sub(p, c), v), dot(sub(p, c), u)) - Math.atan2(dot(sub(q, c), v), dot(sub(q, c), u)));
+      // each point's angle once; the comparator sees the same values as
+      // when it took atan2 per comparison, so the stable sort's order holds
+      const ang = new Map();
+      for (const p of pts) { const r = sub(p, c); ang.set(p, Math.atan2(dot(r, v), dot(r, u))); }
+      pts.sort((p, q) => ang.get(p) - ang.get(q));
       out.push(pts);
     }
   }
@@ -167,7 +183,7 @@ export function polyPlanes(faces) {
   return planes;
 }
 
-const clipByPlanes = (faces, planes) => {
+export const clipByPlanes = (faces, planes) => {
   let f = faces;
   for (const [n, k] of planes) { f = clipPoly(f, n, k); if (!f.length) break; }
   return f;
@@ -291,8 +307,25 @@ export function* solidPoints(s) {
 /** Smallest and largest n.x over a solid's polyhedral terms and faceted shells. */
 export function solidExtent(s, n) {
   const nn = unit(n);
+  const x = nn[0], y = nn[1], z = nn[2];
   let lo = Infinity, hi = -Infinity;
-  for (const p of solidPoints(s)) { const d = dot(nn, p); if (d < lo) lo = d; if (d > hi) hi = d; }
+  // plain loops over the same points solidPoints yields: a generator here
+  // cost a third of the takeoff on fitting-heavy models (perf, 2026-11-21)
+  const scan = (faces) => {
+    for (let i = 0; i < faces.length; i++) {
+      const f = faces[i];
+      for (let j = 0; j < f.length; j++) {
+        const p = f[j];
+        const d = x * p[0] + y * p[1] + z * p[2];
+        if (d < lo) lo = d;
+        if (d > hi) hi = d;
+      }
+    }
+  };
+  // keep in step with solidPoints (open shells' `loose` loops included)
+  for (const t of s.terms) scan(t.faces);
+  if (s.shells) for (const sh of s.shells) scan(sh.loops);
+  if (s.loose) scan(s.loose);
   return [lo, hi];
 }
 
@@ -1435,6 +1468,28 @@ const termBox = (t) => {
 };
 
 /**
+ * True when one of the planes has every point of the faces beyond it by at
+ * least twice clipPoly's tolerance, so clipByPlanes would come back empty
+ * (it does for 3 in 4 pairs whose boxes overlap on ARK_NUS). Clipping keeps
+ * points inside the faces' hull, so a later clip's tolerance is no larger
+ * and its points no nearer the plane, bar rounding far below the margin.
+ * Answers without building the clipped copies (perf, 2026-11-21).
+ */
+export function beyondAPlane(faces, planes) {
+  const sc = scaleOf(faces);
+  for (const [n, k] of planes) {
+    const lim = 2 * EPS_REL * (sc * norm(n) + Math.abs(k) + 1);
+    let all = true;
+    for (let i = 0; all && i < faces.length; i++) {
+      const f = faces[i];
+      for (let j = 0; j < f.length; j++) if (!(dot(n, f[j]) - k > lim)) { all = false; break; }
+    }
+    if (all) return true;
+  }
+  return false;
+}
+
+/**
  * The terms to add to A's for A u B to be A + B - (A n B): each pair of
  * terms whose boxes share a volume, intersected, with the product's sign
  * negated. Exact while A and B are each a solid (their terms sum to 0 or 1
@@ -1455,6 +1510,7 @@ export function unionTerms(A, B) {
     for (let j = 0; j < B.length; j++) {
       if (apart(bb[j])) continue;
       planes ??= polyPlanes(a.faces);
+      if (beyondAPlane(B[j].faces, planes)) continue;
       const f = clipByPlanes(B[j].faces, planes);
       if (f.length < 4) continue;
       // a shared face or edge (items that only touch) is no volume
@@ -1468,8 +1524,6 @@ export function unionTerms(A, B) {
 
 // ---- orienting faceted shells -----------------------------------------------
 
-const pkey = (p) => `${p[0]},${p[1]},${p[2]}`;
-
 /**
  * Turns faces so neighbours run their shared edge in opposite directions (a
  * consistently oriented shell), starting from each connected piece's first
@@ -1479,40 +1533,51 @@ const pkey = (p) => `${p[0]},${p[1]},${p[2]}`;
  */
 export function orientShell(faces0) {
   const faces = faces0.map((f) => f.map((l) => l.slice()));
-  const edges = new Map(); // undirected key -> [{face, forward}]
-  // each point object keyed once: equal coordinates, one integer id
+  // undirected edge key -> slot; per slot, how many face sides use the edge
+  // and the first two as face * 2 + forward (numbers, not objects: the
+  // takeoff spent much of its time collecting garbage here, perf 2026-11-21)
+  const edges = new Map();
+  const uses = [], sideA = [], sideB = [];
+  // each point object keyed once: equal coordinates, one integer id. Keyed
+  // by x, then y, then z: Map keys compare as SameValueZero, which matches
+  // the `${x},${y},${z}` strings this replaced (0 and -0 one key, NaN one key)
   const ids = new Map(), seen = new Map();
+  let nIds = 0;
   const idOf = (p) => {
     let id = seen.get(p);
     if (id === undefined) {
-      const k = pkey(p);
-      id = ids.get(k);
-      if (id === undefined) ids.set(k, (id = ids.size));
+      let my = ids.get(p[0]);
+      if (my === undefined) ids.set(p[0], (my = new Map()));
+      let mz = my.get(p[1]);
+      if (mz === undefined) my.set(p[1], (mz = new Map()));
+      id = mz.get(p[2]);
+      if (id === undefined) mz.set(p[2], (id = nIds++));
       seen.set(p, id);
     }
     return id;
   };
-  faces.forEach((f, fi) => {
-    for (const l of f) for (let i = 0; i < l.length; i++) {
+  for (let fi = 0; fi < faces.length; fi++) {
+    for (const l of faces[fi]) for (let i = 0; i < l.length; i++) {
       const a = idOf(l[i]), b = idOf(l[(i + 1) % l.length]);
       if (a === b) continue;
       const fwd = a < b;
       const key = fwd ? a * 67108864 + b : b * 67108864 + a;
-      let e = edges.get(key);
-      if (!e) edges.set(key, (e = []));
-      e.push({ fi, fwd });
+      const side = fi * 2 + (fwd ? 1 : 0);
+      const k = edges.get(key);
+      if (k === undefined) { edges.set(key, uses.length); uses.push(1); sideA.push(side); sideB.push(-1); }
+      else if (uses[k]++ === 1) sideB[k] = side;
     }
-  });
+  }
   let closed = true;
   const adj = faces.map(() => []);
-  for (const e of edges.values()) {
-    if (e.length !== 2) { closed = false; continue; }
-    const [p, q] = e;
-    if (p.fi === q.fi) continue;
+  for (let k = 0; k < uses.length; k++) {
+    if (uses[k] !== 2) { closed = false; continue; }
+    const pfi = sideA[k] >> 1, qfi = sideB[k] >> 1;
+    if (pfi === qfi) continue;
     // same direction on both sides: one of the two must turn
-    const mustFlip = p.fwd === q.fwd;
-    adj[p.fi].push([q.fi, mustFlip]);
-    adj[q.fi].push([p.fi, mustFlip]);
+    const mustFlip = (sideA[k] & 1) === (sideB[k] & 1);
+    adj[pfi].push([qfi, mustFlip]);
+    adj[qfi].push([pfi, mustFlip]);
   }
   const turn = new Array(faces.length).fill(null);
   const piece = new Array(faces.length).fill(-1);

@@ -18,7 +18,7 @@
 
 import crypto from 'node:crypto';
 import { tagUrl } from '../attribution.mjs';
-import { glen, graphemes, extract, thread, longPost, redditBody, hnComment, slides, videoScript } from './content.mjs';
+import { glen, fits, graphemes, extract, thread, longPost, redditBody, hnComment, slides, videoScript } from './content.mjs';
 
 import { BASE_URL } from '../bluesky.mjs';
 
@@ -53,7 +53,7 @@ export function pickTemplate(item, platformId) {
 export { glen };
 export function clip(s, max) {
   // A string has no more graphemes than UTF-16 units, so a short one fits without segmenting.
-  if (String(s).length <= max || glen(s) <= max) return String(s);
+  if (fits(s, max)) return String(s);
   if (max <= 1) return '';
   return graphemes(s, max - 1).trimEnd() + '…';
 }
@@ -113,7 +113,7 @@ export function shortPost(head, description, url, footer, max) {
   // A sentence cut to a few words reads worse than none, so short room drops it and a cut ends on a word.
   const sentence = firstSentence(description);
   let body = '';
-  if (glen(sentence) <= room) body = `\n${sentence}`;
+  if (fits(sentence, room)) body = `\n${sentence}`;
   else if (room >= 40) body = `\n${clip(sentence, room).replace(/\s+\S*…$/, '…')}`;
   return headFit + body + tail;
 }
