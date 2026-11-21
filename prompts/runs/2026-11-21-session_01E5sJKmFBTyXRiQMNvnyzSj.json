@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKmFBTyXRiQMNvnyzSj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T14:18:07Z",
+  "ended": "2026-11-21T14:39:33Z",
+  "wall_minutes": 25.44,
+  "tokens_in": 13560496,
+  "tokens_out": 58252,
+  "cost_usd": 5.2094,
+  "tool_calls": 107,
+  "task": "Flagship 14 ifc-quantity-takeoff: trace the 3D model view's 130 volume disagreements (NEXT.md)",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18096",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ifc-quantity-takeoff/NEXT.md",
+      "issue": "Named the view's coplanar-ownership rule as first suspect for the 126 ARK_NUS misses; the cause was the takeoff summing overlapping body items, so the view was right. A hypothesis in a queue item steers the next session; worth labelling as a guess."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "buildable: was 584/600 so no new buildable item fitted; parked it in NEXT.md instead. Fine, but the cap means the buildable list cannot grow when a run finds a new self-contained item."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-a-kitchen-cabinet-bigger-than-its-own-box.md",
+    "ventures/ifc-quantity-takeoff/eval/item-union-2026-11-21.md"
+  ],
+  "goal": "Deepen a flagship: correct quantities (a body's overlapping items joined) and a verified 3D view",
+  "notes": "Routed ventures/1 by weighted draw; security queue empty; IDEAS.md and website requests empty. allocate.py start-here row 9 ifc-quantity-takeoff, claimed via draft PR 18096 (claim_check HOLD). Kept out of PR 18042's item (open shells / wall parts); both touch geom.mjs in different functions. Findings: (1) 128 of the view's 130 misses were the takeoff summing a representation's overlapping items (ARK_NUS cabinets 1.8x their box; IfcOpenHouse door 1.27 L double); fixed with an exact union (unionTerms). (2) Mesher box/apart tolerances 1e-10 missed a cut 5 um off a face (Mini Project #1717); now 1e-8. (3) polyVolume about the world origin inflated slightly open clip pieces 230 m away (ARK_NUS railing #1596214 0.598 vs Monte Carlo 0.493); now about the first vertex; alone changes 6 of 14,966 volumes. Results on 11 public models: view check 9,184/9,314 -> 9,310/9,312; stored-vs-computed report identical line for line. Verification: run_venture_tests.py ifc-quantity-takeoff 136 pass; check_posts ok; venture-preflight clean (exit 0). Each fix checked by Monte Carlo point counts (400k-2M points) on named elements. Open: shellVolume also sums about the origin; 2 Tekla beams at 0.51-0.53%.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4be678b0-4bd9-5b9d-8378-8c367d8cb903",
+    "transcripts": 1,
+    "first": "2026-11-21T14:18:07Z",
+    "last": "2026-11-21T14:43:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 99,
+        "input": 191,
+        "output": 58252,
+        "thinking": 14299,
+        "cache_read": 13389596,
+        "cache_write_5m": 0,
+        "cache_write_1h": 170709,
+        "api_equivalent_usd": 5.2094,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 99,
+      "input": 191,
+      "output": 58252,
+      "thinking": 14299,
+      "cache_read": 13389596,
+      "cache_write_5m": 0,
+      "cache_write_1h": 170709,
+      "api_equivalent_usd": 5.2094,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 107,
+    "tools": {
+      "Bash": 97,
+      "ToolSearch": 2,
+      "Edit": 2,
+      "ReadNotifications": 2,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.44,
+      "active_minutes": 25.44,
+      "model_minutes": 11.11,
+      "tool_minutes": 14.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior geometry engineer tracing three volume bugs on 11 models with Monte Carlo checks, fixes, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 192.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
