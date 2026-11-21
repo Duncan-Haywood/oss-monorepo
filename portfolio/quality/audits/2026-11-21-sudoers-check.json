@@ -162,35 +162,40 @@
    "what": "Carried from 2026-11-15, not fixed by PR #16361 (only listed in Known gaps): the CLI on a checkout whose directory is not named etc does not map '@includedir /etc/sudoers.d' to DIR/sudoers.d, so fixtures/risky/sudoers.d/ivan.conf, which sudo never reads, is checked as live and includedir-file-ignored is not reported",
    "where": "ventures/sudoers-check/scan.mjs:238",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18023"
   },
   {
    "severity": "medium",
    "what": "Carried from 2026-11-15: Defaults>runas and Defaults!cmnd scoped !authenticate are ignored in the password decision; 'Defaults>root !authenticate' + 'daemon ALL=(ALL) ALL' is passwordless root under sudo but the root path says 'with a password'",
    "where": "ventures/sudoers-check/scan.mjs:548",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18023"
   },
   {
    "severity": "low",
    "what": "New: a global 'Defaults !authenticate' short-circuits a later 'Defaults:daemon authenticate', so the tool reports daemon's ALL rule as passwordless while sudo asks for a password (over-report)",
    "where": "ventures/sudoers-check/scan.mjs:555",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18023"
   },
   {
    "severity": "low",
    "what": "Carried from 2026-11-15 although marked fixed_by PR #16361: no test covers the runas-root guard in the nopasswd-overridden loop; deleting it still leaves every test green on main",
    "where": "ventures/sudoers-check/scan.mjs:689",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18023"
   },
   {
    "severity": "low",
    "what": "New: the authenticate-off message for a Defaults>root or Defaults!cmnd binding says 'anyone who gets a shell as root', naming the wrong principal",
    "where": "ventures/sudoers-check/scan.mjs:587",
    "category": "code-craft",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18023"
   },
   {
    "severity": "low",
@@ -200,6 +205,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18023"],
  "verdict": "Re-audit of the 2026-11-15 census after fix PR #16361. Of its five defects, that PR closed two: the high (a runas list with !root before ALL is now read last-match, verified against real sudo: id -u 0, tool high nopasswd-all) and the parity-gen usergid mapping. It did not close the other three, although one of them (the untested runas-root guard) was marked fixed_by it: that mutant still survives on main. The two mediums had only been written into README Known gaps. This round also found sudo applies global, user and runas authenticate Defaults in file order and command Defaults last (11 cases tested live), which main got wrong in one more direction (a global !authenticate hid a later per-user authenticate). Scores are as found on main: still at the bar, with the root-path list right for every unscoped case. The fix PR for this re-audit closes five of the six listed defects with tests built from the live sudo results; the glob/directory Defaults!cmnd binding stays open."
 }

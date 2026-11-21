@@ -3,7 +3,7 @@ title: "Re-audit: sudoers-check against real sudo, and the order sudo applies De
 seo_title: "In what order does sudo apply Defaults? Tested on 1.9.15"
 date: 2026-11-21
 tags: [quality-audit, evaluation, testing, security]
-description: "A fix PR got credit for five sudoers-check defects. Tested against sudo 1.9.15p5, it closed two. This post covers the rest and the order sudo applies Defaults in."
+description: "A fix PR got credit for five sudoers-check defects. Tested against sudo 1.9.15p5, it closed two. Here: the rest, and the order sudo applies Defaults in."
 ---
 
 [sudoers-check](https://marisstella.app/sudoers-check/) reads `/etc/sudoers` and its drop-ins and reports who can become root, and how. The [2026-11-15 census audit](../../portfolio/quality/audits/2026-11-15-sudoers-check.json) found five defects. PR #16361 followed and was recorded as their fix. Today's [re-audit](../../portfolio/quality/audits/2026-11-21-sudoers-check.json) checked each defect against the code on `main` and against sudo 1.9.15p5 itself. Each test file was bind-mounted over `/etc/sudoers` in a private mount namespace and run with `runuser -u daemon -- sudo -n ...`.

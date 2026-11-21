@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVLXepWKeYVwjmyCZZw",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T04:02:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality reaudit: ventures/sudoers-check (2026-11-15 census after PR #16361)",
+  "projects": [
+    "ventures/sudoers-check"
+  ],
+  "pr": 18023,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "mark-fixed marks a defect fixed_by a PR with no check that the PR touched the cited code or added a test; 2026-11-15 defect 4 was marked fixed_by PR #16361 yet its mutant still survived. A reaudit-time mutation re-run of each fixed untested-core defect would catch this."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-quality-reaudit-sudoers-check.md",
+    "portfolio/quality/audits/2026-11-21-sudoers-check.json"
+  ],
+  "goal": null,
+  "notes": "mode reaudit, seed 2026-11-21-2e87, subject ventures/sudoers-check. Reaudit: PR #16361 closed 2 of 5 earlier defects (high runas last-match; parity usergid); 2 mediums only documented; 1 low marked fixed_by but its mutant still survived on main. New low found (global !authenticate shadowed later per-user authenticate). Scores as found on main: all 3, meets bar. Fix PR #18023 closes 5 of 6 listed defects (glob/dir Defaults!cmnd binding open). Verified with live sudo 1.9.15p5 in a private mount namespace (11 Defaults orderings). Tests: 103 pass 1 skip; 5/5 seeded mutants caught after fix (guard mutant survived before). run_venture_tests sudoers-check ok; quality_audit validate 0 problems; check_posts ok. Share meeting the bar: 1 of 1 (reaudit, not a sample estimate).",
+  "corrections": [],
+  "redteam": null
+}
