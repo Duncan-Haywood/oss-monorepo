@@ -82,10 +82,11 @@
 // code types as Outline Code1..10 instead, each with a lookup table holding
 // the P6 code tree and descriptions); the lines it prints name what Project
 // will schedule differently.
-// node cli.mjs schedule.xml --to-p6 schedule.xer [--project-id CODE] [--row-ids] [--json]
+// node cli.mjs schedule.xml --to-p6 schedule.xer [--project-id CODE] [--row-ids] [--deadlines] [--json]
 // Converts Microsoft Project XML to a Primavera P6 XER instead (p6xer.mjs),
 // for P6's import: summary tasks as the WBS, activity IDs from a text field
-// named "Activity ID" (else A + row ID x 10; --row-ids always), calendars,
+// named "Activity ID" (else A + row ID x 10; --row-ids always), calendars, deadlines as
+// finish-on-or-before constraints with --deadlines,
 // links, constraints, progress, baseline, resources and assignments, text
 // fields as activity codes, and Project's scheduling options; the lines it
 // prints name what is not carried.
@@ -213,7 +214,7 @@ if (args.includes("--previous")) {
 const projId = args.includes("--project") ? projectFor(xer) : null;
 if (args.includes("--to-p6")) {
   if (xer.format !== "mspdi") { console.error("--to-p6: this file is already an XER (it takes Microsoft Project XML)"); process.exit(2); }
-  const r = p6XerText(decodeXer(readFileSync(file)), { projectId: opt("--project-id") || "", activityIds: args.includes("--row-ids") ? "row" : "auto" });
+  const r = p6XerText(decodeXer(readFileSync(file)), { projectId: opt("--project-id") || "", activityIds: args.includes("--row-ids") ? "row" : "auto", deadlines: args.includes("--deadlines") });
   writeFileSync(opt("--to-p6"), r.bytes);
   if (args.includes("--json")) { const { xer: _x, text: _t, bytes: _b, ...rest } = r; await emit(JSON.stringify(rest, null, 2) + "\n"); process.exit(0); }
   await emit(`${r.project.id}: ${p6xerSummary(r)} to ${opt("--to-p6")}\n${r.warnings.map((w) => `- ${w}\n`).join("")}`);

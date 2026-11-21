@@ -55,8 +55,21 @@
 //   (WBSMEMO), the project's own notes on the project node. Each entry is
 //   the HTML P6 Web writes (one <P> per line). MEMOTYPE lists the topics.
 //
+// - deadlines (opt-in, { deadlines: true }, CLI --deadlines): P6 has no
+//   deadline field; the nearest thing is a finish-on-or-before constraint,
+//   which in P6 too moves no early date and caps the late finish, as
+//   Project's deadline caps total slack. With no constraint of its own the
+//   task gets it as its primary constraint (P6 takes a secondary only after
+//   a primary); beside a start-on-or-after, start-on-or-before,
+//   finish-on-or-after or as-late-as-possible it is the secondary; beside a
+//   finish-on-or-before the earlier date is kept; beside a start-on,
+//   finish-on or mandatory constraint (P6 allows no secondary there) it is
+//   not carried and named. Off by default: it adds constraints a DCMA
+//   reviewer counts as hard ones (check 5), and comes back from
+//   msproject.mjs as a deadline only where it was the secondary.
+//
 // Not carried (counted in the warnings): task splits and contoured
-// work, deadlines (no P6 field), elapsed lags on links (P6 has one lag
+// work, deadlines unless asked for, elapsed lags on links (P6 has one lag
 // calendar per project), cost resource assignments on summary tasks, P6's finish-date subtype of a date
 // UDF (Project has one kind of date field, so a date comes back as a start
 // date UDF).
@@ -136,7 +149,20 @@ function weekHours(data) {
   return min / 60;
 }
 
-export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
+// a Project deadline as P6 constraints (see "deadlines" above)
+const SECONDARY_OK = new Set(["CS_MSOA", "CS_MSOB", "CS_MEOA", "CS_ALAP"]);
+const NO_SECONDARY = new Set(["CS_MSO", "CS_MEO", "CS_MANDSTART", "CS_MANDFIN"]);
+export function deadlineConstraint(r, dl) {
+  const d = r.deadline_date;
+  const out = { cstr_type: r.cstr_type, cstr_date: r.cstr_date, cstr_type2: "", cstr_date2: "" };
+  if (!r.cstr_type) { out.cstr_type = "CS_MEOB"; out.cstr_date = d; dl.primary++; }
+  else if (r.cstr_type === "CS_MEOB") { if (!r.cstr_date || d < r.cstr_date) out.cstr_date = d; dl.merged++; }
+  else if (SECONDARY_OK.has(r.cstr_type)) { out.cstr_type2 = "CS_MEOB"; out.cstr_date2 = d; dl.secondary++; }
+  else if (NO_SECONDARY.has(r.cstr_type)) dl.blocked.push(`${r.ms_id || r.task_id} ${r.task_name}`.trim());
+  return out;
+}
+
+export function p6XerText(text, { projectId = "", activityIds = "auto", deadlines: carryDeadlines = false } = {}) {
   const parsed = parseMspdi(text);
   const T = parsed.tables;
   const warnings = [...parsed.warnings];
@@ -295,9 +321,11 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   const TASK = [];
   const taskIds = new Set();
   let deadlines = 0;
+  const dl = { primary: 0, secondary: 0, merged: 0, blocked: [] };
   for (const r of T.TASK) {
     const node = taskNode.get(r.task_id);
     if (val(node, "Deadline")) deadlines++;
+    const c = carryDeadlines && r.deadline_date ? deadlineConstraint(r, dl) : { cstr_type: r.cstr_type, cstr_date: r.cstr_date, cstr_type2: "", cstr_date2: "" };
     taskIds.add(r.task_id);
     const pct = Math.max(0, Math.min(100, Number(val(node, "PercentComplete")) || 0));
     TASK.push(full("TASK", {
@@ -306,7 +334,7 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
       task_code: codeFor(r), task_name: clip("task_name", r.task_name),
       total_float_hr_cnt: r.total_float_hr_cnt, free_float_hr_cnt: r.free_float_hr_cnt,
       remain_drtn_hr_cnt: n2(Number(r.remain_drtn_hr_cnt) || 0), target_drtn_hr_cnt: n2(Number(r.target_drtn_hr_cnt) || 0),
-      cstr_type: r.cstr_type, cstr_date: r.cstr_date,
+      cstr_type: c.cstr_type, cstr_date: c.cstr_date, cstr_type2: c.cstr_type2, cstr_date2: c.cstr_date2,
       act_start_date: r.act_start_date, act_end_date: r.act_end_date,
       early_start_date: r.early_start_date, early_end_date: r.early_end_date, late_start_date: r.late_start_date, late_end_date: r.late_end_date,
       restart_date: r.status_code === "TK_Complete" ? "" : r.resume_date || r.restart_date || r.early_start_date,
@@ -605,7 +633,11 @@ export function p6XerText(text, { projectId = "", activityIds = "auto" } = {}) {
   if (udfDupLabels) warnings.push(`${udfDupLabels} repeated custom field title(s) given a (2), (3) suffix (P6 needs UDF titles unique)`);
   if (cut) warnings.push(`${cut} name(s) or code(s) cut to P6's field length`);
   if (elapsedLags) warnings.push(`${elapsedLags} elapsed lag(s) written in hours: P6 counts every lag on one calendar per project (successor's), so set the lag calendar to 24 hour in P6 if those links matter`);
-  if (deadlines) warnings.push(`${deadlines} deadline(s) not carried: P6 has no deadline (add a finish-on-or-before secondary constraint in P6 if needed)`);
+  if (deadlines && !carryDeadlines) warnings.push(`${deadlines} deadline(s) not carried: P6 has no deadline field (turn on "deadlines as finish-on-or-before" (--deadlines) to write each as a finish-on-or-before constraint, which caps the late finish in P6 as the deadline caps total slack in Project)`);
+  if (carryDeadlines && dl.primary + dl.secondary + dl.merged) warnings.push(`${dl.primary + dl.secondary + dl.merged} deadline(s) written as finish-on-or-before constraints (${[dl.primary ? `${dl.primary} as the primary constraint` : "", dl.secondary ? `${dl.secondary} as the secondary` : "", dl.merged ? `${dl.merged} merged with a finish-no-later-than, the earlier date kept` : ""].filter(Boolean).join(", ")}): P6's float then counts down to them as Project's slack does; a DCMA review counts them as hard constraints`);
+  if (dl.blocked.length) warnings.push(`${dl.blocked.length} deadline(s) not carried: the task has a must-start-on, must-finish-on or mandatory constraint, beside which P6 takes no secondary constraint (Project ID and name: ${dl.blocked.slice(0, 5).join(", ")}${dl.blocked.length > 5 ? ", ..." : ""})`);
+  const doneDl = deadlines - dl.primary - dl.secondary - dl.merged - dl.blocked.length;
+  if (carryDeadlines && doneDl > 0) warnings.push(`${doneDl} deadline(s) on finished tasks not carried`);
   if (TASKMEMO.length || WBSMEMO.length) {
     const onRoot = WBSMEMO.filter((m) => m.wbs_id === root).length, onWbs = WBSMEMO.length - onRoot;
     const where = [TASKMEMO.length ? `${TASKMEMO.length} on activities` : "", onWbs ? `${onWbs} on WBS nodes from summary tasks` : "", onRoot ? `${onRoot} on the project node from the project's notes` : ""].filter(Boolean).join(", ");
