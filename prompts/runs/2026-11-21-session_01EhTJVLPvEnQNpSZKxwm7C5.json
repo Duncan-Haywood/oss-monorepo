@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVLPvEnQNpSZKxwm7C5",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell products; merge when done)",
+  "input_sha256": "6778381d4702e8428cd9c7f4e6c8cb6a2317e6b5fb92d7bf091e2776ad526bac",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T18:07:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "civ-seeding milestone 24: power analysis of which extra survey measurement (end-line awareness, adoption timing) identifies simple vs complex contagion, and with how many villages",
+  "projects": [
+    "civ-seeding"
+  ],
+  "pr": 18119,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "bare python3 lacks numpy; pyenv.py returned /usr/bin/python3.13 at once, fine, but playwright is only importable from node (NODE_PATH=$(npm root -g)), not from python3.13"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/civ-seeding/README.md",
+      "why": "took the proposal's never-run milestone 5 (gap 3, identification by extra measurement) instead of the README's next step (more drill-down on a 0.09% worst-case effect), as the more central step toward a submittable paper",
+      "did": "milestone 24 power analysis",
+      "result": "H83 exact reproduction; awareness separates I from R (91%), not T from R; SD scaling of moments lifts cross-section recovery to >=83.5%"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-one-survey-question-tells-news-from-reinforcement.md"
+  ],
+  "goal": "advance an open research programme (pick_track draw: civ-seeding)",
+  "notes": "Run: experiments/m24_measure/run.py, 285 s on 4 cores. Verified locally: civ-seeding tests 98 passed (6 new in tests/test_measure.py); research/_homepage/build.py ok; check_posts ok; check_md_links ok; programme_check ok; cite_check README all ok/ok*. Pre-registered H79-H84 in LOG.md before the full run: H80, H83, H84 held; H79, H81, H82 refuted. Largest effect (secondary, not tested): SD-scaled moments lift cross-section LOO recovery from 58.5/82/55.5 to 83.5/87/87.5.",
+  "corrections": [],
+  "redteam": null
+}
