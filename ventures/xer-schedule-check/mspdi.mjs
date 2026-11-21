@@ -33,8 +33,18 @@
 //   typed start: it is read as start on or after that date (Project still
 //   gives it late dates from the logic), and every one is named in the
 //   warnings, since a reviewer wants them switched to auto scheduled.
+// - task text fields Text1 to Text30 that hold values become activity codes
+//   (ACTVTYPE, ACTVCODE, TASKACTV), named by the field's Alias (else Text5,
+//   ...), so a Project schedule groups by its custom fields in the Gantt and
+//   the review, and the codes msproject.mjs writes from an XER come back. A
+//   field whose values are all different (a note per task) is not a code
+//   and is skipped; the Text1 msproject.mjs names "Activity ID" is read as
+//   the activity ID's own field, not a code.
 
 import { parseXer } from "./xer.mjs";
+
+const TASK_TEXT_IDS = ["188743731", "188743734", "188743737", "188743740", "188743743", "188743746", "188743747", "188743748", "188743749", "188743750",
+  ...Array.from({ length: 20 }, (_, k) => String(188743997 + k))];
 
 // ---------- a small XML reader (elements, text, CDATA, entities) ----------
 
@@ -482,6 +492,8 @@ export function parseMspdi(text) {
     PROJECT[0].last_recalc_date = PROJECT[0].plan_start_date = first;
     warnings.push(`no status date in the file (Project, Status Date): ${first || "no date"}, the ${first && first < start ? "earliest task start" : "project start"}, is used as the data date, so any progress recorded is not checked against it`);
   }
+  const codes = readTextCodes(proj, taskNodes, new Set(TASK.map((r) => r.task_id)), warnings);
+
   // relationships, after every task is known
   let summaryLinks = 0, pctLags = 0, elapsedLags = 0, crossProject = 0;
   let relId = 0;
@@ -527,10 +539,69 @@ export function parseMspdi(text) {
   return {
     version: `MSPDI ${val(proj, "SaveVersion") || ""}`.trim(),
     exportDate: date(val(proj, "LastSaved")),
-    tables: { PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS, TASK, TASKPRED },
+    tables: { PROJECT, CALENDAR, SCHEDOPTIONS, PROJWBS, TASK, TASKPRED, ...codes },
     warnings,
     format: "mspdi",
   };
+}
+
+// Task text fields -> activity code tables. A value "C - Civil" splits into
+// code C and description Civil when no code in the field carries two
+// different descriptions (msproject.mjs writes that form with codeNames, and
+// a value with no description as the bare code).
+function readTextCodes(proj, taskNodes, taskIds, warnings) {
+  const defs = new Map();
+  for (const d of kids(kid(proj, "ExtendedAttributes"), "ExtendedAttribute")) defs.set(val(d, "FieldID"), { name: val(d, "FieldName"), alias: val(d, "Alias") });
+  const fields = new Map(); // field id -> Map(task uid -> value)
+  for (const t of taskNodes) {
+    const uid = val(t, "UID");
+    if (!taskIds.has(uid)) continue;
+    for (const e of kids(t, "ExtendedAttribute")) {
+      const id = val(e, "FieldID"), v = val(e, "Value").trim();
+      if (!v || !TASK_TEXT_IDS.includes(id)) continue;
+      if (!fields.has(id)) fields.set(id, new Map());
+      fields.get(id).set(uid, v);
+    }
+  }
+  const ACTVTYPE = [], ACTVCODE = [], TASKACTV = [];
+  const skipped = [];
+  for (const id of TASK_TEXT_IDS) {
+    const vals = fields.get(id);
+    if (!vals) continue;
+    const def = defs.get(id) || {};
+    const label = def.alias || def.name || `Text${TASK_TEXT_IDS.indexOf(id) + 1}`;
+    if (def.alias === "Activity ID") continue;
+    const distinct = new Set(vals.values());
+    if (vals.size > 20 && distinct.size === vals.size) { skipped.push(label); continue; }
+    // "code - description" when the split is consistent for the whole field
+    // (a value with no description is written as the bare code)
+    const desc = new Map();
+    let split = false;
+    for (const v of distinct) {
+      const k = v.indexOf(" - ");
+      if (k <= 0) continue;
+      const code = v.slice(0, k), d = v.slice(k + 3);
+      if (desc.has(code) && desc.get(code) !== d) { split = false; break; }
+      desc.set(code, d);
+      split = true;
+    }
+    const typeId = `mspdi-${TASK_TEXT_IDS.indexOf(id) + 1}`;
+    ACTVTYPE.push({ actv_code_type_id: typeId, actv_code_type: label, actv_code_type_scope: "AS_Project", proj_id: "1", seq_num: String(ACTVTYPE.length + 1) });
+    const codeId = new Map();
+    const sorted = [...distinct].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    for (const v of sorted) {
+      const k = v.indexOf(" - ");
+      const code = split && k > 0 ? v.slice(0, k) : v;
+      if (codeId.has(code)) { codeId.set(v, codeId.get(code)); continue; }
+      const cid = `${typeId}-${codeId.size + 1}`;
+      codeId.set(code, cid);
+      codeId.set(v, cid);
+      ACTVCODE.push({ actv_code_id: cid, actv_code_type_id: typeId, parent_actv_code_id: "", short_name: code, actv_code_name: split && desc.has(code) ? desc.get(code) : v, seq_num: String(ACTVCODE.length + 1) });
+    }
+    for (const [uid, v] of vals) TASKACTV.push({ task_id: uid, actv_code_type_id: typeId, actv_code_id: codeId.get(v), proj_id: "1" });
+  }
+  if (skipped.length) warnings.push(`text field(s) with a different value on every task are not read as activity codes: ${skipped.join(", ")}`);
+  return ACTVTYPE.length ? { ACTVTYPE, ACTVCODE, TASKACTV } : {};
 }
 
 // An XML file (after a BOM and white space) is MSPDI; anything else is read as XER.

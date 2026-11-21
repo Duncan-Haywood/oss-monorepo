@@ -38,8 +38,20 @@
 //
 // Scheduling differences that remain are named in the warnings (the lag
 // calendar, progress override, expected finish dates, resource-dependent
-// activities, the must-finish-by date); activity codes, UDFs, notes, steps
-// and expenses are not carried and are counted.
+// activities, the must-finish-by date); UDFs, notes, steps and expenses are
+// not carried and are counted.
+//
+// Activity codes become Project's spare text fields, Text2 to Text30, one per
+// code type, each renamed (Alias) to the code type's name, so a Project user
+// can group, filter and sort by Phase, Area or Responsibility as in P6. A
+// task's field holds its value's code (the short name P6 shows in the column);
+// with { codeNames: true } it holds "code - description". Hierarchical values
+// keep their leaf code, as P6 shows them, unless the same leaf code sits
+// under two parents (001 under two areas): then the type writes the whole
+// path, parent.child, so the two values do not merge in Project. A file with more than 29 code types
+// carries the 29 most assigned (P6's order breaks ties) and counts the rest.
+// mspdi.mjs reads the fields back as activity codes
+// (eval/msproject-codes-2026-11-21.md).
 
 import { Calendar } from "./calendar.mjs";
 import { parseDate, num } from "./xer.mjs";
@@ -47,6 +59,11 @@ import { parseDate, num } from "./xer.mjs";
 const DAY = 1440;
 const SERIAL_EPOCH_DAY = Date.UTC(1899, 11, 30) / 86400000;
 const TEXT1 = "188743731"; // Text1's field ID in Project
+// Project's task text fields Text1..Text30 (PjField pjTaskText1..30); the
+// same table is in mspdi.mjs, which reads them back
+export const TASK_TEXT_IDS = ["188743731", "188743734", "188743737", "188743740", "188743743", "188743746", "188743747", "188743748", "188743749", "188743750",
+  ...Array.from({ length: 20 }, (_, k) => String(188743997 + k))];
+export const CODE_NAME_SEP = " - ";
 
 const esc = (s) => String(s ?? "")
   .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
@@ -120,7 +137,7 @@ function calendarXml(uid, name, cal, out) {
   out.push("</Calendar>");
 }
 
-export function mspdiText(xer, { projId = null } = {}) {
+export function mspdiText(xer, { projId = null, codeNames = false } = {}) {
   const T = xer.tables || {};
   const warnings = [];
   const proj = pickProject(T, projId);
@@ -256,6 +273,10 @@ export function mspdiText(xer, { projId = null } = {}) {
     }
   }
 
+  // activity codes -> Text2..Text30, one field per code type
+  const codeFields = activityCodeFields(T, taskRow, codeNames);
+  const codeXml = (taskId) => codeFields.fields.map((f) => (f.values.has(taskId) ? `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><Value>${esc(f.values.get(taskId))}</Value></ExtendedAttribute>` : "")).join("");
+
   // tasks
   const counts = { activities: tasks.length, wbs: outline.filter((o) => o.kind === "wbs").length, links: 0, calendars: 0, resources: 0, assignments: 0, manual: 0, mandatory: 0, deadlines: 0, external: 0, crossProject };
   let rsrcDependent = 0, expected = 0, secondaryDropped = 0, startMilestones = 0;
@@ -346,7 +367,7 @@ export function mspdiText(xer, { projId = null } = {}) {
       L.push(`<PredecessorLink><PredecessorUID>${taskUid.get(r.pred_task_id)}</PredecessorUID><Type>${own(LINK, r.pred_type, 1)}</Type><CrossProject>0</CrossProject><LinkLag>${Math.round(lag * 600)}</LinkLag><LagFormat>${lag % hoursPerDay === 0 ? 7 : 5}</LagFormat></PredecessorLink>`);
       counts.links++;
     }
-    L.push(`<ExtendedAttribute><FieldID>${TEXT1}</FieldID><Value>${esc(t.task_code)}</Value></ExtendedAttribute>`);
+    L.push(`<ExtendedAttribute><FieldID>${TEXT1}</FieldID><Value>${esc(t.task_code)}</Value></ExtendedAttribute>${codeXml(t.task_id)}`);
     const bs = parseDate(t.target_start_date), bf = parseDate(t.target_end_date);
     if (bs !== null && bf !== null) L.push(`<Baseline><Number>0</Number><Start>${isoDate(bs)}</Start><Finish>${isoDate(bf)}</Finish><Duration>${ptHours(isMile ? 0 : num(t.target_drtn_hr_cnt) ?? 0)}</Duration><DurationFormat>7</DurationFormat></Baseline>`);
     L.push("</Task>");
@@ -439,7 +460,7 @@ export function mspdiText(xer, { projId = null } = {}) {
     "<NewTasksEffortDriven>0</NewTasksEffortDriven>",
     dataDate !== null ? `<StatusDate>${isoDate(dataDate)}</StatusDate>` : "",
     "<NewTasksAreManual>0</NewTasksAreManual>",
-    `<ExtendedAttributes><ExtendedAttribute><FieldID>${TEXT1}</FieldID><FieldName>Text1</FieldName><Alias>Activity ID</Alias></ExtendedAttribute></ExtendedAttributes>`,
+    `<ExtendedAttributes><ExtendedAttribute><FieldID>${TEXT1}</FieldID><FieldName>Text1</FieldName><Alias>Activity ID</Alias></ExtendedAttribute>${codeFields.fields.map((f) => `<ExtendedAttribute><FieldID>${f.fieldId}</FieldID><FieldName>${f.fieldName}</FieldName><Alias>${esc(f.alias)}</Alias></ExtendedAttribute>`).join("")}</ExtendedAttributes>`,
     "<Calendars>", ...calXml, "</Calendars>",
     "<Tasks>", ...body, "</Tasks>",
     "<Resources>", ...res, "</Resources>",
@@ -465,20 +486,97 @@ export function mspdiText(xer, { projId = null } = {}) {
   if (parseDate(proj.plan_end_date) !== null) warnings.push(`the must-finish-by date (${proj.plan_end_date}) is not carried: Project scheduled from the start has none; add it as a deadline on the finish milestone if you need it`);
   if (unknownRsrc) warnings.push(`${unknownRsrc} assignment(s) name a resource the file does not list and were left out`);
   const notCarried = [];
-  const nCodes = (T.TASKACTV || []).filter((r) => taskUid.has(r.task_id)).length;
+  counts.codeTypes = codeFields.fields.length;
+  counts.codeAssignments = codeFields.written;
+  warnings.push(...codeFields.warnings);
+  const nCodes = codeFields.dropped;
   const nUdf = (T.UDFVALUE || []).filter((r) => taskUid.has(r.fk_id)).length;
   const nMemo = (T.TASKMEMO || []).filter((r) => taskUid.has(r.task_id)).length;
   const nProc = (T.TASKPROC || []).filter((r) => taskUid.has(r.task_id)).length;
   const nCost = (T.PROJCOST || []).filter((r) => taskUid.has(r.task_id)).length;
-  if (nCodes) notCarried.push(`${nCodes} activity code assignment(s)`);
+  if (nCodes) notCarried.push(`${nCodes} activity code assignment(s) of the ${codeFields.droppedTypes} code type(s) past Project's 29 spare text fields`);
   if (nUdf) notCarried.push(`${nUdf} user-defined field value(s)`);
   if (nMemo) notCarried.push(`${nMemo} notebook entr${nMemo === 1 ? "y" : "ies"}`);
   if (nProc) notCarried.push(`${nProc} step(s)`);
   if (nCost) notCarried.push(`${nCost} expense(s)`);
   if (notCarried.length) warnings.push(`not carried: ${notCarried.join(", ")}`);
 
-  return { xml, project: { id: pid, name: proj.proj_short_name || pid, dataDate: proj.last_recalc_date || "" }, counts, warnings, taskUid };
+  return { xml, project: { id: pid, name: proj.proj_short_name || pid, dataDate: proj.last_recalc_date || "" }, counts, warnings, taskUid, codeFields };
 }
 
 export const msprojectSummary = (r) =>
-  `${r.counts.activities} activities, ${r.counts.wbs} WBS summary tasks, ${r.counts.links} relationships, ${r.counts.calendars} calendar${r.counts.calendars === 1 ? "" : "s"}, ${r.counts.resources} resources and ${r.counts.assignments} assignments written`;
+  `${r.counts.activities} activities, ${r.counts.wbs} WBS summary tasks, ${r.counts.links} relationships, ${r.counts.calendars} calendar${r.counts.calendars === 1 ? "" : "s"}, ${r.counts.resources} resources, ${r.counts.assignments} assignments${r.counts.codeTypes ? ` and ${r.counts.codeAssignments} activity code values in ${r.counts.codeTypes} text field${r.counts.codeTypes === 1 ? "" : "s"}` : ""} written`;
+
+// The code types this project's activities use, as text fields. Returns
+// { fields: [{ fieldId, fieldName, alias, typeId, values: Map(task_id -> text) }],
+//   written, dropped, droppedTypes, warnings }.
+export function activityCodeFields(T, taskRow, codeNames = false) {
+  const warnings = [];
+  const typeRows = new Map((T.ACTVTYPE || []).map((r) => [r.actv_code_type_id, r]));
+  const codeRows = new Map((T.ACTVCODE || []).map((r) => [r.actv_code_id, r]));
+  const byType = new Map(); // type id -> Map(task_id -> code row)
+  let dangling = 0, twice = 0;
+  for (const a of T.TASKACTV || []) {
+    if (!taskRow.has(a.task_id)) continue;
+    const c = codeRows.get(a.actv_code_id);
+    if (!c) { dangling++; continue; }
+    const typeId = a.actv_code_type_id || c.actv_code_type_id;
+    if (!byType.has(typeId)) byType.set(typeId, new Map());
+    const m = byType.get(typeId);
+    if (m.has(a.task_id)) { twice++; continue; }
+    m.set(a.task_id, c);
+  }
+  const ORDER = { AS_Global: 0, AS_EPS: 1, AS_Project: 2 };
+  // Project formulas name fields in brackets, so a field name holds none
+  const nameOf = (id) => nm(typeRows.get(id)?.actv_code_type || `code type ${id}`).replace(/\[/g, "(").replace(/\]/g, ")").trim() || `code type ${id}`;
+  const types = [...byType.keys()].map((id) => ({ id, n: byType.get(id).size, scope: ORDER[typeRows.get(id)?.actv_code_type_scope] ?? 3, seq: num(typeRows.get(id)?.seq_num) ?? 0 }));
+  types.sort((a, b) => a.scope - b.scope || a.seq - b.seq || nameOf(a.id).localeCompare(nameOf(b.id)) || (a.id < b.id ? -1 : 1));
+  const room = TASK_TEXT_IDS.length - 1;
+  let kept = types;
+  let dropped = 0, droppedTypes = 0;
+  if (types.length > room) {
+    // keep the most-used types, in P6's order
+    const rank = [...types].sort((a, b) => b.n - a.n || types.indexOf(a) - types.indexOf(b));
+    const keep = new Set(rank.slice(0, room).map((t) => t.id));
+    kept = types.filter((t) => keep.has(t.id));
+    for (const t of types) if (!keep.has(t.id)) { dropped += t.n; droppedTypes++; }
+    warnings.push(`${types.length} activity code types are used and Project has 29 spare text fields: the 29 most assigned are written; left out: ${types.filter((t) => !keep.has(t.id)).map((t) => `${nameOf(t.id)} (${t.n})`).join(", ")}`);
+  }
+  // Project's field names must be unique: a repeated code type name gets its id
+  const seen = new Map([["activity id", 1]]);
+  for (const t of kept) seen.set(nameOf(t.id).toLowerCase(), (seen.get(nameOf(t.id).toLowerCase()) || 0) + 1);
+  let written = 0;
+  const leaf = (c) => nm(c.short_name || c.actv_code_name || c.actv_code_id);
+  const pathOf = (c) => {
+    const parts = [];
+    const seenIds = new Set();
+    for (let x = c; x && !seenIds.has(x.actv_code_id); x = codeRows.get(x.parent_actv_code_id)) { seenIds.add(x.actv_code_id); parts.unshift(leaf(x)); }
+    return parts.join(".");
+  };
+  let pathTypes = 0;
+  const fields = kept.map((t, k) => {
+    const values = new Map();
+    // a leaf code used under two parents (001 under Area A and under Area B)
+    // would merge two values in Project: that type writes the whole path
+    const leafOf = new Map();
+    let ambiguous = false;
+    for (const c of byType.get(t.id).values()) {
+      const l = leaf(c);
+      if (leafOf.has(l) && leafOf.get(l) !== c.actv_code_id) { ambiguous = true; break; }
+      leafOf.set(l, c.actv_code_id);
+    }
+    if (ambiguous) pathTypes++;
+    for (const [taskId, c] of byType.get(t.id)) {
+      const code = ambiguous ? pathOf(c) : leaf(c);
+      const desc = nm(c.actv_code_name || "");
+      values.set(taskId, (codeNames && desc && desc !== code ? `${code}${CODE_NAME_SEP}${desc}` : code).slice(0, 255));
+      written++;
+    }
+    const base = nameOf(t.id);
+    return { fieldId: TASK_TEXT_IDS[k + 1], fieldName: `Text${k + 2}`, alias: (seen.get(base.toLowerCase()) > 1 ? `${base} (${t.id})` : base).slice(0, 50), typeId: t.id, values };
+  });
+  if (pathTypes) warnings.push(`${pathTypes} code type(s) use the same code under different parents: their fields hold the whole path (parent.child), so the values stay apart`);
+  if (dangling) warnings.push(`${dangling} activity code assignment(s) name a value the file does not carry and were left out`);
+  if (twice) warnings.push(`${twice} activit${twice === 1 ? "y holds" : "ies hold"} a second value of one code type; the first in the file is written`);
+  return { fields, written, dropped, droppedTypes, warnings };
+}

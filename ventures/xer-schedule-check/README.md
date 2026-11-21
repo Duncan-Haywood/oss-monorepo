@@ -10,7 +10,7 @@ uploaded.
 
 It also **converts an XER to Microsoft Project XML** for someone with Project
 and no P6 seat (WBS, activity IDs, calendars, logic, constraints, progress,
-baseline, resources), checked on six public P6 files against this tool's own
+baseline, resources, activity codes as named text columns), checked on six public P6 files against this tool's own
 MSPDI reader and against MPXJ (`eval/msproject-check-2026-11-21.md`).
 
 **Live tool:** https://marisstella.app/xer-schedule-check/
@@ -444,8 +444,12 @@ project's updates for delay claims; and the review itself as a service.
   (MSPDI) from an XER: WBS summary tasks in P6's order, activity IDs in Text1,
   calendars with every exception day, links, lags, constraints, progress
   (duration = actual + remaining, Resume at P6's remaining start), baseline 0,
-  resources and assignments; level of effort as manual tasks with their links
-  in the notes; warnings for what Project schedules differently.
+  resources and assignments; activity codes in Text2..Text30, one per code
+  type, named after it (`{ codeNames: true }` writes "code - description"; a
+  leaf code repeated under two parents is written as its path); level of
+  effort as manual tasks with their links in the notes; warnings for what
+  Project schedules differently. `mspdi.mjs` reads task text fields back as
+  activity codes.
 - `cpm.mjs`: forward and backward passes on each activity's own calendar: FS,
   SS, FF and SF links with lags on the project's lag calendar; total float as
   finish, start or smallest float; retained logic or progress override; planned
@@ -558,6 +562,13 @@ run as a formula in Excel or Sheets.
   predecessors and assignment hours and cost from the XER and the XML on every
   activity but one (an external date written as a constraint on purpose). Not
   opened in Microsoft Project itself.
+- **Activity codes in the Project XML** (`eval/msproject-codes-2026-11-21.md`):
+  on the four public P6 files with codes, 276,042 of 276,042 code assignments
+  written read back to the same code (and description, with `--code-names`),
+  no two values merged; MPXJ 16.10 reads all 38 field names and 276,042 of
+  276,042 values where they were meant to go. The CCA file uses 37 code types:
+  the 29 most assigned are written and 1,416 assignments in the other 8 are
+  named. Not opened in Microsoft Project itself.
 - **Gantt by activity code** (`eval/activity-codes-2026-11-21.md`): 92
   charts (each code type alone, and then the WBS) on the four public files
   with codes: every activity once, under its TASKACTV value and that value's
