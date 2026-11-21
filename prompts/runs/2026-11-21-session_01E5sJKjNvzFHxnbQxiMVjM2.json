@@ -47,7 +47,7 @@
     "ventures/open-tennis-robots/cad/README.md (Turntable bearing's two rings)"
   ],
   "goal": "flagship depth: open-tennis-robots feeder CAD",
-  "notes": "Bearing drawn as two stacked 2 mm flanges with race bands, access holes, new 12 mm mast plate hole. Found: guide's M5 x 12 + nuts left 5 mm past a 7 mm stack (6.3 needed) and put both nut sets in a 6 mm gap. Now M5 x 16 heads in the gap, nylocs outside; two new joints (39), spanner rows 11, bearing_access_problems (indexing check), step split (26 steps). Verification: package build exit 0, design_rules [] and collisions []; pytest -k 'Bearing or FeederAssemblyGuide or Spanner' 34 passed in 455 s; node --test sim/page/usage pass; rest of test_cad.py: see PR.",
+  "notes": "Bearing drawn as two stacked 2 mm flanges with race bands, access holes, new 12 mm mast plate hole. Found: guide's M5 x 12 + nuts left 5 mm past a 7 mm stack (6.3 needed) and put both nut sets in a 6 mm gap. Now M5 x 16 heads in the gap, nylocs outside; two new joints (39), spanner rows 11, bearing_access_problems (indexing check), step split (26 steps). Verification: package build exit 0, design_rules [] and collisions []; pytest -k 'Bearing or FeederAssemblyGuide or Spanner' 34 passed in 455 s; node --test sim/page/usage pass; rest of test_cad.py 169 passed in 414 s (203 of 203 in all). CI: test, validate, build, gate green; cad and changed-ventures still running at merge (the same suite as the local pass).",
   "corrections": [],
   "redteam": null,
   "usage": {
