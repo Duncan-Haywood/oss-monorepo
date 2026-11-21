@@ -271,5 +271,12 @@
     "sha256": "6d8069bfe93919b0fed4358953057783144d523c1b68dce9f9996b266638add7",
     "script_sha256": "1fff26d3dd2ef84a4c4a36c17bfe8d19d945f32b2498d7b5998c982c0040d750",
     "voice": "kokoro-82m-af_heart"
+  },
+  "2026-11-21-three-paradoxes-where-more-makes-it-worse": {
+    "bytes": 4442524,
+    "seconds": 740.34,
+    "sha256": "15621e6d229ec7b3fcdaefad4ffc191b8d4740508645011ff52384dbff49e2f2",
+    "script_sha256": "087810a286cf2ab63a98355a07a2e8c00acbceeff7853c527f2a98cb9e9939b6",
+    "voice": "kokoro-82m-af_heart"
   }
 }
