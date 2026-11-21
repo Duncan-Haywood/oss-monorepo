@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, mobile, software-for-routine]
+topics: [design, accessibility, software-for-routine]
 date: 2026-11-21
 ---
 # Polish 2026-11-21: the 29 `*-csv-check` heroes fold their list of checks
@@ -39,7 +39,7 @@ throwaway). No open PR had `polish` or `csv-check` in its title.
 
 No sideways scroll before or after. Screenshots (390×844, 2x):
 `img/polish-csv-check-hero-{before,after}-quickbooks-import-390.png`.
-All 29 ventures' own `*.test.mjs` pass; `node --test 'platform/pages/*.test.mjs'` result in the run record.
+All 29 ventures' own `*.test.mjs` pass; `node --test 'platform/pages/*.test.mjs'`: 1,900 tests pass (after shortening the post's description).
 
 ## Still weakest, and what I would do next
 
