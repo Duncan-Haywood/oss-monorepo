@@ -812,3 +812,64 @@ test('ventureLede: a tool project page leads with its llms.txt summary', async (
   const [plain] = projectGroups(posts, { root, names: () => 'Demo', ledes: () => '' });
   assert.equal('lede' in plain, false, 'an empty lede leaves the generic dek');
 });
+
+// Red team 2026-11-21: six mutants of this file escaped the suite. These pin the behaviour they broke.
+test('projectGroups: most posts first, ties alphabetical by slug', async () => {
+  const { projectGroups } = await import('./writing.mjs');
+  const posts = [
+    ...['zeta', 'zeta', 'zeta', 'zeta'],
+    ...['beta', 'beta', 'beta'],
+    ...['alpha', 'alpha', 'alpha'],
+    ...['omega', 'omega', 'omega', 'omega', 'omega'],
+  ].map((project) => ({ project }));
+  const slugs = projectGroups(posts, { names: (s) => s, ledes: () => '' }).map((g) => g.slug);
+  assert.deepEqual(slugs, ['omega', 'zeta', 'alpha', 'beta']);
+});
+
+test('a tool project page keeps the "N posts, newest first." description at exactly 160 characters', async () => {
+  const { renderProjectPage } = await import('./writing.mjs');
+  const mk = (i) => ({ slug: `p${i}`, title: `P${i}`, description: 'D.', date: `2026-10-0${i + 1}`, minutes: 1, tags: ['x'], topic: 'tools', project: 'demo' });
+  const posts = [0, 1, 2].map(mk);
+  const line = (name) => `Every blog post about ${name}: what was built, what was measured and what changed. 3 posts, newest first.`;
+  const name = 'N'.repeat(160 - line('').length);
+  assert.equal(line(name).length, 160);
+  const html = renderProjectPage(posts, { slug: 'demo', name, count: 3, topic: 'tools' });
+  assert.ok(html.includes(`<meta name="description" content="${line(name)}">`), 'a 160-character description fits the snippet budget');
+});
+
+test('relatedPosts with n = 0 returns no links and does not throw', () => {
+  const mk = (slug, date) => ({ slug, date, topic: 'x', tags: ['t'], title: slug });
+  const posts = [mk('a', '2026-10-01'), mk('b', '2026-10-02'), mk('c', '2026-10-03')];
+  for (const p of posts) assert.deepEqual(relatedPosts(p, posts, 0), []);
+});
+
+test('finder: a search over posts.json renders each card with its date and reading time', async () => {
+  const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-cards-'));
+  await buildWriting(out, BASE, { root });
+  const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const script = [...index.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
+  const rows = JSON.parse(renderPostRows([{ slug: 'deep', title: 'Deep', description: 'D', date: '2026-03-05', minutes: 7, topic: 'agents', tags: ['a'] }]));
+  const node = (tag) => ({ tag, dataset: {}, children: [], textContent: '', hidden: false, appendChild(c) { this.children.push(c); } });
+  const text = (n) => (n.tag === '#text' ? n.textContent : n.textContent + n.children.map(text).join(''));
+  const el = () => ({ value: '', hidden: true, textContent: '', dataset: {}, addEventListener() {}, setAttribute() {}, focus() {} });
+  let shown = [];
+  const list = { dataset: { all: 'posts.json', total: '1' }, children: [], appendChild() {}, replaceChildren(...xs) { shown = xs; } };
+  const els = { posts: list, q: el(), tag: { ...el(), selectedIndex: 0 }, sort: el(), count: el(), none: el(), clear: el(), finder: el(), pager: el() };
+  vm.runInNewContext(script, {
+    document: {
+      getElementById: (id) => els[id], querySelectorAll: () => [],
+      createElement: node, createTextNode: (t) => ({ tag: '#text', textContent: t }),
+    },
+    location: { search: '?q=deep', pathname: '/writing/' }, history: { replaceState() {} },
+    fetch: (url) => Promise.resolve({ ok: true, json: () => (url === 'posts.json' ? rows : {}) }),
+    URLSearchParams, Array, String, Number, Date, Boolean,
+  });
+  for (let i = 0; i < 10 && !shown.length; i++) await new Promise((r) => setImmediate(r));
+  assert.equal(shown.length, 1, 'the fetched row became a card');
+  const card = shown[0];
+  assert.equal(card.dataset.mins, '7');
+  assert.equal(card.dataset.topic, 'agents');
+  const meta = text(card.children[2]);
+  assert.match(meta, /5 March 2026 · 7 min read/);
+});

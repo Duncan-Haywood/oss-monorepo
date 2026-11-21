@@ -12,12 +12,12 @@ Each drawing shows the parts that step adds in black over what is already built 
 
 | Fastener or part | Qty |
 | --- | --- |
-| M4 heat-set insert, 5.7 mm long | 24 |
+| M4 heat-set insert, 5.7 mm long | 26 |
 | M5 rivet nut (blind insert), aluminium | 12 |
 
 Tools: soldering iron with an M4 insert tip, M5 rivet nut tool.
 
-Melt one M4 insert into each 5.6 mm pocket: 4 in the top face of each motor clamp cradle (where the cap meets it), 2 in the underside of each cradle, 2 in the underside of each pivot block, 2 in the underside of each yoke-lift switch tower, and 4 in the underside of the mast socket's flange. Press each one flush and square. Set an M5 rivet nut in each of the six 7 mm holes of both drum discs, flange on the outer face (the face away from the rods). A standard 1 mm flange holds the cover that far off the disc; the arm gap allows for it.
+Melt one M4 insert into each 5.6 mm pocket: 4 in the top face of each motor clamp cradle (where the cap meets it), 2 in the underside of each cradle, 2 in the underside of each pivot block, 2 in the underside of each yoke-lift switch tower, 4 in the underside of the mast socket's flange, and 2 in the underside of the caster adapter (the two pockets on its centre line). Press each one flush and square. Set an M5 rivet nut in each of the six 7 mm holes of both drum discs, flange on the outer face (the face away from the rods). A standard 1 mm flange holds the cover that far off the disc; the arm gap allows for it.
 
 ### 2. Lay out the base plate
 
@@ -37,16 +37,16 @@ Deburr every hole. The plate's top face is the side the motors sit on; the strap
 | --- | --- | --- |
 | mast_socket | 1 | print/mast_socket.stl |
 | caster_adapter | 1 | print/caster_adapter.stl |
-| ball_caster | 1 | ball caster, 25 mm mounting height (e.g. 3/4-1 in ball) |
+| ball_caster | 1 | ball caster, 25 mm mounting height (e.g. 3/4-1 in ball), two-hole flange: M4 clearance on 38 mm, 3 mm thick |
 
 | Fastener or part | Qty |
 | --- | --- |
 | M4 x 20 socket cap screw | 4 |
-| Ball caster mounting screws | 1 |
+| M4 x 10 socket cap screw | 2 |
 
 Tools: 3 mm hex key.
 
-Stand the mast socket on the top face over the four rear holes, hold the caster adapter under the plate with its counterbores facing down, and drive the four M4 x 20 screws up through adapter and plate into the socket's inserts. Their heads sit in the counterbores, so the caster can then be screwed flat to the adapter: mark and drill its own holes clear of the four heads.
+Stand the mast socket on the top face over the four rear holes, hold the caster adapter under the plate with its counterbores facing down, and drive the four M4 x 20 screws up through adapter and plate into the socket's inserts. Their heads sit in the counterbores, below the caster's seat. Then hold the caster's flange to the adapter and drive an M4 x 10 up through each of its two holes into the adapter's inserts. The adapter is drawn for holes on 38 mm: measure your caster's, and if they differ set `caster_hole_pitch` (and `caster_flange`) and rebuild before printing.
 
 ### 4. Drive motors
 
@@ -103,15 +103,17 @@ Screw both pivot blocks down from below with two M4 x 12 each, bores across the 
 | --- | --- | --- |
 | standoff | 4 | M3 x 30 mm female-female hex standoff |
 | electronics_tray | 1 | laser/electronics_tray__aluminium_3mm.dxf |
+| pi_standoff | 4 | M2.5 x 6 mm female-female hex standoff, brass |
 
 | Fastener or part | Qty |
 | --- | --- |
 | M3 x 10 screw | 4 |
 | M3 x 8 screw | 4 |
+| M2.5 x 5 screw | 4 |
 
-Tools: 2.5 mm hex key.
+Tools: 2.5 mm and 2 mm hex keys, 5 mm spanner.
 
-Screw the four 30 mm standoffs on from under the plate with M3 x 10, then the tray onto them with M3 x 8. The e-stop hole is at the tray's front corner.
+On the bench first, while both faces of the tray can be reached: screw the Pi's four 6 mm standoffs to the top face over its M2.5 holes (the 49 x 58 mm pattern) with an M2.5 x 5 up through each, and tighten with a spanner on the hex. Then screw the four 30 mm standoffs on from under the plate with M3 x 10, and the tray onto them with M3 x 8. The e-stop hole is at the tray's front corner.
 
 ### 8. Battery
 
@@ -219,10 +221,13 @@ Push the tube into the socket (an M4 grub screw if it rattles) and mount the cam
 
 ### 14. Electronics
 
+| Part | Qty | File or what to buy |
+| --- | --- | --- |
+| raspberry_pi | 1 | Raspberry Pi 5 (4 GB) or Pi 4 |
+
 | Fastener or part | Qty |
 | --- | --- |
-| Raspberry Pi 5 (4 GB) or Pi 4 | 1 |
-| M2.5 x 6 screw + 6 mm standoff | 4 |
+| M2.5 x 4 screw | 4 |
 | ESP32 dev board (ESP32-WROOM-32) | 1 |
 | Dual DC motor driver, 10 A/ch, PWM+DIR | 1 |
 | 5 V 5 A buck converter | 1 |
@@ -231,7 +236,7 @@ Push the tube into the socket (an M4 grub screw if it rattles) and mount the cam
 
 Tools: screwdrivers, crimp tool, multimeter.
 
-Mount the Pi on its M2.5 pattern and the ESP32, motor driver, buck converter and IMU on the 10 mm M3 grid. Fit the e-stop in its hole and the contactor beside it. Wire to hardware/electronics.md (pin map, power budget, e-stop chain). Run each yoke-lift switch's common and normally-open tags to GND and GPIO 13 (left) or 14 (right): the switch closes when its arm lifts, which the firmware reads as the bumper.
+Screw the Pi onto its standoffs with four M2.5 x 4, nothing longer: the standoff is threaded right through and the screw from below fills its lower half. Mount the ESP32, motor driver, buck converter and IMU on the 10 mm M3 grid. Fit the e-stop in its hole and the contactor beside it. Wire to hardware/electronics.md (pin map, power budget, e-stop chain). Run each yoke-lift switch's common and normally-open tags to GND and GPIO 13 (left) or 14 (right): the switch closes when its arm lifts, which the firmware reads as the bumper.
 
 ### 15. Before the first power-up
 
@@ -256,6 +261,9 @@ Each length is measured from the head's face through the parts the model puts un
 | drum axle | M8 x 30 hex bolt + M8 nyloc nut | yoke_arm 5 + axle_spacer 7 + drum_bearing 7 | 19 | 30 | 11 | needs 10.5 mm past the stack for the nyloc and two threads | pass |
 | switch tower to base | M4 x 12 socket cap screw | base_plate 5 + 0.8 washers | 5.8 | 12 | 6.2 | 5.7 to 12 mm past the face, the insert's length to the pocket's depth | pass |
 | switch to tower | M2 x 10 self-tapping screw (for plastic) | bump_switch 5.8 | 5.8 | 10 | 4.2 | 2 to 8 mm into the part's tapped hole (its thread depth) | pass |
+| caster flange to adapter | M4 x 10 socket cap screw | ball_caster 3 | 3 | 10 | 7 | 5.7 to 8.5 mm past the face, the insert's length to the pocket's depth | pass |
+| Pi standoff to tray | M2.5 x 5 screw | electronics_tray 3 | 3 | 5 | 2 | 2 to 3 mm into the standoff (1.5 d, or its thread less 1 mm; never past it) | pass |
+| Pi to standoff | M2.5 x 4 screw | raspberry_pi 1.6 | 1.6 | 4 | 2.4 | 2 to 3 mm into the standoff (1.5 d, or its thread less 1 mm; never past it) | pass |
 | standoff to base | M3 x 10 screw | base_plate 5 | 5 | 10 | 5 | at least 4.5 mm into the standoff | pass |
 | tray to standoff | M3 x 8 screw | electronics_tray 3 | 3 | 8 | 5 | at least 4.5 mm into the standoff | pass |
 

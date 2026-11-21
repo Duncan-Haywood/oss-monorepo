@@ -130,6 +130,17 @@ def _caster_bolts(p: Collector):
     return [(p.caster_x + dx, dy) for dx in (-20, 20) for dy in (-20, 20)]
 
 
+def _pi_holes(p: Collector):
+    """The Raspberry Pi's four M2.5 holes on the tray (49 mm along x, 58 along y)."""
+    px, py = p.tray_x0 + 45, -p.tray_half_w + 40
+    return [(px + dx, py + dy) for dx in (0, 49) for dy in (0, 58)]
+
+
+def _caster_flange_holes(p: Collector):
+    """The ball caster's two flange holes, relative to the caster's centre."""
+    return [(-p.caster_hole_pitch / 2, 0.0), (p.caster_hole_pitch / 2, 0.0)]
+
+
 def _tray_corners(p: Collector):
     return [(x, y) for x in (p.tray_x0 + 8, p.tray_x1 - 8) for y in (-p.tray_half_w + 8, p.tray_half_w - 8)]
 
@@ -141,8 +152,7 @@ def electronics_tray(p: Collector) -> Part:
             RectangleRounded(p.tray_x1 - p.tray_x0, 2 * p.tray_half_w, 6)
         _holes(_tray_corners(p), 3.4)
         # Raspberry Pi 4/5: M2.5 on 58 x 49 mm.
-        px, py = p.tray_x0 + 45, -p.tray_half_w + 40
-        _holes([(px + dx, py + dy) for dx in (0, 49) for dy in (0, 58)], 2.7)
+        _holes(_pi_holes(p), 2.7)
         # E-stop: 22 mm panel button.
         with Locations((p.tray_x1 - 25, p.tray_half_w - 30)):
             Circle(22.5 / 2, mode=Mode.SUBTRACT)
@@ -474,9 +484,17 @@ def caster_adapter(p: Collector) -> Part:
         for dy in (-20, 20):
             blk = blk - Cylinder(2.2, h + 2).moved(Location((dx, dy, h / 2)))
             blk = blk - Cylinder(4.0, CASTER_CBORE).moved(Location((dx, dy, CASTER_CBORE / 2)))  # head below
+    for dx, dy in _caster_flange_holes(p):   # the caster's own M4s, up into inserts (2026-11-21)
+        blk = blk - _insert_pocket(p, dx, dy, 0, pilot=caster_pilot(p))
     return Part("caster_adapter", "print", "PETG", 1, blk, [Location((p.caster_x, 0, p.caster_height))],
                 notes="Spacer between base and a ball caster. Its four M4s go up through the plate into the mast "
-                      "socket; fit them before the caster. Drill the caster's own pattern clear of their heads.")
+                      "socket; fit them before the caster. The caster's flange screws into two M4 inserts in its "
+                      "underside (caster_hole_pitch).")
+
+
+def caster_pilot(p: Collector) -> float:
+    """Depth of the caster inserts' pocket and pilot from the adapter's underside: 1.5 mm of roof left."""
+    return p.base_z - p.caster_height - 1.5
 
 
 CASTER_CBORE = 4.5   # an M4 socket head is 4 mm tall
@@ -522,6 +540,24 @@ def standoffs(p: Collector) -> Part:
     return Part("standoff", "cots", "", 4, s, locs, spec=f"M3 x {p.standoff_h:g} mm female-female hex standoff")
 
 
+def pi_parts(p: Collector) -> list[Part]:
+    """The Pi's four standoffs on the tray and the board on them (2026-11-21: before, neither was drawn, so the M2.5
+    screws had no stack to be checked against). The board is its bare PCB; its parts stand above it."""
+    tray_top = p.base_top + p.standoff_h + p.tray_t
+    st = Cylinder(2.5, p.pi_standoff_h).moved(Location((0, 0, p.pi_standoff_h / 2)))
+    stands = Part("pi_standoff", "cots", "", 4, st, [Location((x, y, tray_top)) for x, y in _pi_holes(p)],
+                  spec=f"M2.5 x {p.pi_standoff_h:g} mm female-female hex standoff, brass")
+    bx, by = p.pi_board
+    holes = _pi_holes(p)
+    x0, y0 = holes[0][0] - 3.5, holes[0][1] - 3.5
+    pcb = Box(bx, by, p.pi_pcb_t).moved(Location((x0 + bx / 2, y0 + by / 2, p.pi_pcb_t / 2)))
+    for x, y in holes:
+        pcb = pcb - Cylinder(1.375, p.pi_pcb_t + 2).moved(Location((x, y, p.pi_pcb_t / 2)))
+    board = Part("raspberry_pi", "cots", "", 1, pcb, [Location((0, 0, tray_top + p.pi_standoff_h))],
+                 spec="Raspberry Pi 5 (4 GB) or Pi 4", notes="vision + planning; drawn as its bare board")
+    return [stands, board]
+
+
 def envelopes(p: Collector) -> list[Part]:
     """Bought-in parts as simple solids, for collision checks and the assembly view."""
     out = []
@@ -532,9 +568,14 @@ def envelopes(p: Collector) -> list[Part]:
     wheel = Cylinder(p.wheel_d / 2, p.wheel_w).moved(Location((0, 0, 0), ROT_Y_AXIS))
     out.append(Part("wheel", "cots", "", 2, wheel, [Location((0, p.wheel_y, p.axle_z)), Location((0, -p.wheel_y, p.axle_z))],
                     spec=f"{p.wheel_d:g} x {p.wheel_w:g} mm non-marking wheel + 6 mm D-shaft hub"))
-    caster = Cylinder(15, p.caster_height).moved(Location((0, 0, p.caster_height / 2)))
-    out.append(Part("ball_caster", "cots", "", 1, caster, [Location((p.caster_x, 0, 0))],
-                    spec=f"ball caster, {p.caster_height:g} mm mounting height (e.g. 3/4-1 in ball)"))
+    fx, fy, ft = p.caster_flange
+    caster = Cylinder(15, p.caster_height - ft).moved(Location((0, 0, (p.caster_height - ft) / 2)))
+    flange = Box(fx, fy, ft).moved(Location((0, 0, p.caster_height - ft / 2)))
+    for hx, hy in _caster_flange_holes(p):
+        flange = flange - Cylinder(2.2, ft + 2).moved(Location((hx, hy, p.caster_height - ft / 2)))
+    out.append(Part("ball_caster", "cots", "", 1, caster + flange, [Location((p.caster_x, 0, 0))],
+                    spec=f"ball caster, {p.caster_height:g} mm mounting height (e.g. 3/4-1 in ball), two-hole "
+                         f"flange: M4 clearance on {p.caster_hole_pitch:g} mm, {ft:g} mm thick"))
     bearing = (Cylinder(11, 7) - Cylinder(4, 7)).moved(Location((0, 0, 0), ROT_Y_AXIS))
     yo = p.disc_inner_y + p.plate_t              # bearing flush with the disc's outer face, 2 mm proud inside
     out.append(Part("drum_bearing", "cots", "", 2, bearing,
@@ -557,4 +598,4 @@ def envelopes(p: Collector) -> list[Part]:
 def all_parts(p: Collector) -> list[Part]:
     return [base_plate(p), electronics_tray(p), drum_disc(p), clamp_ring(p), *drum_cover(p), yoke_arm(p),
             *motor_clamp(p), pivot_block(p), bump_switch_tower(p), caster_adapter(p), mast_socket(p),
-            rods(p), mast(p), standoffs(p), *envelopes(p), *bump_switch_parts(p)]
+            rods(p), mast(p), standoffs(p), *pi_parts(p), *envelopes(p), *bump_switch_parts(p)]

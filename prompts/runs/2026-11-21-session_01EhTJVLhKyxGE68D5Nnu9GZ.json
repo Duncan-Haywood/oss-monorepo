@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVLhKyxGE68D5Nnu9GZ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T08:06:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/cell-fidelity milestone 7x: nested out-of-fold gate for the corrected ten-cycle forecast",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": 18049,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "first report run failed on an empty control list (keyed on all new rules, only the H rules fill it); fixed and rerun before reading any verdict"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-four-training-pools-cannot-say-when-to-correct-a-battery-forecast.md"
+  ],
+  "goal": null,
+  "notes": "Plan committed before report ran (H344-H348). Controls 0 mismatches (replay of 7w/7v folds; nested rules with m_hat=1 reproduce theta/U on 40 folds). Result: thetaN 17/20 at +1.88 cycles vs theta; H346 supported, H345 refuted, H344/H347/H348 inconclusive. One post-hoc check (q75 gate) disclosed as such. Local checks: tests/test_gate7x.py and test_rule7w.py OK, research homepage build ok, check_posts ok, check_md_links ok.",
+  "corrections": [],
+  "redteam": null
+}

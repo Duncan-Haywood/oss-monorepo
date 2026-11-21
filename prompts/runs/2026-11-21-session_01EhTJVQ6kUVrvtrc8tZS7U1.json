@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01EhTJVQ6kUVrvtrc8tZS7U1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled brief)",
+  "input_sha256": "b984be0c789ab318908f984dafed73ec35ff9bfe22dc84e373312ab5add974dd",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-21T08:04:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots (flagship 10, router Start here): the collector's last two unmeasured fasteners, the Raspberry Pi's M2.5 standoffs and the ball caster's flange screws, drawn and made checked joints",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": 18051,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "buildable is capped at 600 characters; the first replacement naming what landed was 129 over, so landed work has to be stated in a few words and the detail left to cad/README.md"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-21-tennis-collector-pi-standoffs-and-caster-screws.md"
+  ],
+  "goal": "Every fastener on both robots measured against the CAD",
+  "notes": "Collector joints 13 -> 16, all pass (motor clamps to tray standoffs unchanged). Found: the BOM's 'M2.5 x 6 screw + 6 mm standoff' x4 held only one end of four F-F standoffs, and the same screw at both ends would meet inside a through-tapped 6 mm standoff (3 + 4.4 = 7.4 mm). Now M2.5 x 5 up through the tray (2.0 mm in) and M2.5 x 4 through the board (2.4 mm), 1.6 mm between tips. Caster: 'mounting screws, 1, to suit' plus a pattern drilled by eye into PETG became two M4 heat-set inserts on a 38 mm pitch (assumed; params caster_hole_pitch, caster_flange) and M4 x 10 (7.0 mm past a 3 mm flange, 5.7-8.5 allowed), with a rule on the pitch. No clashes; ground contacts 0. Collector package regenerated. Local: collector test classes in cad/tests/test_cad.py run with build123d 0.13.0 in a venv (71 passed; the one failure, test_committed_package_is_current, ran while the package was mid-rebuild and passed on rerun with AssemblyGuideTest: 22 passed).",
+  "corrections": [],
+  "redteam": null
+}
