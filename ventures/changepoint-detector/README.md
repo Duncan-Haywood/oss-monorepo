@@ -8669,3 +8669,75 @@ Next (most useful first): a round whose simulated shop has the design year's tai
 which one makes the default place the climb months back; why a late alert is dated to March (the watch's
 `tolerance` and `holdHistory` on a series whose level moves twice); a deployer's real Stripe series; a shop with
 two shut days.
+
+## A shop shut one weekday, rounds 4 and 5: not the Christmas closure; the real noise only partly, and calm noise is the quietest (2026-11-21, pre-registered twice; round 4 C1, C3, C4 fail, C2 passes; round 5 E1-E4 fail; nothing changes)
+
+Round 3 left two features the simulated shop lacks next to the real UCI Online Retail shop, whose Quiet watch never
+heard the autumn climb: **the real tails** and **the Christmas closure** (2010-12-24 to 2011-01-03, 11 days of 0).
+
+**Before writing the bars** (exploratory, decides nothing): `eval/shop-tails.mjs` reads the design year's trading-day
+log revenue less each weekday's median and a 13-trading-day running median. That gives **sd 0.356, MAD sd 0.263**
+(305 days). Round 3's simulated shops read the same way give sd 0.41-0.50 and MAD sd 0.35-0.37. Round 3's "sd 0.50
+against 0.32" had the weekday pattern left in. Read like for like, the real noise is *narrower* than the simulated
+noise, with about the same tail ratio. It is skewed low (min -1.59, max +1.22).
+
+**Round 4** (`eval/shop-tails-closure.prereg.md`, `eval/shop-tails-closure-sim.mjs`, output
+`eval/shop-tails-closure-sim.out.txt`; seed 20261121). Round 3's shop with x1.9 ramps (R90) and unchanged shops (N),
+100 each. There are two noise families: **sim** (round 3's) and **real** (the design year's residuals drawn in blocks
+of 5). Each shop is replayed as drawn (**D**), with days 23-33 set to 0 before the watch starts (**X**), and with
+those days listed as closed, filled the way `watch.mjs --closed` fills them (**K**). Quiet, `--period 7`.
+
+| bar | result |
+|---|---|
+| C1, the closure deafens: sim X <= D - 20 | X 71, D 72: **fails** |
+| C2, the real noise deafens: real D <= sim D - 20 | 52 against 72: **passes** |
+| C3, both reproduce the real deafness: real X <= 30 | 49: **fails** |
+| C4, the closure dates alerts months back: sim X >= 10 dated-back shops and >= 3x D | 1 against 3: **fails** |
+| C5, `--closed` undoes it | not reached (K 74, false alerts 2.06 and 0.82 per 100 checks) |
+
+On N, the real family sent 0.70 alerts per 100 checks against the sim family's 1.93. The real noise did not only cost
+catches. It made the whole watch quieter.
+
+**Round 5** (`eval/shop-noise-parts.prereg.md`, `eval/shop-noise-parts-sim.mjs`, output
+`eval/shop-noise-parts-sim.out.txt`; fresh seed 20261122) asked which part of the real noise does it. Each family has
+100 N and 100 R90 shops, D only. The families: **real5** (round 4's real), **real1** (residuals drawn one at a time:
+no short-run correlation), **mirror** (every residual negated: the long tail on the high side) and **gauss**
+(`0.356 * N(0,1)`: the real spread, no tails, no wholesale days).
+
+| family | false alerts per 100 checks (N) | x1.9 ramps caught (R90) | median delay |
+|---|---|---|---|
+| sim | 2.02 | 75 | 18 days |
+| real5 | 0.87 | 68 | 23 days |
+| real1 | 0.84 | 62 | 23 days |
+| mirror | 0.54 | 47 | 21 days |
+| gauss | 0.36 | 44 | 26 days |
+
+- **E1 fails** (real5 <= sim - 15: 68 against 75). On fresh shops the real noise costs 7 catches, not 20, so round 4's
+  C2 does not replicate at the size it passed with. Pooled over both rounds it is 120 of 200 against 147 of 200.
+- **E2, E3 and E4 fail.** None of the three changes raised catches by 10. Each one *lowered* them.
+
+What the two rounds show:
+
+- **The Christmas closure is not the cause.** Eleven zero days in the history moved nothing: catches 71 against 72,
+  false alerts 1.93 against 1.93. Listing them with `--closed` was harmless (74; 2.06 per 100 checks).
+- **Quiet's catches on these climbs follow its false-alert rate.** Across the five families, the fewer alerts a noise
+  gives with no change, the fewer x1.9 climbs are heard, and calm Gaussian noise is the worst of all (44 of 100 at
+  0.36 false alerts per 100 checks). A climb to x1.9 over four to eight weeks is large next to noise of sd 0.36. A
+  detector that hears it only 44 times in 100 is mostly not hearing the climb as such. It is set off by single big
+  days on the new, higher level, and noise with fewer big days sets it off less often. This pattern was not a bar. It
+  was read off round 5's table, so it is a hypothesis for the next round, not a result.
+- **So the real shop's deafness is the default's own blind spot for slow climbs, made worse by calm noise.** The real
+  shop's noise is calmer than round 3's simulation. On calm noise the AR(1) level model (`bocpd-ar1-window`) can follow
+  a gradual climb as stickiness instead of calling it a change. That fits round 3's "Middle is deaf to slow climbs" and
+  the drop rule's real-only gains, but it has not been tested.
+
+**Nothing changes.** `--closed` stays as it was. A shop that closes for Christmas loses nothing by listing the dates,
+and nothing here says it needs to.
+
+**Checked:** `shop-tails.test.mjs` (2 tests): the residuals' count, sd, MAD sd and low tail; and on a simulated
+x1.9 climb, an 11-day zero closure before the watch starts leaves the first alert on the same day.
+
+Next (most useful first): a pre-registered round on Gaussian-noise shops (sd 0.2-0.4) comparing Quiet with the
+drift model (`--model drift`) and a slope detector (`slope-breaks.mjs`) on x1.3-x1.9 climbs, to see whether a
+"slow climb" check should run beside the level watch on daily revenue; why the AR(1) pass absorbs a calm climb (its
+rho estimate across the ramp); a deployer's real Stripe series.

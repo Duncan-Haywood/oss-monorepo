@@ -1,0 +1,413 @@
+simN shop 1: D 8, X 8, K 8, XT 7
+simN shop 2: D 2, X 2, K 2, XT 2
+simN shop 3: D 5, X 5, K 5, XT 4
+simN shop 4: D 8, X 8, K 8, XT 7
+simN shop 5: D 10, X 10, K 10, XT 8
+simN shop 6: D 5, X 4, K 5, XT 3
+simN shop 7: D 9, X 9, K 9, XT 6
+simN shop 8: D 3, X 3, K 3, XT 4
+simN shop 9: D 5, X 5, K 5, XT 5
+simN shop 10: D 7, X 7, K 7, XT 7
+simN shop 11: D 8, X 8, K 8, XT 7
+simN shop 12: D 7, X 8, K 9, XT 4
+simN shop 13: D 5, X 5, K 8, XT 4
+simN shop 14: D 6, X 5, K 6, XT 4
+simN shop 15: D 9, X 9, K 10, XT 7
+simN shop 16: D 5, X 5, K 6, XT 3
+simN shop 17: D 3, X 3, K 3, XT 3
+simN shop 18: D 7, X 8, K 7, XT 6
+simN shop 19: D 8, X 8, K 9, XT 8
+simN shop 20: D 3, X 3, K 4, XT 3
+simN shop 21: D 6, X 6, K 7, XT 5
+simN shop 22: D 3, X 4, K 4, XT 3
+simN shop 23: D 8, X 8, K 8, XT 7
+simN shop 24: D 6, X 6, K 8, XT 4
+simN shop 25: D 9, X 9, K 8, XT 8
+simN shop 26: D 5, X 5, K 5, XT 4
+simN shop 27: D 7, X 5, K 7, XT 5
+simN shop 28: D 8, X 9, K 9, XT 8
+simN shop 29: D 12, X 12, K 12, XT 9
+simN shop 30: D 2, X 2, K 2, XT 2
+simN shop 31: D 6, X 6, K 7, XT 2
+simN shop 32: D 2, X 1, K 3, XT 1
+simN shop 33: D 4, X 4, K 4, XT 3
+simN shop 34: D 5, X 5, K 6, XT 5
+simN shop 35: D 6, X 6, K 7, XT 5
+simN shop 36: D 4, X 4, K 4, XT 4
+simN shop 37: D 5, X 5, K 6, XT 2
+simN shop 38: D 7, X 7, K 7, XT 6
+simN shop 39: D 5, X 5, K 4, XT 3
+simN shop 40: D 5, X 6, K 6, XT 5
+simN shop 41: D 6, X 6, K 7, XT 6
+simN shop 42: D 7, X 7, K 7, XT 4
+simN shop 43: D 6, X 6, K 6, XT 5
+simN shop 44: D 4, X 4, K 5, XT 3
+simN shop 45: D 7, X 7, K 8, XT 7
+simN shop 46: D 8, X 8, K 8, XT 8
+simN shop 47: D 7, X 7, K 7, XT 7
+simN shop 48: D 8, X 8, K 8, XT 6
+simN shop 49: D 6, X 5, K 6, XT 4
+simN shop 50: D 7, X 7, K 7, XT 6
+simN shop 51: D 5, X 5, K 5, XT 5
+simN shop 52: D 3, X 3, K 3, XT 2
+simN shop 53: D 6, X 7, K 7, XT 5
+simN shop 54: D 6, X 5, K 7, XT 4
+simN shop 55: D 5, X 5, K 5, XT 5
+simN shop 56: D 9, X 9, K 9, XT 7
+simN shop 57: D 6, X 6, K 7, XT 6
+simN shop 58: D 2, X 3, K 4, XT 2
+simN shop 59: D 4, X 4, K 6, XT 3
+simN shop 60: D 8, X 8, K 8, XT 8
+simN shop 61: D 4, X 4, K 5, XT 2
+simN shop 62: D 3, X 3, K 3, XT 1
+simN shop 63: D 9, X 10, K 10, XT 9
+simN shop 64: D 10, X 10, K 10, XT 9
+simN shop 65: D 8, X 8, K 8, XT 6
+simN shop 66: D 8, X 8, K 8, XT 6
+simN shop 67: D 4, X 4, K 4, XT 3
+simN shop 68: D 6, X 5, K 5, XT 5
+simN shop 69: D 5, X 5, K 6, XT 5
+simN shop 70: D 2, X 3, K 3, XT 2
+simN shop 71: D 6, X 6, K 6, XT 6
+simN shop 72: D 4, X 4, K 4, XT 4
+simN shop 73: D 3, X 3, K 3, XT 2
+simN shop 74: D 4, X 4, K 5, XT 5
+simN shop 75: D 4, X 4, K 4, XT 4
+simN shop 76: D 6, X 6, K 6, XT 6
+simN shop 77: D 4, X 5, K 4, XT 4
+simN shop 78: D 6, X 6, K 6, XT 4
+simN shop 79: D 5, X 5, K 4, XT 3
+simN shop 80: D 5, X 6, K 7, XT 6
+simN shop 81: D 7, X 6, K 6, XT 6
+simN shop 82: D 3, X 3, K 4, XT 3
+simN shop 83: D 5, X 6, K 5, XT 3
+simN shop 84: D 3, X 3, K 3, XT 2
+simN shop 85: D 7, X 7, K 8, XT 7
+simN shop 86: D 4, X 3, K 4, XT 4
+simN shop 87: D 4, X 4, K 4, XT 4
+simN shop 88: D 5, X 5, K 4, XT 4
+simN shop 89: D 4, X 4, K 4, XT 5
+simN shop 90: D 7, X 6, K 6, XT 5
+simN shop 91: D 8, X 8, K 9, XT 7
+simN shop 92: D 8, X 10, K 8, XT 5
+simN shop 93: D 7, X 6, K 8, XT 5
+simN shop 94: D 5, X 5, K 6, XT 4
+simN shop 95: D 2, X 2, K 3, XT 2
+simN shop 96: D 4, X 4, K 6, XT 4
+simN shop 97: D 8, X 8, K 8, XT 7
+simN shop 98: D 1, X 1, K 2, XT 1
+simN shop 99: D 7, X 7, K 7, XT 6
+simN shop 100: D 9, X 9, K 10, XT 5
+simR90 shop 1: ramp 2024-08-29 over 48 days: D caught (dated 2024-08-25, sent 2024-08-29), X caught (dated 2024-08-25, sent 2024-08-29), K caught (dated 2024-08-25, sent 2024-08-29), XT caught (dated 2024-08-25, sent 2024-08-29)
+simR90 shop 2: ramp 2024-10-07 over 29 days: D missed, X missed, K missed, XT missed
+simR90 shop 3: ramp 2024-09-26 over 55 days: D caught (dated 2024-10-04, sent 2024-10-08), X caught (dated 2024-10-04, sent 2024-10-09), K caught (dated 2024-10-04, sent 2024-10-08), XT caught (dated 2024-10-04, sent 2024-10-09)
+simR90 shop 4: ramp 2024-07-22 over 54 days: D caught (dated 2024-07-25, sent 2024-07-29), X caught (dated 2024-07-25, sent 2024-07-29), K caught (dated 2024-07-25, sent 2024-07-29), XT caught (dated 2024-07-25, sent 2024-07-30)
+simR90 shop 5: ramp 2024-08-07 over 29 days: D caught (dated 2024-08-04, sent 2024-08-08), X caught (dated 2024-08-05, sent 2024-08-09), K caught (dated 2024-08-04, sent 2024-08-08), XT caught (dated 2024-08-02, sent 2024-08-08)
+simR90 shop 6: ramp 2024-08-24 over 49 days: D caught (dated 2024-08-21, sent 2024-08-25), X caught (dated 2024-08-21, sent 2024-08-25), K caught (dated 2024-08-21, sent 2024-08-25), XT caught (dated 2024-08-21, sent 2024-08-26)
+simR90 shop 7: ramp 2024-10-12 over 45 days: D missed, X missed, K missed, XT missed
+simR90 shop 8: ramp 2024-08-08 over 28 days: D missed, X missed, K missed, XT missed
+simR90 shop 9: ramp 2024-10-11 over 43 days: D caught (dated 2024-11-07, sent 2024-11-11), X caught (dated 2024-11-07, sent 2024-11-11), K caught (dated 2024-11-07, sent 2024-11-11), XT caught (dated 2024-11-07, sent 2024-11-12)
+simR90 shop 10: ramp 2024-08-14 over 38 days: D missed, X missed, K missed, XT missed
+simR90 shop 11: ramp 2024-08-21 over 28 days: D caught (dated 2024-09-05, sent 2024-09-09), X caught (dated 2024-09-05, sent 2024-09-09), K caught (dated 2024-09-05, sent 2024-09-09), XT caught (dated 2024-09-04, sent 2024-09-10)
+simR90 shop 12: ramp 2024-09-02 over 39 days: D caught (dated 2024-09-04, sent 2024-09-08), X caught (dated 2024-09-04, sent 2024-09-08), K caught (dated 2024-09-04, sent 2024-09-08), XT caught (dated 2024-09-04, sent 2024-09-09)
+simR90 shop 13: ramp 2024-09-11 over 48 days: D caught (dated 2024-10-01, sent 2024-10-05), X caught (dated 2024-10-01, sent 2024-10-05), K caught (dated 2024-10-01, sent 2024-10-05), XT caught (dated 2024-10-01, sent 2024-10-07)
+simR90 shop 14: ramp 2024-10-07 over 44 days: D caught (dated 2024-10-29, sent 2024-11-02), X caught (dated 2024-10-29, sent 2024-11-02), K caught (dated 2024-10-29, sent 2024-11-02), XT caught (dated 2024-10-29, sent 2024-11-03)
+simR90 shop 15: ramp 2024-10-25 over 48 days: D caught (dated 2024-11-04, sent 2024-11-08), X caught (dated 2024-11-04, sent 2024-11-08), K caught (dated 2024-11-04, sent 2024-11-08), XT caught (dated 2024-12-08, sent 2024-12-12)
+simR90 shop 16: ramp 2024-09-25 over 48 days: D missed, X missed, K missed, XT missed
+simR90 shop 17: ramp 2024-10-27 over 50 days: D caught (dated 2024-11-20, sent 2024-11-24), X caught (dated 2024-11-20, sent 2024-11-24), K caught (dated 2024-11-20, sent 2024-11-24), XT caught (dated 2024-11-20, sent 2024-11-25)
+simR90 shop 18: ramp 2024-09-08 over 32 days: D caught (dated 2024-09-28, sent 2024-10-09), X missed, K caught (dated 2024-09-27, sent 2024-10-01), XT missed
+simR90 shop 19: ramp 2024-08-19 over 45 days: D caught (dated 2024-09-05, sent 2024-09-09), X caught (dated 2024-09-05, sent 2024-09-09), K caught (dated 2024-09-05, sent 2024-09-09), XT caught (dated 2024-09-05, sent 2024-09-10)
+simR90 shop 20: ramp 2024-09-22 over 53 days: D caught (dated 2024-10-22, sent 2024-10-26), X caught (dated 2024-10-22, sent 2024-10-26), K caught (dated 2024-10-22, sent 2024-10-26), XT caught (dated 2024-10-22, sent 2024-10-27)
+simR90 shop 21: ramp 2024-09-21 over 37 days: D caught (dated 2024-10-09, sent 2024-10-13), X caught (dated 2024-10-09, sent 2024-10-13), K caught (dated 2024-10-09, sent 2024-10-13), XT caught (dated 2024-10-09, sent 2024-10-14)
+simR90 shop 22: ramp 2024-08-15 over 31 days: D caught (dated 2024-09-08, sent 2024-09-12), X caught (dated 2024-09-08, sent 2024-09-12), K caught (dated 2024-09-08, sent 2024-09-12), XT caught (dated 2024-09-08, sent 2024-09-13)
+simR90 shop 23: ramp 2024-08-31 over 43 days: D caught (dated 2024-10-06, sent 2024-10-10), X caught (dated 2024-10-06, sent 2024-10-10), K caught (dated 2024-08-29, sent 2024-09-03), XT caught (dated 2024-10-06, sent 2024-10-10)
+simR90 shop 24: ramp 2024-08-04 over 46 days: D caught (dated 2024-08-06, sent 2024-08-10), X caught (dated 2024-08-06, sent 2024-08-10), K caught (dated 2024-08-06, sent 2024-08-10), XT caught (dated 2024-08-06, sent 2024-08-11) [dated back: 2024-03-20, sent 2024-09-11]
+simR90 shop 25: ramp 2024-09-14 over 30 days: D caught (dated 2024-09-16, sent 2024-09-20), X caught (dated 2024-09-16, sent 2024-09-20), K caught (dated 2024-09-16, sent 2024-09-20), XT caught (dated 2024-09-16, sent 2024-09-20)
+simR90 shop 26: ramp 2024-09-15 over 50 days: D caught (dated 2024-09-12, sent 2024-09-16), X caught (dated 2024-09-12, sent 2024-09-16), K caught (dated 2024-09-12, sent 2024-09-16), XT caught (dated 2024-09-12, sent 2024-09-17)
+simR90 shop 27: ramp 2024-09-17 over 39 days: D missed, X missed, K missed, XT missed
+simR90 shop 28: ramp 2024-10-22 over 37 days: D caught (dated 2024-11-08, sent 2024-11-12), X caught (dated 2024-11-08, sent 2024-11-12), K caught (dated 2024-11-08, sent 2024-11-12), XT missed
+simR90 shop 29: ramp 2024-09-20 over 37 days: D missed, X missed, K missed, XT missed
+simR90 shop 30: ramp 2024-08-30 over 55 days: D missed, X missed, K missed, XT missed
+simR90 shop 31: ramp 2024-09-12 over 30 days: D caught (dated 2024-09-29, sent 2024-10-03), X caught (dated 2024-09-30, sent 2024-10-04), K caught (dated 2024-09-29, sent 2024-10-03), XT caught (dated 2024-09-26, sent 2024-10-01)
+simR90 shop 32: ramp 2024-08-02 over 28 days: D missed, X missed, K missed, XT missed
+simR90 shop 33: ramp 2024-08-16 over 52 days: D caught (dated 2024-08-23, sent 2024-08-27), X caught (dated 2024-08-23, sent 2024-08-27) [dated back: 2024-04-20, sent 2024-08-17], K caught (dated 2024-08-23, sent 2024-08-27), XT caught (dated 2024-08-23, sent 2024-08-28)
+simR90 shop 34: ramp 2024-10-08 over 53 days: D caught (dated 2024-10-19, sent 2024-10-23), X caught (dated 2024-10-19, sent 2024-10-23), K caught (dated 2024-10-19, sent 2024-10-23), XT caught (dated 2024-10-20, sent 2024-10-24)
+simR90 shop 35: ramp 2024-08-31 over 50 days: D missed, X missed, K missed, XT missed
+simR90 shop 36: ramp 2024-10-08 over 51 days: D caught (dated 2024-10-22, sent 2024-10-26), X caught (dated 2024-10-22, sent 2024-10-26), K caught (dated 2024-10-22, sent 2024-10-26), XT missed
+simR90 shop 37: ramp 2024-08-25 over 30 days: D caught (dated 2024-09-05, sent 2024-09-10), X caught (dated 2024-09-05, sent 2024-09-10), K caught (dated 2024-09-09, sent 2024-09-15), XT caught (dated 2024-09-05, sent 2024-09-10)
+simR90 shop 38: ramp 2024-08-17 over 48 days: D caught (dated 2024-08-15, sent 2024-08-19), X caught (dated 2024-08-15, sent 2024-08-19), K caught (dated 2024-08-15, sent 2024-08-19), XT caught (dated 2024-08-15, sent 2024-08-20)
+simR90 shop 39: ramp 2024-09-24 over 53 days: D caught (dated 2024-10-05, sent 2024-10-09), X caught (dated 2024-10-05, sent 2024-10-09), K caught (dated 2024-09-21, sent 2024-09-25), XT caught (dated 2024-09-19, sent 2024-09-24)
+simR90 shop 40: ramp 2024-10-15 over 38 days: D caught (dated 2024-11-10, sent 2024-11-14), X caught (dated 2024-11-10, sent 2024-11-14), K caught (dated 2024-11-10, sent 2024-11-14), XT caught (dated 2024-11-10, sent 2024-11-14)
+simR90 shop 41: ramp 2024-10-27 over 44 days: D caught (dated 2024-11-11, sent 2024-11-15), X caught (dated 2024-11-11, sent 2024-11-15), K caught (dated 2024-11-14, sent 2024-11-18), XT caught (dated 2024-11-11, sent 2024-11-15)
+simR90 shop 42: ramp 2024-07-20 over 48 days: D caught (dated 2024-07-23, sent 2024-07-27), X caught (dated 2024-07-23, sent 2024-07-27), K caught (dated 2024-07-23, sent 2024-07-27), XT caught (dated 2024-07-23, sent 2024-07-28)
+simR90 shop 43: ramp 2024-07-22 over 40 days: D caught (dated 2024-08-07, sent 2024-08-11), X caught (dated 2024-08-07, sent 2024-08-11), K caught (dated 2024-08-04, sent 2024-08-11), XT caught (dated 2024-08-07, sent 2024-08-12)
+simR90 shop 44: ramp 2024-09-17 over 54 days: D caught (dated 2024-10-13, sent 2024-10-17), X caught (dated 2024-10-13, sent 2024-10-17), K caught (dated 2024-10-13, sent 2024-10-17), XT caught (dated 2024-10-13, sent 2024-10-17)
+simR90 shop 45: ramp 2024-09-24 over 56 days: D caught (dated 2024-10-24, sent 2024-10-29), X caught (dated 2024-10-24, sent 2024-10-29), K caught (dated 2024-10-24, sent 2024-10-28), XT caught (dated 2024-10-24, sent 2024-11-05)
+simR90 shop 46: ramp 2024-07-20 over 35 days: D caught (dated 2024-08-20, sent 2024-08-24), X caught (dated 2024-08-22, sent 2024-08-26), K caught (dated 2024-08-22, sent 2024-08-26), XT caught (dated 2024-08-22, sent 2024-08-27)
+simR90 shop 47: ramp 2024-09-07 over 50 days: D caught (dated 2024-09-14, sent 2024-09-19), X caught (dated 2024-09-13, sent 2024-09-19), K caught (dated 2024-09-13, sent 2024-09-19), XT caught (dated 2024-09-13, sent 2024-09-20)
+simR90 shop 48: ramp 2024-09-01 over 33 days: D missed, X missed, K missed, XT missed
+simR90 shop 49: ramp 2024-09-26 over 31 days: D missed, X missed, K missed, XT missed
+simR90 shop 50: ramp 2024-08-14 over 38 days: D missed, X missed, K missed, XT missed
+simR90 shop 51: ramp 2024-08-23 over 38 days: D missed, X missed, K missed, XT missed
+simR90 shop 52: ramp 2024-07-22 over 33 days: D caught (dated 2024-08-08, sent 2024-08-12), X caught (dated 2024-08-08, sent 2024-08-12), K caught (dated 2024-08-08, sent 2024-08-12), XT caught (dated 2024-08-08, sent 2024-08-13)
+simR90 shop 53: ramp 2024-08-15 over 54 days: D caught (dated 2024-08-26, sent 2024-08-30), X caught (dated 2024-09-13, sent 2024-09-17), K caught (dated 2024-08-26, sent 2024-08-30), XT caught (dated 2024-09-19, sent 2024-09-24)
+simR90 shop 54: ramp 2024-08-02 over 45 days: D caught (dated 2024-08-14, sent 2024-08-18), X caught (dated 2024-08-14, sent 2024-08-18), K caught (dated 2024-08-14, sent 2024-08-18), XT caught (dated 2024-08-14, sent 2024-08-19)
+simR90 shop 55: ramp 2024-08-19 over 32 days: D caught (dated 2024-09-15, sent 2024-09-19), X caught (dated 2024-09-13, sent 2024-09-19), K caught (dated 2024-09-15, sent 2024-09-19), XT caught (dated 2024-09-13, sent 2024-09-18)
+simR90 shop 56: ramp 2024-09-24 over 47 days: D missed, X missed, K missed, XT missed
+simR90 shop 57: ramp 2024-10-05 over 28 days: D caught (dated 2024-10-17, sent 2024-10-22), X caught (dated 2024-10-17, sent 2024-10-22), K caught (dated 2024-10-17, sent 2024-10-22), XT caught (dated 2024-10-17, sent 2024-10-22)
+simR90 shop 58: ramp 2024-07-31 over 47 days: D missed, X missed, K missed, XT missed
+simR90 shop 59: ramp 2024-10-25 over 29 days: D caught (dated 2024-11-07, sent 2024-11-11), X caught (dated 2024-11-07, sent 2024-11-11), K caught (dated 2024-11-07, sent 2024-11-11), XT caught (dated 2024-11-07, sent 2024-11-12)
+simR90 shop 60: ramp 2024-09-25 over 56 days: D missed, X missed, K caught (dated 2024-10-30, sent 2024-11-11), XT missed
+simR90 shop 61: ramp 2024-10-11 over 47 days: D missed, X missed, K missed, XT missed
+simR90 shop 62: ramp 2024-07-21 over 32 days: D caught (dated 2024-08-12, sent 2024-08-16) [dated back: 2024-05-16, sent 2024-10-18], X caught (dated 2024-08-12, sent 2024-08-16), K caught (dated 2024-08-12, sent 2024-08-16), XT caught (dated 2024-08-12, sent 2024-08-16)
+simR90 shop 63: ramp 2024-08-31 over 39 days: D missed [dated back: 2024-05-02, sent 2024-09-15], X missed, K missed, XT caught (dated 2024-09-18, sent 2024-09-24)
+simR90 shop 64: ramp 2024-07-27 over 29 days: D caught (dated 2024-07-29, sent 2024-08-02), X caught (dated 2024-07-29, sent 2024-08-02), K caught (dated 2024-07-29, sent 2024-08-02), XT caught (dated 2024-07-29, sent 2024-08-04)
+simR90 shop 65: ramp 2024-10-25 over 40 days: D caught (dated 2024-10-22, sent 2024-10-26), X caught (dated 2024-10-22, sent 2024-10-26), K caught (dated 2024-10-22, sent 2024-10-26), XT caught (dated 2024-10-22, sent 2024-10-27)
+simR90 shop 66: ramp 2024-08-15 over 32 days: D caught (dated 2024-09-08, sent 2024-09-12), X caught (dated 2024-09-08, sent 2024-09-14), K caught (dated 2024-09-08, sent 2024-09-14), XT missed
+simR90 shop 67: ramp 2024-09-28 over 43 days: D missed, X missed, K missed, XT missed
+simR90 shop 68: ramp 2024-10-17 over 45 days: D caught (dated 2024-11-09, sent 2024-11-13), X caught (dated 2024-11-09, sent 2024-11-13), K caught (dated 2024-11-09, sent 2024-11-13), XT caught (dated 2024-11-07, sent 2024-11-12)
+simR90 shop 69: ramp 2024-08-12 over 43 days: D caught (dated 2024-08-22, sent 2024-08-26), X caught (dated 2024-08-22, sent 2024-08-26), K caught (dated 2024-08-22, sent 2024-08-26), XT caught (dated 2024-08-22, sent 2024-08-27)
+simR90 shop 70: ramp 2024-10-09 over 34 days: D missed, X missed, K missed, XT missed
+simR90 shop 71: ramp 2024-07-22 over 56 days: D caught (dated 2024-08-02, sent 2024-08-06), X caught (dated 2024-08-02, sent 2024-08-06), K caught (dated 2024-08-02, sent 2024-08-06), XT caught (dated 2024-08-02, sent 2024-08-07)
+simR90 shop 72: ramp 2024-09-09 over 35 days: D missed, X missed, K caught (dated 2024-09-30, sent 2024-10-04), XT missed
+simR90 shop 73: ramp 2024-10-17 over 37 days: D caught (dated 2024-11-18, sent 2024-11-22), X caught (dated 2024-11-18, sent 2024-11-22), K caught (dated 2024-11-18, sent 2024-11-22), XT caught (dated 2024-11-18, sent 2024-11-22)
+simR90 shop 74: ramp 2024-09-12 over 40 days: D caught (dated 2024-09-22, sent 2024-09-26), X caught (dated 2024-09-22, sent 2024-09-26), K caught (dated 2024-09-22, sent 2024-09-26), XT caught (dated 2024-09-22, sent 2024-09-26)
+simR90 shop 75: ramp 2024-09-22 over 49 days: D missed, X missed, K missed, XT missed
+simR90 shop 76: ramp 2024-09-09 over 35 days: D caught (dated 2024-10-09, sent 2024-10-15), X caught (dated 2024-10-09, sent 2024-10-15), K caught (dated 2024-10-09, sent 2024-10-13), XT caught (dated 2024-09-20, sent 2024-09-27)
+simR90 shop 77: ramp 2024-09-30 over 36 days: D caught (dated 2024-10-22, sent 2024-10-26), X caught (dated 2024-10-22, sent 2024-10-26), K caught (dated 2024-10-22, sent 2024-10-26), XT caught (dated 2024-10-22, sent 2024-10-28)
+simR90 shop 78: ramp 2024-08-22 over 28 days: D missed, X missed, K missed, XT missed
+simR90 shop 79: ramp 2024-09-15 over 49 days: D caught (dated 2024-09-19, sent 2024-09-23), X caught (dated 2024-09-19, sent 2024-09-23), K caught (dated 2024-09-19, sent 2024-09-23), XT caught (dated 2024-09-19, sent 2024-09-24)
+simR90 shop 80: ramp 2024-07-26 over 46 days: D caught (dated 2024-08-01, sent 2024-08-05), X caught (dated 2024-08-01, sent 2024-08-05), K caught (dated 2024-08-01, sent 2024-08-05), XT caught (dated 2024-08-01, sent 2024-08-06)
+simR90 shop 81: ramp 2024-08-31 over 36 days: D caught (dated 2024-09-17, sent 2024-09-21), X caught (dated 2024-09-17, sent 2024-09-21), K caught (dated 2024-09-16, sent 2024-09-20), XT caught (dated 2024-09-17, sent 2024-09-22)
+simR90 shop 82: ramp 2024-09-06 over 49 days: D missed, X missed, K missed, XT missed
+simR90 shop 83: ramp 2024-09-25 over 38 days: D caught (dated 2024-10-01, sent 2024-10-05), X caught (dated 2024-10-01, sent 2024-10-05), K caught (dated 2024-10-01, sent 2024-10-05), XT caught (dated 2024-10-01, sent 2024-10-06)
+simR90 shop 84: ramp 2024-08-05 over 30 days: D caught (dated 2024-08-19, sent 2024-08-24), X caught (dated 2024-08-19, sent 2024-08-24), K caught (dated 2024-08-19, sent 2024-08-23), XT caught (dated 2024-08-19, sent 2024-08-26)
+simR90 shop 85: ramp 2024-08-07 over 39 days: D caught (dated 2024-08-13, sent 2024-08-17), X caught (dated 2024-08-13, sent 2024-08-17), K caught (dated 2024-08-13, sent 2024-08-17), XT caught (dated 2024-08-13, sent 2024-08-18)
+simR90 shop 86: ramp 2024-10-02 over 48 days: D caught (dated 2024-10-11, sent 2024-10-15), X caught (dated 2024-10-11, sent 2024-10-15), K caught (dated 2024-10-11, sent 2024-10-15), XT caught (dated 2024-10-11, sent 2024-10-16)
+simR90 shop 87: ramp 2024-10-07 over 53 days: D caught (dated 2024-10-16, sent 2024-10-20), X caught (dated 2024-10-16, sent 2024-10-20), K caught (dated 2024-10-16, sent 2024-10-20), XT caught (dated 2024-10-16, sent 2024-10-21)
+simR90 shop 88: ramp 2024-08-19 over 56 days: D caught (dated 2024-08-27, sent 2024-08-31), X caught (dated 2024-08-27, sent 2024-08-31), K caught (dated 2024-08-27, sent 2024-08-31), XT caught (dated 2024-08-27, sent 2024-09-01)
+simR90 shop 89: ramp 2024-08-26 over 41 days: D caught (dated 2024-09-18, sent 2024-09-23), X caught (dated 2024-09-18, sent 2024-09-23), K caught (dated 2024-09-18, sent 2024-09-23), XT caught (dated 2024-09-18, sent 2024-09-23) [dated back: 2024-03-18, sent 2024-09-04]
+simR90 shop 90: ramp 2024-10-07 over 53 days: D missed, X missed, K missed, XT missed
+simR90 shop 91: ramp 2024-09-16 over 54 days: D caught (dated 2024-10-08, sent 2024-10-12), X caught (dated 2024-10-08, sent 2024-10-12), K caught (dated 2024-10-08, sent 2024-10-12), XT caught (dated 2024-10-08, sent 2024-10-13) [dated back: 2024-06-11, sent 2024-11-14]
+simR90 shop 92: ramp 2024-08-04 over 30 days: D missed, X missed, K missed, XT missed
+simR90 shop 93: ramp 2024-09-01 over 41 days: D caught (dated 2024-09-04, sent 2024-09-08), X caught (dated 2024-09-04, sent 2024-09-08), K caught (dated 2024-09-04, sent 2024-09-08), XT caught (dated 2024-09-04, sent 2024-09-09)
+simR90 shop 94: ramp 2024-10-13 over 29 days: D caught (dated 2024-10-30, sent 2024-11-03), X caught (dated 2024-10-30, sent 2024-11-03), K caught (dated 2024-10-30, sent 2024-11-03), XT caught (dated 2024-10-30, sent 2024-11-04)
+simR90 shop 95: ramp 2024-09-02 over 51 days: D caught (dated 2024-10-22, sent 2024-10-26) [dated back: 2024-06-28, sent 2025-01-03], X caught (dated 2024-10-22, sent 2024-10-26), K caught (dated 2024-10-22, sent 2024-10-26), XT missed [dated back: 2024-06-28, sent 2024-11-05]
+simR90 shop 96: ramp 2024-09-06 over 30 days: D caught (dated 2024-09-13, sent 2024-09-21), X caught (dated 2024-09-13, sent 2024-09-23), K caught (dated 2024-09-13, sent 2024-09-17), XT caught (dated 2024-10-01, sent 2024-10-06)
+simR90 shop 97: ramp 2024-08-16 over 30 days: D caught (dated 2024-08-30, sent 2024-09-03), X caught (dated 2024-08-30, sent 2024-09-03), K caught (dated 2024-08-30, sent 2024-09-03), XT caught (dated 2024-08-30, sent 2024-09-04)
+simR90 shop 98: ramp 2024-08-18 over 45 days: D caught (dated 2024-09-07, sent 2024-09-11), X caught (dated 2024-09-07, sent 2024-09-11), K caught (dated 2024-09-07, sent 2024-09-11), XT caught (dated 2024-09-08, sent 2024-09-12)
+simR90 shop 99: ramp 2024-08-02 over 34 days: D caught (dated 2024-09-02, sent 2024-09-06), X caught (dated 2024-09-02, sent 2024-09-06), K caught (dated 2024-09-02, sent 2024-09-06), XT caught (dated 2024-09-02, sent 2024-09-06)
+simR90 shop 100: ramp 2024-10-21 over 28 days: D missed, X missed, K missed, XT missed
+realN shop 1: D 0, X 1, K 0, XT 0
+realN shop 2: D 3, X 4, K 4, XT 1
+realN shop 3: D 2, X 1, K 2, XT 1
+realN shop 4: D 0, X 0, K 1, XT 0
+realN shop 5: D 2, X 1, K 1, XT 2
+realN shop 6: D 0, X 0, K 0, XT 0
+realN shop 7: D 4, X 4, K 3, XT 3
+realN shop 8: D 1, X 1, K 1, XT 1
+realN shop 9: D 1, X 0, K 0, XT 0
+realN shop 10: D 4, X 4, K 4, XT 3
+realN shop 11: D 3, X 3, K 4, XT 2
+realN shop 12: D 2, X 2, K 2, XT 2
+realN shop 13: D 2, X 2, K 2, XT 2
+realN shop 14: D 1, X 2, K 1, XT 0
+realN shop 15: D 0, X 0, K 1, XT 0
+realN shop 16: D 1, X 1, K 1, XT 0
+realN shop 17: D 0, X 0, K 1, XT 0
+realN shop 18: D 3, X 3, K 4, XT 3
+realN shop 19: D 5, X 5, K 5, XT 3
+realN shop 20: D 4, X 4, K 5, XT 1
+realN shop 21: D 3, X 3, K 4, XT 3
+realN shop 22: D 3, X 3, K 3, XT 2
+realN shop 23: D 0, X 2, K 2, XT 0
+realN shop 24: D 2, X 3, K 3, XT 2
+realN shop 25: D 1, X 1, K 1, XT 1
+realN shop 26: D 2, X 2, K 2, XT 2
+realN shop 27: D 3, X 3, K 2, XT 1
+realN shop 28: D 5, X 5, K 7, XT 4
+realN shop 29: D 2, X 2, K 2, XT 2
+realN shop 30: D 3, X 3, K 3, XT 3
+realN shop 31: D 5, X 4, K 4, XT 3
+realN shop 32: D 1, X 1, K 2, XT 1
+realN shop 33: D 3, X 3, K 3, XT 4
+realN shop 34: D 3, X 3, K 3, XT 1
+realN shop 35: D 0, X 0, K 2, XT 1
+realN shop 36: D 3, X 4, K 3, XT 3
+realN shop 37: D 2, X 1, K 1, XT 0
+realN shop 38: D 4, X 4, K 4, XT 3
+realN shop 39: D 2, X 2, K 2, XT 2
+realN shop 40: D 1, X 2, K 2, XT 0
+realN shop 41: D 2, X 2, K 2, XT 2
+realN shop 42: D 3, X 4, K 5, XT 2
+realN shop 43: D 3, X 3, K 4, XT 3
+realN shop 44: D 0, X 0, K 1, XT 0
+realN shop 45: D 3, X 3, K 3, XT 2
+realN shop 46: D 0, X 0, K 0, XT 0
+realN shop 47: D 3, X 3, K 3, XT 2
+realN shop 48: D 1, X 2, K 2, XT 1
+realN shop 49: D 3, X 3, K 3, XT 2
+realN shop 50: D 2, X 2, K 2, XT 2
+realN shop 51: D 3, X 3, K 3, XT 3
+realN shop 52: D 4, X 4, K 4, XT 3
+realN shop 53: D 2, X 2, K 3, XT 1
+realN shop 54: D 2, X 2, K 3, XT 1
+realN shop 55: D 2, X 2, K 3, XT 2
+realN shop 56: D 1, X 1, K 2, XT 0
+realN shop 57: D 2, X 2, K 2, XT 1
+realN shop 58: D 0, X 2, K 2, XT 0
+realN shop 59: D 6, X 7, K 4, XT 4
+realN shop 60: D 1, X 1, K 1, XT 0
+realN shop 61: D 1, X 1, K 2, XT 1
+realN shop 62: D 2, X 2, K 3, XT 2
+realN shop 63: D 0, X 1, K 0, XT 0
+realN shop 64: D 2, X 2, K 2, XT 0
+realN shop 65: D 3, X 2, K 3, XT 1
+realN shop 66: D 2, X 2, K 2, XT 1
+realN shop 67: D 2, X 2, K 1, XT 1
+realN shop 68: D 0, X 0, K 0, XT 0
+realN shop 69: D 2, X 2, K 1, XT 1
+realN shop 70: D 1, X 1, K 2, XT 1
+realN shop 71: D 2, X 3, K 2, XT 2
+realN shop 72: D 3, X 3, K 3, XT 2
+realN shop 73: D 1, X 3, K 3, XT 2
+realN shop 74: D 1, X 1, K 1, XT 1
+realN shop 75: D 5, X 5, K 6, XT 4
+realN shop 76: D 1, X 1, K 1, XT 1
+realN shop 77: D 3, X 3, K 5, XT 3
+realN shop 78: D 1, X 1, K 1, XT 1
+realN shop 79: D 2, X 2, K 2, XT 0
+realN shop 80: D 3, X 3, K 3, XT 2
+realN shop 81: D 5, X 6, K 5, XT 3
+realN shop 82: D 0, X 0, K 0, XT 0
+realN shop 83: D 3, X 3, K 3, XT 3
+realN shop 84: D 2, X 2, K 2, XT 1
+realN shop 85: D 2, X 3, K 2, XT 1
+realN shop 86: D 4, X 4, K 5, XT 3
+realN shop 87: D 3, X 3, K 3, XT 3
+realN shop 88: D 0, X 1, K 0, XT 0
+realN shop 89: D 4, X 4, K 6, XT 3
+realN shop 90: D 1, X 1, K 1, XT 1
+realN shop 91: D 3, X 3, K 3, XT 3
+realN shop 92: D 1, X 2, K 2, XT 0
+realN shop 93: D 1, X 3, K 2, XT 1
+realN shop 94: D 2, X 3, K 3, XT 1
+realN shop 95: D 0, X 0, K 0, XT 0
+realN shop 96: D 2, X 4, K 3, XT 1
+realN shop 97: D 2, X 2, K 3, XT 2
+realN shop 98: D 2, X 2, K 2, XT 2
+realN shop 99: D 3, X 4, K 4, XT 2
+realN shop 100: D 2, X 2, K 2, XT 2
+realR90 shop 1: ramp 2024-08-13 over 38 days: D missed, X missed, K missed, XT missed
+realR90 shop 2: ramp 2024-09-24 over 46 days: D missed, X missed, K missed, XT missed
+realR90 shop 3: ramp 2024-10-11 over 36 days: D missed, X missed, K missed, XT missed
+realR90 shop 4: ramp 2024-08-18 over 33 days: D missed [dated back: 2024-05-04, sent 2024-08-18], X missed, K missed, XT missed
+realR90 shop 5: ramp 2024-10-17 over 51 days: D missed, X missed, K missed, XT missed
+realR90 shop 6: ramp 2024-09-22 over 42 days: D caught (dated 2024-10-21, sent 2024-10-25), X caught (dated 2024-10-21, sent 2024-10-25), K caught (dated 2024-10-21, sent 2024-10-25), XT caught (dated 2024-09-17, sent 2024-09-22)
+realR90 shop 7: ramp 2024-08-04 over 46 days: D missed, X missed, K missed, XT missed
+realR90 shop 8: ramp 2024-10-10 over 48 days: D missed, X missed, K missed, XT missed
+realR90 shop 9: ramp 2024-08-23 over 45 days: D caught (dated 2024-09-20, sent 2024-09-24), X caught (dated 2024-09-20, sent 2024-09-24), K caught (dated 2024-09-20, sent 2024-09-24), XT caught (dated 2024-09-20, sent 2024-09-25)
+realR90 shop 10: ramp 2024-09-05 over 32 days: D caught (dated 2024-09-25, sent 2024-09-29), X caught (dated 2024-09-25, sent 2024-09-29), K caught (dated 2024-09-25, sent 2024-09-29), XT caught (dated 2024-09-25, sent 2024-09-30)
+realR90 shop 11: ramp 2024-10-23 over 55 days: D caught (dated 2024-11-19, sent 2024-11-23), X caught (dated 2024-11-19, sent 2024-11-24), K caught (dated 2024-11-19, sent 2024-11-23), XT caught (dated 2024-11-19, sent 2024-11-26)
+realR90 shop 12: ramp 2024-08-27 over 34 days: D caught (dated 2024-09-24, sent 2024-09-28), X caught (dated 2024-09-24, sent 2024-09-28), K caught (dated 2024-09-24, sent 2024-09-28), XT caught (dated 2024-09-24, sent 2024-09-29)
+realR90 shop 13: ramp 2024-10-20 over 39 days: D missed [dated back: 2024-03-11, sent 2024-12-08], X missed [dated back: 2024-03-11, sent 2024-12-01], K caught (dated 2024-10-29, sent 2024-11-02), XT missed
+realR90 shop 14: ramp 2024-10-19 over 31 days: D missed, X missed, K missed, XT missed
+realR90 shop 15: ramp 2024-10-07 over 36 days: D caught (dated 2024-10-23, sent 2024-10-27), X caught (dated 2024-10-23, sent 2024-10-27), K caught (dated 2024-10-23, sent 2024-10-27), XT caught (dated 2024-10-23, sent 2024-10-28)
+realR90 shop 16: ramp 2024-08-08 over 40 days: D caught (dated 2024-08-26, sent 2024-08-31), X missed, K caught (dated 2024-08-26, sent 2024-08-30), XT missed
+realR90 shop 17: ramp 2024-08-31 over 48 days: D caught (dated 2024-09-16, sent 2024-09-21), X caught (dated 2024-09-16, sent 2024-09-21), K caught (dated 2024-09-16, sent 2024-09-21), XT caught (dated 2024-09-16, sent 2024-09-22)
+realR90 shop 18: ramp 2024-10-15 over 55 days: D missed, X missed, K missed, XT missed
+realR90 shop 19: ramp 2024-08-01 over 53 days: D missed, X missed, K missed, XT missed
+realR90 shop 20: ramp 2024-10-09 over 50 days: D caught (dated 2024-10-05, sent 2024-10-09), X caught (dated 2024-10-05, sent 2024-10-09), K caught (dated 2024-10-05, sent 2024-10-09), XT caught (dated 2024-10-06, sent 2024-10-10)
+realR90 shop 21: ramp 2024-10-24 over 29 days: D caught (dated 2024-11-13, sent 2024-11-17), X caught (dated 2024-11-13, sent 2024-11-17), K caught (dated 2024-11-13, sent 2024-11-17), XT caught (dated 2024-11-13, sent 2024-11-18)
+realR90 shop 22: ramp 2024-07-22 over 51 days: D missed, X missed, K missed, XT missed
+realR90 shop 23: ramp 2024-09-27 over 28 days: D caught (dated 2024-10-08, sent 2024-10-14), X caught (dated 2024-10-08, sent 2024-10-14), K caught (dated 2024-10-08, sent 2024-10-14), XT caught (dated 2024-10-11, sent 2024-10-16)
+realR90 shop 24: ramp 2024-09-28 over 40 days: D caught (dated 2024-10-27, sent 2024-10-31), X caught (dated 2024-10-27, sent 2024-10-31), K caught (dated 2024-10-27, sent 2024-10-31), XT caught (dated 2024-10-27, sent 2024-10-31)
+realR90 shop 25: ramp 2024-10-10 over 47 days: D missed, X missed, K missed, XT missed
+realR90 shop 26: ramp 2024-08-19 over 55 days: D caught (dated 2024-09-23, sent 2024-09-27), X caught (dated 2024-09-23, sent 2024-09-27), K caught (dated 2024-09-23, sent 2024-09-27), XT caught (dated 2024-09-23, sent 2024-09-27)
+realR90 shop 27: ramp 2024-09-29 over 29 days: D missed, X missed, K missed, XT missed
+realR90 shop 28: ramp 2024-09-03 over 42 days: D missed, X missed, K missed, XT missed
+realR90 shop 29: ramp 2024-10-07 over 55 days: D caught (dated 2024-11-24, sent 2024-11-28), X caught (dated 2024-11-24, sent 2024-11-28), K caught (dated 2024-11-24, sent 2024-11-28), XT caught (dated 2024-11-24, sent 2024-11-28)
+realR90 shop 30: ramp 2024-08-23 over 28 days: D missed, X caught (dated 2024-09-01, sent 2024-09-06), K caught (dated 2024-09-01, sent 2024-09-06), XT missed
+realR90 shop 31: ramp 2024-10-10 over 54 days: D missed, X missed, K missed, XT missed
+realR90 shop 32: ramp 2024-09-04 over 35 days: D missed, X missed, K caught (dated 2024-10-04, sent 2024-10-08), XT missed
+realR90 shop 33: ramp 2024-08-15 over 30 days: D caught (dated 2024-09-01, sent 2024-09-05), X caught (dated 2024-09-01, sent 2024-09-06), K caught (dated 2024-09-01, sent 2024-09-05), XT caught (dated 2024-09-01, sent 2024-09-05)
+realR90 shop 34: ramp 2024-08-25 over 42 days: D caught (dated 2024-09-02, sent 2024-09-06), X caught (dated 2024-09-02, sent 2024-09-06), K caught (dated 2024-09-02, sent 2024-09-06), XT caught (dated 2024-08-29, sent 2024-09-03)
+realR90 shop 35: ramp 2024-07-30 over 34 days: D caught (dated 2024-08-13, sent 2024-08-17), X caught (dated 2024-08-13, sent 2024-08-17), K caught (dated 2024-08-13, sent 2024-08-17), XT caught (dated 2024-08-13, sent 2024-08-18)
+realR90 shop 36: ramp 2024-07-31 over 44 days: D missed, X missed, K missed, XT missed
+realR90 shop 37: ramp 2024-10-08 over 49 days: D caught (dated 2024-11-06, sent 2024-11-10), X caught (dated 2024-11-06, sent 2024-11-10), K caught (dated 2024-11-06, sent 2024-11-10), XT caught (dated 2024-11-06, sent 2024-11-11)
+realR90 shop 38: ramp 2024-08-31 over 30 days: D caught (dated 2024-09-23, sent 2024-09-27), X caught (dated 2024-09-23, sent 2024-09-27), K caught (dated 2024-09-23, sent 2024-09-27), XT caught (dated 2024-09-23, sent 2024-09-27)
+realR90 shop 39: ramp 2024-10-06 over 28 days: D caught (dated 2024-10-14, sent 2024-10-18), X caught (dated 2024-10-14, sent 2024-10-18), K caught (dated 2024-10-14, sent 2024-10-18), XT caught (dated 2024-10-14, sent 2024-10-18)
+realR90 shop 40: ramp 2024-09-24 over 40 days: D caught (dated 2024-10-04, sent 2024-10-09), X caught (dated 2024-10-04, sent 2024-10-09), K caught (dated 2024-10-04, sent 2024-10-08), XT caught (dated 2024-10-04, sent 2024-10-09)
+realR90 shop 41: ramp 2024-08-22 over 40 days: D caught (dated 2024-09-15, sent 2024-09-20), X missed, K missed, XT missed
+realR90 shop 42: ramp 2024-09-10 over 37 days: D missed, X missed, K missed, XT missed
+realR90 shop 43: ramp 2024-09-13 over 38 days: D caught (dated 2024-09-30, sent 2024-10-04), X caught (dated 2024-09-30, sent 2024-10-04), K caught (dated 2024-09-30, sent 2024-10-04), XT caught (dated 2024-09-30, sent 2024-10-04)
+realR90 shop 44: ramp 2024-08-27 over 46 days: D caught (dated 2024-09-30, sent 2024-10-04), X missed, K caught (dated 2024-09-30, sent 2024-10-04), XT missed
+realR90 shop 45: ramp 2024-08-12 over 46 days: D caught (dated 2024-09-16, sent 2024-09-20), X caught (dated 2024-09-16, sent 2024-09-20), K caught (dated 2024-09-16, sent 2024-09-20), XT missed
+realR90 shop 46: ramp 2024-09-13 over 51 days: D caught (dated 2024-10-07, sent 2024-10-11), X caught (dated 2024-10-07, sent 2024-10-11), K caught (dated 2024-10-07, sent 2024-10-11), XT caught (dated 2024-10-07, sent 2024-10-11)
+realR90 shop 47: ramp 2024-10-19 over 39 days: D missed, X missed, K missed, XT missed
+realR90 shop 48: ramp 2024-07-23 over 52 days: D caught (dated 2024-08-20, sent 2024-08-24), X caught (dated 2024-08-20, sent 2024-08-24), K caught (dated 2024-08-19, sent 2024-08-23), XT caught (dated 2024-08-20, sent 2024-08-25)
+realR90 shop 49: ramp 2024-07-30 over 44 days: D missed, X missed, K missed, XT missed
+realR90 shop 50: ramp 2024-08-13 over 46 days: D missed, X missed, K missed, XT missed
+realR90 shop 51: ramp 2024-08-25 over 33 days: D caught (dated 2024-09-11, sent 2024-09-15), X caught (dated 2024-09-11, sent 2024-09-16), K caught (dated 2024-09-12, sent 2024-09-16), XT caught (dated 2024-09-20, sent 2024-09-27)
+realR90 shop 52: ramp 2024-07-26 over 56 days: D missed, X missed, K missed, XT missed
+realR90 shop 53: ramp 2024-09-16 over 42 days: D missed, X missed, K caught (dated 2024-10-22, sent 2024-10-30), XT missed
+realR90 shop 54: ramp 2024-09-14 over 51 days: D caught (dated 2024-09-30, sent 2024-10-05), X missed, K missed, XT caught (dated 2024-10-02, sent 2024-10-08)
+realR90 shop 55: ramp 2024-10-10 over 33 days: D caught (dated 2024-11-03, sent 2024-11-07), X caught (dated 2024-11-03, sent 2024-11-07), K caught (dated 2024-11-03, sent 2024-11-07), XT caught (dated 2024-11-03, sent 2024-11-07)
+realR90 shop 56: ramp 2024-09-24 over 30 days: D missed, X missed, K caught (dated 2024-10-18, sent 2024-11-01), XT caught (dated 2024-10-18, sent 2024-10-24)
+realR90 shop 57: ramp 2024-08-12 over 38 days: D missed [dated back: 2024-03-18, sent 2024-10-04], X missed, K missed, XT missed
+realR90 shop 58: ramp 2024-09-29 over 56 days: D missed, X missed, K missed, XT missed
+realR90 shop 59: ramp 2024-10-14 over 42 days: D caught (dated 2024-10-30, sent 2024-11-03), X caught (dated 2024-10-30, sent 2024-11-03), K caught (dated 2024-10-30, sent 2024-11-03), XT caught (dated 2024-10-30, sent 2024-11-04)
+realR90 shop 60: ramp 2024-10-12 over 33 days: D caught (dated 2024-10-18, sent 2024-10-22), X caught (dated 2024-10-18, sent 2024-10-22), K caught (dated 2024-10-18, sent 2024-10-22), XT caught (dated 2024-10-18, sent 2024-10-23)
+realR90 shop 61: ramp 2024-08-24 over 31 days: D missed, X missed, K missed, XT missed
+realR90 shop 62: ramp 2024-10-16 over 44 days: D missed, X missed, K missed, XT missed
+realR90 shop 63: ramp 2024-09-19 over 49 days: D missed [dated back: 2024-06-24, sent 2024-11-02], X missed, K missed, XT missed
+realR90 shop 64: ramp 2024-09-10 over 49 days: D caught (dated 2024-09-16, sent 2024-09-20), X caught (dated 2024-09-13, sent 2024-09-18), K caught (dated 2024-09-13, sent 2024-09-19), XT caught (dated 2024-09-13, sent 2024-09-18)
+realR90 shop 65: ramp 2024-08-10 over 43 days: D missed, X missed, K missed, XT missed
+realR90 shop 66: ramp 2024-09-11 over 52 days: D caught (dated 2024-10-14, sent 2024-10-18), X caught (dated 2024-10-14, sent 2024-10-18), K caught (dated 2024-10-14, sent 2024-10-18), XT caught (dated 2024-10-14, sent 2024-10-20)
+realR90 shop 67: ramp 2024-08-31 over 55 days: D caught (dated 2024-09-24, sent 2024-09-28), X caught (dated 2024-09-24, sent 2024-09-28), K caught (dated 2024-09-24, sent 2024-09-28), XT caught (dated 2024-09-24, sent 2024-09-29)
+realR90 shop 68: ramp 2024-09-07 over 41 days: D missed, X missed, K missed, XT missed
+realR90 shop 69: ramp 2024-10-07 over 34 days: D missed, X missed, K missed, XT caught (dated 2024-10-24, sent 2024-11-03)
+realR90 shop 70: ramp 2024-07-29 over 47 days: D missed, X missed, K missed, XT missed
+realR90 shop 71: ramp 2024-09-23 over 49 days: D caught (dated 2024-11-07, sent 2024-11-12), X caught (dated 2024-11-07, sent 2024-11-12), K caught (dated 2024-11-07, sent 2024-11-12), XT caught (dated 2024-11-07, sent 2024-11-12)
+realR90 shop 72: ramp 2024-08-24 over 35 days: D caught (dated 2024-09-11, sent 2024-09-15), X caught (dated 2024-09-11, sent 2024-09-15), K caught (dated 2024-09-11, sent 2024-09-15), XT caught (dated 2024-09-11, sent 2024-09-16)
+realR90 shop 73: ramp 2024-07-22 over 56 days: D caught (dated 2024-08-12, sent 2024-08-16), X caught (dated 2024-08-12, sent 2024-08-16), K caught (dated 2024-08-12, sent 2024-08-16), XT caught (dated 2024-08-12, sent 2024-08-16)
+realR90 shop 74: ramp 2024-08-06 over 41 days: D missed, X missed, K missed, XT missed
+realR90 shop 75: ramp 2024-08-18 over 53 days: D caught (dated 2024-08-29, sent 2024-09-02), X caught (dated 2024-08-29, sent 2024-09-02), K caught (dated 2024-08-29, sent 2024-09-02), XT caught (dated 2024-08-29, sent 2024-09-03)
+realR90 shop 76: ramp 2024-09-28 over 43 days: D missed, X missed, K missed, XT missed
+realR90 shop 77: ramp 2024-07-28 over 41 days: D caught (dated 2024-08-19, sent 2024-08-23), X caught (dated 2024-08-19, sent 2024-08-23), K caught (dated 2024-08-19, sent 2024-08-23), XT caught (dated 2024-08-19, sent 2024-08-23)
+realR90 shop 78: ramp 2024-09-21 over 41 days: D missed, X missed, K missed, XT missed
+realR90 shop 79: ramp 2024-10-08 over 28 days: D missed, X missed, K missed, XT missed
+realR90 shop 80: ramp 2024-09-17 over 39 days: D caught (dated 2024-09-26, sent 2024-10-01), X caught (dated 2024-09-26, sent 2024-10-01), K caught (dated 2024-09-26, sent 2024-10-01), XT missed
+realR90 shop 81: ramp 2024-10-26 over 32 days: D caught (dated 2024-11-07, sent 2024-11-11), X caught (dated 2024-11-07, sent 2024-11-11), K caught (dated 2024-11-07, sent 2024-11-11), XT caught (dated 2024-11-07, sent 2024-11-12)
+realR90 shop 82: ramp 2024-09-27 over 33 days: D caught (dated 2024-10-11, sent 2024-10-15), X caught (dated 2024-10-11, sent 2024-10-15), K caught (dated 2024-10-11, sent 2024-10-15), XT caught (dated 2024-10-11, sent 2024-10-16)
+realR90 shop 83: ramp 2024-10-26 over 49 days: D missed, X missed, K missed, XT missed
+realR90 shop 84: ramp 2024-09-10 over 55 days: D caught (dated 2024-09-03, sent 2024-09-10), X caught (dated 2024-09-19, sent 2024-09-27), K caught (dated 2024-09-19, sent 2024-09-25), XT missed
+realR90 shop 85: ramp 2024-10-13 over 56 days: D missed, X missed, K missed, XT missed
+realR90 shop 86: ramp 2024-10-24 over 28 days: D caught (dated 2024-11-12, sent 2024-11-16), X caught (dated 2024-11-12, sent 2024-11-16), K caught (dated 2024-11-12, sent 2024-11-16), XT missed
+realR90 shop 87: ramp 2024-08-17 over 55 days: D missed, X missed, K caught (dated 2024-09-10, sent 2024-09-14), XT caught (dated 2024-09-10, sent 2024-09-17)
+realR90 shop 88: ramp 2024-08-26 over 36 days: D missed, X missed, K missed, XT missed
+realR90 shop 89: ramp 2024-08-13 over 47 days: D missed, X missed, K missed, XT missed
+realR90 shop 90: ramp 2024-10-05 over 28 days: D caught (dated 2024-10-06, sent 2024-10-11), X caught (dated 2024-10-06, sent 2024-10-10), K caught (dated 2024-10-30, sent 2024-11-03), XT caught (dated 2024-10-30, sent 2024-11-04)
+realR90 shop 91: ramp 2024-08-04 over 46 days: D caught (dated 2024-08-14, sent 2024-08-19), X caught (dated 2024-08-14, sent 2024-08-19), K caught (dated 2024-08-14, sent 2024-08-18), XT missed
+realR90 shop 92: ramp 2024-09-22 over 39 days: D missed, X missed, K caught (dated 2024-09-30, sent 2024-10-05), XT missed
+realR90 shop 93: ramp 2024-09-04 over 31 days: D caught (dated 2024-09-04, sent 2024-09-09), X caught (dated 2024-09-04, sent 2024-09-10), K caught (dated 2024-09-04, sent 2024-09-10), XT missed
+realR90 shop 94: ramp 2024-09-30 over 38 days: D caught (dated 2024-10-03, sent 2024-10-08), X caught (dated 2024-10-03, sent 2024-10-08), K caught (dated 2024-10-03, sent 2024-10-08), XT caught (dated 2024-10-03, sent 2024-10-08)
+realR90 shop 95: ramp 2024-09-05 over 51 days: D missed, X missed, K missed, XT missed
+realR90 shop 96: ramp 2024-10-03 over 29 days: D missed, X missed, K missed, XT missed
+realR90 shop 97: ramp 2024-08-29 over 33 days: D caught (dated 2024-09-16, sent 2024-09-20), X caught (dated 2024-09-16, sent 2024-09-20), K missed, XT missed
+realR90 shop 98: ramp 2024-08-05 over 45 days: D caught (dated 2024-09-12, sent 2024-09-16), X caught (dated 2024-09-12, sent 2024-09-16), K caught (dated 2024-09-12, sent 2024-09-16), XT caught (dated 2024-09-12, sent 2024-09-17)
+realR90 shop 99: ramp 2024-08-29 over 43 days: D caught (dated 2024-09-15, sent 2024-09-19), X caught (dated 2024-09-15, sent 2024-09-19), K caught (dated 2024-09-15, sent 2024-09-19), XT caught (dated 2024-09-15, sent 2024-09-19)
+realR90 shop 100: ramp 2024-08-22 over 50 days: D missed, X missed, K missed, XT missed
+
+######## Summary ########
+simN (no change): D 572 alerts in 29700 checks (1.93 per 100); X 574 alerts in 29700 checks (1.93 per 100); K 612 alerts in 29700 checks (2.06 per 100); XT 477 alerts in 25400 checks (1.88 per 100)
+realN (no change): D 208 alerts in 29700 checks (0.70 per 100); X 229 alerts in 29700 checks (0.77 per 100); K 243 alerts in 29700 checks (0.82 per 100); XT 151 alerts in 25400 checks (0.59 per 100)
+simR90: D caught 72 (median 18 days), dated back 3; X caught 71 (median 18 days), dated back 1; K caught 74 (median 18 days), dated back 0; XT caught 68 (median 19 days), dated back 4
+realR90: D caught 52 (median 22 days), dated back 4; X caught 49 (median 22 days), dated back 1; K caught 56 (median 22 days), dated back 0; XT caught 45 (median 25 days), dated back 0
+
+######## Bars ########
+C1 (sim: X <= D - 20): X 71, D 72 -> FAIL
+C2 (real D <= sim D - 20): real D 52, sim D 72 -> PASS
+C3 (real X <= 30): 49 -> FAIL
+C4 (sim: X dated back >= 10 and >= 3 x D): X 1, D 3 -> FAIL
+C5 (if C1: sim K >= X + 15; N: K <= 2 per 100 in both): K 74, X 71; N 2.06, 0.82 -> not reached (C1 failed)

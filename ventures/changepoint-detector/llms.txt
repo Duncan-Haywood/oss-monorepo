@@ -47,7 +47,7 @@ One line per feature below; every number, its seeds and the pre-registered round
 - Several metrics: `--columns all` or `--columns orders:poisson,revenue`, one state file, one message a day (README "Several metrics in one watch"). For sensor fleets, label-free floors failed every pre-registered round (README "Round 16", README "Round 17", README "Round 18"); use a hand-set `--min-shift` or `--min-spread` and watch a few chosen metrics.
 - Stripe: `STRIPE_API_KEY=rk_... node ventures/changepoint-detector/stripe-metrics.mjs --out data/stripe.csv` (read-only key, one row per complete day; README "Stripe as a source"). Synthetic shops only so far.
 - Shopify: `SHOPIFY_SHOP=my-store SHOPIFY_ACCESS_TOKEN=shpat_... node ventures/changepoint-detector/shopify-metrics.mjs --out data/shopify.csv` (scope read_orders; README "Shopify as a source"). Days are cut at midnight in the store's own time zone, daylight saving included (`--time-zone <IANA>` overrides; README "Days in the store's own time zone"). Stand-in API only so far.
-- Shops: use `--period 7` for a weekly rhythm and `--closed <dates|@file>` for bank holidays (README "A real shop's daily series", "Steps beside a closure"). Recommend a private repository: the state file records revenue around each change.
+- Shops: use `--period 7` for a weekly rhythm and `--closed <dates|@file>` for bank holidays (README "A real shop's daily series", "Steps beside a closure"). A long closure before the watch starts (11 days at Christmas) did not change alerts in simulation, and listing it is harmless (README "rounds 4 and 5"). Recommend a private repository: the state file records revenue around each change.
 
 ## Measured on labelled benchmarks
 

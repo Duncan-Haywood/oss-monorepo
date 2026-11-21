@@ -193,22 +193,23 @@ flagships:
       its four links tried on a live empty repository) (real shop, README "A real
       shop's daily series": weekly line ships; revenue deaf at Quiet: shut-Saturday
       drop heard it both years, failed sim power (README "A shop shut one weekday");
-      a ramp sim failed (README "round 3": ramps heard 67/100, the drop costs
-      power); next the real tails and Christmas closure in a sim; --closed ships; a
-      recent-days fill failed 2 rounds (README "A closure in the first week after a
-      step": cost ~4/100, pooled); a closure 1-7 days before a step costs ~1/100 and
-      the 2011-09-01 alert was the holiday's zero (README "A closure in the week
-      before a step")); next a provider that documents its own changes. Stale feeds:
-      real carry-forward 84/85 caught but prints 56/56 false; side-adjusted prints
-      fail worse (21/39, README "The trade side"): no price-only fix, the line ends.
-      Counts: count default ships, and is Quiet in --suggest/auto 2026-11-20 (README
-      "The How eager hint for counts"); real shop: new Quiet 2 alerts vs 37 but
-      misses the 2011-09-01 build-up; next a bunched-count ramp cell, real orders.
-      joint drift (measured, not offered). Open: (0) drift model: t-walk increments,
-      biweight on fresh data, why it absorbs seat belts and quality control 4, its
-      AR(1) term; notes quote it. Curvature word ships under --shape-word panel
-      (README "A curvature word"): slope donors straight 73% vs clean 37%, OR 4.74
-      vs 3.37. More open items: NEXT.md.
+      a ramp sim failed (README "round 3"); rounds 4-5 2026-11-21: Christmas closure
+      no effect, calm noise quietest; next a slope check on calm climbs; --closed
+      ships; a recent-days fill failed 2 rounds (README "A closure in the first week
+      after a step": cost ~4/100, pooled); a closure 1-7 days before a step costs
+      ~1/100 and the 2011-09-01 alert was the holiday's zero (README "A closure in
+      the week before a step")); next a provider that documents its own changes.
+      Stale feeds: real carry-forward 84/85 caught but prints 56/56 false;
+      side-adjusted prints fail worse (21/39, README "The trade side"): no
+      price-only fix, the line ends. Counts: count default ships, and is Quiet in
+      --suggest/auto 2026-11-20 (README "The How eager hint for counts"); real shop:
+      new Quiet 2 alerts vs 37 but misses the 2011-09-01 build-up; next a
+      bunched-count ramp cell, real orders. joint drift (measured, not offered).
+      Open: (0) drift model: t-walk increments, biweight on fresh data, why it
+      absorbs seat belts and quality control 4, its AR(1) term; notes quote it.
+      Curvature word ships under --shape-word panel (README "A curvature word"):
+      slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items:
+      NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,

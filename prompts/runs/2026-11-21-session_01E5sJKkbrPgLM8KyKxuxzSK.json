@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-21",
+  "session": "https://claude.ai/code/session_01E5sJKkbrPgLM8KyKxuxzSK",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-21T00:18:17Z",
+  "ended": "2026-11-21T00:47:43Z",
+  "wall_minutes": 29.88,
+  "tokens_in": 5436334,
+  "tokens_out": 36152,
+  "cost_usd": 2.7161,
+  "tool_calls": 46,
+  "task": "changepoint-detector flagship: README round 3's top Next item, the real shop's tails and Christmas closure in a pre-registered simulation",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17997",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "Round 3's 'heavier tails: sd 0.50 against MAD 0.32' was read with the weekday pattern left in; like for like the real noise is narrower than the simulated noise (0.356 vs 0.41-0.50), so the named next item pointed at the wrong suspect. Corrected in the new section."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "A --dry-run of a long replacement proposed moving an item that still holds an open 'next' (the bunched-count ramp cell) to HISTORY.md rather than NEXT.md; I shortened the text instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "why": "Round 3 named only one next round; after round 4's surprise (real noise, not closure) I pre-registered and ran a second round (5) in the same session instead of leaving it to a later run",
+      "did": "wrote eval/shop-noise-parts.prereg.md, committed before running",
+      "result": "E1 failed: round 4's real-noise effect shrank from 20 to 7 catches on fresh seeds; the write-up says round 4's C2 does not replicate at full size"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-21-changepoint-christmas-closure-did-not-deafen-the-shop-watch.md",
+    "ventures/changepoint-detector/README.md (section 'rounds 4 and 5')"
+  ],
+  "goal": null,
+  "notes": "Two pre-registered simulation rounds (400 + 1,000 simulated shops, Quiet replayed). Round 4: closure no effect (C1 fail), real noise costs 20 (C2 pass), C3/C4 fail. Round 5 fresh seed: E1-E4 fail; catches track false-alert rate; Gaussian noise of the real spread is quietest (44/100, 0.36 per 100). Nothing ships to the CLI/page; llms.txt notes a closure is harmless. Verification: node --test shop-tails.test.mjs (2 pass, 3 s); run_venture_tests.py changepoint-detector (see below); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a2bb20b2-c500-53a9-ad18-66ad9436761e",
+    "transcripts": 1,
+    "first": "2026-11-21T00:18:17Z",
+    "last": "2026-11-21T00:48:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 103,
+        "output": 36152,
+        "thinking": 9708,
+        "cache_read": 5320155,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116076,
+        "api_equivalent_usd": 2.7161,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 103,
+      "output": 36152,
+      "thinking": 9708,
+      "cache_read": 5320155,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116076,
+      "api_equivalent_usd": 2.7161,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.88,
+      "active_minutes": 9.24,
+      "model_minutes": 6.5,
+      "tool_minutes": 2.74,
+      "waiting_on_human_minutes": 20.64,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "two pre-registered simulation rounds with scripts, a test and a README write-up, as a statistician would do them",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 368.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
