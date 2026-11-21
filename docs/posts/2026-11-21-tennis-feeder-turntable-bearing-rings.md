@@ -3,7 +3,7 @@ title: "Tennis robots: drawing the turntable bearing's rings showed its nuts had
 seo_title: "Tennis robots: a lazy-susan bearing's screws checked in open CAD"
 date: 2026-11-21
 tags: [open-tennis-robots, cad, hardware]
-description: "The ball feeder's lazy-susan was a solid puck in the CAD. Drawn as two rings, it showed that its eight screws were too short and its nuts could not fit between the rings."
+description: "The ball feeder's lazy-susan was a solid puck in the CAD. Drawn as two rings, it showed its eight screws were too short and its nuts had no room."
 ---
 
 The open tennis robots' ball feeder aims its launcher head on a turntable. The
