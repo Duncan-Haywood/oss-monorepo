@@ -1,0 +1,48 @@
+Swiss pairers on simulated events, 40 seeds per size (same seeds for both).
+floats/rd = boards with unequal scores per round; gap = summed score gap per round;
+abs = boards where both players had an absolute claim on one colour (FIDE forbids);
+strong = both had a strong claim; 3-run / |cd|>2 = players per event ending with three of one colour running / colour gap past 2;
+failed = events where the pairer stopped before the last round; ms = pairing time per round.
+
+players rounds  pairer    failed floats/rd  gap/rd    abs/ev strong/ev 3-run/ev |cd|>2/ev  ms/rd
+      8      5  greedy        0    1.88      1.72    1.95    6.00    1.38     0.68      0.1
+      8      5  matching      0    1.85      1.74    0.00    2.65    0.00     0.00      0.2
+      9      5  greedy        0    1.81      1.25    0.85    4.55    0.72     0.33      0.0
+      9      5  matching      0    1.61      1.13    0.00    1.27    0.00     0.00      0.2
+     12      7  greedy        0    3.08      3.02    3.95   12.45    2.45     0.88      0.0
+     12      7  matching      0    3.10      2.97    0.00    4.90    0.00     0.00      0.3
+     16      7  greedy        0    3.31      2.47    5.88   16.30    3.08     1.65      0.0
+     16      7  matching      0    3.15      2.27    0.00    6.20    0.00     0.00      0.3
+     17      7  greedy        0    2.90      1.89    4.55   15.15    3.08     0.88      0.0
+     17      7  matching      0    2.59      1.66    0.00    3.65    0.00     0.00      0.3
+     24      9  greedy        0    4.34      3.24   14.68   31.50    6.03     3.60      0.1
+     24      9  matching      0    4.10      3.04    0.00   11.85    0.00     0.00      0.4
+     33      9  greedy        0    3.76      2.27   15.15   39.67    7.17     2.83      0.1
+     33      9  matching      0    3.40      2.08    0.00    8.13    0.00     0.00      0.9
+     50      9  greedy        0    4.42      2.56   32.48   64.15   12.82     8.57      0.2
+     50      9  matching      0    3.93      2.33    0.00   19.45    0.00     0.00      1.9
+     64     11  greedy        0    5.36      3.34   52.48   96.75   19.45    11.10      0.3
+     64     11  matching      0    4.57      2.89    0.00   30.05    0.00     0.00      4.1
+    101      9  greedy        0    3.69      1.94   53.02  123.47   23.32    11.60      0.8
+    101      9  matching      0    3.48      1.83    0.00   23.95    0.00     0.00     13.4
+    151     11  greedy        0    4.56      2.42  101.45  220.88   39.67    18.40      1.6
+    151     11  matching      0    4.15      2.25    0.00   44.50    0.00     0.00     37.7
+
+All sizes, totals:
+  greedy   rounds paired 3560, events failed 0, floats 13542, score gap 8798, absolute clashes 11457, strong clashes 25235, three-in-a-row players 4767, |cd|>2 players 2420
+  matching rounds paired 3560, events failed 0, floats 12372, score gap 8105, absolute clashes 0, strong clashes 6264, three-in-a-row players 0, |cd|>2 players 0
+
+Deep events: rounds paired before the pairer stopped (max = n-1 even, n odd), mean over seeds.
+players  max  greedy  matching  greedy-stopped-first  matching-stopped-first
+      6    5    4.70    5.00            6 of 40              0 of 40
+      7    7    6.70    7.00            6 of 40              0 of 40
+      8    7    6.65    7.00            7 of 40              0 of 40
+     10    9    8.70    9.00            6 of 40              0 of 40
+     12   11   10.65   10.95            7 of 40              1 of 40
+     14   13   12.45   12.95           10 of 40              0 of 40
+     16   15   14.80   15.00            4 of 40              0 of 40
+     20   19   18.25   18.85           13 of 40              1 of 40
+
+real	0m27.304s
+user	0m30.065s
+sys	0m0.802s
