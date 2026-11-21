@@ -405,11 +405,11 @@ flagships:
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min).
       Yoke-lift switches (cam lobe, tower, slots) in the CAD 2026-11-21
-      (cad/README.md). Next buildable: a wedge squaring the hopper posts' tops to
-      the shelf; joints the feeder guide leaves unchecked (shoulder bolts, lift
-      screws). Firmware survey tuning is settled on simulated data
-      (firmware/esp32/README.md, NEXT.md): next information there is a real wheel's
-      tach log.
+      (cad/README.md). Hopper post wedges and vertical shelf M5s in the CAD
+      2026-11-21 (cad/README.md). Next buildable: joints the feeder guide leaves
+      unchecked (shoulder bolts, lift screws, launcher motor screws). Firmware
+      survey tuning is settled on simulated data (firmware/esp32/README.md,
+      NEXT.md): next information there is a real wheel's tach log.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

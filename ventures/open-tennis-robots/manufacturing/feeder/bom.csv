@@ -25,7 +25,7 @@ home_switch,cots,1,"Subminiature roller-lever microswitch (D2F-01L3 class), abou
 home_switch_lever,cots,1,"the switch's roller lever (free position), part of home_switch",
 az_stop_block,print,2,PETG,"Azimuth hard stops, one each side, on the mast plate in the gap the gear sector turns in. The sector's end faces meet their pads at +-35 deg (working range +-30, home click -32). Two M4 heat-set inserts from below; screws up through the mast plate. 100% infill. Glue a 5 mm polyurethane pad on the face toward the sector."
 az_stop_pad,cots,2,"Polyurethane sheet, Shore 70A, 5 mm, cut 12 x 6 mm (two); glued to the stop blocks' faces (modulus about 5.5 MPa assumed: check your sheet)",
-hopper_shelf,laser,1,aluminium 5052 5 mm,"Tub shelf, falls 12 deg toward the net so balls roll to the outlet. Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole, the agitator's motor mount under the small hole beside it, the take-up spring's bracket behind the socket."
+hopper_shelf,laser,1,aluminium 5052 5 mm,"Tub shelf, falls 12 deg toward the net so balls roll to the outlet. Posts bolt up through it (vertical M5 into their tapped ends, through oversized holes, a taper washer above and a wedge below), the sleeve socket under the outlet hole, the agitator's motor mount under the small hole beside it, the take-up spring's bracket behind the socket."
 hopper_spigot,print,1,PETG,"Sleeve socket under the shelf's outlet hole: flange on the sloped shelf (M4 heat-set inserts), a vertical cup 102.5 mm across and 40 mm deep for the sleeve's top end. Print flange down, 6 walls."
 feed_hose,stock,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 810 mm",Take-up sleeve's lower end to the column socket (sleeve_take_up_design). Longest chord 1014 mm; bows to 426 mm radius at the closest pose; needs 150. Top end bonded into the take-up collar; a hose clamp at the column socket.
 take_up_sleeve,stock,1,"Rigid round tube, 96 mm bore, about 102 mm OD, cut 300 mm; slot 10 mm wide in the rear wall from the top end down 262 mm","Hangs from the outlet socket, open at the bottom. The hose's collar slides 236 mm in it (free hose 521 to 757 mm over the elevation and azimuth range). Deburr the bore."
@@ -38,8 +38,10 @@ rear_rail,stock,1,"2040 T-slot, cut 900 mm","Cut square, deburr, M5 tap each end
 side_rail,stock,2,"2040 T-slot, cut 660 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
 mast_rail,stock,2,"2040 T-slot, cut 860 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
 mast_post,stock,4,"2040 T-slot, cut 445 mm, M5 tapped both ends",Four posts carry the mast plate.
-hopper_post_rear,stock,2,"2040 T-slot, cut 1874 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Braced by the hopper_brace parts."
-hopper_post_front,stock,2,"2040 T-slot, cut 1819 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Braced by the hopper_brace parts."
+hopper_post_rear,stock,2,"2040 T-slot, cut 1871 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf on a printed post wedge, so the end is cut square. Braced by the hopper_brace parts."
+hopper_post_front,stock,2,"2040 T-slot, cut 1816 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf on a printed post wedge, so the end is cut square. Braced by the hopper_brace parts."
+hopper_post_wedge,print,4,"20 x 40 mm, 3 mm at the net-side edge to 7.25 mm at the rear, 12 deg; two 5.5 mm holes 20 mm apart; 100% infill","Sits on a hopper post's square-cut top, thick edge away from the net, and fills the gap to the sloped shelf over the whole end, so the shelf bears on the post's full 20 x 40 mm and not on one edge. The shelf's two M5s pass through it vertically into the post's core bores."
+hopper_post_washer,print,8,"12 mm OD, 5.5 mm bore, 1.5 to 4.05 mm, 12 deg taper; 100% infill","Under each shelf screw's head, thin side uphill (away from the net): squares the head to the vertical screw on the sloped shelf."
 hopper_brace_x,stock,2,"2020 T-slot, cut 1600 mm, ends mitred to 9 deg","Outside each side pair of posts, rear foot to front head; a 2020 corner bracket or a gusset at each end (M5), tightened before the tub is filled."
 hopper_brace_y,stock,1,"2020 T-slot, cut 1734 mm, ends mitred to 20 deg","Behind the rear posts, left foot to right head, out of the head's swing (the head's rear reaches x = -560 mm at +45 deg). The shelf, bolted to all four posts, holds the front posts' heads to the rear pair in plan, so one brace braces the frame along the net."
 camera_bar,stock,1,"2020 T-slot, cut 800 mm",Stereo cameras mount on this; widen it for more depth accuracy.
@@ -137,7 +139,8 @@ M4 x 12 button head (spring bracket),cots,2,M4 x 12 button head (spring bracket)
 "M4 heat-set insert, 5.7 mm long (spring bracket)",cots,2,"M4 heat-set insert, 5.7 mm long (spring bracket)",take-up spring's bracket
 M4 x 40 socket cap screw + nyloc nut (spring axle),cots,1,M4 x 40 socket cap screw + nyloc nut (spring axle),"take-up spring's spool axle, through both cheeks"
 M3 x 8 pan head screw (spring band),cots,1,M3 x 8 pan head screw (spring band),take-up spring's band end to the collar's tab
-M5 x 16 button head (hopper),cots,16,M5 x 16 button head (hopper),"posts to the deck (from below) and to the shelf, two per end"
+M5 x 16 button head (hopper),cots,8,M5 x 16 button head (hopper),"posts to the deck, from below, two per end"
+M5 x 25 button head (hopper shelf),cots,8,M5 x 25 button head (hopper shelf),"shelf to the posts, vertical through a taper washer, the shelf and a post wedge, two per post"
 2020 corner bracket with M5 screws and T-nuts,cots,6,2020 corner bracket with M5 screws and T-nuts,"hopper braces, two per brace"
 2020 corner bracket with M5 screws and T-nuts (cable crossbar),cots,2,2020 corner bracket with M5 screws and T-nuts (cable crossbar),cable crossbar to the rear mast posts
 M4 x 30 shoulder bolt (5 mm shoulder) + nyloc,cots,2,M4 x 30 shoulder bolt (5 mm shoulder) + nyloc,shuttle drive: shuttle pin (into its insert) and crank pin

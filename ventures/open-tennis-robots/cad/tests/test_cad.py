@@ -1025,16 +1025,55 @@ class FeederGeometryTest(unittest.TestCase):
 
     def test_hopper_posts_stand_on_the_deck_and_meet_the_shelf(self):
         p = self.p
-        for part in (x for x in self.parts if x.name.startswith("hopper_post")):
+        for part in (x for x in self.parts if x.name in ("hopper_post_front", "hopper_post_rear")):
             bb = part.placed()[0].bounding_box()
             self.assertAlmostEqual(bb.min.Z, p.rail_top + p.plate_t, places=3)
-            self.assertAlmostEqual(bb.max.Z, p.shelf_underside_z(part.placed()[0].center().X + 10.0), places=2)
+            self.assertAlmostEqual(bb.max.Z, p.post_top_z(part.placed()[0].center().X), places=2)
         deck = next(x for x in self.parts if x.name == "base_deck")
         xs = {round(x) for x, _ in self.F._shelf_posts(p)}
         self.assertEqual(xs, {round(p.post_rear_x), round(p.post_front_x)})
         for x, y in self.F._shelf_posts(p):
             bb = deck.placed()[0].bounding_box()
             self.assertTrue(bb.min.X < x < bb.max.X and bb.min.Y < y < bb.max.Y, (x, y))
+
+    def test_post_wedges_fill_the_gap_to_the_shelf(self):
+        """2026-11-21: a square-cut post under the 12 deg shelf touched it along one edge (a 4.3 mm gap at the rear)
+        and the shelf's M5s, normal to the plate, met the post's vertical bores 12 deg off. Each wedge now sits on
+        its post's whole top and the shelf on its whole sloped face; each taper washer seats on the shelf."""
+        from build123d import Location
+        from otr_cad import feeder_guide as FG, guide as G
+        p = self.p
+        by = {x.name: x for x in self.parts}
+        shelf = by["hopper_shelf"].placed()[0]
+        posts = by["hopper_post_front"].placed() + by["hopper_post_rear"].placed()
+        face = 20 * 40 - 2 * 3.1416 * 2.75 ** 2                       # the wedge's 5.5 mm holes
+        under_shelf = 20 * 40 - 2 * 3.1416 * (p.shelf_post_hole / 2) ** 2  # the shelf's wider ones
+        for w in by["hopper_post_wedge"].placed():
+            self.assertLess((w & shelf).volume, 1e-3)
+            self.assertAlmostEqual((w.moved(Location((0, 0, 0.2))) & shelf).volume / 0.2, under_shelf,
+                                   delta=under_shelf * 0.01)
+            self.assertAlmostEqual(sum((w.moved(Location((0, 0, -0.2))) & q).volume for q in posts) / 0.2, face,
+                                   delta=face * 0.01)          # the post's box has no core bores
+        seat = 3.1416 * ((p.post_washer_d / 2) ** 2 - (p.shelf_post_hole / 2) ** 2)
+        for u in by["hopper_post_washer"].placed():
+            self.assertLess((u & shelf).volume, 1e-3)
+            self.assertAlmostEqual((u.moved(Location((0, 0, -0.2))) & shelf).volume / 0.2, seat, delta=seat * 0.03)
+        self.assertEqual(p.check_post_wedge(), [])
+        row = next(r for r in G.joint_checks(p, self.parts)[0] if r["joint"] == "shelf to hopper post")
+        self.assertTrue(row["ok"], row)
+        self.assertEqual(row["length_mm"], 25)
+        self.assertAlmostEqual(row["grip_mm"], 13.01, places=1)
+        # each rule fires on a bad value
+        self.assertTrue(Feeder(post_wedge_min_t=2.0).check_post_wedge())
+        self.assertTrue(Feeder(post_washer_min_t=0.8).check_post_wedge())
+        self.assertTrue(Feeder(shelf_post_hole=5.5).check_post_wedge())
+        self.assertTrue(Feeder(post_washer_d=9.0).check_post_wedge())
+        self.assertTrue(Feeder(petg_mu=0.2).check_post_wedge())
+        # the old fastener: an M5 x 16 under this stack leaves 3 mm in the bore
+        import dataclasses
+        js = [dataclasses.replace(j, length=16) for j in FG.joints(p) if j.name == "shelf to hopper post"]
+        with unittest.mock.patch.object(FG, "joints", lambda q: js):
+            self.assertTrue(G.joint_checks(p, self.parts)[1])
 
     def test_hopper_braces_are_sized_and_clear_posts_and_shelf(self):
         from otr_cad.package import clashes
